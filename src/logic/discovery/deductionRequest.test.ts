@@ -61,6 +61,48 @@ describe("T-10 order of evaluation: refusals never depend on what is left", () =
   });
 });
 
+describe("DH4-2B Pre-Implementation Gate: request mutation gaps X5 / X8 / X16 / X15 and preconditions", () => {
+  const base = { family: "attribute" as const, recipeId: "capricciosa", context: ctxAt(24, ALL_INGREDIENT_IDS) };
+  it("X5: a request that is both STALE and unaffordable is STALE (STALE is decided before the balance)", () => {
+    for (const family of ["structure", "attribute"] as const) {
+      expect(requestDeductionHint(input({ ...base, family, expectedPaidCount: 1, pitzBalance: 0 }))).toEqual({ outcome: "REJECTED", reason: "STALE" });
+    }
+  });
+  it("X8: a balance exactly equal to the price is enough; one less is not", () => {
+    expect(requestDeductionHint(input({ ...base, requestPrice: 5, pitzBalance: 5 }))).toMatchObject({ outcome: "ANSWERED", charge: 5 });
+    expect(requestDeductionHint(input({ ...base, requestPrice: 5, pitzBalance: 4 }))).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+    expect(requestDeductionHint(input({ ...base, requestPrice: 0, pitzBalance: 0 }))).toMatchObject({ outcome: "ANSWERED", charge: 0 });
+  });
+  it("X16: a NaN / infinite / non-number balance is refused, even at price 0", () => {
+    for (const bad of [Number.NaN, Infinity, -Infinity, "100" as unknown as number, undefined as unknown as number]) {
+      for (const requestPrice of [0, 5]) {
+        expect(requestDeductionHint(input({ ...base, requestPrice, pitzBalance: bad }))).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+      }
+    }
+  });
+  it("X15: a legacy-only total is owned (never resold) but is not a stored 構成 line; it is the archive flag", () => {
+    const lines = deductionKnownLines("capricciosa", ctxAt(24, ALL_INGREDIENT_IDS), [], { capricciosa: 4 });
+    expect(lines).toEqual({ structure: [], attribute: [], legacyStructure: true });
+    const both = deductionKnownLines("capricciosa", ctxAt(24, ALL_INGREDIENT_IDS), [INGREDIENT_TOTAL_FACT_ID], { capricciosa: 4 });
+    expect(both.structure).toHaveLength(1);
+    expect(both.legacyStructure).toBe(false);
+  });
+  it("an unmakeable recipe (the reserve-owned / DISCOVERABLE precondition) is NOT_A_TARGET before anything else", () => {
+    const reserve = guardedReserveAttributeAnswer("capricciosa", ctxAt(24, ALL_INGREDIENT_IDS)) && RECIPES.find((r) => r.id === "capricciosa")!.requiredIngredients.map((r) => r.ingredientId);
+    for (const missing of reserve || []) {
+      const context = ctxAt(24, ALL_INGREDIENT_IDS.filter((id) => id !== missing));
+      for (const family of ["structure", "attribute"] as const) {
+        expect(requestDeductionHint(input({ family, recipeId: "capricciosa", context, pitzBalance: 0, expectedPaidCount: 3 }))).toEqual({ outcome: "REJECTED", reason: "NOT_A_TARGET" });
+      }
+    }
+  });
+  it("deductionOwnership reads the injected recipe list (legacy mapping), like the rest of the request path", () => {
+    const custom = RECIPES.map((r) => (r.id === "capricciosa" ? { ...r, id: "custom-pizza" as never } : r));
+    expect(deductionOwnership("custom-pizza", [], { "custom-pizza": 4 }).structureTotalOwned).toBe(false);
+    expect(deductionOwnership("custom-pizza", [], { "custom-pizza": 4 }, custom).structureTotalOwned).toBe(true);
+  });
+});
+
 describe("T-11 existence-only (OD-DH4-2-4): charge 0, nothing stored, input untouched", () => {
   it("every state whose guarded answer is existence", () => {
     let seen = 0;
@@ -75,7 +117,7 @@ describe("T-11 existence-only (OD-DH4-2-4): charge 0, nothing stored, input unto
       expect(r).toEqual({ outcome: "EXISTENCE_ONLY", family: "attribute", addFactIds: [], charge: 0 });
       expect(JSON.stringify([stored, legacy])).toBe(snapshot);
     }
-    expect(seen).toBe(144);
+    expect(seen).toBe(123); // DH4-2A: 144; the hardened guard (DH4-2B Pre-Implementation Gate) answers more
   });
   it("a stored attr:existence (hostile save) is not a purchase: the family is still requestable", () => {
     const r = requestDeductionHint(input({ family: "attribute", recipeId: "capricciosa", context: ctxAt(24, ALL_INGREDIENT_IDS), storedFactIds: ["attr:existence"] }));
@@ -107,15 +149,18 @@ describe("T-12 single-shot families and legacy ownership", () => {
     }
   });
   it("a later inventory can add the clause for a total owner (charged once), never the total again", () => {
-    // capricciosa: the clause fails at its ladder step and passes with everything owned.
+    // On the runtime the clause decision of a target no longer moves with the inventory (H only holds
+    // ingredients unlocked no later than the key, and a DISCOVERABLE target already owns them all). A
+    // synthetic recipe keyed on the last ladder material (fontina) shows the rule: with only the
+    // starters and its own ingredients the topping side of H is 1; with everything owned it passes.
+    const ids = ["tomato-sauce", "mozzarella", "fontina", "basil", "ham"];
+    const recipe = { ...RECIPES[1], id: "synthetic-late-key" as never, requiredIngredients: ids.map((ingredientId) => ({ ingredientId, amount: 1 })) as never };
+    const few = [...new Set([...ownedAt(0, LADDER), ...ids])];
     const stored = [INGREDIENT_TOTAL_FACT_ID];
-    expect(requestDeductionHint(input({ family: "structure", recipeId: "capricciosa", context: ctxAt(11), storedFactIds: stored })).outcome).toBe("GUIDANCE_ONLY");
-    expect(requestDeductionHint(input({ family: "structure", recipeId: "capricciosa", context: ctxAt(24, ALL_INGREDIENT_IDS), storedFactIds: stored }))).toEqual({
-      outcome: "ANSWERED",
-      family: "structure",
-      addFactIds: [TOPPING_TOTAL_FACT_ID],
-      charge: 5,
-    });
+    const ask = (owned: readonly string[]) =>
+      requestDeductionHint(input({ family: "structure", recipeId: recipe.id, context: { discoveredCount: 5, ownedIngredientIds: owned }, storedFactIds: stored }), [recipe]);
+    expect(ask(few).outcome).toBe("GUIDANCE_ONLY");
+    expect(ask(ALL_INGREDIENT_IDS)).toEqual({ outcome: "ANSWERED", family: "structure", addFactIds: [TOPPING_TOTAL_FACT_ID], charge: 5 });
   });
   it("legacy 「材料は全部で○種類」 (OD-DH4-8): the total is owned and never resold, for all 25 x H0..H4", () => {
     for (const recipe of RECIPES) {

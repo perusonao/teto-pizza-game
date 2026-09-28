@@ -1,5 +1,5 @@
 {
- "schema": "teto.discovery-hint-4.dh4-2a-audit.v1",
+ "schema": "teto.discovery-hint-4.dh4-2a-audit.v2",
  "summary": {
   "states": 300,
   "dh41NameLeakStates": 29,
@@ -13,15 +13,25 @@
   "guardedNameLeakStates": 0,
   "guardedWithClauseNameLeakStates": 0,
   "guardedLevels": {
+   "existence": 123,
+   "category": 164,
+   "group": 13
+  },
+  "guardBranches": {
+   "strict": 182,
+   "dh41": 118
+  },
+  "toppingClauseAllowedStates": 177,
+  "independentAttackerLeakStates": 0
+ },
+ "dh4_2aReference": {
+  "guardedLevels": {
    "existence": 144,
    "category": 155,
    "group": 1
   },
-  "guardBranches": {
-   "dh41": 26,
-   "strict": 274
-  },
-  "toppingClauseAllowedStates": 156
+  "toppingClauseAllowedStates": 156,
+  "auditCommit": "2f0ffaa"
  },
  "rows": [
   {
@@ -30,11 +40,12 @@
    "ladderStep": 1,
    "dh41Answer": "attr:existence",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
+   "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -46,9 +57,10 @@
    ],
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 3,
-   "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -60,9 +72,10 @@
    ],
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 4,
-   "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -74,9 +87,10 @@
    ],
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 5,
-   "guardedWithClauseInversionCandidates": 5,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -84,11 +98,12 @@
    "ladderStep": 5,
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -97,10 +112,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -109,10 +125,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -121,10 +138,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -133,10 +151,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -145,10 +164,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -157,10 +177,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -169,10 +190,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -181,10 +203,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -193,10 +216,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -205,10 +229,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -217,10 +242,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -229,10 +255,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -241,10 +268,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -253,10 +281,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -265,10 +294,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -277,10 +307,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -289,10 +320,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -301,10 +333,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "bismarck",
@@ -313,10 +346,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 4,
-   "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -328,7 +362,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -338,9 +373,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "dh41",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 3,
-   "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -352,7 +388,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -360,11 +397,12 @@
    "ladderStep": 5,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 5,
-   "guardedWithClauseInversionCandidates": 5,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -372,11 +410,12 @@
    "ladderStep": 6,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 6,
-   "guardedWithClauseInversionCandidates": 6,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -384,11 +423,12 @@
    "ladderStep": 7,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 7,
-   "guardedWithClauseInversionCandidates": 7,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -396,11 +436,12 @@
    "ladderStep": 8,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 8,
-   "guardedWithClauseInversionCandidates": 8,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -408,11 +449,12 @@
    "ladderStep": 9,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 9,
-   "guardedWithClauseInversionCandidates": 9,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -420,11 +462,12 @@
    "ladderStep": 10,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 10,
-   "guardedWithClauseInversionCandidates": 10,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -434,11 +477,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -448,11 +492,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -462,11 +507,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -476,11 +522,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -490,11 +537,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -504,11 +552,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -518,11 +567,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -532,11 +582,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -546,11 +597,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -560,11 +612,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -574,11 +627,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -588,11 +642,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -602,11 +657,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "breakfast-pizza",
@@ -616,11 +672,12 @@
    "dh41NamedReserve": [
     "egg"
    ],
-   "guardBranch": "strict",
+   "guardBranch": "dh41",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -634,7 +691,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 4,
    "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -646,9 +704,10 @@
    ],
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 5,
-   "guardedWithClauseInversionCandidates": 5,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -656,11 +715,12 @@
    "ladderStep": 5,
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -668,11 +728,12 @@
    "ladderStep": 6,
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -680,11 +741,12 @@
    "ladderStep": 7,
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -692,11 +754,12 @@
    "ladderStep": 8,
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -704,11 +767,12 @@
    "ladderStep": 9,
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -717,10 +781,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -729,10 +794,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -741,10 +807,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -753,10 +820,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -765,10 +833,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -777,10 +846,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -789,10 +859,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -801,10 +872,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -813,10 +885,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -825,10 +898,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -837,10 +911,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -849,10 +924,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -861,10 +937,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -873,10 +950,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "funghi",
@@ -885,10 +963,11 @@
    "dh41Answer": "attr:category:cheese",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 4,
    "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "melanzane-pizza",
@@ -900,7 +979,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 4,
    "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "melanzane-pizza",
@@ -908,1697 +988,1837 @@
    "ladderStep": 5,
    "dh41Answer": "attr:category:topping",
    "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 6,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 7,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 8,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 9,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 10,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 11,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 12,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 13,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 14,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 15,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 16,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 17,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 18,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 19,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 20,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 21,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 22,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 23,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "targetIndex": 4,
+   "ladderStep": 24,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 5,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 6,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 7,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 8,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 9,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 10,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 11,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 12,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 13,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 14,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 15,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 16,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 17,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 18,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 19,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 20,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 21,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 22,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 23,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "targetIndex": 5,
+   "ladderStep": 24,
+   "dh41Answer": "attr:family:herb",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 4,
+   "guardedWithClauseInversionCandidates": 4,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 6,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 7,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 8,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 9,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 10,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 11,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 12,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 13,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 14,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 15,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 16,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 17,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 18,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 19,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 20,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 21,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 22,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 23,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pepperoni",
+   "targetIndex": 6,
+   "ladderStep": 24,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 7,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 8,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 9,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 10,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 11,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 12,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 13,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 14,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 15,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 16,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 17,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 18,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 19,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 20,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 21,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 22,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 23,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "salsiccia",
+   "targetIndex": 7,
+   "ladderStep": 24,
+   "dh41Answer": "attr:category:cheese",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:cheese",
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 8,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 9,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 10,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 11,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 12,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 13,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 14,
+   "dh41Answer": "attr:category:topping",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 15,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": null,
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 16,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 17,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 18,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 19,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 20,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 21,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 22,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 23,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "meat-lovers",
+   "targetIndex": 8,
+   "ladderStep": 24,
+   "dh41Answer": "attr:group:protein",
+   "dh41NamedReserve": [
+    "sausage"
+   ],
+   "guardBranch": "dh41",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 3,
+   "guardedWithClauseInversionCandidates": 3,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 9,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 10,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 11,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 12,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 13,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 14,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 15,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 16,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 17,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 18,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 19,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 20,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 21,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 22,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 23,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "bambino",
+   "targetIndex": 9,
+   "ladderStep": 24,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 10,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 11,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 12,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 13,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 14,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 15,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 16,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 17,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 18,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 19,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 20,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 21,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 22,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 23,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "hawaiian",
+   "targetIndex": 10,
+   "ladderStep": 24,
+   "dh41Answer": "attr:family:meat",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 10,
+   "guardedWithClauseInversionCandidates": 10,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 11,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 12,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 13,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 14,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 15,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 16,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 17,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 18,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 19,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 20,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 21,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 22,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 23,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "capricciosa",
+   "targetIndex": 11,
+   "ladderStep": 24,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:category:topping",
+   "guardedInversionCandidates": 9,
+   "guardedWithClauseInversionCandidates": 9,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "targetIndex": 12,
+   "ladderStep": 12,
+   "dh41Answer": "attr:family:vegetable",
+   "dh41NamedReserve": null,
+   "guardBranch": "strict",
+   "guardedAnswer": "attr:group:produce",
    "guardedInversionCandidates": 5,
    "guardedWithClauseInversionCandidates": 5,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 6,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 6,
-   "guardedWithClauseInversionCandidates": 6,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 7,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 7,
-   "guardedWithClauseInversionCandidates": 7,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 8,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 8,
-   "guardedWithClauseInversionCandidates": 8,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 9,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 9,
-   "guardedWithClauseInversionCandidates": 9,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 10,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 10,
-   "guardedWithClauseInversionCandidates": 10,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 11,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 12,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 13,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 14,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 15,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 16,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 17,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 18,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 19,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 20,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 21,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 22,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 23,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "melanzane-pizza",
-   "targetIndex": 4,
-   "ladderStep": 24,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 5,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 4,
-   "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 6,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 3,
-   "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 7,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 3,
-   "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 8,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 3,
-   "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 9,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 10,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 9,
-   "guardedWithClauseInversionCandidates": 9,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 11,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 12,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 13,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 14,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 15,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 16,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 17,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 18,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 19,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 20,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 21,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 22,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 23,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "parmigiana-pizza",
-   "targetIndex": 5,
-   "ladderStep": 24,
-   "dh41Answer": "attr:family:herb",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 6,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 7,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 8,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 9,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 10,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 11,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 12,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 13,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 14,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 15,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 16,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 17,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 18,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 19,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 20,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 21,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 22,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 23,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pepperoni",
-   "targetIndex": 6,
-   "ladderStep": 24,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 4,
-   "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 7,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 8,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 9,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "dh41",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 10,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 11,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 12,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 13,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 14,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 15,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 16,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 17,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 18,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 19,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 20,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 21,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 22,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 23,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 2,
-   "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "salsiccia",
-   "targetIndex": 7,
-   "ladderStep": 24,
-   "dh41Answer": "attr:category:cheese",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 4,
-   "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 8,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 6,
-   "guardedWithClauseInversionCandidates": 6,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 9,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 7,
-   "guardedWithClauseInversionCandidates": 7,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 10,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 8,
-   "guardedWithClauseInversionCandidates": 8,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 11,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 10,
-   "guardedWithClauseInversionCandidates": 10,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 12,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 13,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 14,
-   "dh41Answer": "attr:category:topping",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 15,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 16,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 17,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 18,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 19,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 20,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 21,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 22,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 23,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "meat-lovers",
-   "targetIndex": 8,
-   "ladderStep": 24,
-   "dh41Answer": "attr:group:protein",
-   "dh41NamedReserve": [
-    "sausage"
-   ],
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 9,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 9,
-   "guardedWithClauseInversionCandidates": 9,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 10,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 10,
-   "guardedWithClauseInversionCandidates": 10,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 11,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 12,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 13,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 14,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 15,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 16,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 17,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 18,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 19,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 20,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 21,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 22,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 23,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "bambino",
-   "targetIndex": 9,
-   "ladderStep": 24,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 10,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 10,
-   "guardedWithClauseInversionCandidates": 10,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 11,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 12,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 13,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 14,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 15,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 16,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 17,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 18,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 19,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 20,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 21,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 22,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 23,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "hawaiian",
-   "targetIndex": 10,
-   "ladderStep": 24,
-   "dh41Answer": "attr:family:meat",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 11,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 10,
-   "guardedWithClauseInversionCandidates": 10,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 12,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 13,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 14,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 15,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 16,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 17,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 18,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 19,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 20,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 21,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 22,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 23,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
-  },
-  {
-   "recipeId": "capricciosa",
-   "targetIndex": 11,
-   "ladderStep": 24,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
-  },
-  {
-   "recipeId": "pizza-portuguesa",
-   "targetIndex": 12,
-   "ladderStep": 12,
-   "dh41Answer": "attr:family:vegetable",
-   "dh41NamedReserve": null,
-   "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2607,10 +2827,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 11,
-   "guardedWithClauseInversionCandidates": 11,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2619,10 +2840,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 12,
-   "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2631,10 +2853,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2643,10 +2866,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2655,10 +2879,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2667,10 +2892,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2679,10 +2905,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2691,10 +2918,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2703,10 +2931,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2715,10 +2944,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2727,10 +2957,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "guardedAnswer": "attr:group:produce",
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-portuguesa",
@@ -2740,9 +2971,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:group:produce",
-   "guardedInversionCandidates": 8,
-   "guardedWithClauseInversionCandidates": 8,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 5,
+   "guardedWithClauseInversionCandidates": 5,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2754,7 +2986,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 12,
    "guardedWithClauseInversionCandidates": 12,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2764,9 +2997,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2776,9 +3010,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2788,9 +3023,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2800,9 +3036,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2812,9 +3049,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2824,9 +3062,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2836,9 +3075,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2848,9 +3088,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2860,9 +3101,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2872,9 +3114,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "fugazza",
@@ -2884,9 +3127,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 12,
+   "guardedWithClauseInversionCandidates": 12,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2895,10 +3139,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 13,
-   "guardedWithClauseInversionCandidates": 13,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2907,10 +3152,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 14,
-   "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2919,10 +3165,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2931,10 +3178,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2943,10 +3191,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
+   "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 16,
    "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2955,10 +3204,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2967,10 +3217,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2979,10 +3230,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -2991,10 +3243,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -3003,10 +3256,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "marinara",
@@ -3015,10 +3269,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3030,7 +3285,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 15,
    "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3040,9 +3296,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3052,9 +3309,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3064,9 +3322,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3076,9 +3335,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3088,9 +3348,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3100,9 +3361,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3112,9 +3374,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3124,9 +3387,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "napoletana",
@@ -3135,10 +3399,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 15,
+   "guardedWithClauseInversionCandidates": 15,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3150,7 +3415,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 16,
    "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3162,7 +3428,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 16,
    "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3172,9 +3439,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3184,9 +3452,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3196,9 +3465,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3208,9 +3478,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3220,9 +3491,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3232,9 +3504,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "tonno-e-cipolla",
@@ -3243,10 +3516,11 @@
    "dh41Answer": "attr:family:vegetable",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 16,
+   "guardedWithClauseInversionCandidates": 16,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3258,7 +3532,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 14,
    "guardedWithClauseInversionCandidates": 14,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3268,9 +3543,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 15,
-   "guardedWithClauseInversionCandidates": 15,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3280,9 +3556,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 16,
-   "guardedWithClauseInversionCandidates": 16,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3292,9 +3569,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 17,
-   "guardedWithClauseInversionCandidates": 17,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3304,9 +3582,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 18,
-   "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3316,9 +3595,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3328,9 +3608,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-tonno",
@@ -3340,9 +3621,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 14,
+   "guardedWithClauseInversionCandidates": 14,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3354,7 +3636,8 @@
    "guardedAnswer": "attr:category:cheese",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3366,7 +3649,8 @@
    "guardedAnswer": "attr:category:cheese",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3378,7 +3662,8 @@
    "guardedAnswer": "attr:category:cheese",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3390,7 +3675,8 @@
    "guardedAnswer": "attr:category:cheese",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3402,7 +3688,8 @@
    "guardedAnswer": "attr:category:cheese",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3414,7 +3701,8 @@
    "guardedAnswer": "attr:category:cheese",
    "guardedInversionCandidates": 2,
    "guardedWithClauseInversionCandidates": 2,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "genovese",
@@ -3424,9 +3712,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:category:cheese",
-   "guardedInversionCandidates": 4,
-   "guardedWithClauseInversionCandidates": 4,
-   "toppingClauseAllowed": true
+   "guardedInversionCandidates": 2,
+   "guardedWithClauseInversionCandidates": 2,
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "new-haven-apizza",
@@ -3438,7 +3727,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 18,
    "guardedWithClauseInversionCandidates": 18,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "new-haven-apizza",
@@ -3448,9 +3738,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 19,
-   "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 18,
+   "guardedWithClauseInversionCandidates": 18,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "new-haven-apizza",
@@ -3460,9 +3751,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 18,
+   "guardedWithClauseInversionCandidates": 18,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "new-haven-apizza",
@@ -3472,9 +3764,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 18,
+   "guardedWithClauseInversionCandidates": 18,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "new-haven-apizza",
@@ -3484,9 +3777,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 18,
+   "guardedWithClauseInversionCandidates": 18,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "new-haven-apizza",
@@ -3495,10 +3789,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 18,
+   "guardedWithClauseInversionCandidates": 18,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-caprese",
@@ -3510,7 +3805,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 19,
    "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-caprese",
@@ -3520,9 +3816,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 20,
-   "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 19,
+   "guardedWithClauseInversionCandidates": 19,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-caprese",
@@ -3532,9 +3829,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 19,
+   "guardedWithClauseInversionCandidates": 19,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-caprese",
@@ -3544,9 +3842,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 19,
+   "guardedWithClauseInversionCandidates": 19,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-caprese",
@@ -3555,10 +3854,11 @@
    "dh41Answer": "attr:family:herb",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 19,
+   "guardedWithClauseInversionCandidates": 19,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-patate",
@@ -3570,7 +3870,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 20,
    "guardedWithClauseInversionCandidates": 20,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-patate",
@@ -3580,9 +3881,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 20,
+   "guardedWithClauseInversionCandidates": 20,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-patate",
@@ -3592,9 +3894,10 @@
    "dh41NamedReserve": null,
    "guardBranch": "strict",
    "guardedAnswer": "attr:existence",
-   "guardedInversionCandidates": 22,
-   "guardedWithClauseInversionCandidates": 22,
-   "toppingClauseAllowed": false
+   "guardedInversionCandidates": 20,
+   "guardedWithClauseInversionCandidates": 20,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pesto-patate",
@@ -3603,10 +3906,11 @@
    "dh41Answer": "attr:family:meat",
    "dh41NamedReserve": null,
    "guardBranch": "strict",
-   "guardedAnswer": "attr:category:topping",
-   "guardedInversionCandidates": 21,
-   "guardedWithClauseInversionCandidates": 21,
-   "toppingClauseAllowed": true
+   "guardedAnswer": "attr:existence",
+   "guardedInversionCandidates": 20,
+   "guardedWithClauseInversionCandidates": 20,
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-bianca",
@@ -3614,11 +3918,12 @@
    "ladderStep": 22,
    "dh41Answer": "attr:category:sauce",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
+   "guardBranch": "strict",
    "guardedAnswer": "attr:category:sauce",
    "guardedInversionCandidates": 3,
    "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-bianca",
@@ -3626,11 +3931,12 @@
    "ladderStep": 23,
    "dh41Answer": "attr:category:sauce",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
+   "guardBranch": "strict",
    "guardedAnswer": "attr:category:sauce",
    "guardedInversionCandidates": 3,
    "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "pizza-bianca",
@@ -3638,11 +3944,12 @@
    "ladderStep": 24,
    "dh41Answer": "attr:category:sauce",
    "dh41NamedReserve": null,
-   "guardBranch": "dh41",
+   "guardBranch": "strict",
    "guardedAnswer": "attr:category:sauce",
    "guardedInversionCandidates": 3,
    "guardedWithClauseInversionCandidates": 3,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "puttanesca-pizza",
@@ -3654,7 +3961,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 19,
    "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "puttanesca-pizza",
@@ -3666,7 +3974,8 @@
    "guardedAnswer": "attr:category:topping",
    "guardedInversionCandidates": 19,
    "guardedWithClauseInversionCandidates": 19,
-   "toppingClauseAllowed": true
+   "toppingClauseAllowed": true,
+   "independentAttackerLeaks": []
   },
   {
    "recipeId": "quattro-formaggi",
@@ -3680,7 +3989,8 @@
    "guardedAnswer": "attr:existence",
    "guardedInversionCandidates": 23,
    "guardedWithClauseInversionCandidates": 23,
-   "toppingClauseAllowed": false
+   "toppingClauseAllowed": false,
+   "independentAttackerLeaks": []
   }
  ]
 }
