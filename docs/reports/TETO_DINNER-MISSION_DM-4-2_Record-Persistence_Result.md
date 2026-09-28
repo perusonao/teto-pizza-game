@@ -244,3 +244,32 @@ O3 が equivalent である理由: 継承される値はすべて関数なので
 | `oxlint` | 0 / 0 |
 | build | success |
 
+## 10. Final Merge Gate（2026-09-28）
+
+- **Fresh state:** PR head は `421a909` のままだった。一方、`origin/main` は `e0e695f` から `c56f4fb`（PR #267 DH4-2B）に進んでいた。
+- **重なり:** #267 も `src/state/persistence.ts` を変更していた（T1a の `ownedIngredientIds` 取得順の不変条件。`mergeOwnedOrder`）。
+  - textual な merge は clean だった。
+  - ただし、DM-4-2 が書き換えた `writeSave` の中の 1 行を #267 が変えている。そのため、main を取り込んで（`0d199e8`）gate を再実行した。
+  - 取り込み後の `writeSave` では、両方の変更が独立に合成されている。
+    - `ownedIngredientIds: mergeOwnedOrder(...)`（#267）
+    - Dinner の key は、保存値への merge で最後に付く（DM-4-2）
+- **`421a909` の E2E の再評価:**
+  - `421a909` の差分は、record の own-property lookup の 3 か所と、その unit test だけ。UI や保存形式には触れていない。
+  - 初回の E2E は `7b41853`（1 つ前の commit）で行っていた。
+  - 今回、main を取り込んだ head で次の E2E を再実行したので、`421a909` のコードも real browser で検証済みになった。
+    - 新しい spec
+    - `save-forward-compat-3-4b`
+    - `dinner-mission`（DM-3R-2 の全件）
+    - 結果: Chromium 390×844 / 360×800 で **28 passed**
+- **Verification（取り込み後）:**
+
+| check | result |
+|---|---|
+| full Vitest | 201 files、**4301 passed / 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | 0 / 0 |
+| build | success |
+| E2E | **28 passed** |
+
+GitHub CI は、push 後の exact head で確認する。
+
