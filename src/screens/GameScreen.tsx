@@ -34,6 +34,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily } from "../components/HintSheet";
 import { hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { renderedPostBakeStep } from "./postBakeView";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
@@ -321,8 +322,13 @@ export function GameScreen({
   // explicitly called out as a *different* concern from PREPARE's tray-overflow problem) keep
   // the exact pre-existing roomy size -- this is a pure PREPARE-only reversion, not a new CSS
   // variant, matching the Fresh Audit's own recommended fix verbatim.
-  const roomyStage =
-    state.phase === "BAKE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT");
+  // Post-W1 Cooking Steps CS-1a: the one POST_BAKE rendering decision (./postBakeView.ts). Layout
+  // sites read `postBakeStepRendered`; CUT-content sites read `isCutStep`. Only CUT is rendered
+  // today, so both equal the old `phase === "POST_BAKE" && makingStep === "CUT"`.
+  const postBakeStep = renderedPostBakeStep(state.phase, state.makingStep);
+  const postBakeStepRendered = postBakeStep !== null;
+  const isCutStep = postBakeStep === "CUT";
+  const roomyStage = state.phase === "BAKE" || postBakeStepRendered;
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
@@ -420,7 +426,7 @@ export function GameScreen({
   const isCookingLayout =
     state.phase === "PREPARE" ||
     state.phase === "BAKE" ||
-    (state.phase === "POST_BAKE" && state.makingStep === "CUT");
+    postBakeStepRendered;
 
   return (
     <div className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}>
@@ -504,15 +510,13 @@ export function GameScreen({
           separate POST_BAKE-only screen with no memory of the steps before it. `postSteps` is
           `["CUT"]` for margherita, `[]` (nothing extra rendered) for every other recipe --
           still fully recipe-aware via `state.cookingProfile`, no new per-recipe branching. */}
-      {(state.phase === "PREPARE" ||
-        state.phase === "BAKE" ||
-        (state.phase === "POST_BAKE" && state.makingStep === "CUT")) && (
+      {(state.phase === "PREPARE" || state.phase === "BAKE" || postBakeStepRendered) && (
         <MakingStepTabs
           steps={activePreBakeSteps}
           postSteps={activePostBakeSteps}
           currentStep={state.makingStep}
           currentPhase={state.phase === "PREPARE" ? "PREPARE" : state.phase === "BAKE" ? "BAKE" : "POST_BAKE"}
-          nextReady={state.phase === "POST_BAKE" ? cutConfirmReady : nextStepReady}
+          nextReady={state.phase === "POST_BAKE" ? isCutStep && cutConfirmReady : nextStepReady}
           onAdvance={onConfirmMakingStep}
         />
       )}
@@ -623,7 +627,7 @@ export function GameScreen({
           row -- same `.order-card`-style component PREPARE already uses, reused verbatim rather
           than inventing a second layout for what is structurally the same "recipe name + short
           instruction" row. */}
-      {state.phase === "POST_BAKE" && state.makingStep === "CUT" && state.dinner === null && (
+      {isCutStep && state.dinner === null && (
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
@@ -638,7 +642,7 @@ export function GameScreen({
         pizza={state.pizza}
         recipe={state.recipe}
         interactive={
-          (state.phase === "PREPARE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT")) &&
+          (state.phase === "PREPARE" || postBakeStepRendered) &&
           !isReferencePopoverOpen &&
           !isGlobalOverlayOpen &&
           !state.dinner?.abandonRequested
@@ -671,7 +675,7 @@ export function GameScreen({
           this screen already follows). Deliberately its own bar, not a relabeled
           `.prepare-bake-bar` -- "やり直す" there discards the *whole pizza* (RESET_PIZZA, PREPARE
           -only), which has no meaning once a round has already left PREPARE/BAKE. */}
-      {state.phase === "POST_BAKE" && state.makingStep === "CUT" && (
+      {isCutStep && (
         <>
           {/* PR-A (Issue #167 §11): both operands were already local consts computed once per
               render (`cutRequiredCount`/`cutConfirmReady`, `:214-215` above;
