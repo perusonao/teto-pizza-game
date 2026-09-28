@@ -102,8 +102,8 @@ const NO_SAUCE_REFERENCE_MISMATCH_REASON =
 const REFERENCE_RECIPE_MISMATCH_REASON = "お手本が別のレシピのものです（採点しません）。";
 const REFERENCE_MALFORMED_REASON = "お手本データの形が正しくありません（採点しません）。";
 
-function isFiniteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
+function isUnitNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
 }
 
 /** Null when `reference` can be scored for `recipe`; otherwise why not. Every production
@@ -114,13 +114,30 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
   if (typeof reference !== "object" || reference === null) return REFERENCE_MALFORMED_REASON;
   if (reference.recipeId !== recipe.id) return REFERENCE_RECIPE_MISMATCH_REASON;
   if (!Array.isArray(reference.pieceGroups)) return REFERENCE_MALFORMED_REASON;
+  // The Reference's nested contents must belong to this recipe too (Codex review on #271): a
+  // matching `recipeId` with another recipe's piece groups or sauce would still be a hybrid score.
+  // A malformed `recipe.requiredIngredients` is the Recipe component's own fail-closed case
+  // (./recipeComponent.ts) -- it is not re-judged here, so its existing result stays unchanged.
+  const requirements: unknown = recipe.requiredIngredients;
+  if (!Array.isArray(requirements)) return null;
+  const required = new Set(
+    requirements.map((r: unknown) => (typeof r === "object" && r !== null ? (r as Record<string, unknown>).ingredientId : undefined)),
+  );
+  for (const group of reference.pieceGroups as readonly unknown[]) {
+    const ingredientId = typeof group === "object" && group !== null ? (group as Record<string, unknown>).ingredientId : undefined;
+    if (typeof ingredientId !== "string") return REFERENCE_MALFORMED_REASON;
+    if (!required.has(ingredientId)) return REFERENCE_RECIPE_MISMATCH_REASON;
+  }
   const sauce: unknown = reference.sauce;
   if (sauce === null) return null;
   if (typeof sauce !== "object" || sauce === undefined) return REFERENCE_MALFORMED_REASON;
   const target = sauce as Record<string, unknown>;
-  if (typeof target.ingredientId !== "string" || !isFiniteNumber(target.quantity) || !isFiniteNumber(target.coverage)) {
+  // `ReferenceSauce.quantity`/`coverage` are normalized 0..1 targets; a finite value outside that
+  // range is corrupted data, never silently clamped into a score.
+  if (typeof target.ingredientId !== "string" || !isUnitNumber(target.quantity) || !isUnitNumber(target.coverage)) {
     return REFERENCE_MALFORMED_REASON;
   }
+  if (!required.has(target.ingredientId)) return REFERENCE_RECIPE_MISMATCH_REASON;
   return null;
 }
 

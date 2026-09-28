@@ -263,6 +263,31 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     }
   });
 
+  it("a Reference whose nested contents belong to another recipe fails closed (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const funghiWithMargheritaId = { ...getReferencePizza("funghi")!, recipeId: "margherita" as const };
+    expect(computeScoringV2(margherita, pizza, { reference: funghiWithMargheritaId }).available).toBe(false);
+    const foreignSauce = { ...getReferencePizza("margherita")!, sauce: { ...getReferencePizza("margherita")!.sauce, ingredientId: "pesto" } };
+    expect(computeScoringV2(margherita, pizza, { reference: foreignSauce }).available).toBe(false);
+    const foreignGroup = { ...SYN_REFERENCE, pieceGroups: [...PIECE_GROUPS, groupOf(TONNO_E_CIPOLLA_REFERENCE, "tuna")] };
+    expect(score(noSaucePizza(), SYN_RECIPE, foreignGroup).result.available).toBe(false);
+  });
+
+  it("an out-of-range sauce target fails closed instead of being clamped into a score (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const ref = getReferencePizza("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    for (const bad of [{ quantity: -1 }, { coverage: 2 }, { quantity: 1.0001 }, { coverage: -0.0001 }]) {
+      const result = computeScoringV2(margherita, pizza, { reference: { ...ref, sauce: { ...ref.sauce, ...bad } } });
+      expect(result.available, JSON.stringify(bad)).toBe(false);
+      expect(result.totalScore).toBeNull();
+    }
+    for (const edge of [{ quantity: 0, coverage: 0 }, { quantity: 1, coverage: 1 }]) {
+      expect(computeScoringV2(margherita, pizza, { reference: { ...ref, sauce: { ...ref.sauce, ...edge } } }).available).toBe(true);
+    }
+  });
+
   it("the synthetic recipe without the seam has no Reference (it is not a production recipe)", () => {
     expect(computeScoringV2(SYN_RECIPE, noSaucePizza()).available).toBe(false);
   });
