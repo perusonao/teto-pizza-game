@@ -177,8 +177,9 @@ export interface PersistentSaveV2 {
    *  the ledgers above: an absent/malformed value reads back as `[]`. A ledger -- merged as a
    *  union, never lowered or removed except by `resetSave` (Full Game Reset). Known ids are kept
    *  once each in first-seen order (at most `MAX_TECHNIQUE_LEDGER_SIZE`); a well-formed id this
-   *  build does not know (a technique a newer build added) is kept in storage by `writeSave`,
-   *  never dropped, and never read by gameplay. Unwired in TQ-1A: nothing writes it yet. */
+   *  build does not know (a technique a newer build added) is kept in storage by `writeSave`
+   *  (after the known ids, within the same `MAX_TECHNIQUE_LEDGER_SIZE` cap -- far above the
+   *  registry's size) and never read by gameplay. Unwired in TQ-1A: nothing writes it yet. */
   discoveredTechniqueIds: string[];
   /** Dinner Mission DM-4-2 (Issue #274): the *parsed* per-mission records
    *  (./dinnerMissionRecordsSave.ts) -- readable records plus the missions whose stored record is
@@ -332,12 +333,6 @@ function sanitizeStarterGrantClaimedRecipeIds(raw: unknown): string[] {
   return Array.from(seen);
 }
 
-/**
- * I4b-2: the Shop entitlement ledger (`unlockedForShopIngredientIds`). Keeps each known,
- * non-starter ingredient id once, in first-seen order -- the order material unlocks happened in.
- * A starter is never listed (always unlimited, never for sale); an unknown id is not returned
- * here but survives in storage through `extractForwardCompatExtras`/`writeSave`.
- */
 /** TQ-1A: known technique ids, once each, first-seen order, capped. Anything else is dropped here
  *  (a well-formed unknown id survives in storage through `extractForwardCompatExtras`). */
 function sanitizeDiscoveredTechniqueIds(raw: unknown): string[] {
@@ -349,6 +344,12 @@ function sanitizeDiscoveredTechniqueIds(raw: unknown): string[] {
   return seen.slice(0, MAX_TECHNIQUE_LEDGER_SIZE);
 }
 
+/**
+ * I4b-2: the Shop entitlement ledger (`unlockedForShopIngredientIds`). Keeps each known,
+ * non-starter ingredient id once, in first-seen order -- the order material unlocks happened in.
+ * A starter is never listed (always unlimited, never for sale); an unknown id is not returned
+ * here but survives in storage through `extractForwardCompatExtras`/`writeSave`.
+ */
 function sanitizeUnlockedForShopIngredientIds(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   const seen = new Set<string>();
