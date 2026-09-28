@@ -5,6 +5,8 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { RECIPES } from "./data/recipes";
+import { guardedReserveAttributeAnswer, structureAnswer } from "./logic/discovery/deductionGuard";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B) through the real App: the Free Cooking 「ヒント」 button
@@ -290,5 +292,95 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(cta(reopened)).toBeEnabled();
     expect(reopened.querySelector(".hint-sheet__guidance")).toBeNull();
     expect(reopened.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(0);
+  });
+  /** DH4 Production Enablement (OD-DH4-PROD-1): 構成 / 特徴 through the real App at 5 / 5. */
+  const familyCta = (dialog: HTMLElement, family: "structure" | "attribute") =>
+    dialog.querySelector<HTMLButtonElement>(`.hint-sheet__card[data-hint-family="${family}"] .hint-sheet__next`)!;
+
+  function expectNoRecipeIdentity(dialog: HTMLElement, where: string) {
+    const text = dialog.textContent ?? "";
+    const attrs = [...dialog.querySelectorAll("*"), dialog].flatMap((el) => [...el.attributes].map((a) => a.value));
+    for (const r of RECIPES) {
+      // 「ベーコン」「たまご」 are ingredient names; no recipe name, description or id may appear.
+      expect(text.includes(r.nameJa), `${where}: name ${r.nameJa}`).toBe(false);
+      expect(text.includes(r.description), `${where}: description`).toBe(false);
+    }
+    for (const v of attrs) expect(v.includes("breakfast-pizza"), `${where}: attribute ${v}`).toBe(false);
+    expect(dialog.querySelectorAll("img")).toHaveLength(0);
+  }
+
+  it("DH4-PROD: 構成 and 特徴 cost 5 each, change the save only by the debit and the fact ledger, and never leak the recipe", async () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(DEX2_SAVE));
+    const user = userEvent.setup();
+    const first = render(<App />);
+    let dialog = await openSheet(user);
+    const before = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    await openPanel(user, dialog);
+    expect(familyCta(dialog, "structure")).toHaveTextContent("たずねる 5 Pitz");
+    expect(familyCta(dialog, "attribute")).toHaveTextContent("たずねる 5 Pitz");
+    expectNoRecipeIdentity(dialog, "panel before any request");
+
+    // 構成: one answer, exactly 5 Pitz, back to the board with the total line.
+    await user.click(familyCta(dialog, "structure"));
+    await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
+    expect(dialog.querySelector('[data-hint-section="structure"]')).toHaveTextContent("このピザは全部で4種類の材料を使うよ");
+    expect(dialog).toHaveTextContent("所持 295 Pitz");
+    expectNoRecipeIdentity(dialog, "after 構成");
+
+    // 特徴: 5 Pitz only when it answers; an existence-only outcome is free.
+    const answer = guardedReserveAttributeAnswer("breakfast-pizza", { discoveredCount: 2, ownedIngredientIds: DEX2_SAVE.ownedIngredientIds })!;
+    await openPanel(user, dialog);
+    expect(familyCta(dialog, "structure")).toHaveTextContent("✓ もらいずみ");
+    await user.click(familyCta(dialog, "attribute"));
+    const expectedPitz = answer.level === "existence" ? 295 : 290;
+    if (answer.level === "existence") {
+      await waitFor(() => expect(dialog).toHaveTextContent("今はまだ、大きな手がかりが見つからなかったよ"));
+    } else {
+      await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
+      expect(dialog.querySelector('[data-hint-section="attribute"]')!.textContent).toMatch(/^特徴まだわかっていない/);
+    }
+    expect(dialog).toHaveTextContent(`所持 ${expectedPitz} Pitz`);
+    expectNoRecipeIdentity(dialog, "after 特徴");
+    await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
+
+    const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    const { pitzBalance, discoveryHintFacts, discoveredTechniqueIds, discoveryHintPurchases, ...rest } = after;
+    expect(pitzBalance).toBe(expectedPitz);
+    expect(discoveredTechniqueIds).toEqual([]);
+    const structure = structureAnswer("breakfast-pizza", { discoveredCount: 2, ownedIngredientIds: DEX2_SAVE.ownedIngredientIds })!;
+    expect(discoveryHintFacts).toEqual({ "breakfast-pizza": [...structure.factIds, ...(answer.level === "existence" ? [] : [answer.factId])] });
+    expect(after.schemaVersion).toBe(2);
+    expect(discoveryHintPurchases).toEqual({});
+    const { pitzBalance: _p, discoveryHintFacts: _f, discoveredTechniqueIds: _t, ...restBefore } = before;
+    void _p;
+    void _f;
+    void _t;
+    expect(rest).toEqual(restBefore);
+    first.unmount();
+
+    // Reload: the lines are back, both families read 「✓ もらいずみ」 (no resale), nothing is charged.
+    render(<App />);
+    dialog = await openSheet(user);
+    expect(dialog.querySelector('[data-hint-section="structure"]')).toHaveTextContent("このピザは全部で4種類の材料を使うよ");
+    expect(dialog).toHaveTextContent(`所持 ${expectedPitz} Pitz`);
+    await openPanel(user, dialog);
+    expect(familyCta(dialog, "structure")).toHaveTextContent("✓ もらいずみ");
+    await user.click(familyCta(dialog, "structure"));
+    expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).pitzBalance).toBe(expectedPitz);
+    expectNoRecipeIdentity(dialog, "after reload");
+  });
+
+  it("DH4-PROD: insufficient Pitz (4) disables 構成 / 特徴 and saves nothing", async () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify({ ...DEX2_SAVE, pitzBalance: 4 }));
+    const user = userEvent.setup();
+    render(<App />);
+    const dialog = await openSheet(user);
+    const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    await user.click(within(dialog).getByRole("button", { name: "ヒントをもらう" }));
+    for (const family of ["structure", "attribute"] as const) {
+      expect(familyCta(dialog, family)).toBeDisabled();
+      await user.click(familyCta(dialog, family));
+    }
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
   });
 });

@@ -259,7 +259,7 @@ const back = () => screen.getByRole("button", { name: /もどる/ });
 
 /** DH4-2C (Issue #253, OD-DH4-2-6..9, audit §10-§15): the U3-C sheet -- the 「わかっていること」 board
  *  with a compact 「ヒントをもらう」 footer, and the transient family panel. */
-describe("HintSheet -- U3-C board (材料 only: the production view, flag off)", () => {
+describe("HintSheet -- U3-C board (材料 only: the flag-off view)", () => {
   it("caption H0, the board with only acquired facts (no 「？」 rows), and a compact footer: 「ヒントをもらう」 (no price) + the Pitz line", () => {
     renderSelectable(selectableView("capricciosa"));
     const dialog = screen.getByRole("dialog", { name: /ヒント/ });
@@ -453,7 +453,7 @@ describe("HintSheet -- U3-C board (材料 only: the production view, flag off)",
   }, 30_000);
 });
 
-describe("HintSheet -- U3-C family cards 構成 / 特徴 (DH4-2B view, E3 flag)", () => {
+describe("HintSheet -- U3-C family cards 構成 / 特徴 (DH4-2B view; production since OD-DH4-PROD-1)", () => {
   it("the panel lists 材料 / 構成 / 特徴 cards; each describes the question only (no availability, level or count)", () => {
     renderSelectable(selectableView("capricciosa", { deduction: {} }));
     // The board footer is the same compact footer as with the flag off.

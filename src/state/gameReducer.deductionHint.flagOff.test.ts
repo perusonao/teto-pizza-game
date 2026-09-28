@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 /**
- * Discovery Hint 4.0 DH4-2B: production parity. A production build has no DEV and no
- * VITE_PREVIEW_MODE, so the E3 flag is off: a 構成 / 特徴 request is a no-op and the sheet carries no
- * deduction part. The flag module is mocked to its production value here.
+ * Discovery Hint 4.0 DH4-2B: flag-off parity. Before OD-DH4-PROD-1 this was the production build;
+ * it is now the one-line rollback (`DEDUCTION_HINTS_ENABLED = false`): a 構成 / 特徴 request is a
+ * no-op and the sheet carries no deduction part, while 材料 is unchanged. The flag is mocked off here.
  */
-vi.mock("../logic/discovery/deductionFlag", () => ({ DEDUCTION_HINTS_ENABLED: false }));
+vi.mock("../logic/discovery/deductionFlag", () => ({ DEDUCTION_HINTS_ENABLED: false, DEDUCTION_HINT_PRICE: { structure: 5, attribute: 5 } }));
 
 const { INGREDIENTS } = await import("../data/ingredients");
 const { EMPTY_DEX, registerScoreToDex } = await import("./dex");
@@ -15,7 +15,7 @@ const { createInitialGameState, gameReducer } = await import("./gameReducer");
 const { ALL_INGREDIENT_IDS: ALL_IDS } = await import("../logic/discovery/testSupport/deductionInversion");
 const FINITE = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
 
-describe("E3 flag off (production)", () => {
+describe("flag off (rollback)", () => {
   it("構成 / 特徴 requests change nothing; 材料 still works; the view has no deduction part", () => {
     const dex = registerScoreToDex(EMPTY_DEX, "margherita", { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex;
     const initial = createInitialGameState(dex, ALL_IDS, 100, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});

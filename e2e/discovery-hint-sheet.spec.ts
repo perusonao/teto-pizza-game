@@ -291,7 +291,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await expectNoUndiscoveredIdentity(page, DEX11, "sheet H0");
     await capture(page, "02-h0");
 
-    // The panel: 材料 / 構成 / 特徴 cards (the E3 flag is on in this DEV build) + 4 材料 preferences.
+    // The panel: 材料 / 構成 / 特徴 cards (on in every build since OD-DH4-PROD-1) + 4 材料 preferences.
     await openPanel(page);
     await expect(sheet(page).locator(".hint-sheet__card")).toHaveCount(3);
     await expect(sheet(page).getByRole("radio")).toHaveCount(4);
@@ -338,6 +338,60 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     expect(await backgroundRects(page)).toEqual(closedLegacy.get("N390"));
     await page.getByRole("button", { name: "次のページ" }).click();
     await capture(page, "05-closed-after");
+  });
+
+  // DH4 Production Enablement (OD-DH4-PROD-1): 構成 5 / 特徴 5 through the real sheet, then the board
+  // with the 材料 / 構成 / 特徴 sections on the same geometry contract, and a reload that keeps them
+  // without selling them again.
+  test("DH4-PROD: 構成 + 特徴 at 5 Pitz each, board sections on every profile, reload keeps them", async ({ page, browserName }) => {
+    const driver = await ProfileDriver.create(page, browserName);
+    await driver.apply(PROFILES.N390);
+    await openWithSave(page, ladderSave(11, { pitz: 100 }));
+    await startFreeCookAtTopping(page);
+    const closed = await closedRects(page, driver, browserName);
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await openPanel(page);
+    const familyCta = (family: string) => sheet(page).locator(`.hint-sheet__card[data-hint-family="${family}"] .hint-sheet__next`);
+    await expect(familyCta("structure")).toHaveText("たずねる 5 Pitz");
+    await expect(familyCta("attribute")).toHaveText("たずねる 5 Pitz");
+    await capture(page, "dh4prod-01-panel");
+
+    await familyCta("structure").click();
+    await expect(sheet(page).locator(".hint-sheet__panel")).toHaveCount(0);
+    await expect(sheet(page).locator('[data-hint-section="structure"]')).toContainText("このピザは全部で6種類の材料を使うよ");
+    await expect(sheet(page)).toContainText("所持 95 Pitz");
+    await capture(page, "dh4prod-02-structure");
+
+    await openPanel(page);
+    await expect(familyCta("structure")).toHaveText("✓ もらいずみ");
+    await expect(familyCta("attribute")).not.toHaveAttribute("aria-disabled", "true");
+    await familyCta("attribute").click();
+    // 特徴 charges only when it answers; an existence-only outcome is free and stays on the panel.
+    const answered = sheet(page).locator('[data-hint-section="attribute"]');
+    const nothingYet = sheet(page).getByText("今はまだ、大きな手がかりが見つからなかったよ", { exact: false });
+    await expect(answered.or(nothingYet)).toBeVisible();
+    const pitz = (await answered.count()) ? 90 : 95;
+    await expect(sheet(page)).toContainText(`所持 ${pitz} Pitz`);
+    if (await sheet(page).locator(".hint-sheet__panel").count()) await sheet(page).getByRole("button", { name: /もどる/ }).click();
+    await checkOpenState(page, driver, browserName, "DH4-PROD board", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "DH4-PROD board");
+    await capture(page, "dh4prod-03-board");
+    await sheet(page).getByRole("button", { name: "閉じる" }).click();
+
+    // Reload: the lines come back from the save; nothing is sold again.
+    await page.reload();
+    await page.waitForSelector(".app-frame");
+    await startFreeCookAtTopping(page);
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(sheet(page).locator('[data-hint-section="structure"]')).toContainText("このピザは全部で6種類の材料を使うよ");
+    await expect(sheet(page)).toContainText(`所持 ${pitz} Pitz`);
+    await openPanel(page);
+    await expect(familyCta("structure")).toHaveText("✓ もらいずみ");
+    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+    expect(saved.pitzBalance).toBe(pitz);
+    expect(saved.discoveryHintFacts.capricciosa).toContain("meta:ingredient-total");
+    expect(saved.schemaVersion).toBe(2);
+    await expectNoUndiscoveredIdentity(page, DEX11, "DH4-PROD reload panel");
   });
 
   for (const [kind, save, text] of [
@@ -423,7 +477,8 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await expect(page.locator(".app-header__pitz")).toContainText("45");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
 
-    // Insufficient: a legacy H3 buyer's next fact (40) with 25 Pitz -> disabled, calm.
+    // Insufficient: a legacy H3 buyer's next fact (40) with 25 Pitz -> disabled, calm. 構成 / 特徴 keep
+    // their fixed 5 (OD-DH4-PROD-1, outside the 材料 ladder), so focus lands on the first open request.
     await openWithSave(page, ladderSave(11, { pitz: 25, purchases: { capricciosa: 3 } }));
     await startFreeCookAtTopping(page);
     const closedShort = await closedRects(page, driver, browserName);
@@ -432,7 +487,9 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await openPanel(page);
     await expect(cta).toBeDisabled();
     await expect(cta).toHaveText("たずねる 40 Pitz");
-    await expect(sheet(page).getByRole("button", { name: /もどる/ })).toBeFocused();
+    const structureCta = sheet(page).locator('.hint-sheet__card[data-hint-family="structure"] .hint-sheet__next');
+    await expect(structureCta).toHaveText("たずねる 5 Pitz");
+    await expect(structureCta).toBeFocused();
     await checkOpenState(page, driver, browserName, "insufficient", closedShort);
     await expectNoUndiscoveredIdentity(page, DEX11, "insufficient");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
