@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
@@ -74,6 +74,9 @@ describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
       expect(document.querySelector(".dex-overlay")).toBeNull();
       expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
       const sheet = screen.getByRole("dialog", { name: /ヒント/ });
+      // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; the 材料 card asks.
+      await user.click(within(sheet).getByRole("button", { name: "ヒントをもらう" }));
+      await waitFor(() => expect(sheet.querySelector(".hint-sheet__next")).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
       await user.click(sheet.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
       // H3-3: the Selectable sheet -- the free key plus the one fact just bought.
       expect(sheet.querySelectorAll(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveLength(2);

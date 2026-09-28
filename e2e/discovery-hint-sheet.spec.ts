@@ -9,7 +9,8 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  *
  * For each state (sheet closed / H1 / H3 / longest H4 / the empty states) and each profile
  * (390×844, 360×800, the short 390×664 / 360×640 and, on Chromium, the three safe-area profiles), checks:
- * no horizontal overflow, the sheet at most 45dvh and inside the viewport, its CTA visible above
+ * no horizontal overflow, the sheet inside the viewport (DH4-2C / OD-DH4-2-7: a near-full-screen sheet
+ * below the top safe area, which supersedes the 45dvh cap of OD-H3-4-7), its CTA visible above
  * the bottom safe-area inset, and the cooking screen underneath (stage, tabs, tray pager, bake
  * bar) at exactly the same place as with the sheet closed. Closing returns focus to 「ヒント」.
  *
@@ -99,7 +100,10 @@ async function backgroundRects(page: Page) {
 async function sheetMetrics(page: Page) {
   return page.evaluate(() => {
     const s = document.querySelector(".hint-sheet")!.getBoundingClientRect();
+    // U3-C: the board's 「ヒントをもらう」 entry, or on the family panel its Pitz line (the last fixed row).
     const cta =
+      document.querySelector(".hint-sheet__entry") ??
+      document.querySelector(".hint-sheet__panel > .hint-sheet__wallet") ??
       document.querySelector(".hint-sheet__next") ??
       document.querySelector(".hint-sheet__done") ??
       document.querySelector(".hint-sheet__empty-body");
@@ -107,6 +111,7 @@ async function sheetMetrics(page: Page) {
     const close = document.querySelector(".hint-sheet__close")!.getBoundingClientRect();
     return {
       scrollWidth: document.documentElement.scrollWidth,
+      u3: document.querySelector(".hint-sheet")!.classList.contains("hint-sheet--u3"),
       sheet: { top: s.top, bottom: s.bottom, left: s.left, right: s.right, height: s.height },
       cta: { top: c.top, bottom: c.bottom },
       close: { top: close.top, bottom: close.bottom },
@@ -129,7 +134,14 @@ async function checkOpenState(page: Page, driver: ProfileDriver, browserName: st
     const m = await sheetMetrics(page);
     const where = `${label} @${profile.id}`;
     expect.soft(m.scrollWidth, `${where}: horizontal overflow`).toBeLessThanOrEqual(vp.innerWidth);
-    expect.soft(m.sheet.height, `${where}: sheet <= 45dvh`).toBeLessThanOrEqual(vp.innerHeight * 0.45 + 1);
+    if (m.u3) {
+      // DH4-2C (OD-DH4-2-7, audit §12): near-full-screen, up to the top safe area + 56px, so the app
+      // header stays visible.
+      expect.soft(m.sheet.top, `${where}: sheet below the top safe area + the app header`).toBeGreaterThanOrEqual(vp.sat + 56 - 0.5);
+    } else {
+      // The TARGET (Dex-0 onboarding) and empty sheets keep the 45dvh cap.
+      expect.soft(m.sheet.height, `${where}: sheet <= 45dvh`).toBeLessThanOrEqual(vp.innerHeight * 0.45 + 1);
+    }
     expect.soft(m.sheet.bottom, `${where}: sheet inside the viewport`).toBeLessThanOrEqual(vp.innerHeight + 0.5);
     expect.soft(m.sheet.left >= -0.5 && m.sheet.right <= vp.innerWidth + 0.5, `${where}: sheet width`).toBe(true);
     expect.soft(m.cta.bottom, `${where}: CTA above the bottom safe area`).toBeLessThanOrEqual(vp.innerHeight - vp.sab + 0.5);
@@ -140,15 +152,40 @@ async function checkOpenState(page: Page, driver: ProfileDriver, browserName: st
     // (inside the sheet and the viewport, >= 44px tall), and a scrollable body shows its cue.
     const sel = await selectableMetrics(page);
     if (sel) {
+      // Every control on the board (「ヒントをもらう」, 閉じる) is >= 44px and reachable.
       for (const pref of sel.prefs) {
-        expect.soft(pref.height, `${where}: preference >= 44px`).toBeGreaterThanOrEqual(44);
-        expect.soft(pref.top >= m.sheet.top && pref.bottom <= vp.innerHeight - vp.sab + 0.5, `${where}: preference reachable`).toBe(true);
+        expect.soft(pref.height, `${where}: control >= 44px`).toBeGreaterThanOrEqual(44);
+        expect.soft(pref.top >= m.sheet.top && pref.bottom <= vp.innerHeight - vp.sab + 0.5, `${where}: control reachable`).toBe(true);
       }
+      // OD-DH4-2-7 capacity (audit §11/§12): the persistent footer is one CTA row + one Pitz line
+      // (compact, <= 80px), and the 「わかっていること」 board keeps a readable height -- CAP-2 >= 150px
+      // even at 360x640 + safe area, and CAP-3 never smaller than the footer + the bottom safe area.
+      expect.soft(sel.footer, `${where}: compact footer`).toBeLessThanOrEqual(80);
+      expect.soft(sel.client, `${where}: board visible height (CAP-2)`).toBeGreaterThanOrEqual(Math.min(150, sel.scroll));
+      expect.soft(sel.client, `${where}: board >= footer + safe area (CAP-3)`).toBeGreaterThanOrEqual(Math.min(sel.footer + vp.sab, sel.scroll));
       await expect
         .poll(async () => {
           const now = await selectableMetrics(page);
           return !!now && now.scrollable === (now.cueBelow || now.cueAbove);
         }, { message: `${where}: scroll cue matches the body`, timeout: 2000 })
+        .toBe(true);
+    }
+    // The transient family panel: every control >= 44px and inside the sheet's width; the cards area
+    // sits between the panel head and the Pitz line, above the bottom safe area.
+    const panel = await panelMetrics(page);
+    if (panel) {
+      for (const c of panel.controls) {
+        expect.soft(c.height, `${where}: panel control >= 44px`).toBeGreaterThanOrEqual(44);
+        expect.soft(c.left >= m.sheet.left - 0.5 && c.right <= m.sheet.right + 0.5, `${where}: panel control inside the sheet width`).toBe(true);
+      }
+      expect.soft(panel.back.top, `${where}: もどる inside the sheet`).toBeGreaterThanOrEqual(m.sheet.top);
+      expect.soft(panel.cards.bottom, `${where}: cards above the bottom safe area`).toBeLessThanOrEqual(vp.innerHeight - vp.sab + 0.5);
+      expect.soft(panel.cards.client, `${where}: cards area readable`).toBeGreaterThanOrEqual(Math.min(150, panel.cards.scroll));
+      await expect
+        .poll(async () => {
+          const now = await panelMetrics(page);
+          return !!now && now.scrollable === now.cue;
+        }, { message: `${where}: panel scroll cue matches the cards`, timeout: 2000 })
         .toBe(true);
     }
   }
@@ -161,15 +198,54 @@ async function selectableMetrics(page: Page) {
     const body = document.querySelector<HTMLElement>(".hint-sheet__selectable");
     const wrap = document.querySelector(".hint-sheet__scroll");
     if (!body || !wrap) return null;
-    const prefs = [...document.querySelectorAll(".hint-sheet__pref")].map((e) => {
+    const prefs = [...document.querySelectorAll(".hint-sheet__entry, .hint-sheet__close")].map((e) => {
       const b = e.getBoundingClientRect();
       return { top: b.top, bottom: b.bottom, height: b.height };
     });
+    const footer = document.querySelector(".hint-sheet__footer")!.getBoundingClientRect().height;
     const scrollable = body.scrollHeight - body.clientHeight > 1;
     const cueBelow = wrap.classList.contains("hint-sheet__scroll--below");
     const cueAbove = wrap.classList.contains("hint-sheet__scroll--above");
-    return { prefs, scrollable, cueBelow, cueAbove, client: body.clientHeight, scroll: body.scrollHeight };
+    return { prefs, footer, scrollable, cueBelow, cueAbove, client: body.clientHeight, scroll: body.scrollHeight };
   });
+}
+
+/** DH4-2C: the 「ヒントをもらう」 family panel (null while the board shows). */
+async function panelMetrics(page: Page) {
+  return page.evaluate(() => {
+    const cards = document.querySelector<HTMLElement>(".hint-sheet__cards");
+    if (!cards) return null;
+    const controls = [...document.querySelectorAll(".hint-sheet__panel button, .hint-sheet__pref")].map((e) => {
+      const b = e.getBoundingClientRect();
+      return { height: b.height, left: b.left, right: b.right };
+    });
+    const back = document.querySelector(".hint-sheet__back")!.getBoundingClientRect();
+    const c = cards.getBoundingClientRect();
+    const wrap = document.querySelector(".hint-sheet__cards-wrap")!;
+    const scrollable = cards.scrollHeight - cards.clientHeight > 1;
+    const cue = wrap.classList.contains("hint-sheet__scroll--below") || wrap.classList.contains("hint-sheet__scroll--above");
+    return { controls, back: { top: back.top }, scrollable, cue, cards: { bottom: c.bottom, client: cards.clientHeight, scroll: cards.scrollHeight } };
+  });
+}
+
+const entry = (page: Page) => sheet(page).getByRole("button", { name: "ヒントをもらう" });
+const materialCta = (page: Page) => sheet(page).locator('.hint-sheet__card[data-hint-family="material"] .hint-sheet__next');
+
+/** DH4-2C U3-C: open the family panel (from the board) and wait out the request latch. */
+async function openPanel(page: Page) {
+  if (await entry(page).count()) {
+    // Right after an answer the request latch also covers 「ヒントをもらう」 (a double tap never reopens).
+    await expect(entry(page)).not.toHaveAttribute("aria-disabled", "true");
+    await entry(page).click();
+  }
+  await expect(sheet(page).locator(".hint-sheet__panel")).toBeVisible();
+}
+
+/** One 材料 request like a player: 「ヒントをもらう」 -> 「たずねる」. */
+async function askMaterial(page: Page) {
+  await openPanel(page);
+  await expect(materialCta(page)).not.toHaveAttribute("aria-disabled", "true");
+  await materialCta(page).click();
 }
 
 async function closedRects(page: Page, driver: ProfileDriver, browserName: string) {
@@ -205,15 +281,29 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     const hint = bar(page).getByRole("button", { name: "ヒント" });
     await hint.click();
     await expect(sheet(page)).toHaveAttribute("data-hint-kind", "SELECTABLE");
-    await expect(sheet(page).locator(".hint-sheet__row")).toHaveCount(3);
-    await expect(sheet(page).getByRole("radio")).toHaveCount(3);
+    // U3-C (OD-DH4-2-8): only acquired facts -- the free key's row -- and no 「？」.
+    await expect(sheet(page).locator(".hint-sheet__row")).toHaveCount(1);
+    await expect(sheet(page)).not.toContainText("？");
+    // OD-DH4-2-7: the board's footer is 「ヒントをもらう」 only -- no choices on the board.
+    await expect(sheet(page).getByRole("radio")).toHaveCount(0);
+    await expect(entry(page)).toBeFocused();
     await checkOpenState(page, driver, browserName, "H0", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "sheet H0");
     await capture(page, "02-h0");
 
-    await sheet(page).getByText("トッピング", { exact: true }).last().click();
-    await sheet(page).locator(".hint-sheet__next").click();
-    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
+    // The panel: 材料 / 構成 / 特徴 cards (the E3 flag is on in this DEV build) + 4 材料 preferences.
+    await openPanel(page);
+    await expect(sheet(page).locator(".hint-sheet__card")).toHaveCount(3);
+    await expect(sheet(page).getByRole("radio")).toHaveCount(4);
+    await checkOpenState(page, driver, browserName, "panel", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet panel");
+    await capture(page, "02b-panel");
+
+    await sheet(page).getByRole("radio", { name: "トッピング" }).check({ force: true });
+    await materialCta(page).click();
+    // An answer returns to the board with the new fact.
+    await expect(sheet(page).locator(".hint-sheet__panel")).toHaveCount(0);
+    await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(2);
     await checkOpenState(page, driver, browserName, "one fact", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "sheet one fact");
     await capture(page, "03-one-fact");
@@ -228,11 +318,13 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     const closedLegacy = await closedRects(page, driver, browserName);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
     await expect(sheet(page)).toContainText("以前のヒント");
-    for (let i = 0; i < 6 && !(await sheet(page).locator(".hint-sheet__guidance").count()); i += 1) {
-      await sheet(page).locator(".hint-sheet__next").click();
+    for (let i = 0; i < 6 && !(await sheet(page).locator(".hint-sheet__outcome").count()); i += 1) {
+      await askMaterial(page);
     }
+    await expect(sheet(page).locator(".hint-sheet__outcome")).toHaveText("材料ヒントはここまで（Pitzは使っていないよ）");
+    await sheet(page).getByRole("button", { name: /もどる/ }).click();
     await expect(sheet(page).locator(".hint-sheet__guidance")).toHaveText("このピザは、今わかっているヒントを手がかりに考えてみよう！");
-    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
+    await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(5);
     await expect(sheet(page)).not.toContainText("カプリチョーザ");
     await expect(sheet(page)).not.toContainText("ブラックオリーブ");
     await checkOpenState(page, driver, browserName, "longest", closedLegacy);
@@ -269,7 +361,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   }
 
   // Discovery Hint Economy 1.0 (Issue #232, HE-3) / Discovery Hint 3.0 (Issue #238, H3-3): the
-  // Selectable purchase CTA states, on the same geometry contract (every profile: <= 45dvh, CTA
+  // Selectable purchase CTA states, on the same geometry contract (every profile: inside the viewport, CTA
   // above the safe area, background unmoved).
   test("purchase CTA: price + balance, buy a fact, guidance, reload keeps facts, insufficient", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
@@ -281,32 +373,38 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     const hint = bar(page).getByRole("button", { name: "ヒント" });
     await hint.click();
 
-    const cta = sheet(page).locator(".hint-sheet__next");
-    await expect(cta).toHaveText("ヒントを1つもらう 5 Pitz");
+    const cta = materialCta(page);
     await expect(sheet(page)).toContainText("所持 120 Pitz");
+    await openPanel(page);
+    await expect(cta).toHaveText("たずねる 5 Pitz");
     await checkOpenState(page, driver, browserName, "first CTA", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "first CTA");
 
     await cta.click();
-    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
-    await expect(cta).toHaveText("ヒントを1つもらう 10 Pitz");
+    await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(2);
     await expect(sheet(page)).toContainText("所持 115 Pitz");
-    await cta.click();
-    await cta.click();
-    await cta.click();
-    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
+    await openPanel(page);
+    await expect(cta).toHaveText("たずねる 10 Pitz");
+    for (const chips of [3, 4, 5]) {
+      await askMaterial(page);
+      await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(chips);
+    }
     await expect(page.locator(".app-header__pitz")).toContainText("45");
     // H3-4 (OD-H3-4-1): the cap is paid -- a request, enabled, never 「0 Pitz」.
-    await expect(cta).toHaveText("ヒントをたずねる 支払いずみ");
+    await openPanel(page);
+    await expect(cta).toHaveText("たずねる 支払いずみ");
     await expect(cta).toBeEnabled();
     await checkOpenState(page, driver, browserName, "cap paid", closed);
     await capture(page, "07-cap-paid");
-    // Nothing left to sell: the generic guidance only, nothing charged; only now the CTA stops (OD-H3-4-3).
+    // Nothing left to sell: nothing charged; only now the 材料 card stops (OD-H3-4-3), for this sheet.
+    await expect(cta).not.toHaveAttribute("aria-disabled", "true");
     await cta.click();
-    await expect(sheet(page).locator(".hint-sheet__guidance")).toBeVisible();
+    await expect(sheet(page).locator(".hint-sheet__outcome")).toHaveText("材料ヒントはここまで（Pitzは使っていないよ）");
+    await expect(cta).toHaveCount(0);
     await expect(page.locator(".app-header__pitz")).toContainText("45");
-    await expect(cta).toBeDisabled();
-    await expect(cta).toHaveText("今あるヒントはここまで");
+    await checkOpenState(page, driver, browserName, "guidance (panel)", closed);
+    await sheet(page).getByRole("button", { name: /もどる/ }).click();
+    await expect(sheet(page).locator(".hint-sheet__guidance")).toBeVisible();
     await checkOpenState(page, driver, browserName, "all facts + guidance", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "all facts + guidance");
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
@@ -320,7 +418,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await page.waitForSelector(".app-frame");
     await startFreeCookAtTopping(page);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
-    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
+    await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(5);
     await expect(sheet(page).locator(".hint-sheet__guidance")).toHaveCount(0);
     await expect(page.locator(".app-header__pitz")).toContainText("45");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
@@ -330,10 +428,11 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await startFreeCookAtTopping(page);
     const closedShort = await closedRects(page, driver, browserName);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
-    await expect(cta).toBeDisabled();
-    await expect(cta).toHaveText("ヒントを1つもらう 40 Pitz");
     await expect(sheet(page)).toContainText("所持 25 Pitz");
-    await expect(sheet(page).getByRole("button", { name: "閉じる" })).toBeFocused();
+    await openPanel(page);
+    await expect(cta).toBeDisabled();
+    await expect(cta).toHaveText("たずねる 40 Pitz");
+    await expect(sheet(page).getByRole("button", { name: /もどる/ })).toBeFocused();
     await checkOpenState(page, driver, browserName, "insufficient", closedShort);
     await expectNoUndiscoveredIdentity(page, DEX11, "insufficient");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
