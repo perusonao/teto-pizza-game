@@ -13,12 +13,12 @@ Final Implementation Gate: `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEM
 | `src/logic/scoringV2/types.ts` | `ScoringReferencePizza` (`sauce: ReferenceSauce \| null`), `ScoringV2WeightProfile(Id)`, `ScoringV2Result.weightProfile` |
 | `src/logic/scoringV2/__fixtures__/scoreParity.main-7bb0116.json` | 25 recipes × 9 pizzas = 225 rows. **Captured on unmodified main in commit `858c287`, before the scoring change.** |
 | `src/logic/scoringV2/testSupport/parityPizzas.ts` | Deterministic pizza matrix: ideal / offset / poor / noSauce / halfPieces / extraPiece / raw / burnt / unbaked |
-| `src/logic/scoringV2/scoringV2.noSauceParity.test.ts`, `scoringV2.noSauceProfile.test.ts` | New: 3 + 19 tests |
+| `src/logic/scoringV2/scoringV2.noSauceParity.test.ts`, `scoringV2.noSauceProfile.test.ts` | New tests: parity, the profile, adversarial References and immutability |
+| `src/data/referencePizza.ts` | Integrity only, no data change: the Reference types are deeply `readonly`, the registered References are deep-frozen at load, and `listReferencePizzas()` is added (from the Codex review on #271) |
 
 **Not changed:**
 
-- the production `ReferencePizza` type;
-- any Reference data or recipe;
+- any Reference value or recipe (the types only gained `readonly`, and `sauce` is still non-null);
 - the Completion Gate code;
 - the UI, CSS and E2E;
 - `SCORING_V2_RULESET_VERSION` and `LUNCH_RUSH_RULESET_VERSION`.
@@ -58,6 +58,7 @@ No production recipe reaches NO_SAUCE yet. Aussie ships in TQ-1D, which also wid
   - tolerance bands and the sauce target that production uses for that same ingredient;
   - positions inside the reference slot area.
 - Options that are not an object also fail closed.
+- The production Reference registry and `SCORING_V2_WEIGHT_PROFILES` are frozen, and their types are readonly, so no importer can change a scoring target or weight at runtime.
 
 Production callers never pass the seam.
 
