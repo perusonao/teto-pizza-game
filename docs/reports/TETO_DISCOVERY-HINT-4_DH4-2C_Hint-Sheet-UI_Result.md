@@ -166,6 +166,55 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 | **P3-c:** two layout claims were inaccurate | **Fixed.** See §2 (the heaviest flag-on state scrolls on the short profiles, with the cue and the CAP bars intact) and the App.css panel comment. |
 | **P3-d:** the double-tap App test had become conditional | **Fixed.** It now unconditionally asserts one charge, no reopened panel, and focus on 「ヒントをもらう」. |
 
+**Exact-HEAD review of `83a0a87`:**
+- **CI:** 9 / 9 green (build, layout-chromium, Layout Contract Gate, 4 WebKit shards + WebKit Gate).
+- **Codex:** it reviewed `30cf00e` with "no major issues". It could not review `83a0a87`, because Codex hit its usage limit.
+- **Independent reviewer:** its exact-HEAD pass stopped on an API rate limit.
+- **This session's own review of the `30cf00e..83a0a87` source diff:** P0 / P1 / P2 = 0.
+  - The live region only repeats the outcome the authority already returned.
+  - The entry ignores taps only for the 450 ms request latch.
+  - `.sr-only` takes no layout space.
+- **Merge:** a Codex or independent pass on the final head should be re-requested before merge. Merge is gated on the Owner's iPhone HV anyway.
+
 ## 6. Human Verification Videos
 
-Filled in after the Preview deploy (see the PR).
+**Where they were recorded:** the Review Playthroughs ran against **the deployed Preview build**:
+- the `perusonao/teto-pizza-game-preview` `site/` build of `83a0a87`, from preview commit `42068c9`;
+- the Preview save key;
+- 390×844;
+- recorded with Playwright, then converted to MP4 / H.264 with ffmpeg.
+
+The build files were served locally at the same `/teto-pizza-game-preview/` base, because this environment cannot reach `github.io`.
+
+| Video | Viewport | Duration | Size | Codec | Verification |
+|---|---|---:|---:|---|---|
+| `dh4-2c-hv-A-main-flow_390x844.mp4` | 390×844 | 47.6 s | 1.03 MB | H.264 High, yuv420p, 25 fps | PASS |
+| `dh4-2c-hv-B-edge-cases_390x844.mp4` | 390×844 | 60.1 s | 1.27 MB | H.264 High, yuv420p, 25 fps | PASS |
+
+**Download:** delivered directly in the session. The videos are not committed; `artifacts/` is git-ignored.
+
+**Validation:**
+- ffprobe reports 390×844, H.264 High and the durations above.
+- A full decode to the end reported no errors.
+- Contact sheets were checked by eye: the whole viewport is recorded and every step below is on screen.
+
+**What to check in A** (Dex 11, the target is undiscovered, 300 Pitz):
+1. Free Cooking → 「ヒント」: the board shows the H0 caption and one 材料 chip, with the compact 「ヒントをもらう」 footer.
+2. The panel shows three cards, each 「たずねる ｜ 5 Pitz」.
+3. **構成:** the board gains 「このピザは全部で6種類の材料を使うよ」 and 「トッピングは4種類使うよ」 (the topping clause), and Pitz goes 300 → 295.
+4. The panel shows 構成 「✓ もらいずみ」 and 特徴 at 10.
+5. **特徴:** the board gains 「まだわかっていないトッピングがあるよ」, 295 → 285.
+6. **材料 (チーズ):** the モッツァレラ chip is highlighted, 285 → 280.
+7. **A double tap on 「たずねる ｜ 10 Pitz」** is charged once: 280 → 270, and the sheet returns to the board.
+8. **閉じる → reload:** the facts and 「✓ もらいずみ」 are back and the balance stays 270.
+9. The sheet opens and closes.
+
+**What to check in B:**
+1. **B1 — pepperoni, with parmigiano owned before pepperoni:** 特徴 answers 「まだわかっていないチーズがあるよ」 and charges 5.
+2. **B2 — the same ingredients, with parmigiano bought after pepperoni (T1a):** 特徴 shows only 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）。材料がふえると、わかることがあるかも」, and Pitz stays 300. This is the privacy downgrade.
+3. **材料 guidance-only (the cap is paid):** 「たずねる ｜ 支払いずみ」 → 「材料ヒントはここまで（Pitzは使っていないよ）」 + 「構成・特徴のヒントもあるよ」; もどる shows the guidance line on the board.
+4. **Insufficient Pitz (3):** every card is disabled and shows the calm line; the sheet closes, and cooking goes on.
+
+Video Verification: PASS
+
+**iPhone HV setup:** https://perusonao.github.io/teto-pizza-game-preview/dh4-2c-setup.html seeds these scenarios (A, B1, B2, C, D) into the Preview save key only, with a one-time backup and restore.
