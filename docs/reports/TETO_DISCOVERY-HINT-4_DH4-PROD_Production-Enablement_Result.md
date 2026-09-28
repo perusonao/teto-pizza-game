@@ -15,7 +15,7 @@
 
 ## 0. Owner Authority
 
-### OD-DH4-PROD-1: fixed initial production price (decided 2026-09-28)
+### OD-DH4-PROD-1: fixed initial production price (decided and confirmed by the Owner on 2026-09-28)
 
 | Item | Decision |
 |---|---|
@@ -26,13 +26,15 @@
 | Ladder | 構成 / 特徴 are **not** mixed into the 材料 ESC ladder. A deduction purchase never moves the 材料 price, and the 材料 paid count never moves the deduction price. |
 | Acquisition / storage | Per recipe, as the existing authority says (OD-DH4-2-1..13; T1a, OD-DH4-2B-G1) |
 | DH4-ECON | **Not a blocker.** 5 / 5 is the *initial* production price; DH4-ECON may re-tune it from real data. |
-| Never | 0 Pitz in production · re-charging owned information · a double charge from a stale or double request · a charge when no new hint is produced |
+| Never | 0 Pitz in production · re-charging a purchased fact · a charge when no new fact can be returned · a double charge from a stale or double request |
 
 **What it supersedes:**
 - **OD-DH4-2-5 (E3):** the "DEV / Preview only" and "production prices come from DH4-ECON" parts. The rule "no 0-Pitz production price" and the unchanged 材料 ESC stay.
 - **OD-DH4-9:** the timing only. Production ships before DH4-ECON; DH4-ECON keeps the right to change the numbers.
 
 ## 1. Fresh Gate (before enabling)
+
+**Re-run on 2026-09-28 against `main` `d38cf22`, which includes TQ-1C.** TQ-1C was merged as PR #289 (Issue #287); TQ-1D has not started. `d38cf22` is merged into this branch. The gate below holds on that base; §1.2 adds the TQ-1C runtime audit. Verdict: **A. READY.**
 
 | Check | Result |
 |---|---|
@@ -68,7 +70,26 @@ New test: `src/logic/discovery/deductionProduction.gate.test.ts`.
 - This is the Hint 3.0 class already recorded in #253 ("ladder pairs: the capricciosa and quattro-formaggi reserves are public").
 - DH4 adds nothing there: the answer is existence and the clause is not told. The test pins this.
 
-### 1.2 Cooking Techniques privacy (TQ-1D contract)
+### 1.2 Cooking Techniques privacy (TQ-1C runtime included; TQ-1D contract)
+
+**TQ-1C runtime (`d38cf22`).** It adds `discoveredTechniqueIds` / `lastTechniqueDiscovery` to the reducer and the save, and `src/logic/techniques/runtime.ts`.
+
+**INV-TQ-4 holds, proven with the runtime's own functions:**
+- `productionTechniqueContext().catalog` is `RECIPE_DISCOVERY_CATALOG`: 25 targets, one for each production recipe;
+- `requiredTechniquesOf` is `[]` for every target;
+- `techniqueAffordanceStep` is `null` for every technique;
+- so no technique can be recognised in production.
+
+**The hint path never reads Technique state:**
+- no technique import or ledger field appears in the deduction, hint or `discoveryHint` modules, in `HintSheet.tsx` or in the taxonomy (source scan);
+- through the real reducer, a ledger holding `no-sauce` leaves the sheet view and every 構成 / 特徴 / 材料 result identical, for all 24 targets.
+
+**TQ-1D is not a blocker. The contract is fixed in three places:**
+- the gate test fails as soon as a production target requires a technique;
+- this report;
+- `docs/PROJECT_HANDOFF.md` (the Cooking Techniques section).
+
+**From the first gate run:**
 
 - All 25 production recipes have **exactly one sauce**, so no production recipe is a NO_SAUCE (Technique) recipe.
 - 構成 / 特徴 read `requiredIngredients` only.
@@ -119,8 +140,9 @@ New test: `src/logic/discovery/deductionProduction.gate.test.ts`.
 | Check | Result |
 |---|---|
 | Focused DH4 / hint tests (deduction*, gameReducer.deductionHint*, HintSheet, App.hintSheet) | Green |
-| Production privacy gate (`deductionProduction.gate.test.ts`) | 12 / 12 |
-| Full Vitest | **211 files, 4465 passed, 1 skipped** |
+| Production privacy gate (`deductionProduction.gate.test.ts`) | 14 / 14 (TQ-1C INV-TQ-4 and hint-path isolation included) |
+| DH4 + TQ-1C focused suites (deduction*, hint sheet, App hint, techniques, reducer techniques, App techniques) | 19 files, 256 passed |
+| Full Vitest | **215 files, 4509 passed, 1 skipped** (on the `d38cf22` merge base; the earlier run on `c9e5e1f` was 211 files, 4465 passed) |
 | `tsc -b` | Clean |
 | Lint (`oxlint`) | 0 errors. The only warnings are 2 pre-existing ones in an unrelated scoring test. |
 | `npm run build` | OK |

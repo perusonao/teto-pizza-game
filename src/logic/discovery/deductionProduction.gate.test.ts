@@ -3,6 +3,10 @@ import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
 import { RECIPES } from "../../data/recipes";
 import { TECHNIQUES } from "../../data/techniques";
+import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
+import { requiredTechniquesOf } from "../techniques/detection";
+import { techniqueAffordanceStep } from "../techniques/registration";
+import { productionTechniqueContext } from "../techniques/runtime";
 import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "./deductionFlag";
 import { deductionHintTextJa, INGREDIENT_TOTAL_FACT_ID, MIN_ATTRIBUTE_CANDIDATES } from "./deductionHint";
 import { guardedAnswerForParts, hypotheticalReserves, reserveInHypotheses, targetReserveParts, toppingClauseAllowedForParts, TOPPING_TOTAL_FACT_ID } from "./deductionGuard";
@@ -132,6 +136,25 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 25 production recipes
           expect(line).not.toMatch(/ソース(なし|が?ない|を?使わない)|ぬるもの|技|テクニック/);
         }
       }
+    }
+  });
+  it("INV-TQ-4 on the TQ-1C runtime: no production target requires a technique and no affordance opens", () => {
+    const { catalog, materialStep } = productionTechniqueContext();
+    expect(catalog).toBe(RECIPE_DISCOVERY_CATALOG);
+    expect(catalog.map((t) => t.recipeId).sort()).toEqual(RECIPES.map((r) => r.id).sort());
+    const requiring = catalog.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
+    // If this fails, TQ-1D brought a Technique recipe: re-run this DH4 gate with it first.
+    expect(requiring, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([]);
+    for (const t of TECHNIQUES) expect(techniqueAffordanceStep(t.id, catalog, materialStep), t.id).toBeNull();
+  });
+  it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
+    const sources = import.meta.glob<string>(
+      ["./deduction*.ts", "./selectableHint.ts", "./hintSteps.ts", "./hintTarget.ts", "./hintPurchase.ts", "./hintFactMigration.ts", "../../state/discoveryHint.ts", "../../components/HintSheet.tsx", "../../data/ingredientTaxonomy.ts", "!./*.test.ts"],
+      { query: "?raw", import: "default", eager: true },
+    );
+    expect(Object.keys(sources).length).toBeGreaterThanOrEqual(10);
+    for (const [path, text] of Object.entries(sources)) {
+      expect(text, path).not.toMatch(/techniques\/|data\/techniques|discoveredTechniqueIds|lastTechniqueDiscovery|TechniqueId/);
     }
   });
   it("構成 counts ingredients only: the total is the recipe's distinct ingredient count", () => {

@@ -386,6 +386,23 @@ describe("DH4-2B x T1a (purchase timing) through the real reducer", () => {
   });
 });
 
+describe("DH4-PROD x Cooking Techniques (TQ-1C runtime)", () => {
+  it("the technique ledger never changes the hint view or a 構成 / 特徴 / 材料 result", () => {
+    for (const id of TARGETS) {
+      const s = sheetOn(id, 100);
+      const withTech = { ...s, discoveredTechniqueIds: ["no-sauce"] as const, lastTechniqueDiscovery: ["no-sauce"] as const } as GameState;
+      expect(hintSheetView(withTech)).toEqual(hintSheetView(s));
+      for (const family of ["structure", "attribute"] as const) {
+        const a = act(s, ask(s, family));
+        const b = act(withTech, ask(withTech, family));
+        expect([b.pitzBalance, b.discoveryHintFacts, b.hintOutcome]).toEqual([a.pitzBalance, a.discoveryHintFacts, a.hintOutcome]);
+      }
+      const m = buyMaterial(withTech);
+      expect([m.pitzBalance, m.discoveryHintFacts]).toEqual([buyMaterial(s).pitzBalance, buyMaterial(s).discoveryHintFacts]);
+    }
+  });
+});
+
 describe("DH4-2B boundaries", () => {
   it("the state helper is inert without the flag (production), whatever the input", () => {
     const s = sheetOn(INFORMATIVE[0], 100);
