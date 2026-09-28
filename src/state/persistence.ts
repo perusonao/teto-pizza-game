@@ -253,6 +253,18 @@ function sanitizePitzBalance(raw: unknown): number {
  * ever writes a save missing them, but a future phase's purchase flow could get this wrong
  * -- an array that's present but simply doesn't list every starter id. Either way, the
  * starter ingredients must never read back as anything other than OWNED.
+ *
+ * APPEND-ORDER INVARIANT (Discovery Hint 4.0, Owner Decision T1a; pinned by
+ * ./persistence.ownedOrder.test.ts): `ownedIngredientIds` is the acquisition order -- the starters
+ * (owned together from the start) first, then every later acquisition in the order it happened.
+ * - Every writer appends (`purchaseFirstPack`, the starter grant).
+ * - This normalization only drops junk, keeps the first occurrence of a duplicate and leads with
+ *   the starters; it never sorts.
+ * - `writeSave` keeps the stored order, ids this build does not know included, in place, and only
+ *   appends new ids (`mergeOwnedOrder`); nothing moves an id earlier OR later.
+ * - Catalog rule: the starter set never grows (a new starter would read as owned from time 0).
+ * The Deduction Hint privacy guard rebuilds "what was owned when a target became makeable" from
+ * this order (../logic/discovery/deductionGuard.ts `makeablePrefix`).
  */
 function sanitizeOwnedIngredientIds(raw: unknown): string[] {
   const validKnownIds = Array.isArray(raw)
@@ -562,6 +574,8 @@ interface ForwardCompatExtras {
   topLevel: Record<string, unknown>;
   dex: DexEntry[];
   ownedIngredientIds: string[];
+  /** T1a: the stored owned list in its order, known and forward-compatible unknown ids together. */
+  ownedOrder: string[];
   inventory: Record<string, number>;
   starterGrantClaimedRecipeIds: string[];
   unlockedForShopIngredientIds: string[];
@@ -653,6 +667,12 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     topLevel,
     dex,
     ownedIngredientIds: unknownIdsIn(r.ownedIngredientIds, KNOWN_INGREDIENT_IDS),
+    ownedOrder: Array.isArray(r.ownedIngredientIds)
+      ? r.ownedIngredientIds.filter(
+          (id, i, all): id is string =>
+            typeof id === "string" && (KNOWN_INGREDIENT_IDS.includes(id) || isForwardCompatUnknownId(id, KNOWN_INGREDIENT_IDS)) && all.indexOf(id) === i,
+        )
+      : [],
     inventory,
     starterGrantClaimedRecipeIds: unknownIdsIn(r.starterGrantClaimedRecipeIds, KNOWN_RECIPE_IDS),
     unlockedForShopIngredientIds: unknownIdsIn(r.unlockedForShopIngredientIds, KNOWN_INGREDIENT_IDS),
@@ -660,6 +680,20 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     discoveryHintFacts: hintFactsFor(r.discoveryHintFacts, isUnknownRecipeId),
     dinnerMissionRecordsRaw: r.dinnerMissionRecords,
   };
+}
+
+/**
+ * T1a (append-order invariant): the owned list to write. The stored order is kept as it is -- ids
+ * this build does not know stay in their acquisition position instead of moving behind later
+ * purchases -- then the ids `next` adds are appended in `next`'s order. A known id `next` no longer
+ * owns is dropped (ownership only grows, so this never happens outside a reset).
+ */
+function mergeOwnedOrder(storedOrder: readonly string[], nextKnown: readonly string[]): string[] {
+  const keep = new Set(nextKnown);
+  const out = storedOrder.filter((id) => !KNOWN_INGREDIENT_IDS.includes(id) || keep.has(id));
+  const seen = new Set(out);
+  for (const id of nextKnown) if (!seen.has(id)) out.push(id);
+  return out;
 }
 
 /** Merges the forward-compatible extras currently in storage back into `next` (known fields
@@ -693,7 +727,7 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
     ...extras.topLevel,
     ...nextFields,
     dex: [...next.dex, ...extras.dex.filter((e) => !nextDexIds.has(e.recipeId))],
-    ownedIngredientIds: appendNew(next.ownedIngredientIds, extras.ownedIngredientIds),
+    ownedIngredientIds: mergeOwnedOrder(extras.ownedOrder, next.ownedIngredientIds),
     inventory: { ...extras.inventory, ...next.inventory },
     starterGrantClaimedRecipeIds: appendNew(
       next.starterGrantClaimedRecipeIds,
