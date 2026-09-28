@@ -221,6 +221,7 @@ function selectableView(
     presentation: selectableHintPresentation(model, saved.purchasedFactIds, opts.pitz ?? 100, saved.legacy),
     grandfatheredSteps: saved.grandfatheredSteps,
     outcome: opts.outcome ?? null,
+    deduction: null,
   };
 }
 

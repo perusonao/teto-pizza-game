@@ -1,3 +1,5 @@
+import { appendLadderSteps, type AppendedLadderStep } from "../logic/discoveryLadder";
+
 /**
  * Progression 2.0 W1 Integration I4a: Discovery Ladder authority data (REC-04 = RESOLVED,
  * Owner Decision OD-REC04-1, commit 6fe02e2d23610e926bab2367405fe9f717d25421 --
@@ -122,8 +124,23 @@ export const W1_25_DISCOVERY_LADDER: DiscoveryLadder = {
   ],
 };
 
+/**
+ * LAD-1 (Issue #261, Owner Decision OD-W2-1): the W1 steps 1..24 are frozen. New recipes or
+ * ingredients never regenerate or reorder them; later unlocks are appended after step 24
+ * (`POST_W1_APPENDED_STEPS`). `discoveryLadder.appendOnly.test.ts` pins both halves: the first
+ * `W1_FIXED_STEP_COUNT` steps equal `W1_25_DISCOVERY_LADDER`, and the appended steps equal the
+ * REC-04 key-recipe rule run in append-only mode over `RECIPES` (`buildAppendOnlyLadder`).
+ */
+export const W1_FIXED_STEP_COUNT = 24;
+
+/** Steps appended after the frozen W1 ladder, in order. Empty while `RECIPES` is the W1
+ *  population: every current recipe is already makeable from the starters + W1 materials. */
+export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [];
+
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since
  *  Progression 2.0 W1 I5b-3 (the 10 W1 recipes joined `RECIPES` in the same change) it is the
  *  25-recipe `W1_25_DISCOVERY_LADDER`. Entitlements already granted by the 15-recipe ladder are
- *  kept: the Shop ledger is a union and never re-locks (../state/materialEntitlement.ts). */
-export const DISCOVERY_LADDER: DiscoveryLadder = W1_25_DISCOVERY_LADDER;
+ *  kept: the Shop ledger is a union and never re-locks (../state/materialEntitlement.ts). Since
+ *  LAD-1 it is the frozen W1 ladder followed by `POST_W1_APPENDED_STEPS` -- with no appended step
+ *  its content is exactly `W1_25_DISCOVERY_LADDER`. */
+export const DISCOVERY_LADDER: DiscoveryLadder = appendLadderSteps(W1_25_DISCOVERY_LADDER, POST_W1_APPENDED_STEPS);
