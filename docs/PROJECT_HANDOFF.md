@@ -303,6 +303,35 @@ Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
+## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
+
+**Read first for any technique work (TQ-1C, TQ-1D and later):**
+`docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`. It wins over the detailed docs below.
+
+- Recipe discovery is *what* you made; technique discovery is *how* you made it. The two are
+  independent: the matcher never reads the technique ledger (INV-TQ-NB).
+- Techniques are never bought or taught directly, and earn no ★ or Pitz. When a technique and a
+  recipe are discovered together, the technique is revealed first, and the save happens in the
+  same one REGISTER_TO_DEX transition.
+- **Where discovery happens** (OD-TQ1C-3):
+  - the usage path (recognising how a pizza was made) runs in Free Cooking only;
+  - the recipe path (INV-TQ-1: a discovered recipe implies its techniques) runs in every FREE
+    round;
+  - Lunch Rush and Dinner never discover a technique.
+- **Near-miss privacy** (OD-TQ1C-2): SAUCE_ONLY gets the k ≥ 2 rule uniformly, with no side
+  channel, and fails closed below that. This changes 12 of 44 production SAUCE_ONLY cases, so it
+  goes live only in TQ-1D with Human Verification — **not in TQ-1C**.
+- **INV-TQ-4:** while no production recipe requires a technique, nothing is recognised. TQ-1C is
+  inert in production. TQ-1 adds no technique requirement to a production recipe; Aussie arrives
+  in TQ-1D.
+- **Merged so far:** LAD-1 `4f7443a` (#268), TQ-1A `73c8ad0` (#273) and TQ-1B `bcac961` (#271).
+  The ledger `discoveredTechniqueIds` is in the save; scoring parity is pinned (225 rows).
+- **Detailed docs:** `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md`
+  (the Owner authority record), `..._OWNER-DECISION-GATE.md` (the rules) and
+  `..._TQ-1C_PRE-IMPLEMENTATION-GATE.md` (the TQ-1C wiring map and test plan).
+- **Not on main:** the 172-row technique audit, its data and its generator tools stay on the
+  design archive (branch `claude/cooking-techniques-design-n0qfwj`, commit `ab77b82`).
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.
