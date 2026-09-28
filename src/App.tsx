@@ -189,6 +189,9 @@ function App() {
       entitlement.unlockedForShopIngredientIds,
       save.discoveryHintPurchases,
       save.discoveryHintFacts,
+      // DM-4-3: the Dinner records, blocked (broken) missions included, so a settlement can never
+      // mistake a broken record for "no record".
+      save.dinnerMissionRecordsState,
     );
   });
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
@@ -353,6 +356,12 @@ function App() {
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       discoveryHintPurchases: state.discoveryHintPurchases,
       discoveryHintFacts: state.discoveryHintFacts,
+      // DM-4-3: a Dinner CLEAR changes `pitzBalance` and a record in the same reducer step, so they
+      // arrive here together and are written in one save write. `requireDinnerRecords`: if a record
+      // cannot be stored (its mission became blocked in storage underneath), nothing is written --
+      // never the payout without its record.
+      dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
+      requireDinnerRecords: true,
     });
   }, [
     state.dex,
@@ -363,6 +372,7 @@ function App() {
     state.unlockedForShopIngredientIds,
     state.discoveryHintPurchases,
     state.discoveryHintFacts,
+    state.dinnerMissionRecordsState,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in

@@ -914,6 +914,11 @@ export interface ProgressionSnapshot {
    *  (`mergeDinnerMissionRecord`: first-clear flag OR-ed, clears max, bests monotonic within a
    *  revision); a record of a blocked mission (broken stored record) is refused, never written. */
   dinnerMissionRecordUpdates?: Readonly<Record<string, DinnerMissionRecord>>;
+  /** DM-4-3: all-or-nothing for the Dinner settlement. When true and any record update
+   *  is refused (its mission became blocked in storage underneath this session), NOTHING is written
+   *  -- not the Pitz either -- so a payout can never be saved without the record that proves it.
+   *  The runtime passes true; the default (false) keeps DM-4-2's per-field behavior. */
+  requireDinnerRecords?: boolean;
 }
 
 /** What `persistProgress` reports back (DM-4-2). Every other outcome stays silent as before
@@ -1017,6 +1022,7 @@ export function persistProgress(
     // here and refused again by `writeSave` against what storage actually holds.
     const dinnerMerge = mergeSnapshotDinnerRecords(current.dinnerMissionRecordsState, snapshot.dinnerMissionRecordUpdates);
     refusedDinnerMissionIds = dinnerMerge.refusedMissionIds;
+    if (snapshot.requireDinnerRecords && refusedDinnerMissionIds.length > 0) return { refusedDinnerMissionIds };
     const dinnerUnchanged = dinnerMerge.state === current.dinnerMissionRecordsState;
     if (
       dexUnchanged &&

@@ -445,18 +445,19 @@ describe("boundaries (case 20: DM-1..DM-3 runtime unaffected)", () => {
     eager: true,
   });
 
-  it("only the persistence layer imports the records-save module (no reducer / runtime / UI wiring yet)", () => {
+  it("DM-4-3: only persistence and the reducer's settlement import the records-save module (no UI)", () => {
     const importers = Object.entries(sources)
       .filter(([, text]) => /from\s+["'][^"']*dinnerMissionRecordsSave["']/.test(text))
-      .map(([path]) => path);
-    expect(importers).toEqual(["./persistence.ts"]);
+      .map(([path]) => path)
+      .sort();
+    expect(importers).toEqual(["./gameReducer.ts", "./persistence.ts"]);
   });
 
-  it("nothing outside persistence passes `dinnerMissionRecordUpdates` yet (settlement is not wired: DM-4-3)", () => {
+  it("DM-4-3: App's one persistence effect is the only caller passing `dinnerMissionRecordUpdates`", () => {
     const users = Object.entries(sources)
       .filter(([path, text]) => path !== "./persistence.ts" && /dinnerMissionRecordUpdates/.test(text))
       .map(([path]) => path);
-    expect(users).toEqual([]);
+    expect(users).toEqual(["../App.tsx"]);
   });
 
   it("the records-save module imports only DM-4-1's pure settlement", () => {
