@@ -2,11 +2,13 @@
 
 > **audited main:** `bcac961`（PR #271 TQ-1B merge）、2026-09-28。
 > **範囲:** 監査と設計の確定だけ。src / e2e / CSS / production runtime は変更しない。Preview / production deploy もしない。実装 PR は作らない。
-> authority の要約: `TETO_COOKING-TECHNIQUES_1.0_SSOT.md`（本 gate と同時に作成。main への取り込みを OD-TQ1C-1 として提案する）。
+> authority の要約: `TETO_COOKING-TECHNIQUES_1.0_SSOT.md`（本書より優先）。
+>
+> **2026-09-28 Owner Decision: OD-TQ1C-1 / 2 / 3 はすべて推奨案で APPROVED（§9）。これで判定は A. TQ-1C READY FOR IMPLEMENTATION（TQ-1C-0 の docs-only PR を merge した後）になった。** 以下の §0〜§11 は、判断前の gate の記録として残している。決定との差分は、各節の「決定」注記と §9 に書いてある。
 
 ## 0. 結論
 
-**判定: B. OWNER DECISIONS REQUIRED。**
+**判定（判断前）: B. OWNER DECISIONS REQUIRED。** → Owner の判断後: **A**（上の注記）。
 
 TQ-1C の runtime wiring 自体は、main の現状のまま実装できる状態にある:
 
@@ -39,7 +41,7 @@ TQ-1C の runtime wiring 自体は、main の現状のまま実装できる状�
 | DM-4-3 | `persistProgress({…, dinnerMissionRecordUpdates, requireDinnerRecords: true})`（`App.tsx:349-381`）。拒否されたら何も書かず、`DINNER_RECORDS_REFUSED` で memory 側を合わせる |
 | DH4 Hint privacy | DH4-2C は presentation のみ。構成 / 特徴 は DEV / Preview の flag の内側。near-miss（`src/state/resultNearMiss.ts`）は DH4 で変わっていない |
 | runtime の境界 | Free Cooking = `state.freeCook === true`。guided FREE = `!freeCook && !isMissionRound && roundKind !== DINNER`。Lunch Rush = `isMissionRound`。Dinner = `isDinnerRound(state)`（`freeCook: false`） |
-| 設計ツール | `tools/cooking_techniques_audit.py --check` と `tools/cooking_techniques_tq1_gate.py --check` は、main を取り込んだ design branch 上でどちらも pass |
+| 設計ツール | 設計 archive の 2 つのツール（`cooking_techniques_audit.py` と `cooking_techniques_tq1_gate.py`、どちらも `--check`）は、main を取り込んだ design branch 上でどちらも pass。**決定（OD-TQ1C-1）:** ツールと data は main に入れず、archive（`ab77b82`）に残す |
 
 ### 旧設計資料と main の差分（main と最新の Owner Decision を優先）
 
@@ -48,7 +50,7 @@ TQ-1C の runtime wiring 自体は、main の現状のまま実装できる状�
 | Owner Decision Gate §9: TQ-1B が `ReferencePizza.sauce` を nullable にし、UI に null guard を入れる | TQ-1B は型を nullable に**していない**（`ScoringReferencePizza` の seam だけ）。逆に、Reference registry の deep-freeze と readonly 型が加わった | nullable 化は TQ-1D に移す（Final Gate §3.3 と SSOT §3 に一致）。TQ-1C では触らない |
 | Owner Decision Gate §9: TQ-1C が near-miss privacy を wiring する | k 規則をどこまで適用するかで、TQ-1C が不活性でなくなる（§6） | OD-TQ1C-2 |
 | Owner Decision Gate §8: 「Lunch Rush / guided: 検出しない」 | main の REGISTER_TO_DEX は、guided round でも matcher 経由で**別のレシピを新しく発見しうる**（`registerDiscoveryToDex`） | OD-TQ1C-3 |
-| src のコメントが `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md §1` を参照している（`src/data/techniques.ts` ほか） | **そのファイルは main に存在しない**（design branch にしかない） | OD-TQ1C-1 |
+| src のコメントが `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md §1` を参照している（`src/data/techniques.ts` ほか） | （判断前）**そのファイルは main に存在しなかった**（design branch にしかなかった） | OD-TQ1C-1 → TQ-1C-0 で main に取り込み、解消 |
 
 ---
 
@@ -61,11 +63,25 @@ TQ-1C の runtime wiring 自体は、main の現状のまま実装できる状�
 | 取り込むもの | 理由 |
 |---|---|
 | `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`（新規。本 gate で作成） | ご指定の 11 原則を P1〜P11 として 1 枚に固定する。本書が優先、と明記する |
-| `_DESIGN.md`、`_OWNER-DECISION-GATE.md`、`_FINAL-IMPLEMENTATION-GATE.md`、本 gate | src が参照しているファイルを main で実在させる（dangling な参照を解消する） |
-| `docs/design/data/*.json`、`_ROWS.md`、`_TQ1_GATE_TABLES.md`、`tools/cooking_techniques_*.py` | 監査の再現性（`--check` が main 上で回る） |
+| `_DESIGN.md`、`_OWNER-DECISION-GATE.md`、`_FINAL-IMPLEMENTATION-GATE.md`、本 gate | src が参照しているファイルを main で実在させる（dangling な参照を解消する）。**判断後: `_DESIGN.md` は設計 archive に残す** |
+| 設計 archive の data（`TETO_COOKING-TECHNIQUES_*.json`）、`_ROWS.md`、`_TQ1_GATE_TABLES.md`、2 つの生成ツール | 監査の再現性（`--check` が main 上で回る）。**判断後: すべて設計 archive（`ab77b82`）に残す** |
 | `PROJECT_HANDOFF.md` の Cooking Techniques 節 | 新しい session の startup checklist から辿れるようにする |
 
 代替案: SSOT と本 gate だけを取り込み、詳細文書は design branch に残す（src のコメントは SSOT を指すように直す）。量は小さいが、src の参照の修正が別途必要になる。
+
+**決定（OD-TQ1C-1 APPROVED、Owner の「不要な過去資料を大量に入れない」に従って範囲を絞った）:** TQ-1C-0 で main に入れるのは次だけ。
+
+- 文書 4 本: SSOT、`_OWNER-DECISION-GATE.md`、`_FINAL-IMPLEMENTATION-GATE.md`、本 gate。
+- `PROJECT_HANDOFF.md` の Cooking Techniques authority 節。
+- 既存 Result Report（TQ-1A / TQ-1B / LAD-1）の参照注記の更新。
+
+`_DESIGN.md`、`_ROWS.md`、`_TQ1_GATE_TABLES.md`、`docs/design/data/TETO_COOKING-TECHNIQUES_*.json`、`tools/cooking_techniques_*.py` は、設計 archive（`ab77b82`）に固定して残す。理由は次の 3 つ:
+
+1. どれも runtime や TQ-1C / TQ-1D の test から参照されない。
+2. TQ-1 に関する結論（no-sauce scoring、parity）は、main では TQ-1B の test が固定している。
+3. `cooking_techniques_tq1_gate.py` は `src`（`resultNearMiss.ts`、`recipes.ts`、scoring）を regex で読み、drift すると fail する。main に入れると、TQ-1D で必ず `--check` が壊れる、#260 と同じ drift の罠になる。
+
+main の文書から archive の成果物への参照は、すべて「設計 archive @ `ab77b82`」と明記した。main 上の path を指す参照で、その path が実在しないもの（dangling reference）は 0。
 
 SSOT に固定した原則とその対応（ご指定の 11 項目）:
 
@@ -176,6 +192,13 @@ main の `resultNearMiss` で、技法の軸を示すのは **SAUCE_ONLY だけ*
 - **β:** 一律に適用し、TQ-1C に入れる（HV 必須）。
 - **γ:** 技法に限定し、TQ-1C に入れる（不活性。side channel は残る）。
 
+**決定（OD-TQ1C-2 APPROVED = 案 α）:**
+
+- SAUCE_ONLY に一律で適用し、candidate < 2 は fail-closed、side channel は作らない。
+- **TQ-1C では有効化しない**（production の文言は不変）。
+- **TQ-1D と Human Verification で有効化する**。
+- 44 件中 12 件という監査結果は SSOT §1.1 に記録した。TQ-1C はこの数を pure 関数の test（T15a）で固定するだけにする。
+
 ### 6.2 k < 2 の時の fail-closed
 
 k < 2 の時は SAUCE_ONLY を出さず、fallback「おしい！あと少し、なにかが違うみたい…？」を出す。
@@ -224,12 +247,13 @@ reducer の test は、production catalog（不活性の確認）と、注入し
 | T7 | invalid / failed pizza | Completion Gate が FAILED（欠品、生焼け、焦げ、#275 の CUT skip）、AMBIGUOUS、INCOMPLETE_MATCH、空のピザ → 記録 0 |
 | T8 | Lunch Rush | `MISSION_NEXT_ORDER` と Lunch Rush round の REGISTER_TO_DEX で台帳が不変 |
 | T9 | Dinner | CLEAR / FAIL / 時間切れ / 放棄で台帳と `lastTechniqueDiscovery` が不変。REGISTER_TO_DEX は拒否される |
-| T10 | guided round | OD-TQ1C-3 の結論どおり（推奨案: 使用経路は 0。レシピ経路は INV-TQ-1 のとおり記録する） |
+| T10 | guided round | OD-TQ1C-3（APPROVED）: 使用経路は 0。guided で別のレシピを matcher 経由で新しく発見した場合、そのレシピが要求する技法はレシピ経路で記録する（synthetic） |
 | T11 | reload | 保存 → 再 mount → 台帳は保持され、`lastTechniqueDiscovery` は `[]`。再 bake しても再発見しない |
 | T12 | Full Reset | `[]` に戻る |
 | T13 | 未知 / 将来の id | 未知の id を含む save → GameState には既知の id だけ → write 後も storage に未知の id が残る |
 | T14 | DM-4-3 | 技法の発見と Dinner record の拒否が同時 → storage 完全に不変 → 再試行で台帳と dex が一緒に保存される |
-| T15 | k < 2 の privacy | OD-TQ1C-2 による（案 α なら TQ-1D の test。pure 部分は TQ-1A で test 済み） |
+| T15 | k < 2 の privacy | OD-TQ1C-2 = α: wiring と文言の test は TQ-1D。pure 部分は TQ-1A で test 済み。**TQ-1C では production の near-miss 文言が変わらないこと**（`NEAR_MISS_COPY` と `resultNearMiss` の出力が不変）を test で固定する |
+| T15a | 監査値の固定 | canonical ladder の production 状態で、SAUCE_ONLY は 44 件、そのうち k < 2 は 12 件（pure 関数だけで計算し、表示は変えない） |
 | T16 | INV-TQ-4（production） | production catalog の affordance は `null`。production で「ソースを塗らないオリジナルピザ」を作っても台帳は `[]`。すべての production target で `requiredTechniquesOf = []` |
 | T17 | 現行 production の挙動が不変 | 既存の reducer / App / e2e test がすべて pass。`lastDiscovery`、Dex、Pitz、★ の結果は TQ-1C 前と deep-equal（production catalog の全 target の ideal pizza × FREE / guided で比較） |
 | T18 | 25 recipe の scoring parity | `scoringV2.noSauceParity.test.ts`（225 行）が pass |
@@ -258,6 +282,8 @@ reducer の test は、production catalog（不活性の確認）と、注入し
 | **OD-TQ1C-2** | near-miss の k 規則の範囲と時期 | **α: SAUCE_ONLY に一律で適用し、TQ-1D（HV あり）で出す**。TQ-1C は不活性のまま | β: 一律に適用し TQ-1C で出す（HV 必須）。γ: 技法に限定し TQ-1C で出す（side channel が残る） |
 | **OD-TQ1C-3** | guided round（Free Cooking 以外の FREE） | **使用経路（オリジナルな使い方の認識）は Free Cooking だけ。レシピ経路（INV-TQ-1）は、レシピを新しく発見しうる FREE の全 round で記録する**。authority の「guided: 検出しない」を「guided では使用経路を検出しない」と明確にする。Lunch Rush と Dinner は両経路とも 0 | guided では両経路とも 0 にし、INV-TQ-1 は load 時の backfill だけで保証する（次の load まで一時的に INV-TQ-1 が破れる） |
 
+**決定（2026-09-28）:** OD-TQ1C-1 / 2 / 3 はすべて **APPROVED（推奨案）**。OD-TQ1C-1 の取り込み範囲は、Owner の指示で文書 4 本と handoff 節に絞った（§2 の決定注記）。記録は SSOT §5。
+
 OD-TQ1C-3 の背景: main の REGISTER_TO_DEX は、guided round でも `evaluateDiscovery` → `registerDiscoveryToDex` で、選んだレシピとは**別のレシピを新しく発見しうる**（`gameReducer.ts:1280-1308`）。そのレシピが技法を要求していた場合（TQ-1D 以降）、guided で何も記録しないと、INV-TQ-1（発見済みのレシピ ⇒ その技法も発見済み）がその session の間だけ破れる。
 
 ---
@@ -282,3 +308,5 @@ Issue: TQ-1C の Issue は未作成（duplicate gate: 0 件）。**作成を提�
 - #284 は merged、#260 は blocker ではない、#275 との衝突は自明な範囲。したがって C ではない。
 - 設計の見直しは不要。したがって D ではない。
 - 3 件が推奨どおり承認されれば、**A. TQ-1C READY FOR IMPLEMENTATION**（TQ-1C-0 の docs-only PR の後）。
+
+**判断後（2026-09-28）: 3 件とも APPROVED → A. TQ-1C READY FOR IMPLEMENTATION**（TQ-1C-0 の merge 後、最新 main から着手する）。

@@ -3,6 +3,7 @@
 > 基準: `03f81e2`（TQ-1 Owner Decision Gate）。Owner が 2026-09-27 に承認した。
 > 本書は Owner Authority の正式記録と、3 レーン（LAD-1 / TQ-1A / TQ-1B）の Final Implementation Gate。
 > **TQ-1C 以降・Aussie の production 追加・CSS / UI / E2E / HV は範囲外。**
+> main 上の要約 authority は `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`。TQ-1C 以降の Owner Decision（OD-TQ1C-1/2/3）もそこに記録している。
 
 ## 1. Owner Authority（確定）
 

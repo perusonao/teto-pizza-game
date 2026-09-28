@@ -9,15 +9,17 @@
 > **Verdict: A. TQ-1 READY FOR OWNER FINAL DECISIONS**
 > （条件: §9 の hard prerequisite 3 件、OD-TQ-S1・OD-W2-1・OD-TQ-P1 を実装前に確定すること）
 
-| Artifact | Path |
-|---|---|
-| 本書 | `docs/design/TETO_COOKING-TECHNIQUES_1.0_OWNER-DECISION-GATE.md` |
-| TQ-1 gate データ（機械可読） | `docs/design/data/TETO_COOKING-TECHNIQUES_TQ1_GATE.json` |
-| 生成テーブル | `docs/design/TETO_COOKING-TECHNIQUES_TQ1_GATE_TABLES.md` |
-| 生成・検証ツール | `tools/cooking_techniques_tq1_gate.py`（`--check`） |
-| 前回の設計・監査（変更なし） | `TETO_COOKING-TECHNIQUES_1.0_DESIGN.md` / `..._AUDIT.json` / `tools/cooking_techniques_audit.py` |
+> **main での位置付け（TQ-1C-0、OD-TQ1C-1）:** main に入っているのは本書（authority の詳細）だけ。下表の機械可読データと生成ツールは、設計 archive（branch `claude/cooking-techniques-design-n0qfwj`、commit `ab77b82`）に固定して残す。いずれも TQ-1C / TQ-1D の runtime や test からは参照しない。**Cooking Techniques 1.0 の要約 authority は `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`（本書より優先）。**
 
-数値はすべてツールの出力。本文と JSON が食い違う場合は JSON が正。重み、★閾値、Pitz 帯、ladder、SAUCE_ONLY 文言、free-cook の SAUCE 文言は `src/**` から読み取り専用で parse しており、drift すると `--check` が fail する。
+| Artifact | 置き場所 |
+|---|---|
+| 本書 | main: `docs/design/TETO_COOKING-TECHNIQUES_1.0_OWNER-DECISION-GATE.md` |
+| TQ-1 gate データ（機械可読） | 設計 archive @ `ab77b82`: `docs/design/data/TETO_COOKING-TECHNIQUES_TQ1_GATE.json` |
+| 生成テーブル | 設計 archive @ `ab77b82`: `docs/design/TETO_COOKING-TECHNIQUES_TQ1_GATE_TABLES.md` |
+| 生成・検証ツール | 設計 archive @ `ab77b82`: `tools/cooking_techniques_tq1_gate.py`（`--check`） |
+| 前回の設計・監査（変更なし） | 設計 archive @ `ab77b82`: `TETO_COOKING-TECHNIQUES_1.0_DESIGN.md` / `..._AUDIT.json` / `tools/cooking_techniques_audit.py` |
+
+数値はすべてツールの出力。本文と JSON が食い違う場合は JSON が正。重み、★閾値、Pitz 帯、ladder、SAUCE_ONLY 文言、free-cook の SAUCE 文言は `src/**` から読み取り専用で parse しており、drift すると `--check` が fail する（設計 archive 上で、main `bcac961` を取り込んだ状態で pass を確認済み）。no-sauce scoring の結論は、main では TQ-1B の test（`scoreParity.main-7bb0116.json` の 225 行 parity ほか）が固定している。
 
 ---
 
@@ -72,7 +74,7 @@
 
 ## 3. TQ-1 候補テーブル（NO_SAUCE 44 行を全件）
 
-全列は `TETO_COOKING-TECHNIQUES_TQ1_GATE_TABLES.md` §1 と JSON `noSauceCandidates`。列は次のとおり:
+全列は設計 archive（`ab77b82`）の `TETO_COOKING-TECHNIQUES_TQ1_GATE_TABLES.md` §1 と JSON `noSauceCandidates`。列は次のとおり:
 
 - recipe ID
 - 日本語名
