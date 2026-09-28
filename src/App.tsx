@@ -189,6 +189,9 @@ function App() {
       entitlement.unlockedForShopIngredientIds,
       save.discoveryHintPurchases,
       save.discoveryHintFacts,
+      // DM-4-3: the Dinner records, blocked (broken) missions included, so a settlement can never
+      // mistake a broken record for "no record".
+      save.dinnerMissionRecordsState,
     );
   });
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
@@ -344,7 +347,7 @@ function App() {
   // src/state/persistence.ts). `missionBest` is a separate concern, saved by its own effect
   // below.
   useEffect(() => {
-    persistProgress({
+    const persisted = persistProgress({
       dex: state.dex,
       pitzBalance: state.pitzBalance,
       ownedIngredientIds: state.ownedIngredientIds,
@@ -353,7 +356,18 @@ function App() {
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       discoveryHintPurchases: state.discoveryHintPurchases,
       discoveryHintFacts: state.discoveryHintFacts,
+      // DM-4-3: a Dinner CLEAR changes `pitzBalance` and a record in the same reducer step, so they
+      // arrive here together and are written in one save write. `requireDinnerRecords`: if a record
+      // cannot be stored (its mission became blocked in storage underneath), nothing is written --
+      // never the payout without its record.
+      dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
+      requireDinnerRecords: true,
     });
+    // Refused (nothing was written): reconcile memory with storage -- the missions become blocked,
+    // an unsaved payout is reverted, and the next save (without those records) goes through.
+    if (persisted.refusedDinnerMissionIds.length > 0) {
+      dispatch({ type: "DINNER_RECORDS_REFUSED", missionIds: persisted.refusedDinnerMissionIds });
+    }
   }, [
     state.dex,
     state.pitzBalance,
@@ -363,6 +377,7 @@ function App() {
     state.unlockedForShopIngredientIds,
     state.discoveryHintPurchases,
     state.discoveryHintFacts,
+    state.dinnerMissionRecordsState,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
