@@ -3,7 +3,7 @@
 Issue #263 · Owner Decision **OD-TQ-S1 = option B (APPROVED)**, which also answers Wave 2 **OD-W2-8** ·
 base `main` `7bb0116` (PR #264)
 Final Implementation Gate: `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md` §3.3
-(on `claude/cooking-techniques-design-n0qfwj`).
+(on main since TQ-1C-0, #285; the summary authority is `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`).
 
 ## What changed
 
