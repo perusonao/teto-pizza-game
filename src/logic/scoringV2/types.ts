@@ -188,11 +188,11 @@ export interface ScoringV2Result {
 export type ScoringV2WeightProfileId = "STANDARD" | "NO_SAUCE";
 
 export interface ScoringV2WeightProfile {
-  id: ScoringV2WeightProfileId;
-  sauce: number;
-  pieces: number;
-  recipe: number;
-  bake: number;
+  readonly id: ScoringV2WeightProfileId;
+  readonly sauce: number;
+  readonly pieces: number;
+  readonly recipe: number;
+  readonly bake: number;
 }
 
 /**

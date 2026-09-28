@@ -75,10 +75,12 @@ const BAKE_WEIGHT = 20;
  * No constant above changes, and neither does `SCORING_V2_RULESET_VERSION` (OD-TQ-S2): no existing
  * result can change, because only a Reference without a sauce reaches `NO_SAUCE`.
  */
-export const SCORING_V2_WEIGHT_PROFILES: Readonly<Record<ScoringV2WeightProfileId, ScoringV2WeightProfile>> = {
-  STANDARD: { id: "STANDARD", sauce: SAUCE_WEIGHT, pieces: PIECES_WEIGHT, recipe: RECIPE_WEIGHT, bake: BAKE_WEIGHT },
-  NO_SAUCE: { id: "NO_SAUCE", sauce: 0, pieces: PIECES_WEIGHT + SAUCE_WEIGHT, recipe: RECIPE_WEIGHT, bake: BAKE_WEIGHT },
-};
+// Frozen, profiles included: every production score reads these, so no importer may change a
+// weight at runtime without a ruleset-version change (Codex review on #271).
+export const SCORING_V2_WEIGHT_PROFILES: Readonly<Record<ScoringV2WeightProfileId, ScoringV2WeightProfile>> = Object.freeze({
+  STANDARD: Object.freeze({ id: "STANDARD", sauce: SAUCE_WEIGHT, pieces: PIECES_WEIGHT, recipe: RECIPE_WEIGHT, bake: BAKE_WEIGHT }),
+  NO_SAUCE: Object.freeze({ id: "NO_SAUCE", sauce: 0, pieces: PIECES_WEIGHT + SAUCE_WEIGHT, recipe: RECIPE_WEIGHT, bake: BAKE_WEIGHT }),
+});
 
 /** The weighted 0-1 unit total of four 0-100 component scores under `profile`. The expression
  *  (term order, then `/ 100 / 100`) is exactly the pre-TQ-1B one, so `STANDARD` is bit-identical. */

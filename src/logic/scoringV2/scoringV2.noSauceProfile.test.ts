@@ -376,6 +376,22 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(computeScoringV2(margherita, pizza)).toEqual(before);
   });
 
+  it("the weight profiles are immutable at runtime (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const before = computeScoringV2(margherita, pizza);
+    const standard = SCORING_V2_WEIGHT_PROFILES.STANDARD as { sauce: number };
+    expect(() => {
+      standard.sauce = 0;
+    }).toThrow(TypeError);
+    const profiles = SCORING_V2_WEIGHT_PROFILES as Record<string, unknown>;
+    expect(() => {
+      profiles.STANDARD = SCORING_V2_WEIGHT_PROFILES.NO_SAUCE;
+    }).toThrow(TypeError);
+    expect(SCORING_V2_WEIGHT_PROFILES.STANDARD.sauce).toBe(52);
+    expect(computeScoringV2(margherita, pizza)).toEqual(before);
+  });
+
   it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
     const margherita = getRecipe("margherita")!;
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
