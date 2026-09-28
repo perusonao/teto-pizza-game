@@ -54,37 +54,37 @@ export interface ReferencePieceGroup {
    *  use this same type without another type-level change. Widening this field alone adds no
    *  new Reference data -- see that report for exactly what a real 6-recipe entry still needs
    *  (reviewed positions/tolerance radii), which this type change does not provide. */
-  ingredientId: string;
-  positions: readonly { x: number; y: number }[];
-  interaction: {
-    family: "TAP_PLACE";
-    primaryInput: "DRAG_FROM_TRAY";
-    fallbackInput: "TAP_ON_PIZZA";
-    landingStyle: "HEAVY_SQUASH" | "LIGHT_LEAF";
+  readonly ingredientId: string;
+  readonly positions: readonly { readonly x: number; readonly y: number }[];
+  readonly interaction: {
+    readonly family: "TAP_PLACE";
+    readonly primaryInput: "DRAG_FROM_TRAY";
+    readonly fallbackInput: "TAP_ON_PIZZA";
+    readonly landingStyle: "HEAVY_SQUASH" | "LIGHT_LEAF";
   };
-  matching: {
-    fullCreditRadius: number;
-    zeroCreditRadius: number;
+  readonly matching: {
+    readonly fullCreditRadius: number;
+    readonly zeroCreditRadius: number;
   };
 }
 
 export interface ReferenceSauce {
-  ingredientId: string;
+  readonly ingredientId: string;
   /** Target normalized quantity, 0.0-1.0. Derived from `IDEAL_MARGHERITA_SAUCE_FIXTURE`'s
    *  own computed metrics below -- not an independently chosen number. */
-  quantity: number;
+  readonly quantity: number;
   /** Target coverage (fraction of the dough painted), 0.0-1.0. Same derivation as above. */
-  coverage: number;
+  readonly coverage: number;
 }
 
 export interface ReferencePizza {
   /** Widened from a Margherita-only literal to `RecipeId` (B2, see the Reference-coverage
    *  report cited above) -- a type-level prerequisite for adding other recipes' References,
    *  not itself new Reference data. */
-  recipeId: RecipeId;
-  sauce: ReferenceSauce;
+  readonly recipeId: RecipeId;
+  readonly sauce: ReferenceSauce;
   /** Phase 4A-1B game-authored prototype layout; never a PIZZA DB quantity claim. */
-  pieceGroups: readonly ReferencePieceGroup[];
+  readonly pieceGroups: readonly ReferencePieceGroup[];
 }
 
 /** Concentric rings (radius, point count) the fixture paints along, staying inside the
@@ -1520,6 +1520,17 @@ export const PUTTANESCA_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/** Freezes Reference data in place, all the way down. The registry is authoritative scoring
+ *  data: a caller that mutates a returned Reference (or an exported constant) must not be able
+ *  to change what every later score is measured against (Codex review on #271). */
+function deepFreezeReference<T>(value: T): T {
+  if (typeof value === "object" && value !== null && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const child of Object.values(value)) deepFreezeReference(child);
+  }
+  return value;
+}
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -1547,6 +1558,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PESTO_PATATE_REFERENCE.recipeId, PESTO_PATATE_REFERENCE],
   [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
 ]);
+for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 
 /**
  * Returns the Reference Pizza for `recipeId`, or null for an unrecognized id.
@@ -1560,4 +1572,9 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
  */
 export function getReferencePizza(recipeId: string): ReferencePizza | null {
   return REFERENCE_PIZZAS.get(recipeId as RecipeId) ?? null;
+}
+
+/** Every production Reference, in registration order. */
+export function listReferencePizzas(): readonly ReferencePizza[] {
+  return [...REFERENCE_PIZZAS.values()];
 }
