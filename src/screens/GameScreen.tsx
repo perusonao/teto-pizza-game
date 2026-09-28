@@ -33,7 +33,7 @@ import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily } from "../components/HintSheet";
-import { hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
@@ -131,6 +131,8 @@ interface GameScreenProps {
   onUnlockHint?: (level: number) => void;
   /** H3-3: buy one Selectable Hint fact (PURCHASE_SELECTABLE_HINT). */
   onBuySelectableHint?: (preference: HintCategory, expectedPaidCount: number, family?: HintFamily) => void;
+  /** Hint 5.0 H5-3: request the offered ladder rung (PURCHASE_HINT5_RUNG; a no-op with the flag OFF). */
+  onBuyHint5Rung?: (expectedRungIndex: number) => void;
   onCloseHint?: () => void;
   /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
    *  with the hint sheet open. */
@@ -216,6 +218,7 @@ export function GameScreen({
   onShowHint,
   onUnlockHint = () => {},
   onBuySelectableHint = () => {},
+  onBuyHint5Rung = () => {},
   onCloseHint = () => {},
   onRetryWithHint,
   onChangeCategory,
@@ -836,7 +839,14 @@ export function GameScreen({
             )}
           </div>
           {hintSheetOpen && (
-            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onBuySelectable={onBuySelectableHint} onClose={onCloseHint} />
+            <HintSheet
+              view={hintSheetView(state)}
+              hint5={hint5SheetView(state)}
+              onUnlock={onUnlockHint}
+              onBuySelectable={onBuySelectableHint}
+              onBuyHint5={onBuyHint5Rung}
+              onClose={onCloseHint}
+            />
           )}
         </>
       )}

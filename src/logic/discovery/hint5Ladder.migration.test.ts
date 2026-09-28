@@ -2,109 +2,182 @@ import { describe, expect, it } from "vitest";
 import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "./deductionGuard";
 import { legacyHintMapping } from "./hintFactMigration";
-import { buildHint5Ladder, hint5Ownership, hint5Presentation, requestHint5Rung, type Hint5RequestInput } from "./hint5Ladder";
+import {
+  buildHint5Ladder,
+  hint5Ownership,
+  hint5Presentation,
+  HINT5_RUNG_MARKER,
+  requestHint5Rung,
+  type Hint5RequestInput,
+  type Hint5RequestResult,
+} from "./hint5Ladder";
 
 /**
- * Discovery Hint 5.0 (Issue #292), H5-1: the read-time migration of existing ledgers
- * (docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md §9.1; OD-H5-E3 / E3b / M1). Nothing is
- * converted, rewritten or deleted: a request only ever returns ids to append.
+ * Discovery Hint 5.0 (Issue #292): existing ledgers under OD-H5-M3 (round 5)
+ * (docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md §9, H5-2 Result §5).
+ *
+ * - Legacy facts never complete a rung, so the pre-purchase view is the same with or without them.
+ * - At request time only:
+ *   - ALL known -> ALREADY_KNOWN, 0 Pitz, only the completion record stored;
+ *   - PARTIALLY known / NONE known -> the normal P-C price.
+ * - Nothing is converted, rewritten or deleted (E3). A request only returns ids to append.
  */
 
-const own = (recipeId: string, stored: unknown, legacy: unknown = {}) => hint5Ownership(buildHint5Ladder(recipeId)!, stored, legacy);
-const req = (recipeId: string, over: Partial<Hint5RequestInput>) =>
+const req = (recipeId: string, over: Partial<Hint5RequestInput> = {}) =>
   requestHint5Rung({ recipeId, discoveredCount: 5, storedFactIds: [], legacyPurchases: {}, expectedRungIndex: 1, pitzBalance: 1000, ...over });
+const view = (recipeId: string, stored: unknown, legacy: unknown = {}, pitzBalance = 1000) =>
+  hint5Presentation({ recipeId, discoveredCount: 5, storedFactIds: stored, legacyPurchases: legacy, pitzBalance })!;
+/** The view without the player's own-name archive (the one part that may show their legacy names). */
+const preView = (recipeId: string, stored: unknown, legacy: unknown = {}, pitzBalance = 1000) => {
+  const { legacyKnownIngredientIds: _archive, ...rest } = view(recipeId, stored, legacy, pitzBalance);
+  return rest;
+};
 
-describe("§9.1 mapping of stored facts", () => {
-  it("ing:<sauce / cheese / key> settles that name rung", () => {
-    expect(own("hawaiian", ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple"]).statuses).toEqual(["OWNED", "OWNED", "OWNED", "OPEN", "OPEN"]);
+/** Walks the ladder from `stored`, returning each outcome (and the ledger after it). */
+function walk(recipeId: string, stored: string[], legacy: unknown = {}): { results: Hint5RequestResult[]; stored: string[] } {
+  const results: Hint5RequestResult[] = [];
+  let ledger = [...stored];
+  for (let guard = 0; guard < 20; guard += 1) {
+    const next = view(recipeId, ledger, legacy).next;
+    if (!next) break;
+    const r = req(recipeId, { storedFactIds: ledger, legacyPurchases: legacy, expectedRungIndex: next.rungIndex });
+    results.push(r);
+    if (r.outcome !== "ANSWERED" && r.outcome !== "ALREADY_KNOWN") break;
+    ledger = [...ledger, ...r.addFactIds.filter((id) => !ledger.includes(id))];
+  }
+  return { results, stored: ledger };
+}
+
+describe("M3: legacy facts never change the pre-purchase view", () => {
+  const cases: [string, string[], unknown][] = [
+    ["hawaiian", ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple", INGREDIENT_TOTAL_FACT_ID, "ing:ham"], {}],
+    ["parmigiana-pizza", ["ing:mozzarella"], {}], // L1 (a partial multi-cheese rung)
+    ["hawaiian", ["ing:mozzarella"], {}], // L2 (a complete single-cheese rung)
+    ["capricciosa", ["ing:ham"], {}], // L3 (a known non-key topping)
+    ["quattro-formaggi", ["ing:mozzarella", "ing:parmigiano"], { "quattro-formaggi": 1 }], // L1 + a legacy grant
+    ["hawaiian", [], { hawaiian: 4 }], // Economy 1.0 legacy ledger only
+    ["hawaiian", ["attr:family:meat", "attr:group:protein", "meta:topping-total"], {}],
+  ];
+
+  it("next rung, its kind and label, its price, whether it can be bought, and the board: identical to a fresh ledger", () => {
+    for (const [recipeId, stored, legacy] of cases) {
+      expect(preView(recipeId, stored, legacy), `${recipeId} ${stored.join(",")}`).toEqual(preView(recipeId, [], {}));
+      expect(preView(recipeId, stored, legacy, 0), recipeId).toEqual(preView(recipeId, [], {}, 0));
+    }
   });
 
-  it("a partly known multi-cheese rung stays sold, reveals only the rest, and charges the kind price", () => {
-    const o = own("parmigiana-pizza", ["ing:tomato-sauce", "ing:mozzarella"]);
-    expect(o.statuses[1]).toBe("OPEN");
-    expect(o.nextIndex).toBe(2);
-    expect(req("parmigiana-pizza", { storedFactIds: ["ing:tomato-sauce", "ing:mozzarella"], expectedRungIndex: 2 })).toMatchObject({
+  it("no rung is completed by a legacy fact, and the offered price is never 0 because something is known", () => {
+    for (const [recipeId, stored, legacy] of cases) {
+      const own = hint5Ownership(buildHint5Ladder(recipeId)!, stored, legacy);
+      expect(own.statuses.includes("COMPLETED"), recipeId).toBe(false);
+      expect(view(recipeId, stored, legacy).next).toMatchObject({ rungIndex: 1, kind: "SAUCE", price: 10 });
+    }
+  });
+
+  it("the archive shows the player's own names only, and it never depends on the target (a foreign id is shown as stored)", () => {
+    expect(view("hawaiian", ["ing:mozzarella", "ing:tuna"]).legacyKnownIngredientIds).toEqual(["mozzarella", "tuna"]);
+    expect(view("hawaiian", ["ing:not-an-ingredient", "__proto__"]).legacyKnownIngredientIds).toEqual([]);
+  });
+});
+
+describe("M3 at request time: ALL / PARTIAL / NONE known", () => {
+  it("ALL known (name rung): 0 Pitz, ALREADY_KNOWN, only the completion record is stored (no name stored twice)", () => {
+    const r = req("hawaiian", { storedFactIds: ["ing:tomato-sauce"] });
+    expect(r).toEqual({ outcome: "ALREADY_KNOWN", rungIndex: 1, kind: "SAUCE", addFactIds: [HINT5_RUNG_MARKER.SAUCE], charge: 0, persist: true });
+  });
+
+  it("PARTIAL known (parmigiana: mozzarella known, parmigiano not): the normal price, and the whole rung is disclosed", () => {
+    const stored = ["ing:tomato-sauce", HINT5_RUNG_MARKER.SAUCE, "ing:mozzarella"];
+    expect(view("parmigiana-pizza", stored).next).toMatchObject({ rungIndex: 2, kind: "CHEESE", price: 10 });
+    expect(req("parmigiana-pizza", { storedFactIds: stored, expectedRungIndex: 2 })).toEqual({
       outcome: "ANSWERED",
-      addFactIds: ["ing:parmigiano"],
+      rungIndex: 2,
+      kind: "CHEESE",
+      addFactIds: ["ing:parmigiano", HINT5_RUNG_MARKER.CHEESE],
+      charge: 10,
+      persist: true,
+    });
+    const after = view("parmigiana-pizza", [...stored, "ing:parmigiano", HINT5_RUNG_MARKER.CHEESE]);
+    expect(after.board[1]).toEqual({ rungIndex: 2, kind: "CHEESE", ingredientIds: ["mozzarella", "parmigiano"] });
+  });
+
+  it("NONE known: the normal price", () => {
+    expect(req("parmigiana-pizza", { storedFactIds: ["h5:sauce"], expectedRungIndex: 2 })).toMatchObject({
+      outcome: "ANSWERED",
+      addFactIds: ["ing:mozzarella", "ing:parmigiano", HINT5_RUNG_MARKER.CHEESE],
       charge: 10,
     });
   });
 
-  it("ing:<sub-topping> (a Hint 3.0 purchase) is ALREADY_KNOWN: never sold, charged 0, shown by name", () => {
+  it("the 0-Pitz completion needs an affordable request: with a balance below the normal price it is refused like any other", () => {
+    expect(req("hawaiian", { storedFactIds: ["ing:tomato-sauce"], pitzBalance: 9 })).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+    expect(req("hawaiian", { storedFactIds: [], pitzBalance: 9 })).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+  });
+
+  it("a fully known hawaiian (all names + total + the sub name): every rung completes for 0 Pitz, nothing is sold twice", () => {
     const stored = ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple", INGREDIENT_TOTAL_FACT_ID, "ing:ham"];
-    const o = own("hawaiian", stored);
-    expect(o.statuses[4]).toBe("ALREADY_KNOWN");
-    expect(o.nextIndex).toBeNull();
-    expect(req("hawaiian", { storedFactIds: stored, expectedRungIndex: 6 })).toEqual({ outcome: "LADDER_COMPLETE", addFactIds: [], charge: 0 });
-    const view = hint5Presentation({ recipeId: "hawaiian", discoveredCount: 5, storedFactIds: stored, legacyPurchases: {}, pitzBalance: 0 })!;
-    expect(view.board[4]).toEqual({ rungIndex: 5, kind: "SUB_CLASS", ordinal: 1, knownIngredientId: "ham" });
+    const { results, stored: after } = walk("hawaiian", stored);
+    expect(results.map((r) => r.outcome)).toEqual(["ALREADY_KNOWN", "ALREADY_KNOWN", "ALREADY_KNOWN", "ALREADY_KNOWN", "ALREADY_KNOWN"]);
+    expect(results.every((r) => r.outcome === "ALREADY_KNOWN" && r.charge === 0)).toBe(true);
+    expect(after).toEqual([...stored, "h5:sauce", "h5:cheese", "h5:key", "h5:structure", "cls:ham"]);
+    // The completed board now shows the classification (the name stays in the archive).
+    const final = view("hawaiian", after);
+    expect(final.next).toBeNull();
+    expect(final.board[4]).toMatchObject({ kind: "SUB_CLASS", classView: { family: "meat" } });
+    // The archive keeps only what the board does not show: the sub-topping name (ham).
+    expect(final.legacyKnownIngredientIds).toEqual(["ham"]);
   });
 
-  it("meta:ingredient-total settles STRUCTURE; meta:topping-total alone does not", () => {
-    expect(own("hawaiian", [INGREDIENT_TOTAL_FACT_ID]).statuses[3]).toBe("OWNED");
-    expect(own("hawaiian", [TOPPING_TOTAL_FACT_ID]).statuses[3]).toBe("OPEN");
+  it("STRUCTURE: meta:ingredient-total or the legacy count line -> 0 Pitz; meta:topping-total alone -> the normal price", () => {
+    const upToStructure = ["h5:sauce", "h5:cheese", "h5:key"];
+    expect(req("hawaiian", { storedFactIds: [...upToStructure, INGREDIENT_TOTAL_FACT_ID], expectedRungIndex: 4 })).toMatchObject({ outcome: "ALREADY_KNOWN", addFactIds: ["h5:structure"] });
+    expect(req("hawaiian", { storedFactIds: upToStructure, legacyPurchases: { hawaiian: 3 }, expectedRungIndex: 4 })).toMatchObject({ outcome: "ALREADY_KNOWN", charge: 0 });
+    expect(req("hawaiian", { storedFactIds: [...upToStructure, TOPPING_TOTAL_FACT_ID], expectedRungIndex: 4 })).toMatchObject({
+      outcome: "ANSWERED",
+      addFactIds: [INGREDIENT_TOTAL_FACT_ID, "h5:structure"],
+      charge: 5,
+    });
   });
 
-  it("the legacy Economy 1.0 ledger grants the names its lines showed, and its count line settles STRUCTURE", () => {
-    const granted = legacyHintMapping("hawaiian", { hawaiian: 3 })!.grantedFactIds;
-    expect([...granted].sort()).toEqual(["ing:pineapple", "ing:tomato-sauce"]);
-    const o = own("hawaiian", [], { hawaiian: 3 });
-    expect(o.statuses).toEqual(["OWNED", "OPEN", "OWNED", "OWNED", "OPEN"]);
-    expect(o.nextIndex).toBe(2);
+  it("the Economy 1.0 ledger counts as known at request time only (sauce + key names, count line)", () => {
+    expect([...legacyHintMapping("hawaiian", { hawaiian: 3 })!.grantedFactIds].sort()).toEqual(["ing:pineapple", "ing:tomato-sauce"]);
+    const { results } = walk("hawaiian", [], { hawaiian: 3 });
+    expect(results.map((r) => `${r.outcome}:${"charge" in r ? r.charge : "-"}`)).toEqual(["ALREADY_KNOWN:0", "ANSWERED:10", "ALREADY_KNOWN:0", "ALREADY_KNOWN:0", "ANSWERED:5"]);
   });
 
-  it("attr:family:<f> about the Rule W reserve maps only when that reserve is a Hint 5.0 sub-topping with family f (E3 safe mapping)", () => {
-    // hawaiian: the Rule W reserve is ham (meat), which is also its Hint 5.0 sub-topping.
-    expect(own("hawaiian", ["attr:family:meat"]).statuses[4]).toBe("OWNED");
-    expect(own("hawaiian", ["attr:family:vegetable"]).statuses[4]).toBe("OPEN");
-    // margherita: the reserve (basil) is the Hint 5.0 key, not a sub-topping, so nothing maps.
-    expect(own("margherita", ["attr:family:herb"]).statuses).toEqual(["OPEN", "OPEN", "OPEN", "OPEN"]);
-  });
-
-  it("E3b: coarse attr:group / attr:category grant nothing, and no request ever touches them", () => {
-    for (const coarse of ["attr:group:protein", "attr:category:topping", "attr:existence"]) {
-      const o = own("hawaiian", [coarse]);
-      expect(o.statuses, coarse).toEqual(["OPEN", "OPEN", "OPEN", "OPEN", "OPEN"]);
-      const r = req("hawaiian", { storedFactIds: [coarse] });
-      expect(r.outcome === "ANSWERED" && r.addFactIds.some((id) => id.startsWith("attr:")), coarse).toBe(false);
+  it("attr:family:<f> about the Rule W reserve = the sub-topping with family f: ALL known at request time; a mismatch or a coarse answer is not (E3b)", () => {
+    const fixed = ["h5:sauce", "h5:cheese", "h5:key", "h5:structure"];
+    expect(req("hawaiian", { storedFactIds: [...fixed, "attr:family:meat"], expectedRungIndex: 5 })).toMatchObject({ outcome: "ALREADY_KNOWN", addFactIds: ["cls:ham"], charge: 0 });
+    for (const other of ["attr:family:vegetable", "attr:group:protein", "attr:category:topping", "attr:existence"]) {
+      expect(req("hawaiian", { storedFactIds: [...fixed, other], expectedRungIndex: 5 }), other).toMatchObject({ outcome: "ANSWERED", charge: 5 });
     }
   });
 
-  it("M1: the Hint 3.0 free key (never stored) grants nothing: the key-topping rung is still paid", () => {
-    // pineapple is hawaiian's Hint 3.0 free key and its Hint 5.0 key topping; nothing stored -> OPEN.
-    const o = own("hawaiian", ["ing:tomato-sauce", "ing:mozzarella"]);
-    expect(o.statuses[2]).toBe("OPEN");
-    expect(req("hawaiian", { storedFactIds: ["ing:tomato-sauce", "ing:mozzarella"], expectedRungIndex: 3 })).toMatchObject({ addFactIds: ["ing:pineapple"], charge: 10 });
+  it("M1: the Hint 3.0 free key (never stored) counts for nothing: the key rung costs the normal price", () => {
+    expect(req("hawaiian", { storedFactIds: ["h5:sauce", "h5:cheese"], expectedRungIndex: 3 })).toMatchObject({ outcome: "ANSWERED", addFactIds: ["ing:pineapple", "h5:key"], charge: 10 });
   });
 });
 
 describe("unknown / future ids and forward compatibility (G12 / G13)", () => {
-  const junk = ["tech:no-sauce", "shape:round:x", "cls:future-truffle", "cls:tuna", "ing:future-thing", "ing:tuna", "__proto__", "constructor", 5, null, { a: 1 }];
+  const junk = ["tech:no-sauce", "shape:round:x", "cls:future-truffle", "cls:tuna", "ing:future-thing", "__proto__", "constructor", "h5:future-rung", 5, null, { a: 1 }];
 
-  it("unknown, future, foreign-recipe and hostile ids are ignored and never break the ladder", () => {
-    const o = own("hawaiian", junk, { __proto__: 4, hawaiian: "x" });
+  it("unknown, future, foreign-recipe and hostile ids never complete a rung or break the ladder", () => {
+    const o = hint5Ownership(buildHint5Ladder("hawaiian")!, junk, { __proto__: 4, hawaiian: "x" });
     expect(o.statuses).toEqual(["OPEN", "OPEN", "OPEN", "OPEN", "OPEN"]);
-    expect(own("hawaiian", "not-an-array").nextIndex).toBe(1);
-    const r = req("hawaiian", { storedFactIds: junk });
-    expect(r).toMatchObject({ outcome: "ANSWERED", addFactIds: ["ing:tomato-sauce"] });
+    expect(hint5Ownership(buildHint5Ladder("hawaiian")!, "not-an-array", {}).nextIndex).toBe(1);
+    expect(req("hawaiian", { storedFactIds: junk })).toMatchObject({ outcome: "ANSWERED", addFactIds: ["ing:tomato-sauce", "h5:sauce"] });
   });
 
-  it("a request only returns ids to APPEND: stored ids (known or not) are never echoed, rewritten or dropped by it", () => {
+  it("a request only returns ids to APPEND: stored ids are never echoed, rewritten or dropped", () => {
     const stored = ["tech:no-sauce", "attr:group:protein", "ing:tomato-sauce"];
-    const r = req("hawaiian", { storedFactIds: stored, expectedRungIndex: 2 });
-    expect(r).toMatchObject({ outcome: "ANSWERED", addFactIds: ["ing:mozzarella"] });
+    expect(req("hawaiian", { storedFactIds: stored })).toMatchObject({ outcome: "ALREADY_KNOWN", addFactIds: ["h5:sauce"] });
     expect(stored).toEqual(["tech:no-sauce", "attr:group:protein", "ing:tomato-sauce"]);
   });
 
-  it("the ids a request adds stay inside the persisted fact grammar (so a previous build keeps them)", () => {
+  it("every id a request adds stays inside the persisted fact grammar (so a previous build keeps it)", () => {
     const grammar = /^[a-z][a-z0-9-]{0,15}(?::[a-z0-9][a-z0-9_-]{0,63}){1,2}$/; // persistence.ts HINT_FACT_ID_PATTERN
-    let stored: string[] = [];
-    for (let i = 1; i <= 7; i += 1) {
-      const r = req("capricciosa", { storedFactIds: stored, expectedRungIndex: i });
-      expect(r.outcome).toBe("ANSWERED");
-      if (r.outcome !== "ANSWERED") return;
-      for (const id of r.addFactIds) expect(id).toMatch(grammar);
-      stored = [...stored, ...r.addFactIds];
-    }
+    const { results, stored } = walk("capricciosa", []);
+    expect(results).toHaveLength(7);
+    for (const id of stored) expect(id).toMatch(grammar);
   });
 });

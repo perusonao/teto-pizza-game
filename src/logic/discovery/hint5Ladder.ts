@@ -34,22 +34,26 @@
  * SAUCE 10 · CHEESE 10 · KEY_TOPPING 10 · STRUCTURE 5 · SUB_CLASS 5. The price depends on the rung
  * kind only. The Dex-0 Margherita onboarding is free and never persisted (OD-HE-5).
  *
- * ## Stored facts (§6.3, §9)
+ * ## Stored facts (§6.3, §9) and OD-H5-M3
  *
- * - The name rungs store `ing:<id>` (the Hint 3.0 kind).
- * - STRUCTURE stores `meta:ingredient-total` (DH4).
- * - SUB_CLASS stores `cls:<ingredientId>`. That id lives in the save only: no presentation field
- *   carries it (H5-INV-1).
+ * - A bought name rung stores the new `ing:<id>` names (the Hint 3.0 kind) plus its completion
+ *   record (`h5:sauce` / `h5:cheese` / `h5:key`).
+ * - STRUCTURE stores `meta:ingredient-total` (DH4) when new, plus `h5:structure`.
+ * - SUB_CLASS stores `cls:<ingredientId>`, which is its own completion record. That id lives in the
+ *   save only: no presentation field carries it (H5-INV-1).
  *
- * Existing facts are read, never rewritten, converted or deleted (E3). Only these map to a rung:
- * - `ing:` names;
- * - the legacy Economy 1.0 grants;
+ * M3: existing facts are read, never rewritten, converted or deleted (E3), and they NEVER complete a
+ * rung. So the pre-purchase view (next rung, kind, price, purchasable) is the same with or without
+ * them. At request time they decide one thing: an affordable request whose rung is ALL known completes
+ * for 0 Pitz (ALREADY_KNOWN). A PARTIALLY known or NONE known rung costs the normal price. Legacy
+ * facts that count here:
+ * - `ing:` names and the legacy Economy 1.0 grants;
  * - `meta:ingredient-total` or the legacy count line;
  * - an `attr:family:<f>` about the Rule W reserve when the reserve is that sub-topping and its
  *   family is still f.
  *
- * Coarse `attr:group` / `attr:category` facts grant nothing (E3b). The Hint 3.0 free key grants
- * nothing (M1).
+ * Coarse `attr:group` / `attr:category` facts count for nothing (E3b), and neither does the Hint 3.0
+ * free key (M1).
  *
  * Inputs from outside are untrusted: lookups use arrays, Sets, Maps and `hasOwnProperty`.
  */
@@ -195,21 +199,47 @@ export function hint5EmptyFixedRungs(recipeId: unknown, recipes?: readonly Recip
   return ladder.rungs.filter((r) => r.kind !== "STRUCTURE" && r.kind !== "SUB_CLASS" && r.subjectIds.length === 0).map((r) => r.kind);
 }
 
-// ---- ownership (read-time mapping of the stored ledgers, §9.1) ------------------------------------
+// ---- ownership (Hint 5.0 completion records + the M3 request-time "already known" check) ----------
 
 /**
- * - OWNED: bought (or mapped from an old purchase).
- * - ALREADY_KNOWN: a sub-topping whose NAME the player already owns (a Hint 3.0 purchase).
- * - EMPTY: a fixed rung with no subject.
- * - OPEN: not settled.
+ * OD-H5-M3 (Owner Decision, round 5): a rung is COMPLETED only by a Hint 5.0 completion record:
+ * - `h5:sauce` / `h5:cheese` / `h5:key` / `h5:structure` for the fixed rungs;
+ * - `cls:<ingredientId>` for a sub-topping.
+ *
+ * Legacy facts never complete a rung, so they never change the pre-purchase view (which rung is
+ * next, its kind, its price, whether it can be bought). They count only at request time: when
+ * everything the requested rung would disclose is already known, the request completes it for
+ * 0 Pitz (ALREADY_KNOWN). Legacy facts here are `ing:` names, Economy 1.0 grants,
+ * `meta:ingredient-total` / the legacy count line, and the E3 `attr:family` safe mapping.
  */
-export type Hint5RungStatus = "OWNED" | "ALREADY_KNOWN" | "EMPTY" | "OPEN";
+export const HINT5_RUNG_MARKER: Readonly<Record<Exclude<Hint5RungKind, "SUB_CLASS">, string>> = {
+  SAUCE: "h5:sauce",
+  CHEESE: "h5:cheese",
+  KEY_TOPPING: "h5:key",
+  STRUCTURE: "h5:structure",
+};
+
+/**
+ * - COMPLETED: completed on the Hint 5.0 ladder (bought, or completed free as already known).
+ * - EMPTY: a fixed rung with no subject (RESERVED_EMPTY_RUNG; OD-H5-P4 / P4b open).
+ * - OPEN: not completed. It says nothing about what the player already knows.
+ */
+export type Hint5RungStatus = "COMPLETED" | "EMPTY" | "OPEN";
 
 export interface Hint5Ownership {
   statuses: readonly Hint5RungStatus[];
-  /** Ingredient names the player owns (`ing:` stored or legacy-granted), catalog order. */
+  /**
+   * INTERNAL, request-time only (never presentation): everything this rung would disclose is
+   * already known from stored or legacy facts. Deciding it compares the player's facts against the
+   * target's unbought content, so exposing it before a request would be a FREE LEAK.
+   */
+  allKnown: readonly boolean[];
+  /** Ingredient names the player owns from earlier hint versions, catalog order. They come from
+   *  the stored `ing:` ids of this recipe's ledger (any catalog id, whether or not it is in the
+   *  recipe, so the list never depends on the target) and the lines their legacy Economy 1.0
+   *  levels showed. */
   knownNameIds: readonly string[];
-  /** 1-based index of the first unsettled rung (EMPTY counts as unsettled), or `null` when complete. */
+  /** 1-based index of the first rung that is not COMPLETED, or `null` when every rung is. */
   nextIndex: number | null;
 }
 
@@ -217,8 +247,8 @@ function storedStrings(raw: unknown): string[] {
   return Array.isArray(raw) ? raw.filter((v): v is string => typeof v === "string") : [];
 }
 
-function isSettled(status: Hint5RungStatus): boolean {
-  return status === "OWNED" || status === "ALREADY_KNOWN";
+function completionFactId(rung: Hint5Rung): string {
+  return rung.kind === "SUB_CLASS" ? hint5ClassFactId(rung.subjectIds[0]) : HINT5_RUNG_MARKER[rung.kind];
 }
 
 export function hint5Ownership(
@@ -228,39 +258,38 @@ export function hint5Ownership(
   recipes: readonly Recipe[] = RECIPES,
 ): Hint5Ownership {
   const stored = storedStrings(storedFactIds);
+  const storedSet = new Set(stored);
   const recipe = recipes.find((r) => r.id === ladder.recipeId)!;
-  const recipeIds = new Set(recipe.requiredIngredients.map((r) => r.ingredientId));
   const known = new Set<string>();
   for (const id of stored) {
     const name = parseHintFactId(id);
-    if (name !== null && recipeIds.has(name)) known.add(name);
+    if (name !== null && getIngredient(name)) known.add(name);
   }
   for (const id of legacyHintMapping(ladder.recipeId, legacyPurchases, recipes)?.grantedFactIds ?? []) {
     const name = parseHintFactId(id);
-    if (name !== null && recipeIds.has(name)) known.add(name);
+    if (name !== null && getIngredient(name)) known.add(name);
   }
-  const classified = new Set(stored.map(parseHint5ClassFactId).filter((id): id is string => id !== null));
   const attrFamilies = new Set(stored.map(parseAttributeFactId).flatMap((a) => (a && a.level === "family" ? [a.family] : [])));
   const reserve = reservedIngredientId(recipe);
-  const structureOwned = stored.includes(INGREDIENT_TOTAL_FACT_ID) || legacyOwnsIngredientTotal(ladder.recipeId, legacyPurchases, recipes);
+  const totalKnown = storedSet.has(INGREDIENT_TOTAL_FACT_ID) || legacyOwnsIngredientTotal(ladder.recipeId, legacyPurchases, recipes);
 
-  const statuses = ladder.rungs.map((rung): Hint5RungStatus => {
-    if (rung.kind === "STRUCTURE") return structureOwned ? "OWNED" : "OPEN";
-    if (rung.kind === "SUB_CLASS") {
+  const statuses: Hint5RungStatus[] = [];
+  const allKnown: boolean[] = [];
+  for (const rung of ladder.rungs) {
+    const empty = rung.kind !== "STRUCTURE" && rung.kind !== "SUB_CLASS" && rung.subjectIds.length === 0;
+    statuses.push(empty ? "EMPTY" : storedSet.has(completionFactId(rung)) ? "COMPLETED" : "OPEN");
+    if (rung.kind === "STRUCTURE") allKnown.push(totalKnown);
+    else if (rung.kind === "SUB_CLASS") {
       const id = rung.subjectIds[0];
-      if (known.has(id)) return "ALREADY_KNOWN";
-      if (classified.has(id)) return "OWNED";
-      // E3 safe mapping: an old 特徴 family answer about this exact sub-topping (the Rule W reserve)
-      // that still matches its current family. Anything coarser maps to nothing (E3b).
       const family = subToppingClass(id);
-      if (id === reserve && family !== null && attrFamilies.has(family)) return "OWNED";
-      return "OPEN";
-    }
-    if (rung.subjectIds.length === 0) return "EMPTY";
-    return rung.subjectIds.every((id) => known.has(id)) ? "OWNED" : "OPEN";
-  });
-  const next = statuses.findIndex((s) => !isSettled(s));
-  return { statuses, knownNameIds: byCatalogOrder([...known]), nextIndex: next < 0 ? null : next + 1 };
+      // The name implies the classification. E3 safe mapping: an old 特徴 family answer about this
+      // exact sub-topping (the Rule W reserve) that still matches its family. Coarse answers never
+      // count (E3b).
+      allKnown.push(known.has(id) || (id === reserve && family !== null && attrFamilies.has(family)));
+    } else allKnown.push(!empty && rung.subjectIds.every((id) => known.has(id)));
+  }
+  const next = statuses.findIndex((s) => s !== "COMPLETED");
+  return { statuses, allKnown, knownNameIds: byCatalogOrder([...known]), nextIndex: next < 0 ? null : next + 1 };
 }
 
 // ---- request (the single pure authority for one Hint 5.0 purchase) --------------------------------
@@ -282,18 +311,25 @@ export type Hint5Rejection = "NOT_A_TARGET" | "STALE" | "INSUFFICIENT_PITZ";
 
 export type Hint5RequestResult =
   | { outcome: "ANSWERED"; rungIndex: number; kind: Hint5RungKind; addFactIds: readonly string[]; charge: number; persist: boolean }
+  /** OD-H5-M3: everything this rung discloses was already known. It is completed for 0 Pitz, and
+   *  only its completion record is stored (no known fact is stored twice). */
+  | { outcome: "ALREADY_KNOWN"; rungIndex: number; kind: Hint5RungKind; addFactIds: readonly string[]; charge: 0; persist: boolean }
   | { outcome: "RESERVED_EMPTY_RUNG"; rungIndex: number; kind: Hint5RungKind; addFactIds: readonly []; charge: 0 }
   | { outcome: "LADDER_COMPLETE"; addFactIds: readonly []; charge: 0 }
   | { outcome: "REJECTED"; reason: Hint5Rejection };
 
 /**
- * One request, in a fixed order so that a refusal never depends on what is left:
- * target -> STALE -> complete -> price and balance (the price is public: it depends on the rung
- * kind only) -> empty rung -> answer.
+ * One request, in a fixed order so that a refusal never depends on what is left or what is known:
+ * target -> STALE -> complete -> price and balance (the normal P-C price of the rung kind) -> empty
+ * rung -> already known (M3) -> answer.
  *
- * Only ANSWERED charges (0 during the onboarding, which is never persisted). Rejections, EMPTY
- * rungs and a complete ladder charge 0 and add no fact (H5-INV-6). Settled rungs (owned or known)
- * are never offered, so nothing is ever sold twice.
+ * - The balance check uses the normal price even when the rung turns out to be already known. So
+ *   the 0-Pitz completion can only be discovered by an affordable request, never before one (M3).
+ * - ALL known -> ALREADY_KNOWN, 0 Pitz, only the completion record.
+ * - PARTIALLY known or NONE known -> ANSWERED at the normal price, with the new facts and the
+ *   completion record.
+ * - Rejections, EMPTY rungs and a complete ladder charge 0 and add no fact (H5-INV-6).
+ * - A COMPLETED rung is never offered again.
  */
 export function requestHint5Rung(input: Hint5RequestInput, recipes: readonly Recipe[] = RECIPES): Hint5RequestResult {
   const ladder = buildHint5Ladder(input.recipeId, recipes);
@@ -307,12 +343,17 @@ export function requestHint5Rung(input: Hint5RequestInput, recipes: readonly Rec
   const price = onboarding ? 0 : HINT5_RUNG_PRICE[rung.kind];
   if (!Number.isFinite(input.pitzBalance) || input.pitzBalance < price) return { outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" };
   if (own.statuses[rung.index - 1] === "EMPTY") return { outcome: "RESERVED_EMPTY_RUNG", rungIndex: rung.index, kind: rung.kind, addFactIds: [], charge: 0 };
+  const stored = new Set(storedStrings(input.storedFactIds));
+  const completion = completionFactId(rung);
+  if (own.allKnown[rung.index - 1]) {
+    return { outcome: "ALREADY_KNOWN", rungIndex: rung.index, kind: rung.kind, addFactIds: [completion], charge: 0, persist: !onboarding };
+  }
   const known = new Set(own.knownNameIds);
-  let addFactIds: string[];
-  if (rung.kind === "STRUCTURE") addFactIds = [INGREDIENT_TOTAL_FACT_ID];
-  else if (rung.kind === "SUB_CLASS") addFactIds = [hint5ClassFactId(rung.subjectIds[0])];
-  else addFactIds = rung.subjectIds.filter((id) => !known.has(id)).map(hintFactId);
-  return { outcome: "ANSWERED", rungIndex: rung.index, kind: rung.kind, addFactIds, charge: price, persist: !onboarding };
+  let info: string[];
+  if (rung.kind === "STRUCTURE") info = stored.has(INGREDIENT_TOTAL_FACT_ID) ? [] : [INGREDIENT_TOTAL_FACT_ID];
+  else if (rung.kind === "SUB_CLASS") info = [];
+  else info = rung.subjectIds.filter((id) => !known.has(id)).map(hintFactId);
+  return { outcome: "ANSWERED", rungIndex: rung.index, kind: rung.kind, addFactIds: [...info, completion], charge: price, persist: !onboarding };
 }
 
 // ---- presentation (what a sheet may render: H5-INV-1..5) -------------------------------------------
@@ -329,15 +370,14 @@ export interface Hint5ClassView {
 export type Hint5BoardEntry =
   | { rungIndex: number; kind: "SAUCE" | "CHEESE" | "KEY_TOPPING"; ingredientIds: readonly string[] }
   | { rungIndex: number; kind: "STRUCTURE"; lineJa: string }
-  | { rungIndex: number; kind: "SUB_CLASS"; ordinal: number; classView: Hint5ClassView }
-  /** A sub-topping whose name the player already bought under Hint 3.0 (their own fact). */
-  | { rungIndex: number; kind: "SUB_CLASS"; ordinal: number; knownIngredientId: string };
+  | { rungIndex: number; kind: "SUB_CLASS"; ordinal: number; classView: Hint5ClassView };
 
 export interface Hint5NextOffer {
   rungIndex: number;
   kind: Hint5RungKind;
   /** 「ヒント3: キートッピング」: the kind and index only, never the subject. */
   labelJa: string;
+  /** Always the normal P-C price of the kind (M3: never 0 because something is already known). */
   price: number;
   affordable: boolean;
 }
@@ -345,11 +385,12 @@ export interface Hint5NextOffer {
 export interface Hint5Presentation {
   kind: "HINT5_LADDER";
   onboarding: boolean;
-  /** Settled rungs, in ladder order. SUB_CLASS entries only once STRUCTURE is settled. */
+  /** COMPLETED rungs, in ladder order. */
   board: readonly Hint5BoardEntry[];
-  /** Names the player already owns from earlier hint versions (catalog order). */
+  /** Names the player already owns from earlier hint versions (catalog order): an archive that
+   *  never depends on the target's unbought content. */
   legacyKnownIngredientIds: readonly string[];
-  /** The next rung, or `null` once every rung is settled. */
+  /** The next rung, or `null` once every rung is completed. */
   next: Hint5NextOffer | null;
   /** `HINT5_LADDER_COMPLETE_TEXT` when `next` is null, otherwise null. */
   completeText: string | null;
@@ -358,7 +399,7 @@ export interface Hint5Presentation {
 
 const CIRCLED = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱", "⑲", "⑳"];
 
-function circled(n: number): string {
+export function circledOrdinal(n: number): string {
   return CIRCLED[n - 1] ?? `(${n})`;
 }
 
@@ -370,7 +411,7 @@ const RUNG_LABEL_JA: Readonly<Record<Exclude<Hint5RungKind, "SUB_CLASS">, string
 };
 
 export function hint5RungLabelJa(rung: Pick<Hint5Rung, "index" | "kind" | "ordinal">): string {
-  const what = rung.kind === "SUB_CLASS" ? `サブトッピング${circled(rung.ordinal ?? 0)}の分類` : RUNG_LABEL_JA[rung.kind];
+  const what = rung.kind === "SUB_CLASS" ? `サブトッピング${circledOrdinal(rung.ordinal ?? 0)}の分類` : RUNG_LABEL_JA[rung.kind];
   return `ヒント${rung.index}: ${what}`;
 }
 
@@ -380,7 +421,9 @@ export function hint5ClassView(family: AttributeFamilyId): Hint5ClassView {
   return { family, symbol: display.symbol, labelJa: display.labelJa, lineJa: `${display.symbol} ${display.labelJa}` };
 }
 
-/** The privacy-safe view model of one target's ladder, or `null` when it is not a target. */
+/** The privacy-safe view model of one target's ladder, or `null` when it is not a target. It never
+ *  reads `allKnown` (M3): legacy facts change nothing here except the archive of the player's own
+ *  names. */
 export function hint5Presentation(
   input: Pick<Hint5RequestInput, "recipeId" | "discoveredCount" | "storedFactIds" | "legacyPurchases" | "pitzBalance">,
   recipes: readonly Recipe[] = RECIPES,
@@ -390,19 +433,16 @@ export function hint5Presentation(
   const own = hint5Ownership(ladder, input.storedFactIds, input.legacyPurchases, recipes);
   const onboarding = isHintOnboardingFree(input.discoveredCount, ladder.recipeId);
   const balance = Number.isFinite(input.pitzBalance) ? input.pitzBalance : 0;
-  const structureSettled = isSettled(own.statuses[HINT5_FIXED_RUNG_KINDS.indexOf("STRUCTURE")]);
   const board: Hint5BoardEntry[] = [];
+  // SUB_CLASS entries appear only once STRUCTURE is completed (§8: the sub-topping count is paid
+  // information), even if a `cls:` record were stored earlier.
+  const structureCompleted = own.statuses[HINT5_FIXED_RUNG_KINDS.indexOf("STRUCTURE")] === "COMPLETED";
   for (const rung of ladder.rungs) {
-    const status = own.statuses[rung.index - 1];
-    if (!isSettled(status)) continue;
+    if (own.statuses[rung.index - 1] !== "COMPLETED") continue;
+    if (rung.kind === "SUB_CLASS" && !structureCompleted) continue;
     if (rung.kind === "STRUCTURE") board.push({ rungIndex: rung.index, kind: "STRUCTURE", lineJa: deductionHintTextJa({ id: INGREDIENT_TOTAL_FACT_ID, total: ladder.total }) });
-    else if (rung.kind === "SUB_CLASS") {
-      if (!structureSettled) continue;
-      const id = rung.subjectIds[0];
-      const ordinal = rung.ordinal!;
-      if (status === "ALREADY_KNOWN") board.push({ rungIndex: rung.index, kind: "SUB_CLASS", ordinal, knownIngredientId: id });
-      else board.push({ rungIndex: rung.index, kind: "SUB_CLASS", ordinal, classView: hint5ClassView(subToppingClass(id)!) });
-    } else board.push({ rungIndex: rung.index, kind: rung.kind, ingredientIds: rung.subjectIds });
+    else if (rung.kind === "SUB_CLASS") board.push({ rungIndex: rung.index, kind: "SUB_CLASS", ordinal: rung.ordinal!, classView: hint5ClassView(subToppingClass(rung.subjectIds[0])!) });
+    else board.push({ rungIndex: rung.index, kind: rung.kind, ingredientIds: rung.subjectIds });
   }
   let next: Hint5NextOffer | null = null;
   if (own.nextIndex !== null) {
@@ -410,11 +450,15 @@ export function hint5Presentation(
     const price = onboarding ? 0 : HINT5_RUNG_PRICE[rung.kind];
     next = { rungIndex: rung.index, kind: rung.kind, labelJa: hint5RungLabelJa(rung), price, affordable: balance >= price };
   }
+  // The archive holds only names the ladder has not shown yet: a name a COMPLETED name rung already
+  // shows on the board is not repeated there. Those names are on screen already, so dropping them
+  // reveals nothing.
+  const onBoard = new Set(board.flatMap((e) => ("ingredientIds" in e ? e.ingredientIds : [])));
   return {
     kind: "HINT5_LADDER",
     onboarding,
     board,
-    legacyKnownIngredientIds: own.knownNameIds,
+    legacyKnownIngredientIds: own.knownNameIds.filter((id) => !onBoard.has(id)),
     next,
     completeText: next === null ? HINT5_LADDER_COMPLETE_TEXT : null,
     pitzBalance: balance,

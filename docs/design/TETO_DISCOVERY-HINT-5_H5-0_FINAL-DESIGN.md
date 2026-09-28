@@ -17,6 +17,9 @@
 - All of these are recorded here as the Hint 5.0 authority.
 - **Round 3 (2026-09-28):** **C1a** (the 5 key toppings) and the **C1 authoring principle** are
   APPROVED (§6.1, §6.4).
+- **Round 5 (2026-09-28):** **OD-H5-M3 = D** is APPROVED (§9.0). Legacy facts never complete a
+  rung before a request. At request time, a rung whose information is ALL known completes for
+  0 Pitz. **H5-3 (the ladder UI behind the flag) is implemented.**
 - **Round 4 (2026-09-28):** **C1b** is APPROVED: capricciosa = mushroom, pizza-portuguesa = ham,
   puttanesca-pizza = anchovy. The Hint 5.0 key-topping authority is now final for **all 25**
   runtime recipes, and all 25 are consistent with C1-P (§6.4).
@@ -72,6 +75,7 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-C1a** | **margherita = basil, quattro-formaggi = none, fugazza = onion, parmigiana = eggplant, pesto-tonno = tuna** | **APPROVED (round 3)** |
 | **OD-H5-C1-P (authoring principle)** | 「Hint 5.0のkey toppingは、そのレシピを特徴づける主要トッピングとする。香り付け・添え物より主役となる材料を優先し、sauce / cheeseと情報を重複させない。」 The Hint 5.0 key topping is the main topping that characterises the recipe. A main ingredient is preferred over an aroma or garnish, and the key never duplicates sauce or cheese information. | **APPROVED (round 3)** |
 | **OD-H5-C1b** | **capricciosa = mushroom, pizza-portuguesa = ham, puttanesca-pizza = anchovy.** The seeds for marinara = garlic, pizza-bianca = rosemary and meat-lovers = ham are kept, as audited. The §6.4 tie-break is **not** authority; it is only a candidate for the 172 authoring guideline. | **APPROVED (round 4)** |
+| **OD-H5-M3** | **D (round 5).** The pre-purchase UI never varies with legacy facts: rung visibility, the next rung kind, the displayed price and purchasability are those of a fresh save, and no rung is shown as completed because of a legacy `ing:*` fact. At request time: **ALL** of the rung's information already known → **0 Pitz**, completed, nothing stored twice; **PARTIAL** or **NONE** known → the **normal P-C price**, disclosing the whole rung. The 0-Pitz result is never shown before the request. Existing facts are never deleted, converted or rewritten (§9.0). | **APPROVED (authority)** |
 | OD-H5-P4b / M2 | A recipe with no key topping under P4, and 19-first vs all-25 enablement | **OPEN** |
 
 ## 3. Authority: deduction vs. disclosure (normative)
@@ -459,6 +463,43 @@ buying, and for how much".
 
 ## 9. Migration design (final)
 
+### 9.0 OD-H5-M3 = D (authority; supersedes the view-time settlement in §9.1)
+
+**Completion records.** A rung is **completed** only by a Hint 5.0 completion record. These ids
+are inside the persisted grammar, so there is no schema bump.
+
+| Rung | Completion record |
+|---|---|
+| Sauce | `h5:sauce` |
+| Cheese | `h5:cheese` |
+| Key topping | `h5:key` |
+| Structure | `h5:structure` |
+| Sub-topping | `cls:<ingredientId>` |
+
+**Legacy facts never complete a rung.** The legacy facts listed in §9.1 are:
+- `ing:` names;
+- Economy 1.0 grants;
+- `meta:ingredient-total` / the legacy count line;
+- the `attr:family` safe mapping.
+
+So the pre-purchase view is the same as a fresh save's in all of these: the next rung, its kind,
+its price, whether it can be bought, and the board. The one exception is the 「以前のヒント」
+archive of the player's own earlier names and lines, which never depends on the target.
+
+**At request time the order is:** target → STALE → complete → balance at the normal price →
+empty rung → known check.
+
+| Known state | Result |
+|---|---|
+| **ALL** known | `ALREADY_KNOWN`: 0 Pitz, only the completion record is appended, and the sheet then says 「このヒントはもう知っていたよ！（Pitzは使っていないよ）」 |
+| **PARTIAL** or **NONE** known | `ANSWERED` at the normal P-C price: the new names or total, plus the completion record |
+
+- The M3 rule applies to **every** rung kind. Structure and sub-topping rungs follow the same rule
+  as the name rungs, because a view-time skip of any rung would leak in the same way (H5-2 Result
+  §5).
+- A request below the normal price is refused, so a 0-Pitz completion can never be learnt without
+  an affordable request.
+
 **Principles (E3):**
 - never delete, never rewrite, never convert a stored id;
 - read-time mapping only;
@@ -741,10 +782,15 @@ save writer or flag.
   - the display field is `symbol`, not `emoji`, so the IngredientGlyph render-site guard stays
     as it is;
   - the DH4 import-boundary tests list the Hint 5.0 readers explicitly.
+- **H5-3 is implemented** (the ladder sheet, M3, E2E and HV). See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-3_Ladder-UI_Result.md`.
+  - The flag stays OFF in every build.
+  - A DEV-only localStorage opt-in (`teto.dev.hint5Ladder`) exists for E2E and HV, and is compiled
+    out of production.
 - **H5-2 is implemented behind `HINT5_LADDER_ENABLED`**, which is **off in every build**. See
   `docs/reports/TETO_DISCOVERY-HINT-5_H5-2_Reducer-Flag_Result.md`.
   - The P-C economy re-run matches §10 exactly.
-  - A legacy `ing:*` FREE LEAK in the §9.1 settle rule is recorded as **OD-H5-M3 (open)**. The
+  - A legacy `ing:*` FREE LEAK in the §9.1 settle rule was recorded as OD-H5-M3. It was **approved as D in round 5** (§9.0). The
     recommendation is free-on-request settlement for name rungs. It must be decided before H5-3.
 - The Owner's explicit instruction to start H5-1.
 
@@ -771,7 +817,6 @@ save writer or flag.
 | OD-H5-P4 | The "no sauce" / "no cheese" hint (with TQ-1D) | H5-4 enable list |
 | OD-H5-P4b | Does a recipe with no key topping (quattro-formaggi) fall under P4? | H5-4 enable list |
 | OD-H5-M2 | Enable the 19 unblocked targets first, or all 25 together once P4 / P4b are decided | H5-4 |
-| **OD-H5-M3** | The legacy `ing:*` FREE LEAK: whether a name rung settles from legacy facts at view time (H5-2 Result §5). Recommended: option D, free-on-request settlement. | H5-3 |
 
 **Closed in round 2:**
 - E1 / E2: P-C, no cap.

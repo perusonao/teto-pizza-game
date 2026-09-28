@@ -132,19 +132,19 @@ describe("P-C pricing (OD-H5-E1 / E2) — G-PRICE", () => {
 });
 
 describe("request authority (§5, H5-INV-6)", () => {
-  it("answers each rung with the right fact kind: ing: names, meta:ingredient-total, cls:<id>", () => {
-    const steps = [
-      requestHint5Rung(base("hawaiian")),
-      requestHint5Rung(base("hawaiian", { storedFactIds: ["ing:tomato-sauce"], expectedRungIndex: 2 })),
-      requestHint5Rung(base("hawaiian", { storedFactIds: ["ing:tomato-sauce", "ing:mozzarella"], expectedRungIndex: 3 })),
-      requestHint5Rung(base("hawaiian", { storedFactIds: ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple"], expectedRungIndex: 4 })),
-      requestHint5Rung(base("hawaiian", { storedFactIds: ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple", INGREDIENT_TOTAL_FACT_ID], expectedRungIndex: 5 })),
-    ];
+  it("answers each rung with the right fact kind plus its completion record: ing: names + h5:<rung>, meta:ingredient-total + h5:structure, cls:<id>", () => {
+    const steps = [];
+    let stored: string[] = [];
+    for (let i = 1; i <= 5; i += 1) {
+      const r = requestHint5Rung(base("hawaiian", { storedFactIds: stored, expectedRungIndex: i }));
+      steps.push(r);
+      if (r.outcome === "ANSWERED") stored = [...stored, ...r.addFactIds];
+    }
     expect(steps.map((s) => (s.outcome === "ANSWERED" ? s.addFactIds : s.outcome))).toEqual([
-      ["ing:tomato-sauce"],
-      ["ing:mozzarella"],
-      ["ing:pineapple"],
-      [INGREDIENT_TOTAL_FACT_ID],
+      ["ing:tomato-sauce", "h5:sauce"],
+      ["ing:mozzarella", "h5:cheese"],
+      ["ing:pineapple", "h5:key"],
+      [INGREDIENT_TOTAL_FACT_ID, "h5:structure"],
       ["cls:ham"],
     ]);
     expect(steps.map((s) => (s.outcome === "ANSWERED" ? s.charge : -1))).toEqual([10, 10, 10, 5, 5]);
@@ -168,17 +168,17 @@ describe("request authority (§5, H5-INV-6)", () => {
       expect(requestHint5Rung(base(r.id, { pitzBalance: 9 })), r.id).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
       expect(requestHint5Rung(base(r.id, { pitzBalance: Number.NaN })), r.id).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
     }
-    const atStructure = ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple"];
+    const atStructure = buyAll("hawaiian").stored.slice(0, 6); // rungs 1-3 bought
     expect(requestHint5Rung(base("hawaiian", { storedFactIds: atStructure, expectedRungIndex: 4, pitzBalance: 4 }))).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
     expect(requestHint5Rung(base("hawaiian", { storedFactIds: atStructure, expectedRungIndex: 4, pitzBalance: 5 }))).toMatchObject({ outcome: "ANSWERED", charge: 5 });
   });
 
   it("G10: an empty fixed rung is RESERVED (no charge, no fact, not skipped); a complete ladder charges nothing", () => {
-    const r = requestHint5Rung(base("marinara", { storedFactIds: ["ing:tomato-sauce"], expectedRungIndex: 2 }));
+    const r = requestHint5Rung(base("marinara", { storedFactIds: ["ing:tomato-sauce", "h5:sauce"], expectedRungIndex: 2 }));
     expect(r).toEqual({ outcome: "RESERVED_EMPTY_RUNG", rungIndex: 2, kind: "CHEESE", addFactIds: [], charge: 0 });
     // Not skipped: the next rung stays the empty one (OD-H5-P4 is not pre-empted).
-    expect(requestHint5Rung(base("marinara", { storedFactIds: ["ing:tomato-sauce"], expectedRungIndex: 3 }))).toEqual({ outcome: "REJECTED", reason: "STALE" });
-    const q = requestHint5Rung(base("quattro-formaggi", { storedFactIds: ["ing:olive-oil", "ing:mozzarella", "ing:gorgonzola", "ing:parmigiano", "ing:fontina"], expectedRungIndex: 3 }));
+    expect(requestHint5Rung(base("marinara", { storedFactIds: ["ing:tomato-sauce", "h5:sauce"], expectedRungIndex: 3 }))).toEqual({ outcome: "REJECTED", reason: "STALE" });
+    const q = requestHint5Rung(base("quattro-formaggi", { storedFactIds: ["h5:sauce", "h5:cheese"], expectedRungIndex: 3 }));
     expect(q).toMatchObject({ outcome: "RESERVED_EMPTY_RUNG", kind: "KEY_TOPPING", charge: 0 });
     const done = buyAll("hawaiian").stored;
     expect(requestHint5Rung(base("hawaiian", { storedFactIds: done, expectedRungIndex: 6 }))).toEqual({ outcome: "LADDER_COMPLETE", addFactIds: [], charge: 0 });
@@ -195,7 +195,7 @@ describe("request authority (§5, H5-INV-6)", () => {
     const done = buyAll("capricciosa").stored;
     const own = hint5Ownership(buildHint5Ladder("capricciosa")!, done, {});
     expect(own.nextIndex).toBeNull();
-    expect(own.statuses.every((s) => s === "OWNED")).toBe(true);
+    expect(own.statuses.every((s) => s === "COMPLETED")).toBe(true);
     // Reloaded (a copy through JSON), the same ledger gives the same result.
     expect(hint5Ownership(buildHint5Ladder("capricciosa")!, JSON.parse(JSON.stringify(done)), {})).toEqual(own);
   });

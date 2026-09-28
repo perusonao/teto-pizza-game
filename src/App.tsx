@@ -1147,6 +1147,7 @@ function App() {
           onBuySelectableHint={(preference, expectedPaidCount, family) =>
             dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount, ...(family && family !== "material" ? { family } : {}) })
           }
+          onBuyHint5Rung={(expectedRungIndex) => dispatch({ type: "PURCHASE_HINT5_RUNG", expectedRungIndex })}
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}

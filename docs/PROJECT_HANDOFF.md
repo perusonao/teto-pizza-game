@@ -327,9 +327,12 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
 - **H5-1** (the unwired pure layer, `de11ae2`) is done.
 - **H5-2** (reducer wiring behind `HINT5_LADDER_ENABLED`, OFF in every build) is done. See
   `docs/reports/TETO_DISCOVERY-HINT-5_H5-2_Reducer-Flag_Result.md`.
-- **Open:** OD-H5-M3 (the legacy `ing:*` FREE LEAK, before H5-3), P4 / P4b (with TQ-1D) and M2
-  (19-first vs 25).
-- **State:** H5-3 (the ladder UI) has not started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
+- **OD-H5-M3 = D** (round 5): legacy facts never change the pre-purchase view. An ALL-known rung
+  completes for 0 Pitz only at request time; PARTIAL / NONE known pay the normal price.
+- **H5-3** (the ladder sheet + M3, flag still OFF; DEV-only opt-in `localStorage["teto.dev.hint5Ladder"]="1"`)
+  is done. See `docs/reports/TETO_DISCOVERY-HINT-5_H5-3_Ladder-UI_Result.md`.
+- **Open:** P4 / P4b (with TQ-1D) and M2 (19-first vs 25). Both are needed for H5-4.
+- **State:** H5-4 (production enablement) has not started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 

@@ -99,7 +99,10 @@ export type HintOutcome =
   | "STRUCTURE_GUIDANCE_ONLY"
   | "STRUCTURE_ALREADY_OWNED"
   | "ATTRIBUTE_EXISTENCE_ONLY"
-  | "ATTRIBUTE_ALREADY_OWNED";
+  | "ATTRIBUTE_ALREADY_OWNED"
+  /** Hint 5.0 OD-H5-M3: the requested rung was already known and completed for 0 Pitz. Shown only
+   *  after the request, never before. */
+  | "HINT5_ALREADY_KNOWN";
 
 /**
  * DH4-2B: the 構成 / 特徴 part of the SELECTABLE sheet (behind the flag; on in production since
@@ -461,8 +464,11 @@ function deductionSheetView(state: DiscoveryHintState, context: NonNullable<Retu
  * - No DISCOVERABLE session target, or the Dex-0 Margherita onboarding (which keeps its free,
  *   session-only Hint 2.0 reveal) -> `null`.
  * - ANSWERED: Pitz is debited by the P-C rung price, and the new fact ids (`ing:` /
- *   `meta:ingredient-total` / `cls:<ingredientId>`) are appended to the target's ledger in the same
- *   patch. Every stored id, unknown or future ones included, is kept as it is (E3).
+ *   `meta:ingredient-total` / `cls:<ingredientId>`) plus the rung's completion record are appended
+ *   to the target's ledger in the same patch. Every stored id, unknown or future ones included, is
+ *   kept as it is (E3).
+ * - ALREADY_KNOWN (OD-H5-M3): only the completion record is appended, Pitz is unchanged, and the
+ *   transient `hintOutcome` says so, after the request only.
  * - Everything else (NOT_A_TARGET, STALE, INSUFFICIENT_PITZ, RESERVED_EMPTY_RUNG, LADDER_COMPLETE)
  *   -> `null`: no Pitz, no fact and no new session state. An empty rung keeps the H5-1
  *   RESERVED_EMPTY_RUNG semantics; OD-H5-P4 / P4b are undecided.
@@ -486,12 +492,16 @@ export function requestHint5RungFact(
     expectedRungIndex,
     pitzBalance: state.pitzBalance,
   });
-  if (result.outcome !== "ANSWERED" || !result.persist) return null;
+  if ((result.outcome !== "ANSWERED" && result.outcome !== "ALREADY_KNOWN") || !result.persist) return null;
   const merged = [...stored, ...result.addFactIds.filter((id) => !stored.includes(id))];
   const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
   for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
   ledger[session.targetId] = merged;
-  return { pitzBalance: state.pitzBalance - result.charge, discoveryHintFacts: ledger, hintOutcome: null };
+  return {
+    pitzBalance: state.pitzBalance - result.charge,
+    discoveryHintFacts: ledger,
+    hintOutcome: result.outcome === "ALREADY_KNOWN" ? "HINT5_ALREADY_KNOWN" : null,
+  };
 }
 
 /**

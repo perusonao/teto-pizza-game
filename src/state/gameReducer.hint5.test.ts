@@ -81,7 +81,17 @@ describe("flag ON: the ladder through the reducer", () => {
       balances.push(s.pitzBalance);
     }
     expect(balances).toEqual([90, 80, 70, 65, 60]);
-    expect(facts(s, "hawaiian")).toEqual(["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple", INGREDIENT_TOTAL_FACT_ID, "cls:ham"]);
+    expect(facts(s, "hawaiian")).toEqual([
+      "ing:tomato-sauce",
+      "h5:sauce",
+      "ing:mozzarella",
+      "h5:cheese",
+      "ing:pineapple",
+      "h5:key",
+      INGREDIENT_TOTAL_FACT_ID,
+      "h5:structure",
+      "cls:ham",
+    ]);
     const view = hint5SheetView(s)!;
     expect(view.next).toBeNull();
     expect(view.board[4]).toMatchObject({ kind: "SUB_CLASS", ordinal: 1, classView: { family: "meat", lineJa: "\u{1F969} 肉系" } });
@@ -173,22 +183,50 @@ describe("flag ON: existing facts, unknown ids, persistence, Full Reset", () => 
     const other = ["ing:mushroom", "attr:family:vegetable"];
     const future = ["cls:future-truffle"];
     const s = sheetOn("hawaiian", 100, { hawaiian, capricciosa: other, "future-pizza": future });
-    expect(next(s)!.rungIndex).toBe(2); // the stored sauce name settles rung 1
-    const after = buy(s);
-    expect(facts(after, "hawaiian")).toEqual([...hawaiian, "ing:mozzarella"]);
+    // M3: the stored sauce name does not complete rung 1 before a request (same view as a fresh save).
+    expect(next(s)).toMatchObject({ rungIndex: 1, price: 10 });
+    const known = buy(s);
+    expect(known.pitzBalance).toBe(100);
+    expect(known.hintOutcome).toBe("HINT5_ALREADY_KNOWN");
+    expect(facts(known, "hawaiian")).toEqual([...hawaiian, "h5:sauce"]);
+    const after = buy(known);
+    expect(facts(after, "hawaiian")).toEqual([...hawaiian, "h5:sauce", "ing:mozzarella", "h5:cheese"]);
+    expect(after.hintOutcome).toBeNull();
     expect(after.discoveryHintFacts.capricciosa).toBe(s.discoveryHintFacts.capricciosa);
     expect(after.discoveryHintFacts["future-pizza"]).toEqual(future);
     expect(after.pitzBalance).toBe(90);
   });
 
-  it("legacy facts migrate at read time: names settle their rungs, a known sub-topping name is never sold again", () => {
+  it("M3 legacy facts: the same pre-purchase view as a fresh save; ALL known -> 0 Pitz after the request; PARTIAL / NONE -> the normal price", () => {
     const stored = ["ing:tomato-sauce", "ing:mozzarella", "ing:pineapple", INGREDIENT_TOTAL_FACT_ID, "ing:ham"];
-    const s = sheetOn("hawaiian", 100, { hawaiian: stored });
-    expect(hint5SheetView(s)!.next).toBeNull();
-    expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: 6 })).toBe(s);
-    // Economy 1.0 legacy ledger: level 3 grants the sauce and the key names and the count line.
-    const legacy = sheetOn("hawaiian", 100, {}, { hawaiian: 3 });
-    expect(next(legacy)).toMatchObject({ rungIndex: 2, kind: "CHEESE" });
+    let s = sheetOn("hawaiian", 100, { hawaiian: stored });
+    const fresh = sheetOn("hawaiian", 100);
+    expect({ ...hint5SheetView(s)!, legacyKnownIngredientIds: [] }).toEqual({ ...hint5SheetView(fresh)!, legacyKnownIngredientIds: [] });
+    for (let i = 0; i < 5; i += 1) {
+      expect(next(s)!.price).toBeGreaterThan(0); // never 0 before the request
+      s = buy(s);
+      expect(s.pitzBalance).toBe(100);
+      expect(s.hintOutcome).toBe("HINT5_ALREADY_KNOWN");
+    }
+    expect(next(s)).toBeNull();
+    expect(facts(s, "hawaiian")).toEqual([...stored, "h5:sauce", "h5:cheese", "h5:key", "h5:structure", "cls:ham"]);
+    // PARTIAL: parmigiana with mozzarella known -> the cheese rung costs 10 and discloses parmigiano.
+    let p = sheetOn("parmigiana-pizza", 100, { "parmigiana-pizza": ["ing:mozzarella"] });
+    p = buy(p); // sauce: not known -> 10
+    expect(p.pitzBalance).toBe(90);
+    p = buy(p); // cheese: partial -> 10
+    expect(p.pitzBalance).toBe(80);
+    expect(p.hintOutcome).toBeNull();
+    expect(facts(p, "parmigiana-pizza")).toEqual(["ing:mozzarella", "ing:tomato-sauce", "h5:sauce", "ing:parmigiano", "h5:cheese"]);
+    // Economy 1.0 legacy ledger (level 3: the sauce + key names and the count line).
+    let legacy = sheetOn("hawaiian", 100, {}, { hawaiian: 3 });
+    expect(next(legacy)).toMatchObject({ rungIndex: 1, kind: "SAUCE", price: 10 });
+    const balances: number[] = [];
+    for (let i = 0; i < 5; i += 1) {
+      legacy = buy(legacy);
+      balances.push(legacy.pitzBalance);
+    }
+    expect(balances).toEqual([100, 90, 90, 90, 85]);
   });
 
   it("purchases survive a save / reload with no recharge, and the echoed old index is stale after reload", () => {
@@ -220,7 +258,7 @@ describe("flag ON: existing facts, unknown ids, persistence, Full Reset", () => 
     let s = sheetOn("hawaiian", 100);
     s = buy(buy(s));
     persist(s, storage);
-    expect(reload(storage).discoveryHintFacts.hawaiian).toHaveLength(2);
+    expect(reload(storage).discoveryHintFacts.hawaiian).toEqual(["ing:tomato-sauce", "h5:sauce", "ing:mozzarella", "h5:cheese"]);
     expect(resetSave(storage)).toBe(true);
     const fresh = reload(storage);
     expect(fresh.discoveryHintFacts).toEqual({});
