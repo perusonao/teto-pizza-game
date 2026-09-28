@@ -123,3 +123,16 @@ UI・操作・見た目の変更がない pure logic とテストのみの変更
 | mutation gate | 19 / 19 killed（`docs/reports/data/TETO_LARGE-CATALOG-UX_LC-1_MUTATION-RESULT.txt`） |
 
 **判定: READY FOR OWNER REVIEW。** merge、auto-merge、deploy はしていない。
+
+## 12. main `e21fbc2`（PR #278 DH4-2B runtime wiring）との統合
+
+- DH4-2B で Deduction Hint が `src/state/discoveryHint.ts` から配線された。DEV / Preview の flag の背後にある。DH4-1 の guard は「importer は DH4 層自身と `state/discoveryHint.ts` だけ」に更新された。
+  - catalog は taxonomy を import しないので、この guard は引き続き通る。M16 も kill される。
+- SELECTABLE の `HintSheetView` に `deduction: DeductionSheetView | null`（構成・特徴の**表示文**）が追加された。
+  - `disclosedHintsFromSheetView` は表示文を解析しない。deduction が入っていても、named ingredient と attribute id は変わらない。これを回帰テストで固定した（25 レシピすべて）。
+  - テスト内の view literal に `deduction` を追加した（`tsc -b` 対応）。
+- **LC-4 への申し送り**: 特徴ヒントから食材庫へつなぐ連携（H-C〜F）で `withDisclosedAttributes` に渡す `attr:` id は、条件を 2 つとも満たすものだけにすること。
+  1. 保存済みの `discoveryHintFacts` にある。
+  2. シートの `deduction.attributeOwned` が true（= 表示されている）。
+  - flag off の場合と未表示の場合は渡さない。
+- 結果: lint 0、**212 files / 4385 passed**、`tsc -b` 0、build 0、bundle に catalog コード 0 件、mutation **19 / 19 killed**。

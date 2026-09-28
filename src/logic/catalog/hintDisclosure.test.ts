@@ -11,7 +11,11 @@ import { disclosedHintsFromSheetView, libraryFilterForAttribute, withDisclosedAt
 
 const TAXONOMY = { families: ATTRIBUTE_FAMILIES };
 
-function selectableView(recipeId: string, purchased: readonly string[]): HintSheetView {
+function selectableView(
+  recipeId: string,
+  purchased: readonly string[],
+  deduction: Extract<HintSheetView, { kind: "SELECTABLE" }>["deduction"] = null,
+): HintSheetView {
   const model = buildSelectableHintModel(recipeId, { discoveredCount: 5 })!;
   return {
     kind: "SELECTABLE",
@@ -19,6 +23,7 @@ function selectableView(recipeId: string, purchased: readonly string[]): HintShe
     presentation: selectableHintPresentation(model, purchased, 999),
     grandfatheredSteps: [],
     outcome: null,
+    deduction,
   };
 }
 
@@ -59,6 +64,25 @@ describe("disclosedHintsFromSheetView (B-3: only what the sheet shows)", () => {
     expect(disclosedHintsFromSheetView(view).namedIngredientIds).toEqual(["basil"]);
     expect(disclosedHintsFromSheetView({ kind: "REFILL" }).namedIngredientIds).toEqual([]);
     expect(disclosedHintsFromSheetView(null).namedIngredientIds).toEqual([]);
+  });
+
+  it("DH4-2B deduction lines (structure / attribute text) never become named ingredients or attribute ids", () => {
+    for (const recipe of RECIPES) {
+      const plain = disclosedHintsFromSheetView(selectableView(recipe.id, []));
+      const withDeduction = disclosedHintsFromSheetView(
+        selectableView(recipe.id, [], {
+          structureLines: ["材料は全部で4種類"],
+          attributeLines: ["肉の仲間があるよ"],
+          legacyStructure: false,
+          structureOwned: true,
+          attributeOwned: true,
+          nextPrice: 10,
+          paidCount: 2,
+          affordable: true,
+        }),
+      );
+      expect(withDeduction).toEqual(plain);
+    }
   });
 
   it("collects disclosed attribute answers verbatim", () => {
