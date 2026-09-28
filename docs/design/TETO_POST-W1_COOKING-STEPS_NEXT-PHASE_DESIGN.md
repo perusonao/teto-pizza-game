@@ -420,3 +420,12 @@ Recorded from the Owner. These supersede the "recommended" columns in §8 for th
 **Out of CS-1a / CS-1b (Owner):** the FREE-mode POST_BAKE / CUT HOME gap (`isRoundInProgress()` does not
 include POST_BAKE, so no confirm dialog) is **not** mixed into CS-1. It is recorded as an independent
 Issue candidate (Pre-start Gate §10) and is not fixed here.
+
+## 14. Phase status
+
+| Phase | Status |
+|---|---|
+| CS-0 | ✅ design + pre-start gate (docs) |
+| **CS-1a** | ✅ implemented, not merged — `docs/reports/TETO_POST-W1_COOKING-STEPS_CS-1A_Result.md` (tab gate `MAX_VISIBLE_COOKING_TABS`; `renderedPostBakeStep()` in `src/screens/postBakeView.ts`) |
+| CS-1b | ⏸ WAIT — PR #275 OPEN (Owner HV). Authority: OD-CS-2 = B |
+| CS-2 … | not started |
