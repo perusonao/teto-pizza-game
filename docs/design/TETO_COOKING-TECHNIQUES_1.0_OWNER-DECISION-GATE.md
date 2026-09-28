@@ -9,7 +9,7 @@
 > **Verdict: A. TQ-1 READY FOR OWNER FINAL DECISIONS**
 > （条件: §9 の hard prerequisite 3 件、OD-TQ-S1・OD-W2-1・OD-TQ-P1 を実装前に確定すること）
 
-> **2026-09-28 の Owner Decision（OD-TQ1C-1/2/3）で置き換えた記述には、その場で ~~取り消し線~~ と「→ OD-TQ1C-n で置き換え」を付けた（§7.3、§8 の guided 行、§9 の TQ-1B / TQ-1C 行、§11 の OD-TQ-10 行）。SSOT が優先する。**
+> **2026-09-28 の Owner Decision（OD-TQ1C-1/2/3）で置き換えた記述には、その場で ~~取り消し線~~ と「→ OD-TQ1C-n で置き換え」を付けた（§7.3、§8 の guided 行、§9 の TQ-1B / TQ-1C 行、§11 の OD-TQ-10 行、§12.2 の OD-TQ-P1 / OD-TQ-10（改）行）。SSOT が優先する。**
 >
 > **main での位置付け（TQ-1C-0、OD-TQ1C-1）:** main に入っているのは本書（authority の詳細）だけ。下表の機械可読データと生成ツールは、設計 archive（branch `claude/cooking-techniques-design-n0qfwj`、commit `ab77b82`）に固定して残す。いずれも TQ-1C / TQ-1D の runtime や test からは参照しない。**Cooking Techniques 1.0 の要約 authority は `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`（本書より優先）。**
 
@@ -363,12 +363,12 @@ LAD-1 / TQ-1A / TQ-1B は互いに独立しているので並行できる。た�
 | OD-TQ-S2 | `SCORING_V2_RULESET_VERSION` の bump | しない（既存結果は不変、保存もされない） |
 | OD-TQ-S3 | `LUNCH_RUSH_RULESET_VERSION` の bump | しない（mission の式は不変。W1 の前例あり） |
 | **OD-W2-1** ★hard | ladder を再生成するか append-only にするか | **(b) append-only**（再生成すると W1 の順番が step 3 から変わる） |
-| **OD-TQ-P1** ★hard | near-miss の k≥2 抑制と新 class `SOMETHING_DIFFERENT`（文言「おしい！あと少し、なにかが違うみたい…？」） | 採用（Aussie と同じ PR で有効化） |
+| **OD-TQ-P1** ★hard | near-miss の k≥2 抑制と新 class `SOMETHING_DIFFERENT`（文言「おしい！あと少し、なにかが違うみたい…？」） | 採用（Aussie と同じ PR で有効化）。**OD-TQ1C-2（2026-09-28）:** 範囲は SAUCE_ONLY に一律（技法 target に限定しない、side channel なし）。有効化は TQ-1D + HV（SSOT P7） |
 | OD-TQ-P2 | DH4 structure による「全部買った後の演繹」を技法 target でも許すか | 許容（答えを全部買った後の演繹であり、技法を売っていない） |
 | OD-TQ-16 | free cook の「なしでもOK」文言を残すか | 残す（affordance の明示であり答えではない。NO_SAUCE は驚きの小さい「ループ実証用」技法と位置付ける） |
 | OD-TQ-17 | 技法の表示名 | 「ソースなし」（候補:「ぬらないピザ」）。Owner が文言を決める |
 | OD-TQ-18 | オージーの採用（CUT なし、nameJa / description / minCount / bakeTarget は authoring で決定） | 採用。Wave 2 W2-C から外す |
-| OD-TQ-10（改） | 技法検出は free cook のみ（Dinner は対象外） | 採用 |
+| OD-TQ-10（改） | ~~技法検出は free cook のみ（Dinner は対象外）~~ **→ OD-TQ1C-3（2026-09-28）で置き換え:** 使用経路は Free Cooking のみ。レシピ経路（INV-TQ-1）は FREE の全 round（guided を含む）。Lunch Rush / Dinner は両経路とも 0（SSOT P8） | 採用 |
 | OD-TQ-19 | TQ-1 の slice 分割（LAD-1、1A、1B、1C（不活性）、1D+E で有効化） | 採用 |
 
 ### 12.3 未決事項（TQ-1 を止めない）
