@@ -303,6 +303,25 @@ Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
+## Discovery Hint 5.0 — Sub-topping Classification Ladder (Issue #292, H5-0)
+
+**Read first for any Hint 5.0 work:** `docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md`.
+The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATION-LADDER_Fresh-Audit.md`.
+
+- **Goal:** every sub-topping, down to the last one, can get a classification hint (🥩 肉系 …).
+  The goal is not to tell the player the last ingredient's name.
+- **Approved Owner Decisions (2026-09-28):** P1, P2, P3, C1, C2, C3, C4, U1 and E3.
+  - no k ≥ 2 for the classification;
+  - deduction ≠ disclosure;
+  - a single linear ladder with no FREE LEAK;
+  - sub-topping names are never sold;
+  - authored `hintKeyToppingId` / `hintSubToppingOrder`.
+- **Open:**
+  - **P4** is reserved (the empty sauce / cheese rung, together with TQ-1D);
+  - **pricing** E1 / E2 (recommended P-C, not decided).
+- **State:** no production code yet. H5-1 (pure layer, unwired) is the next step and has not
+  started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
+
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 
 **Read first for any technique work (TQ-1C, TQ-1D and later):**

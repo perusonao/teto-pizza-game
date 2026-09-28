@@ -1,5 +1,10 @@
 # Hint 5.0 — Sub-topping Classification Ladder: Fresh Audit
 
+> **H5-0 update (2026-09-28):** the Owner Decisions are recorded in
+> `docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md`, which **supersedes** this audit wherever
+> they differ (for example, the §7 fact-id choice is confirmed, and the §10 pricing options are
+> re-compared there with numbers).
+
 **Status: audit and design only. NOT an authority.** No production code was changed, and nothing
 here is an Owner Decision. Every item marked **OD-H5-x** is an open question for the Owner.
 
