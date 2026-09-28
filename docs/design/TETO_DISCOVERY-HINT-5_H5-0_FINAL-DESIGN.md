@@ -17,9 +17,10 @@
 - All of these are recorded here as the Hint 5.0 authority.
 - **Round 3 (2026-09-28):** **C1a** (the 5 key toppings) and the **C1 authoring principle** are
   APPROVED (§6.1, §6.4).
+- **Round 4 (2026-09-28):** **C1b** is APPROVED: capricciosa = mushroom, pizza-portuguesa = ham,
+  puttanesca-pizza = anchovy. The Hint 5.0 key-topping authority is now final for **all 25**
+  runtime recipes, and all 25 are consistent with C1-P (§6.4).
 - **Still open:**
-  - **OD-H5-C1b**: 3 of the 20 remaining seeds are inconsistent with the principle (§6.4). This
-    blocks H5-1;
   - **P4 / P4b** (deferred with TQ-1D);
   - **M2** (enable 19 targets first, or all 25 at once).
 - **No production code is changed by H5-0.** H5-1 has **not started**.
@@ -70,7 +71,7 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-T-COV** | Using PR #293: Hint 5.0 proceeds for the **runtime 25 recipes / 29 ingredients**, and the 62 / 172 unclassified-ingredient problem is **not an H5-1 blocker**. For production, the **fail-fast gate "every hint-eligible topping resolves to exactly one valid taxonomy family"** is mandatory. **A silent fallback from a missing classification to existence (or group / category) is forbidden** (§11). | APPROVED |
 | **OD-H5-C1a** | **margherita = basil, quattro-formaggi = none, fugazza = onion, parmigiana = eggplant, pesto-tonno = tuna** | **APPROVED (round 3)** |
 | **OD-H5-C1-P (authoring principle)** | 「Hint 5.0のkey toppingは、そのレシピを特徴づける主要トッピングとする。香り付け・添え物より主役となる材料を優先し、sauce / cheeseと情報を重複させない。」 The Hint 5.0 key topping is the main topping that characterises the recipe. A main ingredient is preferred over an aroma or garnish, and the key never duplicates sauce or cheese information. | **APPROVED (round 3)** |
-| OD-H5-C1b | Correct the 3 seeds that break C1-P: capricciosa, pizza-portuguesa and puttanesca-pizza (§6.4) | **OPEN (blocks H5-1)** |
+| **OD-H5-C1b** | **capricciosa = mushroom, pizza-portuguesa = ham, puttanesca-pizza = anchovy.** The seeds for marinara = garlic, pizza-bianca = rosemary and meat-lovers = ham are kept, as audited. The §6.4 tie-break is **not** authority; it is only a candidate for the 172 authoring guideline. | **APPROVED (round 4)** |
 | OD-H5-P4b / M2 | A recipe with no key topping under P4, and 19-first vs all-25 enablement | **OPEN** |
 
 ## 3. Authority: deduction vs. disclosure (normative)
@@ -194,7 +195,7 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = { 
 - Nothing is derived at runtime from `requiredIngredients` order.
 - Gate G17 checks that the authored fields are consistent with the recipe's ingredients.
 
-### 6.1 Authoring seed for the 25 runtime recipes (5 approved by C1a; 20 checked against C1-P in §6.4)
+### 6.1 Hint 5.0 key-topping authority for the 25 runtime recipes (final: C1a + C1b + C1-P)
 
 The seed below is an **authoring proposal**:
 - Where the ladder key is a topping, the key topping is that key.
@@ -203,9 +204,10 @@ The seed below is an **authoring proposal**:
   authority, and later edits to `requiredIngredients` do not move it.
 
 **Row markers:**
-- **✅** marks a C1a Owner Decision.
-- **✗** marks a seed that breaks C1-P and is waiting for OD-H5-C1b.
-- All other rows passed the §6.4 check.
+- **✅** marks an explicit Owner Decision (C1a / C1b).
+- Every other row is the seed that passed the §6.4 check and is kept.
+
+This table is implemented verbatim as `src/data/recipeHintRoles.ts` (H5-1).
 
 | Recipe | `hintKeyToppingId` | `hintSubToppingOrder` |
 |---|---|---|
@@ -222,18 +224,18 @@ The seed below is an **authoring proposal**:
 | tonno-e-cipolla | tuna | [onion] |
 | pizza-bianca | rosemary | [] |
 | breakfast-pizza | bacon | [egg] |
-| capricciosa ✗ | oregano (seed) | [mushroom, ham, black-olive] |
+| capricciosa ✅ (C1b) | mushroom | [oregano, ham, black-olive] |
 | meat-lovers | ham | [bacon, pepperoni, sausage] |
 | melanzane-pizza | eggplant | [basil] |
 | parmigiana-pizza ✅ | eggplant | [basil] |
 | bambino | corn | [ham] |
 | hawaiian | pineapple | [ham] |
-| pizza-portuguesa ✗ | onion (seed) | [ham, egg, black-olive] |
+| pizza-portuguesa ✅ (C1b) | ham | [egg, onion, black-olive] |
 | pesto-tonno ✅ | tuna | [black-olive, onion] |
 | new-haven-apizza | clam | [garlic] |
 | pesto-caprese | fresh-tomato | [basil] |
 | pesto-patate | potato | [bacon] |
-| puttanesca-pizza ✗ | capers (seed) | [anchovy, black-olive, garlic] |
+| puttanesca-pizza ✅ (C1b) | anchovy | [black-olive, capers, garlic] |
 
 **Summary:**
 - sub-topping counts: 0 × 8, 1 × 12, 2 × 1, 3 × 4;
@@ -346,7 +348,25 @@ listed below as OD-H5-C1b.
   - pizza-portuguesa = ham shares rungs 1–3 with meat-lovers (both have 6 ingredients); they
     separate at sub ① (✨ vs 🥩).
 
-**Optional authoring tie-break (proposal, not authority).** When C1-P leaves several mains:
+**Round 4:** the Owner approved the three corrections as recommended (C1b). After C1b, all
+**25 / 25 recipes are consistent with C1-P** (re-check below).
+
+| Recipe | Final key | Verdict |
+|---|---|---|
+| margherita | basil (C1a) | ✅ only topping |
+| quattro-formaggi | none (C1a) | ✅ no topping exists |
+| fugazza | onion (C1a) | ✅ main over the oregano aroma, and identity |
+| parmigiana-pizza | eggplant (C1a) | ✅ main (×3) over the basil aroma |
+| pesto-tonno | tuna (C1a) | ✅ named ingredient, ×3 |
+| capricciosa | mushroom (C1b) | ✅ main (×2, named first), not the oregano aroma |
+| pizza-portuguesa | ham (C1b) | ✅ main (×3, named first) |
+| puttanesca-pizza | anchovy (C1b) | ✅ main (×3, named first), not the capers 薬味 |
+| the other 17 seeds | as in §6.1 | ✅ as in the table above (including the marinara / pizza-bianca edge cases and the meat-lovers note, kept by the Owner) |
+
+No key duplicates a sauce or cheese: every key is a topping, and the recipe's sauce and cheese are
+told by their own rungs.
+
+**Authoring tie-break (a candidate for the 172 authoring guideline only; NOT Owner authority).** When C1-P leaves several mains:
 1. prefer the topping the recipe is named after;
 2. otherwise the largest reference amount;
 3. otherwise the first one the description names.
@@ -714,8 +734,13 @@ save writer or flag.
 - TQ-1D, #275 and #260.
 
 **H5-1 entry conditions:**
-- ~~OD-H5-C1a~~: approved in round 3.
-- **OD-H5-C1b** (the 3 seed corrections, §6.4). This is the only remaining H5-1 entry condition.
+- ~~OD-H5-C1a~~ (round 3) and ~~OD-H5-C1b~~ (round 4) are approved.
+- The Owner's go was given in round 4, so **H5-1 is started**.
+- **H5-1 is implemented and unwired.** See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-1_Pure-Layer_Result.md`. Two implementation notes:
+  - the display field is `symbol`, not `emoji`, so the IngredientGlyph render-site guard stays
+    as it is;
+  - the DH4 import-boundary tests list the Hint 5.0 readers explicitly.
 - The Owner's explicit instruction to start H5-1.
 
 **Already decided for H5-1:** E1 / E2 (P-C, no cap), C4 (the §7 display table) and T-COV (§11).
@@ -738,7 +763,6 @@ save writer or flag.
 
 | ID | Question | Needed by |
 |---|---|---|
-| OD-H5-C1b | Correct the key-topping seeds for capricciosa, pizza-portuguesa and puttanesca-pizza, which break C1-P (§6.4). Recommended: mushroom, ham and anchovy. | H5-1 |
 | OD-H5-P4 | The "no sauce" / "no cheese" hint (with TQ-1D) | H5-4 enable list |
 | OD-H5-P4b | Does a recipe with no key topping (quattro-formaggi) fall under P4? | H5-4 enable list |
 | OD-H5-M2 | Enable the 19 unblocked targets first, or all 25 together once P4 / P4b are decided | H5-4 |
