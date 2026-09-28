@@ -303,6 +303,21 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     }
   });
 
+  it("a Reference whose group counts disagree with the recipe's minCount fails closed (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const ref = getReferencePizza("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const [first, ...rest] = ref.pieceGroups;
+    expect(first.positions.length).toBeGreaterThan(1);
+    const thinned = { ...ref, pieceGroups: [{ ...first, positions: first.positions.slice(0, 1) }, ...rest] };
+    expect(computeScoringV2(margherita, pizza, { reference: thinned }).available).toBe(false);
+    const padded = { ...ref, pieceGroups: [{ ...first, positions: [...first.positions, { x: 0, y: 0 }] }, ...rest] };
+    expect(computeScoringV2(margherita, pizza, { reference: padded }).available).toBe(false);
+    const [synFirst, ...synRest] = SYN_REFERENCE.pieceGroups;
+    const synThinned = { ...SYN_REFERENCE, pieceGroups: [{ ...synFirst, positions: synFirst.positions.slice(1) }, ...synRest] };
+    expect(score(noSaucePizza(), SYN_RECIPE, synThinned).result.available).toBe(false);
+  });
+
   it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
     const margherita = getRecipe("margherita")!;
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };

@@ -123,6 +123,14 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
   const required = new Set(
     requirements.map((r: unknown) => (typeof r === "object" && r !== null ? (r as Record<string, unknown>).ingredientId : undefined)),
   );
+  // Each placed requirement's `minCount` -- the target a Reference group's positions must equal
+  // (every production Reference does; referencePizza.w1.test.ts pins it for W1).
+  const minCountById = new Map<string, unknown>();
+  for (const r of requirements as readonly unknown[]) {
+    if (typeof r !== "object" || r === null) continue;
+    const { ingredientId, minCount } = r as Record<string, unknown>;
+    if (typeof ingredientId === "string") minCountById.set(ingredientId, minCount);
+  }
   const seenGroupIds = new Set<string>();
   let groupCount = 0;
   for (const group of reference.pieceGroups as readonly unknown[]) {
@@ -132,6 +140,12 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
     // A piece group is a placed (non-sauce) ingredient; a sauce there is a role-swapped Reference.
     const category = getIngredient(ingredientId)?.category;
     if (category === undefined || category === "sauce") return REFERENCE_MALFORMED_REASON;
+    // The target count is the group's position count (./quantityComponent.ts); it must be the
+    // recipe's own `minCount`, or a thinned-out Reference would give full Pieces/Quantity credit
+    // for too few pieces (Codex review on #271).
+    const positions = (group as Record<string, unknown>).positions;
+    if (!Array.isArray(positions)) return REFERENCE_MALFORMED_REASON;
+    if (positions.length !== minCountById.get(ingredientId)) return REFERENCE_RECIPE_MISMATCH_REASON;
     seenGroupIds.add(ingredientId);
     groupCount += 1;
   }
