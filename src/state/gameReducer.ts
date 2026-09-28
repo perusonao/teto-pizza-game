@@ -77,8 +77,10 @@ import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import {
   isOnboardingHintSession,
   purchaseSelectableHintFact,
+  requestDeductionHintFact,
   resolveHintSession,
   unlockNextHint,
+  type DeductionFamily,
   type HintOutcome,
   type HintSession,
 } from "./discoveryHint";
@@ -441,7 +443,13 @@ export type GameAction =
   // Discovery Hint 3.0 (Issue #238, H3-3): buys one Selectable Hint fact for the open sheet's target,
   // `preference` first (fallback sauce -> cheese -> topping, OD-H3-14). `expectedPaidCount` is the
   // paid count the sheet showed; a double tap or stale sheet no longer matches and changes nothing.
-  | { type: "PURCHASE_SELECTABLE_HINT"; preference: HintCategory; expectedPaidCount: number }
+  | {
+      type: "PURCHASE_SELECTABLE_HINT";
+      preference: HintCategory;
+      expectedPaidCount: number;
+      /** DH4-2B: the hint family; omitted = 材料 (today's request). 構成 / 特徴 need the E3 flag. */
+      family?: "material" | DeductionFamily;
+    }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -1515,7 +1523,13 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // sets the transient `hintOutcome`; any rejection returns `state` unchanged.
     case "PURCHASE_SELECTABLE_HINT": {
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
-      const patch = purchaseSelectableHintFact(state, action.preference, action.expectedPaidCount);
+      // DH4-2B: 構成 / 特徴 go to the DH4-2A request authority (flag only, E3), which also refuses any
+      // family it does not know (INVALID_FAMILY -> no change).
+      const family = action.family ?? "material";
+      const patch =
+        family === "material"
+          ? purchaseSelectableHintFact(state, action.preference, action.expectedPaidCount)
+          : requestDeductionHintFact(state, family, action.expectedPaidCount);
       if (!patch) return state;
       if (patch.hintOutcome && patch.hintOutcome === state.hintOutcome && Object.keys(patch).length === 1) return state;
       return { ...state, ...patch };
