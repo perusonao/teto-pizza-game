@@ -506,8 +506,8 @@ export function requestHint5RungFact(
 
 /**
  * Discovery Hint 5.0 (H5-2): the ladder view model for the session target, or `null` when the flag is
- * off, there is no DISCOVERABLE target, or the target is the Dex-0 onboarding. No UI reads it yet
- * (H5-3).
+ * off, there is no DISCOVERABLE target, the target is the Dex-0 onboarding, or it is not a ladder
+ * target (fail closed; see `hint5LadderActive`). The hint sheet renders it (H5-3).
  */
 export function hint5SheetView(state: DiscoveryHintState, enabled: boolean = HINT5_LADDER_ENABLED): Hint5Presentation | null {
   if (!enabled) return null;
@@ -522,6 +522,19 @@ export function hint5SheetView(state: DiscoveryHintState, enabled: boolean = HIN
     legacyPurchases: state.discoveryHintPurchases,
     pitzBalance: state.pitzBalance,
   });
+}
+
+/**
+ * Discovery Hint 5.0 (H5-4): the ladder serves the open sheet (the flag is ON, the session has a
+ * DISCOVERABLE target, and it is not the Dex-0 onboarding). With this true and `hint5SheetView` null
+ * (a target outside the ladder), the sheet fails closed: nothing is offered, and never the retired
+ * 材料 / 構成 / 特徴 purchases (OD-H5-T-COV, OD-H5-RETIRE).
+ */
+export function hint5LadderActive(state: DiscoveryHintState, enabled: boolean = HINT5_LADDER_ENABLED): boolean {
+  if (!enabled) return false;
+  const session = state.hintSession;
+  if (!session || !isSessionTarget(state, session)) return false;
+  return !isHintOnboardingFree(discoveredCount(state.dex), session.targetId);
 }
 
 export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boolean = DEDUCTION_HINTS_ENABLED): HintSheetView {

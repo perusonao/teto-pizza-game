@@ -69,7 +69,9 @@ function reload(storage: StorageLike): GameState {
   return createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance, save.inventory, save.starterGrantClaimedRecipeIds, save.unlockedForShopIngredientIds, save.discoveryHintPurchases, save.discoveryHintFacts);
 }
 
-const UNBLOCKED = RECIPES.filter((r) => r.id !== "margherita" && hint5EmptyFixedRungs(r.id)!.length === 0).map((r) => r.id);
+/** OD-H5-M2 = all 25 (round 6): every paid target, the 「なし」 targets included. */
+const TARGETS = RECIPES.filter((r) => r.id !== "margherita").map((r) => r.id);
+const NONE_TARGETS = TARGETS.filter((id) => hint5EmptyFixedRungs(id)!.length > 0);
 
 describe("flag ON: the ladder through the reducer", () => {
   it("hawaiian: rung by rung at the P-C price, appending ing: / meta: / cls: facts, then complete", () => {
@@ -99,8 +101,8 @@ describe("flag ON: the ladder through the reducer", () => {
     expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: 6 })).toBe(s);
   });
 
-  it("every unblocked target: the full ladder charges exactly the P-C total, and the balance never goes negative", () => {
-    for (const id of UNBLOCKED) {
+  it("every target (all 24 paid, 「なし」 rungs included): the full ladder charges exactly the P-C total, and the balance never goes negative", () => {
+    for (const id of TARGETS) {
       let s = sheetOn(id, 1000);
       let guard = 0;
       while (next(s) && guard++ < 20) {
@@ -128,7 +130,7 @@ describe("flag ON: the ladder through the reducer", () => {
   });
 
   it("insufficient Pitz is refused with no change, uniformly for every target", () => {
-    for (const id of UNBLOCKED) {
+    for (const id of TARGETS) {
       const s = sheetOn(id, 9);
       expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: 1 }), id).toBe(s);
     }
@@ -138,15 +140,34 @@ describe("flag ON: the ladder through the reducer", () => {
     expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: 4 })).toBe(s);
   });
 
-  it("RESERVED_EMPTY_RUNG (no cheese / no key topping): no charge, no fact, no state change, and the rung is not skipped", () => {
-    for (const [id, emptyIndex] of [["marinara", 2], ["fugazza", 2], ["pizza-bianca", 2], ["pesto-tonno", 2], ["puttanesca-pizza", 2], ["quattro-formaggi", 3]] as const) {
+  it("round 6 (OD-H5-P4-CHEESE / P4b): an empty CHEESE / KEY rung is bought like any other: 10 Pitz, its completion record only, then 「なし」 on the board", () => {
+    expect(NONE_TARGETS.sort()).toEqual(["fugazza", "marinara", "pesto-tonno", "pizza-bianca", "puttanesca-pizza", "quattro-formaggi"]);
+    for (const [id, emptyIndex, marker] of [["marinara", 2, "h5:cheese"], ["fugazza", 2, "h5:cheese"], ["pizza-bianca", 2, "h5:cheese"], ["pesto-tonno", 2, "h5:cheese"], ["puttanesca-pizza", 2, "h5:cheese"], ["quattro-formaggi", 3, "h5:key"]] as const) {
       let s = sheetOn(id, 100);
       for (let i = 1; i < emptyIndex; i += 1) s = buy(s);
-      expect(next(s)!.rungIndex, id).toBe(emptyIndex);
-      expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: emptyIndex }), id).toBe(s);
-      expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: emptyIndex + 1 }), id).toBe(s);
-      expect(s.hintOutcome, id).toBeNull();
+      const before = hint5SheetView(s)!;
+      expect(before.next, id).toMatchObject({ rungIndex: emptyIndex, price: 10, affordable: true });
+      expect(before.board.some((e) => "none" in e && e.none), id).toBe(false);
+      const ledger = facts(s, id);
+      const after = buy(s);
+      expect(after.pitzBalance, id).toBe(s.pitzBalance - 10);
+      expect(after.hintOutcome, id).toBeNull();
+      expect(facts(after, id), id).toEqual([...ledger, marker]);
+      expect(hint5SheetView(after)!.board.at(-1), id).toMatchObject({ rungIndex: emptyIndex, ingredientIds: [], none: true });
+      // Repeating the same request charges nothing.
+      expect(act(after, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: emptyIndex }), id).toBe(after);
     }
+  });
+
+  it("M3 + P4-CHEESE: a legacy Economy 1.0 count line 「チーズは使わないみたい」 completes marinara's cheese rung for 0 Pitz after the request", () => {
+    let s = sheetOn("marinara", 100, {}, { marinara: 4 });
+    s = buy(s); // sauce (named by the legacy line) -> 0
+    expect(s.pitzBalance).toBe(100);
+    expect(next(s)).toMatchObject({ rungIndex: 2, kind: "CHEESE", price: 10 });
+    s = buy(s);
+    expect(s.pitzBalance).toBe(100);
+    expect(s.hintOutcome).toBe("HINT5_ALREADY_KNOWN");
+    expect(facts(s, "marinara")).toEqual(["h5:sauce", "h5:cheese"]);
   });
 
   it("the 材料 / 構成 / 特徴 purchases are refused while the ladder is on (sub-topping names are never sold, OD-H5-C3)", () => {
@@ -251,6 +272,24 @@ describe("flag ON: existing facts, unknown ids, persistence, Full Reset", () => 
     const s = sheetOn("hawaiian", 100, { hawaiian: ["tech:no-sauce", "cls:ham", "attr:group:protein"] });
     persist(s, storage);
     expect(reload(storage).discoveryHintFacts.hawaiian).toEqual(["tech:no-sauce", "cls:ham", "attr:group:protein"]);
+  });
+
+  it("round 6: a bought 「なし」 survives save / reload with no recharge (quattro-formaggi key, marinara cheese)", () => {
+    for (const [id, rungs] of [["quattro-formaggi", 3], ["marinara", 2]] as const) {
+      const storage = memoryStorage();
+      let s = sheetOn(id, 100);
+      for (let i = 0; i < rungs; i += 1) s = buy(s);
+      persist(s, storage);
+      const reloaded = act(reload(storage), { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: id });
+      expect(reloaded.pitzBalance, id).toBe(s.pitzBalance);
+      expect(facts(reloaded, id), id).toEqual(facts(s, id));
+      expect(hint5SheetView(reloaded)!.board.find((e) => "none" in e && e.none), id).toMatchObject({ rungIndex: rungs, none: true });
+      expect(next(reloaded)!.rungIndex, id).toBe(rungs + 1);
+      expect(act(reloaded, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: rungs }), id).toBe(reloaded);
+      // Full Reset: the 「なし」 is gone and the ladder starts again.
+      expect(resetSave(storage)).toBe(true);
+      expect(reload(storage).discoveryHintFacts).toEqual({});
+    }
   });
 
   it("Full Reset clears every Hint 5.0 fact: the ladder starts again at rung 1", () => {

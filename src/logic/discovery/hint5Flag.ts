@@ -7,10 +7,11 @@
  * - PURCHASE_HINT5_RUNG is a no-op;
  * - the 材料 / 構成 / 特徴 sheet is unchanged.
  *
- * With the flag on (unit tests, and DEV-only experiments until H5-4), the H5-1 ladder authority
- * (./hint5Ladder.ts) serves every Hint 5.0 target and the sheet renders the ladder. The 材料 / 構成 /
- * 特徴 purchases are then refused, so sub-topping names are never sold (OD-H5-C3). The flag decides
- * no activation policy: which targets production enables is OD-H5-M2, decided at H5-4.
+ * With the flag on (unit tests and DEV-only experiments), the H5-1 ladder authority (./hint5Ladder.ts)
+ * serves every Hint 5.0 target and the sheet renders the ladder. The 材料 / 構成 / 特徴 purchases are
+ * then refused, so sub-topping names are never sold (OD-H5-C3, OD-H5-RETIRE). OD-H5-M2 = all 25
+ * (round 6): the flag-ON target set is every production recipe, with no per-recipe list. H5-4 keeps
+ * the flag OFF; turning it on in production is a separate Owner decision.
  *
  * **DEV-only opt-in (H5-3, for E2E and Human Verification recordings).** In a DEV server
  * (`import.meta.env.DEV`), setting `localStorage["teto.dev.hint5Ladder"] = "1"` before the app loads

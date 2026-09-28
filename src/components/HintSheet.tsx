@@ -159,6 +159,7 @@ const PREFERENCE_CHIPS: readonly { id: string; label: string; category: HintCate
 export function HintSheet({
   view,
   hint5 = null,
+  hint5Active = false,
   onUnlock,
   onBuySelectable = () => {},
   onBuyHint5 = () => {},
@@ -167,6 +168,10 @@ export function HintSheet({
   view: HintSheetView;
   /** Hint 5.0 (H5-3): the ladder view model, present only with the Hint 5.0 flag ON. */
   hint5?: Hint5Presentation | null;
+  /** Hint 5.0 (H5-4, fail closed): the ladder serves this sheet (the flag is ON and the target is not the
+   *  Dex-0 onboarding). With `hint5` null (a target outside the ladder, e.g. a missing taxonomy row),
+   *  the sheet then offers nothing to buy: never the 材料 / 構成 / 特徴 body (OD-H5-T-COV, RETIRE). */
+  hint5Active?: boolean;
   /** Hint 5.0: request the offered rung, echoing its index. The reducer's PURCHASE_HINT5_RUNG decides. */
   onBuyHint5?: (expectedRungIndex: number) => void;
   /** Unlocks the offered level (`view.next.level`). */
@@ -194,9 +199,10 @@ export function HintSheet({
   );
   const next = view.kind === "TARGET" ? view.next : null;
   const ladder = view.kind === "SELECTABLE" ? hint5 : null;
+  const ladderClosed = view.kind === "SELECTABLE" && !ladder && hint5Active;
   // SELECTABLE: the 「ヒントをもらう」 entry is always enabled (it only opens the family panel; the
   // panel manages its own focus). Hint 5.0: the one rung request, while affordable.
-  const ctaEnabled = ladder ? !!ladder.next && ladder.next.affordable : view.kind === "SELECTABLE" ? true : !!next && next.affordable;
+  const ctaEnabled = ladder ? !!ladder.next && ladder.next.affordable : ladderClosed ? false : view.kind === "SELECTABLE" ? true : !!next && next.affordable;
   const latch = (): boolean => {
     if (buyLatchRef.current) return false;
     buyLatchRef.current = true;
@@ -227,7 +233,7 @@ export function HintSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         data-hint-kind={view.kind}
-        data-hint-ladder={ladder ? "hint5" : undefined}
+        data-hint-ladder={ladder ? "hint5" : ladderClosed ? "hint5-closed" : undefined}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
@@ -255,6 +261,13 @@ export function HintSheet({
               if (latch()) onBuyHint5(rungIndex);
             }}
           />
+        ) : view.kind === "SELECTABLE" && ladderClosed ? (
+          <>
+            <p className="hint-sheet__caption">{view.existenceText}</p>
+            <div className="hint-sheet__footer hint-sheet__footer--selectable hint-sheet__footer--h5">
+              <p className="hint-sheet__guidance">{HINT5_COPY.unavailable}</p>
+            </div>
+          </>
         ) : view.kind === "SELECTABLE" ? (
           <SelectableHintBody
             view={view}
@@ -733,6 +746,10 @@ const HINT5_COPY = {
   legacyTitle: "以前のヒント",
   legacyExplainer: "前のヒント方式でわかっていたこと（そのまま残してあるよ）",
   classSection: "サブトッピングの分類",
+  /** Round 6 (OD-H5-P4-CHEESE / P4b): the answer of a bought empty CHEESE / KEY rung. */
+  none: "なし",
+  /** H5-4 fail closed: a target outside the ladder (unreachable in production: the taxonomy gates). */
+  unavailable: "このピザのヒントは今は出せないよ。作ってためしてみよう！",
 } as const;
 
 const HINT5_ROW_LABEL: Record<"SAUCE" | "CHEESE" | "KEY_TOPPING", string> = { SAUCE: "ソース", CHEESE: "チーズ", KEY_TOPPING: "キートッピング" };
@@ -754,8 +771,9 @@ function hint5EntryKey(entry: Hint5BoardEntry): string {
  * Hint 5.0 H5-3: the linear ladder body (OD-H5-U1). The board holds COMPLETED rungs only. The footer
  * holds the ONE next rung: its fixed label and description, its normal price and 「たずねる」.
  * Nothing here shows a rung count, what comes later, a sub-topping name or glyph, or a 0 price
- * (M3). An empty fixed rung is offered like any other: it keeps RESERVED_EMPTY_RUNG (P4 / P4b open),
- * so a request for it changes nothing.
+ * (M3). An empty fixed rung is offered like any other. Round 6: a bought empty CHEESE / KEY rung shows
+ * 「なし」 in its row (「チーズ」 | 「なし」); an empty SAUCE rung stays RESERVED and is never shown as
+ * 「なし」 (OD-H5-P4-SAUCE, TQ-1D).
  */
 function Hint5LadderBody({
   view,
@@ -806,7 +824,9 @@ function Hint5LadderBody({
         .filter(isNew)
         .map((e) =>
           "ingredientIds" in e
-            ? e.ingredientIds.map((id) => getIngredient(id)?.nameJa ?? "").join("、")
+            ? e.none
+              ? `${HINT5_ROW_LABEL[e.kind]}：${HINT5_COPY.none}`
+              : e.ingredientIds.map((id) => getIngredient(id)?.nameJa ?? "").join("、")
             : e.kind === "STRUCTURE"
               ? e.lineJa
               : `サブトッピング${circledOrdinal(e.ordinal)}は${e.classView.labelJa}`,
@@ -831,6 +851,7 @@ function Hint5LadderBody({
                   <li key={entry.rungIndex} className={`hint-sheet__row hint-sheet__row--h5 hint-sheet__h5-entry${isNew(entry) ? " hint-sheet__h5-entry--new" : ""}`} data-hint5-rung={entry.kind}>
                     <span className="hint-sheet__row-label">{HINT5_ROW_LABEL[entry.kind]}</span>
                     <span className="hint-sheet__chips">
+                      {entry.none && <span className={`hint-sheet__chip hint-sheet__chip--none${isNew(entry) ? " hint-sheet__chip--new" : ""}`}>{HINT5_COPY.none}</span>}
                       {entry.ingredientIds.map((id) => {
                         const ingredient = getIngredient(id);
                         return (

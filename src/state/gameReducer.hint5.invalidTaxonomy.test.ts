@@ -20,7 +20,7 @@ vi.mock("../data/recipeHintRoles", async (importOriginal) => {
 
 const { INGREDIENTS } = await import("../data/ingredients");
 const { EMPTY_DEX, registerScoreToDex } = await import("./dex");
-const { hint5SheetView } = await import("./discoveryHint");
+const { hint5LadderActive, hint5SheetView } = await import("./discoveryHint");
 const { createInitialGameState, gameReducer } = await import("./gameReducer");
 const { ALL_INGREDIENT_IDS: ALL_IDS } = await import("../logic/discovery/testSupport/deductionInversion");
 
@@ -40,6 +40,8 @@ describe("invalid taxonomy with the flag ON (fail closed, no charge)", () => {
     const s = sheetOn("hawaiian");
     expect(s.hintSession?.targetId).toBe("hawaiian");
     expect(hint5SheetView(s)).toBeNull();
+    // H5-4: the sheet fails closed (the ladder is active, but it has no view): nothing is offered.
+    expect(hint5LadderActive(s)).toBe(true);
     for (const expectedRungIndex of [1, 2, 5]) expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex })).toBe(s);
     for (const family of [undefined, "structure", "attribute"] as const) {
       expect(act(s, { type: "PURCHASE_SELECTABLE_HINT", preference: "topping", expectedPaidCount: 0, ...(family ? { family } : {}) })).toBe(s);

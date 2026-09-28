@@ -67,9 +67,11 @@ describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
       const shapes = new Set<string>();
       for (const r of TARGETS) {
         const stored = prefix(r.id, k);
-        if (!stored) continue; // stopped at an empty rung (P4 / P4b)
-        const { container } = renderLadder(pres(r.id, stored));
+        expect(stored, `${r.id} k=${k}`).not.toBeNull(); // round 6: no target stops before STRUCTURE
+        const { container } = renderLadder(pres(r.id, stored!));
         shapes.add(k === 0 ? shape(container) : shape(container).replace(/<span class="hint-sheet__chips">.*?<\/span><\/li>/gs, "<chips/>"));
+        // 「なし」 appears only on a bought rung: never in the offer.
+        expect(container.querySelector(".hint-sheet__h5-next")!.textContent, `${r.id} k=${k}`).not.toContain("なし");
         cleanup();
       }
       expect(shapes.size, `after ${k} rungs`).toBe(1);
@@ -144,15 +146,51 @@ describe("Hint 5.0 ladder DOM: disclosure boundary (H5-INV-1 / 3 / 4) and AC-1",
     for (const name of ["ベーコン", "ペパロニ", "ソーセージ"]) expect(container.textContent).not.toContain(name);
   });
 
-  it("the CTA reports the offered rung index once; a RESERVED empty rung is offered like any other (P4 / P4b open)", () => {
+  it("the CTA reports the offered rung index once; an empty CHEESE rung is offered like any other", () => {
     const onBuy = vi.fn();
     const { container } = renderLadder(pres("marinara", prefix("marinara", 1)!), null, onBuy);
     expect(container.querySelector(".hint-sheet__h5-next .hint-sheet__card-title")!.firstChild!.textContent).toBe("ヒント2: チーズ");
     const button = container.querySelector<HTMLButtonElement>(".hint-sheet__h5-next .hint-sheet__next")!;
     expect(button).toHaveTextContent("たずねる 10 Pitz");
+    expect(container.textContent).not.toContain("なし");
     fireEvent.click(button);
     fireEvent.click(button);
     expect(onBuy).toHaveBeenCalledTimes(1);
     expect(onBuy).toHaveBeenCalledWith(2);
+  });
+});
+
+describe("round 6: 「なし」 rows (OD-H5-P4-CHEESE / P4b) and fail closed", () => {
+  it("after the purchase only: 「チーズ」 | 「なし」 (marinara) and 「キートッピング」 | 「なし」 (quattro-formaggi), with no glyph and no ingredient name", () => {
+    for (const [id, k, kind, label] of [["marinara", 2, "CHEESE", "チーズ"], ["quattro-formaggi", 3, "KEY_TOPPING", "キートッピング"]] as const) {
+      const before = renderLadder(pres(id, prefix(id, k - 1)!));
+      expect(before.container.querySelector(".hint-sheet__chip--none"), id).toBeNull();
+      expect(before.container.textContent, id).not.toContain("なし");
+      cleanup();
+      const { container } = renderLadder(pres(id, prefix(id, k)!));
+      const row = container.querySelector(`[data-hint5-rung="${kind}"]`)!;
+      expect(row.textContent, id).toBe(`${label}なし`);
+      expect(row.querySelector(".hint-sheet__glyph"), id).toBeNull();
+      expect(container.querySelectorAll(".hint-sheet__chip--none"), id).toHaveLength(1);
+      cleanup();
+    }
+  });
+
+  it("the whole quattro-formaggi ladder renders to the complete line (sauce, cheeses, key 「なし」, structure)", () => {
+    const { container } = renderLadder(pres("quattro-formaggi", prefix("quattro-formaggi", 4)!, 0));
+    expect([...container.querySelectorAll("[data-hint5-rung]")].map((r) => r.getAttribute("data-hint5-rung"))).toEqual(["SAUCE", "CHEESE", "KEY_TOPPING"]);
+    expect(container).toHaveTextContent("ここまでのヒントで、推理してみよう！");
+    expect(container.querySelector(".hint-sheet__h5-next")).toBeNull();
+    expect(container.textContent).not.toMatch(/ソース(：)?なし|ソースを?使わない/);
+  });
+
+  it("fail closed: the ladder active but no ladder view (a target outside the ladder) offers nothing, and never the 材料 / 構成 / 特徴 body", () => {
+    const onBuy = vi.fn();
+    const { container } = render(<HintSheet view={selectable()} hint5={null} hint5Active onUnlock={() => {}} onBuySelectable={onBuy} onBuyHint5={onBuy} onClose={() => {}} />);
+    expect(container.querySelector('[role="dialog"]')!.getAttribute("data-hint-ladder")).toBe("hint5-closed");
+    expect(container.querySelectorAll("button")).toHaveLength(1); // 閉じる only
+    // The existence caption (「今の材料で…」) is the only shared line; no family, price or request.
+    expect(container.textContent!.replace("今の材料で、まだ見つけていないピザが作れそう！", "")).not.toMatch(/材料|構成|特徴|Pitz|ヒントをもらう/);
+    expect(container).toHaveTextContent("このピザのヒントは今は出せないよ");
   });
 });

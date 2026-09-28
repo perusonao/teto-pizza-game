@@ -33,7 +33,7 @@ import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily } from "../components/HintSheet";
-import { hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
@@ -842,6 +842,7 @@ export function GameScreen({
             <HintSheet
               view={hintSheetView(state)}
               hint5={hint5SheetView(state)}
+              hint5Active={hint5LadderActive(state)}
               onUnlock={onUnlockHint}
               onBuySelectable={onBuySelectableHint}
               onBuyHint5={onBuyHint5Rung}

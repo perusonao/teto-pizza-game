@@ -1,5 +1,5 @@
 /**
- * Discovery Hint 5.0 (Issue #292), H5-2: a deterministic fresh-save -> Dex 25 walk that prices the
+ * Discovery Hint 5.0 (Issue #292), H5-2 / H5-4: a deterministic fresh-save -> Dex 25 walk that prices the
  * Sub-topping Classification Ladder with the P-C authority (OD-H5-E1) through the REAL reducer.
  *
  * TEST-ONLY ANALYSIS HARNESS. No production module imports it. The caller must run with the Hint 5.0
@@ -25,8 +25,9 @@
  *
  * **Rules:**
  * - An unaffordable rung is skipped, never ground for. It is counted as an insufficient attempt.
- * - An empty fixed rung (RESERVED_EMPTY_RUNG: the reducer refuses it at an affordable price) stops
- *   the ladder for that stage. OD-H5-P4 / P4b are undecided.
+ * - Round 6 (H5-4): an empty CHEESE / KEY rung is a normal paid rung (OD-H5-P4-CHEESE / P4b). Only an
+ *   empty SAUCE rung is RESERVED_EMPTY_RUNG (the reducer refuses it at an affordable price); it would
+ *   stop the ladder for that stage, and no runtime recipe has one (the RESERVED gate).
  * - Shop purchases the player cannot afford are paid by Margherita replays (grind bakes).
  * - Dex 0 (the Margherita onboarding) is free and never uses the ladder.
  */
@@ -58,7 +59,7 @@ export interface Hint5StageRecord {
   rungsBought: number;
   /** Rungs the target's ladder has (4 + sub-toppings). */
   rungsTotal: number;
-  /** The ladder stopped at an empty fixed rung (P4 / P4b). */
+  /** The ladder stopped at a RESERVED (empty SAUCE) rung. Never on the runtime catalog. */
   reservedStop: boolean;
   unlockSpend: number;
   refillSpend: number;
@@ -111,8 +112,15 @@ function pizzaOf(ids: readonly string[]): PizzaState {
   return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
 }
 
-/** The P-C total of a target's whole ladder, empty fixed rungs excluded (they are never charged). */
+/** The P-C total of a target's whole ladder. Round 6: every rung is charged except a RESERVED (empty
+ *  SAUCE) one. */
 export function hint5LadderDesignTotal(recipeId: string): number {
+  const ladder = buildHint5Ladder(recipeId)!;
+  return ladder.rungs.filter((r) => r.kind !== "SAUCE" || r.subjectIds.length > 0).reduce((sum, r) => sum + HINT5_RUNG_PRICE[r.kind], 0);
+}
+
+/** H5-0 / H5-2 (before round 6): the same total with the empty CHEESE / KEY rungs uncharged. */
+export function hint5LadderTotalBeforeRound6(recipeId: string): number {
   const ladder = buildHint5Ladder(recipeId)!;
   return ladder.rungs.filter((r) => r.kind === "STRUCTURE" || r.kind === "SUB_CLASS" || r.subjectIds.length > 0).reduce((sum, r) => sum + HINT5_RUNG_PRICE[r.kind], 0);
 }
@@ -202,7 +210,7 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
       const before = s;
       s = act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: view.next.rungIndex });
       if (s === before) {
-        acc.reservedStop = true; // affordable but refused: an empty fixed rung (P4 / P4b)
+        acc.reservedStop = true; // affordable but refused: a RESERVED (empty SAUCE) rung
         break;
       }
       const charged = before.pitzBalance - s.pitzBalance;

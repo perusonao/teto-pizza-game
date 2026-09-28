@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 
 /**
- * Discovery Hint 5.0 (Issue #292), H5-3: the linear ladder sheet on mobile (390×844 and 360×800 via
+ * Discovery Hint 5.0 (Issue #292), H5-3 / H5-4: the linear ladder sheet on mobile (390×844 and 360×800 via
  * the two iphone projects).
  *
  * **Flag.** The flag is OFF by default in every build. These tests turn it on through the DEV-only
@@ -19,7 +19,10 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  * - no undiscovered recipe identity in the DOM.
  *
  * `HINT5_SCREENSHOTS=1` also writes the Human Verification screenshots to
- * docs/reports/screenshots/hint-5-ladder/.
+ * docs/reports/screenshots/hint-5-ladder/ (or `HINT5_SCREENSHOT_DIR`).
+ *
+ * **H5-4 (round 6):** the no-cheese (marinara) and no-key-topping (quattro-formaggi) rungs are normal
+ * paid rungs answered 「なし」 after the purchase, and survive a reload with no recharge.
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
@@ -31,7 +34,9 @@ const LADDER = [
   ["melanzane-pizza", ["eggplant"]], ["parmigiana-pizza", ["parmigiano"]], ["pepperoni", ["pepperoni"]],
   ["salsiccia", ["sausage"]], ["meat-lovers", ["ham"]], ["bambino", ["corn"]], ["hawaiian", ["pineapple"]],
   ["capricciosa", ["black-olive", "oregano"]], ["pizza-portuguesa", ["onion"]], ["fugazza", ["olive-oil"]],
-  ["marinara", ["garlic"]],
+  ["marinara", ["garlic"]], ["napoletana", ["anchovy"]], ["tonno-e-cipolla", ["tuna"]], ["pesto-tonno", ["pesto"]],
+  ["genovese", ["cherry-tomato"]], ["new-haven-apizza", ["clam"]], ["pesto-caprese", ["fresh-tomato"]], ["pesto-patate", ["potato"]],
+  ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]], ["quattro-formaggi", ["fontina", "gorgonzola"]],
 ] as const;
 /** meat-lovers (ladder step 8) is the main target. */
 const DEX = LADDER.slice(0, 8).map(([id]) => id as string);
@@ -119,7 +124,8 @@ async function expectLayout(page: Page, where: string) {
 async function shot(page: Page, name: string) {
   if (process.env.HINT5_SCREENSHOTS !== "1") return;
   const project = test.info().project.name.replace("iphone-", "");
-  await page.screenshot({ path: `docs/reports/screenshots/hint-5-ladder/${project}-${name}.png` });
+  const dir = process.env.HINT5_SCREENSHOT_DIR ?? "hint-5-ladder";
+  await page.screenshot({ path: `docs/reports/screenshots/${dir}/${project}-${name}.png` });
 }
 
 async function ask(page: Page) {
@@ -127,7 +133,7 @@ async function ask(page: Page) {
   await cta(page).click();
 }
 
-test.describe("Hint 5.0 ladder sheet (H5-3, DEV opt-in)", () => {
+test.describe("Hint 5.0 ladder sheet (H5-3 / H5-4, DEV opt-in)", () => {
 
   test("flag OFF (no opt-in): the existing sheet renders unchanged", async ({ page }) => {
     const dialog = await openSheet(page, save(), false);
@@ -139,6 +145,9 @@ test.describe("Hint 5.0 ladder sheet (H5-3, DEV opt-in)", () => {
   test("buys the whole meat-lovers ladder: one next rung at a time, normal prices, the last sub-topping still classified", async ({ page }) => {
     const dialog = await openSheet(page, save(), true);
     await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    // OD-H5-RETIRE: the 材料 / 構成 / 特徴 purchase path is not on the sheet.
+    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
+    await expect(dialog.locator(".hint-sheet__prefs, [data-hint-family]")).toHaveCount(0);
     await expectLayout(page, "initial");
     await shot(page, "01-initial");
     const expected = [
@@ -242,22 +251,76 @@ test.describe("Hint 5.0 ladder sheet (H5-3, DEV opt-in)", () => {
     await expectNoUndiscoveredIdentity(page, dexOf("breakfast-pizza"), "hint5 single candidate");
   });
 
-  test("RESERVED_EMPTY_RUNG (marinara has no cheese): offered like any rung; a request changes nothing and says nothing (P4 / P4b not pre-empted)", async ({ page }) => {
+  test("OD-H5-P4-CHEESE (marinara has no cheese): the normal 「チーズ」 rung at 10 Pitz; 「なし」 only after the purchase; reload keeps it with no recharge", async ({ page }) => {
     const dialog = await openSheet(page, save({}, "marinara"), true);
     await ask(page); // the sauce
     const wallet = dialog.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last();
     await expect(wallet).toContainText("所持 989 Pitz");
+    // Before the purchase: exactly the offer every target gets.
+    await expect(nextTitle(page)).toContainText("ヒント2: チーズ");
+    await expect(nextTitle(page)).toContainText("このピザのチーズを教えるよ");
+    await expect(cta(page)).toHaveText("たずねる 10 Pitz");
+    for (const word of ["なし", "チーズは使わない", "もう知っていた"]) await expect(dialog).not.toContainText(word);
+    await expectLayout(page, "no cheese: before");
+    await shot(page, "08-cheese-none-before");
+    await ask(page);
+    await expect(wallet).toContainText("所持 979 Pitz");
+    const row = dialog.locator('[data-hint5-rung="CHEESE"]');
+    await expect(row).toHaveText("チーズなし");
+    await expect(row.locator(".hint-sheet__chip--none")).toHaveText("なし");
+    await expect(nextTitle(page)).toContainText("ヒント3: キートッピング");
+    for (const word of ["ソースなし", "ソース：なし", "もう知っていた"]) await expect(dialog).not.toContainText(word);
+    await expectLayout(page, "no cheese: after");
+    await shot(page, "09-cheese-none-after");
+    await expectNoUndiscoveredIdentity(page, dexOf("marinara"), "hint5 cheese none");
+    // The save holds the completion record only (no ingredient id), and a reload does not charge again.
+    const persisted = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+    expect(persisted.pitzBalance).toBe(979);
+    expect(persisted.discoveryHintFacts.marinara).toEqual(["ing:tomato-sauce", "h5:sauce", "h5:cheese"]);
+    await page.reload();
+    await page.waitForSelector(".app-frame");
+    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+    await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
+    await expect(page.locator('[data-hint5-rung="CHEESE"]')).toHaveText("チーズなし");
+    await expect(page.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last()).toContainText("所持 979 Pitz");
+    await expect(nextTitle(page)).toContainText("ヒント3: キートッピング");
+  });
+
+  test("OD-H5-P4b (quattro-formaggi has no key topping): the whole ladder to the complete line; 「キートッピング」 → 「なし」 only after the purchase", async ({ page }) => {
+    const dialog = await openSheet(page, save({}, "quattro-formaggi"), true);
+    const wallet = dialog.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last();
+    await ask(page); // sauce
+    await ask(page); // cheeses
+    await expect(nextTitle(page)).toContainText("ヒント3: キートッピング");
+    await expect(cta(page)).toHaveText("たずねる 10 Pitz");
+    await expect(dialog).not.toContainText("なし");
+    await ask(page);
+    await expect(wallet).toContainText("所持 969 Pitz");
+    await expect(dialog.locator('[data-hint5-rung="KEY_TOPPING"]')).toHaveText("キートッピングなし");
+    await expectLayout(page, "no key: after");
+    await ask(page); // structure
+    await expect(wallet).toContainText("所持 964 Pitz");
+    await expect(dialog).toContainText("ここまでのヒントで、推理してみよう！");
+    await expect(cta(page)).toHaveCount(0);
+    await expect(dialog.locator('[data-hint5-rung="SUB_CLASS"]')).toHaveCount(0);
+    await expectLayout(page, "no key: complete");
+    await shot(page, "10-key-none-complete");
+    await expectNoUndiscoveredIdentity(page, dexOf("quattro-formaggi"), "hint5 key none");
+  });
+
+  test("M3 + P4-CHEESE: a legacy 「チーズは使わないみたい」 line completes marinara's cheese rung for 0 Pitz, told only after the request", async ({ page }) => {
+    const s = { ...save({}, "marinara"), discoveryHintPurchases: { marinara: 4 } };
+    const dialog = await openSheet(page, s, true);
+    const wallet = dialog.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last();
+    await ask(page); // sauce: already known from the legacy line -> 0
+    await expect(wallet).toContainText("所持 999 Pitz");
     await expect(nextTitle(page)).toContainText("ヒント2: チーズ");
     await expect(cta(page)).toHaveText("たずねる 10 Pitz");
-    const before = await dialog.innerHTML();
     await ask(page);
-    await page.waitForTimeout(700);
-    await expect(wallet).toContainText("所持 989 Pitz");
-    await expect(nextTitle(page)).toContainText("ヒント2: チーズ");
-    for (const word of ["チーズは使わない", "チーズなし", "ソースなし", "もう知っていた"]) await expect(dialog).not.toContainText(word);
-    expect((await dialog.innerHTML()).replace(/ aria-disabled="true"/g, "")).toBe(before.replace(/ aria-disabled="true"/g, ""));
-    // A name the ladder already shows is not repeated in 「以前のヒント」.
-    await expect(dialog.locator(".hint-sheet__legacy")).toHaveCount(0);
-    await expectLayout(page, "reserved");
+    await expect(dialog).toContainText("このヒントはもう知っていたよ！");
+    await expect(wallet).toContainText("所持 999 Pitz");
+    await expect(dialog.locator('[data-hint5-rung="CHEESE"]')).toHaveText("チーズなし");
+    await expectLayout(page, "legacy cheese none");
+    await shot(page, "11-legacy-cheese-none-known");
   });
 });

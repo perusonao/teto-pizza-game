@@ -14,6 +14,10 @@ import {
   hint5ClassFactId,
   hint5EmptyFixedRungs,
   hint5Presentation,
+  hint5ReservedRungs,
+  HINT5_FIXED_RUNG_KINDS,
+  HINT5_LADDER_COMPLETE_TEXT,
+  HINT5_RUNG_PRICE,
   requestHint5Rung,
   subToppingClass,
   type Hint5Presentation,
@@ -22,8 +26,11 @@ import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
 
 /**
- * Discovery Hint 5.0 (Issue #292), H5-1: the production gate on the real 25-recipe catalog
- * (docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md §1 AC-1, §3, §12, §13).
+ * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
+ * (docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md §1 AC-1, §3, §5.3, §12, §13).
+ *
+ * **OD-H5-M2 = all 25 (round 6).** Every production recipe is a flag-ON target, so every one must walk
+ * its ladder to the end (gate A), and none may reach RESERVED_EMPTY_RUNG (gate B, M2 condition 3).
  *
  * **Cooking Techniques tripwire (TQ-1D, §12).** Every production recipe is single-sauce and requires
  * no technique. The tripwire test fails on purpose as soon as one does: TQ-1D (or that recipe's PR)
@@ -36,8 +43,8 @@ const dexCountsOf = (id: string) => [...new Set([Math.max(1, LADDER_INDEX.get(id
 
 const namesOf = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind !== "SUB_CLASS").flatMap((r) => r.subjectIds);
 const subsOf = (id: string) => RECIPE_HINT_ROLES[id as keyof typeof RECIPE_HINT_ROLES].hintSubToppingOrder;
-/** P4 / P4b: targets with an empty fixed rung cannot progress past it until the Owner decides. */
-const P4_BLOCKED = new Set(RECIPES.filter((r) => hint5EmptyFixedRungs(r.id)!.length > 0).map((r) => r.id));
+/** Round 6 (OD-H5-P4-CHEESE / P4b): the targets whose empty CHEESE / KEY rung is answered 「なし」. */
+const NONE_TARGETS = RECIPES.filter((r) => hint5EmptyFixedRungs(r.id)!.length > 0).map((r) => r.id);
 
 /** Every string value in a presentation (keys are ours; values are what a sheet could render). */
 function stringValues(value: unknown, out: string[] = []): string[] {
@@ -67,7 +74,7 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
     let cases = 0;
     for (const r of RECIPES) {
       const subs = subsOf(r.id);
-      if (subs.length === 0 || P4_BLOCKED.has(r.id)) continue;
+      if (subs.length === 0) continue;
       const ladder = buildHint5Ladder(r.id)!;
       const fixedDone = [...namesOf(r.id).map((n) => `ing:${n}`), "h5:sauce", "h5:cheese", "h5:key", INGREDIENT_TOTAL_FACT_ID, "h5:structure"];
       for (const last of subs) {
@@ -101,17 +108,17 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
         }
       }
     }
-    expect(cases).toBeGreaterThanOrEqual(38);
+    // H5-1 had 38 cases on the 19 unblocked targets; round 6 adds the no-cheese targets' sub-toppings.
+    expect(cases).toBeGreaterThanOrEqual(46);
   });
 
-  it("the P4 / P4b-blocked targets still have a valid classification for every sub-topping (only the empty rung waits)", () => {
-    expect([...P4_BLOCKED].sort()).toEqual(["fugazza", "marinara", "pesto-tonno", "pizza-bianca", "puttanesca-pizza", "quattro-formaggi"]);
-    for (const id of P4_BLOCKED) for (const s of subsOf(id)) expect(subToppingClass(s), `${id}/${s}`).toBe(ingredientAttributeFamily(s));
+  it("the round-6 「なし」 targets are the 5 no-cheese recipes and quattro-formaggi, and each has a valid classification for every sub-topping", () => {
+    expect([...NONE_TARGETS].sort()).toEqual(["fugazza", "marinara", "pesto-tonno", "pizza-bianca", "puttanesca-pizza", "quattro-formaggi"]);
+    for (const id of NONE_TARGETS) for (const s of subsOf(id)) expect(subToppingClass(s), `${id}/${s}`).toBe(ingredientAttributeFamily(s));
   });
 
-  it("G3: buying an unblocked ladder in order classifies every sub-topping, and never degrades to existence / group / category", () => {
+  it("G3: buying any ladder in order classifies every sub-topping, and never degrades to existence / group / category", () => {
     for (const r of RECIPES) {
-      if (P4_BLOCKED.has(r.id)) continue;
       const states = purchaseStates(r.id, 5);
       const final = states[states.length - 1].view;
       expect(final.next, r.id).toBeNull();
@@ -137,12 +144,67 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
   });
 });
 
+describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
+  it("A: every one of the 25 recipes walks its ladder from the first rung to the complete line, every request ANSWERED at the P-C price", () => {
+    let walked = 0;
+    for (const r of RECIPES) {
+      for (const discoveredCount of r.id === "margherita" ? [0, ...dexCountsOf(r.id)] : dexCountsOf(r.id)) {
+        const states = purchaseStates(r.id, discoveredCount);
+        const ladder = buildHint5Ladder(r.id)!;
+        const final = states[states.length - 1];
+        expect(states.length, `${r.id} @${discoveredCount}`).toBe(ladder.rungs.length + 1);
+        expect(final.view.next, r.id).toBeNull();
+        expect(final.view.completeText, r.id).toBe(HINT5_LADDER_COMPLETE_TEXT);
+        expect(final.view.board.map((e) => e.rungIndex), r.id).toEqual(ladder.rungs.map((x) => x.index));
+        // Every completion record is stored exactly once.
+        const markers = final.stored.filter((id) => id.startsWith("h5:") || id.startsWith("cls:"));
+        expect(new Set(markers).size, r.id).toBe(markers.length);
+        expect(markers.length, r.id).toBe(ladder.rungs.length);
+        walked += 1;
+      }
+    }
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(25);
+    expect(walked).toBeGreaterThanOrEqual(25);
+  });
+
+  it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; OD-H5-P4-SAUCE stays reserved for TQ-1D)", () => {
+    const reaching = RECIPES.filter((r) => hint5ReservedRungs(r.id)!.length > 0).map((r) => r.id);
+    expect(reaching, "a sauceless recipe needs OD-H5-P4-SAUCE (TQ-1D) before it can be a production target").toEqual([]);
+    // And no reachable request state returns it, with or without legacy facts.
+    for (const r of RECIPES) {
+      for (const { stored, view } of purchaseStates(r.id, 5)) {
+        if (!view.next) continue;
+        for (const legacy of [{}, { [r.id]: 4 }]) {
+          const res = requestHint5Rung({ recipeId: r.id, discoveredCount: 5, storedFactIds: stored, legacyPurchases: legacy, expectedRungIndex: view.next.rungIndex, pitzBalance: 1000 });
+          expect(res.outcome, `${r.id} @${view.next.rungIndex}`).not.toBe("RESERVED_EMPTY_RUNG");
+        }
+      }
+    }
+  });
+
+  it("C: the purchase order is sauce -> cheese -> key -> structure -> sub ①..ⓝ for every recipe, each rung priced by its kind", () => {
+    for (const r of RECIPES) {
+      const states = purchaseStates(r.id, 5);
+      const offered = states.flatMap((s) => (s.view.next ? [[s.view.next.kind, s.view.next.price] as const] : []));
+      const subs = subsOf(r.id);
+      expect(offered.map(([k]) => k), r.id).toEqual([...HINT5_FIXED_RUNG_KINDS, ...subs.map(() => "SUB_CLASS")]);
+      for (const [kind, price] of offered) expect(price, `${r.id} ${kind}`).toBe(HINT5_RUNG_PRICE[kind]);
+      // Out-of-order requests are STALE at every state.
+      for (const { stored, view } of states) {
+        if (!view.next) continue;
+        for (const wrong of [view.next.rungIndex - 1, view.next.rungIndex + 1]) {
+          expect(requestHint5Rung({ recipeId: r.id, discoveredCount: 5, storedFactIds: stored, legacyPurchases: {}, expectedRungIndex: wrong, pitzBalance: 1000 }), `${r.id} ${wrong}`).toEqual({ outcome: "REJECTED", reason: "STALE" });
+        }
+      }
+    }
+  });
+});
+
 describe("disclosure boundary (H5-INV-1..5)", () => {
   it("G5 / H5-INV-1: a classification never carries an ingredient name, id or glyph", () => {
     const words = INGREDIENTS.flatMap((i) => [i.nameJa, i.emoji]);
     for (const family of Object.keys(HINT_CLASS_DISPLAY)) {
       for (const r of RECIPES) {
-        if (P4_BLOCKED.has(r.id)) continue;
         for (const e of purchaseStates(r.id, 5).pop()!.view.board) {
           if (e.kind !== "SUB_CLASS" || !("classView" in e)) continue;
           for (const s of stringValues(e.classView)) {

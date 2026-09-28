@@ -23,10 +23,15 @@
 - **Round 4 (2026-09-28):** **C1b** is APPROVED: capricciosa = mushroom, pizza-portuguesa = ham,
   puttanesca-pizza = anchovy. The Hint 5.0 key-topping authority is now final for **all 25**
   runtime recipes, and all 25 are consistent with C1-P (§6.4).
-- **Still open:**
-  - **P4 / P4b** (deferred with TQ-1D);
-  - **M2** (enable 19 targets first, or all 25 at once).
-- **No production code is changed by H5-0.** H5-1 has **not started**.
+- **Round 6 (2026-09-28, after the H5-4 Fresh Gate `5eadb96`):** these are APPROVED (§5.3):
+  - **OD-H5-P4-CHEESE** (a no-cheese target's cheese rung is a normal paid rung → 「チーズ：なし」);
+  - **OD-H5-P4b** (the same for the key topping → 「キートッピング：なし」);
+  - **OD-H5-M2 = all 25** (the implementation authority for the flag-ON target set, under 6 gates);
+  - **OD-H5-RETIRE** (with the flag ON, the 材料 / 構成 / 特徴 purchases end).
+  - **OD-H5-P4-SAUCE is RESERVED** until TQ-1D: 「ソース：なし」 is never an answer in Hint 5.0.
+  - **H5-4 implements these behind the flag. The production flag stays OFF.**
+- **Still open:** OD-H5-P4-SAUCE (TQ-1D), and the production activation itself (flag ON).
+- H5-0 itself changed no production code.
 
 This document wins over the Fresh Audit wherever they differ.
 
@@ -59,7 +64,7 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-P1** | Sub-topping classification is **not** subject to k ≥ 2. The classification may, combined with the player's knowledge, owned inventory or known hints, narrow the candidates to one. The classification must **never display the ingredient's name**. "Identifiable by deduction" and "the game displays the answer" are distinct (§3). | APPROVED |
 | **OD-H5-P2** | A classification may be shown even when its family has only one candidate in the catalog, as long as what is displayed is the family label. | APPROVED |
 | **OD-H5-P3** | A recipe with 0 sub-toppings gets **no** classification rung. It is acceptable that all ingredients can be deduced from the sauce / cheese / key purchases. Recipe name, id, description and image are never displayed. | APPROVED |
-| **OD-H5-P4** | Whether "no sauce" or "no cheese" is sold as a paid hint is **not decided**. It is deferred together with the TQ-1D Technique leak. H5-1..H5-4 must never leak Technique identity. | **RESERVED** |
+| ~~OD-H5-P4~~ | Round 1: whether "no sauce" or "no cheese" is sold as a paid hint was deferred with the TQ-1D Technique leak. **Split in round 6** into OD-H5-P4-CHEESE (approved) and OD-H5-P4-SAUCE (reserved). H5-1..H5-4 must never leak Technique identity. | superseded |
 | **OD-H5-C1** | The key topping and the sub-topping order have **explicit authority**, based on `hintKeyToppingId` / `hintSubToppingOrder`. Array order (for example `requiredIngredients`) is never authority. The field names and their placement are fixed in this document (§6). | APPROVED |
 | **OD-H5-C2** | The current **free key** (`hintKeyIngredientId`, the latest-unlocked ingredient on the ladder) and the Hint 5.0 **key topping** are **different concepts**. The key-topping rung is a normal **paid** rung. Making it free is not the default. | APPROVED |
 | **OD-H5-C3** | Sub-topping **names are not sold**. There is no "classification → name" upgrade step. | APPROVED |
@@ -68,7 +73,7 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-U1** | The basic UX is a **single ladder**, not the 3-way choice: sauce → cheese → key topping → structure → sub-topping ① … ⓝ. There is **no FREE LEAK**: the final rung count, the sub-topping count and the kinds of later rungs are not visible before purchase. The player always sees **what the next hint is** and **its price**. | APPROVED |
 | **OD-H5-E3** | Existing coarse `attr:group:*` / `attr:category:*` facts are **never deleted** and **never converted** to `cls:<ingredientId>`. Stored facts stay forward-compatible. Only facts that map safely are reused. Full Reset, unknown ids and forward compatibility are kept. | APPROVED |
 | **OD-H5-E1** | **Pricing = P-C:** sauce **10**, cheese **10**, key topping **10**, structure **5**, sub-topping classification **5 each**. The price depends on the rung kind only. | **APPROVED (price authority)** |
-| **OD-H5-E2** | **No per-recipe cap.** None is needed: every runtime recipe totals ≤ its existing 35 / 75 cap under P-C. | APPROVED |
+| **OD-H5-E2** | **No per-recipe cap.** At round 2 every runtime recipe totalled ≤ its existing 35 / 75 cap under P-C. With P4-CHEESE (round 6), marinara and fugazza total 40 (above the old 35); no cap still applies. | APPROVED |
 | **OD-H5-E3b** | Owning a coarse 特徴 fact (`attr:group:*` / `attr:category:*`) does **not** auto-grant any individual classification. The facts stay stored, forward-compatible. | APPROVED |
 | **OD-H5-M1** | The Hint 3.0 **free key**'s shown / purchased state is **not** carried over to the Hint 5.0 paid key-topping rung. They are separate concepts. | APPROVED |
 | **OD-H5-T-COV** | Using PR #293: Hint 5.0 proceeds for the **runtime 25 recipes / 29 ingredients**, and the 62 / 172 unclassified-ingredient problem is **not an H5-1 blocker**. For production, the **fail-fast gate "every hint-eligible topping resolves to exactly one valid taxonomy family"** is mandatory. **A silent fallback from a missing classification to existence (or group / category) is forbidden** (§11). | APPROVED |
@@ -76,7 +81,11 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-C1-P (authoring principle)** | 「Hint 5.0のkey toppingは、そのレシピを特徴づける主要トッピングとする。香り付け・添え物より主役となる材料を優先し、sauce / cheeseと情報を重複させない。」 The Hint 5.0 key topping is the main topping that characterises the recipe. A main ingredient is preferred over an aroma or garnish, and the key never duplicates sauce or cheese information. | **APPROVED (round 3)** |
 | **OD-H5-C1b** | **capricciosa = mushroom, pizza-portuguesa = ham, puttanesca-pizza = anchovy.** The seeds for marinara = garlic, pizza-bianca = rosemary and meat-lovers = ham are kept, as audited. The §6.4 tie-break is **not** authority; it is only a candidate for the 172 authoring guideline. | **APPROVED (round 4)** |
 | **OD-H5-M3** | **D (round 5).** The pre-purchase UI never varies with legacy facts: rung visibility, the next rung kind, the displayed price and purchasability are those of a fresh save, and no rung is shown as completed because of a legacy `ing:*` fact. At request time: **ALL** of the rung's information already known → **0 Pitz**, completed, nothing stored twice; **PARTIAL** or **NONE** known → the **normal P-C price**, disclosing the whole rung. The 0-Pitz result is never shown before the request. Existing facts are never deleted, converted or rewritten (§9.0). | **APPROVED (authority)** |
-| OD-H5-P4b / M2 | A recipe with no key topping under P4, and 19-first vs all-25 enablement | **OPEN** |
+| **OD-H5-P4-CHEESE** | A target without cheese keeps the normal **CHEESE** rung. **Before purchase:** the same 「チーズ」 rung at the normal 10 Pitz as every other target; nothing says "none". **After purchase:** 「チーズ：なし」, completed by `h5:cheese`, never charged again after reload. **M3-D:** if a legacy Economy 1.0 count line already said 「チーズは使わないみたい」, the request completes for 0 Pitz (learnt only after the request); otherwise 10. OD-H3-7 / -15 (no negative facts) are superseded for this paid Hint 5.0 answer only. | **APPROVED (round 6)** |
+| **OD-H5-P4b** | A target without a key topping (runtime: quattro-formaggi) keeps the normal **KEY_TOPPING** rung: 「キートッピング」 at 10 Pitz before purchase, 「キートッピング：なし」 after it, completed by `h5:key`. No legacy fact states it, so it always costs 10. | **APPROVED (round 6)** |
+| **OD-H5-P4-SAUCE** | 「ソース：なし」 is **not** Hint 5.0 authority: it is the Technique `no-sauce` identity (TQ SSOT P2 / P6). An empty sauce rung stays **RESERVED_EMPTY_RUNG** until TQ-1D decides. G7 and the RESERVED gate keep every such recipe out of the production target set. The TQ authority is not changed. | **RESERVED (TQ-1D)** |
+| **OD-H5-M2** | **All 25 recipes at once.** This is the implementation authority for the flag-ON target set; it does not turn the production flag on. Conditions: (1) P4-CHEESE implemented, (2) P4b implemented, (3) no production recipe can reach a RESERVED rung, (4) G7 PASS, (5) taxonomy eligibility PASS, (6) M3-D FREE LEAK gates PASS. | **APPROVED (round 6)** |
+| **OD-H5-RETIRE** | With the Hint 5.0 flag ON, the **new-purchase paths** of the old 材料 / 構成 / 特徴 hints end. Bought facts are never deleted or converted and stay in 「以前のヒント」. No save migration, no schema bump. | **APPROVED (round 6)** |
 
 ## 3. Authority: deduction vs. disclosure (normative)
 
@@ -108,7 +117,7 @@ does not govern Hint 5.0 rungs.
 | OD-TAX-1 / 2 / 3 / 6 / 7 / 8 / 9 | 3 layers; the 7 family ids; show at most L2; identity ≠ role / timing; the Human Classification Gate; no weak 「その他」 copy; FR scope | **Kept**. Hint 5.0 shows L2 only and uses the 7 ids (§7). |
 | OD-H3-5 Rule W / Hint 2.0 A-4 (n−1 cap) | Never name every ingredient | **Superseded for Hint 5.0** (P3, C3). Hint 5.0 has no reserve. Names are sold only for sauce / cheese / key; sub-toppings are never named. |
 | OD-H3-6 / -13 (free key) | The key is free | **Superseded for Hint 5.0** (C2). Hint 5.0 does not display the Hint 3.0 free key (§9.3). |
-| OD-H3-7 / -15 (no negative fact) | – | **Kept**. It is exactly why empty rungs are RESERVED (P4, §5.3). |
+| OD-H3-7 / -15 (no negative fact) | – | **Kept** for everything except the paid Hint 5.0 「チーズ：なし」 / 「キートッピング：なし」 answers (round 6, §5.3). An empty SAUCE rung stays RESERVED. |
 | OD-H3-14 (category preference), DH4-2C 3-card UI | 材料 / 構成 / 特徴 | **Replaced for Hint 5.0 targets** (U1) |
 | OD-H3-16 / OD-DH4-10 (FREE LEAK) | – | **Kept** (H5-INV-5) |
 | OD-H3-4 ESC + cap 35 / 75, OD-H3-9 (the rung never rolls back), OD-DH4-PROD-1 (5 / 5), OD-HE-5 (Dex-0 onboarding is free), OD-HE-7 ("No H5") | – | **Superseded for Hint 5.0 rungs by OD-H5-E1 (P-C) / E2 (no cap).** The prices are fixed per rung kind, so OD-H3-9 rung continuity has nothing to roll back. The ESC ladder and 5 / 5 still govern non-Hint-5.0 targets. OD-HE-5 is **kept**: the Dex-0 Margherita onboarding is free and never persisted. OD-HE-7 refers to the Hint 2.0 level H5 and is unrelated; player copy must avoid 「H5」. |
@@ -150,30 +159,28 @@ existing `meta:ingredient-total` line.
   1–4 it is derivable anyway.
 - A stored `meta:topping-total` is still displayed (§9).
 
-### 5.3 Empty fixed rungs: RESERVED (P4)
+### 5.3 Empty fixed rungs (round 6: P4-CHEESE, P4b, P4-SAUCE)
 
-If a recipe has no sauce, no cheese or no key topping, the rung has no subject. Any answer
-would be a negative fact (OD-H3-7) or a Technique leak (no sauce). Skipping the rung visibly is a
-FREE LEAK. Until P4 is decided:
-- **H5-1 / H5-2** model the rung as outcome **`RESERVED_EMPTY_RUNG`**: no charge, no fact, no
-  line. Pure layer only; it never reaches a player.
-- **H5-3 / H5-4 must not enable Hint 5.0 for a target that has an empty fixed rung.** Such a
-  target stays on the current Hint 3.0 / 4.0 sheet, unchanged.
-- On the runtime 25 recipes, this blocks **6 targets**:
+If a recipe has no sauce, no cheese or no key topping, the rung has no subject. The rung is never
+skipped (a visible skip is a FREE LEAK) and it keeps its normal label and price before purchase.
+
+| Empty rung | Authority | Request | Board after the request | Completion |
+|---|---|---|---|---|
+| CHEESE | OD-H5-P4-CHEESE | `ANSWERED` at 10 Pitz, or `ALREADY_KNOWN` at 0 when a legacy count line said 「チーズは使わないみたい」 | 「チーズ：なし」 | `h5:cheese` only (no `ing:`) |
+| KEY_TOPPING | OD-H5-P4b | `ANSWERED` at 10 Pitz (no legacy fact states it) | 「キートッピング：なし」 | `h5:key` only |
+| SAUCE | OD-H5-P4-SAUCE (reserved) | `RESERVED_EMPTY_RUNG`: 0 Pitz, no fact, no line | – | – |
+
+- The 「なし」 comes from the recipe data at render time, only for a COMPLETED rung. It is never in
+  a pre-purchase view.
+- **RESERVED gate (M2 condition 3):** no production recipe may reach `RESERVED_EMPTY_RUNG`. On the
+  runtime 25 recipes, no recipe is sauceless, so the reserved set is empty. G7 fails the build as
+  soon as a production recipe has a sauce count ≠ 1 or requires a Technique.
+- The runtime targets with an empty rung (all now normal paid rungs):
   - no cheese: marinara, fugazza, pizza-bianca, pesto-tonno, puttanesca-pizza;
   - no key topping: quattro-formaggi.
-- There are no sauceless recipes in the runtime.
-- In the 172 complete rows:
-  - 29 have no sauce;
-  - 16 have no cheese;
-  - 25 have 0 sub-toppings, which is allowed by P3 and is not an empty rung.
-- **OD-H5-P4b (new, open):** a recipe with no topping at all has no key topping
-  (quattro-formaggi). This is analogous to P4, and the Owner is asked to confirm it belongs to the
-  same reservation.
-- **OD-H5-M2 (new, open):** before P4 is decided, does production run a mixed mode (Hint 5.0 for
-  19 targets, the current sheet for 6), or wait until P4? The recommendation is to wait if P4 is
-  close. A mixed mode needs its own FREE LEAK review, because "which sheet you get" reveals the
-  empty rung.
+- In the 172 complete rows: 29 have no sauce (reserved, TQ-1D), 16 have no cheese, and 25 have
+  0 sub-toppings (allowed by P3, not an empty rung).
+- **Mixed mode is not used (M2 = all 25):** "which sheet you get" would reveal the empty rung.
 
 ## 6. Data model (C1: field names and placement)
 
@@ -255,8 +262,9 @@ fact.
 - The P-C price per rung is sauce 10, cheese 10, key 10, structure 5 and 5 per sub-class. Empty
   rungs are never charged.
 - The sub order listed for each option is the one that option would author.
-- 「RESERVED」 means an empty fixed rung (§5.3). While P4 / P4b is open, a target with one stays on
-  the current sheet.
+- 「RESERVED」 means an empty fixed rung (§5.3), as audited in round 3. Since round 6 an empty
+  cheese / key rung is a normal paid rung (「なし」 after the purchase, +10 to the totals below);
+  only an empty sauce rung stays RESERVED.
 
 | Recipe (composition) | Ladder free key (Hint 3.0) | Key-topping candidates | Sub order with that key | Hint 5.0 ladder (P-C total) | Notes |
 |---|---|---|---|---|---|
@@ -699,7 +707,8 @@ with the chosen curve before H5-4.
   - a sauce count ≠ 1.
 
   When it trips, the test fails with 「TQ-1D (or the recipe PR) must re-audit Hint 5.0 privacy and
-  decide OD-H5-P4 before shipping this recipe」. It is never weakened to pass.
+  decide OD-H5-P4 before shipping this recipe」. It is never weakened to pass. Since round 6 the
+  decision it names is **OD-H5-P4-SAUCE** (TQ-1D).
 - **The classification carries no Technique identity.** Families are identity only (OD-TAX-6).
 - **Nothing in TQ-1D, #289 or #275 / #260 is changed.**
 
@@ -800,7 +809,7 @@ save writer or flag.
 
 | Decision | Needed by |
 |---|---|
-| OD-H5-P4 / P4b and OD-H5-M2 | H5-4 enable list |
+| ~~OD-H5-P4 / P4b and OD-H5-M2~~ | Decided in round 6 (§2, §5.3). Only OD-H5-P4-SAUCE stays open (TQ-1D). |
 
 **Later phases (unchanged from the audit):**
 
@@ -814,9 +823,10 @@ save writer or flag.
 
 | ID | Question | Needed by |
 |---|---|---|
-| OD-H5-P4 | The "no sauce" / "no cheese" hint (with TQ-1D) | H5-4 enable list |
-| OD-H5-P4b | Does a recipe with no key topping (quattro-formaggi) fall under P4? | H5-4 enable list |
-| OD-H5-M2 | Enable the 19 unblocked targets first, or all 25 together once P4 / P4b are decided | H5-4 |
+| OD-H5-P4-SAUCE | The "no sauce" answer: needs a TQ authority decision (P2 / P6, PR #293 K3) | TQ-1D |
+| Production activation | Turning the production flag ON (Preview + the Owner's iPhone HV) | after H5-4 |
+
+**Closed in round 6:** P4-CHEESE, P4b, M2 (all 25), RETIRE.
 
 **Closed in round 2:**
 - E1 / E2: P-C, no cap.
@@ -835,8 +845,8 @@ save writer or flag.
 The Fresh Audit §18 scenarios A–F stand. They are updated as follows:
 - **A (meat-lovers):** the 3rd — the **last** — sub-topping shows 🥩 肉系. This is the AC-1 demo.
 - **B (pepperoni):** 4 rungs, then the completion line (P3).
-- **C:** replaced. While P4 is reserved, a no-cheese target (marinara) stays on the current
-  sheet. The check is that it shows no Hint 5.0 surface.
+- **C (round 6):** a no-cheese target (marinara) shows the normal 「チーズ」 rung at 10 Pitz, and
+  「チーズ：なし」 only after the purchase. quattro-formaggi does the same for 「キートッピング」.
 - **D:** a legacy save, following the §9.1 rows.
 - **E:** no charge on insufficient Pitz or a double tap.
 - **F:** layout at 390×844 and 360×800.

@@ -1,9 +1,10 @@
 /**
- * Discovery Hint 5.0 (Issue #292), H5-1: the Sub-topping Classification Ladder pure layer. UNWIRED:
- * no reducer, sheet, save writer or flag reads this module yet (H5-2 wires it behind a flag).
+ * Discovery Hint 5.0 (Issue #292): the Sub-topping Classification Ladder pure layer (H5-1). The hint
+ * state module reads it behind the Hint 5.0 flag (H5-2 / H5-3); H5-4 adds the round-6 empty rungs.
  *
  * Authority: docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md (Owner Decisions OD-H5-P1..P3,
- * C1..C4, C1a / C1b / C1-P, U1, E1..E3, E3b, M1, T-COV; P4 / P4b and M2 are still open).
+ * C1..C4, C1a / C1b / C1-P, U1, E1..E3, E3b, M1, M3, T-COV, and round 6: P4-CHEESE, P4b, M2 = all 25;
+ * P4-SAUCE stays reserved for TQ-1D).
  *
  * ## The ladder (§5)
  *
@@ -18,9 +19,12 @@
  *   answer depends on the recipe only, never on the owned set, so it may narrow the candidates to
  *   one. That is deduction, not disclosure.
  * - 0 sub-toppings -> no SUB_CLASS rung (OD-H5-P3).
- * - **An empty fixed rung** (no sauce, no cheese, no key topping) is not skipped and never answered:
- *   a request for it is `RESERVED_EMPTY_RUNG` (0 Pitz, no fact). OD-H5-P4 / P4b are undecided, so
- *   nothing here says "none", and nothing reveals a Technique (H5-INV-4).
+ * - **An empty fixed rung** is never skipped, and before purchase it looks like any other rung (§5.3):
+ *   - no cheese (OD-H5-P4-CHEESE) / no key topping (OD-H5-P4b): a normal paid rung. The answer is
+ *     "none" (`none: true` on its board entry), stored as its completion record only;
+ *   - no sauce (OD-H5-P4-SAUCE, reserved for TQ-1D): `RESERVED_EMPTY_RUNG` (0 Pitz, no fact). "No
+ *     sauce" is the Technique `no-sauce`, so nothing here ever says it (H5-INV-4). The production gates
+ *     keep every such recipe out of the target set (`hint5ReservedRungs`, G7).
  *
  * ## Taxonomy: fail fast, never coarsen (OD-H5-T-COV, H5-INV-7)
  *
@@ -192,11 +196,25 @@ export function buildHint5Ladder(
   return { recipeId: recipe.id, rungs, total: ids.length };
 }
 
-/** The fixed rungs of `recipeId` that have no subject (awaiting OD-H5-P4 / P4b); `null` = not a target. */
+/** The fixed rungs of `recipeId` that have no subject; `null` = not a target. */
 export function hint5EmptyFixedRungs(recipeId: unknown, recipes?: readonly Recipe[]): Hint5RungKind[] | null {
   const ladder = buildHint5Ladder(recipeId, recipes);
   if (!ladder) return null;
   return ladder.rungs.filter((r) => r.kind !== "STRUCTURE" && r.kind !== "SUB_CLASS" && r.subjectIds.length === 0).map((r) => r.kind);
+}
+
+/** Round 6: an empty CHEESE / KEY rung is answered "none" (OD-H5-P4-CHEESE, OD-H5-P4b); only an empty
+ *  SAUCE rung stays RESERVED (OD-H5-P4-SAUCE, TQ-1D). */
+function isReservedRung(rung: Hint5Rung): boolean {
+  return rung.kind === "SAUCE" && rung.subjectIds.length === 0;
+}
+
+/** The rungs of `recipeId` a request could only get `RESERVED_EMPTY_RUNG` for; `null` = not a target.
+ *  The production gate (M2 condition 3) requires `[]` for every production recipe. */
+export function hint5ReservedRungs(recipeId: unknown, recipes?: readonly Recipe[]): Hint5RungKind[] | null {
+  const ladder = buildHint5Ladder(recipeId, recipes);
+  if (!ladder) return null;
+  return ladder.rungs.filter(isReservedRung).map((r) => r.kind);
 }
 
 // ---- ownership (Hint 5.0 completion records + the M3 request-time "already known" check) ----------
@@ -221,7 +239,8 @@ export const HINT5_RUNG_MARKER: Readonly<Record<Exclude<Hint5RungKind, "SUB_CLAS
 
 /**
  * - COMPLETED: completed on the Hint 5.0 ladder (bought, or completed free as already known).
- * - EMPTY: a fixed rung with no subject (RESERVED_EMPTY_RUNG; OD-H5-P4 / P4b open).
+ * - EMPTY: an empty SAUCE rung (RESERVED_EMPTY_RUNG; OD-H5-P4-SAUCE, TQ-1D). An empty CHEESE / KEY
+ *   rung is a normal rung (OPEN or COMPLETED).
  * - OPEN: not completed. It says nothing about what the player already knows.
  */
 export type Hint5RungStatus = "COMPLETED" | "EMPTY" | "OPEN";
@@ -276,9 +295,17 @@ export function hint5Ownership(
   const statuses: Hint5RungStatus[] = [];
   const allKnown: boolean[] = [];
   for (const rung of ladder.rungs) {
-    const empty = rung.kind !== "STRUCTURE" && rung.kind !== "SUB_CLASS" && rung.subjectIds.length === 0;
-    statuses.push(empty ? "EMPTY" : storedSet.has(completionFactId(rung)) ? "COMPLETED" : "OPEN");
-    if (rung.kind === "STRUCTURE") allKnown.push(totalKnown);
+    const reserved = isReservedRung(rung);
+    statuses.push(reserved ? "EMPTY" : storedSet.has(completionFactId(rung)) ? "COMPLETED" : "OPEN");
+    if (reserved) allKnown.push(false);
+    else if (rung.subjectIds.length === 0 && rung.kind === "CHEESE") {
+      // OD-H5-P4-CHEESE + M3: the only legacy fact that states "no cheese" is the Economy 1.0 count
+      // line (「チーズは使わないみたい」). The DH4 `meta:ingredient-total` line states a total only.
+      allKnown.push(legacyOwnsIngredientTotal(ladder.recipeId, legacyPurchases, recipes));
+    } else if (rung.subjectIds.length === 0 && rung.kind === "KEY_TOPPING") {
+      // OD-H5-P4b: no legacy fact states "no key topping", so it is never already known.
+      allKnown.push(false);
+    } else if (rung.kind === "STRUCTURE") allKnown.push(totalKnown);
     else if (rung.kind === "SUB_CLASS") {
       const id = rung.subjectIds[0];
       const family = subToppingClass(id);
@@ -286,7 +313,7 @@ export function hint5Ownership(
       // exact sub-topping (the Rule W reserve) that still matches its family. Coarse answers never
       // count (E3b).
       allKnown.push(known.has(id) || (id === reserve && family !== null && attrFamilies.has(family)));
-    } else allKnown.push(!empty && rung.subjectIds.every((id) => known.has(id)));
+    } else allKnown.push(rung.subjectIds.every((id) => known.has(id)));
   }
   const next = statuses.findIndex((s) => s !== "COMPLETED");
   return { statuses, allKnown, knownNameIds: byCatalogOrder([...known]), nextIndex: next < 0 ? null : next + 1 };
@@ -328,7 +355,10 @@ export type Hint5RequestResult =
  * - ALL known -> ALREADY_KNOWN, 0 Pitz, only the completion record.
  * - PARTIALLY known or NONE known -> ANSWERED at the normal price, with the new facts and the
  *   completion record.
- * - Rejections, EMPTY rungs and a complete ladder charge 0 and add no fact (H5-INV-6).
+ * - An empty CHEESE / KEY rung (round 6) is ANSWERED like any other; its answer is "none", so it adds
+ *   its completion record only.
+ * - Rejections, a RESERVED (empty SAUCE) rung and a complete ladder charge 0 and add no fact
+ *   (H5-INV-6).
  * - A COMPLETED rung is never offered again.
  */
 export function requestHint5Rung(input: Hint5RequestInput, recipes: readonly Recipe[] = RECIPES): Hint5RequestResult {
@@ -368,7 +398,9 @@ export interface Hint5ClassView {
 }
 
 export type Hint5BoardEntry =
-  | { rungIndex: number; kind: "SAUCE" | "CHEESE" | "KEY_TOPPING"; ingredientIds: readonly string[] }
+  /** `none`: a COMPLETED empty CHEESE / KEY rung (round 6), shown as 「チーズ：なし」 /
+   *  「キートッピング：なし」. Only ever on a completed rung, so never before purchase. */
+  | { rungIndex: number; kind: "SAUCE" | "CHEESE" | "KEY_TOPPING"; ingredientIds: readonly string[]; none: boolean }
   | { rungIndex: number; kind: "STRUCTURE"; lineJa: string }
   | { rungIndex: number; kind: "SUB_CLASS"; ordinal: number; classView: Hint5ClassView };
 
@@ -442,7 +474,7 @@ export function hint5Presentation(
     if (rung.kind === "SUB_CLASS" && !structureCompleted) continue;
     if (rung.kind === "STRUCTURE") board.push({ rungIndex: rung.index, kind: "STRUCTURE", lineJa: deductionHintTextJa({ id: INGREDIENT_TOTAL_FACT_ID, total: ladder.total }) });
     else if (rung.kind === "SUB_CLASS") board.push({ rungIndex: rung.index, kind: "SUB_CLASS", ordinal: rung.ordinal!, classView: hint5ClassView(subToppingClass(rung.subjectIds[0])!) });
-    else board.push({ rungIndex: rung.index, kind: rung.kind, ingredientIds: rung.subjectIds });
+    else board.push({ rungIndex: rung.index, kind: rung.kind, ingredientIds: rung.subjectIds, none: rung.subjectIds.length === 0 });
   }
   let next: Hint5NextOffer | null = null;
   if (own.nextIndex !== null) {

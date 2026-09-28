@@ -5664,6 +5664,13 @@ p.hint-sheet__step {
   line-height: 1;
 }
 
+/* H5-4 (round 6): the 「なし」 answer of a bought empty cheese / key rung. A plain chip with no glyph. */
+.hint-sheet__chip--none {
+  background: #f1ebe0;
+  color: #5b4630;
+  font-weight: 700;
+}
+
 .hint-sheet__legacy-chips {
   margin: 4px 0 0;
 }

@@ -331,8 +331,14 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   completes for 0 Pitz only at request time; PARTIAL / NONE known pay the normal price.
 - **H5-3** (the ladder sheet + M3, flag still OFF; DEV-only opt-in `localStorage["teto.dev.hint5Ladder"]="1"`)
   is done. See `docs/reports/TETO_DISCOVERY-HINT-5_H5-3_Ladder-UI_Result.md`.
-- **Open:** P4 / P4b (with TQ-1D) and M2 (19-first vs 25). Both are needed for H5-4.
-- **State:** H5-4 (production enablement) has not started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
+- **H5-4 Fresh Gate** (`5eadb96`): `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Fresh-Gate.md`.
+- **Round 6 (Owner):** P4-CHEESE and P4b adopted (a paid 「なし」 answer after purchase, `h5:cheese` / `h5:key`);
+  P4-SAUCE **reserved for TQ-1D** (「ソース：なし」 = Technique `no-sauce`, TQ P2 / P6); M2 = all 25; RETIRE
+  (flag ON ends the 材料 / 構成 / 特徴 purchases).
+- **H5-4** (round 6 behind the flag; all 25 recipes complete the ladder with the flag ON) is done. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Round6-Enablement_Result.md`. **The production flag stays OFF.**
+- **Open:** the production activation go (flag ON, Preview, Owner's iPhone HV) and OD-H5-P4-SAUCE (TQ-1D).
+  The TQ-1D re-audit tripwire (G7) and the RESERVED gate keep any sauceless / Technique recipe out.
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 

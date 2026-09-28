@@ -4,7 +4,7 @@ import { RECIPES } from "../data/recipes";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import { ALL_INGREDIENT_IDS as ALL_IDS } from "../logic/discovery/testSupport/deductionInversion";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
-import { hint5SheetView, hintSheetView, requestHint5RungFact } from "./discoveryHint";
+import { hint5LadderActive, hint5SheetView, hintSheetView, requestHint5RungFact } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 
 /**
@@ -36,6 +36,7 @@ describe("Hint 5.0 flag OFF (the production default)", () => {
       const s = sheetOn(r.id, 1000);
       for (const expectedRungIndex of [1, 2, 5]) expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex }), r.id).toBe(s);
       expect(hint5SheetView(s), r.id).toBeNull();
+      expect(hint5LadderActive(s), r.id).toBe(false);
       expect(requestHint5RungFact(s, 1), r.id).toBeNull();
     }
   });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
+import { RECIPES } from "../../data/recipes";
+import { INGREDIENT_TOTAL_FACT_ID, legacyOwnsIngredientTotal } from "./deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "./deductionGuard";
 import { legacyHintMapping } from "./hintFactMigration";
 import {
@@ -80,6 +81,71 @@ describe("M3: legacy facts never change the pre-purchase view", () => {
   });
 });
 
+describe("M3 with the round-6 「なし」 rungs (OD-H5-P4-CHEESE / P4b)", () => {
+  const NO_CHEESE = ["marinara", "fugazza", "pizza-bianca", "pesto-tonno", "puttanesca-pizza"];
+  /** The lowest Economy 1.0 level whose lines include the count line (「…チーズは使わないみたい」). */
+  const countLevel = (id: string) => [1, 2, 3, 4].find((level) => legacyOwnsIngredientTotal(id, { [id]: level }))!;
+
+  it("ALL known: a legacy count line that said 「チーズは使わないみたい」 completes the empty CHEESE rung for 0 Pitz, only after the request", () => {
+    for (const id of NO_CHEESE) {
+      const legacy = { [id]: countLevel(id) };
+      expect(countLevel(id), id).toBeDefined();
+      // Before the request: the same 「チーズ」 rung at 10 Pitz as a fresh save.
+      expect(preView(id, ["h5:sauce"], legacy), id).toEqual(preView(id, ["h5:sauce"], {}));
+      expect(view(id, ["h5:sauce"], legacy).next, id).toMatchObject({ rungIndex: 2, kind: "CHEESE", price: 10 });
+      expect(req(id, { storedFactIds: ["h5:sauce"], legacyPurchases: legacy, expectedRungIndex: 2 }), id).toEqual({
+        outcome: "ALREADY_KNOWN",
+        rungIndex: 2,
+        kind: "CHEESE",
+        addFactIds: [HINT5_RUNG_MARKER.CHEESE],
+        charge: 0,
+        persist: true,
+      });
+      // Below the normal price it is refused like any other request.
+      expect(req(id, { storedFactIds: ["h5:sauce"], legacyPurchases: legacy, expectedRungIndex: 2, pitzBalance: 9 }), id).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+    }
+  });
+
+  it("NONE known: without that line (fresh, `meta:ingredient-total`, names, a lower legacy level) the empty CHEESE rung costs 10", () => {
+    for (const id of NO_CHEESE) {
+      const recipe = RECIPES.find((r) => r.id === id)!;
+      const names = recipe.requiredIngredients.map((x) => `ing:${x.ingredientId}`);
+      const lower = countLevel(id) > 1 ? [{ [id]: countLevel(id) - 1 }] : [];
+      for (const [stored, legacy] of [[["h5:sauce"], {}], [["h5:sauce", INGREDIENT_TOTAL_FACT_ID, ...names], {}], ...lower.map((l) => [["h5:sauce"], l])] as [string[], unknown][]) {
+        expect(req(id, { storedFactIds: stored, legacyPurchases: legacy, expectedRungIndex: 2 }), `${id} ${JSON.stringify(legacy)}`).toMatchObject({
+          outcome: "ANSWERED",
+          kind: "CHEESE",
+          addFactIds: [HINT5_RUNG_MARKER.CHEESE],
+          charge: 10,
+        });
+      }
+    }
+  });
+
+  it("OD-H5-P4b: no legacy fact makes the empty KEY_TOPPING rung already known (always 10)", () => {
+    const all = ["ing:olive-oil", "ing:mozzarella", "ing:gorgonzola", "ing:parmigiano", "ing:fontina", INGREDIENT_TOTAL_FACT_ID, "meta:topping-total", "attr:family:meat"];
+    for (const legacy of [{}, { "quattro-formaggi": 1 }, { "quattro-formaggi": 4 }]) {
+      const r = req("quattro-formaggi", { storedFactIds: ["h5:sauce", "h5:cheese", ...all], legacyPurchases: legacy, expectedRungIndex: 3 });
+      expect(r, JSON.stringify(legacy)).toEqual({ outcome: "ANSWERED", rungIndex: 3, kind: "KEY_TOPPING", addFactIds: ["h5:key"], charge: 10, persist: true });
+    }
+  });
+
+  it("「なし」 is never in a pre-purchase view, and appears only on the COMPLETED rung", () => {
+    for (const id of [...NO_CHEESE, "quattro-formaggi"]) {
+      const { results, stored } = walk(id, []);
+      expect(results.every((r) => r.outcome === "ANSWERED"), id).toBe(true);
+      for (let k = 0; k < stored.length; k += 1) {
+        const v = view(id, stored.slice(0, k));
+        for (const e of v.board) if ("none" in e && e.none) expect(stored.slice(0, k), id).toContain(e.kind === "CHEESE" ? "h5:cheese" : "h5:key");
+      }
+      const emptyKind = id === "quattro-formaggi" ? "KEY_TOPPING" : "CHEESE";
+      const before = view(id, stored.filter((s) => s !== (emptyKind === "CHEESE" ? "h5:cheese" : "h5:key")));
+      expect(before.board.some((e) => "none" in e && e.none), id).toBe(false);
+      expect(view(id, stored).board.filter((e) => "none" in e && e.none).map((e) => e.kind), id).toEqual([emptyKind]);
+    }
+  });
+});
+
 describe("M3 at request time: ALL / PARTIAL / NONE known", () => {
   it("ALL known (name rung): 0 Pitz, ALREADY_KNOWN, only the completion record is stored (no name stored twice)", () => {
     const r = req("hawaiian", { storedFactIds: ["ing:tomato-sauce"] });
@@ -98,7 +164,7 @@ describe("M3 at request time: ALL / PARTIAL / NONE known", () => {
       persist: true,
     });
     const after = view("parmigiana-pizza", [...stored, "ing:parmigiano", HINT5_RUNG_MARKER.CHEESE]);
-    expect(after.board[1]).toEqual({ rungIndex: 2, kind: "CHEESE", ingredientIds: ["mozzarella", "parmigiano"] });
+    expect(after.board[1]).toEqual({ rungIndex: 2, kind: "CHEESE", ingredientIds: ["mozzarella", "parmigiano"], none: false });
   });
 
   it("NONE known: the normal price", () => {
