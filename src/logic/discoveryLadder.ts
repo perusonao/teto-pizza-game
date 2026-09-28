@@ -209,11 +209,13 @@ function sameStep(a: ProgressionStep, b: ProgressionStep): boolean {
 
 /** Problems (empty when valid) if `next` is not `base` with steps only appended: every base
  *  step must be present, in place and unchanged (same number, kind, materials in the same order,
- *  key recipe). */
+ *  key recipe). Both ladders are compared in their *authored* array order, never re-sorted by
+ *  step number, so moving a fixed step object to another position is caught even when it keeps
+ *  its original `step` field (Codex review on #268). */
 export function validateAppendOnlyExtension(base: DiscoveryLadder, next: DiscoveryLadder): string[] {
   const problems: string[] = [];
-  const fixed = stepsInOrder(base);
-  const candidate = stepsInOrder(next);
+  const fixed = base.steps;
+  const candidate = next.steps;
   if (candidate.length < fixed.length) {
     problems.push(`FIXED_STEP_REMOVED: ${fixed.length} fixed steps, next has ${candidate.length}`);
   }

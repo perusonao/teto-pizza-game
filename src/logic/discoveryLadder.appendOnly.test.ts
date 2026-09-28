@@ -201,6 +201,18 @@ describe("LAD-1: validators catch broken ladders (adversarial)", () => {
       steps: base.steps.map((s) => (s.step === 5 ? { ...s, keyRecipeId: "margherita" } : s)),
     };
     expect(validateAppendOnlyExtension(base, rekeyed)).toEqual(["FIXED_STEP_CHANGED: step 5"]);
+    // Codex review on #268: two fixed step objects swapped in place while keeping their own
+    // `step` numbers -- re-sorting by `step` would hide this, authored order must not.
+    const movedObjects: DiscoveryLadder = {
+      ...base,
+      steps: [base.steps[1], base.steps[0], ...base.steps.slice(2)],
+    };
+    expect(validateAppendOnlyExtension(base, movedObjects)).toEqual(["FIXED_STEP_CHANGED: step 1", "FIXED_STEP_CHANGED: step 2"]);
+    const movedIntoAppended: DiscoveryLadder = {
+      ...base,
+      steps: [...base.steps.slice(1), base.steps[0]],
+    };
+    expect(validateAppendOnlyExtension(base, movedIntoAppended).length).toBeGreaterThan(0);
     const shortened: DiscoveryLadder = { ...base, steps: base.steps.slice(0, 23) };
     expect(validateAppendOnlyExtension(base, shortened)).toEqual(["FIXED_STEP_REMOVED: 24 fixed steps, next has 23"]);
   });
