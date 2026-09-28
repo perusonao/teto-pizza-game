@@ -48,6 +48,19 @@ No production recipe reaches NO_SAUCE yet. Aussie ships in TQ-1D, which also wid
 | 11-point comparison | **0 ★ mismatches and 0 Pitz-band mismatches** (the Gate result is reproduced). Negative controls: proportional redistribution gives ★3 and "sauce as full" gives ★4 at zero skill. |
 | Adversarial | A sauce-less Reference for a sauce recipe → unavailable. `reference: null` → unavailable. Painting a sauce on a no-sauce recipe never raises the score. Omitting the option equals the production Reference. |
 
+**Injected Reference validation** (the Codex review rounds on #271). `options.reference` is untrusted input, and anything below fails closed:
+
+- A recipe with a production Reference is scored only against data structurally equal to that Reference.
+- A recipe without one (the synthetic no-sauce seam) is checked against the recipe itself:
+  - the recipe id;
+  - piece groups that match the non-sauce requirements one-to-one, with position counts equal to `minCount`;
+  - ingredient roles (a piece group is not a sauce, and the sauce target is a sauce);
+  - tolerance bands and the sauce target that production uses for that same ingredient;
+  - positions inside the reference slot area.
+- Options that are not an object also fail closed.
+
+Production callers never pass the seam.
+
 Mutation check (done by hand, then reverted):
 
 | Mutation | Tests that fail |

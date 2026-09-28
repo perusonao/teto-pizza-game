@@ -119,18 +119,45 @@ const REFERENCE_NOT_AUTHORITATIVE_REASON = "お手本が正式なお手本デー
 /** Reference pieces are laid out on a 0..100 dough-percent square centred here. */
 const REFERENCE_CENTER = 50;
 
-let approvedToleranceBands: ReadonlySet<string> | null = null;
+let approvedToleranceBandsByIngredient: ReadonlyMap<string, ReadonlySet<string>> | null = null;
 function toleranceBandKey(full: unknown, zero: unknown): string {
   return `${String(full)}/${String(zero)}`;
 }
-/** The placement tolerance bands production References use (today 8/22 and Bismarck's egg 14/30). */
-function isApprovedToleranceBand(full: unknown, zero: unknown): boolean {
-  if (approvedToleranceBands === null) approvedToleranceBands = new Set(
-    listReferencePizzas().flatMap((ref) =>
-      ref.pieceGroups.map((g) => toleranceBandKey(g.matching.fullCreditRadius, g.matching.zeroCreditRadius)),
-    ),
-  );
-  return approvedToleranceBands.has(toleranceBandKey(full, zero));
+/** Whether production References use this placement tolerance band for this ingredient (today
+ *  8/22 everywhere, plus 14/30 for the single egg). The lookup is per ingredient, so one
+ *  ingredient's lenient band can never be borrowed by another (Codex review on #271); an
+ *  ingredient no production Reference places has no approved band at all. */
+function isApprovedToleranceBand(ingredientId: unknown, full: unknown, zero: unknown): boolean {
+  if (approvedToleranceBandsByIngredient === null) {
+    const bands = new Map<string, Set<string>>();
+    for (const ref of listReferencePizzas()) {
+      for (const g of ref.pieceGroups) {
+        const set = bands.get(g.ingredientId) ?? new Set<string>();
+        set.add(toleranceBandKey(g.matching.fullCreditRadius, g.matching.zeroCreditRadius));
+        bands.set(g.ingredientId, set);
+      }
+    }
+    approvedToleranceBandsByIngredient = bands;
+  }
+  return typeof ingredientId === "string" && approvedToleranceBandsByIngredient.get(ingredientId)?.has(toleranceBandKey(full, zero)) === true;
+}
+
+let approvedSauceTargets: ReadonlyMap<string, readonly ScoringSauceTarget[]> | null = null;
+type ScoringSauceTarget = { quantity: number; coverage: number };
+/** Whether a production Reference uses exactly this sauce target for this sauce (today one
+ *  target per sauce). A non-production Reference cannot lower its sauce target to make an
+ *  unpainted pizza read as a full sauce score. */
+function isApprovedSauceTarget(ingredientId: string, quantity: unknown, coverage: unknown): boolean {
+  if (approvedSauceTargets === null) {
+    const targets = new Map<string, ScoringSauceTarget[]>();
+    for (const ref of listReferencePizzas()) {
+      const list = targets.get(ref.sauce.ingredientId) ?? [];
+      list.push({ quantity: ref.sauce.quantity, coverage: ref.sauce.coverage });
+      targets.set(ref.sauce.ingredientId, list);
+    }
+    approvedSauceTargets = targets;
+  }
+  return (approvedSauceTargets.get(ingredientId) ?? []).some((t) => t.quantity === quantity && t.coverage === coverage);
 }
 
 /** Structural equality over plain Reference data (objects, arrays, primitives). */
@@ -148,8 +175,9 @@ function sameReferenceData(a: unknown, b: unknown): boolean {
 /** The Reference's values, after its shape has passed (Codex review on #271). A recipe with a
  *  production Reference is scored only against exactly that data -- any other value (positions,
  *  tolerance radii, sauce targets, ...) is corrupted authoritative data. A recipe without one
- *  (the synthetic no-sauce seam) is held to the value ranges production data uses: approved
- *  tolerance bands and piece positions within the reference slot area. */
+ *  (the synthetic no-sauce seam) is held to the values production data uses: the tolerance
+ *  bands and the sauce target production uses for that same ingredient, and piece positions
+ *  within the reference slot area. */
 function invalidReferenceValueReason(recipe: Recipe, reference: ScoringReferencePizza): string | null {
   const production = getReferencePizza(recipe.id);
   if (production) {
@@ -160,12 +188,16 @@ function invalidReferenceValueReason(recipe: Recipe, reference: ScoringReference
     const matching = record.matching;
     if (typeof matching !== "object" || matching === null) return REFERENCE_MALFORMED_REASON;
     const { fullCreditRadius, zeroCreditRadius } = matching as Record<string, unknown>;
-    if (!isApprovedToleranceBand(fullCreditRadius, zeroCreditRadius)) return REFERENCE_NOT_AUTHORITATIVE_REASON;
+    if (!isApprovedToleranceBand(record.ingredientId, fullCreditRadius, zeroCreditRadius)) return REFERENCE_NOT_AUTHORITATIVE_REASON;
     for (const position of record.positions as readonly unknown[]) {
       const { x, y } = (typeof position === "object" && position !== null ? position : {}) as Record<string, unknown>;
       const distance = typeof x === "number" && typeof y === "number" ? Math.hypot(x - REFERENCE_CENTER, y - REFERENCE_CENTER) : NaN;
       if (!(distance <= REFERENCE_SLOT_MAX_RADIUS)) return REFERENCE_NOT_AUTHORITATIVE_REASON;
     }
+  }
+  const sauce = reference.sauce;
+  if (sauce !== null && !isApprovedSauceTarget(sauce.ingredientId, sauce.quantity, sauce.coverage)) {
+    return REFERENCE_NOT_AUTHORITATIVE_REASON;
   }
   return null;
 }

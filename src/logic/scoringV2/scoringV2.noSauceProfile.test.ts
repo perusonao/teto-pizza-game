@@ -343,6 +343,20 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(score(noSaucePizza(), SYN_RECIPE, SYN_REFERENCE).result.available).toBe(true);
   });
 
+  it("an injected tolerance band must be one production uses for that same ingredient (Codex review on #271)", () => {
+    const eggBand = groupOf(BREAKFAST_PIZZA_REFERENCE, "egg").matching;
+    const mozzarella = groupOf(BREAKFAST_PIZZA_REFERENCE, "mozzarella");
+    expect(eggBand).not.toEqual(mozzarella.matching);
+    // The egg's lenient band borrowed by mozzarella is not approved for mozzarella.
+    const borrowed = {
+      ...SYN_REFERENCE,
+      pieceGroups: SYN_REFERENCE.pieceGroups.map((g) => (g.ingredientId === "mozzarella" ? { ...g, matching: { ...eggBand } } : g)),
+    };
+    expect(score(noSaucePizza(), SYN_RECIPE, borrowed).result.available).toBe(false);
+    // Every group keeps its own production band: accepted.
+    expect(score(noSaucePizza(), SYN_RECIPE, SYN_REFERENCE).result.available).toBe(true);
+  });
+
   it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
     const margherita = getRecipe("margherita")!;
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
@@ -364,13 +378,15 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
       expect(result.available, JSON.stringify(bad)).toBe(false);
       expect(result.totalScore).toBeNull();
     }
-    // The range edges are valid targets. A production recipe accepts only its own Reference, so
-    // the edges are checked on a non-production copy of Margherita.
+    // On a non-production copy of Margherita, only the sauce target production uses for that
+    // sauce is accepted -- an in-range but lowered target (e.g. 0/0) would score an unpainted
+    // pizza as a full sauce.
     const synId = "syn-sauce-edge" as RecipeId;
     const synRecipe: Recipe = { ...margherita, id: synId };
+    expect(computeScoringV2(synRecipe, pizza, { reference: { ...ref, recipeId: synId } }).available).toBe(true);
     for (const edge of [{ quantity: 0, coverage: 0 }, { quantity: 1, coverage: 1 }]) {
       const synRef = { ...ref, recipeId: synId, sauce: { ...ref.sauce, ...edge } };
-      expect(computeScoringV2(synRecipe, pizza, { reference: synRef }).available).toBe(true);
+      expect(computeScoringV2(synRecipe, pizza, { reference: synRef }).available, JSON.stringify(edge)).toBe(false);
     }
   });
 
