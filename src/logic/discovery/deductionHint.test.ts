@@ -345,7 +345,7 @@ describe("DH4-1 is unwired", () => {
     const sources = import.meta.glob<string>(["../../**/*.{ts,tsx}", "!../../**/*.test.{ts,tsx}"], { query: "?raw", import: "default", eager: true });
     const importers = Object.entries(sources)
       .filter(([path]) => !path.includes("/testSupport/"))
-      .filter(([, text]) => /from\s+["'][^"']*(deductionHint|ingredientTaxonomy)["']/.test(text))
+      .filter(([, text]) => /(from\s+|import\s*\(\s*)["'][^"']*(deductionHint|ingredientTaxonomy)["']/.test(text))
       .map(([path]) => path)
       .sort();
     expect(Object.keys(sources).length).toBeGreaterThan(50);

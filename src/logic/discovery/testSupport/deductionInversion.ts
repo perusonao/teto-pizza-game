@@ -17,6 +17,7 @@
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../../data/ingredients";
 import { ingredientAttributeFamily, ingredientAttributeGroup } from "../../../data/ingredientTaxonomy";
 import { RECIPES } from "../../../data/recipes";
+import { W1_25_DISCOVERY_LADDER } from "../../../data/discoveryLadder";
 import { attributeAnswerForReserve, type ReserveAttributeAnswer } from "../deductionHint";
 import {
   guardedAnswerForParts,
@@ -42,7 +43,15 @@ export interface SweepState {
   owned: string[];
 }
 
-export const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
+/** Every catalog ingredient, in a valid ACQUISITION order (Owner Decision T1a): the starters, then
+ *  the ladder materials in unlock order, then anything the ladder does not sell. Catalog order is
+ *  not an acquisition order (a non-starter sauce precedes the starter cheese). */
+export const ALL_INGREDIENT_IDS: readonly string[] = (() => {
+  const ordered = [...STARTER_INGREDIENT_IDS];
+  for (const step of W1_25_DISCOVERY_LADDER.steps) for (const id of step.ingredientIds) if (!ordered.includes(id)) ordered.push(id);
+  for (const i of INGREDIENTS) if (!ordered.includes(i.id)) ordered.push(i.id);
+  return ordered;
+})();
 
 export function ladderTargets(ladder: SweepLadder): string[] {
   return ["margherita", ...ladder.steps.map((s) => s.keyRecipeId)];
@@ -88,9 +97,13 @@ export const observeGuardedWithClause: Observation = (parts) => {
 };
 
 /** The hypothetical reserves whose observation equals the real one. Fewer than 2 = a name leak. */
-export function inversionCandidates(parts: ReserveParts, observe: Observation): string[] {
+export function inversionCandidates(
+  parts: ReserveParts,
+  observe: Observation,
+  universe: (parts: ReserveParts) => string[] = hypotheticalReserves,
+): string[] {
   const seen = observe(parts);
-  return hypotheticalReserves(parts).filter((x) => observe(hypotheticalParts(parts, x)) === seen);
+  return universe(parts).filter((x) => observe(hypotheticalParts(parts, x)) === seen);
 }
 
 // ---- closure / forced-ingredient model (the combined inference test) ------------------------------
