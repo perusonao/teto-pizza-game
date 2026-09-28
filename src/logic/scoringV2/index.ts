@@ -127,6 +127,9 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
     const ingredientId = typeof group === "object" && group !== null ? (group as Record<string, unknown>).ingredientId : undefined;
     if (typeof ingredientId !== "string") return REFERENCE_MALFORMED_REASON;
     if (!required.has(ingredientId)) return REFERENCE_RECIPE_MISMATCH_REASON;
+    // A piece group is a placed (non-sauce) ingredient; a sauce there is a role-swapped Reference.
+    const category = getIngredient(ingredientId)?.category;
+    if (category === undefined || category === "sauce") return REFERENCE_MALFORMED_REASON;
   }
   const sauce: unknown = reference.sauce;
   if (sauce === null) return null;
@@ -138,6 +141,8 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
     return REFERENCE_MALFORMED_REASON;
   }
   if (!required.has(target.ingredientId)) return REFERENCE_RECIPE_MISMATCH_REASON;
+  // The sauce target must name a sauce; a piece ingredient there is a role-swapped Reference.
+  if (getIngredient(target.ingredientId)?.category !== "sauce") return REFERENCE_MALFORMED_REASON;
   return null;
 }
 

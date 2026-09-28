@@ -274,6 +274,17 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(score(noSaucePizza(), SYN_RECIPE, foreignGroup).result.available).toBe(false);
   });
 
+  it("a role-swapped Reference (sauce as a piece group, a piece ingredient as the sauce) fails closed (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const ref = getReferencePizza("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const sauceAsGroup = { ...ref, pieceGroups: [...ref.pieceGroups, { ...ref.pieceGroups[0], ingredientId: "tomato-sauce" }] };
+    expect(computeScoringV2(margherita, pizza, { reference: sauceAsGroup }).available).toBe(false);
+    const pieceAsSauce = { ...ref, sauce: { ...ref.sauce, ingredientId: "mozzarella" } };
+    expect(computeScoringV2(margherita, pizza, { reference: pieceAsSauce }).available).toBe(false);
+    expect(computeScoringV2(margherita, pizza, { reference: ref }).available).toBe(true);
+  });
+
   it("an out-of-range sauce target fails closed instead of being clamped into a score (Codex review on #271)", () => {
     const margherita = getRecipe("margherita")!;
     const ref = getReferencePizza("margherita")!;
