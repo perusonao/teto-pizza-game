@@ -29,6 +29,8 @@ import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, swee
  * DH4 privacy sweeps) with the Technique recipes before it ships them.
  */
 
+/** The sweeps cover thousands of states: seconds locally, more on a shared CI runner. */
+const SWEEP_TIMEOUT_MS = 120_000;
 const HARDENED: GuardUnderAttack = { answer: guardedAnswerForParts, clauseAllowed: toppingClauseAllowedForParts };
 const ladderStates = sweepStates(W1_25_DISCOVERY_LADDER);
 
@@ -137,7 +139,7 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 25 production recipes
         }
       }
     }
-  });
+  }, SWEEP_TIMEOUT_MS);
   it("INV-TQ-4 on the TQ-1C runtime: no production target requires a technique and no affordance opens", () => {
     const { catalog, materialStep } = productionTechniqueContext();
     expect(catalog).toBe(RECIPE_DISCOVERY_CATALOG);
@@ -204,7 +206,7 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
     expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
-  });
+  }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {
     for (const s of GATE_STATES) {
@@ -214,7 +216,7 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
       const leaks = endgameAttack(HARDENED, attackStateOf(recipe, parts.reserveId, parts.owned)).filter((r) => r.leak);
       expect(leaks, `${s.recipeId} @${s.owned.length}`).toEqual([]);
     }
-  }, 180_000);
+  }, SWEEP_TIMEOUT_MS);
 
   it("「その他」 (provisional copy, OD-DH4-2-9) is unreachable: no family/group 'other' answer in any state", () => {
     const levels = new Map<string, number>();
@@ -225,7 +227,7 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
       expect(r.addFactIds.join()).not.toMatch(/:other$/);
     }
     expect([...levels.keys()].every((id) => /^attr:(category|group|family):/.test(id))).toBe(true);
-  });
+  }, SWEEP_TIMEOUT_MS);
 
   it("Pitz is charged only when a real new fact is produced; existence / guidance / owned are free", () => {
     const outcomes = new Map<string, number>();
@@ -257,7 +259,7 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     }
     expect(outcomes.get("ANSWERED")).toBeGreaterThan(0);
     expect(outcomes.get("EXISTENCE_ONLY")).toBeGreaterThan(0);
-  });
+  }, SWEEP_TIMEOUT_MS);
 
   it("lines are positive facts only: no name, recipe identity, remaining count, 0, absence or 「？」", () => {
     const names = [...INGREDIENTS.map((i) => i.nameJa), ...RECIPES.map((r) => r.nameJa), ...RECIPES.map((r) => r.description)];
@@ -283,7 +285,7 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     }
     expect(deductionHintTextJa({ id: INGREDIENT_TOTAL_FACT_ID, total: 3 })).toBe("このピザは全部で3種類の材料を使うよ");
     expect(TOPPING_TOTAL_FACT_ID).toBe("meta:topping-total");
-  });
+  }, SWEEP_TIMEOUT_MS);
 
   it("no pre-purchase leak: the request outcome depends on nothing the player can see before paying", () => {
     // The pure authority's refusals come before any answer: an unaffordable request is refused the
@@ -305,5 +307,5 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
         expect(poor).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
       }
     }
-  });
+  }, SWEEP_TIMEOUT_MS);
 });
