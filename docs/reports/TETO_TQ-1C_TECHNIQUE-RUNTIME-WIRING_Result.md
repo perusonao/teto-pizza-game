@@ -54,7 +54,7 @@ Under `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` this change has no UI/U
 | T4 | A requiring recipe records its technique in the same transition, even with the affordance closed. The recipe side equals the production baseline exactly. An already-known technique is not revealed again |
 | T5 | `discoveryRevealOrder`: every combination (`runtime.test.ts`, reducer T4 / T10) |
 | T6 | Affordance closed → nothing recorded (INV-TQ-6) |
-| T7 | Nothing recorded for: raw or burnt (Completion Gate FAILED) on both paths; an empty pizza; a missing completion on the ORIGINAL and matched paths |
+| T7 | Nothing recorded for: raw or burnt (Completion Gate FAILED) on both paths; an empty pizza; a missing completion on the ORIGINAL and matched paths; an AMBIGUOUS or INCOMPLETE_MATCH result, which is shown as an original pizza but discovers nothing (Codex review on #289) |
 | T8 | Lunch Rush: REGISTER_TO_DEX and MISSION_NEXT_ORDER leave the ledger unchanged |
 | T9 | Dinner: a no-sauce pizza and a requiring recipe → ledger unchanged, REGISTER_TO_DEX refused (also with an injected score + PASS), `DINNER_EXIT` unchanged |
 | T10 | A guided FREE round that discovers another recipe (Breakfast on Bismarck) records that recipe's technique. A guided round of a known recipe records nothing |

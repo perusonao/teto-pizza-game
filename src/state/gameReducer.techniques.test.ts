@@ -29,8 +29,23 @@ vi.mock("../logic/techniques/runtime", async (importOriginal) => {
   return { ...actual, productionTechniqueContext: () => technique.context ?? actual.productionTechniqueContext() };
 });
 
+/** Forces the free-cook resolution for one test (AMBIGUOUS / INCOMPLETE_MATCH cannot happen for a
+ *  no-sauce pizza with the production catalog the matcher uses). */
+const freeCook = vi.hoisted(() => ({ outcome: null as null | { kind: "AMBIGUOUS" } | { kind: "INCOMPLETE_MATCH"; recipeId: string; targetId: string } }));
+vi.mock("../logic/discovery/freeCook", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../logic/discovery/freeCook")>();
+  return {
+    ...actual,
+    resolveFreeCookPizza: (...args: Parameters<typeof actual.resolveFreeCookPizza>) => {
+      const real = actual.resolveFreeCookPizza(...args);
+      return freeCook.outcome && real.kind === "ORIGINAL" ? { kind: "ORIGINAL", outcome: freeCook.outcome } : real;
+    },
+  };
+});
+
 afterEach(() => {
   technique.context = null;
+  freeCook.outcome = null;
 });
 
 const ALL_IDS = INGREDIENTS.map((i) => i.id);
@@ -214,6 +229,23 @@ describe("T7: only a finished pizza counts", () => {
     const unverified = register({ ...matched, completion: null, pizza: { ...matched.pizza, sauceIds: [], sauceDeposits: [] } });
     expect(unverified.phase).toBe("DISCOVERED");
     expect(unverified.discoveredTechniqueIds).toEqual([]);
+  });
+});
+
+describe("T7: an ambiguous or incomplete match discovers nothing (Codex review on #289)", () => {
+  it("AMBIGUOUS and INCOMPLETE_MATCH are shown as original pizzas but record no technique, affordance open or not", () => {
+    technique.context = OPEN();
+    for (const outcome of [{ kind: "AMBIGUOUS" as const }, { kind: "INCOMPLETE_MATCH" as const, recipeId: "syn-aussie", targetId: "syn" }]) {
+      freeCook.outcome = outcome;
+      const after = register(freeCookToResult(noSaucePizza()));
+      expect(after.phase, outcome.kind).toBe("DISCOVERED");
+      expect(after.lastDiscovery, outcome.kind).toEqual(outcome);
+      expect(after.discoveredTechniqueIds, outcome.kind).toEqual([]);
+      expect(after.lastTechniqueDiscovery, outcome.kind).toEqual([]);
+    }
+    // Control: the same pizza as a plain ORIGINAL does record it.
+    freeCook.outcome = null;
+    expect(register(freeCookToResult(noSaucePizza())).discoveredTechniqueIds).toEqual(["no-sauce"]);
   });
 });
 

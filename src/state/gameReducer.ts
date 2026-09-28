@@ -1279,8 +1279,13 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         const resolution = resolveFreeCookPizza(state.pizza, state.dex);
         if (resolution.kind !== "ORIGINAL") return state;
         // TQ-1C: an original pizza can still reveal a technique it used (usage path, affordance-
-        // gated). The Dex does not change, so the recipe path adds nothing here.
-        const techniques = roundTechniques(state, state.dex);
+        // gated). The Dex does not change, so the recipe path adds nothing here. An AMBIGUOUS or
+        // INCOMPLETE_MATCH result is shown as an original pizza but discovers nothing, techniques
+        // included (Codex review on #289; gate T7).
+        const techniques =
+          resolution.outcome.kind === "ORIGINAL"
+            ? roundTechniques(state, state.dex)
+            : { ledger: state.discoveredTechniqueIds, newlyDiscovered: [] };
         return {
           ...state,
           phase: "DISCOVERED",
