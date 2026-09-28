@@ -4,7 +4,7 @@ import {
   TONNO_E_CIPOLLA_REFERENCE,
   getReferencePizza,
 } from "../../data/referencePizza";
-import { getRecipe, type Recipe, type RecipeId } from "../../data/recipes";
+import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { evaluatePizzaCompletion } from "../completionGate";
 import { qualityMultiplierForScore } from "../pitzReward";
@@ -283,6 +283,23 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     const pieceAsSauce = { ...ref, sauce: { ...ref.sauce, ingredientId: "mozzarella" } };
     expect(computeScoringV2(margherita, pizza, { reference: pieceAsSauce }).available).toBe(false);
     expect(computeScoringV2(margherita, pizza, { reference: ref }).available).toBe(true);
+  });
+
+  it("a Reference missing or duplicating a placed requirement fails closed (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const ref = getReferencePizza("margherita")!;
+    expect(ref.pieceGroups.length).toBeGreaterThan(1);
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const missingGroup = { ...ref, pieceGroups: ref.pieceGroups.slice(0, 1) };
+    expect(computeScoringV2(margherita, pizza, { reference: missingGroup }).available).toBe(false);
+    const duplicatedGroup = { ...ref, pieceGroups: [...ref.pieceGroups, ref.pieceGroups[0]] };
+    expect(computeScoringV2(margherita, pizza, { reference: duplicatedGroup }).available).toBe(false);
+    const noSauceMissing = { ...SYN_REFERENCE, pieceGroups: SYN_REFERENCE.pieceGroups.slice(1) };
+    expect(score(noSaucePizza(), SYN_RECIPE, noSauceMissing).result.available).toBe(false);
+    // Every production Reference covers its recipe's placed requirements exactly once.
+    for (const recipe of RECIPES) {
+      expect(computeScoringV2(recipe, pizza, { reference: getReferencePizza(recipe.id) }).available, recipe.id).toBe(true);
+    }
   });
 
   it("an out-of-range sauce target fails closed instead of being clamped into a score (Codex review on #271)", () => {

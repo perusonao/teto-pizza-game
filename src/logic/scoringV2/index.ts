@@ -123,6 +123,8 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
   const required = new Set(
     requirements.map((r: unknown) => (typeof r === "object" && r !== null ? (r as Record<string, unknown>).ingredientId : undefined)),
   );
+  const seenGroupIds = new Set<string>();
+  let groupCount = 0;
   for (const group of reference.pieceGroups as readonly unknown[]) {
     const ingredientId = typeof group === "object" && group !== null ? (group as Record<string, unknown>).ingredientId : undefined;
     if (typeof ingredientId !== "string") return REFERENCE_MALFORMED_REASON;
@@ -130,6 +132,16 @@ function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza
     // A piece group is a placed (non-sauce) ingredient; a sauce there is a role-swapped Reference.
     const category = getIngredient(ingredientId)?.category;
     if (category === undefined || category === "sauce") return REFERENCE_MALFORMED_REASON;
+    seenGroupIds.add(ingredientId);
+    groupCount += 1;
+  }
+  // ...and cover every placed requirement exactly once (Codex review on #271): a missing or a
+  // duplicated group would leave a required topping unscored or scored twice.
+  const requiredPieceIds = [...required].filter(
+    (id): id is string => typeof id === "string" && getIngredient(id)?.category !== "sauce",
+  );
+  if (groupCount !== seenGroupIds.size || requiredPieceIds.some((id) => !seenGroupIds.has(id))) {
+    return REFERENCE_RECIPE_MISMATCH_REASON;
   }
   const sauce: unknown = reference.sauce;
   if (sauce === null) return null;
