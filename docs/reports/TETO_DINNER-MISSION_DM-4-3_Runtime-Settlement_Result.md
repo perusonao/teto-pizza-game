@@ -207,3 +207,25 @@ test は `src/state/gameReducer.dinnerSettlement.test.ts`（28 件）。E2E は 
 | build | success |
 | E2E（Chromium 390×844 と 360×800） | `dinner-settlement-dm4-3`、`dinner-mission`、`save-dinner-records-dm4-2`、`lunch-rush-material-shortage`、`free-cooking-phase3-2`: **40 passed** |
 
+## 10. Codex review（`21a898a`、PR #281）
+
+| 指摘 | 判断 | 対応 |
+|---|---|---|
+| **P2:** 2 つの tab が **別々の mission** を同じ残高から clear すると、`pitzBalance` の絶対値の last-writer-wins によって、どちらかの payout が失われる。record は両方「払い済み」になる | **既存の非目標**。Phase 4-0 の X6 / E22 で Owner 承認済み。FREE、Lunch Rush、Shop にも同じ性質がある | Pitz が増える方向の exploit ではない（net の増分は多くても 1 回分）。進捗が失われる問題なので、全モードの保存モデルに関わる横断的な決定になる。**follow-up #282** に 3 つの選択肢を記録した（受け入れる / 検出する / delta・ledger 化）。DM-4-3 の blocker にはしない |
+| **P2:** atomic の検査が最初の read に対してだけ行われている。`writeSave` の 2 回目の read までの間に別の tab が record を壊すと、Pitz だけが保存されうる | **妥当** | `writeSave` 自身が `requireDinnerRecords` を受け取るようにした。**実際に書き込む時点の storage** で再度検査し、拒否があれば何も書かない。拒否された id は `persistProgress` の結果に合流する |
+
+**Test:** 1 回目の read と 2 回目の read の間に storage が壊れる race を再現した。
+
+- 結果: write 0、`refusedDinnerMissionIds: ["dm-a"]`。
+- 再検査を外す mutant（W1）は DETECTED。
+
+**Verification:**
+
+| check | result |
+|---|---|
+| full Vitest | 202 files、**4332 passed / 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | 0 / 0 |
+| build | success |
+| E2E（Chromium 390×844 と 360×800） | `dinner-settlement-dm4-3`、`save-dinner-records-dm4-2`、`save-forward-compat-3-4b`: **10 passed** |
+

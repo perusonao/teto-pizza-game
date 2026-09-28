@@ -699,7 +699,11 @@ function mergeOwnedOrder(storedOrder: readonly string[], nextKnown: readonly str
 /** Merges the forward-compatible extras currently in storage back into `next` (known fields
  *  always win; extras are only ever appended) and writes it. Every write in this module goes
  *  through here, so no write path can erase data a newer build stored. */
-function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
+function writeSave(
+  storage: StorageLike,
+  next: PersistentSaveV2,
+  options: { requireDinnerRecords?: boolean } = {},
+): { refusedDinnerMissionIds: string[] } {
   let extras: ForwardCompatExtras | null = null;
   try {
     const raw = storage.getItem(SAVE_STORAGE_KEY);
@@ -712,11 +716,16 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
   // overwritten, and a save that never had a record stays without the key.
   const { dinnerMissionRecordsState, ...nextFields } = next;
   const dinner = mergeDinnerMissionRecordsForWrite(extras?.dinnerMissionRecordsRaw, dinnerMissionRecordsState.records);
+  // DM-4-3: the all-or-nothing check again, against what storage holds *at this write* (another tab
+  // may have broken the record since the caller's read). Refused -> nothing is stored.
+  if (options.requireDinnerRecords && dinner.refusedMissionIds.length > 0) {
+    return { refusedDinnerMissionIds: dinner.refusedMissionIds };
+  }
   const withDinner = <T extends object>(value: T) =>
     dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value };
   if (!extras) {
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(nextFields)));
-    return;
+    return { refusedDinnerMissionIds: [] };
   }
   const nextDexIds = new Set(next.dex.map((e) => e.recipeId));
   const appendNew = (base: readonly string[], more: readonly string[]) => [
@@ -741,6 +750,7 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
     discoveryHintFacts: unionHintFacts(next.discoveryHintFacts, extras.discoveryHintFacts),
   };
   storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(merged)));
+  return { refusedDinnerMissionIds: [] };
 }
 
 /**
@@ -1050,7 +1060,10 @@ export function persistProgress(
       discoveryHintFacts: nextDiscoveryHintFacts,
       dinnerMissionRecordsState: dinnerMerge.state,
     };
-    writeSave(storage, next);
+    const written = writeSave(storage, next, { requireDinnerRecords: snapshot.requireDinnerRecords });
+    if (written.refusedDinnerMissionIds.length > 0) {
+      refusedDinnerMissionIds = [...new Set([...refusedDinnerMissionIds, ...written.refusedDinnerMissionIds])];
+    }
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }

@@ -506,6 +506,25 @@ describe("persistence of a settlement (App's effect)", () => {
     expect((storage.raw()!.dinnerMissionRecords as Record<string, unknown>)["dm-a"]).toEqual({ broken: true });
   });
 
+  it("7 (Codex on 21a898a): a record broken between persistProgress's read and writeSave's read still aborts the write", () => {
+    const storage = fakeStorage(seedSave());
+    const cleared = clearRun(withTable(startFrom(hydrate(storage)), TUNED), 80_000);
+    const clean = JSON.stringify(seedSave());
+    const broken = JSON.stringify(seedSave({ dinnerMissionRecords: { "dm-a": { broken: true } } }));
+    let reads = 0;
+    const racing: StorageLike = {
+      // 1st read (persistProgress's loadSave) sees a clean save; another tab breaks dm-a right after,
+      // so writeSave's own read sees the broken record.
+      getItem: () => (reads++ === 0 ? clean : broken),
+      setItem: storage.setItem,
+      removeItem: storage.removeItem,
+    };
+    const writes = storage.writes;
+    expect(persistProgress(appSnapshot(cleared), racing)).toEqual({ refusedDinnerMissionIds: ["dm-a"] });
+    expect(reads).toBe(2);
+    expect(storage.writes).toBe(writes); // nothing stored: no payout without its record
+  });
+
   it("7 (review #1/#2): after a refusal, memory reconciles (payout reverted, mission blocked) and saving resumes", () => {
     const storage = fakeStorage(seedSave());
     const cleared = clearRun(withTable(startFrom(hydrate(storage)), TUNED), 80_000);
