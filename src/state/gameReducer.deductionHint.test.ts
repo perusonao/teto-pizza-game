@@ -3,6 +3,7 @@ import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
+import { DEDUCTION_HINT_PRICE } from "../logic/discovery/deductionFlag";
 import { guardedReserveAttributeAnswer, structureAnswer, TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
 import { legacyOwnsIngredientTotal } from "../logic/discovery/deductionHint";
 import { ALL_INGREDIENT_IDS, ladderTargets, ownedAt } from "../logic/discovery/testSupport/deductionInversion";
@@ -15,9 +16,9 @@ import { createDefaultSave, loadSave, persistProgress, resetSave, SAVE_STORAGE_K
 
 /**
  * Discovery Hint 4.0 (Issue #253), DH4-2B: 構成 / 特徴 requests through the real reducer, behind the
- * E3 flag (on in this test run: Vitest is a DEV build). The DH4-2A pure authority decides; the
+ * flag (on in every build since OD-DH4-PROD-1, at the fixed 5 / 5 price). The DH4-2A pure authority decides; the
  * reducer only applies one patch (Pitz + `discoveryHintFacts`) or the transient outcome, or returns
- * `state` unchanged. The flag-off production parity is ./gameReducer.deductionHint.flagOff.test.ts.
+ * `state` unchanged. The flag-off (rollback) parity is ./gameReducer.deductionHint.flagOff.test.ts.
  */
 
 function discover(ids: readonly string[]): DexState {
@@ -112,7 +113,7 @@ const INFORMATIVE = TARGETS.filter((id) => guardedReserveAttributeAnswer(id, ctx
 const EXISTENCE = TARGETS.filter((id) => guardedReserveAttributeAnswer(id, ctx)!.level === "existence");
 
 describe("DH4-2B 構成 (structure): charge, ledger, single-shot", () => {
-  it("every target: a fresh request charges exactly the shared rung (5) once and stores the D-prime facts", () => {
+  it("every target: a fresh request charges exactly the fixed price (5) once and stores the D-prime facts", () => {
     for (const id of TARGETS) {
       const s = sheetOn(id, 100);
       expect(deduction(s)).toMatchObject({ nextPrice: 5, paidCount: 0, affordable: true, structureOwned: false, structureLines: [] });
@@ -173,7 +174,7 @@ describe("DH4-2B 特徴 (attribute): informative answers are charged once, exist
       const after = act(s, ask(s, "attribute"));
       expect(after.pitzBalance).toBe(95);
       expect(factsOf(after, id)).toEqual([guardedReserveAttributeAnswer(id, ctx)!.factId]);
-      expect(deduction(after)).toMatchObject({ attributeOwned: true, paidCount: 1, nextPrice: 10 });
+      expect(deduction(after)).toMatchObject({ attributeOwned: true, paidCount: 1, nextPrice: 5 });
       expect(deduction(after).attributeLines).toHaveLength(1);
       const again = act(after, ask(after, "attribute"));
       expect(again.pitzBalance).toBe(95);
@@ -196,16 +197,40 @@ describe("DH4-2B 特徴 (attribute): informative answers are charged once, exist
   });
 });
 
-describe("DH4-2B economy (E3, provisional shared rung)", () => {
-  it("the deduction price follows the shared paid count; the 材料 price is unchanged by deduction purchases", () => {
-    const s = sheetOn("capricciosa", 200);
+describe("DH4 economy (OD-DH4-PROD-1: fixed 構成 5 / 特徴 5, outside the 材料 ESC ladder)", () => {
+  it("the price constants are 5 / 5 (never 0), and equal, so the sheet's one price is right for both cards", () => {
+    expect(DEDUCTION_HINT_PRICE).toEqual({ structure: 5, attribute: 5 });
+    expect(DEDUCTION_HINT_PRICE.structure).toBe(DEDUCTION_HINT_PRICE.attribute);
+  });
+  it("the deduction price is 5 whatever was paid before; the 材料 ladder never counts a deduction purchase", () => {
+    const s = sheetOn("capricciosa", 500);
     const m1 = buyMaterial(s);
-    expect(view(m1).presentation.nextPrice).toBe(10);
-    expect(deduction(m1)).toMatchObject({ paidCount: 1, nextPrice: 10 });
-    const st = act(m1, ask(m1, "structure"));
-    expect(st.pitzBalance).toBe(200 - 5 - 10);
-    expect(deduction(st)).toMatchObject({ paidCount: 2, nextPrice: 20 });
-    expect(view(st).presentation).toMatchObject({ paidCount: 1, nextPrice: 10 });
+    const m2 = buyMaterial(m1);
+    expect(view(m2).presentation.nextPrice).toBe(20);
+    expect(deduction(m2)).toMatchObject({ paidCount: 2, nextPrice: 5 });
+    const st = act(m2, ask(m2, "structure"));
+    expect(st.pitzBalance).toBe(500 - 5 - 10 - 5);
+    const at = act(st, ask(st, "attribute"));
+    expect(at.pitzBalance).toBe(500 - 5 - 10 - 5 - 5);
+    expect(deduction(at)).toMatchObject({ nextPrice: 5, structureOwned: true, attributeOwned: true });
+    // The 材料 ladder is exactly where it was before the two deduction purchases.
+    expect(view(at).presentation).toMatchObject({ paidCount: 2, nextPrice: 20 });
+    expect(buyMaterial(at).pitzBalance).toBe(at.pitzBalance - 20);
+  });
+  it("parity with the 材料 ladder (5 / 10 / 20 / 40): deductions first leave the first 材料 at 5", () => {
+    const s = sheetOn("capricciosa", 500);
+    const st = act(s, ask(s, "structure"));
+    const at = act(st, ask(st, "attribute"));
+    expect(at.pitzBalance).toBe(490);
+    expect(view(at).presentation).toMatchObject({ paidCount: 0, nextPrice: 5 });
+    let m = at;
+    const prices: number[] = [];
+    for (let i = 0; i < 4; i += 1) {
+      const before = m.pitzBalance;
+      m = buyMaterial(m);
+      prices.push(before - m.pitzBalance);
+    }
+    expect(prices).toEqual([5, 10, 20, 40]);
   });
   it("insufficient Pitz: unchanged state (no charge, no fact, no outcome); balance == price is enough", () => {
     for (const family of ["structure", "attribute"] as const) {
@@ -306,9 +331,10 @@ describe("DH4-2B persistence", () => {
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: JSON.stringify({ ...old, pitzBalance: 50, discoveryHintPurchases: { capricciosa: 2 } }) });
     const save = loadSave(storage);
     const s = sheetOn("capricciosa", save.pitzBalance, { purchases: save.discoveryHintPurchases, facts: save.discoveryHintFacts });
-    // Legacy rungs count in the shared paid count (OD-H3-9: never back down the ladder).
-    expect(deduction(s)).toMatchObject({ paidCount: 2, nextPrice: 20 });
-    expect(act(s, ask(s, "structure")).pitzBalance).toBe(30);
+    // Legacy rungs count in the STALE token only; the deduction price stays the fixed 5.
+    expect(deduction(s)).toMatchObject({ paidCount: 2, nextPrice: 5 });
+    expect(act(s, ask(s, "structure")).pitzBalance).toBe(45);
+    expect(view(s).presentation.nextPrice).toBe(20);
   });
   it("a hostile stored ledger (attr:existence, junk) is not a purchase", () => {
     const id = INFORMATIVE[0];
@@ -357,6 +383,23 @@ describe("DH4-2B x T1a (purchase timing) through the real reducer", () => {
     const s = sheetOn("capricciosa", 100);
     const hostile = { ...s, ownedIngredientIds: owned };
     for (const family of ["structure", "attribute"] as const) expect(act(hostile, ask(s, family))).toBe(hostile);
+  });
+});
+
+describe("DH4-PROD x Cooking Techniques (TQ-1C runtime)", () => {
+  it("the technique ledger never changes the hint view or a 構成 / 特徴 / 材料 result", () => {
+    for (const id of TARGETS) {
+      const s = sheetOn(id, 100);
+      const withTech = { ...s, discoveredTechniqueIds: ["no-sauce"] as const, lastTechniqueDiscovery: ["no-sauce"] as const } as GameState;
+      expect(hintSheetView(withTech)).toEqual(hintSheetView(s));
+      for (const family of ["structure", "attribute"] as const) {
+        const a = act(s, ask(s, family));
+        const b = act(withTech, ask(withTech, family));
+        expect([b.pitzBalance, b.discoveryHintFacts, b.hintOutcome]).toEqual([a.pitzBalance, a.discoveryHintFacts, a.hintOutcome]);
+      }
+      const m = buyMaterial(withTech);
+      expect([m.pitzBalance, m.discoveryHintFacts]).toEqual([buyMaterial(s).pitzBalance, buyMaterial(s).discoveryHintFacts]);
+    }
   });
 });
 

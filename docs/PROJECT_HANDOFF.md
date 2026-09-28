@@ -324,6 +324,10 @@ Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 - **INV-TQ-4:** while no production recipe requires a technique, nothing is recognised. TQ-1C is
   inert in production. TQ-1 adds no technique requirement to a production recipe; Aussie arrives
   in TQ-1D.
+- **DH4 privacy re-gate (contract, OD-DH4-PROD-1):** 構成 / 特徴 hints are live in production
+  (DH4-PROD, #290). The first production recipe that requires a technique (TQ-1D) makes
+  `src/logic/discovery/deductionProduction.gate.test.ts` fail on purpose. TQ-1D must re-run that
+  gate and the DH4 privacy sweeps with its Technique recipes, and pass them, before it ships.
 - **Merged so far:** LAD-1 `4f7443a` (#268), TQ-1A `73c8ad0` (#273) and TQ-1B `bcac961` (#271).
   The ledger `discoveredTechniqueIds` is in the save; scoring parity is pinned (225 rows).
 - **Detailed docs:** `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md`

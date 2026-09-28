@@ -37,7 +37,7 @@ import {
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
 import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
-import { DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
+import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
 import { deductionKnownLines, deductionOwnership, requestDeductionHint, type DeductionFamily } from "../logic/discovery/deductionRequest";
@@ -45,7 +45,6 @@ import {
   buildSelectableHintModel,
   hintFactId,
   purchaseSelectableHint,
-  selectableHintBatchPrice,
   selectableHintPresentation,
   type HintCategory,
   type SelectableHintModel,
@@ -96,8 +95,9 @@ export type HintOutcome =
   | "ATTRIBUTE_ALREADY_OWNED";
 
 /**
- * DH4-2B: the 構成 / 特徴 part of the SELECTABLE sheet (flag only, E3). Built from the player's own
- * ledgers only: no availability, answer level, candidate count, remaining count or reserve.
+ * DH4-2B: the 構成 / 特徴 part of the SELECTABLE sheet (behind the flag; on in production since
+ * OD-DH4-PROD-1). Built from the player's own ledgers only: no availability, answer level,
+ * candidate count, remaining count or reserve.
  */
 export interface DeductionSheetView {
   /** 構成: the stored total line, then the stored topping line (never 0). */
@@ -110,7 +110,8 @@ export interface DeductionSheetView {
   structureOwned: boolean;
   /** An informative 特徴 answer is stored: 「✓ もらいずみ」. */
   attributeOwned: boolean;
-  /** The provisional price of the next 構成 / 特徴 request (the same for both, for every target). */
+  /** The fixed price of a 構成 / 特徴 request (OD-DH4-PROD-1: 5 / 5, the same for both and for every
+   *  target, so the sheet shows one number). */
   nextPrice: number;
   /** The shared paid count to echo back as `expectedPaidCount`. */
   paidCount: number;
@@ -149,7 +150,7 @@ export type HintSheetView =
        *  fact, never for sale, never priced. H3-4 decides the final presentation. */
       grandfatheredSteps: readonly HintStep[];
       outcome: HintOutcome | null;
-      /** DH4-2B: `null` unless the E3 flag is on (DEV / Preview). */
+      /** DH4-2B: `null` when the flag is off (on in every build since OD-DH4-PROD-1). */
       deduction: DeductionSheetView | null;
     }
   | { kind: HintEmptyKind };
@@ -344,19 +345,20 @@ function storedFactIds(state: Pick<DiscoveryHintState, "discoveryHintFacts">, re
 }
 
 /**
- * DH4-2B (E3, provisional until DH4-ECON): 構成 and 特徴 share the material ESC rung. The shared
- * paid count is the 材料 paid count (legacy rungs included) plus one per deduction family bought
- * under Hint 4.0; the next request costs that rung (5 / 10 / 20 / 40, then 40). It depends only on
- * what this player paid, never on the target's answers. The 材料 price itself is unchanged.
+ * DH4 Production Enablement (OD-DH4-PROD-1): 構成 and 特徴 cost a fixed price (5 / 5), not a rung of
+ * the 材料 ESC ladder, and a deduction purchase never moves the 材料 price. The paid count is kept
+ * only as the request's STALE token (DH4-2B): the 材料 paid count (legacy rungs included) plus one
+ * per deduction family bought under Hint 4.0, so any purchase in between refuses an echoed request.
+ * It depends only on what this player paid, never on the target's answers.
  */
-function deductionPricing(state: DiscoveryHintState, context: NonNullable<ReturnType<typeof selectableContext>>) {
+function deductionPricing(state: DiscoveryHintState, context: NonNullable<ReturnType<typeof selectableContext>>, family: DeductionFamily = "structure") {
   const { model, saved } = context;
   const materialPaid = selectableHintPresentation(model, saved.purchasedFactIds, state.pitzBalance, saved.legacy).paidCount;
   const stored = storedFactIds(state, model.recipeId);
   const own = deductionOwnership(model.recipeId, stored, {});
   const structureBought = stored.includes(INGREDIENT_TOTAL_FACT_ID) || stored.includes(TOPPING_TOTAL_FACT_ID);
   const paidCount = materialPaid + (structureBought ? 1 : 0) + (own.attributeOwned ? 1 : 0);
-  return { paidCount, nextPrice: selectableHintBatchPrice(paidCount, 1, Number.POSITIVE_INFINITY), stored, structureBought, attributeOwned: own.attributeOwned };
+  return { paidCount, nextPrice: DEDUCTION_HINT_PRICE[family], stored, structureBought, attributeOwned: own.attributeOwned };
 }
 
 function deductionContext(state: DiscoveryHintState) {
@@ -374,7 +376,7 @@ const DEDUCTION_OUTCOMES = {
  * in its fixed order (family -> target -> price -> STALE -> balance -> answer); this only supplies
  * its inputs and applies the result.
  *
- * - Only with the E3 flag (`enabled`, DEV / Preview). Production: always `null`.
+ * - Only with the flag (`enabled`; on in every build since OD-DH4-PROD-1). Flag off: always `null`.
  * - ANSWERED: Pitz is debited once and the new fact ids are appended to the target's ledger (unknown
  *   / future ids kept) in the same patch.
  * - EXISTENCE_ONLY / GUIDANCE_ONLY / ALREADY_OWNED: only the transient `hintOutcome` changes -- no
@@ -393,7 +395,7 @@ export function requestDeductionHintFact(
   if (!session || !isSessionTarget(state, session)) return null;
   const context = selectableContext(state, session);
   if (!context) return null;
-  const pricing = deductionPricing(state, context);
+  const pricing = deductionPricing(state, context, family);
   const result = requestDeductionHint({
     family,
     recipeId: context.model.recipeId,
