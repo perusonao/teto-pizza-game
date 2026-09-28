@@ -323,7 +323,8 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   - no E3b courtesy grant and no M1 free-key carry-over;
   - T-COV: runtime 25 / 29 proceed, with a fail-fast taxonomy gate and no silent fallback. PR #293
     is the reference audit.
-- **Open:** C1a (5 key toppings, compared in Final Design §6.2), P4 / P4b (with TQ-1D) and M2
+- **Round 3:** C1a approved (basil / none / onion / eggplant / tuna) together with the C1 key-topping principle. 3 of the 20 remaining seeds break it (capricciosa, pizza-portuguesa, puttanesca), which is OD-H5-C1b and blocks H5-1.
+- **Open:** C1b, P4 / P4b (with TQ-1D) and M2
   (19-first vs 25).
 - **State:** no production code yet. H5-1 (pure layer, unwired) is the next step and has not
   started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
