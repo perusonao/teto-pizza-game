@@ -354,6 +354,21 @@ privacy fallback). Three separate PRs are open, none of them merged, all with au
 Recommended merge order: #268, then #271, then #273. TQ-1C and later, and Aussie, are not
 started. Follow-up Issue #260 tracks the mechanic_matrix drift, which is deliberately not fixed.
 
+**2026-09-28 addendum 4 (TQ-1 foundation merged; TQ-1C Pre-Implementation Gate, docs only)**.
+All three PRs are merged: #268 as `4f7443a`, #273 as `73c8ad0` and #271 as `bcac961`.
+See `docs/design/TETO_COOKING-TECHNIQUES_1.0_TQ-1C_PRE-IMPLEMENTATION-GATE.md` and the new
+authority summary `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`.
+
+The verdict is **B, Owner Decisions Required**:
+
+- **OD-TQ1C-1:** bring the authority onto main with a docs-only PR first.
+- **OD-TQ1C-2:** the scope and timing of the near-miss k-rule. Applied uniformly, it changes
+  12 of 44 production SAUCE_ONLY cases. The recommendation is to apply it uniformly in TQ-1D,
+  which has HV, so TQ-1C stays inert.
+- **OD-TQ1C-3:** for guided rounds, keep the recipe route and drop the usage route.
+
+TQ-1C is not implemented.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
