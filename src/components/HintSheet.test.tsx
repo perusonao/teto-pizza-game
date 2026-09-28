@@ -526,6 +526,32 @@ describe("HintSheet -- U3-C family cards 構成 / 特徴 (DH4-2B view, E3 flag)"
     expect(cta("material")).toBeEnabled();
   });
 
+  it("the live region never re-announces an earlier answer: answer -> another family's no-charge -> a new answer", () => {
+    const props = { onUnlock: vi.fn(), onBuySelectable: vi.fn(), onClose: vi.fn() };
+    const v = (o: Parameters<typeof selectableView>[1]) => <HintSheet view={selectableView("capricciosa", o)} {...props} />;
+    const { rerender } = render(v({ deduction: {}, facts: ["ing:tomato-sauce"] }));
+    const live = screen.getByRole("status");
+    // Every text the region ever held, from the mutation records themselves (a callback reading
+    // textContent later would only see the final text): text nodes added, and a text node's old value.
+    const observer = new MutationObserver(() => {});
+    observer.observe(live, { childList: true, characterData: true, characterDataOldValue: true, subtree: true });
+    const heldTexts = () =>
+      observer.takeRecords().flatMap((r) => [r.oldValue ?? "", ...[...r.addedNodes].map((n) => n.textContent ?? ""), ...[...r.removedNodes].map((n) => n.textContent ?? "")]);
+    // A 材料 answer.
+    rerender(v({ deduction: {}, facts: ["ing:tomato-sauce", "ing:mozzarella"] }));
+    expect(live).toHaveTextContent("わかったこと：モッツァレラ");
+    // Another family's no-charge outcome.
+    rerender(v({ deduction: {}, facts: ["ing:tomato-sauce", "ing:mozzarella"], outcome: "STRUCTURE_GUIDANCE_ONLY" }));
+    expect(live).toHaveTextContent("今は新しくわかることがなかったよ（Pitzは使っていないよ）");
+    heldTexts();
+    // A 特徴 answer: the outcome clears in the same render as the new line arrives.
+    rerender(v({ deduction: { attributeLines: ["まだわかっていないトッピングがあるよ"], attributeOwned: true }, facts: ["ing:tomato-sauce", "ing:mozzarella"] }));
+    const held = heldTexts();
+    observer.disconnect();
+    expect(live).toHaveTextContent("わかったこと：まだわかっていないトッピングがあるよ");
+    expect(held.filter((t) => t.includes("モッツァレラ"))).toEqual([]);
+  });
+
   it("after 材料 guidance, a uniform line points to the other families only while they are unowned", () => {
     renderSelectable(selectableView("pizza-bianca", { outcome: "GUIDANCE_ONLY", deduction: {} }));
     openPanel();

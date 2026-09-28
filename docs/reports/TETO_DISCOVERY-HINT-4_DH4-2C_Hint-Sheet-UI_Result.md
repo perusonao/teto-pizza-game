@@ -46,9 +46,14 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 | Result | What the sheet does |
 |---|---|
 | **An answer** (a new 材料 chip or 構成 / 特徴 line) | - The sheet returns to the board.<br>- The new fact is highlighted and scrolled into view.<br>- Focus moves to 「ヒントをもらう」. |
-| **A no-charge outcome** (audit §15) | - It stays on its own card, as a `role="status"` line, and that card is disabled **for the rest of this sheet session**. Another family's answer never re-arms it.<br>- Focus moves to もどる.<br>- **材料:** 「材料ヒントはここまで（Pitzは使っていないよ）」, followed by 「構成・特徴のヒントもあるよ」 while one of those is unowned in the player's own ledger.<br>- **構成:** 「今は新しくわかることがなかったよ（Pitzは使っていないよ）」.<br>- **特徴:** 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）。材料がふえると、わかることがあるかも」 (audit §8 D). |
+| **A no-charge outcome** (audit §15) | - It stays on its own card as a line, and is announced through the sheet's live region (see below). The card is disabled **for the rest of this sheet session**. Another family's answer never re-arms it.<br>- Focus moves to もどる.<br>- **材料:** 「材料ヒントはここまで（Pitzは使っていないよ）」, followed by 「構成・特徴のヒントもあるよ」 while one of those is unowned in the player's own ledger.<br>- **構成:** 「今は新しくわかることがなかったよ（Pitzは使っていないよ）」.<br>- **特徴:** 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）。材料がふえると、わかることがあるかも」 (audit §8 D). |
 
 **Focus.** Opening the sheet focuses 「ヒントをもらう」. Opening the panel focuses the first open 「たずねる」, or もどる if there is none. A preference change never moves focus.
+
+**Live region.** One `role="status"` region is the first child of both steps, so it survives board ↔ panel.
+- **What it announces:** 「わかったこと：…」 with the facts a request just added, which arrive on a freshly mounted board, or the no-charge outcome line.
+- **What it repeats:** only text that the sheet itself now shows.
+- **What it never announces:** an earlier answer. The fresh set is tied to the board it was computed for. This was Codex's P2 on `07d7591`, and a mutation-checked unit test pins it.
 
 **Anti-spoiler.** Every string comes either from the view (the player's own ledger, the price, the balance, the outcome of the request just made) or is the same for every target. The DOM, `aria-*` and `data-*` carry no recipe name / id / image, no availability, no level and no candidate count. The unit sweeps (every recipe × every legacy level, and every target's panel) and the e2e `expectNoUndiscoveredIdentity` pin this.
 
@@ -137,7 +142,7 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 - the panel cards;
 - an answer returns to the board with focus on 「ヒントをもらう」;
 - a preference change keeps focus;
-- no-charge outcomes as `role="status"`, settled for the sheet session and never re-armed by another family's answer;
+- one live region across board and panel, announcing 「わかったこと：…」 or the no-charge outcome, and never an earlier answer; no-charge outcomes settled for the sheet session and never re-armed by another family's answer;
 - the flag turning off with the panel open falls back to 材料;
 - every target shows the same panel before a request.
 
@@ -153,7 +158,7 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 | P3-2: copy differed from §8 / §14 | **Fixed.** The second 材料 note and the 「材料がふえると、わかることがあるかも」 tail are restored. |
 | P3-3: `legacyStructure` unused | Recorded in §1 (the archive only; 構成 stays requestable). |
 | P3-4: the cue was plain text; the sheet top covered the app header | **Fixed.** A ≥ 24 px pill; `max-height` is `100dvh − 56 − safe-top`, asserted in e2e. |
-| P3-5: outcome lines were not announced | **Fixed.** `role="status"`. |
+| P3-5: outcome lines were not announced | **Fixed.** A live region (final design below). |
 | P3-6: no production-build evidence; the 45dvh check was dropped for non-SELECTABLE sheets | **Fixed.** The `prod-*` screenshots and measurements (§2 / §3) were added, and the 45dvh assertion is back for TARGET / EMPTY. The through-`hintSheetView` privacy sweep stays with DH4-2D (OD-DH4-2-11). |
 | P3-7: stale docs | **Fixed.** The HintSheet header and the App.css comments. |
 
@@ -162,7 +167,7 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 | Finding (re-review) | Handling |
 |---|---|
 | **P3-a:** in production, a fast double tap on 「たずねる」 could land on 「ヒントをもらう」 and reopen the panel (one charge) | **Fixed.** The request latch also covers 「ヒントをもらう」 (`aria-disabled` while latched). Unit, App and e2e tests assert it. |
-| **P3-b:** a `role="status"` line mounted together with its text may not be announced | **Fixed.** One live region is always mounted in the panel; the outcome text arrives into it. There is a unit test that it is the same element before and after. |
+| **P3-b:** a `role="status"` line mounted together with its text may not be announced | **Fixed**, then extended after Codex (below): the live region is always mounted; the outcome text arrives into it. There is a unit test that it is the same element before and after. |
 | **P3-c:** two layout claims were inaccurate | **Fixed.** See §2 (the heaviest flag-on state scrolls on the short profiles, with the cue and the CAP bars intact) and the App.css panel comment. |
 | **P3-d:** the double-tap App test had become conditional | **Fixed.** It now unconditionally asserts one charge, no reopened panel, and focus on 「ヒントをもらう」. |
 
@@ -175,6 +180,16 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
   - The entry ignores taps only for the 450 ms request latch.
   - `.sr-only` takes no layout space.
 - **Merge:** a Codex or independent pass on the final head should be re-requested before merge. Merge is gated on the Owner's iPhone HV anyway.
+
+**Final Merge Gate (after Owner HV PASS on `83a0a87`):**
+
+| Review | Finding | Handling |
+|---|---|---|
+| Codex on `b1efbfa` | **P2:** an answered request mounts the board with the new fact already inside, so it may not be announced | **Fixed in `07d7591`:** one live region across both steps |
+| Independent review on `07d7591` | **APPROVE**, P0 / P1 / P2 = 0 (the live region persists, adds no layout and leaks nothing; the main integration was checked) | — |
+| Codex on `07d7591` | **P2:** after another family's no-charge outcome, a new answer could briefly re-announce the previous answer's facts | **Fixed:** the fresh set is tied to its board, with a mutation-checked regression test |
+
+These changes affect screen readers only; nothing visible changes from the verified Preview `83a0a87`.
 
 ## 6. Human Verification Videos
 

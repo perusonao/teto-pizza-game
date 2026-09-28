@@ -478,13 +478,16 @@ function SelectableHintBody({
   const keys = boardKeys(view);
   const boardKey = keys.join("\n");
   const seenBoard = useRef<string | null>(null);
-  const [fresh, setFresh] = useState<ReadonlySet<string>>(() => new Set());
+  // `forKey`: the board the fresh set was computed for. Until the effect below catches up with a new
+  // board, the set is stale and announces nothing (see the live region).
+  const [freshState, setFreshState] = useState<{ forKey: string | null; ids: ReadonlySet<string> }>(() => ({ forKey: null, ids: new Set() }));
+  const fresh = freshState.ids;
   useEffect(() => {
     const before = seenBoard.current;
     seenBoard.current = boardKey;
     if (before === null || before === boardKey) return;
     const known = new Set(before.split("\n"));
-    setFresh(new Set(boardKey.split("\n").filter((k) => k && !known.has(k))));
+    setFreshState({ forKey: boardKey, ids: new Set(boardKey.split("\n").filter((k) => k && !known.has(k))) });
     setPanelOpen(false);
   }, [boardKey]);
   useEffect(() => {
@@ -530,7 +533,7 @@ function SelectableHintBody({
   // together with its text is often not read. It repeats only what the sheet itself now shows.
   const settledLine =
     currentSettled && (currentSettled === "material" || deduction) ? familyCta(view, currentSettled, true).outcomeLine : null;
-  const freshText = keys
+  const freshText = (freshState.forKey === boardKey ? keys : [])
     .filter((k) => fresh.has(k))
     .map((k) => {
       if (k.startsWith("structure:") || k.startsWith("attribute:")) return k.slice(k.indexOf(":") + 1);
