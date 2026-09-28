@@ -33,7 +33,7 @@ import {
   type AttributeContext,
   type ReserveAttributeAnswer,
 } from "./deductionHint";
-import { guardedReserveAttributeAnswer, structureAnswer, TOPPING_TOTAL_FACT_ID } from "./deductionGuard";
+import { guardedReserveAttributeAnswer, structureAnswer, targetReserveParts, TOPPING_TOTAL_FACT_ID } from "./deductionGuard";
 import type { DiscoveryHintPurchases } from "./hintPurchase";
 
 export type DeductionFamily = "structure" | "attribute";
@@ -100,10 +100,15 @@ export interface DeductionOwnership {
   attributeOwned: boolean;
 }
 
-export function deductionOwnership(recipeId: unknown, storedFactIds: unknown, legacyPurchases: unknown): DeductionOwnership {
+export function deductionOwnership(
+  recipeId: unknown,
+  storedFactIds: unknown,
+  legacyPurchases: unknown,
+  recipes: readonly Recipe[] = RECIPES,
+): DeductionOwnership {
   const stored = storedStrings(storedFactIds);
   const storedTotal = stored.includes(INGREDIENT_TOTAL_FACT_ID);
-  const legacyTotal = legacyOwnsIngredientTotal(recipeId, legacyPurchases);
+  const legacyTotal = legacyOwnsIngredientTotal(recipeId, legacyPurchases, recipes);
   return {
     structureTotalOwned: storedTotal || legacyTotal,
     structureTotalFromLegacyOnly: legacyTotal && !storedTotal,
@@ -118,13 +123,15 @@ const REJECT = (reason: DeductionRejection): DeductionRequestResult => ({ outcom
 export function requestDeductionHint(input: DeductionRequestInput, recipes: readonly Recipe[] = RECIPES): DeductionRequestResult {
   const { family } = input;
   if (!isFamily(family)) return REJECT("INVALID_FAMILY");
-  if (!structureTotalFact(input.recipeId, input.context, recipes)) return REJECT("NOT_A_TARGET");
+  if (!structureTotalFact(input.recipeId, input.context, recipes) || !targetReserveParts(input.recipeId, input.context, recipes)) {
+    return REJECT("NOT_A_TARGET");
+  }
   const price = input.requestPrice;
   if (typeof price !== "number" || !Number.isSafeInteger(price) || price < 0) return REJECT("INVALID_PRICE");
   if (input.expectedPaidCount !== input.paidCount) return REJECT("STALE");
   if (!Number.isFinite(input.pitzBalance) || input.pitzBalance < price) return REJECT("INSUFFICIENT_PITZ");
 
-  const owned = deductionOwnership(input.recipeId, input.storedFactIds, input.legacyPurchases);
+  const owned = deductionOwnership(input.recipeId, input.storedFactIds, input.legacyPurchases, recipes);
   if (family === "attribute") {
     if (owned.attributeOwned) return { outcome: "ALREADY_OWNED", family, addFactIds: [], charge: 0 };
     const answer = guardedReserveAttributeAnswer(input.recipeId, input.context, recipes);
@@ -172,7 +179,7 @@ export function deductionKnownLines(
   const total = structureTotalFact(recipeId, context, recipes);
   if (!total) return empty;
   const stored = storedStrings(storedFactIds);
-  const owned = deductionOwnership(recipeId, stored, legacyPurchases);
+  const owned = deductionOwnership(recipeId, stored, legacyPurchases, recipes);
   const structure: string[] = [];
   if (stored.includes(INGREDIENT_TOTAL_FACT_ID)) structure.push(deductionHintTextJa(total));
   if (owned.toppingClauseOwned) {
