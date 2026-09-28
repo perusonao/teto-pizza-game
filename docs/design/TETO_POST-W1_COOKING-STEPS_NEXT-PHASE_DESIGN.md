@@ -402,3 +402,21 @@ no-sauce production recipe (TQ-1D).
 
 **Owner Decision 待ち:** OD-CS-1 … OD-CS-19 (§8); the gating ones for CS-1 are OD-CS-1, OD-CS-2
 and OD-CS-9 (a).
+
+---
+
+## 13. Owner Decisions (2026-09-28) — authority
+
+Recorded from the Owner. These supersede the "recommended" columns in §8 for the IDs below.
+
+| ID | Decision | Authority for |
+|---|---|---|
+| **OD-CS-1** | **A.** Cooking Steps owns only the late-addition **engine foundation**, inert in Production. Production enablement of late-addition recipes is **TQ-2's** authority. | CS-2 scope; CS-3 = TQ-2 |
+| **OD-CS-2** | **B.** Normal recipes finalize at CONFIRM_BAKE as today. Only future late-addition recipes are **provisional at CONFIRM_BAKE → final after FINISH completes**. **Not implemented in CS-1a.** Recorded as the authority for the CS-1b `finalizeRound` design and its golden tests. | CS-1b, CS-2 |
+| **OD-CS-9 (a)** | **Adopted.** Current Production is fixed at **max 6 visible tabs** by a test invariant. When 7+ tabs are needed, the test is **not** relaxed; it is the gate that requires **CS-4** first. | CS-1a gate; CS-4 |
+| **OD-CS-20** | **Adopted.** CS-1 is split. **CS-1a:** Production max-6-tab invariant (Free Cooking profile included); GameScreen post-bake rendering generalized; current CUT display and behaviour fully preserved; no new non-CUT post-bake UI. **CS-1b:** `finalizeRound` extraction; 25-recipe golden tests over guided / FREE / Lunch Rush / Dinner and raw / good / burnt bakes; starts only after PR #275 is resolved. | CS-1a / CS-1b |
+| PR #275 | Not changed, merged or closed by this track. Stays on Owner Human Verification. | CS-1b blocker |
+
+**Out of CS-1a / CS-1b (Owner):** the FREE-mode POST_BAKE / CUT HOME gap (`isRoundInProgress()` does not
+include POST_BAKE, so no confirm dialog) is **not** mixed into CS-1. It is recorded as an independent
+Issue candidate (Pre-start Gate §10) and is not fixed here.

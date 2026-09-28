@@ -219,3 +219,26 @@ the gating Owner Decisions are unanswered.)
 | (external) | PR #275 merge / close (Owner HV) | — | CS-1b |
 
 **STOP.** CS-1 is not started. Nothing is merged.
+
+---
+
+## 10. Owner Decisions recorded (2026-09-28)
+
+OD-CS-1 = **A**, OD-CS-2 = **B** (authority for CS-1b; not implemented in CS-1a), OD-CS-9 (a) =
+**adopted** (never relax; 7+ requires CS-4), OD-CS-20 = **adopted** (CS-1a / CS-1b). PR #275 stays
+on Owner HV and is not touched. Full text: design §13.
+
+**Gate after the decisions:** CS-1a = **PASS** (subject to its own start-of-slice Fresh Check,
+including the Hint 5.0 H5-3 GameScreen overlap check). CS-1b = **WAIT** (PR #275 OPEN).
+
+### 10.1 Independent Issue candidate (not fixed, not in CS-1)
+
+**FREE mode: 🏠ホーム during POST_BAKE (CUT) leaves without a confirm dialog.**
+
+- Evidence (`86b48fd`): `isRoundInProgress()` (`App.tsx:797-805`) returns true in FREE only for
+  PREPARE (once started) and BAKE. During POST_BAKE the confirm (`GO_HOME_CONFIRM_MESSAGE`,
+  「作りかけのピザは失われます」) is skipped. Stock is already consumed at CONFIRM_BAKE and saved;
+  REGISTER_TO_DEX (deferred to the end of POST_BAKE) never runs, so no Dex / BEST / Pitz.
+- Duplicate Gate (2026-09-28): searches for HOME confirm / abandon / CUT / isRoundInProgress found
+  no matching Issue (#256 = CUT skip on bake failure; #39 = Pizza Select UX — both different).
+- Status: **candidate only**; not created, not fixed. Owner to decide whether to open it.
