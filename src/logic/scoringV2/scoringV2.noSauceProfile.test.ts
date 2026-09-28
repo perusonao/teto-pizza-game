@@ -392,6 +392,22 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(computeScoringV2(margherita, pizza)).toEqual(before);
   });
 
+  it("the Reference types are readonly at compile time (Codex review on #271)", () => {
+    const ref = getReferencePizza("margherita")!;
+    expect(() => {
+      // @ts-expect-error -- ReferenceSauce is readonly, matching the frozen runtime data.
+      ref.sauce.coverage = 0;
+    }).toThrow(TypeError);
+    expect(() => {
+      // @ts-expect-error -- matching radii are readonly.
+      ref.pieceGroups[0].matching.fullCreditRadius = 10000;
+    }).toThrow(TypeError);
+    expect(() => {
+      // @ts-expect-error -- positions are readonly.
+      ref.pieceGroups[0].positions[0].x = 0;
+    }).toThrow(TypeError);
+  });
+
   it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
     const margherita = getRecipe("margherita")!;
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };

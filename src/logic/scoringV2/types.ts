@@ -203,7 +203,7 @@ export interface ScoringV2WeightProfile {
  * belongs to the slice that first ships a no-sauce recipe (TQ-1D), not to this scoring foundation.
  */
 export interface ScoringReferencePizza {
-  recipeId: string;
-  sauce: ReferenceSauce | null;
-  pieceGroups: readonly ReferencePieceGroup[];
+  readonly recipeId: string;
+  readonly sauce: ReferenceSauce | null;
+  readonly pieceGroups: readonly ReferencePieceGroup[];
 }

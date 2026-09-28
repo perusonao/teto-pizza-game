@@ -54,37 +54,37 @@ export interface ReferencePieceGroup {
    *  use this same type without another type-level change. Widening this field alone adds no
    *  new Reference data -- see that report for exactly what a real 6-recipe entry still needs
    *  (reviewed positions/tolerance radii), which this type change does not provide. */
-  ingredientId: string;
-  positions: readonly { x: number; y: number }[];
-  interaction: {
-    family: "TAP_PLACE";
-    primaryInput: "DRAG_FROM_TRAY";
-    fallbackInput: "TAP_ON_PIZZA";
-    landingStyle: "HEAVY_SQUASH" | "LIGHT_LEAF";
+  readonly ingredientId: string;
+  readonly positions: readonly { readonly x: number; readonly y: number }[];
+  readonly interaction: {
+    readonly family: "TAP_PLACE";
+    readonly primaryInput: "DRAG_FROM_TRAY";
+    readonly fallbackInput: "TAP_ON_PIZZA";
+    readonly landingStyle: "HEAVY_SQUASH" | "LIGHT_LEAF";
   };
-  matching: {
-    fullCreditRadius: number;
-    zeroCreditRadius: number;
+  readonly matching: {
+    readonly fullCreditRadius: number;
+    readonly zeroCreditRadius: number;
   };
 }
 
 export interface ReferenceSauce {
-  ingredientId: string;
+  readonly ingredientId: string;
   /** Target normalized quantity, 0.0-1.0. Derived from `IDEAL_MARGHERITA_SAUCE_FIXTURE`'s
    *  own computed metrics below -- not an independently chosen number. */
-  quantity: number;
+  readonly quantity: number;
   /** Target coverage (fraction of the dough painted), 0.0-1.0. Same derivation as above. */
-  coverage: number;
+  readonly coverage: number;
 }
 
 export interface ReferencePizza {
   /** Widened from a Margherita-only literal to `RecipeId` (B2, see the Reference-coverage
    *  report cited above) -- a type-level prerequisite for adding other recipes' References,
    *  not itself new Reference data. */
-  recipeId: RecipeId;
-  sauce: ReferenceSauce;
+  readonly recipeId: RecipeId;
+  readonly sauce: ReferenceSauce;
   /** Phase 4A-1B game-authored prototype layout; never a PIZZA DB quantity claim. */
-  pieceGroups: readonly ReferencePieceGroup[];
+  readonly pieceGroups: readonly ReferencePieceGroup[];
 }
 
 /** Concentric rings (radius, point count) the fixture paints along, staying inside the
