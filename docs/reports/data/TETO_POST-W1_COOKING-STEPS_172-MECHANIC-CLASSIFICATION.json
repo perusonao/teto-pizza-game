@@ -1,0 +1,5476 @@
+{
+ "schemaNote": "Post-W1 Cooking Steps Next-Phase Design (docs-only). Derived, read-only view of the 172 mechanic matrix rows; the matrix JSON stays the evidence authority.",
+ "classRules": {
+  "CURRENT_ENGINE": "no required capability, sauce is one of tomato-sauce/olive-oil/pesto, every ingredient already in src/data/ingredients.ts, CUT per existing allowlist rule",
+  "DATA_ONLY": "no engine change: new ingredient ids, a new single sauce id on the shared paint path, a no-sauce reference (TQ-1B scoring exists; production gated by TQ-1D), or a CUT opt-out",
+  "SMALL_ENGINE": "reuses an existing phase/step/gesture and existing score components; adds a data field plus a guard: DOUGH_VARIANT, STEP_ORDER, ZONED_PLACEMENT, LATE_ADDITION post_bake (after the one-time finalization prerequisite)",
+  "MAJOR": "new gesture, new score component, new geometry, split bake or new phase type: MULTI_SPREAD_LAYER, LATE_ADDITION mid_bake, PAN_BAKE, DOUGH_SHAPE_TARGET, ENCLOSE, PREP_STEP, LAMINATE, FRY_COOK",
+  "AUTHORITY_GAP": "the row cannot be classified from recipe data alone: MECHANIC_INTERPRETATION / EVIDENCE_GAP / SCOPE_QUESTION / BASE_SAUCE_UNSPECIFIED blocker, unresolved sauce, or an unresolved late-addition mode",
+  "precedence": "AUTHORITY_GAP > MAJOR > SMALL_ENGINE > DATA_ONLY > CURRENT_ENGINE"
+ },
+ "summary": {
+  "auditedMainSha": "86b48fd51423a8f76db5398ab88ecfd944e2ae10",
+  "rows": 172,
+  "byClass": {
+   "CURRENT_ENGINE": 15,
+   "DATA_ONLY": 59,
+   "SMALL_ENGINE": 19,
+   "MAJOR": 30,
+   "AUTHORITY_GAP": 49
+  },
+  "authorityGapRowsByUnderlyingMechanicClass": {
+   "CURRENT_ENGINE": 2,
+   "DATA_ONLY": 30,
+   "SMALL_ENGINE": 9,
+   "MAJOR": 7,
+   "AUTHORITY_GAP": 1
+  },
+  "mechanicKeyRowCounts": {
+   "DOUGH_SHAPE_TARGET": 5,
+   "DOUGH_VARIANT": 33,
+   "ENCLOSE": 5,
+   "FRY_COOK": 1,
+   "LAMINATE": 1,
+   "LATE_ADDITION:mid_bake": 3,
+   "LATE_ADDITION:post_bake": 8,
+   "LATE_ADDITION:unresolved:mid_bake|post_bake": 1,
+   "MULTI_SPREAD_LAYER": 17,
+   "NO_CUT_OR_CUT_UNSPECIFIED": 7,
+   "NO_SAUCE": 44,
+   "PAN_BAKE": 8,
+   "PREP_STEP": 3,
+   "STEP_ORDER": 2,
+   "ZONED_PLACEMENT": 1
+  },
+  "runtimeRecipesMatched": [
+   "bambino",
+   "bismarck",
+   "breakfast-pizza",
+   "capricciosa",
+   "fugazza",
+   "genovese",
+   "hawaiian",
+   "margherita",
+   "marinara",
+   "meat-lovers",
+   "melanzane-pizza",
+   "new-haven-apizza",
+   "parmigiana-pizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "pesto-tonno",
+   "pizza-portuguesa",
+   "puttanesca-pizza",
+   "quattro-formaggi",
+   "tonno-e-cipolla"
+  ]
+ },
+ "rows": [
+  {
+   "evidenceId": "bbq-chicken-pizzadb",
+   "nameJa": "BBQチキンピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "LATE_ADDITION:post_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "bbq-sauce"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "cilantro"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "new-sauce:bbq-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "apple-cinnamon-dessert-pizzadb",
+   "nameJa": "アップルシナモンデザートピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified デザートソース base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "calabresa-argentina-pizzadb",
+   "nameJa": "アルゼンチン風カラブレーサ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "vongole-pizzadb",
+   "nameJa": "ヴォンゴレピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "aussie-pizzadb",
+   "nameJa": "オージーピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "capricciosa-pizzadb",
+   "nameJa": "カプリチョーザ（PIZZA DB版）",
+   "runtimeRecipeId": "capricciosa",
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "ZONED_PLACEMENT"
+   ],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "currywurst-pizzadb",
+   "nameJa": "カリーヴルストピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "curry-ketchup"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:curry-ketchup->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "calzone-pizzadb",
+   "nameJa": "カルツォーネ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "ENCLOSE",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "enclosed:fold"
+   },
+   "pan": null,
+   "cut": "serve-whole-no-cut",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "ENCLOSE->MAJOR",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "quattro-stagioni-pizzadb",
+   "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "ZONED_PLACEMENT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "ZONED_PLACEMENT->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "quattro-formaggi-pizzadb",
+   "nameJa": "クアトロフォルマッジ（PIZZA DB版）",
+   "runtimeRecipeId": "quattro-formaggi",
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "grandma-pizza-pizzadb",
+   "nameJa": "グランマピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "greek-style-pizzadb",
+   "nameJa": "グリークスタイルピザ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "fluffy-olive-oil",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": "pan",
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "chicago-deep-dish-pizzadb",
+   "nameJa": "シカゴディープディッシュ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "STEP_ORDER",
+    "PAN_BAKE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": "deep-pan",
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "STEP_ORDER->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "siciliana-pizzadb",
+   "nameJa": "シチリアンピザ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-spongy",
+    "shape": "square",
+    "form": "open-square"
+   },
+   "pan": "pan",
+   "cut": "shape-aware-cut-required",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR",
+    "DOUGH_SHAPE_TARGET->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "sfincione-pizzadb",
+   "nameJa": "スフィンチョーネ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "supreme-pizzadb",
+   "nameJa": "スプリームピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "taco-pizza-pizzadb",
+   "nameJa": "タコピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "salsa"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "lettuce",
+      "tortilla-chips"
+     ],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 5,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:salsa->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "flammkuchen-pizzadb",
+   "nameJa": "タルトフランベ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "fromage-blanc-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:fromage-blanc-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "chilean-napolitana-pizzadb",
+   "nameJa": "チリアンナポリターナ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "trenton-tomato-pie-pizzadb",
+   "nameJa": "トレントントマトパイ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "STEP_ORDER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "STEP_ORDER->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "tonno-e-cipolla-pizzadb",
+   "nameJa": "トンノエチポッラ（PIZZA DB版）",
+   "runtimeRecipeId": "tonno-e-cipolla",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "ALREADY_SHIPPED_CORROBORATED",
+   "reasons": []
+  },
+  {
+   "evidenceId": "new-haven-apizza-pizzadb",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "runtimeRecipeId": "new-haven-apizza",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "ny-style-pizzadb",
+   "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [
+    "SERVE_FORM"
+   ],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin-large-pliable",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "bacalhau-pizzadb",
+   "nameJa": "バカリャウピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "nameJa": "バッファローチキンピザ（PIZZA DB版）",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER",
+    "LATE_ADDITION:post_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "blue-cheese-dressing",
+    "buffalo-sauce"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "buffalo-sauce"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "margherita-pizzadb-row",
+   "nameJa": "マルゲリータ",
+   "runtimeRecipeId": "margherita",
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "pizza-baiana",
+   "nameJa": "ピッツァ・バイアーナ",
+   "runtimeRecipeId": null,
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pizza-a-caballo",
+   "nameJa": "ピッツァ・ア・カバージョ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "ENCLOSE",
+    "NO_SAUCE",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "enclosed:cover-layer"
+   },
+   "pan": null,
+   "cut": "unspecified",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "EVIDENCE_GAP"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "ENCLOSE->MAJOR",
+    "NO_SAUCE->DATA_ONLY",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY",
+    "authority:EVIDENCE_GAP"
+   ]
+  },
+  {
+   "evidenceId": "fugazzeta-rellena",
+   "nameJa": "フガゼッタ・レジェーナ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "ENCLOSE",
+    "NO_SAUCE",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "enclosed:two-sheet"
+   },
+   "pan": null,
+   "cut": "unspecified",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "ENCLOSE->MAJOR",
+    "NO_SAUCE->DATA_ONLY",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "bianca-pizzadb-row",
+   "nameJa": "ピッツァビアンカ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-de-cancha",
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "MULTI_SPREAD_LAYER->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "hawaiian-pizzadb-row",
+   "nameJa": "ハワイアンピザ",
+   "runtimeRecipeId": "hawaiian",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "swedish-kebab-pizza-pizzadb-p4",
+   "nameJa": "スウェディッシュケバブピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホットソース base>",
+    "kebab-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:kebab-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "scacciata-ragusana-pizzadb-p4",
+   "nameJa": "スカッチャラグザーナ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "ENCLOSE",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "enclosed:layered-stack"
+   },
+   "pan": null,
+   "cut": "unspecified",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "ENCLOSE->MAJOR",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+   "nameJa": "スパニッシュチョリソピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+   "nameJa": "スピナッチアーティチョークピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "nameJa": "スペックエブリー",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "nameJa": "スモアデザートピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "LATE_ADDITION:post_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified デザートソース base>"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "graham-cracker"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "st-louis-style-pizza-pizzadb-p4",
+   "nameJa": "セントルイススタイルピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "yeastless-cracker-thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+   "nameJa": "タイチキンピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "peanut-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:peanut-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+   "nameJa": "たらこクリームピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "LATE_ADDITION:mid_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "fresh-cream-sauce"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "mid_bake",
+     "ingredients": [
+      "cod-roe"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "LATE_ADDITION:mid_bake->MAJOR",
+    "new-sauce:fresh-cream-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "argentine-napolitana-pizzadb-p1",
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+   "nameJa": "いくらとサーモンのピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "nameJa": "ヴィーガンカシューチーズピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "eel-pizza-pizzadb-p1",
+   "nameJa": "うなぎピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "AUTHORITY_GAP",
+   "mechanicKeys": [
+    "LATE_ADDITION:unresolved:mid_bake|post_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified 甘辛だれ base>"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "unresolved:mid_bake|post_bake",
+     "ingredients": [
+      "eel"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "LATE_ADDITION:unresolved:mid_bake|post_bake->AUTHORITY_GAP",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED+MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "jerusalem-mixed-grill-pizza-pizzadb-p1",
+   "nameJa": "エルサレムミックスグリルピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "old-forge-style-pizza-pizzadb-p1",
+   "nameJa": "オールドフォージスタイルピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "medium-thick",
+    "shape": "square",
+    "form": "open-square"
+   },
+   "pan": "sheet-pan",
+   "cut": "shape-aware-cut-required",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR",
+    "DOUGH_SHAPE_TARGET->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "nameJa": "お好み焼き風ピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "mayo",
+    "okonomiyaki-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 5,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "caponata-pizza-pizzadb-p2",
+   "nameJa": "カポナータピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "california-style-pizza-pizzadb-p2",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "cauliflower-crust-pizza-pizzadb-p2",
+   "nameJa": "カリフラワークラストピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "material-cauliflower",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "curry-pizza-japan-pizzadb-p2",
+   "nameJa": "カレーピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed_unresolved",
+   "spreadLayers": [
+    "カレーソース"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:カレーソース->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:SAUCE_LISTED_UNRESOLVED"
+   ]
+  },
+  {
+   "evidenceId": "keema-pizza-pizzadb-p2",
+   "nameJa": "キーマピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified カレー base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "kimchi-pizza-pizzadb-p2",
+   "nameJa": "キムチピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "PREP_STEP"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホットソース base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "PREP_STEP->MAJOR",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "cuban-pizza-pizzadb-p2",
+   "nameJa": "キューバンピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "mustard"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:mustard->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "quad-cities-style-pizza-pizzadb-p2",
+   "nameJa": "クアッドシティーズスタイルピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "malt-thin-crisp",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "goulash-pizza-pizzadb-p3",
+   "nameJa": "グヤーシュピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "colorado-mountain-pie-pizzadb-p3",
+   "nameJa": "コロラドマウンテンパイ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "honey-thick",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "EVIDENCE_GAP"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "authority:EVIDENCE_GAP"
+   ]
+  },
+  {
+   "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+   "nameJa": "サルシッチャエフリアリエッリ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+   "nameJa": "シカゴスタッフドピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "ENCLOSE",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick",
+    "shape": "round",
+    "form": "enclosed:two-sheet"
+   },
+   "pan": null,
+   "cut": "unspecified",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "ENCLOSE->MAJOR",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "potato-mayo-pizza-pizzadb-p3",
+   "nameJa": "じゃがマヨピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホワイトソース base>",
+    "mayo"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:mayo->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "jamaican-jerk-chicken-pizza-pizzadb-p3",
+   "nameJa": "ジャマイカンジャークチキンピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "shirasu-pizza-pizzadb-p3",
+   "nameJa": "しらすピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",
+   "nameJa": "タンドリーパニールピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified カレー base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "chicken-tikka-pizza-pizzadb-p5",
+   "nameJa": "チキンティッカピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified カレー base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "nameJa": "ディアボラ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "detroit-style-pizza-pizzadb-p5",
+   "nameJa": "デトロイトスタイルピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "LATE_ADDITION:post_bake",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "tomato-sauce"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "dough": {
+    "variant": "thick-crisp-bottom",
+    "shape": "square",
+    "form": "open-square"
+   },
+   "pan": "steel-pan",
+   "cut": "shape-aware-cut-required",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR",
+    "DOUGH_SHAPE_TARGET->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "turkish-pide-pizzadb-p5",
+   "nameJa": "トルコピデ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "fluffy",
+    "shape": "boat",
+    "form": "open-boat"
+   },
+   "pan": null,
+   "cut": "shape-aware-cut-required",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "DOUGH_SHAPE_TARGET->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "nigerian-suya-pizza-pizzadb-p5",
+   "nameJa": "ナイジェリアンスヤピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "eggplant-tahini-pizza-pizzadb-p5",
+   "nameJa": "ナスとタヒニのピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tahini"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:tahini->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "nameJa": "ナスとリコッタのピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "eggplant-dengaku-pizza-pizzadb-p6",
+   "nameJa": "ナス田楽ピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "miso-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:miso-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "nashville-hot-chicken-pizza-pizzadb-p6",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホットソース base>",
+    "honey"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:honey->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+   "nameJa": "ニューイングランドバーピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin-crisp",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": "shallow-pan",
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "nameJa": "ニュージーランドラムピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "nameJa": "ヌテラデザートピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "LATE_ADDITION:post_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "nutella-spread"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "powdered-sugar"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "new-sauce:nutella-spread->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "baingan-bharta-pizza-pizzadb-p6",
+   "nameJa": "バインガンバルタピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified カレー base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "banh-mi-pizza-pizzadb-p6",
+   "nameJa": "バインミーピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "buffalo-cauliflower-pizza-pizzadb-p6",
+   "nameJa": "バッファローカリフラワーピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホットソース base>",
+    "blue-cheese-dressing"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:blue-cheese-dressing->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+   "nameJa": "ババガヌーシュピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "nameJa": "ハモンセラーノピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "palmitos-salsa-golf-pizzadb-p7",
+   "nameJa": "パルミートス・イ・サルサ・ゴルフ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "parmigiana-pizza-pizzadb-p7",
+   "nameJa": "パルミジャーナピザ",
+   "runtimeRecipeId": "parmigiana-pizza",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "palmito-pizza-pizzadb-p7",
+   "nameJa": "パルミットピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "bambino-pizzadb-p7",
+   "nameJa": "バンビーノ",
+   "runtimeRecipeId": "bambino",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "generic",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "piadina-romagnola-pizzadb-p7",
+   "nameJa": "ピアディーナ・ロマニョーラ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "flatbread-unleavened",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-overload-pizzadb-p7",
+   "nameJa": "ピザオーバーロード",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-salad-pizzadb-p7",
+   "nameJa": "ピザサラダ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "yogurt-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "bismarck-pizza-pizzadb-p7",
+   "nameJa": "ビスマルク",
+   "runtimeRecipeId": "bismarck",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "ZONED_PLACEMENT"
+   ],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "generic",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+   "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "roman",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "roman",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-puntarelle-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "roman",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "balsamic-vinegar",
+    "olive-oil"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "pizza-chilena-pizzadb-p8",
+   "nameJa": "ピッツァ・チレーナ",
+   "runtimeRecipeId": null,
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pizza-portuguesa-pizzadb-p9",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "runtimeRecipeId": "pizza-portuguesa",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pizza-romana-pizzadb-p9",
+   "nameJa": "ピッツァ・ロマーナ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "roman-thin-crisp",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-alla-norma-pizzadb-p9",
+   "nameJa": "ピッツァアッラノルマ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+   "nameJa": "ピッツァアルタリオローマーナ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "long-ferment",
+    "shape": "square",
+    "form": "open-square"
+   },
+   "pan": "tray",
+   "cut": "shape-aware-cut-required",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR",
+    "DOUGH_SHAPE_TARGET->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+   "nameJa": "ピッツァフェッタエッリニキ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-fritta-pizzadb-p9",
+   "nameJa": "ピッツァフリッタ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "FRY_COOK",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "unspecified",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "FRY_COOK->MAJOR",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-moscow-pizzadb-p9",
+   "nameJa": "ピッツァモスクワ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pinsa-romana-pizzadb-p9",
+   "nameJa": "ピンサロマーナ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "material-multigrain-long-ferment",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "fathead-pizza-keto-pizzadb-p9",
+   "nameJa": "ファットヘッドピザ（ケト風）",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "material-keto-mozzarella-almond",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE"
+   ]
+  },
+  {
+   "evidenceId": "philly-cheesesteak-pizza-pizzadb-p9",
+   "nameJa": "フィリーチーズステーキピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "チーズソース"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-sauce:チーズソース->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "poutine-pizza-pizzadb-p10",
+   "nameJa": "プーティンピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "gravy-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "new-sauce:gravy-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "feteer-meshaltet-pizzadb-p10",
+   "nameJa": "フェテイールメシャルテル",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER",
+    "LAMINATE",
+    "NO_CUT_OR_CUT_UNSPECIFIED"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified デザートソース base>",
+    "honey",
+    "melted-butter"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": null,
+    "shape": "round",
+    "form": "laminated-pastry"
+   },
+   "pan": null,
+   "cut": "unspecified",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "SCOPE_QUESTION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "LAMINATE->MAJOR",
+    "NO_CUT_OR_CUT_UNSPECIFIED->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED+SCOPE_QUESTION"
+   ]
+  },
+  {
+   "evidenceId": "focaccia-genovese-pizzadb-p10",
+   "nameJa": "フォカッチャジェノヴェーゼ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "flatbread-focaccia-thick",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "SCOPE_QUESTION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY",
+    "authority:SCOPE_QUESTION"
+   ]
+  },
+  {
+   "evidenceId": "fugazza-pizzadb-p10",
+   "nameJa": "フガザ",
+   "runtimeRecipeId": "fugazza",
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED",
+    "DISCOVERY_COLLISION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "fugazzetta-pizzadb-p10",
+   "nameJa": "フガゼッタ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick-fluffy",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "DISCOVERY_COLLISION"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "puttanesca-pizza-pizzadb-p10",
+   "nameJa": "プッタネスカ",
+   "runtimeRecipeId": "puttanesca-pizza",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "burrata-pizza-pizzadb-p10",
+   "nameJa": "ブラータピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "runtimeRecipeId": null,
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": []
+  },
+  {
+   "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "frango-catupiry-pizzadb-p10",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "full-english-pizza-pizzadb-p10",
+   "nameJa": "フルイングリッシュピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "fruit-dessert-pizza-pizzadb-p11",
+   "nameJa": "フルーツデザートピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified デザートソース base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "material-cookie",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "bulgogi-pizza-pizzadb-p11",
+   "nameJa": "プルコギピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified 甘辛だれ base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "frutti-di-mare-pizzadb-p11",
+   "nameJa": "フルッティディマーレ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "breakfast-pizza-pizzadb-p11",
+   "nameJa": "ブレックファーストピザ",
+   "runtimeRecipeId": "breakfast-pizza",
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed_unresolved",
+   "spreadLayers": [
+    "ホワイトソース"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:ホワイトソース->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:SAUCE_LISTED_UNRESOLVED"
+   ]
+  },
+  {
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "nameJa": "プロシュットフンギ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "veggie-supreme-pizza-pizzadb-p11",
+   "nameJa": "ベジースプリームピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin-to-medium",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pescatore-pizzadb-p11",
+   "nameJa": "ペスカトーレ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-caprese-pizzadb-p11",
+   "nameJa": "ペストカプレーゼピザ",
+   "runtimeRecipeId": "pesto-caprese",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "nameJa": "ペストガンベリピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-salmone-pizzadb-p11",
+   "nameJa": "ペストサーモンピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-genovese-pizza-pizzadb-p11",
+   "nameJa": "ペストジェノヴェーゼピザ",
+   "runtimeRecipeId": "genovese",
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-trapanese-pizzadb-p11",
+   "nameJa": "ペストトラパネーゼピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-tonno-pizzadb-p12",
+   "nameJa": "ペストトンノピザ",
+   "runtimeRecipeId": "pesto-tonno",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pesto-noci-pizzadb-p12",
+   "nameJa": "ペストノーチピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto",
+    "honey"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-patate-pizzadb-p12",
+   "nameJa": "ペストパターテピザ",
+   "runtimeRecipeId": "pesto-patate",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "pesto-burrata-pizzadb-p12",
+   "nameJa": "ペストブラータピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "nameJa": "ペストベジタリアーナピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "nameJa": "ペストポッロピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "venezuelan-reina-pepiada-pizzadb-p12",
+   "nameJa": "ベネズエラレイナペピアーダピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホワイトソース base>",
+    "mayo"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:mayo->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホットソース base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "polish-kielbasa-pizzadb-p12",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "boscaiola-pizzadb-p12",
+   "nameJa": "ボスカイオーラ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "generic",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+   "nameJa": "ホットハニーペパロニピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "honey"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "honey"
+     ],
+     "strength": "repo_inference"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "porchetta-pizza-pizzadb-p12",
+   "nameJa": "ポルケッタピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "natto-pizza",
+   "nameJa": "納豆ピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "LATE_ADDITION:mid_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "mid_bake",
+     "ingredients": [
+      "natto"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "LATE_ADDITION:mid_bake->MAJOR",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "sweet-bean-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "new-sauce:sweet-bean-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "mentaiko-mochi-pizza",
+   "nameJa": "明太子もちピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホワイトソース base>",
+    "mayo"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 5,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:mayo->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "manakish",
+   "nameJa": "マナキーシュ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "DOUGH_VARIANT"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "flatbread-pita-soft",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY_WITH_REVIEW",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "yuzu-shrimp-pizza",
+   "nameJa": "柚子えびピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "yuzu-kosho"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:yuzu-kosho->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "wasabi-beef-pizza",
+   "nameJa": "わさび牛ピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "LATE_ADDITION:post_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "soy-sauce"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "wasabi"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "new-sauce:soy-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "sichuan-eggplant-pizza",
+   "nameJa": "四川風ナスピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "doubanjiang"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-sauce:doubanjiang->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "yakiniku-pizza",
+   "nameJa": "焼肉ピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "PREP_STEP"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "yakiniku-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "PREP_STEP->MAJOR",
+    "new-sauce:yakiniku-sauce->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "pizza-de-lomo-saltado",
+   "nameJa": "ロモ・サルタード・ピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "PREP_STEP",
+    "LATE_ADDITION:mid_bake"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "mid_bake",
+     "ingredients": [
+      "french-fries"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "PREP_STEP->MAJOR",
+    "LATE_ADDITION:mid_bake->MAJOR",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "lahmacun",
+   "nameJa": "ラフマジュン",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [
+    "LATE_ADDITION",
+    "SERVE_FORM"
+   ],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "source_profile_text_context_only"
+    }
+   ],
+   "dough": {
+    "variant": "flatbread-ultra-thin-crisp",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "MULTI_SPREAD_LAYER->MAJOR",
+    "new-ingredients->DATA_ONLY",
+    "authority:MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "evidenceId": "porcini-pizza-pizzadb-p13",
+   "nameJa": "ポルチーニ茸のピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "marinara-pizza-pizzadb-p13",
+   "nameJa": "マリナーラ",
+   "runtimeRecipeId": "marinara",
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "MULTI_SPREAD_LAYER->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "meat-lovers-pizza-pizzadb-p13",
+   "nameJa": "ミートラバーズピザ",
+   "runtimeRecipeId": "meat-lovers",
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin-to-medium",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "moussaka-style-pizza-pizzadb-p13",
+   "nameJa": "ムサカ風ピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed_unresolved",
+   "spreadLayers": [
+    "ホワイトソース"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:ホワイトソース->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:SAUCE_LISTED_UNRESOLVED"
+   ]
+  },
+  {
+   "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+   "nameJa": "メキシカンエロテピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホワイトソース base>",
+    "mayo"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 4,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:mayo->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "melanzane-pizza-pizzadb-p13",
+   "nameJa": "メランザーネピザ",
+   "runtimeRecipeId": "melanzane-pizza",
+   "class": "CURRENT_ENGINE",
+   "mechanicClassIfAuthorityResolved": "CURRENT_ENGINE",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": []
+  },
+  {
+   "evidenceId": "montreal-style-pizza-pizzadb-p13",
+   "nameJa": "モントリオールスタイルピザ",
+   "runtimeRecipeId": null,
+   "class": "MAJOR",
+   "mechanicClassIfAuthorityResolved": "MAJOR",
+   "mechanicKeys": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "listed",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thick",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": "deep-pan",
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "DOUGH_VARIANT->SMALL_ENGINE",
+    "PAN_BAKE->MAJOR"
+   ]
+  },
+  {
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "nameJa": "ラタトゥイユピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 2,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "rucola-e-grana-pizzadb-p13",
+   "nameJa": "ルーコラエグラーナピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "family_derived",
+   "spreadLayers": [
+    "tomato-sauce"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "rendang-pizza-pizzadb-p14",
+   "nameJa": "ルンダンピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified カレー base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "nduja-pizza-pizzadb-p14",
+   "nameJa": "ンドゥイヤピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified ホットソース base>",
+    "honey"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:honey->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "tsukimi-pizza-pizzadb-p14",
+   "nameJa": "月見ピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [],
+   "matrixStatus": "READY",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "nameJa": "黒トリュフピザ",
+   "runtimeRecipeId": null,
+   "class": "SMALL_ENGINE",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "LATE_ADDITION:post_bake",
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "truffle"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "dough": {
+    "variant": "neapolitan",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "NO_SAUCE->DATA_ONLY",
+    "new-ingredients->DATA_ONLY"
+   ]
+  },
+  {
+   "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+   "nameJa": "照り焼きチキンピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "SMALL_ENGINE",
+   "mechanicKeys": [
+    "LATE_ADDITION:post_bake"
+   ],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified 甘辛だれ base>",
+    "mayo"
+   ],
+   "lateAdditions": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "mayo",
+      "nori"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "LATE_ADDITION:post_bake->SMALL_ENGINE",
+    "new-sauce:mayo->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "south-african-boerewors-pizzadb-p14",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified 甘辛だれ base>",
+    "chutney"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 1,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-sauce:chutney->DATA_ONLY",
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "ume-shiso-pizza-pizzadb-p14",
+   "nameJa": "梅しそピザ",
+   "runtimeRecipeId": null,
+   "class": "AUTHORITY_GAP",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "unspecified",
+   "spreadLayers": [
+    "<unspecified その他 base>"
+   ],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 3,
+   "matrixBlockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "new-ingredients->DATA_ONLY",
+    "authority:BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "evidenceId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "nameJa": "北海道チーズピザ",
+   "runtimeRecipeId": null,
+   "class": "DATA_ONLY",
+   "mechanicClassIfAuthorityResolved": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "candidateOnlyCapabilities": [],
+   "sauceStatus": "none",
+   "spreadLayers": [],
+   "lateAdditions": [],
+   "dough": {
+    "variant": "thin",
+    "shape": "round",
+    "form": "open-round"
+   },
+   "pan": null,
+   "cut": "existing-round-cut-optional",
+   "newIngredientCount": 0,
+   "matrixBlockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "matrixStatus": "BLOCKED_PRODUCT_DECISION",
+   "reasons": [
+    "NO_SAUCE->DATA_ONLY"
+   ]
+  }
+ ]
+}
