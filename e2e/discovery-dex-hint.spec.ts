@@ -109,12 +109,18 @@ async function checkSheet(page: Page, driver: ProfileDriver, browserName: string
     const vp = await readViewport(page);
     const m = await page.evaluate(() => {
       const s = document.querySelector(".hint-sheet")!.getBoundingClientRect();
-      const cta = (document.querySelector(".hint-sheet__next") ?? document.querySelector(".hint-sheet__done"))!.getBoundingClientRect();
-      return { scrollWidth: document.documentElement.scrollWidth, top: s.top, bottom: s.bottom, ctaBottom: cta.bottom };
+      const cta = (
+        document.querySelector(".hint-sheet__entry") ??
+        document.querySelector(".hint-sheet__next") ??
+        document.querySelector(".hint-sheet__done")
+      )!.getBoundingClientRect();
+      const u3 = document.querySelector(".hint-sheet")!.classList.contains("hint-sheet--u3");
+      return { scrollWidth: document.documentElement.scrollWidth, u3, top: s.top, height: s.height, bottom: s.bottom, ctaBottom: cta.bottom };
     });
     const where = `${label} @${profile.id}`;
     expect.soft(m.scrollWidth, `${where}: overflow`).toBeLessThanOrEqual(vp.innerWidth);
-    expect.soft(m.top, `${where}: sheet below the top safe area (OD-DH4-2-7)`).toBeGreaterThanOrEqual(vp.sat - 0.5);
+    if (m.u3) expect.soft(m.top, `${where}: sheet below the top safe area + the app header (OD-DH4-2-7)`).toBeGreaterThanOrEqual(vp.sat + 56 - 0.5);
+    else expect.soft(m.height, `${where}: sheet <= 45dvh`).toBeLessThanOrEqual(vp.innerHeight * 0.45 + 1);
     expect.soft(m.bottom, `${where}: sheet in viewport`).toBeLessThanOrEqual(vp.innerHeight + 0.5);
     expect.soft(m.ctaBottom, `${where}: CTA above the inset`).toBeLessThanOrEqual(vp.innerHeight - vp.sab + 0.5);
     expect.soft(await rects(page), `${where}: Free Cooking unmoved`).toEqual(closed.get(profile.id));
@@ -164,12 +170,20 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     // Discovery Hint 3.0 (Issue #238, H3-3): the Selectable sheet. The free key (capricciosa's
     // oregano) is shown from H0; the recipe itself is never named.
     await expect(sheet.locator(".hint-sheet__chip")).toContainText(["オレガノ"]);
-    await sheet.locator(".hint-sheet__next").click();
+    // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; 「たずねる」 on the 材料 card asks.
+    const ask = async () => {
+      await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
+      const cta = sheet.locator('.hint-sheet__card[data-hint-family="material"] .hint-sheet__next');
+      await expect(cta).not.toHaveAttribute("aria-disabled", "true");
+      await cta.click();
+    };
+    await ask();
     await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(2);
     await checkSheet(page, driver, browserName, "one fact", closed);
     await capture(page, "d3-one-fact");
-    await sheet.locator(".hint-sheet__next").click();
-    await sheet.locator(".hint-sheet__next").click();
+    await ask();
+    await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(3);
+    await ask();
     await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(4);
     await checkSheet(page, driver, browserName, "three facts", closed);
     await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet three facts");

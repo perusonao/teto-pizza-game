@@ -1,111 +1,158 @@
 # Discovery Hint 4.0 — DH4-2C: U3-C Hint Sheet UI (Result)
 
-> **Status:** Implementation, DH4-2C slice (OD-DH4-2-11 / audit §20). Part of #253. It builds on DH4-2B (#277, PR #278).
+> **Status:** Implementation of the DH4-2C slice (OD-DH4-2-11 / audit §20). Issue #283, PR #284, part of #253. It builds on DH4-2B (#277, PR #278, merged `e21fbc2`).
 >
-> **Scope:** the U3-C Hint Sheet (OD-DH4-2-6…10) and its near-full-screen layout. It covers `HintSheet.tsx`, `.hint-sheet*` CSS, the App / GameScreen plumbing, and the hint e2e contracts.
+> **Scope:** the U3-C Hint Sheet (OD-DH4-2-6…10) and its Layout C (audit §11 / §12). This covers `HintSheet.tsx`, the `.hint-sheet*` CSS, the App / GameScreen plumbing, the hint tests, and the e2e contracts.
 >
-> **Not changed:**
-> - the runtime, the economy and persistence;
-> - the Deduction Hint authority;
-> - the taxonomy;
-> - Dinner Mission, CUT, Wave 2 and the catalog.
+> **Unchanged:** the runtime, economy and persistence; the Deduction Hint authority; the taxonomy; Dinner Mission, CUT, Wave 2 and the catalog.
 >
-> **What is visible where:**
-> - **Production:** the 構成 / 特徴 cards stay hidden, because `DEDUCTION_HINTS_ENABLED` is false and `deduction` is `null`. Production players see the new 材料 layout only.
+> **Flag behaviour:**
+> - **Production** (`DEDUCTION_HINTS_ENABLED` false, `deduction` null): only the 材料 card is shown, in the new layout.
 > - **DEV / Preview:** all three cards are shown.
+>
+> **Merge gate:** not merged before the Owner's iPhone Human Verification on Preview.
 
 ## 1. What the sheet is now
 
-The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「答えを買うUI」:
-- The board shows only what this player already learned.
-- A question card asks for one more fact.
+The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「答えを買うUI」.
+- The **board** shows only what this player already learned.
+- **「ヒントをもらう」** opens a transient **family panel**, where each card asks one question.
 - Nothing on screen says what is left, how precise the next answer will be, or how many candidates remain.
+
+### Board (default step)
 
 | Part | Content | Decision |
 |---|---|---|
-| Header (fixed) | 💡 ヒント · 閉じる (≥ 44 px) | — |
-| Caption | The H0 existence line (`existenceText`) | — |
-| **「わかっていること」 board (scrolls)** | **材料:** chips grouped by category; an empty category is omitted.<br>**構成:** the player's own `structureLines`.<br>**特徴:** the player's own `attributeLines`.<br>**以前のヒント:** the Economy 1.0 archive, verbatim.<br>After a GUIDANCE_ONLY outcome, the guidance line. | OD-DH4-2-6, OD-DH4-2-8 (no 「？」 rows), OD-DH4-2-10 |
-| Scroll cue | 「▾ 下にもヒントがあるよ」 + fade, only while content is below | OD-DH4-2-7 |
-| **Footer (fixed)** | The 「ヒントをもらう」 family radio group: 材料 / 構成 / 特徴. 構成 and 特徴 appear only when `deduction` is non-null. The group is followed by one question card. | OD-DH4-2-6 |
-| 材料 card | 「材料の名前を1つ教えるよ」.<br>Preference chips: おまかせ (= the existing fallback, sauce first) / ソース / チーズ / トッピング.<br>Note: 「えらんだジャンルに無いときは、ほかのジャンルから教えるよ」. | OD-DH4-2-9 |
-| 構成 card | 「材料の数を教えるよ」 | OD-DH4-2-9 |
-| 特徴 card | 「まだわからない材料の「なかま」を教えるよ」 | OD-DH4-2-9 |
-| CTA | 「たずねる ｜ n Pitz」.<br>At the cap: 「たずねる ｜ 支払いずみ」, still enabled (OD-H3-4-1 parity).<br>A deduction family already bought: 「✓ もらいずみ」, disabled. | OD-DH4-2-9 |
-| Wallet line | 「Pitzはヒントが出たときだけ使うよ」 / 「今回はPitzを使っていないよ」 / the cap note / 所持 n Pitz / 「Pitzがたまったら、またためしてね。このまま作ってもOK！」 | OD-H3-4-2, P3-5 of #278 |
+| **Header** (fixed) | 💡 ヒント · 閉じる (≥ 44 px) | — |
+| **Caption** | The H0 existence line (`existenceText`) | audit §13 |
+| **「わかっていること」** (the one scroll area) | - **材料:** chips grouped by category. An empty category is omitted; there are **no 「？」 rows**.<br>- **構成** and **特徴:** the player's own `structureLines` / `attributeLines`.<br>- **以前のヒント:** the Economy 1.0 archive, verbatim, at the end.<br>- After 材料 guidance, the generic guidance line. | OD-DH4-2-6/8/10 |
+| **Scroll cue** | A 「▾ 下にもヒントがあるよ」 pill (≥ 24 px) plus a fade, only while content is below | OD-DH4-2-7, audit §11 |
+| **Footer** (fixed, **compact**) | - **「ヒントをもらう」**: one 44 px button, no price.<br>- **One Pitz line:** 「所持 n Pitz ・ Pitzはヒントが出たときだけ使うよ」. | OD-DH4-2-7: the persistent footer holds one CTA row and one Pitz line, and the choices live in a transient step |
 
-**No-charge outcomes.** Each is shown only on its own family's card (P3-2 of #278), with no charge:
+### Family panel (transient; it replaces the board and the footer)
 
-| Family | Outcome | Line shown |
-|---|---|---|
-| 材料 | GUIDANCE_ONLY | 「材料ヒントはここまで（Pitzは使っていないよ）」 + 「構成・特徴のヒントもあるよ」 while a deduction family is unbought |
-| 構成 | GUIDANCE_ONLY / ALREADY_OWNED | 「今は新しくわかることがなかったよ（Pitzは使っていないよ）」 |
-| 特徴 | EXISTENCE_ONLY / ALREADY_OWNED | 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）」 |
+| Part | Content |
+|---|---|
+| Head | 「‹ もどる」 (44 px), then the title 「ヒントをもらう」 |
+| **材料 card** (always) | 「材料ヒント — 材料の名前を1つ教えるよ」.<br>Preference chips: おまかせ (the existing sauce-first fallback) / ソース / チーズ / トッピング.<br>Notes: 「えらんだジャンルに無いときは、ほかのジャンルから教えるよ」 and 「もう教えられる材料がないときは、Pitzは使わないよ」 (audit §14). |
+| **構成 card** (flag on) | 「構成ヒント — 材料の数を教えるよ」 |
+| **特徴 card** (flag on) | 「特徴ヒント — まだわからない材料の「なかま」を教えるよ」 |
+| Each card's button | - 「たずねる ｜ n Pitz」.<br>- 「たずねる ｜ 支払いずみ」 at the cap: enabled, with the card note 「このピザのヒント代は上限まで支払いずみ」 (OD-H3-4-1 parity).<br>- 「✓ もらいずみ」, disabled, when the player's own ledger owns it.<br>- When the balance is short, it is disabled, and a calm line appears under it: 「Pitzがたまったら、またためしてね。このまま作ってもOK！」. |
+| Scroll cue | 「▾ 下にもつづくよ」, only while the cards scroll (see §2) |
+| Pitz line | The same line as on the board |
 
-**Anti-spoiler.** Every string above comes from the view, which is the player's own ledger, price, balance and last outcome, or is the same for every target. The DOM, `aria-*` and `data-*` carry:
-- no recipe name / id / image;
-- no availability;
-- no level;
-- no candidate count.
+### After a request
 
-The `HintSheet.test.tsx` anti-spoiler sweep covers the new sheet.
+| Result | What the sheet does |
+|---|---|
+| **An answer** (a new 材料 chip or 構成 / 特徴 line) | - The sheet returns to the board.<br>- The new fact is highlighted and scrolled into view.<br>- Focus moves to 「ヒントをもらう」. |
+| **A no-charge outcome** (audit §15) | - It stays on its own card, as a `role="status"` line, and that card is disabled **for the rest of this sheet session**. Another family's answer never re-arms it.<br>- Focus moves to もどる.<br>- **材料:** 「材料ヒントはここまで（Pitzは使っていないよ）」, followed by 「構成・特徴のヒントもあるよ」 while one of those is unowned in the player's own ledger.<br>- **構成:** 「今は新しくわかることがなかったよ（Pitzは使っていないよ）」.<br>- **特徴:** 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）。材料がふえると、わかることがあるかも」 (audit §8 D). |
 
-## 2. Layout (OD-DH4-2-7 / OD-DH4-2-8, Layout C)
+**Focus.** Opening the sheet focuses 「ヒントをもらう」. Opening the panel focuses the first open 「たずねる」, or もどる if there is none. A preference change never moves focus.
 
-The OD-H3-4-7 `45dvh` cap is superseded:
-- `.hint-sheet--u3` is near full height: `calc(100dvh - 16px - env(safe-area-inset-top))`.
-- The header and footer are fixed, the board scrolls, and the footer is compact.
-- `env(safe-area-inset-bottom)` padding is kept.
-- The sheet is `position: fixed`, so the cooking stage underneath neither moves nor shrinks.
+**Anti-spoiler.** Every string comes either from the view (the player's own ledger, the price, the balance, the outcome of the request just made) or is the same for every target. The DOM, `aria-*` and `data-*` carry no recipe name / id / image, no availability, no level and no candidate count. The unit sweeps (every recipe × every legacy level, and every target's panel) and the e2e `expectNoUndiscoveredIdentity` pin this.
 
-**e2e contract (`e2e/discovery-hint-sheet.spec.ts`, every profile):**
-- the sheet top ≥ the safe-area top;
-- every control ≥ 44 px (family radios, preference chips, CTA, 閉じる);
+**Legacy total** (`deduction.legacyStructure`). It stays in the 「以前のヒント」 archive only, as the DH4-2B `deductionKnownLines` doc comment describes. The 構成 card stays requestable, because a legacy total owner may still buy the topping-count clause (audit §7). **Reason:** a derived 構成 line tagged 「以前のヒント」 (audit §16) would repeat the archive line on a short screen. This is recorded for Owner HV.
+
+## 2. Layout C (OD-DH4-2-7, audit §11 / §12) — measured
+
+**Sheet:**
+- It is sized by `height: auto`, up to `100dvh − 56px − env(safe-area-inset-top)`, so the app header stays visible. This supersedes the OD-H3-4-7 45dvh cap for the SELECTABLE sheet only; the Dex-0 onboarding and the empty sheets keep 45dvh.
+- It is `position: fixed`, so the cooking stage underneath neither moves nor shrinks.
+
+**Measured in Chromium** at 1× device-pixel ratio (DPR 1). All heights are in px; "a / b" means visible / content.
+
+| State | N390 | N360 | S390 (390×664) | S360 (360×640) | P390i (390×844 + SA) | E390i (390×664 + SA) | E360i (360×640 + SA) |
+|---|---|---|---|---|---|---|---|
+| Footer (compact) | 74 | 74 | 74 | 74 | 74 | 74 | 74 |
+| F fresh: board | 87 / 87 | 87 / 87 | 87 / 87 | 87 / 87 | 87 / 87 | 87 / 87 | 87 / 87 |
+| K all 材料 facts: board | 171 / 171 | 171 / 171 | 171 / 171 | 171 / 171 | 171 / 171 | 171 / 171 | 171 / 171 |
+| N longest, flag on (材料 + 構成 + 特徴): board | 326 / 326 | 326 / 326 | 326 / 326 | 326 / 326 | 326 / 326 | 326 / 326 | 326 / 326 |
+| L legacy + all facts + guidance: board | 313 / 313 | 313 / 313 | 313 / 313 | 313 / 313 | 313 / 313 | 313 / 313 | 313 / 313 |
+| Panel, flag on (3 cards): cards | 404 / 404 | 421 / 421 | 404 / 404 | 421 / 421 | 404 / 404 | **378 / 404** (cue) | **354 / 421** (cue) |
+| Panel, production (材料 only): cards | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 |
+
+- **Board:** it never scrolls in any measured state, at any profile. The typical and the longest boards fit even at 360×640 + safe area.
+- **Capacity bars:**
+  - CAP-2 (board ≥ min(150, content)) holds everywhere.
+  - CAP-3 (board ≥ min(footer + bottom safe area, content)) holds everywhere.
+  - The footer is compact (≤ 80 px).
+- **Panel:** it fits without scrolling on 5 of 7 profiles. At 390×664 and 360×640 with the safe area, the cards scroll by 26 / 67 px, with the 「▾ 下にもつづくよ」 pill. The panel head and the Pitz line stay fixed.
+
+**e2e contract.** `e2e/discovery-hint-sheet.spec.ts` checks every state on every profile. The profiles are all 7 on Chromium, and N390 / S390 / N360 / S360 on WebKit in CI. The checks:
 - no horizontal overflow;
-- the board's visible height ≥ min(150 px, its content), which is CAP-2;
-- the cue matches the real scroll state;
-- the background is unmoved.
-
-**Profiles:**
-- Chromium runs all 7 profiles: N390, N360, S390, S360, P390i, E390i and E360i.
-- WebKit runs N390, S390, N360 and S360 in CI.
+- **SELECTABLE sheets:** the sheet top ≥ safe-area top + 56;
+- **other sheets:** height ≤ 45dvh;
+- the sheet inside the viewport;
+- 「ヒントをもらう」 / 閉じる / every panel control ≥ 44 px and inside the sheet's width;
+- the compact footer ≤ 80 px;
+- CAP-2 and CAP-3;
+- both scroll cues match the real scroll state;
+- the background is unmoved;
+- focus returns to 「ヒント」 on close.
 
 ## 3. Screenshots
 
 **Before** (the H3-4 sheet): `docs/reports/screenshots/dh4-2-pre-audit/before-*.png`.
 
-**After** (this PR): `docs/reports/screenshots/dh4-2c-u3-sheet/after-*.png`.
+**After:** `docs/reports/screenshots/dh4-2c-u3-sheet/`.
+- `after-*` files are the DEV / Preview build (flag on).
+- `prod-*` files are a production build (flag off), served with `vite preview`. That is what production players will see.
 
-**Profile codes in the file names** (`e2e/support/layoutProfiles.ts`):
+**Profiles** (`e2e/support/layoutProfiles.ts`; SA = safe area):
+- N390 = 390×844;
+- N360 = 360×800;
+- S390 = 390×664;
+- S360 = 360×640;
+- P390i = 390×844 + SA;
+- E360i = 360×640 + SA;
+- the SA inset is top 47 / bottom 34.
 
-| Code | Viewport | Safe-area inset |
-|---|---|---|
-| N390 | 390×844 | none |
-| N360 | 360×800 | none |
-| S390 | 390×664 | none |
-| S360 | 360×640 | none |
-| P390i | 390×844 | top 47 / bottom 34 |
-| E360i | 360×640 | top 47 / bottom 34 |
-
-| State | Before | After |
-|---|---|---|
-| F — fresh (the free key only) | `before-F-fresh_E360i` | `after-F-fresh_{E360i,N390,N360}` |
-| K — all 材料 facts + legacy archive | `before-K-all-facts_{E360i,N360,N390,P390i,S360,S390}` | `after-K-all-facts_{E360i,N360,N390,P390i,S360,S390}` |
-| L — legacy guidance | `before-L-legacy-guidance_P390i` | `after-L-legacy-guidance_P390i` |
-| M — 構成 card (Preview flag) | — (new) | `after-M-structure-card_N390` |
-| M — 構成 + 特徴 answered (Preview flag) | — (new) | `after-M-deduction-answered_{N390,N360,S390,S360}` |
+| State | Before | After (flag on) | Production (flag off) |
+|---|---|---|---|
+| F: fresh (the free key only) | `before-F-fresh_E360i` | `after-F-fresh_{E360i,N390,N360}` | `prod-F-fresh_{E360i,N390,N360}` |
+| G: the 「ヒントをもらう」 panel | — (new) | `after-G-panel_{N390,N360,E360i,S360}` | `prod-G-panel_{N390,N360,E360i,S360}` |
+| K: all 材料 facts (cap paid) | `before-K-all-facts_{E360i,N360,N390,P390i,S360,S390}` | `after-K-all-facts_…` (same 6) | `prod-K-all-facts_…` (same 6) |
+| L: legacy + guidance, board | `before-L-legacy-guidance_P390i` | `after-L-legacy-guidance_{P390i,N390}` | `prod-L-legacy-guidance_{P390i,N390}` |
+| L: 材料 guidance on its card | — | `after-L-guidance-panel_{N390,P390i}` | `prod-L-guidance-panel_{N390,P390i}` |
+| M: 構成 + 特徴 answered | — (new) | `after-M-deduction-answered_{N390,N360,S390,S360,E360i}` | — (flag off) |
+| M: panel with 「✓ もらいずみ」 | — (new) | `after-M-panel-owned_{N390,E360i}` | — |
+| N: the longest board (材料 + 構成 + 特徴) | — (new) | `after-N-longest_{N390,P390i,E360i,S360}` | — |
 
 ## 4. Verification
 
 | Check | Result |
 |---|---|
-| Full Vitest | see PR |
-| `tsc -b` | clean |
-| `oxlint` | 0 warnings |
-| `npm run build` | OK |
-| Hint e2e (Chromium, all hint specs) + layout contract | pass |
-| CI (build, layout-chromium, Layout Contract Gate, WebKit 390×844 / 360×800) | see PR |
+| Full Vitest | 203 files, **4328 passed**, 1 skipped |
+| `tsc -b` / `oxlint` / `npm run build` | clean / 0 warnings / OK |
+| Chromium e2e: `iphone-390x844` + `iphone-360x800` + `layout-chromium` | **205 passed**, 25 skipped (the WebKit-only specs) |
+| CI: build, layout-chromium, Layout Contract Gate, WebKit 390×844 / 360×800 (4 shards) + WebKit Gate | see the PR |
 
-## 5. Human Verification Videos
+**Unit coverage added for the review findings:**
+- the compact footer (one button, no choice, no price);
+- the panel cards;
+- an answer returns to the board with focus on 「ヒントをもらう」;
+- a preference change keeps focus;
+- no-charge outcomes as `role="status"`, settled for the sheet session and never re-armed by another family's answer;
+- the flag turning off with the panel open falls back to 材料;
+- every target shows the same panel before a request.
+
+## 5. Reviews
+
+**Independent review on `4cf4172`: APPROVE WITH NITS**, with P0 / P1 = 0 and 2 P2 findings. All findings are addressed in the next head:
+
+| Finding | Handling |
+|---|---|
+| **P2-1:** the flag-on footer was not the compact Layout C footer; CAP-3 failed at E360i / E390i | **Fixed.** The family choices moved to the transient panel (audit §10 / §12); the footer is one 「ヒントをもらう」 button plus one Pitz line (74 px). CAP-3 is now an e2e assertion, and it holds on every profile (§2). |
+| **P2-2:** switching family moved focus off the radio group | **Fixed.** There is no family radio group any more. Focus moves only when the step changes (board ↔ panel) or when the focused request is disabled. There is a unit test that a preference change keeps focus. |
+| P3-1: a no-charge outcome was not kept for the sheet session | **Fixed.** A per-sheet set of settled families. |
+| P3-2: copy differed from §8 / §14 | **Fixed.** The second 材料 note and the 「材料がふえると、わかることがあるかも」 tail are restored. |
+| P3-3: `legacyStructure` unused | Recorded in §1 (the archive only; 構成 stays requestable). |
+| P3-4: the cue was plain text; the sheet top covered the app header | **Fixed.** A ≥ 24 px pill; `max-height` is `100dvh − 56 − safe-top`, asserted in e2e. |
+| P3-5: outcome lines were not announced | **Fixed.** `role="status"`. |
+| P3-6: no production-build evidence; the 45dvh check was dropped for non-SELECTABLE sheets | **Fixed.** The `prod-*` screenshots and measurements (§2 / §3) were added, and the 45dvh assertion is back for TARGET / EMPTY. The through-`hintSheetView` privacy sweep stays with DH4-2D (OD-DH4-2-11). |
+| P3-7: stale docs | **Fixed.** The HintSheet header and the App.css comments. |
+
+## 6. Human Verification Videos
 
 Filled in after the Preview deploy (see the PR).

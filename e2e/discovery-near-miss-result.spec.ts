@@ -142,11 +142,14 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
 
     // HE-4 / Discovery Hint 3.0 (Issue #238, H3-3): the RESULT door buys through the same reducer
     // authority (PURCHASE_SELECTABLE_HINT) -- the CTA names only the price, never the ingredient.
-    const cta = sheet.locator(".hint-sheet__next");
+    // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; 「たずねる」 on the 材料 card asks.
+    const cta = sheet.locator('.hint-sheet__card[data-hint-family="material"] .hint-sheet__next');
+    await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
     await expect(cta).toHaveText("たずねる 5 Pitz");
     const before = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).pitzBalance, SAVE_KEY);
     await cta.click();
     await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(2);
+    await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
     await expect(cta).toHaveText("たずねる 10 Pitz");
     await expect(sheet).toContainText(`所持 ${before - 5} Pitz`);
     await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet H1 bought");
