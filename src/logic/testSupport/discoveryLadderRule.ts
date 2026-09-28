@@ -1,4 +1,5 @@
 import type { DiscoveryLadder } from "../../data/discoveryLadder";
+import { appendLadderSteps, materialIdsOfSteps } from "../discoveryLadder";
 
 /**
  * Test-only support for the Discovery Ladder (I4a). Never imported by production code.
@@ -98,6 +99,23 @@ export function toMaterialLadder(populationId: string, steps: readonly KeyRecipe
       keyRecipeId: s.keyRecipeId,
     })),
   };
+}
+
+/**
+ * LAD-1 (Issue #261, OD-W2-1): the append-only form of the same key-recipe rule. `fixed` (the
+ * frozen W1 ladder) is kept exactly as it is; the rule runs only for the recipes the starters plus
+ * every fixed material still cannot make, and its steps are appended after the fixed ones. A
+ * recipe that needs no new material therefore gets no step of its own, and no fixed material is
+ * ever unlocked again. With a population the fixed ladder already covers, nothing is appended.
+ */
+export function buildAppendOnlyLadder(
+  fixed: DiscoveryLadder,
+  recipes: readonly LadderRecipe[],
+  populationId: string = fixed.populationId,
+  starters: readonly string[] = REC04_STARTERS,
+): DiscoveryLadder {
+  const owned = [...starters, ...materialIdsOfSteps(fixed.steps)];
+  return appendLadderSteps(fixed, buildKeyRecipeLadder(recipes, owned), populationId);
 }
 
 /** REC-04 `inputs.w1Snapshot.recipes` (ingredient sets only; minCount does not affect the ladder). */
