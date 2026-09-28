@@ -94,6 +94,19 @@ export function obtainableIngredientIds(ladder: DiscoveryLadder = DISCOVERY_LADD
   return INGREDIENTS.filter((i) => !i.unlockCondition || ladderMaterials.has(i.id)).map((i) => i.id);
 }
 
+/**
+ * Cooking Techniques TQ-1C: the ladder step at which `ingredientId` becomes obtainable -- 0 for an
+ * onboarding starter, `null` for an unknown id or a material no step unlocks. The technique
+ * affordance (../logic/techniques/runtime.ts) reads the ladder only through this bridge.
+ */
+export function ingredientUnlockStep(ingredientId: string, ladder: DiscoveryLadder = DISCOVERY_LADDER): number | null {
+  const ingredient = getIngredient(ingredientId);
+  if (!ingredient) return null;
+  if (!ingredient.unlockCondition) return 0;
+  const step = ladder.steps.find((s) => s.ingredientIds.includes(ingredientId));
+  return step ? step.step : null;
+}
+
 export interface IngredientCollectionCount {
   /** Obtainable ingredients the player owns. */
   owned: number;
