@@ -325,15 +325,17 @@ describe("Combined inference (OD-DH4-2-1 / 2): total + optional clause + guarded
   });
 });
 
-describe("T-15 unwired boundary", () => {
-  it("no production module imports the Deduction Hint layer (DH4-1 or DH4-2A)", () => {
+describe("T-15 wiring boundary (DH4-2B)", () => {
+  it("DH4-2B boundary: the only production importer of the Deduction Hint layer is the hint state module", () => {
     const sources = import.meta.glob<string>(["../../**/*.{ts,tsx}", "!../../**/*.test.{ts,tsx}"], { query: "?raw", import: "default", eager: true });
-    const own = /\/(deductionHint|deductionGuard|deductionRequest|ingredientTaxonomy)\.ts$|\/testSupport\//;
+    const own = /\/(deductionHint|deductionGuard|deductionRequest|deductionFlag|ingredientTaxonomy)\.ts$|\/testSupport\//;
     const importers = Object.entries(sources)
       .filter(([path]) => !own.test(path))
-      .filter(([, text]) => /(from\s+|import\s*\(\s*)["'][^"']*(deductionHint|deductionGuard|deductionRequest|ingredientTaxonomy)["']/.test(text))
+      .filter(([, text]) => /(from\s+|import\s*\(\s*)["'][^"']*(deductionHint|deductionGuard|deductionRequest|deductionFlag|ingredientTaxonomy)["']/.test(text))
       .map(([path]) => path);
-    expect(importers).toEqual([]);
+    // DH4-2B wires the layer through src/state/discoveryHint.ts only (the reducer calls it there);
+    // the UI (DH4-2C) reads the view model, never the layer.
+    expect(importers).toEqual(["../../state/discoveryHint.ts"]);
     expect(Object.keys(sources).some((p) => p.endsWith("/App.tsx"))).toBe(true);
   });
 
