@@ -85,9 +85,32 @@ Reasons:
 
 If the owner wants a single answer label: **B**, with a scoped **D** on the Phase 2 / LC-OD-1 question.
 
-## 8. Next actions (none executed here)
+## 8. Next actions (superseded in part by §9)
 
 1. Owner: decide Phase 2 vs LC-OD-1 (§7).
 2. Category Tabs Phase 4 may proceed independently (chip swap in Inventory using `ShelfChips`; no counts).
 3. Before LC-2: revise #272 per §3 on its own branch (or a follow-up on top of main), add the `shelf` filter, type the family id, adjust the boundary allow-list, add the `familyCounts` reference guard, and update handoff.
 4. Extend the #197 contract per §6 in the LC-2 gate.
+
+## 9. Owner Decision (2026-09-29) — Builder Category Tabs decision CLOSED
+
+The Owner adopted the recommendation in §7 after the Builder Fresh Re-Audit and this audit. This section is the authoritative record; §7's "owner decision needed" item is resolved and its verdict stays **B** for #272.
+
+| ID | Decision |
+|---|---|
+| **OD-B1** | The Builder tray gets no family chip, so the #197 vs OD-CT-5 conflict on the tray is resolved. For a future 食材庫 sheet, when a filter / page / working-set change would hide the selected ingredient, #197's existing principle applies: **an invisible selection is cleared** (this is the §6 rule, now limited to the sheet and the working set, not tray chips). |
+| **OD-B2** | Builder family filtering is integrated into the Large Catalog UX 食材庫 sheet, not the tray. The sheet reuses `ShelfChips`. |
+| **OD-B3** | The pizza stage floor takes priority. No ~40–52px row is added to the tray for family filtering; the stage is not shrunk. |
+| **OD-B4** | A future FREE-Cooking-only feature gate must **explicitly exclude Dinner**, not rely on `freeCook` alone. |
+| **OD-B5** | The Hint 5 privacy contract is kept. No new k>=2 coarsening rule is introduced. |
+
+**OD-CT-1 is withdrawn.** Old text: "in FREE Cooking with > 6 candidate toppings, show family tabs in the Builder tray". Replacement: "The Builder tray shows no family tabs; the Large Catalog UX 食材庫 sheet provides family filtering."
+
+Consequences (docs only; nothing implemented here):
+- Category Tabs "Phase 2 Builder" as an in-tray chip row is cancelled. Earlier reports (P1 Result, P3 Fresh Audit / Result) that mention OD-CT-1 or a Phase 2 Builder are historical and are superseded by this section; they are not edited.
+- The LC-OD-1 A model (手元 + 食材庫 sheet, 棚バー replacing the pager row) is no longer in conflict with Category Tabs. §4 risk 1 is closed; §4 risks 2–5 remain.
+- Phases 3 (Shop, done) and 4 (Inventory chip swap) are unaffected. Counts stay Phase 5 only (OD-CT-6); `familyCounts` remains unused.
+- The #272 revision list (§3) is unchanged and still due before LC-2. When LC-2 / LC-3 are gated, they must cite OD-B1–B5.
+- SSOT: `docs/PROJECT_HANDOFF.md` section "Ingredient Category Tabs 1.0 — Builder decision".
+
+**FINAL STATUS: A. BUILDER CATEGORY-TABS DECISION CLOSED**
