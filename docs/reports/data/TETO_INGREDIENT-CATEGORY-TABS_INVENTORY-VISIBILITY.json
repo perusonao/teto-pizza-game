@@ -1,0 +1,379 @@
+{
+  "schema": "teto.ingredient-category-tabs.inventory-visibility/1",
+  "listedSet": "OWNED only (InventoryOverlay); starters are always owned",
+  "startersOnly": {
+    "rows": 3,
+    "shelves": [
+      "sauce",
+      "cheese",
+      "herb"
+    ]
+  },
+  "entitledButNotBoughtAddsChip": false,
+  "unclassifiedOwnedIds": [],
+  "fullyVisibleAtDiscovered": 23,
+  "table": [
+    {
+      "discovered": 0,
+      "rowsIfAllBought": 3,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "herb"
+      ],
+      "newShelvesThisStep": [
+        "sauce",
+        "cheese",
+        "herb"
+      ]
+    },
+    {
+      "discovered": 1,
+      "rowsIfAllBought": 4,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "other"
+      ]
+    },
+    {
+      "discovered": 2,
+      "rowsIfAllBought": 5,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "meat"
+      ]
+    },
+    {
+      "discovered": 3,
+      "rowsIfAllBought": 6,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "vegetable"
+      ]
+    },
+    {
+      "discovered": 4,
+      "rowsIfAllBought": 7,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 5,
+      "rowsIfAllBought": 8,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 6,
+      "rowsIfAllBought": 9,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 7,
+      "rowsIfAllBought": 10,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 8,
+      "rowsIfAllBought": 11,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 9,
+      "rowsIfAllBought": 12,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 10,
+      "rowsIfAllBought": 13,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "fruit"
+      ]
+    },
+    {
+      "discovered": 11,
+      "rowsIfAllBought": 15,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 12,
+      "rowsIfAllBought": 16,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 13,
+      "rowsIfAllBought": 17,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 14,
+      "rowsIfAllBought": 18,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 15,
+      "rowsIfAllBought": 19,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "seafood"
+      ]
+    },
+    {
+      "discovered": 16,
+      "rowsIfAllBought": 20,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 17,
+      "rowsIfAllBought": 21,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 18,
+      "rowsIfAllBought": 22,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 19,
+      "rowsIfAllBought": 23,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 20,
+      "rowsIfAllBought": 24,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 21,
+      "rowsIfAllBought": 25,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 22,
+      "rowsIfAllBought": 26,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    },
+    {
+      "discovered": 23,
+      "rowsIfAllBought": 27,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "spice",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "spice"
+      ]
+    },
+    {
+      "discovered": 24,
+      "rowsIfAllBought": 29,
+      "shelvesIfAllBought": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "spice",
+        "other"
+      ],
+      "newShelvesThisStep": []
+    }
+  ]
+}

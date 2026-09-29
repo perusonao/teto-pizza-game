@@ -107,7 +107,7 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
     expect(panel.querySelector(":scope > .inventory-grid")).not.toBeInTheDocument();
   });
 
-  it("switching Inventory category tabs (すべて -> ソース, 3 items) never changes the panel's own class list", async () => {
+  it("switching Inventory shelf chips (すべて -> ソース, 3 items) never changes the panel's own class list", async () => {
     // すべて (owned Starter set) has more entries than ソース (only tomato-sauce among Starters) --
     // exactly the "内容が3件しかない" case from the bug report.
     const user = userEvent.setup();
@@ -118,22 +118,22 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
     const classNameBefore = panel.className;
     const childCountBefore = panel.children.length;
 
-    await user.click(within(overlay).getByRole("tab", { name: "ソース" }));
+    await user.click(within(overlay).getByRole("button", { name: "ソース" }));
     expect(panel.className).toBe(classNameBefore);
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);
 
-    await user.click(within(overlay).getByRole("tab", { name: "チーズ" }));
+    await user.click(within(overlay).getByRole("button", { name: "チーズ" }));
     expect(panel.className).toBe(classNameBefore);
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);
 
-    await user.click(within(overlay).getByRole("tab", { name: "トッピング" }));
+    await user.click(within(overlay).getByRole("button", { name: "ハーブ・香味" }));
     expect(panel.className).toBe(classNameBefore);
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);
 
-    await user.click(within(overlay).getByRole("tab", { name: "すべて" }));
+    await user.click(within(overlay).getByRole("button", { name: "すべて" }));
     expect(panel.className).toBe(classNameBefore);
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);
@@ -148,13 +148,13 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
     const panel = overlay.querySelector<HTMLElement>(".dex-overlay__panel")!;
 
     // 3 items under ソース (small content) vs すべて (larger content, includes onion under topping).
-    await user.click(within(overlay).getByRole("tab", { name: "ソース" }));
+    await user.click(within(overlay).getByRole("button", { name: "ソース" }));
     const soleCardsUnderSauce = overlay.querySelectorAll(".inventory-card").length;
     expect(soleCardsUnderSauce).toBeGreaterThan(0);
     // Same panel node survives the re-render -- React reconciles in place, it never remounts.
     expect(overlay.querySelector(".dex-overlay__panel")).toBe(panel);
 
-    await user.click(within(overlay).getByRole("tab", { name: "すべて" }));
+    await user.click(within(overlay).getByRole("button", { name: "すべて" }));
     expect(overlay.querySelector(".dex-overlay__panel")).toBe(panel);
   });
 });

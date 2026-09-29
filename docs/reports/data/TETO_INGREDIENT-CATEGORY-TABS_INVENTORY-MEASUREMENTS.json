@@ -1,0 +1,222 @@
+{
+  "390x844": {
+    "startersOnly": {
+      "current": {
+        "cards": 3,
+        "summary": {
+          "y": 664,
+          "h": 17,
+          "w": 358
+        },
+        "tabs": {
+          "y": 691,
+          "h": 33,
+          "w": 358
+        },
+        "tabMinH": 33,
+        "tabFontPx": "12px",
+        "tabRoles": {
+          "tablist": 1,
+          "tab": 4
+        },
+        "grid": {
+          "y": 736,
+          "h": 92,
+          "w": 358
+        },
+        "card": {
+          "y": 736,
+          "h": 92,
+          "w": 114
+        },
+        "body": {
+          "display": "block",
+          "flexDirection": "row",
+          "clientH": 180,
+          "scrollH": 180,
+          "overflowY": "auto"
+        },
+        "cardCategoryLabels": [
+          "ソース",
+          "チーズ",
+          "トッピング"
+        ]
+      },
+      "prototype": {
+        "rowH": 46,
+        "minChipH": 44,
+        "chipsInsideRow": true,
+        "oneRow": true,
+        "scrollable": true,
+        "pageOverflow": false,
+        "gridTop": 736,
+        "bodyScrollH": 193
+      },
+      "deltaGridTop": 0
+    },
+    "fullOwnership": {
+      "current": {
+        "cards": 29,
+        "summary": {
+          "y": 88,
+          "h": 17,
+          "w": 358
+        },
+        "tabs": {
+          "y": 115,
+          "h": 33,
+          "w": 358
+        },
+        "tabMinH": 33,
+        "tabFontPx": "12px",
+        "tabRoles": {
+          "tablist": 1,
+          "tab": 4
+        },
+        "grid": {
+          "y": 160,
+          "h": 948,
+          "w": 358
+        },
+        "card": {
+          "y": 160,
+          "h": 86,
+          "w": 114
+        },
+        "body": {
+          "display": "block",
+          "flexDirection": "row",
+          "clientH": 756,
+          "scrollH": 1036,
+          "overflowY": "auto"
+        },
+        "cardCategoryLabels": [
+          "ソース",
+          "チーズ",
+          "トッピング"
+        ]
+      },
+      "prototype": {
+        "rowH": 46,
+        "minChipH": 44,
+        "chipsInsideRow": true,
+        "oneRow": true,
+        "scrollable": true,
+        "pageOverflow": false,
+        "gridTop": 173,
+        "bodyScrollH": 1049
+      },
+      "deltaGridTop": 13
+    }
+  },
+  "360x800": {
+    "startersOnly": {
+      "current": {
+        "cards": 3,
+        "summary": {
+          "y": 620,
+          "h": 17,
+          "w": 328
+        },
+        "tabs": {
+          "y": 647,
+          "h": 33,
+          "w": 328
+        },
+        "tabMinH": 33,
+        "tabFontPx": "12px",
+        "tabRoles": {
+          "tablist": 1,
+          "tab": 4
+        },
+        "grid": {
+          "y": 692,
+          "h": 92,
+          "w": 328
+        },
+        "card": {
+          "y": 692,
+          "h": 92,
+          "w": 104
+        },
+        "body": {
+          "display": "block",
+          "flexDirection": "row",
+          "clientH": 180,
+          "scrollH": 180,
+          "overflowY": "auto"
+        },
+        "cardCategoryLabels": [
+          "ソース",
+          "チーズ",
+          "トッピング"
+        ]
+      },
+      "prototype": {
+        "rowH": 46,
+        "minChipH": 44,
+        "chipsInsideRow": true,
+        "oneRow": true,
+        "scrollable": true,
+        "pageOverflow": false,
+        "gridTop": 692,
+        "bodyScrollH": 193
+      },
+      "deltaGridTop": 0
+    },
+    "fullOwnership": {
+      "current": {
+        "cards": 29,
+        "summary": {
+          "y": 88,
+          "h": 17,
+          "w": 328
+        },
+        "tabs": {
+          "y": 115,
+          "h": 33,
+          "w": 328
+        },
+        "tabMinH": 33,
+        "tabFontPx": "12px",
+        "tabRoles": {
+          "tablist": 1,
+          "tab": 4
+        },
+        "grid": {
+          "y": 160,
+          "h": 962,
+          "w": 328
+        },
+        "card": {
+          "y": 160,
+          "h": 99,
+          "w": 104
+        },
+        "body": {
+          "display": "block",
+          "flexDirection": "row",
+          "clientH": 712,
+          "scrollH": 1050,
+          "overflowY": "auto"
+        },
+        "cardCategoryLabels": [
+          "ソース",
+          "チーズ",
+          "トッピング"
+        ]
+      },
+      "prototype": {
+        "rowH": 46,
+        "minChipH": 44,
+        "chipsInsideRow": true,
+        "oneRow": true,
+        "scrollable": true,
+        "pageOverflow": false,
+        "gridTop": 173,
+        "bodyScrollH": 1063
+      },
+      "deltaGridTop": 13
+    }
+  }
+}

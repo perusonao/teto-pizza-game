@@ -32,6 +32,8 @@ vi.mock("../data/ingredients", async (importOriginal) => {
   return {
     ...actual,
     INGREDIENTS: MOCK_CATALOG,
+    // ingredientShelf looks ingredients up by id, so the mocked catalog must be visible there too.
+    getIngredient: (id: string) => MOCK_CATALOG.find((i) => i.id === id),
   };
 });
 
@@ -60,12 +62,20 @@ describe("InventoryOverlay scalability (Issue #86-style catalog growth)", () => 
     expect(screen.getByText(/所持 62\/62種/)).toBeInTheDocument();
   });
 
-  it("test 19 (mocked 62): a category tab still bounds the grid to just that category's owned items, never dumping all 62 at once", () => {
+  it("test 19 (mocked 62): a shelf chip still bounds the grid to just that shelf's owned items, never dumping all 62 at once", () => {
     const allOwned = MOCK_CATALOG.map((i) => i.id);
     render(<InventoryOverlay ownedIngredientIds={allOwned} inventory={{}} onClose={() => {}} />);
-    fireEvent.click(screen.getByRole("tab", { name: "チーズ" }));
+    fireEvent.click(screen.getByRole("button", { name: "チーズ" }));
     const cheeseCount = MOCK_CATALOG.filter((i) => i.category === "cheese").length;
     expect(screen.getAllByText(/^素材\d+$/)).toHaveLength(cheeseCount);
     expect(cheeseCount).toBeLessThan(62);
+  });
+
+  it("test 20 (mocked 62): toppings with no taxonomy row get no shelf (fail-closed): no family chip, listed under すべて only", () => {
+    const allOwned = MOCK_CATALOG.map((i) => i.id);
+    render(<InventoryOverlay ownedIngredientIds={allOwned} inventory={{}} onClose={() => {}} />);
+    const chips = screen.getByRole("group", { name: "材料の分類" });
+    expect(Array.from(chips.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["すべて", "ソース", "チーズ"]);
+    expect(screen.getAllByText(/^素材\d+$/)).toHaveLength(62);
   });
 });
