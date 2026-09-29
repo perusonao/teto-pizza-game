@@ -341,7 +341,11 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   Preview built from `4d090b5` (PR #298). Known Preview-only visual issue: the Preview badge partly overlaps the
   last sheet line (`pointer-events: none`); not a production blocker. See the Production Activation Gate report §12
   and the H5-5 Result §9. Final Gate verdict: READY FOR PRODUCTION ACTIVATION (the flag is still OFF).
-- **Open:** the production activation go (flag ON; the Owner decides) and OD-H5-P4-SAUCE (TQ-1D).
+- **H5-6 Production Activation (PR open, not merged until the Owner says so):** `HINT5_LADDER_PRODUCTION_DEFAULT = true`
+  in `src/logic/discovery/hint5Flag.ts`; rollback = set it back to `false`. The old DEV opt-IN is gone; a DEV-only
+  opt-OUT (`teto.dev.hint5Ladder = "0"`) keeps the pre-Hint-5.0 suites runnable. Preview helper / seeds / badge are
+  still compiled out of production (isolation gate).
+- **Open:** merging the H5-6 activation PR (the Owner decides) and OD-H5-P4-SAUCE (TQ-1D).
   The TQ-1D re-audit tripwire (G7) and the RESERVED gate keep any sauceless / Technique recipe out.
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)

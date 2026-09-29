@@ -1,15 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
-import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import { ALL_INGREDIENT_IDS as ALL_IDS } from "../logic/discovery/testSupport/deductionInversion";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { hint5LadderActive, hint5SheetView, hintSheetView, requestHint5RungFact } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
- * Discovery Hint 5.0 (Issue #292), H5-2: flag-OFF parity. This is the production build: the flag is
- * off in every build until H5-4.
+ * Discovery Hint 5.0 (Issue #292), H5-2: flag-OFF parity. The flag is ON in production since H5-6, so this
+ * is the ROLLBACK path (the module is mocked OFF above); ./hint5Flag.preview.test.ts pins the ON default.
  * - PURCHASE_HINT5_RUNG is a no-op.
  * - The ladder view is null.
  * - 材料 / 構成 / 特徴 behave exactly as before H5-2.
@@ -26,11 +29,7 @@ function sheetOn(target: string, pitz: number): GameState {
   return act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
 }
 
-describe("Hint 5.0 flag OFF (the production default)", () => {
-  it("the flag is off in this build", () => {
-    expect(HINT5_LADDER_ENABLED).toBe(false);
-  });
-
+describe("Hint 5.0 flag OFF (the rollback)", () => {
   it("PURCHASE_HINT5_RUNG changes nothing for any target at any index; the ladder view and request helper are inert", () => {
     for (const r of RECIPES.filter((x) => x.id !== "margherita")) {
       const s = sheetOn(r.id, 1000);

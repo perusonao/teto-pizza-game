@@ -66,7 +66,7 @@ async function openSheet(page: Page, s: object, optIn: boolean) {
     ([key, value, optKey, on]) => {
       localStorage.clear();
       localStorage.setItem(key, value);
-      if (on) localStorage.setItem(optKey, "1");
+      localStorage.setItem(optKey, on ? "1" : "0"); // the flag is ON by default; "0" is the DEV opt-out (the rollback path)
     },
     [SAVE_KEY, JSON.stringify(s), OPT_IN_KEY, optIn] as const,
   );

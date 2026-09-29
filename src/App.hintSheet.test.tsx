@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
@@ -8,6 +8,10 @@ import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES } from "./data/recipes";
 import { guardedReserveAttributeAnswer, structureAnswer } from "./logic/discovery/deductionGuard";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("./logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B) through the real App: the Free Cooking 「ヒント」 button
  * opens the hint sheet. Discovery Hint Economy 1.0 (Issue #232, HE-2): unlocking levels is a Pitz

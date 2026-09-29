@@ -6,6 +6,10 @@ import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("./logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Cooking Time CT2: end-to-end coverage for the App-level pause wiring
  * (`isAnyCookingTimingPauseReasonActive`, ../logic/cookingTiming.ts) -- items 9/10/11 of the

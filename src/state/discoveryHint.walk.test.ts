@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { getIngredient } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { buildHintSteps } from "../logic/discovery/hintSteps";
@@ -10,6 +10,10 @@ import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { recipeDiscoveryState } from "./recipeDiscoveryState";
 import { NEAR_MISS_COPY, resultNearMiss } from "./resultNearMiss";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 2.0 (Issue #229) Final Gate: the whole 25-recipe ladder played through the real
  * reducer, from a brand-new save to a complete Dex, using only what a player sees:
