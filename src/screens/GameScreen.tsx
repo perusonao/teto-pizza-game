@@ -311,20 +311,23 @@ export function GameScreen({
   // DM-3R-2 (OD-R5): a Dinner round is recipe-free like Free Cooking -- every OWNED ingredient on
   // the tray -- without being a Free Cooking (Discovery) round.
   const recipeFreeTray = state.freeCook || state.dinner !== null;
+  const largeCatalogEligible = isLargeCatalogEligible(state);
   const dockReserve = prepareDockReserve({
     steps: activePreBakeSteps,
     ownedIngredientIds: state.ownedIngredientIds,
     freeCook: recipeFreeTray,
     recipe: state.recipe,
     sauceReadout: referenceModeEnabled && referencePizza !== null,
+    largeCatalogEligible,
   });
 
   // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
   // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
   // PREPARE tray screen (an empty-Dex initial state is FREE_COOK in ORDER: no tray, no entry), a step that
-  // shows the tray, and the pager row the dock already reserves (no new row: the entry lives in it).
+  // shows the tray, and `pantryWorthwhile` (LC-R5-a, OD-R5-10: an OWNED-count fact, independent of the pager
+  // and the hand; the entry lives in the utility row the dock already reserves -- no new row).
   const pantryAvailable =
-    isLargeCatalogEligible(state) && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pager;
+    largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;
   const pantryVisible = pantryOpen && pantryAvailable;
   // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
   const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
@@ -759,14 +762,14 @@ export function GameScreen({
               included (empty there), with the same reserved height for the whole round, so the
               pizza stage above it never changes size between steps. */}
           <div
-            className={`prepare-dock${dockReserve.pager ? "" : " prepare-dock--no-pager"}`}
+            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}`}
             data-testid="prepare-dock"
             style={
               {
                 "--dock-sauce-rows": dockReserve.sauceRows,
                 "--dock-other-rows": dockReserve.otherRows,
                 "--dock-readout": dockReserve.readout ? 1 : 0,
-                "--dock-pager": dockReserve.pager ? 1 : 0,
+                "--dock-pager": dockReserve.utilityRow ? 1 : 0,
               } as CSSProperties
             }
           >
@@ -810,7 +813,7 @@ export function GameScreen({
                 onPhysicalDrop={onPhysicalDrop}
                 resetToken={pizzaResetToken}
                 makingStepToken={state.makingStepToken}
-                reservePagerRow={dockReserve.pager}
+                reservePagerRow={dockReserve.utilityRow}
                 pantryEntry={
                   pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
                 }

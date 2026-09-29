@@ -502,3 +502,53 @@ describe("LC-R4 focus, keyboard and the Builder selection", () => {
     expect(document.querySelector(".pantry-sheet, .shelf-chips")).toBeNull();
   });
 });
+
+describe("LC-R5-a utility row: pantryWorthwhile is separate from the pager and never changes the dock today", () => {
+  const dock = () => document.querySelector<HTMLElement>('[data-testid="prepare-dock"]')!;
+  const dockVars = (el: HTMLElement) => ({
+    cls: el.className,
+    pager: el.style.getPropertyValue("--dock-pager"),
+    sauce: el.style.getPropertyValue("--dock-sauce-rows"),
+    other: el.style.getPropertyValue("--dock-other-rows"),
+  });
+
+  it("FREE, > 6 owned toppings: entry present and the utility row is reserved (same as the old pager row)", () => {
+    render(<Harness initial={freeTopping()} />);
+    expect(entry()).toBeInTheDocument();
+    expect(dock().className).not.toContain("prepare-dock--no-pager");
+    expect(dock().style.getPropertyValue("--dock-pager")).toBe("1");
+    expect(HAND_ENFORCEMENT_ENABLED).toBe(false);
+  });
+
+  it("FREE, every category <= 6 owned: no entry, no utility row (no new empty row)", () => {
+    const few = toStep(createInitialGameState([], [...STARTER_INGREDIENT_IDS], 0, {}, [], FINITE, {}), "TOPPING");
+    render(<Harness initial={few} />);
+    expect(entry()).not.toBeInTheDocument();
+    expect(dock().className).toContain("prepare-dock--no-pager");
+    expect(dock().style.getPropertyValue("--dock-pager")).toBe("0");
+  });
+
+  it("Dinner / guided / Lunch Rush with > 6 owned: no entry and the dock's utility row follows the tray pager only", () => {
+    const g = toStep(guidedState(), "TOPPING");
+    const lunch = { ...g, roundKind: "LUNCH_RUSH", isMissionRound: true } as GameState;
+    const d = toStep(dinnerState(), "TOPPING");
+    // guided / Lunch Rush: recipe-limited tray -> pager false -> NO utility row, although ownership is > 6.
+    for (const initial of [g, lunch]) {
+      render(<Harness initial={initial} />);
+      expect(entry()).not.toBeInTheDocument();
+      expect(dockVars(dock())).toMatchObject({ pager: "0" });
+      expect(dock().className).toContain("prepare-dock--no-pager");
+      cleanup();
+    }
+    // Dinner: recipe-free tray -> pager true (its existing paged tray), still no entry.
+    render(<Harness initial={d} />);
+    expect(entry()).not.toBeInTheDocument();
+    expect(dockVars(dock())).toMatchObject({ pager: "1" });
+    expect(document.querySelector(".pantry-entry")).toBeNull();
+  });
+
+  it("the dock vars of a guided round are the same whether or not FREE would have a pantry (R4 golden)", () => {
+    render(<Harness initial={toStep(guidedState(), "SAUCE")} />);
+    expect(dockVars(dock())).toMatchObject({ pager: "0", sauce: "1", other: "1" });
+  });
+});
