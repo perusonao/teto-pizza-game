@@ -6189,3 +6189,191 @@ p.hint-sheet__step {
   outline: 2px solid #c08a3e;
   outline-offset: -2px;
 }
+
+/* ---------- Large Catalog UX LC-R3: the 食材庫 entry and pantry sheet SHELL ----------
+   Entry: a sibling inside the EXISTING pager row (28px, margin-top 6 = the reserved 34px), pinned to the
+   row's left edge so the centred pager does not move. No new row, no height change: the pizza stage keeps
+   its size. The visual button is 28px; an ::after extends the hit area to 44px: 8px below (exactly the fixed
+   spacer above the bake bar, which sits on top of anything beyond it) and 8px above (the 6px row margin plus
+   2px into the bottom edge of the first chip column: the only way to reach 44px without adding height). */
+.ingredient-page-nav--with-entry {
+  position: relative;
+}
+
+.ingredient-page-nav__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* One page: the row keeps its placeholder semantics (invisible, inert pager) but the entry stays visible and
+   tappable; the fake pager inside stays aria-hidden. */
+.ingredient-page-nav--with-entry.ingredient-page-nav--placeholder .pantry-entry {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.pantry-entry {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 28px;
+  min-width: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: #e6d5ae;
+  color: #6b4226;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pantry-entry::after {
+  content: "";
+  position: absolute;
+  inset: -8px -4px -8px -4px;
+}
+
+.pantry-entry:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: 1px;
+}
+
+/* Pantry sheet: fixed to the viewport in the same centred column as the hint sheet (so opening it moves
+   nothing behind it), above the bake bar (10) at the shared modal level (25). PR #304 stable-height
+   contract: ONE outer height whatever the row count (never `auto`), pinned header, a single scroll list,
+   page / body never scroll, content ends above the home-indicator inset. */
+.pantry-sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.35);
+  z-index: 25;
+}
+
+.pantry-sheet {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 390px;
+  height: 70vh;
+  height: min(70dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 20px));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #fff8ea;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.pantry-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+
+.pantry-sheet__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.pantry-sheet__close {
+  border: none;
+  background: #e6d5ae;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pantry-sheet__subtitle {
+  flex: none;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+.pantry-sheet__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pantry-sheet__list:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: -2px;
+}
+
+.pantry-sheet__empty {
+  margin: 0;
+  padding: 12px 4px;
+  font-size: 12px;
+  color: #8a6a45;
+}
+
+.pantry-sheet__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.pantry-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 6px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.pantry-tile__emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.pantry-tile__cheese-slot {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pantry-tile__name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a2e0a;
+  line-height: 1.2;
+}
+
+.pantry-tile__stock {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4c9a2a;
+}
+
+.pantry-tile__stock--zero {
+  color: #b4432f;
+  opacity: 0.75;
+}

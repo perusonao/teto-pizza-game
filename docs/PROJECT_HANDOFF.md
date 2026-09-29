@@ -373,6 +373,29 @@ edited; this section supersedes them.
   counts before Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays
   "rebase/revise before LC-2" (verdict B). No production code changed by this decision.
 
+## Large Catalog UX — current SSOT (Owner, 2026-09-29; docs-only)
+
+Authority: `docs/reports/TETO_LARGE-CATALOG-UX_Fresh-Rebase-Revision-Gate.md` (§17 for the decisions). Older #272
+design docs and wireframes are historical where they disagree.
+
+- **OD-1:** hand + pantry (食材庫) ships for **FREE Cooking only**; Dinner keeps the paged tray. FREE gate =
+  `isFreeCookingRound(state)` (`roundKind === "FREE_COOK"`) **and** `dinner === null` — never `freeCook` alone,
+  never `recipeFreeTray`. Dinner is a separate audit after the FREE version.
+- **OD-2:** pantry picks (kept across filter / search / shelf, shown in a pinned 「選択中」 area, never hidden) and
+  Builder `selectedIngredientId` (PR #197: cleared when it leaves the visible set) are **separate states**.
+- **OD-4:** PR #272 (`f5b0ab5`) is frozen as the porting source and is **not rebased in place**. Work continues on
+  a fresh branch from main, slice by slice (LC-R0 foundation port → R1 shelf reconciliation → R2 hand → R3 pantry
+  shell → R4 ShelfChips → R5 search / picks / selection → R6 mobile / a11y / HV). Closing #272 as superseded is
+  decided after the new branch is established.
+- **LC-R0 DONE (branch `claude/lc-r0-fresh-main-foundation`, no PR):** `src/logic/catalog/**` foundation ported from #272 without
+  the family / taxonomy / counts authority; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R0_Foundation-Migration_Result.md`. Next: LC-R1 (only on Owner go).
+- **LC-R1 DONE (branch `claude/lc-r1-shelf-authority`, no PR):** catalog `shelf` copied from `ingredientShelf()`; `queryCatalog({ shelves })`; unclassified fail-closed; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R1_Shelf-Authority_Result.md`. Next: LC-R2 only on Owner go.
+- **LC-R2 DONE (branch `claude/lc-r2-working-set-foundation`, no PR):** FREE-only eligibility gate (`roundKind === "FREE_COOK"` and `dinner === null`), hand operations, #197 selection rule, capacity policy (9 / 12, enforcement OFF), Human Feel measurement harness; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R2_Working-Set-Foundation_Result.md`. Next: LC-R3 only on Owner go.
+- **LC-R3 DONE (branch `claude/lc-r3-pantry-shell`, no PR):** 食材庫 entry (in the existing pager row) + read-only pantry sheet shell on the FREE Cooking cooking screen (`isLargeCatalogEligible` and PREPARE tray screen); stage unchanged; enforcement OFF. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R3_Pantry-Shell_Result.md`. Next: LC-R4 only on Owner go. OD-R2-1: 12 is the design candidate (not final; decide before enforcement, R5/R6); OD-R2-2: "new" tier derives from `ownedIngredientIds` acquisition order ("recently acquired", no new save field); OD-R2-3: session-only, no save change.
+- Standing: `ingredientShelf` = membership authority, `catalogQuery` = owned / filter / search / sort engine,
+  `ShelfChips` = presentation; no counts before Phase 5; capacity 9 vs 12 is decided by Human Feel at the hand slice;
+  no tray family chips (OD-B1〜B5).
+
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 
 **Read first for any technique work (TQ-1C, TQ-1D and later):**

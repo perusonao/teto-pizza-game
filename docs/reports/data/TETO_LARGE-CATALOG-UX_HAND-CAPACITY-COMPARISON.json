@@ -1,0 +1,446 @@
+{
+  "generatedBy": "tools/large-catalog-ux/hand-capacity.measure.spec.ts",
+  "note": "Toppings step of FREE Cooking with the first N toppings owned (= the tray a hand of N would show). hand22 = today's production tray. Chromium desktop emulation at the four Owner viewports; no safe-area inset.",
+  "viewports": {
+    "390x844": {
+      "hand9": {
+        "page1": {
+          "doughDiameter": 290,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 732,
+          "bakeBarTop": 774,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 290,
+          "dockHeight": 174,
+          "panelHeight": 100,
+          "chipsOnPage": 3,
+          "chipSize": {
+            "w": 118,
+            "h": 64
+          },
+          "chipRows": 1,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 732,
+          "bakeBarTop": 774,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand12": {
+        "page1": {
+          "doughDiameter": 290,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 732,
+          "bakeBarTop": 774,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 290,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 732,
+          "bakeBarTop": 774,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand22": {
+        "page1": {
+          "doughDiameter": 290,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 732,
+          "bakeBarTop": 774,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 290,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 732,
+          "bakeBarTop": 774,
+          "gameScreenScrolls": false
+        }
+      }
+    },
+    "360x800": {
+      "hand9": {
+        "page1": {
+          "doughDiameter": 273.6,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 688,
+          "bakeBarTop": 730,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 273.6,
+          "dockHeight": 174,
+          "panelHeight": 100,
+          "chipsOnPage": 3,
+          "chipSize": {
+            "w": 108,
+            "h": 64
+          },
+          "chipRows": 1,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 688,
+          "bakeBarTop": 730,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand12": {
+        "page1": {
+          "doughDiameter": 273.6,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 688,
+          "bakeBarTop": 730,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 273.6,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 688,
+          "bakeBarTop": 730,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand22": {
+        "page1": {
+          "doughDiameter": 273.6,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 688,
+          "bakeBarTop": 730,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 273.6,
+          "dockHeight": 174,
+          "panelHeight": 170,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 64
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 688,
+          "bakeBarTop": 730,
+          "gameScreenScrolls": false
+        }
+      }
+    },
+    "390x664": {
+      "hand9": {
+        "page1": {
+          "doughDiameter": 269.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 552,
+          "bakeBarTop": 594,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 269.1,
+          "dockHeight": 162,
+          "panelHeight": 94,
+          "chipsOnPage": 3,
+          "chipSize": {
+            "w": 118,
+            "h": 58
+          },
+          "chipRows": 1,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 552,
+          "bakeBarTop": 594,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand12": {
+        "page1": {
+          "doughDiameter": 269.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 552,
+          "bakeBarTop": 594,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 269.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 552,
+          "bakeBarTop": 594,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand22": {
+        "page1": {
+          "doughDiameter": 269.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 552,
+          "bakeBarTop": 594,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 269.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 118,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 552,
+          "bakeBarTop": 594,
+          "gameScreenScrolls": false
+        }
+      }
+    },
+    "360x640": {
+      "hand9": {
+        "page1": {
+          "doughDiameter": 245.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 528,
+          "bakeBarTop": 570,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 245.1,
+          "dockHeight": 162,
+          "panelHeight": 94,
+          "chipsOnPage": 3,
+          "chipSize": {
+            "w": 108,
+            "h": 58
+          },
+          "chipRows": 1,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 528,
+          "bakeBarTop": 570,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand12": {
+        "page1": {
+          "doughDiameter": 245.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 528,
+          "bakeBarTop": 570,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 245.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 2",
+          "pagerHeight": 28,
+          "lowestChipBottom": 528,
+          "bakeBarTop": 570,
+          "gameScreenScrolls": false
+        }
+      },
+      "hand22": {
+        "page1": {
+          "doughDiameter": 245.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "1 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 528,
+          "bakeBarTop": 570,
+          "gameScreenScrolls": false
+        },
+        "page2": {
+          "doughDiameter": 245.1,
+          "dockHeight": 162,
+          "panelHeight": 158,
+          "chipsOnPage": 6,
+          "chipSize": {
+            "w": 108,
+            "h": 58
+          },
+          "chipRows": 2,
+          "pagerVisible": true,
+          "pagerLabel": "2 / 4",
+          "pagerHeight": 28,
+          "lowestChipBottom": 528,
+          "bakeBarTop": 570,
+          "gameScreenScrolls": false
+        }
+      }
+    }
+  }
+}
