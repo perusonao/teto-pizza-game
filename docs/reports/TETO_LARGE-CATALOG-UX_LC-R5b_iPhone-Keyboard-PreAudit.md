@@ -384,7 +384,112 @@ Discovery で新たに Owner 判断が必要になった場合（例: 変換中 
 
 ## 17. UPDATED VERDICT
 
-**C. REAL-DEVICE DISCOVERY REQUIRED BEFORE IMPLEMENTATION — maintained (Owner).**
+**C. REAL-DEVICE DISCOVERY REQUIRED BEFORE IMPLEMENTATION — maintained (Owner). ※ §18 で更新済み（PASSED — MODE C ADOPTED）。**
 
 - Owner Decisions §15.1〜§15.3 を記録。§15.4（Alias Authority Fresh Audit）は別依頼として未実施。
 - 解除条件は §16 の G-D1〜G-D8。R5-b production 実装には進まない。
+
+---
+
+## 18. Real-Device Discovery RESULT — PASSED, MODE C ADOPTED (Owner, docs only)
+
+Status: Owner が実機 Discovery を完了し、判定 **A. REAL-DEVICE DISCOVERY PASSED — MODE C ADOPTED FOR LC-R5b IMPLEMENTATION** を確定。本節は Owner 提供の証跡（`ScreenRecording_09-30-2026 01-03-20_1.mp4`、`lc-r5b-discovery-safari-modeC.json`）から Owner が報告した値の記録であり、**Claude はこれらの動画 / JSON ファイルを本セッションで直接は読んでいない**（数値は Owner 報告値）。production / CSS / test / e2e / save の変更なし、PR なし。
+
+### 18.1 更新された authority と前提
+
+| 項目 | 値 |
+|---|---|
+| Real-Device harness | Preview `https://perusonao.github.io/teto-pizza-game-preview/discovery/lc-r5b/`（Preview repo `8b67ec18…`、ソース harness branch `claude/lc-r5b-real-device-discovery-harness` @ `df71cff6…`）。使い捨て。repo の production には入っていない |
+| `origin/main`（fresh fetch）| **`21dc0a6`（PR #308 = LC-R5-a merged）**。R5-b の前提「R5-a merge 後」は**充足** |
+| 実機証跡の範囲 | **通常 Safari のみ**（standalone / PWA は未検証）。mode C のみ JSON 提出（mode A の値は Owner 報告）|
+| Alias authority | `claude/lc-r5b-japanese-search-audit-nciqbq` @ `195494a`（OD-A1〜A6、G-D7 COMPLETE）|
+
+### 18.2 実機所見（Owner 報告値）
+
+| 項目 | 値 |
+|---|---|
+| visualViewport.height（keyboard 前 / 表示中）| **714 / 376**（差 ≈ 338 = keyboard 高。§5.2 の仮定 K=300〜340 の範囲内）|
+| **Mode C**（keyboard 表示中）| sheet top **8** / bottom **376** / height **368** / search 44 / chips 46 / list **159** / headerAboveVV **false** / sheetBottomBelowVV **0** / scrollY **0** / vvOffTop **0**。録画上も search・ShelfChips・結果が keyboard の上に残り、「たまねぎ」→「タマネギ」→「玉ねぎ」の IME 変換を操作できた |
+| **Mode A**（現行 70dvh）| keyboard 表示時に scrollY ≈ **140** / vvOffTop ≈ **139.7** / headerAboveVV **true** / sheetBottomBelowVV ≈ **58.3** → **不採用**（§5.2 の予測どおり、pan と header の画面外、sheet 下端が keyboard の裏）|
+| IME 変換途中 | 「たまねき」等の**未確定の途中文字列では一時的に 0 件**になる。確定後の「たまねぎ」「タマネギ」「玉ねぎ」は 1 件へ復帰（承認済み alias が実機で機能）|
+
+算術との整合（ESTIMATE の検算）: 368 − 89（上部 chrome）− 52（search 行）− 54（chips 行）− 12（下 padding）≈ 161 ≒ list 159。この端末では結果行は約 2.1 行（(159+8)/79.19）。
+
+### 18.3 Gate G-D1〜G-D8 の記録（Owner 判定に従う）
+
+| Gate | 記録 |
+|---|---|
+| G-D1 | **Safari で実施**。standalone は**未実施** → **R5-b 実装後の HV に持ち越し**（§18.7 R1）|
+| G-D2 | 端末 1 台（Owner metadata は Owner 側。小型端末は未確認 → 持ち越し R2）|
+| G-D3 | **決定: Mode C（B の上限 + `visualViewport` fit）を採用**。K-α（静的）は Mode A/B の実機結果で不採用、K-γ / K-δ は不要 |
+| G-D4 | keyboard 表示中の外形・位置・scrollY=0・offsetTop=0 は Mode C で維持。**keyboard 解除後の完全復帰は R5-b の実装テスト + 実装後 HV で必須確認**（本書は Owner 報告値のみを記録）|
+| G-D5 | IME 契約を §18.5 で確定（第一候補: compositionend 後に更新）。Enter の除外条件と keyboard を閉じる手段は §18.4-C7 / 実装 HV で確認 |
+| G-D6 | 変換中の Esc は実装後 HV で観察（挙動は OD-R5-8 のまま変更しない）|
+| G-D7 | COMPLETE（Alias Audit、OD-A6）|
+| G-D8 | 本節の Owner 判定をもって Discovery Gate を**通過**。判定は §18.6 |
+
+### 18.4 Mode C の production 向け最小実装契約
+
+**harness のコードをそのままコピーしない。** 下記の契約を満たす小さな実装を新規に書く（harness は挙動の証跡であって実装ではない）。数値の確定は R5-b の 4 viewport 実測（OD-R5-5）。
+
+- **C1 適用範囲**: `IngredientPantry` の sheet のみ。他の overlay（Hint / Inventory / Dex …）、`GameScreen` のレイアウト、stage / dock には影響させない。
+- **C2 基準高**: keyboard なしの sheet 高は「利用可能 viewport 上限」へ向けた式（例: `100dvh − safe-top − 20px`、Inventory と同 ceiling）。**最終値・式は R5-b の 4 viewport 実測 + 実機 HV で確定**。70dvh は Mode A 実機結果で不採用。
+- **C3 fit 規則**: 視覚 viewport に収まる高さ `= min(基準高, vv.height − 余白)`、下端オフセット `= layoutH − (vv.offsetTop + vv.height)`（負にはしない）。`layoutH` は `document.documentElement.clientHeight`。**基準高を超えて拡大しない**（keyboard が出ていなければ結果として基準高のまま＝no-op）。
+- **C4 適用 / 解除の条件**: 「search field に focus」または「vv が layout より縮んでいる（keyboard 相当）」の**いずれか**の間だけ適用し、**両方が解けたら解除**。**focus だけに依存しない**（iOS でタイル / チップのタップ後に field が blur しても keyboard が残る場合があるため、vv の実測を主とする）。unmount（close）で必ず解除。`keyboard が開いている` と断定しない: 判定は vv と layout の差のみ。
+- **C5 実装形態**: 専用の小さな hook（例 `usePantryViewportFit`、`IngredientPantry` 専用）+ 純関数 `computePantryFit({ layoutH, vvHeight, vvOffsetTop, safeTop, base })`。`visualViewport` の `resize` と `scroll` を購読し、rAF で合流、cleanup 完全。適用は sheet 要素の **CSS カスタムプロパティ**（`--pantry-fit-h` / `--pantry-fit-bottom`）で行い、CSS 側で `var()` + 既存規則をフォールバックにする。`transition` は付けない（keyboard アニメ中の遅延回避）。inline の `height` 直書きはしない。
+- **C6 fallback（必須）**: `window.visualViewport` が無い / 値が NaN / 例外 → **JS 調整なし**（CSS のみの基準高で動く。エラーなし）。`prefers-*` に依らず動く。SSR / jsdom 安全（`window` ガード）。
+- **C7 invariant（OD-R5-5 維持）**: 通常の search text / result / shelf / pin の変更では sheet の外形（top / bottom / height）が**変わらない**（vv が変化しない限り）。変わってよいのは「keyboard による利用可能 visual viewport の変化」への応答のみ。keyboard 解除後は open 直後の外形へ**±0.5px で復帰**（テスト + HV）。header と 閉じる は常に visual viewport 内（headerAboveVV = false）、sheet 下端は vv の下端を超えない（sheetBottomBelowVV = 0）。
+- **C8 body**: `html/body/#root` の `overflow: hidden` は維持。`window.scrollY` / `vv.offsetTop` は常に 0 を目標。**補正（`scrollTo` 等）は、実装後の HV で残留が観測された場合のみ**追加する（Mode C の実機では不要だった）。
+- **C9 下限（未確定）**: 小さな visible 領域（vv が極端に小さい）で header + search + chips + 1 結果行が収まらない場合の床（floor）と挙動は、**4 viewport 実測で決める**。決められない場合（例: 1 行未満）は Owner に戻す（chips を keyboard 中だけ隠す等は**勝手に採らない**）。
+- **C10 R5-b の範囲**: search field + fit + IME + Enter/blur/focus + alias 接続（Alias Audit の契約 C1〜C8）。**pin / hand / #197 / selected strip の実描画 / R5-c 以降は含めない**。`HAND_ENFORCEMENT_ENABLED = false` 維持、save schema 変更なし、Dinner / guided / Lunch Rush 影響なし（isLargeCatalogEligible の gate は R3/R5-a のまま）。
+- **C11 R5-b contract candidate（§15.3）を継承**: search 表示は active category の OWNED 母数 > 6（結果数・text・shelf に非依存）/ open 時 auto-focus なし / `font-size ≥ 16px`（Mode C 実機は 16px + 44px で動作）/ Enter で blur する場合は focus を list へ / 0 件でも field を消さない。
+- **C12 テスト**: `computePantryFit` の純関数テスト（keyboard 相当 / 無し / vv 欠損 / 極小 / 負の bottom の clamp）、hook のライフサイクル（購読・rAF・cleanup・unmount 解除・fallback）、`visualViewport` を差し替えた component テスト、境界テスト（`visualViewport` を import してよいのは pantry の fit hook のみ）、mutation（fit が基準高を超える / 解除漏れ / focus のみ依存 / fallback で throw / 通常 state 変更で外形が変わる）。e2e は Chromium で viewport 縮小の**早期検知**のみ（keyboard 合否は実機 HV）。
+
+### 18.5 IME 契約（composition 中の empty flash を出さない）
+
+**第一候補（Owner 方向）: composition 中は絞り込みを更新せず、`compositionend` 後に確定文字列で更新する。**
+
+1. field は `value`（生の入力）と `appliedText`（絞り込みに使う確定済み文字列）を分ける。`compositionstart` で `composing = true`（**表示中の list を維持**）、`compositionend` で `composing = false` にし、その時点の `input.value` を `appliedText` に反映して list を更新 + `scrollTop = 0`。
+2. `composing` 中の `input` イベント（`nativeEvent.isComposing === true` を含む）は `appliedText` を更新しない。**composition を伴わない入力**（ペースト・削除・latin 直入力・✕ クリア・音声）は即時に反映する。
+3. **ブラウザ差**: `compositionend` と最終 `input` の順序は Safari と Chrome で異なり得る。`compositionend` で必ず反映し、直後の `input` でも同じ値なら冪等に扱う（二重更新しても結果は同じ）。
+4. **取りこぼし対策**: composition 中に blur / unmount / close された場合は `composing` を解除し、blur 時は `input.value` を反映（flag が固着しない）。close で text と `appliedText` を破棄（既存の unmount reset）。
+5. **確定 Enter**: `isComposing || keyCode === 229 || composing` のとき blur も検索操作もしない（Safari は `compositionend` が先に発火して確定 Enter の `isComposing` が false になり得るため、`composing` flag に加え「`compositionend` 直後の短時間」も確定扱いにするか、実機で順序を確認して決める）。それ以外の Enter は blur + list へ focus。
+6. **empty 文言**: 確定後（`composing = false`）の 0 件は通常どおり 0 件文言を出す。composition 中は 0 件文言を出さない（前の表示を保持）。
+7. **副作用（要検証）**: iOS のかな入力は確定まで composition が続くため、第一候補では**入力中の逐次絞り込みが効かない**。体感が悪い場合の第二候補（B）: composition 中も更新するが **結果が 0 件になる更新だけは採用せず直前の非 0 件表示を保持**し、`compositionend` で確定値を厳密に反映する。A と B の選択は実装後の実機 HV で行い、勝手に混ぜない。判定基準は「変換中に 0 件文言が出ない」ことと「確定後に必ず正しい結果へ復帰する」こと。
+8. alias（たまねぎ→玉ねぎ、たまご→卵、モッツァレラ→モッツァレラチーズ）は確定後の `appliedText` に対して Alias Audit の契約（別 authority map、明示 alias のみ、逆方向部分一致なし）で一致させる。実機で「タマネギ」「玉ねぎ」が 1 件に一致することを確認済み。
+9. テスト: composition イベント列（`compositionstart → input → input → compositionend`）で list が変わらない / end で更新、Safari 順序（end → input）、blur 中断、✕、ペースト、確定 Enter の非 blur、0 件文言が composition 中に出ない。
+
+### 18.6 FINAL VERDICT（R5-b production 実装）
+
+**A. R5-b READY**（R5-a は PR #308 として main `21dc0a6` に merge 済みのため、前提は充足）
+
+- Discovery Gate G-D1〜G-D8 は Owner 判定により通過。Mode C を採用（採用は LC-R5-b の実装に限る。他への拡張なし）。
+- **実装開始の制約**: 実装は `origin/main` 最新（`21dc0a6` 以降）から。standalone / 小型端末 / keyboard 解除後の復帰 / Enter・Escape・keyboard を閉じる手段は、**実装後の実機 HV で確認**（未検証事項として §18.7 に明示）。
+- 未決の Owner 判断はなし。C9（下限）と IME の A/B 選択は「実装フェーズ内で実測して決め、決められなければ Owner に戻す」項目。
+
+### 18.7 残るリスク
+
+| # | リスク | 対応 |
+|---|---|---|
+| R1 | **standalone / PWA 未検証**（Safari タブのみ）。safe-area-top（≈ 47〜59）・keyboard 上の可視領域・復帰の挙動差の可能性 | R5-b 実装後の HV で Safari + standalone を必須にする。standalone で不具合なら実装内で修正（fit の式は safe-top を考慮済み）|
+| R2 | **小型 viewport 未検証**（1 端末のみ）。visible 高が小さいと list < 1〜2 行になり得る（384 ESTIMATE: 664 相当で約 1.4 行、640 相当で約 1.1 行、strip 表示時は 1 行未満）| 4 viewport 実測 + 小型端末 HV。C9 の床を決め、決められなければ Owner に戻す |
+| R3 | keyboard 解除後の復帰（offsetTop 0・外形復帰・stage/dock）と解除タイミングの遅延（keyboard アニメ中の resize 連射、predictive bar の高さ変動）| C4 の vv 主体の解除 + rAF 合流 + テスト + HV |
+| R4 | `layoutH` の取り方（`documentElement.clientHeight`）が iOS バージョンで `innerHeight` と乖離 | 実機 HV で両値を記録（harness の JSON に両方あり）。乖離が出れば式を見直し |
+| R5 | IME 第一候補（更新は確定後）の体感（逐次絞り込みなし）| 実機 HV で判断。第二候補 B を用意（§18.5-7）。Owner 判断が要る場合は戻す |
+| R6 | 確定 Enter の `keyCode 229` / `compositionend` 順序（Safari）| 実装で `composing` flag + 短時間ガード、実機 HV で確認 |
+| R7 | 外付 keyboard / iPad では vv が縮まない（fit は no-op で正しい）が、Escape / PageDown の実挙動は未実測 | HV の観察項目（挙動は変更しない）|
+| R8 | `visualViewport` の購読が新規の失敗面（リーク、他 overlay との干渉）| hook を pantry 専用にし、境界テストで他所の import を禁止、unmount cleanup のテスト |
+| R9 | 実機証跡（動画 / JSON）を本セッションで直接確認していない | 数値は Owner 報告値として記録。R5-b Result で実装後の実機 JSON / 動画を再取得して照合 |
+| R10 | Preview repo の `discovery/lc-r5b/` は `deploy-from-source` の次回実行で消える | Discovery 完了後は不要。必要なら再配置可（ソースは harness branch）|
+
+### 18.8 次の R5-b 実装プロンプト（docs 外。Owner が起動）
+
+> perusonao/teto-pizza-game の LC-R5-b（Search + iPhone soft keyboard 対応）を実装してください。fresh fetch し、最新 `origin/main`（R5-a = PR #308 merge 済み `21dc0a6` 以降）から新規 branch を切ります。
+>
+> Authority: Fresh Audit `claude/lc-r5-fresh-audit-z4bga9` @ `b584b7a`（§21 最優先）/ Implementation Verification Plan `claude/lc-r5-implementation-verification-jo557t` @ `855e9fb`（§6 R5-b）/ R5-b PreAudit `claude/lc-r5b-pre-audit-mbinf3`（**§15〜§18 を最新 authority**。docs は main に無いので該当 branch から read-only で読む）/ Japanese Search Alias Audit `claude/lc-r5b-japanese-search-audit-nciqbq` @ `195494a`（OD-A1〜A6、契約 C1〜C8 / T-1〜T-10）。
+>
+> 範囲: IngredientPantry に search を追加し、Mode C（sheet 上限 + `visualViewport` fit + fallback）と IME 契約（PreAudit §18.4 / §18.5）を実装する。承認済み alias 3 件（onion→玉ねぎ、egg→卵、mozzarella→モッツァレラチーズ）を、検索専用の別 authority map（OD-A1）で接続する。search 表示は active category の OWNED 母数 > 6（結果数・text・shelf 非依存）、auto-focus なし、font-size ≥ 16px、Enter（確定 Enter を除く）は blur して list に focus、0 件でも field を消さない、Escape は R3 契約のまま。`visualViewport` を使うのは pantry 専用の小さな hook のみ。基準高の最終値・式と小 viewport の床は 4 viewport（390×844 / 360×800 / 390×664 / 360×640）の実測で決め、決められなければ Owner に戻す。
+>
+> 禁止: pin / hand / #197 / selected strip 描画 / R5-c 以降、`HAND_ENFORCEMENT_ENABLED` の変更、save schema 変更、Dinner / guided / Lunch Rush への影響、production への harness コード流用（挙動の参照のみ）、main への直接変更。PR は Owner の指示があるまで作らない。
+>
+> 完了条件: unit / component / boundary / mutation（PreAudit §12、§18.4-C12）と 4 viewport の e2e、typecheck / lint / build 緑、Human Verification（実機 iPhone: Safari + standalone、動画 390×844 は repo に commit しない、before/after screenshots を `docs/reports/screenshots/<task-name>/`）、Result Report `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5b_*_Result.md`、`PROJECT_HANDOFF.md` 更新。HV は PreAudit §9 の H-1〜H-21 を実装済み build で実施し、keyboard 解除後の復帰・Enter / Escape / keyboard を閉じる手段・IME 第一候補の体感を記録する。
