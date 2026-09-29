@@ -44,6 +44,9 @@ describe("catalog boundary", () => {
       "./catalogText.ts",
       "./catalogTypes.ts",
       "./dexActionSummary.ts",
+      "./freeEligibility.ts",
+      "./handPolicy.ts",
+      "./handSession.ts",
       "./hintDisclosure.ts",
       "./usageSignals.ts",
       "./workingSet.ts",
@@ -54,7 +57,9 @@ describe("catalog boundary", () => {
     const violations: string[] = [];
     for (const [file, text] of Object.entries(CATALOG_SOURCES)) {
       for (const { spec, typeOnly } of imports(text)) {
-        const ok = spec.startsWith("./") || (typeOnly ? ALLOWED_TYPE.has(spec) : ALLOWED_VALUE.has(spec));
+        // LC-R2 (OD-1): only the FREE-eligibility module may read the explicit round kind (a pure enum helper).
+        const roundKind = file === "./freeEligibility.ts" && spec === "../../state/roundKind";
+        const ok = roundKind || spec.startsWith("./") || (typeOnly ? ALLOWED_TYPE.has(spec) : ALLOWED_VALUE.has(spec));
         if (!ok) violations.push(`${file} -> ${spec}${typeOnly ? " (type)" : ""}`);
       }
     }
@@ -89,6 +94,19 @@ describe("catalog boundary", () => {
     expect(violations).toEqual([]);
     const source = CATALOG_SOURCES["./catalogSource.ts"].replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
     expect(source.match(/ingredientShelf\(/g)).toHaveLength(1);
+  });
+
+  it("LC-R2: the hand modules never touch shelves, the taxonomy or the raw round flags", () => {
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    for (const file of ["./workingSet.ts", "./handSession.ts", "./handPolicy.ts", "./freeEligibility.ts"]) {
+      const code = strip(CATALOG_SOURCES[file]);
+      expect(code, file).not.toMatch(/\bshelf\b|\bshelves\b|ingredientShelf|ingredientTaxonomy|ATTRIBUTE_FAMILIES/);
+    }
+    // The FREE gate reads the explicit round kind and `dinner`; it must not use `freeCook` or `recipeFreeTray`.
+    const gate = strip(CATALOG_SOURCES["./freeEligibility.ts"]);
+    expect(gate).not.toMatch(/\bfreeCook\b|recipeFreeTray/);
+    expect(gate).toMatch(/isFreeCookingRound/);
+    expect(gate).toMatch(/dinner === null/);
   });
 
   it("dexActionSummary imports nothing (stock can never become an input by accident)", () => {

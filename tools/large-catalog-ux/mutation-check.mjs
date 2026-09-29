@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -220,6 +220,48 @@ const MUTANTS = [
     what: "hand reads the shelf: the working set fill starts depending on `shelf`",
     file: `${C}/workingSet.ts`,
     edits: [["fill: ownedInCategory.map((item) => item.id).filter(stocked),", "fill: ownedInCategory.filter((item) => item.shelf !== null).map((item) => item.id).filter(stocked),"]],
+  },
+  {
+    id: "M26",
+    what: "FREE gate uses the tray's recipe-free notion: Dinner becomes eligible",
+    file: `${C}/freeEligibility.ts`,
+    edits: [["return isFreeCookingRound(round) && round.dinner === null;", "return isFreeCookingRound(round) || round.dinner !== null;"]],
+  },
+  {
+    id: "M27",
+    what: "FREE gate ignores `dinner === null` (a FREE-kind round with a Dinner session is eligible)",
+    file: `${C}/freeEligibility.ts`,
+    edits: [["return isFreeCookingRound(round) && round.dinner === null;", "return isFreeCookingRound(round);"]],
+  },
+  {
+    id: "M28",
+    what: "capacity enforcement switched on (would hide owned ingredients before the pantry exists)",
+    file: `${C}/handPolicy.ts`,
+    edits: [["export const HAND_ENFORCEMENT_ENABLED = false;", "export const HAND_ENFORCEMENT_ENABLED = true;"]],
+  },
+  {
+    id: "M29",
+    what: "resolveHand ignores eligibility (Dinner / guided get a hand)",
+    file: `${C}/handSession.ts`,
+    edits: [["if (!isLargeCatalogEligible(input.round)) return null;", "void isLargeCatalogEligible;"]],
+  },
+  {
+    id: "M30",
+    what: "hand accepts unowned ingredients",
+    file: `${C}/handSession.ts`,
+    edits: [["byId.get(id)?.category === ctx.category && owned.has(id)", "byId.get(id)?.category === ctx.category || owned.has(id)"]],
+  },
+  {
+    id: "M31",
+    what: "selection rule never clears (#197 broken)",
+    file: `${C}/handSession.ts`,
+    edits: [["return visibleBefore.includes(selectedIngredientId) && !visibleAfter.includes(selectedIngredientId)\n    ? null\n    : selectedIngredientId;", "return selectedIngredientId;"]],
+  },
+  {
+    id: "M32",
+    what: "hand add drops the existing order (re-sorts)",
+    file: `${C}/handSession.ts`,
+    edits: [["return withCategory(session, ctx.category, [...current, ...add]);", "return withCategory(session, ctx.category, [...current, ...add].sort());"]],
   },
 ];
 
