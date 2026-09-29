@@ -163,3 +163,15 @@ There is no code blocker.
 **Owner Decisions still open:** the production flag ON, and OD-H5-P4-SAUCE (waits on TQ-1D).
 
 **STOP.** The production flag is OFF, nothing was deployed or merged, and no other branch was changed.
+
+## 9. Preview deployed, and the Owner iPhone HV (2026-09-29)
+
+- **Deployed:** the Preview repo built `4d090b599c3782427ad7dc4a71b472f5a3c83cb9` (PR #298) as `a2ffc82`,
+  through `deploy-from-source` (run 36513501881) and `pages.yml` (run 36513568094). Badge
+  `PREVIEW · PR#298 · 4d090b5`. Production flag OFF; no production deploy.
+- **Owner iPhone HV (Owner-reported, public URL): A normal, B cheese-none, C key-none, D already-known,
+  E multi-sub, F last-sub, G low-pitz = PASS, 7 / 7.** Details are in the Production Activation Gate
+  report §12.2. Screenshots are Owner-held and not committed.
+- **Known Preview-only visual issue (recorded, not fixed, not a production blocker):** the Preview badge
+  partly overlaps the last Hint-sheet line 「所持 … Pitz ・ …」 (`pointer-events: none`, so no operation is
+  blocked). It exists only in Preview builds.

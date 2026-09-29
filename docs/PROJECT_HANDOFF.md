@@ -337,7 +337,11 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   (flag ON ends the 材料 / 構成 / 特徴 purchases).
 - **H5-4** (round 6 behind the flag; all 25 recipes complete the ladder with the flag ON) is done. See
   `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Round6-Enablement_Result.md`. **The production flag stays OFF.**
-- **Open:** the production activation go (flag ON, Preview, Owner's iPhone HV) and OD-H5-P4-SAUCE (TQ-1D).
+- **H5-5 Preview + Owner iPhone HV (2026-09-29): A to G = PASS, 7 / 7** (Owner-reported; screenshots are not committed).
+  Preview built from `4d090b5` (PR #298). Known Preview-only visual issue: the Preview badge partly overlaps the
+  last sheet line (`pointer-events: none`); not a production blocker. See the Production Activation Gate report §12
+  and the H5-5 Result §9. Final Gate verdict: READY FOR PRODUCTION ACTIVATION (the flag is still OFF).
+- **Open:** the production activation go (flag ON; the Owner decides) and OD-H5-P4-SAUCE (TQ-1D).
   The TQ-1D re-audit tripwire (G7) and the RESERVED gate keep any sauceless / Technique recipe out.
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
