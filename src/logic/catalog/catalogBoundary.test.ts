@@ -134,4 +134,24 @@ describe("catalog boundary", () => {
     expect(violations).toEqual([]);
     for (const path of Object.keys(ALLOWED)) expect(ALL_SOURCES[path], path).toBeDefined();
   });
+
+  it("LC-R4: the pantry filters only itself -- no selection, hand, save or shelf-membership logic of its own", () => {
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const pantry = strip(ALL_SOURCES["../../components/IngredientPantry.tsx"]);
+    // #197 / OD-2: the Builder selection and the hand are not the pantry's business in R4.
+    expect(pantry).not.toMatch(/selectedIngredientId|selectionAfterVisibleChange|handSession|workingSet|handPolicy/);
+    // OD-R4-2: session-local UI state only (no save, no browser storage).
+    expect(pantry).not.toMatch(/localStorage|sessionStorage|dispatch|saveGame|persist/);
+    // Membership is `ingredientShelf` (through the descriptor); no taxonomy / family table of its own.
+    expect(pantry).not.toMatch(/ingredientTaxonomy|ATTRIBUTE_FAMILIES|ingredientAttributeFamily/);
+    expect(imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]).map((i) => i.spec)).toContain("./ShelfChips");
+  });
+
+  it("LC-R4 (OD-R4-3): the pantry entry gate is exactly the R3 gate -- still tied to the reserved pager row until R5 splits them", () => {
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const game = strip(ALL_SOURCES["../../screens/GameScreen.tsx"]).replace(/\s+/g, " ");
+    expect(game).toContain(
+      'const pantryAvailable = isLargeCatalogEligible(state) && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pager;',
+    );
+  });
 });

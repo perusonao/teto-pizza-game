@@ -334,3 +334,171 @@ describe("LC-R3 opening changes nothing", () => {
     expect([...seen].sort()).toEqual(OWNED_TOPPINGS.map((id) => getIngredient(id)!.nameJa).sort());
   });
 });
+
+/**
+ * Large Catalog UX LC-R4 (Owner-confirmed OD-R4-1 / OD-R4-2): shelf filtering inside the active-category pantry.
+ * OWNED_TOPPINGS spans the shelves meat (sausage, pepperoni), seafood (anchovy), vegetable (cherry-tomato,
+ * mushroom, onion), herb (basil, garlic, oregano) and other (egg); fruit and spice are NOT represented.
+ */
+const shelfChipLabels = () => [...document.querySelectorAll(".shelf-chip")].map((n) => n.textContent);
+const tileNames = () => [...document.querySelectorAll(".pantry-tile__name")].map((n) => n.textContent);
+const namesOf = (ids: string[]) => ids.map((id) => getIngredient(id)!.nameJa);
+const ALL_NAMES = namesOf(OWNED_TOPPINGS);
+const chip = (label: string) => screen.getByRole("button", { name: label, pressed: undefined });
+
+describe("LC-R4 chips are derived from the OWNED rows of the active category", () => {
+  it("topping step: すべて + only the represented shelves, in the shelf authority order, no counts", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    expect(shelfChipLabels()).toEqual(["すべて", "肉", "魚介", "野菜・きのこ", "ハーブ・香味", "その他"]);
+    const dialog = screen.getByRole("dialog");
+    // Unrepresented shelves have no chip, node, data attribute or text.
+    for (const absent of ["果物", "スパイス・薬味", "ソース", "チーズ"]) expect(dialog.textContent).not.toContain(absent);
+    for (const shelf of ["fruit", "spice", "sauce", "cheese"]) expect(dialog.querySelector(`[data-shelf="${shelf}"]`)).toBeNull();
+    for (const c of dialog.querySelectorAll(".shelf-chip")) expect(c.textContent).not.toMatch(/\d/);
+  });
+
+  it("the chips sit in the fixed slot between the subtitle and the list, outside the scroll region", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    const slot = document.querySelector(".pantry-sheet__shelves")!;
+    const list = document.querySelector(".pantry-sheet__list")!;
+    expect(slot.querySelectorAll(".shelf-chip").length).toBeGreaterThan(1);
+    expect(list.contains(slot)).toBe(false);
+    expect(slot.nextElementSibling).toBe(list);
+    expect(slot.previousElementSibling?.className).toContain("pantry-sheet__subtitle");
+    expect(screen.getByRole("group", { name: "材料の分類" })).toBeInTheDocument();
+  });
+
+  it("sauce step and cheese step (one shelf each): no chip row at all", () => {
+    for (const [step, category] of [["SAUCE", "sauce"], ["CHEESE", "cheese"]] as const) {
+      render(<Harness initial={toStep(freeBase(), step)} category={category} />);
+      fireEvent.click(entry()!);
+      expect(document.querySelector(".pantry-sheet__shelves")).toBeNull();
+      expect(document.querySelectorAll(".shelf-chip")).toHaveLength(0);
+      expect(tileNames().length).toBeGreaterThan(0);
+      cleanup();
+    }
+  });
+
+  it("two shelves owned in the topping category: the row is shown (and only those shelves)", () => {
+    const owned = [...STARTER_INGREDIENT_IDS, "garlic", "oregano", "rosemary", "sausage", "pepperoni", "bacon", "ham"];
+    const two = createInitialGameState([], owned, 0, Object.fromEntries(owned.map((id) => [id, 4])), [], FINITE, {});
+    render(<Harness initial={toStep(two, "TOPPING")} />);
+    fireEvent.click(entry()!);
+    expect(shelfChipLabels()).toEqual(["すべて", "肉", "ハーブ・香味"]);
+  });
+});
+
+describe("LC-R4 filtering", () => {
+  it("すべて is active by default and lists every owned row of the category", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    expect(tileNames()).toEqual(ALL_NAMES);
+    expect(chip("すべて")).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("each represented shelf shows exactly its owned rows (catalog order); exactly one chip is pressed", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    const expected: Record<string, string[]> = {
+      肉: ["sausage", "pepperoni"],
+      魚介: ["anchovy"],
+      "野菜・きのこ": ["cherry-tomato", "mushroom", "onion"],
+      "ハーブ・香味": ["basil", "garlic", "oregano"],
+      その他: ["egg"],
+    };
+    const catalogOrder = TOPPINGS.filter((id) => OWNED_TOPPINGS.includes(id));
+    for (const [label, ids] of Object.entries(expected)) {
+      fireEvent.click(chip(label));
+      expect(tileNames(), label).toEqual(namesOf(catalogOrder.filter((id) => ids.includes(id))));
+      expect(chip(label)).toHaveAttribute("aria-pressed", "true");
+      expect([...document.querySelectorAll('.shelf-chip[aria-pressed="true"]')]).toHaveLength(1);
+    }
+    fireEvent.click(chip("すべて"));
+    expect(tileNames()).toEqual(ALL_NAMES);
+  });
+
+  it("privacy: no unowned name, silhouette, ??? or LOCKED / NEW text under any filter, and no counts", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    const ownedNames = OWNED.map((id) => getIngredient(id)!.nameJa);
+    for (const label of ["すべて", "肉", "魚介", "野菜・きのこ", "ハーブ・香味", "その他"]) {
+      fireEvent.click(chip(label));
+      const dialog = screen.getByRole("dialog");
+      const text = dialog.textContent ?? "";
+      for (const id of INGREDIENTS.map((i) => i.id).filter((id) => !OWNED.includes(id))) {
+        const name = getIngredient(id)!.nameJa;
+        if (!ownedNames.some((n) => n.includes(name))) expect(text, `${label}: ${name}`).not.toContain(name);
+      }
+      expect(text).not.toMatch(/\?\?\?|？？？|NEW|LOCKED|🔒/);
+      expect(dialog.querySelectorAll("[class*='silhouette'], [class*='locked']")).toHaveLength(0);
+      // The only digits are the per-row stock (×n); no "n種" / category or shelf counts anywhere else.
+      expect(text.replace(/×\d+/g, "")).not.toMatch(/\d/);
+    }
+  });
+
+  it("changing the shelf resets the pantry list's own scrollTop to 0 (and only that)", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    const list = document.querySelector<HTMLElement>(".pantry-sheet__list")!;
+    let top = 120;
+    Object.defineProperty(list, "scrollTop", { configurable: true, get: () => top, set: (v: number) => void (top = v) });
+    fireEvent.click(chip("肉"));
+    expect(top).toBe(0);
+    top = 90;
+    fireEvent.click(chip("すべて"));
+    expect(top).toBe(0);
+  });
+
+  it("close and reopen: the shelf filter is back on すべて (not saved, not in GameState)", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    fireEvent.click(chip("肉"));
+    expect(tileNames()).toEqual(namesOf(["sausage", "pepperoni"]));
+    const json = stateJson();
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+    expect(stateJson()).toBe(json);
+    expect(stateJson()).not.toMatch(/shelf/i);
+    fireEvent.click(entry()!);
+    expect(chip("すべて")).toHaveAttribute("aria-pressed", "true");
+    expect(tileNames()).toEqual(ALL_NAMES);
+  });
+});
+
+describe("LC-R4 focus, keyboard and the Builder selection", () => {
+  it("chip taps keep the sheet open and inside the dialog; Escape (from a chip) still closes and returns focus to the entry", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(entry()!);
+    const meat = chip("肉");
+    meat.focus();
+    fireEvent.click(meat);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByRole("dialog").contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(meat, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(entry());
+  });
+
+  it("#197 is NOT applied in R4: filtering the pantry never clears selectedIngredientId or touches the tray / state", () => {
+    render(<Harness initial={freeTopping()} />);
+    fireEvent.click(screen.getAllByRole("button", { name: /バジル/ })[0]);
+    const before = { json: stateJson(), chips: chipNames(), selected: screen.getByTestId("selected").textContent };
+    expect(before.selected).toBe("basil");
+    fireEvent.click(entry()!);
+    fireEvent.click(chip("肉")); // basil (herb) is now NOT in the pantry list; it is still on the Builder tray
+    expect(tileNames()).not.toContain("バジル");
+    expect(screen.getByTestId("selected").textContent).toBe("basil");
+    fireEvent.click(chip("魚介"));
+    fireEvent.click(chip("すべて"));
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+    expect({ json: stateJson(), chips: chipNames(), selected: screen.getByTestId("selected").textContent }).toEqual(before);
+    expect(screen.getAllByRole("button", { name: /バジル/ })[0]).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("Dinner isolation: still no entry and no pantry / chips in a Dinner round", () => {
+    render(<Harness initial={toStep(dinnerState(), "TOPPING")} />);
+    expect(entry()).toBeNull();
+    expect(document.querySelector(".pantry-sheet, .shelf-chips")).toBeNull();
+  });
+});
