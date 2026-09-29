@@ -48,12 +48,25 @@ describe("HINT5_LADDER_ENABLED: production default x Preview instruction", () =>
     expect(await flagFor("")).toBe(true);
   });
 
-  it("?hint5=0 (Preview / DEV kill switch): off, and it stays off on the next load without the parameter", async () => {
-    window.localStorage.setItem(PREVIEW_KEY, "1");
+  it("?hint5=0 (Preview / DEV kill switch): off, stored as an explicit off, and it stays off after a reload without the parameter", async () => {
     expect(await flagFor("?hint5=0")).toBe(false);
-    expect(window.localStorage.getItem(PREVIEW_KEY)).toBeNull();
-    // Nothing stored any more: the production default applies again (ON).
+    expect(window.localStorage.getItem(PREVIEW_KEY)).toBe("0");
+    expect(await flagFor("")).toBe(false); // the parameter is gone from the URL: still off
+    expect(await flagFor("?hv=normal")).toBe(false);
+  });
+
+  it("?hint5=1 after an explicit off returns to on, and stays on after a reload", async () => {
+    expect(await flagFor("?hint5=0")).toBe(false);
+    expect(await flagFor("?hint5=1")).toBe(true);
+    expect(window.localStorage.getItem(PREVIEW_KEY)).toBe("1");
     expect(await flagFor("")).toBe(true);
+  });
+
+  it("a stored Preview off wins over nothing but is separate from the production save key", async () => {
+    window.localStorage.setItem("teto-pizza-save-v1", "PRODUCTION-SAVE");
+    expect(await flagFor("?hint5=0")).toBe(false);
+    expect(window.localStorage.getItem("teto-pizza-save-v1")).toBe("PRODUCTION-SAVE");
+    expect(PREVIEW_KEY).not.toBe("teto-pizza-save-v1");
   });
 
   it("an unrelated parameter changes nothing", async () => {

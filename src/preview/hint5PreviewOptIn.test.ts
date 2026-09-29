@@ -41,15 +41,26 @@ describe("resolveHint5PreviewOptIn", () => {
     expect(resolveHint5PreviewOptIn("?hv=normal", storage)).toBe(true);
   });
 
-  it("?hint5=0 turns it off again and removes the key", () => {
-    const storage = memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "1" });
+  it("?hint5=0 stores an explicit off in the Preview key; it stays off on a later load without the parameter", () => {
+    const storage = memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "1", "teto-pizza-save-v1": "PRODUCTION-SAVE" });
     expect(resolveHint5PreviewOptIn("?hint5=0", storage)).toBe(false);
-    expect(storage.map.has(HINT5_PREVIEW_OPT_IN_KEY)).toBe(false);
-    expect(resolveHint5PreviewOptIn("", storage)).toBe(false);
+    expect(storage.map.get(HINT5_PREVIEW_OPT_IN_KEY)).toBe("0");
+    expect(resolveHint5PreviewDecision("", storage)).toBe("off");
+    expect(resolveHint5PreviewDecision("?hv=normal", storage)).toBe("off");
+    expect(storage.map.get("teto-pizza-save-v1")).toBe("PRODUCTION-SAVE");
   });
 
-  it("only the exact stored value 1 counts", () => {
-    for (const value of ["0", "true", "on", "", "1 "]) expect(resolveHint5PreviewOptIn("", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: value })), value).toBe(false);
+  it("?hint5=1 returns from a stored off to on, and that is remembered too", () => {
+    const storage = memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "0" });
+    expect(resolveHint5PreviewDecision("?hint5=1", storage)).toBe("on");
+    expect(storage.map.get(HINT5_PREVIEW_OPT_IN_KEY)).toBe("1");
+    expect(resolveHint5PreviewDecision("", storage)).toBe("on");
+  });
+
+  it("only the exact stored values 1 (on) and 0 (off) count; anything else is no instruction", () => {
+    for (const value of ["true", "on", "off", "", "1 ", "0 ", "2"]) {
+      expect(resolveHint5PreviewDecision("", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: value })), value).toBe("none");
+    }
   });
 
   it("no storage / a throwing storage never throws: ?hint5=1 still works for this load, the stored value reads as off", () => {
@@ -82,6 +93,7 @@ describe("resolveHint5PreviewDecision (an explicit off is not the same as no ins
     expect(resolveHint5PreviewDecision("?hint5=1", memory())).toBe("on");
     expect(resolveHint5PreviewDecision("?hint5=0", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "1" }))).toBe("off");
     expect(resolveHint5PreviewDecision("", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "1" }))).toBe("on");
+    expect(resolveHint5PreviewDecision("", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "0" }))).toBe("off");
     expect(resolveHint5PreviewDecision("", memory())).toBe("none");
     expect(resolveHint5PreviewDecision("?hv=normal", memory())).toBe("none");
   });

@@ -11,7 +11,8 @@
  * behave exactly as before H5-2 (../../state/gameReducer.hint5.flagOff.test.ts pins that).
  *
  * **Preview / DEV only (H5-5).** In a Preview build (`VITE_PREVIEW_MODE`) or a DEV server, `?hint5=0`
- * turns the ladder off and `?hint5=1` turns it on (both remembered in a Preview-only key). Production
+ * turns the ladder off and `?hint5=1` turns it on; each choice is remembered in a Preview-only key, so it
+ * survives a reload without the parameter. Production
  * builds have none of it.
  *
  * **DEV-only opt-OUT (tests).** In a DEV server, `localStorage["teto.dev.hint5Ladder"] = "0"` turns the

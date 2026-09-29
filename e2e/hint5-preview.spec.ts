@@ -243,7 +243,22 @@ test.describe("Preview build: opt-in, seeds, isolation (P4 to P8)", () => {
     await visit(page, previewUrl("?hint5=0"));
     dialog = await openHintSheet(page);
     await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
-    expect(await stored(page, OPT_IN_KEY)).toBeNull();
+    expect(await stored(page, OPT_IN_KEY)).toBe("0"); // an explicit, remembered off
+    // The parameter is gone from the URL and the page is reloaded: still off (P2 review finding).
+    await visit(page, previewUrl(""));
+    dialog = await openHintSheet(page);
+    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
+    await page.reload();
+    dialog = await openHintSheet(page);
+    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
+    // ?hint5=1 returns to on, and that is remembered as well.
+    await visit(page, previewUrl("?hint5=1"));
+    dialog = await openHintSheet(page);
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    await visit(page, previewUrl(""));
+    dialog = await openHintSheet(page);
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    expect(await stored(page, OPT_IN_KEY)).toBe("1");
   });
 
   test("P6: a seed writes the Preview save only; a planted production save is byte for byte unchanged", async ({ page }) => {
