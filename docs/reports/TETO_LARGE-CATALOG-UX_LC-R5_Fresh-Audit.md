@@ -417,8 +417,48 @@ Already decided and not re-asked: OD-1 (FREE only, Dinner excluded), OD-2 (picks
 4. WebKit cannot run in this sandbox and `node_modules` is absent here: nothing in this document was test-executed; the R5 slices must re-measure every "est." number.
 5. Two to-verify items for R5-c: the exact `GameState` source of `placedIds`, and Hint 5.0 family ↔ shelf label mapping (ids identical; labels differ by design).
 
+**Status update (Owner Decisions recorded):** PR #306 (LC-R4) has since **merged** into main (`12725eb3461583a5349259868fe2e7163b3eacf0`). The audit body above was written against PR #306 HEAD `ead02fb0…` (unchanged content on main) and is kept as written; §21 supersedes §19's "Recommendation" column where they differ. Blocker 1 in §20 is resolved.
+
 ---
 
-**FINAL VERDICT: A. LC-R5 READY FOR OWNER DECISIONS**
+## 21. Owner Decisions — CONFIRMED (Owner Authority, recorded after the audit)
+
+Status: **OD-R5-2 … OD-R5-12 are Owner-confirmed. OD-R5-1 is a confirmed *design candidate* only — final decision pending the R6 real-device Human Feel Gate ("R6 finalization pending").** Docs only: no production, save or PR change was made by recording these.
+
+| ID | Decision (Owner) |
+|---|---|
+| **OD-R5-1** *(R6 finalization pending)* | Hand capacity **12 is kept as the current design candidate**. R5 is designed and verified assuming 12, but 12 is **not final**. 9 vs 12 is confirmed at the **R6 real-device Human Feel Gate** and only then finalized. |
+| **OD-R5-2** | **Model D.** A pantry tile operation edits the `HandSession` pin **directly**. No pending picks + confirm two-stage state is introduced. |
+| **OD-R5-3** | Keep R2's hand composition: **pins + deterministic automatic fill**. Not pins-only. |
+| **OD-R5-4** | Keep the **active-category pantry**. No cross-category pantry in R5. **No topping-only enforcement.** |
+| **OD-R5-5** | The pantry sheet grows, to accommodate search / selection UI, **toward the maximum usable viewport height**. No fixed value is finalized up front: **R5-b measures the 4 viewports (390×844, 360×800, 390×664, 360×640) and runs the iPhone real-device keyboard Human Verification, then fixes the safe maximum height.** Search is shown **only when needed**; the 選択中 area is shown **only while a pin exists**. A **collapsible selected strip is not adopted.** |
+| **OD-R5-6** | An inventory-0 ingredient **cannot be newly pinned**. Existing pins keep the R2 contract and follow the prune / sanitize authority. |
+| **OD-R5-7** | 「選択中 n/cap」 is **allowed**, but with `HAND_ENFORCEMENT_ENABLED=false` (R5) the **capacity UI is not shown in production**; it is shown when R6 enables enforcement. |
+| **OD-R5-8** | Escape keeps the R3 contract: it **closes the sheet even while the search field is focused**. No "first Escape clears only the search" behaviour. |
+| **OD-R5-9** | Pins are **App-level, session-only**, kept across round end / HOME / FREE restart; **no effect on Dinner / guided / Lunch Rush**; lost on reload / app restart; **no save schema addition**. |
+| **OD-R5-10** | **E1.** Keep the current placement at the left of the utility / pager row; only the **availability / reservation authority** is separated from the pager: `utilityRow = pager OR pantryWorthwhile`. `pantryWorthwhile` is derived from **owned / catalog authority** and must not depend on hand availability or pager availability. **Stage / dock Δ0 is re-verified at the 4 viewports.** |
+| **OD-R5-11** | R5 has **no automatic Hint 5.0 → Pantry preset / link**. The manual path stays. Reconsider only in a dedicated audit (LC-4 or similar). |
+| **OD-R5-12** | R5 = **wiring, search, pin editing, #197, entry separation**. `HAND_ENFORCEMENT_ENABLED` **stays `false`**; it becomes `true` only after the R6 Gate (§16) is satisfied. |
+
+### 21.1 #197 additional contract (Owner; refines §7)
+
+- **`selectedIngredientId` is NOT cleared by:** pantry open / close, shelf change, search change, pantry scroll, or a pin change that **does not actually change the Builder visible tray**.
+- The clear decision is made **only at the moment HAND enforcement actually changes the Builder tray's visible set.**
+- **After a hand change the tray returns to page 0.**
+- After the change: if `selectedIngredientId` is **not** on the now-visible page → **clear**; if it **is** → **keep**.
+- **Being somewhere in the whole hand is not enough. The authority is the currently visible tray page** (this fixes the hand-level vs page-level gap of §7 item 4: R5 implements a page-level rule, not the R2 hand-level `selectionAfterVisibleChange` as is).
+- OD-2 stands: picks / pins are never cleared by filter / search / shelf; they are a separate state from `selectedIngredientId`.
+
+### 21.2 Consequences carried into the R5 slices (no new decision)
+
+- **OD-R5-5 ⇒ R5-b:** the sheet-height lever is chosen by measurement (4 viewports + iPhone keyboard HV), not before; the 70 dvh → ceiling change is allowed in direction only. Search field: hidden when the category has ≤ 6 owned rows; strip: rendered only while ≥ 1 pin. R5-b's exit condition includes the real-device keyboard verification (§11).
+- **OD-R5-7 ⇒ R5-c:** the pins UI's capacity indicator sits behind the internal capability switch tied to `HAND_ENFORCEMENT_ENABLED`; R5 tests force it on; production shows none.
+- **OD-R5-10 ⇒ R5-a:** the source-level test that `pantryAvailable` / `pantryWorthwhile` reference neither `dockReserve.pager` nor the hand stays required; the stage / dock Δ0 e2e at the 4 viewports is required.
+- **OD-R5-1 ⇒ R6:** the R6 Gate item 6 (capacity chosen + real-device thumb / mis-tap check) is where 9 vs 12 is finalized; `handCapacityFor` keeps capacity as an argument. R5 must not hard-code 12 in UI copy or layout.
+- **§19 table:** the "Recommendation" column is now the record of what was recommended; the decisions above are authoritative. OD-R5-2 … 12 match the recommendations except OD-R5-1 (candidate, not final), OD-R5-5 (direction only, value by measurement) and OD-R5-7 (no capacity UI in production during R5).
+
+---
+
+**FINAL VERDICT: A. LC-R5 READY FOR OWNER DECISIONS** (original audit verdict; Owner Decisions since recorded in §21 — OD-R5-1 pending R6 finalization, OD-R5-2 … 12 confirmed)
 
 (No blocker prevents the Owner from answering OD-R5-1 … 12. Implementation may begin only after PR #306 merges and the decisions are recorded; R5 must not flip `HAND_ENFORCEMENT_ENABLED`.)
