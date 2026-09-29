@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -305,11 +305,102 @@ const MUTANTS = [
     file: "src/components/IngredientPantry.tsx",
     edits: [['import { emptyUsageSession } from "../logic/catalog/usageSignals";', 'import { emptyUsageSession } from "../logic/catalog/usageSignals";\nimport "../logic/catalog/workingSet";']],
   },
+  {
+    id: "M40",
+    what: "chips from every shelf instead of the OWNED rows (an absent shelf gets a chip)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["INGREDIENT_SHELF_ORDER.filter((id) => represented.has(id))", "INGREDIENT_SHELF_ORDER.filter(() => true)"],
+    ],
+  },
+  {
+    id: "M41",
+    what: "chip row shown for a single shelf (threshold 2 -> 1)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["presentShelves.length >= 2", "presentShelves.length >= 1"],
+    ],
+  },
+  {
+    id: "M42",
+    what: "unclassified (shelf null) rows leak into a specific shelf",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["itemsFor([shelfFilter])", "[...itemsFor([shelfFilter]), ...allItems.filter((i) => i.shelf === null)]"],
+    ],
+  },
+  {
+    id: "M43",
+    what: "filter change no longer resets the list scrollTop",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["if (listRef.current) listRef.current.scrollTop = 0;", "void listRef.current;"],
+    ],
+  },
+  {
+    id: "M44",
+    what: "the shelf filter survives close / reopen (module-level persistence)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["export function IngredientPantry(", "let persistedShelf: ShelfFilter = \"all\";\nexport function IngredientPantry("],
+      ["useState<ShelfFilter>(\"all\");", "useState<ShelfFilter>(persistedShelf);"],
+      ["    setActiveShelf(next);", "    persistedShelf = next;\n    setActiveShelf(next);"],
+    ],
+  },
+  {
+    id: "M45",
+    what: "chip row moved inside the scrolling list (not a fixed slot)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["{showChips && (\n          <div className=\"pantry-sheet__shelves\">", "{false && (\n          <div className=\"pantry-sheet__shelves\">"],
+      ["aria-label=\"所持している材料\" tabIndex={0}>", "aria-label=\"所持している材料\" tabIndex={0}>\n          {showChips && <ShelfChips shelves={presentShelves} active={shelfFilter} onChange={handleShelfChange} ariaLabel=\"材料の分類\" />}"],
+    ],
+  },
+  {
+    id: "M46",
+    what: "scope creep: the pantry wires the #197 selection rule (R5+, not R4)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["import { ShelfChips } from \"./ShelfChips\";", "import { ShelfChips } from \"./ShelfChips\";\nimport { selectionAfterVisibleChange } from \"../logic/catalog/handSession\";\nvoid selectionAfterVisibleChange;"],
+    ],
+  },
+  {
+    id: "M47",
+    what: "the pantry lists rows of every category (cross-category pantry)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      [".filter((item) => item.category === category);", ".filter(() => true);"],
+    ],
+  },
+  {
+    id: "M48",
+    what: "a count leaks into the subtitle",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["{CATEGORY_LABEL[category]}</p>", "{CATEGORY_LABEL[category]} {allItems.length}</p>"],
+    ],
+  },
+  {
+    id: "M49",
+    what: "a stored shelf that is no longer represented is not reset to すべて",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [
+      ["presentShelves.includes(activeShelf) ? activeShelf : \"all\"", "true ? activeShelf : \"all\""],
+    ],
+  },
+  {
+    id: "M50",
+    what: "the entry gate stops requiring the reserved pager row (pager gate changed)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [
+      ["state.makingStep !== \"DOUGH\" && dockReserve.pager;", "state.makingStep !== \"DOUGH\";"],
+    ],
+  },
 ];
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });
