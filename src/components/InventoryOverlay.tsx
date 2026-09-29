@@ -56,7 +56,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
           </button>
         </div>
 
-        <div className="dex-overlay__body">
+        <div className="dex-overlay__body inventory-overlay__body">
           <p className="inventory-overlay__summary">
             所持 {collection.owned}/{collection.total}種
           </p>
@@ -70,37 +70,39 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
             />
           </div>
 
-          {visible.length === 0 && (
-            <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
-          )}
+          <div className="inventory-overlay__list" role="region" aria-label="材料一覧" tabIndex={0}>
+            {visible.length === 0 && (
+              <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
+            )}
 
-          {visible.length > 0 && (
-            <div className="inventory-grid">
-              {visible.map((ingredient) => {
-                const stock = remainingStock(ingredient, inventory);
-                return (
-                  <div key={ingredient.id} className="inventory-card">
-                    {ingredient.category === "cheese" ? (
-                      <span className="inventory-card__cheese-slot">
-                        <IngredientPieceVisual ingredient={ingredient} />
+            {visible.length > 0 && (
+              <div className="inventory-grid">
+                {visible.map((ingredient) => {
+                  const stock = remainingStock(ingredient, inventory);
+                  return (
+                    <div key={ingredient.id} className="inventory-card">
+                      {ingredient.category === "cheese" ? (
+                        <span className="inventory-card__cheese-slot">
+                          <IngredientPieceVisual ingredient={ingredient} />
+                        </span>
+                      ) : (
+                        <span className="inventory-card__emoji">
+                          <IngredientGlyph ingredient={ingredient} />
+                        </span>
+                      )}
+                      <span className="inventory-card__name">{ingredient.nameJa}</span>
+                      <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
+                      <span
+                        className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
+                      >
+                        {stock === "UNLIMITED" ? "∞" : `×${stock}`}
                       </span>
-                    ) : (
-                      <span className="inventory-card__emoji">
-                        <IngredientGlyph ingredient={ingredient} />
-                      </span>
-                    )}
-                    <span className="inventory-card__name">{ingredient.nameJa}</span>
-                    <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
-                    <span
-                      className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
-                    >
-                      {stock === "UNLIMITED" ? "∞" : `×${stock}`}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

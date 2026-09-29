@@ -2963,7 +2963,29 @@
 }
 
 /* ---------- Inventory Screen (read-only stock view) ---------- */
+/* Fixed-height modal: the panel takes its full shell ceiling (the same viewport-derived value as
+   .dex-overlay__panel's max-height) so filtering to few/one card never resizes it. Summary and
+   ShelfChips stay pinned; only .inventory-overlay__list scrolls. */
+.inventory-overlay__panel {
+  height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+}
+
+.inventory-overlay__body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+.inventory-overlay__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .inventory-overlay__summary {
+  flex: 0 0 auto;
   font-size: 12px;
   font-weight: 700;
   color: #6b4226;
@@ -2973,6 +2995,7 @@
 /* Ingredient Category Tabs 1.0 Phase 4: spacing around the shared ShelfChips row (which carries
    no outer margin of its own). The body is a block scroller, so the row cannot be squashed. */
 .inventory-overlay__shelves {
+  flex: 0 0 auto;
   margin-bottom: 12px;
 }
 
@@ -6159,4 +6182,10 @@ p.hint-sheet__step {
 .dinner-abandon .secondary-button {
   width: 100%;
   min-height: 44px;
+}
+
+/* Keyboard scroll: the list is the only scroller, so it is focusable (tabIndex 0); keep a visible ring. */
+.inventory-overlay__list:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: -2px;
 }
