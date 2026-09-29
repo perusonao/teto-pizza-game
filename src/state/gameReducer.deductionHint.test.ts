@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
@@ -14,6 +14,10 @@ import { createInitialGameState, gameReducer, type GameAction, type GameState } 
 import type { ResultNearMissInput } from "./resultNearMiss";
 import { createDefaultSave, loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 4.0 (Issue #253), DH4-2B: 構成 / 特徴 requests through the real reducer, behind the
  * flag (on in every build since OD-DH4-PROD-1, at the fixed 5 / 5 price). The DH4-2A pure authority decides; the

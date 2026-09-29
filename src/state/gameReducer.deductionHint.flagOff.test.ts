@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 4.0 DH4-2B: flag-off parity. Before OD-DH4-PROD-1 this was the production build;
  * it is now the one-line rollback (`DEDUCTION_HINTS_ENABLED = false`): a 構成 / 特徴 request is a

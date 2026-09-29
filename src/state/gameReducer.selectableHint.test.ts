@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { buildHintSteps } from "../logic/discovery/hintSteps";
@@ -16,6 +16,10 @@ import { hintSheetView, type HintSheetView } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { createDefaultSave, loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 3.0 (Issue #238), H3-3: PURCHASE_SELECTABLE_HINT through the real reducer.
  * H3-1's `purchaseSelectableHint` is the authority, fed from both ledgers by H3-2's

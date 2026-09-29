@@ -7,6 +7,10 @@ import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES } from "./data/recipes";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("./logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 2.0 (Issue #229, 229-D) through the real App: a Dex 🎨 card's 「💡 ヒントを見る」
  * closes the Dex, starts Free Cooking and opens the hint sheet -- on a legacy save where several

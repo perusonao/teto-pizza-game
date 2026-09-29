@@ -13,8 +13,8 @@ import { test, expect, type Page } from "@playwright/test";
  * per-origin, so the production save sits right next to the Preview save.
  *
  * Gates (390×844 and 360×800 are the two iphone projects):
- * - P2  production URL `?hint5=1` keeps the flag OFF        - P3  production URL `?hv=` seeds nothing
- * - P4  Preview build without opt-in: old behaviour          - P5  Preview `?hint5=1`: Hint 5.0
+ * - P2  production URL `?hint5=` is ignored (ON by default, H5-6) - P3  production URL `?hv=` seeds nothing
+ * - P4  Preview build without a parameter: ON like production - P5  Preview `?hint5=1` on / `?hint5=0` off
  * - P6  a seed never touches the production save             - P7  reload keeps the Preview state
  * - P8  Full Reset resets the Preview save only              - P9  all HV scenarios reproduce
  * - P10 / P11 layout at 390×844 / 360×800
@@ -192,10 +192,10 @@ test.describe("production build: the Preview parameters do nothing (P2 / P3)", (
     await seedStorage(page, { [PROD_KEY]: JSON.stringify(save) });
     await visit(page, `${origin}${PROD_BASE}?hint5=1&hv=cheese-none`);
     const dialog = await openHintSheet(page);
-    // P2: flag OFF -> the existing sheet (材料 / 構成 / 特徴 entry), never the ladder.
-    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
-    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toBeVisible();
-    await expect(page.locator(".hint-sheet__h5-next")).toHaveCount(0);
+    // P2: the ladder is ON by default in production (H5-6); the Preview parameter changes nothing about that.
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
+    await expect(nextTitle(page)).toContainText("ヒント1: ソース");
     await expect(page.locator(".preview-badge")).toHaveCount(0);
     // P3: no seed. The production save is the one that was planted (999 Pitz, 8 recipes, no marinara).
     const after = JSON.parse((await stored(page, PROD_KEY))!);
@@ -207,12 +207,12 @@ test.describe("production build: the Preview parameters do nothing (P2 / P3)", (
     await shot(page, "prod-hint5-param-ignored");
   });
 
-  test("?hint5=1 alone, and a stored Preview opt-in, do not turn it on either", async ({ page }) => {
+  test("?hint5=0 (the Preview kill switch) does not turn the production ladder off, and a stored Preview opt-in is left alone", async ({ page }) => {
     await seedStorage(page, { [PROD_KEY]: JSON.stringify(meatLoversSave(999)), [OPT_IN_KEY]: "1" });
-    await visit(page, `${origin}${PROD_BASE}?hint5=1`);
+    await visit(page, `${origin}${PROD_BASE}?hint5=0`);
     const dialog = await openHintSheet(page);
-    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
-    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toBeVisible();
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
     expect(await stored(page, OPT_IN_KEY)).toBe("1"); // production neither reads nor clears it
   });
 });
@@ -220,12 +220,12 @@ test.describe("production build: the Preview parameters do nothing (P2 / P3)", (
 // ---- Preview build ---------------------------------------------------------------------------------
 
 test.describe("Preview build: opt-in, seeds, isolation (P4 to P8)", () => {
-  test("P4: without the opt-in the Preview build behaves as before (the old sheet)", async ({ page }) => {
+  test("P4: without a parameter the Preview build behaves like production (the ladder is ON by default)", async ({ page }) => {
     await seedStorage(page, { [PREVIEW_KEY]: JSON.stringify(meatLoversSave(999)) });
     await visit(page, previewUrl(""));
     const dialog = await openHintSheet(page);
-    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
-    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toBeVisible();
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
     await expect(page.locator(".preview-badge")).toContainText("PREVIEW");
   });
 
@@ -243,7 +243,22 @@ test.describe("Preview build: opt-in, seeds, isolation (P4 to P8)", () => {
     await visit(page, previewUrl("?hint5=0"));
     dialog = await openHintSheet(page);
     await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
-    expect(await stored(page, OPT_IN_KEY)).toBeNull();
+    expect(await stored(page, OPT_IN_KEY)).toBe("0"); // an explicit, remembered off
+    // The parameter is gone from the URL and the page is reloaded: still off (P2 review finding).
+    await visit(page, previewUrl(""));
+    dialog = await openHintSheet(page);
+    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
+    await page.reload();
+    dialog = await openHintSheet(page);
+    await expect(dialog).not.toHaveAttribute("data-hint-ladder", /.+/);
+    // ?hint5=1 returns to on, and that is remembered as well.
+    await visit(page, previewUrl("?hint5=1"));
+    dialog = await openHintSheet(page);
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    await visit(page, previewUrl(""));
+    dialog = await openHintSheet(page);
+    await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
+    expect(await stored(page, OPT_IN_KEY)).toBe("1");
   });
 
   test("P6: a seed writes the Preview save only; a planted production save is byte for byte unchanged", async ({ page }) => {

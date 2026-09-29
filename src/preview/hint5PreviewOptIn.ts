@@ -10,7 +10,7 @@
  * ./previewIsolation.gate.test.ts builds the production bundle and scans it for `PREVIEW_HELPER_MARK`,
  * the opt-in key and the seed ids.
  *
- * The opt-in lives in its own Preview-only localStorage key, apart from the save (which a Preview
+ * The on / off choice lives in its own Preview-only localStorage key, apart from the save (which a Preview
  * build already keeps under `teto-pizza-preview-save-v1`, src/state/persistence.ts). Full Game Reset
  * clears the save only, so the opt-in survives it and the ladder stays on after a reset.
  */
@@ -23,7 +23,7 @@ export const HINT5_PREVIEW_OPT_IN_KEY = "teto-pizza-preview-hint5-optin";
 
 export type Hint5PreviewParam = "on" | "off" | null;
 
-/** `?hint5=1` turns the ladder on, `?hint5=0` turns it off again, anything else leaves it as stored. */
+/** `?hint5=1` turns the ladder on, `?hint5=0` turns it off (an explicit, remembered off), anything else leaves it as stored. */
 export function parseHint5PreviewParam(search: unknown): Hint5PreviewParam {
   if (typeof search !== "string") return null;
   const value = new URLSearchParams(search).get("hint5");
@@ -35,11 +35,12 @@ export function parseHint5PreviewParam(search: unknown): Hint5PreviewParam {
 export type Hint5PreviewDecision = "on" | "off" | "none";
 
 /**
- * What the Preview instruction says for this page load. `?hint5=1` is "on" and is stored (so a reload
- * without the parameter keeps it); `?hint5=0` is an explicit "off" and clears it; with no parameter a stored
- * opt-in is "on" and nothing is "none". "off" is distinct from "none" so that an explicit off can win over
- * another opt-in (the DEV key, ./hint5Flag.ts). A failing storage never throws: the parameter still counts
- * for this load, and the stored value reads as "none".
+ * What the Preview instruction says for this page load. Both directions are remembered in the Preview-only
+ * key, so the choice survives a reload without the parameter: `?hint5=1` stores "1" (on), `?hint5=0` stores
+ * "0" (an explicit off, distinct from "nothing stored"). With no parameter the stored value decides: "1" is
+ * on, "0" is off, anything else (or nothing) is "none" and the production default applies (./hint5Flag.ts,
+ * H5-6: ON). A failing storage never throws: the parameter still counts for this load, and the stored value
+ * reads as "none".
  */
 export function resolveHint5PreviewDecision(search: unknown, storage: StorageLike | null): Hint5PreviewDecision {
   const param = parseHint5PreviewParam(search);
@@ -49,10 +50,13 @@ export function resolveHint5PreviewDecision(search: unknown, storage: StorageLik
       return "on";
     }
     if (param === "off") {
-      storage?.removeItem(HINT5_PREVIEW_OPT_IN_KEY);
+      storage?.setItem(HINT5_PREVIEW_OPT_IN_KEY, "0");
       return "off";
     }
-    return storage?.getItem(HINT5_PREVIEW_OPT_IN_KEY) === "1" ? "on" : "none";
+    const stored = storage?.getItem(HINT5_PREVIEW_OPT_IN_KEY);
+    if (stored === "1") return "on";
+    if (stored === "0") return "off";
+    return "none";
   } catch {
     return param ?? "none";
   }

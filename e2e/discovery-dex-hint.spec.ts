@@ -40,6 +40,8 @@ async function openWithSave(page: Page) {
   await page.evaluate(([key, value]) => {
     localStorage.clear();
     localStorage.setItem(key, value);
+    // Hint 5.0 is ON by default (H5-6); this suite covers the pre-Hint-5.0 sheet (the rollback path).
+    localStorage.setItem("teto.dev.hint5Ladder", "0");
   }, [SAVE_KEY, JSON.stringify(DEX11_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
