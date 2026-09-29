@@ -9,7 +9,8 @@ source with its status, or is an Owner-confirmed value from §0. No classificati
 |---|---|
 | Report (this file) | `docs/reports/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.md` |
 | Machine-readable companion (65 rows + summary) | `docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.json` |
-| Generator / checker | `tools/ingredient_taxonomy_hcg_authority_audit.py` (`--check --sha 21dc0a6…` = drift check against the audited SHA; reads the working tree plus pinned PR #255 / #293 objects; not in CI; not imported by `src/**`) |
+| Evidence snapshot | `docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json`: the minimal PR #255 (`e221e36`) / #293 (`1bb4f9d`) rows the generator reads (45 + 42 rows), with source PR / SHA / purpose and a `rowsSha256` tamper check. **Audit evidence only: not a production authority, not read by `src/**`, and no classification is inferred from it.** |
+| Generator / checker | `tools/ingredient_taxonomy_hcg_authority_audit.py`. `--sha 21dc0a6… [--check]` regenerates / checks from the working tree plus the committed snapshot; **no git object of PR #255 / #293 is needed** (works in fresh and shallow clones). `--refresh-snapshot` (maintainer only) is the sole path that reads those PR objects. `--check` also validates the Owner Authority (counts, 23 unique ids, UNRESOLVED = 0, families, OD-T3 vs production, mascarpone deferred, production file hashes, generator vs §0 text). Not in CI; not imported by `src/**`. |
 
 ## 0. Owner Authority record (2026-09-29): OD-T1..OD-T8
 

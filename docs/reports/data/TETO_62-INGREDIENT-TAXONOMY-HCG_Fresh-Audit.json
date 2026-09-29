@@ -1,10 +1,28 @@
 {
-  "schemaNote": "62-ingredient taxonomy / HCG authority Fresh Audit. NOT an authority; classifies nothing.",
+  "schemaNote": "Records the Owner Authority OD-T1..T8 (2026-09-29) for the 62-ingredient taxonomy / HCG audit. This artifact is NOT the production taxonomy: production taxonomy is src/data/ingredientTaxonomy.ts and is unchanged. Ingredients in state OWNER_CONFIRMED_PENDING_RUNTIME are Owner-confirmed but are NOT production rows; each is added to ingredientTaxonomy.ts only in the PR that introduces it to runtime (OD-T7). The audit itself classifies nothing.",
   "generatedBy": "tools/ingredient_taxonomy_hcg_authority_audit.py",
   "auditedMainSha": "21dc0a670e586f478661a6cf54671313b2a7cb5b",
-  "pinned": {
-    "pr255": "e221e36c9278311dfecc22263b5467dab7984555",
-    "pr293": "1bb4f9d3a10172b8f6a3f4bb2af794db2435db4c"
+  "evidenceSnapshot": {
+    "path": "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json",
+    "rowsSha256": "4b615bb9b099d0975ae9f9fb96c648697a4b295b3833287e04b62c19ee2aae0b",
+    "sources": {
+      "pr255": "e221e36c9278311dfecc22263b5467dab7984555",
+      "pr293": "1bb4f9d3a10172b8f6a3f4bb2af794db2435db4c"
+    },
+    "note": "audit evidence only, not authority"
+  },
+  "validation": {
+    "od_t1_count_16": true,
+    "od_t2_count_7": true,
+    "confirmed_23_unique_and_equals_derived_unresolved": true,
+    "all_23_owner_confirmed": true,
+    "unresolved_0": true,
+    "families_within_existing_7": true,
+    "owner_authority_matches_report_section_0": true,
+    "confirmed_absent_from_production": true,
+    "od_t3_matches_production": true,
+    "mascarpone_deferred": true,
+    "production_files_match_audited_sha256": true
   },
   "ownerDecisions": {
     "recordedOn": "2026-09-29",

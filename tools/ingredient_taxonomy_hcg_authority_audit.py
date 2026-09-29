@@ -1,16 +1,33 @@
 #!/usr/bin/env python3
 """62-ingredient taxonomy / HCG authority Fresh Audit generator (docs/data/tools only).
 
-Reads: working tree (run on the audited main) + pinned git objects of PR #255 / #293.
-Writes docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.json (deterministic).
-`--check` fails when the committed JSON differs. Not in CI; nothing in src/** imports it.
-It classifies nothing: every family value in the output is copied from an existing source and
-labelled with its source and status. Absence of an Owner-confirmed source stays UNRESOLVED.
+Reads the working tree (run on the audited main's production files) and the committed evidence
+snapshot docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json. It needs NO git
+object of PR #255 / #293, so it runs in a fresh or shallow clone. Only `--refresh-snapshot`
+(maintainer use, never the normal path) reads those pinned git objects.
+
+  python3 tools/ingredient_taxonomy_hcg_authority_audit.py --sha <audited main SHA>            # regenerate
+  python3 tools/ingredient_taxonomy_hcg_authority_audit.py --sha <audited main SHA> --check    # drift + validation
+  python3 tools/ingredient_taxonomy_hcg_authority_audit.py --refresh-snapshot                  # needs PR objects
+
+Writes docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.json (deterministic). Not in CI;
+nothing in src/** imports it. It classifies nothing: the Owner Authority (OD-T1..T8) is recorded
+input, and every other family value is copied from the snapshot with its source and status.
 """
-import json, re, subprocess, sys, pathlib
+import hashlib, json, re, subprocess, sys, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.json"
+SNAPSHOT = ROOT / "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json"
+REPORT = ROOT / "docs/reports/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.md"
+# sha256 of the production / frozen source files at the audited main. A mismatch means main moved
+# (for example a runtime-introduction PR added a taxonomy row, OD-T7): this audit is a point-in-time
+# record, so re-audit instead of silently regenerating.
+AUDITED_FILE_SHA256 = {
+    "src/data/ingredientTaxonomy.ts": "f5ee6b79e51323d258a4acdbc170b2d28447a090077527fb03d6fa6642885437",
+    "src/data/ingredients.ts": "c4f73bd74f979aaff097bbeb3b39df9dcc56ceaff735492a6f66b3542ca8fbca",
+    "data/recipes/ingredient_master_catalog.json": "287e391fed307acfece0308627316ad1ca9a46042ae61d2519b0b18e90cbc4c1",
+}
 OWNER_DATE = "2026-09-29"
 # Owner Authority, recorded verbatim from the Owner's OD-T1..T8 answers. Nothing here is inferred.
 OD_T1 = {  # confirmed families, independent ids (bell-pepper / cilantro / porcini / prosciutto-crudo not aliased)
@@ -41,7 +58,7 @@ P255 = "docs/reports/data/TETO_INGREDIENT-TAXONOMY_172_FRESH-AUDIT.json"
 P293 = "docs/reports/data/TETO_HINT-5_TAXONOMY-172-COVERAGE_Fresh-Audit.json"
 
 
-def git_show(ref, path):
+def git_show(ref, path):  # only used by --refresh-snapshot
     return subprocess.check_output(["git", "-C", str(ROOT), "show", f"{ref}:{path}"]).decode()
 
 
@@ -49,16 +66,112 @@ def main_sha():
     return subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"]).decode().strip()
 
 
-def build(audited_sha):
+def rows_sha256(rows):
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+
+
+def sha256_file(rel):
+    return hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+
+
+def load_production():
     ing_src = (ROOT / "src/data/ingredients.ts").read_text()
     prod = re.findall(r'^\s{4}id: "([^"]+)",\s*\n\s*category: "(\w+)"', ing_src, re.M)
-    prod_cat = dict(prod)
     tax_src = (ROOT / "src/data/ingredientTaxonomy.ts").read_text()
     rows = re.findall(r'^\s*\["([^"]+)", "(\w+)"\],', tax_src, re.M)
-    fam = dict(rows)
+    families = re.findall(r'^\s*\{ id: "(\w+)", group: "\w+", labelJa', tax_src, re.M)
     master = json.loads((ROOT / "data/recipes/ingredient_master_catalog.json").read_text())["ingredients"]
+    return prod, rows, families, master
+
+
+def snapshot_topping_ids():
+    """The only ids the generator reads evidence for: master toppings plus production toppings."""
+    prod, _, _, master = load_production()
+    pc = dict(prod)
+    ids = [m["id"] for m in master if m["category"] == "topping"]
+    return ids + [p for p, c in prod if c == "topping" and p not in ids]
+
+
+def refresh_snapshot():
     t255 = {i["id"]: i for i in json.loads(git_show(PIN_255, P255))["ingredients"]}
     c293 = {i["id"]: i for i in json.loads(git_show(PIN_293, P293))["catalog62"]}
+    ids = snapshot_topping_ids()
+    rows = {
+        "pr255": {i: {k: t255[i].get(k) for k in ("family", "classificationStatus", "confidence", "subfamily")} for i in ids if i in t255},
+        "pr293": {i: {"status": c293[i].get("status")} for i in ids if i in c293},
+    }
+    snap = {
+        "schemaNote": "Minimal input snapshot for tools/ingredient_taxonomy_hcg_authority_audit.py. AUDIT EVIDENCE ONLY: it is not a production authority and not an Owner Decision, is not read by src/**, and no classification may be inferred from it. The Owner Authority is OD-T1..T8 in the Fresh Audit report.",
+        "purpose": "Make the audit generator and its --check reproducible without fetching the git objects of open PRs #255 / #293.",
+        "sources": [
+            {"pr": 255, "sha": PIN_255, "path": P255, "fields": ["family", "classificationStatus", "confidence", "subfamily"], "scope": "topping ids of the 62 master catalog plus production toppings"},
+            {"pr": 293, "sha": PIN_293, "path": P293, "fields": ["status"], "scope": "same ids, where present in its catalog62 list"},
+        ],
+        "rowsSha256": rows_sha256(rows),
+        "rows": rows,
+    }
+    SNAPSHOT.write_text(json.dumps(snap, ensure_ascii=False, indent=2) + "\n")
+    print("wrote", SNAPSHOT, "rows:", {k: len(v) for k, v in rows.items()})
+
+
+def load_snapshot():
+    snap = json.loads(SNAPSHOT.read_text())
+    assert [(x["pr"], x["sha"]) for x in snap["sources"]] == [(255, PIN_255), (293, PIN_293)], "snapshot source pin mismatch"
+    assert snap["rowsSha256"] == rows_sha256(snap["rows"]), "evidence snapshot was modified (rowsSha256 mismatch)"
+    for i in snapshot_topping_ids():  # coverage: every topping the generator needs has a #255 row
+        assert i in snap["rows"]["pr255"], f"snapshot lacks a #255 row for {i}"
+    return snap["rows"]["pr255"], snap["rows"]["pr293"], snap["rowsSha256"]
+
+
+def parse_report_owner_rows():
+    """Owner Authority text as recorded in report section 0, parsed back into dicts (cross-check)."""
+    r = REPORT.read_text()
+    t1 = re.search(r"\| \*\*OD-T1\*\* \| The 16 .*?\*\*confirmed\*\*: (.*?)\. `bell-pepper`", r).group(1)
+    t2 = re.search(r"\| \*\*OD-T2\*\* \| The 7 .*?\*\*confirmed as independent id \+ family\*\*: (.*?)\. \*\*placement", r).group(1)
+    d1 = {i.strip(): seg.split("=")[0].strip() for seg in t1.split(";") for i in seg.split("=")[1].split(",")}
+    d2 = {seg.split("=")[0].strip(): seg.split("=")[1].strip() for seg in t2.split(";")}
+    t3 = re.search(r"garlic = (\w+), black-olive = (\w+), capers = (\w+)", r)
+    return d1, d2, dict(zip(("garlic", "black-olive", "capers"), t3.groups()))
+
+
+def validate(prod, rows, families, master, pr255, out):
+    """Machine checks. Everything derivable is derived from the inputs; raises AssertionError."""
+    fam, prod_cat = dict(rows), dict(prod)
+    for rel, want in AUDITED_FILE_SHA256.items():
+        assert sha256_file(rel) == want, f"{rel} differs from the audited main (point-in-time audit; re-audit required)"
+    assert len(rows) == 22 and len(fam) == 22, "production taxonomy must still have 22 unique rows"
+    assert len(prod) == 29 and sum(1 for _, c in prod if c == "topping") == 22
+    assert set(fam) <= {i for i, c in prod if c == "topping"}
+    assert len(OD_T1) == 16 and len(OD_T2) == 7                                  # 1, 2
+    assert not (set(OD_T1) & set(OD_T2)) and len({*OD_T1, *OD_T2}) == 23          # 3
+    confirmed = {**OD_T1, **OD_T2}
+    derived_unresolved = {m["id"] for m in master if m["category"] == "topping"} - set(fam)
+    assert len(derived_unresolved) == 23 and derived_unresolved == set(confirmed), \
+        "the 23 Owner-confirmed ids must equal the master-catalog toppings that have no production row"  # 3, 4, 5
+    state = {r["id"]: r["state"] for r in out}
+    assert all(state[i] == "OWNER_CONFIRMED_PENDING_RUNTIME" for i in confirmed)   # 4
+    assert not [r["id"] for r in out if r["state"] == "UNRESOLVED"]                # 5
+    valid_fams = set(families)
+    assert len(valid_fams) == 7 and set(confirmed.values()) <= valid_fams          # 6 (families are the existing 7)
+    r1, r2, r3 = parse_report_owner_rows()
+    assert r1 == OD_T1 and r2 == OD_T2 and r3 == OD_T3, "generator Owner Authority differs from report section 0"  # 6
+    assert all(i not in fam and i not in prod_cat for i in confirmed)              # 7
+    assert all(fam.get(i) == f for i, f in OD_T3.items())                          # 8
+    mm = next(m for m in master if m["id"] == "mascarpone")
+    assert OD_T4_DEFER == ["mascarpone"] and mm["category"] == "cheese" and "mascarpone" not in prod_cat
+    assert state["mascarpone"] == "DEFERRED_CATEGORY_OD_T4"                        # 9
+    return {  # 10 is the pinned-file-hash assertion above plus the OD-T3 / 22-row / not-in-production checks
+        "od_t1_count_16": True, "od_t2_count_7": True, "confirmed_23_unique_and_equals_derived_unresolved": True,
+        "all_23_owner_confirmed": True, "unresolved_0": True, "families_within_existing_7": True,
+        "owner_authority_matches_report_section_0": True, "confirmed_absent_from_production": True,
+        "od_t3_matches_production": True, "mascarpone_deferred": True, "production_files_match_audited_sha256": True,
+    }
+
+
+def build(audited_sha):
+    prod, rows, families, master = load_production()
+    prod_cat, fam = dict(prod), dict(rows)
+    t255, c293, snap_sha = load_snapshot()
     out, ids = [], []
     for m in master:
         ids.append(m["id"])
@@ -123,13 +236,17 @@ def build(audited_sha):
         "pr255NeedsReviewProductionRows": sorted(r["id"] for r in out if r["inProduction"] and r.get("pr255NeedsReview")),
         "productionTaxonomyChanged": False,
     }
-    return {"schemaNote": "62-ingredient taxonomy / HCG authority Fresh Audit. NOT an authority; classifies nothing.",
+    validation = validate(prod, rows, families, master, t255, out)
+    return {"schemaNote": "Records the Owner Authority OD-T1..T8 (2026-09-29) for the 62-ingredient taxonomy / HCG audit. This artifact is NOT the production taxonomy: production taxonomy is src/data/ingredientTaxonomy.ts and is unchanged. Ingredients in state OWNER_CONFIRMED_PENDING_RUNTIME are Owner-confirmed but are NOT production rows; each is added to ingredientTaxonomy.ts only in the PR that introduces it to runtime (OD-T7). The audit itself classifies nothing.",
             "generatedBy": "tools/ingredient_taxonomy_hcg_authority_audit.py", "auditedMainSha": audited_sha,
-            "pinned": {"pr255": PIN_255, "pr293": PIN_293}, "ownerDecisions": {"recordedOn": OWNER_DATE, "status": "OWNER AUTHORITY (recorded; production taxonomy NOT changed)", "decisions": DECISIONS},
+            "evidenceSnapshot": {"path": "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json", "rowsSha256": snap_sha, "sources": {"pr255": PIN_255, "pr293": PIN_293}, "note": "audit evidence only, not authority"},
+            "validation": validation, "ownerDecisions": {"recordedOn": OWNER_DATE, "status": "OWNER AUTHORITY (recorded; production taxonomy NOT changed)", "decisions": DECISIONS},
             "summary": summary, "ingredients": out}
 
 
 if __name__ == "__main__":
+    if "--refresh-snapshot" in sys.argv:
+        refresh_snapshot(); sys.exit(0)
     sha = sys.argv[sys.argv.index("--sha") + 1] if "--sha" in sys.argv else main_sha()
     text = json.dumps(build(sha), ensure_ascii=False, indent=2) + "\n"
     if "--check" in sys.argv:
