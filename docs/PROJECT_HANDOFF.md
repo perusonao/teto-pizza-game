@@ -373,6 +373,24 @@ edited; this section supersedes them.
   counts before Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays
   "rebase/revise before LC-2" (verdict B). No production code changed by this decision.
 
+## Large Catalog UX — current SSOT (Owner, 2026-09-29; docs-only)
+
+Authority: `docs/reports/TETO_LARGE-CATALOG-UX_Fresh-Rebase-Revision-Gate.md` (§17 for the decisions). Older #272
+design docs and wireframes are historical where they disagree.
+
+- **OD-1:** hand + pantry (食材庫) ships for **FREE Cooking only**; Dinner keeps the paged tray. FREE gate =
+  `isFreeCookingRound(state)` (`roundKind === "FREE_COOK"`) **and** `dinner === null` — never `freeCook` alone,
+  never `recipeFreeTray`. Dinner is a separate audit after the FREE version.
+- **OD-2:** pantry picks (kept across filter / search / shelf, shown in a pinned 「選択中」 area, never hidden) and
+  Builder `selectedIngredientId` (PR #197: cleared when it leaves the visible set) are **separate states**.
+- **OD-4:** PR #272 (`f5b0ab5`) is frozen as the porting source and is **not rebased in place**. Work continues on
+  a fresh branch from main, slice by slice (LC-R0 foundation port → R1 shelf reconciliation → R2 hand → R3 pantry
+  shell → R4 ShelfChips → R5 search / picks / selection → R6 mobile / a11y / HV). Closing #272 as superseded is
+  decided after the new branch is established.
+- Standing: `ingredientShelf` = membership authority, `catalogQuery` = owned / filter / search / sort engine,
+  `ShelfChips` = presentation; no counts before Phase 5; capacity 9 vs 12 is decided by Human Feel at the hand slice;
+  no tray family chips (OD-B1〜B5).
+
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 
 **Read first for any technique work (TQ-1C, TQ-1D and later):**

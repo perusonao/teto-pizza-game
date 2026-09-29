@@ -178,3 +178,15 @@ R2 must not be activated (capacity < owned) in production until R3–R5 exist, o
 **A. READY TO REBASE / REVISE #272** — as a **fresh-branch port (LC-R0) followed by the shelf revision (LC-R1)**, not an in-place rebase of the existing branch. OD-1 / OD-2 gate the hand / pantry wiring slices (R2+), not R0 / R1. Recommended next action: Owner answers OD-1 / OD-2 / OD-4, then run LC-R0.
 
 STOP. No rebase, implementation, PR update or merge performed.
+
+## 17. Owner Decisions (2026-09-29) — OD-1 / OD-2 / OD-4 ADOPTED
+
+These resolve §14. OD-3 (capacity 9 vs 12) stays an Owner Human-Feel decision at the hand slice; `capacity` remains an argument.
+
+| ID | Decision |
+|---|---|
+| **OD-1** | The Large Catalog UX hand (手元) + pantry (食材庫) is introduced for **FREE Cooking only**. **Dinner is out of scope and keeps the current paged tray.** The FREE gate is the explicit authority `isFreeCookingRound(state)` (`roundKind === "FREE_COOK"`) **and** `dinner === null`; never `freeCook` alone and never `recipeFreeTray`. Introducing it to Dinner is a separate audit after the FREE version is complete. |
+| **OD-2** | Pantry multi-**picks** and the Builder's **`selectedIngredientId` are separate states**, never conflated. *Picks:* kept across filter, search and shelf changes; always visible in a pinned 「選択中」 area; never a hidden state. *`selectedIngredientId`:* PR #197 authority — cleared when a filter / search / page / working-set change removes it from the current visible set. |
+| **OD-4** | The existing #272 branch (`f5b0ab5`) is **not rebased in place**; it is frozen as the porting source / historical reference. A new implementation branch is cut from latest main and only the needed #272 artifacts are ported and revised slice by slice. #272 need not be closed now; whether to close it as superseded is decided after the new branch is safely established. |
+
+Consequences: §8 tension is resolved (Dinner excluded). §13 slices are unchanged; R2+ wiring must use the OD-1 gate and the OD-2 state split. LC-OD-16b (Dinner hand) is deferred, not adopted.
