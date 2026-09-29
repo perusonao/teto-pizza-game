@@ -149,6 +149,16 @@ None blocking R4 if the defaults below are accepted:
 3. **R4-c (verification):** mutation gate, Dinner / guided regression, HV video + screenshots, Result report, PR (WebKit in CI).
 Do not include: search, picks, hand enforcement, capacity, counts, sticky, taxonomy, 62 activation, Dinner, save migration, #295, `CATEGORY_ORDER`, Hint LC-4.
 
+## 21. Owner Decisions (2026-09-29) — recorded, docs-only
+
+| ID | Decision |
+|---|---|
+| **OD-R4-1** | **ADOPT WITH SCOPE CLARIFICATION.** LC-R4 keeps the R3 **active-category pantry**: SAUCE step → sauces only; CHEESE step → cheeses only; TOPPING step → shelf filtering inside the topping category. `ShelfChips` is shown **only when the current OWNED rows span 2 or more shelves**. R4 does **not** turn the pantry into an all-category view. This is **not** the permanent Large Catalog UX specification: at the R5 hand / picks design, whether the pantry must span all categories gets its own Fresh Audit. |
+| **OD-R4-2** | **ADOPT.** Closing and re-opening the pantry resets the shelf filter to 「すべて」. Not saved; not lifted into `GameState` (component-local state only). |
+| **OD-R4-3** | **DIRECTION ADOPT.** At R5 the pantry's availability is **decoupled from the pager's availability**. A design where hand enforcement removes the pager and thereby removes the pantry entry is **prohibited**. The entry's final placement is **not decided**: the R5 Fresh Audit checks stage floor / 44px target / mobile layout and decides it then. |
+
+Consequences: §6 and §18 defaults are now Owner-confirmed (no open R4 decision remains). §12 point 5 and the "R5 problem" are now a stated R5 requirement (not an R4 change: the R3 gate `dockReserve.pager` stays untouched in R4). R4 still does not start while PR #305 is OPEN. PR #305 is unchanged by this record; note its head has since advanced to `22e3451` (a test-only, engine-neutral stage comparison after WebKit's sub-pixel differences failed the first e2e version; no runtime change), so the "re-check the merge commit equals the audited HEAD" step in §19 compares against `22e3451`, and the runtime files named there are byte-identical to `c0d2b6a`.
+
 ---
 
 **FINAL VERDICT: A. LC-R4 READY AFTER #305 MERGE** — with defaults for OD-R4-1 (per-category pantry, chips only when ≥ 2 shelves) and OD-R4-2 (reset on reopen). If the Owner instead wants an all-category pantry with ソース / チーズ chips, the verdict becomes **B** for that point. R4 must not start while #305 is OPEN.
