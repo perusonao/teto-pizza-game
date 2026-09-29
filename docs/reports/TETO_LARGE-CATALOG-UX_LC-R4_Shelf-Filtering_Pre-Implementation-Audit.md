@@ -1,9 +1,11 @@
 # Large Catalog UX — LC-R4 Shelf Filtering: Fresh Pre-Implementation Audit
 
+**Status (synced 2026-09-29 after PR #305 merged; main `3b0da33b0ca4ebc1deaefcb357b4181511621863`, merge commit of PR #305):** LC-R3 is MERGED / COMPLETE. OD-R4-1 / OD-R4-2 / OD-R4-3 are **Owner-confirmed** (§18); nothing in this audit is waiting on an Owner answer. The original audit text below was written against PR #305 HEAD `c0d2b6ac…`; the merged runtime files are unchanged since (the final HEAD `22e3451e…` differs only in `e2e/large-catalog-pantry-shell.spec.ts`).
+
 Docs/audit only. No production, CSS, e2e or runtime file was changed. PR #305 (branch / files) was read, not touched; not merged; LC-R4 not implemented.
 
 1. **Audited main SHA:** `2d3357e7cf222646624c8ec49e4930472c0083b1`
-2. **Audited PR #305 HEAD:** `c0d2b6acd4e9aca44c30939f00c65b7977b46dac` (state at audit: **OPEN**, mergeable_state `unstable` = CI / WebKit Gate pending). All findings below are about that HEAD; re-check that the merge commit equals it before starting R4.
+2. **Audited PR #305 HEAD:** `c0d2b6acd4e9aca44c30939f00c65b7977b46dac` (state at audit: OPEN, CI pending). PR #305 has since merged as `3b0da33b…` from HEAD `22e3451e…`; the runtime diff vs. `c0d2b6ac…` is empty, so every finding below holds on main.
 
 ## 3. Pantry current architecture (PR #305 HEAD)
 - `GameScreen` owns `pantryOpen` (bool) + `pantryEntryRef`. `pantryAvailable = isLargeCatalogEligible(state) && phase === "PREPARE" && makingStep !== "DOUGH" && dockReserve.pager`. `pantryVisible = pantryOpen && pantryAvailable`. `cookingInputPaused = isGlobalOverlayOpen || pantryVisible`. Leaving the eligible screen resets `pantryOpen` during render.
@@ -25,8 +27,8 @@ Docs/audit only. No production, CSS, e2e or runtime file was changed. PR #305 (b
 - `presentShelves` must be derived from the **owned rows of the active category** (the list the player could see with 「すべて」), never from `runtimeCatalog()` / `INGREDIENT_SHELVES` / Shop entitlement / hints. Same construction Inventory uses (`shelvesPresent(owned)`).
 - `queryCatalog` already returns owned rows only; `shelves` is ANDed on top. `ShelfChips` renders only what it is handed, so a shelf with no owned row has no chip, DOM node, `data-shelf` or text.
 - **Category scoping (important, contradicts the task's candidate list):** the R3 pantry is scoped to the active step's category. On the SAUCE step the only possible shelf is `sauce`; on CHEESE only `cheese`; only the TOPPING step has the 7 family shelves. So 「ソース」「チーズ」 chips can **never appear** with the current R3 scoping, and on SAUCE / CHEESE the row would be 「すべて」+one chip (identical results).
-  - Recommendation: render the row only when `presentShelves.length >= 2` (a one-shelf chip row filters nothing and only costs 54px). This is also a privacy-neutral rule (derived from owned rows).
-  - Whether the pantry should stay per-category (R3 decision) or become all-category with ソース/チーズ chips is **Owner Decision OD-R4-1**; R4 default = keep R3 scoping, no change.
+  - **Owner-confirmed (OD-R4-1):** render the row only when `presentShelves.length >= 2` (a one-shelf chip row filters nothing and only costs 54px). Privacy-neutral: derived from owned rows.
+  - **Owner-confirmed (OD-R4-1):** the pantry stays per-category in R4 (sauce step = sauce only, cheese step = cheese only, topping step = shelf filtering inside the topping category). A cross-category pantry with ソース/チーズ chips is NOT implemented in R4; it is reconsidered in the R5 Fresh Audit.
 - Privacy negatives to pin: no chip for an unowned shelf; unowned names / LOCKED / NEW-only / silhouette / `???` / counts absent; a shelf whose only ingredients are owned in *another* category does not appear; chip set is a function of owned rows only (buying nothing changes nothing).
 
 ## 7. Unclassified behavior
@@ -40,9 +42,9 @@ Docs/audit only. No production, CSS, e2e or runtime file was changed. PR #305 (b
 - The premise "R4 is where the visible set first changes" is true only for the pantry's own list. The Builder's visible set first changes at R5 (hand / picks / enforcement); `selectionAfterVisibleChange(selected, handBefore, handAfter)` is wired there, keyed on the **hand** (`handVisibleIds`), not on the pantry filter. Not to be confused with OD-2 picks (a separate future state, never cleared by filter / search / shelf).
 - Test in R4 that pins this non-clearing (see plan).
 
-## 9. Filter reset / reopen recommendation
+## 9. Filter reset / reopen (Owner-confirmed, OD-R4-2)
 - Existing precedent: Shop and Inventory both keep the shelf in local state and are unmounted on close ⇒ **reset to 「すべて」 on every open**. `docs/PROJECT_HANDOFF.md` / Revision Gate contain no rule for persisting pantry shelf state, and OD-R2-3 says session-only state without save change (that concerns hand/picks, not the shelf).
-- Recommendation: **reset to 「すべて」 on close/reopen (local `useState`), no persistence across steps or rounds.** Persistence would need lifting state to `GameScreen` and a rule per category (a `meat` chip on the TOPPING step means nothing on SAUCE); no authority exists ⇒ report as **OD-R4-2 (low risk, default = reset)**. R4 may proceed with the default without waiting.
+- **Owner-confirmed (OD-R4-2):** closing and reopening the pantry resets the shelf filter to 「すべて」 (local `useState`). Not saved, not lifted into `GameState` / `GameScreen`, no persistence across steps or rounds.
 - Also: when the stored shelf stops being listed, fall back to `"all"` by derivation (as Inventory does).
 
 ## 10. Stable-height layout plan
@@ -80,7 +82,7 @@ Cases where the temporary gate matters (R4 must **not** change it):
 4. A profile / step where the pager row is not reserved (`prepare-dock--no-pager`) has no room for the entry by design.
 5. **R5 problem (decision material):** once the hand caps the tray at 9 / 12, the pager can vanish (hand ≤ 6 per page or single page) while the pantry is exactly what the player needs; and the reverse (pager forced by ownership though the hand is small). Coupling pantry availability to pager availability then hides the only way to change the hand.
 6. R4 is unaffected because the tray is unchanged; shelves in the pantry are meaningful only when a category has ≥ 2 shelves owned, which in practice is the TOPPING step and also implies ≥ 2 owned toppings.
-- Judgement for R5/R6: **split** `pantryAvailable` from `dockReserve.pager` at R5 (pantry availability = eligible round + PREPARE tray step + ≥ 1 owned; pager row = tray-page concern only). The split needs a home for the entry that is not the pager row; if that needs extra height it collides with the stage-size / dock contract ⇒ Owner decision at R5 (OD-R4-3, informational; nothing to decide for R4).
+- **Owner-confirmed (OD-R4-3):** R5 separates pantry availability from pager availability; a design where the pantry entry disappears when hand enforcement removes the pager is forbidden. R4 does NOT change the `dockReserve.pager` gate. The final entry placement is decided in the R5 Fresh Audit. Original judgement (kept as rationale): **split** `pantryAvailable` from `dockReserve.pager` at R5 (pantry availability = eligible round + PREPARE tray step + ≥ 1 owned; pager row = tray-page concern only). The split needs a home for the entry that is not the pager row; if that needs extra height it collides with the stage-size / dock contract ⇒ Owner decision at R5 (OD-R4-3, informational; nothing to decide for R4).
 
 ## 13. Accessibility plan
 - `ShelfChips` as is: `role="group"` + `aria-label="材料の分類"`, `<button aria-pressed>` toggles (not tablist; no tabpanel), active chip has non-colour cue (underline). Exactly one chip pressed.
@@ -105,7 +107,7 @@ Unit / component (`vitest`, jsdom):
 - stored shelf no longer present ⇒ falls back to すべて.
 - selection: with `selectedIngredientId = X`, changing pantry shelf (X hidden in list) leaves `selectedIngredientId`, tray chip `aria-pressed`, `GameState` JSON, and the dispatch spy untouched (**no clear**); open/close unchanged.
 - privacy: no counts (no digits besides `×n` stock), no LOCKED / NEW / `???`, unowned names absent.
-- close/reopen ⇒ すべて (reset) — the default recommendation; no persistence across steps.
+- close/reopen ⇒ すべて (reset) (OD-R4-2, confirmed); no persistence across steps.
 - Dinner regression: no entry / no pantry / no chips in Dinner (existing R3 gate tests stay green); guided / Lunch Rush unchanged.
 - boundary tests: `IngredientPantry.tsx` may additionally import `ShelfChips`, `shelvesPresent`/`ShelfFilter` from `ingredientShelf` only; `handSession` / `selectionAfterVisibleChange` remain unimported by production (mutant: wiring it fails).
 - Mutation additions: chips built from catalog not owned rows; unclassified given a shelf; selection cleared on shelf change; chip row inside the scroller; outer height depends on filter.
@@ -131,17 +133,14 @@ E2E (Chromium real layout, 390×844, 360×800, 390×664, 360×640; WebKit runs i
 - `tools/large-catalog-ux/mutation-check.mjs` (new mutants)
 - HV video (390×844, delivered directly, not committed) + before/after screenshots under `docs/reports/screenshots/large-catalog-pantry-shelves/` (per `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`); R4 Result report.
 
-## 18. Owner Decisions required
-None blocking R4 if the defaults below are accepted:
-- **OD-R4-1 (default: keep R3 per-category pantry; chip row only when ≥ 2 shelves present):** the task's candidate list includes ソース / チーズ, which can't appear in a per-category pantry. If the Owner wants an all-category pantry with those chips, that is a scope change (R3 scoping + subtitle + stable-height design) and should be decided before R4 starts.
-- **OD-R4-2 (default: reset to すべて on every open):** no existing authority for persistence.
-- **OD-R4-3 (informational, R5/R6):** split pantry availability from pager availability; needs an entry home that doesn't add height.
-- Existing open items unrelated to R4: OD-R2-1 (capacity 9 vs 12), OD-R2-2, OD-R2-3.
+## 18. Owner Decisions (all confirmed; none pending)
+- **OD-R4-1 (CONFIRMED):** R4 keeps the R3 active-category pantry. sauce step = sauce only; cheese step = cheese only; topping step = shelf filtering inside the topping category. `ShelfChips` is shown only when the current OWNED rows contain two or more shelves. No cross-category pantry in R4; reconsidered in the R5 Fresh Audit.
+- **OD-R4-2 (CONFIRMED):** closing and reopening the pantry resets the shelf filter to 「すべて」. Not saved; not lifted into `GameState`.
+- **OD-R4-3 (CONFIRMED):** R5 splits pantry availability from pager availability; a pantry entry that vanishes with the pager (after hand enforcement) is forbidden. R4 leaves the `dockReserve.pager` gate untouched. Final placement: R5 Fresh Audit.
+- Unrelated open items (not R4): OD-R2-1 (capacity 9 vs 12), OD-R2-2, OD-R2-3.
 
 ## 19. Blockers
-- **PR #305 is OPEN** (CI / WebKit Gate pending, not merged). R4 must not start until it is merged; R4 branches from the merge result of main. Re-audit only if the merged HEAD differs from `c0d2b6ac…` in `IngredientPantry.tsx`, `IngredientTray.tsx`, `GameScreen.tsx` or `App.css`.
-- No technical blocker inside the code: every dependency (`ShelfChips`, `shelvesPresent`, `queryCatalog({shelves})`, CSS) already exists on main / the PR.
-- WebKit for the R3 CSS has not been observed yet; R4 must inherit its result.
+None. PR #305 is merged (`3b0da33b…`); post-merge Deploy and E2E WebKit (run #346, 8/8 jobs) are green. Every dependency (`ShelfChips`, `shelvesPresent`, `queryCatalog({shelves})`, CSS) exists on main.
 
 ## 20. Recommended R4 implementation slices
 1. **R4-a (logic wiring, no visual change if <2 shelves):** local `activeShelf`, `presentShelves`, derived fallback, `queryCatalog({shelves})`; component + privacy + unclassified + selection-not-cleared tests.
@@ -151,4 +150,6 @@ Do not include: search, picks, hand enforcement, capacity, counts, sticky, taxon
 
 ---
 
-**FINAL VERDICT: A. LC-R4 READY AFTER #305 MERGE** — with defaults for OD-R4-1 (per-category pantry, chips only when ≥ 2 shelves) and OD-R4-2 (reset on reopen). If the Owner instead wants an all-category pantry with ソース / チーズ chips, the verdict becomes **B** for that point. R4 must not start while #305 is OPEN.
+**FINAL VERDICT: A. LC-R4 READY** (Owner decisions OD-R4-1 / 2 / 3 are confirmed; PR #305 merged).
+
+Scope reminders (Owner): R4 does not clear `selectedIngredientId` and does not wire `selectionAfterVisibleChange` (the Builder tray's visible set does not change in R4; #197 applies from R5 when the Builder hand visible set changes); no counts, search, picks, hand editing / enforcement, save, Dinner or pager-gate change.
