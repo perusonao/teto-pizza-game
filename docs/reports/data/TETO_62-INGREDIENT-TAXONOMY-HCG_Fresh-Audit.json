@@ -1,0 +1,1359 @@
+{
+  "schemaNote": "Records the Owner Authority OD-T1..T8 (2026-09-29) for the 62-ingredient taxonomy / HCG audit. This artifact is NOT the production taxonomy: production taxonomy is src/data/ingredientTaxonomy.ts and is unchanged. Ingredients in state OWNER_CONFIRMED_PENDING_RUNTIME are Owner-confirmed but are NOT production rows; each is added to ingredientTaxonomy.ts only in the PR that introduces it to runtime (OD-T7). The audit itself classifies nothing.",
+  "generatedBy": "tools/ingredient_taxonomy_hcg_authority_audit.py",
+  "auditedMainSha": "21dc0a670e586f478661a6cf54671313b2a7cb5b",
+  "evidenceSnapshot": {
+    "path": "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json",
+    "rowsSha256": "4b615bb9b099d0975ae9f9fb96c648697a4b295b3833287e04b62c19ee2aae0b",
+    "sources": {
+      "pr255": "e221e36c9278311dfecc22263b5467dab7984555",
+      "pr293": "1bb4f9d3a10172b8f6a3f4bb2af794db2435db4c"
+    },
+    "note": "audit evidence only, not authority"
+  },
+  "validation": {
+    "od_t1_count_16": true,
+    "od_t2_count_7": true,
+    "confirmed_23_unique_and_equals_derived_unresolved": true,
+    "all_23_owner_confirmed": true,
+    "unresolved_0": true,
+    "families_within_existing_7": true,
+    "owner_authority_matches_report_section_0": true,
+    "confirmed_absent_from_production": true,
+    "od_t3_matches_production": true,
+    "mascarpone_deferred": true,
+    "production_files_match_audited_sha256": true
+  },
+  "ownerDecisions": {
+    "recordedOn": "2026-09-29",
+    "status": "OWNER AUTHORITY (recorded; production taxonomy NOT changed)",
+    "decisions": {
+      "OD-T1": "16 PROPOSED toppings confirmed with the listed families; bell-pepper / cilantro / porcini / prosciutto-crudo are independent ids (no alias merge).",
+      "OD-T2": "7 NEEDS_REVIEW toppings confirmed as independent id + family. placement / timing / Technique are separate from family: nduja=spread does not change meat; truffle late / high-end finishing does not change vegetable.",
+      "OD-T3": "(a) keep production: garlic=herb, black-olive=vegetable, capers=spice, recorded individually. DH4 design capers=vegetable is a historical discrepancy; no production change.",
+      "OD-T4": "(c) mascarpone deferred; category is confirmed by the Owner at runtime introduction.",
+      "OD-T5": "(b) non-production sauce / cheese category is confirmed per ingredient in the PR that introduces it to runtime.",
+      "OD-T6": "(a) the 22 production toppings are accepted as merged authority under OD-DH4-4; no per-ingredient re-approval (OD-T3's 3 are recorded individually).",
+      "OD-T7": "(a) a non-production ingredient's taxonomy row is added to ingredientTaxonomy.ts in the same PR that introduces it to runtime; no second runtime taxonomy authority; pre-checks via fixture / report only.",
+      "OD-T8": "(b) ingredient_master_catalog.json is frozen as a historical / research artifact; ingredients.ts is the only authority for production existence; the catalog is not rewritten for stale existingInGame or the 3 missing ids."
+    }
+  },
+  "summary": {
+    "productionIngredients": 29,
+    "productionByCategory": {
+      "sauce": 3,
+      "cheese": 4,
+      "topping": 22
+    },
+    "productionTaxonomyRows": 22,
+    "masterCatalog62": 62,
+    "productionIdsNotInMaster62": [
+      "capers",
+      "clam",
+      "fresh-tomato"
+    ],
+    "distinctIdsAudited": 65,
+    "toppingsInMaster62": 42,
+    "states": {
+      "CATEGORY_FROM_CATALOG_ONLY": 12,
+      "CLASSIFIED_PRODUCTION": 19,
+      "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3": 3,
+      "DEFERRED_CATEGORY_OD_T4": 1,
+      "OWNER_CONFIRMED_PENDING_RUNTIME": 23,
+      "SHELF_BY_CATEGORY": 7
+    },
+    "unresolvedToppingIds": [],
+    "unresolvedToppingsBeforeOwnerDecision": 23,
+    "ownerConfirmedFromUnresolved": 23,
+    "ownerConfirmedByDecision": {
+      "OD-T1": 16,
+      "OD-T2": 7,
+      "OD-T3": 3
+    },
+    "deferred": [
+      "mascarpone (OD-T4 category)"
+    ],
+    "pr255NeedsReviewProductionRows": [
+      "black-olive",
+      "capers",
+      "garlic"
+    ],
+    "productionTaxonomyChanged": false
+  },
+  "ingredients": [
+    {
+      "id": "tomato-sauce",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "sauce",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "olive-oil",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "sauce",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "pesto",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "sauce",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "mozzarella",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "cheese",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "gorgonzola",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "cheese",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "parmigiano",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "cheese",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "fontina",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "cheese",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "SHELF_BY_CATEGORY"
+    },
+    {
+      "id": "basil",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "herb",
+      "shelf": "herb",
+      "pr255": {
+        "family": "herb",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "garlic",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "herb",
+      "shelf": "herb",
+      "pr255": {
+        "family": "herb",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "herb.allium"
+      },
+      "pr293Status": "VALID_PRODUCTION_UNDER_REVIEW",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": true,
+      "state": "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3",
+      "ownerDecision": {
+        "id": "OD-T3",
+        "family": "herb",
+        "date": "2026-09-29",
+        "productionChange": false
+      }
+    },
+    {
+      "id": "oregano",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "herb",
+      "shelf": "herb",
+      "pr255": {
+        "family": "herb",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "cherry-tomato",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "egg",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "other",
+      "shelf": "other",
+      "pr255": {
+        "family": "other",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.egg"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "mushroom",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.mushroom"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4); OD-H5-C4 final names mushroom -> vegetable",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "onion",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.allium"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "pepperoni",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "meat",
+      "shelf": "meat",
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "anchovy",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "seafood",
+      "shelf": "seafood",
+      "pr255": {
+        "family": "seafood",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.fish"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "ham",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "meat",
+      "shelf": "meat",
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "pineapple",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "fruit",
+      "shelf": "fruit",
+      "pr255": {
+        "family": "fruit",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "fruit.tropical"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "sausage",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "meat",
+      "shelf": "meat",
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "tuna",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "seafood",
+      "shelf": "seafood",
+      "pr255": {
+        "family": "seafood",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.fish"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "zucchini",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "vegetable",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "bell-pepper",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "vegetable",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "black-olive",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": "VALID_PRODUCTION_UNDER_REVIEW",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": true,
+      "state": "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3",
+      "ownerDecision": {
+        "id": "OD-T3",
+        "family": "vegetable",
+        "date": "2026-09-29",
+        "productionChange": false
+      }
+    },
+    {
+      "id": "prosciutto-crudo",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "arugula",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.leafy"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "vegetable",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "spicy-salami",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "chili-oil",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "shrimp",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "seafood",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.shellfish"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "seafood",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "parsley",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "herb",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "herb",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "artichoke",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.stem-flower"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "vegetable",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "ricotta",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "cheese",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "breadcrumb",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "other",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.starch"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "other",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "caciocavallo",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "cheese",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "nduja",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "eggplant",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "ricotta-salata",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "cheese",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "porcini",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.mushroom"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "vegetable",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "truffle",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "vegetable",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "vegetable.mushroom"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "vegetable",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "brie",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "cheese",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "speck",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "walnut",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "other",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.nut-seed"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "other",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "wurstel",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "french-fries",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "other",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "other.starch"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "other",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "rosemary",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "herb",
+      "shelf": "herb",
+      "pr255": {
+        "family": "herb",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "bbq-sauce",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "chicken",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.poultry"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "cilantro",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "herb",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "herb",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "buffalo-sauce",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "bacon",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "meat",
+      "shelf": "meat",
+      "pr255": {
+        "family": "meat",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "steak",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "meat",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.fresh"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "meat",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "provolone",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "cheese",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "corn",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "medium",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "mayo",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "teriyaki-sauce",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "nori",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "other",
+        "status": "NEEDS_REVIEW",
+        "confidence": "low",
+        "subfamily": "other.seaweed"
+      },
+      "pr293Status": "MISSING_NEEDS_REVIEW",
+      "ownerConfirmedSource": "Owner OD-T2 2026-09-29",
+      "pr255NeedsReview": true,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T2",
+        "family": "other",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "potato",
+      "inMasterCatalog62": true,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.root"
+      },
+      "pr293Status": "VALID_PRODUCTION",
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "nutella-spread",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "strawberry",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "fruit",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "fruit.berry"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "fruit",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "powdered-sugar",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "other",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.sweet"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "other",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "mascarpone",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "cheese",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "cheese",
+      "state": "DEFERRED_CATEGORY_OD_T4",
+      "ownerDecision": {
+        "id": "OD-T4",
+        "choice": "c",
+        "date": "2026-09-29"
+      }
+    },
+    {
+      "id": "fig",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "topping",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": null,
+      "pr255": {
+        "family": "fruit",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "fruit.orchard"
+      },
+      "pr293Status": "MISSING_PROPOSED",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "pr255NeedsReview": false,
+      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "ownerDecision": {
+        "id": "OD-T1",
+        "family": "fruit",
+        "independentId": true,
+        "date": "2026-09-29",
+        "productionRowAdded": false,
+        "matchesPr255Candidate": true
+      }
+    },
+    {
+      "id": "honey",
+      "inMasterCatalog62": true,
+      "inProduction": false,
+      "category": "sauce",
+      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
+      "productionFamily": null,
+      "shelf": "sauce",
+      "state": "CATEGORY_FROM_CATALOG_ONLY",
+      "categoryConfirmation": "at runtime-introduction PR (OD-T5)"
+    },
+    {
+      "id": "capers",
+      "inMasterCatalog62": false,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "spice",
+      "shelf": "spice",
+      "pr255": {
+        "family": "spice",
+        "status": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "spice.condiment"
+      },
+      "pr293Status": null,
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": true,
+      "state": "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3",
+      "ownerDecision": {
+        "id": "OD-T3",
+        "family": "spice",
+        "date": "2026-09-29",
+        "productionChange": false
+      }
+    },
+    {
+      "id": "clam",
+      "inMasterCatalog62": false,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "seafood",
+      "shelf": "seafood",
+      "pr255": {
+        "family": "seafood",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.shellfish"
+      },
+      "pr293Status": null,
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    },
+    {
+      "id": "fresh-tomato",
+      "inMasterCatalog62": false,
+      "inProduction": true,
+      "category": "topping",
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "vegetable",
+      "shelf": "vegetable",
+      "pr255": {
+        "family": "vegetable",
+        "status": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "pr293Status": null,
+      "ownerConfirmedSource": "merged DH4-1 table (OD-DH4-4)",
+      "pr255NeedsReview": false,
+      "state": "CLASSIFIED_PRODUCTION"
+    }
+  ]
+}
