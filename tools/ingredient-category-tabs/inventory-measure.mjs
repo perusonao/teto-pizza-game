@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 /**
- * Ingredient Category Tabs 1.0 Phase 4 Fresh Audit: measures the CURRENT Ingredients (Inventory)
- * overlay and a DOM-injected prototype of the Phase 3 shelf chip row (no source change, nothing
- * written to the app). Needs a served production build:
+ * Ingredient Category Tabs 1.0 Phase 4: measures the Ingredients (Inventory) overlay.
+ * - Against a PRE-Phase-4 build (old `.inventory-tabs`): measures the old tab row and a DOM-injected
+ *   prototype of the Phase 3 shelf chip row (this is how the Fresh Audit numbers were taken; run it
+ *   from a checkout of the parent revision, e.g. `cf1c57d`).
+ * - Against a Phase 4 build (`.shelf-chips` shipped): measures the shipped chip row directly
+ *   (`mode: "shipped"`), no injection.
+ * Needs a served production build:
  *   npm run build && npx vite preview --port 4173 --strictPort
  *   PW_CHROMIUM=<chromium> node tools/ingredient-category-tabs/inventory-measure.mjs [baseUrl]
  */
@@ -25,32 +29,42 @@ for (const [W, H] of [[390, 844], [360, 800]]) {
     await page.getByRole("button", { name: /材料/ }).click();
     await page.waitForSelector(".inventory-grid");
     const rect = (sel) => page.evaluate((s) => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return { y: Math.round(b.y), h: Math.round(b.height), w: Math.round(b.width) }; }, sel);
+    const legacy = (await page.locator(".inventory-tabs").count()) > 0;
     const cur = {
+      mode: legacy ? "legacy" : "shipped",
       cards: await page.locator(".inventory-card").count(),
       summary: await rect(".inventory-overlay__summary"),
-      tabs: await rect(".inventory-tabs"),
-      tabMinH: await page.evaluate(() => Math.min(...[...document.querySelectorAll(".inventory-tab")].map((t) => t.getBoundingClientRect().height))),
-      tabFontPx: await page.evaluate(() => getComputedStyle(document.querySelector(".inventory-tab")).fontSize),
+      tabs: await rect(legacy ? ".inventory-tabs" : ".shelf-chips"),
+      tabMinH: await page.evaluate((sel) => Math.min(...[...document.querySelectorAll(sel)].map((t) => t.getBoundingClientRect().height)), legacy ? ".inventory-tab" : ".shelf-chip"),
+      tabFontPx: await page.evaluate((sel) => getComputedStyle(document.querySelector(sel)).fontSize, legacy ? ".inventory-tab" : ".shelf-chip"),
       tabRoles: await page.evaluate(() => ({ tablist: document.querySelectorAll("[role=tablist]").length, tab: document.querySelectorAll("[role=tab]").length })),
       grid: await rect(".inventory-grid"),
       card: await rect(".inventory-card"),
       body: await page.evaluate(() => { const b = document.querySelector(".dex-overlay__body"); const cs = getComputedStyle(b); return { display: cs.display, flexDirection: cs.flexDirection, clientH: b.clientHeight, scrollH: b.scrollHeight, overflowY: cs.overflowY }; }),
       cardCategoryLabels: await page.evaluate(() => [...new Set([...document.querySelectorAll(".inventory-card__category")].map((e) => e.textContent))]),
     };
-    // Prototype: replace .inventory-tabs with the Phase 3 chip row markup (CSS .shelf-chips ships in main).
-    const proto = await page.evaluate((labels) => {
-      const tabs = document.querySelector(".inventory-tabs");
-      const row = document.createElement("div");
-      row.className = "shelf-chips"; row.setAttribute("role", "group");
-      for (const l of labels) { const b = document.createElement("button"); b.className = "shelf-chip"; b.textContent = l; row.appendChild(b); }
-      row.style.marginBottom = "12px";
-      tabs.replaceWith(row);
-      const rr = row.getBoundingClientRect();
-      const cs = [...row.children].map((c) => c.getBoundingClientRect());
-      const grid = document.querySelector(".inventory-grid").getBoundingClientRect();
-      const body = document.querySelector(".dex-overlay__body");
-      return { rowH: Math.round(rr.height), minChipH: Math.round(Math.min(...cs.map((c) => c.height))), chipsInsideRow: cs.every((c) => c.top >= rr.top - 0.5 && c.bottom <= rr.bottom + 0.5), oneRow: new Set(cs.map((c) => Math.round(c.top))).size === 1, scrollable: row.scrollWidth > row.clientWidth + 1, pageOverflow: document.documentElement.scrollWidth > innerWidth, gridTop: Math.round(grid.top), bodyScrollH: body.scrollHeight };
-    }, LABELS);
+    const proto = legacy
+      ? await page.evaluate((labels) => {
+          const tabs = document.querySelector(".inventory-tabs");
+          const row = document.createElement("div");
+          row.className = "shelf-chips"; row.setAttribute("role", "group");
+          for (const l of labels) { const b = document.createElement("button"); b.className = "shelf-chip"; b.textContent = l; row.appendChild(b); }
+          row.style.marginBottom = "12px";
+          tabs.replaceWith(row);
+          const rr = row.getBoundingClientRect();
+          const cs = [...row.children].map((c) => c.getBoundingClientRect());
+          const grid = document.querySelector(".inventory-grid").getBoundingClientRect();
+          const body = document.querySelector(".dex-overlay__body");
+          return { rowH: Math.round(rr.height), minChipH: Math.round(Math.min(...cs.map((c) => c.height))), chipsInsideRow: cs.every((c) => c.top >= rr.top - 0.5 && c.bottom <= rr.bottom + 0.5), oneRow: new Set(cs.map((c) => Math.round(c.top))).size === 1, scrollable: row.scrollWidth > row.clientWidth + 1, pageOverflow: document.documentElement.scrollWidth > innerWidth, gridTop: Math.round(grid.top), bodyScrollH: body.scrollHeight };
+        }, LABELS)
+      : await page.evaluate(() => {
+          const row = document.querySelector(".shelf-chips");
+          const rr = row.getBoundingClientRect();
+          const cs = [...row.children].map((c) => c.getBoundingClientRect());
+          const grid = document.querySelector(".inventory-grid").getBoundingClientRect();
+          const body = document.querySelector(".dex-overlay__body");
+          return { rowH: Math.round(rr.height), minChipH: Math.round(Math.min(...cs.map((c) => c.height))), chipsInsideRow: cs.every((c) => c.top >= rr.top - 0.5 && c.bottom <= rr.bottom + 0.5), oneRow: new Set(cs.map((c) => Math.round(c.top))).size === 1, scrollable: row.scrollWidth > row.clientWidth + 1, pageOverflow: document.documentElement.scrollWidth > innerWidth, gridTop: Math.round(grid.top), bodyScrollH: body.scrollHeight };
+        });
     r[name] = { current: cur, prototype: proto, deltaGridTop: proto.gridTop - (cur.grid?.y ?? 0) };
   }
   out[`${W}x${H}`] = r;
