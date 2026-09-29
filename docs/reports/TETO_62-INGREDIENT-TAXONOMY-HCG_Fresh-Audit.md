@@ -1,14 +1,42 @@
 # 62 Ingredient Taxonomy / HCG Authority Completion — Fresh Audit
 
-**Status: docs / data / tools only. NOT an authority. No Owner Decision is made here. Nothing is classified.**
-Every family value below is copied from an existing source and labelled with its status. Anything
-without an Owner-confirmed source stays **UNRESOLVED**.
+**Status: docs / data / tools only. The audit itself classifies nothing. §0 records the Owner Authority
+given on 2026-09-29 (OD-T1..T8); the rest of the report is the audit as originally written, amended where
+§0 supersedes it (marked "[superseded by §0]").** Every family value is either copied from an existing
+source with its status, or is an Owner-confirmed value from §0. No classification was added by the auditor.
 
 | Deliverable | Path |
 |---|---|
 | Report (this file) | `docs/reports/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.md` |
 | Machine-readable companion (65 rows + summary) | `docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.json` |
 | Generator / checker | `tools/ingredient_taxonomy_hcg_authority_audit.py` (`--check --sha 21dc0a6…` = drift check against the audited SHA; reads the working tree plus pinned PR #255 / #293 objects; not in CI; not imported by `src/**`) |
+
+## 0. Owner Authority record (2026-09-29): OD-T1..OD-T8
+
+Recorded verbatim from the Owner. **Recording only:** no production taxonomy row, `src/**`, CSS, UI, save
+schema, alias / reading authority, LC-R5b file or production ingredient was changed.
+`ingredientTaxonomy.ts` is unchanged (22 rows). The 23 confirmed toppings are **Owner-confirmed but not
+yet production rows**: each row is added to `ingredientTaxonomy.ts` in the PR that introduces that
+ingredient to runtime (OD-T7).
+
+| ID | Owner decision |
+|---|---|
+| **OD-T1** | The 16 #255 PROPOSED toppings are **confirmed**: vegetable = artichoke, arugula, bell-pepper, porcini, zucchini; other = breadcrumb, powdered-sugar, walnut; meat = chicken, prosciutto-crudo, speck; herb = cilantro, parsley; fruit = fig, strawberry; seafood = shrimp. `bell-pepper`, `cilantro`, `porcini`, `prosciutto-crudo` are **independent ids**, not aliased to a related ingredient. |
+| **OD-T2** | The 7 NEEDS_REVIEW toppings are **confirmed as independent id + family**: french-fries = other; nduja = meat; nori = other; spicy-salami = meat; steak = meat; truffle = vegetable; wurstel = meat. **placement / timing / Technique are separate from family authority:** nduja=spread does not change meat; truffle's late / high-end finishing use does not change vegetable identity. |
+| **OD-T3** | (a) Production authority kept and **individually recorded as Owner-confirmed**: garlic = herb, black-olive = vegetable, capers = spice. DH4 design §7.1 `capers = 野菜` is recorded as a **historical discrepancy**; no production change. |
+| **OD-T4** | (c) `mascarpone` **deferred**; its category is Owner-confirmed at runtime introduction. |
+| **OD-T5** | (b) Non-production sauce / cheese category is Owner-confirmed **per ingredient in the runtime-introduction PR**. |
+| **OD-T6** | (a) The 22 production toppings are accepted as **merged authority under OD-DH4-4**; no per-ingredient re-approval (OD-T3's 3 are recorded individually above). |
+| **OD-T7** | (a) A non-production ingredient's taxonomy row is added to `ingredientTaxonomy.ts` **in the same PR that introduces it to runtime**. **No second runtime taxonomy authority** holding 62 / 172 before production; pre-validation only via fixture / report. |
+| **OD-T8** | (b) `ingredient_master_catalog.json` is **frozen as a historical / research artifact**. `ingredients.ts` is the only authority for production existence. The catalog is **not rewritten** for the stale `existingInGame` values or the 3 missing ids. |
+
+**Outcome:** of the 23 UNRESOLVED toppings, **23 are now Owner-confirmed (0 UNRESOLVED remain)**: 16 by OD-T1, 7 by OD-T2.
+All 23 confirmed families equal the family #255 had proposed (machine-checked: `matchesPr255Candidate = true` for every row). 3 further production rows are individually confirmed (OD-T3). **Deferred: 1** (`mascarpone`, category, OD-T4).
+The machine-readable record is in the companion JSON (`ownerDecisions`, per-row `ownerDecision`, `summary`).
+
+**Correction (Fresh Audit error).** The original text said #255 marks 2 production rows NEEDS_REVIEW.
+The correct set is **3: `garlic`, `black-olive`, `capers`** (`capers` is not in the 62 catalog, so #293's 62-side count did not show it).
+§4, §7 and §11 below are amended accordingly.
 
 ## 1. Audited main SHA
 
@@ -54,20 +82,24 @@ Full per-id rows: the companion JSON.
 
 | State | Count | Notes |
 |---|---:|---|
-| Production topping, family row present (`CLASSIFIED_PRODUCTION`) | **20** | 22 production toppings minus the 2 below |
-| Production topping, family row present but **flagged under review** in #255 (`garlic`, `black-olive`) | **2** | production row stays; #255 raises a boundary question (see §7) |
+| Production topping, family row present (`CLASSIFIED_PRODUCTION`) | **19** | 22 production toppings minus the 3 below. Merged authority (OD-T6). |
+| Production topping, family row present, **flagged NEEDS_REVIEW in #255** (`garlic`, `black-olive`, `capers`) | **3** | **[superseded by §0]** kept and Owner-confirmed individually (OD-T3). Originally recorded as 2 in error. |
 | Production sauce / cheese, shelf by category | **7** | 3 sauce + 4 cheese; no family by design |
 | Non-production sauce / cheese: category only from the master catalog | **12** | shelf follows category once shipped; category is research-artifact data |
 | Non-production cheese with category question (`mascarpone`) | **1** | #255: cheese, or cream (`other.dairy`)? |
-| **Unresolved topping, PROPOSED only (no Owner confirmation)** | **16** | |
-| **Unresolved topping, NEEDS_REVIEW** | **7** | |
-| **Unresolved toppings total** | **23** | = 42 master toppings − 19 with a production row. Matches #293. |
-| …of which with an Owner-confirmed classification source | **0** | Q9 answer: **none** |
+| **Unresolved topping, PROPOSED only** (pre-decision) | 16 | **[superseded by §0]** now Owner-confirmed (OD-T1), not yet production rows |
+| **Unresolved topping, NEEDS_REVIEW** (pre-decision) | 7 | **[superseded by §0]** now Owner-confirmed (OD-T2), not yet production rows |
+| **Unresolved toppings total** (pre-decision) | 23 | = 42 master toppings − 19 with a production row. Matches #293. |
+| …with an Owner-confirmed source **before** the Owner Decisions | 0 | original Q9 answer |
+| **Owner-confirmed pending runtime (after §0)** | **23** | **UNRESOLVED remaining: 0** |
+| Deferred | **1** | `mascarpone` category (OD-T4) |
 
 Production sanity: 22 / 22 production toppings resolve to exactly one of the 7 families; 0 orphan / duplicate / non-topping rows.
 (Computed by static parse of the two source files; the vitest gates were read, not executed, in this session — `node_modules` is not installed.)
 
 ## 5. Unresolved ingredient IDs (23 toppings) and evidence
+
+> **[superseded by §0]** All 23 below were unresolved at audit time and are now Owner-confirmed with the family the Owner stated (identical to the #255 candidate quoted here). The lists are kept as the evidence trail.
 
 `Proposed family` is **PR #255's proposal**, quoted for traceability. It is **not** Owner-confirmed and is **not** used as authority here.
 
@@ -100,19 +132,19 @@ Category-level unresolved (non-topping): `mascarpone` (cheese vs cream). Not a f
 | T2 Heuristic (explicitly indicative) | DH4 Fresh Design §7.2 keyword classes | none; the source itself says "indicative only" |
 | T3 Name / common sense | – | **forbidden** as a basis |
 
-**Result for Q9:** none of the 23 unresolved toppings has an Owner-confirmed classification. Not one is classifiable "without inference" under a strict reading. The only difference between U-A and U-B is how much a #255 proposal already documents.
+**Result for Q9 (as audited, before §0):** none of the 23 unresolved toppings has an Owner-confirmed classification. Not one is classifiable "without inference" under a strict reading. The only difference between U-A and U-B is how much a #255 proposal already documents.
 
 ## 7. Conflicts / gaps
 
 | # | Finding | Detail |
 |---|---|---|
-| C-1 | **Master catalog is stale vs production** | The 62 catalog says `existingInGame: true` for 22 ids; production has 29. `corn`, `eggplant`, `pineapple`, `potato` are `existingInGame:false` in the catalog but production toppings. `capers`, `clam`, `fresh-tomato` are missing from the catalog entirely (F-count 62 vs 65 distinct). The catalog's `existingInGame` / `schemaNote` "22 existing / 40 new" no longer matches. |
-| C-2 | **`capers` design vs code** | DH4 Fresh Design §7.1 candidate table lists capers under 野菜; the merged table puts capers in `spice`. The merged code + Hint 5.0 C1-P key analysis (puttanesca "capers = 薬味") treat it as spice. The code is the authority; the design table is stale. No conflict at runtime, but any consumer of the design doc gets a different answer. |
-| C-3 | **Two `under review` production rows** | `garlic` (herb vs `vegetable.allium` with onion) and `black-olive` (vegetable vs fruit / condiment). #255 asks the HCG; changing either moves its **shelf** and its **Hint 5.0 class**, and would invalidate a stored `attr:family` safe mapping (H5-0 §migration: falls to archive). Not a bug today, a decision debt. |
-| C-4 | **No ingredient-level Owner decision record** | The 22 rows arrived as merged code under the umbrella OD-DH4-4. There is no per-ingredient Owner-confirmation record (only mushroom is named, in OD-H5-C4). The 22 are treated as authority because they are merged, gated and pinned. |
+| C-1 | **[handled by OD-T8: frozen, not rewritten] Master catalog is stale vs production** | The 62 catalog says `existingInGame: true` for 22 ids; production has 29. `corn`, `eggplant`, `pineapple`, `potato` are `existingInGame:false` in the catalog but production toppings. `capers`, `clam`, `fresh-tomato` are missing from the catalog entirely (F-count 62 vs 65 distinct). The catalog's `existingInGame` / `schemaNote` "22 existing / 40 new" no longer matches. |
+| C-2 | **[recorded by OD-T3 as historical discrepancy; production unchanged] `capers` design vs code** | DH4 Fresh Design §7.1 candidate table lists capers under 野菜; the merged table puts capers in `spice`. The merged code + Hint 5.0 C1-P key analysis (puttanesca "capers = 薬味") treat it as spice. The code is the authority; the design table is stale. No conflict at runtime, but any consumer of the design doc gets a different answer. |
+| C-3 | **[resolved by OD-T3] Three `under review` production rows** (`garlic`, `black-olive`, `capers`; originally written as two) | `garlic` (herb vs `vegetable.allium` with onion) and `black-olive` (vegetable vs fruit / condiment). #255 asks the HCG; changing either moves its **shelf** and its **Hint 5.0 class**, and would invalidate a stored `attr:family` safe mapping (H5-0 §migration: falls to archive). Not a bug today, a decision debt. |
+| C-4 | **[resolved by OD-T6] No ingredient-level Owner decision record** | The 22 rows arrived as merged code under the umbrella OD-DH4-4. There is no per-ingredient Owner-confirmation record (only mushroom is named, in OD-H5-C4). The 22 are treated as authority because they are merged, gated and pinned. |
 | C-5 | **Category precedes family, but category has no HCG-grade authority for non-production ids** | The master catalog category is a research artifact; #296 shows 18 category-undecided ids in the 172 set. Sauce / cheese ids get a shelf from category alone, so a wrong category silently mis-shelves. `mascarpone` is the 62-catalog instance. |
 | C-6 | **Single table drives shelf *and* Hint class by design** | `ingredientShelf` derives the topping shelf from the family. A family decision is therefore simultaneously a Hint 5.0 decision and a UI shelf decision. Correct as designed (no drift possible), but the HCG must be told both consequences. Labels stay separate (shelf 「その他」 vs Hint 「ちょっと変わった材料」; gate 4). |
-| C-7 | **#296's "confirmable from existing authority" list vs #255** | #296 HCG-27 proposes `truffle = vegetable` as confirmable from OD-TAX-6 + OD-DH4-4. #255 lists truffle NEEDS_REVIEW and OD-TAX-7 forbids deciding it by guess; neither OD-TAX-6 nor OD-DH4-4 names truffle. **This audit does not accept it as T0.** It stays U-B. |
+| C-7 | **[resolved by OD-T2: truffle = vegetable, Owner-confirmed] #296's "confirmable from existing authority" list vs #255** | #296 HCG-27 proposes `truffle = vegetable` as confirmable from OD-TAX-6 + OD-DH4-4. #255 lists truffle NEEDS_REVIEW and OD-TAX-7 forbids deciding it by guess; neither OD-TAX-6 nor OD-DH4-4 names truffle. **This audit does not accept it as T0.** It stays U-B. |
 | C-8 | **Population coupling of the fail-fast gate** | The gate (G1/G16/G22–G24) and `auditShelfAuthority` cover the *production* catalog, so adding an unclassified topping fails CI (good). They do not cover the 62 catalog itself; nothing fails when a catalog row is added to the JSON without a family. Expected, since the catalog is unwired. |
 | C-9 | **Sauce / cheese have no sub-classification** | OD-TAX-9 defers sauce / cheese families. 13 non-production sauces / cheeses ship with shelf = category only. Fine for shelf; a future need would be a new authority. |
 | C-10 | **Alias flags overlap classification** | 22 of the 62 carry an alias / canonicalization flag (e.g. `spicy-salami`, `steak`, `wurstel`, `prosciutto-crudo`). Identity (is it a separate id?) must be settled before family; that is the canonicalizer's job, not this audit's. |
@@ -144,9 +176,9 @@ Category-level unresolved (non-topping): `mascarpone` (cheese vs cream). Not a f
 | Authority separation | LC-R5b OD-A1 fixes alias = separate authority map (proposed `ingredientSearchAliases.ts`); C1 forbids aliases that equal a shelf / family / class label; OD-A4/A5 forbid guessed names / readings. This audit uses **no** alias, reading or search data as classification evidence and proposes no alias. A family label is never a search term. |
 | **Verdict** | **No conflict.** |
 
-## 11. Owner Decisions required
+## 11. Owner Decisions (questions as posed; **answered in §0**)
 
-None is made here. Each is a question for the Human Classification Gate (OD-TAX-7). Category before family.
+The table below is the original question set, kept for the trail. Answers are in §0. OD-T3 was posed for 2 rows and answered for 3.
 
 | ID | Question | Scope |
 |---|---|---|
@@ -163,13 +195,13 @@ Pack-level decisions for 172-only blockers remain in #296 (31 questions) and are
 
 ## 12. Recommended implementation slices (none started)
 
-All are docs / data / tools / tests unless stated. Ship only after the Owner decisions above.
+Amended for §0. S0 is done. OD-T7 forbids a second runtime taxonomy authority, so S2 is fixture / test only. All are docs / data / tools / tests unless stated.
 
 | Slice | Content | Needs | Touches production? |
 |---|---|---|---|
-| **S0** | Owner answers OD-T1..T8 on this report (docs) | Owner | no |
-| **S1** | HCG record file for the 16 U-A + 7 U-B answers, e.g. `docs/reports/data/…HCG-RECORD.json` (id, category, family, decision, evidence) + a validator in `tools/` | S0 | no |
-| **S2** | Staging authority + test-only gate: the 62 catalog with the confirmed rows, checked by the existing injectable `auditShelfAuthority(input)` / G16 pattern with a fixture, never imported by `src` | S1 | no (tests only) |
+| **S0** | Owner answers OD-T1..T8 — **DONE (§0)** | – | no |
+| **S1** | Provenance record: the companion JSON already holds the 23 + 3 confirmations; optionally split into a standalone HCG record + validator in `tools/` | S0 | no |
+| **S2** | Fixture / test-only validation (NOT a second taxonomy authority, OD-T7): the 62 catalog with the Owner-confirmed rows, checked by the existing injectable `auditShelfAuthority(input)` / G16 pattern with a fixture, never imported by `src` | S1 | no (tests only) |
 | **S3** | Per-ingredient runtime introduction: when an ingredient enters `ingredients.ts`, its `ingredientTaxonomy.ts` row ships in the same PR; the existing G1 / gate 1 fail CI otherwise. Human Verification policy applies if the shelf UI changes | S1 + the ingredient's own slice | **yes**, per-ingredient, later |
 | **S4** | 172 extension: reuse S1 format for the 172-only ids after #296's HCG queues | #296 Owner Decisions | no until S3 |
 | **S5** | Master catalog refresh / freeze (OD-T8) | OD-T8 | no |
@@ -185,7 +217,9 @@ All are docs / data / tools / tests unless stated. Ship only after the Owner dec
 
 ## 14. Final verdict
 
-**B. OWNER DECISION REQUIRED — audit complete, no production implementation.**
+**Updated after §0: A. AUTHORITY RECORDED — no production implementation; 0 UNRESOLVED; 1 deferred (`mascarpone` category).** (Original verdict: B. OWNER DECISION REQUIRED.)
+
+Historical text of the original verdict follows.
 
 - Production (29 ingredients, 22 topping rows, 9 shelves) is **complete and internally consistent**; the fail-fast gates cover it. Nothing here needs a production fix.
 - The 62-catalog taxonomy is **not completable without the Owner**: 23 toppings are unresolved, **0 have an Owner-confirmed source**; 16 have a documented #255 proposal, 7 are genuine judgment calls, plus 2 under-review production rows and 1 category question.
