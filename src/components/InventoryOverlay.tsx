@@ -70,7 +70,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
             />
           </div>
 
-          <div className="inventory-overlay__list">
+          <div className="inventory-overlay__list" role="region" aria-label="材料一覧" tabIndex={0}>
             {visible.length === 0 && (
               <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
             )}

@@ -6183,3 +6183,9 @@ p.hint-sheet__step {
   width: 100%;
   min-height: 44px;
 }
+
+/* Keyboard scroll: the list is the only scroller, so it is focusable (tabIndex 0); keep a visible ring. */
+.inventory-overlay__list:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: -2px;
+}

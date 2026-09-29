@@ -65,6 +65,12 @@ for (const vp of VIEWPORTS) {
 
       // Largest state: the list (not the page/body/panel) scrolls.
       const list = page.locator(".inventory-overlay__list");
+      // Keyboard-operable scrollport: labelled region, focusable, PageDown scrolls it.
+      await expect(page.getByRole("region", { name: "材料一覧" })).toHaveAttribute("tabindex", "0");
+      await list.focus();
+      await page.keyboard.press("PageDown");
+      expect(await list.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+      await list.evaluate((el) => { el.scrollTop = 0; });
       const big = await list.evaluate((el) => ({ sh: el.scrollHeight, ch: el.clientHeight }));
       expect(big.sh).toBeGreaterThan(big.ch);
       expect(await page.locator(".inventory-overlay__body").evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
