@@ -1,0 +1,668 @@
+{
+  "schema": "teto.ingredient-category-tabs.audit/1",
+  "counts": {
+    "ingredients": 29,
+    "byCategory": {
+      "cheese": 4,
+      "sauce": 3,
+      "topping": 22
+    },
+    "toppingsWithFamily": 22,
+    "toppingsTotal": 22,
+    "starters": [
+      "basil",
+      "mozzarella",
+      "tomato-sauce"
+    ],
+    "shopSellable": 0,
+    "recipes": 25
+  },
+  "unclassifiedToppings": [],
+  "duplicateTaxonomyRows": [],
+  "screenCoverage": {
+    "builderFreeCook": {
+      "size": 29,
+      "shelfClassified": 29,
+      "unclassified": [],
+      "byShelf": {
+        "cheese": 4,
+        "fruit": 1,
+        "herb": 4,
+        "meat": 4,
+        "other": 1,
+        "sauce": 3,
+        "seafood": 3,
+        "spice": 1,
+        "vegetable": 8
+      }
+    },
+    "builderGuided": {
+      "size": 29,
+      "shelfClassified": 29,
+      "unclassified": [],
+      "byShelf": {
+        "cheese": 4,
+        "fruit": 1,
+        "herb": 4,
+        "meat": 4,
+        "other": 1,
+        "sauce": 3,
+        "seafood": 3,
+        "spice": 1,
+        "vegetable": 8
+      }
+    },
+    "shop": {
+      "size": 26,
+      "shelfClassified": 26,
+      "unclassified": [],
+      "byShelf": {
+        "cheese": 3,
+        "fruit": 1,
+        "herb": 3,
+        "meat": 4,
+        "other": 1,
+        "sauce": 2,
+        "seafood": 3,
+        "spice": 1,
+        "vegetable": 8
+      }
+    },
+    "ingredients": {
+      "size": 29,
+      "shelfClassified": 29,
+      "unclassified": [],
+      "byShelf": {
+        "cheese": 4,
+        "fruit": 1,
+        "herb": 4,
+        "meat": 4,
+        "other": 1,
+        "sauce": 3,
+        "seafood": 3,
+        "spice": 1,
+        "vegetable": 8
+      }
+    }
+  },
+  "nonToppingWithFamily": [],
+  "orphanTaxonomyIds": [],
+  "familyPopulation": {
+    "meat": {
+      "labelJa": "肉",
+      "group": "protein",
+      "toppings": [
+        "sausage",
+        "pepperoni",
+        "bacon",
+        "ham"
+      ]
+    },
+    "seafood": {
+      "labelJa": "魚介",
+      "group": "protein",
+      "toppings": [
+        "anchovy",
+        "tuna",
+        "clam"
+      ]
+    },
+    "vegetable": {
+      "labelJa": "野菜・きのこ",
+      "group": "produce",
+      "toppings": [
+        "cherry-tomato",
+        "mushroom",
+        "onion",
+        "black-olive",
+        "corn",
+        "eggplant",
+        "fresh-tomato",
+        "potato"
+      ]
+    },
+    "fruit": {
+      "labelJa": "果物",
+      "group": "produce",
+      "toppings": [
+        "pineapple"
+      ]
+    },
+    "herb": {
+      "labelJa": "ハーブ・香味",
+      "group": "aroma",
+      "toppings": [
+        "basil",
+        "garlic",
+        "oregano",
+        "rosemary"
+      ]
+    },
+    "spice": {
+      "labelJa": "スパイス・薬味",
+      "group": "aroma",
+      "toppings": [
+        "capers"
+      ]
+    },
+    "other": {
+      "labelJa": "その他",
+      "group": "other",
+      "toppings": [
+        "egg"
+      ]
+    }
+  },
+  "freeCookTraySizes": {
+    "sauce": 3,
+    "cheese": 4,
+    "topping": 22
+  },
+  "freeCookToppingPagesAt6": 4,
+  "guidedToppingTray": {
+    "max": 4,
+    "distribution": {
+      "0": 1,
+      "1": 7,
+      "2": 12,
+      "3": 1,
+      "4": 4
+    },
+    "maxDistinctFamilies": 4
+  },
+  "rows": [
+    {
+      "id": "tomato-sauce",
+      "nameJa": "トマトソース",
+      "category": "sauce",
+      "family": null,
+      "group": null,
+      "starter": true,
+      "finite": false,
+      "shelf": "sauce",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": false,
+        "ingredients": true
+      },
+      "recipesUsing": 17
+    },
+    {
+      "id": "olive-oil",
+      "nameJa": "オリーブオイル",
+      "category": "sauce",
+      "family": null,
+      "group": null,
+      "starter": false,
+      "finite": true,
+      "shelf": "sauce",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 4
+    },
+    {
+      "id": "pesto",
+      "nameJa": "ジェノベーゼソース",
+      "category": "sauce",
+      "family": null,
+      "group": null,
+      "starter": false,
+      "finite": true,
+      "shelf": "sauce",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 4
+    },
+    {
+      "id": "mozzarella",
+      "nameJa": "モッツァレラ",
+      "category": "cheese",
+      "family": null,
+      "group": null,
+      "starter": true,
+      "finite": false,
+      "shelf": "cheese",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": false,
+        "ingredients": true
+      },
+      "recipesUsing": 19
+    },
+    {
+      "id": "gorgonzola",
+      "nameJa": "ゴルゴンゾーラ",
+      "category": "cheese",
+      "family": null,
+      "group": null,
+      "starter": false,
+      "finite": true,
+      "shelf": "cheese",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "parmigiano",
+      "nameJa": "パルミジャーノ",
+      "category": "cheese",
+      "family": null,
+      "group": null,
+      "starter": false,
+      "finite": true,
+      "shelf": "cheese",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 3
+    },
+    {
+      "id": "fontina",
+      "nameJa": "フォンティーナ",
+      "category": "cheese",
+      "family": null,
+      "group": null,
+      "starter": false,
+      "finite": true,
+      "shelf": "cheese",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "basil",
+      "nameJa": "バジル",
+      "category": "topping",
+      "family": "herb",
+      "group": "aroma",
+      "starter": true,
+      "finite": false,
+      "shelf": "herb",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": false,
+        "ingredients": true
+      },
+      "recipesUsing": 4
+    },
+    {
+      "id": "garlic",
+      "nameJa": "にんにく",
+      "category": "topping",
+      "family": "herb",
+      "group": "aroma",
+      "starter": false,
+      "finite": true,
+      "shelf": "herb",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 3
+    },
+    {
+      "id": "oregano",
+      "nameJa": "オレガノ",
+      "category": "topping",
+      "family": "herb",
+      "group": "aroma",
+      "starter": false,
+      "finite": true,
+      "shelf": "herb",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 4
+    },
+    {
+      "id": "cherry-tomato",
+      "nameJa": "チェリートマト",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "egg",
+      "nameJa": "たまご",
+      "category": "topping",
+      "family": "other",
+      "group": "other",
+      "starter": false,
+      "finite": true,
+      "shelf": "other",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 3
+    },
+    {
+      "id": "mushroom",
+      "nameJa": "マッシュルーム",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 2
+    },
+    {
+      "id": "onion",
+      "nameJa": "たまねぎ",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 4
+    },
+    {
+      "id": "sausage",
+      "nameJa": "ソーセージ",
+      "category": "topping",
+      "family": "meat",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "meat",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 2
+    },
+    {
+      "id": "pepperoni",
+      "nameJa": "ペパロニ",
+      "category": "topping",
+      "family": "meat",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "meat",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 2
+    },
+    {
+      "id": "anchovy",
+      "nameJa": "アンチョビ",
+      "category": "topping",
+      "family": "seafood",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "seafood",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 2
+    },
+    {
+      "id": "tuna",
+      "nameJa": "ツナ",
+      "category": "topping",
+      "family": "seafood",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "seafood",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 2
+    },
+    {
+      "id": "rosemary",
+      "nameJa": "ローズマリー",
+      "category": "topping",
+      "family": "herb",
+      "group": "aroma",
+      "starter": false,
+      "finite": true,
+      "shelf": "herb",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "bacon",
+      "nameJa": "ベーコン",
+      "category": "topping",
+      "family": "meat",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "meat",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 3
+    },
+    {
+      "id": "ham",
+      "nameJa": "ハム",
+      "category": "topping",
+      "family": "meat",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "meat",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 5
+    },
+    {
+      "id": "black-olive",
+      "nameJa": "ブラックオリーブ",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 4
+    },
+    {
+      "id": "capers",
+      "nameJa": "ケッパー",
+      "category": "topping",
+      "family": "spice",
+      "group": "aroma",
+      "starter": false,
+      "finite": true,
+      "shelf": "spice",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "clam",
+      "nameJa": "あさり",
+      "category": "topping",
+      "family": "seafood",
+      "group": "protein",
+      "starter": false,
+      "finite": true,
+      "shelf": "seafood",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "corn",
+      "nameJa": "コーン",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "eggplant",
+      "nameJa": "ナス",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 2
+    },
+    {
+      "id": "fresh-tomato",
+      "nameJa": "トマト",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "pineapple",
+      "nameJa": "パイナップル",
+      "category": "topping",
+      "family": "fruit",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "fruit",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    },
+    {
+      "id": "potato",
+      "nameJa": "じゃがいも",
+      "category": "topping",
+      "family": "vegetable",
+      "group": "produce",
+      "starter": false,
+      "finite": true,
+      "shelf": "vegetable",
+      "screens": {
+        "builderFreeCook": true,
+        "builderGuided": true,
+        "shop": true,
+        "ingredients": true
+      },
+      "recipesUsing": 1
+    }
+  ]
+}

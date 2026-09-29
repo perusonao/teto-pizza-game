@@ -1,0 +1,295 @@
+{
+  "generatedBy": "tools/ingredient-category-tabs/measure.spec.ts",
+  "viewports": {
+    "360x800": {
+      "viewport": {
+        "id": "360x800",
+        "width": 360,
+        "height": 800
+      },
+      "builderTopping": {
+        "stage": {
+          "x": 0,
+          "y": 147,
+          "w": 360,
+          "h": 401
+        },
+        "tray": {
+          "x": 12,
+          "y": 554,
+          "w": 336,
+          "h": 134
+        },
+        "pager": {
+          "x": 12,
+          "y": 694,
+          "w": 336,
+          "h": 28
+        },
+        "bakeBar": {
+          "x": 0,
+          "y": 730,
+          "w": 360,
+          "h": 70
+        },
+        "stepTabs": {
+          "x": 0,
+          "y": 56,
+          "w": 360,
+          "h": 44
+        },
+        "pagerLabel": "1 / 4",
+        "chip": {
+          "x": 12,
+          "y": 554,
+          "w": 108,
+          "h": 64
+        },
+        "gameScreenFits": true
+      },
+      "builderStepTabRole": {
+        "tablistCount": 1,
+        "tabs": [
+          "✓ 生地",
+          "✓ ソース",
+          "✓ チーズ",
+          "具材"
+        ],
+        "firstTabH": 40
+      },
+      "shopTabs": {
+        "count": 4,
+        "heightMin": 33,
+        "widthMin": 65,
+        "rows": 1,
+        "rowHeightTotal": 33,
+        "fontPx": "12px",
+        "pageOverflowX": false,
+        "rect": {
+          "x": 16,
+          "y": 132,
+          "w": 328,
+          "h": 33
+        },
+        "firstItem": {
+          "x": 16,
+          "y": 175,
+          "w": 328,
+          "h": 78
+        }
+      },
+      "inventoryTabs": {
+        "count": 4,
+        "heightMin": 33,
+        "widthMin": 65,
+        "rows": 1,
+        "rowHeightTotal": 33,
+        "fontPx": "12px",
+        "pageOverflowX": false,
+        "rect": {
+          "x": 16,
+          "y": 115,
+          "w": 328,
+          "h": 33
+        },
+        "grid": {
+          "x": 16,
+          "y": 160,
+          "w": 328,
+          "h": 962
+        }
+      },
+      "candidateRowWidth": {
+        "viewportContentWidth": 328,
+        "builder8_at14px": {
+          "total": 674,
+          "each": [
+            67,
+            38,
+            52,
+            109,
+            52,
+            109,
+            124,
+            67
+          ]
+        },
+        "shop10_at14px": {
+          "total": 824,
+          "each": [
+            67,
+            67,
+            67,
+            38,
+            52,
+            109,
+            52,
+            109,
+            124,
+            67
+          ]
+        },
+        "shop10_at12px_current": {
+          "total": 752,
+          "each": [
+            61,
+            61,
+            61,
+            36,
+            48,
+            97,
+            48,
+            97,
+            110,
+            61
+          ]
+        }
+      }
+    },
+    "390x844": {
+      "viewport": {
+        "id": "390x844",
+        "width": 390,
+        "height": 844
+      },
+      "builderTopping": {
+        "stage": {
+          "x": 0,
+          "y": 147,
+          "w": 390,
+          "h": 445
+        },
+        "tray": {
+          "x": 12,
+          "y": 598,
+          "w": 366,
+          "h": 134
+        },
+        "pager": {
+          "x": 12,
+          "y": 738,
+          "w": 366,
+          "h": 28
+        },
+        "bakeBar": {
+          "x": 0,
+          "y": 774,
+          "w": 390,
+          "h": 70
+        },
+        "stepTabs": {
+          "x": 0,
+          "y": 56,
+          "w": 390,
+          "h": 44
+        },
+        "pagerLabel": "1 / 4",
+        "chip": {
+          "x": 12,
+          "y": 598,
+          "w": 118,
+          "h": 64
+        },
+        "gameScreenFits": true
+      },
+      "builderStepTabRole": {
+        "tablistCount": 1,
+        "tabs": [
+          "✓ 生地",
+          "✓ ソース",
+          "✓ チーズ",
+          "具材"
+        ],
+        "firstTabH": 40
+      },
+      "shopTabs": {
+        "count": 4,
+        "heightMin": 33,
+        "widthMin": 65,
+        "rows": 1,
+        "rowHeightTotal": 33,
+        "fontPx": "12px",
+        "pageOverflowX": false,
+        "rect": {
+          "x": 16,
+          "y": 132,
+          "w": 358,
+          "h": 33
+        },
+        "firstItem": {
+          "x": 16,
+          "y": 175,
+          "w": 358,
+          "h": 78
+        }
+      },
+      "inventoryTabs": {
+        "count": 4,
+        "heightMin": 33,
+        "widthMin": 65,
+        "rows": 1,
+        "rowHeightTotal": 33,
+        "fontPx": "12px",
+        "pageOverflowX": false,
+        "rect": {
+          "x": 16,
+          "y": 115,
+          "w": 358,
+          "h": 33
+        },
+        "grid": {
+          "x": 16,
+          "y": 160,
+          "w": 358,
+          "h": 948
+        }
+      },
+      "candidateRowWidth": {
+        "viewportContentWidth": 358,
+        "builder8_at14px": {
+          "total": 674,
+          "each": [
+            67,
+            38,
+            52,
+            109,
+            52,
+            109,
+            124,
+            67
+          ]
+        },
+        "shop10_at14px": {
+          "total": 824,
+          "each": [
+            67,
+            67,
+            67,
+            38,
+            52,
+            109,
+            52,
+            109,
+            124,
+            67
+          ]
+        },
+        "shop10_at12px_current": {
+          "total": 752,
+          "each": [
+            61,
+            61,
+            61,
+            36,
+            48,
+            97,
+            48,
+            97,
+            110,
+            61
+          ]
+        }
+      }
+    }
+  }
+}
