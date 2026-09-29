@@ -423,6 +423,11 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
+      // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
+      // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
+      // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts
+      // proves a production bundle contains none of it.
+      "../preview/hvSeeds.ts",
       "../state/gameReducer.ts",
       "../state/materialEntitlement.ts",
       "../state/recipeChapters.ts",
