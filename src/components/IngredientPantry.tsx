@@ -23,11 +23,12 @@ import { ShelfChips } from "./ShelfChips";
  *
  * LC-R4 (Owner-confirmed OD-R4-1 / OD-R4-2): the pantry stays per active category. `ShelfChips` sits in a fixed
  * (non-scrolling) slot between the subtitle and the list and appears only when the OWNED rows of this category
- * span two or more shelves; its chips are derived from those rows (`shelvesPresent`), never from the catalog.
+ * span two or more shelves; its chips are derived from the `shelf` of those rows (in `INGREDIENT_SHELF_ORDER`), never from the catalog.
  * The chosen shelf is local UI state (the sheet is unmounted on close, so reopening starts at 「すべて」; nothing
  * is saved or lifted into GameState). Membership is `ingredientShelf` (through the catalog descriptor's `shelf`);
  * a `shelf === null` row is listed under 「すべて」 only. The pantry filter never touches the Builder tray, so
- * `selectedIngredientId` is not cleared here (#197 applies once the Builder hand visible set changes, R5). It is a fixed overlay like the hint sheet, so opening it moves nothing on
+ * `selectedIngredientId` is not cleared here (#197 applies once the Builder hand visible set changes, R5).
+ * It is a fixed overlay like the hint sheet, so opening it moves nothing on
  * the cooking screen (the pizza stage keeps its size). InventoryOverlay is deliberately NOT reused: that
  * component is read-only by type and owns a different card.
  */
