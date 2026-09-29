@@ -1,11 +1,6 @@
 import { useState } from "react";
-import {
-  CATEGORY_TAB_LABEL,
-  CATEGORY_TAB_ORDER,
-  INGREDIENTS,
-  type CategoryTab,
-  type Ingredient,
-} from "../data/ingredients";
+import { INGREDIENTS, type Ingredient } from "../data/ingredients";
+import { filterByShelf, shelvesPresent, type ShelfFilter } from "../data/ingredientShelf";
 import type { DexState } from "../state/dex";
 import { remainingStock, type InventoryState } from "../state/inventory";
 import { discoveredRecipeCount } from "../logic/discoveryLadder";
@@ -17,6 +12,7 @@ import {
   type MaterialOffer,
 } from "../logic/materialShop";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { ShelfChips } from "./ShelfChips";
 
 interface ShopOverlayProps {
   dex: DexState;
@@ -107,10 +103,20 @@ export function ShopOverlay({
   const rows = shopRows(ownedIngredientIds, unlockedForShopIngredientIds);
   const progress = nextMaterialHint(discoveredRecipeCount(dex), unlockedForShopIngredientIds);
   const [feedback, setFeedback] = useState<ShopFeedback | null>(null);
-  // Visual Polish 1C: a client-side view filter over the already-visible rows only -- it can
-  // never reveal a LOCKED material.
-  const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
-  const visibleRows = activeTab === "ALL" ? rows : rows.filter((r) => r.ingredient.category === activeTab);
+  // Ingredient Category Tabs 1.0 Phase 3: a display-only shelf filter (./ingredientShelf.ts is the
+  // authority for ids, order, labels and membership). The chips are derived from the rows this
+  // Shop already lists (NEW / OWNED), never from the catalog, so a shelf that only holds LOCKED
+  // materials has no chip, no DOM node and no text. No counts.
+  const listedIngredients = rows.map((r) => r.ingredient);
+  const presentShelves = shelvesPresent(listedIngredients);
+  const [activeShelf, setActiveShelf] = useState<ShelfFilter>("all");
+  // A shelf that is no longer listed (rows changed) safely reads as 「すべて」. Derived while
+  // rendering: no setState during render and no effect-driven reset. The stored choice is only
+  // ever written by a chip tap.
+  const shelfFilter: ShelfFilter =
+    activeShelf === "all" || presentShelves.includes(activeShelf) ? activeShelf : "all";
+  const shownIds = new Set(filterByShelf(listedIngredients, shelfFilter).map((i) => i.id));
+  const visibleRows = rows.filter((r) => shownIds.has(r.ingredient.id));
 
   function handleBuy(row: ShopRow) {
     const { ingredient, offer } = row;
@@ -184,20 +190,12 @@ export function ShopOverlay({
           )}
 
           {rows.length > 0 && (
-            <div className="shop-filter-tabs" role="tablist" aria-label="材料カテゴリ">
-              {CATEGORY_TAB_ORDER.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === tab}
-                  className={`shop-filter-tab ${activeTab === tab ? "shop-filter-tab--active" : ""}`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {CATEGORY_TAB_LABEL[tab]}
-                </button>
-              ))}
-            </div>
+            <ShelfChips
+              shelves={presentShelves}
+              active={shelfFilter}
+              onChange={setActiveShelf}
+              ariaLabel="材料の分類"
+            />
           )}
 
           {rows.length > 0 && visibleRows.length === 0 && (

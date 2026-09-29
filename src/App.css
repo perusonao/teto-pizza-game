@@ -2756,30 +2756,47 @@
   line-height: 1.4;
 }
 
-/* Visual Polish 1C: mirrors .inventory-tabs/.inventory-tab's own established ALL+category
-   filter styling (InventoryOverlay.tsx) so Shop and Inventory share the same visual "mental
-   model" for category filtering, without the two overlays sharing a component. */
-.shop-filter-tabs {
+/* Ingredient Category Tabs 1.0 Phase 3: the shared shelf chip row (ShelfChips.tsx). One
+   horizontally scrolling row, never wraps; only the row scrolls, not the page. 44px targets,
+   14px text. Inventory keeps its own .inventory-tabs until Phase 4. */
+.shelf-chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex: 0 0 auto; /* the overlay body is a column flexbox: never let a long list squash the row */
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
 }
 
-.shop-filter-tab {
+.shelf-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.shelf-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
   border: 2px solid #e6d3a3;
   background: #fff8ea;
   color: #8a6a45;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   border-radius: 999px;
-  padding: 6px 12px;
-  min-height: 32px;
+  padding: 0 12px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
-.shop-filter-tab--active {
+.shelf-chip--active {
   background: #f2b705;
-  border-color: #f2b705;
+  border-color: #b98700;
   color: #4a2e0a;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
 }
 
 .shop-overlay__list {
