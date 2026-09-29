@@ -5,10 +5,12 @@
  *
  * - Only OWNED ingredients are ever returned (LOCKED / not-yet-bought never appear). Shop's NEW + OWNED
  *   universe is NOT this model's scope and must never be added here.
- * - LC-R0 foundation: no membership filter. LC-R1 adds a single `shelves` input backed by
- *   `src/data/ingredientShelf.ts`; there is no category / family axis and no counts before Phase 5.
+ * - Membership: one `shelves` input compared with the descriptor's `shelf` (copied from
+ *   `src/data/ingredientShelf.ts` by catalogSource). This module imports no shelf VALUE and classifies nothing;
+ *   there is no category / family axis and no counts before Phase 5. 「すべて」 is "no `shelves`" (not a shelf id).
  * - Every sort is a total order ending in catalog order, so results never depend on input order.
  */
+import type { IngredientShelfId } from "../../data/ingredientShelf";
 import { compareReading, matchesSearch } from "./catalogText";
 import {
   compareCatalogOrder,
@@ -22,6 +24,9 @@ import type { UsageSession } from "./usageSignals";
 export type CatalogSort = "catalog" | "recent" | "reading" | "stock";
 
 export interface CatalogQuery {
+  /** Undefined / empty = no shelf filter (「すべて」, includes unclassified). Otherwise only items whose
+   *  `shelf` is one of these (a `null` shelf never matches). ANDed with every other input. */
+  shelves?: readonly IngredientShelfId[];
   text?: string;
   only?: { favorites?: boolean; recent?: boolean; inStock?: boolean };
   sort?: CatalogSort;
@@ -44,10 +49,12 @@ export function queryCatalog(
   usage: UsageSession,
   query: CatalogQuery = {},
 ): CatalogIngredient[] {
+  const shelves = query.shelves && query.shelves.length > 0 ? new Set<string>(query.shelves) : null;
   const favorites = new Set(usage.favorites);
   const recentRank = new Map(usage.recent.map((id, i) => [id, i]));
   let rows = ownedCatalog(catalog, ownership).filter(
     (item) =>
+      (shelves === null || (item.shelf !== null && shelves.has(item.shelf))) &&
       (query.text === undefined || matchesSearch(item, query.text)) &&
       (!query.only?.favorites || favorites.has(item.id)) &&
       (!query.only?.recent || recentRank.has(item.id)) &&

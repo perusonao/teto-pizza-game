@@ -389,6 +389,7 @@ design docs and wireframes are historical where they disagree.
   decided after the new branch is established.
 - **LC-R0 DONE (branch `claude/lc-r0-fresh-main-foundation`, no PR):** `src/logic/catalog/**` foundation ported from #272 without
   the family / taxonomy / counts authority; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R0_Foundation-Migration_Result.md`. Next: LC-R1 (only on Owner go).
+- **LC-R1 DONE (branch `claude/lc-r1-shelf-authority`, no PR):** catalog `shelf` copied from `ingredientShelf()`; `queryCatalog({ shelves })`; unclassified fail-closed; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R1_Shelf-Authority_Result.md`. Next: LC-R2 only on Owner go.
 - Standing: `ingredientShelf` = membership authority, `catalogQuery` = owned / filter / search / sort engine,
   `ShelfChips` = presentation; no counts before Phase 5; capacity 9 vs 12 is decided by Human Feel at the hand slice;
   no tray family chips (OD-B1〜B5).

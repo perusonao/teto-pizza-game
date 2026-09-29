@@ -61,6 +61,36 @@ describe("catalog boundary", () => {
     expect(violations).toEqual([]);
   });
 
+  it("LC-R1 dependency direction: only catalogSource imports ingredientShelf as a value; the query / model classify nothing", () => {
+    const valueImporters: string[] = [];
+    const typeImporters: string[] = [];
+    for (const [file, text] of Object.entries(CATALOG_SOURCES)) {
+      for (const { spec, typeOnly } of imports(text)) {
+        if (spec !== "../../data/ingredientShelf") continue;
+        (typeOnly ? typeImporters : valueImporters).push(file);
+      }
+    }
+    expect(valueImporters).toEqual(["./catalogSource.ts"]);
+    // The model and the query only name the id type; no membership helper is called from them.
+    expect(typeImporters.sort()).toEqual(["./catalogQuery.ts", "./catalogTypes.ts"]);
+  });
+
+  it("LC-R1: no catalog module reaches the taxonomy, Hint 5 display / ladder, or the shelf filter helpers", () => {
+    const forbidden = [/ingredientTaxonomy/, /hintClassDisplay/, /hint5/i, /discovery\/(?!$)/];
+    const violations: string[] = [];
+    for (const [file, text] of Object.entries(CATALOG_SOURCES)) {
+      for (const { spec } of imports(text)) if (forbidden.some((re) => re.test(spec))) violations.push(`${file} -> ${spec}`);
+      // The only membership call allowed is ingredientShelf() in catalogSource; filterByShelf / shelvesPresent
+      // would be a second filter authority inside the query layer.
+      if (/\b(filterByShelf|shelvesPresent|auditShelfAuthority|ingredientAttributeFamily)\b/.test(text.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ""))) {
+        violations.push(`${file} uses a shelf/taxonomy helper`);
+      }
+    }
+    expect(violations).toEqual([]);
+    const source = CATALOG_SOURCES["./catalogSource.ts"].replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    expect(source.match(/ingredientShelf\(/g)).toHaveLength(1);
+  });
+
   it("dexActionSummary imports nothing (stock can never become an input by accident)", () => {
     expect(imports(CATALOG_SOURCES["./dexActionSummary.ts"])).toEqual([]);
   });

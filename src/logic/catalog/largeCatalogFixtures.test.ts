@@ -52,16 +52,19 @@ describe("LC-1b scale fixtures", () => {
     expect(f.starterIds).toEqual(["tomato-sauce", "mozzarella", "basil"]);
   });
 
-  it("keeps the PR #255 PROPOSED family counts at 105 / 179 as fixture data beside (not inside) the descriptors", () => {
+  it("uses the PR #255 PROPOSED family shelves at 105 / 179 for synthetic toppings", () => {
     const count = (id: "full-105x172" | "stress-179x172") => {
       const out: Record<string, number> = {};
-      for (const family of largeCatalogFixture(id).familyById.values()) out[family] = (out[family] ?? 0) + 1;
+      for (const i of largeCatalogFixture(id).catalog) if (i.category === "topping" && i.shelf) out[i.shelf] = (out[i.shelf] ?? 0) + 1;
       return out;
     };
     expect(count("full-105x172")).toEqual({ vegetable: 24, meat: 13, seafood: 11, herb: 8, other: 7, spice: 5, fruit: 3 });
     expect(count("stress-179x172")).toEqual({ vegetable: 40, meat: 20, other: 17, seafood: 15, spice: 12, fruit: 11, herb: 8 });
-    // The descriptors themselves carry no membership field (ingredientShelf is the only authority).
-    for (const i of largeCatalogFixture("full-105x172").catalog) expect(Object.keys(i).sort()).toEqual(["catalogIndex", "category", "id", "nameJa"]);
+    // Sauce / cheese synthetic ids sit on their category shelf; no synthetic id is unclassified.
+    for (const i of largeCatalogFixture("full-105x172").catalog) {
+      expect(i.shelf).not.toBeNull();
+      if (i.category !== "topping") expect(i.shelf).toBe(i.category);
+    }
   });
 
   it("is deterministic and never uses a real recipe or ingredient name", () => {

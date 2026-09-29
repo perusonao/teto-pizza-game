@@ -15,6 +15,7 @@ function toppings(n: number): CatalogIngredient[] {
     id: `t${String(i).padStart(2, "0")}`,
     category: "topping" as const,
     nameJa: `具${i}`,
+    shelf: "vegetable" as const,
     catalogIndex: i,
   }));
 }
@@ -110,7 +111,7 @@ describe("selectWorkingSet: priority placed > pinned > hint > favorite > recent 
   it("ignores unowned, other-category, unknown and hostile ids", () => {
     const catalog: CatalogIngredient[] = [
       ...toppings(10),
-      { id: "cheese-a", category: "cheese", nameJa: "チ", catalogIndex: 99 },
+      { id: "cheese-a", category: "cheese", nameJa: "チ", shelf: "cheese", catalogIndex: 99 },
     ];
     const ws = selectWorkingSet({
       ...input({ catalog, capacity: 3 }),

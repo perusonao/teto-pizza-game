@@ -9,12 +9,13 @@
  * - `runtime-29x25` is the real catalog (INGREDIENTS / RECIPES / recipeChapter).
  * - Every other fixture is synthetic: ids `fx-<category>-<nnn>`, katakana names, recipes drawn with the
  *   172-matrix topping / cheese count distributions. A seeded PRNG makes each fixture identical on every run.
- * - LC-R0: the catalog descriptors carry NO membership. The PR #255 PROPOSED topping-family proportions
- *   (exact counts at 105 / 179) live beside the catalog as `familyById` -- fixture data only, never part of the
- *   model. LC-R1 turns it into `shelf` values for the synthetic ids (real ingredients use `ingredientShelf()`).
+ * - Shelves: the real catalog's `shelf` comes from `ingredientShelf()` (via runtimeCatalog). A synthetic id has no
+ *   production classification, so the fixture ASSIGNS test data: sauce / cheese ids get their category shelf and
+ *   toppings get a family shelf in the PR #255 PROPOSED proportions (exact counts at 105 / 179). This is fixture
+ *   data for fake ids, never an authority and never used by production code.
  */
 import { INGREDIENTS } from "../../../data/ingredients";
-import type { AttributeFamilyId } from "../../../data/ingredientTaxonomy";
+import type { AttributeFamilyId } from "../../../data/ingredientTaxonomy"; // shelf ids for synthetic toppings (test data)
 import { RECIPES } from "../../../data/recipes";
 import { recipeChapter } from "../../../state/recipeChapters";
 import { runtimeCatalog } from "../catalogSource";
@@ -34,8 +35,6 @@ export interface LargeCatalogFixture {
   recipes: readonly FixtureRecipe[];
   split: CategorySplit;
   chapterSizes: readonly number[];
-  /** Synthetic topping -> family proportions (fixture data only). Empty for the real catalog. */
-  familyById: ReadonlyMap<string, AttributeFamilyId>;
   /** Starter ingredients never count as missing (runtime: no unlockCondition). */
   starterIds: readonly string[];
 }
@@ -134,29 +133,26 @@ function familyCountsFor(toppings: number): Record<AttributeFamilyId, number> {
 const CATEGORY_LABEL: Record<CatalogCategory, string> = { sauce: "ソース", cheese: "チーズ", topping: "グザイ" };
 
 export function syntheticCatalog(split: CategorySplit, seed: number): CatalogIngredient[] {
+  const rand = mulberry32(seed);
   const out: CatalogIngredient[] = [];
   for (const category of ["sauce", "cheese", "topping"] as const) {
-    for (let i = 0; i < split[category]; i++) {
+    const n = split[category];
+    let families: (AttributeFamilyId | null)[] = new Array(n).fill(null);
+    if (category === "topping") {
+      const counts = familyCountsFor(n);
+      families = shuffle(FAMILY_ORDER.flatMap((f) => new Array(counts[f]).fill(f) as AttributeFamilyId[]), rand);
+    }
+    for (let i = 0; i < n; i++) {
       const no = String(i + 1).padStart(3, "0");
       out.push({
         id: `fx-${category}-${no}`,
         category,
         nameJa: `テスト${CATEGORY_LABEL[category]}${no}`,
+        shelf: category === "topping" ? families[i] : category,
         catalogIndex: out.length,
       });
     }
   }
-  void seed;
-  return out;
-}
-
-/** Deterministic synthetic topping -> family assignment in the PR #255 PROPOSED proportions. */
-export function syntheticFamilyById(split: CategorySplit, seed: number): Map<string, AttributeFamilyId> {
-  const rand = mulberry32(seed);
-  const counts = familyCountsFor(split.topping);
-  const families = shuffle(FAMILY_ORDER.flatMap((f) => new Array(counts[f]).fill(f) as AttributeFamilyId[]), rand);
-  const out = new Map<string, AttributeFamilyId>();
-  families.forEach((family, i) => out.set(`fx-topping-${String(i + 1).padStart(3, "0")}`, family));
   return out;
 }
 
@@ -219,7 +215,6 @@ function runtimeFixture(): LargeCatalogFixture {
     recipes,
     split,
     chapterSizes: [...sizes.entries()].sort(([a], [b]) => a - b).map(([, n]) => n),
-    familyById: new Map(),
     starterIds: INGREDIENTS.filter((i) => !i.unlockCondition).map((i) => i.id),
   };
 }
@@ -255,7 +250,6 @@ export function largeCatalogFixture(id: LargeCatalogFixtureId): LargeCatalogFixt
       recipes: syntheticRecipes(catalog, chapterSizes, spec.seed + 1),
       split,
       chapterSizes,
-      familyById: syntheticFamilyById(split, spec.seed),
       starterIds,
     };
   }

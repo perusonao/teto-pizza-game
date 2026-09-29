@@ -6,6 +6,7 @@ const item = (over: Partial<CatalogIngredient>): CatalogIngredient => ({
   id: "x",
   category: "topping",
   nameJa: "ベーコン",
+  shelf: "meat",
   catalogIndex: 0,
   ...over,
 });

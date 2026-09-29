@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18. The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -178,6 +178,48 @@ const MUTANTS = [
     what: "counts before Phase 5: a family / shelf counts function reappears in the query module",
     file: `${C}/catalogQuery.ts`,
     edits: [["export function ownedCatalog(", "export function familyCounts(): number { return 0; }\nexport function ownedCatalog("]],
+  },
+  {
+    id: "M19",
+    what: "shelf filter ignored",
+    file: `${C}/catalogQuery.ts`,
+    edits: [["(shelves === null || (item.shelf !== null && shelves.has(item.shelf))) &&", "true &&"]],
+  },
+  {
+    id: "M20",
+    what: "fail-open: an unclassified (null shelf) row matches every shelf filter",
+    file: `${C}/catalogQuery.ts`,
+    edits: [["(shelves === null || (item.shelf !== null && shelves.has(item.shelf))) &&", "(shelves === null || item.shelf === null || shelves.has(item.shelf)) &&"]],
+  },
+  {
+    id: "M21",
+    what: "shelf filter narrows to the first shelf only (multi-shelf broken)",
+    file: `${C}/catalogQuery.ts`,
+    edits: [["new Set<string>(query.shelves)", "new Set<string>(query.shelves.slice(0, 1))"]],
+  },
+  {
+    id: "M22",
+    what: "second membership authority: catalogSource infers the shelf from the category instead of ingredientShelf()",
+    file: `${C}/catalogSource.ts`,
+    edits: [["shelf: ingredientShelf(ingredient.id),", 'shelf: ingredient.category === "topping" ? "other" : ingredient.category,']],
+  },
+  {
+    id: "M23",
+    what: "second filter authority: the query calls filterByShelf",
+    file: `${C}/catalogQuery.ts`,
+    edits: [["export function ownedCatalog(", 'import { filterByShelf } from "../../data/ingredientShelf";\nvoid filterByShelf;\nexport function ownedCatalog(']],
+  },
+  {
+    id: "M24",
+    what: "shelf filter bypasses ownership (locked rows leak under a shelf)",
+    file: `${C}/catalogQuery.ts`,
+    edits: [["(shelves === null || (item.shelf !== null && shelves.has(item.shelf))) &&", "(shelves === null || (item.shelf !== null && shelves.has(item.shelf)) || false) &&"], ["filter((item) => owned.has(item.id)).sort(compareCatalogOrder);", "sort(compareCatalogOrder); void owned;"]],
+  },
+  {
+    id: "M25",
+    what: "hand reads the shelf: the working set fill starts depending on `shelf`",
+    file: `${C}/workingSet.ts`,
+    edits: [["fill: ownedInCategory.map((item) => item.id).filter(stocked),", "fill: ownedInCategory.filter((item) => item.shelf !== null).map((item) => item.id).filter(stocked),"]],
   },
 ];
 

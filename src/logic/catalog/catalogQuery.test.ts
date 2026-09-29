@@ -5,12 +5,12 @@ import { emptyUsageSession } from "./usageSignals";
 import { largeCatalogFixture } from "./testSupport/largeCatalogFixtures";
 
 const catalog: CatalogIngredient[] = [
-  { id: "bacon", category: "topping", nameJa: "ベーコン", catalogIndex: 0 },
-  { id: "ham", category: "topping", nameJa: "ハム", catalogIndex: 1 },
-  { id: "eggplant", category: "topping", nameJa: "茄子", readingJa: "なす", catalogIndex: 2 },
-  { id: "tuna", category: "topping", nameJa: "ツナ", catalogIndex: 3 },
-  { id: "locked", category: "topping", nameJa: "ロック", catalogIndex: 4 },
-  { id: "mozz", category: "cheese", nameJa: "モッツァレラ", catalogIndex: 5 },
+  { id: "bacon", category: "topping", shelf: "meat", nameJa: "ベーコン", catalogIndex: 0 },
+  { id: "ham", category: "topping", shelf: "meat", nameJa: "ハム", catalogIndex: 1 },
+  { id: "eggplant", category: "topping", shelf: "vegetable", nameJa: "茄子", readingJa: "なす", catalogIndex: 2 },
+  { id: "tuna", category: "topping", shelf: "seafood", nameJa: "ツナ", catalogIndex: 3 },
+  { id: "locked", category: "topping", shelf: "meat", nameJa: "ロック", catalogIndex: 4 },
+  { id: "mozz", category: "cheese", shelf: "cheese", nameJa: "モッツァレラ", catalogIndex: 5 },
 ];
 const stock: Record<string, number | "UNLIMITED"> = { bacon: 0, ham: 3, eggplant: 9, tuna: 1, mozz: "UNLIMITED" };
 const ownership: OwnershipView = { ownedIds: ["mozz", "tuna", "eggplant", "ham", "bacon"], stock: (id) => stock[id] ?? 0 };
@@ -21,9 +21,10 @@ describe("queryCatalog", () => {
     expect(ids(queryCatalog(catalog, ownership, emptyUsageSession()))).toEqual(["ham", "eggplant", "tuna", "mozz", "bacon"]);
   });
 
-  it("filters by text, favorites, recent, in-stock (no membership axis in LC-R0)", () => {
+  it("filters by text, favorites, recent, in-stock (one shelves input)", () => {
     const usage = { favorites: ["tuna"], recent: ["eggplant", "ham"], newlyOwned: [] };
     expect(ids(queryCatalog(catalog, ownership, usage, { text: "ナス" }))).toEqual(["eggplant"]);
+    expect(ids(queryCatalog(catalog, ownership, usage, { shelves: ["meat"] }))).toEqual(["ham", "bacon"]);
     expect(ids(queryCatalog(catalog, ownership, usage, { only: { favorites: true } }))).toEqual(["tuna"]);
     expect(ids(queryCatalog(catalog, ownership, usage, { only: { recent: true }, sort: "recent" }))).toEqual(["eggplant", "ham"]);
     expect(ids(queryCatalog(catalog, ownership, usage, { only: { inStock: true } }))).not.toContain("bacon");
