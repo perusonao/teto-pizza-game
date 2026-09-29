@@ -113,12 +113,25 @@ describe("catalog boundary", () => {
     expect(imports(CATALOG_SOURCES["./dexActionSummary.ts"])).toEqual([]);
   });
 
-  it("B-6: no production file outside src/logic/catalog imports it (LC-1 is unwired)", () => {
-    const offenders = Object.entries(ALL_SOURCES)
-      .filter(([path]) => !path.startsWith("./") && !path.includes("/testSupport/"))
-      .filter(([, text]) => imports(text).some(({ spec }) => /(^|\/)catalog\//.test(spec) || /\/catalog$/.test(spec)))
-      .map(([path]) => path);
+  it("B-6 (LC-R3): only the named production files import the catalog, and only the named modules", () => {
+    // LC-R3 wires the pantry SHELL: the pantry component reads OWNED rows through the query, and GameScreen
+    // reads only the FREE-only eligibility gate. The working set, hand operations, hand policy and hint
+    // disclosure stay unwired (R4 / R5 / enforcement flip lift their own line here, deliberately).
+    const ALLOWED: Record<string, readonly string[]> = {
+      "../../components/IngredientPantry.tsx": ["catalogQuery", "catalogSource", "usageSignals"],
+      "../../screens/GameScreen.tsx": ["freeEligibility"],
+    };
+    const violations: string[] = [];
+    for (const [path, text] of Object.entries(ALL_SOURCES)) {
+      if (path.startsWith("./") || path.includes("/testSupport/")) continue;
+      for (const { spec } of imports(text)) {
+        if (!(/(^|\/)catalog\//.test(spec) || /\/catalog$/.test(spec))) continue;
+        const module = spec.split("/").pop() ?? "";
+        if (!(ALLOWED[path] ?? []).includes(module)) violations.push(`${path} -> ${spec}`);
+      }
+    }
     expect(Object.keys(ALL_SOURCES).length).toBeGreaterThan(50);
-    expect(offenders).toEqual([]);
+    expect(violations).toEqual([]);
+    for (const path of Object.keys(ALLOWED)) expect(ALL_SOURCES[path], path).toBeDefined();
   });
 });

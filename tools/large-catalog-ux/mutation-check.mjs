@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -263,11 +263,53 @@ const MUTANTS = [
     file: `${C}/handSession.ts`,
     edits: [["return withCategory(session, ctx.category, [...current, ...add]);", "return withCategory(session, ctx.category, [...current, ...add].sort());"]],
   },
+  {
+    id: "M33",
+    what: "pantry entry for Dinner (the tray's recipe-free notion leaks into the gate)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["isLargeCatalogEligible(state) && state.phase", "(isLargeCatalogEligible(state) || state.dinner !== null) && state.phase"]],
+  },
+  {
+    id: "M34",
+    what: "pantry lists every ingredient (LOCKED / unowned rows appear)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["ownedIds: ownedIngredientIds,", "ownedIds: catalog.map((item) => item.id),"]],
+  },
+  {
+    id: "M35",
+    what: "closing the pantry does not return focus to the entry",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["if (wasPantryVisibleRef.current && !pantryVisible) pantryEntryRef.current?.focus();", "if (wasPantryVisibleRef.current && !pantryVisible) void 0;"]],
+  },
+  {
+    id: "M36",
+    what: "cooking input keeps running while the pantry is open",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;", "const cookingInputPaused = isGlobalOverlayOpen;"]],
+  },
+  {
+    id: "M37",
+    what: "focus does not enter the sheet on open",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["    closeRef.current?.focus();\n", "    void closeRef.current;\n"]],
+  },
+  {
+    id: "M38",
+    what: "Escape no longer closes the sheet",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [['if (event.key === "Escape") {', 'if (event.key === "Escape" && false) {']],
+  },
+  {
+    id: "M39",
+    what: "scope creep: the pantry starts importing the working set (hand wired before R4/R5)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [['import { emptyUsageSession } from "../logic/catalog/usageSignals";', 'import { emptyUsageSession } from "../logic/catalog/usageSignals";\nimport "../logic/catalog/workingSet";']],
+  },
 ];
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });
