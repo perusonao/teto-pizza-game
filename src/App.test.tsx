@@ -1053,7 +1053,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).getByText("新しいピザを発見すると、材料が入荷します")).toBeInTheDocument();
     expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
     expect(within(shop).queryByText(/腕前|★/)).not.toBeInTheDocument();
-    expect(within(shop).queryByRole("tablist")).not.toBeInTheDocument();
+    expect(within(shop).queryByRole("group", { name: "材料の分類" })).not.toBeInTheDocument();
   });
 
   it("C. an early Shop shows the ladder progress hint alongside the real row (not instead of it)", async () => {
@@ -1068,7 +1068,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
-    expect(within(shop).getByRole("tablist")).toBeInTheDocument();
+    expect(within(shop).getByRole("group", { name: "材料の分類" })).toBeInTheDocument();
   });
 
   it("D. once every ladder step is reached (all 25 recipes discovered) the progress hint is gone", async () => {
@@ -1090,7 +1090,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(MANY).toHaveLength(26);
   });
 
-  it("E. category filtering narrows the visible list to that category only", async () => {
+  it("E. shelf filtering narrows the visible list to that shelf only", async () => {
     const user = userEvent.setup();
     seedSaveV2({
       pitzBalance: 500,
@@ -1101,26 +1101,25 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    await user.click(within(shop).getByRole("tab", { name: "ソース" }));
+    await user.click(within(shop).getByRole("button", { name: "ソース" }));
     expect(within(shop).getByText("オリーブオイル")).toBeInTheDocument();
     expect(within(shop).queryByText("ゴルゴンゾーラ")).not.toBeInTheDocument();
     expect(within(shop).queryByText("マッシュルーム")).not.toBeInTheDocument();
 
-    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
     expect(within(shop).getByText("たまねぎ")).toBeInTheDocument();
     expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
 
-    await user.click(within(shop).getByRole("tab", { name: "すべて" }));
+    await user.click(within(shop).getByRole("button", { name: "すべて" }));
     expect(within(shop).getByText("オリーブオイル")).toBeInTheDocument();
     expect(within(shop).getByText("ゴルゴンゾーラ")).toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
   });
 
-  it("F. a category with zero purchasable items shows a short empty state, not a broken list", async () => {
+  it("F. a shelf with no listed material has no chip at all (not an empty tab), and 「トッピング」 is gone", async () => {
     const user = userEvent.setup();
-    // Owns sauce/cheese products only -- topping is a real, populated category in the game
-    // (garlic/oregano/mushroom/... ) but this player owns none of it yet.
+    // Owns sauce/cheese products only: no topping shelf is listable yet.
     seedSaveV2({
       pitzBalance: 200,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "olive-oil", "gorgonzola"],
@@ -1130,11 +1129,12 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
-    expect(within(shop).getByText(/このカテゴリで買える材料はまだありません/)).toBeInTheDocument();
-    // Still early game overall (2 < 8) -- the category-empty state may add the same
-    // progression hint, but never a broken-looking blank list.
-    expect(within(shop).queryByText("在庫")).not.toBeInTheDocument();
+    const chips = within(shop).getByRole("group", { name: "材料の分類" });
+    expect(within(chips).getAllByRole("button").map((b) => b.textContent)).toEqual(["すべて", "ソース", "チーズ"]);
+    for (const name of ["トッピング", "肉", "魚介", "野菜・きのこ", "果物", "ハーブ・香味", "スパイス・薬味", "その他"]) {
+      expect(within(shop).queryByRole("button", { name })).not.toBeInTheDocument();
+      expect(shop.textContent).not.toContain(name);
+    }
   });
 
   it("G/H. restock still works after filtering, at the exact same price/quantity as unfiltered", async () => {
@@ -1148,7 +1148,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
     expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
     expect(within(shop).getByText(/補充 .*40 Pitz/)).toBeInTheDocument(); // onion's T2 refill, unchanged by filtering
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
@@ -1157,10 +1157,10 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).getByText(/160 Pitz/)).toBeInTheDocument(); // 200 - 40
   });
 
-  it("I/J. a starterGrantOnly ingredient the player doesn't own stays hidden in every filter tab", async () => {
+  it("I/J. a starterGrantOnly ingredient the player doesn't own stays hidden under every shelf", async () => {
     const user = userEvent.setup();
     // onion not owned -- starterGrantOnly means it must never show as LOCKED/AVAILABLE_TO_BUY,
-    // in any tab, even the "トッピング" category it belongs to.
+    // under any chip, even the 野菜・きのこ shelf it belongs to.
     seedSaveV2({
       pitzBalance: 999,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "mushroom"],
@@ -1170,14 +1170,14 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    await user.click(within(shop).getByRole("tab", { name: "すべて" }));
+    await user.click(within(shop).getByRole("button", { name: "すべて" }));
     expect(within(shop).queryByText("たまねぎ")).not.toBeInTheDocument();
-    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
     expect(within(shop).queryByText("たまねぎ")).not.toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
   });
 
-  it("K. switching filter tabs never mutates Pitz balance, stock, or ownership", async () => {
+  it("K. switching shelf chips never mutates Pitz balance, stock, or ownership", async () => {
     const user = userEvent.setup();
     seedSaveV2({
       pitzBalance: 321,
@@ -1188,9 +1188,9 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    await user.click(within(shop).getByRole("tab", { name: "ソース" }));
-    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
-    await user.click(within(shop).getByRole("tab", { name: "すべて" }));
+    await user.click(within(shop).getByRole("button", { name: "ソース" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
+    await user.click(within(shop).getByRole("button", { name: "すべて" }));
 
     expect(screen.getByLabelText("Pitz残高 321")).toBeInTheDocument();
     expect(within(shop).getByText(/在庫 7/)).toBeInTheDocument();
