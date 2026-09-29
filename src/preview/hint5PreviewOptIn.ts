@@ -32,24 +32,33 @@ export function parseHint5PreviewParam(search: unknown): Hint5PreviewParam {
   return null;
 }
 
+export type Hint5PreviewDecision = "on" | "off" | "none";
+
 /**
- * Whether the Preview ladder is on for this page load. A `?hint5=` value is stored (so a reload without
- * the parameter keeps it); with no parameter the stored value decides. A failing storage never throws:
- * `?hint5=1` still turns it on for this load, and the stored value reads as off.
+ * What the Preview instruction says for this page load. `?hint5=1` is "on" and is stored (so a reload
+ * without the parameter keeps it); `?hint5=0` is an explicit "off" and clears it; with no parameter a stored
+ * opt-in is "on" and nothing is "none". "off" is distinct from "none" so that an explicit off can win over
+ * another opt-in (the DEV key, ./hint5Flag.ts). A failing storage never throws: the parameter still counts
+ * for this load, and the stored value reads as "none".
  */
-export function resolveHint5PreviewOptIn(search: unknown, storage: StorageLike | null): boolean {
+export function resolveHint5PreviewDecision(search: unknown, storage: StorageLike | null): Hint5PreviewDecision {
   const param = parseHint5PreviewParam(search);
   try {
     if (param === "on") {
       storage?.setItem(HINT5_PREVIEW_OPT_IN_KEY, "1");
-      return true;
+      return "on";
     }
     if (param === "off") {
       storage?.removeItem(HINT5_PREVIEW_OPT_IN_KEY);
-      return false;
+      return "off";
     }
-    return storage?.getItem(HINT5_PREVIEW_OPT_IN_KEY) === "1";
+    return storage?.getItem(HINT5_PREVIEW_OPT_IN_KEY) === "1" ? "on" : "none";
   } catch {
-    return param === "on";
+    return param ?? "none";
   }
+}
+
+/** Whether the Preview ladder is on for this page load (`resolveHint5PreviewDecision` is "on"). */
+export function resolveHint5PreviewOptIn(search: unknown, storage: StorageLike | null): boolean {
+  return resolveHint5PreviewDecision(search, storage) === "on";
 }

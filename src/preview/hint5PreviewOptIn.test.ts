@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StorageLike } from "../state/persistence";
-import { HINT5_PREVIEW_OPT_IN_KEY, parseHint5PreviewParam, resolveHint5PreviewOptIn } from "./hint5PreviewOptIn";
+import { HINT5_PREVIEW_OPT_IN_KEY, parseHint5PreviewParam, resolveHint5PreviewDecision, resolveHint5PreviewOptIn } from "./hint5PreviewOptIn";
 
 /** Discovery Hint 5.0 H5-5: the Preview opt-in parser and its storage. Pure; the production
  *  isolation is ./previewIsolation.gate.test.ts. */
@@ -74,5 +74,32 @@ describe("resolveHint5PreviewOptIn", () => {
   it("the opt-in key is a Preview key: never the save key and never the DEV key", () => {
     expect(HINT5_PREVIEW_OPT_IN_KEY).toMatch(/^teto-pizza-preview-/);
     expect(HINT5_PREVIEW_OPT_IN_KEY).not.toBe("teto.dev.hint5Ladder");
+  });
+});
+
+describe("resolveHint5PreviewDecision (an explicit off is not the same as no instruction)", () => {
+  it("?hint5=1 is on, ?hint5=0 is off, a stored opt-in is on, nothing is none", () => {
+    expect(resolveHint5PreviewDecision("?hint5=1", memory())).toBe("on");
+    expect(resolveHint5PreviewDecision("?hint5=0", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "1" }))).toBe("off");
+    expect(resolveHint5PreviewDecision("", memory({ [HINT5_PREVIEW_OPT_IN_KEY]: "1" }))).toBe("on");
+    expect(resolveHint5PreviewDecision("", memory())).toBe("none");
+    expect(resolveHint5PreviewDecision("?hv=normal", memory())).toBe("none");
+  });
+
+  it("a throwing storage keeps the parameter's meaning", () => {
+    const broken: StorageLike = {
+      getItem: () => {
+        throw new Error("denied");
+      },
+      setItem: () => {
+        throw new Error("denied");
+      },
+      removeItem: () => {
+        throw new Error("denied");
+      },
+    };
+    expect(resolveHint5PreviewDecision("?hint5=1", broken)).toBe("on");
+    expect(resolveHint5PreviewDecision("?hint5=0", broken)).toBe("off");
+    expect(resolveHint5PreviewDecision("", broken)).toBe("none");
   });
 });

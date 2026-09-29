@@ -24,7 +24,7 @@
  *
  * ../../state/gameReducer.hint5.flagOff.test.ts pins the flag-off parity.
  */
-import { resolveHint5PreviewOptIn } from "../../preview/hint5PreviewOptIn";
+import { resolveHint5PreviewDecision, type Hint5PreviewDecision } from "../../preview/hint5PreviewOptIn";
 
 export const HINT5_DEV_OPT_IN_KEY = "teto.dev.hint5Ladder";
 
@@ -44,13 +44,37 @@ function devOptIn(): boolean {
  * (which never sets `VITE_PREVIEW_MODE`) drops the helper, its key and the URL parser
  * (../../preview/previewIsolation.gate.test.ts scans the production bundle for them).
  */
-function previewOptIn(): boolean {
-  if (!(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE)) return false;
+function previewDecision(): Hint5PreviewDecision {
+  if (!(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE)) return "none";
   try {
-    return resolveHint5PreviewOptIn(globalThis.location?.search ?? "", globalThis.localStorage ?? null);
+    return resolveHint5PreviewDecision(globalThis.location?.search ?? "", globalThis.localStorage ?? null);
   } catch {
-    return false;
+    return "none";
   }
 }
 
-export const HINT5_LADDER_ENABLED: boolean = devOptIn() || previewOptIn();
+/** An explicit `?hint5=0` also clears the DEV opt-in, so it turns the ladder off for good (DEV only). */
+function clearDevOptIn(): void {
+  if (!import.meta.env.DEV) return;
+  try {
+    globalThis.localStorage?.removeItem(HINT5_DEV_OPT_IN_KEY);
+  } catch {
+    // nothing to clear
+  }
+}
+
+/**
+ * The Preview instruction is read FIRST (its `?hint5=` value is stored either way), and an explicit
+ * `?hint5=0` wins over the DEV key. Evaluating the DEV key first would short-circuit and ignore the URL.
+ */
+function resolveFlag(): boolean {
+  const decision = previewDecision();
+  if (decision === "on") return true;
+  if (decision === "off") {
+    clearDevOptIn();
+    return false;
+  }
+  return devOptIn();
+}
+
+export const HINT5_LADDER_ENABLED: boolean = resolveFlag();
