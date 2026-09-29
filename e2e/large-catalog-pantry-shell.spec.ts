@@ -169,6 +169,19 @@ for (const width of [390, 360] as const) {
         expect(hit, `${label}: entry receives a tap at y=${y.toFixed(1)} `).toBe("entry");
       }
 
+      // ---- the chip above the entry keeps its own taps: only the bottom <= 2.5px BORDER band of the bottom-row
+      // first chip (the 4th chip, directly above the entry column) resolves to the entry; content and everything
+      // >= 3px above the chip's bottom edge still resolves to the chip. (Audit: tools/large-catalog-ux/entry-hitbox-audit.mjs)
+      const chip4 = (await page.locator(".ingredient-chip").nth(3).boundingBox())!;
+      const probeAt = (x: number, y: number) =>
+        page.evaluate(([px, py]) => {
+          const el = document.elementFromPoint(px, py);
+          return el?.closest(".pantry-entry") ? "entry" : el?.closest(".ingredient-chip") ? "chip" : "other";
+        }, [x, y] as const);
+      expect(await probeAt(cx, chip4.y + chip4.height / 2), `${label}: chip centre stays the chip`).toBe("chip");
+      expect(await probeAt(cx, chip4.y + chip4.height - 3), `${label}: 3px above the chip bottom is still the chip`).toBe("chip");
+      expect(await probeAt(cx, chip4.y + chip4.height - 12), `${label}: chip content band is the chip`).toBe("chip");
+
       // ---- open
       await page.getByRole("button", { name: /食材庫/ }).click();
       const dialog = page.getByRole("dialog", { name: /食材庫/ });

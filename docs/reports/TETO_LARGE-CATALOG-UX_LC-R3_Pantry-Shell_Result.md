@@ -52,6 +52,13 @@ Only owned rows of the active category: no LOCKED, NEW-only / unpurchased, silho
 - **WebKit:** the CI classifier (`scripts/ci/classify-webkit-pr.sh`) resolves any `src/**` runtime change to `webkit_required=true`; only Chromium exists in this sandbox, so the WebKit Gate and the WebKit shards run in CI once a PR exists. Not run here.
 - Mutation gate: **41/41 killed** (34 + M33 Dinner entry, M34 pantry lists unowned, M35 no focus return, M36 input not paused, M37 no focus entry, M38 Escape dead, M39 hand wired early).
 
+## 44px entry hit-box audit (pre-PR, fresh)
+Tool `tools/large-catalog-ux/entry-hitbox-audit.mjs` → `docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R3_ENTRY-HITBOX-AUDIT.json`: 0.5px-grid `elementFromPoint` sampling around the entry and the chip row above it, on the SAUCE / CHEESE / TOPPING steps, at 390×844, 360×800, 390×664, 360×640.
+- Geometry (identical at all four viewports): chips end 6px above the row, the entry's visual box is the 28px row, the fixed bake bar starts 8px below the row (e.g. 390×844: chips end 732, entry 738–766, bar 774). Total free height = 6 + 28 + 8 = **42px**, so a 44px target is only possible by overlapping something by ≥ 2px.
+- DOM / z-order: the tray section precedes the pager row in the DOM; the entry is `position:absolute` (paints above the non-positioned chips); the bake bar is above both (z-index 10), so the hit area cannot extend below the spacer.
+- Result: the entry hit area takes **≤ 2px (sampled 2.5px) of the bottom edge of ONE chip** — the bottom-row first chip, in the entry's own column — about 238 px² of chip box. **0 sampled points over chip content** (emoji / name / stock / cheese slot). A point 3px above that chip's bottom edge, the chip centre and the content band all resolve to the chip; the neighbouring chip is untouched; nothing else is affected. The band is the chip's border; a mis-tap there opens the pantry (a read-only, closable sheet: no state change).
+- Decision: **no change**. Removing the overlap would shrink the target to 42px (< the required 44px) and any other fix needs extra height (stage / dock), which is forbidden. Pinned by `e2e/large-catalog-pantry-shell.spec.ts` (≤ 2.5px overlap; chip centre, chip content band and "3px above the bottom" stay on the chip).
+
 ## Human Verification
 390×844 and 360×800, HOME → FREE → cooking → 食材庫 open → scroll → close → cooking continues. Script `tools/large-catalog-ux/hv-pantry-shell.mjs`.
 - Video (not committed; delivered directly): `artifacts/review/lc-r3/lc-r3-pantry-shell-390x844.webm` (≈ 0.6 MB) and `…-360x800.webm` (≈ 0.6 MB); WebM / VP8 because the sandbox has no H.264 encoder.
