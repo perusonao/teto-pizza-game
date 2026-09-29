@@ -330,3 +330,61 @@ M74 search 表示条件が text / shelf 依存（0 件で field が消える）/
 一方で、**Owner の未決事項は R5-b を止めるものではない**（OD-R5-5 が「実測 + 実機 HV で決める」を定義済み。Q1〜Q3 は確認・補足）。R5-b の残りの範囲（search 契約・name AND shelf・Escape・focus return・chip 独立・#197 非干渉）は現行コードと authority から十分に定まっており、§10 の発見（約 30 分・1 端末）が終われば **A（R5-b READY AFTER R5-a）へ移行できる**。
 
 R5-b production 実装には進まず、ここで STOP する。
+
+---
+
+## 15. Owner Decisions on this audit — RECORDED (docs only)
+
+Status: Owner reviewed §0〜§14. Verdict **C. REAL-DEVICE DISCOVERY REQUIRED BEFORE IMPLEMENTATION is maintained.** No production / CSS / test / e2e / save change, no PR; R5-b is not implemented.
+
+### 15.1 OD-R5b-1 — keyboard 表示中の sheet 調整（§11 Q1）: **APPROVED**
+
+- OD-R5-5 の「in-sheet state 変更で sheet 外形を跳ねさせない」契約の対象は、**同じ利用可能 viewport 内での状態変更**: search text / search result / shelf filter / pin state など。
+- **soft keyboard の表示 / 非表示で利用可能な visual viewport 自体が変化した場合の responsive adjustment は許可する**（§0.1 の読みが Owner 承認済み）。keyboard を閉じたら外形が open 直後へ戻ること（H-13 / K-9）は引き続き合否条件。
+- **`visualViewport` の採用は確定しない。** K-α（静的）/ K-β（`visualViewport` 駆動）/ K-γ（構造変更）の採否は、下記 Discovery Gate で Safari / standalone の実挙動を測定した後に、**最小の実装方式**を決定する。K-δ（meta）は低優先のまま。
+
+### 15.2 OD-R5b-2 — 日本語検索（§11 Q2）
+
+- 「たまねぎ」→ IME で「玉ねぎ」と確定すると 0 件になる挙動は、**R5-b production の最終仕様としては採用しない**。
+- ただし **R5-b で大規模な読み仮名システムを新設しない**。
+- 既存 ingredient data を監査し、**最小限の reading / search alias の authority をどこに持つべきか**を **別途 Fresh Audit**（下記 §15.4）で決める。**推測による alias 生成は禁止**（読み・別名・漢字表記を Claude が創作して data / test / fixture に入れない）。
+- 帰結: R5-b の合格条件は「漢字確定で 0 件」を**許容しない**。alias authority が決まるまで、漢字入力の受け入れ条件（H-5）は**保留**とし、R5-b の search 実装が alias authority に依存する範囲は Fresh Audit の結論後に確定する。既存の `readingJa?`（型のみ、production 未設定）を使う案は Fresh Audit の比較対象の一つであり、本書は採用を決めない。
+
+### 15.3 OD-R5b-3 — PreAudit 補足提案（§11 Q3）: **APPROVED — R5-b contract candidate**
+
+1. search 表示条件は **search result 数に依存させない**（text・shelf・結果件数のいずれにも依存しない）。
+2. 表示条件は **active category の OWNED 母数**（`allItems.length`、text / shelf 非依存）を基準にする。閾値は authority §21.2 のまま（> 6）。
+3. search field は **open 時に auto-focus しない**（open 時の focus は 閉じる のまま）。
+4. search field の `font-size >= 16px`。
+5. **Enter で blur する場合は focus を list（`tabIndex=0`）へ移す**（body に落とさない。確定 Enter＝`isComposing` / `keyCode 229` は blur しない）。
+6. **search 0 件でも field を消さない**（0 件文言は list 内。chips / field の slot は不変）。
+
+これらは R5-b の **contract candidate** であり、対応する mutation は §12（M74 / M76 / M77 / M78 / M79）。実装は Discovery Gate 通過後。
+
+### 15.4 Follow-up: Reading / Search Alias Authority — 別途 Fresh Audit（未実施・要依頼）
+
+範囲（docs-only、推測禁止）: 既存 ingredient data（`src/data/ingredients.ts` の全件 `nameJa`、`catalogTypes` の `readingJa?`、62 catalog 設計の材料名の出所、既存 docs の読み・別名の記載）を実物で監査し、(a) 読み / 別名 / 漢字表記の**既存の根拠がどこにあるか**、(b) 無い場合に最小の authority を**どの層に置くか**（ingredient data / catalog descriptor / 別 data file）とその Owner 承認手順、(c) `matchesSearch` との接続（既存の `readingJa` 経路で足りるか）、(d) privacy（未所持材料の読みが oracle にならないこと）、を比較する。**alias の値そのものは Owner 承認済みの出所からのみ**入れる。本書では実施しない。
+
+## 16. Real-Device Discovery Gate（R5-b production 実装の前提）
+
+**R5-b の production 実装（`IngredientPantry.tsx` / `App.css` / e2e）は、以下がすべて満たされるまで開始しない。** R5-a の merge 前提（authority）は別途そのまま。
+
+| Gate | 条件 | 証跡 |
+|---|---|---|
+| **G-D1** | §10 の使い捨てハーネス（repo の production / test に入れない）で **D-1〜D-10 を実機 iPhone で実施**。Safari タブと standalone の**両方**（D-1 / D-3 / D-4 は必須）| 実測ログ（`innerHeight` / `visualViewport.{height,offsetTop,pageTop,scale}` / `scrollY` / safe-area / K / event 列）を Result 相当の docs に記録。実機未使用の場合は Gate 未通過 |
+| **G-D2** | 端末: 390×844 級 1 台 + 小型 1 台（可視高が 360×640 級になる状態を含む）。iOS バージョン・Safari / standalone・日本語 IME（かな / カタカナ / 半角 ｶﾅ）・予測変換 ON/OFF を記録 | 端末表 |
+| **G-D3** | **最小実装方式の決定**: K-α / K-β / K-γ から、実測に基づき**最小のもの**を 1 つ選び根拠を記録（`visualViewport` を採るのは、K-α で §6.2 ガードレール〔keyboard 上に search と ≥ 1 結果行〕が満たせないと実測で示された場合に限る）| 決定記録（採否と数値の根拠。値は production 確定ではなく R5-b の実測で最終化）|
+| **G-D4** | 復帰保証の実測: keyboard を閉じた後の `offsetTop === 0`・sheet 外形が open 直後と同一・body / page 不動（Safari / standalone 別）。補正（`scrollTo(0,0)` 等）が要るかを判断 | D-4 の結果 |
+| **G-D5** | IME 契約の確定: I-1（更新タイミング / 凍結の要否）・I-3（Enter の除外条件）・I-4（keyboard dismiss 手段）を D-6 / D-8 の実測で確定。**alias は扱わない**（§15.4 の Fresh Audit が別担当）| 決定記録 |
+| **G-D6** | Escape の観察（D-7）: 変換中 Esc の実挙動を記録（挙動は変更しない。体感上の問題があれば Owner に戻す）| 観察記録 |
+| **G-D7** | **§15.4 の Alias Authority Fresh Audit が完了し Owner が結論を承認**（R5-b の search が alias に依存する範囲を確定するため）。R5-b の高さ / keyboard 実装は G-D1〜D6 で先行可能かは Owner が判断 | Fresh Audit 文書 + Owner 承認 |
+| **G-D8** | Owner が Discovery の結果を確認し、判定を **A（R5-b READY AFTER R5-a）** へ更新する docs を承認 | 更新された verdict |
+
+Discovery で新たに Owner 判断が必要になった場合（例: 変換中 Esc の扱い、keyboard を閉じる手段の追加、背景タップの意味）は、**勝手に決めず Owner に戻す**。
+
+## 17. UPDATED VERDICT
+
+**C. REAL-DEVICE DISCOVERY REQUIRED BEFORE IMPLEMENTATION — maintained (Owner).**
+
+- Owner Decisions §15.1〜§15.3 を記録。§15.4（Alias Authority Fresh Audit）は別依頼として未実施。
+- 解除条件は §16 の G-D1〜G-D8。R5-b production 実装には進まない。
