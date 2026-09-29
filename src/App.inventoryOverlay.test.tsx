@@ -80,12 +80,12 @@ describe("Inventory Screen (read-only stock view)", () => {
     expect(within(overlay).queryByText("オリーブオイル")).not.toBeInTheDocument();
   });
 
-  it("filters the visible list by category tab", async () => {
+  it("filters the visible list by shelf chip", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /材料/ }));
     const overlay = document.querySelector<HTMLElement>(".dex-overlay")!;
-    await user.click(within(overlay).getByRole("tab", { name: "ソース" }));
+    await user.click(within(overlay).getByRole("button", { name: "ソース" }));
     expect(within(overlay).getByText("トマトソース")).toBeInTheDocument();
     expect(within(overlay).queryByText("バジル")).not.toBeInTheDocument();
   });

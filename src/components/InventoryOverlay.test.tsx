@@ -82,7 +82,7 @@ describe("InventoryOverlay (read-only stock view)", () => {
     expect(within(card).getByText("×0")).toBeInTheDocument();
   });
 
-  it("test 6: shows category tabs (すべて/ソース/チーズ/トッピング) and filters by the active one", () => {
+  it("test 6: starters only -> chips are すべて / ソース / チーズ / ハーブ・香味 (buttons, no tabs), and filter by the active one", () => {
     render(
       <InventoryOverlay
         ownedIngredientIds={[...STARTER_INGREDIENT_IDS]}
@@ -90,18 +90,24 @@ describe("InventoryOverlay (read-only stock view)", () => {
         onClose={() => {}}
       />,
     );
-    expect(screen.getByRole("tab", { name: "すべて" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "ソース" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "チーズ" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "トッピング" })).toBeInTheDocument();
+    const chips = screen.getByRole("group", { name: "材料の分類" });
+    expect(within(chips).getAllByRole("button").map((b) => b.textContent)).toEqual([
+      "すべて",
+      "ソース",
+      "チーズ",
+      "ハーブ・香味",
+    ]);
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "トッピング" })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "ソース" }));
+    fireEvent.click(screen.getByRole("button", { name: "ソース" }));
     expect(screen.getByText("トマトソース")).toBeInTheDocument();
     expect(screen.queryByText("モッツァレラ")).not.toBeInTheDocument();
     expect(screen.queryByText("バジル")).not.toBeInTheDocument();
   });
 
-  it("test 7: switching category tabs changes the visible set back and forth", () => {
+  it("test 7: switching shelf chips changes the visible set back and forth", () => {
     render(
       <InventoryOverlay
         ownedIngredientIds={[...STARTER_INGREDIENT_IDS]}
@@ -109,17 +115,17 @@ describe("InventoryOverlay (read-only stock view)", () => {
         onClose={() => {}}
       />,
     );
-    fireEvent.click(screen.getByRole("tab", { name: "チーズ" }));
+    fireEvent.click(screen.getByRole("button", { name: "チーズ" }));
     expect(screen.getByText("モッツァレラ")).toBeInTheDocument();
     expect(screen.queryByText("トマトソース")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "すべて" }));
+    fireEvent.click(screen.getByRole("button", { name: "すべて" }));
     expect(screen.getByText("トマトソース")).toBeInTheDocument();
     expect(screen.getByText("モッツァレラ")).toBeInTheDocument();
     expect(screen.getByText("バジル")).toBeInTheDocument();
   });
 
-  it("test 8: shows an empty-state message when a category has no owned ingredients", () => {
+  it("test 8: a shelf with no owned ingredient has no chip (no empty category to open)", () => {
     render(
       <InventoryOverlay
         ownedIngredientIds={["tomato-sauce"]}
@@ -127,8 +133,9 @@ describe("InventoryOverlay (read-only stock view)", () => {
         onClose={() => {}}
       />,
     );
-    fireEvent.click(screen.getByRole("tab", { name: "チーズ" }));
-    expect(screen.getByText(/まだこのカテゴリの材料を持っていません/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "チーズ" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ソース" })).toBeInTheDocument();
+    expect(screen.queryByText(/まだこのカテゴリの材料を持っていません/)).not.toBeInTheDocument();
   });
 
   it("test 9: calls onClose when 閉じる is clicked, and dispatches nothing else", () => {
