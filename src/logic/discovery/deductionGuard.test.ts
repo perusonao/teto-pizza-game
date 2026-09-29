@@ -335,7 +335,9 @@ describe("T-15 wiring boundary (DH4-2B)", () => {
       .map(([path]) => path);
     // DH4-2B wires the layer through src/state/discoveryHint.ts only (the reducer calls it there);
     // the UI (DH4-2C) reads the view model, never the layer.
-    expect(importers).toEqual(["../../state/discoveryHint.ts"]);
+    // Hint 5.0 H5-1 (Issue #292, Final Design §14) adds two sanctioned read-only readers. They are
+    // unwired: no production module imports them (hint5Production.gate.test.ts).
+    expect([...importers].sort()).toEqual(["../../data/hintClassDisplay.ts", "../../state/discoveryHint.ts", "./hint5Ladder.ts"]);
     expect(Object.keys(sources).some((p) => p.endsWith("/App.tsx"))).toBe(true);
   });
 

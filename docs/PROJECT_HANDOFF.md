@@ -303,6 +303,43 @@ Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
+## Discovery Hint 5.0 — Sub-topping Classification Ladder (Issue #292, H5-0)
+
+**Read first for any Hint 5.0 work:** `docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md`.
+The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATION-LADDER_Fresh-Audit.md`.
+
+- **Goal:** every sub-topping, down to the last one, can get a classification hint (🥩 肉系 …).
+  The goal is not to tell the player the last ingredient's name.
+- **Approved Owner Decisions (2026-09-28):** P1, P2, P3, C1, C2, C3, C4, U1 and E3.
+  - no k ≥ 2 for the classification;
+  - deduction ≠ disclosure;
+  - a single linear ladder with no FREE LEAK;
+  - sub-topping names are never sold;
+  - authored `hintKeyToppingId` / `hintSubToppingOrder`.
+- **Round 2 (2026-09-28):**
+  - **pricing = P-C** (sauce / cheese / key 10, structure 5, each classification 5, no cap);
+  - the 7 existing families only (display-only labels, and the emoji must never equal an
+    ingredient's emoji);
+  - no E3b courtesy grant and no M1 free-key carry-over;
+  - T-COV: runtime 25 / 29 proceed, with a fail-fast taxonomy gate and no silent fallback. PR #293
+    is the reference audit.
+- **Round 3:** C1a approved (basil / none / onion / eggplant / tuna) together with the C1 key-topping principle. 3 of the 20 remaining seeds break it (capricciosa, pizza-portuguesa, puttanesca), which is OD-H5-C1b and blocks H5-1.
+- **H5-1** (the unwired pure layer, `de11ae2`) is done.
+- **H5-2** (reducer wiring behind `HINT5_LADDER_ENABLED`, OFF in every build) is done. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-2_Reducer-Flag_Result.md`.
+- **OD-H5-M3 = D** (round 5): legacy facts never change the pre-purchase view. An ALL-known rung
+  completes for 0 Pitz only at request time; PARTIAL / NONE known pay the normal price.
+- **H5-3** (the ladder sheet + M3, flag still OFF; DEV-only opt-in `localStorage["teto.dev.hint5Ladder"]="1"`)
+  is done. See `docs/reports/TETO_DISCOVERY-HINT-5_H5-3_Ladder-UI_Result.md`.
+- **H5-4 Fresh Gate** (`5eadb96`): `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Fresh-Gate.md`.
+- **Round 6 (Owner):** P4-CHEESE and P4b adopted (a paid 「なし」 answer after purchase, `h5:cheese` / `h5:key`);
+  P4-SAUCE **reserved for TQ-1D** (「ソース：なし」 = Technique `no-sauce`, TQ P2 / P6); M2 = all 25; RETIRE
+  (flag ON ends the 材料 / 構成 / 特徴 purchases).
+- **H5-4** (round 6 behind the flag; all 25 recipes complete the ladder with the flag ON) is done. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Round6-Enablement_Result.md`. **The production flag stays OFF.**
+- **Open:** the production activation go (flag ON, Preview, Owner's iPhone HV) and OD-H5-P4-SAUCE (TQ-1D).
+  The TQ-1D re-audit tripwire (G7) and the RESERVED gate keep any sauceless / Technique recipe out.
+
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 
 **Read first for any technique work (TQ-1C, TQ-1D and later):**

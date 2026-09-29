@@ -5647,6 +5647,48 @@ p.hint-sheet__step {
   color: #3d2a16;
 }
 
+/* Discovery Hint 5.0 H5-3 (Issue #292): the linear ladder body. It reuses the U3-C board / footer;
+   only the longer row labels, the class chip and the one next-rung card are new. */
+.hint-sheet__row--h5 .hint-sheet__row-label {
+  width: 8em;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__chip--class {
+  background: #fff4d6;
+  font-weight: 700;
+}
+
+.hint-sheet__class-symbol {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* H5-4 (round 6): the 「なし」 answer of a bought empty cheese / key rung. A plain chip with no glyph. */
+.hint-sheet__chip--none {
+  background: #f1ebe0;
+  color: #5b4630;
+  font-weight: 700;
+}
+
+.hint-sheet__legacy-chips {
+  margin: 4px 0 0;
+}
+
+.hint-sheet__h5-next {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__h5-next .hint-sheet__card-title {
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__h5-known {
+  text-align: center;
+}
+
 .hint-sheet--u3 .hint-sheet__prefs {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }

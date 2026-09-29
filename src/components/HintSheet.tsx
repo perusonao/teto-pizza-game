@@ -3,6 +3,7 @@ import { getIngredient } from "../data/ingredients";
 import type { HintEmptyKind } from "../logic/discovery/hintTarget";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import type { HintSheetView } from "../state/discoveryHint";
+import { circledOrdinal, type Hint5BoardEntry, type Hint5Presentation, type Hint5RungKind } from "../logic/discovery/hint5Ladder";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 /**
@@ -57,6 +58,19 @@ import { IngredientGlyph } from "./IngredientGlyph";
  * a compact 「ヒントをもらう」 footer, and a transient family panel whose cards each ask with
  * 「たずねる」. The cap parity (OD-H3-4-1), the latch, the legacy archive and the anti-spoiler rule
  * are unchanged.
+ *
+ * Discovery Hint 5.0 H5-3 (Issue #292, Final Design §8, OD-H5-U1 / M3): when the caller passes a
+ * `hint5` view (only with the Hint 5.0 flag ON), the SELECTABLE body is replaced by the linear ladder
+ * (`Hint5LadderBody`):
+ * - the board shows the COMPLETED rungs (names, the total, 「サブトッピング① 🥩 肉系」);
+ * - the footer offers exactly ONE next rung, with its fixed label, a fixed description, its normal
+ *   P-C price and 「たずねる」.
+ *
+ * Nothing before a request depends on the target's unbought content or on what the player already
+ * knows. The only exception is the archive of the player's own earlier names (「以前のヒント」).
+ * 「このヒントはもう知っていたよ！」 is shown only after a request that the reducer completed for
+ * 0 Pitz (`HINT5_ALREADY_KNOWN`). With `hint5` absent (the flag OFF, every build) the sheet renders
+ * exactly as before.
  */
 const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   SHOP_NEW: {
@@ -144,11 +158,22 @@ const PREFERENCE_CHIPS: readonly { id: string; label: string; category: HintCate
 ];
 export function HintSheet({
   view,
+  hint5 = null,
+  hint5Active = false,
   onUnlock,
   onBuySelectable = () => {},
+  onBuyHint5 = () => {},
   onClose,
 }: {
   view: HintSheetView;
+  /** Hint 5.0 (H5-3): the ladder view model, present only with the Hint 5.0 flag ON. */
+  hint5?: Hint5Presentation | null;
+  /** Hint 5.0 (H5-4, fail closed): the ladder serves this sheet (the flag is ON and the target is not the
+   *  Dex-0 onboarding). With `hint5` null (a target outside the ladder, e.g. a missing taxonomy row),
+   *  the sheet then offers nothing to buy: never the 材料 / 構成 / 特徴 body (OD-H5-T-COV, RETIRE). */
+  hint5Active?: boolean;
+  /** Hint 5.0: request the offered rung, echoing its index. The reducer's PURCHASE_HINT5_RUNG decides. */
+  onBuyHint5?: (expectedRungIndex: number) => void;
   /** Unlocks the offered level (`view.next.level`). */
   onUnlock: (level: number) => void;
   /** H3-3 / DH4-2C: one request of `family` (材料 with its preference, or 構成 / 特徴), echoing the
@@ -173,9 +198,21 @@ export function HintSheet({
     [],
   );
   const next = view.kind === "TARGET" ? view.next : null;
+  const ladder = view.kind === "SELECTABLE" ? hint5 : null;
+  const ladderClosed = view.kind === "SELECTABLE" && !ladder && hint5Active;
   // SELECTABLE: the 「ヒントをもらう」 entry is always enabled (it only opens the family panel; the
-  // panel manages its own focus).
-  const ctaEnabled = view.kind === "SELECTABLE" ? true : !!next && next.affordable;
+  // panel manages its own focus). Hint 5.0: the one rung request, while affordable.
+  const ctaEnabled = ladder ? !!ladder.next && ladder.next.affordable : ladderClosed ? false : view.kind === "SELECTABLE" ? true : !!next && next.affordable;
+  const latch = (): boolean => {
+    if (buyLatchRef.current) return false;
+    buyLatchRef.current = true;
+    setBuyLatched(true);
+    buyLatchTimer.current = setTimeout(() => {
+      buyLatchRef.current = false;
+      setBuyLatched(false);
+    }, SELECTABLE_BUY_LATCH_MS);
+    return true;
+  };
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
 
   // Opening lands on the request CTA (or 閉じる); when a request leaves it disabled, focus moves to
@@ -196,6 +233,7 @@ export function HintSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         data-hint-kind={view.kind}
+        data-hint-ladder={ladder ? "hint5" : ladderClosed ? "hint5-closed" : undefined}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
@@ -213,7 +251,24 @@ export function HintSheet({
           </button>
         </div>
 
-        {view.kind === "SELECTABLE" ? (
+        {view.kind === "SELECTABLE" && ladder ? (
+          <Hint5LadderBody
+            view={view}
+            ladder={ladder}
+            ctaRef={nextRef}
+            latched={buyLatched}
+            onBuy={(rungIndex) => {
+              if (latch()) onBuyHint5(rungIndex);
+            }}
+          />
+        ) : view.kind === "SELECTABLE" && ladderClosed ? (
+          <>
+            <p className="hint-sheet__caption">{view.existenceText}</p>
+            <div className="hint-sheet__footer hint-sheet__footer--selectable hint-sheet__footer--h5">
+              <p className="hint-sheet__guidance">{HINT5_COPY.unavailable}</p>
+            </div>
+          </>
+        ) : view.kind === "SELECTABLE" ? (
           <SelectableHintBody
             view={view}
             entryRef={nextRef}
@@ -221,13 +276,7 @@ export function HintSheet({
             onPreference={setPreferenceId}
             latched={buyLatched}
             onBuy={(family) => {
-              if (buyLatchRef.current) return;
-              buyLatchRef.current = true;
-              setBuyLatched(true);
-              buyLatchTimer.current = setTimeout(() => {
-                buyLatchRef.current = false;
-                setBuyLatched(false);
-              }, SELECTABLE_BUY_LATCH_MS);
+              if (!latch()) return;
               if (family === "material" || !view.deduction) {
                 const category = PREFERENCE_CHIPS.find((p) => p.id === preferenceId)?.category ?? "sauce";
                 onBuySelectable(category, view.presentation.paidCount, "material");
@@ -680,6 +729,233 @@ function SelectableHintBody({
           {SELECTABLE_COPY.askTitle}
         </button>
         {walletLine}
+      </div>
+    </>
+  );
+}
+
+/** Hint 5.0 copy (H5-3). Every string is fixed per rung KIND, the same for every target. */
+const HINT5_COPY = {
+  boardTitle: "わかっていること",
+  emptyBoard: "ヒントは上から順番に1つずつもらえるよ",
+  ask: "たずねる",
+  payOnlyWhenGiven: "Pitzはヒントが出たときだけ使うよ",
+  shortNote: "Pitzがたまったら、またためしてね。このまま作ってもOK！",
+  /** OD-H5-M3: shown only after the reducer completed the requested rung for 0 Pitz. */
+  alreadyKnown: "このヒントはもう知っていたよ！（Pitzは使っていないよ）",
+  legacyTitle: "以前のヒント",
+  legacyExplainer: "前のヒント方式でわかっていたこと（そのまま残してあるよ）",
+  classSection: "サブトッピングの分類",
+  /** Round 6 (OD-H5-P4-CHEESE / P4b): the answer of a bought empty CHEESE / KEY rung. */
+  none: "なし",
+  /** H5-4 fail closed: a target outside the ladder (unreachable in production: the taxonomy gates). */
+  unavailable: "このピザのヒントは今は出せないよ。作ってためしてみよう！",
+} as const;
+
+const HINT5_ROW_LABEL: Record<"SAUCE" | "CHEESE" | "KEY_TOPPING", string> = { SAUCE: "ソース", CHEESE: "チーズ", KEY_TOPPING: "キートッピング" };
+
+/** What a rung discloses: fixed per kind, never about this target. */
+const HINT5_RUNG_DESC: Record<Hint5RungKind, string> = {
+  SAUCE: "このピザのソースを教えるよ",
+  CHEESE: "このピザのチーズを教えるよ",
+  KEY_TOPPING: "このピザの主役のトッピングを教えるよ",
+  STRUCTURE: "このピザの材料の数を教えるよ",
+  SUB_CLASS: "トッピングの「なかま」（分類）を教えるよ。名前は自分で考えてね",
+};
+
+function hint5EntryKey(entry: Hint5BoardEntry): string {
+  return `${entry.rungIndex}`;
+}
+
+/**
+ * Hint 5.0 H5-3: the linear ladder body (OD-H5-U1). The board holds COMPLETED rungs only. The footer
+ * holds the ONE next rung: its fixed label and description, its normal price and 「たずねる」.
+ * Nothing here shows a rung count, what comes later, a sub-topping name or glyph, or a 0 price
+ * (M3). An empty fixed rung is offered like any other. Round 6: a bought empty CHEESE / KEY rung shows
+ * 「なし」 in its row (「チーズ」 | 「なし」); an empty SAUCE rung stays RESERVED and is never shown as
+ * 「なし」 (OD-H5-P4-SAUCE, TQ-1D).
+ */
+function Hint5LadderBody({
+  view,
+  ladder,
+  ctaRef,
+  latched,
+  onBuy,
+}: {
+  view: SelectableView;
+  ladder: Hint5Presentation;
+  ctaRef: RefObject<HTMLButtonElement | null>;
+  latched: boolean;
+  onBuy: (rungIndex: number) => void;
+}) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const { cue, measure } = useScrollCue(bodyRef);
+  const names = ladder.board.filter((e): e is Extract<Hint5BoardEntry, { ingredientIds: readonly string[] }> => "ingredientIds" in e);
+  const structure = ladder.board.filter((e): e is Extract<Hint5BoardEntry, { kind: "STRUCTURE" }> => e.kind === "STRUCTURE");
+  const classes = ladder.board.filter((e): e is Extract<Hint5BoardEntry, { kind: "SUB_CLASS" }> => e.kind === "SUB_CLASS");
+  // The player's own earlier lines. A line the ladder board already shows (the STRUCTURE total,
+  // which the ladder also stores as `meta:ingredient-total`) is not repeated.
+  const boardLines = new Set(structure.map((e) => e.lineJa));
+  const archiveLines = [...(view.deduction?.structureLines ?? []), ...(view.deduction?.attributeLines ?? []), ...view.grandfatheredSteps.map((s) => s.textJa)].filter(
+    (line) => !boardLines.has(line),
+  );
+  const showArchive = ladder.legacyKnownIngredientIds.length > 0 || archiveLines.length > 0;
+  const alreadyKnown = view.outcome === "HINT5_ALREADY_KNOWN";
+
+  // Entries completed since the previous render of this open sheet: highlighted and scrolled into view.
+  const keys = ladder.board.map(hint5EntryKey).join(",");
+  const seen = useRef<string | null>(null);
+  const [fresh, setFresh] = useState<ReadonlySet<string>>(() => new Set());
+  useEffect(() => {
+    const before = seen.current;
+    seen.current = keys;
+    if (before === null || before === keys) return;
+    const known = new Set(before.split(","));
+    setFresh(new Set(keys.split(",").filter((k) => k && !known.has(k))));
+  }, [keys]);
+  useEffect(() => {
+    if (fresh.size > 0) bodyRef.current?.querySelector(".hint-sheet__h5-entry--new")?.scrollIntoView?.({ block: "nearest" });
+  }, [fresh]);
+  const isNew = (entry: Hint5BoardEntry) => fresh.has(hint5EntryKey(entry));
+
+  const liveText = alreadyKnown
+    ? HINT5_COPY.alreadyKnown
+    : ladder.board
+        .filter(isNew)
+        .map((e) =>
+          "ingredientIds" in e
+            ? e.none
+              ? `${HINT5_ROW_LABEL[e.kind]}：${HINT5_COPY.none}`
+              : e.ingredientIds.map((id) => getIngredient(id)?.nameJa ?? "").join("、")
+            : e.kind === "STRUCTURE"
+              ? e.lineJa
+              : `サブトッピング${circledOrdinal(e.ordinal)}は${e.classView.labelJa}`,
+        )
+        .filter(Boolean)
+        .join("、");
+
+  return (
+    <>
+      <p className="sr-only" role="status" aria-live="polite">
+        {liveText ? (alreadyKnown ? liveText : `わかったこと：${liveText}`) : ""}
+      </p>
+      <p className="hint-sheet__caption">{view.existenceText}</p>
+      <div className={`hint-sheet__scroll${cue.above ? " hint-sheet__scroll--above" : ""}${cue.below ? " hint-sheet__scroll--below" : ""}`}>
+        <div ref={bodyRef} className="hint-sheet__steps hint-sheet__selectable hint-sheet__board" onScroll={measure}>
+          <p className="hint-sheet__board-title">{HINT5_COPY.boardTitle}</p>
+          {ladder.board.length === 0 && <p className="hint-sheet__card-note">{HINT5_COPY.emptyBoard}</p>}
+          {names.length > 0 && (
+            <div className="hint-sheet__section" data-hint-section="hint5-names">
+              <ul className="hint-sheet__rows">
+                {names.map((entry) => (
+                  <li key={entry.rungIndex} className={`hint-sheet__row hint-sheet__row--h5 hint-sheet__h5-entry${isNew(entry) ? " hint-sheet__h5-entry--new" : ""}`} data-hint5-rung={entry.kind}>
+                    <span className="hint-sheet__row-label">{HINT5_ROW_LABEL[entry.kind]}</span>
+                    <span className="hint-sheet__chips">
+                      {entry.none && <span className={`hint-sheet__chip hint-sheet__chip--none${isNew(entry) ? " hint-sheet__chip--new" : ""}`}>{HINT5_COPY.none}</span>}
+                      {entry.ingredientIds.map((id) => {
+                        const ingredient = getIngredient(id);
+                        return (
+                          <span key={id} className={`hint-sheet__chip${isNew(entry) ? " hint-sheet__chip--new" : ""}`}>
+                            {ingredient && (
+                              <span className="hint-sheet__glyph" aria-hidden="true">
+                                <IngredientGlyph ingredient={ingredient} />
+                              </span>
+                            )}
+                            {ingredient?.nameJa ?? id}
+                          </span>
+                        );
+                      })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {structure.map((entry) => (
+            <div key={entry.rungIndex} className="hint-sheet__section" data-hint-section="hint5-structure">
+              <p className="hint-sheet__section-label">構成</p>
+              <p className={`hint-sheet__fact-line hint-sheet__h5-entry${isNew(entry) ? " hint-sheet__fact-line--new hint-sheet__h5-entry--new" : ""}`}>{entry.lineJa}</p>
+            </div>
+          ))}
+          {classes.length > 0 && (
+            <div className="hint-sheet__section" data-hint-section="hint5-classes">
+              <p className="hint-sheet__section-label">{HINT5_COPY.classSection}</p>
+              <ul className="hint-sheet__rows">
+                {classes.map((entry) => (
+                  <li key={entry.rungIndex} className={`hint-sheet__row hint-sheet__row--h5 hint-sheet__h5-entry${isNew(entry) ? " hint-sheet__h5-entry--new" : ""}`} data-hint5-rung="SUB_CLASS">
+                    <span className="hint-sheet__row-label">サブトッピング{circledOrdinal(entry.ordinal)}</span>
+                    <span className="hint-sheet__chips">
+                      <span className={`hint-sheet__chip hint-sheet__chip--class${isNew(entry) ? " hint-sheet__chip--new" : ""}`}>
+                        <span className="hint-sheet__class-symbol" aria-hidden="true">
+                          {entry.classView.symbol}
+                        </span>
+                        {entry.classView.labelJa}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {ladder.completeText && <p className="hint-sheet__guidance">{ladder.completeText}</p>}
+          {showArchive && (
+            <div className="hint-sheet__legacy">
+              <p className="hint-sheet__legacy-title">{HINT5_COPY.legacyTitle}</p>
+              <p className="hint-sheet__legacy-explainer">{HINT5_COPY.legacyExplainer}</p>
+              {ladder.legacyKnownIngredientIds.length > 0 && (
+                <p className="hint-sheet__chips hint-sheet__legacy-chips">
+                  {ladder.legacyKnownIngredientIds.map((id) => {
+                    const ingredient = getIngredient(id);
+                    return (
+                      <span key={id} className="hint-sheet__chip">
+                        {ingredient && (
+                          <span className="hint-sheet__glyph" aria-hidden="true">
+                            <IngredientGlyph ingredient={ingredient} />
+                          </span>
+                        )}
+                        {ingredient?.nameJa ?? id}
+                      </span>
+                    );
+                  })}
+                </p>
+              )}
+              {archiveLines.map((line) => (
+                <p key={line} className="hint-sheet__legacy-line">
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+        <span className="hint-sheet__scroll-cue" aria-hidden="true">
+          {"\u{25BE}"} 下にもヒントがあるよ
+        </span>
+      </div>
+      <div className="hint-sheet__footer hint-sheet__footer--selectable hint-sheet__footer--h5">
+        {alreadyKnown && <p className="hint-sheet__outcome hint-sheet__h5-known">{HINT5_COPY.alreadyKnown}</p>}
+        {ladder.next ? (
+          <div className="hint-sheet__h5-next" data-hint5-next={ladder.next.kind}>
+            <p className="hint-sheet__card-title">
+              {ladder.next.labelJa}
+              <span className="hint-sheet__card-desc">{HINT5_RUNG_DESC[ladder.next.kind]}</span>
+            </p>
+            <button
+              ref={ctaRef}
+              type="button"
+              className={`cta-button hint-sheet__next hint-sheet__next--paid${ladder.next.affordable ? "" : " hint-sheet__next--short"}`}
+              disabled={!ladder.next.affordable}
+              aria-disabled={latched || undefined}
+              onClick={() => onBuy(ladder.next!.rungIndex)}
+            >
+              <span className="hint-sheet__next-label">{HINT5_COPY.ask}</span> <span className="hint-sheet__price">{ladder.next.price} Pitz</span>
+            </button>
+            {!ladder.next.affordable && <p className="hint-sheet__wallet hint-sheet__wallet-note">{HINT5_COPY.shortNote}</p>}
+          </div>
+        ) : null}
+        <p className="hint-sheet__wallet">
+          所持 {ladder.pitzBalance} Pitz<span className="hint-sheet__wallet-sep"> ・ </span>
+          {HINT5_COPY.payOnlyWhenGiven}
+        </p>
       </div>
     </>
   );

@@ -353,7 +353,16 @@ describe("DH4-1 wiring boundary", () => {
     // the only importers besides DH4-1 itself; no production module imports the layer
     // (deductionGuard.test.ts T-15 pins the same boundary for the DH4-2A modules).
     // DH4-2B: src/state/discoveryHint.ts is the one production module that wires the layer.
-    expect(importers).toEqual(["../../state/discoveryHint.ts", "./deductionGuard.ts", "./deductionHint.ts", "./deductionRequest.ts"]);
+    // Hint 5.0 H5-1 (Issue #292, Final Design §14): the unwired Hint 5.0 layer reads the taxonomy and
+    // the structure-total fact. It is sanctioned read-only, and hint5Production.gate.test.ts pins it as unwired.
+    expect(importers).toEqual([
+      "../../data/hintClassDisplay.ts",
+      "../../state/discoveryHint.ts",
+      "./deductionGuard.ts",
+      "./deductionHint.ts",
+      "./deductionRequest.ts",
+      "./hint5Ladder.ts",
+    ]);
   });
 });
 
