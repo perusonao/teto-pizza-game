@@ -355,8 +355,11 @@ describe("DH4-1 wiring boundary", () => {
     // DH4-2B: src/state/discoveryHint.ts is the one production module that wires the layer.
     // Hint 5.0 H5-1 (Issue #292, Final Design §14): the unwired Hint 5.0 layer reads the taxonomy and
     // the structure-total fact. It is sanctioned read-only, and hint5Production.gate.test.ts pins it as unwired.
+    // Ingredient Category Tabs 1.0 Phase 1: src/data/ingredientShelf.ts is a sanctioned read-only
+    // reader of the family ids (UI filter shelves). Unwired; it never imports the Hint layer.
     expect(importers).toEqual([
       "../../data/hintClassDisplay.ts",
+      "../../data/ingredientShelf.ts",
       "../../state/discoveryHint.ts",
       "./deductionGuard.ts",
       "./deductionHint.ts",
