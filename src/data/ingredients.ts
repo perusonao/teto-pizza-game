@@ -554,22 +554,6 @@ export const CATEGORY_LABEL: Record<IngredientCategory, string> = {
   topping: "トッピング",
 };
 
-/**
- * Visual Polish 1C: the "すべて + カテゴリ" tab set shared by any category-filtered ingredient
- * list (Inventory's own `InventoryOverlay.tsx` already established this exact ALL+category
- * shape; Shop's `ShopOverlay.tsx` reuses these two constants rather than redefining its own
- * copy). Derived from `CATEGORY_ORDER`/`CATEGORY_LABEL` above, so a future ingredient category
- * needs no change here.
- */
-export type CategoryTab = "ALL" | IngredientCategory;
-
-export const CATEGORY_TAB_ORDER: readonly CategoryTab[] = ["ALL", ...CATEGORY_ORDER];
-
-export const CATEGORY_TAB_LABEL: Record<CategoryTab, string> = {
-  ALL: "すべて",
-  ...CATEGORY_LABEL,
-};
-
 // Progression 2.0 I4b-4: `EARLY_GAME_HINT_THRESHOLD` (the Shop's old "レシピを解放すると…" hint
 // cutoff) was removed -- the Shop now shows the Discovery Ladder progress line instead
 // (../logic/materialShop.ts's `nextMaterialHint`).
