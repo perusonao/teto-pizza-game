@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
+import { IngredientPantry } from "../components/IngredientPantry";
 import { IngredientTray } from "../components/IngredientTray";
+import { isLargeCatalogEligible } from "../logic/catalog/freeEligibility";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
@@ -266,6 +268,11 @@ export function GameScreen({
     if (wasHintSheetOpenRef.current && !hintSheetOpen) hintButtonRef.current?.focus();
     wasHintSheetOpenRef.current = hintSheetOpen;
   }, [hintSheetOpen]);
+  // Large Catalog UX LC-R3: the 食材庫 (pantry) sheet shell. UI-only state (open / closed + the entry ref for
+  // focus return): no picks, shelf, search or hand state, nothing dispatched, nothing saved.
+  const [pantryOpen, setPantryOpen] = useState(false);
+  const pantryEntryRef = useRef<HTMLButtonElement>(null);
+
   function handleResetPizza() {
     setPizzaResetToken((token) => token + 1);
     onResetPizza();
@@ -311,6 +318,24 @@ export function GameScreen({
     recipe: state.recipe,
     sauceReadout: referenceModeEnabled && referencePizza !== null,
   });
+
+  // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
+  // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
+  // PREPARE tray screen (an empty-Dex initial state is FREE_COOK in ORDER: no tray, no entry), a step that
+  // shows the tray, and the pager row the dock already reserves (no new row: the entry lives in it).
+  const pantryAvailable =
+    isLargeCatalogEligible(state) && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pager;
+  const pantryVisible = pantryOpen && pantryAvailable;
+  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
+  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
+  // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
+  // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
+  if (pantryOpen && !pantryAvailable) setPantryOpen(false);
+  const wasPantryVisibleRef = useRef(pantryVisible);
+  useEffect(() => {
+    if (wasPantryVisibleRef.current && !pantryVisible) pantryEntryRef.current?.focus();
+    wasPantryVisibleRef.current = pantryVisible;
+  }, [pantryVisible]);
 
   // Gameplay UX Phase 1 (材料選択スクロール解消, see docs/reports/
   // TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md sec.1.4): PREPARE no longer gets the larger roomy
@@ -643,7 +668,7 @@ export function GameScreen({
         interactive={
           (state.phase === "PREPARE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT")) &&
           !isReferencePopoverOpen &&
-          !isGlobalOverlayOpen &&
+          !cookingInputPaused &&
           !state.dinner?.abandonRequested
         }
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
@@ -778,7 +803,7 @@ export function GameScreen({
                 inventory={state.inventory}
                 pizza={state.pizza}
                 physicalDragEnabled={
-                  referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
+                  referenceModeEnabled && !isReferencePopoverOpen && !cookingInputPaused
                 }
                 draggableIngredientIds={["mozzarella", "basil"]}
                 resolvePhysicalDrop={resolvePhysicalDrop}
@@ -786,6 +811,9 @@ export function GameScreen({
                 resetToken={pizzaResetToken}
                 makingStepToken={state.makingStepToken}
                 reservePagerRow={dockReserve.pager}
+                pantryEntry={
+                  pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
+                }
               />
             )}
           </div>
@@ -838,6 +866,14 @@ export function GameScreen({
               </button>
             )}
           </div>
+          {pantryVisible && (
+            <IngredientPantry
+              category={activeCategory}
+              ownedIngredientIds={state.ownedIngredientIds}
+              inventory={state.inventory}
+              onClose={() => setPantryOpen(false)}
+            />
+          )}
           {hintSheetOpen && (
             <HintSheet
               view={hintSheetView(state)}

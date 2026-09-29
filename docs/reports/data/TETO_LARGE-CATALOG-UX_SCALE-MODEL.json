@@ -1,0 +1,1278 @@
+{
+  "generatedBy": "tools/large_catalog_ux_scale_model.py",
+  "inputs": {
+    "measurements": "docs/reports/data/TETO_LARGE-CATALOG-UX_UI-MEASUREMENTS.json",
+    "universe105": "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json",
+    "proposedCategoryAndFamilyCounts": "PR #255 taxonomy Fresh Audit (PROPOSED, OD-TAX-7: not authority)"
+  },
+  "slotsPerTrayPage": 6,
+  "trayProjection": {
+    "runtime29": {
+      "sauce": {
+        "ownedCount": 3,
+        "pages": 1,
+        "worstTapsCurrentPager": 1,
+        "meanTapsCurrentPager": 1.0,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "cheese": {
+        "ownedCount": 4,
+        "pages": 1,
+        "worstTapsCurrentPager": 1,
+        "meanTapsCurrentPager": 1.0,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "topping": {
+        "ownedCount": 22,
+        "pages": 4,
+        "worstTapsCurrentPager": 4,
+        "meanTapsCurrentPager": 2.36,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      }
+    },
+    "universe105": {
+      "sauce": {
+        "ownedCount": 18,
+        "pages": 3,
+        "worstTapsCurrentPager": 3,
+        "meanTapsCurrentPager": 2.0,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "cheese": {
+        "ownedCount": 16,
+        "pages": 3,
+        "worstTapsCurrentPager": 3,
+        "meanTapsCurrentPager": 1.88,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "topping": {
+        "ownedCount": 71,
+        "pages": 12,
+        "worstTapsCurrentPager": 12,
+        "meanTapsCurrentPager": 6.42,
+        "familyRail": {
+          "families": {
+            "vegetable": 24,
+            "meat": 13,
+            "seafood": 11,
+            "herb": 8,
+            "other": 7,
+            "spice": 5,
+            "fruit": 3
+          },
+          "largestFamilyPages": 4,
+          "worstTaps": 5
+        },
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      }
+    },
+    "union179": {
+      "sauce": {
+        "ownedCount": 31,
+        "pages": 6,
+        "worstTapsCurrentPager": 6,
+        "meanTapsCurrentPager": 3.1,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "cheese": {
+        "ownedCount": 25,
+        "pages": 5,
+        "worstTapsCurrentPager": 5,
+        "meanTapsCurrentPager": 2.6,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "topping": {
+        "ownedCount": 123,
+        "pages": 21,
+        "worstTapsCurrentPager": 21,
+        "meanTapsCurrentPager": 10.76,
+        "familyRail": {
+          "families": {
+            "vegetable": 40,
+            "meat": 20,
+            "other": 17,
+            "seafood": 15,
+            "spice": 12,
+            "fruit": 11,
+            "herb": 8
+          },
+          "largestFamilyPages": 7,
+          "worstTaps": 8
+        },
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      }
+    }
+  },
+  "verticalScrollProjection": {
+    "360x640": {
+      "runtime_25r_29i": {
+        "dex": {
+          "clientHeight": 552,
+          "allUndiscoveredPx": 3014,
+          "halfDiscoveredPx": 3709,
+          "allDiscoveredPx": 4452,
+          "screensHalfDiscovered": 6.7,
+          "screensAllDiscovered": 8.1,
+          "undiscoveredSlotsShown": 24
+        },
+        "pizzaSelect": {
+          "clientHeight": 584,
+          "allDiscoveredPx": 2734,
+          "screensAllDiscovered": 4.7
+        },
+        "shop": {
+          "clientHeight": 552,
+          "listedRows": 26,
+          "allRowsPx": 2814,
+          "screens": 5.1
+        },
+        "inventory": {
+          "clientHeight": 552,
+          "allOwnedPx": 1165,
+          "screensAll": 2.1,
+          "toppingTabScreens": 1.7
+        }
+      },
+      "scale_172r_105i": {
+        "dex": {
+          "clientHeight": 552,
+          "allUndiscoveredPx": 19078,
+          "halfDiscoveredPx": 24145,
+          "allDiscoveredPx": 29262,
+          "screensHalfDiscovered": 43.7,
+          "screensAllDiscovered": 53.0,
+          "undiscoveredSlotsShown": 171
+        },
+        "pizzaSelect": {
+          "clientHeight": 584,
+          "allDiscoveredPx": 16607,
+          "screensAllDiscovered": 28.4
+        },
+        "shop": {
+          "clientHeight": 552,
+          "listedRows": 102,
+          "allRowsPx": 10528,
+          "screens": 19.1
+        },
+        "inventory": {
+          "clientHeight": 552,
+          "allOwnedPx": 3678,
+          "screensAll": 6.7,
+          "toppingTabScreens": 4.7
+        }
+      }
+    },
+    "360x800": {
+      "runtime_25r_29i": {
+        "dex": {
+          "clientHeight": 712,
+          "allUndiscoveredPx": 3014,
+          "halfDiscoveredPx": 3709,
+          "allDiscoveredPx": 4452,
+          "screensHalfDiscovered": 5.2,
+          "screensAllDiscovered": 6.3,
+          "undiscoveredSlotsShown": 24
+        },
+        "pizzaSelect": {
+          "clientHeight": 744,
+          "allDiscoveredPx": 2734,
+          "screensAllDiscovered": 3.7
+        },
+        "shop": {
+          "clientHeight": 712,
+          "listedRows": 26,
+          "allRowsPx": 2814,
+          "screens": 4.0
+        },
+        "inventory": {
+          "clientHeight": 712,
+          "allOwnedPx": 1165,
+          "screensAll": 1.6,
+          "toppingTabScreens": 1.4
+        }
+      },
+      "scale_172r_105i": {
+        "dex": {
+          "clientHeight": 712,
+          "allUndiscoveredPx": 19078,
+          "halfDiscoveredPx": 24145,
+          "allDiscoveredPx": 29262,
+          "screensHalfDiscovered": 33.9,
+          "screensAllDiscovered": 41.1,
+          "undiscoveredSlotsShown": 171
+        },
+        "pizzaSelect": {
+          "clientHeight": 744,
+          "allDiscoveredPx": 16607,
+          "screensAllDiscovered": 22.3
+        },
+        "shop": {
+          "clientHeight": 712,
+          "listedRows": 102,
+          "allRowsPx": 10528,
+          "screens": 14.8
+        },
+        "inventory": {
+          "clientHeight": 712,
+          "allOwnedPx": 3678,
+          "screensAll": 5.2,
+          "toppingTabScreens": 3.6
+        }
+      }
+    },
+    "390x844": {
+      "runtime_25r_29i": {
+        "dex": {
+          "clientHeight": 756,
+          "allUndiscoveredPx": 3014,
+          "halfDiscoveredPx": 3709,
+          "allDiscoveredPx": 4452,
+          "screensHalfDiscovered": 4.9,
+          "screensAllDiscovered": 5.9,
+          "undiscoveredSlotsShown": 24
+        },
+        "pizzaSelect": {
+          "clientHeight": 788,
+          "allDiscoveredPx": 2734,
+          "screensAllDiscovered": 3.5
+        },
+        "shop": {
+          "clientHeight": 756,
+          "listedRows": 26,
+          "allRowsPx": 2463,
+          "screens": 3.3
+        },
+        "inventory": {
+          "clientHeight": 756,
+          "allOwnedPx": 1130,
+          "screensAll": 1.5,
+          "toppingTabScreens": 1.2
+        }
+      },
+      "scale_172r_105i": {
+        "dex": {
+          "clientHeight": 756,
+          "allUndiscoveredPx": 19078,
+          "halfDiscoveredPx": 24145,
+          "allDiscoveredPx": 29262,
+          "screensHalfDiscovered": 31.9,
+          "screensAllDiscovered": 38.7,
+          "undiscoveredSlotsShown": 171
+        },
+        "pizzaSelect": {
+          "clientHeight": 788,
+          "allDiscoveredPx": 16607,
+          "screensAllDiscovered": 21.1
+        },
+        "shop": {
+          "clientHeight": 756,
+          "listedRows": 102,
+          "allRowsPx": 9151,
+          "screens": 12.1
+        },
+        "inventory": {
+          "clientHeight": 756,
+          "allOwnedPx": 3555,
+          "screensAll": 4.7,
+          "toppingTabScreens": 3.3
+        }
+      }
+    }
+  },
+  "domProjection": {
+    "dexPerDiscoveredCard": 12.9,
+    "dexAt172AllDiscovered": 2242,
+    "pizzaSelectPerCard": 11.0,
+    "pizzaSelectAt172": 1932,
+    "shopAt102Rows": 1397,
+    "note": "Element counts, 390x844. Budget guidance: keep any one overlay under ~1500 elements without virtualization on low-end phones; collapsed chapters keep the initial render small."
+  },
+  "gate": {
+    "workingSet": {
+      "toppingsPerRecipe172": {
+        "0": 5,
+        "1": 30,
+        "2": 50,
+        "3": 62,
+        "4": 19,
+        "5": 5,
+        "6": 1
+      },
+      "alternativesAssumed": 3,
+      "sizes": {
+        "6": {
+          "twoRowGrid": {
+            "pages": 1,
+            "worstTapsToHit": 1,
+            "meanTapsToHit": 1.0,
+            "stageDeltaPx": 0
+          },
+          "threeRowGridAlternative": {
+            "pages": 1,
+            "stageDeltaPx": {
+              "360x640": -64,
+              "360x800": -70,
+              "390x844": -70
+            },
+            "stageAfterPx": {
+              "360x640": 189,
+              "360x800": 331,
+              "390x844": 375
+            }
+          },
+          "recipesWhoseToppingsFit": "172/172",
+          "recipesThatFitWith3Alternatives": "147/172",
+          "meanPantrySwapsPerTrial": 0.19
+        },
+        "9": {
+          "twoRowGrid": {
+            "pages": 2,
+            "worstTapsToHit": 2,
+            "meanTapsToHit": 1.33,
+            "stageDeltaPx": 0
+          },
+          "threeRowGridAlternative": {
+            "pages": 1,
+            "stageDeltaPx": {
+              "360x640": -64,
+              "360x800": -70,
+              "390x844": -70
+            },
+            "stageAfterPx": {
+              "360x640": 189,
+              "360x800": 331,
+              "390x844": 375
+            }
+          },
+          "recipesWhoseToppingsFit": "172/172",
+          "recipesThatFitWith3Alternatives": "172/172",
+          "meanPantrySwapsPerTrial": 0.0
+        },
+        "12": {
+          "twoRowGrid": {
+            "pages": 2,
+            "worstTapsToHit": 2,
+            "meanTapsToHit": 1.5,
+            "stageDeltaPx": 0
+          },
+          "threeRowGridAlternative": {
+            "pages": 2,
+            "stageDeltaPx": {
+              "360x640": -64,
+              "360x800": -70,
+              "390x844": -70
+            },
+            "stageAfterPx": {
+              "360x640": 189,
+              "360x800": 331,
+              "390x844": 375
+            }
+          },
+          "recipesWhoseToppingsFit": "172/172",
+          "recipesThatFitWith3Alternatives": "172/172",
+          "meanPantrySwapsPerTrial": 0.0
+        },
+        "15": {
+          "twoRowGrid": {
+            "pages": 3,
+            "worstTapsToHit": 3,
+            "meanTapsToHit": 1.8,
+            "stageDeltaPx": 0
+          },
+          "threeRowGridAlternative": {
+            "pages": 2,
+            "stageDeltaPx": {
+              "360x640": -64,
+              "360x800": -70,
+              "390x844": -70
+            },
+            "stageAfterPx": {
+              "360x640": 189,
+              "360x800": 331,
+              "390x844": 375
+            }
+          },
+          "recipesWhoseToppingsFit": "172/172",
+          "recipesThatFitWith3Alternatives": "172/172",
+          "meanPantrySwapsPerTrial": 0.0
+        }
+      }
+    },
+    "fixtureTrayMatrix": {
+      "29": {
+        "sauce": {
+          "owned": 3,
+          "pages": 1,
+          "worstTaps": 1,
+          "meanTaps": 1.0
+        },
+        "cheese": {
+          "owned": 4,
+          "pages": 1,
+          "worstTaps": 1,
+          "meanTaps": 1.0
+        },
+        "topping": {
+          "owned": 22,
+          "pages": 4,
+          "worstTaps": 4,
+          "meanTaps": 2.36
+        }
+      },
+      "37_w2a_worst": {
+        "sauce": {
+          "owned": 3,
+          "pages": 1,
+          "worstTaps": 1,
+          "meanTaps": 1.0
+        },
+        "cheese": {
+          "owned": 4,
+          "pages": 1,
+          "worstTaps": 1,
+          "meanTaps": 1.0
+        },
+        "topping": {
+          "owned": 30,
+          "pages": 5,
+          "worstTaps": 5,
+          "meanTaps": 3.0
+        }
+      },
+      "37_w2a_mixed": {
+        "sauce": {
+          "owned": 3,
+          "pages": 1,
+          "worstTaps": 1,
+          "meanTaps": 1.0
+        },
+        "cheese": {
+          "owned": 7,
+          "pages": 2,
+          "worstTaps": 2,
+          "meanTaps": 1.14
+        },
+        "topping": {
+          "owned": 27,
+          "pages": 5,
+          "worstTaps": 5,
+          "meanTaps": 2.78
+        }
+      },
+      "40": {
+        "sauce": {
+          "owned": 3,
+          "pages": 1,
+          "worstTaps": 1,
+          "meanTaps": 1.0
+        },
+        "cheese": {
+          "owned": 7,
+          "pages": 2,
+          "worstTaps": 2,
+          "meanTaps": 1.14
+        },
+        "topping": {
+          "owned": 30,
+          "pages": 5,
+          "worstTaps": 5,
+          "meanTaps": 3.0
+        }
+      },
+      "62": {
+        "sauce": {
+          "owned": 10,
+          "pages": 2,
+          "worstTaps": 2,
+          "meanTaps": 1.4
+        },
+        "cheese": {
+          "owned": 10,
+          "pages": 2,
+          "worstTaps": 2,
+          "meanTaps": 1.4
+        },
+        "topping": {
+          "owned": 42,
+          "pages": 7,
+          "worstTaps": 7,
+          "meanTaps": 4.0
+        }
+      },
+      "105": {
+        "sauce": {
+          "owned": 18,
+          "pages": 3,
+          "worstTaps": 3,
+          "meanTaps": 2.0
+        },
+        "cheese": {
+          "owned": 16,
+          "pages": 3,
+          "worstTaps": 3,
+          "meanTaps": 1.88
+        },
+        "topping": {
+          "owned": 71,
+          "pages": 12,
+          "worstTaps": 12,
+          "meanTaps": 6.42
+        }
+      },
+      "179": {
+        "sauce": {
+          "owned": 31,
+          "pages": 6,
+          "worstTaps": 6,
+          "meanTaps": 3.1
+        },
+        "cheese": {
+          "owned": 25,
+          "pages": 5,
+          "worstTaps": 5,
+          "meanTaps": 2.6
+        },
+        "topping": {
+          "owned": 123,
+          "pages": 21,
+          "worstTaps": 21,
+          "meanTaps": 10.76
+        }
+      }
+    },
+    "dexAggregation": {
+      "360x640": {
+        "clientHeight": 552,
+        "rows": {
+          "catalog25_discovered0": {
+            "chapters": [
+              6,
+              9,
+              10
+            ],
+            "currentPx": 2995,
+            "currentScreens": 5.4,
+            "proposedCollapsedPx": 342,
+            "proposedOneChapterOpenPx": 390,
+            "proposedOneChapterOpenScreens": 0.7,
+            "proposedAllOpenPx": 486,
+            "proposedAllOpenScreens": 0.9,
+            "anonymousCardsCurrent": 25,
+            "anonymousCardsProposed": 0
+          },
+          "catalog25_discovered25": {
+            "chapters": [
+              6,
+              9,
+              10
+            ],
+            "currentPx": 4482,
+            "currentScreens": 8.1,
+            "proposedCollapsedPx": 342,
+            "proposedOneChapterOpenPx": 982,
+            "proposedOneChapterOpenScreens": 1.8,
+            "proposedAllOpenPx": 1782,
+            "proposedAllOpenScreens": 3.2,
+            "anonymousCardsCurrent": 0,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered0": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 19058,
+            "currentScreens": 34.5,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 438,
+            "proposedOneChapterOpenScreens": 0.8,
+            "proposedAllOpenPx": 582,
+            "proposedAllOpenScreens": 1.1,
+            "anonymousCardsCurrent": 172,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered25": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 20546,
+            "currentScreens": 37.2,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 1878,
+            "proposedOneChapterOpenScreens": 3.4,
+            "proposedAllOpenPx": 2022,
+            "proposedAllOpenScreens": 3.7,
+            "anonymousCardsCurrent": 147,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered34": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 21081,
+            "currentScreens": 38.2,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 2358,
+            "proposedOneChapterOpenScreens": 4.3,
+            "proposedAllOpenPx": 2502,
+            "proposedAllOpenScreens": 4.5,
+            "anonymousCardsCurrent": 138,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered101": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 25068,
+            "currentScreens": 45.4,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 3798,
+            "proposedOneChapterOpenScreens": 6.9,
+            "proposedAllOpenPx": 5974,
+            "proposedAllOpenScreens": 10.8,
+            "anonymousCardsCurrent": 71,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered172": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 29292,
+            "currentScreens": 53.1,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 1510,
+            "proposedOneChapterOpenScreens": 2.7,
+            "proposedAllOpenPx": 9670,
+            "proposedAllOpenScreens": 17.5,
+            "anonymousCardsCurrent": 0,
+            "anonymousCardsProposed": 0
+          }
+        }
+      },
+      "360x800": {
+        "clientHeight": 712,
+        "rows": {
+          "catalog25_discovered0": {
+            "chapters": [
+              6,
+              9,
+              10
+            ],
+            "currentPx": 2995,
+            "currentScreens": 4.2,
+            "proposedCollapsedPx": 342,
+            "proposedOneChapterOpenPx": 390,
+            "proposedOneChapterOpenScreens": 0.5,
+            "proposedAllOpenPx": 486,
+            "proposedAllOpenScreens": 0.7,
+            "anonymousCardsCurrent": 25,
+            "anonymousCardsProposed": 0
+          },
+          "catalog25_discovered25": {
+            "chapters": [
+              6,
+              9,
+              10
+            ],
+            "currentPx": 4482,
+            "currentScreens": 6.3,
+            "proposedCollapsedPx": 342,
+            "proposedOneChapterOpenPx": 982,
+            "proposedOneChapterOpenScreens": 1.4,
+            "proposedAllOpenPx": 1782,
+            "proposedAllOpenScreens": 2.5,
+            "anonymousCardsCurrent": 0,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered0": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 19058,
+            "currentScreens": 26.8,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 438,
+            "proposedOneChapterOpenScreens": 0.6,
+            "proposedAllOpenPx": 582,
+            "proposedAllOpenScreens": 0.8,
+            "anonymousCardsCurrent": 172,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered25": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 20546,
+            "currentScreens": 28.9,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 1878,
+            "proposedOneChapterOpenScreens": 2.6,
+            "proposedAllOpenPx": 2022,
+            "proposedAllOpenScreens": 2.8,
+            "anonymousCardsCurrent": 147,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered34": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 21081,
+            "currentScreens": 29.6,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 2358,
+            "proposedOneChapterOpenScreens": 3.3,
+            "proposedAllOpenPx": 2502,
+            "proposedAllOpenScreens": 3.5,
+            "anonymousCardsCurrent": 138,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered101": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 25068,
+            "currentScreens": 35.2,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 3798,
+            "proposedOneChapterOpenScreens": 5.3,
+            "proposedAllOpenPx": 5974,
+            "proposedAllOpenScreens": 8.4,
+            "anonymousCardsCurrent": 71,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered172": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 29292,
+            "currentScreens": 41.1,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 1510,
+            "proposedOneChapterOpenScreens": 2.1,
+            "proposedAllOpenPx": 9670,
+            "proposedAllOpenScreens": 13.6,
+            "anonymousCardsCurrent": 0,
+            "anonymousCardsProposed": 0
+          }
+        }
+      },
+      "390x844": {
+        "clientHeight": 756,
+        "rows": {
+          "catalog25_discovered0": {
+            "chapters": [
+              6,
+              9,
+              10
+            ],
+            "currentPx": 2995,
+            "currentScreens": 4.0,
+            "proposedCollapsedPx": 342,
+            "proposedOneChapterOpenPx": 390,
+            "proposedOneChapterOpenScreens": 0.5,
+            "proposedAllOpenPx": 486,
+            "proposedAllOpenScreens": 0.6,
+            "anonymousCardsCurrent": 25,
+            "anonymousCardsProposed": 0
+          },
+          "catalog25_discovered25": {
+            "chapters": [
+              6,
+              9,
+              10
+            ],
+            "currentPx": 4482,
+            "currentScreens": 5.9,
+            "proposedCollapsedPx": 342,
+            "proposedOneChapterOpenPx": 982,
+            "proposedOneChapterOpenScreens": 1.3,
+            "proposedAllOpenPx": 1782,
+            "proposedAllOpenScreens": 2.4,
+            "anonymousCardsCurrent": 0,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered0": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 19058,
+            "currentScreens": 25.2,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 438,
+            "proposedOneChapterOpenScreens": 0.6,
+            "proposedAllOpenPx": 582,
+            "proposedAllOpenScreens": 0.8,
+            "anonymousCardsCurrent": 172,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered25": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 20546,
+            "currentScreens": 27.2,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 1878,
+            "proposedOneChapterOpenScreens": 2.5,
+            "proposedAllOpenPx": 2022,
+            "proposedAllOpenScreens": 2.7,
+            "anonymousCardsCurrent": 147,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered34": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 21081,
+            "currentScreens": 27.9,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 2358,
+            "proposedOneChapterOpenScreens": 3.1,
+            "proposedAllOpenPx": 2502,
+            "proposedAllOpenScreens": 3.3,
+            "anonymousCardsCurrent": 138,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered101": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 25068,
+            "currentScreens": 33.2,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 3798,
+            "proposedOneChapterOpenScreens": 5.0,
+            "proposedAllOpenPx": 5974,
+            "proposedAllOpenScreens": 7.9,
+            "anonymousCardsCurrent": 71,
+            "anonymousCardsProposed": 0
+          },
+          "catalog172_discovered172": {
+            "chapters": [
+              39,
+              63,
+              51,
+              19
+            ],
+            "currentPx": 29292,
+            "currentScreens": 38.7,
+            "proposedCollapsedPx": 390,
+            "proposedOneChapterOpenPx": 1510,
+            "proposedOneChapterOpenScreens": 2.0,
+            "proposedAllOpenPx": 9670,
+            "proposedAllOpenScreens": 12.8,
+            "anonymousCardsCurrent": 0,
+            "anonymousCardsProposed": 0
+          }
+        }
+      }
+    },
+    "pizzaSelectColumns": {
+      "390x844": {
+        "2col-current": {
+          "columns": 2,
+          "cardWidth": 174,
+          "cardHeight": [
+            168,
+            168
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            12.1667,
+            14
+          ],
+          "namesOnTwoLinesOf25": 0,
+          "fullyVisibleCardsFirstScreen": 8,
+          "measuredScrollHeight25": 2435,
+          "clientHeight": 788,
+          "projectedScrollHeightByDiscovered": {
+            "25": 2464,
+            "34": 3176,
+            "101": 9228,
+            "172": 15458
+          },
+          "projectedScreensAt172": 19.6
+        },
+        "3col-thumb64": {
+          "columns": 3,
+          "cardWidth": 114,
+          "cardHeight": [
+            143,
+            152
+          ],
+          "thumbnail": 64,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 6,
+          "fullyVisibleCardsFirstScreen": 12,
+          "measuredScrollHeight25": 1532,
+          "clientHeight": 788,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1590,
+            "34": 2070,
+            "101": 5590,
+            "172": 9430
+          },
+          "projectedScreensAt172": 12.0
+        },
+        "3col-thumb76": {
+          "columns": 3,
+          "cardWidth": 114,
+          "cardHeight": [
+            155,
+            164
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 6,
+          "fullyVisibleCardsFirstScreen": 12,
+          "measuredScrollHeight25": 1640,
+          "clientHeight": 788,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1698,
+            "34": 2214,
+            "101": 5998,
+            "172": 10126
+          },
+          "projectedScreensAt172": 12.9
+        }
+      },
+      "360x800": {
+        "2col-current": {
+          "columns": 2,
+          "cardWidth": 159,
+          "cardHeight": [
+            168,
+            168
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 0,
+          "fullyVisibleCardsFirstScreen": 6,
+          "measuredScrollHeight25": 2435,
+          "clientHeight": 744,
+          "projectedScrollHeightByDiscovered": {
+            "25": 2464,
+            "34": 3176,
+            "101": 9228,
+            "172": 15458
+          },
+          "projectedScreensAt172": 20.8
+        },
+        "3col-thumb64": {
+          "columns": 3,
+          "cardWidth": 104,
+          "cardHeight": [
+            143,
+            152
+          ],
+          "thumbnail": 64,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 9,
+          "fullyVisibleCardsFirstScreen": 12,
+          "measuredScrollHeight25": 1532,
+          "clientHeight": 744,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1590,
+            "34": 2070,
+            "101": 5590,
+            "172": 9430
+          },
+          "projectedScreensAt172": 12.7
+        },
+        "3col-thumb76": {
+          "columns": 3,
+          "cardWidth": 104,
+          "cardHeight": [
+            155,
+            164
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 9,
+          "fullyVisibleCardsFirstScreen": 12,
+          "measuredScrollHeight25": 1640,
+          "clientHeight": 744,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1698,
+            "34": 2214,
+            "101": 5998,
+            "172": 10126
+          },
+          "projectedScreensAt172": 13.6
+        }
+      },
+      "390x664": {
+        "2col-current": {
+          "columns": 2,
+          "cardWidth": 174,
+          "cardHeight": [
+            168,
+            168
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            12.1667,
+            14
+          ],
+          "namesOnTwoLinesOf25": 0,
+          "fullyVisibleCardsFirstScreen": 6,
+          "measuredScrollHeight25": 2435,
+          "clientHeight": 608,
+          "projectedScrollHeightByDiscovered": {
+            "25": 2464,
+            "34": 3176,
+            "101": 9228,
+            "172": 15458
+          },
+          "projectedScreensAt172": 25.4
+        },
+        "3col-thumb64": {
+          "columns": 3,
+          "cardWidth": 114,
+          "cardHeight": [
+            143,
+            152
+          ],
+          "thumbnail": 64,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 6,
+          "fullyVisibleCardsFirstScreen": 9,
+          "measuredScrollHeight25": 1532,
+          "clientHeight": 608,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1590,
+            "34": 2070,
+            "101": 5590,
+            "172": 9430
+          },
+          "projectedScreensAt172": 15.5
+        },
+        "3col-thumb76": {
+          "columns": 3,
+          "cardWidth": 114,
+          "cardHeight": [
+            155,
+            164
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 6,
+          "fullyVisibleCardsFirstScreen": 9,
+          "measuredScrollHeight25": 1640,
+          "clientHeight": 608,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1698,
+            "34": 2214,
+            "101": 5998,
+            "172": 10126
+          },
+          "projectedScreensAt172": 16.7
+        }
+      },
+      "360x640": {
+        "2col-current": {
+          "columns": 2,
+          "cardWidth": 159,
+          "cardHeight": [
+            168,
+            168
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 0,
+          "fullyVisibleCardsFirstScreen": 6,
+          "measuredScrollHeight25": 2435,
+          "clientHeight": 584,
+          "projectedScrollHeightByDiscovered": {
+            "25": 2464,
+            "34": 3176,
+            "101": 9228,
+            "172": 15458
+          },
+          "projectedScreensAt172": 26.5
+        },
+        "3col-thumb64": {
+          "columns": 3,
+          "cardWidth": 104,
+          "cardHeight": [
+            143,
+            152
+          ],
+          "thumbnail": 64,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 9,
+          "fullyVisibleCardsFirstScreen": 9,
+          "measuredScrollHeight25": 1532,
+          "clientHeight": 584,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1590,
+            "34": 2070,
+            "101": 5590,
+            "172": 9430
+          },
+          "projectedScreensAt172": 16.1
+        },
+        "3col-thumb76": {
+          "columns": 3,
+          "cardWidth": 104,
+          "cardHeight": [
+            155,
+            164
+          ],
+          "thumbnail": 76,
+          "nameFont": [
+            11,
+            14
+          ],
+          "namesOnTwoLinesOf25": 9,
+          "fullyVisibleCardsFirstScreen": 9,
+          "measuredScrollHeight25": 1640,
+          "clientHeight": 584,
+          "projectedScrollHeightByDiscovered": {
+            "25": 1698,
+            "34": 2214,
+            "101": 5998,
+            "172": 10126
+          },
+          "projectedScreensAt172": 17.3
+        }
+      }
+    }
+  },
+  "measuredTrayVerticalBudget": {
+    "360x640": {
+      "stageHeight": 253,
+      "trayHeight": 122,
+      "pagerRowHeight": 28,
+      "chipSize": [
+        108,
+        58
+      ],
+      "hintSheetHeight": 288
+    },
+    "360x800": {
+      "stageHeight": 401,
+      "trayHeight": 134,
+      "pagerRowHeight": 28,
+      "chipSize": [
+        108,
+        64
+      ],
+      "hintSheetHeight": 360
+    },
+    "390x844": {
+      "stageHeight": 445,
+      "trayHeight": 134,
+      "pagerRowHeight": 28,
+      "chipSize": [
+        118,
+        64
+      ],
+      "hintSheetHeight": 351
+    }
+  }
+}
