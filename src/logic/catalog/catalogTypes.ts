@@ -25,6 +25,9 @@ export interface CatalogIngredient {
   shelf: IngredientShelfId | null;
   /** Search reading (hiragana) for names that contain kanji (LC-OD-15). Optional. */
   readingJa?: string;
+  /** LC-R5-b: Owner-approved written forms a player may type for this ingredient (search only; never shown,
+   *  never a reading). Copied from `ingredientSearchAliases` by `catalogSource.ts`. Optional. */
+  searchAliasesJa?: readonly string[];
   /** The only ordering key for ties: catalog declaration order. */
   catalogIndex: number;
 }

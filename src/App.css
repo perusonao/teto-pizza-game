@@ -6245,7 +6245,10 @@ p.hint-sheet__step {
 /* Pantry sheet: fixed to the viewport in the same centred column as the hint sheet (so opening it moves
    nothing behind it), above the bake bar (10) at the shared modal level (25). PR #304 stable-height
    contract: ONE outer height whatever the row count (never `auto`), pinned header, a single scroll list,
-   page / body never scroll, content ends above the home-indicator inset. */
+   page / body never scroll, content ends above the home-indicator inset.
+   LC-R5-b (OD-R5-5): the baseline height is the shell ceiling (the same value as Inventory / Dex), no longer 70dvh
+   (a real iPhone needs the room for search + chips); the value is confirmed by the four-viewport measurement in
+   docs/reports/TETO_LARGE-CATALOG-UX_LC-R5b_*_Result.md. */
 .pantry-sheet__backdrop {
   position: fixed;
   inset: 0;
@@ -6261,8 +6264,8 @@ p.hint-sheet__step {
   box-sizing: border-box;
   width: 100%;
   max-width: 390px;
-  height: 70vh;
-  height: min(70dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 20px));
+  height: calc(100vh - 20px);
+  height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -6385,4 +6388,65 @@ p.hint-sheet__step {
 .pantry-sheet__shelves {
   flex: 0 0 auto;
   min-width: 0;
+}
+
+/* ---------- Large Catalog UX LC-R5-b: pantry search field + Mode C keyboard fit ----------
+   The search row is a fixed (non-scrolling) slot between the subtitle and the chips, present only while the
+   category has more owned rows than one tray page. 16px text (iOS does not zoom a >=16px field on focus), 44px
+   tall field and clear button. The native cancel button is hidden (the sheet has its own ✕). */
+.pantry-sheet__search {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.pantry-sheet__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  border: 2px solid #e6d5ae;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 16px;
+  color: #4a2e0a;
+  background: #fffdf7;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pantry-sheet__search-input::-webkit-search-cancel-button,
+.pantry-sheet__search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.pantry-sheet__search-input:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: 1px;
+}
+
+.pantry-sheet__search-clear {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #e6d5ae;
+  font-size: 16px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+/* Mode C (only while `usePantryViewportFit` publishes the visual viewport, i.e. the soft keyboard is up or the field
+   is focused): follow the VISUAL viewport, never grow past the ceiling, keep the safe-area top and an 8px margin,
+   and sit on the visual viewport's bottom edge. Without the class (no visualViewport / abnormal values) the plain
+   ceiling above applies unchanged. No transition: the keyboard animates by itself. */
+.pantry-sheet.pantry-sheet--fit {
+  height: min(
+    calc(100dvh - env(safe-area-inset-top, 0px) - 20px),
+    calc(var(--pantry-vv-h) - env(safe-area-inset-top, 0px) - 8px)
+  );
+  bottom: var(--pantry-vv-bottom, 0px);
 }
