@@ -28,7 +28,9 @@ export function matchesSearch(item: CatalogIngredient, query: string): boolean {
   if (q === "") return true;
   return (
     normalizeForSearch(item.nameJa).includes(q) ||
-    (item.readingJa !== undefined && normalizeForSearch(item.readingJa).includes(q))
+    (item.readingJa !== undefined && normalizeForSearch(item.readingJa).includes(q)) ||
+    // LC-R5-b: an Owner-approved written form (search only). Same normalized SUBSTRING rule; no reverse match.
+    (item.searchAliasesJa ?? []).some((alias) => normalizeForSearch(alias).includes(q))
   );
 }
 

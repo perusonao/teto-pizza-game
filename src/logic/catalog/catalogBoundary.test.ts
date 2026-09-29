@@ -60,7 +60,9 @@ describe("catalog boundary", () => {
       for (const { spec, typeOnly } of imports(text)) {
         // LC-R2 (OD-1): only the FREE-eligibility module may read the explicit round kind (a pure enum helper).
         const roundKind = file === "./freeEligibility.ts" && spec === "../../state/roundKind";
-        const ok = roundKind || spec.startsWith("./") || (typeOnly ? ALLOWED_TYPE.has(spec) : ALLOWED_VALUE.has(spec));
+        // LC-R5-b: only the runtime source may read the search-only alias table (Owner-approved data, OD-A1).
+        const aliasTable = file === "./catalogSource.ts" && spec === "../../data/ingredientSearchAliases";
+        const ok = roundKind || aliasTable || spec.startsWith("./") || (typeOnly ? ALLOWED_TYPE.has(spec) : ALLOWED_VALUE.has(spec));
         if (!ok) violations.push(`${file} -> ${spec}${typeOnly ? " (type)" : ""}`);
       }
     }
@@ -171,5 +173,29 @@ describe("catalog boundary", () => {
     const src = strip(CATALOG_SOURCES["./pantryAvailability.ts"]);
     expect(src).not.toMatch(/resolveHand|workingSet|handSession|handPolicy|HAND_ENFORCEMENT|pin|inventory|remainingStock|recipe|discovery|pageCount|MakingStep/i);
     expect(imports(CATALOG_SOURCES["./pantryAvailability.ts"]).map((i) => i.spec)).toEqual(["../../data/ingredients"]);
+  });
+
+  it("LC-R5-b: the alias table is read only by catalogSource, and it imports no recipe, discovery, hint or state code", () => {
+    const importers: string[] = [];
+    for (const [path, text] of Object.entries(ALL_SOURCES)) {
+      if (imports(text).some((i) => /ingredientSearchAliases$/.test(i.spec))) importers.push(path);
+    }
+    expect(importers).toEqual(["./catalogSource.ts"]);
+    expect(imports(ALL_SOURCES["../../data/ingredientSearchAliases.ts"])).toEqual([]);
+  });
+
+  it("LC-R5-b: visualViewport is used only by the pantry's keyboard-fit module; the pantry search never persists or logs text", () => {
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const users = Object.entries(ALL_SOURCES)
+      .filter(([, text]) => /visualViewport/.test(strip(text)))
+      .map(([path]) => path);
+    expect(users).toEqual(["../../components/pantryViewportFit.ts"]);
+    for (const file of ["../../components/pantrySearchIme.ts", "../../components/pantryViewportFit.ts", "../../components/IngredientPantry.tsx"]) {
+      expect(strip(ALL_SOURCES[file]), file).not.toMatch(/localStorage|sessionStorage|indexedDB|console\.|saveGame|persist|selectedIngredientId|handSession|workingSet|handPolicy|HAND_ENFORCEMENT/);
+    }
+    // The pantry may import the two R5-b helpers and nothing from recipes / discovery / hints.
+    const specs = imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]).map((i) => i.spec);
+    expect(specs).toEqual(expect.arrayContaining(["./pantrySearchIme", "./pantryViewportFit"]));
+    expect(specs.filter((spec) => /recipes|discovery|hint|matcher/i.test(spec))).toEqual([]);
   });
 });
