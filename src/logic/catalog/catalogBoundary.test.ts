@@ -48,6 +48,7 @@ describe("catalog boundary", () => {
       "./handPolicy.ts",
       "./handSession.ts",
       "./hintDisclosure.ts",
+      "./pantryAvailability.ts",
       "./usageSignals.ts",
       "./workingSet.ts",
     ]);
@@ -120,6 +121,8 @@ describe("catalog boundary", () => {
     const ALLOWED: Record<string, readonly string[]> = {
       "../../components/IngredientPantry.tsx": ["catalogQuery", "catalogSource", "usageSignals"],
       "../../screens/GameScreen.tsx": ["freeEligibility"],
+      // LC-R5-a: the dock reservation reads the ownership-only pantry availability authority.
+      "../prepareDock.ts": ["pantryAvailability"],
     };
     const violations: string[] = [];
     for (const [path, text] of Object.entries(ALL_SOURCES)) {
@@ -147,11 +150,26 @@ describe("catalog boundary", () => {
     expect(imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]).map((i) => i.spec)).toContain("./ShelfChips");
   });
 
-  it("LC-R4 (OD-R4-3): the pantry entry gate is exactly the R3 gate -- still tied to the reserved pager row until R5 splits them", () => {
+  it("LC-R5-a (OD-R5-10): the pantry entry gate is eligible + PREPARE + not DOUGH + pantryWorthwhile -- never the pager, the hand or freeCook", () => {
     const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
     const game = strip(ALL_SOURCES["../../screens/GameScreen.tsx"]).replace(/\s+/g, " ");
+    expect(game).toContain("const largeCatalogEligible = isLargeCatalogEligible(state);");
     expect(game).toContain(
-      'const pantryAvailable = isLargeCatalogEligible(state) && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pager;',
+      'const pantryAvailable = largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;',
     );
+    const gate = game.slice(game.indexOf("const pantryAvailable"), game.indexOf("const pantryVisible"));
+    expect(gate).not.toMatch(/\bpager\b|resolveHand|workingSet|handSession|freeCook|recipeFreeTray/);
+    // The reserved utility row (not the pager) drives the dock class, its CSS variable and the tray's reserved row.
+    expect(game).toContain('prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}');
+    expect(game).toContain('"--dock-pager": dockReserve.utilityRow ? 1 : 0');
+    expect(game).toContain("reservePagerRow={dockReserve.utilityRow}");
+    expect(game).not.toMatch(/dockReserve\.pager\b/);
+  });
+
+  it("LC-R5-a: pantryAvailability reads ownership only -- no pager, hand, pin, stock, recipe, discovery or enforcement", () => {
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const src = strip(CATALOG_SOURCES["./pantryAvailability.ts"]);
+    expect(src).not.toMatch(/resolveHand|workingSet|handSession|handPolicy|HAND_ENFORCEMENT|pin|inventory|remainingStock|recipe|discovery|pageCount|MakingStep/i);
+    expect(imports(CATALOG_SOURCES["./pantryAvailability.ts"]).map((i) => i.spec)).toEqual(["../../data/ingredients"]);
   });
 });

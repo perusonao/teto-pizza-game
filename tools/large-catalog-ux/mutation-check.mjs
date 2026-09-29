@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59 (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -267,7 +267,7 @@ const MUTANTS = [
     id: "M33",
     what: "pantry entry for Dinner (the tray's recipe-free notion leaks into the gate)",
     file: "src/screens/GameScreen.tsx",
-    edits: [["isLargeCatalogEligible(state) && state.phase", "(isLargeCatalogEligible(state) || state.dinner !== null) && state.phase"]],
+    edits: [["const largeCatalogEligible = isLargeCatalogEligible(state);", "const largeCatalogEligible = isLargeCatalogEligible(state) || state.dinner !== null;"]],
   },
   {
     id: "M34",
@@ -390,17 +390,81 @@ const MUTANTS = [
   },
   {
     id: "M50",
-    what: "the entry gate stops requiring the reserved pager row (pager gate changed)",
+    what: "the entry gate stops requiring pantryWorthwhile (entry offered whenever the screen is eligible)",
     file: "src/screens/GameScreen.tsx",
-    edits: [
-      ["state.makingStep !== \"DOUGH\" && dockReserve.pager;", "state.makingStep !== \"DOUGH\";"],
-    ],
+    edits: [['state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;', 'state.makingStep !== "DOUGH";']],
+  },
+  {
+    id: "M51",
+    what: "R5-a: the entry gate goes back to the pager (dockReserve.pager)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [['state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;', 'state.makingStep !== "DOUGH" && dockReserve.pager;']],
+  },
+  {
+    id: "M52",
+    what: "R5-a: pantryWorthwhile is derived from the pager / tray page count",
+    file: "src/logic/prepareDock.ts",
+    edits: [["reserve.pantryWorthwhile = isPantryWorthwhile({", "reserve.pantryWorthwhile = reserve.pager || isPantryWorthwhile({"], ["ownedIngredientIds: trayOptions.ownedIngredientIds,\n  });", "ownedIngredientIds: trayOptions.ownedIngredientIds.slice(0, 0),\n  });"]],
+  },
+  {
+    id: "M53",
+    what: "R5-a: utilityRow loses its eligible guard (guided / Lunch Rush gain a row)",
+    file: `${C}/pantryAvailability.ts`,
+    edits: [["input.largeCatalogEligible && input.pantryWorthwhile", "input.pantryWorthwhile"]],
+  },
+  {
+    id: "M54",
+    what: "R5-a: worthwhile threshold >= 6 instead of > 6",
+    file: `${C}/pantryAvailability.ts`,
+    edits: [[".length > MAX_INGREDIENT_PALETTE_SLOTS,", ".length >= MAX_INGREDIENT_PALETTE_SLOTS,"]],
+  },
+  {
+    id: "M55",
+    what: "R5-a: pantryAvailability starts reading inventory (stock)",
+    file: `${C}/pantryAvailability.ts`,
+    edits: [['import { ingredientsByCategory,', 'import { remainingStock } from "../../state/inventory";\nvoid remainingStock;\nimport { ingredientsByCategory,']],
+  },
+  {
+    id: "M56",
+    what: "R5-a: pantryAvailability starts depending on the hand session (pins)",
+    file: `${C}/pantryAvailability.ts`,
+    edits: [['import { ingredientsByCategory,', 'import "./handSession";\nimport { ingredientsByCategory,']],
+  },
+  {
+    id: "M57",
+    what: "R5-a: utilityRow ignores the pager (only eligible && worthwhile)",
+    file: `${C}/pantryAvailability.ts`,
+    edits: [["return input.pager || (input.largeCatalogEligible && input.pantryWorthwhile);", "return input.largeCatalogEligible && input.pantryWorthwhile;"]],
+  },
+  {
+    id: "M58",
+    what: "R5-a: the tray's reserved pager row is driven by pantryWorthwhile instead of utilityRow",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["reservePagerRow={dockReserve.utilityRow}", "reservePagerRow={dockReserve.pantryWorthwhile}"]],
+  },
+  {
+    id: "M58b",
+    what: "R5-a: the dock's no-pager class goes back to the pager",
+    file: "src/screens/GameScreen.tsx",
+    edits: [['dockReserve.utilityRow ? "" : " prepare-dock--no-pager"', 'dockReserve.pager ? "" : " prepare-dock--no-pager"']],
+  },
+  {
+    id: "M58c",
+    what: "R5-a: eligibility is read from freeCook / the recipe-free tray instead of the FREE gate (Dinner leaks)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["const largeCatalogEligible = isLargeCatalogEligible(state);", "const largeCatalogEligible = recipeFreeTray;"]],
+  },
+  {
+    id: "M59",
+    what: "R5-a: pantryAvailability imports recipes",
+    file: `${C}/pantryAvailability.ts`,
+    edits: [['import { ingredientsByCategory,', 'import { RECIPES } from "../../data/recipes";\nvoid RECIPES;\nimport { ingredientsByCategory,']],
   },
 ];
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });
