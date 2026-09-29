@@ -326,7 +326,7 @@ const MUTANTS = [
     what: "unclassified (shelf null) rows leak into a specific shelf",
     file: "src/components/IngredientPantry.tsx",
     edits: [
-      ["itemsFor([shelfFilter])", "[...itemsFor([shelfFilter]), ...allItems.filter((i) => i.shelf === null)]"],
+      ["toRows(itemsFor(shelfFilter === \"all\" ? undefined : [shelfFilter], appliedText))", "toRows(shelfFilter === \"all\" ? itemsFor(undefined, appliedText) : [...itemsFor([shelfFilter], appliedText), ...allItems.filter((i) => i.shelf === null)])"],
     ],
   },
   {

@@ -235,7 +235,8 @@ for (const width of [390, 360] as const) {
       await input.focus();
       const vvH = vp.height - KEYBOARD_PX;
       await page.evaluate((h) => (window as unknown as { __setVv: (h: number) => void }).__setVv(h), vvH);
-      await expect.poll(async () => (await searchFacts(page)).fit, { message: `${label}: fit applied`, timeout: 3000 }).toBe(true);
+      // (focusing already sets the class with a no-op geometry; wait for the shrink itself to be applied)
+      await expect.poll(async () => Math.round((await searchFacts(page)).sheet!.b), { message: `${label}: fit applied`, timeout: 3000 }).toBe(vvH);
       const kb = await searchFacts(page);
       expect(kb.sheet!.y, `${label}: sheet top stays inside the visual viewport with the 8px margin`).toBeGreaterThanOrEqual(8 - 0.5);
       expect(kb.sheet!.b, `${label}: sheet bottom sits on the visual viewport bottom`).toBeCloseTo(vvH, 0);
