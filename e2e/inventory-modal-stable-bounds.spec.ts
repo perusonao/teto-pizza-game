@@ -68,8 +68,15 @@ for (const vp of VIEWPORTS) {
       // Keyboard-operable scrollport: labelled region, focusable, PageDown scrolls it.
       await expect(page.getByRole("region", { name: "材料一覧" })).toHaveAttribute("tabindex", "0");
       await list.focus();
+      expect(await list.evaluate((el) => document.activeElement === el)).toBe(true);
       await page.keyboard.press("PageDown");
-      expect(await list.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+      // Keyboard page-scroll may be animated (WebKit): poll until the list has moved. The list
+      // itself must scroll; focus alone is not enough.
+      await expect.poll(() => list.evaluate((el) => el.scrollTop), { timeout: 3000 }).toBeGreaterThan(0);
+      // Keyboard scroll belongs to the list, not the page/body/panel.
+      expect(await page.evaluate(() => [window.scrollY, document.documentElement.scrollTop, document.body.scrollTop])).toEqual([0, 0, 0]);
+      expect(await page.locator(".inventory-overlay__body").evaluate((el) => el.scrollTop)).toBe(0);
+      expect(await rect(page, shell)).toEqual(all);
       await list.evaluate((el) => { el.scrollTop = 0; });
       const big = await list.evaluate((el) => ({ sh: el.scrollHeight, ch: el.clientHeight }));
       expect(big.sh).toBeGreaterThan(big.ch);
