@@ -353,6 +353,12 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
 **Status: BUILDER CATEGORY-TABS DECISION CLOSED.** Full record:
 `docs/reports/TETO_LARGE-CATALOG-UX_x_CATEGORY-TABS_Fresh-Reconciliation-Audit.md` §9.
 
+**Current state (main `b21c978`, 2026-09-29):** Phase 1 shelf foundation (#299), **Phase 3 Shop
+(#301) COMPLETE**, **Phase 4 Ingredients (#302) COMPLETE**; **Builder tray Category Tabs CLOSED**
+(the old Phase 2 is cancelled); PR #272 is **REBASE / REVISE LATER** (before LC-2); counts stay
+deferred to Phase 5. Historical reports that still mention OD-CT-1 or a Phase 2 Builder are not
+edited; this section supersedes them.
+
 - **OD-CT-1 is WITHDRAWN.** "FREE Cooking with > 6 candidate toppings shows family tabs in the
   Builder tray" is retracted. Replacement: **the Builder tray shows no family tabs; family
   filtering is provided by the Large Catalog UX 食材庫 sheet** (reusing `ShelfChips`).
@@ -363,9 +369,9 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
 - OD-B3: the pizza stage floor wins; no ~40–52px row is added to the tray for family filtering.
 - OD-B4: any future FREE-Cooking-only gate must exclude Dinner explicitly, not rely on `freeCook`.
 - OD-B5: the Hint 5 privacy contract is unchanged; no new k>=2 coarsening rule.
-- Unchanged: Phase 3 Shop (done) and Phase 4 Inventory chip swap may proceed; no counts before
-  Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays "rebase/revise
-  before LC-2" (verdict B). No production code changed by this decision.
+- Unchanged: Phase 3 Shop and Phase 4 Ingredients are done (see the current state above); no
+  counts before Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays
+  "rebase/revise before LC-2" (verdict B). No production code changed by this decision.
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 

@@ -1,6 +1,8 @@
 # PR #272 (Large Catalog UX) × Ingredient Category Tabs 1.0 — Fresh Reconciliation Audit
 
 **docs-only. No production code, test, tool, CSS or e2e change. PR #272 untouched (not commented, not rebased, not merged).**
+
+> **Point-in-time audit.** §1–§8 describe `main` at `cf1c57d`, when Phase 4 (Ingredients) was still planned. Phase 4 has since merged (#302, main `b21c978`); see §10. §9 is the authoritative Owner Decision record.
 Human Verification: not applicable (no visible / interaction change; policy §2).
 
 - Baseline: `origin/main` = `cf1c57d` (PR #301, Category Tabs Phase 3 Shop merged; Phase 1 `ingredientShelf` #299 in).
@@ -114,3 +116,13 @@ Consequences (docs only; nothing implemented here):
 - SSOT: `docs/PROJECT_HANDOFF.md` section "Ingredient Category Tabs 1.0 — Builder decision".
 
 **FINAL STATUS: A. BUILDER CATEGORY-TABS DECISION CLOSED**
+
+## 10. Post-Phase-4 reconciliation (main `b21c978`)
+
+Added when this record was integrated into `main`; the sections above are unchanged history.
+
+- **Phase 3 Shop — COMPLETE** (#301, merge `cf1c57d`). **Phase 4 Ingredients — COMPLETE** (#302, merge `b21c978`): the Ingredients filter is now `ShelfChips` + `filterByShelf` over OWNED rows, no counts. Statements above that call Phase 4 "planned" (§2 Inventory row, §4 risk 4, §8 item 2) are superseded by this.
+- **Builder tray Category Tabs — CLOSED** (§9). The old in-tray Phase 2 is cancelled; OD-CT-1 is withdrawn. Earlier reports (P1 Result, P3 Fresh Audit / Result, P4 audit) that mention OD-CT-1 or a Phase 2 Builder are historical and intentionally not edited.
+- **PR #272 — REBASE / REVISE LATER** (verdict B unchanged): before LC-2, per §3 (one `shelf` filter populated from `ingredientShelf()`, family id typed, boundary allow-list, `familyCounts` reference guard). Untouched by this integration.
+- **Counts** stay deferred to Phase 5 (OD-CT-6); `familyCounts` remains unused.
+- Cleanup candidate, unrelated to this record: `CATEGORY_ORDER` has no code consumer on main after Phase 4 (recorded in the P4 Result; not removed here).
