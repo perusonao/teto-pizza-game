@@ -252,3 +252,78 @@ Neither is a code defect.
 **READY FOR PREVIEW (conditional on the two prerequisites in §9).**
 
 The production flag is OFF. Nothing was deployed or merged, and no other branch was changed.
+
+## 12. Final Gate (after the Owner iPhone HV) — 2026-09-29
+
+**Scope:** read-only re-check. Nothing merged, deployed or activated; the production flag is OFF.
+This section is docs only and changes no code.
+
+### 12.1 Fresh Check
+
+| Item | State |
+|---|---|
+| `origin/main` | `86b48fd` (unchanged; #297 and #298 are 0 behind) |
+| PR #297 | OPEN, head `399b6c8`, CI 9/9 green, 0 review threads, mergeable clean |
+| PR #298 | OPEN, head `4d090b5` at the time of the HV (this docs commit is on top), CI 9/9 green incl. WebKit, 1 Codex P2 thread resolved, 0 open, mergeable clean |
+| Preview deployed source | `4d090b599c3782427ad7dc4a71b472f5a3c83cb9` (Preview repo `a2ffc82`, badge `PREVIEW · PR#298 · 4d090b5`) |
+| #275 / #293 / #295 / #296 | OPEN and unchanged: `21fbedf` / `1bb4f9d` / `13d6836` / `7792bc8` |
+| Issue #292 | OPEN, unchanged |
+
+### 12.2 Owner iPhone HV (Owner-reported, public Preview URL, real device)
+
+**A to G = PASS (7 / 7).** Screenshots are Owner-held evidence and are not committed.
+
+| Scenario | Result |
+|---|---|
+| A normal | PASS. Hint order 1, 2, 3 …; Pitz is spent only on purchase; no blocker. |
+| B cheese-none | PASS. No 「なし」 before purchase; 「チーズ：なし」 after; kept after reload; no recharge. |
+| C key-none | PASS. quattro-formaggi; no leak before purchase; 「キートッピング：なし」 after; next is 構成; ladder completes. |
+| D already-known | PASS. Old hints kept as 「以前のヒント」; no free-price leak before the request; 「このヒントはもう知っていたよ！（Pitzは使っていないよ）」; 0 Pitz; next rung. |
+| E multi-sub | PASS. key マッシュルーム; 構成 6 種類; SUB① ハーブ・香味系, ② 肉系, ③ 野菜・きのこ系; no ingredient name; 5 Pitz each; then 「ここまでのヒントで、推理してみよう！」. |
+| F last-sub | PASS. Starts with SUB①② known; only Hint 7 / SUB③ buyable; 300 → 295; 野菜・きのこ系; CTA gone; normal end. |
+| G low-pitz | PASS. 12 Pitz; Hint 1 (10) buyable; 12 → 2; Hint 2 (10) not buyable; CTA disabled; 「Pitzがたまったら、またためしてね。このまま作ってもOK！」. |
+
+**Known Preview-only visual issue (not a production blocker).** The Preview badge (bottom right,
+`pointer-events: none`) partly overlaps the last Hint-sheet line 「所持 … Pitz ・ …」 (measured ≈ 800 px² at
+390×844, ≈ 899 px² at 360×800; 0 overlap with the completion message and 「閉じる」). It blocks no
+operation. It exists only in Preview builds. Not fixed; not a Hint 5.0 production blocker.
+
+### 12.3 AG-1 to AG-15 (re-run on the current tree)
+
+Full Vitest 4646 passed / 1 skipped (229 files); `tsc -b`, `vite build` clean; oxlint 0 errors (2 old warnings).
+Trial merge of #295 into this tree (two adjacent conflict hunks resolved by keeping both sides): `tsc -b` clean,
+231 files, 4655 passed / 1 skipped.
+
+| Gate | Result |
+|---|---|
+| AG-1 25/25 ladders | PASS |
+| AG-2 RESERVED production reach = 0 | PASS |
+| AG-3 G7 | PASS |
+| AG-4 taxonomy / eligibility | PASS |
+| AG-5 M3-D FREE LEAK | PASS (also confirmed on the real device, D) |
+| AG-6 flag OFF parity | PASS |
+| AG-7 no DEV / Preview opt-in in the production bundle | PASS (real-build isolation gate; 0 occurrences) |
+| AG-8 save / reload / Full Reset / forward compatibility | PASS (also B, reload on the real device) |
+| AG-9 legacy purchase retirement | PASS |
+| AG-10 invalid taxonomy fails closed | PASS |
+| AG-11 #295 integration | PASS (adjacent-line conflicts only; no semantic overlap) |
+| AG-12 latest main | PASS (0 behind) |
+| AG-13 CI readiness | PASS: #297 9/9 and #298 9/9 on real CI, WebKit included |
+| AG-14 Preview readiness | PASS: deployed at `4d090b5` and verified |
+| AG-15 Owner iPhone HV | **PASS: A to G, 7 / 7** |
+
+### 12.4 Economy (unchanged)
+
+24 paid recipes: total **970 Pitz**, mean **40.4**, min 35 / max 50, Dex 25 reachable, progression deadlock 0
+(`hint5Economy.sim.test.ts` 4/4). A ★3 player who buys every hint needs one Margherita replay at the last stage
+(OD-H5-ECON-1 = ACCEPT). The economy was not changed.
+
+### 12.5 Remaining dependency
+
+**P4-SAUCE stays RESERVED and waits on TQ-1D.** No sauceless / Technique recipe is in the production set
+(G7 and the RESERVED gate). It is not part of this activation.
+
+### 12.6 Final verdict
+
+**A. READY FOR PRODUCTION ACTIVATION** — subject to the Owner's separate activation decision. The production
+flag is still OFF and nothing was merged or deployed by this Gate.

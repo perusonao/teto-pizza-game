@@ -18,8 +18,14 @@
  * turns the flag on. A production / Preview build is not DEV, so this is always `false` there. A
  * failing storage read is `false`.
  *
+ * **Preview opt-in (H5-5, for the Owner's iPhone Human Verification).** In a Preview build
+ * (`VITE_PREVIEW_MODE`, or a DEV server) `?hint5=1` turns the ladder on and remembers it in a Preview-only
+ * key; `?hint5=0` turns it off. Production builds have none of it.
+ *
  * ../../state/gameReducer.hint5.flagOff.test.ts pins the flag-off parity.
  */
+import { resolveHint5PreviewDecision, type Hint5PreviewDecision } from "../../preview/hint5PreviewOptIn";
+
 export const HINT5_DEV_OPT_IN_KEY = "teto.dev.hint5Ladder";
 
 function devOptIn(): boolean {
@@ -31,4 +37,44 @@ function devOptIn(): boolean {
   }
 }
 
-export const HINT5_LADDER_ENABLED: boolean = devOptIn();
+/**
+ * H5-5 (Preview only): the URL / stored opt-in of ../../preview/hint5PreviewOptIn.ts. It is reachable
+ * only behind `import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE` (the same principle as
+ * `DINNER_PREVIEW_ALLOWED` in ../../App.tsx). Vite replaces both statically, so a production build
+ * (which never sets `VITE_PREVIEW_MODE`) drops the helper, its key and the URL parser
+ * (../../preview/previewIsolation.gate.test.ts scans the production bundle for them).
+ */
+function previewDecision(): Hint5PreviewDecision {
+  if (!(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE)) return "none";
+  try {
+    return resolveHint5PreviewDecision(globalThis.location?.search ?? "", globalThis.localStorage ?? null);
+  } catch {
+    return "none";
+  }
+}
+
+/** An explicit `?hint5=0` also clears the DEV opt-in, so it turns the ladder off for good (DEV only). */
+function clearDevOptIn(): void {
+  if (!import.meta.env.DEV) return;
+  try {
+    globalThis.localStorage?.removeItem(HINT5_DEV_OPT_IN_KEY);
+  } catch {
+    // nothing to clear
+  }
+}
+
+/**
+ * The Preview instruction is read FIRST (its `?hint5=` value is stored either way), and an explicit
+ * `?hint5=0` wins over the DEV key. Evaluating the DEV key first would short-circuit and ignore the URL.
+ */
+function resolveFlag(): boolean {
+  const decision = previewDecision();
+  if (decision === "on") return true;
+  if (decision === "off") {
+    clearDevOptIn();
+    return false;
+  }
+  return devOptIn();
+}
+
+export const HINT5_LADDER_ENABLED: boolean = resolveFlag();
