@@ -1,6 +1,6 @@
 # Large Catalog UX — LC-R5-b Japanese Search Alias Authority Fresh Audit
 
-Status: **READ-ONLY / docs-only audit.** production code / CSS / test / e2e / save 変更なし。PR なし。R5-a・R5-b 実装には触れていない。
+Status: **Owner-confirmed (§16). READ-ONLY / docs-only audit + authority record.** production code / CSS / test / e2e / save 変更なし。PR なし。R5-a・R5-b 実装には触れていない。
 機械可読の監査表: `docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R5b_JAPANESE-SEARCH-ALIAS-AUDIT.json`（既存の docs data 置き場に合わせた。`docs/data/` は repo に存在しない）。
 
 ## 0. Authority と方法
@@ -239,10 +239,41 @@ repo で日本語の別表記を人間がレビュー可能な形で持ってい
 - `node_modules` 未導入のため vitest / build は未実行。`catalogText.ts` を strip-types で直接読み取り実行した結果のみを実測値とした（表は JSON に全行）。
 - production code / CSS / test / e2e / save / R5-a / R5-b は一切変更していない（本書と JSON の追加のみ）。
 
-## 15. FINAL VERDICT
+## 15. Superseded verdict (initial audit)
 
-**B. OWNER DECISION REQUIRED**
+初回の判定は **B. OWNER DECISION REQUIRED** だった。Owner が §13 の OD-A1〜A6 を確定したため、§16 で更新する。
 
-- 技術的な結論（B: 検索専用の別 authority map + `catalogSource` 経由の最小接続、値は Owner 承認済み出所のみ、大規模読み仮名システムは不要）は確定できる。
-- ただし **alias の値そのもの（§5 の 6 件、特に T2）と authority の置き場（OD-A1）は Owner の承認が要る**。承認後は A. ALIAS AUTHORITY READY に更新できる。
-- STOP。
+## 16. Owner Decisions — CONFIRMED (docs only)
+
+Status: docs / authority 確定のみ。**R5-b production 実装は未着手。** production / CSS / test / e2e / save 変更なし、PR なし。
+
+| OD | 確定内容 |
+|---|---|
+| **OD-A1** | **APPROVED — Option B。** Japanese Search Alias は **検索専用の別 authority map を SSOT** とする。Ingredient domain data（`Ingredient` 型 / `src/data/ingredients.ts`）に検索専用 field を混ぜない。runtime 接続時は必要に応じて `catalogSource` から `CatalogIngredient` へ**検索専用 field として渡す**方式でよい。**`readingJa` / `compareReading` の意味と並び順は変更しない。** |
+| **OD-A2** | production 29 で**今回承認する alias は 3 件のみ**: onion→`玉ねぎ`、egg→`卵`、mozzarella→`モッツァレラチーズ`。gorgonzola / parmigiano / fontina の `…チーズ` alias は**未承認（staging candidate のまま保持）**（R5-b に必須でないため）。その他の材料にも**証跡のない alias を追加しない**。 |
+| **OD-A3** | **APPROVED。** 逆方向部分一致などの新しい曖昧 match rule は導入しない。表記揺れは**明示 alias**で扱う。`ブラックオリーブオイル` 等への意図しない multi-hit を生む substring 拡張は**禁止**。 |
+| **OD-A4** | **APPROVED。** production 29 では新しい reading authority を追加しない。62 / 172 は runtime 導入時に **Owner 確認済みの name / reading / alias** を authoring する。推測生成は禁止。 |
+| **OD-A5** | **APPROVED。** 62 / 172 候補は本書の監査 JSON を **staging evidence** として保持する。production authority へ一括昇格しない。各 ingredient の runtime 導入 PR で Owner 確認後に追加する。 |
+| **OD-A6** | **APPROVED。** PreAudit §16 **G-D7（Alias Fresh Audit + Owner approval）を COMPLETE として記録**する。 |
+
+### 16.1 承認済み alias（production 29、これが全て）
+
+| id | nameJa（変更なし）| 承認 alias | 種 |
+|---|---|---|---|
+| onion | たまねぎ | 玉ねぎ | K |
+| egg | たまご | 卵 | K |
+| mozzarella | モッツァレラ | モッツァレラチーズ | S |
+
+上記以外（§5 の gorgonzola / parmigiano / fontina を含む）は**未承認**。監査 JSON の `proposedAliasCandidates` は staging evidence であり、承認済み値ではない（`status: PROPOSED_NOT_OWNER_APPROVED` のまま。承認済みは本 §16.1 が唯一の記録）。
+
+### 16.2 R5-b への含意
+
+- §9 / §12 の契約（C1〜C8、T-1〜T-10）は OD-A1〜A3 の下でそのまま有効。alias の実装（別 authority map + 任意の `catalogSource` 受け渡し）は R5-b の実装スライスで行い、**本書では実装しない**。
+- PreAudit §15.2 の H-5（漢字入力の受け入れ条件）は「**承認済み 3 alias の範囲で `玉ねぎ` / `卵` / `モッツァレラチーズ` が当たる**」が合格条件。承認外の漢字/別表記が 0 件になるのは仕様（推測しない）。
+- R5-b Real-Device Discovery Gate の状態: **G-D1〜G-D6 = real iPhone discovery（未実施）／ G-D7 = COMPLETE ／ G-D8 = Discovery 結果を受けた Owner final approval（未）**。
+
+## 17. FINAL VERDICT
+
+**A. ALIAS AUTHORITY READY**
+
+STOP。
