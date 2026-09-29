@@ -181,9 +181,43 @@ describe("gate 9: deterministic order", () => {
     expect(ingredientShelfLabel("all")).toBe("すべて");
     expect(ingredientShelfLabel("sauce")).toBe(CATEGORY_LABEL.sauce);
   });
-  it("authority tables are frozen", () => {
+  it("authority tables are frozen, including every shelf record (deep freeze)", () => {
     expect(Object.isFrozen(INGREDIENT_SHELVES)).toBe(true);
     expect(Object.isFrozen(INGREDIENT_SHELF_ORDER)).toBe(true);
+    for (const shelf of INGREDIENT_SHELVES) expect(Object.isFrozen(shelf), shelf.id).toBe(true);
+  });
+  it("mutation attempts on a shelf record cannot change the authority (id / label / kind)", () => {
+    const snapshot = JSON.stringify(INGREDIENT_SHELVES);
+    const order = [...INGREDIENT_SHELF_ORDER];
+    const first = INGREDIENT_SHELVES[0] as { id: string; labelJa: string; kind: string };
+    // ES modules are strict: writing to a frozen record throws instead of silently succeeding.
+    expect(() => {
+      first.id = "meat";
+    }).toThrow(TypeError);
+    expect(() => {
+      first.labelJa = "変更";
+    }).toThrow(TypeError);
+    expect(() => {
+      first.kind = "family";
+    }).toThrow(TypeError);
+    expect(() => {
+      (INGREDIENT_SHELVES as unknown as unknown[]).push({});
+    }).toThrow(TypeError);
+    expect(() => {
+      (INGREDIENT_SHELF_ORDER as unknown as string[])[0] = "meat";
+    }).toThrow(TypeError);
+    // Nothing moved: records, order, and every lookup still agree.
+    expect(JSON.stringify(INGREDIENT_SHELVES)).toBe(snapshot);
+    expect([...INGREDIENT_SHELF_ORDER]).toEqual(order);
+    expect(INGREDIENT_SHELVES.map((s) => s.id)).toEqual(order);
+    expect(ingredientShelfLabel("sauce")).toBe("ソース");
+    expect(ingredientShelfLabel("meat")).toBe("肉");
+    expect(ingredientShelf("olive-oil")).toBe("sauce");
+    for (const s of INGREDIENT_SHELVES) {
+      expect(isIngredientShelfId(s.id)).toBe(true);
+      expect(ingredientShelfLabel(s.id)).toBe(s.labelJa);
+    }
+    for (const i of INGREDIENTS) expect(order).toContain(ingredientShelf(i.id));
   });
   it("filtering keeps input order and is independent of call history", () => {
     const shuffled = [...INGREDIENTS].reverse();

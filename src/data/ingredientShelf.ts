@@ -38,10 +38,10 @@ export type IngredientShelfId = ShelfCategoryId | AttributeFamilyId;
 export type ShelfFilter = "all" | IngredientShelfId;
 
 export interface IngredientShelf {
-  id: IngredientShelfId;
-  kind: "category" | "family";
+  readonly id: IngredientShelfId;
+  readonly kind: "category" | "family";
   /** UI shelf label (context: filter chip). Not Hint 5.0's label. */
-  labelJa: string;
+  readonly labelJa: string;
 }
 
 export const SHELF_ALL_LABEL_JA = "すべて";
@@ -50,11 +50,15 @@ export const SHELF_ALL_LABEL_JA = "すべて";
  * Deterministic order: sauce, cheese, then the DH4-1 families in `ATTRIBUTE_FAMILIES` order
  * (meat, seafood, vegetable, fruit, herb, spice, other), which is also Hint 5.0's family order.
  */
-export const INGREDIENT_SHELVES: readonly IngredientShelf[] = Object.freeze([
-  { id: "sauce", kind: "category", labelJa: CATEGORY_LABEL.sauce },
-  { id: "cheese", kind: "category", labelJa: CATEGORY_LABEL.cheese },
-  ...ATTRIBUTE_FAMILIES.map((f): IngredientShelf => ({ id: f.id, kind: "family", labelJa: f.labelJa })),
-]);
+export const INGREDIENT_SHELVES: readonly IngredientShelf[] = Object.freeze(
+  (
+    [
+      { id: "sauce", kind: "category", labelJa: CATEGORY_LABEL.sauce },
+      { id: "cheese", kind: "category", labelJa: CATEGORY_LABEL.cheese },
+      ...ATTRIBUTE_FAMILIES.map((f): IngredientShelf => ({ id: f.id, kind: "family", labelJa: f.labelJa })),
+    ] satisfies IngredientShelf[]
+  ).map((shelf) => Object.freeze(shelf)),
+);
 
 export const INGREDIENT_SHELF_ORDER: readonly IngredientShelfId[] = Object.freeze(
   INGREDIENT_SHELVES.map((s) => s.id),
