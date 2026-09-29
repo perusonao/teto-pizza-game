@@ -143,8 +143,20 @@ for (const width of [390, 360] as const) {
       // ---- TOPPING step: stage / dock exactly as before R3
       const base = BASELINE[vp.id].hand22.page1;
       const before = await layout(page);
-      expect(before.stage, `${label}: pizza stage diameter unchanged by R3`).toBeCloseTo(base.doughDiameter, 0);
-      expect(before.dock, `${label}: dock height unchanged by R3`).toBeCloseTo(base.dockHeight, 0);
+      // Engine-neutral "before R3": the entry is absolutely positioned, so hiding it reproduces the layout without it.
+      // Compared inside the same run (exact), so WebKit / Chromium sub-pixel differences cannot matter.
+      await page.addStyleTag({ content: ".pantry-entry{display:none !important}" });
+      const withoutEntry = await layout(page);
+      await page.evaluate(() => {
+        for (const style of document.querySelectorAll("style")) if (style.textContent?.includes(".pantry-entry{display:none")) style.remove();
+      });
+      expect(before.stage, `${label}: pizza stage identical with / without the entry`).toBeCloseTo(withoutEntry.stage!, 1);
+      expect(before.dock, `${label}: dock identical with / without the entry`).toBeCloseTo(withoutEntry.dock!, 1);
+      expect(before.row!.h, `${label}: pager row identical with / without the entry`).toBeCloseTo(withoutEntry.row!.h, 1);
+      // And against the LC-R2 measurement taken on the code without the entry (Chromium): a sanity bound only,
+      // wide enough for WebKit's rounding (WebKit measured 246 vs 245.1 at 360x640).
+      expect(Math.abs(before.stage! - base.doughDiameter), `${label}: stage within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
+      expect(Math.abs(before.dock! - base.dockHeight), `${label}: dock within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
       expect(before.row!.h, `${label}: pager row stays 28px`).toBeCloseTo(28, 0);
       expect(before.docScrollW, `${label}: no horizontal overflow`).toBeLessThanOrEqual(before.innerW);
       expect(before.gameScreenScrolls, `${label}: game screen does not scroll`).toBe(false);
@@ -202,7 +214,7 @@ for (const width of [390, 360] as const) {
       expect(open.docScrollW).toBeLessThanOrEqual(open.innerW);
       expect(open.pageScrolls, `${label}: page does not scroll while open`).toBe(false);
       const during = await layout(page);
-      expect(during.stage, `${label}: stage unchanged while the sheet is open`).toBeCloseTo(base.doughDiameter, 0);
+      expect(during.stage, `${label}: stage unchanged while the sheet is open`).toBeCloseTo(before.stage!, 1);
       expect(open.tiles, `${label}: owned toppings only (all 22 owned here)`).toBe(22);
 
       // ---- scroll ownership: PageDown on the focused list scrolls the list, never the page
