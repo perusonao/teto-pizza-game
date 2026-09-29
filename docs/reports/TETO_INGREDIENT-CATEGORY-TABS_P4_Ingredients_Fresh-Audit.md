@@ -60,7 +60,7 @@ A chip appears only when an **owned** row of that shelf exists, i.e. at purchase
 |---|---|---|
 | current tab row | 33px, 12px text, wraps, 4 tabs (role tablist/tab) | same |
 | body | `display: block`, `overflow-y: auto`, clientH 180 (sheet sized by content) | clientH 756 (390×844) / 712 (360×800), scrollH 1036 / 1050 |
-| prototype (Phase 3 chip row DOM-injected in place of the tabs, no source change) | row 46px, chips ≥44px, one row, inside row, no page overflow; row not scrollable when 4 chips fit… | row 46px, chips ≥44px, **one row, scrollable**, no page overflow |
+| prototype (the Phase 3 chip row with all 10 chips, DOM-injected in place of the tabs, no source change; worst case for width) | row 46px, chips ≥44px, one row, inside row, scrollable, no page overflow | row 46px, chips ≥44px, **one row, scrollable**, no page overflow |
 | cost | +13px content height (46 vs 33); the sheet is bottom-anchored so it grows upward | +13px inside a scrolling body (scrollH 1036 → 1049 / 1050 → 1063) |
 (The prototype's `deltaGridTop` of 0 in the starters case is because the sheet grows upward; content height is +13px.)
 **Squash risk (Shop's 2px bug)**: the Ingredients body is a block container, not a flex column, so a long list cannot compress the row (prototype: row 46px with 29 cards). `ShelfChips`' own `flex: 0 0 auto` already protects against a flex parent; **no parent CSS is required** beyond the spacing wrapper (§4). No sticky header exists in the Inventory sheet (the header is outside the scrolling body), so there is no sticky interaction; the chip row scrolls away with the list (sticky stays out of scope). 360×800 shows the same 46px row and no overflow.
