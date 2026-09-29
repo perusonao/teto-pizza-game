@@ -154,7 +154,7 @@ const same = (a: { y: number; h: number; b: number } | null, b: { y: number; h: 
   !!a && !!b && Math.abs(a.y - b.y) <= 0.5 && Math.abs(a.h - b.h) <= 0.5 && Math.abs(a.b - b.b) <= 0.5;
 
 for (const width of [390, 360] as const) {
-  test(`LC-R5-b pantry search + Mode C keyboard fit at width ${width}`, async ({ page }, testInfo) => {
+  test(`LC-R5-b pantry search + Mode C keyboard fit at width ${width}`, async ({ page, browserName }, testInfo) => {
     runOnlyOnWidth(testInfo, width);
     test.setTimeout(300_000);
     await page.addInitScript(FAKE_VV);
@@ -220,15 +220,18 @@ for (const width of [390, 360] as const) {
       expect(during.dock, `${label}: dock unchanged`).toBeCloseTo(stageBefore.dock!, 1);
 
       // ---- IME (real Chromium composition through CDP): the list never flashes empty during a composition
-      const cdp = await page.context().newCDPSession(page);
       await input.focus();
-      await cdp.send("Input.imeSetComposition", { text: "たまねき", selectionStart: 4, selectionEnd: 4 });
-      expect((await searchFacts(page)).tiles, `${label}: composing: list unchanged (22)`).toBe(22);
-      await expect(page.locator(".pantry-sheet__empty")).toHaveCount(0);
-      await cdp.send("Input.imeSetComposition", { text: "玉ねぎ", selectionStart: 3, selectionEnd: 3 });
-      expect((await searchFacts(page)).tiles).toBe(22);
-      await cdp.send("Input.insertText", { text: "玉ねぎ" });
-      await expect.poll(async () => (await searchFacts(page)).tiles, { message: `${label}: confirmed 玉ねぎ applies`, timeout: 3000 }).toBe(1);
+      // A real composition needs CDP, which only Chromium has; WebKit runs the layout / keyboard-fit part and the unit tests cover the IME ordering.
+      if (browserName === "chromium") {
+        const cdp = await page.context().newCDPSession(page);
+        await cdp.send("Input.imeSetComposition", { text: "たまねき", selectionStart: 4, selectionEnd: 4 });
+        expect((await searchFacts(page)).tiles, `${label}: composing: list unchanged (22)`).toBe(22);
+        await expect(page.locator(".pantry-sheet__empty")).toHaveCount(0);
+        await cdp.send("Input.imeSetComposition", { text: "玉ねぎ", selectionStart: 3, selectionEnd: 3 });
+        expect((await searchFacts(page)).tiles).toBe(22);
+        await cdp.send("Input.insertText", { text: "玉ねぎ" });
+        await expect.poll(async () => (await searchFacts(page)).tiles, { message: `${label}: confirmed 玉ねぎ applies`, timeout: 3000 }).toBe(1);
+      }
       await input.fill("");
 
       // ---- Mode C: simulated soft keyboard (visual viewport shrinks by 338px)
