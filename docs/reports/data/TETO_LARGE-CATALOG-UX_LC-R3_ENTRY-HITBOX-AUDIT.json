@@ -1,0 +1,406 @@
+{
+  "390x844": {
+    "sauce": {
+      "entryRect": {
+        "x": 12,
+        "y": 738,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 766
+      },
+      "lowestChipBottom": 732,
+      "barTop": 774,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "4px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "cheese": {
+      "entryRect": {
+        "x": 12,
+        "y": 738,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 766
+      },
+      "lowestChipBottom": 732,
+      "barTop": 774,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "4px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "topping": {
+      "entryRect": {
+        "x": 12,
+        "y": 738,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 766
+      },
+      "lowestChipBottom": 732,
+      "barTop": 774,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "4px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "probes": {
+      "bottomRowFirstChipCenter": "chip",
+      "bottomRowFirstChip_bottomMinus1_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus2_5_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus3_underEntryColumn": "chip",
+      "bottomRowFirstChip_bottomMinus1_rightOfEntryColumn": "ingredient-tray",
+      "bottomRowSecondChip_bottomMinus1": "chip"
+    },
+    "hitHeightPx": 44
+  },
+  "360x800": {
+    "sauce": {
+      "entryRect": {
+        "x": 12,
+        "y": 694,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 722
+      },
+      "lowestChipBottom": 688,
+      "barTop": 730,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "4px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "cheese": {
+      "entryRect": {
+        "x": 12,
+        "y": 694,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 722
+      },
+      "lowestChipBottom": 688,
+      "barTop": 730,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "4px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "topping": {
+      "entryRect": {
+        "x": 12,
+        "y": 694,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 722
+      },
+      "lowestChipBottom": 688,
+      "barTop": 730,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "4px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "probes": {
+      "bottomRowFirstChipCenter": "chip",
+      "bottomRowFirstChip_bottomMinus1_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus2_5_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus3_underEntryColumn": "chip",
+      "bottomRowFirstChip_bottomMinus1_rightOfEntryColumn": "ingredient-tray",
+      "bottomRowSecondChip_bottomMinus1": "chip"
+    },
+    "hitHeightPx": 44
+  },
+  "390x664": {
+    "sauce": {
+      "entryRect": {
+        "x": 12,
+        "y": 558,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 586
+      },
+      "lowestChipBottom": 552,
+      "barTop": 594,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "3px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "cheese": {
+      "entryRect": {
+        "x": 12,
+        "y": 558,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 586
+      },
+      "lowestChipBottom": 552,
+      "barTop": 594,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "3px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "topping": {
+      "entryRect": {
+        "x": 12,
+        "y": 558,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 586
+      },
+      "lowestChipBottom": 552,
+      "barTop": 594,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "3px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "probes": {
+      "bottomRowFirstChipCenter": "chip",
+      "bottomRowFirstChip_bottomMinus1_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus2_5_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus3_underEntryColumn": "chip",
+      "bottomRowFirstChip_bottomMinus1_rightOfEntryColumn": "ingredient-tray",
+      "bottomRowSecondChip_bottomMinus1": "chip"
+    },
+    "hitHeightPx": 44
+  },
+  "360x640": {
+    "sauce": {
+      "entryRect": {
+        "x": 12,
+        "y": 534,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 562
+      },
+      "lowestChipBottom": 528,
+      "barTop": 570,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "3px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "cheese": {
+      "entryRect": {
+        "x": 12,
+        "y": 534,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 562
+      },
+      "lowestChipBottom": 528,
+      "barTop": 570,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "3px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "topping": {
+      "entryRect": {
+        "x": 12,
+        "y": 534,
+        "w": 75.1875,
+        "h": 28,
+        "r": 87.1875,
+        "b": 562
+      },
+      "lowestChipBottom": 528,
+      "barTop": 570,
+      "afterInset": {
+        "top": "-8px",
+        "right": "-4px",
+        "bottom": "-8px",
+        "left": "-4px"
+      },
+      "entryZ": "auto",
+      "entryPosition": "absolute",
+      "chipPosition": "static",
+      "chipBorderBottomWidth": "2px",
+      "chipPaddingBottom": "3px",
+      "sampledStepPx": 0.5,
+      "entryHitPointsSampled": 14784,
+      "barPointsBelowEntry": 1206,
+      "stolenChipAreaCssPx2": 238.5,
+      "maxIntrusionIntoChipPx": 2.5,
+      "stolenPointsOverChipContent": 0,
+      "hitHeightPx": null
+    },
+    "probes": {
+      "bottomRowFirstChipCenter": "chip",
+      "bottomRowFirstChip_bottomMinus1_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus2_5_underEntryColumn": "entry",
+      "bottomRowFirstChip_bottomMinus3_underEntryColumn": "chip",
+      "bottomRowFirstChip_bottomMinus1_rightOfEntryColumn": "ingredient-tray",
+      "bottomRowSecondChip_bottomMinus1": "chip"
+    },
+    "hitHeightPx": 44
+  }
+}
