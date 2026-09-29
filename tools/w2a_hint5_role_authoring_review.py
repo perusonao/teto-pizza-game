@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """
-W2-A Hint 5.0 Role Authoring Review (Owner Review pack). Docs/data/tools only.
+W2-A Hint 5.0 Role Authoring Review (Owner Review pack + Owner-approved authority pack).
+Docs/data/tools only. NOT wired into CI. It is NOT the DA-1 implementation, and it does NOT write
+src/data/recipeHintRoles.ts.
 
-NOT an authority. NOT wired into CI. It is NOT the DA-1 implementation.
-It decides nothing: every key / sub-order value it prints is a CANDIDATE for the Owner.
+Review evidence (candidates, reasons, risks) was reviewed at HEAD be30659. The Owner then APPROVED
+OD-W2-H5-ROLE-1 (explicit key + sub order for the 9 recipes) and OD-W2-H5-SUB-1 (the sub order is
+explicit authority; the concept behind it is NOT a generic algorithm). This tool records those
+decisions as machine-readable authority and re-runs the gates against pinned git objects.
 
 Question: for the 9 Owner-approved W2-A recipes, which topping could be the Hint 5.0 key topping
 (OD-H5-C1-P) and in which order could the remaining toppings be the SUB_CLASS rungs, so that the
@@ -43,6 +47,9 @@ PINS = {
     "da1Prep": "e829a17",
     "authorityMatrix": "79873c0",
 }
+# Observed later on the Hint 5.0 branch (H5-4 round 6). Not an input of the review; recorded so the
+# Owner sees that recipeHintRoles.ts is byte-identical and P4-CHEESE is approved there (unmerged).
+HINT5_LATER_OBSERVED = "89451bdc90349ecef79ab2cdc7555e701eb3b549"
 
 
 def git_show(rev, path):
@@ -196,6 +203,24 @@ JP = {
     "oregano": "オレガノ", "mushroom": "マッシュルーム", "shrimp": "エビ", "fresh-tomato": "トマト",
     "zucchini": "ズッキーニ", "bell-pepper": "パプリカ", "eggplant": "ナス", "chicken": "チキン",
 }
+# OD-W2-H5-ROLE-1 / OD-W2-H5-SUB-1 (Owner, APPROVED). Explicit authority, transcribed verbatim.
+DECISIONS = {
+    "vongole": ("clam", ["garlic", "parsley"]),
+    "flammkuchen": ("bacon", ["onion"]),
+    "jamon-serrano-pizza": ("prosciutto-crudo", ["arugula"]),
+    "brazilian-calabresa": ("sausage", ["onion", "black-olive", "oregano"]),
+    "prosciutto-funghi": ("mushroom", ["prosciutto-crudo"]),
+    "pesto-gamberi": ("shrimp", ["fresh-tomato", "garlic"]),
+    "pesto-vegetariana": ("eggplant", ["zucchini", "bell-pepper"]),
+    "pesto-pollo": ("chicken", ["fresh-tomato"]),
+    "ratatouille-pizza": ("eggplant", ["zucchini", "bell-pepper", "oregano"]),
+}
+# OD-W2-5 (Owner, APPROVED scoped): the 7 W2-A topping families (Wave 2 ledger).
+OD_W2_5_FAMILIES = {
+    "prosciutto-crudo": "meat", "chicken": "meat", "arugula": "vegetable", "bell-pepper": "vegetable",
+    "zucchini": "vegetable", "shrimp": "seafood", "parsley": "herb",
+}
+FAMILY_IDS = {"meat", "seafood", "vegetable", "fruit", "herb", "spice", "other"}
 WAVE2_FAMILY_ROWS = ["prosciutto-crudo", "arugula", "shrimp", "chicken", "parsley", "bell-pepper", "zucchini"]
 P_C_PRICE = {"sauce": 10, "cheese": 10, "key": 10, "structure": 5, "sub": 5}
 
@@ -311,6 +336,89 @@ def build():
     aroma_recommended = [r["recipeId"] for r in rows if fam_w2[r["recommendedKey"]] in ("herb", "spice")]
     assert not aroma_recommended, aroma_recommended
 
+    # ------------------------------------------------------------------ Owner decision + gates
+    da1 = json.loads(git_show(PINS["da1Prep"], "docs/reports/data/TETO_RECIPE-172_DA-1_PREPARATION-AUDIT.json"))
+    da1_by = {x["recipeId"]: x for x in da1["recipes"]}
+    ing_ids = set(cat)
+    gates = {"c1p": [], "partition": [], "taxonomy": [], "da1Parity": []}
+    authority = {}
+    for r in rows:
+        rid = r["recipeId"]
+        key, subs = DECISIONS[rid]
+        tops = sorted(t["ingredientId"] for t in r["toppings"])
+        allocated = [key] + subs
+        missing = sorted(set(tops) - set(allocated))
+        extra = sorted(set(allocated) - set(tops))
+        dups = sorted({x for x in allocated if allocated.count(x) > 1})
+        part_ok = not missing and not extra and not dups and len(allocated) == len(tops)
+        assert part_ok, (rid, missing, extra, dups)
+        gates["partition"].append({"recipeId": rid, "toppings": tops, "key": key, "subs": subs,
+                                   "missing": missing, "extra": extra, "duplicate": dups,
+                                   "keyInSubs": key in subs, "exactPartition": part_ok})
+        fam = fam_w2[key]
+        c1p = {
+            "recipeId": rid, "key": key, "keyCategory": cat[key], "keyFamily": fam,
+            "keyIsTopping": cat[key] == "topping",
+            "keyIsSauceOrCheese": cat[key] in ("sauce", "cheese"),
+            "keyIsAromaOrSpiceFamily": fam in ("herb", "spice"),
+            "keyWasAReviewedCandidate": key in {c["ingredientId"] for c in r["keyCandidates"]},
+            "usesArrayOrder": False, "usesRecipeNameOrder": False,
+        }
+        c1p["pass"] = c1p["keyIsTopping"] and not c1p["keyIsSauceOrCheese"] and not c1p["keyIsAromaOrSpiceFamily"] and c1p["keyWasAReviewedCandidate"]
+        assert c1p["pass"], c1p
+        gates["c1p"].append(c1p)
+        tax = []
+        for t in tops:
+            f = fam_w2[t]
+            on_main = fam_main.get(t)
+            ok = f in FAMILY_IDS and t in ing_ids
+            if on_main is not None:
+                ok = ok and on_main == f
+            if t in OD_W2_5_FAMILIES:
+                ok = ok and on_main is None and OD_W2_5_FAMILIES[t] == f
+            dt = {x["id"]: x for x in da1_by[r["evidenceId"]]["toppingAuthority"]}[t]
+            ok = ok and dt["family"] == f
+            assert ok, (rid, t, f, on_main, dt["family"])
+            tax.append({"ingredientId": t, "family": f, "onMain": on_main, "source": "OD-W2-5 (branch only)" if t in OD_W2_5_FAMILIES else "main (DH4-1)",
+                        "da1PreparationFamily": dt["family"], "hcgWatch": dt["hcgWatch"], "match": ok})
+        gates["taxonomy"].append({"recipeId": rid, "toppings": tax, "pass": all(x["match"] for x in tax)})
+        d1 = da1_by[r["evidenceId"]]["hint5"]
+        same_tops = sorted(x["id"] for x in da1_by[r["evidenceId"]]["toppingAuthority"]) == tops
+        cand = d1["keyToppingCandidate"]
+        seed = d1["subToppingOrderSeedCandidate"]
+        gates["da1Parity"].append({
+            "recipeId": rid, "evidenceId": r["evidenceId"], "sameToppingSet": same_tops,
+            "da1KeyCandidate": cand, "decisionKey": key,
+            "keyParity": "MATCHES_DA1_CANDIDATE" if cand == key else ("OWNER_DECIDED_NO_DA1_CANDIDATE" if cand is None else "DIFFERS_FROM_DA1_CANDIDATE"),
+            "da1SubSeed": seed, "decisionSubs": subs,
+            "subParity": "MATCHES_DA1_SEED" if seed == subs else ("OWNER_DECIDED_NO_DA1_SEED" if seed is None else "DIFFERS_FROM_DA1_SEED"),
+            "da1Lanes": da1_by[r["evidenceId"]]["lanesMissing"], "da1Group": da1_by[r["evidenceId"]]["group"],
+        })
+        assert same_tops, rid
+        authority[rid] = {"hintKeyToppingId": key, "hintSubToppingOrder": subs}
+        r["ownerDecision"] = {"status": "OWNER_APPROVED", "decisionIds": ["OD-W2-H5-ROLE-1", "OD-W2-H5-SUB-1"],
+                              "hintKeyToppingId": key, "hintSubToppingOrder": subs,
+                              "keyMatchesReviewRecommendation": key == r["recommendedKey"]}
+    # DA-1 lane effect: only lane H is resolved; lane N (P4-CHEESE) is untouched.
+    lane_effect = []
+    for r in rows:
+        lanes = list(da1_by[r["evidenceId"]]["lanesMissing"])
+        after = [x for x in lanes if x != "H"]
+        lane_effect.append({"recipeId": r["recipeId"], "lanesBefore": lanes, "lanesAfter": after,
+                            "groupBefore": da1_by[r["evidenceId"]]["group"], "groupAfter": "B0" if not after else "B1"})
+    b0 = [x["recipeId"] for x in lane_effect if x["groupAfter"] == "B0"]
+    b1 = [x["recipeId"] for x in lane_effect if x["groupAfter"] == "B1"]
+    roles_a = git_show(PINS["hint5Head"], "src/data/recipeHintRoles.ts")
+    roles_b = git_show(HINT5_LATER_OBSERVED, "src/data/recipeHintRoles.ts")
+    p4_state = {
+        "status": "DEPENDENCY_KEPT",
+        "recipes": [r["recipeId"] for r in rows if not r["hasCheese"]],
+        "observedOnHint5Branch": "OD-H5-P4-CHEESE and P4b were APPROVED in H5-4 round 6 and implemented behind the OFF flag at " + HINT5_LATER_OBSERVED[:7] + "; that branch is not merged and this pack does not change H5-4.",
+        "recipeHintRolesTsByteIdenticalAcrossPinAndObservedHead": roles_a == roles_b,
+        "rolesDependOnCheese": False,
+    }
+    assert roles_a == roles_b
+
     clear = [r["recipeId"] for r in rows if r["keyClass"] == "CLEAR_MAIN"]
     co = [r["recipeId"] for r in rows if r["keyClass"] == "CO_EQUAL"]
     sub_dec = [r["recipeId"] for r in rows if r["subOrderUnderRecommendedKey"]["ownerDecisionNeeded"]]
@@ -322,7 +430,19 @@ def build():
 
     return {
         "schema": "teto-w2a-hint5-role-authoring-review/1",
-        "status": "OWNER_REVIEW_PACK: NOT_AUTHORITY. Every key / sub value is a CANDIDATE. Docs/data/tools only. DA-1 is not implemented.",
+        "status": "OWNER_APPROVED_AUTHORITY_PACK (OD-W2-H5-ROLE-1, OD-W2-H5-SUB-1). NOT implemented: src/data/recipeHintRoles.ts is untouched. Docs/data/tools only. DA-1 is not implemented.",
+        "ownerDecisions": {
+            "OD-W2-H5-ROLE-1": "APPROVED. Explicit hintKeyToppingId / hintSubToppingOrder for the 9 W2-A recipes (authority.roles). C1-P: the key prefers the main topping that characterises the recipe. Array order and recipe-name order are not authority. Where the approved W2-A authoring records several co-equal toppings, the explicit role below is the Owner authority for these 9 recipes.",
+            "OD-W2-H5-SUB-1": "APPROVED. The sub order is explicit authority. The authoring concept (main supporting topping -> secondary topping -> aromatic / herb) is NOT a generic algorithm for the 172 recipes, is never applied automatically to future recipes, and ingredient array order is never a fallback.",
+        },
+        "authority": {
+            "scope": "the 9 W2-A recipes only",
+            "keyedBy": "W2-A authoring runtimeId (jamon-serrano-pizza = the task's jamon-serrano)",
+            "implementedIn": None,
+            "roles": authority,
+        },
+        "gates": gates,
+        "p4CheeseDependency": p4_state,
         "pins": {k: v for k, v in PINS.items()},
         "resolved": {
             "main": rev_parse(PINS["main"]),
@@ -354,6 +474,20 @@ def build():
             "subOrderOwnerDecisionCount": len(sub_dec),
             "subOrderForcedAfterKeyRecipes": forced,
             "c1pConflictCount": 0,
+            "c1pGate": {"pass": sum(1 for g in gates["c1p"] if g["pass"]), "of": len(gates["c1p"])},
+            "partitionGate": {"exact": sum(1 for g in gates["partition"] if g["exactPartition"]), "of": len(gates["partition"]),
+                              "duplicateToppings": sum(len(g["duplicate"]) for g in gates["partition"]),
+                              "missingToppings": sum(len(g["missing"]) for g in gates["partition"]),
+                              "extraToppings": sum(len(g["extra"]) for g in gates["partition"])},
+            "taxonomyGate": {"pass": sum(1 for g in gates["taxonomy"] if g["pass"]), "of": len(gates["taxonomy"])},
+            "da1Parity": {"keyMatchesDa1Candidate": [g["recipeId"] for g in gates["da1Parity"] if g["keyParity"] == "MATCHES_DA1_CANDIDATE"],
+                          "keyOwnerDecidedNoDa1Candidate": [g["recipeId"] for g in gates["da1Parity"] if g["keyParity"] == "OWNER_DECIDED_NO_DA1_CANDIDATE"],
+                          "keyDiffers": [g["recipeId"] for g in gates["da1Parity"] if g["keyParity"] == "DIFFERS_FROM_DA1_CANDIDATE"],
+                          "subMatchesDa1Seed": [g["recipeId"] for g in gates["da1Parity"] if g["subParity"] == "MATCHES_DA1_SEED"],
+                          "subOwnerDecidedNoDa1Seed": [g["recipeId"] for g in gates["da1Parity"] if g["subParity"] == "OWNER_DECIDED_NO_DA1_SEED"],
+                          "subDiffers": [g["recipeId"] for g in gates["da1Parity"] if g["subParity"] == "DIFFERS_FROM_DA1_SEED"]},
+            "da1LaneEffect": lane_effect,
+            "da1GroupAfterAuthority": {"B0": b0, "B1": b1},
             "c1pNonDeterminativeRecipes": co,
             "recommendedKeyIsAromaOrSpice": aroma_recommended,
             "p4Cheese": {"applicable": cheeseless, "applicableCount": len(cheeseless), "notApplicable": with_cheese,
@@ -384,11 +518,13 @@ def render(data):
     s = data["summary"]
     o = []
     w = o.append
-    w("# W2-A Hint 5.0 Role Authoring Review (Owner Review pack)")
+    ad = data["authority"]["roles"]
+    gt = data["gates"]
+    w("# W2-A Hint 5.0 Role Authoring Review (Owner-approved authority pack)")
     w("")
-    w("**docs/data/tools only。これは DA-1 実装ではなく、authority でもない。**")
-    w("- 全ての key / sub 順は **CANDIDATE**。Owner が決めるまで何も確定しない。")
-    w("- 変更なし: `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 実装。merge / PR なし。")
+    w("**docs/data/tools only。Owner が OD-W2-H5-ROLE-1 / OD-W2-H5-SUB-1 を承認済み。ただし `recipeHintRoles.ts` には未実装で、DA-1 も未実装。**")
+    w("- §0A が Owner-approved authority (9 recipe の explicit key / sub 順)。§1 以降は承認前の review evidence (候補・理由・risk) で、承認内容と食い違う場合は §0A が優先する。")
+    w("- 変更なし: `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy production、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 / W2-A / DA-1 実装。merge / PR なし。")
     w("")
     w("| 成果物 | パス |")
     w("|---|---|")
@@ -396,7 +532,47 @@ def render(data):
     w("| Machine-readable | `docs/reports/data/TETO_W2-A_HINT5_ROLE-AUTHORING_REVIEW.json` |")
     w("| Generator / checker | `tools/w2a_hint5_role_authoring_review.py` (`--check` は byte drift を検出) |")
     w("")
-    w("## 0. 結果 (一覧)")
+    w("## 0A. Owner Decision (APPROVED)")
+    w("")
+    w("### OD-W2-H5-ROLE-1")
+    w("")
+    w("| Recipe | `hintKeyToppingId` | `hintSubToppingOrder` |")
+    w("|---|---|---|")
+    for rid in ORDER:
+        w(f"| `{rid}` | `{ad[rid]['hintKeyToppingId']}` | [{', '.join(ad[rid]['hintSubToppingOrder'])}] |")
+    w("")
+    w("- **C1-P の解釈:** key は「そのレシピを特徴づける主要 topping」を優先する。recipe の ingredient array order と recipe 名の順序は authority ではない。W2-A authoring が複数の主役を示す co-equal recipe でも、この 9 recipe については上表の explicit role が Owner authority である。")
+    w("- 9 件すべて、review 時点の推奨 key と一致した (推奨と異なる決定は 0 件)。")
+    w("")
+    w("### OD-W2-H5-SUB-1")
+    w("")
+    w("- sub order も上表の配列が explicit authority。")
+    w("- authoring の概念は「main supporting topping → secondary topping → aromatic / herb」を優先しているが、**これは 172 recipe 全体に適用する generic algorithm ではない。** 今後の recipe に自動適用しない。ingredient array order を fallback にしない。")
+    w("- 新しい recipe の role は、その recipe ごとに Owner が explicit に決める。この tool も generator も順序を導出しない (`DECISIONS` の転記のみ)。")
+    w("")
+    w("### 機械可読 authority")
+    w("")
+    w("`docs/reports/data/TETO_W2-A_HINT5_ROLE-AUTHORING_REVIEW.json` の `authority.roles` (と各 recipe の `ownerDecision`) が固定値。`authority.implementedIn` は `null`: `src/data/recipeHintRoles.ts` には書いていない (`Record<RecipeId>` は runtime 25 recipe のままで、W2-A id は 0 件)。実装は Hint 5.0 と DA-1 の後に merge される PR が運ぶ。`tools/w2a_hint5_role_authoring_review.py --check` が JSON / md の byte drift を検出する。")
+    w("")
+    w("### Gate 結果 (pin した git object に対して再実行)")
+    w("")
+    w("| Gate | 結果 |")
+    w("|---|---|")
+    w(f"| C1-P 9/9 (key は topping、sauce / cheese ではない、herb / spice family ではない、review 済み候補の中) | **{s['c1pGate']['pass']} / {s['c1pGate']['of']} PASS** |")
+    w(f"| Partition (key + subs = recipe の topping 全件をちょうど 1 回ずつ) | **{s['partitionGate']['exact']} / {s['partitionGate']['of']} PASS**。duplicate {s['partitionGate']['duplicateToppings']} / missing {s['partitionGate']['missingToppings']} / extra {s['partitionGate']['extraToppings']} |")
+    w(f"| Taxonomy (全 topping の family id が既存 authority と一致) | **{s['taxonomyGate']['pass']} / {s['taxonomyGate']['of']} PASS** |")
+    w(f"| DA-1 Preparation Audit parity (`e829a17`) | topping 集合は 9/9 一致。key: 候補あり 5 件は完全一致 ({', '.join(s['da1Parity']['keyMatchesDa1Candidate'])})、候補なし 4 件は Owner が決定 ({', '.join(s['da1Parity']['keyOwnerDecidedNoDa1Candidate'])})。sub: seed あり 5 件は完全一致、seed なし 4 件は Owner が決定。**食い違い 0** |")
+    w("")
+    w("Taxonomy gate の照合先: (a) main の DH4-1 row (main にある topping)、(b) OD-W2-5 承認済みの 7 row (W2-A1 branch のみ)、(c) DA-1 Preparation Audit の topping family、(d) 7 family id の妥当性、(e) topping が W2-A1 branch の ingredient catalog に存在すること。")
+    w("")
+    w("### 残す dependency / watch")
+    w("")
+    w("- **P4-CHEESE 対象 5 recipe (dependency として残す):** " + ", ".join(data["p4CheeseDependency"]["recipes"]) + "。key / sub は cheese に依存しないので roles は確定しているが、この 5 recipe が Hint 5.0 の target になれるのは P4-CHEESE の実装が main に入ってから。")
+    w(f"  - 観測: Hint 5.0 branch の後続 commit `{HINT5_LATER_OBSERVED[:7]}` (H5-4 round 6) で OD-H5-P4-CHEESE / P4b は承認・実装済み (flag OFF、未 merge)。`recipeHintRoles.ts` は `5eadb96` と `{HINT5_LATER_OBSERVED[:7]}` で byte 同一。この pack は H5-4 を変更していない。")
+    w("- **taxonomy watch (再決定しない):** `garlic` (vongole, pesto-gamberi) と `black-olive` (brazilian-calabresa)。どちらも sub のみで key ではない。")
+    w("- **taxonomy は main 未反映:** OD-W2-5 の 7 family row は W2-A1 branch (`2bc40e4`) のみ。")
+    w("")
+    w("## 0. review 時点の結果 (一覧、承認前)")
     w("")
     w(f"- 対象 **{s['recipes']} recipe**、全件が Owner Review 対象。「主役が 1 つ明確」な recipe も authority 化していない。")
     w(f"- **明確な主役あり: {s['clearMainCount']}** ({', '.join(s['clearMainRecipes'])})。Owner は「確認」するだけでよいが、確認は必要。")
@@ -476,7 +652,7 @@ def render(data):
         w("")
         w(f"**H. sauce / cheese overlap risk:** {r['sauceCheeseOverlapRisk']}")
         w("")
-        w(f"**I. 推奨 key candidate:** `{r['recommendedKey']}` (確度: {r['recommendationConfidence']})。**candidate であり authority ではない。**")
+        w(f"**I. 推奨 key candidate (review 時点):** `{r['recommendedKey']}` (確度: {r['recommendationConfidence']})。Owner 決定: key = `{r['ownerDecision']['hintKeyToppingId']}`、sub = [{', '.join(r['ownerDecision']['hintSubToppingOrder'])}] (§0A)。")
         if r.get("recommendationWhy"):
             w(f"- {r['recommendationWhy']}")
         if r.get("extraConsideration"):
@@ -509,7 +685,7 @@ def render(data):
             w("- key が決まれば sub は 1 つで、順序の根拠は不要。ただし key が Owner 判断なので、sub もそれに従属する。")
         w("")
         kd = "co-equal から選択" if r["keyOwnerDecisionKind"] == "CHOOSE_AMONG_CO_EQUAL" else "唯一の主役の確認"
-        w(f"**M. Owner Decision:** key = **必要** ({kd})。sub 順 = **{'必要' if su['ownerDecisionNeeded'] else '不要 (key に従属)'}**。")
+        w(f"**M. Owner Decision (review 時点):** key = 必要 ({kd})、sub 順 = {'必要' if su['ownerDecisionNeeded'] else '不要 (key に従属)'}。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `{r['ownerDecision']['hintKeyToppingId']}`、sub = [{', '.join(r['ownerDecision']['hintSubToppingOrder'])}]。")
         w("")
     w("## 4. co-equal 4 recipe の Owner Decision")
     w("")
@@ -544,7 +720,7 @@ def render(data):
     w("")
     w("## 6. P4-CHEESE との compatibility (確認のみ)")
     w("")
-    w("H5-4 のコード・authority は変更しない。OD-H5-P4-CHEESE は **未決**。")
+    w("H5-4 のコード・authority は変更しない。review 時点 (`5eadb96`) では OD-H5-P4-CHEESE は未決だった。その後 Hint 5.0 branch の `89451bd` (H5-4 round 6) で承認・実装されたが、未 merge で main には無い。この pack は dependency として残す (§0A)。")
     w("")
     w("| Recipe | cheese | P4-CHEESE | roles への影響 | ladder 合計 (P4-CHEESE 採用時, 参考) |")
     w("|---|---|---|---|---:|")
@@ -564,39 +740,44 @@ def render(data):
     w("- 影響: 推奨 key の `prosciutto-crudo` / `chicken` / `shrimp` は W2-A1 が main に入るまで G17 で検証できない。")
     w("- **watch (再決定しない):** `garlic` (herb; vongole, pesto-gamberi) と `black-olive` (vegetable; brazilian-calabresa) は production row だが HCG queue で boundary が review 中。どちらも **key candidate ではなく sub のみ**。family が動いても role の割当は変わらず、変わるのは sub の family label だけ (`cls:<ingredientId>` は id 保存で family 移動に耐える、PR #293 F-8)。")
     w("")
-    w("## 8. DA-1 Start Gate への影響 (9 件を Owner が authority 化した場合)")
+    w("## 8. DA-1 Start Gate への影響 (9 件を Owner が authority 化した結果)")
     w("")
-    w("DA-1 Preparation Audit §11 の Start Gate を、この 9 件だけ authority 化した仮定で読み替えた。**実際には何も変わっていない。**")
+    w("DA-1 Preparation Audit (`e829a17`) §11 の Start Gate を、この 9 件の authority 化後で読み替えた。**DA-1 は未実装で、DA-1 Start Gate 自体は満たされていない。**")
     w("")
-    w("| Gate | 現状 | 9 件を authority 化した場合 |")
+    w("| Gate | 承認前 | 承認後 |")
     w("|---|---|---|")
-    w("| SG-1 fresh check | PASS | 変わらず。main `86b48fd` を再確認すること。 |")
-    w("| SG-2 scope | OPEN | 変わらず (8 non-W2-A は Authoring Gate なし)。W2-A 9 件だけなら scope を決めやすくなる。 |")
-    w("| **SG-3 Hint 5.0 roles** | OPEN (0 / 17) | **W2-A 9 件は authority 完了**。17 行では 9 / 17。8 non-W2-A 行は OPEN のまま。 |")
-    w("| SG-4 P4-CHEESE | OPEN | 変わらず。5 recipe が待つ。 |")
-    w("| SG-5 / SG-6 family row と W2-A1 の main 反映 | OPEN | 変わらず (implementation state)。 |")
+    w("| SG-1 fresh check | PASS | 変わらず (main `86b48fd`)。 |")
+    w("| SG-2 scope | OPEN | 変わらず (8 non-W2-A は Authoring Gate なし)。W2-A 9 件だけなら scope を決めやすい。 |")
+    w("| **SG-3 Hint 5.0 roles** | OPEN (0 / 17) | **W2-A 9 件は authority 完了 (9 / 17)**。8 non-W2-A 行は OPEN。roles を `recipeHintRoles.ts` に書く PR は未作成。 |")
+    w("| SG-4 P4-CHEESE | OPEN | 依存として残す (5 recipe)。Hint 5.0 branch では承認・実装済みだが未 merge。 |")
+    w("| SG-5 / SG-6 family row と W2-A1 の main 反映 | OPEN | 変わらず (branch のみ)。 |")
     w("| SG-7 / SG-8 / SG-9 | 変わらず | 変わらず。 |")
     w("")
-    w("- 9 行の lane: H は解消。**4 行は B0 になる** (jamon-serrano, prosciutto-funghi, pesto-vegetariana, pesto-pollo: cheese がある)。**5 行は B1 のまま** (vongole, flammkuchen, brazilian-calabresa, pesto-gamberi, ratatouille: lane N = P4-CHEESE 待ち)。")
-    w("- 「Hint 5.0 と DA-1 の後に merge される方が role を運ぶ」という sequencing (Record<RecipeId> の type gate) は変わらない。承認された role は、その PR が `recipeHintRoles.ts` に書く。この review は書かない。")
+    ge = s["da1GroupAfterAuthority"]
+    w(f"- **B1 → B0 候補: {len(ge['B0'])} 行** ({', '.join(ge['B0'])})。cheese があり、lane H が唯一の未決だった行。")
+    w(f"- **B1 のまま: {len(ge['B1'])} 行** ({', '.join(ge['B1'])})。lane N (P4-CHEESE の実装が main に無い) が残る。")
+    w("- 「B0」は authority lane がすべて埋まったという意味で、DA-1 を始められるという意味ではない (SG-2 / SG-5 / SG-6 / SG-8 / SG-9 が残る)。")
+    w("- Hint 5.0 と DA-1 のうち後に merge される PR が role を運ぶ (`Record<RecipeId>` の type gate)。")
     w("")
-    w("## 9. Owner に決めてほしいこと (queued, 未決)")
+    w("## 9. 残る blocker")
     w("")
-    w("| ID (working label) | 内容 | 件数 |")
-    w("|---|---|---:|")
-    w("| RK-CONFIRM | 唯一の主役 key の確認: " + ", ".join(s["clearMainRecipes"]) + " | 5 |")
-    w("| RK-CHOOSE | co-equal の key の選択: " + ", ".join(s["coEqualRecipes"]) + " | 4 |")
-    w("| RS-ORDER | sub 順: " + ", ".join(s["subOrderOwnerDecisionRecipes"]) + " | 5 |")
-    w("| RS-BASIS | (任意) sub 順の根拠を Owner がどう決めるか。この review は提案しない | 1 |")
+    w("| # | blocker | 種別 |")
+    w("|---|---|---|")
+    w("| 1 | roles を `src/data/recipeHintRoles.ts` に実装する PR (未作成。この pack は書かない) | implementation |")
+    w("| 2 | P4-CHEESE の実装が main に無い (5 recipe) | dependency |")
+    w("| 3 | W2-A1 (8 ingredient row + 7 family row) が main 未反映、PR なし。key の prosciutto-crudo / chicken / shrimp は G17 をそれまで検証できない | implementation |")
+    w("| 4 | scope の決定 (W2-A 9 件のみか)、SG-8 のテスト、SG-9 の Human Verification | DA-1 gate |")
+    w("| 5 | 8 non-W2-A 行の role は未決 (この pack の対象外) | authority |")
+    w("| 6 | taxonomy watch: garlic / black-olive (再決定しない) | watch |")
     w("")
     w("## 10. 非目標 / 変更していないもの")
     w("")
-    w("- `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 実装は無変更。DA-1 は未実装。merge / PR なし。")
+    w("- `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy production、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 実装は無変更。DA-1 は未実装。merge / PR なし。")
     w("- 汎用の 172 向け tie-break rule は作っていない。H5-0 §6.4 の tie-break も authority として使っていない。")
     w("- no-sauce / TQ-1D authority、taxonomy の再決定はしていない。")
     w("- UI / gameplay 変更ではないので Human Verification video は不要 (docs / data / tools のみ)。")
     w("")
-    w("**STOP。Owner Review 待ち。key / sub は authority として確定していない。**")
+    w("**STOP。Owner-approved authority pack 完成。`recipeHintRoles.ts` への実装、DA-1、merge / PR は行わない。**")
     w("")
     return "\n".join(o)
 

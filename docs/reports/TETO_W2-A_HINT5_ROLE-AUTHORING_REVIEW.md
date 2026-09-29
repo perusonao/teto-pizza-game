@@ -1,8 +1,8 @@
-# W2-A Hint 5.0 Role Authoring Review (Owner Review pack)
+# W2-A Hint 5.0 Role Authoring Review (Owner-approved authority pack)
 
-**docs/data/tools only。これは DA-1 実装ではなく、authority でもない。**
-- 全ての key / sub 順は **CANDIDATE**。Owner が決めるまで何も確定しない。
-- 変更なし: `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 実装。merge / PR なし。
+**docs/data/tools only。Owner が OD-W2-H5-ROLE-1 / OD-W2-H5-SUB-1 を承認済み。ただし `recipeHintRoles.ts` には未実装で、DA-1 も未実装。**
+- §0A が Owner-approved authority (9 recipe の explicit key / sub 順)。§1 以降は承認前の review evidence (候補・理由・risk) で、承認内容と食い違う場合は §0A が優先する。
+- 変更なし: `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy production、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 / W2-A / DA-1 実装。merge / PR なし。
 
 | 成果物 | パス |
 |---|---|
@@ -10,7 +10,54 @@
 | Machine-readable | `docs/reports/data/TETO_W2-A_HINT5_ROLE-AUTHORING_REVIEW.json` |
 | Generator / checker | `tools/w2a_hint5_role_authoring_review.py` (`--check` は byte drift を検出) |
 
-## 0. 結果 (一覧)
+## 0A. Owner Decision (APPROVED)
+
+### OD-W2-H5-ROLE-1
+
+| Recipe | `hintKeyToppingId` | `hintSubToppingOrder` |
+|---|---|---|
+| `vongole` | `clam` | [garlic, parsley] |
+| `flammkuchen` | `bacon` | [onion] |
+| `jamon-serrano-pizza` | `prosciutto-crudo` | [arugula] |
+| `brazilian-calabresa` | `sausage` | [onion, black-olive, oregano] |
+| `prosciutto-funghi` | `mushroom` | [prosciutto-crudo] |
+| `pesto-gamberi` | `shrimp` | [fresh-tomato, garlic] |
+| `pesto-vegetariana` | `eggplant` | [zucchini, bell-pepper] |
+| `pesto-pollo` | `chicken` | [fresh-tomato] |
+| `ratatouille-pizza` | `eggplant` | [zucchini, bell-pepper, oregano] |
+
+- **C1-P の解釈:** key は「そのレシピを特徴づける主要 topping」を優先する。recipe の ingredient array order と recipe 名の順序は authority ではない。W2-A authoring が複数の主役を示す co-equal recipe でも、この 9 recipe については上表の explicit role が Owner authority である。
+- 9 件すべて、review 時点の推奨 key と一致した (推奨と異なる決定は 0 件)。
+
+### OD-W2-H5-SUB-1
+
+- sub order も上表の配列が explicit authority。
+- authoring の概念は「main supporting topping → secondary topping → aromatic / herb」を優先しているが、**これは 172 recipe 全体に適用する generic algorithm ではない。** 今後の recipe に自動適用しない。ingredient array order を fallback にしない。
+- 新しい recipe の role は、その recipe ごとに Owner が explicit に決める。この tool も generator も順序を導出しない (`DECISIONS` の転記のみ)。
+
+### 機械可読 authority
+
+`docs/reports/data/TETO_W2-A_HINT5_ROLE-AUTHORING_REVIEW.json` の `authority.roles` (と各 recipe の `ownerDecision`) が固定値。`authority.implementedIn` は `null`: `src/data/recipeHintRoles.ts` には書いていない (`Record<RecipeId>` は runtime 25 recipe のままで、W2-A id は 0 件)。実装は Hint 5.0 と DA-1 の後に merge される PR が運ぶ。`tools/w2a_hint5_role_authoring_review.py --check` が JSON / md の byte drift を検出する。
+
+### Gate 結果 (pin した git object に対して再実行)
+
+| Gate | 結果 |
+|---|---|
+| C1-P 9/9 (key は topping、sauce / cheese ではない、herb / spice family ではない、review 済み候補の中) | **9 / 9 PASS** |
+| Partition (key + subs = recipe の topping 全件をちょうど 1 回ずつ) | **9 / 9 PASS**。duplicate 0 / missing 0 / extra 0 |
+| Taxonomy (全 topping の family id が既存 authority と一致) | **9 / 9 PASS** |
+| DA-1 Preparation Audit parity (`e829a17`) | topping 集合は 9/9 一致。key: 候補あり 5 件は完全一致 (vongole, jamon-serrano-pizza, brazilian-calabresa, pesto-gamberi, pesto-pollo)、候補なし 4 件は Owner が決定 (flammkuchen, prosciutto-funghi, pesto-vegetariana, ratatouille-pizza)。sub: seed あり 5 件は完全一致、seed なし 4 件は Owner が決定。**食い違い 0** |
+
+Taxonomy gate の照合先: (a) main の DH4-1 row (main にある topping)、(b) OD-W2-5 承認済みの 7 row (W2-A1 branch のみ)、(c) DA-1 Preparation Audit の topping family、(d) 7 family id の妥当性、(e) topping が W2-A1 branch の ingredient catalog に存在すること。
+
+### 残す dependency / watch
+
+- **P4-CHEESE 対象 5 recipe (dependency として残す):** vongole, flammkuchen, brazilian-calabresa, pesto-gamberi, ratatouille-pizza。key / sub は cheese に依存しないので roles は確定しているが、この 5 recipe が Hint 5.0 の target になれるのは P4-CHEESE の実装が main に入ってから。
+  - 観測: Hint 5.0 branch の後続 commit `89451bd` (H5-4 round 6) で OD-H5-P4-CHEESE / P4b は承認・実装済み (flag OFF、未 merge)。`recipeHintRoles.ts` は `5eadb96` と `89451bd` で byte 同一。この pack は H5-4 を変更していない。
+- **taxonomy watch (再決定しない):** `garlic` (vongole, pesto-gamberi) と `black-olive` (brazilian-calabresa)。どちらも sub のみで key ではない。
+- **taxonomy は main 未反映:** OD-W2-5 の 7 family row は W2-A1 branch (`2bc40e4`) のみ。
+
+## 0. review 時点の結果 (一覧、承認前)
 
 - 対象 **9 recipe**、全件が Owner Review 対象。「主役が 1 つ明確」な recipe も authority 化していない。
 - **明確な主役あり: 5** (vongole, jamon-serrano-pizza, brazilian-calabresa, pesto-gamberi, pesto-pollo)。Owner は「確認」するだけでよいが、確認は必要。
@@ -96,7 +143,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = olive-oil、cheese = なし。clam は topping で、sauce / cheese の情報と重複しない。
 
-**I. 推奨 key candidate:** `clam` (確度: high (confirm))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `clam` (確度: high (confirm))。Owner 決定: key = `clam`、sub = [garlic, parsley] (§0A)。
 
 **J. 残り sub toppings (推奨 key の場合):** `garlic`, `parsley`
 
@@ -111,7 +158,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 - 既存 authoring (A1〜A4) に順序の根拠はない。Hint 5.0 にも sub 順の一般 authority はなく、この review も規則を作らない。
 - 事実: sub の family がすべて同じなので、どの順序でも player に見える family label の列は同じ (保存される `cls:<ingredientId>` の id だけが変わる)。
 
-**M. Owner Decision:** key = **必要** (唯一の主役の確認)。sub 順 = **必要**。
+**M. Owner Decision (review 時点):** key = 必要 (唯一の主役の確認)、sub 順 = 必要。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `clam`、sub = [garlic, parsley]。
 
 ### 3.2 `flammkuchen` — タルトフランベ (CO_EQUAL)
 
@@ -143,7 +190,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = fromage-blanc-sauce、cheese = なし。
 
-**I. 推奨 key candidate:** `bacon` (確度: low (genuine co-equal; Owner choice))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `bacon` (確度: low (genuine co-equal; Owner choice))。Owner 決定: key = `bacon`、sub = [onion] (§0A)。
 - 弱い推奨。bacon は承認済み minCount が最大 (evidence only)、protein で W1 breakfast-pizza と同型。ただし onion も co-defining と明記されているので、これは Owner 判断。
 
 **J. 残り sub toppings (推奨 key の場合):** `onion`
@@ -155,7 +202,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 **L. sub order を決める根拠**
 - key が決まれば sub は 1 つで、順序の根拠は不要。ただし key が Owner 判断なので、sub もそれに従属する。
 
-**M. Owner Decision:** key = **必要** (co-equal から選択)。sub 順 = **不要 (key に従属)**。
+**M. Owner Decision (review 時点):** key = 必要 (co-equal から選択)、sub 順 = 不要 (key に従属)。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `bacon`、sub = [onion]。
 
 ### 3.3 `jamon-serrano-pizza` — ハモンセラーノピザ (CLEAR_MAIN)
 
@@ -189,7 +236,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = tomato-sauce、cheese = mozzarella。key は topping。
 
-**I. 推奨 key candidate:** `prosciutto-crudo` (確度: high (confirm))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `prosciutto-crudo` (確度: high (confirm))。Owner 決定: key = `prosciutto-crudo`、sub = [arugula] (§0A)。
 
 **J. 残り sub toppings (推奨 key の場合):** `arugula`
 
@@ -200,7 +247,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 **L. sub order を決める根拠**
 - key が決まれば sub は 1 つで、順序の根拠は不要。ただし key が Owner 判断なので、sub もそれに従属する。
 
-**M. Owner Decision:** key = **必要** (唯一の主役の確認)。sub 順 = **不要 (key に従属)**。
+**M. Owner Decision (review 時点):** key = 必要 (唯一の主役の確認)、sub 順 = 不要 (key に従属)。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `prosciutto-crudo`、sub = [arugula]。
 
 ### 3.4 `brazilian-calabresa` — ブラジリアン・カラブレーザ (CLEAR_MAIN)
 
@@ -238,7 +285,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = tomato-sauce、cheese = なし。
 
-**I. 推奨 key candidate:** `sausage` (確度: high (confirm))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `sausage` (確度: high (confirm))。Owner 決定: key = `sausage`、sub = [onion, black-olive, oregano] (§0A)。
 
 **J. 残り sub toppings (推奨 key の場合):** `black-olive`, `onion`, `oregano`
 
@@ -254,7 +301,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 - 既存 authoring (A1〜A4) に順序の根拠はない。Hint 5.0 にも sub 順の一般 authority はなく、この review も規則を作らない。
 - 事実: 順序によって sub① で見える family label が変わる。
 
-**M. Owner Decision:** key = **必要** (唯一の主役の確認)。sub 順 = **必要**。
+**M. Owner Decision (review 時点):** key = 必要 (唯一の主役の確認)、sub 順 = 必要。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `sausage`、sub = [onion, black-olive, oregano]。
 
 ### 3.5 `prosciutto-funghi` — プロシュットフンギ (CO_EQUAL)
 
@@ -287,7 +334,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = tomato-sauce、cheese = mozzarella。
 
-**I. 推奨 key candidate:** `mushroom` (確度: low (genuine co-equal; Owner choice))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `mushroom` (確度: low (genuine co-equal; Owner choice))。Owner 決定: key = `mushroom`、sub = [prosciutto-crudo] (§0A)。
 - 弱い推奨。承認済み authoring は「funghi + prosciutto」と読める形で mushroom 3 を保持している (evidence only)。一方、名前順では prosciutto-crudo が先で、W1 の funghi (key mushroom) との区別も prosciutto-crudo の方が付く。名前順と数量の両基準が食い違うので、これは Owner 判断。
 - 補足: key の被り: mushroom は W1 funghi の key と同じ、prosciutto-crudo は jamon-serrano の key 候補と同じ。sauce / cheese rung が先に出るので recipe は区別されるが、どちらを選んでも 1 つの sibling と key が重なる。
 
@@ -300,7 +347,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 **L. sub order を決める根拠**
 - key が決まれば sub は 1 つで、順序の根拠は不要。ただし key が Owner 判断なので、sub もそれに従属する。
 
-**M. Owner Decision:** key = **必要** (co-equal から選択)。sub 順 = **不要 (key に従属)**。
+**M. Owner Decision (review 時点):** key = 必要 (co-equal から選択)、sub 順 = 不要 (key に従属)。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `mushroom`、sub = [prosciutto-crudo]。
 
 ### 3.6 `pesto-gamberi` — ペストガンベリピザ (CLEAR_MAIN)
 
@@ -335,7 +382,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = pesto、cheese = なし。key は topping。
 
-**I. 推奨 key candidate:** `shrimp` (確度: high (confirm))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `shrimp` (確度: high (confirm))。Owner 決定: key = `shrimp`、sub = [fresh-tomato, garlic] (§0A)。
 
 **J. 残り sub toppings (推奨 key の場合):** `fresh-tomato`, `garlic`
 
@@ -350,7 +397,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 - 既存 authoring (A1〜A4) に順序の根拠はない。Hint 5.0 にも sub 順の一般 authority はなく、この review も規則を作らない。
 - 事実: 順序によって sub① で見える family label が変わる。
 
-**M. Owner Decision:** key = **必要** (唯一の主役の確認)。sub 順 = **必要**。
+**M. Owner Decision (review 時点):** key = 必要 (唯一の主役の確認)、sub 順 = 必要。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `shrimp`、sub = [fresh-tomato, garlic]。
 
 ### 3.7 `pesto-vegetariana` — ペストベジタリアーナピザ (CO_EQUAL)
 
@@ -386,7 +433,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = pesto、cheese = mozzarella。
 
-**I. 推奨 key candidate:** `eggplant` (確度: low (genuine co-equal; Owner choice))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `eggplant` (確度: low (genuine co-equal; Owner choice))。Owner 決定: key = `eggplant`、sub = [zucchini, bell-pepper] (§0A)。
 - 弱い推奨。3 つは W2-A A1 と description (「野菜が主役」) の両方で co-equal。eggplant は W1 で key になった前例があり、main に既にある ingredient、という 2 点だけが差。一般則ではない。
 - 補足: ratatouille-pizza と vegetable 3 種が同じ。両者は sauce rung (pesto / tomato-sauce) で区別されるので、key が同じでも recipe は曖昧にならない。key を分けるかどうかも Owner 判断。
 
@@ -403,7 +450,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 - 既存 authoring (A1〜A4) に順序の根拠はない。Hint 5.0 にも sub 順の一般 authority はなく、この review も規則を作らない。
 - 事実: sub の family がすべて同じなので、どの順序でも player に見える family label の列は同じ (保存される `cls:<ingredientId>` の id だけが変わる)。
 
-**M. Owner Decision:** key = **必要** (co-equal から選択)。sub 順 = **必要**。
+**M. Owner Decision (review 時点):** key = 必要 (co-equal から選択)、sub 順 = 必要。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `eggplant`、sub = [zucchini, bell-pepper]。
 
 ### 3.8 `pesto-pollo` — ペストポッロピザ (CLEAR_MAIN)
 
@@ -436,7 +483,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = pesto、cheese = mozzarella。key は topping。
 
-**I. 推奨 key candidate:** `chicken` (確度: high (confirm))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `chicken` (確度: high (confirm))。Owner 決定: key = `chicken`、sub = [fresh-tomato] (§0A)。
 
 **J. 残り sub toppings (推奨 key の場合):** `fresh-tomato`
 
@@ -447,7 +494,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 **L. sub order を決める根拠**
 - key が決まれば sub は 1 つで、順序の根拠は不要。ただし key が Owner 判断なので、sub もそれに従属する。
 
-**M. Owner Decision:** key = **必要** (唯一の主役の確認)。sub 順 = **不要 (key に従属)**。
+**M. Owner Decision (review 時点):** key = 必要 (唯一の主役の確認)、sub 順 = 不要 (key に従属)。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `chicken`、sub = [fresh-tomato]。
 
 ### 3.9 `ratatouille-pizza` — ラタトゥイユピザ (CO_EQUAL)
 
@@ -485,7 +532,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 
 **H. sauce / cheese overlap risk:** なし。sauce = tomato-sauce、cheese = なし。
 
-**I. 推奨 key candidate:** `eggplant` (確度: low (genuine co-equal; Owner choice))。**candidate であり authority ではない。**
+**I. 推奨 key candidate (review 時点):** `eggplant` (確度: low (genuine co-equal; Owner choice))。Owner 決定: key = `eggplant`、sub = [zucchini, bell-pepper, oregano] (§0A)。
 - 弱い推奨。pesto-vegetariana と同じ理由 (W1 で key になった前例、main に既にある ingredient)。W2-A A1: 'three co-equal vegetables, no name-giving primary'。一般則ではない。
 - 補足: key を選ぶと sub は残り 2 vegetable + oregano の 3 つで、順序の組合せは 6 通り。
 
@@ -503,7 +550,7 @@ G17 (H5-1) が課す制約は「key は recipe の topping」「sub 順は key �
 - 既存 authoring (A1〜A4) に順序の根拠はない。Hint 5.0 にも sub 順の一般 authority はなく、この review も規則を作らない。
 - 事実: 順序によって sub① で見える family label が変わる。
 
-**M. Owner Decision:** key = **必要** (co-equal から選択)。sub 順 = **必要**。
+**M. Owner Decision (review 時点):** key = 必要 (co-equal から選択)、sub 順 = 必要。→ **決定済み (OD-W2-H5-ROLE-1 / SUB-1)**: key = `eggplant`、sub = [zucchini, bell-pepper, oregano]。
 
 ## 4. co-equal 4 recipe の Owner Decision
 
@@ -559,7 +606,7 @@ W2-A A1 が複数の主役を記録している recipe。どれを key にする
 
 ## 6. P4-CHEESE との compatibility (確認のみ)
 
-H5-4 のコード・authority は変更しない。OD-H5-P4-CHEESE は **未決**。
+H5-4 のコード・authority は変更しない。review 時点 (`5eadb96`) では OD-H5-P4-CHEESE は未決だった。その後 Hint 5.0 branch の `89451bd` (H5-4 round 6) で承認・実装されたが、未 merge で main には無い。この pack は dependency として残す (§0A)。
 
 | Recipe | cheese | P4-CHEESE | roles への影響 | ladder 合計 (P4-CHEESE 採用時, 参考) |
 |---|---|---|---|---:|
@@ -586,36 +633,40 @@ H5-4 のコード・authority は変更しない。OD-H5-P4-CHEESE は **未決*
 - 影響: 推奨 key の `prosciutto-crudo` / `chicken` / `shrimp` は W2-A1 が main に入るまで G17 で検証できない。
 - **watch (再決定しない):** `garlic` (herb; vongole, pesto-gamberi) と `black-olive` (vegetable; brazilian-calabresa) は production row だが HCG queue で boundary が review 中。どちらも **key candidate ではなく sub のみ**。family が動いても role の割当は変わらず、変わるのは sub の family label だけ (`cls:<ingredientId>` は id 保存で family 移動に耐える、PR #293 F-8)。
 
-## 8. DA-1 Start Gate への影響 (9 件を Owner が authority 化した場合)
+## 8. DA-1 Start Gate への影響 (9 件を Owner が authority 化した結果)
 
-DA-1 Preparation Audit §11 の Start Gate を、この 9 件だけ authority 化した仮定で読み替えた。**実際には何も変わっていない。**
+DA-1 Preparation Audit (`e829a17`) §11 の Start Gate を、この 9 件の authority 化後で読み替えた。**DA-1 は未実装で、DA-1 Start Gate 自体は満たされていない。**
 
-| Gate | 現状 | 9 件を authority 化した場合 |
+| Gate | 承認前 | 承認後 |
 |---|---|---|
-| SG-1 fresh check | PASS | 変わらず。main `86b48fd` を再確認すること。 |
-| SG-2 scope | OPEN | 変わらず (8 non-W2-A は Authoring Gate なし)。W2-A 9 件だけなら scope を決めやすくなる。 |
-| **SG-3 Hint 5.0 roles** | OPEN (0 / 17) | **W2-A 9 件は authority 完了**。17 行では 9 / 17。8 non-W2-A 行は OPEN のまま。 |
-| SG-4 P4-CHEESE | OPEN | 変わらず。5 recipe が待つ。 |
-| SG-5 / SG-6 family row と W2-A1 の main 反映 | OPEN | 変わらず (implementation state)。 |
+| SG-1 fresh check | PASS | 変わらず (main `86b48fd`)。 |
+| SG-2 scope | OPEN | 変わらず (8 non-W2-A は Authoring Gate なし)。W2-A 9 件だけなら scope を決めやすい。 |
+| **SG-3 Hint 5.0 roles** | OPEN (0 / 17) | **W2-A 9 件は authority 完了 (9 / 17)**。8 non-W2-A 行は OPEN。roles を `recipeHintRoles.ts` に書く PR は未作成。 |
+| SG-4 P4-CHEESE | OPEN | 依存として残す (5 recipe)。Hint 5.0 branch では承認・実装済みだが未 merge。 |
+| SG-5 / SG-6 family row と W2-A1 の main 反映 | OPEN | 変わらず (branch のみ)。 |
 | SG-7 / SG-8 / SG-9 | 変わらず | 変わらず。 |
 
-- 9 行の lane: H は解消。**4 行は B0 になる** (jamon-serrano, prosciutto-funghi, pesto-vegetariana, pesto-pollo: cheese がある)。**5 行は B1 のまま** (vongole, flammkuchen, brazilian-calabresa, pesto-gamberi, ratatouille: lane N = P4-CHEESE 待ち)。
-- 「Hint 5.0 と DA-1 の後に merge される方が role を運ぶ」という sequencing (Record<RecipeId> の type gate) は変わらない。承認された role は、その PR が `recipeHintRoles.ts` に書く。この review は書かない。
+- **B1 → B0 候補: 4 行** (jamon-serrano-pizza, prosciutto-funghi, pesto-vegetariana, pesto-pollo)。cheese があり、lane H が唯一の未決だった行。
+- **B1 のまま: 5 行** (vongole, flammkuchen, brazilian-calabresa, pesto-gamberi, ratatouille-pizza)。lane N (P4-CHEESE の実装が main に無い) が残る。
+- 「B0」は authority lane がすべて埋まったという意味で、DA-1 を始められるという意味ではない (SG-2 / SG-5 / SG-6 / SG-8 / SG-9 が残る)。
+- Hint 5.0 と DA-1 のうち後に merge される PR が role を運ぶ (`Record<RecipeId>` の type gate)。
 
-## 9. Owner に決めてほしいこと (queued, 未決)
+## 9. 残る blocker
 
-| ID (working label) | 内容 | 件数 |
-|---|---|---:|
-| RK-CONFIRM | 唯一の主役 key の確認: vongole, jamon-serrano-pizza, brazilian-calabresa, pesto-gamberi, pesto-pollo | 5 |
-| RK-CHOOSE | co-equal の key の選択: flammkuchen, prosciutto-funghi, pesto-vegetariana, ratatouille-pizza | 4 |
-| RS-ORDER | sub 順: vongole, brazilian-calabresa, pesto-gamberi, pesto-vegetariana, ratatouille-pizza | 5 |
-| RS-BASIS | (任意) sub 順の根拠を Owner がどう決めるか。この review は提案しない | 1 |
+| # | blocker | 種別 |
+|---|---|---|
+| 1 | roles を `src/data/recipeHintRoles.ts` に実装する PR (未作成。この pack は書かない) | implementation |
+| 2 | P4-CHEESE の実装が main に無い (5 recipe) | dependency |
+| 3 | W2-A1 (8 ingredient row + 7 family row) が main 未反映、PR なし。key の prosciutto-crudo / chicken / shrimp は G17 をそれまで検証できない | implementation |
+| 4 | scope の決定 (W2-A 9 件のみか)、SG-8 のテスト、SG-9 の Human Verification | DA-1 gate |
+| 5 | 8 non-W2-A 行の role は未決 (この pack の対象外) | authority |
+| 6 | taxonomy watch: garlic / black-olive (再決定しない) | watch |
 
 ## 10. 非目標 / 変更していないもの
 
-- `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 実装は無変更。DA-1 は未実装。merge / PR なし。
+- `recipeHintRoles.ts`、`src`、e2e、recipe / ingredient production、taxonomy production、Hint 5.0 実装、H5-4、TQ、Cooking Steps、progression、Wave 2 実装は無変更。DA-1 は未実装。merge / PR なし。
 - 汎用の 172 向け tie-break rule は作っていない。H5-0 §6.4 の tie-break も authority として使っていない。
 - no-sauce / TQ-1D authority、taxonomy の再決定はしていない。
 - UI / gameplay 変更ではないので Human Verification video は不要 (docs / data / tools のみ)。
 
-**STOP。Owner Review 待ち。key / sub は authority として確定していない。**
+**STOP。Owner-approved authority pack 完成。`recipeHintRoles.ts` への実装、DA-1、merge / PR は行わない。**

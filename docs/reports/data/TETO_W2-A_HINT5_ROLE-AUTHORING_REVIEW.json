@@ -1,4 +1,72 @@
 {
+ "authority": {
+  "implementedIn": null,
+  "keyedBy": "W2-A authoring runtimeId (jamon-serrano-pizza = the task's jamon-serrano)",
+  "roles": {
+   "brazilian-calabresa": {
+    "hintKeyToppingId": "sausage",
+    "hintSubToppingOrder": [
+     "onion",
+     "black-olive",
+     "oregano"
+    ]
+   },
+   "flammkuchen": {
+    "hintKeyToppingId": "bacon",
+    "hintSubToppingOrder": [
+     "onion"
+    ]
+   },
+   "jamon-serrano-pizza": {
+    "hintKeyToppingId": "prosciutto-crudo",
+    "hintSubToppingOrder": [
+     "arugula"
+    ]
+   },
+   "pesto-gamberi": {
+    "hintKeyToppingId": "shrimp",
+    "hintSubToppingOrder": [
+     "fresh-tomato",
+     "garlic"
+    ]
+   },
+   "pesto-pollo": {
+    "hintKeyToppingId": "chicken",
+    "hintSubToppingOrder": [
+     "fresh-tomato"
+    ]
+   },
+   "pesto-vegetariana": {
+    "hintKeyToppingId": "eggplant",
+    "hintSubToppingOrder": [
+     "zucchini",
+     "bell-pepper"
+    ]
+   },
+   "prosciutto-funghi": {
+    "hintKeyToppingId": "mushroom",
+    "hintSubToppingOrder": [
+     "prosciutto-crudo"
+    ]
+   },
+   "ratatouille-pizza": {
+    "hintKeyToppingId": "eggplant",
+    "hintSubToppingOrder": [
+     "zucchini",
+     "bell-pepper",
+     "oregano"
+    ]
+   },
+   "vongole": {
+    "hintKeyToppingId": "clam",
+    "hintSubToppingOrder": [
+     "garlic",
+     "parsley"
+    ]
+   }
+  },
+  "scope": "the 9 W2-A recipes only"
+ },
  "c1pCandidateCheck": [
   {
    "candidate": "clam",
@@ -176,6 +244,766 @@
    "recipeId": "ratatouille-pizza"
   }
  ],
+ "gates": {
+  "c1p": [
+   {
+    "key": "clam",
+    "keyCategory": "topping",
+    "keyFamily": "seafood",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "vongole",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "bacon",
+    "keyCategory": "topping",
+    "keyFamily": "meat",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "flammkuchen",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "prosciutto-crudo",
+    "keyCategory": "topping",
+    "keyFamily": "meat",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "jamon-serrano-pizza",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "sausage",
+    "keyCategory": "topping",
+    "keyFamily": "meat",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "brazilian-calabresa",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "mushroom",
+    "keyCategory": "topping",
+    "keyFamily": "vegetable",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "prosciutto-funghi",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "shrimp",
+    "keyCategory": "topping",
+    "keyFamily": "seafood",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "pesto-gamberi",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "eggplant",
+    "keyCategory": "topping",
+    "keyFamily": "vegetable",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "pesto-vegetariana",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "chicken",
+    "keyCategory": "topping",
+    "keyFamily": "meat",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "pesto-pollo",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   },
+   {
+    "key": "eggplant",
+    "keyCategory": "topping",
+    "keyFamily": "vegetable",
+    "keyIsAromaOrSpiceFamily": false,
+    "keyIsSauceOrCheese": false,
+    "keyIsTopping": true,
+    "keyWasAReviewedCandidate": true,
+    "pass": true,
+    "recipeId": "ratatouille-pizza",
+    "usesArrayOrder": false,
+    "usesRecipeNameOrder": false
+   }
+  ],
+  "da1Parity": [
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": "clam",
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 6 valid assignments)",
+     "N": "no cheese: the CHEESE rung is empty (RESERVED) until OD-H5-P4-CHEESE is decided and implemented"
+    },
+    "da1SubSeed": [
+     "garlic",
+     "parsley"
+    ],
+    "decisionKey": "clam",
+    "decisionSubs": [
+     "garlic",
+     "parsley"
+    ],
+    "evidenceId": "vongole-pizzadb",
+    "keyParity": "MATCHES_DA1_CANDIDATE",
+    "recipeId": "vongole",
+    "sameToppingSet": true,
+    "subParity": "MATCHES_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": null,
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 2 valid assignments)",
+     "N": "no cheese: the CHEESE rung is empty (RESERVED) until OD-H5-P4-CHEESE is decided and implemented"
+    },
+    "da1SubSeed": null,
+    "decisionKey": "bacon",
+    "decisionSubs": [
+     "onion"
+    ],
+    "evidenceId": "flammkuchen-pizzadb",
+    "keyParity": "OWNER_DECIDED_NO_DA1_CANDIDATE",
+    "recipeId": "flammkuchen",
+    "sameToppingSet": true,
+    "subParity": "OWNER_DECIDED_NO_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": "prosciutto-crudo",
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 2 valid assignments)"
+    },
+    "da1SubSeed": [
+     "arugula"
+    ],
+    "decisionKey": "prosciutto-crudo",
+    "decisionSubs": [
+     "arugula"
+    ],
+    "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+    "keyParity": "MATCHES_DA1_CANDIDATE",
+    "recipeId": "jamon-serrano-pizza",
+    "sameToppingSet": true,
+    "subParity": "MATCHES_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": "sausage",
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 24 valid assignments)",
+     "N": "no cheese: the CHEESE rung is empty (RESERVED) until OD-H5-P4-CHEESE is decided and implemented"
+    },
+    "da1SubSeed": [
+     "onion",
+     "black-olive",
+     "oregano"
+    ],
+    "decisionKey": "sausage",
+    "decisionSubs": [
+     "onion",
+     "black-olive",
+     "oregano"
+    ],
+    "evidenceId": "brazilian-calabresa-pizzadb-p10",
+    "keyParity": "MATCHES_DA1_CANDIDATE",
+    "recipeId": "brazilian-calabresa",
+    "sameToppingSet": true,
+    "subParity": "MATCHES_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": null,
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 2 valid assignments)"
+    },
+    "da1SubSeed": null,
+    "decisionKey": "mushroom",
+    "decisionSubs": [
+     "prosciutto-crudo"
+    ],
+    "evidenceId": "prosciutto-funghi-pizzadb-p11",
+    "keyParity": "OWNER_DECIDED_NO_DA1_CANDIDATE",
+    "recipeId": "prosciutto-funghi",
+    "sameToppingSet": true,
+    "subParity": "OWNER_DECIDED_NO_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": "shrimp",
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 6 valid assignments)",
+     "N": "no cheese: the CHEESE rung is empty (RESERVED) until OD-H5-P4-CHEESE is decided and implemented"
+    },
+    "da1SubSeed": [
+     "fresh-tomato",
+     "garlic"
+    ],
+    "decisionKey": "shrimp",
+    "decisionSubs": [
+     "fresh-tomato",
+     "garlic"
+    ],
+    "evidenceId": "pesto-gamberi-pizzadb-p11",
+    "keyParity": "MATCHES_DA1_CANDIDATE",
+    "recipeId": "pesto-gamberi",
+    "sameToppingSet": true,
+    "subParity": "MATCHES_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": null,
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 6 valid assignments)"
+    },
+    "da1SubSeed": null,
+    "decisionKey": "eggplant",
+    "decisionSubs": [
+     "zucchini",
+     "bell-pepper"
+    ],
+    "evidenceId": "pesto-vegetariana-pizzadb-p12",
+    "keyParity": "OWNER_DECIDED_NO_DA1_CANDIDATE",
+    "recipeId": "pesto-vegetariana",
+    "sameToppingSet": true,
+    "subParity": "OWNER_DECIDED_NO_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": "chicken",
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 2 valid assignments)"
+    },
+    "da1SubSeed": [
+     "fresh-tomato"
+    ],
+    "decisionKey": "chicken",
+    "decisionSubs": [
+     "fresh-tomato"
+    ],
+    "evidenceId": "pesto-pollo-pizzadb-p12",
+    "keyParity": "MATCHES_DA1_CANDIDATE",
+    "recipeId": "pesto-pollo",
+    "sameToppingSet": true,
+    "subParity": "MATCHES_DA1_SEED"
+   },
+   {
+    "da1Group": "B1",
+    "da1KeyCandidate": null,
+    "da1Lanes": {
+     "H": "key topping and sub order are not authority (Owner choice among 24 valid assignments)",
+     "N": "no cheese: the CHEESE rung is empty (RESERVED) until OD-H5-P4-CHEESE is decided and implemented"
+    },
+    "da1SubSeed": null,
+    "decisionKey": "eggplant",
+    "decisionSubs": [
+     "zucchini",
+     "bell-pepper",
+     "oregano"
+    ],
+    "evidenceId": "ratatouille-pizza-pizzadb-p13",
+    "keyParity": "OWNER_DECIDED_NO_DA1_CANDIDATE",
+    "recipeId": "ratatouille-pizza",
+    "sameToppingSet": true,
+    "subParity": "OWNER_DECIDED_NO_DA1_SEED"
+   }
+  ],
+  "partition": [
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "clam",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "vongole",
+    "subs": [
+     "garlic",
+     "parsley"
+    ],
+    "toppings": [
+     "clam",
+     "garlic",
+     "parsley"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "bacon",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "flammkuchen",
+    "subs": [
+     "onion"
+    ],
+    "toppings": [
+     "bacon",
+     "onion"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "prosciutto-crudo",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "jamon-serrano-pizza",
+    "subs": [
+     "arugula"
+    ],
+    "toppings": [
+     "arugula",
+     "prosciutto-crudo"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "sausage",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "brazilian-calabresa",
+    "subs": [
+     "onion",
+     "black-olive",
+     "oregano"
+    ],
+    "toppings": [
+     "black-olive",
+     "onion",
+     "oregano",
+     "sausage"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "mushroom",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "prosciutto-funghi",
+    "subs": [
+     "prosciutto-crudo"
+    ],
+    "toppings": [
+     "mushroom",
+     "prosciutto-crudo"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "shrimp",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "pesto-gamberi",
+    "subs": [
+     "fresh-tomato",
+     "garlic"
+    ],
+    "toppings": [
+     "fresh-tomato",
+     "garlic",
+     "shrimp"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "eggplant",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "pesto-vegetariana",
+    "subs": [
+     "zucchini",
+     "bell-pepper"
+    ],
+    "toppings": [
+     "bell-pepper",
+     "eggplant",
+     "zucchini"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "chicken",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "pesto-pollo",
+    "subs": [
+     "fresh-tomato"
+    ],
+    "toppings": [
+     "chicken",
+     "fresh-tomato"
+    ]
+   },
+   {
+    "duplicate": [],
+    "exactPartition": true,
+    "extra": [],
+    "key": "eggplant",
+    "keyInSubs": false,
+    "missing": [],
+    "recipeId": "ratatouille-pizza",
+    "subs": [
+     "zucchini",
+     "bell-pepper",
+     "oregano"
+    ],
+    "toppings": [
+     "bell-pepper",
+     "eggplant",
+     "oregano",
+     "zucchini"
+    ]
+   }
+  ],
+  "taxonomy": [
+   {
+    "pass": true,
+    "recipeId": "vongole",
+    "toppings": [
+     {
+      "da1PreparationFamily": "seafood",
+      "family": "seafood",
+      "hcgWatch": false,
+      "ingredientId": "clam",
+      "match": true,
+      "onMain": "seafood",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "herb",
+      "family": "herb",
+      "hcgWatch": true,
+      "ingredientId": "garlic",
+      "match": true,
+      "onMain": "herb",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "herb",
+      "family": "herb",
+      "hcgWatch": false,
+      "ingredientId": "parsley",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "flammkuchen",
+    "toppings": [
+     {
+      "da1PreparationFamily": "meat",
+      "family": "meat",
+      "hcgWatch": false,
+      "ingredientId": "bacon",
+      "match": true,
+      "onMain": "meat",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "onion",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "jamon-serrano-pizza",
+    "toppings": [
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "arugula",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     },
+     {
+      "da1PreparationFamily": "meat",
+      "family": "meat",
+      "hcgWatch": false,
+      "ingredientId": "prosciutto-crudo",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "brazilian-calabresa",
+    "toppings": [
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": true,
+      "ingredientId": "black-olive",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "onion",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "herb",
+      "family": "herb",
+      "hcgWatch": false,
+      "ingredientId": "oregano",
+      "match": true,
+      "onMain": "herb",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "meat",
+      "family": "meat",
+      "hcgWatch": false,
+      "ingredientId": "sausage",
+      "match": true,
+      "onMain": "meat",
+      "source": "main (DH4-1)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "prosciutto-funghi",
+    "toppings": [
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "mushroom",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "meat",
+      "family": "meat",
+      "hcgWatch": false,
+      "ingredientId": "prosciutto-crudo",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "pesto-gamberi",
+    "toppings": [
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "fresh-tomato",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "herb",
+      "family": "herb",
+      "hcgWatch": true,
+      "ingredientId": "garlic",
+      "match": true,
+      "onMain": "herb",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "seafood",
+      "family": "seafood",
+      "hcgWatch": false,
+      "ingredientId": "shrimp",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "pesto-vegetariana",
+    "toppings": [
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "bell-pepper",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "eggplant",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "zucchini",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "pesto-pollo",
+    "toppings": [
+     {
+      "da1PreparationFamily": "meat",
+      "family": "meat",
+      "hcgWatch": false,
+      "ingredientId": "chicken",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "fresh-tomato",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     }
+    ]
+   },
+   {
+    "pass": true,
+    "recipeId": "ratatouille-pizza",
+    "toppings": [
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "bell-pepper",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "eggplant",
+      "match": true,
+      "onMain": "vegetable",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "herb",
+      "family": "herb",
+      "hcgWatch": false,
+      "ingredientId": "oregano",
+      "match": true,
+      "onMain": "herb",
+      "source": "main (DH4-1)"
+     },
+     {
+      "da1PreparationFamily": "vegetable",
+      "family": "vegetable",
+      "hcgWatch": false,
+      "ingredientId": "zucchini",
+      "match": true,
+      "onMain": null,
+      "source": "OD-W2-5 (branch only)"
+     }
+    ]
+   }
+  ]
+ },
+ "ownerDecisions": {
+  "OD-W2-H5-ROLE-1": "APPROVED. Explicit hintKeyToppingId / hintSubToppingOrder for the 9 W2-A recipes (authority.roles). C1-P: the key prefers the main topping that characterises the recipe. Array order and recipe-name order are not authority. Where the approved W2-A authoring records several co-equal toppings, the explicit role below is the Owner authority for these 9 recipes.",
+  "OD-W2-H5-SUB-1": "APPROVED. The sub order is explicit authority. The authoring concept (main supporting topping -> secondary topping -> aromatic / herb) is NOT a generic algorithm for the 172 recipes, is never applied automatically to future recipes, and ingredient array order is never a fallback."
+ },
+ "p4CheeseDependency": {
+  "observedOnHint5Branch": "OD-H5-P4-CHEESE and P4b were APPROVED in H5-4 round 6 and implemented behind the OFF flag at 89451bd; that branch is not merged and this pack does not change H5-4.",
+  "recipeHintRolesTsByteIdenticalAcrossPinAndObservedHead": true,
+  "recipes": [
+   "vongole",
+   "flammkuchen",
+   "brazilian-calabresa",
+   "pesto-gamberi",
+   "ratatouille-pizza"
+  ],
+  "rolesDependOnCheese": false,
+  "status": "DEPENDENCY_KEPT"
+ },
  "pins": {
   "authorityMatrix": "79873c0",
   "da1Prep": "e829a17",
@@ -223,6 +1051,19 @@
    "keyUniqueMainUnderC1P": true,
    "nameJa": "ヴォンゴレピザ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "clam",
+    "hintSubToppingOrder": [
+     "garlic",
+     "parsley"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": true,
    "recipeId": "vongole",
    "recommendationConfidence": "high (confirm)",
@@ -405,6 +1246,18 @@
    "keyUniqueMainUnderC1P": false,
    "nameJa": "タルトフランベ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "bacon",
+    "hintSubToppingOrder": [
+     "onion"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": true,
    "recipeId": "flammkuchen",
    "recommendationConfidence": "low (genuine co-equal; Owner choice)",
@@ -536,6 +1389,18 @@
    "keyUniqueMainUnderC1P": true,
    "nameJa": "ハモンセラーノピザ",
    "note": "runtime id は W2-A authoring では `jamon-serrano-pizza` (PIZZA DB evidence id `jamon-serrano-pizza-pizzadb-p7`)。task の `jamon-serrano` と同じ recipe。pinsa-romana と ingredient set が完全一致 (P0-COLL-4, OD-W2-7: DOUGH_VARIANT で後に分離)。pinsa-romana の role はこの review の対象外。",
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "prosciutto-crudo",
+    "hintSubToppingOrder": [
+     "arugula"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": false,
    "recipeId": "jamon-serrano-pizza",
    "recommendationConfidence": "high (confirm)",
@@ -678,6 +1543,20 @@
    "keyUniqueMainUnderC1P": true,
    "nameJa": "ブラジリアン・カラブレーザ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "sausage",
+    "hintSubToppingOrder": [
+     "onion",
+     "black-olive",
+     "oregano"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": true,
    "recipeId": "brazilian-calabresa",
    "recommendationConfidence": "high (confirm)",
@@ -1026,6 +1905,18 @@
    "keyUniqueMainUnderC1P": false,
    "nameJa": "プロシュットフンギ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "mushroom",
+    "hintSubToppingOrder": [
+     "prosciutto-crudo"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": false,
    "recipeId": "prosciutto-funghi",
    "recommendationConfidence": "low (genuine co-equal; Owner choice)",
@@ -1164,6 +2055,19 @@
    "keyUniqueMainUnderC1P": true,
    "nameJa": "ペストガンベリピザ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "shrimp",
+    "hintSubToppingOrder": [
+     "fresh-tomato",
+     "garlic"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": true,
    "recipeId": "pesto-gamberi",
    "recommendationConfidence": "high (confirm)",
@@ -1354,6 +2258,19 @@
    "keyUniqueMainUnderC1P": false,
    "nameJa": "ペストベジタリアーナピザ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "eggplant",
+    "hintSubToppingOrder": [
+     "zucchini",
+     "bell-pepper"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": false,
    "recipeId": "pesto-vegetariana",
    "recommendationConfidence": "low (genuine co-equal; Owner choice)",
@@ -1541,6 +2458,18 @@
    "keyUniqueMainUnderC1P": true,
    "nameJa": "ペストポッロピザ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "chicken",
+    "hintSubToppingOrder": [
+     "fresh-tomato"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": false,
    "recipeId": "pesto-pollo",
    "recommendationConfidence": "high (confirm)",
@@ -1683,6 +2612,20 @@
    "keyUniqueMainUnderC1P": false,
    "nameJa": "ラタトゥイユピザ",
    "note": null,
+   "ownerDecision": {
+    "decisionIds": [
+     "OD-W2-H5-ROLE-1",
+     "OD-W2-H5-SUB-1"
+    ],
+    "hintKeyToppingId": "eggplant",
+    "hintSubToppingOrder": [
+     "zucchini",
+     "bell-pepper",
+     "oregano"
+    ],
+    "keyMatchesReviewRecommendation": true,
+    "status": "OWNER_APPROVED"
+   },
    "p4CheeseApplicable": true,
    "recipeId": "ratatouille-pizza",
    "recommendationConfidence": "low (genuine co-equal; Owner choice)",
@@ -2006,9 +2949,13 @@
   "wave2": "2bc40e41f320f9c46ea6110e9df4d50866325cf3"
  },
  "schema": "teto-w2a-hint5-role-authoring-review/1",
- "status": "OWNER_REVIEW_PACK: NOT_AUTHORITY. Every key / sub value is a CANDIDATE. Docs/data/tools only. DA-1 is not implemented.",
+ "status": "OWNER_APPROVED_AUTHORITY_PACK (OD-W2-H5-ROLE-1, OD-W2-H5-SUB-1). NOT implemented: src/data/recipeHintRoles.ts is untouched. Docs/data/tools only. DA-1 is not implemented.",
  "summary": {
   "c1pConflictCount": 0,
+  "c1pGate": {
+   "of": 9,
+   "pass": 9
+  },
   "c1pNonDeterminativeRecipes": [
    "flammkuchen",
    "prosciutto-funghi",
@@ -2030,6 +2977,149 @@
    "pesto-vegetariana",
    "ratatouille-pizza"
   ],
+  "da1GroupAfterAuthority": {
+   "B0": [
+    "jamon-serrano-pizza",
+    "prosciutto-funghi",
+    "pesto-vegetariana",
+    "pesto-pollo"
+   ],
+   "B1": [
+    "vongole",
+    "flammkuchen",
+    "brazilian-calabresa",
+    "pesto-gamberi",
+    "ratatouille-pizza"
+   ]
+  },
+  "da1LaneEffect": [
+   {
+    "groupAfter": "B1",
+    "groupBefore": "B1",
+    "lanesAfter": [
+     "N"
+    ],
+    "lanesBefore": [
+     "H",
+     "N"
+    ],
+    "recipeId": "vongole"
+   },
+   {
+    "groupAfter": "B1",
+    "groupBefore": "B1",
+    "lanesAfter": [
+     "N"
+    ],
+    "lanesBefore": [
+     "H",
+     "N"
+    ],
+    "recipeId": "flammkuchen"
+   },
+   {
+    "groupAfter": "B0",
+    "groupBefore": "B1",
+    "lanesAfter": [],
+    "lanesBefore": [
+     "H"
+    ],
+    "recipeId": "jamon-serrano-pizza"
+   },
+   {
+    "groupAfter": "B1",
+    "groupBefore": "B1",
+    "lanesAfter": [
+     "N"
+    ],
+    "lanesBefore": [
+     "H",
+     "N"
+    ],
+    "recipeId": "brazilian-calabresa"
+   },
+   {
+    "groupAfter": "B0",
+    "groupBefore": "B1",
+    "lanesAfter": [],
+    "lanesBefore": [
+     "H"
+    ],
+    "recipeId": "prosciutto-funghi"
+   },
+   {
+    "groupAfter": "B1",
+    "groupBefore": "B1",
+    "lanesAfter": [
+     "N"
+    ],
+    "lanesBefore": [
+     "H",
+     "N"
+    ],
+    "recipeId": "pesto-gamberi"
+   },
+   {
+    "groupAfter": "B0",
+    "groupBefore": "B1",
+    "lanesAfter": [],
+    "lanesBefore": [
+     "H"
+    ],
+    "recipeId": "pesto-vegetariana"
+   },
+   {
+    "groupAfter": "B0",
+    "groupBefore": "B1",
+    "lanesAfter": [],
+    "lanesBefore": [
+     "H"
+    ],
+    "recipeId": "pesto-pollo"
+   },
+   {
+    "groupAfter": "B1",
+    "groupBefore": "B1",
+    "lanesAfter": [
+     "N"
+    ],
+    "lanesBefore": [
+     "H",
+     "N"
+    ],
+    "recipeId": "ratatouille-pizza"
+   }
+  ],
+  "da1Parity": {
+   "keyDiffers": [],
+   "keyMatchesDa1Candidate": [
+    "vongole",
+    "jamon-serrano-pizza",
+    "brazilian-calabresa",
+    "pesto-gamberi",
+    "pesto-pollo"
+   ],
+   "keyOwnerDecidedNoDa1Candidate": [
+    "flammkuchen",
+    "prosciutto-funghi",
+    "pesto-vegetariana",
+    "ratatouille-pizza"
+   ],
+   "subDiffers": [],
+   "subMatchesDa1Seed": [
+    "vongole",
+    "jamon-serrano-pizza",
+    "brazilian-calabresa",
+    "pesto-gamberi",
+    "pesto-pollo"
+   ],
+   "subOwnerDecidedNoDa1Seed": [
+    "flammkuchen",
+    "prosciutto-funghi",
+    "pesto-vegetariana",
+    "ratatouille-pizza"
+   ]
+  },
   "keyOwnerDecisionCount": 9,
   "p4Cheese": {
    "applicable": [
@@ -2048,6 +3138,13 @@
    ],
    "note": "No W2-A recipe has zero toppings, so P4b (key none) never applies. Roles do not depend on the cheese rung.",
    "p4bKeyNone": []
+  },
+  "partitionGate": {
+   "duplicateToppings": 0,
+   "exact": 9,
+   "extraToppings": 0,
+   "missingToppings": 0,
+   "of": 9
   },
   "recipes": 9,
   "recommendedKeyIsAromaOrSpice": [],
@@ -2103,6 +3200,10 @@
     ]
    },
    "watchIsKeyCandidate": false
+  },
+  "taxonomyGate": {
+   "of": 9,
+   "pass": 9
   },
   "w2aIdsInRecipeHintRolesTs": []
  }
