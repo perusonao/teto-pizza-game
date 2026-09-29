@@ -1,0 +1,156 @@
+{
+ "tests": [
+  "src/logic/discovery/nearMiss",
+  "src/state/resultNearMiss",
+  "src/state/originalResultCopy",
+  "src/state/resultFeedback.gate",
+  "src/components/ResultPanel"
+ ],
+ "mutants": 23,
+ "killed": 22,
+ "equivalent": 1,
+ "survived": 0,
+ "invalid": 0,
+ "mutationScore": 1,
+ "results": [
+  {
+   "id": "N01",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "collision skip removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "N02",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "collision detection never fires",
+   "status": "KILLED"
+  },
+  {
+   "id": "N03",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "identity key ignores the sauce base",
+   "status": "KILLED"
+  },
+  {
+   "id": "N04",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "sauce step is always CHANGE",
+   "status": "KILLED"
+  },
+  {
+   "id": "N05",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "sauce step ADD / REMOVE swapped",
+   "status": "KILLED"
+  },
+  {
+   "id": "N06",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "sauce step not returned",
+   "status": "KILLED"
+  },
+  {
+   "id": "N07",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "CLOSE window widened",
+   "status": "KILLED"
+  },
+  {
+   "id": "N08",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "exact match no longer means no statement",
+   "status": "KILLED"
+  },
+  {
+   "id": "N09",
+   "file": "src/logic/discovery/nearMiss.ts",
+   "description": "identity key items not sorted",
+   "status": "EQUIVALENT",
+   "equivalentReason": "Catalog items and the synthetic test catalogs are already sorted, so sorting here never changes a key."
+  },
+  {
+   "id": "R01",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "no sauce-step wording (REMOVE reads as change-the-sauce)",
+   "status": "KILLED"
+  },
+  {
+   "id": "R02",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "REMOVE step reads as ADD_ONE",
+   "status": "KILLED"
+  },
+  {
+   "id": "R03",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "generic FAR ignores the option",
+   "status": "KILLED"
+  },
+  {
+   "id": "R04",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "generic FAR ON in production",
+   "status": "KILLED"
+  },
+  {
+   "id": "R05",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "a known pizza gets a FAR line",
+   "status": "KILLED"
+  },
+  {
+   "id": "R06",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "key-unused nudge dropped",
+   "status": "KILLED"
+  },
+  {
+   "id": "R07",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "known pizza gets a d>1 line",
+   "status": "KILLED"
+  },
+  {
+   "id": "R08",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "guided rounds not excluded",
+   "status": "KILLED"
+  },
+  {
+   "id": "R09",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "FAILED rounds not excluded",
+   "status": "KILLED"
+  },
+  {
+   "id": "C01",
+   "file": "src/state/originalResultCopy.ts",
+   "description": "AMBIGUOUS copy diverges from ordinary",
+   "status": "KILLED"
+  },
+  {
+   "id": "C02",
+   "file": "src/state/originalResultCopy.ts",
+   "description": "AMBIGUOUS kind not detected",
+   "status": "KILLED"
+  },
+  {
+   "id": "C03",
+   "file": "src/state/originalResultCopy.ts",
+   "description": "INCOMPLETE_MATCH kind not detected",
+   "status": "KILLED"
+  },
+  {
+   "id": "C04",
+   "file": "src/state/originalResultCopy.ts",
+   "description": "AMBIGUOUS decision flag flipped",
+   "status": "KILLED"
+  },
+  {
+   "id": "P01",
+   "file": "src/components/ResultPanel.tsx",
+   "description": "ResultPanel ignores the kind",
+   "status": "KILLED"
+  }
+ ]
+}

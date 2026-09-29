@@ -15,6 +15,18 @@
  *   what an ambiguous duplicate target resolves to). Nearest candidate wins, ties broken by the
  *   hint-target order (`compareHintCandidates`).
  * - The result says only the class: never the recipe, never which ingredient to add or remove.
+ *
+ * Original Pizza Recovery P2 hardening (docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P2_RESULT-FEEDBACK_Result.md):
+ * - **Unreachable targets are never candidates.** A target whose identity (items + sauceBase) is
+ *   shared with another catalog target is AMBIGUOUS in the matcher, so "add one" toward it would end
+ *   as an ORIGINAL again -- a lie. Such a target is skipped (an exact match with it still means "no
+ *   near-miss statement", never a line about some other recipe). Production has none today.
+ * - **A sauce-only difference names its step** (`sauceStep`): CHANGE when both sides have a sauce,
+ *   ADD when the pizza has none, REMOVE when the target has none. The kind stays `SAUCE_ONLY`; the
+ *   line's wording is chosen from the step (../../state/resultNearMiss.ts), so a sauce-less pizza or
+ *   a sauce-less recipe is never told to "change the sauce".
+ * - Nothing here reads hint facts, Pitz or the Hint 5.0 ladder: the classes carry no component
+ *   identity, so they cannot stand in for a paid rung.
  */
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { RECIPES, type Recipe } from "../../data/recipes";
@@ -25,9 +37,14 @@ import type { RuntimeSignature } from "./signature";
 
 export type NearMissKind = "ADD_ONE" | "REMOVE_ONE" | "SAUCE_ONLY" | "CLOSE" | "FAR";
 
+/** SAUCE_ONLY only: what the sauce difference actually is (drives the wording, never shown). */
+export type SauceStep = "CHANGE" | "ADD" | "REMOVE";
+
 export interface NearMiss {
   kind: NearMissKind;
   distance: number;
+  /** SAUCE_ONLY only. */
+  sauceStep?: SauceStep;
   /** FAR only: the nearest candidate's key ingredient is not on the pizza (drives the
    *  「新しく入荷した材料は使ってみた？」 line). A flag, never the ingredient itself. */
   keyUnused?: boolean;
@@ -44,6 +61,8 @@ interface Distance {
   missing: number;
   extra: number;
   sauceWrong: boolean;
+  /** Which way the sauce differs (only meaningful when `sauceWrong`). */
+  sauceStep: SauceStep;
   total: number;
 }
 
@@ -60,7 +79,23 @@ function distance(signature: RuntimeSignature, items: readonly string[], sauceBa
   const missing = target.filter((id) => !pizza.includes(id)).length;
   const extra = pizza.filter((id) => !target.includes(id)).length;
   const sauceWrong = !sameList(pizzaSauces, sauceBase);
-  return { missing, extra, sauceWrong, total: missing + extra + (sauceWrong ? 1 : 0) };
+  const sauceStep: SauceStep = pizzaSauces.length === 0 ? "ADD" : sauceBase.length === 0 ? "REMOVE" : "CHANGE";
+  return { missing, extra, sauceWrong, sauceStep, total: missing + extra + (sauceWrong ? 1 : 0) };
+}
+
+const identityKey = (t: Pick<DiscoveryTarget, "items" | "sauceBase">) =>
+  JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]);
+
+/** Identity keys shared by two or more catalog targets: the matcher answers AMBIGUOUS for them. */
+function collidingIdentityKeys(catalog: readonly Pick<DiscoveryTarget, "items" | "sauceBase">[]): Set<string> {
+  const seen = new Set<string>();
+  const colliding = new Set<string>();
+  for (const t of catalog) {
+    const key = identityKey(t);
+    if (seen.has(key)) colliding.add(key);
+    seen.add(key);
+  }
+  return colliding;
 }
 
 function classify(d: Distance): NearMissKind {
@@ -75,6 +110,7 @@ export function classifyNearMiss(
 ): NearMiss | null {
   const catalog = options.catalog ?? RECIPE_DISCOVERY_CATALOG;
   const recipes = options.recipes ?? RECIPES;
+  const colliding = collidingIdentityKeys(catalog);
   const ordered = [...discoverableRecipes].sort((a, b) => compareHintCandidates(a, b, recipes));
 
   let best: { recipe: Recipe; d: Distance } | null = null;
@@ -82,12 +118,14 @@ export function classifyNearMiss(
     for (const target of catalog.filter((t) => t.recipeId === recipe.id)) {
       const d = distance(signature, target.items, target.sauceBase ?? []);
       if (d.total === 0) return null;
+      if (colliding.has(identityKey(target))) continue; // unreachable: the matcher says AMBIGUOUS
       if (!best || d.total < best.d.total) best = { recipe, d };
     }
   }
   if (!best) return null;
 
   const kind = classify(best.d);
+  if (kind === "SAUCE_ONLY") return { kind, distance: best.d.total, sauceStep: best.d.sauceStep };
   if (kind !== "FAR") return { kind, distance: best.d.total };
   const keyId = hintKeyIngredientId(best.recipe);
   return { kind, distance: best.d.total, keyUnused: keyId !== null && !signature.ingredientSet.value.includes(keyId) };

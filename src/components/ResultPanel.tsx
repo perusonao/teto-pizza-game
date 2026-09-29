@@ -11,6 +11,7 @@ import { STEP_LABEL } from "../data/makingStepLabels";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { getIngredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
 import type { ResultNearMissLine } from "../state/resultNearMiss";
 
 interface ResultPanelProps {
@@ -247,7 +248,8 @@ export function ResultPanel({
   if (!score) {
     // 229-C (H-U4): the set already matches a recipe, so the fix is the sauce *amount* or the bake
     // -- never the sauce type, which would break the match.
-    const incompleteMatch = discovery?.kind === "INCOMPLETE_MATCH";
+    // P2-A: the kind picks the lead from one table; it is never rendered as a class or attribute.
+    const leadJa = ORIGINAL_LEAD_COPY[originalResultKind(discovery)];
     return (
       <div className="result-panel result-panel--original">
         <p className="result-panel__heading result-panel__heading--original">
@@ -255,9 +257,7 @@ export function ResultPanel({
         </p>
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
-            {incompleteMatch
-              ? "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。"
-              : "図鑑にはない、あなただけのピザ！"}
+            {leadJa}
           </p>
           {usedIngredientIds.length > 0 && (
             <ul className="original-pizza__ingredients" aria-label="使った材料">
