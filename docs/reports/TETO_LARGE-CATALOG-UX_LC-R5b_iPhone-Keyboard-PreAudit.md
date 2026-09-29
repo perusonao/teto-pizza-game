@@ -472,7 +472,7 @@ Status: Owner が実機 Discovery を完了し、判定 **A. REAL-DEVICE DISCOVE
 | # | リスク | 対応 |
 |---|---|---|
 | R1 | **standalone / PWA 未検証**（Safari タブのみ）。safe-area-top（≈ 47〜59）・keyboard 上の可視領域・復帰の挙動差の可能性 | R5-b 実装後の HV で Safari + standalone を必須にする。standalone で不具合なら実装内で修正（fit の式は safe-top を考慮済み）|
-| R2 | **小型 viewport 未検証**（1 端末のみ）。visible 高が小さいと list < 1〜2 行になり得る（384 ESTIMATE: 664 相当で約 1.4 行、640 相当で約 1.1 行、strip 表示時は 1 行未満）| 4 viewport 実測 + 小型端末 HV。C9 の床を決め、決められなければ Owner に戻す |
+| R2 | **小型 viewport 未検証**（1 端末のみ）。visible 高が小さいと list < 1〜2 行になり得る（ESTIMATE: keyboard ≈ 338 を仮定すると 664 相当で約 1.4 行、640 相当で約 1.1 行、strip 表示時は 1 行未満）| 4 viewport 実測 + 小型端末 HV。C9 の床を決め、決められなければ Owner に戻す |
 | R3 | keyboard 解除後の復帰（offsetTop 0・外形復帰・stage/dock）と解除タイミングの遅延（keyboard アニメ中の resize 連射、predictive bar の高さ変動）| C4 の vv 主体の解除 + rAF 合流 + テスト + HV |
 | R4 | `layoutH` の取り方（`documentElement.clientHeight`）が iOS バージョンで `innerHeight` と乖離 | 実機 HV で両値を記録（harness の JSON に両方あり）。乖離が出れば式を見直し |
 | R5 | IME 第一候補（更新は確定後）の体感（逐次絞り込みなし）| 実機 HV で判断。第二候補 B を用意（§18.5-7）。Owner 判断が要る場合は戻す |
