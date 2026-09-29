@@ -1,0 +1,1042 @@
+{
+ "schemaNote": "LC-R5-b Japanese Search Alias Authority Fresh Audit -- machine-readable audit table. Docs/data only; NOT an authority, NOT wired into src/**. Every alias here is PROPOSED and NOT Owner-approved; every value is copied verbatim from an existing repo evidence file (see sources), none was generated.",
+ "auditedMainSha": "12725eb",
+ "authorities": {
+  "LC-R5 Fresh Audit": "b584b7a",
+  "LC-R5 Implementation Verification Plan": "855e9fbece4711bf78935db975f9e289722e46f5",
+  "LC-R5-b PreAudit": "c57548f"
+ },
+ "method": "1) production names from src/data/ingredients.ts (29); 62 from data/recipes/ingredient_master_catalog.json; 172 = 168 distinct ids in docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json rows[].ingredients.canonicalIngredientIds. 2) attested alternate surface forms gathered ONLY from: tools/progression2_ingredient_canonicalizer.py tables, PHASE0B1 universe-diff, PHASE0B3 canonicalization-results, candidate-matrix tokenTrace. 3) each (nameJa, form) evaluated with the real src/logic/catalog/catalogText.ts matchesSearch (node --experimental-strip-types, no code changed).",
+ "sourcesUsed": [
+  "tools/progression2_ingredient_canonicalizer.py (ORTHOGRAPHIC_EQUIVALENTS, LIKELY_ALIAS_TABLE, AMBIGUOUS_TABLE, GENUINELY_NEW_REGISTRY, PHASE0B_NEW_INGREDIENT_NAMES)",
+  "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json",
+  "docs/reports/data/TETO_PROGRESS2_PHASE0B3_canonicalization-results.json",
+  "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json",
+  "data/recipes/ingredient_master_catalog.json",
+  "src/data/ingredients.ts"
+ ],
+ "populationOverlap": {
+  "prod29": 29,
+  "cat62": 62,
+  "prod_and_cat": 26,
+  "prod_only": [
+   "capers",
+   "clam",
+   "fresh-tomato"
+  ],
+  "cat_only": 36,
+  "union": 65,
+  "ids172": 168,
+  "prod_in_172": 27,
+  "cat_in_172": 51,
+  "172_not_in_prod_or_cat": 114,
+  "unlock105_in_172": 103,
+  "unlock105_not_in_172": [
+   "cherry-tomato",
+   "pesto"
+  ]
+ },
+ "summary": {
+  "production29": {
+   "ingredients": 29,
+   "namesAllKanaOnly": true,
+   "namesContainingHan": 0,
+   "ingredientsWithProposedAlias": 6,
+   "proposedAliasForms": 6,
+   "readingDirectionNeeds": 0,
+   "noAttestedAlternate": 19
+  },
+  "catalog62": {
+   "ingredients": 62,
+   "namesContainingHan": 6,
+   "ingredientsWithProposedAlias": 15,
+   "proposedAliasForms": 15,
+   "readingDirectionNeeds": 6
+  },
+  "recipe172Referenced168": {
+   "ingredients": 168,
+   "namesContainingHan_firstAttestedToken": 32,
+   "ingredientsWithProposedAlias": 17,
+   "proposedAliasForms": 17,
+   "idsWithoutAnyAuthorityNameJa": 4,
+   "note": "nameJa here is the first source token, not an approved display name; 138 ids have no second attested surface form yet"
+  },
+  "tiers": {
+   "T1_orthographic_equivalent": 5,
+   "T2_likely_alias_curated": 11,
+   "T3_source_token_only": 1
+  }
+ },
+ "production29": [
+  {
+   "id": "tomato-sauce",
+   "category": "sauce",
+   "nameJa": "トマトソース",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "甘めのトマトソース",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_KANJI_OR_HAN",
+     "sources": [
+      "172 candidate-matrix tokenTrace (likely_alias)",
+      "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+      "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+     ],
+     "proposedAlias": false,
+     "excluded": true
+    }
+   ],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "olive-oil",
+   "category": "sauce",
+   "nameJa": "オリーブオイル",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "pesto",
+   "category": "sauce",
+   "nameJa": "ジェノベーゼソース",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "mozzarella",
+   "category": "cheese",
+   "nameJa": "モッツァレラ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "モッツァレラチーズ",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_QUERY_LONGER_THAN_NAME",
+     "sources": [
+      "172 candidate-matrix tokenTrace (exact_alias)",
+      "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+     ],
+     "proposedAlias": true,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "ALIAS_PROPOSED_NEEDS_OWNER_APPROVAL"
+  },
+  {
+   "id": "gorgonzola",
+   "category": "cheese",
+   "nameJa": "ゴルゴンゾーラ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "ゴルゴンゾーラチーズ",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_QUERY_LONGER_THAN_NAME",
+     "sources": [
+      "172 candidate-matrix tokenTrace (likely_alias)",
+      "PHASE0B3 canonicalization-results (likely_alias, n=2)",
+      "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+     ],
+     "proposedAlias": true,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "ALIAS_PROPOSED_NEEDS_OWNER_APPROVAL"
+  },
+  {
+   "id": "parmigiano",
+   "category": "cheese",
+   "nameJa": "パルミジャーノ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "パルミジャーノチーズ",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_QUERY_LONGER_THAN_NAME",
+     "sources": [
+      "172 candidate-matrix tokenTrace (likely_alias)",
+      "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+     ],
+     "proposedAlias": true,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "ALIAS_PROPOSED_NEEDS_OWNER_APPROVAL"
+  },
+  {
+   "id": "fontina",
+   "category": "cheese",
+   "nameJa": "フォンティーナ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "フォンティーナチーズ",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_QUERY_LONGER_THAN_NAME",
+     "sources": [
+      "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+      "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+     ],
+     "proposedAlias": true,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "ALIAS_PROPOSED_NEEDS_OWNER_APPROVAL"
+  },
+  {
+   "id": "basil",
+   "category": "topping",
+   "nameJa": "バジル",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "garlic",
+   "category": "topping",
+   "nameJa": "にんにく",
+   "nameScript": "hiragana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "oregano",
+   "category": "topping",
+   "nameJa": "オレガノ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "cherry-tomato",
+   "category": "topping",
+   "nameJa": "チェリートマト",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "egg",
+   "category": "topping",
+   "nameJa": "たまご",
+   "nameScript": "hiragana",
+   "attestedAlternateForms": [
+    {
+     "form": "卵",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_KANJI_OR_HAN",
+     "sources": [
+      "172 candidate-matrix tokenTrace (exact_alias)",
+      "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+     ],
+     "proposedAlias": true,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "ALIAS_PROPOSED_NEEDS_OWNER_APPROVAL"
+  },
+  {
+   "id": "mushroom",
+   "category": "topping",
+   "nameJa": "マッシュルーム",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "onion",
+   "category": "topping",
+   "nameJa": "たまねぎ",
+   "nameScript": "hiragana",
+   "attestedAlternateForms": [
+    {
+     "form": "玉ねぎ",
+     "currentMatchesSearchHit": false,
+     "kind": "MISS_KANJI_OR_HAN",
+     "sources": [
+      "172 candidate-matrix tokenTrace (exact_alias)",
+      "PHASE0B1 universe-diff (exact_alias, n172=37)",
+      "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+     ],
+     "proposedAlias": true,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "ALIAS_PROPOSED_NEEDS_OWNER_APPROVAL"
+  },
+  {
+   "id": "sausage",
+   "category": "topping",
+   "nameJa": "ソーセージ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "pepperoni",
+   "category": "topping",
+   "nameJa": "ペパロニ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "anchovy",
+   "category": "topping",
+   "nameJa": "アンチョビ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "tuna",
+   "category": "topping",
+   "nameJa": "ツナ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "rosemary",
+   "category": "topping",
+   "nameJa": "ローズマリー",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "bacon",
+   "category": "topping",
+   "nameJa": "ベーコン",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "ham",
+   "category": "topping",
+   "nameJa": "ハム",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "black-olive",
+   "category": "topping",
+   "nameJa": "ブラックオリーブ",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "オリーブ",
+     "currentMatchesSearchHit": true,
+     "kind": "SUBSTRING_OF_NAME_HIT",
+     "sources": [
+      "172 candidate-matrix tokenTrace (likely_alias)",
+      "PHASE0B1 universe-diff (likely_alias, n172=18)",
+      "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+     ],
+     "proposedAlias": false,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "capers",
+   "category": "topping",
+   "nameJa": "ケッパー",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "clam",
+   "category": "topping",
+   "nameJa": "あさり",
+   "nameScript": "hiragana",
+   "attestedAlternateForms": [
+    {
+     "form": "アサリ",
+     "currentMatchesSearchHit": true,
+     "kind": "SAME_AFTER_NORMALIZATION",
+     "sources": [
+      "172 candidate-matrix tokenTrace (exact_alias)",
+      "PHASE0B3 canonicalization-results (exact_alias, n=4)",
+      "canonicalizer.py PHASE0B_NEW_INGREDIENT_NAMES"
+     ],
+     "proposedAlias": false,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "corn",
+   "category": "topping",
+   "nameJa": "コーン",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "eggplant",
+   "category": "topping",
+   "nameJa": "ナス",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [
+    {
+     "form": "なす",
+     "currentMatchesSearchHit": true,
+     "kind": "SAME_AFTER_NORMALIZATION",
+     "sources": [
+      "PHASE0B1 universe-diff (exact_alias, n172=13)"
+     ],
+     "proposedAlias": false,
+     "excluded": false
+    }
+   ],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "fresh-tomato",
+   "category": "topping",
+   "nameJa": "トマト",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "pineapple",
+   "category": "topping",
+   "nameJa": "パイナップル",
+   "nameScript": "katakana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  },
+  {
+   "id": "potato",
+   "category": "topping",
+   "nameJa": "じゃがいも",
+   "nameScript": "hiragana",
+   "attestedAlternateForms": [],
+   "aliasVerdict": "NO_ALIAS_NEEDED_OR_NO_EVIDENCE"
+  }
+ ],
+ "proposedAliasCandidates": [
+  {
+   "id": "caciocavallo",
+   "nameJa": "カチョカヴァロ",
+   "nameSource": "master-catalog",
+   "form": "カチョカヴァッロチーズ",
+   "missKind": "MISS_OTHER_VARIANT",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "chicken",
+   "nameJa": "チキン",
+   "nameSource": "master-catalog",
+   "form": "鶏肉",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "cilantro",
+   "nameJa": "パクチー",
+   "nameSource": "master-catalog",
+   "form": "コリアンダー",
+   "missKind": "MISS_OTHER_VARIANT",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B1 universe-diff (likely_alias, n172=6)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "egg",
+   "nameJa": "たまご",
+   "nameSource": "production src/data/ingredients.ts",
+   "form": "卵",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (exact_alias)",
+    "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+   ],
+   "scopes": [
+    "catalog62",
+    "production29",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": true,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T1_orthographic_equivalent",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "fontina",
+   "nameJa": "フォンティーナ",
+   "nameSource": "production src/data/ingredients.ts",
+   "form": "フォンティーナチーズ",
+   "missKind": "MISS_QUERY_LONGER_THAN_NAME",
+   "sources": [
+    "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "production29",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": true,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "gorgonzola",
+   "nameJa": "ゴルゴンゾーラ",
+   "nameSource": "production src/data/ingredients.ts",
+   "form": "ゴルゴンゾーラチーズ",
+   "missKind": "MISS_QUERY_LONGER_THAN_NAME",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=2)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "production29",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": true,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "green-onion",
+   "nameJa": "青ねぎ",
+   "nameSource": "canonicalizer-registry",
+   "form": "万能ねぎ",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "canonicalizer.py GENUINELY_NEW_REGISTRY (rule 4)"
+   ],
+   "scopes": [
+    "recipe172_referenced168"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": false,
+   "in172Referenced": true,
+   "tier": "T3_source_token_only",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "honey",
+   "nameJa": "はちみつ",
+   "nameSource": "master-catalog",
+   "form": "蜂蜜",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (exact_alias)",
+    "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T1_orthographic_equivalent",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "mozzarella",
+   "nameJa": "モッツァレラ",
+   "nameSource": "production src/data/ingredients.ts",
+   "form": "モッツァレラチーズ",
+   "missKind": "MISS_QUERY_LONGER_THAN_NAME",
+   "sources": [
+    "172 candidate-matrix tokenTrace (exact_alias)",
+    "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+   ],
+   "scopes": [
+    "catalog62",
+    "production29",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": true,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T1_orthographic_equivalent",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "nori",
+   "nameJa": "のり",
+   "nameSource": "master-catalog",
+   "form": "海苔",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (exact_alias)",
+    "PHASE0B3 canonicalization-results (exact_alias, n=4)",
+    "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T1_orthographic_equivalent",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "nutella-spread",
+   "nameJa": "チョコヘーゼルナッツソース",
+   "nameSource": "master-catalog",
+   "form": "ヘーゼルナッツチョコレートスプレッド",
+   "missKind": "MISS_OTHER_VARIANT",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "onion",
+   "nameJa": "たまねぎ",
+   "nameSource": "production src/data/ingredients.ts",
+   "form": "玉ねぎ",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (exact_alias)",
+    "PHASE0B1 universe-diff (exact_alias, n172=37)",
+    "canonicalizer.py ORTHOGRAPHIC_EQUIVALENTS (rule 1b)"
+   ],
+   "scopes": [
+    "catalog62",
+    "production29",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": true,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T1_orthographic_equivalent",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "parmigiano",
+   "nameJa": "パルミジャーノ",
+   "nameSource": "production src/data/ingredients.ts",
+   "form": "パルミジャーノチーズ",
+   "missKind": "MISS_QUERY_LONGER_THAN_NAME",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "production29",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": true,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "porcini",
+   "nameJa": "ポルチーニ",
+   "nameSource": "master-catalog",
+   "form": "ポルチーニ茸",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=2)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "ricotta-salata",
+   "nameJa": "リコッタサラータ",
+   "nameSource": "master-catalog",
+   "form": "リコッタサラータチーズ",
+   "missKind": "MISS_QUERY_LONGER_THAN_NAME",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "shiso",
+   "nameJa": "しそ",
+   "nameSource": "canonicalizer-registry",
+   "form": "大葉",
+   "missKind": "MISS_KANJI_OR_HAN",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "recipe172_referenced168"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": false,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  },
+  {
+   "id": "spicy-salami",
+   "nameJa": "サラミ（ピリ辛）",
+   "nameSource": "master-catalog",
+   "form": "サラミピカンテ",
+   "missKind": "MISS_OTHER_VARIANT",
+   "sources": [
+    "172 candidate-matrix tokenTrace (likely_alias)",
+    "PHASE0B3 canonicalization-results (likely_alias, n=1)",
+    "canonicalizer.py LIKELY_ALIAS_TABLE (rule 2, likely_alias)"
+   ],
+   "scopes": [
+    "catalog62",
+    "recipe172_referenced168",
+    "union65_prod29_or_cat62"
+   ],
+   "shipsInProduction": false,
+   "in62Catalog": true,
+   "in172Referenced": true,
+   "tier": "T2_likely_alias_curated",
+   "status": "PROPOSED_NOT_OWNER_APPROVED"
+  }
+ ],
+ "excludedFromAlias": [
+  {
+   "id": "tomato-sauce",
+   "form": "甘めのトマトソース",
+   "reason": "variant (a sweeter sauce), not the same ingredient identity; query is longer than the name"
+  },
+  {
+   "id": "(generic)",
+   "form": "ひき肉",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "チリ",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "チーズ",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "肉",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "ナッツ",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "チーズソース",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "ホワイトソース",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "スパイシーソーセージ",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "カレーソース",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "青唐辛子",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "赤唐辛子",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "青のり",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "プロヴェルチーズ",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  },
+  {
+   "id": "(generic)",
+   "form": "唐辛子",
+   "reason": "AMBIGUOUS_TABLE entry: generic / class / ambiguous term -- forbidden as alias (Hint5 taxonomy & identity boundary)"
+  }
+ ],
+ "readingDirectionNeeds": {
+  "note": "names that contain Han: a kana query (e.g. なまはむ) cannot match. There is NO existing reading evidence anywhere in the repo, so these need Owner-supplied readings; none were generated.",
+  "production29": [],
+  "catalog62": [
+   {
+    "id": "breadcrumb",
+    "nameJa": "パン粉"
+   },
+   {
+    "id": "powdered-sugar",
+    "nameJa": "粉砂糖"
+   },
+   {
+    "id": "prosciutto-crudo",
+    "nameJa": "生ハム"
+   },
+   {
+    "id": "spicy-salami",
+    "nameJa": "サラミ（ピリ辛）"
+   },
+   {
+    "id": "steak",
+    "nameJa": "ステーキ肉"
+   },
+   {
+    "id": "teriyaki-sauce",
+    "nameJa": "照り焼きソース"
+   }
+  ],
+  "recipe172Referenced": [
+   {
+    "id": "balsamic-vinegar",
+    "nameJa": "バルサミコ酢"
+   },
+   {
+    "id": "beef",
+    "nameJa": "牛肉"
+   },
+   {
+    "id": "bonito-flakes",
+    "nameJa": "かつお節"
+   },
+   {
+    "id": "daikon",
+    "nameJa": "大根"
+   },
+   {
+    "id": "doubanjiang",
+    "nameJa": "豆板醤"
+   },
+   {
+    "id": "fresh-cream-sauce",
+    "nameJa": "生クリームソース"
+   },
+   {
+    "id": "green-onion",
+    "nameJa": "青ねぎ"
+   },
+   {
+    "id": "lamb",
+    "nameJa": "ラム肉"
+   },
+   {
+    "id": "melted-butter",
+    "nameJa": "溶かしバター"
+   },
+   {
+    "id": "mentaiko",
+    "nameJa": "明太子"
+   },
+   {
+    "id": "miso-sauce",
+    "nameJa": "味噌だれ"
+   },
+   {
+    "id": "mussel",
+    "nameJa": "ムール貝"
+   },
+   {
+    "id": "natto",
+    "nameJa": "納豆"
+   },
+   {
+    "id": "okonomiyaki-sauce",
+    "nameJa": "お好み焼きソース"
+   },
+   {
+    "id": "palm-heart",
+    "nameJa": "ヤシの新芽"
+   },
+   {
+    "id": "peking-duck",
+    "nameJa": "北京ダック"
+   },
+   {
+    "id": "pine-nuts",
+    "nameJa": "松の実"
+   },
+   {
+    "id": "pork",
+    "nameJa": "豚肉"
+   },
+   {
+    "id": "powdered-sugar",
+    "nameJa": "粉砂糖"
+   },
+   {
+    "id": "prosciutto-crudo",
+    "nameJa": "生ハム"
+   },
+   {
+    "id": "red-cabbage",
+    "nameJa": "紫キャベツ"
+   },
+   {
+    "id": "rock-salt",
+    "nameJa": "岩塩"
+   },
+   {
+    "id": "sansho-pepper",
+    "nameJa": "山椒"
+   },
+   {
+    "id": "soy-sauce",
+    "nameJa": "醤油ソース"
+   },
+   {
+    "id": "spicy-salami",
+    "nameJa": "サラミ（ピリ辛）"
+   },
+   {
+    "id": "spinach",
+    "nameJa": "ほうれん草"
+   },
+   {
+    "id": "sunflower-seeds",
+    "nameJa": "ひまわりの種"
+   },
+   {
+    "id": "sweet-bean-sauce",
+    "nameJa": "甜麺醤"
+   },
+   {
+    "id": "umeboshi-paste",
+    "nameJa": "梅肉"
+   },
+   {
+    "id": "white-sesame",
+    "nameJa": "白ごま"
+   },
+   {
+    "id": "yakiniku-sauce",
+    "nameJa": "焼肉のタレ"
+   },
+   {
+    "id": "yuzu-kosho",
+    "nameJa": "柚子胡椒"
+   }
+  ]
+ },
+ "idsWithoutAuthorityNameJa": [
+  "cheddar",
+  "curry-ketchup",
+  "ground-beef",
+  "salsa"
+ ],
+ "noteBBQ": "bbq-sauce name 'BBQソース' is Latin+katakana; a katakana query ビービーキュー would miss (reading-direction, Latin). Not counted above."
+}
