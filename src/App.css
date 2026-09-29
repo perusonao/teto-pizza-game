@@ -6377,3 +6377,12 @@ p.hint-sheet__step {
   color: #b4432f;
   opacity: 0.75;
 }
+
+/* ---------- Large Catalog UX LC-R4: shelf chips inside the pantry sheet ----------
+   A fixed (non-scrolling) slot between the subtitle and the list: the sheet's outer height is unchanged (it is
+   never `auto`), the chip row never wraps or grows (ShelfChips scrolls itself horizontally), and only
+   .pantry-sheet__list absorbs the height. Spacing comes from the sheet's own 8px gap. */
+.pantry-sheet__shelves {
+  flex: 0 0 auto;
+  min-width: 0;
+}
