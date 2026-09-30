@@ -23,7 +23,8 @@ describe("Free Cooking only: Dinner, guided and Lunch Rush never reach the ORIGI
   it("resultNearMiss / originalResultCopy have no other production caller than the RESULT card path", () => {
     const callers = (needle: RegExp) =>
       production.filter(([p, text]) => p !== RESULT_NEAR_MISS && p !== ORIGINAL_COPY && needle.test(text)).map(([p]) => p).sort();
-    expect(callers(/resultNearMiss\(/)).toEqual(["/src/screens/GameScreen.tsx"]);
+    // P3-3a: the Trial Notebook record adapter asks for the same line the card shows (OD-P3-18), through the same pure function.
+    expect(callers(/resultNearMiss\(/)).toEqual(["/src/screens/GameScreen.tsx", "/src/state/trialRecord.ts"]);
     expect(callers(/originalResultCopy["']/)).toEqual(["/src/components/ResultPanel.tsx"]);
   });
 
@@ -72,21 +73,26 @@ describe("Owner decisions (P2) stay contained", () => {
     expect(users).toEqual([]);
   });
 
-  // P1 (Attempt Fingerprint) introduced `attemptFingerprint.ts`. The module may exist and carry its own
-  // name; this gate still guarantees that no *other* production file depends on it before P3 wiring
-  // (together with attemptFingerprint.gate.test.ts, which pins the import / reference graph to 0).
-  // This allowlist is exactly that one file, and it never covers the Trial Notebook.
+  // P1 (Attempt Fingerprint) introduced `attemptFingerprint.ts`, and P3-1 (Trial Notebook pure model) introduced
+  // `trialNotebook.ts`. Each may exist and carry its own name; this gate still guarantees that no *other*
+  // production file mentions either before P3 wiring (together with attemptFingerprint.gate.test.ts and
+  // trialNotebook.gate.test.ts, which pin the import / reference graph). The allowlists are exactly these files.
   const ATTEMPT_FINGERPRINT_MODULE = "/src/logic/discovery/attemptFingerprint.ts";
+  const TRIAL_NOTEBOOK_MODULE = "/src/logic/discovery/trialNotebook.ts";
+  // P3-3a (OD-P3-17): the record adapter and the reducer that carries the notebook are the only wired files.
+  const RECORD_ADAPTER = "/src/state/trialRecord.ts";
+  const REDUCER = "/src/state/gameReducer.ts";
 
-  it("no production file other than the P1 module itself mentions the Attempt Fingerprint", () => {
+  it("no production file other than the P1 module, the Trial Notebook model and the P3-3a record adapter mentions the Attempt Fingerprint", () => {
     for (const [path, text] of production) {
-      if (path === ATTEMPT_FINGERPRINT_MODULE) continue;
+      if (path === ATTEMPT_FINGERPRINT_MODULE || path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER) continue;
       expect(text, path).not.toMatch(/attemptFingerprint/i);
     }
   });
 
-  it("no dependency on the Trial Notebook (the P1 module included)", () => {
+  it("no production file other than the Trial Notebook model, the record adapter and the reducer mentions the Trial Notebook", () => {
     for (const [path, text] of production) {
+      if (path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER || path === REDUCER) continue;
       expect(text, path).not.toMatch(/trialNotebook/i);
     }
   });
