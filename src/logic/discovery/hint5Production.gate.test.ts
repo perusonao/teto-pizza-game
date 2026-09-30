@@ -331,6 +331,11 @@ describe("wiring boundary (H5-1 unwired -> H5-2 reducer -> H5-3 sheet, all behin
       .filter(([, text]) => /from\s+["'][^"']*\/(hint5Ladder|recipeHintRoles|hintClassDisplay)["']/.test(text))
       .map(([path]) => path);
     // H5-3: the sheet imports types and the ordinal helper for its ladder body.
-    expect(importers.sort()).toEqual(["../../components/HintSheet.tsx", "../../state/discoveryHint.ts"]);
+    // P3-2: the unwired Discovery Memo display model imports the presentation TYPE only (asserted below); it is
+    // the one additional, explicitly allowlisted importer and has no runtime dependency on the ladder.
+    expect(importers.sort()).toEqual(["../../components/HintSheet.tsx", "../../state/discoveryHint.ts", "./discoveryMemo.ts"]);
+    const memo = sources["./discoveryMemo.ts"];
+    const memoStatements = [...memo.matchAll(/^\s*import\b[^;]*from\s+["'][^"']*\/(hint5Ladder|recipeHintRoles|hintClassDisplay)["'];/gm)].map((m) => m[0].trim());
+    expect(memoStatements).toEqual(['import type { Hint5Presentation } from "./hint5Ladder";']);
   });
 });

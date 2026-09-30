@@ -1,0 +1,213 @@
+{
+ "target": "src/logic/discovery/discoveryMemo.ts",
+ "tests": "src/logic/discovery/discoveryMemo*.test.ts",
+ "mutants": 40,
+ "killed": 39,
+ "equivalent": 1,
+ "survived": 0,
+ "invalid": 0,
+ "mutationScore": 1,
+ "results": [
+  {
+   "id": "M01",
+   "description": "card-state gate removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M02",
+   "description": "flag gate removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M03",
+   "description": "presentation gate removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M04",
+   "description": "onboarding gate inverted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M05",
+   "description": "sauce may be NONE",
+   "status": "KILLED"
+  },
+  {
+   "id": "M06",
+   "description": "NONE with ids allowed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M07",
+   "description": "KNOWN with no ids allowed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M08",
+   "description": "none flag not required to be false",
+   "status": "KILLED"
+  },
+  {
+   "id": "M09",
+   "description": "ingredient ids not validated",
+   "status": "KILLED"
+  },
+  {
+   "id": "M10",
+   "description": "ingredient ids not de-duplicated",
+   "status": "KILLED"
+  },
+  {
+   "id": "M11",
+   "description": "structure KNOWN without a text check",
+   "status": "KILLED"
+  },
+  {
+   "id": "M12",
+   "description": "families before STRUCTURE",
+   "status": "KILLED"
+  },
+  {
+   "id": "M13",
+   "description": "family not validated",
+   "status": "KILLED"
+  },
+  {
+   "id": "M14",
+   "description": "ordinal below 1 accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M15",
+   "description": "repeated ordinal accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M16",
+   "description": "fractional ordinal accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M17",
+   "description": "symbol not validated",
+   "status": "KILLED"
+  },
+  {
+   "id": "M18",
+   "description": "legacy names repeat shown facts",
+   "status": "KILLED"
+  },
+  {
+   "id": "M19",
+   "description": "legacy ids not validated",
+   "status": "KILLED"
+  },
+  {
+   "id": "M20",
+   "description": "complete without settled fixed rows",
+   "status": "KILLED"
+  },
+  {
+   "id": "M21",
+   "description": "complete text not validated",
+   "status": "KILLED"
+  },
+  {
+   "id": "M22",
+   "description": "completion flag never COMPLETE",
+   "status": "KILLED"
+  },
+  {
+   "id": "M23",
+   "description": "hasKnownFact always true",
+   "status": "KILLED"
+  },
+  {
+   "id": "M24",
+   "description": "last board entry of a kind wins",
+   "status": "KILLED"
+  },
+  {
+   "id": "M25",
+   "description": "array accepted as a record",
+   "status": "EQUIVALENT",
+   "equivalentReason": "A record-shaped check is only reached for the input, the presentation and board entries; an array there fails the next guard (cardState / onboarding / kind must be a string), so the behaviour is identical."
+  },
+  {
+   "id": "M26",
+   "description": "family row cap removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M27",
+   "description": "sauce row reads the cheese entry",
+   "status": "KILLED"
+  },
+  {
+   "id": "M28",
+   "description": "key topping row reads the sauce entry",
+   "status": "KILLED"
+  },
+  {
+   "id": "M29",
+   "description": "structure reads the cheese entry",
+   "status": "KILLED"
+  },
+  {
+   "id": "M30",
+   "description": "ids-per-row cap loosened",
+   "status": "KILLED"
+  },
+  {
+   "id": "M31",
+   "description": "text cap loosened",
+   "status": "KILLED"
+  },
+  {
+   "id": "M32",
+   "description": "legacy cap loosened",
+   "status": "KILLED"
+  },
+  {
+   "id": "M33",
+   "description": "UNKNOWN counts as settled",
+   "status": "KILLED"
+  },
+  {
+   "id": "M34",
+   "description": "family row copies the ordinal only (class view dropped)",
+   "status": "KILLED"
+  },
+  {
+   "id": "G01",
+   "description": "BOUNDARY: a recipe module value import is added",
+   "status": "KILLED"
+  },
+  {
+   "id": "G02",
+   "description": "BOUNDARY: the next-rung offer is read",
+   "status": "KILLED"
+  },
+  {
+   "id": "G03",
+   "description": "BOUNDARY: a recipe id input is added",
+   "status": "KILLED"
+  },
+  {
+   "id": "G04",
+   "description": "BOUNDARY: the Hint 5.0 type import becomes a value import",
+   "status": "KILLED"
+  },
+  {
+   "id": "G05",
+   "description": "BOUNDARY: a Trial Notebook dependency is added",
+   "status": "KILLED"
+  },
+  {
+   "id": "G06",
+   "description": "BOUNDARY: a new row kind (candidate) is added",
+   "status": "KILLED"
+  }
+ ]
+}
