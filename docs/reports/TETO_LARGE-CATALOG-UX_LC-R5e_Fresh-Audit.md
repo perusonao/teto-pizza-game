@@ -16,7 +16,7 @@ R5-e は新機能ではなく、R6 で初めて hand enforcement / production pi
 | flag | `src/logic/catalog/handPolicy.ts:14` `HAND_ENFORCEMENT_ENABLED = false` |
 | capacity | `handPolicy.ts:32` `DEFAULT_HAND_CAPACITY_CANDIDATE = 12`（design candidate。9 vs 12 未決） |
 | baseline test（本監査で実行） | `src/logic/catalog/**` + `App.handTray` + `App.handTray.off` + `App.handPins` + `IngredientPantry.pins` + `App.freeCookTrayPaging`: **191 passed / 0 failed** |
-| mutation baseline（本監査で再実行） | <<BASELINE>> |
+| mutation baseline（本監査で再実行） | `mutation-check.mjs` M1〜M114（118 mutants）: **117 KILLED / 1 NOT_APPLICABLE（M10b、stale）/ 0 SURVIVED**（§12.1） |
 | 追加 tooling（CI 外） | `tools/large-catalog-ux/r5e-activation-mutants.mjs`（activation-boundary 候補 mutant E1〜E11、§12） |
 
 ---
@@ -287,7 +287,7 @@ pin で hand が変わり selection が clear された後、同じ tile を再 
 | App（flag forced on） | `App.handTray.test.tsx`（10）、`App.handPins.test.tsx`（3） | — | #197、Model C、placed、fuzz I1、lifecycle、Dinner |
 | App（real flag） | `App.handTray.off.test.tsx`（1）、`App.freeCookTrayPaging` | — | OFF 等価 |
 | e2e（Chromium、CI WebKit） | large-catalog-pin-dormant / pantry-search / pantry-shell / pantry-shelves / stage-size-stability 他 | R5-d: 56 pass | dormant DOM、geometry |
-| mutation | `mutation-check.mjs` M1〜M114 | <<BASELINE-SHORT>> | privacy / dormancy / #197 / Model C / FREE gate |
+| mutation | `mutation-check.mjs` M1〜M114 | 117 / 118 killed、M10b stale（E12 で代替 kill） | privacy / dormancy / #197 / Model C / FREE gate |
 
 Coverage gaps（activation 観点）:
 - **G-1** App-level capacity 9 なし（12 固定）。
@@ -305,11 +305,19 @@ Coverage gaps（activation 観点）:
 
 ### 12.1 既存 M1〜M114 の再実行（current main）
 
-<<BASELINE-TABLE>>
+実行: `node tools/large-catalog-ux/mutation-check.mjs`（`eb6c32d` の clean worktree、source は各 run 後に復元）。
+
+| 結果 | 件数 | 内容 |
+|---|---:|---|
+| KILLED | 117 | M1〜M114 の全 privacy / dormancy / eligibility / shelf / search / IME / fit / pin / #197 / Model C mutant |
+| NOT_APPLICABLE | 1 | **M10b**「capacity off-by-one（item count）」: edit 文字列 `if (items.length < capacity) items.push` が R5-d の書き換え（`if (source === "placed" \|\| items.length < capacity) items.push`、`workingSet.ts:105`）で消え、**R5-d 以降この mutant は実行されていなかった**（Finding F-7） |
+| SURVIVED | 0 | — |
+
+F-7 の確認: 同等の mutant を現行の行に当てた **E12（`items.length <= capacity`）は KILLED**（§12.2）。つまり test は有効で、壊れていたのは mutant 定義だけ。R5-e-h で `mutation-check.mjs` の M10b を現行の行に更新し、runner が NOT_APPLICABLE を失敗扱いにしている（exit 1）ことを CI 外手順として明記する（H-8）。
 
 ### 12.2 activation-boundary 候補 mutant（`tools/large-catalog-ux/r5e-activation-mutants.mjs`）
 
-実行: `node tools/large-catalog-ux/r5e-activation-mutants.mjs`（current main、suite = catalog + pantry / tray / App hand tests）。**8 / 11 killed**。
+実行: `node tools/large-catalog-ux/r5e-activation-mutants.mjs`（current main、suite = catalog + pantry / tray / App hand tests）。**9 / 12 killed**（E12 は baseline 後に追加）。
 
 | id | mutant | 結果 | 判定 |
 |---|---|---|---|
@@ -323,6 +331,7 @@ Coverage gaps（activation 観点）:
 | E8 | `new` tier を古い順に | KILLED | — |
 | E9 | #197 retain を hand 全体で判定 | KILLED | — |
 | E10 | Model C fail-open | KILLED | — |
+| E12 | item-count off-by-one（M10b の現行版） | KILLED | F-7 参照 |
 | E11 | pin UI を active hand の時だけに（OD-R5e-1 の推奨案） | KILLED | current spec（inactive でも pin UI）を test が固定している。OD-R5e-1 で推奨案を採るなら test も意図的に更新する |
 
 **F-6 の hardening（test-only）**: App-level で「hand 変化で page 0 に無い selection が clear された後、pizza tap が何も置かない」ことを明示的に assert する test（上記 probe を正式化）+ fuzz I1 に「page 2 選択 → hand 外 pin」の決定的シナリオを追加 → E6 を kill。
@@ -333,7 +342,7 @@ Coverage gaps（activation 観点）:
 |---|---|---|
 | eligibility inversion | M26 / M27 / M29 / M33 / M58c / M103 | — |
 | flag inversion | M28 / M84 / M89〜M91 / M101 | E1（`handCapacityFor` 内） |
-| capacity off-by-one | M10 / M10b | E5（candidate 12→9） |
+| capacity off-by-one | M10 / M10b（**stale**、F-7） | E12 KILLED、E5（candidate 12→9） |
 | placed priority | M106 / M112 | — |
 | pin rejection | M83 / M107 | E10 |
 | catalog-order normalization | M8 / M98 | — |
@@ -358,6 +367,8 @@ Coverage gaps（activation 観点）:
 | H-5 | null → active の同一 key 遷移（現在到達不能）を pure test で仕様化（将来 in-round 購入を入れる時の検出用） | §6.3 | — |
 | H-6 | active hand の round 跨ぎ（stock 1→0 で tray から消える / zero-stock pin は ×0 で残る）、guided / Lunch Rush + pins の App test | G-2 / G-3 | — |
 | H-7 | pin → undo で selection が戻らない現仕様を固定（R6 で変えるなら意図的に test を更新） | G-5 | — |
+
+| H-8 | `mutation-check.mjs` の M10b を R5-d 後の行に更新（stale mutant、F-7） | F-7 | M10b |
 
 H-1 は activation の安全契約（非可視 selection で置けない）を守る唯一の App 層 gate であり、R6 で flag を触る前に入れるべき。H-2〜H-7 は同じ test-only slice に同梱できる。
 
@@ -418,7 +429,7 @@ HV-1 欲しい材料の見つけやすさ / HV-2 page 切替の煩わしさ / HV
 
 | slice | 内容 | production 変化 | HV |
 |---|---|---|---|
-| **R5-e-h** test / mutation hardening（R6 の前提） | §13.1 H-1〜H-7、E6 / E2 を kill、M1〜M114 維持 | なし | 不要 |
+| **R5-e-h** test / mutation hardening（R6 の前提） | §13.1 H-1〜H-8、E6 / E2 を kill、M10b 更新、M1〜M114 維持 | なし | 不要 |
 | **R6-a** activation readiness（flag false のまま） | test seam（flag を 1 関数に集約、`handCapacityFor` を mock しない ON test）、OFF golden 14+ snapshots を commit、ON-inactive ≡ OFF gate、App-level capacity 9 parametrize（G-1）、G-2 / G-3 / G-5、H-4 invariant、capacity-full feedback + SR announce（AB-1）と OD-R5e-1 の presentation を **dormant で**実装、Preview-only flag 切替（OD-R5e-4）、mutation E-set の survivors を kill | なし（DOM byte 同一を gate で証明） | 不要（dormant） |
 | **R6-b** Preview flag ON exact SHA HV | Preview build のみ flag ON（capacity 12 candidate）。390×844 video + screenshot、HV-1〜HV-13 の初回 | なし（production は false） | 必須 |
 | **R6-c** 9 vs 12 real-device comparison | §16 protocol。2 Preview build | なし | 必須 |
@@ -459,6 +470,6 @@ R6-a を「test / presentation hardening（dormant）」と「Preview 切替」�
 - しかし **#197 の App 層 clear（activation 時の安全契約の中核）を守る test が存在しない**（F-6: E6 SURVIVED、scratch probe で非可視 selection による配置を再現）。flag ON 系の作業（R6-b 以降）に入る前に test-only hardening H-1（+ H-2〜H-7）が必要。
 - 並行して Owner Decision OD-R5e-1〜5（§18）が必要。production activation（R6-e）前の blocker は AB-1〜AB-6（§13.2）。
 
-提案する次 slice（Owner go 待ち）: **LC-R5-e-h（test / mutation hardening only）** — H-1〜H-7 の test 追加と `r5e-activation-mutants.mjs` の E6 / E2 を kill、既存 M1〜M114 維持。production code・flag・capacity・save・UI は一切変更しない。その後 R6-a へ。
+提案する次 slice（Owner go 待ち）: **LC-R5-e-h（test / mutation hardening only）** — H-1〜H-8 の test 追加と `r5e-activation-mutants.mjs` の E6 / E2 を kill、既存 M1〜M114 維持。production code・flag・capacity・save・UI は一切変更しない。その後 R6-a へ。
 
 R6 implementation は開始しない。STOP.

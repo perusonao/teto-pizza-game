@@ -84,6 +84,12 @@ const MUTANTS = [
     file: "src/screens/GameScreen.tsx",
     edits: [["handEditing={HAND_ENFORCEMENT_ENABLED}", "handEditing={HAND_ENFORCEMENT_ENABLED && (trayHand?.ids ?? null) !== null}"]],
   },
+  {
+    id: "E12",
+    what: "capacity off-by-one (item count) on the R5-d line -- M10b's edit no longer applies since R5-d",
+    file: `${C}/workingSet.ts`,
+    edits: [['if (source === "placed" || items.length < capacity) items.push', 'if (source === "placed" || items.length <= capacity) items.push']],
+  },
 ];
 
 const SUITE = [
