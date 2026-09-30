@@ -1,0 +1,55 @@
+{
+  "generatedBy": "tools/large-catalog-ux/r6a-bundle-probe.test.ts",
+  "note": "In-memory vite builds (minified). production = no VITE_PREVIEW_MODE; preview = VITE_PREVIEW_MODE=1. HAND_ENFORCEMENT_ENABLED = false in source.",
+  "bytes": {
+    "productionJs": 1096009,
+    "previewJs": 1105819,
+    "productionCss": 81474,
+    "previewCss": 81474
+  },
+  "production": {
+    "handJs": {
+      "おまかせに戻す": true,
+      "選択中の材料": true,
+      "を外す": true,
+      "ざいこなし": true,
+      "pantry-tile__toggle": true,
+      "pantry-sheet__pins": true,
+      "pantry-tile__pin-badge": true
+    },
+    "handCss": {
+      "pantry-tile__toggle": true,
+      "pantry-sheet__pins": true,
+      "pantry-tile__pin-badge": true
+    },
+    "previewOnly": {
+      "h5-preview-helper-v1": false,
+      "teto-pizza-preview-hint5-optin": false,
+      "teto-pizza-preview-save-v1": false
+    },
+    "control": {
+      "食材庫": true,
+      "材料を検索": true
+    }
+  },
+  "preview": {
+    "handJs": {
+      "おまかせに戻す": true,
+      "選択中の材料": true,
+      "を外す": true,
+      "ざいこなし": true,
+      "pantry-tile__toggle": true,
+      "pantry-sheet__pins": true,
+      "pantry-tile__pin-badge": true
+    },
+    "previewOnly": {
+      "h5-preview-helper-v1": true,
+      "teto-pizza-preview-hint5-optin": true,
+      "teto-pizza-preview-save-v1": true
+    },
+    "control": {
+      "食材庫": true,
+      "材料を検索": true
+    }
+  }
+}
