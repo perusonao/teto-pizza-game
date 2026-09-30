@@ -1119,9 +1119,11 @@ export function PizzaStage({
             than what actually counts as "the ear" (brief section 5). First child, no
             z-index, so it sits below the sauce/heatmap/toppings that follow it by DOM order
             alone -- same convention the heatmap itself already uses. Shown only while the
-            player can actually paint (referenceModeEnabled + interactive), never during
-            BAKE/RESULT or behind the Reference popover. */}
-        {referenceModeEnabled && interactive && (
+            player can actually paint (referenceModeEnabled + interactive + the SAUCE step), never
+            during DOUGH/CHEESE/TOPPING/CUT, BAKE/RESULT or behind the Reference popover. The
+            `makingStep` gate is Cooking Interaction 2.0 OD-CI-1 (Dough Guide Leak Fix): this
+            guide used to leak onto every other step, drawing a second dashed ring on DOUGH. */}
+        {referenceModeEnabled && interactive && makingStep === "SAUCE" && (
           <svg className="sauce-target-guide" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
           </svg>
