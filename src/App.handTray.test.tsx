@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { Profiler, StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -306,6 +307,45 @@ describe("LC-R5-d dormant tray hand (flag forced on, active hand)", () => {
       expect(names.map(catalogRank)).toEqual([...names.map(catalogRank)].sort((a, b) => a - b));
     }
   }, 60_000);
+
+  it.each([
+    ["plain", false],
+    ["React.StrictMode", true],
+  ] as const)("render-phase transition (%s): ONE commit carries the new list, page 0 and the cleared selection (no torn frame, no loop)", async (_label, strict) => {
+    seedFree();
+    const user = userEvent.setup();
+    let commits = 0;
+    const tree = (
+      <Profiler id="app" onRender={() => { commits += 1; }}>
+        <App />
+      </Profiler>
+    );
+    render(strict ? <StrictMode>{tree}</StrictMode> : tree);
+    await toToppingStep(user);
+    const [p1, p2] = await bothPages(user);
+    const outside = TOPPINGS.map((t) => t.nameJa).find((n) => ![...p1, ...p2].includes(n))!;
+    await user.click(screen.getByRole("button", { name: "次のページ" }));
+    await user.click(chipByName(p2[p2.length - 1]));
+    await openPantry(user);
+    const snapshots: string[] = [];
+    const observer = new MutationObserver(() => snapshots.push(JSON.stringify({ page: pageLabel(), names: trayNames(), sel: selectedName() })));
+    observer.observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true });
+    const before = commits;
+    await user.click(exactTile(outside));
+    await Promise.resolve();
+    observer.disconnect();
+    // Exactly one commit for the pin edit (an effect-driven clear / page reset would add a second one).
+    expect(commits - before).toBe(1);
+    // No observed frame shows the old page 2 over the new list, or a stale selection with the new page 0.
+    for (const snap of snapshots) {
+      const { page, sel } = JSON.parse(snap) as { page: string; sel: string | null };
+      expect(page === "2 / 2" && sel === null).toBe(false);
+      if (page === "1 / 2") expect(sel).toBeNull();
+    }
+    await closePantry(user);
+    expect(pageLabel()).toBe("1 / 2");
+    expect(selectedName()).toBeNull();
+  });
 
   it("Dinner keeps the paged 22-topping tray even with pins in the session", async () => {
     seedDinner();
