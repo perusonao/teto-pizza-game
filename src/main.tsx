@@ -15,8 +15,27 @@ if (import.meta.env.VITE_PREVIEW_MODE) {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const root = createRoot(document.getElementById('root')!)
+
+function renderApp() {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+}
+
+// CUT-S2 Owner HV (Issue #288): Preview/DEV builds only. Vite replaces both env flags statically, so a
+// production build drops this branch, the dynamic import and the whole ./preview/cutHvBoot chunk; it
+// renders the normal app immediately. In a Preview build the boot module decides whether `?cuthv=1`
+// was asked for, and anything else (or any failure) falls through to the normal app.
+if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
+  void import('./preview/cutHvBoot').then(({ bootCutHvIfRequested }) => bootCutHvIfRequested(root, window.location.search)).then(
+    (handled) => {
+      if (!handled) renderApp()
+    },
+    renderApp,
+  )
+} else {
+  renderApp()
+}

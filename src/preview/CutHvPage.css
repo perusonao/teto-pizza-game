@@ -1,0 +1,26 @@
+/* CUT-S2 Owner HV page (Preview-only, see CutHvPage.tsx). Loaded with that chunk only. */
+.cut-hv-result {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 4px;
+}
+.cut-hv-result__grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  margin: 0;
+  font-size: 13px;
+}
+.cut-hv-result__grid dt { margin: 0; opacity: 0.8; }
+.cut-hv-result__grid dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.cut-hv-result__grid strong { font-size: 18px; }
+.cut-hv-result__ask { margin: 2px 0 0; font-size: 13px; }
+.cut-hv-result__rate { gap: 6px; }
+.cut-hv-result__rate .secondary-button { flex: 1; min-height: 44px; }
+.cut-hv-result__redo { min-height: 36px; font-size: 12px; }
+.cut-hv-result__table-wrap { overflow-x: auto; }
+.cut-hv-result__table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.cut-hv-result__table th, .cut-hv-result__table td { padding: 2px 4px; text-align: center; border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
+.cut-hv-result__text { width: 100%; box-sizing: border-box; font-size: 11px; }

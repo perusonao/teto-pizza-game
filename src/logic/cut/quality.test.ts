@@ -454,6 +454,9 @@ describe("CutQuality is not connected to anything (S1 scope guard)", () => {
     const offenders = walk(src).filter((f) => {
       if (!/\.(ts|tsx)$/.test(f) || /\.test\./.test(f)) return false;
       if (f.includes(join("logic", "cut") + "/")) return false;
+      // CUT-S2 Owner HV: the Preview-only shadow page (compiled out of production, see
+      // src/preview/cutHvIsolation.gate.test.ts) is the one sanctioned consumer outside the cut folder.
+      if (f.includes(join("src", "preview") + "/cutHv") || f.includes(join("src", "preview") + "/CutHv")) return false;
       return /(?:from|import)\s+"[^"]*(?:\/cut)?\/quality"/.test(readFileSync(f, "utf8"));
     });
     expect(offenders).toEqual([]);
