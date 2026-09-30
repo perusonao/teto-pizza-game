@@ -48,6 +48,6 @@
       "jsonBytes": 270150
     }
   },
-  "totalMsFor2100Records": 54,
-  "msPerRecordMean": 0.025
+  "totalMsFor2100Records": 65,
+  "msPerRecordMean": 0.031
 }

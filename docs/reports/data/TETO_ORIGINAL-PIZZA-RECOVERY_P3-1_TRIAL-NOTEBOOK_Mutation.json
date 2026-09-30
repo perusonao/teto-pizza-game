@@ -55,16 +55,6 @@
    "status": "KILLED"
   },
   {
-   "id": "T10",
-   "description": "NOTICE_ONLY revives the row",
-   "status": "KILLED"
-  },
-  {
-   "id": "T11",
-   "description": "REVIVE never revives",
-   "status": "KILLED"
-  },
-  {
    "id": "T12",
    "description": "retry keeps the stale feedback",
    "status": "KILLED"
@@ -136,7 +126,7 @@
   },
   {
    "id": "T26",
-   "description": "outcome: hadDetail always true",
+   "description": "outcome: revived is always false",
    "status": "KILLED"
   },
   {
@@ -152,6 +142,16 @@
   {
    "id": "T29",
    "description": "a rejected feedback is not rejected",
+   "status": "KILLED"
+  },
+  {
+   "id": "T10",
+   "description": "a retry no longer revives a row that left the display",
+   "status": "KILLED"
+  },
+  {
+   "id": "T11",
+   "description": "outcome: revived flag inverted",
    "status": "KILLED"
   },
   {

@@ -34,33 +34,30 @@
  *
  * ## Rules
  *
- * - **Retry.** The same fingerprint never makes a second entry: `retryCount` goes up by one. `#n` never
- *   changes. A retry counts as the newest activity: its row (when shown) moves to the top and its
- *   identity becomes the last one to be evicted. Order is activity, `#n` is creation: they differ by
+ * - **Retry = newest activity (OD-P3-15a).** The same fingerprint never makes a second entry: `retryCount`
+ *   goes up by one and `#n` never changes. The retry is the newest activity: its row moves to the top and
+ *   its identity becomes the last one to be evicted. Order is activity, `#n` is creation: they differ by
  *   design, and the view always carries `#n`. This reveals nothing beyond the player's own actions.
- *   The row's feedback is replaced by the feedback shown for the retry (the latest thing the player
- *   saw); the original line is not kept.
+ * - **Retry updates the feedback (OD-P3-15b).** The row's feedback becomes the line shown for this retry. The
+ *   first line is not kept and there is no feedback history in Phase 1.
+ * - **Revive (OD-P3-13 = A, the only behaviour).** A retry of an identity whose detail row left the display
+ *   history puts the row back at the top with the same `#n`. The row is built only from the retained
+ *   fingerprint (the player's own combination), the line shown just now, the retry count and the number.
+ *   Nothing else is, or can be, reconstructed: the old line is gone.
  * - **Numbers.** `#n` is a session-wide counter that only ever grows. It is never reused, so an evicted
  *   identity that is tried again is a NEW attempt with a NEW number, and a stale `#n` is never returned.
- * - **Display overflow.** The 51st unique attempt pushes the row with the oldest activity out of the
- *   display history. Its identity stays, so a retry is still detected as a duplicate of the original `#n`.
- *   What is shown for such a retry is an unresolved design question (`EvictedRetryPolicy`).
- * - **Identity overflow.** The 2 001st unique fingerprint evicts the identity with the oldest activity
- *   (and its row, if it still has one). Trying an evicted combination again is a first attempt.
- *   Eviction only makes the notebook forget; it never produces a false duplicate.
- * - **Fail closed.** A fingerprint that is not a canonical version-1 string (malformed, another
- *   version, not a string) and a feedback that is not exactly `null` or `{ kind, textJa }` are
- *   rejected: the state is returned unchanged and nothing is stored.
- *
- * ## Open question: retrying a combination whose detail row left the display (OD-P3-13)
- *
- * The model supports both answers behind one switch and does not pick for the player:
- * - `NOTICE_ONLY` (default until decided): the retry is reported as a duplicate of `#n` and counts,
- *   but no detail row is created. Nothing is reconstructed.
- * - `REVIVE`: the retry also puts a row back at the top, built only from the combination in the
- *   fingerprint and the feedback shown just now. The old feedback is gone and is not reconstructed.
- * Neither option reads anything hidden: a row is always built from the fingerprint and the feedback
- * the player was just shown.
+ * - **Display overflow.** The 51st unique attempt pushes the row with the oldest activity out of the display
+ *   history. Its identity stays, so a retry is still detected as a duplicate of the original `#n` (and is
+ *   revived).
+ * - **Identity overflow.** The 2 001st unique fingerprint evicts the identity with the oldest activity (and
+ *   its row, if it still has one). Trying an evicted combination again is a first attempt. Eviction only
+ *   makes the notebook forget; it never produces a false duplicate.
+ * - **Fail closed.** A fingerprint that is not a canonical version-1 string (malformed, another version, not
+ *   a string) and a feedback that is not exactly `null` or `{ kind, textJa }` are rejected: the state is
+ *   returned unchanged and nothing is stored.
+ * - **No internal outcome (OD-P3-14).** The notebook records no matcher / completion outcome (ORIGINAL,
+ *   INCOMPLETE_MATCH, ...): it is the player's own tries and what the player was shown, not a history of
+ *   internal judgements.
  */
 import { attemptFingerprintVersion, parseAttemptFingerprint } from "./attemptFingerprint";
 
@@ -127,13 +124,6 @@ export interface TrialEntryView {
   feedback: ShownFeedback | null;
 }
 
-export type EvictedRetryPolicy = "NOTICE_ONLY" | "REVIVE";
-
-export interface RecordOptions {
-  /** What a retry of an identity that has no detail row does (OD-P3-13, undecided). */
-  evictedRetry?: EvictedRetryPolicy;
-}
-
 export type RejectReason = "MALFORMED" | "UNSUPPORTED_VERSION" | "INVALID_FEEDBACK";
 
 export interface AttemptInput {
@@ -151,10 +141,8 @@ export type RecordOutcome =
       number: number;
       /** The retry count after this attempt. */
       retryCount: number;
-      /** Whether the original had a detail row before this attempt. */
-      hadDetail: boolean;
-      /** Whether it has one now. */
-      hasDetail: boolean;
+      /** True when the original's detail row had left the display history and this retry brought it back. */
+      revived: boolean;
     }
   | { kind: "REJECTED"; reason: RejectReason };
 
@@ -212,7 +200,7 @@ function rejected(state: TrialNotebook, reason: RejectReason): RecordResult {
  * Records one attempt. NEW fingerprint -> a new entry with the next number; a known fingerprint ->
  * a retry of the original. A rejected input returns the very same state.
  */
-export function recordAttempt(notebook: TrialNotebook, input: AttemptInput, options: RecordOptions = {}): RecordResult {
+export function recordAttempt(notebook: TrialNotebook, input: AttemptInput): RecordResult {
   const parsed = parseFingerprint(input?.fingerprint);
   if (!parsed.ok) return rejected(notebook, parsed.reason);
   const feedback = sanitizeFeedback(input.feedback);
@@ -238,15 +226,11 @@ export function recordAttempt(notebook: TrialNotebook, input: AttemptInput, opti
   const known = notebook.identities[at];
   const updated: IdentityRecord = { fp, number: known.number, retryCount: known.retryCount + 1 };
   const identities = [...notebook.identities.slice(0, at), ...notebook.identities.slice(at + 1), updated];
-  const hadDetail = notebook.display.some((r) => r.fp === fp);
-  const revive = options.evictedRetry === "REVIVE";
-  let display: readonly DisplayRow[] = notebook.display;
-  if (hadDetail || revive) {
-    display = [{ ...row, number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)].slice(0, notebook.limits.display);
-  }
+  const revived = !notebook.display.some((r) => r.fp === fp);
+  const display = [{ ...row, number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)].slice(0, notebook.limits.display);
   return {
     state: { ...notebook, identities, display },
-    outcome: { kind: "DUPLICATE", number: known.number, retryCount: updated.retryCount, hadDetail, hasDetail: display.some((r) => r.fp === fp) },
+    outcome: { kind: "DUPLICATE", number: known.number, retryCount: updated.retryCount, revived },
   };
 }
 
@@ -291,6 +275,9 @@ export function trialNotebookViolations(notebook: TrialNotebook): string[] {
   if (numbers.some((n) => !(n >= 1 && n < notebook.nextNumber))) out.push("attempt number out of range");
   if (notebook.identities.some((r) => !(Number.isInteger(r.retryCount) && r.retryCount >= 0))) out.push("bad retry count");
   const byFp = new Map(notebook.identities.map((r) => [r.fp, r]));
+  // With revive, the display history is exactly the `display` most recently active identities, newest first.
+  const expectedShown = notebook.identities.slice(-notebook.limits.display).reverse().map((r) => r.fp);
+  if (JSON.stringify(expectedShown) !== JSON.stringify(notebook.display.map((r) => r.fp))) out.push("display is not the most recently active identities");
   const shown = new Set<string>();
   for (const r of notebook.display) {
     const id = byFp.get(r.fp);

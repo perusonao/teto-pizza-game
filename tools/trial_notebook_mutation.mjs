@@ -39,8 +39,6 @@ const MUTANTS = [
   ["T07", "eviction leaves the evicted identity's display row", "display = display.filter((r) => r.fp !== evicted);", "display = display;", "Defensive: display and identity order agree on the displayed rows, display is full whenever the identity index is (display <= identity), so the evicted row is always the last display row and the same insertion slices it off. The filter only keeps display ⊆ identities independent of that argument (trialNotebookViolations checks it in every fuzz step)."],
   ["T08", "display limit off by one (NEW)", "display = [{ ...row, number }, ...display].slice(0, notebook.limits.display);", "display = [{ ...row, number }, ...display].slice(0, notebook.limits.display + 1);"],
   ["T09", "display limit not applied (retry)", ".filter((r) => r.fp !== fp)].slice(0, notebook.limits.display);", ".filter((r) => r.fp !== fp)];"],
-  ["T10", "NOTICE_ONLY revives the row", "if (hadDetail || revive) {", "if (true) {"],
-  ["T11", "REVIVE never revives", "if (hadDetail || revive) {", "if (hadDetail) {"],
   ["T12", "retry keeps the stale feedback", "display = [{ ...row, number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)]", "display = [{ ...(notebook.display.find((r) => r.fp === fp) ?? row), number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)]"],
   ["T13", "retry does not move the row to the top", "display = [{ ...row, number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)]", "display = [...notebook.display.filter((r) => r.fp !== fp), { ...row, number: known.number }]"],
   ["T14", "a rejected fingerprint is not rejected", "if (!parsed.ok) return rejected(notebook, parsed.reason);", ""],
@@ -55,10 +53,12 @@ const MUTANTS = [
   ["T23", "view retry count always 0", "retries.get(r.fp) ?? 0", "0"],
   ["T24", "limits: display > identity accepted", "|| limits.display > limits.identity)", "|| false)"],
   ["T25", "limits: display not validated", "!isPositiveInteger(limits.display) ||", "false ||"],
-  ["T26", "outcome: hadDetail always true", "const hadDetail = notebook.display.some((r) => r.fp === fp);", "const hadDetail = true;"],
+  ["T26", "outcome: revived is always false", "const revived = !notebook.display.some((r) => r.fp === fp);", "const revived = false;"],
   ["T27", "outcome: duplicate reports the next number", 'outcome: { kind: "DUPLICATE", number: known.number,', 'outcome: { kind: "DUPLICATE", number: notebook.nextNumber,'],
   ["T28", "NEW row carries number 0", "display = [{ ...row, number }, ...display]", "display = [row, ...display]"],
   ["T29", "a rejected feedback is not rejected", 'if (!feedback.ok) return rejected(notebook, "INVALID_FEEDBACK");', ""],
+  ["T10", "a retry no longer revives a row that left the display", "const display = [{ ...row, number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)].slice(0, notebook.limits.display);", "const display = notebook.display.some((r) => r.fp === fp) ? [{ ...row, number: known.number }, ...notebook.display.filter((r) => r.fp !== fp)].slice(0, notebook.limits.display) : notebook.display;"],
+  ["T11", "outcome: revived flag inverted", "const revived = !notebook.display.some((r) => r.fp === fp);", "const revived = notebook.display.some((r) => r.fp === fp);"],
   ["T30", "identity index stores fingerprint of a different attempt", "let identities = [...notebook.identities, { fp, number, retryCount: 0 }];", "let identities = [...notebook.identities, { fp, number, retryCount: 1 }];"],
 ];
 

@@ -11,7 +11,6 @@ import {
   notebookView,
   recordAttempt,
   trialNotebookViolations,
-  type EvictedRetryPolicy,
   type RecordOutcome,
   type ShownFeedback,
   type TrialNotebook,
@@ -31,8 +30,8 @@ const ADD_ONE: ShownFeedback = { kind: "ADD_ONE", textJa: "\u{1F90F} おしい�
 const FAR: ShownFeedback = { kind: "FAR", textJa: "\u{1F9EA} 別の組み合わせも試してみよう！" };
 
 /** Shorthand: record and return both parts. */
-function rec(nb: TrialNotebook, fingerprint: unknown, feedback: unknown = null, evictedRetry?: EvictedRetryPolicy) {
-  return recordAttempt(nb, { fingerprint, feedback }, { evictedRetry });
+function rec(nb: TrialNotebook, fingerprint: unknown, feedback: unknown = null) {
+  return recordAttempt(nb, { fingerprint, feedback });
 }
 function mustBe<K extends RecordOutcome["kind"]>(outcome: RecordOutcome, kind: K): Extract<RecordOutcome, { kind: K }> {
   expect(outcome.kind).toBe(kind);
@@ -87,7 +86,7 @@ describe("Trial Notebook — recording", () => {
   it("exact duplicate: no new row, retryCount goes up, #n stays", () => {
     let nb = rec(createTrialNotebook(), fp(["tomato-sauce"], ["mozzarella"]), ADD_ONE).state;
     const again = rec(nb, fp(["tomato-sauce"], ["mozzarella"]), ADD_ONE);
-    expect(again.outcome).toEqual({ kind: "DUPLICATE", number: 1, retryCount: 1, hadDetail: true, hasDetail: true });
+    expect(again.outcome).toEqual({ kind: "DUPLICATE", number: 1, retryCount: 1, revived: false });
     nb = again.state;
     expect(notebookSize(nb)).toEqual({ display: 1, identities: 1, nextNumber: 2 });
     expect(notebookView(nb)[0]).toMatchObject({ number: 1, retryCount: 1 });
@@ -258,7 +257,7 @@ describe("Trial Notebook — no hidden information", () => {
     expect(Object.keys(notebookView(nb)[0]).sort()).toEqual(["combination", "feedback", "number", "retryCount"]);
     expect(Object.keys(notebookView(nb)[0].combination).sort()).toEqual(["ingredientSet", "sauceBase"]);
     expect(Object.keys(first.outcome).sort()).toEqual(["kind", "number"]);
-    expect(Object.keys(dup.outcome).sort()).toEqual(["hadDetail", "hasDetail", "kind", "number", "retryCount"]);
+    expect(Object.keys(dup.outcome).sort()).toEqual(["kind", "number", "retryCount", "revived"]);
     expect(Object.keys(nb).sort()).toEqual(["display", "identities", "limits", "nextNumber", "schema"]);
     expect(Object.keys(nb.identities[0]).sort()).toEqual(["fp", "number", "retryCount"]);
     expect(Object.keys(nb.display[0]).sort()).toEqual(["combination", "feedback", "fp", "number"]);
@@ -296,9 +295,9 @@ describe("Trial Notebook — lookup does not record", () => {
 });
 
 describe("Trial Notebook — the 50 display boundary (real limits)", () => {
-  function fill(count: number, policy?: EvictedRetryPolicy) {
+  function fill(count: number) {
     let nb = createTrialNotebook();
-    for (let i = 1; i <= count; i += 1) nb = rec(nb, synth(i), null, policy).state;
+    for (let i = 1; i <= count; i += 1) nb = rec(nb, synth(i), null).state;
     return nb;
   }
 
@@ -318,47 +317,47 @@ describe("Trial Notebook — the 50 display boundary (real limits)", () => {
     expect(trialNotebookViolations(nb)).toEqual([]);
   });
 
-  it("NOTICE_ONLY: a retry of a display-evicted attempt is a duplicate of the original #n and recreates no row", () => {
+  it("REVIVE (OD-P3-13): a retry of a display-evicted attempt brings its row back at the top with the same #n", () => {
     const nb = fill(51);
-    const r = rec(nb, synth(1), FAR, "NOTICE_ONLY");
-    expect(r.outcome).toEqual({ kind: "DUPLICATE", number: 1, retryCount: 1, hadDetail: false, hasDetail: false });
-    expect(numbers(r.state)).toEqual(numbers(nb));
-    expect(notebookSize(r.state).display).toBe(50);
-    expect(lookupAttempt(r.state, synth(1))).toEqual({ kind: "TRIED", number: 1, retryCount: 1, hasDetail: false });
-    expect(trialNotebookViolations(r.state)).toEqual([]);
-  });
-
-  it("the default policy is NOTICE_ONLY", () => {
-    const nb = fill(51);
-    expect(rec(nb, synth(1), FAR).outcome).toMatchObject({ kind: "DUPLICATE", hasDetail: false });
-  });
-
-  it("REVIVE: the retry puts a row back at the top, built only from the fingerprint and the feedback just shown", () => {
-    const nb = fill(51);
-    const r = rec(nb, synth(1), FAR, "REVIVE");
-    expect(r.outcome).toEqual({ kind: "DUPLICATE", number: 1, retryCount: 1, hadDetail: false, hasDetail: true });
+    const r = rec(nb, synth(1), FAR);
+    expect(r.outcome).toEqual({ kind: "DUPLICATE", number: 1, retryCount: 1, revived: true });
     const view = notebookView(r.state);
     expect(view).toHaveLength(50);
+    // built only from the retained fingerprint, the line shown now, the retry count and the number
     expect(view[0]).toEqual({ number: 1, retryCount: 1, combination: { sauceBase: [], ingredientSet: ["ing-00001"] }, feedback: FAR });
-    expect(numbers(r.state)).not.toContain(2); // the oldest remaining row made room
+    expect(numbers(r.state)).not.toContain(2); // the row with the oldest activity made room
     expect(lookupAttempt(r.state, synth(2))).toEqual({ kind: "TRIED", number: 2, retryCount: 0, hasDetail: false });
+    expect(lookupAttempt(r.state, synth(1))).toEqual({ kind: "TRIED", number: 1, retryCount: 1, hasDetail: true });
     expect(trialNotebookViolations(r.state)).toEqual([]);
   });
 
-  it("neither policy ever returns a stale or new number for a remembered identity", () => {
-    for (const policy of ["NOTICE_ONLY", "REVIVE"] as const) {
-      const r = rec(fill(60, policy), synth(7), null, policy);
-      expect(mustBe(r.outcome, "DUPLICATE").number).toBe(7);
-    }
+  it("the revived row holds no trace of the earlier feedback and no feedback history", () => {
+    let nb = rec(createTrialNotebook(), synth(1), ADD_ONE).state;
+    for (let i = 2; i <= 51; i += 1) nb = rec(nb, synth(i)).state; // #1 leaves the display
+    expect(numbers(nb)).not.toContain(1);
+    nb = rec(nb, synth(1), null).state;
+    expect(notebookView(nb)[0].feedback).toBeNull();
+    expect(JSON.stringify(nb)).not.toContain("おしい");
   });
 
-  it("an in-display retry keeps its row and moves it to the top under both policies", () => {
-    for (const policy of ["NOTICE_ONLY", "REVIVE"] as const) {
-      const r = rec(fill(10, policy), synth(4), ADD_ONE, policy);
-      expect(mustBe(r.outcome, "DUPLICATE")).toMatchObject({ hadDetail: true, hasDetail: true });
-      expect(numbers(r.state)[0]).toBe(4);
-      expect(numbers(r.state)).toHaveLength(10);
-    }
+  it("a retry never returns a stale or new number for a remembered identity, inside or outside the display", () => {
+    const nb = fill(60);
+    for (const k of [1, 7, 10, 11, 60]) expect(mustBe(rec(nb, synth(k)).outcome, "DUPLICATE").number).toBe(k);
+  });
+
+  it("an in-display retry keeps its row, moves it to the top and is not reported as revived", () => {
+    const r = rec(fill(10), synth(4), ADD_ONE);
+    expect(mustBe(r.outcome, "DUPLICATE")).toMatchObject({ number: 4, revived: false });
+    expect(numbers(r.state)[0]).toBe(4);
+    expect(numbers(r.state)).toHaveLength(10);
+  });
+
+  it("the display history is always the 50 most recently active attempts, newest first", () => {
+    let nb = fill(120);
+    for (const k of [5, 90, 3, 119, 5]) nb = rec(nb, synth(k)).state;
+    expect(numbers(nb).slice(0, 5)).toEqual([5, 119, 3, 90, 120]);
+    expect(numbers(nb)).toHaveLength(50);
+    expect(trialNotebookViolations(nb)).toEqual([]);
   });
 });
 
@@ -447,11 +446,9 @@ class Oracle {
   next = 1;
   readonly displayLimit: number;
   readonly identityLimit: number;
-  readonly revive: boolean;
-  constructor(displayLimit: number, identityLimit: number, revive: boolean) {
+  constructor(displayLimit: number, identityLimit: number) {
     this.displayLimit = displayLimit;
     this.identityLimit = identityLimit;
-    this.revive = revive;
   }
   step(key: number, feedback: ShownFeedback | null) {
     const at = this.remembered.findIndex((r) => r.key === key);
@@ -469,30 +466,29 @@ class Oracle {
     const [entry] = this.remembered.splice(at, 1);
     entry.retries += 1;
     this.remembered.push(entry);
-    const had = this.shown.some((s) => s.key === key);
-    if (had || this.revive) this.shown = [{ key, feedback }, ...this.shown.filter((s) => s.key !== key)].slice(0, this.displayLimit);
-    return { kind: "DUPLICATE" as const, number: entry.number, retryCount: entry.retries, hadDetail: had, hasDetail: this.shown.some((s) => s.key === key) };
+    const revived = !this.shown.some((s) => s.key === key);
+    this.shown = [{ key, feedback }, ...this.shown.filter((s) => s.key !== key)].slice(0, this.displayLimit);
+    return { kind: "DUPLICATE" as const, number: entry.number, retryCount: entry.retries, revived };
   }
 }
 
 describe("Trial Notebook — property / fuzz against an independent oracle", () => {
   const feedbacks: (ShownFeedback | null)[] = [null, ADD_ONE, FAR, { kind: "CLOSE", textJa: "かなり近づいてるよ" }];
-  const keyOfNumber = (nb: TrialNotebook, number: number) => nb.identities.find((r) => r.number === number)?.fp;
 
-  for (const policy of ["NOTICE_ONLY", "REVIVE"] as const) {
-    it(`matches the oracle and keeps every invariant over random operation sequences (${policy})`, () => {
+  {
+    it("matches the oracle and keeps every invariant over random operation sequences", () => {
       for (let seed = 1; seed <= 60; seed += 1) {
         const rnd = mulberry32(seed * 7919);
         const displayLimit = 1 + Math.floor(rnd() * 4);
         const identityLimit = displayLimit + Math.floor(rnd() * 6);
         const alphabet = 3 + Math.floor(rnd() * 14);
         let nb = createTrialNotebook({ display: displayLimit, identity: identityLimit });
-        const oracle = new Oracle(displayLimit, identityLimit, policy === "REVIVE");
+        const oracle = new Oracle(displayLimit, identityLimit);
         for (let step = 0; step < 300; step += 1) {
           const key = 1 + Math.floor(rnd() * alphabet);
           const feedback = feedbacks[Math.floor(rnd() * feedbacks.length)];
           const before = JSON.stringify(nb);
-          const r = rec(nb, synth(key), feedback, policy);
+          const r = rec(nb, synth(key), feedback);
           expect(JSON.stringify(nb), "input untouched").toBe(before);
           const expected = oracle.step(key, feedback);
           expect(r.outcome, `seed ${seed} step ${step}`).toEqual(expected);
@@ -510,7 +506,6 @@ describe("Trial Notebook — property / fuzz against an independent oracle", () 
             if (!inOracle) expect(looked).toEqual({ kind: "UNTRIED" });
             else expect(looked).toMatchObject({ kind: "TRIED", number: inOracle.number, retryCount: inOracle.retries });
           }
-          void keyOfNumber;
         }
       }
     });
