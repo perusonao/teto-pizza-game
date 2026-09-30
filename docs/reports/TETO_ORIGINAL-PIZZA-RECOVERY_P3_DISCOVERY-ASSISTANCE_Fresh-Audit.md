@@ -30,10 +30,14 @@ The Owner reviewed this audit and decided the following. **Where the audit text 
 | **OD-P3-10** | The duplicate notice is shown on **RESULT** in Phase 1 (e.g. 「📓 前にも同じ材料の組み合わせで作ったよ（試作#4）」). Retrying is never forbidden. A Builder-side notice is considered separately, after Large Catalog R6. |
 | **OD-P3-11** | **A.** Phase 1 Trial Notebook entry points: the ORIGINAL RESULT and the Dex header. **No HOME entry.** |
 | **OD-P3-12** | **A.** Detail display: latest **50** unique attempts. Duplicate-detection identity is kept separately for the session, up to **2 000** unique fingerprints. A retry never adds a unique attempt (it updates the retry count). The attempt number `#n` is stable for the session. Detail rows beyond 50 may leave the Notebook view, while duplicate detection stays as long as the identity is kept. Beyond 2 000 the oldest identity is evicted; trying an evicted combination again is treated as a first attempt and must never be shown as a duplicate. Persistence is forbidden in Phase 1. 50 / 2 000 are Phase 1 authority and are re-evaluated when a persistent Notebook is designed. Memory estimates are not authority. |
+| **OD-P3-13** | **A. REVIVE.** A retry of an identity whose detail row left the 50-row display keeps the same stable `#n` and brings the detail row back to the newest position. Nothing hidden may be rebuilt: only the retained fingerprint identity, the combination the player used now, the feedback shown now, the retry count and the stable number. |
+| **OD-P3-14** | The Phase 1 Notebook gets **no internal outcome field** (ORIGINAL / INCOMPLETE_MATCH ...). OD-P3-4 stays the authority: the Notebook is the player's own tries and the feedback actually shown, not a history of internal matcher judgements. |
+| **OD-P3-15a** | A duplicate retry is the newest activity (a displayed row moves to the newest position; an identity outside the display is revived there per OD-P3-13). `#n` never changes. |
+| **OD-P3-15b** | On a retry the row's feedback is updated to the latest feedback actually shown. The first feedback is not kept; no feedback history in Phase 1. |
 | **Collision** | IC-1 / IC-2 are separated from the P3 scope and not fixed here. |
 | **P1 blocker** | Approved: the P2 boundary gate adjustment (allowlist exactly `attemptFingerprint.ts`), carried as a separate commit in the same P1 PR. Done (PR #313). |
 
-**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **implemented on branch `claude/p3-1-trial-notebook-model`** (pure, unwired, no PR) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`. Open Owner decisions from that report, needed before P3-3: **OD-P3-13** (retry of an identity whose detail row left the display: REVIVE or NOTICE_ONLY), **OD-P3-14** (whether the Notebook records ORIGINAL vs INCOMPLETE_MATCH), **OD-P3-15** (confirm: a retry is the newest activity and replaces the row's feedback).
+**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **complete** on branch `claude/p3-1-trial-notebook-model` (pure, unwired, no PR; REVIVE is the only retry behaviour) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`, verdict A. Next: P3-2 (Dex 発見メモ pure display model) — Fresh Audit first.
 
 ---
 
@@ -424,7 +428,7 @@ Reading:
 | # | Slice | Nature | Depends | HV? |
 |---|---|---|---|---|
 | **P3-0** | Land P1 — **DONE: PR #313 merged (`d727030`)** | pure, unwired | OD-P3-1 | no |
-| **P3-1** | **DONE on `claude/p3-1-trial-notebook-model` (no PR; OD-P3-13..15 pending for P3-3).** `trialNotebook` pure model: entry type, fp1 dedup, repeat count, cap / LRU, epoch hash, unknown-version keep; gates (no recipe id / distance keys; imports limited to `attemptFingerprint`) | pure, unwired | P3-0 | no |
+| **P3-1** | **DONE on `claude/p3-1-trial-notebook-model` (no PR; OD-P3-13..15 decided).** `trialNotebook` pure model: entry type, fp1 dedup, repeat count, cap / LRU, epoch hash, unknown-version keep; gates (no recipe id / distance keys; imports limited to `attemptFingerprint`) | pure, unwired | P3-0 | no |
 | **P3-2** | `discoveryCardFacts` pure view model: input = `Hint5Presentation` + public universe (usable / shop-entitled set, shelf families) + public card state; output = rows (HINT / DEDUCED / family / ？) per R-1..R-5, X-1..X-2; metamorphic privacy gate; M-4 memo template | pure, unwired | — | no |
 | **P3-3** | Wire the Notebook: record FREE ORIGINAL / INCOMPLETE at REGISTER_TO_DEX time (App-level session store per OD-P3-2); 「試作ノート」 screen; RESULT link + duplicate notice (B) | RESULT UI + new screen | P3-1, ODs | **yes** |
 | **P3-4** | Dex card fact block (option C) | Dex UI | P3-2, ODs | **yes** |
