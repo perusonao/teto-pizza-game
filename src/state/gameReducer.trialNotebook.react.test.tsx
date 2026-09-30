@@ -21,23 +21,26 @@ interface Probe {
 }
 
 function mount(strict: boolean): { probe: () => Probe; rerender: () => void } {
-  let current!: Probe;
-  let renders = 0;
-  function Harness() {
+  const out = { renders: 0 } as Probe;
+  const onRender = (state: GameState, dispatch: Dispatch<GameAction>) => {
+    out.renders += 1;
+    out.state = state;
+    out.dispatch = dispatch;
+  };
+  function Harness({ report }: { report: typeof onRender }) {
     const [state, dispatch] = useReducer(gameReducer, undefined, () => createInitialGameState(DEX_3, OWNED, 0, INVENTORY, []));
-    renders += 1;
-    current = { state, dispatch, renders };
+    report(state, dispatch);
     return <div data-phase={state.phase} />;
   }
   const tree = strict ? (
     <StrictMode>
-      <Harness />
+      <Harness report={onRender} />
     </StrictMode>
   ) : (
-    <Harness />
+    <Harness report={onRender} />
   );
   const view = render(tree);
-  return { probe: () => ({ ...current, renders }), rerender: () => view.rerender(tree) };
+  return { probe: () => out, rerender: () => view.rerender(tree) };
 }
 
 function playRound(dispatch: Dispatch<GameAction>, pizza: Pizza) {
@@ -114,18 +117,21 @@ describe("harness sanity", () => {
       calls += 1;
       return gameReducer(s, a);
     };
-    let dispatch!: Dispatch<GameAction>;
-    function Harness() {
+    const holder = {} as { dispatch: Dispatch<GameAction> };
+    const keep = (d: Dispatch<GameAction>) => {
+      holder.dispatch = d;
+    };
+    function Harness({ report }: { report: typeof keep }) {
       const [, d] = useReducer(counting, undefined, () => createInitialGameState(DEX_3, OWNED, 0, INVENTORY, []));
-      dispatch = d;
+      report(d);
       return null;
     }
     render(
       <StrictMode>
-        <Harness />
+        <Harness report={keep} />
       </StrictMode>,
     );
-    act(() => dispatch({ type: "START_FREE_COOK", now: NOW }));
+    act(() => holder.dispatch({ type: "START_FREE_COOK", now: NOW }));
     expect(calls).toBeGreaterThanOrEqual(2);
   });
 });

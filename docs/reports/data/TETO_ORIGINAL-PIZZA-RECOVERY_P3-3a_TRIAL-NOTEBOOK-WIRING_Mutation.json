@@ -12,11 +12,11 @@
   "src/logic/discovery/attemptFingerprint"
  ],
  "mutants": 30,
- "killed": 27,
- "equivalent": 0,
- "survived": 1,
- "invalid": 2,
- "mutationScore": 0.9,
+ "killed": 29,
+ "equivalent": 1,
+ "survived": 0,
+ "invalid": 0,
+ "mutationScore": 1,
  "results": [
   {
    "id": "W01",
@@ -68,9 +68,10 @@
   },
   {
    "id": "W09",
-   "description": "Dinner guards removed (an ORIGINAL-shaped Dinner result would record)",
+   "description": "Dinner guards removed (both the per-case and the outer blocklist)",
    "file": "src/state/gameReducer.ts",
-   "status": "SURVIVED"
+   "status": "EQUIVALENT",
+   "equivalentReason": "A Dinner round always has freeCook = false, so REGISTER_TO_DEX never reaches the free-cook ORIGINAL branch that records (it falls to `if (!state.score) return state`). Both Dinner guards are defense in depth for other effects (Dex / Pitz), not for the notebook; no observable notebook behaviour changes."
   },
   {
    "id": "W10",
@@ -87,8 +88,8 @@
   {
    "id": "W12",
    "description": "persistence.ts learns about the notebook",
-   "status": "INVALID",
-   "detail": "pattern occurs 63 times: /**"
+   "file": "src/state/persistence.ts",
+   "status": "KILLED"
   },
   {
    "id": "W13",
@@ -99,8 +100,8 @@
   {
    "id": "W14",
    "description": "a render path reads the record result (GameScreen)",
-   "status": "INVALID",
-   "detail": "pattern occurs 44 times: import {"
+   "file": "src/screens/GameScreen.tsx",
+   "status": "KILLED"
   },
   {
    "id": "A01",
