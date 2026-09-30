@@ -1,0 +1,3384 @@
+{
+  "tool": "tools/original_pizza_p3_discovery_audit.mjs",
+  "note": "Read-only measurement for the P3 Discovery Assistance Fresh Audit. No design value is decided here.",
+  "catalogFacts": {
+    "ingredients": 29,
+    "toppings": 22,
+    "classifiedToppings": 22,
+    "unclassifiedToppings": [],
+    "taxonomyRows": 22,
+    "familyPoolSizes": {
+      "meat": 4,
+      "seafood": 3,
+      "vegetable": 8,
+      "herb": 4,
+      "spice": 1,
+      "fruit": 1,
+      "other": 1
+    },
+    "recipes": 25,
+    "discoveryTargets": 25,
+    "targetsPerRecipeMax": 1,
+    "identityCollisionGroups": [],
+    "hint5Targets": 25
+  },
+  "descriptions": {
+    "summary": {
+      "recipes": 25,
+      "namingAtLeastOneIngredient": 25,
+      "namingAllIngredients": 21,
+      "withFamilyClue": 5,
+      "withFlavourClue": 13,
+      "withTechniqueClue": 7,
+      "withIdentityClue": 11,
+      "withRecipeNameInside": 3,
+      "withAnyNonNameClue": 22
+    },
+    "rows": [
+      {
+        "recipeId": "margherita",
+        "nameJa": "マルゲリータ",
+        "description": "トマトソース・モッツァレラ・バジルだけで作る、いちばんシンプルで奥が深いピザ。",
+        "chars": 39,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "バジル"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "marinara",
+        "nameJa": "マリナーラ",
+        "description": "トマトソースとにんにく、オレガノだけ。チーズを使わない、ナポリ生まれの下町ピザ。",
+        "chars": 40,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "garlic",
+            "nameJa": "にんにく",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "にんにく"
+            ]
+          },
+          {
+            "id": "oregano",
+            "nameJa": "オレガノ",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "オレガノ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [
+            "チーズ"
+          ],
+          "flavour": [],
+          "technique": [],
+          "identity": [
+            "ナポリ"
+          ]
+        }
+      },
+      {
+        "recipeId": "quattro-formaggi",
+        "nameJa": "クアトロ フォルマッジ",
+        "description": "モッツァレラ・ゴルゴンゾーラ・パルミジャーノ・フォンティーナ、4種のチーズが溶け合う濃厚な一枚。",
+        "chars": 48,
+        "distinctIngredients": 5,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "olive-oil",
+            "nameJa": "オリーブオイル",
+            "category": "sauce",
+            "family": null,
+            "inDescription": []
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "gorgonzola",
+            "nameJa": "ゴルゴンゾーラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "ゴルゴンゾーラ"
+            ]
+          },
+          {
+            "id": "parmigiano",
+            "nameJa": "パルミジャーノ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "パルミジャーノ"
+            ]
+          },
+          {
+            "id": "fontina",
+            "nameJa": "フォンティーナ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "フォンティーナ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [
+            "チーズ"
+          ],
+          "flavour": [
+            "濃厚"
+          ],
+          "technique": [
+            "厚"
+          ],
+          "identity": [
+            "4種"
+          ]
+        }
+      },
+      {
+        "recipeId": "genovese",
+        "nameJa": "ジェノベーゼ",
+        "description": "バジル香る緑のジェノベーゼソースに、モッツァレラとチェリートマトを合わせた、彩り鮮やかな一枚。",
+        "chars": 47,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "ジェノベーゼソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "cherry-tomato",
+            "nameJa": "チェリートマト",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "チェリートマト"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "バジル",
+          "トマト"
+        ],
+        "recipeNameInDescription": true,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "bismarck",
+        "nameJa": "ビスマルク",
+        "description": "トマトソースとモッツァレラの上に卵をのせて焼き上げる、まんなかがとろ〜り輝くピザ。",
+        "chars": 41,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 2,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "egg",
+            "nameJa": "たまご",
+            "category": "topping",
+            "family": "other",
+            "inDescription": []
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [
+            "焼き"
+          ],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "funghi",
+        "nameJa": "フンギ",
+        "description": "トマトソースとモッツァレラに、香り豊かなマッシュルームをたっぷりのせたきのこ好きのための一枚。",
+        "chars": 47,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "mushroom",
+            "nameJa": "マッシュルーム",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "マッシュルーム"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [
+            "きのこ"
+          ],
+          "flavour": [
+            "香り"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "fugazza",
+        "nameJa": "フガッサ",
+        "description": "オリーブオイルを塗った生地に、たまねぎとオレガノをたっぷりのせて焼き上げる、アルゼンチン生まれの香ばしい一枚。",
+        "chars": 55,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "olive-oil",
+            "nameJa": "オリーブオイル",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "オリーブオイル"
+            ]
+          },
+          {
+            "id": "onion",
+            "nameJa": "たまねぎ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "たまねぎ"
+            ]
+          },
+          {
+            "id": "oregano",
+            "nameJa": "オレガノ",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "オレガノ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香ば"
+          ],
+          "technique": [
+            "オイル",
+            "焼き",
+            "生地"
+          ],
+          "identity": [
+            "アルゼンチン"
+          ]
+        }
+      },
+      {
+        "recipeId": "salsiccia",
+        "nameJa": "サルシッチャ",
+        "description": "トマトソースとモッツァレラの上に、ゴロッとした自家製ソーセージをのせて焼き上げる、食べ応えたっぷりの一枚。",
+        "chars": 53,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "sausage",
+            "nameJa": "ソーセージ",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ソーセージ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [
+            "焼き"
+          ],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "pepperoni",
+        "nameJa": "ペパロニ",
+        "description": "トマトソースとモッツァレラに、ピリッと香ばしいペパロニをたっぷりのせた、みんな大好き定番ピザ。",
+        "chars": 47,
+        "distinctIngredients": 3,
+        "ingredientsNamed": 3,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "pepperoni",
+            "nameJa": "ペパロニ",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ペパロニ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": true,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香ば",
+            "ピリ"
+          ],
+          "technique": [],
+          "identity": [
+            "定番"
+          ]
+        }
+      },
+      {
+        "recipeId": "napoletana",
+        "nameJa": "ナポリ",
+        "description": "トマトソースとモッツァレラに、塩気のきいたアンチョビとオレガノを効かせた、ナポリ生まれの本格派ピザ。",
+        "chars": 50,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "anchovy",
+            "nameJa": "アンチョビ",
+            "category": "topping",
+            "family": "seafood",
+            "inDescription": [
+              "アンチョビ"
+            ]
+          },
+          {
+            "id": "oregano",
+            "nameJa": "オレガノ",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "オレガノ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": true,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "塩気"
+          ],
+          "technique": [],
+          "identity": [
+            "ナポリ"
+          ]
+        }
+      },
+      {
+        "recipeId": "tonno-e-cipolla",
+        "nameJa": "トンノ・エ・チポッラ",
+        "description": "トマトソースとモッツァレラに、ツナとたまねぎを合わせた、さっぱり食べられる魚介のピザ。",
+        "chars": 43,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "onion",
+            "nameJa": "たまねぎ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "たまねぎ"
+            ]
+          },
+          {
+            "id": "tuna",
+            "nameJa": "ツナ",
+            "category": "topping",
+            "family": "seafood",
+            "inDescription": [
+              "ツナ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [
+            "魚介"
+          ],
+          "flavour": [],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "pizza-bianca",
+        "nameJa": "ピッツァ・ビアンカ",
+        "description": "トマトソースを使わない、オリーブオイルとローズマリーだけのシンプルな白いピザ。ローマ生まれの飾らない一枚。",
+        "chars": 53,
+        "distinctIngredients": 2,
+        "ingredientsNamed": 2,
+        "ingredients": [
+          {
+            "id": "olive-oil",
+            "nameJa": "オリーブオイル",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "オリーブオイル"
+            ]
+          },
+          {
+            "id": "rosemary",
+            "nameJa": "ローズマリー",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "ローズマリー"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマトソース",
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [
+            "ソースを使わない",
+            "白い",
+            "トマトソースを使わ",
+            "オイル"
+          ],
+          "identity": [
+            "ローマ"
+          ]
+        }
+      },
+      {
+        "recipeId": "breakfast-pizza",
+        "nameJa": "ブレックファストピザ",
+        "description": "トマトソースとモッツァレラの上に、たまごとベーコンをのせて焼き上げる、朝食にもぴったりの一枚。",
+        "chars": 47,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "egg",
+            "nameJa": "たまご",
+            "category": "topping",
+            "family": "other",
+            "inDescription": [
+              "たまご"
+            ]
+          },
+          {
+            "id": "bacon",
+            "nameJa": "ベーコン",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ベーコン"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [
+            "焼き"
+          ],
+          "identity": [
+            "朝食"
+          ]
+        }
+      },
+      {
+        "recipeId": "capricciosa",
+        "nameJa": "カプリチョーザ",
+        "description": "トマトソースとモッツァレラに、マッシュルーム・ハム・ブラックオリーブをのせた、具だくさんの一枚。",
+        "chars": 48,
+        "distinctIngredients": 6,
+        "ingredientsNamed": 5,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "mushroom",
+            "nameJa": "マッシュルーム",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "マッシュルーム"
+            ]
+          },
+          {
+            "id": "oregano",
+            "nameJa": "オレガノ",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": []
+          },
+          {
+            "id": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ハム"
+            ]
+          },
+          {
+            "id": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "ブラックオリーブ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "meat-lovers",
+        "nameJa": "ミートラヴァーズ",
+        "description": "トマトソースとモッツァレラに、ベーコン・ハム・ペパロニ・ソーセージをたっぷりのせた、お肉好きにはたまらない一枚。",
+        "chars": 56,
+        "distinctIngredients": 6,
+        "ingredientsNamed": 6,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "bacon",
+            "nameJa": "ベーコン",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ベーコン"
+            ]
+          },
+          {
+            "id": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ハム"
+            ]
+          },
+          {
+            "id": "pepperoni",
+            "nameJa": "ペパロニ",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ペパロニ"
+            ]
+          },
+          {
+            "id": "sausage",
+            "nameJa": "ソーセージ",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ソーセージ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [
+            "肉"
+          ],
+          "flavour": [],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "melanzane-pizza",
+        "nameJa": "メランザーネピザ",
+        "description": "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。",
+        "chars": 43,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "eggplant",
+            "nameJa": "ナス",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "ナス"
+            ]
+          },
+          {
+            "id": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "バジル"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香り"
+          ],
+          "technique": [],
+          "identity": [
+            "イタリア"
+          ]
+        }
+      },
+      {
+        "recipeId": "parmigiana-pizza",
+        "nameJa": "パルミジャーナピザ",
+        "description": "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。",
+        "chars": 43,
+        "distinctIngredients": 5,
+        "ingredientsNamed": 5,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "eggplant",
+            "nameJa": "ナス",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "ナス"
+            ]
+          },
+          {
+            "id": "parmigiano",
+            "nameJa": "パルミジャーノ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "パルミジャーノ"
+            ]
+          },
+          {
+            "id": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "バジル"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [],
+          "identity": [
+            "イタリア"
+          ]
+        }
+      },
+      {
+        "recipeId": "bambino",
+        "nameJa": "バンビーノ",
+        "description": "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+        "chars": 41,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ハム"
+            ]
+          },
+          {
+            "id": "corn",
+            "nameJa": "コーン",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "コーン"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "甘"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "hawaiian",
+        "nameJa": "ハワイアンピザ",
+        "description": "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
+        "chars": 46,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ハム"
+            ]
+          },
+          {
+            "id": "pineapple",
+            "nameJa": "パイナップル",
+            "category": "topping",
+            "family": "fruit",
+            "inDescription": [
+              "パイナップル"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "甘",
+            "塩気"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "pizza-portuguesa",
+        "nameJa": "ピッツァ・ポルトゲーザ",
+        "description": "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。",
+        "chars": 46,
+        "distinctIngredients": 6,
+        "ingredientsNamed": 5,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ハム"
+            ]
+          },
+          {
+            "id": "egg",
+            "nameJa": "たまご",
+            "category": "topping",
+            "family": "other",
+            "inDescription": []
+          },
+          {
+            "id": "onion",
+            "nameJa": "たまねぎ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "たまねぎ"
+            ]
+          },
+          {
+            "id": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "ブラックオリーブ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [],
+          "technique": [],
+          "identity": [
+            "ブラジル",
+            "定番"
+          ]
+        }
+      },
+      {
+        "recipeId": "pesto-tonno",
+        "nameJa": "ペストトンノピザ",
+        "description": "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。",
+        "chars": 43,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "ジェノベーゼソース"
+            ]
+          },
+          {
+            "id": "tuna",
+            "nameJa": "ツナ",
+            "category": "topping",
+            "family": "seafood",
+            "inDescription": [
+              "ツナ"
+            ]
+          },
+          {
+            "id": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "ブラックオリーブ"
+            ]
+          },
+          {
+            "id": "onion",
+            "nameJa": "たまねぎ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "たまねぎ"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香り",
+            "爽やか"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "new-haven-apizza",
+        "nameJa": "ニューヘイブンアピッツァ",
+        "description": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。",
+        "chars": 56,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "olive-oil",
+            "nameJa": "オリーブオイル",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "オリーブオイル"
+            ]
+          },
+          {
+            "id": "parmigiano",
+            "nameJa": "パルミジャーノ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "パルミジャーノ"
+            ]
+          },
+          {
+            "id": "clam",
+            "nameJa": "あさり",
+            "category": "topping",
+            "family": "seafood",
+            "inDescription": [
+              "あさり"
+            ]
+          },
+          {
+            "id": "garlic",
+            "nameJa": "にんにく",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "にんにく"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香ば"
+          ],
+          "technique": [
+            "オイル",
+            "焼き",
+            "生地"
+          ],
+          "identity": [
+            "ニューヘイブン"
+          ]
+        }
+      },
+      {
+        "recipeId": "pesto-caprese",
+        "nameJa": "ペストカプレーゼピザ",
+        "description": "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
+        "chars": 45,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "ジェノベーゼソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "fresh-tomato",
+            "nameJa": "トマト",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "トマト"
+            ]
+          },
+          {
+            "id": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "バジル"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "爽やか"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "pesto-patate",
+        "nameJa": "ペストパターテピザ",
+        "description": "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
+        "chars": 45,
+        "distinctIngredients": 4,
+        "ingredientsNamed": 4,
+        "ingredients": [
+          {
+            "id": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "ジェノベーゼソース"
+            ]
+          },
+          {
+            "id": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "family": null,
+            "inDescription": [
+              "モッツァレラ"
+            ]
+          },
+          {
+            "id": "potato",
+            "nameJa": "じゃがいも",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "じゃがいも"
+            ]
+          },
+          {
+            "id": "bacon",
+            "nameJa": "ベーコン",
+            "category": "topping",
+            "family": "meat",
+            "inDescription": [
+              "ベーコン"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香ば"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      },
+      {
+        "recipeId": "puttanesca-pizza",
+        "nameJa": "プッタネスカ",
+        "description": "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。",
+        "chars": 48,
+        "distinctIngredients": 5,
+        "ingredientsNamed": 5,
+        "ingredients": [
+          {
+            "id": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "family": null,
+            "inDescription": [
+              "トマトソース"
+            ]
+          },
+          {
+            "id": "anchovy",
+            "nameJa": "アンチョビ",
+            "category": "topping",
+            "family": "seafood",
+            "inDescription": [
+              "アンチョビ"
+            ]
+          },
+          {
+            "id": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "family": "vegetable",
+            "inDescription": [
+              "ブラックオリーブ"
+            ]
+          },
+          {
+            "id": "capers",
+            "nameJa": "ケッパー",
+            "category": "topping",
+            "family": "spice",
+            "inDescription": [
+              "ケッパー"
+            ]
+          },
+          {
+            "id": "garlic",
+            "nameJa": "にんにく",
+            "category": "topping",
+            "family": "herb",
+            "inDescription": [
+              "にんにく"
+            ]
+          }
+        ],
+        "otherCatalogNamesInDescription": [
+          "トマト"
+        ],
+        "recipeNameInDescription": false,
+        "clues": {
+          "family": [],
+          "flavour": [
+            "香り"
+          ],
+          "technique": [],
+          "identity": []
+        }
+      }
+    ]
+  },
+  "hint5Ceiling": [
+    {
+      "recipeId": "margherita",
+      "target": true,
+      "chapter": 1,
+      "keyStep": 0,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "basil"
+      ],
+      "total": 3,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "marinara",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 14,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [],
+      "key": [
+        "garlic"
+      ],
+      "total": 3,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 3,
+          "combinations": 3
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 2,
+          "combinations": 2
+        }
+      ],
+      "answerSpaceAllClassified": 3,
+      "answerSpaceLadderReachable": 2,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "quattro-formaggi",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 24,
+      "sauce": [
+        "olive-oil"
+      ],
+      "cheese": [
+        "mozzarella",
+        "gorgonzola",
+        "parmigiano",
+        "fontina"
+      ],
+      "key": [],
+      "total": 5,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "genovese",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 18,
+      "sauce": [
+        "pesto"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "cherry-tomato"
+      ],
+      "total": 3,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "bismarck",
+      "target": true,
+      "chapter": 1,
+      "keyStep": 1,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "egg"
+      ],
+      "total": 3,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "funghi",
+      "target": true,
+      "chapter": 1,
+      "keyStep": 3,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "mushroom"
+      ],
+      "total": 3,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "fugazza",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 13,
+      "sauce": [
+        "olive-oil"
+      ],
+      "cheese": [],
+      "key": [
+        "onion"
+      ],
+      "total": 3,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 2,
+          "combinations": 2
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 2,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "salsiccia",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 7,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "sausage"
+      ],
+      "total": 3,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "pepperoni",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 6,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "pepperoni"
+      ],
+      "total": 3,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "napoletana",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 15,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "anchovy"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 3,
+          "combinations": 3
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 3,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "tonno-e-cipolla",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 16,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "tuna"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "vegetable"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "vegetable",
+          "k": 1,
+          "pool": 8,
+          "combinations": 8
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "vegetable",
+          "k": 1,
+          "pool": 5,
+          "combinations": 5
+        }
+      ],
+      "answerSpaceAllClassified": 8,
+      "answerSpaceLadderReachable": 5,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "pizza-bianca",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 22,
+      "sauce": [
+        "olive-oil"
+      ],
+      "cheese": [],
+      "key": [
+        "rosemary"
+      ],
+      "total": 2,
+      "subCount": 0,
+      "subFamilies": [],
+      "familyPoolsAllClassified": [],
+      "familyPoolsLadderReachable": [],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "breakfast-pizza",
+      "target": true,
+      "chapter": 1,
+      "keyStep": 2,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "bacon"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "other"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "other",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "other",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        }
+      ],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "capricciosa",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 11,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "mushroom"
+      ],
+      "total": 6,
+      "subCount": 3,
+      "subFamilies": [
+        "herb",
+        "meat",
+        "vegetable"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        },
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        },
+        {
+          "family": "vegetable",
+          "k": 1,
+          "pool": 7,
+          "combinations": 7
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 2,
+          "combinations": 2
+        },
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        },
+        {
+          "family": "vegetable",
+          "k": 1,
+          "pool": 3,
+          "combinations": 3
+        }
+      ],
+      "answerSpaceAllClassified": 112,
+      "answerSpaceLadderReachable": 24,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "meat-lovers",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 8,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "ham"
+      ],
+      "total": 6,
+      "subCount": 3,
+      "subFamilies": [
+        "meat",
+        "meat",
+        "meat"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "meat",
+          "k": 3,
+          "pool": 3,
+          "combinations": 1
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "meat",
+          "k": 3,
+          "pool": 3,
+          "combinations": 1
+        }
+      ],
+      "answerSpaceAllClassified": 1,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "melanzane-pizza",
+      "target": true,
+      "chapter": 1,
+      "keyStep": 4,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "eggplant"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "parmigiana-pizza",
+      "target": true,
+      "chapter": 1,
+      "keyStep": 5,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella",
+        "parmigiano"
+      ],
+      "key": [
+        "eggplant"
+      ],
+      "total": 5,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 1,
+      "exactBySetLogicAlone": true
+    },
+    {
+      "recipeId": "bambino",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 9,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "corn"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "meat"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 4,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "hawaiian",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 10,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "pineapple"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "meat"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 4,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "pizza-portuguesa",
+      "target": true,
+      "chapter": 2,
+      "keyStep": 12,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "ham"
+      ],
+      "total": 6,
+      "subCount": 3,
+      "subFamilies": [
+        "other",
+        "vegetable",
+        "vegetable"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "other",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        },
+        {
+          "family": "vegetable",
+          "k": 2,
+          "pool": 8,
+          "combinations": 28
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "other",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        },
+        {
+          "family": "vegetable",
+          "k": 2,
+          "pool": 5,
+          "combinations": 10
+        }
+      ],
+      "answerSpaceAllClassified": 28,
+      "answerSpaceLadderReachable": 10,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "pesto-tonno",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 17,
+      "sauce": [
+        "pesto"
+      ],
+      "cheese": [],
+      "key": [
+        "tuna"
+      ],
+      "total": 4,
+      "subCount": 2,
+      "subFamilies": [
+        "vegetable",
+        "vegetable"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "vegetable",
+          "k": 2,
+          "pool": 8,
+          "combinations": 28
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "vegetable",
+          "k": 2,
+          "pool": 5,
+          "combinations": 10
+        }
+      ],
+      "answerSpaceAllClassified": 28,
+      "answerSpaceLadderReachable": 10,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "new-haven-apizza",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 19,
+      "sauce": [
+        "olive-oil"
+      ],
+      "cheese": [
+        "parmigiano"
+      ],
+      "key": [
+        "clam"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 3,
+          "combinations": 3
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 3,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "pesto-caprese",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 20,
+      "sauce": [
+        "pesto"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "fresh-tomato"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 3,
+          "combinations": 3
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 3,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "pesto-patate",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 21,
+      "sauce": [
+        "pesto"
+      ],
+      "cheese": [
+        "mozzarella"
+      ],
+      "key": [
+        "potato"
+      ],
+      "total": 4,
+      "subCount": 1,
+      "subFamilies": [
+        "meat"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "meat",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "answerSpaceAllClassified": 4,
+      "answerSpaceLadderReachable": 4,
+      "exactBySetLogicAlone": false
+    },
+    {
+      "recipeId": "puttanesca-pizza",
+      "target": true,
+      "chapter": 3,
+      "keyStep": 23,
+      "sauce": [
+        "tomato-sauce"
+      ],
+      "cheese": [],
+      "key": [
+        "anchovy"
+      ],
+      "total": 5,
+      "subCount": 3,
+      "subFamilies": [
+        "vegetable",
+        "spice",
+        "herb"
+      ],
+      "familyPoolsAllClassified": [
+        {
+          "family": "vegetable",
+          "k": 1,
+          "pool": 8,
+          "combinations": 8
+        },
+        {
+          "family": "spice",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        },
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "familyPoolsLadderReachable": [
+        {
+          "family": "vegetable",
+          "k": 1,
+          "pool": 8,
+          "combinations": 8
+        },
+        {
+          "family": "spice",
+          "k": 1,
+          "pool": 1,
+          "combinations": 1
+        },
+        {
+          "family": "herb",
+          "k": 1,
+          "pool": 4,
+          "combinations": 4
+        }
+      ],
+      "answerSpaceAllClassified": 32,
+      "answerSpaceLadderReachable": 32,
+      "exactBySetLogicAlone": false
+    }
+  ],
+  "searchCost": {
+    "production": [
+      {
+        "recipeId": "margherita",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "marinara",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 3,
+          "S0_bruteForce": {
+            "expected": 2,
+            "worst": 3
+          },
+          "S1_exclusionProbing": {
+            "expected": 2,
+            "worst": 3
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 2,
+          "S0_bruteForce": {
+            "expected": 1.5,
+            "worst": 2
+          },
+          "S1_exclusionProbing": {
+            "expected": 1.5,
+            "worst": 2
+          }
+        }
+      },
+      {
+        "recipeId": "quattro-formaggi",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "genovese",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "bismarck",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "funghi",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "fugazza",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 2,
+          "S0_bruteForce": {
+            "expected": 1.5,
+            "worst": 2
+          },
+          "S1_exclusionProbing": {
+            "expected": 1.5,
+            "worst": 2
+          }
+        }
+      },
+      {
+        "recipeId": "salsiccia",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "pepperoni",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "napoletana",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 3,
+          "S0_bruteForce": {
+            "expected": 2,
+            "worst": 3
+          },
+          "S1_exclusionProbing": {
+            "expected": 2,
+            "worst": 3
+          }
+        }
+      },
+      {
+        "recipeId": "tonno-e-cipolla",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 8,
+          "S0_bruteForce": {
+            "expected": 4.5,
+            "worst": 8
+          },
+          "S1_exclusionProbing": {
+            "expected": 4.5,
+            "worst": 8
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 5,
+          "S0_bruteForce": {
+            "expected": 3,
+            "worst": 5
+          },
+          "S1_exclusionProbing": {
+            "expected": 3,
+            "worst": 5
+          }
+        }
+      },
+      {
+        "recipeId": "pizza-bianca",
+        "subCount": 0,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "breakfast-pizza",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "capricciosa",
+        "subCount": 3,
+        "allClassified": {
+          "answerSpace": 112,
+          "S0_bruteForce": {
+            "expected": 56.5,
+            "worst": 112
+          },
+          "S1_exclusionProbing": {
+            "expected": 9.36,
+            "worst": 13
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 24,
+          "S0_bruteForce": {
+            "expected": 12.5,
+            "worst": 24
+          },
+          "S1_exclusionProbing": {
+            "expected": 5.92,
+            "worst": 7
+          }
+        }
+      },
+      {
+        "recipeId": "meat-lovers",
+        "subCount": 3,
+        "allClassified": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "melanzane-pizza",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "parmigiana-pizza",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 1,
+          "S0_bruteForce": {
+            "expected": 1,
+            "worst": 1
+          },
+          "S1_exclusionProbing": {
+            "expected": 1,
+            "worst": 1
+          }
+        }
+      },
+      {
+        "recipeId": "bambino",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        }
+      },
+      {
+        "recipeId": "hawaiian",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        }
+      },
+      {
+        "recipeId": "pizza-portuguesa",
+        "subCount": 3,
+        "allClassified": {
+          "answerSpace": 28,
+          "S0_bruteForce": {
+            "expected": 14.5,
+            "worst": 28
+          },
+          "S1_exclusionProbing": {
+            "expected": 6.71,
+            "worst": 8
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 10,
+          "S0_bruteForce": {
+            "expected": 5.5,
+            "worst": 10
+          },
+          "S1_exclusionProbing": {
+            "expected": 4.5,
+            "worst": 5
+          }
+        }
+      },
+      {
+        "recipeId": "pesto-tonno",
+        "subCount": 2,
+        "allClassified": {
+          "answerSpace": 28,
+          "S0_bruteForce": {
+            "expected": 14.5,
+            "worst": 28
+          },
+          "S1_exclusionProbing": {
+            "expected": 6.71,
+            "worst": 8
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 10,
+          "S0_bruteForce": {
+            "expected": 5.5,
+            "worst": 10
+          },
+          "S1_exclusionProbing": {
+            "expected": 4.5,
+            "worst": 5
+          }
+        }
+      },
+      {
+        "recipeId": "new-haven-apizza",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 3,
+          "S0_bruteForce": {
+            "expected": 2,
+            "worst": 3
+          },
+          "S1_exclusionProbing": {
+            "expected": 2,
+            "worst": 3
+          }
+        }
+      },
+      {
+        "recipeId": "pesto-caprese",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 3,
+          "S0_bruteForce": {
+            "expected": 2,
+            "worst": 3
+          },
+          "S1_exclusionProbing": {
+            "expected": 2,
+            "worst": 3
+          }
+        }
+      },
+      {
+        "recipeId": "pesto-patate",
+        "subCount": 1,
+        "allClassified": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 4,
+          "S0_bruteForce": {
+            "expected": 2.5,
+            "worst": 4
+          },
+          "S1_exclusionProbing": {
+            "expected": 2.5,
+            "worst": 4
+          }
+        }
+      },
+      {
+        "recipeId": "puttanesca-pizza",
+        "subCount": 3,
+        "allClassified": {
+          "answerSpace": 32,
+          "S0_bruteForce": {
+            "expected": 16.5,
+            "worst": 32
+          },
+          "S1_exclusionProbing": {
+            "expected": 7.63,
+            "worst": 11
+          }
+        },
+        "ladderReachable": {
+          "answerSpace": 32,
+          "S0_bruteForce": {
+            "expected": 16.5,
+            "worst": 32
+          },
+          "S1_exclusionProbing": {
+            "expected": 7.63,
+            "worst": 11
+          }
+        }
+      }
+    ],
+    "syntheticSingleFamily": [
+      {
+        "pool": 4,
+        "k": 1,
+        "answerSpace": 4,
+        "S0_bruteForce": {
+          "expected": 2.5,
+          "worst": 4
+        },
+        "S1_exclusionProbing": {
+          "expected": 2.5,
+          "worst": 4
+        }
+      },
+      {
+        "pool": 4,
+        "k": 2,
+        "answerSpace": 6,
+        "S0_bruteForce": {
+          "expected": 3.5,
+          "worst": 6
+        },
+        "S1_exclusionProbing": {
+          "expected": 3.5,
+          "worst": 4
+        }
+      },
+      {
+        "pool": 4,
+        "k": 3,
+        "answerSpace": 4,
+        "S0_bruteForce": {
+          "expected": 2.5,
+          "worst": 4
+        },
+        "S1_exclusionProbing": {
+          "expected": 2.5,
+          "worst": 4
+        }
+      },
+      {
+        "pool": 8,
+        "k": 1,
+        "answerSpace": 8,
+        "S0_bruteForce": {
+          "expected": 4.5,
+          "worst": 8
+        },
+        "S1_exclusionProbing": {
+          "expected": 4.5,
+          "worst": 8
+        }
+      },
+      {
+        "pool": 8,
+        "k": 2,
+        "answerSpace": 28,
+        "S0_bruteForce": {
+          "expected": 14.5,
+          "worst": 28
+        },
+        "S1_exclusionProbing": {
+          "expected": 6.71,
+          "worst": 8
+        }
+      },
+      {
+        "pool": 8,
+        "k": 3,
+        "answerSpace": 56,
+        "S0_bruteForce": {
+          "expected": 28.5,
+          "worst": 56
+        },
+        "S1_exclusionProbing": {
+          "expected": 7.25,
+          "worst": 8
+        }
+      },
+      {
+        "pool": 8,
+        "k": 4,
+        "answerSpace": 70,
+        "S0_bruteForce": {
+          "expected": 35.5,
+          "worst": 70
+        },
+        "S1_exclusionProbing": {
+          "expected": 7.4,
+          "worst": 8
+        }
+      },
+      {
+        "pool": 12,
+        "k": 1,
+        "answerSpace": 12,
+        "S0_bruteForce": {
+          "expected": 6.5,
+          "worst": 12
+        },
+        "S1_exclusionProbing": {
+          "expected": 6.5,
+          "worst": 12
+        }
+      },
+      {
+        "pool": 12,
+        "k": 2,
+        "answerSpace": 66,
+        "S0_bruteForce": {
+          "expected": 33.5,
+          "worst": 66
+        },
+        "S1_exclusionProbing": {
+          "expected": 9.48,
+          "worst": 12
+        }
+      },
+      {
+        "pool": 12,
+        "k": 3,
+        "answerSpace": 220,
+        "S0_bruteForce": {
+          "expected": 110.5,
+          "worst": 220
+        },
+        "S1_exclusionProbing": {
+          "expected": 10.45,
+          "worst": 12
+        }
+      },
+      {
+        "pool": 12,
+        "k": 4,
+        "answerSpace": 495,
+        "S0_bruteForce": {
+          "expected": 248,
+          "worst": 495
+        },
+        "S1_exclusionProbing": {
+          "expected": 10.96,
+          "worst": 12
+        }
+      },
+      {
+        "pool": 20,
+        "k": 1,
+        "answerSpace": 20,
+        "S0_bruteForce": {
+          "expected": 10.5,
+          "worst": 20
+        },
+        "S1_exclusionProbing": {
+          "expected": 10.5,
+          "worst": 20
+        }
+      },
+      {
+        "pool": 20,
+        "k": 2,
+        "answerSpace": 190,
+        "S0_bruteForce": {
+          "expected": 95.5,
+          "worst": 190
+        },
+        "S1_exclusionProbing": {
+          "expected": 14.89,
+          "worst": 20
+        }
+      },
+      {
+        "pool": 20,
+        "k": 3,
+        "answerSpace": 1140,
+        "S0_bruteForce": {
+          "expected": 570.5,
+          "worst": 1140
+        },
+        "S1_exclusionProbing": {
+          "expected": 16.58,
+          "worst": 20
+        }
+      },
+      {
+        "pool": 20,
+        "k": 4,
+        "answerSpace": 4845,
+        "S0_bruteForce": {
+          "expected": 2423,
+          "worst": 4845
+        },
+        "S1_exclusionProbing": {
+          "expected": 17.56,
+          "worst": 20
+        }
+      },
+      {
+        "pool": 40,
+        "k": 1,
+        "answerSpace": 40,
+        "S0_bruteForce": {
+          "expected": 20.5,
+          "worst": 40
+        },
+        "S1_exclusionProbing": {
+          "expected": 20.5,
+          "worst": 40
+        }
+      },
+      {
+        "pool": 40,
+        "k": 2,
+        "answerSpace": 780,
+        "S0_bruteForce": {
+          "expected": 390.5,
+          "worst": 780
+        },
+        "S1_exclusionProbing": {
+          "expected": 28.28,
+          "worst": 40
+        }
+      },
+      {
+        "pool": 40,
+        "k": 3,
+        "answerSpace": 9880,
+        "S0_bruteForce": {
+          "expected": 4940.5,
+          "worst": 9880
+        },
+        "S1_exclusionProbing": {
+          "expected": 31.67,
+          "worst": 40
+        }
+      },
+      {
+        "pool": 40,
+        "k": 4,
+        "answerSpace": 91390,
+        "S0_bruteForce": {
+          "expected": 45695.5,
+          "worst": 91390
+        },
+        "S1_exclusionProbing": {
+          "expected": 33.69,
+          "worst": 40
+        }
+      }
+    ],
+    "syntheticMixed": [
+      {
+        "label": "veg(8)x2 + meat(4)x1 (today-ish)",
+        "answerSpace": 112,
+        "S0_bruteForce": {
+          "expected": 56.5,
+          "worst": 112
+        },
+        "S1_exclusionProbing": {
+          "expected": 8.96,
+          "worst": 11
+        }
+      },
+      {
+        "label": "veg(15)x2 + meat(10)x1 (62-scale)",
+        "answerSpace": 1050,
+        "S0_bruteForce": {
+          "expected": 525.5,
+          "worst": 1050
+        },
+        "S1_exclusionProbing": {
+          "expected": 16.92,
+          "worst": 24
+        }
+      },
+      {
+        "label": "veg(30)x2 + meat(20)x1 + herb(12)x1 (172-scale)",
+        "answerSpace": 104400,
+        "S0_bruteForce": {
+          "expected": 52200.5,
+          "worst": 104400
+        },
+        "S1_exclusionProbing": {
+          "expected": 38.47,
+          "worst": 60
+        }
+      }
+    ]
+  },
+  "p2Probe": [
+    {
+      "k": 1,
+      "probeMember": "EXACT(discovery)",
+      "probeNonMember": "CLOSE",
+      "leaveOneOut_allOthersRight": "ADD_ONE",
+      "swapOne_oneWrong": "CLOSE"
+    },
+    {
+      "k": 2,
+      "probeMember": "ADD_ONE",
+      "probeNonMember": "FAR",
+      "leaveOneOut_allOthersRight": "ADD_ONE",
+      "swapOne_oneWrong": "CLOSE"
+    },
+    {
+      "k": 3,
+      "probeMember": "CLOSE",
+      "probeNonMember": "FAR",
+      "leaveOneOut_allOthersRight": "ADD_ONE",
+      "swapOne_oneWrong": "CLOSE"
+    },
+    {
+      "k": 4,
+      "probeMember": "FAR",
+      "probeNonMember": "FAR",
+      "leaveOneOut_allOthersRight": "ADD_ONE",
+      "swapOne_oneWrong": "CLOSE"
+    },
+    {
+      "k": 5,
+      "probeMember": "FAR",
+      "probeNonMember": "FAR",
+      "leaveOneOut_allOthersRight": "ADD_ONE",
+      "swapOne_oneWrong": "CLOSE"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "tool": "tools/original-pizza-p3/dex-geometry.measure.spec.ts",
+  "seed": "?hv=multi-sub (Preview)",
+  "rows": [
+    {
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "scrollWidth": 390,
+      "bodyVisibleHeight": 756,
+      "bodyScrollHeight": 2924,
+      "headerHeight": 56,
+      "cardWidth": 358,
+      "discoveredCardHeight": {
+        "n": 11,
+        "min": 134,
+        "max": 183,
+        "median": 165
+      },
+      "lockedCardHeight": {
+        "n": 14,
+        "min": 51,
+        "max": 99,
+        "median": 51
+      },
+      "states": {
+        "DISCOVERED": 11,
+        "UNKNOWN": 13,
+        "DISCOVERABLE": 1
+      }
+    },
+    {
+      "viewport": {
+        "w": 360,
+        "h": 800
+      },
+      "scrollWidth": 360,
+      "bodyVisibleHeight": 712,
+      "bodyScrollHeight": 3008,
+      "headerHeight": 56,
+      "cardWidth": 328,
+      "discoveredCardHeight": {
+        "n": 11,
+        "min": 134,
+        "max": 183,
+        "median": 165
+      },
+      "lockedCardHeight": {
+        "n": 14,
+        "min": 51,
+        "max": 99,
+        "median": 51
+      },
+      "states": {
+        "DISCOVERED": 11,
+        "UNKNOWN": 13,
+        "DISCOVERABLE": 1
+      }
+    }
+  ]
+}
