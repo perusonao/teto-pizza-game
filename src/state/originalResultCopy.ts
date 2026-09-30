@@ -38,6 +38,17 @@ export function originalResultKind(discovery: DiscoveryOutcome | null | undefine
   return "ORDINARY";
 }
 
+/**
+ * Original Pizza Recovery P3-3b (OD-P3-19): the duplicate notice under the P2 line of an ORIGINAL RESULT. It names only
+ * the stable attempt number the Trial Notebook recorded at the commit (the P3-3a record result) -- never the retry count,
+ * never a recipe / target / distance / candidate, and never "same result" (quantity, bake and sauce amount are not
+ * part of an attempt's identity). `null` for anything that is not a positive integer, so a bad number shows nothing.
+ */
+export function duplicateTrialNoticeJa(number: unknown): string | null {
+  if (typeof number !== "number" || !Number.isInteger(number) || number < 1) return null;
+  return `\u{1F4D3} 前にも同じ材料の組み合わせで作ったよ（試作#${number}）`;
+}
+
 /** OD-P2-1 = A: shared by ORDINARY and AMBIGUOUS. OD-P2-5: no next action in the lead. */
 const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！";
 

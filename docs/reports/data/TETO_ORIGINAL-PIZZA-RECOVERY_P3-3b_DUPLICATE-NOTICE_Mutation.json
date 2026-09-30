@@ -1,0 +1,144 @@
+{
+ "target": [
+  "src/components/ResultPanel.tsx",
+  "src/screens/GameScreen.tsx",
+  "src/state/originalResultCopy.ts"
+ ],
+ "tests": [
+  "src/screens/GameScreen.duplicateNotice",
+  "src/state/duplicateTrialNotice",
+  "src/state/trialRecord.gate",
+  "src/logic/discovery/trialNotebook.gate",
+  "src/state/resultFeedback.gate",
+  "src/components/ResultPanel",
+  "src/components/FreeCook.ui"
+ ],
+ "mutants": 20,
+ "killed": 17,
+ "equivalent": 0,
+ "survived": 3,
+ "invalid": 0,
+ "mutationScore": 0.85,
+ "results": [
+  {
+   "id": "N01",
+   "description": "the notice is always shown (falls back to #1 without a record result)",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N02",
+   "description": "the shown number is off by one",
+   "file": "src/screens/GameScreen.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N03",
+   "description": "a NEW attempt also shows the notice",
+   "file": "src/screens/GameScreen.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N04",
+   "description": "the notice ignores the free-cook guard in GameScreen",
+   "file": "src/screens/GameScreen.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N05",
+   "description": "the notice ignores the free-cook guard in the panel",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "SURVIVED"
+  },
+  {
+   "id": "N06",
+   "description": "the number is re-derived from the notebook at render time",
+   "file": "src/screens/GameScreen.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N07",
+   "description": "the retry count appears in the copy",
+   "file": "src/state/originalResultCopy.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "N08",
+   "description": "the copy claims the same result",
+   "file": "src/state/originalResultCopy.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "N09",
+   "description": "attempt number 0 is accepted",
+   "file": "src/state/originalResultCopy.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "N10",
+   "description": "a non-integer number is accepted",
+   "file": "src/state/originalResultCopy.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "N11",
+   "description": "the notice gets a live region",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N12",
+   "description": "the notice gets a status role",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N13",
+   "description": "the notice is placed before the P2 row",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N14",
+   "description": "the notice is placed after the note",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N15",
+   "description": "the notice also renders on the known-pizza card",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N16",
+   "description": "the panel learns about the notebook",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N17",
+   "description": "GameScreen reads the notebook",
+   "file": "src/screens/GameScreen.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N18",
+   "description": "the notice is computed with a clock / randomness",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "SURVIVED"
+  },
+  {
+   "id": "N19",
+   "description": "the P2 row text is changed by the notice",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "N20",
+   "description": "the notice is rendered inside a second paragraph of the P2 live region",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "SURVIVED"
+  }
+ ]
+}

@@ -975,6 +975,7 @@ export function GameScreen({
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
           nearMiss={resultNearMiss(state)}
+          trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
         />
       )}

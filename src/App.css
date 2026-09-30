@@ -1726,6 +1726,19 @@
   color: #6b5a48;
 }
 
+/* Original Pizza Recovery P3-3b: the duplicate notice under the P2 row -- one small static line, secondary to the
+   result (same scale as the note below it, a touch heavier so it reads as information, not fine print). */
+.original-pizza__trial-notice {
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  color: #5a4632;
+}
+
 /* Discovery Hint 2.0 (#229 229-C): the Free Cooking RESULT's one secondary "おしい" row -- the
    generic near-miss line and the 「💡 ヒントを見る」 CTA. Compact and secondary to the result:
    one wrapped line plus a small pill, never a second headline. */
