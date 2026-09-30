@@ -461,15 +461,83 @@ R6-a を「test / presentation hardening（dormant）」と「Preview 切替」�
 | 9 vs 12 の主観差が小さく決めきれない | R6-d の遅延 | §16 の M-* を先に固定、ABBA |
 | session-only pins が reload で消える | 期待とのずれ | 仕様（OD-R5-9）。HV で観察のみ |
 
-## 20. Final readiness verdict
+## 20. Final readiness verdict（Fresh Audit 時点、R5-e-h 前）
 
-**C. HARDENING REQUIRED BEFORE R6**
+Fresh Audit 時点の判定は **C. HARDENING REQUIRED BEFORE R6**（F-6: E6 SURVIVED）。R5-e-h の結果と更新後の判定は §21。
 
-理由:
-- Foundation 自体は健全: privacy PASS（§4）、OFF = R5-d production behavior（§10）、dormancy guard は flag を読む 3 site すべてで有効、OD-R5d-1〜3 は current code と一致（§5 / §6）、9 / 12 で stage geometry 同一（§8）。
-- しかし **#197 の App 層 clear（activation 時の安全契約の中核）を守る test が存在しない**（F-6: E6 SURVIVED、scratch probe で非可視 selection による配置を再現）。flag ON 系の作業（R6-b 以降）に入る前に test-only hardening H-1（+ H-2〜H-7）が必要。
-- 並行して Owner Decision OD-R5e-1〜5（§18）が必要。production activation（R6-e）前の blocker は AB-1〜AB-6（§13.2）。
+---
 
-提案する次 slice（Owner go 待ち）: **LC-R5-e-h（test / mutation hardening only）** — H-1〜H-8 の test 追加と `r5e-activation-mutants.mjs` の E6 / E2 を kill、既存 M1〜M114 維持。production code・flag・capacity・save・UI は一切変更しない。その後 R6-a へ。
+## 21. LC-R5-e-h Hardening Result（test / tooling / docs only）
 
-R6 implementation は開始しない。STOP.
+### 21.1 前提
+
+| 項目 | 値 |
+|---|---|
+| base | latest main **`d727030`**（PR #313 Attempt Fingerprint P1 = pure / unwired、Large Catalog の file に触れない。branch に merge 済み） |
+| production src | **変更なし**（`git diff origin/main -- src` は `*.test.ts(x)` のみ）。`HAND_ENFORCEMENT_ENABLED = false`、capacity 未決定、save / UI 変更なし |
+| Owner Decisions | §18（CONFIRMED） |
+
+### 21.2 変更
+
+| file | 内容 |
+|---|---|
+| `vitest.config.ts` | `projects`: `default`（従来どおり、`*.handOn.test.*` を除外）+ **`hand-on-9` / `hand-on-12`**。後者は test 専用 transform で **real `handPolicy.ts`** を flag ON + capacity 9 / 12 に compile（`vi.mock` なし）。宣言が各 1 回見つからなければ throw（fail closed）、`?raw` import は対象外（source gate は shipped text を読む）。`vite.config.ts` は無関係なので `vite build` に影響なし |
+| `src/logic/catalog/handPolicy.handOn.test.ts`（新規） | transform が効いていること（flag true、candidate ∈ {9, 12}）、real `handCapacityFor` が candidate を返すこと、shipped source は `false` のまま、`*.handOn` test が handPolicy を mock しないこと |
+| `src/App.handTray.handOn.test.tsx`（旧 `App.handTray.test.tsx`） | `vi.mock`（flag + `handCapacityFor`）を削除、12 固定の期待値を `CAP` に。**capacity 9 で初めて実行し、12 専用の前提（page 2 = 6 件）を検出・修正**（9 では 6 + 3） |
+| `src/App.handPins.handOn.test.tsx`（旧 `App.handPins.test.tsx`） | flag mock を削除（real module ON で 9 / 12 両方） |
+| `src/App.handActivation.handOn.test.tsx`（新規、9 / 12 各 11 tests） | H-1 / H-3 / H-4 / H-5（App 側）/ H-6 / H-7 |
+| `src/logic/catalog/handActivationContract.test.ts`（新規） | H-5: PREPARE 中の全 action が `ownedIngredientIds` / `inventory` を変えないこと（非 vacuous: placement が実際に起きたことも assert）+ 「step 内で hand が現れたら hand change として扱う」将来契約 |
+| `src/logic/catalog/catalogBoundary.test.ts` | H-3 gate: `trayHandKey = roundKey|activeCategory`、transition は同一 key のみ、`handTrayTransition(` は 1 箇所、round / step reset → transition の順序 |
+| `tools/large-catalog-ux/mutation-check.mjs` | H-8: M10b を R5-d の行に再 target。suite を rename 後の file + `App.handActivation.handOn` に更新 |
+| `tools/large-catalog-ux/r5e-activation-mutants.mjs` | suite を同様に更新（E12 = M10b 現行版） |
+
+### 21.3 H-1〜H-8 の対応
+
+| # | 実装 | 結果 |
+|---|---|---|
+| **H-1** | page 2 で選択 → **positive control**（その選択で 1 個置ける）→ hand 外を pin（実 membership change）→ 閉じる → page `1 / 2`、選択 chip なし → pizza tap で **piece 数が 0 増**（旧選択も他も）→ 同じ spot で可視選択なら 1 個置ける（spot が有効な証明） | 9 / 12 PASS、**E6 KILLED** |
+| **H-2** | real handPolicy ON（mock なし）で App ON suite 全体を 9 と 12 で実行 | 9 / 12 PASS。flag と capacity function を同時 mock する test は 0（gate で固定） |
+| **H-3** | behaviour（step 入場 / 次 FREE round で page 1・選択なし・pins 維持・同じ hand、直後の選択は正常）+ structural gate | PASS、**E2 KILLED**（gate 経由。E2 は現在の render 順では観測上等価: §21.5） |
+| **H-4** | `assertSelectionOnVisiblePage`: 選択があれば現 page の chip が 1 個、無ければ fresh spot の tap が何も置かない（side effect で証明）。scripted（H-1 形・おまかせに戻す・priority-only pin）+ seeded 24 ops の毎 step | 9 / 12 PASS |
+| **H-5** | 前提 (1) reducer: PREPARE の全 action で ownership / stock 不変、(2) App: PREPARE の cooking screen に Shop / 図鑑 / 在庫 entry なし（HOME で同 pattern が match する positive control 付き）、契約: 現れた hand は full tray → hand の hand change として `handTrayTransition` で評価すべき | PASS。unreachable の根拠を test で固定 |
+| **H-6** | stock 1→0（unpinned は tray から消え CAP 件に補充、pinned は ×0 disabled で残る、pantry: unpinned ×0 は `aria-disabled` で新規 pin 不可、pinned ×0 は unpin 可 → tray から消える）、次 FREE round（もう一度じゆうに作る）、HOME → FREE restart（pins / hand 維持、save に pins なし）、guided / Lunch Rush / Dinner isolation（pins があっても hand なし・食材庫なし・pin UI なし） | 9 / 12 PASS |
+| **H-7** | pin で clear → 同 tile で unpin → hand は元の集合に戻るが選択は復元されない（page 1 / page 2 とも chip なし、tap も 0） | PASS（現仕様固定。R6 HV-11） |
+| **H-8** | M10b 再 target | M1〜M114 run に含む（§21.4） |
+
+### 21.4 Verification
+
+| gate | 結果 |
+|---|---|
+| full Vitest（3 projects） | **273 files, 5191 passed, 1 skipped, 0 failed** |
+| `tsc -b` | clean |
+| `oxlint` | pre-existing 2 warnings のみ（`scoringV2.noSauceProfile.test.ts`） |
+| `vite build` | OK |
+| Chromium e2e（`iphone-390x844` + `iphone-360x800`: large-catalog-pin-dormant / pantry-search / pantry-shell / pantry-shelves、stage-size-stability、dinner-mission、lunch-rush-material-shortage、free-cooking-phase3-2、inventory-modal-stable-bounds） | **56 passed, 16 intentional width-guard skips, 0 failed** |
+| mutation-check M1〜M114（118 mutants） | <<M-RESULT>> |
+| r5e activation mutants E1〜E12 | **10 / 12 KILLED**（§21.5） |
+
+注: 2 つの mutation run を同時に回すと CPU 競合で App test が default 5 s timeout に達し baseline が落ちた（コード起因ではない）。以後は 1 本ずつ実行し、長い新 App test には明示 timeout（60 s / fuzz 90 s）を付けた。
+
+### 21.5 E1〜E12（R5-e-h 後）
+
+| id | Fresh Audit | R5-e-h 後 | 備考 |
+|---|---|---|---|
+| E1 | KILLED | KILLED | App 層でも捕捉されるようになった（hand-on は real `handCapacityFor` を使う） |
+| **E2** | SURVIVED | **KILLED** | H-3 gate。**行動上は等価**: round / step 変化は必ず hand が `null` になる render（DOUGH、BAKE / RESULT）を通り、既存 reset が transition より先に走るため、key guard を外しても観測差が出ない。gate は、その順序が変わる refactor（reset を effect に移す等）で #197 経路が key 変化に反応しないことを保証する |
+| E3 | KILLED | KILLED | — |
+| E4 | SURVIVED | **SURVIVED（等価、許容）** | PREPARE 以外（BAKE 以降）では tray が描画されず、placed / pins / ownership も変わらないので transition は起きない。無駄な計算が増えるだけ。Owner 指示どおり production を変えて kill しない |
+| E5 | KILLED | **SURVIVED（意図どおり）** | shipped candidate 12 → 9。hand-on project は capacity を project ごとに固定し、pure test は 9 / 12 を parametrize するため、**どの test も未決定の shipped 値に依存しなくなった**（OD-R5-1「nothing may depend on this value」）。Fresh Audit 時の KILL は旧 App test が 12 を固定していたため＝ G-1 の穴そのもの |
+| **E6** | SURVIVED | **KILLED** | H-1（placement side effect） |
+| E7〜E10 | KILLED | KILLED | — |
+| E11 | KILLED | KILLED | current spec（inactive でも pin UI）を固定。OD-R5e-1 実装時（R6-a）に意図的に更新 |
+| E12 | KILLED | KILLED | = M10b 現行版 |
+
+### 21.6 残存 / R6 へ
+
+- R6-a: OD-R5e-1（active category のみ pin UI、E11 の test を更新）、OD-R5e-3（数字なし capacity-full feedback + SR announce）、OD-R5e-4（Preview-only fail-closed activation。build / deploy architecture 監査から）、OFF golden snapshot gate（§10.2、D-4）、ON-inactive ≡ OFF gate。
+- hand-on project の transform は R6-e で shipped flag が true になっても動く（regex は false / true 両方を許容）。そのとき `handTray.off.test.ts` の「shipped flag is false」は「non-eligible / inactive は flag に依らず null」に置換する（§10.2-5）。
+- OD-R5e-5: R5-e-h 完了後、current main から R6 slice 境界を再確認する（次 session の最初の作業）。
+
+## 22. Final readiness verdict（R5-e-h 後）
+
+<<FINAL>>
