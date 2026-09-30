@@ -263,7 +263,7 @@ R6-a の結論として、R6-c と R6-d を分ける理由: R6-c の HV で UI �
 
 （C を選ぶ場合のみ追加 blocker: iOS standalone の start_url / storage 挙動の実機確認。）
 
-## 25. Owner Decisions required
+## 25. Owner Decisions（**CONFIRMED** — 下表は提示時の問いと推奨。確定内容は §26）
 
 | # | 質問 | 推奨 |
 |---|---|---|
@@ -274,6 +274,52 @@ R6-a の結論として、R6-c と R6-d を分ける理由: R6-c の HV で UI �
 | **OD-R6a-5** | OD-R5c-5 の R6-c 既定: search focus 中の tile tap で keyboard を **維持**（`pointerdown` で `preventDefault`）し、HV で最終判断 | **はい** |
 | **OD-R6a-6** | merge 順: R5-e branch を先に PR / merge、R6-b は新 branch | **はい** |
 | **OD-R6a-7** | R6 slice（§23: R6-b infra → R6-c UI → R6-d 9 vs 12 → R6-e decision + production） | 承認 |
+
+## 26. Owner Decisions — CONFIRMED
+
+| # | 決定 |
+|---|---|
+| **OD-R6a-1** | **APPROVED A2**。Preview 専用 committed variant。main では `LC_HAND_PREVIEW_CAPACITY = null`、HV 専用の使い捨て commit だけ `9` / `12`。variant commit は PR に merge しない。production は `VITE_PREVIEW_MODE` が成立しない限りこの値を読まない fail-closed 構造。query / localStorage / sessionStorage 等による production runtime activation は禁止 |
+| **OD-R6a-2** | **APPROVED**。通常の main / PR head Preview は `null` = Hand OFF。他機能の Preview に Large Catalog Hand を混入させない |
+| **OD-R6a-3** | **APPROVED**。9 / 12 は同一 Preview URL に variant SHA を順番に deploy して比較（ABBA）。badge に `HAND 9` / `HAND 12`。capacity の最終決定は R6-d 実機 HV 後 |
+| **OD-R6a-4** | **APPROVED AS R6-c INITIAL UX**。rejection = 数字なし、sheet 下端 overlay toast、3 秒、`role="status"`、polite、copy「手元がいっぱいです。使わない食材のピンを外してね」。最終 UX ではなく R6-c HV で評価 |
+| **OD-R6a-5** | **APPROVED AS R6-c INITIAL BEHAVIOR**。検索 input focus 中の pin で keyboard を維持。real iPhone Safari / standalone / 日本語 IME の R6-c HV で評価し、使いにくければ Owner Decision に戻す |
+| **OD-R6a-6** | **APPROVED**。R5-e hardening branch を R6 実装より先に単独 PR → merge。R6-b は merged main から開始 |
+| **OD-R6a-7** | **APPROVED**。R6-b Preview activation infrastructure → R6-c Preview Hand / Pin UI → R6-d capacity 9 vs 12 real-device comparison → R6-e Owner capacity decision + Production activation |
+
+## 27. BL-2 — Preview repo verification
+
+**RESOLVED — 実物で検証済み**（2026-09-30）。`perusonao/teto-pizza-game-preview` は public repository。session の git proxy 経由で匿名 clone（`--depth 1`、HEAD `04f481e` "Deploy preview: 8c436909… (8c43690)"）し、workflow file を直接読んだ（過去 report には依存していない）。
+
+| 確認項目 | 実物の内容（`.github/workflows/deploy-from-source.yml` / `pages.yml`） | 判定 |
+|---|---|---|
+| trigger | `deploy-from-source.yml`: `workflow_dispatch` のみ。input は `ref`（required、default `main`、"Branch, tag or commit SHA on perusonao/teto-pizza-game to build"）と `pr_number`（optional、badge 表示用）。`pages.yml`: `push: main` / `workflow_dispatch` | ✅ |
+| arbitrary source SHA | `actions/checkout@v4` に `repository: perusonao/teto-pizza-game`、`ref: ${{ inputs.ref }}`、`path: source`。branch / tag / commit SHA のいずれも指定可能 | ✅ variant SHA を deploy 可能（**前提: その commit が GitHub 上の `perusonao/teto-pizza-game` に push 済みであること**。下の運用注記） |
+| checkout 方法 | token なし（source repo は public）。`npm ci` → short SHA 解決 | ✅ |
+| build env | `VITE_PREVIEW_MODE: "1"`、`VITE_PREVIEW_PR: ${{ inputs.pr_number }}`、`VITE_PREVIEW_SHA: <short sha>` の **3 つだけ**。build は `npx vite build --base=/teto-pizza-game-preview/ --outDir dist-preview`（`tsc -b` は走らない）。Firebase の `VITE_*` は渡さない（Preview は Firebase 未設定） | ✅ `VITE_PREVIEW_MODE=1` は現在も設定される。A2 に追加の env は不要 |
+| 後処理 | manifest の `start_url` / `scope` を `sed` で `/teto-pizza-game-preview/` に置換、`index.html` に `noindex` を注入。**current main の `public/manifest.webmanifest`（`"start_url": "/teto-pizza-game/"` / `"scope": "/teto-pizza-game/"`）と `index.html`（`<meta charset="UTF-8" />`）は sed の pattern と一致**。live `site/manifest.webmanifest` は preview path、`site/index.html` に `noindex` 1 件 | ✅ standalone / PWA は Preview path で起動する |
+| runtime query / storage activation | workflow 側には無い（build して静的配信するだけ）。runtime の Preview 機能（`?hv=`、`?hint5=`）は app 側で `VITE_PREVIEW_MODE` の後ろにある既存のもの。A2 は新しい runtime reader を追加しない | ✅ |
+| Preview badge | `VITE_PREVIEW_PR`（任意）と `VITE_PREVIEW_SHA`（短 SHA）→ `PreviewBadge`。live bundle に `PREVIEW` と `· 8c43690` を確認。A2 の `HAND 9 / 12` は app 側（committed variant）から badge に足すので workflow 変更は不要 | ✅ |
+| Preview の live 証跡 | live `site/assets/index-*.js` に `teto-pizza-preview-save-v1`（Preview save key）あり = `VITE_PREVIEW_MODE` build。`lcHand` / `LC_HAND` は 0（当然、未実装） | ✅ |
+| production への逆流 | source は read-only checkout（token なし）。push 先は **この Preview repo の `main`**（`GITHUB_TOKEN`、`contents: write` はこの repo のみ）。`pages.yml` は `site/` をこの repo の Pages に配信。production repo の `deploy.yml` とは repository・Pages・concurrency group（repo 単位）とも別。README も "not connected to teto-pizza-game's production GitHub Pages, main branch, or Actions in any way" | ✅ 逆流なし |
+
+**運用注記（blocker ではない）**
+- variant SHA は `perusonao/teto-pizza-game` に push された commit でなければ checkout できない。本 session の push 権限は指定 branch のみなので、R6-c / R6-d で `hv/lc-hand-9-*` / `hv/lc-hand-12-*` を push するには、その時点で Owner の明示許可（または Owner による push / 指定 branch の割当て）が必要。
+- pipeline は Node **20**、production `deploy.yml` / CI は Node **22**。既存の Preview 運用（R5-b 実機 HV 等）はこの差で問題なく動いている。R6-b の Preview smoke で build 成功を確認する（非 blocking）。
+- pipeline は `npx vite build`（`tsc -b` なし）。型検査は source repo の CI が担う。
+- `workflow_dispatch` の `ref` / `pr_number` は Actions を実行できる人だけが指定できる。Preview は `noindex`。
+
+
+## Final Verdict（更新: Owner Decisions CONFIRMED + BL-2 RESOLVED）
+
+**A. R6 ACTIVATION PLAN READY**
+
+- OD-R6a-1〜7 CONFIRMED（§26）。A2 を採用。
+- BL-2 を実物の workflow で検証（§27）: 任意 SHA の build、`VITE_PREVIEW_MODE=1` + `VITE_PREVIEW_PR` / `VITE_PREVIEW_SHA` のみ、manifest / noindex patch は current main と一致、production への逆流なし。A2 は Preview repo の変更を必要としない。
+- BL-1（R5-e branch を先に merge）は OD-R6a-6 に従い次の作業（R5-e 単独 PR の merge gate）で解消する。
+- R6-b 以降の実装は開始していない。
+
+（以下は Owner Decision 前の判定。履歴として残す。）
 
 ## Final Verdict
 
