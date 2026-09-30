@@ -1,0 +1,209 @@
+{
+  "file": "src/logic/cut/quality.ts",
+  "results": [
+    {
+      "id": "Q01",
+      "description": "creditBetween: full-credit boundary is exclusive",
+      "status": "EQUIVALENT",
+      "reason": "equal input gives 1 either way (linear branch also yields 1 at the boundary)"
+    },
+    {
+      "id": "Q02",
+      "description": "creditBetween: zero-credit boundary is exclusive",
+      "status": "EQUIVALENT",
+      "reason": "equal input gives 0 either way (linear branch also yields 0 at the boundary)"
+    },
+    {
+      "id": "Q03",
+      "description": "creditBetween: slope inverted",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q04",
+      "description": "clamp01 lets values above 1 through",
+      "status": "EQUIVALENT",
+      "reason": "defensive: every argument is already <= 1 (credit/ratio), unreachable"
+    },
+    {
+      "id": "Q05",
+      "description": "clamp01 lets negatives through",
+      "status": "EQUIVALENT",
+      "reason": "defensive: every argument is already >= 0, unreachable"
+    },
+    {
+      "id": "Q06",
+      "description": "clamp01 lets NaN through",
+      "status": "EQUIVALENT",
+      "reason": "defensive: NaN can only arise from 0/0 or invalid input, both guarded earlier"
+    },
+    {
+      "id": "Q07",
+      "description": "non-finite line accepted",
+      "status": "EQUIVALENT",
+      "reason": "redundant guard: a NaN coordinate also fails the endpoint-distance check"
+    },
+    {
+      "id": "Q08",
+      "description": "min chord length check dropped",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q10",
+      "description": "endpoint margin ignored",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q11",
+      "description": "endpoint margin boundary exclusive",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q12",
+      "description": "only the start endpoint is checked",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q13",
+      "description": "distinct orientation gap boundary exclusive",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q14",
+      "description": "orientation clusters not sorted (order dependent)",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q15",
+      "description": "0/pi wrap-around merge dropped",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q16",
+      "description": "wrap-around merge applied even with a single cluster",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q17",
+      "description": "lineValidity divides by valid lines instead of all lines",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q18",
+      "description": "lineValidity for no lines is 1",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q19",
+      "description": "slice count fit ignores requested count",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q20",
+      "description": "slice count fit not capped",
+      "status": "EQUIVALENT",
+      "reason": "the uncapped value is negative and clamp01 restores 0"
+    },
+    {
+      "id": "Q21",
+      "description": "centre accuracy uses the worst line instead of the mean",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q22",
+      "description": "centre accuracy averages over all lines (invalid ones included)",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q23",
+      "description": "centre credit ignores the full-credit dead zone",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q24",
+      "description": "uniformity ideal area uses a fixed 6",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q25",
+      "description": "uniformity measured on all regions (slivers included)",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q26",
+      "description": "sliver threshold ignores the ideal area",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q27",
+      "description": "sliver threshold boundary exclusive",
+      "status": "EQUIVALENT",
+      "reason": "area == threshold exactly is not reachable with a sampled grid"
+    },
+    {
+      "id": "Q28",
+      "description": "all-sliver fallback removed",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q29",
+      "description": "geometry uses every line, not only valid ones",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q30",
+      "description": "centre accuracy reads every line, not only valid ones",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q31",
+      "description": "requiredLineCount hard-coded",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q32",
+      "description": "weights not normalised",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q33",
+      "description": "negative weights accepted",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q34",
+      "description": "zero total weight not guarded",
+      "status": "EQUIVALENT",
+      "reason": "0/0 gives NaN and clamp01 turns it into 0"
+    },
+    {
+      "id": "Q35",
+      "description": "mis-ordered centre tolerance accepted",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q36",
+      "description": "mis-ordered uniformity tolerance accepted",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q37",
+      "description": "negative tolerance accepted",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q38",
+      "description": "sliver fraction of 1 or more accepted",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q39",
+      "description": "a completeness bonus is added back",
+      "status": "KILLED"
+    },
+    {
+      "id": "Q40",
+      "description": "quality.ts learns about scoring (scope guard)",
+      "status": "KILLED"
+    }
+  ]
+}
