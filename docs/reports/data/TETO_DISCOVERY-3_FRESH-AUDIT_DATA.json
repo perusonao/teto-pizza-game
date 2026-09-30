@@ -1,0 +1,4630 @@
+{
+ "ladder": [
+  {
+   "step": 0,
+   "unlock": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "available_before": [],
+   "newly_makeable": [
+    "margherita"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "pool_after_unlock": 0,
+   "discovered_at_unlock": 0
+  },
+  {
+   "step": 1,
+   "unlock": [
+    "egg"
+   ],
+   "available_before": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "key": "bismarck",
+   "newly_makeable": [
+    "bismarck"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "bismarck"
+   ],
+   "discovered_at_unlock": 1
+  },
+  {
+   "step": 2,
+   "unlock": [
+    "bacon"
+   ],
+   "available_before": [
+    "basil",
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "key": "breakfast-pizza",
+   "newly_makeable": [
+    "breakfast-pizza"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "breakfast-pizza"
+   ],
+   "discovered_at_unlock": 2
+  },
+  {
+   "step": 3,
+   "unlock": [
+    "mushroom"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "key": "funghi",
+   "newly_makeable": [
+    "funghi"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "funghi"
+   ],
+   "discovered_at_unlock": 3
+  },
+  {
+   "step": 4,
+   "unlock": [
+    "eggplant"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "key": "melanzane-pizza",
+   "newly_makeable": [
+    "melanzane-pizza"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "melanzane-pizza"
+   ],
+   "discovered_at_unlock": 4
+  },
+  {
+   "step": 5,
+   "unlock": [
+    "parmigiano"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "eggplant",
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "key": "parmigiana-pizza",
+   "newly_makeable": [
+    "parmigiana-pizza"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "parmigiana-pizza"
+   ],
+   "discovered_at_unlock": 5
+  },
+  {
+   "step": 6,
+   "unlock": [
+    "pepperoni"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "eggplant",
+    "mozzarella",
+    "mushroom",
+    "parmigiano",
+    "tomato-sauce"
+   ],
+   "key": "pepperoni",
+   "newly_makeable": [
+    "pepperoni"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "pepperoni"
+   ],
+   "discovered_at_unlock": 6
+  },
+  {
+   "step": 7,
+   "unlock": [
+    "sausage"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "eggplant",
+    "mozzarella",
+    "mushroom",
+    "parmigiano",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "key": "salsiccia",
+   "newly_makeable": [
+    "salsiccia"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "salsiccia"
+   ],
+   "discovered_at_unlock": 7
+  },
+  {
+   "step": 8,
+   "unlock": [
+    "ham"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "eggplant",
+    "mozzarella",
+    "mushroom",
+    "parmigiano",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "meat-lovers",
+   "newly_makeable": [
+    "meat-lovers"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "meat-lovers"
+   ],
+   "discovered_at_unlock": 8
+  },
+  {
+   "step": 9,
+   "unlock": [
+    "corn"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "egg",
+    "eggplant",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "parmigiano",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "bambino",
+   "newly_makeable": [
+    "bambino"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "bambino"
+   ],
+   "discovered_at_unlock": 9
+  },
+  {
+   "step": 10,
+   "unlock": [
+    "pineapple"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "corn",
+    "egg",
+    "eggplant",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "parmigiano",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "hawaiian",
+   "newly_makeable": [
+    "hawaiian"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "hawaiian"
+   ],
+   "discovered_at_unlock": 10
+  },
+  {
+   "step": 11,
+   "unlock": [
+    "black-olive",
+    "oregano"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "corn",
+    "egg",
+    "eggplant",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "capricciosa",
+   "newly_makeable": [
+    "capricciosa"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "capricciosa"
+   ],
+   "discovered_at_unlock": 11
+  },
+  {
+   "step": 12,
+   "unlock": [
+    "onion"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "pizza-portuguesa",
+   "newly_makeable": [
+    "pizza-portuguesa"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "pizza-portuguesa"
+   ],
+   "discovered_at_unlock": 12
+  },
+  {
+   "step": 13,
+   "unlock": [
+    "olive-oil"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "fugazza",
+   "newly_makeable": [
+    "fugazza"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "fugazza"
+   ],
+   "discovered_at_unlock": 13
+  },
+  {
+   "step": 14,
+   "unlock": [
+    "garlic"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "marinara",
+   "newly_makeable": [
+    "marinara"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "marinara"
+   ],
+   "discovered_at_unlock": 14
+  },
+  {
+   "step": 15,
+   "unlock": [
+    "anchovy"
+   ],
+   "available_before": [
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "napoletana",
+   "newly_makeable": [
+    "napoletana"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "napoletana"
+   ],
+   "discovered_at_unlock": 15
+  },
+  {
+   "step": 16,
+   "unlock": [
+    "tuna"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "key": "tonno-e-cipolla",
+   "newly_makeable": [
+    "tonno-e-cipolla"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "tonno-e-cipolla"
+   ],
+   "discovered_at_unlock": 16
+  },
+  {
+   "step": 17,
+   "unlock": [
+    "pesto"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pineapple",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "pesto-tonno",
+   "newly_makeable": [
+    "pesto-tonno"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "pesto-tonno"
+   ],
+   "discovered_at_unlock": 17
+  },
+  {
+   "step": 18,
+   "unlock": [
+    "cherry-tomato"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "corn",
+    "egg",
+    "eggplant",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "genovese",
+   "newly_makeable": [
+    "genovese"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "genovese"
+   ],
+   "discovered_at_unlock": 18
+  },
+  {
+   "step": 19,
+   "unlock": [
+    "clam"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "cherry-tomato",
+    "corn",
+    "egg",
+    "eggplant",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "new-haven-apizza",
+   "newly_makeable": [
+    "new-haven-apizza"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "new-haven-apizza"
+   ],
+   "discovered_at_unlock": 19
+  },
+  {
+   "step": 20,
+   "unlock": [
+    "fresh-tomato"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "cherry-tomato",
+    "clam",
+    "corn",
+    "egg",
+    "eggplant",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "pesto-caprese",
+   "newly_makeable": [
+    "pesto-caprese"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "pesto-caprese"
+   ],
+   "discovered_at_unlock": 20
+  },
+  {
+   "step": 21,
+   "unlock": [
+    "potato"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "cherry-tomato",
+    "clam",
+    "corn",
+    "egg",
+    "eggplant",
+    "fresh-tomato",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "pesto-patate",
+   "newly_makeable": [
+    "pesto-patate"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "pesto-patate"
+   ],
+   "discovered_at_unlock": 21
+  },
+  {
+   "step": 22,
+   "unlock": [
+    "rosemary"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "cherry-tomato",
+    "clam",
+    "corn",
+    "egg",
+    "eggplant",
+    "fresh-tomato",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "potato",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "pizza-bianca",
+   "newly_makeable": [
+    "pizza-bianca"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "pizza-bianca"
+   ],
+   "discovered_at_unlock": 22
+  },
+  {
+   "step": 23,
+   "unlock": [
+    "capers"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "cherry-tomato",
+    "clam",
+    "corn",
+    "egg",
+    "eggplant",
+    "fresh-tomato",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "potato",
+    "rosemary",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "puttanesca-pizza",
+   "newly_makeable": [
+    "puttanesca-pizza"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "puttanesca-pizza"
+   ],
+   "discovered_at_unlock": 23
+  },
+  {
+   "step": 24,
+   "unlock": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "available_before": [
+    "anchovy",
+    "bacon",
+    "basil",
+    "black-olive",
+    "capers",
+    "cherry-tomato",
+    "clam",
+    "corn",
+    "egg",
+    "eggplant",
+    "fresh-tomato",
+    "garlic",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "pineapple",
+    "potato",
+    "rosemary",
+    "sausage",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "key": "quattro-formaggi",
+   "newly_makeable": [
+    "quattro-formaggi"
+   ],
+   "new_count": 1,
+   "carried_undiscovered": 0,
+   "carried": [],
+   "pool_after_unlock": 1,
+   "pool_ids": [
+    "quattro-formaggi"
+   ],
+   "discovered_at_unlock": 24
+  }
+ ],
+ "ladder_summary": {
+  "steps_with_new_count": {
+   "1": 24
+  },
+  "steps_with_ge2_new": [],
+  "max_pool_after_unlock": 1,
+  "pool_histogram": {
+   "1": 24
+  },
+  "all_25_makeable_after_step": 24
+ },
+ "ingredient_use": {
+  "mozzarella": [
+   "bambino",
+   "bismarck",
+   "breakfast-pizza",
+   "capricciosa",
+   "funghi",
+   "genovese",
+   "hawaiian",
+   "margherita",
+   "meat-lovers",
+   "melanzane-pizza",
+   "napoletana",
+   "parmigiana-pizza",
+   "pepperoni",
+   "pesto-caprese",
+   "pesto-patate",
+   "pizza-portuguesa",
+   "quattro-formaggi",
+   "salsiccia",
+   "tonno-e-cipolla"
+  ],
+  "tomato-sauce": [
+   "bambino",
+   "bismarck",
+   "breakfast-pizza",
+   "capricciosa",
+   "funghi",
+   "hawaiian",
+   "margherita",
+   "marinara",
+   "meat-lovers",
+   "melanzane-pizza",
+   "napoletana",
+   "parmigiana-pizza",
+   "pepperoni",
+   "pizza-portuguesa",
+   "puttanesca-pizza",
+   "salsiccia",
+   "tonno-e-cipolla"
+  ],
+  "ham": [
+   "bambino",
+   "capricciosa",
+   "hawaiian",
+   "meat-lovers",
+   "pizza-portuguesa"
+  ],
+  "olive-oil": [
+   "fugazza",
+   "new-haven-apizza",
+   "pizza-bianca",
+   "quattro-formaggi"
+  ],
+  "pesto": [
+   "genovese",
+   "pesto-caprese",
+   "pesto-patate",
+   "pesto-tonno"
+  ],
+  "basil": [
+   "margherita",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "pesto-caprese"
+  ],
+  "oregano": [
+   "capricciosa",
+   "fugazza",
+   "marinara",
+   "napoletana"
+  ],
+  "onion": [
+   "fugazza",
+   "pesto-tonno",
+   "pizza-portuguesa",
+   "tonno-e-cipolla"
+  ],
+  "black-olive": [
+   "capricciosa",
+   "pesto-tonno",
+   "pizza-portuguesa",
+   "puttanesca-pizza"
+  ],
+  "parmigiano": [
+   "new-haven-apizza",
+   "parmigiana-pizza",
+   "quattro-formaggi"
+  ],
+  "garlic": [
+   "marinara",
+   "new-haven-apizza",
+   "puttanesca-pizza"
+  ],
+  "egg": [
+   "bismarck",
+   "breakfast-pizza",
+   "pizza-portuguesa"
+  ],
+  "bacon": [
+   "breakfast-pizza",
+   "meat-lovers",
+   "pesto-patate"
+  ],
+  "mushroom": [
+   "capricciosa",
+   "funghi"
+  ],
+  "sausage": [
+   "meat-lovers",
+   "salsiccia"
+  ],
+  "pepperoni": [
+   "meat-lovers",
+   "pepperoni"
+  ],
+  "anchovy": [
+   "napoletana",
+   "puttanesca-pizza"
+  ],
+  "tuna": [
+   "pesto-tonno",
+   "tonno-e-cipolla"
+  ],
+  "eggplant": [
+   "melanzane-pizza",
+   "parmigiana-pizza"
+  ],
+  "gorgonzola": [
+   "quattro-formaggi"
+  ],
+  "fontina": [
+   "quattro-formaggi"
+  ],
+  "cherry-tomato": [
+   "genovese"
+  ],
+  "rosemary": [
+   "pizza-bianca"
+  ],
+  "capers": [
+   "puttanesca-pizza"
+  ],
+  "clam": [
+   "new-haven-apizza"
+  ],
+  "corn": [
+   "bambino"
+  ],
+  "fresh-tomato": [
+   "pesto-caprese"
+  ],
+  "pineapple": [
+   "hawaiian"
+  ],
+  "potato": [
+   "pesto-patate"
+  ]
+ },
+ "starter_plus_one": {
+  "egg": [
+   "bismarck"
+  ],
+  "mushroom": [
+   "funghi"
+  ],
+  "sausage": [
+   "salsiccia"
+  ],
+  "pepperoni": [
+   "pepperoni"
+  ],
+  "eggplant": [
+   "melanzane-pizza"
+  ]
+ },
+ "starter_only_makeable": [
+  "margherita"
+ ],
+ "missing_count_from_starters": {
+  "0": 1,
+  "2": 10,
+  "4": 7,
+  "1": 5,
+  "3": 2
+ },
+ "best_single_branch_by_state": [
+  {
+   "after_step": 0,
+   "best_single_unlock": [
+    [
+     1,
+     "egg"
+    ],
+    [
+     1,
+     "eggplant"
+    ],
+    [
+     1,
+     "mushroom"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 1,
+   "best_single_unlock": [
+    [
+     1,
+     "bacon"
+    ],
+    [
+     1,
+     "eggplant"
+    ],
+    [
+     1,
+     "mushroom"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 2,
+   "best_single_unlock": [
+    [
+     1,
+     "eggplant"
+    ],
+    [
+     1,
+     "mushroom"
+    ],
+    [
+     1,
+     "pepperoni"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 3,
+   "best_single_unlock": [
+    [
+     1,
+     "eggplant"
+    ],
+    [
+     1,
+     "pepperoni"
+    ],
+    [
+     1,
+     "sausage"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 4,
+   "best_single_unlock": [
+    [
+     1,
+     "parmigiano"
+    ],
+    [
+     1,
+     "pepperoni"
+    ],
+    [
+     1,
+     "sausage"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 5,
+   "best_single_unlock": [
+    [
+     1,
+     "pepperoni"
+    ],
+    [
+     1,
+     "sausage"
+    ],
+    [
+     0,
+     "anchovy"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 6,
+   "best_single_unlock": [
+    [
+     1,
+     "sausage"
+    ],
+    [
+     0,
+     "anchovy"
+    ],
+    [
+     0,
+     "black-olive"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 7,
+   "best_single_unlock": [
+    [
+     1,
+     "ham"
+    ],
+    [
+     0,
+     "anchovy"
+    ],
+    [
+     0,
+     "black-olive"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 8,
+   "best_single_unlock": [
+    [
+     1,
+     "corn"
+    ],
+    [
+     1,
+     "pineapple"
+    ],
+    [
+     0,
+     "anchovy"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 9,
+   "best_single_unlock": [
+    [
+     1,
+     "pineapple"
+    ],
+    [
+     0,
+     "anchovy"
+    ],
+    [
+     0,
+     "black-olive"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 10,
+   "best_single_unlock": [
+    [
+     0,
+     "anchovy"
+    ],
+    [
+     0,
+     "black-olive"
+    ],
+    [
+     0,
+     "capers"
+    ]
+   ],
+   "max_new": 0
+  },
+  {
+   "after_step": 11,
+   "best_single_unlock": [
+    [
+     1,
+     "anchovy"
+    ],
+    [
+     1,
+     "garlic"
+    ],
+    [
+     1,
+     "onion"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 12,
+   "best_single_unlock": [
+    [
+     1,
+     "anchovy"
+    ],
+    [
+     1,
+     "garlic"
+    ],
+    [
+     1,
+     "olive-oil"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 13,
+   "best_single_unlock": [
+    [
+     1,
+     "anchovy"
+    ],
+    [
+     1,
+     "garlic"
+    ],
+    [
+     1,
+     "rosemary"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 14,
+   "best_single_unlock": [
+    [
+     1,
+     "anchovy"
+    ],
+    [
+     1,
+     "clam"
+    ],
+    [
+     1,
+     "rosemary"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 15,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "clam"
+    ],
+    [
+     1,
+     "rosemary"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 16,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "clam"
+    ],
+    [
+     1,
+     "pesto"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 17,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "cherry-tomato"
+    ],
+    [
+     1,
+     "clam"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 18,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "clam"
+    ],
+    [
+     1,
+     "fresh-tomato"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 19,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "fresh-tomato"
+    ],
+    [
+     1,
+     "potato"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 20,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "potato"
+    ],
+    [
+     1,
+     "rosemary"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 21,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     1,
+     "rosemary"
+    ],
+    [
+     0,
+     "fontina"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 22,
+   "best_single_unlock": [
+    [
+     1,
+     "capers"
+    ],
+    [
+     0,
+     "fontina"
+    ],
+    [
+     0,
+     "gorgonzola"
+    ]
+   ],
+   "max_new": 1
+  },
+  {
+   "after_step": 23,
+   "best_single_unlock": [
+    [
+     0,
+     "fontina"
+    ],
+    [
+     0,
+     "gorgonzola"
+    ]
+   ],
+   "max_new": 0
+  },
+  {
+   "after_step": 24,
+   "best_single_unlock": [],
+   "max_new": 0
+  }
+ ],
+ "reorder_search": {
+  "note": "permutations of the 24 existing unlock groups, hill-climb x40 restarts, softlock-free under 'step s needs s discoveries'",
+  "current_score_ge2_steps_excess_poolsum": [
+   0,
+   0,
+   24
+  ],
+  "best_score": [
+   0,
+   0,
+   24
+  ],
+  "best_order": [
+   [
+    "egg"
+   ],
+   [
+    "bacon"
+   ],
+   [
+    "mushroom"
+   ],
+   [
+    "eggplant"
+   ],
+   [
+    "parmigiano"
+   ],
+   [
+    "pepperoni"
+   ],
+   [
+    "sausage"
+   ],
+   [
+    "ham"
+   ],
+   [
+    "corn"
+   ],
+   [
+    "pineapple"
+   ],
+   [
+    "black-olive",
+    "oregano"
+   ],
+   [
+    "onion"
+   ],
+   [
+    "olive-oil"
+   ],
+   [
+    "garlic"
+   ],
+   [
+    "anchovy"
+   ],
+   [
+    "tuna"
+   ],
+   [
+    "pesto"
+   ],
+   [
+    "cherry-tomato"
+   ],
+   [
+    "clam"
+   ],
+   [
+    "fresh-tomato"
+   ],
+   [
+    "potato"
+   ],
+   [
+    "rosemary"
+   ],
+   [
+    "capers"
+   ],
+   [
+    "fontina",
+    "gorgonzola"
+   ]
+  ],
+  "best_new_per_step": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "best_pool_per_step": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "current_new_per_step": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "current_pool_per_step": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ]
+ },
+ "hub_ranking": [
+  {
+   "ingredient": "mozzarella",
+   "cat": "cheese",
+   "recipes": 19,
+   "ids": [
+    "bambino",
+    "bismarck",
+    "breakfast-pizza",
+    "capricciosa",
+    "funghi",
+    "genovese",
+    "hawaiian",
+    "margherita",
+    "meat-lovers",
+    "melanzane-pizza",
+    "napoletana",
+    "parmigiana-pizza",
+    "pepperoni",
+    "pesto-caprese",
+    "pesto-patate",
+    "pizza-portuguesa",
+    "quattro-formaggi",
+    "salsiccia",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredient": "tomato-sauce",
+   "cat": "sauce",
+   "recipes": 17,
+   "ids": [
+    "bambino",
+    "bismarck",
+    "breakfast-pizza",
+    "capricciosa",
+    "funghi",
+    "hawaiian",
+    "margherita",
+    "marinara",
+    "meat-lovers",
+    "melanzane-pizza",
+    "napoletana",
+    "parmigiana-pizza",
+    "pepperoni",
+    "pizza-portuguesa",
+    "puttanesca-pizza",
+    "salsiccia",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredient": "ham",
+   "cat": "topping",
+   "recipes": 5,
+   "ids": [
+    "bambino",
+    "capricciosa",
+    "hawaiian",
+    "meat-lovers",
+    "pizza-portuguesa"
+   ]
+  },
+  {
+   "ingredient": "basil",
+   "cat": "topping",
+   "recipes": 4,
+   "ids": [
+    "margherita",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pesto-caprese"
+   ]
+  },
+  {
+   "ingredient": "black-olive",
+   "cat": "topping",
+   "recipes": 4,
+   "ids": [
+    "capricciosa",
+    "pesto-tonno",
+    "pizza-portuguesa",
+    "puttanesca-pizza"
+   ]
+  },
+  {
+   "ingredient": "olive-oil",
+   "cat": "sauce",
+   "recipes": 4,
+   "ids": [
+    "fugazza",
+    "new-haven-apizza",
+    "pizza-bianca",
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "ingredient": "onion",
+   "cat": "topping",
+   "recipes": 4,
+   "ids": [
+    "fugazza",
+    "pesto-tonno",
+    "pizza-portuguesa",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredient": "oregano",
+   "cat": "topping",
+   "recipes": 4,
+   "ids": [
+    "capricciosa",
+    "fugazza",
+    "marinara",
+    "napoletana"
+   ]
+  },
+  {
+   "ingredient": "pesto",
+   "cat": "sauce",
+   "recipes": 4,
+   "ids": [
+    "genovese",
+    "pesto-caprese",
+    "pesto-patate",
+    "pesto-tonno"
+   ]
+  },
+  {
+   "ingredient": "bacon",
+   "cat": "topping",
+   "recipes": 3,
+   "ids": [
+    "breakfast-pizza",
+    "meat-lovers",
+    "pesto-patate"
+   ]
+  },
+  {
+   "ingredient": "egg",
+   "cat": "topping",
+   "recipes": 3,
+   "ids": [
+    "bismarck",
+    "breakfast-pizza",
+    "pizza-portuguesa"
+   ]
+  },
+  {
+   "ingredient": "garlic",
+   "cat": "topping",
+   "recipes": 3,
+   "ids": [
+    "marinara",
+    "new-haven-apizza",
+    "puttanesca-pizza"
+   ]
+  },
+  {
+   "ingredient": "parmigiano",
+   "cat": "cheese",
+   "recipes": 3,
+   "ids": [
+    "new-haven-apizza",
+    "parmigiana-pizza",
+    "quattro-formaggi"
+   ]
+  }
+ ],
+ "sibling_pairs_symdiff_le2": [
+  {
+   "a": "margherita",
+   "b": "bismarck",
+   "symdiff": [
+    "basil",
+    "egg"
+   ]
+  },
+  {
+   "a": "margherita",
+   "b": "funghi",
+   "symdiff": [
+    "basil",
+    "mushroom"
+   ]
+  },
+  {
+   "a": "margherita",
+   "b": "salsiccia",
+   "symdiff": [
+    "basil",
+    "sausage"
+   ]
+  },
+  {
+   "a": "margherita",
+   "b": "pepperoni",
+   "symdiff": [
+    "basil",
+    "pepperoni"
+   ]
+  },
+  {
+   "a": "margherita",
+   "b": "melanzane-pizza",
+   "symdiff": [
+    "eggplant"
+   ]
+  },
+  {
+   "a": "margherita",
+   "b": "parmigiana-pizza",
+   "symdiff": [
+    "eggplant",
+    "parmigiano"
+   ]
+  },
+  {
+   "a": "bismarck",
+   "b": "funghi",
+   "symdiff": [
+    "egg",
+    "mushroom"
+   ]
+  },
+  {
+   "a": "bismarck",
+   "b": "salsiccia",
+   "symdiff": [
+    "egg",
+    "sausage"
+   ]
+  },
+  {
+   "a": "bismarck",
+   "b": "pepperoni",
+   "symdiff": [
+    "egg",
+    "pepperoni"
+   ]
+  },
+  {
+   "a": "bismarck",
+   "b": "breakfast-pizza",
+   "symdiff": [
+    "bacon"
+   ]
+  },
+  {
+   "a": "funghi",
+   "b": "salsiccia",
+   "symdiff": [
+    "mushroom",
+    "sausage"
+   ]
+  },
+  {
+   "a": "funghi",
+   "b": "pepperoni",
+   "symdiff": [
+    "mushroom",
+    "pepperoni"
+   ]
+  },
+  {
+   "a": "salsiccia",
+   "b": "pepperoni",
+   "symdiff": [
+    "pepperoni",
+    "sausage"
+   ]
+  },
+  {
+   "a": "melanzane-pizza",
+   "b": "parmigiana-pizza",
+   "symdiff": [
+    "parmigiano"
+   ]
+  },
+  {
+   "a": "bambino",
+   "b": "hawaiian",
+   "symdiff": [
+    "corn",
+    "pineapple"
+   ]
+  }
+ ],
+ "single_step_feasibility": {
+  "rule": "after k single-ingredient unlocks at least k+1 recipes must be makeable (k discoveries + 1 to find), else SOFTLOCK (validateLadderProgression)",
+  "feasible_states_per_layer": [
+   1,
+   5,
+   12,
+   18,
+   18,
+   13,
+   9,
+   8,
+   7,
+   4,
+   1,
+   0
+  ],
+  "deepest_feasible_layer": 10,
+  "newly_makeable_histogram_over_all_feasible_transitions": {
+   "1": 262
+  },
+  "reading": "with single-ingredient steps every feasible transition opens exactly 1 recipe, and no feasible chain covers all 26 ingredients (the real ladder needs two 2-ingredient steps)"
+ },
+ "packages_open_ge2_from_starters": {
+  "count_all_size_le3": 315,
+  "minimal_examples": [
+   {
+    "unlock": [
+     "bacon",
+     "egg",
+     "eggplant"
+    ],
+    "opens": [
+     "bismarck",
+     "breakfast-pizza",
+     "melanzane-pizza"
+    ]
+   },
+   {
+    "unlock": [
+     "bacon",
+     "egg",
+     "mushroom"
+    ],
+    "opens": [
+     "bismarck",
+     "breakfast-pizza",
+     "funghi"
+    ]
+   },
+   {
+    "unlock": [
+     "bacon",
+     "egg",
+     "pepperoni"
+    ],
+    "opens": [
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni"
+    ]
+   },
+   {
+    "unlock": [
+     "bacon",
+     "egg",
+     "sausage"
+    ],
+    "opens": [
+     "bismarck",
+     "breakfast-pizza",
+     "salsiccia"
+    ]
+   },
+   {
+    "unlock": [
+     "egg",
+     "eggplant",
+     "mushroom"
+    ],
+    "opens": [
+     "bismarck",
+     "funghi",
+     "melanzane-pizza"
+    ]
+   },
+   {
+    "unlock": [
+     "egg",
+     "eggplant",
+     "parmigiano"
+    ],
+    "opens": [
+     "bismarck",
+     "melanzane-pizza",
+     "parmigiana-pizza"
+    ]
+   },
+   {
+    "unlock": [
+     "egg",
+     "eggplant",
+     "pepperoni"
+    ],
+    "opens": [
+     "bismarck",
+     "melanzane-pizza",
+     "pepperoni"
+    ]
+   },
+   {
+    "unlock": [
+     "egg",
+     "eggplant",
+     "sausage"
+    ],
+    "opens": [
+     "bismarck",
+     "melanzane-pizza",
+     "salsiccia"
+    ]
+   },
+   {
+    "unlock": [
+     "egg",
+     "mushroom",
+     "pepperoni"
+    ],
+    "opens": [
+     "bismarck",
+     "funghi",
+     "pepperoni"
+    ]
+   },
+   {
+    "unlock": [
+     "egg",
+     "mushroom",
+     "sausage"
+    ],
+    "opens": [
+     "bismarck",
+     "funghi",
+     "salsiccia"
+    ]
+   }
+  ],
+  "note": "every package is a BUNDLE of independent one-ingredient recipes (egg+mushroom opens bismarck and funghi), not a hub: no single ingredient opens two recipes on the 25-recipe data"
+ },
+ "subset_recipe_pairs": [
+  {
+   "small": "margherita",
+   "large": "melanzane-pizza",
+   "extra": [
+    "eggplant"
+   ]
+  },
+  {
+   "small": "margherita",
+   "large": "parmigiana-pizza",
+   "extra": [
+    "eggplant",
+    "parmigiano"
+   ]
+  },
+  {
+   "small": "bismarck",
+   "large": "breakfast-pizza",
+   "extra": [
+    "bacon"
+   ]
+  },
+  {
+   "small": "bismarck",
+   "large": "pizza-portuguesa",
+   "extra": [
+    "black-olive",
+    "ham",
+    "onion"
+   ]
+  },
+  {
+   "small": "funghi",
+   "large": "capricciosa",
+   "extra": [
+    "black-olive",
+    "ham",
+    "oregano"
+   ]
+  },
+  {
+   "small": "salsiccia",
+   "large": "meat-lovers",
+   "extra": [
+    "bacon",
+    "ham",
+    "pepperoni"
+   ]
+  },
+  {
+   "small": "pepperoni",
+   "large": "meat-lovers",
+   "extra": [
+    "bacon",
+    "ham",
+    "sausage"
+   ]
+  },
+  {
+   "small": "melanzane-pizza",
+   "large": "parmigiana-pizza",
+   "extra": [
+    "parmigiano"
+   ]
+  }
+ ],
+ "branching_ladder_example_25_recipes": {
+  "constraints": "groups of 1-2 ingredients, softlock-free, pool <= 6, objective = most steps opening 2..4 recipes (seeded hill-climb, illustrative not optimal)",
+  "steps": 19,
+  "groups": [
+   [
+    "mushroom",
+    "sausage"
+   ],
+   [
+    "bacon"
+   ],
+   [
+    "egg"
+   ],
+   [
+    "tuna"
+   ],
+   [
+    "ham",
+    "pepperoni"
+   ],
+   [
+    "black-olive"
+   ],
+   [
+    "onion"
+   ],
+   [
+    "anchovy",
+    "oregano"
+   ],
+   [
+    "olive-oil",
+    "pineapple"
+   ],
+   [
+    "potato"
+   ],
+   [
+    "fontina"
+   ],
+   [
+    "pesto"
+   ],
+   [
+    "rosemary",
+    "cherry-tomato"
+   ],
+   [
+    "fresh-tomato",
+    "corn"
+   ],
+   [
+    "clam"
+   ],
+   [
+    "parmigiano"
+   ],
+   [
+    "garlic"
+   ],
+   [
+    "capers",
+    "gorgonzola"
+   ],
+   [
+    "eggplant"
+   ]
+  ],
+  "new_per_step": [
+   2,
+   0,
+   2,
+   0,
+   2,
+   0,
+   2,
+   2,
+   2,
+   0,
+   0,
+   2,
+   2,
+   2,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  "pool_per_step": [
+   2,
+   1,
+   2,
+   1,
+   2,
+   1,
+   2,
+   3,
+   4,
+   3,
+   2,
+   3,
+   4,
+   5,
+   4,
+   3,
+   4,
+   5,
+   6
+  ],
+  "steps_opening_2_to_4": 12,
+  "dry_steps_opening_0": 7,
+  "reading": "the existing 25 CAN branch, but only through 2-ingredient packages plus dry prerequisite steps, and only by replacing the frozen W1 ladder (LAD-1)"
+ },
+ "hint5_current_reduction": {
+  "stages": [
+   "0 none",
+   "1 SAUCE",
+   "2 CHEESE",
+   "3 KEY_TOPPING",
+   "4 STRUCTURE",
+   "5.. SUB_CLASS 1..n"
+  ],
+  "per_recipe_remaining_of_25": {
+   "margherita": [
+    25,
+    17,
+    14,
+    1,
+    1
+   ],
+   "marinara": [
+    25,
+    17,
+    2,
+    1,
+    1,
+    1
+   ],
+   "quattro-formaggi": [
+    25,
+    4,
+    1,
+    1,
+    1
+   ],
+   "genovese": [
+    25,
+    4,
+    3,
+    1,
+    1
+   ],
+   "bismarck": [
+    25,
+    17,
+    14,
+    1,
+    1
+   ],
+   "funghi": [
+    25,
+    17,
+    14,
+    2,
+    1
+   ],
+   "fugazza": [
+    25,
+    4,
+    2,
+    1,
+    1,
+    1
+   ],
+   "salsiccia": [
+    25,
+    17,
+    14,
+    1,
+    1
+   ],
+   "pepperoni": [
+    25,
+    17,
+    14,
+    1,
+    1
+   ],
+   "napoletana": [
+    25,
+    17,
+    14,
+    1,
+    1,
+    1
+   ],
+   "tonno-e-cipolla": [
+    25,
+    17,
+    14,
+    1,
+    1,
+    1
+   ],
+   "pizza-bianca": [
+    25,
+    4,
+    2,
+    1,
+    1
+   ],
+   "breakfast-pizza": [
+    25,
+    17,
+    14,
+    1,
+    1,
+    1
+   ],
+   "capricciosa": [
+    25,
+    17,
+    14,
+    2,
+    1,
+    1,
+    1,
+    1
+   ],
+   "meat-lovers": [
+    25,
+    17,
+    14,
+    2,
+    2,
+    1,
+    1,
+    1
+   ],
+   "melanzane-pizza": [
+    25,
+    17,
+    14,
+    1,
+    1,
+    1
+   ],
+   "parmigiana-pizza": [
+    25,
+    17,
+    1,
+    1,
+    1,
+    1
+   ],
+   "bambino": [
+    25,
+    17,
+    14,
+    1,
+    1,
+    1
+   ],
+   "hawaiian": [
+    25,
+    17,
+    14,
+    1,
+    1,
+    1
+   ],
+   "pizza-portuguesa": [
+    25,
+    17,
+    14,
+    2,
+    2,
+    1,
+    1,
+    1
+   ],
+   "pesto-tonno": [
+    25,
+    4,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "new-haven-apizza": [
+    25,
+    4,
+    1,
+    1,
+    1,
+    1
+   ],
+   "pesto-caprese": [
+    25,
+    4,
+    3,
+    1,
+    1,
+    1
+   ],
+   "pesto-patate": [
+    25,
+    4,
+    3,
+    1,
+    1,
+    1
+   ],
+   "puttanesca-pizza": [
+    25,
+    17,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "final_remaining_histogram": {
+   "1": 25
+  },
+  "unique_after_full_ladder": 25
+ },
+ "new_ladder_reduction": {
+  "per_recipe_remaining_of_25": {
+   "margherita": [
+    25,
+    17,
+    14,
+    5,
+    1
+   ],
+   "marinara": [
+    25,
+    17,
+    2,
+    1,
+    1
+   ],
+   "quattro-formaggi": [
+    25,
+    4,
+    1,
+    1
+   ],
+   "genovese": [
+    25,
+    4,
+    3,
+    1,
+    1
+   ],
+   "bismarck": [
+    25,
+    17,
+    14,
+    5,
+    1
+   ],
+   "funghi": [
+    25,
+    17,
+    14,
+    5,
+    1
+   ],
+   "fugazza": [
+    25,
+    4,
+    2,
+    1,
+    1,
+    1
+   ],
+   "salsiccia": [
+    25,
+    17,
+    14,
+    5,
+    2
+   ],
+   "pepperoni": [
+    25,
+    17,
+    14,
+    5,
+    2
+   ],
+   "napoletana": [
+    25,
+    17,
+    14,
+    6,
+    2,
+    1
+   ],
+   "tonno-e-cipolla": [
+    25,
+    17,
+    14,
+    6,
+    2,
+    1
+   ],
+   "pizza-bianca": [
+    25,
+    4,
+    2,
+    1,
+    1
+   ],
+   "breakfast-pizza": [
+    25,
+    17,
+    14,
+    6,
+    3,
+    1
+   ],
+   "capricciosa": [
+    25,
+    17,
+    14,
+    3,
+    2,
+    2,
+    1
+   ],
+   "meat-lovers": [
+    25,
+    17,
+    14,
+    3,
+    1
+   ],
+   "melanzane-pizza": [
+    25,
+    17,
+    14,
+    6,
+    3,
+    1
+   ],
+   "parmigiana-pizza": [
+    25,
+    17,
+    1,
+    1,
+    1,
+    1
+   ],
+   "bambino": [
+    25,
+    17,
+    14,
+    6,
+    3,
+    1
+   ],
+   "hawaiian": [
+    25,
+    17,
+    14,
+    6,
+    3,
+    1
+   ],
+   "pizza-portuguesa": [
+    25,
+    17,
+    14,
+    3,
+    2,
+    2,
+    1
+   ],
+   "pesto-tonno": [
+    25,
+    4,
+    1,
+    1,
+    1,
+    1
+   ],
+   "new-haven-apizza": [
+    25,
+    4,
+    1,
+    1,
+    1,
+    1
+   ],
+   "pesto-caprese": [
+    25,
+    4,
+    3,
+    2,
+    2,
+    1
+   ],
+   "pesto-patate": [
+    25,
+    4,
+    3,
+    2,
+    1,
+    1
+   ],
+   "puttanesca-pizza": [
+    25,
+    17,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "final_remaining_histogram": {
+   "1": 23,
+   "2": 2
+  },
+  "unique_after_full": 23
+ },
+ "stage_means": {
+  "hint5_current": [
+   25,
+   12.84,
+   8.68,
+   1.16,
+   1.08,
+   1,
+   1,
+   1,
+   1
+  ],
+  "new_no_key": [
+   25,
+   12.84,
+   8.68,
+   3.32,
+   1.6,
+   1.16,
+   1.08,
+   1.08,
+   1.08
+  ]
+ },
+ "open_world_room_at_key_step": {
+  "margherita": {
+   "key_step": 0,
+   "owned": 3,
+   "none": 4,
+   "sauce": 4,
+   "sauce+cheese": 2,
+   "sauce+cheese+count": 1,
+   "sauce+cheese+count+families": 1
+  },
+  "marinara": {
+   "key_step": 14,
+   "owned": 18,
+   "none": 131072,
+   "sauce": 65536,
+   "sauce+cheese": 16384,
+   "sauce+cheese+count": 91,
+   "sauce+cheese+count+families": 3
+  },
+  "quattro-formaggi": {
+   "key_step": 24,
+   "owned": 29,
+   "none": 201326592,
+   "sauce": 67108864,
+   "sauce+cheese": 4194304,
+   "sauce+cheese+count": 1,
+   "sauce+cheese+count+families": 1
+  },
+  "genovese": {
+   "key_step": 18,
+   "owned": 22,
+   "none": 1572864,
+   "sauce": 524288,
+   "sauce+cheese": 131072,
+   "sauce+cheese+count": 17,
+   "sauce+cheese+count+families": 6
+  },
+  "bismarck": {
+   "key_step": 1,
+   "owned": 4,
+   "none": 8,
+   "sauce": 8,
+   "sauce+cheese": 4,
+   "sauce+cheese+count": 2,
+   "sauce+cheese+count+families": 1
+  },
+  "funghi": {
+   "key_step": 3,
+   "owned": 6,
+   "none": 32,
+   "sauce": 32,
+   "sauce+cheese": 16,
+   "sauce+cheese+count": 4,
+   "sauce+cheese+count+families": 1
+  },
+  "fugazza": {
+   "key_step": 13,
+   "owned": 17,
+   "none": 65536,
+   "sauce": 32768,
+   "sauce+cheese": 8192,
+   "sauce+cheese+count": 78,
+   "sauce+cheese+count+families": 10
+  },
+  "salsiccia": {
+   "key_step": 7,
+   "owned": 10,
+   "none": 512,
+   "sauce": 512,
+   "sauce+cheese": 128,
+   "sauce+cheese+count": 7,
+   "sauce+cheese+count+families": 3
+  },
+  "pepperoni": {
+   "key_step": 6,
+   "owned": 9,
+   "none": 256,
+   "sauce": 256,
+   "sauce+cheese": 64,
+   "sauce+cheese+count": 6,
+   "sauce+cheese+count+families": 2
+  },
+  "napoletana": {
+   "key_step": 15,
+   "owned": 19,
+   "none": 262144,
+   "sauce": 131072,
+   "sauce+cheese": 32768,
+   "sauce+cheese+count": 105,
+   "sauce+cheese+count+families": 3
+  },
+  "tonno-e-cipolla": {
+   "key_step": 16,
+   "owned": 20,
+   "none": 524288,
+   "sauce": 262144,
+   "sauce+cheese": 65536,
+   "sauce+cheese+count": 120,
+   "sauce+cheese+count+families": 10
+  },
+  "pizza-bianca": {
+   "key_step": 22,
+   "owned": 26,
+   "none": 25165824,
+   "sauce": 8388608,
+   "sauce+cheese": 2097152,
+   "sauce+cheese+count": 21,
+   "sauce+cheese+count+families": 4
+  },
+  "breakfast-pizza": {
+   "key_step": 2,
+   "owned": 5,
+   "none": 16,
+   "sauce": 16,
+   "sauce+cheese": 8,
+   "sauce+cheese+count": 3,
+   "sauce+cheese+count+families": 1
+  },
+  "capricciosa": {
+   "key_step": 11,
+   "owned": 15,
+   "none": 16384,
+   "sauce": 16384,
+   "sauce+cheese": 4096,
+   "sauce+cheese+count": 495,
+   "sauce+cheese+count+families": 48
+  },
+  "meat-lovers": {
+   "key_step": 8,
+   "owned": 11,
+   "none": 1024,
+   "sauce": 1024,
+   "sauce+cheese": 256,
+   "sauce+cheese+count": 70,
+   "sauce+cheese+count+families": 1
+  },
+  "melanzane-pizza": {
+   "key_step": 4,
+   "owned": 7,
+   "none": 64,
+   "sauce": 64,
+   "sauce+cheese": 32,
+   "sauce+cheese+count": 10,
+   "sauce+cheese+count+families": 2
+  },
+  "parmigiana-pizza": {
+   "key_step": 5,
+   "owned": 8,
+   "none": 128,
+   "sauce": 128,
+   "sauce+cheese": 32,
+   "sauce+cheese+count": 10,
+   "sauce+cheese+count+families": 2
+  },
+  "bambino": {
+   "key_step": 9,
+   "owned": 12,
+   "none": 2048,
+   "sauce": 2048,
+   "sauce+cheese": 512,
+   "sauce+cheese+count": 36,
+   "sauce+cheese+count+families": 12
+  },
+  "hawaiian": {
+   "key_step": 10,
+   "owned": 13,
+   "none": 4096,
+   "sauce": 4096,
+   "sauce+cheese": 1024,
+   "sauce+cheese+count": 45,
+   "sauce+cheese+count+families": 4
+  },
+  "pizza-portuguesa": {
+   "key_step": 12,
+   "owned": 16,
+   "none": 32768,
+   "sauce": 32768,
+   "sauce+cheese": 8192,
+   "sauce+cheese+count": 715,
+   "sauce+cheese+count+families": 40
+  },
+  "pesto-tonno": {
+   "key_step": 17,
+   "owned": 21,
+   "none": 786432,
+   "sauce": 262144,
+   "sauce+cheese": 65536,
+   "sauce+cheese+count": 560,
+   "sauce+cheese+count+families": 20
+  },
+  "new-haven-apizza": {
+   "key_step": 19,
+   "owned": 23,
+   "none": 3145728,
+   "sauce": 1048576,
+   "sauce+cheese": 262144,
+   "sauce+cheese+count": 153,
+   "sauce+cheese+count+families": 9
+  },
+  "pesto-caprese": {
+   "key_step": 20,
+   "owned": 24,
+   "none": 6291456,
+   "sauce": 2097152,
+   "sauce+cheese": 524288,
+   "sauce+cheese+count": 171,
+   "sauce+cheese+count+families": 21
+  },
+  "pesto-patate": {
+   "key_step": 21,
+   "owned": 25,
+   "none": 12582912,
+   "sauce": 4194304,
+   "sauce+cheese": 1048576,
+   "sauce+cheese+count": 190,
+   "sauce+cheese+count+families": 32
+  },
+  "puttanesca-pizza": {
+   "key_step": 23,
+   "owned": 27,
+   "none": 50331648,
+   "sauce": 16777216,
+   "sauce+cheese": 4194304,
+   "sauce+cheese+count": 7315,
+   "sauce+cheese+count+families": 96
+  }
+ },
+ "open_world_room_summary": {
+  "none": {
+   "min": 4,
+   "median": 32768,
+   "max": 201326592,
+   "eq1": 0
+  },
+  "sauce": {
+   "min": 4,
+   "median": 32768,
+   "max": 67108864,
+   "eq1": 0
+  },
+  "sauce+cheese": {
+   "min": 2,
+   "median": 8192,
+   "max": 4194304,
+   "eq1": 0
+  },
+  "sauce+cheese+count": {
+   "min": 1,
+   "median": 45,
+   "max": 7315,
+   "eq1": 2
+  },
+  "sauce+cheese+count+families": {
+   "min": 1,
+   "median": 4,
+   "max": 96,
+   "eq1": 6
+  }
+ },
+ "open_world_profile_room_at_key_step": {
+  "H0 nothing": {
+   "min": 8,
+   "median": 65536,
+   "p90": 16777216,
+   "max": 268435456,
+   "giveaways_eq1": 0,
+   "giveaway_ids": [],
+   "room_le_4": 0
+  },
+  "P-B core: sauce + cheese + topping count + family composition": {
+   "min": 1,
+   "median": 4,
+   "p90": 32,
+   "max": 96,
+   "giveaways_eq1": 6,
+   "giveaway_ids": [
+    "bismarck",
+    "breakfast-pizza",
+    "funghi",
+    "margherita",
+    "meat-lovers",
+    "quattro-formaggi"
+   ],
+   "room_le_4": 14
+  },
+  "P-C: sauce + cheese + topping count": {
+   "min": 1,
+   "median": 45,
+   "p90": 495,
+   "max": 7315,
+   "giveaways_eq1": 2,
+   "giveaway_ids": [
+    "margherita",
+    "quattro-formaggi"
+   ],
+   "room_le_4": 5
+  },
+  "P-D structure-only: topping count + family composition (no sauce / cheese names)": {
+   "min": 4,
+   "median": 64,
+   "p90": 336,
+   "max": 1536,
+   "giveaways_eq1": 0,
+   "giveaway_ids": [],
+   "room_le_4": 4
+  },
+  "P-E: P-B + named key topping": {
+   "min": 1,
+   "median": 2,
+   "p90": 10,
+   "max": 32,
+   "giveaways_eq1": 12,
+   "giveaway_ids": [
+    "bismarck",
+    "breakfast-pizza",
+    "funghi",
+    "genovese",
+    "margherita",
+    "meat-lovers",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pepperoni",
+    "pizza-bianca",
+    "quattro-formaggi",
+    "salsiccia"
+   ],
+   "room_le_4": 20
+  },
+  "H5 current full ladder (sauce, cheese, KEY named, structure, all sub classes)": {
+   "min": 1,
+   "median": 2,
+   "p90": 10,
+   "max": 32,
+   "giveaways_eq1": 12,
+   "giveaway_ids": [
+    "bismarck",
+    "breakfast-pizza",
+    "funghi",
+    "genovese",
+    "margherita",
+    "meat-lovers",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pepperoni",
+    "pizza-bianca",
+    "quattro-formaggi",
+    "salsiccia"
+   ],
+   "room_le_4": 20
+  }
+ },
+ "empty_element_information": {
+  "cheese_none": {
+   "share": "5/25",
+   "bits_if_none": 2.32,
+   "bits_if_present": 0.32
+  },
+  "cheese_named_mozzarella": {
+   "share": "19/25",
+   "bits": 0.4
+  },
+  "topping_none": {
+   "share": "1/25",
+   "bits_if_none": 4.64,
+   "bits_if_present": 0.06
+  },
+  "sauce_none_production": {
+   "share": "0/25",
+   "note": "no production recipe has no sauce; 'no sauce' is the reserved Technique no-sauce (TQ-1D)"
+  },
+  "sauce_none_172_spread0": {
+   "share": "30/172",
+   "bits_if_none": 2.52
+  },
+  "sauce_none_172_status_none": {
+   "share": "44/172",
+   "bits_if_none": 1.97
+  }
+ },
+ "production_census": {
+  "n": 25,
+  "sauce": {
+   "tomato-sauce": 17,
+   "olive-oil": 4,
+   "pesto": 4
+  },
+  "no_sauce": 0,
+  "no_cheese": [
+   "fugazza",
+   "marinara",
+   "pesto-tonno",
+   "pizza-bianca",
+   "puttanesca-pizza"
+  ],
+  "no_topping": [
+   "quattro-formaggi"
+  ],
+  "multi_cheese": [
+   "parmigiana-pizza",
+   "quattro-formaggi"
+  ],
+  "multi_sauce": [],
+  "topping_count": {
+   "0": 1,
+   "1": 7,
+   "2": 12,
+   "3": 1,
+   "4": 4
+  },
+  "total_count": {
+   "2": 1,
+   "3": 8,
+   "4": 10,
+   "5": 3,
+   "6": 3
+  },
+  "hint_key_null": [
+   "quattro-formaggi"
+  ]
+ },
+ "closed_world_equivalence_classes": {
+  "sauce+cheese+count": {
+   "n_classes": 13,
+   "singleton_recipes": 9,
+   "shared": [
+    [
+     "capricciosa",
+     "meat-lovers",
+     "pizza-portuguesa"
+    ],
+    [
+     "margherita",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni"
+    ],
+    [
+     "napoletana",
+     "tonno-e-cipolla",
+     "breakfast-pizza",
+     "melanzane-pizza",
+     "bambino",
+     "hawaiian"
+    ],
+    [
+     "pesto-caprese",
+     "pesto-patate"
+    ]
+   ]
+  },
+  "sauce+cheese+count+families": {
+   "n_classes": 24,
+   "singleton_recipes": 23,
+   "shared": [
+    [
+     "salsiccia",
+     "pepperoni"
+    ]
+   ]
+  },
+  "families only": {
+   "n_classes": 17,
+   "singleton_recipes": 11,
+   "shared": [
+    [
+     "bambino",
+     "pesto-patate"
+    ],
+    [
+     "fugazza",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "pesto-caprese"
+    ],
+    [
+     "genovese",
+     "funghi"
+    ],
+    [
+     "margherita",
+     "pizza-bianca"
+    ],
+    [
+     "napoletana",
+     "new-haven-apizza"
+    ],
+    [
+     "salsiccia",
+     "pepperoni"
+    ]
+   ]
+  },
+  "counts only (cat sizes)": {
+   "n_classes": 9,
+   "singleton_recipes": 5,
+   "shared": [
+    [
+     "capricciosa",
+     "meat-lovers",
+     "pizza-portuguesa"
+    ],
+    [
+     "margherita",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni"
+    ],
+    [
+     "marinara",
+     "fugazza"
+    ],
+    [
+     "napoletana",
+     "tonno-e-cipolla",
+     "breakfast-pizza",
+     "melanzane-pizza",
+     "bambino",
+     "hawaiian",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate"
+    ]
+   ]
+  }
+ },
+ "census_172": {
+  "all_172": {
+   "counts": {
+    "late_addition(required)": 12,
+    "late_addition(req|cand)": 23,
+    "multi_cheese(>=2)": 19,
+    "multi_spread(>=2 layers)": 26,
+    "needs_any_capability": 66,
+    "no_cheese(listed ingredients)": 31,
+    "no_sauce(status none)": 44,
+    "no_sauce_AND_no_cheese": 3,
+    "no_spread_layer(spreadLayerCount==0)": 30,
+    "no_topping": 5,
+    "post_bake_finish": 23,
+    "prep_step": 3,
+    "rows": 172,
+    "sauce_family_BBQソース": 1,
+    "sauce_family_その他": 17,
+    "sauce_family_オイル": 3,
+    "sauce_family_カレー": 7,
+    "sauce_family_サルサ": 1,
+    "sauce_family_チーズ": 33,
+    "sauce_family_チーズ（トマトソースなし）": 1,
+    "sauce_family_デザートソース": 5,
+    "sauce_family_トマトソース": 59,
+    "sauce_family_ノンソース": 10,
+    "sauce_family_バジル": 11,
+    "sauce_family_ホットソース": 8,
+    "sauce_family_ホワイトソース": 8,
+    "sauce_family_甘辛だれ": 8,
+    "sauce_status_family_derived": 57,
+    "sauce_status_listed": 35,
+    "sauce_status_listed_unresolved": 3,
+    "sauce_status_none": 44,
+    "sauce_status_none_but_oil_or_spread_layer": 14,
+    "sauce_status_unspecified": 33
+   },
+   "topping_count_hist": {
+    "0": 5,
+    "1": 30,
+    "2": 52,
+    "3": 60,
+    "4": 19,
+    "5": 5,
+    "6": 1
+   },
+   "cheese_count_hist": {
+    "0": 31,
+    "1": 122,
+    "2": 17,
+    "3": 1,
+    "4": 1
+   },
+   "spread_layer_hist": {
+    "0": 30,
+    "1": 116,
+    "2": 25,
+    "3": 1
+   }
+  },
+  "ingredient_complete_120": {
+   "counts": {
+    "late_addition(required)": 6,
+    "late_addition(req|cand)": 15,
+    "multi_cheese(>=2)": 18,
+    "multi_spread(>=2 layers)": 13,
+    "needs_any_capability": 47,
+    "no_cheese(listed ingredients)": 16,
+    "no_sauce(status none)": 41,
+    "no_sauce_AND_no_cheese": 1,
+    "no_spread_layer(spreadLayerCount==0)": 29,
+    "no_topping": 3,
+    "post_bake_finish": 15,
+    "prep_step": 1,
+    "rows": 120,
+    "sauce_family_BBQソース": 1,
+    "sauce_family_その他": 6,
+    "sauce_family_オイル": 3,
+    "sauce_family_カレー": 1,
+    "sauce_family_サルサ": 1,
+    "sauce_family_チーズ": 31,
+    "sauce_family_チーズ（トマトソースなし）": 1,
+    "sauce_family_トマトソース": 49,
+    "sauce_family_ノンソース": 9,
+    "sauce_family_バジル": 11,
+    "sauce_family_ホットソース": 2,
+    "sauce_family_ホワイトソース": 2,
+    "sauce_family_甘辛だれ": 3,
+    "sauce_status_family_derived": 47,
+    "sauce_status_listed": 32,
+    "sauce_status_none": 41,
+    "sauce_status_none_but_oil_or_spread_layer": 12
+   },
+   "topping_count_hist": {
+    "0": 3,
+    "1": 22,
+    "2": 43,
+    "3": 35,
+    "4": 12,
+    "5": 4,
+    "6": 1
+   },
+   "cheese_count_hist": {
+    "0": 16,
+    "1": 86,
+    "2": 16,
+    "3": 1,
+    "4": 1
+   },
+   "spread_layer_hist": {
+    "0": 29,
+    "1": 78,
+    "2": 13
+   }
+  },
+  "decision_ready_86": {
+   "counts": {
+    "late_addition(required)": 3,
+    "late_addition(req|cand)": 4,
+    "multi_cheese(>=2)": 10,
+    "multi_spread(>=2 layers)": 9,
+    "needs_any_capability": 30,
+    "no_cheese(listed ingredients)": 11,
+    "no_sauce(status none)": 26,
+    "no_sauce_AND_no_cheese": 1,
+    "no_spread_layer(spreadLayerCount==0)": 22,
+    "no_topping": 2,
+    "post_bake_finish": 4,
+    "prep_step": 1,
+    "rows": 86,
+    "sauce_family_BBQソース": 1,
+    "sauce_family_その他": 6,
+    "sauce_family_オイル": 2,
+    "sauce_family_カレー": 1,
+    "sauce_family_チーズ": 23,
+    "sauce_family_チーズ（トマトソースなし）": 1,
+    "sauce_family_トマトソース": 34,
+    "sauce_family_ノンソース": 2,
+    "sauce_family_バジル": 10,
+    "sauce_family_ホットソース": 1,
+    "sauce_family_ホワイトソース": 2,
+    "sauce_family_甘辛だれ": 3,
+    "sauce_status_family_derived": 38,
+    "sauce_status_listed": 22,
+    "sauce_status_none": 26,
+    "sauce_status_none_but_oil_or_spread_layer": 4
+   },
+   "topping_count_hist": {
+    "0": 2,
+    "1": 16,
+    "2": 29,
+    "3": 29,
+    "4": 8,
+    "5": 2
+   },
+   "cheese_count_hist": {
+    "0": 11,
+    "1": 65,
+    "2": 9,
+    "3": 1
+   },
+   "spread_layer_hist": {
+    "0": 22,
+    "1": 55,
+    "2": 9
+   }
+  },
+  "note": "cheese/sauce kinds for ids outside the 62-ingredient master catalog are classified by name (CHEESE_EXTRA) and by the matrix spreadLayerIngredientIds; topping = the rest. sauce 'none' = matrix sauceBase.status.",
+  "no_sauce_rows_sample": [
+   "argentine-napolitana-pizzadb-p1",
+   "aussie-pizzadb",
+   "bacalhau-pizzadb",
+   "bianca-pizzadb-row",
+   "black-truffle-pizza-pizzadb-p14",
+   "boscaiola-pizzadb-p12",
+   "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "california-style-pizza-pizzadb-p2",
+   "chilean-napolitana-pizzadb",
+   "eggplant-ricotta-pizza-pizzadb-p5",
+   "frango-catupiry-pizzadb-p10",
+   "fugazza-pizzadb-p10"
+  ],
+  "capability_required_hist": {
+   "LATE_ADDITION": 12,
+   "ENCLOSE": 5,
+   "ZONED_PLACEMENT": 1,
+   "MULTI_SPREAD_LAYER": 17,
+   "DOUGH_VARIANT": 33,
+   "PAN_BAKE": 8,
+   "STEP_ORDER": 2,
+   "DOUGH_SHAPE_TARGET": 5,
+   "PREP_STEP": 3,
+   "FRY_COOK": 1,
+   "LAMINATE": 1
+  }
+ },
+ "feedback_sim": {
+  "model": "space = {no sauce | one owned sauce} x {any subset of owned cheeses} x {<=4 owned toppings (production max)}; targets = every recipe makeable at that ladder state; solver = uniformly random guess among combinations consistent with every feedback so far (a neutral baseline: an entropy-maximising solver is faster for B / A2); attempts counted until the exact combination is baked. E (Hint + Notebook only, no per-attempt fact) is analytic: elimination = (N+1)/2.",
+  "results": {
+   "6": {
+    "space": 456,
+    "targets": 7,
+    "owned": 9,
+    "H0 none|E": {
+     "hyp_space_after_hint_median": 456,
+     "mean": 228.5,
+     "median": 228.5,
+     "p90": 410,
+     "max": 456
+    },
+    "H0 none|A": {
+     "hyp_space_after_hint_median": 456,
+     "mean": 10.9,
+     "median": 11.0,
+     "p90": 17,
+     "max": 18
+    },
+    "H0 none|A2": {
+     "hyp_space_after_hint_median": 456,
+     "mean": 6,
+     "median": 6.0,
+     "p90": 7,
+     "max": 7
+    },
+    "H0 none|B": {
+     "hyp_space_after_hint_median": 456,
+     "mean": 5.7,
+     "median": 6.0,
+     "p90": 7,
+     "max": 7
+    },
+    "H0 none|C": {
+     "hyp_space_after_hint_median": 456,
+     "mean": 13.9,
+     "median": 12.0,
+     "p90": 25,
+     "max": 31
+    },
+    "H0 none|D": {
+     "hyp_space_after_hint_median": 456,
+     "mean": 11.8,
+     "median": 10.5,
+     "p90": 16,
+     "max": 25
+    },
+    "H3 sauce+cheese+toppingCount|E": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.5,
+     "median": 3.5,
+     "p90": 5,
+     "max": 6
+    },
+    "H3 sauce+cheese+toppingCount|A": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 4,
+     "median": 4.0,
+     "p90": 5,
+     "max": 5
+    },
+    "H3 sauce+cheese+toppingCount|A2": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.9,
+     "median": 4.0,
+     "p90": 6,
+     "max": 6
+    },
+    "H3 sauce+cheese+toppingCount|B": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.6,
+     "median": 3.0,
+     "p90": 6,
+     "max": 6
+    },
+    "H3 sauce+cheese+toppingCount|C": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.6,
+     "median": 3.0,
+     "p90": 6,
+     "max": 7
+    },
+    "H3 sauce+cheese+toppingCount|D": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 4.4,
+     "median": 4.0,
+     "p90": 7,
+     "max": 11
+    },
+    "H4 +families|E": {
+     "hyp_space_after_hint_median": 2,
+     "mean": 1.5,
+     "median": 1.5,
+     "p90": 1,
+     "max": 2
+    },
+    "H4 +families|A": {
+     "hyp_space_after_hint_median": 2,
+     "mean": 1.4,
+     "median": 1.0,
+     "p90": 2,
+     "max": 2
+    },
+    "H4 +families|A2": {
+     "hyp_space_after_hint_median": 2,
+     "mean": 1.4,
+     "median": 1.0,
+     "p90": 2,
+     "max": 2
+    },
+    "H4 +families|B": {
+     "hyp_space_after_hint_median": 2,
+     "mean": 1.4,
+     "median": 1.0,
+     "p90": 2,
+     "max": 2
+    },
+    "H4 +families|C": {
+     "hyp_space_after_hint_median": 2,
+     "mean": 1.4,
+     "median": 1.0,
+     "p90": 2,
+     "max": 2
+    },
+    "H4 +families|D": {
+     "hyp_space_after_hint_median": 2,
+     "mean": 1.4,
+     "median": 1.0,
+     "p90": 2,
+     "max": 2
+    }
+   },
+   "12": {
+    "space": 8744,
+    "targets": 13,
+    "owned": 16,
+    "H0 none|E": {
+     "hyp_space_after_hint_median": 8744,
+     "mean": 4372.5,
+     "median": 4372.5,
+     "p90": 7869,
+     "max": 8744
+    },
+    "H0 none|A": {
+     "hyp_space_after_hint_median": 8744,
+     "mean": 59.4,
+     "median": 38.0,
+     "p90": 100,
+     "max": 229
+    },
+    "H0 none|A2": {
+     "hyp_space_after_hint_median": 8744,
+     "mean": 8.0,
+     "median": 8.5,
+     "p90": 10,
+     "max": 12
+    },
+    "H0 none|B": {
+     "hyp_space_after_hint_median": 8744,
+     "mean": 8.2,
+     "median": 8.0,
+     "p90": 10,
+     "max": 10
+    },
+    "H0 none|C": {
+     "hyp_space_after_hint_median": 8744,
+     "mean": 45.3,
+     "median": 49.5,
+     "p90": 72,
+     "max": 77
+    },
+    "H0 none|D": {
+     "hyp_space_after_hint_median": 8744,
+     "mean": 111.6,
+     "median": 43.0,
+     "p90": 400,
+     "max": 400
+    },
+    "H3 sauce+cheese+toppingCount|E": {
+     "hyp_space_after_hint_median": 78,
+     "mean": 39.5,
+     "median": 39.5,
+     "p90": 70,
+     "max": 78
+    },
+    "H3 sauce+cheese+toppingCount|A": {
+     "hyp_space_after_hint_median": 78,
+     "mean": 7.9,
+     "median": 6.5,
+     "p90": 13,
+     "max": 18
+    },
+    "H3 sauce+cheese+toppingCount|A2": {
+     "hyp_space_after_hint_median": 78,
+     "mean": 7.3,
+     "median": 7.0,
+     "p90": 9,
+     "max": 12
+    },
+    "H3 sauce+cheese+toppingCount|B": {
+     "hyp_space_after_hint_median": 78,
+     "mean": 7.1,
+     "median": 7.0,
+     "p90": 11,
+     "max": 12
+    },
+    "H3 sauce+cheese+toppingCount|C": {
+     "hyp_space_after_hint_median": 78,
+     "mean": 13.6,
+     "median": 6.0,
+     "p90": 33,
+     "max": 52
+    },
+    "H3 sauce+cheese+toppingCount|D": {
+     "hyp_space_after_hint_median": 78,
+     "mean": 82.7,
+     "median": 14.0,
+     "p90": 296,
+     "max": 400
+    },
+    "H4 +families|E": {
+     "hyp_space_after_hint_median": 4,
+     "mean": 2.5,
+     "median": 2.5,
+     "p90": 3,
+     "max": 4
+    },
+    "H4 +families|A": {
+     "hyp_space_after_hint_median": 4,
+     "mean": 2.7,
+     "median": 2.5,
+     "p90": 4,
+     "max": 6
+    },
+    "H4 +families|A2": {
+     "hyp_space_after_hint_median": 4,
+     "mean": 2.8,
+     "median": 3.0,
+     "p90": 4,
+     "max": 6
+    },
+    "H4 +families|B": {
+     "hyp_space_after_hint_median": 4,
+     "mean": 2.6,
+     "median": 2.5,
+     "p90": 4,
+     "max": 5
+    },
+    "H4 +families|C": {
+     "hyp_space_after_hint_median": 4,
+     "mean": 7.3,
+     "median": 3.0,
+     "p90": 15,
+     "max": 35
+    },
+    "H4 +families|D": {
+     "hyp_space_after_hint_median": 4,
+     "mean": 7.9,
+     "median": 3.0,
+     "p90": 24,
+     "max": 48
+    }
+   },
+   "18": {
+    "space": 51424,
+    "targets": 19,
+    "owned": 22,
+    "H0 none|E": {
+     "hyp_space_after_hint_median": 51424,
+     "mean": 25712.5,
+     "median": 25712.5,
+     "p90": 46281,
+     "max": 51424
+    },
+    "H0 none|A": {
+     "hyp_space_after_hint_median": 51424,
+     "mean": 205,
+     "median": 176,
+     "p90": 400,
+     "max": 400
+    },
+    "H0 none|A2": {
+     "hyp_space_after_hint_median": 51424,
+     "mean": 9.4,
+     "median": 9,
+     "p90": 11,
+     "max": 13
+    },
+    "H0 none|B": {
+     "hyp_space_after_hint_median": 51424,
+     "mean": 9.6,
+     "median": 10,
+     "p90": 11,
+     "max": 12
+    },
+    "H0 none|C": {
+     "hyp_space_after_hint_median": 51424,
+     "mean": 97.2,
+     "median": 86,
+     "p90": 139,
+     "max": 163
+    },
+    "H0 none|D": {
+     "hyp_space_after_hint_median": 51424,
+     "mean": 230,
+     "median": 252,
+     "p90": 400,
+     "max": 400
+    },
+    "H3 sauce+cheese+toppingCount|E": {
+     "hyp_space_after_hint_median": 136,
+     "mean": 68.5,
+     "median": 68.5,
+     "p90": 122,
+     "max": 136
+    },
+    "H3 sauce+cheese+toppingCount|A": {
+     "hyp_space_after_hint_median": 136,
+     "mean": 14.8,
+     "median": 10,
+     "p90": 20,
+     "max": 81
+    },
+    "H3 sauce+cheese+toppingCount|A2": {
+     "hyp_space_after_hint_median": 136,
+     "mean": 7.9,
+     "median": 9,
+     "p90": 11,
+     "max": 12
+    },
+    "H3 sauce+cheese+toppingCount|B": {
+     "hyp_space_after_hint_median": 136,
+     "mean": 6.9,
+     "median": 6,
+     "p90": 10,
+     "max": 15
+    },
+    "H3 sauce+cheese+toppingCount|C": {
+     "hyp_space_after_hint_median": 136,
+     "mean": 17.6,
+     "median": 8,
+     "p90": 26,
+     "max": 93
+    },
+    "H3 sauce+cheese+toppingCount|D": {
+     "hyp_space_after_hint_median": 136,
+     "mean": 123.1,
+     "median": 54,
+     "p90": 400,
+     "max": 400
+    },
+    "H4 +families|E": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.5,
+     "median": 3.5,
+     "p90": 5,
+     "max": 6
+    },
+    "H4 +families|A": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.8,
+     "median": 3,
+     "p90": 6,
+     "max": 16
+    },
+    "H4 +families|A2": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 2.9,
+     "median": 3,
+     "p90": 5,
+     "max": 6
+    },
+    "H4 +families|B": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 3.5,
+     "median": 4,
+     "p90": 5,
+     "max": 6
+    },
+    "H4 +families|C": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 11,
+     "median": 3,
+     "p90": 16,
+     "max": 86
+    },
+    "H4 +families|D": {
+     "hyp_space_after_hint_median": 6,
+     "mean": 12.7,
+     "median": 4,
+     "p90": 17,
+     "max": 109
+    }
+   },
+   "24": {
+    "space": 582976,
+    "targets": 25,
+    "owned": 29,
+    "H0 none|E": {
+     "hyp_space_after_hint_median": 582976,
+     "mean": 291488.5,
+     "median": 291488.5,
+     "p90": 524678,
+     "max": 582976
+    },
+    "H0 none|A": {
+     "hyp_space_after_hint_median": 582976,
+     "mean": 374.8,
+     "median": 400,
+     "p90": 400,
+     "max": 400
+    },
+    "H0 none|A2": {
+     "hyp_space_after_hint_median": 582976,
+     "mean": 11,
+     "median": 11,
+     "p90": 13,
+     "max": 16
+    },
+    "H0 none|B": {
+     "hyp_space_after_hint_median": 582976,
+     "mean": 10.8,
+     "median": 11,
+     "p90": 13,
+     "max": 14
+    },
+    "H0 none|C": {
+     "hyp_space_after_hint_median": 582976,
+     "mean": 131.7,
+     "median": 137,
+     "p90": 193,
+     "max": 224
+    },
+    "H0 none|D": {
+     "hyp_space_after_hint_median": 582976,
+     "mean": 283.3,
+     "median": 400,
+     "p90": 400,
+     "max": 400
+    },
+    "H3 sauce+cheese+toppingCount|E": {
+     "hyp_space_after_hint_median": 231,
+     "mean": 116.0,
+     "median": 116.0,
+     "p90": 207,
+     "max": 231
+    },
+    "H3 sauce+cheese+toppingCount|A": {
+     "hyp_space_after_hint_median": 231,
+     "mean": 24.9,
+     "median": 16,
+     "p90": 39,
+     "max": 167
+    },
+    "H3 sauce+cheese+toppingCount|A2": {
+     "hyp_space_after_hint_median": 231,
+     "mean": 8.7,
+     "median": 7,
+     "p90": 14,
+     "max": 18
+    },
+    "H3 sauce+cheese+toppingCount|B": {
+     "hyp_space_after_hint_median": 231,
+     "mean": 11.2,
+     "median": 12,
+     "p90": 16,
+     "max": 19
+    },
+    "H3 sauce+cheese+toppingCount|C": {
+     "hyp_space_after_hint_median": 231,
+     "mean": 35.1,
+     "median": 10,
+     "p90": 46,
+     "max": 400
+    },
+    "H3 sauce+cheese+toppingCount|D": {
+     "hyp_space_after_hint_median": 231,
+     "mean": 126.8,
+     "median": 74,
+     "p90": 400,
+     "max": 400
+    },
+    "H4 +families|E": {
+     "hyp_space_after_hint_median": 12,
+     "mean": 6.5,
+     "median": 6.5,
+     "p90": 10,
+     "max": 12
+    },
+    "H4 +families|A": {
+     "hyp_space_after_hint_median": 12,
+     "mean": 4.4,
+     "median": 4,
+     "p90": 6,
+     "max": 21
+    },
+    "H4 +families|A2": {
+     "hyp_space_after_hint_median": 12,
+     "mean": 3.6,
+     "median": 3,
+     "p90": 7,
+     "max": 8
+    },
+    "H4 +families|B": {
+     "hyp_space_after_hint_median": 12,
+     "mean": 3.6,
+     "median": 4,
+     "p90": 6,
+     "max": 9
+    },
+    "H4 +families|C": {
+     "hyp_space_after_hint_median": 12,
+     "mean": 12.0,
+     "median": 5,
+     "p90": 23,
+     "max": 54
+    },
+    "H4 +families|D": {
+     "hyp_space_after_hint_median": 12,
+     "mean": 19.6,
+     "median": 9,
+     "p90": 30,
+     "max": 165
+    }
+   }
+  }
+ },
+ "pack_dv1": {
+  "recipes": [
+   {
+    "id": "aussie-pizzadb",
+    "nameJa": "オージーピザ",
+    "ingredients": [
+     "bacon",
+     "egg",
+     "mozzarella",
+     "onion"
+    ],
+    "new_ingredients": [],
+    "sauce_layers": [],
+    "cheese": [
+     "mozzarella"
+    ],
+    "topping_count": 3,
+    "family_composition": {
+     "meat": 1,
+     "other": 1,
+     "vegetable": 1
+    },
+    "decision_status": "READY",
+    "required_capabilities": [],
+    "candidate_capabilities": [],
+    "optional": false
+   },
+   {
+    "id": "brazilian-calabresa-pizzadb-p10",
+    "nameJa": "ブラジリアン・カラブレーザ",
+    "ingredients": [
+     "black-olive",
+     "onion",
+     "oregano",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "new_ingredients": [],
+    "sauce_layers": [
+     "tomato-sauce"
+    ],
+    "cheese": [],
+    "topping_count": 4,
+    "family_composition": {
+     "vegetable": 2,
+     "herb": 1,
+     "meat": 1
+    },
+    "decision_status": "READY_WITH_REVIEW",
+    "required_capabilities": [],
+    "candidate_capabilities": [],
+    "optional": false
+   },
+   {
+    "id": "chilean-napolitana-pizzadb",
+    "nameJa": "チリアンナポリターナ",
+    "ingredients": [
+     "fresh-tomato",
+     "mozzarella",
+     "oregano"
+    ],
+    "new_ingredients": [],
+    "sauce_layers": [],
+    "cheese": [
+     "mozzarella"
+    ],
+    "topping_count": 2,
+    "family_composition": {
+     "vegetable": 1,
+     "herb": 1
+    },
+    "decision_status": "READY_WITH_REVIEW",
+    "required_capabilities": [],
+    "candidate_capabilities": [],
+    "optional": false
+   },
+   {
+    "id": "hot-honey-pepperoni-pizzadb-p12",
+    "nameJa": "ホットハニーペパロニピザ",
+    "ingredients": [
+     "honey",
+     "mozzarella",
+     "pepperoni",
+     "tomato-sauce"
+    ],
+    "new_ingredients": [
+     "honey"
+    ],
+    "sauce_layers": [
+     "tomato-sauce",
+     "honey"
+    ],
+    "cheese": [
+     "mozzarella"
+    ],
+    "topping_count": 1,
+    "family_composition": {
+     "meat": 1
+    },
+    "decision_status": "READY_WITH_REVIEW",
+    "required_capabilities": [
+     "MULTI_SPREAD_LAYER"
+    ],
+    "candidate_capabilities": [
+     "LATE_ADDITION"
+    ],
+    "optional": false
+   },
+   {
+    "id": "spanish-chorizo-pizza-pizzadb-p4",
+    "nameJa": "スパニッシュチョリソピザ",
+    "ingredients": [
+     "bell-pepper",
+     "mozzarella",
+     "onion",
+     "sausage"
+    ],
+    "new_ingredients": [
+     "bell-pepper"
+    ],
+    "sauce_layers": [],
+    "cheese": [
+     "mozzarella"
+    ],
+    "topping_count": 3,
+    "family_composition": {
+     "vegetable": 2,
+     "meat": 1
+    },
+    "decision_status": "READY",
+    "required_capabilities": [],
+    "candidate_capabilities": [],
+    "optional": false
+   },
+   {
+    "id": "ratatouille-pizza-pizzadb-p13",
+    "nameJa": "ラタトゥイユピザ",
+    "ingredients": [
+     "bell-pepper",
+     "eggplant",
+     "oregano",
+     "tomato-sauce",
+     "zucchini"
+    ],
+    "new_ingredients": [
+     "bell-pepper",
+     "zucchini"
+    ],
+    "sauce_layers": [
+     "tomato-sauce"
+    ],
+    "cheese": [],
+    "topping_count": 4,
+    "family_composition": {
+     "vegetable": 3,
+     "herb": 1
+    },
+    "decision_status": "READY",
+    "required_capabilities": [],
+    "candidate_capabilities": [],
+    "optional": false
+   },
+   {
+    "id": "pesto-vegetariana-pizzadb-p12",
+    "nameJa": "ペストベジタリアーナピザ",
+    "ingredients": [
+     "bell-pepper",
+     "eggplant",
+     "mozzarella",
+     "pesto",
+     "zucchini"
+    ],
+    "new_ingredients": [
+     "bell-pepper",
+     "zucchini"
+    ],
+    "sauce_layers": [
+     "pesto"
+    ],
+    "cheese": [
+     "mozzarella"
+    ],
+    "topping_count": 3,
+    "family_composition": {
+     "vegetable": 3
+    },
+    "decision_status": "READY",
+    "required_capabilities": [],
+    "candidate_capabilities": [],
+    "optional": false
+   },
+   {
+    "id": "bbq-chicken-pizzadb",
+    "nameJa": "BBQチキンピザ",
+    "ingredients": [
+     "bbq-sauce",
+     "chicken",
+     "cilantro",
+     "mozzarella",
+     "onion"
+    ],
+    "new_ingredients": [
+     "bbq-sauce",
+     "chicken",
+     "cilantro"
+    ],
+    "sauce_layers": [
+     "bbq-sauce"
+    ],
+    "cheese": [
+     "mozzarella"
+    ],
+    "topping_count": 3,
+    "family_composition": {
+     "meat": 1,
+     "herb": 1,
+     "vegetable": 1
+    },
+    "decision_status": "READY",
+    "required_capabilities": [
+     "LATE_ADDITION"
+    ],
+    "candidate_capabilities": [],
+    "optional": true
+   }
+  ],
+  "identity_collisions_with_production_25": [],
+  "identity_collisions_inside_pack": [],
+  "opening_on_frozen_ladder": [
+   {
+    "id": "aussie-pizzadb",
+    "opens_at_ladder_step": 12,
+    "last_needed_ingredient": [
+     "onion"
+    ],
+    "opened_together_with": [
+     "pizza-portuguesa"
+    ]
+   },
+   {
+    "id": "brazilian-calabresa-pizzadb-p10",
+    "opens_at_ladder_step": 12,
+    "last_needed_ingredient": [
+     "onion"
+    ],
+    "opened_together_with": [
+     "pizza-portuguesa"
+    ]
+   },
+   {
+    "id": "chilean-napolitana-pizzadb",
+    "opens_at_ladder_step": 20,
+    "last_needed_ingredient": [
+     "fresh-tomato"
+    ],
+    "opened_together_with": [
+     "pesto-caprese"
+    ]
+   },
+   {
+    "id": "hot-honey-pepperoni-pizzadb-p12",
+    "opens_at": "needs new ingredient(s): honey"
+   },
+   {
+    "id": "spanish-chorizo-pizza-pizzadb-p4",
+    "opens_at": "needs new ingredient(s): bell-pepper"
+   },
+   {
+    "id": "ratatouille-pizza-pizzadb-p13",
+    "opens_at": "needs new ingredient(s): bell-pepper, zucchini"
+   },
+   {
+    "id": "pesto-vegetariana-pizzadb-p12",
+    "opens_at": "needs new ingredient(s): bell-pepper, zucchini"
+   },
+   {
+    "id": "bbq-chicken-pizzadb",
+    "opens_at": "needs new ingredient(s): bbq-sauce, chicken, cilantro"
+   }
+  ],
+  "closed_world_classes_25_plus_pack_core": {
+   "families + count only": {
+    "population": 32,
+    "singleton": 14,
+    "shared_groups": [
+     [
+      "bambino",
+      "pesto-patate"
+     ],
+     [
+      "capricciosa",
+      "brazilian-calabresa-pizzadb-p10"
+     ],
+     [
+      "fugazza",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "pesto-caprese",
+      "chilean-napolitana-pizzadb"
+     ],
+     [
+      "genovese",
+      "funghi"
+     ],
+     [
+      "margherita",
+      "pizza-bianca"
+     ],
+     [
+      "napoletana",
+      "new-haven-apizza"
+     ],
+     [
+      "salsiccia",
+      "pepperoni",
+      "hot-honey-pepperoni-pizzadb-p12"
+     ]
+    ]
+   },
+   "sauce+cheese+count": {
+    "population": 32,
+    "singleton": 11,
+    "shared_groups": [
+     [
+      "aussie-pizzadb",
+      "spanish-chorizo-pizza-pizzadb-p4"
+     ],
+     [
+      "capricciosa",
+      "meat-lovers",
+      "pizza-portuguesa"
+     ],
+     [
+      "margherita",
+      "bismarck",
+      "funghi",
+      "salsiccia",
+      "pepperoni"
+     ],
+     [
+      "napoletana",
+      "tonno-e-cipolla",
+      "breakfast-pizza",
+      "melanzane-pizza",
+      "bambino",
+      "hawaiian"
+     ],
+     [
+      "pesto-caprese",
+      "pesto-patate"
+     ],
+     [
+      "puttanesca-pizza",
+      "brazilian-calabresa-pizzadb-p10",
+      "ratatouille-pizza-pizzadb-p13"
+     ]
+    ]
+   },
+   "sauce+cheese+count+families": {
+    "population": 32,
+    "singleton": 30,
+    "shared_groups": [
+     [
+      "salsiccia",
+      "pepperoni"
+     ]
+    ]
+   }
+  },
+  "greedy_pace_25_only": [
+   {
+    "round": 1,
+    "discovered_total": 1,
+    "steps_reached_before": 0,
+    "pool_seen": 1
+   },
+   {
+    "round": 2,
+    "discovered_total": 2,
+    "steps_reached_before": 1,
+    "pool_seen": 1
+   },
+   {
+    "round": 3,
+    "discovered_total": 3,
+    "steps_reached_before": 2,
+    "pool_seen": 1
+   },
+   {
+    "round": 4,
+    "discovered_total": 4,
+    "steps_reached_before": 3,
+    "pool_seen": 1
+   },
+   {
+    "round": 5,
+    "discovered_total": 5,
+    "steps_reached_before": 4,
+    "pool_seen": 1
+   },
+   {
+    "round": 6,
+    "discovered_total": 6,
+    "steps_reached_before": 5,
+    "pool_seen": 1
+   },
+   {
+    "round": 7,
+    "discovered_total": 7,
+    "steps_reached_before": 6,
+    "pool_seen": 1
+   },
+   {
+    "round": 8,
+    "discovered_total": 8,
+    "steps_reached_before": 7,
+    "pool_seen": 1
+   },
+   {
+    "round": 9,
+    "discovered_total": 9,
+    "steps_reached_before": 8,
+    "pool_seen": 1
+   },
+   {
+    "round": 10,
+    "discovered_total": 10,
+    "steps_reached_before": 9,
+    "pool_seen": 1
+   },
+   {
+    "round": 11,
+    "discovered_total": 11,
+    "steps_reached_before": 10,
+    "pool_seen": 1
+   },
+   {
+    "round": 12,
+    "discovered_total": 12,
+    "steps_reached_before": 11,
+    "pool_seen": 1
+   },
+   {
+    "round": 13,
+    "discovered_total": 13,
+    "steps_reached_before": 12,
+    "pool_seen": 1
+   },
+   {
+    "round": 14,
+    "discovered_total": 14,
+    "steps_reached_before": 13,
+    "pool_seen": 1
+   },
+   {
+    "round": 15,
+    "discovered_total": 15,
+    "steps_reached_before": 14,
+    "pool_seen": 1
+   },
+   {
+    "round": 16,
+    "discovered_total": 16,
+    "steps_reached_before": 15,
+    "pool_seen": 1
+   },
+   {
+    "round": 17,
+    "discovered_total": 17,
+    "steps_reached_before": 16,
+    "pool_seen": 1
+   },
+   {
+    "round": 18,
+    "discovered_total": 18,
+    "steps_reached_before": 17,
+    "pool_seen": 1
+   },
+   {
+    "round": 19,
+    "discovered_total": 19,
+    "steps_reached_before": 18,
+    "pool_seen": 1
+   },
+   {
+    "round": 20,
+    "discovered_total": 20,
+    "steps_reached_before": 19,
+    "pool_seen": 1
+   },
+   {
+    "round": 21,
+    "discovered_total": 21,
+    "steps_reached_before": 20,
+    "pool_seen": 1
+   },
+   {
+    "round": 22,
+    "discovered_total": 22,
+    "steps_reached_before": 21,
+    "pool_seen": 1
+   },
+   {
+    "round": 23,
+    "discovered_total": 23,
+    "steps_reached_before": 22,
+    "pool_seen": 1
+   },
+   {
+    "round": 24,
+    "discovered_total": 24,
+    "steps_reached_before": 23,
+    "pool_seen": 1
+   },
+   {
+    "round": 25,
+    "discovered_total": 25,
+    "steps_reached_before": 24,
+    "pool_seen": 1
+   }
+  ],
+  "greedy_pace_25_plus_reuse_only": [
+   {
+    "round": 1,
+    "discovered_total": 1,
+    "steps_reached_before": 0,
+    "pool_seen": 1
+   },
+   {
+    "round": 2,
+    "discovered_total": 2,
+    "steps_reached_before": 1,
+    "pool_seen": 1
+   },
+   {
+    "round": 3,
+    "discovered_total": 3,
+    "steps_reached_before": 2,
+    "pool_seen": 1
+   },
+   {
+    "round": 4,
+    "discovered_total": 4,
+    "steps_reached_before": 3,
+    "pool_seen": 1
+   },
+   {
+    "round": 5,
+    "discovered_total": 5,
+    "steps_reached_before": 4,
+    "pool_seen": 1
+   },
+   {
+    "round": 6,
+    "discovered_total": 6,
+    "steps_reached_before": 5,
+    "pool_seen": 1
+   },
+   {
+    "round": 7,
+    "discovered_total": 7,
+    "steps_reached_before": 6,
+    "pool_seen": 1
+   },
+   {
+    "round": 8,
+    "discovered_total": 8,
+    "steps_reached_before": 7,
+    "pool_seen": 1
+   },
+   {
+    "round": 9,
+    "discovered_total": 9,
+    "steps_reached_before": 8,
+    "pool_seen": 1
+   },
+   {
+    "round": 10,
+    "discovered_total": 10,
+    "steps_reached_before": 9,
+    "pool_seen": 1
+   },
+   {
+    "round": 11,
+    "discovered_total": 11,
+    "steps_reached_before": 10,
+    "pool_seen": 1
+   },
+   {
+    "round": 12,
+    "discovered_total": 12,
+    "steps_reached_before": 11,
+    "pool_seen": 1
+   },
+   {
+    "round": 13,
+    "discovered_total": 15,
+    "steps_reached_before": 12,
+    "pool_seen": 3
+   },
+   {
+    "round": 14,
+    "discovered_total": 18,
+    "steps_reached_before": 15,
+    "pool_seen": 3
+   },
+   {
+    "round": 15,
+    "discovered_total": 21,
+    "steps_reached_before": 18,
+    "pool_seen": 3
+   },
+   {
+    "round": 16,
+    "discovered_total": 25,
+    "steps_reached_before": 21,
+    "pool_seen": 4
+   },
+   {
+    "round": 17,
+    "discovered_total": 28,
+    "steps_reached_before": 24,
+    "pool_seen": 3
+   }
+  ],
+  "note": "reuse-only pack recipes add discoveries without adding ladder steps; because the ladder is COUNT-based (step s at s discoveries) every extra recipe advances the ladder one step sooner for a player who finds it"
+ }
+}
