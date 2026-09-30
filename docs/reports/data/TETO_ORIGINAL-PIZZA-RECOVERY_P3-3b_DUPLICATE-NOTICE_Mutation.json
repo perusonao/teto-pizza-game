@@ -14,11 +14,11 @@
   "src/components/FreeCook.ui"
  ],
  "mutants": 20,
- "killed": 17,
+ "killed": 20,
  "equivalent": 0,
- "survived": 3,
+ "survived": 0,
  "invalid": 0,
- "mutationScore": 0.85,
+ "mutationScore": 1,
  "results": [
   {
    "id": "N01",
@@ -48,7 +48,7 @@
    "id": "N05",
    "description": "the notice ignores the free-cook guard in the panel",
    "file": "src/components/ResultPanel.tsx",
-   "status": "SURVIVED"
+   "status": "KILLED"
   },
   {
    "id": "N06",
@@ -126,7 +126,7 @@
    "id": "N18",
    "description": "the notice is computed with a clock / randomness",
    "file": "src/components/ResultPanel.tsx",
-   "status": "SURVIVED"
+   "status": "KILLED"
   },
   {
    "id": "N19",
@@ -138,7 +138,7 @@
    "id": "N20",
    "description": "the notice is rendered inside a second paragraph of the P2 live region",
    "file": "src/components/ResultPanel.tsx",
-   "status": "SURVIVED"
+   "status": "KILLED"
   }
  ]
 }
