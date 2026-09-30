@@ -1,0 +1,202 @@
+{
+ "target": [
+  "src/state/trialRecord.ts",
+  "src/state/gameReducer.ts",
+  "App.tsx / persistence.ts / ResultPanel.tsx / GameScreen.tsx (boundary)"
+ ],
+ "tests": [
+  "src/state/gameReducer.trialNotebook",
+  "src/state/trialRecord",
+  "src/state/resultFeedback.gate",
+  "src/logic/discovery/trialNotebook",
+  "src/logic/discovery/attemptFingerprint"
+ ],
+ "mutants": 30,
+ "killed": 27,
+ "equivalent": 0,
+ "survived": 1,
+ "invalid": 2,
+ "mutationScore": 0.9,
+ "results": [
+  {
+   "id": "W01",
+   "description": "record call deleted (no attempt is ever recorded)",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W02",
+   "description": "attempt recorded twice per commit (retryCount +2 / NEW becomes DUPLICATE)",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W03",
+   "description": "REGISTER_TO_DEX RESULT phase guard removed (repeated dispatch re-records)",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W04",
+   "description": "the notebook is not carried (carryOf hands a fresh one)",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W05",
+   "description": "the record result is not reset by a fresh round",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W06",
+   "description": "START_FREE_COOK keeps a stale record result",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W07",
+   "description": "initial notebook has the wrong limits (display 1)",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W08",
+   "description": "Lunch Rush records an attempt at MISSION_NEXT_ORDER",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W09",
+   "description": "Dinner guards removed (an ORIGINAL-shaped Dinner result would record)",
+   "file": "src/state/gameReducer.ts",
+   "status": "SURVIVED"
+  },
+  {
+   "id": "W10",
+   "description": "the commit records before the ORIGINAL guard (a MATCHED pizza would be recorded)",
+   "file": "src/state/gameReducer.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "W11",
+   "description": "the save writer persists the notebook",
+   "file": "src/App.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "W12",
+   "description": "persistence.ts learns about the notebook",
+   "status": "INVALID",
+   "detail": "pattern occurs 63 times: /**"
+  },
+  {
+   "id": "W13",
+   "description": "a render path reads the notebook / records (ResultPanel)",
+   "file": "src/components/ResultPanel.tsx",
+   "status": "KILLED"
+  },
+  {
+   "id": "W14",
+   "description": "a render path reads the record result (GameScreen)",
+   "status": "INVALID",
+   "detail": "pattern occurs 44 times: import {"
+  },
+  {
+   "id": "A01",
+   "description": "adapter: INCOMPLETE_MATCH becomes eligible",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A02",
+   "description": "adapter: AMBIGUOUS no longer eligible",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A03",
+   "description": "adapter: NEW_DISCOVERY becomes eligible",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A04",
+   "description": "adapter: eligibility guard removed",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A05",
+   "description": "adapter: a DUPLICATE is reported as NEW",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A06",
+   "description": "adapter: the reported #n is off by one",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A07",
+   "description": "adapter: the internal near-miss distance is stored with the feedback",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A08",
+   "description": "adapter: the feedback is never stored",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A09",
+   "description": "adapter: the stored feedback text differs from the shown text",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A10",
+   "description": "adapter: every pizza gets the same identity",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A11",
+   "description": "adapter: a rejected input still reports a record result",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A12",
+   "description": "adapter: a rejected input replaces the notebook with a fresh one",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A13",
+   "description": "adapter: the retry count leaks into the record result",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A14",
+   "description": "adapter: P3-2 dependency appears",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A15",
+   "description": "adapter: a clock / randomness enters the record",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  },
+  {
+   "id": "A16",
+   "description": "adapter: the P2 line is computed from a FAILED / non-free state (the feedback is not the shown line)",
+   "file": "src/state/trialRecord.ts",
+   "status": "KILLED"
+  }
+ ]
+}

@@ -11,25 +11,50 @@ const MODULE = "/src/logic/discovery/trialNotebook.ts";
 const isTest = (path: string) => /\.test\.(ts|tsx)$/.test(path) || path.includes("/testSupport/");
 const text = sources[MODULE] ?? "";
 
-describe("Trial Notebook model — production wiring is 0", () => {
+// P3-3a (OD-P3-17): the model is wired into STATE only. The record adapter is its one runtime importer; the reducer
+// holds the field (type + `createTrialNotebook()` for the initial value) and calls the adapter. Nothing else in
+// production may mention it: no UI, App, persistence, Dex, Builder, mission or P3-2 file.
+const RECORD_ADAPTER = "/src/state/trialRecord.ts";
+const REDUCER = "/src/state/gameReducer.ts";
+const WIRED = [RECORD_ADAPTER, REDUCER].sort();
+
+describe("Trial Notebook model — wired into state only (P3-3a)", () => {
   it("the module exists in the scanned tree", () => {
     expect(Object.keys(sources)).toContain(MODULE);
   });
 
-  it("no production (non-test) file imports or mentions it", () => {
+  it("exactly the record adapter and the reducer mention it in production", () => {
     const users = Object.entries(sources)
       .filter(([path]) => path !== MODULE && !isTest(path))
       .filter(([, source]) => /trialNotebook/i.test(source))
-      .map(([path]) => path);
-    expect(users).toEqual([]);
+      .map(([path]) => path)
+      .sort();
+    expect(users).toEqual(WIRED);
   });
 
-  it("only its own test files reference it", () => {
+  it("exactly the record adapter and the reducer import it", () => {
+    const importers = Object.entries(sources)
+      .filter(([path]) => path !== MODULE && !isTest(path))
+      .filter(([, source]) => /from\s+["'][^"']*\/trialNotebook["']/.test(source))
+      .map(([path]) => path)
+      .sort();
+    expect(importers).toEqual(WIRED);
+  });
+
+  it("only the wired files and test files reference it by import path", () => {
     const referencing = Object.entries(sources)
       .filter(([path]) => path !== MODULE && /trialNotebook["']/.test(sources[path]))
       .map(([path]) => path)
       .sort();
-    for (const path of referencing) expect(isTest(path), path).toBe(true);
+    for (const path of referencing) expect(isTest(path) || WIRED.includes(path), path).toBe(true);
+  });
+
+  it("no UI, App, persistence, Dex, mission, Hint 5.0 or P3-2 file mentions the notebook or the record result", () => {
+    const offenders = Object.entries(sources)
+      .filter(([path]) => !isTest(path) && path !== MODULE && !WIRED.includes(path))
+      .filter(([, source]) => /trialNotebook|lastTrialAttempt|trialRecord|TrialRecord/.test(source))
+      .map(([path]) => path);
+    expect(offenders).toEqual([]);
   });
 });
 
