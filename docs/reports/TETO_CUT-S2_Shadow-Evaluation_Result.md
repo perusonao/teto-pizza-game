@@ -85,3 +85,92 @@ session could not measure.
   numbers visually; that is not a human judgement.
 - uniformity zero 0.6 vs 0.4 (fairness-first vs discrimination-first).
 - Whether ideal and natural cuts should stay indistinguishable (finding 5).
+
+---
+
+# Addendum: Owner Human Verification result and Owner Decision (2026-09-30)
+
+Docs/test evidence only. No production scoring, save, UI, Dinner, Lunch Rush, Dex, Pitz or ranking change, and no PR.
+Preview page under test: `?cuthv=1` at source `5657019140db1413b1e84989e1edee0c7ab50e62` (record format `cut-hv-preview-v1`).
+
+## A. Owner HV result
+- **Verdict: PASS** (Owner Decision 1).
+- What the Owner reported (recorded as stated):
+  - Every trial the Owner rated **丁寧** or **普通** scored **Q = 1.00 under both** zero-side 0.6 and 0.4.
+  - The trial the Owner rated **雑** (#1 of the rough-rated trials) still scored **1.00 under 0.4**.
+- **Not yet in this report:** the raw 11-trial table (`cut-hv-preview-v1`: instructed style, self-rating, Q 0.6 / Q 0.4, uniformity,
+  center, validity, count, current cutScore, sliver, pieces, viewport, lines). It was announced to follow the Owner's message but did not
+  arrive with it. It must be appended **verbatim** under "A.1" below; nothing has been reconstructed or estimated here, and every
+  per-trial figure in this addendum other than the three statements above is therefore deliberately absent.
+
+### A.1 Raw Owner data (to be pasted verbatim)
+_Pending: paste the `cut-hv-preview-v1` block here. The committed `lines` column lets every number be reproduced with
+`computeHvMetrics` (src/preview/cutHvSession.ts)._
+
+## B. Owner Decision (recorded as authority)
+1. CUT-S2 Human Verification: **PASS**.
+2. Provisional uniformity zero-side tolerance: **0.6 adopted**.
+3. **0.4 not adopted**, because:
+   - trials the Owner rated 丁寧 / 普通 were 1.00 under both, so 0.4 adds nothing for them;
+   - 0.4 leaves the Owner-rated 雑 trial #1 at 1.00 too, so it does not solve the one real discrimination problem;
+   - the S2 simulation showed 0.4 punishes natural cuts harder as operator noise rises (360x800, normal p10 at aim sigma 8 / 10 px:
+     0.92 / 0.87 with 0.6 versus 0.86 / 0.79 with 0.4; sections "Findings" 6 and "Recommendation" above);
+   - so fairness is preferred for now.
+4. Centre tolerance **4 / 20** kept. 5. Sliver threshold **0.2** kept.
+6. Provisional weights **validity .15 / count .15 / center .30 / uniformity .40** kept.
+7. Ideal and natural hand-shake are **not** forced apart: a finished cut whose geometry is good enough may score full marks.
+8. What is evaluated is the **completed cut geometry**, not the jitter of the pointer that drew it.
+
+The adopted values are the S1 defaults, so no code changed; `quality.s2Shadow.test.ts` now pins them ("Owner Decision (HV PASS)") and pins that
+drawing direction does not change the result. The Preview page still shows both 0.6 and 0.4 (it is the evidence tool); it is unchanged.
+
+## C. Comparison with the current cutScore
+- Simulation (400 trials, default tolerances): natural cuts score a **median cutScore of 86 versus CutQuality 1.00** (85-86 at both stages), because the
+  existing score reads a central sliver as a 7th slice and also carries the fixed completeness 20%. Rough cuts: cutScore median 71-72 versus
+  CutQuality 0.70-0.72 (see "Distribution").
+- The Owner's own cutScore values are in the pending raw table (A.1); no figure is asserted here.
+
+## D. Trial #1: "rated 雑 by the Owner, geometry scored full marks"
+- This is the case Decision 7 and 8 accept on purpose: the Owner felt the cut was careless, but the **finished geometry** (three chords through
+  the middle, near 60 degrees apart, areas inside the 0.10 dead zone) is good, and CutQuality scores the geometry, not the feeling or the pointer path.
+- It is also the case 0.4 could not fix (still 1.00), which is why 0.4 was rejected rather than tuned further.
+- Consequence to keep in mind for S3/S4: a full CutQuality does **not** mean "the player was careful". It means "the pizza is cut well". If a
+  future design wants to reward care (e.g. time or path smoothness), that is a different signal; Decision 8 says it is not this one.
+
+## E. Reusable if the CUT interaction changes (Cooking Interaction 2.0)
+The Owner raised three ideas: cut by a **finger-traced trajectory** instead of a press/release straight line, **no Undo** once cut, and a check that
+**4 / 6 / 8 slices** still work. Nothing below is implemented; this is an impact note for the separate Cooking Interaction 2.0 Fresh Audit.
+
+**Reusable as is**
+- The contract's shape and the Owner-adopted tolerance philosophy: per-signal 0-1 credit with a full-credit dead zone, sliver exclusion, line validity,
+  no completeness term, malformed-input safety, order independence, and `CutQualityTolerance` / weights as adjustable authorities.
+- Area-based uniformity and sliver handling **if** the cut is still turned into a set of regions (the piece areas are what the Owner judged).
+- 4 / 6 / 8: the engine takes `requestedSliceCount` as data and perfect 4- and 8-slice fixtures already score 1 (quality.test.ts).
+- The harness: seeded operator model, real-pointer Playwright spec, distribution/sweep probe, the Preview HV page shell and its production-isolation
+  gate, the layout check at 390x844 / 360x800, and the mutation script.
+- The decision that only finished geometry is scored (8) is what makes a trajectory input workable: the trajectory must be reduced to a cut shape first.
+- Since PR #275 merged (main `5c8190f`), a CUT skipped for a failed bake has **no** CutQuality (neutral), consistent with S1's "not performed = no value".
+
+**Needs re-work if cuts become traced trajectories**
+- Line validity, centre accuracy and the region count all assume a **straight rim-to-rim chord** (`isEdgeToEdgeCutLine`, perpendicular distance from
+  the centre, sign-tuple piece areas in geometry.ts). A curved or polyline path needs a reduction rule (straighten / fit a chord / keep the curve),
+  a curve-aware centre measure and a region computation that can split a disc by curves.
+- The pointer jitter that Decision 8 says not to score becomes the geometry itself; a smoothing / straightening policy must be chosen and tested.
+- Sliver and duplicate rules (`MIN_CUT_ANGULAR_SEPARATION_RADIANS`, the 15 degree duplicate gate) are defined on chord angles.
+- **No Undo** removes the recovery path that the 11-trial procedure, the `requiredCutCount + 2` limit and the "1本戻す" button rely on; a mistaken cut
+  would be final, so the score spread for careless input and the retry model change.
+
+**Needs a new Human Verification if the operation changes**
+- All tolerances (centre 4/20, uniformity 0.10/0.6, sliver 0.2) were set from **straight-line** finger operation; a traced trajectory has a different
+  error profile and the operator model no longer applies.
+- 4 and 8 slices were verified only as perfect fixtures, never by hand. Ideal piece area (1/4, 1/6, 1/8 of the disc), the angular spacing (90 / 60 /
+  45 degrees against the 15 degree duplicate gate) and the sliver threshold as a fraction of the ideal area all shift, so they need their own
+  real-device check on 360x800 and 390x844.
+- The Preview HV page (PizzaStage CUT layer, reducer-mirroring gates) would have to follow the new gesture layer.
+
+## F. Status and blockers
+- **S3 (production Result UI / scoring connection): STOPPED** until the Cooking Interaction 2.0 Fresh Audit reports. Not started; no PR; no merge.
+- **main moved:** `6abddc71` -> `5c8190ff` (PR #275 merged: #256 CUT skip on a failed bake + Dinner UI Polish). A dry merge of this branch
+  (`git merge-tree`) is clean and no file of this work (`src/logic/cut/*`, `src/preview/*`, `src/main.tsx`, the e2e specs) is touched by main.
+  `e2e/gestures.ts` changed on main, so the two CUT-S2 e2e specs should be re-run after the branch is brought up to date; this session did not merge main.
+- The Preview slot currently serves this branch's build (it replaced PR #275's Preview build and the `dm3r2-setup.html` helper; #275 is now merged).

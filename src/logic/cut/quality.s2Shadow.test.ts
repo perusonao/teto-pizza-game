@@ -247,3 +247,22 @@ describe("CUT-S2 edge-case table (case D) -- recorded, with invariants", () => {
     }
   });
 });
+
+describe("CUT-S2 Owner Decision (HV PASS): the adopted provisional values", () => {
+  it("keeps uniformity zero-side 0.6 (0.4 rejected), centre 4/20, sliver 0.2 and the provisional weights", () => {
+    expect(DEFAULT_CUT_QUALITY_TOLERANCE.uniformityZeroCreditDeviation).toBe(0.6);
+    expect(DEFAULT_CUT_QUALITY_TOLERANCE.uniformityFullCreditDeviation).toBe(0.1);
+    expect(DEFAULT_CUT_QUALITY_TOLERANCE.centerFullCreditDistance).toBe(4);
+    expect(DEFAULT_CUT_QUALITY_TOLERANCE.centerZeroCreditDistance).toBe(20);
+    expect(DEFAULT_CUT_QUALITY_TOLERANCE.sliverAreaFraction).toBe(0.2);
+    expect(PROVISIONAL_CUT_QUALITY_WEIGHTS).toEqual({ lineValidity: 0.15, sliceCountFit: 0.15, centerAccuracy: 0.3, sliceUniformity: 0.4 });
+  });
+
+  it("a well-formed cut earns full marks however it was drawn: only the finished geometry is scored", () => {
+    const ideal = createIdealSliceFixtureLines(6);
+    // The same three chords, each drawn from the opposite end: the pointer path differs, the geometry does not.
+    const reversed = ideal.map((l) => ({ start: l.end, end: l.start }));
+    expect(evaluateCutQuality(reversed, SIX)).toEqual(evaluateCutQuality(ideal, SIX));
+    expect(evaluateCutQuality(ideal, SIX).overall).toBe(1);
+  });
+});
