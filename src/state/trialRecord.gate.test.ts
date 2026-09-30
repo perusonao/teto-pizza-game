@@ -136,15 +136,57 @@ describe("what must stay out", () => {
     }
   });
 
-  it("no component or screen renders or reads the notebook or the record result in P3-3a (no UI change)", () => {
+  it("no component or screen reads the notebook itself (P3-3b reads only the record result, in GameScreen)", () => {
     const ui = production.filter(([p]) => /^\/src\/(components|screens)\//.test(p));
     expect(ui.length).toBeGreaterThan(10);
-    for (const [path, text] of ui) expect(text, path).not.toMatch(/trialNotebook|lastTrialAttempt|TrialEntryView|notebookView/);
+    for (const [path, text] of ui) expect(text, path).not.toMatch(/trialNotebook|TrialEntryView|notebookView|retryCount/);
+    for (const [path, text] of ui) {
+      if (path === "/src/screens/GameScreen.tsx") continue;
+      expect(text, path).not.toMatch(/lastTrialAttempt/);
+    }
   });
 
-  it("the ORIGINAL RESULT copy and the P2 line are untouched by the wiring", () => {
+  it("the P2 line is untouched by the notice; the panel never sees the notebook, only a number", () => {
     const panel = sources["/src/components/ResultPanel.tsx"];
-    expect(panel).not.toMatch(/trial|notebook/i);
+    expect(panel).not.toMatch(/notebook|lastTrialAttempt|retryCount/i);
     expect(sources["/src/screens/GameScreen.tsx"]).toMatch(/nearMiss=\{resultNearMiss\(state\)\}/);
+  });
+
+  it("GameScreen relays the record result in exactly one expression: free cook + DUPLICATE, number only", () => {
+    const game = sources["/src/screens/GameScreen.tsx"];
+    expect(game.match(/lastTrialAttempt/g)).toHaveLength(2);
+    expect(game).toContain('trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}');
+    expect(game).not.toMatch(/trialNotebook|notebookView/);
+  });
+
+  it("the notice is a static paragraph on the ORIGINAL card only: after the P2 row, before the note, no live region", () => {
+    const panel = sources["/src/components/ResultPanel.tsx"];
+    const original = panel.slice(panel.indexOf("if (!score) {"), panel.indexOf("const freeCookMatch"));
+    const hint = original.indexOf("{freeCook && hintRow(nearMiss, true)}");
+    const notice = original.indexOf('<p className="original-pizza__trial-notice">{trialNoticeText}</p>');
+    const note = original.indexOf('<p className="original-pizza__note">');
+    expect(hint).toBeGreaterThan(-1);
+    expect(notice).toBeGreaterThan(hint);
+    expect(note).toBeGreaterThan(notice);
+    expect(panel.match(/original-pizza__trial-notice/g)).toHaveLength(1);
+    expect(panel.match(/trialNoticeText/g)).toHaveLength(3); // declaration, guard, text
+    expect(original.slice(notice - 120, notice + 160)).not.toMatch(/aria-live|role=/);
+    expect(panel.slice(panel.indexOf("const freeCookMatch"))).not.toMatch(/trialNotice/);
+  });
+
+  it("the notice path is deterministic: no clock, randomness or storage in the panel, the relay or the copy", () => {
+    for (const path of ["/src/components/ResultPanel.tsx", "/src/screens/GameScreen.tsx", "/src/state/originalResultCopy.ts"]) {
+      const code = sources[path].replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      for (const forbidden of ["Math.random", "Date.now", "new Date", "crypto.", "localStorage", "sessionStorage"]) {
+        expect(code, `${path} -> ${forbidden}`).not.toContain(forbidden);
+      }
+    }
+  });
+
+  it("the notice copy comes from one pure function with no retry count and no hidden information", () => {
+    const copy = sources["/src/state/originalResultCopy.ts"];
+    const fn = copy.slice(copy.indexOf("export function duplicateTrialNoticeJa"), copy.indexOf("/** OD-P2-1 = A"));
+    expect(fn).toContain("前にも同じ材料の組み合わせで作ったよ（試作#${number}）");
+    for (const forbidden of ["retry", "recipe", "distance", "candidate", "target", "同じ結果", "意味がない"]) expect(fn, forbidden).not.toContain(forbidden);
   });
 });

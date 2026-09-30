@@ -11,7 +11,7 @@ import { STEP_LABEL } from "../data/makingStepLabels";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { getIngredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
-import { ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
+import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
 import type { ResultNearMissLine } from "../state/resultNearMiss";
 
 interface ResultPanelProps {
@@ -113,6 +113,9 @@ interface ResultPanelProps {
   /** Discovery Hint 2.0 (#229 229-C): the one generic "おしい" line (../state/resultNearMiss.ts),
    *  already decided for this result -- never a recipe or an ingredient. */
   nearMiss?: ResultNearMissLine | null;
+  /** P3-3b (OD-P3-19): the stable attempt number of an earlier identical ORIGINAL attempt (the P3-3a record result),
+   *  or `null`. Shown only on the ORIGINAL card, after the P2 line; never the retry count. */
+  trialNoticeNumber?: number | null;
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
@@ -178,6 +181,7 @@ export function ResultPanel({
   dexRegistration = null,
   onOpenDex,
   nearMiss = null,
+  trialNoticeNumber = null,
   onShowHint,
 }: ResultPanelProps) {
   // 229-C: a secondary row under the result itself -- the line (if any) and the hint CTA.
@@ -250,6 +254,8 @@ export function ResultPanel({
     // -- never the sauce type, which would break the match.
     // P2-A: the kind picks the lead from one table; it is never rendered as a class or attribute.
     const leadJa = ORIGINAL_LEAD_COPY[originalResultKind(discovery)];
+    // P3-3b: a static paragraph (no live region: the P2 line above already announces the result).
+    const trialNoticeText = duplicateTrialNoticeJa(trialNoticeNumber);
     return (
       <div className="result-panel result-panel--original">
         <p className="result-panel__heading result-panel__heading--original">
@@ -284,6 +290,7 @@ export function ResultPanel({
           )}
         </div>
         {freeCook && hintRow(nearMiss, true)}
+        {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
         <p className="original-pizza__note">
           図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。
         </p>

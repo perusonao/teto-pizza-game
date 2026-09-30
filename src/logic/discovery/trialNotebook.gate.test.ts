@@ -49,12 +49,22 @@ describe("Trial Notebook model — wired into state only (P3-3a)", () => {
     for (const path of referencing) expect(isTest(path) || WIRED.includes(path), path).toBe(true);
   });
 
-  it("no UI, App, persistence, Dex, mission, Hint 5.0 or P3-2 file mentions the notebook or the record result", () => {
+  it("no UI, App, persistence, Dex, mission, Hint 5.0 or P3-2 file mentions the notebook or the adapter", () => {
     const offenders = Object.entries(sources)
       .filter(([path]) => !isTest(path) && path !== MODULE && !WIRED.includes(path))
-      .filter(([, source]) => /trialNotebook|lastTrialAttempt|trialRecord|TrialRecord/.test(source))
+      .filter(([, source]) => /trialNotebook|trialRecord|TrialRecord/.test(source))
       .map(([path]) => path);
     expect(offenders).toEqual([]);
+  });
+
+  // P3-3b: the RESULT notice reads the record result that the reducer wrote at the commit (`state.lastTrialAttempt`);
+  // exactly one screen relays it, and nothing else outside the wired files may mention it.
+  it("only GameScreen (one relay) and the wired files mention the record result", () => {
+    const readers = Object.entries(sources)
+      .filter(([path]) => !isTest(path) && path !== MODULE && !WIRED.includes(path))
+      .filter(([, source]) => /lastTrialAttempt/.test(source))
+      .map(([path]) => path);
+    expect(readers).toEqual(["/src/screens/GameScreen.tsx"]);
   });
 });
 
