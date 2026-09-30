@@ -473,7 +473,7 @@ Fresh Audit 時点の判定は **C. HARDENING REQUIRED BEFORE R6**（F-6: E6 SUR
 
 | 項目 | 値 |
 |---|---|
-| base | latest main **`d727030`**（PR #313 Attempt Fingerprint P1 = pure / unwired、Large Catalog の file に触れない。branch に merge 済み） |
+| base | 開始時 latest main **`d727030`**（PR #313 Attempt Fingerprint P1）→ 完了時 latest main **`22263bd`**（PR #315 / #316 Trial Notebook P3-1 / P3-3a: `gameReducer` の REGISTER_TO_DEX に data wiring、UI なし）。どちらも Large Catalog の file（`src/logic/catalog/**`、`App.tsx`、`GameScreen.tsx`、tray / pantry）に触れない。両方 branch に merge 済み |
 | production src | **変更なし**（`git diff origin/main -- src` は `*.test.ts(x)` のみ）。`HAND_ENFORCEMENT_ENABLED = false`、capacity 未決定、save / UI 変更なし |
 | Owner Decisions | §18（CONFIRMED） |
 
@@ -508,12 +508,12 @@ Fresh Audit 時点の判定は **C. HARDENING REQUIRED BEFORE R6**（F-6: E6 SUR
 
 | gate | 結果 |
 |---|---|
-| full Vitest（3 projects） | **273 files, 5191 passed, 1 skipped, 0 failed** |
-| `tsc -b` | clean |
-| `oxlint` | pre-existing 2 warnings のみ（`scoringV2.noSauceProfile.test.ts`） |
-| `vite build` | OK |
-| Chromium e2e（`iphone-390x844` + `iphone-360x800`: large-catalog-pin-dormant / pantry-search / pantry-shell / pantry-shelves、stage-size-stability、dinner-mission、lunch-rush-material-shortage、free-cooking-phase3-2、inventory-modal-stable-bounds） | **56 passed, 16 intentional width-guard skips, 0 failed** |
-| mutation-check M1〜M114（118 mutants） | <<M-RESULT>> |
+| full Vitest（3 projects） | `d727030` base: **273 files, 5191 passed, 1 skipped, 0 failed** → `22263bd` merge 後の再実行: **279 files, 5333 passed, 1 skipped, 0 failed** |
+| `tsc -b` | clean（merge 後も） |
+| `oxlint` | pre-existing 2 warnings のみ（`scoringV2.noSauceProfile.test.ts`、merge 後も） |
+| `vite build` | OK（merge 後も） |
+| Chromium e2e（`d727030` base、#315 / #316 は UI 変更なし）（`iphone-390x844` + `iphone-360x800`: large-catalog-pin-dormant / pantry-search / pantry-shell / pantry-shelves、stage-size-stability、dinner-mission、lunch-rush-material-shortage、free-cooking-phase3-2、inventory-modal-stable-bounds） | **56 passed, 16 intentional width-guard skips, 0 failed** |
+| mutation-check M1〜M114（118 mutants、`cd0f29f` の clean worktree、59 + 59 の 2 run） | **118 / 118 KILLED、NOT_APPLICABLE 0**（M10b は現行 R5-d 行で KILLED）。mutant 対象 file は #315 / #316 で不変 |
 | r5e activation mutants E1〜E12 | **10 / 12 KILLED**（§21.5） |
 
 注: 2 つの mutation run を同時に回すと CPU 競合で App test が default 5 s timeout に達し baseline が落ちた（コード起因ではない）。以後は 1 本ずつ実行し、長い新 App test には明示 timeout（60 s / fuzz 90 s）を付けた。
@@ -540,4 +540,11 @@ Fresh Audit 時点の判定は **C. HARDENING REQUIRED BEFORE R6**（F-6: E6 SUR
 
 ## 22. Final readiness verdict（R5-e-h 後）
 
-<<FINAL>>
+**A. R5-e HARDENING COMPLETE / R6 AUDIT-READY**
+
+- H-1〜H-8 すべて実装・PASS（9 と 12 の両方）。E6 / E2 KILLED、M1〜M114 は 118 / 118 KILLED（M10b 復活）。
+- 残る survivor は E4（観測上等価: BAKE 以降は tray なし）と E5（未決定の shipped capacity に test が依存しない＝意図どおり）のみで、理由を §21.5 に記録。production は変更していない。
+- production src 変更なし、`HAND_ENFORCEMENT_ENABLED = false`、capacity 9 / 12 未決定、save / UI 変更なし、PR なし。
+- R6 は開始していない。OD-R5e-5 に従い、次は **current main から R6 slice 境界の再確認**（R6-a の範囲: OD-R5e-1 / -3 の dormant presentation、OD-R5e-4 の Preview-only fail-closed mechanism 監査、OFF golden gate）。
+
+STOP.
