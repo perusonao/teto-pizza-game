@@ -233,6 +233,10 @@ describe("Attempt Fingerprint v1 — versioning and extension", () => {
     // (the fingerprint would start carrying it in `ext` automatically).
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
     for (const key of IDENTITY_DIMENSION_KEYS) expect(sig.dimensions[key].status).not.toBe("OBSERVED");
+    // FIXED_BY_FLOW axes are compared by the matcher too, so they must hold exactly their defaults
+    for (const key of IDENTITY_DIMENSION_KEYS) {
+      if (sig.dimensions[key].status === "FIXED_BY_FLOW") expect(sig.dimensions[key].value).toEqual(DEFAULT_IDENTITY_DIMENSIONS[key]);
+    }
     expect(parseAttemptFingerprint(attemptFingerprintOfSignature(sig))!.ext).toEqual({});
   });
 
@@ -257,10 +261,30 @@ describe("Attempt Fingerprint v1 — versioning and extension", () => {
     expect(attemptFingerprintOfSignature(withAxis(base(), "late", "OBSERVED", []))).toBe(plain);
   });
 
-  it("FIXED_BY_FLOW and UNAVAILABLE axes are never identity, whatever their value (matcher parity)", () => {
+  it("an UNAVAILABLE axis is never identity (the matcher assumes its default), whatever its value", () => {
     const plain = attemptFingerprintOfSignature(base());
     expect(attemptFingerprintOfSignature(withAxis(base(), "shape", "UNAVAILABLE", "square"))).toBe(plain);
-    expect(attemptFingerprintOfSignature(withAxis(base(), "cook", "FIXED_BY_FLOW", "fry"))).toBe(plain);
+    expect(attemptFingerprintOfSignature(withAxis(base(), "zones", "UNAVAILABLE", [["x"]]))).toBe(plain);
+  });
+
+  it("a FIXED_BY_FLOW axis is compared by value by the matcher, so a non-default value is identity (Codex P2)", () => {
+    const plain = attemptFingerprintOfSignature(base());
+    const fry = attemptFingerprintOfSignature(withAxis(base(), "cook", "FIXED_BY_FLOW", "fry"));
+    expect(fry).not.toBe(plain);
+    expect(parseAttemptFingerprint(fry)!.ext).toEqual({ cook: "fry" });
+    // at its default it adds nothing, so every fingerprint made today is unchanged
+    expect(attemptFingerprintOfSignature(withAxis(base(), "cook", "FIXED_BY_FLOW", DEFAULT_IDENTITY_DIMENSIONS.cook))).toBe(plain);
+    // and it agrees with the matcher: a target built from the default signature does not match it
+    const target: DiscoveryTarget = {
+      targetId: "t",
+      items: base().ingredientSet.value,
+      sauceBase: base().sauceBase.value,
+      capabilities: [],
+      identityDimensions: DEFAULT_IDENTITY_DIMENSIONS,
+      eligibility: { status: "ELIGIBLE" },
+    };
+    expect(matchDiscovery(withAxis(base(), "cook", "FIXED_BY_FLOW", "fry"), [target]).kind).toBe("NO_MATCH");
+    expect(matchDiscovery(base(), [target]).kind).toBe("UNIQUE_MATCH");
   });
 
   it("extension order is fixed (IDENTITY_DIMENSION_KEYS), independent of how the signature was built", () => {

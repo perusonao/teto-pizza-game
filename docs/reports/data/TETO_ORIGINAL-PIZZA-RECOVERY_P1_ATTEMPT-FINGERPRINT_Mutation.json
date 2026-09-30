@@ -1,8 +1,8 @@
 {
  "target": "src/logic/discovery/attemptFingerprint.ts",
  "tests": "src/logic/discovery/attemptFingerprint*.test.ts",
- "mutants": 26,
- "killed": 22,
+ "mutants": 27,
+ "killed": 23,
  "equivalent": 4,
  "survived": 0,
  "invalid": 0,
@@ -35,7 +35,7 @@
   },
   {
    "id": "M06",
-   "description": "extension: UNAVAILABLE/FIXED axes leak in",
+   "description": "extension: UNAVAILABLE axes leak in",
    "status": "KILLED"
   },
   {
@@ -45,7 +45,12 @@
   },
   {
    "id": "M08",
-   "description": "extension: OBSERVED axes are never included",
+   "description": "extension: no axis is ever included",
+   "status": "KILLED"
+  },
+  {
+   "id": "M27",
+   "description": "extension: FIXED_BY_FLOW axes ignored (Codex P2: only OBSERVED kept)",
    "status": "KILLED"
   },
   {

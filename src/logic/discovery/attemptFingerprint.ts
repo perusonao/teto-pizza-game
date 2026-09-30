@@ -14,13 +14,15 @@
  * - `sauceBase`: the sorted, de-duplicated sauce ids (`RuntimeSignature.sauceBase`).
  * - `ingredientSet`: the sorted, de-duplicated ids of every sauce and placed piece
  *   (`RuntimeSignature.ingredientSet`).
- * - Any identity dimension whose status is `OBSERVED` **and** whose value is not the Phase-2
- *   default (`ext`, below). Today no dimension is `OBSERVED`, so `ext` is always empty.
+ * - Any identity dimension the matcher compares by value (status `OBSERVED` or `FIXED_BY_FLOW`,
+ *   i.e. anything but `UNAVAILABLE`) **and** whose value is not the Phase-2 default (`ext`, below).
+ *   Today every such axis holds its default, so `ext` is always empty.
  *
  * NOT identity (so never in the fingerprint): ingredient order, piece counts / duplicates,
  * placement and positions, timing, bake value, sauce amounts, CUT, Cooking Steps, dough radii.
- * `FIXED_BY_FLOW` axes are constants and `UNAVAILABLE` axes are assumed default by the matcher,
- * so neither can distinguish two attempts.
+ * `UNAVAILABLE` axes are assumed default by the matcher, so they cannot distinguish two attempts.
+ * `FIXED_BY_FLOW` axes are compared by value (`compareDimensions`), so a flow that one day reports a
+ * non-default value is identity too; today they are constants, so they add nothing.
  *
  * ## Attempt identity, not recipe identity
  *
@@ -45,7 +47,8 @@
  *
  * ## Extension policy
  *
- * - A dimension that later becomes `OBSERVED` is picked up automatically and *sparsely*: it only
+ * - A dimension that later becomes `OBSERVED`, or a `FIXED_BY_FLOW` axis that later reports a
+ *   non-default value, is picked up automatically and *sparsely*: it only
  *   appears in `ext` when its value differs from the default. An attempt made with default
  *   dimensions therefore keeps the exact same `fp1:` string before and after the dimension ships,
  *   so a stored fingerprint stays valid and comparable.
@@ -100,7 +103,8 @@ function extensionOf(signature: RuntimeSignature): AttemptFingerprintExtension {
   const ext: AttemptFingerprintExtension = {};
   for (const key of IDENTITY_DIMENSION_KEYS) {
     const axis = signature.dimensions[key];
-    if (axis.status === "OBSERVED" && !sameJson(axis.value, DEFAULT_IDENTITY_DIMENSIONS[key])) {
+    // the matcher skips only UNAVAILABLE axes (assumed default); every other axis is compared by value
+    if (axis.status !== "UNAVAILABLE" && !sameJson(axis.value, DEFAULT_IDENTITY_DIMENSIONS[key])) {
       ext[key] = axis.value;
     }
   }

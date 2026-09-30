@@ -62,11 +62,11 @@ The matcher is the SSOT and is used **as the test oracle**: for two pizzas A and
 - Includes the matcher's *role* rule: the same ids as base vs. as a piece are different attempts (`tomato-sauce` as sauce ≠ as topping), verified against the matcher directly.
 - Property: shuffling / duplicating pieces never changes the fingerprint; adding or removing an ingredient *kind* always does (1 000 cases).
 - Property: every generated fingerprint parses back to an identical canonical string (1 000 cases).
-- Axes that the matcher ignores (`FIXED_BY_FLOW`, `UNAVAILABLE`) are proven not to enter the fingerprint even when a hand-built signature gives them exotic values.
+- `UNAVAILABLE` axes (which the matcher assumes default) are proven not to enter the fingerprint even when a hand-built signature gives them exotic values. **Codex review (PR #313): `FIXED_BY_FLOW` axes are compared by value by the matcher (`compareDimensions` skips only `UNAVAILABLE`), so a non-default `FIXED_BY_FLOW` value is identity and now enters `ext`** (default values add nothing, so every fingerprint made today is unchanged; tested against the matcher).
 
 ## 5. Future-extension policy
 
-- **No future dimension is guessed.** The only extension is the *existing* signature contract: an axis that becomes `OBSERVED` is carried in `ext`, sparsely, only when non-default.
+- **No future dimension is guessed.** The only extension is the *existing* signature contract: an axis that becomes `OBSERVED`, or a `FIXED_BY_FLOW` axis that reports a non-default value, is carried in `ext`, sparsely, only when non-default.
 - **Backward compatibility:** an attempt made with default dimensions keeps the byte-identical `fp1:` string before and after a dimension ships, so a stored fingerprint stays valid and comparable. Tested with synthetic `OBSERVED` axes (`late`, `shape`, `dough`, `cook`).
 - `ext` values are compared the way the matcher compares them (canonical JSON of the value).
 - **Version rule:** adding a dimension is additive and stays `fp1`. Changing how `sauceBase` / `ingredientSet` are derived, or the encoding, requires `fp2:` and an explicit migration. `attemptFingerprintVersion` reports an unknown version's number so a future store can keep such entries untouched rather than drop them; `parseAttemptFingerprint` returns `null` for anything that is not a canonical v1 string.
@@ -91,7 +91,7 @@ The matcher is the SSOT and is used **as the test oracle**: for two pizzas A and
 | Full suite | **250 files, 4 921 passed, 1 skipped** |
 | `tsc -b` | clean |
 | `oxlint` | no findings in the new files (the one warning printed is pre-existing in `scoringV2.noSauceProfile.test.ts`) |
-| Mutation harness | **26 mutants: 22 killed, 4 EQUIVALENT, 0 survived, 0 invalid** — score 1.0 over non-equivalent mutants (22/22) |
+| Mutation harness | **27 mutants: 23 killed, 4 EQUIVALENT, 0 survived, 0 invalid** — score 1.0 over non-equivalent mutants (23/23); M27 is the Codex P2 regression (FIXED_BY_FLOW ignored) |
 
 Mutants cover: dropped sort / dedupe; omitted sauceBase / ingredientSet; version bump; UNAVAILABLE/FIXED leakage; default-valued or never-included extension; empty extension written; extension order; missing canonicalisation; inverted `isSameAttempt`; version-pattern and version-reader faults; every parser guard (canonical, sauce ⊆ set, payload length, unknown / default extension key, ext type, id type, round-trip).
 
