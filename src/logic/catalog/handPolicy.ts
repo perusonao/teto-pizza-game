@@ -23,3 +23,10 @@ export function handCapacityFor(ownedCountInCategory: number, candidate: HandCap
   const owned = Number.isFinite(ownedCountInCategory) ? Math.floor(ownedCountInCategory) : 0;
   return Math.max(1, owned);
 }
+
+/**
+ * LC-R5-d: the capacity the dormant tray wiring hands to `resolveHand`. 12 is the DESIGN CANDIDATE only (OD-R5-1):
+ * 9 vs 12 is decided at the R6 real-device Human Feel Gate. Nothing (UI copy, layout) may depend on this value, and
+ * tests parametrize both candidates.
+ */
+export const DEFAULT_HAND_CAPACITY_CANDIDATE: HandCapacityCandidate = 12;

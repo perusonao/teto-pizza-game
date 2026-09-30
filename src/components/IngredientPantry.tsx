@@ -72,6 +72,9 @@ export interface IngredientPantryProps {
   pinSession?: HandSession;
   /** The only pin writer: an updater over the App-level session. */
   onPinSessionChange?: (update: (previous: HandSession) => HandSession) => void;
+  /** LC-R5-d (OD-R5d-3, Model C): would the newly pinned id still be on the visible hand? Absent = no capacity rule.
+   *  A refused pin changes nothing; the capacity-full feedback UI is R6. */
+  pinFits?: (candidate: HandSession, id: string) => boolean;
 }
 
 const NO_PINS: HandSession = { sauce: [], cheese: [], topping: [] };
@@ -84,6 +87,7 @@ export function IngredientPantry({
   handEditing = false,
   pinSession = NO_PINS,
   onPinSessionChange,
+  pinFits,
 }: IngredientPantryProps) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -331,7 +335,7 @@ export function IngredientPantry({
                       aria-disabled={tile.disabled || undefined}
                       // A click (not pointerdown), so a touch scroll of the list never toggles a pin.
                       onClick={() => {
-                        if (!tile.disabled) editPins((previous) => togglePin(previous, ingredient.id, pinContext).session);
+                        if (!tile.disabled) editPins((previous) => togglePin(previous, ingredient.id, pinContext, pinFits).session);
                       }}
                     >
                       {body}

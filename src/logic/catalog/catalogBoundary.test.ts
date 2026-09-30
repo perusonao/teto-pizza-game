@@ -47,6 +47,7 @@ describe("catalog boundary", () => {
       "./freeEligibility.ts",
       "./handPolicy.ts",
       "./handSession.ts",
+      "./handTray.ts",
       "./hintDisclosure.ts",
       "./pantryAvailability.ts",
       "./pinEdit.ts",
@@ -102,7 +103,7 @@ describe("catalog boundary", () => {
 
   it("LC-R2: the hand modules never touch shelves, the taxonomy or the raw round flags", () => {
     const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-    for (const file of ["./workingSet.ts", "./handSession.ts", "./handPolicy.ts", "./freeEligibility.ts"]) {
+    for (const file of ["./workingSet.ts", "./handSession.ts", "./handPolicy.ts", "./freeEligibility.ts", "./handTray.ts"]) {
       const code = strip(CATALOG_SOURCES[file]);
       expect(code, file).not.toMatch(/\bshelf\b|\bshelves\b|ingredientShelf|ingredientTaxonomy|ATTRIBUTE_FAMILIES/);
     }
@@ -126,7 +127,8 @@ describe("catalog boundary", () => {
       // App-level pins and passes the enforcement flag as the dormant `handEditing` switch; App owns the pins.
       "../../components/IngredientPantry.tsx": ["catalogQuery", "catalogSource", "usageSignals", "handSession", "pinEdit"],
       "../../screens/GameScreen.tsx": ["freeEligibility", "handPolicy", "handSession"],
-      "../../App.tsx": ["handSession"],
+      // LC-R5-d: App derives the dormant tray hand (`handTray`, over the runtime catalog and the candidate capacity).
+      "../../App.tsx": ["handSession", "handTray", "catalogSource", "handPolicy"],
       // LC-R5-a: the dock reservation reads the ownership-only pantry availability authority.
       "../prepareDock.ts": ["pantryAvailability"],
     };
@@ -230,5 +232,40 @@ describe("catalog boundary", () => {
     }
     // The Builder tray does not read pins in R5-c (R5-d wires the hand).
     expect(strip(ALL_SOURCES["../../components/IngredientTray.tsx"])).not.toMatch(/handSession|HandSession|pinSession|pinEdit|resolveHand/);
+  });
+  it("LC-R5-d: the tray hand is dormant (flag-first), catalog-ordered, App-derived, and the tray only receives ids", () => {
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const tray = strip(CATALOG_SOURCES["./handTray.ts"]);
+    // Pure and privacy-neutral: only siblings + the palette page-size constant.
+    expect(imports(CATALOG_SOURCES["./handTray.ts"]).map((i) => i.spec).sort()).toEqual([
+      "../../data/ingredients",
+      "./catalogTypes",
+      "./freeEligibility",
+      "./handPolicy",
+      "./handSession",
+      "./usageSignals",
+    ]);
+    expect(tray).not.toMatch(/recipe|discover|hint|matcher|localStorage|persist|selectionAfterVisibleChange/i);
+    // Dormant: the first statement of the resolver is the enforcement-flag guard (false => `null` => today's tray).
+    expect(tray).toMatch(/export function resolveTrayHandIds\(input: TrayHandInput\): string\[\] \| null \{\s*if \(!HAND_ENFORCEMENT_ENABLED/);
+    // The tray list is catalog ordered (priority selects membership only).
+    expect(tray).toMatch(/\.sort\(compareCatalogOrder\)/);
+    // Only App calls the resolver / the transition; the tray, GameScreen and the pantry never do.
+    for (const [path, text] of Object.entries(ALL_SOURCES)) {
+      if (path.startsWith("./") || path.endsWith("/App.tsx")) continue;
+      expect(strip(text), path).not.toMatch(/resolveTrayHandIds|handTrayTransition/);
+    }
+    // The tray takes plain ids: no catalog / session knowledge.
+    expect(imports(ALL_SOURCES["../../components/IngredientTray.tsx"]).filter((i) => /catalog\//.test(i.spec))).toEqual([]);
+    expect(strip(ALL_SOURCES["../../components/IngredientTray.tsx"])).not.toMatch(/handSession|HandSession|pinSession|pinEdit|resolveHand|handTray/);
+    // The pantry sees only the fit callback (no capacity / hand / enforcement knowledge).
+    expect(strip(ALL_SOURCES["../../components/IngredientPantry.tsx"])).not.toMatch(/pinFitsHand|handTray|resolveHand|HAND_CAPACITY|candidateCapacity/);
+    // Persistence and the reducer stay unaware.
+    for (const file of ["../../state/persistence.ts", "../../state/gameReducer.ts"]) {
+      expect(strip(ALL_SOURCES[file]), file).not.toMatch(/handTray|trayHand/);
+    }
+    // The transition state only exists behind a non-null hand: the `null` branch writes nothing but a stale track.
+    const app = strip(ALL_SOURCES["../../App.tsx"]);
+    expect(app).toContain("if (trayHandIds === null) {\n    if (trayHandTrack !== null) setTrayHandTrack(null);");
   });
 });

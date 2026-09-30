@@ -8,7 +8,7 @@
  *   tray (every owned ingredient of the category in catalog order, zero stock included), so small
  *   catalogs see no change.
  * - Active otherwise: placed > pinned > hint > favorite > recent > new > fill. Placed / pinned are
- *   the player's explicit choices and are kept even at zero stock; every automatic source skips
+ *   the player's explicit choices and are kept even at zero stock; placed are kept even beyond capacity (LC-R5-d); every automatic source skips
  *   zero stock (LC-OD-17). Fill is catalog order. Duplicates keep their highest source.
  *
  * Privacy boundary (B-1 / B-2): the input has no recipe, target, matcher, near-miss, reserve or
@@ -63,7 +63,7 @@ export interface WorkingSetItem {
 export interface WorkingSet {
   active: boolean;
   items: readonly WorkingSetItem[];
-  /** Explicit (placed / pinned) ids that did not fit the capacity. */
+  /** Pinned ids that did not fit the capacity (placed ids never overflow, LC-R5-d). */
   overflowIds: readonly string[];
 }
 
@@ -100,8 +100,10 @@ export function selectWorkingSet(input: WorkingSetInput): WorkingSet {
     for (const id of sources[source]) {
       if (seen.has(id)) continue;
       seen.add(id);
-      if (items.length < capacity) items.push({ id, source });
-      else if (source === "placed" || source === "pinned") overflowIds.push(id);
+      // LC-R5-d (OD-R5d-2): a placed ingredient is on the pizza already, so it is NEVER dropped for capacity
+      // (a safety contract: an ingredient the player used must not become unreachable). Pins take the rest.
+      if (source === "placed" || items.length < capacity) items.push({ id, source });
+      else if (source === "pinned") overflowIds.push(id);
     }
   }
   return { active: true, items, overflowIds };

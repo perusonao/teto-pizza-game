@@ -18,7 +18,7 @@ import type { CutLine } from "./logic/cut/types";
 import { isDuplicateCutLine } from "./logic/cut/geometry";
 import type { SauceDeposit } from "./state/pizzaState";
 import { RECIPES, type RecipeId } from "./data/recipes";
-import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
+import { getIngredient, STARTER_INGREDIENT_IDS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
 import {
@@ -27,6 +27,7 @@ import {
   type GameState,
   type MakingStep,
 } from "./state/gameReducer";
+import { remainingStock } from "./state/inventory";
 import { isHintSheetVisible } from "./state/discoveryHint";
 import {
   loadSave,
@@ -62,8 +63,14 @@ import {
 } from "./mission/dinner/dinnerMission";
 import { dinnerStartBlock } from "./mission/dinner/dinnerRun";
 import type { QualityStars } from "./logic/scoring";
+import { runtimeCatalog } from "./logic/catalog/catalogSource";
+import { DEFAULT_HAND_CAPACITY_CANDIDATE } from "./logic/catalog/handPolicy";
 import { emptyHandSession, type HandSession } from "./logic/catalog/handSession";
+import { handTrayTransition, pinFitsHand, resolveTrayHandIds, type TrayHandInput } from "./logic/catalog/handTray";
 import "./App.css";
+
+/** LC-R5-d: the catalog descriptors the dormant tray hand reads (ids / category / order only). */
+const HAND_CATALOG = runtimeCatalog();
 
 const MISSION_TICK_MS = 250;
 
@@ -328,6 +335,50 @@ function App() {
     // just above: plain derived-state-during-render, same as every other reset in this block.
     setCutRejectionMessage(null);
   }
+
+  // Large Catalog UX LC-R5-d (DORMANT): the hand as the Builder tray shows it. `resolveTrayHandIds` is `null` while
+  // `HAND_ENFORCEMENT_ENABLED` is false (and for every non-FREE round, DOUGH, and an inactive hand), so in production
+  // the tray keeps its current list and nothing below runs or writes state. When the hand is on, an ACTUAL change of
+  // the catalog-ordered list (a priority-only reorder is not one) sends the tray to page 0 (the tray does that in its
+  // own render) and keeps `selectedIngredientId` only if it is on the new page 0 (#197 / OD-R5d-1). Derived during
+  // render like `lastRoundKey` / `lastMakingStep` above: no effect, no stale frame, no double clear. A different key
+  // (round or step change) is not a hand change: the resets above already own that.
+  const trayCategory =
+    state.phase === "PREPARE" && (state.makingStep === "SAUCE" || state.makingStep === "CHEESE" || state.makingStep === "TOPPING")
+      ? activeCategory
+      : null;
+  const trayHandInput: TrayHandInput = {
+    round: state,
+    category: trayCategory,
+    catalog: HAND_CATALOG,
+    ownership: {
+      ownedIds: state.ownedIngredientIds,
+      stock: (id) => {
+        const ingredient = getIngredient(id);
+        return ingredient ? remainingStock(ingredient, state.inventory) : 0;
+      },
+    },
+    session: handSession,
+    placedIds: [...new Set([...state.pizza.sauceIds, ...state.pizza.toppings.map((t) => t.ingredientId)])],
+    starterIds: STARTER_INGREDIENT_IDS,
+    candidateCapacity: DEFAULT_HAND_CAPACITY_CANDIDATE,
+  };
+  const trayHandIds = resolveTrayHandIds(trayHandInput);
+  const trayHandKey = `${roundKey}|${activeCategory}`;
+  const [trayHandTrack, setTrayHandTrack] = useState<{ key: string; ids: readonly string[] } | null>(null);
+  if (trayHandIds === null) {
+    if (trayHandTrack !== null) setTrayHandTrack(null);
+  } else if (trayHandTrack === null || trayHandTrack.key !== trayHandKey || trayHandTrack.ids.join("|") !== trayHandIds.join("|")) {
+    setTrayHandTrack({ key: trayHandKey, ids: trayHandIds });
+    if (trayHandTrack !== null && trayHandTrack.key === trayHandKey) {
+      const next = handTrayTransition({ before: trayHandTrack.ids, after: trayHandIds, selectedIngredientId });
+      if (next.selectedIngredientId !== selectedIngredientId) setSelectedIngredientId(next.selectedIngredientId);
+    }
+  }
+  const trayHand = {
+    ids: trayHandIds,
+    pinFits: (candidate: HandSession, id: string) => pinFitsHand(trayHandInput, candidate, id),
+  };
 
   // Cancels any still-pending auto-clear timeout from a rejection shown *before* this step
   // change, so it can never fire later and clear a different, freshly-shown rejection message
@@ -1132,6 +1183,7 @@ function App() {
           selectedIngredientId={selectedIngredientId}
           handSession={handSession}
           onHandSessionChange={setHandSession}
+          trayHand={trayHand}
           bakeProgress={bakeProgress}
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
