@@ -25,6 +25,11 @@
  * adds facts to `discoveryHintFacts` and never advances the legacy `discoveryHintPurchases`, which
  * stays the read-only source of `LegacyHintProgress` and `grandfatheredSteps`. Economy 1.0 levels
  * are no longer sold (`unlockNextHint` only runs for the onboarding, see the reducer).
+ *
+ * Discovery Hint 5.0 (Issue #292, H5-2): behind `HINT5_LADDER_ENABLED` (off in every build), one
+ * ladder rung is bought through the H5-1 pure authority (`requestHint5RungFact`), and the ladder's
+ * view model is `hint5SheetView`. With the flag on, the 材料 / 構成 / 特徴 purchases are refused
+ * (see the reducer). The Dex-0 Margherita onboarding keeps its free Hint 2.0 reveal.
  */
 import { getRecipe, type RecipeId } from "../data/recipes";
 import {
@@ -37,7 +42,9 @@ import {
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
 import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
-import { DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
+import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
+import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
+import { hint5Presentation, requestHint5Rung, type Hint5Presentation } from "../logic/discovery/hint5Ladder";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
 import { deductionKnownLines, deductionOwnership, requestDeductionHint, type DeductionFamily } from "../logic/discovery/deductionRequest";
@@ -45,7 +52,6 @@ import {
   buildSelectableHintModel,
   hintFactId,
   purchaseSelectableHint,
-  selectableHintBatchPrice,
   selectableHintPresentation,
   type HintCategory,
   type SelectableHintModel,
@@ -93,11 +99,15 @@ export type HintOutcome =
   | "STRUCTURE_GUIDANCE_ONLY"
   | "STRUCTURE_ALREADY_OWNED"
   | "ATTRIBUTE_EXISTENCE_ONLY"
-  | "ATTRIBUTE_ALREADY_OWNED";
+  | "ATTRIBUTE_ALREADY_OWNED"
+  /** Hint 5.0 OD-H5-M3: the requested rung was already known and completed for 0 Pitz. Shown only
+   *  after the request, never before. */
+  | "HINT5_ALREADY_KNOWN";
 
 /**
- * DH4-2B: the 構成 / 特徴 part of the SELECTABLE sheet (flag only, E3). Built from the player's own
- * ledgers only: no availability, answer level, candidate count, remaining count or reserve.
+ * DH4-2B: the 構成 / 特徴 part of the SELECTABLE sheet (behind the flag; on in production since
+ * OD-DH4-PROD-1). Built from the player's own ledgers only: no availability, answer level,
+ * candidate count, remaining count or reserve.
  */
 export interface DeductionSheetView {
   /** 構成: the stored total line, then the stored topping line (never 0). */
@@ -110,7 +120,8 @@ export interface DeductionSheetView {
   structureOwned: boolean;
   /** An informative 特徴 answer is stored: 「✓ もらいずみ」. */
   attributeOwned: boolean;
-  /** The provisional price of the next 構成 / 特徴 request (the same for both, for every target). */
+  /** The fixed price of a 構成 / 特徴 request (OD-DH4-PROD-1: 5 / 5, the same for both and for every
+   *  target, so the sheet shows one number). */
   nextPrice: number;
   /** The shared paid count to echo back as `expectedPaidCount`. */
   paidCount: number;
@@ -149,7 +160,7 @@ export type HintSheetView =
        *  fact, never for sale, never priced. H3-4 decides the final presentation. */
       grandfatheredSteps: readonly HintStep[];
       outcome: HintOutcome | null;
-      /** DH4-2B: `null` unless the E3 flag is on (DEV / Preview). */
+      /** DH4-2B: `null` when the flag is off (on in every build since OD-DH4-PROD-1). */
       deduction: DeductionSheetView | null;
     }
   | { kind: HintEmptyKind };
@@ -344,19 +355,20 @@ function storedFactIds(state: Pick<DiscoveryHintState, "discoveryHintFacts">, re
 }
 
 /**
- * DH4-2B (E3, provisional until DH4-ECON): 構成 and 特徴 share the material ESC rung. The shared
- * paid count is the 材料 paid count (legacy rungs included) plus one per deduction family bought
- * under Hint 4.0; the next request costs that rung (5 / 10 / 20 / 40, then 40). It depends only on
- * what this player paid, never on the target's answers. The 材料 price itself is unchanged.
+ * DH4 Production Enablement (OD-DH4-PROD-1): 構成 and 特徴 cost a fixed price (5 / 5), not a rung of
+ * the 材料 ESC ladder, and a deduction purchase never moves the 材料 price. The paid count is kept
+ * only as the request's STALE token (DH4-2B): the 材料 paid count (legacy rungs included) plus one
+ * per deduction family bought under Hint 4.0, so any purchase in between refuses an echoed request.
+ * It depends only on what this player paid, never on the target's answers.
  */
-function deductionPricing(state: DiscoveryHintState, context: NonNullable<ReturnType<typeof selectableContext>>) {
+function deductionPricing(state: DiscoveryHintState, context: NonNullable<ReturnType<typeof selectableContext>>, family: DeductionFamily = "structure") {
   const { model, saved } = context;
   const materialPaid = selectableHintPresentation(model, saved.purchasedFactIds, state.pitzBalance, saved.legacy).paidCount;
   const stored = storedFactIds(state, model.recipeId);
   const own = deductionOwnership(model.recipeId, stored, {});
   const structureBought = stored.includes(INGREDIENT_TOTAL_FACT_ID) || stored.includes(TOPPING_TOTAL_FACT_ID);
   const paidCount = materialPaid + (structureBought ? 1 : 0) + (own.attributeOwned ? 1 : 0);
-  return { paidCount, nextPrice: selectableHintBatchPrice(paidCount, 1, Number.POSITIVE_INFINITY), stored, structureBought, attributeOwned: own.attributeOwned };
+  return { paidCount, nextPrice: DEDUCTION_HINT_PRICE[family], stored, structureBought, attributeOwned: own.attributeOwned };
 }
 
 function deductionContext(state: DiscoveryHintState) {
@@ -374,7 +386,7 @@ const DEDUCTION_OUTCOMES = {
  * in its fixed order (family -> target -> price -> STALE -> balance -> answer); this only supplies
  * its inputs and applies the result.
  *
- * - Only with the E3 flag (`enabled`, DEV / Preview). Production: always `null`.
+ * - Only with the flag (`enabled`; on in every build since OD-DH4-PROD-1). Flag off: always `null`.
  * - ANSWERED: Pitz is debited once and the new fact ids are appended to the target's ledger (unknown
  *   / future ids kept) in the same patch.
  * - EXISTENCE_ONLY / GUIDANCE_ONLY / ALREADY_OWNED: only the transient `hintOutcome` changes -- no
@@ -393,7 +405,7 @@ export function requestDeductionHintFact(
   if (!session || !isSessionTarget(state, session)) return null;
   const context = selectableContext(state, session);
   if (!context) return null;
-  const pricing = deductionPricing(state, context);
+  const pricing = deductionPricing(state, context, family);
   const result = requestDeductionHint({
     family,
     recipeId: context.model.recipeId,
@@ -440,6 +452,89 @@ function deductionSheetView(state: DiscoveryHintState, context: NonNullable<Retu
     paidCount: pricing.paidCount,
     affordable: balance >= pricing.nextPrice,
   };
+}
+
+/**
+ * Discovery Hint 5.0 (Issue #292, H5-2): one ladder rung for the session target. It returns the patch
+ * to apply, or `null` when nothing changes. The H5-1 pure authority (`requestHint5Rung`) decides
+ * everything in its fixed order (target -> STALE -> complete -> price / balance -> empty rung ->
+ * answer); this only supplies its inputs and applies an ANSWERED result.
+ *
+ * - The flag is off (the default in every build) -> `null`.
+ * - No DISCOVERABLE session target, or the Dex-0 Margherita onboarding (which keeps its free,
+ *   session-only Hint 2.0 reveal) -> `null`.
+ * - ANSWERED: Pitz is debited by the P-C rung price, and the new fact ids (`ing:` /
+ *   `meta:ingredient-total` / `cls:<ingredientId>`) plus the rung's completion record are appended
+ *   to the target's ledger in the same patch. Every stored id, unknown or future ones included, is
+ *   kept as it is (E3).
+ * - ALREADY_KNOWN (OD-H5-M3): only the completion record is appended, Pitz is unchanged, and the
+ *   transient `hintOutcome` says so, after the request only.
+ * - Everything else (NOT_A_TARGET, STALE, INSUFFICIENT_PITZ, RESERVED_EMPTY_RUNG, LADDER_COMPLETE)
+ *   -> `null`: no Pitz, no fact and no new session state. An empty rung keeps the H5-1
+ *   RESERVED_EMPTY_RUNG semantics; OD-H5-P4 / P4b are undecided.
+ */
+export function requestHint5RungFact(
+  state: DiscoveryHintState,
+  expectedRungIndex: number,
+  enabled: boolean = HINT5_LADDER_ENABLED,
+): SelectableHintPatch | null {
+  if (!enabled) return null;
+  const session = state.hintSession;
+  if (!session || !isSessionTarget(state, session)) return null;
+  const count = discoveredCount(state.dex);
+  if (isHintOnboardingFree(count, session.targetId)) return null;
+  const stored = storedFactIds(state, session.targetId);
+  const result = requestHint5Rung({
+    recipeId: session.targetId,
+    discoveredCount: count,
+    storedFactIds: stored,
+    legacyPurchases: state.discoveryHintPurchases,
+    expectedRungIndex,
+    pitzBalance: state.pitzBalance,
+  });
+  if ((result.outcome !== "ANSWERED" && result.outcome !== "ALREADY_KNOWN") || !result.persist) return null;
+  const merged = [...stored, ...result.addFactIds.filter((id) => !stored.includes(id))];
+  const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
+  for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
+  ledger[session.targetId] = merged;
+  return {
+    pitzBalance: state.pitzBalance - result.charge,
+    discoveryHintFacts: ledger,
+    hintOutcome: result.outcome === "ALREADY_KNOWN" ? "HINT5_ALREADY_KNOWN" : null,
+  };
+}
+
+/**
+ * Discovery Hint 5.0 (H5-2): the ladder view model for the session target, or `null` when the flag is
+ * off, there is no DISCOVERABLE target, the target is the Dex-0 onboarding, or it is not a ladder
+ * target (fail closed; see `hint5LadderActive`). The hint sheet renders it (H5-3).
+ */
+export function hint5SheetView(state: DiscoveryHintState, enabled: boolean = HINT5_LADDER_ENABLED): Hint5Presentation | null {
+  if (!enabled) return null;
+  const session = state.hintSession;
+  if (!session || !isSessionTarget(state, session)) return null;
+  const count = discoveredCount(state.dex);
+  if (isHintOnboardingFree(count, session.targetId)) return null;
+  return hint5Presentation({
+    recipeId: session.targetId,
+    discoveredCount: count,
+    storedFactIds: storedFactIds(state, session.targetId),
+    legacyPurchases: state.discoveryHintPurchases,
+    pitzBalance: state.pitzBalance,
+  });
+}
+
+/**
+ * Discovery Hint 5.0 (H5-4): the ladder serves the open sheet (the flag is ON, the session has a
+ * DISCOVERABLE target, and it is not the Dex-0 onboarding). With this true and `hint5SheetView` null
+ * (a target outside the ladder), the sheet fails closed: nothing is offered, and never the retired
+ * 材料 / 構成 / 特徴 purchases (OD-H5-T-COV, OD-H5-RETIRE).
+ */
+export function hint5LadderActive(state: DiscoveryHintState, enabled: boolean = HINT5_LADDER_ENABLED): boolean {
+  if (!enabled) return false;
+  const session = state.hintSession;
+  if (!session || !isSessionTarget(state, session)) return false;
+  return !isHintOnboardingFree(discoveredCount(state.dex), session.targetId);
 }
 
 export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boolean = DEDUCTION_HINTS_ENABLED): HintSheetView {

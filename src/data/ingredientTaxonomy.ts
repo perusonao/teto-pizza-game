@@ -16,6 +16,9 @@
  * - Data-driven and population-agnostic: a future ingredient (105 / 172 population) adds one row.
  *   An ingredient without a row simply has no family (the guard answers at category level); it is
  *   never guessed. Technique Discovery will get its own table, not a family here.
+ * - Hint 5.0 (Issue #292, OD-H5-T-COV) reads the same rows, but does NOT coarsen: a hint-eligible
+ *   topping without exactly one family is not a Hint 5.0 target (../logic/discovery/hint5Ladder.ts),
+ *   and the gates in hint5Taxonomy.gate.test.ts keep that unreachable in production.
  *
  * Lookups go through a Map, so `__proto__` / `constructor` style ids have no effect.
  */

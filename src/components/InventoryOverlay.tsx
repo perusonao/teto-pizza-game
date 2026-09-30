@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { CATEGORY_LABEL, CATEGORY_ORDER, INGREDIENTS, type IngredientCategory } from "../data/ingredients";
+import { CATEGORY_LABEL, INGREDIENTS } from "../data/ingredients";
+import { filterByShelf, shelvesPresent, type ShelfFilter } from "../data/ingredientShelf";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { remainingStock, type InventoryState } from "../state/inventory";
 import { ingredientCollectionCount } from "../state/materialEntitlement";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { ShelfChips } from "./ShelfChips";
 
 /**
  * Inventory Screen (next phase after Issue #86 UX-2): a READ-ONLY view of "what do I currently
@@ -15,21 +17,15 @@ import { IngredientGlyph } from "./IngredientGlyph";
  *
  * Reuses the exact SSOT this game already has for stock (`remainingStock`, ../state/inventory.ts)
  * and ownership (`ownedIngredientIds`, threaded in as a prop from GameState) -- no second stock
- * calculation is invented here. Category grouping reuses `Ingredient.category` /
- * `CATEGORY_ORDER` / `CATEGORY_LABEL` (../data/ingredients.ts) rather than a hand-maintained id
- * list, so this stays correct as the catalog grows well past today's 14 ingredients (see the
- * Inventory Screen Result report's 30/62-ingredient scalability verification, mirroring Issue
- * #86's own IngredientTray scalability work).
+ * calculation is invented here. Each card's coarse category label still comes from
+ * `CATEGORY_LABEL` (../data/ingredients.ts); that is card metadata, not the filter.
+ *
+ * Ingredient Category Tabs 1.0 Phase 4: the filter is a display-only shelf chip row
+ * (../data/ingredientShelf.ts is the authority; ./ShelfChips.tsx the shared UI). The chips are
+ * derived from the OWNED rows this screen lists -- never from the catalog, the Shop entitlement
+ * or unbought (NEW) materials -- so a shelf with no owned ingredient has no chip, DOM node or
+ * text. No counts. The old 「すべて / ソース / チーズ / トッピング」 tabs are gone.
  */
-
-type CategoryTab = "ALL" | IngredientCategory;
-
-const TAB_ORDER: readonly CategoryTab[] = ["ALL", ...CATEGORY_ORDER];
-
-const TAB_LABEL: Record<CategoryTab, string> = {
-  ALL: "すべて",
-  ...CATEGORY_LABEL,
-};
 
 interface InventoryOverlayProps {
   ownedIngredientIds: readonly string[];
@@ -38,12 +34,17 @@ interface InventoryOverlayProps {
 }
 
 export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: InventoryOverlayProps) {
-  const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
+  const [activeShelf, setActiveShelf] = useState<ShelfFilter>("all");
 
   const owned = INGREDIENTS.filter((ingredient) => ownedIngredientIds.includes(ingredient.id));
   const collection = ingredientCollectionCount(ownedIngredientIds);
-  const visible =
-    activeTab === "ALL" ? owned : owned.filter((ingredient) => ingredient.category === activeTab);
+  const presentShelves = shelvesPresent(owned);
+  // A shelf that is no longer listed reads as 「すべて」 (derived while rendering: no setState in
+  // render or in an effect). The stored choice is only ever written by a chip tap.
+  const shelfFilter: ShelfFilter =
+    activeShelf === "all" || presentShelves.includes(activeShelf) ? activeShelf : "all";
+  const shownIds = new Set(filterByShelf(owned, shelfFilter).map((i) => i.id));
+  const visible = owned.filter((ingredient) => shownIds.has(ingredient.id));
 
   return (
     <div className="dex-overlay">
@@ -55,57 +56,53 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
           </button>
         </div>
 
-        <div className="dex-overlay__body">
+        <div className="dex-overlay__body inventory-overlay__body">
           <p className="inventory-overlay__summary">
             所持 {collection.owned}/{collection.total}種
           </p>
 
-          <div className="inventory-tabs" role="tablist" aria-label="材料カテゴリ">
-            {TAB_ORDER.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab}
-                className={`inventory-tab ${activeTab === tab ? "inventory-tab--active" : ""}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {TAB_LABEL[tab]}
-              </button>
-            ))}
+          <div className="inventory-overlay__shelves">
+            <ShelfChips
+              shelves={presentShelves}
+              active={shelfFilter}
+              onChange={setActiveShelf}
+              ariaLabel="材料の分類"
+            />
           </div>
 
-          {visible.length === 0 && (
-            <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
-          )}
+          <div className="inventory-overlay__list" role="region" aria-label="材料一覧" tabIndex={0}>
+            {visible.length === 0 && (
+              <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
+            )}
 
-          {visible.length > 0 && (
-            <div className="inventory-grid">
-              {visible.map((ingredient) => {
-                const stock = remainingStock(ingredient, inventory);
-                return (
-                  <div key={ingredient.id} className="inventory-card">
-                    {ingredient.category === "cheese" ? (
-                      <span className="inventory-card__cheese-slot">
-                        <IngredientPieceVisual ingredient={ingredient} />
+            {visible.length > 0 && (
+              <div className="inventory-grid">
+                {visible.map((ingredient) => {
+                  const stock = remainingStock(ingredient, inventory);
+                  return (
+                    <div key={ingredient.id} className="inventory-card">
+                      {ingredient.category === "cheese" ? (
+                        <span className="inventory-card__cheese-slot">
+                          <IngredientPieceVisual ingredient={ingredient} />
+                        </span>
+                      ) : (
+                        <span className="inventory-card__emoji">
+                          <IngredientGlyph ingredient={ingredient} />
+                        </span>
+                      )}
+                      <span className="inventory-card__name">{ingredient.nameJa}</span>
+                      <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
+                      <span
+                        className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
+                      >
+                        {stock === "UNLIMITED" ? "∞" : `×${stock}`}
                       </span>
-                    ) : (
-                      <span className="inventory-card__emoji">
-                        <IngredientGlyph ingredient={ingredient} />
-                      </span>
-                    )}
-                    <span className="inventory-card__name">{ingredient.nameJa}</span>
-                    <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
-                    <span
-                      className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
-                    >
-                      {stock === "UNLIMITED" ? "∞" : `×${stock}`}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -39,14 +39,14 @@ describe("prepareDockReserve", () => {
     const r = recipe("margherita");
     expect(
       prepareDockReserve({ steps: steps(r), ownedIngredientIds: ALL_OWNED, freeCook: false, recipe: r, sauceReadout: true }),
-    ).toEqual({ sauceRows: 1, otherRows: 1, pager: false, readout: true });
+    ).toEqual({ sauceRows: 1, otherRows: 1, pager: false, pantryWorthwhile: true, utilityRow: false, readout: true });
   });
 
   it("the readout is reserved only when the SAUCE step shows it (Lunch Rush has none)", () => {
     const r = recipe("pizza-portuguesa");
     expect(
       prepareDockReserve({ steps: steps(r), ownedIngredientIds: ALL_OWNED, freeCook: false, recipe: r, sauceReadout: false }),
-    ).toEqual({ sauceRows: 1, otherRows: 2, pager: false, readout: false });
+    ).toEqual({ sauceRows: 1, otherRows: 2, pager: false, pantryWorthwhile: true, utilityRow: false, readout: false });
   });
 
   it("free cook with more than one page of toppings: two rows and the pager row in every step", () => {
@@ -69,7 +69,7 @@ describe("prepareDockReserve", () => {
     const r = recipe("margherita");
     expect(
       prepareDockReserve({ steps: ["DOUGH"], ownedIngredientIds: ALL_OWNED, freeCook: false, recipe: r, sauceReadout: true }),
-    ).toEqual({ sauceRows: 0, otherRows: 0, pager: false, readout: false });
+    ).toEqual({ sauceRows: 0, otherRows: 0, pager: false, pantryWorthwhile: false, utilityRow: false, readout: false });
   });
 
   it("covers every step of every shipped guided recipe with owned materials (never fewer rows than the tray shows)", () => {
@@ -83,5 +83,67 @@ describe("prepareDockReserve", () => {
         expect(step === "SAUCE" ? reserve.sauceRows : reserve.otherRows, `${id} ${step}`).toBeGreaterThanOrEqual(shown);
       }
     }
+  });
+});
+
+describe("prepareDockReserve utilityRow / pantryWorthwhile (LC-R5-a, OD-R5-10)", () => {
+  const counts = Array.from({ length: 23 }, (_, n) => n);
+  const ownedOf = (n: number) => [
+    ...ingredientsByCategory("sauce").slice(0, 3).map((i) => i.id),
+    ...ingredientsByCategory("cheese").slice(0, 3).map((i) => i.id),
+    ...ingredientsByCategory("topping").slice(0, n).map((i) => i.id),
+  ];
+  const r = recipe("margherita");
+
+  it("eligible FREE round: pantryWorthwhile === pager and utilityRow === pager for 0..22 owned toppings (layout Δ0)", () => {
+    for (const n of counts) {
+      const reserve = prepareDockReserve({
+        steps: steps(r),
+        ownedIngredientIds: ownedOf(n),
+        freeCook: true,
+        recipe: r,
+        sauceReadout: false,
+        largeCatalogEligible: true,
+      });
+      expect(reserve.pantryWorthwhile, `n=${n}`).toBe(reserve.pager);
+      expect(reserve.utilityRow, `n=${n}`).toBe(reserve.pager);
+    }
+  });
+
+  it("not eligible (guided / Lunch Rush / Dinner tray): utilityRow === pager even with > 6 owned toppings", () => {
+    for (const freeCook of [false, true]) {
+      for (const n of counts) {
+        for (const largeCatalogEligible of [false, undefined]) {
+          const reserve = prepareDockReserve({
+            steps: steps(r),
+            ownedIngredientIds: ownedOf(n),
+            freeCook,
+            recipe: r,
+            sauceReadout: false,
+            ...(largeCatalogEligible === undefined ? {} : { largeCatalogEligible }),
+          });
+          expect(reserve.utilityRow, `freeCook=${freeCook} n=${n}`).toBe(reserve.pager);
+        }
+      }
+    }
+    // The isolation case: guided, 12 owned, recipe-limited tray => no pager, no utility row, but ownership is worthwhile.
+    const guided = prepareDockReserve({ steps: steps(r), ownedIngredientIds: ownedOf(12), freeCook: false, recipe: r, sauceReadout: false });
+    expect(guided.pager).toBe(false);
+    expect(guided.pantryWorthwhile).toBe(true);
+    expect(guided.utilityRow).toBe(false);
+  });
+
+  it("pantryWorthwhile ignores the recipe-limited tray (ownership, not what the tray offers)", () => {
+    const guided = prepareDockReserve({ steps: steps(r), ownedIngredientIds: ownedOf(12), freeCook: false, recipe: r, sauceReadout: false });
+    const free = prepareDockReserve({ steps: steps(r), ownedIngredientIds: ownedOf(12), freeCook: true, recipe: r, sauceReadout: false });
+    expect(guided.pantryWorthwhile).toBe(free.pantryWorthwhile);
+  });
+
+  it("the existing reservation fields are unchanged by the split", () => {
+    const eligible = prepareDockReserve({ steps: steps(r), ownedIngredientIds: ownedOf(12), freeCook: true, recipe: r, sauceReadout: true, largeCatalogEligible: true });
+    const plain = prepareDockReserve({ steps: steps(r), ownedIngredientIds: ownedOf(12), freeCook: true, recipe: r, sauceReadout: true });
+    const { pantryWorthwhile: _a, utilityRow: _b, ...e } = eligible;
+    const { pantryWorthwhile: _c, utilityRow: _d, ...p } = plain;
+    expect(e).toEqual(p);
   });
 });

@@ -1726,6 +1726,19 @@
   color: #6b5a48;
 }
 
+/* Original Pizza Recovery P3-3b: the duplicate notice under the P2 row -- one small static line, secondary to the
+   result (same scale as the note below it, a touch heavier so it reads as information, not fine print). */
+.original-pizza__trial-notice {
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  color: #5a4632;
+}
+
 /* Discovery Hint 2.0 (#229 229-C): the Free Cooking RESULT's one secondary "おしい" row -- the
    generic near-miss line and the 「💡 ヒントを見る」 CTA. Compact and secondary to the result:
    one wrapped line plus a small pill, never a second headline. */
@@ -2756,30 +2769,47 @@
   line-height: 1.4;
 }
 
-/* Visual Polish 1C: mirrors .inventory-tabs/.inventory-tab's own established ALL+category
-   filter styling (InventoryOverlay.tsx) so Shop and Inventory share the same visual "mental
-   model" for category filtering, without the two overlays sharing a component. */
-.shop-filter-tabs {
+/* Ingredient Category Tabs 1.0 Phase 3: the shared shelf chip row (ShelfChips.tsx). One
+   horizontally scrolling row, never wraps; only the row scrolls, not the page. 44px targets,
+   14px text. Used by the Shop (Phase 3) and Ingredients (Phase 4). */
+.shelf-chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex: 0 0 auto; /* the overlay body is a column flexbox: never let a long list squash the row */
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
 }
 
-.shop-filter-tab {
+.shelf-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.shelf-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
   border: 2px solid #e6d3a3;
   background: #fff8ea;
   color: #8a6a45;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   border-radius: 999px;
-  padding: 6px 12px;
-  min-height: 32px;
+  padding: 0 12px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
-.shop-filter-tab--active {
+.shelf-chip--active {
   background: #f2b705;
-  border-color: #f2b705;
+  border-color: #b98700;
   color: #4a2e0a;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
 }
 
 .shop-overlay__list {
@@ -2946,35 +2976,40 @@
 }
 
 /* ---------- Inventory Screen (read-only stock view) ---------- */
+/* Fixed-height modal: the panel takes its full shell ceiling (the same viewport-derived value as
+   .dex-overlay__panel's max-height) so filtering to few/one card never resizes it. Summary and
+   ShelfChips stay pinned; only .inventory-overlay__list scrolls. */
+.inventory-overlay__panel {
+  height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+}
+
+.inventory-overlay__body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+.inventory-overlay__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .inventory-overlay__summary {
+  flex: 0 0 auto;
   font-size: 12px;
   font-weight: 700;
   color: #6b4226;
   margin-bottom: 10px;
 }
 
-.inventory-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+/* Ingredient Category Tabs 1.0 Phase 4: spacing around the shared ShelfChips row (which carries
+   no outer margin of its own). The body is a block scroller, so the row cannot be squashed. */
+.inventory-overlay__shelves {
+  flex: 0 0 auto;
   margin-bottom: 12px;
-}
-
-.inventory-tab {
-  border: 2px solid #e6d3a3;
-  background: #fff8ea;
-  color: #8a6a45;
-  font-weight: 700;
-  font-size: 12px;
-  border-radius: 999px;
-  padding: 6px 12px;
-  min-height: 32px;
-}
-
-.inventory-tab--active {
-  background: #f2b705;
-  border-color: #f2b705;
-  color: #4a2e0a;
 }
 
 .inventory-overlay__empty {
@@ -5327,7 +5362,7 @@ p.hint-sheet__step {
   }
 }
 
-/* H3-4 (OD-H3-4-7): the Selectable body scrolls inside the 45dvh sheet. Fades + a chevron show
+/* H3-4 (OD-H3-4-7): the Selectable body scrolls inside the sheet. Fades + a chevron show
    that more is below / above; they never take layout space and never catch taps. */
 .hint-sheet__scroll {
   position: relative;
@@ -5429,6 +5464,274 @@ p.hint-sheet__step {
   border-color: #d9822b;
   background: #ffe7b0;
   font-weight: 700;
+}
+
+/* Discovery Hint 4.0 DH4-2C (Issue #253, OD-DH4-2-6..8): the U3-C Selectable sheet. OD-DH4-2-7
+   supersedes the 45dvh cap (OD-H3-4-7): a near-full-screen sheet on mobile, up to the safe-area top
+   plus 56px so the app header stays visible (audit §12), `height: auto` so a short board stays
+   short. The header and the compact footer (「ヒントをもらう」 + the Pitz line) never scroll;
+   「わかっていること」 is the one scroll area, with a labelled cue when more is below. The family
+   panel replaces board + footer while it is open. Every control is >= 44px tall. */
+.hint-sheet.hint-sheet--u3 {
+  max-height: calc(100vh - 56px);
+  max-height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.hint-sheet--u3 .hint-sheet__close {
+  min-height: 44px;
+  min-width: 64px;
+}
+
+.hint-sheet__caption {
+  flex: none;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b4a2b;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__board {
+  gap: 8px;
+}
+
+.hint-sheet__board-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #3d2a16;
+}
+
+.hint-sheet__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f3e6c8;
+}
+
+.hint-sheet__section-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8a5a1c;
+}
+
+.hint-sheet--u3 .hint-sheet__rows {
+  gap: 4px;
+}
+
+.hint-sheet__fact-line {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #3d2a16;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet--u3 .hint-sheet__scroll-cue {
+  left: 50%;
+  right: auto;
+  bottom: 4px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #fff4d6;
+  box-shadow: 0 1px 4px rgba(61, 42, 22, 0.18);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hint-sheet--u3 .hint-sheet__footer--selectable {
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #ecd9ae;
+}
+
+.hint-sheet__entry {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffc15e, #f39a1e);
+  color: #3d2a16;
+}
+
+.hint-sheet__pref input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hint-sheet__pref:focus-within {
+  outline: 2px solid #d9822b;
+  outline-offset: 1px;
+}
+
+.hint-sheet__fact-line--new {
+  border-radius: 6px;
+  background: #ffe7b0;
+}
+
+/* The transient 「ヒントをもらう」 step: it replaces the board and the footer. The cards scroll, with
+   the labelled cue, when a short viewport needs it (flag on: 390x664 / 360x640 + safe area). */
+.hint-sheet__panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hint-sheet__panel-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hint-sheet__back {
+  flex: none;
+  min-height: 44px;
+  min-width: 64px;
+  padding: 0 10px;
+  border: 2px solid #e0c48f;
+  border-radius: 12px;
+  background: #fffaf0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3d2a16;
+  cursor: pointer;
+}
+
+.hint-sheet__panel-title {
+  margin: 0;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #3d2a16;
+}
+
+.hint-sheet__cards {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hint-sheet__panel .hint-sheet__next {
+  min-height: 44px;
+  padding: 8px 16px;
+}
+
+.hint-sheet__panel > .hint-sheet__wallet {
+  flex: none;
+}
+
+.hint-sheet__card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid #ecd9ae;
+  background: #fffaf0;
+}
+
+.hint-sheet__card-title {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #3d2a16;
+}
+
+.hint-sheet__card-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b4a2b;
+}
+
+.hint-sheet__card-note,
+.hint-sheet__outcome {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b4a2b;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__outcome {
+  font-weight: 700;
+  color: #3d2a16;
+}
+
+/* Discovery Hint 5.0 H5-3 (Issue #292): the linear ladder body. It reuses the U3-C board / footer;
+   only the longer row labels, the class chip and the one next-rung card are new. */
+.hint-sheet__row--h5 .hint-sheet__row-label {
+  width: 8em;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__chip--class {
+  background: #fff4d6;
+  font-weight: 700;
+}
+
+.hint-sheet__class-symbol {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* H5-4 (round 6): the 「なし」 answer of a bought empty cheese / key rung. A plain chip with no glyph. */
+.hint-sheet__chip--none {
+  background: #f1ebe0;
+  color: #5b4630;
+  font-weight: 700;
+}
+
+.hint-sheet__legacy-chips {
+  margin: 4px 0 0;
+}
+
+.hint-sheet__h5-next {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__h5-next .hint-sheet__card-title {
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__h5-known {
+  text-align: center;
+}
+
+.hint-sheet--u3 .hint-sheet__prefs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.hint-sheet--u3 .hint-sheet__pref {
+  position: relative;
+  font-size: 12px;
+  padding: 2px 4px;
 }
 
 /* ---------- Dinner Mission DM-3 (Issue #242) ----------
@@ -5928,4 +6231,375 @@ p.hint-sheet__step {
 .dinner-abandon .secondary-button {
   width: 100%;
   min-height: 44px;
+}
+
+/* Keyboard scroll: the list is the only scroller, so it is focusable (tabIndex 0); keep a visible ring. */
+.inventory-overlay__list:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: -2px;
+}
+
+/* ---------- Large Catalog UX LC-R3: the 食材庫 entry and pantry sheet SHELL ----------
+   Entry: a sibling inside the EXISTING pager row (28px, margin-top 6 = the reserved 34px), pinned to the
+   row's left edge so the centred pager does not move. No new row, no height change: the pizza stage keeps
+   its size. The visual button is 28px; an ::after extends the hit area to 44px: 8px below (exactly the fixed
+   spacer above the bake bar, which sits on top of anything beyond it) and 8px above (the 6px row margin plus
+   2px into the bottom edge of the first chip column: the only way to reach 44px without adding height). */
+.ingredient-page-nav--with-entry {
+  position: relative;
+}
+
+.ingredient-page-nav__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* One page: the row keeps its placeholder semantics (invisible, inert pager) but the entry stays visible and
+   tappable; the fake pager inside stays aria-hidden. */
+.ingredient-page-nav--with-entry.ingredient-page-nav--placeholder .pantry-entry {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.pantry-entry {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 28px;
+  min-width: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: #e6d5ae;
+  color: #6b4226;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pantry-entry::after {
+  content: "";
+  position: absolute;
+  inset: -8px -4px -8px -4px;
+}
+
+.pantry-entry:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: 1px;
+}
+
+/* Pantry sheet: fixed to the viewport in the same centred column as the hint sheet (so opening it moves
+   nothing behind it), above the bake bar (10) at the shared modal level (25). PR #304 stable-height
+   contract: ONE outer height whatever the row count (never `auto`), pinned header, a single scroll list,
+   page / body never scroll, content ends above the home-indicator inset.
+   LC-R5-b (OD-R5-5): the baseline height is the shell ceiling (the same value as Inventory / Dex), no longer 70dvh
+   (a real iPhone needs the room for search + chips); the value is confirmed by the four-viewport measurement in
+   docs/reports/TETO_LARGE-CATALOG-UX_LC-R5b_*_Result.md. */
+.pantry-sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.35);
+  z-index: 25;
+}
+
+.pantry-sheet {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 390px;
+  height: calc(100vh - 20px);
+  height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #fff8ea;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.pantry-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+
+.pantry-sheet__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.pantry-sheet__close {
+  border: none;
+  background: #e6d5ae;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pantry-sheet__subtitle {
+  flex: none;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+.pantry-sheet__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pantry-sheet__list:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: -2px;
+}
+
+.pantry-sheet__empty {
+  margin: 0;
+  padding: 12px 4px;
+  font-size: 12px;
+  color: #8a6a45;
+}
+
+.pantry-sheet__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.pantry-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 6px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.pantry-tile__emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.pantry-tile__cheese-slot {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pantry-tile__name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a2e0a;
+  line-height: 1.2;
+}
+
+.pantry-tile__stock {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4c9a2a;
+}
+
+.pantry-tile__stock--zero {
+  color: #b4432f;
+  opacity: 0.75;
+}
+
+/* ---------- Large Catalog UX LC-R4: shelf chips inside the pantry sheet ----------
+   A fixed (non-scrolling) slot between the subtitle and the list: the sheet's outer height is unchanged (it is
+   never `auto`), the chip row never wraps or grows (ShelfChips scrolls itself horizontally), and only
+   .pantry-sheet__list absorbs the height. Spacing comes from the sheet's own 8px gap. */
+.pantry-sheet__shelves {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* ---------- Large Catalog UX LC-R5-b: pantry search field + Mode C keyboard fit ----------
+   The search row is a fixed (non-scrolling) slot between the subtitle and the chips, present only while the
+   category has more owned rows than one tray page. 16px text (iOS does not zoom a >=16px field on focus), 44px
+   tall field and clear button. The native cancel button is hidden (the sheet has its own ✕). */
+.pantry-sheet__search {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.pantry-sheet__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  border: 2px solid #e6d5ae;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 16px;
+  color: #4a2e0a;
+  background: #fffdf7;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pantry-sheet__search-input::-webkit-search-cancel-button,
+.pantry-sheet__search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.pantry-sheet__search-input:focus-visible {
+  outline: 2px solid #c08a3e;
+  outline-offset: 1px;
+}
+
+.pantry-sheet__search-clear {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #e6d5ae;
+  font-size: 16px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+/* Mode C (only while `usePantryViewportFit` publishes the visual viewport, i.e. the soft keyboard is up or the field
+   is focused): follow the VISUAL viewport, never grow past the ceiling, keep the safe-area top and an 8px margin,
+   and sit on the visual viewport's bottom edge. Without the class (no visualViewport / abnormal values) the plain
+   ceiling above applies unchanged. No transition: the keyboard animates by itself. */
+.pantry-sheet.pantry-sheet--fit {
+  height: min(
+    calc(100dvh - env(safe-area-inset-top, 0px) - 20px),
+    calc(var(--pantry-vv-h) - env(safe-area-inset-top, 0px) - 8px)
+  );
+  bottom: var(--pantry-vv-bottom, 0px);
+}
+
+/* ---------- Large Catalog UX LC-R5-c: dormant pin UI (方式 D; rendered only with `handEditing`, i.e. not before R6) ----------
+   Nothing below matches the production (R5-b) DOM: the tile toggle, badge and 「選択中」 strip exist only when pin
+   editing is on. The strip is a fixed, horizontally scrolling slot above the list (the list absorbs its height);
+   while the sheet is keyboard-fitted (Mode C) it is hidden (OD-R5c-2 / -3) and the tile badge + aria-pressed stay. */
+.pantry-tile--editable {
+  position: relative;
+  padding: 0;
+}
+
+.pantry-tile__toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+}
+
+.pantry-tile__toggle--pinned {
+  border-color: #c08a3e;
+  background: #fff3d6;
+}
+
+.pantry-tile__toggle[aria-disabled="true"] {
+  opacity: 0.6;
+}
+
+.pantry-tile__no-stock {
+  font-size: 10px;
+  font-weight: 800;
+  color: #b4432f;
+}
+
+.pantry-tile__pin-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.pantry-sheet__pins {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 44px;
+}
+
+.pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {
+  display: none;
+}
+
+.pantry-sheet__pins-label {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.pantry-sheet__pins-scroll {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.pantry-pin {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 999px;
+  background: #fff3d6;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a2e0a;
+}
+
+.pantry-sheet__pins-reset {
+  flex: none;
+  min-height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: #e6d5ae;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b4226;
 }

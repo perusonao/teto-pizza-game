@@ -60,9 +60,9 @@ describe("classifyNearMiss -- classes (T-6 / T-7 / T-8)", () => {
   });
 
   it("T-8 tomato + mozzarella + cherry tomato vs genovese -> SAUCE_ONLY", () => {
-    expect(near(["tomato-sauce", "mozzarella", "cherry-tomato"], ["genovese"])).toEqual({ kind: "SAUCE_ONLY", distance: 1 });
-    // No sauce at all is a sauce mismatch too.
-    expect(near(["mozzarella", "cherry-tomato"], ["genovese"])).toEqual({ kind: "SAUCE_ONLY", distance: 1 });
+    expect(near(["tomato-sauce", "mozzarella", "cherry-tomato"], ["genovese"])).toEqual({ kind: "SAUCE_ONLY", distance: 1, sauceStep: "CHANGE" });
+    // No sauce at all is a sauce mismatch too (P2: its step is ADD, so the line never says "change").
+    expect(near(["mozzarella", "cherry-tomato"], ["genovese"])).toEqual({ kind: "SAUCE_ONLY", distance: 1, sauceStep: "ADD" });
   });
 
   it("d=2 -> CLOSE (two missing / swap / sauce + one)", () => {
@@ -101,14 +101,15 @@ describe("classifyNearMiss -- candidates, ties and parity (T-10 / T-11)", () => 
     expect(classifyNearMiss(sig, [late, early], options)).toEqual({ kind: "ADD_ONE", distance: 1 });
   });
 
-  it("T-10 synthetic duplicate identity (AMBIGUOUS for the matcher): exact -> null, near -> one class", () => {
+  it("T-10 synthetic duplicate identity (AMBIGUOUS for the matcher): exact -> null, near -> null (P2: unreachable, never a line)", () => {
     const a = fake("dup-a", ["tomato-sauce", "mozzarella", "egg"]);
     const b = fake("dup-b", ["tomato-sauce", "egg", "mozzarella"]);
     const options = { catalog: catalogOf([a, b]), recipes: [a, b] };
     const exact = signatureOfPizza(pizzaOf(["tomato-sauce", "mozzarella", "egg"]));
     expect(matchDiscovery(exact, options.catalog.map((t) => ({ ...t, targetId: t.recipeId, capabilities: [], identityDimensions: RECIPE_DISCOVERY_CATALOG[0].identityDimensions, eligibility: { status: "ELIGIBLE" as const } }))).kind).toBe("AMBIGUOUS");
     expect(classifyNearMiss(exact, [a, b], options)).toBeNull();
-    expect(classifyNearMiss(signatureOfPizza(pizzaOf(["tomato-sauce", "mozzarella"])), [a, b], options)).toEqual({ kind: "ADD_ONE", distance: 1 });
+    // P2 hardening: "add one" toward a colliding pair would end as AMBIGUOUS again, so it is no candidate.
+    expect(classifyNearMiss(signatureOfPizza(pizzaOf(["tomato-sauce", "mozzarella"])), [a, b], options)).toBeNull();
   });
 
   it("T-11 a DISCOVERED recipe is never a candidate: its exact set reads as near-miss to the DISCOVERABLE one", () => {
@@ -140,7 +141,7 @@ describe("classifyNearMiss -- candidates, ties and parity (T-10 / T-11)", () => 
       for (const r of RECIPES) {
         const result = near(ids, [r.id]);
         if (!result) continue;
-        expect(Object.keys(result).every((k) => ["kind", "distance", "keyUnused"].includes(k))).toBe(true);
+        expect(Object.keys(result).every((k) => ["kind", "distance", "keyUnused", "sauceStep"].includes(k))).toBe(true);
         const json = JSON.stringify(result);
         for (const s of strings) expect(json).not.toContain(`"${s}"`);
       }

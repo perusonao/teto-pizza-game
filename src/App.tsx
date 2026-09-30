@@ -18,7 +18,7 @@ import type { CutLine } from "./logic/cut/types";
 import { isDuplicateCutLine } from "./logic/cut/geometry";
 import type { SauceDeposit } from "./state/pizzaState";
 import { RECIPES, type RecipeId } from "./data/recipes";
-import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
+import { getIngredient, STARTER_INGREDIENT_IDS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
 import {
@@ -27,6 +27,7 @@ import {
   type GameState,
   type MakingStep,
 } from "./state/gameReducer";
+import { remainingStock } from "./state/inventory";
 import { isHintSheetVisible } from "./state/discoveryHint";
 import {
   loadSave,
@@ -35,6 +36,7 @@ import {
   persistMissionBest,
   resetSave,
 } from "./state/persistence";
+import { initialTechniqueLedger } from "./logic/techniques/runtime";
 import { ingredientCollectionCount, newShopMaterialCount, resolveShopEntitlement } from "./state/materialEntitlement";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
@@ -61,7 +63,14 @@ import {
 } from "./mission/dinner/dinnerMission";
 import { dinnerStartBlock } from "./mission/dinner/dinnerRun";
 import type { QualityStars } from "./logic/scoring";
+import { runtimeCatalog } from "./logic/catalog/catalogSource";
+import { DEFAULT_HAND_CAPACITY_CANDIDATE } from "./logic/catalog/handPolicy";
+import { emptyHandSession, type HandSession } from "./logic/catalog/handSession";
+import { handTrayTransition, pinFitsHand, resolveTrayHandIds, type TrayHandInput } from "./logic/catalog/handTray";
 import "./App.css";
+
+/** LC-R5-d: the catalog descriptors the dormant tray hand reads (ids / category / order only). */
+const HAND_CATALOG = runtimeCatalog();
 
 const MISSION_TICK_MS = 250;
 
@@ -189,6 +198,12 @@ function App() {
       entitlement.unlockedForShopIngredientIds,
       save.discoveryHintPurchases,
       save.discoveryHintFacts,
+      // DM-4-3: the Dinner records, blocked (broken) missions included, so a settlement can never
+      // mistake a broken record for "no record".
+      save.dinnerMissionRecordsState,
+      // Cooking Techniques TQ-1C: the technique ledger (known ids), repaired at load so every
+      // technique a discovered recipe requires is present (INV-TQ-1). A no-op for today's saves.
+      initialTechniqueLedger(save.discoveredTechniqueIds, save.dex),
     );
   });
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
@@ -215,6 +230,11 @@ function App() {
   // primary sauce already picked" behavior (unchanged) now fires from the `lastMakingStep`
   // sync below, the moment the round actually reaches SAUCE, instead of at round start.
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
+  // Large Catalog UX LC-R5-c (OD-R5-9): the hand pins are App-level and session-only. Unlike the selection above
+  // they are NOT reset on a round change, a making-step change, HOME, a FREE restart or a Dinner run; a reload /
+  // app restart (and so Full Game Reset, which reloads) starts empty. Never saved, never in GameState. The only
+  // writer is the pantry's pin editing, which stays dormant until R6 (`HAND_ENFORCEMENT_ENABLED`).
+  const [handSession, setHandSession] = useState<HandSession>(emptyHandSession);
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
@@ -316,6 +336,50 @@ function App() {
     setCutRejectionMessage(null);
   }
 
+  // Large Catalog UX LC-R5-d (DORMANT): the hand as the Builder tray shows it. `resolveTrayHandIds` is `null` while
+  // `HAND_ENFORCEMENT_ENABLED` is false (and for every non-FREE round, DOUGH, and an inactive hand), so in production
+  // the tray keeps its current list and nothing below runs or writes state. When the hand is on, an ACTUAL change of
+  // the catalog-ordered list (a priority-only reorder is not one) sends the tray to page 0 (the tray does that in its
+  // own render) and keeps `selectedIngredientId` only if it is on the new page 0 (#197 / OD-R5d-1). Derived during
+  // render like `lastRoundKey` / `lastMakingStep` above: no effect, no stale frame, no double clear. A different key
+  // (round or step change) is not a hand change: the resets above already own that.
+  const trayCategory =
+    state.phase === "PREPARE" && (state.makingStep === "SAUCE" || state.makingStep === "CHEESE" || state.makingStep === "TOPPING")
+      ? activeCategory
+      : null;
+  const trayHandInput: TrayHandInput = {
+    round: state,
+    category: trayCategory,
+    catalog: HAND_CATALOG,
+    ownership: {
+      ownedIds: state.ownedIngredientIds,
+      stock: (id) => {
+        const ingredient = getIngredient(id);
+        return ingredient ? remainingStock(ingredient, state.inventory) : 0;
+      },
+    },
+    session: handSession,
+    placedIds: [...new Set([...state.pizza.sauceIds, ...state.pizza.toppings.map((t) => t.ingredientId)])],
+    starterIds: STARTER_INGREDIENT_IDS,
+    candidateCapacity: DEFAULT_HAND_CAPACITY_CANDIDATE,
+  };
+  const trayHandIds = resolveTrayHandIds(trayHandInput);
+  const trayHandKey = `${roundKey}|${activeCategory}`;
+  const [trayHandTrack, setTrayHandTrack] = useState<{ key: string; ids: readonly string[] } | null>(null);
+  if (trayHandIds === null) {
+    if (trayHandTrack !== null) setTrayHandTrack(null);
+  } else if (trayHandTrack === null || trayHandTrack.key !== trayHandKey || trayHandTrack.ids.join("|") !== trayHandIds.join("|")) {
+    setTrayHandTrack({ key: trayHandKey, ids: trayHandIds });
+    if (trayHandTrack !== null && trayHandTrack.key === trayHandKey) {
+      const next = handTrayTransition({ before: trayHandTrack.ids, after: trayHandIds, selectedIngredientId });
+      if (next.selectedIngredientId !== selectedIngredientId) setSelectedIngredientId(next.selectedIngredientId);
+    }
+  }
+  const trayHand = {
+    ids: trayHandIds,
+    pinFits: (candidate: HandSession, id: string) => pinFitsHand(trayHandInput, candidate, id),
+  };
+
   // Cancels any still-pending auto-clear timeout from a rejection shown *before* this step
   // change, so it can never fire later and clear a different, freshly-shown rejection message
   // from a subsequent CUT attempt. Pure cleanup, no `setState` call -- kept in its own effect
@@ -344,7 +408,7 @@ function App() {
   // src/state/persistence.ts). `missionBest` is a separate concern, saved by its own effect
   // below.
   useEffect(() => {
-    persistProgress({
+    const persisted = persistProgress({
       dex: state.dex,
       pitzBalance: state.pitzBalance,
       ownedIngredientIds: state.ownedIngredientIds,
@@ -353,7 +417,21 @@ function App() {
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       discoveryHintPurchases: state.discoveryHintPurchases,
       discoveryHintFacts: state.discoveryHintFacts,
+      // TQ-1C: saved in the same write as the Dex it came with (a union: never lowered, and ids a
+      // newer build wrote are kept by the write's forward-compat merge).
+      discoveredTechniqueIds: state.discoveredTechniqueIds,
+      // DM-4-3: a Dinner CLEAR changes `pitzBalance` and a record in the same reducer step, so they
+      // arrive here together and are written in one save write. `requireDinnerRecords`: if a record
+      // cannot be stored (its mission became blocked in storage underneath), nothing is written --
+      // never the payout without its record.
+      dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
+      requireDinnerRecords: true,
     });
+    // Refused (nothing was written): reconcile memory with storage -- the missions become blocked,
+    // an unsaved payout is reverted, and the next save (without those records) goes through.
+    if (persisted.refusedDinnerMissionIds.length > 0) {
+      dispatch({ type: "DINNER_RECORDS_REFUSED", missionIds: persisted.refusedDinnerMissionIds });
+    }
   }, [
     state.dex,
     state.pitzBalance,
@@ -363,6 +441,8 @@ function App() {
     state.unlockedForShopIngredientIds,
     state.discoveryHintPurchases,
     state.discoveryHintFacts,
+    state.discoveredTechniqueIds,
+    state.dinnerMissionRecordsState,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
@@ -1101,6 +1181,9 @@ function App() {
           missionBestAtStartOfRun={missionBestAtStartOfRun}
           activeCategory={activeCategory}
           selectedIngredientId={selectedIngredientId}
+          handSession={handSession}
+          onHandSessionChange={setHandSession}
+          trayHand={trayHand}
           bakeProgress={bakeProgress}
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
@@ -1121,9 +1204,10 @@ function App() {
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onUnlockHint={(level) => dispatch({ type: "PURCHASE_DISCOVERY_HINT", level })}
-          onBuySelectableHint={(preference, expectedPaidCount) =>
-            dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount })
+          onBuySelectableHint={(preference, expectedPaidCount, family) =>
+            dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount, ...(family && family !== "material" ? { family } : {}) })
           }
+          onBuyHint5Rung={(expectedRungIndex) => dispatch({ type: "PURCHASE_HINT5_RUNG", expectedRungIndex })}
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}

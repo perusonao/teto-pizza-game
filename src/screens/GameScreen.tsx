@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
+import { IngredientPantry } from "../components/IngredientPantry";
 import { IngredientTray } from "../components/IngredientTray";
+import { isLargeCatalogEligible } from "../logic/catalog/freeEligibility";
+import { HAND_ENFORCEMENT_ENABLED } from "../logic/catalog/handPolicy";
+import type { HandSession } from "../logic/catalog/handSession";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
@@ -32,8 +36,8 @@ import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
-import { HintSheet } from "../components/HintSheet";
-import { hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { HintSheet, type HintFamily } from "../components/HintSheet";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
@@ -97,6 +101,14 @@ interface GameScreenProps {
   missionBestAtStartOfRun: number;
   activeCategory: IngredientCategory;
   selectedIngredientId: string | null;
+  /** LC-R5-c: the App-level, session-only pins (OD-R5-9). GameScreen only relays them to the pantry. */
+  handSession?: HandSession;
+  /** LC-R5-c: the App-level pin writer (an updater). Reached only when pin editing is on (not before R6). */
+  onHandSessionChange?: (update: (previous: HandSession) => HandSession) => void;
+  /** LC-R5-d (dormant): the Builder tray's hand ids in catalog order, or `null` = today's tray (always `null` while
+   *  `HAND_ENFORCEMENT_ENABLED` is false, for every non-FREE round and when the hand is inactive), and the Model C
+   *  pin-fit rule for the pantry. Computed once in App; GameScreen only relays. */
+  trayHand?: { ids: readonly string[] | null; pinFits?: (candidate: HandSession, id: string) => boolean };
   bakeProgress: number | null;
   referenceModeEnabled: boolean;
   referencePizza: ReferencePizza | null;
@@ -130,7 +142,9 @@ interface GameScreenProps {
   /** HE-2: unlock hint `level` (PURCHASE_DISCOVERY_HINT). */
   onUnlockHint?: (level: number) => void;
   /** H3-3: buy one Selectable Hint fact (PURCHASE_SELECTABLE_HINT). */
-  onBuySelectableHint?: (preference: HintCategory, expectedPaidCount: number) => void;
+  onBuySelectableHint?: (preference: HintCategory, expectedPaidCount: number, family?: HintFamily) => void;
+  /** Hint 5.0 H5-3: request the offered ladder rung (PURCHASE_HINT5_RUNG; a no-op with the flag OFF). */
+  onBuyHint5Rung?: (expectedRungIndex: number) => void;
   onCloseHint?: () => void;
   /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
    *  with the hint sheet open. */
@@ -197,6 +211,9 @@ export function GameScreen({
   missionBestAtStartOfRun,
   activeCategory,
   selectedIngredientId,
+  handSession,
+  onHandSessionChange,
+  trayHand,
   bakeProgress,
   referenceModeEnabled,
   referencePizza,
@@ -216,6 +233,7 @@ export function GameScreen({
   onShowHint,
   onUnlockHint = () => {},
   onBuySelectableHint = () => {},
+  onBuyHint5Rung = () => {},
   onCloseHint = () => {},
   onRetryWithHint,
   onChangeCategory,
@@ -263,6 +281,11 @@ export function GameScreen({
     if (wasHintSheetOpenRef.current && !hintSheetOpen) hintButtonRef.current?.focus();
     wasHintSheetOpenRef.current = hintSheetOpen;
   }, [hintSheetOpen]);
+  // Large Catalog UX LC-R3: the 食材庫 (pantry) sheet shell. UI-only state (open / closed + the entry ref for
+  // focus return): no picks, shelf, search or hand state, nothing dispatched, nothing saved.
+  const [pantryOpen, setPantryOpen] = useState(false);
+  const pantryEntryRef = useRef<HTMLButtonElement>(null);
+
   function handleResetPizza() {
     setPizzaResetToken((token) => token + 1);
     onResetPizza();
@@ -301,13 +324,34 @@ export function GameScreen({
   // DM-3R-2 (OD-R5): a Dinner round is recipe-free like Free Cooking -- every OWNED ingredient on
   // the tray -- without being a Free Cooking (Discovery) round.
   const recipeFreeTray = state.freeCook || state.dinner !== null;
+  const largeCatalogEligible = isLargeCatalogEligible(state);
   const dockReserve = prepareDockReserve({
     steps: activePreBakeSteps,
     ownedIngredientIds: state.ownedIngredientIds,
     freeCook: recipeFreeTray,
     recipe: state.recipe,
     sauceReadout: referenceModeEnabled && referencePizza !== null,
+    largeCatalogEligible,
   });
+
+  // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
+  // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
+  // PREPARE tray screen (an empty-Dex initial state is FREE_COOK in ORDER: no tray, no entry), a step that
+  // shows the tray, and `pantryWorthwhile` (LC-R5-a, OD-R5-10: an OWNED-count fact, independent of the pager
+  // and the hand; the entry lives in the utility row the dock already reserves -- no new row).
+  const pantryAvailable =
+    largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;
+  const pantryVisible = pantryOpen && pantryAvailable;
+  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
+  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
+  // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
+  // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
+  if (pantryOpen && !pantryAvailable) setPantryOpen(false);
+  const wasPantryVisibleRef = useRef(pantryVisible);
+  useEffect(() => {
+    if (wasPantryVisibleRef.current && !pantryVisible) pantryEntryRef.current?.focus();
+    wasPantryVisibleRef.current = pantryVisible;
+  }, [pantryVisible]);
 
   // Gameplay UX Phase 1 (材料選択スクロール解消, see docs/reports/
   // TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md sec.1.4): PREPARE no longer gets the larger roomy
@@ -640,7 +684,7 @@ export function GameScreen({
         interactive={
           (state.phase === "PREPARE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT")) &&
           !isReferencePopoverOpen &&
-          !isGlobalOverlayOpen &&
+          !cookingInputPaused &&
           !state.dinner?.abandonRequested
         }
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
@@ -731,14 +775,14 @@ export function GameScreen({
               included (empty there), with the same reserved height for the whole round, so the
               pizza stage above it never changes size between steps. */}
           <div
-            className={`prepare-dock${dockReserve.pager ? "" : " prepare-dock--no-pager"}`}
+            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}`}
             data-testid="prepare-dock"
             style={
               {
                 "--dock-sauce-rows": dockReserve.sauceRows,
                 "--dock-other-rows": dockReserve.otherRows,
                 "--dock-readout": dockReserve.readout ? 1 : 0,
-                "--dock-pager": dockReserve.pager ? 1 : 0,
+                "--dock-pager": dockReserve.utilityRow ? 1 : 0,
               } as CSSProperties
             }
           >
@@ -775,14 +819,18 @@ export function GameScreen({
                 inventory={state.inventory}
                 pizza={state.pizza}
                 physicalDragEnabled={
-                  referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
+                  referenceModeEnabled && !isReferencePopoverOpen && !cookingInputPaused
                 }
                 draggableIngredientIds={["mozzarella", "basil"]}
                 resolvePhysicalDrop={resolvePhysicalDrop}
                 onPhysicalDrop={onPhysicalDrop}
                 resetToken={pizzaResetToken}
                 makingStepToken={state.makingStepToken}
-                reservePagerRow={dockReserve.pager}
+                reservePagerRow={dockReserve.utilityRow}
+                handIds={trayHand?.ids ?? null}
+                pantryEntry={
+                  pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
+                }
               />
             )}
           </div>
@@ -835,8 +883,29 @@ export function GameScreen({
               </button>
             )}
           </div>
+          {pantryVisible && (
+            <IngredientPantry
+              category={activeCategory}
+              ownedIngredientIds={state.ownedIngredientIds}
+              inventory={state.inventory}
+              onClose={() => setPantryOpen(false)}
+              // LC-R5-c (OD-R5c-1): pin editing stays dormant until R6 turns enforcement on.
+              handEditing={HAND_ENFORCEMENT_ENABLED}
+              pinSession={handSession}
+              onPinSessionChange={onHandSessionChange}
+              pinFits={trayHand?.pinFits}
+            />
+          )}
           {hintSheetOpen && (
-            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onBuySelectable={onBuySelectableHint} onClose={onCloseHint} />
+            <HintSheet
+              view={hintSheetView(state)}
+              hint5={hint5SheetView(state)}
+              hint5Active={hint5LadderActive(state)}
+              onUnlock={onUnlockHint}
+              onBuySelectable={onBuySelectableHint}
+              onBuyHint5={onBuyHint5Rung}
+              onClose={onCloseHint}
+            />
           )}
         </>
       )}
@@ -906,6 +975,7 @@ export function GameScreen({
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
           nearMiss={resultNearMiss(state)}
+          trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
         />
       )}

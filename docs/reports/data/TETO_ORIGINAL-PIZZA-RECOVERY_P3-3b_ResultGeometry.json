@@ -1,0 +1,969 @@
+{
+ "spec": "e2e/original-result-duplicate-notice.spec.ts",
+ "evidence": {
+  "add-one": {
+   "without": {
+    "N390": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 413,
+     "noteTop": 423,
+     "primary": {
+      "top": 730,
+      "bottom": 778,
+      "height": 48
+     },
+     "secondary": {
+      "top": 788,
+      "bottom": 836,
+      "height": 48
+     },
+     "bar": {
+      "top": 722,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 457,
+      "barTop": 722
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "N360": {
+     "scrollWidth": 360,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 413,
+     "noteTop": 423,
+     "primary": {
+      "top": 686,
+      "bottom": 734,
+      "height": 48
+     },
+     "secondary": {
+      "top": 744,
+      "bottom": 792,
+      "height": 48
+     },
+     "bar": {
+      "top": 678,
+      "bottom": 800
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 457,
+      "barTop": 678
+     },
+     "scroll": {
+      "clientHeight": 800,
+      "scrollHeight": 800
+     }
+    },
+    "S390": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 413,
+     "noteTop": 423,
+     "primary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "secondary": {
+      "top": 608,
+      "bottom": 656,
+      "height": 48
+     },
+     "bar": {
+      "top": 542,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 457,
+      "barTop": 542
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 664
+     }
+    },
+    "S360": {
+     "scrollWidth": 360,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 413,
+     "noteTop": 423,
+     "primary": {
+      "top": 526,
+      "bottom": 574,
+      "height": 48
+     },
+     "secondary": {
+      "top": 584,
+      "bottom": 632,
+      "height": 48
+     },
+     "bar": {
+      "top": 518,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 457,
+      "barTop": 518
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 640
+     }
+    },
+    "P390i": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 460,
+     "noteTop": 470,
+     "primary": {
+      "top": 696,
+      "bottom": 744,
+      "height": 48
+     },
+     "secondary": {
+      "top": 754,
+      "bottom": 802,
+      "height": 48
+     },
+     "bar": {
+      "top": 688,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 504,
+      "barTop": 688
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "E390i": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 460,
+     "noteTop": 470,
+     "primary": {
+      "top": 516,
+      "bottom": 564,
+      "height": 48
+     },
+     "secondary": {
+      "top": 574,
+      "bottom": 622,
+      "height": 48
+     },
+     "bar": {
+      "top": 508,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 500,
+      "barTop": 508
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 668
+     }
+    },
+    "E360i": {
+     "scrollWidth": 360,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 460,
+     "noteTop": 470,
+     "primary": {
+      "top": 492,
+      "bottom": 540,
+      "height": 48
+     },
+     "secondary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "bar": {
+      "top": 484,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 476,
+      "barTop": 484
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 668
+     }
+    }
+   },
+   "with": {
+    "N390": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 423,
+      "bottom": 439.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 413,
+     "noteTop": 449.1875,
+     "primary": {
+      "top": 730,
+      "bottom": 778,
+      "height": 48
+     },
+     "secondary": {
+      "top": 788,
+      "bottom": 836,
+      "height": 48
+     },
+     "bar": {
+      "top": 722,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": 439.1875,
+      "noteBottom": 483.1875,
+      "barTop": 722
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "N360": {
+     "scrollWidth": 360,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 20,
+      "right": 340,
+      "top": 423,
+      "bottom": 439.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 413,
+     "noteTop": 449.1875,
+     "primary": {
+      "top": 686,
+      "bottom": 734,
+      "height": 48
+     },
+     "secondary": {
+      "top": 744,
+      "bottom": 792,
+      "height": 48
+     },
+     "bar": {
+      "top": 678,
+      "bottom": 800
+     },
+     "reachable": {
+      "noticeBottom": 439.1875,
+      "noteBottom": 483.1875,
+      "barTop": 678
+     },
+     "scroll": {
+      "clientHeight": 800,
+      "scrollHeight": 800
+     }
+    },
+    "S390": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 423,
+      "bottom": 439.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 413,
+     "noteTop": 449.1875,
+     "primary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "secondary": {
+      "top": 608,
+      "bottom": 656,
+      "height": 48
+     },
+     "bar": {
+      "top": 542,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": 439.1875,
+      "noteBottom": 483.1875,
+      "barTop": 542
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 664
+     }
+    },
+    "S360": {
+     "scrollWidth": 360,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 20,
+      "right": 340,
+      "top": 423,
+      "bottom": 439.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 413,
+     "noteTop": 449.1875,
+     "primary": {
+      "top": 526,
+      "bottom": 574,
+      "height": 48
+     },
+     "secondary": {
+      "top": 584,
+      "bottom": 632,
+      "height": 48
+     },
+     "bar": {
+      "top": 518,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": 439.1875,
+      "noteBottom": 483.1875,
+      "barTop": 518
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 640
+     }
+    },
+    "P390i": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 470,
+      "bottom": 486.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 460,
+     "noteTop": 496.1875,
+     "primary": {
+      "top": 696,
+      "bottom": 744,
+      "height": 48
+     },
+     "secondary": {
+      "top": 754,
+      "bottom": 802,
+      "height": 48
+     },
+     "bar": {
+      "top": 688,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": 486.1875,
+      "noteBottom": 530.1875,
+      "barTop": 688
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "E390i": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 470,
+      "bottom": 486.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 460,
+     "noteTop": 496.1875,
+     "primary": {
+      "top": 516,
+      "bottom": 564,
+      "height": 48
+     },
+     "secondary": {
+      "top": 574,
+      "bottom": 622,
+      "height": 48
+     },
+     "bar": {
+      "top": 508,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": 456.1875,
+      "noteBottom": 500.1875,
+      "barTop": 508
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 694
+     }
+    },
+    "E360i": {
+     "scrollWidth": 360,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 20,
+      "right": 340,
+      "top": 470,
+      "bottom": 486.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 460,
+     "noteTop": 496.1875,
+     "primary": {
+      "top": 492,
+      "bottom": 540,
+      "height": 48
+     },
+     "secondary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "bar": {
+      "top": 484,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": 432.1875,
+      "noteBottom": 476.1875,
+      "barTop": 484
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 694
+     }
+    }
+   }
+  },
+  "far": {
+   "without": {
+    "N390": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 413,
+     "noteTop": 423,
+     "primary": {
+      "top": 730,
+      "bottom": 778,
+      "height": 48
+     },
+     "secondary": {
+      "top": 788,
+      "bottom": 836,
+      "height": 48
+     },
+     "bar": {
+      "top": 722,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 457,
+      "barTop": 722
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "N360": {
+     "scrollWidth": 360,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 438,
+     "noteTop": 448,
+     "primary": {
+      "top": 686,
+      "bottom": 734,
+      "height": 48
+     },
+     "secondary": {
+      "top": 744,
+      "bottom": 792,
+      "height": 48
+     },
+     "bar": {
+      "top": 678,
+      "bottom": 800
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 482,
+      "barTop": 678
+     },
+     "scroll": {
+      "clientHeight": 800,
+      "scrollHeight": 800
+     }
+    },
+    "S390": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 413,
+     "noteTop": 423,
+     "primary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "secondary": {
+      "top": 608,
+      "bottom": 656,
+      "height": 48
+     },
+     "bar": {
+      "top": 542,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 457,
+      "barTop": 542
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 664
+     }
+    },
+    "S360": {
+     "scrollWidth": 360,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 438,
+     "noteTop": 448,
+     "primary": {
+      "top": 526,
+      "bottom": 574,
+      "height": 48
+     },
+     "secondary": {
+      "top": 584,
+      "bottom": 632,
+      "height": 48
+     },
+     "bar": {
+      "top": 518,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 482,
+      "barTop": 518
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 640
+     }
+    },
+    "P390i": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 460,
+     "noteTop": 470,
+     "primary": {
+      "top": 696,
+      "bottom": 744,
+      "height": 48
+     },
+     "secondary": {
+      "top": 754,
+      "bottom": 802,
+      "height": 48
+     },
+     "bar": {
+      "top": 688,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 504,
+      "barTop": 688
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "E390i": {
+     "scrollWidth": 390,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 460,
+     "noteTop": 470,
+     "primary": {
+      "top": 516,
+      "bottom": 564,
+      "height": 48
+     },
+     "secondary": {
+      "top": 574,
+      "bottom": 622,
+      "height": 48
+     },
+     "bar": {
+      "top": 508,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 500,
+      "barTop": 508
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 668
+     }
+    },
+    "E360i": {
+     "scrollWidth": 360,
+     "noticeCount": 0,
+     "liveRegionsInNotice": 0,
+     "notice": null,
+     "p2Bottom": 485,
+     "noteTop": 495,
+     "primary": {
+      "top": 492,
+      "bottom": 540,
+      "height": 48
+     },
+     "secondary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "bar": {
+      "top": 484,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": null,
+      "noteBottom": 476,
+      "barTop": 484
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 693
+     }
+    }
+   },
+   "with": {
+    "N390": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 423,
+      "bottom": 439.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 413,
+     "noteTop": 449.1875,
+     "primary": {
+      "top": 730,
+      "bottom": 778,
+      "height": 48
+     },
+     "secondary": {
+      "top": 788,
+      "bottom": 836,
+      "height": 48
+     },
+     "bar": {
+      "top": 722,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": 439.1875,
+      "noteBottom": 483.1875,
+      "barTop": 722
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "N360": {
+     "scrollWidth": 360,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 20,
+      "right": 340,
+      "top": 448,
+      "bottom": 464.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 438,
+     "noteTop": 474.1875,
+     "primary": {
+      "top": 686,
+      "bottom": 734,
+      "height": 48
+     },
+     "secondary": {
+      "top": 744,
+      "bottom": 792,
+      "height": 48
+     },
+     "bar": {
+      "top": 678,
+      "bottom": 800
+     },
+     "reachable": {
+      "noticeBottom": 464.1875,
+      "noteBottom": 508.1875,
+      "barTop": 678
+     },
+     "scroll": {
+      "clientHeight": 800,
+      "scrollHeight": 800
+     }
+    },
+    "S390": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 423,
+      "bottom": 439.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 413,
+     "noteTop": 449.1875,
+     "primary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "secondary": {
+      "top": 608,
+      "bottom": 656,
+      "height": 48
+     },
+     "bar": {
+      "top": 542,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": 439.1875,
+      "noteBottom": 483.1875,
+      "barTop": 542
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 664
+     }
+    },
+    "S360": {
+     "scrollWidth": 360,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 20,
+      "right": 340,
+      "top": 448,
+      "bottom": 464.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 438,
+     "noteTop": 474.1875,
+     "primary": {
+      "top": 526,
+      "bottom": 574,
+      "height": 48
+     },
+     "secondary": {
+      "top": 584,
+      "bottom": 632,
+      "height": 48
+     },
+     "bar": {
+      "top": 518,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": 464.1875,
+      "noteBottom": 508.1875,
+      "barTop": 518
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 640
+     }
+    },
+    "P390i": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 470,
+      "bottom": 486.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 460,
+     "noteTop": 496.1875,
+     "primary": {
+      "top": 696,
+      "bottom": 744,
+      "height": 48
+     },
+     "secondary": {
+      "top": 754,
+      "bottom": 802,
+      "height": 48
+     },
+     "bar": {
+      "top": 688,
+      "bottom": 844
+     },
+     "reachable": {
+      "noticeBottom": 486.1875,
+      "noteBottom": 530.1875,
+      "barTop": 688
+     },
+     "scroll": {
+      "clientHeight": 844,
+      "scrollHeight": 844
+     }
+    },
+    "E390i": {
+     "scrollWidth": 390,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 35,
+      "right": 355,
+      "top": 470,
+      "bottom": 486.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 460,
+     "noteTop": 496.1875,
+     "primary": {
+      "top": 516,
+      "bottom": 564,
+      "height": 48
+     },
+     "secondary": {
+      "top": 574,
+      "bottom": 622,
+      "height": 48
+     },
+     "bar": {
+      "top": 508,
+      "bottom": 664
+     },
+     "reachable": {
+      "noticeBottom": 456.1875,
+      "noteBottom": 500.1875,
+      "barTop": 508
+     },
+     "scroll": {
+      "clientHeight": 664,
+      "scrollHeight": 694
+     }
+    },
+    "E360i": {
+     "scrollWidth": 360,
+     "noticeCount": 1,
+     "liveRegionsInNotice": 0,
+     "notice": {
+      "left": 20,
+      "right": 340,
+      "top": 495,
+      "bottom": 511.1875,
+      "height": 16.1875
+     },
+     "p2Bottom": 485,
+     "noteTop": 521.1875,
+     "primary": {
+      "top": 492,
+      "bottom": 540,
+      "height": 48
+     },
+     "secondary": {
+      "top": 550,
+      "bottom": 598,
+      "height": 48
+     },
+     "bar": {
+      "top": 484,
+      "bottom": 640
+     },
+     "reachable": {
+      "noticeBottom": 432.1875,
+      "noteBottom": 476.1875,
+      "barTop": 484
+     },
+     "scroll": {
+      "clientHeight": 640,
+      "scrollHeight": 719
+     }
+    }
+   }
+  }
+ }
+}

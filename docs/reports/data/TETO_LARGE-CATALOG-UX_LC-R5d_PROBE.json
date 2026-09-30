@@ -1,0 +1,545 @@
+{
+ "auditedMain": "e14f33ef196cc4eb8c9080974cddd5dc67ba6459",
+ "toppings": 22,
+ "cap9.placed3.pins8": {
+  "items": [
+   {
+    "id": "basil",
+    "source": "placed"
+   },
+   {
+    "id": "garlic",
+    "source": "placed"
+   },
+   {
+    "id": "oregano",
+    "source": "placed"
+   },
+   {
+    "id": "cherry-tomato",
+    "source": "pinned"
+   },
+   {
+    "id": "egg",
+    "source": "pinned"
+   },
+   {
+    "id": "mushroom",
+    "source": "pinned"
+   },
+   {
+    "id": "onion",
+    "source": "pinned"
+   },
+   {
+    "id": "sausage",
+    "source": "pinned"
+   },
+   {
+    "id": "pepperoni",
+    "source": "pinned"
+   }
+  ],
+  "overflowIds": [
+   "anchovy",
+   "tuna"
+  ]
+ },
+ "cap9.placedOverCap": {
+  "placed": 10,
+  "inHand": 9,
+  "droppedPlaced": [
+   "anchovy"
+  ],
+  "overflowIds": [
+   "anchovy"
+  ]
+ },
+ "cap9.placeInHand": {
+  "x": "pepperoni",
+  "sameSet": true,
+  "sourceOrderChanged": true,
+  "catalogOrderChanged": false
+ },
+ "cap9.pinOutside": {
+  "outside": "anchovy",
+  "displaced": [
+   "pepperoni"
+  ],
+  "before": [
+   "basil",
+   "garlic",
+   "oregano",
+   "cherry-tomato",
+   "egg",
+   "mushroom",
+   "onion",
+   "sausage",
+   "pepperoni"
+  ],
+  "after": [
+   "basil",
+   "garlic",
+   "oregano",
+   "cherry-tomato",
+   "egg",
+   "mushroom",
+   "onion",
+   "sausage",
+   "anchovy"
+  ],
+  "rows": [
+   {
+    "fromPage": 0,
+    "selectedBefore": null,
+    "changed": false,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "basil",
+    "changed": false,
+    "toPage": 0,
+    "selectedAfter": "basil"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "mushroom",
+    "changed": false,
+    "toPage": 0,
+    "selectedAfter": "mushroom"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": null,
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "onion",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "pepperoni",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   }
+  ]
+ },
+ "cap9.unpinShift": {
+  "unpinned": "black-olive",
+  "before": [
+   "basil",
+   "black-olive",
+   "capers",
+   "clam",
+   "corn",
+   "eggplant",
+   "fresh-tomato",
+   "pineapple",
+   "potato"
+  ],
+  "after": [
+   "basil",
+   "garlic",
+   "capers",
+   "clam",
+   "corn",
+   "eggplant",
+   "fresh-tomato",
+   "pineapple",
+   "potato"
+  ],
+  "rows": [
+   {
+    "fromPage": 0,
+    "selectedBefore": null,
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "basil",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "basil"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "black-olive",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "capers",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "capers"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "clam",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "clam"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "corn",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "corn"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "eggplant",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "eggplant"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": null,
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "fresh-tomato",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "fresh-tomato"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "pineapple",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "pineapple"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "potato",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "potato"
+   }
+  ]
+ },
+ "cap9.pinInside": {
+  "catalogOrderChanged": false,
+  "sourceOrderChanged": true
+ },
+ "cap9.zeroStock": {
+  "pinnedZeroInHand": true,
+  "placedZeroInHand": true,
+  "autoZeroInHand": false
+ },
+ "cap12.placed3.pins8": {
+  "items": [
+   {
+    "id": "basil",
+    "source": "placed"
+   },
+   {
+    "id": "garlic",
+    "source": "placed"
+   },
+   {
+    "id": "oregano",
+    "source": "placed"
+   },
+   {
+    "id": "cherry-tomato",
+    "source": "pinned"
+   },
+   {
+    "id": "egg",
+    "source": "pinned"
+   },
+   {
+    "id": "mushroom",
+    "source": "pinned"
+   },
+   {
+    "id": "onion",
+    "source": "pinned"
+   },
+   {
+    "id": "sausage",
+    "source": "pinned"
+   },
+   {
+    "id": "pepperoni",
+    "source": "pinned"
+   },
+   {
+    "id": "anchovy",
+    "source": "pinned"
+   },
+   {
+    "id": "tuna",
+    "source": "pinned"
+   },
+   {
+    "id": "rosemary",
+    "source": "fill"
+   }
+  ],
+  "overflowIds": []
+ },
+ "cap12.placedOverCap": {
+  "placed": 13,
+  "inHand": 12,
+  "droppedPlaced": [
+   "bacon"
+  ],
+  "overflowIds": [
+   "bacon"
+  ]
+ },
+ "cap12.placeInHand": {
+  "x": "rosemary",
+  "sameSet": true,
+  "sourceOrderChanged": true,
+  "catalogOrderChanged": false
+ },
+ "cap12.pinOutside": {
+  "outside": "bacon",
+  "displaced": [
+   "rosemary"
+  ],
+  "before": [
+   "basil",
+   "garlic",
+   "oregano",
+   "cherry-tomato",
+   "egg",
+   "mushroom",
+   "onion",
+   "sausage",
+   "pepperoni",
+   "anchovy",
+   "tuna",
+   "rosemary"
+  ],
+  "after": [
+   "basil",
+   "garlic",
+   "oregano",
+   "cherry-tomato",
+   "egg",
+   "mushroom",
+   "onion",
+   "sausage",
+   "pepperoni",
+   "anchovy",
+   "tuna",
+   "bacon"
+  ],
+  "rows": [
+   {
+    "fromPage": 0,
+    "selectedBefore": null,
+    "changed": false,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "basil",
+    "changed": false,
+    "toPage": 0,
+    "selectedAfter": "basil"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "mushroom",
+    "changed": false,
+    "toPage": 0,
+    "selectedAfter": "mushroom"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": null,
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "onion",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "rosemary",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   }
+  ]
+ },
+ "cap12.unpinShift": {
+  "unpinned": "rosemary",
+  "before": [
+   "basil",
+   "rosemary",
+   "bacon",
+   "ham",
+   "black-olive",
+   "capers",
+   "clam",
+   "corn",
+   "eggplant",
+   "fresh-tomato",
+   "pineapple",
+   "potato"
+  ],
+  "after": [
+   "basil",
+   "garlic",
+   "bacon",
+   "ham",
+   "black-olive",
+   "capers",
+   "clam",
+   "corn",
+   "eggplant",
+   "fresh-tomato",
+   "pineapple",
+   "potato"
+  ],
+  "rows": [
+   {
+    "fromPage": 0,
+    "selectedBefore": null,
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "basil",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "basil"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "rosemary",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "bacon",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "bacon"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "ham",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "ham"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "black-olive",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "black-olive"
+   },
+   {
+    "fromPage": 0,
+    "selectedBefore": "capers",
+    "changed": true,
+    "toPage": 0,
+    "selectedAfter": "capers"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": null,
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": null
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "clam",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "clam"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "corn",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "corn"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "eggplant",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "eggplant"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "fresh-tomato",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "fresh-tomato"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "pineapple",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "pineapple"
+   },
+   {
+    "fromPage": 1,
+    "selectedBefore": "potato",
+    "changed": false,
+    "toPage": 1,
+    "selectedAfter": "potato"
+   }
+  ]
+ },
+ "cap12.pinInside": {
+  "catalogOrderChanged": false,
+  "sourceOrderChanged": true
+ },
+ "cap12.zeroStock": {
+  "pinnedZeroInHand": true,
+  "placedZeroInHand": true,
+  "autoZeroInHand": false
+ },
+ "togglePin.all": {
+  "pins": 22,
+  "inHand": 12,
+  "overflow": 10
+ },
+ "isolation": {
+  "toppingPins": 0,
+  "same": true
+ }
+}

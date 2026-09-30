@@ -4,8 +4,10 @@ import {
   useState,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
+  type Ref,
 } from "react";
 import {
+  getIngredient,
   MAX_INGREDIENT_PALETTE_SLOTS,
   type Ingredient,
   type IngredientCategory,
@@ -95,6 +97,14 @@ interface IngredientTrayProps {
    *  reserved per round, so there is no later page to make room for). Defaults to `true`, the
    *  W1 I5b-4b "always keep the pager's place" behavior. */
   reservePagerRow?: boolean;
+  /** Large Catalog UX LC-R3: the 「食材庫」 entry. Present only when the caller (GameScreen) has decided the
+   *  round is eligible (FREE Cooking, not Dinner, cooking screen, pager row reserved). It lives INSIDE the
+   *  existing pager row -- no new row, no height change. Opening the pantry changes nothing else here. */
+  /** LC-R5-d (dormant): the tray's ingredient ids in catalog order when the hand feeds the tray; `null` / absent =
+   *  today's `trayIngredientsFor` list (every production render while enforcement is off). A change of this list
+   *  returns the tray to page 0 (the App evaluates the #197 selection rule in the same render). */
+  handIds?: readonly string[] | null;
+  pantryEntry?: { onOpen: () => void; buttonRef?: Ref<HTMLButtonElement> };
 }
 
 interface DragSession {
@@ -131,6 +141,8 @@ export function IngredientTray({
   resetToken,
   makingStepToken,
   reservePagerRow = true,
+  handIds = null,
+  pantryEntry,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
   // "Recommended" (this round's own recipe requirements) and "Other" (every remaining owned
@@ -145,7 +157,12 @@ export function IngredientTray({
   // "Preserve ... ingredient-selection behavior except where #159 explicitly changes ...
   // locking"); IngredientTray.recommendedOther.test.tsx's old FREE-creativity assertions are
   // updated accordingly (see that file's own new header comment).
-  const requiredItems = trayIngredientsFor(activeCategory, { ownedIngredientIds, freeCook, recipe });
+  const requiredItems: Ingredient[] = handIds
+    ? handIds.flatMap((id) => {
+        const ingredient = getIngredient(id);
+        return ingredient ? [ingredient] : [];
+      })
+    : trayIngredientsFor(activeCategory, { ownedIngredientIds, freeCook, recipe });
 
   // Phase 4A-1B Human Feel Fix 2 / Issue #86: the visible grid stays a fixed 3x2
   // (MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts), no scrolling -- paged
@@ -154,6 +171,14 @@ export function IngredientTray({
   // renders in practice only as a defensive cap against a future wider recipe, never for any
   // recipe shipped today.
   const [page, setPage] = useState(0);
+  // LC-R5-d (dormant): in hand mode only, an actual change of the hand list returns the tray to page 0 during render
+  // (no effect, so no frame shows the old page over the new list). `null` (production) never enters this block.
+  const handKey = handIds ? handIds.join("|") : null;
+  const [prevHandKey, setPrevHandKey] = useState<string | null>(null);
+  if (handKey !== prevHandKey) {
+    setPrevHandKey(handKey);
+    if (handKey !== null && prevHandKey !== null) setPage(0);
+  }
   const pageCount = Math.max(1, Math.ceil(requiredItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
   const currentPage = Math.min(page, pageCount - 1);
   const items = requiredItems.slice(
@@ -491,6 +516,59 @@ export function IngredientTray({
           with one page it keeps its height but is invisible and inert (aria-hidden, disabled
           buttons), so the tray / pager / CTA-bar stack has the same height with 6 or 22
           ingredients and nothing moves when a category gains a second page. */}
+      {pantryEntry && (pageCount > 1 || reservePagerRow) ? (
+        // LC-R3: same row, same height. The pager keeps its own group (or its invisible placeholder); the
+        // entry is a sibling pinned to the row's left edge, so the centred pager does not move.
+        <div
+          className={`ingredient-page-nav ingredient-page-nav--with-entry${pageCount > 1 ? "" : " ingredient-page-nav--placeholder"}`}
+        >
+          <button
+            ref={pantryEntry.buttonRef}
+            type="button"
+            className="pantry-entry"
+            onClick={pantryEntry.onOpen}
+            aria-haspopup="dialog"
+          >
+            {"\u{1F9FA}"} 食材庫
+          </button>
+          {pageCount > 1 ? (
+            <div className="ingredient-page-nav__pager" role="group" aria-label="素材ページ切り替え">
+              <button
+                type="button"
+                className="ingredient-page-nav__button"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 0}
+                aria-label="前のページ"
+              >
+                {"◀"}
+              </button>
+              <span className="ingredient-page-nav__label">
+                {currentPage + 1} / {pageCount}
+              </span>
+              <button
+                type="button"
+                className="ingredient-page-nav__button"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === pageCount - 1}
+                aria-label="次のページ"
+              >
+                {"▶"}
+              </button>
+            </div>
+          ) : (
+            <div className="ingredient-page-nav__pager" aria-hidden="true">
+              <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
+                {"◀"}
+              </button>
+              <span className="ingredient-page-nav__label">1 / 1</span>
+              <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
+                {"▶"}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
       {pageCount > 1 ? (
         <div className="ingredient-page-nav" role="group" aria-label="素材ページ切り替え">
           <button
@@ -526,6 +604,8 @@ export function IngredientTray({
           </button>
         </div>
       ) : null}
+        </>
+      )}
 
       {/* Visual Polish 1A (Ingredient Tray Overflow, P1-1): the true end of this panel's
           in-flow content -- see this ref's own doc comment above and `.ingredient-panel__

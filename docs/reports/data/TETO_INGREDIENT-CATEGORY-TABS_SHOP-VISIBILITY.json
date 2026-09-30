@@ -1,0 +1,417 @@
+{
+  "schema": "teto.ingredient-category-tabs.shop-visibility/1",
+  "maxLadderStep": 24,
+  "chipNeverBeforeRow": true,
+  "fullyVisibleAtDiscovered": 23,
+  "table": [
+    {
+      "discovered": 0,
+      "rows": 0,
+      "shelves": [],
+      "newShelvesThisStep": [],
+      "newRowIds": []
+    },
+    {
+      "discovered": 1,
+      "rows": 1,
+      "shelves": [
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "other"
+      ],
+      "newRowIds": [
+        "egg"
+      ]
+    },
+    {
+      "discovered": 2,
+      "rows": 2,
+      "shelves": [
+        "meat",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "meat"
+      ],
+      "newRowIds": [
+        "bacon"
+      ]
+    },
+    {
+      "discovered": 3,
+      "rows": 3,
+      "shelves": [
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "vegetable"
+      ],
+      "newRowIds": [
+        "mushroom"
+      ]
+    },
+    {
+      "discovered": 4,
+      "rows": 4,
+      "shelves": [
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "eggplant"
+      ]
+    },
+    {
+      "discovered": 5,
+      "rows": 5,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "cheese"
+      ],
+      "newRowIds": [
+        "parmigiano"
+      ]
+    },
+    {
+      "discovered": 6,
+      "rows": 6,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "pepperoni"
+      ]
+    },
+    {
+      "discovered": 7,
+      "rows": 7,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "sausage"
+      ]
+    },
+    {
+      "discovered": 8,
+      "rows": 8,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "ham"
+      ]
+    },
+    {
+      "discovered": 9,
+      "rows": 9,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "corn"
+      ]
+    },
+    {
+      "discovered": 10,
+      "rows": 10,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "fruit"
+      ],
+      "newRowIds": [
+        "pineapple"
+      ]
+    },
+    {
+      "discovered": 11,
+      "rows": 12,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "herb"
+      ],
+      "newRowIds": [
+        "oregano",
+        "black-olive"
+      ]
+    },
+    {
+      "discovered": 12,
+      "rows": 13,
+      "shelves": [
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "onion"
+      ]
+    },
+    {
+      "discovered": 13,
+      "rows": 14,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "sauce"
+      ],
+      "newRowIds": [
+        "olive-oil"
+      ]
+    },
+    {
+      "discovered": 14,
+      "rows": 15,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "garlic"
+      ]
+    },
+    {
+      "discovered": 15,
+      "rows": 16,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "seafood"
+      ],
+      "newRowIds": [
+        "anchovy"
+      ]
+    },
+    {
+      "discovered": 16,
+      "rows": 17,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "tuna"
+      ]
+    },
+    {
+      "discovered": 17,
+      "rows": 18,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "pesto"
+      ]
+    },
+    {
+      "discovered": 18,
+      "rows": 19,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "cherry-tomato"
+      ]
+    },
+    {
+      "discovered": 19,
+      "rows": 20,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "clam"
+      ]
+    },
+    {
+      "discovered": 20,
+      "rows": 21,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "fresh-tomato"
+      ]
+    },
+    {
+      "discovered": 21,
+      "rows": 22,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "potato"
+      ]
+    },
+    {
+      "discovered": 22,
+      "rows": 23,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "rosemary"
+      ]
+    },
+    {
+      "discovered": 23,
+      "rows": 24,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "spice",
+        "other"
+      ],
+      "newShelvesThisStep": [
+        "spice"
+      ],
+      "newRowIds": [
+        "capers"
+      ]
+    },
+    {
+      "discovered": 24,
+      "rows": 26,
+      "shelves": [
+        "sauce",
+        "cheese",
+        "meat",
+        "seafood",
+        "vegetable",
+        "fruit",
+        "herb",
+        "spice",
+        "other"
+      ],
+      "newShelvesThisStep": [],
+      "newRowIds": [
+        "gorgonzola",
+        "fontina"
+      ]
+    }
+  ]
+}

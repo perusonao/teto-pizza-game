@@ -34,6 +34,8 @@ async function openWithSave(page: Page) {
   await page.evaluate(([key, value]) => {
     localStorage.clear();
     localStorage.setItem(key, value);
+    // Hint 5.0 is ON by default (H5-6); this suite covers the pre-Hint-5.0 sheet (the rollback path).
+    localStorage.setItem("teto.dev.hint5Ladder", "0");
   }, [SAVE_KEY, JSON.stringify(DEX3_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
@@ -135,19 +137,23 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toBeVisible();
     await expect(page.locator(".order-card--free-cook")).toBeVisible();
-    await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1);
+    await expect(sheet.locator(".hint-sheet__caption")).toHaveCount(1);
     await expect(sheet).not.toContainText("フンギ");
     await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet");
     await capture(page, "c5-hint-cta-sheet");
 
     // HE-4 / Discovery Hint 3.0 (Issue #238, H3-3): the RESULT door buys through the same reducer
     // authority (PURCHASE_SELECTABLE_HINT) -- the CTA names only the price, never the ingredient.
-    const cta = sheet.locator(".hint-sheet__next");
-    await expect(cta).toHaveText("ヒントを1つもらう 5 Pitz");
+    // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; 「たずねる」 on the 材料 card asks.
+    const cta = sheet.locator('.hint-sheet__card[data-hint-family="material"] .hint-sheet__next');
+    await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
+    await expect(cta).toHaveText("たずねる 5 Pitz");
     const before = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).pitzBalance, SAVE_KEY);
     await cta.click();
-    await expect(sheet.locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
-    await expect(cta).toHaveText("ヒントを1つもらう 10 Pitz");
+    await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(2);
+    await expect(sheet.getByRole("button", { name: "ヒントをもらう" })).not.toHaveAttribute("aria-disabled", "true");
+    await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
+    await expect(cta).toHaveText("たずねる 10 Pitz");
     await expect(sheet).toContainText(`所持 ${before - 5} Pitz`);
     await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet H1 bought");
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);

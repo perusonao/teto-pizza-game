@@ -6,6 +6,10 @@ import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("./logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Cooking Time CT2: end-to-end coverage for the App-level pause wiring
  * (`isAnyCookingTimingPauseReasonActive`, ../logic/cookingTiming.ts) -- items 9/10/11 of the
@@ -430,6 +434,8 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
     await user.click(screen.getByRole("button", { name: /ヒントを見る/ }));
     now += 10_000;
+    // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; the 材料 card asks.
+    await user.click(screen.getByRole("button", { name: "ヒントをもらう" }));
     await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
     now += 20_000;
     await user.click(screen.getByRole("button", { name: "閉じる" }));
@@ -466,9 +472,13 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
     now += 15_000;
     for (let i = 0; i < 2; i += 1) {
-      await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+      // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel (an answer returns to the board; the
+      // request latch covers 「ヒントをもらう」 too, so wait it out like a player).
+      await waitFor(() => expect(screen.getByRole("button", { name: "ヒントをもらう" })).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
+      await user.click(screen.getByRole("button", { name: "ヒントをもらう" }));
       // H3-3: wait out the CTA's activation latch between two deliberate purchases.
       await waitFor(() => expect(document.querySelector(".hint-sheet__next")).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
+      await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
     }
     now += 15_000;
     await user.click(screen.getByRole("button", { name: "閉じる" }));
@@ -492,6 +502,7 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
 
     await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
     await user.click(screen.getByRole("button", { name: "ヒント" }));
+    await user.click(screen.getByRole("button", { name: "ヒントをもらう" }));
     const cta = document.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
     expect(cta).toBeDisabled();
     await user.click(cta);

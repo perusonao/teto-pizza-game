@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { discoverableHintCandidates } from "../logic/discovery/hintTarget";
@@ -7,6 +7,10 @@ import { hintSheetView } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { resolveShopEntitlement } from "./materialEntitlement";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint Economy 1.0 (Issue #232), HE-2: PURCHASE_DISCOVERY_HINT is the only way a hint
  * level is unlocked. The reducer re-validates everything from state (sheet, phase, target, level,

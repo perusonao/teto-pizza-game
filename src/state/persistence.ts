@@ -4,6 +4,7 @@ import type { DexEntry, DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
 import { isNewMissionBest } from "../logic/missionScoring";
 import type { InventoryState } from "./inventory";
+import { isTechniqueId, KNOWN_TECHNIQUE_IDS } from "../data/techniques";
 import type { DinnerMissionRecord } from "../mission/dinner/dinnerSettlement";
 import {
   EMPTY_DINNER_MISSION_RECORDS_STATE,
@@ -171,6 +172,15 @@ export interface PersistentSaveV2 {
    *  recipe id this build does not know is kept in storage by `writeSave`. `discoveryHintPurchases`
    *  stays the read-only legacy authority (Hint Economy 1.0 levels); nothing here rewrites it. */
   discoveryHintFacts: Record<string, string[]>;
+  /** Cooking Techniques 1.0 TQ-1A (Issue #262): the ledger of discovered cooking techniques
+   *  (../data/techniques.ts ids, e.g. `no-sauce`). Added to v2 without a schema bump, exactly like
+   *  the ledgers above: an absent/malformed value reads back as `[]`. A ledger -- merged as a
+   *  union, never lowered or removed except by `resetSave` (Full Game Reset). Known ids are kept
+   *  once each in first-seen order (at most `MAX_TECHNIQUE_LEDGER_SIZE`); a well-formed id this
+   *  build does not know (a technique a newer build added) is kept in storage by `writeSave`
+   *  (after the known ids, within the same `MAX_TECHNIQUE_LEDGER_SIZE` cap -- far above the
+   *  registry's size) and never read by gameplay. Unwired in TQ-1A: nothing writes it yet. */
+  discoveredTechniqueIds: string[];
   /** Dinner Mission DM-4-2 (Issue #274): the *parsed* per-mission records
    *  (./dinnerMissionRecordsSave.ts) -- readable records plus the missions whose stored record is
    *  broken (fail-closed: blocked, never rewritten). In storage the data lives under the top-level
@@ -181,6 +191,9 @@ export interface PersistentSaveV2 {
    *  earlier save) reads as empty; a save that never had a record is written without the key. */
   dinnerMissionRecordsState: DinnerMissionRecordsState;
 }
+
+/** TQ-1A: upper bound of stored technique ids (known + unknown). The registry is far smaller. */
+export const MAX_TECHNIQUE_LEDGER_SIZE = 64;
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
 const KNOWN_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
@@ -318,6 +331,17 @@ function sanitizeStarterGrantClaimedRecipeIds(raw: unknown): string[] {
     if (isKnownRecipeId(id)) seen.add(id);
   }
   return Array.from(seen);
+}
+
+/** TQ-1A: known technique ids, once each, first-seen order, capped. Anything else is dropped here
+ *  (a well-formed unknown id survives in storage through `extractForwardCompatExtras`). */
+function sanitizeDiscoveredTechniqueIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen: string[] = [];
+  for (const id of raw) {
+    if (isTechniqueId(id) && !seen.includes(id)) seen.push(id);
+  }
+  return seen.slice(0, MAX_TECHNIQUE_LEDGER_SIZE);
 }
 
 /**
@@ -494,6 +518,8 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     discoveryHintPurchases: {},
     // H3-2: no Selectable Hint facts existed in v1.
     discoveryHintFacts: emptyHintFacts(),
+    // TQ-1A: no technique existed in v1.
+    discoveredTechniqueIds: [],
     // DM-4-2: Dinner did not exist in v1.
     dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE,
   };
@@ -511,6 +537,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     unlockedForShopIngredientIds: [],
     discoveryHintPurchases: {},
     discoveryHintFacts: emptyHintFacts(),
+    discoveredTechniqueIds: [],
     dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE,
   };
 }
@@ -582,6 +609,8 @@ interface ForwardCompatExtras {
   discoveryHintPurchases: Record<string, number>;
   /** H3-2: fact ledgers of well-formed recipe ids this build does not know. */
   discoveryHintFacts: Record<string, string[]>;
+  /** TQ-1A: well-formed technique ids this build does not know. */
+  discoveredTechniqueIds: string[];
   /** DM-4-2: the stored `dinnerMissionRecords` value, verbatim (`undefined` when absent). The
    *  write merges into it rather than replacing it (./dinnerMissionRecordsSave.ts). */
   dinnerMissionRecordsRaw: unknown;
@@ -598,6 +627,7 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "unlockedForShopIngredientIds",
   "discoveryHintPurchases",
   "discoveryHintFacts",
+  "discoveredTechniqueIds",
   "dinnerMissionRecords",
   // DM-4-2: the in-memory name of the parsed Dinner state. Never stored; listed so a stray
   // serialized copy is neither read nor carried through as a forward-compat extra.
@@ -678,6 +708,7 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     unlockedForShopIngredientIds: unknownIdsIn(r.unlockedForShopIngredientIds, KNOWN_INGREDIENT_IDS),
     discoveryHintPurchases,
     discoveryHintFacts: hintFactsFor(r.discoveryHintFacts, isUnknownRecipeId),
+    discoveredTechniqueIds: unknownIdsIn(r.discoveredTechniqueIds, KNOWN_TECHNIQUE_IDS),
     dinnerMissionRecordsRaw: r.dinnerMissionRecords,
   };
 }
@@ -699,7 +730,11 @@ function mergeOwnedOrder(storedOrder: readonly string[], nextKnown: readonly str
 /** Merges the forward-compatible extras currently in storage back into `next` (known fields
  *  always win; extras are only ever appended) and writes it. Every write in this module goes
  *  through here, so no write path can erase data a newer build stored. */
-function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
+function writeSave(
+  storage: StorageLike,
+  next: PersistentSaveV2,
+  options: { requireDinnerRecords?: boolean } = {},
+): { refusedDinnerMissionIds: string[] } {
   let extras: ForwardCompatExtras | null = null;
   try {
     const raw = storage.getItem(SAVE_STORAGE_KEY);
@@ -712,11 +747,16 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
   // overwritten, and a save that never had a record stays without the key.
   const { dinnerMissionRecordsState, ...nextFields } = next;
   const dinner = mergeDinnerMissionRecordsForWrite(extras?.dinnerMissionRecordsRaw, dinnerMissionRecordsState.records);
+  // DM-4-3: the all-or-nothing check again, against what storage holds *at this write* (another tab
+  // may have broken the record since the caller's read). Refused -> nothing is stored.
+  if (options.requireDinnerRecords && dinner.refusedMissionIds.length > 0) {
+    return { refusedDinnerMissionIds: dinner.refusedMissionIds };
+  }
   const withDinner = <T extends object>(value: T) =>
     dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value };
   if (!extras) {
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(nextFields)));
-    return;
+    return { refusedDinnerMissionIds: [] };
   }
   const nextDexIds = new Set(next.dex.map((e) => e.recipeId));
   const appendNew = (base: readonly string[], more: readonly string[]) => [
@@ -739,8 +779,13 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
     ),
     discoveryHintPurchases: { ...extras.discoveryHintPurchases, ...next.discoveryHintPurchases },
     discoveryHintFacts: unionHintFacts(next.discoveryHintFacts, extras.discoveryHintFacts),
+    discoveredTechniqueIds: appendNew(next.discoveredTechniqueIds, extras.discoveredTechniqueIds).slice(
+      0,
+      MAX_TECHNIQUE_LEDGER_SIZE,
+    ),
   };
   storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(merged)));
+  return { refusedDinnerMissionIds: [] };
 }
 
 /**
@@ -772,6 +817,7 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     ),
     discoveryHintPurchases: sanitizeDiscoveryHintPurchases(intermediate.discoveryHintPurchases),
     discoveryHintFacts: sanitizeDiscoveryHintFacts(intermediate.discoveryHintFacts),
+    discoveredTechniqueIds: sanitizeDiscoveredTechniqueIds(intermediate.discoveredTechniqueIds),
     // DM-4-2: always the *stored* value of the root (never the migrated intermediate, which holds
     // parsed state). Read for every recognized root, v1 included, so load and `writeSave` (which
     // merges into the same stored value) always see the same records.
@@ -909,11 +955,19 @@ export interface ProgressionSnapshot {
    *  (no caller passes it before H3-3); a given one is merged per recipe as a set union (never
    *  lowered, never removed). */
   discoveryHintFacts?: Readonly<Record<string, readonly string[]>>;
+  /** TQ-1A: the technique ledger. Optional -- absent leaves the stored ledger as it is (no caller
+   *  passes it before TQ-1C); a given one is merged as a union (never lowered, never removed). */
+  discoveredTechniqueIds?: readonly string[];
   /** DM-4-2: Dinner mission records to store (DM-4-1 settlement output). Optional -- absent leaves
    *  the stored records as they are. Each given record is merged into the stored one
    *  (`mergeDinnerMissionRecord`: first-clear flag OR-ed, clears max, bests monotonic within a
    *  revision); a record of a blocked mission (broken stored record) is refused, never written. */
   dinnerMissionRecordUpdates?: Readonly<Record<string, DinnerMissionRecord>>;
+  /** DM-4-3: all-or-nothing for the Dinner settlement. When true and any record update
+   *  is refused (its mission became blocked in storage underneath this session), NOTHING is written
+   *  -- not the Pitz either -- so a payout can never be saved without the record that proves it.
+   *  The runtime passes true; the default (false) keeps DM-4-2's per-field behavior. */
+  requireDinnerRecords?: boolean;
 }
 
 /** What `persistProgress` reports back (DM-4-2). Every other outcome stays silent as before
@@ -1013,10 +1067,17 @@ export function persistProgress(
         ? current.discoveryHintFacts
         : unionHintFacts(current.discoveryHintFacts, sanitizeDiscoveryHintFacts(snapshot.discoveryHintFacts));
     const factsUnchanged = sameHintFacts(nextDiscoveryHintFacts, current.discoveryHintFacts);
+    // TQ-1A: the technique ledger -- a union, so a stale snapshot never drops a technique.
+    const nextDiscoveredTechniqueIds =
+      snapshot.discoveredTechniqueIds === undefined
+        ? current.discoveredTechniqueIds
+        : sanitizeDiscoveredTechniqueIds([...current.discoveredTechniqueIds, ...snapshot.discoveredTechniqueIds]);
+    const techniquesUnchanged = sameStringSet(nextDiscoveredTechniqueIds, current.discoveredTechniqueIds);
     // DM-4-2: Dinner records -- merged per mission, never lowered; blocked missions are skipped
     // here and refused again by `writeSave` against what storage actually holds.
     const dinnerMerge = mergeSnapshotDinnerRecords(current.dinnerMissionRecordsState, snapshot.dinnerMissionRecordUpdates);
     refusedDinnerMissionIds = dinnerMerge.refusedMissionIds;
+    if (snapshot.requireDinnerRecords && refusedDinnerMissionIds.length > 0) return { refusedDinnerMissionIds };
     const dinnerUnchanged = dinnerMerge.state === current.dinnerMissionRecordsState;
     if (
       dexUnchanged &&
@@ -1027,6 +1088,7 @@ export function persistProgress(
       unlockedForShopUnchanged &&
       purchasesUnchanged &&
       factsUnchanged &&
+      techniquesUnchanged &&
       dinnerUnchanged
     ) {
       return { refusedDinnerMissionIds };
@@ -1042,9 +1104,13 @@ export function persistProgress(
       unlockedForShopIngredientIds: nextUnlockedForShop,
       discoveryHintPurchases: nextDiscoveryHintPurchases,
       discoveryHintFacts: nextDiscoveryHintFacts,
+      discoveredTechniqueIds: nextDiscoveredTechniqueIds,
       dinnerMissionRecordsState: dinnerMerge.state,
     };
-    writeSave(storage, next);
+    const written = writeSave(storage, next, { requireDinnerRecords: snapshot.requireDinnerRecords });
+    if (written.refusedDinnerMissionIds.length > 0) {
+      refusedDinnerMissionIds = [...new Set([...refusedDinnerMissionIds, ...written.refusedDinnerMissionIds])];
+    }
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }

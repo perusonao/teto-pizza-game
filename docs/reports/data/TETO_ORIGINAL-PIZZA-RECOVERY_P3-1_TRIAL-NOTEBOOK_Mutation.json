@@ -1,0 +1,163 @@
+{
+ "target": "src/logic/discovery/trialNotebook.ts",
+ "tests": "src/logic/discovery/trialNotebook*.test.ts",
+ "mutants": 30,
+ "killed": 29,
+ "equivalent": 1,
+ "survived": 0,
+ "invalid": 0,
+ "mutationScore": 1,
+ "results": [
+  {
+   "id": "T01",
+   "description": "retry: retryCount not incremented",
+   "status": "KILLED"
+  },
+  {
+   "id": "T02",
+   "description": "retry: the attempt number changes",
+   "status": "KILLED"
+  },
+  {
+   "id": "T03",
+   "description": "NEW: the counter is not advanced",
+   "status": "KILLED"
+  },
+  {
+   "id": "T04",
+   "description": "retry: identity keeps its old position (not newest activity)",
+   "status": "KILLED"
+  },
+  {
+   "id": "T05",
+   "description": "identity limit off by one",
+   "status": "KILLED"
+  },
+  {
+   "id": "T06",
+   "description": "eviction drops the newest identity instead of the oldest",
+   "status": "KILLED"
+  },
+  {
+   "id": "T07",
+   "description": "eviction leaves the evicted identity's display row",
+   "status": "EQUIVALENT",
+   "equivalentReason": "Defensive: display and identity order agree on the displayed rows, display is full whenever the identity index is (display <= identity), so the evicted row is always the last display row and the same insertion slices it off. The filter only keeps display ⊆ identities independent of that argument (trialNotebookViolations checks it in every fuzz step)."
+  },
+  {
+   "id": "T08",
+   "description": "display limit off by one (NEW)",
+   "status": "KILLED"
+  },
+  {
+   "id": "T09",
+   "description": "display limit not applied (retry)",
+   "status": "KILLED"
+  },
+  {
+   "id": "T12",
+   "description": "retry keeps the stale feedback",
+   "status": "KILLED"
+  },
+  {
+   "id": "T13",
+   "description": "retry does not move the row to the top",
+   "status": "KILLED"
+  },
+  {
+   "id": "T14",
+   "description": "a rejected fingerprint is not rejected",
+   "status": "KILLED"
+  },
+  {
+   "id": "T15",
+   "description": "another version is reported as malformed",
+   "status": "KILLED"
+  },
+  {
+   "id": "T16",
+   "description": "feedback: extra keys allowed",
+   "status": "KILLED"
+  },
+  {
+   "id": "T17",
+   "description": "feedback: any kind accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "T18",
+   "description": "feedback: text length cap loosened",
+   "status": "KILLED"
+  },
+  {
+   "id": "T19",
+   "description": "feedback: empty text accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "T20",
+   "description": "feedback: stored by reference, not copied",
+   "status": "KILLED"
+  },
+  {
+   "id": "T21",
+   "description": "view shares the combination arrays",
+   "status": "KILLED"
+  },
+  {
+   "id": "T22",
+   "description": "lookup always reports a detail row",
+   "status": "KILLED"
+  },
+  {
+   "id": "T23",
+   "description": "view retry count always 0",
+   "status": "KILLED"
+  },
+  {
+   "id": "T24",
+   "description": "limits: display > identity accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "T25",
+   "description": "limits: display not validated",
+   "status": "KILLED"
+  },
+  {
+   "id": "T26",
+   "description": "outcome: revived is always false",
+   "status": "KILLED"
+  },
+  {
+   "id": "T27",
+   "description": "outcome: duplicate reports the next number",
+   "status": "KILLED"
+  },
+  {
+   "id": "T28",
+   "description": "NEW row carries number 0",
+   "status": "KILLED"
+  },
+  {
+   "id": "T29",
+   "description": "a rejected feedback is not rejected",
+   "status": "KILLED"
+  },
+  {
+   "id": "T10",
+   "description": "a retry no longer revives a row that left the display",
+   "status": "KILLED"
+  },
+  {
+   "id": "T11",
+   "description": "outcome: revived flag inverted",
+   "status": "KILLED"
+  },
+  {
+   "id": "T30",
+   "description": "identity index stores fingerprint of a different attempt",
+   "status": "KILLED"
+  }
+ ]
+}

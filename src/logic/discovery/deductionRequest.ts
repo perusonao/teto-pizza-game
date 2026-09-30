@@ -48,7 +48,7 @@ export interface DeductionRequestInput {
   storedFactIds: readonly unknown[] | unknown;
   /** The legacy Economy 1.0 ledger (`discoveryHintPurchases`), untrusted. */
   legacyPurchases: DiscoveryHintPurchases | unknown;
-  /** Supplied by the caller (DH4-2B: provisional, flag only). Not decided here. */
+  /** Supplied by the caller (OD-DH4-PROD-1: the fixed 5 / 5 price). Not decided here. */
   requestPrice: number;
   /** The caller's current paid count (economy: DH4-ECON) and the one the sheet echoed. */
   paidCount: number;

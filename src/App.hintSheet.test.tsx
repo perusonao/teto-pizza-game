@@ -1,11 +1,17 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { RECIPES } from "./data/recipes";
+import { guardedReserveAttributeAnswer, structureAnswer } from "./logic/discovery/deductionGuard";
 
+
+// Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
+// rollback path, so it runs with the ladder flag OFF.
+vi.mock("./logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B) through the real App: the Free Cooking 「ヒント」 button
  * opens the hint sheet. Discovery Hint Economy 1.0 (Issue #232, HE-2): unlocking levels is a Pitz
@@ -39,13 +45,29 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     return screen.getByRole("dialog", { name: /ヒント/ });
   }
 
-  const cta = (dialog: HTMLElement) => dialog.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
+  /** DH4-2C U3-C: the 材料 request lives on the transient 「ヒントをもらう」 panel. */
+  const cta = (dialog: HTMLElement) => dialog.querySelector<HTMLButtonElement>('.hint-sheet__card[data-hint-family="material"] .hint-sheet__next')!;
 
-  /** One purchase request, then wait out the CTA's activation latch like a player would. */
-  async function buy(user: ReturnType<typeof userEvent.setup>, dialog: HTMLElement) {
-    await user.click(cta(dialog));
+  /** Opens the 「ヒントをもらう」 panel (if the board is showing) and waits out the request latch. */
+  async function openPanel(user: ReturnType<typeof userEvent.setup>, dialog: HTMLElement) {
+    if (!dialog.querySelector(".hint-sheet__panel")) {
+      const entry = within(dialog).getByRole("button", { name: "ヒントをもらう" });
+      // Right after an answer the request latch also covers 「ヒントをもらう」 (a double tap never reopens).
+      await waitFor(() => expect(entry).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
+      await user.click(entry);
+    }
     await waitFor(() => expect(cta(dialog)).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
   }
+
+  /** One 材料 request like a player: open the panel, tap 「たずねる」. An answer returns to the board;
+   *  a no-charge outcome stays on the panel. */
+  async function buy(user: ReturnType<typeof userEvent.setup>, dialog: HTMLElement) {
+    await openPanel(user, dialog);
+    await user.click(cta(dialog));
+  }
+
+  const backToBoard = async (user: ReturnType<typeof userEvent.setup>, dialog: HTMLElement) =>
+    user.click(within(dialog).getByRole("button", { name: /もどる/ }));
 
   it("opens from 「ヒント」, buys facts by preference, and the save changes only by the Pitz debit and the fact ledger", async () => {
     window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(DEX2_SAVE));
@@ -59,34 +81,45 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(dialog).toHaveTextContent("今の材料で、まだ見つけていないピザが作れそう！");
     expect(dialog).toHaveTextContent("ベーコン");
     expect(dialog).not.toHaveTextContent("トマトソース");
-    expect(within(dialog).getAllByRole("radio").map((r) => r.getAttribute("value"))).toEqual(["sauce", "cheese", "topping"]);
-    expect(cta(dialog)).toHaveTextContent("5 Pitz");
+    // DH4-2C U3-C: the board's footer is 「ヒントをもらう」 only; the panel has the family cards (Vitest
+    // is a DEV build, so the E3 flag shows 構成 / 特徴 too) and the 材料 preferences with 「おまかせ」.
+    expect(within(dialog).queryAllByRole("radio")).toHaveLength(0);
     expect(dialog).toHaveTextContent("所持 300 Pitz");
+    await openPanel(user, dialog);
+    expect([...dialog.querySelectorAll(".hint-sheet__card")].map((c) => c.getAttribute("data-hint-family"))).toEqual(["material", "structure", "attribute"]);
+    expect(within(dialog).getAllByRole("radio").map((r) => r.getAttribute("value"))).toEqual(["any", "sauce", "cheese", "topping"]);
+    expect(cta(dialog)).toHaveTextContent("5 Pitz");
 
     await user.click(within(dialog).getByRole("radio", { name: "チーズ" }));
     await buy(user, dialog);
+    // An answer returns to the board, with the new fact.
+    await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
     expect(dialog).toHaveTextContent("モッツァレラ");
     expect(dialog).not.toHaveTextContent("トマトソース");
+    await openPanel(user, dialog);
     expect(cta(dialog)).toHaveTextContent("10 Pitz");
-    // Still "cheese": nothing is left there, so the fallback (sauce) is sold -- not an error, no hint of absence.
+    // Still "cheese" (the preference is kept for this sheet): nothing is left there, so the fallback (sauce) is sold -- not an error, no hint of absence.
     await buy(user, dialog);
     expect(dialog).toHaveTextContent("トマトソース");
     expect(dialog).toHaveTextContent("所持 285 Pitz");
-    // Nothing left to sell: the generic guidance only, nothing charged.
+    // Nothing left to sell: nothing charged; the panel stays, and (H3-4, OD-H3-4-3) only now, after
+    // the reducer answered GUIDANCE_ONLY, the 材料 card stops.
     await buy(user, dialog);
-    expect(dialog).toHaveTextContent("このピザは、今わかっているヒントを手がかりに考えてみよう！");
+    await waitFor(() => expect(dialog).toHaveTextContent("材料ヒントはここまで（Pitzは使っていないよ）"));
+    expect(cta(dialog)).toBeNull();
     expect(dialog).toHaveTextContent("所持 285 Pitz");
-    // H3-4 (OD-H3-4-3): only now, after the reducer answered GUIDANCE_ONLY, the CTA stops.
-    expect(cta(dialog)).toBeDisabled();
-    expect(cta(dialog)).toHaveTextContent("今あるヒントはここまで");
-    expect(dialog).toHaveTextContent("今回はPitzを使っていないよ");
+    await backToBoard(user, dialog);
+    expect(dialog).toHaveTextContent("このピザは、今わかっているヒントを手がかりに考えてみよう！");
     expect(dialog).not.toHaveTextContent("ブレックファストピザ");
     expect(dialog).not.toHaveTextContent("たまご");
     await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
 
     const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
-    const { pitzBalance, discoveryHintPurchases, discoveryHintFacts, ...rest } = after;
+    const { pitzBalance, discoveryHintPurchases, discoveryHintFacts, discoveredTechniqueIds, ...rest } = after;
     expect(pitzBalance).toBe(300 - 15);
+    // Cooking Techniques TQ-1A: a write fills the technique ledger's empty default on a save that
+    // predates it -- the only other key a write may add; the hint purchase never touches it.
+    expect(discoveredTechniqueIds).toEqual([]);
     expect(discoveryHintPurchases).toEqual({});
     expect(discoveryHintFacts).toEqual({ "breakfast-pizza": ["ing:mozzarella", "ing:tomato-sauce"] });
     expect(after.schemaVersion).toBe(2);
@@ -102,16 +135,17 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const first = render(<App />);
     let dialog = await openSheet(user);
     await buy(user, dialog);
-    expect(dialog).toHaveTextContent("トマトソース");
+    await waitFor(() => expect(dialog).toHaveTextContent("トマトソース"));
     first.unmount();
 
     render(<App />);
     dialog = await openSheet(user);
     expect(dialog).toHaveTextContent("トマトソース");
-    expect(cta(dialog)).toHaveTextContent("10 Pitz");
     expect(dialog).toHaveTextContent("所持 295 Pitz");
+    await openPanel(user, dialog);
+    expect(cta(dialog)).toHaveTextContent("10 Pitz");
     await buy(user, dialog);
-    expect(dialog).toHaveTextContent("モッツァレラ");
+    await waitFor(() => expect(dialog).toHaveTextContent("モッツァレラ"));
     expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!)).toMatchObject({
       pitzBalance: 285,
       discoveryHintFacts: { "breakfast-pizza": ["ing:tomato-sauce", "ing:mozzarella"] },
@@ -124,18 +158,25 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const user = userEvent.setup();
     render(<App />);
     const dialog = await openSheet(user);
-    await user.dblClick(cta(dialog));
-    await user.click(cta(dialog));
+    await openPanel(user, dialog);
+    const first = cta(dialog);
+    await user.dblClick(first);
+    // The answer returned to the board with focus on 「ヒントをもらう」; the stray second tap and more
+    // taps / Enter within the latch neither buy nor reopen the panel.
+    const entry = within(dialog).getByRole("button", { name: "ヒントをもらう" });
+    expect(dialog.querySelector(".hint-sheet__panel")).toBeNull();
+    expect(entry).toHaveFocus();
+    await user.click(entry);
     await user.keyboard("{Enter}{Enter}");
+    expect(dialog.querySelector(".hint-sheet__panel")).toBeNull();
     expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!)).toMatchObject({
       pitzBalance: 295,
       discoveryHintFacts: { "breakfast-pizza": ["ing:tomato-sauce"] },
     });
     expect(dialog).toHaveTextContent("所持 295 Pitz");
     // Once the latch releases, the next deliberate tap buys the next fact at the next price.
-    await waitFor(() => expect(cta(dialog)).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
-    expect(cta(dialog)).toHaveFocus();
     await buy(user, dialog);
+    await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
     expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).pitzBalance).toBe(285);
   });
 
@@ -145,6 +186,7 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     render(<App />);
     const dialog = await openSheet(user);
     const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    await user.click(within(dialog).getByRole("button", { name: "ヒントをもらう" }));
     expect(cta(dialog)).toBeDisabled();
     expect(dialog).toHaveTextContent("Pitzがたまったら、またためしてね。このまま作ってもOK！");
     await user.click(cta(dialog));
@@ -160,8 +202,10 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(dialog).toHaveTextContent("トマトソース");
     expect(dialog).toHaveTextContent("以前のヒント");
     expect(dialog).toHaveTextContent("材料は全部で4種類。チーズを使うみたい");
+    await openPanel(user, dialog);
     expect(cta(dialog)).toHaveTextContent("40 Pitz");
     await buy(user, dialog);
+    await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
     expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!)).toMatchObject({
       pitzBalance: 260,
       discoveryHintPurchases: { "breakfast-pizza": 3 },
@@ -198,19 +242,23 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const user = userEvent.setup();
     render(<App />);
     const dialog = await openSheet(user);
-    expect(cta(dialog)).toHaveTextContent("ヒントを1つもらう 10 Pitz");
-    await buy(user, dialog);
-    await buy(user, dialog);
-    await buy(user, dialog);
+    await openPanel(user, dialog);
+    expect(cta(dialog).textContent).toBe("たずねる 10 Pitz");
+    for (const price of [10, 20, 40]) {
+      await buy(user, dialog);
+      await waitFor(() => expect(saved().pitzBalance).toBeLessThanOrEqual(200 - price));
+      await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
+    }
     expect(saved().pitzBalance).toBe(200 - 10 - 20 - 40);
     const before = chips(dialog);
 
     // Cap reached, one real fact left: the CTA is a request, enabled, and never says 0 Pitz / free.
-    expect(cta(dialog).textContent).toBe("ヒントをたずねる 支払いずみ");
+    await openPanel(user, dialog);
+    expect(cta(dialog).textContent).toBe("たずねる 支払いずみ");
     expect(cta(dialog)).toBeEnabled();
     expect(dialog).toHaveTextContent("このピザのヒント代は上限まで支払いずみ");
     await buy(user, dialog);
-    expect(chips(dialog)).toBe(before + 1);
+    await waitFor(() => expect(chips(dialog)).toBe(before + 1));
     expect(dialog.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(1);
     expect(saved().pitzBalance).toBe(130);
     expect(saved().discoveryHintFacts.capricciosa).toHaveLength(4);
@@ -218,19 +266,21 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(dialog.querySelector(".hint-sheet__guidance")).toBeNull();
 
     // Same wording again (the view cannot tell that nothing is left) -> this time GUIDANCE_ONLY.
-    expect(cta(dialog).textContent).toBe("ヒントをたずねる 支払いずみ");
+    await openPanel(user, dialog);
+    expect(cta(dialog).textContent).toBe("たずねる 支払いずみ");
     expect(cta(dialog)).toBeEnabled();
     const snapshot = window.localStorage.getItem(SAVE_STORAGE_KEY);
     await user.click(cta(dialog));
-    await waitFor(() => expect(dialog.querySelector(".hint-sheet__guidance")).not.toBeNull());
-    expect(cta(dialog)).toBeDisabled();
-    expect(cta(dialog)).toHaveTextContent("今あるヒントはここまで");
+    await waitFor(() => expect(dialog).toHaveTextContent("材料ヒントはここまで（Pitzは使っていないよ）"));
+    expect(cta(dialog)).toBeNull();
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
 
-    // Re-operating after the guidance changes nothing (clicks, Enter).
-    await user.click(cta(dialog));
-    cta(dialog).focus();
+    // Re-operating after the guidance changes nothing: focus is on もどる (the card's request is gone),
+    // so Enter returns to the board, and a second Enter on 「ヒントをもらう」 within the latch is ignored.
+    expect(within(dialog).getByRole("button", { name: /もどる/ })).toHaveFocus();
     await user.keyboard("{Enter}{Enter}");
+    expect(dialog.querySelector(".hint-sheet__panel")).toBeNull();
+    expect(dialog.querySelector(".hint-sheet__guidance")).not.toBeNull();
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
     expect(chips(dialog)).toBe(before + 1);
     expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
@@ -240,9 +290,101 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const bar = document.querySelector(".prepare-bake-bar") as HTMLElement;
     await user.click(within(bar).getByRole("button", { name: "ヒント" }));
     const reopened = screen.getByRole("dialog", { name: /ヒント/ });
-    expect(cta(reopened).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(reopened.querySelector(".hint-sheet__guidance")).toBeNull();
+    await openPanel(user, reopened);
+    expect(cta(reopened).textContent).toBe("たずねる 支払いずみ");
     expect(cta(reopened)).toBeEnabled();
     expect(reopened.querySelector(".hint-sheet__guidance")).toBeNull();
     expect(reopened.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(0);
+  });
+  /** DH4 Production Enablement (OD-DH4-PROD-1): 構成 / 特徴 through the real App at 5 / 5. */
+  const familyCta = (dialog: HTMLElement, family: "structure" | "attribute") =>
+    dialog.querySelector<HTMLButtonElement>(`.hint-sheet__card[data-hint-family="${family}"] .hint-sheet__next`)!;
+
+  function expectNoRecipeIdentity(dialog: HTMLElement, where: string) {
+    const text = dialog.textContent ?? "";
+    const attrs = [...dialog.querySelectorAll("*"), dialog].flatMap((el) => [...el.attributes].map((a) => a.value));
+    for (const r of RECIPES) {
+      // 「ベーコン」「たまご」 are ingredient names; no recipe name, description or id may appear.
+      expect(text.includes(r.nameJa), `${where}: name ${r.nameJa}`).toBe(false);
+      expect(text.includes(r.description), `${where}: description`).toBe(false);
+    }
+    for (const v of attrs) expect(v.includes("breakfast-pizza"), `${where}: attribute ${v}`).toBe(false);
+    expect(dialog.querySelectorAll("img")).toHaveLength(0);
+  }
+
+  it("DH4-PROD: 構成 and 特徴 cost 5 each, change the save only by the debit and the fact ledger, and never leak the recipe", async () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(DEX2_SAVE));
+    const user = userEvent.setup();
+    const first = render(<App />);
+    let dialog = await openSheet(user);
+    const before = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    await openPanel(user, dialog);
+    expect(familyCta(dialog, "structure")).toHaveTextContent("たずねる 5 Pitz");
+    expect(familyCta(dialog, "attribute")).toHaveTextContent("たずねる 5 Pitz");
+    expectNoRecipeIdentity(dialog, "panel before any request");
+
+    // 構成: one answer, exactly 5 Pitz, back to the board with the total line.
+    await user.click(familyCta(dialog, "structure"));
+    await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
+    expect(dialog.querySelector('[data-hint-section="structure"]')).toHaveTextContent("このピザは全部で4種類の材料を使うよ");
+    expect(dialog).toHaveTextContent("所持 295 Pitz");
+    expectNoRecipeIdentity(dialog, "after 構成");
+
+    // 特徴: 5 Pitz only when it answers; an existence-only outcome is free.
+    const answer = guardedReserveAttributeAnswer("breakfast-pizza", { discoveredCount: 2, ownedIngredientIds: DEX2_SAVE.ownedIngredientIds })!;
+    await openPanel(user, dialog);
+    expect(familyCta(dialog, "structure")).toHaveTextContent("✓ もらいずみ");
+    await user.click(familyCta(dialog, "attribute"));
+    const expectedPitz = answer.level === "existence" ? 295 : 290;
+    if (answer.level === "existence") {
+      await waitFor(() => expect(dialog).toHaveTextContent("今はまだ、大きな手がかりが見つからなかったよ"));
+    } else {
+      await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
+      expect(dialog.querySelector('[data-hint-section="attribute"]')!.textContent).toMatch(/^特徴まだわかっていない/);
+    }
+    expect(dialog).toHaveTextContent(`所持 ${expectedPitz} Pitz`);
+    expectNoRecipeIdentity(dialog, "after 特徴");
+    await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
+
+    const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    const { pitzBalance, discoveryHintFacts, discoveredTechniqueIds, discoveryHintPurchases, ...rest } = after;
+    expect(pitzBalance).toBe(expectedPitz);
+    expect(discoveredTechniqueIds).toEqual([]);
+    const structure = structureAnswer("breakfast-pizza", { discoveredCount: 2, ownedIngredientIds: DEX2_SAVE.ownedIngredientIds })!;
+    expect(discoveryHintFacts).toEqual({ "breakfast-pizza": [...structure.factIds, ...(answer.level === "existence" ? [] : [answer.factId])] });
+    expect(after.schemaVersion).toBe(2);
+    expect(discoveryHintPurchases).toEqual({});
+    const { pitzBalance: _p, discoveryHintFacts: _f, discoveredTechniqueIds: _t, ...restBefore } = before;
+    void _p;
+    void _f;
+    void _t;
+    expect(rest).toEqual(restBefore);
+    first.unmount();
+
+    // Reload: the lines are back, both families read 「✓ もらいずみ」 (no resale), nothing is charged.
+    render(<App />);
+    dialog = await openSheet(user);
+    expect(dialog.querySelector('[data-hint-section="structure"]')).toHaveTextContent("このピザは全部で4種類の材料を使うよ");
+    expect(dialog).toHaveTextContent(`所持 ${expectedPitz} Pitz`);
+    await openPanel(user, dialog);
+    expect(familyCta(dialog, "structure")).toHaveTextContent("✓ もらいずみ");
+    await user.click(familyCta(dialog, "structure"));
+    expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).pitzBalance).toBe(expectedPitz);
+    expectNoRecipeIdentity(dialog, "after reload");
+  });
+
+  it("DH4-PROD: insufficient Pitz (4) disables 構成 / 特徴 and saves nothing", async () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify({ ...DEX2_SAVE, pitzBalance: 4 }));
+    const user = userEvent.setup();
+    render(<App />);
+    const dialog = await openSheet(user);
+    const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    await user.click(within(dialog).getByRole("button", { name: "ヒントをもらう" }));
+    for (const family of ["structure", "attribute"] as const) {
+      expect(familyCta(dialog, family)).toBeDisabled();
+      await user.click(familyCta(dialog, family));
+    }
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
   });
 });

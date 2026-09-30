@@ -39,6 +39,14 @@ import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
+import { createTrialNotebook, type TrialNotebook } from "../logic/discovery/trialNotebook";
+import { recordTrialAttempt, type LastTrialAttempt } from "./trialRecord";
+import type { TechniqueId } from "../data/techniques";
+import {
+  productionTechniqueContext,
+  resolveRoundTechniques,
+  techniqueRoundEligibility,
+} from "../logic/techniques/runtime";
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
@@ -58,7 +66,14 @@ import {
   planDinnerBake,
   resolveDinnerAttempt,
 } from "../mission/dinner/dinnerResultDetection";
-import type { DinnerSession } from "../mission/dinner/dinnerSession";
+import type { DinnerSession, DinnerSettlementView } from "../mission/dinner/dinnerSession";
+import { getDinnerRewardTable } from "../mission/dinner/dinnerReward";
+import { decideDinnerSettlement, dinnerRunKey } from "../mission/dinner/dinnerSettlement";
+import {
+  dinnerRecordForSettlement,
+  EMPTY_DINNER_MISSION_RECORDS_STATE,
+  type DinnerMissionRecordsState,
+} from "./dinnerMissionRecordsSave";
 import type { QualityStars } from "../logic/scoring";
 import { completionPolicyForRound, isDinnerRound, roundKindFor, type RoundKind } from "./roundKind";
 import {
@@ -72,10 +87,12 @@ import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from ".
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
+import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
   isOnboardingHintSession,
   purchaseSelectableHintFact,
   requestDeductionHintFact,
+  requestHint5RungFact,
   resolveHintSession,
   unlockNextHint,
   type DeductionFamily,
@@ -257,6 +274,11 @@ export interface GameState {
   /** Dinner Mission DM-2: the Dinner run while a Dinner Mission is on screen, else `null`. Never
    *  saved. Non-null exactly when `roundKind === "DINNER"`. */
   dinner: DinnerSession | null;
+  /** Dinner Mission DM-4-3: the saved per-mission records (./dinnerMissionRecordsSave.ts), hydrated
+   *  from the save and carried through every round. Changed ONLY by the CLEAR settlement in
+   *  `dinnerResolve`, in the same state step as its Pitz; App's persistence effect stores both in one
+   *  write. Blocked missions (broken saved record) are part of it and are never settled. */
+  dinnerMissionRecordsState: DinnerMissionRecordsState;
   /** Issue #212 (H-R): recipes skipped as short in the current Lunch Rush run -- SOLD OUT for the
    *  rest of it, never drawn again (stock cannot rise mid-run: the Shop is not reachable while
    *  PLAYING). Run-local: MISSION_SKIP_ORDER adds to it, MISSION_NEXT_ORDER carries it,
@@ -320,6 +342,23 @@ export interface GameState {
    *  as `lastPitzCredit`), `null` until REGISTER_TO_DEX credits a round, and reset for every fresh
    *  round. Not rendered by any UI in this slice; never persisted. */
   lastDiscovery: DiscoveryOutcome | null;
+  /** Original Pizza Recovery P3-3a: the session-only Trial Notebook (what the player tried). Carried across every
+   *  round transition (`ProgressionCarry`), written only by REGISTER_TO_DEX's free-cook ORIGINAL branch through
+   *  `recordTrialAttempt`, empty in a fresh `createInitialGameState` (reload / Full Game Reset), and never part
+   *  of the save. Not rendered by any UI in this slice. */
+  trialNotebook: TrialNotebook;
+  /** P3-3a: the display-only result of the Trial Notebook record committed by this round's REGISTER_TO_DEX
+   *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for
+   *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
+  lastTrialAttempt: LastTrialAttempt | null;
+  /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
+   *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
+   *  REGISTER_TO_DEX, and saved by App in the same write as the Dex. */
+  discoveredTechniqueIds: readonly TechniqueId[];
+  /** TQ-1C: techniques REGISTER_TO_DEX newly discovered this round, in registry order -- revealed
+   *  before the recipe (SSOT P5, `discoveryRevealOrder`). `null` until REGISTER_TO_DEX, reset every
+   *  fresh round, never persisted (so a reload never replays it). Not rendered until TQ-1D. */
+  lastTechniqueDiscovery: readonly TechniqueId[] | null;
   /** Progression 2.0 Phase 3-2 (Issue #194): true for a free-cook round (START_FREE_COOK) -- no
    *  recipe was selected, the tray offers every OWNED ingredient, and CONFIRM_BAKE decides what
    *  the pizza is with the Phase 3-1 matcher (../logic/discovery/freeCook.ts). Until CONFIRM_BAKE
@@ -443,6 +482,10 @@ export type GameAction =
       /** DH4-2B: the hint family; omitted = 材料 (today's request). 構成 / 特徴 need the E3 flag. */
       family?: "material" | DeductionFamily;
     }
+  // Discovery Hint 5.0 (Issue #292, H5-2): buys the next ladder rung for the open sheet's target,
+  // behind HINT5_LADDER_ENABLED (off in every build: a no-op). `expectedRungIndex` is the rung the
+  // sheet offered; a double tap or a stale sheet no longer matches and changes nothing.
+  | { type: "PURCHASE_HINT5_RUNG"; expectedRungIndex: number }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -505,7 +548,13 @@ export type DinnerAction =
   /** Confirmed HOME / navigation away: the run is FAILED (ABANDONED), no reward. */
   | { type: "DINNER_CONFIRM_ABANDON"; now: number }
   /** Leaves a finished (CLEARED / FAILED) run for a normal round. */
-  | { type: "DINNER_EXIT" };
+  | { type: "DINNER_EXIT" }
+  /** DM-4-3: App's save write refused these missions' records (their stored record is broken --
+   *  it became so underneath this session). Fail-closed reconciliation: the missions become blocked
+   *  in memory too, their in-memory records are dropped, and an unsaved settlement of one of them is
+   *  reverted (its Pitz removed, shown as BLOCKED) -- so memory never keeps a payout storage refused,
+   *  and the next save (which no longer carries the record) goes through. */
+  | { type: "DINNER_RECORDS_REFUSED"; missionIds: readonly string[] };
 
 /** Progression fields every "start a new round" path must carry forward unchanged --
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
@@ -522,6 +571,12 @@ interface ProgressionCarry {
   hintSession: HintSession | null;
   discoveryHintPurchases: DiscoveryHintPurchases;
   discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
+  /** DM-4-3: must survive every round transition, or a later clear would read a stale record. */
+  dinnerMissionRecordsState: DinnerMissionRecordsState;
+  /** TQ-1C: the technique ledger survives every round transition like the Dex. */
+  discoveredTechniqueIds: readonly TechniqueId[];
+  /** P3-3a: the session-only Trial Notebook survives every round transition (guided / Lunch Rush / Dinner included). */
+  trialNotebook: TrialNotebook;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -587,6 +642,8 @@ function buildOrderState(
     lastMaterialUnlockNotice: null,
     lastEfficiencyCredit: null,
     lastDiscovery: null,
+    lastTrialAttempt: null,
+    lastTechniqueDiscovery: null,
     freeCook,
   };
 }
@@ -636,19 +693,7 @@ function nextMissionOrderState(
   if (!order) return null;
   return buildOrderState(
     order,
-    {
-      dex: state.dex,
-      ownedIngredientIds: state.ownedIngredientIds,
-      pitzBalance: state.pitzBalance,
-      lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-      inventory: state.inventory,
-      starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-      unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-      preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-      hintSession: state.hintSession,
-      discoveryHintPurchases: state.discoveryHintPurchases,
-      discoveryHintFacts: state.discoveryHintFacts,
-    },
+    carryOf(state),
     true,
     false,
     missionSoldOutRecipeIds,
@@ -720,6 +765,8 @@ export function createInitialGameState(
   unlockedForShopIngredientIds: readonly string[] = [],
   discoveryHintPurchases: DiscoveryHintPurchases = {},
   discoveryHintFacts: Readonly<Record<string, readonly string[]>> = {},
+  dinnerMissionRecordsState: DinnerMissionRecordsState = EMPTY_DINNER_MISSION_RECORDS_STATE,
+  discoveredTechniqueIds: readonly TechniqueId[] = [],
 ): GameState {
   return nextOrderState(
     {
@@ -734,6 +781,9 @@ export function createInitialGameState(
       hintSession: null,
       discoveryHintPurchases,
       discoveryHintFacts,
+      dinnerMissionRecordsState,
+      discoveredTechniqueIds,
+      trialNotebook: createTrialNotebook(),
     },
     { preferFirst: true },
   );
@@ -1262,7 +1312,26 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         if (state.completion?.status !== "PASS") return state;
         const resolution = resolveFreeCookPizza(state.pizza, state.dex);
         if (resolution.kind !== "ORIGINAL") return state;
-        return { ...state, phase: "DISCOVERED", lastDiscovery: resolution.outcome };
+        // TQ-1C: an original pizza can still reveal a technique it used (usage path, affordance-
+        // gated). The Dex does not change, so the recipe path adds nothing here. An AMBIGUOUS or
+        // INCOMPLETE_MATCH result is shown as an original pizza but discovers nothing, techniques
+        // included (Codex review on #289; gate T7).
+        const techniques =
+          resolution.outcome.kind === "ORIGINAL"
+            ? roundTechniques(state, state.dex)
+            : { ledger: state.discoveredTechniqueIds, newlyDiscovered: [] };
+        // P3-3a (OD-P3-17): the exactly-once Trial Notebook commit. The RESULT guard above makes this transition
+        // happen once per round; `recordTrialAttempt` records only an ORIGINAL / AMBIGUOUS outcome (OD-P3-16).
+        const trial = recordTrialAttempt(state, resolution.outcome);
+        return {
+          ...state,
+          phase: "DISCOVERED",
+          lastDiscovery: resolution.outcome,
+          trialNotebook: trial.trialNotebook,
+          lastTrialAttempt: trial.lastTrialAttempt,
+          discoveredTechniqueIds: techniques.ledger,
+          lastTechniqueDiscovery: techniques.newlyDiscovered,
+        };
       }
       if (!state.score) {
         return state;
@@ -1309,6 +1378,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           )
         : null;
       const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;
+      // TQ-1C: techniques in the same transition as the Dex -- the usage path (Free Cooking only)
+      // and the recipe path (INV-TQ-1: every recipe discovered now implies its techniques). Lunch
+      // Rush records nothing (`techniqueRoundEligibility`); Dinner never reaches this case.
+      const techniques = roundTechniques(state, dex);
       // Progression 2.0 W1 Integration I4b-3 (REC-04): this is one of the two places `dex` can
       // change (the other is MISSION_NEXT_ORDER below), so it is where the Discovery Ladder is
       // resolved -- atomically with the Dex update, exactly where EP4's Starter Grant used to be
@@ -1374,24 +1447,14 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         lastEfficiencyCredit,
         lastMaterialUnlockNotice: buildMaterialUnlockNotice(entitlement.newlyUnlockedMaterialIds),
         lastDiscovery: discoveryRegistration?.outcome ?? null,
+        discoveredTechniqueIds: techniques.ledger,
+        lastTechniqueDiscovery: techniques.newlyDiscovered,
       };
     }
 
     case "PLAY_AGAIN":
       return nextOrderState(
-        {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-        },
+        carryOf(state),
         { excludeRecipeId: state.recipe.id },
       );
 
@@ -1403,37 +1466,13 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // Dex-0-only guard, which this subsumes.)
       if (!canStartGuidedRound(action.recipeId, state)) return state;
       return (
-        startPreparingRecipe(action.recipeId, {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-        }, action.now) ?? state
+        startPreparingRecipe(action.recipeId, carryOf(state), action.now) ?? state
       );
     }
 
     case "START_FREE_COOK":
       return startFreeCook(
-        {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-        },
+        carryOf(state),
         action.now,
       );
 
@@ -1442,38 +1481,14 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     case "RETRY_SAME_RECIPE":
       if (state.freeCook) {
         return startFreeCook(
-          {
-            dex: state.dex,
-            ownedIngredientIds: state.ownedIngredientIds,
-            pitzBalance: state.pitzBalance,
-            lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-            inventory: state.inventory,
-            starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-            unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-            preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-            hintSession: state.hintSession,
-            discoveryHintPurchases: state.discoveryHintPurchases,
-            discoveryHintFacts: state.discoveryHintFacts,
-          },
+          carryOf(state),
           action.now,
         );
       }
       // LK-8 backstop (NF-4): the guided retry follows the same authority as SELECT_RECIPE.
       if (!canStartGuidedRound(state.recipe.id, state)) return state;
       return (
-        startPreparingRecipe(state.recipe.id, {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-        }, action.now) ?? state
+        startPreparingRecipe(state.recipe.id, carryOf(state), action.now) ?? state
       );
 
     // Registers the current RESULT into the Dex (same rule as REGISTER_TO_DEX: BEST never
@@ -1586,6 +1601,9 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // sets the transient `hintOutcome`; any rejection returns `state` unchanged.
     case "PURCHASE_SELECTABLE_HINT": {
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      // Hint 5.0 (H5-2): with the ladder flag on, the ladder replaces 材料 / 構成 / 特徴, so a
+      // sub-topping name is never sold (OD-H5-C3). With the flag off (every build) this line is inert.
+      if (HINT5_LADDER_ENABLED) return state;
       // DH4-2B: 構成 / 特徴 go to the DH4-2A request authority (flag only, E3), which also refuses any
       // family it does not know (INVALID_FAMILY -> no change).
       const family = action.family ?? "material";
@@ -1596,6 +1614,16 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!patch) return state;
       if (patch.hintOutcome && patch.hintOutcome === state.hintOutcome && Object.keys(patch).length === 1) return state;
       return { ...state, ...patch };
+    }
+
+    // Hint 5.0 (H5-2): the only place a ladder rung is bought. `requestHint5RungFact`
+    // (./discoveryHint.ts -> ../logic/discovery/hint5Ladder.ts) re-validates the flag, the target,
+    // the rung index, the P-C price and the balance. A purchase debits `pitzBalance` and extends
+    // `discoveryHintFacts` in this one step; anything else returns `state` unchanged.
+    case "PURCHASE_HINT5_RUNG": {
+      if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      const patch = requestHint5RungFact(state, action.expectedRungIndex);
+      return patch ? { ...state, ...patch } : state;
     }
 
     case "CLOSE_HINT":
@@ -1698,6 +1726,27 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
 // (../mission/dinner/, docs/reports/TETO_DINNER-MISSION_DM-2_Runtime-Integration_Result.md §3).
 // ---------------------------------------------------------------------------------------------
 
+/** TQ-1C: this round's technique step (../logic/techniques/runtime.ts), from REGISTER_TO_DEX only.
+ *  `dexAfter` is the Dex this transition writes. The usage path needs a Completion Gate PASS; the
+ *  recipe path follows `dexAfter`. The ledger keeps its identity when nothing was discovered, so
+ *  App's persistence effect does not re-run for nothing. */
+function roundTechniques(state: GameState, dexAfter: DexState) {
+  const result = resolveRoundTechniques({
+    eligibility: techniqueRoundEligibility({
+      isMissionRound: state.isMissionRound,
+      isDinnerRound: isDinnerRound(state),
+      freeCook: state.freeCook,
+    }),
+    ledger: state.discoveredTechniqueIds,
+    signature: signatureOfPizza(state.pizza),
+    completionPassed: state.completion?.status === "PASS",
+    dexBefore: state.dex,
+    dexAfter,
+    context: productionTechniqueContext(),
+  });
+  return result.newlyDiscovered.length > 0 ? result : { ...result, ledger: state.discoveredTechniqueIds };
+}
+
 function carryOf(state: GameState): ProgressionCarry {
   return {
     dex: state.dex,
@@ -1711,6 +1760,9 @@ function carryOf(state: GameState): ProgressionCarry {
     hintSession: state.hintSession,
     discoveryHintPurchases: state.discoveryHintPurchases,
     discoveryHintFacts: state.discoveryHintFacts,
+    dinnerMissionRecordsState: state.dinnerMissionRecordsState,
+    discoveredTechniqueIds: state.discoveredTechniqueIds,
+    trialNotebook: state.trialNotebook,
   };
 }
 
@@ -1741,6 +1793,7 @@ function isValidMinimumStars(value: unknown): value is QualityStars {
 }
 
 function dinnerActionReducer(state: GameState, action: DinnerAction): GameState {
+  if (action.type === "DINNER_RECORDS_REFUSED") return dinnerRecordsRefused(state, action.missionIds);
   if (action.type === "DINNER_START") {
     // One run at a time, never on top of a Lunch Rush round.
     if (state.dinner !== null || state.isMissionRound) return state;
@@ -1757,6 +1810,10 @@ function dinnerActionReducer(state: GameState, action: DinnerAction): GameState 
     if (!started.ok) return state;
     const session: DinnerSession = {
       run: started.state,
+      // DM-4-3: the reward authority is captured once for the run (never changes mid-run). The
+      // shipped Phase 1 table is untuned, so production pays 0 until DM-5-2 (OD-DM5-5).
+      rewardTable: getDinnerRewardTable(mission.reward.tableId) ?? null,
+      settlement: null,
       abandonRequested: false,
       minimumStars: action.minimumStars,
       roundSeq: 0,
@@ -1823,6 +1880,7 @@ const DINNER_BLOCKED_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<GameActi
   "SHOW_HINT",
   "PURCHASE_DISCOVERY_HINT",
   "PURCHASE_SELECTABLE_HINT",
+  "PURCHASE_HINT5_RUNG",
   "CLAIM_MISSION_REWARD",
 ]);
 
@@ -1903,7 +1961,7 @@ function dinnerResolve(
   });
   if (result.status === "REJECTED") return state;
   if (result.status === "TIME_UP") return withRun(state, session, result.run);
-  return {
+  const resolved: GameState = {
     ...next,
     dinner: {
       ...session,
@@ -1912,6 +1970,86 @@ function dinnerResolve(
       lastResult: dinnerAttemptView(result.classification, next.dex),
     },
   };
+  // DM-4-3: the one authoritative settlement point -- the transition that turns this run CLEARED.
+  // No other transition can produce CLEARED (TICK only reaches TIME_UP, ABANDON only ABANDONED), so
+  // FAILED / TIME_UP / ABANDONED never reach it and pay 0 (OD-DM4-2).
+  if (session.run.status === "PLAYING" && result.run.status === "CLEARED") return dinnerSettle(resolved);
+  return resolved;
+}
+
+/** DM-4-3: see `DINNER_RECORDS_REFUSED`. Idempotent: an already-blocked mission changes nothing. */
+function dinnerRecordsRefused(state: GameState, missionIds: readonly string[]): GameState {
+  const recs = state.dinnerMissionRecordsState;
+  const ids = [...new Set(missionIds)].filter((id) => typeof id === "string" && !recs.blockedMissionIds.includes(id));
+  if (ids.length === 0) return state;
+  const records = Object.fromEntries(Object.entries(recs.records).filter(([id]) => !ids.includes(id)));
+  let { pitzBalance, dinner } = state;
+  const settlement = dinner?.settlement;
+  if (dinner && settlement?.kind === "SETTLED" && ids.includes(dinner.run.missionId)) {
+    pitzBalance = Math.max(0, pitzBalance - settlement.pitz);
+    dinner = { ...dinner, settlement: { kind: "BLOCKED", runKey: settlement.runKey, pitz: 0 } };
+  }
+  return {
+    ...state,
+    pitzBalance,
+    dinner,
+    dinnerMissionRecordsState: { ...recs, records, blockedMissionIds: [...recs.blockedMissionIds, ...ids] },
+  };
+}
+
+/**
+ * DM-4-3 (OD-DM4-3): settles a run's CLEAR exactly once, entirely through the approved authorities --
+ * DM-4-1 `decideDinnerSettlement` (reward, first-clear vs repeat, tier, record update, replay
+ * refusal) and DM-4-2 `dinnerRecordForSettlement` (a broken saved record blocks its mission; it is
+ * never read as "no record"). Pitz and the record change in this one state step, so App's
+ * persistence effect writes them in one save write (`requireDinnerRecords`). No Dex, discovery,
+ * hint or Shop state is touched. No reward policy lives here.
+ */
+function dinnerSettle(state: GameState): GameState {
+  const session = state.dinner;
+  if (session === null || session.run.status !== "CLEARED") return state;
+  const run = session.run;
+  const runKey = dinnerRunKey(run);
+  // Backstop: this session already settled this run (a replayed transition changes nothing).
+  const settledRunKey = session.settlement?.runKey ?? null;
+  if (settledRunKey === runKey) return state;
+  const withSettlement = (settlement: DinnerSettlementView, extra: Partial<GameState> = {}): GameState => ({
+    ...state,
+    ...extra,
+    dinner: { ...session, settlement },
+  });
+
+  const access = dinnerRecordForSettlement(state.dinnerMissionRecordsState, run.missionId);
+  if (access.blocked) return withSettlement({ kind: "BLOCKED", runKey, pitz: 0 });
+
+  const decision = decideDinnerSettlement({
+    run,
+    mission: getDinnerMission(run.missionId),
+    record: access.record,
+    table: session.rewardTable,
+    settledRunKey,
+  });
+  if (decision.kind === "NO_SETTLEMENT" && decision.reason === "ALREADY_SETTLED") return state;
+  if (decision.kind !== "SETTLE") {
+    return withSettlement({ kind: "REFUSED", runKey, pitz: 0, problems: [decision.reason, ...decision.problems] });
+  }
+  const records = state.dinnerMissionRecordsState;
+  return withSettlement(
+    {
+      kind: "SETTLED",
+      runKey: decision.runKey,
+      pitz: decision.pitz,
+      schedule: decision.schedule,
+      tier: decision.tier,
+      clearMs: decision.clearMs,
+      newBestTime: decision.newBestTime,
+      newBestTier: decision.newBestTier,
+    },
+    {
+      pitzBalance: state.pitzBalance + decision.pitz,
+      dinnerMissionRecordsState: { ...records, records: { ...records.records, [decision.missionId]: decision.record } },
+    },
+  );
 }
 
 /**

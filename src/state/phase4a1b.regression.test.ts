@@ -40,6 +40,8 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
       // Dinner Mission DM-4-2 (Issue #274): the parsed Dinner records state (in memory only), not a
       // Reference field.
       "dinnerMissionRecordsState",
+      // Cooking Techniques 1.0 TQ-1A (Issue #262): the technique ledger, not a Reference field.
+      "discoveredTechniqueIds",
       // Discovery Hint 3.0 (Issue #238, H3-2): the Selectable Hint fact ledger, not a Reference field.
       "discoveryHintFacts",
       // Discovery Hint Economy 1.0 (Issue #232, HE-1): the hint purchase ledger, not a Reference field.

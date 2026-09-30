@@ -303,6 +303,148 @@ Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
+## Discovery Hint 5.0 — Sub-topping Classification Ladder (Issue #292, H5-0)
+
+**Read first for any Hint 5.0 work:** `docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md`.
+The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATION-LADDER_Fresh-Audit.md`.
+
+- **Goal:** every sub-topping, down to the last one, can get a classification hint (🥩 肉系 …).
+  The goal is not to tell the player the last ingredient's name.
+- **Approved Owner Decisions (2026-09-28):** P1, P2, P3, C1, C2, C3, C4, U1 and E3.
+  - no k ≥ 2 for the classification;
+  - deduction ≠ disclosure;
+  - a single linear ladder with no FREE LEAK;
+  - sub-topping names are never sold;
+  - authored `hintKeyToppingId` / `hintSubToppingOrder`.
+- **Round 2 (2026-09-28):**
+  - **pricing = P-C** (sauce / cheese / key 10, structure 5, each classification 5, no cap);
+  - the 7 existing families only (display-only labels, and the emoji must never equal an
+    ingredient's emoji);
+  - no E3b courtesy grant and no M1 free-key carry-over;
+  - T-COV: runtime 25 / 29 proceed, with a fail-fast taxonomy gate and no silent fallback. PR #293
+    is the reference audit.
+- **Round 3:** C1a approved (basil / none / onion / eggplant / tuna) together with the C1 key-topping principle. 3 of the 20 remaining seeds break it (capricciosa, pizza-portuguesa, puttanesca), which is OD-H5-C1b and blocks H5-1.
+- **H5-1** (the unwired pure layer, `de11ae2`) is done.
+- **H5-2** (reducer wiring behind `HINT5_LADDER_ENABLED`, OFF in every build) is done. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-2_Reducer-Flag_Result.md`.
+- **OD-H5-M3 = D** (round 5): legacy facts never change the pre-purchase view. An ALL-known rung
+  completes for 0 Pitz only at request time; PARTIAL / NONE known pay the normal price.
+- **H5-3** (the ladder sheet + M3, flag still OFF; DEV-only opt-in `localStorage["teto.dev.hint5Ladder"]="1"`)
+  is done. See `docs/reports/TETO_DISCOVERY-HINT-5_H5-3_Ladder-UI_Result.md`.
+- **H5-4 Fresh Gate** (`5eadb96`): `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Fresh-Gate.md`.
+- **Round 6 (Owner):** P4-CHEESE and P4b adopted (a paid 「なし」 answer after purchase, `h5:cheese` / `h5:key`);
+  P4-SAUCE **reserved for TQ-1D** (「ソース：なし」 = Technique `no-sauce`, TQ P2 / P6); M2 = all 25; RETIRE
+  (flag ON ends the 材料 / 構成 / 特徴 purchases).
+- **H5-4** (round 6 behind the flag; all 25 recipes complete the ladder with the flag ON) is done. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Round6-Enablement_Result.md`. **The production flag stays OFF.**
+- **H5-5 Preview + Owner iPhone HV (2026-09-29): A to G = PASS, 7 / 7** (Owner-reported; screenshots are not committed).
+  Preview built from `4d090b5` (PR #298). Known Preview-only visual issue: the Preview badge partly overlaps the
+  last sheet line (`pointer-events: none`); not a production blocker. See the Production Activation Gate report §12
+  and the H5-5 Result §9. Final Gate verdict: READY FOR PRODUCTION ACTIVATION (the flag is still OFF).
+- **H5-6 Production Activation (PR open, not merged until the Owner says so):** `HINT5_LADDER_PRODUCTION_DEFAULT = true`
+  in `src/logic/discovery/hint5Flag.ts`; rollback = set it back to `false`. The old DEV opt-IN is gone; a DEV-only
+  opt-OUT (`teto.dev.hint5Ladder = "0"`) keeps the pre-Hint-5.0 suites runnable. Preview helper / seeds / badge are
+  still compiled out of production (isolation gate).
+- **Open:** merging the H5-6 activation PR (the Owner decides) and OD-H5-P4-SAUCE (TQ-1D).
+  The TQ-1D re-audit tripwire (G7) and the RESERVED gate keep any sauceless / Technique recipe out.
+
+## Ingredient Category Tabs 1.0 — Builder decision (Owner, 2026-09-29; docs-only)
+
+**Status: BUILDER CATEGORY-TABS DECISION CLOSED.** Full record:
+`docs/reports/TETO_LARGE-CATALOG-UX_x_CATEGORY-TABS_Fresh-Reconciliation-Audit.md` §9.
+
+**Current state (main `b21c978`, 2026-09-29):** Phase 1 shelf foundation (#299), **Phase 3 Shop
+(#301) COMPLETE**, **Phase 4 Ingredients (#302) COMPLETE**; **Builder tray Category Tabs CLOSED**
+(the old Phase 2 is cancelled); PR #272 is **REBASE / REVISE LATER** (before LC-2); counts stay
+deferred to Phase 5. Historical reports that still mention OD-CT-1 or a Phase 2 Builder are not
+edited; this section supersedes them.
+
+- **OD-CT-1 is WITHDRAWN.** "FREE Cooking with > 6 candidate toppings shows family tabs in the
+  Builder tray" is retracted. Replacement: **the Builder tray shows no family tabs; family
+  filtering is provided by the Large Catalog UX 食材庫 sheet** (reusing `ShelfChips`).
+- OD-B1: no family chip in the tray, so the #197 vs OD-CT-5 conflict on the tray is resolved.
+  Where a future 食材庫 sheet filter / page / working-set change would hide the selected
+  ingredient, PR #197's existing rule applies: an invisible selection is cleared.
+- OD-B2: Builder family filtering lives in the 食材庫 sheet, not in the tray.
+- OD-B3: the pizza stage floor wins; no ~40–52px row is added to the tray for family filtering.
+- OD-B4: any future FREE-Cooking-only gate must exclude Dinner explicitly, not rely on `freeCook`.
+- OD-B5: the Hint 5 privacy contract is unchanged; no new k>=2 coarsening rule.
+- Unchanged: Phase 3 Shop and Phase 4 Ingredients are done (see the current state above); no
+  counts before Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays
+  "rebase/revise before LC-2" (verdict B). No production code changed by this decision.
+
+## Large Catalog UX — current SSOT (Owner, 2026-09-29; docs-only)
+
+Authority: `docs/reports/TETO_LARGE-CATALOG-UX_Fresh-Rebase-Revision-Gate.md` (§17 for the decisions). Older #272
+design docs and wireframes are historical where they disagree.
+
+- **OD-1:** hand + pantry (食材庫) ships for **FREE Cooking only**; Dinner keeps the paged tray. FREE gate =
+  `isFreeCookingRound(state)` (`roundKind === "FREE_COOK"`) **and** `dinner === null` — never `freeCook` alone,
+  never `recipeFreeTray`. Dinner is a separate audit after the FREE version.
+- **OD-2:** pantry picks (kept across filter / search / shelf, shown in a pinned 「選択中」 area, never hidden) and
+  Builder `selectedIngredientId` (PR #197: cleared when it leaves the visible set) are **separate states**.
+- **OD-4:** PR #272 (`f5b0ab5`) is frozen as the porting source and is **not rebased in place**. Work continues on
+  a fresh branch from main, slice by slice (LC-R0 foundation port → R1 shelf reconciliation → R2 hand → R3 pantry
+  shell → R4 ShelfChips → R5 search / picks / selection → R6 mobile / a11y / HV). Closing #272 as superseded is
+  decided after the new branch is established.
+- **LC-R0 DONE (branch `claude/lc-r0-fresh-main-foundation`, no PR):** `src/logic/catalog/**` foundation ported from #272 without
+  the family / taxonomy / counts authority; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R0_Foundation-Migration_Result.md`. Next: LC-R1 (only on Owner go).
+- **LC-R1 DONE (branch `claude/lc-r1-shelf-authority`, no PR):** catalog `shelf` copied from `ingredientShelf()`; `queryCatalog({ shelves })`; unclassified fail-closed; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R1_Shelf-Authority_Result.md`. Next: LC-R2 only on Owner go.
+- **LC-R2 DONE (branch `claude/lc-r2-working-set-foundation`, no PR):** FREE-only eligibility gate (`roundKind === "FREE_COOK"` and `dinner === null`), hand operations, #197 selection rule, capacity policy (9 / 12, enforcement OFF), Human Feel measurement harness; unwired. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R2_Working-Set-Foundation_Result.md`. Next: LC-R3 only on Owner go.
+- **LC-R3 MERGED / COMPLETE (PR #305, merge commit `3b0da33b0ca4ebc1deaefcb357b4181511621863`):** 食材庫 entry (in the existing pager row) + read-only pantry sheet shell on the FREE Cooking cooking screen (`isLargeCatalogEligible` and PREPARE tray screen); stage unchanged; enforcement OFF. Post-merge Deploy and E2E WebKit (run #346) green. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R3_Pantry-Shell_Result.md`. OD-R2-1: 12 is the design candidate (not final; decide before enforcement, R5/R6); OD-R2-2: "new" tier derives from `ownedIngredientIds` acquisition order ("recently acquired", no new save field); OD-R2-3: session-only, no save change.
+- **LC-R4 (Pantry shelf filtering) — Owner-confirmed decisions** (audit: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R4_Shelf-Filtering_Pre-Implementation-Audit.md`):
+  - **OD-R4-1:** R4 keeps the active-category pantry (sauce step = sauce only; cheese step = cheese only; topping step = shelf filtering inside the topping category). `ShelfChips` only when the current OWNED rows hold ≥ 2 shelves ("すべて" + represented shelves, derived from OWNED rows, no counts). `shelf === null` shows under 「すべて」 only. No cross-category pantry in R4; revisit in the R5 Fresh Audit.
+  - **OD-R4-2:** closing and reopening the pantry resets the shelf filter to 「すべて」; not saved, not lifted into `GameState`.
+  - **OD-R4-3:** R5 separates pantry availability from pager availability; a pantry entry that disappears with the pager after hand enforcement is forbidden. R4 leaves the `dockReserve.pager` gate unchanged; final placement decided in the R5 Fresh Audit.
+  - **#197 in R4:** pantry shelf filtering does not change the Builder tray's visible set, so `selectedIngredientId` is NOT cleared and `selectionAfterVisibleChange` is NOT wired in R4. #197 applies from R5, when the Builder hand visible set actually changes (separate from OD-2 picks).
+- **LC-R5-a MERGED (PR #308, merge commit `21dc0a6`):** pantry availability (`pantryWorthwhile` / `utilityRow`) separated from the pager (OD-R5-10).
+- **LC-R5-b MERGED / COMPLETE (PR #310, merge commit `b35739ad51380d621d994e46f9876a007630e360`; post-merge Deploy + WebKit PASS):** pantry search field (owned rows of the active category > 6), the three Owner-approved search-only aliases (onion 玉ねぎ / egg 卵 / mozzarella モッツァレラチーズ; `src/data/ingredientSearchAliases.ts`), the IME contract (no list update during a composition, `compositionend` applies the confirmed text), Enter / Escape / focus contract, and Mode C keyboard fit (pantry-only `visualViewport`, CSS ceiling fallback; sheet baseline = shell ceiling). Authority: R5-b PreAudit §15〜§18 (Real-Device Discovery PASSED, Mode C adopted; branch `claude/lc-r5b-pre-audit-mbinf3` @ `77482f5`). `HAND_ENFORCEMENT_ENABLED` still `false`; no pins / hand / #197 / selected strip (R5-c+), no save change. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5b_Search-Keyboard-Fit_Result.md`. Real-iPhone HV of this build (Safari + standalone, IME, keyboard fit, geometry recovery): **PASS** (Owner, Preview `7bf1486`). Next: PR review / merge (Owner). Out of scope, unchanged: R5-c (pins / hand / selected strip), #197 wiring, enforcement.
+- **LC-R5-c Fresh Audit (branch `claude/lc-r5c-fresh-audit`, docs / tools only, audited main `b35739a`):** `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5c_Fresh-Audit.md` (measurements: `docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R5c_GEOMETRY.json`). 360×640 keyboard (K=338, simulated) leaves 87px of list (1 row, 15.8px spare): a fixed 44px strip, a 24–32px compact summary or a strip replacing the subtitle all drop to 0 rows. Recommended: D (normal = fixed strip while ≥1 pin; keyboard / Mode C = no strip, tile 📌 badge only), optional subtitle merge. Verdict **B. OWNER DECISION REQUIRED** (OD-R5c-1 production exposure of pin UI vs IVP §4 dormancy; OD-R5c-2/3 UI option and its fit with OD-2 / OD-R5-5; OD-R5c-4 subtitle merge; OD-R5c-5 tile tap during keyboard → HV). No production change; R5-c not started.
+  - **LC-R5-c Owner Decisions (CONFIRMED):** **OD-R5c-1** R5-c = pin foundation only; the production pin UI stays hidden and goes public together with hand behaviour when R6 enables `HAND_ENFORCEMENT_ENABLED`. **OD-R5c-2** future UI = 方式 D (strip normally; auto-hidden while the keyboard is shown; tile badge / `aria-pressed` / re-tap unpin kept). **OD-R5c-3** the keyboard-time hide is a responsive adaptation, not a user collapsible; OD-2 "never hidden" = the pin state stays reachable. **OD-R5c-4** no subtitle → title merge (R5-b header geometry kept). **OD-R5c-5** tile tap during the keyboard (close vs keep focus) decided at R6 real-device HV.
+- **LC-R5-c DORMANT FOUNDATION (branch `claude/lc-r5c-dormant-pin-foundation`, no PR):** `pinEdit` (Model D pure rules), App-level session-only `HandSession`, pantry pin UI behind `handEditing = HAND_ENFORCEMENT_ENABLED` (false ⇒ production DOM byte-identical to R5-b), 方式 D CSS; #197 no-clear pinned; mutation M83〜M97. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5c_Dormant-Pin-Foundation_Result.md`. Not started: R5-d (tray reads the hand + page-level #197), R6.
+- **LC-R5-d Fresh Audit (branch `claude/lc-r5d-fresh-audit-2wa5cy`, docs / tools only, audited main `e14f33e`):** `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5d_Fresh-Audit.md` (probe: `tools/large-catalog-ux/r5d-hand-probe.test.ts` → `docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R5d_PROBE.json`). Findings: `selectWorkingSet.items` is source-ordered (the tray must be catalog-ordered or every placement / harmless pin resets the page and clears the selection); placed > capacity is evicted by current code (unreachable with tray-only placement). Recommended: pure `handTrayTransition` + render-phase derivation (App selection, tray page), flag-off = `trayHand null` = current tray code path. Verdict **B. OWNER DECISION REQUIRED** (OD-R5d-1 #197 trigger R-α vs R-β — blocks R5-d; OD-R5d-2 placed fail-safe; OD-R5d-3 overflow semantics, recommend C). No production change; R5-d not started.
+  - **LC-R5-d Owner Decisions (CONFIRMED):** **OD-R5d-1** R-α: an actual tray-hand change → page 0 → keep `selectedIngredientId` only if it is on the new page 0, else clear; working-set priority selects hand *membership* only, the tray shows **catalog order**, and a priority-only reorder (same set, same catalog order) is NOT a hand change. **OD-R5d-2** placed ingredients are protected even beyond capacity (safety contract). **OD-R5d-3** Model C: placed first, only the remaining slots are pinnable, an accepted pin is always in the visible hand; the capacity-full feedback UI is R6. Capacity 9 vs 12 stays undecided (R6 real-device Human Feel Gate). Plan: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5d_Implementation-Plan.md`.
+  - **LC-R5-d IMPLEMENTED (branch `claude/lc-r5d-fresh-audit-2wa5cy`, no PR):** dormant tray hand — pure `handTray` (catalog-ordered hand, page-level #197 transition, Model C pin fit), placed protection beyond capacity, App render-phase derivation, tray `handIds` (hand mode only); flag false ⇒ `trayHandIds = null` ⇒ production tray / pantry / geometry unchanged, no save change. Mutation M98〜M114 17/17 killed. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5d_Dormant-Tray-Hand_Result.md`. Not started: R5-e, R6 (capacity 9 vs 12 undecided).
+- **LC-R5-e Fresh Audit (branch `claude/lc-r5-e-fresh-audit-ay8yrj`, docs / tools only, audited main `eb6c32d`):** `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5e_Fresh-Audit.md` (activation readiness; probe `tools/large-catalog-ux/r5e-activation-mutants.mjs`). Privacy PASS, OFF = R5-d, OD-R5d-1〜3 match current code, 9 / 12 give identical stage geometry. Findings: F-6 no committed test guards the App-level #197 clear (E6 survives; a hidden selection places a piece when it is removed), F-1 pin UI is a no-op on inactive categories (sauce / cheese always), F-3 capacity rejection is silent, ON tests mock `handCapacityFor`. Verdict **C. HARDENING REQUIRED BEFORE R6** (test-only slice R5-e-h: H-1〜H-8; M1〜M114 re-run 117/118 killed, M10b stale since R5-d — its current-line equivalent E12 is killed) + OD-R5e-1〜5. No production change; R6 not started.
+  - **LC-R5-e Owner Decisions (CONFIRMED):** **OD-R5e-1** pin UI only for a category whose hand is ACTIVE (none for sauce / cheese or topping <= capacity). **OD-R5e-2** hand mode drops unpinned inventory-0 toppings from the tray (pantry keeps them at ×0); an existing pinned ×0 stays on the tray and can be unpinned. **OD-R5e-3** the capacity-rejection UI shows no capacity number (e.g. 「手元がいっぱいです。使わない食材のピンを外してね」); 9 vs 12 stays open until the R6 Human Feel Gate. **OD-R5e-4** Preview-only activation, fail-closed (production can never use the Preview override); mechanism decided in R6-a after a build / deploy audit. **OD-R5e-5** order R5-e-h → R6-a〜R6-e; re-check the R6 slice boundaries from current main after R5-e-h.
+  - **LC-R5-e-h HARDENING (same branch, test / tooling / docs only, base main `d727030`):** Vitest projects `hand-on-9` / `hand-on-12` compile the REAL `handPolicy.ts` ON (fail-closed transform, no `vi.mock`); App ON suites run for both candidates; H-1 #197 side-effect gate (E6 killed), H-3 key-guard gate (E2 killed), H-4 visible-page invariant, H-5 in-step activation contract + PREPARE ownership / stock invariant, H-6 lifecycle / guided / Lunch Rush / Dinner isolation, H-7 no selection restore, H-8 M10b re-targeted. Mutation M1〜M114 118/118 killed; E1〜E12 10/12 (E4 equivalent, E5 intentionally survives: no test depends on the undecided shipped capacity). Full Vitest on main `22263bd` + branch: 279 files / 5333 passed. Verdict **A. R5-e HARDENING COMPLETE / R6 AUDIT-READY** (report §21 / §22). No production change; flag false; capacity undecided; R6 not started — next: re-check the R6 slice boundaries from current main (OD-R5e-5).
+- Standing: `ingredientShelf` = membership authority, `catalogQuery` = owned / filter / search / sort engine,
+  `ShelfChips` = presentation; no counts before Phase 5; capacity 9 vs 12 is decided by Human Feel at the hand slice;
+  no tray family chips (OD-B1〜B5).
+
+## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
+
+**Read first for any technique work (TQ-1C, TQ-1D and later):**
+`docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`. It wins over the detailed docs below.
+
+- Recipe discovery is *what* you made; technique discovery is *how* you made it. The two are
+  independent: the matcher never reads the technique ledger (INV-TQ-NB).
+- Techniques are never bought or taught directly, and earn no ★ or Pitz. When a technique and a
+  recipe are discovered together, the technique is revealed first, and the save happens in the
+  same one REGISTER_TO_DEX transition.
+- **Where discovery happens** (OD-TQ1C-3):
+  - the usage path (recognising how a pizza was made) runs in Free Cooking only;
+  - the recipe path (INV-TQ-1: a discovered recipe implies its techniques) runs in every FREE
+    round;
+  - Lunch Rush and Dinner never discover a technique.
+- **Near-miss privacy** (OD-TQ1C-2): SAUCE_ONLY gets the k ≥ 2 rule uniformly, with no side
+  channel, and fails closed below that. This changes 12 of 44 production SAUCE_ONLY cases, so it
+  goes live only in TQ-1D with Human Verification — **not in TQ-1C**.
+- **INV-TQ-4:** while no production recipe requires a technique, nothing is recognised. TQ-1C is
+  inert in production. TQ-1 adds no technique requirement to a production recipe; Aussie arrives
+  in TQ-1D.
+- **DH4 privacy re-gate (contract, OD-DH4-PROD-1):** 構成 / 特徴 hints are live in production
+  (DH4-PROD, #290). The first production recipe that requires a technique (TQ-1D) makes
+  `src/logic/discovery/deductionProduction.gate.test.ts` fail on purpose. TQ-1D must re-run that
+  gate and the DH4 privacy sweeps with its Technique recipes, and pass them, before it ships.
+- **Merged so far:** LAD-1 `4f7443a` (#268), TQ-1A `73c8ad0` (#273) and TQ-1B `bcac961` (#271).
+  The ledger `discoveredTechniqueIds` is in the save; scoring parity is pinned (225 rows).
+- **Detailed docs:** `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md`
+  (the Owner authority record), `..._OWNER-DECISION-GATE.md` (the rules) and
+  `..._TQ-1C_PRE-IMPLEMENTATION-GATE.md` (the TQ-1C wiring map and test plan).
+- **Not on main:** the 172-row technique audit, its data and its generator tools stay on the
+  design archive (branch `claude/cooking-techniques-design-n0qfwj`, commit `ab77b82`).
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.

@@ -1,0 +1,3155 @@
+{
+ "base": "7bb0116",
+ "rows": [
+  {
+   "recipeId": "margherita",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 34.673056434800294,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 17.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.60549139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.25,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 34.673056434800294,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 17.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.60549139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.25,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.08610974354794,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 72.72727272727273,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.08610974354794,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 72.72727272727273,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 23.00479232610022,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 10.000000000000002,
+    "recipe": 60,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45.6,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.45549139857002,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 80,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 80,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 34.673056434800294,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 17.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.60549139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.25,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 35.206389768133626,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 22.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 43.47032759904668,
+   "stars": 2,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 46.25,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.92527058270876,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 76.92307692307692,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.92527058270876,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 76.92307692307692,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 34.673056434800294,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 17.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.60549139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.25,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 32.85599040762527,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 21,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.625
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.93549139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 94,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.43106615699749,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 79.45205479452055,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.43106615699749,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 79.45205479452055,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 34.673056434800294,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 17.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.60549139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.25,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.37398853142672,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 79.16666666666666,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.37398853142672,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 79.16666666666666,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 32.35599040762527,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 16,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.625
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 44,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 66.66666666666666,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.33549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 89,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 96.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.038125659433554,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 11.666666666666666,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 45.136994265713355,
+   "stars": 2,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 60.83333333333334,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.36824140498993,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 74.13793103448276,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.36824140498993,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 74.13793103448276,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.171458992766883,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 13.333333333333336,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.92527058270876,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 76.92307692307692,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.92527058270876,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 76.92307692307692,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 34.40638976813363,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 15,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 42,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 50,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 81.95054599841114,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 92.5,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.8333333333333334
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 95.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 66.66666666666667,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.438125659433553,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 16.666666666666668,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 65.47154790984003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.66666666666667,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.6666666666666667
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.99520065263883,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.27272727272727,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.99520065263883,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.27272727272727,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 22.244792326100217,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 8.000000000000002,
+    "recipe": 50,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 46,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 46.69032759904669,
+   "stars": 2,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 74,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.82636948380767,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 85.71428571428572,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 22.244792326100217,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 8.000000000000002,
+    "recipe": 50,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 46,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 46.69032759904669,
+   "stars": 2,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 74,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.82636948380767,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 85.71428571428572,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.038125659433554,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 11.666666666666666,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 22.904792326100218,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 8.75,
+    "recipe": 60,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45.6,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.53049139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.625,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.171458992766883,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 13.333333333333336,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.99520065263883,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.27272727272727,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.99520065263883,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.27272727272727,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.171458992766883,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 13.333333333333336,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 93.29695577152204,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 91.66666666666667,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.95
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.2549409123791,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 78.57142857142857,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 22.16479232610022,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 7.000000000000001,
+    "recipe": 50,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 46,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 46.570327599046685,
+   "stars": 2,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 72.5,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.82636948380767,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 85.71428571428572,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.038125659433554,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 11.666666666666666,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.038125659433554,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 11.666666666666666,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.37398853142672,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 79.16666666666666,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.37398853142672,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 79.16666666666666,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.038125659433554,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 11.666666666666666,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 24.038125659433554,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 11.666666666666666,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 75,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.55549139857003,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.83333333333333,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.14065519809337,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 95.12889049221103,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 77.94117647058823,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "ideal",
+   "available": true,
+   "totalScore": 99.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "offset",
+   "available": true,
+   "totalScore": 70.58381074433359,
+   "stars": 3,
+   "components": {
+    "sauce": 43.4304052775646,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "poor",
+   "available": true,
+   "totalScore": 22.904792326100218,
+   "stars": 1,
+   "components": {
+    "sauce": 33.095355100385454,
+    "pieces": 8.75,
+    "recipe": 60,
+    "bake": 100,
+    "quantityFactor": 0.5
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "noSauce",
+   "available": true,
+   "totalScore": 45.6,
+   "stars": 2,
+   "components": {
+    "sauce": 0,
+    "pieces": 100,
+    "recipe": 80,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "halfPieces",
+   "available": true,
+   "totalScore": 73.53049139857004,
+   "stars": 3,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 90.625,
+    "recipe": 100,
+    "bake": 100,
+    "quantityFactor": 0.75
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "extraPiece",
+   "available": true,
+   "totalScore": 97.54065519809338,
+   "stars": 5,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 83.33333333333334,
+    "bake": 100,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "raw",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "burnt",
+   "available": true,
+   "totalScore": 94.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 75,
+    "quantityFactor": 1
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "variant": "unbaked",
+   "available": true,
+   "totalScore": 79.54065519809338,
+   "stars": 4,
+   "components": {
+    "sauce": 99.11664461171804,
+    "pieces": 100,
+    "recipe": 100,
+    "bake": 0,
+    "quantityFactor": 1
+   }
+  }
+ ]
+}
