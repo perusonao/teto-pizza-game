@@ -67,6 +67,25 @@ describe("P2-A: AMBIGUOUS is distinguished internally but leaks nothing into the
   });
 });
 
+describe("lead / action split: a FAR ORIGINAL says the next action once", () => {
+  it.each([
+    ["ordinary", ORDINARY],
+    ["ambiguous", AMBIGUOUS],
+  ] as const)("%s + generic FAR: lead then the single 「別の組み合わせも試してみよう」", (_name, outcome) => {
+    const dom = html(outcome, { kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY });
+    const text = document.body.textContent ?? "";
+    expect(text).toContain("図鑑にはまだ載っていないピザ！");
+    expect(text).toContain(NEAR_MISS_FAR_GENERIC_COPY);
+    expect(text.split("別の組み合わせも試してみよう").length - 1).toBe(1);
+    expect(dom.split("別の組み合わせ").length - 1).toBe(1);
+  });
+
+  it.each(LINES.map((l, i) => [i, l] as const))("near-miss #%i: 「試してみよう」 appears at most once", (_i, line) => {
+    html(ORDINARY, line);
+    expect((document.body.textContent ?? "").split("試してみよう").length - 1).toBeLessThanOrEqual(1);
+  });
+});
+
 describe("privacy gate: no undiscovered-recipe information in any ORIGINAL card variant", () => {
   const variants: [string, DiscoveryOutcome][] = [
     ["ordinary", ORDINARY],

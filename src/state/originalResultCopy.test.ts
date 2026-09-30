@@ -18,7 +18,7 @@ describe("P2-A: the kind of ORIGINAL is distinguished internally", () => {
   });
 
   it("OD-P2-1 = A: the neutral lead is shared by ORDINARY and AMBIGUOUS; INCOMPLETE_MATCH is unchanged", () => {
-    expect(ORIGINAL_LEAD_COPY.ORDINARY).toBe("図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。");
+    expect(ORIGINAL_LEAD_COPY.ORDINARY).toBe("図鑑にはまだ載っていないピザ！");
     expect(ORIGINAL_LEAD_COPY.AMBIGUOUS).toBe(ORIGINAL_LEAD_COPY.ORDINARY);
     expect(ORIGINAL_LEAD_COPY.INCOMPLETE_MATCH).toBe("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
   });
@@ -26,6 +26,12 @@ describe("P2-A: the kind of ORIGINAL is distinguished internally", () => {
 
 describe("OD-P2-1 = A: the neutral lead discloses nothing", () => {
   const lead = ORIGINAL_LEAD_COPY.AMBIGUOUS;
+
+  it("lead / action split: the lead carries no next-action (the FAR / near-miss line owns it)", () => {
+    for (const kind of ["ORDINARY", "AMBIGUOUS"] as const) {
+      expect(ORIGINAL_LEAD_COPY[kind]).not.toMatch(/試して|みよう|組み合わせ/);
+    }
+  });
 
   it("no uniqueness claim, no digit / count, no candidate wording, no internal reason", () => {
     expect(lead).not.toContain("あなただけ");

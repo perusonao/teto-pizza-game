@@ -135,7 +135,7 @@ describe("ResultPanel in a free-cook round", () => {
       />,
     );
     expect(screen.getByText(/オリジナルピザ完成！/)).toBeInTheDocument();
-    expect(screen.getByText("図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。")).toBeInTheDocument();
+    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "使った材料" })).toHaveTextContent("モッツァレラ");
     expect(container.querySelector(".result-panel--failed")).toBeNull();
     expect(screen.queryByText("失敗")).not.toBeInTheDocument();

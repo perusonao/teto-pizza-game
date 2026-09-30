@@ -16,6 +16,12 @@
  * any other internal reason. The kind is never rendered as a class, attribute, aria text or test id
  * (the privacy gate compares the AMBIGUOUS DOM with the ordinary DOM byte for byte).
  *
+ * ## Owner decision OD-P2-5 (lead / action split, decided)
+ *
+ * The lead only states what the pizza is; it carries **no next action**. The next action belongs to
+ * the near-miss / FAR line under it (ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE / 「🧪 別の組み合わせも
+ * 試してみよう！」), so a far ORIGINAL no longer says 「別の組み合わせも試してみよう」 twice.
+ *
  * Recipe collisions are NOT resolved by P2. Production has no identity collision today, so AMBIGUOUS is
  * unreachable in production; `originalResultCopy.test.ts` keeps a canary that fails the moment a
  * colliding recipe is added, so the wording must be **re-decided before any collision recipe ships**.
@@ -32,8 +38,8 @@ export function originalResultKind(discovery: DiscoveryOutcome | null | undefine
   return "ORDINARY";
 }
 
-/** OD-P2-1 = A: shared by ORDINARY and AMBIGUOUS. */
-const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。";
+/** OD-P2-1 = A: shared by ORDINARY and AMBIGUOUS. OD-P2-5: no next action in the lead. */
+const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！";
 
 export const ORIGINAL_LEAD_COPY: Readonly<Record<OriginalResultKind, string>> = {
   ORDINARY: NEUTRAL_LEAD,

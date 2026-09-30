@@ -6,8 +6,8 @@
   "src/state/resultFeedback.gate",
   "src/components/ResultPanel"
  ],
- "mutants": 24,
- "killed": 23,
+ "mutants": 25,
+ "killed": 24,
  "equivalent": 1,
  "survived": 0,
  "invalid": 0,
@@ -138,6 +138,12 @@
    "id": "C05",
    "file": "src/state/originalResultCopy.ts",
    "description": "ORDINARY copy reverts to the uniqueness claim",
+   "status": "KILLED"
+  },
+  {
+   "id": "C06",
+   "file": "src/state/originalResultCopy.ts",
+   "description": "neutral lead regains the next-action (duplicates the FAR line)",
    "status": "KILLED"
   },
   {

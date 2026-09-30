@@ -1,12 +1,57 @@
 # Original Pizza Recovery P2 — RESULT Feedback Hardening (Result Report)
 
-> **Revision 2 (Owner Decisions applied).** §0 is the current state. §1–§14 describe the first review (HEAD `e73aeb2`); where they say a decision is *pending* or the FAR line is *OFF*, §0 supersedes them.
+> **Revision 3 (lead / action copy split, OD-P2-5).** §00 is the current state and supersedes the lead sentence quoted in §0 and below. **Revision 2 (Owner Decisions applied):** §0. §1–§14 describe the first review (HEAD `e73aeb2`); where they say a decision is *pending* or the FAR line is *OFF*, §0 supersedes them.
 
 - **Audited / base `origin/main` SHA:** `af8d46d1215642090aceeaf2703b5a15145f06e4` (fresh fetch)
 - **Branch:** `claude/original-result-feedback-p2` (new, from latest `origin/main`; **not** stacked on P1, and **no dependency on** the Attempt Fingerprint — a gate test asserts no production file references it)
 - **Scope:** pure RESULT-feedback hardening + focused ResultPanel wiring + tests + docs. No PR.
-- **Verification Policy (`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`):** this task changes **no production-visible UI/copy today** (§6), so no video / screenshot is produced. Any Owner decision below that changes visible copy will trigger it at implementation.
-- **Verdict:** **A. P2 COMPLETE / READY FOR HV** (§15). Owner Decisions OD-P2-1..4 are decided and applied (§0); Human Verification is required (§0.3).
+- **Verification Policy (`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`):** the Owner Decisions (§0, §00) change visible RESULT copy, so HV is required. Before / after screenshots (390×844): `docs/reports/screenshots/original-result-feedback-p2/`. The HV video goes to the Owner directly (never committed).
+- **Verdict:** **A. READY FOR OWNER HV** (§00.4). Owner Decisions OD-P2-1..5 are decided and applied (§0, §00); Human Verification is required.
+
+## 00. Update: lead / action copy split (OD-P2-5)
+
+Reviewed HEAD before this revision: `54db5c95d79c00bb0771bf0fbd537c9f9cb612d4`. Problem: on a far ORIGINAL the lead 「図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。」 and the FAR line 「🧪 別の組み合わせも試してみよう！」 said the same next action twice.
+
+### 00.1 Final copy
+
+| Card | Lead (`.original-pizza__lead`) | Line under it (`.result-near-miss__text`) |
+|---|---|---|
+| ORIGINAL, near-miss | 「図鑑にはまだ載っていないピザ！」 | unchanged: ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE |
+| ORIGINAL, far | 「図鑑にはまだ載っていないピザ！」 | 「🧪 別の組み合わせも試してみよう！」 |
+| ORIGINAL, key material unused | 「図鑑にはまだ載っていないピザ！」 | unchanged: 「🛒 新しく入荷した材料は使ってみた？」 |
+| AMBIGUOUS (internal only) | byte-identical to ORDINARY | same rules as ORDINARY; no candidate / recipe info |
+| INCOMPLETE_MATCH | unchanged: 「図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。」 | unchanged |
+
+Only `NEUTRAL_LEAD` in `src/state/originalResultCopy.ts` changed (shared by ORDINARY and AMBIGUOUS, so they stay byte-identical). Not changed: near-miss semantics, the FAR condition, matcher, collision handling, Hint 5.0, the privacy contract, Attempt Fingerprint, P1, P3, save / persistence, Large Catalog, `NEAR_MISS_COPY`, `NEAR_MISS_FAR_GENERIC_COPY`, CSS.
+
+### 00.2 Tests
+
+- Lead pins updated in `originalResultCopy.test.ts`, `FreeCook.ui.test.tsx`, `ResultPanel.nearMiss.test.tsx`.
+- New: the ORDINARY / AMBIGUOUS lead has no next-action wording (`試して|みよう|組み合わせ`); a FAR ORIGINAL (ordinary and AMBIGUOUS) renders 「別の組み合わせも試してみよう」 exactly once (text and raw HTML); for every near-miss variant 「試してみよう」 appears at most once.
+- New mutant **C06** (the lead regains the next action) — killed.
+
+### 00.3 Verification (this revision)
+
+| Check | Result |
+|---|---|
+| Focused Result tests (`nearMiss`, `resultNearMiss`, `originalResultCopy`, `resultFeedback.gate`, `ResultPanel*`, `FreeCook.ui`) | 10 files / 249 passed |
+| Privacy gate (`ResultPanel.p2`, `resultFeedback.gate`) | 2 files / 52 passed; AMBIGUOUS ≡ ordinary byte for byte |
+| TQ-1C (`techniques.tq1c`) | 5 / 5 passed |
+| Hint 5.0 regression (`hint5*`, `HintSheet*`, `discoveryHint.walk`) | 17 files / 186 passed |
+| Full Vitest | **253 files / 4 980 passed, 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | no findings in changed files (the 2 pre-existing warnings in `scoringV2.noSauceProfile.test.ts`) |
+| `npm run build` | passes |
+| Focused mutation (`node tools/result_feedback_mutation.mjs`) | **25 mutants: 24 killed, 1 equivalent, 0 survived, 0 invalid** |
+| 390×844 real Chromium play (Dex 3 save, Free Cooking) | near-miss ADD_ONE: lead once, 「試してみよう」 ×0; FAR: lead once, 「試してみよう」 ×1 (was ×2); `scrollWidth` 390, page height 844 = viewport, result panel not scrolling, 0 elements past the viewport edge, primary CTA at 730–778 (unchanged); the lead is now one line (18 px, was 36 px), so the rows under it move up 18 px |
+
+Screenshots (before = `54db5c9`, after = this revision): `docs/reports/screenshots/original-result-feedback-p2/{before,after}-{a-near-miss-add-one,b-far-original}.png`.
+
+Observation (pre-existing, not changed here): at 390 px the FAR line wraps inside its row (「…試してみ / よう！」) next to the hint button; it is the same row layout the near-miss lines already use.
+
+### 00.4 Verdict
+
+**A. READY FOR OWNER HV.** No PR yet; P3 not started.
 
 ## 0. Update: Owner Decisions applied
 
@@ -49,7 +94,7 @@ Nothing else in production behaviour was extended.
 
 The visible RESULT copy changed (Policy §2: RESULT is in the mandatory list), for **every** ORIGINAL result, plus a new visible FAR line. The automated suite cannot judge the wording or the layout of the two sentences together, so HV is needed before merge. It cannot be produced in this session (needs the dedicated Preview deployment, which follows PR creation — not requested). Suggested HV script (390×844, video to the Owner, before / after screenshots under `docs/reports/screenshots/original-result-feedback-p2/`): reach an ordinary far ORIGINAL (FAR line visible), a near ORIGINAL (ADD_ONE line visible), an INCOMPLETE_MATCH (unchanged lead), a known pizza (no FAR line), Lunch Rush and a guided round (unchanged), and the hint CTA.
 
-**One thing for the Owner to look at during HV:** the neutral lead ends with 「別の組み合わせも試してみよう。」 and the FAR line reads 「別の組み合わせも試してみよう！」 — both are shown together on a far ORIGINAL, so the same advice appears twice. Both texts are exactly as decided; if the repetition reads badly, that is a follow-up copy decision, not changed here.
+~~**One thing for the Owner to look at during HV:** the lead and the FAR line repeat the same advice.~~ Resolved by OD-P2-5 (§00).
 
 
 ## 1. Fresh Audit against latest main
@@ -184,4 +229,4 @@ P3 (Trial Notebook, session-only) is **not blocked by P2**: P2 changed no state,
 
 ## 15. Verdict
 
-**A. P2 COMPLETE / READY FOR HV.** Owner Decisions OD-P2-1..4 are applied and nothing else was extended; automated verification is complete and green; visible copy changed, so Human Verification is required before merge. No PR has been created; P1, P3 and rescue hints are untouched.
+**A. READY FOR OWNER HV** (revision 3, §00). Owner Decisions OD-P2-1..5 are applied and nothing else was extended; automated verification is complete and green; visible copy changed, so Human Verification is required before merge. No PR has been created; P1, P3 and rescue hints are untouched.

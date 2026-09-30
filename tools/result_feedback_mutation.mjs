@@ -48,6 +48,7 @@ const MUTANTS = [
   ["R09", RNM, "FAILED rounds not excluded", 'input.completion?.status === "FAILED"', "false"],
   ["C01", OC, "AMBIGUOUS copy diverges from ordinary", "AMBIGUOUS: NEUTRAL_LEAD,", 'AMBIGUOUS: "この組み合わせは登録できないよ",'],
   ["C05", OC, "ORDINARY copy reverts to the uniqueness claim", "ORDINARY: NEUTRAL_LEAD,", 'ORDINARY: "図鑑にはない、あなただけのピザ！",'],
+  ["C06", OC, "neutral lead regains the next-action (duplicates the FAR line)", 'const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！";', 'const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。";'],
   ["C02", OC, "AMBIGUOUS kind not detected", 'if (discovery?.kind === "AMBIGUOUS") return "AMBIGUOUS";', ""],
   ["C03", OC, "INCOMPLETE_MATCH kind not detected", 'if (discovery?.kind === "INCOMPLETE_MATCH") return "INCOMPLETE_MATCH";', ""],
   ["P01", RP, "ResultPanel ignores the kind", "ORIGINAL_LEAD_COPY[originalResultKind(discovery)]", "ORIGINAL_LEAD_COPY.ORDINARY"],
