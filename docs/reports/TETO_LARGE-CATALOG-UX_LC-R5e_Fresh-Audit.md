@@ -438,15 +438,15 @@ HV-1 欲しい材料の見つけやすさ / HV-2 page 切替の煩わしさ / HV
 
 R6-a を「test / presentation hardening（dormant）」と「Preview 切替」で 2 PR に分けるとより安全（R6-a1 test-only、R6-a2 dormant presentation + Preview switch）。
 
-## 18. Required Owner Decisions
+## 18. Owner Decisions（**CONFIRMED**, 2026-09-30）
 
-| # | 質問 | 推奨 |
+| # | 決定 | 実装時期 |
 |---|---|---|
-| **OD-R5e-1** | inactive category（sauce / cheese、topping ≤ capacity）でも pin UI を出すか | **出さない**（active hand の category のみ pin UI。inactive では R5-b の read-only pantry） |
-| **OD-R5e-2** | hand mode で非 pin の在庫 0 topping を tray から隠す（LC-OD-17）ことを、EP3「never hidden」の上書きとして再確認するか | 再確認（pantry では ×0 表示が残る）。HV-13 で観察 |
-| **OD-R5e-3** | capacity-full feedback に数字（「12 個まで」）を出してよいか（OD-R5-7 との関係） | 数字なしの文言（「手元がいっぱいです。どれかを外してね」）+ polite announce |
-| **OD-R5e-4** | Preview で flag ON / capacity 切替を出す手段（build-time env 等、production build では常に false を保証） | Preview-only build 変数 + production build で true を拒否する test |
-| **OD-R5e-5** | R6 slice plan（§17）の承認 | R6-a を最初に、test-only から |
+| **OD-R5e-1** | pin UI は **hand が active な category でのみ** production 表示する。sauce / cheese、owned topping ≤ capacity（inactive）では効かない pin UI を出さない | R6-a（presentation、dormant）。現 test は current spec を固定しているので（E11 KILLED）、R6-a で意図的に更新する |
+| **OD-R5e-2** | hand mode では unpinned かつ inventory = 0 の topping を tray から除外してよい。pantry には ×0 で残す。existing pinned inventory = 0 は tray に残し、unpin 可能 | 実装済み（R5-d）。R5-e-h H-6 で App-level に固定 |
+| **OD-R5e-3** | capacity rejection UI に capacity の数字を出さない。例: 「手元がいっぱいです。使わない食材のピンを外してね」。capacity 9 / 12 は R6 Human Feel Gate まで未決定 | R6-a |
+| **OD-R5e-4** | Preview-only activation mechanism を採用。production から Preview override を利用できない **fail-closed** 設計が必須。具体的な mechanism は R6-a で current build / deploy architecture を監査して決める | R6-a（R5-e-h では実装しない） |
+| **OD-R5e-5** | R5-e-h → R6-a〜R6-e の順序を承認。ただし R5-e-h 完了後、current main から R6 slice 境界を再確認する | R5-e-h 完了後 |
 
 ## 19. Risks
 
