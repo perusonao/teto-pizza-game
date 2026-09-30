@@ -10,7 +10,7 @@ import { createInitialGameState, gameReducer } from "./gameReducer";
 import { hintSheetView } from "./discoveryHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
-import { NEAR_MISS_COPY, resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
+import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-C): which "おしい" line a Free Cooking RESULT shows, on the
@@ -77,10 +77,10 @@ describe("ORIGINAL results (Dex 3: funghi is today's only DISCOVERABLE recipe)",
     expect(resultNearMiss(i)).toEqual({ kind: "SAUCE_ONLY", textJa: NEAR_MISS_COPY.SAUCE_ONLY });
   });
 
-  it("FAR with the key material used: no line", () => {
+  it("FAR with the key material used: the generic line only (OD-P2-2 supersedes the 229-C silence)", () => {
     const i = input(8, ["tomato-sauce", "mozzarella", "ham"]); // meat-lovers is 3 away
     expect(outcomeKind(i)).toBe("ORIGINAL");
-    expect(resultNearMiss(i)).toBeNull();
+    expect(resultNearMiss(i)).toEqual({ kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY });
   });
 });
 
