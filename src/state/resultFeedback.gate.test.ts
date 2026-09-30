@@ -72,9 +72,22 @@ describe("Owner decisions (P2) stay contained", () => {
     expect(users).toEqual([]);
   });
 
-  it("no dependency on the Attempt Fingerprint (P1) or the Trial Notebook", () => {
+  // P1 (Attempt Fingerprint) introduced `attemptFingerprint.ts`. The module may exist and carry its own
+  // name; this gate still guarantees that no *other* production file depends on it before P3 wiring
+  // (together with attemptFingerprint.gate.test.ts, which pins the import / reference graph to 0).
+  // This allowlist is exactly that one file, and it never covers the Trial Notebook.
+  const ATTEMPT_FINGERPRINT_MODULE = "/src/logic/discovery/attemptFingerprint.ts";
+
+  it("no production file other than the P1 module itself mentions the Attempt Fingerprint", () => {
     for (const [path, text] of production) {
-      expect(text, path).not.toMatch(/attemptFingerprint|trialNotebook/i);
+      if (path === ATTEMPT_FINGERPRINT_MODULE) continue;
+      expect(text, path).not.toMatch(/attemptFingerprint/i);
+    }
+  });
+
+  it("no dependency on the Trial Notebook (the P1 module included)", () => {
+    for (const [path, text] of production) {
+      expect(text, path).not.toMatch(/trialNotebook/i);
     }
   });
 });

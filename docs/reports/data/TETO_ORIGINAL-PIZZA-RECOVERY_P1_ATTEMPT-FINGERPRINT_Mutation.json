@@ -1,0 +1,151 @@
+{
+ "target": "src/logic/discovery/attemptFingerprint.ts",
+ "tests": "src/logic/discovery/attemptFingerprint*.test.ts",
+ "mutants": 27,
+ "killed": 23,
+ "equivalent": 4,
+ "survived": 0,
+ "invalid": 0,
+ "mutationScore": 1,
+ "results": [
+  {
+   "id": "M01",
+   "description": "canonicalIds: drop the sort",
+   "status": "KILLED"
+  },
+  {
+   "id": "M02",
+   "description": "canonicalIds: drop the de-duplication",
+   "status": "KILLED"
+  },
+  {
+   "id": "M03",
+   "description": "serialize: sauceBase omitted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M04",
+   "description": "serialize: ingredientSet omitted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M05",
+   "description": "version constant bumped",
+   "status": "KILLED"
+  },
+  {
+   "id": "M06",
+   "description": "extension: UNAVAILABLE axes leak in",
+   "status": "KILLED"
+  },
+  {
+   "id": "M07",
+   "description": "extension: default-valued axes are included",
+   "status": "KILLED"
+  },
+  {
+   "id": "M08",
+   "description": "extension: no axis is ever included",
+   "status": "KILLED"
+  },
+  {
+   "id": "M27",
+   "description": "extension: FIXED_BY_FLOW axes ignored (Codex P2: only OBSERVED kept)",
+   "status": "KILLED"
+  },
+  {
+   "id": "M09",
+   "description": "serialize: empty extension is always written",
+   "status": "KILLED"
+  },
+  {
+   "id": "M10",
+   "description": "serialize: extension key order follows insertion, not IDENTITY_DIMENSION_KEYS",
+   "status": "KILLED"
+  },
+  {
+   "id": "M11",
+   "description": "OfSignature: sauceBase not canonicalised",
+   "status": "KILLED"
+  },
+  {
+   "id": "M12",
+   "description": "OfSignature: ingredientSet not canonicalised",
+   "status": "KILLED"
+  },
+  {
+   "id": "M13",
+   "description": "isSameAttempt inverted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M14",
+   "description": "version pattern accepts fp0",
+   "status": "KILLED"
+  },
+  {
+   "id": "M15",
+   "description": "version reader ignores the prefix",
+   "status": "KILLED"
+  },
+  {
+   "id": "M16",
+   "description": "parse: version prefix not required",
+   "status": "EQUIVALENT",
+   "equivalentReason": "Redundant with the round-trip check in parseAttemptFingerprint (re-serialising must reproduce the input)."
+  },
+  {
+   "id": "M17",
+   "description": "parse: canonical (sorted/unique) check removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M18",
+   "description": "parse: sauceBase-subset-of-set check removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M19",
+   "description": "parse: extension slot always rejected",
+   "status": "KILLED"
+  },
+  {
+   "id": "M20",
+   "description": "parse: any payload length accepted",
+   "status": "EQUIVALENT",
+   "equivalentReason": "Redundant with the round-trip check in parseAttemptFingerprint (re-serialising must reproduce the input)."
+  },
+  {
+   "id": "M21",
+   "description": "parse: unknown extension key accepted",
+   "status": "EQUIVALENT",
+   "equivalentReason": "Redundant with the round-trip check in parseAttemptFingerprint (re-serialising must reproduce the input)."
+  },
+  {
+   "id": "M22",
+   "description": "parse: default-valued extension accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M23",
+   "description": "parse: round-trip check removed",
+   "status": "KILLED"
+  },
+  {
+   "id": "M24",
+   "description": "parse: ext may be an array",
+   "status": "EQUIVALENT",
+   "equivalentReason": "Redundant with the round-trip check in parseAttemptFingerprint (re-serialising must reproduce the input)."
+  },
+  {
+   "id": "M25",
+   "description": "parse: non-string ids accepted",
+   "status": "KILLED"
+  },
+  {
+   "id": "M26",
+   "description": "extension equality: compares by reference-ish (always different)",
+   "status": "KILLED"
+  }
+ ]
+}
