@@ -15,22 +15,33 @@ describe("Attempt Fingerprint — production wiring is 0", () => {
     expect(Object.keys(sources)).toContain(MODULE);
   });
 
-  it("no production (non-test) file imports it", () => {
+  // P3-1 (Trial Notebook pure model) is the one production importer the Owner approved (OD-P3-1/12). It is itself
+  // unwired (trialNotebook.gate.test.ts), so the chain App/reducer/RESULT/Dex/Builder/save -> fingerprint stays 0.
+  const APPROVED_IMPORTER = "/src/logic/discovery/trialNotebook.ts";
+
+  it("no production (non-test) file imports it except the unwired Trial Notebook model", () => {
     const importers = Object.entries(sources)
       .filter(([path]) => path !== MODULE && !isTest(path))
       .filter(([, text]) => /from\s+["'][^"']*attemptFingerprint["']/.test(text) || /import\(\s*["'][^"']*attemptFingerprint["']/.test(text))
       .map(([path]) => path);
-    expect(importers).toEqual([]);
+    expect(importers).toEqual([APPROVED_IMPORTER]);
   });
 
-  it("only its own test files reference it", () => {
+  it("only its own test files and the Trial Notebook model reference it", () => {
     const referencing = Object.entries(sources)
       .filter(([path]) => path !== MODULE)
       .filter(([, text]) => /attemptFingerprint["']/.test(text))
       .map(([path]) => path)
       .sort();
-    expect(referencing).toEqual(["/src/logic/discovery/attemptFingerprint.test.ts"]);
-    for (const path of referencing) expect(isTest(path), path).toBe(true);
+    expect(referencing).toEqual(
+      [
+        APPROVED_IMPORTER,
+        "/src/logic/discovery/attemptFingerprint.test.ts",
+        "/src/logic/discovery/trialNotebook.gate.test.ts", // asserts the model imports exactly ./attemptFingerprint
+        "/src/logic/discovery/trialNotebook.test.ts",
+      ].sort(),
+    );
+    for (const path of referencing) expect(isTest(path) || path === APPROVED_IMPORTER, path).toBe(true);
   });
 });
 
