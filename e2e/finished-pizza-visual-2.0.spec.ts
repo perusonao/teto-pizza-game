@@ -179,10 +179,12 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
     await tapDoughPercent(page, 45, 55);
     await tapDoughPercent(page, 55, 45);
 
-    // Clearly later than IDEAL (target center 70) but still inside the Completion Gate's own
-    // BAKE_ACCEPTABLE_MARGIN_RATIO (0.5 -- margherita's own {60,80} span=20 => margin=10, so 89
-    // stays PASS/servable) -- an overbaked-but-still-real pizza, not a FAILED round.
-    await bakeToTarget(page, { start: 88, end: 90 });
+    // Clearly later than IDEAL (target center 70, perfect zone ends at 80) but still inside the
+    // Completion Gate's own BAKE_ACCEPTABLE_MARGIN_RATIO (0.5 -- margherita's own {60,80} span=20 =>
+    // margin=10, band ends at 90) -- an overbaked-but-still-real pizza, not a FAILED round. Issue
+    // #256: a FAILED bake now skips CUT, so this lands at 85 (5 points inside the band) rather than
+    // 89, keeping the CUT assertions below clear of the band edge.
+    await bakeToTarget(page, { start: 84, end: 86 });
     const overbakedBasilAtBake = await toppingFilter(page, "basil");
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();

@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { getCookingProfile, isCutEligible, postBakeSteps } from "../../data/cookingProfiles";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
-import { FREE_COOK_BAKE_TARGET } from "../../data/freeCook";
+import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE } from "../../data/freeCook";
 import { INGREDIENTS } from "../../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../../data/referencePizza";
-import { getRecipe, RECIPES, type RecipeId } from "../../data/recipes";
+import { getRecipe, RECIPES, type BakeTarget, type RecipeId } from "../../data/recipes";
+import { bakeCompletionFailure, evaluatePizzaCompletion } from "../../logic/completionGate";
 import type { RecipeDiscoveryTarget } from "../../logic/discovery/matcher";
 import type { QualityStars } from "../../logic/scoring";
 import { computeScoringV2, toLegacyScoreBreakdown } from "../../logic/scoringV2";
@@ -13,6 +14,7 @@ import type { DexEntry, DexState } from "../../state/dex";
 import { gameReducer } from "../../state/gameReducer";
 import { startGuidedPrepare } from "../../state/testSupport/guidedRound";
 import { consumePizzaInventory, type InventoryState } from "../../state/inventory";
+import { completionPolicyForRound } from "../../state/roundKind";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { getDinnerMission, type DinnerMissionDefinition } from "./dinnerMission";
 import { dinnerRunReducer, startDinnerRun, type DinnerRunState } from "./dinnerRun";
@@ -704,5 +706,89 @@ describe("evaluateFreeCookCompletion's optional bake window (the one extension t
       status: "FAILED",
       reason: "MISSING_REQUIRED_INGREDIENT",
     });
+  });
+});
+
+describe("Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P)", () => {
+  const DINNER_POLICY = completionPolicyForRound({ roundKind: "DINNER" });
+  /** The base CONFIRM_BAKE's verdict for a Dinner round: the sentinel recipe carrying `window`. */
+  const baseVerdict = (pizza: PizzaState, window: BakeTarget) =>
+    bakeCompletionFailure(evaluatePizzaCompletion({ ...FREE_COOK_RECIPE, bakeTarget: window }, pizza, DINNER_POLICY));
+
+  it("D-R1: a pending CUT with a matching waiver resolves to INVALID_PIZZA, consumed once", () => {
+    for (const [bake, reason] of [[0, "UNDERBAKED"], [100, "OVERBAKED"]] as const) {
+      const pizza = pizzaFor("bismarck", { bake });
+      expect(planDinnerBake(pizza).cutRequired).toBe(true);
+      const result = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizza, { cutCompleted: false, cutWaivedFor: reason })));
+      expect(result.classification).toMatchObject({ category: "INVALID_PIZZA" });
+      expect(result.completedTargetId).toBeNull();
+      expect(result.postConsumptionInventory).toEqual(consumePizzaInventory(pizza, EXACT_A));
+    }
+  });
+
+  it("D-R2: without a waiver a pending CUT is still CUT_PENDING (in-band and out-of-band alike)", () => {
+    for (const bake of [0, midBake("bismarck"), edgeBake("bismarck"), 100]) {
+      const result = resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck", { bake }), { cutCompleted: false }));
+      expect(result).toEqual({ status: "REJECTED", reason: "CUT_PENDING" });
+    }
+  });
+
+  it("D-R3: a waiver the classification does not confirm is rejected, fail closed", () => {
+    const cases = [
+      { bake: midBake("bismarck"), waiver: "UNDERBAKED" }, // in band: not INVALID
+      { bake: edgeBake("bismarck"), waiver: "OVERBAKED" }, // ★4 badge, still PASS
+      { bake: 0, waiver: "OVERBAKED" }, // INVALID, but for the other reason
+    ] as const;
+    for (const { bake, waiver } of cases) {
+      const result = resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck", { bake }), { cutCompleted: false, cutWaivedFor: waiver }));
+      expect(result).toEqual({ status: "REJECTED", reason: "CUT_WAIVER_MISMATCH" });
+    }
+  });
+
+  it("D-R4: a waiver is ignored when no CUT is pending (confirmed CUT, or a no-CUT plan)", () => {
+    const cut = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck"), { cutCompleted: true, cutWaivedFor: "UNDERBAKED" })));
+    expect(cut.classification).toMatchObject({ category: "TARGET_PASS", recipeId: "bismarck" });
+    const noCut = pizzaFor("funghi", { extra: { egg: 1 }, bake: 0 });
+    expect(planDinnerBake(noCut).cutRequired).toBe(false);
+    const result = resolved(resolveDinnerAttempt(input(runOf(DM_A), noCut, { cutCompleted: false, cutWaivedFor: "OVERBAKED" })));
+    expect(result.classification).toMatchObject({ category: "INVALID_PIZZA" });
+  });
+
+  it("D-P: the base verdict equals Stage B's bake failure on every window, composition and bake (10,452 cases)", () => {
+    const windows = [FREE_COOK_BAKE_TARGET, ...RECIPES.map((r) => r.bakeTarget)];
+    let cases = 0;
+    for (const window of windows) {
+      for (const withItem of [false, true]) {
+        for (let v = 0; v <= 100; v += 0.5) {
+          const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: withItem ? ["tomato-sauce"] : [], bakeResult: v };
+          const stageB = bakeCompletionFailure(evaluateFreeCookCompletion(pizza, window));
+          expect(baseVerdict(pizza, window), `${JSON.stringify(window)} v=${v} item=${withItem}`).toBe(stageB);
+          cases += 1;
+        }
+      }
+    }
+    expect(windows).toHaveLength(26);
+    expect(cases).toBe(10_452);
+  });
+
+  it("D-P runtime: for every CUT recipe's Reference pizza, bake 0..100, the forwarded verdict never mismatches", () => {
+    let checked = 0;
+    for (const recipe of RECIPES) {
+      for (let bake = 0; bake <= 100; bake += 1) {
+        const pizza = pizzaFor(recipe.id, { bake });
+        const plan = planDinnerBake(pizza);
+        if (!plan.cutRequired) continue;
+        const waiver = baseVerdict(pizza, plan.bakeWindow.target);
+        const result = resolveDinnerAttempt(input(runOf(DM_A), pizza, { cutCompleted: false, cutWaivedFor: waiver }));
+        if (waiver === null) {
+          expect(result).toEqual({ status: "REJECTED", reason: "CUT_PENDING" });
+        } else {
+          expect(result.status, `${recipe.id} @${bake}`).toBe("RESOLVED");
+          expect(resolved(result).classification.category).toBe("INVALID_PIZZA");
+        }
+        checked += 1;
+      }
+    }
+    expect(checked).toBeGreaterThan(2_000);
   });
 });

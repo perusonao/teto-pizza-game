@@ -73,6 +73,20 @@ describe("DinnerTargetRow (R27: a reference tap is not a selection)", () => {
   });
 });
 
+describe("DinnerTargetRow: the 🔍 見本 mark (OD-DUI-1a)", () => {
+  it("every chip carries one decorative 🔍, hidden from assistive tech; the button name stays 「○○の見本を見る」", () => {
+    render(<DinnerTargetRow run={run({ completedRecipeIds: ["margherita"] })} now={T0} onOpenReference={vi.fn()} />);
+    const lenses = screen.getAllByTestId("dinner-chip-lens");
+    expect(lenses).toHaveLength(4);
+    for (const lens of lenses) {
+      expect(lens).toHaveTextContent("🔍");
+      expect(lens.closest("[aria-hidden='true']")).not.toBeNull();
+    }
+    expect(screen.getByRole("button", { name: "ビスマルクの見本を見る" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "マルゲリータ（完成）の見本を見る" })).toHaveTextContent("✓");
+  });
+});
+
 describe("DinnerAttemptResultPanel", () => {
   it("TARGET_PASS: 「○○完成！」, the progress and 次のピザを作る", () => {
     const onNext = vi.fn();
@@ -102,6 +116,30 @@ describe("DinnerAttemptResultPanel", () => {
     expect(screen.getByTestId("dinner-attempt-result")).toHaveAttribute("data-category", view.category);
   });
 
+  it("OD-DUI-5a: a QUALITY_FAIL below S shows あと★N (N = injected S − ★); other results do not", () => {
+    render(
+      <DinnerAttemptResultPanel
+        view={{ category: "QUALITY_FAIL", recipeId: "margherita", nameJa: "マルゲリータ", failure: { kind: "BELOW_MINIMUM_STARS", stars: 3, minimumStars: 5 } }}
+        completed={0}
+        total={4}
+        onNext={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("dinner-attempt-gap")).toHaveTextContent("あと★2");
+    expect(screen.getByTestId("dinner-attempt-result")).toHaveTextContent("マルゲリータ ★3（合格は★5以上）");
+  });
+
+  it.each([
+    { category: "TARGET_PASS", recipeId: "bismarck", nameJa: "ビスマルク", stars: 4, minimumStars: 3 },
+    { category: "QUALITY_FAIL", recipeId: "funghi", nameJa: "フンギ", failure: { kind: "COMPLETION_GATE", reason: "MISSING_REQUIRED_INGREDIENT", ingredientId: "mushroom" } },
+    { category: "INVALID_PIZZA", reason: "UNDERBAKED" },
+    { category: "ORIGINAL" },
+  ] as const)("no あと★ line for %j", (view) => {
+    render(<DinnerAttemptResultPanel view={view} completed={0} total={4} onNext={vi.fn()} />);
+    expect(screen.queryByTestId("dinner-attempt-gap")).toBeNull();
+    expect(screen.getByTestId("dinner-attempt-result")).not.toHaveTextContent("あと★");
+  });
+
   it("an ORIGINAL result shows no recipe name at all", () => {
     render(<DinnerAttemptResultPanel view={{ category: "ORIGINAL" }} completed={0} total={4} onNext={vi.fn()} />);
     const text = screen.getByTestId("dinner-attempt-result").textContent ?? "";
@@ -126,7 +164,9 @@ describe("DinnerResultOverlay", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveTextContent("DINNER CLEAR!");
     // The pizza that cleared the run is named, not only the aggregate.
-    expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：ブレックファストピザ完成！");
+    expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：ブレックファストピザ ★4");
+    // OD-DUI-3a: the pizza itself, never a headline.
+    expect(screen.getByTestId("dinner-result-last")).not.toHaveTextContent("完成！");
     expect(dialog).toHaveTextContent("4 / 4");
     expect(dialog).toHaveTextContent("01:35");
     expect(dialog).not.toHaveTextContent("Pitz");
@@ -165,7 +205,8 @@ describe("DinnerResultOverlay", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveTextContent("材料が足りなくなりました");
     expect(dialog).toHaveTextContent("たまご 必要 1 / 所持 0");
-    expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：これはもう完成済み！");
+    expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：ビスマルク");
+    expect(screen.getByTestId("dinner-result-last")).not.toHaveTextContent("これはもう完成済み！");
     expect(screen.getByRole("button", { name: "もう一度" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "ショップへ" }));
     expect(onOpenShop).toHaveBeenCalled();

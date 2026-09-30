@@ -4,7 +4,7 @@ import { getRecipe, type RecipeId } from "../data/recipes";
 import { getReferencePizza } from "../data/referencePizza";
 import type { DinnerAttemptView } from "../mission/dinner/dinnerResultDetection";
 import type { DinnerRunState } from "../mission/dinner/dinnerRun";
-import { dinnerAttemptCopy, dinnerTargetRowItems, formatDinnerClock } from "../state/dinnerView";
+import { dinnerAttemptCopy, dinnerLastPizzaLabel, dinnerTargetRowItems, formatDinnerClock } from "../state/dinnerView";
 import { ReferenceThumbnail } from "./ReferenceThumbnail";
 
 /**
@@ -91,6 +91,9 @@ export function DinnerTargetRow({
               aria-label={`${item.nameJa}${item.completed ? "（完成）" : ""}の見本を見る`}
               data-testid={`dinner-chip-${item.recipeId}`}
             >
+              <span className="dinner-chip__lens" aria-hidden="true" data-testid="dinner-chip-lens">
+                {"\u{1F50D}"}
+              </span>
               <span className="dinner-chip__thumb" aria-hidden="true">
                 <TargetThumbnail recipeId={item.recipeId} />
                 {item.completed && <span className="dinner-chip__check">{"✓"}</span>}
@@ -131,6 +134,11 @@ export function DinnerAttemptResultPanel({
         {copy.titleJa}
       </p>
       <p className="dinner-attempt__line">{copy.lineJa}</p>
+      {copy.gapJa && (
+        <p className="dinner-attempt__gap" data-testid="dinner-attempt-gap">
+          {copy.gapJa}
+        </p>
+      )}
       <p className="dinner-attempt__progress">
         完成 {completed} / {total}
       </p>
@@ -181,7 +189,7 @@ export function DinnerResultOverlay({
             </p>
             {lastResult && (
               <p className="dinner-result__last" data-testid="dinner-result-last">
-                最後のピザ：{dinnerAttemptCopy(lastResult).titleJa}
+                最後のピザ：{dinnerLastPizzaLabel(lastResult)}
               </p>
             )}
           </>
@@ -200,7 +208,7 @@ export function DinnerResultOverlay({
             </p>
             {lastResult && (
               <p className="dinner-result__last" data-testid="dinner-result-last">
-                最後のピザ：{dinnerAttemptCopy(lastResult).titleJa}
+                最後のピザ：{dinnerLastPizzaLabel(lastResult)}
               </p>
             )}
             {outcome.reason === "INFEASIBLE" && outcome.shortages.length > 0 && (
