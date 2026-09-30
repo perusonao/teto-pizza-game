@@ -297,6 +297,7 @@ Coverage gaps（activation 観点）:
 - **G-5** pin → undo で selection 非復元の現仕様を固定する test なし。
 - **G-6** ON-but-inactive ≡ OFF の tray DOM gate なし（§10.2-2）。
 - **G-7** keyboard-open の strip 非表示は CSS 文字列 test（M95）+ simulated geometry のみ。forced-on e2e（R5-d carry G-c）なし。
+- **G-8（= F-6、最重要）** App が #197 の clear を実行しなくても全 test が通る（E6 SURVIVED）。既存 assertion は可視 chip（`.ingredient-chip--selected`）のみで、非可視 selection の残存を観測しない。
 
 ---
 
@@ -308,7 +309,23 @@ Coverage gaps（activation 観点）:
 
 ### 12.2 activation-boundary 候補 mutant（`tools/large-catalog-ux/r5e-activation-mutants.mjs`）
 
-<<E-TABLE>>
+実行: `node tools/large-catalog-ux/r5e-activation-mutants.mjs`（current main、suite = catalog + pantry / tray / App hand tests）。**8 / 11 killed**。
+
+| id | mutant | 結果 | 判定 |
+|---|---|---|---|
+| E1 | `handCapacityFor` 内の flag 反転 | KILLED | pure `hand.test` が捕捉（ただし App ON test は `handCapacityFor` を mock しているので App 層では見えない → AB-3） |
+| E2 | round / step key 変化を hand 変化として評価 | SURVIVED | **現データでは等価**: track が存在するのは active hand（topping のみ）の時だけで、TOPPING は最後の step。key 変化 = 新 round で selection は既存 reset が null にする。sauce / cheese が capacity を超える catalog になれば非等価 → H-3 |
+| E3 | inactive hand でも tray を hand mode に | KILLED | — |
+| E4 | PREPARE 以外でも tray hand を計算 | SURVIVED | **観測上等価**: BAKE 以降 tray は描画されず、placed / pins も変わらないので transition は起きない（無駄な計算のみ）。非 blocking |
+| E5 | candidate 12 → 9 | KILLED | App test は 12 を固定している（G-1: 9 の App 経路は未検証、R6-d 後に parametrize 要） |
+| **E6** | **App が transition の selection clear を捨てる（#197 無効化）** | **SURVIVED** | **真の test gap（Finding F-6）**。scratch probe（未 commit）で E6 適用時、page 2 で選択 → hand 外 topping を pin → 閉じる → pizza tap で **piece が 1 個置かれる**（非可視 selection による配置 = #197 bug）ことを確認。既存 test は `.ingredient-chip--selected`（可視 chip）しか見ないため、選択が page 0 に無ければ clear の有無に関係なく `null` になる。fuzz I1 も seed 上この経路を踏まない。production code は正しいが、activation の安全契約の中核を守る test が無い |
+| E7 | 既存の在庫 0 pin を hand から落とす | KILLED | — |
+| E8 | `new` tier を古い順に | KILLED | — |
+| E9 | #197 retain を hand 全体で判定 | KILLED | — |
+| E10 | Model C fail-open | KILLED | — |
+| E11 | pin UI を active hand の時だけに（OD-R5e-1 の推奨案） | KILLED | current spec（inactive でも pin UI）を test が固定している。OD-R5e-1 で推奨案を採るなら test も意図的に更新する |
+
+**F-6 の hardening（test-only）**: App-level で「hand 変化で page 0 に無い selection が clear された後、pizza tap が何も置かない」ことを明示的に assert する test（上記 probe を正式化）+ fuzz I1 に「page 2 選択 → hand 外 pin」の決定的シナリオを追加 → E6 を kill。
 
 ### 12.3 要求リストとの対応
 
@@ -321,14 +338,30 @@ Coverage gaps（activation 観点）:
 | pin rejection | M83 / M107 | E10 |
 | catalog-order normalization | M8 / M98 | — |
 | #197 page reset | M100 / M113 / M114 | — |
-| selection retention / clear | M31 / M99 / M105 | E6 / E9 |
-| category isolation | M86 / M47 | E2 |
+| selection retention / clear | M31 / M99 / M105 | E9 KILLED、**E6 SURVIVED（F-6）** |
+| category isolation | M86 / M47 | E2 SURVIVED（現データで等価、H-3） |
 | inventory0 | M11 / M83 / M88 / M102 | E7 |
 | keyboard selected-strip visibility | M95（CSS 文字列） | 実 geometry は e2e / HV のみ（G-7） |
 
 ---
 
-## 13. Activation blockers（production flag ON = R6-e の前に必須。R6 開始の blocker ではない）
+## 13. Activation blockers
+
+### 13.1 Hardening required before R6（test-only、production code 変更なし）
+
+| # | 内容 | 根拠 | kill 対象 |
+|---|---|---|---|
+| **H-1** | App-level: hand 変化で page 0 に無い selection が clear された後、pizza tap が **何も置かない** ことを明示 assert（R5-e probe の正式化）。fuzz I1 に決定的シナリオ（page 2 選択 → hand 外 pin → 閉じる → tap）を追加 | F-6 / G-8 | **E6** |
+| H-2 | App-level capacity 9 parametrize（`DEFAULT_HAND_CAPACITY_CANDIDATE` を 9 に差し替えた App 経路: 6+3 page、Model C、placed） | G-1 | E5（両候補で kill） |
+| H-3 | pure: `handTrayTransition` は key 変化時に呼ばれないこと / App: step 変化で hand transition を評価しないことを、sauce / cheese が capacity 超の fixture catalog で固定 | E2 | E2 |
+| H-4 | 選択 invariant: 「selected ≠ null ⇒ selected ∈ 現 tray page」を App test helper として全 hand test の各 step 後に assert | §6.4 | E6 / M99 / M105 |
+| H-5 | null → active の同一 key 遷移（現在到達不能）を pure test で仕様化（将来 in-round 購入を入れる時の検出用） | §6.3 | — |
+| H-6 | active hand の round 跨ぎ（stock 1→0 で tray から消える / zero-stock pin は ×0 で残る）、guided / Lunch Rush + pins の App test | G-2 / G-3 | — |
+| H-7 | pin → undo で selection が戻らない現仕様を固定（R6 で変えるなら意図的に test を更新） | G-5 | — |
+
+H-1 は activation の安全契約（非可視 selection で置けない）を守る唯一の App 層 gate であり、R6 で flag を触る前に入れるべき。H-2〜H-7 は同じ test-only slice に同梱できる。
+
+### 13.2 Activation blockers（production flag ON = R6-e の前に必須）
 
 | # | blocker | 根拠 | 解消 slice |
 |---|---|---|---|
@@ -385,6 +418,7 @@ HV-1 欲しい材料の見つけやすさ / HV-2 page 切替の煩わしさ / HV
 
 | slice | 内容 | production 変化 | HV |
 |---|---|---|---|
+| **R5-e-h** test / mutation hardening（R6 の前提） | §13.1 H-1〜H-7、E6 / E2 を kill、M1〜M114 維持 | なし | 不要 |
 | **R6-a** activation readiness（flag false のまま） | test seam（flag を 1 関数に集約、`handCapacityFor` を mock しない ON test）、OFF golden 14+ snapshots を commit、ON-inactive ≡ OFF gate、App-level capacity 9 parametrize（G-1）、G-2 / G-3 / G-5、H-4 invariant、capacity-full feedback + SR announce（AB-1）と OD-R5e-1 の presentation を **dormant で**実装、Preview-only flag 切替（OD-R5e-4）、mutation E-set の survivors を kill | なし（DOM byte 同一を gate で証明） | 不要（dormant） |
 | **R6-b** Preview flag ON exact SHA HV | Preview build のみ flag ON（capacity 12 candidate）。390×844 video + screenshot、HV-1〜HV-13 の初回 | なし（production は false） | 必須 |
 | **R6-c** 9 vs 12 real-device comparison | §16 protocol。2 Preview build | なし | 必須 |
@@ -418,4 +452,13 @@ R6-a を「test / presentation hardening（dormant）」と「Preview 切替」�
 
 ## 20. Final readiness verdict
 
-<<VERDICT>>
+**C. HARDENING REQUIRED BEFORE R6**
+
+理由:
+- Foundation 自体は健全: privacy PASS（§4）、OFF = R5-d production behavior（§10）、dormancy guard は flag を読む 3 site すべてで有効、OD-R5d-1〜3 は current code と一致（§5 / §6）、9 / 12 で stage geometry 同一（§8）。
+- しかし **#197 の App 層 clear（activation 時の安全契約の中核）を守る test が存在しない**（F-6: E6 SURVIVED、scratch probe で非可視 selection による配置を再現）。flag ON 系の作業（R6-b 以降）に入る前に test-only hardening H-1（+ H-2〜H-7）が必要。
+- 並行して Owner Decision OD-R5e-1〜5（§18）が必要。production activation（R6-e）前の blocker は AB-1〜AB-6（§13.2）。
+
+提案する次 slice（Owner go 待ち）: **LC-R5-e-h（test / mutation hardening only）** — H-1〜H-7 の test 追加と `r5e-activation-mutants.mjs` の E6 / E2 を kill、既存 M1〜M114 維持。production code・flag・capacity・save・UI は一切変更しない。その後 R6-a へ。
+
+R6 implementation は開始しない。STOP.
