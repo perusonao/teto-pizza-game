@@ -15,19 +15,21 @@ describe("Attempt Fingerprint — production wiring is 0", () => {
     expect(Object.keys(sources)).toContain(MODULE);
   });
 
-  // P3-1 (Trial Notebook pure model) is the one production importer the Owner approved (OD-P3-1/12). It is itself
-  // unwired (trialNotebook.gate.test.ts), so the chain App/reducer/RESULT/Dex/Builder/save -> fingerprint stays 0.
+  // Approved production importers: P3-1's Trial Notebook pure model (OD-P3-1/12) and, since P3-3a (OD-P3-17), the
+  // reducer-side record adapter `state/trialRecord.ts`, which asks for the fingerprint of the finished pizza and
+  // nothing else. The reducer, App, UI, Dex, Builder and save never import it directly.
   const APPROVED_IMPORTER = "/src/logic/discovery/trialNotebook.ts";
+  const RECORD_ADAPTER = "/src/state/trialRecord.ts";
 
-  it("no production (non-test) file imports it except the unwired Trial Notebook model", () => {
+  it("no production (non-test) file imports it except the Trial Notebook model and the P3-3a record adapter", () => {
     const importers = Object.entries(sources)
       .filter(([path]) => path !== MODULE && !isTest(path))
       .filter(([, text]) => /from\s+["'][^"']*attemptFingerprint["']/.test(text) || /import\(\s*["'][^"']*attemptFingerprint["']/.test(text))
       .map(([path]) => path);
-    expect(importers).toEqual([APPROVED_IMPORTER]);
+    expect(importers.sort()).toEqual([APPROVED_IMPORTER, RECORD_ADAPTER].sort());
   });
 
-  it("only its own test files and the Trial Notebook model reference it", () => {
+  it("only its own test files, the Trial Notebook model and the record adapter reference it", () => {
     const referencing = Object.entries(sources)
       .filter(([path]) => path !== MODULE)
       .filter(([, text]) => /attemptFingerprint["']/.test(text))
@@ -36,12 +38,15 @@ describe("Attempt Fingerprint — production wiring is 0", () => {
     expect(referencing).toEqual(
       [
         APPROVED_IMPORTER,
+        RECORD_ADAPTER,
         "/src/logic/discovery/attemptFingerprint.test.ts",
         "/src/logic/discovery/trialNotebook.gate.test.ts", // asserts the model imports exactly ./attemptFingerprint
         "/src/logic/discovery/trialNotebook.test.ts",
+        "/src/state/trialRecord.gate.test.ts", // asserts the adapter imports exactly P1, the matcher type, P3-1 and P2's line
+        "/src/state/trialRecord.test.ts", // fail-closed adapter tests (mocks the fingerprint)
       ].sort(),
     );
-    for (const path of referencing) expect(isTest(path) || path === APPROVED_IMPORTER, path).toBe(true);
+    for (const path of referencing) expect(isTest(path) || path === APPROVED_IMPORTER || path === RECORD_ADAPTER, path).toBe(true);
   });
 });
 

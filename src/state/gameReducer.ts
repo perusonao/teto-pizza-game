@@ -34,6 +34,8 @@ import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
+import { createTrialNotebook, type TrialNotebook } from "../logic/discovery/trialNotebook";
+import { recordTrialAttempt, type LastTrialAttempt } from "./trialRecord";
 import type { TechniqueId } from "../data/techniques";
 import {
   productionTechniqueContext,
@@ -335,6 +337,15 @@ export interface GameState {
    *  as `lastPitzCredit`), `null` until REGISTER_TO_DEX credits a round, and reset for every fresh
    *  round. Not rendered by any UI in this slice; never persisted. */
   lastDiscovery: DiscoveryOutcome | null;
+  /** Original Pizza Recovery P3-3a: the session-only Trial Notebook (what the player tried). Carried across every
+   *  round transition (`ProgressionCarry`), written only by REGISTER_TO_DEX's free-cook ORIGINAL branch through
+   *  `recordTrialAttempt`, empty in a fresh `createInitialGameState` (reload / Full Game Reset), and never part
+   *  of the save. Not rendered by any UI in this slice. */
+  trialNotebook: TrialNotebook;
+  /** P3-3a: the display-only result of the Trial Notebook record committed by this round's REGISTER_TO_DEX
+   *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for
+   *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
+  lastTrialAttempt: LastTrialAttempt | null;
   /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
    *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
    *  REGISTER_TO_DEX, and saved by App in the same write as the Dex. */
@@ -559,6 +570,8 @@ interface ProgressionCarry {
   dinnerMissionRecordsState: DinnerMissionRecordsState;
   /** TQ-1C: the technique ledger survives every round transition like the Dex. */
   discoveredTechniqueIds: readonly TechniqueId[];
+  /** P3-3a: the session-only Trial Notebook survives every round transition (guided / Lunch Rush / Dinner included). */
+  trialNotebook: TrialNotebook;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -624,6 +637,7 @@ function buildOrderState(
     lastMaterialUnlockNotice: null,
     lastEfficiencyCredit: null,
     lastDiscovery: null,
+    lastTrialAttempt: null,
     lastTechniqueDiscovery: null,
     freeCook,
   };
@@ -764,6 +778,7 @@ export function createInitialGameState(
       discoveryHintFacts,
       dinnerMissionRecordsState,
       discoveredTechniqueIds,
+      trialNotebook: createTrialNotebook(),
     },
     { preferFirst: true },
   );
@@ -1292,10 +1307,15 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           resolution.outcome.kind === "ORIGINAL"
             ? roundTechniques(state, state.dex)
             : { ledger: state.discoveredTechniqueIds, newlyDiscovered: [] };
+        // P3-3a (OD-P3-17): the exactly-once Trial Notebook commit. The RESULT guard above makes this transition
+        // happen once per round; `recordTrialAttempt` records only an ORIGINAL / AMBIGUOUS outcome (OD-P3-16).
+        const trial = recordTrialAttempt(state, resolution.outcome);
         return {
           ...state,
           phase: "DISCOVERED",
           lastDiscovery: resolution.outcome,
+          trialNotebook: trial.trialNotebook,
+          lastTrialAttempt: trial.lastTrialAttempt,
           discoveredTechniqueIds: techniques.ledger,
           lastTechniqueDiscovery: techniques.newlyDiscovered,
         };
@@ -1729,6 +1749,7 @@ function carryOf(state: GameState): ProgressionCarry {
     discoveryHintFacts: state.discoveryHintFacts,
     dinnerMissionRecordsState: state.dinnerMissionRecordsState,
     discoveredTechniqueIds: state.discoveredTechniqueIds,
+    trialNotebook: state.trialNotebook,
   };
 }
 
