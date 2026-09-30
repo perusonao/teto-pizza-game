@@ -269,9 +269,20 @@ HV: R5-d は production-visible 変更なし → Policy §2 により HV 動画�
 
 `HAND_ENFORCEMENT_ENABLED = true` の前に: R5-d（tray 配線 + #197 page-level）・R5-e（presentation + 統合 Gate + G-c）完了、OD-R5d-1〜3 回答、**9 vs 12 を R6 real-device Human Feel Gate で確定（OD-R5-1）**、OD-R5c-5（keyboard 中の tile tap）実機判断、IVP §12.1 Gate（到達性・entry independence・#197・placed 保護・overflow・×0・順序安定・privacy・Dinner / guided / Lunch Rush 不変・iOS keyboard・WebKit green・HV 動画 + Owner Human Feel 承認・rollback = flag false で tray byte 同一）。R6 は flag 反転の 1 箇所で pin UI・capacity 表示・tray の hand 消費・page reset / #197 が同時に生きる設計（第 2 flag を作らない）。
 
+## 21. Owner Decisions — CONFIRMED (Owner Authority, recorded after the audit)
+
+| ID | Decision (Owner) |
+|---|---|
+| **OD-R5d-1** | **R-α 採用。** tray の hand が実際に変化したら、現在 page の中身に関わらず **page 0 へ戻す**。#197 authority: hand change → page 0 → new visible page 0 に `selectedIngredientId` が有れば retain、無ければ clear。**F-1 対策**: working-set priority（placed > pinned > hint > favorite > recent > new > catalog fill）は「hand へ何を採用するか」のみの authority。tray の表示順は **catalog order へ正規化**し、priority だけが変わったケース（同じ ingredient set・同じ catalog order）は visible hand change として扱わない。 |
+| **OD-R5d-2** | **placed ingredients は capacity を超えても保護する**（通常操作では到達不能でも、future change / malformed state に対する安全 contract）。placed を capacity 都合でアクセス不能にしない。 |
+| **OD-R5d-3** | **案 C 採用。** placed を最優先で保護し、capacity の残り slot だけ pin 可能。新しい pin を受理したら、その ingredient は必ず visible hand に入る（「pin は成功したが capacity のため tray に出ない」状態は禁止）。capacity が埋まっている時の production-visible feedback / UI は R6 で決める（R5-d は domain contract + dormant wiring のみ）。 |
+| capacity 9 vs 12 | **未決定**（R6 real-device Human Feel Gate で決定）。 |
+
+Implementation Plan: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5d_Implementation-Plan.md`.
+
 ---
 
-**FINAL VERDICT: B. OWNER DECISION REQUIRED**
+**FINAL VERDICT: B. OWNER DECISION REQUIRED**（原判定。OD-R5d-1〜3 は §21 のとおり Owner 確定済み）
 
 - 必須は **OD-R5d-1**（#197 trigger の読み R-α / R-β）のみ。R-α が承認されれば R5-d-1 / R5-d-2 は既存 authority と current code の範囲で実装可能（pure transition + render-phase 派生、OFF 同値は code 経路の非通過で担保）。
 - OD-R5d-2（placed fail-safe）・OD-R5d-3（overflow = C）は R5-d の tray 配線を止めないが、R5-d-1 / R5-d-3 の範囲確定に必要。
