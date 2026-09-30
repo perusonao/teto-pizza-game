@@ -1,0 +1,271 @@
+{
+  "tool": "tools/original_pizza_p3_2_fact_display_audit.mjs",
+  "matrix": "TETO_ORIGINAL-PIZZA-RECOVERY_P3-2_FACT-DISPLAY-MATRIX",
+  "note": "Read-only check of the proposed matrix against current main; no design value is decided here.",
+  "production": {
+    "recipes": 25,
+    "hint5Flag": true,
+    "metamorphicPairsChecked": 547
+  },
+  "ladderShapes": {
+    "recipes": [
+      {
+        "recipeId": "margherita",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 3
+      },
+      {
+        "recipeId": "marinara",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 3
+      },
+      {
+        "recipeId": "quattro-formaggi",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 5
+      },
+      {
+        "recipeId": "genovese",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 3
+      },
+      {
+        "recipeId": "bismarck",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 3
+      },
+      {
+        "recipeId": "funghi",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 3
+      },
+      {
+        "recipeId": "fugazza",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 3
+      },
+      {
+        "recipeId": "salsiccia",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 3
+      },
+      {
+        "recipeId": "pepperoni",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 3
+      },
+      {
+        "recipeId": "napoletana",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "tonno-e-cipolla",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "pizza-bianca",
+        "rungs": 4,
+        "subToppings": 0,
+        "total": 2
+      },
+      {
+        "recipeId": "breakfast-pizza",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "capricciosa",
+        "rungs": 7,
+        "subToppings": 3,
+        "total": 6
+      },
+      {
+        "recipeId": "meat-lovers",
+        "rungs": 7,
+        "subToppings": 3,
+        "total": 6
+      },
+      {
+        "recipeId": "melanzane-pizza",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "parmigiana-pizza",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 5
+      },
+      {
+        "recipeId": "bambino",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "hawaiian",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "pizza-portuguesa",
+        "rungs": 7,
+        "subToppings": 3,
+        "total": 6
+      },
+      {
+        "recipeId": "pesto-tonno",
+        "rungs": 6,
+        "subToppings": 2,
+        "total": 4
+      },
+      {
+        "recipeId": "new-haven-apizza",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "pesto-caprese",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "pesto-patate",
+        "rungs": 5,
+        "subToppings": 1,
+        "total": 4
+      },
+      {
+        "recipeId": "puttanesca-pizza",
+        "rungs": 7,
+        "subToppings": 3,
+        "total": 5
+      }
+    ],
+    "recipesBySubToppingCount": {
+      "0": 8,
+      "1": 12,
+      "2": 1,
+      "3": 4
+    },
+    "maxBoardRows": 7
+  },
+  "invariants": [
+    {
+      "id": "MX-GATE-CARD",
+      "statement": "the memo exists only for DISCOVERABLE",
+      "cases": 1,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-GATE-FLAG",
+      "statement": "no memo with the Hint 5.0 flag off (the rollback path shows none)",
+      "cases": 1,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-GATE-TARGET",
+      "statement": "no memo for a non-ladder target",
+      "cases": 26,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-GATE-ONBOARDING",
+      "statement": "no memo for the Dex-0 onboarding",
+      "cases": 1,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-PREFIX",
+      "statement": "for every production recipe and every prefix of the ladder (0..n rungs bought through the real authority), the fixed rows are KNOWN exactly for the completed fixed rungs, with exactly the ladder's own subject ids, and UNKNOWN rows carry no id",
+      "cases": 898,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-SUB",
+      "statement": "SUB_CLASS rows appear only after STRUCTURE is completed, only for completed rungs, only as family views, in ladder order; a forged cls: record without h5:structure yields none",
+      "cases": 241,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-COMPLETE",
+      "statement": "completeText is present iff every rung is completed",
+      "cases": 151,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-LEGACY",
+      "statement": "a legacy ing: name appears only in legacyKnownIngredientIds, completes no rung, and never alters the pre-purchase view",
+      "cases": 34,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-PROJECTION",
+      "statement": "the memo projection (board + legacyKnownIngredientIds + completeText) contains no next offer, no price, no free text line",
+      "cases": 151,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-PRIVACY",
+      "statement": "the serialised projection contains no ingredient id of a rung that is not completed (other than an owned legacy name), no sub-topping id (other than an owned legacy name), no recipe id, name or description, and no cls: / h5: / ing: / meta: string",
+      "cases": 1172,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-FREELEAK",
+      "statement": "with nothing bought (and discoveredCount >= 1), the projection is byte-identical for every production recipe",
+      "cases": 25,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-METAMORPHIC",
+      "statement": "two recipes at the same purchase prefix differ only in the contents of completed rungs: replacing a recipe's unbought content never changes the projection",
+      "cases": 547,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-ROBUST",
+      "statement": "a malformed, hostile or future ledger (non-array, proto keys, unknown kinds, numbers) never throws and never adds a row",
+      "cases": 66,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "MX-INPUT",
+      "statement": "(implementation gate, P3-2) the memo module imports only hint5 types / the presentation and the card-state type: no P2, no Trial Notebook, no matcher, no recipe data, no technique module",
+      "cases": 1,
+      "failures": [],
+      "status": "PASS"
+    }
+  ]
+}

@@ -37,7 +37,7 @@ The Owner reviewed this audit and decided the following. **Where the audit text 
 | **Collision** | IC-1 / IC-2 are separated from the P3 scope and not fixed here. |
 | **P1 blocker** | Approved: the P2 boundary gate adjustment (allowlist exactly `attemptFingerprint.ts`), carried as a separate commit in the same P1 PR. Done (PR #313). |
 
-**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **complete** on branch `claude/p3-1-trial-notebook-model` (pure, unwired, no PR; REVIVE is the only retry behaviour) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`, verdict A. Next: P3-2 (Dex 発見メモ pure display model) — Fresh Audit first.
+**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **complete** on branch `claude/p3-1-trial-notebook-model` (pure, unwired, no PR; REVIVE is the only retry behaviour) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`, verdict A. P3-2 (Dex 発見メモ pure display model): **Fresh Audit done, verdict A** — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-2_DISCOVERY-MEMO_Fresh-Audit.md`; implementation not started.
 
 ---
 
