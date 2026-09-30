@@ -1,13 +1,13 @@
 # Original Pizza Recovery P3-3 — Trial Notebook + ORIGINAL RESULT Wiring Fresh Audit (design only)
 
-- **Audited `origin/main` SHA:** `d7270303b0bb5837119ed00ae75f621ee10e57d0` (fresh fetch; unchanged since P1 merged, so there is no drift to audit).
+- **Audited `origin/main` SHA:** `d7270303b0bb5837119ed00ae75f621ee10e57d0` (fresh fetch at audit time). **Update after the Owner's OD-P3-16..20 decisions:** P3-1 was then merged as PR #315, merge commit `2e9d89d46ec5f134588b5112f00dc7aa319733cd` (parents `d727030` and `545edb5`); `main` = `2e9d89d`. The diff `d727030..2e9d89d` is the P3-1 files only (new `trialNotebook.ts` + tests/tools/report, and two gate-test allowlists), so nothing in §3–§12 (reducer, `App.tsx`, `GameScreen`, `ResultPanel`, `freeCook`) changed.
 - **Branch:** `claude/original-pizza-discovery-p3-audit` (docs + read-only tooling / probes). **No `src/` change, no PR, no implementation.**
 - **Scope:** how to connect the P3-1 Trial Notebook model to the FREE ORIGINAL RESULT: what is recorded, when (exactly once), what the RESULT shows, session lifecycle, privacy, geometry, accessibility, slices. P3-4 (Dex) and every wiring are not started.
 - **Companion files**
   - `tools/original-pizza-p3/lifecycle.probe.test.ts` + `vitest.lifecycle-probe.config.ts` — drives the real reducer on current main and reads the source; evidence in `docs/reports/data/TETO_ORIGINAL-PIZZA-RECOVERY_P3-3_LifecycleProbe.json`. Run: `npx vitest run -c tools/original-pizza-p3/vitest.lifecycle-probe.config.ts` (9 / 9 pass).
   - `tools/original-pizza-p3/result-geometry.measure.spec.ts` + `playwright.result-geometry.config.ts` — real Chromium, plays Free Cooking to three ORIGINAL results, measures 7 profiles and injects stand-in DOM for the notice and the entry CTA; output `docs/reports/data/TETO_ORIGINAL-PIZZA-RECOVERY_P3-3_ResultGeometry.json`. Manual, not CI.
 - **Verification Policy:** not triggered (audit only). P3-3b / P3-3c change visible RESULT UI and will trigger it.
-- **Verdict:** **B. OWNER DECISION REQUIRED** (§18). One decision blocks the eligibility rule (OD-P3-16); the rest have recommended defaults.
+- **Verdict:** **A. P3-3 IMPLEMENTATION PLAN READY** (§18) — P3-1 is merged and OD-P3-16..20 are decided (§16). The original verdict was B (OD-P3-16 pending).
 
 ## 0. Summary
 
@@ -28,7 +28,7 @@
 | Branch | Head | State | Needed by P3-3? |
 |---|---|---|---|
 | P1 Attempt Fingerprint | on `main` (`d727030`) | **merged**, post-merge Deploy / WebKit green | **yes** — the only identity authority |
-| `claude/p3-1-trial-notebook-model` | `e1d66d1` | **not merged, no PR**; A. PURE MODEL COMPLETE (REVIVE, 50 / 2 000) | **yes — must be merged first** (its own Review / Merge Gate, single-scope PR) |
+| `claude/p3-1-trial-notebook-model` | PR #315, merged as `2e9d89d` | **merged** (single-scope PR; CI 9 / 9 green incl. WebKit Gate; post-merge Deploy and E2E WebKit green on `2e9d89d`); A. PURE MODEL COMPLETE (REVIVE, 50 / 2 000) | **yes — satisfied** |
 | `claude/p3-2-discovery-memo-model` | `9a50762` | **not merged, no PR**; A. PURE DISPLAY MODEL COMPLETE, unwired | **no**. P3-3 must not import it and must not produce any Dex fact; its own gate (`discoveryMemo.gate.test.ts`) already forbids any production importer |
 | `claude/original-pizza-discovery-p3-audit` | `6354549` | docs / tooling only | authority text (Owner Authority OD-P3-1..15, D-1, D-2) |
 
@@ -72,8 +72,8 @@ Adapter (proposed, not implemented): a thin module `src/state/trialRecord.ts` ow
 | Result kind | Reaches the ORIGINAL branch? (probe) | P2 line possible | Record? | Notice on a repeat? | Note |
 |---|---|---|---|---|---|
 | **ordinary ORIGINAL** | yes (`lastDiscovery: ORIGINAL`) | ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE / FAR / key-unused, or none | **yes** | **yes** | the core case |
-| **AMBIGUOUS** | yes by code; **unreachable in production** (0 identity collisions; probe) | none (outcome ≠ ORIGINAL) | **yes** (recommended) | yes | the screen is byte-identical to an ordinary original (OD-P2-1); the record cannot and need not differ |
-| **INCOMPLETE_MATCH** | yes (`lastDiscovery: INCOMPLETE_MATCH`) | none | **Owner decision OD-P3-16; recommended: no** | n/a | see §0.5 |
+| **AMBIGUOUS** | yes by code; **unreachable in production** (0 identity collisions; probe) | none (outcome ≠ ORIGINAL) | **yes** (decided, OD-P3-16) | yes | the screen is byte-identical to an ordinary original (OD-P2-1); the record cannot and need not differ |
+| **INCOMPLETE_MATCH** | yes (`lastDiscovery: INCOMPLETE_MATCH`) | none | **no — decided (OD-P3-16)** | n/a | see §0.5 |
 | **NEW_DISCOVERY** | no (scored path) | none | no | no | the Dex holds it |
 | **ALREADY_DISCOVERED (known pizza)** | no (scored path) | only a d = 1 line | no | no | not an exploration attempt; would flood the 50-row view |
 | **FAILED** | no (REGISTER returns early, phase stays RESULT) | none | no | no | a raw / burnt bake says nothing about the combination |
@@ -87,7 +87,7 @@ The P3-1 model has no outcome field (OD-P3-14), so whatever is eligible must be 
 
 - The notebook stores `{ kind, textJa }` of the line the player was shown, or `null`: never a `NearMiss` object (it carries `distance`, `sauceStep`, `keyUnused`), never the target, never a candidate. The adapter builds the pair explicitly from `ResultNearMissLine`; P3-1's input sanitiser (exact two keys, kind `^[A-Z][A-Z0-9_]*$`, text ≤ 200) rejects anything else and stores nothing, so a regression that passed the internal object would surface as a missing record, not a leak.
 - **Commit-time line = first-paint line** (§0.4): same pure function, same state. **Not shown ⇒ not stored**: a FAILED / non-ORIGINAL result produces no line and is not recorded at all.
-- No freezing of the display line is proposed; P2's behaviour is unchanged (OD-P3-18 asks the Owner to confirm this over freezing).
+- No freezing of the display line is proposed; P2's behaviour is unchanged (OD-P3-18, decided).
 - P2's own copy (`NEAR_MISS_COPY`, the generic FAR line) is reused as data only; the notebook adds no copy of its own for lines.
 
 ## 7. Fingerprint authority
@@ -105,7 +105,7 @@ P1 is the only identity. The adapter calls `attemptFingerprintOfPizza(state.pizz
 | retry of a combination recorded earlier that now resolves to a known pizza | not an ORIGINAL | no notice (only the ORIGINAL card carries it) |
 
 - **Never blocks.** A retry is always allowed; the notice is informational text.
-- **`retryCount`:** not shown on the RESULT (copy stays exactly the Owner's example); the Notebook overlay (P3-3c) shows it as 「×n」 (recommended default, OD-P3-19).
+- **`retryCount`:** not shown on the RESULT (copy stays exactly the Owner's example); the Notebook overlay (P3-3c) shows it as 「×n」 (decided, OD-P3-19).
 - **Priority on the card:** the P2 line first (new information about *this* attempt), the notice second, then the CTAs.
 - **Stability:** the notice reads `state.lastTrialAttempt`, written once at the commit; re-render, StrictMode, the P2 live recompute and Dex / Shop cannot change it.
 - **Wording discipline:** 「同じ材料の組み合わせ」 only; never 「同じ結果」, 「意味がない」 or "won't work" (quantity, bake and sauce amount are not identity).
@@ -195,22 +195,26 @@ The Dex is **not** changed in P3-3: the overlay is built once in P3-3c, and P3-4
 
 | ID | Decision | Options (recommendation in **bold**) | Blocking |
 |---|---|---|---|
-| **OD-P3-16** | Is INCOMPLETE_MATCH recorded? (and confirm AMBIGUOUS is recorded like an ordinary original) | **A. do not record INCOMPLETE_MATCH** (no outcome field to mark it; a duplicate notice would sit next to "check the sauce amount / bake") / B. record with `feedback: null` / C. record with its lead as the feedback (would store a non-P2 line, against OD-P3-14). AMBIGUOUS: **record** | **blocks P3-3a** |
-| OD-P3-17 | Where the notebook lives | **`GameState` via `ProgressionCarry`** (exactly-once by the reducer guard) / App-level `useState` like the LC-R5-c pins (needs an effect on phase change, which can double-record under StrictMode) | confirm |
-| OD-P3-18 | Feedback authority | **record the commit-time P2 line; leave P2's live display unchanged** (equal today, pinned by a test and a gate) / freeze the displayed line in state (changes P2) | confirm |
-| OD-P3-19 | Notice content and order | **Owner's copy exactly, no `retryCount` on the RESULT (「×n」 only in the overlay); P2 line first, notice second** / show the count on the RESULT | confirm |
-| OD-P3-20 | Slicing and entry placement | **P3-3a → P3-3b → P3-3c; entry as an inline 44 px pill (option A); Dex untouched until P3-4** / merge b + c / other placement | confirm |
+| **OD-P3-16** | **Decided.** INCOMPLETE_MATCH is **not recorded** in the Phase 1 Trial Notebook. Phase 1 records only "Original attempts that tried an ingredient combination". AMBIGUOUS has the same record eligibility as an ordinary ORIGINAL, provided player-facing behaviour stays identical (no extra copy, no outcome field). | Owner: option A | resolved |
+| **OD-P3-17** | **Decided.** `GameState` + `ProgressionCarry`. App-level `useState` + effect recording is **rejected**. The `REGISTER_TO_DEX` free-cook ORIGINAL transition is the **exactly-once commit point**; no recording from render or an effect. | Owner | resolved |
+| **OD-P3-18** | **Decided.** The notebook stores only `kind` + `textJa` of the P2 feedback actually shown at record time. P2's display is unchanged. No internal distance / target / candidate. | Owner | resolved |
+| **OD-P3-19** | **Decided.** RESULT order: (1) P2 feedback, (2) duplicate notice. The notice shows the stable attempt `#n` only, **no `retryCount`**. `retryCount` is shown later in the Notebook overlay as 「×n」. | Owner | resolved |
+| **OD-P3-20** | **Decided.** Slices P3-3a data / state wiring → P3-3b RESULT duplicate notice → P3-3c RESULT Notebook entry + overlay. The RESULT entry is an inline pill of at least 44 px. The Dex header is unchanged until P3-4. | Owner | resolved |
+
+### 16.1 Consequences for the slices (what each decision fixes)
+
+- **P3-3a (no UI, no HV).** `trialRecord` adapter + `GameState.trialNotebook` carried through `ProgressionCarry` / `carryOf` at all fresh-round call sites (16 today; the lifecycle probe pins the count) and listed in the save writer's explicit field list **only as "not persisted"** (session-only, OD-P3-2). Record inside the `REGISTER_TO_DEX` free-cook ORIGINAL branch **only when `resolution.outcome` is `ORIGINAL` or `AMBIGUOUS`**; `INCOMPLETE_MATCH` (same branch, different outcome) records nothing and leaves the notebook reference identical. Also FAILED, NEW_DISCOVERY, ALREADY_DISCOVERED, guided, Lunch Rush and Dinner record nothing (structurally outside the branch). The feedback passed to `recordAttempt` is `{ kind, textJa }` from the P2 line as shown, or `null` when P2 shows nothing. Write `lastTrialAttempt` (the `recordAttempt` outcome: `NEW` / `DUPLICATE` with `#n`; `REJECTED` stores nothing) in the same transition so the RESULT reads state, never re-computes. AMBIGUOUS must be indistinguishable on screen from ORIGINAL (existing tests + a new one).
+- **P3-3b (HV).** `ResultPanel` notice after the P2 line; `DUPLICATE` only; text carries `#n`, never `retryCount`; no notice on `NEW`, `REJECTED` or non-recorded outcomes. One CSS rule; geometry per §12.
+- **P3-3c (HV).** Overlay rows `#n`, combination, feedback, 「×n」; RESULT entry is an inline pill ≥ 44 px (option A in §12); focus / Escape per §13. No Dex change.
 
 ## 17. Blockers
 
-- **B1 — P3-1 is not on `main`.** P3-3 imports `trialNotebook`; it needs P3-1's own Review / Merge Gate and a single-scope PR first (P1 precedent). No other blocker: P1 is merged, P3-2 is independent.
-- No design blocker: the commit point, lifecycle and isolation are all verified against current main.
+- **None.** B1 (P3-1 not on `main`) is cleared: PR #315, merge commit `2e9d89d`. OD-P3-16..20 are decided. P1 is merged; P3-2 is independent and stays unmerged (P3-3 must not import it).
 
 ## 18. Final verdict
 
-**B. OWNER DECISION REQUIRED**
+**A. P3-3 IMPLEMENTATION PLAN READY**
 
-- **Blocking:** OD-P3-16 (INCOMPLETE_MATCH eligibility). Recommended answer: do not record it in Phase 1.
-- **Confirmations with recommended defaults:** OD-P3-17..20.
-- **Process prerequisite:** merge P3-1 first (B1).
-- Nothing was implemented, no PR was created, P3-4 was not started, and the production source is unchanged.
+- **Why A:** the dependency (P3-1) is merged and verified post-merge; the one blocking decision (OD-P3-16) and the four confirmations (OD-P3-17..20) are decided; the commit point, lifecycle, privacy and geometry were verified against `main` in §3–§13 and nothing in those files changed in `d727030..2e9d89d`.
+- **Plan:** §15 slices in order P3-3a → P3-3b → P3-3c, consequences in §16.1. Gates to touch with explicit allowlists: `attemptFingerprint.gate.test.ts`, `trialNotebook.gate.test.ts`, `resultFeedback.gate.test.ts` (adapter as the importer).
+- **Not started (by instruction):** P3-3a production implementation, P3-2 merge, P3-4. The production source is unchanged by this document.
