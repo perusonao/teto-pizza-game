@@ -940,6 +940,16 @@ Rules for this sequence:
 - **Audit-only tasks are exempt from Preview deployment and video capture** — a read-only
   Fresh Audit that changes no production code has nothing to deploy or play through.
 
+## Original Pizza Recovery / Discovery Assistance lane (P1 → P3)
+
+Updated 2026-09-30. Fresh GitHub state is authoritative (Startup checklist 1, 3).
+
+- **P1 Attempt Fingerprint — MERGED** via PR #313 (merge `d7270303b0bb5837119ed00ae75f621ee10e57d0`, post-merge Deploy / WebKit green): pure, versioned `fp1:` attempt identity from the matcher's own `RuntimeSignature` (`src/logic/discovery/attemptFingerprint.ts`). Unwired.
+- **P2 RESULT feedback — MERGED** via PR #311 (Owner HV PASS): `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P2_RESULT-FEEDBACK_Result.md`.
+- **P3 Discovery Assistance — Fresh Audit done, Owner decisions OD-P3-1..12 recorded.** Read the "Owner Authority" section at the top of `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3_DISCOVERY-ASSISTANCE_Fresh-Audit.md` (on branch `claude/original-pizza-discovery-p3-audit`, not yet on `main`) before any P3 work. Key authority: session-only Trial Notebook, 50 detail rows / 2 000 identities, unique-fingerprint history with retry counts and stable `#n`; no system-inferred ✅ on the Dex (OD-P3-6/8); no candidate list, elimination result or count on the Dex (OD-P3-7); no partial masking of recipe descriptions, structured 発見メモ for 🎨 cards only (OD-P3-9, OD-P3-5); duplicate notice on RESULT only (OD-P3-10); entry points = ORIGINAL RESULT + Dex header, no HOME (OD-P3-11); collisions (IC-1 / IC-2) out of scope.
+- **P3-1 Trial Notebook pure model — implemented, not merged, no PR** (branch `claude/p3-1-trial-notebook-model`, pure and unwired, `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`). **Pending Owner decisions before P3-3 wiring:** OD-P3-13 (retry of an identity whose detail row left the display), OD-P3-14 (record ORIGINAL vs INCOMPLETE_MATCH?), OD-P3-15 (retry = newest activity; retry replaces the row's feedback).
+- **Not started:** P3-2 (Dex 発見メモ view model) and every production wiring. Phase 1 forbids save / persistence for the Notebook.
+
 ## New-session startup checklist
 
 1. Inspect fresh GitHub `main`, open PRs, issues and Actions state.

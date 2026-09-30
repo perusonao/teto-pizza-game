@@ -12,6 +12,31 @@
 
 ---
 
+## Owner Authority (recorded 2026-09-30; supersedes every "recommended" / "pending" statement below)
+
+The Owner reviewed this audit and decided the following. **Where the audit text below recommends or assumes something different, this section wins** (notably §8's DEDUCED example line and §10 R-3: the system does **not** show an inferred ingredient as ✅ in Phase 1).
+
+| ID | Owner decision (Phase 1) |
+|---|---|
+| **OD-P3-1** | Adopt the P1 Attempt Fingerprint, but through its own Review / Merge Gate first, not folded into P3. **Done:** PR #313 merged, `main` `d727030`, post-merge Deploy and WebKit green. |
+| **OD-P3-2** | Trial Notebook is **session-only**. No save schema change, no persistence. Persistence is reconsidered in a later slice. |
+| **OD-P3-3** | History is by **unique attempt fingerprint**. A retry of the same fingerprint adds no new row; it updates the existing attempt's retry count. Newest attempt on top. (Limits: OD-P3-12.) |
+| **OD-P3-4** | The Notebook may hold only: the ingredients the player actually used; the P2 feedback actually shown; the attempt fingerprint / version; the minimal metadata the player's own attempts need. **Forbidden:** hidden recipe id / name, hidden target, internal matcher distance, collision candidate, unpurchased Hint fact, hidden exact ingredient, technique answer. |
+| **OD-P3-5** | **Option C.** Dex = "what is legitimately known now"; Trial Notebook = "what I tried". History is never tied to a hidden recipe or to a chapter. Child decision: the Phase 1 structured 発見メモ targets **🎨 DISCOVERABLE cards only**; not 🏪 KNOWN_BUT_MISSING_MATERIAL, UNKNOWN or other states. DISCOVERED cards keep the formal recipe information. |
+| **OD-P3-6** | The system does **not** turn P2 attempt history into an automatic "✅ confirmed" exact ingredient on the Dex. In Phase 1 the player reads the Notebook and deduces for themselves. The Dex shows an exact confirmation only for a fact with legitimate authority for that card. "It matched the internal answer" is forbidden as a reason. |
+| **OD-P3-7** | **A.** The Dex shows no sub-topping candidate list, no eliminated-candidate result, and no candidate count. The Notebook stores the player's own reasoning material; it does not present a system-derived answer. |
+| **OD-P3-8** | Even with a single 🎨 candidate, automatic confirmation from P2 feedback to the Dex is **OFF** (it could bypass paid Hints for free). |
+| **OD-P3-9** | The existing recipe description is not partially masked. While undiscovered, the card uses a structured 発見メモ built only from purchased / legitimately disclosed facts. The formal description appears after discovery. The sub-topping slot count is never shown before STRUCTURE is bought. |
+| **OD-P3-10** | The duplicate notice is shown on **RESULT** in Phase 1 (e.g. 「📓 前にも同じ材料の組み合わせで作ったよ（試作#4）」). Retrying is never forbidden. A Builder-side notice is considered separately, after Large Catalog R6. |
+| **OD-P3-11** | **A.** Phase 1 Trial Notebook entry points: the ORIGINAL RESULT and the Dex header. **No HOME entry.** |
+| **OD-P3-12** | **A.** Detail display: latest **50** unique attempts. Duplicate-detection identity is kept separately for the session, up to **2 000** unique fingerprints. A retry never adds a unique attempt (it updates the retry count). The attempt number `#n` is stable for the session. Detail rows beyond 50 may leave the Notebook view, while duplicate detection stays as long as the identity is kept. Beyond 2 000 the oldest identity is evicted; trying an evicted combination again is treated as a first attempt and must never be shown as a duplicate. Persistence is forbidden in Phase 1. 50 / 2 000 are Phase 1 authority and are re-evaluated when a persistent Notebook is designed. Memory estimates are not authority. |
+| **Collision** | IC-1 / IC-2 are separated from the P3 scope and not fixed here. |
+| **P1 blocker** | Approved: the P2 boundary gate adjustment (allowlist exactly `attemptFingerprint.ts`), carried as a separate commit in the same P1 PR. Done (PR #313). |
+
+**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **implemented on branch `claude/p3-1-trial-notebook-model`** (pure, unwired, no PR) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`. Open Owner decisions from that report, needed before P3-3: **OD-P3-13** (retry of an identity whose detail row left the display: REVIVE or NOTICE_ONLY), **OD-P3-14** (whether the Notebook records ORIGINAL vs INCOMPLETE_MATCH), **OD-P3-15** (confirm: a retry is the newest activity and replaces the row's feedback).
+
+---
+
 ## 0. Executive summary
 
 1. **The 3-layer split is sound, with one correction.** Two different "subjects" exist, and mixing them is the main P3 risk:
@@ -398,8 +423,8 @@ Reading:
 
 | # | Slice | Nature | Depends | HV? |
 |---|---|---|---|---|
-| **P3-0** | Land P1 unchanged (PR from `claude/attempt-fingerprint-p1`; merges clean) | pure, unwired | OD-P3-1 | no |
-| **P3-1** | `trialNotebook` pure model: entry type, fp1 dedup, repeat count, cap / LRU, epoch hash, unknown-version keep; gates (no recipe id / distance keys; imports limited to `attemptFingerprint`) | pure, unwired | P3-0 | no |
+| **P3-0** | Land P1 — **DONE: PR #313 merged (`d727030`)** | pure, unwired | OD-P3-1 | no |
+| **P3-1** | **DONE on `claude/p3-1-trial-notebook-model` (no PR; OD-P3-13..15 pending for P3-3).** `trialNotebook` pure model: entry type, fp1 dedup, repeat count, cap / LRU, epoch hash, unknown-version keep; gates (no recipe id / distance keys; imports limited to `attemptFingerprint`) | pure, unwired | P3-0 | no |
 | **P3-2** | `discoveryCardFacts` pure view model: input = `Hint5Presentation` + public universe (usable / shop-entitled set, shelf families) + public card state; output = rows (HINT / DEDUCED / family / ？) per R-1..R-5, X-1..X-2; metamorphic privacy gate; M-4 memo template | pure, unwired | — | no |
 | **P3-3** | Wire the Notebook: record FREE ORIGINAL / INCOMPLETE at REGISTER_TO_DEX time (App-level session store per OD-P3-2); 「試作ノート」 screen; RESULT link + duplicate notice (B) | RESULT UI + new screen | P3-1, ODs | **yes** |
 | **P3-4** | Dex card fact block (option C) | Dex UI | P3-2, ODs | **yes** |
@@ -410,6 +435,8 @@ Reading:
 Recommended next slice after the ODs: **P3-0 + P3-1 + P3-2 as pure, unwired work** (no HV, no save, no UI). They are useful whatever B / C / N-cap is chosen.
 
 ## 19. Required Owner Decisions
+
+> Historical record of the questions as asked. **All of OD-P3-1..12 are decided: see "Owner Authority" at the top.**
 
 | ID | Decision | Options (recommendation in **bold**, not decided) |
 |---|---|---|
@@ -443,6 +470,8 @@ Recommended next slice after the ODs: **P3-0 + P3-1 + P3-2 as pure, unwired work
 Blockers for *design*: none. Blockers for *implementation*: P1 landing (OD-P3-1) and the ODs above.
 
 ## 21. Final verdict
+
+> Update 2026-09-30: OD-P3-1..12 decided (see "Owner Authority"). The original verdict is kept below.
 
 **B. OWNER DECISION REQUIRED**
 
