@@ -36,7 +36,7 @@ A consequence worth knowing: with revive the display history is exactly the 50 m
 ## 2. Model
 
 API (all pure; the state is a plain JSON-shaped value, functions return a new state and never mutate the input):
-`createTrialNotebook(limits?)`, `recordAttempt(nb, { fingerprint, feedback }, { evictedRetry? })` → `{ state, outcome }`, `lookupAttempt(nb, fingerprint)` (no recording), `notebookView(nb)`, `notebookSize(nb)`, `trialNotebookViolations(nb)` (invariant checker).
+`createTrialNotebook(limits?)`, `recordAttempt(nb, { fingerprint, feedback })` → `{ state, outcome }`, `lookupAttempt(nb, fingerprint)` (no recording), `notebookView(nb)`, `notebookSize(nb)`, `trialNotebookViolations(nb)` (invariant checker).
 
 Two structures:
 
