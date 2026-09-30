@@ -20,6 +20,34 @@ save or any production file. PR #275 is OPEN; no file it changes (`gameReducer.t
 Regenerate: `CUT_S2_WRITE=1 npx vitest run src/logic/cut/quality.s2Shadow` and
 `npx playwright test e2e/cut-quality-shadow-s2.spec.ts --project=iphone-360x800 --project=iphone-390x844`.
 
+## Distribution (default tolerances, 400 trials per profile; overall p10 / median / p90; existing cutScore in the same form)
+
+| stage | profile | CutQuality overall | existing cutScore | centre (mean) | uniformity (mean) | slivers present |
+|---|---|---|---|---|---|---|
+| 360x800 | ideal | 1.00 / 1.00 / 1.00 | 88 / 99 / 99 | 1.00 | 1.00 | 11% |
+| 360x800 | normal | 0.96 / 1.00 / 1.00 | 83 / 86 / 96 | 1.00 | 0.97 | 70% |
+| 360x800 | sloppy | 0.77 / 0.88 / 0.97 | 73 / 80 / 87 | 0.97 | 0.71 | 86% |
+| 360x800 | rough | 0.52 / 0.70 / 0.84 | 63 / 71 / 78 | 0.81 | 0.39 | 92% |
+| 390x844 | ideal | 1.00 / 1.00 / 1.00 | 98 / 99 / 99 | 1.00 | 1.00 | 7% |
+| 390x844 | normal | 0.96 / 1.00 / 1.00 | 83 / 86 / 96 | 1.00 | 0.97 | 68% |
+| 390x844 | sloppy | 0.78 / 0.89 / 0.97 | 74 / 80 / 86 | 0.97 | 0.72 | 86% |
+| 390x844 | rough | 0.55 / 0.72 / 0.85 | 63 / 72 / 79 | 0.83 | 0.41 | 92% |
+
+## Case table (A ideal / B normal / C poor / D edge; n/a = NaN input, serialised as null)
+
+| case | cutScore | validity | countFit | centre | uniformity | overall | sliver | pieces |
+|---|---|---|---|---|---|---|---|---|
+| A ideal | 100 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0 | 6 |
+| B finger-width wobble | 83 | 1.00 | 1.00 | 1.00 | 0.92 | 0.97 | 1 | 6 |
+| B off-centre ~4% + uneven angles | 78 | 1.00 | 1.00 | 1.00 | 0.68 | 0.87 | 1 | 6 |
+| C clear centre miss | 60 | 1.00 | 0.67 | 0.12 | 0.30 | 0.41 | 3 | 4 |
+| C parallel cuts | 45 | 0.33 | 0.50 | 0.33 | 0.00 | 0.23 | 2 | 3 |
+| D small central sliver (3 cuts ~3% off a common point) | 85 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1 | 6 |
+| D near duplicate (2nd cut 5 deg from 1st) | 69 | 0.67 | 0.67 | 1.00 | 0.28 | 0.61 | 2 | 4 |
+| D extra line (4th good cut) | 81 | 1.00 | 0.67 | 1.00 | 0.70 | 0.83 | 0 | 8 |
+| D degenerate line | 65 | 0.67 | 0.67 | 1.00 | 0.20 | 0.58 | 0 | 4 |
+| D NaN line | n/a | 0.67 | 0.67 | 1.00 | 0.20 | 0.58 | 0 | 4 |
+
 ## Findings
 1. **completeness fixed-20% is resolved in CutQuality**: at confirm `evaluateCut.completeness` is 1 in every case (table
    above, pinned by a test); CutQuality has no such term.
