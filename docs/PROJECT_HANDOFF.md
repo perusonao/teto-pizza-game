@@ -52,6 +52,8 @@ PASS via PR #54; **Save v2 / Inventory E0 migration MERGED via PR #56** (schemaV
 `inventory` field reserved, no gameplay change yet -- E1 InventoryState is the next Save v2 step,
 independent of Issue #38).)
 
+**2026-09-30 addendum (LC-R6-b Preview Activation Infrastructure, PR pending Final Gate)** — see `docs/reports/TETO_LARGE-CATALOG-UX_LC-R6b_Preview-Activation-Infrastructure_Result.md`. A2 committed variant `LC_HAND_PREVIEW_CAPACITY` (main = `null`), read only behind `VITE_PREVIEW_MODE`; production Hand stays OFF (`HAND_ENFORCEMENT_PRODUCTION = false`, byte-identical production bundle / DOM golden), capacity 9 vs 12 still undecided (R6-d/R6-e).
+
 **2026-09-18 addendum (Roadmap/SSOT Fresh Sync)** — see
 `docs/reports/TETO_ROADMAP-SSOT_FRESH-SYNC_2026-09-18.md`, audited SHA `398d48443f3bd299259bb63e3c9bd717091506ea`
 (current `main` HEAD, matches this document's own last update). Everything above this addendum was

@@ -46,7 +46,7 @@ const MUTANTS = [
     id: "E5",
     what: "capacity candidate 12 -> 9 (do the App-level tests pin the design candidate?)",
     file: `${C}/handPolicy.ts`,
-    edits: [["DEFAULT_HAND_CAPACITY_CANDIDATE: HandCapacityCandidate = 12;", "DEFAULT_HAND_CAPACITY_CANDIDATE: HandCapacityCandidate = 9;"]],
+    edits: [["DEFAULT_HAND_CAPACITY_PRODUCTION: HandCapacityCandidate = 12;", "DEFAULT_HAND_CAPACITY_PRODUCTION: HandCapacityCandidate = 9;"]],
   },
   {
     id: "E6",
