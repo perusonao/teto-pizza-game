@@ -50,7 +50,7 @@ describe("production (handEditing off): no pin UI at all -- the R5-b sheet", () 
     expect(list.querySelectorAll("[aria-pressed]")).toHaveLength(0);
     expect(document.querySelector(".pantry-tile__pin-badge, .pantry-tile--editable, .pantry-sheet__pins")).toBeNull();
     expect(strip()).toBeNull();
-    expect(document.body.textContent).not.toMatch(/選択中|おまかせに戻す|\u{1F4CC}/u);
+    expect(document.body.textContent).not.toMatch(/選択中|おまかせに戻す|ざいこなし|\u{1F4CC}/u);
   });
 
   it("the DOM is byte-identical with and without pins / a writer (pins cannot leak into production)", () => {
@@ -96,6 +96,9 @@ describe("forced on (handEditing): Model D direct pin edit", () => {
     const inv = stock({ [TOPPINGS[1]]: 0, [TOPPINGS[4]]: 0 });
     render(<Harness handEditing inventory={inv} initial={{ sauce: [], cheese: [], topping: [TOPPINGS[4]] }} onSession={(s) => (latest = s)} />);
     expect(tile(TOPPINGS[1])).toHaveAttribute("aria-disabled", "true");
+    // Not colour / opacity only: a visible reason on the tile (and none on a removable existing no-stock pin).
+    expect(tile(TOPPINGS[1])).toHaveTextContent("ざいこなし");
+    expect(tile(TOPPINGS[4])).not.toHaveTextContent("ざいこなし");
     fireEvent.click(tile(TOPPINGS[1]));
     expect(latest.topping).toEqual([TOPPINGS[4]]);
     expect(tile(TOPPINGS[4])).not.toHaveAttribute("aria-disabled");

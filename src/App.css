@@ -6485,6 +6485,12 @@ p.hint-sheet__step {
   opacity: 0.6;
 }
 
+.pantry-tile__no-stock {
+  font-size: 10px;
+  font-weight: 800;
+  color: #b4432f;
+}
+
 .pantry-tile__pin-badge {
   position: absolute;
   top: 4px;

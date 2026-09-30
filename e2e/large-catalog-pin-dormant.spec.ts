@@ -88,7 +88,7 @@ async function facts(page: Page) {
       listH: list.height,
       listVisible: Math.max(0, bottom - list.top),
       fullRows: rows.size,
-      pinUi: pantry.querySelectorAll(".pantry-tile__toggle, .pantry-tile__pin-badge, .pantry-sheet__pins, .pantry-tile--editable").length,
+      pinUi: pantry.querySelectorAll(".pantry-tile__toggle, .pantry-tile__pin-badge, .pantry-tile__no-stock, .pantry-sheet__pins, .pantry-tile--editable").length,
       listButtons: document.querySelectorAll(".pantry-sheet__list button, .pantry-sheet__list [aria-pressed]").length,
       text: pantry.textContent ?? "",
       tray: [...document.querySelectorAll(".ingredient-chip")].map((c) => `${c.textContent}|${c.getAttribute("aria-pressed")}`).join(","),
@@ -109,7 +109,7 @@ for (const width of [390, 360] as const) {
       const normal = await facts(page);
       expect(normal.pinUi, `${vp.id}: no pin UI in production`).toBe(0);
       expect(normal.listButtons, `${vp.id}: read-only tiles`).toBe(0);
-      expect(normal.text).not.toMatch(/選択中|おまかせに戻す|\u{1F4CC}/u);
+      expect(normal.text).not.toMatch(/選択中|おまかせに戻す|ざいこなし|\u{1F4CC}/u);
       // A tile tap does nothing in production.
       await page.locator(".pantry-tile").first().click();
       expect((await facts(page)).pinUi).toBe(0);

@@ -44,6 +44,9 @@ See "Final numbers" below (filled after the full run).
 - Geometry (production, Chromium, R5-b baseline from main `b35739a`): sheet 824 / 780 / 644 / 620, list 617 / 573 / 437 / 413 (390×844 / 360×800 / 390×664 / 360×640) — unchanged; keyboard (simulated K = 338) list ≥ 291 / 247 / 111 / **87** with ≥ 1 full row — unchanged.
 - **WebKit: not run here** (not installed in this container); the new spec is WebKit-ready (DOM contract + ≥ 1 row; pixel values Chromium-only) and runs in CI once a PR exists.
 
+## Review follow-up (PR #312)
+- Codex P2 (a non-pinnable no-stock tile had only `×0` + reduced opacity as its visible cue): the dormant toggle now also shows a visible 「ざいこなし」 label on a disabled (not pinned, no stock) tile, as IVP §7 specified; a pinned no-stock tile (removable) shows none. Production DOM unchanged (the byte-identical test and the dormant e2e now also assert the label / class is absent). Re-run: pin / catalog / App tests 140 passed; Vitest full 255 files, 4962 passed, 1 skipped; `tsc -b` clean; Chromium e2e pin-dormant + pantry-search pass.
+
 ## Human Verification
 Not applicable to this slice (Policy §2): no production-visible UI / interaction changes — the production DOM is byte-identical to R5-b and the 4-viewport geometry is unchanged (asserted). The pin UI is dormant; its HV (390×844 video + before/after screenshots, real-device keyboard behaviour OD-R5c-5) belongs to the R6 activation.
 

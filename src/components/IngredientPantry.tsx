@@ -335,6 +335,7 @@ export function IngredientPantry({
                       }}
                     >
                       {body}
+                      {tile.disabled && <span className="pantry-tile__no-stock">ざいこなし</span>}
                       {tile.pinned && (
                         <span className="pantry-tile__pin-badge" aria-hidden="true">
                           {"\u{1F4CC}"}
