@@ -34,10 +34,12 @@ The Owner reviewed this audit and decided the following. **Where the audit text 
 | **OD-P3-14** | The Phase 1 Notebook gets **no internal outcome field** (ORIGINAL / INCOMPLETE_MATCH ...). OD-P3-4 stays the authority: the Notebook is the player's own tries and the feedback actually shown, not a history of internal matcher judgements. |
 | **OD-P3-15a** | A duplicate retry is the newest activity (a displayed row moves to the newest position; an identity outside the display is revived there per OD-P3-13). `#n` never changes. |
 | **OD-P3-15b** | On a retry the row's feedback is updated to the latest feedback actually shown. The first feedback is not kept; no feedback history in Phase 1. |
+| **D-1** | Free text from Hint 2.0 / 4.0 is not copied into the Dex 発見メモ; it remains HintSheet history, and is never parsed into a Dex fact. |
+| **D-2** | Exact ingredient names the player already legitimately owns from earlier hints may appear in the memo as 「以前のヒント」; nothing is inferred from free text. |
 | **Collision** | IC-1 / IC-2 are separated from the P3 scope and not fixed here. |
 | **P1 blocker** | Approved: the P2 boundary gate adjustment (allowlist exactly `attemptFingerprint.ts`), carried as a separate commit in the same P1 PR. Done (PR #313). |
 
-**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **complete** on branch `claude/p3-1-trial-notebook-model` (pure, unwired, no PR; REVIVE is the only retry behaviour) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`, verdict A. P3-2 (Dex 発見メモ pure display model): **Fresh Audit done, verdict A** — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-2_DISCOVERY-MEMO_Fresh-Audit.md`; implementation not started.
+**Status of the slices (see §18):** P3-0 (P1) **merged** (PR #313, `d727030`). P3-1 (Trial Notebook pure model) **complete** on branch `claude/p3-1-trial-notebook-model` (pure, unwired, no PR; REVIVE is the only retry behaviour) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-1_TRIAL-NOTEBOOK-MODEL_Result.md`, verdict A. P3-2 (Dex 発見メモ pure display model): **Fresh Audit done (verdict A) and implemented, verdict A. P3-2 PURE DISPLAY MODEL COMPLETE** on branch `claude/p3-2-discovery-memo-model` (pure, unwired, no PR) — `docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3-2_DISCOVERY-MEMO-MODEL_Result.md`.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "id": "TETO_ORIGINAL-PIZZA-RECOVERY_P3-2_FACT-DISPLAY-MATRIX",
   "version": 1,
-  "status": "PROPOSED (P3-2 Fresh Audit). Machine-testable: tools/original_pizza_p3_2_fact_display_audit.mjs checks every `check` id against current main; the P3-2 implementation must turn the same rows into Vitest cases.",
+  "status": "IMPLEMENTED as src/logic/discovery/discoveryMemo.ts (+ .test / .probe.test / .gate.test). Owner approved D-1 (legacy free text excluded) and D-2 (owned legacy names shown as 以前のヒント). tools/original_pizza_p3_2_fact_display_audit.mjs still checks every `check` id against current main.",
   "authority": [
     "Owner decisions OD-P3-1..15 (docs/reports/TETO_ORIGINAL-PIZZA-RECOVERY_P3_DISCOVERY-ASSISTANCE_Fresh-Audit.md, Owner Authority)",
     "Hint 5.0 H5-INV-1..7 (docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md)",
@@ -18,49 +18,318 @@
     "projection": "only presentation.board, presentation.legacyKnownIngredientIds and presentation.completeText are read; presentation.next, presentation.pitzBalance and presentation.onboarding (except as a gate) are never read"
   },
   "gates": [
-    { "id": "G1", "rule": "cardState !== DISCOVERABLE -> no memo (DISCOVERED keeps the formal recipe card; KNOWN_BUT_MISSING_MATERIAL and UNKNOWN are out of Phase 1)", "check": "MX-GATE-CARD" },
-    { "id": "G2", "rule": "hint5Enabled === false -> no memo", "check": "MX-GATE-FLAG" },
-    { "id": "G3", "rule": "presentation === null (not a ladder target, fail closed) -> no memo", "check": "MX-GATE-TARGET" },
-    { "id": "G4", "rule": "presentation.onboarding (Dex-0 Margherita, session-only reveal, nothing persisted) -> no memo", "check": "MX-GATE-ONBOARDING" }
+    {
+      "id": "G1",
+      "rule": "cardState !== DISCOVERABLE -> no memo (DISCOVERED keeps the formal recipe card; KNOWN_BUT_MISSING_MATERIAL and UNKNOWN are out of Phase 1)",
+      "check": "MX-GATE-CARD"
+    },
+    {
+      "id": "G2",
+      "rule": "hint5Enabled === false -> no memo",
+      "check": "MX-GATE-FLAG"
+    },
+    {
+      "id": "G3",
+      "rule": "presentation === null (not a ladder target, fail closed) -> no memo",
+      "check": "MX-GATE-TARGET"
+    },
+    {
+      "id": "G4",
+      "rule": "presentation.onboarding (Dex-0 Margherita, session-only reveal, nothing persisted) -> no memo",
+      "check": "MX-GATE-ONBOARDING"
+    }
   ],
   "fixedRows": {
     "note": "The four fixed rungs exist for every target with the same labels, so an UNKNOWN row is a constant (H5-INV-5). The model may emit all four every time; a screen decides whether to draw UNKNOWN rows.",
     "rows": [
-      { "id": "R-SAUCE", "label": "ソース", "before": "UNKNOWN (no id, no count)", "after": "KNOWN: ingredient ids of the sauce rung", "completionRecord": "h5:sauce" },
-      { "id": "R-CHEESE", "label": "チーズ", "before": "UNKNOWN", "after": "KNOWN: ingredient ids, or NONE (an empty cheese rung bought)", "completionRecord": "h5:cheese" },
-      { "id": "R-KEY", "label": "キートッピング", "before": "UNKNOWN", "after": "KNOWN: the key topping id, or NONE (an empty key rung bought)", "completionRecord": "h5:key" },
-      { "id": "R-STRUCTURE", "label": "構成（材料の数）", "before": "UNKNOWN", "after": "KNOWN: the distinct ingredient total (the board's STRUCTURE line)", "completionRecord": "h5:structure" }
+      {
+        "id": "R-SAUCE",
+        "label": "ソース",
+        "before": "UNKNOWN (no id, no count)",
+        "after": "KNOWN: ingredient ids of the sauce rung",
+        "completionRecord": "h5:sauce"
+      },
+      {
+        "id": "R-CHEESE",
+        "label": "チーズ",
+        "before": "UNKNOWN",
+        "after": "KNOWN: ingredient ids, or NONE (an empty cheese rung bought)",
+        "completionRecord": "h5:cheese"
+      },
+      {
+        "id": "R-KEY",
+        "label": "キートッピング",
+        "before": "UNKNOWN",
+        "after": "KNOWN: the key topping id, or NONE (an empty key rung bought)",
+        "completionRecord": "h5:key"
+      },
+      {
+        "id": "R-STRUCTURE",
+        "label": "構成（材料の数）",
+        "before": "UNKNOWN",
+        "after": "KNOWN: the distinct ingredient total (the board's STRUCTURE line)",
+        "completionRecord": "h5:structure"
+      }
     ]
   },
   "rows": [
-    { "id": "F-SAUCE", "fact": "sauce names", "ledger": "h5:sauce (+ ing:<sauce id>)", "purchaseState": "SAUCE rung COMPLETED", "cardState": ["DISCOVERABLE"], "output": "R-SAUCE KNOWN with the board entry's ingredientIds", "before": "R-SAUCE UNKNOWN, no ids", "forbidden": ["any sauce id before completion", "'no sauce' in any state (P4-SAUCE is reserved; H5-INV-4)"], "check": "MX-PREFIX" },
-    { "id": "F-CHEESE", "fact": "cheese names / none", "ledger": "h5:cheese (+ ing:<cheese id>)", "purchaseState": "CHEESE rung COMPLETED", "cardState": ["DISCOVERABLE"], "output": "R-CHEESE KNOWN ids, or NONE when the rung is empty", "before": "R-CHEESE UNKNOWN", "forbidden": ["any cheese id or the word none before completion"], "check": "MX-PREFIX" },
-    { "id": "F-KEY", "fact": "key topping name / none", "ledger": "h5:key (+ ing:<key id>)", "purchaseState": "KEY_TOPPING rung COMPLETED", "cardState": ["DISCOVERABLE"], "output": "R-KEY KNOWN id, or NONE when the rung is empty", "before": "R-KEY UNKNOWN", "forbidden": ["the key id or none before completion"], "check": "MX-PREFIX" },
-    { "id": "F-STRUCTURE", "fact": "distinct ingredient total", "ledger": "h5:structure (+ meta:ingredient-total)", "purchaseState": "STRUCTURE rung COMPLETED", "cardState": ["DISCOVERABLE"], "output": "R-STRUCTURE KNOWN with the board's total line", "before": "R-STRUCTURE UNKNOWN, and NO sub-topping row or slot of any kind", "forbidden": ["the total before completion", "a sub-topping slot, ordinal or count before STRUCTURE (OD-P3-9)"], "check": "MX-PREFIX" },
-    { "id": "F-SUB-CLASS", "fact": "sub-topping family", "ledger": "cls:<ingredient id> (its own completion record)", "purchaseState": "STRUCTURE COMPLETED and that SUB_CLASS rung COMPLETED", "cardState": ["DISCOVERABLE"], "output": "one row per COMPLETED SUB_CLASS entry: ordinal + family view (symbol, label, line); in ladder order", "before": "no row, no placeholder, no slot count", "forbidden": ["the sub-topping id, name, glyph or initial", "an UNKNOWN sub-topping slot (it would disclose a count)", "a row from a cls: record while STRUCTURE is not completed", "a candidate list, an eliminated list or a candidate count (OD-P3-7)"], "check": "MX-SUB" },
-    { "id": "F-LADDER-COMPLETE", "fact": "ladder complete line", "ledger": "derived: every rung COMPLETED", "purchaseState": "all rungs COMPLETED", "cardState": ["DISCOVERABLE"], "output": "presentation.completeText (the fixed line)", "before": "absent", "forbidden": ["shown while any rung is open"], "check": "MX-COMPLETE" },
-    { "id": "F-LEGACY-NAME", "fact": "ingredient names owned from Hint 3.0 / Economy 1.0", "ledger": "ing:<id> not already on the board, and Economy 1.0 grants", "purchaseState": "owned by the player (any legacy purchase)", "cardState": ["DISCOVERABLE"], "output": "an 'earlier hints' name list built from presentation.legacyKnownIngredientIds (names the player already owns; the H5-INV-1 legacy exception)", "before": "absent", "forbidden": ["a name the player does not own", "completing any rung because of it (M3)"], "check": "MX-LEGACY" },
-    { "id": "F-LEGACY-LINE", "fact": "pre-5.0 text lines (Hint 2.0 grandfathered steps, Hint 4.0 attribute / structure lines)", "ledger": "discoveryHintPurchases, attr:*, meta:*", "purchaseState": "owned", "cardState": ["DISCOVERABLE"], "output": "NOT in the Phase 1 memo (free text cannot be tested as structured rows); they stay in the HintSheet archive", "before": "absent", "forbidden": ["any free-text line in the memo"], "check": "MX-PROJECTION" },
-    { "id": "F-NEXT", "fact": "next rung offer (kind, price, affordability)", "ledger": "derived", "purchaseState": "any", "cardState": ["DISCOVERABLE"], "output": "never (the Dex is not a purchase surface)", "before": "absent", "forbidden": ["presentation.next", "a price", "Pitz balance"], "check": "MX-PROJECTION" },
-    { "id": "F-P2", "fact": "P2 RESULT feedback / Trial Notebook rows", "ledger": "none (session-only notebook)", "purchaseState": "n/a", "cardState": [], "output": "never (OD-P3-6, OD-P3-8): no input exists", "before": "absent", "forbidden": ["any attempt-derived confirmation, exclusion, hint or count on a card"], "check": "MX-INPUT" },
-    { "id": "F-TECHNIQUE", "fact": "technique ledger (discoveredTechniqueIds)", "ledger": "discoveredTechniqueIds", "purchaseState": "n/a", "cardState": [], "output": "never (H5-INV-4, INV-TQ-NB)", "before": "absent", "forbidden": ["a technique name, id or riddle", "the absence of sauce"], "check": "MX-INPUT" },
-    { "id": "F-RECIPE", "fact": "recipe name / id / description / image", "ledger": "n/a", "purchaseState": "n/a", "cardState": [], "output": "never while undiscovered (H5-INV-3, OD-P3-9)", "before": "absent", "forbidden": ["nameJa", "description", "id", "image of an undiscovered recipe"], "check": "MX-PRIVACY" },
-    { "id": "F-FUTURE", "fact": "unknown / future fact kinds and malformed ledgers", "ledger": "anything else", "purchaseState": "n/a", "cardState": [], "output": "ignored, never thrown on (fail closed)", "before": "absent", "forbidden": ["rendering an unknown kind", "throwing"], "check": "MX-ROBUST" }
+    {
+      "id": "F-SAUCE",
+      "fact": "sauce names",
+      "ledger": "h5:sauce (+ ing:<sauce id>)",
+      "purchaseState": "SAUCE rung COMPLETED",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "R-SAUCE KNOWN with the board entry's ingredientIds",
+      "before": "R-SAUCE UNKNOWN, no ids",
+      "forbidden": [
+        "any sauce id before completion",
+        "'no sauce' in any state (P4-SAUCE is reserved; H5-INV-4)"
+      ],
+      "check": "MX-PREFIX"
+    },
+    {
+      "id": "F-CHEESE",
+      "fact": "cheese names / none",
+      "ledger": "h5:cheese (+ ing:<cheese id>)",
+      "purchaseState": "CHEESE rung COMPLETED",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "R-CHEESE KNOWN ids, or NONE when the rung is empty",
+      "before": "R-CHEESE UNKNOWN",
+      "forbidden": [
+        "any cheese id or the word none before completion"
+      ],
+      "check": "MX-PREFIX"
+    },
+    {
+      "id": "F-KEY",
+      "fact": "key topping name / none",
+      "ledger": "h5:key (+ ing:<key id>)",
+      "purchaseState": "KEY_TOPPING rung COMPLETED",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "R-KEY KNOWN id, or NONE when the rung is empty",
+      "before": "R-KEY UNKNOWN",
+      "forbidden": [
+        "the key id or none before completion"
+      ],
+      "check": "MX-PREFIX"
+    },
+    {
+      "id": "F-STRUCTURE",
+      "fact": "distinct ingredient total",
+      "ledger": "h5:structure (+ meta:ingredient-total)",
+      "purchaseState": "STRUCTURE rung COMPLETED",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "R-STRUCTURE KNOWN with the board's total line",
+      "before": "R-STRUCTURE UNKNOWN, and NO sub-topping row or slot of any kind",
+      "forbidden": [
+        "the total before completion",
+        "a sub-topping slot, ordinal or count before STRUCTURE (OD-P3-9)"
+      ],
+      "check": "MX-PREFIX"
+    },
+    {
+      "id": "F-SUB-CLASS",
+      "fact": "sub-topping family",
+      "ledger": "cls:<ingredient id> (its own completion record)",
+      "purchaseState": "STRUCTURE COMPLETED and that SUB_CLASS rung COMPLETED",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "one row per COMPLETED SUB_CLASS entry: ordinal + family view (symbol, label, line); in ladder order",
+      "before": "no row, no placeholder, no slot count",
+      "forbidden": [
+        "the sub-topping id, name, glyph or initial",
+        "an UNKNOWN sub-topping slot (it would disclose a count)",
+        "a row from a cls: record while STRUCTURE is not completed",
+        "a candidate list, an eliminated list or a candidate count (OD-P3-7)"
+      ],
+      "check": "MX-SUB"
+    },
+    {
+      "id": "F-LADDER-COMPLETE",
+      "fact": "ladder complete line",
+      "ledger": "derived: every rung COMPLETED",
+      "purchaseState": "all rungs COMPLETED",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "presentation.completeText (the fixed line)",
+      "before": "absent",
+      "forbidden": [
+        "shown while any rung is open"
+      ],
+      "check": "MX-COMPLETE"
+    },
+    {
+      "id": "F-LEGACY-NAME",
+      "fact": "ingredient names owned from Hint 3.0 / Economy 1.0",
+      "ledger": "ing:<id> not already on the board, and Economy 1.0 grants",
+      "purchaseState": "owned by the player (any legacy purchase)",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "an 'earlier hints' name list built from presentation.legacyKnownIngredientIds (names the player already owns; the H5-INV-1 legacy exception)",
+      "before": "absent",
+      "forbidden": [
+        "a name the player does not own",
+        "completing any rung because of it (M3)"
+      ],
+      "check": "MX-LEGACY"
+    },
+    {
+      "id": "F-LEGACY-LINE",
+      "fact": "pre-5.0 text lines (Hint 2.0 grandfathered steps, Hint 4.0 attribute / structure lines)",
+      "ledger": "discoveryHintPurchases, attr:*, meta:*",
+      "purchaseState": "owned",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "NOT in the Phase 1 memo (free text cannot be tested as structured rows); they stay in the HintSheet archive",
+      "before": "absent",
+      "forbidden": [
+        "any free-text line in the memo"
+      ],
+      "check": "MX-PROJECTION"
+    },
+    {
+      "id": "F-NEXT",
+      "fact": "next rung offer (kind, price, affordability)",
+      "ledger": "derived",
+      "purchaseState": "any",
+      "cardState": [
+        "DISCOVERABLE"
+      ],
+      "output": "never (the Dex is not a purchase surface)",
+      "before": "absent",
+      "forbidden": [
+        "presentation.next",
+        "a price",
+        "Pitz balance"
+      ],
+      "check": "MX-PROJECTION"
+    },
+    {
+      "id": "F-P2",
+      "fact": "P2 RESULT feedback / Trial Notebook rows",
+      "ledger": "none (session-only notebook)",
+      "purchaseState": "n/a",
+      "cardState": [],
+      "output": "never (OD-P3-6, OD-P3-8): no input exists",
+      "before": "absent",
+      "forbidden": [
+        "any attempt-derived confirmation, exclusion, hint or count on a card"
+      ],
+      "check": "MX-INPUT"
+    },
+    {
+      "id": "F-TECHNIQUE",
+      "fact": "technique ledger (discoveredTechniqueIds)",
+      "ledger": "discoveredTechniqueIds",
+      "purchaseState": "n/a",
+      "cardState": [],
+      "output": "never (H5-INV-4, INV-TQ-NB)",
+      "before": "absent",
+      "forbidden": [
+        "a technique name, id or riddle",
+        "the absence of sauce"
+      ],
+      "check": "MX-INPUT"
+    },
+    {
+      "id": "F-RECIPE",
+      "fact": "recipe name / id / description / image",
+      "ledger": "n/a",
+      "purchaseState": "n/a",
+      "cardState": [],
+      "output": "never while undiscovered (H5-INV-3, OD-P3-9)",
+      "before": "absent",
+      "forbidden": [
+        "nameJa",
+        "description",
+        "id",
+        "image of an undiscovered recipe"
+      ],
+      "check": "MX-PRIVACY"
+    },
+    {
+      "id": "F-FUTURE",
+      "fact": "unknown / future fact kinds and malformed ledgers",
+      "ledger": "anything else",
+      "purchaseState": "n/a",
+      "cardState": [],
+      "output": "ignored, never thrown on (fail closed)",
+      "before": "absent",
+      "forbidden": [
+        "rendering an unknown kind",
+        "throwing"
+      ],
+      "check": "MX-ROBUST"
+    }
   ],
   "invariants": [
-    { "id": "MX-GATE-CARD", "statement": "the memo exists only for DISCOVERABLE" },
-    { "id": "MX-GATE-FLAG", "statement": "no memo with the Hint 5.0 flag off (the rollback path shows none)" },
-    { "id": "MX-GATE-TARGET", "statement": "no memo for a non-ladder target" },
-    { "id": "MX-GATE-ONBOARDING", "statement": "no memo for the Dex-0 onboarding" },
-    { "id": "MX-PREFIX", "statement": "for every production recipe and every prefix of the ladder (0..n rungs bought through the real authority), the fixed rows are KNOWN exactly for the completed fixed rungs, with exactly the ladder's own subject ids, and UNKNOWN rows carry no id" },
-    { "id": "MX-SUB", "statement": "SUB_CLASS rows appear only after STRUCTURE is completed, only for completed rungs, only as family views, in ladder order; a forged cls: record without h5:structure yields none" },
-    { "id": "MX-COMPLETE", "statement": "completeText is present iff every rung is completed" },
-    { "id": "MX-LEGACY", "statement": "a legacy ing: name appears only in legacyKnownIngredientIds, completes no rung, and never alters the pre-purchase view" },
-    { "id": "MX-PROJECTION", "statement": "the memo projection (board + legacyKnownIngredientIds + completeText) contains no next offer, no price, no free text line" },
-    { "id": "MX-PRIVACY", "statement": "the serialised projection contains no ingredient id of a rung that is not completed (other than an owned legacy name), no sub-topping id (other than an owned legacy name), no recipe id, name or description, and no cls: / h5: / ing: / meta: string" },
-    { "id": "MX-FREELEAK", "statement": "with nothing bought (and discoveredCount >= 1), the projection is byte-identical for every production recipe" },
-    { "id": "MX-METAMORPHIC", "statement": "two recipes at the same purchase prefix differ only in the contents of completed rungs: replacing a recipe's unbought content never changes the projection" },
-    { "id": "MX-ROBUST", "statement": "a malformed, hostile or future ledger (non-array, proto keys, unknown kinds, numbers) never throws and never adds a row" },
-    { "id": "MX-INPUT", "statement": "(implementation gate, P3-2) the memo module imports only hint5 types / the presentation and the card-state type: no P2, no Trial Notebook, no matcher, no recipe data, no technique module" }
+    {
+      "id": "MX-GATE-CARD",
+      "statement": "the memo exists only for DISCOVERABLE"
+    },
+    {
+      "id": "MX-GATE-FLAG",
+      "statement": "no memo with the Hint 5.0 flag off (the rollback path shows none)"
+    },
+    {
+      "id": "MX-GATE-TARGET",
+      "statement": "no memo for a non-ladder target"
+    },
+    {
+      "id": "MX-GATE-ONBOARDING",
+      "statement": "no memo for the Dex-0 onboarding"
+    },
+    {
+      "id": "MX-PREFIX",
+      "statement": "for every production recipe and every prefix of the ladder (0..n rungs bought through the real authority), the fixed rows are KNOWN exactly for the completed fixed rungs, with exactly the ladder's own subject ids, and UNKNOWN rows carry no id"
+    },
+    {
+      "id": "MX-SUB",
+      "statement": "SUB_CLASS rows appear only after STRUCTURE is completed, only for completed rungs, only as family views, in ladder order; a forged cls: record without h5:structure yields none"
+    },
+    {
+      "id": "MX-COMPLETE",
+      "statement": "completeText is present iff every rung is completed"
+    },
+    {
+      "id": "MX-LEGACY",
+      "statement": "a legacy ing: name appears only in legacyKnownIngredientIds, completes no rung, and never alters the pre-purchase view"
+    },
+    {
+      "id": "MX-PROJECTION",
+      "statement": "the memo projection (board + legacyKnownIngredientIds + completeText) contains no next offer, no price, no free text line"
+    },
+    {
+      "id": "MX-PRIVACY",
+      "statement": "the serialised projection contains no ingredient id of a rung that is not completed (other than an owned legacy name), no sub-topping id (other than an owned legacy name), no recipe id, name or description, and no cls: / h5: / ing: / meta: string"
+    },
+    {
+      "id": "MX-FREELEAK",
+      "statement": "with nothing bought (and discoveredCount >= 1), the projection is byte-identical for every production recipe"
+    },
+    {
+      "id": "MX-METAMORPHIC",
+      "statement": "two recipes at the same purchase prefix differ only in the contents of completed rungs: replacing a recipe's unbought content never changes the projection"
+    },
+    {
+      "id": "MX-ROBUST",
+      "statement": "a malformed, hostile or future ledger (non-array, proto keys, unknown kinds, numbers) never throws and never adds a row"
+    },
+    {
+      "id": "MX-INPUT",
+      "statement": "(implementation gate, P3-2) the memo module imports only hint5 types / the presentation and the card-state type: no P2, no Trial Notebook, no matcher, no recipe data, no technique module"
+    }
   ]
 }
