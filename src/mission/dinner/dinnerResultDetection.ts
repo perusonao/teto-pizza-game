@@ -3,7 +3,9 @@ import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { FREE_COOK_BAKE_TARGET } from "../../data/freeCook";
 import { getRecipe, type BakeTarget, type Recipe, type RecipeId } from "../../data/recipes";
 import {
+  bakeCompletionFailure,
   evaluatePizzaCompletion,
+  type BakeCompletionFailure,
   type CompletionFailureReason,
   type PizzaCompletionFailed,
 } from "../../logic/completionGate";
@@ -161,6 +163,14 @@ export interface DinnerAttemptInput {
   /** Whether the CUT step (when the identity has one) has been confirmed. */
   cutCompleted: boolean;
   /**
+   * Issue #256: the Completion Gate bake failure that made the cooking flow skip CUT (the runtime
+   * reads it from the base CONFIRM_BAKE's own `completion`). It lifts CUT_PENDING only when this
+   * resolver's own classification agrees -- INVALID_PIZZA whose `failures` carry the same bake
+   * reason; otherwise the attempt is rejected (CUT_WAIVER_MISMATCH), fail closed. Ignored when no
+   * CUT is pending.
+   */
+  cutWaivedFor?: BakeCompletionFailure | null;
+  /**
    * Stock *before* this pizza's consumption -- in the runtime, `state.inventory` as it was when
    * CONFIRM_BAKE was dispatched. The resolver subtracts the pizza itself (`consumePizzaInventory`),
    * so passing the post-bake stock (e.g. `state.inventory` at CUT confirm, which CONFIRM_BAKE has
@@ -180,6 +190,7 @@ export type DinnerAttemptRejection =
   | "RUN_NOT_PLAYING"
   | "NOT_BAKED"
   | "CUT_PENDING"
+  | "CUT_WAIVER_MISMATCH"
   | "INVALID_MINIMUM_STARS"
   | "INVALID_TIME";
 
@@ -326,9 +337,19 @@ export function resolveDinnerAttempt(input: DinnerAttemptInput): DinnerAttemptRe
 
   // The identity is composition-only, so Stage A on the finished pizza is Stage A at START_BAKE.
   const plan = planDinnerBake(pizza, input.catalog);
-  if (plan.cutRequired && !input.cutCompleted) return { status: "REJECTED", reason: "CUT_PENDING" };
+  const cutPending = plan.cutRequired && !input.cutCompleted;
+  const cutWaivedFor = cutPending ? (input.cutWaivedFor ?? null) : null;
+  if (cutPending && cutWaivedFor === null) return { status: "REJECTED", reason: "CUT_PENDING" };
 
   const classification = classify(input, plan);
+  // Issue #256: a waived CUT must be the bake failure this classification already found; no bake
+  // is re-evaluated here. A disagreement resolves nothing and consumes nothing.
+  if (
+    cutWaivedFor !== null &&
+    (classification.category !== "INVALID_PIZZA" || bakeCompletionFailure(classification.completion) !== cutWaivedFor)
+  ) {
+    return { status: "REJECTED", reason: "CUT_WAIVER_MISMATCH" };
+  }
   const completedTargetId = classification.category === "TARGET_PASS" ? classification.recipeId : null;
   // Every category consumed what the pizza used (CONFIRM_BAKE's one consumption authority).
   const postConsumptionInventory = consumePizzaInventory(pizza, input.preConsumptionInventory);

@@ -1,0 +1,7 @@
+      Tests  4 failed | 4074 passed | 1 skipped (4079)
+ FAIL  src/state/gameReducer.cutStep.test.ts > 27. Completion Gate is never perturbed by CUT > CUT never gates completion: a FAILED (empty) margherita pizza still walks CUT to RESULT
+ FAIL  src/state/gameReducer.dinner.test.ts > START_BAKE: Stage A picks the window and the CUT step, and freezes the composition > R11: the identified recipe's bake window drives BAKE and the result (not the generic one)
+ FAIL  src/state/gameReducer.dinner.test.ts > inventory: exactly once, from the stock captured before CONFIRM_BAKE > R17: every failed category keeps its consumption (no refund)
+ FAIL  src/state/gameReducer.dinner.test.ts > result detection wired into the runtime > R9 / R10: raw and burnt pizzas -> INVALID_PIZZA (UNDERBAKED / OVERBAKED), stock consumed
+ Test Files  2 failed | 190 passed (192)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯

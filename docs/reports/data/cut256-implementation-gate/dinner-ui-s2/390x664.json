@@ -1,0 +1,510 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 664
+  },
+  "results": {
+    "V0-current": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 134
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 1,
+      "namesFitting": 11,
+      "namesNotFitting": [
+        "ニューヘイブンアピッツァ",
+        "ピッツァ・ポルトゲーザ",
+        "クアトロ フォルマッジ",
+        "ペストカプレーゼピザ",
+        "ブレックファストピザ",
+        "トンノ・エ・チポッラ",
+        "ペストパターテピザ",
+        "ピッツァ・ビアンカ",
+        "パルミジャーナピザ",
+        "メランザーネピザ",
+        "ミートラヴァーズ",
+        "ペストトンノピザ",
+        "ハワイアンピザ",
+        "カプリチョーザ"
+      ],
+      "pageScrollX": false
+    },
+    "V1-2line-10px": {
+      "bar": {
+        "w": 366,
+        "h": 57,
+        "bottom": 160
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 53,
+        "bottom": 158
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 139
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 256,
+        "h": 256,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "V2-2line-9px-thumb26": {
+      "bar": {
+        "w": 366,
+        "h": 54.8,
+        "bottom": 158
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 50.8,
+        "bottom": 156
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 138
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 258.2,
+        "h": 258.2,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "V3-2line-9px-thumb24": {
+      "bar": {
+        "w": 366,
+        "h": 52.8,
+        "bottom": 156
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 48.8,
+        "bottom": 154
+      },
+      "thumb": {
+        "w": 24,
+        "h": 24,
+        "bottom": 136
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 260.2,
+        "h": 260.2,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "A1-magnifier-badge": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 134
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 1,
+      "namesFitting": 11,
+      "namesNotFitting": [
+        "ニューヘイブンアピッツァ",
+        "ピッツァ・ポルトゲーザ",
+        "クアトロ フォルマッジ",
+        "ペストカプレーゼピザ",
+        "ブレックファストピザ",
+        "トンノ・エ・チポッラ",
+        "ペストパターテピザ",
+        "ピッツァ・ビアンカ",
+        "パルミジャーナピザ",
+        "メランザーネピザ",
+        "ミートラヴァーズ",
+        "ペストトンノピザ",
+        "ハワイアンピザ",
+        "カプリチョーザ"
+      ],
+      "pageScrollX": false
+    },
+    "A1b-magnifier-top-left": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 134
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 1,
+      "namesFitting": 11,
+      "namesNotFitting": [
+        "ニューヘイブンアピッツァ",
+        "ピッツァ・ポルトゲーザ",
+        "クアトロ フォルマッジ",
+        "ペストカプレーゼピザ",
+        "ブレックファストピザ",
+        "トンノ・エ・チポッラ",
+        "ペストパターテピザ",
+        "ピッツァ・ビアンカ",
+        "パルミジャーナピザ",
+        "メランザーネピザ",
+        "ミートラヴァーズ",
+        "ペストトンノピザ",
+        "ハワイアンピザ",
+        "カプリチョーザ"
+      ],
+      "pageScrollX": false
+    },
+    "A2-flat-outline": {
+      "bar": {
+        "w": 366,
+        "h": 49,
+        "bottom": 152
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 45,
+        "bottom": 150
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 134
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 264,
+        "h": 264,
+        "bottom": 420
+      },
+      "dmaTruncated": 1,
+      "namesFitting": 11,
+      "namesNotFitting": [
+        "ニューヘイブンアピッツァ",
+        "ピッツァ・ポルトゲーザ",
+        "クアトロ フォルマッジ",
+        "ペストカプレーゼピザ",
+        "ブレックファストピザ",
+        "トンノ・エ・チポッラ",
+        "ペストパターテピザ",
+        "ピッツァ・ビアンカ",
+        "パルミジャーナピザ",
+        "メランザーネピザ",
+        "ミートラヴァーズ",
+        "ペストトンノピザ",
+        "ハワイアンピザ",
+        "カプリチョーザ"
+      ],
+      "pageScrollX": false
+    },
+    "A3-row-label": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 63.4,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 134
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 1,
+      "namesFitting": 11,
+      "namesNotFitting": [
+        "ニューヘイブンアピッツァ",
+        "ピッツァ・ポルトゲーザ",
+        "クアトロ フォルマッジ",
+        "ペストカプレーゼピザ",
+        "ブレックファストピザ",
+        "トンノ・エ・チポッラ",
+        "ペストパターテピザ",
+        "ピッツァ・ビアンカ",
+        "パルミジャーナピザ",
+        "メランザーネピザ",
+        "ミートラヴァーズ",
+        "ペストトンノピザ",
+        "ハワイアンピザ",
+        "カプリチョーザ"
+      ],
+      "pageScrollX": false
+    },
+    "V4-2line-9px-thumb20": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 20,
+        "h": 20,
+        "bottom": 132
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "V5-hybrid-V3-tall-only": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 134
+      },
+      "nameFontPx": "10px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 1,
+      "namesFitting": 11,
+      "namesNotFitting": [
+        "ニューヘイブンアピッツァ",
+        "ピッツァ・ポルトゲーザ",
+        "クアトロ フォルマッジ",
+        "ペストカプレーゼピザ",
+        "ブレックファストピザ",
+        "トンノ・エ・チポッラ",
+        "ペストパターテピザ",
+        "ピッツァ・ビアンカ",
+        "パルミジャーナピザ",
+        "メランザーネピザ",
+        "ミートラヴァーズ",
+        "ペストトンノピザ",
+        "ハワイアンピザ",
+        "カプリチョーザ"
+      ],
+      "pageScrollX": false
+    },
+    "V6-V3-tall+V4-short": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 20,
+        "h": 20,
+        "bottom": 132
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "V2+A1": {
+      "bar": {
+        "w": 366,
+        "h": 54.8,
+        "bottom": 158
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 50.8,
+        "bottom": 156
+      },
+      "thumb": {
+        "w": 26,
+        "h": 26,
+        "bottom": 138
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 258.2,
+        "h": 258.2,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "V6+A1": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 20,
+        "h": 20,
+        "bottom": 132
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "V6+A1b": {
+      "bar": {
+        "w": 366,
+        "h": 48,
+        "bottom": 151
+      },
+      "chip": {
+        "w": 67.9,
+        "h": 44,
+        "bottom": 149
+      },
+      "thumb": {
+        "w": 20,
+        "h": 20,
+        "bottom": 132
+      },
+      "nameFontPx": "9px",
+      "dough": {
+        "w": 265,
+        "h": 265,
+        "bottom": 420
+      },
+      "dmaTruncated": 0,
+      "namesFitting": 25,
+      "namesNotFitting": [],
+      "pageScrollX": false
+    },
+    "BAKE": {
+      "V0-current": {
+        "dough": 333,
+        "bar": 48
+      },
+      "V2-2line-9px-thumb26": {
+        "dough": 326.2,
+        "bar": 54.8
+      },
+      "V3-2line-9px-thumb24": {
+        "dough": 328.2,
+        "bar": 52.8
+      },
+      "V4-2line-9px-thumb20": {
+        "dough": 333,
+        "bar": 48
+      },
+      "V5-hybrid-V3-tall-only": {
+        "dough": 333,
+        "bar": 48
+      },
+      "V6-V3-tall+V4-short": {
+        "dough": 333,
+        "bar": 48
+      },
+      "V6+A1": {
+        "dough": 333,
+        "bar": 48
+      },
+      "V6+A1b": {
+        "dough": 333,
+        "bar": 48
+      }
+    }
+  }
+}

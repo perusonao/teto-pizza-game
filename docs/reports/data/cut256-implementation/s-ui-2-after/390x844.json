@@ -1,0 +1,148 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "prepare": {
+    "dough": 290,
+    "bar": 56.8
+  },
+  "chipsFresh": {
+    "perChip": [
+      {
+        "label": "マルゲリータの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      },
+      {
+        "label": "ビスマルクの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      },
+      {
+        "label": "ブレックファストピザの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      },
+      {
+        "label": "フンギの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      }
+    ],
+    "nameFontPx": "9px",
+    "namesFull": 25,
+    "maxLines": 2,
+    "notFull": [],
+    "pageScrollX": false
+  },
+  "chipsDone": {
+    "perChip": [
+      {
+        "label": "マルゲリータの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      },
+      {
+        "label": "ビスマルクの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      },
+      {
+        "label": "ブレックファストピザの見本を見る",
+        "hasLens": true,
+        "hasCheck": false,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      },
+      {
+        "label": "フンギ（完成）の見本を見る",
+        "hasLens": true,
+        "hasCheck": true,
+        "thumbPx": 24,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": true,
+        "lensClipped": false,
+        "lensTopVsChip": 1
+      }
+    ],
+    "nameFontPx": "9px",
+    "namesFull": 25,
+    "maxLines": 2,
+    "notFull": [],
+    "pageScrollX": false
+  },
+  "bake": {
+    "dough": 358,
+    "bar": 56.8
+  },
+  "cut": {
+    "dough": 358,
+    "bar": 56.8
+  }
+}

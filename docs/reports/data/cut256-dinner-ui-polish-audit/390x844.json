@@ -1,0 +1,536 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "prepare": {
+    "bar": {
+      "x": 12,
+      "y": 103,
+      "w": 366,
+      "h": 57
+    },
+    "status": {
+      "x": 16,
+      "y": 107,
+      "w": 74.6,
+      "h": 49
+    },
+    "targets": {
+      "x": 97,
+      "y": 107,
+      "w": 277.4,
+      "h": 49
+    },
+    "stage": {
+      "x": 0,
+      "y": 160,
+      "w": 390,
+      "h": 432
+    },
+    "chips": [
+      {
+        "label": "マルゲリータの見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 60,
+        "nameTruncated": false,
+        "nameShown": {
+          "full": true,
+          "visible": "マルゲリータ"
+        }
+      },
+      {
+        "label": "ビスマルクの見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 50,
+        "nameTruncated": false,
+        "nameShown": {
+          "full": true,
+          "visible": "ビスマルク"
+        }
+      },
+      {
+        "label": "ブレックファストピザの見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 62,
+        "nameTruncated": true,
+        "nameShown": {
+          "full": false,
+          "visible": "ブレックフ…"
+        }
+      },
+      {
+        "label": "フンギの見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 30,
+        "nameTruncated": false,
+        "nameShown": {
+          "full": true,
+          "visible": "フンギ"
+        }
+      }
+    ],
+    "allNamesAtThisChipWidth": [
+      {
+        "name": "ニューヘイブンアピッツァ",
+        "full": false,
+        "visible": "ニューヘイ…"
+      },
+      {
+        "name": "ピッツァ・ポルトゲーザ",
+        "full": false,
+        "visible": "ピッツァ・…"
+      },
+      {
+        "name": "クアトロ フォルマッジ",
+        "full": false,
+        "visible": "クアトロ …"
+      },
+      {
+        "name": "ペストカプレーゼピザ",
+        "full": false,
+        "visible": "ペストカプ…"
+      },
+      {
+        "name": "ブレックファストピザ",
+        "full": false,
+        "visible": "ブレックフ…"
+      },
+      {
+        "name": "トンノ・エ・チポッラ",
+        "full": false,
+        "visible": "トンノ・エ…"
+      },
+      {
+        "name": "ペストパターテピザ",
+        "full": false,
+        "visible": "ペストパタ…"
+      },
+      {
+        "name": "ピッツァ・ビアンカ",
+        "full": false,
+        "visible": "ピッツァ・…"
+      },
+      {
+        "name": "パルミジャーナピザ",
+        "full": false,
+        "visible": "パルミジャ…"
+      },
+      {
+        "name": "メランザーネピザ",
+        "full": false,
+        "visible": "メランザー…"
+      },
+      {
+        "name": "ミートラヴァーズ",
+        "full": false,
+        "visible": "ミートラヴ…"
+      },
+      {
+        "name": "ペストトンノピザ",
+        "full": false,
+        "visible": "ペストトン…"
+      },
+      {
+        "name": "ハワイアンピザ",
+        "full": false,
+        "visible": "ハワイアン…"
+      },
+      {
+        "name": "カプリチョーザ",
+        "full": false,
+        "visible": "カプリチョ…"
+      },
+      {
+        "name": "マルゲリータ",
+        "full": true,
+        "visible": "マルゲリータ"
+      },
+      {
+        "name": "プッタネスカ",
+        "full": true,
+        "visible": "プッタネスカ"
+      },
+      {
+        "name": "ジェノベーゼ",
+        "full": true,
+        "visible": "ジェノベーゼ"
+      },
+      {
+        "name": "サルシッチャ",
+        "full": true,
+        "visible": "サルシッチャ"
+      },
+      {
+        "name": "マリナーラ",
+        "full": true,
+        "visible": "マリナーラ"
+      },
+      {
+        "name": "ビスマルク",
+        "full": true,
+        "visible": "ビスマルク"
+      },
+      {
+        "name": "バンビーノ",
+        "full": true,
+        "visible": "バンビーノ"
+      },
+      {
+        "name": "ペパロニ",
+        "full": true,
+        "visible": "ペパロニ"
+      },
+      {
+        "name": "フガッサ",
+        "full": true,
+        "visible": "フガッサ"
+      },
+      {
+        "name": "フンギ",
+        "full": true,
+        "visible": "フンギ"
+      },
+      {
+        "name": "ナポリ",
+        "full": true,
+        "visible": "ナポリ"
+      }
+    ]
+  },
+  "qualityFail": {
+    "category": "QUALITY_FAIL",
+    "text": [
+      "もう少し丁寧に作ろう",
+      "",
+      "マルゲリータ ★3（合格は★5以上）",
+      "",
+      "完成 0 / 4",
+      "",
+      "次のピザを作る →"
+    ],
+    "panel": {
+      "x": 0,
+      "y": 405,
+      "w": 390,
+      "h": 160
+    },
+    "gapProbe": {
+      "text": "マルゲリータ ★4 → 合格まで あと★1",
+      "w": 244,
+      "h": 18,
+      "fontPx": "14px",
+      "lines": 1,
+      "overflowX": false,
+      "pageScrollX": false
+    },
+    "longNameProbe": {
+      "text": "ニューヘイブンアピッツァ ★4（合格は★5以上）",
+      "w": 315,
+      "h": 18,
+      "fontPx": "14px",
+      "lines": 1,
+      "overflowX": false,
+      "pageScrollX": false
+    }
+  },
+  "prepareWithDone": {
+    "chips": [
+      {
+        "label": "マルゲリータ（完成）の見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 60,
+        "nameTruncated": false,
+        "nameShown": {
+          "full": true,
+          "visible": "マルゲリータ"
+        }
+      },
+      {
+        "label": "ビスマルクの見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 50,
+        "nameTruncated": false,
+        "nameShown": {
+          "full": true,
+          "visible": "ビスマルク"
+        }
+      },
+      {
+        "label": "ブレックファストピザの見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 62,
+        "nameTruncated": true,
+        "nameShown": {
+          "full": false,
+          "visible": "ブレックフ…"
+        }
+      },
+      {
+        "label": "フンギ（完成）の見本を見る",
+        "chip": {
+          "w": 66.4,
+          "h": 49
+        },
+        "thumb": {
+          "w": 30,
+          "h": 30
+        },
+        "nameFontPx": "10px",
+        "nameAvailPx": 30,
+        "nameTruncated": false,
+        "nameShown": {
+          "full": true,
+          "visible": "フンギ"
+        }
+      }
+    ],
+    "allNamesAtThisChipWidth": [
+      {
+        "name": "ニューヘイブンアピッツァ",
+        "full": false,
+        "visible": "ニューヘイ…"
+      },
+      {
+        "name": "ピッツァ・ポルトゲーザ",
+        "full": false,
+        "visible": "ピッツァ・…"
+      },
+      {
+        "name": "クアトロ フォルマッジ",
+        "full": false,
+        "visible": "クアトロ …"
+      },
+      {
+        "name": "ペストカプレーゼピザ",
+        "full": false,
+        "visible": "ペストカプ…"
+      },
+      {
+        "name": "ブレックファストピザ",
+        "full": false,
+        "visible": "ブレックフ…"
+      },
+      {
+        "name": "トンノ・エ・チポッラ",
+        "full": false,
+        "visible": "トンノ・エ…"
+      },
+      {
+        "name": "ペストパターテピザ",
+        "full": false,
+        "visible": "ペストパタ…"
+      },
+      {
+        "name": "ピッツァ・ビアンカ",
+        "full": false,
+        "visible": "ピッツァ・…"
+      },
+      {
+        "name": "パルミジャーナピザ",
+        "full": false,
+        "visible": "パルミジャ…"
+      },
+      {
+        "name": "メランザーネピザ",
+        "full": false,
+        "visible": "メランザー…"
+      },
+      {
+        "name": "ミートラヴァーズ",
+        "full": false,
+        "visible": "ミートラヴ…"
+      },
+      {
+        "name": "ペストトンノピザ",
+        "full": false,
+        "visible": "ペストトン…"
+      },
+      {
+        "name": "ハワイアンピザ",
+        "full": false,
+        "visible": "ハワイアン…"
+      },
+      {
+        "name": "カプリチョーザ",
+        "full": false,
+        "visible": "カプリチョ…"
+      },
+      {
+        "name": "マルゲリータ",
+        "full": true,
+        "visible": "マルゲリータ"
+      },
+      {
+        "name": "プッタネスカ",
+        "full": true,
+        "visible": "プッタネスカ"
+      },
+      {
+        "name": "ジェノベーゼ",
+        "full": true,
+        "visible": "ジェノベーゼ"
+      },
+      {
+        "name": "サルシッチャ",
+        "full": true,
+        "visible": "サルシッチャ"
+      },
+      {
+        "name": "マリナーラ",
+        "full": true,
+        "visible": "マリナーラ"
+      },
+      {
+        "name": "ビスマルク",
+        "full": true,
+        "visible": "ビスマルク"
+      },
+      {
+        "name": "バンビーノ",
+        "full": true,
+        "visible": "バンビーノ"
+      },
+      {
+        "name": "ペパロニ",
+        "full": true,
+        "visible": "ペパロニ"
+      },
+      {
+        "name": "フガッサ",
+        "full": true,
+        "visible": "フガッサ"
+      },
+      {
+        "name": "フンギ",
+        "full": true,
+        "visible": "フンギ"
+      },
+      {
+        "name": "ナポリ",
+        "full": true,
+        "visible": "ナポリ"
+      }
+    ]
+  },
+  "clear": {
+    "text": [
+      "ディナーミッション 1",
+      "",
+      "🎉 DINNER CLEAR!",
+      "",
+      "作ったピザ 4 / 4",
+      "",
+      "クリアタイム 00:15",
+      "",
+      "最後のピザ：ブレックファストピザ完成！",
+      "",
+      "もう一度",
+      "🏠 ホーム"
+    ],
+    "panel": {
+      "x": 25,
+      "y": 248,
+      "w": 340,
+      "h": 349
+    },
+    "title": {
+      "x": 67,
+      "y": 301,
+      "w": 255.4,
+      "h": 28
+    },
+    "last": {
+      "text": "最後のピザ：ブレックファストピザ完成！",
+      "w": 247,
+      "h": 18,
+      "fontPx": "13px",
+      "lines": 1,
+      "overflowX": false,
+      "pageScrollX": false
+    },
+    "longestNameProbe": {
+      "text": "最後のピザ：ニューヘイブンアピッツァ完成！",
+      "w": 273,
+      "h": 18,
+      "fontPx": "13px",
+      "lines": 1,
+      "overflowX": false,
+      "pageScrollX": false
+    },
+    "nonTargetProbe": {
+      "text": "最後のピザ：もう少し丁寧に作ろう",
+      "w": 208,
+      "h": 18,
+      "fontPx": "13px",
+      "lines": 1,
+      "overflowX": false,
+      "pageScrollX": false
+    },
+    "jaTitleProbe": {
+      "text": "🎉 ディナー クリア！",
+      "w": 250,
+      "h": 32,
+      "fontPx": "24px",
+      "lines": 1,
+      "overflowX": false,
+      "pageScrollX": false
+    }
+  }
+}

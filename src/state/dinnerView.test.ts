@@ -8,6 +8,8 @@ import type { DinnerAttemptView } from "../mission/dinner/dinnerResultDetection"
 import {
   DINNER_PREVIEW_MINIMUM_STARS_PLACEHOLDER,
   dinnerAttemptCopy,
+  dinnerLastPizzaLabel,
+  dinnerStarGap,
   dinnerMissionCardView,
   dinnerReadiness,
   dinnerTargetRowItems,
@@ -168,5 +170,78 @@ describe("dinnerAttemptCopy (wording from the presentation-safe view only)", () 
       failure: { kind: "COMPLETION_GATE", reason: "INSUFFICIENT_REQUIRED_AMOUNT", ingredientId: "mushroom" },
     });
     expect(copy.lineJa).toBe("フンギ：マッシュルームの数が足りません");
+  });
+});
+
+describe("OD-DUI-5a: dinnerStarGap / あと★N from the injected S", () => {
+  it("N = minimumStars − stars for every S = 2..5 and ★ = 1..S−1", () => {
+    for (let S = 2; S <= 5; S += 1) {
+      for (let stars = 1; stars < S; stars += 1) {
+        const view = {
+          category: "QUALITY_FAIL",
+          recipeId: "margherita",
+          nameJa: "マルゲリータ",
+          failure: { kind: "BELOW_MINIMUM_STARS", stars, minimumStars: S },
+        } as DinnerAttemptView;
+        expect(dinnerStarGap(view)).toBe(S - stars);
+        expect(dinnerAttemptCopy(view).gapJa).toBe(`あと★${S - stars}`);
+      }
+    }
+  });
+
+  it("no gap when N <= 0 (guard) or for any other result", () => {
+    const zero = {
+      category: "QUALITY_FAIL",
+      recipeId: "margherita",
+      nameJa: "マルゲリータ",
+      failure: { kind: "BELOW_MINIMUM_STARS", stars: 5, minimumStars: 5 },
+    } as unknown as DinnerAttemptView;
+    expect(dinnerStarGap(zero)).toBeNull();
+    expect(dinnerAttemptCopy(zero).gapJa).toBeUndefined();
+    const others: DinnerAttemptView[] = [
+      { category: "TARGET_PASS", recipeId: "bismarck", nameJa: "ビスマルク", stars: 4, minimumStars: 3 },
+      { category: "QUALITY_FAIL", recipeId: "funghi", nameJa: "フンギ", failure: { kind: "COMPLETION_GATE", reason: "MISSING_REQUIRED_INGREDIENT" } },
+      { category: "DUPLICATE_TARGET", recipeId: "funghi", nameJa: "フンギ" },
+      { category: "NON_TARGET", recipeId: "marinara", nameJa: "マリナーラ" },
+      { category: "ORIGINAL" },
+      { category: "INVALID_PIZZA", reason: "OVERBAKED" },
+    ];
+    for (const view of others) {
+      expect(dinnerStarGap(view)).toBeNull();
+      expect(dinnerAttemptCopy(view).gapJa).toBeUndefined();
+    }
+  });
+});
+
+describe("OD-DUI-3a: dinnerLastPizzaLabel -- the pizza, never a headline", () => {
+  const cases: [DinnerAttemptView, string][] = [
+    [{ category: "TARGET_PASS", recipeId: "margherita", nameJa: "マルゲリータ", stars: 4, minimumStars: 3 }, "マルゲリータ ★4"],
+    [
+      { category: "QUALITY_FAIL", recipeId: "margherita", nameJa: "マルゲリータ", failure: { kind: "BELOW_MINIMUM_STARS", stars: 3, minimumStars: 5 } },
+      "マルゲリータ ★3",
+    ],
+    [{ category: "QUALITY_FAIL", recipeId: "funghi", nameJa: "フンギ", failure: { kind: "COMPLETION_GATE", reason: "MISSING_REQUIRED_INGREDIENT" } }, "フンギ"],
+    [{ category: "DUPLICATE_TARGET", recipeId: "bismarck", nameJa: "ビスマルク" }, "ビスマルク"],
+    [{ category: "NON_TARGET", recipeId: "marinara", nameJa: "マリナーラ" }, "マリナーラ"],
+    [{ category: "ORIGINAL" }, "オリジナルピザ"],
+    [{ category: "INVALID_PIZZA", reason: "UNDERBAKED" }, "ピザにならなかった（生焼け）"],
+    [{ category: "INVALID_PIZZA", reason: "OVERBAKED" }, "ピザにならなかった（焦げ）"],
+    [{ category: "INVALID_PIZZA", reason: "MISSING_REQUIRED_INGREDIENT" }, "ピザにならなかった"],
+  ];
+  it.each(cases)("%j -> %s", (view, label) => {
+    expect(dinnerLastPizzaLabel(view)).toBe(label);
+  });
+
+  it("never reuses a result headline", () => {
+    for (const [view] of cases) {
+      expect(dinnerLastPizzaLabel(view)).not.toBe(dinnerAttemptCopy(view).titleJa);
+    }
+  });
+
+  it("ORIGINAL / INVALID labels name no recipe (OD-R4)", () => {
+    for (const [view, label] of cases) {
+      if (view.category !== "ORIGINAL" && view.category !== "INVALID_PIZZA") continue;
+      for (const r of RECIPES) expect(label, r.id).not.toContain(r.nameJa);
+    }
   });
 });

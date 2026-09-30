@@ -580,12 +580,11 @@ export async function startLunchRushMission(page: Page, durationSeconds: number)
  * Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, PR #173): `CONFIRM_BAKE` (src/state/
  * gameReducer.ts) decides POST_BAKE vs. RESULT purely from `postBakeSteps(cookingProfile).length
  * > 0` -- it never consults `completion.status` -- so now that CUT is eligible for all 15
- * shipped recipes (previously margherita-only), a FAILED bake still lands on POST_BAKE/CUT and
- * still requires a real `cutRequiredCount`-line cut + "切り終わる" confirm before `state.phase`
- * ever reaches "RESULT" (and therefore before `MissionServePanel`'s own `--failed` variant can
- * render) -- exactly the same real gesture `playFullMargheritaRound`'s own trailing CUT branch
- * already performs for a PASS round. Completion Gate semantics/CUT scoring are untouched by this
- * -- this only teaches the *test helper* to drive a step the real UI now shows more often.
+ * shipped recipes (previously margherita-only), a composition-FAILED pizza still lands on
+ * POST_BAKE/CUT and still requires a real `cutRequiredCount`-line cut + "切り終わる" confirm
+ * before `state.phase` reaches "RESULT". Issue #256: a pizza whose Completion Gate `failures`
+ * also carry UNDERBAKED / OVERBAKED skips CUT -- and this helper takes the pizza out at once, so
+ * the bake is normally raw and there is no CUT. The branch below therefore stays conditional.
  *
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): this used to click "次へ" exactly 3
  * times, assuming every recipe's own PREPARE sequence is the fixed DOUGH/SAUCE/CHEESE/TOPPING
