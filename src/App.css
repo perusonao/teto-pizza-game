@@ -6036,7 +6036,8 @@ p.hint-sheet__step {
   align-items: center;
   justify-content: center;
   gap: 1px;
-  padding: 3px 2px;
+  padding: 2px;
+  position: relative;
   background: #fff8ea;
   border: 0;
   border-radius: 10px;
@@ -6058,10 +6059,27 @@ p.hint-sheet__step {
   line-height: 0;
 }
 
+/* OD-DUI-2a (V6): a 24px thumbnail above the 700px-height breakpoint (20px below it, see the
+   media query) leaves room for a 2-line name while the bar keeps the height it had -- so the PREPARE
+   / BAKE stage diameters are unchanged (Layout Contract LC-S). The full picture is the 見本 popover. */
 .dinner-chip__thumb .reference-thumbnail {
-  width: 30px;
-  height: 30px;
-  --piece-scale: 0.16;
+  width: 24px;
+  height: 24px;
+  --piece-scale: 0.13;
+}
+
+/* OD-DUI-1a: 🔍 marks the chip as "look at the 見本" (never a selection). It sits in the chip's own
+   top-left corner -- inside the chip, because the sideways-scrolling list clips anything above it --
+   clear of the centred thumbnail, its ✓ (top-right) and the name below. Decorative: the button's
+   own label says 見本. */
+.dinner-chip__lens {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  z-index: 1;
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .dinner-chip__check {
@@ -6079,12 +6097,18 @@ p.hint-sheet__step {
   text-align: center;
 }
 
+/* OD-DUI-2a: up to 2 lines at 9px, so every current recipe name (25 / 25) shows in full on a 60px
+   chip; a longer future name ends in an ellipsis on line 2. */
 .dinner-chip__name {
   max-width: 100%;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  line-height: 1.2;
-  white-space: nowrap;
+  line-height: 1.1;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -6103,9 +6127,13 @@ p.hint-sheet__step {
   }
 
   .dinner-chip__thumb .reference-thumbnail {
-    width: 26px;
-    height: 26px;
-    --piece-scale: 0.14;
+    width: 20px;
+    height: 20px;
+    --piece-scale: 0.11;
+  }
+
+  .dinner-chip__name {
+    line-height: 1.05;
   }
 }
 
@@ -6133,6 +6161,14 @@ p.hint-sheet__step {
   font-size: 14px;
   font-weight: 700;
   color: #4a2e0a;
+  text-align: center;
+}
+
+/* OD-DUI-5a: the ★ gap to the injected S, right under the result line (QUALITY_FAIL only). */
+.dinner-attempt__gap {
+  font-size: 15px;
+  font-weight: 900;
+  color: #c2410c;
   text-align: center;
 }
 

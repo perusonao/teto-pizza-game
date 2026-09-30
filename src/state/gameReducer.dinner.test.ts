@@ -743,3 +743,78 @@ describe("invariants over random play (seeded)", () => {
     }
   });
 });
+
+describe("Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE", () => {
+  /** START_BAKE + CONFIRM_BAKE only -- no CUT action is dispatched. */
+  function bakeOnly(state: GameState, pizza: PizzaState, bake: number, now: number): GameState {
+    const baking = gameReducer({ ...state, pizza }, { type: "START_BAKE", now });
+    expect(baking.cookingProfile.steps).toContain("CUT"); // an identified CUT recipe
+    return gameReducer(baking, { type: "CONFIRM_BAKE", value: bake, now });
+  }
+
+  it("D-1 / D-2: raw and burnt bismarck -> INVALID_PIZZA without CUT; consumed once; no soft-lock", () => {
+    for (const [bake, reason] of [[0, "UNDERBAKED"], [100, "OVERBAKED"]] as const) {
+      const start = started({ ...EXACT_A, egg: 3 });
+      const done = bakeOnly(start, pizzaFor("bismarck"), bake, T0 + 10);
+      expect(done.phase).toBe("RESULT");
+      expect(done.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason });
+      expect(done.dinner!.pending).toBeNull();
+      expect(done.cutState.lines).toHaveLength(0);
+      expect(done.inventory.egg).toBe(2); // 3 -> 2: exactly one egg, once
+      expect(run(done).attempts).toHaveLength(1);
+      expect(lastAttempt(done)).toMatchObject({ category: "INVALID_PIZZA", consumed: { egg: 1 } });
+      expect(run(done).completedRecipeIds).toEqual([]);
+      // The Dinner base completion is cleared as before (the result is the resolver's).
+      expect([done.score, done.completion]).toEqual([null, null]);
+      // Not stuck: the next pizza starts normally.
+      expect(nextPizza(done, T0 + 20).phase).toBe("PREPARE");
+      // CUT actions after the result change nothing.
+      expect(gameReducer(done, { type: "CONFIRM_MAKING_STEP", now: T0 + 30 })).toBe(done);
+    }
+  });
+
+  it("D-1b: the result equals the same pizza's result through the old CUT walk (only CUT is gone)", () => {
+    const skipped = bakeOnly(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 0, T0 + 10);
+    const viaResolver = resolveDinnerAttempt({
+      run: run(started({ ...EXACT_A, egg: 3 })),
+      pizza: { ...pizzaFor("bismarck"), bakeResult: 0 },
+      cutCompleted: true,
+      preConsumptionInventory: { ...EXACT_A, egg: 3 },
+      ownedIngredientIds: ALL_IDS,
+      dex: skipped.dex,
+      minimumStars: S,
+      now: T0 + 10,
+    });
+    expect(viaResolver.status).toBe("RESOLVED");
+    if (viaResolver.status === "RESOLVED") expect(skipped.inventory).toEqual(viaResolver.postConsumptionInventory);
+  });
+
+  it("D-3: an in-band bake (incl. a ★4 badge-only one) still requires CUT", () => {
+    const { start, end } = getRecipe("bismarck")!.bakeTarget;
+    for (const bake of [start - (end - start) * 0.25, mid("bismarck"), end + (end - start) * 0.25]) {
+      const state = bakeOnly(started(), pizzaFor("bismarck"), bake, T0 + 10);
+      expect([state.phase, state.makingStep]).toEqual(["POST_BAKE", "CUT"]);
+      expect(state.dinner!.lastResult).toBeNull();
+      expect(run(state).attempts).toEqual([]);
+      expect(cutToResult(state, T0 + 20).dinner!.lastResult).toMatchObject({ category: "TARGET_PASS", recipeId: "bismarck" });
+    }
+  });
+
+  it("D-4: TIME_UP still wins at CONFIRM_BAKE, and the HOME dialog still freezes it", () => {
+    const baking = gameReducer({ ...started(), pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    const late = gameReducer(baking, { type: "CONFIRM_BAKE", value: 0, now: T0 + DURATION });
+    expect(late.phase).toBe("BAKE");
+    expect(late.inventory).toBe(baking.inventory);
+    expect(run(late).outcome).toMatchObject({ reason: "TIME_UP" });
+    const asking = gameReducer(baking, { type: "DINNER_REQUEST_ABANDON" });
+    expect(asking.dinner!.abandonRequested).toBe(true);
+    expect(gameReducer(asking, { type: "CONFIRM_BAKE", value: 0, now: T0 + 5 })).toBe(asking);
+  });
+
+  it("an unidentified composition is unchanged: no CUT either way", () => {
+    const state = gameReducer({ ...started({ ...EXACT_A, egg: 3 }), pizza: pizzaFor("funghi", {}, { egg: 1 }) }, { type: "START_BAKE", now: T0 });
+    expect(state.cookingProfile.steps).not.toContain("CUT");
+    const done = gameReducer(state, { type: "CONFIRM_BAKE", value: 0, now: T0 + 1 });
+    expect(done.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason: "UNDERBAKED" });
+  });
+});

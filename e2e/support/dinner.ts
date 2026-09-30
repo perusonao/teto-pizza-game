@@ -143,8 +143,9 @@ export interface CookOptions {
 
 /**
  * On a recipe-free Dinner PREPARE round: cook `pizza` with real gestures and land on its result.
- * The CUT step is fixed at START_BAKE from the composition (Stage A), so a raw / burnt pizza of a
- * CUT recipe is still cut before its INVALID_PIZZA result.
+ * The CUT step is fixed at START_BAKE from the composition (Stage A). Issue #256: a raw / burnt
+ * pizza (Completion Gate UNDERBAKED / OVERBAKED) skips it and gets its INVALID_PIZZA result at
+ * 取り出す, so CUT is only expected for an in-band bake.
  */
 export async function cookDinnerPizza(page: Page, pizza: keyof typeof PIZZAS, options: CookOptions = {}) {
   const spec = PIZZAS[pizza];
@@ -175,7 +176,7 @@ export async function cookDinnerPizza(page: Page, pizza: keyof typeof PIZZAS, op
   await options.onStep?.("bake");
   const window = options.underbake ? { start: 2, end: 4 } : options.overbake ? { start: 97, end: 99 } : spec.bake;
   await landNeedleAndTakeOut(page, window);
-  if (spec.cut) {
+  if (spec.cut && !options.underbake && !options.overbake) {
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
     await hold();

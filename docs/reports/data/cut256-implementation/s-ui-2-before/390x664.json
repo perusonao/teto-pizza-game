@@ -1,0 +1,178 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 664
+  },
+  "prepare": {
+    "dough": 265,
+    "bar": 48
+  },
+  "chipsFresh": {
+    "perChip": [
+      {
+        "label": "マルゲリータの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      },
+      {
+        "label": "ビスマルクの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      },
+      {
+        "label": "ブレックファストピザの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      },
+      {
+        "label": "フンギの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      }
+    ],
+    "nameFontPx": "10px",
+    "namesFull": 11,
+    "maxLines": 1,
+    "notFull": [
+      "ニューヘイブンアピッツァ",
+      "ピッツァ・ポルトゲーザ",
+      "クアトロ フォルマッジ",
+      "ペストカプレーゼピザ",
+      "ブレックファストピザ",
+      "トンノ・エ・チポッラ",
+      "ペストパターテピザ",
+      "ピッツァ・ビアンカ",
+      "パルミジャーナピザ",
+      "メランザーネピザ",
+      "ミートラヴァーズ",
+      "ペストトンノピザ",
+      "ハワイアンピザ",
+      "カプリチョーザ"
+    ],
+    "pageScrollX": false
+  },
+  "chipsDone": {
+    "perChip": [
+      {
+        "label": "マルゲリータの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      },
+      {
+        "label": "ビスマルクの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      },
+      {
+        "label": "ブレックファストピザの見本を見る",
+        "hasLens": false,
+        "hasCheck": false,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      },
+      {
+        "label": "フンギ（完成）の見本を見る",
+        "hasLens": false,
+        "hasCheck": true,
+        "thumbPx": 26,
+        "lensOverName": false,
+        "lensOverCheck": false,
+        "checkOverName": false,
+        "nameOverThumb": false,
+        "lensOverThumb": false,
+        "lensInsideChip": false,
+        "lensClipped": true,
+        "lensTopVsChip": null
+      }
+    ],
+    "nameFontPx": "10px",
+    "namesFull": 11,
+    "maxLines": 1,
+    "notFull": [
+      "ニューヘイブンアピッツァ",
+      "ピッツァ・ポルトゲーザ",
+      "クアトロ フォルマッジ",
+      "ペストカプレーゼピザ",
+      "ブレックファストピザ",
+      "トンノ・エ・チポッラ",
+      "ペストパターテピザ",
+      "ピッツァ・ビアンカ",
+      "パルミジャーナピザ",
+      "メランザーネピザ",
+      "ミートラヴァーズ",
+      "ペストトンノピザ",
+      "ハワイアンピザ",
+      "カプリチョーザ"
+    ],
+    "pageScrollX": false
+  },
+  "bake": {
+    "dough": 333,
+    "bar": 48
+  },
+  "cut": {
+    "dough": 358,
+    "bar": 48
+  }
+}
