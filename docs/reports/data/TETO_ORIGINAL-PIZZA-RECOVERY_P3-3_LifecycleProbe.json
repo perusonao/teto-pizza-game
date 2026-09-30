@@ -1,0 +1,98 @@
+{
+  "tool": "tools/original-pizza-p3/lifecycle.probe.test.ts",
+  "evidence": {
+    "exactlyOnce": {
+      "afterConfirmBake": "RESULT",
+      "afterRegister": "DISCOVERED",
+      "repeatedRegisterSameReference": true,
+      "repeatedConfirmBakeSameReference": true
+    },
+    "strictModePure": true,
+    "freeCookOutcomes": {
+      "ORDINARY_ORIGINAL (ADD_ONE line)": {
+        "phaseAfterConfirmBake": "RESULT",
+        "scoreIsNull": true,
+        "completion": "PASS",
+        "phaseAfterRegister": "DISCOVERED",
+        "lastDiscovery": "ORIGINAL",
+        "discoveryKindAtRegister": "see lastDiscovery",
+        "reachesOriginalBranch": true,
+        "nearMissLineShown": "ADD_ONE"
+      },
+      "ORDINARY_ORIGINAL (far, key-unused line)": {
+        "phaseAfterConfirmBake": "RESULT",
+        "scoreIsNull": true,
+        "completion": "PASS",
+        "phaseAfterRegister": "DISCOVERED",
+        "lastDiscovery": "ORIGINAL",
+        "discoveryKindAtRegister": "see lastDiscovery",
+        "reachesOriginalBranch": true,
+        "nearMissLineShown": "FAR"
+      },
+      "INCOMPLETE_MATCH": {
+        "phaseAfterConfirmBake": "RESULT",
+        "scoreIsNull": true,
+        "completion": "PASS",
+        "phaseAfterRegister": "DISCOVERED",
+        "lastDiscovery": "INCOMPLETE_MATCH",
+        "discoveryKindAtRegister": "see lastDiscovery",
+        "reachesOriginalBranch": true,
+        "nearMissLineShown": null
+      },
+      "MATCHED, ALREADY_DISCOVERED (margherita is in the Dex)": {
+        "phaseAfterConfirmBake": "RESULT",
+        "scoreIsNull": false,
+        "completion": "PASS",
+        "phaseAfterRegister": "DISCOVERED",
+        "lastDiscovery": "ALREADY_DISCOVERED",
+        "discoveryKindAtRegister": "see lastDiscovery",
+        "reachesOriginalBranch": false,
+        "nearMissLineShown": null
+      },
+      "MATCHED, NEW_DISCOVERY (margherita not yet discovered)": {
+        "phaseAfterConfirmBake": "RESULT",
+        "scoreIsNull": false,
+        "completion": "PASS",
+        "phaseAfterRegister": "DISCOVERED",
+        "lastDiscovery": "NEW_DISCOVERY",
+        "discoveryKindAtRegister": "see lastDiscovery",
+        "reachesOriginalBranch": false,
+        "nearMissLineShown": null
+      },
+      "FAILED (raw bake)": {
+        "phaseAfterConfirmBake": "RESULT",
+        "scoreIsNull": true,
+        "completion": "FAILED",
+        "phaseAfterRegister": "RESULT",
+        "lastDiscovery": null,
+        "discoveryKindAtRegister": "see lastDiscovery",
+        "reachesOriginalBranch": false,
+        "nearMissLineShown": null
+      }
+    },
+    "ambiguousReachableInProduction": false,
+    "nearMissStableWhileOnScreen": {
+      "headerHasShopOrDex": false
+    },
+    "freshRoundCallSites": 16,
+    "carriedSessionFieldSurvives": [
+      "RETRY_SAME_RECIPE",
+      "START_FREE_COOK",
+      "PLAY_AGAIN",
+      "SELECT_RECIPE"
+    ],
+    "saveWriterSpreadsState": false,
+    "saveWriterFields": [
+      "dex",
+      "pitzBalance",
+      "ownedIngredientIds",
+      "inventory",
+      "starterGrantClaimedRecipeIds",
+      "unlockedForShopIngredientIds",
+      "discoveryHintPurchases",
+      "discoveryHintFacts",
+      "discoveredTechniqueIds",
+      "dinnerMissionRecordUpdates"
+    ]
+  }
+}

@@ -1,0 +1,2461 @@
+{
+  "tool": "tools/original-pizza-p3/result-geometry.measure.spec.ts",
+  "seed": "Dex-3 ladder save (funghi discoverable)",
+  "standIns": {
+    "notice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#4）",
+    "entry": "📓 試作ノート"
+  },
+  "rows": [
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "N390",
+      "width": 390,
+      "height": 844,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 844,
+        "scrollWidth": 390,
+        "panelTop": 260,
+        "panelHeight": 327,
+        "barTop": 722,
+        "primaryBottom": 778,
+        "lastContentBottom": 457,
+        "clearanceAboveBar": 265,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 372,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 502,
+          "clearanceAboveBar": 220,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 369,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 499,
+          "clearanceAboveBar": 223,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 377,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 507,
+          "clearanceAboveBar": 215,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 422,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 552,
+          "clearanceAboveBar": 170,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "N360",
+      "width": 360,
+      "height": 800,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 800,
+        "scrollWidth": 360,
+        "panelTop": 260,
+        "panelHeight": 327,
+        "barTop": 678,
+        "primaryBottom": 734,
+        "lastContentBottom": 457,
+        "clearanceAboveBar": 221,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 372,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 502,
+          "clearanceAboveBar": 176,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 369,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 499,
+          "clearanceAboveBar": 179,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 377,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 507,
+          "clearanceAboveBar": 171,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 422,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 552,
+          "clearanceAboveBar": 126,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "S390",
+      "width": 390,
+      "height": 664,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 664,
+        "scrollWidth": 390,
+        "panelTop": 260,
+        "panelHeight": 327,
+        "barTop": 542,
+        "primaryBottom": 598,
+        "lastContentBottom": 457,
+        "clearanceAboveBar": 85,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 372,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 502,
+          "clearanceAboveBar": 40,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 369,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 499,
+          "clearanceAboveBar": 43,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 377,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 507,
+          "clearanceAboveBar": 35,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 422,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 552,
+          "clearanceAboveBar": -10,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:682/664"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "S360",
+      "width": 360,
+      "height": 640,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 640,
+        "scrollWidth": 360,
+        "panelTop": 260,
+        "panelHeight": 327,
+        "barTop": 518,
+        "primaryBottom": 574,
+        "lastContentBottom": 457,
+        "clearanceAboveBar": 61,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 372,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 502,
+          "clearanceAboveBar": 16,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 369,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 499,
+          "clearanceAboveBar": 19,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 377,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 507,
+          "clearanceAboveBar": 11,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 422,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 552,
+          "clearanceAboveBar": -34,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:682/640"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "P390i",
+      "width": 390,
+      "height": 844,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 844,
+        "scrollWidth": 390,
+        "panelTop": 307,
+        "panelHeight": 361,
+        "barTop": 688,
+        "primaryBottom": 744,
+        "lastContentBottom": 504,
+        "clearanceAboveBar": 184,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 406,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 549,
+          "clearanceAboveBar": 139,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 403,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 546,
+          "clearanceAboveBar": 142,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 411,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 554,
+          "clearanceAboveBar": 134,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 456,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 599,
+          "clearanceAboveBar": 89,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "E390i",
+      "width": 390,
+      "height": 664,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 664,
+        "scrollWidth": 390,
+        "panelTop": 307,
+        "panelHeight": 361,
+        "barTop": 508,
+        "primaryBottom": 564,
+        "lastContentBottom": 504,
+        "clearanceAboveBar": 4,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": [
+          "div.game-screen:668/664"
+        ]
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 406,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 549,
+          "clearanceAboveBar": -41,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:713/664"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 403,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 546,
+          "clearanceAboveBar": -38,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:710/664"
+          ],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 411,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 554,
+          "clearanceAboveBar": -46,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:718/664"
+          ],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 456,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 599,
+          "clearanceAboveBar": -91,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:763/664"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "ADD_ONE",
+      "note": "P2 line 1 (near-miss), hint CTA",
+      "profile": "E360i",
+      "width": 360,
+      "height": 640,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 640,
+        "scrollWidth": 360,
+        "panelTop": 307,
+        "panelHeight": 361,
+        "barTop": 484,
+        "primaryBottom": 540,
+        "lastContentBottom": 504,
+        "clearanceAboveBar": -20,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": [
+          "div.game-screen:668/640"
+        ]
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 406,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 549,
+          "clearanceAboveBar": -65,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:713/640"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 403,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 546,
+          "clearanceAboveBar": -62,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:710/640"
+          ],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 411,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 554,
+          "clearanceAboveBar": -70,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:718/640"
+          ],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 456,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 599,
+          "clearanceAboveBar": -115,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:763/640"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "N390",
+      "width": 390,
+      "height": 844,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 844,
+        "scrollWidth": 390,
+        "panelTop": 260,
+        "panelHeight": 327,
+        "barTop": 722,
+        "primaryBottom": 778,
+        "lastContentBottom": 457,
+        "clearanceAboveBar": 265,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 372,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 502,
+          "clearanceAboveBar": 220,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 369,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 499,
+          "clearanceAboveBar": 223,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 377,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 507,
+          "clearanceAboveBar": 215,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 422,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 552,
+          "clearanceAboveBar": 170,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "N360",
+      "width": 360,
+      "height": 800,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 800,
+        "scrollWidth": 360,
+        "panelTop": 260,
+        "panelHeight": 352,
+        "barTop": 678,
+        "primaryBottom": 734,
+        "lastContentBottom": 482,
+        "clearanceAboveBar": 196,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 397,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 527,
+          "clearanceAboveBar": 151,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 394,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 524,
+          "clearanceAboveBar": 154,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 402,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 532,
+          "clearanceAboveBar": 146,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 447,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 577,
+          "clearanceAboveBar": 101,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "S390",
+      "width": 390,
+      "height": 664,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 664,
+        "scrollWidth": 390,
+        "panelTop": 260,
+        "panelHeight": 327,
+        "barTop": 542,
+        "primaryBottom": 598,
+        "lastContentBottom": 457,
+        "clearanceAboveBar": 85,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 372,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 502,
+          "clearanceAboveBar": 40,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 369,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 499,
+          "clearanceAboveBar": 43,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 377,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 507,
+          "clearanceAboveBar": 35,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 422,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 552,
+          "clearanceAboveBar": -10,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:682/664"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "S360",
+      "width": 360,
+      "height": 640,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 640,
+        "scrollWidth": 360,
+        "panelTop": 260,
+        "panelHeight": 352,
+        "barTop": 518,
+        "primaryBottom": 574,
+        "lastContentBottom": 482,
+        "clearanceAboveBar": 36,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 397,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 527,
+          "clearanceAboveBar": -9,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:657/640"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 394,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 524,
+          "clearanceAboveBar": -6,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:654/640"
+          ],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 402,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 532,
+          "clearanceAboveBar": -14,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:662/640"
+          ],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 447,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 577,
+          "clearanceAboveBar": -59,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:707/640"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "P390i",
+      "width": 390,
+      "height": 844,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 844,
+        "scrollWidth": 390,
+        "panelTop": 307,
+        "panelHeight": 361,
+        "barTop": 688,
+        "primaryBottom": 744,
+        "lastContentBottom": 504,
+        "clearanceAboveBar": 184,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 406,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 549,
+          "clearanceAboveBar": 139,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 403,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 546,
+          "clearanceAboveBar": 142,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 411,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 554,
+          "clearanceAboveBar": 134,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 456,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 599,
+          "clearanceAboveBar": 89,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "E390i",
+      "width": 390,
+      "height": 664,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 664,
+        "scrollWidth": 390,
+        "panelTop": 307,
+        "panelHeight": 361,
+        "barTop": 508,
+        "primaryBottom": 564,
+        "lastContentBottom": 504,
+        "clearanceAboveBar": 4,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": [
+          "div.game-screen:668/664"
+        ]
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 406,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 549,
+          "clearanceAboveBar": -41,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:713/664"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 403,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 546,
+          "clearanceAboveBar": -38,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:710/664"
+          ],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 411,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 554,
+          "clearanceAboveBar": -46,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:718/664"
+          ],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 456,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 599,
+          "clearanceAboveBar": -91,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:763/664"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "FAR",
+      "note": "P2 FAR line (generic or key-unused), hint CTA",
+      "profile": "E360i",
+      "width": 360,
+      "height": 640,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 640,
+        "scrollWidth": 360,
+        "panelTop": 307,
+        "panelHeight": 386,
+        "barTop": 484,
+        "primaryBottom": 540,
+        "lastContentBottom": 529,
+        "clearanceAboveBar": -45,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": [
+          "div.game-screen:693/640"
+        ]
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 431,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 574,
+          "clearanceAboveBar": -90,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:738/640"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 428,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 571,
+          "clearanceAboveBar": -87,
+          "nearMissRow": {
+            "height": 78,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:735/640"
+          ],
+          "deltaPanelHeight": 42,
+          "deltaClearance": -42
+        },
+        "entry44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 436,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 579,
+          "clearanceAboveBar": -95,
+          "nearMissRow": {
+            "height": 86,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:743/640"
+          ],
+          "deltaPanelHeight": 50,
+          "deltaClearance": -50
+        },
+        "both44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 481,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 624,
+          "clearanceAboveBar": -140,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:788/640"
+          ],
+          "deltaPanelHeight": 95,
+          "deltaClearance": -95
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "N390",
+      "width": 390,
+      "height": 844,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 844,
+        "scrollWidth": 390,
+        "panelTop": 260,
+        "panelHeight": 345,
+        "barTop": 722,
+        "primaryBottom": 778,
+        "lastContentBottom": 475,
+        "clearanceAboveBar": 247,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 390,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 520,
+          "clearanceAboveBar": 202,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 345,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 475,
+          "clearanceAboveBar": 247,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 353,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 483,
+          "clearanceAboveBar": 239,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 398,
+          "barTop": 722,
+          "primaryBottom": 778,
+          "lastContentBottom": 528,
+          "clearanceAboveBar": 194,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "N360",
+      "width": 360,
+      "height": 800,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 800,
+        "scrollWidth": 360,
+        "panelTop": 260,
+        "panelHeight": 370,
+        "barTop": 678,
+        "primaryBottom": 734,
+        "lastContentBottom": 500,
+        "clearanceAboveBar": 178,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 415,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 545,
+          "clearanceAboveBar": 133,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 370,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 500,
+          "clearanceAboveBar": 178,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 378,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 508,
+          "clearanceAboveBar": 170,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 800,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 423,
+          "barTop": 678,
+          "primaryBottom": 734,
+          "lastContentBottom": 553,
+          "clearanceAboveBar": 125,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "S390",
+      "width": 390,
+      "height": 664,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 664,
+        "scrollWidth": 390,
+        "panelTop": 260,
+        "panelHeight": 345,
+        "barTop": 542,
+        "primaryBottom": 598,
+        "lastContentBottom": 475,
+        "clearanceAboveBar": 67,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 390,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 520,
+          "clearanceAboveBar": 22,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 345,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 475,
+          "clearanceAboveBar": 67,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 353,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 483,
+          "clearanceAboveBar": 59,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 260,
+          "panelHeight": 398,
+          "barTop": 542,
+          "primaryBottom": 598,
+          "lastContentBottom": 528,
+          "clearanceAboveBar": 14,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "S360",
+      "width": 360,
+      "height": 640,
+      "safeAreaBottom": 0,
+      "base": {
+        "innerHeight": 640,
+        "scrollWidth": 360,
+        "panelTop": 260,
+        "panelHeight": 370,
+        "barTop": 518,
+        "primaryBottom": 574,
+        "lastContentBottom": 500,
+        "clearanceAboveBar": 18,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 415,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 545,
+          "clearanceAboveBar": -27,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:675/640"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 370,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 500,
+          "clearanceAboveBar": 18,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 378,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 508,
+          "clearanceAboveBar": 10,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 260,
+          "panelHeight": 423,
+          "barTop": 518,
+          "primaryBottom": 574,
+          "lastContentBottom": 553,
+          "clearanceAboveBar": -35,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:683/640"
+          ],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "P390i",
+      "width": 390,
+      "height": 844,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 844,
+        "scrollWidth": 390,
+        "panelTop": 307,
+        "panelHeight": 379,
+        "barTop": 688,
+        "primaryBottom": 744,
+        "lastContentBottom": 522,
+        "clearanceAboveBar": 166,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": []
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 424,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 567,
+          "clearanceAboveBar": 121,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 379,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 522,
+          "clearanceAboveBar": 166,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 387,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 530,
+          "clearanceAboveBar": 158,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 844,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 432,
+          "barTop": 688,
+          "primaryBottom": 744,
+          "lastContentBottom": 575,
+          "clearanceAboveBar": 113,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "E390i",
+      "width": 390,
+      "height": 664,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 664,
+        "scrollWidth": 390,
+        "panelTop": 307,
+        "panelHeight": 379,
+        "barTop": 508,
+        "primaryBottom": 564,
+        "lastContentBottom": 522,
+        "clearanceAboveBar": -14,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": [
+          "div.game-screen:686/664"
+        ]
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 424,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 567,
+          "clearanceAboveBar": -59,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:731/664"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 379,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 522,
+          "clearanceAboveBar": -14,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:686/664"
+          ],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 387,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 530,
+          "clearanceAboveBar": -22,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:694/664"
+          ],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 664,
+          "scrollWidth": 390,
+          "panelTop": 307,
+          "panelHeight": 432,
+          "barTop": 508,
+          "primaryBottom": 564,
+          "lastContentBottom": 575,
+          "clearanceAboveBar": -67,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:739/664"
+          ],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    },
+    {
+      "case": "INCOMPLETE_MATCH",
+      "note": "no P2 line; INCOMPLETE lead; hint CTA only",
+      "profile": "E360i",
+      "width": 360,
+      "height": 640,
+      "safeAreaBottom": 34,
+      "base": {
+        "innerHeight": 640,
+        "scrollWidth": 360,
+        "panelTop": 307,
+        "panelHeight": 404,
+        "barTop": 484,
+        "primaryBottom": 540,
+        "lastContentBottom": 547,
+        "clearanceAboveBar": -63,
+        "nearMissRow": {
+          "height": 36,
+          "width": 320
+        },
+        "hintCta": {
+          "height": 36,
+          "width": 127
+        },
+        "scrollable": [
+          "div.game-screen:711/640"
+        ]
+      },
+      "variants": {
+        "notice": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 449,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 592,
+          "clearanceAboveBar": -108,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:756/640"
+          ],
+          "deltaPanelHeight": 45,
+          "deltaClearance": -45
+        },
+        "entry36": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 404,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 547,
+          "clearanceAboveBar": -63,
+          "nearMissRow": {
+            "height": 36,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:711/640"
+          ],
+          "deltaPanelHeight": 0,
+          "deltaClearance": 0
+        },
+        "entry44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 412,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 555,
+          "clearanceAboveBar": -71,
+          "nearMissRow": {
+            "height": 44,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:719/640"
+          ],
+          "deltaPanelHeight": 8,
+          "deltaClearance": -8
+        },
+        "both44": {
+          "innerHeight": 640,
+          "scrollWidth": 360,
+          "panelTop": 307,
+          "panelHeight": 457,
+          "barTop": 484,
+          "primaryBottom": 540,
+          "lastContentBottom": 600,
+          "clearanceAboveBar": -116,
+          "nearMissRow": {
+            "height": 35,
+            "width": 320
+          },
+          "hintCta": {
+            "height": 36,
+            "width": 127
+          },
+          "scrollable": [
+            "div.game-screen:764/640"
+          ],
+          "deltaPanelHeight": 53,
+          "deltaClearance": -53
+        }
+      }
+    }
+  ]
+}
