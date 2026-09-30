@@ -12,10 +12,9 @@ import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
  * this file forces the flag on for the UI to exist at all. Nothing in production reads the flag except
  * `handCapacityFor` (unwired until R5-d), so forcing it changes no tray here: the tests below prove that too.
  */
-vi.mock("./logic/catalog/handPolicy", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./logic/catalog/handPolicy")>()),
-  HAND_ENFORCEMENT_ENABLED: true,
-}));
+// LC-R5-e-h (H-2): no `vi.mock`; the `hand-on-9` / `hand-on-12` projects compile the real `handPolicy.ts` ON. `seedFree`
+// owns eight toppings (<= either candidate): the hand is INACTIVE and the tray is today's tray. (`seedDinner` owns all
+// 22, so its FREE part has an ACTIVE hand; the Dinner round itself never has one.)
 
 const FINITE = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
 // Tray order: page 1 = basil, garlic, oregano, cherry-tomato, egg, mushroom; page 2 = onion, sausage.

@@ -6,19 +6,20 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { DEFAULT_HAND_CAPACITY_CANDIDATE } from "./logic/catalog/handPolicy";
 
 /**
  * LC-R5-d: the DORMANT tray hand through the real App / reducer / tray / pantry, with the enforcement flag forced ON
- * (production keeps it false; `App.handPins.test.tsx` and the tray tests prove the OFF side). 22 toppings are owned,
- * so the topping hand (candidate capacity 12) is ACTIVE: the tray shows 12 of 22 in catalog order on 2 pages.
+ * (production keeps it false; `App.handTray.off.test.tsx` and `handTray.off.test.ts` prove the OFF side). 22 toppings are owned,
+ * so the topping hand (capacity candidate CAP = 9 or 12, one per project) is ACTIVE: the tray shows CAP of 22 in
+ * catalog order on 2 pages (6 + CAP - 6).
  * OD-R5d-1 (R-α page 0 + page-level selection, catalog order, priority-only reorder is not a change) /
  * OD-R5d-2 / OD-R5d-3 (Model C: an accepted pin is always on the tray).
  */
-vi.mock("./logic/catalog/handPolicy", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./logic/catalog/handPolicy")>()),
-  HAND_ENFORCEMENT_ENABLED: true,
-  handCapacityFor: (_owned: number, candidate: 9 | 12) => candidate,
-}));
+// LC-R5-e-h (H-2): no `vi.mock` any more. The `hand-on-9` / `hand-on-12` Vitest projects compile the REAL
+// `handPolicy.ts` with the flag on and one capacity candidate, so the real `handCapacityFor` / `resolveTrayHandIds`
+// wiring runs, and every expectation below holds for BOTH undecided candidates (CAP).
+const CAP = DEFAULT_HAND_CAPACITY_CANDIDATE;
 
 const FINITE = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
 const TOPPINGS = INGREDIENTS.filter((i) => i.category === "topping");
@@ -130,8 +131,8 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-describe("LC-R5-d dormant tray hand (flag forced on, active hand)", () => {
-  it("the tray shows 12 of 22 toppings in CATALOG order on 2 pages (priority selects membership only)", async () => {
+describe(`LC-R5-d tray hand (real handPolicy compiled ON, capacity ${CAP}, active hand)`, () => {
+  it(`the tray shows ${CAP} of 22 toppings in CATALOG order on 2 pages (priority selects membership only)`, async () => {
     seedFree();
     const user = userEvent.setup();
     render(<App />);
@@ -139,10 +140,10 @@ describe("LC-R5-d dormant tray hand (flag forced on, active hand)", () => {
     expect(pageLabel()).toBe("1 / 2");
     const [p1, p2] = await bothPages(user);
     expect(p1).toHaveLength(6);
-    expect(p2).toHaveLength(6);
+    expect(p2).toHaveLength(CAP - 6); // 12 -> 6 + 6, 9 -> 6 + 3
     const all = [...p1, ...p2];
     expect(all.map(catalogRank)).toEqual([...all.map(catalogRank)].sort((a, b) => a - b));
-    expect(new Set(all).size).toBe(12);
+    expect(new Set(all).size).toBe(CAP);
   });
 
   it("OD-R5d-1: an actual hand change returns to page 0 and clears a selection that is not on the new page 0", async () => {
@@ -235,14 +236,14 @@ describe("LC-R5-d dormant tray hand (flag forced on, active hand)", () => {
     expect(selectedName()).toBe(p2[0]);
   });
 
-  it("OD-R5d-3 (Model C): pinning every tile accepts exactly 12 (the capacity), all on the tray; the rest are refused without a change", async () => {
+  it(`OD-R5d-3 (Model C): pinning every tile accepts exactly ${CAP} (the capacity), all on the tray; the rest are refused without a change`, async () => {
     seedFree();
     const user = userEvent.setup();
     render(<App />);
     await toToppingStep(user);
     await openPantry(user);
     for (const t of TOPPINGS) await user.click(exactTile(t.nameJa));
-    expect(stripPins()).toBe(12);
+    expect(stripPins()).toBe(CAP);
     const pinned = within(screen.getByRole("group", { name: "選択中の材料" })).getAllByRole("button", { name: /を外す$/ }).map((b) => b.getAttribute("aria-label")!.replace("を外す", ""));
     await closePantry(user);
     const [n1, n2] = await bothPages(user);
@@ -265,12 +266,12 @@ describe("LC-R5-d dormant tray hand (flag forced on, active hand)", () => {
     await user.click(screen.getByRole("button", { name: "前のページ" }));
     await openPantry(user);
     for (const t of TOPPINGS) await user.click(exactTile(t.nameJa));
-    // Model C: 10 free slots for the others; a pin on an already-placed ingredient costs no slot (it is on the hand).
-    expect(stripPins()).toBe(12);
+    // Model C: CAP - 2 free slots for the others; a pin on an already-placed ingredient costs no slot (it is on the hand).
+    expect(stripPins()).toBe(CAP);
     await closePantry(user);
     const [n1, n2] = await bothPages(user);
     for (const name of placedNames) expect([...n1, ...n2]).toContain(name);
-    expect([...n1, ...n2]).toHaveLength(12);
+    expect([...n1, ...n2]).toHaveLength(CAP);
   });
 
   it("invariant I1 (fuzz): after ANY sequence of select / page / pin / unpin / clear / place, an active selection is always on the visible page (the next tap places it)", async () => {
