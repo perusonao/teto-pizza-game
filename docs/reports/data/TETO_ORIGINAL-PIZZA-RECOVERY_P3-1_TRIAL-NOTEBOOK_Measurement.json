@@ -1,0 +1,53 @@
+{
+  "tool": "tools/trial_notebook_measure.mjs",
+  "note": "Measurement of the real data shape, not an authority. Limits 50 / 2000 are Owner decisions (OD-P3-12).",
+  "catalog": {
+    "sauces": 3,
+    "pieceIngredients": 26
+  },
+  "fingerprintBytes": {
+    "n": 2000,
+    "mean": 76,
+    "max": 130
+  },
+  "serialisedStateBytesByAttemptCount": {
+    "50": {
+      "display": 50,
+      "identities": 50,
+      "nextNumber": 51,
+      "jsonBytes": 20905
+    },
+    "51": {
+      "display": 50,
+      "identities": 51,
+      "nextNumber": 52,
+      "jsonBytes": 20947
+    },
+    "500": {
+      "display": 50,
+      "identities": 500,
+      "nextNumber": 501,
+      "jsonBytes": 78059
+    },
+    "2000": {
+      "display": 50,
+      "identities": 2000,
+      "nextNumber": 2001,
+      "jsonBytes": 268718
+    },
+    "2001": {
+      "display": 50,
+      "identities": 2000,
+      "nextNumber": 2002,
+      "jsonBytes": 268821
+    },
+    "2100": {
+      "display": 50,
+      "identities": 2000,
+      "nextNumber": 2101,
+      "jsonBytes": 270150
+    }
+  },
+  "totalMsFor2100Records": 54,
+  "msPerRecordMean": 0.025
+}

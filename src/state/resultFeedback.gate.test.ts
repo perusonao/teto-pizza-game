@@ -72,21 +72,23 @@ describe("Owner decisions (P2) stay contained", () => {
     expect(users).toEqual([]);
   });
 
-  // P1 (Attempt Fingerprint) introduced `attemptFingerprint.ts`. The module may exist and carry its own
-  // name; this gate still guarantees that no *other* production file depends on it before P3 wiring
-  // (together with attemptFingerprint.gate.test.ts, which pins the import / reference graph to 0).
-  // This allowlist is exactly that one file, and it never covers the Trial Notebook.
+  // P1 (Attempt Fingerprint) introduced `attemptFingerprint.ts`, and P3-1 (Trial Notebook pure model) introduced
+  // `trialNotebook.ts`. Each may exist and carry its own name; this gate still guarantees that no *other*
+  // production file mentions either before P3 wiring (together with attemptFingerprint.gate.test.ts and
+  // trialNotebook.gate.test.ts, which pin the import / reference graph). The allowlists are exactly these files.
   const ATTEMPT_FINGERPRINT_MODULE = "/src/logic/discovery/attemptFingerprint.ts";
+  const TRIAL_NOTEBOOK_MODULE = "/src/logic/discovery/trialNotebook.ts";
 
-  it("no production file other than the P1 module itself mentions the Attempt Fingerprint", () => {
+  it("no production file other than the P1 module and the unwired Trial Notebook model mentions the Attempt Fingerprint", () => {
     for (const [path, text] of production) {
-      if (path === ATTEMPT_FINGERPRINT_MODULE) continue;
+      if (path === ATTEMPT_FINGERPRINT_MODULE || path === TRIAL_NOTEBOOK_MODULE) continue;
       expect(text, path).not.toMatch(/attemptFingerprint/i);
     }
   });
 
-  it("no dependency on the Trial Notebook (the P1 module included)", () => {
+  it("no production file other than the unwired Trial Notebook model mentions the Trial Notebook", () => {
     for (const [path, text] of production) {
+      if (path === TRIAL_NOTEBOOK_MODULE) continue;
       expect(text, path).not.toMatch(/trialNotebook/i);
     }
   });
