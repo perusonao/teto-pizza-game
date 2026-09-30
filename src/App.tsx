@@ -62,6 +62,7 @@ import {
 } from "./mission/dinner/dinnerMission";
 import { dinnerStartBlock } from "./mission/dinner/dinnerRun";
 import type { QualityStars } from "./logic/scoring";
+import { emptyHandSession, type HandSession } from "./logic/catalog/handSession";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -222,6 +223,11 @@ function App() {
   // primary sauce already picked" behavior (unchanged) now fires from the `lastMakingStep`
   // sync below, the moment the round actually reaches SAUCE, instead of at round start.
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
+  // Large Catalog UX LC-R5-c (OD-R5-9): the hand pins are App-level and session-only. Unlike the selection above
+  // they are NOT reset on a round change, a making-step change, HOME, a FREE restart or a Dinner run; a reload /
+  // app restart (and so Full Game Reset, which reloads) starts empty. Never saved, never in GameState. The only
+  // writer is the pantry's pin editing, which stays dormant until R6 (`HAND_ENFORCEMENT_ENABLED`).
+  const [handSession, setHandSession] = useState<HandSession>(emptyHandSession);
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
@@ -1124,6 +1130,8 @@ function App() {
           missionBestAtStartOfRun={missionBestAtStartOfRun}
           activeCategory={activeCategory}
           selectedIngredientId={selectedIngredientId}
+          handSession={handSession}
+          onHandSessionChange={setHandSession}
           bakeProgress={bakeProgress}
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}

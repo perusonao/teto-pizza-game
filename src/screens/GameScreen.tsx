@@ -4,6 +4,8 @@ import { PizzaStage } from "../components/PizzaStage";
 import { IngredientPantry } from "../components/IngredientPantry";
 import { IngredientTray } from "../components/IngredientTray";
 import { isLargeCatalogEligible } from "../logic/catalog/freeEligibility";
+import { HAND_ENFORCEMENT_ENABLED } from "../logic/catalog/handPolicy";
+import type { HandSession } from "../logic/catalog/handSession";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
@@ -99,6 +101,10 @@ interface GameScreenProps {
   missionBestAtStartOfRun: number;
   activeCategory: IngredientCategory;
   selectedIngredientId: string | null;
+  /** LC-R5-c: the App-level, session-only pins (OD-R5-9). GameScreen only relays them to the pantry. */
+  handSession?: HandSession;
+  /** LC-R5-c: the App-level pin writer (an updater). Reached only when pin editing is on (not before R6). */
+  onHandSessionChange?: (update: (previous: HandSession) => HandSession) => void;
   bakeProgress: number | null;
   referenceModeEnabled: boolean;
   referencePizza: ReferencePizza | null;
@@ -201,6 +207,8 @@ export function GameScreen({
   missionBestAtStartOfRun,
   activeCategory,
   selectedIngredientId,
+  handSession,
+  onHandSessionChange,
   bakeProgress,
   referenceModeEnabled,
   referencePizza,
@@ -875,6 +883,10 @@ export function GameScreen({
               ownedIngredientIds={state.ownedIngredientIds}
               inventory={state.inventory}
               onClose={() => setPantryOpen(false)}
+              // LC-R5-c (OD-R5c-1): pin editing stays dormant until R6 turns enforcement on.
+              handEditing={HAND_ENFORCEMENT_ENABLED}
+              pinSession={handSession}
+              onPinSessionChange={onHandSessionChange}
             />
           )}
           {hintSheetOpen && (
