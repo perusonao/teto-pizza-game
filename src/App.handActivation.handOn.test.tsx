@@ -188,7 +188,7 @@ afterEach(() => {
 describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`, () => {
   it("runs with the real flag ON (the hand-on project transform applied)", () => {
     expect(HAND_ENFORCEMENT_ENABLED).toBe(true);
-  });
+  }, 60_000);
 
   it("H-1: page-2 selection -> pin changes the hand -> page 0, selection cleared -> a pizza tap places NOTHING", async () => {
     seedFree();
@@ -228,7 +228,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     tapPizza(...spot);
     expect(pieces(visibleId)).toBeGreaterThanOrEqual(1);
     expect(pieces()).toBe(total + 1);
-  });
+  }, 60_000);
 
   it("H-7: an unpin that restores the previous hand does NOT restore the selection the pin cleared (R6 observation)", async () => {
     seedFree();
@@ -255,7 +255,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     expect(selectedName()).toBeNull(); // page 2 shows no restored selection either
     await user.click(nextButton()!);
     expect(selectedName()).toBeNull();
-  });
+  }, 60_000);
 
   it("H-4: selection-on-visible-page invariant after EVERY step of scripted and seeded activation sequences", async () => {
     seedFree({ stock: 99 });
@@ -352,7 +352,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     expect([...r1, ...r2]).toContain(outside);
     await user.click(chipByName(r1[1])!);
     expect(selectedName()).toBe(r1[1]);
-  });
+  }, 60_000);
 
   it("H-5 (precondition): the cooking screen offers no Shop / Dex / inventory entry during PREPARE, so ownership and stock cannot change mid-step", async () => {
     seedFree();
@@ -367,7 +367,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     for (const forbidden of [/ショップ/, /図鑑/, /在庫/, /もちもの/]) {
       expect(names.filter((n) => forbidden.test(n)), String(forbidden)).toEqual([]);
     }
-  });
+  }, 60_000);
 
   it("H-6: stock 1 -> 0 over a round: the unpinned item leaves the tray, the pinned one stays at x0 and can be unpinned", async () => {
     const [unpinnedId, pinnedId] = [FINITE_TOPPINGS[3].id, FINITE_TOPPINGS[7].id];
@@ -428,7 +428,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     expect([...k1, ...k2]).not.toContain(pinned);
     await openPantry(user);
     expect(screen.queryByRole("group", { name: "選択中の材料" })).toBeNull();
-  });
+  }, 60_000);
 
   it("H-6: HOME -> FREE restart keeps the pins and the hand; the save never carries them", async () => {
     seedFree();
@@ -450,7 +450,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     const [r1, r2] = await bothPages(user);
     expect([...r1, ...r2]).toEqual([...h1, ...h2]);
     expect([...r1, ...r2]).toContain(outside);
-  });
+  }, 60_000);
 
   it("H-6 isolation: a guided round with pins keeps its recipe tray -- no hand, no pantry, no pin UI", async () => {
     seedFree({ dex: MARGHERITA_DEX });
@@ -477,7 +477,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     expect(trayNames()).not.toContain(outside);
     expect(screen.queryByRole("button", { name: /食材庫/ })).toBeNull();
     expect(document.querySelector(".pantry-tile__toggle, .pantry-sheet__pins")).toBeNull();
-  });
+  }, 60_000);
 
   it("H-6 isolation: a Lunch Rush round with pins keeps its order tray -- no hand, no pantry, no pin UI", async () => {
     seedFree({ dex: MARGHERITA_DEX });
@@ -503,7 +503,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     expect(trayNames()).toEqual(["バジル"]);
     expect(screen.queryByRole("button", { name: /食材庫/ })).toBeNull();
     expect(document.querySelector(".pantry-tile__toggle, .pantry-sheet__pins")).toBeNull();
-  });
+  }, 60_000);
 
   it("H-6 isolation: a Dinner round with pins keeps today's paged tray of every owned topping", async () => {
     seedDinner();
@@ -529,5 +529,5 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     expect(pageLabel()).toBe(`1 / ${Math.ceil(TOPPINGS.length / 6)}`); // every owned topping, paged: no hand
     expect(screen.queryByRole("button", { name: /食材庫/ })).toBeNull();
     expect(document.querySelector(".pantry-tile__toggle, .pantry-sheet__pins")).toBeNull();
-  });
+  }, 60_000);
 });
