@@ -454,7 +454,7 @@ describe("CutQuality is not connected to anything (S1 scope guard)", () => {
     const offenders = walk(src).filter((f) => {
       if (!/\.(ts|tsx)$/.test(f) || /\.test\./.test(f)) return false;
       if (f.includes(join("logic", "cut") + "/")) return false;
-      return /logic\/cut\/quality|from "\.\/quality"/.test(readFileSync(f, "utf8"));
+      return /(?:from|import)\s+"[^"]*(?:\/cut)?\/quality"/.test(readFileSync(f, "utf8"));
     });
     expect(offenders).toEqual([]);
   });

@@ -1,0 +1,223 @@
+[
+ {
+  "name": "A ideal",
+  "cutScore": 99.96312684365782,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 1,
+   "sliceCountFit": 1,
+   "centerAccuracy": 1,
+   "sliceUniformity": 1,
+   "overall": 1,
+   "pieceAreas": [
+    1205.0370971433274,
+    1207.0388198960572,
+    1207.0388198960572,
+    1207.0388198960572,
+    1207.0388198960572,
+    1205.0370971433274
+   ],
+   "sliverCount": 0,
+   "actualPieceCount": 6
+  }
+ },
+ {
+  "name": "B finger-width wobble",
+  "cutScore": 83.22767418176711,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 1,
+   "sliceCountFit": 1,
+   "centerAccuracy": 1,
+   "sliceUniformity": 0.9198561946902654,
+   "overall": 0.9679424778761061,
+   "pieceAreas": [
+    924.7959117611581,
+    1447.2455502236307,
+    1424.2257385672383,
+    15.012920645473349,
+    1100.9475140013787,
+    1247.0732749506528,
+    1078.9285637213513
+   ],
+   "sliverCount": 1,
+   "actualPieceCount": 6
+  }
+ },
+ {
+  "name": "B off-centre ~4% + uneven angles",
+  "cutScore": 77.93896614693075,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 1,
+   "sliceCountFit": 1,
+   "centerAccuracy": 0.9999999999999999,
+   "sliceUniformity": 0.6756637168141593,
+   "overall": 0.8702654867256636,
+   "pieceAreas": [
+    815.7020217373853,
+    1703.4660625730426,
+    1414.2171248035893,
+    70.06029634554228,
+    812.6994376082905,
+    1415.217986179954,
+    1006.8665446230791
+   ],
+   "sliverCount": 1,
+   "actualPieceCount": 6
+  }
+ },
+ {
+  "name": "C clear centre miss",
+  "cutScore": 60.070585756426475,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 1,
+   "sliceCountFit": 0.6666666666666667,
+   "centerAccuracy": 0.12499999999999993,
+   "sliceUniformity": 0.30038716814159283,
+   "overall": 0.40765486725663713,
+   "pieceAreas": [
+    82.07063286192097,
+    1771.524636165855,
+    1771.524636165855,
+    1683.4488350457448,
+    80.06891010919118,
+    1769.5229134131253,
+    80.06891010919118
+   ],
+   "sliverCount": 3,
+   "actualPieceCount": 4
+  }
+ },
+ {
+  "name": "C parallel cuts",
+  "cutScore": 44.867871189773844,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 0.3333333333333333,
+   "sliceCountFit": 0.5,
+   "centerAccuracy": 0.3333333333333337,
+   "sliceUniformity": 0,
+   "overall": 0.2250000000000001,
+   "pieceAreas": [
+    3619.1147369354417,
+    1835.579764253208,
+    30.025841290946698,
+    29.024979914581806,
+    1724.4841514767052
+   ],
+   "sliverCount": 2,
+   "actualPieceCount": 3
+  }
+ },
+ {
+  "name": "D small central sliver (3 cuts ~3% off a common point)",
+  "cutScore": 85.35898651495997,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 1,
+   "sliceCountFit": 1,
+   "centerAccuracy": 1,
+   "sliceUniformity": 1,
+   "overall": 1,
+   "pieceAreas": [
+    1201.033651637868,
+    1505.2955100527943,
+    1196.0293447560432,
+    5.004306881824449,
+    933.8036641484422,
+    1196.0293447560432,
+    1201.033651637868
+   ],
+   "sliverCount": 1,
+   "actualPieceCount": 6
+  }
+ },
+ {
+  "name": "D near duplicate (2nd cut 5 deg from 1st)",
+  "cutScore": 69.43215339233038,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 0.6666666666666666,
+   "sliceCountFit": 0.6666666666666667,
+   "centerAccuracy": 1,
+   "sliceUniformity": 0.28296460176991145,
+   "overall": 0.6131858407079646,
+   "pieceAreas": [
+    1709.4712308312319,
+    1809.5573684677208,
+    100.08613763648898,
+    1809.5573684677208,
+    1709.4712308312319,
+    100.08613763648898
+   ],
+   "sliverCount": 2,
+   "actualPieceCount": 4
+  }
+ },
+ {
+  "name": "D extra line (4th good cut)",
+  "cutScore": 80.819505899705,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 1,
+   "sliceCountFit": 0.6666666666666667,
+   "centerAccuracy": 1,
+   "sliceUniformity": 0.6994469026548673,
+   "overall": 0.8297787610619469,
+   "pieceAreas": [
+    1205.0370971433274,
+    604.5202713243935,
+    1207.0388198960572,
+    602.5185485716637,
+    1207.0388198960572,
+    604.5202713243935,
+    602.5185485716637,
+    1205.0370971433274
+   ],
+   "sliverCount": 0,
+   "actualPieceCount": 8
+  }
+ },
+ {
+  "name": "D degenerate line",
+  "cutScore": 65,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 0.6666666666666666,
+   "sliceCountFit": 0.6666666666666667,
+   "centerAccuracy": 1,
+   "sliceUniformity": 0.19999999999999996,
+   "overall": 0.58,
+   "pieceAreas": [
+    2412.0759170393844,
+    1207.0388198960572,
+    2412.0759170393844,
+    1207.0388198960572
+   ],
+   "sliverCount": 0,
+   "actualPieceCount": 4
+  }
+ },
+ {
+  "name": "D NaN line",
+  "cutScore": null,
+  "completeness": 1,
+  "quality": {
+   "lineValidity": 0.6666666666666666,
+   "sliceCountFit": 0.6666666666666667,
+   "centerAccuracy": 1,
+   "sliceUniformity": 0.19999999999999996,
+   "overall": 0.58,
+   "pieceAreas": [
+    2412.0759170393844,
+    1207.0388198960572,
+    2412.0759170393844,
+    1207.0388198960572
+   ],
+   "sliverCount": 0,
+   "actualPieceCount": 4
+  }
+ }
+]

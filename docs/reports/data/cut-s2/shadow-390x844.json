@@ -1,0 +1,5745 @@
+{
+ "project": "iphone-390x844",
+ "viewport": {
+  "width": 390,
+  "height": 844
+ },
+ "stagePx": 358,
+ "pxPerPercent": 3.58,
+ "trialsPerProfile": 24,
+ "appShownCutScore": 96,
+ "harnessCutScoreForSameLines": 96,
+ "rows": [
+  {
+   "profile": "ideal",
+   "trial": 0,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.15304647755076,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9978083350707101,
+   "cutScoreUniformity": 0.9834992625368731,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1225.0543246706252,
+     1229.0577701760847,
+     1183.0181468632998,
+     1170.0069489705563,
+     1219.0491564124359,
+     1212.0431267778815
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.5297663391726006,
+      "y": 37.978461682958226
+     },
+     "end": {
+      "x": 96.36694774319228,
+      "y": 62.4139500957622
+     }
+    },
+    {
+     "start": {
+      "x": 38.12681003977258,
+      "y": 3.491642039646731
+     },
+     "end": {
+      "x": 61.75249446829493,
+      "y": 96.53900379007587
+     }
+    },
+    {
+     "start": {
+      "x": 84.71141301450074,
+      "y": 16.847054330923342
+     },
+     "end": {
+      "x": 15.358351893333776,
+      "y": 83.22583658019626
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 1,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.95638966267322,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.993352830574106,
+   "cutScoreUniformity": 0.9804572271386431,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1245.071552197923,
+     1210.041404025152,
+     1140.9819690559746,
+     1220.0500177888007,
+     1221.0508791651655,
+     1201.033651637868
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 14.166635030164972,
+      "y": 18.06303153180315
+     },
+     "end": {
+      "x": 85.0468232927323,
+      "y": 82.7981733803576
+     }
+    },
+    {
+     "start": {
+      "x": 60.8283658805295,
+      "y": 3.23733869466597
+     },
+     "end": {
+      "x": 38.933621506212816,
+      "y": 96.70690812965728
+     }
+    },
+    {
+     "start": {
+      "x": 96.00861538721196,
+      "y": 36.31762775862299
+     },
+     "end": {
+      "x": 3.8503675874799086,
+      "y": 63.1989176900712
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 2,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.89276721011804,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9948261310413017,
+   "cutScoreUniformity": 0.9788901179941003,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1189.023315121489,
+     1201.033651637868,
+     1247.0732749506528,
+     1194.0276220033136,
+     1165.0026420887316,
+     1242.0689680688283
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 17.93904245862788,
+      "y": 14.27752805963263
+     },
+     "end": {
+      "x": 82.59505797743431,
+      "y": 85.23580842619758
+     }
+    },
+    {
+     "start": {
+      "x": 64.63843916866219,
+      "y": 4.286587321603561
+     },
+     "end": {
+      "x": 34.985992362156814,
+      "y": 95.59144190142254
+     }
+    },
+    {
+     "start": {
+      "x": 96.80042928865937,
+      "y": 39.336050525382554
+     },
+     "end": {
+      "x": 3.283765504852852,
+      "y": 61.02694130729027
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 3,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.40206226777693,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9945941323824123,
+   "cutScoreUniformity": 0.989122418879056,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1210.041404025152,
+     1206.0379585196922,
+     1188.0224537451243,
+     1242.0689680688283,
+     1193.0267606269488,
+     1199.031928885138
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.388906946567667,
+      "y": 21.4836276286904
+     },
+     "end": {
+      "x": 88.20417609173016,
+      "y": 79.05926580545477
+     }
+    },
+    {
+     "start": {
+      "x": 55.38046672662444,
+      "y": 2.3025097326527346
+     },
+     "end": {
+      "x": 44.0365544938364,
+      "y": 97.6281147820803
+     }
+    },
+    {
+     "start": {
+      "x": 93.95877570021958,
+      "y": 30.722395404568935
+     },
+     "end": {
+      "x": 5.9250303996200415,
+      "y": 69.01044593705218
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 4,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.77385185869629,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.998144772890278,
+   "cutScoreUniformity": 0.9758480825958702,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1172.0086717232862,
+     1206.0379585196922,
+     1262.0861955961261,
+     1238.0655225633689,
+     1185.0198696160296,
+     1175.0112558523806
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.480374529197253,
+      "y": 21.360194595823735
+     },
+     "end": {
+      "x": 88.57773532668625,
+      "y": 78.56148345349281
+     }
+    },
+    {
+     "start": {
+      "x": 54.13830275190227,
+      "y": 2.178723873848802
+     },
+     "end": {
+      "x": 45.84780397612388,
+      "y": 97.82007181277864
+     }
+    },
+    {
+     "start": {
+      "x": 93.39672952123357,
+      "y": 29.48844552792512
+     },
+     "end": {
+      "x": 6.785640185745137,
+      "y": 70.89303965066146
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 5,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.37988309326224,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9928555659633929,
+   "cutScoreUniformity": 0.9690265486725663,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1203.0353743905976,
+     1224.0534632942604,
+     1141.9828304323394,
+     1162.0000579596372,
+     1292.112036887073,
+     1215.0457109069764
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 21.13636886268422,
+      "y": 11.64780583110041
+     },
+     "end": {
+      "x": 79.35979162935055,
+      "y": 87.97370979350211
+     }
+    },
+    {
+     "start": {
+      "x": 68.70713558064959,
+      "y": 5.795440525131416
+     },
+     "end": {
+      "x": 31.645904703676365,
+      "y": 94.35230755951115
+     }
+    },
+    {
+     "start": {
+      "x": 97.79697531509055,
+      "y": 45.58988087137952
+     },
+     "end": {
+      "x": 2.1179355346797735,
+      "y": 53.36272248913278
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 6,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.02514252138249,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.995158057447983,
+   "cutScoreUniformity": 0.9814712389380532,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1214.0448495306114,
+     1178.0138399814755,
+     1187.0215923687595,
+     1241.0681066924633,
+     1231.0594929288145,
+     1187.0215923687595
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.331925260506885,
+      "y": 21.560942421715616
+     },
+     "end": {
+      "x": 88.49545132006126,
+      "y": 78.67229024101132
+     }
+    },
+    {
+     "start": {
+      "x": 55.34519888377194,
+      "y": 2.298544583074581
+     },
+     "end": {
+      "x": 44.94033074144578,
+      "y": 97.73258579832066
+     }
+    },
+    {
+     "start": {
+      "x": 93.7634448691012,
+      "y": 30.28297960671698
+     },
+     "end": {
+      "x": 5.907270213722313,
+      "y": 68.9692166415564
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 7,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.7997678124825,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9965881381804034,
+   "cutScoreUniformity": 0.9766777286135693,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1157.9966124541775,
+     1238.0655225633689,
+     1204.0362357669624,
+     1199.031928885138,
+     1259.0836114670315,
+     1180.015562734205
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 7.653884459661636,
+      "y": 27.398971292343486
+     },
+     "end": {
+      "x": 92.53476253940212,
+      "y": 72.24396492796812
+     }
+    },
+    {
+     "start": {
+      "x": 46.566288031437345,
+      "y": 2.1229739633198412
+     },
+     "end": {
+      "x": 53.357886609610816,
+      "y": 97.8824038402104
+     }
+    },
+    {
+     "start": {
+      "x": 90.64748053212307,
+      "y": 24.46997206443604
+     },
+     "end": {
+      "x": 9.087343928083726,
+      "y": 75.10287977784807
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 8,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.24600972653117,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9965036275203732,
+   "cutScoreUniformity": 0.9856194690265486,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1199.031928885138,
+     1178.0138399814755,
+     1238.0655225633689,
+     1210.041404025152,
+     1223.0526019178953,
+     1190.024176497854
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.717778558432998,
+      "y": 31.477449846200333
+     },
+     "end": {
+      "x": 94.31334172675562,
+      "y": 68.4479740082151
+     }
+    },
+    {
+     "start": {
+      "x": 43.59864036939621,
+      "y": 2.428762945665617
+     },
+     "end": {
+      "x": 56.652815046199024,
+      "y": 97.53672319334883
+     }
+    },
+    {
+     "start": {
+      "x": 87.57641559955451,
+      "y": 20.133413474426714
+     },
+     "end": {
+      "x": 12.008941134490257,
+      "y": 79.33733877292508
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 9,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 88.1439371954884,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9892251565484202,
+   "cutScoreUniformity": 0.8317003792667509,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1185.0198696160296,
+     1145.9862759377988,
+     1196.0293447560432,
+     1297.1163437688972,
+     1.00086137636489,
+     1190.024176497854,
+     1223.0526019178953
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 9.690404136984334,
+      "y": 23.939752853045498
+     },
+     "end": {
+      "x": 90.1940164423942,
+      "y": 76.2381600389308
+     }
+    },
+    {
+     "start": {
+      "x": 51.851223179850535,
+      "y": 2.035711485122763
+     },
+     "end": {
+      "x": 47.175007103737784,
+      "y": 97.91679679544605
+     }
+    },
+    {
+     "start": {
+      "x": 91.50998568773156,
+      "y": 25.897695375663336
+     },
+     "end": {
+      "x": 7.561160088117475,
+      "y": 72.42643232735888
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 10,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.26233475377049,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9944488146100864,
+   "cutScoreUniformity": 0.9863569321533924,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1202.0345130142327,
+     1201.033651637868,
+     1171.0078103469211,
+     1202.0345130142327,
+     1236.063799810639,
+     1226.05518604699
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 4.587658734505567,
+      "y": 34.45267673243166
+     },
+     "end": {
+      "x": 95.68927878114856,
+      "y": 64.7135925068791
+     }
+    },
+    {
+     "start": {
+      "x": 40.89948196491605,
+      "y": 2.870597590324661
+     },
+     "end": {
+      "x": 59.52013367761843,
+      "y": 97.04643509087884
+     }
+    },
+    {
+     "start": {
+      "x": 86.41057673243232,
+      "y": 18.722693498134184
+     },
+     "end": {
+      "x": 13.399517113711354,
+      "y": 81.05486519839515
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 11,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.33442906342329,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9956847942479342,
+   "cutScoreUniformity": 0.9675516224188789,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1142.9836918087042,
+     1290.110314134343,
+     1204.0362357669624,
+     1198.031067508773,
+     1163.000919336002,
+     1240.0672453160987
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.2077114124591692,
+      "y": 45.539377670636654
+     },
+     "end": {
+      "x": 97.75944129145529,
+      "y": 54.7995590972543
+     }
+    },
+    {
+     "start": {
+      "x": 32.698904703299426,
+      "y": 5.226435237581479
+     },
+     "end": {
+      "x": 67.89136349135882,
+      "y": 94.54098239172629
+     }
+    },
+    {
+     "start": {
+      "x": 78.17305939889101,
+      "y": 11.137695332024391
+     },
+     "end": {
+      "x": 22.04421126088073,
+      "y": 89.0188912704312
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 12,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.45236183704962,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9959367736754638,
+   "cutScoreUniformity": 0.9898598820058997,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1219.0491564124359,
+     1185.0198696160296,
+     1216.0465722833412,
+     1191.025037874219,
+     1214.0448495306114,
+     1213.0439881542466
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.9615412332508946,
+      "y": 40.440533652507376
+     },
+     "end": {
+      "x": 97.03142162629057,
+      "y": 59.59402834111337
+     }
+    },
+    {
+     "start": {
+      "x": 34.220536545936405,
+      "y": 4.667798055886681
+     },
+     "end": {
+      "x": 65.19000193577224,
+      "y": 95.53310708914158
+     }
+    },
+    {
+     "start": {
+      "x": 81.72274783887664,
+      "y": 13.976850921233336
+     },
+     "end": {
+      "x": 17.894681664294424,
+      "y": 85.68260829259833
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 13,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.1693655687088,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9957529285522959,
+   "cutScoreUniformity": 0.9842367256637168,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1192.0258992505837,
+     1246.0724135742878,
+     1220.0500177888007,
+     1171.0078103469211,
+     1210.041404025152,
+     1199.031928885138
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 13.051225416819316,
+      "y": 19.360351555520403
+     },
+     "end": {
+      "x": 87.08725330513833,
+      "y": 80.47188281482627
+     }
+    },
+    {
+     "start": {
+      "x": 57.75417435097564,
+      "y": 2.6304656964555795
+     },
+     "end": {
+      "x": 42.08446935517974,
+      "y": 97.34283868348952
+     }
+    },
+    {
+     "start": {
+      "x": 95.29586381935462,
+      "y": 34.116526801153334
+     },
+     "end": {
+      "x": 4.98974186949097,
+      "y": 66.67563081340387
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 14,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.08862224531849,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9955141419359788,
+   "cutScoreUniformity": 0.9826696165191741,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1233.0612156815441,
+     1186.0207309923944,
+     1224.0534632942604,
+     1164.001780712367,
+     1221.0508791651655,
+     1210.041404025152
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.267343085266435,
+      "y": 32.593409140537034
+     },
+     "end": {
+      "x": 94.54367753181697,
+      "y": 67.88465241321464
+     }
+    },
+    {
+     "start": {
+      "x": 43.60337350118158,
+      "y": 2.428126277866522
+     },
+     "end": {
+      "x": 56.36518519829024,
+      "y": 97.57609081662203
+     }
+    },
+    {
+     "start": {
+      "x": 87.7285916167322,
+      "y": 20.325880390180988
+     },
+     "end": {
+      "x": 11.81470519995608,
+      "y": 79.08407229109669
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 15,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 88.2656665311738,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9927065604077305,
+   "cutScoreUniformity": 0.8334386852085967,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1228.0569087997198,
+     1163.000919336002,
+     1196.0293447560432,
+     1247.0732749506528,
+     1.00086137636489,
+     1244.0706908215582,
+     1158.9974738305423
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 12.825415098055972,
+      "y": 19.634719870085902
+     },
+     "end": {
+      "x": 86.90614913097754,
+      "y": 80.69097841910626
+     }
+    },
+    {
+     "start": {
+      "x": 57.91743322342471,
+      "y": 2.657479459236533
+     },
+     "end": {
+      "x": 43.10147654911704,
+      "y": 97.50168811945129
+     }
+    },
+    {
+     "start": {
+      "x": 94.65176148170862,
+      "y": 32.38693108567951
+     },
+     "end": {
+      "x": 5.114826714163925,
+      "y": 67.00944499683833
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 16,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.39419017261513,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9952081028072359,
+   "cutScoreUniformity": 0.9688421828908554,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1248.0741363270176,
+     1249.0749977033825,
+     1162.0000579596372,
+     1137.9793849268797,
+     1219.0491564124359,
+     1222.0517405415305
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 23.077243224426738,
+      "y": 10.261288802940225
+     },
+     "end": {
+      "x": 76.6299029727961,
+      "y": 89.93555142550886
+     }
+    },
+    {
+     "start": {
+      "x": 72.19317164098605,
+      "y": 7.438713218304439
+     },
+     "end": {
+      "x": 27.993842603741363,
+      "y": 92.65828215776033
+     }
+    },
+    {
+     "start": {
+      "x": 97.99656333335619,
+      "y": 49.42562365375344
+     },
+     "end": {
+      "x": 2.020151745002252,
+      "y": 51.390741322960395
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 17,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 99.40842000136773,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.994768991287215,
+   "cutScoreUniformity": 0.9892146017699115,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1218.0482950360708,
+     1175.0112558523806,
+     1214.0448495306114,
+     1204.0362357669624,
+     1226.05518604699,
+     1201.033651637868
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 20.312663413127005,
+      "y": 12.281807487928162
+     },
+     "end": {
+      "x": 80.0418055971974,
+      "y": 87.43647841958693
+     }
+    },
+    {
+     "start": {
+      "x": 68.02286708304585,
+      "y": 5.512066106562534
+     },
+     "end": {
+      "x": 32.72345404976654,
+      "y": 94.78304321983347
+     }
+    },
+    {
+     "start": {
+      "x": 97.44564977247867,
+      "y": 42.72605212643821
+     },
+     "end": {
+      "x": 2.5169330680551667,
+      "y": 57.02555013763672
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 18,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.67984836693391,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.990127167076872,
+   "cutScoreUniformity": 0.9755715339233039,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1256.0810273379366,
+     1199.031928885138,
+     1245.071552197923,
+     1182.017285486935,
+     1155.9948897014478,
+     1200.032790261503
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 24.378135828187673,
+      "y": 9.410345205197927
+     },
+     "end": {
+      "x": 75.3259376083081,
+      "y": 90.77495412946637
+     }
+    },
+    {
+     "start": {
+      "x": 73.61031696982704,
+      "y": 8.208219317857518
+     },
+     "end": {
+      "x": 27.10224147131379,
+      "y": 92.18640366708189
+     }
+    },
+    {
+     "start": {
+      "x": 97.98466252846372,
+      "y": 48.78667315637926
+     },
+     "end": {
+      "x": 2.087169176065103,
+      "y": 52.89147755256605
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 19,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.50140925028172,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9967117214883485,
+   "cutScoreUniformity": 0.9706858407079646,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1183.0181468632998,
+     1244.0706908215582,
+     1172.0086717232862,
+     1216.0465722833412,
+     1265.0887797252208,
+     1157.9966124541775
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 14.622907379696917,
+      "y": 17.558339781470842
+     },
+     "end": {
+      "x": 85.01734613606172,
+      "y": 82.82964315351664
+     }
+    },
+    {
+     "start": {
+      "x": 59.362961539620464,
+      "y": 2.9220332723726443
+     },
+     "end": {
+      "x": 40.65220549785922,
+      "y": 97.08098063916837
+     }
+    },
+    {
+     "start": {
+      "x": 95.9808903363585,
+      "y": 36.22474232996807
+     },
+     "end": {
+      "x": 3.9052273571643497,
+      "y": 63.38924699172021
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 20,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.788029775029,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9954143344350527,
+   "cutScoreUniformity": 0.9766777286135693,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1192.0258992505837,
+     1225.0543246706252,
+     1190.024176497854,
+     1185.0198696160296,
+     1174.0103944760158,
+     1272.094809359775
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.2585583357033894,
+      "y": 45.024585664031164
+     },
+     "end": {
+      "x": 97.76526963112838,
+      "y": 54.74120417885636
+     }
+    },
+    {
+     "start": {
+      "x": 31.660955434086286,
+      "y": 5.641467062024793
+     },
+     "end": {
+      "x": 67.66619959098887,
+      "y": 94.63076732492222
+     }
+    },
+    {
+     "start": {
+      "x": 78.54300985901493,
+      "y": 11.408594374029658
+     },
+     "end": {
+      "x": 21.168822593581034,
+      "y": 88.37659715711644
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 21,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.82874317499552,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9957983587974882,
+   "cutScoreUniformity": 0.9774151917404129,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1165.0026420887316,
+     1255.080165961572,
+     1214.0448495306114,
+     1226.05518604699,
+     1166.0035034650966,
+     1212.0431267778815
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 7.16839447360508,
+      "y": 28.333122790044335
+     },
+     "end": {
+      "x": 92.73144108182954,
+      "y": 71.86375866748736
+     }
+    },
+    {
+     "start": {
+      "x": 45.52899458755849,
+      "y": 2.2086816398425952
+     },
+     "end": {
+      "x": 54.11382328069391,
+      "y": 97.82338819045783
+     }
+    },
+    {
+     "start": {
+      "x": 90.05809892390988,
+      "y": 23.554797966318173
+     },
+     "end": {
+      "x": 10.29275032712141,
+      "y": 76.9691364974054
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 22,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.13666997263613,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9948063777945854,
+   "cutScoreUniformity": 0.9637721238938053,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1228.0569087997198,
+     1238.0655225633689,
+     1169.0060875941913,
+     1130.9733552923256,
+     1284.1051458761538,
+     1188.0224537451243
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.8629343914510375,
+      "y": 36.757221702661916
+     },
+     "end": {
+      "x": 96.04595219549071,
+      "y": 63.556189966601345
+     }
+    },
+    {
+     "start": {
+      "x": 39.20154769229713,
+      "y": 3.230421984389613
+     },
+     "end": {
+      "x": 61.48445485405779,
+      "y": 96.6058719122935
+     }
+    },
+    {
+     "start": {
+      "x": 86.1050251979388,
+      "y": 18.370470198622865
+     },
+     "end": {
+      "x": 13.59084096621001,
+      "y": 81.27895679929543
+     }
+    }
+   ]
+  },
+  {
+   "profile": "ideal",
+   "trial": 23,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 88.32780241390162,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9929941056969469,
+   "cutScoreUniformity": 0.8346238938053097,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1205.0370971433274,
+     1232.0603543051795,
+     1235.062938434274,
+     1175.0112558523806,
+     1247.0732749506528,
+     1.00086137636489,
+     1142.9836918087042
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.8160145424230767,
+      "y": 36.92179342362559
+     },
+     "end": {
+      "x": 95.85993579463647,
+      "y": 64.17273046776172
+     }
+    },
+    {
+     "start": {
+      "x": 38.557964206364375,
+      "y": 3.383695803966164
+     },
+     "end": {
+      "x": 62.16311745203672,
+      "y": 96.43337779925083
+     }
+    },
+    {
+     "start": {
+      "x": 84.85195371627282,
+      "y": 16.99482885730211
+     },
+     "end": {
+      "x": 15.057215949270969,
+      "y": 82.90899334200478
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 0,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 84.69054105803144,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9706080459632788,
+   "cutScoreUniformity": 0.7663558786346397,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9848451327433629,
+    "overall": 0.9939380530973452,
+    "pieceAreas": [
+     1392.1981745235616,
+     1115.9604346468523,
+     937.8071096539019,
+     1285.1060072525186,
+     12.010336516378677,
+     1325.1404623071141,
+     1170.0069489705563
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 18.267378425043677,
+      "y": 13.985548345412553
+     },
+     "end": {
+      "x": 78.74700632815546,
+      "y": 88.43968817731215
+     }
+    },
+    {
+     "start": {
+      "x": 70.52782956679378,
+      "y": 6.610966670405442
+     },
+     "end": {
+      "x": 30.376817824966196,
+      "y": 93.80560148343402
+     }
+    },
+    {
+     "start": {
+      "x": 97.69329304390865,
+      "y": 44.582454556918336
+     },
+     "end": {
+      "x": 2.0339651538891275,
+      "y": 51.805408857205826
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 1,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 84.82898182343527,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9722049670042933,
+   "cutScoreUniformity": 0.7688053097345133,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9911135693215338,
+    "overall": 0.9964454277286136,
+    "pieceAreas": [
+     1215.0457109069764,
+     1419.2214316854138,
+     1277.0991162415994,
+     10.008613763648897,
+     939.8088324066315,
+     1089.938038861365,
+     1287.1077300052482
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 20.402567708140126,
+      "y": 12.21121857311657
+     },
+     "end": {
+      "x": 80.33662425978028,
+      "y": 87.19797344642463
+     }
+    },
+    {
+     "start": {
+      "x": 68.9468546749789,
+      "y": 5.897656548373414
+     },
+     "end": {
+      "x": 30.347472122564767,
+      "y": 93.79244396042122
+     }
+    },
+    {
+     "start": {
+      "x": 97.99999847398763,
+      "y": 49.98789639787208
+     },
+     "end": {
+      "x": 2.413442516525194,
+      "y": 56.28645741828807
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 2,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 95.89112353995905,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.995638902668471,
+   "cutScoreUniformity": 0.9186946902654868,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1320.1361554252896,
+     1055.908752064959,
+     1198.031067508773,
+     1244.0706908215582,
+     1070.9216727104322,
+     1349.1611353398714
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 8.237298327121003,
+      "y": 26.338285163959288
+     },
+     "end": {
+      "x": 92.21172266161501,
+      "y": 72.85104964632691
+     }
+    },
+    {
+     "start": {
+      "x": 54.66640739656661,
+      "y": 2.2273651343233105
+     },
+     "end": {
+      "x": 45.650005797433245,
+      "y": 97.80248477263119
+     }
+    },
+    {
+     "start": {
+      "x": 90.82242428285723,
+      "y": 24.750649995091184
+     },
+     "end": {
+      "x": 9.18360751377989,
+      "y": 75.2590994378429
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 3,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 86.47405933078328,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9755243485861225,
+   "cutScoreUniformity": 0.8010429835651074,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1107.953543635933,
+     1443.2421047181713,
+     1198.031067508773,
+     1134.976800797785,
+     4.00344550545956,
+     1174.0103944760158,
+     1176.0121172287456
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 15.170770035468784,
+      "y": 16.97085014600284
+     },
+     "end": {
+      "x": 83.8538730142377,
+      "y": 84.02815425402719
+     }
+    },
+    {
+     "start": {
+      "x": 57.73152988317319,
+      "y": 2.6267644585510785
+     },
+     "end": {
+      "x": 39.465438483767144,
+      "y": 96.82972361290109
+     }
+    },
+    {
+     "start": {
+      "x": 96.91613394261353,
+      "y": 39.85720078682677
+     },
+     "end": {
+      "x": 3.7544472583748956,
+      "y": 62.8588044398214
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 4,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 84.59096620514104,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.954329448158437,
+   "cutScoreUniformity": 0.7676201011378002,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9905604719764012,
+    "overall": 0.9962241887905605,
+    "pieceAreas": [
+     1165.0026420887316,
+     1178.0138399814755,
+     1050.9044451831344,
+     1051.9053065594992,
+     2.00172275272978,
+     1584.3635587856206,
+     1206.0379585196922
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 7.325561973168102,
+      "y": 28.02518853109125
+     },
+     "end": {
+      "x": 94.59736553776311,
+      "y": 67.75035174556102
+     }
+    },
+    {
+     "start": {
+      "x": 46.66880289027284,
+      "y": 2.1157319590646213
+     },
+     "end": {
+      "x": 57.11469343692892,
+      "y": 97.46979183963755
+     }
+    },
+    {
+     "start": {
+      "x": 91.28786866302275,
+      "y": 25.519152358119136
+     },
+     "end": {
+      "x": 6.51353248374771,
+      "y": 70.32060882350561
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 5,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 92.97221574139985,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.992741485644409,
+   "cutScoreUniformity": 0.8608960176991151,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9217920353982301,
+    "overall": 0.968716814159292,
+    "pieceAreas": [
+     1149.9897214432583,
+     1003.8639604939846,
+     1505.2955100527943,
+     1405.2093724163053,
+     1212.0431267778815,
+     961.827782686659
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.976392221282934,
+      "y": 40.36774629313679
+     },
+     "end": {
+      "x": 96.83716864796979,
+      "y": 60.50141100241461
+     }
+    },
+    {
+     "start": {
+      "x": 26.728476856038935,
+      "y": 8.018620668681162
+     },
+     "end": {
+      "x": 73.29413391433357,
+      "y": 91.96883754860376
+     }
+    },
+    {
+     "start": {
+      "x": 73.30746128326169,
+      "y": 8.03856236341208
+     },
+     "end": {
+      "x": 25.671842531707746,
+      "y": 91.378022598935
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 6,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 85.06687024733614,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9833515843627756,
+   "cutScoreUniformity": 0.7713337547408343,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9989491150442478,
+    "overall": 0.9995796460176991,
+    "pieceAreas": [
+     1325.1404623071141,
+     1305.1232347798164,
+     1192.0258992505837,
+     975.8398419557677,
+     3.0025841290946693,
+     1351.1628580926013,
+     1085.9345933559055
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 7.479657470136028,
+      "y": 27.728482962693338
+     },
+     "end": {
+      "x": 92.64702689977871,
+      "y": 72.02796169893057
+     }
+    },
+    {
+     "start": {
+      "x": 53.31282159043545,
+      "y": 2.1144571597027335
+     },
+     "end": {
+      "x": 46.361644968134925,
+      "y": 97.86190941304056
+     }
+    },
+    {
+     "start": {
+      "x": 93.88377621747736,
+      "y": 30.552270443715866
+     },
+     "end": {
+      "x": 7.981273089519959,
+      "y": 73.20402096237848
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 7,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 94.9119828075607,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9825330890156568,
+   "cutScoreUniformity": 0.9017330383480827,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1125.969048410501,
+     1407.211095169035,
+     1176.0121172287456,
+     1193.0267606269488,
+     1361.17147185625,
+     974.8389805794028
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 17.073581993861776,
+      "y": 15.073634639644279
+     },
+     "end": {
+      "x": 81.26404691638376,
+      "y": 86.42196274791017
+     }
+    },
+    {
+     "start": {
+      "x": 58.82685030174526,
+      "y": 2.8185766031737907
+     },
+     "end": {
+      "x": 42.07015048047279,
+      "y": 97.3404423996825
+     }
+    },
+    {
+     "start": {
+      "x": 97.29275492470813,
+      "y": 41.79053402275797
+     },
+     "end": {
+      "x": 3.065697179414883,
+      "y": 60.05839046496084
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 8,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 97.1384416797375,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9724171768233075,
+   "cutScoreUniformity": 0.9482853982300884,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1196.0293447560432,
+     1045.9001383013099,
+     1325.1404623071141,
+     1190.024176497854,
+     1237.0646611870038,
+     1244.0706908215582
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.14580480970453,
+      "y": 21.81575766293476
+     },
+     "end": {
+      "x": 91.05696730662375,
+      "y": 74.86615039733388
+     }
+    },
+    {
+     "start": {
+      "x": 55.071010236536345,
+      "y": 2.268617711395114
+     },
+     "end": {
+      "x": 47.799922294394314,
+      "y": 97.94955326266654
+     }
+    },
+    {
+     "start": {
+      "x": 91.78128459259477,
+      "y": 26.371113911303354
+     },
+     "end": {
+      "x": 7.696759281907077,
+      "y": 72.68117776366749
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 9,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 83.87952067882551,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9653593582323188,
+   "cutScoreUniformity": 0.751185208596713,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9483407079646017,
+    "overall": 0.9793362831858407,
+    "pieceAreas": [
+     964.8303668157538,
+     1331.1456305653035,
+     1377.1852538780884,
+     1160.9991965832721,
+     16.01378202183824,
+     1358.1688877271556,
+     1029.8863562794716
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.244631929117713,
+      "y": 21.680016848690776
+     },
+     "end": {
+      "x": 90.65578543080852,
+      "y": 75.51680056362983
+     }
+    },
+    {
+     "start": {
+      "x": 48.84117698830409,
+      "y": 2.0139902760443746
+     },
+     "end": {
+      "x": 46.01612014824076,
+      "y": 97.83438827168949
+     }
+    },
+    {
+     "start": {
+      "x": 92.21663628115033,
+      "y": 27.158029395320067
+     },
+     "end": {
+      "x": 8.490010913677494,
+      "y": 74.10229877114186
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 10,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 85.09306822101989,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9804404082798241,
+   "cutScoreUniformity": 0.7724399494310998,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1081.931147850446,
+     1364.174055985345,
+     1406.2102337926701,
+     1177.0129786051104,
+     4.00344550545956,
+     1104.9509595068382,
+     1099.946652625014
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 12.58244298466547,
+      "y": 19.93463076886982
+     },
+     "end": {
+      "x": 87.36997024861361,
+      "y": 80.12449706829531
+     }
+    },
+    {
+     "start": {
+      "x": 52.468905590490245,
+      "y": 2.0635367889406537
+     },
+     "end": {
+      "x": 46.93162848622124,
+      "y": 97.90182769220223
+     }
+    },
+    {
+     "start": {
+      "x": 94.36734483704485,
+      "y": 31.682284200513706
+     },
+     "end": {
+      "x": 7.758307305352886,
+      "y": 72.79560041523357
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 11,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 84.24856194788417,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9738184788170724,
+   "cutScoreUniformity": 0.7568742098609356,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.964103982300885,
+    "overall": 0.985641592920354,
+    "pieceAreas": [
+     1146.9871373141639,
+     1227.0560474233548,
+     1099.946652625014,
+     1453.25071848182,
+     7.006029634554229,
+     1362.172333232615,
+     941.8105551593613
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.1444490562810685,
+      "y": 46.278945865333085
+     },
+     "end": {
+      "x": 97.99471954529908,
+      "y": 50.71196612846893
+     }
+    },
+    {
+     "start": {
+      "x": 31.50160148041645,
+      "y": 5.707684050044651
+     },
+     "end": {
+      "x": 68.53557537736464,
+      "y": 94.27677094628777
+     }
+    },
+    {
+     "start": {
+      "x": 75.42164287456862,
+      "y": 9.284645727221095
+     },
+     "end": {
+      "x": 28.491913022011722,
+      "y": 92.91156248084297
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 12,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 84.68068203496458,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9696221436565935,
+   "cutScoreUniformity": 0.7663558786346396,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9876106194690264,
+    "overall": 0.9950442477876106,
+    "pieceAreas": [
+     1137.9793849268797,
+     998.8596536121602,
+     1366.1757787380748,
+     1336.149937447128,
+     2.00172275272978,
+     1300.118927897992,
+     1096.9440684959193
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 6.924466763371325,
+      "y": 28.82221833193812
+     },
+     "end": {
+      "x": 94.06689156951344,
+      "y": 69.02916360223816
+     }
+    },
+    {
+     "start": {
+      "x": 43.75082534170894,
+      "y": 2.4085321082636333
+     },
+     "end": {
+      "x": 59.48496981509034,
+      "y": 97.05353703609138
+     }
+    },
+    {
+     "start": {
+      "x": 84.30474693718521,
+      "y": 16.426433946098587
+     },
+     "end": {
+      "x": 13.59811830206661,
+      "y": 81.28742573062958
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 13,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 95.60259400474551,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9654032057842853,
+   "cutScoreUniformity": 0.9189712389380531,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1076.9268409686215,
+     1089.938038861365,
+     1158.9974738305423,
+     1399.204204158116,
+     1251.0767204561123,
+     1262.0861955961261
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.5204100474549356,
+      "y": 38.01468741153273
+     },
+     "end": {
+      "x": 97.62406930792417,
+      "y": 55.99566698158205
+     }
+    },
+    {
+     "start": {
+      "x": 34.25828890711654,
+      "y": 4.654674641500372
+     },
+     "end": {
+      "x": 68.29471503539496,
+      "y": 94.37683406659033
+     }
+    },
+    {
+     "start": {
+      "x": 78.58855419621395,
+      "y": 11.442321530334087
+     },
+     "end": {
+      "x": 20.50750670719377,
+      "y": 87.8707385638804
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 14,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 83.63717565501047,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9565325676080838,
+   "cutScoreUniformity": 0.7481036662452591,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9444690265486726,
+    "overall": 0.9777876106194691,
+    "pieceAreas": [
+     1374.1826697489937,
+     1380.187838007183,
+     1056.9096134413237,
+     1122.9664642814064,
+     4.00344550545956,
+     1325.1404623071141,
+     974.8389805794028
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.0330774509499467,
+      "y": 51.78166808733647
+     },
+     "end": {
+      "x": 97.94499629463526,
+      "y": 52.29724406787992
+     }
+    },
+    {
+     "start": {
+      "x": 30.298632944009185,
+      "y": 6.229506101425809
+     },
+     "end": {
+      "x": 66.9970247902033,
+      "y": 94.88987801588699
+     }
+    },
+    {
+     "start": {
+      "x": 80.08704453196677,
+      "y": 12.599869634833517
+     },
+     "end": {
+      "x": 24.39969835715476,
+      "y": 90.60325794558035
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 15,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 86.74225038092868,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9667871956992723,
+   "cutScoreUniformity": 0.8081542351453856,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1232.0603543051795,
+     1225.0543246706252,
+     1016.875158386728,
+     1235.062938434274,
+     1340.1533829525874,
+     3.0025841290946693,
+     1186.0207309923944
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.015996316213558,
+      "y": 51.2391087419469
+     },
+     "end": {
+      "x": 97.81034632016988,
+      "y": 45.737279654326514
+     }
+    },
+    {
+     "start": {
+      "x": 25.710831851638677,
+      "y": 8.59907838392206
+     },
+     "end": {
+      "x": 76.63383108898731,
+      "y": 89.93293179223501
+     }
+    },
+    {
+     "start": {
+      "x": 74.34600228124742,
+      "y": 8.63247441625866
+     },
+     "end": {
+      "x": 28.976008618679273,
+      "y": 93.15080284766614
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 16,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 84.6322411467988,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9833463228551855,
+   "cutScoreUniformity": 0.7626422250316056,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9786688790560472,
+    "overall": 0.9914675516224188,
+    "pieceAreas": [
+     1271.09394798341,
+     1440.2395205890764,
+     1059.9121975704184,
+     950.8183075466453,
+     3.0025841290946693,
+     1255.080165961572,
+     1258.0827500906664
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 16.734659846606064,
+      "y": 15.396284238842243
+     },
+     "end": {
+      "x": 82.64825992475261,
+      "y": 85.18651906463316
+     }
+    },
+    {
+     "start": {
+      "x": 65.71464333667736,
+      "y": 4.645287071782472
+     },
+     "end": {
+      "x": 33.61884462182449,
+      "y": 95.11826402329851
+     }
+    },
+    {
+     "start": {
+      "x": 97.983921065168,
+      "y": 48.75769600671732
+     },
+     "end": {
+      "x": 2.2092240190498273,
+      "y": 54.47679920687034
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 17,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 85.22356089477168,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9824277287523462,
+   "cutScoreUniformity": 0.7746523388116309,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1268.0913638543154,
+     1280.101700370694,
+     1156.9957510778127,
+     952.8200302993752,
+     3.0025841290946693,
+     1419.2214316854138,
+     1157.9966124541775
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.881851787129916,
+      "y": 20.827979555374156
+     },
+     "end": {
+      "x": 89.55970513705216,
+      "y": 77.18510124074376
+     }
+    },
+    {
+     "start": {
+      "x": 60.32647882820714,
+      "y": 3.123952438259157
+     },
+     "end": {
+      "x": 38.94323349032448,
+      "y": 96.70918447533117
+     }
+    },
+    {
+     "start": {
+      "x": 96.30500756295841,
+      "y": 37.3569673497865
+     },
+     "end": {
+      "x": 4.218659441638138,
+      "y": 64.42459208016959
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 18,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 98.60029143128266,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9932334204144013,
+   "cutScoreUniformity": 0.973359144542773,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1241.0681066924633,
+     1187.0215923687595,
+     1197.0302061324082,
+     1189.023315121489,
+     1268.0913638543154,
+     1155.9948897014478
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.409408498394418,
+      "y": 21.455889441844448
+     },
+     "end": {
+      "x": 88.60020936769773,
+      "y": 78.53110297149236
+     }
+    },
+    {
+     "start": {
+      "x": 55.98573890279481,
+      "y": 2.374681840563322
+     },
+     "end": {
+      "x": 45.81959784305266,
+      "y": 97.81761430483742
+     }
+    },
+    {
+     "start": {
+      "x": 94.27059241452172,
+      "y": 31.44967258328595
+     },
+     "end": {
+      "x": 5.774774398775236,
+      "y": 68.6582266177891
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 19,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 83.2171041541198,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9729957082901924,
+   "cutScoreUniformity": 0.736409608091024,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9180125368731562,
+    "overall": 0.9672050147492625,
+    "pieceAreas": [
+     1112.9578505177574,
+     1323.1387395543845,
+     950.8183075466453,
+     1599.376479431094,
+     1087.9363161086353,
+     1.00086137636489,
+     1163.000919336002
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 27.650320724597197,
+      "y": 7.520689314836674
+     },
+     "end": {
+      "x": 71.50711588466567,
+      "y": 92.91204919744058
+     }
+    },
+    {
+     "start": {
+      "x": 72.71674827508004,
+      "y": 7.715849922144017
+     },
+     "end": {
+      "x": 25.560819870649873,
+      "y": 91.31254621304743
+     }
+    },
+    {
+     "start": {
+      "x": 96.83374400451032,
+      "y": 39.48332645177223
+     },
+     "end": {
+      "x": 2.3437676367914833,
+      "y": 55.73441513529292
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 20,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 85.10889950415546,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9709615896907239,
+   "cutScoreUniformity": 0.7746523388116309,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1240.0672453160987,
+     1097.944929872284,
+     963.8295054393889,
+     1255.080165961572,
+     8.00689101091912,
+     1472.267084632753,
+     1201.033651637868
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.952958107887941,
+      "y": 36.44751192636282
+     },
+     "end": {
+      "x": 97.47763255876669,
+      "y": 57.06218143456659
+     }
+    },
+    {
+     "start": {
+      "x": 38.04152001937719,
+      "y": 3.5134992008105184
+     },
+     "end": {
+      "x": 60.66906721021133,
+      "y": 96.79926286667339
+     }
+    },
+    {
+     "start": {
+      "x": 85.1070098657061,
+      "y": 17.266258107432698
+     },
+     "end": {
+      "x": 14.628082938416227,
+      "y": 82.44730317589493
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 21,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 96.47813805765912,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.969071180397181,
+   "cutScoreUniformity": 0.9357485250737463,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1332.1464919416683,
+     1145.9862759377988,
+     1313.1301257907355,
+     1087.9363161086353,
+     1175.0112558523806,
+     1184.0190082396648
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 8.746294954711018,
+      "y": 25.461625562472594
+     },
+     "end": {
+      "x": 91.80350864077904,
+      "y": 73.58954567854823
+     }
+    },
+    {
+     "start": {
+      "x": 54.41239746024481,
+      "y": 2.2032349561936804
+     },
+     "end": {
+      "x": 49.80038671104314,
+      "y": 97.99958494127705
+     }
+    },
+    {
+     "start": {
+      "x": 92.63105659625268,
+      "y": 27.941146596273395
+     },
+     "end": {
+      "x": 9.1385349557533,
+      "y": 75.18612067067502
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 22,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 94.2179455044694,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9476979427773229,
+   "cutScoreUniformity": 0.8948193215339233,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9896386430678467,
+    "overall": 0.9958554572271386,
+    "pieceAreas": [
+     1110.9561277650278,
+     1535.3213513437408,
+     1178.0138399814755,
+     1258.0827500906664,
+     1100.9475140013787,
+     1054.9078906885939
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.123798268154845,
+      "y": 53.445186167925804
+     },
+     "end": {
+      "x": 97.99184440774535,
+      "y": 50.884799605991226
+     }
+    },
+    {
+     "start": {
+      "x": 23.00839359914144,
+      "y": 10.30802116420585
+     },
+     "end": {
+      "x": 71.89731406335622,
+      "y": 92.71425566260919
+     }
+    },
+    {
+     "start": {
+      "x": 66.7595883971012,
+      "y": 5.020936017300767
+     },
+     "end": {
+      "x": 28.824631139014848,
+      "y": 93.07671939227986
+     }
+    }
+   ]
+  },
+  {
+   "profile": "normal",
+   "trial": 23,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 83.85446932957002,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9770767264673264,
+   "cutScoreUniformity": 0.7483407079646018,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9452986725663717,
+    "overall": 0.9781194690265487,
+    "pieceAreas": [
+     846.7287244046968,
+     1377.1852538780884,
+     1344.1568284580471,
+     1200.032790261503,
+     3.0025841290946693,
+     1109.955266388663,
+     1357.1680263507906
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.2129076980383857,
+      "y": 45.48404945512013
+     },
+     "end": {
+      "x": 97.87408223197328,
+      "y": 53.474514418773076
+     }
+    },
+    {
+     "start": {
+      "x": 36.624609647998696,
+      "y": 3.90120464771785
+     },
+     "end": {
+      "x": 64.81620376604117,
+      "y": 95.65610699526567
+     }
+    },
+    {
+     "start": {
+      "x": 73.21405058572927,
+      "y": 7.986813315302978
+     },
+     "end": {
+      "x": 23.327247445773587,
+      "y": 89.90694514969806
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 0,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 78.49429221814653,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.921068496993751,
+   "cutScoreUniformity": 0.6523388116308471,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.938929187687226,
+    "sliceUniformity": 0.721570796460177,
+    "overall": 0.8703070748902386,
+    "pieceAreas": [
+     980.8441488375921,
+     1223.0526019178953,
+     784.6753190700737,
+     1895.6314468351013,
+     2.00172275272978,
+     986.8493170957813,
+     1365.1749173617097
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 4.762675917323712,
+      "y": 33.950560450940486
+     },
+     "end": {
+      "x": 97.89617891482906,
+      "y": 53.15532016738102
+     }
+    },
+    {
+     "start": {
+      "x": 27.06182294533671,
+      "y": 7.8355596099163325
+     },
+     "end": {
+      "x": 80.1702229243671,
+      "y": 87.33306374641646
+     }
+    },
+    {
+     "start": {
+      "x": 70.25182324610509,
+      "y": 6.481456191543851
+     },
+     "end": {
+      "x": 30.539764444113672,
+      "y": 93.8782318708197
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 1,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 75.20149067390598,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9410298090677995,
+   "cutScoreUniformity": 0.5824905183312263,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9881802368009444,
+    "sliceUniformity": 0.5475294985250737,
+    "overall": 0.8154658704503127,
+    "pieceAreas": [
+     1404.2085110399405,
+     1486.2791439018615,
+     920.7924662556986,
+     42.03617780732537,
+     290.24979914581803,
+     1655.4247165075278,
+     1439.2386592127116
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.002925164884252,
+      "y": 49.47008748618458
+     },
+     "end": {
+      "x": 97.69919987736688,
+      "y": 55.365289466469065
+     }
+    },
+    {
+     "start": {
+      "x": 38.172852941459205,
+      "y": 3.4799119470346422
+     },
+     "end": {
+      "x": 58.89385757249722,
+      "y": 97.16883820362902
+     }
+    },
+    {
+     "start": {
+      "x": 91.28753815107525,
+      "y": 25.518594945887898
+     },
+     "end": {
+      "x": 4.822282167429918,
+      "y": 66.21646729225208
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 2,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 72.88202425873263,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9702241283595658,
+   "cutScoreUniformity": 0.5302623261694059,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.4345132743362833,
+    "overall": 0.7738053097345133,
+    "pieceAreas": [
+     1103.9500981304736,
+     667.5745380353816,
+     1776.5289430476794,
+     1780.532388553139,
+     10.008613763648897,
+     1442.2412433418062,
+     457.3936489987547
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 15.279447171579926,
+      "y": 16.85662643470205
+     },
+     "end": {
+      "x": 85.58971359673473,
+      "y": 82.20826425162332
+     }
+    },
+    {
+     "start": {
+      "x": 37.115187474975,
+      "y": 3.7616868149911973
+     },
+     "end": {
+      "x": 68.46198730049993,
+      "y": 94.30750528879027
+     }
+    },
+    {
+     "start": {
+      "x": 82.93402942239581,
+      "y": 15.080811779126837
+     },
+     "end": {
+      "x": 16.063840740059376,
+      "y": 83.9460910074186
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 3,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 83.9635950492773,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9537894459306802,
+   "cutScoreUniformity": 0.68851401179941,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.57702802359882,
+    "overall": 0.830811209439528,
+    "pieceAreas": [
+     1991.7141389661308,
+     874.7528429429137,
+     1109.955266388663,
+     946.8148620411857,
+     766.6598142955056,
+     1548.3325492364847
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.105241427381122,
+      "y": 33.01587056378031
+     },
+     "end": {
+      "x": 91.72246147614909,
+      "y": 73.73259801141154
+     }
+    },
+    {
+     "start": {
+      "x": 69.61431836275621,
+      "y": 6.190428954799794
+     },
+     "end": {
+      "x": 32.03245570851738,
+      "y": 94.51030613390127
+     }
+    },
+    {
+     "start": {
+      "x": 93.93972156449311,
+      "y": 30.67900445539053
+     },
+     "end": {
+      "x": 7.851226642141,
+      "y": 72.96695244101483
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 4,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 72.8709294076703,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9687195737210956,
+   "cutScoreUniformity": 0.5303413400758534,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.4369100294985251,
+    "overall": 0.77476401179941,
+    "pieceAreas": [
+     1288.1085913816132,
+     536.461697731581,
+     1615.3902614529322,
+     1940.6702087715214,
+     1361.17147185625,
+     2.00172275272978,
+     494.4255199242556
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 20.649251345949438,
+      "y": 12.019300250696425
+     },
+     "end": {
+      "x": 76.84465292075336,
+      "y": 89.79151429091745
+     }
+    },
+    {
+     "start": {
+      "x": 40.4318733108757,
+      "y": 2.9633020752852257
+     },
+     "end": {
+      "x": 57.41510888801102,
+      "y": 97.42379318632095
+     }
+    },
+    {
+     "start": {
+      "x": 88.6202909019517,
+      "y": 21.496085696020145
+     },
+     "end": {
+      "x": 9.283330465311948,
+      "y": 75.4195362271424
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 5,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 73.91241949313037,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9286682030003526,
+   "cutScoreUniformity": 0.5591814159292037,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9613749188192627,
+    "sliceUniformity": 0.4945243362831858,
+    "overall": 0.7862222101590531,
+    "pieceAreas": [
+     1741.4987948749083,
+     1371.180085619899,
+     1029.8863562794716,
+     687.5917655626794,
+     37.031870925500925,
+     1764.5186065313007,
+     606.5219940771233
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.367651031411046,
+      "y": 32.337796696162265
+     },
+     "end": {
+      "x": 93.09222842383609,
+      "y": 71.14378985584025
+     }
+    },
+    {
+     "start": {
+      "x": 65.78743804247217,
+      "y": 4.670574677643415
+     },
+     "end": {
+      "x": 29.556957841961736,
+      "y": 93.4290458947082
+     }
+    },
+    {
+     "start": {
+      "x": 96.86991498000174,
+      "y": 39.6457221513324
+     },
+     "end": {
+      "x": 7.031087324869745,
+      "y": 71.39328267276973
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 6,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 85.06421591905668,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9684685788420361,
+   "cutScoreUniformity": 0.7742572692793932,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 1,
+    "overall": 1,
+    "pieceAreas": [
+     1233.0612156815441,
+     1207.0388198960572,
+     1442.2412433418062,
+     1293.1128982634375,
+     4.00344550545956,
+     1175.0112558523806,
+     883.7605953301978
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.283376618376444,
+      "y": 44.79194344728321
+     },
+     "end": {
+      "x": 96.81492676185663,
+      "y": 60.60012416351819
+     }
+    },
+    {
+     "start": {
+      "x": 27.532000319064245,
+      "y": 7.583152046180158
+     },
+     "end": {
+      "x": 73.56092677422883,
+      "y": 91.81964525841207
+     }
+    },
+    {
+     "start": {
+      "x": 75.91393169546586,
+      "y": 9.596186515593235
+     },
+     "end": {
+      "x": 26.110823407562094,
+      "y": 91.63300663818693
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 7,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 86.99128989333624,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9680264819589935,
+   "cutScoreUniformity": 0.7462205014749262,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.6924410029498524,
+    "overall": 0.876976401179941,
+    "pieceAreas": [
+     1287.1077300052482,
+     709.6107158427069,
+     1458.2550253636446,
+     1428.229184072698,
+     1570.3514995165121,
+     784.6753190700737
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 10.783190875567911,
+      "y": 22.32253837329262
+     },
+     "end": {
+      "x": 91.08535628882464,
+      "y": 74.81921631761038
+     }
+    },
+    {
+     "start": {
+      "x": 34.79324503879046,
+      "y": 4.472485203453853
+     },
+     "end": {
+      "x": 66.96243860715913,
+      "y": 94.90295843815147
+     }
+    },
+    {
+     "start": {
+      "x": 86.21267092446381,
+      "y": 18.493771020376094
+     },
+     "end": {
+      "x": 11.331245242423819,
+      "y": 78.43813294677469
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 8,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 82.18399145064737,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9431673709391565,
+   "cutScoreUniformity": 0.7217130214917826,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.990465168247804,
+    "sliceUniformity": 0.8828908554572272,
+    "overall": 0.950295892657232,
+    "pieceAreas": [
+     1671.438498529366,
+     1134.976800797785,
+     1057.9104748176887,
+     919.7916048793338,
+     4.00344550545956,
+     1313.1301257907355,
+     1136.9785235505149
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 14.572173586449013,
+      "y": 17.61375113398745
+     },
+     "end": {
+      "x": 83.78425137758977,
+      "y": 84.09727788043824
+     }
+    },
+    {
+     "start": {
+      "x": 73.02216226661373,
+      "y": 7.8813575174875
+     },
+     "end": {
+      "x": 35.164101312425174,
+      "y": 95.64971095343337
+     }
+    },
+    {
+     "start": {
+      "x": 97.96346502156726,
+      "y": 48.127562250729206
+     },
+     "end": {
+      "x": 2.5030227866890726,
+      "y": 56.930884185890136
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 9,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 77.38116870106269,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9342030479402339,
+   "cutScoreUniformity": 0.6274494310998736,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9804794963192133,
+    "sliceUniformity": 0.6571349557522124,
+    "overall": 0.856997831196649,
+    "pieceAreas": [
+     1470.2653618800232,
+     794.6839328337226,
+     1525.3127375800923,
+     1593.3713111729046,
+     25.021534409122246,
+     1070.9216727104322,
+     758.6529232845866
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 20.985904995606408,
+      "y": 11.761507730089269
+     },
+     "end": {
+      "x": 74.43901606820268,
+      "y": 91.3126432659317
+     }
+    },
+    {
+     "start": {
+      "x": 71.53337733093146,
+      "y": 7.101122850082351
+     },
+     "end": {
+      "x": 37.70004871617514,
+      "y": 96.39731887098148
+     }
+    },
+    {
+     "start": {
+      "x": 95.08785981367879,
+      "y": 33.53534399320625
+     },
+     "end": {
+      "x": 6.257915061431916,
+      "y": 69.76436199898934
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 10,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 75.27394815199796,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9395840271677692,
+   "cutScoreUniformity": 0.584228824273072,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9721983093049015,
+    "sliceUniformity": 0.562924041297935,
+    "overall": 0.8168291093106445,
+    "pieceAreas": [
+     1575.3558063983367,
+     877.7554270720084,
+     937.8071096539019,
+     655.5642015190028,
+     1989.712416213401,
+     1.00086137636489,
+     1201.033651637868
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 20.556636513599006,
+      "y": 12.091051892624762
+     },
+     "end": {
+      "x": 77.85647050616654,
+      "y": 89.08985867125992
+     }
+    },
+    {
+     "start": {
+      "x": 84.47803720603679,
+      "y": 16.60441720198399
+     },
+     "end": {
+      "x": 8.99678316524971,
+      "y": 74.95468311164157
+     }
+    },
+    {
+     "start": {
+      "x": 97.99070188078628,
+      "y": 49.055260358883736
+     },
+     "end": {
+      "x": 2.151122572849232,
+      "y": 46.194092885854765
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 11,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 76.17088393238339,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9044356330192069,
+   "cutScoreUniformity": 0.609197218710493,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.8332221627518513,
+    "sliceUniformity": 0.5957411504424778,
+    "overall": 0.7882631090025465,
+    "pieceAreas": [
+     1128.9716325395957,
+     273.2351557476149,
+     1982.7063865788468,
+     1076.9268409686215,
+     93.08010800193475,
+     1346.1585512107767,
+     1337.150798823493
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 16.836829752425544,
+      "y": 15.298355382916041
+     },
+     "end": {
+      "x": 85.24630349245692,
+      "y": 82.5837089680966
+     }
+    },
+    {
+     "start": {
+      "x": 65.01492927439452,
+      "y": 4.40886161889648
+     },
+     "end": {
+      "x": 35.50001802509567,
+      "y": 95.75751875623776
+     }
+    },
+    {
+     "start": {
+      "x": 81.58767148494009,
+      "y": 13.858347987958517
+     },
+     "end": {
+      "x": 4.860036261221637,
+      "y": 66.32126446271165
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 12,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 92.52450705416769,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9216984930273879,
+   "cutScoreUniformity": 0.8661504424778761,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9781719207173962,
+    "sliceUniformity": 0.9323008849557521,
+    "overall": 0.9663719301975198,
+    "pieceAreas": [
+     1556.339440247404,
+     1293.1128982634375,
+     1254.079304585207,
+     1115.9604346468523,
+     1059.9121975704184,
+     958.8251985575645
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 18.23314823010004,
+      "y": 14.015737764555968
+     },
+     "end": {
+      "x": 76.01300639324924,
+      "y": 90.34009789756061
+     }
+    },
+    {
+     "start": {
+      "x": 72.31892952327236,
+      "y": 7.50452512401818
+     },
+     "end": {
+      "x": 32.44501251545025,
+      "y": 94.674628307545
+     }
+    },
+    {
+     "start": {
+      "x": 97.99743650925727,
+      "y": 49.503926880573616
+     },
+     "end": {
+      "x": 3.167920348352652,
+      "y": 60.52408264419079
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 13,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 73.30771465546118,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8883462653775548,
+   "cutScoreUniformity": 0.5551517067003793,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9033540523690128,
+    "sliceUniformity": 0.4853982300884955,
+    "overall": 0.765165507746102,
+    "pieceAreas": [
+     1410.2136792981298,
+     464.3996786333089,
+     1082.9320092268108,
+     2257.9432650791914,
+     36.03100954913604,
+     760.6546460373163,
+     1226.05518604699
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 11.37873127723882,
+      "y": 21.497410604573673
+     },
+     "end": {
+      "x": 95.14202060941629,
+      "y": 66.31557462362377
+     }
+    },
+    {
+     "start": {
+      "x": 28.58018776841738,
+      "y": 7.04430603559356
+     },
+     "end": {
+      "x": 77.33950407797983,
+      "y": 89.45315597984685
+     }
+    },
+    {
+     "start": {
+      "x": 82.90099148707493,
+      "y": 15.049681558426071
+     },
+     "end": {
+      "x": 26.31806899507159,
+      "y": 91.75124122559487
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 14,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 82.29575239447446,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9397258926290734,
+   "cutScoreUniformity": 0.7246365360303413,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.8899889380530972,
+    "overall": 0.9559955752212389,
+    "pieceAreas": [
+     1296.1154823925324,
+     1526.313598956457,
+     989.8519012248761,
+     3.0025841290946693,
+     982.8458715903218,
+     1356.1671649744258,
+     1083.9328706031756
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.013850625676284,
+      "y": 51.15302568275427
+     },
+     "end": {
+      "x": 97.91048981134283,
+      "y": 52.93001126912785
+     }
+    },
+    {
+     "start": {
+      "x": 18.69180512207629,
+      "y": 13.615979695944098
+     },
+     "end": {
+      "x": 76.5535911250337,
+      "y": 89.98633264459912
+     }
+    },
+    {
+     "start": {
+      "x": 70.14139778007593,
+      "y": 6.430238749050368
+     },
+     "end": {
+      "x": 23.476068984126456,
+      "y": 90.00601309134893
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 15,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 72.89757628485916,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9279266128938375,
+   "cutScoreUniformity": 0.5390328697850821,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9892787410995453,
+    "sliceUniformity": 0.4544247787610618,
+    "overall": 0.7785535338342882,
+    "pieceAreas": [
+     1546.330826483755,
+     1892.6288627060067,
+     604.5202713243935,
+     12.010336516378677,
+     467.40226276240355,
+     1192.0258992505837,
+     1523.3110148273624
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.580857858618995,
+      "y": 31.808248808215563
+     },
+     "end": {
+      "x": 91.80934791498329,
+      "y": 73.57919478955722
+     }
+    },
+    {
+     "start": {
+      "x": 57.81115593426122,
+      "y": 2.6398285162452626
+     },
+     "end": {
+      "x": 36.589788983878925,
+      "y": 96.08867800776136
+     }
+    },
+    {
+     "start": {
+      "x": 97.80425428641227,
+      "y": 54.33050483431595
+     },
+     "end": {
+      "x": 2.2305274326435836,
+      "y": 54.69866902820181
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 16,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 86.1918227025264,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9277184059458542,
+   "cutScoreUniformity": 0.738292772861357,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9907344273252986,
+    "sliceUniformity": 0.6765855457227139,
+    "overall": 0.8678545464866751,
+    "pieceAreas": [
+     1394.1998972762915,
+     788.6787645755333,
+     1079.9294250977161,
+     1010.8699901285388,
+     998.8596536121602,
+     1965.6917431806437
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.641466663047893,
+      "y": 31.660956399132797
+     },
+     "end": {
+      "x": 96.65634773700033,
+      "y": 61.27764229988283
+     }
+    },
+    {
+     "start": {
+      "x": 57.02791299246089,
+      "y": 2.517282733920977
+     },
+     "end": {
+      "x": 38.55466047275806,
+      "y": 96.61549316596525
+     }
+    },
+    {
+     "start": {
+      "x": 86.98408441223225,
+      "y": 19.402982168373352
+     },
+     "end": {
+      "x": 8.008005309784835,
+      "y": 73.25236293233316
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 17,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 80.53651951937452,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9411888250937936,
+   "cutScoreUniformity": 0.6891592920353984,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.801401179941003,
+    "overall": 0.9205604719764012,
+    "pieceAreas": [
+     1249.0749977033825,
+     1452.249857105455,
+     1259.0836114670315,
+     621.5349147225966,
+     24.020673032757355,
+     1574.3549450219716,
+     1057.9104748176887
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 5.375802649119673,
+      "y": 32.31721145323269
+     },
+     "end": {
+      "x": 91.25280406628814,
+      "y": 74.53988909242341
+     }
+    },
+    {
+     "start": {
+      "x": 43.565574837534534,
+      "y": 2.4332240652298163
+     },
+     "end": {
+      "x": 53.33299921991004,
+      "y": 97.88414263824798
+     }
+    },
+    {
+     "start": {
+      "x": 94.02854776662134,
+      "y": 30.882286183689693
+     },
+     "end": {
+      "x": 3.8803742114593973,
+      "y": 63.30338743046225
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 18,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 92.24404193558432,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.974312010667576,
+   "cutScoreUniformity": 0.8500184365781711,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.9000368731563422,
+    "overall": 0.9600147492625368,
+    "pieceAreas": [
+     1128.9716325395957,
+     1402.2067882872107,
+     1107.953543635933,
+     1553.336856118309,
+     923.7950503847933,
+     1121.9656029050416
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.262352975392539,
+      "y": 55.01169198514692
+     },
+     "end": {
+      "x": 97.77970267299904,
+      "y": 45.40652501042957
+     }
+    },
+    {
+     "start": {
+      "x": 30.225303758124987,
+      "y": 6.262585941306791
+     },
+     "end": {
+      "x": 66.48927911631637,
+      "y": 95.07886061364255
+     }
+    },
+    {
+     "start": {
+      "x": 75.28750649381355,
+      "y": 9.201200810252544
+     },
+     "end": {
+      "x": 21.86424095049589,
+      "y": 88.88931810546758
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 19,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 78.67917534095449,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8976794388573532,
+   "cutScoreUniformity": 0.6607142857142857,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9064028753311691,
+    "sliceUniformity": 0.7411135693215339,
+    "overall": 0.8683662903279643,
+    "pieceAreas": [
+     1716.477260465786,
+     1456.2533026109147,
+     1255.080165961572,
+     725.6244978645452,
+     2.00172275272978,
+     855.7364767919809,
+     1227.0560474233548
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.8052819583578548,
+      "y": 41.24451092343224
+     },
+     "end": {
+      "x": 91.19056882525042,
+      "y": 74.64420905308808
+     }
+    },
+    {
+     "start": {
+      "x": 50.73128729826734,
+      "y": 2.0055709598770863
+     },
+     "end": {
+      "x": 42.64697846827991,
+      "y": 97.43345943902955
+     }
+    },
+    {
+     "start": {
+      "x": 93.50314093068984,
+      "y": 29.71511081705058
+     },
+     "end": {
+      "x": 9.280963916621374,
+      "y": 75.4157451285716
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 20,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 76.31356761990497,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9471490080924776,
+   "cutScoreUniformity": 0.6035082174462705,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9991684802575077,
+    "sliceUniformity": 0.5968473451327433,
+    "overall": 0.8384894821303497,
+    "pieceAreas": [
+     695.5986565735984,
+     1876.6150806841683,
+     1240.0672453160987,
+     1573.3540836456068,
+     41.035316430960485,
+     1152.9923055723532,
+     658.5667856480975
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 29.11593927046328,
+      "y": 6.781300257353617
+     },
+     "end": {
+      "x": 77.83736517327505,
+      "y": 89.103466600926
+     }
+    },
+    {
+     "start": {
+      "x": 61.749587575750894,
+      "y": 3.4602622289321356
+     },
+     "end": {
+      "x": 36.03749238919251,
+      "y": 95.92437676461317
+     }
+    },
+    {
+     "start": {
+      "x": 96.3301047690362,
+      "y": 62.55075265034448
+     },
+     "end": {
+      "x": 2.640784449586377,
+      "y": 42.18305031041775
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 21,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 75.78946314248547,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9445173214124742,
+   "cutScoreUniformity": 0.593552465233881,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9911973313932236,
+    "sliceUniformity": 0.5761061946902655,
+    "overall": 0.8278016772940732,
+    "pieceAreas": [
+     620.5340533462316,
+     1992.7150003424956,
+     1398.2033427817512,
+     32.02756404367648,
+     1341.1542443289525,
+     930.8010800193476,
+     922.7941890084285
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 42.936933310990085,
+      "y": 2.5224991290969587
+     },
+     "end": {
+      "x": 62.35851801483629,
+      "y": 96.3817532277184
+     }
+    },
+    {
+     "start": {
+      "x": 71.12315685115422,
+      "y": 6.897653838317151
+     },
+     "end": {
+      "x": 27.34057494922815,
+      "y": 92.31489638848774
+     }
+    },
+    {
+     "start": {
+      "x": 97.99857634023866,
+      "y": 50.369688125697856
+     },
+     "end": {
+      "x": 2.748514197480489,
+      "y": 58.443760385888254
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 22,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 78.75589351254382,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9855503710605336,
+   "cutScoreUniformity": 0.6446744627054362,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.7036873156342183,
+    "overall": 0.8814749262536873,
+    "pieceAreas": [
+     924.7959117611581,
+     1752.5082700149221,
+     1066.9182272049725,
+     1557.3403016237685,
+     2.00172275272978,
+     1000.8613763648898,
+     933.8036641484422
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 25.342070265674977,
+      "y": 8.817643326090602
+     },
+     "end": {
+      "x": 74.73121599713144,
+      "y": 91.13838785493701
+     }
+    },
+    {
+     "start": {
+      "x": 63.221770373511504,
+      "y": 3.856909637626857
+     },
+     "end": {
+      "x": 35.39433689968466,
+      "y": 95.72389534368313
+     }
+    },
+    {
+     "start": {
+      "x": 97.15742614475322,
+      "y": 58.95416994489971
+     },
+     "end": {
+      "x": 2.4229250723845297,
+      "y": 43.642174795414334
+     }
+    }
+   ]
+  },
+  {
+   "profile": "sloppy",
+   "trial": 23,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 73.55943067464116,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9862106612272843,
+   "cutScoreUniformity": 0.5406131479140329,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.4606010324483776,
+    "overall": 0.784240412979351,
+    "pieceAreas": [
+     493.42465854789066,
+     1919.6521198678588,
+     1178.0138399814755,
+     3.0025841290946693,
+     1160.9991965832721,
+     1829.5745959950189,
+     653.5624787662731
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 23.08845518512331,
+      "y": 10.253695068888694
+     },
+     "end": {
+      "x": 77.72558101065947,
+      "y": 89.18280436136953
+     }
+    },
+    {
+     "start": {
+      "x": 43.550675023927106,
+      "y": 2.435241960533404
+     },
+     "end": {
+      "x": 53.996875219862446,
+      "y": 97.83330417686875
+     }
+    },
+    {
+     "start": {
+      "x": 97.92063370762686,
+      "y": 47.240857912419806
+     },
+     "end": {
+      "x": 2.0525601495521784,
+      "y": 52.24566511031531
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 0,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 73.40366016935019,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9394231176514107,
+   "cutScoreUniformity": 0.546855246523388,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9395212384680964,
+    "sliceUniformity": 0.4740597345132742,
+    "overall": 0.7714802653457387,
+    "pieceAreas": [
+     1463.259332245469,
+     623.5366374753264,
+     1508.298094181889,
+     871.7502588138191,
+     7.006029634554229,
+     1957.6848521697245,
+     806.6942693501012
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 13.911682309075246,
+      "y": 18.351408779554067
+     },
+     "end": {
+      "x": 93.60384226374714,
+      "y": 70.06750955744779
+     }
+    },
+    {
+     "start": {
+      "x": 74.53158264620001,
+      "y": 8.742255843627868
+     },
+     "end": {
+      "x": 28.376520856326586,
+      "y": 92.8535313565069
+     }
+    },
+    {
+     "start": {
+      "x": 93.22886975521222,
+      "y": 29.136998785244288
+     },
+     "end": {
+      "x": 6.6317135397988665,
+      "y": 70.57162437694058
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 1,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 77.42626079794358,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9031559997269322,
+   "cutScoreUniformity": 0.6345606826801518,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.8981479958344165,
+    "sliceUniformity": 0.654646017699115,
+    "overall": 0.831302805829971,
+    "pieceAreas": [
+     1436.236075083617,
+     475.40915377332266,
+     921.7933276320636,
+     1511.3006783109838,
+     94.08096937829964,
+     1611.3868159474725,
+     1188.0224537451243
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 13.052158344278576,
+      "y": 19.35922656028839
+     },
+     "end": {
+      "x": 88.26071680820357,
+      "y": 78.98478133991094
+     }
+    },
+    {
+     "start": {
+      "x": 67.66155165776527,
+      "y": 5.367393163292721
+     },
+     "end": {
+      "x": 41.253942671898116,
+      "y": 97.19646682976976
+     }
+    },
+    {
+     "start": {
+      "x": 89.86688748540469,
+      "y": 23.26741160631684
+     },
+     "end": {
+      "x": 3.435711216383652,
+      "y": 61.65191014709514
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 2,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 71.41993963180818,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.917647144807451,
+   "cutScoreUniformity": 0.5115360303413401,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.8333333333333334,
+    "centerAccuracy": 0.8803953225218858,
+    "sliceUniformity": 0.5496681415929203,
+    "overall": 0.7589858533937338,
+    "pieceAreas": [
+     1881.6193875659928,
+     1567.3489153874175,
+     990.852762601241,
+     140.12059269108457,
+     109.09389002377299,
+     1629.4023207220407,
+     919.7916048793338
+    ],
+    "sliverCount": 2,
+    "actualPieceCount": 5
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.034497762004844,
+      "y": 48.18049593106188
+     },
+     "end": {
+      "x": 93.29156925621118,
+      "y": 70.73258380749184
+     }
+    },
+    {
+     "start": {
+      "x": 38.57560678930937,
+      "y": 3.3793689471332256
+     },
+     "end": {
+      "x": 57.88342131417217,
+      "y": 97.3481960414888
+     }
+    },
+    {
+     "start": {
+      "x": 96.96579147535175,
+      "y": 40.08968057559308
+     },
+     "end": {
+      "x": 2.9099991792782163,
+      "y": 59.30224826073906
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 3,
+   "committedLines": 2,
+   "plannedMatchesCommitted": false,
+   "cutScore": 61.143608638627,
+   "cutScoreCompleteness": 0.6666666666666666,
+   "cutScoreCount": 0.6666666666666667,
+   "cutScoreCenter": 0.9476941971960331,
+   "cutScoreUniformity": 0.5,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.6666666666666667,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.19999999999999996,
+    "overall": 0.63,
+    "pieceAreas": [
+     1431.2317682017924,
+     1953.6814066642648,
+     2436.0965900721417,
+     1417.219708932684
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 4
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.520242301388724,
+      "y": 38.0153379572728
+     },
+     "end": {
+      "x": 97.45740639045948,
+      "y": 57.19684505118558
+     }
+    },
+    {
+     "start": {
+      "x": 46.449347255176605,
+      "y": 2.1315044618521792
+     },
+     "end": {
+      "x": 58.664720640927285,
+      "y": 97.21146699918023
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 4,
+   "committedLines": 3,
+   "plannedMatchesCommitted": false,
+   "cutScore": 74.32581577466225,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9048213583343224,
+   "cutScoreUniformity": 0.572218710493047,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9001938807371753,
+    "sliceUniformity": 0.5136061946902656,
+    "overall": 0.7755006420972589,
+    "pieceAreas": [
+     1842.585793887762,
+     1217.047433659706,
+     646.5564491317188,
+     998.8596536121602,
+     78.0671873564614,
+     1762.516883778571,
+     692.5960724445038
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 8.631544194547416,
+      "y": 25.655578374660113
+     },
+     "end": {
+      "x": 84.91790205662943,
+      "y": 82.93539305919445
+     }
+    },
+    {
+     "start": {
+      "x": 64.33136506856599,
+      "y": 4.1893901451695745
+     },
+     "end": {
+      "x": 50.34468469139526,
+      "y": 97.99876240554038
+     }
+    },
+    {
+     "start": {
+      "x": 97.86028959601796,
+      "y": 46.34039895817936
+     },
+     "end": {
+      "x": 2.3139971881748664,
+      "y": 55.48134434519545
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 5,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 78.98064067294779,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8804176281881612,
+   "cutScoreUniformity": 0.67019595448799,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.8912528845644836,
+    "sliceUniformity": 0.7460914454277288,
+    "overall": 0.8658124435404366,
+    "pieceAreas": [
+     1283.1042844997887,
+     360.31009549136036,
+     1349.1611353398714,
+     1475.2696687618475,
+     64.05512808735295,
+     1507.2972328055241,
+     1199.031928885138
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 4.693324894202463,
+      "y": 65.85260832978929
+     },
+     "end": {
+      "x": 89.33966347747673,
+      "y": 22.497438710569483
+     }
+    },
+    {
+     "start": {
+      "x": 19.962334709520427,
+      "y": 12.560199467717261
+     },
+     "end": {
+      "x": 86.58818878131537,
+      "y": 81.06934891018525
+     }
+    },
+    {
+     "start": {
+      "x": 71.99857836907799,
+      "y": 7.33780889664088
+     },
+     "end": {
+      "x": 39.480304942744056,
+      "y": 96.83306541218867
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 6,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 66.06246129466248,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9093171366301757,
+   "cutScoreUniformity": 0.40605246523388117,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9303761213348514,
+    "sliceUniformity": 0.1466261061946903,
+    "overall": 0.6377632788783315,
+    "pieceAreas": [
+     1815.5625367259104,
+     802.6908238446416,
+     508.437579193364,
+     2473.1284609976424,
+     3.0025841290946693,
+     400.34455054595594,
+     1235.062938434274
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.0232305655018443,
+      "y": 48.50681728211071
+     },
+     "end": {
+      "x": 97.21782489326789,
+      "y": 41.36999349080829
+     }
+    },
+    {
+     "start": {
+      "x": 58.42377494814853,
+      "y": 2.744947194792541
+     },
+     "end": {
+      "x": 38.2204316441354,
+      "y": 96.53215844283942
+     }
+    },
+    {
+     "start": {
+      "x": 89.48404220211792,
+      "y": 22.70512115100398
+     },
+     "end": {
+      "x": 4.796305847153789,
+      "y": 66.14391634442947
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 7,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 78.06719731408027,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9419652012773905,
+   "cutScoreUniformity": 0.639617572692794,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.6899520648967552,
+    "overall": 0.8759808259587021,
+    "pieceAreas": [
+     1288.1085913816132,
+     990.852762601241,
+     1493.2851735364156,
+     1637.4092117329599,
+     9.00775238728401,
+     1325.1404623071141,
+     494.4255199242556
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 7.233277899564882,
+      "y": 71.79466633798634
+     },
+     "end": {
+      "x": 94.19186754174768,
+      "y": 31.262901954341316
+     }
+    },
+    {
+     "start": {
+      "x": 18.9309754434602,
+      "y": 13.411535791931282
+     },
+     "end": {
+      "x": 76.11276228847504,
+      "y": 90.27559615530969
+     }
+    },
+    {
+     "start": {
+      "x": 69.94985890279484,
+      "y": 6.342204249887093
+     },
+     "end": {
+      "x": 23.77517232233658,
+      "y": 90.20271649126288
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 8,
+   "committedLines": 1,
+   "plannedMatchesCommitted": false,
+   "cutScore": 21.847725686433133,
+   "cutScoreCompleteness": 0.3333333333333333,
+   "cutScoreCount": 0.33333333333333337,
+   "cutScoreCenter": 0.8514392353099798,
+   "cutScoreUniformity": 0,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.33333333333333337,
+    "centerAccuracy": 0.8043177059299391,
+    "sliceUniformity": 0,
+    "overall": 0.44129531177898174,
+    "pieceAreas": [
+     2938.5290010073163,
+     4299.700472863567
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 2
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 38.054122725606796,
+      "y": 3.510259022606549
+     },
+     "end": {
+      "x": 75.07840188273552,
+      "y": 90.92766495914478
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 9,
+   "committedLines": 3,
+   "plannedMatchesCommitted": false,
+   "cutScore": 67.81100558006956,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8735995044882028,
+   "cutScoreUniformity": 0.44816687737041716,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.7858522823521935,
+    "sliceUniformity": 0.20175147492625356,
+    "overall": 0.6164562746761595,
+    "pieceAreas": [
+     2154.854543313608,
+     453.39020349329513,
+     671.577983540841,
+     888.7649022120222,
+     159.1369588420175,
+     1984.7081093315767,
+     925.796773137523
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 7.282163563288825,
+      "y": 28.109672223413572
+     },
+     "end": {
+      "x": 92.3464341029003,
+      "y": 72.6004318270409
+     }
+    },
+    {
+     "start": {
+      "x": 77.07101859594333,
+      "y": 10.362139914242457
+     },
+     "end": {
+      "x": 50.23564699376344,
+      "y": 97.99942156416397
+     }
+    },
+    {
+     "start": {
+      "x": 95.4297495160224,
+      "y": 34.503617876695785
+     },
+     "end": {
+      "x": 2.7915010370131483,
+      "y": 58.68087700993794
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 10,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 62.853546484576924,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.9123826720565126,
+   "cutScoreUniformity": 0.34126106194690264,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.9157475328602378,
+    "sliceUniformity": 0,
+    "overall": 0.5747242598580713,
+    "pieceAreas": [
+     2425.0871149321283,
+     732.6305274990993,
+     1166.0035034650966,
+     406.34971880414525,
+     2.00172275272978,
+     340.2928679640625,
+     2165.8640184536216
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 3.699646101459119,
+      "y": 37.33993566880999
+     },
+     "end": {
+      "x": 96.58928800008006,
+      "y": 61.55154724033089
+     }
+    },
+    {
+     "start": {
+      "x": 16.69571992741173,
+      "y": 15.433760273257953
+     },
+     "end": {
+      "x": 89.34662609868634,
+      "y": 77.49259927053419
+     }
+    },
+    {
+     "start": {
+      "x": 96.68515265317787,
+      "y": 38.84219906301068
+     },
+     "end": {
+      "x": 8.92545734680128,
+      "y": 74.83710824211546
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 11,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 69.11434437049866,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8470907792327558,
+   "cutScoreUniformity": 0.4795353982300885,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.7779625649367904,
+    "sliceUniformity": 0.30619469026548674,
+    "overall": 0.6558666455872317,
+    "pieceAreas": [
+     2185.881245980919,
+     1705.4677853257724,
+     386.33249127684746,
+     801.6899624682767,
+     46.03962331278493,
+     1322.1378781780195,
+     790.680487328263
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.538592934556762,
+      "y": 42.8295858300727
+     },
+     "end": {
+      "x": 88.32198258130441,
+      "y": 78.90373074601618
+     }
+    },
+    {
+     "start": {
+      "x": 57.32896171091469,
+      "y": 2.5628171131553503
+     },
+     "end": {
+      "x": 49.370043966070426,
+      "y": 97.99586602401622
+     }
+    },
+    {
+     "start": {
+      "x": 97.99900165975194,
+      "y": 50.3095798235194
+     },
+     "end": {
+      "x": 3.879448591903298,
+      "y": 63.300178112082186
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 12,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 66.78716825320986,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.7708207022699941,
+   "cutScoreUniformity": 0.44824589127686465,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.5624621068099825,
+    "sliceUniformity": 0.24563053097345122,
+    "overall": 0.5669908444323752,
+    "pieceAreas": [
+     1756.5117155203816,
+     2266.9510174664756,
+     268.2308488657905,
+     581.500459668001,
+     1041.8966927958504,
+     1.00086137636489,
+     1322.1378781780195
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.7366606663246653,
+      "y": 58.37715673900501
+     },
+     "end": {
+      "x": 97.66723402655731,
+      "y": 55.64223362308023
+     }
+    },
+    {
+     "start": {
+      "x": 38.349817938213015,
+      "y": 3.4352788269142884
+     },
+     "end": {
+      "x": 80.6237151776709,
+      "y": 86.96198139598158
+     }
+    },
+    {
+     "start": {
+      "x": 96.50665974588051,
+      "y": 38.120159964002156
+     },
+     "end": {
+      "x": 20.215631330746263,
+      "y": 87.64161769868528
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 13,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 72.13246846243919,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8458848572005141,
+   "cutScoreUniformity": 0.5401390644753477,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.766192293139213,
+    "sliceUniformity": 0.4249262536873154,
+    "overall": 0.6998281894166901,
+    "pieceAreas": [
+     1372.180946996264,
+     673.5797062935708,
+     1160.9991965832721,
+     797.6865169628171,
+     128.1102561747059,
+     2379.0474916193434,
+     726.62535924091
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 6.884905830587872,
+      "y": 28.90287567551626
+     },
+     "end": {
+      "x": 95.39060379608351,
+      "y": 65.61067221573013
+     }
+    },
+    {
+     "start": {
+      "x": 50.87641431773346,
+      "y": 2.0080017300417934
+     },
+     "end": {
+      "x": 70.84351867383775,
+      "y": 93.23826695524897
+     }
+    },
+    {
+     "start": {
+      "x": 87.26633980336669,
+      "y": 19.74739816709961
+     },
+     "end": {
+      "x": 4.788355022987716,
+      "y": 66.12163634599786
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 14,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 90.60409659155668,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 1,
+   "cutScoreCenter": 0.9725593641704173,
+   "cutScoreUniformity": 0.8175700589970502,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 1,
+    "sliceUniformity": 0.8351401179941003,
+    "overall": 0.9340560471976401,
+    "pieceAreas": [
+     1424.2257385672383,
+     1307.1249575325462,
+     975.8398419557677,
+     776.6684280591545,
+     1353.164580845331,
+     1401.2059269108458
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.0019234336153344,
+      "y": 49.57029553472765
+     },
+     "end": {
+      "x": 97.94950051713681,
+      "y": 52.201226966284075
+     }
+    },
+    {
+     "start": {
+      "x": 31.03407437531733,
+      "y": 5.90585452467635
+     },
+     "end": {
+      "x": 65.40466587628421,
+      "y": 95.46093124035235
+     }
+    },
+    {
+     "start": {
+      "x": 84.91775271357038,
+      "y": 17.064448608927954
+     },
+     "end": {
+      "x": 13.534097634133438,
+      "y": 81.21278527531769
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 15,
+   "committedLines": 2,
+   "plannedMatchesCommitted": false,
+   "cutScore": 60.86779908042709,
+   "cutScoreCompleteness": 0.6666666666666666,
+   "cutScoreCount": 0.6666666666666667,
+   "cutScoreCenter": 0.9201132413760418,
+   "cutScoreUniformity": 0.5,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.6666666666666667,
+    "centerAccuracy": 0.8999404787855325,
+    "sliceUniformity": 0.19999999999999996,
+    "overall": 0.5999821436356597,
+    "pieceAreas": [
+     2277.9604926064894,
+     1301.1197892743567,
+     2031.7485940207264,
+     1627.4005979693109
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 4
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.00462292040248,
+      "y": 49.333832613193216
+     },
+     "end": {
+      "x": 97.99925030310007,
+      "y": 49.73172711588882
+     }
+    },
+    {
+     "start": {
+      "x": 63.93539755403029,
+      "y": 4.067389634257379
+     },
+     "end": {
+      "x": 50.31942681101067,
+      "y": 97.99893713940351
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 16,
+   "committedLines": 3,
+   "plannedMatchesCommitted": false,
+   "cutScore": 68.91822115577281,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8784424274188323,
+   "cutScoreUniformity": 0.4693426042983564,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.8020885465814871,
+    "sliceUniformity": 0.2943030973451326,
+    "overall": 0.6583478029124992,
+    "pieceAreas": [
+     2304.9837497683416,
+     1625.398875216581,
+     377.3247388895635,
+     667.5745380353816,
+     3.0025841290946693,
+     933.8036641484422,
+     1326.141323683479
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.1308047383248585,
+      "y": 53.54120671517745
+     },
+     "end": {
+      "x": 96.76821727181917,
+      "y": 60.80434418259223
+     }
+    },
+    {
+     "start": {
+      "x": 31.696868352795708,
+      "y": 5.626636684773283
+     },
+     "end": {
+      "x": 68.29473608713964,
+      "y": 94.37682538782953
+     }
+    },
+    {
+     "start": {
+      "x": 97.34930305543037,
+      "y": 42.12323034708949
+     },
+     "end": {
+      "x": 10.319666508607128,
+      "y": 77.00872329474026
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 17,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 67.52722964736964,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.8151966267681481,
+   "cutScoreUniformity": 0.4541719342604298,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.6955898803044444,
+    "sliceUniformity": 0.20470132743362845,
+    "overall": 0.5905574950647847,
+    "pieceAreas": [
+     1486.2791439018615,
+     790.680487328263,
+     199.17141389661307,
+     2382.050075748438,
+     427.36780770780797,
+     1452.249857105455,
+     500.4306881824449
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 10.723162154068563,
+      "y": 22.40779079478398
+     },
+     "end": {
+      "x": 81.7955119422827,
+      "y": 85.95894075648168
+     }
+    },
+    {
+     "start": {
+      "x": 64.55608064196436,
+      "y": 4.260296061904481
+     },
+     "end": {
+      "x": 53.64473038631118,
+      "y": 97.86142434582469
+     }
+    },
+    {
+     "start": {
+      "x": 96.58197415444849,
+      "y": 38.41899469500624
+     },
+     "end": {
+      "x": 3.548624207273832,
+      "y": 37.905799449201474
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 18,
+   "committedLines": 2,
+   "plannedMatchesCommitted": false,
+   "cutScore": 56.46820035959216,
+   "cutScoreCompleteness": 0.6666666666666666,
+   "cutScoreCount": 0.6666666666666667,
+   "cutScoreCenter": 0.9233226170801596,
+   "cutScoreUniformity": 0.4113661504424778,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.6666666666666667,
+    "centerAccuracy": 0.9924111440388839,
+    "sliceUniformity": 0.022732300884955592,
+    "overall": 0.5568162635656474,
+    "pieceAreas": [
+     1046.9009996776747,
+     2166.8648798299864,
+     2872.472150167234,
+     1151.9914441959882
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 4
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 37.98451828785674,
+      "y": 3.5281999571229075
+     },
+     "end": {
+      "x": 55.88900220157103,
+      "y": 97.6373766392514
+     }
+    },
+    {
+     "start": {
+      "x": 80.29079265714277,
+      "y": 12.764695782067452
+     },
+     "end": {
+      "x": 13.625664044454709,
+      "y": 81.31944577723439
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 19,
+   "committedLines": 2,
+   "plannedMatchesCommitted": false,
+   "cutScore": 52.76778615886403,
+   "cutScoreCompleteness": 0.6666666666666666,
+   "cutScoreCount": 0.6666666666666667,
+   "cutScoreCenter": 0.8035577456799124,
+   "cutScoreUniformity": 0.3613108407079646,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.6666666666666667,
+    "centerAccuracy": 0.6606732370397373,
+    "sliceUniformity": 0,
+    "overall": 0.44820197111192117,
+    "pieceAreas": [
+     2663.2921225069717,
+     2260.9458492082863,
+     1442.2412433418062,
+     871.7502588138191
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 4
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 6.8947148805834235,
+      "y": 28.882841223928743
+     },
+     "end": {
+      "x": 74.36526056340563,
+      "y": 91.35618548267416
+     }
+    },
+    {
+     "start": {
+      "x": 82.55074195479004,
+      "y": 14.72324847448859
+     },
+     "end": {
+      "x": 25.581065997777443,
+      "y": 91.32451647866071
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 20,
+   "committedLines": 3,
+   "plannedMatchesCommitted": false,
+   "cutScore": 68.61546540754722,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.875821719852908,
+   "cutScoreUniformity": 0.46381163084702914,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.8333333333333334,
+    "centerAccuracy": 0.864746174761298,
+    "sliceUniformity": 0.39679203539823005,
+    "overall": 0.6931406665876815,
+    "pieceAreas": [
+     2058.7718511825783,
+     72.06201909827207,
+     1162.0000579596372,
+     2014.7339506225233,
+     235.2024234457491,
+     787.6779031991683,
+     907.7812683629552
+    ],
+    "sliverCount": 2,
+    "actualPieceCount": 5
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 15.155676181204516,
+      "y": 16.98677389877019
+     },
+     "end": {
+      "x": 74.67597795166533,
+      "y": 91.17154493250072
+     }
+    },
+    {
+     "start": {
+      "x": 85.16550768316287,
+      "y": 17.32910975523606
+     },
+     "end": {
+      "x": 27.479299690086975,
+      "y": 92.38889073272716
+     }
+    },
+    {
+     "start": {
+      "x": 92.8548765969271,
+      "y": 71.62081293249976
+     },
+     "end": {
+      "x": 10.618362147967687,
+      "y": 22.557576635956963
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 21,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 65.4718953616773,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.7910001134960064,
+   "cutScoreUniformity": 0.41790455120101133,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.8333333333333334,
+    "centerAccuracy": 0.6230003404880191,
+    "sliceUniformity": 0.30608407079646005,
+    "overall": 0.5843337304649898,
+    "pieceAreas": [
+     1975.7003569442925,
+     1976.7012183206573,
+     1060.9130589467832,
+     1521.3092920746326,
+     9.00775238728401,
+     510.43930194609385,
+     184.15849325113973
+    ],
+    "sliverCount": 2,
+    "actualPieceCount": 5
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 2.6500444886885717,
+      "y": 42.127153432409074
+     },
+     "end": {
+      "x": 83.65572875231746,
+      "y": 84.22414238736205
+     }
+    },
+    {
+     "start": {
+      "x": 18.550214417520905,
+      "y": 13.738298622153842
+     },
+     "end": {
+      "x": 72.54738765127472,
+      "y": 92.37470129809938
+     }
+    },
+    {
+     "start": {
+      "x": 76.88589381647557,
+      "y": 10.23633928208821
+     },
+     "end": {
+      "x": 41.3464416148856,
+      "y": 97.2135142440744
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 22,
+   "committedLines": 2,
+   "plannedMatchesCommitted": false,
+   "cutScore": 60.764590379788366,
+   "cutScoreCompleteness": 0.6666666666666666,
+   "cutScoreCount": 0.6666666666666667,
+   "cutScoreCenter": 0.9097923713121695,
+   "cutScoreUniformity": 0.5,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 0.6666666666666667,
+    "centerAccuracy": 0.9447625616937383,
+    "sliceUniformity": 0.19999999999999996,
+    "overall": 0.6134287685081214,
+    "pieceAreas": [
+     2240.9286216809883,
+     1931.6624563842374,
+     1657.4264392602574,
+     1408.2119565454
+    ],
+    "sliverCount": 0,
+    "actualPieceCount": 4
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 43.17080479292602,
+      "y": 2.4882952018802253
+     },
+     "end": {
+      "x": 51.06418505180516,
+      "y": 97.98820178101607
+     }
+    },
+    {
+     "start": {
+      "x": 97.97053877739609,
+      "y": 51.68149023379239
+     },
+     "end": {
+      "x": 3.01349770234053,
+      "y": 59.81165642651838
+     }
+    }
+   ]
+  },
+  {
+   "profile": "rough",
+   "trial": 23,
+   "committedLines": 3,
+   "plannedMatchesCommitted": true,
+   "cutScore": 70.41398338915737,
+   "cutScoreCompleteness": 1,
+   "cutScoreCount": 0.8333333333333334,
+   "cutScoreCenter": 0.880262645700397,
+   "cutScoreUniformity": 0.4988938053097345,
+   "quality": {
+    "lineValidity": 1,
+    "sliceCountFit": 1,
+    "centerAccuracy": 0.8260642667595945,
+    "sliceUniformity": 0.31679572271386425,
+    "overall": 0.674537569113424,
+    "pieceAreas": [
+     1187.0215923687595,
+     997.8587922357952,
+     1884.6219716950877,
+     494.4255199242556,
+     171.14729535839615,
+     2040.7563464080104,
+     462.39795588057905
+    ],
+    "sliverCount": 1,
+    "actualPieceCount": 6
+   },
+   "lines": [
+    {
+     "start": {
+      "x": 15.365560435234302,
+      "y": 16.766649340841465
+     },
+     "end": {
+      "x": 95.05705305739727,
+      "y": 66.54877547684086
+     }
+    },
+    {
+     "start": {
+      "x": 70.05164656022278,
+      "y": 6.388860709402397
+     },
+     "end": {
+      "x": 28.3393458780491,
+      "y": 92.8347529817695
+     }
+    },
+    {
+     "start": {
+      "x": 95.7656705370245,
+      "y": 35.52576771305202
+     },
+     "end": {
+      "x": 9.810789018186284,
+      "y": 76.24552001121836
+     }
+    }
+   ]
+  }
+ ]
+}
