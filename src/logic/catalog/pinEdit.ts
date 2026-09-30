@@ -18,7 +18,7 @@
 import { hasStock, type StockValue } from "./catalogTypes";
 import { addToHand, pruneHand, replaceHand, type HandContext, type HandSession } from "./handSession";
 
-export type PinEditOutcome = "pinned" | "unpinned" | "rejected-no-stock" | "rejected-not-owned";
+export type PinEditOutcome = "pinned" | "unpinned" | "rejected-no-stock" | "rejected-not-owned" | "rejected-capacity";
 
 export interface PinEditResult {
   session: HandSession;
@@ -35,14 +35,23 @@ function acceptable(id: string, ctx: HandContext): boolean {
 }
 
 /** One tile tap. A rejected tap returns the SAME session object (nothing to write). */
-export function togglePin(session: HandSession, id: string, ctx: HandContext): PinEditResult {
+export function togglePin(
+  session: HandSession,
+  id: string,
+  ctx: HandContext,
+  /** LC-R5-d (OD-R5d-3, Model C): would the newly pinned id still be on the visible hand? Absent = no
+   *  capacity rule (enforcement off). A NEW pin that would not fit is refused; unpinning is never checked. */
+  fits?: (candidate: HandSession, id: string) => boolean,
+): PinEditResult {
   const pins = pinsInCategory(session, ctx);
   if (pins.includes(id)) {
     return { session: replaceHand(session, pins.filter((pin) => pin !== id), ctx), outcome: "unpinned" };
   }
   if (!acceptable(id, ctx)) return { session, outcome: "rejected-not-owned" };
   if (!hasStock(ctx.ownership.stock(id))) return { session, outcome: "rejected-no-stock" };
-  return { session: addToHand(session, [id], ctx), outcome: "pinned" };
+  const next = addToHand(session, [id], ctx);
+  if (fits && !fits(next, id)) return { session, outcome: "rejected-capacity" };
+  return { session: next, outcome: "pinned" };
 }
 
 /** 「おまかせに戻す」: the active category's pins only (other categories untouched). */

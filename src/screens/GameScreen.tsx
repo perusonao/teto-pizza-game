@@ -105,6 +105,10 @@ interface GameScreenProps {
   handSession?: HandSession;
   /** LC-R5-c: the App-level pin writer (an updater). Reached only when pin editing is on (not before R6). */
   onHandSessionChange?: (update: (previous: HandSession) => HandSession) => void;
+  /** LC-R5-d (dormant): the Builder tray's hand ids in catalog order, or `null` = today's tray (always `null` while
+   *  `HAND_ENFORCEMENT_ENABLED` is false, for every non-FREE round and when the hand is inactive), and the Model C
+   *  pin-fit rule for the pantry. Computed once in App; GameScreen only relays. */
+  trayHand?: { ids: readonly string[] | null; pinFits?: (candidate: HandSession, id: string) => boolean };
   bakeProgress: number | null;
   referenceModeEnabled: boolean;
   referencePizza: ReferencePizza | null;
@@ -209,6 +213,7 @@ export function GameScreen({
   selectedIngredientId,
   handSession,
   onHandSessionChange,
+  trayHand,
   bakeProgress,
   referenceModeEnabled,
   referencePizza,
@@ -822,6 +827,7 @@ export function GameScreen({
                 resetToken={pizzaResetToken}
                 makingStepToken={state.makingStepToken}
                 reservePagerRow={dockReserve.utilityRow}
+                handIds={trayHand?.ids ?? null}
                 pantryEntry={
                   pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
                 }
@@ -887,6 +893,7 @@ export function GameScreen({
               handEditing={HAND_ENFORCEMENT_ENABLED}
               pinSession={handSession}
               onPinSessionChange={onHandSessionChange}
+              pinFits={trayHand?.pinFits}
             />
           )}
           {hintSheetOpen && (

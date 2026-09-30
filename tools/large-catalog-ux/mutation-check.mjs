@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59; LC-R5-b adds M60-M82 (search, approved aliases, IME contract, Mode C keyboard fit) (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager); LC-R5-c adds M83-M97 (dormant pin foundation: pin edit rules, App-level session pins, #197 no-clear, dormancy, 方式 D). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59; LC-R5-b adds M60-M82 (search, approved aliases, IME contract, Mode C keyboard fit) (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager); LC-R5-c adds M83-M97 (dormant pin foundation: pin edit rules, App-level session pins, #197 no-clear, dormancy, 方式 D); LC-R5-d adds M98-M114 (dormant tray hand: catalog order, page-level #197, page 0, dormancy, FREE-only, placed protection, Model C pin fit, privacy). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -688,11 +688,113 @@ const MUTANTS = [
     file: "src/components/IngredientPantry.tsx",
     edits: [["    if (handEditing) onPinSessionChange?.(update);", "    if (handEditing) onPinSessionChange?.(update);\n    localStorage.setItem(\"pins\", \"x\");"]],
   },
+  {
+    id: "M98",
+    what: "R5-d: the tray shows the hand in priority order, not catalog order (F-1)",
+    file: `${C}/handTray.ts`,
+    edits: [["    .sort(compareCatalogOrder)\n    .map((item) => item.id);", "    .map((item) => item.id);"]],
+  },
+  {
+    id: "M99",
+    what: "R5-d: #197 judged on the whole hand instead of the new page 0",
+    file: `${C}/handTray.ts`,
+    edits: [["trayPageIds(after, 0).includes(selectedIngredientId)", "after.includes(selectedIngredientId)"]],
+  },
+  {
+    id: "M100",
+    what: "R5-d: an actual hand change does not return the tray to page 0",
+    file: "src/components/IngredientTray.tsx",
+    edits: [["if (handKey !== null && prevHandKey !== null) setPage(0);", "void 0;"]],
+  },
+  {
+    id: "M101",
+    what: "R5-d: the tray hand is computed with enforcement OFF (dormancy broken)",
+    file: `${C}/handTray.ts`,
+    edits: [["if (!HAND_ENFORCEMENT_ENABLED || input.category === null) return null;", "if (input.category === null) return null;"]],
+  },
+  {
+    id: "M102",
+    what: "R5-d: the hand's stock input is always zero (automatic sources vanish)",
+    file: "src/App.tsx",
+    edits: [["return ingredient ? remainingStock(ingredient, state.inventory) : 0;", "return ingredient ? remainingStock(ingredient, state.inventory) && 0 : 0;"]],
+  },
+  {
+    id: "M103",
+    what: "R5-d: a Dinner / guided / Lunch Rush round is treated as FREE Cooking",
+    file: `${C}/handTray.ts`,
+    edits: [["    round: input.round,\n", "    round: { roundKind: \"FREE_COOK\", dinner: null },\n"]],
+  },
+  {
+    id: "M104",
+    what: "R5-d: opening the pantry clears the Builder selection (#197 P1)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["{ onOpen: () => setPantryOpen(true),", "{ onOpen: () => { onClearIngredientSelection?.(); setPantryOpen(true); },"]],
+  },
+  {
+    id: "M105",
+    what: "R5-d: a hand change always clears the selection (no page-0 retain)",
+    file: "src/App.tsx",
+    edits: [["if (next.selectedIngredientId !== selectedIngredientId) setSelectedIngredientId(next.selectedIngredientId);", "if (next.changed) setSelectedIngredientId(null);"]],
+  },
+  {
+    id: "M106",
+    what: "R5-d: placed ingredients can be evicted by capacity (OD-R5d-2)",
+    file: `${C}/workingSet.ts`,
+    edits: [["if (source === \"placed\" || items.length < capacity) items.push", "if (items.length < capacity) items.push"]],
+  },
+  {
+    id: "M107",
+    what: "R5-d: a pin is accepted although it would not be on the visible hand (OD-R5d-3)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["if (fits && !fits(next, id))", "if (false)"]],
+  },
+  {
+    id: "M108",
+    what: "R5-d: the capacity candidate is hard-coded to 12",
+    file: `${C}/handTray.ts`,
+    edits: [["    candidateCapacity: input.candidateCapacity,\n  });", "    candidateCapacity: 12,\n  });"]],
+  },
+  {
+    id: "M109",
+    what: "R5-d: a priority-only reorder (same list) counts as a hand change",
+    file: `${C}/handTray.ts`,
+    edits: [["if (sameIds(before, after)) return", "if (false) return"]],
+  },
+  {
+    id: "M110",
+    what: "R5-d: an undisclosed hint fact feeds the tray hand",
+    file: `${C}/handSession.ts`,
+    edits: [["disclosedHints: NO_DISCLOSED_HINTS,", "disclosedHints: { namedIngredientIds: [\"tuna\"] },"]],
+  },
+  {
+    id: "M111",
+    what: "R5-d: the pantry is not given the pin-fit rule (Model C off)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["pinFits={trayHand?.pinFits}", "pinFits={undefined}"]],
+  },
+  {
+    id: "M112",
+    what: "R5-d: placed ingredients are not passed to the hand (protection lost)",
+    file: "src/App.tsx",
+    edits: [["placedIds: [...new Set([...state.pizza.sauceIds, ...state.pizza.toppings.map((t) => t.ingredientId)])],", "placedIds: [],"]],
+  },
+  {
+    id: "M113",
+    what: "R5-d: the tray keeps its own list when given a hand (hand ignored)",
+    file: "src/components/IngredientTray.tsx",
+    edits: [["const requiredItems: Ingredient[] = handIds\n", "const requiredItems: Ingredient[] = false\n"]],
+  },
+  {
+    id: "M114",
+    what: "R5-d: GameScreen does not relay the hand to the tray",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["handIds={trayHand?.ids ?? null}", "handIds={null}"]],
+  },
 ];
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "src/components/IngredientPantry.pins.test.tsx", "src/App.handPins.test.tsx", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "src/components/IngredientPantry.pins.test.tsx", "src/App.handPins.test.tsx", "src/App.handTray.test.tsx", "src/App.handTray.off.test.tsx", "src/App.freeCookTrayPaging.test.tsx", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });

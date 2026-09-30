@@ -7,6 +7,7 @@ import {
   type Ref,
 } from "react";
 import {
+  getIngredient,
   MAX_INGREDIENT_PALETTE_SLOTS,
   type Ingredient,
   type IngredientCategory,
@@ -99,6 +100,10 @@ interface IngredientTrayProps {
   /** Large Catalog UX LC-R3: the 「食材庫」 entry. Present only when the caller (GameScreen) has decided the
    *  round is eligible (FREE Cooking, not Dinner, cooking screen, pager row reserved). It lives INSIDE the
    *  existing pager row -- no new row, no height change. Opening the pantry changes nothing else here. */
+  /** LC-R5-d (dormant): the tray's ingredient ids in catalog order when the hand feeds the tray; `null` / absent =
+   *  today's `trayIngredientsFor` list (every production render while enforcement is off). A change of this list
+   *  returns the tray to page 0 (the App evaluates the #197 selection rule in the same render). */
+  handIds?: readonly string[] | null;
   pantryEntry?: { onOpen: () => void; buttonRef?: Ref<HTMLButtonElement> };
 }
 
@@ -136,6 +141,7 @@ export function IngredientTray({
   resetToken,
   makingStepToken,
   reservePagerRow = true,
+  handIds = null,
   pantryEntry,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
@@ -151,7 +157,12 @@ export function IngredientTray({
   // "Preserve ... ingredient-selection behavior except where #159 explicitly changes ...
   // locking"); IngredientTray.recommendedOther.test.tsx's old FREE-creativity assertions are
   // updated accordingly (see that file's own new header comment).
-  const requiredItems = trayIngredientsFor(activeCategory, { ownedIngredientIds, freeCook, recipe });
+  const requiredItems: Ingredient[] = handIds
+    ? handIds.flatMap((id) => {
+        const ingredient = getIngredient(id);
+        return ingredient ? [ingredient] : [];
+      })
+    : trayIngredientsFor(activeCategory, { ownedIngredientIds, freeCook, recipe });
 
   // Phase 4A-1B Human Feel Fix 2 / Issue #86: the visible grid stays a fixed 3x2
   // (MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts), no scrolling -- paged
@@ -160,6 +171,14 @@ export function IngredientTray({
   // renders in practice only as a defensive cap against a future wider recipe, never for any
   // recipe shipped today.
   const [page, setPage] = useState(0);
+  // LC-R5-d (dormant): in hand mode only, an actual change of the hand list returns the tray to page 0 during render
+  // (no effect, so no frame shows the old page over the new list). `null` (production) never enters this block.
+  const handKey = handIds ? handIds.join("|") : null;
+  const [prevHandKey, setPrevHandKey] = useState<string | null>(null);
+  if (handKey !== prevHandKey) {
+    setPrevHandKey(handKey);
+    if (handKey !== null && prevHandKey !== null) setPage(0);
+  }
   const pageCount = Math.max(1, Math.ceil(requiredItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
   const currentPage = Math.min(page, pageCount - 1);
   const items = requiredItems.slice(
