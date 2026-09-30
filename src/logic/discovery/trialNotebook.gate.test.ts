@@ -59,8 +59,11 @@ describe("Trial Notebook model — imports only the Attempt Fingerprint", () => 
 
 describe("Trial Notebook model — no hidden-information field", () => {
   it("the entry view types declare none of the forbidden concepts as a field", () => {
-    const view = text.slice(text.indexOf("export interface TrialEntryView"), text.indexOf("export type EvictedRetryPolicy"));
-    const stored = text.slice(text.indexOf("interface IdentityRecord"), text.indexOf("export interface TrialNotebook {"));
+    // Anchors must exist: a stale anchor would make `slice` silently scan the wrong text.
+    const anchors = ["export interface TrialEntryView", "export type RejectReason", "interface IdentityRecord", "export interface TrialNotebook {"].map((a) => text.indexOf(a));
+    expect(anchors.every((i) => i >= 0)).toBe(true);
+    const view = text.slice(anchors[0], anchors[1]);
+    const stored = text.slice(anchors[2], anchors[3]);
     for (const block of [view, stored]) {
       for (const forbidden of ["recipe", "target", "distance", "collision", "hint", "technique", "candidate", "answer"]) {
         expect(block.toLowerCase(), forbidden).not.toContain(forbidden);
