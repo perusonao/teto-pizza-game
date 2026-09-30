@@ -86,7 +86,7 @@
 | FREE Cooking（free-cook sentinel） | false | dough1 + sauce0 = **1本** | 0 | 0 |
 | Guided（margherita / capricciosa / hawaiian 実測） | true | dough1 + sauce1 = **2本** | sauce1 | sauce1 |
 | Lunch Rush | `!isMissionActive` で false | **1本**【コード・未実測】 | — | — |
-| Dinner | Dinner は `mission.mode === "FREE"`（`App.tsx:875` 付近）で `isMissionActive` に含まれず recipe 依存 | recipe に Reference があれば **2本**【推定・未実測】 | — | — |
+| Dinner | 当初「recipe に Reference があれば2本」と**推定**していたが、Dinner slice の実測（下記 §15）で **recipe-free round のため sauce guide は出ない = 1本**と判明（この行は訂正済み） | **1本**【実測: Dough Guide Leak Fix e2e】 | — | — |
 
 **追加発見（Owner 報告外）:** guided では SAUCE だけでなく **CHEESE / TOPPING / CUT でも sauce 円が出続ける**（実測: margherita TOPPING で sauce=1）。`interactive` は PREPARE 全体と CUT で true になるため。Owner が見た「生地で2本」は氷山の一角。
 
@@ -461,3 +461,30 @@ E (CUT 軌跡/Undo)    ──▶ CUT-S1/S2/S4(#288) / completionGate & CUT skip(
 - PR #275 の差分本体は未精読（CUT-S2 Result に記載された変更ファイル一覧と #294 の記述に依拠）。
 - Preview / Human Verification は本監査の対象外（audit-only）。実装時に HV policy に従う。
 - Hint 5.0・Trial Notebook の cheese / ソース関連の詳細な影響分析は §4.2 / §9 の範囲に留めた（実装前に再監査が必要）。
+
+---
+
+## 14. Owner Decision 記録（Fresh Audit 承認後）
+
+Fresh Audit 結果は Owner により承認された。以下を正式に記録する。
+
+| ID | 決定 | 状態 |
+|---|---|---|
+| OD-CI-1 | DOUGH 工程に漏れている sauce target guide は修正する。DOUGH は dough guide のみ、sauce target guide は SAUCE 工程だけ表示。**新しいゲーム仕様ではなく、既存 sauce guide の phase gate 不足による表示不具合**として扱う | 承認 / **実装済み（Dough Guide Leak Fix, §15）** |
+| OD-CI-2 | BAKE は一方向進行へ変更する方向で設計する。右端を終端とし、焼き状態は自然に戻らない。既存 guide fade は維持候補。現在の速度はそのまま使わず Human Feel で再設計する。実装は PR #275 merge 後 | 承認 / 未実装（#275 は main に merge 済み: `5c8190f`） |
+| OD-CI-3 | CUT は pointer trajectory 入力へ変更する方向。ただし scoring は trajectory そのものではなく、trajectory から導出した近似弦 / 最終 cut geometry を原則評価する。CUT-S1/S2 の評価器と HV 知見を再利用する | 承認 / 未実装 |
+| OD-CI-4 | CUT 確定後 Undo は廃止方向を第一候補とする。trajectory 版の実機 HV で誤操作率を確認して最終決定。確定前キャンセル・onboarding 救済などは比較可能とする | 方向承認 / **最終決定は HV 後** |
+| OD-CI-5 | CUT は 4/6/8 等分への拡張性を維持する。6 等分専用の実装にしない | 承認（制約） |
+| OD-CI-6 | FREE Cooking で、別ソース選択だけで既存ソースが消える仕様は変更する方向で設計する。一度塗り始めたソースは基本的に保持し、変更には明示的な reset 操作を要求する候補。multi-spread は Cooking Steps 側で別途設計 | 方向承認 / 未実装 |
+| OD-CI-7 | cheese は材料 UI 上では「具材の中の cheese shelf」へ寄せる。ただし現在の data category や matcher contract はまだ変更しない | 承認 / 未実装（R6 完了後） |
+| OD-CI-8 | CHEESE 工程 → INGREDIENTS 工程統合はまだ決定しない。Large Catalog R6 完了後、Cooking Steps の step order と合わせて判断する | **保留** |
+| OD-CI-9 | DOUGH の伸縮は可逆のまま維持する | 承認（KEEP） |
+
+実装順序: 最初のスライスは「Dough Guide Leak Fix」のみ。BAKE / CUT / Sauce behavior / Cheese 工程は未着手。
+
+## 15. Slice 1: Dough Guide Leak Fix（実装メモ）
+
+- 変更: `src/components/PizzaStage.tsx` の `.sauce-target-guide` 描画条件に `makingStep === "SAUCE"` を追加（1条件）。scoring / dough behavior / sauce behavior / state / save は無変更。
+- 回帰テスト: `src/components/PizzaStage.targetGuides.test.tsx`（FREE Cooking / guided ×2 / Dinner / Lunch Rush × DOUGH / SAUCE / CHEESE・TOPPING・CUT。修正前は 6 件 fail、修正後 18 件 pass）、`e2e/dough-guide-leak-fix.spec.ts`（実ブラウザ 390×844 / 360×800）。
+- **実測で判明した訂正:** Dinner は recipe-free round で Reference が無く、sauce guide は元々 SAUCE 工程でも出ない（§2.2 の Dinner「2本」推定は誤りで、実際は 1本）。
+- スクリーンショット: `docs/reports/screenshots/dough-guide-leak-fix/{before,after}/`（guided DOUGH が before 2本 → after 1本。before に guided-sauce が無いのは、修正前は e2e が DOUGH の assertion で止まるため。SAUCE の見た目は修正前後で不変）。
