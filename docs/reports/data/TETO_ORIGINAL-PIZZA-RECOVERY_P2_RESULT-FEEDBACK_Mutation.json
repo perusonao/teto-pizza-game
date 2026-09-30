@@ -6,8 +6,8 @@
   "src/state/resultFeedback.gate",
   "src/components/ResultPanel"
  ],
- "mutants": 23,
- "killed": 22,
+ "mutants": 24,
+ "killed": 23,
  "equivalent": 1,
  "survived": 0,
  "invalid": 0,
@@ -89,7 +89,13 @@
   {
    "id": "R04",
    "file": "src/state/resultNearMiss.ts",
-   "description": "generic FAR ON in production",
+   "description": "generic FAR switched OFF in production",
+   "status": "KILLED"
+  },
+  {
+   "id": "R10",
+   "file": "src/state/resultNearMiss.ts",
+   "description": "generic FAR line dropped",
    "status": "KILLED"
   },
   {
@@ -129,6 +135,12 @@
    "status": "KILLED"
   },
   {
+   "id": "C05",
+   "file": "src/state/originalResultCopy.ts",
+   "description": "ORDINARY copy reverts to the uniqueness claim",
+   "status": "KILLED"
+  },
+  {
    "id": "C02",
    "file": "src/state/originalResultCopy.ts",
    "description": "AMBIGUOUS kind not detected",
@@ -138,12 +150,6 @@
    "id": "C03",
    "file": "src/state/originalResultCopy.ts",
    "description": "INCOMPLETE_MATCH kind not detected",
-   "status": "KILLED"
-  },
-  {
-   "id": "C04",
-   "file": "src/state/originalResultCopy.ts",
-   "description": "AMBIGUOUS decision flag flipped",
    "status": "KILLED"
   },
   {

@@ -3,12 +3,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
-import {
-  AMBIGUOUS_COPY_CANDIDATES,
-  AMBIGUOUS_COPY_DECIDED,
-  ORIGINAL_LEAD_COPY,
-  originalResultKind,
-} from "./originalResultCopy";
+import { ORIGINAL_LEAD_COPY, originalResultKind } from "./originalResultCopy";
 
 describe("P2-A: the kind of ORIGINAL is distinguished internally", () => {
   const cases: [DiscoveryOutcome | null | undefined, string][] = [
@@ -22,31 +17,30 @@ describe("P2-A: the kind of ORIGINAL is distinguished internally", () => {
     expect(originalResultKind(outcome)).toBe(kind);
   });
 
-  it("the ordinary and incomplete copy are exactly today's production copy", () => {
-    expect(ORIGINAL_LEAD_COPY.ORDINARY).toBe("図鑑にはない、あなただけのピザ！");
+  it("OD-P2-1 = A: the neutral lead is shared by ORDINARY and AMBIGUOUS; INCOMPLETE_MATCH is unchanged", () => {
+    expect(ORIGINAL_LEAD_COPY.ORDINARY).toBe("図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。");
+    expect(ORIGINAL_LEAD_COPY.AMBIGUOUS).toBe(ORIGINAL_LEAD_COPY.ORDINARY);
     expect(ORIGINAL_LEAD_COPY.INCOMPLETE_MATCH).toBe("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
   });
 });
 
-describe("OD-P2-1 (AMBIGUOUS wording) is pending: production copy is not decided here", () => {
-  it("AMBIGUOUS is byte-identical to the ordinary copy until the Owner decides", () => {
-    expect(AMBIGUOUS_COPY_DECIDED).toBe(false);
-    expect(ORIGINAL_LEAD_COPY.AMBIGUOUS).toBe(ORIGINAL_LEAD_COPY.ORDINARY);
+describe("OD-P2-1 = A: the neutral lead discloses nothing", () => {
+  const lead = ORIGINAL_LEAD_COPY.AMBIGUOUS;
+
+  it("no uniqueness claim, no digit / count, no candidate wording, no internal reason", () => {
+    expect(lead).not.toContain("あなただけ");
+    expect(lead).not.toMatch(/[0-9０-９]|つ以上|複数|候補|登録できない|登録不能|載せられない|同じ|重複|衝突/);
   });
 
-  it("that is safe today only because production has no identity collision (AMBIGUOUS is unreachable)", () => {
+  it("names no recipe and no ingredient", () => {
+    for (const s of [...RECIPES.flatMap((r) => [r.id, r.nameJa]), ...INGREDIENTS.flatMap((i) => [i.id, i.nameJa])]) {
+      expect(lead).not.toContain(s);
+    }
+  });
+
+  it("canary: production has no identity collision, so AMBIGUOUS is unreachable in production", () => {
     const keys = RECIPE_DISCOVERY_CATALOG.map((t) => JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]));
     expect(new Set(keys).size).toBe(keys.length);
-    // Adding a colliding recipe fails this test: OD-P2-1 must be decided first.
-  });
-
-  it("the Owner candidates are true, id-free, count-free and name no recipe or ingredient", () => {
-    expect(AMBIGUOUS_COPY_CANDIDATES.map((c) => c.id)).toEqual(["A", "B", "C"]);
-    for (const c of AMBIGUOUS_COPY_CANDIDATES) {
-      expect(c.textJa).not.toMatch(/[0-9０-９]|つ以上|複数|候補/);
-      for (const s of [...RECIPES.flatMap((r) => [r.id, r.nameJa]), ...INGREDIENTS.flatMap((i) => [i.id, i.nameJa])]) {
-        expect(c.textJa).not.toContain(s);
-      }
-    }
+    // Adding a colliding recipe fails this test: OD-P2-1 must be RE-DECIDED before a collision recipe ships.
   });
 });

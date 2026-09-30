@@ -1,10 +1,56 @@
 # Original Pizza Recovery P2 — RESULT Feedback Hardening (Result Report)
 
+> **Revision 2 (Owner Decisions applied).** §0 is the current state. §1–§14 describe the first review (HEAD `e73aeb2`); where they say a decision is *pending* or the FAR line is *OFF*, §0 supersedes them.
+
 - **Audited / base `origin/main` SHA:** `af8d46d1215642090aceeaf2703b5a15145f06e4` (fresh fetch)
 - **Branch:** `claude/original-result-feedback-p2` (new, from latest `origin/main`; **not** stacked on P1, and **no dependency on** the Attempt Fingerprint — a gate test asserts no production file references it)
 - **Scope:** pure RESULT-feedback hardening + focused ResultPanel wiring + tests + docs. No PR.
 - **Verification Policy (`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`):** this task changes **no production-visible UI/copy today** (§6), so no video / screenshot is produced. Any Owner decision below that changes visible copy will trigger it at implementation.
-- **Verdict:** **B. OWNER DECISION REQUIRED** (§12). All safe hardening is done; four decisions remain.
+- **Verdict:** **A. P2 COMPLETE / READY FOR HV** (§15). Owner Decisions OD-P2-1..4 are decided and applied (§0); Human Verification is required (§0.3).
+
+## 0. Update: Owner Decisions applied
+
+Branch `claude/original-result-feedback-p2`, reviewed HEAD `e73aeb2160a76ebc306372412540bbd53d7705bd`. Base `origin/main` is now `b35739a` (LC-R5b #310 merged); none of P2's files are touched by it, and the branch was **not** rebased or merged. P1's branch, PR, P3 and rescue hints were not touched.
+
+### 0.1 What changed (only the four decisions)
+
+| OD | Decision | Applied as |
+|---|---|---|
+| **OD-P2-1 = A** | AMBIGUOUS keeps its internal kind; its player-facing copy is the **same neutral sentence as the ordinary original** | `ORIGINAL_LEAD_COPY.ORDINARY = AMBIGUOUS = "図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。"` (candidate A). The uniqueness claim "あなただけの" is gone. INCOMPLETE_MATCH copy unchanged. The unwired candidate list and the `AMBIGUOUS_COPY_DECIDED` flag were removed (a gate asserts they are gone). The internal-kind test, the collision **canary** ("re-decide before a collision recipe ships") and the byte-identical AMBIGUOUS ≡ ordinary DOM gate are kept; a new test pins that the sentence has no count / candidate wording / internal reason ("登録できない" etc.) / recipe or ingredient name. Collisions are not resolved. |
+| **OD-P2-2** | Generic FAR feedback ON | `RESULT_FAR_GENERIC_ENABLED = true`. Shown only as `NEAR_MISS_FAR_GENERIC_COPY` = 「🧪 別の組み合わせも試してみよう！」 for an ORIGINAL with discoverable candidates and no nearer line; never for a known pizza, FAILED, guided, AMBIGUOUS / INCOMPLETE_MATCH / NEW_DISCOVERY, or when nothing is discoverable. The key-unused nudge keeps precedence; nearer lines are unchanged. The `farGeneric: false` option remains as the rollback path. No distance, direction, ingredient, component, count or recipe. |
+| **OD-P2-3** | Keep the P2 near-miss strength | No code change: collision targets excluded, sauce-less target → generic REMOVE, ADD / CHANGE keep the existing sauce line, SAUCE_ONLY not generalised, the > 200-case truthfulness test kept (still 0 lies). |
+| **OD-P2-4** | No Hint 5.0 fact reuse in P2 | No code change; the import / input-type / runtime-independence gates are kept and pass. |
+
+Nothing else in production behaviour was extended.
+
+### 0.2 Existing tests and authorities
+
+- **TQ-1C (T15 / T15a / T20): no contradiction.** The pinned `NEAR_MISS_COPY` set is unchanged (the generic sentence lives outside it, by design), and the SAUCE_ONLY k-rule baseline (44 / 12) is unchanged. One T15 assertion failed once, only because a *comment* I wrote in `resultNearMiss.ts` contained the substring "techniques"; I reworded the comment, the authority test was not touched.
+- **Existing assertions updated because an Owner decision changes their subject (each is a direct consequence, none is copy owned by another authority):**
+  - the ordinary lead pinned in `FreeCook.ui.test.tsx` and `ResultPanel.nearMiss.test.tsx` (OD-P2-1);
+  - `resultNearMiss.test.ts` "FAR with the key material used: no line" → now the generic line (OD-P2-2 supersedes the Hint 2.0 229-C "d ≥ 3 says nothing" rule; the 229-C header comment in `resultNearMiss.ts` records that).
+- No design SSOT text was edited. Hint 5.0 tests (ladder, economy, flag, sheet, production gates), Dinner / Lunch Rush / guided suites: **untouched and green** (37 files / 653 tests in the targeted run: hint5, HintSheet, Dinner, Lunch Rush / Mission, TQ-1C).
+
+### 0.3 Verification
+
+| Check | Result |
+|---|---|
+| Focused + gate tests (`nearMiss`, `nearMiss.p2`, `resultNearMiss`, `.p2`, `originalResultCopy`, `ResultPanel`, `ResultPanel.p2`, `resultFeedback.gate`) | all green |
+| Privacy gate (`ResultPanel.p2.test.tsx`): ordinary / AMBIGUOUS / INCOMPLETE × 7 near-miss variants (now including the generic FAR line), raw HTML | no hidden recipe id / name, no target ids, no `targetIds` / `distance` / `AMBIGUOUS`, no hidden ingredient; AMBIGUOUS ≡ ordinary byte for byte |
+| Mutation (`node tools/result_feedback_mutation.mjs`) | **24 mutants: 23 killed, 1 equivalent, 0 survived** (added: generic FAR dropped / switched OFF, ORDINARY copy reverted; the AMBIGUOUS-flag mutant was removed with the flag) |
+| Full Vitest | **253 files / 4 970 passed, 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | no findings in changed files (one pre-existing warning in `scoringV2.noSauceProfile.test.ts`) |
+| `npm run build` | passes |
+| Isolation (Dinner / guided / Lunch Rush) | source-scan gate + suites green; the RESULT feedback still has one production caller (`GameScreen`, no options) |
+| Hint 5.0 regression | ladder / economy / production-gate / sheet suites green; `discoveryHint.walk` (reachability) green |
+
+### 0.4 Human Verification: **required**
+
+The visible RESULT copy changed (Policy §2: RESULT is in the mandatory list), for **every** ORIGINAL result, plus a new visible FAR line. The automated suite cannot judge the wording or the layout of the two sentences together, so HV is needed before merge. It cannot be produced in this session (needs the dedicated Preview deployment, which follows PR creation — not requested). Suggested HV script (390×844, video to the Owner, before / after screenshots under `docs/reports/screenshots/original-result-feedback-p2/`): reach an ordinary far ORIGINAL (FAR line visible), a near ORIGINAL (ADD_ONE line visible), an INCOMPLETE_MATCH (unchanged lead), a known pizza (no FAR line), Lunch Rush and a guided round (unchanged), and the hint CTA.
+
+**One thing for the Owner to look at during HV:** the neutral lead ends with 「別の組み合わせも試してみよう。」 and the FAR line reads 「別の組み合わせも試してみよう！」 — both are shown together on a far ORIGINAL, so the same advice appears twice. Both texts are exactly as decided; if the repetition reads badly, that is a follow-up copy decision, not changed here.
+
 
 ## 1. Fresh Audit against latest main
 
@@ -132,6 +178,10 @@ What the tests taught: the first attempt (generic "add one" for a sauce-less piz
 
 P3 (Trial Notebook, session-only) is **not blocked by P2**: P2 changed no state, save or notebook surface. P3 still needs P1 (fingerprint, approved on its own branch) and OD-ORP-3/4 from the Fresh Audit. P2's remaining decisions (OD-P2-1..4) do not gate P3, except that OD-P2-1 must be settled before collision recipes reach production.
 
-## 14. Verdict
+## 14. Verdict (first review)
 
-**B. OWNER DECISION REQUIRED.** The pure hardening and tests are complete and green; production behaviour is unchanged for every reachable case today. No PR has been created.
+*Superseded by §15.*
+
+## 15. Verdict
+
+**A. P2 COMPLETE / READY FOR HV.** Owner Decisions OD-P2-1..4 are applied and nothing else was extended; automated verification is complete and green; visible copy changed, so Human Verification is required before merge. No PR has been created; P1, P3 and rescue hints are untouched.

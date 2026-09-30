@@ -19,9 +19,13 @@
  *   has no sauce) uses the generic "remove one" line: "change the sauce" would be false there and would
  *   hint at the undiscovered no-sauce Technique (H5-INV-4). A refined ADD wording is an Owner copy
  *   decision (OD-P2-3) and is not changed here.
- * - The optional generic FAR line (`NEAR_MISS_FAR_GENERIC_COPY`, OD-P2-2) is OFF in production
- *   (`RESULT_FAR_GENERIC_ENABLED`). It is derived from nothing but "an ORIGINAL with no nearer
- *   line", asserts nothing about distance or recipes, and needs an Owner decision to be shown.
+ * - The generic FAR line (`NEAR_MISS_FAR_GENERIC_COPY`, OD-P2-2 = ON) supersedes the 229-C "d>=3 says
+ *   nothing" rule for an ORIGINAL. It is derived from nothing but "an ORIGINAL with candidates and no
+ *   nearer line", asserts nothing about distance, recipes, ingredients or components, and is never shown
+ *   for a known pizza. The key-unused nudge keeps precedence.
+ * - OD-P2-3 (decided): the near-miss strength is exactly as P2 left it -- collision targets excluded,
+ *   REMOVE-step generic line, ADD / CHANGE keep the existing sauce line. OD-P2-4 (decided): no Hint 5.0
+ *   fact is read or reused here.
  * - Input has no hint-fact / Pitz / ladder field, so no line can replace or reuse a Hint 5.0 rung.
  */
 import type { PizzaCompletionResult } from "../logic/completionGate";
@@ -49,8 +53,8 @@ export interface ResultNearMissLine {
   textJa: string;
 }
 
-/** OD-P2-2: whether the generic FAR line is shown. `false` = production behaviour is unchanged. */
-export const RESULT_FAR_GENERIC_ENABLED = false;
+/** OD-P2-2 (decided): the generic FAR line is shown. `false` would restore the pre-P2 silence. */
+export const RESULT_FAR_GENERIC_ENABLED = true;
 
 export const NEAR_MISS_COPY: Record<Exclude<NearMissKind, "FAR">, string> & { FAR_KEY_UNUSED: string } = {
   ADD_ONE: "\u{1F90F} おしい！ 材料をあと1つ足すと、何か見つかりそう！",
@@ -60,8 +64,8 @@ export const NEAR_MISS_COPY: Record<Exclude<NearMissKind, "FAR">, string> & { FA
   FAR_KEY_UNUSED: "\u{1F6D2} 新しく入荷した材料は使ってみた？",
 };
 
-/** Owner copy candidate for OD-P2-2 (shown only when RESULT_FAR_GENERIC_ENABLED): recipe-agnostic
- *  advice, kept out of `NEAR_MISS_COPY` so the production copy set stays exactly as it was. */
+/** OD-P2-2 copy: recipe-agnostic advice, kept out of `NEAR_MISS_COPY` so that set (pinned by
+ *  the TQ-1C gate T15) stays exactly as it was. */
 export const NEAR_MISS_FAR_GENERIC_COPY = "\u{1F9EA} 別の組み合わせも試してみよう！";
 
 export interface ResultNearMissOptions {

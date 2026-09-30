@@ -59,15 +59,15 @@ describe("Hint 5.0 economy: the feedback reads nothing from hints, Pitz, persist
   });
 });
 
-describe("Owner-pending pieces stay unwired", () => {
-  it("the AMBIGUOUS copy candidates and the decided flag are read by tests only", () => {
-    const users = production
-      .filter(([p, text]) => p !== ORIGINAL_COPY && /AMBIGUOUS_COPY_CANDIDATES|AMBIGUOUS_COPY_DECIDED/.test(text))
-      .map(([p]) => p);
-    expect(users).toEqual([]);
+describe("Owner decisions (P2) stay contained", () => {
+  it("the AMBIGUOUS candidate list and the decided flag are gone (OD-P2-1 = A is decided)", () => {
+    for (const [path, text] of Object.entries(sources)) {
+      if (path.endsWith("resultFeedback.gate.test.ts")) continue;
+      expect(text, path).not.toMatch(/AMBIGUOUS_COPY_CANDIDATES|AMBIGUOUS_COPY_DECIDED/);
+    }
   });
 
-  it("the generic FAR switch is read only by resultNearMiss itself", () => {
+  it("the generic FAR switch and copy are read only by resultNearMiss itself", () => {
     const users = production.filter(([p, text]) => p !== RESULT_NEAR_MISS && /RESULT_FAR_GENERIC_ENABLED|NEAR_MISS_FAR_GENERIC_COPY/.test(text)).map(([p]) => p);
     expect(users).toEqual([]);
   });

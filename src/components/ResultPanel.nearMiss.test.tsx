@@ -56,7 +56,7 @@ describe("ORIGINAL result", () => {
 
   it("no near-miss line: the lead stays and the hint CTA is still offered", () => {
     render(<ResultPanel {...props()} />);
-    expect(screen.getByText("図鑑にはない、あなただけのピザ！")).toBeInTheDocument();
+    expect(screen.getByText("図鑑にはまだ載っていないピザ！別の組み合わせも試してみよう。")).toBeInTheDocument();
     expect(row()?.querySelector(".result-near-miss__text")).toBeNull();
     expect(screen.getByRole("button", { name: /ヒントを見る/ })).toBeInTheDocument();
   });

@@ -78,24 +78,43 @@ describe("P2-B no-sauce wording", () => {
   });
 });
 
-describe("P2-C generic FAR line (OD-P2-2): implemented, OFF in production", () => {
-  // margherita family, three or more away from everything: tomato-sauce + ham + pineapple + onion
-  const far = ["tomato-sauce", "ham", "pineapple", "onion", "corn", "mushroom"];
+describe("P2-C generic FAR line (OD-P2-2 = ON)", () => {
+  // margherita family, three or more away from everything
+  const far = ["tomato-sauce", "ham", "pineapple", "onion", "corn", "mushroom", "egg"];
 
-  it("is OFF by default and the production constant says so", () => {
-    expect(RESULT_FAR_GENERIC_ENABLED).toBe(false);
+  it("is ON in production: a far ORIGINAL with no nearer line gets exactly the generic sentence", () => {
+    expect(RESULT_FAR_GENERIC_ENABLED).toBe(true);
     const i = fullOwnership(far);
     expect(i.lastDiscovery?.kind).toBe("ORIGINAL");
     const line = resultNearMiss(i);
-    expect(line === null || line.textJa === NEAR_MISS_COPY.FAR_KEY_UNUSED || line.kind !== "FAR").toBe(true);
-    expect(line?.textJa).not.toBe(NEAR_MISS_FAR_GENERIC_COPY);
+    expect(line).not.toBeNull();
+    expect(line!.kind).toBe("FAR");
+    expect([NEAR_MISS_FAR_GENERIC_COPY, NEAR_MISS_COPY.FAR_KEY_UNUSED]).toContain(line!.textJa);
   });
 
-  it("when switched on it is exactly one recipe-agnostic sentence, only for a far ORIGINAL with no nearer line", () => {
-    const i = fullOwnership(["tomato-sauce", "ham", "pineapple", "onion", "corn", "mushroom", "egg"]);
-    const on = resultNearMiss(i, { farGeneric: true });
-    if (on?.kind === "FAR") expect(on.textJa).toBe(NEAR_MISS_FAR_GENERIC_COPY);
-    // never for a known pizza, a failed bake, a guided round, or a non-ORIGINAL outcome
+  it("the generic sentence really appears (some far ORIGINAL has no key-unused nudge) and holds no digit, recipe or component", () => {
+    const pool = ["egg", "ham", "pineapple", "corn", "onion", "mushroom", "bacon", "sausage", "tuna", "anchovy", "garlic"];
+    const texts = new Set<string>();
+    for (const a of pool) {
+      for (const b of pool) {
+        const i = fullOwnership(["tomato-sauce", a, b, "corn", "pineapple", "egg"]);
+        if (i.lastDiscovery?.kind !== "ORIGINAL") continue;
+        const line = resultNearMiss(i);
+        if (line?.kind === "FAR") texts.add(line.textJa);
+      }
+    }
+    expect(texts.has(NEAR_MISS_FAR_GENERIC_COPY)).toBe(true);
+    expect(NEAR_MISS_FAR_GENERIC_COPY).not.toMatch(/[0-9０-９]|ソース|チーズ|トッピング|距離|近い|遠い/);
+  });
+
+  it("the switch can still turn it off (rollback path): silence returns unless the key-unused nudge applies", () => {
+    const i = fullOwnership(far);
+    const off = resultNearMiss(i, { farGeneric: false });
+    expect(off === null || off.textJa === NEAR_MISS_COPY.FAR_KEY_UNUSED).toBe(true);
+  });
+
+  it("the generic line is only ever for a far ORIGINAL: never a known pizza, a failed bake, a guided round, or a non-ORIGINAL outcome", () => {
+    const i = fullOwnership(far);
     const ambiguous: DiscoveryOutcome = { kind: "AMBIGUOUS", targetIds: ["a", "b"] };
     for (const over of [
       { freeCook: false },
@@ -103,9 +122,15 @@ describe("P2-C generic FAR line (OD-P2-2): implemented, OFF in production", () =
       { lastDiscovery: ambiguous },
       { lastDiscovery: { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
       { lastDiscovery: { kind: "NEW_DISCOVERY", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
+      { lastDiscovery: { kind: "ALREADY_DISCOVERED", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
     ] as Partial<ResultNearMissInput>[]) {
-      expect(resultNearMiss({ ...i, ...over }, { farGeneric: true })).toBeNull();
+      expect(resultNearMiss({ ...i, ...over })).toBeNull();
     }
+  });
+
+  it("a nearer line always wins over the generic one (ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE are unchanged)", () => {
+    expect(resultNearMiss(fullOwnership(["tomato-sauce", "mozzarella"]))!.kind).not.toBe("FAR");
+    expect(resultNearMiss(fullOwnership(["pesto", "mozzarella", "basil"]))).toEqual({ kind: "SAUCE_ONLY", textJa: NEAR_MISS_COPY.SAUCE_ONLY });
   });
 
   it("nothing DISCOVERABLE -> no generic line either (it never claims there is something to find)", () => {
@@ -114,7 +139,7 @@ describe("P2-C generic FAR line (OD-P2-2): implemented, OFF in production", () =
       allFound = registerScoreToDex(allFound, r.id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex;
     }
     const i = fullOwnership(far, { dex: allFound, lastDiscovery: { kind: "ORIGINAL", blockedTargetIds: [] } });
-    expect(resultNearMiss(i, { farGeneric: true })).toBeNull();
+    expect(resultNearMiss(i)).toBeNull();
   });
 
   it("the generic line carries no distance, no recipe and no ingredient", () => {
