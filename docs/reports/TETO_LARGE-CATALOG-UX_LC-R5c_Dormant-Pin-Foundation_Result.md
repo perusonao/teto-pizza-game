@@ -37,4 +37,17 @@ See "Final numbers" below (filled after the full run).
 - e2e new: `e2e/large-catalog-pin-dormant.spec.ts` — 4 viewports: no pin UI in production, a tile tap changes nothing, tray unchanged after close, sheet / list heights = R5-b baseline (Chromium), with the simulated keyboard (K = 338) ≥ 1 full row and list ≥ R5-b baseline (360×640: 87px).
 
 ## Final numbers
-(filled below)
+- Vitest full (idle machine): **255 files, 4962 passed, 1 skipped, 0 failed** (R5-b: 252 files / 4937). An earlier full run done in parallel with the e2e run had one timeout in `src/logic/pizzaReferenceLayout.test.ts` (5139ms vs the 5s default; file untouched by this branch); it passes alone (16/16) and in the idle full run.
+- `tsc -b` clean; `oxlint`: only the 2 pre-existing warnings (`scoringV2.noSauceProfile.test.ts`); `vite build` OK. The dormant pin code and CSS selectors are in the production bundle but are never rendered (`handEditing` is `false`; asserted by unit, boundary and e2e).
+- Mutation gate (focused, M83〜M97): **15/15 killed**; the source was verified restored afterwards.
+- Chromium e2e (`iphone-390x844` + `iphone-360x800` projects): `large-catalog-pin-dormant` (new, 4 viewports), `large-catalog-pantry-search`, `-shell`, `-shelves`, `dinner-mission`, `lunch-rush-material-shortage`, `free-cooking-phase3-2`, `inventory-modal-stable-bounds`, `stage-size-stability` — **56 passed, 16 intentional width-guard skips, 0 failed**.
+- Geometry (production, Chromium, R5-b baseline from main `b35739a`): sheet 824 / 780 / 644 / 620, list 617 / 573 / 437 / 413 (390×844 / 360×800 / 390×664 / 360×640) — unchanged; keyboard (simulated K = 338) list ≥ 291 / 247 / 111 / **87** with ≥ 1 full row — unchanged.
+- **WebKit: not run here** (not installed in this container); the new spec is WebKit-ready (DOM contract + ≥ 1 row; pixel values Chromium-only) and runs in CI once a PR exists.
+
+## Human Verification
+Not applicable to this slice (Policy §2): no production-visible UI / interaction changes — the production DOM is byte-identical to R5-b and the 4-viewport geometry is unchanged (asserted). The pin UI is dormant; its HV (390×844 video + before/after screenshots, real-device keyboard behaviour OD-R5c-5) belongs to the R6 activation.
+
+## Risks / carried items
+1. WebKit evidence pending CI. 2. The dormant UI's real-layout geometry with pins (方式 D) is only measured by the audit's probe harness; the R6 slice must re-measure with the real strip (forced-on). 3. `togglePin` with `handEditing` on has no pin-count limit (enforcement off); the R6 capacity block (OD-R5-7 UI) is not implemented here. 4. Placed-ingredient protection and the 3-state cue are R6 / R5-d concerns (inactive hand).
+
+**Verdict: A. R5-c DORMANT FOUNDATION COMPLETE / READY FOR REVIEW**
