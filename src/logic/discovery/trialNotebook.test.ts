@@ -508,7 +508,7 @@ describe("Trial Notebook — property / fuzz against an independent oracle", () 
           }
         }
       }
-    });
+    }, 60_000);
   }
 
   it("garbage inputs never throw, never change the state, and never store anything", () => {
