@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59 (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59; LC-R5-b adds M60-M82 (search, approved aliases, IME contract, Mode C keyboard fit) (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager); LC-R5-c adds M83-M97 (dormant pin foundation: pin edit rules, App-level session pins, #197 no-clear, dormancy, 方式 D). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -326,7 +326,7 @@ const MUTANTS = [
     what: "unclassified (shelf null) rows leak into a specific shelf",
     file: "src/components/IngredientPantry.tsx",
     edits: [
-      ["itemsFor([shelfFilter])", "[...itemsFor([shelfFilter]), ...allItems.filter((i) => i.shelf === null)]"],
+      ["toRows(itemsFor(shelfFilter === \"all\" ? undefined : [shelfFilter], appliedText))", "toRows(shelfFilter === \"all\" ? itemsFor(undefined, appliedText) : [...itemsFor([shelfFilter], appliedText), ...allItems.filter((i) => i.shelf === null)])"],
     ],
   },
   {
@@ -460,11 +460,239 @@ const MUTANTS = [
     file: `${C}/pantryAvailability.ts`,
     edits: [['import { ingredientsByCategory,', 'import { RECIPES } from "../../data/recipes";\nvoid RECIPES;\nimport { ingredientsByCategory,']],
   },
+  {
+    id: "M60",
+    what: "R5-b: the alias check is dropped from matchesSearch",
+    file: `${C}/catalogText.ts`,
+    edits: [["    (item.searchAliasesJa ?? []).some((alias) => normalizeForSearch(alias).includes(q))", "    false"]],
+  },
+  {
+    id: "M61",
+    what: "R5-b: an unapproved alias is added to the table (ペペロニ)",
+    file: "src/data/ingredientSearchAliases.ts",
+    edits: [["  egg: [", "  pepperoni: [{ alias: \"ペペロニ\", provenance: \"owner-approved\" }],\n  egg: ["]],
+  },
+  {
+    id: "M62",
+    what: "R5-b: the runtime catalog stops carrying the aliases",
+    file: `${C}/catalogSource.ts`,
+    edits: [["...(aliases.length > 0 ? { searchAliasesJa: aliases } : {}),", ""]],
+  },
+  {
+    id: "M63",
+    what: "R5-b: a reverse (query-contains-name) match is added",
+    file: `${C}/catalogText.ts`,
+    edits: [["    normalizeForSearch(item.nameJa).includes(q) ||", "    normalizeForSearch(item.nameJa).includes(q) || q.includes(normalizeForSearch(item.nameJa)) ||"]],
+  },
+  {
+    id: "M64",
+    what: "R5-b: the chip row / visibility are derived AFTER the text (allItems gets the applied text)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["  const allItems = itemsFor();", "  const allItems = itemsFor(undefined, search.applied);"]],
+  },
+  {
+    id: "M65",
+    what: "R5-b: the search field disappears when the result is short (visibility follows the text)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["const showSearch = allItems.length > MAX_INGREDIENT_PALETTE_SLOTS;", "const showSearch = itemsFor(undefined, search.applied).length > MAX_INGREDIENT_PALETTE_SLOTS;"]],
+  },
+  {
+    id: "M66",
+    what: "R5-b: the search threshold is off by one (>= 6)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["const showSearch = allItems.length > MAX_INGREDIENT_PALETTE_SLOTS;", "const showSearch = allItems.length >= MAX_INGREDIENT_PALETTE_SLOTS;"]],
+  },
+  {
+    id: "M67",
+    what: "R5-b: opening auto-focuses the search field",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["    closeRef.current?.focus();\n  }, []);", "    (inputRef.current ?? closeRef.current)?.focus();\n  }, []);"]],
+  },
+  {
+    id: "M68",
+    what: "R5-b IME: a composition applies to the list (no freeze)",
+    file: "src/components/pantrySearchIme.ts",
+    edits: [["  return composing ? { ...state, value } : { value, applied: value, composing: false };", "  return { value, applied: value, composing };"]],
+  },
+  {
+    id: "M69",
+    what: "R5-b IME: compositionend does not apply the confirmed text",
+    file: "src/components/pantrySearchIme.ts",
+    edits: [["  return { value, applied: value, composing: false };\n}\n\n/** A blur", "  return { value, applied: _state.applied, composing: false };\n}\n\n/** A blur"]],
+  },
+  {
+    id: "M70",
+    what: "R5-b IME: a blur does not settle an interrupted composition",
+    file: "src/components/pantrySearchIme.ts",
+    edits: [["  return state.composing ? { value: state.value, applied: state.value, composing: false } : state;", "  return state;"]],
+  },
+  {
+    id: "M71",
+    what: "R5-b IME: keyCode 229 is no longer a confirming Enter",
+    file: "src/components/pantrySearchIme.ts",
+    edits: [["    input.keyCode === 229 ||\n", ""]],
+  },
+  {
+    id: "M72",
+    what: "R5-b: a plain Enter no longer moves focus to the list",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["    listRef.current?.focus();\n  }\n", "  }\n"]],
+  },
+  {
+    id: "M73",
+    what: "R5-b: the search input drops below 16px (iOS zoom)",
+    file: "src/App.css",
+    edits: [["  padding: 0 12px;\n  font-size: 16px;\n  color: #4a2e0a;\n  background: #fffdf7;\n  -webkit-appearance", "  padding: 0 12px;\n  font-size: 14px;\n  color: #4a2e0a;\n  background: #fffdf7;\n  -webkit-appearance"]],
+  },
+  {
+    id: "M74",
+    what: "R5-b fit: fits even with no keyboard and no focus",
+    file: "src/components/pantryViewportFit.ts",
+    edits: [["  if (!fieldFocused && !keyboardLike) return null;\n", ""]],
+  },
+  {
+    id: "M75",
+    what: "R5-b fit: a blur releases the fit while the keyboard is still up (focus-only rule)",
+    file: "src/components/pantryViewportFit.ts",
+    edits: [["  const keyboardLike = layoutHeight - vvHeight >= KEYBOARD_LIKE_MIN_SHRINK_PX;", "  const keyboardLike = false;"]],
+  },
+  {
+    id: "M76",
+    what: "R5-b fit: the scroll listener is never removed",
+    file: "src/components/pantryViewportFit.ts",
+    edits: [["      vv.removeEventListener(\"scroll\", schedule);\n", ""]],
+  },
+  {
+    id: "M77",
+    what: "R5-b fit: non-finite viewport values are accepted",
+    file: "src/components/pantryViewportFit.ts",
+    edits: [["  if (![layoutHeight, vvHeight, vvOffsetTop].every((n) => typeof n === \"number\" && Number.isFinite(n))) return null;\n", ""]],
+  },
+  {
+    id: "M78",
+    what: "R5-b fit: a negative bottom is not clamped",
+    file: "src/components/pantryViewportFit.ts",
+    edits: [["bottom: Math.max(0, layoutHeight - (vvOffsetTop + vvHeight))", "bottom: layoutHeight - (vvOffsetTop + vvHeight)"]],
+  },
+  {
+    id: "M79",
+    what: "R5-b: the pantry reads visualViewport itself (fit outside its module)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["export function IngredientPantry(", "void (typeof window !== \"undefined\" && window.visualViewport);\nexport function IngredientPantry("]],
+  },
+  {
+    id: "M80",
+    what: "R5-b: the pantry persists the search text",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["  const [fieldFocused, setFieldFocused] = useState(false);", "  const [fieldFocused, setFieldFocused] = useState(false);\n  useEffect(() => localStorage.setItem(\"pantry-search\", \"x\"), []);"]],
+  },
+  {
+    id: "M81",
+    what: "R5-b: a new applied text no longer resets the list to the top",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["previousAppliedRef.current !== appliedText &&", "false &&"]],
+  },
+  {
+    id: "M82",
+    what: "R5-b: the empty state names a count / an unowned reason",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["\"該当する材料がありません\"", "\"該当する材料が0件です\""]],
+  },
+  {
+    id: "M83",
+    what: "R5-c: a no-stock ingredient can be newly pinned (OD-R5-6)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["if (!hasStock(ctx.ownership.stock(id))) return", "if (false) return"]],
+  },
+  {
+    id: "M84",
+    what: "R5-c: an unowned / other-category id is reported as pinned",
+    file: `${C}/pinEdit.ts`,
+    edits: [["return ctx.ownership.ownedIds.includes(id) &&", "return true ||"]],
+  },
+  {
+    id: "M85",
+    what: "R5-c: a second tap no longer unpins",
+    file: `${C}/pinEdit.ts`,
+    edits: [["replaceHand(session, pins.filter((pin) => pin !== id), ctx)", "replaceHand(session, pins, ctx)"]],
+  },
+  {
+    id: "M86",
+    what: "R5-c: おまかせに戻す clears every category, not only the active one",
+    file: `${C}/pinEdit.ts`,
+    edits: [["  return replaceHand(session, [], ctx);", "  return { sauce: [], cheese: [], topping: [] };"]],
+  },
+  {
+    id: "M87",
+    what: "R5-c: invalid stored pins are shown (no prune on read)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["return [...pruneHand(session, ctx)[ctx.category]];", "return [...session[ctx.category]];"]],
+  },
+  {
+    id: "M88",
+    what: "R5-c: an existing no-stock pin can no longer be removed (tile disabled)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["disabled: !pinned && !hasStock(stock)", "disabled: !hasStock(stock)"]],
+  },
+  {
+    id: "M89",
+    what: "R5-c: the strip renders without pin editing (dormancy broken)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["return input.handEditing && input.pinCount > 0;", "return input.pinCount > 0;"]],
+  },
+  {
+    id: "M90",
+    what: "R5-c: GameScreen turns pin editing on in production",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["handEditing={HAND_ENFORCEMENT_ENABLED}", "handEditing={true}"]],
+  },
+  {
+    id: "M91",
+    what: "R5-c: the pantry defaults to pin editing on",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["  handEditing = false,", "  handEditing = true,"]],
+  },
+  {
+    id: "M92",
+    what: "R5-c: App clears the pins on a new round (OD-R5-9)",
+    file: "src/App.tsx",
+    edits: [["    setSelectedIngredientId(null);\n    // A leftover-open", "    setSelectedIngredientId(null);\n    setHandSession(emptyHandSession());\n    // A leftover-open"]],
+  },
+  {
+    id: "M93",
+    what: "R5-c: a pin edit clears the Builder selection (#197 no-clear)",
+    file: "src/App.tsx",
+    edits: [["onHandSessionChange={setHandSession}", "onHandSessionChange={(u) => { setHandSession(u); setSelectedIngredientId(null); }}"]],
+  },
+  {
+    id: "M94",
+    what: "R5-c: GameScreen does not relay the App pins (they would reset per pantry)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["pinSession={handSession}", "pinSession={undefined}"]],
+  },
+  {
+    id: "M95",
+    what: "R5-c: 方式 D broken -- the strip stays while the sheet is keyboard-fitted",
+    file: "src/App.css",
+    edits: [[".pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {\n  display: none;", ".pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {\n  display: flex;"]],
+  },
+  {
+    id: "M96",
+    what: "R5-c: the strip shows a pin count (OD-R5-7 / privacy)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [['{"\\u{1F4CC}"} 選択中\n', '{"\\u{1F4CC}"} 選択中 {pins.length}\n']],
+  },
+  {
+    id: "M97",
+    what: "R5-c: pins are written to browser storage",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["    if (handEditing) onPinSessionChange?.(update);", "    if (handEditing) onPinSessionChange?.(update);\n    localStorage.setItem(\"pins\", \"x\");"]],
+  },
 ];
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "src/components/IngredientPantry.pins.test.tsx", "src/App.handPins.test.tsx", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });

@@ -173,12 +173,13 @@ for (const width of [390, 360] as const) {
       expect(all.pageScrolls, `${label}: page does not scroll`).toBe(false);
 
       // ---- list viewport: the chip row costs one 44px chip + padding + gap; the outer sheet is the same as R3
-      const expectedH = Math.min(0.7 * all.innerH, all.innerH - 20);
+      const expectedH = all.innerH - 20; // LC-R5-b: the shell ceiling (safe-top 0 here), no longer 70dvh
       expect(all.sheet!.h, `${label}: sheet outer height unchanged (R3 rule)`).toBeCloseTo(expectedH, 0);
       expect(sauce.sheet!.h, `${label}: same height as the chip-less sauce sheet`).toBeCloseTo(all.sheet!.h, 0);
       const cost = sauce.list!.h - all.list!.h;
-      expect(cost, `${label}: list viewport loses only the chip slot (${cost.toFixed(1)}px)`).toBeGreaterThan(46);
-      expect(cost).toBeLessThan(60);
+      // LC-R5-b: the topping step (22 owned) now also carries the search row (44px field + 8px gap) above the chips.
+      expect(cost, `${label}: list viewport loses only the search + chip slots (${cost.toFixed(1)}px)`).toBeGreaterThan(46 + 44);
+      expect(cost).toBeLessThan(60 + 60);
       expect(all.list!.h, `${label}: list still shows about three tile rows`).toBeGreaterThanOrEqual(250);
       expect(all.listScrollable, `${label}: 22 toppings scroll inside the list`).toBe(true);
       expect(all.close!.h).toBeGreaterThanOrEqual(43.5);

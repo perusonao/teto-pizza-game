@@ -366,7 +366,9 @@ describe("LC-R4 chips are derived from the OWNED rows of the active category", (
     expect(slot.querySelectorAll(".shelf-chip").length).toBeGreaterThan(1);
     expect(list.contains(slot)).toBe(false);
     expect(slot.nextElementSibling).toBe(list);
-    expect(slot.previousElementSibling?.className).toContain("pantry-sheet__subtitle");
+    // LC-R5-b: the topping category has more than one page of owned rows, so the search row sits between the subtitle and the chips.
+    expect(slot.previousElementSibling?.className).toContain("pantry-sheet__search");
+    expect(slot.previousElementSibling?.previousElementSibling?.className).toContain("pantry-sheet__subtitle");
     expect(screen.getByRole("group", { name: "材料の分類" })).toBeInTheDocument();
   });
 

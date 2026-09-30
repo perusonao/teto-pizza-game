@@ -200,7 +200,7 @@ for (const width of [390, 360] as const) {
       await expect(dialog).toBeVisible();
       const open = await sheetFacts(page);
       expect(open.activeIsClose, `${label}: focus enters the sheet (閉じる)`).toBe(true);
-      const expectedH = Math.min(0.7 * open.innerH, open.innerH - 20);
+      const expectedH = open.innerH - 20; // LC-R5-b: the shell ceiling (safe-top 0 here), no longer 70dvh
       expect(open.sheet!.h, `${label}: fixed sheet height`).toBeCloseTo(expectedH, 0);
       expect(open.sheet!.b, `${label}: anchored to the bottom`).toBeCloseTo(open.innerH, 0);
       expect(open.sheet!.x).toBeGreaterThanOrEqual(-0.5);

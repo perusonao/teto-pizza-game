@@ -1,0 +1,430 @@
+{
+  "schemaNote": "Minimal input snapshot for tools/ingredient_taxonomy_hcg_authority_audit.py. AUDIT EVIDENCE ONLY: it is not a production authority and not an Owner Decision, is not read by src/**, and no classification may be inferred from it. The Owner Authority is OD-T1..T8 in the Fresh Audit report.",
+  "purpose": "Make the audit generator and its --check reproducible without fetching the git objects of open PRs #255 / #293.",
+  "sources": [
+    {
+      "pr": 255,
+      "sha": "e221e36c9278311dfecc22263b5467dab7984555",
+      "path": "docs/reports/data/TETO_INGREDIENT-TAXONOMY_172_FRESH-AUDIT.json",
+      "fields": [
+        "family",
+        "classificationStatus",
+        "confidence",
+        "subfamily"
+      ],
+      "scope": "topping ids of the 62 master catalog plus production toppings"
+    },
+    {
+      "pr": 293,
+      "sha": "1bb4f9d3a10172b8f6a3f4bb2af794db2435db4c",
+      "path": "docs/reports/data/TETO_HINT-5_TAXONOMY-172-COVERAGE_Fresh-Audit.json",
+      "fields": [
+        "status"
+      ],
+      "scope": "same ids, where present in its catalog62 list"
+    }
+  ],
+  "rowsSha256": "4b615bb9b099d0975ae9f9fb96c648697a4b295b3833287e04b62c19ee2aae0b",
+  "rows": {
+    "pr255": {
+      "basil": {
+        "family": "herb",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "garlic": {
+        "family": "herb",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "herb.allium"
+      },
+      "oregano": {
+        "family": "herb",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "cherry-tomato": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "egg": {
+        "family": "other",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.egg"
+      },
+      "mushroom": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.mushroom"
+      },
+      "onion": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.allium"
+      },
+      "pepperoni": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "anchovy": {
+        "family": "seafood",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.fish"
+      },
+      "ham": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "pineapple": {
+        "family": "fruit",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "fruit.tropical"
+      },
+      "sausage": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "tuna": {
+        "family": "seafood",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.fish"
+      },
+      "zucchini": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "bell-pepper": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "black-olive": {
+        "family": "vegetable",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "vegetable.fruiting"
+      },
+      "prosciutto-crudo": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "arugula": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.leafy"
+      },
+      "spicy-salami": {
+        "family": "meat",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.cured"
+      },
+      "shrimp": {
+        "family": "seafood",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.shellfish"
+      },
+      "parsley": {
+        "family": "herb",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "artichoke": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.stem-flower"
+      },
+      "breadcrumb": {
+        "family": "other",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.starch"
+      },
+      "nduja": {
+        "family": "meat",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.cured"
+      },
+      "eggplant": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      },
+      "porcini": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.mushroom"
+      },
+      "truffle": {
+        "family": "vegetable",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "vegetable.mushroom"
+      },
+      "speck": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "walnut": {
+        "family": "other",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.nut-seed"
+      },
+      "wurstel": {
+        "family": "meat",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.cured"
+      },
+      "french-fries": {
+        "family": "other",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "other.starch"
+      },
+      "rosemary": {
+        "family": "herb",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "chicken": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.poultry"
+      },
+      "cilantro": {
+        "family": "herb",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "herb.leaf"
+      },
+      "bacon": {
+        "family": "meat",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "meat.cured"
+      },
+      "steak": {
+        "family": "meat",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "meat.fresh"
+      },
+      "corn": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "medium",
+        "subfamily": "vegetable.fruiting"
+      },
+      "nori": {
+        "family": "other",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "low",
+        "subfamily": "other.seaweed"
+      },
+      "potato": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.root"
+      },
+      "strawberry": {
+        "family": "fruit",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "fruit.berry"
+      },
+      "powdered-sugar": {
+        "family": "other",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "other.sweet"
+      },
+      "fig": {
+        "family": "fruit",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "fruit.orchard"
+      },
+      "capers": {
+        "family": "spice",
+        "classificationStatus": "NEEDS_REVIEW",
+        "confidence": "medium",
+        "subfamily": "spice.condiment"
+      },
+      "clam": {
+        "family": "seafood",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "seafood.shellfish"
+      },
+      "fresh-tomato": {
+        "family": "vegetable",
+        "classificationStatus": "PROPOSED",
+        "confidence": "high",
+        "subfamily": "vegetable.fruiting"
+      }
+    },
+    "pr293": {
+      "basil": {
+        "status": "VALID_PRODUCTION"
+      },
+      "garlic": {
+        "status": "VALID_PRODUCTION_UNDER_REVIEW"
+      },
+      "oregano": {
+        "status": "VALID_PRODUCTION"
+      },
+      "cherry-tomato": {
+        "status": "VALID_PRODUCTION"
+      },
+      "egg": {
+        "status": "VALID_PRODUCTION"
+      },
+      "mushroom": {
+        "status": "VALID_PRODUCTION"
+      },
+      "onion": {
+        "status": "VALID_PRODUCTION"
+      },
+      "pepperoni": {
+        "status": "VALID_PRODUCTION"
+      },
+      "anchovy": {
+        "status": "VALID_PRODUCTION"
+      },
+      "ham": {
+        "status": "VALID_PRODUCTION"
+      },
+      "pineapple": {
+        "status": "VALID_PRODUCTION"
+      },
+      "sausage": {
+        "status": "VALID_PRODUCTION"
+      },
+      "tuna": {
+        "status": "VALID_PRODUCTION"
+      },
+      "zucchini": {
+        "status": "MISSING_PROPOSED"
+      },
+      "bell-pepper": {
+        "status": "MISSING_PROPOSED"
+      },
+      "black-olive": {
+        "status": "VALID_PRODUCTION_UNDER_REVIEW"
+      },
+      "prosciutto-crudo": {
+        "status": "MISSING_PROPOSED"
+      },
+      "arugula": {
+        "status": "MISSING_PROPOSED"
+      },
+      "spicy-salami": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "shrimp": {
+        "status": "MISSING_PROPOSED"
+      },
+      "parsley": {
+        "status": "MISSING_PROPOSED"
+      },
+      "artichoke": {
+        "status": "MISSING_PROPOSED"
+      },
+      "breadcrumb": {
+        "status": "MISSING_PROPOSED"
+      },
+      "nduja": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "eggplant": {
+        "status": "VALID_PRODUCTION"
+      },
+      "porcini": {
+        "status": "MISSING_PROPOSED"
+      },
+      "truffle": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "speck": {
+        "status": "MISSING_PROPOSED"
+      },
+      "walnut": {
+        "status": "MISSING_PROPOSED"
+      },
+      "wurstel": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "french-fries": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "rosemary": {
+        "status": "VALID_PRODUCTION"
+      },
+      "chicken": {
+        "status": "MISSING_PROPOSED"
+      },
+      "cilantro": {
+        "status": "MISSING_PROPOSED"
+      },
+      "bacon": {
+        "status": "VALID_PRODUCTION"
+      },
+      "steak": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "corn": {
+        "status": "VALID_PRODUCTION"
+      },
+      "nori": {
+        "status": "MISSING_NEEDS_REVIEW"
+      },
+      "potato": {
+        "status": "VALID_PRODUCTION"
+      },
+      "strawberry": {
+        "status": "MISSING_PROPOSED"
+      },
+      "powdered-sugar": {
+        "status": "MISSING_PROPOSED"
+      },
+      "fig": {
+        "status": "MISSING_PROPOSED"
+      }
+    }
+  }
+}
