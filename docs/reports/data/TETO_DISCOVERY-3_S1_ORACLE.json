@@ -1,0 +1,574 @@
+[
+ {
+  "id": "K0",
+  "label": "correct identity, good quality",
+  "identity": "exact funghi",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--discovery",
+   "kindByLead": null,
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 4,
+   "pitzBalanceInSave": 1132,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "NEW PIZZA! ✨ フンギを発見しました！📖 ピザ図鑑に登録！ No.03（第1章 4/6）📖 図鑑を見る★★★☆☆63点+133 Pitz（初回発見 +50）🆕 新しい材料が入荷：ナス🛒 ショップへ内訳を見る基本報酬100 Pitz出来栄え倍率×0.80初回発見ボ"
+  },
+  "round2": {
+   "panelClass": "result-panel",
+   "kindByLead": null,
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 4,
+   "pitzBalanceInSave": 1215,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 30
+   },
+   "resultTextHead": "よし、フンギが完璧に焼けた！我ながらいい仕事だ！★★★☆☆63点✅ 焼き加減: いい焼き加減📖 フンギができた！（発見済み）今回の獲得 +83 Pitz内訳を見る基本報酬100 Pitz出来栄え倍率×0.80手際ボーナス+3 Pitz所持Pitz1132 → 1215⏱️ 調理"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--discovery",
+   "kindByLead": null,
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 4,
+   "pitzBalanceInSave": 1132,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "NEW PIZZA! ✨ フンギを発見しました！📖 ピザ図鑑に登録！ No.03（第1章 4/6）📖 図鑑を見る★★★☆☆63点+133 Pitz（初回発見 +50）🆕 新しい材料が入荷：ナス🛒 ショップへ内訳を見る基本報酬100 Pitz出来栄え倍率×0.80初回発見ボ"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K1",
+  "label": "correct identity, sauce quality failure (one dab)",
+  "identity": "exact funghi",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作るレ"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作るレ"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作るレ"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K2",
+  "label": "WRONG identity (far), same sauce quality failure",
+  "identity": "far from funghi",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🛒 新しく入荷した材料は使ってみた？",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 29,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🌿 バジル🥚 たまご✅ 焼き加減: いい焼き加減🛒 新しく入荷した材料は使ってみた？💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆう"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🛒 新しく入荷した材料は使ってみた？",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 28,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🌿 バジル🥚 たまご✅ 焼き加減: いい焼き加減🛒 新しく入荷した材料は使ってみた？💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図鑑のピザと同じ組み合わせ"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🛒 新しく入荷した材料は使ってみた？",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 29,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🌿 バジル🥚 たまご✅ 焼き加減: いい焼き加減🛒 新しく入荷した材料は使ってみた？💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆう"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K3a",
+  "label": "sauce/base mismatch (pesto), sauce quality failure",
+  "identity": "funghi with pesto base",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ ソースを変えると、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 29
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🌿 ジェノベーゼソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減🤏 おしい！ ソースを変えると、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ ソースを変えると、何か見つかりそう！",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 28
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🌿 ジェノベーゼソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減🤏 おしい！ ソースを変えると、何か見つかりそう！💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図鑑のピザ"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ ソースを変えると、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 29
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🌿 ジェノベーゼソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減🤏 おしい！ ソースを変えると、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K3b",
+  "label": "sauce/base mismatch (pesto), good quality",
+  "identity": "funghi with pesto base",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ ソースを変えると、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 29
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🌿 ジェノベーゼソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減🤏 おしい！ ソースを変えると、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ ソースを変えると、何か見つかりそう！",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 28
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🌿 ジェノベーゼソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減🤏 おしい！ ソースを変えると、何か見つかりそう！💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図鑑のピザ"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ ソースを変えると、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 29
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🌿 ジェノベーゼソース🧀 モッツァレラ🍄 マッシュルーム✅ 焼き加減: いい焼き加減🤏 おしい！ ソースを変えると、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K4a",
+  "label": "missing ingredient (no mushroom), sauce quality failure",
+  "identity": "funghi minus mushroom",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ✅ 焼き加減: いい焼き加減🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作る"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ✅ 焼き加減: いい焼き加減🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図鑑のピザと同じ組み合わせで作る"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ✅ 焼き加減: いい焼き加減🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作る"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K4b",
+  "label": "missing ingredient (no mushroom), good quality",
+  "identity": "funghi minus mushroom",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ✅ 焼き加減: いい焼き加減🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作る"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ✅ 焼き加減: いい焼き加減🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図鑑のピザと同じ組み合わせで作る"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ✅ 焼き加減: いい焼き加減🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作る"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K5a",
+  "label": "extra ingredient (+ egg), sauce quality failure",
+  "identity": "funghi plus egg",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 29,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム🥚 たまご✅ 焼き加減: いい焼き加減🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがも"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 28,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム🥚 たまご✅ 焼き加減: いい焼き加減🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 29,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム🥚 たまご✅ 焼き加減: いい焼き加減🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがも"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K5b",
+  "label": "extra ingredient (+ egg), good quality",
+  "identity": "funghi plus egg",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 29,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム🥚 たまご✅ 焼き加減: いい焼き加減🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがも"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！",
+   "trialNotice": "📓 前にも同じ材料の組み合わせで作ったよ（試作#1）",
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 28,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム🥚 たまご✅ 焼き加減: いい焼き加減🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！💡 ヒントを見る📓 前にも同じ材料の組み合わせで作ったよ（試作#1）図"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑にはまだ載っていないピザ！",
+   "nearMiss": "🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！",
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 29,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑にはまだ載っていないピザ！🍅 トマトソース🧀 モッツァレラ🍄 マッシュルーム🥚 たまご✅ 焼き加減: いい焼き加減🤏 おしい！ 材料を1つ減らすと、何か見つかりそう！💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがも"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K6",
+  "label": "ALREADY-KNOWN exact recipe (margherita), sauce quality failure",
+  "identity": "exact margherita (discovered)",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。🍅 トマトソース🧀 モッツァレラ🌿 バジル✅ 焼き加減: いい焼き加減💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作るレシピを選"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。🍅 トマトソース🧀 モッツァレラ🌿 バジル✅ 焼き加減: いい焼き加減💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作るレシピを選"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--original",
+   "kindByLead": "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 30,
+    "pesto": 30
+   },
+   "resultTextHead": "🎨 オリジナルピザ完成！図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。🍅 トマトソース🧀 モッツァレラ🌿 バジル✅ 焼き加減: いい焼き加減💡 ヒントを見る図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。もう一度じゆうに作るレシピを選"
+  },
+  "repeatable_round1_vs_fresh": true
+ },
+ {
+  "id": "K7",
+  "label": "correct identity, BAKE quality failure (raw)",
+  "identity": "exact funghi",
+  "pitzBefore": 999,
+  "round1": {
+   "panelClass": "result-panel result-panel--failed",
+   "kindByLead": null,
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "失敗生焼けで提供できません💧 焼き加減: 生焼け今回の獲得 +0 Pitz今回は料理として成立しなかったため、提供できませんでした。もう一度じゆうに作るレシピを選んで作る"
+  },
+  "round2": {
+   "panelClass": "result-panel result-panel--failed",
+   "kindByLead": null,
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 24,
+    "pesto": 30
+   },
+   "resultTextHead": "失敗生焼けで提供できません💧 焼き加減: 生焼け今回の獲得 +0 Pitz今回は料理として成立しなかったため、提供できませんでした。もう一度じゆうに作るレシピを選んで作る"
+  },
+  "round3_fresh": {
+   "panelClass": "result-panel result-panel--failed",
+   "kindByLead": null,
+   "nearMiss": null,
+   "trialNotice": null,
+   "dexDiscoveredInSave": 3,
+   "pitzBalanceInSave": 999,
+   "inventoryInSave": {
+    "egg": 30,
+    "bacon": 30,
+    "mushroom": 27,
+    "pesto": 30
+   },
+   "resultTextHead": "失敗生焼けで提供できません💧 焼き加減: 生焼け今回の獲得 +0 Pitz今回は料理として成立しなかったため、提供できませんでした。もう一度じゆうに作るレシピを選んで作る"
+  },
+  "repeatable_round1_vs_fresh": true
+ }
+]

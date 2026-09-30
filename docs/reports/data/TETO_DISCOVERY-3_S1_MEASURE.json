@@ -1,0 +1,1108 @@
+{
+ "E": {
+  "population": 26,
+  "owned_basis": "each recipe's own key-step owned set (frozen W1 ladder)",
+  "profiles": {
+   "P-B sauce+cheese+count+families": {
+    "R": {
+     "margherita": 1,
+     "marinara": 3,
+     "quattro-formaggi": 1,
+     "genovese": 6,
+     "bismarck": 1,
+     "funghi": 1,
+     "fugazza": 10,
+     "salsiccia": 3,
+     "pepperoni": 2,
+     "napoletana": 3,
+     "tonno-e-cipolla": 10,
+     "pizza-bianca": 4,
+     "breakfast-pizza": 1,
+     "capricciosa": 48,
+     "meat-lovers": 1,
+     "melanzane-pizza": 2,
+     "parmigiana-pizza": 2,
+     "bambino": 12,
+     "hawaiian": 4,
+     "pizza-portuguesa": 40,
+     "pesto-tonno": 20,
+     "new-haven-apizza": 9,
+     "pesto-caprese": 21,
+     "pesto-patate": 32,
+     "puttanesca-pizza": 96,
+     "brazilian-calabresa": 80
+    },
+    "min": 1,
+    "median": 4.0,
+    "p90": 40,
+    "max": 96,
+    "by_threshold": {
+     "tight (appropriate R<=8)": {
+      "DIRECT_ANSWER": 6,
+      "APPROPRIATE": 9,
+      "TOO_BROAD": 11
+     },
+     "mid (R<=32)": {
+      "DIRECT_ANSWER": 6,
+      "APPROPRIATE": 16,
+      "TOO_BROAD": 4
+     },
+     "loose (R<=128)": {
+      "DIRECT_ANSWER": 6,
+      "APPROPRIATE": 20
+     }
+    }
+   },
+   "P-C sauce+cheese+count": {
+    "R": {
+     "margherita": 1,
+     "marinara": 91,
+     "quattro-formaggi": 1,
+     "genovese": 17,
+     "bismarck": 2,
+     "funghi": 4,
+     "fugazza": 78,
+     "salsiccia": 7,
+     "pepperoni": 6,
+     "napoletana": 105,
+     "tonno-e-cipolla": 120,
+     "pizza-bianca": 21,
+     "breakfast-pizza": 3,
+     "capricciosa": 495,
+     "meat-lovers": 70,
+     "melanzane-pizza": 10,
+     "parmigiana-pizza": 10,
+     "bambino": 36,
+     "hawaiian": 45,
+     "pizza-portuguesa": 715,
+     "pesto-tonno": 560,
+     "new-haven-apizza": 153,
+     "pesto-caprese": 171,
+     "pesto-patate": 190,
+     "puttanesca-pizza": 7315,
+     "brazilian-calabresa": 715
+    },
+    "min": 1,
+    "median": 57.5,
+    "p90": 560,
+    "max": 7315,
+    "by_threshold": {
+     "tight (appropriate R<=8)": {
+      "DIRECT_ANSWER": 2,
+      "TOO_BROAD": 19,
+      "APPROPRIATE": 5
+     },
+     "mid (R<=32)": {
+      "DIRECT_ANSWER": 2,
+      "TOO_BROAD": 15,
+      "APPROPRIATE": 9
+     },
+     "loose (R<=128)": {
+      "DIRECT_ANSWER": 2,
+      "APPROPRIATE": 16,
+      "TOO_BROAD": 8
+     }
+    }
+   },
+   "P-D count+families (no sauce/cheese named)": {
+    "R": {
+     "margherita": 4,
+     "marinara": 36,
+     "quattro-formaggi": 64,
+     "genovese": 96,
+     "bismarck": 4,
+     "funghi": 4,
+     "fugazza": 120,
+     "salsiccia": 24,
+     "pepperoni": 16,
+     "napoletana": 36,
+     "tonno-e-cipolla": 120,
+     "pizza-bianca": 64,
+     "breakfast-pizza": 4,
+     "capricciosa": 384,
+     "meat-lovers": 8,
+     "melanzane-pizza": 8,
+     "parmigiana-pizza": 16,
+     "bambino": 96,
+     "hawaiian": 32,
+     "pizza-portuguesa": 320,
+     "pesto-tonno": 320,
+     "new-haven-apizza": 144,
+     "pesto-caprese": 336,
+     "pesto-patate": 512,
+     "puttanesca-pizza": 1536,
+     "brazilian-calabresa": 640
+    },
+    "min": 4,
+    "median": 64.0,
+    "p90": 384,
+    "max": 1536,
+    "by_threshold": {
+     "tight (appropriate R<=8)": {
+      "APPROPRIATE": 6,
+      "TOO_BROAD": 20
+     },
+     "mid (R<=32)": {
+      "APPROPRIATE": 10,
+      "TOO_BROAD": 16
+     },
+     "loose (R<=128)": {
+      "APPROPRIATE": 18,
+      "TOO_BROAD": 8
+     }
+    }
+   },
+   "P-G sauce+families (no cheese, no count)": {
+    "R": {
+     "margherita": 2,
+     "marinara": 12,
+     "quattro-formaggi": 16,
+     "genovese": 24,
+     "bismarck": 2,
+     "funghi": 2,
+     "fugazza": 40,
+     "salsiccia": 12,
+     "pepperoni": 8,
+     "napoletana": 12,
+     "tonno-e-cipolla": 40,
+     "pizza-bianca": 16,
+     "breakfast-pizza": 2,
+     "capricciosa": 192,
+     "meat-lovers": 4,
+     "melanzane-pizza": 4,
+     "parmigiana-pizza": 8,
+     "bambino": 48,
+     "hawaiian": 16,
+     "pizza-portuguesa": 160,
+     "pesto-tonno": 80,
+     "new-haven-apizza": 36,
+     "pesto-caprese": 84,
+     "pesto-patate": 128,
+     "puttanesca-pizza": 384,
+     "brazilian-calabresa": 320
+    },
+    "min": 2,
+    "median": 16.0,
+    "p90": 160,
+    "max": 384,
+    "by_threshold": {
+     "tight (appropriate R<=8)": {
+      "APPROPRIATE": 8,
+      "TOO_BROAD": 18
+     },
+     "mid (R<=32)": {
+      "APPROPRIATE": 15,
+      "TOO_BROAD": 11
+     },
+     "loose (R<=128)": {
+      "APPROPRIATE": 22,
+      "TOO_BROAD": 4
+     }
+    }
+   }
+  },
+  "hint5_current_full_ladder_25": {
+   "R": {
+    "margherita": 1,
+    "marinara": 2,
+    "quattro-formaggi": 1,
+    "genovese": 1,
+    "bismarck": 1,
+    "funghi": 1,
+    "fugazza": 2,
+    "salsiccia": 1,
+    "pepperoni": 1,
+    "napoletana": 3,
+    "tonno-e-cipolla": 5,
+    "pizza-bianca": 1,
+    "breakfast-pizza": 1,
+    "capricciosa": 24,
+    "meat-lovers": 1,
+    "melanzane-pizza": 1,
+    "parmigiana-pizza": 1,
+    "bambino": 4,
+    "hawaiian": 4,
+    "pizza-portuguesa": 10,
+    "pesto-tonno": 10,
+    "new-haven-apizza": 3,
+    "pesto-caprese": 3,
+    "pesto-patate": 4,
+    "puttanesca-pizza": 32
+   },
+   "by_threshold": {
+    "tight (appropriate R<=8)": {
+     "DIRECT_ANSWER": 12,
+     "APPROPRIATE": 9,
+     "TOO_BROAD": 4
+    },
+    "mid (R<=32)": {
+     "DIRECT_ANSWER": 12,
+     "APPROPRIATE": 13
+    },
+    "loose (R<=128)": {
+     "DIRECT_ANSWER": 12,
+     "APPROPRIATE": 13
+    }
+   }
+  },
+  "closed_world_26_reduction": {
+   "stages": "0 none, 1 sauce, 2 cheese, 3 count, 4.. family clue 1..n",
+   "per_recipe": {
+    "margherita": [
+     26,
+     18,
+     14,
+     5,
+     1
+    ],
+    "marinara": [
+     26,
+     18,
+     3,
+     1,
+     1
+    ],
+    "quattro-formaggi": [
+     26,
+     4,
+     1,
+     1
+    ],
+    "genovese": [
+     26,
+     4,
+     3,
+     1,
+     1
+    ],
+    "bismarck": [
+     26,
+     18,
+     14,
+     5,
+     1
+    ],
+    "funghi": [
+     26,
+     18,
+     14,
+     5,
+     1
+    ],
+    "fugazza": [
+     26,
+     4,
+     2,
+     1,
+     1,
+     1
+    ],
+    "salsiccia": [
+     26,
+     18,
+     14,
+     5,
+     2
+    ],
+    "pepperoni": [
+     26,
+     18,
+     14,
+     5,
+     2
+    ],
+    "napoletana": [
+     26,
+     18,
+     14,
+     6,
+     2,
+     1
+    ],
+    "tonno-e-cipolla": [
+     26,
+     18,
+     14,
+     6,
+     2,
+     1
+    ],
+    "pizza-bianca": [
+     26,
+     4,
+     2,
+     1,
+     1
+    ],
+    "breakfast-pizza": [
+     26,
+     18,
+     14,
+     6,
+     3,
+     1
+    ],
+    "capricciosa": [
+     26,
+     18,
+     14,
+     3,
+     2,
+     2,
+     1
+    ],
+    "meat-lovers": [
+     26,
+     18,
+     14,
+     3,
+     1
+    ],
+    "melanzane-pizza": [
+     26,
+     18,
+     14,
+     6,
+     3,
+     1
+    ],
+    "parmigiana-pizza": [
+     26,
+     18,
+     1,
+     1,
+     1,
+     1
+    ],
+    "bambino": [
+     26,
+     18,
+     14,
+     6,
+     3,
+     1
+    ],
+    "hawaiian": [
+     26,
+     18,
+     14,
+     6,
+     3,
+     1
+    ],
+    "pizza-portuguesa": [
+     26,
+     18,
+     14,
+     3,
+     2,
+     2,
+     1
+    ],
+    "pesto-tonno": [
+     26,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "new-haven-apizza": [
+     26,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "pesto-caprese": [
+     26,
+     4,
+     3,
+     2,
+     2,
+     1
+    ],
+    "pesto-patate": [
+     26,
+     4,
+     3,
+     2,
+     1,
+     1
+    ],
+    "puttanesca-pizza": [
+     26,
+     18,
+     3,
+     2,
+     1,
+     1,
+     1,
+     1
+    ],
+    "brazilian-calabresa": [
+     26,
+     18,
+     3,
+     2,
+     1,
+     1,
+     1
+    ]
+   },
+   "final_unique": 24,
+   "final_histogram": {
+    "1": 24,
+    "2": 2
+   }
+  },
+  "step12_pool_pair_reduction": {
+   "pool": [
+    "pizza-portuguesa",
+    "brazilian-calabresa"
+   ],
+   "per_recipe": {
+    "pizza-portuguesa": [
+     2,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "brazilian-calabresa": [
+     2,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "first_stage_that_separates": "cheese (portuguesa: mozzarella; calabresa: none)"
+  },
+  "applicable_hint_rule_examples": {
+   "margherita": [
+    "sauce/base:tomato-sauce",
+    "cheese:mozzarella",
+    "ingredient_count:3",
+    "topping_count:1",
+    "families:herbx1"
+   ],
+   "marinara": [
+    "sauce/base:tomato-sauce",
+    "cheese:NONE (nothing to ask; offering it leaks 2.3 bit)",
+    "ingredient_count:3",
+    "topping_count:2",
+    "families:herbx2"
+   ],
+   "quattro-formaggi": [
+    "sauce/base:olive-oil",
+    "cheese:fontina+gorgonzola+mozzarella+parmigiano",
+    "ingredient_count:5",
+    "topping_count:0",
+    "families:none (no toppings)"
+   ],
+   "pizza-bianca": [
+    "sauce/base:olive-oil",
+    "cheese:NONE (nothing to ask; offering it leaks 2.3 bit)",
+    "ingredient_count:2",
+    "topping_count:1",
+    "families:herbx1"
+   ],
+   "pizza-portuguesa": [
+    "sauce/base:tomato-sauce",
+    "cheese:mozzarella",
+    "ingredient_count:6",
+    "topping_count:4",
+    "families:meatx1,vegetablex2,otherx1"
+   ],
+   "brazilian-calabresa": [
+    "sauce/base:tomato-sauce",
+    "cheese:NONE (nothing to ask; offering it leaks 2.3 bit)",
+    "ingredient_count:5",
+    "topping_count:4",
+    "families:meatx1,vegetablex2,herbx1"
+   ]
+  }
+ },
+ "F": {
+  "note": "direct answer = R == 1 at the recipe's own key step, after every hint of the profile",
+  "profiles": {
+   "P-B sauce+cheese+count+families": [
+    {
+     "recipe": "margherita",
+     "key_step": 0,
+     "R": 1,
+     "why": [
+      "herb: needs 1 of 1 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "quattro-formaggi",
+     "key_step": 24,
+     "R": 1,
+     "why": [
+      "unique under the remaining facts"
+     ]
+    },
+    {
+     "recipe": "bismarck",
+     "key_step": 1,
+     "R": 1,
+     "why": [
+      "other: needs 1 of 1 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "funghi",
+     "key_step": 3,
+     "R": 1,
+     "why": [
+      "vegetable: needs 1 of 1 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "breakfast-pizza",
+     "key_step": 2,
+     "R": 1,
+     "why": [
+      "meat: needs 1 of 1 owned (family saturated)",
+      "other: needs 1 of 1 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "meat-lovers",
+     "key_step": 8,
+     "R": 1,
+     "why": [
+      "meat: needs 4 of 4 owned (family saturated)"
+     ]
+    }
+   ],
+   "H5 current full ladder (key named)": [
+    {
+     "recipe": "margherita",
+     "key_step": 0,
+     "R": 1,
+     "why": [
+      "herb: needs 0 of 0 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "quattro-formaggi",
+     "key_step": 24,
+     "R": 1,
+     "why": [
+      "unique under the remaining facts"
+     ]
+    },
+    {
+     "recipe": "genovese",
+     "key_step": 18,
+     "R": 1,
+     "why": [
+      "vegetable: needs 0 of 5 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "bismarck",
+     "key_step": 1,
+     "R": 1,
+     "why": [
+      "other: needs 0 of 0 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "funghi",
+     "key_step": 3,
+     "R": 1,
+     "why": [
+      "vegetable: needs 0 of 0 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "salsiccia",
+     "key_step": 7,
+     "R": 1,
+     "why": [
+      "meat: needs 0 of 2 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "pepperoni",
+     "key_step": 6,
+     "R": 1,
+     "why": [
+      "meat: needs 0 of 1 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "pizza-bianca",
+     "key_step": 22,
+     "R": 1,
+     "why": [
+      "herb: needs 0 of 3 owned (nothing else in the family is owned)"
+     ]
+    },
+    {
+     "recipe": "breakfast-pizza",
+     "key_step": 2,
+     "R": 1,
+     "why": [
+      "meat: needs 0 of 0 owned (nothing else in the family is owned)",
+      "other: needs 1 of 1 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "meat-lovers",
+     "key_step": 8,
+     "R": 1,
+     "why": [
+      "meat: needs 3 of 3 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "melanzane-pizza",
+     "key_step": 4,
+     "R": 1,
+     "why": [
+      "vegetable: needs 0 of 1 owned (nothing else in the family is owned)",
+      "herb: needs 1 of 1 owned (family saturated)"
+     ]
+    },
+    {
+     "recipe": "parmigiana-pizza",
+     "key_step": 5,
+     "R": 1,
+     "why": [
+      "vegetable: needs 0 of 1 owned (nothing else in the family is owned)",
+      "herb: needs 1 of 1 owned (family saturated)"
+     ]
+    }
+   ]
+  }
+ },
+ "H": {
+  "model": "same solver as the Fresh Audit; targets = every recipe makeable at the step, now INCLUDING brazilian-calabresa (26-world)",
+  "sim": {
+   "12": {
+    "space": 8744,
+    "targets": 14,
+    "H0 none|E": {
+     "mean": 4372.5,
+     "hyp_space_median": 8744
+    },
+    "H0 none|A": {
+     "mean": 68.9,
+     "p90": 150,
+     "hyp_space_median": 8744,
+     "capped_share": 0.0
+    },
+    "H0 none|A2": {
+     "mean": 8.2,
+     "p90": 10,
+     "hyp_space_median": 8744,
+     "capped_share": 0.0
+    },
+    "H0 none|B": {
+     "mean": 8,
+     "p90": 9,
+     "hyp_space_median": 8744,
+     "capped_share": 0.0
+    },
+    "H0 none|C": {
+     "mean": 53.1,
+     "p90": 76,
+     "hyp_space_median": 8744,
+     "capped_share": 0.0
+    },
+    "H0 none|D": {
+     "mean": 136.8,
+     "p90": 400,
+     "hyp_space_median": 8744,
+     "capped_share": 0.21
+    },
+    "H3 sauce+cheese+count|E": {
+     "mean": 39.5,
+     "hyp_space_median": 78
+    },
+    "H3 sauce+cheese+count|A": {
+     "mean": 9,
+     "p90": 13,
+     "hyp_space_median": 78,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|A2": {
+     "mean": 7.2,
+     "p90": 12,
+     "hyp_space_median": 78,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|B": {
+     "mean": 6.8,
+     "p90": 10,
+     "hyp_space_median": 78,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|C": {
+     "mean": 14.8,
+     "p90": 29,
+     "hyp_space_median": 78,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|D": {
+     "mean": 100.7,
+     "p90": 400,
+     "hyp_space_median": 78,
+     "capped_share": 0.14
+    },
+    "H4 +families|E": {
+     "mean": 2.5,
+     "hyp_space_median": 4
+    },
+    "H4 +families|A": {
+     "mean": 3.1,
+     "p90": 5,
+     "hyp_space_median": 4,
+     "capped_share": 0.0
+    },
+    "H4 +families|A2": {
+     "mean": 2.9,
+     "p90": 4,
+     "hyp_space_median": 4,
+     "capped_share": 0.0
+    },
+    "H4 +families|B": {
+     "mean": 3.1,
+     "p90": 5,
+     "hyp_space_median": 4,
+     "capped_share": 0.0
+    },
+    "H4 +families|C": {
+     "mean": 9.0,
+     "p90": 22,
+     "hyp_space_median": 4,
+     "capped_share": 0.0
+    },
+    "H4 +families|D": {
+     "mean": 10.0,
+     "p90": 28,
+     "hyp_space_median": 4,
+     "capped_share": 0.0
+    }
+   },
+   "18": {
+    "space": 51424,
+    "targets": 20,
+    "H0 none|E": {
+     "mean": 25712.5,
+     "hyp_space_median": 51424
+    },
+    "H0 none|A": {
+     "mean": 214.2,
+     "p90": 400,
+     "hyp_space_median": 51424,
+     "capped_share": 0.25
+    },
+    "H0 none|A2": {
+     "mean": 9.8,
+     "p90": 13,
+     "hyp_space_median": 51424,
+     "capped_share": 0.0
+    },
+    "H0 none|B": {
+     "mean": 9.2,
+     "p90": 11,
+     "hyp_space_median": 51424,
+     "capped_share": 0.0
+    },
+    "H0 none|C": {
+     "mean": 97.5,
+     "p90": 139,
+     "hyp_space_median": 51424,
+     "capped_share": 0.0
+    },
+    "H0 none|D": {
+     "mean": 221.3,
+     "p90": 400,
+     "hyp_space_median": 51424,
+     "capped_share": 0.35
+    },
+    "H3 sauce+cheese+count|E": {
+     "mean": 68.5,
+     "hyp_space_median": 136
+    },
+    "H3 sauce+cheese+count|A": {
+     "mean": 15,
+     "p90": 20,
+     "hyp_space_median": 136,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|A2": {
+     "mean": 8.8,
+     "p90": 14,
+     "hyp_space_median": 136,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|B": {
+     "mean": 8.7,
+     "p90": 15,
+     "hyp_space_median": 136,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|C": {
+     "mean": 25.1,
+     "p90": 63,
+     "hyp_space_median": 136,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|D": {
+     "mean": 145.5,
+     "p90": 400,
+     "hyp_space_median": 136,
+     "capped_share": 0.25
+    },
+    "H4 +families|E": {
+     "mean": 3.5,
+     "hyp_space_median": 6
+    },
+    "H4 +families|A": {
+     "mean": 4.0,
+     "p90": 7,
+     "hyp_space_median": 6,
+     "capped_share": 0.0
+    },
+    "H4 +families|A2": {
+     "mean": 2.9,
+     "p90": 5,
+     "hyp_space_median": 6,
+     "capped_share": 0.0
+    },
+    "H4 +families|B": {
+     "mean": 3.1,
+     "p90": 5,
+     "hyp_space_median": 6,
+     "capped_share": 0.0
+    },
+    "H4 +families|C": {
+     "mean": 14.7,
+     "p90": 13,
+     "hyp_space_median": 6,
+     "capped_share": 0.0
+    },
+    "H4 +families|D": {
+     "mean": 11.9,
+     "p90": 29,
+     "hyp_space_median": 6,
+     "capped_share": 0.0
+    }
+   },
+   "24": {
+    "space": 582976,
+    "targets": 26,
+    "H0 none|E": {
+     "mean": 291488.5,
+     "hyp_space_median": 582976
+    },
+    "H0 none|A": {
+     "mean": 379.2,
+     "p90": 400,
+     "hyp_space_median": 582976,
+     "capped_share": 0.88
+    },
+    "H0 none|A2": {
+     "mean": 10.9,
+     "p90": 15,
+     "hyp_space_median": 582976,
+     "capped_share": 0.0
+    },
+    "H0 none|B": {
+     "mean": 11.3,
+     "p90": 13,
+     "hyp_space_median": 582976,
+     "capped_share": 0.0
+    },
+    "H0 none|C": {
+     "mean": 156.8,
+     "p90": 212,
+     "hyp_space_median": 582976,
+     "capped_share": 0.0
+    },
+    "H0 none|D": {
+     "mean": 270.1,
+     "p90": 400,
+     "hyp_space_median": 582976,
+     "capped_share": 0.58
+    },
+    "H3 sauce+cheese+count|E": {
+     "mean": 116.0,
+     "hyp_space_median": 231
+    },
+    "H3 sauce+cheese+count|A": {
+     "mean": 30.1,
+     "p90": 68,
+     "hyp_space_median": 231,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|A2": {
+     "mean": 8.3,
+     "p90": 13,
+     "hyp_space_median": 231,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|B": {
+     "mean": 10.5,
+     "p90": 15,
+     "hyp_space_median": 231,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|C": {
+     "mean": 40.8,
+     "p90": 72,
+     "hyp_space_median": 231,
+     "capped_share": 0.0
+    },
+    "H3 sauce+cheese+count|D": {
+     "mean": 152.7,
+     "p90": 400,
+     "hyp_space_median": 231,
+     "capped_share": 0.23
+    },
+    "H4 +families|E": {
+     "mean": 6.5,
+     "hyp_space_median": 12
+    },
+    "H4 +families|A": {
+     "mean": 4.7,
+     "p90": 10,
+     "hyp_space_median": 12,
+     "capped_share": 0.0
+    },
+    "H4 +families|A2": {
+     "mean": 3.4,
+     "p90": 5,
+     "hyp_space_median": 12,
+     "capped_share": 0.0
+    },
+    "H4 +families|B": {
+     "mean": 3.6,
+     "p90": 6,
+     "hyp_space_median": 12,
+     "capped_share": 0.0
+    },
+    "H4 +families|C": {
+     "mean": 26,
+     "p90": 70,
+     "hyp_space_median": 12,
+     "capped_share": 0.0
+    },
+    "H4 +families|D": {
+     "mean": 31.8,
+     "p90": 57,
+     "hyp_space_median": 12,
+     "capped_share": 0.04
+    }
+   }
+  },
+  "ratio_vs_no_feedback": {
+   "step12 H3 sauce+cheese+count": {
+    "A": 0.228,
+    "A2": 0.182,
+    "B": 0.172,
+    "C": 0.375,
+    "D": 2.549
+   },
+   "step12 H4 +families": {
+    "A": 1.24,
+    "A2": 1.16,
+    "B": 1.24,
+    "C": 3.6,
+    "D": 4.0
+   },
+   "step18 H3 sauce+cheese+count": {
+    "A": 0.219,
+    "A2": 0.128,
+    "B": 0.127,
+    "C": 0.366,
+    "D": 2.124
+   },
+   "step18 H4 +families": {
+    "A": 1.143,
+    "A2": 0.829,
+    "B": 0.886,
+    "C": 4.2,
+    "D": 3.4
+   },
+   "step24 H3 sauce+cheese+count": {
+    "A": 0.259,
+    "A2": 0.072,
+    "B": 0.091,
+    "C": 0.352,
+    "D": 1.316
+   },
+   "step24 H4 +families": {
+    "A": 0.723,
+    "A2": 0.523,
+    "B": 0.554,
+    "C": 4.0,
+    "D": 4.892
+   }
+  },
+  "OD_D3_16_candidate_definitions": {
+   "def1": "mean attempts >= 25% of the no-feedback elimination at the same hint level",
+   "def2": "mean attempts >= 20 under H3 at steps >= 12",
+   "evaluation": {
+    "step12": {
+     "E_mean": 39.5,
+     "kinds_with_ratio_ge_0.25": [
+      "C",
+      "D"
+     ],
+     "kinds_with_mean_ge_20": [
+      "D"
+     ]
+    },
+    "step18": {
+     "E_mean": 68.5,
+     "kinds_with_ratio_ge_0.25": [
+      "C",
+      "D"
+     ],
+     "kinds_with_mean_ge_20": [
+      "C",
+      "D"
+     ]
+    },
+    "step24": {
+     "E_mean": 116.0,
+     "kinds_with_ratio_ge_0.25": [
+      "A",
+      "C",
+      "D"
+     ],
+     "kinds_with_mean_ge_20": [
+      "A",
+      "C",
+      "D"
+     ]
+    }
+   }
+  },
+  "near_reach_step12": {
+   "space": 8744,
+   "pool1_portuguesa": [
+    0.0009149130832570906,
+    8
+   ],
+   "pool2_portuguesa_calabresa": [
+    0.0018298261665141812,
+    16
+   ],
+   "reading": "(share, count) of all identities that the near/far line reports as one edit away (d<=1, symmetric difference) from a pool recipe; note P2 also separates add / remove / sauce direction"
+  }
+ }
+}

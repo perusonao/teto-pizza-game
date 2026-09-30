@@ -140,3 +140,15 @@ S2（実際の追加）の blocker は `docs/reports/TETO_DISCOVERY-3_S0_SSOT-UP
 | **OD-D3-16（新）** | 「総当たり solver になりにくい」の定量的な定義 | 未決。S1 が提案を出す |
 | **OD-D3-17（新）** | ladder 加速の解決方式（OD-D3-5 の (a)〜(d)） | 未決。**S2 の前提** |
 | **OD-D3-18（新）** | brazilian-calabresa の id / 表示名（naming cluster NC-4 の review、`calabrese` との混同） | 未決。**S2 の前提** |
+
+## S1 outcome addendum (2026-10-01) — 新しく生じた未決
+
+S1（`docs/reports/TETO_DISCOVERY-3_S1_Measurement-Migration-Gate_Result.md`）の結果、次が Owner 判断として加わった。**いずれも確定していない。**
+
+| ID | 内容 | 選択肢 |
+|---|---|---|
+| OD-D3-19 | Hint 5.0 の migration（key-topping の廃止の進め方） | A compatibility / B authority / C key を optional にして橋渡し（結果 §8） |
+| OD-D3-20 | 「あと少し」の trigger（oracle は再現した） | T1〜T5（結果 §10.4） |
+| OD-D3-17 | ladder 加速の解決方式（S2 の前提） | O1〜O5（結果 §5）。推奨は O3 |
+| OD-D3-18 | brazilian-calabresa の id / 表示名、「オリーブ」の扱い | 結果 §16 |
+| OD-D3-2 の範囲 | 「キートッピング」= Hint 5.0 の `hintKeyToppingId` だけか、Hint 3.0 由来の `hintKeyIngredientId`（最後に解放された食材。near-miss の「新しい材料は使ってみた？」が使う）も含むか | 要確認（結果 §8.1） |

@@ -1,0 +1,938 @@
+{
+ "B_ladderValidators": {
+  "structure": [],
+  "progressionBaseline": [],
+  "progressionWithCalabresa": []
+ },
+ "B": {
+  "rows": [
+   {
+    "id": "tomato-sauce",
+    "inRuntimeIngredients": true,
+    "starter": true,
+    "ladderStep": null
+   },
+   {
+    "id": "sausage",
+    "inRuntimeIngredients": true,
+    "starter": false,
+    "ladderStep": 7
+   },
+   {
+    "id": "onion",
+    "inRuntimeIngredients": true,
+    "starter": false,
+    "ladderStep": 12
+   },
+   {
+    "id": "black-olive",
+    "inRuntimeIngredients": true,
+    "starter": false,
+    "ladderStep": 11
+   },
+   {
+    "id": "oregano",
+    "inRuntimeIngredients": true,
+    "starter": false,
+    "ladderStep": 11
+   }
+  ],
+  "newIngredients": 0,
+  "ladderStepsAdded": 0,
+  "lastNeededStep": 12,
+  "lastNeededIngredients": [
+   "onion"
+  ]
+ },
+ "C": {
+  "rows": [
+   {
+    "step": 0,
+    "discovered": 1,
+    "baseline": [],
+    "withCalabresa": []
+   },
+   {
+    "step": 1,
+    "discovered": 1,
+    "baseline": [
+     "bismarck"
+    ],
+    "withCalabresa": [
+     "bismarck"
+    ]
+   },
+   {
+    "step": 2,
+    "discovered": 2,
+    "baseline": [
+     "breakfast-pizza"
+    ],
+    "withCalabresa": [
+     "breakfast-pizza"
+    ]
+   },
+   {
+    "step": 3,
+    "discovered": 3,
+    "baseline": [
+     "funghi"
+    ],
+    "withCalabresa": [
+     "funghi"
+    ]
+   },
+   {
+    "step": 4,
+    "discovered": 4,
+    "baseline": [
+     "melanzane-pizza"
+    ],
+    "withCalabresa": [
+     "melanzane-pizza"
+    ]
+   },
+   {
+    "step": 5,
+    "discovered": 5,
+    "baseline": [
+     "parmigiana-pizza"
+    ],
+    "withCalabresa": [
+     "parmigiana-pizza"
+    ]
+   },
+   {
+    "step": 6,
+    "discovered": 6,
+    "baseline": [
+     "pepperoni"
+    ],
+    "withCalabresa": [
+     "pepperoni"
+    ]
+   },
+   {
+    "step": 7,
+    "discovered": 7,
+    "baseline": [
+     "salsiccia"
+    ],
+    "withCalabresa": [
+     "salsiccia"
+    ]
+   },
+   {
+    "step": 8,
+    "discovered": 8,
+    "baseline": [
+     "meat-lovers"
+    ],
+    "withCalabresa": [
+     "meat-lovers"
+    ]
+   },
+   {
+    "step": 9,
+    "discovered": 9,
+    "baseline": [
+     "bambino"
+    ],
+    "withCalabresa": [
+     "bambino"
+    ]
+   },
+   {
+    "step": 10,
+    "discovered": 10,
+    "baseline": [
+     "hawaiian"
+    ],
+    "withCalabresa": [
+     "hawaiian"
+    ]
+   },
+   {
+    "step": 11,
+    "discovered": 11,
+    "baseline": [
+     "capricciosa"
+    ],
+    "withCalabresa": [
+     "capricciosa"
+    ]
+   },
+   {
+    "step": 12,
+    "discovered": 12,
+    "baseline": [
+     "pizza-portuguesa"
+    ],
+    "withCalabresa": [
+     "brazilian-calabresa",
+     "pizza-portuguesa"
+    ]
+   },
+   {
+    "step": 13,
+    "discovered": 13,
+    "baseline": [
+     "fugazza"
+    ],
+    "withCalabresa": [
+     "fugazza",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 14,
+    "discovered": 14,
+    "baseline": [
+     "marinara"
+    ],
+    "withCalabresa": [
+     "marinara",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 15,
+    "discovered": 15,
+    "baseline": [
+     "napoletana"
+    ],
+    "withCalabresa": [
+     "napoletana",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 16,
+    "discovered": 16,
+    "baseline": [
+     "tonno-e-cipolla"
+    ],
+    "withCalabresa": [
+     "tonno-e-cipolla",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 17,
+    "discovered": 17,
+    "baseline": [
+     "pesto-tonno"
+    ],
+    "withCalabresa": [
+     "pesto-tonno",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 18,
+    "discovered": 18,
+    "baseline": [
+     "genovese"
+    ],
+    "withCalabresa": [
+     "genovese",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 19,
+    "discovered": 19,
+    "baseline": [
+     "new-haven-apizza"
+    ],
+    "withCalabresa": [
+     "new-haven-apizza",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 20,
+    "discovered": 20,
+    "baseline": [
+     "pesto-caprese"
+    ],
+    "withCalabresa": [
+     "pesto-caprese",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 21,
+    "discovered": 21,
+    "baseline": [
+     "pesto-patate"
+    ],
+    "withCalabresa": [
+     "pesto-patate",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 22,
+    "discovered": 22,
+    "baseline": [
+     "pizza-bianca"
+    ],
+    "withCalabresa": [
+     "pizza-bianca",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 23,
+    "discovered": 23,
+    "baseline": [
+     "puttanesca-pizza"
+    ],
+    "withCalabresa": [
+     "puttanesca-pizza",
+     "brazilian-calabresa"
+    ]
+   },
+   {
+    "step": 24,
+    "discovered": 24,
+    "baseline": [
+     "quattro-formaggi"
+    ],
+    "withCalabresa": [
+     "quattro-formaggi",
+     "brazilian-calabresa"
+    ]
+   }
+  ],
+  "step11PoolWithCalabresa": [
+   "capricciosa"
+  ],
+  "step12PoolWithCalabresa": [
+   "brazilian-calabresa",
+   "pizza-portuguesa"
+  ],
+  "hintTargetOrderAtStep12": [
+   "brazilian-calabresa",
+   "pizza-portuguesa"
+  ]
+ },
+ "D": {
+  "baselineRoundReaching24": 24,
+  "results": [
+   {
+    "player": "normal (never finds it)",
+    "option": "O1 status quo (count all)",
+    "rounds": 25,
+    "totalDiscoveries": 25,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "1": 12,
+     "2": 13
+    },
+    "poolAtRounds12to16": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   {
+    "player": "normal (never finds it)",
+    "option": "O2 count W1 recipes only",
+    "rounds": 25,
+    "totalDiscoveries": 25,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "1": 12,
+     "2": 13
+    },
+    "poolAtRounds12to16": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   {
+    "player": "normal (never finds it)",
+    "option": "O4 calabresa gated until W1 complete",
+    "rounds": 25,
+    "totalDiscoveries": 25,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "1": 24,
+     "2": 1
+    },
+    "poolAtRounds12to16": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   {
+    "player": "finds it first",
+    "option": "O1 status quo (count all)",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 1,
+    "w1DiscoveriesWhenStep24Reached": 23,
+    "poolHistogram": {
+     "0": 1,
+     "1": 12,
+     "2": 13
+    },
+    "poolAtRounds12to16": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   {
+    "player": "finds it first",
+    "option": "O2 count W1 recipes only",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 25,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "0": 1,
+     "1": 24,
+     "2": 1
+    },
+    "poolAtRounds12to16": [
+     2,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   {
+    "player": "finds it first",
+    "option": "O4 calabresa gated until W1 complete",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "0": 1,
+     "1": 24,
+     "2": 1
+    },
+    "poolAtRounds12to16": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   {
+    "player": "finds it later (after 18 discoveries)",
+    "option": "O1 status quo (count all)",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 1,
+    "w1DiscoveriesWhenStep24Reached": 23,
+    "poolHistogram": {
+     "0": 1,
+     "1": 12,
+     "2": 13
+    },
+    "poolAtRounds12to16": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   {
+    "player": "finds it later (after 18 discoveries)",
+    "option": "O2 count W1 recipes only",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 25,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "0": 1,
+     "1": 18,
+     "2": 7
+    },
+    "poolAtRounds12to16": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   {
+    "player": "finds it later (after 18 discoveries)",
+    "option": "O4 calabresa gated until W1 complete",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "0": 1,
+     "1": 24,
+     "2": 1
+    },
+    "poolAtRounds12to16": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   {
+    "player": "finds everything immediately",
+    "option": "O1 status quo (count all)",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 1,
+    "w1DiscoveriesWhenStep24Reached": 23,
+    "poolHistogram": {
+     "0": 1,
+     "1": 12,
+     "2": 13
+    },
+    "poolAtRounds12to16": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   {
+    "player": "finds everything immediately",
+    "option": "O2 count W1 recipes only",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 25,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "0": 1,
+     "1": 24,
+     "2": 1
+    },
+    "poolAtRounds12to16": [
+     2,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   {
+    "player": "finds everything immediately",
+    "option": "O4 calabresa gated until W1 complete",
+    "rounds": 26,
+    "totalDiscoveries": 26,
+    "finalStep": 24,
+    "roundReachingStep24": 24,
+    "stepByRoundLeadVsBaseline": 0,
+    "leadFirstSeenAtRound": null,
+    "maxStepLeadOverW1Discoveries": 0,
+    "w1DiscoveriesWhenStep24Reached": 24,
+    "poolHistogram": {
+     "0": 1,
+     "1": 24,
+     "2": 1
+    },
+    "poolAtRounds12to16": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ]
+   }
+  ],
+  "note": "round = one discovery. O3 (per-recipe ladder-credit flag) is numerically identical to O2 for one recipe whose credit is false; O5 (economy retune only) is O1 plus a cost curve (see L)."
+ },
+ "K": {
+  "catalogSize": 26,
+  "identityCollisions": 0,
+  "calabresaMatches": "brazilian-calabresa",
+  "portuguesaMatches": "pizza-portuguesa",
+  "capricciosaMatches": "capricciosa",
+  "calabresaPlusMozzarella": "NO_MATCH",
+  "note": "calabresa vs capricciosa share sauce, count 4 and family composition; they differ in cheese and in 3 of 4 toppings"
+ },
+ "J": {
+  "pool": [
+   "brazilian-calabresa",
+   "pizza-portuguesa"
+  ],
+  "rows": [
+   {
+    "label": "calabresa + mozzarella (extra cheese)",
+    "match": "NO_MATCH",
+    "nearMiss": {
+     "kind": "REMOVE_ONE",
+     "distance": 1
+    },
+    "recorded": {
+     "kind": "NEW",
+     "number": 1
+    }
+   },
+   {
+    "label": "portuguesa minus ham",
+    "match": "NO_MATCH",
+    "nearMiss": {
+     "kind": "ADD_ONE",
+     "distance": 1
+    },
+    "recorded": {
+     "kind": "NEW",
+     "number": 2
+    }
+   },
+   {
+    "label": "calabresa + mozzarella (same again)",
+    "match": "NO_MATCH",
+    "nearMiss": {
+     "kind": "REMOVE_ONE",
+     "distance": 1
+    },
+    "recorded": {
+     "kind": "DUPLICATE",
+     "number": 1,
+     "retryCount": 1,
+     "revived": false
+    }
+   },
+   {
+    "label": "tomato + sausage + onion",
+    "match": "NO_MATCH",
+    "nearMiss": {
+     "kind": "CLOSE",
+     "distance": 2
+    },
+    "recorded": {
+     "kind": "NEW",
+     "number": 3
+    }
+   }
+  ],
+  "notebookView": [
+   {
+    "number": 3,
+    "retryCount": 0,
+    "combination": {
+     "sauceBase": [
+      "tomato-sauce"
+     ],
+     "ingredientSet": [
+      "onion",
+      "sausage",
+      "tomato-sauce"
+     ]
+    },
+    "feedback": {
+     "kind": "CLOSE",
+     "textJa": "(near-miss CLOSE)"
+    }
+   },
+   {
+    "number": 1,
+    "retryCount": 1,
+    "combination": {
+     "sauceBase": [
+      "tomato-sauce"
+     ],
+     "ingredientSet": [
+      "black-olive",
+      "mozzarella",
+      "onion",
+      "oregano",
+      "sausage",
+      "tomato-sauce"
+     ]
+    },
+    "feedback": {
+     "kind": "REMOVE_ONE",
+     "textJa": "(near-miss REMOVE_ONE)"
+    }
+   },
+   {
+    "number": 2,
+    "retryCount": 0,
+    "combination": {
+     "sauceBase": [
+      "tomato-sauce"
+     ],
+     "ingredientSet": [
+      "black-olive",
+      "egg",
+      "mozzarella",
+      "onion",
+      "tomato-sauce"
+     ]
+    },
+    "feedback": {
+     "kind": "ADD_ONE",
+     "textJa": "(near-miss ADD_ONE)"
+    }
+   }
+  ],
+  "notebookLeaksRecipeOrDistance": null,
+  "derivedDiffPrototype": [
+   {
+    "from": "calabresa + mozzarella (extra cheese)",
+    "to": "portuguesa minus ham",
+    "added": [
+     "egg"
+    ],
+    "removed": [
+     "sausage",
+     "oregano"
+    ]
+   },
+   {
+    "from": "portuguesa minus ham",
+    "to": "calabresa + mozzarella (same again)",
+    "added": [
+     "sausage",
+     "oregano"
+    ],
+    "removed": [
+     "egg"
+    ]
+   },
+   {
+    "from": "calabresa + mozzarella (same again)",
+    "to": "tomato + sausage + onion",
+    "added": [],
+    "removed": [
+     "black-olive",
+     "oregano",
+     "mozzarella"
+    ]
+   }
+  ],
+  "note": "diff and hint-consistency are pure functions of the player's own attempts (and owned facts); the notebook needs no new hidden fact"
+ },
+ "L": {
+  "materialsTouchedByCalabresa": [
+   {
+    "id": "sausage",
+    "k_before": 3,
+    "k_after": 3,
+    "pack_before": 30,
+    "pack_after": 30,
+    "step": 7,
+    "tier": "T2",
+    "packPrice": 80,
+    "refillPrice": 40,
+    "offerUnchanged": true
+   },
+   {
+    "id": "onion",
+    "k_before": 4,
+    "k_after": 4,
+    "pack_before": 40,
+    "pack_after": 40,
+    "step": 12,
+    "tier": "T2",
+    "packPrice": 80,
+    "refillPrice": 40,
+    "offerUnchanged": true
+   },
+   {
+    "id": "black-olive",
+    "k_before": 2,
+    "k_after": 2,
+    "pack_before": 20,
+    "pack_after": 20,
+    "step": 11,
+    "tier": "T2",
+    "packPrice": 80,
+    "refillPrice": 40,
+    "offerUnchanged": true
+   },
+   {
+    "id": "oregano",
+    "k_before": 2,
+    "k_after": 2,
+    "pack_before": 20,
+    "pack_after": 20,
+    "step": 11,
+    "tier": "T2",
+    "packPrice": 80,
+    "refillPrice": 40,
+    "offerUnchanged": true
+   }
+  ],
+  "note_minCount": "calabresa minCount values are a placeholder; k changes only if a minCount exceeds the existing maximum for that ingredient",
+  "pitzPerFirstDiscoveryAt70": {
+   "earned": 80,
+   "bonus": 50,
+   "total": 130,
+   "firstDiscoveryBonusConst": 50
+  },
+  "cumulativePackCostToStep": {
+   "12": 940,
+   "18": 1500,
+   "24": 2200
+  },
+  "recipeExtraIncome": "one more discoverable recipe = one more first-discovery payout (base 100 x quality + 50 bonus) and one more ladder credit under O1",
+  "inventoryConsumption": "no inventory change: calabresa uses 4 finite materials already sold (sausage, onion, black-olive, oregano); a round consumes stock like any recipe"
+ },
+ "A": {
+  "matrixIdentitySet": [
+   "black-olive",
+   "onion",
+   "oregano",
+   "sausage",
+   "tomato-sauce"
+  ],
+  "matrixStatus": "READY_WITH_REVIEW",
+  "matrixRepresentability": "FULL",
+  "matrixBlockers": [],
+  "matrixReviewItems": [
+   {
+    "type": "NAMING_CLUSTER",
+    "ref": "NC-4-calabresa",
+    "detail": "Calabresa family (2-way)"
+   }
+  ],
+  "fixtureIdentitySet": [
+   "black-olive",
+   "onion",
+   "oregano",
+   "sausage",
+   "tomato-sauce"
+  ],
+  "masterEvidenceRecordKeys": [
+   "id",
+   "nameJa",
+   "origin",
+   "doughStyle",
+   "sauceFamily",
+   "ingredientsCanonical",
+   "ingredientsJa",
+   "evidenceOrigin",
+   "sourceUrl",
+   "verifiedAt",
+   "correspondsToExistingCatalogId",
+   "correspondenceNote",
+   "requiresMechanicIdentity",
+   "mechanicIdentityNote",
+   "evidenceGaps",
+   "taxonomyNote",
+   "namingAmbiguityNote",
+   "corroborationCount",
+   "corroborationSourceUrls",
+   "originBatch"
+  ],
+  "masterEvidenceRecord": {
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "origin": "ブラジル / サンパウロ",
+   "sauceFamily": "トマトソース",
+   "ingredientsCanonical": null,
+   "ingredientsJa": [
+    "ソーセージ",
+    "玉ねぎ",
+    "オリーブ",
+    "オレガノ"
+   ],
+   "evidenceOrigin": "comparison_table_sample",
+   "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "corroborationSourceUrls": [],
+   "originBatch": "individual_profile_or_later_comparison_batch"
+  },
+  "evidenceFoundAtOffset": 117343,
+  "masterCatalogSimilarIds": [
+   {
+    "id": "calabrese",
+    "ingredients": [
+     "mozzarella",
+     "nduja",
+     "tomato-sauce"
+    ]
+   }
+  ],
+  "namingCluster": [
+   {
+    "id": "NC-4-calabresa",
+    "label": "Calabresa family (2-way)",
+    "catalogIds": [],
+    "rowIds": [
+     "calabresa-argentina-pizzadb",
+     "brazilian-calabresa-pizzadb-p10"
+    ]
+   }
+  ]
+ },
+ "I_support": {
+  "note": "recipe windows: marinara 45-65 (accept +-10), funghi 58-78; generic free-cook window 58-78 (accept +-10). Sauce deposits are empty in the bake-only cases (the sauce check then skips).",
+  "marinaraBake55_inside": "MATCHED:marinara",
+  "marinaraBake70_insideGenericOnly": "MATCHED:marinara",
+  "marinaraBake77_outsideRecipeInsideGeneric": "ORIGINAL/INCOMPLETE_MATCH",
+  "marinaraBake95_outsideBoth": "FAILED:OVERBAKED",
+  "funghiOneDabSauce_bake68": "ORIGINAL/INCOMPLETE_MATCH",
+  "funghiFullRingSauce_bake68": "MATCHED:funghi",
+  "funghiNoSauceDeposits_bake68": "MATCHED:funghi"
+ }
+}
