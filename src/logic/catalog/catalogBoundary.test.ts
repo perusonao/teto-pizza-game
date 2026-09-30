@@ -268,4 +268,23 @@ describe("catalog boundary", () => {
     const app = strip(ALL_SOURCES["../../App.tsx"]);
     expect(app).toContain("if (trayHandIds === null) {\n    if (trayHandTrack !== null) setTrayHandTrack(null);");
   });
+  it("LC-R5-e-h H-3: a round / step transition is never evaluated as a hand change (the key guard)", () => {
+    // Behaviourally this is covered by App.handActivation.handOn (H-3), but the mutant that drops the key guard is
+    // EQUIVALENT under today's render order: every round / step change first passes a render whose tray hand is
+    // null (DOUGH, BAKE / RESULT) and the existing resets run before the transition. This gate locks the guard so a
+    // refactor of that order (e.g. resets moved into an effect) cannot silently let a key change clear or keep a
+    // selection through the #197 path.
+    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const app = strip(ALL_SOURCES["../../App.tsx"]);
+    expect(app).toContain("const trayHandKey = `${roundKey}|${activeCategory}`;");
+    expect(app).toContain("if (trayHandTrack !== null && trayHandTrack.key === trayHandKey) {");
+    expect([...app.matchAll(/handTrayTransition\(/g)]).toHaveLength(1);
+    // The round / step resets come first in the render body; the hand transition after them.
+    const roundReset = app.indexOf("if (lastRoundKey !== roundKey) {");
+    const stepReset = app.indexOf("if (lastMakingStep !== state.makingStep) {");
+    const transition = app.indexOf("handTrayTransition(");
+    expect(roundReset).toBeGreaterThan(-1);
+    expect(stepReset).toBeGreaterThan(roundReset);
+    expect(transition).toBeGreaterThan(stepReset);
+  });
 });

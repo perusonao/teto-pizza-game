@@ -122,9 +122,11 @@ const MUTANTS = [
   },
   {
     id: "M10b",
-    what: "capacity off-by-one (item count)",
+    // LC-R5-e-h (H-8): re-targeted at the R5-d line (placed ingredients are never dropped for capacity). The pre-R5-d
+    // edit `if (items.length < capacity) items.push` no longer existed, so this mutant was NOT_APPLICABLE since R5-d.
+    what: "capacity off-by-one (item count, current R5-d line)",
     file: `${C}/workingSet.ts`,
-    edits: [["if (items.length < capacity) items.push", "if (items.length <= capacity) items.push"]],
+    edits: [['if (source === "placed" || items.length < capacity) items.push', 'if (source === "placed" || items.length <= capacity) items.push']],
   },
   {
     id: "M11",
@@ -794,7 +796,7 @@ const MUTANTS = [
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "src/components/IngredientPantry.pins.test.tsx", "src/App.handPins.test.tsx", "src/App.handTray.test.tsx", "src/App.handTray.off.test.tsx", "src/App.freeCookTrayPaging.test.tsx", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "src/components/IngredientPantry.pins.test.tsx", "src/App.handPins.handOn.test.tsx", "src/App.handTray.handOn.test.tsx", "src/App.handActivation.handOn.test.tsx", "src/App.handTray.off.test.tsx", "src/App.freeCookTrayPaging.test.tsx", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });
