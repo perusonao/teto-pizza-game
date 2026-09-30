@@ -1,12 +1,25 @@
 # Original Pizza Recovery P2 — RESULT Feedback Hardening (Result Report)
 
-> **Revision 3 (lead / action copy split, OD-P2-5).** §00 is the current state and supersedes the lead sentence quoted in §0 and below. **Revision 2 (Owner Decisions applied):** §0. §1–§14 describe the first review (HEAD `e73aeb2`); where they say a decision is *pending* or the FAR line is *OFF*, §0 supersedes them.
+> **Revision 4 (Owner HV PASS, 2026-09-30).** §000 records the Owner's Human Verification. **Revision 3 (lead / action copy split, OD-P2-5).** §00 is the current state and supersedes the lead sentence quoted in §0 and below. **Revision 2 (Owner Decisions applied):** §0. §1–§14 describe the first review (HEAD `e73aeb2`); where they say a decision is *pending* or the FAR line is *OFF*, §0 supersedes them.
 
 - **Audited / base `origin/main` SHA:** `af8d46d1215642090aceeaf2703b5a15145f06e4` (fresh fetch)
 - **Branch:** `claude/original-result-feedback-p2` (new, from latest `origin/main`; **not** stacked on P1, and **no dependency on** the Attempt Fingerprint — a gate test asserts no production file references it)
 - **Scope:** pure RESULT-feedback hardening + focused ResultPanel wiring + tests + docs. No PR.
 - **Verification Policy (`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`):** the Owner Decisions (§0, §00) change visible RESULT copy, so HV is required. Before / after screenshots (390×844): `docs/reports/screenshots/original-result-feedback-p2/`. The HV video goes to the Owner directly (never committed).
-- **Verdict:** **A. READY FOR OWNER HV** (§00.4). Owner Decisions OD-P2-1..5 are decided and applied (§0, §00); Human Verification is required.
+- **Verdict:** **Owner HV PASS** (§000) — P2 goes to the Final Review / Merge Gate. (Before HV: A. READY FOR OWNER HV, §00.4.) Owner Decisions OD-P2-1..5 are decided and applied (§0, §00); Human Verification is required.
+
+## 000. Owner Human Verification: PASS
+
+- **Date:** 2026-09-30, Owner, real device, 390×844.
+- **Exact Preview HEAD:** `8c436909a48033c6de747f1ffbb357955f21f216` (Preview badge `PREVIEW · 8c43690`; `teto-pizza-game-preview` `deploy-from-source.yml` with `ref` = that SHA, then `pages.yml` run 36649794148, success). Seed: `?hv=normal`.
+
+| Check | Result | Owner notes |
+|---|---|---|
+| A. near-miss ORIGINAL (tomato, mozzarella ×2, bacon, ham, pepperoni) | **PASS** | lead 「図鑑にはまだ載っていないピザ！」 once; 「🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！」; no duplicated copy; layout OK |
+| B. FAR ORIGINAL (tomato, mozzarella ×2, ham, egg, mushroom) | **PASS** | lead 「図鑑にはまだ載っていないピザ！」; 「🧪 別の組み合わせも試してみよう！」; no duplicated copy; the two-line wrap of the FAR line reads naturally on the device; layout OK |
+| C. 390×844 layout | **PASS** | no overflow; RESULT layout, hint CTA and bottom CTA normal |
+
+**Final Owner HV: PASS.** The HV video was the Owner's own device check and is not committed (Policy). Before / after screenshots: `docs/reports/screenshots/original-result-feedback-p2/`.
 
 ## 00. Update: lead / action copy split (OD-P2-5)
 
