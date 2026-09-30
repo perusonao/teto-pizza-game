@@ -1,6 +1,6 @@
 # Original Pizza Recovery P3-3b — RESULT duplicate notice (Result)
 
-- **Verdict: A. P3-3b DUPLICATE NOTICE COMPLETE** (PR pending the P3-3a post-merge E2E confirmation, see §9)
+- **Verdict: A. P3-3b DUPLICATE NOTICE COMPLETE** (P3-3a post-merge Deploy and E2E WebKit are green, see §9)
 - **Base:** `origin/main` = `22263bddf8a80a6c6e1c3c2ab90a43b1cb44a6d7` (P3-3a merged as PR #316). Branch `claude/p3-3b-result-duplicate-notice` = main + this slice only (no P3-2, no P3-3c, no P3-4).
 - **Authority:** P3-3 Fresh Audit, OD-P3-19 (order P2 line → notice; `#n` only, never `retryCount`), OD-P3-16 (eligibility unchanged from P3-3a), P3-3a record result `GameState.lastTrialAttempt` as the **only** display authority.
 - **Human Verification Policy:** triggered (visible RESULT change); followed — screenshots committed (§6), video delivered directly (§7).
@@ -79,7 +79,7 @@ Video Verification: PASS (exists; 1.5 MB; 390×844 VP8, 25 fps; decoded end to e
 
 ## 9. Process note — P3-3a post-merge E2E WebKit
 
-P3-3a merged as `22263bd`; "Deploy to GitHub Pages" succeeded. The push-triggered "E2E WebKit" run showed **cancelled**: every test step passed on every shard, but `webkit-360x800 shard 1/2` spent 10 min 19 s in "Install WebKit (with system deps)" (14:21:35 → 14:31:54), after which the job ended as *cancelled* at ~15 min (job time limit) although its test step succeeded; the WebKit Gate then failed closed on the cancelled shard. A CI infrastructure timeout, not a test or code failure. The failed jobs were re-run once (see the final report for the result). The PR for P3-3b is opened only after that re-run is green.
+P3-3a merged as `22263bd`; "Deploy to GitHub Pages" succeeded. The push-triggered "E2E WebKit" run showed **cancelled**: every test step passed on every shard, but `webkit-360x800 shard 1/2` spent 10 min 19 s in "Install WebKit (with system deps)" (14:21:35 → 14:31:54), after which the job ended as *cancelled* at ~15 min (job time limit) although its test step succeeded; the WebKit Gate then failed closed on the cancelled shard. A CI infrastructure timeout, not a test or code failure. The failed jobs were re-run once: attempt 2 of run 36728419810 **succeeded** (all shards and the WebKit Gate green), so the post-merge state of P3-3a on `22263bd` is: Deploy success, E2E WebKit success. The P3-3b PR was opened only after that.
 
 ## 10. Not done (by scope)
 
