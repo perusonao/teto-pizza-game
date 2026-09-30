@@ -10,7 +10,7 @@
  *   node tools/large-catalog-ux/mutation-check.mjs M1 M4      # a subset
  *
  * The original matrix is LC-1 Implementation Gate §6 (frozen PR #272 branch). LC-R0 retires the family /
- * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59; LC-R5-b adds M60-M82 (search, approved aliases, IME contract, Mode C keyboard fit) (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager). The "answer
+ * taxonomy-mapping mutants (M4, M5: that authority is not migrated) and adds M5r, M17, M18; LC-R1 adds M19-M25 (shelf authority); LC-R2 adds M26-M32 (FREE gate, capacity guard, hand operations); LC-R3 adds M33-M39 (pantry shell); LC-R4 adds M40-M50 (shelf filtering in the pantry); LC-R5-a adds M51-M59; LC-R5-b adds M60-M82 (search, approved aliases, IME contract, Mode C keyboard fit) (+ M58b, M58c) and re-targets M50 (pantry availability split from the pager); LC-R5-c adds M83-M97 (dormant pin foundation: pin edit rules, App-level session pins, #197 no-clear, dormancy, 方式 D). The "answer
  * leak" mutants (M1, M1b, M2, M3, M7) are the ones the Owner required to be caught: any attempt to
  * mix recipe identity, matcher output, undisclosed hint facts or a Dinner target into the working
  * set must fail the suite.
@@ -598,11 +598,101 @@ const MUTANTS = [
     file: "src/components/IngredientPantry.tsx",
     edits: [["\"該当する材料がありません\"", "\"該当する材料が0件です\""]],
   },
+  {
+    id: "M83",
+    what: "R5-c: a no-stock ingredient can be newly pinned (OD-R5-6)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["if (!hasStock(ctx.ownership.stock(id))) return", "if (false) return"]],
+  },
+  {
+    id: "M84",
+    what: "R5-c: an unowned / other-category id is reported as pinned",
+    file: `${C}/pinEdit.ts`,
+    edits: [["return ctx.ownership.ownedIds.includes(id) &&", "return true ||"]],
+  },
+  {
+    id: "M85",
+    what: "R5-c: a second tap no longer unpins",
+    file: `${C}/pinEdit.ts`,
+    edits: [["replaceHand(session, pins.filter((pin) => pin !== id), ctx)", "replaceHand(session, pins, ctx)"]],
+  },
+  {
+    id: "M86",
+    what: "R5-c: おまかせに戻す clears every category, not only the active one",
+    file: `${C}/pinEdit.ts`,
+    edits: [["  return replaceHand(session, [], ctx);", "  return { sauce: [], cheese: [], topping: [] };"]],
+  },
+  {
+    id: "M87",
+    what: "R5-c: invalid stored pins are shown (no prune on read)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["return [...pruneHand(session, ctx)[ctx.category]];", "return [...session[ctx.category]];"]],
+  },
+  {
+    id: "M88",
+    what: "R5-c: an existing no-stock pin can no longer be removed (tile disabled)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["disabled: !pinned && !hasStock(stock)", "disabled: !hasStock(stock)"]],
+  },
+  {
+    id: "M89",
+    what: "R5-c: the strip renders without pin editing (dormancy broken)",
+    file: `${C}/pinEdit.ts`,
+    edits: [["return input.handEditing && input.pinCount > 0;", "return input.pinCount > 0;"]],
+  },
+  {
+    id: "M90",
+    what: "R5-c: GameScreen turns pin editing on in production",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["handEditing={HAND_ENFORCEMENT_ENABLED}", "handEditing={true}"]],
+  },
+  {
+    id: "M91",
+    what: "R5-c: the pantry defaults to pin editing on",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["  handEditing = false,", "  handEditing = true,"]],
+  },
+  {
+    id: "M92",
+    what: "R5-c: App clears the pins on a new round (OD-R5-9)",
+    file: "src/App.tsx",
+    edits: [["    setSelectedIngredientId(null);\n    // A leftover-open", "    setSelectedIngredientId(null);\n    setHandSession(emptyHandSession());\n    // A leftover-open"]],
+  },
+  {
+    id: "M93",
+    what: "R5-c: a pin edit clears the Builder selection (#197 no-clear)",
+    file: "src/App.tsx",
+    edits: [["onHandSessionChange={setHandSession}", "onHandSessionChange={(u) => { setHandSession(u); setSelectedIngredientId(null); }}"]],
+  },
+  {
+    id: "M94",
+    what: "R5-c: GameScreen does not relay the App pins (they would reset per pantry)",
+    file: "src/screens/GameScreen.tsx",
+    edits: [["pinSession={handSession}", "pinSession={undefined}"]],
+  },
+  {
+    id: "M95",
+    what: "R5-c: 方式 D broken -- the strip stays while the sheet is keyboard-fitted",
+    file: "src/App.css",
+    edits: [[".pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {\n  display: none;", ".pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {\n  display: flex;"]],
+  },
+  {
+    id: "M96",
+    what: "R5-c: the strip shows a pin count (OD-R5-7 / privacy)",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [['{"\\u{1F4CC}"} 選択中\n', '{"\\u{1F4CC}"} 選択中 {pins.length}\n']],
+  },
+  {
+    id: "M97",
+    what: "R5-c: pins are written to browser storage",
+    file: "src/components/IngredientPantry.tsx",
+    edits: [["    if (handEditing) onPinSessionChange?.(update);", "    if (handEditing) onPinSessionChange?.(update);\n    localStorage.setItem(\"pins\", \"x\");"]],
+  },
 ];
 
 function runSuite() {
   // The catalog suite plus DH4-1's own unwired guard (M16 must trip it too).
-  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "--reporter=dot"], {
+  const r = spawnSync("npx", ["vitest", "run", C, "src/logic/discovery/deductionHint.test.ts", "src/screens/GameScreen.pantryShell.test.tsx", "src/components/IngredientPantry.shelves.test.tsx", "src/components/IngredientPantry.search.test.tsx", "src/components/pantrySearchIme.test.ts", "src/components/pantryViewportFit.test.tsx", "src/data/ingredientSearchAliases.test.ts", "src/components/IngredientTray.pantryEntryRow.test.tsx", "src/logic/prepareDock.test.ts", "src/components/IngredientPantry.pins.test.tsx", "src/App.handPins.test.tsx", "--reporter=dot"], {
     cwd: ROOT,
     encoding: "utf8",
   });

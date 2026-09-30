@@ -6450,3 +6450,107 @@ p.hint-sheet__step {
   );
   bottom: var(--pantry-vv-bottom, 0px);
 }
+
+/* ---------- Large Catalog UX LC-R5-c: dormant pin UI (方式 D; rendered only with `handEditing`, i.e. not before R6) ----------
+   Nothing below matches the production (R5-b) DOM: the tile toggle, badge and 「選択中」 strip exist only when pin
+   editing is on. The strip is a fixed, horizontally scrolling slot above the list (the list absorbs its height);
+   while the sheet is keyboard-fitted (Mode C) it is hidden (OD-R5c-2 / -3) and the tile badge + aria-pressed stay. */
+.pantry-tile--editable {
+  position: relative;
+  padding: 0;
+}
+
+.pantry-tile__toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+}
+
+.pantry-tile__toggle--pinned {
+  border-color: #c08a3e;
+  background: #fff3d6;
+}
+
+.pantry-tile__toggle[aria-disabled="true"] {
+  opacity: 0.6;
+}
+
+.pantry-tile__no-stock {
+  font-size: 10px;
+  font-weight: 800;
+  color: #b4432f;
+}
+
+.pantry-tile__pin-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.pantry-sheet__pins {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 44px;
+}
+
+.pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {
+  display: none;
+}
+
+.pantry-sheet__pins-label {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.pantry-sheet__pins-scroll {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.pantry-pin {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 999px;
+  background: #fff3d6;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a2e0a;
+}
+
+.pantry-sheet__pins-reset {
+  flex: none;
+  min-height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: #e6d5ae;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b4226;
+}

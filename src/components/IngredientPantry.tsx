@@ -3,6 +3,8 @@ import { CATEGORY_LABEL, getIngredient, MAX_INGREDIENT_PALETTE_SLOTS, type Ingre
 import { INGREDIENT_SHELF_ORDER, type IngredientShelfId, type ShelfFilter } from "../data/ingredientShelf";
 import { queryCatalog } from "../logic/catalog/catalogQuery";
 import { runtimeCatalog } from "../logic/catalog/catalogSource";
+import type { HandContext, HandSession } from "../logic/catalog/handSession";
+import { clearPins, pinsInCategory, pinTileState, selectedStripRendered, togglePin } from "../logic/catalog/pinEdit";
 import { emptyUsageSession } from "../logic/catalog/usageSignals";
 import { remainingStock, type InventoryState } from "../state/inventory";
 import { IngredientGlyph } from "./IngredientGlyph";
@@ -41,6 +43,13 @@ import { ShelfChips } from "./ShelfChips";
  * the header (title + 閉じる) is pinned; only `.pantry-sheet__list` scrolls (a keyboard-focusable region);
  * the page / body never scrolls.
  *
+ * LC-R5-c (dormant pin foundation, OD-R5-2 / OD-R5c-1..3): with `handEditing` a tile is a toggle button that edits
+ * the active category's pins directly (Model D, `pinEdit`), a pinned tile carries a 📌 badge + `aria-pressed`, a
+ * no-stock tile cannot be newly pinned, and a 「選択中」 strip lists the pins (方式 D: CSS hides it while the sheet is
+ * keyboard-fitted; badge / `aria-pressed` / re-tap unpin stay). The pins live in App (session-only) and come in as
+ * props. `handEditing` defaults to false and GameScreen passes the enforcement flag (false until R6), so production
+ * renders exactly the R5-b sheet: read-only tiles, no badge, no strip. The pantry never touches the Builder selection.
+ *
  * LC-R4 (Owner-confirmed OD-R4-1 / OD-R4-2): the pantry stays per active category. `ShelfChips` sits in a fixed
  * (non-scrolling) slot between the subtitle and the list and appears only when the OWNED rows of this category
  * span two or more shelves; its chips are derived from the `shelf` of those rows (in `INGREDIENT_SHELF_ORDER`), never from the catalog.
@@ -57,9 +66,25 @@ export interface IngredientPantryProps {
   ownedIngredientIds: readonly string[];
   inventory: InventoryState;
   onClose: () => void;
+  /** LC-R5-c: pin editing (dormant: GameScreen passes the enforcement flag, false until R6). */
+  handEditing?: boolean;
+  /** The App-level session pins (read; only the active category is shown / edited). */
+  pinSession?: HandSession;
+  /** The only pin writer: an updater over the App-level session. */
+  onPinSessionChange?: (update: (previous: HandSession) => HandSession) => void;
 }
 
-export function IngredientPantry({ category, ownedIngredientIds, inventory, onClose }: IngredientPantryProps) {
+const NO_PINS: HandSession = { sauce: [], cheese: [], topping: [] };
+
+export function IngredientPantry({
+  category,
+  ownedIngredientIds,
+  inventory,
+  onClose,
+  handEditing = false,
+  pinSession = NO_PINS,
+  onPinSessionChange,
+}: IngredientPantryProps) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -108,6 +133,14 @@ export function IngredientPantry({ category, ownedIngredientIds, inventory, onCl
   const showSearch = allItems.length > MAX_INGREDIENT_PALETTE_SLOTS;
   const appliedText = showSearch ? search.applied : "";
   const rows = toRows(itemsFor(shelfFilter === "all" ? undefined : [shelfFilter], appliedText));
+
+  // LC-R5-c: pins of the active category only (invalid entries pruned on read). Kept across shelf / search (OD-2).
+  const pinContext: HandContext = { category, catalog, ownership };
+  const pins = handEditing ? pinsInCategory(pinSession, pinContext) : [];
+  const showStrip = selectedStripRendered({ handEditing, pinCount: pins.length });
+  function editPins(update: (previous: HandSession) => HandSession) {
+    if (handEditing) onPinSessionChange?.(update);
+  }
 
   // A new applied text starts the list at the top (the sheet, the page and the fixed slots stay where they are).
   const previousAppliedRef = useRef(appliedText);
@@ -221,6 +254,41 @@ export function IngredientPantry({ category, ownedIngredientIds, inventory, onCl
           </div>
         )}
 
+        {showStrip && (
+          <div className="pantry-sheet__pins" role="group" aria-label="選択中の材料">
+            <span className="pantry-sheet__pins-label" aria-hidden="true">
+              {"\u{1F4CC}"} 選択中
+            </span>
+            <div className="pantry-sheet__pins-scroll">
+              {pins.flatMap((id) => {
+                const ingredient = getIngredient(id);
+                return ingredient
+                  ? [
+                      <button
+                        key={id}
+                        type="button"
+                        className="pantry-pin"
+                        aria-label={`${ingredient.nameJa}を外す`}
+                        onClick={() => editPins((previous) => togglePin(previous, id, pinContext).session)}
+                      >
+                        <IngredientGlyph ingredient={ingredient} />
+                        <span className="pantry-pin__name">{ingredient.nameJa}</span>
+                        <span aria-hidden="true">✕</span>
+                      </button>,
+                    ]
+                  : [];
+              })}
+            </div>
+            <button
+              type="button"
+              className="pantry-sheet__pins-reset"
+              onClick={() => editPins((previous) => clearPins(previous, pinContext))}
+            >
+              おまかせに戻す
+            </button>
+          </div>
+        )}
+
         <div ref={listRef} className="pantry-sheet__list" role="region" aria-label="所持している材料" tabIndex={0}>
           {rows.length === 0 ? (
             <p className="pantry-sheet__empty">
@@ -228,23 +296,55 @@ export function IngredientPantry({ category, ownedIngredientIds, inventory, onCl
             </p>
           ) : (
             <ul className="pantry-sheet__grid">
-              {rows.map(({ ingredient, stock }) => (
-                <li key={ingredient.id} className="pantry-tile">
-                  {ingredient.category === "cheese" ? (
-                    <span className="pantry-tile__cheese-slot">
-                      <IngredientPieceVisual ingredient={ingredient} />
+              {rows.map(({ ingredient, stock }) => {
+                const body = (
+                  <>
+                    {ingredient.category === "cheese" ? (
+                      <span className="pantry-tile__cheese-slot">
+                        <IngredientPieceVisual ingredient={ingredient} />
+                      </span>
+                    ) : (
+                      <span className="pantry-tile__emoji">
+                        <IngredientGlyph ingredient={ingredient} />
+                      </span>
+                    )}
+                    <span className="pantry-tile__name">{ingredient.nameJa}</span>
+                    <span className={`pantry-tile__stock${stock === 0 ? " pantry-tile__stock--zero" : ""}`}>
+                      {stock === "UNLIMITED" ? "∞" : `×${stock}`}
                     </span>
-                  ) : (
-                    <span className="pantry-tile__emoji">
-                      <IngredientGlyph ingredient={ingredient} />
-                    </span>
-                  )}
-                  <span className="pantry-tile__name">{ingredient.nameJa}</span>
-                  <span className={`pantry-tile__stock${stock === 0 ? " pantry-tile__stock--zero" : ""}`}>
-                    {stock === "UNLIMITED" ? "∞" : `×${stock}`}
-                  </span>
-                </li>
-              ))}
+                  </>
+                );
+                if (!handEditing) {
+                  return (
+                    <li key={ingredient.id} className="pantry-tile">
+                      {body}
+                    </li>
+                  );
+                }
+                const tile = pinTileState(ingredient.id, pins, stock);
+                return (
+                  <li key={ingredient.id} className="pantry-tile pantry-tile--editable">
+                    <button
+                      type="button"
+                      className={`pantry-tile__toggle${tile.pinned ? " pantry-tile__toggle--pinned" : ""}`}
+                      aria-pressed={tile.pinned}
+                      aria-disabled={tile.disabled || undefined}
+                      // A click (not pointerdown), so a touch scroll of the list never toggles a pin.
+                      onClick={() => {
+                        if (!tile.disabled) editPins((previous) => togglePin(previous, ingredient.id, pinContext).session);
+                      }}
+                    >
+                      {body}
+                      {tile.disabled && <span className="pantry-tile__no-stock">ざいこなし</span>}
+                      {tile.pinned && (
+                        <span className="pantry-tile__pin-badge" aria-hidden="true">
+                          {"\u{1F4CC}"}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
