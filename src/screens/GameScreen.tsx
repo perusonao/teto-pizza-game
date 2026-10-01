@@ -37,6 +37,7 @@ import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily } from "../components/HintSheet";
+import { notebookView } from "../logic/discovery/trialNotebook";
 import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
@@ -905,6 +906,7 @@ export function GameScreen({
               onUnlock={onUnlockHint}
               onBuySelectable={onBuySelectableHint}
               onBuyHint5={onBuyHint5Rung}
+              notebook={notebookView(state.trialNotebook)}
               onClose={onCloseHint}
             />
           )}

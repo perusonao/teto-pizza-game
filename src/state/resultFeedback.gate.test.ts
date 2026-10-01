@@ -90,9 +90,11 @@ describe("Owner decisions (P2) stay contained", () => {
     }
   });
 
-  it("no production file other than the Trial Notebook model, the record adapter and the reducer mentions the Trial Notebook", () => {
+  // Notebook N1: the read-only readers (GameScreen relay, Hint sheet, notebook sheet); trialNotebook.gate.test.ts pins the exact list.
+  const N1_READERS = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx"];
+  it("no production file other than the Trial Notebook model, the record adapter, the reducer and the N1 readers mentions the Trial Notebook", () => {
     for (const [path, text] of production) {
-      if (path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER || path === REDUCER) continue;
+      if (path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER || path === REDUCER || N1_READERS.includes(path)) continue;
       expect(text, path).not.toMatch(/trialNotebook/i);
     }
   });

@@ -195,7 +195,8 @@ describe("round 6: 「なし」 rows (OD-H5-P4-CHEESE / P4b) and fail closed", (
     const onBuy = vi.fn();
     const { container } = render(<HintSheet view={selectable()} hint5={null} hint5Active onUnlock={() => {}} onBuySelectable={onBuy} onBuyHint5={onBuy} onClose={() => {}} />);
     expect(container.querySelector('[role="dialog"]')!.getAttribute("data-hint-ladder")).toBe("hint5-closed");
-    expect(container.querySelectorAll("button")).toHaveLength(1); // 閉じる only
+    // 閉じる + the (read-only) 試作ノート entry: nothing to buy.
+    expect([...container.querySelectorAll("button")].map((b) => b.textContent)).toEqual([expect.stringContaining("試作ノートを見る"), "閉じる"]);
     // The existence caption (「今の材料で…」) is the only shared line; no family, price or request.
     expect(container.textContent!.replace("今の材料で、まだ見つけていないピザが作れそう！", "")).not.toMatch(/材料|構成|特徴|Pitz|ヒントをもらう/);
     expect(container).toHaveTextContent("このピザのヒントは今は出せないよ");
