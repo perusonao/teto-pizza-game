@@ -95,9 +95,11 @@ describe("no line", () => {
     expect(resultNearMiss(input(3, ["tomato-sauce", "mozzarella"], { lastDiscovery: ambiguous }))).toBeNull();
   });
 
-  it("INCOMPLETE_MATCH (its copy is ResultPanel's)", () => {
+  it("INCOMPLETE_MATCH gets a row like an ORIGINAL (PR-1: the absent row was an oracle); never the exact-identity recipe's own distance", () => {
     const incomplete: DiscoveryOutcome = { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" };
-    expect(resultNearMiss(input(3, ["tomato-sauce", "mozzarella", "mushroom"], { lastDiscovery: incomplete }))).toBeNull();
+    const line = resultNearMiss(input(3, ["tomato-sauce", "mozzarella", "mushroom"], { lastDiscovery: incomplete }));
+    expect(line).not.toBeNull();
+    expect(line!.textJa).not.toMatch(/あと少し|キノコ|フンギ/);
   });
 
   it("NEW_DISCOVERY", () => {

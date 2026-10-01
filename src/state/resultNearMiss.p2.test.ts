@@ -113,14 +113,13 @@ describe("P2-C generic FAR line (OD-P2-2 = ON)", () => {
     expect(off === null || off.textJa === NEAR_MISS_COPY.FAR_KEY_UNUSED).toBe(true);
   });
 
-  it("the generic line is only ever for a far ORIGINAL: never a known pizza, a failed bake, a guided round, or a non-ORIGINAL outcome", () => {
+  it("the generic line is only ever for a far ORIGINAL or INCOMPLETE_MATCH: never a known pizza, a failed bake, a guided round, or a non-ORIGINAL outcome", () => {
     const i = fullOwnership(far);
     const ambiguous: DiscoveryOutcome = { kind: "AMBIGUOUS", targetIds: ["a", "b"] };
     for (const over of [
       { freeCook: false },
       { completion: { status: "FAILED", reason: "UNDERBAKED", failures: [] } as never },
       { lastDiscovery: ambiguous },
-      { lastDiscovery: { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
       { lastDiscovery: { kind: "NEW_DISCOVERY", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
       { lastDiscovery: { kind: "ALREADY_DISCOVERED", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
     ] as Partial<ResultNearMissInput>[]) {

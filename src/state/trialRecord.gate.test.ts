@@ -55,9 +55,9 @@ describe("record adapter: authority and inputs", () => {
     expect(adapter).toContain("{ kind: line.kind, textJa: line.textJa }");
   });
 
-  it("eligibility is the ORIGINAL and AMBIGUOUS outcomes only (OD-P3-16)", () => {
-    expect(adapter).toContain('outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS"');
-    expect(adapter).not.toMatch(/INCOMPLETE_MATCH|NEW_DISCOVERY|ALREADY_DISCOVERED/);
+  it("eligibility is ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH only (OD-P3-16 as updated by OD-D3-23)", () => {
+    expect(adapter).toContain('outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS" || outcome.kind === "INCOMPLETE_MATCH"');
+    expect(adapter).not.toMatch(/NEW_DISCOVERY|ALREADY_DISCOVERED/);
   });
 });
 
