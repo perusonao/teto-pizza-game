@@ -25,7 +25,16 @@ import type { DexEntry } from "../state/dex";
 import { loadSave, persistProgress, resetSave, type ProgressionSnapshot, type StorageLike } from "../state/persistence";
 import { PREVIEW_HELPER_MARK } from "./hint5PreviewOptIn";
 
-export type HvScenarioId = "normal" | "cheese-none" | "key-none" | "already-known" | "multi-sub" | "last-sub" | "low-pitz";
+export type HvScenarioId =
+  | "normal"
+  | "cheese-none"
+  | "key-none"
+  | "already-known"
+  | "multi-sub"
+  | "last-sub"
+  | "low-pitz"
+  | "pool2-onion"
+  | "calabresa-key-free";
 
 export interface HvScenario {
   id: HvScenarioId;
@@ -37,6 +46,11 @@ export interface HvScenario {
   pitz: number;
   /** The recipe's stored fact ids (`discoveryHintFacts[recipeId]`). */
   facts: readonly string[];
+  /** PR-4b-B: the save is a Discovery pool of 2+ (pizza-portuguesa beside brazilian-calabresa), so the
+   *  sheet names no recipe and sells nothing; `recipeId` only fixes the ladder step the save stands at. */
+  noTarget?: true;
+  /** PR-4b-B: every credited recipe is found and every material owned (the 26th is the only one left). */
+  dexAfterLadder?: true;
 }
 
 /** capricciosa's rungs 1-4 (sauce, cheese, key, structure) as the ladder stores them. */
@@ -92,6 +106,24 @@ export const HV_SCENARIOS: readonly HvScenario[] = [
     facts: [],
     firstOfferJa: "ヒント1: ソース 10 Pitz (買うと 2 Pitz で、次は押せない)",
   },
+  {
+    id: "pool2-onion",
+    recipeId: "pizza-portuguesa",
+    labelJa: "H: 発見できるピザが2つ (onion 解禁直後)",
+    pitz: 300,
+    facts: [],
+    noTarget: true,
+    firstOfferJa: "ヒントなし: 「まだ発見できるピザがあるよ」 (FREE Cooking で探す)",
+  },
+  {
+    id: "calabresa-key-free",
+    recipeId: "brazilian-calabresa",
+    labelJa: "I: キーなしヒント (brazilian-calabresa, 残り1つ)",
+    pitz: 300,
+    facts: [],
+    dexAfterLadder: true,
+    firstOfferJa: "ヒント1: ソース 10 Pitz (キートッピングの段はない)",
+  },
 ];
 
 // No top-level call on the table (a `new Set(...map(...))` here is a side effect a bundler must keep, which
@@ -110,9 +142,9 @@ export function parseHvParam(search: unknown): HvScenarioId | null {
  *  ladder step, its materials owned and stocked, the starters, and the recipe's stored facts. */
 export function buildHvSnapshot(scenario: HvScenario): ProgressionSnapshot {
   const steps = W1_25_DISCOVERY_LADDER.steps;
-  const index = steps.findIndex((step) => step.keyRecipeId === scenario.recipeId);
+  const index = scenario.dexAfterLadder ? steps.length : steps.findIndex((step) => step.keyRecipeId === scenario.recipeId);
   if (index < 0) throw new Error(`${PREVIEW_HELPER_MARK}: ${scenario.recipeId} is not on the ladder`);
-  const materials = steps.slice(0, index + 1).flatMap((step) => step.ingredientIds);
+  const materials = steps.slice(0, scenario.dexAfterLadder ? steps.length : index + 1).flatMap((step) => step.ingredientIds);
   const dex: DexEntry[] = ["margherita", ...steps.slice(0, index).map((step) => step.keyRecipeId)].map((recipeId) => ({
     recipeId,
     discovered: true,
