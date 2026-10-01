@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 
 /**
@@ -39,6 +40,11 @@ const LADDER = [
   ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]], ["quattro-formaggi", ["fontina", "gorgonzola"]],
 ] as const;
 /** meat-lovers (ladder step 8) is the main target. */
+/** Production recipes that never advance the ladder (`ladderCredit: false`) stay DISCOVERABLE next to the ladder's own next
+ *  recipe once their materials are owned, so the hint sheet's automatic target would not be the one under test. The seeded Dex
+ *  marks them discovered: the pool is exactly the intended target. Empty while every production recipe is credited (every seed
+ *  is then unchanged). */
+const NON_CREDIT: readonly string[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
 const DEX = LADDER.slice(0, 8).map(([id]) => id as string);
 
 /** The ladder played up to (not including) `target`, whose materials are owned and stocked: the
@@ -48,7 +54,7 @@ function save(facts: Record<string, string[]> = {}, target = "meat-lovers", pitz
   const materials = LADDER.slice(1, index + 1).flatMap(([, m]) => m as readonly string[]);
   return {
     schemaVersion: 2,
-    dex: LADDER.slice(0, index).map(([recipeId]) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+    dex: [...LADDER.slice(0, index).map(([recipeId]) => recipeId as string), ...NON_CREDIT].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
     pitzBalance,
     ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...materials],
     missionBest: {},
@@ -58,7 +64,7 @@ function save(facts: Record<string, string[]> = {}, target = "meat-lovers", pitz
     discoveryHintFacts: facts,
   };
 }
-const dexOf = (target: string) => LADDER.slice(0, LADDER.findIndex(([id]) => id === target)).map(([id]) => id as string);
+const dexOf = (target: string) => [...LADDER.slice(0, LADDER.findIndex(([id]) => id === target)).map(([id]) => id as string), ...NON_CREDIT];
 
 async function openSheet(page: Page, s: object, optIn: boolean) {
   await page.goto(SEED_DOCUMENT);
