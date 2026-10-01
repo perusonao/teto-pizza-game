@@ -62,9 +62,9 @@ describe("ResultPanel duplicate notice", () => {
     expect(document.querySelector(NOTICE)).toBeNull();
   });
 
-  it("the INCOMPLETE_MATCH lead is unchanged and a number would still render only on the free-cook ORIGINAL card", () => {
+  it("the INCOMPLETE_MATCH lead is the neutral lead (PR-1) and renders no notice when no number is passed", () => {
     render(<ResultPanel {...base()} score={null} discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "t" }} />);
-    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("あと少し");
+    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("図鑑にはまだ載っていないピザ！");
     expect(document.querySelector(NOTICE)).toBeNull();
   });
 

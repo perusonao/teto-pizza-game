@@ -144,7 +144,7 @@ describe("ResultPanel in a free-cook round", () => {
     expect(screen.getByRole("button", { name: "レシピを選んで作る" })).toBeInTheDocument();
   });
 
-  it("ORIGINAL near miss (INCOMPLETE_MATCH) nudges without naming the recipe", () => {
+  it("INCOMPLETE_MATCH renders the neutral lead (Discovery 3.0 PR-1) without naming the recipe", () => {
     render(
       <ResultPanel
         {...resultProps()}
@@ -152,7 +152,8 @@ describe("ResultPanel in a free-cook round", () => {
         discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "margherita", targetId: "shipped:margherita" }}
       />,
     );
-    expect(screen.getByText(/図鑑のピザまであと少し/)).toBeInTheDocument();
+    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
+    expect(screen.queryByText(/あと少し/)).not.toBeInTheDocument();
     expect(screen.queryByText(/マルゲリータ/)).not.toBeInTheDocument();
   });
 

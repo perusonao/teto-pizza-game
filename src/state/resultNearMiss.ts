@@ -8,7 +8,7 @@
  *   remove one / change the sauce), d=2 says "close" with no direction, d>=3 says nothing, or
  *   only the generic "new material" nudge when the nearest recipe's key material is unused.
  * - ALREADY_DISCOVERED: one extra line only at d=1; the known-pizza result stays as it is.
- * - NEW_DISCOVERY, AMBIGUOUS, INCOMPLETE_MATCH (its own copy fix lives in ResultPanel), a FAILED
+ * - NEW_DISCOVERY, AMBIGUOUS, (INCOMPLETE_MATCH: see the PR-1 note on `resultNearMiss`), a FAILED
  *   round and any non-Free-Cooking round: no line.
  * The line never names a recipe, and never which ingredient to add or remove.
  *
@@ -98,10 +98,24 @@ export function resultNearMiss(
   options: ResultNearMissOptions = {},
 ): ResultNearMissLine | null {
   if (!input.freeCook || input.completion?.status === "FAILED") return null;
-  const outcome = input.lastDiscovery?.kind;
+  const discovery = input.lastDiscovery;
+  const outcome = discovery?.kind;
   const known = outcome === "ALREADY_DISCOVERED";
-  if (outcome !== "ORIGINAL" && !known) return null;
+  if (outcome !== "ORIGINAL" && !known && outcome !== "INCOMPLETE_MATCH") return null;
 
-  const nearMiss = classifyNearMiss(signatureOfPizza(input.pizza), discoverableHintCandidates(input));
+  const candidates = discoverableHintCandidates(input);
+  if (discovery?.kind === "INCOMPLETE_MATCH") {
+    // Discovery 3.0 PR-1 (OD-D3-20 / OD-D3-23): an INCOMPLETE_MATCH is an exact identity that failed its completion
+    // gate. Shown like any other original it must not stand out, in particular not by having NO near/far row
+    // (`classifyNearMiss` is `null` at distance 0, while every other original with candidates gets a line). So the
+    // matched recipe is taken out of the comparison -- the row is what the same pizza would get against the other
+    // candidates -- and, when nothing nearer remains, it gets the generic far line an ordinary far pizza gets. With
+    // no candidates at all it gets no row, exactly like any other original in that state.
+    if (candidates.length === 0) return null;
+    const others = candidates.filter((r) => r.id !== discovery.recipeId);
+    const nearMiss = classifyNearMiss(signatureOfPizza(input.pizza), others);
+    return nearMissLine(nearMiss ?? { kind: "FAR", distance: 3, keyUnused: false }, false, options);
+  }
+  const nearMiss = classifyNearMiss(signatureOfPizza(input.pizza), candidates);
   return nearMiss ? nearMissLine(nearMiss, known, options) : null;
 }
