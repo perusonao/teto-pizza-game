@@ -5,7 +5,7 @@ import {
   W1_25_DISCOVERY_LADDER,
 } from "../data/discoveryLadder";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
-import { RECIPES, type Recipe } from "../data/recipes";
+import { RECIPES, countsTowardLadder, type Recipe } from "../data/recipes";
 import { materialIdsOfSteps, validateDiscoveryLadder } from "./discoveryLadder";
 import {
   MATERIAL_PRICE_TIERS,
@@ -36,7 +36,10 @@ const PRE_W1_RECIPES = (RECIPES as readonly Recipe[]).filter((r) => r.id === "ma
 const OLD_OPTIONS = { ladder: SHIPPED_15_DISCOVERY_LADDER, recipes: PRE_W1_RECIPES };
 /** Production defaults (the W1 ladder + all 25 recipes), spelled out. */
 const W1_OPTIONS = { ladder: W1_25_DISCOVERY_LADDER, recipes: RECIPES };
-const W1_POPULATION = RECIPES;
+// Discovery 3.0 PR-4a: a recipe that does not count toward the ladder (OD-D3-17 O3 `ladderCredit: false`) is never a
+// ladder key recipe, so the REC-04 derivation runs over the ladder-credit recipes only. Identical to `RECIPES` for the
+// 25 production recipes (every one counts).
+const W1_POPULATION = RECIPES.filter((r) => countsTowardLadder(r.id));
 const W1_NEW_MATERIALS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 
 function offer(id: string, options = {}): MaterialOffer | null {
@@ -84,7 +87,7 @@ describe("W1_25_DISCOVERY_LADDER: the exact 24-step authority", () => {
   });
 
   it("is what the REC-04 key-recipe rule derives for the production RECIPES (15 + W1 10)", () => {
-    const population = RECIPES.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) }));
+    const population = W1_POPULATION.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) }));
     expect(toMaterialLadder("w1-25", buildKeyRecipeLadder(population))).toEqual(W1_25_DISCOVERY_LADDER);
   });
 

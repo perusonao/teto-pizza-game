@@ -16,6 +16,7 @@ import {
   hint5Presentation,
   hint5ReservedRungs,
   HINT5_FIXED_RUNG_KINDS,
+  isKeyFreeHintRoles,
   HINT5_LADDER_COMPLETE_TEXT,
   HINT5_RUNG_PRICE,
   requestHint5Rung,
@@ -199,12 +200,17 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
     }
   });
 
-  it("C: the purchase order is sauce -> cheese -> key -> structure -> sub ①..ⓝ for every recipe, each rung priced by its kind", () => {
+  it("C: the purchase order is sauce -> cheese -> key -> structure -> sub ①..ⓝ for every keyed recipe (a key-free recipe: only the rungs that apply, no key), each rung priced by its kind", () => {
+    const categoryPresent = (r: Recipe, category: string) => r.requiredIngredients.some((q) => getIngredient(q.ingredientId)?.category === category);
     for (const r of RECIPES) {
       const states = purchaseStates(r.id, 5);
       const offered = states.flatMap((s) => (s.view.next ? [[s.view.next.kind, s.view.next.price] as const] : []));
       const subs = subsOf(r.id);
-      expect(offered.map(([k]) => k), r.id).toEqual([...HINT5_FIXED_RUNG_KINDS, ...subs.map(() => "SUB_CLASS")]);
+      // OD-D3-21: the expected order is a function of the recipe's own structure (sauce / cheese presence, key-free or not).
+      const fixed = isKeyFreeHintRoles(RECIPE_HINT_ROLES[r.id])
+        ? HINT5_FIXED_RUNG_KINDS.filter((k) => k !== "KEY_TOPPING" && (k === "STRUCTURE" || categoryPresent(r, k === "SAUCE" ? "sauce" : "cheese")))
+        : HINT5_FIXED_RUNG_KINDS;
+      expect(offered.map(([k]) => k), r.id).toEqual([...fixed, ...subs.map(() => "SUB_CLASS")]);
       for (const [kind, price] of offered) expect(price, `${r.id} ${kind}`).toBe(HINT5_RUNG_PRICE[kind]);
       // Out-of-order requests are STALE at every state.
       for (const { stored, view } of states) {

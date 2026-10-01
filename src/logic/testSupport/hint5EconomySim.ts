@@ -223,7 +223,7 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
 
   for (let stageGuard = 0; stageGuard < 40; stageGuard += 1) {
     const dexCount = discoveredRecipeIds(s.dex).length;
-    if (dexCount === 25) {
+    if (dexCount === RECIPES.length) {
       completed = true;
       break;
     }
