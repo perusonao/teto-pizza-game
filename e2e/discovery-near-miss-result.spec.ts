@@ -122,14 +122,18 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     });
   }
 
-  test("INCOMPLETE_MATCH wording, then 「💡 ヒントを見る」 opens Free Cooking with the hint sheet", async ({ page, browserName }) => {
+  test("INCOMPLETE_MATCH reads as an ordinary original (PR-1), then 「💡 ヒントを見る」 opens Free Cooking with the hint sheet", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
     await openWithSave(page);
     // The exact funghi set with a single sauce dab: the set matches, funghi's own sauce-amount
     // check does not (Free Cooking itself never checks the sauce amount).
     await cookFree(page, { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3]], sauceDab: true });
-    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
+    // Discovery 3.0 PR-1: the same neutral lead as any original, the generic far row an ordinary far pizza gets, and a
+    // recipe-independent line about the thin sauce.
+    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑にはまだ載っていないピザ！");
+    await expect(page.locator(".result-near-miss__text")).toHaveText("🧪 別の組み合わせも試してみよう！");
+    await expect(page.locator(".original-pizza__advice")).toHaveText("ソースが少なめかも。もう少し広く塗ってみよう。");
     await checkResult(page, driver, browserName, "INCOMPLETE_MATCH");
     await capture(page, "c4-incomplete-match");
 

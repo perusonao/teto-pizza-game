@@ -1321,7 +1321,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             ? roundTechniques(state, state.dex)
             : { ledger: state.discoveredTechniqueIds, newlyDiscovered: [] };
         // P3-3a (OD-P3-17): the exactly-once Trial Notebook commit. The RESULT guard above makes this transition
-        // happen once per round; `recordTrialAttempt` records only an ORIGINAL / AMBIGUOUS outcome (OD-P3-16).
+        // happen once per round; `recordTrialAttempt` records an ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH outcome
+        // (OD-P3-16 as updated by OD-D3-23: an INCOMPLETE_MATCH must not stand out by being unrecorded).
         const trial = recordTrialAttempt(state, resolution.outcome);
         return {
           ...state,
