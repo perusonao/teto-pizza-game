@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { INGREDIENTS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { ALL_INGREDIENT_IDS as ALL_IDS } from "../logic/discovery/testSupport/deductionInversion";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
@@ -54,7 +54,7 @@ describe("Hint 5.0 flag OFF (the rollback)", () => {
   });
 
   it("the Dex-0 Margherita onboarding is unchanged (free reveal)", () => {
-    const initial = createInitialGameState(EMPTY_DEX, ALL_IDS, 0, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
+    const initial = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {}); // a fresh Dex-0 save: Margherita is the only DISCOVERABLE recipe (D-1)
     const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(hintSheetView(s).kind).toBe("TARGET");
     expect(act(s, { type: "PURCHASE_DISCOVERY_HINT", level: 1 }).pitzBalance).toBe(0);

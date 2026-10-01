@@ -1,5 +1,5 @@
 import { getNextOrder, type Order } from "../data/orders";
-import { getRecipe, type RecipeId } from "../data/recipes";
+import { getRecipe, participatesInLunchRush, RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import { discoveredRecipeIds, type DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import { availableRecipeIds } from "../state/progression";
@@ -119,11 +119,14 @@ export interface MissionPoolInputs {
 export function missionOrderRecipeIds(
   inputs: MissionPoolInputs,
   soldOutRecipeIds: readonly string[] = [],
+  recipes: readonly Pick<Recipe, "id" | "lunchRush">[] = RECIPES,
 ): RecipeId[] {
   const discovered = new Set(discoveredRecipeIds(inputs.dex));
   const soldOut = new Set(soldOutRecipeIds);
+  // The one merge point every Lunch Rush pool derives from: a recipe with `lunchRush: false`
+  // (D-4) never enters it, so it is neither ordered nor counted as cookable for the run.
   return availableRecipeIds(inputs.dex, inputs.ownedIngredientIds).filter(
-    (id) => discovered.has(id) && !soldOut.has(id),
+    (id) => discovered.has(id) && !soldOut.has(id) && participatesInLunchRush(id, recipes),
   );
 }
 

@@ -232,8 +232,10 @@ function legacy(): DiscoveryHintState {
 
 describe("229-D: Dex-pinned target", () => {
   const base = legacy();
-  const auto = resolveHintSession(base)!.targetId;
-  // The second DISCOVERABLE recipe in hint order: pinnable, and not what the auto pick would be.
+  // PR-4b-A D-1: with several DISCOVERABLE recipes nothing is auto-targeted; `first` is just the
+  // head of the deterministic candidate order, used here as "some other recipe".
+  const first = discoverableHintCandidates(base)[0].id;
+  // The second DISCOVERABLE recipe in hint order: pinnable.
   const pinned = discoverableHintCandidates(base)[1];
 
   it("a DISCOVERABLE pin becomes the target (at H0) and stays on re-open at H0", () => {
@@ -243,18 +245,16 @@ describe("229-D: Dex-pinned target", () => {
     expect(resolveHintSession({ ...base, hintSession: s })).toBe(s);
   });
 
-  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins fall back to the automatic target", () => {
+  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins choose nothing while the pool is 2+ (D-1)", () => {
     for (const bad of ["margherita", "quattro-formaggi", "no-such-recipe", ""]) {
-      const s = resolveHintSession(base, bad);
-      expect(s?.targetId, bad).toBe(auto);
-      expect(s?.fromDex, bad).toBeUndefined();
+      expect(resolveHintSession(base, bad), bad).toBeNull();
     }
   });
 
   it("the same recipe keeps its progress from Free Cooking; a different recipe starts at H0", () => {
     const progressed = { ...base, hintSession: { targetId: pinned.id, revealedIndex: 3 } };
     expect(resolveHintSession(progressed, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 3, fromDex: true });
-    const other = { ...base, hintSession: { targetId: auto, revealedIndex: 3 } };
+    const other = { ...base, hintSession: { targetId: first, revealedIndex: 3 } };
     expect(resolveHintSession(other, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
   });
 

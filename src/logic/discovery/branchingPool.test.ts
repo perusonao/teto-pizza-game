@@ -81,9 +81,9 @@ describe("pool size 0 / 1 / 2+ are explicit", () => {
     const s = walkState(BASE, POP);
     const pool = discoverableHintCandidates(s, POP).map((r) => r.id);
     expect(sorted(pool)).toEqual(sorted([A, B]));
-    const auto = selectHintTarget(s, { recipes: POP });
-    expect(auto).toMatchObject({ kind: "TARGET", source: "auto" });
-    expect(pool).toContain((auto as { recipeId: string }).recipeId);
+    // D-1: no sticky / purchased target -> nothing is auto-targeted, whatever the candidate order.
+    expect(selectHintTarget(s, { recipes: POP })).toEqual({ kind: "OPEN_POOL" });
+    expect(selectHintTarget(s, { recipes: [...POP].reverse() })).toEqual({ kind: "OPEN_POOL" });
     // Every pool member can be chosen explicitly (the Dex card path); the choice wins over order.
     for (const id of pool) expect(selectHintTarget(s, { recipes: POP, pinnedRecipeId: id })).toEqual({ kind: "TARGET", recipeId: id, source: "dex" });
   });

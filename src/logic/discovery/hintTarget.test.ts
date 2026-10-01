@@ -106,7 +106,8 @@ describe("selectHintTarget -- order, pinned and sticky (T-4)", () => {
       expect(compareHintCandidates(candidates[i - 1], candidates[i])).toBeLessThan(0);
       expect(recipeKeyStep(candidates[i - 1])).toBeLessThanOrEqual(recipeKeyStep(candidates[i]));
     }
-    expect(selectHintTarget(legacyState())).toEqual({ kind: "TARGET", recipeId: candidates[0].id, source: "auto" });
+    // The order is a list order only: with 2+ candidates nothing is auto-targeted (PR-4b-A D-1).
+    expect(selectHintTarget(legacyState())).toEqual({ kind: "OPEN_POOL" });
   });
 
   it("tie-breaks: fewer distinct ingredients first, then declaration order", () => {

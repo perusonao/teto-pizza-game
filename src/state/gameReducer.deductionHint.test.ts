@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { INGREDIENTS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
@@ -280,7 +280,7 @@ describe("DH4-2B targets and progression", () => {
     expect(act(closed, ask(s, "structure"))).toBe(closed);
   });
   it("Dex-0 onboarding (Margherita) never takes a deduction request", () => {
-    const initial = createInitialGameState(EMPTY_DEX, ALL_IDS, 100, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
+    const initial = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 100, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {}); // a fresh Dex-0 save: Margherita is the only DISCOVERABLE recipe (D-1)
     const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(s.hintSession?.targetId).toBe("margherita");
     expect(act(s, { type: "PURCHASE_SELECTABLE_HINT", preference: "sauce", expectedPaidCount: 0, family: "structure" })).toBe(s);

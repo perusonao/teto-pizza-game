@@ -30,7 +30,8 @@ export interface RecipeHintRoles {
  * itself -- SAUCE (if it has a sauce) -> CHEESE (if it has a cheese) -> STRUCTURE -> one SUB_CLASS
  * per topping in catalog order. There is no KEY_TOPPING rung, and a rung that does not apply is
  * absent (never empty, never a "none" answer). The 25 production recipes keep `RecipeHintRoles`
- * (Hint 5.0 output unchanged); nothing in production is key-free yet.
+ * (Hint 5.0 output unchanged); nothing in production is key-free yet. The table is typed `HintRoles`
+ * (PR-4b-A, D-5) so a key-free recipe can be added without a type change.
  */
 export interface KeyFreeHintRoles {
   keyFree: true;
@@ -38,7 +39,7 @@ export interface KeyFreeHintRoles {
 
 export type HintRoles = RecipeHintRoles | KeyFreeHintRoles;
 
-export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = {
+export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   margherita: { hintKeyToppingId: "basil", hintSubToppingOrder: [] }, // C1a
   marinara: { hintKeyToppingId: "garlic", hintSubToppingOrder: ["oregano"] },
   "quattro-formaggi": { hintKeyToppingId: null, hintSubToppingOrder: [] }, // C1a: no topping

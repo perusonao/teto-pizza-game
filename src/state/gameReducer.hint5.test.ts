@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from "vitest";
  */
 vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
-const { INGREDIENTS } = await import("../data/ingredients");
+const { INGREDIENTS, STARTER_INGREDIENT_IDS } = await import("../data/ingredients");
 const { RECIPES } = await import("../data/recipes");
 const { EMPTY_DEX, registerScoreToDex } = await import("./dex");
 const { hint5SheetView, hintSheetView } = await import("./discoveryHint");
@@ -180,7 +180,7 @@ describe("flag ON: the ladder through the reducer", () => {
   });
 
   it("Dex-0 Margherita keeps the free onboarding reveal; the ladder never charges it", () => {
-    const initial = createInitialGameState(EMPTY_DEX, ALL_IDS, 50, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
+    const initial = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 50, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {}); // a fresh Dex-0 save: Margherita is the only DISCOVERABLE recipe (D-1)
     const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(s.hintSession?.targetId).toBe("margherita");
     expect(hint5SheetView(s)).toBeNull();
