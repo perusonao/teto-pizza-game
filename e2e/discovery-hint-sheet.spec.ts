@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
 import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
@@ -34,18 +35,23 @@ const LADDER = [
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
 ] as const;
 
+/** Production recipes that never advance the ladder (`ladderCredit: false`). The ladder's own recipes are not the whole population
+ *  once one exists, so "every ladder recipe discovered" is not "complete": a COMPLETE seed also discovers these. Empty while every
+ *  production recipe is credited (the seed is then unchanged). */
+const NON_CREDIT: readonly string[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
+
 /** The ladder played to `count` discoveries; the materials of steps <= count owned with `stock`
  *  (the newest step's with `newestStock`, or not owned at all when `newestOwned` is false). */
 function ladderSave(
   count: number,
-  opts: { newestOwned?: boolean; newestStock?: number; pitz?: number; purchases?: Record<string, number> } = {},
+  opts: { newestOwned?: boolean; newestStock?: number; pitz?: number; purchases?: Record<string, number>; complete?: boolean } = {},
 ) {
   const materials = LADDER.slice(1, count + 1).flatMap(([, m]) => m);
   const newest = count >= 1 && count < LADDER.length ? LADDER[count][1] : [];
   const owned = materials.filter((m) => opts.newestOwned !== false || !(newest as readonly string[]).includes(m));
   return {
     schemaVersion: 2,
-    dex: LADDER.slice(0, count).map(([recipeId]) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+    dex: [...LADDER.slice(0, count).map(([recipeId]) => recipeId as string), ...(opts.complete ? NON_CREDIT : [])].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
     pitzBalance: opts.pitz ?? 999,
     ...(opts.purchases ? { discoveryHintPurchases: opts.purchases } : {}),
     ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...owned],
@@ -399,7 +405,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(25), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(25, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);
