@@ -225,7 +225,7 @@ Owner が S2 Implementation Gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementat
 
 - quantity / bake / placement は**未決**。placeholder（tomato-sauce 1 / sausage 2 / onion 2 / black-olive 2 / oregano 1、bake 58–78）は**production authority にしない**。
 - PR-4 の前に authoring / calibration を行い、Owner が確認する。
-- PR-4 は **NO-GO / BLOCKED**（PR-1 / 2 / 3 が main に揃い、かつ上記が済むまで開始しない）。
+- PR-4 は **NO-GO / BLOCKED**（PR-1 / 2 / 3 が main に揃い、かつ Pre-PR4 Gate（上記の authoring / calibration）が済むまで開始しない）。
 
 ### 実装 PR の状態（2026-10-01）
 
