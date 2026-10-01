@@ -9,6 +9,7 @@ import {
   SYNTHETIC_BRANCH_B,
   SYNTHETIC_BRANCH_ID,
   W1_ORDER,
+  W1_RECIPES,
   walkState,
 } from "../logic/testSupport/branchingFixture";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
@@ -18,7 +19,9 @@ import { resolveShopEntitlement } from "./materialEntitlement";
 /**
  * Discovery 3.0 PR-4b-A (D-1): with 2+ DISCOVERABLE unknown recipes and no valid sticky / purchased
  * target, nothing is auto-targeted; a valid sticky or purchased target is kept untouched.
- * pool 0 / 1 / 2+ are explicit. The production 25 never reach pool > 1 through normal progression.
+ * pool 0 / 1 / 2+ are explicit. The credited production 25 (`W1_RECIPES`) never reach pool > 1 on
+ * their own; PR-4b-B's 26th recipe is what makes production pool 2 real (see
+ * `discoveryHint.pool.production26.test.ts`).
  */
 
 function discover(ids: readonly string[]): DexState {
@@ -56,17 +59,17 @@ const BASE = W1_ORDER.slice(0, STEP);
 
 describe("pool size 0 / 1 / 2+ at the target selector", () => {
   it("pool 0: no target (a sheet kind that names no recipe)", () => {
-    const s = walkState(W1_ORDER, RECIPES);
-    expect(poolOf(s, RECIPES)).toHaveLength(0);
-    expect(selectHintTarget(s).kind).not.toBe("TARGET");
-    expect(selectHintTarget(s).kind).not.toBe("OPEN_POOL");
+    const s = walkState(W1_ORDER, W1_RECIPES);
+    expect(poolOf(s, W1_RECIPES)).toHaveLength(0);
+    expect(selectHintTarget(s, { recipes: W1_RECIPES }).kind).not.toBe("TARGET");
+    expect(selectHintTarget(s, { recipes: W1_RECIPES }).kind).not.toBe("OPEN_POOL");
   });
 
   it("pool 1: the lone candidate is the automatic target (existing behaviour)", () => {
     for (let count = 1; count < W1_ORDER.length; count += 1) {
-      const s = walkState(W1_ORDER.slice(0, count), RECIPES);
-      expect(poolOf(s, RECIPES), `count ${count}`).toEqual([W1_ORDER[count]]);
-      expect(selectHintTarget(s), `count ${count}`).toEqual({ kind: "TARGET", recipeId: W1_ORDER[count], source: "auto" });
+      const s = walkState(W1_ORDER.slice(0, count), W1_RECIPES);
+      expect(poolOf(s, W1_RECIPES), `count ${count}`).toEqual([W1_ORDER[count]]);
+      expect(selectHintTarget(s, { recipes: W1_RECIPES }), `count ${count}`).toEqual({ kind: "TARGET", recipeId: W1_ORDER[count], source: "auto" });
     }
   });
 

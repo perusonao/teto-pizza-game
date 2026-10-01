@@ -26,11 +26,11 @@ const AVERAGE_QUALITY = 65; // ★3, earnedPitz 80
 const QUALITIES = [80, 65, 30]; // ★4 (100), ★3 (80), ★1 (floor 20)
 
 describe("Discovery Hint Economy 1.0: 25-recipe hint-price simulation (analysis harness)", () => {
-  it("the production population is the 25-recipe W1 ladder", () => {
-    expect(TOTAL).toBe(25);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa (26)", () => {
+    expect(TOTAL).toBe(26);
   });
 
-  it("every price curve x player profile reaches Dex 25 without a hard deadlock (★3)", () => {
+  it("every price curve x player profile reaches Dex 26 without a hard deadlock (★3)", () => {
     for (const curve of [FREE_CURVE, ...HINT_PRICE_CURVES]) {
       for (const profile of PROFILES) {
         const r = simulateHintEconomy({ curve, profile, qualityTotal: AVERAGE_QUALITY });

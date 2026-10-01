@@ -552,6 +552,27 @@ export const RECIPES = [
     bakeTarget: { start: 50, end: 70 },
     baseRewardPitz: 100,
   },
+  {
+    id: "brazilian-calabresa",
+    nameJa: "ブラジリアン・カラブレーザ",
+    description:
+      "トマトソースにソーセージ、たまねぎ、ブラックオリーブ、オレガノをのせた、ブラジル風の一枚。",
+    // Discovery 3.0 PR-4b-B: the first production recipe that makes DISCOVERY pool > 1 (with
+    // pizza-portuguesa at the onion step). Counts / bake window are GAMEPLAY CALIBRATION (Owner
+    // D-6), not source authority. No cheese: the source's ingredient list has none. The olive is
+    // `black-olive` (source "olive", confidence likely_alias). Not the master-catalog `calabrese`.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "sausage", minCount: 3 },
+      { ingredientId: "onion", minCount: 2 },
+      { ingredientId: "black-olive", minCount: 2 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

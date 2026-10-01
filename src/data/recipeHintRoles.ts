@@ -65,4 +65,6 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "pesto-caprese": { hintKeyToppingId: "fresh-tomato", hintSubToppingOrder: ["basil"] },
   "pesto-patate": { hintKeyToppingId: "potato", hintSubToppingOrder: ["bacon"] },
   "puttanesca-pizza": { hintKeyToppingId: "anchovy", hintSubToppingOrder: ["black-olive", "capers", "garlic"] }, // C1b
+  // PR-4b-B: the first key-free production recipe (no KEY_TOPPING rung; no cheese rung).
+  "brazilian-calabresa": { keyFree: true },
 };

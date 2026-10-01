@@ -36,8 +36,9 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
     expect(SHIPPED_15_DISCOVERY_LADDER.populationId).toBe("shipped-15");
   });
 
-  it("targets the current 25-recipe population (24 steps); shipped-15 had 15 recipes (14 steps)", () => {
-    expect(RECIPES).toHaveLength(25);
+  it("targets the credited 25-recipe population (24 steps; PR-4b-B's non-credit 26th adds none); shipped-15 had 15 recipes (14 steps)", () => {
+    expect(RECIPES).toHaveLength(26);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(25);
     expect(DISCOVERY_LADDER.steps).toHaveLength(24);
     expect(SHIPPED_15_RECIPES).toHaveLength(15);
     expect(SHIPPED_15_DISCOVERY_LADDER.steps).toHaveLength(14);

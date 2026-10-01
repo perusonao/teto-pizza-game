@@ -49,12 +49,13 @@ function seeded(seed: number): () => number {
 }
 
 describe("25/25 reachability on the production ladder", () => {
-  it("the production ladder is the 24-step W1 ladder over 25 recipes", () => {
-    expect(ALL).toHaveLength(25);
+  it("the production ladder is the 24-step W1 ladder over 25 credited recipes (+ the non-credit calabresa = 26)", () => {
+    expect(ALL).toHaveLength(26);
+    expect(ALL.filter((r) => r.ladderCredit !== false)).toHaveLength(25);
     expect(DISCOVERY_LADDER.steps).toHaveLength(24);
   });
 
-  it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches 25", () => {
+  it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches every recipe (26)", () => {
     expect(playForward([], [], (o) => o[0])).toBe(TOTAL);
     expect(playForward([], [], (o) => o[o.length - 1])).toBe(TOTAL);
   });
@@ -67,7 +68,7 @@ describe("25/25 reachability on the production ladder", () => {
     }
   });
 
-  it.each([0, 1, 5, 10, 15])("representative migration: %i old-ladder discoveries, then the switch, reaches 25", (k) => {
+  it.each([0, 1, 5, 10, 15])("representative migration: %i old-ladder discoveries, then the switch, reaches every recipe (26)", (k) => {
     // Progress on the old 15-recipe ladder, discovering in EP1 order where possible.
     const discovered: string[] = [];
     let ledger: string[] = [];
@@ -79,7 +80,7 @@ describe("25/25 reachability on the production ladder", () => {
     expect(playForward(discovered, ledger, (o) => o[0])).toBe(TOTAL);
   });
 
-  it("2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach 25", () => {
+  it("2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach every recipe (26)", () => {
     let stuck = 0;
     for (let seed = 0; seed < 2000; seed += 1) {
       const rand = seeded(seed);

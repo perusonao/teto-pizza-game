@@ -287,7 +287,11 @@ describe("Dex-pinned target uses the same authority", () => {
     const base = legacy(100);
     const [auto, second] = discoverableHintCandidates(base);
     const bought = act(buyFact(pinSticky(base, second.id)), { type: "CLOSE_HINT" });
-    const found: GameState = { ...bought, hintSession: null, dex: registerScoreToDex(bought.dex, second.id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex };
+    const score = { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 } as const;
+    // PR-4b-B: the legacy save also makes the 26th recipe makeable, so a third candidate is DISCOVERABLE; it is found too.
+    const rest = discoverableHintCandidates(base).filter((r) => r.id !== auto.id);
+    const dexAfter = rest.reduce((dex, r) => registerScoreToDex(dex, r.id, score).dex, bought.dex);
+    const found: GameState = { ...bought, hintSession: null, dex: dexAfter };
     const reopened = act(found, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     // Only one candidate is left, so the pool rule is satisfied and it is the automatic target again.
     expect(discoverableHintCandidates(found).map((r) => r.id)).toEqual([auto.id]);

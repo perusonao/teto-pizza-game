@@ -80,10 +80,10 @@ function pizzaWithItems(ids: readonly string[]): PizzaState {
   };
 }
 
-describe("production tables: 25 recipes, one row each", () => {
-  it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 25 ids", () => {
+describe("production tables: 26 recipes, one row each", () => {
+  it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 26 ids", () => {
     const ids = RECIPES.map((r) => r.id).sort();
-    expect(ids).toHaveLength(25);
+    expect(ids).toHaveLength(26);
     expect(ORDERS.map((o) => o.recipeId).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_SAUCE_PROFILES).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_DISCOVERY_TARGET_IDS).sort()).toEqual(ids);

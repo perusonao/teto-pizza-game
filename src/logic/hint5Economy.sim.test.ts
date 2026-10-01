@@ -10,7 +10,7 @@ import { describe, expect, it, vi } from "vitest";
  */
 vi.mock("./discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
-const { RECIPES } = await import("../data/recipes");
+const { RECIPES, countsTowardLadder } = await import("../data/recipes");
 const { hint5EmptyFixedRungs } = await import("./discovery/hint5Ladder");
 const { selectableHintPriceCap } = await import("./discovery/selectableHint");
 const { hint5LadderDesignTotal, hint5LadderTotalBeforeRound6, HINT5_PROFILES, simulateHint5Economy } = await import("./testSupport/hint5EconomySim");
@@ -85,11 +85,11 @@ describe("P-C pricing outside the design population", () => {
 const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal(id);
 
 describe("P-C progression walk (real reducer, flag ON)", () => {
-  it("the production population is the 25-recipe W1 ladder", () => {
-    expect(TOTAL).toBe(25);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa (26)", () => {
+    expect(TOTAL).toBe(26);
   });
 
-  it("every profile x quality reaches Dex 25 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {
+  it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {
     const runs = [];
     for (const qualityTotal of QUALITIES) {
       for (const profile of HINT5_PROFILES) {
@@ -108,7 +108,10 @@ describe("P-C progression walk (real reducer, flag ON)", () => {
         if (profile === "NONE") expect(r.totalHintSpend).toBe(0);
         if (profile === "FULL" && r.insufficientHintAttempts === 0) {
           // A full ladder is bought for every target, the 「なし」 ones included.
-          for (const st of r.stages.slice(1)) expect(st.hintSpend, st.recipe).toBe(fullLadderTotal(st.recipe));
+          // The one stage with no hint target (PR-4b-B pool 2, D-1: the calabresa is found blind) buys nothing.
+          for (const st of r.stages.slice(1)) {
+            expect(st.hintSpend, st.recipe).toBe(countsTowardLadder(st.recipe) ? fullLadderTotal(st.recipe) : 0);
+          }
         }
       }
     }
