@@ -208,20 +208,21 @@ Owner が S2 Implementation Gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementat
 - 既存 25 recipe は Hint 5.0 の出力が完全互換（OD-D3-19 Migration A）。`hintKeyIngredientId` / near-miss authority は変更しない。
 - 実装: PR-3（production recipe は追加しない。合成 fixture で検証）。**GO。**
 
-### OD-D3-22 — brazilian-calabresa の CUT 対象: **採用（PR-4 のスコープ）**
+### OD-D3-22 — brazilian-calabresa の CUT 対象: **CUT 対象の方向（実装は PR-4 まで行わない）**
 
-- W1 の規則どおり CUT の対象にする。ただし PR-4 の最後の commit とし、`cookingProfiles.ts` の変更は PR #295 の状況を見てから。CUT eligibility の実装は PR-4 まで**行わない**。
+- CUT 対象にする方向。W1 の規則どおり。ただし PR-4 の最後の commit とし、`cookingProfiles.ts` の変更は PR #295 の状況を見てから。CUT eligibility の実装は PR-4 まで**行わない**。
 
 ### OD-D3-23 — oracle の無効化の詳細: **採用**
 
+- INCOMPLETE も Notebook へ記録する。**hidden recipe の correctness / exact count / exact distance / similarity 等は保存しない。** 許可するのは recipe 非依存の execution feedback のみ。
 - (a) INCOMPLETE を通常の ORIGINAL と同じ表示にする、(b) INCOMPLETE を Notebook に記録する（**OD-P3-16 の変更**）、(c) recipe 非依存のソース薄の助言を足す、(d) recipe 固有の焼きの窓だけで失敗した場合は助言なし。
 - 帰結の承認: 構成が正しいのに recipe 固有の焼きの窓で外れた場合、説明なしの中立な ORIGINAL になる。
 - 実装: PR-1（#322、IMPLEMENTED / GATE WAIT）。
 
-### OD-D3-24 — brazilian-calabresa の量・bakeTarget: **placeholder 案を採用（最終確認は PR-4 の前）**
+### OD-D3-24 — brazilian-calabresa の quantity / bake / placement: **未決**
 
-- placeholder（tomato-sauce 1 / sausage 2 / onion 2 / black-olive 2 / oregano 1、bake 58–78）、Lunch Rush / Dinner の候補入りを方向として採用。**quantity / bake の placeholder は、PR-4 の開始前に Owner が最終確認するまで production data として採用しない。**
-- PR-4 は **NO-GO / BLOCKED**（PR-1 / 2 / 3 の Gate が揃うまで開始しない）。
+- quantity（minCount）/ bakeTarget / placement は**未決**。S2 Gate の placeholder 値（tomato-sauce 1 / sausage 2 / onion 2 / black-olive 2 / oregano 1、bake 58–78）は**production authority にしない**。Lunch Rush / Dinner の候補入りも未決。
+- PR-4 は **NO-GO / BLOCKED**（PR-1 / 2 / 3 の Gate、および Pre-PR4 Gate が揃うまで開始しない）。
 
 ### 実装 PR の状態（2026-10-01）
 
