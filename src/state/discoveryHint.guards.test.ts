@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { RECIPE_HINT_ROLES } from "../data/recipeHintRoles";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, type Recipe } from "../data/recipes";
 import { discoverableHintCandidates, selectHintTarget } from "../logic/discovery/hintTarget";
 import { evaluateDiscovery } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
@@ -45,11 +45,12 @@ function legacy(n: number): DiscoveryHintState {
 }
 
 describe("PR-4b-A leaves production and the save schema alone", () => {
-  it("production is exactly 25 recipes (no brazilian-calabresa)", () => {
-    expect(RECIPES).toHaveLength(25);
-    expect(RECIPES.map((r) => r.id)).not.toContain("brazilian-calabresa");
-    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(25);
-    expect(Object.keys(RECIPE_HINT_ROLES)).toHaveLength(25);
+  it("production is 25 credited recipes + the non-credit brazilian-calabresa as No.26 (PR-4b-B)", () => {
+    expect(RECIPES).toHaveLength(26);
+    expect(RECIPES[25].id).toBe("brazilian-calabresa");
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(25);
+    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(26);
+    expect(Object.keys(RECIPE_HINT_ROLES)).toHaveLength(26);
   });
 
   it("the save is still schema v2 with the same top-level fields", () => {

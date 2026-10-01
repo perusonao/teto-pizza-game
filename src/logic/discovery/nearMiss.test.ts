@@ -162,17 +162,24 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
     };
   }
 
-  // Pool-size aware (Discovery 3.0 PR-4a): at a step the DISCOVERABLE pool is the W1 key recipe,
-  // plus any non-credit branching recipe. Every pool member must be reachable through its own
-  // (pinned) hint, and the W1 key recipe is always one of them.
+  // Pool-size aware (Discovery 3.0 PR-4a / PR-4b-B): at a step the DISCOVERABLE pool is the W1 key
+  // recipe, plus the non-credit brazilian-calabresa once its materials are owned (Dex 12+). Under D-1
+  // a pool of 2+ names no hint target, so each member's hint is reached in the order where the
+  // other member(s) were found first (A -> B and B -> A each end at a pool of 1). Every pool
+  // member must be reachable that way, and the W1 key recipe is always one of them.
   it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i", (count) => {
-    const inputs = ladderInputs(count);
-    const candidates = discoverableHintCandidates(inputs);
-    expect(candidates.map((c) => c.id)).toContain(LADDER_ORDER[count]);
-    for (const r of candidates) {
-      const target = selectHintTarget(inputs, { pinnedRecipeId: r.id });
+    const base = ladderInputs(count);
+    const members = discoverableHintCandidates(base);
+    expect(members.map((c) => c.id)).toContain(LADDER_ORDER[count]);
+    expect(members.length).toBe(count >= 12 ? 2 : 1);
+    for (const r of members) {
+      const others = members.filter((c) => c.id !== r.id).map((c) => c.id);
+      const inputs: RecipeDiscoveryInputs = { ...base, dex: discover([...LADDER_ORDER.slice(0, count), ...others]) };
+      const candidates = discoverableHintCandidates(inputs);
+      expect(candidates.map((c) => c.id)).toEqual([r.id]);
+      const target = selectHintTarget(inputs);
       expect(target).toMatchObject({ kind: "TARGET", recipeId: r.id });
-      const steps = buildHintSteps(r, { discoveredCount: count });
+      const steps = buildHintSteps(r, { discoveredCount: count + others.length });
       const named = steps.flatMap((s) => (s.namedIngredientId ? [s.namedIngredientId] : []));
       const notTomato = steps.some((s) => s.textJa === "ソースはトマトじゃないみたい");
       const discovered = discoveredRecipeIds(inputs.dex);

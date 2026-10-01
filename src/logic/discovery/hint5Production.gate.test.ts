@@ -170,8 +170,8 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
         walked += 1;
       }
     }
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(25);
-    expect(walked).toBeGreaterThanOrEqual(25);
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(26);
+    expect(walked).toBeGreaterThanOrEqual(26);
   });
 
   it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; OD-H5-P4-SAUCE stays reserved for TQ-1D)", () => {

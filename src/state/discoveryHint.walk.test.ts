@@ -92,8 +92,8 @@ interface StageRecord {
 const TOTAL = RECIPES.length;
 
 describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hints only", () => {
-  it("the production population is the 25-recipe W1 ladder", () => {
-    expect(TOTAL).toBe(25);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa (26)", () => {
+    expect(TOTAL).toBe(26);
   });
 
   it("every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery", () => {
@@ -117,6 +117,24 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         }
         s = act(restockLow(s), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
         view = hintSheetView(s);
+      }
+      if (view.kind === "OPEN_POOL") {
+        // PR-4b-B (D-1): pizza-portuguesa and brazilian-calabresa are both DISCOVERABLE and nothing is
+        // sticky or bought, so the sheet names no recipe and sells nothing: it says only that
+        // something can still be found. The player cooks without a hint; finding the non-credit
+        // recipe first leaves one candidate again, which brings the hint back for every later stage.
+        expect(Object.keys(view)).toEqual(["kind"]);
+        expect(s.hintSession).toBeNull();
+        const pool = RECIPES.filter((r) => recipeDiscoveryState(r, s) === "DISCOVERABLE");
+        expect(pool.length, `Dex ${dexCount}: a pool of 2+`).toBeGreaterThanOrEqual(2);
+        const pick = pool.find((r) => !countsTowardLadder(r.id))!;
+        s = act(s, { type: "CLOSE_HINT" });
+        s = bake(s, [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))]);
+        expect(s.lastDiscovery, `Dex ${dexCount}: the blind pool pick`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: pick.id });
+        expect(discoveredRecipeIds(s.dex).length).toBe(dexCount + 1);
+        expect(s.discoveryHintFacts).not.toHaveProperty(pick.id);
+        records.push({ dex: dexCount, hintSpend: 0, target: pick.id, shop, steps: 0, named: 0, total: new Set(pick.requiredIngredients.map((r) => r.ingredientId)).size, firstResult: s.lastDiscovery?.kind ?? "none", trials: 1 });
+        continue;
       }
       expect(view.kind, `Dex ${dexCount}: a target after the Shop`).toBe(dexCount === 0 ? "TARGET" : "SELECTABLE");
       const targetId = s.hintSession!.targetId;

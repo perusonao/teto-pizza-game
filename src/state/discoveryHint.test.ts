@@ -138,7 +138,11 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
     for (let count = 1; count < 25; count += 1) {
       // The W1 step's recipe is opened explicitly (the Dex card path): with a branching pool the
       // automatic target need not be the ladder recipe, and the contract must hold for each.
-      let s = open(ladder(count), LADDER_ORDER[count]);
+      // From Dex 12 the 26th recipe (calabresa) is makeable beside the ladder recipe (pool 2, D-1: no
+      // automatic target). The player who found it first has pool 1 again, which is what is opened here.
+      const base = ladder(count);
+      const settled = count >= 12 ? { ...base, dex: discover([...LADDER_ORDER.slice(0, count), "brazilian-calabresa"]) } : base;
+      let s = open(settled, LADDER_ORDER[count]);
       for (let i = 0; i < 12; i += 1) s = buy(s, (["sauce", "cheese", "topping"] as const)[i % 3]);
       const view = selectable(s);
       const named = new Set(view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)));

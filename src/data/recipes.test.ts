@@ -69,10 +69,14 @@ const W1_RECIPE_IDS: readonly RecipeId[] = [
   "puttanesca-pizza",
 ];
 
+/** Discovery 3.0 PR-4b-B: the 26th recipe, appended after the W1 ten (existing No. never move). */
+const PR_4B_B_RECIPE_IDS: readonly RecipeId[] = ["brazilian-calabresa"];
+
 describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14; Batch 1B-C adds #15)", () => {
-  it("has exactly 25 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1 + W1's 10)", () => {
-    expect(RECIPES).toHaveLength(25);
-    expect(RECIPES.slice(15).map((r) => r.id)).toEqual(W1_RECIPE_IDS);
+  it("has exactly 26 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1 + W1's 10 + PR-4b-B's 1)", () => {
+    expect(RECIPES).toHaveLength(26);
+    expect(RECIPES.slice(15, 25).map((r) => r.id)).toEqual(W1_RECIPE_IDS);
+    expect(RECIPES.slice(25).map((r) => r.id)).toEqual(PR_4B_B_RECIPE_IDS); // appended: No.26
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -84,7 +88,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !BATCH_1B_A_RECIPE_IDS.includes(r.id) &&
           !BATCH_1B_B_RECIPE_IDS.includes(r.id) &&
           !BATCH_1B_C_RECIPE_IDS.includes(r.id) &&
-          !W1_RECIPE_IDS.includes(r.id),
+          !W1_RECIPE_IDS.includes(r.id) &&
+          !PR_4B_B_RECIPE_IDS.includes(r.id),
       )
         .map((r) => r.id)
         .sort(),

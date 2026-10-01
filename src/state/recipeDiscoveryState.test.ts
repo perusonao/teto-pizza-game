@@ -35,7 +35,7 @@ describe("recipeDiscoveryState (W1-a1)", () => {
   it("fresh save: margherita DISCOVERABLE (starters only), every other recipe UNKNOWN", () => {
     const counts = countRecipeDiscoveryStates(RECIPES, inputs({}));
     expect(recipeDiscoveryState(recipe("margherita"), inputs({}))).toBe("DISCOVERABLE");
-    expect(counts).toEqual({ DISCOVERED: 0, DISCOVERABLE: 1, KNOWN_BUT_MISSING_MATERIAL: 0, UNKNOWN: 24 });
+    expect(counts).toEqual({ DISCOVERED: 0, DISCOVERABLE: 1, KNOWN_BUT_MISSING_MATERIAL: 0, UNKNOWN: 25 });
   });
 
   it("first discovery: egg arrives in the Shop -> bismarck KBMM until bought, DISCOVERABLE with stock, KBMM again at stock 0", () => {
@@ -59,7 +59,7 @@ describe("recipeDiscoveryState (W1-a1)", () => {
     const counts = countRecipeDiscoveryStates(RECIPES, inputs({ dex, ownedIngredientIds: owned, inventory }));
     expect(counts.DISCOVERED).toBe(15);
     expect(counts.DISCOVERABLE).toBeGreaterThanOrEqual(2);
-    expect(counts.DISCOVERED + counts.DISCOVERABLE + counts.KNOWN_BUT_MISSING_MATERIAL + counts.UNKNOWN).toBe(25);
+    expect(counts.DISCOVERED + counts.DISCOVERABLE + counts.KNOWN_BUT_MISSING_MATERIAL + counts.UNKNOWN).toBe(26);
   });
 
   it("does not read the EP1 chain (OD-DISC-5): stripping unlockCondition/mysteryLock changes nothing", () => {

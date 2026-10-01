@@ -17,7 +17,7 @@ afterEach(() => {
 /**
  * Progression 2.0 W1 Discovery 2.0 -- Pizza Select A′ (OD-DISC-1 = A′, OD-DISC-3, OD-DISC-5,
  * OD-DISC-9; docs/reports/TETO_PROGRESS2_DISCOVERY_RECIPE-DEX_2_FRESH-DESIGN.md §5.2):
- * DISCOVERED recipes only as cards, one anonymous prompt card, chapters 6 / 9 / 10, no EP1.
+ * DISCOVERED recipes only as cards, one anonymous prompt card, chapters 6 / 10 / 10, no EP1.
  */
 
 function dexDiscovering(recipeIds: readonly string[], stars: QualityStars = 3): DexState {
@@ -92,10 +92,10 @@ function everythingRendered(): string {
 }
 
 describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
-  it("Dex 0: no recipe card, only the first-discovery prompt to Free Cooking; chapters 0/6, 0/9, 0/10", async () => {
+  it("Dex 0: no recipe card, only the first-discovery prompt to Free Cooking; chapters 0/6, 0/10, 0/10", async () => {
     const { onGoFreeCook, onSelectRecipe } = renderSelect();
     expect(gridCards()).toHaveLength(0);
-    expect(sectionHeadings()).toEqual(["第1章発見 0/6", "第2章発見 0/9", "第3章発見 0/10"]);
+    expect(sectionHeadings()).toEqual(["第1章発見 0/6", "第2章発見 0/10", "第3章発見 0/10"]);
     const prompt = document.querySelector(".pizza-select-prompt") as HTMLElement;
     expect(prompt).toHaveTextContent("まずはフリークッキングで1枚目のピザを見つけよう！");
     await userEvent.click(within(prompt).getByRole("button", { name: /フリークッキングで探す/ }));
@@ -104,13 +104,13 @@ describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
     for (const r of RECIPES) expect(everythingRendered(), r.id).not.toContain(r.nameJa);
   });
 
-  it("shows exactly the discovered recipes, each in its canonical chapter (6 / 9 / 10), in RECIPES order", () => {
+  it("shows exactly the discovered recipes, each in its canonical chapter (6 / 10 / 10), in RECIPES order", () => {
     const ids = ["margherita", "marinara", "bismarck", "quattro-formaggi", "hawaiian"];
     renderSelect({ dex: dexDiscovering(ids), ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...ALL_FINITE], inventory: FULL_STOCK });
     const sections = Array.from(document.querySelectorAll<HTMLElement>(".pizza-select-section"));
     const namesIn = (s: HTMLElement) =>
       Array.from(s.querySelectorAll(".pizza-select-card__name")).map((e) => e.textContent);
-    expect(sectionHeadings()).toEqual(["第1章発見 2/6", "第2章発見 2/9", "第3章発見 1/10"]);
+    expect(sectionHeadings()).toEqual(["第1章発見 2/6", "第2章発見 2/10", "第3章発見 1/10"]);
     expect(namesIn(sections[0])).toEqual(["マルゲリータ", "ビスマルク"]);
     expect(namesIn(sections[1])).toEqual(["マリナーラ", "ハワイアンピザ"]);
     expect(namesIn(sections[2])).toEqual(["クアトロ フォルマッジ"]);
@@ -166,15 +166,15 @@ describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
     expect(screen.queryByText(/ランチラッシュ/)).not.toBeInTheDocument();
   });
 
-  it("all 25 discovered: 25 cards, no prompt, 6 / 9 / 10 complete", () => {
+  it("all 26 discovered: 26 cards, no prompt, 6 / 10 / 10 complete", () => {
     renderSelect({
       dex: dexDiscovering(RECIPES.map((r) => r.id)),
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...ALL_FINITE],
       inventory: FULL_STOCK,
     });
-    expect(gridCards()).toHaveLength(25);
+    expect(gridCards()).toHaveLength(26);
     expect(document.querySelector(".pizza-select-prompt")).toBeNull();
-    expect(sectionHeadings()).toEqual(["第1章発見 6/6", "第2章発見 9/9", "第3章発見 10/10"]);
+    expect(sectionHeadings()).toEqual(["第1章発見 6/6", "第2章発見 10/10", "第3章発見 10/10"]);
   });
 });
 

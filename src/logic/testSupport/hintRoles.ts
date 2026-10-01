@@ -4,8 +4,7 @@
  *
  * The 25 production recipes author `hintKeyToppingId` / `hintSubToppingOrder`; a key-free recipe
  * authors nothing. Tests that pin the authored table iterate `KEYED_RECIPES` and read
- * `authoredRoles`; the key-free population (`KEY_FREE_RECIPES`, empty until a production recipe
- * opts in) is checked by its own rules, never by the authored-key ones.
+ * `authoredRoles`; the key-free population (`KEY_FREE_RECIPES`: brazilian-calabresa since PR-4b-B) is checked by its own rules, never by the authored-key ones.
  */
 import { RECIPE_HINT_ROLES, type HintRoles, type RecipeHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";

@@ -26,6 +26,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("every target is identical to its Phase-2 SHIPPED_KEEP target (items, capabilities, dimensions)", () => {
     const phase2 = new Map(phase2Targets("SHIPPED_KEEP").map((t) => [t.targetId, t]));
     for (const t of RECIPE_DISCOVERY_CATALOG) {
+      if (t.recipeId === "brazilian-calabresa") continue; // PR-4b-B: production-only (no Phase-2 row)
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId]);
       expect(expected, t.recipeId).toBeDefined();
       expect(t.items).toEqual([...expected!.items].sort());

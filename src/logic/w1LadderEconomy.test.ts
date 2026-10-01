@@ -247,8 +247,9 @@ describe("k / pack foundation", () => {
 });
 
 describe("I5b-3 activation: production runs the 25-recipe ladder", () => {
-  it("RECIPES 25, the 24-step W1 ladder, 29 catalog rows, 29 obtainable (3/29 on a fresh save)", () => {
-    expect(RECIPES).toHaveLength(25);
+  it("RECIPES 26 (25 credited), the 24-step W1 ladder, 29 catalog rows, 29 obtainable (3/29 on a fresh save)", () => {
+    expect(RECIPES).toHaveLength(26);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(25);
     // LAD-1 (OD-W2-1): frozen W1 + appended steps (none yet) -- an equal copy, not the same object.
     expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
     expect(DISCOVERY_LADDER.steps).toHaveLength(24);

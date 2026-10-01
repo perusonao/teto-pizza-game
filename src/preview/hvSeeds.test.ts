@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { hint5Presentation } from "../logic/discovery/hint5Ladder";
+import { buildHint5Ladder, hint5Presentation } from "../logic/discovery/hint5Ladder";
+import { discoverableHintCandidates, selectHintTarget } from "../logic/discovery/hintTarget";
 import type { StorageLike } from "../state/persistence";
 import { HV_SCENARIOS, buildHvSnapshot, findHvScenario, parseHvParam, shouldApplyHvSeed } from "./hvSeeds";
 
@@ -28,17 +29,24 @@ const EXPECTED: Record<string, { next: [string, number]; board: string[]; discov
   "multi-sub": { next: ["ヒント5: サブトッピング①の分類", 5], board: ["SAUCE", "CHEESE", "KEY_TOPPING", "STRUCTURE"] },
   "last-sub": { next: ["ヒント7: サブトッピング③の分類", 5], board: ["SAUCE", "CHEESE", "KEY_TOPPING", "STRUCTURE", "SUB_CLASS", "SUB_CLASS"] },
   "low-pitz": { next: ["ヒント1: ソース", 10], board: [] },
+  // PR-4b-B: calabresa is key-free: SAUCE first, and (below) no KEY_TOPPING / CHEESE rung at all.
+  "calabresa-key-free": { next: ["ヒント1: ソース", 10], board: [] },
 };
 
+/** Scenarios whose save is a pool of 2+: the sheet names no recipe, so there is no ladder offer. */
+const TARGETLESS = HV_SCENARIOS.filter((s) => s.noTarget).map((s) => s.id);
+
 describe("HV scenarios against the real ladder", () => {
-  it("the 7 scenario ids are exactly the documented ones, each unique, each with a recipe on the ladder", () => {
-    expect(HV_SCENARIOS.map((s) => s.id)).toEqual(["normal", "cheese-none", "key-none", "already-known", "multi-sub", "last-sub", "low-pitz"]);
+  it("the 9 scenario ids are exactly the documented ones, each unique, each with a recipe on the ladder", () => {
+    expect(HV_SCENARIOS.map((s) => s.id)).toEqual([
+      "normal", "cheese-none", "key-none", "already-known", "multi-sub", "last-sub", "low-pitz", "pool2-onion", "calabresa-key-free",
+    ]);
     expect(new Set(HV_SCENARIOS.map((s) => s.id)).size).toBe(HV_SCENARIOS.length);
     for (const s of HV_SCENARIOS) expect(() => buildHvSnapshot(s), s.id).not.toThrow();
   });
 
   it("each scenario offers the intended first rung at its normal price, with the intended board", () => {
-    for (const s of HV_SCENARIOS) {
+    for (const s of HV_SCENARIOS.filter((x) => !x.noTarget)) {
       const snapshot = buildHvSnapshot(s);
       const view = hint5Presentation({
         recipeId: s.recipeId,
@@ -58,7 +66,7 @@ describe("HV scenarios against the real ladder", () => {
   });
 
   it("the first-offer text of each scenario matches what the ladder offers", () => {
-    for (const s of HV_SCENARIOS) expect(s.firstOfferJa.startsWith(EXPECTED[s.id].next[0]), s.id).toBe(true);
+    for (const s of HV_SCENARIOS.filter((x) => !x.noTarget)) expect(s.firstOfferJa.startsWith(EXPECTED[s.id].next[0]), s.id).toBe(true);
   });
 
   it("already-known: the offer is a fresh save's, and only the request completes it for 0 Pitz (M3-D)", () => {
@@ -84,6 +92,38 @@ describe("HV scenarios against the real ladder", () => {
     expect(snapshot.ownedIngredientIds).toContain("garlic");
     expect(snapshot.inventory).toMatchObject({ garlic: 10 });
     expect(snapshot.pitzBalance).toBe(300);
+  });
+});
+
+describe("PR-4b-B scenarios: the first production pool of 2, and the key-free recipe's own ladder", () => {
+  it("pool2-onion: pizza-portuguesa and brazilian-calabresa are both DISCOVERABLE; the sheet names no recipe", () => {
+    expect(TARGETLESS).toEqual(["pool2-onion"]);
+    const snapshot = buildHvSnapshot(findHvScenario("pool2-onion")!);
+    const inputs = {
+      dex: snapshot.dex,
+      ownedIngredientIds: snapshot.ownedIngredientIds,
+      unlockedForShopIngredientIds: snapshot.unlockedForShopIngredientIds ?? [],
+      inventory: snapshot.inventory,
+    };
+    expect(snapshot.dex).toHaveLength(12);
+    expect(snapshot.ownedIngredientIds).toContain("onion");
+    expect(discoverableHintCandidates(inputs).map((r) => r.id).sort()).toEqual(["brazilian-calabresa", "pizza-portuguesa"]);
+    expect(selectHintTarget(inputs)).toEqual({ kind: "OPEN_POOL" });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: "brazilian-calabresa" })).toEqual({ kind: "OPEN_POOL" });
+  });
+
+  it("calabresa-key-free: the lone candidate; SAUCE is the first offer and no KEY_TOPPING / CHEESE rung exists", () => {
+    const s = findHvScenario("calabresa-key-free")!;
+    const snapshot = buildHvSnapshot(s);
+    const inputs = {
+      dex: snapshot.dex,
+      ownedIngredientIds: snapshot.ownedIngredientIds,
+      unlockedForShopIngredientIds: snapshot.unlockedForShopIngredientIds ?? [],
+      inventory: snapshot.inventory,
+    };
+    expect(snapshot.dex).toHaveLength(25);
+    expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: "brazilian-calabresa", source: "auto" });
+    expect(buildHint5Ladder("brazilian-calabresa")!.rungs.map((r) => r.kind)).toEqual(["SAUCE", "STRUCTURE", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS"]);
   });
 });
 

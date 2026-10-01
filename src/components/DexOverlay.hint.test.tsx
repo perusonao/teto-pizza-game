@@ -25,8 +25,8 @@ function discover(ids: readonly string[]): DexState {
   return dex;
 }
 
-function ladder(count: number, newest: "bought" | "not-bought" = "bought"): RecipeDiscoveryInputs {
-  const dex = discover(LADDER_ORDER.slice(0, count));
+function ladder(count: number, newest: "bought" | "not-bought" = "bought", extraFound: readonly string[] = []): RecipeDiscoveryInputs {
+  const dex = discover([...LADDER_ORDER.slice(0, count), ...extraFound]);
   const steps = W1_25_DISCOVERY_LADDER.steps.filter((s) => s.step <= count);
   const newestIds = new Set(steps.filter((s) => s.step === count).flatMap((s) => s.ingredientIds));
   const materials = steps.flatMap((s) => s.ingredientIds);
@@ -93,15 +93,24 @@ function expectNoUndiscoveredIdentity(inputs: RecipeDiscoveryInputs, where: stri
 afterEach(() => cleanup());
 
 describe("which cards get 「💡 ヒントを見る」", () => {
-  // Pool-size aware (Discovery 3.0 PR-4a): a W1 step's key recipe is always DISCOVERABLE, but a
-  // non-credit branching recipe may be DISCOVERABLE beside it, so the expectation is derived from
-  // the recipe states, never from "the next ladder recipe is the only one".
+  // Pool-size aware (Discovery 3.0 PR-4a / PR-4b-A / PR-4b-B): a W1 step's key recipe is always
+  // DISCOVERABLE, but the non-credit brazilian-calabresa is DISCOVERABLE beside it from Dex 12 (the
+  // onion step) until it is found. The expectation is derived from the recipe states: one candidate
+  // keeps its own card + hint; two or more collapse into ONE aggregated unknown with no hint entrance.
   it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i on the 25-ladder: exactly the DISCOVERABLE cards, no duplicate Free Cooking CTA", (count) => {
     const inputs = ladder(count);
     const onShowHint = vi.fn();
     renderDex(inputs, { onShowHint });
     const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id);
     expect(expected).toContain(LADDER_ORDER[count]);
+    expect(expected.length).toBe(count >= 12 ? 2 : 1);
+    if (expected.length > 1) {
+      expect(hintButtons()).toHaveLength(0);
+      expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(1);
+      expect(document.querySelectorAll('[data-dex-state="DISCOVERABLE"]')).toHaveLength(1); // the aggregated card only
+      expectNoUndiscoveredIdentity(inputs, `Dex ${count} (pool 2)`);
+      return;
+    }
     const buttons = hintButtons();
     expect(buttons).toHaveLength(expected.length);
     for (const b of buttons) {
@@ -113,6 +122,18 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     for (const b of buttons) fireEvent.click(b);
     expect(onShowHint.mock.calls.map(([id]) => id).sort()).toEqual([...expected].sort());
     expectNoUndiscoveredIdentity(inputs, `Dex ${count}`);
+  });
+
+  it.each(Array.from({ length: 13 }, (_, c) => c + 12))("Dex %i with the non-credit calabresa already found: pool 1 again, the key recipe's own card + hint", (count) => {
+    const inputs = ladder(count, "bought", ["brazilian-calabresa"]);
+    const onShowHint = vi.fn();
+    renderDex(inputs, { onShowHint });
+    expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
+    const buttons = hintButtons();
+    expect(buttons).toHaveLength(1);
+    fireEvent.click(buttons[0]);
+    expect(onShowHint.mock.calls.map(([id]) => id)).toEqual([LADDER_ORDER[count]]);
+    expectNoUndiscoveredIdentity(inputs, `Dex ${count} (calabresa found)`);
   });
 
   it("DISCOVERED, KNOWN_BUT_MISSING_MATERIAL and UNKNOWN cards never get it", () => {
@@ -155,10 +176,10 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expect(onGoFreeCook).toHaveBeenCalledTimes(1);
   });
 
-  it("the chapters still render all 25 slots", () => {
+  it("the chapters still render all 26 slots", () => {
     renderDex(ladder(11));
     expect(document.querySelectorAll(".dex-overlay__chapter")).toHaveLength(3);
-    expect(document.querySelectorAll(".dex-card")).toHaveLength(25);
+    expect(document.querySelectorAll(".dex-card")).toHaveLength(26);
   });
 });
 
@@ -166,11 +187,12 @@ describe("Dex pool 0 / 1 / 2+ (PR-4b-A D-2 / D-3)", () => {
   const aggregated = () => document.querySelectorAll("[data-dex-aggregated]");
 
   it("pool 0 and pool 1 never show the aggregated unknown (pool 1 keeps its own 🎨 card + hint)", () => {
-    renderDex(ladder(25));
+    renderDex(ladder(25, "bought", ["brazilian-calabresa"]));
     expect(aggregated()).toHaveLength(0);
     cleanup();
-    for (const count of [0, 5, 12, 24]) {
-      const inputs = ladder(count);
+    // Dex 12+ is pool 1 only once the non-credit calabresa has been found (otherwise it is pool 2).
+    for (const count of [0, 5, 11, 12, 24]) {
+      const inputs = ladder(count, "bought", count >= 12 ? ["brazilian-calabresa"] : []);
       expect(RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE")).toHaveLength(1);
       renderDex(inputs);
       expect(aggregated(), `Dex ${count}`).toHaveLength(0);
@@ -179,13 +201,13 @@ describe("Dex pool 0 / 1 / 2+ (PR-4b-A D-2 / D-3)", () => {
     }
   });
 
-  it("pool 2+ (any save, state-derived): exactly one aggregated unknown, the 25 slots are unchanged, nothing numbered or counted", () => {
+  it("pool 2+ (any save, state-derived): exactly one aggregated unknown, the 26 slots are unchanged, nothing numbered or counted", () => {
     const inputs = legacy();
     const candidates = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE");
     expect(candidates.length).toBeGreaterThanOrEqual(2);
     renderDex(inputs);
     expect(aggregated()).toHaveLength(1);
-    expect(document.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(25);
+    expect(document.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(26);
     expect(hintButtons()).toHaveLength(0);
     // The candidates' own slots are plain unknown slots: no 🎨 tag, no button, no CTA.
     expect(document.querySelectorAll(".dex-overlay__chapter [data-dex-state=\"DISCOVERABLE\"]")).toHaveLength(0);

@@ -48,9 +48,11 @@ const APPROVED_KEY_TOPPINGS: Record<string, string | null> = {
 };
 
 describe("Hint 5.0 authority data (OD-H5-C1 / C1a / C1b)", () => {
-  it("RECIPE_HINT_ROLES covers exactly the 25 production recipes, with the Owner-approved key toppings", () => {
+  it("RECIPE_HINT_ROLES covers all 26 production recipes: the 25 keyed ones with the Owner-approved key toppings, calabresa key-free", () => {
     expect(Object.keys(RECIPE_HINT_ROLES).sort()).toEqual(RECIPES.map((r) => r.id).sort());
-    expect(RECIPES).toHaveLength(25);
+    expect(RECIPES).toHaveLength(26);
+    expect(KEYED_RECIPES).toHaveLength(25);
+    expect(KEYED_RECIPES.map((r) => r.id)).not.toContain("brazilian-calabresa");
     for (const r of KEYED_RECIPES) expect(authoredRoles(r.id).hintKeyToppingId, r.id).toBe(APPROVED_KEY_TOPPINGS[r.id]);
   });
 

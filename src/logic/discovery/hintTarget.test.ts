@@ -164,9 +164,21 @@ describe("selectHintTarget -- order, pinned and sticky (T-4)", () => {
 
   it("sticky keeps a revealed target while DISCOVERABLE, and lets go once it is not", () => {
     const inputs = legacyState();
-    const [first, second] = discoverableHintCandidates(inputs);
+    const found = (state: RecipeDiscoveryInputs, id: string): RecipeDiscoveryInputs => ({
+      ...state,
+      dex: registerScoreToDex(state.dex, id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex,
+    });
+    // PR-4b-B: the legacy save now also makes the 26th recipe makeable, so three are DISCOVERABLE.
+    const candidates = discoverableHintCandidates(inputs);
+    expect(candidates.length).toBeGreaterThanOrEqual(3);
+    const [first, second, ...rest] = candidates;
     expect(selectHintTarget(inputs, { stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: second.id, source: "auto" });
-    const found = { ...inputs, dex: registerScoreToDex(inputs.dex, second.id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex };
-    expect(selectHintTarget(found, { stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: first.id, source: "auto" });
+    // Once sticky is found, 2+ candidates remain: nothing is chosen for the player (D-1).
+    const afterSecond = found(inputs, second.id);
+    expect(selectHintTarget(afterSecond, { stickyRecipeId: second.id })).toEqual({ kind: "OPEN_POOL" });
+    // Down to a single candidate the lone one is the automatic target again.
+    const lone = rest.reduce((state, r) => found(state, r.id), afterSecond);
+    expect(selectHintTarget(lone, { stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: first.id, source: "auto" });
   });
+
 });

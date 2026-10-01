@@ -14,17 +14,30 @@ const inputs = { dex: discoverAll(RECIPES.map((r) => r.id)), ownedIngredientIds:
 const optOut = (id: string): Recipe[] => RECIPES.map((r) => (r.id === id ? { ...r, lunchRush: false as const } : r));
 
 describe("lunchRush: false foundation", () => {
-  it("the 25 production recipes all participate (nothing opts out yet)", () => {
-    expect(RECIPES).toHaveLength(25);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false)).toEqual([]);
-    expect(RECIPES.every((r) => participatesInLunchRush(r.id))).toBe(true);
-    expect(missionOrderRecipeIds(inputs).sort()).toEqual(RECIPES.map((r) => r.id).sort());
+  it("the 25 original production recipes all participate; only brazilian-calabresa (PR-4b-B) opts out", () => {
+    expect(RECIPES).toHaveLength(26);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false).map((r) => r.id)).toEqual([
+      "brazilian-calabresa",
+    ]);
+    const original = RECIPES.filter((r) => r.id !== "brazilian-calabresa");
+    expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);
+    expect(participatesInLunchRush("brazilian-calabresa")).toBe(false);
+    expect(missionOrderRecipeIds(inputs).sort()).toEqual(original.map((r) => r.id).sort());
+  });
+
+  it("brazilian-calabresa discovered + every ingredient owned + in stock still never enters the pool or a draw", () => {
+    expect(inputs.ownedIngredientIds).toEqual(expect.arrayContaining(["tomato-sauce", "sausage", "onion", "black-olive", "oregano"]));
+    const pool = missionOrderRecipeIds(inputs);
+    expect(pool).not.toContain("brazilian-calabresa");
+    for (let i = 0; i < 300; i += 1) {
+      expect(pickMissionOrder(pool, pool, undefined)?.recipeId).not.toBe("brazilian-calabresa");
+    }
   });
 
   it("an opted-out recipe never enters the mission order pool, even discovered + owned + in stock", () => {
     const pool = missionOrderRecipeIds(inputs, [], optOut("pizza-bianca"));
     expect(pool).not.toContain("pizza-bianca");
-    expect(pool).toHaveLength(RECIPES.length - 1);
+    expect(pool).toHaveLength(RECIPES.length - 2); // pizza-bianca + the calabresa already opted out
   });
 
   it("only the explicit false opts out: absent, unknown id and true-ish values participate", () => {

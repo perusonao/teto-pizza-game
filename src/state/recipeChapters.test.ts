@@ -4,20 +4,20 @@ import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
 
-/** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at 25 recipes. */
+/** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10. */
 describe("recipeChapters (OD-DISC-9)", () => {
-  it("partitions the 25 recipes 6 / 9 / 10 by price tier, in RECIPES order", () => {
+  it("partitions the 26 recipes 6 / 10 / 10 by price tier, in RECIPES order", () => {
     const chapters = buildRecipeChapters();
     expect(chapters.map((c) => c.titleJa)).toEqual(["第1章", "第2章", "第3章"]);
     expect(chapters.map((c) => c.recipes.map((r) => r.id))).toEqual([
       ["margherita", "bismarck", "funghi", "breakfast-pizza", "melanzane-pizza", "parmigiana-pizza"],
-      ["marinara", "fugazza", "salsiccia", "pepperoni", "capricciosa", "meat-lovers", "bambino", "hawaiian", "pizza-portuguesa"],
+      ["marinara", "fugazza", "salsiccia", "pepperoni", "capricciosa", "meat-lovers", "bambino", "hawaiian", "pizza-portuguesa", "brazilian-calabresa"],
       [
         "quattro-formaggi", "genovese", "napoletana", "tonno-e-cipolla", "pizza-bianca",
         "pesto-tonno", "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
       ],
     ].map((ids) => [...ids].sort((a, b) => RECIPES.findIndex((r) => r.id === a) - RECIPES.findIndex((r) => r.id === b))));
-    expect(chapters.map((c) => c.recipes.length)).toEqual([6, 9, 10]);
+    expect(chapters.map((c) => c.recipes.length)).toEqual([6, 10, 10]);
   });
 
   it("chapter follows the key step (last material's step), margherita (starters only) is chapter 1", () => {
@@ -29,6 +29,8 @@ describe("recipeChapters (OD-DISC-9)", () => {
     expect(recipeKeyStep(byId("marinara"))).toBe(14);
     expect(recipeChapter(byId("marinara"))).toBe(2);
     expect(recipeChapter(byId("quattro-formaggi"))).toBe(3);
+    expect(recipeKeyStep(byId("brazilian-calabresa"))).toBe(12); // onion, same step as pizza-portuguesa
+    expect(recipeChapter(byId("brazilian-calabresa"))).toBe(2);
   });
 
   it("is population-driven: another ladder yields its own partition from the same function", () => {
@@ -43,7 +45,7 @@ describe("recipeChapters (OD-DISC-9)", () => {
     }
     const [c1, c2, c3] = buildRecipeChapters();
     expect(chapterProgress(c1, dex)).toEqual({ discovered: 2, total: 6 });
-    expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 9 });
+    expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 10 });
     expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 10 });
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "margherita")!)).toBe(1);
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "marinara")!)).toBe(1);
