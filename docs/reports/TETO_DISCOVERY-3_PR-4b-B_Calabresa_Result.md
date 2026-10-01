@@ -1,7 +1,7 @@
 # Discovery 3.0 PR-4b-B: brazilian-calabresa (No.26) — Result Report
 
 Branch `claude/discovery-3-pr-4b-b-67iybv`, from `origin/main` `07cee0c` (#329 merged; #330 closed / not merged; post-merge Deploy + E2E WebKit success; no duplicate Issue / PR / branch).
-Authority: Owner decisions D-1 … D-6 (PR-4b-A / this task). **Status: Human Review of the reference placement pending; not merged.**
+Authority: Owner decisions D-1 … D-6 (PR-4b-A / this task) + Human Review decisions (placement approved; pool=2 continuing through W1 step 13–24 approved, no new target rule). **Not merged.**
 
 ## 1. What changed (production data)
 
@@ -43,12 +43,32 @@ At the onion step (Dex 12, ladder 12) pizza-portuguesa **and** brazilian-calabre
 
 ## 5. Reference placement — Human Review needed
 
-Candidate = `getReferenceSlots(8)` consecutive in `requiredIngredients` order (the Meat Lovers precedent; literal == generator == player reference, pinned): sausage (50,24)(73,36)(76,63); onion (58,79)(38,79); black-olive (22,63)(25,36); oregano (50,52). Screenshots: `docs/reports/screenshots/discovery3-pr4b-b-calabresa/reference-*` (calabresa; Meat Lovers and Portuguesa beside it for comparison). Each ingredient occupies its own sector (sausage upper-right arc, onions bottom, olives left, oregano centre). If the Owner wants another assignment, only the `BRAZILIAN_CALABRESA_REFERENCE` literal, `playerReference` (derived) and the scoring fixture change. **STOP here for the Owner's decision before the HV video.**
+Candidate = `getReferenceSlots(8)` consecutive in `requiredIngredients` order (the Meat Lovers precedent; literal == generator == player reference, pinned): sausage (50,24)(73,36)(76,63); onion (58,79)(38,79); black-olive (22,63)(25,36); oregano (50,52). Screenshots: `docs/reports/screenshots/discovery3-pr4b-b-calabresa/reference-*` (calabresa; Meat Lovers and Portuguesa beside it for comparison). Each ingredient occupies its own sector (sausage upper-right arc, onions bottom, olives left, oregano centre). If the Owner wants another assignment, only the `BRAZILIAN_CALABRESA_REFERENCE` literal, `playerReference` (derived) and the scoring fixture change. **Owner decision (Human Review): the candidate is APPROVED as-is** — as PR-4b-B GAMEPLAY / REFERENCE CALIBRATION, not source authority and not a claim about real plating; counts / quantity / reference mechanism unchanged.
 
 ## 6. Verification
 
 Unit 5591 passed / 1 skipped (295 files); `tsc -b`, `vite build` OK; `oxlint` = the same 2 pre-existing warnings. Chromium e2e 390×844 + 360×800, whole suite: **300 passed, 42 skipped (existing guards), 0 failed** (incl. new pool-2 spec ×2 widths and the 26-case reference harness). WebKit / CI: this PR's CI. Checks: recipe count 26; No.1–25 unchanged; schema v2; ladder credited 25; calabresa `ladderCredit` / `lunchRush` false; no CUT; no new ingredient; key-free Hint (no KEY_TOPPING, no CHEESE); LR exclusion; pool-2 production; anti-leak; existing-25 parity.
 
-## 7. Human Verification
+## 7. Human Verification (Preview build, real UI)
 
-Pending the Owner's reference-placement decision. Video (390×844, delivered directly, not committed) will cover: onion step (`?hv=pool2-onion`, Preview) → Dex aggregated unknown → FREE Cooking → trial → Trial Notebook / Hint → retry → NEW RECIPE DISCOVERED → Dex. Screenshots (390×844 / 360×800) committed in `docs/reports/screenshots/discovery3-pr4b-b-calabresa/` (`pool2-*` = after state of the e2e run; `reference-*` = placement).
+Preview build (`VITE_PREVIEW_MODE`, `?hv=`) driven through the real UI at **390×844** and **360×800** (both PASS, same script); 390×844 video (H.264 MP4, 33.9 s, 1.3 MB, delivered directly, NOT committed). Screenshots: `docs/reports/screenshots/discovery3-pr4b-b-calabresa/hv/` (`hv-01 … hv-14`, `*-390x844` / `*-360x800`), plus the earlier `pool2-*` / `reference-*` set.
+
+| # | item | result |
+|---|---|---|
+| 1 | onion step: portuguesa + calabresa production pool = 2 (`?hv=pool2-onion`, Dex 12/26) | PASS |
+| 2 | candidate count / name / identity not leaked (Dex text has no ブラジリアン / カラブレ / ポルトゲーザ; aggregated card has no digit; sheet says only 「まだ発見できるピザがあるよ」) | PASS |
+| 3 | Dex aggregated unknown = 1 | PASS |
+| 4 | no per-candidate Hint (no 「ヒントを見る」, no 「ヒントをもらう」) | PASS |
+| 5 | FREE Cooking trial | PASS |
+| 6 | Trial Notebook: first trial no notice, same trial again 「試作#1」 | PASS |
+| 7 | correct calabresa → NEW PIZZA! ブラジリアン・カラブレーザ | PASS |
+| 8 | enters the Dex (13/26; 「第2章」, chapter slot) | PASS |
+| 9 | calabresa discovery: Shop entitlement unchanged (no olive-oil), save v2 | PASS |
+| 10 | after it: aggregated card gone, portuguesa's own 「ヒントを見る」, sheet offers 「ソース」 first | PASS |
+| 11 | Lunch Rush: 12 starts with all 26 found + all materials stocked: never calabresa (plus 300 draws in unit) | PASS |
+| 12 | `?hv=calabresa-key-free`: rungs = ソース → 構成 → サブトッピング①②③④; no KEY_TOPPING, no チーズ | PASS |
+| 13 | reference placement (guided Making: 見本 + popover, Pizza Select card) natural at both sizes | PASS |
+| 14 | horizontal overflow / clipping / overlap | none (`scrollWidth - clientWidth ≤ 0` at every checkpoint) |
+| 15 | console errors | none |
+
+**Observation item (Owner request, no spec change):** while calabresa stays undiscovered, every W1 step 13–24 is also a pool of 2, so the Hint is unavailable for a long stretch. In this HV the player who found calabresa first got the hint back immediately (item 10). Whether a long hint-less stretch is a problem for players who never find it is for the Owner to judge from play; no new rule (W1-first target, Margherita-style exception, calabresa-only target) was added.

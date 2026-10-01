@@ -1524,8 +1524,9 @@ export const PUTTANESCA_PIZZA_REFERENCE: ReferencePizza = {
  * Discovery 3.0 PR-4b-B: Reference Truth for `brazilian-calabresa`. Pieces (sausage 3, onion 2,
  * black-olive 2, oregano 1 = 8 non-sauce) take the RT-01 8-piece ring consecutively in
  * `requiredIngredients` order (the `MEAT_LOVERS_REFERENCE` precedent); literal == generator output
- * == the player reference (pinned by referencePizza.w1.test.ts-style test). The exact slot
- * assignment is a Human Review item (Owner D-6 / task sec. 12), not final authority.
+ * == the player reference (pinned by recipes.brazilianCalabresa.test.ts). The slot assignment is
+ * Owner-approved GAMEPLAY / REFERENCE CALIBRATION (PR-4b-B Human Review): it is NOT source authority
+ * and does not claim to show how the real dish is plated.
  */
 export const BRAZILIAN_CALABRESA_REFERENCE: ReferencePizza = {
   recipeId: "brazilian-calabresa",
