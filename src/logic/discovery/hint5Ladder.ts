@@ -11,6 +11,9 @@
  *   1 SAUCE (every sauce) -> 2 CHEESE (every cheese) -> 3 KEY_TOPPING -> 4 STRUCTURE
  *   -> 5.. SUB_CLASS ①..ⓝ (one per sub-topping, `hintSubToppingOrder`)
  *
+ * - Key-free recipes (Discovery 3.0 PR-3, OD-D3-21; `KeyFreeHintRoles`) build only the applicable
+ *   rungs: SAUCE / CHEESE only when the recipe has one, no KEY_TOPPING, no empty or "none" rung,
+ *   then STRUCTURE and every topping as SUB_CLASS in catalog order. No production recipe is key-free.
  * - Strictly linear: only the next unsettled rung can be requested (`expectedRungIndex`).
  * - Rungs 1-4 exist for every target, with the same labels and prices (FREE LEAK, H5-INV-5).
  *   The SUB_CLASS rungs are presented only once STRUCTURE is settled.
@@ -64,7 +67,7 @@
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS, type IngredientCategory } from "../../data/ingredients";
 import { ingredientAttributeFamily, type AttributeFamilyId } from "../../data/ingredientTaxonomy";
-import { RECIPE_HINT_ROLES, type RecipeHintRoles } from "../../data/recipeHintRoles";
+import { RECIPE_HINT_ROLES, type HintRolesEntry, type KeyFreeHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { deductionHintTextJa, INGREDIENT_TOTAL_FACT_ID, legacyOwnsIngredientTotal } from "./deductionHint";
 import { parseAttributeFactId } from "./deductionRequest";
@@ -145,7 +148,11 @@ function findRecipe(recipeId: unknown, recipes: readonly Recipe[]): Recipe | nul
   return recipes.find((r) => r.id === recipeId) ?? null;
 }
 
-function rolesOf(recipeId: string, roles: Readonly<Record<string, RecipeHintRoles>>): RecipeHintRoles | null {
+export function isKeyFreeRoles(roles: HintRolesEntry | null | undefined): roles is KeyFreeHintRoles {
+  return !!roles && (roles as KeyFreeHintRoles).keyFree === true;
+}
+
+function rolesOf(recipeId: string, roles: Readonly<Record<string, HintRolesEntry>>): HintRolesEntry | null {
   return Object.prototype.hasOwnProperty.call(roles, recipeId) ? roles[recipeId] : null;
 }
 
@@ -155,9 +162,14 @@ function rolesOf(recipeId: string, roles: Readonly<Record<string, RecipeHintRole
  * each once. Every recipe ingredient is a catalog ingredient (G22), and every sub-topping resolves to
  * one family (T-COV). Anything else is not a target.
  */
-export function hint5RolesValid(recipe: Recipe, roles: RecipeHintRoles | null): boolean {
-  if (!roles || !Array.isArray(roles.hintSubToppingOrder)) return false;
+export function hint5RolesValid(recipe: Recipe, roles: HintRolesEntry | null): boolean {
+  if (!roles) return false;
   const ids = [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))];
+  if (isKeyFreeRoles(roles)) {
+    // PR-3 key-free: nothing is authored, so only the catalog / T-COV checks apply.
+    return ids.every((id) => typeof id === "string" && getIngredient(id)) && ids.filter((id) => getIngredient(id)!.category === "topping").every((id) => subToppingClass(id) !== null);
+  }
+  if (!Array.isArray(roles.hintSubToppingOrder)) return false;
   if (!ids.every((id) => typeof id === "string" && getIngredient(id))) return false;
   const toppings = ids.filter((id) => getIngredient(id)!.category === "topping");
   const key = roles.hintKeyToppingId;
@@ -177,7 +189,7 @@ export function hint5RolesValid(recipe: Recipe, roles: RecipeHintRoles | null): 
 export function buildHint5Ladder(
   recipeId: unknown,
   recipes: readonly Recipe[] = RECIPES,
-  roles: Readonly<Record<string, RecipeHintRoles>> = RECIPE_HINT_ROLES,
+  roles: Readonly<Record<string, HintRolesEntry>> = RECIPE_HINT_ROLES,
 ): Hint5Ladder | null {
   const recipe = findRecipe(recipeId, recipes);
   if (!recipe) return null;
@@ -185,6 +197,18 @@ export function buildHint5Ladder(
   if (!own || !hint5RolesValid(recipe, own)) return null;
   const ids = [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))];
   const inCategory = (category: IngredientCategory) => byCatalogOrder(ids.filter((id) => getIngredient(id)!.category === category));
+  if (isKeyFreeRoles(own)) {
+    // PR-3 (OD-D3-21): only the rungs that apply. No KEY_TOPPING, no empty / "none" rung.
+    const sauce = inCategory("sauce");
+    const cheese = inCategory("cheese");
+    const keyFree: [Hint5RungKind, readonly string[]][] = [];
+    if (sauce.length > 0) keyFree.push(["SAUCE", sauce]);
+    if (cheese.length > 0) keyFree.push(["CHEESE", cheese]);
+    keyFree.push(["STRUCTURE", []]);
+    const rungsKeyFree: Hint5Rung[] = keyFree.map(([kind, subjectIds], i) => ({ index: i + 1, kind, ordinal: null, subjectIds }));
+    inCategory("topping").forEach((id, i) => rungsKeyFree.push({ index: rungsKeyFree.length + 1, kind: "SUB_CLASS", ordinal: i + 1, subjectIds: [id] }));
+    return { recipeId: recipe.id, rungs: rungsKeyFree, total: ids.length };
+  }
   const fixed: [Hint5RungKind, readonly string[]][] = [
     ["SAUCE", inCategory("sauce")],
     ["CHEESE", inCategory("cheese")],
@@ -361,8 +385,12 @@ export type Hint5RequestResult =
  *   (H5-INV-6).
  * - A COMPLETED rung is never offered again.
  */
-export function requestHint5Rung(input: Hint5RequestInput, recipes: readonly Recipe[] = RECIPES): Hint5RequestResult {
-  const ladder = buildHint5Ladder(input.recipeId, recipes);
+export function requestHint5Rung(
+  input: Hint5RequestInput,
+  recipes: readonly Recipe[] = RECIPES,
+  roles: Readonly<Record<string, HintRolesEntry>> = RECIPE_HINT_ROLES,
+): Hint5RequestResult {
+  const ladder = buildHint5Ladder(input.recipeId, recipes, roles);
   if (!ladder) return { outcome: "REJECTED", reason: "NOT_A_TARGET" };
   const own = hint5Ownership(ladder, input.storedFactIds, input.legacyPurchases, recipes);
   const expectedNext = own.nextIndex ?? ladder.rungs.length + 1;
@@ -459,8 +487,9 @@ export function hint5ClassView(family: AttributeFamilyId): Hint5ClassView {
 export function hint5Presentation(
   input: Pick<Hint5RequestInput, "recipeId" | "discoveredCount" | "storedFactIds" | "legacyPurchases" | "pitzBalance">,
   recipes: readonly Recipe[] = RECIPES,
+  roles: Readonly<Record<string, HintRolesEntry>> = RECIPE_HINT_ROLES,
 ): Hint5Presentation | null {
-  const ladder = buildHint5Ladder(input.recipeId, recipes);
+  const ladder = buildHint5Ladder(input.recipeId, recipes, roles);
   if (!ladder) return null;
   const own = hint5Ownership(ladder, input.storedFactIds, input.legacyPurchases, recipes);
   const onboarding = isHintOnboardingFree(input.discoveredCount, ladder.recipeId);
@@ -468,7 +497,7 @@ export function hint5Presentation(
   const board: Hint5BoardEntry[] = [];
   // SUB_CLASS entries appear only once STRUCTURE is completed (§8: the sub-topping count is paid
   // information), even if a `cls:` record were stored earlier.
-  const structureCompleted = own.statuses[HINT5_FIXED_RUNG_KINDS.indexOf("STRUCTURE")] === "COMPLETED";
+  const structureCompleted = own.statuses[ladder.rungs.findIndex((r) => r.kind === "STRUCTURE")] === "COMPLETED";
   for (const rung of ladder.rungs) {
     if (own.statuses[rung.index - 1] !== "COMPLETED") continue;
     if (rung.kind === "SUB_CLASS" && !structureCompleted) continue;

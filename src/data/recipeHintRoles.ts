@@ -24,6 +24,20 @@ export interface RecipeHintRoles {
   hintSubToppingOrder: readonly string[];
 }
 
+/**
+ * Discovery 3.0 PR-3 (OD-D3-19 Migration A / OD-D3-21): a key-free recipe authors no hint data at
+ * all. Its ladder is SAUCE (only if it has a sauce) -> CHEESE (only if it has a cheese) ->
+ * STRUCTURE -> one SUB_CLASS per topping in catalog order. There is no KEY_TOPPING rung and no empty
+ * or "none" rung: a rung that does not apply is simply absent. `RECIPE_HINT_ROLES` below stays
+ * `Record<RecipeId, RecipeHintRoles>` (the 25 shipped recipes are unchanged); only an injected roles
+ * table (tests today, brazilian-calabresa in PR-4) may hold a key-free entry.
+ */
+export interface KeyFreeHintRoles {
+  keyFree: true;
+}
+
+export type HintRolesEntry = RecipeHintRoles | KeyFreeHintRoles;
+
 export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = {
   margherita: { hintKeyToppingId: "basil", hintSubToppingOrder: [] }, // C1a
   marinara: { hintKeyToppingId: "garlic", hintSubToppingOrder: ["oregano"] },
