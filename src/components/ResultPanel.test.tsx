@@ -608,7 +608,7 @@ describe("ResultPanel: Issue #215 quantity line and near-miss copy", () => {
     expect(container.querySelector(".result-panel__quantity-note")).toBeNull();
   });
 
-  it("the free-cook near miss no longer blames the ingredient count", () => {
+  it("the free-cook INCOMPLETE_MATCH reads like any other ORIGINAL (no 「あと少し」)", () => {
     render(
       <ResultPanel
         {...baseProps()}
@@ -617,9 +617,9 @@ describe("ResultPanel: Issue #215 quantity line and near-miss copy", () => {
         discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "margherita", targetId: "shipped:margherita" }}
       />,
     );
-    // #229 229-C (H-U4): the set already matches, so the copy points at the sauce *amount* / bake,
-    // never at changing the sauce type (which would break the match).
-    expect(screen.getByText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。")).toBeInTheDocument();
+    // Discovery 3.0 PR-1 (OD-D3-20/23): the old 「あと少し」 lead revealed the combination was right; neutral now.
+    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
+    expect(document.body.textContent).not.toContain("あと少し");
     expect(document.body.textContent).not.toContain("ソースや焼き加減を変えて");
     expect(document.body.innerHTML).not.toContain("margherita");
   });

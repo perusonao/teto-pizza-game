@@ -38,6 +38,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily } from "../components/HintSheet";
 import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
@@ -975,6 +976,7 @@ export function GameScreen({
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
           nearMiss={resultNearMiss(state)}
+          executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
         />

@@ -116,6 +116,8 @@ interface ResultPanelProps {
   /** P3-3b (OD-P3-19): the stable attempt number of an earlier identical ORIGINAL attempt (the P3-3a record result),
    *  or `null`. Shown only on the ORIGINAL card, after the P2 line; never the retry count. */
   trialNoticeNumber?: number | null;
+  /** Discovery 3.0 PR-1: recipe-independent execution advice (../state/executionAdvice.ts), ORIGINAL card only. */
+  executionAdviceJa?: string | null;
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
@@ -182,6 +184,7 @@ export function ResultPanel({
   onOpenDex,
   nearMiss = null,
   trialNoticeNumber = null,
+  executionAdviceJa = null,
   onShowHint,
 }: ResultPanelProps) {
   // 229-C: a secondary row under the result itself -- the line (if any) and the hint CTA.
@@ -288,6 +291,9 @@ export function ResultPanel({
               {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
             </p>
           )}
+          {/* Discovery 3.0 PR-1: a static, recipe-independent line about the player's own sauce. It never depends on
+              `discovery` (the lead above and this card are byte-identical for every original outcome). */}
+          {freeCook && executionAdviceJa && <p className="original-pizza__advice">{executionAdviceJa}</p>}
         </div>
         {freeCook && hintRow(nearMiss, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}

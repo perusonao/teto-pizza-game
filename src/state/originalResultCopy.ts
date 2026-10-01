@@ -55,6 +55,8 @@ const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！";
 export const ORIGINAL_LEAD_COPY: Readonly<Record<OriginalResultKind, string>> = {
   ORDINARY: NEUTRAL_LEAD,
   AMBIGUOUS: NEUTRAL_LEAD,
-  // H-U4 (Discovery Hint 2.0 229-C): the set matches, so the fix is the sauce amount or the bake.
-  INCOMPLETE_MATCH: "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。",
+  // Discovery 3.0 PR-1 (OD-D3-20 / OD-D3-23): the old 「図鑑のピザまであと少し…」 line (H-U4) told the player, for free
+  // and repeatably, that the ingredient combination was right (S1 browser reproduction). It is now the neutral
+  // lead, identical to an ordinary ORIGINAL; execution advice is recipe-independent (./executionAdvice.ts).
+  INCOMPLETE_MATCH: NEUTRAL_LEAD,
 };

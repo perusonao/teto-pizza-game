@@ -227,11 +227,11 @@ describe("no notice outside an eligible ORIGINAL result", () => {
     expect(notice()).toBeNull();
   });
 
-  it("12. INCOMPLETE_MATCH shows none (and records nothing)", () => {
+  it("12. INCOMPLETE_MATCH reads like any ORIGINAL: neutral lead, first attempt no notice (but it is recorded)", () => {
     const s = playFreeRound(seeded(), INCOMPLETE);
     expect(s.lastDiscovery?.kind).toBe("INCOMPLETE_MATCH");
     renderState(s);
-    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("あと少し");
+    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("図鑑にはまだ載っていないピザ！");
     expect(notice()).toBeNull();
   });
 

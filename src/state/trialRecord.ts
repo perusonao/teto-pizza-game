@@ -8,8 +8,9 @@
  * - The model is P3-1's `recordAttempt`; duplicate / `#n` / REVIVE / 50 + 2 000 semantics live there only.
  * - The stored feedback is `{ kind, textJa }` of the P2 line the player is shown (`resultNearMiss`), or `null`;
  *   never the internal near-miss (distance / target / candidate).
- * - Eligible: the ORIGINAL and AMBIGUOUS outcomes (OD-P3-16). INCOMPLETE_MATCH and every other outcome return
- *   the very same state references and record nothing.
+ * - Eligible: the ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH outcomes (OD-P3-16 as updated by OD-D3-23). Every other
+ *   outcome returns the very same state references and records nothing. What is stored is the player's own
+ *   combination and the line they were shown -- never the matcher outcome, a recipe, or "the combination was right".
  * - `lastTrialAttempt` is the display-only result of THIS commit (`NEW` / `DUPLICATE` with the stable `#n`, no
  *   `retryCount`, OD-P3-19). A later RESULT notice reads it; nothing may re-derive it by a lookup at render time.
  */
@@ -30,9 +31,14 @@ export interface TrialRecordResult {
   lastTrialAttempt: LastTrialAttempt | null;
 }
 
-/** OD-P3-16: only an ORIGINAL (or an AMBIGUOUS shown identically) is an attempt that tried a combination. */
+/**
+ * OD-P3-16, updated by OD-D3-23: an ORIGINAL, an AMBIGUOUS (shown identically) and an INCOMPLETE_MATCH (also shown
+ * as an ordinary original) are attempts that tried a combination. The notebook is the player's experiment
+ * notebook, not a success log; and recording INCOMPLETE like any original removes a free "this combination was
+ * right" signal (the missing 「試作#n」 notice on a retry).
+ */
 export function isTrialRecordEligible(outcome: DiscoveryOutcome): boolean {
-  return outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS";
+  return outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS" || outcome.kind === "INCOMPLETE_MATCH";
 }
 
 /** Exactly the two fields of the P2 line (OD-P3-18); `null` when P2 shows nothing. */
