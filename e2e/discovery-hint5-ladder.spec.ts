@@ -45,7 +45,8 @@ const LADDER = [
  *  marks them discovered: the pool is exactly the intended target. Empty while every production recipe is credited (every seed
  *  is then unchanged). */
 const NON_CREDIT: readonly string[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
-const DEX = LADDER.slice(0, 8).map(([id]) => id as string);
+// The default seed's Dex (target meat-lovers): the ladder up to it plus the non-credit recipes `save()` also discovers.
+const DEX = [...LADDER.slice(0, 8).map(([id]) => id as string), ...NON_CREDIT];
 
 /** The ladder played up to (not including) `target`, whose materials are owned and stocked: the
  *  DISCOVERABLE hint target is `target`. */
