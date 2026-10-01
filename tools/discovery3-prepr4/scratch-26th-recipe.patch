@@ -1,0 +1,119 @@
+diff --git a/src/data/discoveryCatalog.ts b/src/data/discoveryCatalog.ts
+index f71fc36..651b8d7 100644
+--- a/src/data/discoveryCatalog.ts
++++ b/src/data/discoveryCatalog.ts
+@@ -49,6 +49,7 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
+   "pesto-caprese": "pesto-caprese-pizzadb-p11",
+   "pesto-patate": "pesto-patate-pizzadb-p12",
+   "puttanesca-pizza": "puttanesca-pizza-pizzadb-p10",
++  "brazilian-calabresa": "brazilian-calabresa-pizzadb-p10",
+ };
+ 
+ export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => ({
+diff --git a/src/data/orders.ts b/src/data/orders.ts
+index d4064c6..5336b49 100644
+--- a/src/data/orders.ts
++++ b/src/data/orders.ts
+@@ -124,6 +124,7 @@ export const ORDERS: Order[] = [
+     requestedBy: "mito",
+     lineJa: "パイナップルがのったハワイアンピザ、甘じょっぱくて気になるな！作ってみて！",
+   },
++  { id: "order-brazilian-calabresa", recipeId: "brazilian-calabresa", requestedBy: "mito", lineJa: "scratch dry-run" },
+   {
+     id: "order-pizza-portuguesa",
+     recipeId: "pizza-portuguesa",
+diff --git a/src/data/recipeHintRoles.ts b/src/data/recipeHintRoles.ts
+index e14981d..6e9ce5f 100644
+--- a/src/data/recipeHintRoles.ts
++++ b/src/data/recipeHintRoles.ts
+@@ -38,7 +38,8 @@ export interface KeyFreeHintRoles {
+ 
+ export type HintRoles = RecipeHintRoles | KeyFreeHintRoles;
+ 
+-export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = {
++export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
++  "brazilian-calabresa": { keyFree: true }, // DRY-RUN SCRATCH
+   margherita: { hintKeyToppingId: "basil", hintSubToppingOrder: [] }, // C1a
+   marinara: { hintKeyToppingId: "garlic", hintSubToppingOrder: ["oregano"] },
+   "quattro-formaggi": { hintKeyToppingId: null, hintSubToppingOrder: [] }, // C1a: no topping
+diff --git a/src/data/recipeSauceProfiles.ts b/src/data/recipeSauceProfiles.ts
+index 667e367..a745938 100644
+--- a/src/data/recipeSauceProfiles.ts
++++ b/src/data/recipeSauceProfiles.ts
+@@ -127,6 +127,11 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
+     ingredientId: "tomato-sauce",
+     interaction: "PAINT",
+   },
++  "brazilian-calabresa": {
++    recipeId: "brazilian-calabresa",
++    ingredientId: "tomato-sauce",
++    interaction: "PAINT",
++  },
+   "pizza-portuguesa": {
+     recipeId: "pizza-portuguesa",
+     ingredientId: "tomato-sauce",
+diff --git a/src/data/recipes.ts b/src/data/recipes.ts
+index 10809c8..475dd9a 100644
+--- a/src/data/recipes.ts
++++ b/src/data/recipes.ts
+@@ -547,6 +547,22 @@ export const RECIPES = [
+     bakeTarget: { start: 50, end: 70 },
+     baseRewardPitz: 100,
+   },
++  // DRY-RUN SCRATCH ONLY (Pre-PR4 Gate). Quantities / bake are NOT authority.
++  {
++    id: "brazilian-calabresa",
++    nameJa: "ブラジリアン・カラブレーザ",
++    description: "scratch dry-run",
++    requiredIngredients: [
++      { ingredientId: "tomato-sauce", minCount: 1 },
++      { ingredientId: "sausage", minCount: 2 },
++      { ingredientId: "onion", minCount: 2 },
++      { ingredientId: "black-olive", minCount: 2 },
++      { ingredientId: "oregano", minCount: 1 },
++    ],
++    bakeTarget: { start: 58, end: 78 },
++    baseRewardPitz: 100,
++    ladderCredit: false,
++  },
+ ] as const;
+ 
+ /** Derived from RECIPES above so this union can never drift out of sync with
+diff --git a/src/data/referencePizza.ts b/src/data/referencePizza.ts
+index 3d47960..295b63e 100644
+--- a/src/data/referencePizza.ts
++++ b/src/data/referencePizza.ts
+@@ -1531,6 +1531,25 @@ function deepFreezeReference<T>(value: T): T {
+   return value;
+ }
+ 
++/** DRY-RUN SCRATCH ONLY: 7 pieces on a ring, interaction/tolerance borrowed from shipped groups. NOT authority. */
++function scratchCalabresaReference(): ReferencePizza {
++  const donors = [SALSICCIA_REFERENCE, PIZZA_PORTUGUESA_REFERENCE, CAPRICCIOSA_REFERENCE, MARINARA_REFERENCE];
++  const find = (id: string) => donors.flatMap((d) => d.pieceGroups).find((g) => g.ingredientId === id)!;
++  const counts: [string, number][] = [["sausage", 2], ["onion", 2], ["black-olive", 2], ["oregano", 1]];
++  let i = 0;
++  const total = 7;
++  const groups = counts.map(([id, n]) => {
++    const donor = find(id);
++    const positions = Array.from({ length: n }, () => {
++      const a = (2 * Math.PI * i++) / total;
++      return { x: Math.round((50 + 24 * Math.cos(a)) * 100) / 100, y: Math.round((50 + 24 * Math.sin(a)) * 100) / 100 };
++    });
++    return { ...donor, positions };
++  });
++  return { recipeId: "brazilian-calabresa", sauce: computeMechanicalSauceReference("brazilian-calabresa"), pieceGroups: groups } as ReferencePizza;
++}
++const BRAZILIAN_CALABRESA_REFERENCE = scratchCalabresaReference();
++
+ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
+   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
+   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
+@@ -1557,6 +1576,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
+   [PESTO_CAPRESE_REFERENCE.recipeId, PESTO_CAPRESE_REFERENCE],
+   [PESTO_PATATE_REFERENCE.recipeId, PESTO_PATATE_REFERENCE],
+   [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
++  [BRAZILIAN_CALABRESA_REFERENCE.recipeId, BRAZILIAN_CALABRESA_REFERENCE],
+ ]);
+ for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
+ 

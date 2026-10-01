@@ -1,0 +1,702 @@
+[
+ {
+  "file": "src/App.fullGameReset.test.tsx",
+  "test": "Dex shows nothing discovered",
+  "msg": "TestingLibraryElementError: Unable to find an element with the text: /発見 0\\s*\\/\\s*25/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for yo"
+ },
+ {
+  "file": "src/App.test.tsx",
+  "test": "reads Pitz balance and Dex progress from persisted state, never hard-coded",
+  "msg": "TestingLibraryElementError: Unable to find a label with the text of: /レシピ図鑑 発見数 1 \\/ 25/"
+ },
+ {
+  "file": "src/data/cookingProfiles.test.ts",
+  "test": "(A) every current production recipe has an explicit eligibility decision",
+  "msg": "AssertionError: expected Set{ 'margherita', 'marinara', …(24) } to deeply equal Set{ 'margherita', 'marinara', …(23) }"
+ },
+ {
+  "file": "src/data/cookingProfiles.test.ts",
+  "test": "every RECIPES entry is CUT-eligible except the REC-02 no-CUT recipe (New Haven Apizza)",
+  "msg": "AssertionError: brazilian-calabresa CUT eligibility: expected false to be true // Object.is equality"
+ },
+ {
+  "file": "src/data/cookingProfiles.test.ts",
+  "test": "every RECIPES entry's derived profile matches RECIPE_STEP_MATRIX exactly, not just a step count",
+  "msg": "AssertionError: brazilian-calabresa: expected [ 'DOUGH', 'SAUCE', 'TOPPING' ] to deeply equal undefined"
+ },
+ {
+  "file": "src/data/discoveryLadder.test.ts",
+  "test": "targets the current 25-recipe population (24 steps); shipped-15 had 15 recipes (14 steps)",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/data/recipeSauceProfiles.test.ts",
+  "test": "covers all 25 recipes and points at each recipe's required sauce",
+  "msg": "AssertionError: expected [ 'margherita', 'marinara', …(24) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/data/recipes.test.ts",
+  "test": "has exactly 25 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1 + W1's 10)",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/data/recipes.test.ts",
+  "test": "the pre-Batch-1A Starter 6 + fugazza are unchanged",
+  "msg": "AssertionError: expected [ 'bismarck', …(6) ] to deeply equal [ 'bismarck', 'funghi', …(4) ]"
+ },
+ {
+  "file": "src/data/referencePizza.w1.test.ts",
+  "test": "RECIPES 25, REFERENCE_PIZZAS 25",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/components/DexOverlay.discovery.test.tsx",
+  "test": "3 chapters (6 / 9 / 10) with per-chapter counts and fixed No. slots",
+  "msg": "AssertionError: expected [ '第1章1/6', '第2章1/10', '第3章0/10' ] to deeply equal [ '第1章1/6', '第2章1/9', '第3章0/10' ]"
+ },
+ {
+  "file": "src/components/DexOverlay.discovery.test.tsx",
+  "test": "tags: 🎨 for DISCOVERABLE (-> Free Cooking), 🏪 for Shop-gated (-> Shop), plain ？？？ otherwise",
+  "msg": "AssertionError: expected 24 to be 23 // Object.is equality"
+ },
+ {
+  "file": "src/components/DexOverlay.discovery.test.tsx",
+  "test": "nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (arrived / bought)",
+  "msg": "AssertionError: expected <div …(2)>…(2)</div>"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 12 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 13 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 14 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 15 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 16 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 17 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 18 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 19 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 20 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 21 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 22 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 23 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "Dex 24 on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA",
+  "msg": "AssertionError: expected [ <button …(2)></button>, …(1) ] to have a length of 1 but got 2"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "all 25 found: no hint CTA",
+  "msg": "AssertionError: expected [ Array(1) ] to have a length of +0 but got 1"
+ },
+ {
+  "file": "src/components/DexOverlay.hint.test.tsx",
+  "test": "the chapters still render all 25 slots",
+  "msg": "AssertionError: expected <div class=\"dex-card \">…(4)</div>"
+ },
+ {
+  "file": "src/components/HintSheet.hint5.test.tsx",
+  "test": "before STRUCTURE, the rendered sheet is byte-identical for every target that reached the same rung",
+  "msg": "AssertionError: after 1 rungs: expected 2 to be 1 // Object.is equality"
+ },
+ {
+  "file": "src/logic/completionGate.test.ts",
+  "test": "27. all 25 recipes can be evaluated by the Completion Gate (PASS for an ideal pizza, FAILED for an empty one)",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discoveryHintEconomy.sim.test.ts",
+  "test": "HE-5: P0-P5 x ★4/★3/★1 reach Dex 25 through the Economy 1.0 authority with 0 hard deadlocks, in parity with the harness",
+  "msg": "AssertionError: Q30 P5 brazilian-calabresa: expected [ +0, 5, 15, 35, 75 ] to include 10"
+ },
+ {
+  "file": "src/logic/discoveryLadder.ladderCredit.test.ts",
+  "test": "no production recipe sets ladderCredit",
+  "msg": "AssertionError: expected true to be false // Object.is equality"
+ },
+ {
+  "file": "src/logic/discoveryLadder.ladderCredit.test.ts",
+  "test": "every production recipe counts toward the ladder",
+  "msg": "AssertionError: expected false to be true // Object.is equality"
+ },
+ {
+  "file": "src/logic/discoveryLadder.ladderCredit.test.ts",
+  "test": "count equals the legacy count for every prefix of the production recipes",
+  "msg": "AssertionError: expected 25 to be 26 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discoveryLadder.ladderCredit.test.ts",
+  "test": "an old-format Dex gives the same count with and without the predicate",
+  "msg": "AssertionError: expected 25 to be 26 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discoveryLadder.test.ts",
+  "test": "is 25 once every shipped recipe is discovered (W1 I5b-3)",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/economySimulation.test.ts",
+  "test": "simulates the 15 EP-era recipes; the 10 W1 recipes (no EP1 gate) are outside this EP4 model",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/efficiency.test.ts",
+  "test": "every shipped recipe gets valid, ordered, strictly-increasing thresholds",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/hint5Economy.sim.test.ts",
+  "test": "H5-2 baseline: the totals before round 6 still match the Final Design §10.1 prediction (910 / 37.9 / 25-50)",
+  "msg": "AssertionError: brazilian-calabresa: expected 35 to be undefined // Object.is equality"
+ },
+ {
+  "file": "src/logic/hint5Economy.sim.test.ts",
+  "test": "round 6: every recipe's full-ladder total is the H5-2 total + 10 on the 6 「なし」 targets (970 / 40.4 / 35-50)",
+  "msg": "AssertionError: brazilian-calabresa: expected 35 to be undefined // Object.is equality"
+ },
+ {
+  "file": "src/logic/hint5Economy.sim.test.ts",
+  "test": "every profile x quality reaches Dex 25 with no hard deadlock; charges are P-C prices only; no RESERVED stop",
+  "msg": "TypeError: expected value must be number or bigint, received \"undefined\""
+ },
+ {
+  "file": "src/logic/w1LadderEconomy.test.ts",
+  "test": "is what the REC-04 key-recipe rule derives for the production RECIPES (15 + W1 10)",
+  "msg": "AssertionError: expected { populationId: 'w1-25', …(1) } to deeply equal { populationId: 'w1-25', …(1) }"
+ },
+ {
+  "file": "src/logic/w1LadderEconomy.test.ts",
+  "test": "covers all 25 recipes: margherita is starter-only (no step), every other recipe is one key",
+  "msg": "AssertionError: expected Set{ 'bismarck', …(24) } to deeply equal Set{ 'margherita', 'marinara', …(24) }"
+ },
+ {
+  "file": "src/logic/w1LadderEconomy.test.ts",
+  "test": "RECIPES 25, the 24-step W1 ladder, 29 catalog rows, 29 obtainable (3/29 on a fresh save)",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "the production ladder is the 24-step W1 ladder over 25 recipes",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches 25",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "representative migration: 0 old-ladder discoveries, then the switch, reaches 25",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "representative migration: 1 old-ladder discoveries, then the switch, reaches 25",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "representative migration: 5 old-ladder discoveries, then the switch, reaches 25",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "representative migration: 10 old-ladder discoveries, then the switch, reaches 25",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "representative migration: 15 old-ladder discoveries, then the switch, reaches 25",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/w1Reachability.test.ts",
+  "test": "2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach 25",
+  "msg": "AssertionError: expected 2000 to be +0 // Object.is equality"
+ },
+ {
+  "file": "src/screens/PizzaSelectScreen.test.tsx",
+  "test": "Dex 0: no recipe card, only the first-discovery prompt to Free Cooking; chapters 0/6, 0/9, 0/10",
+  "msg": "AssertionError: expected [ '第1章発見 0/6', '第2章発見 0/10', …(1) ] to deeply equal [ '第1章発見 0/6', '第2章発見 0/9', …(1) ]"
+ },
+ {
+  "file": "src/screens/PizzaSelectScreen.test.tsx",
+  "test": "shows exactly the discovered recipes, each in its canonical chapter (6 / 9 / 10), in RECIPES order",
+  "msg": "AssertionError: expected [ '第1章発見 2/6', '第2章発見 2/10', …(1) ] to deeply equal [ '第1章発見 2/6', '第2章発見 2/9', …(1) ]"
+ },
+ {
+  "file": "src/screens/PizzaSelectScreen.test.tsx",
+  "test": "all 25 discovered: 25 cards, no prompt, 6 / 9 / 10 complete",
+  "msg": "AssertionError: expected [ <button …(3)>…(3)</button>, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/state/discoveryHint.test.ts",
+  "test": "no DISCOVERABLE target -> null (the sheet shows the empty state)",
+  "msg": "AssertionError: expected { …(2) } to be null"
+ },
+ {
+  "file": "src/state/discoveryHint.test.ts",
+  "test": "at Dex >= 1 the full answer is never shown, however often a fact is bought (every ladder step)",
+  "msg": "AssertionError: Dex 12: expected 4 to be 5 // Object.is equality"
+ },
+ {
+  "file": "src/state/discoveryHint.test.ts",
+  "test": "empty states: SHOP_NEW / REFILL / COMPLETE",
+  "msg": "AssertionError: expected { kind: 'SELECTABLE', …(5) } to deeply equal { kind: 'COMPLETE' }"
+ },
+ {
+  "file": "src/state/discoveryHint.walk.test.ts",
+  "test": "every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery",
+  "msg": "AssertionError: expected { kind: 'SHOP_NEW' } to deeply equal { kind: 'COMPLETE' }"
+ },
+ {
+  "file": "src/state/persistence.discoveryHintFacts.test.ts",
+  "test": "8. an unknown recipe id in either ledger is hidden from gameplay but kept in storage",
+  "msg": "AssertionError: expected { 'brazilian-calabresa': [ …(2) ] } to deeply equal {}"
+ },
+ {
+  "file": "src/state/persistence.discoveryHintFacts.test.ts",
+  "test": "D: two snapshots written in either order end in the same union",
+  "msg": "AssertionError: expected { napoletana: [ …(2) ], …(2) } to deeply equal { napoletana: [ …(2) ], …(1) }"
+ },
+ {
+  "file": "src/state/persistence.discoveryHintPurchases.test.ts",
+  "test": "an unknown well-formed recipe id is hidden from gameplay but kept in storage by every write path",
+  "msg": "AssertionError: expected true to be false // Object.is equality"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "fixture ids really are unknown to this build",
+  "msg": "AssertionError: expected true to be false // Object.is equality"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "loadSave still hides unknown ids from gameplay (runtime view unchanged)",
+  "msg": "AssertionError: expected [ …(2) ] to deeply equal [ { recipeId: 'margherita', …(4) } ]"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "runtime hydration is identical with or without future data in the save",
+  "msg": "AssertionError: expected [ …(2) ] to deeply equal [ { recipeId: 'margherita', …(4) } ]"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "persistProgress keeps unknown recipe/Dex, ingredient, inventory, ledger and top-level data",
+  "msg": "AssertionError: expected [ 'margherita', …(2) ] to deeply equal [ 'margherita', 'marinara', …(1) ]"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "drops malformed unknown data: bad ids, negative/NaN/fractional stock, invalid Dex shapes",
+  "msg": "AssertionError: expected [ 'margherita', …(2) ] to deeply equal [ 'margherita', 'marinara', …(1) ]"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "v1 migration keeps known data and carries unknown ids through the first v2 write",
+  "msg": "AssertionError: expected [ …(2) ] to deeply equal [ { recipeId: 'margherita', …(4) } ]"
+ },
+ {
+  "file": "src/state/persistence.forwardCompat.test.ts",
+  "test": "downgrade -> mount grant -> play -> mission -> reload -> write again keeps it verbatim",
+  "msg": "AssertionError: expected [ 'margherita', …(2) ] to deeply equal [ 'margherita', …(3) ]"
+ },
+ {
+  "file": "src/state/pizzaSelect.test.ts",
+  "test": "splits today's 25 production recipes into 第1章 (7) / 第2章 (8) / 第3章 (8) / 第4章 (2), preserving RECIPES' own order",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/state/progression.test.ts",
+  "test": "OD-I5B-2: the 10 W1 recipes have no recipe gate -- on a fresh save they are available exactly when their materials are owned",
+  "msg": "AssertionError: expected [ 'bambino', …(10) ] to deeply equal [ 'bambino', 'hawaiian', …(8) ]"
+ },
+ {
+  "file": "src/state/recipeChapters.test.ts",
+  "test": "partitions the 25 recipes 6 / 9 / 10 by price tier, in RECIPES order",
+  "msg": "AssertionError: expected [ …(3) ] to deeply equal [ …(3) ]"
+ },
+ {
+  "file": "src/state/recipeChapters.test.ts",
+  "test": "progress counts discoveries per chapter; slots are 1-based positions inside the chapter",
+  "msg": "AssertionError: expected { discovered: 1, total: 10 } to deeply equal { discovered: 1, total: 9 }"
+ },
+ {
+  "file": "src/state/recipeDiscoveryState.test.ts",
+  "test": "fresh save: margherita DISCOVERABLE (starters only), every other recipe UNKNOWN",
+  "msg": "AssertionError: expected { DISCOVERED: +0, …(3) } to deeply equal { DISCOVERED: +0, …(3) }"
+ },
+ {
+  "file": "src/state/recipeDiscoveryState.test.ts",
+  "test": "legacy save (15 discovered, EP4 materials owned) can hold several DISCOVERABLE at once",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/state/w1Activation.test.tsx",
+  "test": "RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 25 ids",
+  "msg": "AssertionError: expected [ 'bambino', 'bismarck', …(24) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/logic/catalog/largeCatalogFixtures.test.ts",
+  "test": "reproduce every Owner-requested population",
+  "msg": "AssertionError: expected { 'runtime-29x25': [ 29, 26 ], …(7) } to deeply equal { 'runtime-29x25': [ 29, 25 ], …(7) }"
+ },
+ {
+  "file": "src/logic/catalog/largeCatalogFixtures.test.ts",
+  "test": "runtime fixture is the real catalog: 3 / 4 / 22 and chapters 6 / 9 / 10",
+  "msg": "AssertionError: expected [ 6, 10, 10 ] to deeply equal [ 6, 9, 10 ]"
+ },
+ {
+  "file": "src/logic/discovery/deductionGuard.test.ts",
+  "test": "taxonomy is read, never guessed: family-less reserves (sauce / cheese) never get family or group answers",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discovery/deductionProduction.gate.test.ts",
+  "test": "25 production recipes, each with exactly one sauce: no NO_SAUCE (Technique) recipe exists yet",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/logic/discovery/deductionProduction.gate.test.ts",
+  "test": "covers every non-onboarding production recipe in a few thousand states",
+  "msg": "AssertionError: expected 25 to be 24 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discovery/hint5Ladder.keyFree.test.ts",
+  "test": "matches the pre-change golden snapshot",
+  "msg": "Error: Snapshot `A. the 25 production recipes: Hint 5.0 output is unchanged > matches the pre-change golden snapshot 1` mismatched"
+ },
+ {
+  "file": "src/logic/discovery/hint5Ladder.test.ts",
+  "test": "every recipe has the 4 fixed rungs first, then one SUB_CLASS per authored sub-topping, in authored order",
+  "msg": "AssertionError: brazilian-calabresa: expected [ 'SAUCE', 'STRUCTURE', …(2) ] to deeply equal [ 'SAUCE', 'CHEESE', …(2) ]"
+ },
+ {
+  "file": "src/logic/discovery/hint5Ladder.test.ts",
+  "test": "G20 / P3: a recipe with 0 sub-toppings has exactly 4 rungs, then the generic completion",
+  "msg": "TypeError: Cannot read properties of undefined (reading 'length')"
+ },
+ {
+  "file": "src/logic/discovery/hint5Ladder.test.ts",
+  "test": "sub-topping counts match the authority (0 x 8, 1 x 12, 2 x 1, 3 x 4)",
+  "msg": "TypeError: Cannot read properties of undefined (reading 'length')"
+ },
+ {
+  "file": "src/logic/discovery/hint5Production.gate.test.ts",
+  "test": "G4: every sub-topping of every unblocked target, as the LAST unclassified one, is ANSWERED with its family (others bought, or known through legacy names -> 0 Pitz completions first)",
+  "msg": "TypeError: Cannot read properties of undefined (reading 'length')"
+ },
+ {
+  "file": "src/logic/discovery/hint5Production.gate.test.ts",
+  "test": "G3: buying any ladder in order classifies every sub-topping, and never degrades to existence / group / category",
+  "msg": "TypeError: Cannot read properties of undefined (reading 'length')"
+ },
+ {
+  "file": "src/logic/discovery/hint5Production.gate.test.ts",
+  "test": "A: every one of the 25 recipes walks its ladder from the first rung to the complete line, every request ANSWERED at the P-C price",
+  "msg": "AssertionError: expected 26 to be 25 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discovery/hint5Production.gate.test.ts",
+  "test": "C: the purchase order is sauce -> cheese -> key -> structure -> sub ①..ⓝ for every recipe, each rung priced by its kind",
+  "msg": "TypeError: Cannot read properties of undefined (reading 'map')"
+ },
+ {
+  "file": "src/logic/discovery/hint5Production.gate.test.ts",
+  "test": "G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every target's offer and board shape are identical given the same completed rungs",
+  "msg": "AssertionError: after 1 rungs: expected 2 to be 1 // Object.is equality"
+ },
+ {
+  "file": "src/logic/discovery/hint5Taxonomy.gate.test.ts",
+  "test": "RECIPE_HINT_ROLES covers exactly the 25 production recipes, with the Owner-approved key toppings",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/logic/discovery/hint5Taxonomy.gate.test.ts",
+  "test": "G17: the key is a topping of the recipe (null only without toppings); the sub order is exactly the other toppings, once each",
+  "msg": "AssertionError: brazilian-calabresa: expected [ 'sausage', 'onion', …(2) ] to include undefined"
+ },
+ {
+  "file": "src/logic/discovery/hint5Taxonomy.gate.test.ts",
+  "test": "C1-P: no key topping duplicates sauce / cheese information (every key is a topping, never a sauce or cheese)",
+  "msg": "AssertionError: brazilian-calabresa: expected undefined to be 'topping' // Object.is equality"
+ },
+ {
+  "file": "src/logic/discovery/hint5Taxonomy.gate.test.ts",
+  "test": "G2: every sub-topping of every production recipe resolves to its one family, and every recipe is a Hint 5.0 target",
+  "msg": "TypeError: __vite_ssr_import_5__.RECIPE_HINT_ROLES[r.id].hintSubToppingOrder is not iterable"
+ },
+ {
+  "file": "src/logic/discovery/hintSteps.test.ts",
+  "test": "the cheese line is always there, and says so when there is no cheese",
+  "msg": "AssertionError: expected '材料は全部で5種類。チーズは使わないみたい' to be '材料は全部で5種類。チーズを使うみたい' // Object.is equality"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 12: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'pizza-portuguesa' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 13: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', 'fugazza' ] to deeply equal [ 'fugazza' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 14: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', 'marinara' ] to deeply equal [ 'marinara' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 15: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', 'napoletana' ] to deeply equal [ 'napoletana' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 16: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'tonno-e-cipolla' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 17: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ Array(2) ] to deeply equal [ 'pesto-tonno' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 18: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', 'genovese' ] to deeply equal [ 'genovese' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 19: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'new-haven-apizza' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 20: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'pesto-caprese' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 21: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'pesto-patate' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 22: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'pizza-bianca' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 23: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'puttanesca-pizza' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 24: the only target is the next ladder key recipe",
+  "msg": "AssertionError: expected [ 'brazilian-calabresa', …(1) ] to deeply equal [ 'quattro-formaggi' ]"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 13 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 14 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 15 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 16 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 17 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 18 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 19 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 20 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 21 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 22 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 23 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "Dex 24 without the new material: SHOP_NEW; bought but stock 0: REFILL",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'SHOP_NEW' }"
+ },
+ {
+  "file": "src/logic/discovery/hintTarget.test.ts",
+  "test": "all 25 discovered: COMPLETE",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to deeply equal { kind: 'COMPLETE' }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 12",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 13",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', recipeId: 'fugazza' }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 14",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { Object (kind, recipeId) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 15",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 16",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 17",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 18",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { Object (kind, recipeId) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 19",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 20",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 21",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 22",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 23",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/nearMiss.test.ts",
+  "test": "Dex 24",
+  "msg": "AssertionError: expected { kind: 'TARGET', …(2) } to match object { kind: 'TARGET', …(1) }"
+ },
+ {
+  "file": "src/logic/discovery/selectableHint.test.ts",
+  "test": "measurement: the 24 paid targets' full unlock total (not asserted to 1480, not an economy authority)",
+  "msg": "AssertionError: expected 550 to be 515 // Object.is equality"
+ },
+ {
+  "file": "src/logic/scoringV2/scoringV2.noSauceParity.test.ts",
+  "test": "covers every production recipe x every variant",
+  "msg": "AssertionError: expected [ …(225) ] to have a length of 234 but got 225"
+ },
+ {
+  "file": "src/logic/scoringV2/scoringV2.noSauceParity.test.ts",
+  "test": "every total, star and component score equals the snapshot exactly",
+  "msg": "AssertionError: expected [ …(234) ] to deeply equal [ …(225) ]"
+ },
+ {
+  "file": "src/logic/techniques/techniques.tq1c.test.ts",
+  "test": "on the canonical ladder, 44 SAUCE_ONLY cases, of which 12 have k < 2 -- all forgotten-sauce pizzas at steps 1-12",
+  "msg": "AssertionError: expected 77 to be 44 // Object.is equality"
+ },
+ {
+  "file": "src/mission/dinner/dinnerResultDetection.test.ts",
+  "test": "32: every one of the 25 runtime recipes has a unique signature and its Reference identifies itself",
+  "msg": "AssertionError: expected [ { id: 'margherita', …(5) }, …(25) ] to have a length of 25 but got 26"
+ },
+ {
+  "file": "src/mission/dinner/dinnerResultDetection.test.ts",
+  "test": "D-P: the base verdict equals Stage B's bake failure on every window, composition and bake (10,452 cases)",
+  "msg": "AssertionError: expected [ { start: 58, end: 78 }, …(26) ] to have a length of 26 but got 27"
+ }
+]

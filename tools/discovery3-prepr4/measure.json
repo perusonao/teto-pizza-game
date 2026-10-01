@@ -1,0 +1,593 @@
+{
+ "atOnionUnlock": {
+  "dex": 12,
+  "ladderCount": 12,
+  "step": 12,
+  "next": {
+   "discoveriesNeeded": 1,
+   "step": 13
+  },
+  "ledgerSize": 13,
+  "pool": [
+   "brazilian-calabresa",
+   "pizza-portuguesa"
+  ],
+  "unknownN": 12,
+  "onionInLedger": true,
+  "calabresaState": "DISCOVERABLE",
+  "portuguesaState": "DISCOVERABLE"
+ },
+ "oneStepBefore": {
+  "dex": 11,
+  "ladderCount": 11,
+  "step": 11,
+  "next": {
+   "discoveriesNeeded": 1,
+   "step": 12
+  },
+  "ledgerSize": 12,
+  "pool": [
+   "capricciosa"
+  ],
+  "unknownN": 14,
+  "calabresaState": "UNKNOWN"
+ },
+ "orderA_calabresaFirst": {
+  "afterCal": {
+   "dex": 13,
+   "ladderCount": 12,
+   "step": 12,
+   "next": {
+    "discoveriesNeeded": 1,
+    "step": 13
+   },
+   "ledgerSize": 13,
+   "pool": [
+    "pizza-portuguesa"
+   ],
+   "unknownN": 12
+  },
+  "afterCalThenPor": {
+   "dex": 14,
+   "ladderCount": 13,
+   "step": 13,
+   "next": {
+    "discoveriesNeeded": 1,
+    "step": 14
+   },
+   "ledgerSize": 14,
+   "pool": [
+    "fugazza"
+   ],
+   "unknownN": 11
+  }
+ },
+ "orderB_portuguesaFirst": {
+  "afterPor": {
+   "dex": 13,
+   "ladderCount": 13,
+   "step": 13,
+   "next": {
+    "discoveriesNeeded": 1,
+    "step": 14
+   },
+   "ledgerSize": 14,
+   "pool": [
+    "brazilian-calabresa",
+    "fugazza"
+   ],
+   "unknownN": 11
+  },
+  "afterPorThenCal": {
+   "dex": 14,
+   "ladderCount": 13,
+   "step": 13,
+   "next": {
+    "discoveriesNeeded": 1,
+    "step": 14
+   },
+   "ledgerSize": 14,
+   "pool": [
+    "fugazza"
+   ],
+   "unknownN": 11
+  }
+ },
+ "orderSameFinalLedger": true,
+ "calabresaAloneLedgerUnchanged": true,
+ "walkIgnoringCalabresa": {
+  "finalDex": 26,
+  "finalLadderCount": 25,
+  "finalStep": 24,
+  "finalLedgerSize": 26,
+  "poolSizes": [
+   {
+    "count": 1,
+    "pool": 1
+   },
+   {
+    "count": 2,
+    "pool": 1
+   },
+   {
+    "count": 3,
+    "pool": 1
+   },
+   {
+    "count": 4,
+    "pool": 1
+   },
+   {
+    "count": 5,
+    "pool": 1
+   },
+   {
+    "count": 6,
+    "pool": 1
+   },
+   {
+    "count": 7,
+    "pool": 1
+   },
+   {
+    "count": 8,
+    "pool": 1
+   },
+   {
+    "count": 9,
+    "pool": 1
+   },
+   {
+    "count": 10,
+    "pool": 1
+   },
+   {
+    "count": 11,
+    "pool": 1
+   },
+   {
+    "count": 12,
+    "pool": 2
+   },
+   {
+    "count": 13,
+    "pool": 2
+   },
+   {
+    "count": 14,
+    "pool": 2
+   },
+   {
+    "count": 15,
+    "pool": 2
+   },
+   {
+    "count": 16,
+    "pool": 2
+   },
+   {
+    "count": 17,
+    "pool": 2
+   },
+   {
+    "count": 18,
+    "pool": 2
+   },
+   {
+    "count": 19,
+    "pool": 2
+   },
+   {
+    "count": 20,
+    "pool": 2
+   },
+   {
+    "count": 21,
+    "pool": 2
+   },
+   {
+    "count": 22,
+    "pool": 2
+   },
+   {
+    "count": 23,
+    "pool": 2
+   },
+   {
+    "count": 24,
+    "pool": 2
+   },
+   {
+    "count": 25,
+    "pool": 1
+   },
+   {
+    "count": 25,
+    "pool": 0
+   }
+  ],
+  "remainingUnknown": [],
+  "calabresaDiscovered": true
+ },
+ "walkCalabresaEarly": {
+  "finalDex": 26,
+  "finalLadderCount": 25,
+  "finalStep": 24,
+  "finalLedgerSize": 26,
+  "poolSizes": [
+   {
+    "count": 1,
+    "pool": 1
+   },
+   {
+    "count": 2,
+    "pool": 1
+   },
+   {
+    "count": 3,
+    "pool": 1
+   },
+   {
+    "count": 4,
+    "pool": 1
+   },
+   {
+    "count": 5,
+    "pool": 1
+   },
+   {
+    "count": 6,
+    "pool": 1
+   },
+   {
+    "count": 7,
+    "pool": 1
+   },
+   {
+    "count": 8,
+    "pool": 1
+   },
+   {
+    "count": 9,
+    "pool": 1
+   },
+   {
+    "count": 10,
+    "pool": 1
+   },
+   {
+    "count": 11,
+    "pool": 1
+   },
+   {
+    "count": 12,
+    "pool": 2
+   },
+   {
+    "count": 12,
+    "pool": 1
+   },
+   {
+    "count": 13,
+    "pool": 1
+   },
+   {
+    "count": 14,
+    "pool": 1
+   },
+   {
+    "count": 15,
+    "pool": 1
+   },
+   {
+    "count": 16,
+    "pool": 1
+   },
+   {
+    "count": 17,
+    "pool": 1
+   },
+   {
+    "count": 18,
+    "pool": 1
+   },
+   {
+    "count": 19,
+    "pool": 1
+   },
+   {
+    "count": 20,
+    "pool": 1
+   },
+   {
+    "count": 21,
+    "pool": 1
+   },
+   {
+    "count": 22,
+    "pool": 1
+   },
+   {
+    "count": 23,
+    "pool": 1
+   },
+   {
+    "count": 24,
+    "pool": 1
+   },
+   {
+    "count": 25,
+    "pool": 0
+   }
+  ],
+  "remainingUnknown": [],
+  "calabresaPos": 12
+ },
+ "pool2Duration": 13,
+ "pool2Counts": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24
+ ],
+ "baseline25PoolMax": 1,
+ "ladderEndsWithout": 24,
+ "autoHintTargetAtStep12": {
+  "kind": "TARGET",
+  "recipeId": "brazilian-calabresa",
+  "source": "auto"
+ },
+ "candidateOrderAtStep12": [
+  "brazilian-calabresa",
+  "pizza-portuguesa"
+ ],
+ "matcherCollisions": [],
+ "calabresaTarget": {
+  "targetId": "brazilian-calabresa-pizzadb-p10",
+  "recipeId": "brazilian-calabresa",
+  "items": [
+   "black-olive",
+   "onion",
+   "oregano",
+   "sausage",
+   "tomato-sauce"
+  ],
+  "sauceBase": [
+   "tomato-sauce"
+  ],
+  "capabilities": [],
+  "identityDimensions": {
+   "dough": "standard",
+   "pan": null,
+   "layerOrder": "standard",
+   "zones": [],
+   "late": [],
+   "prep": [],
+   "enclosure": null,
+   "shape": "round",
+   "cook": "bake",
+   "laminate": false,
+   "spreadLayers": null
+  },
+  "eligibility": {
+   "status": "ELIGIBLE"
+  }
+ },
+ "hint5Rungs": [
+  {
+   "i": 1,
+   "kind": "SAUCE",
+   "subj": [
+    "tomato-sauce"
+   ]
+  },
+  {
+   "i": 2,
+   "kind": "STRUCTURE",
+   "subj": []
+  },
+  {
+   "i": 3,
+   "kind": "SUB_CLASS",
+   "subj": [
+    "oregano"
+   ]
+  },
+  {
+   "i": 4,
+   "kind": "SUB_CLASS",
+   "subj": [
+    "onion"
+   ]
+  },
+  {
+   "i": 5,
+   "kind": "SUB_CLASS",
+   "subj": [
+    "sausage"
+   ]
+  },
+  {
+   "i": 6,
+   "kind": "SUB_CLASS",
+   "subj": [
+    "black-olive"
+   ]
+  }
+ ],
+ "hint5Walk": [
+  {
+   "offer": "ヒント1: ソース",
+   "price": 10,
+   "outcome": "ANSWERED",
+   "charge": 10,
+   "board": []
+  },
+  {
+   "offer": "ヒント2: 構成（材料の数）",
+   "price": 5,
+   "outcome": "ANSWERED",
+   "charge": 5,
+   "board": [
+    "SAUCE:none=false"
+   ]
+  },
+  {
+   "offer": "ヒント3: サブトッピング①の分類",
+   "price": 5,
+   "outcome": "ANSWERED",
+   "charge": 5,
+   "board": [
+    "SAUCE:none=false",
+    "STRUCTURE"
+   ]
+  },
+  {
+   "offer": "ヒント4: サブトッピング②の分類",
+   "price": 5,
+   "outcome": "ANSWERED",
+   "charge": 5,
+   "board": [
+    "SAUCE:none=false",
+    "STRUCTURE",
+    "SUB_CLASS"
+   ]
+  },
+  {
+   "offer": "ヒント5: サブトッピング③の分類",
+   "price": 5,
+   "outcome": "ANSWERED",
+   "charge": 5,
+   "board": [
+    "SAUCE:none=false",
+    "STRUCTURE",
+    "SUB_CLASS",
+    "SUB_CLASS"
+   ]
+  },
+  {
+   "offer": "ヒント6: サブトッピング④の分類",
+   "price": 5,
+   "outcome": "ANSWERED",
+   "charge": 5,
+   "board": [
+    "SAUCE:none=false",
+    "STRUCTURE",
+    "SUB_CLASS",
+    "SUB_CLASS",
+    "SUB_CLASS"
+   ]
+  },
+  {
+   "complete": "ここまでのヒントで、推理してみよう！",
+   "board": [
+    "SAUCE",
+    "STRUCTURE",
+    "SUB_CLASS",
+    "SUB_CLASS",
+    "SUB_CLASS",
+    "SUB_CLASS"
+   ]
+  }
+ ],
+ "hint5TotalSpent": 35,
+ "hint5Facts": [
+  "ing:tomato-sauce",
+  "h5:sauce",
+  "meta:ingredient-total",
+  "h5:structure",
+  "cls:oregano",
+  "cls:onion",
+  "cls:sausage",
+  "cls:black-olive"
+ ],
+ "hint3Steps": [
+  "EXISTENCE: 今の材料で、まだ見つけていないピザが作れそう！",
+  "KEY: たまねぎ を使うピザが作れそう！",
+  "SAUCE: ソースは トマトソース みたい",
+  "COUNT_CHEESE: 材料は全部で5種類。チーズは使わないみたい",
+  "INGREDIENT: ソーセージ も使うみたい",
+  "INGREDIENT: ブラックオリーブ も使うみたい"
+ ],
+ "discoveryOutcome": "NEW_DISCOVERY",
+ "dexAfter": 13,
+ "ladderCountAfterReducer": 12,
+ "ledgerUnchangedByReducer": true,
+ "oracle": {
+  "exactThin": "INCOMPLETE_MATCH",
+  "otherThin": "ORIGINAL",
+  "nearMissExact": {
+   "kind": "FAR",
+   "textJa": "🧪 別の組み合わせも試してみよう！"
+  },
+  "nearMissOther": {
+   "kind": "ADD_ONE",
+   "textJa": "🤏 おしい！ 材料をあと1つ足すと、何か見つかりそう！"
+  },
+  "notebookExactThin": "NEW",
+  "notebookOtherThin": "NEW"
+ },
+ "notebookRetry": "DUPLICATE",
+ "chapters": [
+  {
+   "chapter": 1,
+   "total": 6
+  },
+  {
+   "chapter": 2,
+   "total": 10
+  },
+  {
+   "chapter": 3,
+   "total": 10
+  }
+ ],
+ "calabresaChapter": 2,
+ "calabresaKeyStep": 12,
+ "calabresaSlot": 10,
+ "dexNoOfCalabresa": 26,
+ "lunchRushPoolAfterDiscovery": [
+  "margherita",
+  "bismarck",
+  "funghi",
+  "salsiccia",
+  "pepperoni",
+  "breakfast-pizza",
+  "capricciosa",
+  "meat-lovers",
+  "melanzane-pizza",
+  "parmigiana-pizza",
+  "bambino",
+  "hawaiian",
+  "brazilian-calabresa"
+ ],
+ "lunchRushPoolIncludesCal": true,
+ "lunchRushPoolBefore": false,
+ "dinnerMissionTargetsIncludeCal": false,
+ "orderForCal": "order-brazilian-calabresa",
+ "refPiecesTotal": 7,
+ "ingredientsKnown": [
+  {
+   "minTotalStars": 0
+  },
+  {
+   "minTotalStars": 12
+  },
+  {
+   "minTotalStars": 0
+  },
+  {
+   "minTotalStars": 0
+  },
+  "starter"
+ ]
+}
