@@ -131,14 +131,20 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expect(hintButtons()).toHaveLength(0);
   });
 
-  it("several DISCOVERABLE cards (legacy save): each CTA hands over its own recipe, and only DISCOVERABLE ones", () => {
+  it("several DISCOVERABLE (legacy save): one aggregated unknown, no per-card hint entrance, no count (D-2 / D-3)", () => {
     const inputs = legacy();
     const onShowHint = vi.fn();
-    renderDex(inputs, { onShowHint });
-    const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id);
-    expect(expected.length).toBeGreaterThanOrEqual(2);
-    for (const b of hintButtons()) fireEvent.click(b);
-    expect(onShowHint.mock.calls.map(([id]) => id).sort()).toEqual([...expected].sort());
+    const { onGoFreeCook } = renderDex(inputs, { onShowHint });
+    expect(RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").length).toBeGreaterThanOrEqual(2);
+    expect(hintButtons()).toHaveLength(0);
+    const aggregated = document.querySelectorAll("[data-dex-aggregated]");
+    expect(aggregated).toHaveLength(1);
+    expect(document.querySelectorAll('[data-dex-state="DISCOVERABLE"]')).toHaveLength(1);
+    // The other candidates' own slots read as plain unknown slots: nothing numbered, tagged or clickable.
+    expect(aggregated[0].textContent).not.toMatch(/\d/);
+    fireEvent.click(screen.getByRole("button", { name: "フリークッキングで探す" }));
+    expect(onGoFreeCook).toHaveBeenCalledTimes(1);
+    expect(onShowHint).not.toHaveBeenCalled();
     expectNoUndiscoveredIdentity(inputs, "legacy");
   });
 
@@ -153,5 +159,58 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     renderDex(ladder(11));
     expect(document.querySelectorAll(".dex-overlay__chapter")).toHaveLength(3);
     expect(document.querySelectorAll(".dex-card")).toHaveLength(25);
+  });
+});
+
+describe("Dex pool 0 / 1 / 2+ (PR-4b-A D-2 / D-3)", () => {
+  const aggregated = () => document.querySelectorAll("[data-dex-aggregated]");
+
+  it("pool 0 and pool 1 never show the aggregated unknown (pool 1 keeps its own 🎨 card + hint)", () => {
+    renderDex(ladder(25));
+    expect(aggregated()).toHaveLength(0);
+    cleanup();
+    for (const count of [0, 5, 12, 24]) {
+      const inputs = ladder(count);
+      expect(RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE")).toHaveLength(1);
+      renderDex(inputs);
+      expect(aggregated(), `Dex ${count}`).toHaveLength(0);
+      expect(hintButtons(), `Dex ${count}`).toHaveLength(1);
+      cleanup();
+    }
+  });
+
+  it("pool 2+ (any save, state-derived): exactly one aggregated unknown, the 25 slots are unchanged, nothing numbered or counted", () => {
+    const inputs = legacy();
+    const candidates = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE");
+    expect(candidates.length).toBeGreaterThanOrEqual(2);
+    renderDex(inputs);
+    expect(aggregated()).toHaveLength(1);
+    expect(document.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(25);
+    expect(hintButtons()).toHaveLength(0);
+    // The candidates' own slots are plain unknown slots: no 🎨 tag, no button, no CTA.
+    expect(document.querySelectorAll(".dex-overlay__chapter [data-dex-state=\"DISCOVERABLE\"]")).toHaveLength(0);
+    expect(document.querySelectorAll(".dex-overlay__chapter .dex-card--tagged .dex-card__tag-cta--hint")).toHaveLength(0);
+    // Anti-leak: no candidate count anywhere in the aggregated card, nor in any attribute.
+    const card = aggregated()[0] as HTMLElement;
+    expect(card.textContent).not.toMatch(/[0-9０-９]/);
+    expect([...card.querySelectorAll("*"), card].flatMap((el) => [...el.attributes].map((a) => a.name))).toEqual(
+      expect.not.arrayContaining(["data-count", "data-dex-count", "aria-label"]),
+    );
+    expect(document.body.innerHTML).not.toMatch(new RegExp(`(?:data|aria)-[a-z-]*(?:count|pool|candidate)`, "i"));
+    expectNoUndiscoveredIdentity(inputs, "pool 2+");
+  });
+
+  it("the aggregated unknown looks the same whether 2 or 3+ recipes can be found (no count leaks through the DOM)", () => {
+    const two = legacy();
+    renderDex(two);
+    const htmlTwo = (aggregated()[0] as HTMLElement).outerHTML;
+    cleanup();
+    // Fewer recipes found with the same materials owned: a different number are DISCOVERABLE.
+    const richer = { ...two, dex: discover(RECIPES.slice(0, 10).map((r) => r.id)) };
+    const nTwo = RECIPES.filter((r) => recipeDiscoveryState(r, two) === "DISCOVERABLE").length;
+    const nRicher = RECIPES.filter((r) => recipeDiscoveryState(r, richer) === "DISCOVERABLE").length;
+    expect(nRicher).not.toBe(nTwo);
+    renderDex(richer);
+    expect((aggregated()[0] as HTMLElement).outerHTML).toBe(htmlTwo);
   });
 });

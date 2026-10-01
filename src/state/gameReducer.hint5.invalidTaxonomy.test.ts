@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-2: an invalid / missing taxonomy through the real reducer, with
@@ -32,7 +33,7 @@ const dex = registerScoreToDex(EMPTY_DEX, "margherita", { matchScore: 100, ingre
 
 function sheetOn(target: string): GameState {
   const initial = createInitialGameState(dex, ALL_IDS, 100, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
-  return act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+  return openHintSheetOn(initial, target);
 }
 
 describe("invalid taxonomy with the flag ON (fail closed, no charge)", () => {

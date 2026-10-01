@@ -77,15 +77,19 @@ describe("pool size 0 / 1 / 2+ are explicit", () => {
     }
   });
 
-  it("pool 2: at the branch point A and B are both DISCOVERABLE; the hint contract does not pick 'the' recipe", () => {
+  it("pool 2: at the branch point A and B are both DISCOVERABLE; nothing is auto-targeted (PR-4b-A, D-1)", () => {
     const s = walkState(BASE, POP);
     const pool = discoverableHintCandidates(s, POP).map((r) => r.id);
     expect(sorted(pool)).toEqual(sorted([A, B]));
-    const auto = selectHintTarget(s, { recipes: POP });
-    expect(auto).toMatchObject({ kind: "TARGET", source: "auto" });
-    expect(pool).toContain((auto as { recipeId: string }).recipeId);
-    // Every pool member can be chosen explicitly (the Dex card path); the choice wins over order.
-    for (const id of pool) expect(selectHintTarget(s, { recipes: POP, pinnedRecipeId: id })).toEqual({ kind: "TARGET", recipeId: id, source: "dex" });
+    expect(selectHintTarget(s, { recipes: POP })).toEqual({ kind: "OPEN_POOL" });
+    // No per-candidate entry: a pin alone picks nothing while the pool is larger than one ...
+    for (const id of pool) expect(selectHintTarget(s, { recipes: POP, pinnedRecipeId: id })).toEqual({ kind: "OPEN_POOL" });
+    // ... but a valid sticky (already chosen / paid) target is kept, and is never moved to the other recipe.
+    for (const id of pool) {
+      expect(selectHintTarget(s, { recipes: POP, stickyRecipeId: id })).toEqual({ kind: "TARGET", recipeId: id, source: "auto" });
+      const other = pool.find((x) => x !== id)!;
+      expect(selectHintTarget(s, { recipes: POP, stickyRecipeId: id, pinnedRecipeId: other })).toEqual({ kind: "TARGET", recipeId: id, source: "auto" });
+    }
   });
 });
 

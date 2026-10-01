@@ -14,7 +14,8 @@
  *   only while `selectHintTarget` still returns it (sticky once H1+ was revealed or bought, or
  *   pinned from the Dex, and only while DISCOVERABLE); any other target starts again at H0.
  *   HE-UI-4: with no session target, a DISCOVERABLE recipe with purchased levels is preferred
- *   (so a reload keeps it); once it is no longer DISCOVERABLE, the deterministic order decides.
+ *   (so a reload keeps it); once it is no longer DISCOVERABLE, a lone candidate is the target and
+ *   with 2+ candidates none is (PR-4b-A D-1: `OPEN_POOL`, no arbitrary pick).
  * - Dex 0 + Margherita (OD-HE-5): the onboarding is free. The reveal stays session-only, and the
  *   pre-first-discovery escalation (`preDiscoveryFreeCookAttempts`) still counts: the sheet shows
  *   the larger of that automatic step and the manually revealed one (Fresh Audit §6 F-1/F-2).
@@ -246,8 +247,9 @@ function shownIndex(state: DiscoveryHintState, session: HintSession, steps: read
 
 /** True while `session`'s target is still a DISCOVERABLE hint target (the same rule SHOW_HINT uses). */
 function isSessionTarget(state: DiscoveryHintState, session: HintSession): boolean {
-  const target = selectHintTarget(state, { pinnedRecipeId: session.targetId });
-  return target.kind === "TARGET" && target.recipeId === session.targetId;
+  // The same rule SHOW_HINT applies (D-1): a session target holds only while it is still the sole
+  // candidate or sticky (revealed / from the Dex / purchased), never merely because it is DISCOVERABLE.
+  return resolveHintSession(state)?.targetId === session.targetId;
 }
 
 export type HintUnlockPatch = Partial<Pick<DiscoveryHintState, "hintSession" | "discoveryHintPurchases" | "pitzBalance">>;
@@ -541,10 +543,12 @@ export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boole
   const session = state.hintSession;
   const steps = session ? stepsFor(session.targetId, state.dex) : [];
   if (!session || steps.length === 0) {
-    const target = selectHintTarget(state);
     // A target without a session only happens before SHOW_HINT ran; show it as SHOW_HINT would.
-    if (target.kind === "TARGET") return hintSheetView({ ...state, hintSession: { targetId: target.recipeId, revealedIndex: 0 } }, deductionEnabled);
-    return { kind: target.kind };
+    const resolved = resolveHintSession(state);
+    if (resolved) return hintSheetView({ ...state, hintSession: resolved }, deductionEnabled);
+    // No session target resolves, so the only target-less answers apply (never a TARGET here).
+    const empty = selectHintTarget(state);
+    return { kind: empty.kind === "TARGET" ? "OPEN_POOL" : empty.kind };
   }
   const context = selectableContext(state, session);
   if (context) {

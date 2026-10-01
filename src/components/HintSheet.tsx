@@ -81,6 +81,10 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
     title: "\u{1F4E6} 材料が足りないみたい。",
     body: "ホームのショップで、持っている材料を補充しよう。",
   },
+  OPEN_POOL: {
+    title: "\u{1F3A8} まだ発見できるピザがあるよ！",
+    body: "いろいろな材料の組み合わせで、フリークッキングを試してみよう。",
+  },
   COMPLETE: {
     title: "\u{1F3C6} 図鑑コンプリート！",
     body: "ぜんぶのピザを見つけたよ。好きなピザを作ろう！",
