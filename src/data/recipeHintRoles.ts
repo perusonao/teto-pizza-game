@@ -24,6 +24,20 @@ export interface RecipeHintRoles {
   hintSubToppingOrder: readonly string[];
 }
 
+/**
+ * Discovery 3.0 PR-3 (OD-D3-19 Migration A, OD-D3-21): the key-free marker. A recipe authored this
+ * way needs no hand-written Hint data at all: `buildHint5Ladder` derives its rungs from the recipe
+ * itself -- SAUCE (if it has a sauce) -> CHEESE (if it has a cheese) -> STRUCTURE -> one SUB_CLASS
+ * per topping in catalog order. There is no KEY_TOPPING rung, and a rung that does not apply is
+ * absent (never empty, never a "none" answer). The 25 production recipes keep `RecipeHintRoles`
+ * (Hint 5.0 output unchanged); nothing in production is key-free yet.
+ */
+export interface KeyFreeHintRoles {
+  keyFree: true;
+}
+
+export type HintRoles = RecipeHintRoles | KeyFreeHintRoles;
+
 export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = {
   margherita: { hintKeyToppingId: "basil", hintSubToppingOrder: [] }, // C1a
   marinara: { hintKeyToppingId: "garlic", hintSubToppingOrder: ["oregano"] },
