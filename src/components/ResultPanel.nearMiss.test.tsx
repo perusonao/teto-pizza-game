@@ -70,9 +70,9 @@ describe("ORIGINAL result", () => {
     expect(order.every((i) => i >= 0)).toBe(true);
   });
 
-  it("INCOMPLETE_MATCH: the new sauce-amount / bake wording, no recipe id in the DOM", () => {
+  it("INCOMPLETE_MATCH: neutral lead (no 「あと少し」), no recipe id in the DOM", () => {
     render(<ResultPanel {...props({ discovery: { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" } })} />);
-    expect(screen.getByText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。")).toBeInTheDocument();
+    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
     expect(document.body.innerHTML).not.toContain("funghi");
     expect(document.body.textContent).not.toContain("フンギ");
   });

@@ -237,7 +237,7 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
     });
   }
 
-  test("a different combination after a recorded one shows no notice (NEW #2), and INCOMPLETE_MATCH never shows one", async ({ page, browserName }) => {
+  test("a different combination after a recorded one shows no notice (NEW #2), and an INCOMPLETE_MATCH is recorded like any original (OD-D3-23)", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
     await openWithSave(page);
@@ -245,9 +245,12 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
     await cookFree(page, FAR, "RESULT");
     await expect(page.locator(NOTICE)).toHaveCount(0); // a different fingerprint is a new attempt
     await cookFree(page, INCOMPLETE, "RESULT");
-    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
-    await expect(page.locator(NOTICE)).toHaveCount(0);
-    await checkState(page, driver, browserName, "INCOMPLETE_MATCH", null, "incomplete-no-notice");
+    // Discovery 3.0 PR-1: the old 「図鑑のピザまであと少し」 lead is gone -- an INCOMPLETE_MATCH reads as any original.
+    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑にはまだ載っていないピザ！");
+    await expect(page.locator(NOTICE)).toHaveCount(0); // its first attempt (#3) is new, like any other
+    await checkState(page, driver, browserName, "INCOMPLETE_MATCH", null, "incomplete-first-attempt");
+    await cookFree(page, INCOMPLETE, "RESULT"); // ... and it is recorded: the retry shows its stable number
+    await expect(page.locator(NOTICE)).toHaveText(NOTICE_TEXT(3));
     await cookFree(page, ADD_ONE, "RESULT"); // the very first combination again: still its stable #1
     await expect(page.locator(NOTICE)).toHaveText(NOTICE_TEXT(1));
   });

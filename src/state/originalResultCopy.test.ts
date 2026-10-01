@@ -17,10 +17,10 @@ describe("P2-A: the kind of ORIGINAL is distinguished internally", () => {
     expect(originalResultKind(outcome)).toBe(kind);
   });
 
-  it("OD-P2-1 = A: the neutral lead is shared by ORDINARY and AMBIGUOUS; INCOMPLETE_MATCH is unchanged", () => {
+  it("OD-P2-1 = A: the neutral lead is shared by ORDINARY and AMBIGUOUS; INCOMPLETE_MATCH shares it too (Discovery 3.0 PR-1)", () => {
     expect(ORIGINAL_LEAD_COPY.ORDINARY).toBe("図鑑にはまだ載っていないピザ！");
     expect(ORIGINAL_LEAD_COPY.AMBIGUOUS).toBe(ORIGINAL_LEAD_COPY.ORDINARY);
-    expect(ORIGINAL_LEAD_COPY.INCOMPLETE_MATCH).toBe("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
+    expect(ORIGINAL_LEAD_COPY.INCOMPLETE_MATCH).toBe(ORIGINAL_LEAD_COPY.ORDINARY);
   });
 });
 

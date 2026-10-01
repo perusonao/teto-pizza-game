@@ -1739,6 +1739,17 @@
   color: #5a4632;
 }
 
+.original-pizza__advice {
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  color: #5a4632;
+}
+
 /* Discovery Hint 2.0 (#229 229-C): the Free Cooking RESULT's one secondary "おしい" row -- the
    generic near-miss line and the 「💡 ヒントを見る」 CTA. Compact and secondary to the result:
    one wrapped line plus a small pill, never a second headline. */

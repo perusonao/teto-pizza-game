@@ -187,14 +187,12 @@ describe("eligibility (OD-P3-16): only ORIGINAL and AMBIGUOUS record", () => {
     expect(s.lastTrialAttempt).toBeNull();
   };
 
-  it("15. INCOMPLETE_MATCH is not recorded (and the state keeps the very same notebook reference)", () => {
-    const start = cook(freeRound(), INCOMPLETE);
-    const before = start.trialNotebook;
-    const s = register(start);
+  it("15. INCOMPLETE_MATCH is recorded like any ORIGINAL (OD-D3-23: no absent-record oracle)", () => {
+    const s = register(cook(freeRound(), INCOMPLETE));
     expect(s.lastDiscovery?.kind).toBe("INCOMPLETE_MATCH");
     expect(s.phase).toBe("DISCOVERED");
-    expect(s.trialNotebook).toBe(before);
-    notRecorded(s);
+    expect(size(s)).toEqual({ display: 1, identities: 1, nextNumber: 2 });
+    expect(s.lastTrialAttempt).toEqual({ kind: "NEW", number: 1 });
   });
 
   it("16. NEW_DISCOVERY is not recorded", () => {
@@ -230,10 +228,9 @@ describe("eligibility (OD-P3-16): only ORIGINAL and AMBIGUOUS record", () => {
     expect(mixed.lastTrialAttempt).toEqual({ kind: "DUPLICATE", number: 1 });
   });
 
-  it("the adapter records nothing for any non-ORIGINAL/AMBIGUOUS outcome and returns the same references", () => {
+  it("the adapter records nothing for any non-ORIGINAL/AMBIGUOUS/INCOMPLETE outcome and returns the same references", () => {
     const s = cook(freeRound(), ORDINARY);
     for (const outcome of [
-      { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "t" },
       { kind: "NEW_DISCOVERY", recipeId: "funghi", targetId: "t" },
       { kind: "ALREADY_DISCOVERED", recipeId: "funghi", targetId: "t" },
     ] as const) {
@@ -414,11 +411,10 @@ describe("the display-only record result (lastTrialAttempt)", () => {
     expect(after.trialNotebook).toBe(s.trialNotebook);
   });
 
-  it("27c. a FAILED / INCOMPLETE / known result carries no record result even after an earlier recorded round", () => {
+  it("27c. a FAILED / known result carries no record result even after an earlier recorded round; INCOMPLETE is recorded", () => {
     const first = playFreeRound(freeRound(), ORDINARY);
     const incomplete = playFreeRound(first, INCOMPLETE);
-    expect(incomplete.lastTrialAttempt).toBeNull();
-    expect(incomplete.trialNotebook).toBe(first.trialNotebook);
+    expect(incomplete.lastTrialAttempt).toEqual({ kind: "NEW", number: 2 });
     const failed = playFreeRound(first, ORDINARY, 5);
     expect(failed.lastTrialAttempt).toBeNull();
     expect(failed.trialNotebook).toBe(first.trialNotebook);
