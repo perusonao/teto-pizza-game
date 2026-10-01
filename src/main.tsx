@@ -15,8 +15,28 @@ if (import.meta.env.VITE_PREVIEW_MODE) {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const root = createRoot(document.getElementById('root')!)
+
+// Discovery Progression Inspector: a DEV / Preview only, read-only developer screen, opened with
+// `?inspector=discovery`. Both env checks are replaced statically by Vite, so a production build
+// drops this branch and the dynamically imported ./dev chunk with it (src/dev/inspectorAccess.gate.test.ts).
+// No in-app link leads here. It replaces <App />, so no player state is loaded or saved.
+const inspectorRequested =
+  (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
+  new URLSearchParams(window.location.search).get('inspector') === 'discovery'
+
+if (inspectorRequested) {
+  void import('./dev/DiscoveryProgressionInspector').then(({ DiscoveryProgressionInspector }) => {
+    root.render(
+      <StrictMode>
+        <DiscoveryProgressionInspector />
+      </StrictMode>,
+    )
+  })
+} else {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+}

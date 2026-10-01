@@ -44,6 +44,7 @@ const PREVIEW_ONLY_STRINGS = [
   ...HV_SCENARIOS.map((s) => s.labelJa),
   "teto-pizza-preview-save-v1", // the Preview save namespace (already compiled out before H5-5)
   "teto.dev.hint5Ladder", // the DEV opt-in key (already compiled out before H5-5)
+  "discovery-progression-inspector-v1", // INSPECTOR_MARK: the DEV / Preview-only Discovery Progression Inspector (src/dev)
 ];
 
 let production = "";
