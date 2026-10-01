@@ -296,6 +296,16 @@ chain "$work/c_insttimeout" "sleep 30" none
 chain "$work/c_testfail" "true" fail
 chain "$work/c_retryok" "n=\$(cat $work/c_retryok.n 2>/dev/null || echo 0); echo \$((n+1)) > $work/c_retryok.n; [ \$n -ge 1 ]" good
 
+# setup failed before the install helper ran: no status file, no list, no results (Codex P2 on #336)
+make_evidence "$work/c_presetup"
+rm -rf "$work/c_presetup/ev/webkit-evidence-webkit-390x844-shard1-attempt1"
+node "$here/webkit-shard-evidence.mjs" collect --project webkit-390x844 --shard 1 --total 2 --attempt 1 \
+  --list "$work/none.json" --results "$work/none.json" --install-status "$work/none.status" \
+  --out "$work/c_presetup/ev/webkit-evidence-webkit-390x844-shard1-attempt1/evidence.json" > /dev/null
+check "S2: pre-install setup failure (npm ci etc.) -> gate FAIL (exit 1)" 1 "$(gate success true failure "$work/c_presetup/ev")"
+grep -q 'FAIL-INFRA' "$work/summary.md" && ! grep -q 'FAIL-TEST' "$work/summary.md"
+check "S2: pre-install setup failure -> FAIL-INFRA only" 0 $?
+
 check "S2: install ok + tests pass -> PASS" 0 "$(gate success true success "$work/c_pass/ev")"
 grep -q 'gate_class=PASS' "$work/summary.md"; check "S2: PASS -> gate_class=PASS" 0 $?
 check "S2: install ok after one retry + tests pass -> PASS" 0 "$(gate success true success "$work/c_retryok/ev")"

@@ -89,6 +89,11 @@ function readJson(path) {
   }
 }
 
+/** Install/setup did not finish for this shard (see verify): its list/results are not trustworthy. */
+function setupFailed(ev) {
+  return BAD_INSTALL.has(ev.install_status) || (ev.install_status === "unknown" && ev.test_status === "not_run");
+}
+
 /** Parses the key=value status file written by install-with-retry.sh. Missing -> "unknown". */
 export function parseInstallStatus(text) {
   const kv = Object.fromEntries(
@@ -194,10 +199,19 @@ export function verify(evidences, requiredProjects) {
     }
     // S2: an install/setup that did not finish is infrastructure, whatever else it left behind
     // (a missing results file, tests that never ran). Both classes stay FAIL.
-    const installBad = BAD_INSTALL.has(ev.install_status);
+    // Setup that failed BEFORE the install helper ran (npm ci, checkout, cache...) leaves no status
+    // file (install_status "unknown") and no results (test_status "not_run"): also infra. An
+    // "unknown" install with tests that did run (v2 / layout evidence) is not.
+    const preInstallSetupFailed = ev.install_status === "unknown" && ev.test_status === "not_run";
+    const installBad = setupFailed(ev);
     if (installBad) {
       infraProjects.add(ev.project);
-      add(`${ev.project} shard ${ev.shard}: install_status=${ev.install_status} (after ${ev.install_attempts ?? 0} attempt(s))`, FAIL_INFRA);
+      add(
+        preInstallSetupFailed
+          ? `${ev.project} shard ${ev.shard}: setup failed before the install step finished (no install status, tests not run)`
+          : `${ev.project} shard ${ev.shard}: install_status=${ev.install_status} (after ${ev.install_attempts ?? 0} attempt(s))`,
+        FAIL_INFRA,
+      );
     }
     for (const e of ev.errors ?? []) add(`${ev.project} shard ${ev.shard}: ${e}`, installBad ? FAIL_INFRA : FAIL_EVIDENCE);
     if (!byProject.has(ev.project)) byProject.set(ev.project, []);
@@ -232,12 +246,16 @@ export function verify(evidences, requiredProjects) {
       if (!Number.isInteger(x) || x < 1 || x > total) add(`${project}: shard index ${x} outside 1..${total}`);
     }
 
-    const listed = shards[0].listed;
+    // A shard whose setup failed has no trustworthy list: take the reference selection from a shard
+    // that did get going, and do not compare the broken shard's (empty) list against it.
+    const trusted = shards.filter((s) => !setupFailed(s));
+    const refShard = trusted[0] ?? shards[0];
+    const listed = refShard.listed;
     if (listed.length === 0) add(`${project}: listed selection is empty`, consequence());
     if (new Set(listed).size !== listed.length) add(`${project}: listed selection has duplicate test keys`);
-    for (const s of shards.slice(1)) {
+    for (const s of trusted.filter((x) => x !== refShard)) {
       if (JSON.stringify(s.listed) !== JSON.stringify(listed)) {
-        add(`${project}: shard ${s.shard} listed a different selection than shard ${shards[0].shard}`, consequence());
+        add(`${project}: shard ${s.shard} listed a different selection than shard ${refShard.shard}`, consequence());
       }
     }
     if (referenceListed === null) {
@@ -444,6 +462,12 @@ const CLASSIFICATION_CASES = [
     () => fullSuite(IDS, P, 2, (e) => { Object.assign(e[0], { install_status: "incomplete", test_status: "not_run", executed: {} }); }),
     FAIL_INFRA,
   ],
+  [
+    "setup failed before the install helper ran (status unknown, not_run, missing list/results) -> FAIL-INFRA",
+    () => fullSuite(IDS, P, 2, (e) => { Object.assign(e[0], { install_status: "unknown", test_status: "not_run", listed: [], executed: {}, errors: ["list.json: missing", "results.json: missing"] }); }),
+    FAIL_INFRA,
+  ],
+  ["install ok but Playwright produced no results (not_run) -> not infra: FAIL-EVIDENCE", () => fullSuite(IDS, P, 2, (e) => { Object.assign(e[0], { install_status: "ok", test_status: "not_run", executed: {}, errors: ["results.json: missing"] }); }), FAIL_EVIDENCE],
   ["shard evidence missing (job cancelled/timed out) -> FAIL-INFRA", () => fullSuite(IDS, P, 2, (e) => e.splice(1, 1)), FAIL_INFRA],
   ["install ok + Playwright assertion failure -> FAIL-TEST", () => fullSuite(IDS, P, 2, (e) => { e[0].executed[K("t1")].status = "unexpected"; e[0].test_status = "failed"; }), FAIL_TEST],
   ["install ok + flaky test -> FAIL-TEST", () => fullSuite(IDS, P, 2, (e) => { e[0].executed[K("t1")].status = "flaky"; e[0].test_status = "failed"; }), FAIL_TEST],
