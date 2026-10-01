@@ -134,6 +134,7 @@ jobs:
     env:
       LIST_JSON: ${{ github.workspace }}/../webkit-list.json
       RESULTS_JSON: ${{ github.workspace }}/../webkit-results.json
+      INSTALL_STATUS_FILE: ${{ github.workspace }}/../webkit-install-status.txt
     steps:
       - uses: actions/checkout@v4
 
@@ -160,8 +161,20 @@ jobs:
       # installs the Ubuntu system libraries WebKit needs to actually launch, not just the
       # browser binary itself -- a bare `install webkit` on a fresh runner reliably fails to
       # launch without this.
-      - name: Install WebKit (with system deps)
-        run: npx playwright install --with-deps webkit
+      #
+      # CI/WebKit Efficiency S1: this INSTALL step alone gets a short per-attempt timeout (360 s;
+      # healthy installs take 30-210 s) and one retry (scripts/ci/install-with-retry.sh), because
+      # apt/CDN stalls used to hold the job for 12-15 min until the job timeout. Only the install
+      # is retried -- Playwright tests below are never retried (retries stay 0; a failing or flaky
+      # test is a FAIL-TEST, never an infra flake). The helper records install_status in
+      # $INSTALL_STATUS_FILE, which the shard evidence carries to WebKit Gate (S2: FAIL-INFRA vs
+      # FAIL-TEST; both are still FAIL). step timeout-minutes is only a backstop for the helper.
+      - name: Install WebKit (with system deps; timeout + 1 retry)
+        timeout-minutes: 13
+        run: >-
+          bash scripts/ci/install-with-retry.sh
+          --status-file "$INSTALL_STATUS_FILE" --timeout 360 --attempts 2
+          -- npx playwright install --with-deps webkit
 
       # Evidence for the Result Report's "actual WebKit execution proof" requirement -- a green
       # job alone doesn't prove WebKit launched (it could have silently no-opped). This prints
@@ -198,6 +211,7 @@ jobs:
           --project ${{ matrix.project }} --shard ${{ matrix.shard }} --total ${{ matrix.total }}
           --attempt ${{ github.run_attempt }}
           --list "$LIST_JSON" --results "$RESULTS_JSON"
+          --install-status "$INSTALL_STATUS_FILE"
           --out webkit-evidence/evidence.json
 
       # The attempt is part of the name: "Re-run failed jobs" keeps the earlier attempt's artifacts,
