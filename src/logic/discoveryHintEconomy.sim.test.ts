@@ -104,10 +104,13 @@ describe("Discovery Hint Economy 1.0: harness <-> authority parity (Candidate B)
         expect(production.stages.map((x) => x.discovery), where).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
         expect(production.minPitz, where).toBeGreaterThanOrEqual(0);
         expect(production.stages[0], where).toMatchObject({ recipe: "margherita", hintSpend: 0 });
-        for (const stage of production.stages.slice(1)) {
-          // Every paid stage spends a prefix sum of 5/10/20/40 (0, 5, 15, 35 or 75).
-          expect([0, 5, 15, 35, 75], `${where} ${stage.recipe}`).toContain(stage.hintSpend);
-        }
+        // Every hinted target's total spend is a prefix sum of 5/10/20/40 (0, 5, 15, 35 or 75). Discovery 3.0 PR-4a:
+        // summed per HINTED target, not per discovered recipe -- with a pool of 2+ the pizza found at a stage can be
+        // another recipe than the one hinted (the hint bought for the first carries over to the stage that finds it).
+        // With the 25 production recipes the hinted target is always the discovered one, so this is the old assertion.
+        const spendByTarget = new Map<string, number>();
+        for (const stage of production.stages.slice(1)) spendByTarget.set(stage.hintTarget, (spendByTarget.get(stage.hintTarget) ?? 0) + stage.hintSpend);
+        for (const [target, spend] of spendByTarget) expect([0, 5, 15, 35, 75], `${where} ${target}`).toContain(spend);
         if (profile === "P0") expect(production.totalHintSpend, where).toBe(0);
         expect(production, where).toEqual(simulated);
         rows.push({
