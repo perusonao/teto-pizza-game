@@ -13,6 +13,7 @@ import { hintSheetView, requestDeductionHintFact, type HintSheetView } from "./d
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import type { ResultNearMissInput } from "./resultNearMiss";
 import { createDefaultSave, loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
@@ -57,7 +58,7 @@ function sheetOn(target: string, pitz: number, ledgers: Ledgers = {}, dexIds: re
     ledgers.purchases ?? {},
     ledgers.facts ?? {},
   );
-  const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+  const s = openHintSheetOn(initial, target);
   expect(s.hintSession?.targetId).toBe(target);
   return s;
 }
@@ -361,7 +362,7 @@ describe("DH4-2B x T1a (purchase timing) through the real reducer", () => {
   function ladderSheet(target: string, step: number, owned: readonly string[], pitz = 500): GameState {
     const dexIds = ["margherita", ...TARGETS.slice(0, step - 1)];
     const initial = createInitialGameState(discover(dexIds), owned, pitz, Object.fromEntries(owned.map((id) => [id, 30])), [], ALL_IDS, {}, {});
-    const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+    const s = openHintSheetOn(initial, target);
     expect(s.hintSession?.targetId).toBe(target);
     return s;
   }

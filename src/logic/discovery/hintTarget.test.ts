@@ -136,15 +136,19 @@ describe("selectHintTarget -- order, pinned and sticky (T-4)", () => {
     expect(selectHintTarget(a)).toEqual(selectHintTarget(a));
   });
 
-  it("a pinned Dex card that is DISCOVERABLE becomes the target with source dex, over sticky", () => {
+  it("a pinned Dex card that is DISCOVERABLE becomes the target with source dex when it is the only candidate (PR-4b-A)", () => {
+    const inputs = ladderState(3);
+    const only = discoverableHintCandidates(inputs, W1.recipes);
+    expect(only).toHaveLength(1);
+    expect(selectHintTarget(inputs, { ...W1, pinnedRecipeId: only[0].id })).toEqual({ kind: "TARGET", recipeId: only[0].id, source: "dex" });
+  });
+
+  it("PR-4b-A: with several candidates a pin is honoured only when it is the sticky target; a sticky target is kept over a pin of another", () => {
     const inputs = legacyState();
     const [first, second] = discoverableHintCandidates(inputs);
-    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: second.id, source: "dex" });
-    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id, stickyRecipeId: first.id })).toEqual({
-      kind: "TARGET",
-      recipeId: second.id,
-      source: "dex",
-    });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id })).toEqual({ kind: "OPEN_POOL" });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id, stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: second.id, source: "dex" });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id, stickyRecipeId: first.id })).toEqual({ kind: "TARGET", recipeId: first.id, source: "auto" });
   });
 
   it("an invalid pin (DISCOVERED / KBMM / UNKNOWN / unknown id) is ignored -> automatic order", () => {

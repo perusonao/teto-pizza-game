@@ -230,36 +230,40 @@ function legacy(): DiscoveryHintState {
   };
 }
 
-describe("229-D: Dex-pinned target", () => {
+describe("229-D: Dex-pinned target (PR-4b-A: only a sticky target survives a pool > 1)", () => {
   const base = legacy();
-  // PR-4b-A D-1: with several DISCOVERABLE recipes nothing is auto-targeted; `first` is just the
-  // head of the deterministic candidate order, used here as "some other recipe".
-  const first = discoverableHintCandidates(base)[0].id;
-  // The second DISCOVERABLE recipe in hint order: pinnable.
-  const pinned = discoverableHintCandidates(base)[1];
+  const candidates = discoverableHintCandidates(base);
+  const auto = candidates[0];
+  // The second DISCOVERABLE recipe in hint order.
+  const pinned = candidates[1];
 
-  it("a DISCOVERABLE pin becomes the target (at H0) and stays on re-open at H0", () => {
+  it("with several DISCOVERABLE recipes nothing is auto-targeted and a fresh pin picks nothing (D-1)", () => {
     expect(pinned).toBeTruthy();
-    const s = resolveHintSession(base, pinned.id);
-    expect(s).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
-    expect(resolveHintSession({ ...base, hintSession: s })).toBe(s);
+    expect(resolveHintSession(base)).toBeNull();
+    expect(resolveHintSession(base, pinned.id)).toBeNull();
   });
 
-  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins choose nothing while the pool is 2+ (D-1)", () => {
+  it("a session the player already pinned (sticky) stays on re-open, at H0 too (D-3)", () => {
+    const s = { targetId: pinned.id, revealedIndex: 0, fromDex: true } as const;
+    expect(resolveHintSession({ ...base, hintSession: s })).toBe(s);
+    expect(resolveHintSession({ ...base, hintSession: s }, pinned.id)).toBe(s);
+  });
+
+  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins never pick a target at a pool > 1", () => {
     for (const bad of ["margherita", "quattro-formaggi", "no-such-recipe", ""]) {
       expect(resolveHintSession(base, bad), bad).toBeNull();
     }
   });
 
-  it("the same recipe keeps its progress from Free Cooking; a different recipe starts at H0", () => {
+  it("a sticky target is never moved to a pinned other recipe (paid / revealed hints stay)", () => {
     const progressed = { ...base, hintSession: { targetId: pinned.id, revealedIndex: 3 } };
     expect(resolveHintSession(progressed, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 3, fromDex: true });
-    const other = { ...base, hintSession: { targetId: first, revealedIndex: 3 } };
-    expect(resolveHintSession(other, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
+    const other = { ...base, hintSession: { targetId: auto.id, revealedIndex: 3 } };
+    expect(resolveHintSession(other, pinned.id)).toEqual({ targetId: auto.id, revealedIndex: 3 });
   });
 
-  it("a pinned target that is found later lets go on the next open", () => {
-    const s = resolveHintSession(base, pinned.id)!;
+  it("a sticky target that is found later lets go on the next open", () => {
+    const s = { targetId: pinned.id, revealedIndex: 0, fromDex: true } as const;
     const found = { ...base, dex: discover([...RECIPES.slice(0, 15).map((r) => r.id), pinned.id]), hintSession: s };
     expect(resolveHintSession(found)?.targetId).not.toBe(pinned.id);
   });

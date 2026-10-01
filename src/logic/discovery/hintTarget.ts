@@ -10,7 +10,7 @@
  *   `RECIPES` declaration index. It reads nothing else (not the Dex array order, not inventory key
  *   order), so identical state always yields the identical target.
  * - A Dex card pins its own recipe, a revealed or purchased target stays sticky; both only while
- *   still DISCOVERABLE.
+ *   still DISCOVERABLE. With a pool > 1 a pin is honoured only when it is the sticky target (OD-4b-A-2).
  * - Otherwise the pool decides (Discovery 3.0 PR-4b-A, D-1): exactly one DISCOVERABLE recipe is the
  *   automatic target; with TWO OR MORE nothing is chosen (`OPEN_POOL`), because picking one by the
  *   candidate order below would hand the player an arbitrary hint about an arbitrary recipe. The
@@ -92,9 +92,12 @@ function emptyKind(inputs: RecipeDiscoveryInputs, recipes: readonly Recipe[]): H
 export function selectHintTarget(inputs: RecipeDiscoveryInputs, options: HintTargetOptions = {}): HintTargetResult {
   const recipes = options.recipes ?? RECIPES;
   const candidates = discoverableHintCandidates(inputs, recipes);
-  const pinned = candidates.find((r) => r.id === options.pinnedRecipeId);
-  if (pinned) return { kind: "TARGET", recipeId: pinned.id, source: "dex" };
   const sticky = candidates.find((r) => r.id === options.stickyRecipeId);
+  // OD-4b-A-2: a pin never CHOOSES among several candidates. With a pool > 1 it counts only when it
+  // is the sticky / purchased target itself, so a pin on another recipe cannot move a kept target
+  // and cannot start one. With a pool of one (or the sticky itself) the pin works as before.
+  const pinned = candidates.find((r) => r.id === options.pinnedRecipeId && (candidates.length === 1 || r.id === sticky?.id));
+  if (pinned) return { kind: "TARGET", recipeId: pinned.id, source: "dex" };
   if (sticky) return { kind: "TARGET", recipeId: sticky.id, source: "auto" };
   // D-1: a lone candidate is unambiguous; with 2+ and no pin / sticky / purchase, choose nothing.
   if (candidates.length === 1) return { kind: "TARGET", recipeId: candidates[0].id, source: "auto" };

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-2: the ladder through the real reducer with the flag ON (mocked
@@ -34,7 +35,7 @@ function discover(ids: readonly string[]) {
 /** Dex {margherita}, every material owned and stocked, the sheet open on `target` (a Dex pin). */
 function sheetOn(target: string, pitz: number, facts: Record<string, readonly string[]> = {}, purchases: Record<string, number> = {}): GameState {
   const initial = createInitialGameState(discover(["margherita"]), ALL_IDS, pitz, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, purchases, facts);
-  const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+  const s = openHintSheetOn(initial, target);
   expect(s.hintSession?.targetId).toBe(target);
   return s;
 }

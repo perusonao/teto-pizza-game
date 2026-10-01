@@ -5,6 +5,7 @@ import { ALL_INGREDIENT_IDS as ALL_IDS } from "../logic/discovery/testSupport/de
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { hint5LadderActive, hint5SheetView, hintSheetView, requestHint5RungFact } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
@@ -26,7 +27,7 @@ const dex = registerScoreToDex(EMPTY_DEX, "margherita", { matchScore: 100, ingre
 
 function sheetOn(target: string, pitz: number): GameState {
   const initial = createInitialGameState(dex, ALL_IDS, pitz, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
-  return act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+  return openHintSheetOn(initial, target);
 }
 
 describe("Hint 5.0 flag OFF (the rollback)", () => {
