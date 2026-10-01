@@ -22,9 +22,16 @@ export function normalizeDiscoveredCount(discoveredCount: number): number {
   return Math.floor(discoveredCount);
 }
 
-/** Number of distinct discovered recipes in the Dex -- the ladder's only input from play. */
-export function discoveredRecipeCount(dex: DexState): number {
-  return new Set(dex.filter((e) => e.discovered).map((e) => e.recipeId)).size;
+/** Number of distinct discovered recipes in the Dex -- the ladder's only input from play.
+ *  `countsTowardLadder` (OD-D3-17 O3) excludes recipes whose Discovery must not advance the
+ *  ladder; the default counts every recipe, i.e. the pre-O3 behaviour. */
+export function discoveredRecipeCount(
+  dex: DexState,
+  countsTowardLadder: (recipeId: string) => boolean = () => true,
+): number {
+  return new Set(
+    dex.filter((e) => e.discovered && countsTowardLadder(e.recipeId)).map((e) => e.recipeId),
+  ).size;
 }
 
 function stepsInOrder(ladder: DiscoveryLadder): ProgressionStep[] {
