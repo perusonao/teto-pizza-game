@@ -5242,6 +5242,19 @@
   color: #6b4a2b;
 }
 
+/* Discovery 3.0 IP-1: OPEN_POOL next actions (notebook line, pantry line + entry). Sits inside the sheet's own scroll. */
+.hint-sheet__open-pool-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hint-sheet__pantry-entry {
+  align-self: stretch;
+  min-height: 44px;
+  font-size: 15px;
+}
+
 /* Discovery Hint 3.0 (Issue #238, H3-3): the Selectable sheet.
    H3-4 (OD-H3-4-1..10): final chip / preference / legacy styling, the new-chip highlight and the
    body scroll cue. The sheet keeps its 45dvh Layout Contract; only the inside is rearranged. */
