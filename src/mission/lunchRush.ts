@@ -1,5 +1,5 @@
 import { getNextOrder, type Order } from "../data/orders";
-import { getRecipe, type RecipeId } from "../data/recipes";
+import { getRecipe, inLunchRush, RECIPES, type LunchRushRecipe, type RecipeId } from "../data/recipes";
 import { discoveredRecipeIds, type DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import { availableRecipeIds } from "../state/progression";
@@ -119,11 +119,14 @@ export interface MissionPoolInputs {
 export function missionOrderRecipeIds(
   inputs: MissionPoolInputs,
   soldOutRecipeIds: readonly string[] = [],
+  recipes: readonly LunchRushRecipe[] = RECIPES,
 ): RecipeId[] {
   const discovered = new Set(discoveredRecipeIds(inputs.dex));
   const soldOut = new Set(soldOutRecipeIds);
+  // PR-4b-A: the one choke point every Lunch Rush pool goes through (`cookableMissionRecipeIds`, the reducer's
+  // order pick and the start gate), so a recipe with `lunchRush: false` is out of all of them.
   return availableRecipeIds(inputs.dex, inputs.ownedIngredientIds).filter(
-    (id) => discovered.has(id) && !soldOut.has(id),
+    (id) => discovered.has(id) && !soldOut.has(id) && inLunchRush(id, recipes),
   );
 }
 
@@ -136,8 +139,9 @@ export function missionOrderRecipeIds(
 export function cookableMissionRecipeIds(
   inputs: MissionPoolInputs,
   soldOutRecipeIds: readonly string[] = [],
+  recipes: readonly LunchRushRecipe[] = RECIPES,
 ): RecipeId[] {
-  return missionOrderRecipeIds(inputs, soldOutRecipeIds).filter((id) => {
+  return missionOrderRecipeIds(inputs, soldOutRecipeIds, recipes).filter((id) => {
     const recipe = getRecipe(id);
     return !!recipe && isRecipeCookable(recipe, inputs);
   });

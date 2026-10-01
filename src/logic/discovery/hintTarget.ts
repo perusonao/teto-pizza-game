@@ -13,6 +13,12 @@
  *   DISCOVERABLE, otherwise the automatic order decides.
  * - No DISCOVERABLE recipe -> a `HintEmpty` that names no recipe: SHOP_NEW (a needed material
  *   is in the Shop but not bought yet), REFILL (owned but out of stock), COMPLETE (all found).
+ * - Discovery 3.0 PR-4b-A (Owner D-1 / D-2 / D-3): with MORE THAN ONE DISCOVERABLE recipe and no valid
+ *   pin / sticky target, nothing is auto-targeted: the result is `HintEmpty` POOL, which says only
+ *   that something can still be found (never a count, a name, or a per-candidate entry). This is a
+ *   state-derived rule (it also applies to migrated saves). A valid sticky / paid target is kept
+ *   (the player's paid hints are never dropped or moved to another recipe). A pin is honoured only
+ *   when it is the sticky target: with a pool > 1 the Dex offers no per-candidate entry.
  */
 import { getIngredient } from "../../data/ingredients";
 import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
@@ -28,7 +34,7 @@ export interface HintTarget {
   source: HintTargetSource;
 }
 
-export type HintEmptyKind = "SHOP_NEW" | "REFILL" | "COMPLETE";
+export type HintEmptyKind = "SHOP_NEW" | "REFILL" | "COMPLETE" | "POOL";
 
 export interface HintEmpty {
   kind: HintEmptyKind;
@@ -86,10 +92,12 @@ function emptyKind(inputs: RecipeDiscoveryInputs, recipes: readonly Recipe[]): H
 export function selectHintTarget(inputs: RecipeDiscoveryInputs, options: HintTargetOptions = {}): HintTargetResult {
   const recipes = options.recipes ?? RECIPES;
   const candidates = discoverableHintCandidates(inputs, recipes);
-  const pinned = candidates.find((r) => r.id === options.pinnedRecipeId);
-  if (pinned) return { kind: "TARGET", recipeId: pinned.id, source: "dex" };
   const sticky = candidates.find((r) => r.id === options.stickyRecipeId);
+  // A pin is a per-candidate entry: with a pool > 1 only the sticky (already chosen / paid) target counts.
+  const pinned = candidates.find((r) => r.id === options.pinnedRecipeId && (candidates.length === 1 || r.id === sticky?.id));
+  if (pinned) return { kind: "TARGET", recipeId: pinned.id, source: "dex" };
   if (sticky) return { kind: "TARGET", recipeId: sticky.id, source: "auto" };
+  if (candidates.length > 1) return { kind: "POOL" };
   const first = candidates[0];
   if (first) return { kind: "TARGET", recipeId: first.id, source: "auto" };
   return { kind: emptyKind(inputs, recipes) };

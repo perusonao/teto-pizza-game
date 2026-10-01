@@ -190,8 +190,7 @@ function stepsFor(targetId: string, dex: DexState): HintStep[] {
  *  recipe starts at H0 (one session at a time, no per-recipe history). */
 export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: string | null): HintSession | null {
   const current = state.hintSession;
-  const sessionSticky =
-    current && (current.revealedIndex >= 1 || current.fromDex || hasBoughtHints(state, current.targetId)) ? current.targetId : null;
+  const sessionSticky = current ? stickySessionTargetId(state, current) : null;
   // HE-UI-4: without a session target (a reload, or a session that never got past H0), a
   // DISCOVERABLE recipe the player already paid for is preferred, first in hint order, so
   // re-opening the sheet never trades bought information for a different recipe. Anything else
@@ -208,6 +207,12 @@ export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: s
     return fromDex === !!current.fromDex ? current : { ...current, fromDex: true };
   }
   return fromDex ? { targetId: target.recipeId, revealedIndex: 0, fromDex: true } : { targetId: target.recipeId, revealedIndex: 0 };
+}
+
+/** A session target the player has already invested in (revealed, Dex-pinned or paid for): the one kind of
+ *  target kept when the pool is larger than one (Discovery 3.0 PR-4b-A, D-3). `null` for an untouched H0 auto target. */
+function stickySessionTargetId(state: DiscoveryHintState, session: HintSession): string | null {
+  return session.revealedIndex >= 1 || session.fromDex || hasBoughtHints(state, session.targetId) ? session.targetId : null;
 }
 
 /** H3-3: the player paid for something on `recipeId` -- a legacy level or a Hint 3.0 fact. */
@@ -246,7 +251,7 @@ function shownIndex(state: DiscoveryHintState, session: HintSession, steps: read
 
 /** True while `session`'s target is still a DISCOVERABLE hint target (the same rule SHOW_HINT uses). */
 function isSessionTarget(state: DiscoveryHintState, session: HintSession): boolean {
-  const target = selectHintTarget(state, { pinnedRecipeId: session.targetId });
+  const target = selectHintTarget(state, { pinnedRecipeId: session.targetId, stickyRecipeId: stickySessionTargetId(state, session) });
   return target.kind === "TARGET" && target.recipeId === session.targetId;
 }
 

@@ -49,6 +49,11 @@ export interface Recipe {
    *  progression ladder's count (see `countsTowardLadder`, the sole reader). Absent means the
    *  recipe counts -- every existing recipe omits the field. Never persisted. */
   ladderCredit?: false;
+  /** Discovery 3.0 PR-4b-A: when `false`, Lunch Rush never orders this recipe (see `inLunchRush`, the sole
+   *  reader). Absent means it takes part -- every existing recipe omits the field. A foundation for a
+   *  recipe kept out of the Lunch Rush rotation for now; it stays discoverable and guided-startable, and
+   *  keeps its Order. Never persisted. */
+  lunchRush?: false;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
@@ -571,4 +576,17 @@ export function countsTowardLadder(
   recipes: readonly Pick<Recipe, "id" | "ladderCredit">[] = RECIPES,
 ): boolean {
   return recipes.find((r) => r.id === recipeId)?.ladderCredit !== false;
+}
+
+/** The part of a recipe `inLunchRush` reads (an injectable population only needs these two fields). */
+export type LunchRushRecipe = { id: string; lunchRush?: false };
+
+/** Discovery 3.0 PR-4b-A: may Lunch Rush draw an order for `recipeId`? Only an explicit `lunchRush: false`
+ *  opts out; an unknown id or an absent field takes part, so every existing recipe is unchanged.
+ *  `recipes` is injectable for tests. */
+export function inLunchRush(
+  recipeId: string,
+  recipes: readonly LunchRushRecipe[] = RECIPES,
+): boolean {
+  return recipes.find((r) => r.id === recipeId)?.lunchRush !== false;
 }

@@ -4,7 +4,7 @@ import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import { buildRecipeChapters, chapterProgress } from "../state/recipeChapters";
-import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
+import { countRecipeDiscoveryStates, recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
 import { IngredientGlyph } from "./IngredientGlyph";
@@ -98,6 +98,12 @@ export function DexOverlay({
   const isComplete = discoveredCount >= total;
   const mastery = totalStars(dex);
   const inputs = { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory };
+  // Discovery 3.0 PR-4b-A (D-1 / D-2): with more than one DISCOVERABLE unknown recipe the Dex does not show them as
+  // candidates. Each such slot is drawn exactly like any other still-unknown slot (no tag, no hint entry, and
+  // `data-dex-state="UNKNOWN"` in the DOM), and ONE aggregated notice says only that something can still be found.
+  // The slots stay (same No., same card count) so neither the card count nor a gap in the numbering carries the
+  // candidate count. State-derived: it applies to migrated saves too. With 0 or 1 candidate nothing changes.
+  const pooled = countRecipeDiscoveryStates(RECIPES, inputs).DISCOVERABLE > 1;
   // W1-d: opened right after a discovery (Result's 「📖 図鑑を見る」), the Dex lands on the new slot.
   const bodyRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -110,12 +116,13 @@ export function DexOverlay({
     const isNew = !!entry && recipe.id === newlyDiscoveredId;
     const showNewBest = !!entry && recipe.id === newBestRecipeId;
     if (!entry) {
-      const state = recipeDiscoveryState(recipe, inputs);
+      const raw = recipeDiscoveryState(recipe, inputs);
+      const state = raw === "DISCOVERED" || (pooled && raw === "DISCOVERABLE") ? "UNKNOWN" : raw;
       return (
         <UndiscoveredSlot
           key={recipe.id}
           slot={slot}
-          state={state === "DISCOVERED" ? "UNKNOWN" : state}
+          state={state}
           onGoFreeCook={onGoFreeCook}
           onOpenShop={onOpenShop}
           onShowHint={state === "DISCOVERABLE" && onShowHint ? () => onShowHint(recipe.id) : undefined}
@@ -170,6 +177,20 @@ export function DexOverlay({
             </div>
             <p className="dex-overlay__mastery-total">{"⭐"} 合計★ {mastery}</p>
           </div>
+          {pooled && (
+            <div className="dex-card dex-card--locked dex-card--tagged dex-card--aggregated" data-dex-aggregated="true">
+              <span className="dex-card__lock-icon">🔒</span>
+              <div className="dex-card__lock-text">
+                <p className="dex-card__lock-label">？？？</p>
+                <p className="dex-card__lock-hint">{"\u{1F3A8}"} まだ発見できるピザがあるよ</p>
+                {onGoFreeCook && (
+                  <button type="button" className="dex-card__tag-cta" onClick={() => onGoFreeCook()}>
+                    フリークッキングで探す
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           {/* W1-f: the canonical 6 / 9 / 10 chapters (OD-DISC-9), each slot numbered inside its
               chapter (No. = fixed position, not discovery order). */}
           {buildRecipeChapters().map((chapter) => {

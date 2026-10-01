@@ -81,6 +81,12 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
     title: "\u{1F4E6} 材料が足りないみたい。",
     body: "ホームのショップで、持っている材料を補充しよう。",
   },
+  // Discovery 3.0 PR-4b-A (D-1): several undiscovered pizzas can be made now. Says only that something is
+  // left to find: never a count, a name or a per-pizza entry.
+  POOL: {
+    title: "\u{1F3A8} まだ見つけていないピザがありそう！",
+    body: "いろいろな材料の組み合わせを試してみよう。",
+  },
   COMPLETE: {
     title: "\u{1F3C6} 図鑑コンプリート！",
     body: "ぜんぶのピザを見つけたよ。好きなピザを作ろう！",

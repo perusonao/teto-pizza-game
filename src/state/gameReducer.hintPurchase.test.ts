@@ -195,7 +195,7 @@ describe("Dex 0 Margherita onboarding is free (OD-HE-5)", () => {
     // Dex 0, but egg is entitled, owned and stocked, so bismarck is DISCOVERABLE next to Margherita.
     const start = (pitz: number) =>
       act(
-        createInitialGameState(undefined, [...STARTER_INGREDIENT_IDS, "egg"], pitz, { egg: 10 }, [], ["egg"]),
+        { ...createInitialGameState(undefined, [...STARTER_INGREDIENT_IDS, "egg"], pitz, { egg: 10 }, [], ["egg"]), hintSession: { targetId: "bismarck", revealedIndex: 0, fromDex: true } },
         { type: "BEGIN_PREPARE" },
         { type: "SHOW_HINT", pinnedRecipeId: "bismarck" },
       );
@@ -232,10 +232,22 @@ describe("Dex-pinned target uses the same authority", () => {
     return act(createInitialGameState(dex, owned, pitz, inventory, [], entitled), { type: "START_FREE_COOK" });
   }
 
+  /** A target the player already chose (Dex-pinned earlier): the sticky session PR-4b-A keeps at a pool > 1. */
+  const pinSticky = (base: GameState, id: string): GameState =>
+    act({ ...base, hintSession: { targetId: id, revealedIndex: 0, fromDex: true } }, { type: "SHOW_HINT", pinnedRecipeId: id });
+
+  it("PR-4b-A: with several DISCOVERABLE recipes a fresh Dex pin does not pick a target (no per-candidate entry)", () => {
+    const base = legacy(100);
+    expect(discoverableHintCandidates(base).length).toBeGreaterThan(1);
+    const s = act(base, { type: "SHOW_HINT", pinnedRecipeId: discoverableHintCandidates(base)[1].id });
+    expect(s.hintSession).toBeNull();
+    expect(hintSheetView(s)).toEqual({ kind: "POOL" });
+  });
+
   it("buying on a pinned card charges that recipe's ledger entry only", () => {
     const base = legacy(100);
     const pinned = discoverableHintCandidates(base)[1];
-    const s = buyFact(act(base, { type: "SHOW_HINT", pinnedRecipeId: pinned.id }));
+    const s = buyFact(pinSticky(base, pinned.id));
     expect(Object.keys(s.discoveryHintFacts)).toEqual([pinned.id]);
     expect(s.discoveryHintPurchases).toEqual({});
     expect(s.pitzBalance).toBe(95);
@@ -244,7 +256,7 @@ describe("Dex-pinned target uses the same authority", () => {
   it("a recipe with a purchased level stays the target on the next open (sticky)", () => {
     const base = legacy(100);
     const pinned = discoverableHintCandidates(base)[1];
-    const bought = act(buyFact(act(base, { type: "SHOW_HINT", pinnedRecipeId: pinned.id })), { type: "CLOSE_HINT" });
+    const bought = act(buyFact(pinSticky(base, pinned.id)), { type: "CLOSE_HINT" });
     const reopened = act({ ...bought, hintSession: { targetId: pinned.id, revealedIndex: 0 } }, { type: "SHOW_HINT" });
     expect(reopened.hintSession?.targetId).toBe(pinned.id);
   });
@@ -252,7 +264,7 @@ describe("Dex-pinned target uses the same authority", () => {
   it("HE-UI-4: after a reload (no session) a purchased, still-DISCOVERABLE recipe is the target again", () => {
     const base = legacy(100);
     const [auto, second] = discoverableHintCandidates(base);
-    const bought = act(buyFact(buyFact(act(base, { type: "SHOW_HINT", pinnedRecipeId: second.id }))), { type: "CLOSE_HINT" });
+    const bought = act(buyFact(buyFact(pinSticky(base, second.id))), { type: "CLOSE_HINT" });
     // A reload: the ledger comes back from the save, the session does not.
     const reloaded = act({ ...bought, hintSession: null }, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(reloaded.hintSession?.targetId).toBe(second.id);
@@ -262,20 +274,23 @@ describe("Dex-pinned target uses the same authority", () => {
     expect(reloaded.pitzBalance).toBe(85);
   });
 
-  it("HE-UI-4: a Dex pin still wins over the purchased preference", () => {
+  it("PR-4b-A (D-3): at a pool > 1 a pin of another recipe never moves a paid target", () => {
     const base = legacy(100);
     const [auto, second] = discoverableHintCandidates(base);
-    const bought = act(buyFact(act(base, { type: "SHOW_HINT", pinnedRecipeId: second.id })), { type: "CLOSE_HINT" });
+    const bought = act(buyFact(pinSticky(base, second.id)), { type: "CLOSE_HINT" });
     const pinnedAuto = act({ ...bought, hintSession: null }, { type: "SHOW_HINT", pinnedRecipeId: auto.id });
-    expect(pinnedAuto.hintSession?.targetId).toBe(auto.id);
+    expect(pinnedAuto.hintSession?.targetId).toBe(second.id);
+    expect(Object.keys(pinnedAuto.discoveryHintFacts)).toEqual([second.id]);
   });
 
   it("HE-UI-4 fallback: once the purchased recipe is not DISCOVERABLE, the deterministic order decides", () => {
     const base = legacy(100);
     const [auto, second] = discoverableHintCandidates(base);
-    const bought = act(buyFact(act(base, { type: "SHOW_HINT", pinnedRecipeId: second.id })), { type: "CLOSE_HINT" });
+    const bought = act(buyFact(pinSticky(base, second.id)), { type: "CLOSE_HINT" });
     const found: GameState = { ...bought, hintSession: null, dex: registerScoreToDex(bought.dex, second.id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex };
     const reopened = act(found, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    // Only one candidate is left, so the pool rule is satisfied and it is the automatic target again.
+    expect(discoverableHintCandidates(found).map((r) => r.id)).toEqual([auto.id]);
     expect(reopened.hintSession?.targetId).toBe(auto.id);
     // The purchase record itself stays in the ledger.
     expect(Object.keys(reopened.discoveryHintFacts)).toEqual([second.id]);

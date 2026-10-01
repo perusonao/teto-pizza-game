@@ -182,7 +182,7 @@ export interface PizzaSelectChapter {
 /** The one anonymous prompt card (L1): where to go to find the next pizza. */
 export type PizzaSelectPrompt =
   | { kind: "FIRST_DISCOVERY" }
-  | { kind: "DISCOVERABLE"; count: number }
+  | { kind: "DISCOVERABLE" } // no count: how many unknown pizzas can be made now is never exposed (PR-4b-A, D-1)
   | { kind: "SHOP"; count: number }
   | null;
 
@@ -201,7 +201,7 @@ export function buildPizzaSelectView(
     counts.DISCOVERED === 0
       ? { kind: "FIRST_DISCOVERY" }
       : counts.DISCOVERABLE > 0
-        ? { kind: "DISCOVERABLE", count: counts.DISCOVERABLE }
+        ? { kind: "DISCOVERABLE" }
         : counts.KNOWN_BUT_MISSING_MATERIAL > 0
           ? { kind: "SHOP", count: counts.KNOWN_BUT_MISSING_MATERIAL }
           : null;

@@ -131,14 +131,16 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expect(hintButtons()).toHaveLength(0);
   });
 
-  it("several DISCOVERABLE cards (legacy save): each CTA hands over its own recipe, and only DISCOVERABLE ones", () => {
+  it("PR-4b-A (D-1): several DISCOVERABLE cards (legacy save) show no per-candidate entry; one aggregated notice instead", () => {
     const inputs = legacy();
     const onShowHint = vi.fn();
     renderDex(inputs, { onShowHint });
-    const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id);
-    expect(expected.length).toBeGreaterThanOrEqual(2);
-    for (const b of hintButtons()) fireEvent.click(b);
-    expect(onShowHint.mock.calls.map(([id]) => id).sort()).toEqual([...expected].sort());
+    const states = RECIPES.map((r) => recipeDiscoveryState(r, inputs));
+    expect(states.filter((s) => s === "DISCOVERABLE").length).toBeGreaterThanOrEqual(2);
+    expect(hintButtons()).toHaveLength(0);
+    expect(document.querySelectorAll('[data-dex-state="DISCOVERABLE"]')).toHaveLength(0);
+    expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(1);
+    expect(onShowHint).not.toHaveBeenCalled();
     expectNoUndiscoveredIdentity(inputs, "legacy");
   });
 
