@@ -98,6 +98,7 @@ Inspector only (production UI untouched). Unlocked materials carry 🆕 in the l
 - `?inspector=discovery` is parsed only behind `import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE`; Vite folds it to a constant in production and the dynamic chunk is dropped.
 - `previewIsolation.gate.test.ts` (real `vite build`) now also asserts the production bundle contains no `discovery-progression-inspector-v1` and a Preview bundle does.
 - `inspectorAccess.test.tsx`: `<App />` with `?inspector=discovery` renders no Inspector; no production source outside `src/dev` / `src/main.tsx` mentions it; `main.tsx` imports it only dynamically inside the guarded branch.
+- Startup order (Codex P2 fix): the Inspector request is decided before the Preview HV seed, and an Inspector request never runs `applyPreviewHvSeed` (so no `resetSave` / `persistProgress`); pinned by `src/dev/mainStartup.test.tsx`, which imports the real `main.tsx`.
 - Note: `main.tsx` still statically imports `App` in DEV/Preview inspector mode, but never renders it.
 
 ## Tests
