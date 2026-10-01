@@ -25,11 +25,11 @@
 
 ## 2. 優先順位と lane
 
-| P | Lane | 状態（main `ae62bb6` 時点） | 次の slice | blocker | 並行 |
+| P | Lane | 状態（main `a0201e3` 時点） | 次の slice | blocker | 並行 |
 |---|---|---|---|---|---|
-| **P0** | **Recipe Discovery 3.0** | **S0 COMPLETE / S1 COMPLETE / S2 Implementation Gate COMPLETE**（`docs/reports/TETO_DISCOVERY-3_S2_Implementation-Gate.md`）。OD-D3-15〜24 確定。**PR-1 #322 = MERGED**（`ae62bb6`） | PR-2 / PR-3 の実装（並行、独立 branch） | なし（PR-2 / 3 は GO） | PR-2 / 3 は並行可 |
+| **P0** | **Recipe Discovery 3.0** | **S0 COMPLETE / S1 COMPLETE / S2 Implementation Gate COMPLETE**（`docs/reports/TETO_DISCOVERY-3_S2_Implementation-Gate.md`）。OD-D3-15〜24 確定。**PR-1 #322 / PR-2 #323 / PR-3 #324 = MERGED**（`ae62bb6` / `500fca7` / `a0201e3`）。**branching foundation COMPLETE**（#325 / #326 = superseded duplicate） | Pre-PR4 Gate（dry-run）、その後 PR-4 | OD-D3-24 の authoring | PR-4 のみ |
 | **P0** | **Discovery Minimum Loop**（attempt → 行動につながる情報 → Notebook → Hint → retry → Discovery → Dex） | attempt・near/far（互換）・Hint 5.0（production ON）・Notebook の記録と重複通知（P3-3b）・Dex は main。Notebook 一覧、差分 / 整合表示は無い | S2 の後に Notebook 一覧（P3-3c）と差分 / 整合表示 | OD-D3-7（near/far の再評価）、OD-D3-8（あと少しの再現） | S2 と並行可 |
-| P0 | ↳ **S2 first branching validation**（brazilian-calabresa、pool = 2） | **4 PR に分割**: PR-1 #322 = **MERGED**、**PR-2 = GO**（ladderCredit）、**PR-3 = GO**（key-free Hint）、**PR-4 = NO-GO / BLOCKED**（PR-2 / 3 が main に揃うまで。quantity / bake の authoring も要る） | PR-2 / 3 の merge、その後 PR-4 | OD-D3-24 の quantity / bake / placement の authoring・calibration（placeholder は production authority にしない）、pool > 1 のテスト基盤の実測 | PR-1〜3 の後 |
+| P0 | ↳ **S2 first branching validation**（brazilian-calabresa、pool = 2） | **4 PR に分割**: PR-1 #322 = **MERGED**、**PR-2 #323 = MERGED**（ladderCredit）、**PR-3 #324 = MERGED**（key-free Hint）、**PR-4 = NO-GO / BLOCKED**（Pre-PR4 Gate と quantity / bake の authoring が済むまで） | Pre-PR4 Gate、その後 PR-4 | OD-D3-24 の quantity / bake / placement の authoring・calibration（placeholder は production authority にしない）、pool > 1 のテスト基盤の実測 | PR-1〜3 の後 |
 | P1 | **Unlock / Discovery Density** | W1 の ladder（24 step）は 1:1 で凍結。互換性の境界として維持 | post-W1 レシピで branching。ladder 加速の解決方式を決める | OD-D3-17 | 測定のみ並行可 |
 | P1 | **Large Catalog** | LC-R3 / R5-b は main。R5-c〜e-h は休眠。PR #319（R6-b）が open | PR #319 の review、R6-c の準備 | hand capacity 9 / 12 は未決（R6 の Human Feel） | 並行可 |
 | P1 | **Cooking Steps / Techniques foundation** | TQ-1A/1B/1C は main（inert）。TQ-1D 未着手。Cooking Steps の設計は PR #295（未 merge） | PR #295 の review、CS-1b の再開判断 | PR #295 の Owner review、OD-D3-12 | 並行可 |
@@ -49,8 +49,8 @@ S0 Owner Decisions（完了）
  → S1 Measurement / Migration Gate（完了）
  → S2 Implementation Gate（完了）
  → PR-1 oracle の無効化 #322 （MERGED）┐
-   PR-2 O3（ladderCredit）                  （GO）        ├ 並行可 → PR-4 brazilian-calabresa の追加（NO-GO / BLOCKED）
-   PR-3 key-free Hint                       （GO）        ┘
+   PR-2 O3（ladderCredit） #323 （MERGED）  ├ 並行可 → PR-4 brazilian-calabresa の追加（NO-GO / BLOCKED）
+   PR-3 key-free Hint #324      （MERGED）  ┘
  → 以降、Discovery 改善 ↔ Expansion Pack を縦に反復
 ```
 

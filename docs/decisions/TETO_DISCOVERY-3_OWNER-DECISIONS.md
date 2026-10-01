@@ -207,12 +207,12 @@ Owner が S2 Implementation Gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementat
 - rung が存在しないことから「その属性が無い」と推理できることは**許容**する（OD-D3-1 / OD-D3-19 の「存在しない要素を出さない」の本質的な帰結）。
 - rung は SAUCE（あれば）→ CHEESE（あれば）→ STRUCTURE → SUB_CLASS の順に、適用できるものだけで構成する。価格は既存のまま。KEY_TOPPING を要求しない。
 - 既存 25 recipe は Hint 5.0 の出力が完全互換（OD-D3-19 Migration A）。`hintKeyIngredientId` / near-miss authority は変更しない。
-- 実装: PR-3（production recipe は追加しない。合成 fixture で検証）。**GO。**
+- 実装: PR-3 #324 — **MERGED**（`a0201e3`、production recipe は追加せず合成 fixture で検証）。
 
 ### OD-D3-22 — brazilian-calabresa の CUT 対象: **CUT 対象の方向（PR-4 まで実装しない）**
 
 - brazilian-calabresa は W1 の規則どおり CUT の対象とする方向。ただし CUT eligibility の実装は PR-4 まで**行わない**。
-- PR #295 との衝突を再確認済み（2026-10-01）: #295（未 merge、CS-1a）は `src/data/cookingProfiles.ts`、`src/data/cookingProfiles.tabGate.test.ts`、`src/screens/GameScreen.tsx`、`src/screens/postBakeView*.ts` を変更する。PR-4 の `cookingProfiles.ts` 変更は #295 の状態を見て着手し、PR-2 / PR-3 は #295 と衝突しない（`cookingProfiles` を触らない）こと。PR-4 の開始時に再度確認する。
+- PR #295 との衝突を再確認済み（2026-10-01）: #295（未 merge、CS-1a）は `src/data/cookingProfiles.ts`、`src/data/cookingProfiles.tabGate.test.ts`、`src/screens/GameScreen.tsx`、`src/screens/postBakeView*.ts` を変更する。PR-4 の `cookingProfiles.ts` 変更は #295 の状態を見て着手し、PR-2 / PR-3 は #295 と衝突しなかった（`cookingProfiles` を触らない）。PR-4 の開始時に再度確認する。
 
 ### OD-D3-23 — oracle の無効化の詳細: **確定**
 
@@ -232,6 +232,6 @@ Owner が S2 Implementation Gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementat
 | PR | 状態 |
 |---|---|
 | PR-1 #322（oracle の無効化） | **MERGED**（`ae62bb6`） |
-| PR-2（ladderCredit, OD-D3-17 O3） | GO |
-| PR-3（key-free Hint schema, OD-D3-19 A / OD-D3-21） | GO |
+| PR-2 #323（ladderCredit, OD-D3-17 O3） | **MERGED**（`500fca7`）。#325 = superseded duplicate（close） |
+| PR-3 #324（key-free Hint schema, OD-D3-19 A / OD-D3-21） | **MERGED**（`a0201e3`）。#326 = superseded duplicate（close） |
 | PR-4（brazilian-calabresa 追加） | NO-GO / BLOCKED |
