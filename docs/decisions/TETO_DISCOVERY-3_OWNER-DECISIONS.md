@@ -199,35 +199,39 @@ OD-D3-4 / 9 / 11 / 12 / 13 / 14。（S2 Gate が提案した OD-D3-21〜24 は�
 
 ## Decisions confirmed after the S2 Implementation Gate (2026-10-01)
 
-Owner が S2 Implementation Gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementation-Gate.md` §13）の確認事項 OD-D3-21〜24 を**採用**した。内容は Gate の提案どおり（Gate §13 の「推奨」列）。実装状態は `docs/ROADMAP.md` を参照。
+Owner が S2 Implementation Gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementation-Gate.md` §13）の確認事項 OD-D3-21〜24 を**確定**した。実装状態は `docs/ROADMAP.md` を参照。
 
-### OD-D3-21 — key-free Hint の rung 規則: **採用**
+### OD-D3-21 — key-free Hint の rung 規則: **確定**
 
-- rung は SAUCE（あれば）→ CHEESE（あれば）→ STRUCTURE → SUB_CLASS の順に、**適用できるものだけ**で構成する。価格は既存のまま。空の rung / 「なし」の dummy rung は作らない。KEY_TOPPING を要求しない。
-- 帰結の承認: rung の欠落そのもの（例: cheese rung が無い）が情報になる。OD-D3-1 / OD-D3-19 の「存在しない要素を出さない」を採る以上の本質的な帰結として受け入れる。
+- key-free recipe では、**適用可能な Hint だけ**を出す。存在しない cheese / sauce の dummy / empty rung は作らない。
+- rung が存在しないことから「その属性が無い」と推理できることは**許容**する（OD-D3-1 / OD-D3-19 の「存在しない要素を出さない」の本質的な帰結）。
+- rung は SAUCE（あれば）→ CHEESE（あれば）→ STRUCTURE → SUB_CLASS の順に、適用できるものだけで構成する。価格は既存のまま。KEY_TOPPING を要求しない。
 - 既存 25 recipe は Hint 5.0 の出力が完全互換（OD-D3-19 Migration A）。`hintKeyIngredientId` / near-miss authority は変更しない。
 - 実装: PR-3（production recipe は追加しない。合成 fixture で検証）。**GO。**
 
-### OD-D3-22 — brazilian-calabresa の CUT 対象: **採用（PR-4 のスコープ）**
+### OD-D3-22 — brazilian-calabresa の CUT 対象: **CUT 対象の方向（PR-4 まで実装しない）**
 
-- W1 の規則どおり CUT の対象にする。ただし PR-4 の最後の commit とし、`cookingProfiles.ts` の変更は PR #295 の状況を見てから。CUT eligibility の実装は PR-4 まで**行わない**。
+- brazilian-calabresa は W1 の規則どおり CUT の対象とする方向。ただし CUT eligibility の実装は PR-4 まで**行わない**。
+- PR #295 との衝突を再確認済み（2026-10-01）: #295（未 merge、CS-1a）は `src/data/cookingProfiles.ts`、`src/data/cookingProfiles.tabGate.test.ts`、`src/screens/GameScreen.tsx`、`src/screens/postBakeView*.ts` を変更する。PR-4 の `cookingProfiles.ts` 変更は #295 の状態を見て着手し、PR-2 / PR-3 は #295 と衝突しない（`cookingProfiles` を触らない）こと。PR-4 の開始時に再度確認する。
 
-### OD-D3-23 — oracle の無効化の詳細: **採用**
+### OD-D3-23 — oracle の無効化の詳細: **確定**
 
-- (a) INCOMPLETE を通常の ORIGINAL と同じ表示にする、(b) INCOMPLETE を Notebook に記録する（**OD-P3-16 の変更**）、(c) recipe 非依存のソース薄の助言を足す、(d) recipe 固有の焼きの窓だけで失敗した場合は助言なし。
+- (a) INCOMPLETE を通常の ORIGINAL と同じ表示にする、(b) INCOMPLETE も Trial Notebook に記録する（**OD-P3-16 の変更**）、(c) recipe 非依存のソース薄の助言を足す、(d) recipe 固有の焼きの窓だけで失敗した場合は助言なし。
+- Notebook に記録しないもの: hidden recipe の正否、正しい ingredient 数、正確な距離、類似度など。記録してよいのは **recipe 非依存の execution feedback のみ**。
 - 帰結の承認: 構成が正しいのに recipe 固有の焼きの窓で外れた場合、説明なしの中立な ORIGINAL になる。
-- 実装: PR-1（#322、IMPLEMENTED / GATE WAIT）。
+- 実装: PR-1 #322 — **MERGED**（`ae62bb6`）。
 
-### OD-D3-24 — brazilian-calabresa の量・bakeTarget: **placeholder 案を採用（最終確認は PR-4 の前）**
+### OD-D3-24 — brazilian-calabresa の quantity / bake / placement: **未決（PR-4 の前に authoring / calibration）**
 
-- placeholder（tomato-sauce 1 / sausage 2 / onion 2 / black-olive 2 / oregano 1、bake 58–78）、Lunch Rush / Dinner の候補入りを方向として採用。**quantity / bake の placeholder は、PR-4 の開始前に Owner が最終確認するまで production data として採用しない。**
-- PR-4 は **NO-GO / BLOCKED**（PR-1 / 2 / 3 の Gate が揃うまで開始しない）。
+- quantity / bake / placement は**未決**。placeholder（tomato-sauce 1 / sausage 2 / onion 2 / black-olive 2 / oregano 1、bake 58–78）は**production authority にしない**。
+- PR-4 の前に authoring / calibration を行い、Owner が確認する。
+- PR-4 は **NO-GO / BLOCKED**（PR-1 / 2 / 3 が main に揃い、かつ上記が済むまで開始しない）。
 
 ### 実装 PR の状態（2026-10-01）
 
 | PR | 状態 |
 |---|---|
-| PR-1 #322（oracle の無効化） | IMPLEMENTED / GATE WAIT（CI / WebKit / review。Owner approval なしに merge しない） |
+| PR-1 #322（oracle の無効化） | **MERGED**（`ae62bb6`） |
 | PR-2（ladderCredit, OD-D3-17 O3） | GO |
 | PR-3（key-free Hint schema, OD-D3-19 A / OD-D3-21） | GO |
 | PR-4（brazilian-calabresa 追加） | NO-GO / BLOCKED |
