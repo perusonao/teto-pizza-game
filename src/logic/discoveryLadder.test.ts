@@ -429,6 +429,10 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
+      // Discovery Progression Inspector: the DEV / Preview-only, read-only model walks the ladder through the
+      // production entitlement authority. ../main.tsx reaches it only behind the DEV / Preview env check
+      // (dynamic import), and ../preview/previewIsolation.gate.test.ts proves a production bundle has none of it.
+      "../dev/discoveryProgressionModel.ts",
       // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
       // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts
