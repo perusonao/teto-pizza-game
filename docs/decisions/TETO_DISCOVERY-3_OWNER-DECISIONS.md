@@ -136,10 +136,10 @@ S2（実際の追加）の blocker は `docs/reports/TETO_DISCOVERY-3_S0_SSOT-UP
 | OD-D3-12 | TQ-1D（no-sauce）の時期 | 未決 |
 | OD-D3-13 | Large Catalog の hand capacity（9 / 12） | 未決（R6 の Human Feel 待ち） |
 | OD-D3-14 | ヒント価格の再設計 | 未決（OD-D3-1 の後） |
-| **OD-D3-15（新）** | direct answer / 適切 / 広すぎる の判定閾値（R の値） | 未決。S1 が分布を出す |
-| **OD-D3-16（新）** | 「総当たり solver になりにくい」の定量的な定義 | 未決。S1 が提案を出す |
-| **OD-D3-17（新）** | ladder 加速の解決方式（OD-D3-5 の (a)〜(d)） | 未決。**S2 の前提** |
-| **OD-D3-18（新）** | brazilian-calabresa の id / 表示名（naming cluster NC-4 の review、`calabrese` との混同） | 未決。**S2 の前提** |
+| **OD-D3-15（新）** | direct answer / 適切 / 広すぎる の判定閾値（R の値） | **確定済み（末尾の「S1 review 後に確定」を参照）** |
+| **OD-D3-16（新）** | 「総当たり solver になりにくい」の定量的な定義 | **確定済み（末尾の「S1 review 後に確定」を参照）** |
+| **OD-D3-17（新）** | ladder 加速の解決方式（OD-D3-5 の (a)〜(d)） | **確定済み（末尾の「S1 review 後に確定」を参照）** |
+| **OD-D3-18（新）** | brazilian-calabresa の id / 表示名（naming cluster NC-4 の review、`calabrese` との混同） | **確定済み（末尾の「S1 review 後に確定」を参照）** |
 
 ## S1 outcome addendum (2026-10-01) — 新しく生じた未決
 
@@ -147,8 +147,52 @@ S1（`docs/reports/TETO_DISCOVERY-3_S1_Measurement-Migration-Gate_Result.md`）�
 
 | ID | 内容 | 選択肢 |
 |---|---|---|
-| OD-D3-19 | Hint 5.0 の migration（key-topping の廃止の進め方） | A compatibility / B authority / C key を optional にして橋渡し（結果 §8） |
-| OD-D3-20 | 「あと少し」の trigger（oracle は再現した） | T1〜T5（結果 §10.4） |
-| OD-D3-17 | ladder 加速の解決方式（S2 の前提） | O1〜O5（結果 §5）。推奨は O3 |
-| OD-D3-18 | brazilian-calabresa の id / 表示名、「オリーブ」の扱い | 結果 §16 |
-| OD-D3-2 の範囲 | 「キートッピング」= Hint 5.0 の `hintKeyToppingId` だけか、Hint 3.0 由来の `hintKeyIngredientId`（最後に解放された食材。near-miss の「新しい材料は使ってみた？」が使う）も含むか | 要確認（結果 §8.1） |
+| OD-D3-19 | Hint 5.0 の migration（key-topping の廃止の進め方） | A compatibility / B authority / C key を optional にして橋渡し（結果 §8）。**確定済み（末尾を参照）** |
+| OD-D3-20 | 「あと少し」の trigger（oracle は再現した） | T1〜T5（結果 §10.4）。**確定済み（末尾を参照）** |
+| OD-D3-17 | ladder 加速の解決方式（S2 の前提） | O1〜O5（結果 §5）。推奨は O3。**確定済み（末尾を参照）** |
+| OD-D3-18 | brazilian-calabresa の id / 表示名、「オリーブ」の扱い | 結果 §16。**確定済み（末尾を参照）** |
+| OD-D3-2 の範囲 | 「キートッピング」= Hint 5.0 の `hintKeyToppingId` だけか、Hint 3.0 由来の `hintKeyIngredientId`（最後に解放された食材。near-miss の「新しい材料は使ってみた？」が使う）も含むか | 要確認（結果 §8.1）。**確定: `hintKeyToppingId` / KEY_TOPPING のみ。`hintKeyIngredientId` は別 authority で今回は削除しない** |
+
+## Decisions confirmed after the S1 review (2026-10-01)
+
+Owner が S1 の結果を review し、次を**確定**した。S2 の実装 gate（`docs/reports/TETO_DISCOVERY-3_S2_Implementation-Gate.md`）はこれを前提にする。
+
+### OD-D3-17 — Ladder acceleration: **O3 を採用**
+
+- recipe ごとの authoritative data が、その recipe の Discovery が **W1 progression ladder の count を進めるか**を決める。
+- **brazilian-calabresa は W1 ladder を進めない。** 既存の W1 25 recipe は従来どおり progression の対象。
+- 目的: W1 LAD-1 の互換維持 / step 12 で pool = 2 を成立 / branching recipe の発見による ladder 加速の防止 / 将来の recipe 追加でも recipe 単位で制御。
+- **制約:** S2 では必要以上に汎用的な Progression framework を作らない。最小の authority と pure logic の変更を優先する。
+
+### OD-D3-18 — Recipe identity
+
+- id `brazilian-calabresa`、表示名「ブラジリアン・カラブレーザ」。master catalog の `calabrese`（mozzarella, nduja, tomato-sauce）とは**別 recipe**。
+- olive の evidence は、現時点では `black-olive` を使う方向。**source evidence の確度が十分でないこと**を、decision と recipe evidence に明記する（PIZZA DB の材料は「オリーブ」で色・品種が未指定。canonicalizer 自身が「confidence-flagged match, not exact」と記録している）。新しい olive 食材は作らない。
+
+### OD-D3-19 — Hint migration: **Migration A を採用**
+
+- 既存 25 recipe は production Hint 5.0 の互換を維持。新規 recipe は新しい **key-free Hint authority** を使う。
+- 廃止対象の「キートッピング」は、Hint 5.0 の `hintKeyToppingId` / `KEY_TOPPING` という Hint 概念だけ。near-miss 側の `hintKeyIngredientId`（最後に解放された食材から導出）は**別 authority で、今回同時に削除しない**。near/far の再設計 slice で別途扱う。
+- **新 recipe に「key: null」「KEY_TOPPING: なし」のような空の Hint rung を表示してはいけない。存在する Hint だけで構成する。**
+
+### OD-D3-20 — 「あと少し」
+
+- S1 で recipe correctness oracle が browser で再現されたため、現行 trigger を Discovery 3.0 の最終 authority として維持しない。
+- 方向: 「構成が正解である」ことを無料で知らせる feedback にしない。助言を残す場合は、recipe identity / ingredient correctness と**独立した** execution / cooking quality の助言にする。
+- 「低品質でも Discovery として登録する」方式は**採用しない**。Discovery の成立条件そのものは今回変更しない。
+- S2 の前に、この oracle 修正を独立した小 slice として先行させるべきかは、S2 の Fresh Gate が判断する（→ Gate の結論: **先行させる**。理由は Gate レポート §3）。
+
+### OD-D3-15 — Hint の情報量の閾値
+
+- hard な数値閾値は決めない。candidate reduction を **DIRECT_ANSWER / USEFUL_INFERENCE / TOO_BROAD** として計測可能にする。ただし USEFUL_INFERENCE と TOO_BROAD の境界値はまだ Owner authority にしない。
+- brazilian-calabresa の 80 candidates は暫定評価。**Hint UI を成立させるために 32 や 128 を閾値として勝手に採用しない。**
+- （S1 で使った分類名 APPROPRIATE は、この決定に合わせて USEFUL_INFERENCE と呼ぶ。）
+
+### OD-D3-16 — 総当たり耐性
+
+- 「平均 N 回以上」のような hard threshold は決めない。次を**新しい Discovery feedback で禁止**する: exact correct ingredient count / exact distance / Mastermind 型の一致数 / hidden recipe との数値 similarity。
+- near/far は production compatibility として残るが、新設計の中心 authority にしない。定量 threshold は、実際の branching pool と Notebook を使った Human Verification の後に決める。
+
+### 上記により未決として残るもの
+
+OD-D3-4 / 9 / 11 / 12 / 13 / 14、および S2 Gate が提案した確認事項（Gate レポート §13: OD-D3-21〜24）。

@@ -27,9 +27,9 @@
 
 | P | Lane | 状態（main `5c8190f` 時点） | 次の slice | blocker | 並行 |
 |---|---|---|---|---|---|
-| **P0** | **Recipe Discovery 3.0** | S0 採用済み。**S1 完了**（`docs/reports/TETO_DISCOVERY-3_S1_Measurement-Migration-Gate_Result.md`）。S2 は **NO-GO**（決定待ち） | Owner が OD-D3-17 / 18 / 19 / 20（と 15 / 16）を決める | 同左 | ほかの P1 と並行可 |
+| **P0** | **Recipe Discovery 3.0** | S0・S1 完了。OD-D3-15〜20 確定。**S2 Implementation Gate 完了**（`docs/reports/TETO_DISCOVERY-3_S2_Implementation-Gate.md`） | **PR-1 oracle の無効化**（最初の実装 PR）。PR-2（O3）と並行可 | OD-D3-23（oracle の詳細）の確認 | PR-1 / 2 / 3 は並行可 |
 | **P0** | **Discovery Minimum Loop**（attempt → 行動につながる情報 → Notebook → Hint → retry → Discovery → Dex） | attempt・near/far（互換）・Hint 5.0（production ON）・Notebook の記録と重複通知（P3-3b）・Dex は main。Notebook 一覧、差分 / 整合表示は無い | S2 の後に Notebook 一覧（P3-3c）と差分 / 整合表示 | OD-D3-7（near/far の再評価）、OD-D3-8（あと少しの再現） | S2 と並行可 |
-| P0 | ↳ **S2 first branching validation**（brazilian-calabresa、pool = 2） | 未着手（production へは追加しない）。技術的 blocker は無く、決定待ち | 決定後に data slice（blocker: S1 Result §15） | OD-D3-17（ladder の加速）、18（id / 名前）、19（Hint migration）、20（「あと少し」の trigger） | 決定の後 |
+| P0 | ↳ **S2 first branching validation**（brazilian-calabresa、pool = 2） | **4 PR に分割**（PR-1 oracle / PR-2 O3 / PR-3 key-free Hint / PR-4 recipe 追加）。PR-4 は **NO-GO**（PR-1〜3 の後） | PR-1〜3 の merge、その後 PR-4 | OD-D3-21 / 22 / 24（Gate の確認事項）、pool > 1 のテスト基盤の実測 | PR-1〜3 の後 |
 | P1 | **Unlock / Discovery Density** | W1 の ladder（24 step）は 1:1 で凍結。互換性の境界として維持 | post-W1 レシピで branching。ladder 加速の解決方式を決める | OD-D3-17 | 測定のみ並行可 |
 | P1 | **Large Catalog** | LC-R3 / R5-b は main。R5-c〜e-h は休眠。PR #319（R6-b）が open | PR #319 の review、R6-c の準備 | hand capacity 9 / 12 は未決（R6 の Human Feel） | 並行可 |
 | P1 | **Cooking Steps / Techniques foundation** | TQ-1A/1B/1C は main（inert）。TQ-1D 未着手。Cooking Steps の設計は PR #295（未 merge） | PR #295 の review、CS-1b の再開判断 | PR #295 の Owner review、OD-D3-12 | 並行可 |
@@ -46,14 +46,17 @@
 
 ```
 S0 Owner Decisions（完了）
- → S1 Measurement / Migration Gate（次）
- → S2 first branching validation（brazilian-calabresa）
+ → S1 Measurement / Migration Gate（完了）
+ → S2 Implementation Gate（完了）
+ → PR-1 oracle の無効化 ┐
+   PR-2 O3（ladderCredit）├ 並行可 → PR-4 brazilian-calabresa の追加
+   PR-3 key-free Hint     ┘
  → 以降、Discovery 改善 ↔ Expansion Pack を縦に反復
 ```
 
 - **S0:** `docs/decisions/TETO_DISCOVERY-3_OWNER-DECISIONS.md`（採用済みの決定と未決）。
-- **S1:** 実装ではなく、計測・migration 評価・再現テストの gate。production の挙動は変えない。
-- **S2:** S1 と OD-D3-17 / 18 が済むまで実装しない。
+- **S1:** 計測・migration 評価・再現テストの gate（完了）。production の挙動は変えない。
+- **S2:** 実装前の gate を済ませ、4 PR に分割した（Gate レポート §12）。**1 つの巨大な PR にしない。**
 - **Discovery Minimum Loop** は、S2 で pool = 2 が成立した後に Notebook と feedback を仕上げる順序で進める。
 
 ## 4. 凍結・保留
