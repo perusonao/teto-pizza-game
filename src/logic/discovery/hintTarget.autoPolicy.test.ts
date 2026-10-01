@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { recipeKeyStep } from "../../state/recipeChapters";
 import { discoverIds, walkInputs } from "../testSupport/discoveryWalk";
-import { SYNTH_BRANCH_A_ID, syntheticRecipe } from "../testSupport/syntheticPopulation";
+import { SYNTH_BRANCH_A_ID, frozenProduction25, syntheticRecipe } from "../testSupport/syntheticPopulation";
 import { compareHintCandidates, discoverableHintCandidates, selectHintTarget } from "./hintTarget";
 
 /**
@@ -50,7 +50,7 @@ const POLICIES: Record<string, (pool: readonly Recipe[], population: readonly Re
 };
 
 function poolFor(extra: Recipe) {
-  const population = [...RECIPES, extra];
+  const population = [...frozenProduction25(RECIPES), extra];
   const inputs = walkInputs(discoverIds([], FIRST_12), population);
   return { population, inputs, pool: discoverableHintCandidates(inputs, population) };
 }

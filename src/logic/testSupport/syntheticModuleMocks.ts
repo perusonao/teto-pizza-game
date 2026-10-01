@@ -1,6 +1,6 @@
 import type * as RecipesModule from "../../data/recipes";
 import type * as CatalogModule from "../../data/discoveryCatalog";
-import { SYNTH_BRANCH_B, SYNTH_BRANCH_B_ID } from "./syntheticPopulation";
+import { FROZEN_PRODUCTION_25_IDS, SYNTH_BRANCH_B, SYNTH_BRANCH_B_ID } from "./syntheticPopulation";
 
 /**
  * Discovery 3.0 PR-4a: `vi.mock` factories that extend the recipe population INSIDE ONE TEST FILE's module
@@ -14,7 +14,8 @@ import { SYNTH_BRANCH_B, SYNTH_BRANCH_B_ID } from "./syntheticPopulation";
 export const SYNTH_BRANCH_B_TARGET_ID = "synthetic:branch-b";
 
 export function mockRecipes(m: typeof RecipesModule): typeof RecipesModule {
-  const RECIPES = [...m.RECIPES, SYNTH_BRANCH_B] as unknown as typeof m.RECIPES;
+  // Frozen 25 + the synthetic recipe: a production recipe added later is not part of this population.
+  const RECIPES = [...m.RECIPES.filter((r) => FROZEN_PRODUCTION_25_IDS.includes(r.id)), SYNTH_BRANCH_B] as unknown as typeof m.RECIPES;
   return {
     ...m,
     RECIPES,

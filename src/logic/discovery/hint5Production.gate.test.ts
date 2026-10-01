@@ -4,7 +4,7 @@ import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
 import { ingredientAttributeFamily } from "../../data/ingredientTaxonomy";
-import { RECIPE_HINT_ROLES, keyedHintRoles, type HintRoles } from "../../data/recipeHintRoles";
+import { RECIPE_HINT_ROLES, type HintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { TECHNIQUES } from "../../data/techniques";
 import { requiredTechniquesOf } from "../techniques/detection";
@@ -24,6 +24,7 @@ import {
 } from "./hint5Ladder";
 import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
+import { KEYED_RECIPES } from "../testSupport/keyedRecipes";
 import { syntheticRecipe } from "../testSupport/syntheticPopulation";
 
 /**
@@ -51,7 +52,9 @@ const LADDER_INDEX = new Map(ladderTargets(W1_25_DISCOVERY_LADDER).map((id, i) =
 const dexCountsOf = (id: string) => [...new Set([Math.max(1, LADDER_INDEX.get(id) ?? 1), 25])];
 
 const namesOf = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind !== "SUB_CLASS").flatMap((r) => r.subjectIds);
-const subsOf = (id: string) => keyedHintRoles(id).hintSubToppingOrder;
+/** The SUB_CLASS rung subjects of `id`'s own ladder, in order: the authored `hintSubToppingOrder` for a keyed recipe,
+ *  the catalog-ordered toppings for a key-free one (OD-D3-21) -- never an assumption that every recipe is keyed. */
+const subsOf = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SUB_CLASS").map((r) => r.subjectIds[0]);
 /** Round 6 (OD-H5-P4-CHEESE / P4b): the targets whose empty CHEESE / KEY rung is answered 「なし」. */
 const NONE_TARGETS = RECIPES.filter((r) => hint5EmptyFixedRungs(r.id)!.length > 0).map((r) => r.id);
 
@@ -252,10 +255,10 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
     }
   });
 
-  it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every production target's offer and board shape are identical given the same completed rungs", () => {
+  it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every keyed production target's offer and board shape are identical given the same completed rungs", () => {
     for (let k = 0; k <= 3; k += 1) {
       const shapes = new Set<string>();
-      for (const r of RECIPES) {
+      for (const r of KEYED_RECIPES) {
         const states = purchaseStates(r.id, 5);
         if (states.length <= k) continue;
         const { view } = states[k];
@@ -306,7 +309,7 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
     }
     // The 25 production recipes are one group (SAUCE>CHEESE>KEY_TOPPING>STRUCTURE): their behaviour is unchanged.
     expect(signatureOf("margherita")).toBe("SAUCE>CHEESE>KEY_TOPPING>STRUCTURE");
-    expect(new Set(RECIPES.map((r) => signatureOf(r.id))).size).toBe(1);
+    expect(new Set(KEYED_RECIPES.map((r) => signatureOf(r.id))).size).toBe(1);
     // Key-free recipes form other groups; none has a KEY_TOPPING rung.
     expect([...signatures].filter((x) => x.includes("KEY_TOPPING"))).toEqual(["SAUCE>CHEESE>KEY_TOPPING>STRUCTURE"]);
     expect(signatures.size).toBeGreaterThan(1);

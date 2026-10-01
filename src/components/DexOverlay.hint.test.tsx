@@ -15,6 +15,9 @@ import { DexOverlay } from "./DexOverlay";
  * recipe reaches the caller only through the callback, never through the DOM.
  */
 
+/** Discovery 3.0 PR-4a: recipes that never advance the ladder; once their materials are owned they stay
+ *  DISCOVERABLE next to the ladder's next key recipe (pool > 1). Empty for the 25 production recipes. */
+const NON_CREDIT = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 
 function discover(ids: readonly string[]): DexState {
@@ -25,8 +28,8 @@ function discover(ids: readonly string[]): DexState {
   return dex;
 }
 
-function ladder(count: number, newest: "bought" | "not-bought" = "bought"): RecipeDiscoveryInputs {
-  const dex = discover(LADDER_ORDER.slice(0, count));
+function ladder(count: number, newest: "bought" | "not-bought" = "bought", withNonCredit = false): RecipeDiscoveryInputs {
+  const dex = discover([...LADDER_ORDER.slice(0, count), ...(withNonCredit ? NON_CREDIT : [])]);
   const steps = W1_25_DISCOVERY_LADDER.steps.filter((s) => s.step <= count);
   const newestIds = new Set(steps.filter((s) => s.step === count).flatMap((s) => s.ingredientIds));
   const materials = steps.flatMap((s) => s.ingredientIds);
@@ -93,18 +96,24 @@ function expectNoUndiscoveredIdentity(inputs: RecipeDiscoveryInputs, where: stri
 afterEach(() => cleanup());
 
 describe("which cards get 「💡 ヒントを見る」", () => {
-  it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i on the 25-ladder: exactly the DISCOVERABLE card, no duplicate Free Cooking CTA", (count) => {
+  it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i on the 25-ladder: one hint CTA per DISCOVERABLE card (the next key recipe + any non-credit recipe), no duplicate Free Cooking CTA", (count) => {
     const inputs = ladder(count);
     const onShowHint = vi.fn();
     renderDex(inputs, { onShowHint });
+    const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id as string);
+    expect(expected).toContain(LADDER_ORDER[count]);
+    for (const id of expected.filter((x) => x !== LADDER_ORDER[count])) expect(NON_CREDIT).toContain(id);
     const buttons = hintButtons();
-    expect(buttons).toHaveLength(1);
-    const card = cardOf(buttons[0]);
-    expect(card).toHaveAttribute("data-dex-state", "DISCOVERABLE");
-    expect(card).toHaveTextContent("今の材料で作れるかも");
+    expect(buttons).toHaveLength(expected.length);
+    for (const button of buttons) {
+      const card = cardOf(button);
+      expect(card).toHaveAttribute("data-dex-state", "DISCOVERABLE");
+      expect(card).toHaveTextContent("今の材料で作れるかも");
+    }
     expect(screen.queryByRole("button", { name: "フリークッキングで探す" })).not.toBeInTheDocument();
-    fireEvent.click(buttons[0]);
-    expect(onShowHint).toHaveBeenCalledWith(LADDER_ORDER[count]);
+    for (const button of buttons) fireEvent.click(button);
+    expect(onShowHint.mock.calls.map(([id]) => id).sort()).toEqual([...expected].sort());
+    if (NON_CREDIT.length === 0) expect(onShowHint).toHaveBeenCalledWith(LADDER_ORDER[count]);
     expectNoUndiscoveredIdentity(inputs, `Dex ${count}`);
   });
 
@@ -118,9 +127,12 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expectNoUndiscoveredIdentity(inputs, "KBMM");
   });
 
-  it("all 25 found: no hint CTA", () => {
-    renderDex(ladder(25));
+  it("every recipe found: no hint CTA (the 25 ladder recipes alone leave a non-credit recipe's CTA, if any)", () => {
+    renderDex(ladder(25, "bought", true));
     expect(hintButtons()).toHaveLength(0);
+    cleanup();
+    renderDex(ladder(25));
+    expect(hintButtons()).toHaveLength(NON_CREDIT.length);
   });
 
   it("several DISCOVERABLE cards (legacy save): each CTA hands over its own recipe, and only DISCOVERABLE ones", () => {

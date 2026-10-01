@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
-import { keyedHintRoles } from "../data/recipeHintRoles";
+import { buildHint5Ladder } from "../logic/discovery/hint5Ladder";
 import { RECIPES } from "../data/recipes";
 import { TECHNIQUES } from "../data/techniques";
 import { hint5Presentation, requestHint5Rung, type Hint5Presentation } from "../logic/discovery/hint5Ladder";
@@ -62,20 +62,31 @@ function surface(container: HTMLElement): string {
 const TARGETS = RECIPES.filter((r) => r.id !== "margherita");
 
 describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
-  it("before STRUCTURE, the rendered sheet is byte-identical for every target that reached the same rung", () => {
-    for (let k = 0; k <= 3; k += 1) {
-      const shapes = new Set<string>();
-      for (const r of TARGETS) {
-        const stored = prefix(r.id, k);
-        expect(stored, `${r.id} k=${k}`).not.toBeNull(); // round 6: no target stops before STRUCTURE
-        const { container } = renderLadder(pres(r.id, stored!));
-        shapes.add(k === 0 ? shape(container) : shape(container).replace(/<span class="hint-sheet__chips">.*?<\/span><\/li>/gs, "<chips/>"));
-        // 「なし」 appears only on a bought rung: never in the offer.
-        expect(container.querySelector(".hint-sheet__h5-next")!.textContent, `${r.id} k=${k}`).not.toContain("なし");
-        cleanup();
+  // Discovery 3.0 PR-4a (OD-D3-21): recipe-structure-aware. Targets are compared within their pre-STRUCTURE rung
+  // signature (which of SAUCE / CHEESE / KEY exist -- a function of recipe structure only). The keyed production
+  // recipes are one group, so their behaviour is exactly the old "every target identical" statement.
+  it("before STRUCTURE, the rendered sheet is byte-identical for every target with the same pre-STRUCTURE rung signature that reached the same rung", () => {
+    const signatureOf = (id: string) => {
+      const rungs = buildHint5Ladder(id)!.rungs;
+      return rungs.slice(0, rungs.findIndex((x) => x.kind === "STRUCTURE") + 1).map((x) => x.kind).join(">");
+    };
+    for (const sig of new Set(TARGETS.map((r) => signatureOf(r.id)))) {
+      const group = TARGETS.filter((r) => signatureOf(r.id) === sig);
+      for (let k = 0; k <= 3; k += 1) {
+        const shapes = new Set<string>();
+        for (const r of group) {
+          const stored = prefix(r.id, k);
+          expect(stored, `${r.id} k=${k}`).not.toBeNull(); // round 6: no target stops before STRUCTURE
+          const { container } = renderLadder(pres(r.id, stored!));
+          shapes.add(k === 0 ? shape(container) : shape(container).replace(/<span class="hint-sheet__chips">.*?<\/span><\/li>/gs, "<chips/>"));
+          // 「なし」 appears only on a bought rung: never in the offer.
+          expect(container.querySelector(".hint-sheet__h5-next")!.textContent, `${r.id} k=${k}`).not.toContain("なし");
+          cleanup();
+        }
+        expect(shapes.size, `${sig} after ${k} rungs`).toBe(1);
       }
-      expect(shapes.size, `after ${k} rungs`).toBe(1);
     }
+    expect(signatureOf("hawaiian")).toBe("SAUCE>CHEESE>KEY_TOPPING>STRUCTURE");
   });
 
   it("M3: every legacy fact set gives the same rendered sheet as a fresh save (only 「以前のヒント」 differs)", () => {
@@ -112,7 +123,8 @@ describe("Hint 5.0 ladder DOM: disclosure boundary (H5-INV-1 / 3 / 4) and AC-1",
   it("at every purchase state of every target: no recipe identity, no unbought ingredient, no sub-topping name / id / glyph, no Technique", () => {
     const techWords = TECHNIQUES.flatMap((t) => [t.nameJa, t.riddleJa]);
     for (const r of TARGETS) {
-      const subs = new Set(keyedHintRoles(r.id).hintSubToppingOrder);
+      // Keyed and key-free recipes alike: the sub-toppings are the ladder's own SUB_CLASS rungs.
+      const subs = new Set(buildHint5Ladder(r.id)!.rungs.filter((x) => x.kind === "SUB_CLASS").map((x) => x.subjectIds[0]));
       for (let k = 0; k <= 10; k += 1) {
         const stored = prefix(r.id, k);
         if (!stored) break;

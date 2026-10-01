@@ -18,6 +18,9 @@ import {
 import { buildSelectableHintModel, type HintCategory } from "../logic/discovery/selectableHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
 
+/** Discovery 3.0 PR-4a: recipes that never advance the ladder (empty for the 25 production recipes). Their pool
+ *  membership means the automatic target is not always the ladder's next key recipe. */
+const NON_CREDIT = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 const recipe = (id: string) => RECIPES.find((r) => r.id === id)!;
 
@@ -30,8 +33,8 @@ function discover(ids: readonly string[]): DexState {
 }
 
 /** The 25-ladder played in order to `count` discoveries, every entitled material bought. */
-function ladder(count: number, newest: "bought" | "not-bought" | "stock-0" = "bought"): DiscoveryHintState {
-  const dex = discover(LADDER_ORDER.slice(0, count));
+function ladder(count: number, newest: "bought" | "not-bought" | "stock-0" = "bought", withNonCredit = false): DiscoveryHintState {
+  const dex = discover([...LADDER_ORDER.slice(0, count), ...(withNonCredit ? NON_CREDIT : [])]);
   const steps = W1_25_DISCOVERY_LADDER.steps.filter((s) => s.step <= count);
   const newestIds = new Set(steps.filter((s) => s.step === count).flatMap((s) => s.ingredientIds));
   const materials = steps.flatMap((s) => s.ingredientIds);
@@ -100,7 +103,7 @@ describe("resolveHintSession", () => {
 
   it("no DISCOVERABLE target -> null (the sheet shows the empty state)", () => {
     expect(resolveHintSession(ladder(5, "not-bought"))).toBeNull();
-    expect(resolveHintSession(ladder(25))).toBeNull();
+    expect(resolveHintSession(ladder(25, "bought", true))).toBeNull();
   });
 });
 
@@ -134,7 +137,8 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
       for (let i = 0; i < 12; i += 1) s = buy(s, (["sauce", "cheese", "topping"] as const)[i % 3]);
       const view = selectable(s);
       const named = new Set(view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)));
-      const all = new Set(recipe(LADDER_ORDER[count]).requiredIngredients.map((r) => r.ingredientId));
+      // The sheet's own target (the next key recipe, or a non-credit recipe in the pool): never assume which.
+      const all = new Set(recipe(s.hintSession!.targetId).requiredIngredients.map((r) => r.ingredientId));
       expect(named.size, `Dex ${count}`).toBe(all.size - 1);
       expect(s.discoveryHintPurchases).toEqual({});
     }
@@ -161,7 +165,7 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
   it("empty states: SHOP_NEW / REFILL / COMPLETE", () => {
     expect(hintSheetView(ladder(6, "not-bought"))).toEqual({ kind: "SHOP_NEW" });
     expect(hintSheetView(ladder(6, "stock-0"))).toEqual({ kind: "REFILL" });
-    expect(hintSheetView(ladder(25))).toEqual({ kind: "COMPLETE" });
+    expect(hintSheetView(ladder(25, "bought", true))).toEqual({ kind: "COMPLETE" });
   });
 });
 

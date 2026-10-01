@@ -15,6 +15,40 @@ import type { Recipe } from "../../data/recipes";
  *   recipe can never change what these fixtures mean.
  */
 
+/** The 25 production recipes that existed before Discovery 3.0 PR-4 (frozen on purpose). Synthetic populations are
+ *  built on THESE, so adding a production recipe later can never change what a synthetic fixture means. */
+export const FROZEN_PRODUCTION_25_IDS: readonly string[] = [
+  "margherita",
+  "marinara",
+  "quattro-formaggi",
+  "genovese",
+  "bismarck",
+  "funghi",
+  "fugazza",
+  "salsiccia",
+  "pepperoni",
+  "napoletana",
+  "tonno-e-cipolla",
+  "pizza-bianca",
+  "breakfast-pizza",
+  "capricciosa",
+  "meat-lovers",
+  "melanzane-pizza",
+  "parmigiana-pizza",
+  "bambino",
+  "hawaiian",
+  "pizza-portuguesa",
+  "pesto-tonno",
+  "new-haven-apizza",
+  "pesto-caprese",
+  "pesto-patate",
+  "puttanesca-pizza",
+];
+
+export function frozenProduction25(recipes: readonly Recipe[]): readonly Recipe[] {
+  return recipes.filter((r) => FROZEN_PRODUCTION_25_IDS.includes(r.id));
+}
+
 export const SYNTH_BRANCH_A_ID = "pizza-portuguesa";
 export const SYNTH_BRANCH_B_ID = "synthetic-branch-b";
 
@@ -49,9 +83,9 @@ export const SYNTH_BRANCH_B: Recipe = syntheticRecipe(
 /** Key-free hint authoring (OD-D3-21) for the synthetic recipe: nothing hand-authored. */
 export const SYNTH_KEY_FREE_ROLES: HintRoles = { keyFree: true };
 
-/** Production recipes plus the synthetic branching recipe (A stays where it is). */
+/** The frozen 25 production recipes plus the synthetic branching recipe (A stays where it is). */
 export function withSyntheticBranch(recipes: readonly Recipe[]): readonly Recipe[] {
-  return [...recipes, SYNTH_BRANCH_B];
+  return [...frozenProduction25(recipes), SYNTH_BRANCH_B];
 }
 
 /** Hint roles for a population that contains `SYNTH_BRANCH_B`: production roles + the key-free marker. */

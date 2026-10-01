@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { keyedHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES } from "../../data/recipes";
+import { KEYED_RECIPES } from "../testSupport/keyedRecipes";
 import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
 import {
   buildHint5Ladder,
@@ -52,7 +53,7 @@ function buyAll(recipeId: string, discoveredCount = 5) {
 
 describe("ladder generation (§5)", () => {
   it("every recipe has the 4 fixed rungs first, then one SUB_CLASS per authored sub-topping, in authored order", () => {
-    for (const r of RECIPES) {
+    for (const r of KEYED_RECIPES) {
       const ladder = buildHint5Ladder(r.id)!;
       expect(ladder.rungs.slice(0, 4).map((x) => x.kind), r.id).toEqual(HINT5_FIXED_RUNG_KINDS);
       const subs = ladder.rungs.slice(4);
@@ -71,7 +72,7 @@ describe("ladder generation (§5)", () => {
   });
 
   it("G20 / P3: a recipe with 0 sub-toppings has exactly 4 rungs, then the generic completion", () => {
-    const zero = RECIPES.filter((r) => keyedHintRoles(r.id).hintSubToppingOrder.length === 0).map((r) => r.id);
+    const zero = KEYED_RECIPES.filter((r) => keyedHintRoles(r.id).hintSubToppingOrder.length === 0).map((r) => r.id);
     expect(zero.sort()).toEqual(["bismarck", "funghi", "genovese", "margherita", "pepperoni", "pizza-bianca", "quattro-formaggi", "salsiccia"]);
     for (const id of zero) expect(buildHint5Ladder(id)!.rungs, id).toHaveLength(4);
     const done = buyAll("pepperoni");
@@ -83,7 +84,7 @@ describe("ladder generation (§5)", () => {
 
   it("sub-topping counts match the authority (0 x 8, 1 x 12, 2 x 1, 3 x 4)", () => {
     const counts = new Map<number, number>();
-    for (const r of RECIPES) {
+    for (const r of KEYED_RECIPES) {
       const n = keyedHintRoles(r.id).hintSubToppingOrder.length;
       counts.set(n, (counts.get(n) ?? 0) + 1);
     }

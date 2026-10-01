@@ -9,6 +9,11 @@ import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/re
 import { compareHintCandidates, discoverableHintCandidates, selectHintTarget } from "./hintTarget";
 
 const recipe = (id: string): Recipe => RECIPES.find((r) => r.id === id)!;
+/** Discovery 3.0 PR-4a: recipes that never advance the ladder (OD-D3-17 O3). The ladder walk below discovers only
+ *  the ladder's own key recipes, so every such recipe whose materials are owned stays DISCOVERABLE next to the
+ *  ladder's next key recipe: the pool is "the next key recipe + these", not always exactly one recipe. Empty for
+ *  the 25 production recipes (every old assertion is unchanged); non-empty once a production recipe branches. */
+const NON_CREDIT: readonly Recipe[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false);
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 
 function discover(ids: readonly string[]): DexState {
@@ -30,8 +35,8 @@ function inputsOf(dex: DexState, owned: readonly string[], inventory: Record<str
 
 /** The 25-ladder played in order: `count` recipes discovered, every entitled material bought
  *  with stock 10, except the newest step's materials when `newest` says otherwise. */
-function ladderState(count: number, newest: "bought" | "not-bought" | "stock-0" = "bought"): RecipeDiscoveryInputs {
-  const dex = discover(LADDER_ORDER.slice(0, count));
+function ladderState(count: number, newest: "bought" | "not-bought" | "stock-0" = "bought", withNonCredit = false): RecipeDiscoveryInputs {
+  const dex = discover([...LADDER_ORDER.slice(0, count), ...(withNonCredit ? NON_CREDIT.map((r) => r.id) : [])]);
   const steps = W1_25_DISCOVERY_LADDER.steps.filter((s) => s.step <= count);
   const newestIds = new Set(steps.filter((s) => s.step === count).flatMap((s) => s.ingredientIds));
   const materials = steps.flatMap((s) => s.ingredientIds);
@@ -57,11 +62,16 @@ function fake(id: string, ingredientIds: string[]): Recipe {
 }
 
 describe("selectHintTarget -- 25-recipe ladder (T-3 / T-4)", () => {
-  it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i: the only target is the next ladder key recipe", (count) => {
+  it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i: the next ladder key recipe is a target; any other DISCOVERABLE recipe is a non-credit one", (count) => {
     const inputs = ladderState(count);
     const candidates = discoverableHintCandidates(inputs);
-    expect(candidates.map((r) => r.id)).toEqual([LADDER_ORDER[count]]);
-    expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: LADDER_ORDER[count], source: "auto" });
+    expect(candidates.map((r) => r.id)).toContain(LADDER_ORDER[count]);
+    const others = candidates.filter((r) => r.id !== LADDER_ORDER[count]);
+    for (const r of others) expect(NON_CREDIT.map((n) => n.id), `${r.id} must not advance the ladder`).toContain(r.id);
+    // The automatic target is the first candidate of the (deterministic) hint order -- no unique-next assumption.
+    expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: candidates[0].id, source: "auto" });
+    // 25 production recipes: the pool is exactly the next key recipe (pre-PR-4a behaviour).
+    if (NON_CREDIT.length === 0) expect(candidates.map((r) => r.id)).toEqual([LADDER_ORDER[count]]);
   });
 
   it("every target on the ladder is DISCOVERABLE; DISCOVERED / KBMM / UNKNOWN never are", () => {
@@ -75,19 +85,30 @@ describe("selectHintTarget -- 25-recipe ladder (T-3 / T-4)", () => {
     }
   });
 
-  it.each(Array.from({ length: 24 }, (_, i) => i + 1))("Dex %i without the new material: SHOP_NEW; bought but stock 0: REFILL", (count) => {
-    expect(selectHintTarget(ladderState(count, "not-bought"))).toEqual({ kind: "SHOP_NEW" });
-    expect(selectHintTarget(ladderState(count, "stock-0"))).toEqual({ kind: "REFILL" });
+  it.each(Array.from({ length: 24 }, (_, i) => i + 1))("Dex %i without the new material: SHOP_NEW; bought but stock 0: REFILL (unless a non-credit recipe is already discoverable)", (count) => {
+    for (const [newest, kind] of [["not-bought", "SHOP_NEW"], ["stock-0", "REFILL"]] as const) {
+      const inputs = ladderState(count, newest);
+      const candidates = discoverableHintCandidates(inputs);
+      if (candidates.length === 0) expect(selectHintTarget(inputs)).toEqual({ kind });
+      else {
+        // A non-credit recipe is discoverable without the newest material: it is the target, not an empty state.
+        for (const r of candidates) expect(NON_CREDIT.map((n) => n.id)).toContain(r.id);
+        expect(selectHintTarget(inputs)).toMatchObject({ kind: "TARGET", recipeId: candidates[0].id });
+      }
+      if (NON_CREDIT.length === 0) expect(candidates).toEqual([]);
+    }
   });
 
-  it("all 25 discovered: COMPLETE", () => {
-    expect(selectHintTarget(ladderState(25))).toEqual({ kind: "COMPLETE" });
+  it("all recipes discovered: COMPLETE (the 25 ladder recipes alone are COMPLETE only while no non-credit recipe remains)", () => {
+    expect(selectHintTarget(ladderState(25, "bought", true))).toEqual({ kind: "COMPLETE" });
+    if (NON_CREDIT.length === 0) expect(selectHintTarget(ladderState(25))).toEqual({ kind: "COMPLETE" });
+    else expect(selectHintTarget(ladderState(25))).toMatchObject({ kind: "TARGET" });
   });
 
   it("a result names no recipe unless it is a target (HintEmpty carries only its kind)", () => {
     for (const newest of ["not-bought", "stock-0"] as const) {
       const result = selectHintTarget(ladderState(8, newest));
-      expect(Object.keys(result)).toEqual(["kind"]);
+      if (result.kind !== "TARGET") expect(Object.keys(result)).toEqual(["kind"]);
     }
   });
 });

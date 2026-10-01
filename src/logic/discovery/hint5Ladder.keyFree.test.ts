@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { RECIPES, type Recipe } from "../../data/recipes";
+import { type Recipe, RECIPES } from "../../data/recipes";
+import { KEYED_RECIPES } from "../testSupport/keyedRecipes";
 import type { HintRoles } from "../../data/recipeHintRoles";
 import {
   HINT5_RUNG_MARKER,
@@ -20,7 +21,9 @@ import {
  *  The golden file was generated from `main` BEFORE the key-free change (Migration A: byte-equal). */
 function productionSnapshot(): string {
   const out: unknown[] = [];
-  for (const r of RECIPES) {
+  // Keyed production recipes only: the golden is the pre-key-free output. A key-free production recipe is not in it
+  // (nothing it could be compared against); it is covered by the key-free fixtures below.
+  for (const r of KEYED_RECIPES) {
     const ladder = buildHint5Ladder(r.id);
     const completed: string[] = [];
     const states: unknown[] = [];

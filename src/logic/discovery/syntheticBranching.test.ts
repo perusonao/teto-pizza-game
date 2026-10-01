@@ -9,6 +9,7 @@ import {
   SYNTH_BRANCH_A_ID,
   SYNTH_BRANCH_B,
   SYNTH_BRANCH_B_ID,
+  frozenProduction25,
   withSyntheticBranch,
 } from "../testSupport/syntheticPopulation";
 import { discoverableHintCandidates, selectHintTarget } from "./hintTarget";
@@ -124,7 +125,7 @@ describe("A -> B and B -> A both run to a complete Dex (no softlock, terminates)
   });
 
   it("production alone is a single path with a pool of exactly 1 at every step (existing-25 parity)", () => {
-    const prod = enumerateDiscoveryOrders(RECIPES);
+    const prod = enumerateDiscoveryOrders(frozenProduction25(RECIPES));
     expect(prod.softlocks).toEqual([]);
     expect(prod.orders).toHaveLength(1);
     expect(prod.orders[0].map((s) => s.discovered)).toEqual(LADDER_ORDER);

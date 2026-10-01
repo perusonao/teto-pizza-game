@@ -162,42 +162,48 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
     };
   }
 
+  // Discovery 3.0 PR-4a: the pool can hold several DISCOVERABLE recipes (a non-credit recipe next to the ladder's
+  // next key recipe). Every one of them is a legal hint target (a Dex card pins it), so the reachability walk covers
+  // each, not only the automatic target. For the 25 production recipes the pool is exactly the next key recipe.
   it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i", (count) => {
     const inputs = ladderInputs(count);
-    const target = selectHintTarget(inputs);
-    expect(target).toMatchObject({ kind: "TARGET", recipeId: LADDER_ORDER[count] });
-    if (target.kind !== "TARGET") return;
-    const r = recipe(target.recipeId);
     const candidates = discoverableHintCandidates(inputs);
-    const steps = buildHintSteps(r, { discoveredCount: count });
-    const named = steps.flatMap((s) => (s.namedIngredientId ? [s.namedIngredientId] : []));
-    const notTomato = steps.some((s) => s.textJa === "ソースはトマトじゃないみたい");
-    const discovered = discoveredRecipeIds(inputs.dex);
-    const outcome = (ids: readonly string[]) => evaluateDiscovery(signatureOfPizza(pizzaOf(ids)), RECIPE_DISCOVERY_CATALOG, discovered);
+    expect(candidates.map((c) => c.id)).toContain(LADDER_ORDER[count]);
+    expect(selectHintTarget(inputs)).toMatchObject({ kind: "TARGET", recipeId: candidates[0].id });
+    for (const r of candidates) {
+      expect(selectHintTarget(inputs, { pinnedRecipeId: r.id })).toMatchObject({ kind: "TARGET", recipeId: r.id, source: "dex" });
+      const steps = buildHintSteps(r, { discoveredCount: count });
+      const named = steps.flatMap((s) => (s.namedIngredientId ? [s.namedIngredientId] : []));
+      const notTomato = steps.some((s) => s.textJa === "ソースはトマトじゃないみたい");
+      const discovered = discoveredRecipeIds(inputs.dex);
+      const outcome = (ids: readonly string[]) => evaluateDiscovery(signatureOfPizza(pizzaOf(ids)), RECIPE_DISCOVERY_CATALOG, discovered);
 
-    if (count === 0) {
-      // Onboarding: every ingredient is named, the named pizza is the discovery.
-      expect(outcome(named)).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: r.id });
-      return;
-    }
-    // Everything but one is named: the named-only pizza is one step away, with a direction.
-    const first = classifyNearMiss(signatureOfPizza(pizzaOf(named)), candidates);
-    expect(first?.distance).toBe(1);
-    expect(["ADD_ONE", "SAUCE_ONLY"]).toContain(first?.kind);
+      if (count === 0) {
+        // Onboarding: every ingredient is named, the named pizza is the discovery.
+        expect(outcome(named)).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: r.id });
+        continue;
+      }
+      // Everything but one is named: the named-only pizza is one step away, with a direction.
+      const first = classifyNearMiss(signatureOfPizza(pizzaOf(named)), candidates);
+      expect(first?.distance, r.id).toBe(1);
+      expect(["ADD_ONE", "SAUCE_ONLY"], r.id).toContain(first?.kind);
 
-    // Trying each owned ingredient of the hinted kind finds exactly one discovery: the target.
-    const sauceMissing = first?.kind === "SAUCE_ONLY";
-    const pool = inputs.ownedIngredientIds.filter(
-      (id) => !named.includes(id) && isSauce(id) === sauceMissing && !(sauceMissing && notTomato && id === "tomato-sauce"),
-    );
-    const hits = pool.filter((id) => {
-      const o = outcome([...named, id]);
-      return o.kind === "NEW_DISCOVERY" && o.recipeId === r.id;
-    });
-    expect(hits).toHaveLength(1);
-    expect(pool.length).toBeLessThanOrEqual(inputs.ownedIngredientIds.length);
-    for (const id of pool.filter((p) => !hits.includes(p))) {
-      expect(classifyNearMiss(signatureOfPizza(pizzaOf([...named, id])), candidates)?.kind).not.toBe("ADD_ONE");
+      // Trying each owned ingredient of the hinted kind finds exactly one discovery: the target.
+      const sauceMissing = first?.kind === "SAUCE_ONLY";
+      const pool = inputs.ownedIngredientIds.filter(
+        (id) => !named.includes(id) && isSauce(id) === sauceMissing && !(sauceMissing && notTomato && id === "tomato-sauce"),
+      );
+      const hits = pool.filter((id) => {
+        const o = outcome([...named, id]);
+        return o.kind === "NEW_DISCOVERY" && o.recipeId === r.id;
+      });
+      expect(hits, r.id).toHaveLength(1);
+      expect(pool.length).toBeLessThanOrEqual(inputs.ownedIngredientIds.length);
+      for (const id of pool.filter((p) => !hits.includes(p))) {
+        // Another candidate may legitimately be one step away from this pizza; only the target itself is not.
+        const k = classifyNearMiss(signatureOfPizza(pizzaOf([...named, id])), candidates.filter((c) => c.id === r.id))?.kind;
+        expect(k, `${r.id}+${id}`).not.toBe("ADD_ONE");
+      }
     }
   });
 });
