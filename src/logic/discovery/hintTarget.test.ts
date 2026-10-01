@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../../data/ingredients";
-import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
+import { RECIPES, countsTowardLadder, type Recipe, type RecipeId } from "../../data/recipes";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../../state/dex";
 import { resolveShopEntitlement } from "../../state/materialEntitlement";
 import { recipeKeyStep } from "../../state/recipeChapters";
@@ -9,6 +9,10 @@ import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/re
 import { compareHintCandidates, discoverableHintCandidates, selectHintTarget } from "./hintTarget";
 
 const recipe = (id: string): Recipe => RECIPES.find((r) => r.id === id)!;
+/** The credited (W1) population: what the single-path W1 walk means. A non-credit branching recipe
+ *  is a different population (see "branching pool" below), never an exception hidden in this one. */
+const W1_RECIPES = RECIPES.filter((r) => countsTowardLadder(r.id));
+const W1 = { recipes: W1_RECIPES };
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 
 function discover(ids: readonly string[]): DexState {
@@ -59,16 +63,18 @@ function fake(id: string, ingredientIds: string[]): Recipe {
 describe("selectHintTarget -- 25-recipe ladder (T-3 / T-4)", () => {
   it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i: the only target is the next ladder key recipe", (count) => {
     const inputs = ladderState(count);
-    const candidates = discoverableHintCandidates(inputs);
+    const candidates = discoverableHintCandidates(inputs, W1_RECIPES);
     expect(candidates.map((r) => r.id)).toEqual([LADDER_ORDER[count]]);
-    expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: LADDER_ORDER[count], source: "auto" });
+    expect(selectHintTarget(inputs, W1)).toEqual({ kind: "TARGET", recipeId: LADDER_ORDER[count], source: "auto" });
+    // The full population may hold more (non-credit branches), but the W1 key recipe is always in it.
+    expect(discoverableHintCandidates(inputs).map((r) => r.id)).toContain(LADDER_ORDER[count]);
   });
 
   it("every target on the ladder is DISCOVERABLE; DISCOVERED / KBMM / UNKNOWN never are", () => {
     for (let count = 0; count <= 25; count += 1) {
       for (const newest of ["bought", "not-bought", "stock-0"] as const) {
         const inputs = ladderState(count, newest);
-        const result = selectHintTarget(inputs);
+        const result = selectHintTarget(inputs, W1);
         if (result.kind === "TARGET") expect(recipeDiscoveryState(recipe(result.recipeId), inputs)).toBe("DISCOVERABLE");
         for (const r of discoverableHintCandidates(inputs)) expect(recipeDiscoveryState(r, inputs)).toBe("DISCOVERABLE");
       }
@@ -76,17 +82,17 @@ describe("selectHintTarget -- 25-recipe ladder (T-3 / T-4)", () => {
   });
 
   it.each(Array.from({ length: 24 }, (_, i) => i + 1))("Dex %i without the new material: SHOP_NEW; bought but stock 0: REFILL", (count) => {
-    expect(selectHintTarget(ladderState(count, "not-bought"))).toEqual({ kind: "SHOP_NEW" });
-    expect(selectHintTarget(ladderState(count, "stock-0"))).toEqual({ kind: "REFILL" });
+    expect(selectHintTarget(ladderState(count, "not-bought"), W1)).toEqual({ kind: "SHOP_NEW" });
+    expect(selectHintTarget(ladderState(count, "stock-0"), W1)).toEqual({ kind: "REFILL" });
   });
 
   it("all 25 discovered: COMPLETE", () => {
-    expect(selectHintTarget(ladderState(25))).toEqual({ kind: "COMPLETE" });
+    expect(selectHintTarget(ladderState(25), W1)).toEqual({ kind: "COMPLETE" });
   });
 
   it("a result names no recipe unless it is a target (HintEmpty carries only its kind)", () => {
     for (const newest of ["not-bought", "stock-0"] as const) {
-      const result = selectHintTarget(ladderState(8, newest));
+      const result = selectHintTarget(ladderState(8, newest), W1);
       expect(Object.keys(result)).toEqual(["kind"]);
     }
   });

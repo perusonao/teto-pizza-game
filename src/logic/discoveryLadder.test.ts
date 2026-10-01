@@ -420,6 +420,9 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       "./testSupport/discoveryLadderRule.ts",
       // DH4-2B Gate (T1a): the Deduction Hint test support builds a valid acquisition order from the ladder.
       "./discovery/testSupport/deductionInversion.ts",
+      // Discovery 3.0 PR-4a: the branching-pool test support walks the ladder with the real entitlement
+      // authority (test-only; nothing in production imports it).
+      "./testSupport/branchingFixture.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",

@@ -59,7 +59,7 @@ function snapshotOf(save: PersistentSaveV2, extra: Partial<ProgressionSnapshot> 
   };
 }
 
-const FUTURE_RECIPE = "brazilian-calabresa";
+const FUTURE_RECIPE = "future-unknown-recipe";
 const MARGHERITA_DEX: DexEntry[] = [{ recipeId: "margherita", discovered: true, bestScore: 80, bestStars: 4, timesMade: 2 }];
 
 /** A Hint Economy 1.0 era save (before H3-2): no `discoveryHintFacts` key. */

@@ -101,7 +101,7 @@ describe("canStartGuidedRound / isRecipeCookable (LK-8, F-15)", () => {
   });
 
   it("rejects unknown recipe ids", () => {
-    expect(canStartGuidedRound("brazilian-calabresa", { dex: discover(["margherita"]), ownedIngredientIds: owned, inventory: {} })).toBe(false);
+    expect(canStartGuidedRound("future-unknown-recipe", { dex: discover(["margherita"]), ownedIngredientIds: owned, inventory: {} })).toBe(false);
   });
 });
 

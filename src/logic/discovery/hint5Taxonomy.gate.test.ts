@@ -6,6 +6,7 @@ import { ATTRIBUTE_FAMILIES, ingredientAttributeFamily, TAXONOMY_INGREDIENT_IDS 
 import { RECIPE_HINT_ROLES, type RecipeHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { buildHint5Ladder, hint5RolesValid, requestHint5Rung, subToppingClass } from "./hint5Ladder";
+import { authoredRoles, KEYED_RECIPES } from "../testSupport/hintRoles";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1: the data / taxonomy gates of the Final Design
@@ -50,12 +51,12 @@ describe("Hint 5.0 authority data (OD-H5-C1 / C1a / C1b)", () => {
   it("RECIPE_HINT_ROLES covers exactly the 25 production recipes, with the Owner-approved key toppings", () => {
     expect(Object.keys(RECIPE_HINT_ROLES).sort()).toEqual(RECIPES.map((r) => r.id).sort());
     expect(RECIPES).toHaveLength(25);
-    for (const r of RECIPES) expect(RECIPE_HINT_ROLES[r.id].hintKeyToppingId, r.id).toBe(APPROVED_KEY_TOPPINGS[r.id]);
+    for (const r of KEYED_RECIPES) expect(authoredRoles(r.id).hintKeyToppingId, r.id).toBe(APPROVED_KEY_TOPPINGS[r.id]);
   });
 
   it("G17: the key is a topping of the recipe (null only without toppings); the sub order is exactly the other toppings, once each", () => {
-    for (const r of RECIPES) {
-      const roles = RECIPE_HINT_ROLES[r.id];
+    for (const r of KEYED_RECIPES) {
+      const roles = authoredRoles(r.id);
       const toppings = toppingsOf(r);
       if (roles.hintKeyToppingId === null) expect(toppings, r.id).toEqual([]);
       else expect(toppings, r.id).toContain(roles.hintKeyToppingId);
@@ -66,8 +67,8 @@ describe("Hint 5.0 authority data (OD-H5-C1 / C1a / C1b)", () => {
   });
 
   it("C1-P: no key topping duplicates sauce / cheese information (every key is a topping, never a sauce or cheese)", () => {
-    for (const r of RECIPES) {
-      const key = RECIPE_HINT_ROLES[r.id].hintKeyToppingId;
+    for (const r of KEYED_RECIPES) {
+      const key = authoredRoles(r.id).hintKeyToppingId;
       if (key !== null) expect(getIngredient(key)?.category, r.id).toBe("topping");
     }
   });
@@ -124,7 +125,8 @@ describe("Hint 5.0 taxonomy gates (OD-H5-T-COV, H5-INV-7)", () => {
   it("G2: every sub-topping of every production recipe resolves to its one family, and every recipe is a Hint 5.0 target", () => {
     for (const r of RECIPES) {
       expect(buildHint5Ladder(r.id), r.id).not.toBeNull();
-      for (const id of RECIPE_HINT_ROLES[r.id].hintSubToppingOrder) expect(subToppingClass(id), `${r.id}:${id}`).toBe(ingredientAttributeFamily(id));
+      const subs = buildHint5Ladder(r.id)!.rungs.filter((x) => x.kind === "SUB_CLASS").map((x) => x.subjectIds[0]);
+      for (const id of subs) expect(subToppingClass(id), `${r.id}:${id}`).toBe(ingredientAttributeFamily(id));
     }
   });
 

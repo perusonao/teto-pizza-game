@@ -8,6 +8,7 @@ import {
   type SimResult,
 } from "./testSupport/discoveryHintEconomySim";
 import { DISCOVERY_HINT_PRICES, discoveryHintPrice } from "./discovery/hintPurchase";
+import { RECIPES } from "../data/recipes";
 
 /**
  * Discovery Hint Economy 1.0 Fresh Audit (docs/reports/TETO_DISCOVERY-HINT-ECONOMY-1_FRESH-AUDIT.md):
@@ -18,18 +19,25 @@ import { DISCOVERY_HINT_PRICES, discoveryHintPrice } from "./discovery/hintPurch
  * report's tables are generated from that file).
  */
 
+// The walks end when every recipe is discovered, in any legal order, so their length is the
+// population size. The production population is pinned once, explicitly, below.
+const TOTAL = RECIPES.length;
 const AVERAGE_QUALITY = 65; // ★3, earnedPitz 80
 const QUALITIES = [80, 65, 30]; // ★4 (100), ★3 (80), ★1 (floor 20)
 
 describe("Discovery Hint Economy 1.0: 25-recipe hint-price simulation (analysis harness)", () => {
+  it("the production population is the 25-recipe W1 ladder", () => {
+    expect(TOTAL).toBe(25);
+  });
+
   it("every price curve x player profile reaches Dex 25 without a hard deadlock (★3)", () => {
     for (const curve of [FREE_CURVE, ...HINT_PRICE_CURVES]) {
       for (const profile of PROFILES) {
         const r = simulateHintEconomy({ curve, profile, qualityTotal: AVERAGE_QUALITY });
         expect(r.completed, `${curve.id} ${profile}`).toBe(true);
         expect(r.hardDeadlock).toBe(false);
-        expect(r.stages.map((x) => x.discovery)).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
-        expect(new Set(r.stages.map((x) => x.recipe)).size).toBe(25);
+        expect(r.stages.map((x) => x.discovery)).toEqual(Array.from({ length: TOTAL }, (_, i) => i + 1));
+        expect(new Set(r.stages.map((x) => x.recipe)).size).toBe(TOTAL);
         expect(r.minPitz).toBeGreaterThanOrEqual(0);
         // Dex 0 (Margherita onboarding) is free under the proposal: nothing is spent before it.
         expect(r.stages[0]).toMatchObject({ recipe: "margherita", hintSpend: 0, unlockSpend: 0, refillSpend: 0 });
@@ -101,13 +109,18 @@ describe("Discovery Hint Economy 1.0: harness <-> authority parity (Candidate B)
         const where = `Q${qualityTotal} ${profile}`;
         expect(production.completed, where).toBe(true);
         expect(production.hardDeadlock, where).toBe(false);
-        expect(production.stages.map((x) => x.discovery), where).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+        expect(production.stages.map((x) => x.discovery), where).toEqual(Array.from({ length: TOTAL }, (_, i) => i + 1));
         expect(production.minPitz, where).toBeGreaterThanOrEqual(0);
         expect(production.stages[0], where).toMatchObject({ recipe: "margherita", hintSpend: 0 });
+        // Every hinted recipe is paid as a prefix sum of 5/10/20/40 (0, 5, 15, 35 or 75). The spend
+        // is grouped by the HINTED recipe, not by the recipe discovered at that stage: with a
+        // branching pool the player may find a different pool member than the one hinted, and the
+        // levels already bought carry over to the stage where the hinted recipe is found.
+        const spendByHinted = new Map<string, number>();
         for (const stage of production.stages.slice(1)) {
-          // Every paid stage spends a prefix sum of 5/10/20/40 (0, 5, 15, 35 or 75).
-          expect([0, 5, 15, 35, 75], `${where} ${stage.recipe}`).toContain(stage.hintSpend);
+          spendByHinted.set(stage.hintTarget, (spendByHinted.get(stage.hintTarget) ?? 0) + stage.hintSpend);
         }
+        for (const [hinted, spend] of spendByHinted) expect([0, 5, 15, 35, 75], `${where} ${hinted}`).toContain(spend);
         if (profile === "P0") expect(production.totalHintSpend, where).toBe(0);
         expect(production, where).toEqual(simulated);
         rows.push({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RECIPE_HINT_ROLES } from "../../data/recipeHintRoles";
+import { authoredRoles, KEYED_RECIPES, KEY_FREE_RECIPES } from "../testSupport/hintRoles";
 import { RECIPES } from "../../data/recipes";
 import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
 import {
@@ -52,14 +52,22 @@ function buyAll(recipeId: string, discoveredCount = 5) {
 
 describe("ladder generation (§5)", () => {
   it("every recipe has the 4 fixed rungs first, then one SUB_CLASS per authored sub-topping, in authored order", () => {
-    for (const r of RECIPES) {
+    for (const r of KEYED_RECIPES) {
       const ladder = buildHint5Ladder(r.id)!;
       expect(ladder.rungs.slice(0, 4).map((x) => x.kind), r.id).toEqual(HINT5_FIXED_RUNG_KINDS);
       const subs = ladder.rungs.slice(4);
       expect(subs.map((x) => x.kind).every((k) => k === "SUB_CLASS"), r.id).toBe(true);
-      expect(subs.map((x) => x.subjectIds[0]), r.id).toEqual(RECIPE_HINT_ROLES[r.id].hintSubToppingOrder);
+      expect(subs.map((x) => x.subjectIds[0]), r.id).toEqual(authoredRoles(r.id).hintSubToppingOrder);
       expect(subs.map((x) => x.ordinal), r.id).toEqual(subs.map((_, i) => i + 1));
       expect(ladder.rungs.map((x) => x.index), r.id).toEqual(ladder.rungs.map((_, i) => i + 1));
+    }
+  });
+
+  it("a key-free recipe (none in production yet) has no KEY_TOPPING rung and no empty rung", () => {
+    for (const r of KEY_FREE_RECIPES) {
+      const rungs = buildHint5Ladder(r.id)!.rungs;
+      expect(rungs.map((x) => x.kind), r.id).not.toContain("KEY_TOPPING");
+      for (const x of rungs) if (x.kind !== "STRUCTURE") expect(x.subjectIds.length, `${r.id}:${x.kind}`).toBeGreaterThan(0);
     }
   });
 
@@ -71,7 +79,7 @@ describe("ladder generation (§5)", () => {
   });
 
   it("G20 / P3: a recipe with 0 sub-toppings has exactly 4 rungs, then the generic completion", () => {
-    const zero = RECIPES.filter((r) => RECIPE_HINT_ROLES[r.id].hintSubToppingOrder.length === 0).map((r) => r.id);
+    const zero = KEYED_RECIPES.filter((r) => authoredRoles(r.id).hintSubToppingOrder.length === 0).map((r) => r.id);
     expect(zero.sort()).toEqual(["bismarck", "funghi", "genovese", "margherita", "pepperoni", "pizza-bianca", "quattro-formaggi", "salsiccia"]);
     for (const id of zero) expect(buildHint5Ladder(id)!.rungs, id).toHaveLength(4);
     const done = buyAll("pepperoni");
@@ -83,8 +91,8 @@ describe("ladder generation (§5)", () => {
 
   it("sub-topping counts match the authority (0 x 8, 1 x 12, 2 x 1, 3 x 4)", () => {
     const counts = new Map<number, number>();
-    for (const r of RECIPES) {
-      const n = RECIPE_HINT_ROLES[r.id].hintSubToppingOrder.length;
+    for (const r of KEYED_RECIPES) {
+      const n = authoredRoles(r.id).hintSubToppingOrder.length;
       counts.set(n, (counts.get(n) ?? 0) + 1);
     }
     expect([...counts].sort()).toEqual([[0, 8], [1, 12], [2, 1], [3, 4]]);

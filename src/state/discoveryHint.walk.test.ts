@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { getIngredient } from "../data/ingredients";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, countsTowardLadder } from "../data/recipes";
 import { buildHintSteps } from "../logic/discovery/hintSteps";
 import { discoveredRecipeIds } from "./dex";
 import { selectableHintPriceCap } from "../logic/discovery/selectableHint";
@@ -86,14 +86,23 @@ interface StageRecord {
   trials: number;
 }
 
+// The walk follows whatever target the sheet offers until nothing is left, so it holds for any
+// number of legal discovery orders (a non-credit branching recipe can be the target beside a W1
+// one). The population size is pinned once, explicitly, not re-derived per assertion.
+const TOTAL = RECIPES.length;
+
 describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hints only", () => {
+  it("the production population is the 25-recipe W1 ladder", () => {
+    expect(TOTAL).toBe(25);
+  });
+
   it("every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery", () => {
     let s = createInitialGameState(undefined, undefined, 1_000_000);
     const records: StageRecord[] = [];
 
     for (let guard = 0; guard < 80; guard += 1) {
       const dexCount = discoveredRecipeIds(s.dex).length;
-      if (dexCount === 25) break;
+      if (dexCount === TOTAL) break;
       const shop: string[] = [];
 
       // 1. Open the sheet; follow an empty state to the Shop.
@@ -192,12 +201,22 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
       records.push({ dex: dexCount, hintSpend, target: targetId, shop, steps, named: named.length, total, firstResult: first, trials });
     }
 
-    expect(records.map((r) => r.dex)).toEqual(Array.from({ length: 25 }, (_, i) => i));
-    expect(new Set(records.map((r) => r.target)).size).toBe(25);
+    expect(records.map((r) => r.dex)).toEqual(Array.from({ length: TOTAL }, (_, i) => i));
+    expect(new Set(records.map((r) => r.target)).size).toBe(TOTAL);
     s = act(s, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(hintSheetView(s)).toEqual({ kind: "COMPLETE" });
-    // Every stage after the first went through the Shop (one new material per ladder step).
-    expect(records.slice(1).every((r) => r.shop.length >= 1)).toBe(true);
+    // Every ladder step's new material is bought through the Shop, at the FIRST stage that runs
+    // at that ladder count. A non-credit discovery does not advance the ladder, so a stage run at
+    // an unchanged count may reuse a material an earlier stage already bought (a branching pool
+    // lets either recipe be the one that triggers the purchase). On a single-path ladder every
+    // stage has its own count, so this is "every stage after the first visits the Shop".
+    const seenCounts = new Set<number>();
+    let credited = 0;
+    for (const r of records) {
+      if (r.dex >= 1 && !seenCounts.has(credited)) expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
+      seenCounts.add(credited);
+      if (countsTowardLadder(r.target)) credited += 1;
+    }
     // Facts stay after the discovery: every paid recipe with a purchasable fact (Margherita was
     // free), each within its Hint 2.0 cost (OD-H3-4 parity cap 35 / 75); the legacy ledger never moved.
     const paid = records.slice(1).filter((r) => r.steps > 0);

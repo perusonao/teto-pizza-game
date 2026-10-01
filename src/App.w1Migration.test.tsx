@@ -108,7 +108,7 @@ const CASES: Case[] = [
     name: "G unknown recipe / ingredient ids and keys",
     save: {
       ...createDefaultSave(),
-      dex: [d("margherita"), d("brazilian-calabresa")],
+      dex: [d("margherita"), d("future-unknown-recipe")],
       pitzBalance: 5,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "calabresa"],
       inventory: { calabresa: 9 },

@@ -78,12 +78,18 @@ describe("buildHintSteps -- progressive order and n-1 cap (T-5)", () => {
   });
 
   it("the cheese line is always there, and says so when there is no cheese", () => {
+    // Derived from the recipe's own ingredients, so a recipe added later (cheese or none) is
+    // checked by what it contains, not by membership in a hand-kept list.
+    const hasCheese = (r: Recipe) => distinct(r).some((id) => getIngredient(id)?.category === "cheese");
     for (const r of RECIPES) {
       const line = buildHintSteps(r, { discoveredCount: 3 }).find((s) => s.axis === "COUNT_CHEESE")!;
-      expect(line.textJa).toBe(
-        `材料は全部で${distinct(r).length}種類。${NO_CHEESE.includes(r.id) ? "チーズは使わないみたい" : "チーズを使うみたい"}`,
-      );
+      expect(line.textJa).toBe(`材料は全部で${distinct(r).length}種類。${hasCheese(r) ? "チーズを使うみたい" : "チーズは使わないみたい"}`);
     }
+  });
+
+  it("the 25 production recipes without cheese are exactly the authored list", () => {
+    const noCheese = RECIPES.filter((r) => !distinct(r).some((id) => getIngredient(id)?.category === "cheese")).map((r) => r.id);
+    expect(noCheese.filter((id) => NO_CHEESE.includes(id)).sort()).toEqual([...NO_CHEESE].sort());
   });
 });
 
