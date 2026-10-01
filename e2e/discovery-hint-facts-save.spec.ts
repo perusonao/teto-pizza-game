@@ -10,7 +10,7 @@ import { test, expect } from "@playwright/test";
 
 const FACTS = {
   napoletana: ["ing:mozzarella", "tech:fold", "finish:basil-oil:drizzle"],
-  "brazilian-calabresa": ["ing:calabresa", "shape:square"],
+  "future-unknown-recipe": ["ing:calabresa", "shape:square"],
 };
 
 const SAVE = {
@@ -22,7 +22,7 @@ const SAVE = {
   inventory: {},
   starterGrantClaimedRecipeIds: [],
   unlockedForShopIngredientIds: [],
-  discoveryHintPurchases: { napoletana: 2, "brazilian-calabresa": 1 },
+  discoveryHintPurchases: { napoletana: 2, "future-unknown-recipe": 1 },
   discoveryHintFacts: FACTS,
 };
 

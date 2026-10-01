@@ -223,7 +223,9 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
 
   for (let stageGuard = 0; stageGuard < 40; stageGuard += 1) {
     const dexCount = discoveredRecipeIds(s.dex).length;
-    if (dexCount === 25) {
+    // Done when every recipe is discovered. Not "25": with a branching pool the walk may end after
+    // more (or in a different order) than a single-path ladder, and the stop must not assume one.
+    if (dexCount === RECIPES.length) {
       completed = true;
       break;
     }

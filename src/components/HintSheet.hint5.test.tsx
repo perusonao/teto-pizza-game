@@ -2,10 +2,10 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
-import { RECIPE_HINT_ROLES } from "../data/recipeHintRoles";
 import { RECIPES } from "../data/recipes";
 import { TECHNIQUES } from "../data/techniques";
-import { hint5Presentation, requestHint5Rung, type Hint5Presentation } from "../logic/discovery/hint5Ladder";
+import { KEY_FREE_RECIPES } from "../logic/testSupport/hintRoles";
+import { buildHint5Ladder, hint5Presentation, requestHint5Rung, type Hint5Presentation } from "../logic/discovery/hint5Ladder";
 import { buildSelectableHintModel } from "../logic/discovery/selectableHint";
 import type { HintSheetView } from "../state/discoveryHint";
 import { HintSheet } from "./HintSheet";
@@ -63,9 +63,16 @@ const TARGETS = RECIPES.filter((r) => r.id !== "margherita");
 
 describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
   it("before STRUCTURE, the rendered sheet is byte-identical for every target that reached the same rung", () => {
+    // Keyed targets form one group; a key-free target (OD-D3-21) has only the rungs that apply, so it is
+    // compared within its own sauce/cheese pattern. The absence of a rung is the accepted information.
+    const has = (r: (typeof RECIPES)[number], category: string) => r.requiredIngredients.some((q) => INGREDIENTS.find((i) => i.id === q.ingredientId)?.category === category);
+    const groupOf = (r: (typeof RECIPES)[number]) => (KEY_FREE_RECIPES.includes(r) ? `key-free:sauce=${has(r, "sauce")}:cheese=${has(r, "cheese")}` : "keyed");
     for (let k = 0; k <= 3; k += 1) {
-      const shapes = new Set<string>();
+      const groups = new Map<string, Set<string>>();
       for (const r of TARGETS) {
+        if (k > buildHint5Ladder(r.id)!.rungs.findIndex((x) => x.kind === "STRUCTURE")) continue; // past STRUCTURE
+        const shapes = groups.get(groupOf(r)) ?? new Set<string>();
+        groups.set(groupOf(r), shapes);
         const stored = prefix(r.id, k);
         expect(stored, `${r.id} k=${k}`).not.toBeNull(); // round 6: no target stops before STRUCTURE
         const { container } = renderLadder(pres(r.id, stored!));
@@ -74,7 +81,7 @@ describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
         expect(container.querySelector(".hint-sheet__h5-next")!.textContent, `${r.id} k=${k}`).not.toContain("なし");
         cleanup();
       }
-      expect(shapes.size, `after ${k} rungs`).toBe(1);
+      for (const [group, shapes] of groups) expect(shapes.size, `after ${k} rungs, ${group}`).toBe(1);
     }
   });
 
@@ -112,7 +119,7 @@ describe("Hint 5.0 ladder DOM: disclosure boundary (H5-INV-1 / 3 / 4) and AC-1",
   it("at every purchase state of every target: no recipe identity, no unbought ingredient, no sub-topping name / id / glyph, no Technique", () => {
     const techWords = TECHNIQUES.flatMap((t) => [t.nameJa, t.riddleJa]);
     for (const r of TARGETS) {
-      const subs = new Set(RECIPE_HINT_ROLES[r.id as keyof typeof RECIPE_HINT_ROLES].hintSubToppingOrder);
+      const subs = new Set(buildHint5Ladder(r.id)!.rungs.filter((x) => x.kind === "SUB_CLASS").map((x) => x.subjectIds[0]));
       for (let k = 0; k <= 10; k += 1) {
         const stored = prefix(r.id, k);
         if (!stored) break;

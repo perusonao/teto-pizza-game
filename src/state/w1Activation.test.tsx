@@ -302,7 +302,7 @@ describe("save compatibility (schemaVersion 2, no bump)", () => {
   function futureSave(): Record<string, unknown> {
     return {
       ...createDefaultSave(),
-      dex: [...dexOf(2), { recipeId: "brazilian-calabresa", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+      dex: [...dexOf(2), { recipeId: "future-unknown-recipe", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
       pitzBalance: 120,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "calabresa"],
       inventory: { egg: 7, clam: 12, corn: 0, calabresa: 9 },
@@ -335,7 +335,7 @@ describe("save compatibility (schemaVersion 2, no bump)", () => {
     expect(written.unlockedForShopIngredientIds).toEqual(["egg", "bacon", "clam", "corn", "fresh-tomato", "calabresa"]);
     expect(written.missionBest).toEqual({ "lunch-rush": 900 });
     expect(written.futureLedger).toEqual({ purchased: ["clam"] });
-    expect((written.dex as { recipeId: string }[]).map((e) => e.recipeId)).toContain("brazilian-calabresa");
+    expect((written.dex as { recipeId: string }[]).map((e) => e.recipeId)).toContain("future-unknown-recipe");
   });
 
   it("Full Game Reset still clears everything", () => {

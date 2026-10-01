@@ -63,8 +63,14 @@ function nextLevel(s: DiscoveryHintState): number {
 }
 
 /** Opens the sheet on today's target (SHOW_HINT's session resolve). */
-function open(state: DiscoveryHintState): DiscoveryHintState {
-  return { ...state, hintSession: resolveHintSession(state) };
+function open(state: DiscoveryHintState, pinnedRecipeId?: string): DiscoveryHintState {
+  return { ...state, hintSession: resolveHintSession(state, pinnedRecipeId) };
+}
+
+/** Every recipe discovered, non-credit branching recipes included (the pool is empty). */
+function complete(): DiscoveryHintState {
+  const base = ladder(25);
+  return { ...base, dex: discover(RECIPES.map((r) => r.id)) };
 }
 
 function selectable(s: DiscoveryHintState): Extract<HintSheetView, { kind: "SELECTABLE" }> {
@@ -100,7 +106,7 @@ describe("resolveHintSession", () => {
 
   it("no DISCOVERABLE target -> null (the sheet shows the empty state)", () => {
     expect(resolveHintSession(ladder(5, "not-bought"))).toBeNull();
-    expect(resolveHintSession(ladder(25))).toBeNull();
+    expect(resolveHintSession(complete())).toBeNull();
   });
 });
 
@@ -130,7 +136,9 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
 
   it("at Dex >= 1 the full answer is never shown, however often a fact is bought (every ladder step)", () => {
     for (let count = 1; count < 25; count += 1) {
-      let s = open(ladder(count));
+      // The W1 step's recipe is opened explicitly (the Dex card path): with a branching pool the
+      // automatic target need not be the ladder recipe, and the contract must hold for each.
+      let s = open(ladder(count), LADDER_ORDER[count]);
       for (let i = 0; i < 12; i += 1) s = buy(s, (["sauce", "cheese", "topping"] as const)[i % 3]);
       const view = selectable(s);
       const named = new Set(view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)));
@@ -161,7 +169,7 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
   it("empty states: SHOP_NEW / REFILL / COMPLETE", () => {
     expect(hintSheetView(ladder(6, "not-bought"))).toEqual({ kind: "SHOP_NEW" });
     expect(hintSheetView(ladder(6, "stock-0"))).toEqual({ kind: "REFILL" });
-    expect(hintSheetView(ladder(25))).toEqual({ kind: "COMPLETE" });
+    expect(hintSheetView(complete())).toEqual({ kind: "COMPLETE" });
   });
 });
 

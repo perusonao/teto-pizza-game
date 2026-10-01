@@ -14,6 +14,9 @@ import type { DexEntry, DexState } from "../state/dex";
  */
 
 const ALL = RECIPES as readonly Recipe[];
+// The walks end when every recipe is makeable-and-found, in any legal order: a branching recipe may
+// be taken at any point. The production population is pinned once, explicitly, in the first test.
+const TOTAL = ALL.length;
 const PRE_W1 = ALL.filter((r) => r.id === "margherita" || r.unlockCondition);
 
 function dexOf(ids: readonly string[]): DexState {
@@ -52,8 +55,8 @@ describe("25/25 reachability on the production ladder", () => {
   });
 
   it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches 25", () => {
-    expect(playForward([], [], (o) => o[0])).toBe(25);
-    expect(playForward([], [], (o) => o[o.length - 1])).toBe(25);
+    expect(playForward([], [], (o) => o[0])).toBe(TOTAL);
+    expect(playForward([], [], (o) => o[o.length - 1])).toBe(TOTAL);
   });
 
   it("at every discovery count N there are at least N + 1 makeable recipes (no dead end)", () => {
@@ -73,7 +76,7 @@ describe("25/25 reachability on the production ladder", () => {
       const next = makeable(PRE_W1, ledger).find((r) => !discovered.includes(r.id))!;
       discovered.push(next.id);
     }
-    expect(playForward(discovered, ledger, (o) => o[0])).toBe(25);
+    expect(playForward(discovered, ledger, (o) => o[0])).toBe(TOTAL);
   });
 
   it("2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach 25", () => {
@@ -89,7 +92,7 @@ describe("25/25 reachability on the production ladder", () => {
         if (options.length === 0) break;
         discovered.push(options[Math.floor(rand() * options.length)].id);
       }
-      if (playForward(discovered, ledger, (o) => o[Math.floor(rand() * o.length)]) !== 25) stuck += 1;
+      if (playForward(discovered, ledger, (o) => o[Math.floor(rand() * o.length)]) !== TOTAL) stuck += 1;
     }
     expect(stuck).toBe(0);
   });

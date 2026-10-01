@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
-import { RECIPES, type Recipe } from "../../data/recipes";
+import { RECIPES, countsTowardLadder, type Recipe } from "../../data/recipes";
 import { recipeKeyStep } from "../../state/recipeChapters";
 import { buildHintSteps, hintKeyIngredientId } from "./hintSteps";
 import {
@@ -398,7 +398,8 @@ describe("ESC_PARITY pricing (OD-H3-4 / OD-H3-15)", () => {
   });
 
   it("measurement: the 24 paid targets' full unlock total (not asserted to 1480, not an economy authority)", () => {
-    const perRecipe = Object.fromEntries(PAID_TARGETS.map((r) => [r.id, fullCost(model(r.id))]));
+    // The snapshot is of the credited W1 population (a branching recipe is measured on its own).
+    const perRecipe = Object.fromEntries(PAID_TARGETS.filter((r) => countsTowardLadder(r.id)).map((r) => [r.id, fullCost(model(r.id))]));
     const total = Object.values(perRecipe).reduce((a, b) => a + b, 0);
     // Snapshot of today's data under OD-H3-4/5/6/7 (Result Report §9); re-measure when recipes change.
     expect(total).toBe(515);

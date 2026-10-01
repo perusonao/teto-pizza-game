@@ -4,6 +4,7 @@ import { RECIPES, countsTowardLadder, type Recipe } from "../data/recipes";
 import { resolveShopEntitlement } from "../state/materialEntitlement";
 import { EMPTY_DEX, type DexEntry, type DexState } from "../state/dex";
 import { discoveredRecipeCount, reachedStepNumber } from "./discoveryLadder";
+import { W1_ORDER } from "./testSupport/branchingFixture";
 
 // Discovery 3.0 PR-2 (OD-D3-17 O3): per-recipe W1 ladder credit.
 
@@ -21,18 +22,24 @@ function legacyCount(dex: DexState): number {
   return new Set(dex.filter((e) => e.discovered).map((e) => e.recipeId)).size;
 }
 
+// The 25 W1 recipes are the ones the ladder authority names; a production recipe added later may
+// opt out (`ladderCredit: false`) without touching these.
+const W1_IDS = new Set(W1_ORDER);
+const W1_RECIPES_ONLY = RECIPES.filter((r) => W1_IDS.has(r.id));
+
 describe("A. existing recipes are unchanged", () => {
-  it("no production recipe sets ladderCredit", () => {
-    for (const r of RECIPES) expect("ladderCredit" in r).toBe(false);
+  it("no existing W1 recipe sets ladderCredit", () => {
+    expect(W1_RECIPES_ONLY).toHaveLength(25);
+    for (const r of W1_RECIPES_ONLY) expect("ladderCredit" in r).toBe(false);
   });
 
-  it("every production recipe counts toward the ladder", () => {
-    for (const r of RECIPES) expect(countsTowardLadder(r.id)).toBe(true);
+  it("every existing W1 recipe counts toward the ladder", () => {
+    for (const r of W1_RECIPES_ONLY) expect(countsTowardLadder(r.id)).toBe(true);
   });
 
-  it("count equals the legacy count for every prefix of the production recipes", () => {
-    for (let n = 0; n <= RECIPES.length; n++) {
-      const dex = RECIPES.slice(0, n).map((r) => entry(r.id));
+  it("count equals the legacy count for every prefix of the existing W1 recipes", () => {
+    for (let n = 0; n <= W1_RECIPES_ONLY.length; n++) {
+      const dex = W1_RECIPES_ONLY.slice(0, n).map((r) => entry(r.id));
       expect(discoveredRecipeCount(dex, countsTowardLadder)).toBe(legacyCount(dex));
       expect(discoveredRecipeCount(dex)).toBe(legacyCount(dex));
     }
@@ -81,8 +88,8 @@ describe("C. save compatibility", () => {
   });
 
   it("an old-format Dex gives the same count with and without the predicate", () => {
-    const dex = RECIPES.map((r) => entry(r.id));
-    expect(discoveredRecipeCount(dex, countsTowardLadder)).toBe(RECIPES.length);
+    const dex = W1_RECIPES_ONLY.map((r) => entry(r.id));
+    expect(discoveredRecipeCount(dex, countsTowardLadder)).toBe(W1_RECIPES_ONLY.length);
     expect(discoveredRecipeCount(EMPTY_DEX, countsTowardLadder)).toBe(0);
   });
 });
