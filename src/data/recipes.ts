@@ -45,6 +45,10 @@ export interface Recipe {
    *  of revealing the recipe name. Absent/false is the default for every chain-unlocked recipe
    *  (#2-#6) -- only `fugazza` (#7, the deliberate "big reveal") sets this. */
   mysteryLock?: boolean;
+  /** Discovery 3.0 PR-2 (OD-D3-17 O3): `false` means discovering this recipe does NOT advance the
+   *  W1 Discovery Ladder count. Absent = counts (every shipped recipe). Read only by
+   *  `countsTowardLadder`; the ladder definition itself is unchanged. */
+  ladderCredit?: false;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
@@ -551,6 +555,13 @@ export type RecipeId = (typeof RECIPES)[number]["id"];
 
 export function getRecipe(id: RecipeId): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);
+}
+
+/** Whether discovering `recipeId` advances the Discovery Ladder count. Absent `ladderCredit`, and
+ *  any id not in RECIPES (old saves, unknown ids), count -- so existing behaviour never changes. */
+export function countsTowardLadder(recipeId: string): boolean {
+  const recipe: Recipe | undefined = RECIPES.find((r) => r.id === recipeId);
+  return recipe?.ladderCredit !== false;
 }
 
 /** Stable 0-based position of a recipe within RECIPES, used to deterministically

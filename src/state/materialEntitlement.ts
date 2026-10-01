@@ -1,4 +1,5 @@
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
+import { countsTowardLadder } from "../data/recipes";
 import { INGREDIENTS, getIngredient } from "../data/ingredients";
 import { discoveredRecipeCount, materialIdsOfSteps, resolveMaterialUnlocks } from "../logic/discoveryLadder";
 import type { DexState } from "./dex";
@@ -35,10 +36,11 @@ export function resolveShopEntitlement(
   ownedIngredientIds: readonly string[],
   unlockedForShopIngredientIds: readonly string[],
   ladder: DiscoveryLadder = DISCOVERY_LADDER,
+  counts: (recipeId: string) => boolean = countsTowardLadder,
 ): ShopEntitlementResult {
   const { unlockedMaterialIds, newlyUnlockedMaterialIds } = resolveMaterialUnlocks({
     ladder,
-    discoveredCount: discoveredRecipeCount(dex),
+    discoveredCount: discoveredRecipeCount(dex, counts),
     alreadyUnlockedMaterialIds: [
       ...unlockedForShopIngredientIds,
       ...ownedIngredientIds.filter(isFiniteMaterial),
