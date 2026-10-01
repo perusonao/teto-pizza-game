@@ -103,8 +103,10 @@ describe.each([
     const afterFirst = poolOf(s1, POP);
     expect(afterFirst).not.toContain(first);
     // Both recipes remain findable in either order: finding one never hides the other.
+    // Compared against fixed expectations, not against the pool itself: B stays findable after A
+    // (and the next W1 recipe unlocks), A stays findable after B.
     if (first === B) expect(afterFirst).toEqual([A]);
-    else expect(sorted(afterFirst)).toEqual(sorted([B, NEXT_W1].filter((id) => poolOf(s1, POP).includes(id))));
+    else expect(sorted(afterFirst)).toEqual(sorted([B, NEXT_W1]));
     expect(poolOf(s2, POP)).not.toContain(A);
     expect(poolOf(s2, POP)).not.toContain(B);
   });
