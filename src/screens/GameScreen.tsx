@@ -36,7 +36,7 @@ import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
-import { HintSheet, type HintFamily } from "../components/HintSheet";
+import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
 import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
 import { executionAdviceJa } from "../state/executionAdvice";
@@ -279,8 +279,11 @@ export function GameScreen({
   const hintSheetOpen = isHintSheetVisible(state);
   const hintButtonRef = useRef<HTMLButtonElement>(null);
   const wasHintSheetOpenRef = useRef(hintSheetOpen);
+  const hintToPantryRef = useRef(false);
   useEffect(() => {
-    if (wasHintSheetOpenRef.current && !hintSheetOpen) hintButtonRef.current?.focus();
+    // IP-1: closing the sheet to open the pantry hands focus to the pantry (its own 閉じる), not back to 「ヒント」.
+    if (wasHintSheetOpenRef.current && !hintSheetOpen && !hintToPantryRef.current) hintButtonRef.current?.focus();
+    hintToPantryRef.current = false;
     wasHintSheetOpenRef.current = hintSheetOpen;
   }, [hintSheetOpen]);
   // Large Catalog UX LC-R3: the 食材庫 (pantry) sheet shell. UI-only state (open / closed + the entry ref for
@@ -344,6 +347,20 @@ export function GameScreen({
   const pantryAvailable =
     largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;
   const pantryVisible = pantryOpen && pantryAvailable;
+  // Discovery 3.0 IP-1: OPEN_POOL -> the existing pantry. Only the screen's own facts decide (eligible FREE round, the
+  // current step, owned counts) -- never the hint view or the hidden pool. DOUGH has no pantry: copy only, no button.
+  const hintPantryAccess: HintPantryAccess | undefined = pantryAvailable
+    ? {
+        kind: "open",
+        onOpen: () => {
+          hintToPantryRef.current = true;
+          onCloseHint();
+          setPantryOpen(true);
+        },
+      }
+    : largeCatalogEligible && state.phase === "PREPARE" && state.makingStep === "DOUGH" && dockReserve.pantryWorthwhile
+      ? { kind: "later" }
+      : undefined;
   // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
   const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
@@ -907,6 +924,7 @@ export function GameScreen({
               onBuySelectable={onBuySelectableHint}
               onBuyHint5={onBuyHint5Rung}
               notebook={notebookView(state.trialNotebook)}
+              pantry={hintPantryAccess}
               onClose={onCloseHint}
             />
           )}
