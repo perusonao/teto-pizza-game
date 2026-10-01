@@ -153,6 +153,7 @@ const backToHint = async (page: Page) => {
   await notebook(page).getByRole("button", { name: /ヒントにもどる/ }).click();
   await expect(notebook(page)).toHaveCount(0);
   await expect(hintSheet(page)).toBeVisible();
+  await expect(hintSheet(page).getByRole("button", { name: /試作ノートを見る/ })).toBeFocused();
 };
 const noHorizontalOverflow = async (page: Page) =>
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
@@ -168,6 +169,11 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
     await expect(notebook(page)).toContainText("フリークッキングで作ってみよう！");
     await expect(notebook(page)).toContainText("読み込みなおすと消える");
     await noHorizontalOverflow(page);
+    // keyboard: the Hint underneath is inert, so Tab / Shift+Tab never land on a Hint control behind the notebook
+    for (let i = 0; i < 4; i += 1) {
+      await page.keyboard.press(i % 2 ? "Tab" : "Shift+Tab");
+      expect(await page.evaluate(() => !!document.activeElement?.closest("[data-hint-kind]"))).toBe(false);
+    }
     // the way back stays inside the viewport
     const back = await notebook(page).getByRole("button", { name: /ヒントにもどる/ }).boundingBox();
     const vp = page.viewportSize()!;

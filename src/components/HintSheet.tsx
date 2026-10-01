@@ -251,6 +251,9 @@ export function HintSheet({
         aria-labelledby={titleId}
         data-hint-kind={view.kind}
         data-hint-ladder={ladder ? "hint5" : ladderClosed ? "hint5-closed" : undefined}
+        // Notebook N1: while the notebook is over this sheet nothing underneath may take focus or a keypress
+        // (Shift+Tab / Enter / Escape would otherwise act on the Hint behind it).
+        inert={notebookOpen || undefined}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => {
           if (event.key === "Escape") {

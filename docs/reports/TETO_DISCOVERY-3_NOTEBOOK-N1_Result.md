@@ -57,6 +57,9 @@ Video Verification: PASS (file exists, >0 bytes, plays to the end, full viewport
 
 Screenshots (390×844 / 360×800): `docs/reports/screenshots/discovery3-notebook-n1/` (empty, entries, retry, long list, pool-2 incomplete). "Before" is the existing Hint sheet (no entry); N1 adds the header button only.
 
+## Codex review (HEAD 80514d2) and fix
+One P2 finding: the Hint dialog stayed focusable/operable behind the open notebook (Shift+Tab → Enter / Escape acted on the Hint). Fix: the Hint `<section>` is `inert` while the notebook is open (UI-only, no behavior change otherwise); unit test (inert on/off) and e2e (Tab / Shift+Tab never land on a Hint control; focus returns to 「試作ノートを見る」 on back).
+
 ## Left for N2 / later
 - Show `#n` on the first NEW attempt's RESULT (today the notice appears only on a repeat) — not coupled to N1, deliberately not done.
 - Notebook × Hint "hypothesis board", RESULT CTA, HOME/Dex entry, persistence (N3).

@@ -116,6 +116,16 @@ describe("Hint sheet entry", () => {
     expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
   });
 
+  it("makes the Hint dialog inert while the notebook is open, and live again after going back", () => {
+    render(base());
+    const hint = () => document.querySelector('[data-hint-kind]') as HTMLElement;
+    expect(hint()).not.toHaveAttribute("inert");
+    fireEvent.click(screen.getByRole("button", { name: /試作ノートを見る/ }));
+    expect(hint()).toHaveAttribute("inert");
+    fireEvent.click(screen.getByRole("button", { name: /ヒントにもどる/ }));
+    expect(hint()).not.toHaveAttribute("inert");
+  });
+
   it("shows the rows it was given", () => {
     const nb = notebookOf([{ sauce: ["tomato-sauce"], set: ["tomato-sauce"], line: LINE }]);
     render(base({ notebook: notebookView(nb) }));
