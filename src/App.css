@@ -6614,3 +6614,127 @@ p.hint-sheet__step {
   font-weight: 700;
   color: #6b4226;
 }
+
+/* Discovery 3.0 Notebook N1: the 試作ノート entry (Hint sheet header) and the read-only notebook sheet. */
+.hint-sheet__header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hint-sheet__notebook-entry {
+  border: 1px solid #d9c08a;
+  background: #fff4d6;
+  border-radius: 999px;
+  padding: 8px 12px;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3d2a16;
+}
+
+.trial-notebook__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.35);
+  z-index: 26;
+}
+
+.trial-notebook {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 390px;
+  max-height: calc(100vh - 56px);
+  max-height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #fff8ea;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.trial-notebook .hint-sheet__close {
+  min-height: 44px;
+}
+
+.trial-notebook__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trial-notebook__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.trial-notebook__entry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f3e6c8;
+}
+
+.trial-notebook__entry-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #8a5a1c;
+}
+
+.trial-notebook__none {
+  font-size: 13px;
+  color: #9a7b58;
+}
+
+.trial-notebook__retry,
+.trial-notebook__feedback {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #3d2a16;
+  overflow-wrap: anywhere;
+}
+
+.trial-notebook__empty {
+  padding: 16px 8px;
+  text-align: center;
+}
+
+.trial-notebook__empty-title,
+.trial-notebook__empty-body {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b4a2b;
+}
+
+.trial-notebook__session-note {
+  flex: none;
+  margin: 0;
+  font-size: 11px;
+  color: #9a7b58;
+  text-align: center;
+}

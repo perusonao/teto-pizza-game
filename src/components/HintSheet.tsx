@@ -4,7 +4,9 @@ import type { HintEmptyKind } from "../logic/discovery/hintTarget";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import type { HintSheetView } from "../state/discoveryHint";
 import { circledOrdinal, type Hint5BoardEntry, type Hint5Presentation, type Hint5RungKind } from "../logic/discovery/hint5Ladder";
+import type { TrialEntryView } from "../logic/discovery/trialNotebook";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { TrialNotebookSheet } from "./TrialNotebookSheet";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet.
@@ -167,6 +169,7 @@ export function HintSheet({
   onUnlock,
   onBuySelectable = () => {},
   onBuyHint5 = () => {},
+  notebook = [],
   onClose,
 }: {
   view: HintSheetView;
@@ -183,6 +186,9 @@ export function HintSheet({
   /** H3-3 / DH4-2C: one request of `family` (材料 with its preference, or 構成 / 特徴), echoing the
    *  paid count the sheet showed. The reducer's PURCHASE_SELECTABLE_HINT decides. */
   onBuySelectable?: (preference: HintCategory, expectedPaidCount: number, family?: HintFamily) => void;
+  /** Notebook N1: the player's own session-only attempts (the notebook display view), read-only. The 「試作ノートを見る」
+   *  entry is the same for every view kind and every target; its open state is UI-only (nothing dispatched). */
+  notebook?: readonly TrialEntryView[];
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -218,6 +224,13 @@ export function HintSheet({
     return true;
   };
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
+  const [notebookOpen, setNotebookOpen] = useState(false);
+  const notebookEntryRef = useRef<HTMLButtonElement>(null);
+  const closeNotebook = () => {
+    setNotebookOpen(false);
+    // Hand focus back to the entry that opened the notebook (it unmounts with the sheet's own close).
+    queueMicrotask(() => notebookEntryRef.current?.focus());
+  };
 
   // Opening lands on the request CTA (or 閉じる); when a request leaves it disabled, focus moves to
   // 閉じる instead of falling back to <body>.
@@ -250,9 +263,14 @@ export function HintSheet({
           <h2 id={titleId} className="hint-sheet__title">
             {"\u{1F4A1}"} ヒント
           </h2>
-          <button ref={closeRef} type="button" className="hint-sheet__close" onClick={onClose}>
-            閉じる
-          </button>
+          <div className="hint-sheet__header-actions">
+            <button ref={notebookEntryRef} type="button" className="hint-sheet__notebook-entry" aria-haspopup="dialog" onClick={() => setNotebookOpen(true)}>
+              {"\u{1F4D3}"} 試作ノートを見る
+            </button>
+            <button ref={closeRef} type="button" className="hint-sheet__close" onClick={onClose}>
+              閉じる
+            </button>
+          </div>
         </div>
 
         {view.kind === "SELECTABLE" && ladder ? (
@@ -350,6 +368,8 @@ export function HintSheet({
           </div>
         )}
       </section>
+      {/* Rendered beside (not inside) the sheet: the sheet's own transform would re-anchor a fixed child. */}
+      {notebookOpen && <TrialNotebookSheet entries={notebook} onBack={closeNotebook} />}
     </div>
   );
 }
