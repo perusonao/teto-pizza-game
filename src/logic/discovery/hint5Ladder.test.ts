@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RECIPE_HINT_ROLES } from "../../data/recipeHintRoles";
+import { keyedHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES } from "../../data/recipes";
 import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
 import {
@@ -57,7 +57,7 @@ describe("ladder generation (§5)", () => {
       expect(ladder.rungs.slice(0, 4).map((x) => x.kind), r.id).toEqual(HINT5_FIXED_RUNG_KINDS);
       const subs = ladder.rungs.slice(4);
       expect(subs.map((x) => x.kind).every((k) => k === "SUB_CLASS"), r.id).toBe(true);
-      expect(subs.map((x) => x.subjectIds[0]), r.id).toEqual(RECIPE_HINT_ROLES[r.id].hintSubToppingOrder);
+      expect(subs.map((x) => x.subjectIds[0]), r.id).toEqual(keyedHintRoles(r.id).hintSubToppingOrder);
       expect(subs.map((x) => x.ordinal), r.id).toEqual(subs.map((_, i) => i + 1));
       expect(ladder.rungs.map((x) => x.index), r.id).toEqual(ladder.rungs.map((_, i) => i + 1));
     }
@@ -71,7 +71,7 @@ describe("ladder generation (§5)", () => {
   });
 
   it("G20 / P3: a recipe with 0 sub-toppings has exactly 4 rungs, then the generic completion", () => {
-    const zero = RECIPES.filter((r) => RECIPE_HINT_ROLES[r.id].hintSubToppingOrder.length === 0).map((r) => r.id);
+    const zero = RECIPES.filter((r) => keyedHintRoles(r.id).hintSubToppingOrder.length === 0).map((r) => r.id);
     expect(zero.sort()).toEqual(["bismarck", "funghi", "genovese", "margherita", "pepperoni", "pizza-bianca", "quattro-formaggi", "salsiccia"]);
     for (const id of zero) expect(buildHint5Ladder(id)!.rungs, id).toHaveLength(4);
     const done = buyAll("pepperoni");
@@ -84,7 +84,7 @@ describe("ladder generation (§5)", () => {
   it("sub-topping counts match the authority (0 x 8, 1 x 12, 2 x 1, 3 x 4)", () => {
     const counts = new Map<number, number>();
     for (const r of RECIPES) {
-      const n = RECIPE_HINT_ROLES[r.id].hintSubToppingOrder.length;
+      const n = keyedHintRoles(r.id).hintSubToppingOrder.length;
       counts.set(n, (counts.get(n) ?? 0) + 1);
     }
     expect([...counts].sort()).toEqual([[0, 8], [1, 12], [2, 1], [3, 4]]);

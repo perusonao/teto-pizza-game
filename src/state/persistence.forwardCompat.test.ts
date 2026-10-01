@@ -42,8 +42,8 @@ function fakeStorage(initial: Record<string, string> = {}): StorageLike & { raw(
   };
 }
 
-const FUTURE_RECIPE = "brazilian-calabresa";
-const FUTURE_INGREDIENT = "calabresa";
+const FUTURE_RECIPE = "future-synthetic-recipe";
+const FUTURE_INGREDIENT = "future-synthetic-ingredient";
 const PURCHASABLE = INGREDIENTS.find((i) => !STARTER_INGREDIENT_IDS.includes(i.id))!.id;
 
 const knownEntry: DexEntry = {
@@ -307,7 +307,7 @@ describe("save forward-compat (Phase 3-4B)", () => {
       [SAVE_STORAGE_KEY]: JSON.stringify({
         ...createDefaultSave(),
         dex: [knownEntry],
-        ownedIngredientIds: "calabresa",
+        ownedIngredientIds: "future-synthetic-ingredient",
         inventory: [FUTURE_INGREDIENT],
         starterGrantClaimedRecipeIds: { [FUTURE_RECIPE]: true },
       }),

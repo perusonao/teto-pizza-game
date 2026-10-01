@@ -31,6 +31,9 @@ interface DexOverlayProps {
    *  CTA (it starts Free Cooking too). The id travels only through this callback: the slot's DOM
    *  never carries it. */
   onShowHint?: (recipeId: string) => void;
+  /** Recipe population. Production never passes it (default `RECIPES`); it is a test seam so a synthetic
+   *  population (Discovery 3.0 PR-4a) can be rendered. No player-visible effect. */
+  recipes?: readonly Recipe[];
 }
 
 /** W1-f: an undiscovered slot says only which kind of "next" it is (L1) -- never the recipe's
@@ -92,8 +95,9 @@ export function DexOverlay({
   onGoFreeCook,
   onOpenShop,
   onShowHint,
+  recipes = RECIPES,
 }: DexOverlayProps) {
-  const total = RECIPES.length;
+  const total = recipes.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
   const isComplete = discoveredCount >= total;
   const mastery = totalStars(dex);
@@ -172,7 +176,7 @@ export function DexOverlay({
           </div>
           {/* W1-f: the canonical 6 / 9 / 10 chapters (OD-DISC-9), each slot numbered inside its
               chapter (No. = fixed position, not discovery order). */}
-          {buildRecipeChapters().map((chapter) => {
+          {buildRecipeChapters(recipes).map((chapter) => {
             const progress = chapterProgress(chapter, dex);
             return (
               <section key={chapter.chapter} className="dex-overlay__chapter">

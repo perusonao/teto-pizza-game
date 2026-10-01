@@ -251,8 +251,8 @@ describe("I5a-3 / I5b-3: Home and Inventory read '所持 N/M種' from the obtain
       JSON.stringify({
         ...createDefaultSave(),
         dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
-        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "calabresa"],
-        inventory: { egg: 4, clam: 6, corn: 2, calabresa: 3 },
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "future-synthetic-ingredient"],
+        inventory: { egg: 4, clam: 6, corn: 2, "future-synthetic-ingredient": 3 },
         unlockedForShopIngredientIds: ["egg"],
       }),
     );

@@ -59,7 +59,7 @@ function snapshotOf(save: PersistentSaveV2, extra: Partial<ProgressionSnapshot> 
   };
 }
 
-const FUTURE_RECIPE = "brazilian-calabresa";
+const FUTURE_RECIPE = "future-synthetic-recipe";
 const MARGHERITA_DEX: DexEntry[] = [{ recipeId: "margherita", discovered: true, bestScore: 80, bestStars: 4, timesMade: 2 }];
 
 /** A Hint Economy 1.0 era save (before H3-2): no `discoveryHintFacts` key. */
@@ -124,12 +124,12 @@ describe("old saves load through the production path (fixtures 1-15)", () => {
   });
 
   it("8. an unknown recipe id in either ledger is hidden from gameplay but kept in storage", () => {
-    const storage = storageWith(economySave({ [FUTURE_RECIPE]: 2 }, { discoveryHintFacts: { [FUTURE_RECIPE]: ["ing:calabresa", "tech:fold"] } }));
+    const storage = storageWith(economySave({ [FUTURE_RECIPE]: 2 }, { discoveryHintFacts: { [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient", "tech:fold"] } }));
     const loaded = loadSave(storage);
     expect(loaded.discoveryHintFacts).toEqual({});
     expect(loaded.discoveryHintPurchases).toEqual({});
     persistProgress(snapshotOf(loaded, { discoveryHintFacts: { bismarck: ["ing:tomato-sauce"] } }), storage);
-    expect(storage.raw().discoveryHintFacts).toEqual({ bismarck: ["ing:tomato-sauce"], [FUTURE_RECIPE]: ["ing:calabresa", "tech:fold"] });
+    expect(storage.raw().discoveryHintFacts).toEqual({ bismarck: ["ing:tomato-sauce"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient", "tech:fold"] });
     expect(storage.raw().discoveryHintPurchases).toEqual({ [FUTURE_RECIPE]: 2 });
   });
 
@@ -161,10 +161,10 @@ describe("old saves load through the production path (fixtures 1-15)", () => {
         { napoletana: 2 },
         {
           dex: [...MARGHERITA_DEX, { recipeId: FUTURE_RECIPE, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
-          ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "calabresa"],
-          inventory: { calabresa: 10 },
+          ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "future-synthetic-ingredient"],
+          inventory: { "future-synthetic-ingredient": 10 },
           futureLedger: { anything: [1, 2] },
-          discoveryHintFacts: { napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:calabresa"] },
+          discoveryHintFacts: { napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient"] },
         },
       ),
     );
@@ -172,10 +172,10 @@ describe("old saves load through the production path (fixtures 1-15)", () => {
     persistProgress(snapshotOf(loaded, { pitzBalance: 99 }), storage);
     const raw = storage.raw();
     expect(raw.futureLedger).toEqual({ anything: [1, 2] });
-    expect(raw.inventory).toEqual({ calabresa: 10 });
-    expect(raw.ownedIngredientIds).toContain("calabresa");
+    expect(raw.inventory).toEqual({ "future-synthetic-ingredient": 10 });
+    expect(raw.ownedIngredientIds).toContain("future-synthetic-ingredient");
     expect(raw.dex).toContainEqual({ recipeId: FUTURE_RECIPE, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 });
-    expect(raw.discoveryHintFacts).toEqual({ napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:calabresa"] });
+    expect(raw.discoveryHintFacts).toEqual({ napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient"] });
     expect(raw.discoveryHintPurchases).toEqual({ napoletana: 2 });
     expect(raw.pitzBalance).toBe(99);
   });
@@ -225,7 +225,7 @@ describe("merge semantics", () => {
   });
 
   it("D: two snapshots written in either order end in the same union", () => {
-    const a = { napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:calabresa"] };
+    const a = { napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient"] };
     const b = { napoletana: ["ing:tomato-sauce"], capricciosa: ["ing:ham"] };
     const run = (first: typeof a | typeof b, second: typeof a | typeof b) => {
       const storage = storageWith(economySave({}));
@@ -240,7 +240,7 @@ describe("merge semantics", () => {
   });
 
   it("E/F: unknown recipe ids and unknown fact kinds survive persistDex, persistProgress and persistMissionBest", () => {
-    const facts = { napoletana: ["ing:mozzarella", "tech:fold"], [FUTURE_RECIPE]: ["ing:calabresa", "shape:fold"] };
+    const facts = { napoletana: ["ing:mozzarella", "tech:fold"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient", "shape:fold"] };
     const storage = storageWith(economySave({ napoletana: 1 }, { discoveryHintFacts: facts }));
     persistDex([...MARGHERITA_DEX, { recipeId: "bismarck", discovered: true, bestScore: 60, bestStars: 3, timesMade: 1 }], storage);
     expect(storage.raw().discoveryHintFacts).toEqual(facts);
@@ -260,7 +260,7 @@ describe("merge semantics", () => {
   });
 
   it("write -> read -> write is stable (byte-identical) and repeated loads are idempotent", () => {
-    const storage = storageWith(economySave({ napoletana: 2 }, { discoveryHintFacts: { napoletana: ["ing:mozzarella", "tech:fold"], [FUTURE_RECIPE]: ["ing:calabresa"] }, futureLedger: 1 }));
+    const storage = storageWith(economySave({ napoletana: 2 }, { discoveryHintFacts: { napoletana: ["ing:mozzarella", "tech:fold"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient"] }, futureLedger: 1 }));
     persistProgress(snapshotOf(loadSave(storage), { pitzBalance: 7 }), storage);
     const first = storage.text();
     persistProgress(snapshotOf(loadSave(storage), { pitzBalance: 8 }), storage);
@@ -307,7 +307,7 @@ describe("hostile ids", () => {
 
 describe("Full Reset", () => {
   it("clears both ledgers with everything else; nothing comes back, and Dex 0 onboarding is free again", () => {
-    const storage = storageWith(economySave({ napoletana: 4 }, { discoveryHintFacts: { napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:calabresa"] } }));
+    const storage = storageWith(economySave({ napoletana: 4 }, { discoveryHintFacts: { napoletana: ["ing:mozzarella"], [FUTURE_RECIPE]: ["ing:future-synthetic-ingredient"] } }));
     expect(resetSave(storage)).toBe(true);
     expect(storage.text()).toBeUndefined();
     const fresh = loadSave(storage);

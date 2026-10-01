@@ -3,9 +3,9 @@ import matrix172 from "../../../docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CAN
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
 import { ATTRIBUTE_FAMILIES, ingredientAttributeFamily, TAXONOMY_INGREDIENT_IDS } from "../../data/ingredientTaxonomy";
-import { RECIPE_HINT_ROLES, type RecipeHintRoles } from "../../data/recipeHintRoles";
+import { RECIPE_HINT_ROLES, keyedHintRoles, type RecipeHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";
-import { buildHint5Ladder, hint5RolesValid, requestHint5Rung, subToppingClass } from "./hint5Ladder";
+import { buildHint5Ladder, hint5RolesValid, isKeyFreeHintRoles, requestHint5Rung, subToppingClass } from "./hint5Ladder";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1: the data / taxonomy gates of the Final Design
@@ -50,12 +50,16 @@ describe("Hint 5.0 authority data (OD-H5-C1 / C1a / C1b)", () => {
   it("RECIPE_HINT_ROLES covers exactly the 25 production recipes, with the Owner-approved key toppings", () => {
     expect(Object.keys(RECIPE_HINT_ROLES).sort()).toEqual(RECIPES.map((r) => r.id).sort());
     expect(RECIPES).toHaveLength(25);
-    for (const r of RECIPES) expect(RECIPE_HINT_ROLES[r.id].hintKeyToppingId, r.id).toBe(APPROVED_KEY_TOPPINGS[r.id]);
+    for (const r of RECIPES) expect(keyedHintRoles(r.id).hintKeyToppingId, r.id).toBe(APPROVED_KEY_TOPPINGS[r.id]);
+  });
+
+  it("PR-4a: the type admits key-free entries, but production authors zero of them (Hint 5.0 output unchanged)", () => {
+    for (const r of RECIPES) expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[r.id]), r.id).toBe(false);
   });
 
   it("G17: the key is a topping of the recipe (null only without toppings); the sub order is exactly the other toppings, once each", () => {
     for (const r of RECIPES) {
-      const roles = RECIPE_HINT_ROLES[r.id];
+      const roles = keyedHintRoles(r.id);
       const toppings = toppingsOf(r);
       if (roles.hintKeyToppingId === null) expect(toppings, r.id).toEqual([]);
       else expect(toppings, r.id).toContain(roles.hintKeyToppingId);
@@ -67,7 +71,7 @@ describe("Hint 5.0 authority data (OD-H5-C1 / C1a / C1b)", () => {
 
   it("C1-P: no key topping duplicates sauce / cheese information (every key is a topping, never a sauce or cheese)", () => {
     for (const r of RECIPES) {
-      const key = RECIPE_HINT_ROLES[r.id].hintKeyToppingId;
+      const key = keyedHintRoles(r.id).hintKeyToppingId;
       if (key !== null) expect(getIngredient(key)?.category, r.id).toBe("topping");
     }
   });
@@ -124,7 +128,7 @@ describe("Hint 5.0 taxonomy gates (OD-H5-T-COV, H5-INV-7)", () => {
   it("G2: every sub-topping of every production recipe resolves to its one family, and every recipe is a Hint 5.0 target", () => {
     for (const r of RECIPES) {
       expect(buildHint5Ladder(r.id), r.id).not.toBeNull();
-      for (const id of RECIPE_HINT_ROLES[r.id].hintSubToppingOrder) expect(subToppingClass(id), `${r.id}:${id}`).toBe(ingredientAttributeFamily(id));
+      for (const id of keyedHintRoles(r.id).hintSubToppingOrder) expect(subToppingClass(id), `${r.id}:${id}`).toBe(ingredientAttributeFamily(id));
     }
   });
 

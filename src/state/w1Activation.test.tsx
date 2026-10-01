@@ -302,11 +302,11 @@ describe("save compatibility (schemaVersion 2, no bump)", () => {
   function futureSave(): Record<string, unknown> {
     return {
       ...createDefaultSave(),
-      dex: [...dexOf(2), { recipeId: "brazilian-calabresa", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+      dex: [...dexOf(2), { recipeId: "future-synthetic-recipe", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
       pitzBalance: 120,
-      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "calabresa"],
-      inventory: { egg: 7, clam: 12, corn: 0, calabresa: 9 },
-      unlockedForShopIngredientIds: ["egg", "bacon", "clam", "corn", "fresh-tomato", "calabresa"],
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "future-synthetic-ingredient"],
+      inventory: { egg: 7, clam: 12, corn: 0, "future-synthetic-ingredient": 9 },
+      unlockedForShopIngredientIds: ["egg", "bacon", "clam", "corn", "fresh-tomato", "future-synthetic-ingredient"],
       missionBest: { "lunch-rush": 900 },
       futureLedger: { purchased: ["clam"] },
     };
@@ -330,12 +330,12 @@ describe("save compatibility (schemaVersion 2, no bump)", () => {
     const written = storage.raw();
     expect(written.schemaVersion).toBe(2);
     expect(written.pitzBalance).toBe(60);
-    expect(written.ownedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "calabresa"]);
-    expect(written.inventory).toEqual({ egg: 17, clam: 12, corn: 0, calabresa: 9 });
-    expect(written.unlockedForShopIngredientIds).toEqual(["egg", "bacon", "clam", "corn", "fresh-tomato", "calabresa"]);
+    expect(written.ownedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "future-synthetic-ingredient"]);
+    expect(written.inventory).toEqual({ egg: 17, clam: 12, corn: 0, "future-synthetic-ingredient": 9 });
+    expect(written.unlockedForShopIngredientIds).toEqual(["egg", "bacon", "clam", "corn", "fresh-tomato", "future-synthetic-ingredient"]);
     expect(written.missionBest).toEqual({ "lunch-rush": 900 });
     expect(written.futureLedger).toEqual({ purchased: ["clam"] });
-    expect((written.dex as { recipeId: string }[]).map((e) => e.recipeId)).toContain("brazilian-calabresa");
+    expect((written.dex as { recipeId: string }[]).map((e) => e.recipeId)).toContain("future-synthetic-recipe");
   });
 
   it("Full Game Reset still clears everything", () => {

@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
-import { RECIPE_HINT_ROLES } from "../data/recipeHintRoles";
+import { keyedHintRoles } from "../data/recipeHintRoles";
 import { RECIPES } from "../data/recipes";
 import { TECHNIQUES } from "../data/techniques";
 import { hint5Presentation, requestHint5Rung, type Hint5Presentation } from "../logic/discovery/hint5Ladder";
@@ -112,7 +112,7 @@ describe("Hint 5.0 ladder DOM: disclosure boundary (H5-INV-1 / 3 / 4) and AC-1",
   it("at every purchase state of every target: no recipe identity, no unbought ingredient, no sub-topping name / id / glyph, no Technique", () => {
     const techWords = TECHNIQUES.flatMap((t) => [t.nameJa, t.riddleJa]);
     for (const r of TARGETS) {
-      const subs = new Set(RECIPE_HINT_ROLES[r.id as keyof typeof RECIPE_HINT_ROLES].hintSubToppingOrder);
+      const subs = new Set(keyedHintRoles(r.id).hintSubToppingOrder);
       for (let k = 0; k <= 10; k += 1) {
         const stored = prefix(r.id, k);
         if (!stored) break;

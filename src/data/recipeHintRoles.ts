@@ -38,7 +38,13 @@ export interface KeyFreeHintRoles {
 
 export type HintRoles = RecipeHintRoles | KeyFreeHintRoles;
 
-export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = {
+/**
+ * Discovery 3.0 PR-4a: typed `Record<RecipeId, HintRoles>` so a future production recipe can be authored
+ * `{ keyFree: true }` without a type change. Production behaviour is unchanged: all 25 entries below are
+ * keyed `RecipeHintRoles` (pinned by hint5Taxonomy.gate.test.ts: zero key-free production recipes).
+ * Readers that need the keyed fields of a production recipe use `keyedHintRoles`.
+ */
+export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   margherita: { hintKeyToppingId: "basil", hintSubToppingOrder: [] }, // C1a
   marinara: { hintKeyToppingId: "garlic", hintSubToppingOrder: ["oregano"] },
   "quattro-formaggi": { hintKeyToppingId: null, hintSubToppingOrder: [] }, // C1a: no topping
@@ -65,3 +71,11 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, RecipeHintRoles>> = {
   "pesto-patate": { hintKeyToppingId: "potato", hintSubToppingOrder: ["bacon"] },
   "puttanesca-pizza": { hintKeyToppingId: "anchovy", hintSubToppingOrder: ["black-olive", "capers", "garlic"] }, // C1b
 };
+
+/** The keyed roles of a production recipe. Throws for a key-free or missing entry, so a caller that needs
+ *  `hintKeyToppingId` / `hintSubToppingOrder` is never silently handed a key-free marker. */
+export function keyedHintRoles(recipeId: string): RecipeHintRoles {
+  const roles = (RECIPE_HINT_ROLES as Readonly<Record<string, HintRoles | undefined>>)[recipeId];
+  if (!roles || "keyFree" in roles) throw new Error(`recipe ${recipeId} has no keyed hint roles`);
+  return roles;
+}

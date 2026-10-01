@@ -4,8 +4,8 @@ import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
 import { ingredientAttributeFamily } from "../../data/ingredientTaxonomy";
-import { RECIPE_HINT_ROLES } from "../../data/recipeHintRoles";
-import { RECIPES } from "../../data/recipes";
+import { RECIPE_HINT_ROLES, keyedHintRoles, type HintRoles } from "../../data/recipeHintRoles";
+import { RECIPES, type Recipe } from "../../data/recipes";
 import { TECHNIQUES } from "../../data/techniques";
 import { requiredTechniquesOf } from "../techniques/detection";
 import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
@@ -24,6 +24,7 @@ import {
 } from "./hint5Ladder";
 import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
+import { syntheticRecipe } from "../testSupport/syntheticPopulation";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
@@ -37,12 +38,20 @@ import { ladderTargets } from "./testSupport/deductionInversion";
  * must re-audit Hint 5.0 privacy and decide OD-H5-P4 before shipping it. Never weaken it to pass.
  */
 
+/** Synthetic key-free recipes (no production recipe is key-free): every sauce / cheese presence combination. */
+const KEY_FREE_FIXTURES: readonly Recipe[] = [
+  syntheticRecipe("kf-full", [{ ingredientId: "tomato-sauce", minCount: 1 }, { ingredientId: "mozzarella", minCount: 2 }, { ingredientId: "sausage", minCount: 2 }, { ingredientId: "onion", minCount: 2 }]),
+  syntheticRecipe("kf-no-cheese", [{ ingredientId: "tomato-sauce", minCount: 1 }, { ingredientId: "sausage", minCount: 2 }, { ingredientId: "onion", minCount: 2 }]),
+  syntheticRecipe("kf-no-sauce", [{ ingredientId: "mozzarella", minCount: 2 }, { ingredientId: "sausage", minCount: 2 }, { ingredientId: "onion", minCount: 2 }]),
+  syntheticRecipe("kf-bare", [{ ingredientId: "sausage", minCount: 2 }, { ingredientId: "onion", minCount: 2 }]),
+];
+
 const LADDER_INDEX = new Map(ladderTargets(W1_25_DISCOVERY_LADDER).map((id, i) => [id, i]));
 /** The Dex counts a target is seen at: its own ladder step and the full Dex. */
 const dexCountsOf = (id: string) => [...new Set([Math.max(1, LADDER_INDEX.get(id) ?? 1), 25])];
 
 const namesOf = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind !== "SUB_CLASS").flatMap((r) => r.subjectIds);
-const subsOf = (id: string) => RECIPE_HINT_ROLES[id as keyof typeof RECIPE_HINT_ROLES].hintSubToppingOrder;
+const subsOf = (id: string) => keyedHintRoles(id).hintSubToppingOrder;
 /** Round 6 (OD-H5-P4-CHEESE / P4b): the targets whose empty CHEESE / KEY rung is answered 「なし」. */
 const NONE_TARGETS = RECIPES.filter((r) => hint5EmptyFixedRungs(r.id)!.length > 0).map((r) => r.id);
 
@@ -55,14 +64,19 @@ function stringValues(value: unknown, out: string[] = []): string[] {
 }
 
 /** Every presentation state reachable by buying the ladder in order (0..n rungs owned). */
-function purchaseStates(recipeId: string, discoveredCount: number): { stored: string[]; view: Hint5Presentation }[] {
+function purchaseStates(
+  recipeId: string,
+  discoveredCount: number,
+  recipes: readonly Recipe[] = RECIPES,
+  roles?: Readonly<Record<string, HintRoles>>,
+): { stored: string[]; view: Hint5Presentation }[] {
   const out: { stored: string[]; view: Hint5Presentation }[] = [];
   let stored: string[] = [];
   for (let guard = 0; guard < 20; guard += 1) {
-    const view = hint5Presentation({ recipeId, discoveredCount, storedFactIds: stored, legacyPurchases: {}, pitzBalance: 1000 })!;
+    const view = hint5Presentation({ recipeId, discoveredCount, storedFactIds: stored, legacyPurchases: {}, pitzBalance: 1000 }, recipes, roles)!;
     out.push({ stored, view });
     if (!view.next) break;
-    const r = requestHint5Rung({ recipeId, discoveredCount, storedFactIds: stored, legacyPurchases: {}, expectedRungIndex: view.next.rungIndex, pitzBalance: 1000 });
+    const r = requestHint5Rung({ recipeId, discoveredCount, storedFactIds: stored, legacyPurchases: {}, expectedRungIndex: view.next.rungIndex, pitzBalance: 1000 }, recipes, roles);
     if (r.outcome !== "ANSWERED") break;
     stored = [...stored, ...r.addFactIds];
   }
@@ -238,7 +252,7 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
     }
   });
 
-  it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every target's offer and board shape are identical given the same completed rungs", () => {
+  it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every production target's offer and board shape are identical given the same completed rungs", () => {
     for (let k = 0; k <= 3; k += 1) {
       const shapes = new Set<string>();
       for (const r of RECIPES) {
@@ -254,6 +268,66 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
     const early = hint5Presentation({ recipeId: "capricciosa", discoveredCount: 5, storedFactIds: ["cls:ham", "ing:tomato-sauce", "h5:sauce"], legacyPurchases: {}, pitzBalance: 100 })!;
     expect(early.board.some((e) => e.kind === "SUB_CLASS")).toBe(false);
     expect(early.next!.kind).toBe("CHEESE");
+  });
+
+  // Discovery 3.0 PR-4a (OD-D3-21): a key-free recipe has no KEY_TOPPING rung and an absent rung is never a
+  // placeholder, so "every target is identical until STRUCTURE" can no longer mean one global shape. The
+  // invariant is recipe-structure-aware: what a player sees before STRUCTURE is a function of the recipe's
+  // STRUCTURE-LEVEL signature only -- the kinds of the rungs before STRUCTURE (which of sauce / cheese / key
+  // the recipe has) -- never of its ingredients, its identity, or anything it has not been paid to reveal.
+  it("G15' (OD-D3-21): over production + key-free fixtures, targets with the same pre-STRUCTURE rung signature are indistinguishable before STRUCTURE", () => {
+    const population = [...RECIPES, ...KEY_FREE_FIXTURES];
+    const roles: Record<string, HintRoles> = { ...RECIPE_HINT_ROLES, ...Object.fromEntries(KEY_FREE_FIXTURES.map((f) => [f.id, { keyFree: true } as HintRoles])) };
+    const signatureOf = (id: string) => {
+      const rungs = buildHint5Ladder(id, population, roles)!.rungs;
+      return rungs.slice(0, rungs.findIndex((x) => x.kind === "STRUCTURE") + 1).map((x) => x.kind).join(">");
+    };
+    const signatures = new Set<string>();
+    let comparedGroups = 0;
+    for (const sig of new Set(population.map((r) => signatureOf(r.id)))) {
+      signatures.add(sig);
+      const members = population.filter((r) => signatureOf(r.id) === sig);
+      const preKinds = sig.split(">").slice(0, -1); // the rungs strictly before STRUCTURE
+      for (let k = 0; k <= preKinds.length; k += 1) {
+        const shapes = new Set<string>();
+        for (const r of members) {
+          const states = purchaseStates(r.id, 5, population, roles);
+          if (states.length <= k) continue;
+          const { view } = states[k];
+          if (view.board.length !== k) continue; // stuck on an empty rung before k (P4): not comparable
+          // Before STRUCTURE nothing may depend on SUB_CLASS (no entry, no offer), whatever is stored.
+          expect(view.board.some((e) => e.kind === "SUB_CLASS"), `${r.id} k=${k}`).toBe(false);
+          if (k < preKinds.length) expect(view.next!.kind, `${r.id} k=${k}`).toBe(preKinds[k]);
+          shapes.add(JSON.stringify({ next: view.next, kinds: view.board.map((e) => [e.rungIndex, e.kind]), done: view.completeText }));
+        }
+        expect(shapes.size, `signature ${sig} after ${k} rungs`).toBe(1);
+        comparedGroups += 1;
+      }
+    }
+    // The 25 production recipes are one group (SAUCE>CHEESE>KEY_TOPPING>STRUCTURE): their behaviour is unchanged.
+    expect(signatureOf("margherita")).toBe("SAUCE>CHEESE>KEY_TOPPING>STRUCTURE");
+    expect(new Set(RECIPES.map((r) => signatureOf(r.id))).size).toBe(1);
+    // Key-free recipes form other groups; none has a KEY_TOPPING rung.
+    expect([...signatures].filter((x) => x.includes("KEY_TOPPING"))).toEqual(["SAUCE>CHEESE>KEY_TOPPING>STRUCTURE"]);
+    expect(signatures.size).toBeGreaterThan(1);
+    expect(comparedGroups).toBeGreaterThan(8);
+  });
+
+  it("G15'' (OD-D3-21): the signature is derived from recipe structure only -- two key-free recipes with the same sauce/cheese presence but different toppings are byte-identical before STRUCTURE", () => {
+    const [full, other] = [KEY_FREE_FIXTURES[0], syntheticRecipe("kf-full-2", [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "ham", minCount: 2 },
+      { ingredientId: "egg", minCount: 1 },
+      { ingredientId: "black-olive", minCount: 2 },
+    ])];
+    const population = [...RECIPES, full, other];
+    const roles: Record<string, HintRoles> = { ...RECIPE_HINT_ROLES, [full.id]: { keyFree: true }, [other.id]: { keyFree: true } };
+    for (let k = 0; k <= 2; k += 1) {
+      const a = purchaseStates(full.id, 5, population, roles)[k].view;
+      const b = purchaseStates(other.id, 5, population, roles)[k].view;
+      expect(JSON.stringify({ next: a.next, board: a.board })).toBe(JSON.stringify({ next: b.next, board: b.board }));
+    }
   });
 
   it("M3 / G15 with legacy saves: L1 / L2 / L3 are gone. Every legacy fact set Hint 3.0 / DH4 / Economy 1.0 can leave gives the same pre-purchase view as a fresh ledger, at every rung prefix", () => {

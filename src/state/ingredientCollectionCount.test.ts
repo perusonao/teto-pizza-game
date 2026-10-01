@@ -58,7 +58,7 @@ describe("ingredientCollectionCount", () => {
   });
 
   it("a save with every material plus unknown ids never reads above the total", () => {
-    expect(ingredientCollectionCount([...obtainableIngredientIds(), "calabresa", "future-thing"])).toEqual({
+    expect(ingredientCollectionCount([...obtainableIngredientIds(), "future-synthetic-ingredient", "future-thing"])).toEqual({
       owned: 29,
       total: 29,
     });
