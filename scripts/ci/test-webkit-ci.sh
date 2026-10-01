@@ -10,6 +10,9 @@
 #   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, runtime, push /
 #      workflow_dispatch events, `webkit-full` label, fail-safe, no-reuse-without-evidence)
 #   6. I5b-5 Layout Contract: layout-summary.mjs --self-test and the layout-gate.sh truth table
+#   7. CI/WebKit Efficiency S1: install-with-retry.sh (timeout + limited retry, install only)
+#   8. CI/WebKit Efficiency S2: install_status -> evidence -> WebKit Gate FAIL-INFRA / FAIL-TEST /
+#      PASS (all FAIL labels stay non-zero = fail-closed)
 #
 # Usage: bash scripts/ci/test-webkit-ci.sh   (exit 0 = all passed)
 set -uo pipefail
@@ -128,6 +131,7 @@ check "verify: only one project required but two present" 1 \
 
 echo "== 4. WebKit Gate truth table"
 gate() { # classify_result webkit_required webkit_result evidence_dir
+  : > "$work/summary.md"
   CLASSIFY_RESULT="$1" WEBKIT_REQUIRED="$2" WEBKIT_RESULT="$3" EVIDENCE_DIR="$4" \
     REASON="test" TESTED_BASE="0123456789012345678901234567890123456789" GITHUB_STEP_SUMMARY="$work/summary.md" \
     bash "$here/webkit-gate.sh" > "$work/gate.out" 2>&1
@@ -236,6 +240,100 @@ check "layout gate: required, job skipped -> FAIL" 1 "$(lgate success true skipp
 check "layout gate: classify failed -> fail-safe, ran and verified -> PASS" 0 "$(lgate failure "" success "$work/lgood/ev")"
 check "layout gate: classify failed, layout skipped -> FAIL" 1 "$(lgate failure "" skipped "")"
 check "layout gate: empty layout result -> FAIL" 1 "$(lgate success true "" "$work/lgood/ev")"
+
+echo "== 7. install-with-retry.sh (S1: install timeout + limited retry)"
+retry() { # status_file [helper args...] -- cmd ; prints exit code
+  local sf="$1"; shift
+  INSTALL_RETRY_DELAY_SECS=0 bash "$here/install-with-retry.sh" --status-file "$sf" "$@" > "$work/retry.out" 2>&1
+  echo $?
+}
+status_of() { sed -n "s/^$2=//p" "$1"; }
+# a command that fails on its first N runs, then succeeds (counter in a file)
+flaky_cmd() { echo "n=\$(cat $1 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $1; [ \$n -gt $2 ]"; }
+rm -f "$work/c1"; check "retry: first attempt ok -> exit 0" 0 "$(retry "$work/s1" --timeout 5 --attempts 2 -- sh -c "$(flaky_cmd "$work/c1" 0)")"
+check "retry: first attempt ok -> install_status=ok attempts=1" "ok 1" "$(status_of "$work/s1" install_status) $(status_of "$work/s1" install_attempts)"
+rm -f "$work/c2"; check "retry: fails once then ok -> exit 0 (install retried)" 0 "$(retry "$work/s2" --timeout 5 --attempts 2 -- sh -c "$(flaky_cmd "$work/c2" 1)")"
+check "retry: fails once then ok -> install_status=ok attempts=2" "ok 2" "$(status_of "$work/s2" install_status) $(status_of "$work/s2" install_attempts)"
+rm -f "$work/c3"; check "retry: always fails -> exit non-zero" 7 "$(retry "$work/s3" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c3; exit 7")"
+check "retry: always fails -> install_status=failed attempts=2 (exactly one retry)" "failed 2 2" "$(status_of "$work/s3" install_status) $(status_of "$work/s3" install_attempts) $(wc -l < "$work/c3" | tr -d ' ')"
+rm -f "$work/c4"; check "retry: stall -> killed by timeout, exit 124" 124 "$(retry "$work/s4" --timeout 1 --attempts 2 -- sh -c "echo x >> $work/c4; sleep 30")"
+check "retry: stall -> install_status=timeout attempts=2" "timeout 2 2" "$(status_of "$work/s4" install_status) $(status_of "$work/s4" install_attempts) $(wc -l < "$work/c4" | tr -d ' ')"
+rm -f "$work/c5"; check "retry: stall then ok on retry -> exit 0" 0 "$(retry "$work/s5" --timeout 1 --attempts 2 -- sh -c "n=\$(cat $work/c5 2>/dev/null || echo 0); echo \$((n+1)) > $work/c5; [ \$n -ge 1 ] || sleep 30")"
+check "retry: stall then ok -> install_status=ok attempts=2" "ok 2" "$(status_of "$work/s5" install_status) $(status_of "$work/s5" install_attempts)"
+rm -f "$work/c6"; check "retry: --attempts 1 never retries" 3 "$(retry "$work/s6" --timeout 5 --attempts 1 -- sh -c "echo x >> $work/c6; exit 3")"
+check "retry: --attempts 1 ran once" 1 "$(wc -l < "$work/c6" | tr -d ' ')"
+check "retry: missing --status-file / command -> usage error" 2 "$(bash "$here/install-with-retry.sh" -- true > /dev/null 2>&1; echo $?)"
+# Workflow contract: only the install is wrapped; Playwright test steps are never retried.
+wf="$here/../../.github/workflows/e2e-webkit.yml"
+grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
+check "workflow: WebKit install step uses the retry helper" 0 $?
+grep -n 'install-with-retry' "$wf" | grep -q 'playwright test'
+check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
+grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
+check "workflow/config: Playwright test retries are not enabled" 1 $?
+
+echo "== 8. S2 FAIL-INFRA / FAIL-TEST classification (install_status -> evidence -> WebKit Gate)"
+# Real chain: helper writes the status file -> collect records it -> gate labels the verdict.
+chain() { # dir install_cmd results_mode(good|fail|none) -> evidence dir $dir/ev (4 shards; 390x844 shard 1 is the subject)
+  local dir="$1" install_cmd="$2" mode="$3"
+  make_evidence "$dir"
+  rm -rf "$dir/ev/webkit-evidence-webkit-390x844-shard1-attempt1"
+  INSTALL_RETRY_DELAY_SECS=0 bash "$here/install-with-retry.sh" --status-file "$dir/install.status" --timeout 1 --attempts 2 -- sh -c "$install_cmd" > /dev/null 2>&1
+  local results="$dir/raw/res-webkit-390x844-1.json"
+  [ "$mode" = "none" ] && results="$dir/raw/missing.json"
+  if [ "$mode" = "fail" ]; then
+    node "$work/mk.mjs" "$dir/rawfail" fail=webkit-390x844-1
+    results="$dir/rawfail/res-webkit-390x844-1.json"
+  fi
+  node "$here/webkit-shard-evidence.mjs" collect --project webkit-390x844 --shard 1 --total 2 --attempt 1 \
+    --list "$dir/raw/list-webkit-390x844.json" --results "$results" --install-status "$dir/install.status" \
+    --out "$dir/ev/webkit-evidence-webkit-390x844-shard1-attempt1/evidence.json" > /dev/null
+}
+gate_out() { cat "$work/gate.out"; }
+chain "$work/c_pass" "true" good
+chain "$work/c_instfail" "exit 1" none
+chain "$work/c_insttimeout" "sleep 30" none
+chain "$work/c_testfail" "true" fail
+chain "$work/c_retryok" "n=\$(cat $work/c_retryok.n 2>/dev/null || echo 0); echo \$((n+1)) > $work/c_retryok.n; [ \$n -ge 1 ]" good
+
+# setup failed before the install helper ran: no status file, no list, no results (Codex P2 on #336)
+make_evidence "$work/c_presetup"
+rm -rf "$work/c_presetup/ev/webkit-evidence-webkit-390x844-shard1-attempt1"
+node "$here/webkit-shard-evidence.mjs" collect --project webkit-390x844 --shard 1 --total 2 --attempt 1 \
+  --list "$work/none.json" --results "$work/none.json" --install-status "$work/none.status" \
+  --out "$work/c_presetup/ev/webkit-evidence-webkit-390x844-shard1-attempt1/evidence.json" > /dev/null
+check "S2: pre-install setup failure (npm ci etc.) -> gate FAIL (exit 1)" 1 "$(gate success true failure "$work/c_presetup/ev")"
+grep -q 'FAIL-INFRA' "$work/summary.md" && ! grep -q 'FAIL-TEST' "$work/summary.md"
+check "S2: pre-install setup failure -> FAIL-INFRA only" 0 $?
+
+check "S2: install ok + tests pass -> PASS" 0 "$(gate success true success "$work/c_pass/ev")"
+grep -q 'gate_class=PASS' "$work/summary.md"; check "S2: PASS -> gate_class=PASS" 0 $?
+check "S2: install ok after one retry + tests pass -> PASS" 0 "$(gate success true success "$work/c_retryok/ev")"
+check "S2: install failure -> gate FAIL (exit 1)" 1 "$(gate success true failure "$work/c_instfail/ev")"
+grep -q '^FAIL (FAIL-INFRA) ' <(echo "$(sed -n 's/.*| \(FAIL[^|]*\) |$/\1/p' "$work/summary.md" | tail -n 1)")
+check "S2: install failure -> verdict FAIL-INFRA" 0 $?
+grep -q 'install_status=failed' "$work/gate.out" "$work/summary.md"; check "S2: install failure is named in the gate report" 0 $?
+check "S2: install timeout -> gate FAIL (exit 1)" 1 "$(gate success true failure "$work/c_insttimeout/ev")"
+grep -q 'FAIL-INFRA' "$work/summary.md" && ! grep -q 'FAIL-TEST' "$work/summary.md"
+check "S2: install timeout -> FAIL-INFRA only" 0 $?
+check "S2: install ok + Playwright failure -> gate FAIL (exit 1)" 1 "$(gate success true failure "$work/c_testfail/ev")"
+grep -q 'FAIL-TEST' "$work/summary.md" && ! grep -q 'FAIL-INFRA' "$work/summary.md"
+check "S2: install ok + Playwright failure -> FAIL-TEST only" 0 $?
+check "S2: FAIL-INFRA evidence + matrix 'success' is still FAIL (never infra => green)" 1 "$(gate success true success "$work/c_instfail/ev")"
+check "S2: FAIL-TEST evidence + matrix 'success' is still FAIL" 1 "$(gate success true success "$work/c_testfail/ev")"
+check "S2: no evidence, matrix cancelled -> FAIL (exit 1)" 1 "$(gate success true cancelled "$work/empty/ev")"
+grep -q 'FAIL-INFRA' "$work/summary.md"; check "S2: no evidence + cancelled -> FAIL-INFRA" 0 $?
+check "S2: perfect evidence but matrix cancelled -> FAIL (unlabeled)" 1 "$(gate success true cancelled "$work/good/ev")"
+check "S2: matrix 'failure' but evidence all green -> FAIL (never PASS)" 1 "$(gate success true failure "$work/good/ev")"
+# evidence machine-readable fields
+check "S2: evidence carries install_status=failed / test_status=not_run" "failed not_run" \
+  "$(node -e 'const e=JSON.parse(require("fs").readFileSync(process.argv[1]));console.log(e.install_status,e.test_status)' "$work/c_instfail/ev/webkit-evidence-webkit-390x844-shard1-attempt1/evidence.json")"
+check "S2: evidence carries install_status=ok / test_status=failed" "ok failed" \
+  "$(node -e 'const e=JSON.parse(require("fs").readFileSync(process.argv[1]));console.log(e.install_status,e.test_status)' "$work/c_testfail/ev/webkit-evidence-webkit-390x844-shard1-attempt1/evidence.json")"
+check "S2: evidence carries install_status=ok attempts=2 after a retry" "ok 2" \
+  "$(node -e 'const e=JSON.parse(require("fs").readFileSync(process.argv[1]));console.log(e.install_status,e.install_attempts)' "$work/c_retryok/ev/webkit-evidence-webkit-390x844-shard1-attempt1/evidence.json")"
+# layout-gate shares the verifier: the label shows up there too and it stays FAIL.
+check "S2: layout gate unchanged for evidence without install_status (PASS)" 0 "$(lgate success true success "$work/lgood/ev")"
 
 echo ""
 echo "$((cases - failures))/$cases WebKit CI script cases passed"
