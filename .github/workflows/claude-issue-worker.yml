@@ -1,0 +1,238 @@
+name: Claude Issue Worker
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Open Issue number to run (must already have claude-ready)"
+        required: true
+        type: string
+
+concurrency:
+  group: claude-issue-worker
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      issue_number: ${{ steps.guard.outputs.issue_number }}
+      should_run: ${{ steps.guard.outputs.should_run }}
+    steps:
+      - name: Resolve and authorize queued Issue
+        id: guard
+        uses: actions/github-script@v8
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_ISSUE: ${{ inputs.issue_number }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber =
+              process.env.EVENT_NAME === 'workflow_dispatch'
+                ? Number(process.env.MANUAL_ISSUE)
+                : context.payload.issue?.number;
+
+            if (!Number.isInteger(issueNumber) || issueNumber < 1) {
+              core.setFailed('A valid Issue number is required.');
+              return;
+            }
+
+            if (process.env.EVENT_NAME === 'issues') {
+              if (context.payload.label?.name !== 'claude-ready') {
+                core.info('Ignoring a non claude-ready label event.');
+                core.setOutput('should_run', 'false');
+                return;
+              }
+
+              const association = context.payload.sender?.type === 'User'
+                ? context.payload.issue?.author_association
+                : null;
+              const trusted = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(association);
+              if (!trusted) {
+                core.setFailed(
+                  'claude-ready was not applied from a trusted repository relationship; refusing to execute Issue text.'
+                );
+                return;
+              }
+            }
+
+            const { data: issue } = await github.rest.issues.get({
+              owner, repo, issue_number: issueNumber
+            });
+
+            if (issue.pull_request || issue.state !== 'open') {
+              core.setFailed('Target must be an open Issue, not a pull request.');
+              return;
+            }
+
+            const labels = issue.labels.map(label =>
+              typeof label === 'string' ? label : label.name
+            );
+            if (!labels.includes('claude-ready')) {
+              core.setFailed('Target Issue is not queued with claude-ready.');
+              return;
+            }
+            if (labels.some(label =>
+              ['claude-working', 'claude-done', 'claude-blocked', 'human-check'].includes(label)
+            )) {
+              core.setFailed('Target Issue is already claimed or stopped.');
+              return;
+            }
+
+            core.setOutput('issue_number', String(issueNumber));
+            core.setOutput('should_run', 'true');
+
+  worker:
+    needs: guard
+    if: needs.guard.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Mark Issue working
+        uses: actions/github-script@v8
+        env:
+          ISSUE_NUMBER: ${{ needs.guard.outputs.issue_number }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = Number(process.env.ISSUE_NUMBER);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            try {
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number, name: 'claude-ready'
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number, labels: ['claude-working']
+            });
+
+      - name: Run Claude Code worker
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Implement GitHub Issue #${{ needs.guard.outputs.issue_number }} in this repository.
+
+            This is an autonomous ISSUE WORKER. Fresh GitHub/repository state outranks prior chat or stale documentation.
+
+            Required procedure:
+            1. Fetch origin/main and record its exact SHA.
+            2. Fresh-read Issue #${{ needs.guard.outputs.issue_number }} including comments.
+            3. Check current open PRs/issues and current main for duplicate/already-completed work.
+            4. Read docs/PROJECT_HANDOFF.md, Issue #22, and the latest relevant docs/reports files.
+            5. Stay strictly within the selected Issue scope. Do not mix unrelated gameplay/product changes.
+            6. If a material product/design decision is ambiguous, STOP safely: explain the exact decision needed on the Issue. Do not guess.
+            7. Work on a dedicated Issue branch. Never push directly to main and never merge main.
+            8. Add/update focused regression tests.
+            9. Run the repository verification gates appropriate to the change (tests, lint, typecheck/build). Do not claim Human Feel/visual completion from CI alone.
+            10. Push coherent checkpoints at meaningful safe boundaries so work is durable.
+            11. Create/update a result report under docs/reports/ with audited SHA, changes, verification, remaining Human Feel/manual gates, and latest checkpoint SHA.
+            12. Commit and push the final Issue branch and open a PR against main. Link Issue #${{ needs.guard.outputs.issue_number }}.
+            13. Do NOT auto-merge.
+            14. If the service usage limit prevents completion, preserve any safe durable checkpoint that can still be pushed and report the latest durable SHA. Do not pretend the task completed.
+
+            For visual/Human Feel work, preserve the repository's Preview / 390x844 / real-device review gates.
+          claude_args: >-
+            --allowedTools
+            "Bash(git:*),Bash(gh:*),Bash(npm:*),Bash(npx:*),Read,Edit,Write,Glob,Grep"
+
+      - name: Record Claude session
+        if: always() && steps.claude.outputs.session_id != ''
+        uses: actions/github-script@v8
+        env:
+          ISSUE_NUMBER: ${{ needs.guard.outputs.issue_number }}
+          SESSION_ID: ${{ steps.claude.outputs.session_id }}
+          CONCLUSION: ${{ steps.claude.outputs.conclusion }}
+          BRANCH_NAME: ${{ steps.claude.outputs.branch_name }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.ISSUE_NUMBER),
+              body: [
+                '<!-- claude-worker-checkpoint -->',
+                '### Claude worker checkpoint',
+                '',
+                '- session_id: `' + process.env.SESSION_ID + '`',
+                '- conclusion: `' + (process.env.CONCLUSION || 'unknown') + '`',
+                '- action branch: `' + (process.env.BRANCH_NAME || 'unknown') + '`',
+                '- run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId,
+                '',
+                'This is durable handoff metadata. A future resume flow must fresh-read the Issue, branch and current main before using the session.'
+              ].join('\n')
+            });
+
+      - name: Mark successful handoff
+        if: success()
+        uses: actions/github-script@v8
+        env:
+          ISSUE_NUMBER: ${{ needs.guard.outputs.issue_number }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = Number(process.env.ISSUE_NUMBER);
+            try {
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number, name: 'claude-working'
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number, labels: ['claude-done']
+            });
+
+      - name: Mark failed worker for human check
+        if: failure()
+        uses: actions/github-script@v8
+        env:
+          ISSUE_NUMBER: ${{ needs.guard.outputs.issue_number }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = Number(process.env.ISSUE_NUMBER);
+            try {
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number, name: 'claude-working'
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number, labels: ['human-check']
+            });
+            await github.rest.issues.createComment({
+              owner, repo, issue_number,
+              body: [
+                '### Claude worker stopped',
+                '',
+                'The worker did not complete successfully. A0 found that the current action output does not reliably distinguish a Claude usage-limit stop from other failures, so v1 intentionally does **not** auto-retry this failure.',
+                '',
+                'Review the Actions run and the latest pushed checkpoint/session metadata before retrying. This avoids an unsafe retry loop.'
+              ].join('\n')
+            });
