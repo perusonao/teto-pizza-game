@@ -1249,6 +1249,7 @@ function App() {
           ownedIngredientIds={state.ownedIngredientIds}
           unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
           inventory={state.inventory}
+          discoveryHintFacts={state.discoveryHintFacts}
           onGoFreeCook={
             mission.mode === "FREE"
               ? () => {
