@@ -692,3 +692,12 @@ export function researchableEntryIds(
     .entries.map((e) => e.recipeId)
     .filter((id) => cookable.has(id));
 }
+
+/** #346 S4: the Research Target's view for the RESULT of the round that just finished. Unlike
+ *  `researchTargetView` it does not require the target to still be cookable: a trial that used up the last unit
+ *  of a finite ingredient is still a research attempt (entries are ownership-derived, never stock-derived). Null
+ *  once the target is discovered or was never a registered entry. */
+export function researchResultView(state: DiscoveryHintState): ResearchEntryView | null {
+  if (!state.researchTargetId) return null;
+  return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
+}

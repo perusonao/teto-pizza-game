@@ -4,7 +4,7 @@ import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { deriveResearchEntries } from "../logic/discovery/researchEntry";
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
-import { hint5SheetView, researchEntryViews, researchTargetView, researchableEntryIds } from "./discoveryHint";
+import { hint5SheetView, researchEntryViews, researchResultView, researchTargetView, researchableEntryIds } from "./discoveryHint";
 import { newShopMaterialCount } from "./materialEntitlement";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { createEmptyPizza } from "./pizzaState";
@@ -90,6 +90,16 @@ describe("A. ORIGINAL -> retry keeps the Research Target (session-only)", () => 
     expect(retry.researchTargetId).toBe("pesto-pollo");
     // a second ORIGINAL + retry still keeps it
     expect(cookOriginal(retry).researchTargetId).toBe("pesto-pollo");
+  });
+
+  it("a trial that uses up the target's last stock keeps the RESULT's research context", () => {
+    const s = single();
+    const started = startResearch({ ...s, inventory: { ...s.inventory, chicken: 1 } }, "pesto-pollo");
+    const original = cookOriginal(started);
+    expect(original.inventory.chicken ?? 0).toBe(0); // consumed by the bake
+    expect(researchTargetView(original)).toBeNull(); // no longer cookable now ...
+    expect(researchResultView(original)?.label).toBe("？？？ピザ"); // ... but the attempt was still research
+    expect(original.researchTargetId).toBe("pesto-pollo");
   });
 
   it("a normal start (HOME) clears the target", () => {

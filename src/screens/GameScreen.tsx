@@ -39,7 +39,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
-import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchTargetView } from "../state/discoveryHint";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView, researchTargetView } from "../state/discoveryHint";
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
@@ -287,6 +287,8 @@ export function GameScreen({
   // The one read-only relay of the session notebook's display view (Hint sheet + the Research RESULT's sheet).
   const notebookRows = notebookView(state.trialNotebook);
   const researchView = state.freeCook ? researchTargetView(state) : null;
+  // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
+  const researchResult = state.freeCook ? researchResultView(state) : null;
   // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
   const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
   const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
@@ -1028,7 +1030,7 @@ export function GameScreen({
           onOpenDex={onOpenDex}
           // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)
           nearMiss={resultNearMiss(state)}
-          researchLabelJa={researchView?.label ?? null}
+          researchLabelJa={researchResult?.label ?? null}
           onOpenAttemptLog={() => setResultNotebookOpen(true)}
           attemptLogEntryRef={resultNotebookEntryRef}
           postDiscovery={
@@ -1046,11 +1048,11 @@ export function GameScreen({
         />
       )}
 
-      {isFreeResultScreen && resultNotebookOpen && researchView && (
+      {isFreeResultScreen && resultNotebookOpen && researchResult && (
         <TrialNotebookSheet
           entries={notebookRows}
           backLabel="結果にもどる"
-          researchLabelJa={researchView.label}
+          researchLabelJa={researchResult.label}
           onBack={() => {
             setResultNotebookOpen(false);
             queueMicrotask(() => resultNotebookEntryRef.current?.focus());
