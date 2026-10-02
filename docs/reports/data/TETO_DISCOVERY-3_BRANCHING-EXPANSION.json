@@ -1,0 +1,5732 @@
+{
+ "schema": "teto-discovery-3-branching-expansion/v1",
+ "note": "DESIGN/AUDIT ONLY. No candidate is selected, ranked or scored. ladderCredit and lunchRush are UNDECIDED for every row. All pool/hint facts come from production predicates (recipeDiscoveryState / selectHintTarget / resolveShopEntitlement / countsTowardLadder) run read-only over production RECIPES plus synthetic probe recipes; the throw-away harness is not committed.",
+ "basis": {
+  "main": "544db65b73e85ae927820b41653cc670afdb1403",
+  "recipes": 27,
+  "ingredients": 30,
+  "ladderSteps": 25,
+  "nonCreditRecipes": [
+   "brazilian-calabresa"
+  ],
+  "reusedArtifacts": [
+   "docs/reports/data/TETO_DISCOVERY-3_172-RECIPE_READINESS.json @ cceedce (branch claude/discovery-3-172-recipe-readiness-audit, not on main)",
+   "docs/reports/TETO_DISCOVERY-3_UNLOCK-DISCOVERY-EXPERIENCE_FRESH_AUDIT.md @ 84e5091 (branch claude/teto-discovery-3-audit-uzr1za, not on main)"
+  ]
+ },
+ "gapCheck": {
+  "verdict": "material differenceなし",
+  "step25": {
+   "never": {
+    "prePool": [
+     "brazilian-calabresa"
+    ],
+    "postPool": [
+     "brazilian-calabresa",
+     "pesto-pollo"
+    ],
+    "hintPre": "TARGET:brazilian-calabresa",
+    "hintPost": "OPEN_POOL"
+   },
+   "asap": {
+    "prePool": [],
+    "postPool": [
+     "pesto-pollo"
+    ],
+    "hintPre": "SHOP_NEW",
+    "hintPost": "TARGET:pesto-pollo"
+   }
+  },
+  "inspector": {
+   "multiRecipeSteps": [
+    12
+   ],
+   "openPoolSteps": [
+    12
+   ],
+   "openPoolPossibleSteps": [
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25
+   ]
+  }
+ },
+ "branchingMapBaseline": {
+  "calabresaUnfound": {
+   "1": {
+    "cls": "A",
+    "pool": [
+     "bismarck"
+    ],
+    "hintAfterPurchase": "TARGET:bismarck",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "2": {
+    "cls": "A",
+    "pool": [
+     "breakfast-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:breakfast-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "3": {
+    "cls": "A",
+    "pool": [
+     "funghi"
+    ],
+    "hintAfterPurchase": "TARGET:funghi",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "4": {
+    "cls": "A",
+    "pool": [
+     "melanzane-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:melanzane-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "5": {
+    "cls": "A",
+    "pool": [
+     "parmigiana-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:parmigiana-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "6": {
+    "cls": "A",
+    "pool": [
+     "pepperoni"
+    ],
+    "hintAfterPurchase": "TARGET:pepperoni",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "7": {
+    "cls": "A",
+    "pool": [
+     "salsiccia"
+    ],
+    "hintAfterPurchase": "TARGET:salsiccia",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "8": {
+    "cls": "A",
+    "pool": [
+     "meat-lovers"
+    ],
+    "hintAfterPurchase": "TARGET:meat-lovers",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "9": {
+    "cls": "A",
+    "pool": [
+     "bambino"
+    ],
+    "hintAfterPurchase": "TARGET:bambino",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "10": {
+    "cls": "A",
+    "pool": [
+     "hawaiian"
+    ],
+    "hintAfterPurchase": "TARGET:hawaiian",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "11": {
+    "cls": "A",
+    "pool": [
+     "capricciosa"
+    ],
+    "hintAfterPurchase": "TARGET:capricciosa",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "12": {
+    "cls": "C",
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "13": {
+    "cls": "B",
+    "pool": [
+     "fugazza",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "14": {
+    "cls": "B",
+    "pool": [
+     "marinara",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "15": {
+    "cls": "B",
+    "pool": [
+     "napoletana",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "16": {
+    "cls": "B",
+    "pool": [
+     "tonno-e-cipolla",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "17": {
+    "cls": "B",
+    "pool": [
+     "pesto-tonno",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "18": {
+    "cls": "B",
+    "pool": [
+     "genovese",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "19": {
+    "cls": "B",
+    "pool": [
+     "new-haven-apizza",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "20": {
+    "cls": "B",
+    "pool": [
+     "pesto-caprese",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "21": {
+    "cls": "B",
+    "pool": [
+     "pesto-patate",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "22": {
+    "cls": "B",
+    "pool": [
+     "pizza-bianca",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "23": {
+    "cls": "B",
+    "pool": [
+     "puttanesca-pizza",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "24": {
+    "cls": "B",
+    "pool": [
+     "quattro-formaggi",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   },
+   "25": {
+    "cls": "B",
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-pollo"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calabresaFound": {
+   "1": {
+    "cls": "A",
+    "pool": [
+     "bismarck"
+    ],
+    "hintAfterPurchase": "TARGET:bismarck",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "2": {
+    "cls": "A",
+    "pool": [
+     "breakfast-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:breakfast-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "3": {
+    "cls": "A",
+    "pool": [
+     "funghi"
+    ],
+    "hintAfterPurchase": "TARGET:funghi",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "4": {
+    "cls": "A",
+    "pool": [
+     "melanzane-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:melanzane-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "5": {
+    "cls": "A",
+    "pool": [
+     "parmigiana-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:parmigiana-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "6": {
+    "cls": "A",
+    "pool": [
+     "pepperoni"
+    ],
+    "hintAfterPurchase": "TARGET:pepperoni",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "7": {
+    "cls": "A",
+    "pool": [
+     "salsiccia"
+    ],
+    "hintAfterPurchase": "TARGET:salsiccia",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "8": {
+    "cls": "A",
+    "pool": [
+     "meat-lovers"
+    ],
+    "hintAfterPurchase": "TARGET:meat-lovers",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "9": {
+    "cls": "A",
+    "pool": [
+     "bambino"
+    ],
+    "hintAfterPurchase": "TARGET:bambino",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "10": {
+    "cls": "A",
+    "pool": [
+     "hawaiian"
+    ],
+    "hintAfterPurchase": "TARGET:hawaiian",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "11": {
+    "cls": "A",
+    "pool": [
+     "capricciosa"
+    ],
+    "hintAfterPurchase": "TARGET:capricciosa",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "12": {
+    "cls": "C",
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa"
+    ],
+    "hintAfterPurchase": "OPEN_POOL",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "13": {
+    "cls": "A",
+    "pool": [
+     "fugazza"
+    ],
+    "hintAfterPurchase": "TARGET:fugazza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "14": {
+    "cls": "A",
+    "pool": [
+     "marinara"
+    ],
+    "hintAfterPurchase": "TARGET:marinara",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "15": {
+    "cls": "A",
+    "pool": [
+     "napoletana"
+    ],
+    "hintAfterPurchase": "TARGET:napoletana",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "16": {
+    "cls": "A",
+    "pool": [
+     "tonno-e-cipolla"
+    ],
+    "hintAfterPurchase": "TARGET:tonno-e-cipolla",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "17": {
+    "cls": "A",
+    "pool": [
+     "pesto-tonno"
+    ],
+    "hintAfterPurchase": "TARGET:pesto-tonno",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "18": {
+    "cls": "A",
+    "pool": [
+     "genovese"
+    ],
+    "hintAfterPurchase": "TARGET:genovese",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "19": {
+    "cls": "A",
+    "pool": [
+     "new-haven-apizza"
+    ],
+    "hintAfterPurchase": "TARGET:new-haven-apizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "20": {
+    "cls": "A",
+    "pool": [
+     "pesto-caprese"
+    ],
+    "hintAfterPurchase": "TARGET:pesto-caprese",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "21": {
+    "cls": "A",
+    "pool": [
+     "pesto-patate"
+    ],
+    "hintAfterPurchase": "TARGET:pesto-patate",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "22": {
+    "cls": "A",
+    "pool": [
+     "pizza-bianca"
+    ],
+    "hintAfterPurchase": "TARGET:pizza-bianca",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "23": {
+    "cls": "A",
+    "pool": [
+     "puttanesca-pizza"
+    ],
+    "hintAfterPurchase": "TARGET:puttanesca-pizza",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "24": {
+    "cls": "A",
+    "pool": [
+     "quattro-formaggi"
+    ],
+    "hintAfterPurchase": "TARGET:quattro-formaggi",
+    "hintBeforePurchase": "SHOP_NEW"
+   },
+   "25": {
+    "cls": "A",
+    "pool": [
+     "pesto-pollo"
+    ],
+    "hintAfterPurchase": "TARGET:pesto-pollo",
+    "hintBeforePurchase": "SHOP_NEW"
+   }
+  }
+ },
+ "candidateSummary": {
+  "rowsWithAllIngredientsInProduction30": 48,
+  "alreadyInProduction": 13,
+  "candidates": 35,
+  "byEarliestStep": {
+   "0": 6,
+   "6": 4,
+   "7": 2,
+   "8": 1,
+   "11": 1,
+   "12": 8,
+   "13": 1,
+   "14": 3,
+   "15": 2,
+   "20": 2,
+   "21": 1,
+   "23": 2,
+   "24": 1,
+   "25": 1
+  },
+  "byPrimaryReadinessClass": {
+   "D": 19,
+   "E": 12,
+   "A": 4
+  },
+  "blockerFree": [
+   "aussie-pizzadb"
+  ]
+ },
+ "candidates": [
+  {
+   "rowId": "cauliflower-crust-pizza-pizzadb-p2",
+   "nameJa": "カリフラワークラストピザ",
+   "requiredIngredients": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [],
+   "earliestDiscoverableStep": 0,
+   "keyRecipeAtThatStep": null,
+   "dexChapterByKeyStep": 1,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->B2",
+    "calabresaFound": "A1->B2"
+   },
+   "startPoolIfStarterOnly": [
+    "margherita",
+    "X"
+   ],
+   "stepsInPoolIfNeverFound": 26,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 25,
+    "calabresaUnfound": 25
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-2",
+    "SAME_SET_AS_PRODUCTION:margherita",
+    "SAME_SET_AS_ROWS:pizza-al-taglio-romana-pizzadb-p9"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "material-cauliflower",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "colorado-mountain-pie-pizzadb-p3",
+   "nameJa": "コロラドマウンテンパイ",
+   "requiredIngredients": [
+    "mozzarella"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [],
+   "earliestDiscoverableStep": 0,
+   "keyRecipeAtThatStep": null,
+   "dexChapterByKeyStep": 1,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->B2",
+    "calabresaFound": "A1->B2"
+   },
+   "startPoolIfStarterOnly": [
+    "margherita",
+    "X"
+   ],
+   "stepsInPoolIfNeverFound": 26,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 25,
+    "calabresaUnfound": 25
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "D"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "EVIDENCE_GAP"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "EVIDENCE_GAP",
+     "PLACEHOLDER_TOPPING(お好みの具材)"
+    ],
+    "caveats": [
+     "sauce_from_family_label",
+     "evidenceGaps"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "honey-thick",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 0,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "ny-style-pizzadb",
+   "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+   "requiredIngredients": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "listed",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [],
+   "earliestDiscoverableStep": 0,
+   "keyRecipeAtThatStep": null,
+   "dexChapterByKeyStep": 1,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->B2",
+    "calabresaFound": "A1->B2"
+   },
+   "startPoolIfStarterOnly": [
+    "margherita",
+    "X"
+   ],
+   "stepsInPoolIfNeverFound": 26,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 25,
+    "calabresaUnfound": 25
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-1",
+    "SAME_SET_AS_ROWS:trenton-tomato-pie-pizzadb"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "unknown",
+    "doughVariant": "thin-large-pliable",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 0,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "pizza-al-taglio-romana-pizzadb-p9",
+   "nameJa": "ピッツァアルタリオローマーナ",
+   "requiredIngredients": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [],
+   "earliestDiscoverableStep": 0,
+   "keyRecipeAtThatStep": null,
+   "dexChapterByKeyStep": 1,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->B2",
+    "calabresaFound": "A1->B2"
+   },
+   "startPoolIfStarterOnly": [
+    "margherita",
+    "X"
+   ],
+   "stepsInPoolIfNeverFound": 26,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 25,
+    "calabresaUnfound": 25
+   },
+   "mechanicDependencies": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-2",
+    "SAME_SET_AS_PRODUCTION:margherita",
+    "SAME_SET_AS_ROWS:cauliflower-crust-pizza-pizzadb-p2"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "long-ferment",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "quad-cities-style-pizza-pizzadb-p2",
+   "nameJa": "クアッドシティーズスタイルピザ",
+   "requiredIngredients": [
+    "mozzarella"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [],
+   "earliestDiscoverableStep": 0,
+   "keyRecipeAtThatStep": null,
+   "dexChapterByKeyStep": 1,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->B2",
+    "calabresaFound": "A1->B2"
+   },
+   "startPoolIfStarterOnly": [
+    "margherita",
+    "X"
+   ],
+   "stepsInPoolIfNeverFound": 26,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 25,
+    "calabresaUnfound": 25
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "D"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "スパイシーソーセージ",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "sausage"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "variant",
+    "doughVariant": "malt-thin-crisp",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 0,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "trenton-tomato-pie-pizzadb",
+   "nameJa": "トレントントマトパイ",
+   "requiredIngredients": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "listed",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [],
+   "earliestDiscoverableStep": 0,
+   "keyRecipeAtThatStep": null,
+   "dexChapterByKeyStep": 1,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->B2",
+    "calabresaFound": "A1->B2"
+   },
+   "startPoolIfStarterOnly": [
+    "margherita",
+    "X"
+   ],
+   "stepsInPoolIfNeverFound": 26,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 25,
+    "calabresaUnfound": 25
+   },
+   "mechanicDependencies": [
+    "STEP_ORDER"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-1",
+    "SAME_SET_AS_ROWS:ny-style-pizzadb"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 0,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "fathead-pizza-keto-pizzadb-p9",
+   "nameJa": "ファットヘッドピザ（ケト風）",
+   "requiredIngredients": [
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "pepperoni"
+   ],
+   "earliestDiscoverableStep": 6,
+   "keyRecipeAtThatStep": "pepperoni",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 20,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 20,
+    "calabresaUnfound": 20
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-3",
+    "SAME_SET_AS_PRODUCTION:pepperoni",
+    "SAME_SET_AS_ROWS:new-england-bar-pizza-pizzadb-p6"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "material-keto-mozzarella-almond",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "montreal-style-pizza-pizzadb-p13",
+   "nameJa": "モントリオールスタイルピザ",
+   "requiredIngredients": [
+    "mozzarella",
+    "mushroom",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "listed",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "pepperoni"
+   ],
+   "earliestDiscoverableStep": 6,
+   "keyRecipeAtThatStep": "pepperoni",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 20,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 20,
+    "calabresaUnfound": 20
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "likely_alias×1"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "new-england-bar-pizza-pizzadb-p6",
+   "nameJa": "ニューイングランドバーピザ",
+   "requiredIngredients": [
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "pepperoni"
+   ],
+   "earliestDiscoverableStep": 6,
+   "keyRecipeAtThatStep": "pepperoni",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 20,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 20,
+    "calabresaUnfound": 20
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-3",
+    "SAME_SET_AS_PRODUCTION:pepperoni",
+    "SAME_SET_AS_ROWS:fathead-pizza-keto-pizzadb-p9"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "variant",
+    "doughVariant": "thin-crisp",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "st-louis-style-pizza-pizzadb-p4",
+   "nameJa": "セントルイススタイルピザ",
+   "requiredIngredients": [
+    "pepperoni"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [],
+   "lastUnlockedIngredients": [
+    "pepperoni"
+   ],
+   "earliestDiscoverableStep": 6,
+   "keyRecipeAtThatStep": "pepperoni",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 20,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 20,
+    "calabresaUnfound": 20
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "D"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "プロヴェルチーズ",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "provolone"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": true,
+    "thinDoughText": true,
+    "doughClass": "variant",
+    "doughVariant": "yeastless-cracker-thin",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path",
+     "no-cheese: CHEESE rung absent (proven by calabresa)"
+    ],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "chicago-deep-dish-pizzadb",
+   "nameJa": "シカゴディープディッシュ（PIZZA DB版）",
+   "requiredIngredients": [
+    "mozzarella",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "listed",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "sausage"
+   ],
+   "earliestDiscoverableStep": 7,
+   "keyRecipeAtThatStep": "salsiccia",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 19,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 19,
+    "calabresaUnfound": 19
+   },
+   "mechanicDependencies": [
+    "PAN_BAKE",
+    "STEP_ORDER"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "NAMING_CLUSTER:NC-7-chicago"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "chicago-stuffed-pizza-pizzadb-p3",
+   "nameJa": "シカゴスタッフドピザ",
+   "requiredIngredients": [
+    "mozzarella",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "sausage"
+   ],
+   "earliestDiscoverableStep": 7,
+   "keyRecipeAtThatStep": "salsiccia",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 19,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 19,
+    "calabresaUnfound": 19
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "NAMING_CLUSTER:NC-7-chicago",
+    "SAME_SET_AS_PRODUCTION:salsiccia"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "bismarck-pizza-pizzadb-p7",
+   "nameJa": "ビスマルク",
+   "requiredIngredients": [
+    "egg",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "ham"
+   ],
+   "earliestDiscoverableStep": 8,
+   "keyRecipeAtThatStep": "meat-lovers",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 18,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 18,
+    "calabresaUnfound": 18
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "A",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "standard",
+    "doughVariant": "generic",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "pizza-a-caballo",
+   "nameJa": "ピッツァ・ア・カバージョ",
+   "requiredIngredients": [
+    "black-olive",
+    "mozzarella",
+    "oregano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "black-olive",
+    "oregano"
+   ],
+   "earliestDiscoverableStep": 11,
+   "keyRecipeAtThatStep": "capricciosa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "A1->C2",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 15,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 15,
+    "calabresaUnfound": 15
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "D"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [
+    "EVIDENCE_GAP"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "EVIDENCE_GAP"
+    ],
+    "caveats": [
+     "likely_alias×1",
+     "evidenceGaps"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick-fluffy",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "aussie-pizzadb",
+   "nameJa": "オージーピザ",
+   "requiredIngredients": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "A",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "fugazza-pizzadb-p10",
+   "nameJa": "フガザ",
+   "requiredIngredients": [
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_SHIPPED",
+    "DISCOVERY_COLLISION"
+   ],
+   "authority": {
+    "strength": "MODERATE",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_SHIPPED",
+    "DISCOVERY_COLLISION",
+    "MATRIX_COLLISION_LEDGER:P0-COLL-5",
+    "SAME_SET_AS_ROWS:fugazzetta-pizzadb-p10"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick-fluffy",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "fugazzeta-rellena",
+   "nameJa": "フガゼッタ・レジェーナ",
+   "requiredIngredients": [
+    "ham",
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick-fluffy",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "fugazzetta-pizzadb-p10",
+   "nameJa": "フガゼッタ",
+   "requiredIngredients": [
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "DISCOVERY_COLLISION"
+   ],
+   "authority": {
+    "strength": "MODERATE",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "DISCOVERY_COLLISION",
+    "MATRIX_COLLISION_LEDGER:P0-COLL-5",
+    "SAME_SET_AS_ROWS:fugazza-pizzadb-p10"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick-fluffy",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "keema-pizza-pizzadb-p2",
+   "nameJa": "キーマピザ",
+   "requiredIngredients": [
+    "mozzarella",
+    "onion"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "unspecified",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "SAUCE_BASE_UNSPECIFIED",
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [],
+    "unresolvedTokens": [
+     {
+      "token": "ひき肉",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "ground-beef"
+      ]
+     },
+     {
+      "token": "青唐辛子",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "chili-oil"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "standard",
+    "doughVariant": "thin",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "old-forge-style-pizza-pizzadb-p1",
+   "nameJa": "オールドフォージスタイルピザ",
+   "requiredIngredients": [
+    "onion"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "D"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "taxonomyFlags×1",
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "チーズ",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "mozzarella"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": true,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "medium-thick",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path",
+     "no-cheese: CHEESE rung absent (proven by calabresa)"
+    ],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "pizza-baiana",
+   "nameJa": "ピッツァ・バイアーナ",
+   "requiredIngredients": [
+    "egg",
+    "mozzarella",
+    "onion",
+    "sausage"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "唐辛子",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "chili-oil"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "standard",
+    "doughVariant": "thin",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "pizza-chilena-pizzadb-p8",
+   "nameJa": "ピッツァ・チレーナ",
+   "requiredIngredients": [
+    "black-olive",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "onion"
+   ],
+   "earliestDiscoverableStep": 12,
+   "keyRecipeAtThatStep": "pizza-portuguesa",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "C2->C3",
+    "calabresaFound": "C2->C3"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 14,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "likely_alias×1",
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "ひき肉",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "ground-beef"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "standard",
+    "doughVariant": "thin",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "margherita-pizzadb-row",
+   "nameJa": "マルゲリータ",
+   "requiredIngredients": [
+    "basil",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "olive-oil"
+   ],
+   "earliestDiscoverableStep": 13,
+   "keyRecipeAtThatStep": "fugazza",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 13,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 14,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "standard",
+    "doughVariant": "neapolitan",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "grandma-pizza-pizzadb",
+   "nameJa": "グランマピザ",
+   "requiredIngredients": [
+    "garlic",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "listed",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "garlic"
+   ],
+   "earliestDiscoverableStep": 14,
+   "keyRecipeAtThatStep": "marinara",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 12,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 13,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 1,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "marinara-pizza-pizzadb-p13",
+   "nameJa": "マリナーラ",
+   "requiredIngredients": [
+    "garlic",
+    "olive-oil",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [],
+   "lastUnlockedIngredients": [
+    "garlic"
+   ],
+   "earliestDiscoverableStep": 14,
+   "keyRecipeAtThatStep": "marinara",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 12,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 13,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "special": {
+    "noCheese": true,
+    "thinDoughText": false,
+    "doughClass": "standard",
+    "doughVariant": "neapolitan",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-cheese: CHEESE rung absent (proven by calabresa)"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "pizza-de-cancha",
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "requiredIngredients": [
+    "garlic",
+    "olive-oil",
+    "oregano"
+   ],
+   "sauceIngredients": [
+    "olive-oil"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [],
+   "lastUnlockedIngredients": [
+    "garlic"
+   ],
+   "earliestDiscoverableStep": 14,
+   "keyRecipeAtThatStep": "marinara",
+   "dexChapterByKeyStep": 2,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 12,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 13,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "D"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "唐辛子",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "chili-oil"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": true,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick-fluffy",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-cheese: CHEESE rung absent (proven by calabresa)"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "sfincione-pizzadb",
+   "nameJa": "スフィンチョーネ",
+   "requiredIngredients": [
+    "anchovy",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [],
+   "lastUnlockedIngredients": [
+    "anchovy"
+   ],
+   "earliestDiscoverableStep": 15,
+   "keyRecipeAtThatStep": "napoletana",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 11,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 12,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "NAMING_CLUSTER:NC-3-sicilian"
+   ],
+   "special": {
+    "noCheese": true,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-cheese: CHEESE rung absent (proven by calabresa)"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "siciliana-pizzadb",
+   "nameJa": "シチリアンピザ（PIZZA DB版）",
+   "requiredIngredients": [
+    "anchovy",
+    "mozzarella",
+    "onion",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "listed",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "anchovy"
+   ],
+   "earliestDiscoverableStep": 15,
+   "keyRecipeAtThatStep": "napoletana",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 11,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 12,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "NOT_REPRESENTABLE",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "NAMING_CLUSTER:NC-3-sicilian"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": "thick-spongy",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "argentine-napolitana-pizzadb-p1",
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "requiredIngredients": [
+    "fresh-tomato",
+    "garlic",
+    "mozzarella",
+    "oregano",
+    "parmigiano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "lastUnlockedIngredients": [
+    "fresh-tomato"
+   ],
+   "earliestDiscoverableStep": 20,
+   "keyRecipeAtThatStep": "pesto-caprese",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 6,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 7,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "likely_alias×1"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "NAMING_CLUSTER:NC-1-napoletana"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "variant",
+    "doughVariant": "thick-fluffy",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "chilean-napolitana-pizzadb",
+   "nameJa": "チリアンナポリターナ",
+   "requiredIngredients": [
+    "fresh-tomato",
+    "mozzarella",
+    "oregano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "fresh-tomato"
+   ],
+   "earliestDiscoverableStep": 20,
+   "keyRecipeAtThatStep": "pesto-caprese",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 6,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 7,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "A",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "NAMING_CLUSTER:NC-1-napoletana"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "nameJa": "北海道チーズピザ",
+   "requiredIngredients": [
+    "bacon",
+    "corn",
+    "potato"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [],
+   "lastUnlockedIngredients": [
+    "potato"
+   ],
+   "earliestDiscoverableStep": 21,
+   "keyRecipeAtThatStep": "pesto-patate",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 5,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 6,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "taxonomyFlags×1"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "チーズ",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "mozzarella"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": true,
+    "thinDoughText": true,
+    "doughClass": "standard",
+    "doughVariant": "thin",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path",
+     "no-cheese: CHEESE rung absent (proven by calabresa)"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "caponata-pizza-pizzadb-p2",
+   "nameJa": "カポナータピザ",
+   "requiredIngredients": [
+    "black-olive",
+    "capers",
+    "eggplant",
+    "mozzarella"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "unspecified",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "capers"
+   ],
+   "earliestDiscoverableStep": 23,
+   "keyRecipeAtThatStep": "puttanesca-pizza",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 3,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 4,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "SAUCE_BASE_UNSPECIFIED"
+    ],
+    "caveats": [
+     "likely_alias×1"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "standard",
+    "doughVariant": "neapolitan",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "pizza-romana-pizzadb-p9",
+   "nameJa": "ピッツァ・ロマーナ",
+   "requiredIngredients": [
+    "anchovy",
+    "capers",
+    "mozzarella",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "sauceIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceBaseStatus": "family_derived",
+   "noSauceIngredientInSet": false,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "capers"
+   ],
+   "earliestDiscoverableStep": 23,
+   "keyRecipeAtThatStep": "puttanesca-pizza",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 3,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 4,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [
+    "DOUGH_VARIANT"
+   ],
+   "primaryReadinessClass": "D",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "PARTIAL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "authority": {
+    "strength": "MODERATE_WITH_CAVEATS",
+    "issues": [],
+    "caveats": [
+     "sauce_from_family_label"
+    ],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "variant",
+    "doughVariant": "roman-thin-crisp",
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [],
+    "toppingCount": 3,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "quattro-formaggi-pizzadb",
+   "nameJa": "クアトロフォルマッジ（PIZZA DB版）",
+   "requiredIngredients": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella",
+    "parmigiano"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "none",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella",
+    "parmigiano"
+   ],
+   "lastUnlockedIngredients": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "earliestDiscoverableStep": 24,
+   "keyRecipeAtThatStep": "quattro-formaggi",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 2,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 3,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "A",
+   "secondaryBlockers": [
+    "IDENTITY_COLLISION"
+   ],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "authority": {
+    "strength": "STRONG",
+    "issues": [],
+    "caveats": [],
+    "unresolvedTokens": [],
+    "identitySetIncomplete": false
+   },
+   "identityCollisions": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": false,
+    "doughClass": "unknown",
+    "doughVariant": null,
+    "keyFreeHintOk": true,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 0,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  },
+  {
+   "rowId": "curry-pizza-japan-pizzadb-p2",
+   "nameJa": "カレーピザ",
+   "requiredIngredients": [
+    "chicken",
+    "mozzarella",
+    "onion"
+   ],
+   "sauceIngredients": [],
+   "sauceBaseStatus": "listed_unresolved",
+   "noSauceIngredientInSet": true,
+   "cheeseIngredients": [
+    "mozzarella"
+   ],
+   "lastUnlockedIngredients": [
+    "chicken"
+   ],
+   "earliestDiscoverableStep": 25,
+   "keyRecipeAtThatStep": "pesto-pollo",
+   "dexChapterByKeyStep": 3,
+   "stepClassChange": {
+    "calabresaUnfound": "B2->C3",
+    "calabresaFound": "A1->C2"
+   },
+   "startPoolIfStarterOnly": null,
+   "stepsInPoolIfNeverFound": 1,
+   "multiCandidateStepsIfNeverFound": {
+    "calabresaFound": 2,
+    "calabresaUnfound": 14
+   },
+   "mechanicDependencies": [],
+   "primaryReadinessClass": "E",
+   "secondaryBlockers": [
+    "B"
+   ],
+   "matrixRepresentability": "FULL",
+   "matrixBlockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "authority": {
+    "strength": "INCOMPLETE",
+    "issues": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "caveats": [
+     "taxonomyFlags×1"
+    ],
+    "unresolvedTokens": [
+     {
+      "token": "カレーソース",
+      "disposition": "ambiguous",
+      "relatedIds": [
+       "curry-ketchup"
+      ]
+     }
+    ],
+    "identitySetIncomplete": true
+   },
+   "identityCollisions": [],
+   "special": {
+    "noCheese": false,
+    "thinDoughText": true,
+    "doughClass": "standard",
+    "doughVariant": "thin",
+    "keyFreeHintOk": false,
+    "keyFreeNotes": [
+     "no-sauce: SAUCE rung absent (OK in ladder); but RECIPE_SAUCE_PROFILES is a total Record with no \"none\" -> unproven engine path"
+    ],
+    "toppingCount": 2,
+    "lateAddition": false
+   },
+   "ladderCredit": "UNDECIDED",
+   "lunchRush": "UNDECIDED"
+  }
+ ],
+ "slotProbes": {
+  "note": "Structural probe recipe at step k = tomato-sauce + mozzarella + the ladder material(s) of step k. Pool = DISCOVERABLE recipes right after buying everything entitled; counts only the structure, not any real recipe.",
+  "rows": [
+   {
+    "k": 0,
+    "startPool": [
+     "margherita",
+     "X::p0"
+    ],
+    "beforeU": "A1",
+    "afterU": "B2",
+    "beforeD": "A1",
+    "afterD": "B2",
+    "multiD": 25,
+    "multiU": 25,
+    "Csteps": [
+     12
+    ],
+    "multiDfound": 1,
+    "multiCreditFound": 25
+   },
+   {
+    "k": 1,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 25,
+    "multiU": 25,
+    "Csteps": [
+     1,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 25
+   },
+   {
+    "k": 2,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 24,
+    "multiU": 24,
+    "Csteps": [
+     2,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 24
+   },
+   {
+    "k": 3,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 23,
+    "multiU": 23,
+    "Csteps": [
+     3,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 23
+   },
+   {
+    "k": 4,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 22,
+    "multiU": 22,
+    "Csteps": [
+     4,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 22
+   },
+   {
+    "k": 5,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 21,
+    "multiU": 21,
+    "Csteps": [
+     5,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 21
+   },
+   {
+    "k": 6,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 20,
+    "multiU": 20,
+    "Csteps": [
+     6,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 20
+   },
+   {
+    "k": 7,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 19,
+    "multiU": 19,
+    "Csteps": [
+     7,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 19
+   },
+   {
+    "k": 8,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 18,
+    "multiU": 18,
+    "Csteps": [
+     8,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 18
+   },
+   {
+    "k": 9,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 17,
+    "multiU": 17,
+    "Csteps": [
+     9,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 17
+   },
+   {
+    "k": 10,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 16,
+    "multiU": 16,
+    "Csteps": [
+     10,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 16
+   },
+   {
+    "k": 11,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "A1",
+    "afterU": "C2",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 15,
+    "multiU": 15,
+    "Csteps": [
+     11,
+     12
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 15
+   },
+   {
+    "k": 12,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "C2",
+    "afterU": "C3",
+    "beforeD": "C2",
+    "afterD": "C3",
+    "multiD": 14,
+    "multiU": 14,
+    "Csteps": [
+     12
+    ],
+    "multiDfound": 1,
+    "multiCreditFound": 14
+   },
+   {
+    "k": 13,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 14,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     13
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 14
+   },
+   {
+    "k": 14,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 13,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     14
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 13
+   },
+   {
+    "k": 15,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 12,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     15
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 12
+   },
+   {
+    "k": 16,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 11,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     16
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 11
+   },
+   {
+    "k": 17,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 10,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     17
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 10
+   },
+   {
+    "k": 18,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 9,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     18
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 9
+   },
+   {
+    "k": 19,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 8,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     19
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 8
+   },
+   {
+    "k": 20,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 7,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     20
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 7
+   },
+   {
+    "k": 21,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 6,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     21
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 6
+   },
+   {
+    "k": 22,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 5,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     22
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 5
+   },
+   {
+    "k": 23,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 4,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     23
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 4
+   },
+   {
+    "k": 24,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 3,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     24
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 3
+   },
+   {
+    "k": 25,
+    "startPool": [
+     "margherita"
+    ],
+    "beforeU": "B2",
+    "afterU": "C3",
+    "beforeD": "A1",
+    "afterD": "C2",
+    "multiD": 2,
+    "multiU": 14,
+    "Csteps": [
+     12,
+     25
+    ],
+    "multiDfound": 2,
+    "multiCreditFound": 2
+   }
+  ]
+ },
+ "combos": {
+  "3,9,15,21": {
+   "nocredit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "B2",
+     "5": "B2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "C3",
+     "10": "B3",
+     "11": "B3",
+     "12": "C4",
+     "13": "B4",
+     "14": "B4",
+     "15": "C5",
+     "16": "B5",
+     "17": "B5",
+     "18": "B5",
+     "19": "B5",
+     "20": "B5",
+     "21": "C6",
+     "22": "B6",
+     "23": "B6",
+     "24": "B6",
+     "25": "B6"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "OPEN_POOL",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "C2",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "B2",
+     "14": "B2",
+     "15": "C3",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "B2",
+     "21": "C3",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "B2"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "OPEN_POOL",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "B2",
+     "5": "B2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "C3",
+     "10": "B3",
+     "11": "B3",
+     "12": "C4",
+     "13": "B3",
+     "14": "B3",
+     "15": "C4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "B4",
+     "21": "C5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "OPEN_POOL",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "C2",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "A1",
+     "14": "A1",
+     "15": "C2",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "A1",
+     "21": "C2",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "A1"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "OPEN_POOL",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "OPEN_POOL",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "TARGET:pesto-caprese",
+     "21": "OPEN_POOL",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "TARGET:pesto-pollo"
+    }
+   },
+   "credit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "B2",
+     "5": "B2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "C3",
+     "10": "B3",
+     "11": "B3",
+     "12": "C4",
+     "13": "B4",
+     "14": "B4",
+     "15": "C5",
+     "16": "B5",
+     "17": "B5",
+     "18": "B5",
+     "19": "B5",
+     "20": "B5",
+     "21": "C6",
+     "22": "B6",
+     "23": "B6",
+     "24": "B6",
+     "25": "B6"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "OPEN_POOL",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "B2",
+     "5": "B2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "C3",
+     "10": "B3",
+     "11": "B3",
+     "12": "C4",
+     "13": "B4",
+     "14": "B4",
+     "15": "C5",
+     "16": "B5",
+     "17": "B5",
+     "18": "B5",
+     "19": "B5",
+     "20": "B5",
+     "21": "C6",
+     "22": "B6",
+     "23": "B6",
+     "24": "B6",
+     "25": "B6"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "OPEN_POOL",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "B2",
+     "5": "B2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "C3",
+     "10": "B3",
+     "11": "B3",
+     "12": "C4",
+     "13": "B3",
+     "14": "B3",
+     "15": "C4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "B4",
+     "21": "C5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "OPEN_POOL",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "C2",
+     "4": "B2",
+     "5": "B2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "C3",
+     "10": "B3",
+     "11": "B3",
+     "12": "C4",
+     "13": "B3",
+     "14": "B3",
+     "15": "C4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "B4",
+     "21": "C5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "OPEN_POOL",
+     "4": "OPEN_POOL",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   }
+  },
+  "12,12,12": {
+   "nocredit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B5",
+     "14": "B5",
+     "15": "B5",
+     "16": "B5",
+     "17": "B5",
+     "18": "B5",
+     "19": "B5",
+     "20": "B5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B2",
+     "14": "B2",
+     "15": "B2",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "B2",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "B2"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B4",
+     "14": "B4",
+     "15": "B4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "B4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "B4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "A1",
+     "14": "A1",
+     "15": "A1",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "A1",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "A1"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "TARGET:napoletana",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "TARGET:pesto-caprese",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "TARGET:pesto-pollo"
+    }
+   },
+   "credit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B5",
+     "14": "B5",
+     "15": "B5",
+     "16": "B5",
+     "17": "B5",
+     "18": "B5",
+     "19": "B5",
+     "20": "B5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B5",
+     "14": "B5",
+     "15": "B5",
+     "16": "B5",
+     "17": "B5",
+     "18": "B5",
+     "19": "B5",
+     "20": "B5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B4",
+     "14": "B4",
+     "15": "B4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "B4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "B4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C5",
+     "13": "B4",
+     "14": "B4",
+     "15": "B4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "B4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "B4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   }
+  },
+  "25,25": {
+   "nocredit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "B2",
+     "14": "B2",
+     "15": "B2",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "B2",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "C4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "B2",
+     "14": "B2",
+     "15": "B2",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "B2",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "C4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "A1",
+     "14": "A1",
+     "15": "A1",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "A1",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "C3"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "TARGET:napoletana",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "TARGET:pesto-caprese",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "A1",
+     "14": "A1",
+     "15": "A1",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "A1",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "C3"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "TARGET:napoletana",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "TARGET:pesto-caprese",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "B2",
+     "14": "B2",
+     "15": "B2",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "B2",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "C4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "B2",
+     "14": "B2",
+     "15": "B2",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "B2",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "C4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "A1",
+     "14": "A1",
+     "15": "A1",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "A1",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "C3"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "TARGET:napoletana",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "TARGET:pesto-caprese",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "A1",
+     "14": "A1",
+     "15": "A1",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "A1",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "C3"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "TARGET:napoletana",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "TARGET:pesto-caprese",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "OPEN_POOL"
+    }
+   }
+  },
+  "7,15,20": {
+   "nocredit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C3",
+     "13": "B3",
+     "14": "B3",
+     "15": "C4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "C5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "B2",
+     "14": "B2",
+     "15": "C3",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "B2",
+     "20": "C3",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "B2"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C3",
+     "13": "B2",
+     "14": "B2",
+     "15": "C3",
+     "16": "B3",
+     "17": "B3",
+     "18": "B3",
+     "19": "B3",
+     "20": "C4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "B4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C2",
+     "13": "A1",
+     "14": "A1",
+     "15": "C2",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "A1",
+     "20": "C2",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "A1"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "OPEN_POOL",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "TARGET:new-haven-apizza",
+     "20": "OPEN_POOL",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "TARGET:pesto-pollo"
+    }
+   },
+   "credit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C3",
+     "13": "B3",
+     "14": "B3",
+     "15": "C4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "C5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C3",
+     "13": "B3",
+     "14": "B3",
+     "15": "C4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "B4",
+     "20": "C5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "B5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C3",
+     "13": "B2",
+     "14": "B2",
+     "15": "C3",
+     "16": "B3",
+     "17": "B3",
+     "18": "B3",
+     "19": "B3",
+     "20": "C4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "B4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "A1",
+     "6": "A1",
+     "7": "C2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C3",
+     "13": "B2",
+     "14": "B2",
+     "15": "C3",
+     "16": "B3",
+     "17": "B3",
+     "18": "B3",
+     "19": "B3",
+     "20": "C4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "B4"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "TARGET:parmigiana-pizza",
+     "6": "TARGET:pepperoni",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   }
+  },
+  "5,12,19,25": {
+   "nocredit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C4",
+     "13": "B4",
+     "14": "B4",
+     "15": "B4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "C5",
+     "20": "B5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "C6"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C3",
+     "13": "B2",
+     "14": "B2",
+     "15": "B2",
+     "16": "B2",
+     "17": "B2",
+     "18": "B2",
+     "19": "C3",
+     "20": "B2",
+     "21": "B2",
+     "22": "B2",
+     "23": "B2",
+     "24": "B2",
+     "25": "C3"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C4",
+     "13": "B3",
+     "14": "B3",
+     "15": "B3",
+     "16": "B3",
+     "17": "B3",
+     "18": "B3",
+     "19": "C4",
+     "20": "B4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "C5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "nocredit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "A1",
+     "7": "A1",
+     "8": "A1",
+     "9": "A1",
+     "10": "A1",
+     "11": "A1",
+     "12": "C3",
+     "13": "A1",
+     "14": "A1",
+     "15": "A1",
+     "16": "A1",
+     "17": "A1",
+     "18": "A1",
+     "19": "C2",
+     "20": "A1",
+     "21": "A1",
+     "22": "A1",
+     "23": "A1",
+     "24": "A1",
+     "25": "C2"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "TARGET:pepperoni",
+     "7": "TARGET:salsiccia",
+     "8": "TARGET:meat-lovers",
+     "9": "TARGET:bambino",
+     "10": "TARGET:hawaiian",
+     "11": "TARGET:capricciosa",
+     "12": "OPEN_POOL",
+     "13": "TARGET:fugazza",
+     "14": "TARGET:marinara",
+     "15": "TARGET:napoletana",
+     "16": "TARGET:tonno-e-cipolla",
+     "17": "TARGET:pesto-tonno",
+     "18": "TARGET:genovese",
+     "19": "OPEN_POOL",
+     "20": "TARGET:pesto-caprese",
+     "21": "TARGET:pesto-patate",
+     "22": "TARGET:pizza-bianca",
+     "23": "TARGET:puttanesca-pizza",
+     "24": "TARGET:quattro-formaggi",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C4",
+     "13": "B4",
+     "14": "B4",
+     "15": "B4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "C5",
+     "20": "B5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "C6"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-never|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C4",
+     "13": "B4",
+     "14": "B4",
+     "15": "B4",
+     "16": "B4",
+     "17": "B4",
+     "18": "B4",
+     "19": "C5",
+     "20": "B5",
+     "21": "B5",
+     "22": "B5",
+     "23": "B5",
+     "24": "B5",
+     "25": "C6"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-never": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C4",
+     "13": "B3",
+     "14": "B3",
+     "15": "B3",
+     "16": "B3",
+     "17": "B3",
+     "18": "B3",
+     "19": "C4",
+     "20": "B4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "C5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   },
+   "credit|cal-asap|x-asap": {
+    "steps": {
+     "1": "A1",
+     "2": "A1",
+     "3": "A1",
+     "4": "A1",
+     "5": "C2",
+     "6": "B2",
+     "7": "B2",
+     "8": "B2",
+     "9": "B2",
+     "10": "B2",
+     "11": "B2",
+     "12": "C4",
+     "13": "B3",
+     "14": "B3",
+     "15": "B3",
+     "16": "B3",
+     "17": "B3",
+     "18": "B3",
+     "19": "C4",
+     "20": "B4",
+     "21": "B4",
+     "22": "B4",
+     "23": "B4",
+     "24": "B4",
+     "25": "C5"
+    },
+    "hint": {
+     "1": "TARGET:bismarck",
+     "2": "TARGET:breakfast-pizza",
+     "3": "TARGET:funghi",
+     "4": "TARGET:melanzane-pizza",
+     "5": "OPEN_POOL",
+     "6": "OPEN_POOL",
+     "7": "OPEN_POOL",
+     "8": "OPEN_POOL",
+     "9": "OPEN_POOL",
+     "10": "OPEN_POOL",
+     "11": "OPEN_POOL",
+     "12": "OPEN_POOL",
+     "13": "OPEN_POOL",
+     "14": "OPEN_POOL",
+     "15": "OPEN_POOL",
+     "16": "OPEN_POOL",
+     "17": "OPEN_POOL",
+     "18": "OPEN_POOL",
+     "19": "OPEN_POOL",
+     "20": "OPEN_POOL",
+     "21": "OPEN_POOL",
+     "22": "OPEN_POOL",
+     "23": "OPEN_POOL",
+     "24": "OPEN_POOL",
+     "25": "OPEN_POOL"
+    }
+   }
+  }
+ },
+ "hintCompat": {
+  "poolSizes": [
+   {
+    "n": 1,
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa"
+    ],
+    "result": "{\"kind\":\"OPEN_POOL\"}"
+   },
+   {
+    "n": 2,
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa"
+    ],
+    "result": "{\"kind\":\"OPEN_POOL\"}"
+   },
+   {
+    "n": 3,
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa",
+     "X::a"
+    ],
+    "result": "{\"kind\":\"OPEN_POOL\"}"
+   },
+   {
+    "n": 4,
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa",
+     "X::a",
+     "X::b"
+    ],
+    "result": "{\"kind\":\"OPEN_POOL\"}"
+   },
+   {
+    "n": 5,
+    "pool": [
+     "pizza-portuguesa",
+     "brazilian-calabresa",
+     "X::a",
+     "X::b",
+     "X::c"
+    ],
+    "result": "{\"kind\":\"OPEN_POOL\"}"
+   }
+  ],
+  "pool5": {
+   "none": {
+    "kind": "OPEN_POOL"
+   },
+   "pinned": {
+    "kind": "OPEN_POOL"
+   },
+   "sticky": {
+    "kind": "TARGET",
+    "recipeId": "X::b",
+    "source": "auto"
+   },
+   "stickyPinOther": {
+    "kind": "TARGET",
+    "recipeId": "X::b",
+    "source": "auto"
+   }
+  }
+ }
+}
