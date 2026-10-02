@@ -149,14 +149,11 @@ describe("recording an ORIGINAL attempt", () => {
     expect(rows(d)[0].retryCount).toBe(1);
   });
 
-  it("23/24. the stored feedback is exactly the P2 line shown ({ kind, textJa }), with no other field", () => {
+  it("23/24. the stored feedback is always null: no near/far line is recorded (Near/Far Neutralization Phase 1)", () => {
     for (const pizza of [ORDINARY, FAR_ORIGINAL]) {
       const s = playFreeRound(freeRound(), pizza);
-      const shown = resultNearMiss(s);
-      const stored = rows(s)[0].feedback;
-      expect(shown).not.toBeNull();
-      expect(stored).toEqual({ kind: shown!.kind, textJa: shown!.textJa });
-      expect(Object.keys(stored!).sort()).toEqual(["kind", "textJa"]);
+      expect(resultNearMiss(s)).not.toBeNull();
+      expect(rows(s)[0].feedback).toBeNull();
     }
   });
 
@@ -169,11 +166,10 @@ describe("recording an ORIGINAL attempt", () => {
     expect(out.lastTrialAttempt).toEqual({ kind: "NEW", number: 1 });
   });
 
-  it("23c. a retry replaces the feedback with the latest one shown (no feedback history)", () => {
+  it("23c. a retry keeps feedback null (nothing is stored, nothing to replace)", () => {
     const first = playFreeRound(freeRound(), ORDINARY);
-    expect(rows(first)[0].feedback).not.toBeNull();
+    expect(rows(first)[0].feedback).toBeNull();
     const pre = cook(gameReducer(first, { type: "START_FREE_COOK", now: NOW }), ORDINARY);
-    // The same attempt, this time with no P2 line shown (P2 is null outside a free round): the stored line is replaced.
     const out = recordTrialAttempt({ ...pre, freeCook: false }, { kind: "ORIGINAL", blockedTargetIds: [] });
     expect(out.lastTrialAttempt).toEqual({ kind: "DUPLICATE", number: 1 });
     expect(notebookView(out.trialNotebook)).toHaveLength(1);

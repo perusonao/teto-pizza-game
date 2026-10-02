@@ -49,7 +49,7 @@ export interface ResultNearMissInput {
 }
 
 export interface ResultNearMissLine {
-  kind: NearMissKind;
+  kind: NearMissKind | "NEUTRAL";
   textJa: string;
 }
 
@@ -93,7 +93,25 @@ export function nearMissLine(
   return { kind: nearMiss.kind, textJa: NEAR_MISS_COPY[nearMiss.kind] };
 }
 
-export function resultNearMiss(
+/**
+ * Discovery 3.0 Near/Far Neutralization Phase 1 (Owner Option B): the one line a Free Cooking RESULT shows for an
+ * undiscovered attempt. It is NOT a function of the hidden recipes: no pool, distance, tie-break winner, key
+ * material or matcher candidate is read, so the same attempt gets the byte-identical line for any pool size, any
+ * candidate order and any hidden recipe. It is the OD-P2-2 generic copy (`NEAR_MISS_FAR_GENERIC_COPY`), reused.
+ * The directional / CLOSE / key-unused lines are no longer produced anywhere in production (`legacyResultNearMiss`
+ * and `nearMissLine` remain only for the internal matcher tests and the economy simulator).
+ * ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH are shown identically (OD-D3-20 / OD-D3-23); ALREADY_DISCOVERED,
+ * NEW_DISCOVERY, a FAILED round and a non-Free-Cooking round get no line.
+ */
+export function resultNearMiss(input: ResultNearMissInput): ResultNearMissLine | null {
+  if (!input.freeCook || input.completion?.status === "FAILED") return null;
+  const outcome = input.lastDiscovery?.kind;
+  if (outcome !== "ORIGINAL" && outcome !== "AMBIGUOUS" && outcome !== "INCOMPLETE_MATCH") return null;
+  return { kind: "NEUTRAL", textJa: NEAR_MISS_FAR_GENERIC_COPY };
+}
+
+/** The pre-neutralization (Hint 2.0 / P2) pool-distance line. No production caller (gated by tests). */
+export function legacyResultNearMiss(
   input: ResultNearMissInput,
   options: ResultNearMissOptions = {},
 ): ResultNearMissLine | null {

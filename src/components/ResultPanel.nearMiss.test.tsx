@@ -37,7 +37,7 @@ function props(over: Record<string, unknown> = {}) {
     ...over,
   };
 }
-const line = (kind: ResultNearMissLine["kind"]): ResultNearMissLine => ({
+const line = (kind: Exclude<ResultNearMissLine["kind"], "NEUTRAL">): ResultNearMissLine => ({
   kind,
   textJa: kind === "FAR" ? NEAR_MISS_COPY.FAR_KEY_UNUSED : NEAR_MISS_COPY[kind],
 });

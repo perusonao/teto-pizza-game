@@ -106,11 +106,11 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
   for (const [name, pieces, text, shot] of [
-    ["ADD_ONE", { cheese: [[/モッツァレラ/, 3]], toppings: [] }, /材料をあと1つ足すと/, "c1-add-one"],
-    ["REMOVE_ONE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3], [/バジル/, 1]] }, /材料を1つ減らすと/, "c2-remove-one"],
-    ["CLOSE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 2], [/バジル/, 1], [/たまご/, 1]] }, /かなり近づいてるよ/, "c3-close"],
+    ["ADD_ONE", { cheese: [[/モッツァレラ/, 3]], toppings: [] }, /別の組み合わせも試してみよう/, "c1-add-one"],
+    ["REMOVE_ONE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3], [/バジル/, 1]] }, /別の組み合わせも試してみよう/, "c2-remove-one"],
+    ["CLOSE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 2], [/バジル/, 1], [/たまご/, 1]] }, /別の組み合わせも試してみよう/, "c3-close"],
   ] as const) {
-    test(`ORIGINAL ${name}: one secondary line + hint CTA, CTA bar on screen`, async ({ page, browserName }) => {
+    test(`ORIGINAL ${name}: the neutral secondary line (no near/far oracle) + hint CTA, CTA bar on screen`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);
       await driver.apply(PROFILES.N390);
       await openWithSave(page);

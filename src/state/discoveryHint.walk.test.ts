@@ -8,7 +8,7 @@ import { hintSheetView } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { recipeDiscoveryState } from "./recipeDiscoveryState";
-import { NEAR_MISS_COPY, resultNearMiss } from "./resultNearMiss";
+import { NEAR_MISS_COPY, legacyResultNearMiss as resultNearMiss } from "./resultNearMiss";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the

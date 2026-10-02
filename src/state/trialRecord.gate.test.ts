@@ -51,8 +51,9 @@ describe("record adapter: authority and inputs", () => {
     }
   });
 
-  it("stores exactly the two fields of the P2 line", () => {
-    expect(adapter).toContain("{ kind: line.kind, textJa: line.textJa }");
+  it("stores no near/far feedback (always null) and never calls resultNearMiss", () => {
+    expect(adapter).toContain("feedback: null,");
+    expect(adapter).not.toMatch(/resultNearMiss\(/);
   });
 
   it("eligibility is ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH only (OD-P3-16 as updated by OD-D3-23)", () => {

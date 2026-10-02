@@ -1,3 +1,5 @@
+// Pins the pre-neutralization pool-distance classifier (`legacyResultNearMiss`), which has no production caller since
+// Near/Far Neutralization Phase 1; the production `resultNearMiss` is pinned in resultNearMiss.neutral.test.ts.
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
@@ -10,7 +12,7 @@ import { createInitialGameState, gameReducer } from "./gameReducer";
 import { hintSheetView } from "./discoveryHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
-import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
+import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, legacyResultNearMiss as resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-C): which "おしい" line a Free Cooking RESULT shows, on the

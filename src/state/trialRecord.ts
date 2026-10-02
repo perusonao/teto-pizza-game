@@ -6,8 +6,8 @@
  *
  * - Identity is the P1 Attempt Fingerprint of the pizza (`attemptFingerprintOfPizza`), never re-derived here.
  * - The model is P3-1's `recordAttempt`; duplicate / `#n` / REVIVE / 50 + 2 000 semantics live there only.
- * - The stored feedback is `{ kind, textJa }` of the P2 line the player is shown (`resultNearMiss`), or `null`;
- *   never the internal near-miss (distance / target / candidate).
+ * - The stored feedback is always `null` (Near/Far Neutralization Phase 1): no near/far / distance / candidate
+ *   text is recorded and none is recomputed when the notebook is shown.
  * - Eligible: the ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH outcomes (OD-P3-16 as updated by OD-D3-23). Every other
  *   outcome returns the very same state references and records nothing. What is stored is the player's own
  *   combination and the line they were shown -- never the matcher outcome, a recipe, or "the combination was right".
@@ -16,8 +16,8 @@
  */
 import { attemptFingerprintOfPizza } from "../logic/discovery/attemptFingerprint";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
-import { recordAttempt, type ShownFeedback, type TrialNotebook } from "../logic/discovery/trialNotebook";
-import { resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
+import { recordAttempt, type TrialNotebook } from "../logic/discovery/trialNotebook";
+import type { ResultNearMissInput } from "./resultNearMiss";
 
 /** What the RESULT may later say about this attempt. Never `retryCount`, never an internal outcome. */
 export type LastTrialAttempt = { kind: "NEW"; number: number } | { kind: "DUPLICATE"; number: number };
@@ -41,17 +41,11 @@ export function isTrialRecordEligible(outcome: DiscoveryOutcome): boolean {
   return outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS" || outcome.kind === "INCOMPLETE_MATCH";
 }
 
-/** Exactly the two fields of the P2 line (OD-P3-18); `null` when P2 shows nothing. */
-function shownFeedback(input: TrialRecordInput, outcome: DiscoveryOutcome): ShownFeedback | null {
-  const line = resultNearMiss({ ...input, lastDiscovery: outcome });
-  return line ? { kind: line.kind, textJa: line.textJa } : null;
-}
-
 export function recordTrialAttempt(input: TrialRecordInput, outcome: DiscoveryOutcome): TrialRecordResult {
   if (!isTrialRecordEligible(outcome)) return { trialNotebook: input.trialNotebook, lastTrialAttempt: null };
   const result = recordAttempt(input.trialNotebook, {
     fingerprint: attemptFingerprintOfPizza(input.pizza),
-    feedback: shownFeedback(input, outcome),
+    feedback: null,
   });
   switch (result.outcome.kind) {
     case "NEW":
