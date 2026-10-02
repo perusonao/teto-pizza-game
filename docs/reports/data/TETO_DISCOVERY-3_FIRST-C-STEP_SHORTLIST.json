@@ -1,0 +1,688 @@
+{
+ "schema": "teto-discovery-3-first-c-step-shortlist/v1",
+ "note": "DECISION SUPPORT / DOCS ONLY. No recipe adopted; No.28 not chosen; no ranking. Counts are audit-internal, never player-facing.",
+ "basis": {
+  "main": "262b09fcb78d98c7b12ea4e5b51c2da1bca9d37e",
+  "reusedReadOnly": [
+   "docs/reports/data/TETO_DISCOVERY-3_BRANCH-PLACEMENT.json @ db956ee",
+   "docs/reports/TETO_DISCOVERY-3_BRANCH-PLACEMENT_DECISION-AUDIT.md @ db956ee",
+   "BRANCHING-EXPANSION.json @ eea7c98 (candidate attributes)"
+  ],
+  "productionPredicatesRerun": false,
+  "productionPredicatesNote": "Pool/hint/persistence values come from the placement audit's production-predicate run on the same main SHA; not re-executed here."
+ },
+ "provisionalOwnerDirection": [
+  "OD-BRANCH-1",
+  "OD-BRANCH-2",
+  "OD-BRANCH-3",
+  "OD-BRANCH-4",
+  "OD-BRANCH-5"
+ ],
+ "eligibilityRule": "SHORTLIST = step has >=1 sauce-bearing candidate (non no-sauce) whose blocker set is exactly one kind. Not a ranking.",
+ "steps": [
+  {
+   "step": 1,
+   "newMaterials": [
+    "egg"
+   ],
+   "key": "bismarck",
+   "U": [
+    "bismarck"
+   ],
+   "D": [
+    "bismarck"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 25,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 2,
+   "newMaterials": [
+    "bacon"
+   ],
+   "key": "breakfast-pizza",
+   "U": [
+    "breakfast-pizza"
+   ],
+   "D": [
+    "breakfast-pizza"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 24,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 3,
+   "newMaterials": [
+    "mushroom"
+   ],
+   "key": "funghi",
+   "U": [
+    "funghi"
+   ],
+   "D": [
+    "funghi"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 23,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 4,
+   "newMaterials": [
+    "eggplant"
+   ],
+   "key": "melanzane-pizza",
+   "U": [
+    "melanzane-pizza"
+   ],
+   "D": [
+    "melanzane-pizza"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 22,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 5,
+   "newMaterials": [
+    "parmigiano"
+   ],
+   "key": "parmigiana-pizza",
+   "U": [
+    "parmigiana-pizza"
+   ],
+   "D": [
+    "parmigiana-pizza"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 21,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 6,
+   "newMaterials": [
+    "pepperoni"
+   ],
+   "key": "pepperoni",
+   "U": [
+    "pepperoni"
+   ],
+   "D": [
+    "pepperoni"
+   ],
+   "newCandidates": 4,
+   "candidates": [
+    [
+     "fathead-pizza-keto-pizzadb-p9",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ],
+    [
+     "montreal-style-pizza-pizzadb-p13",
+     "BLOCKED-MECHANIC",
+     "sauce"
+    ],
+    [
+     "new-england-bar-pizza-pizzadb-p6",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ],
+    [
+     "st-louis-style-pizza-pizzadb-p4",
+     "BLOCKED-MULTIPLE",
+     "no-sauce"
+    ]
+   ],
+   "status": "SHORTLIST",
+   "persistenceIfBranchNeverFound": 20,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 7,
+   "newMaterials": [
+    "sausage"
+   ],
+   "key": "salsiccia",
+   "U": [
+    "salsiccia"
+   ],
+   "D": [
+    "salsiccia"
+   ],
+   "newCandidates": 2,
+   "candidates": [
+    [
+     "chicago-deep-dish-pizzadb",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ],
+    [
+     "chicago-stuffed-pizza-pizzadb-p3",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ]
+   ],
+   "status": "NOT SHORTLISTED: every sauce-bearing candidate is BLOCKED-MULTIPLE",
+   "persistenceIfBranchNeverFound": 19,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 8,
+   "newMaterials": [
+    "ham"
+   ],
+   "key": "meat-lovers",
+   "U": [
+    "meat-lovers"
+   ],
+   "D": [
+    "meat-lovers"
+   ],
+   "newCandidates": 1,
+   "candidates": [
+    [
+     "bismarck-pizza-pizzadb-p7",
+     "BLOCKED-IDENTITY",
+     "sauce"
+    ]
+   ],
+   "status": "SHORTLIST",
+   "persistenceIfBranchNeverFound": 18,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 9,
+   "newMaterials": [
+    "corn"
+   ],
+   "key": "bambino",
+   "U": [
+    "bambino"
+   ],
+   "D": [
+    "bambino"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 17,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 10,
+   "newMaterials": [
+    "pineapple"
+   ],
+   "key": "hawaiian",
+   "U": [
+    "hawaiian"
+   ],
+   "D": [
+    "hawaiian"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 16,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 11,
+   "newMaterials": [
+    "black-olive",
+    "oregano"
+   ],
+   "key": "capricciosa",
+   "U": [
+    "capricciosa"
+   ],
+   "D": [
+    "capricciosa"
+   ],
+   "newCandidates": 1,
+   "candidates": [
+    [
+     "pizza-a-caballo",
+     "BLOCKED-MULTIPLE",
+     "no-sauce"
+    ]
+   ],
+   "status": "EXCLUDED: no-sauce candidates only",
+   "persistenceIfBranchNeverFound": 15,
+   "firstMultiHint": "TARGET"
+  },
+  {
+   "step": 12,
+   "newMaterials": [
+    "onion"
+   ],
+   "key": "pizza-portuguesa",
+   "U": [
+    "pizza-portuguesa",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pizza-portuguesa",
+    "brazilian-calabresa"
+   ],
+   "newCandidates": 8,
+   "candidates": [
+    [
+     "aussie-pizzadb",
+     "READY",
+     "no-sauce"
+    ],
+    [
+     "fugazza-pizzadb-p10",
+     "BLOCKED-MULTIPLE",
+     "no-sauce"
+    ],
+    [
+     "fugazzeta-rellena",
+     "BLOCKED-MECHANIC",
+     "no-sauce"
+    ],
+    [
+     "fugazzetta-pizzadb-p10",
+     "BLOCKED-MULTIPLE",
+     "no-sauce"
+    ],
+    [
+     "keema-pizza-pizzadb-p2",
+     "BLOCKED-AUTHORITY",
+     "no-sauce"
+    ],
+    [
+     "old-forge-style-pizza-pizzadb-p1",
+     "BLOCKED-MULTIPLE",
+     "no-sauce"
+    ],
+    [
+     "pizza-baiana",
+     "BLOCKED-AUTHORITY",
+     "no-sauce"
+    ],
+    [
+     "pizza-chilena-pizzadb-p8",
+     "BLOCKED-AUTHORITY",
+     "no-sauce"
+    ]
+   ],
+   "status": "EXCLUDED: already C (pizza-portuguesa + brazilian-calabresa)",
+   "persistenceIfBranchNeverFound": 14,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 13,
+   "newMaterials": [
+    "olive-oil"
+   ],
+   "key": "fugazza",
+   "U": [
+    "fugazza",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "fugazza"
+   ],
+   "newCandidates": 1,
+   "candidates": [
+    [
+     "margherita-pizzadb-row",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ]
+   ],
+   "status": "NOT SHORTLISTED: every sauce-bearing candidate is BLOCKED-MULTIPLE",
+   "persistenceIfBranchNeverFound": 13,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 14,
+   "newMaterials": [
+    "garlic"
+   ],
+   "key": "marinara",
+   "U": [
+    "marinara",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "marinara"
+   ],
+   "newCandidates": 3,
+   "candidates": [
+    [
+     "grandma-pizza-pizzadb",
+     "BLOCKED-MECHANIC",
+     "sauce"
+    ],
+    [
+     "marinara-pizza-pizzadb-p13",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ],
+    [
+     "pizza-de-cancha",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ]
+   ],
+   "status": "SHORTLIST",
+   "persistenceIfBranchNeverFound": 12,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 15,
+   "newMaterials": [
+    "anchovy"
+   ],
+   "key": "napoletana",
+   "U": [
+    "napoletana",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "napoletana"
+   ],
+   "newCandidates": 2,
+   "candidates": [
+    [
+     "sfincione-pizzadb",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ],
+    [
+     "siciliana-pizzadb",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ]
+   ],
+   "status": "NOT SHORTLISTED: every sauce-bearing candidate is BLOCKED-MULTIPLE",
+   "persistenceIfBranchNeverFound": 11,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 16,
+   "newMaterials": [
+    "tuna"
+   ],
+   "key": "tonno-e-cipolla",
+   "U": [
+    "tonno-e-cipolla",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "tonno-e-cipolla"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 10,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 17,
+   "newMaterials": [
+    "pesto"
+   ],
+   "key": "pesto-tonno",
+   "U": [
+    "pesto-tonno",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pesto-tonno"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 9,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 18,
+   "newMaterials": [
+    "cherry-tomato"
+   ],
+   "key": "genovese",
+   "U": [
+    "genovese",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "genovese"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 8,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 19,
+   "newMaterials": [
+    "clam"
+   ],
+   "key": "new-haven-apizza",
+   "U": [
+    "new-haven-apizza",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "new-haven-apizza"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 7,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 20,
+   "newMaterials": [
+    "fresh-tomato"
+   ],
+   "key": "pesto-caprese",
+   "U": [
+    "pesto-caprese",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pesto-caprese"
+   ],
+   "newCandidates": 2,
+   "candidates": [
+    [
+     "argentine-napolitana-pizzadb-p1",
+     "BLOCKED-MULTIPLE",
+     "no-sauce"
+    ],
+    [
+     "chilean-napolitana-pizzadb",
+     "BLOCKED-IDENTITY",
+     "no-sauce"
+    ]
+   ],
+   "status": "EXCLUDED: no-sauce candidates only",
+   "persistenceIfBranchNeverFound": 6,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 21,
+   "newMaterials": [
+    "potato"
+   ],
+   "key": "pesto-patate",
+   "U": [
+    "pesto-patate",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pesto-patate"
+   ],
+   "newCandidates": 1,
+   "candidates": [
+    [
+     "hokkaido-cheese-pizza-pizzadb-p15",
+     "BLOCKED-AUTHORITY",
+     "no-sauce"
+    ]
+   ],
+   "status": "EXCLUDED: no-sauce candidates only",
+   "persistenceIfBranchNeverFound": 5,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 22,
+   "newMaterials": [
+    "rosemary"
+   ],
+   "key": "pizza-bianca",
+   "U": [
+    "pizza-bianca",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pizza-bianca"
+   ],
+   "newCandidates": 0,
+   "candidates": [],
+   "status": "EXCLUDED: current-material candidate 0",
+   "persistenceIfBranchNeverFound": 4,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 23,
+   "newMaterials": [
+    "capers"
+   ],
+   "key": "puttanesca-pizza",
+   "U": [
+    "puttanesca-pizza",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "puttanesca-pizza"
+   ],
+   "newCandidates": 2,
+   "candidates": [
+    [
+     "caponata-pizza-pizzadb-p2",
+     "BLOCKED-AUTHORITY",
+     "no-sauce"
+    ],
+    [
+     "pizza-romana-pizzadb-p9",
+     "BLOCKED-MULTIPLE",
+     "sauce"
+    ]
+   ],
+   "status": "NOT SHORTLISTED: every sauce-bearing candidate is BLOCKED-MULTIPLE",
+   "persistenceIfBranchNeverFound": 3,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 24,
+   "newMaterials": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "key": "quattro-formaggi",
+   "U": [
+    "quattro-formaggi",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "quattro-formaggi"
+   ],
+   "newCandidates": 1,
+   "candidates": [
+    [
+     "quattro-formaggi-pizzadb",
+     "BLOCKED-IDENTITY",
+     "no-sauce"
+    ]
+   ],
+   "status": "EXCLUDED: no-sauce candidates only",
+   "persistenceIfBranchNeverFound": 2,
+   "firstMultiHint": "OPEN_POOL"
+  },
+  {
+   "step": 25,
+   "newMaterials": [
+    "chicken"
+   ],
+   "key": "pesto-pollo",
+   "U": [
+    "brazilian-calabresa",
+    "pesto-pollo"
+   ],
+   "D": [
+    "pesto-pollo"
+   ],
+   "newCandidates": 1,
+   "candidates": [
+    [
+     "curry-pizza-japan-pizzadb-p2",
+     "BLOCKED-AUTHORITY",
+     "no-sauce"
+    ]
+   ],
+   "status": "EXCLUDED: no-sauce candidates only",
+   "persistenceIfBranchNeverFound": 1,
+   "firstMultiHint": "OPEN_POOL"
+  }
+ ],
+ "shortlist": [
+  "6",
+  "8",
+  "14"
+ ],
+ "excluded": {
+  "dex0": "onboarding authority (free Margherita hint)",
+  "noCandidate": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   9,
+   10,
+   16,
+   17,
+   18,
+   19,
+   22
+  ],
+  "alreadyC": [
+   12
+  ],
+  "noSauceOnly": [
+   11,
+   20,
+   21,
+   24,
+   25
+  ],
+  "candidatesButAllMultiBlocker": [
+   7,
+   13,
+   15,
+   23
+  ]
+ },
+ "calabresaFoundVacuousBefore": 12
+}
