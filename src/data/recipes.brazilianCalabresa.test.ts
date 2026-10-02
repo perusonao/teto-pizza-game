@@ -22,8 +22,8 @@ const recipe = getRecipe(ID as Recipe["id"])!;
 const nonSauce = recipe.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category !== "sauce");
 
 describe("brazilian-calabresa authoring (PR-4b-B)", () => {
-  it("is production recipe No.26, appended after the existing 25 (their order / No. unchanged)", () => {
-    expect(RECIPES).toHaveLength(26);
+  it("is production recipe No.26, right after the existing 25 (their order / No. unchanged; No.27 pesto-pollo follows)", () => {
+    expect(RECIPES).toHaveLength(27);
     expect(RECIPES[25].id).toBe(ID);
     expect(RECIPES.slice(0, 25).filter((r) => r.id === ID)).toEqual([]);
     expect(recipe.nameJa).toBe("ブラジリアン・カラブレーザ");
@@ -49,15 +49,15 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
       expect(getIngredient(q.ingredientId)!.category, q.ingredientId).not.toBe("cheese");
     }
     expect(recipe.requiredIngredients.map((q) => q.ingredientId)).toContain("black-olive");
-    expect(INGREDIENTS).toHaveLength(29);
+    expect(INGREDIENTS).toHaveLength(30); // + No.27's chicken; calabresa itself still adds none
   });
 
-  it("is non-credit and out of Lunch Rush; the other 25 are unchanged on both", () => {
+  it("is non-credit and out of Lunch Rush; the other 25 originals are unchanged on both", () => {
     expect(recipe.ladderCredit).toBe(false);
     expect(recipe.lunchRush).toBe(false);
     expect(countsTowardLadder(ID)).toBe(false);
     expect(participatesInLunchRush(ID)).toBe(false);
-    const others = RECIPES.filter((r) => r.id !== ID) as readonly Recipe[];
+    const others = RECIPES.slice(0, 25) as readonly Recipe[];
     expect(others).toHaveLength(25);
     for (const r of others) {
       expect(r.ladderCredit, r.id).toBeUndefined();
@@ -65,9 +65,9 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
     }
   });
 
-  it("does not move the ladder: still 24 frozen steps, no appended step, calabresa is nobody's key recipe", () => {
-    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(24);
+  it("does not move the ladder: the 24 frozen steps are untouched (No.27 appends step 25 only), calabresa is nobody's key recipe", () => {
+    expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
     expect(DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)).not.toContain(ID);
   });
 
@@ -121,7 +121,7 @@ describe("brazilian-calabresa Hint: key-free, structure-derived rungs only", () 
   it("is key-free in the roles table (the 25 originals keep their keyed roles)", () => {
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as Recipe["id"]])).toBe(true);
     expect(RECIPE_HINT_ROLES[ID as Recipe["id"]]).toEqual({ keyFree: true });
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(1);
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(2); // calabresa + No.27 pesto-pollo
   });
 
   it("has SAUCE, STRUCTURE, then one SUB_CLASS per topping: no KEY_TOPPING, no CHEESE, no empty rung", () => {

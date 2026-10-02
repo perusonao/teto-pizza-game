@@ -237,12 +237,12 @@ describe("I5a-3 / I5b-3: Home and Inventory read '所持 N/M種' from the obtain
     return card.querySelector(".home-menu__sub")!.textContent ?? "";
   }
 
-  it("a fresh save reads 3/29 on Home and in Inventory (25-recipe ladder: every catalog row obtainable)", async () => {
+  it("a fresh save reads 3/30 on Home and in Inventory (25-recipe ladder: every catalog row obtainable)", async () => {
     const user = userEvent.setup();
     render(<App />);
-    expect(homeSummary()).toBe("所持 3/29種");
+    expect(homeSummary()).toBe("所持 3/30種");
     await user.click(screen.getByRole("button", { name: /材料/ }));
-    expect(document.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 3/29種");
+    expect(document.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 3/30種");
   });
 
   it("an I5a-era save owning W1 materials counts them (now obtainable), never an unknown id, on both", async () => {
@@ -258,10 +258,10 @@ describe("I5a-3 / I5b-3: Home and Inventory read '所持 N/M種' from the obtain
     );
     const user = userEvent.setup();
     render(<App />);
-    expect(homeSummary()).toBe("所持 6/29種");
+    expect(homeSummary()).toBe("所持 6/30種");
     await user.click(screen.getByRole("button", { name: /材料/ }));
     const inventory = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(inventory.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 6/29種");
+    expect(inventory.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 6/30種");
     expect(within(inventory).getByText("あさり")).toBeInTheDocument();
     expect(within(inventory).getByText("コーン")).toBeInTheDocument();
   });

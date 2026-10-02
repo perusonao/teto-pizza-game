@@ -78,11 +78,11 @@ describe("discoveredRecipeCount", () => {
     expect(discoveredRecipeCount(high)).toBe(5);
   });
 
-  it("is 25 once every shipped recipe is discovered, 26 recipes with calabresa non-credit (W1 I5b-3 / PR-4b-B)", () => {
-    expect(RECIPES).toHaveLength(26);
+  it("is 26 once every shipped recipe is discovered, 27 recipes with calabresa non-credit (W1 I5b-3 / PR-4b-B / No.27)", () => {
+    expect(RECIPES).toHaveLength(27);
     const all = RECIPES.map((r) => dexEntry(r.id));
-    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(25); // the credited population
-    expect(discoveredRecipeCount(all)).toBe(26); // the raw default counts every recipe
+    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(26); // the credited population
+    expect(discoveredRecipeCount(all)).toBe(27); // the raw default counts every recipe
   });
 });
 

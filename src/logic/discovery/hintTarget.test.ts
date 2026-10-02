@@ -10,8 +10,10 @@ import { compareHintCandidates, discoverableHintCandidates, selectHintTarget } f
 
 const recipe = (id: string): Recipe => RECIPES.find((r) => r.id === id)!;
 /** The credited (W1) population: what the single-path W1 walk means. A non-credit branching recipe
- *  is a different population (see "branching pool" below), never an exception hidden in this one. */
-const W1_RECIPES = RECIPES.filter((r) => countsTowardLadder(r.id));
+ *  is a different population (see "branching pool" below), never an exception hidden in this one.
+ *  No.27 pesto-pollo (credited, but the appended step 25's key recipe) is outside the W1 walk; it is
+ *  pinned by the No.27 vertical-slice tests. */
+const W1_RECIPES = RECIPES.filter((r) => countsTowardLadder(r.id) && r.id !== "pesto-pollo");
 const W1 = { recipes: W1_RECIPES };
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 

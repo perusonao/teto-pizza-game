@@ -151,8 +151,8 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
   });
 });
 
-describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
-  it("A: every one of the 25 recipes walks its ladder from the first rung to the complete line, every request ANSWERED at the P-C price", () => {
+describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
+  it("A: every one of the 27 recipes walks its ladder from the first rung to the complete line, every request ANSWERED at the P-C price", () => {
     let walked = 0;
     for (const r of RECIPES) {
       for (const discoveredCount of r.id === "margherita" ? [0, ...dexCountsOf(r.id)] : dexCountsOf(r.id)) {
@@ -170,8 +170,8 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
         walked += 1;
       }
     }
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(26);
-    expect(walked).toBeGreaterThanOrEqual(26);
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(27);
+    expect(walked).toBeGreaterThanOrEqual(27);
   });
 
   it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; OD-H5-P4-SAUCE stays reserved for TQ-1D)", () => {

@@ -31,15 +31,16 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   it("the current ladder is the 25-recipe W1 ladder (I5b-3); the shipped-15 ladder stays as history", () => {
     // LAD-1 (OD-W2-1): composed as the frozen W1 ladder + appended steps (none yet), so it is an
     // equal copy rather than the same object.
-    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
+    // No.27 appended step 25 (chicken -> pesto-pollo); steps 1..24 are exactly the frozen W1 ladder.
+    expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
     expect(DISCOVERY_LADDER.populationId).toBe("w1-25");
     expect(SHIPPED_15_DISCOVERY_LADDER.populationId).toBe("shipped-15");
   });
 
-  it("targets the credited 25-recipe population (24 steps; PR-4b-B's non-credit 26th adds none); shipped-15 had 15 recipes (14 steps)", () => {
-    expect(RECIPES).toHaveLength(26);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(25);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(24);
+  it("targets the credited 26-recipe population (24 W1 steps + No.27's appended step 25; PR-4b-B's non-credit calabresa adds none); shipped-15 had 15 recipes (14 steps)", () => {
+    expect(RECIPES).toHaveLength(27);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(26);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
     expect(SHIPPED_15_RECIPES).toHaveLength(15);
     expect(SHIPPED_15_DISCOVERY_LADDER.steps).toHaveLength(14);
   });

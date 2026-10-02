@@ -49,13 +49,13 @@ function seeded(seed: number): () => number {
 }
 
 describe("25/25 reachability on the production ladder", () => {
-  it("the production ladder is the 24-step W1 ladder over 25 credited recipes (+ the non-credit calabresa = 26)", () => {
-    expect(ALL).toHaveLength(26);
-    expect(ALL.filter((r) => r.ladderCredit !== false)).toHaveLength(25);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(24);
+  it("the production ladder is the 24-step W1 ladder + No.27's appended step 25, over 26 credited recipes (+ the non-credit calabresa = 27)", () => {
+    expect(ALL).toHaveLength(27);
+    expect(ALL.filter((r) => r.ladderCredit !== false)).toHaveLength(26);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
   });
 
-  it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches every recipe (26)", () => {
+  it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches every recipe (27)", () => {
     expect(playForward([], [], (o) => o[0])).toBe(TOTAL);
     expect(playForward([], [], (o) => o[o.length - 1])).toBe(TOTAL);
   });

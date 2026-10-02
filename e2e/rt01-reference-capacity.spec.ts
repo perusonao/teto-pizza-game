@@ -43,10 +43,10 @@ test.describe("RT-01 reference placement", () => {
     await openHarness(page, "section=shipped");
     const cases = page.locator(".rt01-case");
     // Progression 2.0 W1 I5b-5a: 25 shipped recipes since I5b-3 (RECIPES order: the shipped 15,
-    // then the 10 W1); 26 since PR-4b-B (brazilian-calabresa, 8 pieces, appended). The shipped 15 keep the 8-piece ceiling; the W1 references go up to 10
+    // then the 10 W1); 26 since PR-4b-B (brazilian-calabresa, 8 pieces, appended); 27 since No.27 (pesto-pollo, 7 pieces). The shipped 15 keep the 8-piece ceiling; the W1 references go up to 10
     // (REC-01..03: Parmigiana 9, Portuguesa 10, Puttanesca 9), covered by the p9 / p10 cases below.
-    await expect(cases).toHaveCount(26);
-    for (let i = 0; i < 26; i += 1) {
+    await expect(cases).toHaveCount(27);
+    for (let i = 0; i < 27; i += 1) {
       const row = cases.nth(i);
       const total = Number(await row.getAttribute("data-total"));
       expect(total).toBeGreaterThan(0);

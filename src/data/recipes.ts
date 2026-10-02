@@ -573,6 +573,29 @@ export const RECIPES = [
     ladderCredit: false,
     lunchRush: false,
   },
+  {
+    id: "pesto-pollo",
+    nameJa: "ペストポッロピザ",
+    description:
+      "ジェノベーゼソースにチキン、トマト、モッツァレラをのせた、香ばしくてコクのある一枚。",
+    // Discovery 3.0 No.27. SOURCE AUTHORITY (PIZZA DB p12 `pesto-pollo-pizzadb-p12`, 172 matrix):
+    // name ペストポッロピザ, sauce base pesto (family-derived バジル), ingredients チキン / トマト /
+    // モッツァレラ (= chicken / fresh-tomato / mozzarella). GAMEPLAY CALIBRATION (not source):
+    // the counts and bake window mirror the sibling pesto-caprese (same pesto + mozzarella +
+    // fresh-tomato skeleton: mozzarella x2, 50-70) with chicken x3 as the key topping (the usual
+    // meat count, cf. salsiccia/calabresa sausage x3); 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited (absent `ladderCredit` = counts, unlike calabresa); `lunchRush: false` keeps it
+    // out of the Lunch Rush pool (Owner decision).
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "chicken", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

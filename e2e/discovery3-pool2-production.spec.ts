@@ -9,7 +9,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
  * brazilian-calabresa are both DISCOVERABLE. The Dex shows ONE aggregated unknown (no count, name,
  * identity or per-candidate hint), the hint sheet names no recipe and sells nothing, and
  * FREE Cooking -> a trial -> a retry -> NEW RECIPE DISCOVERED -> the Dex works, with the Dex pill
- * counting 26 recipes. Finding the non-credit calabresa first leaves one candidate (the hint is back);
+ * counting 27 recipes. Finding the non-credit calabresa first leaves one candidate (the hint is back);
  * the W1 ladder step is unchanged. Runs on both iPhone widths (390x844 / 360x800).
  *
  * Optional output: HV_SCREENSHOT_DIR.
@@ -47,7 +47,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/26/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/27/);
 }
 
 async function capture(page: Page, name: string, projectName: string) {
@@ -94,7 +94,7 @@ async function cookCalabresa(page: Page, opts: { oregano: number; from: "HOME" |
 test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calabresa)", () => {
   test.setTimeout(240_000);
 
-  test("Dex: ONE aggregated unknown, 26 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
+  test("Dex: ONE aggregated unknown, 27 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
     await openWithSave(page);
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
@@ -102,7 +102,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await expect(aggregated).toHaveCount(1);
     await expect(aggregated).toContainText("まだ発見できるピザがあるよ");
     await expect(aggregated).not.toContainText(/[0-9]/);
-    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(26);
+    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(27);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
     const body = await page.locator(".dex-overlay").innerText();
@@ -135,7 +135,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
 
     await page.getByRole("button", { name: /図鑑を見る/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*26/);
+    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*27/);
     // calabresa found, portuguesa left: a pool of 1 again -> no aggregated unknown, its own hint entrance.
     await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(1);

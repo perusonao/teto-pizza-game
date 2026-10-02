@@ -1602,6 +1602,62 @@ function deepFreezeReference<T>(value: T): T {
   return value;
 }
 
+/**
+ * Discovery 3.0 No.27: Reference Truth for `pesto-pollo`. Pieces (mozzarella 2, fresh-tomato 2,
+ * chicken 3 = 7 non-sauce) take the RT-01 8-piece ring consecutively in `requiredIngredients` order
+ * (the `PESTO_CAPRESE_REFERENCE` / `BRAZILIAN_CALABRESA_REFERENCE` precedent). Slot assignment is
+ * GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const PESTO_POLLO_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-pollo",
+  sauce: computeMechanicalSauceReference("pesto-pollo"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "fresh-tomato",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "chicken",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -1629,6 +1685,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PESTO_PATATE_REFERENCE.recipeId, PESTO_PATATE_REFERENCE],
   [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
   [BRAZILIAN_CALABRESA_REFERENCE.recipeId, BRAZILIAN_CALABRESA_REFERENCE],
+  [PESTO_POLLO_REFERENCE.recipeId, PESTO_POLLO_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

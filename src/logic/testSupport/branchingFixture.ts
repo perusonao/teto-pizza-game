@@ -27,8 +27,9 @@ import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/re
 import { discoveredRecipeCount } from "../discoveryLadder";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 
-/** The credited (W1) recipes: what the ladder counts. */
-export const W1_RECIPES: readonly Recipe[] = RECIPES.filter((r) => countsTowardLadder(r.id));
+/** The credited W1 recipes: what the frozen W1 ladder counts. No.27 pesto-pollo is credited too but
+ *  is the key recipe of the appended step 25 (chicken), so it is outside the W1 walk this fixture models. */
+export const W1_RECIPES: readonly Recipe[] = RECIPES.filter((r) => countsTowardLadder(r.id) && r.id !== "pesto-pollo");
 
 /** The W1 ladder played in order: margherita, then each step's key recipe. */
 export const W1_ORDER: readonly string[] = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];

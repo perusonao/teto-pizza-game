@@ -30,6 +30,9 @@ const B = "brazilian-calabresa";
 const ONION_STEP = DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes("onion"))!.step;
 const BEFORE_ONION = W1_ORDER.slice(0, ONION_STEP); // 12 found: the key recipe of step 12 is next
 const ALL_26 = [...W1_ORDER, B];
+/** The 26 recipes of this PR-4b-B slice: production minus No.27 pesto-pollo (appended step 25 -- its own
+ *  pool behaviour is pinned in the No.27 vertical-slice test, not here). */
+const RECIPES_26 = RECIPES.filter((r) => r.id !== "pesto-pollo");
 
 const isSauce = (id: string) => getIngredient(id)?.category === "sauce";
 function pizzaOf(ids: readonly string[]): PizzaState {
@@ -138,8 +141,8 @@ describe("both orders from the onion step: no softlock, a consistent ledger, the
         resolveShopEntitlement(walkState(prefix.filter((id) => countsTowardLadder(id))).dex, [], []).unlockedForShopIngredientIds,
       );
       // No softlock: until all 26 are found, something is always DISCOVERABLE.
-      if (n < order.length) expect(poolOf(state).length, `${n}: ${prefix.join(",")}`).toBeGreaterThanOrEqual(1);
-      else expect(poolOf(state)).toEqual([]);
+      if (n < order.length) expect(poolOf(state, RECIPES_26).length, `${n}: ${prefix.join(",")}`).toBeGreaterThanOrEqual(1);
+      else expect(poolOf(state, RECIPES_26)).toEqual([]);
       ledgers.push(state.unlockedForShopIngredientIds);
     }
     return ledgers;

@@ -15,7 +15,7 @@ import { sauceAxisAnswerCount } from "./nearMissPrivacy";
  *
  * OD-TQ1C-2: the near-miss k-rule applies to SAUCE_ONLY uniformly, but only from TQ-1D (with Human
  * Verification) -- TQ-1C must not change a single production near-miss line. The audit number the
- * Owner decided on (SSOT §1.1: 12 of 44 SAUCE_ONLY cases would fall back) is pinned here with the
+ * Owner decided on (SSOT §1.1: 12 of 47 SAUCE_ONLY cases would fall back) is pinned here with the
  * pure functions only, so TQ-1D starts from a checked baseline.
  */
 
@@ -83,7 +83,7 @@ describe("T15a: the OD-TQ1C-2 audit baseline (SSOT §1.1)", () => {
         }
       }
     }
-    expect(sauceOnly).toBe(44);
+    expect(sauceOnly).toBe(47); // +3 at No.27's appended step 25
     expect(lowK).toHaveLength(12);
     expect(lowK.every((c) => c.used.length === 0 && c.step >= 1 && c.step <= 12)).toBe(true);
   });

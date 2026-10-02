@@ -46,6 +46,11 @@ const PRODUCTION: LadderRecipe[] = RECIPES.map((r) => ({
   ingredientIds: r.requiredIngredients.map((q) => q.ingredientId),
 }));
 
+/** The W1 population: production minus the appended-step recipe (No.27 pesto-pollo needs `chicken`,
+ *  which W1 does not sell). The synthetic extension tests below extend THIS, so they keep exercising
+ *  "a W1 ladder + a hypothetical addition" independent of the real appended step. */
+const PRODUCTION_W1: LadderRecipe[] = PRODUCTION.filter((r) => r.id !== "pesto-pollo");
+
 /** A recipe made only of W1 materials and a starter (the TQ-1 Aussie shape, synthetic here: LAD-1
  *  adds no recipe to production). */
 const SYN_ALL_W1: LadderRecipe = { id: "syn-all-w1", ingredientIds: ["bacon", "egg", "mozzarella", "onion"] };
@@ -76,10 +81,13 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
     expect(validateAppendOnlyExtension(W1_25_DISCOVERY_LADDER, DISCOVERY_LADDER)).toEqual([]);
   });
 
-  it("appends nothing while every production recipe is makeable from the starters + W1 materials", () => {
-    expect(POST_W1_APPENDED_STEPS).toEqual([]);
-    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
+  it("appends exactly one step (No.27: 25 chicken -> pesto-pollo); every other production recipe is makeable from the starters + W1 materials", () => {
+    expect(POST_W1_APPENDED_STEPS).toEqual([{ ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" }]);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
+    expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
     expect(DISCOVERY_LADDER.populationId).toBe("w1-25");
+    // W1-only population (without pesto-pollo) appends nothing.
+    expect(buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, PRODUCTION_W1)).toEqual(W1_25_DISCOVERY_LADDER);
   });
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
@@ -94,21 +102,21 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
 describe("LAD-1: adding content never reorders W1", () => {
   it("a recipe made of W1 materials only adds no step (append-only) ...", () => {
-    const next = buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, [...PRODUCTION, SYN_ALL_W1]);
+    const next = buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, [...PRODUCTION_W1, SYN_ALL_W1]);
     expect(next.steps).toHaveLength(24);
     expect(next).toEqual(W1_25_DISCOVERY_LADDER);
-    expect(validateLadderProgression(next, [...PRODUCTION, SYN_ALL_W1], REC04_STARTERS)).toEqual([]);
+    expect(validateLadderProgression(next, [...PRODUCTION_W1, SYN_ALL_W1], REC04_STARTERS)).toEqual([]);
   });
 
   it("... while a full regeneration would reorder W1 from step 3 (negative control, the reason for OD-W2-1)", () => {
-    const regenerated = toMaterialLadder("regen", buildKeyRecipeLadder([...PRODUCTION, SYN_ALL_W1]));
+    const regenerated = toMaterialLadder("regen", buildKeyRecipeLadder([...PRODUCTION_W1, SYN_ALL_W1]));
     expect(stepKey(regenerated).slice(0, 2)).toEqual(stepKey(W1_25_DISCOVERY_LADDER).slice(0, 2));
     expect(regenerated.steps[2]).toMatchObject({ step: 3, ingredientIds: ["onion"], keyRecipeId: "syn-all-w1" });
     expect(validateAppendOnlyExtension(W1_25_DISCOVERY_LADDER, regenerated).length).toBeGreaterThan(0);
   });
 
   it("new materials are appended after step 24, W1 materials are never unlocked again", () => {
-    const population = [...PRODUCTION, SYN_ALL_W1, SYN_NEW_A, SYN_NEW_B];
+    const population = [...PRODUCTION_W1, SYN_ALL_W1, SYN_NEW_A, SYN_NEW_B];
     const next = buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, population, "w2-synthetic");
     expect(validateAppendOnlyExtension(W1_25_DISCOVERY_LADDER, next)).toEqual([]);
     expect(stepKey(next).slice(24)).toEqual(["25:syn-mat-a->syn-new-a", "26:syn-mat-b->syn-new-b"]);
@@ -134,7 +142,7 @@ describe("LAD-1: adding content never reorders W1", () => {
 });
 
 describe("LAD-1: existing save semantics", () => {
-  const population = [...PRODUCTION, SYN_NEW_A, SYN_NEW_B];
+  const population = [...PRODUCTION_W1, SYN_NEW_A, SYN_NEW_B];
   const extended = buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, population, "w2-synthetic");
 
   it("every mid-W1 save keeps its next unlock and its unlocked materials", () => {
@@ -223,7 +231,7 @@ describe("LAD-1: validators catch broken ladders (adversarial)", () => {
   });
 
   it("detects a starter sold as a ladder material and an unused (dead) material", () => {
-    const population: LadderProgressionRecipe[] = [...PRODUCTION, SYN_NEW_A];
+    const population: LadderProgressionRecipe[] = [...PRODUCTION_W1, SYN_NEW_A];
     const bad = appendLadderSteps(base, [{ ingredientIds: ["basil", "syn-mat-a", "syn-unused"], keyRecipeId: "syn-new-a" }]);
     const problems = validateLadderProgression(bad, population, REC04_STARTERS);
     expect(problems).toContain("STARTER_IN_LADDER: basil (step 25)");
@@ -231,12 +239,12 @@ describe("LAD-1: validators catch broken ladders (adversarial)", () => {
   });
 
   it("detects an unreachable recipe", () => {
-    const problems = validateLadderProgression(base, [...PRODUCTION, SYN_NEW_A], REC04_STARTERS);
+    const problems = validateLadderProgression(base, [...PRODUCTION_W1, SYN_NEW_A], REC04_STARTERS);
     expect(problems).toEqual(["UNREACHABLE: syn-new-a needs syn-mat-a"]);
   });
 
   it("detects a useless step (its key recipe was already makeable) and an unknown key recipe", () => {
-    const population = [...PRODUCTION, SYN_NEW_A, SYN_NEW_B];
+    const population = [...PRODUCTION_W1, SYN_NEW_A, SYN_NEW_B];
     const useless = appendLadderSteps(base, [
       { ingredientIds: ["syn-mat-a"], keyRecipeId: "margherita" },
       { ingredientIds: ["syn-mat-b"], keyRecipeId: "nope" },

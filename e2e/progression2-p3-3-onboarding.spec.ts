@@ -51,7 +51,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     // A. Fresh HOME: Dex 0, フリークッキング is the primary CTA, ランチラッシュ is locked with a
     // reason, ピザを作る is still present (secondary).
     await openHomeFresh(page);
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/26/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/27/);
     await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toBeVisible();
     const lunchRushButton = page.getByRole("button", { name: /ランチラッシュ/ });
     await expect(lunchRushButton).toBeDisabled();
@@ -165,7 +165,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
       );
     });
     await openHomeFresh(page);
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/26/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
     await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "\u{1F355} ピザを作る" })).toBeVisible();
     await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
@@ -201,7 +201,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     });
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/26/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
 
     await page.getByRole("button", { name: "設定" }).click();
     await page.getByRole("button", { name: "ゲームデータをリセット" }).click();
@@ -211,7 +211,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     await confirmPanel.getByRole("button", { name: "最初からやり直す" }).click();
     await page.waitForLoadState("load");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/26/, { timeout: 15_000 });
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/27/, { timeout: 15_000 });
     await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toBeVisible();
   });
 });

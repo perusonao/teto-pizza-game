@@ -66,12 +66,12 @@ function fixture(overrides: Partial<Ingredient>): Ingredient {
 }
 
 describe("IngredientGlyph: default emoji path (every production ingredient without a dedicated visual)", () => {
-  it("production has 29 ingredients and only capers / clam / fresh-tomato declare a dedicated visual (I5a)", () => {
-    expect(INGREDIENTS).toHaveLength(29);
+  it("production has 30 ingredients and only capers / clam / fresh-tomato declare a dedicated visual (I5a)", () => {
+    expect(INGREDIENTS).toHaveLength(30);
     expect(
       Object.fromEntries(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => [i.id, i.pieceVisual])),
     ).toEqual(W1_DEDICATED);
-    expect(EMOJI_ROWS).toHaveLength(26);
+    expect(EMOJI_ROWS).toHaveLength(27); // + No.27 chicken (plain emoji)
   });
 
   it.each(EMOJI_ROWS.map((i) => [i.id, i] as const))("%s renders the identical emoji DOM", (_id, ingredient) => {
