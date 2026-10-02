@@ -59,6 +59,9 @@ interface HomeScreenProps {
   onOpenShop: () => void;
   onOpenInventory: () => void;
   onOpenSettings: () => void;
+  /** 更新情報 (changelog): small secondary entry in the footer. Optional so existing test call
+   *  sites compile; the entry only renders when it is wired. */
+  onOpenChangelog?: () => void;
   /** HOME Weekly Ranking route (Issue #87 Firebase Ranking 1.0 Phase 2A follow-up): opens the
    *  same `WeeklyRankingOverlay` App.tsx already mounts for Lunch Rush RESULT's own "ランキング
    *  を見る" button (`isRankingOpen`/`setRankingOpen`) -- HOME just gets a second entry point
@@ -89,6 +92,7 @@ export function HomeScreen({
   onOpenShop,
   onOpenInventory,
   onOpenSettings,
+  onOpenChangelog,
   onOpenRanking,
   newShopMaterialCount = 0,
   dexHasNew = false,
@@ -242,7 +246,14 @@ export function HomeScreen({
       </section>
 
       <footer className="home-footer">
-        <p className="home-footer__message">{"\u{1F43E}"} いいピザは、いい一日をつくる！</p>
+        <div className="home-footer__row">
+          <p className="home-footer__message">{"\u{1F43E}"} いいピザは、いい一日をつくる！</p>
+          {onOpenChangelog && (
+            <button type="button" className="home-footer__changelog" onClick={onOpenChangelog}>
+              {"\u{1F4E3}"} 更新情報
+            </button>
+          )}
+        </div>
       </footer>
     </div>
   );

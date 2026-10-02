@@ -3595,6 +3595,28 @@
   text-align: center;
 }
 
+.home-footer__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+}
+
+/* Tap target is 40px tall but the negative block margin keeps its layout height at the message's
+   own line, so adding the entry never moves the HOME CTA skeleton (layout contract L-O). */
+.home-footer__changelog {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: #8a5a2c;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: underline;
+  min-height: 40px;
+  margin: -12px 0;
+  padding: 0 8px;
+}
+
 .home-footer__message {
   font-size: 11.5px;
   font-weight: 600;
@@ -6840,4 +6862,39 @@ p.hint-sheet__step {
   font-size: 13px;
   font-weight: 800;
   color: #6b4226;
+}
+
+/* ---------- 更新情報 (changelog) overlay: scrolls via the shared .dex-overlay__body ---------- */
+.changelog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.changelog-entry {
+  background: #f5ecd8;
+  border-radius: 12px;
+  padding: 12px 14px;
+  overflow-wrap: anywhere;
+}
+
+.changelog-entry__title {
+  margin: 0 0 2px;
+  font-size: 15px;
+}
+
+.changelog-entry__meta {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  color: #8a5a2c;
+}
+
+.changelog-entry__changes {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
 }

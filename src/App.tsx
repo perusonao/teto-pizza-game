@@ -8,6 +8,7 @@ import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
 import { InventoryOverlay } from "./components/InventoryOverlay";
 import { SettingsOverlay } from "./components/SettingsOverlay";
+import { ChangelogOverlay } from "./components/ChangelogOverlay";
 import { WeeklyRankingOverlay } from "./components/WeeklyRankingOverlay";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
@@ -239,6 +240,8 @@ function App() {
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  // 更新情報 overlay: session-only open flag, nothing persisted.
+  const [isChangelogOpen, setChangelogOpen] = useState(false);
   // Firebase Ranking 1.0 Phase 2A (Issue #87): WeeklyRankingOverlay's open/closed state -- same
   // App-level useState shape as isDexOpen/isShopOpen/isInventoryOpen/isSettingsOpen above.
   // Originally opened only from Lunch Rush RESULT (MissionResultOverlay's own "ランキングを見る"
@@ -1144,6 +1147,7 @@ function App() {
           onOpenShop={openShop}
           onOpenInventory={() => setInventoryOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenChangelog={() => setChangelogOpen(true)}
           onOpenRanking={() => setRankingOpen(true)}
           newShopMaterialCount={newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds)}
           dexHasNew={state.justDiscovered}
@@ -1205,7 +1209,7 @@ function App() {
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
           isGlobalOverlayOpen={
-            isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen || isHintSheetOpen
+            isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isChangelogOpen || isRankingOpen || isHintSheetOpen
           }
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
@@ -1305,6 +1309,8 @@ function App() {
       {isSettingsOpen && (
         <SettingsOverlay onClose={() => setSettingsOpen(false)} onResetGameData={handleResetGameData} />
       )}
+
+      {isChangelogOpen && <ChangelogOverlay onClose={() => setChangelogOpen(false)} />}
 
       {isRankingOpen && <WeeklyRankingOverlay onClose={() => setRankingOpen(false)} />}
     </div>
