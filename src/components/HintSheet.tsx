@@ -6,7 +6,7 @@ import type { HintSheetView } from "../state/discoveryHint";
 import { circledOrdinal, type Hint5BoardEntry, type Hint5Presentation, type Hint5RungKind } from "../logic/discovery/hint5Ladder";
 import type { TrialEntryView } from "../logic/discovery/trialNotebook";
 import { IngredientGlyph } from "./IngredientGlyph";
-import { OPEN_POOL_ACTIONS } from "./openPoolCopy";
+import { CHOOSE_RESEARCH_COPY, OPEN_POOL_ACTIONS } from "./openPoolCopy";
 import { TrialNotebookSheet } from "./TrialNotebookSheet";
 
 /**
@@ -176,6 +176,7 @@ export function HintSheet({
   onBuyHint5 = () => {},
   notebook = [],
   pantry,
+  onChooseResearch,
   onClose,
 }: {
   view: HintSheetView;
@@ -197,6 +198,8 @@ export function HintSheet({
   notebook?: readonly TrialEntryView[];
   /** IP-1: the way from OPEN_POOL to the existing pantry (UI navigation only; see `HintPantryAccess`). */
   pantry?: HintPantryAccess;
+  /** #353: the way from CHOOSE_RESEARCH to the Dex's anonymous Research cards (UI navigation only). */
+  onChooseResearch?: () => void;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -373,10 +376,17 @@ export function HintSheet({
             </div>
           </>
         ) : (
-          <div className="hint-sheet__empty">
-            <p className="hint-sheet__empty-title">{EMPTY_COPY[view.kind].title}</p>
-            <p className="hint-sheet__empty-body">{EMPTY_COPY[view.kind].body}</p>
-            {view.kind === "OPEN_POOL" && (
+          <div className="hint-sheet__empty" {...(view.kind === "CHOOSE_RESEARCH" ? { "data-choose-research": true } : {})}>
+            <p className="hint-sheet__empty-title">{view.kind === "CHOOSE_RESEARCH" ? CHOOSE_RESEARCH_COPY.title : EMPTY_COPY[view.kind].title}</p>
+            <p className="hint-sheet__empty-body">{view.kind === "CHOOSE_RESEARCH" ? CHOOSE_RESEARCH_COPY.body : EMPTY_COPY[view.kind].body}</p>
+            {view.kind === "CHOOSE_RESEARCH" && onChooseResearch && (
+              <div className="hint-sheet__open-pool-actions">
+                <button type="button" className="cta-button hint-sheet__pantry-entry" onClick={onChooseResearch}>
+                  {CHOOSE_RESEARCH_COPY.button}
+                </button>
+              </div>
+            )}
+            {(view.kind === "OPEN_POOL" || view.kind === "CHOOSE_RESEARCH") && (
               <div className="hint-sheet__open-pool-actions" data-open-pool-actions>
                 <p className="hint-sheet__empty-body">{OPEN_POOL_ACTIONS.notebook}</p>
                 {pantry?.kind === "open" ? (

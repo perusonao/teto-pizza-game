@@ -115,11 +115,11 @@ const pantryDialog = () => screen.queryByRole("dialog", { name: /食材庫/ });
 const stateJson = () => screen.getByTestId("state-json").textContent;
 
 describe("IP-1 OPEN_POOL action UI (Dex 12, pool 2)", () => {
-  it("fixture: the pool is exactly 2 and the sheet is OPEN_POOL", () => {
+  it("fixture: the pool is exactly 2 and the sheet (#353: 2 registered Research Entries, no target) is CHOOSE_RESEARCH, which keeps the IP-1 actions", () => {
     expect(poolOf(w)).toHaveLength(2);
     render(<Harness initial={toStep(dex12(), "TOPPING")} />);
     openHint();
-    expect(hintDialog()).toHaveAttribute("data-hint-kind", "OPEN_POOL");
+    expect(hintDialog()).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
   });
 
   it("at a tray step: notebook line + header notebook entry kept + a 食材庫 button; no ingredient/family/recipe/count", () => {
@@ -214,7 +214,7 @@ describe("IP-1 anti-oracle: the OPEN_POOL action UI does not depend on the candi
     );
     expect(Object.keys(hintSheetView(base))).toEqual(["kind"]);
     expect(Object.keys(hintSheetView(richer))).toEqual(["kind"]);
-    expect(hintSheetView(richer).kind).toBe("OPEN_POOL");
+    expect(hintSheetView(richer).kind).toBe("CHOOSE_RESEARCH");
     expect(actionsHtml(richer)).toBe(actionsHtml(base));
   });
 

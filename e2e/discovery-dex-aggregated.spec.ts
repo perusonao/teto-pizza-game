@@ -63,7 +63,7 @@ test.describe("Dex with several Research Entries (pool 2+)", () => {
     await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
-    await expect(sheet).toContainText("まだ発見できるピザがあるよ");
+    await expect(sheet).toContainText("研究するピザを選ぼう");
     await expect(sheet.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
     if (dir) await page.screenshot({ path: `${dir}/hint-sheet-open-pool-${testInfo.project.name}.png` });
   });

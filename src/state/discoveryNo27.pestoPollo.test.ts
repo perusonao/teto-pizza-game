@@ -140,7 +140,7 @@ describe("No.27 step-25 pool (production functions)", () => {
     const after = stateAfter(W1_DONE, { chickenBought: true });
     expect(pool(after).sort()).toEqual([CAL, ID].sort());
     expect(target(after)).toBe("OPEN_POOL");
-    expect(hintSheetView(hintState(after))).toEqual({ kind: "OPEN_POOL" }); // names no candidate
+    expect(hintSheetView(hintState(after))).toEqual({ kind: "CHOOSE_RESEARCH" }); // #353: 2 registered entries; names no candidate
   });
 
   it("Case B (calabresa discovered): after chicken purchase pool = pesto-pollo only -> auto target", () => {

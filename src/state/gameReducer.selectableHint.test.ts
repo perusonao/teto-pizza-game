@@ -154,10 +154,13 @@ describe("PURCHASE_SELECTABLE_HINT: the transaction (matrix 1-9)", () => {
     expect(again.pitzBalance).toBe(85);
   });
 
-  it("4b without a session a reload re-targets the recipe the player bought facts for (sticky)", () => {
+  it("4b #353: without a session a reload keeps the bought facts but never re-targets their recipe on its own; the player's pin does", () => {
     const bought = buyOnce(sheetOn("capricciosa", 100), "topping");
-    const reloaded = act(saveAndReload(bought), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
-    expect(discoverableHintCandidates(reloaded)[0].id).not.toBe("capricciosa");
+    const reopened = act(saveAndReload(bought), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    expect(discoverableHintCandidates(reopened)[0].id).not.toBe("capricciosa");
+    expect(reopened.hintSession).toBeNull();
+    expect(reopened.discoveryHintFacts.capricciosa).toEqual(bought.discoveryHintFacts.capricciosa);
+    const reloaded = act(saveAndReload(bought), { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: "capricciosa" });
     expect(reloaded.hintSession?.targetId).toBe("capricciosa");
   });
 

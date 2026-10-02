@@ -13,7 +13,7 @@ import {
   walkState,
 } from "../logic/testSupport/branchingFixture";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
-import { hintSheetView, resolveHintSession, unlockNextHint, type DiscoveryHintState } from "./discoveryHint";
+import { hintSheetView, isValidResearchTarget, needsResearchTargetChoice, resolveHintSession, unlockNextHint, type DiscoveryHintState } from "./discoveryHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
 
 /**
@@ -99,50 +99,55 @@ describe("pool size 0 / 1 / 2+ at the target selector", () => {
   });
 });
 
-describe("resolveHintSession / hintSheetView on a pool of 2+ (legacy save)", () => {
+describe("resolveHintSession / hintSheetView on a pool of 2+ (legacy save; #353: 2+ registered Research Entries)", () => {
   const base = legacy();
   const pool = discoverableHintCandidates(base).map((r) => r.id);
 
-  it("the legacy save really is a pool of 2+", () => {
+  it("the legacy save really is a pool of 2+, and every member is a registered Research Entry", () => {
     expect(pool.length).toBeGreaterThanOrEqual(2);
+    expect(needsResearchTargetChoice(base)).toBe(true);
+    for (const id of pool) expect(isValidResearchTarget(base, id), id).toBe(true);
   });
 
-  it("no sticky / purchase: no session, and the sheet says only that something can still be found", () => {
+  it("no target: no session, and the sheet only offers to choose what to research", () => {
     expect(resolveHintSession(base)).toBeNull();
     const view = hintSheetView(base);
-    expect(view).toEqual({ kind: "OPEN_POOL" });
+    expect(view).toEqual({ kind: "CHOOSE_RESEARCH" });
     expect(Object.keys(view)).toEqual(["kind"]);
   });
 
-  it("a purchased fact keeps its recipe as the target, on any pool member (never moved to another)", () => {
+  it("#353: a purchased fact never makes its recipe the target without the player's choice; choosing it shows it", () => {
     for (const id of pool) {
       const s = legacy({ discoveryHintFacts: { [id]: ["ing:tomato-sauce"] } });
-      expect(resolveHintSession(s)?.targetId, id).toBe(id);
+      expect(resolveHintSession(s), id).toBeNull();
+      expect(resolveHintSession({ ...s, researchTargetId: id })?.targetId, id).toBe(id);
     }
   });
 
-  it("a purchased legacy level keeps its recipe as the target", () => {
+  it("#353: a purchased legacy level never makes its recipe the target on its own", () => {
     const id = pool[pool.length - 1];
-    expect(resolveHintSession(legacy({ discoveryHintPurchases: { [id]: 1 } }))?.targetId).toBe(id);
+    const s = legacy({ discoveryHintPurchases: { [id]: 1 } });
+    expect(resolveHintSession(s)).toBeNull();
+    expect(resolveHintSession({ ...s, researchTargetId: id })?.targetId).toBe(id);
   });
 
-  it("with several purchased recipes the first in hint order wins, deterministically", () => {
+  it("#353: with several purchased recipes nothing is chosen for the player; the chosen one wins", () => {
     const s = legacy({ discoveryHintFacts: { [pool[1]]: ["ing:tomato-sauce"], [pool[2]]: ["ing:tomato-sauce"] } });
-    expect(resolveHintSession(s)?.targetId).toBe(pool[1]);
+    expect(resolveHintSession(s)).toBeNull();
+    expect(resolveHintSession({ ...s, researchTargetId: pool[2] })?.targetId).toBe(pool[2]);
   });
 
-  it("a revealed (H1+) session target stays sticky; an H0-only session does not survive a pool of 2+", () => {
-    const revealed = legacy({ hintSession: { targetId: pool[1], revealedIndex: 1 } });
-    expect(resolveHintSession(revealed)?.targetId).toBe(pool[1]);
-    const h0 = legacy({ hintSession: { targetId: pool[1], revealedIndex: 0 } });
-    expect(resolveHintSession(h0)).toBeNull();
+  it("#353: a revealed (H1+) or H0 session left in the state is not a choice either", () => {
+    expect(resolveHintSession(legacy({ hintSession: { targetId: pool[1], revealedIndex: 1 } }))).toBeNull();
+    expect(resolveHintSession(legacy({ hintSession: { targetId: pool[1], revealedIndex: 0 } }))).toBeNull();
   });
 
-  it("a purchased target is not dropped for the Dex-pin-less open, and an unlock for a non-sticky session is refused", () => {
+  it("#353: bought facts stay saved; the sheet names no recipe until one is chosen, and an unlock is refused", () => {
     const bought = legacy({ discoveryHintFacts: { [pool[0]]: ["ing:tomato-sauce"] } });
-    expect(hintSheetView({ ...bought, hintSession: resolveHintSession(bought) }).kind).toBe("SELECTABLE");
-    expect(hintSheetView(bought).kind).toBe("SELECTABLE");
-    // A session left on a recipe that is neither sticky nor purchased no longer unlocks anything.
+    expect(hintSheetView(bought)).toEqual({ kind: "CHOOSE_RESEARCH" });
+    expect(hintSheetView({ ...bought, hintSession: { targetId: pool[0], revealedIndex: 0 } })).toEqual({ kind: "CHOOSE_RESEARCH" });
+    const chosen = { ...bought, researchTargetId: pool[0] };
+    expect(hintSheetView({ ...chosen, hintSession: resolveHintSession(chosen) }).kind).toBe("SELECTABLE");
     const stray = legacy({ hintSession: { targetId: pool[1], revealedIndex: 0 } });
     expect(unlockNextHint(stray, 1)).toBeNull();
   });

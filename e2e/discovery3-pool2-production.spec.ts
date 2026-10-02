@@ -117,7 +117,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
-    await expect(sheet).toContainText("まだ発見できるピザがあるよ");
+    await expect(sheet).toContainText("研究するピザを選ぼう");
     await expect(sheet.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
     await capture(page, "pool2-hint-sheet-open-pool", testInfo.project.name);
   });

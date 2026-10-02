@@ -280,7 +280,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
     await startFree(page, "RESULT");
     // pool > 1 and nothing bought: the Hint sheet offers the open-pool message only, yet the notebook is reachable.
     await openNotebookFromHint(page);
-    await expect(hintSheet(page)).toContainText("まだ発見できるピザがあるよ");
+    await expect(hintSheet(page)).toContainText("研究するピザを選ぼう");
     const row = notebook(page).locator("[data-trial-entry]");
     await expect(row).toHaveCount(1);
     await expect(row).toContainText("試作 #1");

@@ -118,7 +118,8 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         s = act(restockLow(s), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
         view = hintSheetView(s);
       }
-      if (view.kind === "OPEN_POOL") {
+      if (view.kind === "OPEN_POOL" || view.kind === "CHOOSE_RESEARCH") {
+        // #353: two registered Research Entries and no target is CHOOSE_RESEARCH (was OPEN_POOL); same blind pick.
         // PR-4b-B (D-1): pizza-portuguesa and brazilian-calabresa are both DISCOVERABLE and nothing is
         // sticky or bought, so the sheet names no recipe and sells nothing: it says only that
         // something can still be found. The player cooks without a hint; finding the non-credit
