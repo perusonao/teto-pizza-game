@@ -650,13 +650,13 @@ export function GameScreen({
         </>
       )}
 
-      {state.phase === "PREPARE" && state.freeCook && researchView && (
+      {state.phase === "PREPARE" && state.freeCook && researchResult && (
         // #346 S3: the Research context replaces the free-cook order card (same slot, same card
         // component). It shows only what the player already knows -- never the hidden identity.
         <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
           <div className="order-card__text">
             <span className="order-card__recipe-name order-card__recipe-name--research">
-              <span>🔎 研究中　{researchView.label}</span>
+              <span>🔎 研究中　{researchResult.label}</span>
               {researchTestAvailable && (
                 <button
                   ref={researchPickerButtonRef}
@@ -674,9 +674,9 @@ export function GameScreen({
             <span className="order-card__hint">
               わかっていること：
               {[
-                ...researchView.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
-                ...researchView.classLinesJa,
-                ...(researchView.totalIngredientCount !== null ? [`全部で${researchView.totalIngredientCount}種類`] : []),
+                ...researchResult.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
+                ...researchResult.classLinesJa,
+                ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
               ].join("　")}
             </span>
           </div>
@@ -702,7 +702,7 @@ export function GameScreen({
         />
       )}
 
-      {state.phase === "PREPARE" && state.freeCook && !researchView && (
+      {state.phase === "PREPARE" && state.freeCook && !researchResult && (
         <div className="order-card order-card--free-cook">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{"\u{1F3A8}"} レシピ発見の試作</span>
@@ -762,7 +762,11 @@ export function GameScreen({
         <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
           <div className="order-card__text">
             <span className="order-card__recipe-name">
-              {state.freeCook ? <>{"\u{1F3A8}"} レシピ発見の試作</> : state.recipe.nameJa}
+              {state.freeCook ? (
+                researchResult ? <>🔎 研究中　{researchResult.label}</> : <>{"\u{1F3A8}"} レシピ発見の試作</>
+              ) : (
+                state.recipe.nameJa
+              )}
             </span>
             <span className="order-card__hint">{buildTetoBakeLine(state.recipe).textJa}</span>
           </div>
