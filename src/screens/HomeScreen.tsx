@@ -172,7 +172,7 @@ export function HomeScreen({
               onClick={onStartFreeCook}
             >
               {"\u{1F3A8}"} レシピ発見
-              <span className="cta-button__sub">持っている食材を組み合わせて、新しいレシピを発見しよう</span>
+              <span className="cta-button__sub">持っている食材で、新しいレシピを発見しよう</span>
             </button>
           ) : (
             <button

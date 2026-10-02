@@ -98,7 +98,7 @@ test("fresh HOME: レシピ発見 is the lead CTA with a short supporting line, 
   await page.waitForSelector(".app-frame");
   const cta = page.getByRole("button", { name: /レシピ発見/ });
   await expect(cta).toBeVisible();
-  await expect(cta).toContainText("持っている食材を組み合わせて、新しいレシピを発見しよう");
+  await expect(cta).toContainText("持っている食材で、新しいレシピを発見しよう");
   await expectInViewport(page, cta, "HOME レシピ発見");
   await expectNoOverflow(page, "fresh HOME");
   expect(await page.locator("body").innerText()).not.toMatch(OLD_WORDING);

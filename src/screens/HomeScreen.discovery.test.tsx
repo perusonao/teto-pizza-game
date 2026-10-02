@@ -63,7 +63,7 @@ describe("W1-e HOME badges and bubble", () => {
   it("the 2+1 CTA DOM order is unchanged by the badges", () => {
     renderHome({ newShopMaterialCount: 3, dexHasNew: true, locked: true });
     const ctas = Array.from(document.querySelectorAll(".home-cta-row .cta-button")).map((b) => b.textContent);
-    expect(ctas).toEqual(["🍕 ピザを作る", "⏱️ ランチラッシュ", "🎨 レシピ発見持っている食材を組み合わせて、新しいレシピを発見しよう"]);
+    expect(ctas).toEqual(["🍕 ピザを作る", "⏱️ ランチラッシュ", "🎨 レシピ発見持っている食材で、新しいレシピを発見しよう"]);
   });
 
   it("newShopMaterialCount counts unlocked-but-not-bought finite materials only", () => {

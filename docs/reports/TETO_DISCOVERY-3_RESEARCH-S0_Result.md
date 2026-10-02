@@ -5,7 +5,7 @@ Base main: `fde9e2187d5946782903098aa2d48f842212caae`. Refs #346 (stays open).
 ## Player-facing terminology
 | Where | Before | After |
 |---|---|---|
-| HOME lead CTA | 🎨 フリークッキングで探す | 🎨 レシピ発見 + 「持っている食材を組み合わせて、新しいレシピを発見しよう」 |
+| HOME lead CTA | 🎨 フリークッキングで探す | 🎨 レシピ発見 + 「持っている食材で、新しいレシピを発見しよう」 |
 | HOME secondary CTA | 🎨 フリークッキング | 🎨 レシピ発見 |
 | HOME bubble (Dex 0) | …フリークッキングで最初の1枚… | …レシピ発見で最初の1枚… |
 | Pizza Select prompt / CTA | フリークッキングで…／フリークッキングで探す | レシピ発見で…／レシピ発見へ |
