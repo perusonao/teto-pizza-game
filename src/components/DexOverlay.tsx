@@ -7,7 +7,7 @@ import { buildRecipeChapters, chapterProgress } from "../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
-import { deriveResearchEntries, type ResearchEntry } from "../logic/discovery/researchEntry";
+import { researchEntryViews, type ResearchEntryView } from "../state/discoveryHint";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 interface DexOverlayProps {
@@ -35,23 +35,38 @@ interface DexOverlayProps {
   /** Discovery 3.0 Research Recipe (#346 S2): the stored hint ledger, read only to tell whether
    *  STRUCTURE was bought (the research card then, and only then, shows the ingredient total). */
   discoveryHintFacts?: Readonly<Record<string, readonly string[]>>;
+  /** #346 S3: a Research Entry card's 「このピザを研究する」 -- Free Cooking with that entry as the
+   *  Research Target. Offered only for an entry that is cookable now (DISCOVERABLE). */
+  onResearch?: (recipeId: string) => void;
 }
 
-const ENTRY_MARKS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"];
-
-/** #346 S2: one anonymous Research Entry card. Display only (no CTA until S3). The label is a
- *  plain "this card" marker in the stable anonymous order -- never a name, No.xx or recipe id. */
-function ResearchEntryCard({ entry, label }: { entry: ResearchEntry; label: string }) {
+/** #346 S2/S3: one anonymous Research Entry card. The label is a plain "this card" marker in the
+ *  stable anonymous order -- never a name, No.xx or recipe id. S3 adds the research CTA, shown only
+ *  for an entry the player can cook right now (the id travels through the callback, never the DOM). */
+function ResearchEntryCard({ view, onResearch }: { view: ResearchEntryView; onResearch?: () => void }) {
   return (
     <div className="dex-research-card">
-      <h3 className="dex-card__research-title">{label}</h3>
+      <h3 className="dex-card__research-title">{view.label}</h3>
       <p className="dex-card__research-sub">わかっていること</p>
       <ul className="dex-card__research-facts">
-        {entry.knownExactIngredientIds.map((id) => (
+        {view.knownExactIngredientIds.map((id) => (
           <li key={id}>✓ {getIngredient(id)?.nameJa}を使う</li>
         ))}
-        {entry.totalIngredientCount !== null && <li>全部で {entry.totalIngredientCount} 種類の材料を使う</li>}
+        {view.classLinesJa.map((line, i) => (
+          <li key={`class-${i}`}>{line}</li>
+        ))}
+        {view.totalIngredientCount !== null && <li>全部で {view.totalIngredientCount} 種類の材料を使う</li>}
       </ul>
+      {onResearch && (
+        <button
+          type="button"
+          className="dex-card__tag-cta dex-card__tag-cta--research"
+          onClick={onResearch}
+          aria-label={`${view.label}を研究する`}
+        >
+          🔎 このピザを研究する
+        </button>
+      )}
     </div>
   );
 }
@@ -135,6 +150,7 @@ export function DexOverlay({
   onOpenShop,
   onShowHint,
   discoveryHintFacts,
+  onResearch,
 }: DexOverlayProps) {
   const total = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -145,8 +161,12 @@ export function DexOverlay({
   // one aggregated card; their own slots then read as plain unknown slots, so neither the count
   // nor which slots they are reaches the DOM. Zero or one keeps the per-slot 🎨 card unchanged.
   const aggregateUnknown = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").length > 1;
-  // #346 S2: the S1 projection is the only authority (registration, order, known facts, STRUCTURE).
-  const researchEntries = deriveResearchEntries({ dex, ownedIngredientIds, discoveryHintFacts }).entries;
+  // #346 S2/S3: S1's projection (+ the Hint ledger's own exact / class facts) is the only authority.
+  const researchEntries = researchEntryViews({ dex, ownedIngredientIds, discoveryHintFacts });
+  const cookableNow = (recipeId: string) => {
+    const recipe = RECIPES.find((r) => r.id === recipeId);
+    return !!recipe && recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE";
+  };
   // W1-d: opened right after a discovery (Result's 「📖 図鑑を見る」), the Dex lands on the new slot.
   const bodyRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -224,11 +244,11 @@ export function DexOverlay({
             <section className="dex-overlay__research">
               <h3 className="dex-overlay__chapter-title">🔎 研究中のピザ</h3>
               <div className="dex-overlay__list">
-                {researchEntries.map((entry, index) => (
+                {researchEntries.map((view) => (
                   <ResearchEntryCard
-                    key={entry.recipeId}
-                    entry={entry}
-                    label={researchEntries.length > 1 ? `？？？ピザ ${ENTRY_MARKS[index] ?? index + 1}` : "？？？ピザ"}
+                    key={view.recipeId}
+                    view={view}
+                    onResearch={onResearch && cookableNow(view.recipeId) ? () => onResearch(view.recipeId) : undefined}
                   />
                 ))}
               </div>
