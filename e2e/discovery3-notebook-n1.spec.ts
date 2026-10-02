@@ -200,7 +200,9 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
     await expect(rows.nth(1)).toContainText("モッツァレラ");
     await expect(rows.nth(0)).toContainText("バジル");
     await expect(rows.nth(0)).toContainText("ベーコン");
-    await expect(rows.nth(0).locator(".trial-notebook__feedback, .trial-notebook__none").first()).toBeVisible();
+    // Near/Far Neutralization Phase 1: no near/far feedback is recorded, so no feedback row is shown.
+    await expect(rows.nth(0).locator(".trial-notebook__feedback")).toHaveCount(0);
+    await expect(rows.nth(1).locator(".trial-notebook__feedback")).toHaveCount(0);
     await noHorizontalOverflow(page);
     await capture(page, "n1-entries", testInfo.project.name);
     await backToHint(page);
