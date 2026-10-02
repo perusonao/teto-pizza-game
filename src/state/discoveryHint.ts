@@ -70,7 +70,7 @@ import {
   type SelectableHintPresentation,
 } from "../logic/discovery/selectableHint";
 import { discoveredRecipeIds, type DexState } from "./dex";
-import type { InventoryState } from "./inventory";
+import { hasStock, type InventoryState } from "./inventory";
 
 export type { DeductionFamily };
 
@@ -730,4 +730,37 @@ export function researchableEntryIds(
 export function researchResultView(state: DiscoveryHintState): ResearchEntryView | null {
   if (!state.researchTargetId) return null;
   return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
+}
+
+// ---- Issue #356 (Discovery 3.1): the declared ingredient of a Research Target attempt ----------------
+
+/** Whether the registered Research Entry `recipeId` exists. Ownership-derived, NOT stock-derived: unlike
+ *  `isValidResearchTarget` it stays true after the attempt used the target's last finite stock (the same basis as
+ *  `researchResultView`), so a positive result is never lost to the stock the attempt itself consumed. */
+export function isRegisteredResearchEntry(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "discoveryHintFacts">,
+  recipeId: string | null | undefined,
+): boolean {
+  return !!recipeId && deriveResearchEntries(state).entries.some((e) => e.recipeId === recipeId);
+}
+
+/**
+ * Whether `ingredientId` may be declared as this attempt's single tested ingredient: a valid explicit Research
+ * Target, an OWNED catalog ingredient that can still be placed (stock > 0 or unlimited), and not already known for
+ * that target (the unlock fact or a stored `ing:` fact -- nothing new to learn). It reads no recipe membership.
+ */
+export function canDeclareResearchTest(
+  state: Pick<
+    DiscoveryHintState,
+    "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts" | "researchTargetId"
+  >,
+  ingredientId: string,
+): boolean {
+  const target = state.researchTargetId;
+  if (!target || !isValidResearchTarget(state, target)) return false;
+  const ingredient = getIngredient(ingredientId);
+  if (!ingredient || !state.ownedIngredientIds.includes(ingredientId)) return false;
+  if (!hasStock(ingredient, state.inventory, 0)) return false;
+  const view = researchEntryViews(state).find((v) => v.recipeId === target);
+  return !!view && !view.knownExactIngredientIds.includes(ingredientId);
 }

@@ -126,6 +126,10 @@ interface ResultPanelProps {
    *  with it does an ORIGINAL result use the Research copy, 「📓 試作ノート」 and the retry wording; the label is
    *  never a recipe name or id. */
   researchLabelJa?: string | null;
+  /** #356 Slice 2: the declared ingredient's result for THIS round (`state.lastIngredientTest`), shown only on the
+   *  Research ORIGINAL card. NOT_IDENTIFIED is the one value shared by a negative, INCOMPLETE_MATCH and AMBIGUOUS, so
+   *  the line cannot separate them. Omitted / null renders nothing (no declaration, targetless, cross-recipe, flag OFF). */
+  ingredientTest?: { ingredientId: string; verdict: "POSITIVE" | "NOT_IDENTIFIED" | "NOT_USED" } | null;
   /** #346 S4: opens the 「📓 試作ノート」 sheet (GameScreen owns it) from the Research ORIGINAL result. */
   onOpenAttemptLog?: () => void;
   /** Ref for that button, so GameScreen can hand focus back when the sheet closes. */
@@ -204,6 +208,7 @@ export function ResultPanel({
   executionAdviceJa = null,
   onShowHint,
   researchLabelJa = null,
+  ingredientTest = null,
   onOpenAttemptLog,
   attemptLogEntryRef,
   postDiscovery = null,
@@ -302,6 +307,12 @@ export function ResultPanel({
           <p className="original-pizza__lead">
             {recipeDiscovery ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
           </p>
+          {research && ingredientTest && ingredientTestLine(ingredientTest) !== null && (
+            <p className="original-pizza__ingredient-test" data-ingredient-test="">
+              <span className="original-pizza__ingredient-test-label">{"\u{1F52C}"} 今回調べた結果</span>
+              <span className="original-pizza__ingredient-test-line">{ingredientTestLine(ingredientTest)}</span>
+            </p>
+          )}
           {usedIngredientIds.length > 0 && (
             <ul className="original-pizza__ingredients" aria-label="使った材料">
               {usedIngredientIds.map((id) => {
@@ -676,4 +687,19 @@ export function ResultPanel({
       {actions}
     </div>
   );
+}
+
+/** #356: the player-facing line of a declared ingredient's result. Only these three strings exist; the negative,
+ *  INCOMPLETE_MATCH and AMBIGUOUS outcomes all arrive as NOT_IDENTIFIED, so no wording can tell them apart. */
+function ingredientTestLine(test: { ingredientId: string; verdict: "POSITIVE" | "NOT_IDENTIFIED" | "NOT_USED" }): string | null {
+  const name = getIngredient(test.ingredientId)?.nameJa;
+  if (!name) return null;
+  switch (test.verdict) {
+    case "POSITIVE":
+      return `✓ ${name}を使う`;
+    case "NOT_IDENTIFIED":
+      return `${name}は特定できませんでした`;
+    case "NOT_USED":
+      return `${name}は使わなかったので、調べていません`;
+  }
 }

@@ -167,6 +167,55 @@
    protects -- `-webkit-line-clamp` (supported in every browser this project targets, including
    Safari/iOS) truncates only past a genuinely unusual 3rd line rather than every line past the
    first. */
+/* #356 Slice 2: the research card's name row carries the compact 「今回調べる食材」 selector on its right, so the
+   card gains no row (the selector shares the 13px name line; the button is a 22px pill). */
+.order-card__recipe-name--research {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.research-test-button {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 62%;
+  box-sizing: border-box;
+  min-height: 24px;
+  padding: 0 9px;
+  border: 1px solid #d9a05b;
+  border-radius: 12px;
+  background: #fff;
+  color: #6b4226;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.original-pizza__ingredient-test {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #fff3d6;
+  color: #6b4226;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.original-pizza__ingredient-test-label {
+  font-size: 11px;
+  color: #a1662f;
+}
+
 .order-card__hint {
   font-size: 11.5px;
   color: #a1662f;
