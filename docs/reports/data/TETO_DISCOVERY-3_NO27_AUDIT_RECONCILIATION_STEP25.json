@@ -1,0 +1,852 @@
+{
+ "baseline": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa"
+  ],
+  "appendedSteps": [],
+  "ladderLen": 24
+ },
+ "vongole|credit=true": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|vongole"
+  ],
+  "appendedSteps": [
+   "25:parsley->vongole"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "vongole"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "vongole"
+    ],
+    "target": "TARGET:vongole"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": true,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "vongole|credit=false": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|vongole"
+  ],
+  "appendedSteps": [
+   "25:parsley->vongole"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "vongole"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "vongole"
+    ],
+    "target": "TARGET:vongole"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": false,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "prosciutto-funghi|credit=true": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|prosciutto-funghi"
+  ],
+  "appendedSteps": [
+   "25:prosciutto-crudo->prosciutto-funghi"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "prosciutto-funghi"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "prosciutto-funghi"
+    ],
+    "target": "TARGET:prosciutto-funghi"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": true,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "prosciutto-funghi|credit=false": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|prosciutto-funghi"
+  ],
+  "appendedSteps": [
+   "25:prosciutto-crudo->prosciutto-funghi"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "prosciutto-funghi"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "prosciutto-funghi"
+    ],
+    "target": "TARGET:prosciutto-funghi"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": false,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "pesto-gamberi|credit=true": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|pesto-gamberi"
+  ],
+  "appendedSteps": [
+   "25:shrimp->pesto-gamberi"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-gamberi"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "pesto-gamberi"
+    ],
+    "target": "TARGET:pesto-gamberi"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": true,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "pesto-gamberi|credit=false": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|pesto-gamberi"
+  ],
+  "appendedSteps": [
+   "25:shrimp->pesto-gamberi"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-gamberi"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "pesto-gamberi"
+    ],
+    "target": "TARGET:pesto-gamberi"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": false,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "pesto-trapanese|credit=true": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|pesto-trapanese"
+  ],
+  "appendedSteps": [
+   "25:almond->pesto-trapanese"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-trapanese"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "pesto-trapanese"
+    ],
+    "target": "TARGET:pesto-trapanese"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": true,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "pesto-trapanese|credit=false": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|pesto-trapanese"
+  ],
+  "appendedSteps": [
+   "25:almond->pesto-trapanese"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-trapanese"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "pesto-trapanese"
+    ],
+    "target": "TARGET:pesto-trapanese"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": false,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "pesto-pollo|credit=true": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|pesto-pollo"
+  ],
+  "appendedSteps": [
+   "25:chicken->pesto-pollo"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-pollo"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "pesto-pollo"
+    ],
+    "target": "TARGET:pesto-pollo"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 26,
+    "step26Reached_syn": true,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": true,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ },
+ "pesto-pollo|credit=false": {
+  "stepsClass": [
+   "1:NORMAL:bismarck",
+   "2:NORMAL:breakfast-pizza",
+   "3:NORMAL:funghi",
+   "4:NORMAL:melanzane-pizza",
+   "5:NORMAL:parmigiana-pizza",
+   "6:NORMAL:pepperoni",
+   "7:NORMAL:salsiccia",
+   "8:NORMAL:meat-lovers",
+   "9:NORMAL:bambino",
+   "10:NORMAL:hawaiian",
+   "11:NORMAL:capricciosa",
+   "12:OPEN_POOL:pizza-portuguesa|brazilian-calabresa",
+   "13:OPEN_POOL_POSSIBLE:fugazza|brazilian-calabresa",
+   "14:OPEN_POOL_POSSIBLE:marinara|brazilian-calabresa",
+   "15:OPEN_POOL_POSSIBLE:napoletana|brazilian-calabresa",
+   "16:OPEN_POOL_POSSIBLE:tonno-e-cipolla|brazilian-calabresa",
+   "17:OPEN_POOL_POSSIBLE:pesto-tonno|brazilian-calabresa",
+   "18:OPEN_POOL_POSSIBLE:genovese|brazilian-calabresa",
+   "19:OPEN_POOL_POSSIBLE:new-haven-apizza|brazilian-calabresa",
+   "20:OPEN_POOL_POSSIBLE:pesto-caprese|brazilian-calabresa",
+   "21:OPEN_POOL_POSSIBLE:pesto-patate|brazilian-calabresa",
+   "22:OPEN_POOL_POSSIBLE:pizza-bianca|brazilian-calabresa",
+   "23:OPEN_POOL_POSSIBLE:puttanesca-pizza|brazilian-calabresa",
+   "24:OPEN_POOL_POSSIBLE:quattro-formaggi|brazilian-calabresa",
+   "25:OPEN_POOL_POSSIBLE:brazilian-calabresa|pesto-pollo"
+  ],
+  "appendedSteps": [
+   "25:chicken->pesto-pollo"
+  ],
+  "ladderLen": 25,
+  "walk25count": 25,
+  "step25Entitled": true,
+  "step24EntitledBefore": false,
+  "calUndiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   },
+   "newMatBought": {
+    "pool": [
+     "brazilian-calabresa",
+     "pesto-pollo"
+    ],
+    "target": "OPEN_POOL"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [
+     "brazilian-calabresa"
+    ],
+    "target": "TARGET:brazilian-calabresa"
+   }
+  },
+  "calDiscovered": {
+   "ladderCount": 25,
+   "newMatUnlockedNotBought": {
+    "pool": [],
+    "target": "SHOP_NEW"
+   },
+   "newMatBought": {
+    "pool": [
+     "pesto-pollo"
+    ],
+    "target": "TARGET:pesto-pollo"
+   },
+   "afterCandidateFound": {
+    "ladderCount": 25,
+    "step26Reached_syn": false,
+    "pool": [],
+    "target": "COMPLETE"
+   }
+  },
+  "countsTowardLadder": false,
+  "lunchRush": true,
+  "stateBeforeStep25AllUnknown": true
+ }
+}

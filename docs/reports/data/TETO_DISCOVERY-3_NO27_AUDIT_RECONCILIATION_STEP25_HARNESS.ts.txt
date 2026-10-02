@@ -1,0 +1,99 @@
+// READ-ONLY scratch harness (NOT committed to production paths). Reuses production pure functions via vi.doMock-extended catalogs.
+import { describe, it, vi } from "vitest";
+import { writeFileSync } from "node:fs";
+
+const CANDS: Record<string, { ids: string[]; newId: string; like: string }> = {
+  vongole: { ids: ["clam", "garlic", "olive-oil", "parsley"], newId: "parsley", like: "oregano" },
+  "prosciutto-funghi": { ids: ["tomato-sauce", "mozzarella", "mushroom", "prosciutto-crudo"], newId: "prosciutto-crudo", like: "ham" },
+  "pesto-gamberi": { ids: ["pesto", "fresh-tomato", "garlic", "shrimp"], newId: "shrimp", like: "tuna" },
+  "pesto-trapanese": { ids: ["pesto", "fresh-tomato", "garlic", "almond"], newId: "almond", like: "corn" },
+  "pesto-pollo": { ids: ["pesto", "mozzarella", "fresh-tomato", "chicken"], newId: "chicken", like: "ham" },
+};
+const out: any = {};
+
+async function run(cand: string | null, credit: boolean) {
+  vi.resetModules();
+  const C = cand ? CANDS[cand] : null;
+  vi.doMock("../data/ingredients", async () => {
+    const a: any = await vi.importActual("../data/ingredients");
+    const list = [...a.INGREDIENTS];
+    if (C) { const like = a.INGREDIENTS.find((i: any) => i.id === C.like); list.push({ ...like, id: C.newId }); }
+    return { ...a, INGREDIENTS: list, getIngredient: (id: string) => list.find((i: any) => i.id === id) };
+  });
+  vi.doMock("../data/recipes", async () => {
+    const a: any = await vi.importActual("../data/recipes");
+    const rs = [...a.RECIPES];
+    if (C) rs.push({ id: cand, nameJa: cand, description: "", requiredIngredients: C.ids.map((id) => ({ ingredientId: id, minCount: 1 })), bakeTarget: { start: 50, end: 70 }, baseRewardPitz: 100, ...(credit ? {} : { ladderCredit: false }) });
+    return {
+      ...a, RECIPES: rs,
+      countsTowardLadder: (id: string) => rs.find((r: any) => r.id === id)?.ladderCredit !== false,
+      participatesInLunchRush: (id: string) => rs.find((r: any) => r.id === id)?.lunchRush !== false,
+      getRecipe: (id: string) => rs.find((r: any) => r.id === id),
+    };
+  });
+  const W: any = await vi.importActual("../data/discoveryLadder");
+  const rule: any = await import("../logic/testSupport/discoveryLadderRule");
+  const rsMod: any = await import("../data/recipes");
+  const pop = rsMod.RECIPES.map((r: any) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q: any) => q.ingredientId) }));
+  const ladder = rule.buildAppendOnlyLadder(W.W1_25_DISCOVERY_LADDER, pop);
+  // hypothetical step 26 to test ladderCredit effect
+  const LL: any = await import("../logic/discoveryLadder");
+  const ladder26 = LL.appendLadderSteps(ladder, [{ ingredientIds: ["syn-x"], keyRecipeId: "syn-recipe" }]);
+  const dexM: any = await import("../state/dex");
+  const ing: any = await import("../data/ingredients");
+  const rds: any = await import("../state/recipeDiscoveryState");
+  const ht: any = await import("../logic/discovery/hintTarget");
+  const ent: any = await import("../state/materialEntitlement");
+  const model: any = await import("../dev/discoveryProgressionModel");
+  const M = model.buildInspectorModel(ladder);
+  const SCORE = { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 };
+  const dexOf = (ids: string[]) => { let d = dexM.EMPTY_DEX; for (const id of ids) d = dexM.registerScoreToDex(d, id, SCORE).dex; return d; };
+  const w1 = M.steps[23].discoveredRecipeIds.concat([]); // first 24 of walk
+  const walk25 = M.steps.length >= 25 ? M.steps[24].discoveredRecipeIds : null; // first 25 = W1 25 recipes
+  const mats = ladder.steps.flatMap((s: any) => s.ingredientIds);
+  const inputs = (dex: any, materials: string[], ownedAll = true, skip: string[] = []) => ({
+    dex, ownedIngredientIds: [...ing.STARTER_INGREDIENT_IDS, ...materials.filter((m) => !skip.includes(m))],
+    unlockedForShopIngredientIds: materials, inventory: Object.fromEntries(materials.filter((m) => !skip.includes(m)).map((m) => [m, 10])),
+  });
+  const pool = (i: any) => rsMod.RECIPES.filter((r: any) => rds.recipeDiscoveryState(r, i) === "DISCOVERABLE").map((r: any) => r.id);
+  const tgt = (i: any) => { const t = ht.selectHintTarget(i); return t.kind === "TARGET" ? `TARGET:${t.recipeId}` : t.kind; };
+  const res: any = {};
+  res.stepsClass = M.steps.map((s: any) => `${s.step}:${s.classification}:${s.afterPool.map((p: any) => p.recipeId).join("|")}`);
+  res.appendedSteps = ladder.steps.slice(24).map((s: any) => `${s.step}:${s.ingredientIds}->${s.keyRecipeId}`);
+  res.ladderLen = ladder.steps.length;
+  if (cand) {
+    const d25 = dexOf(walk25);
+    res.walk25count = walk25.length;
+    const ent25 = ent.resolveShopEntitlement(d25, [], [], ladder).unlockedForShopIngredientIds;
+    res.step25Entitled = ent25.includes(C!.newId);
+    res.step24EntitledBefore = ent.resolveShopEntitlement(dexOf(walk25.slice(0, 24)), [], [], ladder).unlockedForShopIngredientIds.includes(C!.newId);
+    const dCal = dexOf([...walk25, "brazilian-calabresa"]);
+    for (const [label, d] of [["calUndiscovered", d25], ["calDiscovered", dCal]] as const) {
+      const m = ent.resolveShopEntitlement(d, [], [], ladder).unlockedForShopIngredientIds;
+      res[label] = {
+        ladderCount: LL.discoveredRecipeCount(d, rsMod.countsTowardLadder),
+        newMatUnlockedNotBought: { pool: pool(inputs(d, m, true, [C!.newId])), target: tgt(inputs(d, m, true, [C!.newId])) },
+        newMatBought: { pool: pool(inputs(d, m)), target: tgt(inputs(d, m)) },
+      };
+      // after discovering candidate
+      const dd = dexOf([...(label === "calDiscovered" ? [...walk25, "brazilian-calabresa"] : walk25), cand!]);
+      const m2 = ent.resolveShopEntitlement(dd, [], [], ladder26).unlockedForShopIngredientIds;
+      res[label].afterCandidateFound = { ladderCount: LL.discoveredRecipeCount(dd, rsMod.countsTowardLadder), step26Reached_syn: m2.includes("syn-x"), pool: pool(inputs(dd, m)), target: tgt(inputs(dd, m)) };
+    }
+    res.countsTowardLadder = rsMod.countsTowardLadder(cand!);
+    res.lunchRush = rsMod.participatesInLunchRush(cand!);
+    // candidate state before step 25 for every step 0..24 (never DISCOVERABLE)
+    let early = false;
+    for (let s = 1; s <= 24; s++) { const d = dexOf(M.steps[s - 1].discoveredRecipeIds); const m = ent.resolveShopEntitlement(d, [], [], ladder).unlockedForShopIngredientIds; const st = rds.recipeDiscoveryState(rsMod.getRecipe(cand), inputs(d, m)); if (st !== "UNKNOWN") early = true; }
+    res.stateBeforeStep25AllUnknown = !early;
+  }
+  return res;
+}
+
+describe("no27 scratch", () => {
+  it("runs", async () => {
+    out.baseline = await run(null, true);
+    for (const c of Object.keys(CANDS)) for (const credit of [true, false]) out[`${c}|credit=${credit}`] = await run(c, credit);
+    writeFileSync(process.env.OUT_JSON!, JSON.stringify(out, null, 1));
+  }, 120000);
+});
