@@ -1,0 +1,25 @@
+{
+  "auditedMain": "262b09fcb78d98c7b12ea4e5b51c2da1bca9d37e",
+  "kind": "design-only; no probe executed; all production facts are static reads",
+  "conflictsWithOwnerDirection": [
+    "C1 sauce/cheese have no family; Hint 5.0 SAUCE/CHEESE/KEY rungs reveal exact names, only sub-toppings are class (7 topping families)",
+    "C3 'did not match' copy is false for INCOMPLETE_MATCH; ORIGINAL/AMBIGUOUS/INCOMPLETE copy must stay byte-identical",
+    "C5 DISCOVERABLE needs stock>=1; registration must be ownership-based",
+    "C6 Hint 5.0 is a linear ladder (player cannot pick the rung) and only DISCOVERABLE recipes can be targets",
+    "C7 Trial Notebook structurally cannot hold a target; header-only display recommended"
+  ],
+  "persistence": {
+    "newSaveFields": 0,
+    "schemaVersionChange": false,
+    "derived": ["research entries", "unlock exact fact", "entry ordinal"],
+    "reusedLedger": "discoveryHintFacts (ing:/cls:/meta:/h5:)",
+    "sessionOnly": ["research target", "trial notebook"]
+  },
+  "axes": {
+    "RecipeAvailabilityState": ["DISCOVERED", "DISCOVERABLE", "KNOWN_BUT_MISSING_MATERIAL", "UNKNOWN"],
+    "RecipeResearchState": ["NONE", "PROVISIONAL", "RESEARCHING", "DISCOVERED"],
+    "invariant": "PROVISIONAL/RESEARCHING imply availability in {DISCOVERABLE, KNOWN_BUT_MISSING_MATERIAL}"
+  },
+  "slices": ["S0 rename(copy)", "S1 pure domain", "S2 Research Dex UI", "S3 target + round + hint wiring", "S4 RESULT/Notebook/post-discovery"],
+  "ownerDecisions": ["OD-RX-1 Dex section vs separate screen", "OD-RX-2 keep Hint 5.0 ladder vs class-centred", "OD-RX-3 exact knowledge before discovery", "OD-RX-4 state-aware post-discovery CTA"]
+}
