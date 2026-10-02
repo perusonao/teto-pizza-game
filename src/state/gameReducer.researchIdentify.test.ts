@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { buildIdealSauceFixture } from "../data/referencePizza";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -283,5 +283,83 @@ describe("reload / persistence compatibility", () => {
     expect(researchEntryViews(reloaded)[0].knownExactIngredientIds).toContain("fresh-tomato");
     expect(reloaded.researchTest).toBeNull();
     expect(declare(reloaded, "fresh-tomato").researchTest).toBeNull(); // known => nothing to declare
+  });
+});
+
+// ---- Slice 2: Hint 5.0 (OD-I-14) and Rule W (OD-I-15) ----------------------------------------------------------------
+
+import { hint5SheetView } from "./discoveryHint";
+import { reservedIngredientId } from "../logic/discovery/selectableHint";
+import { getRecipe } from "../data/recipes";
+
+const toPrepareWithSheet = (s: GameState) => act(s, { type: "SHOW_HINT" });
+
+describe("OD-I-14: a trial positive follows the existing Hint 5.0 ALREADY_KNOWN contract (pricing untouched)", () => {
+  it("a rung whose every subject the player already identified completes for 0 Pitz; an unrelated one still costs", () => {
+    // Identify the sauce by trial, then buy rung 1 (SAUCE) with the Hint sheet.
+    const learned = finish(declare(start(single()), "pesto"), original());
+    expect(facts(learned)).toEqual(["ing:pesto"]);
+    const round = act(learned, { type: "RETRY_SAME_RECIPE" });
+    const sheet = toPrepareWithSheet(round);
+    const view = hint5SheetView(sheet)!;
+    expect(view.next?.kind).toBe("SAUCE");
+    const before = sheet.pitzBalance;
+    const bought = act(sheet, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: view.next!.rungIndex });
+    expect(bought.pitzBalance).toBe(before); // 0 Pitz: nothing is charged for what the player found
+    expect(bought.hintOutcome).toBe("HINT5_ALREADY_KNOWN");
+    expect(facts(bought)).toContain("h5:sauce");
+    expect(facts(bought).filter((f) => f === "ing:pesto")).toHaveLength(1);
+    // the next rung (a different subject) is a normal paid rung: the price table is not changed by the trial
+    const next = hint5SheetView(bought)!.next!;
+    expect(next.price).toBeGreaterThan(0);
+  });
+
+  it("the pre-purchase view is the same with and without a trial positive (no free leak of 0 Pitz)", () => {
+    const withTrial = act(act(finish(declare(start(single()), "pesto"), original()), { type: "RETRY_SAME_RECIPE" }), { type: "SHOW_HINT" });
+    const fresh = act(start(single()), { type: "SHOW_HINT" });
+    const a = hint5SheetView(withTrial)!.next!;
+    const b = hint5SheetView(fresh)!.next!;
+    expect({ kind: a.kind, price: a.price }).toEqual({ kind: b.kind, price: b.price });
+  });
+});
+
+describe("OD-I-15: the Rule W reserved ingredient can be identified by trial (same membership authority)", () => {
+  it("a reserved ingredient that is a canonical member and declarable becomes positive", () => {
+    const candidates: { state: GameState; target: string; reserved: string }[] = [];
+    for (const base of [single(), multi()]) {
+      for (const e of deriveResearchEntries(base).entries) {
+        const recipe = getRecipe(e.recipeId as never)!;
+        const reserved = reservedIngredientId(recipe);
+        const started = start(base, e.recipeId);
+        if (declare(started, reserved).researchTest) candidates.push({ state: started, target: e.recipeId, reserved });
+      }
+    }
+    expect(candidates.length).toBeGreaterThan(0);
+    let asserted = 0;
+    for (const c of candidates) {
+      const recipe = getRecipe(c.target as never)!;
+      const asTopping = !isSauce(c.reserved);
+      const pizza = asTopping ? mk("tomato-sauce", c.reserved, "egg") : mk(c.reserved, "egg");
+      const done = register(toResult(declare(c.state, c.reserved), pizza, 68));
+      if (done.lastDiscovery?.kind !== "ORIGINAL") continue; // an exact-looking pizza is a different outcome, not this rule
+      expect(done.lastIngredientTest).toEqual({ ingredientId: c.reserved, verdict: "POSITIVE" });
+      expect(done.discoveryHintFacts[c.target]).toContain(`ing:${c.reserved}`);
+      expect(recipe.requiredIngredients.some((q) => q.ingredientId === c.reserved)).toBe(true);
+      asserted += 1;
+    }
+    expect(asserted).toBeGreaterThan(0);
+  });
+});
+
+describe("feature flag OFF keeps the existing Production behavior", () => {
+  it("SET_RESEARCH_TEST is a no-op and RESULT carries no verdict", async () => {
+    vi.resetModules();
+    vi.doMock("../logic/discovery/researchIdentifyFlag", () => ({ RESEARCH_IDENTIFY_ENABLED: false }));
+    const mod = await import("./gameReducer");
+    const s0 = mod.createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), ladderOwned(25), 1000);
+    const s = mod.gameReducer({ ...s0, inventory: Object.fromEntries(ladderOwned(25).map((id) => [id, 10])) }, { type: "START_FREE_COOK", researchTargetId: T });
+    expect(mod.gameReducer(s, { type: "SET_RESEARCH_TEST", ingredientId: "egg" })).toBe(s);
+    vi.doUnmock("../logic/discovery/researchIdentifyFlag");
+    vi.resetModules();
   });
 });

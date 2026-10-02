@@ -49,6 +49,7 @@ import {
 } from "../logic/techniques/runtime";
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
+import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { evaluateIngredientTest, type IngredientTestVerdict } from "../logic/discovery/researchIdentify";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 import {
@@ -1504,6 +1505,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "SET_RESEARCH_TEST": {
+      // #356 Slice 2: flag OFF (Production default) keeps the existing behavior -- no declaration can exist.
+      if (!RESEARCH_IDENTIFY_ENABLED) return state;
       if (state.phase !== "PREPARE" || !state.freeCook) return state;
       if (action.ingredientId === null) return state.researchTest ? { ...state, researchTest: null } : state;
       const recipeId = state.researchTargetId;

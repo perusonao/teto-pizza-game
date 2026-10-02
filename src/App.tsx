@@ -1237,6 +1237,7 @@ function App() {
           onBakeTick={handleBakeTick}
           onConfirmBake={handleConfirmBake}
           onRetrySameRecipe={handleRetrySameRecipe}
+          onSetResearchTest={(ingredientId) => dispatch({ type: "SET_RESEARCH_TEST", ingredientId })}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={openShop}
           onOpenDex={() => setDexOpen(true)}
