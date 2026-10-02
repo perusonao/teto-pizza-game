@@ -367,6 +367,12 @@ export interface GameState {
    *  attempt declares afresh; a retry / new round starts `null`). Kept by RESET_PIZZA (same attempt). Never read by
    *  the matcher / CONFIRM_BAKE; only REGISTER_TO_DEX's free-cook ORIGINAL branch reads it. */
   researchTest: { recipeId: string; ingredientId: string } | null;
+  /** Issue #358 (OD-358-1): true once the attempt's experiment has started (the first CONFIRM_MAKING_STEP, or
+   *  START_BAKE for a one-step profile): the declaration can no longer be changed or cleared. Session-only
+   *  and never persisted (a reload starts a fresh round, EDITABLE). Kept by RESET_PIZZA (same attempt: selection
+   *  AND lock stay, the makingStep returning to the first step does not unlock); false again for every fresh
+   *  round / retry, together with `researchTest`. */
+  researchTestLocked: boolean;
   /** #356: the display-only verdict of this round's declared ingredient, written only by REGISTER_TO_DEX in the same
    *  transition as the optional `ing:` fact, reset every fresh round. NOT_IDENTIFIED is the one value shared by a
    *  negative, an INCOMPLETE_MATCH and an AMBIGUOUS outcome (no oracle); it is never stored anywhere. */
@@ -671,6 +677,7 @@ function buildOrderState(
     lastDiscovery: null,
     lastTrialAttempt: null,
     researchTest: null,
+    researchTestLocked: false,
     lastIngredientTest: null,
     lastTechniqueDiscovery: null,
     freeCook,
@@ -1140,6 +1147,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         makingStep,
         makingStepToken: state.makingStepToken + 1,
+        // #358: leaving the first PREPARE step is the start of the experiment.
+        researchTestLocked: state.researchTestLocked || state.phase === "PREPARE",
         cutState,
         hint: buildHintLine(state.recipe, state.pizza, makingStep, false, state.preDiscoveryFreeCookAttempts),
         // Phase 1A-T (§22.2): finalizes the outgoing step's elapsed ms and starts the incoming
@@ -1194,7 +1203,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         finishedRound && action.now !== undefined
           ? advanceStepTiming(finishedRound, action.now, null)
           : finishedRound;
-      return { ...state, phase: "BAKE", cookingTiming };
+      return { ...state, phase: "BAKE", cookingTiming, researchTestLocked: true };
     }
 
     case "CONFIRM_BAKE": {
@@ -1508,6 +1517,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // #356 Slice 2: flag OFF (Production default) keeps the existing behavior -- no declaration can exist.
       if (!RESEARCH_IDENTIFY_ENABLED) return state;
       if (state.phase !== "PREPARE" || !state.freeCook) return state;
+      // #358 OD-358-1: once the experiment has started the hypothesis is fixed for this attempt (null included).
+      if (state.researchTestLocked) return state;
       if (action.ingredientId === null) return state.researchTest ? { ...state, researchTest: null } : state;
       const recipeId = state.researchTargetId;
       if (!recipeId || typeof action.ingredientId !== "string" || !canDeclareResearchTest(state, action.ingredientId)) return state;
