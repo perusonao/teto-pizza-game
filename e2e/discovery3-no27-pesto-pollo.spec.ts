@@ -113,7 +113,6 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await page.evaluate(([key, value]) => {
       localStorage.clear();
       localStorage.setItem(key, value);
-      localStorage.setItem("teto.dev.hint5Ladder", "0");
     }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
     await page.goto("/");
     await page.waitForSelector(".app-frame");
@@ -149,6 +148,9 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     const sheet = hintSheet(page);
     await expect(sheet).toBeVisible();
     await expect(sheet).not.toHaveAttribute("data-hint-kind", "OPEN_POOL");
+    // The production-default Hint 5.0 ladder (flag NOT overridden): the key-free roles drive it, never a KEY_TOPPING rung.
+    await expect(sheet).toHaveAttribute("data-hint-ladder", "hint5");
+    await expect(sheet.locator('[data-hint5-rung="KEY_TOPPING"], [data-hint5-next="KEY_TOPPING"]')).toHaveCount(0);
     const text = await sheet.innerText();
     expect(text).not.toContain("ペストポッロ");
     expect(text).not.toMatch(/候補|距離|似て|近い|遠い|[0-9０-９]+\s*(種類|件)/);
@@ -203,7 +205,6 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await page.evaluate(([key, value]) => {
       localStorage.clear();
       localStorage.setItem(key, value);
-      localStorage.setItem("teto.dev.hint5Ladder", "0");
     }, [SAVE_KEY, JSON.stringify(save)] as const);
     await page.goto("/");
     await page.waitForSelector(".app-frame");
