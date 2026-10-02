@@ -25,12 +25,13 @@ import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { recipeKeyStep } from "../../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/recipeDiscoveryState";
 
-export type HintTargetSource = "auto" | "dex";
+export type HintTargetSource = "auto" | "dex" | "research";
 
 export interface HintTarget {
   kind: "TARGET";
   recipeId: RecipeId;
-  /** "dex" only when a Dex card pinned this recipe; "auto" for the sole-candidate / sticky choice. */
+  /** "dex" only when a Dex card pinned this recipe; "research" only when the player picked it as the
+   *  Research Target (Discovery 3.0 #346 S3); "auto" for the sole-candidate / sticky choice. */
   source: HintTargetSource;
 }
 
@@ -47,6 +48,10 @@ export interface HintTargetOptions {
   pinnedRecipeId?: string | null;
   /** The target whose H1+ was already revealed this session (229-B keeps it, never saved). */
   stickyRecipeId?: string | null;
+  /** Discovery 3.0 (#346 S3): the Research Target the player explicitly picked this session. Unlike a
+   *  pin it DOES choose among several candidates (the player, not the order, chose it), but only
+   *  while it is still DISCOVERABLE. It never reaches the matcher: it names a Hint subject only. */
+  researchTargetId?: string | null;
   /** Recipe population; `RECIPES` in production, injectable for tests. */
   recipes?: readonly Recipe[];
 }
@@ -92,6 +97,11 @@ function emptyKind(inputs: RecipeDiscoveryInputs, recipes: readonly Recipe[]): H
 export function selectHintTarget(inputs: RecipeDiscoveryInputs, options: HintTargetOptions = {}): HintTargetResult {
   const recipes = options.recipes ?? RECIPES;
   const candidates = discoverableHintCandidates(inputs, recipes);
+  // S3: an explicit player-selected Research Target is the one exception to OPEN_POOL privacy. It is
+  // the player's own choice (picked from an anonymous card), so it leaks nothing about the pool; with
+  // no Research Target every branch below is exactly as before.
+  const research = options.researchTargetId ? candidates.find((r) => r.id === options.researchTargetId) : undefined;
+  if (research) return { kind: "TARGET", recipeId: research.id, source: "research" };
   const sticky = candidates.find((r) => r.id === options.stickyRecipeId);
   // OD-4b-A-2: a pin never CHOOSES among several candidates. With a pool > 1 it counts only when it
   // is the sticky / purchased target itself, so a pin on another recipe cannot move a kept target

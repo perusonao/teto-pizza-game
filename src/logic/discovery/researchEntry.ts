@@ -167,3 +167,14 @@ export function deriveResearchEntries(
   ranked.sort((a, b) => a.index - b.index || a.hash - b.hash || (a.entry.recipeId < b.entry.recipeId ? -1 : 1));
   return { entries: ranked.map((r) => r.entry) };
 }
+
+const ENTRY_MARKS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"];
+
+/**
+ * The player-facing anonymous label of the entry at `index` of `count` registered entries (S2 / S3).
+ * One entry: 「？？？ピザ」; several: 「？？？ピザ ①」… in the stable anonymous order. A plain
+ * "this card" marker, never a name, No.xx or recipe id.
+ */
+export function researchEntryLabel(index: number, count: number): string {
+  return count > 1 ? `？？？ピザ ${ENTRY_MARKS[index] ?? index + 1}` : "？？？ピザ";
+}

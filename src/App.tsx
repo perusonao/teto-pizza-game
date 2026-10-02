@@ -1005,6 +1005,15 @@ function App() {
     dispatch({ type: "SHOW_HINT", pinnedRecipeId: recipeId });
   }
 
+  // Discovery 3.0 (#346 S3): a Dex Research Entry card's 「このピザを研究する」 -- a Free Cooking round
+  // with that entry as the Research Target (Hint subject only; the matcher is untouched). The id
+  // travels through this callback, never the DOM; the reducer re-validates it.
+  function handleStartResearch(recipeId: string) {
+    setDexOpen(false);
+    dispatch({ type: "START_FREE_COOK", now: Date.now(), researchTargetId: recipeId });
+    setScreen("GAME");
+  }
+
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
   // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
   // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
@@ -1259,6 +1268,7 @@ function App() {
               : undefined
           }
           onShowHint={mission.mode === "FREE" ? handleDexShowHint : undefined}
+          onResearch={mission.mode === "FREE" ? handleStartResearch : undefined}
           onOpenShop={openShop}
         />
       )}

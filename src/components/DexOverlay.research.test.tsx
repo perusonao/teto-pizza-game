@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { DexOverlay } from "./DexOverlay";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -21,7 +21,13 @@ const keysBefore = (step: number) => [
   ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId),
 ];
 
-function renderDex(p: { dex?: DexState; owned: readonly string[]; facts?: Record<string, string[]> }) {
+function renderDex(p: {
+  dex?: DexState;
+  owned: readonly string[];
+  facts?: Record<string, string[]>;
+  inventory?: Record<string, number>;
+  onResearch?: (recipeId: string) => void;
+}) {
   const { container } = render(
     <DexOverlay
       dex={p.dex ?? []}
@@ -29,8 +35,9 @@ function renderDex(p: { dex?: DexState; owned: readonly string[]; facts?: Record
       newBestRecipeId={null}
       onClose={() => {}}
       ownedIngredientIds={p.owned}
-      inventory={{}}
+      inventory={p.inventory ?? {}}
       discoveryHintFacts={p.facts}
+      onResearch={p.onResearch}
     />,
   );
   const section = container.querySelector<HTMLElement>(".dex-overlay__research");
@@ -98,5 +105,58 @@ describe("Research Dex section", () => {
       expect(section!.textContent).not.toMatch(/No\.|残り|あと|\d+\s*\/\s*\d+|%|候補|未登録|Near|Far|近い|遠い/);
       expect(section!.querySelectorAll("[aria-label],[data-testid],[data-recipe-id]")).toHaveLength(0);
     }
+  });
+});
+
+describe("S3: 「このピザを研究する」 (Research Target selection)", () => {
+  const stocked = (owned: readonly string[]) => Object.fromEntries(owned.map((id) => [id, 10]));
+
+  it("a single cookable entry offers one anonymous research CTA that reports its recipe through the callback only", () => {
+    const picked: string[] = [];
+    const p = single();
+    const { cards } = renderDex({ ...p, inventory: stocked(p.owned), onResearch: (id) => picked.push(id) });
+    const button = cards[0].querySelector("button")!;
+    expect(button.textContent).toContain("このピザを研究する");
+    expect(button.getAttribute("aria-label")).toBe("？？？ピザを研究する");
+    fireEvent.click(button);
+    expect(picked).toEqual(["pesto-pollo"]);
+  });
+
+  it("multiple entries: each anonymous card selects its own entry, and the DOM never carries an id or a name", () => {
+    const picked: string[] = [];
+    const p = multi();
+    const { cards, section } = renderDex({ ...p, inventory: stocked(p.owned), onResearch: (id) => picked.push(id) });
+    const buttons = cards.map((c) => c.querySelector("button")!);
+    expect(buttons.map((b) => b.getAttribute("aria-label")).slice(0, 2)).toEqual(["？？？ピザ ①を研究する", "？？？ピザ ②を研究する"]);
+    fireEvent.click(buttons[1]);
+    expect(picked).toHaveLength(1);
+    const html = section!.outerHTML;
+    for (const r of RECIPES) {
+      expect(html).not.toContain(r.id);
+      expect(html).not.toContain(r.nameJa);
+    }
+    expect(section!.querySelectorAll("[data-testid],[data-recipe-id]")).toHaveLength(0);
+  });
+
+  it("an entry that cannot be cooked now (stock 0) offers no CTA, and no onResearch means no CTA", () => {
+    const p = single();
+    expect(renderDex({ ...p, inventory: {}, onResearch: () => {} }).cards[0].querySelector("button")).toBeNull();
+    cleanup();
+    expect(renderDex({ ...p, inventory: stocked(p.owned) }).cards[0].querySelector("button")).toBeNull();
+  });
+
+  it("bought Hint facts appear as exact / class lines without a name or id for the hidden recipe", () => {
+    const p = single();
+    const { section } = renderDex({
+      ...p,
+      inventory: stocked(p.owned),
+      onResearch: () => {},
+      facts: { "pesto-pollo": ["ing:pesto", "h5:sauce", "meta:ingredient-total", "h5:structure", "cls:fresh-tomato"] },
+    });
+    expect(section!.textContent).toContain("✓ チキンを使う");
+    expect(section!.textContent).toContain("✓ ジェノベーゼソースを使う");
+    expect(section!.textContent).toMatch(/△ /);
+    expect(section!.textContent).toMatch(/全部で 4 種類の材料を使う/);
+    expect(section!.textContent).not.toContain(RECIPES.find((r) => r.id === "pesto-pollo")!.nameJa);
   });
 });

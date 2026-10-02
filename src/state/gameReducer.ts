@@ -94,6 +94,7 @@ import {
   requestDeductionHintFact,
   requestHint5RungFact,
   resolveHintSession,
+  isValidResearchTarget,
   unlockNextHint,
   type DeductionFamily,
   type HintOutcome,
@@ -240,6 +241,11 @@ export interface GameState {
    *  step (./discoveryHint.ts). Session-only: carried across rounds through `ProgressionCarry`
    *  so one discovery search keeps its target, never persisted (a reload starts at H0). */
   hintSession: HintSession | null;
+  /** Discovery 3.0 Research Recipe (#346 S3): the Research Target the player picked from a Dex Research
+   *  Entry card -- the subject of the Research UI and of Hint requests ONLY. It is never read by the
+   *  matcher / CONFIRM_BAKE / REGISTER_TO_DEX (any exact recipe is discovered as always). Session-only:
+   *  carried across Free Cooking retries through `ProgressionCarry`, never persisted (no save field). */
+  researchTargetId: string | null;
   /** Discovery Hint Economy 1.0 (Issue #232, HE-1): `recipeId -> highest purchased hint level`,
    *  the persisted ledger (./persistence.ts). Only a successful hint purchase raises a level; no
    *  action ever lowers or removes one (an entry stays after its recipe is discovered). Carried
@@ -458,7 +464,9 @@ export type GameAction =
   | { type: "RETRY_SAME_RECIPE"; now?: number }
   // Progression 2.0 Phase 3-2 (Issue #194): starts a fresh FREE round with no recipe selected
   // (HOME's フリークッキング). Lands straight at PREPARE like SELECT_RECIPE. Never a Mission round.
-  | { type: "START_FREE_COOK"; now?: number }
+  // #346 S3: `researchTargetId` -- the Dex Research Entry the player chose to research. The reducer
+  // keeps it only while it is a valid, DISCOVERABLE entry; omitted (HOME) clears any earlier target.
+  | { type: "START_FREE_COOK"; now?: number; researchTargetId?: string }
   // Free Cooking PREPARE: opens the Discovery Hint 2.0 sheet (229-B). Any other round: the
   // explicit one-line operational hint, as before.
   // 229-D: `pinnedRecipeId` -- the Dex card whose 「💡 ヒントを見る」 started this round. Never read
@@ -569,6 +577,8 @@ interface ProgressionCarry {
   unlockedForShopIngredientIds: readonly string[];
   preDiscoveryFreeCookAttempts: number;
   hintSession: HintSession | null;
+  /** #346 S3: session-only Research Target; survives every round transition like `hintSession`. */
+  researchTargetId: string | null;
   discoveryHintPurchases: DiscoveryHintPurchases;
   discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
   /** DM-4-3: must survive every round transition, or a later clear would read a stale record. */
@@ -779,6 +789,7 @@ export function createInitialGameState(
       unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: 0,
       hintSession: null,
+      researchTargetId: null,
       discoveryHintPurchases,
       discoveryHintFacts,
       dinnerMissionRecordsState,
@@ -1472,8 +1483,14 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "START_FREE_COOK":
+      // #346 S3: HOME / Dex-pin starts carry no target (an earlier one is cleared); a Research Entry
+      // start keeps its target only while valid. Either way only the Hint subject changes -- never
+      // what the matcher accepts.
       return startFreeCook(
-        carryOf(state),
+        {
+          ...carryOf(state),
+          researchTargetId: isValidResearchTarget(state, action.researchTargetId) ? action.researchTargetId! : null,
+        },
         action.now,
       );
 
@@ -1759,6 +1776,7 @@ function carryOf(state: GameState): ProgressionCarry {
     unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
     preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
     hintSession: state.hintSession,
+    researchTargetId: state.researchTargetId,
     discoveryHintPurchases: state.discoveryHintPurchases,
     discoveryHintFacts: state.discoveryHintFacts,
     dinnerMissionRecordsState: state.dinnerMissionRecordsState,

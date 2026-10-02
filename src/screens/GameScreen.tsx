@@ -38,7 +38,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
-import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchTargetView } from "../state/discoveryHint";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
@@ -277,6 +277,7 @@ export function GameScreen({
   // Discovery Hint 2.0 (229-B): the sheet's open state is reducer-owned; closing it hands focus
   // back to the 「ヒント」 button that opened it.
   const hintSheetOpen = isHintSheetVisible(state);
+  const researchView = state.freeCook ? researchTargetView(state) : null;
   const hintButtonRef = useRef<HTMLButtonElement>(null);
   const wasHintSheetOpenRef = useRef(hintSheetOpen);
   const hintToPantryRef = useRef(false);
@@ -615,7 +616,25 @@ export function GameScreen({
         </>
       )}
 
-      {state.phase === "PREPARE" && state.freeCook && (
+      {state.phase === "PREPARE" && state.freeCook && researchView && (
+        // #346 S3: the Research context replaces the free-cook order card (same slot, same card
+        // component). It shows only what the player already knows -- never the hidden identity.
+        <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">🔎 研究中　{researchView.label}</span>
+            <span className="order-card__hint">
+              わかっていること：
+              {[
+                ...researchView.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}`),
+                ...researchView.classLinesJa,
+                ...(researchView.totalIngredientCount !== null ? [`全部で${researchView.totalIngredientCount}種類`] : []),
+              ].join("　")}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {state.phase === "PREPARE" && state.freeCook && !researchView && (
         <div className="order-card order-card--free-cook">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{"\u{1F3A8}"} フリークッキング</span>
