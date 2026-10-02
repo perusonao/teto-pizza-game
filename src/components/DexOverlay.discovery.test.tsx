@@ -74,7 +74,7 @@ describe("W1-f Dex", () => {
     const free = renderDex({ dex: discoveredDex(["margherita"]), owned: ["egg"], unlocked: ["egg"], inventory: { egg: 10 } });
     const freeSlot = document.querySelector<HTMLElement>('[data-dex-state="DISCOVERABLE"]')!;
     expect(freeSlot).toHaveTextContent("🎨 今の材料で作れるかも");
-    await userEvent.click(within(freeSlot).getByRole("button", { name: "フリークッキングで探す" }));
+    await userEvent.click(within(freeSlot).getByRole("button", { name: "レシピ発見へ" }));
     expect(free.onGoFreeCook).toHaveBeenCalledTimes(1);
     expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(25);
     expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(25);

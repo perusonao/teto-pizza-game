@@ -72,8 +72,8 @@ async function pickChip(page: Page, name: RegExp) {
 
 /** One FREE Cooking round: sausage x`sausage`, onion x2, olive x2, oregano x`oregano`, no cheese. */
 async function cookCalabresa(page: Page, opts: { oregano: number; from: "HOME" | "RESULT" }) {
-  if (opts.from === "HOME") await page.getByRole("button", { name: /フリークッキング/ }).first().click();
-  else await page.getByRole("button", { name: /もう一度じゆうに作る/ }).click();
+  if (opts.from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -114,7 +114,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await capture(page, "pool2-dex-research-cards", testInfo.project.name);
 
     await page.getByRole("button", { name: "閉じる" }).click();
-    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toContainText("まだ発見できるピザがあるよ");

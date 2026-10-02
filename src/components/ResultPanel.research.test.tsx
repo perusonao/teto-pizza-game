@@ -65,6 +65,15 @@ describe("Research ORIGINAL copy", () => {
     expect(original(INCOMPLETE).html).toBe(o);
   });
 
+  it("#346 S0: with no Research Target ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH are byte-identical and carry no near/far or correctness words", () => {
+    const o = original(ORDINARY, { researchLabelJa: null, nearMiss: { kind: "ADD_ONE", textJa: NEAR_MISS_COPY.ADD_ONE } }).html;
+    expect(original(AMBIGUOUS, { researchLabelJa: null, nearMiss: { kind: "CLOSE", textJa: NEAR_MISS_COPY.CLOSE } }).html).toBe(o);
+    expect(original(INCOMPLETE, { researchLabelJa: null, nearMiss: { kind: "FAR", textJa: NEAR_MISS_COPY.FAR_KEY_UNUSED } }).html).toBe(o);
+    expect(o).not.toMatch(/おしい|近い|遠い|近づ|あと少し|あと[0-9０-９]|正解|不正解|一致しません|足りない|別の組み合わせ|新しく入荷/);
+    expect(o).not.toContain(HIDDEN.id);
+    expect(o).not.toContain(HIDDEN.nameJa);
+  });
+
   it("never says right/wrong, counts, distance or near/far, and never carries a recipe identity", () => {
     const dom = original(INCOMPLETE).html;
     expect(dom).not.toMatch(/一致しません|正解|不正解|✓|✕|足りない|間違|残り|あと[0-9０-９]|おしい|近づ|別の組み合わせ|新しく入荷/);
@@ -80,10 +89,12 @@ describe("Research ORIGINAL copy", () => {
     expect(html).toBe(original(ORDINARY).html);
   });
 
-  it("without a Research Target the card is exactly the previous one", () => {
+  it("#346 S0: without a Research Target the card is the same Recipe Discovery ORIGINAL contract (no research context)", () => {
     original(ORDINARY, { researchLabelJa: null });
-    expect(screen.getByText(/オリジナルピザ完成！/)).toBeInTheDocument();
-    expect(screen.queryByText(RESEARCH_ORIGINAL_LEAD_COPY)).toBeNull();
+    expect(screen.getByText(/🧪 オリジナルピザ/)).toBeInTheDocument();
+    expect(screen.queryByText(/オリジナルピザ完成！/)).toBeNull();
+    expect(screen.getByText(RESEARCH_ORIGINAL_LEAD_COPY)).toBeInTheDocument();
+    expect(document.querySelector("[data-research-context]")).toBeNull();
     expect(screen.queryByRole("button", { name: /試作ノート/ })).toBeNull();
   });
 });

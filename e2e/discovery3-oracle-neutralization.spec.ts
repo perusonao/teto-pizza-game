@@ -64,8 +64,8 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 }
 
 async function cook(page: Page, p: Pieces, from: "HOME" | "RESULT") {
-  if (from === "HOME") await page.getByRole("button", { name: /フリークッキング/ }).first().click();
-  else await page.getByRole("button", { name: /もう一度じゆうに作る/ }).click();
+  if (from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -134,10 +134,10 @@ test.describe("Discovery 3.0 PR-1: the INCOMPLETE_MATCH oracle is closed", () =>
     await capture(page, "other-thin-retry");
 
     // 1. the lead is the ordinary one; the old wording is gone
-    expect(exact1.lead).toBe("図鑑にはまだ載っていないピザ！");
+    expect(exact1.lead).toBe("まだ新しいレシピは見つかっていません");
     expect(exact1.lead).toBe(other1.lead);
-    // 2. both have a near/far row (the generic far line), the same one
-    expect(exact1.nearFar).toBe("🧪 別の組み合わせも試してみよう！");
+    // 2. neither has a near/far row
+    expect(exact1.nearFar).toBeNull(); // #346 S0: no near/far row on a Recipe Discovery ORIGINAL
     expect(exact1.nearFar).toBe(other1.nearFar);
     // 3. both are recorded: a first attempt shows no notice, the retry shows its stable number
     expect(exact1.notice).toBeNull();

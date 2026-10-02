@@ -97,7 +97,7 @@ test.describe("Issue #215 Completion Gate partial-quantity", () => {
     test.setTimeout(60_000);
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /フリークッキング/ }).click();
+    await page.getByRole("button", { name: /レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");
 
     await playMargherita(page, 1, FREE_COOK_BAKE_TARGET);

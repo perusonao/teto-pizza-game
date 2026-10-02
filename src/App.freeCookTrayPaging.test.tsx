@@ -75,7 +75,7 @@ afterEach(() => {
 
 async function toToppingStep(user: ReturnType<typeof userEvent.setup>) {
   render(<App />);
-  await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+  await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
   await user.click(chip(/トマトソース/));

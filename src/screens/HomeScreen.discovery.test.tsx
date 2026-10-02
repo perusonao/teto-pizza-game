@@ -47,7 +47,7 @@ describe("W1-e HOME badges and bubble", () => {
 
   it("bubble priority: Dex 0 -> NEW Shop material -> DISCOVERABLE -> default, never a recipe name", () => {
     const cases = [
-      [{ lunchRushLocked: true, newShopMaterialCount: 1, discoverableCount: 1 }, "まずはフリークッキングで最初の1枚を見つけよう！"],
+      [{ lunchRushLocked: true, newShopMaterialCount: 1, discoverableCount: 1 }, "まずはレシピ発見で最初の1枚を見つけよう！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 1, discoverableCount: 1 }, "ショップに新しい材料が入ったよ！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 0, discoverableCount: 2 }, "今の材料で新しいピザが作れるかも！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 0, discoverableCount: 0 }, "今日はどんなピザを作ろう？"],
@@ -63,7 +63,7 @@ describe("W1-e HOME badges and bubble", () => {
   it("the 2+1 CTA DOM order is unchanged by the badges", () => {
     renderHome({ newShopMaterialCount: 3, dexHasNew: true, locked: true });
     const ctas = Array.from(document.querySelectorAll(".home-cta-row .cta-button")).map((b) => b.textContent);
-    expect(ctas).toEqual(["🍕 ピザを作る", "⏱️ ランチラッシュ", "🎨 フリークッキングで探す"]);
+    expect(ctas).toEqual(["🍕 ピザを作る", "⏱️ ランチラッシュ", "🎨 レシピ発見持っている食材を組み合わせて、新しいレシピを発見しよう"]);
   });
 
   it("newShopMaterialCount counts unlocked-but-not-bought finite materials only", () => {

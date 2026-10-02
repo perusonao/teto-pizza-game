@@ -60,7 +60,7 @@ test.describe("Dex with several Research Entries (pool 2+)", () => {
 
     await page.getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toContainText("まだ発見できるピザがあるよ");

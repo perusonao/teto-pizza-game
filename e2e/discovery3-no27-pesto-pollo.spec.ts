@@ -74,8 +74,8 @@ async function pickChip(page: Page, name: RegExp) {
 
 /** One FREE round: pesto, mozzarella x2, tomato x2, chicken x`chicken` (+ oregano x`oregano` as an extra, making an ORIGINAL). */
 async function cookPestoPollo(page: Page, opts: { chicken: number; oregano?: number; from: "HOME" | "RESULT" }) {
-  if (opts.from === "HOME") await page.getByRole("button", { name: /フリークッキング/ }).first().click();
-  else await page.getByRole("button", { name: /もう一度じゆうに作る/ }).click();
+  if (opts.from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -138,7 +138,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
 
     // FREE: Hint at the topping step is the key-free sheet for the lone candidate (no recipe name / count).
-    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.waitForSelector(".pizza-stage");
     await completeDoughStep(page);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -214,7 +214,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await cookPestoPollo(page, { chicken: 2, oregano: 1, from: "RESULT" });
     await expect(page.locator(".result-panel--discovery")).toHaveCount(0);
     await expect(page.locator(".result-panel--original")).toBeVisible();
-    await page.getByRole("button", { name: /フリークッキング|もう一度じゆうに作る/ }).first().click();
+    await page.getByRole("button", { name: /レシピ発見|もう一度試す/ }).first().click();
     await page.waitForSelector(".pizza-stage");
     await completeDoughStep(page);
     await bar(page).getByRole("button", { name: /次へ/ }).click();

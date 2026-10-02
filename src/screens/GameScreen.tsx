@@ -651,7 +651,7 @@ export function GameScreen({
       {state.phase === "PREPARE" && state.freeCook && !researchView && (
         <div className="order-card order-card--free-cook">
           <div className="order-card__text">
-            <span className="order-card__recipe-name">{"\u{1F3A8}"} フリークッキング</span>
+            <span className="order-card__recipe-name">{"\u{1F3A8}"} レシピ発見の試作</span>
             <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
           </div>
         </div>
@@ -708,7 +708,7 @@ export function GameScreen({
         <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
           <div className="order-card__text">
             <span className="order-card__recipe-name">
-              {state.freeCook ? <>{"\u{1F3A8}"} フリークッキング</> : state.recipe.nameJa}
+              {state.freeCook ? <>{"\u{1F3A8}"} レシピ発見の試作</> : state.recipe.nameJa}
             </span>
             <span className="order-card__hint">{buildTetoBakeLine(state.recipe).textJa}</span>
           </div>
@@ -816,7 +816,7 @@ export function GameScreen({
       {state.phase === "ORDER" && !isMissionShortOrder && state.dinner === null && (
         <div className="action-row">
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
-            {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
+            {mission.mode === "FREE" ? <>{"\u{1F355}"} ピザを作る</> : "ピザを作る！"}
           </button>
         </div>
       )}

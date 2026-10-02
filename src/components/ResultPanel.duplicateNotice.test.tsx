@@ -64,7 +64,7 @@ describe("ResultPanel duplicate notice", () => {
 
   it("the INCOMPLETE_MATCH lead is the neutral lead (PR-1) and renders no notice when no number is passed", () => {
     render(<ResultPanel {...base()} score={null} discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "t" }} />);
-    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("図鑑にはまだ載っていないピザ！");
+    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("まだ新しいレシピは見つかっていません");
     expect(document.querySelector(NOTICE)).toBeNull();
   });
 
@@ -73,14 +73,15 @@ describe("ResultPanel duplicate notice", () => {
     const row = document.querySelector(".result-near-miss")!;
     expect(row.hasAttribute("aria-live")).toBe(false);
     expect(row.hasAttribute("role")).toBe(false);
-    expect(row.querySelectorAll("[aria-live]")).toHaveLength(1);
-    expect(row.querySelector(".result-near-miss__text")).toHaveAttribute("aria-live", "polite");
+    // #346 S0: the ORIGINAL card renders no near/far text, so the row holds only the hint CTA.
+    expect(row.querySelectorAll("[aria-live]")).toHaveLength(0);
+    expect(row.querySelector(".result-near-miss__text")).toBeNull();
     expect(row.textContent).not.toContain("試作");
     // the notice is a sibling after the row, outside every live region
     const notice = document.querySelector(NOTICE)!;
     expect(row.contains(notice)).toBe(false);
     expect(notice.closest("[aria-live]")).toBeNull();
     expect(row.nextElementSibling).toBe(notice);
-    expect(document.querySelectorAll(".result-panel [aria-live]")).toHaveLength(1);
+    expect(document.querySelectorAll(".result-panel [aria-live]")).toHaveLength(0);
   });
 });

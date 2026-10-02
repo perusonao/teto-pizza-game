@@ -141,7 +141,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await expect(page.locator(".dex-overlay")).toBeVisible();
     await expect(card(page)).toHaveCount(1);
     await expect(card(page).getByRole("button")).toHaveText(/ヒントを見る/);
-    await expect(page.getByRole("button", { name: "フリークッキングで探す" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "レシピ発見へ" })).toHaveCount(0);
     await checkDex(page, driver, browserName);
     const lockedText = (await page.locator(".dex-card--locked").allTextContents()).join("|");
     for (const name of UNDISCOVERED) expect(lockedText).not.toContain(name);

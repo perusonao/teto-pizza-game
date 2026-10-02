@@ -120,7 +120,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
       expect(card).toHaveAttribute("data-dex-state", "DISCOVERABLE");
       expect(card).toHaveTextContent("今の材料で作れるかも");
     }
-    expect(screen.queryByRole("button", { name: "フリークッキングで探す" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "レシピ発見へ" })).not.toBeInTheDocument();
     for (const b of buttons) fireEvent.click(b);
     expect(onShowHint.mock.calls.map(([id]) => id).sort()).toEqual([...expected].sort());
     expectNoUndiscoveredIdentity(inputs, `Dex ${count}`);
@@ -164,7 +164,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expect(document.querySelectorAll('[data-dex-state="DISCOVERABLE"]')).toHaveLength(0);
     // The candidates' own slots read as plain unknown slots: nothing numbered, tagged or clickable.
     expect(document.querySelectorAll(".dex-research-card").length).toBeGreaterThanOrEqual(2);
-    expect(screen.queryByRole("button", { name: "フリークッキングで探す" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "レシピ発見へ" })).toBeNull();
     expect(onGoFreeCook).not.toHaveBeenCalled();
     expect(onShowHint).not.toHaveBeenCalled();
     expectNoUndiscoveredIdentity(inputs, "legacy");
@@ -173,7 +173,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
   it("without onShowHint (Lunch Rush) the card keeps its 「フリークッキングで探す」 CTA", () => {
     const { onGoFreeCook } = renderDex(ladder(3), {});
     expect(hintButtons()).toHaveLength(0);
-    fireEvent.click(screen.getByRole("button", { name: "フリークッキングで探す" }));
+    fireEvent.click(screen.getByRole("button", { name: "レシピ発見へ" }));
     expect(onGoFreeCook).toHaveBeenCalledTimes(1);
   });
 

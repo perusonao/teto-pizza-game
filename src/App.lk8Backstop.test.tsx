@@ -61,12 +61,12 @@ describe("LK-8 through the App (legacy Dex-15 save)", () => {
     for (let trial = 0; trial < 8; trial++) {
       // A FREE round in PREPARE, then HOME: handleGoHome replaces it via PLAY_AGAIN -- the order
       // the old pool filled with an undiscovered recipe first.
-      await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+      await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
       await user.click(screen.getByRole("button", { name: /ホーム/ }));
       await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
       await user.click(screen.getByRole("button", { name: "閉じる" }));
       expectNoUndiscoveredName(`trial ${trial}: ORDER after intro close`);
-      await user.click(screen.getByRole("button", { name: /フリープレイ/ }));
+      await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
       expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
       expectNoUndiscoveredName(`trial ${trial}: FREE PREPARE`);
       await user.click(screen.getByRole("button", { name: /ホーム/ }));

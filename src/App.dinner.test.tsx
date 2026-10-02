@@ -51,7 +51,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
     render(<App />);
     expect(screen.getByRole("button", { name: /ピザを作る/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
-    expect(screen.getByRole("button", { name: /フリークッキング/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /レシピ発見/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ディナーミッション/ })).toHaveTextContent("解放 1");
   });
 
@@ -108,7 +108,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
     await user.click(within(popover).getByRole("button", { name: /閉じる/ }));
     expect(screen.queryByRole("dialog", { name: /フンギ/ })).toBeNull();
     // Still the same recipe-free round: no recipe card, no target name as the round's recipe.
-    expect(screen.queryByText("フリークッキング")).toBeNull();
+    expect(screen.queryByText(/レシピ発見の試作/)).toBeNull();
     expect(screen.getByTestId("dinner-target-row")).toBeInTheDocument();
   });
 

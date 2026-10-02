@@ -23,7 +23,7 @@ async function startFree(page: Page, width: number, height: number) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
 async function toSauce(page: Page) {

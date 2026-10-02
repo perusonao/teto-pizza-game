@@ -41,7 +41,7 @@ export const FREE_COOK_BAKE_TARGET: BakeTarget = {
 export const FREE_COOK_RECIPE: Recipe = {
   id: FREE_COOK_RECIPE_ID,
   nameJa: "じぶんのピザ",
-  description: "持っている材料から、好きなものを自由にのせて焼いてみよう。",
+  description: "持っている材料を組み合わせて、新しいレシピを試してみよう。",
   requiredIngredients: [],
   bakeTarget: FREE_COOK_BAKE_TARGET,
   // Never read: Pitz is only credited after a match, from the matched recipe's own base.
@@ -52,7 +52,7 @@ export const FREE_COOK_ORDER: Order = {
   id: "order-free-cook",
   recipeId: FREE_COOK_RECIPE_ID,
   requestedBy: "mito",
-  lineJa: "今日は好きな材料で自由に作ってみよう！",
+  lineJa: "今日は材料を組み合わせて、新しいレシピを試してみよう！",
 };
 
 export function isFreeCookRecipe(recipe: Pick<Recipe, "id">): boolean {

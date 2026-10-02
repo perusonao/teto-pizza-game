@@ -4,7 +4,7 @@ export const NOTEBOOK_COPY = {
   back: "ヒントにもどる",
   researchContext: "いまの研究対象",
   empty: "まだ試作の記録はないよ。",
-  emptyHint: "フリークッキングで作ってみよう！",
+  emptyHint: "レシピ発見で作ってみよう！",
   order: "さいごに作った順にならんでるよ",
   sauce: "ソース",
   toppings: "のせたもの",

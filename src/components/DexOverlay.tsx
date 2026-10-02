@@ -28,7 +28,7 @@ interface DexOverlayProps {
   onGoFreeCook?: () => void;
   onOpenShop?: () => void;
   /** Discovery Hint 2.0 (#229 229-D): a 🎨 (DISCOVERABLE) slot's 「💡 ヒントを見る」 -- Free Cooking
-   *  with the hint sheet on that slot's recipe. When given it replaces the 「フリークッキングで探す」
+   *  with the hint sheet on that slot's recipe. When given it replaces the 「レシピ発見へ」
    *  CTA (it starts Free Cooking too). The id travels only through this callback: the slot's DOM
    *  never carries it. */
   onShowHint?: (recipeId: string) => void;
@@ -110,7 +110,7 @@ function UndiscoveredSlot({
           tag &&
           cta && (
             <button type="button" className="dex-card__tag-cta" onClick={cta}>
-              {state === "DISCOVERABLE" ? "フリークッキングで探す" : "ショップを見る"}
+              {state === "DISCOVERABLE" ? "レシピ発見へ" : "ショップを見る"}
             </button>
           )
         )}
@@ -130,7 +130,7 @@ function AggregatedUnknownCard({ onGoFreeCook }: { onGoFreeCook?: () => void }) 
         <p className="dex-card__lock-hint">{"\u{1F3A8}"} まだ発見できるピザがあるよ</p>
         {onGoFreeCook && (
           <button type="button" className="dex-card__tag-cta" onClick={onGoFreeCook}>
-            フリークッキングで探す
+            レシピ発見へ
           </button>
         )}
       </div>

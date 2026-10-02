@@ -82,7 +82,7 @@ const bar = (page: Page) => page.locator(".prepare-bake-bar");
 const sheet = (page: Page) => page.getByRole("dialog", { name: /ヒント/ });
 
 async function startFreeCookAtTopping(page: Page) {
-  await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   for (let i = 0; i < 3; i += 1) {
