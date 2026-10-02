@@ -497,7 +497,9 @@ export function ResultPanel({
               </span>
             ))}
           </p>
-          {onOpenShop && (
+          {/* #358 OD-358-4: when the discovery's primary CTA already opens the Shop (「新しい食材を見る」), the notice is
+              a message only -- one Shop CTA, not two with the same destination. */}
+          {onOpenShop && !(isDiscoveryResult && postDiscovery?.kind === "SHOP_NEW_MATERIAL") && (
             <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
               {"\u{1F6D2}"} ショップへ
             </button>
@@ -684,7 +686,9 @@ export function ResultPanel({
         </div>
       </details>
 
-      {actions}
+      {/* #358 OD-358-2/3: a NEW PIZZA result is "discovered -> next": no 「もう一度試す」 / 「レシピを選んで作る」 here
+          (the primary CTA above leads on; Pizza Select / HOME / Dex stay reachable from their own entries). */}
+      {!isDiscoveryResult && actions}
     </div>
   );
 }
