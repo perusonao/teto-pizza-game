@@ -6,8 +6,18 @@
   font: 14px/1.45 system-ui, sans-serif;
   color: #222;
   background: #fafaf7;
-  min-height: 100vh;
   overflow-wrap: anywhere;
+  /* The game shell (index.css) locks html/body/#root to a fixed, non-growing viewport height with
+     `overflow: hidden`, so the Inspector must be its own vertical scroll container -- otherwise
+     everything below the first screen is clipped and cannot be reached on iOS Safari. This sheet
+     is only loaded with the Inspector chunk, so the game's scroll / viewport contract is untouched. */
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 .dpi h1 { font-size: 18px; margin: 4px 0; }
 .dpi h4 { font-size: 13px; margin: 8px 0 4px; }
