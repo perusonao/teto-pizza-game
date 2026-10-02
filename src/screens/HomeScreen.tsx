@@ -246,12 +246,14 @@ export function HomeScreen({
       </section>
 
       <footer className="home-footer">
-        {onOpenChangelog && (
-          <button type="button" className="home-footer__changelog" onClick={onOpenChangelog}>
-            {"\u{1F4E3}"} 更新情報
-          </button>
-        )}
-        <p className="home-footer__message">{"\u{1F43E}"} いいピザは、いい一日をつくる！</p>
+        <div className="home-footer__row">
+          <p className="home-footer__message">{"\u{1F43E}"} いいピザは、いい一日をつくる！</p>
+          {onOpenChangelog && (
+            <button type="button" className="home-footer__changelog" onClick={onOpenChangelog}>
+              {"\u{1F4E3}"} 更新情報
+            </button>
+          )}
+        </div>
       </footer>
     </div>
   );
