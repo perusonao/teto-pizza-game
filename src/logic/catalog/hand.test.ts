@@ -105,7 +105,7 @@ describe("LC-R2 FREE-only eligibility (OD-1)", () => {
     const recipe = getRecipe("margherita" as RecipeId)!;
     const guided = trayIngredientsFor("topping", { ownedIngredientIds: ALL_IDS, freeCook: false, recipe });
     expect(guided.map((i) => i.id).sort()).toEqual(recipe.requiredIngredients.map((r) => r.ingredientId).filter((id) => toppingIds.includes(id)).sort());
-    expect(trayIngredientsFor("topping", { ownedIngredientIds: ALL_IDS, freeCook: true, recipe: FREE_COOK_RECIPE })).toHaveLength(22);
+    expect(trayIngredientsFor("topping", { ownedIngredientIds: ALL_IDS, freeCook: true, recipe: FREE_COOK_RECIPE })).toHaveLength(23);
   });
 });
 

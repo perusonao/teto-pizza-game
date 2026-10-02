@@ -67,7 +67,8 @@ describe("DH4-2A sweep universe", () => {
       expect(parts, s.recipeId).not.toBeNull();
       expect(parts.recipeIngredientIds.every((id) => s.owned.includes(id)), `${s.recipeId}@${s.step}`).toBe(true);
     }
-    expect(new Set(ownedAt(24, LADDER))).toEqual(new Set(ALL_INGREDIENT_IDS));
+    // The frozen W1 ladder (24 steps) owns every ingredient except No.27's appended-step chicken.
+    expect(new Set(ownedAt(24, LADDER))).toEqual(new Set(ALL_INGREDIENT_IDS.filter((id) => id !== "chicken")));
   });
 });
 
@@ -353,6 +354,6 @@ describe("T-15 wiring boundary (DH4-2B)", () => {
       const a = guardedAnswerForParts(parts)!;
       if (getIngredient(parts.reserveId)!.category !== "topping") expect(["category", "existence"]).toContain(a.level);
     }
-    expect(RECIPES.length).toBe(26);
+    expect(RECIPES.length).toBe(27);
   });
 });

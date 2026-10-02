@@ -57,7 +57,7 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
 
 /** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
  *  not evidence). */
-const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa"];
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -99,6 +99,8 @@ const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
   "puttanesca-pizza": ["DOUGH", "SAUCE", "TOPPING"],
   // PR-4b-B: no cheese-category ingredient (so no CHEESE step); not CUT-eligible (D-5).
   "brazilian-calabresa": ["DOUGH", "SAUCE", "TOPPING"],
+  // No.27: standard pesto + mozzarella + toppings; CUT is not added this slice (Owner decision).
+  "pesto-pollo": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
 };
 
 /** No-CHEESE recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */

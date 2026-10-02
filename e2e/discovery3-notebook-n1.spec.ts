@@ -162,7 +162,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
   test.setTimeout(300_000);
 
   test("empty state: Hint -> 試作ノート (empty, not blank) -> back to the Hint -> close", async ({ page }, testInfo) => {
-    await openWithSave(page, DEX3_SAVE, /3\/26/);
+    await openWithSave(page, DEX3_SAVE, /3\/27/);
     await startFree(page, "HOME");
     await openNotebookFromHint(page);
     await expect(notebook(page)).toContainText("まだ試作の記録はないよ。");
@@ -187,7 +187,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
   });
 
   test("attempts show up (#n, own combination, line shown), a repeat shows its count, Notebook -> Hint -> retry; HOME/FREE keeps it; save stays v2 without the notebook", async ({ page }, testInfo) => {
-    await openWithSave(page, DEX3_SAVE, /3\/26/);
+    await openWithSave(page, DEX3_SAVE, /3\/27/);
     await cookFree(page, ADD_ONE, "HOME");
     await cookFree(page, FAR, "RESULT");
     await startFree(page, "RESULT");
@@ -247,7 +247,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
   });
 
   test("a long list scrolls inside the sheet and the way back stays on screen", async ({ page }, testInfo) => {
-    await openWithSave(page, DEX3_SAVE, /3\/26/);
+    await openWithSave(page, DEX3_SAVE, /3\/27/);
     await cookFree(page, ADD_ONE, "HOME");
     await cookFree(page, FAR, "RESULT");
     await cookFree(page, EGG, "RESULT");
@@ -275,7 +275,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
   });
 
   test("pool = 2 (Dex 12) and an INCOMPLETE attempt: the notebook names no recipe and shows no count / match", async ({ page }, testInfo) => {
-    await openWithSave(page, DEX12_SAVE, /12\/26/);
+    await openWithSave(page, DEX12_SAVE, /12\/27/);
     await cookCalabresa(page, 0, "HOME"); // no oregano: an incomplete attempt
     await startFree(page, "RESULT");
     // pool > 1 and nothing bought: the Hint sheet offers the open-pool message only, yet the notebook is reachable.
@@ -296,7 +296,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
   });
 
   test("pool = 1 (Dex 3) notebook rows pass the whole-document anti-spoiler sweep", async ({ page }) => {
-    await openWithSave(page, DEX3_SAVE, /3\/26/);
+    await openWithSave(page, DEX3_SAVE, /3\/27/);
     await cookFree(page, INCOMPLETE, "HOME");
     await startFree(page, "RESULT");
     await openNotebookFromHint(page);

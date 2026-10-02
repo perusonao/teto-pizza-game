@@ -927,8 +927,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 26/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/26/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 27/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/27/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {
@@ -1071,7 +1071,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).getByRole("group", { name: "材料の分類" })).toBeInTheDocument();
   });
 
-  it("D. once every ladder step is reached (all 25 recipes discovered) the progress hint is gone", async () => {
+  it("D. once every ladder step is reached (all 26 credited recipes discovered) the progress hint is gone", async () => {
     const user = userEvent.setup();
     seedSaveV2({
       dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
@@ -1087,7 +1087,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     // Since the 25-recipe ladder (W1 I5b-3) every finite material has an offer, so every owned one
     // is a refill row.
     expect(UNOFFERED).toEqual([]);
-    expect(MANY).toHaveLength(26);
+    expect(MANY).toHaveLength(27);
   });
 
   it("E. shelf filtering narrows the visible list to that shelf only", async () => {

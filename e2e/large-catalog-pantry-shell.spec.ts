@@ -205,9 +205,9 @@ for (const width of [390, 360] as const) {
       expect(open.sheet!.b, `${label}: anchored to the bottom`).toBeCloseTo(open.innerH, 0);
       expect(open.sheet!.x).toBeGreaterThanOrEqual(-0.5);
       expect(open.sheet!.r).toBeLessThanOrEqual(open.innerW + 0.5);
-      expect(open.sheet!.h, `${label}: height identical with 3 rows (sauce) and 22 rows (topping)`).toBeCloseTo(fewRows.sheet!.h, 0);
+      expect(open.sheet!.h, `${label}: height identical with 3 rows (sauce) and 23 rows (topping)`).toBeCloseTo(fewRows.sheet!.h, 0);
       expect(fewRows.listScrollable, `${label}: 3 sauces do not need a scroll`).toBe(false);
-      expect(open.listScrollable, `${label}: 22 toppings scroll inside the list`).toBe(true);
+      expect(open.listScrollable, `${label}: 23 toppings scroll inside the list`).toBe(true);
       expect(open.close!.y, `${label}: close visible`).toBeGreaterThanOrEqual(0);
       expect(open.close!.b).toBeLessThanOrEqual(open.innerH);
       expect(open.close!.h, `${label}: close >= 44px`).toBeGreaterThanOrEqual(43.5);
@@ -215,7 +215,7 @@ for (const width of [390, 360] as const) {
       expect(open.pageScrolls, `${label}: page does not scroll while open`).toBe(false);
       const during = await layout(page);
       expect(during.stage, `${label}: stage unchanged while the sheet is open`).toBeCloseTo(before.stage!, 1);
-      expect(open.tiles, `${label}: owned toppings only (all 22 owned here)`).toBe(22);
+      expect(open.tiles, `${label}: owned toppings only (all 23 owned here)`).toBe(23);
 
       // ---- scroll ownership: PageDown on the focused list scrolls the list, never the page
       await page.locator(".pantry-sheet__list").focus();

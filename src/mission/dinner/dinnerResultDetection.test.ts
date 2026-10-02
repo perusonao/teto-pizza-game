@@ -137,11 +137,11 @@ function deepFreeze<T>(value: T): T {
 }
 
 describe("identity: the Free Cooking matcher, reused (§3 / §4)", () => {
-  it("32: every one of the 26 runtime recipes has a unique signature and its Reference identifies itself", () => {
-    expect(RECIPES).toHaveLength(26);
-    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(26);
+  it("32: every one of the 27 runtime recipes has a unique signature and its Reference identifies itself", () => {
+    expect(RECIPES).toHaveLength(27);
+    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(27);
     const keys = RECIPE_DISCOVERY_CATALOG.map((t) => JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]));
-    expect(new Set(keys).size).toBe(26); // 0 identical signatures
+    expect(new Set(keys).size).toBe(27); // 0 identical signatures
     for (const recipe of RECIPES) {
       expect(resolveDinnerIdentity(pizzaFor(recipe.id)), recipe.id).toEqual({ kind: "RECIPE", recipeId: recipe.id });
     }
@@ -767,8 +767,8 @@ describe("Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P
         }
       }
     }
-    expect(windows).toHaveLength(27); // FREE + 26 recipes (PR-4b-B: calabresa shares 58-78)
-    expect(cases).toBe(10_854);
+    expect(windows).toHaveLength(28); // FREE + 27 recipes (PR-4b-B: calabresa shares 58-78; No.27: pesto-pollo 50-70)
+    expect(cases).toBe(11_256);
   });
 
   it("D-P runtime: for every CUT recipe's Reference pizza, bake 0..100, the forwarded verdict never mismatches", () => {

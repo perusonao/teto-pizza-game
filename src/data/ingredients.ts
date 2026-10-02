@@ -544,6 +544,23 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * Discovery 3.0 No.27 (pesto-pollo): the 30th ingredient, a finite ladder material like the W1
+   * seven -- unlocked at appended ladder step 25 (`POST_W1_APPENDED_STEPS`), sold only by the
+   * material Shop, so no legacy `pricePitz` / `restockQuantity` / `starterGrantOnly` (price and
+   * pack come from the ladder tier and k, never from this row). Family `meat` lives in
+   * ../data/ingredientTaxonomy.ts. Emoji reuses the existing plain-emoji convention (no dedicated
+   * `pieceVisual`; no new display mechanic); the poultry glyph is distinct from `ham`'s 🍖.
+   */
+  {
+    id: "chicken",
+    category: "topping",
+    nameJa: "チキン",
+    color: "#d9a066",
+    emoji: "\u{1F357}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

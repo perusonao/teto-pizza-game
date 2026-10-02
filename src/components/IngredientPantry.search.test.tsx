@@ -21,7 +21,7 @@ const type = (value: string) => fireEvent.change(field()!, { target: { value } }
 afterEach(() => cleanup());
 
 describe("search field visibility (owned rows of the active category > 6; never text / shelf / result count)", () => {
-  it("shows for the 22 owned toppings, not for sauce (3) or cheese (4), not for 6 or fewer toppings", () => {
+  it("shows for the 23 owned toppings, not for sauce (3) or cheese (4), not for 6 or fewer toppings", () => {
     open("topping");
     expect(field()).not.toBeNull();
     cleanup();
@@ -89,7 +89,7 @@ describe("search matching (owned only, AND shelf, approved aliases)", () => {
       expect(names(), q).toEqual(["ベーコン"]);
     }
     type("");
-    expect(names()).toHaveLength(22);
+    expect(names()).toHaveLength(23);
   });
 
   it("finds an ingredient by its approved written form (玉ねぎ / 卵) and by its name", () => {
@@ -157,7 +157,7 @@ describe("search matching (owned only, AND shelf, approved aliases)", () => {
     unmount();
     open();
     expect(field()).toHaveValue("");
-    expect(names()).toHaveLength(22);
+    expect(names()).toHaveLength(23);
   });
 
   it("✕ clears the text, keeps the focus in the field, and does not blur on press", () => {
@@ -171,7 +171,7 @@ describe("search matching (owned only, AND shelf, approved aliases)", () => {
     fireEvent.click(clear);
     expect(field()).toHaveValue("");
     expect(document.activeElement).toBe(field());
-    expect(names()).toHaveLength(22);
+    expect(names()).toHaveLength(23);
   });
 });
 
@@ -196,7 +196,7 @@ describe("IME contract: composition never changes the list; compositionend appli
     open();
     fireEvent.compositionStart(field()!);
     type("たまねき");
-    expect(names()).toHaveLength(22);
+    expect(names()).toHaveLength(23);
     fireEvent.compositionEnd(field()!, { data: "たまねぎ" });
     type("たまねぎ"); // the input Safari fires after the end
     expect(names()).toEqual(["たまねぎ"]);
@@ -217,7 +217,7 @@ describe("IME contract: composition never changes the list; compositionend appli
     field()!.focus();
     fireEvent.compositionStart(field()!);
     type("たまね");
-    expect(names()).toHaveLength(22);
+    expect(names()).toHaveLength(23);
     fireEvent.blur(field()!);
     expect(names()).toEqual(["たまねぎ"]);
     type("ベ"); // a later plain input applies again
@@ -230,7 +230,7 @@ describe("IME contract: composition never changes the list; compositionend appli
     f.value = "たま";
     const event = new InputEvent("input", { bubbles: true, isComposing: true, inputType: "insertCompositionText" });
     f.dispatchEvent(event);
-    expect(names()).toHaveLength(22);
+    expect(names()).toHaveLength(23);
   });
 });
 

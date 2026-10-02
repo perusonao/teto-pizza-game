@@ -117,9 +117,9 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
   });
 });
 
-describe("DH4-PROD gate: Cooking Techniques privacy on the 26 production recipes (TQ-1D contract)", () => {
-  it("26 production recipes, each with exactly one sauce: no NO_SAUCE (Technique) recipe exists yet", () => {
-    expect(RECIPES).toHaveLength(26);
+describe("DH4-PROD gate: Cooking Techniques privacy on the 27 production recipes (TQ-1D contract)", () => {
+  it("27 production recipes, each with exactly one sauce: no NO_SAUCE (Technique) recipe exists yet", () => {
+    expect(RECIPES).toHaveLength(27);
     const breaking = RECIPES.filter((r) => sauceCount(r.id) !== 1).map((r) => r.id);
     // If this fails, a Technique recipe reached production: re-run the DH4 Production gate and the
     // DH4 privacy sweeps with it (TQ-1D contract) before shipping it.
@@ -172,7 +172,7 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 26 production recipes
 
 describe("DH4-PROD gate: privacy on real data (ladder + random acquisition orders)", () => {
   it("covers every non-onboarding production recipe in a few thousand states", () => {
-    expect(new Set(GATE_STATES.map((s) => s.recipeId)).size).toBe(25); // every recipe but margherita (the onboarding one)
+    expect(new Set(GATE_STATES.map((s) => s.recipeId)).size).toBe(26); // every recipe but margherita (the onboarding one)
     expect(GATE_STATES.length).toBeGreaterThan(2000);
   });
 

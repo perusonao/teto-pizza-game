@@ -54,7 +54,7 @@ async function startDex12Free(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX12_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/26/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/27/);
   await page.getByRole("button", { name: /フリークッキング/ }).first().click();
   await page.waitForSelector(".pizza-stage");
 }
