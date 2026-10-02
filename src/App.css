@@ -6722,6 +6722,23 @@ p.hint-sheet__step {
   color: #9a7b58;
 }
 
+.trial-notebook__diff-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3d2a16;
+}
+
+.trial-notebook__diff-list {
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #3d2a16;
+  overflow-wrap: anywhere;
+}
+
 .trial-notebook__retry,
 .trial-notebook__feedback {
   margin: 0;

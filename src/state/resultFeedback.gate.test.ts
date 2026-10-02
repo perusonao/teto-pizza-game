@@ -91,7 +91,8 @@ describe("Owner decisions (P2) stay contained", () => {
   });
 
   // Notebook N1: the read-only readers (GameScreen relay, Hint sheet, notebook sheet); trialNotebook.gate.test.ts pins the exact list.
-  const N1_READERS = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx"];
+  // Notebook N2 adds the pure diff helper (it only reads two player combinations).
+  const N1_READERS = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx", "/src/logic/discovery/trialNotebookDiff.ts"];
   it("no production file other than the Trial Notebook model, the record adapter, the reducer and the N1 readers mentions the Trial Notebook", () => {
     for (const [path, text] of production) {
       if (path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER || path === REDUCER || N1_READERS.includes(path)) continue;
