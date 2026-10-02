@@ -6947,3 +6947,40 @@ p.hint-sheet__step {
   font-size: 13px;
   line-height: 1.6;
 }
+
+/* Issue #358 Slice 3: the compact 「未使用のまま焼く？」 confirmation (a bottom sheet over the PREPARE controls). */
+.bake-unused-confirm {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 390px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: #fff8ea;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 16px rgba(47, 25, 8, 0.25);
+  color: #6b4226;
+}
+
+.bake-unused-confirm__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.bake-unused-confirm__text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bake-unused-confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

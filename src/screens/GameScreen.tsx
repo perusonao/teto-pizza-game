@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientPantry } from "../components/IngredientPantry";
+import { BakeUnusedConfirm } from "../components/BakeUnusedConfirm";
 import { ResearchTestPicker } from "../components/ResearchTestPicker";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { IngredientTray } from "../components/IngredientTray";
@@ -307,6 +308,23 @@ export function GameScreen({
   };
   const researchTestIngredient =
     state.researchTest && state.researchTest.recipeId === state.researchTargetId ? getIngredient(state.researchTest.ingredientId) : undefined;
+  // #358 Slice 3: 「🔥 焼く！」 with the declared ingredient not on the player's own pizza asks first (never forbids).
+  // Reads only the pizza and the declaration -- no recipe membership, no matcher.
+  const [bakeConfirmOpen, setBakeConfirmOpen] = useState(false);
+  const bakeButtonRef = useRef<HTMLButtonElement>(null);
+  const unusedTestIngredient =
+    RESEARCH_IDENTIFY_ENABLED &&
+    state.freeCook &&
+    state.phase === "PREPARE" &&
+    researchTestIngredient &&
+    !usedIngredientIds(state.pizza).includes(researchTestIngredient.id)
+      ? researchTestIngredient
+      : undefined;
+  if (bakeConfirmOpen && !unusedTestIngredient) setBakeConfirmOpen(false);
+  const closeBakeConfirm = () => {
+    setBakeConfirmOpen(false);
+    queueMicrotask(() => bakeButtonRef.current?.focus());
+  };
   // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
   const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
   const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
@@ -683,6 +701,17 @@ export function GameScreen({
         </div>
       )}
 
+      {bakeConfirmOpen && unusedTestIngredient && (
+        <BakeUnusedConfirm
+          ingredientNameJa={unusedTestIngredient.nameJa}
+          onBack={closeBakeConfirm}
+          onBake={() => {
+            setBakeConfirmOpen(false);
+            onStartBake();
+          }}
+        />
+      )}
+
       {researchPickerVisible && researchView && (
         <ResearchTestPicker
           ownedIngredientIds={state.ownedIngredientIds}
@@ -967,7 +996,12 @@ export function GameScreen({
               やり直す
             </button>
             {isLastPrepareStep ? (
-              <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>
+              <button
+                ref={bakeButtonRef}
+                type="button"
+                className="cta-button cta-button--bake"
+                onClick={unusedTestIngredient ? () => setBakeConfirmOpen(true) : onStartBake}
+              >
                 {"\u{1F525}"} 焼く！
               </button>
             ) : (
