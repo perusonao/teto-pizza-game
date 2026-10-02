@@ -33,6 +33,7 @@ const LADDER = [
   ["genovese", ["cherry-tomato"]], ["new-haven-apizza", ["clam"]], ["pesto-caprese", ["fresh-tomato"]],
   ["pesto-patate", ["potato"]], ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]],
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
+  ["pesto-pollo", ["chicken"]], // No.27: the appended step 25
 ] as const;
 
 /** Production recipes that never advance the ladder (`ladderCredit: false`). The ladder's own recipes are not the whole population
@@ -405,7 +406,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(25, { complete: true }), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(26, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);
