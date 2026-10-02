@@ -1,0 +1,23 @@
+{
+  "auditedMain": "262b09fcb78d98c7b12ea4e5b51c2da1bca9d37e",
+  "kind": "read-only static aggregation (python, not committed); heuristic strategies, not optimal",
+  "unlockSteps": {
+    "recipes": 27,
+    "newRegistrablePerStep": "24 of 25 ladder steps (+No.27 chicken) complete exactly 1 recipe; Step 12 (onion) completes 2 (pizza-portuguesa, brazilian-calabresa)",
+    "maxSimultaneousPerPurchase": 2,
+    "backlogNote": "a player who buys entitled materials without cooking can hold >2 registrable recipes; bounded by entitled-but-undiscovered"
+  },
+  "oracleProbe": {
+    "assumptions": "owner holds every ladder material entitled up to the target's completion step plus 3 starters; unlock fact (last material) pre-known; K = max distinct ingredients per attempt (assumed 6 or 8)",
+    "meanAttemptsToFullIdentity": {
+      "pesto-pollo":     {"n": 30, "K8": {"A": 3.3, "B": 4.8, "D": 8.5}, "K6": {"A": 4.1, "B": 5.6, "D": 9.3}},
+      "pesto-caprese":   {"n": 24, "K8": {"A": 2.7, "B": 4.2, "D": 5.0}, "K6": {"A": 3.4, "B": 4.8, "D": 7.0}},
+      "napoletana":      {"n": 19, "K8": {"A": 2.2, "B": 3.7, "D": 5.0}, "K6": {"A": 2.8, "B": 4.2, "D": 6.0}},
+      "tonno-e-cipolla": {"n": 20, "K8": {"A": 2.3, "B": 3.8, "D": 5.4}, "K6": {"A": 2.9, "B": 4.4, "D": 6.4}},
+      "hawaiian":        {"n": 13, "K8": {"A": 1.7, "B": 3.3, "D": 3.6}, "K6": {"A": 1.9, "B": 3.6, "D": 4.5}}
+    },
+    "baselineSearchSpace": "C(30,4) = 27405 for n=30, |R|=4 (exact-set match only, no reveal)",
+    "note": "C is informationally equal to B plus an early boolean 'new discovery' signal. All variants restore a membership oracle (group testing); A strongest, D weakest per attempt."
+  },
+  "findings": ["X1 slot count leaks STRUCTURE", "X2 no tomato family", "X3 Dex D-2 aggregate card conflict", "X4 DISCOVERABLE is stock-dependent", "X5 27 recipes all default dims", "X6 discoveryHintFacts already a per-recipe knowledge ledger"]
+}
