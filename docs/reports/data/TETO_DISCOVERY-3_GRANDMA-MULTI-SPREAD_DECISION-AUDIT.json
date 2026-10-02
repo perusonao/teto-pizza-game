@@ -1,0 +1,82 @@
+{
+  "schemaNote": "Docs-only companion to TETO_DISCOVERY-3_GRANDMA-MULTI-SPREAD_DECISION-AUDIT.md. Decision support only: no recommendation, no ranking, No.28 not selected. Counts are audit-internal values.",
+  "auditedMainSha": "262b09fcb78d98c7b12ea4e5b51c2da1bca9d37e",
+  "referencedBranches": {
+    "firstCStepShortlist": { "branch": "claude/discovery-3-first-c-step-shortlist-j4a3th", "commit": "7df9419" },
+    "branchPlacementAudit": { "branch": "claude/discovery-3-branch-placement-audit-07ck26", "commit": "db956ee" }
+  },
+  "reusedAuthority": [
+    "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json",
+    "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json"
+  ],
+  "grandma": {
+    "evidenceId": "grandma-pizza-pizzadb",
+    "sourceFacts": {
+      "ingredients": ["garlic", "mozzarella", "olive-oil", "tomato-sauce"],
+      "sauceFamily": "トマトソース",
+      "evidenceOrigin": "comparison_table_sample",
+      "corroborationCount": 1,
+      "doughStyle": null,
+      "origin": null
+    },
+    "repoDerivations": {
+      "baseIngredientId": "tomato-sauce (from sauceFamily label)",
+      "spreadLayers": ["olive-oil", "tomato-sauce"],
+      "spreadLayerStrength": "source_ingredient_field (repo taxonomy applied to ingredient list; layer order and gesture not in source)",
+      "layerOrder": "standard (default, not evidence)"
+    },
+    "gameplayCalibration": ["minCount", "sauce quantity", "bakeTarget", "ladderCredit:false", "lunchRush", "hint roles", "reference layout"],
+    "unresolvedAuthority": [
+      "master report prose lists Grandma in the square-pan family but row evidence has doughStyle null / pan null and matrix requires no PAN_BAKE",
+      "olive-oil gesture (paint vs drizzle vs brush) and layer order"
+    ],
+    "shippedCollisions": []
+  },
+  "step14Candidates": [
+    { "id": "grandma-pizza", "blocker": "MULTI_SPREAD_LAYER" },
+    { "id": "marinara-pizza-p13", "blocker": "MULTI_SPREAD_LAYER + composition conflict with shipped marinara" },
+    { "id": "pizza-de-cancha", "blocker": "MULTI_SPREAD_LAYER + DOUGH_VARIANT + UNRESOLVED_INGREDIENT" }
+  ],
+  "multiSpreadPopulation": {
+    "requiredCapabilityRows": 17,
+    "candidateOnlyRows": 10,
+    "unlockedAloneByMultiSpread": 13,
+    "groups": {
+      "a_oil_tomato_current30_noOtherCapability": ["grandma-pizza-pizzadb", "sfincione-pizzadb", "margherita-pizzadb-row", "marinara-pizza-pizzadb-p13"],
+      "b_oilOrPestoOrTomato_needsNewContentIngredient": ["burrata-pizza-pizzadb-p10", "pizza-alla-crudaiola-pizzadb-p8", "pesto-burrata-pizzadb-p12", "pescatore-pizzadb-p11"],
+      "c_sauce_plus_newSpreadIngredient": ["pesto-noci-pizzadb-p12", "pizza-salad-pizzadb-p7", "okonomiyaki-style-pizza-pizzadb-p1"],
+      "d_lateAdditionInvolved": ["hot-honey-pepperoni-pizzadb-p12", "buffalo-chicken-pizzadb", "pizza-radicchio-noci-pizzadb-p8"],
+      "e_otherCapabilityOrMechanism": ["pizza-de-cancha", "lahmacun", "feteer-meshaltet-pizzadb-p10"]
+    },
+    "candidateOnlyRowsNote": "10 rows with BASE_SAUCE_UNSPECIFIED; 2nd layer is repo_inference only"
+  },
+  "simplification": {
+    "S1_tomatoOnly": { "set": ["garlic", "mozzarella", "tomato-sauce"], "buildable": true, "shippedCollision": false },
+    "S2_oilOnly": { "set": ["garlic", "mozzarella", "olive-oil"], "buildable": true, "shippedCollision": false, "conflictsWith": "sauceFamily トマトソース" },
+    "S3_keepFourIngredientsTomatoBaseOnly": { "buildable": false, "reason": "catalog sauceBase derives 2 sauces; player holds 1 -> unreachable target" },
+    "S4_oilAsToppingIngredient": { "buildable": false, "reason": "olive-oil is category sauce; PLACE_TOPPING rejects sauce; recategorizing affects 4 shipped recipes; a new oil topping id would be an ingredient addition" },
+    "simplificationCollisionsForOtherOilTomatoRows": {
+      "margherita-pizzadb-row": "equals shipped margherita after dropping oil",
+      "marinara-pizza-pizzadb-p13": "equals shipped marinara after dropping oil",
+      "sfincione-pizzadb": "no collision",
+      "grandma-pizza-pizzadb": "no collision"
+    }
+  },
+  "productionSingleSauceTouchpoints": {
+    "productionFiles": 28,
+    "testAndE2eFilesReferencing": 68,
+    "hint5Tripwire": "src/logic/discovery/hint5Production.gate.test.ts fails on purpose if any production recipe has a SAUCE rung with != 1 subject (requires Hint 5.0 privacy re-audit and OD-H5-P4)",
+    "saveV2ChangeExpected": false,
+    "saveV2Note": "static reading only; live PizzaState is not persisted, fingerprint fp1 uses arrays; verify at implementation"
+  },
+  "ownerDecision": {
+    "id": "OD-GRANDMA-SPREAD",
+    "options": {
+      "A": "build multi-spread as a formal mechanic",
+      "B": "simplify Grandma to single-base (S1 or S2)",
+      "C": "defer Grandma and reconsider the Step 14 candidate"
+    },
+    "selected": null
+  },
+  "notDone": ["implementation", "Issue/PR", "No.28 selection", "recommendation/ranking", "R6/IP-2", "172 re-audit", "tests/build/HV"]
+}
