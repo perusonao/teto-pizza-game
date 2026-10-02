@@ -12,7 +12,7 @@ const URL = "/teto-pizza-game/?inspector=discovery";
 async function openInspector(page: Page) {
   await page.goto(URL);
   await expect(page.locator("[data-inspector]")).toBeVisible();
-  await expect(page.getByTestId("dpi-step-count")).toHaveText("24");
+  await expect(page.getByTestId("dpi-step-count")).toHaveText("25"); // 24 W1 steps + No.27's appended step 25
 }
 
 /** Scrolls the Inspector's own scroller to the bottom the way a finger would end up, and reports it. */
@@ -30,19 +30,19 @@ async function scrollState(page: Page) {
   });
 }
 
-async function expectStep24Reachable(page: Page) {
+async function expectLastStepReachable(page: Page) {
   const s = await scrollState(page);
   expect(s.scrollable).toBe(true);
   expect(s.after).toBeGreaterThan(s.before);
   expect(s.hOverflow).toBe(false);
-  await expect(page.getByTestId("dpi-row-24")).toBeInViewport();
+  await expect(page.getByTestId("dpi-row-25")).toBeInViewport();
   await expect(page.getByTestId("dpi-row-1")).not.toBeInViewport();
 }
 
-test("Inspector scrolls from Step 1 to Step 24", async ({ page }) => {
+test("Inspector scrolls from Step 1 to Step 25", async ({ page }) => {
   await openInspector(page);
   await expect(page.getByTestId("dpi-row-1")).toBeInViewport();
-  await expectStep24Reachable(page);
+  await expectLastStepReachable(page);
 });
 
 test("Inspector still scrolls after the search box and a filter chip, and with a row expanded", async ({ page }) => {
@@ -52,10 +52,10 @@ test("Inspector still scrolls after the search box and a filter chip, and with a
   await chips.nth(0).click();
   await page.getByLabel("search").fill("egg");
   await page.getByLabel("search").fill("");
-  await expect(page.getByTestId("dpi-visible-count")).toContainText("24 / 24");
+  await expect(page.getByTestId("dpi-visible-count")).toContainText("25 / 25");
   await page.getByTestId("dpi-row-1").locator("button").first().click();
   await page.locator("[data-inspector]").evaluate((el) => (el.scrollTop = 0));
-  await expectStep24Reachable(page);
+  await expectLastStepReachable(page);
 });
 
 test("the game shell's scroll lock is unchanged: the normal app has no scrolling document", async ({ page }) => {
