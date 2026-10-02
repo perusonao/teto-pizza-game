@@ -2,6 +2,7 @@
 export const NOTEBOOK_COPY = {
   title: "\u{1F4D3} 試作ノート",
   back: "ヒントにもどる",
+  researchContext: "いまの研究対象",
   empty: "まだ試作の記録はないよ。",
   emptyHint: "フリークッキングで作ってみよう！",
   order: "さいごに作った順にならんでるよ",

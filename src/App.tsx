@@ -1014,6 +1014,13 @@ function App() {
     setScreen("GAME");
   }
 
+  // #346 S4 / OD-RX-4: the post-discovery 「次のピザを研究する」. One researchable entry left -> start it;
+  // 2+ -> back to the Dex's anonymous Research cards (the player picks; nothing is chosen for them).
+  function handleResearchNext(recipeId: string | null) {
+    if (recipeId) handleStartResearch(recipeId);
+    else setDexOpen(true);
+  }
+
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
   // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
   // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
@@ -1229,6 +1236,7 @@ function App() {
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={openShop}
           onOpenDex={() => setDexOpen(true)}
+          onResearchNext={handleResearchNext}
           onMissionServeNext={handleMissionServeNext}
           onMissionSkipOrder={handleMissionSkipOrder}
           onMissionStart={startMission}

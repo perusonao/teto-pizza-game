@@ -58,19 +58,22 @@ afterEach(() => {
 });
 
 describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A D-1 / D-2 / D-3)", () => {
-  it("legacy save: one aggregated unknown, no per-card hint entrance; Free Cooking's sheet picks no recipe and sells nothing", async () => {
+  it("legacy save: no per-card hint entrance and no aggregate card (Research Entries); Free Cooking's sheet picks no recipe and sells nothing", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     seedLegacyDex15();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
     expect(screen.queryAllByRole("button", { name: /ヒントを見る/ })).toHaveLength(0);
-    expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(1);
-    expectNoUndiscoveredName("Dex (aggregated unknown)");
+    expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0); // #346 S4: all are Research Entries
+    expect(document.querySelectorAll(".dex-research-card").length).toBeGreaterThanOrEqual(2);
+    expectNoUndiscoveredName("Dex (research entries)");
     const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
 
-    await user.click(screen.getByRole("button", { name: "フリークッキングで探す" }));
+    // The old aggregate card's CTA is gone; HOME's own フリークッキング is the open (target-less) route.
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
+    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
     expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const sheet = screen.getByRole("dialog", { name: /ヒント/ });
@@ -85,16 +88,15 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
   });
 
-  it("LK-8: after the aggregated CTA, HOME -> Pizza Select still lists no undiscovered recipe", async () => {
+  it("LK-8: after the HOME Free Cooking route, HOME -> Pizza Select still lists no undiscovered recipe", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     seedLegacyDex15();
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    await user.click(screen.getByRole("button", { name: "フリークッキングで探す" }));
+    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
-    expectNoUndiscoveredName("HOME after the aggregated CTA");
+    expectNoUndiscoveredName("HOME after the Free Cooking route");
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    expectNoUndiscoveredName("Pizza Select after the aggregated CTA");
+    expectNoUndiscoveredName("Pizza Select after the Free Cooking route");
   });
 });

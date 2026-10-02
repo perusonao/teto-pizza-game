@@ -112,10 +112,10 @@ describe("W1-f Dex", () => {
         }
         // 27 recipes; the walk never discovers the non-credit calabresa. Once the key recipe's materials are owned (Dex
         // 12 bought) and until the 26th (step 25's pesto-pollo is the last key recipe), the ladder's key recipe and calabresa are both DISCOVERABLE:
-        // pool 2 adds exactly one extra aggregated unknown card (D-2).
-        const pool2 = bought && n >= 12 && n < 26; // "arrived, not bought": the newest material is missing, so the key recipe is not yet DISCOVERABLE
-        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(27 - n + (pool2 ? 1 : 0));
-        expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(pool2 ? 1 : 0);
+        // pool 2 used to add one extra aggregated card (D-2); #346 S4: both candidates are registered Research
+        // Entries (their own cards), so the aggregate card is gone and the locked-card count is just the slots.
+        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(27 - n);
+        expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
         expect(document.querySelectorAll(".dex-card--locked .dex-card__ingredient, .dex-card--locked svg")).toHaveLength(0);
         cleanup();
       }

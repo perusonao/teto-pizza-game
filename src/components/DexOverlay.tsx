@@ -163,6 +163,13 @@ export function DexOverlay({
   const aggregateUnknown = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").length > 1;
   // #346 S2/S3: S1's projection (+ the Hint ledger's own exact / class facts) is the only authority.
   const researchEntries = researchEntryViews({ dex, ownedIngredientIds, discoveryHintFacts });
+  // #346 S4 (OD-RX-1): a registered Research Entry is guided by its own card, so the aggregate card is shown
+  // only while some aggregated DISCOVERABLE unknown is NOT a Research Entry. It only ever disappears (no
+  // slot, count or existence is newly exposed): the aggregated slots above already read as plain unknowns.
+  const researchIds = new Set(researchEntries.map((e) => e.recipeId));
+  const showAggregateCard =
+    aggregateUnknown &&
+    RECIPES.some((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE" && !researchIds.has(r.id));
   const cookableNow = (recipeId: string) => {
     const recipe = RECIPES.find((r) => r.id === recipeId);
     return !!recipe && recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE";
@@ -254,7 +261,7 @@ export function DexOverlay({
               </div>
             </section>
           )}
-          {aggregateUnknown && (
+          {showAggregateCard && (
             <div className="dex-overlay__list">
               <AggregatedUnknownCard onGoFreeCook={onGoFreeCook} />
             </div>

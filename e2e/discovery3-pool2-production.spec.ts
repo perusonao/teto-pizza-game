@@ -94,14 +94,15 @@ async function cookCalabresa(page: Page, opts: { oregano: number; from: "HOME" |
 test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calabresa)", () => {
   test.setTimeout(240_000);
 
-  test("Dex: ONE aggregated unknown, 27 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
+  test("Dex: two Research cards (no aggregate card), 27 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
     await openWithSave(page);
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    const aggregated = page.locator("[data-dex-aggregated]");
-    await expect(aggregated).toHaveCount(1);
-    await expect(aggregated).toContainText("まだ発見できるピザがあるよ");
-    await expect(aggregated).not.toContainText(/[0-9]/);
+    // #346 S4: both candidates are registered Research Entries -> their own cards, no aggregate card.
+    await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
+    const research = page.locator(".dex-overlay__research");
+    await expect(research.locator(".dex-research-card")).toHaveCount(2);
+    await expect(research).not.toContainText(/[0-9]/);
     await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(27);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
@@ -109,10 +110,11 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     expect(body).not.toContain("ブラジリアン");
     expect(body).not.toContain("ポルトゲーザ");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
-    await aggregated.scrollIntoViewIfNeeded();
-    await capture(page, "pool2-dex-aggregated", testInfo.project.name);
+    await research.scrollIntoViewIfNeeded();
+    await capture(page, "pool2-dex-research-cards", testInfo.project.name);
 
-    await aggregated.getByRole("button", { name: "フリークッキングで探す" }).click();
+    await page.getByRole("button", { name: "閉じる" }).click();
+    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toContainText("まだ発見できるピザがあるよ");
@@ -133,7 +135,16 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await expect(page.locator(".result-panel--discovery")).toContainText("ブラジリアン・カラブレーザ");
     await capture(page, "pool2-new-recipe-discovered", testInfo.project.name);
 
-    await page.getByRole("button", { name: /図鑑を見る/ }).first().click();
+    // #346 S4 (OD-RX-4): portuguesa is still a researchable entry, so the primary CTA is 「次のピザを研究する」
+    // (not 「図鑑を見る」). The Dex stays reachable from HOME.
+    await expect(page.getByRole("button", { name: "🔎 次のピザを研究する" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "📖 図鑑を見る" })).toHaveCount(0);
+    await page.getByRole("button", { name: "🔎 次のピザを研究する" }).click(); // one entry left -> starts it directly
+    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await capture(page, "pool2-research-next-started", testInfo.project.name);
+    page.on("dialog", (d) => void d.accept());
+    await page.getByRole("button", { name: /ホーム/ }).first().click();
+    await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
     await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*27/);
     // calabresa found, portuguesa left: a pool of 1 again -> no aggregated unknown, its own hint entrance.

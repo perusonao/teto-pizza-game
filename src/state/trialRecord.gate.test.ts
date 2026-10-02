@@ -166,7 +166,8 @@ describe("what must stay out", () => {
     // Notebook N1: the one read-only relay of the model's display view to the Hint sheet; nothing else.
     expect(game.match(/trialNotebook/g)).toHaveLength(2); // import path + the one read
     expect(game.match(/notebookView/g)).toHaveLength(2); // import + call
-    expect(game).toContain("notebook={notebookView(state.trialNotebook)}");
+    expect(game).toContain("const notebookRows = notebookView(state.trialNotebook);"); // #346 S4: one hoisted read, two read-only consumers
+    expect(game.match(/notebookRows/g)).toHaveLength(3); // the read + the Hint sheet + the Research RESULT sheet
   });
 
   it("Notebook N1: the notebook sheet is read-only (no reducer, save, storage, clock or dispatch) and never renders a row's `kind`", () => {
