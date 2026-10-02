@@ -96,7 +96,11 @@ describe("W1-f Dex", () => {
         const attrs = Array.from(document.querySelectorAll("*"))
           .map((e) => ["aria-label", "title", "alt", "style"].map((a) => e.getAttribute(a) ?? "").join("|"))
           .join("|");
-        const everything = `${document.body.textContent}||${attrs}`;
+        // #346 S2: the 「🔎 研究中のピザ」 section legitimately names the player's own owned
+        // ingredient as a known fact (an ingredient name may equal an unknown recipe's name); its
+        // own privacy contract is pinned in DexOverlay.research.test.tsx.
+        const research = document.querySelector(".dex-overlay__research")?.textContent ?? "";
+        const everything = `${(document.body.textContent ?? "").split(research).join("")}||${attrs}`;
         for (const r of RECIPES.filter((x) => !known.has(x.id))) {
           // NF-8 lexical overlaps (not leaks): a discovered card's own ingredient
           // (ジェノベーゼソース contains ジェノベーゼ) and marinara's own description (「ナポリ生まれ」

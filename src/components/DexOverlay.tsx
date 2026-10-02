@@ -7,6 +7,7 @@ import { buildRecipeChapters, chapterProgress } from "../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
+import { deriveResearchEntries, type ResearchEntry } from "../logic/discovery/researchEntry";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 interface DexOverlayProps {
@@ -31,6 +32,28 @@ interface DexOverlayProps {
    *  CTA (it starts Free Cooking too). The id travels only through this callback: the slot's DOM
    *  never carries it. */
   onShowHint?: (recipeId: string) => void;
+  /** Discovery 3.0 Research Recipe (#346 S2): the stored hint ledger, read only to tell whether
+   *  STRUCTURE was bought (the research card then, and only then, shows the ingredient total). */
+  discoveryHintFacts?: Readonly<Record<string, readonly string[]>>;
+}
+
+const ENTRY_MARKS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"];
+
+/** #346 S2: one anonymous Research Entry card. Display only (no CTA until S3). The label is a
+ *  plain "this card" marker in the stable anonymous order -- never a name, No.xx or recipe id. */
+function ResearchEntryCard({ entry, label }: { entry: ResearchEntry; label: string }) {
+  return (
+    <div className="dex-research-card">
+      <h3 className="dex-card__research-title">{label}</h3>
+      <p className="dex-card__research-sub">わかっていること</p>
+      <ul className="dex-card__research-facts">
+        {entry.knownExactIngredientIds.map((id) => (
+          <li key={id}>✓ {getIngredient(id)?.nameJa}を使う</li>
+        ))}
+        {entry.totalIngredientCount !== null && <li>全部で {entry.totalIngredientCount} 種類の材料を使う</li>}
+      </ul>
+    </div>
+  );
 }
 
 /** W1-f: an undiscovered slot says only which kind of "next" it is (L1) -- never the recipe's
@@ -111,6 +134,7 @@ export function DexOverlay({
   onGoFreeCook,
   onOpenShop,
   onShowHint,
+  discoveryHintFacts,
 }: DexOverlayProps) {
   const total = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -121,6 +145,8 @@ export function DexOverlay({
   // one aggregated card; their own slots then read as plain unknown slots, so neither the count
   // nor which slots they are reaches the DOM. Zero or one keeps the per-slot 🎨 card unchanged.
   const aggregateUnknown = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").length > 1;
+  // #346 S2: the S1 projection is the only authority (registration, order, known facts, STRUCTURE).
+  const researchEntries = deriveResearchEntries({ dex, ownedIngredientIds, discoveryHintFacts }).entries;
   // W1-d: opened right after a discovery (Result's 「📖 図鑑を見る」), the Dex lands on the new slot.
   const bodyRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -194,6 +220,20 @@ export function DexOverlay({
             </div>
             <p className="dex-overlay__mastery-total">{"⭐"} 合計★ {mastery}</p>
           </div>
+          {researchEntries.length > 0 && (
+            <section className="dex-overlay__research">
+              <h3 className="dex-overlay__chapter-title">🔎 研究中のピザ</h3>
+              <div className="dex-overlay__list">
+                {researchEntries.map((entry, index) => (
+                  <ResearchEntryCard
+                    key={entry.recipeId}
+                    entry={entry}
+                    label={researchEntries.length > 1 ? `？？？ピザ ${ENTRY_MARKS[index] ?? index + 1}` : "？？？ピザ"}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
           {aggregateUnknown && (
             <div className="dex-overlay__list">
               <AggregatedUnknownCard onGoFreeCook={onGoFreeCook} />
