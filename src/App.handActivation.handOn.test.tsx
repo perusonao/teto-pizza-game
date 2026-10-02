@@ -312,7 +312,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
   }, 90_000);
 
   it("H-3: step and round transitions are not hand changes (no extra page / selection effect beyond the existing resets)", async () => {
-    seedFree();
+    seedFree({ dex: MARGHERITA_DEX });
     const user = userEvent.setup();
     render(<App />);
     await toToppingStep(user);
