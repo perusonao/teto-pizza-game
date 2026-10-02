@@ -16,6 +16,11 @@
  * the player here knows only what it bought (hint levels) plus what every player sees for free (the
  * Shop's newly stocked material, the near-miss line), and searches from there.
  *
+ * LEGACY PLAYER MODEL (Near/Far Neutralization Phase 1): the near-miss line this harness reads is
+ * `legacyResultNearMiss`, the pre-neutralization pool-distance feedback. Production RESULT no longer shows
+ * it (it shows one neutral line), so results from this harness describe the OLD free signal and are
+ * optimistic for the current game. Recalibrating or retiring it is a separate economy task (deferred).
+ *
  * Model assumptions (all documented in the report §6):
  * - Quality: every scored bake lands on `qualityTotal` (the reducer's own score is overridden before
  *   REGISTER_TO_DEX, so `applyPitzCredit` runs unchanged on that total). No Cooking Time bonus (no
