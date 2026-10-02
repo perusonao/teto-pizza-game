@@ -393,8 +393,9 @@ export function GameScreen({
     : largeCatalogEligible && state.phase === "PREPARE" && state.makingStep === "DOUGH" && dockReserve.pantryWorthwhile
       ? { kind: "later" }
       : undefined;
-  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
-  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
+  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry and, #356, for the
+  // 「今回調べる食材」 picker too (a modal over the stage must never leave it interactive behind).
+  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible || researchPickerVisible;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
   if (pantryOpen && !pantryAvailable) setPantryOpen(false);
