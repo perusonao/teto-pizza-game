@@ -101,6 +101,8 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     await user.click(within(sheet).getByRole("button", { name: /研究するピザを選ぶ/ }));
     expect(screen.queryByRole("dialog", { name: /ヒント/ })).toBeNull();
     expect(document.querySelector(".dex-overlay")).toBeInTheDocument();
+    // Codex P2: the covered cooking-screen Hint button must not take focus back behind the Dex.
+    expect(document.activeElement).not.toBe(screen.getAllByRole("button", { name: "ヒント" })[0]);
     await user.click(screen.getAllByRole("button", { name: /ピザ.*を研究する/ })[0]);
     expect(document.querySelector(".dex-overlay")).toBeNull();
     await user.click(screen.getByRole("button", { name: "ヒント" }));

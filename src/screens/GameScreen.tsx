@@ -297,6 +297,7 @@ export function GameScreen({
   const hintToPantryRef = useRef(false);
   useEffect(() => {
     // IP-1: closing the sheet to open the pantry hands focus to the pantry (its own 閉じる), not back to 「ヒント」.
+    // #353: the same for 「研究するピザを選ぶ」 -> Dex (an overlay over this screen): never focus the covered button.
     if (wasHintSheetOpenRef.current && !hintSheetOpen && !hintToPantryRef.current) hintButtonRef.current?.focus();
     hintToPantryRef.current = false;
     wasHintSheetOpenRef.current = hintSheetOpen;
@@ -961,6 +962,7 @@ export function GameScreen({
               onChooseResearch={
                 onOpenDex
                   ? () => {
+                      hintToPantryRef.current = true;
                       onCloseHint();
                       onOpenDex();
                     }
