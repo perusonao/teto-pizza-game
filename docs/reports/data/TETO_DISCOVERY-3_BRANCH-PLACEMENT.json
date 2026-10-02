@@ -1,0 +1,2629 @@
+{
+ "schema": "teto-discovery-3-branch-placement/v1",
+ "note": "DECISION AUDIT / DOCS ONLY. No candidate selected/ranked; No.28 not chosen; ladderCredit/lunchRush/placement UNDECIDED. Pool sizes are audit values (dev/audit only), not player-facing.",
+ "basis": {
+  "main": "262b09fcb78d98c7b12ea4e5b51c2da1bca9d37e",
+  "recipes": 27,
+  "ingredients": 30,
+  "ladderSteps": 25,
+  "nonCredit": [
+   "brazilian-calabresa"
+  ],
+  "reused": [
+   "docs/reports/data/TETO_DISCOVERY-3_BRANCHING-EXPANSION.json @ eea7c98 (branch claude/discovery-3-branching-design-hv8sly)",
+   "docs/reports/TETO_DISCOVERY-3_CANDIDATE-COUNT-LEAK-GUARD_FRESH_AUDIT.md @ branch claude/discovery-candidate-count-audit-76uwlw",
+   "docs/reports/TETO_DISCOVERY-3_UNLOCK-DISCOVERY-EXPERIENCE_FRESH_AUDIT.md @ 84e5091 (branch claude/teto-discovery-3-audit-uzr1za)",
+   "172 readiness JSON via the branching JSON (not re-audited)"
+  ]
+ },
+ "placementMap": {
+  "1": {
+   "newMaterials": [
+    "egg"
+   ],
+   "key": "bismarck",
+   "U": [
+    "bismarck"
+   ],
+   "D": [
+    "bismarck"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 6,
+   "newByClass": {}
+  },
+  "2": {
+   "newMaterials": [
+    "bacon"
+   ],
+   "key": "breakfast-pizza",
+   "U": [
+    "breakfast-pizza"
+   ],
+   "D": [
+    "breakfast-pizza"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 6,
+   "newByClass": {}
+  },
+  "3": {
+   "newMaterials": [
+    "mushroom"
+   ],
+   "key": "funghi",
+   "U": [
+    "funghi"
+   ],
+   "D": [
+    "funghi"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 6,
+   "newByClass": {}
+  },
+  "4": {
+   "newMaterials": [
+    "eggplant"
+   ],
+   "key": "melanzane-pizza",
+   "U": [
+    "melanzane-pizza"
+   ],
+   "D": [
+    "melanzane-pizza"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 6,
+   "newByClass": {}
+  },
+  "5": {
+   "newMaterials": [
+    "parmigiano"
+   ],
+   "key": "parmigiana-pizza",
+   "U": [
+    "parmigiana-pizza"
+   ],
+   "D": [
+    "parmigiana-pizza"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 6,
+   "newByClass": {}
+  },
+  "6": {
+   "newMaterials": [
+    "pepperoni"
+   ],
+   "key": "pepperoni",
+   "U": [
+    "pepperoni"
+   ],
+   "D": [
+    "pepperoni"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "fathead-pizza-keto-pizzadb-p9",
+    "montreal-style-pizza-pizzadb-p13",
+    "new-england-bar-pizza-pizzadb-p6",
+    "st-louis-style-pizza-pizzadb-p4"
+   ],
+   "cumulativeCandidates": 10,
+   "newByClass": {
+    "BLOCKED-MULTIPLE": 3,
+    "BLOCKED-MECHANIC": 1
+   }
+  },
+  "7": {
+   "newMaterials": [
+    "sausage"
+   ],
+   "key": "salsiccia",
+   "U": [
+    "salsiccia"
+   ],
+   "D": [
+    "salsiccia"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "chicago-deep-dish-pizzadb",
+    "chicago-stuffed-pizza-pizzadb-p3"
+   ],
+   "cumulativeCandidates": 12,
+   "newByClass": {
+    "BLOCKED-MULTIPLE": 2
+   }
+  },
+  "8": {
+   "newMaterials": [
+    "ham"
+   ],
+   "key": "meat-lovers",
+   "U": [
+    "meat-lovers"
+   ],
+   "D": [
+    "meat-lovers"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "bismarck-pizza-pizzadb-p7"
+   ],
+   "cumulativeCandidates": 13,
+   "newByClass": {
+    "BLOCKED-IDENTITY": 1
+   }
+  },
+  "9": {
+   "newMaterials": [
+    "corn"
+   ],
+   "key": "bambino",
+   "U": [
+    "bambino"
+   ],
+   "D": [
+    "bambino"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 13,
+   "newByClass": {}
+  },
+  "10": {
+   "newMaterials": [
+    "pineapple"
+   ],
+   "key": "hawaiian",
+   "U": [
+    "hawaiian"
+   ],
+   "D": [
+    "hawaiian"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 13,
+   "newByClass": {}
+  },
+  "11": {
+   "newMaterials": [
+    "black-olive",
+    "oregano"
+   ],
+   "key": "capricciosa",
+   "U": [
+    "capricciosa"
+   ],
+   "D": [
+    "capricciosa"
+   ],
+   "Uhint": "TARGET",
+   "Dhint": "TARGET",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "pizza-a-caballo"
+   ],
+   "cumulativeCandidates": 14,
+   "newByClass": {
+    "BLOCKED-MULTIPLE": 1
+   }
+  },
+  "12": {
+   "newMaterials": [
+    "onion"
+   ],
+   "key": "pizza-portuguesa",
+   "U": [
+    "pizza-portuguesa",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pizza-portuguesa",
+    "brazilian-calabresa"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "OPEN_POOL",
+   "UpreHint": "SHOP_NEW",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "aussie-pizzadb",
+    "fugazza-pizzadb-p10",
+    "fugazzeta-rellena",
+    "fugazzetta-pizzadb-p10",
+    "keema-pizza-pizzadb-p2",
+    "old-forge-style-pizza-pizzadb-p1",
+    "pizza-baiana",
+    "pizza-chilena-pizzadb-p8"
+   ],
+   "cumulativeCandidates": 22,
+   "newByClass": {
+    "READY": 1,
+    "BLOCKED-MULTIPLE": 3,
+    "BLOCKED-MECHANIC": 1,
+    "BLOCKED-AUTHORITY": 3
+   },
+   "Dnote": "calabresa cannot be found before arriving at step 12, so the arrival pool is C2 for every history; D (calabresa found) only exists after arrival (then pool = portuguesa alone, TARGET)"
+  },
+  "13": {
+   "newMaterials": [
+    "olive-oil"
+   ],
+   "key": "fugazza",
+   "U": [
+    "fugazza",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "fugazza"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "margherita-pizzadb-row"
+   ],
+   "cumulativeCandidates": 23,
+   "newByClass": {
+    "BLOCKED-MULTIPLE": 1
+   }
+  },
+  "14": {
+   "newMaterials": [
+    "garlic"
+   ],
+   "key": "marinara",
+   "U": [
+    "marinara",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "marinara"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "grandma-pizza-pizzadb",
+    "marinara-pizza-pizzadb-p13",
+    "pizza-de-cancha"
+   ],
+   "cumulativeCandidates": 26,
+   "newByClass": {
+    "BLOCKED-MECHANIC": 1,
+    "BLOCKED-MULTIPLE": 2
+   }
+  },
+  "15": {
+   "newMaterials": [
+    "anchovy"
+   ],
+   "key": "napoletana",
+   "U": [
+    "napoletana",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "napoletana"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "sfincione-pizzadb",
+    "siciliana-pizzadb"
+   ],
+   "cumulativeCandidates": 28,
+   "newByClass": {
+    "BLOCKED-MULTIPLE": 2
+   }
+  },
+  "16": {
+   "newMaterials": [
+    "tuna"
+   ],
+   "key": "tonno-e-cipolla",
+   "U": [
+    "tonno-e-cipolla",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "tonno-e-cipolla"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 28,
+   "newByClass": {}
+  },
+  "17": {
+   "newMaterials": [
+    "pesto"
+   ],
+   "key": "pesto-tonno",
+   "U": [
+    "pesto-tonno",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pesto-tonno"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 28,
+   "newByClass": {}
+  },
+  "18": {
+   "newMaterials": [
+    "cherry-tomato"
+   ],
+   "key": "genovese",
+   "U": [
+    "genovese",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "genovese"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 28,
+   "newByClass": {}
+  },
+  "19": {
+   "newMaterials": [
+    "clam"
+   ],
+   "key": "new-haven-apizza",
+   "U": [
+    "new-haven-apizza",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "new-haven-apizza"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 28,
+   "newByClass": {}
+  },
+  "20": {
+   "newMaterials": [
+    "fresh-tomato"
+   ],
+   "key": "pesto-caprese",
+   "U": [
+    "pesto-caprese",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pesto-caprese"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "argentine-napolitana-pizzadb-p1",
+    "chilean-napolitana-pizzadb"
+   ],
+   "cumulativeCandidates": 30,
+   "newByClass": {
+    "BLOCKED-MULTIPLE": 1,
+    "BLOCKED-IDENTITY": 1
+   }
+  },
+  "21": {
+   "newMaterials": [
+    "potato"
+   ],
+   "key": "pesto-patate",
+   "U": [
+    "pesto-patate",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pesto-patate"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "hokkaido-cheese-pizza-pizzadb-p15"
+   ],
+   "cumulativeCandidates": 31,
+   "newByClass": {
+    "BLOCKED-AUTHORITY": 1
+   }
+  },
+  "22": {
+   "newMaterials": [
+    "rosemary"
+   ],
+   "key": "pizza-bianca",
+   "U": [
+    "pizza-bianca",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "pizza-bianca"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [],
+   "cumulativeCandidates": 31,
+   "newByClass": {}
+  },
+  "23": {
+   "newMaterials": [
+    "capers"
+   ],
+   "key": "puttanesca-pizza",
+   "U": [
+    "puttanesca-pizza",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "puttanesca-pizza"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "caponata-pizza-pizzadb-p2",
+    "pizza-romana-pizzadb-p9"
+   ],
+   "cumulativeCandidates": 33,
+   "newByClass": {
+    "BLOCKED-AUTHORITY": 1,
+    "BLOCKED-MULTIPLE": 1
+   }
+  },
+  "24": {
+   "newMaterials": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "key": "quattro-formaggi",
+   "U": [
+    "quattro-formaggi",
+    "brazilian-calabresa"
+   ],
+   "D": [
+    "quattro-formaggi"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "quattro-formaggi-pizzadb"
+   ],
+   "cumulativeCandidates": 34,
+   "newByClass": {
+    "BLOCKED-IDENTITY": 1
+   }
+  },
+  "25": {
+   "newMaterials": [
+    "chicken"
+   ],
+   "key": "pesto-pollo",
+   "U": [
+    "brazilian-calabresa",
+    "pesto-pollo"
+   ],
+   "D": [
+    "pesto-pollo"
+   ],
+   "Uhint": "OPEN_POOL",
+   "Dhint": "TARGET",
+   "UpreHint": "TARGET",
+   "DpreHint": "SHOP_NEW",
+   "newCandidates": [
+    "curry-pizza-japan-pizzadb-p2"
+   ],
+   "cumulativeCandidates": 35,
+   "newByClass": {
+    "BLOCKED-AUTHORITY": 1
+   }
+  }
+ },
+ "startPool": {
+  "dex0Production": {
+   "kind": "TARGET",
+   "recipeId": "margherita",
+   "source": "auto"
+  },
+  "dex0WithStarterOnlyExtra": {
+   "kind": "OPEN_POOL"
+  },
+  "isHintOnboardingFreeDex0Margherita": true,
+  "firstDiscoveryBonusPitz": 50
+ },
+ "pantryCountsSauceCheeseTopping": {
+  "0": [
+   1,
+   1,
+   1
+  ],
+  "1": [
+   1,
+   1,
+   2
+  ],
+  "2": [
+   1,
+   1,
+   3
+  ],
+  "3": [
+   1,
+   1,
+   4
+  ],
+  "4": [
+   1,
+   1,
+   5
+  ],
+  "5": [
+   1,
+   2,
+   5
+  ],
+  "6": [
+   1,
+   2,
+   6
+  ],
+  "7": [
+   1,
+   2,
+   7
+  ],
+  "8": [
+   1,
+   2,
+   8
+  ],
+  "9": [
+   1,
+   2,
+   9
+  ],
+  "10": [
+   1,
+   2,
+   10
+  ],
+  "11": [
+   1,
+   2,
+   12
+  ],
+  "12": [
+   1,
+   2,
+   13
+  ],
+  "13": [
+   2,
+   2,
+   13
+  ],
+  "14": [
+   2,
+   2,
+   14
+  ],
+  "15": [
+   2,
+   2,
+   15
+  ],
+  "16": [
+   2,
+   2,
+   16
+  ],
+  "17": [
+   3,
+   2,
+   16
+  ],
+  "18": [
+   3,
+   2,
+   17
+  ],
+  "19": [
+   3,
+   2,
+   18
+  ],
+  "20": [
+   3,
+   2,
+   19
+  ],
+  "21": [
+   3,
+   2,
+   20
+  ],
+  "22": [
+   3,
+   2,
+   21
+  ],
+  "23": [
+   3,
+   2,
+   22
+  ],
+  "24": [
+   3,
+   4,
+   22
+  ],
+  "25": [
+   3,
+   4,
+   23
+  ]
+ },
+ "candidateClassification": {
+  "cauliflower-crust-pizza-pizzadb-p2": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-2",
+    "SAME_SET_AS_PRODUCTION:margherita",
+    "SAME_SET_AS_ROWS:pizza-al-taglio-romana-pizzadb-p9"
+   ]
+  },
+  "colorado-mountain-pie-pizzadb-p3": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "AUTHORITY",
+    "MECHANIC"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": []
+  },
+  "ny-style-pizzadb": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "thin"
+   ],
+   "identity": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-1",
+    "SAME_SET_AS_ROWS:trenton-tomato-pie-pizzadb"
+   ]
+  },
+  "pizza-al-taglio-romana-pizzadb-p9": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-2",
+    "SAME_SET_AS_PRODUCTION:margherita",
+    "SAME_SET_AS_ROWS:cauliflower-crust-pizza-pizzadb-p2"
+   ]
+  },
+  "quad-cities-style-pizza-pizzadb-p2": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "AUTHORITY",
+    "MECHANIC"
+   ],
+   "special": [
+    "no-sauce",
+    "thin"
+   ],
+   "identity": []
+  },
+  "trenton-tomato-pie-pizzadb": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-1",
+    "SAME_SET_AS_ROWS:ny-style-pizzadb"
+   ]
+  },
+  "fathead-pizza-keto-pizzadb-p9": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-3",
+    "SAME_SET_AS_PRODUCTION:pepperoni",
+    "SAME_SET_AS_ROWS:new-england-bar-pizza-pizzadb-p6"
+   ]
+  },
+  "montreal-style-pizza-pizzadb-p13": {
+   "cls": "BLOCKED-MECHANIC",
+   "blockers": [
+    "MECHANIC"
+   ],
+   "special": [],
+   "identity": []
+  },
+  "new-england-bar-pizza-pizzadb-p6": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "thin"
+   ],
+   "identity": [
+    "MATRIX_COLLISION_LEDGER:P0-COLL-3",
+    "SAME_SET_AS_PRODUCTION:pepperoni",
+    "SAME_SET_AS_ROWS:fathead-pizza-keto-pizzadb-p9"
+   ]
+  },
+  "st-louis-style-pizza-pizzadb-p4": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "AUTHORITY",
+    "MECHANIC"
+   ],
+   "special": [
+    "no-sauce",
+    "no-cheese",
+    "thin"
+   ],
+   "identity": []
+  },
+  "chicago-deep-dish-pizzadb": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "NAMING_CLUSTER:NC-7-chicago"
+   ]
+  },
+  "chicago-stuffed-pizza-pizzadb-p3": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "NAMING_CLUSTER:NC-7-chicago",
+    "SAME_SET_AS_PRODUCTION:salsiccia"
+   ]
+  },
+  "bismarck-pizza-pizzadb-p7": {
+   "cls": "BLOCKED-IDENTITY",
+   "blockers": [
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ]
+  },
+  "pizza-a-caballo": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "AUTHORITY",
+    "MECHANIC"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": []
+  },
+  "aussie-pizzadb": {
+   "cls": "READY",
+   "blockers": [],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": []
+  },
+  "fugazza-pizzadb-p10": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": [
+    "COMPOSITION_CONFLICT_SHIPPED",
+    "DISCOVERY_COLLISION",
+    "MATRIX_COLLISION_LEDGER:P0-COLL-5",
+    "SAME_SET_AS_ROWS:fugazzetta-pizzadb-p10"
+   ]
+  },
+  "fugazzeta-rellena": {
+   "cls": "BLOCKED-MECHANIC",
+   "blockers": [
+    "MECHANIC"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": []
+  },
+  "fugazzetta-pizzadb-p10": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "DISCOVERY_COLLISION",
+    "MATRIX_COLLISION_LEDGER:P0-COLL-5",
+    "SAME_SET_AS_ROWS:fugazza-pizzadb-p10"
+   ]
+  },
+  "keema-pizza-pizzadb-p2": {
+   "cls": "BLOCKED-AUTHORITY",
+   "blockers": [
+    "AUTHORITY"
+   ],
+   "special": [
+    "no-sauce",
+    "thin"
+   ],
+   "identity": []
+  },
+  "old-forge-style-pizza-pizzadb-p1": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "AUTHORITY",
+    "MECHANIC"
+   ],
+   "special": [
+    "no-sauce",
+    "no-cheese"
+   ],
+   "identity": []
+  },
+  "pizza-baiana": {
+   "cls": "BLOCKED-AUTHORITY",
+   "blockers": [
+    "AUTHORITY"
+   ],
+   "special": [
+    "no-sauce",
+    "thin"
+   ],
+   "identity": []
+  },
+  "pizza-chilena-pizzadb-p8": {
+   "cls": "BLOCKED-AUTHORITY",
+   "blockers": [
+    "AUTHORITY"
+   ],
+   "special": [
+    "no-sauce",
+    "thin"
+   ],
+   "identity": []
+  },
+  "margherita-pizzadb-row": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "thin"
+   ],
+   "identity": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ]
+  },
+  "grandma-pizza-pizzadb": {
+   "cls": "BLOCKED-MECHANIC",
+   "blockers": [
+    "MECHANIC"
+   ],
+   "special": [],
+   "identity": []
+  },
+  "marinara-pizza-pizzadb-p13": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "no-cheese"
+   ],
+   "identity": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ]
+  },
+  "pizza-de-cancha": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "AUTHORITY",
+    "MECHANIC"
+   ],
+   "special": [
+    "no-cheese"
+   ],
+   "identity": []
+  },
+  "sfincione-pizzadb": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "no-cheese"
+   ],
+   "identity": [
+    "NAMING_CLUSTER:NC-3-sicilian"
+   ]
+  },
+  "siciliana-pizzadb": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [],
+   "identity": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "NAMING_CLUSTER:NC-3-sicilian"
+   ]
+  },
+  "argentine-napolitana-pizzadb-p1": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": [
+    "NAMING_CLUSTER:NC-1-napoletana"
+   ]
+  },
+  "chilean-napolitana-pizzadb": {
+   "cls": "BLOCKED-IDENTITY",
+   "blockers": [
+    "IDENTITY"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": [
+    "NAMING_CLUSTER:NC-1-napoletana"
+   ]
+  },
+  "hokkaido-cheese-pizza-pizzadb-p15": {
+   "cls": "BLOCKED-AUTHORITY",
+   "blockers": [
+    "AUTHORITY"
+   ],
+   "special": [
+    "no-sauce",
+    "no-cheese",
+    "thin"
+   ],
+   "identity": []
+  },
+  "caponata-pizza-pizzadb-p2": {
+   "cls": "BLOCKED-AUTHORITY",
+   "blockers": [
+    "AUTHORITY"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": []
+  },
+  "pizza-romana-pizzadb-p9": {
+   "cls": "BLOCKED-MULTIPLE",
+   "blockers": [
+    "MECHANIC",
+    "IDENTITY"
+   ],
+   "special": [
+    "thin"
+   ],
+   "identity": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ]
+  },
+  "quattro-formaggi-pizzadb": {
+   "cls": "BLOCKED-IDENTITY",
+   "blockers": [
+    "IDENTITY"
+   ],
+   "special": [
+    "no-sauce"
+   ],
+   "identity": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ]
+  },
+  "curry-pizza-japan-pizzadb-p2": {
+   "cls": "BLOCKED-AUTHORITY",
+   "blockers": [
+    "AUTHORITY"
+   ],
+   "special": [
+    "no-sauce",
+    "thin"
+   ],
+   "identity": []
+  }
+ },
+ "classificationCounts": {
+  "BLOCKED-MULTIPLE": 22,
+  "BLOCKED-MECHANIC": 3,
+  "BLOCKED-IDENTITY": 3,
+  "READY": 1,
+  "BLOCKED-AUTHORITY": 6
+ },
+ "candidatesByEarliestStep": {
+  "0": [
+   "cauliflower-crust-pizza-pizzadb-p2",
+   "colorado-mountain-pie-pizzadb-p3",
+   "ny-style-pizzadb",
+   "pizza-al-taglio-romana-pizzadb-p9",
+   "quad-cities-style-pizza-pizzadb-p2",
+   "trenton-tomato-pie-pizzadb"
+  ],
+  "1": [],
+  "2": [],
+  "3": [],
+  "4": [],
+  "5": [],
+  "6": [
+   "fathead-pizza-keto-pizzadb-p9",
+   "montreal-style-pizza-pizzadb-p13",
+   "new-england-bar-pizza-pizzadb-p6",
+   "st-louis-style-pizza-pizzadb-p4"
+  ],
+  "7": [
+   "chicago-deep-dish-pizzadb",
+   "chicago-stuffed-pizza-pizzadb-p3"
+  ],
+  "8": [
+   "bismarck-pizza-pizzadb-p7"
+  ],
+  "9": [],
+  "10": [],
+  "11": [
+   "pizza-a-caballo"
+  ],
+  "12": [
+   "aussie-pizzadb",
+   "fugazza-pizzadb-p10",
+   "fugazzeta-rellena",
+   "fugazzetta-pizzadb-p10",
+   "keema-pizza-pizzadb-p2",
+   "old-forge-style-pizza-pizzadb-p1",
+   "pizza-baiana",
+   "pizza-chilena-pizzadb-p8"
+  ],
+  "13": [
+   "margherita-pizzadb-row"
+  ],
+  "14": [
+   "grandma-pizza-pizzadb",
+   "marinara-pizza-pizzadb-p13",
+   "pizza-de-cancha"
+  ],
+  "15": [
+   "sfincione-pizzadb",
+   "siciliana-pizzadb"
+  ],
+  "16": [],
+  "17": [],
+  "18": [],
+  "19": [],
+  "20": [
+   "argentine-napolitana-pizzadb-p1",
+   "chilean-napolitana-pizzadb"
+  ],
+  "21": [
+   "hokkaido-cheese-pizza-pizzadb-p15"
+  ],
+  "22": [],
+  "23": [
+   "caponata-pizza-pizzadb-p2",
+   "pizza-romana-pizzadb-p9"
+  ],
+  "24": [
+   "quattro-formaggi-pizzadb"
+  ],
+  "25": [
+   "curry-pizza-japan-pizzadb-p2"
+  ]
+ },
+ "classBySlot": {
+  "0": {
+   "BLOCKED-MULTIPLE": 6
+  },
+  "1": {},
+  "2": {},
+  "3": {},
+  "4": {},
+  "5": {},
+  "6": {
+   "BLOCKED-MULTIPLE": 3,
+   "BLOCKED-MECHANIC": 1
+  },
+  "7": {
+   "BLOCKED-MULTIPLE": 2
+  },
+  "8": {
+   "BLOCKED-IDENTITY": 1
+  },
+  "9": {},
+  "10": {},
+  "11": {
+   "BLOCKED-MULTIPLE": 1
+  },
+  "12": {
+   "READY": 1,
+   "BLOCKED-MULTIPLE": 3,
+   "BLOCKED-MECHANIC": 1,
+   "BLOCKED-AUTHORITY": 3
+  },
+  "13": {
+   "BLOCKED-MULTIPLE": 1
+  },
+  "14": {
+   "BLOCKED-MECHANIC": 1,
+   "BLOCKED-MULTIPLE": 2
+  },
+  "15": {
+   "BLOCKED-MULTIPLE": 2
+  },
+  "16": {},
+  "17": {},
+  "18": {},
+  "19": {},
+  "20": {
+   "BLOCKED-MULTIPLE": 1,
+   "BLOCKED-IDENTITY": 1
+  },
+  "21": {
+   "BLOCKED-AUTHORITY": 1
+  },
+  "22": {},
+  "23": {
+   "BLOCKED-AUTHORITY": 1,
+   "BLOCKED-MULTIPLE": 1
+  },
+  "24": {
+   "BLOCKED-IDENTITY": 1
+  },
+  "25": {
+   "BLOCKED-AUTHORITY": 1
+  }
+ },
+ "scenarios": {
+  "A": {
+   "guaranteedC": [
+    12
+   ],
+   "guaranteedMultiSteps": 1,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 1,
+    "steps": [
+     12
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 2
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 1,
+    "steps": [
+     12
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 1,
+    "steps": [
+     12
+    ],
+    "maxPool": 2,
+    "lead": 0,
+    "carryExposureSteps": 0
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "B:14": {
+   "guaranteedC": [
+    12,
+    14
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 13,
+    "steps": [
+     12,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     12,
+     14
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 13,
+    "steps": [
+     12,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 2,
+    "lead": 1,
+    "carryExposureSteps": 11
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "B:13": {
+   "guaranteedC": [
+    12,
+    13
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 14,
+    "steps": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     12,
+     13
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 14,
+    "steps": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 2,
+    "lead": 1,
+    "carryExposureSteps": 12
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "B:16": {
+   "guaranteedC": [
+    12,
+    16
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 11,
+    "steps": [
+     12,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     12,
+     16
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 11,
+    "steps": [
+     12,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 2,
+    "lead": 1,
+    "carryExposureSteps": 9
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "B:19": {
+   "guaranteedC": [
+    12,
+    19
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 8,
+    "steps": [
+     12,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     12,
+     19
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 8,
+    "steps": [
+     12,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 2,
+    "lead": 1,
+    "carryExposureSteps": 6
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "B:22": {
+   "guaranteedC": [
+    12,
+    22
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 5,
+    "steps": [
+     12,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     12,
+     22
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 5,
+    "steps": [
+     12,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 2,
+    "lead": 1,
+    "carryExposureSteps": 3
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "B:24": {
+   "guaranteedC": [
+    12,
+    24
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 3,
+    "steps": [
+     12,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     12,
+     24
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 3,
+    "steps": [
+     12,
+     24,
+     25
+    ],
+    "maxPool": 2,
+    "lead": 1,
+    "carryExposureSteps": 1
+   },
+   "calabresaFoundMaxPool": 2
+  },
+  "C:14,17,20,23": {
+   "guaranteedC": [
+    12,
+    14,
+    17,
+    20,
+    23
+   ],
+   "guaranteedMultiSteps": 5,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 13,
+    "steps": [
+     12,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 6
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 5,
+    "steps": [
+     12,
+     14,
+     17,
+     20,
+     23
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 13,
+    "steps": [
+     12,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 5,
+    "lead": 4,
+    "carryExposureSteps": 26
+   },
+   "calabresaFoundMaxPool": 5
+  },
+  "C:15,20": {
+   "guaranteedC": [
+    12,
+    15,
+    20
+   ],
+   "guaranteedMultiSteps": 3,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 12,
+    "steps": [
+     12,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 4
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 3,
+    "steps": [
+     12,
+     15,
+     20
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 12,
+    "steps": [
+     12,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 3,
+    "lead": 2,
+    "carryExposureSteps": 15
+   },
+   "calabresaFoundMaxPool": 3
+  },
+  "C:13,16,19,22": {
+   "guaranteedC": [
+    12,
+    13,
+    16,
+    19,
+    22
+   ],
+   "guaranteedMultiSteps": 5,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 14,
+    "steps": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 6
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 5,
+    "steps": [
+     12,
+     13,
+     16,
+     19,
+     22
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 14,
+    "steps": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 5,
+    "lead": 4,
+    "carryExposureSteps": 30
+   },
+   "calabresaFoundMaxPool": 5
+  },
+  "C:12,12,12": {
+   "guaranteedC": [
+    12
+   ],
+   "guaranteedMultiSteps": 1,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 14,
+    "steps": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 14,
+    "maxPool": 5
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 1,
+    "steps": [
+     12
+    ],
+    "maxPool": 5
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 14,
+    "steps": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 5,
+    "lead": 3,
+    "carryExposureSteps": 36
+   },
+   "calabresaFoundMaxPool": 5
+  },
+  "D:3": {
+   "guaranteedC": [
+    3,
+    12
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 23,
+    "steps": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 23,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     3,
+     12
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 23,
+    "steps": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 3,
+    "lead": 1,
+    "carryExposureSteps": 22
+   },
+   "calabresaFoundMaxPool": 3
+  },
+  "D:6": {
+   "guaranteedC": [
+    6,
+    12
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 20,
+    "steps": [
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 20,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     6,
+     12
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 20,
+    "steps": [
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 3,
+    "lead": 1,
+    "carryExposureSteps": 19
+   },
+   "calabresaFoundMaxPool": 3
+  },
+  "D:9": {
+   "guaranteedC": [
+    9,
+    12
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 17,
+    "steps": [
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 17,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     9,
+     12
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 17,
+    "steps": [
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 3,
+    "lead": 1,
+    "carryExposureSteps": 16
+   },
+   "calabresaFoundMaxPool": 3
+  },
+  "D:11": {
+   "guaranteedC": [
+    11,
+    12
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 15,
+    "steps": [
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 15,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     11,
+     12
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 15,
+    "steps": [
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 3,
+    "lead": 1,
+    "carryExposureSteps": 14
+   },
+   "calabresaFoundMaxPool": 3
+  },
+  "D:0": {
+   "guaranteedC": [
+    12
+   ],
+   "guaranteedMultiSteps": 2,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 25,
+    "steps": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 25,
+    "maxPool": 3
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 2,
+    "steps": [
+     1,
+     12
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 25,
+    "steps": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 3,
+    "lead": 1,
+    "carryExposureSteps": 24
+   },
+   "calabresaFoundMaxPool": 3
+  },
+  "D:3,9,15,21": {
+   "guaranteedC": [
+    3,
+    9,
+    12,
+    15,
+    21
+   ],
+   "guaranteedMultiSteps": 5,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 23,
+    "steps": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 23,
+    "maxPool": 6
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 5,
+    "steps": [
+     3,
+     9,
+     12,
+     15,
+     21
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 23,
+    "steps": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 5,
+    "lead": 4,
+    "carryExposureSteps": 52
+   },
+   "calabresaFoundMaxPool": 5
+  },
+  "D:7,15,20": {
+   "guaranteedC": [
+    7,
+    12,
+    15,
+    20
+   ],
+   "guaranteedMultiSteps": 4,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 19,
+    "steps": [
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 19,
+    "maxPool": 5
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 4,
+    "steps": [
+     7,
+     12,
+     15,
+     20
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 19,
+    "steps": [
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 4,
+    "lead": 3,
+    "carryExposureSteps": 33
+   },
+   "calabresaFoundMaxPool": 4
+  },
+  "D:5,12,19,25": {
+   "guaranteedC": [
+    5,
+    12,
+    19,
+    25
+   ],
+   "guaranteedMultiSteps": 4,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 21,
+    "steps": [
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 21,
+    "maxPool": 6
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 4,
+    "steps": [
+     5,
+     12,
+     19,
+     25
+    ],
+    "maxPool": 3
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 21,
+    "steps": [
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 5,
+    "lead": 3,
+    "carryExposureSteps": 39
+   },
+   "calabresaFoundMaxPool": 5
+  },
+  "D:3,14,20": {
+   "guaranteedC": [
+    3,
+    12,
+    14,
+    20
+   ],
+   "guaranteedMultiSteps": 4,
+   "calabresaFoundBranchUnfound": {
+    "multiSteps": 23,
+    "steps": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   "allUnfound": {
+    "multiSteps": 23,
+    "maxPool": 5
+   },
+   "branchFoundAsapNocredit": {
+    "multiSteps": 4,
+    "steps": [
+     3,
+     12,
+     14,
+     20
+    ],
+    "maxPool": 2
+   },
+   "creditTrueBranchFoundAsap": {
+    "multiSteps": 23,
+    "steps": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "maxPool": 4,
+    "lead": 3,
+    "carryExposureSteps": 38
+   },
+   "calabresaFoundMaxPool": 4
+  }
+ },
+ "leadProbe": {
+  "1": {
+   "slots": [
+    3
+   ],
+   "endStep": 25,
+   "undiscoveredKeysAtEnd": 0,
+   "maxPool": 3
+  },
+  "2": {
+   "slots": [
+    3,
+    6
+   ],
+   "endStep": 25,
+   "undiscoveredKeysAtEnd": 0,
+   "maxPool": 4
+  },
+  "3": {
+   "slots": [
+    3,
+    6,
+    9
+   ],
+   "endStep": 25,
+   "undiscoveredKeysAtEnd": 0,
+   "maxPool": 5
+  },
+  "4": {
+   "slots": [
+    3,
+    6,
+    9,
+    12
+   ],
+   "endStep": 25,
+   "undiscoveredKeysAtEnd": 0,
+   "maxPool": 6
+  },
+  "6": {
+   "slots": [
+    3,
+    6,
+    9,
+    12,
+    15,
+    18
+   ],
+   "endStep": 25,
+   "undiscoveredKeysAtEnd": 0,
+   "maxPool": 7
+  }
+ }
+}
