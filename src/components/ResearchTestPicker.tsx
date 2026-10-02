@@ -108,13 +108,13 @@ export function ResearchTestPicker({
       >
         <div className="pantry-sheet__header">
           <h2 id={titleId} className="pantry-sheet__title">
-            {"\u{1F52C}"} 今回調べる食材
+            {"\u{1F52C}"} 今回の調査
           </h2>
           <button ref={closeRef} type="button" className="pantry-sheet__close" onClick={onClose}>
             閉じる
           </button>
         </div>
-        <p className="pantry-sheet__subtitle">この試作で使う食材を1つえらびます</p>
+        <p className="pantry-sheet__subtitle">1つえらんで、その食材をのせて焼くと、今回の試作で調べられます</p>
 
         {showChips && (
           <div className="pantry-sheet__shelves">

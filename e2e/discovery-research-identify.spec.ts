@@ -89,7 +89,7 @@ async function pickTestIngredient(page: Page, name: string) {
   await expect(picker).toBeVisible();
   await picker.getByRole("button", { name: new RegExp(name) }).first().click();
   await expect(picker).toHaveCount(0);
-  await expect(page.getByTestId("research-test-button")).toContainText(`今回調べる: ${name}`);
+  await expect(page.getByTestId("research-test-button")).toContainText(`今回の調査: ${name}`);
 }
 
 /** dough -> sauce (`sauce` chip) -> no cheese -> toppings (each tapped on the dough) -> bake. Ends on its RESULT. */
@@ -138,7 +138,7 @@ test("Research identification loop: pick -> trial -> RESULT -> positive knowledg
   test.setTimeout(480_000);
   await open(page);
   await startResearch(page);
-  await expect(page.getByTestId("research-test-button")).toContainText("調べる食材をえらぶ");
+  await expect(page.getByTestId("research-test-button")).toContainText("今回の調査をえらぶ");
 
   // Picker: owned ingredients only; the unlock fact is already known so it is not offered; nothing is highlighted.
   await page.getByTestId("research-test-button").click();
@@ -179,7 +179,7 @@ test("Research identification loop: pick -> trial -> RESULT -> positive knowledg
   const card = page.getByTestId("research-context");
   await expect(card).toContainText("？？？ピザ");
   await expect(card).toContainText("✓ ジェノベーゼソースを使う");
-  await expect(page.getByTestId("research-test-button")).toContainText("調べる食材をえらぶ");
+  await expect(page.getByTestId("research-test-button")).toContainText("今回の調査をえらぶ");
   // already-known ingredients are no longer offered
   await page.getByTestId("research-test-button").click();
   await expect(page.getByTestId("research-test-picker").getByRole("button", { name: /ジェノベーゼソース/ })).toHaveCount(0);
@@ -208,7 +208,7 @@ test("Research identification loop: pick -> trial -> RESULT -> positive knowledg
   expect(Object.values(await savedFacts(page)).flat()).toContain("ing:pesto");
   await startResearch(page);
   await expect(page.getByTestId("research-context")).toContainText("✓ ジェノベーゼソースを使う");
-  await expect(page.getByTestId("research-test-button")).toContainText("調べる食材をえらぶ");
+  await expect(page.getByTestId("research-test-button")).toContainText("今回の調査をえらぶ");
 });
 
 test("a targetless Recipe Discovery round has no selector", async ({ page }) => {

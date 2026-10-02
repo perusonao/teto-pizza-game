@@ -75,6 +75,7 @@ export function renderGameScreen(state: GameState, overrides: Partial<ComponentP
       onDoughElementChange={() => {}}
       resolvePhysicalDrop={() => null}
       onPhysicalDrop={() => {}}
+      onSetResearchTest={() => {}}
       {...overrides}
     />,
   );

@@ -296,7 +296,7 @@ export function GameScreen({
   // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
   const researchResult = state.freeCook ? researchResultView(state) : null;
   // #356 Slice 2: 「今回調べる食材」 is offered only in the PREPARE of an explicit, valid Research Target round (flag ON).
-  const researchTestAvailable = RESEARCH_IDENTIFY_ENABLED && !!onSetResearchTest && state.phase === "PREPARE" && state.freeCook && researchView !== null;
+  const researchTestAvailable = RESEARCH_IDENTIFY_ENABLED && !!onSetResearchTest && state.phase === "PREPARE" && state.freeCook && researchView !== null && !state.researchTestLocked;
   const [researchPickerOpen, setResearchPickerOpen] = useState(false);
   const researchPickerButtonRef = useRef<HTMLButtonElement>(null);
   const researchPickerVisible = researchPickerOpen && researchTestAvailable;
@@ -308,6 +308,12 @@ export function GameScreen({
   };
   const researchTestIngredient =
     state.researchTest && state.researchTest.recipeId === state.researchTargetId ? getIngredient(state.researchTest.ingredientId) : undefined;
+  // #358 OD-358-6: once the experiment started the hypothesis is a read-only status (never a button).
+  const researchTestStatus = researchTestIngredient ? (
+    <span className="research-test-status" data-testid="research-test-status">
+      🔬 調査中：{researchTestIngredient.nameJa}
+    </span>
+  ) : null;
   // #358 Slice 3: 「🔥 焼く！」 with the declared ingredient not on the player's own pizza asks first (never forbids).
   // Reads only the pizza and the declaration -- no recipe membership, no matcher.
   const [bakeConfirmOpen, setBakeConfirmOpen] = useState(false);
@@ -675,18 +681,20 @@ export function GameScreen({
           <div className="order-card__text">
             <span className="order-card__recipe-name order-card__recipe-name--research">
               <span>🔎 研究中　{researchResult.label}</span>
-              {researchTestAvailable && (
+              {researchTestAvailable ? (
                 <button
                   ref={researchPickerButtonRef}
                   type="button"
                   className="research-test-button"
                   data-testid="research-test-button"
                   aria-haspopup="dialog"
-                  aria-label={researchTestIngredient ? `今回調べる: ${researchTestIngredient.nameJa}（えらびなおす）` : "今回調べる食材をえらぶ"}
+                  aria-label={researchTestIngredient ? `今回の調査: ${researchTestIngredient.nameJa}（えらびなおす）` : "今回の調査をえらぶ"}
                   onClick={() => setResearchPickerOpen(true)}
                 >
-                  {researchTestIngredient ? `🔬 今回調べる: ${researchTestIngredient.nameJa}` : "🔬 調べる食材をえらぶ"}
+                  {researchTestIngredient ? `🔬 今回の調査: ${researchTestIngredient.nameJa}` : "🔬 今回の調査をえらぶ"}
                 </button>
+              ) : (
+                researchTestIngredient && researchTestStatus
               )}
             </span>
             <span className="order-card__hint">
@@ -697,6 +705,11 @@ export function GameScreen({
                 ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
               ].join("　")}
             </span>
+            {state.hint?.textJa && (
+              <span className="order-card__hint order-card__hint--step" data-testid="research-step-instruction">
+                {state.hint.textJa}
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -790,12 +803,13 @@ export function GameScreen({
       {state.phase === "BAKE" && state.dinner === null && (
         <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
           <div className="order-card__text">
-            <span className="order-card__recipe-name">
+            <span className={`order-card__recipe-name${state.freeCook && researchResult ? " order-card__recipe-name--research" : ""}`}>
               {state.freeCook ? (
                 researchResult ? <>🔎 研究中　{researchResult.label}</> : <>{"\u{1F3A8}"} レシピ発見の試作</>
               ) : (
                 state.recipe.nameJa
               )}
+              {state.freeCook && researchResult && researchTestStatus}
             </span>
             <span className="order-card__hint">{buildTetoBakeLine(state.recipe).textJa}</span>
           </div>

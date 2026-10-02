@@ -198,6 +198,30 @@
   cursor: pointer;
 }
 
+/* #358 Slice 4: the locked hypothesis is a read-only status (no button affordance, a tinted pill) so it reads as
+   "this attempt's current test", apart from the plain 「わかっていること」 knowledge line. */
+.research-test-status {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 62%;
+  box-sizing: border-box;
+  padding: 0 9px;
+  border-radius: 12px;
+  background: #fde7c2;
+  color: #6b4226;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The current step's instruction stays one line inside the research card (no extra vertical budget). */
+.order-card__hint--step {
+  -webkit-line-clamp: 1;
+}
+
 .original-pizza__ingredient-test {
   display: flex;
   flex-direction: column;

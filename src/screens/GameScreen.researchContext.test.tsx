@@ -68,3 +68,38 @@ describe("Research context across the transitions of a Research round", () => {
     expect(hasContext(s)).toBe(false);
   });
 });
+
+describe("Slice 4: research card = knowledge / current hypothesis / step instruction", () => {
+  const declared = (...a: GameAction[]) => a.reduce(gameReducer, gameReducer(researchRound(), { type: "SET_RESEARCH_TEST", ingredientId: "egg" }));
+
+  it("EDITABLE: a selector button for the hypothesis, the knowledge line and the step instruction", () => {
+    renderAt(declared());
+    expect(screen.getByTestId("research-test-button")).toHaveTextContent("🔬 今回の調査: たまご");
+    expect(screen.queryByTestId("research-test-status")).not.toBeInTheDocument();
+    expect(screen.getByTestId("research-context")).toHaveTextContent("わかっていること：✓ チキンを使う");
+    expect(screen.getByTestId("research-step-instruction")).toHaveTextContent("生地");
+  });
+
+  it("LOCKED (first step confirmed): a read-only 「調査中」 status replaces the button on every later step and in BAKE", () => {
+    for (const s of [declared({ type: "CONFIRM_MAKING_STEP" }), declared({ type: "CONFIRM_MAKING_STEP" }, { type: "CONFIRM_MAKING_STEP" }), declared({ type: "RESET_PIZZA" }, { type: "CONFIRM_MAKING_STEP" }, { type: "RESET_PIZZA" }), declared({ type: "START_BAKE" })]) {
+      const r = renderAt(s);
+      expect(screen.queryByTestId("research-test-button")).not.toBeInTheDocument();
+      expect(screen.getByTestId("research-test-status")).toHaveTextContent("🔬 調査中：たまご");
+      expect(screen.getByTestId("research-test-status").tagName).toBe("SPAN");
+      r.unmount();
+    }
+  });
+
+  it("no selection: nothing is shown as a hypothesis once locked", () => {
+    renderAt(gameReducer(researchRound(), { type: "CONFIRM_MAKING_STEP" }));
+    expect(screen.queryByTestId("research-test-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("research-test-status")).not.toBeInTheDocument();
+    expect(screen.getByTestId("research-context")).toHaveTextContent("研究中");
+  });
+
+  it("shows no count / ratio / percentage / hidden identity", () => {
+    renderAt(declared({ type: "CONFIRM_MAKING_STEP" }));
+    const text = screen.getByTestId("research-context").textContent ?? "";
+    expect(text).not.toMatch(/[0-9０-９]+\s*[/／%％]|残り|あと[0-9０-９]|ペスト|pesto-pollo/);
+  });
+});
