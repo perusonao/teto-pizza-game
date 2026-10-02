@@ -86,6 +86,23 @@ export function ResearchTestPicker({
           if (event.key === "Escape") {
             event.stopPropagation();
             onClose();
+            return;
+          }
+          // aria-modal: keep Tab / Shift+Tab inside the dialog so the PREPARE controls behind it (steps, reset, bake)
+          // can never be reached from the keyboard while it is open.
+          if (event.key === "Tab") {
+            const focusable = [...event.currentTarget.querySelectorAll<HTMLElement>("button:not([disabled]), [tabindex]:not([tabindex='-1'])")];
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = document.activeElement;
+            if (event.shiftKey && (active === first || !event.currentTarget.contains(active))) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && (active === last || !event.currentTarget.contains(active))) {
+              event.preventDefault();
+              first.focus();
+            }
           }
         }}
       >

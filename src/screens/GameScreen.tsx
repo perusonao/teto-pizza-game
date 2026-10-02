@@ -299,6 +299,8 @@ export function GameScreen({
   const [researchPickerOpen, setResearchPickerOpen] = useState(false);
   const researchPickerButtonRef = useRef<HTMLButtonElement>(null);
   const researchPickerVisible = researchPickerOpen && researchTestAvailable;
+  // The open flag never outlives the PREPARE of a Research Target round (no automatic re-open on the next one).
+  if (researchPickerOpen && !researchTestAvailable) setResearchPickerOpen(false);
   const closeResearchPicker = () => {
     setResearchPickerOpen(false);
     queueMicrotask(() => researchPickerButtonRef.current?.focus());

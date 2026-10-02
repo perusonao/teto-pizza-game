@@ -73,6 +73,20 @@ describe("ResearchTestPicker", () => {
     expect(strip(open().container.innerHTML)).toBe(strip(open().container.innerHTML));
   });
 
+  it("aria-modal focus: Tab wraps from the last control to the first and Shift+Tab back (nothing behind is reachable)", () => {
+    open();
+    const dialog = screen.getByRole("dialog");
+    const buttons = [...dialog.querySelectorAll<HTMLElement>("button:not([disabled]), [tabindex]:not([tabindex='-1'])")];
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    last.focus();
+    fireEvent.keyDown(last, { key: "Tab" });
+    expect(document.activeElement).toBe(first);
+    first.focus();
+    fireEvent.keyDown(first, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(last);
+  });
+
   it("with nothing to check it says so without a reason", () => {
     open({ candidateIds: [], selectableIds: new Set() });
     expect(screen.getByText("いま調べられる食材はありません")).toBeInTheDocument();
