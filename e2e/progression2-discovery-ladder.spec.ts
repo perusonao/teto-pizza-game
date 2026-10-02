@@ -114,7 +114,11 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     const notice = page.locator(".material-unlock-notice");
     await expect(notice).toContainText("新しい材料が入荷：たまご");
     await expect(notice).not.toContainText(/プレゼント|無料|🎁/);
-    await expectFullyVisible(page, ".material-unlock-notice__cta", "RESULT: ショップへ CTA");
+    // #358: ONE Shop CTA -- the discovery's primary 「新しい食材を見る」; the notice itself carries no button.
+    await expect(page.locator(".material-unlock-notice button")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /ショップへ/ })).toHaveCount(0);
+    await expectFullyVisible(page, ".dex-registration-row__cta--primary", "RESULT: 新しい食材を見る CTA");
+    await expect(page.locator(".result-panel__actions")).toHaveCount(0);
     await expectNoHorizontalOverflow(page, "RESULT with NEW MATERIAL");
     const pitzAfterMargherita = (await readSave(page)).pitzBalance;
     expect(pitzAfterMargherita).toBeGreaterThanOrEqual(60);
@@ -122,7 +126,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     expect((await readSave(page)).inventory).toEqual({});
 
     // Shop from the notice: egg is NEW, stock 0, 10 pizzas (10), first pack 60.
-    await page.locator(".material-unlock-notice__cta").click();
+    await page.getByRole("button", { name: /新しい食材を見る/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const egg = shopRow(page, "egg");
     await expect(egg).toHaveAttribute("data-shop-state", "NEW");
@@ -152,8 +156,9 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await closeShop(page);
     await expect(page.locator(".result-panel")).toBeVisible();
 
-    // Free Cooking Bismarck with the bought egg.
-    await page.getByRole("button", { name: "もう一度試す" }).click();
+    // Free Cooking Bismarck with the bought egg (#358: a NEW PIZZA result has no retry CTA -> HOME -> Free Cooking).
+    await page.locator(".app-header__home-button").click();
+    await startFreeCook(page);
     await cookPizza(page, [{ name: /たまご/, at: [[50, 50]] }]);
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/ビスマルクを発見しました！/);
     await expect(page.locator(".material-unlock-notice")).toContainText("新しい材料が入荷：ベーコン");
@@ -235,7 +240,6 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
       await expect(notice).toHaveText(`\u{1F195} 新しい材料が入荷：${c.names}`);
       const m = await page.evaluate(() => {
         const msg = document.querySelector(".material-unlock-notice__message")!;
-        const cta = document.querySelector(".material-unlock-notice__cta")!.getBoundingClientRect();
         const range = document.createRange();
         range.selectNodeContents(msg);
         const gs = document.querySelector(".game-screen")!;
@@ -246,15 +250,14 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
           ),
           textRight: Math.max(...Array.from(range.getClientRects()).map((r) => r.right)),
           msgRight: msg.getBoundingClientRect().right,
-          ctaLeft: cta.left,
           overflow: gs.scrollHeight - gs.clientHeight,
         };
       });
       expect(m.nameLines).toEqual(Array(c.runs).fill(1));
       expect(m.textRight, "notice text stays inside its box").toBeLessThanOrEqual(m.msgRight + 0.5);
-      expect(m.textRight, "notice text never runs under the CTA").toBeLessThanOrEqual(m.ctaLeft);
+      await expect(page.locator(".material-unlock-notice button"), "#358: the notice has no CTA of its own").toHaveCount(0);
       expect(m.overflow, "RESULT stays within its 1-screen budget").toBeLessThanOrEqual(0);
-      await expectFullyVisible(page, ".material-unlock-notice__cta", `RESULT: ショップへ CTA (step ${c.step})`);
+      await expectFullyVisible(page, ".dex-registration-row__cta--primary", `RESULT: 新しい食材を見る CTA (step ${c.step})`);
       await expectNoHorizontalOverflow(page, `RESULT with a step-${c.step} notice`);
     });
   }
