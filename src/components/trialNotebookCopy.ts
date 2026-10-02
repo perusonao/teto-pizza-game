@@ -8,6 +8,8 @@ export const NOTEBOOK_COPY = {
   sauce: "ソース",
   toppings: "のせたもの",
   noSauce: "なし",
+  diffTitle: "前回からの変更",
+  diffSauce: "ソース",
   noToppings: "なし",
   sessionOnly: "この記録は、ゲームを読み込みなおすと消えるよ",
 } as const;

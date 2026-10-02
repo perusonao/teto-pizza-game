@@ -20,7 +20,9 @@ const WIRED = [RECORD_ADAPTER, REDUCER].sort();
 // Discovery 3.0 Notebook N1 (OD-N1-1/2): the read-only 試作ノート. GameScreen relays `notebookView(state.trialNotebook)`
 // to the Hint sheet, which opens TrialNotebookSheet. These three files are the only readers; none writes.
 const N1_READERS = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx"];
-const ALLOWED = [...WIRED, ...N1_READERS].sort();
+// Notebook N2: the pure diff helper (type-only import of TrialCombination; reads nothing but two player combinations).
+const N2_READERS = ["/src/logic/discovery/trialNotebookDiff.ts"];
+const ALLOWED = [...WIRED, ...N1_READERS, ...N2_READERS].sort();
 
 describe("Trial Notebook model — wired into state only (P3-3a)", () => {
   it("the module exists in the scanned tree", () => {

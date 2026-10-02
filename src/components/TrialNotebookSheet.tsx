@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import { getIngredient } from "../data/ingredients";
 import type { TrialEntryView } from "../logic/discovery/trialNotebook";
+import { diffsForView, type TrialDiff } from "../logic/discovery/trialNotebookDiff";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { NOTEBOOK_COPY } from "./trialNotebookCopy";
 
@@ -43,6 +44,36 @@ function IngredientChips({ ids, emptyText }: { ids: readonly string[]; emptyText
   );
 }
 
+function nameOf(id: string): string {
+  return getIngredient(id)?.nameJa ?? id;
+}
+
+function names(ids: readonly string[]): string {
+  return ids.length === 0 ? NOTEBOOK_COPY.noSauce : ids.map(nameOf).join("、");
+}
+
+/** Only what changed: no empty rows and no "unchanged" lines. */
+function DiffBlock({ diff }: { diff: TrialDiff }) {
+  return (
+    <div className="trial-notebook__diff" data-trial-diff="">
+      <p className="trial-notebook__diff-title">{NOTEBOOK_COPY.diffTitle}</p>
+      <ul className="trial-notebook__diff-list">
+        {diff.added.map((id) => (
+          <li key={`+${id}`}>＋ {nameOf(id)}</li>
+        ))}
+        {diff.removed.map((id) => (
+          <li key={`-${id}`}>− {nameOf(id)}</li>
+        ))}
+        {diff.sauce && (
+          <li>
+            {NOTEBOOK_COPY.diffSauce}：{names(diff.sauce.before)} → {names(diff.sauce.after)}
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
 export function TrialNotebookSheet({ entries, onBack }: { entries: readonly TrialEntryView[]; onBack: () => void }) {
   const titleId = useId();
   const backRef = useRef<HTMLButtonElement>(null);
@@ -50,6 +81,7 @@ export function TrialNotebookSheet({ entries, onBack }: { entries: readonly Tria
     backRef.current?.focus();
   }, []);
 
+  const diffs = diffsForView(entries);
   return (
     <div className="trial-notebook__backdrop" role="presentation"
       onClick={(event) => {
@@ -89,9 +121,10 @@ export function TrialNotebookSheet({ entries, onBack }: { entries: readonly Tria
           <div className="trial-notebook__body">
             <p className="hint-sheet__caption">{NOTEBOOK_COPY.order}</p>
             <ul className="trial-notebook__list">
-              {entries.map((entry) => {
+              {entries.map((entry, index) => {
                 const toppings = entry.combination.ingredientSet.filter((id) => !entry.combination.sauceBase.includes(id));
                 const retry = retryLine(entry.retryCount);
+                const diff = diffs[index];
                 return (
                   <li key={entry.number} className="trial-notebook__entry" data-trial-entry={entry.number}>
                     <p className="trial-notebook__entry-title">試作 #{entry.number}</p>
@@ -107,6 +140,7 @@ export function TrialNotebookSheet({ entries, onBack }: { entries: readonly Tria
                         <IngredientChips ids={toppings} emptyText={NOTEBOOK_COPY.noToppings} />
                       </span>
                     </div>
+                    {diff && <DiffBlock diff={diff} />}
                     {retry && <p className="trial-notebook__retry">{"\u{1F501}"} {retry}</p>}
                     {entry.feedback && <p className="trial-notebook__feedback">{entry.feedback.textJa}</p>}
                   </li>
