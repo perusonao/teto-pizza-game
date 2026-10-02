@@ -14,7 +14,6 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
-const OPT_OUT_KEY = "teto.dev.researchIdentify";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
@@ -67,6 +66,9 @@ async function expectInViewport(page: Page, locator: ReturnType<Page["locator"]>
 async function pickChip(page: Page, name: RegExp) {
   const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
   const next = page.getByRole("button", { name: "次のページ" });
+  const prev = page.getByRole("button", { name: "前のページ" });
+  // the tray keeps its last page between picks: start from the first page
+  for (let i = 0; i < 6 && (await prev.isEnabled().catch(() => false)); i += 1) await prev.click();
   for (let i = 0; i < 6 && !(await chip.isVisible()); i += 1) {
     if (!(await next.isEnabled().catch(() => false))) break;
     await next.click();
