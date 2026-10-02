@@ -203,8 +203,8 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
   for (const [name, pieces, p2, shot] of [
-    ["ADD_ONE (P2 near-miss line)", ADD_ONE, /材料をあと1つ足すと/, "add-one"],
-    ["FAR (generic P2 line, a different height)", FAR, /別の組み合わせも試してみよう|新しく入荷した材料/, "far"],
+    ["ADD_ONE (P2 near-miss line)", ADD_ONE, /別の組み合わせも試してみよう/, "add-one"],
+    ["FAR (generic P2 line, a different height)", FAR, /別の組み合わせも試してみよう/, "far"],
   ] as const) {
     test(`${name}: first attempt has no notice, the identical retry shows 「試作#1」; geometry holds with and without`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);

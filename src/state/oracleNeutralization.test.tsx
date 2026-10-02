@@ -79,22 +79,19 @@ describe("path 1: the lead wording", () => {
   });
 });
 
-describe("path 2: the near/far row", () => {
-  it("an INCOMPLETE_MATCH has a row (the generic far line), like every original that has candidates", () => {
+describe("path 2: the neutral Discovery row", () => {
+  it("an INCOMPLETE_MATCH gets the neutral generic row, exactly like any other original", () => {
     const state = resultOf(EXACT_THIN);
-    expect(resultNearMiss(state)).toEqual({ kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY });
+    expect(resultNearMiss(state)).toEqual({ kind: "NEUTRAL", textJa: NEAR_MISS_FAR_GENERIC_COPY });
     expect(panel(state).querySelector(".result-near-miss__text")).toHaveTextContent(NEAR_MISS_FAR_GENERIC_COPY);
-  });
-
-  it("is the very row an ordinary far pizza that uses the key ingredient gets", () => {
     expect(resultNearMiss(resultOf(OTHER_THIN))).toEqual(resultNearMiss(resultOf(EXACT_THIN)));
   });
 
-  it("with no candidate at all, an INCOMPLETE_MATCH has no row -- exactly like any other original in that state", () => {
+  it("the row does not depend on the pool: an empty pool gives the very same row", () => {
     const state = resultOf(EXACT_THIN);
     const noPool = { ...state, ownedIngredientIds: [...state.ownedIngredientIds].filter((id) => id !== "mushroom") };
-    expect(resultNearMiss(noPool)).toBeNull();
-    expect(resultNearMiss({ ...resultOf(OTHER_THIN), ownedIngredientIds: noPool.ownedIngredientIds })).toBeNull();
+    expect(resultNearMiss(noPool)).toEqual(resultNearMiss(state));
+    expect(resultNearMiss({ ...resultOf(OTHER_THIN), ownedIngredientIds: noPool.ownedIngredientIds })).toEqual(resultNearMiss(state));
   });
 });
 
@@ -115,7 +112,7 @@ describe("path 3: the Trial Notebook", () => {
     const rows = notebookView(state.trialNotebook);
     expect(rows).toHaveLength(1);
     expect(Object.keys(rows[0]).sort()).toEqual(["combination", "feedback", "number", "retryCount"]);
-    expect(rows[0].feedback).toEqual({ kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY });
+    expect(rows[0].feedback).toBeNull();
     const text = JSON.stringify(rows);
     for (const recipe of RECIPES) expect(text).not.toContain(recipe.id);
     expect(text).not.toMatch(/INCOMPLETE|MATCH|distance|あと少し|正解|correct/i);

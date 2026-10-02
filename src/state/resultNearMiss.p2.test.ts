@@ -1,3 +1,5 @@
+// Pins the pre-neutralization pool-distance classifier (`legacyResultNearMiss`), which has no production caller since
+// Near/Far Neutralization Phase 1; the production `resultNearMiss` is pinned in resultNearMiss.neutral.test.ts.
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { getIngredient, INGREDIENTS } from "../data/ingredients";
@@ -6,7 +8,7 @@ import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/mat
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
-import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, nearMissLine, resultNearMiss, RESULT_FAR_GENERIC_ENABLED, type ResultNearMissInput } from "./resultNearMiss";
+import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, nearMissLine, legacyResultNearMiss as resultNearMiss, RESULT_FAR_GENERIC_ENABLED, type ResultNearMissInput } from "./resultNearMiss";
 
 /**
  * Original Pizza Recovery P2 on the REAL 25-recipe catalog and the real matcher: no-sauce wording,

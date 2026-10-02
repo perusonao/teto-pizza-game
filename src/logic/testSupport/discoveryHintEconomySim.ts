@@ -41,7 +41,7 @@ import { hintSheetView } from "../../state/discoveryHint";
 import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
-import { resultNearMiss } from "../../state/resultNearMiss";
+import { legacyResultNearMiss as resultNearMiss } from "../../state/resultNearMiss";
 
 export type HintPrices = readonly [h1: number, h2: number, h3: number, h4: number];
 

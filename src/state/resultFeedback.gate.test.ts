@@ -24,7 +24,7 @@ describe("Free Cooking only: Dinner, guided and Lunch Rush never reach the ORIGI
     const callers = (needle: RegExp) =>
       production.filter(([p, text]) => p !== RESULT_NEAR_MISS && p !== ORIGINAL_COPY && needle.test(text)).map(([p]) => p).sort();
     // P3-3a: the Trial Notebook record adapter asks for the same line the card shows (OD-P3-18), through the same pure function.
-    expect(callers(/resultNearMiss\(/)).toEqual(["/src/screens/GameScreen.tsx", "/src/state/trialRecord.ts"]);
+    expect(callers(/resultNearMiss\(/)).toEqual(["/src/screens/GameScreen.tsx"]);
     expect(callers(/originalResultCopy["']/)).toEqual(["/src/components/ResultPanel.tsx"]);
   });
 
