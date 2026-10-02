@@ -259,6 +259,9 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
       expect(m.overflow, "RESULT stays within its 1-screen budget").toBeLessThanOrEqual(0);
       await expectFullyVisible(page, ".dex-registration-row__cta--primary", `RESULT: 新しい食材を見る CTA (step ${c.step})`);
       await expectNoHorizontalOverflow(page, `RESULT with a step-${c.step} notice`);
+      if (process.env.HV_SCREENSHOT_DIR && c.step === 11) {
+        await page.screenshot({ path: `${process.env.HV_SCREENSHOT_DIR}/${test.info().project.name.replace("iphone-", "")}-result-discovery-material-${process.env.HV_TAG ?? "after"}.png` });
+      }
     });
   }
 

@@ -704,6 +704,6 @@ function ingredientTestLine(test: { ingredientId: string; verdict: "POSITIVE" | 
     case "NOT_IDENTIFIED":
       return `${name}は特定できませんでした`;
     case "NOT_USED":
-      return `${name}は使わなかったので、調べていません`;
+      return `${name}は今回の試作に入っていなかったので、調べていません`;
   }
 }

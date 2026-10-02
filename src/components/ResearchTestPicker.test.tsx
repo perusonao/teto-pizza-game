@@ -127,7 +127,7 @@ describe("ResultPanel ingredient line", () => {
     panel(ORDINARY, { ingredientTest: { ingredientId: "egg", verdict: "NOT_IDENTIFIED" } });
     expect(screen.getByText("たまごは特定できませんでした")).toBeInTheDocument();
     panel(ORDINARY, { ingredientTest: { ingredientId: "egg", verdict: "NOT_USED" } });
-    expect(screen.getByText("たまごは使わなかったので、調べていません")).toBeInTheDocument();
+    expect(screen.getByText("たまごは今回の試作に入っていなかったので、調べていません")).toBeInTheDocument();
   });
 
   it("INV-3: negative / AMBIGUOUS / INCOMPLETE_MATCH render byte-identically with the same NOT_IDENTIFIED", () => {
