@@ -438,6 +438,9 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts
       // proves a production bundle contains none of it.
       "../preview/hvSeeds.ts",
+      // Issue #358: a test-only render helper (never imported by app code) that builds the Dex-25 ladder save of a
+      // Research round for the GameScreen component tests.
+      "../screens/testSupport/researchRound.tsx",
       "../state/gameReducer.ts",
       "../state/materialEntitlement.ts",
       "../state/recipeChapters.ts",
