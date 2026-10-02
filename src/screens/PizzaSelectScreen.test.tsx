@@ -97,8 +97,8 @@ describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
     expect(gridCards()).toHaveLength(0);
     expect(sectionHeadings()).toEqual(["第1章発見 0/6", "第2章発見 0/10", "第3章発見 0/11"]);
     const prompt = document.querySelector(".pizza-select-prompt") as HTMLElement;
-    expect(prompt).toHaveTextContent("まずはフリークッキングで1枚目のピザを見つけよう！");
-    await userEvent.click(within(prompt).getByRole("button", { name: /フリークッキングで探す/ }));
+    expect(prompt).toHaveTextContent("まずはレシピ発見で1枚目のピザを見つけよう！");
+    await userEvent.click(within(prompt).getByRole("button", { name: /レシピ発見/ }));
     expect(onGoFreeCook).toHaveBeenCalledTimes(1);
     expect(onSelectRecipe).not.toHaveBeenCalled();
     for (const r of RECIPES) expect(everythingRendered(), r.id).not.toContain(r.nameJa);

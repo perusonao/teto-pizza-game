@@ -73,7 +73,7 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     // The old aggregate card's CTA is gone; HOME's own フリークッキング is the open (target-less) route.
     await user.click(screen.getByRole("button", { name: "閉じる" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const sheet = screen.getByRole("dialog", { name: /ヒント/ });
@@ -93,7 +93,7 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     seedLegacyDex15();
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     expectNoUndiscoveredName("HOME after the Free Cooking route");
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));

@@ -173,7 +173,7 @@ export function ShopOverlay({
                 <>
                   {"\u{1F4E6}"} {feedback.ingredientNameJa}を仕入れました！（{feedback.quantityLabelJa}）
                   <br />
-                  {"\u{1F373}"} フリークッキングで使ってみよう
+                  {"\u{1F373}"} レシピ発見で使ってみよう
                 </>
               ) : (
                 <>

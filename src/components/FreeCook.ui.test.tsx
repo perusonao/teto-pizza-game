@@ -134,12 +134,13 @@ describe("ResultPanel in a free-cook round", () => {
         usedIngredientIds={["tomato-sauce", "mozzarella"]}
       />,
     );
-    expect(screen.getByText(/オリジナルピザ完成！/)).toBeInTheDocument();
-    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
+    expect(screen.getByText(/🧪 オリジナルピザ/)).toBeInTheDocument();
+    expect(screen.queryByText(/オリジナルピザ完成！/)).toBeNull();
+    expect(screen.getByText("まだ新しいレシピは見つかっていません")).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "使った材料" })).toHaveTextContent("モッツァレラ");
     expect(container.querySelector(".result-panel--failed")).toBeNull();
     expect(screen.queryByText("失敗")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "もう一度じゆうに作る" }));
+    fireEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
     expect(props.onRetrySameRecipe).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: "レシピを選んで作る" })).toBeInTheDocument();
   });
@@ -152,7 +153,7 @@ describe("ResultPanel in a free-cook round", () => {
         discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "margherita", targetId: "shipped:margherita" }}
       />,
     );
-    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
+    expect(screen.getByText("まだ新しいレシピは見つかっていません")).toBeInTheDocument();
     expect(screen.queryByText(/あと少し/)).not.toBeInTheDocument();
     expect(screen.queryByText(/マルゲリータ/)).not.toBeInTheDocument();
   });
@@ -165,7 +166,7 @@ describe("ResultPanel in a free-cook round", () => {
 });
 
 describe("HOME free-cook entry", () => {
-  it("フリークッキング starts free cooking without going through recipe selection", () => {
+  it("レシピ発見 starts free cooking without going through recipe selection", () => {
     const onStartFreeCook = vi.fn();
     const onStartFreePlay = vi.fn();
     render(
@@ -184,7 +185,7 @@ describe("HOME free-cook entry", () => {
         onOpenRanking={() => {}}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    fireEvent.click(screen.getByRole("button", { name: /レシピ発見/ }));
     expect(onStartFreeCook).toHaveBeenCalledTimes(1);
     expect(onStartFreePlay).not.toHaveBeenCalled();
     // PR #197 review: DOM (focus / reading) order equals the visual rows -- the full-width
@@ -192,6 +193,6 @@ describe("HOME free-cook entry", () => {
     const ctaLabels = Array.from(document.querySelectorAll(".home-cta-row button")).map((b) =>
       b.textContent?.replace(/^\S+\s*/, ""),
     );
-    expect(ctaLabels).toEqual(["ピザを作る", "ランチラッシュ", "フリークッキング"]);
+    expect(ctaLabels).toEqual(["ピザを作る", "ランチラッシュ", "レシピ発見"]);
   });
 });

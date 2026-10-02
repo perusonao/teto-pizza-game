@@ -123,7 +123,7 @@ async function bothPages(user: User): Promise<[string[], string[]]> {
   return [first, second];
 }
 
-async function toToppingStep(user: User, entry: RegExp = /フリークッキング/) {
+async function toToppingStep(user: User, entry: RegExp = /レシピ発見/) {
   await user.click(screen.getByRole("button", { name: entry }));
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
@@ -157,7 +157,7 @@ async function bakeToResult(user: User) {
   cb?.(now);
   await user.click(screen.getByRole("button", { name: "取り出す！" }));
   vi.unstubAllGlobals();
-  await screen.findByRole("button", { name: "もう一度じゆうに作る" });
+  await screen.findByRole("button", { name: "もう一度試す" });
 }
 
 /**
@@ -331,7 +331,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     // Round transition (RESULT -> next FREE round): the pins survive, the new round's tray is the same hand minus
     // nothing, on page 1, with nothing selected -- and the first chip tap selects normally (no stale transition).
     await bakeToResult(user);
-    await user.click(screen.getByRole("button", { name: "もう一度じゆうに作る" }));
+    await user.click(screen.getByRole("button", { name: "もう一度試す" }));
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(trayChip(/トマトソース/));
@@ -391,7 +391,7 @@ describe(`LC-R5-e-h activation hardening (real handPolicy ON, capacity ${CAP})`,
     await bakeToResult(user);
 
     // Next FREE round: stock is now 0 for both.
-    await user.click(screen.getByRole("button", { name: "もう一度じゆうに作る" }));
+    await user.click(screen.getByRole("button", { name: "もう一度試す" }));
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));

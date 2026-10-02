@@ -85,7 +85,7 @@ test.describe("Lunch Rush RESULT: attempt/success/failure/success-rate stats (Ph
     // Both HOME/FREE CTAs (and the two pre-existing nav CTAs) present and clickable.
     const rankingButton = page.getByRole("button", { name: /ランキングを見る/ });
     const retryButton = page.getByRole("button", { name: "もう一度" });
-    const freePlayButton = page.getByRole("button", { name: "フリープレイへ" });
+    const freePlayButton = page.getByRole("button", { name: "ピザ作りへ" });
     const homeButton = page.getByRole("button", { name: /ホームへ/ });
     for (const button of [rankingButton, retryButton, freePlayButton, homeButton]) {
       await expect(button).toBeVisible();

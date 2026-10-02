@@ -400,7 +400,7 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     now += 5_000;
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     now += 30_000;
@@ -454,7 +454,7 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     render(<App />);
 
     // A cheese-only Free Cooking pizza matches no recipe -> RESULT with the hint CTA.
-    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     const needle = controlBakeNeedle();
     needle.stub();
     completeDoughStep();
@@ -500,7 +500,7 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     await user.click(screen.getByRole("button", { name: "ヒントをもらう" }));
     const cta = document.querySelector<HTMLButtonElement>(".hint-sheet__next")!;

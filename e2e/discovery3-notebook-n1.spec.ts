@@ -90,8 +90,8 @@ async function pickChip(page: Page, name: RegExp) {
 }
 
 async function startFree(page: Page, from: "HOME" | "RESULT") {
-  if (from === "HOME") await page.getByRole("button", { name: /フリークッキング/ }).first().click();
-  else await page.getByRole("button", { name: /もう一度じゆうに作る/ }).click();
+  if (from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
 
@@ -166,7 +166,7 @@ test.describe("Discovery 3.0 Notebook N1 (read-only 試作ノート from the Hin
     await startFree(page, "HOME");
     await openNotebookFromHint(page);
     await expect(notebook(page)).toContainText("まだ試作の記録はないよ。");
-    await expect(notebook(page)).toContainText("フリークッキングで作ってみよう！");
+    await expect(notebook(page)).toContainText("レシピ発見で作ってみよう！");
     await expect(notebook(page)).toContainText("読み込みなおすと消える");
     await noHorizontalOverflow(page);
     // keyboard: the Hint underneath is inert, so Tab / Shift+Tab never land on a Hint control behind the notebook

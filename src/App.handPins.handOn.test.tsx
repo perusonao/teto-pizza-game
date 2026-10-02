@@ -81,7 +81,7 @@ const trayState = () =>
   });
 
 async function toToppingStep(user: User) {
-  await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+  await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
   await user.click(trayChip(/トマトソース/));

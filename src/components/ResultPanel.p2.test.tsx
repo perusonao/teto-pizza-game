@@ -71,13 +71,12 @@ describe("lead / action split: a FAR ORIGINAL says the next action once", () => 
   it.each([
     ["ordinary", ORDINARY],
     ["ambiguous", AMBIGUOUS],
-  ] as const)("%s + generic FAR: lead then the single 「別の組み合わせも試してみよう」", (_name, outcome) => {
+  ] as const)("%s + generic FAR: the lead only (#346 S0: no near/far line on a Recipe Discovery ORIGINAL)", (_name, outcome) => {
     const dom = html(outcome, { kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY });
     const text = document.body.textContent ?? "";
-    expect(text).toContain("図鑑にはまだ載っていないピザ！");
-    expect(text).toContain(NEAR_MISS_FAR_GENERIC_COPY);
-    expect(text.split("別の組み合わせも試してみよう").length - 1).toBe(1);
-    expect(dom.split("別の組み合わせ").length - 1).toBe(1);
+    expect(text).toContain("まだ新しいレシピは見つかっていません");
+    expect(text).not.toContain(NEAR_MISS_FAR_GENERIC_COPY);
+    expect(dom).not.toContain("別の組み合わせ");
   });
 
   it.each(LINES.map((l, i) => [i, l] as const))("near-miss #%i: 「試してみよう」 appears at most once", (_i, line) => {

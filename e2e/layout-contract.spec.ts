@@ -184,7 +184,7 @@ test.describe("I5b-5 Layout Contract", () => {
     // Every recipe but margherita discovered: the round below discovers it (Discovery Result).
     await openWithSave(page, makeSave(ALL_RECIPES.filter((r) => r !== "margherita")));
     await lc.apply(mount);
-    await page.getByRole("button", { name: /^🎨 フリークッキング/ }).click();
+    await page.getByRole("button", { name: /^🎨 レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");
     const cp = (state: StateLabel, ids: InvariantId[], slots: SlotSelectors = COOKING_SLOTS.prepare) =>
       lc.checkpoint(state, ids, slots, mount);
@@ -655,7 +655,7 @@ test.describe("DM-3R-0 Stage Size Stability (LC-S1..LC-S4)", () => {
     const mount = lc.mountProfile("short");
     await openWithSave(page, makeSave(ALL_RECIPES.filter((r) => r !== "margherita")));
     await lc.apply(mount);
-    await page.getByRole("button", { name: /^🎨 フリークッキング/ }).click();
+    await page.getByRole("button", { name: /^🎨 レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");
     const s = new StageStability(lc, page, "FREE", mount);
 

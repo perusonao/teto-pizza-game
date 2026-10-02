@@ -183,7 +183,7 @@ describe("what must stay out", () => {
   it("the notice is a static paragraph on the ORIGINAL card only: after the P2 row, before the note, no live region", () => {
     const panel = sources["/src/components/ResultPanel.tsx"];
     const original = panel.slice(panel.indexOf("if (!score) {"), panel.indexOf("const freeCookMatch"));
-    const hint = original.indexOf("{freeCook && hintRow(nearMiss, true)}");
+    const hint = original.indexOf("{freeCook && hintRow(null, true)}");
     const notice = original.indexOf('<p className="original-pizza__trial-notice">{trialNoticeText}</p>');
     const note = original.indexOf('<p className="original-pizza__note">');
     expect(hint).toBeGreaterThan(-1);

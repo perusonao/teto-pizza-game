@@ -142,7 +142,7 @@ describe("MissionResultOverlay", () => {
   it("still calls onExit exactly once for フリープレイへ (regression)", async () => {
     const props = baseProps();
     render(<MissionResultOverlay {...props} />);
-    await userEvent.click(screen.getByRole("button", { name: "フリープレイへ" }));
+    await userEvent.click(screen.getByRole("button", { name: "ピザ作りへ" }));
     expect(props.onExit).toHaveBeenCalledTimes(1);
   });
 

@@ -618,7 +618,7 @@ describe("ResultPanel: Issue #215 quantity line and near-miss copy", () => {
       />,
     );
     // Discovery 3.0 PR-1 (OD-D3-20/23): the old 「あと少し」 lead revealed the combination was right; neutral now.
-    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
+    expect(screen.getByText("まだ新しいレシピは見つかっていません")).toBeInTheDocument();
     expect(document.body.textContent).not.toContain("あと少し");
     expect(document.body.textContent).not.toContain("ソースや焼き加減を変えて");
     expect(document.body.innerHTML).not.toContain("margherita");
@@ -689,7 +689,7 @@ describe("W1-d: Discovery Result hierarchy", () => {
     const bar = document.querySelector(".result-panel__actions")!;
     expect(bar.contains(dexCta)).toBe(false);
     expect(Array.from(bar.querySelectorAll("button")).map((b) => b.textContent)).toEqual([
-      "もう一度じゆうに作る",
+      "もう一度試す",
       "レシピを選んで作る",
     ]);
     await userEvent.click(dexCta);

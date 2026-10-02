@@ -44,7 +44,7 @@ const chip = (name: RegExp) => screen.getByRole("button", { name });
 /** Free Cooking: dough, tomato sauce, 3 mozzarella, 2 basil, bake inside Margherita's window. */
 async function playMargherita(user: ReturnType<typeof userEvent.setup>) {
   render(<App />);
-  await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+  await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
   for (let i = 0; i < 8; i += 1) {
     const angle = (i / 8) * Math.PI * 2;
     tapPizza(50 + Math.cos(angle) * 46.6, 50 + Math.sin(angle) * 46.6);

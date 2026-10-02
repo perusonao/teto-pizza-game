@@ -171,7 +171,8 @@ export function HomeScreen({
               className="cta-button cta-button--primary cta-button--home cta-button--free-cook cta-button--free-cook-lead"
               onClick={onStartFreeCook}
             >
-              {"\u{1F3A8}"} フリークッキングで探す
+              {"\u{1F3A8}"} レシピ発見
+              <span className="cta-button__sub">持っている食材で、新しいレシピを発見しよう</span>
             </button>
           ) : (
             <button
@@ -179,7 +180,7 @@ export function HomeScreen({
               className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook"
               onClick={onStartFreeCook}
             >
-              {"\u{1F3A8}"} フリークッキング
+              {"\u{1F3A8}"} レシピ発見
             </button>
           ))}
         {lunchRushLocked && (

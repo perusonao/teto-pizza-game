@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 async function openSheet(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+  await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
   const bar = document.querySelector(".prepare-bake-bar") as HTMLElement;
   await user.click(within(bar).getByRole("button", { name: "ヒント" }));
   return screen.getByRole("dialog", { name: /ヒント/ });

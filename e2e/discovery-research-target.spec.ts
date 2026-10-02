@@ -136,7 +136,7 @@ test("B. Step 12 multiple: pick ② -> only it is the Hint subject, the other st
 test("D. no Research Target: plain Free Cooking keeps the OPEN_POOL hint (no ladder, no research context)", async ({ page }) => {
   const { json } = save(12);
   await open(page, json);
-  await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();

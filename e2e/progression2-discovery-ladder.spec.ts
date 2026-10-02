@@ -55,7 +55,7 @@ async function expectFullyVisible(page: Page, selector: string, label: string) {
 }
 
 async function startFreeCook(page: Page) {
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
 
@@ -153,7 +153,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await expect(page.locator(".result-panel")).toBeVisible();
 
     // Free Cooking Bismarck with the bought egg.
-    await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
+    await page.getByRole("button", { name: "もう一度試す" }).click();
     await cookPizza(page, [{ name: /たまご/, at: [[50, 50]] }]);
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/ビスマルクを発見しました！/);
     await expect(page.locator(".material-unlock-notice")).toContainText("新しい材料が入荷：ベーコン");

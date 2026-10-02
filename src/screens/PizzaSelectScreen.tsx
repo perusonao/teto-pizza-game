@@ -97,7 +97,7 @@ function PromptCard({
   const toShop = prompt.kind === "SHOP";
   const message =
     prompt.kind === "FIRST_DISCOVERY"
-      ? "まずはフリークッキングで1枚目のピザを見つけよう！"
+      ? "まずはレシピ発見で1枚目のピザを見つけよう！"
       : prompt.kind === "DISCOVERABLE"
         ? "まだ見つけていないピザが、今の材料で作れるかも！"
         : "ショップに新しい材料が入荷しているよ！";
@@ -111,7 +111,7 @@ function PromptCard({
         className="cta-button cta-button--primary pizza-select-prompt__cta"
         onClick={toShop ? onOpenShop : onGoFreeCook}
       >
-        {toShop ? <>{"\u{1F6D2}"} ショップを見る</> : <>{"\u{1F3A8}"} フリークッキングで探す</>}
+        {toShop ? <>{"\u{1F6D2}"} ショップを見る</> : <>{"\u{1F3A8}"} レシピ発見へ</>}
       </button>
     </div>
   );

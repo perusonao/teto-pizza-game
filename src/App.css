@@ -3519,6 +3519,17 @@
   white-space: nowrap;
 }
 
+/* #346 S0: the short supporting line under the lead レシピ発見 CTA. May wrap (the lead CTA itself is nowrap). */
+.cta-button__sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: normal;
+  opacity: 0.92;
+}
+
 /* Progression 2.0 Phase 3-3 (Issue #198): the "why is ランチラッシュ disabled" reason line --
    same copy/color family as .pizza-select-card__unlock-hint, so a locked CTA's reason always
    reads the same way across HOME and Pizza Select. */

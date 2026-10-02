@@ -56,7 +56,7 @@ async function toTopping(page: Page, width: number, height: number) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await page.getByRole("button", { name: /次へ/ }).click();

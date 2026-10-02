@@ -51,7 +51,7 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 
 /** One Free Cooking round with tomato sauce plus `pieces`, baked on target, to its RESULT. */
 async function cookFree(page: Page, pieces: { cheese: [RegExp, number][]; toppings: [RegExp, number][]; sauceDab?: boolean }) {
-  await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -116,7 +116,8 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
       await openWithSave(page);
       await cookFree(page, pieces as never);
       await expect(page.locator(".result-panel--original")).toBeVisible();
-      await expect(page.locator(".result-near-miss__text")).toHaveText(text);
+      await expect(page.locator(".result-near-miss__text")).toHaveCount(0); // #346 S0: no near/far line on an ORIGINAL (text kept for table shape)
+      void text;
       await checkResult(page, driver, browserName, name);
       await capture(page, shot);
     });
@@ -131,8 +132,8 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     await cookFree(page, { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3]], sauceDab: true });
     // Discovery 3.0 PR-1: the same neutral lead as any original, the generic far row an ordinary far pizza gets, and a
     // recipe-independent line about the thin sauce.
-    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑にはまだ載っていないピザ！");
-    await expect(page.locator(".result-near-miss__text")).toHaveText("🧪 別の組み合わせも試してみよう！");
+    await expect(page.locator(".original-pizza__lead")).toHaveText("まだ新しいレシピは見つかっていません");
+    await expect(page.locator(".result-near-miss__text")).toHaveCount(0); // #346 S0
     await expect(page.locator(".original-pizza__advice")).toHaveText("ソースが少なめかも。もう少し広く塗ってみよう。");
     await checkResult(page, driver, browserName, "INCOMPLETE_MATCH");
     await capture(page, "c4-incomplete-match");

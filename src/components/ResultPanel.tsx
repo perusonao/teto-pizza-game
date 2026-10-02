@@ -231,7 +231,7 @@ export function ResultPanel({
   const actions = (
     <div className="action-row action-row--column result-panel__actions">
       <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
-        {freeCook ? "もう一度じゆうに作る" : "もう一度つくる"}
+        {freeCook ? "もう一度試す" : "もう一度つくる"}
       </button>
       <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
         {freeCook ? "レシピを選んで作る" : "別のピザを作る"}
@@ -283,13 +283,15 @@ export function ResultPanel({
     const leadJa = ORIGINAL_LEAD_COPY[originalResultKind(discovery)];
     // P3-3b: a static paragraph (no live region: the P2 line above already announces the result).
     const trialNoticeText = duplicateTrialNoticeJa(trialNoticeNumber);
-    // #346 S4: with a valid Research Target the card is the Research ORIGINAL contract. The wording is one
-    // fixed string for every original kind (ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH): no right/wrong, no count.
+    // #346 S4 / S0: every Recipe Discovery ORIGINAL (with or without a Research Target) is the same contract. The
+    // wording is one fixed string for every original kind (ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH): no right/wrong,
+    // no near/far line, no count. Only the 研究中 context line and the research CTA row depend on the target.
     const research = freeCook && researchLabelJa !== null;
+    const recipeDiscovery = freeCook;
     return (
       <div className="result-panel result-panel--original">
         <p className="result-panel__heading result-panel__heading--original">
-          {research ? "\u{1F9EA} オリジナルピザ" : "\u{1F3A8} オリジナルピザ完成！"}
+          {recipeDiscovery ? "\u{1F9EA} オリジナルピザ" : "\u{1F3A8} オリジナルピザ完成！"}
         </p>
         {research && (
           <p className="result-panel__research-context" data-research-context="">
@@ -298,7 +300,7 @@ export function ResultPanel({
         )}
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
-            {research ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
+            {recipeDiscovery ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
           </p>
           {usedIngredientIds.length > 0 && (
             <ul className="original-pizza__ingredients" aria-label="使った材料">
@@ -327,7 +329,7 @@ export function ResultPanel({
               `discovery` (the lead above and this card are byte-identical for every original outcome). */}
           {freeCook && executionAdviceJa && <p className="original-pizza__advice">{executionAdviceJa}</p>}
         </div>
-        {freeCook && hintRow(nearMiss, true)}
+        {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
         <p className="original-pizza__note">
           図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。

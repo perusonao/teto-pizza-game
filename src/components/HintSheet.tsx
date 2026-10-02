@@ -86,7 +86,7 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   },
   OPEN_POOL: {
     title: "\u{1F3A8} まだ発見できるピザがあるよ！",
-    body: "いろいろな材料の組み合わせで、フリークッキングを試してみよう。",
+    body: "いろいろな材料の組み合わせで、レシピ発見を試してみよう。",
   },
   COMPLETE: {
     title: "\u{1F3C6} 図鑑コンプリート！",

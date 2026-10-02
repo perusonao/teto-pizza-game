@@ -83,7 +83,8 @@ describe("path 2: the neutral Discovery row", () => {
   it("an INCOMPLETE_MATCH gets the neutral generic row, exactly like any other original", () => {
     const state = resultOf(EXACT_THIN);
     expect(resultNearMiss(state)).toEqual({ kind: "NEUTRAL", textJa: NEAR_MISS_FAR_GENERIC_COPY });
-    expect(panel(state).querySelector(".result-near-miss__text")).toHaveTextContent(NEAR_MISS_FAR_GENERIC_COPY);
+    // #346 S0: the row is still derived (internal), but the Recipe Discovery ORIGINAL card never renders it.
+    expect(panel(state).querySelector(".result-near-miss__text")).toBeNull();
     expect(resultNearMiss(resultOf(OTHER_THIN))).toEqual(resultNearMiss(resultOf(EXACT_THIN)));
   });
 
