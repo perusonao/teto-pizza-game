@@ -1,7 +1,6 @@
 import { getIngredient } from "../../data/ingredients";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { isDiscovered, type DexState } from "../../state/dex";
-import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
 
 /**
  * Discovery 3.0 Research Recipe (Issue #346), S1: the pure domain foundation of the Research Entry.
@@ -30,6 +29,13 @@ import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
  *   recipe's structure; it is NOT `compareHintCandidates` (that sorts by ingredient count).
  * - The projection has no count of entries or of unregistered recipes: an array only.
  */
+
+/**
+ * The stored STRUCTURE fact id. A local copy of `INGREDIENT_TOTAL_FACT_ID` (./deductionHint.ts):
+ * the Deduction Hint layer has pinned importer boundaries (deductionHint/deductionGuard wiring
+ * tests), and this unwired module must not widen them. `researchEntry.test.ts` pins the two equal.
+ */
+const STRUCTURE_TOTAL_FACT_ID = "meta:ingredient-total";
 
 /** Research axis of one recipe, orthogonal to `RecipeDiscoveryState`. Derived, never stored. */
 export type RecipeResearchState = "NONE" | "PROVISIONAL" | "RESEARCHING" | "DISCOVERED";
@@ -108,7 +114,7 @@ export function isResearchRegistrable(recipe: Recipe, inputs: Pick<ResearchInput
 
 function structureTotal(recipe: Recipe, facts: ResearchInputs["discoveryHintFacts"]): number | null {
   const stored = facts && Object.prototype.hasOwnProperty.call(facts, recipe.id) ? facts[recipe.id] : undefined;
-  return Array.isArray(stored) && stored.includes(INGREDIENT_TOTAL_FACT_ID) ? distinctIngredientIds(recipe).length : null;
+  return Array.isArray(stored) && stored.includes(STRUCTURE_TOTAL_FACT_ID) ? distinctIngredientIds(recipe).length : null;
 }
 
 function hasBoughtFacts(recipe: Recipe, facts: ResearchInputs["discoveryHintFacts"]): boolean {

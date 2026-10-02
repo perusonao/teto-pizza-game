@@ -95,6 +95,12 @@ describe("unlock exact fact (no attempt input)", () => {
 });
 
 describe("STRUCTURE privacy", () => {
+  it("reads the same stored fact id as the Deduction Hint layer", () => {
+    const e = deriveResearchEntries(inputs(owned("pesto", "fresh-tomato", "chicken"), { discoveryHintFacts: { "pesto-pollo": [INGREDIENT_TOTAL_FACT_ID] } }));
+    expect(e.entries.find((x) => x.recipeId === "pesto-pollo")!.totalIngredientCount).toBe(4);
+    expect(INGREDIENT_TOTAL_FACT_ID).toBe("meta:ingredient-total");
+  });
+
   const o = owned("pesto", "fresh-tomato", "chicken");
   const entry = (facts?: Record<string, string[]>) =>
     deriveResearchEntries(inputs(o, { discoveryHintFacts: facts })).entries.find((e) => e.recipeId === "pesto-pollo")!;
