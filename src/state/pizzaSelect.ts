@@ -179,11 +179,12 @@ export interface PizzaSelectChapter {
   cards: readonly DiscoveredRecipeCard[];
 }
 
-/** The one anonymous prompt card (L1): where to go to find the next pizza. */
+/** The one anonymous prompt card (L1): where to go to find the next pizza. Carries `kind` only --
+ *  never a candidate count (only whether any exists is decided, in `buildPizzaSelectView`). */
 export type PizzaSelectPrompt =
   | { kind: "FIRST_DISCOVERY" }
-  | { kind: "DISCOVERABLE"; count: number }
-  | { kind: "SHOP"; count: number }
+  | { kind: "DISCOVERABLE" }
+  | { kind: "SHOP" }
   | null;
 
 export interface PizzaSelectView {
@@ -201,9 +202,9 @@ export function buildPizzaSelectView(
     counts.DISCOVERED === 0
       ? { kind: "FIRST_DISCOVERY" }
       : counts.DISCOVERABLE > 0
-        ? { kind: "DISCOVERABLE", count: counts.DISCOVERABLE }
+        ? { kind: "DISCOVERABLE" }
         : counts.KNOWN_BUT_MISSING_MATERIAL > 0
-          ? { kind: "SHOP", count: counts.KNOWN_BUT_MISSING_MATERIAL }
+          ? { kind: "SHOP" }
           : null;
   const chapters = buildRecipeChapters(recipes).map((c): PizzaSelectChapter => {
     const cards = c.recipes.flatMap((recipe): DiscoveredRecipeCard[] => {
