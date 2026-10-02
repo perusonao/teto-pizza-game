@@ -14,6 +14,7 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
+import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
 import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
@@ -38,7 +39,9 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
-import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchTargetView } from "../state/discoveryHint";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView, researchTargetView } from "../state/discoveryHint";
+import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
+import { newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
@@ -173,6 +176,9 @@ interface GameScreenProps {
   /** Progression 2.0 W1-d: the Discovery Result's 「📖 図鑑を見る」 (on the Dex-registration row)
    *  -- opens the App-level Dex overlay on top of this screen. Optional: no CTA without it. */
   onOpenDex?: () => void;
+  /** #346 S4: the post-discovery 「🔎 次のピザを研究する」 -- starts the one remaining Research Entry
+   *  (`recipeId`) or, with `null`, opens the Dex's anonymous Research cards. */
+  onResearchNext?: (recipeId: string | null) => void;
   onMissionServeNext: () => void;
   /** Issue #212 (H-R): 「この注文をスキップ」 on a short Lunch Rush order. */
   onMissionSkipOrder: () => void;
@@ -248,6 +254,7 @@ export function GameScreen({
   onBackToPizzaSelect,
   onOpenShop,
   onOpenDex,
+  onResearchNext,
   onMissionServeNext,
   onMissionSkipOrder,
   onMissionStart,
@@ -277,7 +284,14 @@ export function GameScreen({
   // Discovery Hint 2.0 (229-B): the sheet's open state is reducer-owned; closing it hands focus
   // back to the 「ヒント」 button that opened it.
   const hintSheetOpen = isHintSheetVisible(state);
+  // The one read-only relay of the session notebook's display view (Hint sheet + the Research RESULT's sheet).
+  const notebookRows = notebookView(state.trialNotebook);
   const researchView = state.freeCook ? researchTargetView(state) : null;
+  // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
+  const researchResult = state.freeCook ? researchResultView(state) : null;
+  // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
+  const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
+  const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
   const hintButtonRef = useRef<HTMLButtonElement>(null);
   const wasHintSheetOpenRef = useRef(hintSheetOpen);
   const hintToPantryRef = useRef(false);
@@ -942,7 +956,7 @@ export function GameScreen({
               onUnlock={onUnlockHint}
               onBuySelectable={onBuySelectableHint}
               onBuyHint5={onBuyHint5Rung}
-              notebook={notebookView(state.trialNotebook)}
+              notebook={notebookRows}
               pantry={hintPantryAccess}
               onClose={onCloseHint}
             />
@@ -1014,10 +1028,35 @@ export function GameScreen({
           onBackToPizzaSelect={onBackToPizzaSelect}
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
+          // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)
           nearMiss={resultNearMiss(state)}
+          researchLabelJa={researchResult?.label ?? null}
+          onOpenAttemptLog={() => setResultNotebookOpen(true)}
+          attemptLogEntryRef={resultNotebookEntryRef}
+          postDiscovery={
+            state.freeCook && state.lastDiscovery?.kind === "NEW_DISCOVERY"
+              ? postDiscoveryPrimary({
+                  researchableEntryIds: researchableEntryIds(state),
+                  newMaterialAvailable: newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds) > 0,
+                })
+              : null
+          }
+          onResearchNext={onResearchNext}
           executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
+        />
+      )}
+
+      {isFreeResultScreen && resultNotebookOpen && researchResult && (
+        <TrialNotebookSheet
+          entries={notebookRows}
+          backLabel="結果にもどる"
+          researchLabelJa={researchResult.label}
+          onBack={() => {
+            setResultNotebookOpen(false);
+            queueMicrotask(() => resultNotebookEntryRef.current?.focus());
+          }}
         />
       )}
 

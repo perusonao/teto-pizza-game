@@ -3,9 +3,10 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * Discovery 3.0 PR-4b-A (D-1 / D-2 / D-3): a save where several undiscovered recipes are DISCOVERABLE
  * at once (the Dex 11 ladder save plus onions / garlic, which open fugazza and marinara beside
- * capricciosa). The Dex shows ONE aggregated unknown, no 「💡 ヒントを見る」, no number; its CTA starts
- * Free Cooking, whose hint sheet picks no recipe and sells nothing. No horizontal overflow at the
- * two iPhone widths.
+ * capricciosa). #346 S4: every one of them is a registered Research Entry (its own anonymous card), so the
+ * Dex no longer adds the old aggregate card; the slots stay plain unknowns, there is no 「💡 ヒントを見る」
+ * and no number. HOME's Free Cooking (no Research Target) still gets a hint sheet that picks no recipe and
+ * sells nothing. No horizontal overflow at the two iPhone widths.
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
@@ -38,25 +39,28 @@ async function open(page: Page) {
   await page.waitForSelector(".app-frame");
 }
 
-test.describe("Dex aggregated unknown (pool 2+)", () => {
-  test("one aggregated card, no per-card hint, no overflow; Free Cooking's sheet chooses nothing", async ({ page }, testInfo) => {
+test.describe("Dex with several Research Entries (pool 2+)", () => {
+  test("no aggregate card, research cards only, no per-card hint, no overflow; Free Cooking's sheet chooses nothing", async ({ page }, testInfo) => {
     await open(page);
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    const aggregated = page.locator("[data-dex-aggregated]");
-    await expect(aggregated).toHaveCount(1);
-    await aggregated.scrollIntoViewIfNeeded();
-    await expect(aggregated).toContainText("まだ発見できるピザがあるよ");
-    await expect(aggregated).not.toContainText(/[0-9]/);
+    await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
+    const research = page.locator(".dex-overlay__research");
+    await research.scrollIntoViewIfNeeded();
+    expect(await research.locator(".dex-research-card").count()).toBeGreaterThanOrEqual(2);
+    expect(await research.locator(".dex-research-card h3").allTextContents()).toEqual(
+      expect.arrayContaining(["？？？ピザ ①", "？？？ピザ ②"]),
+    );
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
     const dir = process.env.HV_SCREENSHOT_DIR;
-    if (dir) await page.screenshot({ path: `${dir}/dex-aggregated-${testInfo.project.name}.png` });
+    if (dir) await page.screenshot({ path: `${dir}/dex-research-only-${testInfo.project.name}.png` });
 
-    await aggregated.getByRole("button", { name: "フリークッキングで探す" }).click();
+    await page.getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
+    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toContainText("まだ発見できるピザがあるよ");

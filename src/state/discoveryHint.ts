@@ -680,3 +680,24 @@ export function researchTargetView(state: DiscoveryHintState): ResearchEntryView
   if (!isValidResearchTarget(state, state.researchTargetId)) return null;
   return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
 }
+
+/** Discovery 3.0 (#346 S4): the registered Research Entries that can be researched right now (cookable =
+ *  DISCOVERABLE), in S1's anonymous order. Opaque ids for wiring only -- the post-discovery CTA reads
+ *  "is there one" and, for exactly one, starts it; no count is ever rendered. */
+export function researchableEntryIds(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+): string[] {
+  const cookable = new Set(discoverableHintCandidates(state).map((r) => r.id as string));
+  return deriveResearchEntries(state)
+    .entries.map((e) => e.recipeId)
+    .filter((id) => cookable.has(id));
+}
+
+/** #346 S4: the Research Target's view for the RESULT of the round that just finished. Unlike
+ *  `researchTargetView` it does not require the target to still be cookable: a trial that used up the last unit
+ *  of a finite ingredient is still a research attempt (entries are ownership-derived, never stock-derived). Null
+ *  once the target is discovered or was never a registered entry. */
+export function researchResultView(state: DiscoveryHintState): ResearchEntryView | null {
+  if (!state.researchTargetId) return null;
+  return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
+}

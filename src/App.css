@@ -6801,3 +6801,32 @@ p.hint-sheet__step {
   color: #9a7b58;
   text-align: center;
 }
+
+/* ---------- Discovery 3.0 S4: Research ORIGINAL result + post-discovery primary CTA ---------- */
+.result-panel__research-context {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+  text-align: center;
+}
+
+.result-panel__research-actions {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dex-registration-row__cta--primary {
+  background: #ffe7b0;
+  border-color: #c98a2b;
+}
+
+.trial-notebook__research {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+}

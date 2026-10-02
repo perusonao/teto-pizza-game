@@ -86,7 +86,7 @@ describe("production pool 2 at the onion step", () => {
     expect(Object.keys(view)).toEqual(["kind"]); // no candidate id / name / count can ride along
   });
 
-  it("D-2: the Dex shows ONE aggregated unknown, with no count, name, identity, slot number or hint entrance", () => {
+  it("D-2 / S4: the Dex shows no aggregate card (both are Research Entries), with no count, name, identity, slot number or hint entrance", () => {
     const onShowHint = vi.fn();
     render(
       <DexOverlay
@@ -102,9 +102,9 @@ describe("production pool 2 at the onion step", () => {
         onShowHint={onShowHint}
       />,
     );
-    const aggregated = document.querySelectorAll("[data-dex-aggregated]");
-    expect(aggregated).toHaveLength(1);
-    expect(aggregated[0].textContent).not.toMatch(/[0-9０-９]/);
+    expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
+    const research = document.querySelector(".dex-overlay__research") as HTMLElement;
+    expect(research.textContent).not.toMatch(/[0-9０-９]/); // ①② are circled numerals, not digits
     expect(document.querySelectorAll('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveLength(0);
     expect(document.querySelectorAll(".dex-card__tag-cta--hint")).toHaveLength(0);
     const text = [...document.querySelectorAll(".dex-card--locked")].map((c) => c.textContent ?? "").join("|");

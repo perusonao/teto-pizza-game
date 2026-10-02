@@ -13,6 +13,7 @@ import { getIngredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
 import type { ResultNearMissLine } from "../state/resultNearMiss";
+import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -121,9 +122,25 @@ interface ResultPanelProps {
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
+  /** #346 S4: the valid Research Target's anonymous label (「？？？ピザ ①」), or `null`/omitted without one. Only
+   *  with it does an ORIGINAL result use the Research copy, 「📓 試作ノート」 and the retry wording; the label is
+   *  never a recipe name or id. */
+  researchLabelJa?: string | null;
+  /** #346 S4: opens the 「📓 試作ノート」 sheet (GameScreen owns it) from the Research ORIGINAL result. */
+  onOpenAttemptLog?: () => void;
+  /** Ref for that button, so GameScreen can hand focus back when the sheet closes. */
+  attemptLogEntryRef?: React.Ref<HTMLButtonElement>;
+  /** #346 S4 / OD-RX-4: the state-aware primary CTA of a NEW_DISCOVERY result. Omitted = the plain Dex link. */
+  postDiscovery?: PostDiscoveryPrimary | null;
+  /** 「🔎 次のピザを研究する」: the entry id when exactly one is left (start it), else `null` (back to the Dex's
+   *  anonymous Research cards). */
+  onResearchNext?: (recipeId: string | null) => void;
 }
 
 const MAX_STARS = 5;
+
+/** #346 S4: the Research ORIGINAL lead. One string for every original kind; says only that no new recipe was found. */
+export const RESEARCH_ORIGINAL_LEAD_COPY = "まだ新しいレシピは見つかっていません";
 
 const BAKE_STATE_ICON: Record<BakeState, string> = {
   raw: "\u{1F4A7}",
@@ -182,11 +199,18 @@ export function ResultPanel({
   onBackToPizzaSelect,
   dexRegistration = null,
   onOpenDex,
-  nearMiss = null,
+  nearMiss: nearMissLine = null,
   trialNoticeNumber = null,
   executionAdviceJa = null,
   onShowHint,
+  researchLabelJa = null,
+  onOpenAttemptLog,
+  attemptLogEntryRef,
+  postDiscovery = null,
+  onResearchNext,
 }: ResultPanelProps) {
+  // #346 S4: with a valid Research Target no near/far line is ever shown (Research ORIGINAL contract).
+  const nearMiss = researchLabelJa !== null ? null : nearMissLine;
   // 229-C: a secondary row under the result itself -- the line (if any) and the hint CTA.
   const hintRow = (line: ResultNearMissLine | null, withCta: boolean) =>
     line || (withCta && onShowHint) ? (
@@ -259,14 +283,22 @@ export function ResultPanel({
     const leadJa = ORIGINAL_LEAD_COPY[originalResultKind(discovery)];
     // P3-3b: a static paragraph (no live region: the P2 line above already announces the result).
     const trialNoticeText = duplicateTrialNoticeJa(trialNoticeNumber);
+    // #346 S4: with a valid Research Target the card is the Research ORIGINAL contract. The wording is one
+    // fixed string for every original kind (ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH): no right/wrong, no count.
+    const research = freeCook && researchLabelJa !== null;
     return (
       <div className="result-panel result-panel--original">
         <p className="result-panel__heading result-panel__heading--original">
-          {"\u{1F3A8}"} オリジナルピザ完成！
+          {research ? "\u{1F9EA} オリジナルピザ" : "\u{1F3A8} オリジナルピザ完成！"}
         </p>
+        {research && (
+          <p className="result-panel__research-context" data-research-context="">
+            {"\u{1F50E}"} 研究中 {researchLabelJa}
+          </p>
+        )}
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
-            {leadJa}
+            {research ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
           </p>
           {usedIngredientIds.length > 0 && (
             <ul className="original-pizza__ingredients" aria-label="使った材料">
@@ -300,7 +332,31 @@ export function ResultPanel({
         <p className="original-pizza__note">
           図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。
         </p>
-        {actions}
+        {research ? (
+          <div className="action-row action-row--column result-panel__actions">
+            <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
+              もう一度試す
+            </button>
+            <div className="result-panel__research-actions">
+              {onOpenAttemptLog && (
+                <button
+                  ref={attemptLogEntryRef}
+                  type="button"
+                  className="result-near-miss__cta"
+                  aria-haspopup="dialog"
+                  onClick={onOpenAttemptLog}
+                >
+                  {"\u{1F4D3}"} 試作ノート
+                </button>
+              )}
+            </div>
+            <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
+              レシピを選んで作る
+            </button>
+          </div>
+        ) : (
+          actions
+        )}
       </div>
     );
   }
@@ -344,10 +400,24 @@ export function ResultPanel({
                 </span>
               )}
             </p>
-            {onOpenDex && (
-              <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
-                {"\u{1F4D6}"} 図鑑を見る
+            {postDiscovery?.kind === "RESEARCH_NEXT" && onResearchNext ? (
+              <button
+                type="button"
+                className="dex-registration-row__cta dex-registration-row__cta--primary"
+                onClick={() => onResearchNext(postDiscovery.directResearchId)}
+              >
+                {postDiscovery.labelJa}
               </button>
+            ) : postDiscovery?.kind === "SHOP_NEW_MATERIAL" && onOpenShop ? (
+              <button type="button" className="dex-registration-row__cta dex-registration-row__cta--primary" onClick={onOpenShop}>
+                {postDiscovery.labelJa}
+              </button>
+            ) : (
+              onOpenDex && (
+                <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
+                  {"\u{1F4D6}"} 図鑑を見る
+                </button>
+              )
             )}
           </div>
         </>

@@ -74,7 +74,20 @@ function DiffBlock({ diff }: { diff: TrialDiff }) {
   );
 }
 
-export function TrialNotebookSheet({ entries, onBack }: { entries: readonly TrialEntryView[]; onBack: () => void }) {
+export function TrialNotebookSheet({
+  entries,
+  onBack,
+  backLabel = NOTEBOOK_COPY.back,
+  researchLabelJa = null,
+}: {
+  entries: readonly TrialEntryView[];
+  onBack: () => void;
+  /** Where 「もどる」 leads: the Hint sheet (default) or the RESULT. */
+  backLabel?: string;
+  /** #346 S4: the current Research Target's anonymous label (「？？？ピザ ①」), shown once as a header band for
+   *  the whole notebook. Never per row: a row carries no target (the notebook has no recipe field). */
+  researchLabelJa?: string | null;
+}) {
   const titleId = useId();
   const backRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -109,9 +122,14 @@ export function TrialNotebookSheet({ entries, onBack }: { entries: readonly Tria
             {NOTEBOOK_COPY.title}
           </h2>
           <button ref={backRef} type="button" className="hint-sheet__close trial-notebook__back" onClick={onBack}>
-            {"\u{2190}"} {NOTEBOOK_COPY.back}
+            {"\u{2190}"} {backLabel}
           </button>
         </div>
+        {researchLabelJa && (
+          <p className="trial-notebook__research" data-trial-research="">
+            {NOTEBOOK_COPY.researchContext}：{"\u{1F50E}"} {researchLabelJa}
+          </p>
+        )}
         {entries.length === 0 ? (
           <div className="trial-notebook__empty" data-trial-notebook-empty="">
             <p className="trial-notebook__empty-title">{NOTEBOOK_COPY.empty}</p>
