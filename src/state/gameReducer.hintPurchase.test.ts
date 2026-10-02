@@ -236,12 +236,16 @@ describe("Dex-pinned target uses the same authority", () => {
   const pinSticky = (base: GameState, id: string): GameState =>
     act({ ...base, hintSession: { targetId: id, revealedIndex: 0, fromDex: true } }, { type: "SHOW_HINT", pinnedRecipeId: id });
 
-  it("PR-4b-A: with several DISCOVERABLE recipes a fresh Dex pin does not pick a target (no per-candidate entry)", () => {
+  it("#353: with several registered Research Entries nothing is chosen for the player, but a Dex pin is the player's own choice", () => {
     const base = legacy(100);
     expect(discoverableHintCandidates(base).length).toBeGreaterThan(1);
-    const s = act(base, { type: "SHOW_HINT", pinnedRecipeId: discoverableHintCandidates(base)[1].id });
-    expect(s.hintSession).toBeNull();
-    expect(hintSheetView(s)).toEqual({ kind: "OPEN_POOL" });
+    const none = act(base, { type: "SHOW_HINT" });
+    expect(none.hintSession).toBeNull();
+    expect(hintSheetView(none)).toEqual({ kind: "CHOOSE_RESEARCH" });
+    const pin = discoverableHintCandidates(base)[1].id;
+    const s = act(base, { type: "SHOW_HINT", pinnedRecipeId: pin });
+    expect(s.hintSession).toMatchObject({ targetId: pin, fromDex: true });
+    expect(hintSheetView(s).kind).toBe("SELECTABLE");
   });
 
   it("buying on a pinned card charges that recipe's ledger entry only", () => {
@@ -257,16 +261,23 @@ describe("Dex-pinned target uses the same authority", () => {
     const base = legacy(100);
     const pinned = discoverableHintCandidates(base)[1];
     const bought = act(buyFact(pinSticky(base, pinned.id)), { type: "CLOSE_HINT" });
-    const reopened = act({ ...bought, hintSession: { targetId: pinned.id, revealedIndex: 0 } }, { type: "SHOW_HINT" });
+    // The session the player's own Dex pin made stays (an explicit choice); a bare reopen does not re-pick it (#353).
+    const reopened = act({ ...bought, hintSession: { targetId: pinned.id, revealedIndex: 0, fromDex: true } }, { type: "SHOW_HINT" });
     expect(reopened.hintSession?.targetId).toBe(pinned.id);
+    expect(act({ ...bought, hintSession: { targetId: pinned.id, revealedIndex: 0 } }, { type: "SHOW_HINT" }).hintSession).toBeNull();
   });
 
-  it("HE-UI-4: after a reload (no session) a purchased, still-DISCOVERABLE recipe is the target again", () => {
+  it("#353 (was HE-UI-4): after a reload (no session) bought facts are kept but never re-pick their recipe; the player's pin does", () => {
     const base = legacy(100);
     const [auto, second] = discoverableHintCandidates(base);
     const bought = act(buyFact(buyFact(pinSticky(base, second.id))), { type: "CLOSE_HINT" });
     // A reload: the ledger comes back from the save, the session does not.
-    const reloaded = act({ ...bought, hintSession: null }, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    const reopened = act({ ...bought, hintSession: null }, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    expect(reopened.hintSession).toBeNull();
+    expect(hintSheetView(reopened)).toEqual({ kind: "CHOOSE_RESEARCH" });
+    expect(reopened.discoveryHintFacts[second.id]).toHaveLength(2);
+    expect(reopened.pitzBalance).toBe(85);
+    const reloaded = act({ ...bought, hintSession: null }, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: second.id });
     expect(reloaded.hintSession?.targetId).toBe(second.id);
     expect(reloaded.hintSession?.targetId).not.toBe(auto.id);
     const view = hintSheetView(reloaded);
@@ -274,12 +285,12 @@ describe("Dex-pinned target uses the same authority", () => {
     expect(reloaded.pitzBalance).toBe(85);
   });
 
-  it("PR-4b-A (D-3): at a pool > 1 a pin of another recipe never moves a paid target", () => {
+  it("#353 (was PR-4b-A D-3): a pin of another recipe is the player's choice and moves the target; bought facts stay saved", () => {
     const base = legacy(100);
     const [auto, second] = discoverableHintCandidates(base);
     const bought = act(buyFact(pinSticky(base, second.id)), { type: "CLOSE_HINT" });
     const pinnedAuto = act({ ...bought, hintSession: null }, { type: "SHOW_HINT", pinnedRecipeId: auto.id });
-    expect(pinnedAuto.hintSession?.targetId).toBe(second.id);
+    expect(pinnedAuto.hintSession?.targetId).toBe(auto.id);
     expect(Object.keys(pinnedAuto.discoveryHintFacts)).toEqual([second.id]);
   });
 

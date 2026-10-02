@@ -77,15 +77,34 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const sheet = screen.getByRole("dialog", { name: /ヒント/ });
-    expect(sheet).toHaveTextContent("まだ発見できるピザがあるよ");
+    // #353: 2+ registered Research Entries and no target: the sheet only asks the player to choose one.
+    expect(sheet).toHaveTextContent("研究するピザを選ぼう");
     // No target: no purchase entrance at all, and nothing about which recipe or how many.
     expect(within(sheet).queryByRole("button", { name: "ヒントをもらう" })).toBeNull();
     expect(sheet.querySelector(".hint-sheet__next")).toBeNull();
     expect(sheet.textContent).not.toMatch(/\d/);
-    expectNoUndiscoveredName("Free Cooking + OPEN_POOL sheet");
+    expectNoUndiscoveredName("Free Cooking + CHOOSE_RESEARCH sheet");
     await user.click(within(sheet).getByRole("button", { name: "閉じる" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+  });
+
+  it("#353: 「研究するピザを選ぶ」 leads to the Dex's Research cards; choosing one starts its research and shows its Hint sheet", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    seedLegacyDex15();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    const sheet = screen.getByRole("dialog", { name: /ヒント/ });
+    expect(sheet.getAttribute("data-hint-kind")).toBe("CHOOSE_RESEARCH");
+    await user.click(within(sheet).getByRole("button", { name: /研究するピザを選ぶ/ }));
+    expect(screen.queryByRole("dialog", { name: /ヒント/ })).toBeNull();
+    expect(document.querySelector(".dex-overlay")).toBeInTheDocument();
+    await user.click(screen.getAllByRole("button", { name: /ピザ.*を研究する/ })[0]);
+    expect(document.querySelector(".dex-overlay")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    expect(screen.getByRole("dialog", { name: /ヒント/ }).getAttribute("data-hint-kind")).toBe("SELECTABLE");
   });
 
   it("LK-8: after the HOME Free Cooking route, HOME -> Pizza Select still lists no undiscovered recipe", async () => {

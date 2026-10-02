@@ -133,7 +133,7 @@ test("B. Step 12 multiple: pick ② -> only it is the Hint subject, the other st
   await shot(page, "06-hint-multi");
 });
 
-test("D. no Research Target: plain Free Cooking keeps the OPEN_POOL hint (no ladder, no research context)", async ({ page }) => {
+test("D. no Research Target (2 entries): plain Free Cooking asks to choose a research target (#353; no ladder, no research context)", async ({ page }) => {
   const { json } = save(12);
   await open(page, json);
   await page.getByRole("button", { name: /レシピ発見/ }).first().click();
@@ -143,6 +143,7 @@ test("D. no Research Target: plain Free Cooking keeps the OPEN_POOL hint (no lad
   const dialog = page.getByRole("dialog", { name: /ヒント/ });
   await expect(dialog).toBeVisible();
   await expect(dialog).not.toHaveAttribute("data-hint-ladder", "hint5");
+  await expect(dialog).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
 });
 
 test("E. a bought rung survives a reload and shows on the research card (discoveryHintFacts only)", async ({ page }) => {

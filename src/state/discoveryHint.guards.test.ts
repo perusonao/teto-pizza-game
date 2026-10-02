@@ -81,7 +81,7 @@ describe("anti-leak: the pool size never reaches the target or the sheet", () =>
     expect(new Set(sizes).size).toBeGreaterThan(1);
     for (const s of states) {
       expect(selectHintTarget(s)).toEqual({ kind: "OPEN_POOL" });
-      expect(hintSheetView(s, false)).toEqual({ kind: "OPEN_POOL" });
+      expect(hintSheetView(s, false)).toEqual({ kind: "CHOOSE_RESEARCH" });
       expect(resolveHintSession(s)).toBeNull();
     }
   });
@@ -106,7 +106,8 @@ describe("OD-4b-A-3: Dex-0 migration save with pool > 1 (recorded spec, no Margh
     expect(discoverableHintCandidates(dex0).length).toBeGreaterThan(1);
     expect(selectHintTarget(dex0)).toEqual({ kind: "OPEN_POOL" });
     expect(resolveHintSession(dex0)).toBeNull();
-    expect(hintSheetView(dex0, false)).toEqual({ kind: "OPEN_POOL" });
+    // #353: these are 2+ registered Research Entries with no target, so the sheet only offers to choose one.
+    expect(hintSheetView(dex0, false)).toEqual({ kind: "CHOOSE_RESEARCH" });
     expect(unlockNextHint({ ...dex0, hintSession: { targetId: "margherita", revealedIndex: 0 } }, 1)).toBeNull();
   });
 

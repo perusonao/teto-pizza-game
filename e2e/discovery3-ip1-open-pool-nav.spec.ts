@@ -82,7 +82,7 @@ test.describe("Discovery 3.0 IP-1 (OPEN_POOL -> 試作ノート / 食材庫)", (
 
     // DOUGH: the sheet explains the pantry as copy only -- a pantry button here would open nothing.
     await hintButton(page).click();
-    await expect(hintSheet(page)).toHaveAttribute("data-hint-kind", "OPEN_POOL");
+    await expect(hintSheet(page)).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
     await expect(hintSheet(page).getByRole("button", { name: /食材庫/ })).toHaveCount(0);
     await expect(hintSheet(page)).toContainText("食材庫");
     await expectInsideViewport(page, hintSheet(page));
@@ -101,8 +101,8 @@ test.describe("Discovery 3.0 IP-1 (OPEN_POOL -> 試作ノート / 食材庫)", (
     // Hint -> OPEN_POOL with both next actions.
     await hintButton(page).click();
     const sheet = hintSheet(page);
-    await expect(sheet).toHaveAttribute("data-hint-kind", "OPEN_POOL");
-    await expect(sheet).toContainText("まだ発見できるピザがあるよ");
+    await expect(sheet).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
+    await expect(sheet).toContainText("研究するピザを選ぼう");
     await expect(sheet.getByRole("button", { name: /試作ノートを見る/ })).toBeVisible();
     await expect(sheet.getByRole("button", { name: "🧺 食材庫で材料を探す" })).toBeVisible();
     await expectInsideViewport(page, sheet);

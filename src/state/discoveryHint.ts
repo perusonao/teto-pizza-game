@@ -178,6 +178,11 @@ export type HintSheetView =
       /** DH4-2B: `null` when the flag is off (on in every build since OD-DH4-PROD-1). */
       deduction: DeductionSheetView | null;
     }
+  | {
+      /** #353: 2+ registered Research Entries and no Research Target. Names no recipe, count or fact: the sheet only
+       *  offers the way to the Dex's anonymous Research cards. */
+      kind: "CHOOSE_RESEARCH";
+    }
   | { kind: HintEmptyKind };
 
 /** The step the Dex-0 escalation alone would show: 1 failed try -> sauce + count/cheese,
@@ -204,6 +209,14 @@ function stepsFor(targetId: string, dex: DexState): HintStep[] {
  *  automatic target. Picking the recipe that already has a session keeps its progress; any other
  *  recipe starts at H0 (one session at a time, no per-recipe history). */
 export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: string | null): HintSession | null {
+  // #353 (Owner Option B): with 2+ registered Research Entries and no valid Research Target, the system never picks a
+  // recipe for the player: not by the legacy sticky / purchase rules below, not as a lone candidate. Only the
+  // player's own explicit Dex choice counts -- a Dex card's pin, or the session that pin made (`fromDex`).
+  const choice = needsResearchTargetChoice(state);
+  const explicitId = choice
+    ? [pinnedRecipeId, state.hintSession?.fromDex ? state.hintSession.targetId : null].find((id) => isValidResearchTarget(state, id)) ?? null
+    : null;
+  if (choice && !explicitId) return null;
   const current = state.hintSession;
   const sessionSticky =
     current && (current.revealedIndex >= 1 || current.fromDex || hasBoughtHints(state, current.targetId)) ? current.targetId : null;
@@ -216,13 +229,28 @@ export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: s
     [sessionSticky, candidates.find((r) => hasBoughtHints(state, r.id))?.id].find(
       (id) => !!id && candidates.some((r) => r.id === id),
     ) ?? null;
-  const target = selectHintTarget(state, { pinnedRecipeId, stickyRecipeId, researchTargetId: state.researchTargetId });
+  const target = choice
+    ? selectHintTarget(state, { pinnedRecipeId: explicitId, stickyRecipeId: explicitId, researchTargetId: state.researchTargetId })
+    : selectHintTarget(state, { pinnedRecipeId, stickyRecipeId, researchTargetId: state.researchTargetId });
   if (target.kind !== "TARGET") return null;
   const fromDex = target.source === "dex" || (current?.targetId === target.recipeId && !!current.fromDex);
   if (current && current.targetId === target.recipeId) {
     return fromDex === !!current.fromDex ? current : { ...current, fromDex: true };
   }
   return fromDex ? { targetId: target.recipeId, revealedIndex: 0, fromDex: true } : { targetId: target.recipeId, revealedIndex: 0 };
+}
+
+/**
+ * #353 (Owner Option B): true when the system may not pick a recipe-specific Hint subject for the player (the
+ * player's explicit Dex choice, a pin or the session it made, is still honoured by `resolveHintSession`): 2 or more REGISTERED Research Entries (ownership-derived, so an entry with stock 0 still counts; never the
+ * cookable count) and no valid Research Target. It reads no purchase and no session: saved Hint facts neither cause
+ * nor lift it, and nothing about the recipes' contents. One entry (or none) is unchanged.
+ */
+export function needsResearchTargetChoice(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts" | "researchTargetId">,
+): boolean {
+  if (deriveResearchEntries(state).entries.length < 2) return false;
+  return !isValidResearchTarget(state, state.researchTargetId);
 }
 
 /** H3-3: the player paid for something on `recipeId` -- a legacy level or a Hint 3.0 fact. */
@@ -568,6 +596,8 @@ export function hint5LadderActive(state: DiscoveryHintState, enabled: boolean = 
 }
 
 export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boolean = DEDUCTION_HINTS_ENABLED): HintSheetView {
+  // #353: checked before the session, so a session carried from an earlier round cannot show a recipe either.
+  if (needsResearchTargetChoice(state) && !resolveHintSession(state)) return { kind: "CHOOSE_RESEARCH" };
   const session = state.hintSession;
   const steps = session ? stepsFor(session.targetId, state.dex) : [];
   if (!session || steps.length === 0) {

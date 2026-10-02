@@ -7,3 +7,11 @@ export const OPEN_POOL_ACTIONS = {
   pantryLater: "\u{1F9FA} 生地のあと、材料をえらぶ画面で「食材庫」から材料をさがせるよ。",
   pantryButton: "\u{1F9FA} 食材庫で材料を探す",
 } as const;
+
+/** #353: the sheet shown with 2+ registered Research Entries and no Research Target. Fixed copy: it names no recipe, count,
+ *  ingredient or fact; the player picks one of the Dex's anonymous Research cards. */
+export const CHOOSE_RESEARCH_COPY = {
+  title: "\u{1F50E} 研究するピザを選ぼう",
+  body: "図鑑の「研究中のピザ」から、研究するピザを選ぶと、そのピザのヒントが見られるよ。",
+  button: "\u{1F50E} 研究するピザを選ぶ",
+} as const;

@@ -958,6 +958,14 @@ export function GameScreen({
               onBuyHint5={onBuyHint5Rung}
               notebook={notebookRows}
               pantry={hintPantryAccess}
+              onChooseResearch={
+                onOpenDex
+                  ? () => {
+                      onCloseHint();
+                      onOpenDex();
+                    }
+                  : undefined
+              }
               onClose={onCloseHint}
             />
           )}

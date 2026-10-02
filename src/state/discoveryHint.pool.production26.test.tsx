@@ -79,10 +79,11 @@ describe("production pool 2 at the onion step", () => {
   it("D-1: the sheet names no recipe, opens no session, and offers no per-candidate hint", () => {
     const s = hintState(w);
     expect(resolveHintSession(s)).toBeNull();
-    expect(resolveHintSession(s, A)).toBeNull();
-    expect(resolveHintSession(s, B)).toBeNull();
+    // #353: without a choice nothing is picked; a Dex pin of a registered entry is the player's own choice.
+    expect(resolveHintSession(s, A)).toMatchObject({ targetId: A, fromDex: true });
+    expect(resolveHintSession(s, B)).toMatchObject({ targetId: B, fromDex: true });
     const view = hintSheetView(s);
-    expect(view).toEqual({ kind: "OPEN_POOL" });
+    expect(view).toEqual({ kind: "CHOOSE_RESEARCH" }); // #353: both are registered Research Entries
     expect(Object.keys(view)).toEqual(["kind"]); // no candidate id / name / count can ride along
   });
 

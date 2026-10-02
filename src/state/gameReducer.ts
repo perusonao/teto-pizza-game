@@ -95,6 +95,7 @@ import {
   requestHint5RungFact,
   resolveHintSession,
   isValidResearchTarget,
+  needsResearchTargetChoice,
   unlockNextHint,
   type DeductionFamily,
   type HintOutcome,
@@ -1482,17 +1483,17 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       );
     }
 
-    case "START_FREE_COOK":
+    case "START_FREE_COOK": {
       // #346 S3: HOME / Dex-pin starts carry no target (an earlier one is cleared); a Research Entry
       // start keeps its target only while valid. Either way only the Hint subject changes -- never
       // what the matcher accepts.
-      return startFreeCook(
-        {
-          ...carryOf(state),
-          researchTargetId: isValidResearchTarget(state, action.researchTargetId) ? action.researchTargetId! : null,
-        },
-        action.now,
-      );
+      const researchTargetId = isValidResearchTarget(state, action.researchTargetId) ? action.researchTargetId! : null;
+      const carry = { ...carryOf(state), researchTargetId };
+      // #353: a fresh start with 2+ Research Entries and no target drops the carried Hint session, so an earlier
+      // round's pick cannot act as this round's choice. (A retry keeps it: that is the same search.)
+      const dropSession = needsResearchTargetChoice({ ...state, researchTargetId });
+      return startFreeCook(dropSession ? { ...carry, hintSession: null } : carry, action.now);
+    }
 
     // Progression 2.0 Phase 3-2: after a free-cook round (matched or not) "もう一度つくる" means
     // "cook freely again", never "make the recipe the matcher happened to name".
