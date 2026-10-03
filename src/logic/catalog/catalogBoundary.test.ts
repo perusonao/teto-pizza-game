@@ -64,7 +64,9 @@ describe("catalog boundary", () => {
         const roundKind = file === "./freeEligibility.ts" && spec === "../../state/roundKind";
         // LC-R5-b: only the runtime source may read the search-only alias table (Owner-approved data, OD-A1).
         const aliasTable = file === "./catalogSource.ts" && spec === "../../data/ingredientSearchAliases";
-        const ok = roundKind || aliasTable || spec.startsWith("./") || (typeOnly ? ALLOWED_TYPE.has(spec) : ALLOWED_VALUE.has(spec));
+        // LC-R6-b: only the policy may read the Preview-only hand variant (a leaf constant with no imports).
+        const previewVariant = file === "./handPolicy.ts" && spec === "../../preview/lcHandPreview";
+        const ok = roundKind || aliasTable || previewVariant || spec.startsWith("./") || (typeOnly ? ALLOWED_TYPE.has(spec) : ALLOWED_VALUE.has(spec));
         if (!ok) violations.push(`${file} -> ${spec}${typeOnly ? " (type)" : ""}`);
       }
     }
@@ -220,7 +222,7 @@ describe("catalog boundary", () => {
       for (const m of strip(text).matchAll(/handEditing=\{([^}]*)\}/g)) passes.push(`${path}:${m[1]}`);
     }
     expect(passes).toEqual(["../../screens/GameScreen.tsx:HAND_ENFORCEMENT_ENABLED"]);
-    expect(strip(CATALOG_SOURCES["./handPolicy.ts"])).toMatch(/export const HAND_ENFORCEMENT_ENABLED = false;/);
+    expect(strip(CATALOG_SOURCES["./handPolicy.ts"])).toMatch(/export const HAND_ENFORCEMENT_PRODUCTION = false;/);
     // App owns the pins; the only writer handed out is the setter itself (no reset on round / HOME / FREE / Dinner).
     const app = strip(ALL_SOURCES["../../App.tsx"]);
     expect(app).toContain("useState<HandSession>(emptyHandSession)");

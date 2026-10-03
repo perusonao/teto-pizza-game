@@ -3,7 +3,9 @@ import { defineConfig, type Plugin } from "vitest/config";
 /**
  * LC-R5-e-h (test-only): the Large Catalog hand ACTIVATION projects.
  *
- * `HAND_ENFORCEMENT_ENABLED` is a module constant that stays `false` in production until R6. Mocking it with
+ * `HAND_ENFORCEMENT_PRODUCTION` (the production switch behind `HAND_ENFORCEMENT_ENABLED`) stays `false` until R6-e.
+ * LC-R6-b: the Preview variant (`LC_HAND_PREVIEW_CAPACITY`) is `null` here (and `VITE_PREVIEW_MODE` is unset), so
+ * these projects exercise the PRODUCTION path of the policy with its production literals switched on. Mocking it with
  * `vi.mock` also forces every function of `handPolicy.ts` that reads it (`handCapacityFor`) to be mocked, which
  * hides the real flag / capacity wiring. Instead, these projects compile the REAL `handPolicy.ts` with the flag on
  * and one capacity candidate (9 or 12, both still undecided: R6 Human Feel Gate) and run `*.handOn.test.tsx`
@@ -13,8 +15,8 @@ import { defineConfig, type Plugin } from "vitest/config";
  * `handPolicy.ts` cannot silently turn these suites back into flag-off runs.
  */
 const HAND_POLICY = "/src/logic/catalog/handPolicy.ts";
-const FLAG = /^export const HAND_ENFORCEMENT_ENABLED = (?:false|true);$/m;
-const CAPACITY = /^export const DEFAULT_HAND_CAPACITY_CANDIDATE: HandCapacityCandidate = (?:9|12);$/m;
+const FLAG = /^export const HAND_ENFORCEMENT_PRODUCTION = (?:false|true);$/m;
+const CAPACITY = /^export const DEFAULT_HAND_CAPACITY_PRODUCTION: HandCapacityCandidate = (?:9|12);$/m;
 
 function handActivation(capacity: 9 | 12): Plugin {
   return {
@@ -28,8 +30,8 @@ function handActivation(capacity: 9 | 12): Plugin {
         if (hits !== 1) throw new Error(`[lc-hand-activation-${capacity}] ${pattern} matched ${hits}x in handPolicy.ts (fail closed)`);
       }
       return code
-        .replace(FLAG, "export const HAND_ENFORCEMENT_ENABLED = true;")
-        .replace(CAPACITY, `export const DEFAULT_HAND_CAPACITY_CANDIDATE: HandCapacityCandidate = ${capacity};`);
+        .replace(FLAG, "export const HAND_ENFORCEMENT_PRODUCTION = true;")
+        .replace(CAPACITY, `export const DEFAULT_HAND_CAPACITY_PRODUCTION: HandCapacityCandidate = ${capacity};`);
     },
   };
 }

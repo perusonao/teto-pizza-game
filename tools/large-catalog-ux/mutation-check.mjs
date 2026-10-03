@@ -239,7 +239,7 @@ const MUTANTS = [
     id: "M28",
     what: "capacity enforcement switched on (would hide owned ingredients before the pantry exists)",
     file: `${C}/handPolicy.ts`,
-    edits: [["export const HAND_ENFORCEMENT_ENABLED = false;", "export const HAND_ENFORCEMENT_ENABLED = true;"]],
+    edits: [["export const HAND_ENFORCEMENT_PRODUCTION = false;", "export const HAND_ENFORCEMENT_PRODUCTION = true;"]],
   },
   {
     id: "M29",

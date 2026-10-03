@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_HAND_CAPACITY_CANDIDATE, HAND_ENFORCEMENT_ENABLED, handCapacityFor, isHandCapacityCandidate } from "./handPolicy";
+import { DEFAULT_HAND_CAPACITY_CANDIDATE, HAND_ENFORCEMENT_ENABLED, HAND_PREVIEW_VARIANT, handCapacityFor, isHandCapacityCandidate } from "./handPolicy";
 
 /**
  * LC-R5-e-h (H-2): the hand-on projects (`vitest.config.ts`) compile the REAL `handPolicy.ts` with the flag on and one
@@ -27,7 +27,11 @@ describe("hand-on project: the real handPolicy is compiled ON (no vi.mock)", () 
   });
 
   it("the shipped source is still OFF (the ON value exists only in these test projects)", () => {
-    expect(POLICY_SOURCE).toMatch(/^export const HAND_ENFORCEMENT_ENABLED = false;$/m);
+    expect(POLICY_SOURCE).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = false;$/m);
+  });
+
+  it("the Preview variant is not what turned it on: no variant is in effect in these projects", () => {
+    expect(HAND_PREVIEW_VARIANT).toBeNull();
   });
 
   it("no *.handOn test mocks the hand policy (the flag and capacity function are never mocked together)", () => {
