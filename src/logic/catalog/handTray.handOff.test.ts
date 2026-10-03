@@ -5,9 +5,12 @@ import { HAND_ENFORCEMENT_ENABLED } from "./handPolicy";
 import { emptyHandSession } from "./handSession";
 import { pinFitsHand, resolveTrayHandIds } from "./handTray";
 
-/** LC-R5-d OFF equivalence at the pure layer: with the real (false) flag no round ever gets a tray hand. */
-describe("LC-R5-d: HAND_ENFORCEMENT_ENABLED = false => no tray hand for any round", () => {
-  it("the shipped flag is false", () => expect(HAND_ENFORCEMENT_ENABLED).toBe(false));
+/**
+ * LC-R5-d OFF equivalence at the pure layer, kept as the LC-R6-e ROLLBACK gate: this file runs in the `hand-off` project (the real
+ * `handPolicy.ts` with the production flag literal set back to false). With the flag off no round ever gets a tray hand.
+ */
+describe("LC-R5-d / R6-e rollback: HAND_ENFORCEMENT_ENABLED = false => no tray hand for any round", () => {
+  it("the hand-off project compiles the flag off", () => expect(HAND_ENFORCEMENT_ENABLED).toBe(false));
 
   it("FREE Cooking with 22 toppings, pins and placed ingredients still resolves to null (today's tray)", () => {
     const toppings = INGREDIENTS.filter((i) => i.category === "topping").map((i) => i.id);

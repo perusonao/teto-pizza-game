@@ -7,6 +7,7 @@ import {
   paintSauceRing,
   tapDoughPercent,
 } from "./gestures";
+import { chipOnTrayOrPin } from "./support/handPick";
 import { COOKING_SLOTS, LayoutContract, measureLayout, type SlotSelectors, type StateLabel } from "./support/layoutContract";
 import { compareStable, evaluateInvariants, type InvariantId } from "./support/layoutInvariants";
 import { PROFILES, readViewport, SAFE_AREA_INSET } from "./support/layoutProfiles";
@@ -129,6 +130,13 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
   for (const [x, y] of spots) await tapDoughPercent(page, x, y);
 }
 
+/** LC-R6-e: Production runs the Hand in FREE Cooking, so basil may not be on the 12-ingredient tray; place the first hand topping. */
+async function placeHandTopping(page: Page, spots: [number, number][]) {
+  await goToTrayPage(page, "first");
+  await page.locator(".ingredient-chip:not([disabled])").first().click();
+  for (const [x, y] of spots) await tapDoughPercent(page, x, y);
+}
+
 async function goToTrayPage(page: Page, target: "first" | "last") {
   const label = target === "first" ? "前のページ" : "次のページ";
   for (let i = 0; i < 8; i += 1) {
@@ -200,7 +208,9 @@ test.describe("I5b-5 Layout Contract", () => {
     await cp({ label: "FREE CHEESE", meta: { mode: "FREE", step: "CHEESE" } }, PREPARE_CHECKS);
     await next(page);
 
-    await place(page, /バジル/, [[45, 60], [58, 42]]);
+    // Margherita needs basil, which the 12-ingredient hand may not hold: pin it from the pantry when it is off the tray.
+    await (await chipOnTrayOrPin(page, /バジル/)).click();
+    for (const [x, y] of [[45, 60], [58, 42]] as [number, number][]) await tapDoughPercent(page, x, y);
     await goToTrayPage(page, "first");
     const pages = await trayPageLabel(page);
     expect(pages, "22 toppings need more than one tray page").not.toBe("1/1");
@@ -671,7 +681,7 @@ test.describe("DM-3R-0 Stage Size Stability (LC-S1..LC-S4)", () => {
     await place(page, /モッツァレラ/, [[40, 50], [60, 50]]);
     await s.step("CHEESE", PREPARE_CHECKS);
     await next(page);
-    await place(page, /バジル/, [[45, 60], [58, 42]]);
+    await placeHandTopping(page, [[45, 60], [58, 42]]);
     await goToTrayPage(page, "first");
     expect(await trayPageLabel(page), "22 toppings need more than one tray page").not.toBe("1/1");
     await s.step("TOPPING", TRAY_CHECKS);

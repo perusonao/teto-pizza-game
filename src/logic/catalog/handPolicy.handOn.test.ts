@@ -26,8 +26,8 @@ describe("hand-on project: the real handPolicy is compiled ON (no vi.mock)", () 
     }
   });
 
-  it("the shipped source is still OFF (the ON value exists only in these test projects)", () => {
-    expect(POLICY_SOURCE).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = false;$/m);
+  it("the shipped source is ON since LC-R6-e (these projects compile the same flag value; they pin the capacity)", () => {
+    expect(POLICY_SOURCE).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = true;$/m);
   });
 
   it("the Preview variant is not what turned it on: no variant is in effect in these projects", () => {

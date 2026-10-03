@@ -8,6 +8,10 @@
  * run. The Vitest gates are the runner (the bundle gate does real vite builds); e2e/lc-hand-preview-activation.spec.ts
  * is the browser-level counterpart and is run by hand for the mutants marked `e2e`.
  *
+ * LC-R6-e: V3 / V3b / V7 / V9 (variant-driven ENABLEMENT mutants) are retired -- with `HAND_ENFORCEMENT_PRODUCTION = true` the
+ * hand is on regardless of the variant, so they are equivalent mutants. V8 (variant capacity) and V13 (activation lost) stay;
+ * the Preview-only enablement under a rolled-back flag is pinned by the `hand-off` Vitest project.
+ *
  *   node tools/large-catalog-ux/r6b-preview-mutants.mjs [V1 V2 ...]
  */
 import { spawnSync } from "node:child_process";
@@ -19,23 +23,18 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const POLICY = "src/logic/catalog/handPolicy.ts";
 const VARIANT = "src/preview/lcHandPreview.ts";
 const GUARD = "= import.meta.env.VITE_PREVIEW_MODE\n  ? isHandCapacityCandidate(LC_HAND_PREVIEW_CAPACITY)";
-const ENABLED = "HAND_ENFORCEMENT_PRODUCTION || previewVariant !== null;";
 
 const MUTANTS = [
   { id: "V1", what: "production reads the variant (VITE_PREVIEW_MODE guard removed)", file: POLICY, edits: [[GUARD, "= true\n  ? isHandCapacityCandidate(LC_HAND_PREVIEW_CAPACITY)"]] },
   { id: "V2", what: "main commits a non-null variant (12)", file: VARIANT, edits: [["LcHandPreviewCapacity = null;", "LcHandPreviewCapacity = 12;"]] },
-  { id: "V3", what: "a URL query reader (?lcHand) turns the hand on", file: POLICY, edits: [[ENABLED, `HAND_ENFORCEMENT_PRODUCTION || previewVariant !== null || new URLSearchParams(location.search).has("lcHand");`]] },
-  { id: "V3b", what: "a localStorage reader turns the hand on", file: POLICY, edits: [[ENABLED, `HAND_ENFORCEMENT_PRODUCTION || previewVariant !== null || localStorage.getItem("lcHand") !== null;`]] },
   { id: "V4", what: "the production deploy workflow sets VITE_PREVIEW_MODE", file: ".github/workflows/deploy.yml", edits: [["      - run: npm run build\n        env:\n", '      - run: npm run build\n        env:\n          VITE_PREVIEW_MODE: "1"\n']] },
-  { id: "V5", what: "the hand-on transform's target line is refactored away (must fail closed, not silently run OFF)", file: POLICY, edits: [["export const HAND_ENFORCEMENT_PRODUCTION = false;", "export const HAND_ENFORCEMENT_PRODUCTION: boolean = false;"]] },
+  { id: "V5", what: "the hand-on transform's target line is refactored away (must fail closed, not silently run OFF)", file: POLICY, edits: [["export const HAND_ENFORCEMENT_PRODUCTION = true;", "export const HAND_ENFORCEMENT_PRODUCTION: boolean = true;"]] },
   { id: "V6", what: "an invalid variant (10) is accepted (candidate guard removed)", file: POLICY, edits: [["? isHandCapacityCandidate(LC_HAND_PREVIEW_CAPACITY)\n    ? LC_HAND_PREVIEW_CAPACITY\n    : null", "? (LC_HAND_PREVIEW_CAPACITY as HandCapacityCandidate | null)"]] },
-  { id: "V7", what: "a Preview variant does not enable the hand", file: POLICY, edits: [[ENABLED, "HAND_ENFORCEMENT_PRODUCTION;"]] },
   { id: "V8", what: "a Preview variant does not set the capacity (production value used)", file: POLICY, edits: [["previewVariant ?? DEFAULT_HAND_CAPACITY_PRODUCTION", "DEFAULT_HAND_CAPACITY_PRODUCTION"]] },
-  { id: "V9", what: "the variant module is read outside the guard (enable flag reads the raw constant)", file: POLICY, edits: [[ENABLED, "HAND_ENFORCEMENT_PRODUCTION || LC_HAND_PREVIEW_CAPACITY !== null;"]] },
   { id: "V10", what: "the badge always says HAND 12", file: VARIANT, edits: [["`HAND ${capacity}`", '"HAND 12"']] },
   { id: "V11", what: "the badge renders in production (guard removed)", file: "src/components/PreviewBadge.tsx", edits: [["if (!import.meta.env.VITE_PREVIEW_MODE) return null;", "void 0;"]] },
   { id: "V12", what: "the variant module gains an import.meta.env reader of its own", file: VARIANT, edits: [["export const LC_HAND_PREVIEW_MARK", "export const LC_HAND_ENV = import.meta.env.VITE_LC_HAND;\nexport const LC_HAND_PREVIEW_MARK"]] },
-  { id: "V13", what: "production activation switch flipped (HAND_ENFORCEMENT_PRODUCTION = true)", file: POLICY, edits: [["export const HAND_ENFORCEMENT_PRODUCTION = false;", "export const HAND_ENFORCEMENT_PRODUCTION = true;"]] },
+  { id: "V13", what: "Production activation lost (HAND_ENFORCEMENT_PRODUCTION = false)", file: POLICY, edits: [["export const HAND_ENFORCEMENT_PRODUCTION = true;", "export const HAND_ENFORCEMENT_PRODUCTION = false;"]] },
 ];
 
 const SUITE = ["src/preview/lcHandPreview", "src/logic/catalog/handPolicy", "src/logic/catalog/handTray.off", "src/components/PreviewBadge", "src/logic/catalog/catalogBoundary"];

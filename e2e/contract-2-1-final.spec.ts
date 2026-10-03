@@ -1,6 +1,7 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { chipOnTrayOrPin } from "./support/handPick";
 
 /**
  * Anti-Oracle Contract 2.1 S6: final mobile verification at 390x844 and 360x800 (the two iphone projects), on the
@@ -46,12 +47,7 @@ async function open(page: Page, opts: SaveOpts & { flagOff?: boolean } = {}) {
 }
 
 async function pickChip(page: Page, name: RegExp) {
-  const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
-  const next = page.getByRole("button", { name: "次のページ" });
-  for (let i = 0; i < 6 && !(await chip.isVisible()); i += 1) {
-    if (!(await next.isEnabled().catch(() => false))) break;
-    await next.click();
-  }
+  const chip = await chipOnTrayOrPin(page, name);
   await chip.click();
 }
 

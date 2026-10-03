@@ -208,7 +208,7 @@ describe("catalog boundary", () => {
     expect(specs.filter((spec) => /recipes|discovery|hint|matcher/i.test(spec))).toEqual([]);
   });
 
-  it("LC-R5-c: pin editing is dormant (one switch = the enforcement flag), App-owned, session-only and privacy-neutral", () => {
+  it("LC-R5-c / R6-e: pin editing has one switch (the enforcement flag AND an active hand), is App-owned, session-only and privacy-neutral", () => {
     const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
     // pinEdit reads only the catalog types and the R2 hand operations: no recipe / discovery / hint / state / save.
     expect(imports(CATALOG_SOURCES["./pinEdit.ts"]).map((i) => i.spec).sort()).toEqual(["./catalogTypes", "./handSession"]);
@@ -217,13 +217,13 @@ describe("catalog boundary", () => {
     const pantryImports = imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]);
     expect(pantryImports.filter((i) => /handSession$/.test(i.spec)).every((i) => i.typeOnly)).toBe(true);
     // The only `handEditing` value any production file passes is the enforcement flag AND the App's own active-hand fact
-    // (LC-R6-c, OD-R5e-1: no pin UI where the hand is inactive; false everywhere until R6-e).
+    // (LC-R6-c, OD-R5e-1: no pin UI where the hand is inactive; ON in production since LC-R6-e).
     const passes: string[] = [];
     for (const [path, text] of Object.entries(ALL_SOURCES)) {
       for (const m of strip(text).matchAll(/handEditing=\{([^}]*)\}/g)) passes.push(`${path}:${m[1]}`);
     }
     expect(passes).toEqual(["../../screens/GameScreen.tsx:HAND_ENFORCEMENT_ENABLED && trayHand?.ids != null"]);
-    expect(strip(CATALOG_SOURCES["./handPolicy.ts"])).toMatch(/export const HAND_ENFORCEMENT_PRODUCTION = false;/);
+    expect(strip(CATALOG_SOURCES["./handPolicy.ts"])).toMatch(/export const HAND_ENFORCEMENT_PRODUCTION = true;/);
     // App owns the pins; the only writer handed out is the setter itself (no reset on round / HOME / FREE / Dinner).
     const app = strip(ALL_SOURCES["../../App.tsx"]);
     expect(app).toContain("useState<HandSession>(emptyHandSession)");

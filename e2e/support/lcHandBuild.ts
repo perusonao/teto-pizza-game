@@ -16,6 +16,10 @@ const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const VARIANT_FILE = "/src/preview/lcHandPreview.ts";
 export const VARIANT_LINE = /^export const LC_HAND_PREVIEW_CAPACITY: LcHandPreviewCapacity = null;$/m;
 
+/** LC-R6-e: the ONE rollback line of src/logic/catalog/handPolicy.ts. */
+const POLICY_FILE = "/src/logic/catalog/handPolicy.ts";
+export const PRODUCTION_FLAG_LINE = /^export const HAND_ENFORCEMENT_PRODUCTION = true;$/m;
+
 export interface LcBuildSpec {
   outDir: string;
   base: string;
@@ -23,6 +27,21 @@ export interface LcBuildSpec {
   preview: boolean;
   /** null = the source exactly as committed. */
   variant: 9 | 12 | null;
+  /** LC-R6-e: build with the Production flag rolled back (`HAND_ENFORCEMENT_PRODUCTION = false`), i.e. what a rollback commit deploys. */
+  rollback?: boolean;
+}
+
+function rollbackPlugin(): Plugin {
+  return {
+    name: "lc-hand-rollback",
+    enforce: "pre",
+    transform(code, id) {
+      if (id.includes("?") || !id.replace(/\\/g, "/").endsWith(POLICY_FILE)) return null;
+      const hits = code.match(new RegExp(PRODUCTION_FLAG_LINE.source, "gm"))?.length ?? 0;
+      if (hits !== 1) throw new Error(`[lc-hand-rollback] the production flag line matched ${hits}x (fail closed)`);
+      return code.replace(PRODUCTION_FLAG_LINE, "export const HAND_ENFORCEMENT_PRODUCTION = false;");
+    },
+  };
 }
 
 function variantPlugin(variant: 9 | 12): Plugin {
@@ -58,7 +77,7 @@ export async function buildLcApp(spec: LcBuildSpec, write: boolean): Promise<str
       base: spec.base,
       logLevel: "silent",
       mode: "production",
-      plugins: spec.variant === null ? [] : [variantPlugin(spec.variant)],
+      plugins: [...(spec.variant === null ? [] : [variantPlugin(spec.variant)]), ...(spec.rollback ? [rollbackPlugin()] : [])],
       build: { write, outDir: spec.outDir, emptyOutDir: true, minify: true, reportCompressedSize: false },
     });
     const outputs = (Array.isArray(result) ? result : [result]).flatMap((r) => ("output" in r ? r.output : []));

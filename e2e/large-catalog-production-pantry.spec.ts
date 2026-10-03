@@ -5,14 +5,13 @@ import { completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
- * Large Catalog UX LC-R5-c: the pin foundation is DORMANT in production (OD-R5c-1). In the real build the pantry
- * must be exactly the R5-b sheet: no pin toggle / badge / 「選択中」 strip, a tile tap changes nothing, and the
- * geometry at the four Owner viewports is the R5-b baseline -- normal and with the simulated keyboard (same
- * stand-in `visualViewport` as e2e/large-catalog-pantry-search.spec.ts; K = 338, the real-iPhone shrink).
- *
- * Baseline = measured on main `b35739a` (R5-b) by tools/large-catalog-ux/r5c-geometry.measure.spec.ts
- * (docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R5c_GEOMETRY.json). The pixel values are Chromium's; WebKit checks
- * the DOM contract and the "≥ 1 full row above the keyboard" floor only (its font metrics differ).
+ * Large Catalog UX LC-R5-c, re-pointed by LC-R6-e: the pin foundation was DORMANT in production (OD-R5c-1); Production now
+ * runs the Hand (OD-5 = 12). What stays guarded here is the keyboard contract of the production pantry at the four Owner
+ * viewports: the pin UI is live (toggles + 「選択中」 strip), the sheet never grows past the viewport, and with the simulated
+ * keyboard (same stand-in `visualViewport` as e2e/large-catalog-pantry-search.spec.ts; K = 338, the real-iPhone shrink)
+ * the list keeps >= 1 full result row above the keyboard. The R5-b pixel baselines belong to the Hand-OFF sheet (the pin
+ * strip changes the list height), so only the floors are asserted; the OFF geometry is the rollback build's
+ * (e2e/lc-hand-preview-activation.spec.ts + the hand-off Vitest project). The file name is kept for history.
  */
 const SAVE_KEY = "teto-pizza-save-v1";
 const SAVE = {
@@ -98,41 +97,30 @@ async function facts(page: Page) {
 }
 
 for (const width of [390, 360] as const) {
-  test(`LC-R5-c dormant pins: no pin UI and R5-b geometry at width ${width}`, async ({ page, browserName }, testInfo) => {
+  test(`LC-R6-e production pantry: pin UI live and keyboard floors at width ${width}`, async ({ page }, testInfo) => {
     runOnlyOnWidth(testInfo, width);
     test.setTimeout(240_000);
     await page.addInitScript(FAKE_VV);
     for (const vp of VIEWPORTS.filter((v) => v.width === width)) {
       await toTopping(page, vp.width, vp.height);
-      const trayBefore = (await page.locator(".ingredient-chip").allTextContents()).join(",");
       await page.getByRole("button", { name: /食材庫/ }).click();
       await expect(page.getByRole("dialog")).toBeVisible();
       const normal = await facts(page);
-      expect(normal.pinUi, `${vp.id}: no pin UI in production`).toBe(0);
-      expect(normal.listButtons, `${vp.id}: read-only tiles`).toBe(0);
-      expect(normal.text).not.toMatch(/選択中|おまかせに戻す|ざいこなし|\u{1F4CC}/u);
-      // A tile tap does nothing in production.
-      await page.locator(".pantry-tile").first().click();
-      expect((await facts(page)).pinUi).toBe(0);
-      if (browserName === "chromium") {
-        expect(normal.sheetH, `${vp.id}: sheet height = R5-b`).toBeCloseTo(vp.sheetH, 0);
-        expect(normal.listH, `${vp.id}: list height = R5-b`).toBeCloseTo(vp.listH, 0);
-      }
+      expect(normal.pinUi, `${vp.id}: pin UI is live in production`).toBeGreaterThan(0);
+      expect(normal.sheetH, `${vp.id}: sheet fits the viewport`).toBeLessThanOrEqual(vp.sheetH + 0.5);
+      expect(normal.listH, `${vp.id}: list keeps a usable height`).toBeGreaterThan(200);
 
       await page.locator(".pantry-sheet__search-input").focus();
       await page.evaluate((h) => (window as unknown as { __setVv: (h: number) => void }).__setVv(h), vp.height - KEYBOARD_PX);
       await page.waitForFunction(() => document.querySelector(".pantry-sheet")?.classList.contains("pantry-sheet--fit"));
       await expect.poll(async () => (await facts(page)).sheetH).toBeLessThan(vp.sheetH);
       const kb = await facts(page);
-      expect(kb.pinUi).toBe(0);
+      expect(kb.pinUi).toBeGreaterThan(0);
       expect(kb.fullRows, `${vp.id}: >= 1 full result row above the keyboard`).toBeGreaterThanOrEqual(1);
-      if (browserName === "chromium") {
-        expect(kb.listVisible, `${vp.id}: keyboard list >= R5-b baseline`).toBeGreaterThanOrEqual(vp.kbListVisible - 0.5);
-      }
+      expect(kb.listVisible, `${vp.id}: keyboard list stays usable`).toBeGreaterThan(60);
       await page.evaluate(() => (window as unknown as { __setVv: (h: number | null) => void }).__setVv(null));
       await page.keyboard.press("Escape");
       await expect(page.getByRole("dialog")).toHaveCount(0);
-      expect((await page.locator(".ingredient-chip").allTextContents()).join(","), `${vp.id}: tray unchanged`).toBe(trayBefore);
     }
   });
 }
