@@ -207,14 +207,52 @@ describe("attempt-start Research Target authority", () => {
     expect(done.lastResearchRows).toBeNull();
     expect(feedbackOf(done)).toBeNull();
   });
-  it("last stock: an attempt that uses up the target's last unit still yields the rows, fact and Notebook line", () => {
+  const lastStock = () => {
     const s = single();
-    const one = start({ ...s, inventory: { ...s.inventory, "fresh-tomato": 1, chicken: 1, mozzarella: 1, pesto: 1 } });
+    return start({ ...s, inventory: { ...s.inventory, "fresh-tomato": 1, chicken: 1, mozzarella: 1, pesto: 1 } });
+  };
+  it("last stock, first attempt: started valid, it still yields the rows, fact and Notebook line after using the stock up", () => {
+    const one = lastStock();
+    expect(one.researchTargetValidAtStart).toBe(true);
     const done = finish(one, original());
     expect(done.inventory["fresh-tomato"]).toBe(0);
+    expect(done.researchTargetValidAtStart).toBe(true); // a start snapshot: the result does not re-derive validity
     expect(view(done)).toContain("topping:fresh-tomato:POSITIVE");
     expect(facts(done)).toContain("ing:fresh-tomato");
     expect(feedbackOf(done)).not.toBeNull();
+  });
+  it("last stock, the following retry: the target and context carry on, but the new attempt is not valid at start -> no result", () => {
+    const first = finish(lastStock(), original());
+    const retry = act(first, { type: "RETRY_SAME_RECIPE" });
+    expect(retry.researchTargetId).toBe(T); // #362 context continuity
+    expect(retry.researchTargetValidAtStart).toBe(false);
+    const factsBefore = retry.discoveryHintFacts;
+    const second = finish(retry, mk("pesto", "chicken", "egg"));
+    expect(second.researchTargetId).toBe(T);
+    expect(second.lastResearchRows).toBeNull();
+    expect(second.discoveryHintFacts).toBe(factsBefore); // no new ing: fact
+    expect(feedbackOf(second)?.textJa ?? "").not.toContain("RESEARCH_ROWS");
+    expect(notebookView(second.trialNotebook).find((e) => e.number === 2)?.feedback ?? null).toBeNull();
+  });
+  it("a normal retry (the target is still valid) evaluates again", () => {
+    const first = finish(start(single()), original());
+    const retry = act(first, { type: "RETRY_SAME_RECIPE" });
+    expect(retry.researchTargetValidAtStart).toBe(true);
+    const second = finish(retry, mk("pesto", "chicken", "egg", "onion"));
+    expect(view(second)).toEqual(expect.arrayContaining(["topping:egg:NEGATIVE", "topping:onion:NEGATIVE"]));
+  });
+  it("START_FREE_COOK fixes the snapshot: valid target true, targetless / invalid target false", () => {
+    const s = single();
+    expect(start(s).researchTargetValidAtStart).toBe(true);
+    expect(act(s, { type: "START_FREE_COOK" }).researchTargetValidAtStart).toBe(false);
+    expect(start(s, "pizza-portuguesa").researchTargetValidAtStart).toBe(false);
+    const dry = start({ ...s, inventory: { ...s.inventory, chicken: 0 } });
+    expect(dry.researchTargetId).toBeNull(); // an invalid start drops the target (existing rule)
+    expect(dry.researchTargetValidAtStart).toBe(false);
+  });
+  it("the snapshot is kept through RESET_PIZZA of the same attempt and never persisted", () => {
+    const one = lastStock();
+    expect(act(one, { type: "RESET_PIZZA" }).researchTargetValidAtStart).toBe(true);
   });
   it("register is exactly-once", () => {
     const result = toResult(start(single()), original(), 68);
@@ -314,7 +352,7 @@ describe("save compatibility: the transient result is not persisted", () => {
     const raw = storage.getItem(SAVE_STORAGE_KEY) ?? "";
     expect(loadSave(storage).discoveryHintFacts[T]).toEqual(["ing:pesto", "ing:fresh-tomato"]);
     expect(loadSave(storage).schemaVersion).toBe(2);
-    for (const word of ["lastResearchRows", "RESEARCH_ROWS", "toppingOverCap", "researchTest", "lastIngredientTest"]) expect(raw).not.toContain(word);
+    for (const word of ["lastResearchRows", "RESEARCH_ROWS", "toppingOverCap", "researchTest", "lastIngredientTest", "researchTargetValidAtStart"]) expect(raw).not.toContain(word);
     expect(JSON.stringify(JSON.parse(raw).discoveryHintFacts)).not.toContain("egg"); // the negative is never saved
   });
 });

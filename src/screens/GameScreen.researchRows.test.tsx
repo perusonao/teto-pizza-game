@@ -216,3 +216,22 @@ describe("S5.1: ✓ marks prior knowledge in the used list, from the evaluation-
     expect(document.querySelector("[data-known-mark]")).toBeNull();
   });
 });
+
+describe("OD-RB-18 retry after the last stock: the context stays, the next attempt has no result", () => {
+  it("first attempt shows the panel; the following retry keeps the research context card but yields no panel", () => {
+    const s = base();
+    const first = result(target({ ...s, inventory: { ...s.inventory, "fresh-tomato": 1, chicken: 1, mozzarella: 1, pesto: 1 } }), pizza());
+    renderAt(first);
+    expect(chipTexts()).toContain(`${nm("fresh-tomato")}○`);
+    cleanup();
+    const retry = act(first, { type: "RETRY_SAME_RECIPE" });
+    renderAt(retry);
+    expect(screen.getByTestId("research-context")).toBeInTheDocument(); // #362 continuity
+    cleanup();
+    const second = result(retry, mk("pesto", "chicken", "egg"));
+    renderAt(second);
+    expect(panel()).toBeNull();
+    expect(document.querySelector("[data-known-mark]")).toBeNull(); // no research result context at all
+    expect(screen.getByText(/研究中/)).toBeInTheDocument(); // the label line itself stays
+  });
+});

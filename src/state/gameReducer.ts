@@ -377,6 +377,11 @@ export interface GameState {
    *  free-cook ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH branch (flag ON, registered target; rows may be empty), reset every fresh round.
    *  Session-only, never persisted. Carries no recipe name / id, count or distance. `null` without a valid attempt context. */
   lastResearchRows: LastResearchRows | null;
+  /** Contract 2.1 (OD-RB-18): whether the Research Target was a VALID (registered and cookable) target when THIS round
+   *  began. Fixed at round start by `buildOrderState` and never recomputed, so the attempt that consumes the target's
+   *  last stock keeps its result while the retry that starts without it does not. It only gates the membership
+   *  evaluation: `researchTargetId` (and the research context it drives) is carried independent of it. Session-only. */
+  researchTargetValidAtStart: boolean;
   /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
    *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
    *  REGISTER_TO_DEX, and saved by App in the same write as the Dex. */
@@ -676,6 +681,7 @@ function buildOrderState(
     lastDiscovery: null,
     lastTrialAttempt: null,
     lastResearchRows: null,
+    researchTargetValidAtStart: freeCook && isValidResearchTarget(carry, carry.researchTargetId),
     lastTechniqueDiscovery: null,
     freeCook,
   };
@@ -1797,8 +1803,10 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
  * score and never reaches it). The outcome kind is only the permission to be here: membership never reads it, the
  * matcher or the cooking quality (INV-D6).
  *
- * - Flag OFF, no explicit target, or a target that is not a REGISTERED entry (ownership, not stock: the attempt's own
- *   last-stock use must not drop the result) -> nothing changes.
+ * - Flag OFF, no explicit target, a target that was not VALID when this round began (`researchTargetValidAtStart`, a
+ *   start-of-round snapshot: a retry that begins without the target's last stock gets no result), or a target that is
+ *   not a REGISTERED entry (ownership, not stock: the attempt's own last-stock use must not drop the result) ->
+ *   nothing changes.
  * - known(T) is taken once, here, from the state before this write; S1 judges only what is not yet known.
  * - Only S1's positive `ing:` ids are added to the target's ledger (deduplicated). A negative or an over-capped
  *   topping is never stored.
@@ -1811,7 +1819,7 @@ function researchAttemptResult(state: GameState): {
 } {
   const none = { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows: null, feedback: null };
   const targetId = state.researchTargetId;
-  if (!RESEARCH_IDENTIFY_ENABLED || !targetId) return none;
+  if (!RESEARCH_IDENTIFY_ENABLED || !targetId || !state.researchTargetValidAtStart) return none;
   const context = researchAttemptContext(state);
   if (!context) return none;
   const result = researchResultRows({ targetRecipeId: targetId, pizza: state.pizza, knownIngredientIds: context.knownIngredientIds });
