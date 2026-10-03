@@ -133,9 +133,12 @@ export const W1_25_DISCOVERY_LADDER: DiscoveryLadder = {
  */
 export const W1_FIXED_STEP_COUNT = 24;
 
-/** Steps appended after the frozen W1 ladder, in order. Empty while `RECIPES` is the W1
- *  population: every current recipe is already makeable from the starters + W1 materials. */
-export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [];
+/** Steps appended after the frozen W1 ladder, in order. Step 25 (Discovery 3.0 No.27) unlocks
+ *  `chicken`, the key recipe being `pesto-pollo`; it equals what `buildAppendOnlyLadder` derives
+ *  from `RECIPES` (pinned by discoveryLadder.appendOnly.test.ts). */
+export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
+  { ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" },
+];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since
  *  Progression 2.0 W1 I5b-3 (the 10 W1 recipes joined `RECIPES` in the same change) it is the

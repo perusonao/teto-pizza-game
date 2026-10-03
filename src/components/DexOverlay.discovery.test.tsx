@@ -12,7 +12,7 @@ import type { InventoryState } from "../state/inventory";
 import { discoveredDex } from "../state/testSupport/guidedRound";
 
 /**
- * Progression 2.0 W1 Discovery 2.0 -- W1-f: the Dex is grouped by the canonical 6 / 9 / 10
+ * Progression 2.0 W1 Discovery 2.0 -- W1-f: the Dex is grouped by the canonical 6 / 10 / 10
  * chapters with a fixed No. per slot; an undiscovered slot shows ？？？ plus, for the "next" ones,
  * a state tag -- never a name, finished preview, ingredients or name length.
  */
@@ -47,11 +47,11 @@ const chapterTitles = () =>
   Array.from(document.querySelectorAll(".dex-overlay__chapter-title")).map((e) => e.textContent);
 
 describe("W1-f Dex", () => {
-  it("3 chapters (6 / 9 / 10) with per-chapter counts and fixed No. slots", () => {
+  it("3 chapters (6 / 10 / 11) with per-chapter counts and fixed No. slots", () => {
     renderDex({ dex: discoveredDex(["margherita", "marinara"]) });
-    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/9", "第3章0/10"]);
+    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/10", "第3章0/11"]);
     const chapters = Array.from(document.querySelectorAll(".dex-overlay__chapter"));
-    expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual([6, 9, 10]);
+    expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual([6, 10, 11]);
     expect(within(chapters[1] as HTMLElement).getByText(/マリナーラ/).textContent).toContain("No.01");
   });
 
@@ -74,10 +74,10 @@ describe("W1-f Dex", () => {
     const free = renderDex({ dex: discoveredDex(["margherita"]), owned: ["egg"], unlocked: ["egg"], inventory: { egg: 10 } });
     const freeSlot = document.querySelector<HTMLElement>('[data-dex-state="DISCOVERABLE"]')!;
     expect(freeSlot).toHaveTextContent("🎨 今の材料で作れるかも");
-    await userEvent.click(within(freeSlot).getByRole("button", { name: "フリークッキングで探す" }));
+    await userEvent.click(within(freeSlot).getByRole("button", { name: "レシピ発見へ" }));
     expect(free.onGoFreeCook).toHaveBeenCalledTimes(1);
-    expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(23);
-    expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(23);
+    expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(25);
+    expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(25);
   });
 
   it("nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (arrived / bought)", () => {
@@ -96,7 +96,11 @@ describe("W1-f Dex", () => {
         const attrs = Array.from(document.querySelectorAll("*"))
           .map((e) => ["aria-label", "title", "alt", "style"].map((a) => e.getAttribute(a) ?? "").join("|"))
           .join("|");
-        const everything = `${document.body.textContent}||${attrs}`;
+        // #346 S2: the 「🔎 研究中のピザ」 section legitimately names the player's own owned
+        // ingredient as a known fact (an ingredient name may equal an unknown recipe's name); its
+        // own privacy contract is pinned in DexOverlay.research.test.tsx.
+        const research = document.querySelector(".dex-overlay__research")?.textContent ?? "";
+        const everything = `${(document.body.textContent ?? "").split(research).join("")}||${attrs}`;
         for (const r of RECIPES.filter((x) => !known.has(x.id))) {
           // NF-8 lexical overlaps (not leaks): a discovered card's own ingredient
           // (ジェノベーゼソース contains ジェノベーゼ) and marinara's own description (「ナポリ生まれ」
@@ -106,7 +110,12 @@ describe("W1-f Dex", () => {
           expect(scrubbed, `${bought ? "B" : "A"} Dex ${n}: ${r.id}`).not.toContain(r.nameJa);
           expect(everything, r.id).not.toContain(r.description);
         }
-        expect(document.querySelectorAll(".dex-card--locked")).toHaveLength(25 - n);
+        // 27 recipes; the walk never discovers the non-credit calabresa. Once the key recipe's materials are owned (Dex
+        // 12 bought) and until the 26th (step 25's pesto-pollo is the last key recipe), the ladder's key recipe and calabresa are both DISCOVERABLE:
+        // pool 2 used to add one extra aggregated card (D-2); #346 S4: both candidates are registered Research
+        // Entries (their own cards), so the aggregate card is gone and the locked-card count is just the slots.
+        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(27 - n);
+        expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
         expect(document.querySelectorAll(".dex-card--locked .dex-card__ingredient, .dex-card--locked svg")).toHaveLength(0);
         cleanup();
       }

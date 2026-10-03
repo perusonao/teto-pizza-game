@@ -4,7 +4,6 @@ import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
 import { ingredientAttributeFamily } from "../../data/ingredientTaxonomy";
-import { RECIPE_HINT_ROLES } from "../../data/recipeHintRoles";
 import { RECIPES } from "../../data/recipes";
 import { TECHNIQUES } from "../../data/techniques";
 import { requiredTechniquesOf } from "../techniques/detection";
@@ -24,6 +23,7 @@ import {
 } from "./hint5Ladder";
 import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
+import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
@@ -42,7 +42,14 @@ const LADDER_INDEX = new Map(ladderTargets(W1_25_DISCOVERY_LADDER).map((id, i) =
 const dexCountsOf = (id: string) => [...new Set([Math.max(1, LADDER_INDEX.get(id) ?? 1), 25])];
 
 const namesOf = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind !== "SUB_CLASS").flatMap((r) => r.subjectIds);
-const subsOf = (id: string) => RECIPE_HINT_ROLES[id as keyof typeof RECIPE_HINT_ROLES].hintSubToppingOrder;
+/** The SUB_CLASS subjects in ladder order: the authored order for a keyed recipe, catalog order for a key-free one. */
+const subsOf = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SUB_CLASS").map((r) => r.subjectIds[0]);
+/** The rung kinds before the SUB_CLASS rungs: 4 fixed ones, or only the applicable ones for a key-free recipe. */
+const fixedKindsOf = (r: (typeof RECIPES)[number]) => {
+  if (!KEY_FREE_RECIPES.includes(r)) return HINT5_FIXED_RUNG_KINDS;
+  const has = (category: string) => r.requiredIngredients.some((q) => getIngredient(q.ingredientId)?.category === category);
+  return [...(has("sauce") ? ["SAUCE" as const] : []), ...(has("cheese") ? ["CHEESE" as const] : []), "STRUCTURE" as const];
+};
 /** Round 6 (OD-H5-P4-CHEESE / P4b): the targets whose empty CHEESE / KEY rung is answered 「なし」. */
 const NONE_TARGETS = RECIPES.filter((r) => hint5EmptyFixedRungs(r.id)!.length > 0).map((r) => r.id);
 
@@ -144,8 +151,8 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
   });
 });
 
-describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
-  it("A: every one of the 25 recipes walks its ladder from the first rung to the complete line, every request ANSWERED at the P-C price", () => {
+describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
+  it("A: every one of the 27 recipes walks its ladder from the first rung to the complete line, every request ANSWERED at the P-C price", () => {
     let walked = 0;
     for (const r of RECIPES) {
       for (const discoveredCount of r.id === "margherita" ? [0, ...dexCountsOf(r.id)] : dexCountsOf(r.id)) {
@@ -163,8 +170,8 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
         walked += 1;
       }
     }
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(25);
-    expect(walked).toBeGreaterThanOrEqual(25);
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(27);
+    expect(walked).toBeGreaterThanOrEqual(27);
   });
 
   it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; OD-H5-P4-SAUCE stays reserved for TQ-1D)", () => {
@@ -187,7 +194,7 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = all 25)", () => {
       const states = purchaseStates(r.id, 5);
       const offered = states.flatMap((s) => (s.view.next ? [[s.view.next.kind, s.view.next.price] as const] : []));
       const subs = subsOf(r.id);
-      expect(offered.map(([k]) => k), r.id).toEqual([...HINT5_FIXED_RUNG_KINDS, ...subs.map(() => "SUB_CLASS")]);
+      expect(offered.map(([k]) => k), r.id).toEqual([...fixedKindsOf(r), ...subs.map(() => "SUB_CLASS")]);
       for (const [kind, price] of offered) expect(price, `${r.id} ${kind}`).toBe(HINT5_RUNG_PRICE[kind]);
       // Out-of-order requests are STALE at every state.
       for (const { stored, view } of states) {
@@ -238,17 +245,23 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
     }
   });
 
-  it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every target's offer and board shape are identical given the same completed rungs", () => {
+  it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every target's offer and board shape are identical given the same completed rungs (within the keyed group, or a key-free recipe's own sauce/cheese pattern)", () => {
+    const has = (r: (typeof RECIPES)[number], category: string) => r.requiredIngredients.some((q) => getIngredient(q.ingredientId)?.category === category);
+    const groupOf = (r: (typeof RECIPES)[number]) => (KEY_FREE_RECIPES.includes(r) ? `key-free:sauce=${has(r, "sauce")}:cheese=${has(r, "cheese")}` : "keyed");
     for (let k = 0; k <= 3; k += 1) {
-      const shapes = new Set<string>();
+      const shapes = new Map<string, Set<string>>();
       for (const r of RECIPES) {
         const states = purchaseStates(r.id, 5);
         if (states.length <= k) continue;
+        const structureAt = buildHint5Ladder(r.id)!.rungs.findIndex((x) => x.kind === "STRUCTURE");
+        if (k > structureAt) continue; // past STRUCTURE: no longer "before STRUCTURE"
         const { view } = states[k];
         if (view.board.length !== k) continue; // stuck on an empty rung before k (P4): not comparable
-        shapes.add(JSON.stringify({ next: view.next, kinds: view.board.map((e) => [e.rungIndex, e.kind]), done: view.completeText }));
+        const set = shapes.get(groupOf(r)) ?? new Set<string>();
+        set.add(JSON.stringify({ next: view.next, kinds: view.board.map((e) => [e.rungIndex, e.kind]), done: view.completeText }));
+        shapes.set(groupOf(r), set);
       }
-      expect(shapes.size, `after ${k} rungs`).toBe(1);
+      for (const [group, set] of shapes) expect(set.size, `after ${k} rungs, ${group}`).toBe(1);
     }
     // No SUB_CLASS offer or entry before STRUCTURE, even with classifications already stored.
     const early = hint5Presentation({ recipeId: "capricciosa", discoveredCount: 5, storedFactIds: ["cls:ham", "ing:tomato-sauce", "h5:sauce"], legacyPurchases: {}, pitzBalance: 100 })!;

@@ -4,7 +4,7 @@ import {
   SHIPPED_15_DISCOVERY_LADDER,
   type DiscoveryLadder,
 } from "../data/discoveryLadder";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, countsTowardLadder } from "../data/recipes";
 import { EMPTY_DEX, type DexEntry, type DexState } from "../state/dex";
 import {
   discoveredRecipeCount,
@@ -78,8 +78,11 @@ describe("discoveredRecipeCount", () => {
     expect(discoveredRecipeCount(high)).toBe(5);
   });
 
-  it("is 25 once every shipped recipe is discovered (W1 I5b-3)", () => {
-    expect(discoveredRecipeCount(RECIPES.map((r) => dexEntry(r.id)))).toBe(25);
+  it("is 26 once every shipped recipe is discovered, 27 recipes with calabresa non-credit (W1 I5b-3 / PR-4b-B / No.27)", () => {
+    expect(RECIPES).toHaveLength(27);
+    const all = RECIPES.map((r) => dexEntry(r.id));
+    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(26); // the credited population
+    expect(discoveredRecipeCount(all)).toBe(27); // the raw default counts every recipe
   });
 });
 
@@ -420,9 +423,16 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       "./testSupport/discoveryLadderRule.ts",
       // DH4-2B Gate (T1a): the Deduction Hint test support builds a valid acquisition order from the ladder.
       "./discovery/testSupport/deductionInversion.ts",
+      // Discovery 3.0 PR-4a: the branching-pool test support walks the ladder with the real entitlement
+      // authority (test-only; nothing in production imports it).
+      "./testSupport/branchingFixture.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
+      // Discovery Progression Inspector: the DEV / Preview-only, read-only model walks the ladder through the
+      // production entitlement authority. ../main.tsx reaches it only behind the DEV / Preview env check
+      // (dynamic import), and ../preview/previewIsolation.gate.test.ts proves a production bundle has none of it.
+      "../dev/discoveryProgressionModel.ts",
       // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
       // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts

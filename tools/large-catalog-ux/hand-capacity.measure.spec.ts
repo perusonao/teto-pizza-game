@@ -41,7 +41,7 @@ async function toToppingStep(page: Page, toppings: number, width: number, height
   }, [SAVE_KEY, JSON.stringify(save)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await page.getByRole("button", { name: /次へ/ }).click();

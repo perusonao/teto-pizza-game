@@ -1,0 +1,132 @@
+{
+  "base": "pr-4b-b",
+  "recipeId": "brazilian-calabresa",
+  "rows": [
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "ideal",
+      "available": true,
+      "totalScore": 99.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "offset",
+      "available": true,
+      "totalScore": 70.58381074433359,
+      "stars": 3,
+      "components": {
+        "sauce": 43.4304052775646,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "poor",
+      "available": true,
+      "totalScore": 22.904792326100218,
+      "stars": 1,
+      "components": {
+        "sauce": 33.095355100385454,
+        "pieces": 8.75,
+        "recipe": 60,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "noSauce",
+      "available": true,
+      "totalScore": 45.6,
+      "stars": 2,
+      "components": {
+        "sauce": 0,
+        "pieces": 100,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "halfPieces",
+      "available": true,
+      "totalScore": 46.02032759904669,
+      "stars": 2,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 68.125,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "extraPiece",
+      "available": true,
+      "totalScore": 97.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 83.33333333333334,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "raw",
+      "available": true,
+      "totalScore": 95.12889049221103,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 77.94117647058823,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "burnt",
+      "available": true,
+      "totalScore": 95.12889049221103,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 77.94117647058823,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "brazilian-calabresa",
+      "variant": "unbaked",
+      "available": true,
+      "totalScore": 79.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 0,
+        "quantityFactor": 1
+      }
+    }
+  ]
+}

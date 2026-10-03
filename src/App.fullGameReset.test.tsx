@@ -246,7 +246,7 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     expect(document.querySelectorAll(".pizza-select-grid-card")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: /このピザを作る/ })).not.toBeInTheDocument();
     for (const r of RECIPES) expect(document.body.textContent).not.toContain(r.nameJa);
-    await user.click(screen.getByRole("button", { name: /フリークッキングで探す/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
   });
 
@@ -256,7 +256,7 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     // Progression 2.0 Phase 3-3: a truly fresh save reaches margherita's making flow through
     // Free Cooking (either HOME's own primary CTA or Pizza Select's routed CTA), never a direct
     // guided SELECT_RECIPE -- see the preDiscoveryLocked test above for that gate's own coverage.
-    await user.click(screen.getByRole("button", { name: /フリークッキングで探す/ }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
   });
@@ -277,7 +277,7 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
     const overlay = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(within(overlay).getByText(/発見 0\s*\/\s*25/)).toBeInTheDocument();
+    expect(within(overlay).getByText(/発見 0\s*\/\s*27/)).toBeInTheDocument();
   });
 
   it("stays fresh across a second reload (no resurrection of the cleared save)", async () => {

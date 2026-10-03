@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-2: the ladder through the real reducer with the flag ON (mocked
@@ -8,7 +9,7 @@ import { describe, expect, it, vi } from "vitest";
  */
 vi.mock("../logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
-const { INGREDIENTS } = await import("../data/ingredients");
+const { INGREDIENTS, STARTER_INGREDIENT_IDS } = await import("../data/ingredients");
 const { RECIPES } = await import("../data/recipes");
 const { EMPTY_DEX, registerScoreToDex } = await import("./dex");
 const { hint5SheetView, hintSheetView } = await import("./discoveryHint");
@@ -34,7 +35,7 @@ function discover(ids: readonly string[]) {
 /** Dex {margherita}, every material owned and stocked, the sheet open on `target` (a Dex pin). */
 function sheetOn(target: string, pitz: number, facts: Record<string, readonly string[]> = {}, purchases: Record<string, number> = {}): GameState {
   const initial = createInitialGameState(discover(["margherita"]), ALL_IDS, pitz, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, purchases, facts);
-  const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+  const s = openHintSheetOn(initial, target);
   expect(s.hintSession?.targetId).toBe(target);
   return s;
 }
@@ -180,7 +181,7 @@ describe("flag ON: the ladder through the reducer", () => {
   });
 
   it("Dex-0 Margherita keeps the free onboarding reveal; the ladder never charges it", () => {
-    const initial = createInitialGameState(EMPTY_DEX, ALL_IDS, 50, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
+    const initial = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 50, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {}); // a fresh Dex-0 save: Margherita is the only DISCOVERABLE recipe (D-1)
     const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(s.hintSession?.targetId).toBe("margherita");
     expect(hint5SheetView(s)).toBeNull();

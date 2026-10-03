@@ -1,3 +1,4 @@
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 import { describe, expect, it, vi } from "vitest";
 
 
@@ -23,7 +24,7 @@ describe("flag off (rollback)", () => {
   it("構成 / 特徴 requests change nothing; 材料 still works; the view has no deduction part", () => {
     const dex = registerScoreToDex(EMPTY_DEX, "margherita", { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex;
     const initial = createInitialGameState(dex, ALL_IDS, 100, Object.fromEntries(FINITE.map((id) => [id, 30])), [], ALL_IDS, {}, {});
-    const s = [{ type: "START_FREE_COOK" } as const, { type: "SHOW_HINT", pinnedRecipeId: "capricciosa" } as const].reduce(gameReducer, initial);
+    const s = openHintSheetOn(initial, "capricciosa");
     for (const family of ["structure", "attribute"] as const) {
       expect(gameReducer(s, { type: "PURCHASE_SELECTABLE_HINT", preference: "sauce", expectedPaidCount: 0, family })).toBe(s);
     }

@@ -1,0 +1,82 @@
+[
+  {
+    "mutant": "MU-1 skip keyed on the bakeState badge",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-3: a servable pizza keeps CUT (OD-CUT256-1) > bake 50 (badge raw, Completion Gate PASS) -> POST_BAKE / CUT",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-3: a servable pizza keeps CUT (OD-CUT256-1) > bake 55 (badge raw, Completion Gate PASS) -> POST_BAKE / CUT",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-3: a servable pizza keeps CUT (OD-CUT256-1) > bake 85 (badge burnt, Completion Gate PASS) -> POST_BAKE / CUT",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-3: a servable pizza keeps CUT (OD-CUT256-1) > bake 90 (badge burnt, Completion Gate PASS) -> POST_BAKE / CUT",
+      "FAIL  src/state/gameReducer.dinner.test.ts > Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE > D-3: an in-band bake (incl. a ★4 badge-only one) still requires CUT",
+      "FAIL  src/state/gameReducer.dinner.test.ts > START_BAKE: Stage A picks the window and the CUT step, and freezes the composition > R11: the identified recipe's bake window drives BAKE and the result (not the generic one)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > inventory: exactly once, from the stock captured before CONFIRM_BAKE > R17: every failed category keeps its consumption (no refund)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > result detection wired into the runtime > R5: QUALITY_FAIL (★ below S, or the order gate) keeps the target open and consumes"
+    ]
+  },
+  {
+    "mutant": "MU-2 skip on any Completion Gate FAILED",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-4 / C-5: composition failures keep CUT unless the bake failed too (OD-CUT256-2 / 6) > MISSING only (no basil, bake 70) keeps CUT, then still FAILS",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-4 / C-5: composition failures keep CUT unless the bake failed too (OD-CUT256-2 / 6) > thin sauce only (INSUFFICIENT_SAUCE, bake 70) keeps CUT",
+      "FAIL  src/state/gameReducer.cutStep.test.ts > 16/17. CUT confirm -> RESULT, finalizes perStepElapsedMs.CUT > confirming CUT with `now` finalizes CUT's own elapsed ms and lands on RESULT",
+      "FAIL  src/state/gameReducer.cutStep.test.ts > 27. Completion Gate is never perturbed by CUT > CUT never gates completion: a composition-FAILED (empty) margherita baked in band still walks CUT to RESULT"
+    ]
+  },
+  {
+    "mutant": "MU-3 base-only: the Dinner guard forwards no waiver",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/state/gameReducer.dinner.test.ts > Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE > D-1 / D-2: raw and burnt bismarck -> INVALID_PIZZA without CUT; consumed once; no soft-lock",
+      "FAIL  src/state/gameReducer.dinner.test.ts > Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE > D-1b: the result equals the same pizza's result through the old CUT walk (only CUT is gone)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > START_BAKE: Stage A picks the window and the CUT step, and freezes the composition > R11: the identified recipe's bake window drives BAKE and the result (not the generic one)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > inventory: exactly once, from the stock captured before CONFIRM_BAKE > R17: every failed category keeps its consumption (no refund)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > result detection wired into the runtime > R9 / R10: raw and burnt pizzas -> INVALID_PIZZA (UNDERBAKED / OVERBAKED), stock consumed"
+    ]
+  },
+  {
+    "mutant": "MU-4 resolver ignores the waiver",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/mission/dinner/dinnerResultDetection.test.ts > Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P) > D-P runtime: for every CUT recipe's Reference pizza, bake 0..100, the forwarded verdict never mismatches",
+      "FAIL  src/mission/dinner/dinnerResultDetection.test.ts > Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P) > D-R1: a pending CUT with a matching waiver resolves to INVALID_PIZZA, consumed once",
+      "FAIL  src/mission/dinner/dinnerResultDetection.test.ts > Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P) > D-R3: a waiver the classification does not confirm is rejected, fail closed",
+      "FAIL  src/state/gameReducer.dinner.test.ts > Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE > D-1 / D-2: raw and burnt bismarck -> INVALID_PIZZA without CUT; consumed once; no soft-lock",
+      "FAIL  src/state/gameReducer.dinner.test.ts > Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE > D-1b: the result equals the same pizza's result through the old CUT walk (only CUT is gone)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > START_BAKE: Stage A picks the window and the CUT step, and freezes the composition > R11: the identified recipe's bake window drives BAKE and the result (not the generic one)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > inventory: exactly once, from the stock captured before CONFIRM_BAKE > R17: every failed category keeps its consumption (no refund)",
+      "FAIL  src/state/gameReducer.dinner.test.ts > result detection wired into the runtime > R9 / R10: raw and burnt pizzas -> INVALID_PIZZA (UNDERBAKED / OVERBAKED), stock consumed"
+    ]
+  },
+  {
+    "mutant": "MU-5 resolver trusts the waiver (no mismatch guard)",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/mission/dinner/dinnerResultDetection.test.ts > Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P) > D-R3: a waiver the classification does not confirm is rejected, fail closed"
+    ]
+  },
+  {
+    "mutant": "MU-6 selector reads only the primary reason",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/mission/dinner/dinnerResultDetection.test.ts > Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P) > D-P: the base verdict equals Stage B's bake failure on every window, composition and bake (10,452 cases)",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-4 / C-5: composition failures keep CUT unless the bake failed too (OD-CUT256-2 / 6) > MISSING + OVERBAKED skips CUT",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-4 / C-5: composition failures keep CUT unless the bake failed too (OD-CUT256-2 / 6) > MISSING + UNDERBAKED skips CUT although the primary reason is MISSING",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 G-1: bakeCompletionFailure reads the full failures list > a bake failure anywhere in failures, never only the primary reason",
+      "FAIL  src/state/gameReducer.cutStep.test.ts > 27. Completion Gate is never perturbed by CUT > Issue #256: an empty margherita whose bake also failed (value 5, UNDERBAKED in failures) skips CUT"
+    ]
+  },
+  {
+    "mutant": "MU-7 selector ignores OVERBAKED",
+    "detected": true,
+    "failingTests": [
+      "FAIL  src/mission/dinner/dinnerResultDetection.test.ts > Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P) > D-R1: a pending CUT with a matching waiver resolves to INVALID_PIZZA, consumed once",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-1 / C-2: a Completion-Gate bake failure skips CUT (Guided) > bake 91 -> RESULT at CONFIRM_BAKE (OVERBAKED)",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-1 / C-2: a Completion-Gate bake failure skips CUT (Guided) > bake 98 -> RESULT at CONFIRM_BAKE (OVERBAKED)",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-4 / C-5: composition failures keep CUT unless the bake failed too (OD-CUT256-2 / 6) > MISSING + OVERBAKED skips CUT",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 C-6: Lunch Rush follows the same rule; serve semantics unchanged > bake failure -> RESULT with the same FAILED completion and a score (the serve CTA's precondition)",
+      "FAIL  src/state/gameReducer.cutSkipFailedBake.test.ts > #256 G-1: bakeCompletionFailure reads the full failures list > a bake failure anywhere in failures, never only the primary reason",
+      "FAIL  src/state/gameReducer.dinner.test.ts > Issue #256: a CUT recipe whose bake the Completion Gate failed resolves at CONFIRM_BAKE > D-1 / D-2: raw and burnt bismarck -> INVALID_PIZZA without CUT; consumed once; no soft-lock"
+    ]
+  }
+]

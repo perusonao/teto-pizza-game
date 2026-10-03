@@ -39,7 +39,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX3_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/27/);
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -51,7 +51,7 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 
 /** One Free Cooking round with tomato sauce plus `pieces`, baked on target, to its RESULT. */
 async function cookFree(page: Page, pieces: { cheese: [RegExp, number][]; toppings: [RegExp, number][]; sauceDab?: boolean }) {
-  await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -106,30 +106,35 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
   for (const [name, pieces, text, shot] of [
-    ["ADD_ONE", { cheese: [[/モッツァレラ/, 3]], toppings: [] }, /材料をあと1つ足すと/, "c1-add-one"],
-    ["REMOVE_ONE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3], [/バジル/, 1]] }, /材料を1つ減らすと/, "c2-remove-one"],
-    ["CLOSE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 2], [/バジル/, 1], [/たまご/, 1]] }, /かなり近づいてるよ/, "c3-close"],
+    ["ADD_ONE", { cheese: [[/モッツァレラ/, 3]], toppings: [] }, /別の組み合わせも試してみよう/, "c1-add-one"],
+    ["REMOVE_ONE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3], [/バジル/, 1]] }, /別の組み合わせも試してみよう/, "c2-remove-one"],
+    ["CLOSE", { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 2], [/バジル/, 1], [/たまご/, 1]] }, /別の組み合わせも試してみよう/, "c3-close"],
   ] as const) {
-    test(`ORIGINAL ${name}: one secondary line + hint CTA, CTA bar on screen`, async ({ page, browserName }) => {
+    test(`ORIGINAL ${name}: the neutral secondary line (no near/far oracle) + hint CTA, CTA bar on screen`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);
       await driver.apply(PROFILES.N390);
       await openWithSave(page);
       await cookFree(page, pieces as never);
       await expect(page.locator(".result-panel--original")).toBeVisible();
-      await expect(page.locator(".result-near-miss__text")).toHaveText(text);
+      await expect(page.locator(".result-near-miss__text")).toHaveCount(0); // #346 S0: no near/far line on an ORIGINAL (text kept for table shape)
+      void text;
       await checkResult(page, driver, browserName, name);
       await capture(page, shot);
     });
   }
 
-  test("INCOMPLETE_MATCH wording, then 「💡 ヒントを見る」 opens Free Cooking with the hint sheet", async ({ page, browserName }) => {
+  test("INCOMPLETE_MATCH reads as an ordinary original (PR-1), then 「💡 ヒントを見る」 opens Free Cooking with the hint sheet", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
     await openWithSave(page);
     // The exact funghi set with a single sauce dab: the set matches, funghi's own sauce-amount
     // check does not (Free Cooking itself never checks the sauce amount).
     await cookFree(page, { cheese: [[/モッツァレラ/, 2]], toppings: [[/マッシュルーム/, 3]], sauceDab: true });
-    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
+    // Discovery 3.0 PR-1: the same neutral lead as any original, the generic far row an ordinary far pizza gets, and a
+    // recipe-independent line about the thin sauce.
+    await expect(page.locator(".original-pizza__lead")).toHaveText("まだ新しいレシピは見つかっていません");
+    await expect(page.locator(".result-near-miss__text")).toHaveCount(0); // #346 S0
+    await expect(page.locator(".original-pizza__advice")).toHaveText("ソースが少なめかも。もう少し広く塗ってみよう。");
     await checkResult(page, driver, browserName, "INCOMPLETE_MATCH");
     await capture(page, "c4-incomplete-match");
 

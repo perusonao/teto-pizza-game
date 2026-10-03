@@ -245,7 +245,7 @@ test.describe("Lunch Rush RESULT -> Weekly Ranking stack never scrolls the page"
  * (docs/reports/TETO_GAMEPLAY-UX_Phase2_Lunch-Rush-Home_Result.md). Covers the four RESULT
  * navigation CTAs fitting without page scroll at both viewports, HOME navigation itself (no
  * stale mission/result overlay left behind), and regression for the three pre-existing CTAs
- * (ランキング covered above; もう一度/フリープレイへ here).
+ * (ランキング covered above; もう一度/ピザ作りへ here).
  */
 async function reachLunchRushResult(page: import("@playwright/test").Page) {
   await seedLunchRushUnlockedOnly(page);
@@ -260,7 +260,7 @@ async function reachLunchRushResult(page: import("@playwright/test").Page) {
 }
 
 test.describe("Lunch Rush RESULT: four navigation CTAs (Gameplay UX Phase 2)", () => {
-  test("ランキング / もう一度 / フリープレイへ / 🏠ホームへ all visible with no overflow", async ({
+  test("ランキング / もう一度 / ピザ作りへ / 🏠ホームへ all visible with no overflow", async ({
     page,
   }) => {
     await reachLunchRushResult(page);
@@ -275,7 +275,7 @@ test.describe("Lunch Rush RESULT: four navigation CTAs (Gameplay UX Phase 2)", (
 
     await expect(page.getByRole("button", { name: /ランキングを見る/ })).toBeVisible();
     await expect(page.getByRole("button", { name: "もう一度" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "フリープレイへ" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "ピザ作りへ" })).toBeVisible();
     const homeButton = page.getByRole("button", { name: /ホームへ/ });
     await expect(homeButton).toBeVisible();
 
@@ -285,7 +285,7 @@ test.describe("Lunch Rush RESULT: four navigation CTAs (Gameplay UX Phase 2)", (
     expect(homeBox).not.toBeNull();
     expect(homeBox!.height).toBeGreaterThanOrEqual(44);
 
-    const freePlayBox = await page.getByRole("button", { name: "フリープレイへ" }).boundingBox();
+    const freePlayBox = await page.getByRole("button", { name: "ピザ作りへ" }).boundingBox();
     expect(freePlayBox).not.toBeNull();
     expect(freePlayBox!.height).toBeGreaterThanOrEqual(44);
 
@@ -339,9 +339,9 @@ test.describe("Lunch Rush RESULT: four navigation CTAs (Gameplay UX Phase 2)", (
     await expect(page.locator(".mission-hud")).toBeVisible();
   });
 
-  test("フリープレイへ enters FREE flow (regression)", async ({ page }) => {
+  test("ピザ作りへ enters FREE flow (regression)", async ({ page }) => {
     await reachLunchRushResult(page);
-    await page.getByRole("button", { name: "フリープレイへ" }).click();
+    await page.getByRole("button", { name: "ピザ作りへ" }).click();
     await page.waitForTimeout(300);
 
     expect(await page.locator(".mission-overlay__panel").count()).toBe(0);

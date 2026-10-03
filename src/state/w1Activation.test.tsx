@@ -80,10 +80,10 @@ function pizzaWithItems(ids: readonly string[]): PizzaState {
   };
 }
 
-describe("production tables: 25 recipes, one row each", () => {
-  it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 25 ids", () => {
+describe("production tables: 27 recipes, one row each", () => {
+  it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 27 ids", () => {
     const ids = RECIPES.map((r) => r.id).sort();
-    expect(ids).toHaveLength(25);
+    expect(ids).toHaveLength(27);
     expect(ORDERS.map((o) => o.recipeId).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_SAUCE_PROFILES).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_DISCOVERY_TARGET_IDS).sort()).toEqual(ids);
@@ -302,7 +302,7 @@ describe("save compatibility (schemaVersion 2, no bump)", () => {
   function futureSave(): Record<string, unknown> {
     return {
       ...createDefaultSave(),
-      dex: [...dexOf(2), { recipeId: "brazilian-calabresa", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+      dex: [...dexOf(2), { recipeId: "future-unknown-recipe", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
       pitzBalance: 120,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn", "calabresa"],
       inventory: { egg: 7, clam: 12, corn: 0, calabresa: 9 },
@@ -335,7 +335,7 @@ describe("save compatibility (schemaVersion 2, no bump)", () => {
     expect(written.unlockedForShopIngredientIds).toEqual(["egg", "bacon", "clam", "corn", "fresh-tomato", "calabresa"]);
     expect(written.missionBest).toEqual({ "lunch-rush": 900 });
     expect(written.futureLedger).toEqual({ purchased: ["clam"] });
-    expect((written.dex as { recipeId: string }[]).map((e) => e.recipeId)).toContain("brazilian-calabresa");
+    expect((written.dex as { recipeId: string }[]).map((e) => e.recipeId)).toContain("future-unknown-recipe");
   });
 
   it("Full Game Reset still clears everything", () => {
@@ -387,8 +387,8 @@ describe("onboarding: the starters still make only Margherita", () => {
     expect(gameReducer(s, { type: "SELECT_RECIPE", recipeId: "melanzane-pizza" })).toBe(s);
   });
 
-  it("step 1 is still egg and DISCOVERY_LADDER is the 24-step W1 ladder", () => {
-    expect(DISCOVERY_LADDER.steps).toHaveLength(24);
+  it("step 1 is still egg and DISCOVERY_LADDER is the 24-step W1 ladder + No.27's appended step 25", () => {
+    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
     expect(DISCOVERY_LADDER.steps[0]).toMatchObject({ step: 1, ingredientIds: ["egg"] });
     expect(resolveShopEntitlement(dexOf(1), [...STARTER_INGREDIENT_IDS], []).newlyUnlockedMaterialIds).toEqual(["egg"]);
   });

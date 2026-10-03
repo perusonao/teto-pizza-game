@@ -113,7 +113,9 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
         expect(leakPriors(HARDENED, recipe, parts), `${family} ${recipe.requiredIngredients.map((r) => r.ingredientId)} @${step}`).toEqual([]);
       }
     }
-    expect(dh42aLeaks).toBe(84); // of 141 recipes x 7 inventories = 987 owned states
+    // Re-measured at No.27 (30 ingredients: the synthetic families are cut from the production TOPPINGS,
+    // so adding chicken re-shapes them). The property that matters is the hardened `toEqual([])` above.
+    expect(dh42aLeaks).toBe(76);
   }, 120_000);
 });
 

@@ -18,7 +18,7 @@ async function openHomeFresh(page: Page) {
 }
 
 async function startFreeCook(page: Page) {
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
 
@@ -78,7 +78,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     // A. HOME -> FREE COOKING, no recipe selection on the way.
     await startFreeCook(page);
     await expect(page.locator(".pizza-select-screen")).toHaveCount(0);
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/フリークッキング/);
+    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
     await expect(page.locator(".mini-reference")).toHaveCount(0);
     await expectOneScreen(page, "DOUGH");
 
@@ -100,18 +100,23 @@ test.describe("Free Cooking (Issue #194)", () => {
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/NEW PIZZA!.*マルゲリータを発見しました！/);
     await expect(page.locator(".result-panel__score")).toBeVisible();
 
+    // #358: a NEW PIZZA result has no retry CTA; the player leaves through HOME and starts Free Cooking again.
+    await expect(page.getByRole("button", { name: "もう一度試す" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "レシピを選んで作る" })).toHaveCount(0);
+
     // D. Same pizza again -> KNOWN, no second discovery.
-    await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
+    await page.locator(".app-header__home-button").click();
+    await startFreeCook(page);
     await expect(page.locator(".result-panel")).toHaveCount(0);
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/フリークッキング/);
+    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
     await cookStarterPizza(page, { basil: true });
     await expect(page.locator(".free-cook-known")).toHaveText(/マルゲリータができた！（発見済み）/);
     await expect(page.getByText(/を発見しました/)).toHaveCount(0);
 
     // E. Unregistered combination -> ORIGINAL, a normal finished result.
-    await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
+    await page.getByRole("button", { name: "もう一度試す" }).click();
     await cookStarterPizza(page, { basil: false });
-    await expect(page.locator(".result-panel__heading--original")).toHaveText(/オリジナルピザ完成！/);
+    await expect(page.locator(".result-panel__heading--original")).toHaveText(/🧪 オリジナルピザ/);
     await expect(page.locator(".result-panel--failed")).toHaveCount(0);
     await expect(page.getByRole("list", { name: "使った材料" })).toContainText("モッツァレラ");
 
@@ -128,7 +133,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     await startFreeCook(page);
     await expect(page.locator(".result-panel")).toHaveCount(0);
     await expect(page.locator(".discovered-banner")).toHaveCount(0);
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/フリークッキング/);
+    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
   });
 
   test("a large owned set pages inside the tray and PREPARE still fits one screen", async ({ page }) => {

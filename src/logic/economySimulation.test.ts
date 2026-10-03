@@ -26,18 +26,20 @@ import {
 
 /** Progression 2.0 I5a: catalog-only W1 materials, priced by the REC-04 material Shop instead. */
 const W1_MATERIAL_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
+/** Discovery 3.0 No.27: the ladder-appended material, also priced by the material Shop (no legacy price). */
+const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, "chicken"];
 
 // A. current economy table consistency ---------------------------------------------------
 
 describe("economy table consistency (A)", () => {
   const table = financeIngredientTable();
 
-  it("has exactly 29 ingredients, 19 of them legacy-priced (the 7 W1 materials carry no legacy price)", () => {
-    expect(INGREDIENTS.length).toBe(29);
+  it("has exactly 30 ingredients, 19 of them legacy-priced (the 7 W1 materials and No.27's chicken carry no legacy price)", () => {
+    expect(INGREDIENTS.length).toBe(30);
     expect(table.length).toBe(19);
     const finiteUnpriced = INGREDIENTS.filter((i) => i.unlockCondition && !i.starterGrantOnly).map((i) => i.id);
-    expect(finiteUnpriced.sort()).toEqual(W1_MATERIAL_IDS);
-    for (const id of W1_MATERIAL_IDS) {
+    expect(finiteUnpriced.sort()).toEqual([...LADDER_ONLY_MATERIAL_IDS].sort());
+    for (const id of LADDER_ONLY_MATERIAL_IDS) {
       const ingredient = INGREDIENTS.find((i) => i.id === id)!;
       expect(ingredient.pricePitz).toBeUndefined();
       expect(ingredient.restockQuantity).toBeUndefined();
@@ -45,7 +47,7 @@ describe("economy table consistency (A)", () => {
   });
 
   it("simulates the 15 EP-era recipes; the 10 W1 recipes (no EP1 gate) are outside this EP4 model", () => {
-    expect(RECIPES.length).toBe(25);
+    expect(RECIPES.length).toBe(27);
     expect(EP_ERA_RECIPES).toHaveLength(15);
     expect((RECIPES as readonly Recipe[]).filter((r) => !EP_ERA_RECIPES.includes(r)).every((r) => !r.unlockCondition)).toBe(true);
   });
@@ -62,7 +64,7 @@ describe("economy table consistency (A)", () => {
 describe("finite ingredient prices (B)", () => {
   it("every legacy-priced finite ingredient has a positive integer pricePitz", () => {
     for (const ingredient of INGREDIENTS) {
-      if (!ingredient.unlockCondition || W1_MATERIAL_IDS.includes(ingredient.id)) continue;
+      if (!ingredient.unlockCondition || LADDER_ONLY_MATERIAL_IDS.includes(ingredient.id)) continue;
       expect(ingredient.pricePitz).toBeGreaterThan(0);
       expect(Number.isInteger(ingredient.pricePitz)).toBe(true);
     }
@@ -74,7 +76,7 @@ describe("finite ingredient prices (B)", () => {
 describe("restock quantities (C)", () => {
   it("every legacy-priced finite ingredient has a positive integer restockQuantity", () => {
     for (const ingredient of INGREDIENTS) {
-      if (!ingredient.unlockCondition || W1_MATERIAL_IDS.includes(ingredient.id)) continue;
+      if (!ingredient.unlockCondition || LADDER_ONLY_MATERIAL_IDS.includes(ingredient.id)) continue;
       expect(ingredient.restockQuantity).toBeGreaterThan(0);
       expect(Number.isInteger(ingredient.restockQuantity)).toBe(true);
     }

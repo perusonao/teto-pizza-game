@@ -13,6 +13,8 @@ import { getIngredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
 import type { ResultNearMissLine } from "../state/resultNearMiss";
+import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
+import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -116,12 +118,35 @@ interface ResultPanelProps {
   /** P3-3b (OD-P3-19): the stable attempt number of an earlier identical ORIGINAL attempt (the P3-3a record result),
    *  or `null`. Shown only on the ORIGINAL card, after the P2 line; never the retry count. */
   trialNoticeNumber?: number | null;
+  /** Discovery 3.0 PR-1: recipe-independent execution advice (../state/executionAdvice.ts), ORIGINAL card only. */
+  executionAdviceJa?: string | null;
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
+  /** #346 S4: the valid Research Target's anonymous label (「？？？ピザ ①」), or `null`/omitted without one. Only
+   *  with it does an ORIGINAL result use the Research copy, 「📓 試作ノート」 and the retry wording; the label is
+   *  never a recipe name or id. */
+  researchLabelJa?: string | null;
+  /** Contract 2.1 S5: the disclosed RESULT membership rows of this attempt (`state.lastResearchRows`, flag-gated by the
+   *  caller). Rendered as is, in the order given, and only on the Research ORIGINAL card; this component never judges
+   *  membership or regenerates a known check-mark. `knownIngredientIds` (known before this attempt) only marks an
+   *  already-used ingredient with a small ✓ in the used-ingredients list: ○ = learned now, ✓ = known before. Omitted / null / nothing to disclose renders nothing. */
+  researchRows?: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean; knownIngredientIds?: readonly string[] } | null;
+  /** #346 S4: opens the 「📓 試作ノート」 sheet (GameScreen owns it) from the Research ORIGINAL result. */
+  onOpenAttemptLog?: () => void;
+  /** Ref for that button, so GameScreen can hand focus back when the sheet closes. */
+  attemptLogEntryRef?: React.Ref<HTMLButtonElement>;
+  /** #346 S4 / OD-RX-4: the state-aware primary CTA of a NEW_DISCOVERY result. Omitted = the plain Dex link. */
+  postDiscovery?: PostDiscoveryPrimary | null;
+  /** 「🔎 次のピザを研究する」: the entry id when exactly one is left (start it), else `null` (back to the Dex's
+   *  anonymous Research cards). */
+  onResearchNext?: (recipeId: string | null) => void;
 }
 
 const MAX_STARS = 5;
+
+/** #346 S4: the Research ORIGINAL lead. One string for every original kind; says only that no new recipe was found. */
+export const RESEARCH_ORIGINAL_LEAD_COPY = "まだ新しいレシピは見つかっていません";
 
 const BAKE_STATE_ICON: Record<BakeState, string> = {
   raw: "\u{1F4A7}",
@@ -180,10 +205,19 @@ export function ResultPanel({
   onBackToPizzaSelect,
   dexRegistration = null,
   onOpenDex,
-  nearMiss = null,
+  nearMiss: nearMissLine = null,
   trialNoticeNumber = null,
+  executionAdviceJa = null,
   onShowHint,
+  researchLabelJa = null,
+  researchRows = null,
+  onOpenAttemptLog,
+  attemptLogEntryRef,
+  postDiscovery = null,
+  onResearchNext,
 }: ResultPanelProps) {
+  // #346 S4: with a valid Research Target no near/far line is ever shown (Research ORIGINAL contract).
+  const nearMiss = researchLabelJa !== null ? null : nearMissLine;
   // 229-C: a secondary row under the result itself -- the line (if any) and the hint CTA.
   const hintRow = (line: ResultNearMissLine | null, withCta: boolean) =>
     line || (withCta && onShowHint) ? (
@@ -204,7 +238,7 @@ export function ResultPanel({
   const actions = (
     <div className="action-row action-row--column result-panel__actions">
       <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
-        {freeCook ? "もう一度じゆうに作る" : "もう一度つくる"}
+        {freeCook ? "もう一度試す" : "もう一度つくる"}
       </button>
       <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
         {freeCook ? "レシピを選んで作る" : "別のピザを作る"}
@@ -256,24 +290,46 @@ export function ResultPanel({
     const leadJa = ORIGINAL_LEAD_COPY[originalResultKind(discovery)];
     // P3-3b: a static paragraph (no live region: the P2 line above already announces the result).
     const trialNoticeText = duplicateTrialNoticeJa(trialNoticeNumber);
+    // #346 S4 / S0: every Recipe Discovery ORIGINAL (with or without a Research Target) is the same contract. The
+    // wording is one fixed string for every original kind (ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH): no right/wrong,
+    // no near/far line, no count. Only the 研究中 context line and the research CTA row depend on the target.
+    const research = freeCook && researchLabelJa !== null;
+    const recipeDiscovery = freeCook;
     return (
-      <div className="result-panel result-panel--original">
+      <div className={`result-panel result-panel--original${research ? " result-panel--research" : ""}`}>
         <p className="result-panel__heading result-panel__heading--original">
-          {"\u{1F3A8}"} オリジナルピザ完成！
+          {recipeDiscovery ? "\u{1F9EA} オリジナルピザ" : "\u{1F3A8} オリジナルピザ完成！"}
         </p>
+        {research && (
+          <p className="result-panel__research-context" data-research-context="">
+            {"\u{1F50E}"} 研究中 {researchLabelJa}
+          </p>
+        )}
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
-            {leadJa}
+            {recipeDiscovery ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
           </p>
+          {research && researchRows && <ResearchRowsPanel rows={researchRows.rows} toppingOverCap={researchRows.toppingOverCap} />}
           {usedIngredientIds.length > 0 && (
             <ul className="original-pizza__ingredients" aria-label="使った材料">
               {usedIngredientIds.map((id) => {
                 const ingredient = getIngredient(id);
+                const known = research && !!ingredient && !!researchRows?.knownIngredientIds?.includes(id);
                 return (
-                  <li key={id} className="original-pizza__ingredient">
+                  <li
+                    key={id}
+                    className={`original-pizza__ingredient${known ? " original-pizza__ingredient--known" : ""}`}
+                    aria-label={known ? `${ingredient!.nameJa}、すでにわかっている材料` : undefined}
+                  >
                     {ingredient ? (
                       <>
                         <IngredientGlyph ingredient={ingredient} /> {ingredient.nameJa}
+                        {known && (
+                          <span className="original-pizza__known-mark" aria-hidden="true" data-known-mark="">
+                            {" "}
+                            ✓
+                          </span>
+                        )}
                       </>
                     ) : (
                       id
@@ -288,13 +344,40 @@ export function ResultPanel({
               {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
             </p>
           )}
+          {/* Discovery 3.0 PR-1: a static, recipe-independent line about the player's own sauce. It never depends on
+              `discovery` (the lead above and this card are byte-identical for every original outcome). */}
+          {freeCook && executionAdviceJa && <p className="original-pizza__advice">{executionAdviceJa}</p>}
         </div>
-        {freeCook && hintRow(nearMiss, true)}
+        {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
         <p className="original-pizza__note">
           図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。
         </p>
-        {actions}
+        {research ? (
+          <div className="action-row action-row--column result-panel__actions">
+            <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
+              もう一度試す
+            </button>
+            <div className="result-panel__research-actions">
+              {onOpenAttemptLog && (
+                <button
+                  ref={attemptLogEntryRef}
+                  type="button"
+                  className="result-near-miss__cta"
+                  aria-haspopup="dialog"
+                  onClick={onOpenAttemptLog}
+                >
+                  {"\u{1F4D3}"} 試作ノート
+                </button>
+              )}
+            </div>
+            <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
+              レシピを選んで作る
+            </button>
+          </div>
+        ) : (
+          actions
+        )}
       </div>
     );
   }
@@ -338,10 +421,24 @@ export function ResultPanel({
                 </span>
               )}
             </p>
-            {onOpenDex && (
-              <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
-                {"\u{1F4D6}"} 図鑑を見る
+            {postDiscovery?.kind === "RESEARCH_NEXT" && onResearchNext ? (
+              <button
+                type="button"
+                className="dex-registration-row__cta dex-registration-row__cta--primary"
+                onClick={() => onResearchNext(postDiscovery.directResearchId)}
+              >
+                {postDiscovery.labelJa}
               </button>
+            ) : postDiscovery?.kind === "SHOP_NEW_MATERIAL" && onOpenShop ? (
+              <button type="button" className="dex-registration-row__cta dex-registration-row__cta--primary" onClick={onOpenShop}>
+                {postDiscovery.labelJa}
+              </button>
+            ) : (
+              onOpenDex && (
+                <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
+                  {"\u{1F4D6}"} 図鑑を見る
+                </button>
+              )
             )}
           </div>
         </>
@@ -408,7 +505,9 @@ export function ResultPanel({
               </span>
             ))}
           </p>
-          {onOpenShop && (
+          {/* #358 OD-358-4: when the discovery's primary CTA already opens the Shop (「新しい食材を見る」), the notice is
+              a message only -- one Shop CTA, not two with the same destination. */}
+          {onOpenShop && !(isDiscoveryResult && postDiscovery?.kind === "SHOP_NEW_MATERIAL") && (
             <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
               {"\u{1F6D2}"} ショップへ
             </button>
@@ -595,7 +694,67 @@ export function ResultPanel({
         </div>
       </details>
 
-      {actions}
+      {/* #358 OD-358-2/3: a NEW PIZZA result is "discovered -> next": no 「もう一度試す」 / 「レシピを選んで作る」 here
+          (the primary CTA above leads on; Pizza Select / HOME / Dex stay reachable from their own entries). */}
+      {!isDiscoveryResult && actions}
     </div>
+  );
+}
+
+/** Contract 2.1 §3: the one fixed explanation when 4+ unknown toppings were used (no individual topping row then). */
+export const RESEARCH_TOPPING_CAP_COPY = "トッピングは一度に3種類まで調べられるよ";
+
+const RESEARCH_ROW_CATEGORIES: readonly { category: ResearchResultCategory; labelJa: string }[] = [
+  { category: "sauce", labelJa: "ソース" },
+  { category: "cheese", labelJa: "チーズ" },
+  { category: "topping", labelJa: "トッピング" },
+];
+
+/**
+ * Contract 2.1 S5: 「今回の試作結果」. Category groups (ソース / チーズ / トッピング), one compact chip per disclosed
+ * judgment: the ingredient name + ○ (a member of the researched pizza) or × (not a member). A category without a row is
+ * not rendered at all, and nothing says "なし" / counts / totals / a verdict on the whole pizza. The same markup for every
+ * original outcome. The symbol, not the colour, carries the meaning; the accessible name states it in words.
+ */
+function ResearchRowsPanel({ rows, toppingOverCap }: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean }) {
+  const groups = RESEARCH_ROW_CATEGORIES.map((g) => ({ ...g, rows: rows.filter((r) => r.category === g.category) }));
+  const hasRows = groups.some((g) => g.rows.length > 0);
+  if (!hasRows && !toppingOverCap) return null;
+  return (
+    <section className="research-rows" data-testid="research-rows" aria-label="今回の試作結果">
+      <p className="research-rows__heading">{"\u{1F9EA}"} 今回の試作結果</p>
+      {groups.map((g) => {
+        const showCap = g.category === "topping" && toppingOverCap;
+        if (g.rows.length === 0 && !showCap) return null;
+        return (
+          <div key={g.category} className="research-rows__group" data-research-category={g.category}>
+            <span className="research-rows__category">{g.labelJa}</span>
+            {showCap ? (
+              <p className="research-rows__note">{RESEARCH_TOPPING_CAP_COPY}</p>
+            ) : (
+              <ul className="research-rows__chips">
+                {g.rows.map((row) => {
+                  const name = getIngredient(row.ingredientId)?.nameJa;
+                  if (!name) return null;
+                  const positive = row.verdict === "POSITIVE";
+                  return (
+                    <li
+                      key={row.ingredientId}
+                      className={`research-rows__chip research-rows__chip--${positive ? "positive" : "negative"}`}
+                      aria-label={`${name}、研究中ピザの材料${positive ? "" : "ではない"}`}
+                    >
+                      <span aria-hidden="true">{name}</span>
+                      <span className="research-rows__mark" aria-hidden="true">
+                        {positive ? "○" : "×"}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </section>
   );
 }

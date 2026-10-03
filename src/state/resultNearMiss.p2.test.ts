@@ -1,3 +1,5 @@
+// Pins the pre-neutralization pool-distance classifier (`legacyResultNearMiss`), which has no production caller since
+// Near/Far Neutralization Phase 1; the production `resultNearMiss` is pinned in resultNearMiss.neutral.test.ts.
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { getIngredient, INGREDIENTS } from "../data/ingredients";
@@ -6,7 +8,7 @@ import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/mat
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
-import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, nearMissLine, resultNearMiss, RESULT_FAR_GENERIC_ENABLED, type ResultNearMissInput } from "./resultNearMiss";
+import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, nearMissLine, legacyResultNearMiss as resultNearMiss, RESULT_FAR_GENERIC_ENABLED, type ResultNearMissInput } from "./resultNearMiss";
 
 /**
  * Original Pizza Recovery P2 on the REAL 25-recipe catalog and the real matcher: no-sauce wording,
@@ -113,14 +115,13 @@ describe("P2-C generic FAR line (OD-P2-2 = ON)", () => {
     expect(off === null || off.textJa === NEAR_MISS_COPY.FAR_KEY_UNUSED).toBe(true);
   });
 
-  it("the generic line is only ever for a far ORIGINAL: never a known pizza, a failed bake, a guided round, or a non-ORIGINAL outcome", () => {
+  it("the generic line is only ever for a far ORIGINAL or INCOMPLETE_MATCH: never a known pizza, a failed bake, a guided round, or a non-ORIGINAL outcome", () => {
     const i = fullOwnership(far);
     const ambiguous: DiscoveryOutcome = { kind: "AMBIGUOUS", targetIds: ["a", "b"] };
     for (const over of [
       { freeCook: false },
       { completion: { status: "FAILED", reason: "UNDERBAKED", failures: [] } as never },
       { lastDiscovery: ambiguous },
-      { lastDiscovery: { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
       { lastDiscovery: { kind: "NEW_DISCOVERY", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
       { lastDiscovery: { kind: "ALREADY_DISCOVERED", recipeId: "funghi", targetId: "shipped:funghi" } as DiscoveryOutcome },
     ] as Partial<ResultNearMissInput>[]) {

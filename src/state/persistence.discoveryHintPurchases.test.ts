@@ -60,7 +60,7 @@ function score(total: number, stars: 1 | 2 | 3 | 4 | 5): ScoreBreakdown {
   return { matchScore: total, ingredientScore: total, placementScore: total, bakeScore: total, total, stars };
 }
 
-const FUTURE_RECIPE = "brazilian-calabresa";
+const FUTURE_RECIPE = "future-unknown-recipe";
 
 describe("HE-1: discoveryHintPurchases in save v2", () => {
   it("a fresh save starts with an empty ledger and stays schemaVersion 2", () => {

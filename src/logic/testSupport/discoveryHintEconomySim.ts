@@ -16,6 +16,11 @@
  * the player here knows only what it bought (hint levels) plus what every player sees for free (the
  * Shop's newly stocked material, the near-miss line), and searches from there.
  *
+ * LEGACY PLAYER MODEL (Near/Far Neutralization Phase 1): the near-miss line this harness reads is
+ * `legacyResultNearMiss`, the pre-neutralization pool-distance feedback. Production RESULT no longer shows
+ * it (it shows one neutral line), so results from this harness describe the OLD free signal and are
+ * optimistic for the current game. Recalibrating or retiring it is a separate economy task (deferred).
+ *
  * Model assumptions (all documented in the report §6):
  * - Quality: every scored bake lands on `qualityTotal` (the reducer's own score is overridden before
  *   REGISTER_TO_DEX, so `applyPitzCredit` runs unchanged on that total). No Cooking Time bonus (no
@@ -31,16 +36,17 @@
  * - Dex 0 (the Margherita onboarding) hints are free when `onboardingFree` is set (the proposal).
  */
 import { getIngredient } from "../../data/ingredients";
-import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
+import { countsTowardLadder, getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { purchaseDiscoveryHint } from "../discovery/hintPurchase";
 import { buildHintSteps, type HintStep } from "../discovery/hintSteps";
 import { selectHintTarget } from "../discovery/hintTarget";
 import { starsFromTotal } from "../scoring";
 import { discoveredRecipeIds } from "../../state/dex";
 import { hintSheetView } from "../../state/discoveryHint";
+import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
-import { resultNearMiss } from "../../state/resultNearMiss";
+import { legacyResultNearMiss as resultNearMiss } from "../../state/resultNearMiss";
 
 export type HintPrices = readonly [h1: number, h2: number, h3: number, h4: number];
 
@@ -388,7 +394,9 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
 
   for (let stageGuard = 0; stageGuard < 40; stageGuard += 1) {
     const dexCount = discoveredRecipeIds(s.dex).length;
-    if (dexCount === 25) {
+    // Done when every recipe is discovered. Not "25": with a branching pool the walk may end after
+    // more (or in a different order) than a single-path ladder, and the stop must not assume one.
+    if (dexCount === RECIPES.length) {
       completed = true;
       break;
     }
@@ -401,6 +409,45 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
     ensureStock(s.ownedIngredientIds.filter((id) => isFiniteMaterial(id) && (s.inventory[id] ?? 0) < 1));
 
     const t = selectHintTarget(s);
+    if (t.kind === "OPEN_POOL") {
+      // PR-4b-B (Owner D-1): 2+ DISCOVERABLE and no sticky / purchased target -> the sheet names no
+      // recipe, so there is nothing to buy. The player cooks a candidate without a hint; the
+      // non-credit one first (it leaves one candidate again, which restores the hint). No Pitz
+      // is spent on hints; the stage records the blind discovery.
+      const candidates = RECIPES.filter((r) => recipeDiscoveryState(r, s) === "DISCOVERABLE");
+      const pick = candidates.find((r) => !countsTowardLadder(r.id)) ?? candidates[0];
+      if (!pick) throw new Error(`Dex ${dexCount}: OPEN_POOL without a candidate`);
+      const answer = [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))];
+      ensureStock(answer);
+      bakeRaw(answer);
+      acc.experimental += 1;
+      if (s.lastDiscovery?.kind !== "NEW_DISCOVERY") throw new Error(`Dex ${dexCount}: pool candidate ${pick.id} not discovered`);
+      const reward = creditOf(s);
+      stages.push({
+        discovery: discoveredRecipeIds(s.dex).length,
+        recipe: pick.id,
+        hintTarget: pick.id,
+        pitzBefore: acc.pitzBefore,
+        discoveryReward: reward,
+        otherEarned: acc.otherEarned,
+        hintSpend: 0,
+        unlockSpend: acc.unlockSpend,
+        refillSpend: acc.refillSpend,
+        pitzAfter: s.pitzBalance,
+        hintLevel: 0,
+        maxHintLevel: 0,
+        experimentalBakes: acc.experimental,
+        grindBakes: acc.grind,
+        stockConsumed: acc.stock,
+        insufficientHintAttempts: 0,
+        minPitz: acc.minPitz,
+        shop: acc.shop,
+        softBlocked: acc.grind > 0,
+        reason: "open pool: blind discovery (no hint target)",
+        searchExhausted: false,
+      });
+      continue;
+    }
     if (t.kind !== "TARGET") throw new Error(`Dex ${dexCount}: no hint target (${t.kind})`);
     const target = getRecipe(t.recipeId as RecipeId)!;
     const targetMax = maxLevelOf(buildHintSteps(target, { discoveredCount: dexCount }));

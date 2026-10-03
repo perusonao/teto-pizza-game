@@ -51,13 +51,13 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     // A. Fresh HOME: Dex 0, フリークッキング is the primary CTA, ランチラッシュ is locked with a
     // reason, ピザを作る is still present (secondary).
     await openHomeFresh(page);
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/25/);
-    await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toBeVisible();
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/27/);
+    await expect(page.getByRole("button", { name: /レシピ発見/ })).toBeVisible();
     const lunchRushButton = page.getByRole("button", { name: /ランチラッシュ/ });
     await expect(lunchRushButton).toBeDisabled();
     await expect(page.locator(".home-lunch-rush-hint")).toHaveText(/まず1枚ピザを発見しよう/);
     await expect(page.getByRole("button", { name: "\u{1F355} ピザを作る" })).toBeVisible();
-    await expect(page.locator(".home-hero__bubble")).toHaveText(/フリークッキングで最初の1枚/);
+    await expect(page.locator(".home-hero__bubble")).toHaveText(/レシピ発見で最初の1枚/);
 
     // B. Recipe Select (Discovery 2.0 A′, OD-DISC-1/3): at Dex 0 there is no recipe card and no
     // recipe name at all -- only the anonymous first-discovery prompt to Free Cooking.
@@ -65,14 +65,14 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     await expect(page.locator(".pizza-select-screen")).toBeVisible();
     await expect(page.locator(".pizza-select-grid-card")).toHaveCount(0);
     await expect(page.locator(".pizza-select-screen")).not.toContainText("マルゲリータ");
-    await expect(page.locator(".pizza-select-prompt")).toContainText("まずはフリークッキングで1枚目のピザを見つけよう！");
-    const goFreeCookButton = page.locator(".pizza-select-prompt").getByRole("button", { name: /フリークッキングで探す/ });
+    await expect(page.locator(".pizza-select-prompt")).toContainText("まずはレシピ発見で1枚目のピザを見つけよう！");
+    const goFreeCookButton = page.locator(".pizza-select-prompt").getByRole("button", { name: /レシピ発見/ });
     await expect(goFreeCookButton).toBeVisible();
 
     // B continued: routes straight into Free Cooking, not a guided SELECT_RECIPE round.
     await goFreeCookButton.click();
     await page.waitForSelector(".pizza-stage");
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/フリークッキング/);
+    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
     await expect(page.locator(".pizza-select-screen")).toHaveCount(0);
 
     // C. Hint escalation: level 0 is the pre-existing generic free-cook hint; three
@@ -81,21 +81,21 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
 
     await cookStarterPizza(page, { basil: false }); // attempt 1 -> ORIGINAL
     await expect(page.locator(".result-panel__heading--original")).toBeVisible();
-    await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
+    await page.getByRole("button", { name: "もう一度試す" }).click();
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click(); // DOUGH -> SAUCE, level 1 hint
     await expect(page.locator(".order-card__hint")).toContainText("赤・白・緑");
     await page.getByRole("button", { name: "やり直す" }).click();
 
     await cookStarterPizza(page, { basil: false }); // attempt 2 -> ORIGINAL
-    await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
+    await page.getByRole("button", { name: "もう一度試す" }).click();
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click(); // level 2 hint
     await expect(page.locator(".order-card__hint")).toContainText("赤いソース、とろける白いチーズ");
     await page.getByRole("button", { name: "やり直す" }).click();
 
     await cookStarterPizza(page, { basil: false }); // attempt 3 -> ORIGINAL
-    await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
+    await page.getByRole("button", { name: "もう一度試す" }).click();
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click(); // level 3 hint -- near-explicit
     await expect(page.locator(".order-card__hint")).toContainText("トマトソースを塗って、モッツァレラをのせて、バジルをちらして");
@@ -124,7 +124,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     await page.getByRole("button", { name: /ホーム/ }).click();
     await expect(page.locator(".home-screen")).toBeVisible();
     await expect(page.getByRole("button", { name: "\u{1F355} ピザを作る" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toHaveCount(0);
+    await expect(page.locator(".cta-button--free-cook-lead")).toHaveCount(0);
     await expect(page.locator(".home-lunch-rush-hint")).toHaveCount(0);
     await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
 
@@ -165,8 +165,8 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
       );
     });
     await openHomeFresh(page);
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
-    await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toHaveCount(0);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
+    await expect(page.locator(".cta-button--free-cook-lead")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "\u{1F355} ピザを作る" })).toBeVisible();
     await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
     await expect(page.locator(".home-lunch-rush-hint")).toHaveCount(0);
@@ -201,7 +201,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     });
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
 
     await page.getByRole("button", { name: "設定" }).click();
     await page.getByRole("button", { name: "ゲームデータをリセット" }).click();
@@ -211,8 +211,8 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     await confirmPanel.getByRole("button", { name: "最初からやり直す" }).click();
     await page.waitForLoadState("load");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/25/, { timeout: 15_000 });
-    await expect(page.getByRole("button", { name: /フリークッキングで探す/ })).toBeVisible();
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/27/, { timeout: 15_000 });
+    await expect(page.getByRole("button", { name: /レシピ発見/ })).toBeVisible();
   });
 });
 

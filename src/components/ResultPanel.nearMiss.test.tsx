@@ -37,7 +37,7 @@ function props(over: Record<string, unknown> = {}) {
     ...over,
   };
 }
-const line = (kind: ResultNearMissLine["kind"]): ResultNearMissLine => ({
+const line = (kind: Exclude<ResultNearMissLine["kind"], "NEUTRAL">): ResultNearMissLine => ({
   kind,
   textJa: kind === "FAR" ? NEAR_MISS_COPY.FAR_KEY_UNUSED : NEAR_MISS_COPY[kind],
 });
@@ -46,23 +46,24 @@ const row = () => document.querySelector(".result-near-miss");
 afterEach(() => cleanup());
 
 describe("ORIGINAL result", () => {
-  it.each(["ADD_ONE", "REMOVE_ONE", "SAUCE_ONLY", "CLOSE", "FAR"] as const)("%s: the line and the hint CTA", (kind) => {
+  it.each(["ADD_ONE", "REMOVE_ONE", "SAUCE_ONLY", "CLOSE", "FAR"] as const)("%s: no near-miss line (#346 S0: Recipe Discovery ORIGINAL), the hint CTA stays", (kind) => {
     const p = props({ nearMiss: line(kind) });
     render(<ResultPanel {...p} />);
-    expect(screen.getByText(line(kind).textJa)).toBeInTheDocument();
+    expect(screen.queryByText(line(kind).textJa)).toBeNull();
+    expect(row()?.querySelector(".result-near-miss__text")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /ヒントを見る/ }));
     expect(p.onShowHint).toHaveBeenCalledTimes(1);
   });
 
-  it("no near-miss line: the lead stays and the hint CTA is still offered", () => {
+  it("no near-miss line: the S0 lead stays and the hint CTA is still offered", () => {
     render(<ResultPanel {...props()} />);
-    expect(screen.getByText("図鑑にはまだ載っていないピザ！")).toBeInTheDocument();
+    expect(screen.getByText("まだ新しいレシピは見つかっていません")).toBeInTheDocument();
     expect(row()?.querySelector(".result-near-miss__text")).toBeNull();
     expect(screen.getByRole("button", { name: /ヒントを見る/ })).toBeInTheDocument();
   });
 
-  it("the row sits under the result (after the headline, before the note and the CTA bar)", () => {
-    render(<ResultPanel {...props({ nearMiss: line("ADD_ONE") })} />);
+  it("the hint row sits under the result (after the headline, before the note and the CTA bar)", () => {
+    render(<ResultPanel {...props()} />);
     const order = [".result-panel__headline", ".result-near-miss", ".original-pizza__note", ".result-panel__actions"].map((sel) =>
       [...document.querySelectorAll(".result-panel *")].indexOf(document.querySelector(sel)!),
     );
@@ -70,9 +71,9 @@ describe("ORIGINAL result", () => {
     expect(order.every((i) => i >= 0)).toBe(true);
   });
 
-  it("INCOMPLETE_MATCH: the new sauce-amount / bake wording, no recipe id in the DOM", () => {
+  it("INCOMPLETE_MATCH: neutral lead (no 「あと少し」), no recipe id in the DOM", () => {
     render(<ResultPanel {...props({ discovery: { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" } })} />);
-    expect(screen.getByText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。")).toBeInTheDocument();
+    expect(screen.getByText("まだ新しいレシピは見つかっていません")).toBeInTheDocument();
     expect(document.body.innerHTML).not.toContain("funghi");
     expect(document.body.textContent).not.toContain("フンギ");
   });

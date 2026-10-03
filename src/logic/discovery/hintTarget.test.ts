@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../../data/ingredients";
-import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
+import { RECIPES, countsTowardLadder, type Recipe, type RecipeId } from "../../data/recipes";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../../state/dex";
 import { resolveShopEntitlement } from "../../state/materialEntitlement";
 import { recipeKeyStep } from "../../state/recipeChapters";
@@ -9,6 +9,12 @@ import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/re
 import { compareHintCandidates, discoverableHintCandidates, selectHintTarget } from "./hintTarget";
 
 const recipe = (id: string): Recipe => RECIPES.find((r) => r.id === id)!;
+/** The credited (W1) population: what the single-path W1 walk means. A non-credit branching recipe
+ *  is a different population (see "branching pool" below), never an exception hidden in this one.
+ *  No.27 pesto-pollo (credited, but the appended step 25's key recipe) is outside the W1 walk; it is
+ *  pinned by the No.27 vertical-slice tests. */
+const W1_RECIPES = RECIPES.filter((r) => countsTowardLadder(r.id) && r.id !== "pesto-pollo");
+const W1 = { recipes: W1_RECIPES };
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 
 function discover(ids: readonly string[]): DexState {
@@ -59,16 +65,18 @@ function fake(id: string, ingredientIds: string[]): Recipe {
 describe("selectHintTarget -- 25-recipe ladder (T-3 / T-4)", () => {
   it.each(Array.from({ length: 25 }, (_, c) => c))("Dex %i: the only target is the next ladder key recipe", (count) => {
     const inputs = ladderState(count);
-    const candidates = discoverableHintCandidates(inputs);
+    const candidates = discoverableHintCandidates(inputs, W1_RECIPES);
     expect(candidates.map((r) => r.id)).toEqual([LADDER_ORDER[count]]);
-    expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: LADDER_ORDER[count], source: "auto" });
+    expect(selectHintTarget(inputs, W1)).toEqual({ kind: "TARGET", recipeId: LADDER_ORDER[count], source: "auto" });
+    // The full population may hold more (non-credit branches), but the W1 key recipe is always in it.
+    expect(discoverableHintCandidates(inputs).map((r) => r.id)).toContain(LADDER_ORDER[count]);
   });
 
   it("every target on the ladder is DISCOVERABLE; DISCOVERED / KBMM / UNKNOWN never are", () => {
     for (let count = 0; count <= 25; count += 1) {
       for (const newest of ["bought", "not-bought", "stock-0"] as const) {
         const inputs = ladderState(count, newest);
-        const result = selectHintTarget(inputs);
+        const result = selectHintTarget(inputs, W1);
         if (result.kind === "TARGET") expect(recipeDiscoveryState(recipe(result.recipeId), inputs)).toBe("DISCOVERABLE");
         for (const r of discoverableHintCandidates(inputs)) expect(recipeDiscoveryState(r, inputs)).toBe("DISCOVERABLE");
       }
@@ -76,17 +84,17 @@ describe("selectHintTarget -- 25-recipe ladder (T-3 / T-4)", () => {
   });
 
   it.each(Array.from({ length: 24 }, (_, i) => i + 1))("Dex %i without the new material: SHOP_NEW; bought but stock 0: REFILL", (count) => {
-    expect(selectHintTarget(ladderState(count, "not-bought"))).toEqual({ kind: "SHOP_NEW" });
-    expect(selectHintTarget(ladderState(count, "stock-0"))).toEqual({ kind: "REFILL" });
+    expect(selectHintTarget(ladderState(count, "not-bought"), W1)).toEqual({ kind: "SHOP_NEW" });
+    expect(selectHintTarget(ladderState(count, "stock-0"), W1)).toEqual({ kind: "REFILL" });
   });
 
   it("all 25 discovered: COMPLETE", () => {
-    expect(selectHintTarget(ladderState(25))).toEqual({ kind: "COMPLETE" });
+    expect(selectHintTarget(ladderState(25), W1)).toEqual({ kind: "COMPLETE" });
   });
 
   it("a result names no recipe unless it is a target (HintEmpty carries only its kind)", () => {
     for (const newest of ["not-bought", "stock-0"] as const) {
-      const result = selectHintTarget(ladderState(8, newest));
+      const result = selectHintTarget(ladderState(8, newest), W1);
       expect(Object.keys(result)).toEqual(["kind"]);
     }
   });
@@ -100,7 +108,8 @@ describe("selectHintTarget -- order, pinned and sticky (T-4)", () => {
       expect(compareHintCandidates(candidates[i - 1], candidates[i])).toBeLessThan(0);
       expect(recipeKeyStep(candidates[i - 1])).toBeLessThanOrEqual(recipeKeyStep(candidates[i]));
     }
-    expect(selectHintTarget(legacyState())).toEqual({ kind: "TARGET", recipeId: candidates[0].id, source: "auto" });
+    // The order is a list order only: with 2+ candidates nothing is auto-targeted (PR-4b-A D-1).
+    expect(selectHintTarget(legacyState())).toEqual({ kind: "OPEN_POOL" });
   });
 
   it("tie-breaks: fewer distinct ingredients first, then declaration order", () => {
@@ -129,15 +138,19 @@ describe("selectHintTarget -- order, pinned and sticky (T-4)", () => {
     expect(selectHintTarget(a)).toEqual(selectHintTarget(a));
   });
 
-  it("a pinned Dex card that is DISCOVERABLE becomes the target with source dex, over sticky", () => {
+  it("a pinned Dex card that is DISCOVERABLE becomes the target with source dex when it is the only candidate (PR-4b-A)", () => {
+    const inputs = ladderState(3);
+    const only = discoverableHintCandidates(inputs, W1.recipes);
+    expect(only).toHaveLength(1);
+    expect(selectHintTarget(inputs, { ...W1, pinnedRecipeId: only[0].id })).toEqual({ kind: "TARGET", recipeId: only[0].id, source: "dex" });
+  });
+
+  it("PR-4b-A: with several candidates a pin is honoured only when it is the sticky target; a sticky target is kept over a pin of another", () => {
     const inputs = legacyState();
     const [first, second] = discoverableHintCandidates(inputs);
-    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: second.id, source: "dex" });
-    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id, stickyRecipeId: first.id })).toEqual({
-      kind: "TARGET",
-      recipeId: second.id,
-      source: "dex",
-    });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id })).toEqual({ kind: "OPEN_POOL" });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id, stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: second.id, source: "dex" });
+    expect(selectHintTarget(inputs, { pinnedRecipeId: second.id, stickyRecipeId: first.id })).toEqual({ kind: "TARGET", recipeId: first.id, source: "auto" });
   });
 
   it("an invalid pin (DISCOVERED / KBMM / UNKNOWN / unknown id) is ignored -> automatic order", () => {
@@ -153,9 +166,21 @@ describe("selectHintTarget -- order, pinned and sticky (T-4)", () => {
 
   it("sticky keeps a revealed target while DISCOVERABLE, and lets go once it is not", () => {
     const inputs = legacyState();
-    const [first, second] = discoverableHintCandidates(inputs);
+    const found = (state: RecipeDiscoveryInputs, id: string): RecipeDiscoveryInputs => ({
+      ...state,
+      dex: registerScoreToDex(state.dex, id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex,
+    });
+    // PR-4b-B: the legacy save now also makes the 26th recipe makeable, so three are DISCOVERABLE.
+    const candidates = discoverableHintCandidates(inputs);
+    expect(candidates.length).toBeGreaterThanOrEqual(3);
+    const [first, second, ...rest] = candidates;
     expect(selectHintTarget(inputs, { stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: second.id, source: "auto" });
-    const found = { ...inputs, dex: registerScoreToDex(inputs.dex, second.id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex };
-    expect(selectHintTarget(found, { stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: first.id, source: "auto" });
+    // Once sticky is found, 2+ candidates remain: nothing is chosen for the player (D-1).
+    const afterSecond = found(inputs, second.id);
+    expect(selectHintTarget(afterSecond, { stickyRecipeId: second.id })).toEqual({ kind: "OPEN_POOL" });
+    // Down to a single candidate the lone one is the automatic target again.
+    const lone = rest.reduce((state, r) => found(state, r.id), afterSecond);
+    expect(selectHintTarget(lone, { stickyRecipeId: second.id })).toEqual({ kind: "TARGET", recipeId: first.id, source: "auto" });
   });
+
 });

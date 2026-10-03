@@ -158,6 +158,16 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  "brazilian-calabresa": {
+    recipeId: "brazilian-calabresa",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "pesto-pollo": {
+    recipeId: "pesto-pollo",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {

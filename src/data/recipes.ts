@@ -45,6 +45,15 @@ export interface Recipe {
    *  of revealing the recipe name. Absent/false is the default for every chain-unlocked recipe
    *  (#2-#6) -- only `fugazza` (#7, the deliberate "big reveal") sets this. */
   mysteryLock?: boolean;
+  /** Discovery 3.0 OD-D3-17 O3: when `false`, discovering this recipe does NOT advance the W1
+   *  progression ladder's count (see `countsTowardLadder`, the sole reader). Absent means the
+   *  recipe counts -- every existing recipe omits the field. Never persisted. */
+  ladderCredit?: false;
+  /** Discovery 3.0 PR-4b-A (OD-D3 D-4): when `false`, Lunch Rush never draws this recipe into its
+   *  order pool (see `participatesInLunchRush`, the sole reader). Absent means it participates --
+   *  every existing recipe omits the field. Flipping it later is the only change needed to let a
+   *  recipe in. Never persisted. */
+  lunchRush?: false;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
@@ -543,6 +552,50 @@ export const RECIPES = [
     bakeTarget: { start: 50, end: 70 },
     baseRewardPitz: 100,
   },
+  {
+    id: "brazilian-calabresa",
+    nameJa: "ブラジリアン・カラブレーザ",
+    description:
+      "トマトソースにソーセージ、たまねぎ、ブラックオリーブ、オレガノをのせた、ブラジル風の一枚。",
+    // Discovery 3.0 PR-4b-B: the first production recipe that makes DISCOVERY pool > 1 (with
+    // pizza-portuguesa at the onion step). Counts / bake window are GAMEPLAY CALIBRATION (Owner
+    // D-6), not source authority. No cheese: the source's ingredient list has none. The olive is
+    // `black-olive` (source "olive", confidence likely_alias). Not the master-catalog `calabrese`.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "sausage", minCount: 3 },
+      { ingredientId: "onion", minCount: 2 },
+      { ingredientId: "black-olive", minCount: 2 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "pesto-pollo",
+    nameJa: "ペストポッロピザ",
+    description:
+      "ジェノベーゼソースにチキン、トマト、モッツァレラをのせた、香ばしくてコクのある一枚。",
+    // Discovery 3.0 No.27. SOURCE AUTHORITY (PIZZA DB p12 `pesto-pollo-pizzadb-p12`, 172 matrix):
+    // name ペストポッロピザ, sauce base pesto (family-derived バジル), ingredients チキン / トマト /
+    // モッツァレラ (= chicken / fresh-tomato / mozzarella). GAMEPLAY CALIBRATION (not source):
+    // the counts and bake window mirror the sibling pesto-caprese (same pesto + mozzarella +
+    // fresh-tomato skeleton: mozzarella x2, 50-70) with chicken x3 as the key topping (the usual
+    // meat count, cf. salsiccia/calabresa sausage x3); 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited (absent `ladderCredit` = counts, unlike calabresa); `lunchRush: false` keeps it
+    // out of the Lunch Rush pool (Owner decision).
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "chicken", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with
@@ -557,4 +610,24 @@ export function getRecipe(id: RecipeId): Recipe | undefined {
  *  rotate between dialogue variants without any extra play-history state. */
 export function getRecipeIndex(id: RecipeId): number {
   return RECIPES.findIndex((r) => r.id === id);
+}
+
+/** Discovery 3.0 OD-D3-17 O3: does discovering `recipeId` advance the W1 ladder's count? Only an
+ *  explicit `ladderCredit: false` opts out; an unknown id or an absent field counts, so existing
+ *  recipes and old saves behave exactly as before. `recipes` is injectable for tests. */
+export function countsTowardLadder(
+  recipeId: string,
+  recipes: readonly Pick<Recipe, "id" | "ladderCredit">[] = RECIPES,
+): boolean {
+  return recipes.find((r) => r.id === recipeId)?.ladderCredit !== false;
+}
+
+/** Discovery 3.0 PR-4b-A (D-4): may Lunch Rush draw `recipeId` into its order pool? Only an
+ *  explicit `lunchRush: false` opts out; an unknown id or an absent field participates, so
+ *  existing recipes behave exactly as before. `recipes` is injectable for tests. */
+export function participatesInLunchRush(
+  recipeId: string,
+  recipes: readonly Pick<Recipe, "id" | "lunchRush">[] = RECIPES,
+): boolean {
+  return recipes.find((r) => r.id === recipeId)?.lunchRush !== false;
 }

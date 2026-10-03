@@ -15,6 +15,7 @@ import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { hintSheetView, type HintSheetView } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { createDefaultSave, loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
+import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
@@ -56,7 +57,7 @@ function sheetOn(target: string, pitz: number, ledgers: Ledgers = {}, dexIds: re
     ledgers.purchases ?? {},
     ledgers.facts ?? {},
   );
-  const s = act(initial, { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: target });
+  const s = openHintSheetOn(initial, target);
   expect(s.hintSession?.targetId).toBe(target);
   return s;
 }
@@ -153,10 +154,13 @@ describe("PURCHASE_SELECTABLE_HINT: the transaction (matrix 1-9)", () => {
     expect(again.pitzBalance).toBe(85);
   });
 
-  it("4b without a session a reload re-targets the recipe the player bought facts for (sticky)", () => {
+  it("4b #353: without a session a reload keeps the bought facts but never re-targets their recipe on its own; the player's pin does", () => {
     const bought = buyOnce(sheetOn("capricciosa", 100), "topping");
-    const reloaded = act(saveAndReload(bought), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
-    expect(discoverableHintCandidates(reloaded)[0].id).not.toBe("capricciosa");
+    const reopened = act(saveAndReload(bought), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    expect(discoverableHintCandidates(reopened)[0].id).not.toBe("capricciosa");
+    expect(reopened.hintSession).toBeNull();
+    expect(reopened.discoveryHintFacts.capricciosa).toEqual(bought.discoveryHintFacts.capricciosa);
+    const reloaded = act(saveAndReload(bought), { type: "START_FREE_COOK" }, { type: "SHOW_HINT", pinnedRecipeId: "capricciosa" });
     expect(reloaded.hintSession?.targetId).toBe("capricciosa");
   });
 
@@ -207,7 +211,7 @@ describe("PURCHASE_SELECTABLE_HINT: the transaction (matrix 1-9)", () => {
     const once = buyOnce(s);
     expect(act(once, buy(once, "cheese", 0))).toBe(once);
     // A request built for the previous target after the session moved on is stale too.
-    const moved = act(once, { type: "SHOW_HINT", pinnedRecipeId: "capricciosa" });
+    const moved = act({ ...once, hintSession: { targetId: "capricciosa", revealedIndex: 0, fromDex: true } }, { type: "SHOW_HINT", pinnedRecipeId: "capricciosa" });
     expect(act(moved, buy(moved, "cheese", 1))).toBe(moved);
   });
 });
@@ -425,7 +429,7 @@ describe("Dex 0 (matrix 23-24)", () => {
   it("24 Dex 0 but another DISCOVERABLE recipe (migrated save): the Selectable sheet, paid", () => {
     const start = (pitz: number) =>
       act(
-        createInitialGameState(undefined, [...STARTER_INGREDIENT_IDS, "egg"], pitz, { egg: 10 }, [], ["egg"]),
+        { ...createInitialGameState(undefined, [...STARTER_INGREDIENT_IDS, "egg"], pitz, { egg: 10 }, [], ["egg"]), hintSession: { targetId: "bismarck", revealedIndex: 0, fromDex: true } },
         { type: "BEGIN_PREPARE" },
         { type: "SHOW_HINT", pinnedRecipeId: "bismarck" },
       );

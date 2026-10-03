@@ -42,7 +42,7 @@ describe("HomeScreen CTA layout (W1 I5b-4)", () => {
     expect(make).toBeEnabled();
     expect(rush).toHaveTextContent("ランチラッシュ");
     expect(rush).toBeDisabled();
-    expect(freeCook).toHaveTextContent("フリークッキングで探す");
+    expect(freeCook).toHaveTextContent("レシピ発見");
     expect(freeCook).toHaveClass("cta-button--primary", "cta-button--free-cook", "cta-button--free-cook-lead");
     expect(screen.getByText(/まず1枚ピザを発見しよう/)).toBeInTheDocument();
   });
@@ -51,7 +51,7 @@ describe("HomeScreen CTA layout (W1 I5b-4)", () => {
     const [make, rush, freeCook] = renderHome(false);
     expect(make).toHaveClass("cta-button--primary", "cta-button--home");
     expect(rush).toBeEnabled();
-    expect(freeCook).toHaveTextContent("フリークッキング");
+    expect(freeCook).toHaveTextContent("レシピ発見");
     expect(freeCook).not.toHaveTextContent("で探す");
     expect(freeCook).toHaveClass("cta-button--secondary", "cta-button--free-cook");
     expect(freeCook).not.toHaveClass("cta-button--free-cook-lead");

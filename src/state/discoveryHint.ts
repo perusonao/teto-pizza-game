@@ -14,7 +14,8 @@
  *   only while `selectHintTarget` still returns it (sticky once H1+ was revealed or bought, or
  *   pinned from the Dex, and only while DISCOVERABLE); any other target starts again at H0.
  *   HE-UI-4: with no session target, a DISCOVERABLE recipe with purchased levels is preferred
- *   (so a reload keeps it); once it is no longer DISCOVERABLE, the deterministic order decides.
+ *   (so a reload keeps it); once it is no longer DISCOVERABLE, a lone candidate is the target and
+ *   with 2+ candidates none is (PR-4b-A D-1: `OPEN_POOL`, no arbitrary pick).
  * - Dex 0 + Margherita (OD-HE-5): the onboarding is free. The reveal stays session-only, and the
  *   pre-first-discovery escalation (`preDiscoveryFreeCookAttempts`) still counts: the sheet shows
  *   the larger of that automatic step and the manually revealed one (Fresh Audit §6 F-1/F-2).
@@ -44,13 +45,24 @@ import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
 import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
-import { hint5Presentation, requestHint5Rung, type Hint5Presentation } from "../logic/discovery/hint5Ladder";
+import {
+  HINT5_RUNG_MARKER,
+  hint5ClassView,
+  hint5Presentation,
+  parseHint5ClassFactId,
+  requestHint5Rung,
+  subToppingClass,
+  type Hint5Presentation,
+} from "../logic/discovery/hint5Ladder";
+import { deriveResearchEntries, researchEntryLabel, type ResearchEntry } from "../logic/discovery/researchEntry";
+import { getIngredient } from "../data/ingredients";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
 import { deductionKnownLines, deductionOwnership, requestDeductionHint, type DeductionFamily } from "../logic/discovery/deductionRequest";
 import {
   buildSelectableHintModel,
   hintFactId,
+  parseHintFactId,
   purchaseSelectableHint,
   selectableHintPresentation,
   type HintCategory,
@@ -58,7 +70,7 @@ import {
   type SelectableHintPresentation,
 } from "../logic/discovery/selectableHint";
 import { discoveredRecipeIds, type DexState } from "./dex";
-import type { InventoryState } from "./inventory";
+import { type InventoryState } from "./inventory";
 
 export type { DeductionFamily };
 
@@ -78,6 +90,9 @@ export interface DiscoveryHintState {
   inventory: InventoryState;
   preDiscoveryFreeCookAttempts: number;
   hintSession: HintSession | null;
+  /** Discovery 3.0 (#346 S3): the Research Target the player picked this session, or absent / `null`.
+   *  Session-only (never saved); a Hint target source and Research UI subject, never a matcher input. */
+  researchTargetId?: string | null;
   pitzBalance: number;
   discoveryHintPurchases: DiscoveryHintPurchases;
   /** H3-3: the Hint 3.0 fact ledger (`recipeId -> fact ids`, H3-2). */
@@ -163,6 +178,11 @@ export type HintSheetView =
       /** DH4-2B: `null` when the flag is off (on in every build since OD-DH4-PROD-1). */
       deduction: DeductionSheetView | null;
     }
+  | {
+      /** #353: 2+ registered Research Entries and no Research Target. Names no recipe, count or fact: the sheet only
+       *  offers the way to the Dex's anonymous Research cards. */
+      kind: "CHOOSE_RESEARCH";
+    }
   | { kind: HintEmptyKind };
 
 /** The step the Dex-0 escalation alone would show: 1 failed try -> sauce + count/cheese,
@@ -189,6 +209,14 @@ function stepsFor(targetId: string, dex: DexState): HintStep[] {
  *  automatic target. Picking the recipe that already has a session keeps its progress; any other
  *  recipe starts at H0 (one session at a time, no per-recipe history). */
 export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: string | null): HintSession | null {
+  // #353 (Owner Option B): with 2+ registered Research Entries and no valid Research Target, the system never picks a
+  // recipe for the player: not by the legacy sticky / purchase rules below, not as a lone candidate. Only the
+  // player's own explicit Dex choice counts -- a Dex card's pin, or the session that pin made (`fromDex`).
+  const choice = needsResearchTargetChoice(state);
+  const explicitId = choice
+    ? [pinnedRecipeId, state.hintSession?.fromDex ? state.hintSession.targetId : null].find((id) => isValidResearchTarget(state, id)) ?? null
+    : null;
+  if (choice && !explicitId) return null;
   const current = state.hintSession;
   const sessionSticky =
     current && (current.revealedIndex >= 1 || current.fromDex || hasBoughtHints(state, current.targetId)) ? current.targetId : null;
@@ -201,13 +229,28 @@ export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: s
     [sessionSticky, candidates.find((r) => hasBoughtHints(state, r.id))?.id].find(
       (id) => !!id && candidates.some((r) => r.id === id),
     ) ?? null;
-  const target = selectHintTarget(state, { pinnedRecipeId, stickyRecipeId });
+  const target = choice
+    ? selectHintTarget(state, { pinnedRecipeId: explicitId, stickyRecipeId: explicitId, researchTargetId: state.researchTargetId })
+    : selectHintTarget(state, { pinnedRecipeId, stickyRecipeId, researchTargetId: state.researchTargetId });
   if (target.kind !== "TARGET") return null;
   const fromDex = target.source === "dex" || (current?.targetId === target.recipeId && !!current.fromDex);
   if (current && current.targetId === target.recipeId) {
     return fromDex === !!current.fromDex ? current : { ...current, fromDex: true };
   }
   return fromDex ? { targetId: target.recipeId, revealedIndex: 0, fromDex: true } : { targetId: target.recipeId, revealedIndex: 0 };
+}
+
+/**
+ * #353 (Owner Option B): true when the system may not pick a recipe-specific Hint subject for the player (the
+ * player's explicit Dex choice, a pin or the session it made, is still honoured by `resolveHintSession`): 2 or more REGISTERED Research Entries (ownership-derived, so an entry with stock 0 still counts; never the
+ * cookable count) and no valid Research Target. It reads no purchase and no session: saved Hint facts neither cause
+ * nor lift it, and nothing about the recipes' contents. One entry (or none) is unchanged.
+ */
+export function needsResearchTargetChoice(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts" | "researchTargetId">,
+): boolean {
+  if (deriveResearchEntries(state).entries.length < 2) return false;
+  return !isValidResearchTarget(state, state.researchTargetId);
 }
 
 /** H3-3: the player paid for something on `recipeId` -- a legacy level or a Hint 3.0 fact. */
@@ -246,8 +289,9 @@ function shownIndex(state: DiscoveryHintState, session: HintSession, steps: read
 
 /** True while `session`'s target is still a DISCOVERABLE hint target (the same rule SHOW_HINT uses). */
 function isSessionTarget(state: DiscoveryHintState, session: HintSession): boolean {
-  const target = selectHintTarget(state, { pinnedRecipeId: session.targetId });
-  return target.kind === "TARGET" && target.recipeId === session.targetId;
+  // The same rule SHOW_HINT applies (D-1): a session target holds only while it is still the sole
+  // candidate or sticky (revealed / from the Dex / purchased), never merely because it is DISCOVERABLE.
+  return resolveHintSession(state)?.targetId === session.targetId;
 }
 
 export type HintUnlockPatch = Partial<Pick<DiscoveryHintState, "hintSession" | "discoveryHintPurchases" | "pitzBalance">>;
@@ -455,6 +499,20 @@ function deductionSheetView(state: DiscoveryHintState, context: NonNullable<Retu
 }
 
 /**
+ * Discovery 3.0 (#346 S3): the exact fact the player already holds about a Research Target, derived
+ * from ownership (S1 `unlockIngredientId`). It is request-time input only (OD-H5-M3): the ledger is
+ * never written with it (a request merges the STORED ids and the new ones), so a rung whose subjects
+ * are all unlock-known completes for 0 Pitz (ALREADY_KNOWN) and a partly-known name rung charges
+ * normally and stores only the unknown names. Without a Research Target nothing is derived, so
+ * every non-research Hint request is exactly as before.
+ */
+function derivedUnlockFactIds(state: DiscoveryHintState, recipeId: string): string[] {
+  if (!state.researchTargetId || state.researchTargetId !== recipeId) return [];
+  const entry = deriveResearchEntries(state).entries.find((e) => e.recipeId === recipeId);
+  return entry ? [hintFactId(entry.unlockIngredientId)] : [];
+}
+
+/**
  * Discovery Hint 5.0 (Issue #292, H5-2): one ladder rung for the session target. It returns the patch
  * to apply, or `null` when nothing changes. The H5-1 pure authority (`requestHint5Rung`) decides
  * everything in its fixed order (target -> STALE -> complete -> price / balance -> empty rung ->
@@ -487,7 +545,7 @@ export function requestHint5RungFact(
   const result = requestHint5Rung({
     recipeId: session.targetId,
     discoveredCount: count,
-    storedFactIds: stored,
+    storedFactIds: [...stored, ...derivedUnlockFactIds(state, session.targetId).filter((id) => !stored.includes(id))],
     legacyPurchases: state.discoveryHintPurchases,
     expectedRungIndex,
     pitzBalance: state.pitzBalance,
@@ -538,13 +596,17 @@ export function hint5LadderActive(state: DiscoveryHintState, enabled: boolean = 
 }
 
 export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boolean = DEDUCTION_HINTS_ENABLED): HintSheetView {
+  // #353: checked before the session, so a session carried from an earlier round cannot show a recipe either.
+  if (needsResearchTargetChoice(state) && !resolveHintSession(state)) return { kind: "CHOOSE_RESEARCH" };
   const session = state.hintSession;
   const steps = session ? stepsFor(session.targetId, state.dex) : [];
   if (!session || steps.length === 0) {
-    const target = selectHintTarget(state);
     // A target without a session only happens before SHOW_HINT ran; show it as SHOW_HINT would.
-    if (target.kind === "TARGET") return hintSheetView({ ...state, hintSession: { targetId: target.recipeId, revealedIndex: 0 } }, deductionEnabled);
-    return { kind: target.kind };
+    const resolved = resolveHintSession(state);
+    if (resolved) return hintSheetView({ ...state, hintSession: resolved }, deductionEnabled);
+    // No session target resolves, so the only target-less answers apply (never a TARGET here).
+    const empty = selectHintTarget(state);
+    return { kind: empty.kind === "TARGET" ? "OPEN_POOL" : empty.kind };
   }
   const context = selectableContext(state, session);
   if (context) {
@@ -574,4 +636,124 @@ export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boole
  *  change can never surface (or block cooking) anywhere else. */
 export function isHintSheetVisible(state: { hintSheetOpen: boolean; phase: string; freeCook: boolean }): boolean {
   return state.hintSheetOpen && state.phase === "PREPARE" && state.freeCook;
+}
+
+
+// ---- Discovery 3.0 (#346 S3): Research Target + Research view ---------------------------------------
+
+/** The Research Target is valid only while it is a registered entry AND a DISCOVERABLE Hint candidate
+ *  (so cooking it is possible and `selectHintTarget` can honour it). Anything else is no target. */
+export function isValidResearchTarget(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+  recipeId: string | null | undefined,
+): boolean {
+  if (!recipeId) return false;
+  return (
+    deriveResearchEntries(state).entries.some((e) => e.recipeId === recipeId) &&
+    discoverableHintCandidates(state).some((r) => r.id === recipeId)
+  );
+}
+
+/** What the Research UI (Dex card, cooking context) may show of one entry. No recipe name / id. */
+export interface ResearchEntryView {
+  /** Opaque key for wiring only (callbacks); never rendered. */
+  recipeId: string;
+  /** 「？？？ピザ」 / 「？？？ピザ ①」 */
+  label: string;
+  /** Exact ingredients known: the unlock fact, then bought exact-name Hint facts (`ing:`). */
+  knownExactIngredientIds: readonly string[];
+  /** Bought SUB_CLASS facts only (`cls:`), as 「🥩 肉系」, one line per fact. Never an ingredient. */
+  classLinesJa: readonly string[];
+  /** The ingredient total, only after STRUCTURE was bought. */
+  totalIngredientCount: number | null;
+}
+
+type ResearchViewInputs = Pick<DiscoveryHintState, "dex" | "ownedIngredientIds"> & Partial<Pick<DiscoveryHintState, "discoveryHintFacts">>;
+
+function viewOf(entry: ResearchEntry, index: number, count: number, stored: readonly string[]): ResearchEntryView {
+  const recipe = getRecipe(entry.recipeId as RecipeId);
+  const inRecipe = new Set(recipe?.requiredIngredients.map((r) => r.ingredientId) ?? []);
+  // Exact: S1's unlock fact, then the player's own bought `ing:` names (Hint authority), recipe-checked.
+  const exact = [...entry.knownExactIngredientIds];
+  for (const id of stored) {
+    const name = parseHintFactId(id);
+    if (name !== null && inRecipe.has(name) && getIngredient(name) && !exact.includes(name)) exact.push(name);
+  }
+  // Class: only a bought `cls:` fact, only once STRUCTURE was completed (the Hint sheet's own rule), only
+  // for a sub-topping of this recipe that is not already shown as exact. Existing taxonomy only.
+  const classLines: string[] = [];
+  if (stored.includes(HINT5_RUNG_MARKER.STRUCTURE)) {
+    for (const id of stored) {
+      const ingredientId = parseHint5ClassFactId(id);
+      if (ingredientId === null || !inRecipe.has(ingredientId) || exact.includes(ingredientId)) continue;
+      const family = subToppingClass(ingredientId);
+      if (family !== null) classLines.push(`△ ${hint5ClassView(family).labelJa}`);
+    }
+  }
+  return {
+    recipeId: entry.recipeId,
+    label: researchEntryLabel(index, count),
+    knownExactIngredientIds: exact,
+    classLinesJa: classLines,
+    totalIngredientCount: entry.totalIngredientCount,
+  };
+}
+
+/** Every registered Research Entry as the UI may show it, in S1's stable anonymous order. */
+export function researchEntryViews(state: ResearchViewInputs): ResearchEntryView[] {
+  const { entries } = deriveResearchEntries(state);
+  return entries.map((entry, index) => viewOf(entry, index, entries.length, storedFactIds({ discoveryHintFacts: state.discoveryHintFacts ?? {} }, entry.recipeId)));
+}
+
+/** The Research Target's view for the cooking context, or `null` without a valid target. */
+export function researchTargetView(state: DiscoveryHintState): ResearchEntryView | null {
+  if (!isValidResearchTarget(state, state.researchTargetId)) return null;
+  return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
+}
+
+/** Discovery 3.0 (#346 S4): the registered Research Entries that can be researched right now (cookable =
+ *  DISCOVERABLE), in S1's anonymous order. Opaque ids for wiring only -- the post-discovery CTA reads
+ *  "is there one" and, for exactly one, starts it; no count is ever rendered. */
+export function researchableEntryIds(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+): string[] {
+  const cookable = new Set(discoverableHintCandidates(state).map((r) => r.id as string));
+  return deriveResearchEntries(state)
+    .entries.map((e) => e.recipeId)
+    .filter((id) => cookable.has(id));
+}
+
+/** #346 S4: the Research Target's view for the RESULT of the round that just finished. Unlike
+ *  `researchTargetView` it does not require the target to still be cookable: a trial that used up the last unit
+ *  of a finite ingredient is still a research attempt (entries are ownership-derived, never stock-derived). Null
+ *  once the target is discovered or was never a registered entry. */
+export function researchResultView(state: DiscoveryHintState): ResearchEntryView | null {
+  if (!state.researchTargetId) return null;
+  return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
+}
+
+// ---- Contract 2.1 (RESULT-based identification): the Research Target context of one finished attempt ----
+
+/** What REGISTER_TO_DEX needs of the attempt's Research Target: its already-public label and the full known(T). */
+export interface ResearchAttemptContext {
+  /** The registered entry's public label with its unlock fact: 「？？？ピザ ①（チキン）」. Never a recipe name / id. */
+  labelJa: string;
+  /** known(T): the derived unlock fact plus every stored `ing:` fact (Contract 2.1 §2), as `researchResultView` knows it. */
+  knownIngredientIds: readonly string[];
+}
+
+/**
+ * The Research Target context of a finished attempt, or `null` without a registered target. Ownership-derived, NOT
+ * stock-derived (the same basis as `researchResultView`): an attempt that used the target's last finite stock still
+ * has its context (OD-RB-18). It reads no recipe membership for the player-facing label.
+ */
+export function researchAttemptContext(state: DiscoveryHintState): ResearchAttemptContext | null {
+  const view = researchResultView(state);
+  if (!view) return null;
+  const unlockId = deriveResearchEntries(state).entries.find((e) => e.recipeId === view.recipeId)?.knownExactIngredientIds[0];
+  const unlockName = unlockId ? getIngredient(unlockId)?.nameJa : undefined;
+  return {
+    labelJa: unlockName ? `${view.label}（${unlockName}）` : view.label,
+    knownIngredientIds: view.knownExactIngredientIds,
+  };
 }

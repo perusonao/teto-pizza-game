@@ -9,26 +9,33 @@
  * - Order is deterministic, no randomness: `recipeKeyStep` asc -> distinct ingredient count asc ->
  *   `RECIPES` declaration index. It reads nothing else (not the Dex array order, not inventory key
  *   order), so identical state always yields the identical target.
- * - A Dex card pins its own recipe, a revealed target stays sticky; both only while still
- *   DISCOVERABLE, otherwise the automatic order decides.
- * - No DISCOVERABLE recipe -> a `HintEmpty` that names no recipe: SHOP_NEW (a needed material
- *   is in the Shop but not bought yet), REFILL (owned but out of stock), COMPLETE (all found).
+ * - A Dex card pins its own recipe, a revealed or purchased target stays sticky; both only while
+ *   still DISCOVERABLE. With a pool > 1 a pin is honoured only when it is the sticky target (OD-4b-A-2).
+ * - Otherwise the pool decides (Discovery 3.0 PR-4b-A, D-1): exactly one DISCOVERABLE recipe is the
+ *   automatic target; with TWO OR MORE nothing is chosen (`OPEN_POOL`), because picking one by the
+ *   candidate order below would hand the player an arbitrary hint about an arbitrary recipe. The
+ *   order itself is still used (`discoverableHintCandidates`) wherever a deterministic list is
+ *   needed, but it is never a reason to target.
+ * - No target -> a `HintEmpty` that names no recipe: SHOP_NEW (a needed material is in the Shop
+ *   but not bought yet), REFILL (owned but out of stock), COMPLETE (all found), OPEN_POOL (more
+ *   than one recipe can be found right now and none is chosen; says nothing about how many).
  */
 import { getIngredient } from "../../data/ingredients";
 import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { recipeKeyStep } from "../../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/recipeDiscoveryState";
 
-export type HintTargetSource = "auto" | "dex";
+export type HintTargetSource = "auto" | "dex" | "research";
 
 export interface HintTarget {
   kind: "TARGET";
   recipeId: RecipeId;
-  /** "dex" only when a Dex card pinned this recipe; "auto" for the automatic / sticky choice. */
+  /** "dex" only when a Dex card pinned this recipe; "research" only when the player picked it as the
+   *  Research Target (Discovery 3.0 #346 S3); "auto" for the sole-candidate / sticky choice. */
   source: HintTargetSource;
 }
 
-export type HintEmptyKind = "SHOP_NEW" | "REFILL" | "COMPLETE";
+export type HintEmptyKind = "SHOP_NEW" | "REFILL" | "COMPLETE" | "OPEN_POOL";
 
 export interface HintEmpty {
   kind: HintEmptyKind;
@@ -41,6 +48,10 @@ export interface HintTargetOptions {
   pinnedRecipeId?: string | null;
   /** The target whose H1+ was already revealed this session (229-B keeps it, never saved). */
   stickyRecipeId?: string | null;
+  /** Discovery 3.0 (#346 S3): the Research Target the player explicitly picked this session. Unlike a
+   *  pin it DOES choose among several candidates (the player, not the order, chose it), but only
+   *  while it is still DISCOVERABLE. It never reaches the matcher: it names a Hint subject only. */
+  researchTargetId?: string | null;
   /** Recipe population; `RECIPES` in production, injectable for tests. */
   recipes?: readonly Recipe[];
 }
@@ -86,11 +97,20 @@ function emptyKind(inputs: RecipeDiscoveryInputs, recipes: readonly Recipe[]): H
 export function selectHintTarget(inputs: RecipeDiscoveryInputs, options: HintTargetOptions = {}): HintTargetResult {
   const recipes = options.recipes ?? RECIPES;
   const candidates = discoverableHintCandidates(inputs, recipes);
-  const pinned = candidates.find((r) => r.id === options.pinnedRecipeId);
-  if (pinned) return { kind: "TARGET", recipeId: pinned.id, source: "dex" };
+  // S3: an explicit player-selected Research Target is the one exception to OPEN_POOL privacy. It is
+  // the player's own choice (picked from an anonymous card), so it leaks nothing about the pool; with
+  // no Research Target every branch below is exactly as before.
+  const research = options.researchTargetId ? candidates.find((r) => r.id === options.researchTargetId) : undefined;
+  if (research) return { kind: "TARGET", recipeId: research.id, source: "research" };
   const sticky = candidates.find((r) => r.id === options.stickyRecipeId);
+  // OD-4b-A-2: a pin never CHOOSES among several candidates. With a pool > 1 it counts only when it
+  // is the sticky / purchased target itself, so a pin on another recipe cannot move a kept target
+  // and cannot start one. With a pool of one (or the sticky itself) the pin works as before.
+  const pinned = candidates.find((r) => r.id === options.pinnedRecipeId && (candidates.length === 1 || r.id === sticky?.id));
+  if (pinned) return { kind: "TARGET", recipeId: pinned.id, source: "dex" };
   if (sticky) return { kind: "TARGET", recipeId: sticky.id, source: "auto" };
-  const first = candidates[0];
-  if (first) return { kind: "TARGET", recipeId: first.id, source: "auto" };
+  // D-1: a lone candidate is unambiguous; with 2+ and no pin / sticky / purchase, choose nothing.
+  if (candidates.length === 1) return { kind: "TARGET", recipeId: candidates[0].id, source: "auto" };
+  if (candidates.length > 1) return { kind: "OPEN_POOL" };
   return { kind: emptyKind(inputs, recipes) };
 }

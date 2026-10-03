@@ -64,7 +64,7 @@ async function run(browser, width, height) {
   await page.goto(BASE);
   await page.waitForSelector(".app-frame");
   await hold(page);
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
   await hold(page);
   await dough(page);

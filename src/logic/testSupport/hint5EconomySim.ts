@@ -32,12 +32,13 @@
  * - Dex 0 (the Margherita onboarding) is free and never uses the ladder.
  */
 import { getIngredient } from "../../data/ingredients";
-import { getRecipe, RECIPES, type RecipeId } from "../../data/recipes";
+import { countsTowardLadder, getRecipe, RECIPES, type RecipeId } from "../../data/recipes";
 import { selectHintTarget } from "../discovery/hintTarget";
 import { buildHint5Ladder, HINT5_RUNG_PRICE } from "../discovery/hint5Ladder";
 import { starsFromTotal } from "../scoring";
 import { discoveredRecipeIds } from "../../state/dex";
 import { hint5SheetView } from "../../state/discoveryHint";
+import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 
@@ -223,7 +224,9 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
 
   for (let stageGuard = 0; stageGuard < 40; stageGuard += 1) {
     const dexCount = discoveredRecipeIds(s.dex).length;
-    if (dexCount === 25) {
+    // Done when every recipe is discovered. Not "25": with a branching pool the walk may end after
+    // more (or in a different order) than a single-path ladder, and the stop must not assume one.
+    if (dexCount === RECIPES.length) {
       completed = true;
       break;
     }
@@ -233,6 +236,37 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
     }
     ensureStock(s.ownedIngredientIds.filter((id) => isFiniteMaterial(id) && (s.inventory[id] ?? 0) < 1));
     const t = selectHintTarget(s);
+    if (t.kind === "OPEN_POOL") {
+      // PR-4b-B (Owner D-1): 2+ DISCOVERABLE and no sticky / purchased target -> no hint target, so
+      // no rung can be bought. The player cooks a candidate blind, the non-credit one first (it
+      // leaves one candidate again, which restores the hint). Nothing is spent on hints this stage.
+      const candidates = RECIPES.filter((r) => recipeDiscoveryState(r, s) === "DISCOVERABLE");
+      const pick = candidates.find((r) => !countsTowardLadder(r.id)) ?? candidates[0];
+      if (!pick) throw new Error(`Dex ${dexCount}: OPEN_POOL without a candidate`);
+      const answer = [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))];
+      ensureStock(answer);
+      bakeRaw(answer);
+      if (discoveredRecipeIds(s.dex).length !== dexCount + 1) throw new Error(`Dex ${dexCount}: pool candidate ${pick.id} was not discovered`);
+      stages.push({
+        discovery: dexCount + 1,
+        recipe: pick.id,
+        pitzBefore: acc.pitzBefore,
+        discoveryReward: creditOf(s),
+        otherEarned: acc.otherEarned,
+        hintSpend: 0,
+        rungCharges: [],
+        rungsBought: 0,
+        rungsTotal: buildHint5Ladder(pick.id)!.rungs.length,
+        reservedStop: false,
+        unlockSpend: acc.unlockSpend,
+        refillSpend: acc.refillSpend,
+        pitzAfter: s.pitzBalance,
+        grindBakes: acc.grind,
+        insufficientHintAttempts: 0,
+        minPitz: acc.minPitz,
+      });
+      continue;
+    }
     if (t.kind !== "TARGET") throw new Error(`Dex ${dexCount}: no hint target (${t.kind})`);
     const target = getRecipe(t.recipeId as RecipeId)!;
     const ids = [...new Set(target.requiredIngredients.map((r) => r.ingredientId))];

@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
@@ -12,11 +12,11 @@ import { RECIPES } from "./data/recipes";
 // rollback path, so it runs with the ladder flag OFF.
 vi.mock("./logic/discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: false }));
 /**
- * Discovery Hint 2.0 (Issue #229, 229-D) through the real App: a Dex 🎨 card's 「💡 ヒントを見る」
- * closes the Dex, starts Free Cooking and opens the hint sheet -- on a legacy save where several
- * undiscovered recipes are DISCOVERABLE at once (the LK-8 worst case). No undiscovered name ever
- * shows (text or aria), no guided round starts, Pizza Select stays discovered-only. Discovery Hint
- * Economy 1.0 (Issue #232, HE-2): the H1 bought on each card is the only change to the save.
+ * Discovery Hint 2.0 (Issue #229, 229-D) through the real App, on a legacy save where several
+ * undiscovered recipes are DISCOVERABLE at once (the LK-8 worst case). Since Discovery 3.0 PR-4b-A
+ * (D-1 / D-2 / D-3) such a Dex shows ONE aggregated unknown and no per-card hint entrance, and the
+ * Free Cooking sheet chooses no recipe. No undiscovered name ever shows (text or aria), no guided
+ * round starts, Pizza Select stays discovered-only, and the save is untouched.
  */
 
 const OLD15 = RECIPES.slice(0, 15);
@@ -57,62 +57,67 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
-  it("every DISCOVERABLE card: Dex closes, Free Cooking PREPARE starts with the hint sheet, nothing leaks, only the purchase is saved", async () => {
+describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A D-1 / D-2 / D-3)", () => {
+  it("legacy save: no per-card hint entrance and no aggregate card (Research Entries); Free Cooking's sheet picks no recipe and sells nothing", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     seedLegacyDex15();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    const count = screen.getAllByRole("button", { name: /ヒントを見る/ }).length;
-    expect(count).toBeGreaterThanOrEqual(2);
+    expect(screen.queryAllByRole("button", { name: /ヒントを見る/ })).toHaveLength(0);
+    expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0); // #346 S4: all are Research Entries
+    expect(document.querySelectorAll(".dex-research-card").length).toBeGreaterThanOrEqual(2);
+    expectNoUndiscoveredName("Dex (research entries)");
     const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
 
-    for (let i = 0; i < count; i += 1) {
-      if (!document.querySelector(".dex-overlay")) {
-        await user.click(screen.getByRole("button", { name: /ホーム/ }));
-        await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-      }
-      expectNoUndiscoveredName(`Dex before card ${i}`);
-      await user.click(screen.getAllByRole("button", { name: /ヒントを見る/ })[i]);
-      expect(document.querySelector(".dex-overlay")).toBeNull();
-      expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
-      const sheet = screen.getByRole("dialog", { name: /ヒント/ });
-      // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; the 材料 card asks.
-      await user.click(within(sheet).getByRole("button", { name: "ヒントをもらう" }));
-      await waitFor(() => expect(sheet.querySelector(".hint-sheet__next")).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
-      await user.click(sheet.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
-      // H3-3: the Selectable sheet -- the free key plus the one fact just bought.
-      expect(sheet.querySelectorAll(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveLength(2);
-      expectNoUndiscoveredName(`card ${i}: Free Cooking + sheet`);
-      await user.click(within(sheet).getByRole("button", { name: "閉じる" }));
-      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      // Straight back into cooking: the free-cook round is live.
-      expect(document.querySelector(".prepare-bake-bar")).toBeInTheDocument();
-    }
-
-    const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
-    const { pitzBalance, discoveryHintFacts, ...rest } = after;
-    // One first fact (5 Pitz) per card, each on its own recipe; the legacy ledger never moves.
-    expect(pitzBalance).toBe(500 - 5 * count);
-    expect(Object.values(discoveryHintFacts).map((facts) => (facts as string[]).length)).toEqual(Array(count).fill(1));
-    const { pitzBalance: _p, discoveryHintFacts: _f, ...restBefore } = JSON.parse(before!);
-    void _p;
-    void _f;
-    expect(rest).toEqual(restBefore);
+    // The old aggregate card's CTA is gone; HOME's own フリークッキング is the open (target-less) route.
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    expect(document.querySelector(".dex-overlay")).toBeNull();
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    const sheet = screen.getByRole("dialog", { name: /ヒント/ });
+    // #353: 2+ registered Research Entries and no target: the sheet only asks the player to choose one.
+    expect(sheet).toHaveTextContent("研究するピザを選ぼう");
+    // No target: no purchase entrance at all, and nothing about which recipe or how many.
+    expect(within(sheet).queryByRole("button", { name: "ヒントをもらう" })).toBeNull();
+    expect(sheet.querySelector(".hint-sheet__next")).toBeNull();
+    expect(sheet.textContent).not.toMatch(/\d/);
+    expectNoUndiscoveredName("Free Cooking + CHOOSE_RESEARCH sheet");
+    await user.click(within(sheet).getByRole("button", { name: "閉じる" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
   });
 
-  it("LK-8: after a Dex hint round, HOME -> Pizza Select still lists no undiscovered recipe", async () => {
+  it("#353: 「研究するピザを選ぶ」 leads to the Dex's Research cards; choosing one starts its research and shows its Hint sheet", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     seedLegacyDex15();
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    await user.click(screen.getAllByRole("button", { name: /ヒントを見る/ })[0]);
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "閉じる" }));
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    const sheet = screen.getByRole("dialog", { name: /ヒント/ });
+    expect(sheet.getAttribute("data-hint-kind")).toBe("CHOOSE_RESEARCH");
+    await user.click(within(sheet).getByRole("button", { name: /研究するピザを選ぶ/ }));
+    expect(screen.queryByRole("dialog", { name: /ヒント/ })).toBeNull();
+    expect(document.querySelector(".dex-overlay")).toBeInTheDocument();
+    // Codex P2: the covered cooking-screen Hint button must not take focus back behind the Dex.
+    expect(document.activeElement).not.toBe(screen.getAllByRole("button", { name: "ヒント" })[0]);
+    await user.click(screen.getAllByRole("button", { name: /ピザ.*を研究する/ })[0]);
+    expect(document.querySelector(".dex-overlay")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    expect(screen.getByRole("dialog", { name: /ヒント/ }).getAttribute("data-hint-kind")).toBe("SELECTABLE");
+  });
+
+  it("LK-8: after the HOME Free Cooking route, HOME -> Pizza Select still lists no undiscovered recipe", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    seedLegacyDex15();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
-    expectNoUndiscoveredName("HOME after a Dex hint round");
+    expectNoUndiscoveredName("HOME after the Free Cooking route");
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    expectNoUndiscoveredName("Pizza Select after a Dex hint round");
+    expectNoUndiscoveredName("Pizza Select after the Free Cooking route");
   });
 });

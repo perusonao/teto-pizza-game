@@ -1520,6 +1520,77 @@ export const PUTTANESCA_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Discovery 3.0 PR-4b-B: Reference Truth for `brazilian-calabresa`. Pieces (sausage 3, onion 2,
+ * black-olive 2, oregano 1 = 8 non-sauce) take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order (the `MEAT_LOVERS_REFERENCE` precedent); literal == generator output
+ * == the player reference (pinned by recipes.brazilianCalabresa.test.ts). The slot assignment is
+ * Owner-approved GAMEPLAY / REFERENCE CALIBRATION (PR-4b-B Human Review): it is NOT source authority
+ * and does not claim to show how the real dish is plated.
+ */
+export const BRAZILIAN_CALABRESA_REFERENCE: ReferencePizza = {
+  recipeId: "brazilian-calabresa",
+  sauce: computeMechanicalSauceReference("brazilian-calabresa"),
+  pieceGroups: [
+    {
+      ingredientId: "sausage",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "oregano",
+      positions: [
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 /** Freezes Reference data in place, all the way down. The registry is authoritative scoring
  *  data: a caller that mutates a returned Reference (or an exported constant) must not be able
  *  to change what every later score is measured against (Codex review on #271). */
@@ -1530,6 +1601,62 @@ function deepFreezeReference<T>(value: T): T {
   }
   return value;
 }
+
+/**
+ * Discovery 3.0 No.27: Reference Truth for `pesto-pollo`. Pieces (mozzarella 2, fresh-tomato 2,
+ * chicken 3 = 7 non-sauce) take the RT-01 8-piece ring consecutively in `requiredIngredients` order
+ * (the `PESTO_CAPRESE_REFERENCE` / `BRAZILIAN_CALABRESA_REFERENCE` precedent). Slot assignment is
+ * GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const PESTO_POLLO_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-pollo",
+  sauce: computeMechanicalSauceReference("pesto-pollo"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "fresh-tomato",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "chicken",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
 
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
@@ -1557,6 +1684,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PESTO_CAPRESE_REFERENCE.recipeId, PESTO_CAPRESE_REFERENCE],
   [PESTO_PATATE_REFERENCE.recipeId, PESTO_PATATE_REFERENCE],
   [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
+  [BRAZILIAN_CALABRESA_REFERENCE.recipeId, BRAZILIAN_CALABRESA_REFERENCE],
+  [PESTO_POLLO_REFERENCE.recipeId, PESTO_POLLO_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

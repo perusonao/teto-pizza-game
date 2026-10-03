@@ -5,7 +5,7 @@ import {
   W1_25_DISCOVERY_LADDER,
 } from "../data/discoveryLadder";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
-import { RECIPES, type Recipe } from "../data/recipes";
+import { RECIPES, countsTowardLadder, type Recipe } from "../data/recipes";
 import { materialIdsOfSteps, validateDiscoveryLadder } from "./discoveryLadder";
 import {
   MATERIAL_PRICE_TIERS,
@@ -36,7 +36,11 @@ const PRE_W1_RECIPES = (RECIPES as readonly Recipe[]).filter((r) => r.id === "ma
 const OLD_OPTIONS = { ladder: SHIPPED_15_DISCOVERY_LADDER, recipes: PRE_W1_RECIPES };
 /** Production defaults (the W1 ladder + all 25 recipes), spelled out. */
 const W1_OPTIONS = { ladder: W1_25_DISCOVERY_LADDER, recipes: RECIPES };
-const W1_POPULATION = RECIPES;
+// The W1 ladder counts credited recipes only (OD-D3-17 O3), and covers the W1 population: the
+// credited recipes minus No.27 pesto-pollo, whose `chicken` is the appended step 25 (not W1).
+const W1_POPULATION = RECIPES.filter((r) => countsTowardLadder(r.id) && r.id !== "pesto-pollo");
+/** The finite catalog materials the frozen W1 ladder sells (everything but No.27's chicken). */
+const W1_FINITE_IDS = INGREDIENTS.filter((i) => i.unlockCondition && i.id !== "chicken").map((i) => i.id);
 const W1_NEW_MATERIALS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 
 function offer(id: string, options = {}): MaterialOffer | null {
@@ -84,7 +88,8 @@ describe("W1_25_DISCOVERY_LADDER: the exact 24-step authority", () => {
   });
 
   it("is what the REC-04 key-recipe rule derives for the production RECIPES (15 + W1 10)", () => {
-    const population = RECIPES.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) }));
+    // The ladder is derived over the credited population (OD-D3-17 O3): a non-credit recipe is never a key.
+    const population = W1_POPULATION.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) }));
     expect(toMaterialLadder("w1-25", buildKeyRecipeLadder(population))).toEqual(W1_25_DISCOVERY_LADDER);
   });
 
@@ -117,12 +122,12 @@ describe("W1_25_DISCOVERY_LADDER: the exact 24-step authority", () => {
     const materials = materialIdsOfSteps(W1_25_DISCOVERY_LADDER.steps);
     expect(materials).toHaveLength(26);
     expect(new Set(materials).size).toBe(26);
-    expect([...materials].sort()).toEqual(INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id).sort());
+    expect([...materials].sort()).toEqual([...W1_FINITE_IDS].sort());
     for (const starter of STARTER_INGREDIENT_IDS) expect(materials).not.toContain(starter);
   });
 
-  it("with it, starters + ladder materials = the whole 29-row catalog", () => {
-    expect(obtainableIngredientIds(W1_25_DISCOVERY_LADDER)).toEqual(INGREDIENTS.map((i) => i.id));
+  it("with it, starters + ladder materials = the 29 W1 catalog rows (everything but No.27's chicken)", () => {
+    expect(obtainableIngredientIds(W1_25_DISCOVERY_LADDER)).toEqual(INGREDIENTS.filter((i) => i.id !== "chicken").map((i) => i.id));
   });
 });
 
@@ -176,9 +181,7 @@ describe("25-ladder economy parity (pure; not wired to the runtime Shop)", () =>
   );
 
   it("covers every finite material; starters stay unlimited and unsold", () => {
-    expect(EXPECTED_W1_OFFERS.map(([id]) => id).sort()).toEqual(
-      INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id).sort(),
-    );
+    expect(EXPECTED_W1_OFFERS.map(([id]) => id).sort()).toEqual([...W1_FINITE_IDS].sort());
     for (const id of STARTER_INGREDIENT_IDS) expect(offer(id, W1_OPTIONS)).toBeNull();
   });
 });
@@ -245,14 +248,15 @@ describe("k / pack foundation", () => {
 });
 
 describe("I5b-3 activation: production runs the 25-recipe ladder", () => {
-  it("RECIPES 25, the 24-step W1 ladder, 29 catalog rows, 29 obtainable (3/29 on a fresh save)", () => {
-    expect(RECIPES).toHaveLength(25);
-    // LAD-1 (OD-W2-1): frozen W1 + appended steps (none yet) -- an equal copy, not the same object.
-    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(24);
-    expect(INGREDIENTS).toHaveLength(29);
-    expect(obtainableIngredientIds()).toHaveLength(29);
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 29 });
+  it("RECIPES 27 (26 credited), the 24 frozen W1 steps + appended step 25, 30 catalog rows, 30 obtainable (3/30 on a fresh save)", () => {
+    expect(RECIPES).toHaveLength(27);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(26);
+    // LAD-1 (OD-W2-1): frozen W1 + appended step 25 (No.27 chicken -> pesto-pollo).
+    expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
+    expect(INGREDIENTS).toHaveLength(30);
+    expect(obtainableIngredientIds()).toHaveLength(30);
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 30 });
   });
 
   it("each new material is entitled and announced exactly when the discovery count reaches its step", () => {

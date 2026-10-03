@@ -42,7 +42,7 @@ function fakeStorage(initial: Record<string, string> = {}): StorageLike & { raw(
   };
 }
 
-const FUTURE_RECIPE = "brazilian-calabresa";
+const FUTURE_RECIPE = "future-unknown-recipe";
 const FUTURE_INGREDIENT = "calabresa";
 const PURCHASABLE = INGREDIENTS.find((i) => !STARTER_INGREDIENT_IDS.includes(i.id))!.id;
 

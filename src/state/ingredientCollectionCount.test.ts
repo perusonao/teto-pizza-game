@@ -16,11 +16,11 @@ import { ingredientCollectionCount, obtainableIngredientIds } from "./materialEn
 const W1 = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 
 describe("obtainableIngredientIds", () => {
-  it("is the 3 starters + the 26 current ladder materials = the whole 29-row catalog, in catalog order", () => {
+  it("is the 3 starters + the 27 current ladder materials = the whole 30-row catalog, in catalog order", () => {
     const ids = obtainableIngredientIds();
-    // LAD-1 (OD-W2-1): frozen W1 + appended steps (none yet) -- an equal copy, not the same object.
-    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
-    expect(ids).toHaveLength(29);
+    // LAD-1 (OD-W2-1): frozen W1 + the appended step 25 (No.27 chicken).
+    expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
+    expect(ids).toHaveLength(30);
     expect(new Set(ids)).toEqual(new Set([...STARTER_INGREDIENT_IDS, ...materialIdsOfSteps(DISCOVERY_LADDER.steps)]));
     expect(ids).toEqual(INGREDIENTS.map((i) => i.id));
     for (const id of W1) expect(ids).toContain(id);
@@ -49,18 +49,18 @@ describe("obtainableIngredientIds", () => {
 });
 
 describe("ingredientCollectionCount", () => {
-  it("a fresh save reads 3/29", () => {
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 29 });
+  it("a fresh save reads 3/30", () => {
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 30 });
   });
 
   it("counts owned obtainable ingredients, W1 materials included", () => {
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS, "egg", "clam"])).toEqual({ owned: 5, total: 29 });
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS, "egg", "clam"])).toEqual({ owned: 5, total: 30 });
   });
 
   it("a save with every material plus unknown ids never reads above the total", () => {
     expect(ingredientCollectionCount([...obtainableIngredientIds(), "calabresa", "future-thing"])).toEqual({
-      owned: 29,
-      total: 29,
+      owned: 30,
+      total: 30,
     });
   });
 });

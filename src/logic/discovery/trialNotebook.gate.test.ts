@@ -17,28 +17,34 @@ const text = sources[MODULE] ?? "";
 const RECORD_ADAPTER = "/src/state/trialRecord.ts";
 const REDUCER = "/src/state/gameReducer.ts";
 const WIRED = [RECORD_ADAPTER, REDUCER].sort();
+// Discovery 3.0 Notebook N1 (OD-N1-1/2): the read-only 試作ノート. GameScreen relays `notebookView(state.trialNotebook)`
+// to the Hint sheet, which opens TrialNotebookSheet. These three files are the only readers; none writes.
+const N1_READERS = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx"];
+// Notebook N2: the pure diff helper (type-only import of TrialCombination; reads nothing but two player combinations).
+const N2_READERS = ["/src/logic/discovery/trialNotebookDiff.ts"];
+const ALLOWED = [...WIRED, ...N1_READERS, ...N2_READERS].sort();
 
 describe("Trial Notebook model — wired into state only (P3-3a)", () => {
   it("the module exists in the scanned tree", () => {
     expect(Object.keys(sources)).toContain(MODULE);
   });
 
-  it("exactly the record adapter and the reducer mention it in production", () => {
+  it("exactly the record adapter, the reducer and the N1 read-only readers mention it in production", () => {
     const users = Object.entries(sources)
       .filter(([path]) => path !== MODULE && !isTest(path))
       .filter(([, source]) => /trialNotebook/i.test(source))
       .map(([path]) => path)
       .sort();
-    expect(users).toEqual(WIRED);
+    expect(users).toEqual(ALLOWED);
   });
 
-  it("exactly the record adapter and the reducer import it", () => {
+  it("exactly the record adapter, the reducer and the N1 read-only readers import it", () => {
     const importers = Object.entries(sources)
       .filter(([path]) => path !== MODULE && !isTest(path))
       .filter(([, source]) => /from\s+["'][^"']*\/trialNotebook["']/.test(source))
       .map(([path]) => path)
       .sort();
-    expect(importers).toEqual(WIRED);
+    expect(importers).toEqual(ALLOWED);
   });
 
   it("only the wired files and test files reference it by import path", () => {
@@ -46,12 +52,12 @@ describe("Trial Notebook model — wired into state only (P3-3a)", () => {
       .filter(([path]) => path !== MODULE && /trialNotebook["']/.test(sources[path]))
       .map(([path]) => path)
       .sort();
-    for (const path of referencing) expect(isTest(path) || WIRED.includes(path), path).toBe(true);
+    for (const path of referencing) expect(isTest(path) || ALLOWED.includes(path), path).toBe(true);
   });
 
   it("no UI, App, persistence, Dex, mission, Hint 5.0 or P3-2 file mentions the notebook or the adapter", () => {
     const offenders = Object.entries(sources)
-      .filter(([path]) => !isTest(path) && path !== MODULE && !WIRED.includes(path))
+      .filter(([path]) => !isTest(path) && path !== MODULE && !ALLOWED.includes(path))
       .filter(([, source]) => /trialNotebook|trialRecord|TrialRecord/.test(source))
       .map(([path]) => path);
     expect(offenders).toEqual([]);

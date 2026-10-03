@@ -45,7 +45,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX11_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/11\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/11\/27/);
 }
 
 function profilesFor(browserName: string): Profile[] {
@@ -141,7 +141,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await expect(page.locator(".dex-overlay")).toBeVisible();
     await expect(card(page)).toHaveCount(1);
     await expect(card(page).getByRole("button")).toHaveText(/ヒントを見る/);
-    await expect(page.getByRole("button", { name: "フリークッキングで探す" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "レシピ発見へ" })).toHaveCount(0);
     await checkDex(page, driver, browserName);
     const lockedText = (await page.locator(".dex-card--locked").allTextContents()).join("|");
     for (const name of UNDISCOVERED) expect(lockedText).not.toContain(name);

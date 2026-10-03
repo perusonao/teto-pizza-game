@@ -16,13 +16,13 @@ const FUTURE_SAVE = {
   schemaVersion: 2,
   dex: [
     { recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 2 },
-    { recipeId: "brazilian-calabresa", discovered: true, bestScore: 77, bestStars: 4, timesMade: 1 },
+    { recipeId: "future-unknown-recipe", discovered: true, bestScore: 77, bestStars: 4, timesMade: 1 },
   ],
   pitzBalance: 40,
   ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "calabresa"],
   missionBest: {},
   inventory: { calabresa: 10 },
-  starterGrantClaimedRecipeIds: ["brazilian-calabresa"],
+  starterGrantClaimedRecipeIds: ["future-unknown-recipe"],
   unlockedForShopIngredientIds: ["calabresa"],
   futureLedger: { purchased: ["calabresa"] },
 };
@@ -40,7 +40,7 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
 
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
   await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
 
   const readSave = () =>
@@ -51,17 +51,17 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
   const written = await readSave();
   expect(written.unlockedForShopIngredientIds).toEqual(["egg", "calabresa"]);
   // Nothing was granted: the retired EP4 ledger is carried through as it was.
-  expect(written.starterGrantClaimedRecipeIds).toEqual(["brazilian-calabresa"]);
+  expect(written.starterGrantClaimedRecipeIds).toEqual(["future-unknown-recipe"]);
   expect(written.inventory).toEqual({ calabresa: 10 });
   expect(written.dex).toContainEqual(FUTURE_SAVE.dex[1]);
   expect(written.ownedIngredientIds).toContain("calabresa");
   expect(written.inventory).toMatchObject({ calabresa: 10 });
-  expect(written.starterGrantClaimedRecipeIds).toContain("brazilian-calabresa");
+  expect(written.starterGrantClaimedRecipeIds).toContain("future-unknown-recipe");
   expect(written.futureLedger).toEqual(FUTURE_SAVE.futureLedger);
 
   await page.reload();
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
   const reloaded = await readSave();
   expect(reloaded.dex).toContainEqual(FUTURE_SAVE.dex[1]);
   expect(reloaded.ownedIngredientIds).toContain("calabresa");

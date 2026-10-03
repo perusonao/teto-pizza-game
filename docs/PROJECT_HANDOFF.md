@@ -375,6 +375,30 @@ edited; this section supersedes them.
   counts before Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays
   "rebase/revise before LC-2" (verdict B). No production code changed by this decision.
 
+## Ingredient Taxonomy — Fresh Audit + S-0 sync (Owner, 2026-10-03; docs / audit tool only)
+
+Full record: `docs/reports/TETO_INGREDIENT-TAXONOMY_x_CATALOG-SELECTION_Fresh-Audit.md` (§16); data:
+`docs/reports/data/TETO_INGREDIENT-TAXONOMY_PRODUCTION30_Fresh-Audit.json`.
+
+- **Current production taxonomy authority (main `fbd5305`): 30 ingredients (sauce 3 / cheese 4 / topping 23), 23 topping → family
+  rows, 9 shelves, 30 / 30 classified, 0 unclassified, 0 conflicts.** `chicken` shipped in #342 with its `meat` row (OD-T7).
+  The earlier "29 / 22" values elsewhere in this file and in older reports are **historical** (their own audited time) and are kept.
+- The shared taxonomy and the category chips are **already implemented and live** (Shop #301, Ingredients #302, 食材庫 LC-R3..R5-b).
+  Wording: **ROLE** = `Ingredient.category` (sauce / cheese / topping, = making step); **FAMILY** = 7 ids, toppings only (1 ingredient =
+  1 family); **SHELF** = derived view (role for sauce / cheese, family for toppings), never stored. **Family ids are persisted**
+  (`attr:family:<id>` in `discoveryHintFacts`) and must never be renamed / split / merged; labels may change.
+- Owner Decisions: **OD-1** unify the player-facing topping ROLE word to 「具材」 (direction only; no UI change yet; the affected
+  displays are recorded in the audit §16.2). **OD-1b (confirmed 2026-10-03):** no bulk replacement of 「トッピング」. Only places that
+  show `topping` as a **category / role name** to the player change (audit §16.2 rows 1–5). Unchanged: natural cooking-action wording,
+  placement / operation explanations, `キートッピング` (kept for compatibility; the deprecation policy for new designs stays),
+  `サブトッピング` (handled separately on the #360 / Hint 5.0 side), internal ids / enums / variables, historical docs.
+  **OD-2** family `other` stays 「その他」 (chip) / 「ちょっと変わった材料」 (Hint). **OD-3** #272 / #307 reconcile, do not close
+  without the Owner. **OD-4** sauce / cheese sub-division deferred to the 105-ingredient Scale Audit. **OD-5** hand capacity 9 / 12
+  undecided; the R6 390×844 real-device comparison is the decision gate. **OD-6** future-ingredient categories (mascarpone / honey /
+  nutella-spread …) are confirmed on the 53 / 172 Scale Audit side; nothing is added to the production taxonomy by inference.
+- `tools/ingredient_taxonomy_hcg_authority_audit.py --sha fbd5305… --check` is re-synced (OK). It stays a point-in-time check: the next
+  runtime-introduction PR that adds a taxonomy row must update its pinned hashes and `SHIPPED_SINCE_AUDIT` in the same PR.
+
 ## Large Catalog UX — current SSOT (Owner, 2026-09-29; docs-only)
 
 Authority: `docs/reports/TETO_LARGE-CATALOG-UX_Fresh-Rebase-Revision-Gate.md` (§17 for the decisions). Older #272
@@ -399,6 +423,7 @@ design docs and wireframes are historical where they disagree.
   - **OD-R4-2:** closing and reopening the pantry resets the shelf filter to 「すべて」; not saved, not lifted into `GameState`.
   - **OD-R4-3:** R5 separates pantry availability from pager availability; a pantry entry that disappears with the pager after hand enforcement is forbidden. R4 leaves the `dockReserve.pager` gate unchanged; final placement decided in the R5 Fresh Audit.
   - **#197 in R4:** pantry shelf filtering does not change the Builder tray's visible set, so `selectedIngredientId` is NOT cleared and `selectionAfterVisibleChange` is NOT wired in R4. #197 applies from R5, when the Builder hand visible set actually changes (separate from OD-2 picks).
+  - **LC-R4 MERGED / COMPLETE (PR #306, merge commit `12725eb3461583a5349259868fe2e7163b3eacf0`; PR HEAD `ead02fb`):** pantry `ShelfChips` in a fixed slot (>= 2 represented shelves, reset to 「すべて」 on reopen, list `scrollTop` reset on filter change); production = `IngredientPantry.tsx` + `App.css` (append-only). Pre-merge CI 9/9 (WebKit 4 shards, WebKit Gate, Layout Contract Gate), mutation 52/52; post-merge Deploy #220 and E2E WebKit #348 green. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R4_Shelf-Filtering_Result.md`. Next: R5 — Owner Decision Review (OD-R5-1〜12) before any R5 implementation. *(Absorbed from open PR #307 by the S-0 branch, text unchanged; this "Next" is historical: R5-a … R5-e-h have landed since, see below.)*
 - **LC-R5-a MERGED (PR #308, merge commit `21dc0a6`):** pantry availability (`pantryWorthwhile` / `utilityRow`) separated from the pager (OD-R5-10).
 - **LC-R5-b MERGED / COMPLETE (PR #310, merge commit `b35739ad51380d621d994e46f9876a007630e360`; post-merge Deploy + WebKit PASS):** pantry search field (owned rows of the active category > 6), the three Owner-approved search-only aliases (onion 玉ねぎ / egg 卵 / mozzarella モッツァレラチーズ; `src/data/ingredientSearchAliases.ts`), the IME contract (no list update during a composition, `compositionend` applies the confirmed text), Enter / Escape / focus contract, and Mode C keyboard fit (pantry-only `visualViewport`, CSS ceiling fallback; sheet baseline = shell ceiling). Authority: R5-b PreAudit §15〜§18 (Real-Device Discovery PASSED, Mode C adopted; branch `claude/lc-r5b-pre-audit-mbinf3` @ `77482f5`). `HAND_ENFORCEMENT_ENABLED` still `false`; no pins / hand / #197 / selected strip (R5-c+), no save change. Result: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5b_Search-Keyboard-Fit_Result.md`. Real-iPhone HV of this build (Safari + standalone, IME, keyboard fit, geometry recovery): **PASS** (Owner, Preview `7bf1486`). Next: PR review / merge (Owner). Out of scope, unchanged: R5-c (pins / hand / selected strip), #197 wiring, enforcement.
 - **LC-R5-c Fresh Audit (branch `claude/lc-r5c-fresh-audit`, docs / tools only, audited main `b35739a`):** `docs/reports/TETO_LARGE-CATALOG-UX_LC-R5c_Fresh-Audit.md` (measurements: `docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R5c_GEOMETRY.json`). 360×640 keyboard (K=338, simulated) leaves 87px of list (1 row, 15.8px spare): a fixed 44px strip, a 24–32px compact summary or a strip replacing the subtitle all drop to 0 rows. Recommended: D (normal = fixed strip while ≥1 pin; keyboard / Mode C = no strip, tile 📌 badge only), optional subtitle merge. Verdict **B. OWNER DECISION REQUIRED** (OD-R5c-1 production exposure of pin UI vs IVP §4 dormancy; OD-R5c-2/3 UI option and its fit with OD-2 / OD-R5-5; OD-R5c-4 subtitle merge; OD-R5c-5 tile tap during keyboard → HV). No production change; R5-c not started.
@@ -446,6 +471,51 @@ design docs and wireframes are historical where they disagree.
   `..._TQ-1C_PRE-IMPLEMENTATION-GATE.md` (the TQ-1C wiring map and test plan).
 - **Not on main:** the 172-row technique audit, its data and its generator tools stay on the
   design archive (branch `claude/cooking-techniques-design-n0qfwj`, commit `ab77b82`).
+
+## Discovery 3.x — Contract 2.1: RESULT-based identification (implemented; Production ON)
+
+**Authority:** `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md` (read first for any Research / identification work).
+**Implementation:** PR #363, merged as `60dc604bd8f5b67ea7a1b8d4308f9a4c85d04cd9` on `main` (slices S1–S6, S5.1, Codex P2 fix).
+Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-Verification_Result.md`.
+
+- **Behavior.** The explicit Research Target stays; the Contract 2.0 pre-attempt picker / selection / LOCK is removed. After a
+  Research attempt, the RESULT shows 「今回の試作結果」: **○** = newly learned in this attempt, **×** = newly learned not in the
+  researched pizza, **✓** (used-ingredients list only) = known before the attempt. Rows run sauce → cheese → topping in the player's
+  placement order. Topping cap K = 3: with 4+ unknown toppings there is no individual topping row, only
+  「トッピングは一度に3種類まで調べられるよ」.
+- **Known ingredients** (unlock fact + stored `ing:` facts, taken once in REGISTER_TO_DEX) are excluded from the panel, from K and
+  from the Trial Notebook. The Owner decided that an ingredient made known by a Hint bought during PREPARE is also excluded.
+- **Persistence.** Only ○ persists, as the existing `discoveryHintFacts[target]` `ing:<id>`. × and over-cap toppings are never saved.
+  `lastResearchRows` (labelJa, rows, toppingOverCap, known snapshot) and `researchTargetValidAtStart` are session-only. **No save
+  schema change, no migration.**
+- **Trial Notebook.** A `RESEARCH_ROWS` feedback line in the existing `{kind, textJa}` schema (fixed public label, no truncation,
+  zero judgments → null; same-combination retry replaces the line).
+- **Oracle guards.** Targetless attempts and cross-recipe / NEW discoveries get no membership result. No count, distance, Near/Far
+  or direct 「ソースなし」/「チーズなし」 wording. Membership is independent of the matcher outcome and cooking quality
+  (ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH are identical).
+- **Last stock (OD-RB-18).** The attempt that consumes the target's last stock keeps its result. Validity is snapshotted at round start
+  (`researchTargetValidAtStart`), so the following retry — whose target is no longer valid at start — gets no result, while the
+  research context card (#362) still carries on.
+- **Flag.** `RESEARCH_IDENTIFY_ENABLED` is reused (Production default **true** since PR #366, `RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = true`; dev / Preview ON; no Production opt-out). OFF = pre-Contract-2.1 behavior; rollback = set the default back to `false`.
+- **Layout fix.** The Research RESULT action bar (168px) needed more bottom reserve than the shared 130px: `.result-panel--research`
+  uses 176px.
+- **Verification.** Owner HV and Re-HV passed on iPhone Preview; full Vitest 5927 passed / 1 skipped; Chromium 390×844 and 360×800
+  green; WebKit green on the PR and on `main`; Codex latest-head clean; the P2 was fixed before merge.
+- **Owner Preview HV (post-merge): PASS.** Preview `PREVIEW · PR#363 · 60dc604` (built from `main` `60dc604`), real iPhone. Confirmed:
+  Research Target, trial, RESULT ○, known ingredient ✓ on the next attempt, ×-judgment for another ingredient, Trial Notebook, retry,
+  known ingredients reflected in the Research header, NEW PIZZA discovery, and no stale Research result panel on the NEW PIZZA screen.
+- **UX follow-up (non-blocking, not an Activation blocker):** the Trial Notebook `RESEARCH_ROWS` display works but has room to be
+  more readable as a player-facing note. Tracked as a separate UX item; no change in this PR.
+- **Activation Gate C (2026-10-03): READY = YES — not a flag-ON permission.** Attempt-aware simulation, economy and invariants:
+  `docs/reports/TETO_CONTRACT-2.1_ACTIVATION-GATE-C_Result.md` (+ `…STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`). Owner Decision: `★3-FULL replay ≤ 1`
+  is not a Gate C condition (it was a direct-bake observation); ★3-FULL replay 3–8 / refill 510–890 Pitz are recorded for post-Production
+  re-evaluation. The flag change was a separate step: done in PR #366.
+- **Production activation (done, 2026-10-03).** PR #366 MERGED; deployed source `fbd5305fb9452e0a6d38b188dd6f3099898a7ae8`; `RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = true`;
+  Production Pages deploy #262 SUCCESS; **Owner Production iPhone HV = PASS, Production blocker = NONE.** The Owner HV covered the Research Target → trial →
+  RESULT × / ○ → Trial Notebook → retry → prior-○ ✓ → NEW PIZZA flow. Last-stock boundary, topping > K=3, ×-not-persisted after reload and 360×800 on a real device
+  were **not** repeated in the Owner HV (automated evidence only). Record, evidence split and rollback: `docs/reports/TETO_CONTRACT-2.1_PRODUCTION-POST-ACTIVATION-HV-CHECKLIST.md`.
+- **Not done (separate gates):** #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit (Expansion Gate A / §13.1), the post-Production re-evaluation of
+  ★3-FULL replay / refill cost (Gate C §12.1), and the Trial Notebook readability UX follow-up.
 
 ## Product goal
 

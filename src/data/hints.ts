@@ -22,7 +22,7 @@ const FREE_COOK_STEP_HINTS: Partial<Record<MakingStep, { text: string; explicit:
     explicit: "持っている材料なら何でものせられるよ。組み合わせ次第で新しいピザが見つかるかも！",
   },
 };
-const FREE_COOK_FALLBACK_HINT = "好きな材料で自由に作ってみよう！";
+const FREE_COOK_FALLBACK_HINT = "好きな材料を組み合わせて、新しいレシピを試してみよう！";
 
 /** Progression 2.0 Phase 3-3 (Issue #198): pre-first-discovery hint escalation. Reuses the
  *  existing Free Cooking hint slot (`buildHintLine`'s free-cook branch below) -- no separate

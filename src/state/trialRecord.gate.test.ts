@@ -51,13 +51,15 @@ describe("record adapter: authority and inputs", () => {
     }
   });
 
-  it("stores exactly the two fields of the P2 line", () => {
-    expect(adapter).toContain("{ kind: line.kind, textJa: line.textJa }");
+  it("stores no near/far feedback: the line is null unless the caller passes the Contract 2.1 RESEARCH_ROWS line (default null); never calls resultNearMiss", () => {
+    expect(adapter).toContain("feedback: ShownFeedback | null = null,");
+    expect(adapter).toContain("    feedback,\n  });");
+    expect(adapter).not.toMatch(/resultNearMiss\(/);
   });
 
-  it("eligibility is the ORIGINAL and AMBIGUOUS outcomes only (OD-P3-16)", () => {
-    expect(adapter).toContain('outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS"');
-    expect(adapter).not.toMatch(/INCOMPLETE_MATCH|NEW_DISCOVERY|ALREADY_DISCOVERED/);
+  it("eligibility is ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH only (OD-P3-16 as updated by OD-D3-23)", () => {
+    expect(adapter).toContain('outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS" || outcome.kind === "INCOMPLETE_MATCH"');
+    expect(adapter).not.toMatch(/NEW_DISCOVERY|ALREADY_DISCOVERED/);
   });
 });
 
@@ -85,7 +87,7 @@ describe("reducer: exactly one commit point, in the free-cook ORIGINAL branch of
   });
 
   it("the adapter is fed the committed outcome, not a recomputation", () => {
-    expect(reducer).toContain("recordTrialAttempt(state, resolution.outcome)");
+    expect(reducer).toContain("recordTrialAttempt(state, resolution.outcome, research.feedback)");
   });
 
   it("the notebook is written in exactly one place: the commit (besides carry / initial value)", () => {
@@ -132,14 +134,20 @@ describe("what must stay out", () => {
     expect(production.filter(([, text]) => /discoveryMemo/i.test(text)).map(([p]) => p)).toEqual([]);
     for (const [path, text] of production) {
       if (path === ADAPTER || path === "/src/logic/discovery/trialNotebook.ts") continue;
-      expect(text, path).not.toMatch(/notebookView\(|lookupAttempt\(|recordAttempt\(/); // the model's read/write API is used by the adapter only
+      // the model's write API is used by the adapter only; the read API (`notebookView`) also by the N1 relay (GameScreen)
+      expect(text, path).not.toMatch(/lookupAttempt\(|recordAttempt\(/);
+      if (path !== "/src/screens/GameScreen.tsx") expect(text, path).not.toMatch(/notebookView\(/);
     }
   });
 
-  it("no component or screen reads the notebook itself (P3-3b reads only the record result, in GameScreen)", () => {
+  it("no component or screen reads the notebook itself, except the N1 read-only readers (GameScreen relay, Hint sheet, notebook sheet)", () => {
+    const N1 = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx"];
     const ui = production.filter(([p]) => /^\/src\/(components|screens)\//.test(p));
     expect(ui.length).toBeGreaterThan(10);
-    for (const [path, text] of ui) expect(text, path).not.toMatch(/trialNotebook|TrialEntryView|notebookView|retryCount/);
+    for (const [path, text] of ui) {
+      if (N1.includes(path)) continue;
+      expect(text, path).not.toMatch(/trialNotebook|TrialEntryView|notebookView|retryCount/);
+    }
     for (const [path, text] of ui) {
       if (path === "/src/screens/GameScreen.tsx") continue;
       expect(text, path).not.toMatch(/lastTrialAttempt/);
@@ -156,13 +164,27 @@ describe("what must stay out", () => {
     const game = sources["/src/screens/GameScreen.tsx"];
     expect(game.match(/lastTrialAttempt/g)).toHaveLength(2);
     expect(game).toContain('trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}');
-    expect(game).not.toMatch(/trialNotebook|notebookView/);
+    // Notebook N1: the one read-only relay of the model's display view to the Hint sheet; nothing else.
+    expect(game.match(/trialNotebook/g)).toHaveLength(2); // import path + the one read
+    expect(game.match(/notebookView/g)).toHaveLength(2); // import + call
+    expect(game).toContain("const notebookRows = notebookView(state.trialNotebook);"); // #346 S4: one hoisted read, two read-only consumers
+    expect(game.match(/notebookRows/g)).toHaveLength(3); // the read + the Hint sheet + the Research RESULT sheet
+  });
+
+  it("Notebook N1: the notebook sheet is read-only (no reducer, save, storage, clock or dispatch) and never renders a row's `kind`", () => {
+    const sheet = sources["/src/components/TrialNotebookSheet.tsx"];
+    const code = sheet.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const forbidden of ["gameReducer", "persistence", "localStorage", "sessionStorage", "dispatch", "Math.random", "Date.now", "new Date", "recordAttempt", "lookupAttempt"]) {
+      expect(code, forbidden).not.toContain(forbidden);
+    }
+    expect(code).not.toMatch(/feedback\.kind|\.kind\b/);
+    expect(code).toContain("entry.feedback.textJa");
   });
 
   it("the notice is a static paragraph on the ORIGINAL card only: after the P2 row, before the note, no live region", () => {
     const panel = sources["/src/components/ResultPanel.tsx"];
     const original = panel.slice(panel.indexOf("if (!score) {"), panel.indexOf("const freeCookMatch"));
-    const hint = original.indexOf("{freeCook && hintRow(nearMiss, true)}");
+    const hint = original.indexOf("{freeCook && hintRow(null, true)}");
     const notice = original.indexOf('<p className="original-pizza__trial-notice">{trialNoticeText}</p>');
     const note = original.indexOf('<p className="original-pizza__note">');
     expect(hint).toBeGreaterThan(-1);

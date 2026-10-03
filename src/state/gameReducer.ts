@@ -25,7 +25,12 @@ import {
   type CookingTimingState,
 } from "../logic/cookingTiming";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
-import { evaluatePizzaCompletion, type PizzaCompletionResult } from "../logic/completionGate";
+import {
+  bakeCompletionFailure,
+  evaluatePizzaCompletion,
+  type BakeCompletionFailure,
+  type PizzaCompletionResult,
+} from "../logic/completionGate";
 import { purchaseFirstPack, refillPack } from "../logic/materialShop";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
@@ -44,6 +49,9 @@ import {
 } from "../logic/techniques/runtime";
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
+import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
+import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
+import { researchRowsFeedback } from "../logic/discovery/researchResultFeedback";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 import {
   canPlaceIngredient,
@@ -89,6 +97,9 @@ import {
   requestDeductionHintFact,
   requestHint5RungFact,
   resolveHintSession,
+  researchAttemptContext,
+  isValidResearchTarget,
+  needsResearchTargetChoice,
   unlockNextHint,
   type DeductionFamily,
   type HintOutcome,
@@ -141,6 +152,17 @@ export type MakingStep = "DOUGH" | "SAUCE" | "CHEESE" | "TOPPING" | "FOLD" | "SE
 function nextStepWithin(step: MakingStep, steps: readonly MakingStep[]): MakingStep {
   const index = steps.indexOf(step);
   return steps[Math.min(index + 1, steps.length - 1)];
+}
+
+/** Contract 2.1: the disclosed RESULT judgments of one attempt (the label is fixed at REGISTER_TO_DEX, never recomputed). */
+export interface LastResearchRows {
+  labelJa: string;
+  rows: readonly ResearchResultRow[];
+  /** 4+ unknown toppings were used: no individual topping row is disclosed (the copy is the UI's). */
+  toppingOverCap: boolean;
+  /** known(T) at evaluation time (before this attempt's positives were stored). Display-only: it lets the RESULT mark a
+   *  used ingredient as "already known" (✓); it is never a judgment, never persisted, never in the Notebook. */
+  knownIngredientIds: readonly string[];
 }
 
 export interface GameState {
@@ -235,6 +257,11 @@ export interface GameState {
    *  step (./discoveryHint.ts). Session-only: carried across rounds through `ProgressionCarry`
    *  so one discovery search keeps its target, never persisted (a reload starts at H0). */
   hintSession: HintSession | null;
+  /** Discovery 3.0 Research Recipe (#346 S3): the Research Target the player picked from a Dex Research
+   *  Entry card -- the subject of the Research UI and of Hint requests ONLY. It is never read by the
+   *  matcher / CONFIRM_BAKE / REGISTER_TO_DEX (any exact recipe is discovered as always). Session-only:
+   *  carried across Free Cooking retries through `ProgressionCarry`, never persisted (no save field). */
+  researchTargetId: string | null;
   /** Discovery Hint Economy 1.0 (Issue #232, HE-1): `recipeId -> highest purchased hint level`,
    *  the persisted ledger (./persistence.ts). Only a successful hint purchase raises a level; no
    *  action ever lowers or removes one (an entry stays after its recipe is discovered). Carried
@@ -346,6 +373,15 @@ export interface GameState {
    *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for
    *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
   lastTrialAttempt: LastTrialAttempt | null;
+  /** Contract 2.1: the RESULT membership rows of this round's Research Target attempt, written only by REGISTER_TO_DEX's
+   *  free-cook ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH branch (flag ON, registered target; rows may be empty), reset every fresh round.
+   *  Session-only, never persisted. Carries no recipe name / id, count or distance. `null` without a valid attempt context. */
+  lastResearchRows: LastResearchRows | null;
+  /** Contract 2.1 (OD-RB-18): whether the Research Target was a VALID (registered and cookable) target when THIS round
+   *  began. Fixed at round start by `buildOrderState` and never recomputed, so the attempt that consumes the target's
+   *  last stock keeps its result while the retry that starts without it does not. It only gates the membership
+   *  evaluation: `researchTargetId` (and the research context it drives) is carried independent of it. Session-only. */
+  researchTargetValidAtStart: boolean;
   /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
    *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
    *  REGISTER_TO_DEX, and saved by App in the same write as the Dex. */
@@ -453,7 +489,11 @@ export type GameAction =
   | { type: "RETRY_SAME_RECIPE"; now?: number }
   // Progression 2.0 Phase 3-2 (Issue #194): starts a fresh FREE round with no recipe selected
   // (HOME's フリークッキング). Lands straight at PREPARE like SELECT_RECIPE. Never a Mission round.
-  | { type: "START_FREE_COOK"; now?: number }
+  // #346 S3: `researchTargetId` -- the Dex Research Entry the player chose to research. The reducer
+  // keeps it only while it is a valid, DISCOVERABLE entry; omitted (HOME) clears any earlier target.
+  | { type: "START_FREE_COOK"; now?: number; researchTargetId?: string }
+  // #356: declares (or, with `null`, clears) the ONE ingredient to check this attempt. PREPARE of a Research Target
+  // round only; anything else is a no-op.
   // Free Cooking PREPARE: opens the Discovery Hint 2.0 sheet (229-B). Any other round: the
   // explicit one-line operational hint, as before.
   // 229-D: `pinnedRecipeId` -- the Dex card whose 「💡 ヒントを見る」 started this round. Never read
@@ -564,6 +604,8 @@ interface ProgressionCarry {
   unlockedForShopIngredientIds: readonly string[];
   preDiscoveryFreeCookAttempts: number;
   hintSession: HintSession | null;
+  /** #346 S3: session-only Research Target; survives every round transition like `hintSession`. */
+  researchTargetId: string | null;
   discoveryHintPurchases: DiscoveryHintPurchases;
   discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
   /** DM-4-3: must survive every round transition, or a later clear would read a stale record. */
@@ -638,6 +680,8 @@ function buildOrderState(
     lastEfficiencyCredit: null,
     lastDiscovery: null,
     lastTrialAttempt: null,
+    lastResearchRows: null,
+    researchTargetValidAtStart: freeCook && isValidResearchTarget(carry, carry.researchTargetId),
     lastTechniqueDiscovery: null,
     freeCook,
   };
@@ -774,6 +818,7 @@ export function createInitialGameState(
       unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: 0,
       hintSession: null,
+      researchTargetId: null,
       discoveryHintPurchases,
       discoveryHintFacts,
       dinnerMissionRecordsState,
@@ -1247,7 +1292,15 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // every real recipe today -- byte-identical to the pre-Phase-1A behavior. Only a future
       // recipe's non-default profile (none activated this phase) would ever land on "POST_BAKE"
       // here, entering it at that profile's own first post-BAKE step.
-      const postBake = postBakeSteps(state.cookingProfile);
+      //
+      // Issue #256 (OD-CUT256-1..4): a pizza the Completion Gate has just failed for its bake
+      // (UNDERBAKED / OVERBAKED anywhere in `failures`, e.g. MISSING + UNDERBAKED too) skips the
+      // post-BAKE steps (CUT) and lands on RESULT -- its outcome is already certain and CUT never
+      // changes it. The verdict is `completion` above, read through `bakeCompletionFailure`; no
+      // band is computed here. A servable pizza (PASS, incl. a ★4 "生焼け / 焦げ" badge) and a
+      // composition-only failure keep CUT. A Dinner round forwards the same verdict to Stage B
+      // (`dinnerGuardedReducer`), so its CUT gate stays consistent.
+      const postBake = bakeCompletionFailure(completion) ? [] : postBakeSteps(state.cookingProfile);
       // Phase 1A-T (§22.2/§22.14): starts timing `postBake[0]` the instant the round actually
       // enters POST_BAKE -- `state.cookingTiming.activeStep` is already `null` here (closed out
       // by START_BAKE above), so this is purely a "start", never a re-finalize. No-op (byte-
@@ -1308,10 +1361,14 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             ? roundTechniques(state, state.dex)
             : { ledger: state.discoveredTechniqueIds, newlyDiscovered: [] };
         // P3-3a (OD-P3-17): the exactly-once Trial Notebook commit. The RESULT guard above makes this transition
-        // happen once per round; `recordTrialAttempt` records only an ORIGINAL / AMBIGUOUS outcome (OD-P3-16).
-        const trial = recordTrialAttempt(state, resolution.outcome);
+        // happen once per round; `recordTrialAttempt` records an ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH outcome
+        // (OD-P3-16 as updated by OD-D3-23: an INCOMPLETE_MATCH must not stand out by being unrecorded).
+        const research = researchAttemptResult(state);
+        const trial = recordTrialAttempt(state, resolution.outcome, research.feedback);
         return {
           ...state,
+          discoveryHintFacts: research.discoveryHintFacts,
+          lastResearchRows: research.lastResearchRows,
           phase: "DISCOVERED",
           lastDiscovery: resolution.outcome,
           trialNotebook: trial.trialNotebook,
@@ -1457,11 +1514,17 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       );
     }
 
-    case "START_FREE_COOK":
-      return startFreeCook(
-        carryOf(state),
-        action.now,
-      );
+    case "START_FREE_COOK": {
+      // #346 S3: HOME / Dex-pin starts carry no target (an earlier one is cleared); a Research Entry
+      // start keeps its target only while valid. Either way only the Hint subject changes -- never
+      // what the matcher accepts.
+      const researchTargetId = isValidResearchTarget(state, action.researchTargetId) ? action.researchTargetId! : null;
+      const carry = { ...carryOf(state), researchTargetId };
+      // #353: a fresh start with 2+ Research Entries and no target drops the carried Hint session, so an earlier
+      // round's pick cannot act as this round's choice. (A retry keeps it: that is the same search.)
+      const dropSession = needsResearchTargetChoice({ ...state, researchTargetId });
+      return startFreeCook(dropSession ? { ...carry, hintSession: null } : carry, action.now);
+    }
 
     // Progression 2.0 Phase 3-2: after a free-cook round (matched or not) "もう一度つくる" means
     // "cook freely again", never "make the recipe the matcher happened to name".
@@ -1734,6 +1797,50 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
   return result.newlyDiscovered.length > 0 ? result : { ...result, ledger: state.discoveredTechniqueIds };
 }
 
+/**
+ * Contract 2.1: the RESULT-based membership of a free-cook round that finished as a plain ORIGINAL / AMBIGUOUS /
+ * INCOMPLETE_MATCH (REGISTER_TO_DEX's only call site, so exactly once per round; a MATCHED / cross-recipe round has a
+ * score and never reaches it). The outcome kind is only the permission to be here: membership never reads it, the
+ * matcher or the cooking quality (INV-D6).
+ *
+ * - Flag OFF, no explicit target, a target that was not VALID when this round began (`researchTargetValidAtStart`, a
+ *   start-of-round snapshot: a retry that begins without the target's last stock gets no result), or a target that is
+ *   not a REGISTERED entry (ownership, not stock: the attempt's own last-stock use must not drop the result) ->
+ *   nothing changes.
+ * - known(T) is taken once, here, from the state before this write; S1 judges only what is not yet known.
+ * - Only S1's positive `ing:` ids are added to the target's ledger (deduplicated). A negative or an over-capped
+ *   topping is never stored.
+ * - The Notebook line is built from the same disclosed rows (S2); no rows -> `null`.
+ */
+function researchAttemptResult(state: GameState): {
+  discoveryHintFacts: GameState["discoveryHintFacts"];
+  lastResearchRows: LastResearchRows | null;
+  feedback: ReturnType<typeof researchRowsFeedback>;
+} {
+  const none = { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows: null, feedback: null };
+  const targetId = state.researchTargetId;
+  if (!RESEARCH_IDENTIFY_ENABLED || !targetId || !state.researchTargetValidAtStart) return none;
+  const context = researchAttemptContext(state);
+  if (!context) return none;
+  const result = researchResultRows({ targetRecipeId: targetId, pizza: state.pizza, knownIngredientIds: context.knownIngredientIds });
+  const feedback = researchRowsFeedback({ labelJa: context.labelJa, rows: result.rows });
+  // `knownIngredientIds` is the known(T) snapshot this evaluation used (taken before this attempt's own write), so the
+  // RESULT can mark prior knowledge without re-reading the ledger (which already holds this attempt's new positives).
+  const lastResearchRows: LastResearchRows = {
+    labelJa: context.labelJa,
+    rows: result.rows,
+    toppingOverCap: result.toppingOverCap,
+    knownIngredientIds: [...context.knownIngredientIds],
+  };
+  const own = Object.prototype.hasOwnProperty.call(state.discoveryHintFacts, targetId) ? state.discoveryHintFacts[targetId] : [];
+  const added = result.persistFactIds.filter((id) => !own.includes(id));
+  if (added.length === 0) return { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows, feedback };
+  const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
+  for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
+  ledger[targetId] = [...own, ...added];
+  return { discoveryHintFacts: ledger, lastResearchRows, feedback };
+}
+
 function carryOf(state: GameState): ProgressionCarry {
   return {
     dex: state.dex,
@@ -1745,6 +1852,7 @@ function carryOf(state: GameState): ProgressionCarry {
     unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
     preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
     hintSession: state.hintSession,
+    researchTargetId: state.researchTargetId,
     discoveryHintPurchases: state.discoveryHintPurchases,
     discoveryHintFacts: state.discoveryHintFacts,
     dinnerMissionRecordsState: state.dinnerMissionRecordsState,
@@ -1932,13 +2040,14 @@ function dinnerResolve(
   next: GameState,
   session: DinnerSession,
   preConsumptionInventory: InventoryState,
-  cutCompleted: boolean,
+  cut: { completed: boolean; waivedFor: BakeCompletionFailure | null },
   now: number,
 ): GameState {
   const result = resolveDinnerAttempt({
     run: session.run,
     pizza: next.pizza,
-    cutCompleted,
+    cutCompleted: cut.completed,
+    cutWaivedFor: cut.waivedFor,
     preConsumptionInventory,
     ownedIngredientIds: next.ownedIngredientIds,
     dex: next.dex,
@@ -2043,7 +2152,9 @@ function dinnerSettle(state: GameState): GameState {
  * - composition actions only in PREPARE while PLAYING, and nothing while the HOME confirmation is open;
  * - START_BAKE runs Stage A (window + CUT);
  * - CONFIRM_BAKE captures the pre-consumption stock, consumes exactly once (the base reducer's
- *   `consumePizzaInventory`), and resolves at once when no CUT follows;
+ *   `consumePizzaInventory`), and resolves at once when no CUT follows -- including a CUT recipe
+ *   whose bake the Completion Gate failed (Issue #256: the base skipped CUT; the verdict goes on
+ *   as `cutWaivedFor`);
  * - the last CONFIRM_MAKING_STEP (CUT) resolves with the stock captured at CONFIRM_BAKE.
  * The clock is checked on every step that bakes or resolves: past the deadline nothing is baked,
  * consumed or completed.
@@ -2066,8 +2177,16 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
     // The base CONFIRM_BAKE bakes and consumes (once). Its score / completion are computed against
     // the anonymous sentinel and mean nothing for Dinner -- the result is the resolver's -- so they
     // are cleared rather than left for any screen to misread.
-    const next: GameState = { ...baseGameReducer(state, action), score: null, scoringV2Result: null, completion: null };
-    if (next.phase === "RESULT") return dinnerResolve(state, next, session, preConsumptionInventory, false, action.now);
+    const baked = baseGameReducer(state, action);
+    // Issue #256: read the base Completion Gate's bake verdict before it is cleared. With the
+    // sentinel recipe carrying the Stage A window, that verdict is the bake check against the same
+    // window Stage B judges. When it made the base reducer skip CUT, it is forwarded as the CUT
+    // waiver; Stage B only accepts it if its own classification agrees (fail closed otherwise).
+    const cutWaivedFor = bakeCompletionFailure(baked.completion);
+    const next: GameState = { ...baked, score: null, scoringV2Result: null, completion: null };
+    if (next.phase === "RESULT") {
+      return dinnerResolve(state, next, session, preConsumptionInventory, { completed: false, waivedFor: cutWaivedFor }, action.now);
+    }
     return { ...next, dinner: { ...session, pending: { ...session.pending, preConsumptionInventory } } };
   }
 
@@ -2079,7 +2198,7 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
     if (action.now === undefined || pre == null) return state;
     const run = tickedRun(session, action.now);
     if (run.status !== "PLAYING") return withRun(state, session, run);
-    return dinnerResolve(state, next, session, pre, true, action.now);
+    return dinnerResolve(state, next, session, pre, { completed: true, waivedFor: null }, action.now);
   }
 
   return baseGameReducer(state, action);

@@ -8,7 +8,7 @@
  *   remove one / change the sauce), d=2 says "close" with no direction, d>=3 says nothing, or
  *   only the generic "new material" nudge when the nearest recipe's key material is unused.
  * - ALREADY_DISCOVERED: one extra line only at d=1; the known-pizza result stays as it is.
- * - NEW_DISCOVERY, AMBIGUOUS, INCOMPLETE_MATCH (its own copy fix lives in ResultPanel), a FAILED
+ * - NEW_DISCOVERY, AMBIGUOUS, (INCOMPLETE_MATCH: see the PR-1 note on `resultNearMiss`), a FAILED
  *   round and any non-Free-Cooking round: no line.
  * The line never names a recipe, and never which ingredient to add or remove.
  *
@@ -49,7 +49,7 @@ export interface ResultNearMissInput {
 }
 
 export interface ResultNearMissLine {
-  kind: NearMissKind;
+  kind: NearMissKind | "NEUTRAL";
   textJa: string;
 }
 
@@ -93,15 +93,47 @@ export function nearMissLine(
   return { kind: nearMiss.kind, textJa: NEAR_MISS_COPY[nearMiss.kind] };
 }
 
-export function resultNearMiss(
+/**
+ * Discovery 3.0 Near/Far Neutralization Phase 1 (Owner Option B): the one line a Free Cooking RESULT shows for an
+ * undiscovered attempt. It is NOT a function of the hidden recipes: no pool, distance, tie-break winner, key
+ * material or matcher candidate is read, so the same attempt gets the byte-identical line for any pool size, any
+ * candidate order and any hidden recipe. It is the OD-P2-2 generic copy (`NEAR_MISS_FAR_GENERIC_COPY`), reused.
+ * The directional / CLOSE / key-unused lines are no longer produced anywhere in production (`legacyResultNearMiss`
+ * and `nearMissLine` remain only for the internal matcher tests and the economy simulator).
+ * ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH are shown identically (OD-D3-20 / OD-D3-23); ALREADY_DISCOVERED,
+ * NEW_DISCOVERY, a FAILED round and a non-Free-Cooking round get no line.
+ */
+export function resultNearMiss(input: ResultNearMissInput): ResultNearMissLine | null {
+  if (!input.freeCook || input.completion?.status === "FAILED") return null;
+  const outcome = input.lastDiscovery?.kind;
+  if (outcome !== "ORIGINAL" && outcome !== "AMBIGUOUS" && outcome !== "INCOMPLETE_MATCH") return null;
+  return { kind: "NEUTRAL", textJa: NEAR_MISS_FAR_GENERIC_COPY };
+}
+
+/** The pre-neutralization (Hint 2.0 / P2) pool-distance line. No production caller (gated by tests). */
+export function legacyResultNearMiss(
   input: ResultNearMissInput,
   options: ResultNearMissOptions = {},
 ): ResultNearMissLine | null {
   if (!input.freeCook || input.completion?.status === "FAILED") return null;
-  const outcome = input.lastDiscovery?.kind;
+  const discovery = input.lastDiscovery;
+  const outcome = discovery?.kind;
   const known = outcome === "ALREADY_DISCOVERED";
-  if (outcome !== "ORIGINAL" && !known) return null;
+  if (outcome !== "ORIGINAL" && !known && outcome !== "INCOMPLETE_MATCH") return null;
 
-  const nearMiss = classifyNearMiss(signatureOfPizza(input.pizza), discoverableHintCandidates(input));
+  const candidates = discoverableHintCandidates(input);
+  if (discovery?.kind === "INCOMPLETE_MATCH") {
+    // Discovery 3.0 PR-1 (OD-D3-20 / OD-D3-23): an INCOMPLETE_MATCH is an exact identity that failed its completion
+    // gate. Shown like any other original it must not stand out, in particular not by having NO near/far row
+    // (`classifyNearMiss` is `null` at distance 0, while every other original with candidates gets a line). So the
+    // matched recipe is taken out of the comparison -- the row is what the same pizza would get against the other
+    // candidates -- and, when nothing nearer remains, it gets the generic far line an ordinary far pizza gets. With
+    // no candidates at all it gets no row, exactly like any other original in that state.
+    if (candidates.length === 0) return null;
+    const others = candidates.filter((r) => r.id !== discovery.recipeId);
+    const nearMiss = classifyNearMiss(signatureOfPizza(input.pizza), others);
+    return nearMissLine(nearMiss ?? { kind: "FAR", distance: 3, keyUnused: false }, false, options);
+  }
+  const nearMiss = classifyNearMiss(signatureOfPizza(input.pizza), candidates);
   return nearMiss ? nearMissLine(nearMiss, known, options) : null;
 }

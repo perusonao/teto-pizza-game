@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { getIngredient } from "../data/ingredients";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, countsTowardLadder } from "../data/recipes";
 import { buildHintSteps } from "../logic/discovery/hintSteps";
 import { discoveredRecipeIds } from "./dex";
 import { selectableHintPriceCap } from "../logic/discovery/selectableHint";
@@ -8,7 +8,7 @@ import { hintSheetView } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { recipeDiscoveryState } from "./recipeDiscoveryState";
-import { NEAR_MISS_COPY, resultNearMiss } from "./resultNearMiss";
+import { NEAR_MISS_COPY, legacyResultNearMiss as resultNearMiss } from "./resultNearMiss";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
@@ -86,14 +86,23 @@ interface StageRecord {
   trials: number;
 }
 
+// The walk follows whatever target the sheet offers until nothing is left, so it holds for any
+// number of legal discovery orders (a non-credit branching recipe can be the target beside a W1
+// one). The population size is pinned once, explicitly, not re-derived per assertion.
+const TOTAL = RECIPES.length;
+
 describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hints only", () => {
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo (27)", () => {
+    expect(TOTAL).toBe(27);
+  });
+
   it("every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery", () => {
     let s = createInitialGameState(undefined, undefined, 1_000_000);
     const records: StageRecord[] = [];
 
     for (let guard = 0; guard < 80; guard += 1) {
       const dexCount = discoveredRecipeIds(s.dex).length;
-      if (dexCount === 25) break;
+      if (dexCount === TOTAL) break;
       const shop: string[] = [];
 
       // 1. Open the sheet; follow an empty state to the Shop.
@@ -108,6 +117,25 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         }
         s = act(restockLow(s), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
         view = hintSheetView(s);
+      }
+      if (view.kind === "OPEN_POOL" || view.kind === "CHOOSE_RESEARCH") {
+        // #353: two registered Research Entries and no target is CHOOSE_RESEARCH (was OPEN_POOL); same blind pick.
+        // PR-4b-B (D-1): pizza-portuguesa and brazilian-calabresa are both DISCOVERABLE and nothing is
+        // sticky or bought, so the sheet names no recipe and sells nothing: it says only that
+        // something can still be found. The player cooks without a hint; finding the non-credit
+        // recipe first leaves one candidate again, which brings the hint back for every later stage.
+        expect(Object.keys(view)).toEqual(["kind"]);
+        expect(s.hintSession).toBeNull();
+        const pool = RECIPES.filter((r) => recipeDiscoveryState(r, s) === "DISCOVERABLE");
+        expect(pool.length, `Dex ${dexCount}: a pool of 2+`).toBeGreaterThanOrEqual(2);
+        const pick = pool.find((r) => !countsTowardLadder(r.id))!;
+        s = act(s, { type: "CLOSE_HINT" });
+        s = bake(s, [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))]);
+        expect(s.lastDiscovery, `Dex ${dexCount}: the blind pool pick`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: pick.id });
+        expect(discoveredRecipeIds(s.dex).length).toBe(dexCount + 1);
+        expect(s.discoveryHintFacts).not.toHaveProperty(pick.id);
+        records.push({ dex: dexCount, hintSpend: 0, target: pick.id, shop, steps: 0, named: 0, total: new Set(pick.requiredIngredients.map((r) => r.ingredientId)).size, firstResult: s.lastDiscovery?.kind ?? "none", trials: 1 });
+        continue;
       }
       expect(view.kind, `Dex ${dexCount}: a target after the Shop`).toBe(dexCount === 0 ? "TARGET" : "SELECTABLE");
       const targetId = s.hintSession!.targetId;
@@ -192,12 +220,22 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
       records.push({ dex: dexCount, hintSpend, target: targetId, shop, steps, named: named.length, total, firstResult: first, trials });
     }
 
-    expect(records.map((r) => r.dex)).toEqual(Array.from({ length: 25 }, (_, i) => i));
-    expect(new Set(records.map((r) => r.target)).size).toBe(25);
+    expect(records.map((r) => r.dex)).toEqual(Array.from({ length: TOTAL }, (_, i) => i));
+    expect(new Set(records.map((r) => r.target)).size).toBe(TOTAL);
     s = act(s, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(hintSheetView(s)).toEqual({ kind: "COMPLETE" });
-    // Every stage after the first went through the Shop (one new material per ladder step).
-    expect(records.slice(1).every((r) => r.shop.length >= 1)).toBe(true);
+    // Every ladder step's new material is bought through the Shop, at the FIRST stage that runs
+    // at that ladder count. A non-credit discovery does not advance the ladder, so a stage run at
+    // an unchanged count may reuse a material an earlier stage already bought (a branching pool
+    // lets either recipe be the one that triggers the purchase). On a single-path ladder every
+    // stage has its own count, so this is "every stage after the first visits the Shop".
+    const seenCounts = new Set<number>();
+    let credited = 0;
+    for (const r of records) {
+      if (r.dex >= 1 && !seenCounts.has(credited)) expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
+      seenCounts.add(credited);
+      if (countsTowardLadder(r.target)) credited += 1;
+    }
     // Facts stay after the discovery: every paid recipe with a purchasable fact (Margherita was
     // free), each within its Hint 2.0 cost (OD-H3-4 parity cap 35 / 75); the legacy ledger never moved.
     const paid = records.slice(1).filter((r) => r.steps > 0);

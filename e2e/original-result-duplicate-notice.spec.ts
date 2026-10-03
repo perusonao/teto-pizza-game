@@ -10,7 +10,7 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  * Original Pizza Recovery P3-3b: the RESULT duplicate notice, played for real (dough -> sauce -> cheese -> toppings ->
  * bake, twice) on a Dex 3 ladder save, where funghi (tomato sauce, mozzarella, mushroom) is the one DISCOVERABLE recipe.
  *
- * The first attempt shows no notice; 「もう一度じゆうに作る」 and the same combination shows
+ * The first attempt shows no notice; 「もう一度試す」 and the same combination shows
  * 「📓 前にも同じ材料の組み合わせで作ったよ（試作#1）」 under the P2 line. Each state is measured at the Layout Contract
  * profiles (390x844, 360x800, the short 390x664 / 360x640 and, on Chromium, the three safe-area profiles):
  * no horizontal overflow, both CTAs fully on screen above the bottom inset, >= 44px, not overlapping; the notice inside
@@ -50,7 +50,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX3_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/27/);
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -62,8 +62,8 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 
 /** One Free Cooking round (started from HOME, or from the RESULT's retry CTA) baked on target, to its RESULT. */
 async function cookFree(page: Page, pieces: Pieces, from: "HOME" | "RESULT") {
-  if (from === "HOME") await page.getByRole("button", { name: /フリークッキング/ }).first().click();
-  else await page.getByRole("button", { name: /もう一度じゆうに作る/ }).click();
+  if (from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();
@@ -203,8 +203,8 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
   for (const [name, pieces, p2, shot] of [
-    ["ADD_ONE (P2 near-miss line)", ADD_ONE, /材料をあと1つ足すと/, "add-one"],
-    ["FAR (generic P2 line, a different height)", FAR, /別の組み合わせも試してみよう|新しく入荷した材料/, "far"],
+    ["ADD_ONE (P2 near-miss line)", ADD_ONE, /別の組み合わせも試してみよう/, "add-one"],
+    ["FAR (generic P2 line, a different height)", FAR, /別の組み合わせも試してみよう/, "far"],
   ] as const) {
     test(`${name}: first attempt has no notice, the identical retry shows 「試作#1」; geometry holds with and without`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);
@@ -213,13 +213,13 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
 
       await cookFree(page, pieces, "HOME");
       await expect(page.locator(".result-panel--original")).toBeVisible();
-      await expect(page.locator(".result-near-miss__text")).toHaveText(p2);
+      await expect(page.locator(".result-near-miss__text")).toHaveCount(0); void p2; // #346 S0: no near/far line
       await expect(page.locator(NOTICE)).toHaveCount(0);
       const without = await checkState(page, driver, browserName, `${shot} NEW`, null, `${shot}-1-no-notice`);
 
       await cookFree(page, pieces, "RESULT");
       await expect(page.locator(".result-panel--original")).toBeVisible();
-      await expect(page.locator(".result-near-miss__text")).toHaveText(p2); // the P2 line is unchanged by the notice
+      await expect(page.locator(".result-near-miss__text")).toHaveCount(0); void p2; // #346 S0: no near/far line // the P2 line is unchanged by the notice
       await expect(page.locator(NOTICE)).toHaveText(NOTICE_TEXT(1));
       await expect(page.locator(NOTICE)).toHaveCount(1);
       const withN = await checkState(page, driver, browserName, `${shot} DUPLICATE`, 1, `${shot}-2-duplicate-notice`);
@@ -237,7 +237,7 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
     });
   }
 
-  test("a different combination after a recorded one shows no notice (NEW #2), and INCOMPLETE_MATCH never shows one", async ({ page, browserName }) => {
+  test("a different combination after a recorded one shows no notice (NEW #2), and an INCOMPLETE_MATCH is recorded like any original (OD-D3-23)", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
     await openWithSave(page);
@@ -245,9 +245,12 @@ test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
     await cookFree(page, FAR, "RESULT");
     await expect(page.locator(NOTICE)).toHaveCount(0); // a different fingerprint is a new attempt
     await cookFree(page, INCOMPLETE, "RESULT");
-    await expect(page.locator(".original-pizza__lead")).toHaveText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。");
-    await expect(page.locator(NOTICE)).toHaveCount(0);
-    await checkState(page, driver, browserName, "INCOMPLETE_MATCH", null, "incomplete-no-notice");
+    // Discovery 3.0 PR-1: the old 「図鑑のピザまであと少し」 lead is gone -- an INCOMPLETE_MATCH reads as any original.
+    await expect(page.locator(".original-pizza__lead")).toHaveText("まだ新しいレシピは見つかっていません");
+    await expect(page.locator(NOTICE)).toHaveCount(0); // its first attempt (#3) is new, like any other
+    await checkState(page, driver, browserName, "INCOMPLETE_MATCH", null, "incomplete-first-attempt");
+    await cookFree(page, INCOMPLETE, "RESULT"); // ... and it is recorded: the retry shows its stable number
+    await expect(page.locator(NOTICE)).toHaveText(NOTICE_TEXT(3));
     await cookFree(page, ADD_ONE, "RESULT"); // the very first combination again: still its stable #1
     await expect(page.locator(NOTICE)).toHaveText(NOTICE_TEXT(1));
   });

@@ -1,0 +1,21 @@
+      Tests  18 failed | 4060 passed | 1 skipped (4079)
+ FAIL  src/components/PizzaStage.cutGesture.test.tsx > Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture > 6. a real edge-to-edge drag commits exactly one CutLine via ADD_CUT_LINE
+ FAIL  src/components/PizzaStage.cutGesture.test.tsx > Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture > 7. a preview line becomes visible during the drag, before release
+ FAIL  src/components/PizzaStage.cutGesture.test.tsx > Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture > 8. pointercancel discards the in-progress drag without committing
+ FAIL  src/components/PizzaStage.cutGesture.test.tsx > Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture > committed lines render as permanent .pizza-cut-line elements, one per commit
+ FAIL  src/state/gameReducer.cookingSteps.test.ts > POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP) > POST_BAKE completion (confirming the last post-BAKE step) transitions to RESULT
+ FAIL  src/state/gameReducer.cookingSteps.test.ts > POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP) > future-profile fixture with one post-BAKE step (CUT): CONFIRM_BAKE lands on POST_BAKE at that step
+ FAIL  src/state/gameReducer.cookingSteps.test.ts > POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP) > future-profile fixture with two post-BAKE steps (FINISH then CUT): confirms walk FINISH -> CUT -> RESULT
+ FAIL  src/state/gameReducer.cutStep.test.ts > 16/17. CUT confirm -> RESULT, finalizes perStepElapsedMs.CUT > confirming CUT with `now` finalizes CUT's own elapsed ms and lands on RESULT
+ FAIL  src/state/gameReducer.cutStep.test.ts > 27. Completion Gate is never perturbed by CUT > CUT never gates completion: a FAILED (empty) margherita pizza still walks CUT to RESULT
+ FAIL  src/state/gameReducer.dinner.test.ts > START_BAKE: Stage A picks the window and the CUT step, and freezes the composition > R11: the identified recipe's bake window drives BAKE and the result (not the generic one)
+ FAIL  src/state/gameReducer.dinner.test.ts > inventory: exactly once, from the stock captured before CONFIRM_BAKE > R17: every failed category keeps its consumption (no refund)
+ FAIL  src/state/gameReducer.dinner.test.ts > result detection wired into the runtime > R9 / R10: raw and burnt pizzas -> INVALID_PIZZA (UNDERBAKED / OVERBAKED), stock consumed
+ FAIL  src/state/gameReducer.dynamicCookingSteps.test.ts > margherita (full-step recipe, regression baseline): DOUGH -> SAUCE -> CHEESE -> TOPPING unchanged > walks every one of the 4 PREPARE steps, still ending at CUT via POST_BAKE
+ FAIL  src/state/gameReducer.dynamicCookingSteps.test.ts > marinara (no required cheese): DOUGH -> SAUCE -> TOPPING, CHEESE never visited > BAKE -> POST_BAKE/CUT -> RESULT works with zero cheese ever placed
+ FAIL  src/state/gameReducer.dynamicCookingSteps.test.ts > quattro-formaggi (no required topping): DOUGH -> SAUCE -> CHEESE, TOPPING never visited > BAKE -> POST_BAKE/CUT -> RESULT works with zero topping ever placed
+ FAIL  src/state/gameReducer.stepTiming.test.ts > 10. FINISH -> CUT: FINISH captured, CUT starts > confirming FINISH captures its elapsed ms and opens CUT's own window
+ FAIL  src/state/gameReducer.stepTiming.test.ts > 11. CUT -> RESULT: CUT captured > confirming the last POST_BAKE step (CUT) transitions to RESULT and captures CUT's elapsed
+ FAIL  src/state/gameReducer.stepTiming.test.ts > 9. future fixture: CONFIRM_BAKE -> POST_BAKE starts post-bake timing > lands on POST_BAKE at the profile's first post-BAKE step (FINISH) and starts timing it
+ Test Files  6 failed | 186 passed (192)
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯

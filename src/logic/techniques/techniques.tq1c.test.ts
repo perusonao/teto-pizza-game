@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
+import { RECIPES, countsTowardLadder } from "../../data/recipes";
 import type { DexEntry } from "../../state/dex";
 import { NEAR_MISS_COPY } from "../../state/resultNearMiss";
 import { discoverableHintCandidates } from "../discovery/hintTarget";
@@ -14,7 +15,7 @@ import { sauceAxisAnswerCount } from "./nearMissPrivacy";
  *
  * OD-TQ1C-2: the near-miss k-rule applies to SAUCE_ONLY uniformly, but only from TQ-1D (with Human
  * Verification) -- TQ-1C must not change a single production near-miss line. The audit number the
- * Owner decided on (SSOT §1.1: 12 of 44 SAUCE_ONLY cases would fall back) is pinned here with the
+ * Owner decided on (SSOT §1.1: 12 of 47 SAUCE_ONLY cases would fall back) is pinned here with the
  * pure functions only, so TQ-1D starts from a checked baseline.
  */
 
@@ -64,7 +65,9 @@ describe("T15a: the OD-TQ1C-2 audit baseline (SSOT §1.1)", () => {
         unlockedForShopIngredientIds: unlocked,
         inventory: Object.fromEntries(unlocked.map((id) => [id, 99])),
       };
-      const candidates = discoverableHintCandidates(inputs);
+      // The audit baseline (SSOT §1.1) is defined on the credited ladder population (OD-D3-17 O3); a
+      // non-credit branching recipe is a different population and is not part of this count.
+      const candidates = discoverableHintCandidates(inputs, RECIPES.filter((r) => countsTowardLadder(r.id)));
       const ownedSauces = owned.filter((id) => SAUCES.includes(id));
       for (const candidate of candidates) {
         for (const target of RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId === candidate.id)) {
@@ -80,7 +83,7 @@ describe("T15a: the OD-TQ1C-2 audit baseline (SSOT §1.1)", () => {
         }
       }
     }
-    expect(sauceOnly).toBe(44);
+    expect(sauceOnly).toBe(47); // +3 at No.27's appended step 25
     expect(lowK).toHaveLength(12);
     expect(lowK.every((c) => c.used.length === 0 && c.step >= 1 && c.step <= 12)).toBe(true);
   });

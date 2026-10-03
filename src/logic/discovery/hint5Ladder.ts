@@ -64,7 +64,7 @@
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS, type IngredientCategory } from "../../data/ingredients";
 import { ingredientAttributeFamily, type AttributeFamilyId } from "../../data/ingredientTaxonomy";
-import { RECIPE_HINT_ROLES, type RecipeHintRoles } from "../../data/recipeHintRoles";
+import { RECIPE_HINT_ROLES, type HintRoles, type KeyFreeHintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { deductionHintTextJa, INGREDIENT_TOTAL_FACT_ID, legacyOwnsIngredientTotal } from "./deductionHint";
 import { parseAttributeFactId } from "./deductionRequest";
@@ -145,7 +145,12 @@ function findRecipe(recipeId: unknown, recipes: readonly Recipe[]): Recipe | nul
   return recipes.find((r) => r.id === recipeId) ?? null;
 }
 
-function rolesOf(recipeId: string, roles: Readonly<Record<string, RecipeHintRoles>>): RecipeHintRoles | null {
+/** Only an explicit `keyFree: true` is the key-free marker (OD-D3-21). */
+export function isKeyFreeHintRoles(roles: unknown): roles is KeyFreeHintRoles {
+  return typeof roles === "object" && roles !== null && (roles as { keyFree?: unknown }).keyFree === true;
+}
+
+function rolesOf(recipeId: string, roles: Readonly<Record<string, HintRoles>>): HintRoles | null {
   return Object.prototype.hasOwnProperty.call(roles, recipeId) ? roles[recipeId] : null;
 }
 
@@ -155,10 +160,15 @@ function rolesOf(recipeId: string, roles: Readonly<Record<string, RecipeHintRole
  * each once. Every recipe ingredient is a catalog ingredient (G22), and every sub-topping resolves to
  * one family (T-COV). Anything else is not a target.
  */
-export function hint5RolesValid(recipe: Recipe, roles: RecipeHintRoles | null): boolean {
-  if (!roles || !Array.isArray(roles.hintSubToppingOrder)) return false;
+export function hint5RolesValid(recipe: Recipe, roles: HintRoles | null): boolean {
+  if (!roles) return false;
   const ids = [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))];
   if (!ids.every((id) => typeof id === "string" && getIngredient(id))) return false;
+  if (isKeyFreeHintRoles(roles)) {
+    // Key-free (OD-D3-21): nothing is authored, so only T-COV applies -- every topping resolves to one family.
+    return ids.every((id) => getIngredient(id)!.category !== "topping" || subToppingClass(id) !== null);
+  }
+  if (!Array.isArray(roles.hintSubToppingOrder)) return false;
   const toppings = ids.filter((id) => getIngredient(id)!.category === "topping");
   const key = roles.hintKeyToppingId;
   if (key === null) {
@@ -177,7 +187,7 @@ export function hint5RolesValid(recipe: Recipe, roles: RecipeHintRoles | null): 
 export function buildHint5Ladder(
   recipeId: unknown,
   recipes: readonly Recipe[] = RECIPES,
-  roles: Readonly<Record<string, RecipeHintRoles>> = RECIPE_HINT_ROLES,
+  roles: Readonly<Record<string, HintRoles>> = RECIPE_HINT_ROLES,
 ): Hint5Ladder | null {
   const recipe = findRecipe(recipeId, recipes);
   if (!recipe) return null;
@@ -185,6 +195,24 @@ export function buildHint5Ladder(
   if (!own || !hint5RolesValid(recipe, own)) return null;
   const ids = [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))];
   const inCategory = (category: IngredientCategory) => byCatalogOrder(ids.filter((id) => getIngredient(id)!.category === category));
+  if (isKeyFreeHintRoles(own)) {
+    // OD-D3-21: only the rungs that apply, in order, with consecutive indices (no gap, no placeholder).
+    const applicable: [Hint5RungKind, readonly string[]][] = [];
+    const sauces = inCategory("sauce");
+    const cheeses = inCategory("cheese");
+    if (sauces.length > 0) applicable.push(["SAUCE", sauces]);
+    if (cheeses.length > 0) applicable.push(["CHEESE", cheeses]);
+    applicable.push(["STRUCTURE", []]);
+    inCategory("topping").forEach((id) => applicable.push(["SUB_CLASS", [id]]));
+    let ordinal = 0;
+    const keyFreeRungs: Hint5Rung[] = applicable.map(([kind, subjectIds], i) => ({
+      index: i + 1,
+      kind,
+      ordinal: kind === "SUB_CLASS" ? ++ordinal : null,
+      subjectIds,
+    }));
+    return { recipeId: recipe.id, rungs: keyFreeRungs, total: ids.length };
+  }
   const fixed: [Hint5RungKind, readonly string[]][] = [
     ["SAUCE", inCategory("sauce")],
     ["CHEESE", inCategory("cheese")],
@@ -197,8 +225,8 @@ export function buildHint5Ladder(
 }
 
 /** The fixed rungs of `recipeId` that have no subject; `null` = not a target. */
-export function hint5EmptyFixedRungs(recipeId: unknown, recipes?: readonly Recipe[]): Hint5RungKind[] | null {
-  const ladder = buildHint5Ladder(recipeId, recipes);
+export function hint5EmptyFixedRungs(recipeId: unknown, recipes?: readonly Recipe[], roles?: Readonly<Record<string, HintRoles>>): Hint5RungKind[] | null {
+  const ladder = buildHint5Ladder(recipeId, recipes, roles);
   if (!ladder) return null;
   return ladder.rungs.filter((r) => r.kind !== "STRUCTURE" && r.kind !== "SUB_CLASS" && r.subjectIds.length === 0).map((r) => r.kind);
 }
@@ -211,8 +239,8 @@ function isReservedRung(rung: Hint5Rung): boolean {
 
 /** The rungs of `recipeId` a request could only get `RESERVED_EMPTY_RUNG` for; `null` = not a target.
  *  The production gate (M2 condition 3) requires `[]` for every production recipe. */
-export function hint5ReservedRungs(recipeId: unknown, recipes?: readonly Recipe[]): Hint5RungKind[] | null {
-  const ladder = buildHint5Ladder(recipeId, recipes);
+export function hint5ReservedRungs(recipeId: unknown, recipes?: readonly Recipe[], roles?: Readonly<Record<string, HintRoles>>): Hint5RungKind[] | null {
+  const ladder = buildHint5Ladder(recipeId, recipes, roles);
   if (!ladder) return null;
   return ladder.rungs.filter(isReservedRung).map((r) => r.kind);
 }
@@ -361,8 +389,12 @@ export type Hint5RequestResult =
  *   (H5-INV-6).
  * - A COMPLETED rung is never offered again.
  */
-export function requestHint5Rung(input: Hint5RequestInput, recipes: readonly Recipe[] = RECIPES): Hint5RequestResult {
-  const ladder = buildHint5Ladder(input.recipeId, recipes);
+export function requestHint5Rung(
+  input: Hint5RequestInput,
+  recipes: readonly Recipe[] = RECIPES,
+  roles?: Readonly<Record<string, HintRoles>>,
+): Hint5RequestResult {
+  const ladder = buildHint5Ladder(input.recipeId, recipes, roles);
   if (!ladder) return { outcome: "REJECTED", reason: "NOT_A_TARGET" };
   const own = hint5Ownership(ladder, input.storedFactIds, input.legacyPurchases, recipes);
   const expectedNext = own.nextIndex ?? ladder.rungs.length + 1;
@@ -459,8 +491,9 @@ export function hint5ClassView(family: AttributeFamilyId): Hint5ClassView {
 export function hint5Presentation(
   input: Pick<Hint5RequestInput, "recipeId" | "discoveredCount" | "storedFactIds" | "legacyPurchases" | "pitzBalance">,
   recipes: readonly Recipe[] = RECIPES,
+  roles?: Readonly<Record<string, HintRoles>>,
 ): Hint5Presentation | null {
-  const ladder = buildHint5Ladder(input.recipeId, recipes);
+  const ladder = buildHint5Ladder(input.recipeId, recipes, roles);
   if (!ladder) return null;
   const own = hint5Ownership(ladder, input.storedFactIds, input.legacyPurchases, recipes);
   const onboarding = isHintOnboardingFree(input.discoveredCount, ladder.recipeId);
@@ -468,7 +501,7 @@ export function hint5Presentation(
   const board: Hint5BoardEntry[] = [];
   // SUB_CLASS entries appear only once STRUCTURE is completed (§8: the sub-topping count is paid
   // information), even if a `cls:` record were stored earlier.
-  const structureCompleted = own.statuses[HINT5_FIXED_RUNG_KINDS.indexOf("STRUCTURE")] === "COMPLETED";
+  const structureCompleted = own.statuses[ladder.rungs.findIndex((r) => r.kind === "STRUCTURE")] === "COMPLETED";
   for (const rung of ladder.rungs) {
     if (own.statuses[rung.index - 1] !== "COMPLETED") continue;
     if (rung.kind === "SUB_CLASS" && !structureCompleted) continue;

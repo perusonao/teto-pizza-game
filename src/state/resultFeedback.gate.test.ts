@@ -24,7 +24,7 @@ describe("Free Cooking only: Dinner, guided and Lunch Rush never reach the ORIGI
     const callers = (needle: RegExp) =>
       production.filter(([p, text]) => p !== RESULT_NEAR_MISS && p !== ORIGINAL_COPY && needle.test(text)).map(([p]) => p).sort();
     // P3-3a: the Trial Notebook record adapter asks for the same line the card shows (OD-P3-18), through the same pure function.
-    expect(callers(/resultNearMiss\(/)).toEqual(["/src/screens/GameScreen.tsx", "/src/state/trialRecord.ts"]);
+    expect(callers(/resultNearMiss\(/)).toEqual(["/src/screens/GameScreen.tsx"]);
     expect(callers(/originalResultCopy["']/)).toEqual(["/src/components/ResultPanel.tsx"]);
   });
 
@@ -90,9 +90,12 @@ describe("Owner decisions (P2) stay contained", () => {
     }
   });
 
-  it("no production file other than the Trial Notebook model, the record adapter and the reducer mentions the Trial Notebook", () => {
+  // Notebook N1: the read-only readers (GameScreen relay, Hint sheet, notebook sheet); trialNotebook.gate.test.ts pins the exact list.
+  // Notebook N2 adds the pure diff helper (it only reads two player combinations).
+  const N1_READERS = ["/src/screens/GameScreen.tsx", "/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx", "/src/logic/discovery/trialNotebookDiff.ts"];
+  it("no production file other than the Trial Notebook model, the record adapter, the reducer and the N1 readers mentions the Trial Notebook", () => {
     for (const [path, text] of production) {
-      if (path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER || path === REDUCER) continue;
+      if (path === TRIAL_NOTEBOOK_MODULE || path === RECORD_ADAPTER || path === REDUCER || N1_READERS.includes(path)) continue;
       expect(text, path).not.toMatch(/trialNotebook/i);
     }
   });

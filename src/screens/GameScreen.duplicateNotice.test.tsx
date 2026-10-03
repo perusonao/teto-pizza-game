@@ -227,11 +227,11 @@ describe("no notice outside an eligible ORIGINAL result", () => {
     expect(notice()).toBeNull();
   });
 
-  it("12. INCOMPLETE_MATCH shows none (and records nothing)", () => {
+  it("12. INCOMPLETE_MATCH reads like any ORIGINAL: neutral lead, first attempt no notice (but it is recorded)", () => {
     const s = playFreeRound(seeded(), INCOMPLETE);
     expect(s.lastDiscovery?.kind).toBe("INCOMPLETE_MATCH");
     renderState(s);
-    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("あと少し");
+    expect(document.querySelector(".original-pizza__lead")).toHaveTextContent("まだ新しいレシピは見つかっていません");
     expect(notice()).toBeNull();
   });
 
@@ -352,13 +352,13 @@ describe("accessibility and privacy", () => {
     const first = playFreeRound(freeRound(), ORDINARY);
     const second = playFreeRound(first, ORDINARY);
     const a = renderState(first);
-    const p2a = document.querySelector(".result-near-miss")!.outerHTML;
+    const p2a = document.querySelector(".original-pizza__lead")!.outerHTML;
     a.unmount();
     renderState(second);
-    expect(document.querySelector(".result-near-miss")!.outerHTML).toBe(p2a);
-    // order: P2 row, then the notice, then the note
+    expect(document.querySelector(".original-pizza__lead")!.outerHTML).toBe(p2a);
+    // order: lead (#346 S0: no near/far row), then the notice, then the note
     const html = document.querySelector(".result-panel")!.innerHTML;
-    expect(html.indexOf("result-near-miss")).toBeLessThan(html.indexOf("original-pizza__trial-notice"));
+    expect(html.indexOf("original-pizza__lead")).toBeLessThan(html.indexOf("original-pizza__trial-notice"));
     expect(html.indexOf("original-pizza__trial-notice")).toBeLessThan(html.indexOf("original-pizza__note"));
   });
 });

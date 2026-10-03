@@ -10,7 +10,7 @@ import { test, expect } from "@playwright/test";
 
 const FACTS = {
   napoletana: ["ing:mozzarella", "tech:fold", "finish:basil-oil:drizzle"],
-  "brazilian-calabresa": ["ing:calabresa", "shape:square"],
+  "future-unknown-recipe": ["ing:calabresa", "shape:square"],
 };
 
 const SAVE = {
@@ -22,7 +22,7 @@ const SAVE = {
   inventory: {},
   starterGrantClaimedRecipeIds: [],
   unlockedForShopIngredientIds: [],
-  discoveryHintPurchases: { napoletana: 2, "brazilian-calabresa": 1 },
+  discoveryHintPurchases: { napoletana: 2, "future-unknown-recipe": 1 },
   discoveryHintFacts: FACTS,
 };
 
@@ -36,7 +36,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
 
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
 
   const readSave = () => page.evaluate(() => JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"));
   await expect.poll(async () => (await readSave()).unlockedForShopIngredientIds).toContain("egg");
@@ -50,7 +50,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
 
   await page.reload();
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/27/);
   const reloaded = await readSave();
   expect(reloaded.discoveryHintFacts).toEqual(FACTS);
   expect(reloaded.discoveryHintPurchases).toEqual(SAVE.discoveryHintPurchases);

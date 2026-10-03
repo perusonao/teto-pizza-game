@@ -126,6 +126,38 @@ function safePizzaForCompletionCheck(pizza: PizzaState): PizzaState {
 }
 
 /**
+ * Discovery 3.0 PR-1: the one sauce-amount floor, as a pure function of the player's own deposits and a
+ * reference amount. `checkSauceQuantity` below calls it unchanged (same numbers, same exemption), and the
+ * RESULT's recipe-independent execution advice calls it with the shared reference, so "the sauce is too thin"
+ * means exactly one thing.
+ */
+export function isSauceBelowMinimum(
+  rawDeposits: unknown,
+  reference: { readonly quantity: number; readonly coverage: number },
+): boolean {
+  const deposits = sanitizeSauceDeposits(rawDeposits);
+  // The legacy one-shot `APPLY_SAUCE` action (gameReducer.ts) always applies full coverage
+  // instantly and never populates `sauceDeposits` at all (see that action's own comment). In
+  // practice every real sauce (spread) ingredient tap or drag now goes through
+  // COMMIT_SAUCE_DISPENSE's incremental session instead -- PizzaStage.tsx's own `isPaintMode`
+  // starts that session unconditionally on pointerdown for any spread ingredient, so APPLY_SAUCE
+  // is effectively unreachable from the real touch/mouse UI today -- but it remains a real,
+  // directly dispatchable reducer action (tests, a future non-drag interaction). An empty
+  // deposit log with a sauce ingredient present means "applied via that instant-fill action",
+  // not "barely touched", so it is exempted from this quantity check rather than misread as a
+  // near-empty gesture. A real single-tap dispense session (COMMIT_SAUCE_DISPENSE, one starter
+  // tick's worth of deposits) is NOT exempted -- see ../logic/sauceDispenseController.ts's own
+  // `start()` doc comment -- so "a single touch must not pass" (the spec's own Human Feel
+  // requirement) still holds for actual gameplay.
+  if (deposits.length === 0) return false;
+
+  const metrics = computeSauceMetrics(deposits);
+  const quantityRatio = ratioOf(metrics.quantity, reference.quantity);
+  const coverageRatio = ratioOf(metrics.coverage, reference.coverage);
+  return quantityRatio < SAUCE_MIN_RATIO || coverageRatio < SAUCE_MIN_RATIO;
+}
+
+/**
  * The generic sauce ingredient's minCount is always 1 (§4/§5 -- presence is the whole
  * requirement at this layer), so it can never itself be "insufficient", only missing or
  * present. Its actual *amount* is instead a quality question (§6), checked separately below
@@ -142,29 +174,11 @@ function checkSauceQuantity(
   const isRequired = recipe.requiredIngredients.some((req) => req.ingredientId === sauceIngredientId);
   if (!isRequired || !safeSauceIds.includes(sauceIngredientId)) return null;
 
-  const deposits = sanitizeSauceDeposits(pizza.sauceDeposits);
-  // The legacy one-shot `APPLY_SAUCE` action (gameReducer.ts) always applies full coverage
-  // instantly and never populates `sauceDeposits` at all (see that action's own comment). In
-  // practice every real sauce (spread) ingredient tap or drag now goes through
-  // COMMIT_SAUCE_DISPENSE's incremental session instead -- PizzaStage.tsx's own `isPaintMode`
-  // starts that session unconditionally on pointerdown for any spread ingredient, so APPLY_SAUCE
-  // is effectively unreachable from the real touch/mouse UI today -- but it remains a real,
-  // directly dispatchable reducer action (tests, a future non-drag interaction). An empty
-  // deposit log with a sauce ingredient present means "applied via that instant-fill action",
-  // not "barely touched", so it is exempted from this quantity check rather than misread as a
-  // near-empty gesture. A real single-tap dispense session (COMMIT_SAUCE_DISPENSE, one starter
-  // tick's worth of deposits) is NOT exempted -- see ../logic/sauceDispenseController.ts's own
-  // `start()` doc comment -- so "a single touch must not pass" (the spec's own Human Feel
-  // requirement) still holds for actual gameplay.
-  if (deposits.length === 0) return null;
-
-  const metrics = computeSauceMetrics(deposits);
-  const quantityRatio = ratioOf(metrics.quantity, reference.sauce.quantity);
-  const coverageRatio = ratioOf(metrics.coverage, reference.sauce.coverage);
-  if (quantityRatio < SAUCE_MIN_RATIO || coverageRatio < SAUCE_MIN_RATIO) {
-    return { reason: "INSUFFICIENT_SAUCE", ingredientId: sauceIngredientId };
-  }
-  return null;
+  // (the empty-deposit exemption and its rationale live in `isSauceBelowMinimum`, which this check and the
+  // recipe-independent RESULT advice (../state/executionAdvice.ts) share, so the two can never drift)
+  return isSauceBelowMinimum(pizza.sauceDeposits, reference.sauce)
+    ? { reason: "INSUFFICIENT_SAUCE", ingredientId: sauceIngredientId }
+    : null;
 }
 
 function checkBake(recipe: Recipe, pizza: PizzaState): CompletionFailureDetail | null {
@@ -224,6 +238,26 @@ export function evaluatePizzaCompletion(
     ingredientId: primary.ingredientId,
     failures,
   };
+}
+
+/** A Completion Gate bake failure: the pizza is outside its window's acceptable band. */
+export type BakeCompletionFailure = Extract<CompletionFailureReason, "UNDERBAKED" | "OVERBAKED">;
+
+/**
+ * Issue #256 (OD-CUT256-1 / 6): the bake failure recorded in an existing Completion Gate result,
+ * or null. It reads the *full* `failures` list, never only the primary `reason` -- a pizza that is
+ * both missing an ingredient and underbaked still has a certain bake failure. No threshold is
+ * evaluated here: `checkBake` above stays the one place the band is computed. `checkBake` pushes
+ * at most one bake entry, so UNDERBAKED and OVERBAKED never both appear.
+ */
+export function bakeCompletionFailure(
+  completion: PizzaCompletionResult | null | undefined,
+): BakeCompletionFailure | null {
+  if (completion?.status !== "FAILED") return null;
+  for (const failure of completion.failures) {
+    if (failure.reason === "UNDERBAKED" || failure.reason === "OVERBAKED") return failure.reason;
+  }
+  return null;
 }
 
 /** Convenience re-export so callers that only need an ingredient's display name for a failure

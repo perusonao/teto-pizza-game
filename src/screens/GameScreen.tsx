@@ -14,6 +14,8 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
+import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
+import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
 import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
@@ -36,8 +38,12 @@ import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
-import { HintSheet, type HintFamily } from "../components/HintSheet";
-import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
+import { notebookView } from "../logic/discovery/trialNotebook";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView } from "../state/discoveryHint";
+import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
+import { newShopMaterialCount } from "../state/materialEntitlement";
+import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
@@ -171,6 +177,9 @@ interface GameScreenProps {
   /** Progression 2.0 W1-d: the Discovery Result's 「📖 図鑑を見る」 (on the Dex-registration row)
    *  -- opens the App-level Dex overlay on top of this screen. Optional: no CTA without it. */
   onOpenDex?: () => void;
+  /** #346 S4: the post-discovery 「🔎 次のピザを研究する」 -- starts the one remaining Research Entry
+   *  (`recipeId`) or, with `null`, opens the Dex's anonymous Research cards. */
+  onResearchNext?: (recipeId: string | null) => void;
   onMissionServeNext: () => void;
   /** Issue #212 (H-R): 「この注文をスキップ」 on a short Lunch Rush order. */
   onMissionSkipOrder: () => void;
@@ -246,6 +255,7 @@ export function GameScreen({
   onBackToPizzaSelect,
   onOpenShop,
   onOpenDex,
+  onResearchNext,
   onMissionServeNext,
   onMissionSkipOrder,
   onMissionStart,
@@ -275,10 +285,21 @@ export function GameScreen({
   // Discovery Hint 2.0 (229-B): the sheet's open state is reducer-owned; closing it hands focus
   // back to the 「ヒント」 button that opened it.
   const hintSheetOpen = isHintSheetVisible(state);
+  // The one read-only relay of the session notebook's display view (Hint sheet + the Research RESULT's sheet).
+  const notebookRows = notebookView(state.trialNotebook);
+  // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
+  const researchResult = state.freeCook ? researchResultView(state) : null;
+  // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
+  const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
+  const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
   const hintButtonRef = useRef<HTMLButtonElement>(null);
   const wasHintSheetOpenRef = useRef(hintSheetOpen);
+  const hintToPantryRef = useRef(false);
   useEffect(() => {
-    if (wasHintSheetOpenRef.current && !hintSheetOpen) hintButtonRef.current?.focus();
+    // IP-1: closing the sheet to open the pantry hands focus to the pantry (its own 閉じる), not back to 「ヒント」.
+    // #353: the same for 「研究するピザを選ぶ」 -> Dex (an overlay over this screen): never focus the covered button.
+    if (wasHintSheetOpenRef.current && !hintSheetOpen && !hintToPantryRef.current) hintButtonRef.current?.focus();
+    hintToPantryRef.current = false;
     wasHintSheetOpenRef.current = hintSheetOpen;
   }, [hintSheetOpen]);
   // Large Catalog UX LC-R3: the 食材庫 (pantry) sheet shell. UI-only state (open / closed + the entry ref for
@@ -342,6 +363,20 @@ export function GameScreen({
   const pantryAvailable =
     largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;
   const pantryVisible = pantryOpen && pantryAvailable;
+  // Discovery 3.0 IP-1: OPEN_POOL -> the existing pantry. Only the screen's own facts decide (eligible FREE round, the
+  // current step, owned counts) -- never the hint view or the hidden pool. DOUGH has no pantry: copy only, no button.
+  const hintPantryAccess: HintPantryAccess | undefined = pantryAvailable
+    ? {
+        kind: "open",
+        onOpen: () => {
+          hintToPantryRef.current = true;
+          onCloseHint();
+          setPantryOpen(true);
+        },
+      }
+    : largeCatalogEligible && state.phase === "PREPARE" && state.makingStep === "DOUGH" && dockReserve.pantryWorthwhile
+      ? { kind: "later" }
+      : undefined;
   // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
   const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
@@ -596,10 +631,30 @@ export function GameScreen({
         </>
       )}
 
-      {state.phase === "PREPARE" && state.freeCook && (
+      {state.phase === "PREPARE" && state.freeCook && researchResult && (
+        // #346 S3: the Research context replaces the free-cook order card (same slot, same card
+        // component). It shows only what the player already knows -- never the hidden identity.
+        <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name order-card__recipe-name--research">
+              <span>🔎 研究中　{researchResult.label}</span>
+            </span>
+            <span className="order-card__hint">
+              わかっていること：
+              {[
+                ...researchResult.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
+                ...researchResult.classLinesJa,
+                ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
+              ].join("　")}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {state.phase === "PREPARE" && state.freeCook && !researchResult && (
         <div className="order-card order-card--free-cook">
           <div className="order-card__text">
-            <span className="order-card__recipe-name">{"\u{1F3A8}"} フリークッキング</span>
+            <span className="order-card__recipe-name">{"\u{1F3A8}"} レシピ発見の試作</span>
             <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
           </div>
         </div>
@@ -656,7 +711,11 @@ export function GameScreen({
         <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
           <div className="order-card__text">
             <span className="order-card__recipe-name">
-              {state.freeCook ? <>{"\u{1F3A8}"} フリークッキング</> : state.recipe.nameJa}
+              {state.freeCook ? (
+                researchResult ? <>🔎 研究中　{researchResult.label}</> : <>{"\u{1F3A8}"} レシピ発見の試作</>
+              ) : (
+                state.recipe.nameJa
+              )}
             </span>
             <span className="order-card__hint">{buildTetoBakeLine(state.recipe).textJa}</span>
           </div>
@@ -764,7 +823,7 @@ export function GameScreen({
       {state.phase === "ORDER" && !isMissionShortOrder && state.dinner === null && (
         <div className="action-row">
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
-            {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
+            {mission.mode === "FREE" ? <>{"\u{1F355}"} ピザを作る</> : "ピザを作る！"}
           </button>
         </div>
       )}
@@ -904,6 +963,17 @@ export function GameScreen({
               onUnlock={onUnlockHint}
               onBuySelectable={onBuySelectableHint}
               onBuyHint5={onBuyHint5Rung}
+              notebook={notebookRows}
+              pantry={hintPantryAccess}
+              onChooseResearch={
+                onOpenDex
+                  ? () => {
+                      hintToPantryRef.current = true;
+                      onCloseHint();
+                      onOpenDex();
+                    }
+                  : undefined
+              }
               onClose={onCloseHint}
             />
           )}
@@ -974,9 +1044,36 @@ export function GameScreen({
           onBackToPizzaSelect={onBackToPizzaSelect}
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
+          // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)
           nearMiss={resultNearMiss(state)}
+          researchLabelJa={researchResult?.label ?? null}
+          researchRows={RESEARCH_IDENTIFY_ENABLED ? state.lastResearchRows : null}
+          onOpenAttemptLog={() => setResultNotebookOpen(true)}
+          attemptLogEntryRef={resultNotebookEntryRef}
+          postDiscovery={
+            state.freeCook && state.lastDiscovery?.kind === "NEW_DISCOVERY"
+              ? postDiscoveryPrimary({
+                  researchableEntryIds: researchableEntryIds(state),
+                  newMaterialAvailable: newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds) > 0,
+                })
+              : null
+          }
+          onResearchNext={onResearchNext}
+          executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
+        />
+      )}
+
+      {isFreeResultScreen && resultNotebookOpen && researchResult && (
+        <TrialNotebookSheet
+          entries={notebookRows}
+          backLabel="結果にもどる"
+          researchLabelJa={researchResult.label}
+          onBack={() => {
+            setResultNotebookOpen(false);
+            queueMicrotask(() => resultNotebookEntryRef.current?.focus());
+          }}
         />
       )}
 

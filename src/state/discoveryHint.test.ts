@@ -63,8 +63,14 @@ function nextLevel(s: DiscoveryHintState): number {
 }
 
 /** Opens the sheet on today's target (SHOW_HINT's session resolve). */
-function open(state: DiscoveryHintState): DiscoveryHintState {
-  return { ...state, hintSession: resolveHintSession(state) };
+function open(state: DiscoveryHintState, pinnedRecipeId?: string): DiscoveryHintState {
+  return { ...state, hintSession: resolveHintSession(state, pinnedRecipeId) };
+}
+
+/** Every recipe discovered, non-credit branching recipes included (the pool is empty). */
+function complete(): DiscoveryHintState {
+  const base = ladder(25);
+  return { ...base, dex: discover(RECIPES.map((r) => r.id)) };
 }
 
 function selectable(s: DiscoveryHintState): Extract<HintSheetView, { kind: "SELECTABLE" }> {
@@ -100,7 +106,7 @@ describe("resolveHintSession", () => {
 
   it("no DISCOVERABLE target -> null (the sheet shows the empty state)", () => {
     expect(resolveHintSession(ladder(5, "not-bought"))).toBeNull();
-    expect(resolveHintSession(ladder(25))).toBeNull();
+    expect(resolveHintSession(complete())).toBeNull();
   });
 });
 
@@ -130,7 +136,13 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
 
   it("at Dex >= 1 the full answer is never shown, however often a fact is bought (every ladder step)", () => {
     for (let count = 1; count < 25; count += 1) {
-      let s = open(ladder(count));
+      // The W1 step's recipe is opened explicitly (the Dex card path): with a branching pool the
+      // automatic target need not be the ladder recipe, and the contract must hold for each.
+      // From Dex 12 the 26th recipe (calabresa) is makeable beside the ladder recipe (pool 2, D-1: no
+      // automatic target). The player who found it first has pool 1 again, which is what is opened here.
+      const base = ladder(count);
+      const settled = count >= 12 ? { ...base, dex: discover([...LADDER_ORDER.slice(0, count), "brazilian-calabresa"]) } : base;
+      let s = open(settled, LADDER_ORDER[count]);
       for (let i = 0; i < 12; i += 1) s = buy(s, (["sauce", "cheese", "topping"] as const)[i % 3]);
       const view = selectable(s);
       const named = new Set(view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)));
@@ -161,7 +173,7 @@ describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
   it("empty states: SHOP_NEW / REFILL / COMPLETE", () => {
     expect(hintSheetView(ladder(6, "not-bought"))).toEqual({ kind: "SHOP_NEW" });
     expect(hintSheetView(ladder(6, "stock-0"))).toEqual({ kind: "REFILL" });
-    expect(hintSheetView(ladder(25))).toEqual({ kind: "COMPLETE" });
+    expect(hintSheetView(complete())).toEqual({ kind: "COMPLETE" });
   });
 });
 
@@ -222,36 +234,41 @@ function legacy(): DiscoveryHintState {
   };
 }
 
-describe("229-D: Dex-pinned target", () => {
+describe("229-D: Dex-pinned target (PR-4b-A: only a sticky target survives a pool > 1)", () => {
   const base = legacy();
-  const auto = resolveHintSession(base)!.targetId;
-  // The second DISCOVERABLE recipe in hint order: pinnable, and not what the auto pick would be.
-  const pinned = discoverableHintCandidates(base)[1];
+  const candidates = discoverableHintCandidates(base);
+  const auto = candidates[0];
+  // The second DISCOVERABLE recipe in hint order.
+  const pinned = candidates[1];
 
-  it("a DISCOVERABLE pin becomes the target (at H0) and stays on re-open at H0", () => {
+  it("#353: with several registered Research Entries nothing is auto-targeted, but a fresh pin is the player's choice", () => {
     expect(pinned).toBeTruthy();
-    const s = resolveHintSession(base, pinned.id);
-    expect(s).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
-    expect(resolveHintSession({ ...base, hintSession: s })).toBe(s);
+    expect(resolveHintSession(base)).toBeNull();
+    expect(resolveHintSession(base, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
   });
 
-  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins fall back to the automatic target", () => {
+  it("a session the player already pinned (sticky) stays on re-open, at H0 too (D-3)", () => {
+    const s = { targetId: pinned.id, revealedIndex: 0, fromDex: true } as const;
+    expect(resolveHintSession({ ...base, hintSession: s })).toBe(s);
+    expect(resolveHintSession({ ...base, hintSession: s }, pinned.id)).toBe(s);
+  });
+
+  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins never pick a target at a pool > 1", () => {
     for (const bad of ["margherita", "quattro-formaggi", "no-such-recipe", ""]) {
-      const s = resolveHintSession(base, bad);
-      expect(s?.targetId, bad).toBe(auto);
-      expect(s?.fromDex, bad).toBeUndefined();
+      expect(resolveHintSession(base, bad), bad).toBeNull();
     }
   });
 
-  it("the same recipe keeps its progress from Free Cooking; a different recipe starts at H0", () => {
+  it("#353: a revealed session is not a choice by itself; a pin is, and it moves the target (paid facts stay saved)", () => {
     const progressed = { ...base, hintSession: { targetId: pinned.id, revealedIndex: 3 } };
+    expect(resolveHintSession(progressed)).toBeNull();
     expect(resolveHintSession(progressed, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 3, fromDex: true });
-    const other = { ...base, hintSession: { targetId: auto, revealedIndex: 3 } };
+    const other = { ...base, hintSession: { targetId: auto.id, revealedIndex: 3 } };
     expect(resolveHintSession(other, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
   });
 
-  it("a pinned target that is found later lets go on the next open", () => {
-    const s = resolveHintSession(base, pinned.id)!;
+  it("a sticky target that is found later lets go on the next open", () => {
+    const s = { targetId: pinned.id, revealedIndex: 0, fromDex: true } as const;
     const found = { ...base, dex: discover([...RECIPES.slice(0, 15).map((r) => r.id), pinned.id]), hintSession: s };
     expect(resolveHintSession(found)?.targetId).not.toBe(pinned.id);
   });

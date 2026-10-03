@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 
 /**
@@ -39,7 +40,13 @@ const LADDER = [
   ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]], ["quattro-formaggi", ["fontina", "gorgonzola"]],
 ] as const;
 /** meat-lovers (ladder step 8) is the main target. */
-const DEX = LADDER.slice(0, 8).map(([id]) => id as string);
+/** Production recipes that never advance the ladder (`ladderCredit: false`) stay DISCOVERABLE next to the ladder's own next
+ *  recipe once their materials are owned, so the hint sheet's automatic target would not be the one under test. The seeded Dex
+ *  marks them discovered: the pool is exactly the intended target. Empty while every production recipe is credited (every seed
+ *  is then unchanged). */
+const NON_CREDIT: readonly string[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
+// The default seed's Dex (target meat-lovers): the ladder up to it plus the non-credit recipes `save()` also discovers.
+const DEX = [...LADDER.slice(0, 8).map(([id]) => id as string), ...NON_CREDIT];
 
 /** The ladder played up to (not including) `target`, whose materials are owned and stocked: the
  *  DISCOVERABLE hint target is `target`. */
@@ -48,7 +55,7 @@ function save(facts: Record<string, string[]> = {}, target = "meat-lovers", pitz
   const materials = LADDER.slice(1, index + 1).flatMap(([, m]) => m as readonly string[]);
   return {
     schemaVersion: 2,
-    dex: LADDER.slice(0, index).map(([recipeId]) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+    dex: [...LADDER.slice(0, index).map(([recipeId]) => recipeId as string), ...NON_CREDIT].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
     pitzBalance,
     ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...materials],
     missionBest: {},
@@ -58,7 +65,7 @@ function save(facts: Record<string, string[]> = {}, target = "meat-lovers", pitz
     discoveryHintFacts: facts,
   };
 }
-const dexOf = (target: string) => LADDER.slice(0, LADDER.findIndex(([id]) => id === target)).map(([id]) => id as string);
+const dexOf = (target: string) => [...LADDER.slice(0, LADDER.findIndex(([id]) => id === target)).map(([id]) => id as string), ...NON_CREDIT];
 
 async function openSheet(page: Page, s: object, optIn: boolean) {
   await page.goto(SEED_DOCUMENT);
@@ -72,7 +79,7 @@ async function openSheet(page: Page, s: object, optIn: boolean) {
   );
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
   await page.waitForSelector(".pizza-stage");
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
   const dialog = page.getByRole("dialog", { name: /ヒント/ });
@@ -192,7 +199,7 @@ test.describe("Hint 5.0 ladder sheet (H5-3 / H5-4, DEV opt-in)", () => {
     // Reload: nothing is resold, and the bought board is back.
     await page.reload();
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(page.locator('[data-hint5-rung="SUB_CLASS"]')).toHaveCount(3);
     await expect(cta(page)).toHaveCount(0);
@@ -279,7 +286,7 @@ test.describe("Hint 5.0 ladder sheet (H5-3 / H5-4, DEV opt-in)", () => {
     expect(persisted.discoveryHintFacts.marinara).toEqual(["ing:tomato-sauce", "h5:sauce", "h5:cheese"]);
     await page.reload();
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(page.locator('[data-hint5-rung="CHEESE"]')).toHaveText("チーズなし");
     await expect(page.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last()).toContainText("所持 979 Pitz");

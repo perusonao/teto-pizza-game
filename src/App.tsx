@@ -8,6 +8,7 @@ import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
 import { InventoryOverlay } from "./components/InventoryOverlay";
 import { SettingsOverlay } from "./components/SettingsOverlay";
+import { ChangelogOverlay } from "./components/ChangelogOverlay";
 import { WeeklyRankingOverlay } from "./components/WeeklyRankingOverlay";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
@@ -239,6 +240,8 @@ function App() {
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  // 更新情報 overlay: session-only open flag, nothing persisted.
+  const [isChangelogOpen, setChangelogOpen] = useState(false);
   // Firebase Ranking 1.0 Phase 2A (Issue #87): WeeklyRankingOverlay's open/closed state -- same
   // App-level useState shape as isDexOpen/isShopOpen/isInventoryOpen/isSettingsOpen above.
   // Originally opened only from Lunch Rush RESULT (MissionResultOverlay's own "ランキングを見る"
@@ -1005,6 +1008,22 @@ function App() {
     dispatch({ type: "SHOW_HINT", pinnedRecipeId: recipeId });
   }
 
+  // Discovery 3.0 (#346 S3): a Dex Research Entry card's 「このピザを研究する」 -- a Free Cooking round
+  // with that entry as the Research Target (Hint subject only; the matcher is untouched). The id
+  // travels through this callback, never the DOM; the reducer re-validates it.
+  function handleStartResearch(recipeId: string) {
+    setDexOpen(false);
+    dispatch({ type: "START_FREE_COOK", now: Date.now(), researchTargetId: recipeId });
+    setScreen("GAME");
+  }
+
+  // #346 S4 / OD-RX-4: the post-discovery 「次のピザを研究する」. One researchable entry left -> start it;
+  // 2+ -> back to the Dex's anonymous Research cards (the player picks; nothing is chosen for them).
+  function handleResearchNext(recipeId: string | null) {
+    if (recipeId) handleStartResearch(recipeId);
+    else setDexOpen(true);
+  }
+
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
   // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
   // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
@@ -1128,6 +1147,7 @@ function App() {
           onOpenShop={openShop}
           onOpenInventory={() => setInventoryOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenChangelog={() => setChangelogOpen(true)}
           onOpenRanking={() => setRankingOpen(true)}
           newShopMaterialCount={newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds)}
           dexHasNew={state.justDiscovered}
@@ -1189,7 +1209,7 @@ function App() {
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
           isGlobalOverlayOpen={
-            isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen || isHintSheetOpen
+            isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isChangelogOpen || isRankingOpen || isHintSheetOpen
           }
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
@@ -1220,6 +1240,7 @@ function App() {
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={openShop}
           onOpenDex={() => setDexOpen(true)}
+          onResearchNext={handleResearchNext}
           onMissionServeNext={handleMissionServeNext}
           onMissionSkipOrder={handleMissionSkipOrder}
           onMissionStart={startMission}
@@ -1249,6 +1270,7 @@ function App() {
           ownedIngredientIds={state.ownedIngredientIds}
           unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
           inventory={state.inventory}
+          discoveryHintFacts={state.discoveryHintFacts}
           onGoFreeCook={
             mission.mode === "FREE"
               ? () => {
@@ -1258,6 +1280,7 @@ function App() {
               : undefined
           }
           onShowHint={mission.mode === "FREE" ? handleDexShowHint : undefined}
+          onResearch={mission.mode === "FREE" ? handleStartResearch : undefined}
           onOpenShop={openShop}
         />
       )}
@@ -1286,6 +1309,8 @@ function App() {
       {isSettingsOpen && (
         <SettingsOverlay onClose={() => setSettingsOpen(false)} onResetGameData={handleResetGameData} />
       )}
+
+      {isChangelogOpen && <ChangelogOverlay onClose={() => setChangelogOpen(false)} />}
 
       {isRankingOpen && <WeeklyRankingOverlay onClose={() => setRankingOpen(false)} />}
     </div>

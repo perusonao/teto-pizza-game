@@ -1,6 +1,6 @@
 # Large Catalog UX — LC-R4 Result (Pantry Shelf Filtering)
 
-Branch `claude/lc-r4-pantry-shelf-filtering`, from `origin/main` `3b0da33b0ca4ebc1deaefcb357b4181511621863` (PR #305 merge). No PR yet. Authority: the LC-R4 pre-implementation audit and the Owner-confirmed OD-R4-1 / OD-R4-2 / OD-R4-3.
+Branch `claude/lc-r4-pantry-shelf-filtering`, from `origin/main` `3b0da33b0ca4ebc1deaefcb357b4181511621863` (PR #305 merge). **Status: MERGED / COMPLETE** — PR #306, merge commit `12725eb3461583a5349259868fe2e7163b3eacf0` (PR HEAD `ead02fb0ab82f6c6ca70f1c9c2bd98d1a16af35a`, base main `3b0da33`). Post-merge: Deploy to GitHub Pages #220 success; E2E WebKit #348 success (classify, layout-chromium, WebKit 390×844 and 360×800 shards 1/2 + 2/2, Layout Contract Gate, WebKit Gate). PR CI was 9/9 green including the new spec on WebKit at both widths. Authority: the LC-R4 pre-implementation audit and the Owner-confirmed OD-R4-1 / OD-R4-2 / OD-R4-3.
 
 ## What changed (production)
 - `src/components/IngredientPantry.tsx`: local `useState<ShelfFilter>("all")`; the active category's OWNED rows are queried once (`queryCatalog`, no shelf) to derive the represented shelves from the descriptors' `shelf` (in `INGREDIENT_SHELF_ORDER`); `ShelfChips` renders only when **>= 2** shelves are represented ("すべて" + represented shelves); a chosen shelf runs `queryCatalog({ shelves: [shelf] })`; a stored shelf that is no longer represented reads as すべて; a filter change sets the list's own `scrollTop = 0`.

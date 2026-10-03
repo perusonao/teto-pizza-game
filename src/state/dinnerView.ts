@@ -141,6 +141,44 @@ export interface DinnerAttemptCopy {
   tone: "success" | "neutral" | "fail";
   titleJa: string;
   lineJa: string;
+  /** OD-DUI-5a: 「あと★N」 for a QUALITY_FAIL below the injected S; absent otherwise. */
+  gapJa?: string;
+}
+
+/**
+ * OD-DUI-5a: how many ★ a QUALITY_FAIL was short of the run's injected `minimumStars` (the view
+ * carries both, from Stage B). Null for every other result, and for a gap of 0 or less -- which a
+ * BELOW_MINIMUM_STARS result cannot have, so this is only a guard. No production S is defined here.
+ */
+export function dinnerStarGap(view: DinnerAttemptView): number | null {
+  if (view.category !== "QUALITY_FAIL" || view.failure.kind !== "BELOW_MINIMUM_STARS") return null;
+  const gap = view.failure.minimumStars - view.failure.stars;
+  return gap > 0 ? gap : null;
+}
+
+/**
+ * OD-DUI-3a: the 「最後のピザ」 line of the CLEAR / INFEASIBLE overlay -- the pizza itself, never a
+ * headline. A named result shows its (discovered, view-authorised) name, with ★N when the result
+ * has one; a result with no identity uses a privacy-safe fallback (OD-R4: no recipe name).
+ */
+export function dinnerLastPizzaLabel(view: DinnerAttemptView): string {
+  switch (view.category) {
+    case "TARGET_PASS":
+      return `${view.nameJa} ★${view.stars}`;
+    case "QUALITY_FAIL":
+      return view.failure.kind === "BELOW_MINIMUM_STARS" ? `${view.nameJa} ★${view.failure.stars}` : view.nameJa;
+    case "DUPLICATE_TARGET":
+    case "NON_TARGET":
+      return view.nameJa;
+    case "ORIGINAL":
+      return "オリジナルピザ";
+    case "INVALID_PIZZA":
+      return view.reason === "UNDERBAKED"
+        ? "ピザにならなかった（生焼け）"
+        : view.reason === "OVERBAKED"
+          ? "ピザにならなかった（焦げ）"
+          : "ピザにならなかった";
+  }
 }
 
 function ingredientNameJa(id: string | undefined): string {
@@ -159,10 +197,12 @@ export function dinnerAttemptCopy(view: DinnerAttemptView): DinnerAttemptCopy {
     case "QUALITY_FAIL": {
       const f = view.failure;
       if (f.kind === "BELOW_MINIMUM_STARS") {
+        const gap = dinnerStarGap(view);
         return {
           tone: "fail",
           titleJa: "もう少し丁寧に作ろう",
           lineJa: `${view.nameJa} ★${f.stars}（合格は★${f.minimumStars}以上）`,
+          ...(gap !== null ? { gapJa: `あと★${gap}` } : {}),
         };
       }
       const detail =

@@ -35,10 +35,11 @@ describe("record adapter: fail closed", () => {
 });
 
 describe("isTrialRecordEligible (OD-P3-16)", () => {
-  it("is true for ORIGINAL and AMBIGUOUS only", () => {
+  it("is true for ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH only (OD-D3-23)", () => {
     expect(isTrialRecordEligible(original)).toBe(true);
     expect(isTrialRecordEligible({ kind: "AMBIGUOUS", targetIds: [] })).toBe(true);
-    for (const kind of ["INCOMPLETE_MATCH", "NEW_DISCOVERY", "ALREADY_DISCOVERED"] as const) {
+    expect(isTrialRecordEligible({ kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "t" })).toBe(true);
+    for (const kind of ["NEW_DISCOVERY", "ALREADY_DISCOVERED"] as const) {
       expect(isTrialRecordEligible({ kind, recipeId: "funghi", targetId: "t" } as never), kind).toBe(false);
     }
   });

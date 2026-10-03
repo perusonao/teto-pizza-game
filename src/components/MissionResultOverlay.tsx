@@ -119,13 +119,13 @@ export function MissionResultOverlay({
           {retryBlocked && (
             <p className="mission-result__retry-blocked">{"\u{1F6D2}"} ショップで材料を補充すると再挑戦できます</p>
           )}
-          {/* Gameplay UX Phase 2 (Issue #157): フリープレイへ/🏠ホームへ paired side-by-side
+          {/* Gameplay UX Phase 2 (Issue #157): ピザ作りへ/🏠ホームへ paired side-by-side
               (`.mission-result__nav-row`, `.home-cta-row`'s own flex:1-pair pattern) instead of
               stacked, so the 4th CTA adds ~0 vertical height to the RESULT panel and both
               existing 390x844/360x800 "fits without page scroll" e2e assertions keep holding. */}
           <div className="mission-result__nav-row">
             <button type="button" className="secondary-button mission-result__nav-button" onClick={onExit}>
-              フリープレイへ
+              ピザ作りへ
             </button>
             <button type="button" className="secondary-button mission-result__nav-button" onClick={onGoHome}>
               {"\u{1F3E0}"} ホームへ

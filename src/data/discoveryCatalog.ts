@@ -49,6 +49,10 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "pesto-caprese": "pesto-caprese-pizzadb-p11",
   "pesto-patate": "pesto-patate-pizzadb-p12",
   "puttanesca-pizza": "puttanesca-pizza-pizzadb-p10",
+  // Discovery 3.0 PR-4b-B: a production-only target (no Phase-2 row); distinct from `calabrese`.
+  "brazilian-calabresa": "brazilian-calabresa",
+  // Discovery 3.0 No.27: PIZZA DB evidence id from the 172 matrix (`pesto-pollo-pizzadb-p12`).
+  "pesto-pollo": "pesto-pollo-pizzadb-p12",
 };
 
 export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => ({

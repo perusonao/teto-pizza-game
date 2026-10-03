@@ -1,3 +1,5 @@
+// Pins the pre-neutralization pool-distance classifier (`legacyResultNearMiss`), which has no production caller since
+// Near/Far Neutralization Phase 1; the production `resultNearMiss` is pinned in resultNearMiss.neutral.test.ts.
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
@@ -10,7 +12,7 @@ import { createInitialGameState, gameReducer } from "./gameReducer";
 import { hintSheetView } from "./discoveryHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
-import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
+import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, legacyResultNearMiss as resultNearMiss, type ResultNearMissInput } from "./resultNearMiss";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-C): which "おしい" line a Free Cooking RESULT shows, on the
@@ -95,9 +97,11 @@ describe("no line", () => {
     expect(resultNearMiss(input(3, ["tomato-sauce", "mozzarella"], { lastDiscovery: ambiguous }))).toBeNull();
   });
 
-  it("INCOMPLETE_MATCH (its copy is ResultPanel's)", () => {
+  it("INCOMPLETE_MATCH gets a row like an ORIGINAL (PR-1: the absent row was an oracle); never the exact-identity recipe's own distance", () => {
     const incomplete: DiscoveryOutcome = { kind: "INCOMPLETE_MATCH", recipeId: "funghi", targetId: "shipped:funghi" };
-    expect(resultNearMiss(input(3, ["tomato-sauce", "mozzarella", "mushroom"], { lastDiscovery: incomplete }))).toBeNull();
+    const line = resultNearMiss(input(3, ["tomato-sauce", "mozzarella", "mushroom"], { lastDiscovery: incomplete }));
+    expect(line).not.toBeNull();
+    expect(line!.textJa).not.toMatch(/あと少し|キノコ|フンギ/);
   });
 
   it("NEW_DISCOVERY", () => {

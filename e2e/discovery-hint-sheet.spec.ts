@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
 import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
@@ -32,20 +33,26 @@ const LADDER = [
   ["genovese", ["cherry-tomato"]], ["new-haven-apizza", ["clam"]], ["pesto-caprese", ["fresh-tomato"]],
   ["pesto-patate", ["potato"]], ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]],
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
+  ["pesto-pollo", ["chicken"]], // No.27: the appended step 25
 ] as const;
+
+/** Production recipes that never advance the ladder (`ladderCredit: false`). The ladder's own recipes are not the whole population
+ *  once one exists, so "every ladder recipe discovered" is not "complete": a COMPLETE seed also discovers these. Empty while every
+ *  production recipe is credited (the seed is then unchanged). */
+const NON_CREDIT: readonly string[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
 
 /** The ladder played to `count` discoveries; the materials of steps <= count owned with `stock`
  *  (the newest step's with `newestStock`, or not owned at all when `newestOwned` is false). */
 function ladderSave(
   count: number,
-  opts: { newestOwned?: boolean; newestStock?: number; pitz?: number; purchases?: Record<string, number> } = {},
+  opts: { newestOwned?: boolean; newestStock?: number; pitz?: number; purchases?: Record<string, number>; complete?: boolean } = {},
 ) {
   const materials = LADDER.slice(1, count + 1).flatMap(([, m]) => m);
   const newest = count >= 1 && count < LADDER.length ? LADDER[count][1] : [];
   const owned = materials.filter((m) => opts.newestOwned !== false || !(newest as readonly string[]).includes(m));
   return {
     schemaVersion: 2,
-    dex: LADDER.slice(0, count).map(([recipeId]) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+    dex: [...LADDER.slice(0, count).map(([recipeId]) => recipeId as string), ...(opts.complete ? NON_CREDIT : [])].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
     pitzBalance: opts.pitz ?? 999,
     ...(opts.purchases ? { discoveryHintPurchases: opts.purchases } : {}),
     ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...owned],
@@ -68,14 +75,14 @@ async function openWithSave(page: Page, save: { dex: unknown[] }) {
   }, [SAVE_KEY, JSON.stringify(save)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/25`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/27`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
 const sheet = (page: Page) => page.getByRole("dialog", { name: /ヒント/ });
 
 async function startFreeCookAtTopping(page: Page) {
-  await page.getByRole("button", { name: /フリークッキング/ }).first().click();
+  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   for (let i = 0; i < 3; i += 1) {
@@ -399,7 +406,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(25), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(26, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);

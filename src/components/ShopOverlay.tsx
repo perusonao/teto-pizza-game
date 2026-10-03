@@ -3,6 +3,7 @@ import { INGREDIENTS, type Ingredient } from "../data/ingredients";
 import { filterByShelf, shelvesPresent, type ShelfFilter } from "../data/ingredientShelf";
 import type { DexState } from "../state/dex";
 import { remainingStock, type InventoryState } from "../state/inventory";
+import { countsTowardLadder } from "../data/recipes";
 import { discoveredRecipeCount } from "../logic/discoveryLadder";
 import {
   MATERIAL_PACK_PIZZAS,
@@ -101,7 +102,10 @@ export function ShopOverlay({
   onClose,
 }: ShopOverlayProps) {
   const rows = shopRows(ownedIngredientIds, unlockedForShopIngredientIds);
-  const progress = nextMaterialHint(discoveredRecipeCount(dex), unlockedForShopIngredientIds);
+  const progress = nextMaterialHint(
+    discoveredRecipeCount(dex, countsTowardLadder),
+    unlockedForShopIngredientIds,
+  );
   const [feedback, setFeedback] = useState<ShopFeedback | null>(null);
   // Ingredient Category Tabs 1.0 Phase 3: a display-only shelf filter (./ingredientShelf.ts is the
   // authority for ids, order, labels and membership). The chips are derived from the rows this
@@ -169,7 +173,7 @@ export function ShopOverlay({
                 <>
                   {"\u{1F4E6}"} {feedback.ingredientNameJa}を仕入れました！（{feedback.quantityLabelJa}）
                   <br />
-                  {"\u{1F373}"} フリークッキングで使ってみよう
+                  {"\u{1F373}"} レシピ発見で使ってみよう
                 </>
               ) : (
                 <>

@@ -1,0 +1,71 @@
+.dpi {
+  box-sizing: border-box;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px 12px 48px;
+  font: 14px/1.45 system-ui, sans-serif;
+  color: #222;
+  background: #fafaf7;
+  overflow-wrap: anywhere;
+  /* The game shell (index.css) locks html/body/#root to a fixed, non-growing viewport height with
+     `overflow: hidden`, so the Inspector must be its own vertical scroll container -- otherwise
+     everything below the first screen is clipped and cannot be reached on iOS Safari. This sheet
+     is only loaded with the Inspector chunk, so the game's scroll / viewport contract is untouched. */
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+.dpi h1 { font-size: 18px; margin: 4px 0; }
+.dpi h4 { font-size: 13px; margin: 8px 0 4px; }
+.dpi code { font-size: 11px; background: #eee; padding: 0 3px; border-radius: 3px; }
+.dpi__small { font-size: 12px; color: #444; margin: 4px 0; }
+.dpi__muted { color: #888; }
+.dpi__warn { color: #b3261e; }
+.dpi__summary-box { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
+.dpi__summary-box p { margin: 4px 0; font-size: 13px; }
+.dpi__controls { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.dpi__filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.dpi__filter { padding: 6px 10px; border: 1px solid #aaa; border-radius: 16px; background: #fff; font-size: 12px; }
+.dpi__filter[aria-pressed="true"] { background: #222; color: #fff; border-color: #222; }
+.dpi__search { padding: 8px; border: 1px solid #aaa; border-radius: 6px; font-size: 16px; width: 100%; box-sizing: border-box; }
+.dpi__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.dpi__row { background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+.dpi__row--head { display: none; }
+.dpi__row[data-classification="OPEN_POOL"] { border-color: #b3261e; }
+.dpi__row[data-classification="OPEN_POOL_POSSIBLE"] { border-color: #c77700; }
+.dpi__summary { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 2px 8px; width: 100%; padding: 8px 10px; text-align: left; background: none; border: 0; font: inherit; color: inherit; box-sizing: border-box; }
+.dpi__cell { min-width: 0; }
+.dpi__cell--step { grid-row: 1 / span 3; font-weight: 700; font-size: 16px; }
+.dpi__cell--unlock { grid-column: 2 / span 2; }
+.dpi__cell--newly { grid-column: 2; display: flex; flex-direction: column; }
+.dpi__cell--pool { grid-column: 3; justify-self: end; font-weight: 600; }
+.dpi__cell--result { grid-column: 2 / span 2; font-weight: 700; font-size: 12px; }
+.dpi__new-ing { display: inline-block; margin-right: 8px; font-weight: 600; }
+.dpi__recipe-name { display: block; }
+.dpi__badge { margin-left: 4px; padding: 0 5px; border-radius: 8px; font-size: 10px; background: #eee; }
+.dpi__badge--warn { background: #fde7e5; color: #b3261e; }
+.dpi__result--NORMAL { color: #2e7d32; }
+.dpi__result--NO_POOL { color: #888; }
+.dpi__result--OPEN_POOL { color: #b3261e; }
+.dpi__result--OPEN_POOL_POSSIBLE { color: #c77700; }
+.dpi__detail { border-top: 1px solid #eee; padding: 8px 10px; background: #fcfcfa; }
+.dpi__kv { display: grid; grid-template-columns: 8.5em 1fr; gap: 4px 8px; margin: 0; }
+.dpi__kv dt { font-weight: 600; font-size: 12px; }
+.dpi__kv dd { margin: 0; min-width: 0; }
+.dpi__chips { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.dpi__chip--new { font-weight: 600; }
+.dpi__recipe { border-top: 1px dashed #ccc; margin-top: 8px; padding-top: 4px; }
+.dpi__req { margin: 4px 0; padding-left: 18px; font-size: 12px; }
+.dpi__req--missing { color: #b3261e; font-weight: 600; }
+.dpi__clue { border-top: 1px dashed #ccc; margin-top: 8px; }
+
+@media (min-width: 760px) {
+  .dpi__row--head { display: block; background: #eee; font-weight: 700; font-size: 12px; }
+  .dpi__summary { grid-template-columns: 3em 1.3fr 1.6fr 5em 11em; align-items: start; }
+  .dpi__cell--step { grid-row: auto; }
+  .dpi__cell--unlock, .dpi__cell--newly, .dpi__cell--pool, .dpi__cell--result { grid-column: auto; justify-self: start; }
+}
