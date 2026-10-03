@@ -304,3 +304,24 @@ All of these state 29 / 22 as the value *at their own audited time* and are kept
 ### 16.5 OD-1b (Owner, confirmed 2026-10-03)
 
 「トッピング」 is **not** bulk-replaced. The 「具材」 unification covers only the player-facing places that show `topping` **as a category / role name** — §16.2 rows 1–5 (this includes the legacy 特徴 category line, row 5, because it names the category). **Unchanged:** wording that is natural as a cooking action, placement / operation explanations, `キートッピング` (kept for existing compatibility; the "no new key-topping design" policy stays), `サブトッピング` (handled separately with #360 / Hint 5.0), internal ids / enums / variables, and historical docs. The UI change itself is a later slice (UI text ⇒ Human Verification; the unit / e2e selectors that assert the category word move with it).
+
+### 16.6 OD-3 executed (2026-10-03) — final status of #272 / #307 and the #269 audit
+
+**#272 — CLOSED (not merged), superseded by main.** Re-verified before closing: of the 75 files, 5 are byte-identical on main, 16 exist on main in a *revised* form (the 14 `src/logic/catalog/**` files, `mutation-check.mjs`, `PROJECT_HANDOFF.md`), and 54 are absent on main (design / gate docs, measurement JSON, 39 old screenshots, measure specs, scale-model generator). The 54 are exactly what `TETO_LARGE-CATALOG-UX_LC-R0_Foundation-Migration_Result.md` records as "intentionally not migrated, left on the frozen #272 SHA as history". Closing deletes nothing: branch `claude/large-catalog-ux-design-sq8saf` @ `f5b0ab54e06ed0794e48aee9eb10e399f9b5cf57` is kept (**do not delete it**). A supersession comment was posted. #269 was **not** closed (closing a PR does not trigger "Closes #269").
+
+**#307 — CLOSED (not merged), absorbed.** Its two changes were verified absent from main and carried into this branch with their original text (commit `a70b9ec`): the `LC-R4 MERGED / COMPLETE (PR #306 …)` line in `PROJECT_HANDOFF.md` and the merged-status header of the LC-R4 Result. A comment names that commit. The CI facts in that text (Deploy #220, E2E WebKit #348) are as recorded by #307 (not re-verified here); PR #306's merge commit `12725eb` is verified to be in main.
+
+**#269 — read-only audit: COMPLETE as to its own scope (LC-1 / LC-1b); stays open pending an Owner close decision.**
+
+| #269 scope item | On main |
+|---|---|
+| working-set selection, placed / pinned, deterministic fill | `selectWorkingSet` (`workingSet.ts`) — ported in LC-R0, extended through R2 / R5-d |
+| disclosed-hint priority | `hintDisclosure.ts` — **trimmed** (named-ingredient disclosure only); Hint 5.0 ladder × `hintDisclosure` is **unaudited, deferred to LC-4** |
+| favorites / recent / newly owned (session-only) | `usageSignals.ts` — present, **no UI** |
+| category / family / search query | `queryCatalog` — **reshaped**: one `shelves` axis from `ingredientShelf` (the free-string family axis was retired on purpose), + JA search / aliases |
+| ownership-basis Dex summary | `dexActionSummary.ts` — as is |
+| fixtures 29×25 … 179×172 | `LARGE_CATALOG_FIXTURE_IDS` — 8 populations (incl. the mixed 37×34), pinned to the committed scale model |
+| privacy regressions, static import boundary, mutation gate | carried over; mutation gate has since grown (M1–M114 + E-series) |
+
+Residual work that is **not** #269 scope and has **no open tracking Issue** (search of open Issues: only #269): R6 hand / pin activation + capacity decision (PR #319 is the only vehicle), Dinner / recipe-tray audit, Phase 5 counts, LC-4 Hint 5.0 × `hintDisclosure`, favorites / recent UI. Verdict: **完了済み (scope complete) — with a hand-over need**: if the Owner wants these tracked, a new umbrella Issue is the right vehicle (not created here). Suggested action: close #269 as completed with a comment pointing at LC-R0 / R1 Results and the new Issue, if any.
+
