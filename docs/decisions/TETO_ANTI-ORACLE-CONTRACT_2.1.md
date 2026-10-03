@@ -19,6 +19,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 | ID | 決定 |
 |---|---|
 | OD-RB-1 | **Research Target の選択は残す**（Dex / Research Entry →「このピザを研究する」）。○× には匿名の対象 recipe が必要。**targetless の Free Cook では ○× を出さない**。 |
+| **OD-RB-1 更新**（Issue #373、Owner 2026-10-03） | **HOME「レシピ発見」は cookable Research Entry 数（`researchableEntryIds`、OD-RX-4）で分岐する**。旧「HOME start carries no Research Target」を置き換える。**0 件** → targetless Free Cook（○× なし）。**1 件** → その唯一の Entry を Research Target として開始（決定論的。sticky / 記憶した選択ではない）。**2 件以上** → システムは選ばず、既存 Dex の匿名 Research カードを開いて player に選ばせる（#353 維持）。判定母集団は登録済み Entry 総数ではなく **cookable 数**。cookable ≥ 1 では HOME からの targetless 逃げ道を設けない（完全な自由試作は「レシピ発見」とは別 UX、今回は未実装）。維持: explicit Research Target 概念 / 複数候補の自動選択禁止 / targetless はパネルなし / attempt-start validity / ○ のみ persist・× は session-only / Hint 5.0・save・oracle 不変。Pizza Select の「レシピ発見へ」と Dex 内の targetless CTA は本更新の対象外（別 Issue 候補）。 |
 | OD-RB-2 | attempt ごとの `researchTest` は**廃止**: 「今回の調査をえらぶ」/ `researchTest` / `researchTestLocked` / `SET_RESEARCH_TEST` / 「調査中：○○」/「今回は食材調査なし」/ 未使用警告 / `BakeUnusedConfirm` / LOCK lifecycle。 |
 | OD-RB-3 | 今回の試作で使った **sauce / cheese は、使用したもの全件**を RESULT で項目別に ○×（OD-RB-12 で確定、bounded reveal なし）。 |
 | OD-RB-4 | **topping**: 今回使った「まだ membership が判明していない topping」が **3 種類以内**なら、それぞれ ○×。既に ✓ と判明している ingredient は 3 種類に**数えない**。 |

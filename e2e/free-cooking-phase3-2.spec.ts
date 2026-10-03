@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Progression 2.0 Phase 3-2 (Issue #194): Free Cooking / owned-ingredient selection, driven
@@ -18,7 +19,7 @@ async function openHomeFresh(page: Page) {
 }
 
 async function startFreeCook(page: Page) {
-  await page.getByRole("button", { name: /レシピ発見/ }).click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
 }
 

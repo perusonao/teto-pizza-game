@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { startTargetlessFreeCookViaPizzaSelect } from "./test/discoveryEntry";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-3: the ladder sheet through the real App, with the flag ON
@@ -41,7 +42,7 @@ afterEach(() => {
 });
 
 async function openSheet(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+  await startTargetlessFreeCookViaPizzaSelect(user);
   const bar = document.querySelector(".prepare-bake-bar") as HTMLElement;
   await user.click(within(bar).getByRole("button", { name: "ヒント" }));
   return screen.getByRole("dialog", { name: /ヒント/ });

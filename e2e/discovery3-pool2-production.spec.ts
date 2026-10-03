@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 PR-4b-B: the first production Discovery pool of 2, played for real.
@@ -72,7 +73,7 @@ async function pickChip(page: Page, name: RegExp) {
 
 /** One FREE Cooking round: sausage x`sausage`, onion x2, olive x2, oregano x`oregano`, no cheese. */
 async function cookCalabresa(page: Page, opts: { oregano: number; from: "HOME" | "RESULT" }) {
-  if (opts.from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  if (opts.from === "HOME") await startTargetlessFreeCook(page);
   else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
@@ -114,7 +115,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await capture(page, "pool2-dex-research-cards", testInfo.project.name);
 
     await page.getByRole("button", { name: "閉じる" }).click();
-    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+    await startTargetlessFreeCook(page);
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toContainText("研究するピザを選ぼう");

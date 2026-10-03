@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { INGREDIENTS } from "../src/data/ingredients";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Large Catalog UX LC-R3: the 食材庫 entry + pantry sheet SHELL in real layout, at the four Owner viewports
@@ -42,7 +43,7 @@ async function startFree(page: Page, width: number, height: number) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /レシピ発見/ }).click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
 }
 async function toSauce(page: Page) {

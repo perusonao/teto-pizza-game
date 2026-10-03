@@ -29,7 +29,7 @@ import {
   type MakingStep,
 } from "./state/gameReducer";
 import { remainingStock } from "./state/inventory";
-import { isHintSheetVisible } from "./state/discoveryHint";
+import { homeDiscoveryRoute, isHintSheetVisible } from "./state/discoveryHint";
 import {
   loadSave,
   loadMissionBest,
@@ -1032,6 +1032,16 @@ function App() {
     setScreen("GAME");
   }
 
+  // Issue #373: HOME's 「レシピ発見」 follows the cookable Research Entries so it researches like the Dex's
+  // 「このピザを研究する」 does: none -> targetless Free Cook; one -> that entry is the Research Target; 2+ -> the
+  // Dex's anonymous Research cards (the player picks; nothing is chosen for them). Only HOME uses this.
+  function handleStartDiscovery() {
+    const route = homeDiscoveryRoute(state);
+    if (route.kind === "RESEARCH") handleStartResearch(route.recipeId);
+    else if (route.kind === "CHOOSE" && mission.mode === "FREE") setDexOpen(true);
+    else handleStartFreeCook();
+  }
+
   // Pizza Select's own back button. No confirmation needed -- Pizza Select never has an
   // in-progress round of its own to lose (mirrors leaving ORDER/RESULT today), and this must
   // not reuse `handleGoHome`'s Mission-exit branch, which is irrelevant here since Pizza
@@ -1137,7 +1147,7 @@ function App() {
           ownedIngredientCount={ingredientCollection.owned}
           totalIngredientCount={ingredientCollection.total}
           onStartFreePlay={handleStartFreePlay}
-          onStartFreeCook={handleStartFreeCook}
+          onStartFreeCook={handleStartDiscovery}
           onStartLunchRush={handleStartLunchRush}
           onOpenDinner={() => setScreen("DINNER")}
           dinnerUnlockedCount={dinnerUnlockedCount}

@@ -1,10 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * #353: 2+ registered Research Entries, no Research Target, Hint facts already bought on one entry.
- * HOME -> レシピ発見 -> ヒント must not pick a recipe for the player (CHOOSE_RESEARCH); the way to the Dex's anonymous
+ * targetless Free Cook (#373: Pizza Select's レシピ発見へ; HOME's researches) -> ヒント must not pick a recipe for the player (CHOOSE_RESEARCH); the way to the Dex's anonymous
  * Research cards works; choosing one there starts its research and shows its Hint. Chromium 390×844 / 360×800.
  * HV_SCREENSHOT_DIR (optional) writes the Human Verification screenshots.
  */
@@ -50,7 +51,7 @@ async function shot(page: Page, name: string) {
 
 test("targetless + 2 entries + bought facts: the sheet asks to choose; the Dex choice then shows that entry's Hint", async ({ page }) => {
   await open(page);
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);
   const hintButton = page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" });

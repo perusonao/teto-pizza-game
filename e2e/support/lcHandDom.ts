@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { INGREDIENTS } from "../../src/data/ingredients";
 import { completeDoughStep, paintSauceRing, tapDoughPercent } from "../gestures";
+import { startTargetlessFreeCook } from "./startFreeCook";
 
 /**
  * LC-R6-b: the FREE Cooking tray / pantry DOM snapshots that define "Hand OFF". The production build's snapshots
@@ -56,7 +57,7 @@ export async function openFree(page: Page, url: string, saveKey: string, save: u
   }, [saveKey, JSON.stringify(save), decoys?.local ?? {}, decoys?.session ?? {}] as const);
   await page.goto(`${url}${decoys?.query ?? ""}`);
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /レシピ発見/ }).click();
+  await startTargetlessFreeCook(page); // #373: HOME 「レシピ発見」 researches when an entry is cookable (the Dex opens for 2+)
   await page.waitForSelector(".pizza-stage");
 }
 

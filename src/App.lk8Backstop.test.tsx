@@ -6,6 +6,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES } from "./data/recipes";
+import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * Progression 2.0 W1 Discovery 2.0 -- W1-a2 (LK-8 / LK-8b / LK-8d) through the real App: a
@@ -62,6 +63,7 @@ describe("LK-8 through the App (legacy Dex-15 save)", () => {
       // A FREE round in PREPARE, then HOME: handleGoHome replaces it via PLAY_AGAIN -- the order
       // the old pool filled with an undiscovered recipe first.
       await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+      await pickFirstResearchIfDexOpened(user);
       await user.click(screen.getByRole("button", { name: /ホーム/ }));
       await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
       await user.click(screen.getByRole("button", { name: "閉じる" }));
