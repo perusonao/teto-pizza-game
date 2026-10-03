@@ -116,3 +116,14 @@ describe("the confirmation is a decision pause (Codex P2)", () => {
     expect(onBakeConfirmChange).toHaveBeenLastCalledWith(false);
   });
 });
+
+describe("the confirmation blocks the stage input (Codex P2)", () => {
+  it("the pizza stage is not keyboard-placeable while the confirm is open, and is again after 戻る", () => {
+    renderGameScreen(atBake("egg"));
+    expect(screen.getByLabelText(/ピザ。選択中の素材を置くには/)).toBeInTheDocument();
+    fireEvent.click(bake());
+    expect(screen.queryByLabelText(/ピザ。選択中の素材を置くには/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "戻って追加する" }));
+    expect(screen.getByLabelText(/ピザ。選択中の素材を置くには/)).toBeInTheDocument();
+  });
+});
