@@ -5012,7 +5012,9 @@
 }
 
 .dex-registration-row__cta {
-  min-height: 36px;
+  /* #358 extraction: on a NEW PIZZA result this is the only way forward (the bottom CTA bar is gone), so it keeps the
+     documented 44px minimum touch target (PIZZA_GAME_UI_SPEC §5). */
+  min-height: 44px;
   padding: 6px 14px;
   border: 2px solid #d9b876;
   border-radius: 999px;
