@@ -82,10 +82,10 @@ const feedbackOf = (s: GameState) => notebookView(s.trialNotebook)[0]?.feedback 
 const jaName = (id: string) => getIngredient(id)!.nameJa;
 
 describe("Contract 2.1 flag and old-model removal", () => {
-  it("the Production flag default is OFF and dev / test builds are ON (this suite runs ON)", async () => {
+  it("the Production flag default is ON (Contract 2.1 activation) and dev / test builds are ON (this suite runs ON)", async () => {
     expect(RESEARCH_IDENTIFY_ENABLED).toBe(true);
     const src = await import("../logic/discovery/researchIdentifyFlag?raw").then((m) => m.default as string);
-    expect(src).toMatch(/RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = false/);
+    expect(src).toMatch(/RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = true/);
   });
   it("the old declaration state is gone from a fresh state and the action is not accepted", () => {
     const s = start(single());
