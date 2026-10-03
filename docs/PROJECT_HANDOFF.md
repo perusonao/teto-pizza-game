@@ -519,6 +519,14 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
 - **Not done (separate gates):** #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit (Expansion Gate A / §13.1), the post-Production re-evaluation of
   ★3-FULL replay / refill cost (Gate C §12.1), and the Trial Notebook readability UX follow-up.
 
+
+**Issue #373 — HOME 「レシピ発見」 routing (OD-RB-1 updated, Owner 2026-10-03).** HOME's 「レシピ発見」 now follows the
+cookable Research Entries (`homeDiscoveryRoute`, built on `researchableEntryIds`): 0 → targetless Free Cook (no ○×); 1 → that
+entry is the Research Target (same state as the Dex's 「このピザを研究する」); 2+ → the Dex's anonymous Research cards open and the
+player picks (never auto-selected, #353). No targetless escape from HOME while a cookable entry exists. Pizza Select's
+「レシピ発見へ」 and the Dex's own targetless CTAs are unchanged (candidate follow-up). No reducer / save / Hint 5.0 change.
+See `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md` (OD-RB-1 更新).
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.

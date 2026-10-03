@@ -3,6 +3,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-C): the Free Cooking RESULT's "おしい" row, played for real
@@ -51,7 +52,7 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 
 /** One Free Cooking round with tomato sauce plus `pieces`, baked on target, to its RESULT. */
 async function cookFree(page: Page, pieces: { cheese: [RegExp, number][]; toppings: [RegExp, number][]; sauceDab?: boolean }) {
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   await bar(page).getByRole("button", { name: /次へ/ }).click();

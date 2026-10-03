@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 #346 S4: the Research Recipe player loop around RESULT, played for real on the Dex 25 ladder save with
@@ -175,7 +176,7 @@ test("Research loop: ORIGINAL result -> Notebook -> Hint -> retry keeps the same
   await page.waitForSelector(".dex-overlay");
   await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(1);
   await page.getByRole("button", { name: "閉じる" }).click();
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);
 });

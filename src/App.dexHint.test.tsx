@@ -6,6 +6,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES } from "./data/recipes";
+import { pickFirstResearchIfDexOpened, startTargetlessFreeCookViaPizzaSelect } from "./test/discoveryEntry";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
@@ -70,10 +71,10 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     expectNoUndiscoveredName("Dex (research entries)");
     const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
 
-    // The old aggregate card's CTA is gone; HOME's own フリークッキング is the open (target-less) route.
+    // The old aggregate card's CTA is gone; Pizza Select's レシピ発見へ is now the open (target-less) route (#373: HOME's レシピ発見 researches).
     await user.click(screen.getByRole("button", { name: "閉じる" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    await startTargetlessFreeCookViaPizzaSelect(user);
     expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const sheet = screen.getByRole("dialog", { name: /ヒント/ });
@@ -94,7 +95,7 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     seedLegacyDex15();
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    await startTargetlessFreeCookViaPizzaSelect(user);
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const sheet = screen.getByRole("dialog", { name: /ヒント/ });
     expect(sheet.getAttribute("data-hint-kind")).toBe("CHOOSE_RESEARCH");
@@ -115,6 +116,7 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    await pickFirstResearchIfDexOpened(user);
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     expectNoUndiscoveredName("HOME after the Free Cooking route");
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));

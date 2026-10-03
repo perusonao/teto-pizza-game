@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 Notebook N1: the read-only 試作ノート, opened from the Hint sheet, played for real on both iPhone widths.
@@ -90,7 +91,7 @@ async function pickChip(page: Page, name: RegExp) {
 }
 
 async function startFree(page: Page, from: "HOME" | "RESULT") {
-  if (from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  if (from === "HOME") await startTargetlessFreeCook(page);
   else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
 }

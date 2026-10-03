@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 #346 S0: player-facing 「レシピ発見」. HOME -> レシピ発見 (no Research Target) -> cooking -> ORIGINAL RESULT, on a
@@ -113,7 +114,7 @@ test("HOME -> レシピ発見 -> cooking -> ORIGINAL RESULT (no Research Target)
   await expectNoOverflow(page, "HOME");
   expect(await page.locator("body").innerText()).not.toMatch(OLD_WORDING);
   await shot(page, "s0-02-home");
-  await cta.click();
+  await startTargetlessFreeCook(page); // #373: HOME 「レシピ発見」 researches when an entry is cookable; Pizza Select's is the targetless door
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);
   await expect(page.locator(".order-card--free-cook")).toContainText("レシピ発見の試作");

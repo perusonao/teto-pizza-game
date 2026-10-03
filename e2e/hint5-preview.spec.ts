@@ -4,6 +4,7 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-5: the Preview-only opt-in and Human Verification seeds, on REAL
@@ -125,7 +126,7 @@ async function seedStorage(page: Page, entries: Record<string, string | null>) {
 
 async function openHintSheet(page: Page) {
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
   const dialog = page.getByRole("dialog", { name: /ヒント/ });
@@ -310,7 +311,7 @@ test.describe("Preview build: opt-in, seeds, isolation (P4 to P8)", () => {
       expect(save.pitzBalance).not.toBe(290);
     }
     // ...and it is a real initial state: the seed did not come back.
-    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+    await startTargetlessFreeCook(page);
     await page.waitForSelector(".pizza-stage");
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(page.locator('[data-hint5-rung="CHEESE"]')).toHaveCount(0);

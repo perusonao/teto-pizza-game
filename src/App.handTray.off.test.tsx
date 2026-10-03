@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * LC-R5-d OFF equivalence through the real App: the SHIPPED flag (`HAND_ENFORCEMENT_ENABLED = false`, no mock).
@@ -53,6 +54,7 @@ const trayChip = (name: RegExp) =>
   [...document.querySelectorAll<HTMLButtonElement>(".ingredient-chip")].find((b) => name.test(b.textContent ?? ""))!;
 async function toToppingStep(user: User) {
   await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+  await pickFirstResearchIfDexOpened(user);
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
   await user.click(trayChip(/トマトソース/));

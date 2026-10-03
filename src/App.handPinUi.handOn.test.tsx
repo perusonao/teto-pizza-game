@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * LC-R6-c (OD-R5e-1), through the real App: the pantry's pin UI (tile toggles, 「選択中」 strip, the capacity-full status
@@ -51,6 +52,7 @@ const trayChip = (name: RegExp) =>
 type User = ReturnType<typeof userEvent.setup>;
 async function toToppingStep(user: User) {
   await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+  await pickFirstResearchIfDexOpened(user);
   for (let i = 0; i < 8; i += 1) {
     const angle = (i / 8) * Math.PI * 2;
     tapPizza(50 + Math.cos(angle) * 46.6, 50 + Math.sin(angle) * 46.6);

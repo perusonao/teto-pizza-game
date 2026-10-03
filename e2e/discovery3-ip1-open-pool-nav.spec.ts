@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep, paintSauceRing } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 IP-1: OPEN_POOL -> Notebook / Pantry navigation, played for real on both iPhone widths.
@@ -55,7 +56,7 @@ async function startDex12Free(page: Page) {
   await page.goto("/");
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/27/);
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
 }
 

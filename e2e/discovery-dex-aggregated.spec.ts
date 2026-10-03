@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 PR-4b-A (D-1 / D-2 / D-3): a save where several undiscovered recipes are DISCOVERABLE
@@ -60,7 +61,7 @@ test.describe("Dex with several Research Entries (pool 2+)", () => {
 
     await page.getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+    await startTargetlessFreeCook(page);
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toContainText("研究するピザを選ぼう");

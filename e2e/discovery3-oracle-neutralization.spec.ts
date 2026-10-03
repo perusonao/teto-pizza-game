@@ -3,6 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { PROFILES, ProfileDriver } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 PR-1 (OD-D3-20 / OD-D3-23): the oracle neutralization, played for real (dough -> sauce -> cheese -> toppings -> bake)
@@ -64,7 +65,7 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 }
 
 async function cook(page: Page, p: Pieces, from: "HOME" | "RESULT") {
-  if (from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  if (from === "HOME") await startTargetlessFreeCook(page);
   else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
