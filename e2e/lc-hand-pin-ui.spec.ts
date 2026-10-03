@@ -8,21 +8,17 @@ import { buildLcApp, serveBuilds } from "./support/lcHandBuild";
 import { openFree, PREVIEW_KEY, saveWithToppings, TOPPING_COUNTS, toCheese, toSauce, toTopping } from "./support/lcHandDom";
 
 /**
- * Large Catalog UX LC-R6-c: the Preview Hand / Pin UI on REAL builds. Two Preview builds of this source tree with the HV
- * variant (HAND 9 / HAND 12, `buildLcApp`; production is untouched and covered by `lc-hand-preview-activation.spec.ts`),
- * played at 390x844 and 360x800 for each capacity under the SAME scenario (ABBA order is the Owner's real-device protocol;
- * here both capacities are exercised identically):
+ * Large Catalog UX LC-R6-c: the Preview Hand / Pin UI on a REAL build. A Preview build of this source tree with the HV
+ * variant (HAND 12, `buildLcApp`; production is untouched and covered by `lc-hand-preview-activation.spec.ts`),
+ * played at 390x844 and 360x800:
  *  - full hand + pin / unpin, the capacity-full notice (no number, overlay at the sheet's bottom edge, 3 s, status region),
  *  - shelf (category) chips + pin, search -> pin keeps the field focused, hand -> ingredient selection -> placement,
  *  - the pin UI does not exist where the hand is inactive (sauce / cheese),
  *  - a Research Target trial (FREE_COOK): reach an ingredient the hand does not hold through the pantry, then bake.
- * Never decides 9 vs 12: it asserts structure, not preference.
+ * OD-5 (Owner, 2026-10-03) chose 12: only the HAND 12 Preview build is exercised here (HAND 9 was the comparison variant).
  */
 const NOTICE = "手元がいっぱいです。使わない食材のピンを外してね";
-const BUILDS = [
-  ["/h9/", 9],
-  ["/h12/", 12],
-] as const;
+const BUILDS = [["/h12/", 12]] as const;
 
 let origin = "";
 let closeServer: (() => Promise<void>) | null = null;

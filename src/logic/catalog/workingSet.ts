@@ -3,7 +3,7 @@
  *
  * Authority: Owner Decision Gate §5 / §17 (LC-OD-1, -4, -7, -16b, -17).
  *
- * - `capacity` is an argument (LC-OD-4: 9 or 12 is decided at LC-2).
+ * - `capacity` is an argument (LC-OD-4, closed by OD-5: the production capacity is 12).
  * - Inactive when the category's owned count fits the capacity: the result is then exactly today's
  *   tray (every owned ingredient of the category in catalog order, zero stock included), so small
  *   catalogs see no change.

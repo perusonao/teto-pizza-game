@@ -8,7 +8,7 @@ import { defineConfig, type Plugin } from "vitest/config";
  * these projects exercise the PRODUCTION path of the policy with its production literals switched on. Mocking it with
  * `vi.mock` also forces every function of `handPolicy.ts` that reads it (`handCapacityFor`) to be mocked, which
  * hides the real flag / capacity wiring. Instead, these projects compile the REAL `handPolicy.ts` with the flag on
- * and one capacity candidate (9 or 12, both still undecided: R6 Human Feel Gate) and run `*.handOn.test.tsx`
+ * and one capacity (12 = the OD-5 production capacity; 9 stays as a coverage parameter of the capacity-agnostic logic) and run `*.handOn.test.tsx`
  * against the unmodified App / reducer / tray / pantry. Nothing here reaches `vite build` (`vite.config.ts`).
  *
  * Fail closed: if either declaration is not found exactly once, the transform throws, so a refactor of

@@ -81,7 +81,7 @@ const NO_PINS: HandSession = { sauce: [], cheese: [], topping: [] };
 
 /**
  * LC-R6-c (OD-R5e-3 / OD-R6a-4, initial UX judged at the R6 real-device HV): the capacity-full notice. No number (the
- * capacity is undecided and never printed), shown for 3 s as an overlay toast at the sheet's bottom edge (it never
+ * capacity (12, OD-5) is never printed), shown for 3 s as an overlay toast at the sheet's bottom edge (it never
  * pushes the list or the strip), and mirrored in an always-mounted `role="status"` polite region.
  */
 export const PIN_CAPACITY_NOTICE = "手元がいっぱいです。使わない食材のピンを外してね";
