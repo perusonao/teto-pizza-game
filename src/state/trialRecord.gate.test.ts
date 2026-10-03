@@ -51,8 +51,9 @@ describe("record adapter: authority and inputs", () => {
     }
   });
 
-  it("stores no near/far feedback (always null) and never calls resultNearMiss", () => {
-    expect(adapter).toContain("feedback: null,");
+  it("stores no near/far feedback: the line is null unless the caller passes the Contract 2.1 RESEARCH_ROWS line (default null); never calls resultNearMiss", () => {
+    expect(adapter).toContain("feedback: ShownFeedback | null = null,");
+    expect(adapter).toContain("    feedback,\n  });");
     expect(adapter).not.toMatch(/resultNearMiss\(/);
   });
 
@@ -86,7 +87,7 @@ describe("reducer: exactly one commit point, in the free-cook ORIGINAL branch of
   });
 
   it("the adapter is fed the committed outcome, not a recomputation", () => {
-    expect(reducer).toContain("recordTrialAttempt(state, resolution.outcome)");
+    expect(reducer).toContain("recordTrialAttempt(state, resolution.outcome, research.feedback)");
   });
 
   it("the notebook is written in exactly one place: the commit (besides carry / initial value)", () => {

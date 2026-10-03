@@ -70,7 +70,7 @@ import {
   type SelectableHintPresentation,
 } from "../logic/discovery/selectableHint";
 import { discoveredRecipeIds, type DexState } from "./dex";
-import { hasStock, type InventoryState } from "./inventory";
+import { type InventoryState } from "./inventory";
 
 export type { DeductionFamily };
 
@@ -732,35 +732,28 @@ export function researchResultView(state: DiscoveryHintState): ResearchEntryView
   return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
 }
 
-// ---- Issue #356 (Discovery 3.1): the declared ingredient of a Research Target attempt ----------------
+// ---- Contract 2.1 (RESULT-based identification): the Research Target context of one finished attempt ----
 
-/** Whether the registered Research Entry `recipeId` exists. Ownership-derived, NOT stock-derived: unlike
- *  `isValidResearchTarget` it stays true after the attempt used the target's last finite stock (the same basis as
- *  `researchResultView`), so a positive result is never lost to the stock the attempt itself consumed. */
-export function isRegisteredResearchEntry(
-  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "discoveryHintFacts">,
-  recipeId: string | null | undefined,
-): boolean {
-  return !!recipeId && deriveResearchEntries(state).entries.some((e) => e.recipeId === recipeId);
+/** What REGISTER_TO_DEX needs of the attempt's Research Target: its already-public label and the full known(T). */
+export interface ResearchAttemptContext {
+  /** The registered entry's public label with its unlock fact: 「？？？ピザ ①（チキン）」. Never a recipe name / id. */
+  labelJa: string;
+  /** known(T): the derived unlock fact plus every stored `ing:` fact (Contract 2.1 §2), as `researchResultView` knows it. */
+  knownIngredientIds: readonly string[];
 }
 
 /**
- * Whether `ingredientId` may be declared as this attempt's single tested ingredient: a valid explicit Research
- * Target, an OWNED catalog ingredient that can still be placed (stock > 0 or unlimited), and not already known for
- * that target (the unlock fact or a stored `ing:` fact -- nothing new to learn). It reads no recipe membership.
+ * The Research Target context of a finished attempt, or `null` without a registered target. Ownership-derived, NOT
+ * stock-derived (the same basis as `researchResultView`): an attempt that used the target's last finite stock still
+ * has its context (OD-RB-18). It reads no recipe membership for the player-facing label.
  */
-export function canDeclareResearchTest(
-  state: Pick<
-    DiscoveryHintState,
-    "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts" | "researchTargetId"
-  >,
-  ingredientId: string,
-): boolean {
-  const target = state.researchTargetId;
-  if (!target || !isValidResearchTarget(state, target)) return false;
-  const ingredient = getIngredient(ingredientId);
-  if (!ingredient || !state.ownedIngredientIds.includes(ingredientId)) return false;
-  if (!hasStock(ingredient, state.inventory, 0)) return false;
-  const view = researchEntryViews(state).find((v) => v.recipeId === target);
-  return !!view && !view.knownExactIngredientIds.includes(ingredientId);
+export function researchAttemptContext(state: DiscoveryHintState): ResearchAttemptContext | null {
+  const view = researchResultView(state);
+  if (!view) return null;
+  const unlockId = deriveResearchEntries(state).entries.find((e) => e.recipeId === view.recipeId)?.knownExactIngredientIds[0];
+  const unlockName = unlockId ? getIngredient(unlockId)?.nameJa : undefined;
+  return {
+    labelJa: unlockName ? `${view.label}（${unlockName}）` : view.label,
+    knownIngredientIds: view.knownExactIngredientIds,
+  };
 }

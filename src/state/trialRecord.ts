@@ -6,8 +6,8 @@
  *
  * - Identity is the P1 Attempt Fingerprint of the pizza (`attemptFingerprintOfPizza`), never re-derived here.
  * - The model is P3-1's `recordAttempt`; duplicate / `#n` / REVIVE / 50 + 2 000 semantics live there only.
- * - The stored feedback is always `null` (Near/Far Neutralization Phase 1): no near/far / distance / candidate
- *   text is recorded and none is recomputed when the notebook is shown.
+ * - The stored feedback is `null` (Near/Far Neutralization Phase 1: no near/far / distance / candidate text is
+ *   recorded) unless the caller passes a Contract 2.1 RESEARCH_ROWS line of disclosed judgments; it is never recomputed.
  * - Eligible: the ORIGINAL, AMBIGUOUS and INCOMPLETE_MATCH outcomes (OD-P3-16 as updated by OD-D3-23). Every other
  *   outcome returns the very same state references and records nothing. What is stored is the player's own
  *   combination and the line they were shown -- never the matcher outcome, a recipe, or "the combination was right".
@@ -16,7 +16,7 @@
  */
 import { attemptFingerprintOfPizza } from "../logic/discovery/attemptFingerprint";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
-import { recordAttempt, type TrialNotebook } from "../logic/discovery/trialNotebook";
+import { recordAttempt, type ShownFeedback, type TrialNotebook } from "../logic/discovery/trialNotebook";
 import type { ResultNearMissInput } from "./resultNearMiss";
 
 /** What the RESULT may later say about this attempt. Never `retryCount`, never an internal outcome. */
@@ -41,11 +41,16 @@ export function isTrialRecordEligible(outcome: DiscoveryOutcome): boolean {
   return outcome.kind === "ORIGINAL" || outcome.kind === "AMBIGUOUS" || outcome.kind === "INCOMPLETE_MATCH";
 }
 
-export function recordTrialAttempt(input: TrialRecordInput, outcome: DiscoveryOutcome): TrialRecordResult {
+export function recordTrialAttempt(
+  input: TrialRecordInput,
+  outcome: DiscoveryOutcome,
+  /** Contract 2.1: the RESEARCH_ROWS line for this attempt (or `null`), built by the caller from disclosed rows only. */
+  feedback: ShownFeedback | null = null,
+): TrialRecordResult {
   if (!isTrialRecordEligible(outcome)) return { trialNotebook: input.trialNotebook, lastTrialAttempt: null };
   const result = recordAttempt(input.trialNotebook, {
     fingerprint: attemptFingerprintOfPizza(input.pizza),
-    feedback: null,
+    feedback,
   });
   switch (result.outcome.kind) {
     case "NEW":

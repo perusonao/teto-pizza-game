@@ -21,4 +21,10 @@ describe("Contract 2.0 declaration UI is removed from production (S3)", () => {
     expect(scan(/onSetResearchTest|BakeUnusedConfirm|ingredient-test|ingredientTestLine/)).toEqual([]);
     expect(scan(/\bingredientTest\b/).filter((p) => /\/(components|screens)\//.test(p) || p.endsWith("/App.tsx"))).toEqual([]);
   });
+
+  it("S4: no old state / action / helper remains in production (reducer, hint model, domain)", () => {
+    expect(scan(/researchTest\b|researchTestLocked|lastIngredientTest|SET_RESEARCH_TEST|canDeclareResearchTest|isRegisteredResearchEntry|IngredientTestVerdict|evaluateIngredientTest|identifyDeclaredIngredient/)).toEqual([]);
+    expect(Object.keys(sources)).not.toContain("/src/logic/discovery/researchIdentify.ts");
+    expect(Object.keys(sources)).toContain("/src/logic/discovery/researchIdentifyFlag.ts");
+  });
 });

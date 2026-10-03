@@ -50,7 +50,8 @@ import {
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
-import { evaluateIngredientTest, type IngredientTestVerdict } from "../logic/discovery/researchIdentify";
+import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
+import { researchRowsFeedback } from "../logic/discovery/researchResultFeedback";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 import {
   canPlaceIngredient,
@@ -96,8 +97,7 @@ import {
   requestDeductionHintFact,
   requestHint5RungFact,
   resolveHintSession,
-  canDeclareResearchTest,
-  isRegisteredResearchEntry,
+  researchAttemptContext,
   isValidResearchTarget,
   needsResearchTargetChoice,
   unlockNextHint,
@@ -152,6 +152,14 @@ export type MakingStep = "DOUGH" | "SAUCE" | "CHEESE" | "TOPPING" | "FOLD" | "SE
 function nextStepWithin(step: MakingStep, steps: readonly MakingStep[]): MakingStep {
   const index = steps.indexOf(step);
   return steps[Math.min(index + 1, steps.length - 1)];
+}
+
+/** Contract 2.1: the disclosed RESULT judgments of one attempt (the label is fixed at REGISTER_TO_DEX, never recomputed). */
+export interface LastResearchRows {
+  labelJa: string;
+  rows: readonly ResearchResultRow[];
+  /** 4+ unknown toppings were used: no individual topping row is disclosed (the copy is the UI's). */
+  toppingOverCap: boolean;
 }
 
 export interface GameState {
@@ -362,15 +370,10 @@ export interface GameState {
    *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for
    *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
   lastTrialAttempt: LastTrialAttempt | null;
-  /** Issue #356 (Discovery 3.1): the ONE ingredient the player declared, before this attempt, as "the one to
-   *  check" against the explicit Research Target. Session-only, never persisted, NOT carried across rounds (every
-   *  attempt declares afresh; a retry / new round starts `null`). Kept by RESET_PIZZA (same attempt). Never read by
-   *  the matcher / CONFIRM_BAKE; only REGISTER_TO_DEX's free-cook ORIGINAL branch reads it. */
-  researchTest: { recipeId: string; ingredientId: string } | null;
-  /** #356: the display-only verdict of this round's declared ingredient, written only by REGISTER_TO_DEX in the same
-   *  transition as the optional `ing:` fact, reset every fresh round. NOT_IDENTIFIED is the one value shared by a
-   *  negative, an INCOMPLETE_MATCH and an AMBIGUOUS outcome (no oracle); it is never stored anywhere. */
-  lastIngredientTest: { ingredientId: string; verdict: IngredientTestVerdict } | null;
+  /** Contract 2.1: the RESULT membership rows of this round's Research Target attempt, written only by REGISTER_TO_DEX's
+   *  free-cook ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH branch (flag ON, registered target), reset every fresh round.
+   *  Session-only, never persisted. Carries no recipe name / id, count or distance. `null` when there is nothing to show. */
+  lastResearchRows: LastResearchRows | null;
   /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
    *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
    *  REGISTER_TO_DEX, and saved by App in the same write as the Dex. */
@@ -483,7 +486,6 @@ export type GameAction =
   | { type: "START_FREE_COOK"; now?: number; researchTargetId?: string }
   // #356: declares (or, with `null`, clears) the ONE ingredient to check this attempt. PREPARE of a Research Target
   // round only; anything else is a no-op.
-  | { type: "SET_RESEARCH_TEST"; ingredientId: string | null }
   // Free Cooking PREPARE: opens the Discovery Hint 2.0 sheet (229-B). Any other round: the
   // explicit one-line operational hint, as before.
   // 229-D: `pinnedRecipeId` -- the Dex card whose 「💡 ヒントを見る」 started this round. Never read
@@ -670,8 +672,7 @@ function buildOrderState(
     lastEfficiencyCredit: null,
     lastDiscovery: null,
     lastTrialAttempt: null,
-    researchTest: null,
-    lastIngredientTest: null,
+    lastResearchRows: null,
     lastTechniqueDiscovery: null,
     freeCook,
   };
@@ -1353,12 +1354,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         // P3-3a (OD-P3-17): the exactly-once Trial Notebook commit. The RESULT guard above makes this transition
         // happen once per round; `recordTrialAttempt` records an ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH outcome
         // (OD-P3-16 as updated by OD-D3-23: an INCOMPLETE_MATCH must not stand out by being unrecorded).
-        const trial = recordTrialAttempt(state, resolution.outcome);
-        const identified = identifyDeclaredIngredient(state, resolution.outcome.kind);
+        const research = researchAttemptResult(state);
+        const trial = recordTrialAttempt(state, resolution.outcome, research.feedback);
         return {
           ...state,
-          discoveryHintFacts: identified.discoveryHintFacts,
-          lastIngredientTest: identified.lastIngredientTest,
+          discoveryHintFacts: research.discoveryHintFacts,
+          lastResearchRows: research.lastResearchRows,
           phase: "DISCOVERED",
           lastDiscovery: resolution.outcome,
           trialNotebook: trial.trialNotebook,
@@ -1502,17 +1503,6 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       return (
         startPreparingRecipe(action.recipeId, carryOf(state), action.now) ?? state
       );
-    }
-
-    case "SET_RESEARCH_TEST": {
-      // #356 Slice 2: flag OFF (Production default) keeps the existing behavior -- no declaration can exist.
-      if (!RESEARCH_IDENTIFY_ENABLED) return state;
-      if (state.phase !== "PREPARE" || !state.freeCook) return state;
-      if (action.ingredientId === null) return state.researchTest ? { ...state, researchTest: null } : state;
-      const recipeId = state.researchTargetId;
-      if (!recipeId || typeof action.ingredientId !== "string" || !canDeclareResearchTest(state, action.ingredientId)) return state;
-      if (state.researchTest?.recipeId === recipeId && state.researchTest.ingredientId === action.ingredientId) return state;
-      return { ...state, researchTest: { recipeId, ingredientId: action.ingredientId } };
     }
 
     case "START_FREE_COOK": {
@@ -1799,35 +1789,41 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
 }
 
 /**
- * #356: the single declared-ingredient result of a free-cook round that finished as a plain ORIGINAL / AMBIGUOUS /
- * INCOMPLETE_MATCH (REGISTER_TO_DEX's only call site, so exactly once per round). Without a declaration for the
- * explicit Research Target, nothing changes. The target is checked as a REGISTERED entry (ownership), not as a
- * cookable one: the attempt already consumed its stock, so the last unit must not drop the result. Only a positive
- * adds one `ing:<id>` to the existing ledger (deduplicated); nothing negative is ever written.
+ * Contract 2.1: the RESULT-based membership of a free-cook round that finished as a plain ORIGINAL / AMBIGUOUS /
+ * INCOMPLETE_MATCH (REGISTER_TO_DEX's only call site, so exactly once per round; a MATCHED / cross-recipe round has a
+ * score and never reaches it). The outcome kind is only the permission to be here: membership never reads it, the
+ * matcher or the cooking quality (INV-D6).
+ *
+ * - Flag OFF, no explicit target, or a target that is not a REGISTERED entry (ownership, not stock: the attempt's own
+ *   last-stock use must not drop the result) -> nothing changes.
+ * - known(T) is taken once, here, from the state before this write; S1 judges only what is not yet known.
+ * - Only S1's positive `ing:` ids are added to the target's ledger (deduplicated). A negative or an over-capped
+ *   topping is never stored.
+ * - The Notebook line is built from the same disclosed rows (S2); no rows -> `null`.
  */
-function identifyDeclaredIngredient(
-  state: GameState,
-  outcomeKind: string,
-): Pick<GameState, "discoveryHintFacts" | "lastIngredientTest"> {
-  const none = { discoveryHintFacts: state.discoveryHintFacts, lastIngredientTest: null };
-  const test = state.researchTest;
-  if (!test || !state.researchTargetId || test.recipeId !== state.researchTargetId) return none;
-  if (!isRegisteredResearchEntry(state, test.recipeId)) return none;
-  const result = evaluateIngredientTest({
-    targetRecipeId: test.recipeId,
-    testedIngredientId: test.ingredientId,
-    pizza: state.pizza,
-    outcomeKind,
-  });
-  const lastIngredientTest = { ingredientId: test.ingredientId, verdict: result.verdict };
-  const own = Object.prototype.hasOwnProperty.call(state.discoveryHintFacts, test.recipeId)
-    ? state.discoveryHintFacts[test.recipeId]
-    : [];
-  if (result.addFactId === null || own.includes(result.addFactId)) return { discoveryHintFacts: state.discoveryHintFacts, lastIngredientTest };
+function researchAttemptResult(state: GameState): {
+  discoveryHintFacts: GameState["discoveryHintFacts"];
+  lastResearchRows: LastResearchRows | null;
+  feedback: ReturnType<typeof researchRowsFeedback>;
+} {
+  const none = { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows: null, feedback: null };
+  const targetId = state.researchTargetId;
+  if (!RESEARCH_IDENTIFY_ENABLED || !targetId) return none;
+  const context = researchAttemptContext(state);
+  if (!context) return none;
+  const result = researchResultRows({ targetRecipeId: targetId, pizza: state.pizza, knownIngredientIds: context.knownIngredientIds });
+  const feedback = researchRowsFeedback({ labelJa: context.labelJa, rows: result.rows });
+  const lastResearchRows =
+    result.rows.length > 0 || result.toppingOverCap
+      ? { labelJa: context.labelJa, rows: result.rows, toppingOverCap: result.toppingOverCap }
+      : null;
+  const own = Object.prototype.hasOwnProperty.call(state.discoveryHintFacts, targetId) ? state.discoveryHintFacts[targetId] : [];
+  const added = result.persistFactIds.filter((id) => !own.includes(id));
+  if (added.length === 0) return { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows, feedback };
   const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
   for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
-  ledger[test.recipeId] = [...own, result.addFactId];
-  return { discoveryHintFacts: ledger, lastIngredientTest };
+  ledger[targetId] = [...own, ...added];
+  return { discoveryHintFacts: ledger, lastResearchRows, feedback };
 }
 
 function carryOf(state: GameState): ProgressionCarry {

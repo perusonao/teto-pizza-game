@@ -5,7 +5,7 @@
  * Given the pizza the player actually made, the ingredients already known (check-marked) for the Research Target
  * and the target id, it returns the membership rows that may be disclosed on the RESULT panel (Contract §3).
  *
- * - **Authority**: membership is `getRecipe(targetId).requiredIngredients` (as in ./researchIdentify.ts). Sauce, cheese
+ * - **Authority**: membership is `getRecipe(targetId).requiredIngredients`. Sauce, cheese
  *   and topping are one list; the category only decides which row group and cap an ingredient belongs to.
  * - **Category order**: sauce -> cheese -> topping. **Within a category: the player's own placement order**
  *   (first appearance, distinct). Never the canonical recipe order, an id sort or the catalog order.
