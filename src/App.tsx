@@ -258,6 +258,8 @@ function App() {
   // fold it in, reusing PizzaStage's existing "interactive went false -> abort" effect
   // instead of adding a second, parallel abort mechanism.
   const [isReferencePopoverOpen, setReferencePopoverOpen] = useState(false);
+  // #358: the 「未使用のまま焼く？」 confirmation is a decision pause, not cooking time (like reading a hint).
+  const [isBakeConfirmOpen, setIsBakeConfirmOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 7 -- Cancel Transaction: the current in-progress
   // dispense session's not-yet-committed deposits, mirrored up from PizzaStage purely so
   // Prototype Metrics can show live numbers while holding -- see handleDispenseProgress/
@@ -504,6 +506,7 @@ function App() {
     isInventoryOpen,
     // Discovery Hint 2.0 (229-B, OD-HINT-8 no penalty): reading hints never costs cooking time.
     isHintSheetOpen,
+    isBakeConfirmOpen,
     isDocumentHidden,
     isWindowBlurred,
   );
@@ -1208,6 +1211,7 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
+          onBakeConfirmChange={setIsBakeConfirmOpen}
           isGlobalOverlayOpen={
             isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isChangelogOpen || isRankingOpen || isHintSheetOpen
           }

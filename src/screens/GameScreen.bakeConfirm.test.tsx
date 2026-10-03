@@ -104,3 +104,15 @@ describe("unused declared ingredient -> confirm before baking", () => {
     }
   });
 });
+
+describe("the confirmation is a decision pause (Codex P2)", () => {
+  it("reports open / closed so App can pause the Cooking Time while it is up", () => {
+    const onBakeConfirmChange = vi.fn();
+    renderGameScreen(atBake("egg"), { onBakeConfirmChange });
+    expect(onBakeConfirmChange).toHaveBeenLastCalledWith(false);
+    fireEvent.click(bake());
+    expect(onBakeConfirmChange).toHaveBeenLastCalledWith(true);
+    fireEvent.click(screen.getByRole("button", { name: "戻って追加する" }));
+    expect(onBakeConfirmChange).toHaveBeenLastCalledWith(false);
+  });
+});

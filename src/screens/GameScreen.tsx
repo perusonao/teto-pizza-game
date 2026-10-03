@@ -127,6 +127,8 @@ interface GameScreenProps {
    *  pointer's physical-drag session exactly like Reference already does, since IngredientTray's
    *  window-level pointerup/pointercancel listeners don't know or care what's visually on top. */
   isGlobalOverlayOpen: boolean;
+  /** #358: reports whether the unused-ingredient bake confirmation is open (App pauses the Cooking Time while it is). */
+  onBakeConfirmChange?: (open: boolean) => void;
   sauceMetrics: SauceMetrics;
   sauceShadowScore: SauceReferenceShadowScore;
   /** Human Feel Fix 2: whether a tomato-sauce dispense session currently has any buffered
@@ -232,6 +234,7 @@ export function GameScreen({
   referencePizza,
   isReferencePopoverOpen,
   isGlobalOverlayOpen,
+  onBakeConfirmChange,
   sauceMetrics,
   sauceShadowScore,
   isDispensingSauce,
@@ -327,6 +330,11 @@ export function GameScreen({
       ? researchTestIngredient
       : undefined;
   if (bakeConfirmOpen && !unusedTestIngredient) setBakeConfirmOpen(false);
+  const bakeConfirmVisible = bakeConfirmOpen && !!unusedTestIngredient;
+  useEffect(() => {
+    onBakeConfirmChange?.(bakeConfirmVisible);
+    return () => onBakeConfirmChange?.(false);
+  }, [bakeConfirmVisible, onBakeConfirmChange]);
   const closeBakeConfirm = () => {
     setBakeConfirmOpen(false);
     queueMicrotask(() => bakeButtonRef.current?.focus());
