@@ -1,7 +1,9 @@
 {
   "schemaNote": "Records the Owner Authority OD-T1..T8 (2026-09-29) for the 62-ingredient taxonomy / HCG audit. This artifact is NOT the production taxonomy: production taxonomy is src/data/ingredientTaxonomy.ts and is unchanged. Ingredients in state OWNER_CONFIRMED_PENDING_RUNTIME are Owner-confirmed but are NOT production rows; each is added to ingredientTaxonomy.ts only in the PR that introduces it to runtime (OD-T7). The audit itself classifies nothing.",
   "generatedBy": "tools/ingredient_taxonomy_hcg_authority_audit.py",
-  "auditedMainSha": "21dc0a670e586f478661a6cf54671313b2a7cb5b",
+  "auditedMainSha": "fbd5305fb9452e0a6d38b188dd6f3099898a7ae8",
+  "originalAuditedMainSha": "21dc0a670e586f478661a6cf54671313b2a7cb5b",
+  "syncNote": "S-0 (2026-10-03): re-synced to the post-#342 production files (30 ingredients / 23 topping rows). The Owner Authority OD-T1..T8 text is unchanged; chicken (OD-T1, meat) now has its production row (OD-T7). The original audit values (29 / 22, 23 pending) are history in the Fresh Audit report.",
   "evidenceSnapshot": {
     "path": "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json",
     "rowsSha256": "4b615bb9b099d0975ae9f9fb96c648697a4b295b3833287e04b62c19ee2aae0b",
@@ -14,12 +16,15 @@
   "validation": {
     "od_t1_count_16": true,
     "od_t2_count_7": true,
-    "confirmed_23_unique_and_equals_derived_unresolved": true,
-    "all_23_owner_confirmed": true,
+    "confirmed_23_unique": true,
+    "pending_22_equals_derived_unresolved": true,
+    "all_23_confirmed_are_pending_or_shipped": true,
+    "pending_22_shipped_1": true,
     "unresolved_0": true,
     "families_within_existing_7": true,
     "owner_authority_matches_report_section_0": true,
-    "confirmed_absent_from_production": true,
+    "pending_absent_from_production": true,
+    "shipped_family_equals_confirmed": true,
     "od_t3_matches_production": true,
     "mascarpone_deferred": true,
     "production_files_match_audited_sha256": true
@@ -39,13 +44,13 @@
     }
   },
   "summary": {
-    "productionIngredients": 29,
+    "productionIngredients": 30,
     "productionByCategory": {
       "sauce": 3,
       "cheese": 4,
-      "topping": 22
+      "topping": 23
     },
-    "productionTaxonomyRows": 22,
+    "productionTaxonomyRows": 23,
     "masterCatalog62": 62,
     "productionIdsNotInMaster62": [
       "capers",
@@ -59,12 +64,17 @@
       "CLASSIFIED_PRODUCTION": 19,
       "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3": 3,
       "DEFERRED_CATEGORY_OD_T4": 1,
-      "OWNER_CONFIRMED_PENDING_RUNTIME": 23,
+      "OWNER_CONFIRMED_PENDING_RUNTIME": 22,
+      "OWNER_CONFIRMED_SHIPPED_OD_T7": 1,
       "SHELF_BY_CATEGORY": 7
     },
     "unresolvedToppingIds": [],
     "unresolvedToppingsBeforeOwnerDecision": 23,
     "ownerConfirmedFromUnresolved": 23,
+    "ownerConfirmedPendingRuntime": 22,
+    "ownerConfirmedShippedSinceAudit": {
+      "chicken": "#342"
+    },
     "ownerConfirmedByDecision": {
       "OD-T1": 16,
       "OD-T2": 7,
@@ -78,7 +88,7 @@
       "capers",
       "garlic"
     ],
-    "productionTaxonomyChanged": false
+    "productionTaxonomyChangedByThisAudit": false
   },
   "ingredients": [
     {
@@ -968,11 +978,11 @@
     {
       "id": "chicken",
       "inMasterCatalog62": true,
-      "inProduction": false,
+      "inProduction": true,
       "category": "topping",
-      "categorySource": "data/recipes/ingredient_master_catalog.json (research artifact, not wired)",
-      "productionFamily": null,
-      "shelf": null,
+      "categorySource": "production ingredients.ts",
+      "productionFamily": "meat",
+      "shelf": "meat",
       "pr255": {
         "family": "meat",
         "status": "PROPOSED",
@@ -980,15 +990,16 @@
         "subfamily": "meat.poultry"
       },
       "pr293Status": "MISSING_PROPOSED",
-      "ownerConfirmedSource": "Owner OD-T1 2026-09-29",
+      "ownerConfirmedSource": "Owner OD-T1 2026-09-29; production row shipped in #342 (OD-T7)",
       "pr255NeedsReview": false,
-      "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+      "state": "OWNER_CONFIRMED_SHIPPED_OD_T7",
       "ownerDecision": {
         "id": "OD-T1",
         "family": "meat",
         "independentId": true,
         "date": "2026-09-29",
-        "productionRowAdded": false,
+        "productionRowAdded": true,
+        "shippedIn": "#342",
         "matchesPr255Candidate": true
       }
     },
