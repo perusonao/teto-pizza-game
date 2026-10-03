@@ -1,13 +1,15 @@
 /**
- * Large Catalog UX LC-R2 (pure, UNWIRED): the hand's capacity policy.
+ * Large Catalog UX LC-R2 / LC-R6-e: the hand's capacity policy.
  *
  * LC-OD-4 / OD-5 (Owner, 2026-10-03): the hand's capacity is **12**. It was decided after the real-device ABBA comparison
  * of the Preview variants HAND 9 (`33fe17b`) and HAND 12 (`da17f12`) at 390x844
  * (docs/reports/TETO_LARGE-CATALOG-UX_LC-R6c_Pin-UI_Result.md). 9 stays a supported VALUE of the Preview variant /
- * test parameter only (`HAND_CAPACITY_CANDIDATES`), never a production value. Until the pantry
- * (LC-R3..R5) exists, no production round may hide an OWNED ingredient behind a capacity, so enforcement is
- * OFF: `handCapacityFor` returns a capacity that always fits every owned ingredient of the category, which
- * makes `selectWorkingSet` inactive (= today's tray). It flips only together with R3..R5.
+ * test parameter only (`HAND_CAPACITY_CANDIDATES`), never a production value.
+ *
+ * LC-R6-e (Production activation): enforcement is ON in production (the pantry, search, shelf chips and pin UI can reach every
+ * owned ingredient the hand does not hold). The ROLLBACK is one line: `HAND_ENFORCEMENT_PRODUCTION = false` -- then
+ * `handCapacityFor` returns a capacity that always fits every owned ingredient of the category, `selectWorkingSet` is inactive
+ * (= the previous paged tray, no pin UI, nothing hidden). The `hand-off` Vitest project proves that state continuously.
  */
 import { LC_HAND_PREVIEW_CAPACITY } from "../../preview/lcHandPreview";
 
@@ -15,10 +17,11 @@ export const HAND_CAPACITY_CANDIDATES = [9, 12] as const;
 export type HandCapacityCandidate = (typeof HAND_CAPACITY_CANDIDATES)[number];
 
 /**
- * PRODUCTION enforcement: the one production switch. Must stay false until the pantry can reach every hidden
- * ingredient (R6-e). Kept as a literal line on purpose: the hand-on Vitest projects (`vitest.config.ts`) rewrite it.
+ * PRODUCTION enforcement: the one production switch (LC-R6-e: `true`). Rollback = set it back to `false` (no save / schema
+ * effect: hand and pins are session-only). Kept as a literal line on purpose: the hand-on / hand-off Vitest projects
+ * (`vitest.config.ts`) rewrite it, and `handPolicy.production.test.ts` pins its value.
  */
-export const HAND_ENFORCEMENT_PRODUCTION = false;
+export const HAND_ENFORCEMENT_PRODUCTION = true;
 
 export function isHandCapacityCandidate(value: unknown): value is HandCapacityCandidate {
   return HAND_CAPACITY_CANDIDATES.some((c) => c === value);

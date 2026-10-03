@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { chipOnTrayOrPin } from "./support/handPick";
 
 /**
  * Anti-Oracle Contract 2.1 S5: the RESULT 「今回の試作結果」 panel, played for real on the Dex 25 ladder save
@@ -37,12 +38,7 @@ async function open(page: Page, flagOff = false) {
 }
 
 async function pickChip(page: Page, name: RegExp) {
-  const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
-  const next = page.getByRole("button", { name: "次のページ" });
-  for (let i = 0; i < 6 && !(await chip.isVisible()); i += 1) {
-    if (!(await next.isEnabled().catch(() => false))) break;
-    await next.click();
-  }
+  const chip = await chipOnTrayOrPin(page, name);
   await chip.click();
 }
 

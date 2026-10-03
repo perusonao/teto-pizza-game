@@ -237,9 +237,9 @@ const MUTANTS = [
   },
   {
     id: "M28",
-    what: "capacity enforcement switched on (would hide owned ingredients before the pantry exists)",
+    what: "Production hand rolled back (HAND_ENFORCEMENT_PRODUCTION = false: the activation is lost)",
     file: `${C}/handPolicy.ts`,
-    edits: [["export const HAND_ENFORCEMENT_PRODUCTION = false;", "export const HAND_ENFORCEMENT_PRODUCTION = true;"]],
+    edits: [["export const HAND_ENFORCEMENT_PRODUCTION = true;", "export const HAND_ENFORCEMENT_PRODUCTION = false;"]],
   },
   {
     id: "M29",

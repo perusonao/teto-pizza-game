@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "../../data/ingredients";
 import { runtimeCatalog } from "./catalogSource";
 import type { OwnershipView, StockValue } from "./catalogTypes";
-import { HAND_ENFORCEMENT_ENABLED } from "./handPolicy";
 import { emptyHandSession, sanitizeHandSession, type HandContext, type HandSession } from "./handSession";
 import { clearPins, pinsInCategory, pinTileState, selectedStripRendered, togglePin } from "./pinEdit";
 
@@ -113,7 +112,4 @@ describe("LC-R5-c tile state and selected-strip rule (方式 D)", () => {
     expect(selectedStripRendered({ handEditing: true, pinCount: 1 })).toBe(true);
   });
 
-  it("R5-c keeps enforcement off (pin UI stays dormant in production until R6)", () => {
-    expect(HAND_ENFORCEMENT_ENABLED).toBe(false);
-  });
 });

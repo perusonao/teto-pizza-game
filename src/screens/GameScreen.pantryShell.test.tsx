@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
-import { HAND_ENFORCEMENT_ENABLED } from "../logic/catalog/handPolicy";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
@@ -325,8 +324,7 @@ describe("LC-R3 opening changes nothing", () => {
     expect({ json: stateJson(), chips: chipNames(), selected: screen.getByTestId("selected").textContent }).toEqual(before);
   });
 
-  it("the pantry does not reduce reachability: every owned topping is still on the tray pages, and enforcement is OFF", () => {
-    expect(HAND_ENFORCEMENT_ENABLED).toBe(false);
+  it("the pantry does not reduce reachability: every owned topping is still on the tray pages (GameScreen without a tray hand)", () => {
     render(<Harness initial={freeTopping()} />);
     const seen = new Set(chipNames());
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
@@ -519,7 +517,6 @@ describe("LC-R5-a utility row: pantryWorthwhile is separate from the pager and n
     expect(entry()).toBeInTheDocument();
     expect(dock().className).not.toContain("prepare-dock--no-pager");
     expect(dock().style.getPropertyValue("--dock-pager")).toBe("1");
-    expect(HAND_ENFORCEMENT_ENABLED).toBe(false);
   });
 
   it("FREE, every category <= 6 owned: no entry, no utility row (no new empty row)", () => {
