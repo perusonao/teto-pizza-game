@@ -483,6 +483,7 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
   `docs/reports/TETO_CONTRACT-2.1_ACTIVATION-GATE-C_Result.md` (+ `…STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`). Owner Decision: `★3-FULL replay ≤ 1`
   is not a Gate C condition (it was a direct-bake observation); ★3-FULL replay 3–8 / refill 510–890 Pitz are recorded for post-Production
   re-evaluation. The flag stays OFF; the flag change is a separate step.
+- **Production activation (PR #366, `fbd5305`) + Owner Production HV: PASS, blocker NONE.** Record, Owner-confirmed vs automated-only split and rollback: `docs/reports/TETO_CONTRACT-2.1_PRODUCTION-POST-ACTIVATION-HV-CHECKLIST.md`. (The flag-ON item in the next bullet is now done.)
 - **Not done (separate gates):** Production flag ON / deploy (Contract §13), #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit
   (Expansion Gate A / §13.1). Do not turn the flag on or change its default without that gate.
 
