@@ -474,6 +474,11 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
   uses 176px.
 - **Verification.** Owner HV and Re-HV passed on iPhone Preview; full Vitest 5927 passed / 1 skipped; Chromium 390×844 and 360×800
   green; WebKit green on the PR and on `main`; Codex latest-head clean; the P2 was fixed before merge.
+- **Owner Preview HV (post-merge): PASS.** Preview `PREVIEW · PR#363 · 60dc604` (built from `main` `60dc604`), real iPhone. Confirmed:
+  Research Target, trial, RESULT ○, known ingredient ✓ on the next attempt, ×-judgment for another ingredient, Trial Notebook, retry,
+  known ingredients reflected in the Research header, NEW PIZZA discovery, and no stale Research result panel on the NEW PIZZA screen.
+- **UX follow-up (non-blocking, not an Activation blocker):** the Trial Notebook `RESEARCH_ROWS` display works but has room to be
+  more readable as a player-facing note. Tracked as a separate UX item; no change in this PR.
 - **Not done (separate gates):** Production activation (Contract §13 Gate: Preview play, attempt counts, Hint usage, Pitz balance,
   progression speed), attempt-aware simulation, Activation Gate C, #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit
   (Expansion Gate A / §13.1). Do not turn the flag on or change its default without that gate.
