@@ -20,7 +20,7 @@ export type LcHandPreviewCapacity = 9 | 12 | null;
 /** Present in a Preview bundle only (the bundle gate scans production for it). */
 export const LC_HAND_PREVIEW_MARK = "lc-hand-preview-v1";
 
-export const LC_HAND_PREVIEW_CAPACITY: LcHandPreviewCapacity = null;
+export const LC_HAND_PREVIEW_CAPACITY: LcHandPreviewCapacity = 9;
 
 /** The Preview badge suffix that identifies the variant on a Human Verification video. `null` = Hand OFF (no suffix). */
 export function lcHandPreviewBadgeLabel(capacity: unknown): string | null {
