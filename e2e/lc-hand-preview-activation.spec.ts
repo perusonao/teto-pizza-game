@@ -83,7 +83,7 @@ test("Preview activation: production is Hand OFF with the variant committed, Pre
   expect(Object.keys(prod).filter((k) => k.startsWith("free22.topping.page")).length, "production 22 toppings: 4 pages (no hand)").toBe(4);
   await expect(page.locator(".preview-badge")).toHaveCount(0);
   if (browserName === "chromium") {
-    // P-5: byte-identical to the R5-e baseline captured on main 6abddc7 before any R6-b source change.
+    // P-5: byte-identical to the baseline captured from a production build of main WITHOUT any R6-b source (6abddc7, re-baselined on 518c840: only the chicken #342 chip differs).
     const golden = JSON.parse(fs.readFileSync(GOLDEN_FILE, "utf8")) as { snapshots: Record<string, string | null> };
     expect(prod, "production DOM golden (R5-e baseline)").toEqual(golden.snapshots);
   }

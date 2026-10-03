@@ -4,8 +4,8 @@ import { completeDoughStep, paintSauceRing, tapDoughPercent } from "../gestures"
 
 /**
  * LC-R6-b: the FREE Cooking tray / pantry DOM snapshots that define "Hand OFF". The production build's snapshots
- * are committed (docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R6b_PRODUCTION-DOM-GOLDEN.json), taken on main `6abddc7`
- * (R5-e baseline) BEFORE any R6-b source change, and must stay byte-identical.
+ * are committed (docs/reports/data/TETO_LARGE-CATALOG-UX_LC-R6b_PRODUCTION-DOM-GOLDEN.json), taken from a PRODUCTION build of
+ * main WITHOUT any R6-b source (first on `6abddc7`, re-baselined on `518c840` for chicken #342), and must stay byte-identical.
  */
 const SAVE_KEY = "teto-pizza-save-v1";
 const PREVIEW_SAVE_KEY = "teto-pizza-preview-save-v1";
@@ -13,7 +13,7 @@ const ALL_IDS = INGREDIENTS.map((i) => i.id);
 const TOPPING_IDS = INGREDIENTS.filter((i) => i.category === "topping").map((i) => i.id);
 const NON_TOPPING_IDS = INGREDIENTS.filter((i) => i.category !== "topping").map((i) => i.id);
 
-/** 22 toppings = the current full catalog (more than either hand candidate); 6 = well under both. */
+/** `free22` = the FULL topping catalog (more than either hand candidate; 22 when named, 23 since chicken #342 -- the key name is kept, the value follows the catalog); 6 = well under both. */
 export const TOPPING_COUNTS = { free22: TOPPING_IDS.length, free6: 6 } as const;
 
 export function saveWithToppings(count: number) {
@@ -56,7 +56,7 @@ export async function openFree(page: Page, url: string, saveKey: string, save: u
   }, [saveKey, JSON.stringify(save), decoys?.local ?? {}, decoys?.session ?? {}] as const);
   await page.goto(`${url}${decoys?.query ?? ""}`);
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await page.getByRole("button", { name: /レシピ発見/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
 
