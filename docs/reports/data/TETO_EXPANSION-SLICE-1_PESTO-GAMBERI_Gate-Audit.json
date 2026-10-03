@@ -234,13 +234,14 @@
   "unlockGrantsStock": false,
   "starterGrantRetired": true,
   "packFormula": "10 x k, k = largest minCount of the ingredient over RECIPES (materialOffer / materialK)",
-  "kOfShrimp": "= shrimp minCount in pesto-gamberi (only recipe): NOT in any source -> calibration gate",
+  "kOfShrimp": 3,
   "packByK": {
    "1": 10,
    "2": 20,
    "3": 30,
    "4": 40
   },
+  "packQuantityDecided": 30,
   "existingK": {
    "pesto": 1,
    "fresh-tomato": 3,
@@ -444,6 +445,136 @@
   "existingSaveAtCredited26OrMore": "step 26 entitled at next resolve (shrimp NEW in Shop, stock 0); no stock granted",
   "persistedFactIds": "ing:shrimp only after a disclosed ○; attr:family:seafood already exists",
   "gameStatePersisted": false
+ },
+ "ownerDecisionsApplied": {
+  "C1_minCount": {
+   "pesto": 1,
+   "fresh-tomato": 2,
+   "garlic": 2,
+   "shrimp": 3
+  },
+  "C2_bakeTarget": {
+   "start": 50,
+   "end": 70
+  },
+  "C3_shrimpVisual": "OPEN (only remaining Gate): candidates in C3Candidates",
+  "C4_ladderCredit": "true (granted): step 26 formal progression recipe; credited recipes 26 -> 27",
+  "C5_lunchRush": "false in Slice 1 (not a ban on future participation)",
+  "C6_cut": "no CUT in Slice 1 (not in CUT_ELIGIBLE_RECIPE_IDS; 5 tabs)",
+  "C7_hintRoles": "key-free (no KEY_TOPPING)",
+  "C8_copy": "description / order copy presented in the implementation PR for Owner confirmation",
+  "baseRewardPitz": "100 (Pitz Reward V1, existing authority)",
+  "invariants": {
+   "existingPacksUnchanged": true,
+   "nonSaucePieces": 7,
+   "ringCapacityNote": "7 <= 8 (RT-01 also supports 9+)",
+   "shrimpPackQuantity": 30,
+   "shrimpFirstPackPitz": 100,
+   "shrimpRefillPitz": 50,
+   "shrimpPizzasPerPack": 10
+  }
+ },
+ "C3Candidates": {
+  "toppingColorIsRenderedToday": false,
+  "toppingColorNote": "ingredient.color is read for sauce (paint) and cheese (--cheese-color) only; a topping is drawn by its emoji / dedicated SVG (IngredientGlyph) -> color is metadata for toppings",
+  "existingSeafood": {
+   "anchovy": {
+    "emoji": "\\u{1F41F}",
+    "color": "#8ba3b8",
+    "dedicatedVisual": false
+   },
+   "tuna": {
+    "emoji": "\\u{1F420}",
+    "color": "#5b7c99",
+    "dedicatedVisual": false
+   },
+   "clam": {
+    "emoji": "\\u{1F9AA}",
+    "color": "#c9b89a",
+    "dedicatedVisual": true
+   }
+  },
+  "renderContext": {
+   "onPizzaFontPx": 28,
+   "trayChipFontPx": 26,
+   "bakeRoastFilterAtHeat2": {
+    "brightness": 0.78,
+    "saturate": 0.8,
+    "sepia": 0.2
+   }
+  },
+  "dedicatedVisualCount": 3,
+  "dedicatedVisualRequires": "type member in DedicatedIngredientVisual + drawing in IngredientGlyph + Human Visual Gate (W1 precedent)",
+  "candidates": [
+   {
+    "id": "A",
+    "emoji": "U+1F990 (shrimp)",
+    "color": "#f4977c",
+    "pieceVisual": null,
+    "nearestToppingDeltaE": [
+     [
+      17.0,
+      "bacon"
+     ],
+     [
+      19.9,
+      "chicken"
+     ],
+     [
+      21.0,
+      "ham"
+     ]
+    ]
+   },
+   {
+    "id": "B",
+    "emoji": "U+1F364 (fried shrimp)",
+    "color": "#e3a857",
+    "pieceVisual": null,
+    "nearestToppingDeltaE": [
+     [
+      11.6,
+      "chicken"
+     ],
+     [
+      18.5,
+      "potato"
+     ],
+     [
+      21.8,
+      "egg"
+     ]
+    ]
+   },
+   {
+    "id": "C",
+    "emoji": "U+1F990 (fallback) + dedicated SVG 'shrimp-curl'",
+    "color": "#f4977c",
+    "pieceVisual": "shrimp-curl (new)",
+    "nearestToppingDeltaE": [
+     [
+      17.0,
+      "bacon"
+     ],
+     [
+      19.9,
+      "chicken"
+     ],
+     [
+      21.0,
+      "ham"
+     ]
+    ]
+   }
+  ]
+ },
+ "remainingGate": [
+  "C3"
+ ],
+ "readiness": {
+  "implementationReady": false,
+  "reason": "C3 (shrimp visual) is the only remaining Gate; no other authority blocker",
+  "afterC3Chosen": "YES"
  },
  "issue378": {
   "state": "open (read 2026-10-03)",

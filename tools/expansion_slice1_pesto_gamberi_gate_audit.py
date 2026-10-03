@@ -94,8 +94,8 @@ def main():
         "unlockStep": 26, "tier": "T3", "firstPackPitz": 100, "refillPitz": 50,
         "unlockGrantsStock": False, "starterGrantRetired": True,
         "packFormula": "10 x k, k = largest minCount of the ingredient over RECIPES (materialOffer / materialK)",
-        "kOfShrimp": "= shrimp minCount in pesto-gamberi (only recipe): NOT in any source -> calibration gate",
-        "packByK": {str(k): 10 * k for k in (1, 2, 3, 4)},
+        "kOfShrimp": 3,  # Owner C1 (2026-10-03)
+        "packByK": {str(k): 10 * k for k in (1, 2, 3, 4)}, "packQuantityDecided": 30,
         "existingK": {i: cur_k.get(i) for i in ("pesto", "fresh-tomato", "garlic")},
         "invariantToKeepExistingPacksUnchanged": "pesto-gamberi minCount: pesto <= 1, fresh-tomato <= 3, garlic <= 3 (No.27 pinned the same way)",
         "ingredientFieldsRequired": {"id": "shrimp", "category": "topping", "placement": "scatter", "unlockCondition": {"minTotalStars": 0}, "pricePitz": "absent (derived from ladder tier)", "restockQuantity": "absent", "starterGrantOnly": "absent",
@@ -157,9 +157,56 @@ def main():
             "persistedFactIds": "ing:shrimp only after a disclosed ○; attr:family:seafood already exists",
             "gameStatePersisted": False}
 
+    # ---- Owner decisions C1..C8 (2026-10-03) applied; invariants re-checked
+    calib = {"pesto": 1, "fresh-tomato": 2, "garlic": 2, "shrimp": 3}
+    invariants = {
+        "existingPacksUnchanged": all(calib[i] <= cur_k[i] for i in ("pesto", "fresh-tomato", "garlic")),
+        "nonSaucePieces": sum(v for i, v in calib.items() if i != "pesto"), "ringCapacityNote": "7 <= 8 (RT-01 also supports 9+)",
+        "shrimpPackQuantity": 10 * calib["shrimp"], "shrimpFirstPackPitz": 100, "shrimpRefillPitz": 50, "shrimpPizzasPerPack": 10,
+    }
+    assert invariants["existingPacksUnchanged"]
+    owner = {
+        "C1_minCount": calib, "C2_bakeTarget": {"start": 50, "end": 70}, "C3_shrimpVisual": "OPEN (only remaining Gate): candidates in C3Candidates",
+        "C4_ladderCredit": "true (granted): step 26 formal progression recipe; credited recipes 26 -> 27",
+        "C5_lunchRush": "false in Slice 1 (not a ban on future participation)", "C6_cut": "no CUT in Slice 1 (not in CUT_ELIGIBLE_RECIPE_IDS; 5 tabs)",
+        "C7_hintRoles": "key-free (no KEY_TOPPING)", "C8_copy": "description / order copy presented in the implementation PR for Owner confirmation",
+        "baseRewardPitz": "100 (Pitz Reward V1, existing authority)", "invariants": invariants,
+    }
+
+    def _lab(h):
+        r, g, b = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        f = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+        r, g, b = f(r), f(g), f(b)
+        X, Y, Z = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047, r * 0.2126 + g * 0.7152 + b * 0.0722, (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883
+        q = lambda t: t ** (1 / 3) if t > 0.008856 else 7.787 * t + 16 / 116
+        fx, fy, fz = q(X), q(Y), q(Z)
+        return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
+
+    src_ing = rd("src/data/ingredients.ts")
+    def prod_field(i, k):
+        m = re.search(r'id: "%s",[\s\S]*?%s: "([^"]+)"' % (re.escape(i), k), src_ing)
+        return m.group(1) if m else None
+    tops = {i["id"]: prod_field(i["id"], "color") for i in ingredients if i["category"] == "topping"}
+    def nearest(c):
+        return sorted((round(math.dist(_lab(c), _lab(v)), 1), k) for k, v in tops.items())[:3]
+    c3 = {
+        "toppingColorIsRenderedToday": False,
+        "toppingColorNote": "ingredient.color is read for sauce (paint) and cheese (--cheese-color) only; a topping is drawn by its emoji / dedicated SVG (IngredientGlyph) -> color is metadata for toppings",
+        "existingSeafood": {k: {"emoji": prod_field(k, "emoji"), "color": tops[k], "dedicatedVisual": k == "clam"} for k in ("anchovy", "tuna", "clam")},
+        "renderContext": {"onPizzaFontPx": 28, "trayChipFontPx": 26, "bakeRoastFilterAtHeat2": {"brightness": 0.78, "saturate": 0.8, "sepia": 0.2}},
+        "dedicatedVisualCount": 3, "dedicatedVisualRequires": "type member in DedicatedIngredientVisual + drawing in IngredientGlyph + Human Visual Gate (W1 precedent)",
+        "candidates": [
+            {"id": "A", "emoji": "U+1F990 (shrimp)", "color": "#f4977c", "pieceVisual": None, "nearestToppingDeltaE": nearest("#f4977c")},
+            {"id": "B", "emoji": "U+1F364 (fried shrimp)", "color": "#e3a857", "pieceVisual": None, "nearestToppingDeltaE": nearest("#e3a857")},
+            {"id": "C", "emoji": "U+1F990 (fallback) + dedicated SVG 'shrimp-curl'", "color": "#f4977c", "pieceVisual": "shrimp-curl (new)", "nearestToppingDeltaE": nearest("#f4977c")},
+        ],
+    }
+
     # ---- release gate
     out = {"auditedMainSha": "b8617ac0218bf20eb53f68ed12dea09db20e3fa8", "generatedBy": "tools/expansion_slice1_pesto_gamberi_gate_audit.py", "composition": composition, "impact27to28": impact, "shop": shop,
            "taxonomy": taxonomy, "compat": compat, "hand": hand, "save": save,
+           "ownerDecisionsApplied": owner, "C3Candidates": c3, "remainingGate": ["C3"],
+           "readiness": {"implementationReady": False, "reason": "C3 (shrimp visual) is the only remaining Gate; no other authority blocker", "afterC3Chosen": "YES"},
            "issue378": {"state": "open (read 2026-10-03)", "implementationPr": None, "od3786Audit": "not done", "productionReleaseBlocker": True, "implementationStartBlocker": False}}
     text = json.dumps(out, ensure_ascii=False, indent=1) + "\n"
     if check:

@@ -1,8 +1,9 @@
 # TETO Expansion Slice 1 — `pesto-gamberi` + `shrimp` — Pre-Implementation Gate Report
 
+**更新（Owner 確定 C1〜C7 を反映。残 Gate = C3 のみ）。**
 **docs / data / audit tool のみ。runtime（`src/**`）・save・schema・CSS・テスト・e2e・PR は変更していない。実装は開始していない。**
 Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD には適用される、§11）。
-既存の Owner Decision（OD-T1〜T8、OD-W2-1、OD-DISC-9、OD-5、OD-378-1〜6、OD-P1 / P2 / P4 / P5 / P6 / P8 / P9 ほか）は **再決定していない**。根拠のない値は決めていない（§12 の候補は「前例から導出、Owner 確認待ち」と明記）。
+既存の Owner Decision（OD-T1〜T8、OD-W2-1、OD-DISC-9、OD-5、OD-378-1〜6、OD-P1 / P2 / P4 / P5 / P6 / P8 / P9 ほか）は **再決定していない**。根拠のない値は決めていない（C1〜C7 は Owner が確定、C3 のみ未確定）。
 
 | 成果物 | パス |
 |---|---|
@@ -15,13 +16,14 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 
 ## 0. 結論
 
-- **authority 監査は PASS**: composition・shrimp・taxonomy・ladder・Shop・Research / Contract 2.1 / Hint / Dex・HAND 12・save 互換のいずれにも **blocker はない**。
+- **authority 監査は PASS**: composition・shrimp・taxonomy・ladder・Shop・Research / Contract 2.1 / Hint / Dex・HAND 12・save 互換に **blocker はない**。
   27 → 28 は ladder step 26（`shrimp`、key = `pesto-gamberi`、T3）の追加だけで、**凍結 step 1〜25 は不変、全 step の pool は変わらない**。
-- ただし **実装パラメータ 6 件が authority に無い**（minCount / bakeTarget の較正、shrimp の見た目、`ladderCredit`、Lunch Rush 参加、CUT、Hint roles）。
-  Owner は「根拠のない値を新しく決めない」としたため、**§12 の確認シート（前例から導出した候補つき）への Owner 確認が実装開始の条件**になる。
-- **#378 は open・実装 PR なし・OD-378-6 の Audit 未実施 → Slice 1 の Production release blocker**（OD-P6）。実装・検証の着手そのものは妨げない（OD-378 の Gate「#376 完了」は main で満たされている）。
+- **Owner が C1〜C7（7 項目）を確定した**（§12）。minCount / bakeTarget / ladderCredit / Lunch Rush / CUT / Hint roles は **解決済み**。C8（description / order 文言）は実装 PR で提示し Owner 確認を取る扱い（実装前 Gate ではない）。
+  - 訂正: 前版は「6 件」と書いたが、確認シートの項目は **C1〜C7 の 7 項目**（+ C8）。本版で 7 項目に整合させた。
+- **残 Gate は C3（shrimp の見た目）のみ**。source に色・絵文字が無いため推測で確定しない。Human Feel 用の候補 3 案を §13 に提示した。
+- **Slice 1 の実装着手と Production release は別**。**#378 は open・実装 PR なし・OD-378-6 の Audit 未実施 → Production release blocker のまま維持**（OD-P6）。実装着手の blocker ではない。
 
-**EXPANSION SLICE 1 IMPLEMENTATION READY: NO**（理由は §12 の Owner 確認 6 件のみ。確認が取れれば YES に転じる。他に authority 上の blocker はない）
+**EXPANSION SLICE 1 IMPLEMENTATION READY: NO**（残るのは C3 の Owner 選択のみ。他に blocker はない。C3 が選ばれれば **YES** に更新する）
 
 ---
 
@@ -37,6 +39,7 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 | OD-P8 | 新材料を導入する recipe を優先。既存材料だけの recipe を無計画に足さない。ladder credit / T4 条件は各 slice 前の authority 確認 Gate | 同上 |
 | OD-P9 | first slice = `pesto-gamberi`。`ai-carciofi` は不採用 | 同上 |
 | OD-P3 / P7 / P10 | defer。必要になる直前に Decision Gate（§9） | 同上 |
+| C1〜C7（Slice 1 の実装パラメータ） | minCount / bakeTarget / credit 付与 / Lunch Rush 非参加 / CUT なし / key-free を確定。C3（見た目）のみ残 | HANDOFF addendum（追記）、§12 |
 
 ---
 
@@ -56,15 +59,15 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 | # | Gate | 結果 | 備考 |
 |---|---|---|---|
 | G1 | recipe composition の authority | **PASS** | §4 |
-| G2 | shrimp の authority | **PASS**（見た目のみ Owner 確認 = G7） | §4 |
+| G2 | shrimp の authority | **PASS**（見た目 = 残 Gate C3） | §4 |
 | G3 | 27 → 28 の影響（identity / ladder / pool / Dex） | **PASS** | §5 |
 | G4 | ladder step 候補 | **PASS**（step 26、append-only 規則で導出） | §5 |
-| G5 | `ladderCredit` | **OWNER 確認** | §5.3 / §12 |
-| G6 | Shop unlock / 価格 / 初回 pack | **PASS**（価格 = T3 導出）／ pack 量は G7 に従属 | §6 |
-| G7 | 較正値（minCount / bakeTarget / 見た目 / copy） | **OWNER 確認** | §6 / §12 |
+| G5 | `ladderCredit` | **PASS**（Owner C4 = 付与） | §5.3 / §12 |
+| G6 | Shop unlock / 価格 / 初回 pack | **PASS**（T3 = 100 / 50、shrimp k = 3 → pack 30 個） | §6 |
+| G7 | 較正値（minCount / bakeTarget / 見た目 / copy） | minCount・bakeTarget は **PASS**（C1 / C2）、copy は実装 PR（C8）、**見た目 = 残 Gate（C3）** | §6 / §12 / §13 |
 | G8 | taxonomy role / family | **PASS** | §7 |
-| G9 | Research Entry / Contract 2.1 / Hint / Dex | **PASS**（Hint roles の形式のみ Owner 確認 = G10） | §8 |
-| G10 | Hint roles（key-free / authored）・Lunch Rush・CUT | **OWNER 確認** | §8 / §12 |
+| G9 | Research Entry / Contract 2.1 / Hint / Dex | **PASS**（Hint roles = key-free、Owner C7） | §8 |
+| G10 | Hint roles・Lunch Rush・CUT | **PASS**（Owner C7 = key-free、C5 = 非参加、C6 = CUT なし） | §8 / §12 |
 | G11 | HAND 12 | **PASS** | §8 |
 | G12 | save forward compatibility | **PASS** | §8 |
 | G13 | #378 | **Production release blocker**（開始 blocker ではない） | §10 |
@@ -134,14 +137,9 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 - **SOFTLOCK なし**: step 26 は credited 発見数 26 で到達し、そのとき makeable な credited recipe は 26（= 全既存）。shrimp 購入後に 27 番目として `pesto-gamberi` が発見可能。
 - **T4 / 第 4 章には入らない**（step 26 < 30）。OD-P8 の「T4 条件」は本 slice では N/A。
 
-### 5.3 `ladderCredit`（G5）— Owner 確認
+### 5.3 `ladderCredit`（G5）— Owner C4 = **付与（true）**
 
-機構は OD-D3-17 O3（`Recipe.ladderCredit?: false` で非 credit。省略 = credit）で既決。**`pesto-gamberi` に付与するかは未決**（No.27 は Owner が credit を選んだ前例）。監査結果は **どちらでも安全**:
-
-| 選択 | SOFTLOCK | 凍結 step の pool | 後続 |
-|---|---|---|---|
-| credit 付与（省略） | なし | 不変 | 発見数 27 → 将来の step 27 への到達条件に算入 |
-| 非 credit（`ladderCredit:false`） | なし | 不変 | `brazilian-calabresa` と同じ扱い。発見しても ladder が進まない |
+`pesto-gamberi` は **step 26 の正式な progression recipe**（`ladderCredit` を省略 = credit）。credited recipe は 26 → 27。監査では SOFTLOCK なし・凍結 step の pool 不変（非 credit でも安全だったが、採用は credit）。
 
 ---
 
@@ -152,10 +150,10 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 | unlock | step 26 到達（credited 発見 ≥ 26）で `shrimp` が Shop で NEW（entitlement は union。再 lock なし） | `resolveShopEntitlement` |
 | 在庫 | **unlock は在庫を付与しない**（stock 0。初回 pack を買うまで OWNED にならない）。EP4 の Starter Grant は退役済み | OD-REC04-2 |
 | 価格 | **T3: 初回 100 Pitz / 補充 50 Pitz**（step 26 ∈ 15–29。**`pricePitz` / `restockQuantity` は `Ingredient` に書かない**：ladder tier から導出） | OD-REC04-3、`materialOffer` |
-| pack 量 | **10 × k**（k = shrimp の最大 `minCount`。使う recipe は `pesto-gamberi` のみ）。k=1/2/3/4 → 10/20/30/40 個 | `materialK` |
-| **k は未確定** | `minCount` が source に無い → pack 量・ピザ何枚分かは **較正（G7）に従属** | §12 |
+| pack 量 | **10 × k**（k = shrimp の最大 `minCount` = **3**〔Owner C1〕）→ **30 個 = 10 ピザ分**、初回 100 Pitz / 補充 50 Pitz | `materialK` |
+| minCount（Owner C1） | pesto 1 / fresh-tomato 2 / garlic 2 / shrimp 3。**既存 k（pesto 1 / fresh-tomato 3 / garlic 3）を超えない → 既存材料の pack・価格は不変**（監査で確認）。非 sauce 7 枚（≤ 8 枠）。量感は Human Verification で問題があれば別途調整 | §12 |
 | 既存 pack の不変条件 | `pesto-gamberi` の `minCount` を pesto ≤ 1 / fresh-tomato ≤ 3 / garlic ≤ 3 に収めれば、既存材料の k（現在 pesto 1 / fresh-tomato 3 / garlic 3）は動かず pack・価格は不変（No.27 が pin した方式） | `materialK` |
-| `Ingredient` に書くもの | `id` `category:"topping"` `nameJa:"エビ"` `placement:"scatter"` `unlockCondition:{minTotalStars:0}`（No.27 の chicken と同形の finite 材料）＋ **color / emoji（未確定）** | `ingredients.ts` の型 |
+| `Ingredient` に書くもの | `id` `category:"topping"` `nameJa:"エビ"` `placement:"scatter"` `unlockCondition:{minTotalStars:0}`（No.27 の chicken と同形の finite 材料）＋ **color / emoji（C3、未確定）** | `ingredients.ts` の型 |
 
 ---
 
@@ -187,7 +185,7 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 ### 8.2 Hint / Dex（G9 / G10）
 
 - Hint 5.0: no-cheese recipe は CHEESE rung が無い（key-free の前例 = `brazilian-calabresa`）。key-free の rung は **SAUCE → STRUCTURE → SUB_CLASS ×3**（garlic = ハーブ、fresh-tomato = 野菜、shrimp = 魚介。3 family は互いに異なる）。
-  `RECIPE_HINT_ROLES` は `Record<RecipeId, …>` で **行が型で必須**。**key-free にするか authored にするかは Owner 確認（G10）**（前例 = key-free）。
+  `RECIPE_HINT_ROLES` は `Record<RecipeId, …>` で **行が型で必須**。**Owner C7 = key-free**（KEY_TOPPING なし。`RECIPE_HINT_ROLES` に `{ keyFree: true }` の行を足す）。
 - pool: step 26 以前で `pesto-gamberi` は未 entitled のため既存の pool は不変。shrimp 購入後は pool = 1 → 自動 target（No.27 の Case B と同じ）。
 - Dex: 第 3 章 No.12（Pizza Dex pill N/27 → N/28、chapter progress 11/11 → 12/12 を要 pin 更新）。discovery target id = `pesto-gamberi-pizzadb-p11`、items = 4、sauceBase = `[pesto]`、dimension は default。
 
@@ -233,35 +231,74 @@ Human Verification: N/A（UI / UX / gameplay 変更なし。実装 slice の DoD
 - **テスト pin の移行**: 27 / 30 / 25 などの件数を固定しているテストが約 68 ファイル（grep 概算）。No.27 では約 55 本を移行した。`discoveryNo27.pestoPollo.test.ts` に相当する新規テストと score parity fixture が要る。
 - **通すべき gate**: ladder の SOFTLOCK / KEY_RECIPE / UNREACHABLE（`validateLadderProgression`）、append-only の凍結（`validateAppendOnlyExtension`）、`hint5Taxonomy.gate` と DH4 guard、`ingredientShelf.auditShelfAuthority`、matcher の AMBIGUOUS 回帰（collision 0 の確認）、Production 27 deadlock fixture の再実行、save forward-compat テスト、`recipeChapters` / Dex pill / e2e の件数。
 - **Human Verification**（`TETO_HUMAN-VERIFICATION-POLICY.md`）: Shop の NEW 行・購入・在庫、FREE round、Research RESULT ○×、Notebook、NEW PIZZA、Dex を **390×844 動画 + before / after screenshot**（動画は repo にコミットしない）。No.27 の e2e（390×844 / 360×800）に相当する spec を足す。
-- **CUT を許可する場合のみ**: `CUT_ELIGIBLE_RECIPE_IDS` に追加（G10 の確認結果次第）。
+- **CUT**: Owner C6 により **Slice 1 は CUT なし**（`CUT_ELIGIBLE_RECIPE_IDS` に追加しない。5 tab）。`lunchRush:false`（C5）、`ladderCredit` は省略 = credit（C4）。
 
 ---
 
-## 12. Owner 確認シート（実装開始の条件）
+## 12. Owner 確認シート（確定記録）
 
-下表の **「前例から導出した候補」は決定ではない**。Owner が「候補どおり」または別の値を選べば、実装前 Gate は YES になる。
+Owner が 2026-10-03 に確定。**C1〜C7 の 7 項目**と C8。
 
-| # | 項目 | authority の状況 | 前例から導出した候補（Owner 確認待ち） |
+| # | 項目 | Owner の決定 | 状態 |
 |---|---|---|---|
-| C1 | `minCount`（pesto / fresh-tomato / garlic / shrimp） | source に無い（No.27 と同じく gameplay 較正） | pesto **1**、fresh-tomato **2**（`pesto-pollo` と同値）、garlic **2**（`new-haven-apizza` / `puttanesca-pizza` と同値）、shrimp **3**（既存の主役具材 chicken / tuna / clam の標準値）。**不変条件を満たす**（fresh-tomato ≤ 3、garlic ≤ 3、pesto ≤ 1 → 既存 pack 不変）。非 sauce 7 枚で RT-01 の 8 枠内。shrimp の k = 3 → pack 30 個（10 ピザ分）、初回 100 Pitz |
-| C2 | `bakeTarget` | source に無い | **50–70**（`pesto-tonno` / `pesto-caprese` / `pesto-pollo` と同じ pesto 系の窓。既存 6 recipe が使用） |
-| C3 | shrimp の color / emoji | source に無い | 他の plain-emoji 具材と同じ規約（絵文字のみ、dedicated visual なし）。**具体の絵文字 / 色は Human Feel 確認が要る** |
-| C4 | `ladderCredit` | 機構は既決・個別は未決 | **付与**（No.27 の前例。§5.3 のとおりどちらでも安全） |
-| C5 | Lunch Rush 参加 | 機構は既決（`lunchRush:false`）。No.27 は Owner 決定で非参加 | 非参加（前例）か参加か |
-| C6 | CUT | OD-W2-4: 「dough 根拠のある recipe のみ」。**source に dough 根拠あり**（standard / neapolitan / round）。ただし同じ根拠を持つ No.27 は Owner が「CUT なし」 | allowlist に入れるか否か（前例が割れている） |
-| C7 | Hint roles | 前例: Discovery 3.0 の 2 recipe は key-free | key-free（KEY_TOPPING なし。Migration A の契約を維持） |
-| C8 | recipe の description / order の文言 | source に無い（PIZZA DB は名称と材料のみ） | 文言は player-facing copy。実装 PR で提示し Owner 承認 |
+| C1 | `minCount` | pesto = **1** / fresh-tomato = **2** / garlic = **2** / shrimp = **3**（既存較正に合わせる。量感の問題は Human Verification で別途調整） | **確定** |
+| C2 | `bakeTarget` | **50–70**（既存 pesto 系の焼成窓） | **確定** |
+| C3 | shrimp の color / emoji | **未確定**。source に無いので推測で authority 化しない。Human Feel 用の 2〜3 案を提示（§13） | **残 Gate** |
+| C4 | `ladderCredit` | **付与（true）**。step 26 の正式な progression recipe | **確定** |
+| C5 | Lunch Rush | **Slice 1 では非参加**（`lunchRush:false`）。Expansion / Discovery の vertical slice の検証に Lunch Rush の population 変更を混ぜない。**将来の参加を禁止する決定ではない** | **確定** |
+| C6 | CUT | **Slice 1 では CUT なし**（No.27 の前例。CUT authority の変更を混ぜない。将来の Cooking Steps / CUT 再監査を妨げない） | **確定** |
+| C7 | Hint roles | **key-free**（現 Discovery / Hint authority を維持、KEY_TOPPING なし） | **確定** |
+| C8 | description / order 文言 | 実装 PR で提示し Owner 確認を取る（実装前 Gate ではない） | 実装 PR |
 
-C1〜C3 と C8 は「値」、C4〜C7 は「個別適用」。いずれも既存 Decision の再決定ではない。
+`baseRewardPitz` = 100（Pitz Reward V1、既存 authority）。
+
+再確認した不変条件（`tools/expansion_slice1_pesto_gamberi_gate_audit.py`）: 既存材料の k を超えない／非 sauce 7 枚／shrimp の pack = 30 個（10 ピザ分）／step 26 は T3（100 / 50 Pitz）。
 
 ---
 
-## 13. 限界
+## 13. C3 shrimp の見た目 — Human Feel 用候補（残 Gate）
 
-- source の独立再取得は不可（§2）。provenance は No.27 と同格だが「relayed」であり、`corroborationCount` = 0。
-- vitest / tsc / e2e は未実行。Pitz 経済・発見 attempt 数（K = 3 の balance、OD-RB-10）は本 slice 単体では未算出（recipe 1 件の追加で既存 27 の値は不変）。
-- Dex 画面高・実機 HV は実装 slice で測る。
+**決めない**。source authority に色・絵文字が無いので、既存の ingredient visual system との整合から候補だけを示す。
 
-**EXPANSION SLICE 1 IMPLEMENTATION READY: NO**（§12 の Owner 確認待ち。authority 上の blocker は他にない。#378 は release blocker として別管理）
+### 13.1 既存 visual system の事実（コード確認）
 
-Gate Report を出したので STOP（runtime 実装・PR 作成は行わない）。
+- 具材は **絵文字（または dedicated SVG）で描かれる**。`IngredientGlyph` が唯一の入口で、ピース 28px・tray chip 26px・RESULT / Inventory / Shop / Dex も同じ glyph。焼成で `brightness 0.78 / saturate 0.8 / sepia 0.2`（heat 2）まで roast tint が掛かる。
+- **`color` は具材では描画に使われない**（sauce の paint と cheese の `--cheese-color` のみ。非 test の参照を grep で確認）。具材の `color` は現状メタデータ。→ 見た目の識別は **ほぼ絵文字で決まる**。
+- dedicated SVG は 3 件だけ（`fresh-tomato` / `capers` / `clam`）。いずれも **W1 Visual Gate で Human 承認された後**に型へ追加された。他 27 材料は plain emoji。
+- 既存の魚介: `anchovy` 🐟 `#8ba3b8`（青灰）、`tuna` 🐠 `#5b7c99`（青）、`clam` 🦪 dedicated SVG（砂色 `#c9b89a`）。**いずれも寒色 / 中性色**。
+
+### 13.2 候補
+
+色の ΔE は CIE Lab ΔE76 で、**既存の全具材との最近傍**（値が大きいほど識別しやすい。色は描画に使われないので参考値）。
+
+| | A. 🦐（推奨） | B. 🍤 | C. 🦐 + dedicated SVG |
+|---|---|---|---|
+| emoji | U+1F990 エビ | U+1F364 エビフライ | U+1F990（fallback）+ 新 `pieceVisual` `shrimp-curl` |
+| 候補 color | `#f4977c`（サーモン / 珊瑚） | `#e3a857`（きつね色） | `#f4977c` |
+| 最近傍 ΔE（既存具材） | bacon 17.0 / chicken 19.9 / ham 21.0 | chicken 11.6 / potato 18.5 / egg 21.8 | A と同じ |
+| ingredient tile（26px + 「エビ」） | 橙〜桃色の丸まった海老。**一目でエビと読める** | 衣をまとった金茶の揚げ物。「エビ」の名札と合うが **揚げ物（調理済み）に見える** | A と同じ（SVG は 1em で同寸） |
+| pizza 上（28px、3 枚） | pesto の緑・fresh-tomato の赤・garlic の白に対し **橙桃が最も目立つ**。焼成で暗い橙〜茶に寄るが **丸まった輪郭は残る** | 金茶で pesto の緑には映えるが、焼成でさらに茶色へ寄り **chicken 🍗 / bacon 🥓 と同系の茶色の塊**になりやすい | A と同じ。SVG なら焼成 filter 下でも形を作り込める |
+| 既存 seafood との識別 | 🐟🐠 は **楕円の魚**、🦪 は **砂色の貝**。🦐 は **暖色で曲線の輪郭**なので形・色とも別。**暖色の肉系（🍗🍖🥓）とは輪郭が別**（骨 / 帯 vs 丸まった海老）で、色の近さが唯一の懸念 | 輪郭は別だが **「魚介」より「揚げ物」と読まれる**。魚介 shelf に入る材料として意味がずれる | A と同じ。ただし dedicated 化は **型 + 描画 + Human Visual Gate が必要**で Slice 1 の範囲を超える |
+| 実装量 | 小（`emoji` / `color` のみ、他 27 材料と同じ plain emoji 規約） | 小 | **大**（型追加 + `IngredientGlyph` 描画 + Visual Gate + テスト） |
+| 懸念 | OS による絵文字の描画差（橙の濃淡）。暖色肉系との色の近さ | 意味のずれ（調理済み）、焼成で茶色化 | Slice 1 に混ぜると vertical slice の検証範囲が広がる |
+
+### 13.3 見方（Human Feel で確認してほしい点）
+
+1. tray chip で「エビ」と一目で読めるか（26px、魚介 shelf の 🐟🐠🦪 と並べて）。
+2. pizza 上の 3 枚が pesto の緑・fresh-tomato の赤に対して識別できるか（未焼成 / 焼成後）。
+3. 焼きすぎ時に chicken / bacon / ham と混同しないか。
+4. （C のみ）dedicated SVG を後続で作る価値があるか。**A を選んでも C は後続 slice で追加可能**（`emoji` は fallback として必ず残る設計）。
+
+**推奨は A**（既存 27 材料の規約と同じ plain emoji、最小実装、識別も十分）。C は後続の visual 改善として切り出せる。決めるのは Owner。
+
+---
+
+## 14. 限界
+
+- source の独立再取得は不可（§2）。provenance は No.27 と同格（relayed、corroboration 0）。
+- vitest / tsc / e2e は未実行。発見 attempt 数・Pitz 経済は未算出。Dex 画面高・実機 HV は実装 slice で測る。
+- 絵文字の見え方は OS / 端末で異なる。§13 の記述は設計上の見込みで、**実機の Human Feel が正**。
+
+**EXPANSION SLICE 1 IMPLEMENTATION READY: NO**（残 Gate = C3 のみ。C3 が選ばれ他に blocker が無ければ YES。#378 は Production release blocker のまま）
+
+STOP（runtime 実装・PR 作成は行わない）。
