@@ -27,4 +27,8 @@ describe("Contract 2.0 declaration UI is removed from production (S3)", () => {
     expect(Object.keys(sources)).not.toContain("/src/logic/discovery/researchIdentify.ts");
     expect(Object.keys(sources)).toContain("/src/logic/discovery/researchIdentifyFlag.ts");
   });
+  it("S5: the RESULT panel is fed through the feature flag only", () => {
+    const screen = sources["/src/screens/GameScreen.tsx"] ?? "";
+    expect(screen).toContain("researchRows={RESEARCH_IDENTIFY_ENABLED ? state.lastResearchRows : null}");
+  });
 });

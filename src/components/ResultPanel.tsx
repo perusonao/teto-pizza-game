@@ -14,6 +14,7 @@ import { IngredientGlyph } from "./IngredientGlyph";
 import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
 import type { ResultNearMissLine } from "../state/resultNearMiss";
 import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
+import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -126,6 +127,10 @@ interface ResultPanelProps {
    *  with it does an ORIGINAL result use the Research copy, 「📓 試作ノート」 and the retry wording; the label is
    *  never a recipe name or id. */
   researchLabelJa?: string | null;
+  /** Contract 2.1 S5: the disclosed RESULT membership rows of this attempt (`state.lastResearchRows`, flag-gated by the
+   *  caller). Rendered as is, in the order given, and only on the Research ORIGINAL card; this component never judges
+   *  membership or regenerates a known check-mark. Omitted / null / nothing to disclose renders nothing. */
+  researchRows?: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean } | null;
   /** #346 S4: opens the 「📓 試作ノート」 sheet (GameScreen owns it) from the Research ORIGINAL result. */
   onOpenAttemptLog?: () => void;
   /** Ref for that button, so GameScreen can hand focus back when the sheet closes. */
@@ -204,6 +209,7 @@ export function ResultPanel({
   executionAdviceJa = null,
   onShowHint,
   researchLabelJa = null,
+  researchRows = null,
   onOpenAttemptLog,
   attemptLogEntryRef,
   postDiscovery = null,
@@ -302,6 +308,7 @@ export function ResultPanel({
           <p className="original-pizza__lead">
             {recipeDiscovery ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
           </p>
+          {research && researchRows && <ResearchRowsPanel rows={researchRows.rows} toppingOverCap={researchRows.toppingOverCap} />}
           {usedIngredientIds.length > 0 && (
             <ul className="original-pizza__ingredients" aria-label="使った材料">
               {usedIngredientIds.map((id) => {
@@ -679,5 +686,63 @@ export function ResultPanel({
           (the primary CTA above leads on; Pizza Select / HOME / Dex stay reachable from their own entries). */}
       {!isDiscoveryResult && actions}
     </div>
+  );
+}
+
+/** Contract 2.1 §3: the one fixed explanation when 4+ unknown toppings were used (no individual topping row then). */
+export const RESEARCH_TOPPING_CAP_COPY = "トッピングは一度に3種類まで調べられるよ";
+
+const RESEARCH_ROW_CATEGORIES: readonly { category: ResearchResultCategory; labelJa: string }[] = [
+  { category: "sauce", labelJa: "ソース" },
+  { category: "cheese", labelJa: "チーズ" },
+  { category: "topping", labelJa: "トッピング" },
+];
+
+/**
+ * Contract 2.1 S5: 「今回の試作結果」. Category groups (ソース / チーズ / トッピング), one compact chip per disclosed
+ * judgment: the ingredient name + ○ (a member of the researched pizza) or × (not a member). A category without a row is
+ * not rendered at all, and nothing says "なし" / counts / totals / a verdict on the whole pizza. The same markup for every
+ * original outcome. The symbol, not the colour, carries the meaning; the accessible name states it in words.
+ */
+function ResearchRowsPanel({ rows, toppingOverCap }: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean }) {
+  const groups = RESEARCH_ROW_CATEGORIES.map((g) => ({ ...g, rows: rows.filter((r) => r.category === g.category) }));
+  const hasRows = groups.some((g) => g.rows.length > 0);
+  if (!hasRows && !toppingOverCap) return null;
+  return (
+    <section className="research-rows" data-testid="research-rows" aria-label="今回の試作結果">
+      <p className="research-rows__heading">{"\u{1F9EA}"} 今回の試作結果</p>
+      {groups.map((g) => {
+        const showCap = g.category === "topping" && toppingOverCap;
+        if (g.rows.length === 0 && !showCap) return null;
+        return (
+          <div key={g.category} className="research-rows__group" data-research-category={g.category}>
+            <span className="research-rows__category">{g.labelJa}</span>
+            {showCap ? (
+              <p className="research-rows__note">{RESEARCH_TOPPING_CAP_COPY}</p>
+            ) : (
+              <ul className="research-rows__chips">
+                {g.rows.map((row) => {
+                  const name = getIngredient(row.ingredientId)?.nameJa;
+                  if (!name) return null;
+                  const positive = row.verdict === "POSITIVE";
+                  return (
+                    <li
+                      key={row.ingredientId}
+                      className={`research-rows__chip research-rows__chip--${positive ? "positive" : "negative"}`}
+                      aria-label={`${name}、研究中ピザの材料${positive ? "" : "ではない"}`}
+                    >
+                      <span aria-hidden="true">{name}</span>
+                      <span className="research-rows__mark" aria-hidden="true">
+                        {positive ? "○" : "×"}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </section>
   );
 }

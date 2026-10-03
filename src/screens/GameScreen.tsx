@@ -14,6 +14,7 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
+import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
 import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
@@ -1046,6 +1047,7 @@ export function GameScreen({
           // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)
           nearMiss={resultNearMiss(state)}
           researchLabelJa={researchResult?.label ?? null}
+          researchRows={RESEARCH_IDENTIFY_ENABLED ? state.lastResearchRows : null}
           onOpenAttemptLog={() => setResultNotebookOpen(true)}
           attemptLogEntryRef={resultNotebookEntryRef}
           postDiscovery={

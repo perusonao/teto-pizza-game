@@ -6846,6 +6846,96 @@ p.hint-sheet__step {
   text-align: center;
 }
 
+/* Contract 2.1 S5: 「今回の試作結果」 -- compact category groups of ingredient chips (name + ○ / ×). No fixed height:
+   the chips wrap. The symbol carries the meaning; × is a calm neutral tone, not an error red. */
+.research-rows {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  border: 1px solid #e3cfa6;
+  border-radius: 10px;
+  background: #fff8e8;
+}
+
+.research-rows__heading {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b4226;
+  text-align: center;
+}
+
+.research-rows__group {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.research-rows__category {
+  flex: 0 0 auto;
+  min-width: 4.6em;
+  font-size: 11px;
+  font-weight: 800;
+  color: #a1662f;
+}
+
+.research-rows__chips {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.research-rows__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1.5px solid #c98a2b;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5a4632;
+}
+
+.research-rows__chip--positive {
+  border-style: solid;
+  border-color: #3f8f5a;
+  background: #eaf7ee;
+}
+
+.research-rows__chip--negative {
+  border-style: dashed;
+  border-color: #a39784;
+  background: #f4f1ec;
+  color: #6b5f50;
+}
+
+.research-rows__mark {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.research-rows__note {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #5a4632;
+}
+
 .result-panel__research-actions {
   width: 100%;
   display: flex;
