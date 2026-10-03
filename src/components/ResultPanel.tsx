@@ -296,7 +296,7 @@ export function ResultPanel({
     const research = freeCook && researchLabelJa !== null;
     const recipeDiscovery = freeCook;
     return (
-      <div className="result-panel result-panel--original">
+      <div className={`result-panel result-panel--original${research ? " result-panel--research" : ""}`}>
         <p className="result-panel__heading result-panel__heading--original">
           {recipeDiscovery ? "\u{1F9EA} オリジナルピザ" : "\u{1F3A8} オリジナルピザ完成！"}
         </p>

@@ -160,6 +160,21 @@ async function layout(page: Page, where: string) {
     }
   }
   void rects;
+  // terminal content (the last paragraph of the card) must be reachable above the fixed action bar at the end of the page
+  // scroll the real scroller (the nearest scrollable ancestor of the card, else the window) to its very end
+  await page.evaluate(() => {
+    let el: HTMLElement | null = document.querySelector(".result-panel--original");
+    while (el && !(el.scrollHeight > el.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(el).overflowY))) el = el.parentElement;
+    if (el) el.scrollTop = el.scrollHeight;
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  });
+  const note = result(page).locator(".original-pizza__note");
+  if (await note.count()) {
+    const nb = (await note.boundingBox())!;
+    const tops: number[] = [];
+    for (const cta of ctas) tops.push((await cta.boundingBox())!.y);
+    expect(nb.y + nb.height, `${where}: last paragraph hidden behind the action bar (note bottom ${nb.y + nb.height} vs first CTA top ${Math.min(...tops)})`).toBeLessThanOrEqual(Math.min(...tops) + 1);
+  }
 }
 
 async function scanPrivacy(page: Page, where: string) {

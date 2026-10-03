@@ -1484,6 +1484,13 @@
   padding: 0 20px calc(var(--result-action-bar-reserve) + env(safe-area-inset-bottom, 0px));
 }
 
+/* Contract 2.1 S6: the Research ORIGINAL action bar stacks three buttons (retry / notebook / pizza select) and measures
+   168px at 390x844 and 360x800 (Chromium, real bar height), not the 122px the shared 130px reserve was sized for, so the
+   last paragraph slid under the bar when the card scrolled. Reserve = 168px bar + 8px slack. */
+.result-panel--research {
+  --result-action-bar-reserve: 176px;
+}
+
 .result-panel__heading {
   font-size: 15px;
   font-weight: 700;
