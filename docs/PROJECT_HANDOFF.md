@@ -479,8 +479,11 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
   known ingredients reflected in the Research header, NEW PIZZA discovery, and no stale Research result panel on the NEW PIZZA screen.
 - **UX follow-up (non-blocking, not an Activation blocker):** the Trial Notebook `RESEARCH_ROWS` display works but has room to be
   more readable as a player-facing note. Tracked as a separate UX item; no change in this PR.
-- **Not done (separate gates):** Production activation (Contract §13 Gate: Preview play, attempt counts, Hint usage, Pitz balance,
-  progression speed), attempt-aware simulation, Activation Gate C, #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit
+- **Activation Gate C (2026-10-03): READY = YES — not a flag-ON permission.** Attempt-aware simulation, economy and invariants:
+  `docs/reports/TETO_CONTRACT-2.1_ACTIVATION-GATE-C_Result.md` (+ `…STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`). Owner Decision: `★3-FULL replay ≤ 1`
+  is not a Gate C condition (it was a direct-bake observation); ★3-FULL replay 3–8 / refill 510–890 Pitz are recorded for post-Production
+  re-evaluation. The flag stays OFF; the flag change is a separate step.
+- **Not done (separate gates):** Production flag ON / deploy (Contract §13), #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit
   (Expansion Gate A / §13.1). Do not turn the flag on or change its default without that gate.
 
 ## Product goal

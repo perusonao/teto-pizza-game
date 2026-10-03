@@ -1,6 +1,6 @@
 # "★3-FULL replay ≤ 1" — Fresh Authority Audit (Contract 2.1 Gate C follow-up)
 
-Audited `main`: `db6ed5a64cd4016870d5806653a009774aa4811d`. Docs + test-only harness extension. **No runtime, economy (refill price, pack size, Pitz), Gate criterion or Production flag change.** Production flag `RESEARCH_IDENTIFY_ENABLED` stays OFF. The Gate C verdict (READY = NO) is **not changed** by this audit.
+Audited `main`: `db6ed5a64cd4016870d5806653a009774aa4811d`. Docs + test-only harness extension. **No runtime, economy (refill price, pack size, Pitz), Gate criterion or Production flag change.** Production flag `RESEARCH_IDENTIFY_ENABLED` stays OFF. The Gate C verdict (READY = NO) was **not changed** by this audit; the Owner then chose option 2 (below) and Gate C was re-evaluated in `TETO_CONTRACT-2.1_ACTIVATION-GATE-C_Result.md` §12.
 
 ## Verdict
 
@@ -117,3 +117,7 @@ The repo's own **exploration-aware** precedent (Economy 1.0 audit) measured ★3
 `TETO_CONTRACT-2.1_ACTIVATION-GATE-C_Result.md` described "★3-FULL replay ≤ 1" as "a pre-existing Phase 2 check (Hint 5.0 Activation Gate)" and its Pitz-flow note used "rewards" that include Margherita-replay income (4,070 = 27 × 130 + 7 × 80 for ★3 NONE). Corrections: the Gate documents contain the *observation* and its acceptance, not a threshold; "discovery income" is 3,510. The criterion was in the Gate C task text, and the Gate C verdict is left as issued pending the Owner Decision above.
 
 Reproduce: `RESEARCH_REPLAY_AUDIT_OUT=<path> npx vitest run src/logic/researchAttempt.replayAudit.test.ts` (≈ 5 s; harness refund options are analysis-only).
+
+## 8. Owner Decision (2026-10-03)
+
+Option 2 (§6 item 14 b) adopted: `★3-FULL replay ≤ 1` is not a Contract 2.1 Gate C pass / fail condition. No new limit is set and no unlimited-replay decision is made. See Gate C report §12.

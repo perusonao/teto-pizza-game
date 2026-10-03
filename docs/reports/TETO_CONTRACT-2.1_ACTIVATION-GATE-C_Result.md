@@ -7,7 +7,9 @@ No UI / UX / gameplay change, so the Human Verification video / screenshot rule 
 
 ## Result
 
-**PRODUCTION ACTIVATION GATE C — READY = NO** (no hard Stop Condition is hit; one pre-existing Phase 2 criterion is not met, see §6 and §9).
+**PRODUCTION ACTIVATION GATE C — READY = YES** (after the Owner Decision in §12; this is **not** permission to turn the flag ON).
+
+History: the first evaluation of this report returned READY = NO, solely because of the "★3-FULL replay ≤ 1" item. The Owner Decision (§12) removes that item from the Gate C pass / fail conditions; the fresh re-evaluation (§12.2) found no independent blocker. §1–§11 below are the original evidence and are kept unchanged, including the original §11 "READY = NO" wording, which is superseded by §12.
 
 ## 1. Fresh audit (Phase 0)
 
@@ -138,3 +140,34 @@ Hard Stop Conditions (deadlock / unavoidable inventory deadlock / impossible Pit
 Production flag: **OFF** (`RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = false`, unchanged). Production activation: not done.
 
 > **Erratum (Fresh Authority Audit, same branch):** the "★3-FULL replay ≤ 1" figure is an Owner-accepted *observation* of the direct-bake Hint 5.0 walk (OD-H5-ECON-1), not a defined threshold, and "rewards" in §6's Pitz-flow line include Margherita-replay income (discovery income is 3,510). The verdict above is unchanged pending an Owner Decision. See `TETO_CONTRACT-2.1_STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`.
+
+## 12. Owner Decision and Gate C re-evaluation
+
+### 12.1 Owner Decision — Contract 2.1 Research Economy (2026-10-03)
+
+Option 2 adopted after the Fresh Authority Audit (`TETO_CONTRACT-2.1_STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`, classification B):
+
+- **"★3-FULL replay ≤ 1" is not applied to the Contract 2.1 Production Activation Gate.** It was an observation of the direct-bake (no exploration) Hint 5.0 walk, accepted for that economy (OD-H5-ECON-1); not a Contract 2.1 hard invariant, assert, blocker or CI gate.
+- Contract 2.1's ★3-FULL replays (3–8; seed sweep max 12) are **recoverable soft friction** caused mainly by Research-attempt inventory refills, not a progression deadlock.
+- This is **not** a new upper limit on replays and **not** a decision that any number of replays is acceptable. It decides exactly one thing: `★3-FULL replay ≤ 1` is not a pass / fail condition of Gate C.
+- **Recorded for post-Production re-evaluation (no economy change now):** ★3-FULL replay 3–8 (sweep max 12); refill events 13–23 and refill spend 510–890 Pitz (the two stock bounds, ★3 FULL profile, tray order; over every ★3 profile and the 100-seed sweep: 5–49 refills, 200–1,940 Pitz, replays 0–15); ★1 replays 64–117 (vs 24–39 in the direct-bake walk); Hint rungs SAUCE / CHEESE / KEY saving ≈ 0 attempts (#360 scope).
+- Not changed: refill price, pack size, Pitz, Gate criteria. #360 and the 53 / 172 Scale Audit are not started. Production flag stays OFF; **READY = YES is not permission to turn it ON** (separate step).
+
+### 12.2 Fresh re-evaluation (main `db6ed5a`, re-run on this branch)
+
+| Item | Result |
+|---|---|
+| Sole reason for the earlier NO | **Confirmed**: §11 listed the ★3-FULL replay item as the only unmet criterion; every hard Stop Condition was already "none hit". |
+| A. Implementation | PASS: #363 / #364 merged; `origin/main` still `db6ed5a`; main CI at `db6ed5a`: Deploy and E2E WebKit success; #363 review threads 1/1 resolved (Codex P2 fixed in `511ced4`); `persistence.ts` untouched. |
+| B. Preview HV | PASS (Owner iPhone, Preview `60dc604`; Research loop complete, no blocker; Notebook readability = non-blocking UX follow-up). |
+| C. Simulation, re-run | 638 walks (36 matrix + 2 analysis-only + 600 sweep): all complete, all reach Dex 27 → progression deadlock **0**; min Pitz **≥ 0** (0 observed, never negative); RESERVED stops **0**; Contract invariant violations **0** on every attempt. |
+| Inventory recovery | PASS: every stock-out (target not researchable) cleared by a refill; no unavoidable inventory deadlock. |
+| Pitz recovery | PASS: every shortfall closed by Margherita replays (starters only; +80 Pitz at ★3); no impossible recovery. |
+| Save / schema | PASS: schemaVersion 2, `persistence.ts` diff empty, no transient Research state in the save after a full walk. |
+| ★3-FULL replay | Observed 3–8 (sweep max 12), recorded under §12.1; not a Gate C condition. |
+| Authority gaps | None is a Stop Condition: no authoritative player model (strategy explicit, conservative on stopping); no flag-OFF attempt baseline (no speed-up ratio claimed); no time model; SUB_CLASS not exploited. They bound the *size* of the soft friction, not the deadlock / recovery / oracle results the hard conditions test. Carried to the post-Production re-evaluation. |
+| Independent blockers | **None found.** ★1 replay growth and Hint-rung value are recorded observations, not Stop Conditions and not criteria. |
+
+Corrections to §6 / §11 (the Erratum above still holds and is consistent): "★3-FULL replay ≤ 1" was never a hard gate; "rewards 4,070" included Margherita-replay income (27 × 130 + 7 × 80); discovery income is 3,510.
+
+**PRODUCTION ACTIVATION GATE C — READY = YES.** Production flag `RESEARCH_IDENTIFY_ENABLED` remains OFF (`RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = false`); no deploy, no economy change.
