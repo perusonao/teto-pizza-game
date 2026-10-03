@@ -79,6 +79,14 @@ export interface IngredientPantryProps {
 
 const NO_PINS: HandSession = { sauce: [], cheese: [], topping: [] };
 
+/**
+ * LC-R6-c (OD-R5e-3 / OD-R6a-4, initial UX judged at the R6 real-device HV): the capacity-full notice. No number (the
+ * capacity (12, OD-5) is never printed), shown for 3 s as an overlay toast at the sheet's bottom edge (it never
+ * pushes the list or the strip), and mirrored in an always-mounted `role="status"` polite region.
+ */
+export const PIN_CAPACITY_NOTICE = "手元がいっぱいです。使わない食材のピンを外してね";
+const PIN_NOTICE_MS = 3000;
+
 export function IngredientPantry({
   category,
   ownedIngredientIds,
@@ -103,6 +111,13 @@ export function IngredientPantry({
   usePantryViewportFit(sheetRef, fieldFocused);
   const [activeShelf, setActiveShelf] = useState<ShelfFilter>("all");
   const catalog = useMemo(() => runtimeCatalog(), []);
+  // LC-R6-c: a capacity-full refusal (a fresh object per refusal, so a repeated refusal restarts the 3 s timer).
+  const [capacityNotice, setCapacityNotice] = useState<object | null>(null);
+  useEffect(() => {
+    if (capacityNotice === null) return;
+    const timer = window.setTimeout(() => setCapacityNotice(null), PIN_NOTICE_MS);
+    return () => window.clearTimeout(timer);
+  }, [capacityNotice]);
 
   // Opening lands on 閉じる (the pinned control), never on the page behind.
   useEffect(() => {
@@ -144,6 +159,17 @@ export function IngredientPantry({
   const showStrip = selectedStripRendered({ handEditing, pinCount: pins.length });
   function editPins(update: (previous: HandSession) => HandSession) {
     if (handEditing) onPinSessionChange?.(update);
+  }
+  /** One tile tap. A refused NEW pin (the hand would not hold it) shows the notice and writes nothing; any other
+   *  action clears a showing notice at once. The decision itself is `togglePin` (R5-c / R5-d), unchanged. */
+  function tapTile(id: string) {
+    const result = togglePin(pinSession, id, pinContext, pinFits);
+    if (result.outcome === "rejected-capacity") {
+      setCapacityNotice({});
+      return;
+    }
+    setCapacityNotice(null);
+    editPins((previous) => togglePin(previous, id, pinContext, pinFits).session);
   }
 
   // A new applied text starts the list at the top (the sheet, the page and the fixed slots stay where they are).
@@ -273,7 +299,10 @@ export function IngredientPantry({
                         type="button"
                         className="pantry-pin"
                         aria-label={`${ingredient.nameJa}を外す`}
-                        onClick={() => editPins((previous) => togglePin(previous, id, pinContext).session)}
+                        onClick={() => {
+                          setCapacityNotice(null);
+                          editPins((previous) => togglePin(previous, id, pinContext).session);
+                        }}
                       >
                         <IngredientGlyph ingredient={ingredient} />
                         <span className="pantry-pin__name">{ingredient.nameJa}</span>
@@ -286,7 +315,10 @@ export function IngredientPantry({
             <button
               type="button"
               className="pantry-sheet__pins-reset"
-              onClick={() => editPins((previous) => clearPins(previous, pinContext))}
+              onClick={() => {
+                setCapacityNotice(null);
+                editPins((previous) => clearPins(previous, pinContext));
+              }}
             >
               おまかせに戻す
             </button>
@@ -333,9 +365,14 @@ export function IngredientPantry({
                       className={`pantry-tile__toggle${tile.pinned ? " pantry-tile__toggle--pinned" : ""}`}
                       aria-pressed={tile.pinned}
                       aria-disabled={tile.disabled || undefined}
+                      // LC-R6-c (OD-R5c-5 / OD-R6a-5, initial behavior): while the search field has the focus a tile press keeps
+                      // it (and the keyboard), like the field's own clear button. Without a focused field nothing changes.
+                      onPointerDown={(event) => {
+                        if (fieldFocused) event.preventDefault();
+                      }}
                       // A click (not pointerdown), so a touch scroll of the list never toggles a pin.
                       onClick={() => {
-                        if (!tile.disabled) editPins((previous) => togglePin(previous, ingredient.id, pinContext, pinFits).session);
+                        if (!tile.disabled) tapTile(ingredient.id);
                       }}
                     >
                       {body}
@@ -352,6 +389,16 @@ export function IngredientPantry({
             </ul>
           )}
         </div>
+
+        {handEditing && (
+          <p
+            className={`pantry-sheet__notice${capacityNotice === null ? "" : " pantry-sheet__notice--shown"}`}
+            role="status"
+            aria-live="polite"
+          >
+            {capacityNotice === null ? "" : PIN_CAPACITY_NOTICE}
+          </p>
+        )}
       </section>
     </div>
   );

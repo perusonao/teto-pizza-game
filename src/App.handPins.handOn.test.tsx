@@ -9,17 +9,18 @@ import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * LC-R5-c: the App-level, session-only pins (OD-R5-9) and the #197 no-clear contract, through the real App,
- * reducer and tray. Pin editing is dormant in production (`handEditing = HAND_ENFORCEMENT_ENABLED = false`), so
- * this file forces the flag on for the UI to exist at all. Nothing in production reads the flag except
- * `handCapacityFor` (unwired until R5-d), so forcing it changes no tray here: the tests below prove that too.
+ * reducer and tray. Pin editing is dormant in production (`handEditing = HAND_ENFORCEMENT_ENABLED && an ACTIVE hand`,
+ * the flag is false), so this file runs in the hand-on projects, where the UI exists only for an ACTIVE hand.
+ * LC-R6-c (OD-R5e-1): the pin UI no longer exists for an INACTIVE hand, so these tests own every topping (an ACTIVE
+ * hand at both candidates) and the inactive case is asserted in `App.handPinUi.handOn.test.tsx`.
  */
 // LC-R5-e-h (H-2): no `vi.mock`; the `hand-on-9` / `hand-on-12` projects compile the real `handPolicy.ts` ON. `seedFree`
-// owns eight toppings (<= either candidate): the hand is INACTIVE and the tray is today's tray. (`seedDinner` owns all
-// 22, so its FREE part has an ACTIVE hand; the Dinner round itself never has one.)
+// owns every topping (> either candidate): the hand is ACTIVE. (`seedDinner` owns all of them too, so its FREE part has
+// an ACTIVE hand; the Dinner round itself never has one.)
 
 const FINITE = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
-// Tray order: page 1 = basil, garlic, oregano, cherry-tomato, egg, mushroom; page 2 = onion, sausage.
-const EXTRA_TOPPINGS = ["garlic", "oregano", "cherry-tomato", "egg", "mushroom", "onion", "sausage"];
+// Active hand: the tray shows `capacity` ingredients in catalog order (basil first); the rest are reached through the pantry.
+const EXTRA_TOPPINGS = INGREDIENTS.filter((i) => i.category === "topping" && i.unlockCondition).map((i) => i.id);
 const DM_A = ["margherita", "bismarck", "breakfast-pizza", "funghi"];
 
 function seedFree() {
@@ -75,11 +76,6 @@ function completeDoughStep() {
 type User = ReturnType<typeof userEvent.setup>;
 const trayChip = (name: RegExp) =>
   [...document.querySelectorAll<HTMLButtonElement>(".ingredient-chip")].find((b) => name.test(b.textContent ?? ""))!;
-const trayState = () =>
-  JSON.stringify({
-    chips: [...document.querySelectorAll(".ingredient-chip")].map((b) => [b.textContent, b.getAttribute("aria-pressed"), b.className]),
-    page: document.querySelector(".ingredient-page-nav")?.textContent ?? null,
-  });
 
 async function toToppingStep(user: User) {
   await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
@@ -116,31 +112,33 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-describe("LC-R5-c #197: a pin edit never clears the Builder selection or moves the tray page", () => {
-  it("page-2 selection, pin / unpin / おまかせに戻す / search / shelf in the pantry: selection, page and tray unchanged", async () => {
+describe("LC-R5-c #197: a pin edit never clears a Builder selection that stays on the hand's page 0", () => {
+  it("a pinned page-0 selection (basil) survives further pin / unpin / search / shelf edits in the pantry and still places", async () => {
     seedFree();
     const user = userEvent.setup();
     render(<App />);
     await toToppingStep(user);
-    await user.click(screen.getByRole("button", { name: "次のページ" }));
-    await user.click(trayChip(/ソーセージ/));
-    expect(trayChip(/ソーセージ/)).toHaveAttribute("aria-pressed", "true");
-    const before = trayState();
+    // With the full catalog owned the hand is ACTIVE and basil (a starter) is not guaranteed to be on it: pin it first.
+    await openPantry(user);
+    await user.click(pantryTile("バジル"));
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    await user.click(trayChip(/バジル/));
+    expect(trayChip(/バジル/)).toHaveAttribute("aria-pressed", "true");
+    const saveBefore = window.localStorage.getItem(SAVE_STORAGE_KEY);
 
     await openPantry(user);
     await user.click(pantryTile("たまねぎ"));
-    await user.click(pantryTile("バジル"));
     expect(pantryTile("たまねぎ")).toHaveAttribute("aria-pressed", "true");
-    await user.click(pantryTile("バジル"));
+    await user.click(pantryTile("たまねぎ"));
+    expect(pantryTile("たまねぎ")).toHaveAttribute("aria-pressed", "false");
     await user.type(screen.getByRole("searchbox", { name: "材料を検索" }), "に");
-    await user.click(within(screen.getByRole("group", { name: "選択中の材料" })).getByRole("button", { name: "おまかせに戻す" }));
-    await user.clear(screen.getByRole("searchbox", { name: "材料を検索" }));
     await user.click(pantryTile("にんにく"));
+    await user.clear(screen.getByRole("searchbox", { name: "材料を検索" }));
     await user.click(screen.getByRole("button", { name: "閉じる" }));
 
-    expect(trayState()).toBe(before);
-    expect(trayChip(/ソーセージ/)).toHaveAttribute("aria-pressed", "true");
-    // The selection still places (it was never cleared).
+    // Basil is pinned (priority) and first in catalog order: it stays on the hand's page 0, still selected.
+    expect(trayChip(/バジル/)).toHaveAttribute("aria-pressed", "true");
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(saveBefore);
     const pieces = document.querySelectorAll(".pizza-topping").length;
     tapPizza(55, 45);
     expect(document.querySelectorAll(".pizza-topping").length).toBe(pieces + 1);
@@ -155,6 +153,7 @@ describe("LC-R5-c App-level session-only pins (OD-R5-9)", () => {
     await toToppingStep(user);
     await openPantry(user);
     const saveBefore = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    await user.click(pantryTile("バジル")); // an ACTIVE hand does not always hold the starter basil: the finish below needs it
     await user.click(pantryTile("たまねぎ"));
     await user.click(pantryTile("オレガノ"));
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(saveBefore);
@@ -189,6 +188,7 @@ describe("LC-R5-c App-level session-only pins (OD-R5-9)", () => {
     expect(pantryTile("たまねぎ")).toHaveAttribute("aria-pressed", "true");
     expect(pantryTile("オレガノ")).toHaveAttribute("aria-pressed", "true");
     expect(within(screen.getByRole("group", { name: "選択中の材料" })).getAllByRole("button", { name: /を外す$/ }).map((b) => b.getAttribute("aria-label"))).toEqual([
+      "バジルを外す",
       "たまねぎを外す",
       "オレガノを外す",
     ]);

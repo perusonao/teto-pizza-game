@@ -1,8 +1,10 @@
 /**
  * Large Catalog UX LC-R2 (pure, UNWIRED): the hand's capacity policy.
  *
- * LC-OD-4: the capacity is NOT fixed. 9 and 12 are both candidates and the Owner decides after a Human Feel
- * comparison (docs/reports/TETO_LARGE-CATALOG-UX_LC-R2_Working-Set-Foundation_Result.md). Until the pantry
+ * LC-OD-4 / OD-5 (Owner, 2026-10-03): the hand's capacity is **12**. It was decided after the real-device ABBA comparison
+ * of the Preview variants HAND 9 (`33fe17b`) and HAND 12 (`da17f12`) at 390x844
+ * (docs/reports/TETO_LARGE-CATALOG-UX_LC-R6c_Pin-UI_Result.md). 9 stays a supported VALUE of the Preview variant /
+ * test parameter only (`HAND_CAPACITY_CANDIDATES`), never a production value. Until the pantry
  * (LC-R3..R5) exists, no production round may hide an OWNED ingredient behind a capacity, so enforcement is
  * OFF: `handCapacityFor` returns a capacity that always fits every owned ingredient of the category, which
  * makes `selectWorkingSet` inactive (= today's tray). It flips only together with R3..R5.
@@ -48,9 +50,10 @@ export function handCapacityFor(ownedCountInCategory: number, candidate: HandCap
 }
 
 /**
- * LC-R5-d: the PRODUCTION capacity the tray wiring hands to `resolveHand`. 12 is the DESIGN CANDIDATE only (OD-R5-1):
- * 9 vs 12 is decided at the R6 real-device Human Feel Gate (R6-d / R6-e). Nothing (UI copy, layout) may depend on
- * this value, and tests parametrize both candidates. A literal line on purpose (the hand-on projects rewrite it).
+ * The PRODUCTION capacity the tray wiring hands to `resolveHand`: **12 (OD-5, Owner decision 2026-10-03, after the
+ * real-device ABBA comparison with HAND 9)**. Nothing in the UI copy may print it (the capacity-full notice is number-free
+ * by design). Capacity-agnostic logic is still tested at both candidates. A literal line on purpose (the hand-on projects
+ * rewrite it, and `handPolicy.capacity.test.ts` pins it).
  */
 export const DEFAULT_HAND_CAPACITY_PRODUCTION: HandCapacityCandidate = 12;
 

@@ -14,7 +14,7 @@ const HAND_ON_TESTS = import.meta.glob<string>(["../../**/*.handOn.test.ts", "..
 });
 
 describe("hand-on project: the real handPolicy is compiled ON (no vi.mock)", () => {
-  it("the flag is on and the capacity is one of the undecided candidates", () => {
+  it("the flag is on and the capacity is one of the supported capacities (12 = OD-5 production, 9 = coverage parameter)", () => {
     expect(HAND_ENFORCEMENT_ENABLED).toBe(true);
     expect(isHandCapacityCandidate(DEFAULT_HAND_CAPACITY_CANDIDATE)).toBe(true);
     expect([9, 12]).toContain(DEFAULT_HAND_CAPACITY_CANDIDATE);
