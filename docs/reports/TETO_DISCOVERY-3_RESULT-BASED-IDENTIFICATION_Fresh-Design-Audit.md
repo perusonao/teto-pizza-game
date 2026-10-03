@@ -174,3 +174,5 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 - sauce: 全 recipe がちょうど 1 つ（sauce なしは存在しない）。所有 1 種が 14 recipe（情報増なし）、2〜3 種が 13 recipe（1 回で確定。うち 2 recipe は unlock fact で既知）。
 - cheese: 所有 1 種が 5 recipe、2〜4 種が 22 recipe。no-cheese は 6 recipe（marinara / fugazza / pizza-bianca / pesto-tonno / puttanesca-pizza / brazilian-calabresa、いずれも所有 cheese 2 種）。
 - 全投入の節約は平均 0.26 attempt / recipe（最大 2: quattro-formaggi）。Hint 5.0 は production で ON のため、SAUCE（11 recipe）/ CHEESE（22 recipe）rung の価値低下は A / B どちらでも残る → #360。
+
+**Q-6〜Q-10 確定（2026-10-03）**: RESULT はカテゴリごとの compact chip（既知 ✓ はパネルに混ぜない、固定 px は authority にしない）/ `RESEARCH_IDENTIFY_ENABLED` を再利用（旧方式は variant として残さない）/ progression・Pitz は実装 blocker にせず **Production ON Gate の必須条件**（約 3.5 倍速を activation risk として残す）/ Target の有効性は attempt 開始時基準（RESULT 時点の cookability に依存しない）/ #359 は rewrite せず、各 commit を fresh audit して必要な hunk だけ新しい小 PR へ抽出（Slice 2〜4 は再利用しない）。authority は Contract 2.1 §1（OD-RB-15〜19）・§12・§13。

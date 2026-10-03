@@ -2,7 +2,7 @@
 
 Status: **Owner 承認済みの設計 authority（実装前）。** 実装・src/test 変更・Production flag ON は本書では行わない。
 Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
-承認日: 2026-10-03（Owner。OD-RB-1〜10）、同日追補（OD-RB-11〜14: Q-1 / Q-2a / Q-3 / Q-4）。
+承認日: 2026-10-03（Owner。OD-RB-1〜10）、同日追補（OD-RB-11〜14: Q-1 / Q-2a / Q-3 / Q-4、OD-RB-15〜19: Q-6〜Q-10）。**Owner Decision Q-1〜Q-10 はすべて resolved。**
 根拠・比較・試算: [`docs/reports/TETO_DISCOVERY-3_RESULT-BASED-IDENTIFICATION_Fresh-Design-Audit.md`](../reports/TETO_DISCOVERY-3_RESULT-BASED-IDENTIFICATION_Fresh-Design-Audit.md)
 基準: main `6d9d1ced98113dc42d8bd1e0688536f362431f61`（#357 merge 後）。PR #359（旧方式 A の改善）は HEAD `ad48bd6` で **HOLD**（比較対象）。
 
@@ -32,6 +32,11 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 | **OD-RB-12**（Q-2a） | sauce / cheese は**使用したもの全件**に ○×（bounded reveal を設けない）。理由: 上限つき案でも 27 recipe 合計の差は約 7 attempt、「チーズなし」の推論は最大 1 attempt 遅れるだけで、追加ルールの UX コストの方が大きい。RESULT は**「チーズなし」「ソースなし」と直接表示しない**（§3、INV-D7）。「なし」が推論できることは §10 の **accepted consequence**。SAUCE / CHEESE Hint の価値低下は本 Contract の実装では解決せず **#360 の scope** に残す。 |
 | **OD-RB-13**（Q-3） | Notebook には RESULT で実際に開示した ○× の**判定だけ**を記録する: ○ は記録、× は記録、**既知 ✓ は今回の判定ではないので記録しない**、over-cap で非開示の topping・hidden membership は記録しない。形式は既存 schema 内で deterministic（§7）。truncate はしない。 |
 | **OD-RB-14**（Q-4） | 複数の Research Target の attempt を Notebook 上で区別できるようにする。識別に使ってよいのは**すでに公開されている情報だけ**（Research Entry 番号 + unlock fact の ingredient 名）。hidden recipe identity は使用禁止。保存時の表示文字列をそのまま使い、後から再計算しない（§7）。 |
+| **OD-RB-15**（Q-6） | RESULT の「今回の試作結果」は**カテゴリごとにまとめる**（ソース / チーズ / トッピング）。表現は ingredient 名 + ○/× の **compact chip** を基本とし、横幅に応じて wrap。**既知 ✓ は今回の判定ではないので RESULT パネルに混ぜない**（既知情報は Research card / Dex）。典型ケースを優先して compact にし、最悪ケースだけ高さ増加を許容。固定 px 高さは authority にしない（mobile HV で最終調整）。実装 Slice で 390×844 / 360×800 を必ず実測する。 |
+| **OD-RB-16**（Q-7） | **既存 `RESEARCH_IDENTIFY_ENABLED` を再利用**し、新 flag は作らない。flag OFF = 現 Production の挙動、flag ON = Contract 2.1。**旧 picker / LOCK 方式を flag ON の別 variant として残さない**（旧方式は Production で ON になったことがなく、新方式が正式な後継）。 |
+| **OD-RB-17**（Q-8） | progression / Pitz balance は**実装の blocker にしない**。実装は Production flag OFF で進めてよい。**Production ON Gate の必須条件**とする（§13）。A 方式 約 11.9 → C-1 約 3.4 attempts / recipe（約 3.5 倍速）は **Production activation risk** として残す。実装完了 = Production ON ではない。 |
+| **OD-RB-18**（Q-9） | **attempt 開始時に有効な Research Target** で、player がその pizza を実際に作った結果であれば、最後の在庫消費等で RESULT 時点に target が cookable でなくなっても**判定パネルを表示する**。判定の authority を RESULT 時点の cookability に依存させない（#357 AC8 / #359 Slice 1 の知見を維持）。 |
+| **OD-RB-19**（Q-10） | #359 を新方式へ rewrite しない。再利用可能部分を **`main` からの新しい小 PR へ抽出**する。候補: Slice 1（`58c115d`）/ Slice 5（`a4dfec4`）/ e2e 更新（`24297f3`）/ Layout Contract（`aac83b9`）。**機械的に全 commit を cherry-pick せず、各 commit を `main` との差分で fresh audit し、Contract 2.1 でも必要な変更だけを抽出**する。旧 picker / `researchTest` / LOCK / `BakeUnusedConfirm` 等への依存が混入しないことを確認する。**Slice 2〜4 は再利用しない。** |
 
 ## 2. 用語
 
@@ -50,10 +55,12 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 | 行 | 内容 |
 |---|---|
-| ソース | **使った sauce の全件**に ○（∈ canonical(T)）/ ×。上限なし。`known(T)` の sauce は ✓。 |
-| チーズ | **使った cheese の全件**に ○ / ×。上限なし。`known(T)` の cheese は ✓。 |
-| トッピング | `|U| ≤ 3`: `U` の各 topping に ○ / ×、`known(T)` の topping は ✓（数えない）。**`|U| ≥ 4`: 個別 membership を一切表示しない**。コピー案: 「トッピングは一度に3種類まで調べられるよ」（文言は実装前に最終調整可、意味は固定）。 |
+| ソース | **使った sauce の全件**に ○（∈ canonical(T)）/ ×。上限なし。`known(T)` の sauce は**パネルに出さない**。 |
+| チーズ | **使った cheese の全件**に ○ / ×。上限なし。`known(T)` の cheese は**パネルに出さない**。 |
+| トッピング | `|U| ≤ 3`: `U` の各 topping に ○ / ×（`known(T)` の topping は**パネルに出さず**、上限にも数えない）。**`|U| ≥ 4`: 個別 membership を一切表示しない**。コピー案: 「トッピングは一度に3種類まで調べられるよ」（文言は実装前に最終調整可、意味は固定）。 |
 
+- **表示構造（OD-RB-15）**: 見出し「今回の試作結果」の下に、カテゴリごと（ソース / チーズ / トッピング）の小見出しと、**ingredient 名 + ○/× の compact chip** を並べる。chip は横幅に応じて wrap。判定が 0 件のカテゴリは見出しごと出さない。**既知 ✓ はこのパネルに混ぜない**（研究カード / Dex に任せる）。固定 px の高さを authority にしない。典型（tomato + mozzarella + 未知 topping 3 = 5 chip）を compact に、最悪（判定 10 chip）のみ高さ増加を許容する。実装 Slice で 390×844 / 360×800 を実測し、mobile HV で最終調整する。
+- **Target の有効性（OD-RB-18）**: パネルの表示可否・判定・保存は、attempt 開始時に有効だった Research Target（登録済み Research Entry、ownership 基準）で決める。**RESULT 時点の cookability に依存しない**（最後の在庫を使い切った attempt でも表示・保存する）。
 - **直接の「なし」表示の禁止（OD-RB-12）**: パネルは player が実際に試した ingredient についてだけ「モッツァレラ ×」「パルミジャーノ ×」のように表示する。**「チーズなし」「ソースなし」「〜は使わない」を直接書かない**（行ごと・文言ごと）。player 自身が結果から「チーズなしでは？」と推理することは許容する（§10）。
 - **表示順**は player 自身の pizza の順序（置いた順 / 種類順）で、`canonical(T)` の順序や catalog の順序を使わない。
 - パネルに **○ / × の個数、「全部正解」「あと少し」等の総評、色による総括、count、進捗** を置かない。
@@ -108,8 +115,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 - **INCOMPLETE / AMBIGUOUS**: §3 の表示条件に含める。パネルは ORIGINAL と同一（INV-D3）。FAILED は matcher 一致後の話で ORIGINAL には来ない。
 - **Hint 5.0**: ladder / 価格 / 順序は不変（OD-RB-9）。○ の `ing:` は既存どおり `hint5Ownership.known` に入り、全て既知の rung は ALREADY_KNOWN / 0 Pitz（OD-I-14）。STRUCTURE（全部で N）と SUB_CLASS は count / 分類を出さないので価値が残る。**SAUCE / CHEESE rung の価値低下は accepted consequence（§10）で、解決は #360 に委譲**。
 - **Research Entry / Dex**: Research Entry は匿名ターゲットとして必須で残る。Dex / 研究カードの「わかっていること ✓」は保存済み ○ の表示になる。
-- **progression**: コード変更なし。発見までの attempt 数が減る（監査: 27 recipe 合計 期待 321 → 約 93）ため、**ペース / Pitz 経済の balance audit が別途必要**（§12 Q-8）。
-- **feature flag**: §12 Q-7。**Production ON は別 Gate**で、flag を変更する追加 commit / PR は禁止（OD-I-18 を継承）。
+- **progression**: コード変更なし。発見までの attempt 数が減る（監査: 27 recipe 合計 期待 321 → 約 93、約 3.5 倍速）。**実装の blocker にはせず、Production ON Gate の必須条件とする**（§13、OD-RB-17）。
+- **feature flag（OD-RB-16）**: 既存 `RESEARCH_IDENTIFY_ENABLED`（Production 既定 OFF、dev / Preview ON、dev opt-out）を再利用する。OFF = 現 Production の挙動、ON = Contract 2.1。旧 picker / LOCK 方式を ON の別 variant として残さない。**Production ON は別 Gate**（§13）で、flag を変更する追加 commit / PR は禁止（OD-I-18 を継承）。
 
 ## 9. 既存 authority との矛盾監査（fresh audit）
 
@@ -145,26 +152,40 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 - **Bounded reveal（topping）**: 任意の pizza で、開示される topping membership の数が常に ≤ 3（property test。全 30 材料を載せても topping 行は開示 0）。sauce / cheese は使用した全件が開示される（上限なし）。
 - **Parity / INV-D6**: 同一 pizza で ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH のパネル HTML・保存結果・Notebook 行が byte 同一。料理品質（量・焼き）を変えても ○ の値と保存が変わらない。
 - **Disclosure = Persist = Notebook**: 保存された `ing:` と Notebook 行が、表示された ○ / 判定と一致。over-cap で何も保存されない。× が save に現れない（save 差分は `ing:` の追加のみ）。
-- **known の除外**: `known(T)` の topping は上限に数えられず、✓ として表示されるが **Notebook には記録されない**。unlock fact も同様。
+- **known の除外**: `known(T)` の topping は上限に数えられず、**RESULT パネルにも Notebook にも出ない**（研究カード / Dex が表示）。unlock fact も同様。
 - **INV-D7（「なし」の非開示）**: cheese / sauce 行が全 × になるどんな組み合わせでも、パネル・aria・Notebook に「なし」に相当する文言が出ない。
 - **Notebook 形式**: `RESEARCH_ROWS` の形式が deterministic（同じ入力で同じ文字列）。ラベルは表示文字列をそのまま保存し再計算しない。**現カタログでの最悪ケースが 200 字以内**であることを固定するテスト（カタログ拡大でこのテストが落ちたら、truncate せず schema / design decision に戻す）。retry replacement（同じ組み合わせ・別 Target で feedback が最新に置換）を固定。
 - **cross-recipe**: `T` 中の別 recipe exact でパネルなし・`T` への保存なし。targetless / MATCHED / FAILED / flag OFF でパネルなし。
 - **privacy scan**: DOM / aria / Notebook に hidden recipe 名・id・count・割合・「n 個中」が出ない。
 - **回帰**: `INV-4`（matcher 非依存）、Hint 5.0 価格・rung 不変、Trial Notebook schema 不変、Production flag default OFF。
-- **mobile**: 390×844 / 360×800 で overflow なし・CTA 到達可能（Layout Contract Gate を含む）。
+- **mobile**: 390×844 / 360×800 で overflow なし・CTA 到達可能（Layout Contract Gate を含む）。chip が wrap し、典型ケースが compact であること、最悪ケース（判定 10 chip）でも CTA に到達できることを実測で固定（固定 px 高さは assert しない）。
+- **Target の有効性**: 最後の在庫を使い切る attempt で、パネル・`ing:` 保存・Notebook 行が欠落しない（RESULT 時点の cookability に依存しない）。
+- **flag**: OFF で現 Production と byte 同一（パネルなし・picker なし）。旧 picker / `researchTest` / LOCK / `BakeUnusedConfirm` が ON / OFF どちらにも存在しない。
 
-## 12. 未決の設計論点（Q-5 以降。実装前に Owner が確定）
+## 12. Owner Decision の状況
 
-Q-1〜Q-4 は §1（OD-RB-11〜14）で**確定済み**。Q-5（Notebook の行の範囲 / 切り詰め / 複数 Target）も OD-RB-13 / OD-RB-14 と §7 に吸収したため**解消**。
+**Q-1〜Q-10 はすべて resolved**（Q-1 = OD-RB-11、Q-2 = OD-RB-12、Q-3 = OD-RB-13、Q-4 = OD-RB-14、Q-5 = OD-RB-13 / 14 と §7 に吸収、Q-6 = OD-RB-15、Q-7 = OD-RB-16、Q-8 = OD-RB-17、Q-9 = OD-RB-18、Q-10 = OD-RB-19）。
+実装 Gate で確定する**実装詳細**（Owner Decision ではない）: chip の具体的な見た目と高さ（mobile HV で調整）、over-cap のコピーの最終文言、Notebook 行の区切り文字の細部。
 
-| Q | 決めること | 選択肢 | 分かっていること | 影響 | 推奨 |
-|---|---|---|---|---|---|
-| **Q-6 RESULT パネルの mobile レイアウト** | sauce 最大 3 + cheese 最大 4 + topping 判定の見せ方 | (a) 行ごとのチップ（名前 + ○/×）を折り返し (b) 縦リスト (c) 折りたたみ | 判定のみ表示すれば最大 10 項目（✓ 既知は Notebook 同様パネルにも出さず研究カードに任せる）。現 Research ORIGINAL の RESULT は 1-screen budget で、`data-ingredient-test` の枠が既にある。典型（tomato + mozzarella + topping 3）は 5 チップ | UX: 一目で ○× が見える。実装: 既存の枠を置換、Layout Contract Gate の確認が必要 | (a) 3 行のチップ。✓ はパネルに出さない。最悪ケース（≥ 8 判定）のみ折り返しで高さが増えるのを許容し、実装 Slice で 390×844 / 360×800 を実測して確定 |
-| **Q-7 feature flag** | `RESEARCH_IDENTIFY_ENABLED` を再利用するか新設か | (a) 再利用 (b) 新 flag、旧方式を残す | flag は Production 既定 OFF（dev / Preview ON、dev opt-out）。#357 の旧方式（picker 等）は main に flag OFF で存在し、Production に出たことがない | 再利用: 旧方式を同じ PR で撤去でき、flag の組み合わせが増えない。新設: 旧方式がデッドコードで残る | (a) 再利用。旧方式（picker / `researchTest` 系）は新方式の実装 PR で撤去。rollback は従来どおり flag OFF |
-| **Q-8 progression / Pitz balance** | 実装前の blocker にするか | (a) blocker（実装前に audit） (b) Production 有効化 Gate の条件 | 発見までの attempt 数は 11.9 → 3.4（約 3.5 倍速、27 recipe 合計 321 → 93）。flag は Production OFF なので実装しても Production には影響しない。Hint の価格は 5〜10 Pitz、初回発見ボーナス等の経済は既存 | (a) だと実装が止まる。(b) なら Preview の実測を材料に flag ON 前に判断できる | (b)。実装は flag OFF で進め、**Production ON の Gate に balance audit（Preview の attempt 数 / Pitz 収支の実測）を必須条件として入れる** |
-| **Q-9 Target が cookable でなくなった attempt** | 最後の在庫を使い切った attempt でもパネルを出すか | (a) ownership 基準（登録済み Entry） (b) cookable 基準 | #357 の `identifyDeclaredIngredient` は登録済み Entry（ownership）基準で AC8 を満たす。#359 Slice 1 の `researchResultView` も同じ | (a) なら在庫を使い切った attempt の ○ が欠落しない | (a)（既存と同じ） |
-| **Q-10 PR #359 の扱いと再利用** | close のタイミング、Slice 1 / Slice 5 / Layout Contract の再利用方法 | (1) 今 close して cherry-pick (2) 実装 PR が開くまで HOLD (3) 独立して有用な commit を新しい小 PR に抽出し、その後に #359 を close | 独立して再利用できる commit: Slice 1（`58c115d` Research context を BAKE / retry 後も維持）、Slice 5（`a4dfec4` 発見成功 RESULT の CTA 整理）、e2e 更新（`24297f3`）、Layout Contract 更新（`aac83b9`）。Slice 5 側は旧方式（researchTest）のコードに依存しない。Slice 2〜4 と Codex 指摘への修正（確認ダイアログ関連）は旧方式専用で不要 | Slice 1 / 5 は Owner の Preview HV 済みの改善で、旧方式の採否と無関係に価値がある | (3)。`main` から新ブランチを切り、`58c115d` + `a4dfec4` + `24297f3` + `aac83b9`（と必要なテスト補助）を cherry-pick して小 PR にし、それが開いた後に #359 を close（ブランチは参照用に残す）。close の時期は Owner 指示まで HOLD |
+### 12.1 #359 extraction の方針（OD-RB-19）
 
-## 13. Non-Goals
+- #359 は rewrite せず、**`main` からの新しい小 PR へ再利用部分だけを抽出**し、その後に #359 を close する（close の時期は Owner の指示）。
+- 各 commit は機械的に cherry-pick せず、`main` との差分を hunk 単位で fresh audit する。Contract 2.1 でも必要な変更だけを残す。
+- 旧 picker / `researchTest` / `researchTestLocked` / `SET_RESEARCH_TEST` / `BakeUnusedConfirm` / 状態 pill / 確認ダイアログ用の入力・タイマー pause への依存が混入しないことを確認する。
+- Slice 2〜4 とそれらの Codex 指摘の修正は再利用しない。
+
+## 13. Production 有効化 Gate（OD-RB-17）
+
+実装は Production flag OFF で進めてよい。**`RESEARCH_IDENTIFY_ENABLED` の Production ON は別 Gate**で、実装完了 = Production ON ではない。Gate の必須条件:
+
+1. **Preview での実プレイ**（Owner の iPhone。390×844 / 360×800）。
+2. **discovery attempt 数**の実測（recipe あたり。監査の想定: A 方式 約 11.9 → C-1 約 3.4）。
+3. **Hint 利用状況**（SAUCE / CHEESE rung の購入が減るか。§10 の accepted consequence、#360）。
+4. **Pitz 収支**と **replenishment cost** の関係（在庫補充・初回購入との釣り合い）。
+5. **progression speed**（ladder の進行が約 3.5 倍速になる）。
+
+**Production activation risk（残す）**: 発見までの attempt 数が約 3.5 倍速になるため、progression のペースと Pitz 経済（初回発見ボーナス、Hint・補充の sink）が崩れる可能性がある。flag を変更する追加 commit / PR は、この Gate を通過するまで禁止。
+
+## 14. Non-Goals
 
 correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
