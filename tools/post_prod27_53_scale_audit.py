@@ -162,7 +162,7 @@ def main():
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    sha = args.sha or head
+    sha = args.sha or "b8617ac0218bf20eb53f68ed12dea09db20e3fa8"  # audited main (pinned; HEAD moves with doc commits)
 
     recipes, ingredients, fam, ladder = parse_production()
     ing_by = {i["id"]: i for i in ingredients}

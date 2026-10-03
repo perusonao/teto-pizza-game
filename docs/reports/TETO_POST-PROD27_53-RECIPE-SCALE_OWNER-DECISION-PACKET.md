@@ -5,6 +5,9 @@ audited main: `b8617ac0218bf20eb53f68ed12dea09db20e3fa8`。数値の根拠は同
 
 ---
 
+> **Owner 決定済み（2026-10-03）**: OD-P1 = C / OD-P2 = 「PIZZA DB・172 authority 優先、catalog-only は slice ごとに Owner 承認」 / OD-P4 = 除外 / OD-P5 = A / OD-P6 = A / OD-P8 = 新材料導入 recipe を優先（credit・T4 は slice 前 Gate） / OD-P9 = **`pesto-gamberi`**（`ai-carciofi` は不採用）。
+> **Defer**: OD-P3 / OD-P7 / OD-P10（必要になる直前に Decision Gate）。記録先: `docs/PROJECT_HANDOFF.md` 2026-10-03 addendum。以下の本文は決定前の Packet を原文のまま残す。
+
 ## 0. 先に読む
 
 ### 0.1 既決（本 Packet で再決定しない）

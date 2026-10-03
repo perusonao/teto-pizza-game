@@ -1,0 +1,455 @@
+{
+ "auditedMainSha": "b8617ac0218bf20eb53f68ed12dea09db20e3fa8",
+ "generatedBy": "tools/expansion_slice1_pesto_gamberi_gate_audit.py",
+ "composition": {
+  "evidenceId": "pesto-gamberi-pizzadb-p11",
+  "nameJa": "ペストガンベリピザ",
+  "sourceIngredientsJa": [
+   "エビ",
+   "トマト",
+   "にんにく"
+  ],
+  "sourceSauceFamily": "バジル",
+  "doughStyle": "ナポリピッツァ生地",
+  "evidenceOrigin": "comparison_table_sample",
+  "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+  "tokenTrace": [
+   {
+    "token": "エビ",
+    "disposition": "exact_alias",
+    "canonicalId": "shrimp"
+   },
+   {
+    "token": "トマト",
+    "disposition": "exact_alias",
+    "canonicalId": "fresh-tomato"
+   },
+   {
+    "token": "にんにく",
+    "disposition": "exact_alias",
+    "canonicalId": "garlic"
+   }
+  ],
+  "identityIngredientSet": [
+   "fresh-tomato",
+   "garlic",
+   "pesto",
+   "shrimp"
+  ],
+  "baseSauce": {
+   "sauceFamily": "バジル",
+   "rule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id",
+   "baseIngredientId": "pesto",
+   "status": "family_derived",
+   "spreadLayers": [
+    "pesto"
+   ],
+   "spreadLayerCount": 1,
+   "certainSpreadLayerCount": 1,
+   "satisfiedBy": []
+  },
+  "matrixStatus": {
+   "representability": "FULL",
+   "productDecision": "READY",
+   "requiredCapabilities": [],
+   "blockers": [],
+   "reviewItems": [],
+   "collisionRefs": [],
+   "conflictRefs": []
+  },
+  "hasCheese": false,
+  "sourceAuthorityDoesNotCarry": [
+   "minCount per ingredient",
+   "bakeTarget",
+   "baseRewardPitz",
+   "description",
+   "emoji / color of shrimp",
+   "reference piece layout"
+  ],
+  "precedentForSameMapping": {
+   "No.27 pesto-pollo": "sauce base pesto is family-derived from sauceFamily バジル; トマト -> fresh-tomato (same token mapping as pesto-pollo / pesto-caprese)"
+  }
+ },
+ "impact27to28": {
+  "recipes": [
+   27,
+   28
+  ],
+  "ingredients": [
+   30,
+   31
+  ],
+  "ladderSteps": [
+   25,
+   26
+  ],
+  "creditedRecipes": [
+   26,
+   27
+  ],
+  "obtainableMaterialsForCollectionCount": [
+   30,
+   31
+  ],
+  "dexChapter3Recipes": [
+   11,
+   12
+  ],
+  "identityCollisionWithProduction": [],
+  "strictSubsetOfProduction": [],
+  "strictSupersetOfProduction": [],
+  "nearestByJaccard": [
+   [
+    0.33,
+    "pesto-pollo"
+   ],
+   [
+    0.33,
+    "pesto-caprese"
+   ]
+  ],
+  "appendedSteps": [
+   {
+    "step": 26,
+    "ingredientIds": [
+     "shrimp"
+    ],
+    "keyRecipeId": "pesto-gamberi",
+    "tier": "T3"
+   }
+  ],
+  "frozenSteps1to25Unchanged": true,
+  "poolMinSlackProduction": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "poolMinSlackWith28_creditTrue": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "poolMinSlackWith28_creditFalse": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "frozenStepPoolsUnchanged": true,
+  "softlockSteps_creditTrue": [],
+  "softlockSteps_creditFalse": [],
+  "makeableCreditedAfterStep26": [
+   26,
+   27
+  ],
+  "newRecipesNeedingNoNewMaterial": [],
+  "refillAllMaterialsPitz": [
+   1150,
+   1200
+  ],
+  "stepsAtOrAboveT4": [],
+  "maxSimultaneousResearchEntries": [
+   {
+    "maxSimultaneousEntries": 1,
+    "atStep": 1
+   },
+   {
+    "maxSimultaneousEntries": 1,
+    "atStep": 1
+   }
+  ]
+ },
+ "shop": {
+  "unlockStep": 26,
+  "tier": "T3",
+  "firstPackPitz": 100,
+  "refillPitz": 50,
+  "unlockGrantsStock": false,
+  "starterGrantRetired": true,
+  "packFormula": "10 x k, k = largest minCount of the ingredient over RECIPES (materialOffer / materialK)",
+  "kOfShrimp": "= shrimp minCount in pesto-gamberi (only recipe): NOT in any source -> calibration gate",
+  "packByK": {
+   "1": 10,
+   "2": 20,
+   "3": 30,
+   "4": 40
+  },
+  "existingK": {
+   "pesto": 1,
+   "fresh-tomato": 3,
+   "garlic": 3
+  },
+  "invariantToKeepExistingPacksUnchanged": "pesto-gamberi minCount: pesto <= 1, fresh-tomato <= 3, garlic <= 3 (No.27 pinned the same way)",
+  "ingredientFieldsRequired": {
+   "id": "shrimp",
+   "category": "topping",
+   "placement": "scatter",
+   "unlockCondition": {
+    "minTotalStars": 0
+   },
+   "pricePitz": "absent (derived from ladder tier)",
+   "restockQuantity": "absent",
+   "starterGrantOnly": "absent",
+   "nameJa": "エビ",
+   "color": "NOT in any source",
+   "emoji": "NOT in any source"
+  }
+ },
+ "taxonomy": {
+  "id": "shrimp",
+  "role": "topping",
+  "playerFacingCategoryJa": "具材",
+  "family": "seafood",
+  "ownerDecision": {
+   "id": "OD-T1",
+   "family": "seafood",
+   "independentId": true,
+   "date": "2026-09-29",
+   "productionRowAdded": false,
+   "matchesPr255Candidate": true
+  },
+  "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+  "catalogPlacement": "scatter",
+  "catalogUnit": "piece",
+  "shelf": "seafood",
+  "productionTaxonomyRowToAdd": [
+   "shrimp",
+   "seafood"
+  ],
+  "familyCounts": {
+   "before": {
+    "meat": 5,
+    "seafood": 3,
+    "vegetable": 8,
+    "fruit": 1,
+    "herb": 4,
+    "spice": 1,
+    "other": 1
+   },
+   "after": {
+    "meat": 5,
+    "seafood": 4,
+    "vegetable": 8,
+    "fruit": 1,
+    "herb": 4,
+    "spice": 1,
+    "other": 1
+   }
+  },
+  "newFamilyIdNeeded": false,
+  "searchAliasNeeded": false,
+  "nameIsKatakanaOnly": true,
+  "mustShipTogether": "OD-T7: taxonomy row in the same PR; tools/ingredient_taxonomy_hcg_authority_audit.py pins (hashes, counts, SHIPPED_SINCE_AUDIT) updated in that PR"
+ },
+ "compat": {
+  "researchEntry": {
+   "finiteIngredients": [
+    "fresh-tomato",
+    "garlic",
+    "pesto",
+    "shrimp"
+   ],
+   "unlockStepOf": {
+    "fresh-tomato": 20,
+    "garlic": 14,
+    "pesto": 17,
+    "shrimp": 26
+   },
+   "registrableWhen": "all finite ingredients owned (stock ignored)",
+   "unlockFactByLastAcquired": {
+    "fresh-tomato": {
+     "unknownToppingsU": 2,
+     "overK3": false
+    },
+    "garlic": {
+     "unknownToppingsU": 2,
+     "overK3": false
+    },
+    "pesto": {
+     "unknownToppingsU": 3,
+     "overK3": false
+    },
+    "shrimp": {
+     "unknownToppingsU": 2,
+     "overK3": false
+    }
+   },
+   "maxUnknownToppings": 3,
+   "K": 3,
+   "toppingKinds": [
+    "fresh-tomato",
+    "garlic",
+    "shrimp"
+   ]
+  },
+  "contract21": {
+   "sauceRow": "1 item (single sauce); pesto is the only sauce in canonical(T)",
+   "cheeseRow": "every cheese the player uses is ×; recipe has none",
+   "toppingOverCap": false,
+   "notebookWorstCaseChars": 109,
+   "notebookLimit": 200,
+   "persisted": "○ ing:<id> only (existing schema)"
+  },
+  "hint": {
+   "roles": "RECIPE_HINT_ROLES row is type-required (Record<RecipeId,..>): key-free (calabresa / pesto-pollo precedent) or authored -> Owner confirmation",
+   "keyFreeRungs": [
+    "SAUCE",
+    "STRUCTURE",
+    "SUB_CLASS x3 (catalog order)"
+   ],
+   "subClassFamilies": {
+    "garlic": "herb",
+    "fresh-tomato": "vegetable",
+    "shrimp": "seafood"
+   },
+   "distinctFamilies": 3,
+   "cheeseRule": {
+    "cheeseInRecipe": false,
+    "precedent": [
+     "marinara",
+     "fugazza",
+     "pizza-bianca",
+     "pesto-tonno",
+     "puttanesca-pizza",
+     "brazilian-calabresa"
+    ],
+    "hint5": "no-cheese recipe: CHEESE rung absent for key-free recipes (calabresa precedent); EMPTY cheese rung charges 0 (hint5Ladder)"
+   }
+  },
+  "pool": {
+   "before step 26": "pesto-gamberi has UNKNOWN / KNOWN_BUT_MISSING_MATERIAL state (shrimp not entitled); pools at steps 1-25 unchanged",
+   "step26 minSlack": 1,
+   "afterShrimpBought": "pool 1 => auto TARGET (pesto-pollo Case B precedent); OPEN_POOL only if another undiscovered makeable recipe exists"
+  },
+  "dex": {
+   "chapter": 3,
+   "slot": 12,
+   "discoveryTargetId": "pesto-gamberi-pizzadb-p11",
+   "discoveryItems": [
+    "fresh-tomato",
+    "garlic",
+    "pesto",
+    "shrimp"
+   ],
+   "sauceBase": [
+    "pesto"
+   ],
+   "identityDimensions": "default (no capability)"
+  }
+ },
+ "hand": {
+  "capacity": 12,
+  "toppingsOwned": [
+   23,
+   24
+  ],
+  "handActiveFromStep": 12,
+  "hiddenWhenAllOwned": [
+   11,
+   12
+  ],
+  "seafoodShelf": [
+   3,
+   4
+  ],
+  "shelfChipCountUnchanged": true,
+  "recipeToppingKinds": 3,
+  "placedProtectedBeyondCapacity": true,
+  "newPurchaseEntersHandVia": "usage.newlyOwned ('new') while stock >= 1; otherwise pin / pantry search",
+  "pantrySearch": "name エビ (katakana only): no alias / reading needed",
+  "dinnerLunchRushPagedTrayPages": [
+   4,
+   4
+  ],
+  "capacityChanged": false
+ },
+ "save": {
+  "schemaVersion": [
+   2,
+   2
+  ],
+  "migration": false,
+  "newFields": false,
+  "idGrammar": "SAVE_ID_PATTERN ^[a-z0-9][a-z0-9_-]{0,63}$",
+  "idsMatch": true,
+  "knownIdWhitelists": "derived from RECIPES / INGREDIENTS (persistence.ts KNOWN_RECIPE_IDS / KNOWN_INGREDIENT_IDS)",
+  "forwardRollback": "an older build keeps unknown ids (dex entry, inventory, ownedIngredientIds order, unlockedForShop, hint purchases / facts) via extractForwardCompatExtras",
+  "existingSaveAtCredited26OrMore": "step 26 entitled at next resolve (shrimp NEW in Shop, stock 0); no stock granted",
+  "persistedFactIds": "ing:shrimp only after a disclosed ○; attr:family:seafood already exists",
+  "gameStatePersisted": false
+ },
+ "issue378": {
+  "state": "open (read 2026-10-03)",
+  "implementationPr": null,
+  "od3786Audit": "not done",
+  "productionReleaseBlocker": true,
+  "implementationStartBlocker": false
+ }
+}

@@ -1070,3 +1070,18 @@ Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's H
 
 PR #376 (Issue #375) flips `HAND_ENFORCEMENT_PRODUCTION` to `true` with the formal capacity 12 (OD-5). It is **not merged**; merging requires explicit
 Owner approval. Gate Report: `docs/reports/TETO_LARGE-CATALOG-UX_LC-R6e_Production-Activation_Gate-Report.md`. Rollback = that one flag line.
+
+## 2026-10-03 addendum — 53-scale Owner Decisions (OD-P1 / P2 / P4 / P5 / P6 / P8 / P9) + Expansion Slice 1 (docs only)
+
+Records the Owner Decisions taken on the Decision Packet `docs/reports/TETO_POST-PROD27_53-RECIPE-SCALE_OWNER-DECISION-PACKET.md`
+(Fresh Audit: `docs/reports/TETO_POST-PROD27_53-RECIPE-SCALE_Fresh-Audit.md`, main `b8617ac`). **No runtime / save / schema change.** Production stays 27 recipes / 30 ingredients.
+
+- **OD-P1** No fixed "53 recipe" target is an implementation unit. Expansion proceeds in **capability / authority waves**. The 53 catalog is a **candidate source**; catalog membership is **not** a ship condition.
+- **OD-P2** Composition authority = **PIZZA DB / 172 authority first**. A catalog-only recipe (no PIZZA DB authority) is **never adopted automatically**; each slice needs explicit Owner approval.
+- **OD-P4** A recipe that the current roles + cooking mechanics cannot express safely (finishing sauce, second sauce, spread-placed ingredient, …) is **excluded from ship and from the ladder population** until the mechanic / authority is decided.
+- **OD-P5** A recipe whose identity collides with an existing recipe is **not shipped** until it can be told apart by a player operation or an observable mechanic / dimension.
+- **OD-P6** The already-decided #378 **案 1** (OD-378-1〜6) is completed **before the Production release of the first Expansion Slice**.
+- **OD-P8** Ladder expansion **prefers recipes that introduce a new material**; do not add recipes that need only existing materials without a plan (they grow the Research Entry pool). The concrete ladder credit / T4 conditions are an **authority check Gate before each implementation slice**.
+- **OD-P9** The first Expansion Vertical Slice is **`pesto-gamberi`** (+ `shrimp`). `ai-carciofi` is **not** adopted this time. Reason: 172 matrix FULL / READY, no blocker, strong source authority, one new material, expressible with today's standard Cooking Steps, and it exercises Shop → unlock → ownership → inventory → Research Entry → Research Target → HAND → Contract 2.1 ○/× → discovery → Dex. It is outside the 53 catalog; OD-P1 makes that acceptable.
+- **Deferred (Decision Gate placed just before they are needed):** OD-P3 (13 ingredient roles), OD-P7 (Research Entry label > 10), OD-P10 (Cooking Steps order). Triggers: `docs/reports/TETO_EXPANSION-SLICE-1_PESTO-GAMBERI_Pre-Implementation-Gate.md` §9.
+- Gate Report for Slice 1: `docs/reports/TETO_EXPANSION-SLICE-1_PESTO-GAMBERI_Pre-Implementation-Gate.md` (data: `docs/reports/data/TETO_EXPANSION-SLICE-1_PESTO-GAMBERI_Gate-Audit.json`, tool: `tools/expansion_slice1_pesto_gamberi_gate_audit.py`). **Runtime implementation has not started.**
