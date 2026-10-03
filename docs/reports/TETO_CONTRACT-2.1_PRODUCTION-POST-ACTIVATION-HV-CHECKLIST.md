@@ -83,7 +83,7 @@ Format: operation → expected result. 🔴 Critical / 🟠 Important / 🟡 Opt
 - Production `?hv=` seeds are no-ops; boundary cases need a deliberately prepared real save. They were intentionally not forced on the Owner's real save in this HV.
 - A Production smoke changes the real save (Pitz, stock, Dex). Back it up first if the state matters.
 - **Rollback:** set `RESEARCH_IDENTIFY_PRODUCTION_DEFAULT` back to `false` in `src/logic/discovery/researchIdentifyFlag.ts` (one line, via a normal PR + deploy). OFF = pre-Contract-2.1 behavior; the save schema is unchanged (`schemaVersion` 2), so no migration. Roll back on any Critical failure.
-- Videos are never committed (Policy §6). The Owner's Production iPhone screenshots are **also not committed** here, by Owner instruction for this docs-only record (the screenshots were supplied in chat and are held by the Owner); this deviates from the Policy §6 convention of committing screenshots under `docs/reports/screenshots/<task-name>/`. §2.1 therefore rests on the Owner's HV record and Decision (PASS, blocker NONE), not on repo-auditable images; they can be added later under that path if wanted.
+- **Owner exception OD-HV-SCREENSHOT (this Production HV only).** Screenshots are **not committed** under an explicit Owner exception; this is **not** a Policy §6-compliant record, and Policy §6 is not changed for any future HV. The Owner ran the HV on a real iPhone in Production and reviewed the screenshots in a ChatGPT conversation; the repository records the Owner HV evidence and the Owner Decision (PASS, blocker NONE), not the images. Videos are not committed either (Policy §6). Images can be added later under `docs/reports/screenshots/<task-name>/` if the Owner wants.
 
 ## 5. Out of scope / still open
 
