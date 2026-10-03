@@ -61,8 +61,8 @@ Format: operation → expected result. 🔴 Critical / 🟠 Important / 🟡 Opt
 - 🔴 Start a Research Target trial → RESULT shows 「今回の試作結果」 (absent = flag OFF or wrong build).
 - 🔴 Place a correct new ingredient → ○ chip; a wrong one → × chip; no 「なし / 全部 / あと」, no counts.
 - 🔴 Retry with that ○ ingredient → ✓ (known), not ○ again.
-- 🔴 Reload → ○ stays known in the Research header; × is gone (not kept).
-- 🔴 Open 「📓 試作ノート」 → the attempt line shows the same judgments as RESULT.
+- 🔴 Open 「📓 試作ノート」 (before reloading) → the attempt line shows the same judgments as RESULT.
+- 🔴 Reload → ○ stays known in the Research header; × is gone (not kept). The Trial Notebook is session-only (Contract §7), so it is empty after a reload — expected, not a failure.
 - 🔴 No visible error / white screen; if devtools are available, no console error.
 - 🔴 Deployed commit = the intended merge commit (Pages run SHA).
 
@@ -83,7 +83,7 @@ Format: operation → expected result. 🔴 Critical / 🟠 Important / 🟡 Opt
 - Production `?hv=` seeds are no-ops; boundary cases need a deliberately prepared real save. They were intentionally not forced on the Owner's real save in this HV.
 - A Production smoke changes the real save (Pitz, stock, Dex). Back it up first if the state matters.
 - **Rollback:** set `RESEARCH_IDENTIFY_PRODUCTION_DEFAULT` back to `false` in `src/logic/discovery/researchIdentifyFlag.ts` (one line, via a normal PR + deploy). OFF = pre-Contract-2.1 behavior; the save schema is unchanged (`schemaVersion` 2), so no migration. Roll back on any Critical failure.
-- Screenshots / videos from this HV are **not committed to the repo** (Policy §6: videos go to the user directly; this record is docs-only).
+- Videos are never committed (Policy §6). The Owner's Production iPhone screenshots are **also not committed** here, by Owner instruction for this docs-only record (the screenshots were supplied in chat and are held by the Owner); this deviates from the Policy §6 convention of committing screenshots under `docs/reports/screenshots/<task-name>/`. §2.1 therefore rests on the Owner's HV record and Decision (PASS, blocker NONE), not on repo-auditable images; they can be added later under that path if wanted.
 
 ## 5. Out of scope / still open
 
