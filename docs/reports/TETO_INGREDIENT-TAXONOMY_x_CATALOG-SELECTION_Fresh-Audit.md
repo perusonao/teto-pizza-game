@@ -288,7 +288,7 @@ Verified by `grep` on main. Player-visible *category* label for topping:
 
 Already 「具材」: `STEP_LABEL.TOPPING` (`makingStepLabels.ts:15`), `ResultPanel.tsx:169` score row, `quantityMessages.ts:11` fallback name.
 
-**Not a category label, separate Owner call (OD-1b, not decided here):** sentence copy (`ResultPanel.tsx:705` 「トッピングは一度に3種類まで調べられるよ」, `deductionRequest.ts:155` 「トッピングは◯種類使うよ」, `dialogue.ts:25,27`), and the compound hint terms `キートッピング` (`HintSheet.tsx:815`, `hint5Ladder.ts:473,478`) / `サブトッピング` (`HintSheet.tsx:808,823,892,946`, `hint5Ladder.ts:478`). `src/preview/hvSeeds.ts` strings are Preview/DEV only (not player-facing). `GameScreen.tsx:581` is a comment.
+**Not a category label (OD-1b, confirmed 2026-10-03: these stay unchanged, see §16.5):** sentence copy (`ResultPanel.tsx:705` 「トッピングは一度に3種類まで調べられるよ」, `deductionRequest.ts:155` 「トッピングは◯種類使うよ」, `dialogue.ts:25,27`), and the compound hint terms `キートッピング` (`HintSheet.tsx:815`, `hint5Ladder.ts:473,478`) / `サブトッピング` (`HintSheet.tsx:808,823,892,946`, `hint5Ladder.ts:478`). `src/preview/hvSeeds.ts` strings are Preview/DEV only (not player-facing). `GameScreen.tsx:581` is a comment.
 **Cost when it is done:** UI text only, no id / save change; ~25 unit-test files and ~19 e2e lines mention 「トッピング」 (some are the compound words, so the exact set is decided in the slice); the UI-text change needs Human Verification (Policy §2); Hint/Research copy is Anti-Oracle-neutral, so a pure label swap should not change the privacy contract but must be re-gated by the existing oracle / copy tests.
 
 ### 16.3 #272 / #307 (read-only; GitHub state fetched 2026-10-03; nothing changed, nothing closed)
@@ -300,3 +300,7 @@ Already 「具材」: `STEP_LABEL.TOPPING` (`makingStepLabels.ts:15`), `ResultPa
 ### 16.4 Historical values retained (not edited)
 
 All of these state 29 / 22 as the value *at their own audited time* and are kept: `PROJECT_HANDOFF.md` Hint 5.0 section (Round 2 "T-COV runtime 25 / 29", dated 2026-09-28); H5-0 design OD-H5-T-COV / §669 ("25 recipes / 29 ingredients", "22 / 22 toppings"); the 62-audit body (`21dc0a6`, now with an S-0 banner and four `[S-0: now …]` tags); `TETO_HINT-5_TAXONOMY-COVERAGE_Fresh-Audit.json` (#293 snapshot); DH4-1 / DH4-2 / Hint-5 audit and result reports; Large Catalog LC-R1..R5 and Category Tabs P3 / P4 reports and their measurements ("22 toppings owned", "29 production parity"); Progression W1 reports ("22 toppings, 4 pages"). The Category Tabs visibility JSONs record 22 / 29 rows as measurements of their date.
+
+### 16.5 OD-1b (Owner, confirmed 2026-10-03)
+
+「トッピング」 is **not** bulk-replaced. The 「具材」 unification covers only the player-facing places that show `topping` **as a category / role name** — §16.2 rows 1–5 (this includes the legacy 特徴 category line, row 5, because it names the category). **Unchanged:** wording that is natural as a cooking action, placement / operation explanations, `キートッピング` (kept for existing compatibility; the "no new key-topping design" policy stays), `サブトッピング` (handled separately with #360 / Hint 5.0), internal ids / enums / variables, and historical docs. The UI change itself is a later slice (UI text ⇒ Human Verification; the unit / e2e selectors that assert the category word move with it).
