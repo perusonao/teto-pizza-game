@@ -109,7 +109,8 @@ describe("LC-R2 FREE-only eligibility (OD-1)", () => {
   });
 });
 
-describe("LC-R2 capacity policy: 9 and 12 are both supported, enforcement stays OFF", () => {
+// LC-R6-e: this file runs in the `hand-off` project (the production flag literal compiled back to false = the rollback state).
+describe("LC-R2 capacity policy: 9 and 12 are both supported; with enforcement OFF (rollback state) nothing is hidden", () => {
   it("candidates are exactly 9 and 12, enforcement is off", () => {
     expect([...HAND_CAPACITY_CANDIDATES]).toEqual([9, 12]);
     expect(HAND_ENFORCEMENT_ENABLED).toBe(false);

@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
-import { HAND_ENFORCEMENT_ENABLED } from "../logic/catalog/handPolicy";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
@@ -189,8 +188,7 @@ describe("IP-1 Hint -> existing pantry -> back to FREE", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /食材庫/ }));
   });
 
-  it("does not touch the save schema or the pin/hand flag", () => {
-    expect(HAND_ENFORCEMENT_ENABLED).toBe(false);
+  it("does not touch the save schema", () => {
     expect(createDefaultSave().schemaVersion).toBe(2);
     expect(Object.keys(createDefaultSave())).not.toContain("trialNotebook");
   });

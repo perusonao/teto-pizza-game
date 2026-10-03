@@ -7,7 +7,8 @@ import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 
 /**
- * LC-R5-d OFF equivalence through the real App: the SHIPPED flag (`HAND_ENFORCEMENT_ENABLED = false`, no mock).
+ * LC-R5-d OFF equivalence through the real App, kept as the LC-R6-e ROLLBACK gate: this file runs in the `hand-off` project (the real
+ * `handPolicy.ts` with the production flag literal set back to false, no mock).
  * With 22 toppings owned the FREE Cooking tray is exactly today's paged tray (catalog order, 4 pages, everything
  * reachable by paging), the selection rules of PR #197 are untouched, and the pantry shows no pin UI.
  */
@@ -80,7 +81,7 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-describe("LC-R5-d OFF equivalence (shipped flag = false)", () => {
+describe("LC-R5-d OFF equivalence / R6-e rollback (flag = false)", () => {
   it("FREE Cooking with 22 toppings keeps today's tray: 4 pages in catalog order; #197 clears on a page switch; the pantry has no pin UI and never touches the tray", async () => {
     seedFree();
     const user = userEvent.setup();
