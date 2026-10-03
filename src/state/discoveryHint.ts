@@ -723,6 +723,23 @@ export function researchableEntryIds(
     .filter((id) => cookable.has(id));
 }
 
+/** Issue #373 (OD-RB-1 update): where HOME's 「レシピ発見」 goes. Decided only by the cookable Research Entries
+ *  (`researchableEntryIds`, the OD-RX-4 authority): none -> the targetless Free Cook as before; exactly one -> that
+ *  entry is the Research Target (deterministic, never a remembered pick); 2+ -> the player chooses on the Dex's
+ *  anonymous Research cards (the system never picks, #353). No count is exposed: the route is all the UI reads. */
+export type HomeDiscoveryRoute =
+  | { kind: "TARGETLESS" }
+  | { kind: "RESEARCH"; recipeId: string }
+  | { kind: "CHOOSE" };
+
+export function homeDiscoveryRoute(
+  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+): HomeDiscoveryRoute {
+  const ids = researchableEntryIds(state);
+  if (ids.length === 0) return { kind: "TARGETLESS" };
+  return ids.length === 1 ? { kind: "RESEARCH", recipeId: ids[0] } : { kind: "CHOOSE" };
+}
+
 /** #346 S4: the Research Target's view for the RESULT of the round that just finished. Unlike
  *  `researchTargetView` it does not require the target to still be cookable: a trial that used up the last unit
  *  of a finite ingredient is still a research attempt (entries are ownership-derived, never stock-derived). Null

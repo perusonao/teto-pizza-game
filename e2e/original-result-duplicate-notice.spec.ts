@@ -5,6 +5,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Original Pizza Recovery P3-3b: the RESULT duplicate notice, played for real (dough -> sauce -> cheese -> toppings ->
@@ -62,7 +63,7 @@ async function place(page: Page, name: RegExp, spots: [number, number][]) {
 
 /** One Free Cooking round (started from HOME, or from the RESULT's retry CTA) baked on target, to its RESULT. */
 async function cookFree(page: Page, pieces: Pieces, from: "HOME" | "RESULT") {
-  if (from === "HOME") await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  if (from === "HOME") await startTargetlessFreeCook(page);
   else await page.getByRole("button", { name: /もう一度試す/ }).click();
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);

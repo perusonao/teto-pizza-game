@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * PR #197 review (Codex P2): in a free-cook round with more than one tray page, a selection made
@@ -76,6 +77,7 @@ afterEach(() => {
 async function toToppingStep(user: ReturnType<typeof userEvent.setup>) {
   render(<App />);
   await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+  await pickFirstResearchIfDexOpened(user);
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
   await user.click(chip(/トマトソース/));

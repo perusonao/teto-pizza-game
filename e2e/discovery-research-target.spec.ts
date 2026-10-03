@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { RECIPES } from "../src/data/recipes";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery 3.0 #346 S3: Research Entry -> 「このピザを研究する」 -> Free Cooking research context -> Hint.
@@ -136,7 +137,7 @@ test("B. Step 12 multiple: pick ② -> only it is the Hint subject, the other st
 test("D. no Research Target (2 entries): plain Free Cooking asks to choose a research target (#353; no ladder, no research context)", async ({ page }) => {
   const { json } = save(12);
   await open(page, json);
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();

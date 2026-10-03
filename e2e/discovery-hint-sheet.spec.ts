@@ -4,6 +4,7 @@ import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet on mobile.
@@ -82,7 +83,7 @@ const bar = (page: Page) => page.locator(".prepare-bake-bar");
 const sheet = (page: Page) => page.getByRole("dialog", { name: /ヒント/ });
 
 async function startFreeCookAtTopping(page: Page) {
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await completeDoughStep(page);
   for (let i = 0; i < 3; i += 1) {

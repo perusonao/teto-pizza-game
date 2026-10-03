@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * LC-R5-c: the App-level, session-only pins (OD-R5-9) and the #197 no-clear contract, through the real App,
@@ -82,6 +83,7 @@ const trayState = () =>
 
 async function toToppingStep(user: User) {
   await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+  await pickFirstResearchIfDexOpened(user);
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
   await user.click(trayChip(/トマトソース/));

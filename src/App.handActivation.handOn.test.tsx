@@ -6,6 +6,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { DEFAULT_HAND_CAPACITY_CANDIDATE, HAND_ENFORCEMENT_ENABLED } from "./logic/catalog/handPolicy";
+import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
  * LC-R5-e-h: activation hardening through the real App / reducer / tray / pantry with the REAL `handPolicy.ts`
@@ -125,6 +126,7 @@ async function bothPages(user: User): Promise<[string[], string[]]> {
 
 async function toToppingStep(user: User, entry: RegExp = /レシピ発見/) {
   await user.click(screen.getByRole("button", { name: entry }));
+  await pickFirstResearchIfDexOpened(user);
   completeDoughStep();
   await user.click(screen.getByRole("button", { name: /次へ/ }));
   await user.click(trayChip(/トマトソース/));

@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-3 / H5-4: the linear ladder sheet on mobile (390×844 and 360×800 via
@@ -79,7 +80,7 @@ async function openSheet(page: Page, s: object, optIn: boolean) {
   );
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+  await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
   const dialog = page.getByRole("dialog", { name: /ヒント/ });
@@ -199,7 +200,7 @@ test.describe("Hint 5.0 ladder sheet (H5-3 / H5-4, DEV opt-in)", () => {
     // Reload: nothing is resold, and the bought board is back.
     await page.reload();
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+    await startTargetlessFreeCook(page);
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(page.locator('[data-hint5-rung="SUB_CLASS"]')).toHaveCount(3);
     await expect(cta(page)).toHaveCount(0);
@@ -286,7 +287,7 @@ test.describe("Hint 5.0 ladder sheet (H5-3 / H5-4, DEV opt-in)", () => {
     expect(persisted.discoveryHintFacts.marinara).toEqual(["ing:tomato-sauce", "h5:sauce", "h5:cheese"]);
     await page.reload();
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+    await startTargetlessFreeCook(page);
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(page.locator('[data-hint5-rung="CHEESE"]')).toHaveText("チーズなし");
     await expect(page.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last()).toContainText("所持 979 Pitz");
