@@ -22,8 +22,9 @@ export async function chipOnTrayOrPin(page: Page, name: string | RegExp) {
   await page.getByRole("button", { name: /食材庫/ }).click();
   await page.waitForSelector(".pantry-sheet");
   const input = page.getByRole("searchbox", { name: "材料を検索" });
-  const text = typeof name === "string" ? name : (name.source.replace(/\\/g, "") || "");
-  await input.fill(text);
+  // Narrow with the search field only when the matcher is plain text (a regex with lookarounds is matched on the tiles instead).
+  const text = typeof name === "string" ? name : name.source;
+  if (/^[^\\^$.*+?()[\]{}|]+$/.test(text)) await input.fill(text);
   const tile = page.locator(".pantry-tile__toggle").filter({ hasText: name }).first();
   await expect(tile).toBeVisible();
   await tile.click();
