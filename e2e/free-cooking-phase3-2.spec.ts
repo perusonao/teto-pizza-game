@@ -100,8 +100,13 @@ test.describe("Free Cooking (Issue #194)", () => {
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/NEW PIZZA!.*マルゲリータを発見しました！/);
     await expect(page.locator(".result-panel__score")).toBeVisible();
 
+    // #358: a NEW PIZZA result has no retry CTA; the player leaves through HOME and starts Free Cooking again.
+    await expect(page.getByRole("button", { name: "もう一度試す" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "レシピを選んで作る" })).toHaveCount(0);
+
     // D. Same pizza again -> KNOWN, no second discovery.
-    await page.getByRole("button", { name: "もう一度試す" }).click();
+    await page.locator(".app-header__home-button").click();
+    await startFreeCook(page);
     await expect(page.locator(".result-panel")).toHaveCount(0);
     await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
     await cookStarterPizza(page, { basil: true });

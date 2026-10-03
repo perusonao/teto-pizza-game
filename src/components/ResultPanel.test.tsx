@@ -661,14 +661,13 @@ describe("W1-d: Discovery Result hierarchy", () => {
     return all.indexOf(document.querySelector(sel)!);
   };
 
-  it("orders name -> Dex registration -> ★ / Pitz -> material arrival -> CTA bar", () => {
+  it("orders name -> Dex registration -> ★ / Pitz -> material arrival (no bottom CTA bar)", () => {
     renderDiscovery();
     const order = [
       ".discovered-banner--new-pizza",
       ".dex-registration-row",
       ".result-panel__stars",
       ".material-unlock-notice",
-      ".result-panel__actions",
     ].map(pos);
     expect(order.every((p) => p >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
@@ -682,18 +681,40 @@ describe("W1-d: Discovery Result hierarchy", () => {
     expect(document.querySelector(".result-panel__bake-badge")).toBeNull();
   });
 
-  it("「📖 図鑑を見る」 sits on the registration row, never in the bottom CTA bar; the bar is unchanged", async () => {
+  it("#358: a NEW PIZZA result has no bottom CTA bar -- no 「もう一度試す」 / 「レシピを選んで作る」; 「📖 図鑑を見る」 stays on the registration row", async () => {
     const { onOpenDex } = renderDiscovery();
     const dexCta = screen.getByRole("button", { name: /図鑑を見る/ });
     expect(document.querySelector(".dex-registration-row")!.contains(dexCta)).toBe(true);
-    const bar = document.querySelector(".result-panel__actions")!;
-    expect(bar.contains(dexCta)).toBe(false);
-    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.textContent)).toEqual([
-      "もう一度試す",
-      "レシピを選んで作る",
-    ]);
+    expect(document.querySelector(".result-panel__actions")).toBeNull();
+    expect(screen.queryByRole("button", { name: "もう一度試す" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "レシピを選んで作る" })).not.toBeInTheDocument();
     await userEvent.click(dexCta);
     expect(onOpenDex).toHaveBeenCalledTimes(1);
+  });
+
+  it("#358 OD-358-4: with a new material the Shop has ONE CTA (the primary 「新しい食材を見る」); the notice keeps its message only", async () => {
+    const { onOpenShop } = renderDiscovery({
+      postDiscovery: { kind: "SHOP_NEW_MATERIAL", labelJa: "🛒 新しい食材を見る", directResearchId: null },
+    });
+    const notice = document.querySelector(".material-unlock-notice")!;
+    expect(notice).toHaveTextContent("新しい材料が入荷：ベーコン");
+    expect(notice.querySelector("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: /ショップへ/ })).not.toBeInTheDocument();
+    const shopButtons = screen.getAllByRole("button", { name: /新しい食材を見る/ });
+    expect(shopButtons).toHaveLength(1);
+    await userEvent.click(shopButtons[0]);
+    expect(onOpenShop).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: /図鑑を見る/ })).not.toBeInTheDocument(); // priority unchanged: one primary
+  });
+
+  it("#358: a different primary (次のピザを研究する) keeps the notice's own Shop link (a distinct destination, not a duplicate)", () => {
+    renderDiscovery({
+      postDiscovery: { kind: "RESEARCH_NEXT", labelJa: "🔎 次のピザを研究する", directResearchId: null },
+      onResearchNext: vi.fn(),
+    });
+    expect(screen.getByRole("button", { name: /次のピザを研究する/ })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /ショップへ/ })).toHaveLength(1);
+    expect(document.querySelector(".result-panel__actions")).toBeNull();
   });
 
   it("OD-DISC-6: the material arrival stays generic (material names only) with its own Shop link", async () => {
