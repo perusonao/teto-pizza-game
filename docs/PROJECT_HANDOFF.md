@@ -52,6 +52,8 @@ PASS via PR #54; **Save v2 / Inventory E0 migration MERGED via PR #56** (schemaV
 `inventory` field reserved, no gameplay change yet -- E1 InventoryState is the next Save v2 step,
 independent of Issue #38).)
 
+**2026-10-03 addendum (Large Catalog UX — R6-c and OD-5)** — see `docs/reports/TETO_LARGE-CATALOG-UX_LC-R6c_Pin-UI_Result.md`. LC-R6-b MERGED (#319, `4250767`; production Hand stays OFF). LC-R6-c (Issue #371, PR #372): pin UI only for an active hand, a number-free capacity-full notice, keyboard kept on pin during search. **OD-5 (Owner, 2026-10-03): the hand's production capacity is 12**, decided after a real-device ABBA comparison with HAND 9 (Preview variants `33fe17b` = HAND 9, `da17f12` = HAND 12); not re-evaluated. R6-e (production activation) is a separate Issue / PR; until it merges, `HAND_ENFORCEMENT_PRODUCTION = false`. The 2026-09-30 addendum below is historical.
+
 **2026-09-30 addendum (LC-R6-b Preview Activation Infrastructure, PR pending Final Gate)** — see `docs/reports/TETO_LARGE-CATALOG-UX_LC-R6b_Preview-Activation-Infrastructure_Result.md`. A2 committed variant `LC_HAND_PREVIEW_CAPACITY` (main = `null`), read only behind `VITE_PREVIEW_MODE`; production Hand stays OFF (`HAND_ENFORCEMENT_PRODUCTION = false`, byte-identical production bundle / DOM golden), capacity 9 vs 12 still undecided (R6-d/R6-e).
 
 **2026-09-18 addendum (Roadmap/SSOT Fresh Sync)** — see
@@ -394,7 +396,7 @@ Full record: `docs/reports/TETO_INGREDIENT-TAXONOMY_x_CATALOG-SELECTION_Fresh-Au
   `サブトッピング` (handled separately on the #360 / Hint 5.0 side), internal ids / enums / variables, historical docs.
   **OD-2** family `other` stays 「その他」 (chip) / 「ちょっと変わった材料」 (Hint). **OD-3** #272 / #307 reconcile, do not close
   without the Owner. **OD-4** sauce / cheese sub-division deferred to the 105-ingredient Scale Audit. **OD-5** hand capacity 9 / 12
-  undecided; the R6 390×844 real-device comparison is the decision gate. **OD-6** future-ingredient categories (mascarpone / honey /
+  was undecided with the R6 390×844 real-device comparison as the gate; **decided 12 on 2026-10-03** (see the 2026-10-03 addendum above). **OD-6** future-ingredient categories (mascarpone / honey /
   nutella-spread …) are confirmed on the 53 / 172 Scale Audit side; nothing is added to the production taxonomy by inference.
 - `tools/ingredient_taxonomy_hcg_authority_audit.py --sha fbd5305… --check` is re-synced (OK). It stays a point-in-time check: the next
   runtime-introduction PR that adds a taxonomy row must update its pinned hashes and `SHIPPED_SINCE_AUDIT` in the same PR.
@@ -436,7 +438,7 @@ design docs and wireframes are historical where they disagree.
   - **LC-R5-e Owner Decisions (CONFIRMED):** **OD-R5e-1** pin UI only for a category whose hand is ACTIVE (none for sauce / cheese or topping <= capacity). **OD-R5e-2** hand mode drops unpinned inventory-0 toppings from the tray (pantry keeps them at ×0); an existing pinned ×0 stays on the tray and can be unpinned. **OD-R5e-3** the capacity-rejection UI shows no capacity number (e.g. 「手元がいっぱいです。使わない食材のピンを外してね」); 9 vs 12 stays open until the R6 Human Feel Gate. **OD-R5e-4** Preview-only activation, fail-closed (production can never use the Preview override); mechanism decided in R6-a after a build / deploy audit. **OD-R5e-5** order R5-e-h → R6-a〜R6-e; re-check the R6 slice boundaries from current main after R5-e-h.
   - **LC-R5-e-h HARDENING (same branch, test / tooling / docs only, base main `d727030`):** Vitest projects `hand-on-9` / `hand-on-12` compile the REAL `handPolicy.ts` ON (fail-closed transform, no `vi.mock`); App ON suites run for both candidates; H-1 #197 side-effect gate (E6 killed), H-3 key-guard gate (E2 killed), H-4 visible-page invariant, H-5 in-step activation contract + PREPARE ownership / stock invariant, H-6 lifecycle / guided / Lunch Rush / Dinner isolation, H-7 no selection restore, H-8 M10b re-targeted. Mutation M1〜M114 118/118 killed; E1〜E12 10/12 (E4 equivalent, E5 intentionally survives: no test depends on the undecided shipped capacity). Full Vitest on main `22263bd` + branch: 279 files / 5333 passed. Verdict **A. R5-e HARDENING COMPLETE / R6 AUDIT-READY** (report §21 / §22). No production change; flag false; capacity undecided; R6 not started — next: re-check the R6 slice boundaries from current main (OD-R5e-5).
 - Standing: `ingredientShelf` = membership authority, `catalogQuery` = owned / filter / search / sort engine,
-  `ShelfChips` = presentation; no counts before Phase 5; capacity 9 vs 12 is decided by Human Feel at the hand slice;
+  `ShelfChips` = presentation; no counts before Phase 5; **hand capacity = 12 (OD-5, 2026-10-03; the former "9 vs 12 by Human Feel" is closed)**;
   no tray family chips (OD-B1〜B5).
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)

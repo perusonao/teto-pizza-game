@@ -18,7 +18,7 @@ import { DEFAULT_HAND_CAPACITY_CANDIDATE } from "./logic/catalog/handPolicy";
  */
 // LC-R5-e-h (H-2): no `vi.mock` any more. The `hand-on-9` / `hand-on-12` Vitest projects compile the REAL
 // `handPolicy.ts` with the flag on and one capacity candidate, so the real `handCapacityFor` / `resolveTrayHandIds`
-// wiring runs, and every expectation below holds for BOTH undecided candidates (CAP).
+// wiring runs, and every expectation below holds for BOTH supported capacities (CAP; 12 = OD-5 production, 9 = coverage parameter).
 const CAP = DEFAULT_HAND_CAPACITY_CANDIDATE;
 
 const FINITE = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);

@@ -80,9 +80,9 @@ const MUTANTS = [
   },
   {
     id: "E11",
-    what: "pin editing exposed only when the tray hand is active (design alternative, not current spec)",
+    what: "pin editing exposed regardless of the tray hand (the pre-R6-c spec; since LC-R6-c / OD-R5e-1 pin UI exists only for an active hand)",
     file: "src/screens/GameScreen.tsx",
-    edits: [["handEditing={HAND_ENFORCEMENT_ENABLED}", "handEditing={HAND_ENFORCEMENT_ENABLED && (trayHand?.ids ?? null) !== null}"]],
+    edits: [["handEditing={HAND_ENFORCEMENT_ENABLED && trayHand?.ids != null}", "handEditing={HAND_ENFORCEMENT_ENABLED}"]],
   },
   {
     id: "E12",

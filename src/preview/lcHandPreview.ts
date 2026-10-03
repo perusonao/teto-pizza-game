@@ -5,8 +5,8 @@
  * - **main / every PR head: `null`** (the only value that may ever be merged). A normal Preview of any PR is
  *   therefore Hand OFF, exactly like production, and does not leak Large Catalog Hand into other features' Preview.
  * - **HV-only disposable commit: `9` or `12`** (a one-line change, deployed by exact SHA through the existing
- *   Preview pipeline; NEVER merged, never a PR head). The Owner compares 9 vs 12 on real devices in R6-d; this file
- *   does not decide the capacity.
+ *   Preview pipeline; NEVER merged, never a PR head). The OD-5 comparison (2026-10-03) used exactly this mechanism and
+ *   chose 12; the production capacity lives in `handPolicy.ts`, never here.
  *
  * It is read ONLY by `../logic/catalog/handPolicy.ts` (the policy) and `../components/PreviewBadge.tsx` (display
  * only), and only behind `import.meta.env.VITE_PREVIEW_MODE` (set by

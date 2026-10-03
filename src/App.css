@@ -7002,3 +7002,36 @@ p.hint-sheet__step {
   font-size: 13px;
   line-height: 1.6;
 }
+
+/* LC-R6-c (OD-R5e-3 / OD-R6a-4): the capacity-full notice of the pantry pin UI. An overlay at the sheet's bottom edge
+   (the sheet is `position: fixed`, so it follows the visual viewport while the keyboard is up): out of flow, never
+   pushes the list / strip / chips, no pointer events. The element is always mounted while pin editing is on (it is the
+   `role="status"` region), and invisible while empty. */
+.pantry-sheet__notice {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 3;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(58, 38, 18, 0.94);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.pantry-sheet__notice--shown {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pantry-sheet__notice {
+    transition: none;
+  }
+}

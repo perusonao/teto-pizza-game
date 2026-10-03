@@ -646,7 +646,7 @@ const MUTANTS = [
     id: "M90",
     what: "R5-c: GameScreen turns pin editing on in production",
     file: "src/screens/GameScreen.tsx",
-    edits: [["handEditing={HAND_ENFORCEMENT_ENABLED}", "handEditing={true}"]],
+    edits: [["handEditing={HAND_ENFORCEMENT_ENABLED && trayHand?.ids != null}", "handEditing={true}"]],
   },
   {
     id: "M91",
