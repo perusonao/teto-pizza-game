@@ -445,7 +445,7 @@ design docs and wireframes are historical where they disagree.
 - **Not on main:** the 172-row technique audit, its data and its generator tools stay on the
   design archive (branch `claude/cooking-techniques-design-n0qfwj`, commit `ab77b82`).
 
-## Discovery 3.x — Contract 2.1: RESULT-based identification (implemented; Production flag OFF)
+## Discovery 3.x — Contract 2.1: RESULT-based identification (implemented; Production ON)
 
 **Authority:** `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md` (read first for any Research / identification work).
 **Implementation:** PR #363, merged as `60dc604bd8f5b67ea7a1b8d4308f9a4c85d04cd9` on `main` (slices S1–S6, S5.1, Codex P2 fix).
@@ -469,7 +469,7 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
 - **Last stock (OD-RB-18).** The attempt that consumes the target's last stock keeps its result. Validity is snapshotted at round start
   (`researchTargetValidAtStart`), so the following retry — whose target is no longer valid at start — gets no result, while the
   research context card (#362) still carries on.
-- **Flag.** `RESEARCH_IDENTIFY_ENABLED` is reused (Production default **false**; dev / Preview ON). OFF = current Production behavior.
+- **Flag.** `RESEARCH_IDENTIFY_ENABLED` is reused (Production default **true** since PR #366, `RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = true`; dev / Preview ON; no Production opt-out). OFF = pre-Contract-2.1 behavior; rollback = set the default back to `false`.
 - **Layout fix.** The Research RESULT action bar (168px) needed more bottom reserve than the shared 130px: `.result-panel--research`
   uses 176px.
 - **Verification.** Owner HV and Re-HV passed on iPhone Preview; full Vitest 5927 passed / 1 skipped; Chromium 390×844 and 360×800
@@ -482,9 +482,13 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
 - **Activation Gate C (2026-10-03): READY = YES — not a flag-ON permission.** Attempt-aware simulation, economy and invariants:
   `docs/reports/TETO_CONTRACT-2.1_ACTIVATION-GATE-C_Result.md` (+ `…STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`). Owner Decision: `★3-FULL replay ≤ 1`
   is not a Gate C condition (it was a direct-bake observation); ★3-FULL replay 3–8 / refill 510–890 Pitz are recorded for post-Production
-  re-evaluation. The flag stays OFF; the flag change is a separate step.
-- **Not done (separate gates):** Production flag ON / deploy (Contract §13), #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit
-  (Expansion Gate A / §13.1). Do not turn the flag on or change its default without that gate.
+  re-evaluation. The flag change was a separate step: done in PR #366.
+- **Production activation (done, 2026-10-03).** PR #366 MERGED; deployed source `fbd5305fb9452e0a6d38b188dd6f3099898a7ae8`; `RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = true`;
+  Production Pages deploy #262 SUCCESS; **Owner Production iPhone HV = PASS, Production blocker = NONE.** The Owner HV covered the Research Target → trial →
+  RESULT × / ○ → Trial Notebook → retry → prior-○ ✓ → NEW PIZZA flow. Last-stock boundary, topping > K=3, ×-not-persisted after reload and 360×800 on a real device
+  were **not** repeated in the Owner HV (automated evidence only). Record, evidence split and rollback: `docs/reports/TETO_CONTRACT-2.1_PRODUCTION-POST-ACTIVATION-HV-CHECKLIST.md`.
+- **Not done (separate gates):** #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit (Expansion Gate A / §13.1), the post-Production re-evaluation of
+  ★3-FULL replay / refill cost (Gate C §12.1), and the Trial Notebook readability UX follow-up.
 
 ## Product goal
 

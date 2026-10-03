@@ -186,6 +186,8 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 
 **Production activation risk（残す）**: 発見までの attempt 数が約 3.3 倍速になるため、progression のペースと Pitz 経済（初回発見ボーナス、Hint・補充の sink）が崩れる可能性がある。flag を変更する追加 commit / PR は、この Gate を通過するまで禁止。
 
+**Production 有効化後の記録（2026-10-03）:** PR #366 で Production ON（deploy `fbd5305`、Owner iPhone Production HV = PASS）。実機で確認した範囲と automated evidence のみの範囲は [`TETO_CONTRACT-2.1_PRODUCTION-POST-ACTIVATION-HV-CHECKLIST.md`](../reports/TETO_CONTRACT-2.1_PRODUCTION-POST-ACTIVATION-HV-CHECKLIST.md) を参照（本書の §3 / §4 / §6 / §7 は変更しない）。
+
 ### 13.1 Scale Audit の再監査 trigger（Expansion Gate）
 
 - **Expansion Gate A（no-sauce / RESERVED population）**: no-sauce 等の population を Production へ追加する前に、RESERVED / INV-D4 / INV-D7 を再設計する（§3: カテゴリ行の条件付き省略は採用しない）。
