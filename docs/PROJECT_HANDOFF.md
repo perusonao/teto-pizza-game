@@ -445,6 +445,39 @@ design docs and wireframes are historical where they disagree.
 - **Not on main:** the 172-row technique audit, its data and its generator tools stay on the
   design archive (branch `claude/cooking-techniques-design-n0qfwj`, commit `ab77b82`).
 
+## Discovery 3.x — Contract 2.1: RESULT-based identification (implemented; Production flag OFF)
+
+**Authority:** `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md` (read first for any Research / identification work).
+**Implementation:** PR #363, merged as `60dc604bd8f5b67ea7a1b8d4308f9a4c85d04cd9` on `main` (slices S1–S6, S5.1, Codex P2 fix).
+Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-Verification_Result.md`.
+
+- **Behavior.** The explicit Research Target stays; the Contract 2.0 pre-attempt picker / selection / LOCK is removed. After a
+  Research attempt, the RESULT shows 「今回の試作結果」: **○** = newly learned in this attempt, **×** = newly learned not in the
+  researched pizza, **✓** (used-ingredients list only) = known before the attempt. Rows run sauce → cheese → topping in the player's
+  placement order. Topping cap K = 3: with 4+ unknown toppings there is no individual topping row, only
+  「トッピングは一度に3種類まで調べられるよ」.
+- **Known ingredients** (unlock fact + stored `ing:` facts, taken once in REGISTER_TO_DEX) are excluded from the panel, from K and
+  from the Trial Notebook. The Owner decided that an ingredient made known by a Hint bought during PREPARE is also excluded.
+- **Persistence.** Only ○ persists, as the existing `discoveryHintFacts[target]` `ing:<id>`. × and over-cap toppings are never saved.
+  `lastResearchRows` (labelJa, rows, toppingOverCap, known snapshot) and `researchTargetValidAtStart` are session-only. **No save
+  schema change, no migration.**
+- **Trial Notebook.** A `RESEARCH_ROWS` feedback line in the existing `{kind, textJa}` schema (fixed public label, no truncation,
+  zero judgments → null; same-combination retry replaces the line).
+- **Oracle guards.** Targetless attempts and cross-recipe / NEW discoveries get no membership result. No count, distance, Near/Far
+  or direct 「ソースなし」/「チーズなし」 wording. Membership is independent of the matcher outcome and cooking quality
+  (ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH are identical).
+- **Last stock (OD-RB-18).** The attempt that consumes the target's last stock keeps its result. Validity is snapshotted at round start
+  (`researchTargetValidAtStart`), so the following retry — whose target is no longer valid at start — gets no result, while the
+  research context card (#362) still carries on.
+- **Flag.** `RESEARCH_IDENTIFY_ENABLED` is reused (Production default **false**; dev / Preview ON). OFF = current Production behavior.
+- **Layout fix.** The Research RESULT action bar (168px) needed more bottom reserve than the shared 130px: `.result-panel--research`
+  uses 176px.
+- **Verification.** Owner HV and Re-HV passed on iPhone Preview; full Vitest 5927 passed / 1 skipped; Chromium 390×844 and 360×800
+  green; WebKit green on the PR and on `main`; Codex latest-head clean; the P2 was fixed before merge.
+- **Not done (separate gates):** Production activation (Contract §13 Gate: Preview play, attempt counts, Hint usage, Pitz balance,
+  progression speed), attempt-aware simulation, Activation Gate C, #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit
+  (Expansion Gate A / §13.1). Do not turn the flag on or change its default without that gate.
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.

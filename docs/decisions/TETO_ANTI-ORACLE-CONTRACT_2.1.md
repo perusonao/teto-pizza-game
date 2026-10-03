@@ -1,6 +1,6 @@
 # Anti-Oracle Contract 2.1 — RESULT-based Identification（C-1「種類上限つき項目別 ○×」）
 
-Status: **Owner 承認済みの設計 authority（実装前）。** 実装・src/test 変更・Production flag ON は本書では行わない。
+Status: **Owner 承認済みの設計 authority。実装済み: PR #363（main `60dc604bd8f5b67ea7a1b8d4308f9a4c85d04cd9`、Production flag `RESEARCH_IDENTIFY_ENABLED` は default OFF のまま）。** Production flag ON は §13 の別 Gate。
 Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 承認日: 2026-10-03（Owner。OD-RB-1〜10）、同日追補（OD-RB-11〜14: Q-1 / Q-2a / Q-3 / Q-4、OD-RB-15〜19: Q-6〜Q-10）。**Owner Decision Q-1〜Q-10 はすべて resolved。**
 根拠・比較・試算: [`docs/reports/TETO_DISCOVERY-3_RESULT-BASED-IDENTIFICATION_Fresh-Design-Audit.md`](../reports/TETO_DISCOVERY-3_RESULT-BASED-IDENTIFICATION_Fresh-Design-Audit.md)
