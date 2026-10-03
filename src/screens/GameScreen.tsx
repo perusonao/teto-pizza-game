@@ -948,8 +948,10 @@ export function GameScreen({
               ownedIngredientIds={state.ownedIngredientIds}
               inventory={state.inventory}
               onClose={() => setPantryOpen(false)}
-              // LC-R5-c (OD-R5c-1): pin editing stays dormant until R6 turns enforcement on.
-              handEditing={HAND_ENFORCEMENT_ENABLED}
+              // LC-R5-c (OD-R5c-1): pin editing is off while enforcement is off. LC-R6-c (OD-R5e-1): and it exists only
+              // while THIS category's hand is active (`trayHand.ids` is the App's own active-hand fact, no new rule), so
+              // sauce / cheese, a topping list within the capacity and every non-FREE round keep the read-only pantry.
+              handEditing={HAND_ENFORCEMENT_ENABLED && trayHand?.ids != null}
               pinSession={handSession}
               onPinSessionChange={onHandSessionChange}
               pinFits={trayHand?.pinFits}
