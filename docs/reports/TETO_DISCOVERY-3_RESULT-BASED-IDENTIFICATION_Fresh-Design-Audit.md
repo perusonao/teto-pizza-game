@@ -133,7 +133,7 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 1. 「研究する」で Research Target を選ぶのは従来どおり（Dex 研究カード）。**attempt ごとの選択 / LOCK / 未使用確認 / picker は廃止**。
 2. Research Target ありの ORIGINAL / INCOMPLETE / AMBIGUOUS の RESULT に「🧪 今回の試作結果」を出す（exact な別 recipe 発見時・targetless・FAILED では出さない）。
 3. **ソース / チーズ**: **使った材料の全件**に ○×（○ は `ing:` 保存）。上限なし（Q-2a で確定）。「チーズなし」等は直接表示しない。
-4. **トッピング**: 載せた**未知**の種類が **K = 3 以内**なら各 ○×。超えたら topping 行は「3種類までなら結果が見られるよ」のみ（sauce / cheese は表示）。既知（✓）は上限に数えず、○ として表示。
+4. **トッピング**: 載せた**未知**の種類が **K = 3 以内**なら各 ○×。超えたら topping 行は「3種類までなら結果が見られるよ」のみ（sauce / cheese は表示）。既知（✓）の topping は上限に数えず、パネルにも Notebook にも出さない（Contract OD-RB-13/15, §3）。
 5. **count は出さない**（STRUCTURE は Hint 5.0 の購入のみ）。× は RESULT と session-only Notebook（開示した判定だけの 1 行）に限り、永続化しない。○ は ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH の 3 outcome すべてで保存する（Q-1）。
 6. Hint 5.0 は価格・順序とも不変。Dex の「わかっていること」は ○ の保存結果を表示。cross-recipe exact は従来どおり。
 7. save schema / Trial Notebook schema / matcher / membership authority は不変。flag は default OFF のまま。
