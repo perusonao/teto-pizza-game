@@ -1717,6 +1717,11 @@
   color: #4a2f73;
 }
 
+.original-pizza__known-mark {
+  font-weight: 900;
+  color: #3f8f5a;
+}
+
 .original-pizza__note {
   width: 100%;
   max-width: 320px;

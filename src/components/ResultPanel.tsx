@@ -129,8 +129,9 @@ interface ResultPanelProps {
   researchLabelJa?: string | null;
   /** Contract 2.1 S5: the disclosed RESULT membership rows of this attempt (`state.lastResearchRows`, flag-gated by the
    *  caller). Rendered as is, in the order given, and only on the Research ORIGINAL card; this component never judges
-   *  membership or regenerates a known check-mark. Omitted / null / nothing to disclose renders nothing. */
-  researchRows?: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean } | null;
+   *  membership or regenerates a known check-mark. `knownIngredientIds` (known before this attempt) only marks an
+   *  already-used ingredient with a small ✓ in the used-ingredients list: ○ = learned now, ✓ = known before. Omitted / null / nothing to disclose renders nothing. */
+  researchRows?: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean; knownIngredientIds?: readonly string[] } | null;
   /** #346 S4: opens the 「📓 試作ノート」 sheet (GameScreen owns it) from the Research ORIGINAL result. */
   onOpenAttemptLog?: () => void;
   /** Ref for that button, so GameScreen can hand focus back when the sheet closes. */
@@ -313,11 +314,22 @@ export function ResultPanel({
             <ul className="original-pizza__ingredients" aria-label="使った材料">
               {usedIngredientIds.map((id) => {
                 const ingredient = getIngredient(id);
+                const known = research && !!ingredient && !!researchRows?.knownIngredientIds?.includes(id);
                 return (
-                  <li key={id} className="original-pizza__ingredient">
+                  <li
+                    key={id}
+                    className={`original-pizza__ingredient${known ? " original-pizza__ingredient--known" : ""}`}
+                    aria-label={known ? `${ingredient!.nameJa}、すでにわかっている材料` : undefined}
+                  >
                     {ingredient ? (
                       <>
                         <IngredientGlyph ingredient={ingredient} /> {ingredient.nameJa}
+                        {known && (
+                          <span className="original-pizza__known-mark" aria-hidden="true" data-known-mark="">
+                            {" "}
+                            ✓
+                          </span>
+                        )}
                       </>
                     ) : (
                       id

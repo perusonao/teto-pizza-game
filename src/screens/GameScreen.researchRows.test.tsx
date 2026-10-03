@@ -183,3 +183,36 @@ describe("RESULT panel from lastResearchRows (flag ON under vitest)", () => {
     expect(panel()).toBeNull();
   });
 });
+
+describe("S5.1: ✓ marks prior knowledge in the used list, from the evaluation-time snapshot", () => {
+  const used = () => screen.getByRole("list", { name: "使った材料" });
+  const mark = (id: string) => [...used().querySelectorAll("li")].find((li) => li.textContent?.includes(nm(id)))!;
+  it("known (unlock fact / stored fact) used ingredients get ✓; newly ○ and × do not", () => {
+    const s = result({ ...target(), discoveryHintFacts: { [T]: ["ing:pesto"] } }, mk("pesto", "chicken", "fresh-tomato", "egg"));
+    renderAt(s);
+    expect(mark("pesto").textContent).toContain("✓");
+    expect(mark("chicken").textContent).toContain("✓");
+    expect(mark("fresh-tomato").textContent).not.toContain("✓"); // learned in this RESULT (○), though now stored
+    expect(mark("egg").textContent).not.toContain("✓");
+    expect(mark("chicken")).toHaveAttribute("aria-label", `${nm("chicken")}、すでにわかっている材料`);
+    expect(chipTexts()).toEqual([`${nm("fresh-tomato")}○`, `${nm("egg")}×`]);
+  });
+  it("retry: the next RESULT uses its own snapshot, so last attempt's ○ is ✓ now", () => {
+    const first = result(target(), pizza());
+    renderAt(first);
+    expect(mark("fresh-tomato").textContent).not.toContain("✓");
+    cleanup();
+    const second = result(act(first, { type: "RETRY_SAME_RECIPE" }), pizza());
+    renderAt(second);
+    expect(mark("fresh-tomato").textContent).toContain("✓");
+    expect(mark("pesto").textContent).toContain("✓");
+    expect(mark("egg").textContent).not.toContain("✓"); // × is never learned
+  });
+  it("targetless and NEW discovery results have no ✓", () => {
+    renderAt(result(act(base(), { type: "START_FREE_COOK" }), pizza()));
+    expect(document.querySelector("[data-known-mark]")).toBeNull();
+    cleanup();
+    renderAt(result(target(), exact(T), 70));
+    expect(document.querySelector("[data-known-mark]")).toBeNull();
+  });
+});

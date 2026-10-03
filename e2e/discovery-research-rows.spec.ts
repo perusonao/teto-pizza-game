@@ -106,6 +106,11 @@ test("normal result: chips for the unknown ingredients only (the known unlock fa
   expect(text).not.toContain("チキン"); // known (unlock fact): neither a chip nor counted
   expect(text).not.toMatch(/なし|個中|全部|あと|残り|正解|おしい/);
   await expect(page.locator(".result-panel--original").getByRole("list", { name: "使った材料" })).toContainText("チキン"); // the used-ingredients list is a separate fact and keeps the known one
+  // S5.1: ✓ (known before) only in the used list; the newly-judged トマト / ナス get none
+  const usedList = page.locator(".result-panel--original").getByRole("list", { name: "使った材料" });
+  await expect(usedList.getByRole("listitem").filter({ hasText: "チキン" })).toContainText("✓");
+  await expect(usedList.getByRole("listitem").filter({ hasText: "ナス" })).not.toContainText("✓");
+  await expect(usedList.getByRole("listitem").filter({ hasText: /^.?\s?トマト$/ })).not.toContainText("✓");
   await expectLayout(page, "normal");
   await shot(page, "rows-normal");
   await page.locator(".result-panel--original").getByRole("button", { name: /試作ノート/ }).click();

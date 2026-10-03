@@ -102,7 +102,7 @@ describe("rows, persistence and Notebook (flag ON, explicit registered target)",
     const done = finish(start(before), original());
     expect(done.lastDiscovery?.kind).toBe("ORIGINAL");
     expect(view(done)).toEqual(["sauce:pesto:POSITIVE", "topping:fresh-tomato:POSITIVE", "topping:egg:NEGATIVE"]);
-    expect(done.lastResearchRows).toEqual({ labelJa: LABEL, rows: done.lastResearchRows!.rows, toppingOverCap: false });
+    expect(done.lastResearchRows).toEqual({ labelJa: LABEL, rows: done.lastResearchRows!.rows, toppingOverCap: false, knownIngredientIds: ["chicken"] });
     expect(facts(done)).toEqual(["ing:pesto", "ing:fresh-tomato"]);
     expect(JSON.stringify(done.discoveryHintFacts)).not.toContain("egg");
     expect(Object.keys(done.discoveryHintFacts)).toEqual([T]);
@@ -158,13 +158,13 @@ describe("topping cap (K = 3)", () => {
   it("over-cap with no other row: lastResearchRows keeps the state for the UI, the Notebook feedback is null, nothing persists", () => {
     const before = single();
     const done = finish(start(before), mk(null, "fresh-tomato", "egg", "onion", "bacon"));
-    expect(done.lastResearchRows).toEqual({ labelJa: LABEL, rows: [], toppingOverCap: true });
+    expect(done.lastResearchRows).toEqual({ labelJa: LABEL, rows: [], toppingOverCap: true, knownIngredientIds: ["chicken"] });
     expect(feedbackOf(done)).toBeNull();
     expect(done.discoveryHintFacts).toBe(before.discoveryHintFacts);
   });
-  it("nothing to disclose (all known / nothing placed): lastResearchRows is null and the feedback is null", () => {
+  it("nothing to disclose (all known / nothing placed): no rows, the known snapshot is kept, the feedback is null", () => {
     const done = finish(start(single()), mk(null, "chicken"));
-    expect(done.lastResearchRows).toBeNull();
+    expect(done.lastResearchRows).toEqual({ labelJa: LABEL, rows: [], toppingOverCap: false, knownIngredientIds: ["chicken"] });
     expect(feedbackOf(done)).toBeNull();
   });
 });
@@ -253,7 +253,10 @@ describe("transient result, Notebook replacement and reset", () => {
     expect(retry.lastResearchRows).toBeNull();
     // the same combination again: everything is known now -> nothing disclosed -> feedback null replaces the old line
     const second = finish(retry, combo());
-    expect(second.lastResearchRows).toBeNull();
+    expect(second.lastResearchRows?.rows).toEqual([]);
+    // the retry's snapshot is its own: what the first attempt made known is prior knowledge now
+    expect(second.lastResearchRows?.knownIngredientIds).toEqual(expect.arrayContaining(["chicken", "pesto", "fresh-tomato"]));
+    expect(first.lastResearchRows?.knownIngredientIds).toEqual(["chicken"]);
     expect(notebookView(second.trialNotebook)).toHaveLength(1);
     expect(feedbackOf(second)).toBeNull();
   });
@@ -278,7 +281,7 @@ describe("privacy of the result state", () => {
   it("has only labelJa / rows / toppingOverCap, no hidden identity, count, distance or similarity", () => {
     const done = finish(start(single()), original());
     const state = done.lastResearchRows!;
-    expect(Object.keys(state).sort()).toEqual(["labelJa", "rows", "toppingOverCap"]);
+    expect(Object.keys(state).sort()).toEqual(["knownIngredientIds", "labelJa", "rows", "toppingOverCap"]);
     for (const row of state.rows) expect(Object.keys(row).sort()).toEqual(["category", "ingredientId", "verdict"]);
     const json = JSON.stringify(state);
     for (const hidden of [T, "pesto-pollo", "ペスト・ポッロ", ...RECIPES.map((r) => r.nameJa)]) expect(json).not.toContain(hidden);

@@ -14,7 +14,7 @@ const INCOMPLETE: DiscoveryOutcome = { kind: "INCOMPLETE_MATCH", recipeId: "quat
 const row = (ingredientId: string, category: ResearchResultRow["category"], verdict: ResearchResultRow["verdict"]): ResearchResultRow => ({ ingredientId, category, verdict });
 const name = (id: string) => getIngredient(id)!.nameJa;
 
-type Rows = { rows: readonly ResearchResultRow[]; toppingOverCap: boolean } | null;
+type Rows = { rows: readonly ResearchResultRow[]; toppingOverCap: boolean; knownIngredientIds?: readonly string[] } | null;
 function show(researchRows: Rows, props: Partial<Parameters<typeof ResultPanel>[0]> = {}, discovery: DiscoveryOutcome = ORDINARY) {
   cleanup();
   const { container } = render(
@@ -132,5 +132,40 @@ describe("privacy", () => {
     }
     expect(dump).not.toMatch(/[0-9０-９]|個中|全部|あと|残り|不足|足りない|正解|おしい|近い|遠い|なし|使わない|類似|距離/);
     expect(el.querySelector("[aria-live]")).toBeNull();
+  });
+});
+
+describe("S5.1: ○ = learned now, ✓ = known before (used-ingredients list only)", () => {
+  const known = ["chicken"];
+  const rows = [row("pesto", "sauce", "POSITIVE"), row("egg", "topping", "NEGATIVE")];
+  const used = ["pesto", "chicken", "egg"];
+  const li = (el: HTMLElement, id: string) =>
+    within(within(el).getByRole("list", { name: "使った材料" })).getAllByRole("listitem").find((n) => n.textContent?.includes(name(id)))!;
+  it("a previously known used ingredient gets ✓ and the word-form accessible name; ○ / × ingredients do not", () => {
+    const el = show({ rows, toppingOverCap: false, knownIngredientIds: known }, { usedIngredientIds: used });
+    expect(li(el, "chicken").textContent).toContain("✓");
+    expect(li(el, "chicken")).toHaveAttribute("aria-label", `${name("chicken")}、すでにわかっている材料`);
+    expect(li(el, "pesto").textContent).not.toContain("✓"); // newly ○ in this RESULT: never both
+    expect(li(el, "egg").textContent).not.toContain("✓"); // ×
+    expect(li(el, "pesto")).not.toHaveAttribute("aria-label");
+  });
+  it("the known ingredient stays out of the membership panel", () => {
+    show({ rows, toppingOverCap: false, knownIngredientIds: known }, { usedIngredientIds: used });
+    expect(panel()!.textContent).not.toContain(name("chicken"));
+  });
+  it("with an empty known set, or no research target, or no rows state, there is no ✓", () => {
+    expect(show({ rows, toppingOverCap: false, knownIngredientIds: [] }, { usedIngredientIds: used }).textContent).not.toContain("✓");
+    expect(show({ rows, toppingOverCap: false, knownIngredientIds: known }, { usedIngredientIds: used, researchLabelJa: null }).textContent).not.toContain("✓");
+    expect(show(null, { usedIngredientIds: used }).textContent).not.toContain("✓");
+  });
+  it("an all-known pizza (rows 0, no panel) still marks the known ingredients", () => {
+    const el = show({ rows: [], toppingOverCap: false, knownIngredientIds: ["pesto", "chicken"] }, { usedIngredientIds: ["pesto", "chicken"] });
+    expect(panel()).toBeNull();
+    expect(el.querySelectorAll("[data-known-mark]")).toHaveLength(2);
+  });
+  it("adds no oracle / count wording", () => {
+    const el = show({ rows, toppingOverCap: false, knownIngredientIds: known }, { usedIngredientIds: used });
+    const dump = el.textContent + [...el.querySelectorAll("[aria-label]")].map((n) => n.getAttribute("aria-label")).join(" ");
+    expect(dump).not.toMatch(/正解|完全一致|構成|個中|全部|あと|残り|おしい|近い|遠い/);
   });
 });

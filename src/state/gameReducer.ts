@@ -160,6 +160,9 @@ export interface LastResearchRows {
   rows: readonly ResearchResultRow[];
   /** 4+ unknown toppings were used: no individual topping row is disclosed (the copy is the UI's). */
   toppingOverCap: boolean;
+  /** known(T) at evaluation time (before this attempt's positives were stored). Display-only: it lets the RESULT mark a
+   *  used ingredient as "already known" (✓); it is never a judgment, never persisted, never in the Notebook. */
+  knownIngredientIds: readonly string[];
 }
 
 export interface GameState {
@@ -371,8 +374,8 @@ export interface GameState {
    *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
   lastTrialAttempt: LastTrialAttempt | null;
   /** Contract 2.1: the RESULT membership rows of this round's Research Target attempt, written only by REGISTER_TO_DEX's
-   *  free-cook ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH branch (flag ON, registered target), reset every fresh round.
-   *  Session-only, never persisted. Carries no recipe name / id, count or distance. `null` when there is nothing to show. */
+   *  free-cook ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH branch (flag ON, registered target; rows may be empty), reset every fresh round.
+   *  Session-only, never persisted. Carries no recipe name / id, count or distance. `null` without a valid attempt context. */
   lastResearchRows: LastResearchRows | null;
   /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
    *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
@@ -1813,10 +1816,14 @@ function researchAttemptResult(state: GameState): {
   if (!context) return none;
   const result = researchResultRows({ targetRecipeId: targetId, pizza: state.pizza, knownIngredientIds: context.knownIngredientIds });
   const feedback = researchRowsFeedback({ labelJa: context.labelJa, rows: result.rows });
-  const lastResearchRows =
-    result.rows.length > 0 || result.toppingOverCap
-      ? { labelJa: context.labelJa, rows: result.rows, toppingOverCap: result.toppingOverCap }
-      : null;
+  // `knownIngredientIds` is the known(T) snapshot this evaluation used (taken before this attempt's own write), so the
+  // RESULT can mark prior knowledge without re-reading the ledger (which already holds this attempt's new positives).
+  const lastResearchRows: LastResearchRows = {
+    labelJa: context.labelJa,
+    rows: result.rows,
+    toppingOverCap: result.toppingOverCap,
+    knownIngredientIds: [...context.knownIngredientIds],
+  };
   const own = Object.prototype.hasOwnProperty.call(state.discoveryHintFacts, targetId) ? state.discoveryHintFacts[targetId] : [];
   const added = result.persistFactIds.filter((id) => !own.includes(id));
   if (added.length === 0) return { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows, feedback };
