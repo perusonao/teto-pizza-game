@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS, getIngredient, type IngredientCategory } from "../../data/ingredients";
-import { createEmptyPizza } from "../../state/pizzaState";
-import { attemptFingerprintOfPizza } from "./attemptFingerprint";
 import { RESEARCH_ROWS_KIND, researchRowsFeedback } from "./researchResultFeedback";
 import { researchResultRows, type ResearchResultRow } from "./researchResultRows";
 import { createTrialNotebook, notebookView, recordAttempt } from "./trialNotebook";
 
 /** Contract 2.1 S2: RESEARCH_ROWS feedback formatter + Trial Notebook compatibility. */
+/** A canonical v1 fingerprint literal (the notebook only parses its shape). */
+const FP = `fp1:${JSON.stringify([[], ["ing-00001"]])}`;
 const LABEL = "？？？ピザ ①（チキン）";
 const row = (ingredientId: string, category: ResearchResultRow["category"], verdict: ResearchResultRow["verdict"]): ResearchResultRow => ({ ingredientId, category, verdict });
 const name = (id: string) => getIngredient(id)!.nameJa;
@@ -103,7 +103,7 @@ describe("200-char gate (no truncation)", () => {
   it("current Production worst case (sauce 3 + cheese 4 + topping 3, longest names and label) is <= 200 chars", () => {
     const fb = fmt(worstRows(), WORST_LABEL)!;
     expect(fb.textJa.length).toBeLessThanOrEqual(200);
-    expect(recordAttempt(createTrialNotebook(), { fingerprint: attemptFingerprintOfPizza(createEmptyPizza()), feedback: fb }).outcome.kind).not.toBe("REJECTED");
+    expect(recordAttempt(createTrialNotebook(), { fingerprint: FP, feedback: fb }).outcome.kind).not.toBe("REJECTED");
   });
   it("over 200 chars is returned whole (never truncated) and the notebook rejects it, storing nothing", () => {
     const rows = [...worstRows(), ...worstRows(), ...worstRows()];
@@ -112,14 +112,14 @@ describe("200-char gate (no truncation)", () => {
     expect(fb.textJa.endsWith("×")).toBe(true);
     expect(fb.textJa.split(" ").length).toBeGreaterThan(rows.length / 2);
     const nb = createTrialNotebook();
-    const res = recordAttempt(nb, { fingerprint: attemptFingerprintOfPizza(createEmptyPizza()), feedback: fb });
+    const res = recordAttempt(nb, { fingerprint: FP, feedback: fb });
     expect(res.outcome).toEqual({ kind: "REJECTED", reason: "INVALID_FEEDBACK" });
     expect(res.state).toBe(nb);
   });
 });
 
 describe("Trial Notebook compatibility and latest-attempt replacement (existing recordAttempt, unchanged)", () => {
-  const fingerprint = attemptFingerprintOfPizza({ ...createEmptyPizza(), sauceIds: ["tomato-sauce"] });
+  const fingerprint = FP;
   const first = (nb: ReturnType<typeof createTrialNotebook>) => notebookView(nb)[0];
   const A = fmt([row("ham", "topping", "POSITIVE")], "？？？ピザ ①（チキン）");
   const B = fmt([row("egg", "topping", "NEGATIVE")], "？？？ピザ ②（マッシュルーム）");
