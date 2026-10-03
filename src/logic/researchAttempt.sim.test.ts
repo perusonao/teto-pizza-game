@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from "vitest";
  * Contract 2.1 Production Activation Gate C: the attempt-aware walk (test-only; see ./testSupport/researchAttemptSim.ts).
  * It runs the real reducer with the Hint 5.0 ladder flag mocked ON (it is ON in Production) and the Research flag ON
  * (every Vitest build). It asserts the Contract invariants on EVERY attempt of every walk and the economy invariants
- * the Hint 5.0 Activation Gate already uses (no deadlock, min Pitz >= 0, no RESERVED stop, ★3-FULL replay <= 1).
+ * the Hint 5.0 harness asserts (no deadlock, min Pitz >= 0, no RESERVED stop). The ★3-FULL replay count is only measured
+ * (an Owner-accepted observation of the direct-bake walk, not a threshold; see the Fresh Authority Audit report).
  *
  * `RESEARCH_ATTEMPT_SIM_OUT=<path>` also writes every run as JSON (the Gate C report's tables come from that file).
  * `RESEARCH_ATTEMPT_SIM_SEEDS=<n>` sets the tray-order sensitivity sweep size (default 12; the report used 100).
@@ -109,8 +110,8 @@ describe("attempt-aware walk (real reducer)", () => {
       return { profile, qualityTotal: q, minPitz: b.minPitz, grindBakes: b.grindBakes, totalHintSpend: b.totalHintSpend, totalRefillSpend: b.totalRefillSpend, totalUnlockSpend: b.totalUnlockSpend, endingPitz: b.endingPitz };
     }));
 
-    // ★3-FULL: the Hint 5.0 Activation Gate allows one final-stage Margherita replay. This walk's own number is a
-    // MEASUREMENT (reported in the Gate C report), not an assertion: it is the Gate's finding, not a test failure.
+    // ★3-FULL: the Hint 5.0 Activation Gate reported (and the Owner accepted) one final-stage Margherita replay in the
+    // direct-bake walk. This walk's own number is a MEASUREMENT (Gate C report), not an assertion.
 
     const sweep = [];
     for (const explorePieces of ["FULL", "ONE"] as const) for (const profile of ["NONE", "FIXED4", "FULL"] as const) {

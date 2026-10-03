@@ -64,6 +64,10 @@ export interface ResearchSimOptions {
   /** ANALYSIS-ONLY lower bound: the player is told the target's ingredient total for free (what STRUCTURE sells), so it
    *  stops as soon as every member is found. Reads the recipe as an oracle; never a player model of the shipped game. */
   freeTotal?: boolean;
+  /** ANALYSIS-ONLY counterfactual (the Fresh Authority Audit of the ★3-FULL replay criterion): credit the Pitz of that
+   *  spending class straight back, to isolate how many Margherita replays each class causes. It is a harness ablation,
+   *  never a proposed economy: with any refund on, Pitz / min-Pitz figures are meaningless, only `grindBakes` is read. */
+  refund?: { refill?: boolean; hints?: boolean; unlock?: boolean };
 }
 
 export interface ResearchStage {
@@ -86,6 +90,11 @@ export interface ResearchStage {
   rungsBought: number;
   refillCount: number;
   refillSpend: number;
+  /** Refill Pitz spent on ingredients that ARE / are NOT in the stage target's recipe (test oracle; analysis only). */
+  refillMemberSpend: number;
+  refillNonMemberSpend: number;
+  /** Pitz earned by this stage's Margherita replays. */
+  grindEarned: number;
   unlockSpend: number;
   stockoutRefills: number;
   grindBakes: number;
@@ -227,6 +236,9 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     reservedStop: false,
     refillCount: 0,
     refillSpend: 0,
+    refillMemberSpend: 0,
+    refillNonMemberSpend: 0,
+    grindEarned: 0,
     stockoutRefills: 0,
     unlockSpend: 0,
     grind: 0,
@@ -261,6 +273,7 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
       finishBake(MARGHERITA);
       acc.grind += 1;
       acc.reward += creditOf(s);
+      acc.grindEarned += creditOf(s);
     }
   }
 
@@ -277,8 +290,14 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     throw new Error(`Shop transaction never succeeded: ${JSON.stringify(action)}`);
   }
 
+  let targetMembers: ReadonlySet<string> = new Set();
   function refill(id: string, stockout: boolean) {
-    acc.refillSpend += shop({ type: "RESTOCK_INGREDIENT", ingredientId: id });
+    const charge = shop({ type: "RESTOCK_INGREDIENT", ingredientId: id });
+    if (options.refund?.refill) s = { ...s, pitzBalance: s.pitzBalance + charge };
+    acc.refillSpend += charge;
+    // Test oracle only: was the refilled ingredient part of the stage target's recipe?
+    if (targetMembers.has(id)) acc.refillMemberSpend += charge;
+    else acc.refillNonMemberSpend += charge;
     acc.refillCount += 1;
     if (stockout) acc.stockoutRefills += 1;
   }
@@ -332,6 +351,7 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
         break;
       }
       acc.hintSpend += before.pitzBalance - s.pitzBalance;
+      if (options.refund?.hints) s = { ...s, pitzBalance: s.pitzBalance + (before.pitzBalance - s.pitzBalance) };
       acc.rungs += 1;
       track();
     }
@@ -403,6 +423,9 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
         rungsBought: 0,
         refillCount: 0,
         refillSpend: 0,
+        refillMemberSpend: 0,
+        refillNonMemberSpend: 0,
+        grindEarned: 0,
         unlockSpend: 0,
         stockoutRefills: 0,
         grindBakes: 0,
@@ -418,13 +441,16 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
 
     // New materials are bought as soon as they unlock; every owned finite material with no stock is refilled.
     for (const id of s.unlockedForShopIngredientIds.filter((x) => !s.ownedIngredientIds.includes(x))) {
-      acc.unlockSpend += shop({ type: "PURCHASE_INGREDIENT", ingredientId: id });
+      const charge = shop({ type: "PURCHASE_INGREDIENT", ingredientId: id });
+      if (options.refund?.unlock) s = { ...s, pitzBalance: s.pitzBalance + charge };
+      acc.unlockSpend += charge;
     }
     for (const id of s.ownedIngredientIds.filter((x) => isFiniteMaterial(x) && (s.inventory[x] ?? 0) < 1)) refill(id, false);
 
     const entries = researchableEntryIds(s);
     if (entries.length === 0) throw new Error(`Dex ${dexIds.length}: no researchable entry`);
     const target = entries[0];
+    targetMembers = new Set(getRecipe(target as RecipeId)!.requiredIngredients.map((r) => r.ingredientId));
     const known0 = knowledgeOf(target, new Set());
     const pool = (c: string) => s.ownedIngredientIds.filter((id) => cat(id) === c && !known0.positive.includes(id)).length;
     const poolUnknown = { sauce: pool("sauce"), cheese: pool("cheese"), topping: pool("topping") };
@@ -481,6 +507,9 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
       rungsBought: acc.rungs,
       refillCount: acc.refillCount,
       refillSpend: acc.refillSpend,
+      refillMemberSpend: acc.refillMemberSpend,
+      refillNonMemberSpend: acc.refillNonMemberSpend,
+      grindEarned: acc.grindEarned,
       unlockSpend: acc.unlockSpend,
       stockoutRefills: acc.stockoutRefills,
       grindBakes: acc.grind,

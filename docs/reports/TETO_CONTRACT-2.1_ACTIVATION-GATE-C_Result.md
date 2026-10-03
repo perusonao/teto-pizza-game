@@ -136,3 +136,5 @@ Hard Stop Conditions (deadlock / unavoidable inventory deadlock / impossible Pit
 **To flip to YES** (Owner decisions, not made here): (a) accept ★3-FULL replay > 1 as the intended attempt-aware economy, or re-base the criterion; or (b) adjust the economy (e.g. refill cost / pack size / exploration stock) and re-run `researchAttempt.sim.test.ts`. Re-run: `RESEARCH_ATTEMPT_SIM_SEEDS=100 RESEARCH_ATTEMPT_SIM_OUT=<path> npx vitest run src/logic/researchAttempt.sim.test.ts` (~45 s).
 
 Production flag: **OFF** (`RESEARCH_IDENTIFY_PRODUCTION_DEFAULT = false`, unchanged). Production activation: not done.
+
+> **Erratum (Fresh Authority Audit, same branch):** the "★3-FULL replay ≤ 1" figure is an Owner-accepted *observation* of the direct-bake Hint 5.0 walk (OD-H5-ECON-1), not a defined threshold, and "rewards" in §6's Pitz-flow line include Margherita-replay income (discovery income is 3,510). The verdict above is unchanged pending an Owner Decision. See `TETO_CONTRACT-2.1_STAR3-FULL-REPLAY_Fresh-Authority-Audit.md`.
