@@ -16,13 +16,15 @@
   "validation": {
     "od_t1_count_16": true,
     "od_t2_count_7": true,
-    "confirmed_23_unique_and_equals_derived_unresolved": true,
-    "all_23_owner_confirmed": true,
+    "confirmed_23_unique": true,
+    "pending_22_equals_derived_unresolved": true,
+    "all_23_confirmed_are_pending_or_shipped": true,
     "pending_22_shipped_1": true,
     "unresolved_0": true,
     "families_within_existing_7": true,
     "owner_authority_matches_report_section_0": true,
-    "confirmed_absent_from_production": true,
+    "pending_absent_from_production": true,
+    "shipped_family_equals_confirmed": true,
     "od_t3_matches_production": true,
     "mascarpone_deferred": true,
     "production_files_match_audited_sha256": true

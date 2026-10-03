@@ -104,7 +104,7 @@ Meaning of the numbers (verified in `data/recipes`): the **53** is the `pizza_ma
 
 | Question | Finding (no gaps filled) |
 |---|---|
-| Can the 7 production families express the 22 new 53-scale toppings? | Yes, **Owner-confirmed** (OD-T1 / OD-T2: 16 + 7), but **not yet production rows** — rows ship with each ingredient (OD-T7). 0 UNRESOLVED. |
+| Can the 7 production families express the 22 new 53-scale toppings? | Yes, **Owner-confirmed**: 15 remaining OD-T1 ids + 7 OD-T2 ids = 22 (the 16th OD-T1 id, `chicken`, already shipped in #342 with its row), but **not yet production rows** — rows ship with each ingredient (OD-T7). 0 UNRESOLVED. |
 | Can they express the 105 / 172 toppings? | Only PROPOSED (#255, 132 PROPOSED / 47 NEEDS_REVIEW / 13 UNKNOWN; #296: 54 ids, 18 category-undecided). **Not authority; not decided here.** |
 | Sauce / cheese beyond production | Category only from the research artifact (12 rows + `mascarpone` deferred, OD-T4 / OD-T5: confirm per ingredient at introduction). Wrong category ⇒ silent mis-shelving (62-audit C-5). |
 | no-sauce / oil-base | 2 of 53 recipes have no sauce (`mezza-e-mezza`, `honey-fig`) — the SAUCE rung is RESERVED for TQ-1D (OD-H5-P4-SAUCE). `chili-oil`, `honey`, `nutella-spread`, `mayo` are sauce-category spreads in the artifact. **No separate "oil/base" family or role is needed by the data**; whether `honey` / `nutella-spread` should be `sauce` is unconfirmed (category authority is not HCG-grade). |

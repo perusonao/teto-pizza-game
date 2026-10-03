@@ -178,9 +178,9 @@ def validate(prod, rows, families, master, pr255, out):
     assert OD_T4_DEFER == ["mascarpone"] and mm["category"] == "cheese" and "mascarpone" not in prod_cat
     assert state["mascarpone"] == "DEFERRED_CATEGORY_OD_T4"                        # 9
     return {  # 10 is the pinned-file-hash assertion above plus the OD-T3 / 22-row / not-in-production checks
-        "od_t1_count_16": True, "od_t2_count_7": True, "confirmed_23_unique_and_equals_derived_unresolved": True,
-        "all_23_owner_confirmed": True, "pending_22_shipped_1": True, "unresolved_0": True, "families_within_existing_7": True,
-        "owner_authority_matches_report_section_0": True, "confirmed_absent_from_production": True,
+        "od_t1_count_16": True, "od_t2_count_7": True, "confirmed_23_unique": True, "pending_22_equals_derived_unresolved": True,
+        "all_23_confirmed_are_pending_or_shipped": True, "pending_22_shipped_1": True, "unresolved_0": True, "families_within_existing_7": True,
+        "owner_authority_matches_report_section_0": True, "pending_absent_from_production": True, "shipped_family_equals_confirmed": True,
         "od_t3_matches_production": True, "mascarpone_deferred": True, "production_files_match_audited_sha256": True,
     }
 
