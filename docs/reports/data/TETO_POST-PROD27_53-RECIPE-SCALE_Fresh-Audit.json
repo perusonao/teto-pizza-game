@@ -1,0 +1,6135 @@
+{
+ "schemaNote": "Audit evidence only. Not a production authority, not read by src/**. Regenerate: python3 tools/post_prod27_53_scale_audit.py",
+ "auditedMainSha": "b8617ac0218bf20eb53f68ed12dea09db20e3fa8",
+ "generatedBy": "tools/post_prod27_53_scale_audit.py",
+ "production": {
+  "recipes": 27,
+  "ingredients": 30,
+  "ingredientsByRole": {
+   "sauce": 3,
+   "cheese": 4,
+   "topping": 23
+  },
+  "starterIngredients": [
+   "tomato-sauce",
+   "mozzarella",
+   "basil"
+  ],
+  "taxonomyFamilyRows": 23,
+  "ladderSteps": 25,
+  "ladderCreditedRecipes": 26,
+  "lunchRushParticipating": 25,
+  "noSauceRecipes": [],
+  "noCheeseRecipes": [
+   "marinara",
+   "fugazza",
+   "pizza-bianca",
+   "pesto-tonno",
+   "puttanesca-pizza",
+   "brazilian-calabresa"
+  ],
+  "multiSauceRecipes": [],
+  "sourceHashes": {
+   "src/data/recipes.ts": "ef9fc29ee8333e0adffe0b76582e975ec01970f5442e0ee381b6b23a012b7507",
+   "src/data/ingredients.ts": "100ba550e36b0cffcaef68f9822f74ff519f439e2395d730725ba129860ccb8f",
+   "src/data/ingredientTaxonomy.ts": "981c9e0e9f7f8a37b5888937380c159c9183f1693b5bcae9eef80f7791b1c6b0",
+   "src/data/discoveryLadder.ts": "46128f6df85f3d10d4124770d4d1988224f0b5687d42164b46f63b3325138351"
+  }
+ },
+ "productionSimulation": {
+  "ladderPortValidated": true,
+  "poolMinSlackBySteps": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "everyStepPoolIsOne": true,
+  "softlockSteps": [],
+  "credited": 26,
+  "makeableAfterLastStep": 26,
+  "maxSimultaneousEntries": {
+   "maxSimultaneousEntries": 1,
+   "atStep": 1
+  },
+  "toppingsOwnedAtEnd": 23,
+  "refillAllMaterialsPitz": 1150,
+  "finiteMaterials": 27,
+  "handActiveFromStep": 12
+ },
+ "population": {
+  "catalogRecipes": 53,
+  "catalogViable": 51,
+  "overlapWithProduction": 16,
+  "newRecipesRaw": 37,
+  "productionOnlyRecipes": [
+   "bambino",
+   "brazilian-calabresa",
+   "melanzane-pizza",
+   "new-haven-apizza",
+   "parmigiana-pizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "pesto-pollo",
+   "pesto-tonno",
+   "pizza-portuguesa",
+   "puttanesca-pizza"
+  ],
+  "unionRecipes": 64,
+  "newByCatalogStatus": {
+   "game_design_candidate": 12,
+   "deferred": 5,
+   "verification_pending": 18,
+   "rejected_duplicate": 2
+  },
+  "newByGameDesignStatus": {
+   "candidate": 32,
+   "deferred": 5
+  },
+  "newRecipesExcludingRejectedDuplicates": 35,
+  "newRecipesExcludingRejectedAndDeferred": 30,
+  "catalogIngredients": 62,
+  "ingredientOverlapWithProduction": 27,
+  "newIngredients": 35,
+  "unionIngredients": 65,
+  "productionOnlyIngredients": [
+   "capers",
+   "clam",
+   "fresh-tomato"
+  ],
+  "newIngredientsByRole": {
+   "topping": 22,
+   "sauce": 7,
+   "cheese": 6
+  },
+  "staleDuplicateAlias": {
+   "ingredientsMarkedNotInGameButShippedNow": [
+    "chicken",
+    "corn",
+    "eggplant",
+    "pineapple",
+    "potato"
+   ],
+   "productionIngredientsMissingFromCatalog": [
+    "capers",
+    "clam",
+    "fresh-tomato"
+   ],
+   "productionRecipesMissingFromCatalog": [
+    "bambino",
+    "brazilian-calabresa",
+    "melanzane-pizza",
+    "new-haven-apizza",
+    "parmigiana-pizza",
+    "pesto-caprese",
+    "pesto-patate",
+    "pesto-pollo",
+    "pesto-tonno",
+    "pizza-portuguesa",
+    "puttanesca-pizza"
+   ],
+   "catalogHeaderCounts": {
+    "totalIngredientCount": 62,
+    "existingIngredientCount": 22,
+    "newIngredientCount": 40,
+    "catalogEntryCount": 53
+   },
+   "nameJaDriftCatalogVsProduction": [
+    {
+     "id": "eggplant",
+     "catalog": "なす",
+     "production": "ナス"
+    }
+   ],
+   "catalogStatusStaleForShipped": [
+    "hawaiian"
+   ],
+   "catalogCompositionDriftOnOverlap": []
+  },
+  "identityCollisions": [
+   {
+    "items": [
+     "basil",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "recipes": [
+     "bufalina",
+     "margherita"
+    ]
+   },
+   {
+    "items": [
+     "mozzarella",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "recipes": [
+     "chicago-deep-dish",
+     "salsiccia"
+    ]
+   },
+   {
+    "items": [
+     "mozzarella",
+     "pepperoni",
+     "tomato-sauce"
+    ],
+    "recipes": [
+     "detroit-style",
+     "pepperoni"
+    ]
+   },
+   {
+    "items": [
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "recipes": [
+     "greek-style",
+     "ny-style",
+     "stuffed-crust"
+    ]
+   }
+  ],
+  "namingClusters": [
+   {
+    "id": "NC-1-napoletana",
+    "label": "Napoletana family (3-way)",
+    "catalogIds": [
+     "napoletana"
+    ],
+    "rowIds": [
+     "chilean-napolitana-pizzadb",
+     "argentine-napolitana-pizzadb-p1"
+    ]
+   },
+   {
+    "id": "NC-2-bianca",
+    "label": "Bianca family (3-way)",
+    "catalogIds": [
+     "pizza-bianca",
+     "ricotta-bianca"
+    ],
+    "rowIds": [
+     "bianca-pizzadb-row"
+    ]
+   },
+   {
+    "id": "NC-3-sicilian",
+    "label": "Sicilian family (3-way)",
+    "catalogIds": [
+     "siciliana"
+    ],
+    "rowIds": [
+     "siciliana-pizzadb",
+     "sfincione-pizzadb"
+    ]
+   },
+   {
+    "id": "NC-4-calabresa",
+    "label": "Calabresa family (2-way)",
+    "catalogIds": [],
+    "rowIds": [
+     "calabresa-argentina-pizzadb",
+     "brazilian-calabresa-pizzadb-p10"
+    ]
+   },
+   {
+    "id": "NC-5-speck-e-brie",
+    "label": "speck-e-brie candidate vs differently-composed PIZZA DB row",
+    "catalogIds": [
+     "speck-e-brie"
+    ],
+    "rowIds": [
+     "speck-e-brie-pizzadb-p4"
+    ]
+   },
+   {
+    "id": "NC-6-frutti-pescatore",
+    "label": "Frutti di Mare vs Pescatore (cross-referenced, kept separate)",
+    "catalogIds": [
+     "frutti-di-mare"
+    ],
+    "rowIds": [
+     "frutti-di-mare-pizzadb-p11",
+     "pescatore-pizzadb-p11"
+    ]
+   },
+   {
+    "id": "NC-7-chicago",
+    "label": "Chicago Deep-Dish vs Chicago Stuffed (two real styles)",
+    "catalogIds": [
+     "chicago-deep-dish"
+    ],
+    "rowIds": [
+     "chicago-deep-dish-pizzadb",
+     "chicago-stuffed-pizza-pizzadb-p3"
+    ]
+   }
+  ]
+ },
+ "arithmeticFor53": {
+  "liveCandidatesWithIngredients": 29,
+  "newIngredientsRangeWhenPickingExactly26": [
+   26,
+   35
+  ],
+  "ingredientTotalRangeAt53Recipes": [
+   56,
+   65
+  ],
+  "targetTotal": 53,
+  "currentProduction": 27,
+  "additionalRecipesNeeded": 26,
+  "poolOfNewCandidates": {
+   "U64_all_union": 37,
+   "U62_minus_rejected_duplicates": 35,
+   "U57_minus_deferred_too": 30,
+   "ENGINE_READY": 9,
+   "ENGINE_READY_EXISTING_SAUCES_ONLY": 9,
+   "ENGINE_READY_AND_SOURCE_CLEAN": 5
+  },
+  "engineReadyCoversNeed": false,
+  "shortfallWithoutNewMechanicOrNewSauceOrIdentityDimension": 17
+ },
+ "capabilityUnlock": {
+  "liveCandidates(non-rejected,non-deferred)": 30,
+  "baseEngineReady": 9,
+  "cumulativeInOrder": [
+   {
+    "addCapability": "SPREAD_PLACED_TOPPING",
+    "recipesEngineReadyCumulative": 10,
+    "recipesWhoseOnlyDependencyIsThis": 1
+   },
+   {
+    "addCapability": "NEW_SAUCE_ID",
+    "recipesEngineReadyCumulative": 10,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "POST_BAKE_FINISH",
+    "recipesEngineReadyCumulative": 17,
+    "recipesWhoseOnlyDependencyIsThis": 5
+   },
+   {
+    "addCapability": "MULTI_SAUCE",
+    "recipesEngineReadyCumulative": 22,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "NO_SAUCE",
+    "recipesEngineReadyCumulative": 23,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "NEW_MECHANIC:specialShapePan",
+    "recipesEngineReadyCumulative": 24,
+    "recipesWhoseOnlyDependencyIsThis": 1
+   },
+   {
+    "addCapability": "NEW_MECHANIC:quadrantPlacement",
+    "recipesEngineReadyCumulative": 25,
+    "recipesWhoseOnlyDependencyIsThis": 1
+   },
+   {
+    "addCapability": "NEW_MECHANIC:foldDough",
+    "recipesEngineReadyCumulative": 26,
+    "recipesWhoseOnlyDependencyIsThis": 1
+   },
+   {
+    "addCapability": "NEW_MECHANIC:ringPlacement",
+    "recipesEngineReadyCumulative": 26,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "NEW_MECHANIC:layeredReverseOrder",
+    "recipesEngineReadyCumulative": 26,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "NEW_MECHANIC:halfAndHalfSplit",
+    "recipesEngineReadyCumulative": 26,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "IDENTITY_COLLISION",
+    "recipesEngineReadyCumulative": 28,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   },
+   {
+    "addCapability": "PLACEHOLDER_NO_INGREDIENTS",
+    "recipesEngineReadyCumulative": 29,
+    "recipesWhoseOnlyDependencyIsThis": 0
+   }
+  ],
+  "singleDependencyCounts": {
+   "POST_BAKE_FINISH": 5,
+   "NEW_MECHANIC:quadrantPlacement": 1,
+   "NEW_MECHANIC:foldDough": 1,
+   "NEW_MECHANIC:specialShapePan": 1,
+   "SPREAD_PLACED_TOPPING": 1
+  }
+ },
+ "cohorts": {
+  "U64_all_union": [
+   "ortolana",
+   "prosciutto",
+   "diavola",
+   "frutti-di-mare",
+   "quattro-stagioni",
+   "mezza-e-mezza",
+   "calzone",
+   "prosciutto-e-funghi",
+   "romana",
+   "fugazzeta",
+   "boscaiola",
+   "pugliese",
+   "siciliana",
+   "calabrese",
+   "ai-carciofi",
+   "alla-norma",
+   "contadina",
+   "ai-funghi-porcini",
+   "al-tartufo",
+   "speck-e-brie",
+   "wurstel-e-patatine",
+   "bbq-chicken",
+   "buffalo-chicken",
+   "supreme",
+   "ricotta-bianca",
+   "philly-cheesesteak",
+   "chicago-deep-dish",
+   "detroit-style",
+   "stuffed-crust",
+   "shrimp-mayo",
+   "teriyaki-chicken",
+   "potato-bacon",
+   "nutella-dessert",
+   "honey-fig",
+   "bufalina",
+   "ny-style",
+   "greek-style"
+  ],
+  "U62_minus_rejected_duplicates": [
+   "ortolana",
+   "prosciutto",
+   "diavola",
+   "frutti-di-mare",
+   "quattro-stagioni",
+   "mezza-e-mezza",
+   "calzone",
+   "prosciutto-e-funghi",
+   "romana",
+   "fugazzeta",
+   "boscaiola",
+   "pugliese",
+   "siciliana",
+   "calabrese",
+   "ai-carciofi",
+   "alla-norma",
+   "ai-funghi-porcini",
+   "al-tartufo",
+   "speck-e-brie",
+   "wurstel-e-patatine",
+   "bbq-chicken",
+   "buffalo-chicken",
+   "supreme",
+   "ricotta-bianca",
+   "philly-cheesesteak",
+   "chicago-deep-dish",
+   "detroit-style",
+   "stuffed-crust",
+   "shrimp-mayo",
+   "teriyaki-chicken",
+   "potato-bacon",
+   "nutella-dessert",
+   "honey-fig",
+   "ny-style",
+   "greek-style"
+  ],
+  "U57_minus_deferred_too": [
+   "ortolana",
+   "prosciutto",
+   "diavola",
+   "frutti-di-mare",
+   "quattro-stagioni",
+   "mezza-e-mezza",
+   "calzone",
+   "boscaiola",
+   "pugliese",
+   "siciliana",
+   "calabrese",
+   "ai-carciofi",
+   "alla-norma",
+   "ai-funghi-porcini",
+   "al-tartufo",
+   "speck-e-brie",
+   "wurstel-e-patatine",
+   "bbq-chicken",
+   "buffalo-chicken",
+   "supreme",
+   "ricotta-bianca",
+   "philly-cheesesteak",
+   "chicago-deep-dish",
+   "detroit-style",
+   "stuffed-crust",
+   "shrimp-mayo",
+   "teriyaki-chicken",
+   "potato-bacon",
+   "nutella-dessert",
+   "honey-fig"
+  ],
+  "ENGINE_READY": [
+   "ortolana",
+   "boscaiola",
+   "pugliese",
+   "ai-carciofi",
+   "alla-norma",
+   "ai-funghi-porcini",
+   "supreme",
+   "ricotta-bianca",
+   "philly-cheesesteak"
+  ],
+  "ENGINE_READY_EXISTING_SAUCES_ONLY": [
+   "ortolana",
+   "boscaiola",
+   "pugliese",
+   "ai-carciofi",
+   "alla-norma",
+   "ai-funghi-porcini",
+   "supreme",
+   "ricotta-bianca",
+   "philly-cheesesteak"
+  ],
+  "ENGINE_READY_AND_SOURCE_CLEAN": [
+   "ortolana",
+   "pugliese",
+   "ai-carciofi",
+   "ricotta-bianca",
+   "philly-cheesesteak"
+  ]
+ },
+ "scenarios": {
+  "U64_all_union": {
+   "refillAllMaterialsPitz": 3210,
+   "materialsFinite": 62,
+   "name": "U64_all_union",
+   "recipes": 63,
+   "newRecipes": 36,
+   "appendedLadderSteps": 24,
+   "totalLadderSteps": 49,
+   "appendedSteps": [
+    {
+     "step": 26,
+     "ingredientIds": [
+      "bell-pepper"
+     ],
+     "keyRecipeId": "contadina",
+     "tier": "T3"
+    },
+    {
+     "step": 27,
+     "ingredientIds": [
+      "artichoke"
+     ],
+     "keyRecipeId": "ai-carciofi",
+     "tier": "T3"
+    },
+    {
+     "step": 28,
+     "ingredientIds": [
+      "ricotta"
+     ],
+     "keyRecipeId": "calzone",
+     "tier": "T3"
+    },
+    {
+     "step": 29,
+     "ingredientIds": [
+      "mayo"
+     ],
+     "keyRecipeId": "potato-bacon",
+     "tier": "T3"
+    },
+    {
+     "step": 30,
+     "ingredientIds": [
+      "prosciutto-crudo"
+     ],
+     "keyRecipeId": "prosciutto-e-funghi",
+     "tier": "T4"
+    },
+    {
+     "step": 31,
+     "ingredientIds": [
+      "arugula"
+     ],
+     "keyRecipeId": "prosciutto",
+     "tier": "T4"
+    },
+    {
+     "step": 32,
+     "ingredientIds": [
+      "breadcrumb"
+     ],
+     "keyRecipeId": "pugliese",
+     "tier": "T4"
+    },
+    {
+     "step": 33,
+     "ingredientIds": [
+      "shrimp"
+     ],
+     "keyRecipeId": "shrimp-mayo",
+     "tier": "T4"
+    },
+    {
+     "step": 34,
+     "ingredientIds": [
+      "porcini"
+     ],
+     "keyRecipeId": "ai-funghi-porcini",
+     "tier": "T4"
+    },
+    {
+     "step": 35,
+     "ingredientIds": [
+      "truffle"
+     ],
+     "keyRecipeId": "al-tartufo",
+     "tier": "T4"
+    },
+    {
+     "step": 36,
+     "ingredientIds": [
+      "ricotta-salata"
+     ],
+     "keyRecipeId": "alla-norma",
+     "tier": "T4"
+    },
+    {
+     "step": 37,
+     "ingredientIds": [
+      "buffalo-sauce"
+     ],
+     "keyRecipeId": "buffalo-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 38,
+     "ingredientIds": [
+      "nduja"
+     ],
+     "keyRecipeId": "calabrese",
+     "tier": "T4"
+    },
+    {
+     "step": 39,
+     "ingredientIds": [
+      "parsley"
+     ],
+     "keyRecipeId": "frutti-di-mare",
+     "tier": "T4"
+    },
+    {
+     "step": 40,
+     "ingredientIds": [
+      "zucchini"
+     ],
+     "keyRecipeId": "ortolana",
+     "tier": "T4"
+    },
+    {
+     "step": 41,
+     "ingredientIds": [
+      "caciocavallo"
+     ],
+     "keyRecipeId": "siciliana",
+     "tier": "T4"
+    },
+    {
+     "step": 42,
+     "ingredientIds": [
+      "bbq-sauce",
+      "cilantro"
+     ],
+     "keyRecipeId": "bbq-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 43,
+     "ingredientIds": [
+      "chili-oil",
+      "spicy-salami"
+     ],
+     "keyRecipeId": "diavola",
+     "tier": "T4"
+    },
+    {
+     "step": 44,
+     "ingredientIds": [
+      "provolone",
+      "steak"
+     ],
+     "keyRecipeId": "philly-cheesesteak",
+     "tier": "T4"
+    },
+    {
+     "step": 45,
+     "ingredientIds": [
+      "nori",
+      "teriyaki-sauce"
+     ],
+     "keyRecipeId": "teriyaki-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 46,
+     "ingredientIds": [
+      "french-fries",
+      "wurstel"
+     ],
+     "keyRecipeId": "wurstel-e-patatine",
+     "tier": "T4"
+    },
+    {
+     "step": 47,
+     "ingredientIds": [
+      "brie",
+      "speck",
+      "walnut"
+     ],
+     "keyRecipeId": "speck-e-brie",
+     "tier": "T4"
+    },
+    {
+     "step": 48,
+     "ingredientIds": [
+      "fig",
+      "honey",
+      "mascarpone"
+     ],
+     "keyRecipeId": "honey-fig",
+     "tier": "T4"
+    },
+    {
+     "step": 49,
+     "ingredientIds": [
+      "nutella-spread",
+      "powdered-sugar",
+      "strawberry"
+     ],
+     "keyRecipeId": "nutella-dessert",
+     "tier": "T4"
+    }
+   ],
+   "newIngredientsUnlocked": 35,
+   "materialsTotalAfter": 65,
+   "rolesAfter": {
+    "sauce": 10,
+    "cheese": 10,
+    "topping": 45
+   },
+   "toppingsOwnedAtEnd": 45,
+   "handActiveFromStep": 12,
+   "tierCountsOfSteps16Plus": {
+    "T3": 5,
+    "T4": 20
+   },
+   "firstT4Step": 30,
+   "chaptersByKeyStepTier": {
+    "T1": 10,
+    "T2": 14,
+    "T3": 19,
+    "T4": 20
+   },
+   "poolMinSlackAppended": [
+    10,
+    11,
+    12,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13
+   ],
+   "poolMinSlackAll": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    6,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    9,
+    9,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    11,
+    12,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13
+   ],
+   "stepsWithSinglePool": 0,
+   "stepsWithPoolGE2": 49,
+   "softlockSteps": [],
+   "hardBlockedStepsIfUncookableCounted": [
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49
+   ],
+   "keyRecipesThatCurrentEngineCannotProduce": {
+    "contadina": [
+     "REJECTED_DUPLICATE"
+    ],
+    "calzone": [
+     "NEW_MECHANIC:foldDough",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "potato-bacon": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "prosciutto-e-funghi": [
+     "DEFERRED",
+     "POST_BAKE_FINISH"
+    ],
+    "prosciutto": [
+     "POST_BAKE_FINISH"
+    ],
+    "shrimp-mayo": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "al-tartufo": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "buffalo-chicken": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "calabrese": [
+     "SPREAD_PLACED_TOPPING"
+    ],
+    "frutti-di-mare": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "siciliana": [
+     "NEW_MECHANIC:specialShapePan",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "bbq-chicken": [
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "diavola": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "teriyaki-chicken": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "wurstel-e-patatine": [
+     "POST_BAKE_FINISH"
+    ],
+    "speck-e-brie": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "honey-fig": [
+     "NO_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "nutella-dessert": [
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ]
+   },
+   "literalUnreachableRecipes": [
+    "bufalina",
+    "buffalo-chicken",
+    "chicago-deep-dish",
+    "detroit-style",
+    "diavola",
+    "greek-style",
+    "margherita",
+    "ny-style",
+    "pepperoni",
+    "potato-bacon",
+    "salsiccia",
+    "shrimp-mayo",
+    "stuffed-crust",
+    "teriyaki-chicken"
+   ],
+   "hardBlockedStepsLiteral": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49
+   ],
+   "newRecipesNeedingNoNewMaterial": [
+    "boscaiola",
+    "bufalina",
+    "chicago-deep-dish",
+    "detroit-style",
+    "fugazzeta",
+    "greek-style",
+    "ny-style",
+    "romana",
+    "stuffed-crust"
+   ],
+   "unreachableIngredients": [],
+   "maxSimultaneousResearchEntries": {
+    "maxSimultaneousEntries": 13,
+    "atStep": 28
+   },
+   "entryMarkOverflow": true
+  },
+  "U62_minus_rejected_duplicates": {
+   "refillAllMaterialsPitz": 3210,
+   "materialsFinite": 62,
+   "name": "U62_minus_rejected_duplicates",
+   "recipes": 61,
+   "newRecipes": 34,
+   "appendedLadderSteps": 24,
+   "totalLadderSteps": 49,
+   "appendedSteps": [
+    {
+     "step": 26,
+     "ingredientIds": [
+      "artichoke"
+     ],
+     "keyRecipeId": "ai-carciofi",
+     "tier": "T3"
+    },
+    {
+     "step": 27,
+     "ingredientIds": [
+      "ricotta"
+     ],
+     "keyRecipeId": "calzone",
+     "tier": "T3"
+    },
+    {
+     "step": 28,
+     "ingredientIds": [
+      "mayo"
+     ],
+     "keyRecipeId": "potato-bacon",
+     "tier": "T3"
+    },
+    {
+     "step": 29,
+     "ingredientIds": [
+      "bell-pepper"
+     ],
+     "keyRecipeId": "supreme",
+     "tier": "T3"
+    },
+    {
+     "step": 30,
+     "ingredientIds": [
+      "prosciutto-crudo"
+     ],
+     "keyRecipeId": "prosciutto-e-funghi",
+     "tier": "T4"
+    },
+    {
+     "step": 31,
+     "ingredientIds": [
+      "arugula"
+     ],
+     "keyRecipeId": "prosciutto",
+     "tier": "T4"
+    },
+    {
+     "step": 32,
+     "ingredientIds": [
+      "breadcrumb"
+     ],
+     "keyRecipeId": "pugliese",
+     "tier": "T4"
+    },
+    {
+     "step": 33,
+     "ingredientIds": [
+      "shrimp"
+     ],
+     "keyRecipeId": "shrimp-mayo",
+     "tier": "T4"
+    },
+    {
+     "step": 34,
+     "ingredientIds": [
+      "porcini"
+     ],
+     "keyRecipeId": "ai-funghi-porcini",
+     "tier": "T4"
+    },
+    {
+     "step": 35,
+     "ingredientIds": [
+      "truffle"
+     ],
+     "keyRecipeId": "al-tartufo",
+     "tier": "T4"
+    },
+    {
+     "step": 36,
+     "ingredientIds": [
+      "ricotta-salata"
+     ],
+     "keyRecipeId": "alla-norma",
+     "tier": "T4"
+    },
+    {
+     "step": 37,
+     "ingredientIds": [
+      "buffalo-sauce"
+     ],
+     "keyRecipeId": "buffalo-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 38,
+     "ingredientIds": [
+      "nduja"
+     ],
+     "keyRecipeId": "calabrese",
+     "tier": "T4"
+    },
+    {
+     "step": 39,
+     "ingredientIds": [
+      "parsley"
+     ],
+     "keyRecipeId": "frutti-di-mare",
+     "tier": "T4"
+    },
+    {
+     "step": 40,
+     "ingredientIds": [
+      "zucchini"
+     ],
+     "keyRecipeId": "ortolana",
+     "tier": "T4"
+    },
+    {
+     "step": 41,
+     "ingredientIds": [
+      "caciocavallo"
+     ],
+     "keyRecipeId": "siciliana",
+     "tier": "T4"
+    },
+    {
+     "step": 42,
+     "ingredientIds": [
+      "bbq-sauce",
+      "cilantro"
+     ],
+     "keyRecipeId": "bbq-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 43,
+     "ingredientIds": [
+      "chili-oil",
+      "spicy-salami"
+     ],
+     "keyRecipeId": "diavola",
+     "tier": "T4"
+    },
+    {
+     "step": 44,
+     "ingredientIds": [
+      "provolone",
+      "steak"
+     ],
+     "keyRecipeId": "philly-cheesesteak",
+     "tier": "T4"
+    },
+    {
+     "step": 45,
+     "ingredientIds": [
+      "nori",
+      "teriyaki-sauce"
+     ],
+     "keyRecipeId": "teriyaki-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 46,
+     "ingredientIds": [
+      "french-fries",
+      "wurstel"
+     ],
+     "keyRecipeId": "wurstel-e-patatine",
+     "tier": "T4"
+    },
+    {
+     "step": 47,
+     "ingredientIds": [
+      "brie",
+      "speck",
+      "walnut"
+     ],
+     "keyRecipeId": "speck-e-brie",
+     "tier": "T4"
+    },
+    {
+     "step": 48,
+     "ingredientIds": [
+      "fig",
+      "honey",
+      "mascarpone"
+     ],
+     "keyRecipeId": "honey-fig",
+     "tier": "T4"
+    },
+    {
+     "step": 49,
+     "ingredientIds": [
+      "nutella-spread",
+      "powdered-sugar",
+      "strawberry"
+     ],
+     "keyRecipeId": "nutella-dessert",
+     "tier": "T4"
+    }
+   ],
+   "newIngredientsUnlocked": 35,
+   "materialsTotalAfter": 65,
+   "rolesAfter": {
+    "sauce": 10,
+    "cheese": 10,
+    "topping": 45
+   },
+   "toppingsOwnedAtEnd": 45,
+   "handActiveFromStep": 12,
+   "tierCountsOfSteps16Plus": {
+    "T3": 5,
+    "T4": 20
+   },
+   "firstT4Step": 30,
+   "chaptersByKeyStepTier": {
+    "T1": 9,
+    "T2": 14,
+    "T3": 18,
+    "T4": 20
+   },
+   "poolMinSlackAppended": [
+    9,
+    10,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11
+   ],
+   "poolMinSlackAll": [
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    8,
+    8,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    10,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11
+   ],
+   "stepsWithSinglePool": 0,
+   "stepsWithPoolGE2": 49,
+   "softlockSteps": [],
+   "hardBlockedStepsIfUncookableCounted": [
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49
+   ],
+   "keyRecipesThatCurrentEngineCannotProduce": {
+    "calzone": [
+     "NEW_MECHANIC:foldDough",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "potato-bacon": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "prosciutto-e-funghi": [
+     "DEFERRED",
+     "POST_BAKE_FINISH"
+    ],
+    "prosciutto": [
+     "POST_BAKE_FINISH"
+    ],
+    "shrimp-mayo": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "al-tartufo": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "buffalo-chicken": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "calabrese": [
+     "SPREAD_PLACED_TOPPING"
+    ],
+    "frutti-di-mare": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "siciliana": [
+     "NEW_MECHANIC:specialShapePan",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "bbq-chicken": [
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "diavola": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "teriyaki-chicken": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "wurstel-e-patatine": [
+     "POST_BAKE_FINISH"
+    ],
+    "speck-e-brie": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "honey-fig": [
+     "NO_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "nutella-dessert": [
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ]
+   },
+   "literalUnreachableRecipes": [
+    "buffalo-chicken",
+    "chicago-deep-dish",
+    "detroit-style",
+    "diavola",
+    "greek-style",
+    "ny-style",
+    "pepperoni",
+    "potato-bacon",
+    "salsiccia",
+    "shrimp-mayo",
+    "stuffed-crust",
+    "teriyaki-chicken"
+   ],
+   "hardBlockedStepsLiteral": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49
+   ],
+   "newRecipesNeedingNoNewMaterial": [
+    "boscaiola",
+    "chicago-deep-dish",
+    "detroit-style",
+    "fugazzeta",
+    "greek-style",
+    "ny-style",
+    "romana",
+    "stuffed-crust"
+   ],
+   "unreachableIngredients": [],
+   "maxSimultaneousResearchEntries": {
+    "maxSimultaneousEntries": 11,
+    "atStep": 27
+   },
+   "entryMarkOverflow": true
+  },
+  "U57_minus_deferred_too": {
+   "refillAllMaterialsPitz": 3210,
+   "materialsFinite": 62,
+   "name": "U57_minus_deferred_too",
+   "recipes": 56,
+   "newRecipes": 29,
+   "appendedLadderSteps": 23,
+   "totalLadderSteps": 48,
+   "appendedSteps": [
+    {
+     "step": 26,
+     "ingredientIds": [
+      "artichoke"
+     ],
+     "keyRecipeId": "ai-carciofi",
+     "tier": "T3"
+    },
+    {
+     "step": 27,
+     "ingredientIds": [
+      "ricotta"
+     ],
+     "keyRecipeId": "calzone",
+     "tier": "T3"
+    },
+    {
+     "step": 28,
+     "ingredientIds": [
+      "mayo"
+     ],
+     "keyRecipeId": "potato-bacon",
+     "tier": "T3"
+    },
+    {
+     "step": 29,
+     "ingredientIds": [
+      "bell-pepper"
+     ],
+     "keyRecipeId": "supreme",
+     "tier": "T3"
+    },
+    {
+     "step": 30,
+     "ingredientIds": [
+      "breadcrumb"
+     ],
+     "keyRecipeId": "pugliese",
+     "tier": "T4"
+    },
+    {
+     "step": 31,
+     "ingredientIds": [
+      "shrimp"
+     ],
+     "keyRecipeId": "shrimp-mayo",
+     "tier": "T4"
+    },
+    {
+     "step": 32,
+     "ingredientIds": [
+      "porcini"
+     ],
+     "keyRecipeId": "ai-funghi-porcini",
+     "tier": "T4"
+    },
+    {
+     "step": 33,
+     "ingredientIds": [
+      "truffle"
+     ],
+     "keyRecipeId": "al-tartufo",
+     "tier": "T4"
+    },
+    {
+     "step": 34,
+     "ingredientIds": [
+      "ricotta-salata"
+     ],
+     "keyRecipeId": "alla-norma",
+     "tier": "T4"
+    },
+    {
+     "step": 35,
+     "ingredientIds": [
+      "buffalo-sauce"
+     ],
+     "keyRecipeId": "buffalo-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 36,
+     "ingredientIds": [
+      "nduja"
+     ],
+     "keyRecipeId": "calabrese",
+     "tier": "T4"
+    },
+    {
+     "step": 37,
+     "ingredientIds": [
+      "parsley"
+     ],
+     "keyRecipeId": "frutti-di-mare",
+     "tier": "T4"
+    },
+    {
+     "step": 38,
+     "ingredientIds": [
+      "zucchini"
+     ],
+     "keyRecipeId": "ortolana",
+     "tier": "T4"
+    },
+    {
+     "step": 39,
+     "ingredientIds": [
+      "caciocavallo"
+     ],
+     "keyRecipeId": "siciliana",
+     "tier": "T4"
+    },
+    {
+     "step": 40,
+     "ingredientIds": [
+      "arugula",
+      "prosciutto-crudo"
+     ],
+     "keyRecipeId": "prosciutto",
+     "tier": "T4"
+    },
+    {
+     "step": 41,
+     "ingredientIds": [
+      "bbq-sauce",
+      "cilantro"
+     ],
+     "keyRecipeId": "bbq-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 42,
+     "ingredientIds": [
+      "chili-oil",
+      "spicy-salami"
+     ],
+     "keyRecipeId": "diavola",
+     "tier": "T4"
+    },
+    {
+     "step": 43,
+     "ingredientIds": [
+      "provolone",
+      "steak"
+     ],
+     "keyRecipeId": "philly-cheesesteak",
+     "tier": "T4"
+    },
+    {
+     "step": 44,
+     "ingredientIds": [
+      "nori",
+      "teriyaki-sauce"
+     ],
+     "keyRecipeId": "teriyaki-chicken",
+     "tier": "T4"
+    },
+    {
+     "step": 45,
+     "ingredientIds": [
+      "french-fries",
+      "wurstel"
+     ],
+     "keyRecipeId": "wurstel-e-patatine",
+     "tier": "T4"
+    },
+    {
+     "step": 46,
+     "ingredientIds": [
+      "brie",
+      "speck",
+      "walnut"
+     ],
+     "keyRecipeId": "speck-e-brie",
+     "tier": "T4"
+    },
+    {
+     "step": 47,
+     "ingredientIds": [
+      "fig",
+      "honey",
+      "mascarpone"
+     ],
+     "keyRecipeId": "honey-fig",
+     "tier": "T4"
+    },
+    {
+     "step": 48,
+     "ingredientIds": [
+      "nutella-spread",
+      "powdered-sugar",
+      "strawberry"
+     ],
+     "keyRecipeId": "nutella-dessert",
+     "tier": "T4"
+    }
+   ],
+   "newIngredientsUnlocked": 35,
+   "materialsTotalAfter": 65,
+   "rolesAfter": {
+    "sauce": 10,
+    "cheese": 10,
+    "topping": 45
+   },
+   "toppingsOwnedAtEnd": 45,
+   "handActiveFromStep": 12,
+   "tierCountsOfSteps16Plus": {
+    "T3": 5,
+    "T4": 19
+   },
+   "firstT4Step": 30,
+   "chaptersByKeyStepTier": {
+    "T1": 7,
+    "T2": 13,
+    "T3": 17,
+    "T4": 19
+   },
+   "poolMinSlackAppended": [
+    5,
+    6,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "poolMinSlackAll": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    6,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7,
+    7
+   ],
+   "stepsWithSinglePool": 0,
+   "stepsWithPoolGE2": 48,
+   "softlockSteps": [],
+   "hardBlockedStepsIfUncookableCounted": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48
+   ],
+   "keyRecipesThatCurrentEngineCannotProduce": {
+    "calzone": [
+     "NEW_MECHANIC:foldDough",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "potato-bacon": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "shrimp-mayo": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "al-tartufo": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "buffalo-chicken": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "calabrese": [
+     "SPREAD_PLACED_TOPPING"
+    ],
+    "frutti-di-mare": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "siciliana": [
+     "NEW_MECHANIC:specialShapePan",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "prosciutto": [
+     "POST_BAKE_FINISH"
+    ],
+    "bbq-chicken": [
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "diavola": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "teriyaki-chicken": [
+     "MULTI_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "wurstel-e-patatine": [
+     "POST_BAKE_FINISH"
+    ],
+    "speck-e-brie": [
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ],
+    "honey-fig": [
+     "NO_SAUCE",
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH"
+    ],
+    "nutella-dessert": [
+     "NEW_SAUCE_ID",
+     "POST_BAKE_FINISH",
+     "SOURCE_COMPOSITION_CONFLICT"
+    ]
+   },
+   "literalUnreachableRecipes": [
+    "buffalo-chicken",
+    "chicago-deep-dish",
+    "detroit-style",
+    "diavola",
+    "pepperoni",
+    "potato-bacon",
+    "salsiccia",
+    "shrimp-mayo",
+    "teriyaki-chicken"
+   ],
+   "hardBlockedStepsLiteral": [
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48
+   ],
+   "newRecipesNeedingNoNewMaterial": [
+    "boscaiola",
+    "chicago-deep-dish",
+    "detroit-style",
+    "stuffed-crust"
+   ],
+   "unreachableIngredients": [],
+   "maxSimultaneousResearchEntries": {
+    "maxSimultaneousEntries": 7,
+    "atStep": 27
+   },
+   "entryMarkOverflow": false
+  },
+  "ENGINE_READY": {
+   "refillAllMaterialsPitz": 1650,
+   "materialsFinite": 36,
+   "name": "ENGINE_READY",
+   "recipes": 36,
+   "newRecipes": 9,
+   "appendedLadderSteps": 8,
+   "totalLadderSteps": 33,
+   "appendedSteps": [
+    {
+     "step": 26,
+     "ingredientIds": [
+      "bell-pepper"
+     ],
+     "keyRecipeId": "supreme",
+     "tier": "T3"
+    },
+    {
+     "step": 27,
+     "ingredientIds": [
+      "artichoke"
+     ],
+     "keyRecipeId": "ai-carciofi",
+     "tier": "T3"
+    },
+    {
+     "step": 28,
+     "ingredientIds": [
+      "porcini"
+     ],
+     "keyRecipeId": "ai-funghi-porcini",
+     "tier": "T3"
+    },
+    {
+     "step": 29,
+     "ingredientIds": [
+      "ricotta-salata"
+     ],
+     "keyRecipeId": "alla-norma",
+     "tier": "T3"
+    },
+    {
+     "step": 30,
+     "ingredientIds": [
+      "zucchini"
+     ],
+     "keyRecipeId": "ortolana",
+     "tier": "T4"
+    },
+    {
+     "step": 31,
+     "ingredientIds": [
+      "breadcrumb"
+     ],
+     "keyRecipeId": "pugliese",
+     "tier": "T4"
+    },
+    {
+     "step": 32,
+     "ingredientIds": [
+      "ricotta"
+     ],
+     "keyRecipeId": "ricotta-bianca",
+     "tier": "T4"
+    },
+    {
+     "step": 33,
+     "ingredientIds": [
+      "provolone",
+      "steak"
+     ],
+     "keyRecipeId": "philly-cheesesteak",
+     "tier": "T4"
+    }
+   ],
+   "newIngredientsUnlocked": 9,
+   "materialsTotalAfter": 39,
+   "rolesAfter": {
+    "sauce": 3,
+    "cheese": 7,
+    "topping": 29
+   },
+   "toppingsOwnedAtEnd": 29,
+   "handActiveFromStep": 12,
+   "tierCountsOfSteps16Plus": {
+    "T3": 5,
+    "T4": 4
+   },
+   "firstT4Step": 30,
+   "chaptersByKeyStepTier": {
+    "T1": 6,
+    "T2": 11,
+    "T3": 15,
+    "T4": 4
+   },
+   "poolMinSlackAppended": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "poolMinSlackAll": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "stepsWithSinglePool": 7,
+   "stepsWithPoolGE2": 26,
+   "softlockSteps": [],
+   "hardBlockedStepsIfUncookableCounted": [],
+   "keyRecipesThatCurrentEngineCannotProduce": {},
+   "literalUnreachableRecipes": [],
+   "hardBlockedStepsLiteral": [],
+   "newRecipesNeedingNoNewMaterial": [
+    "boscaiola"
+   ],
+   "unreachableIngredients": [],
+   "maxSimultaneousResearchEntries": {
+    "maxSimultaneousEntries": 2,
+    "atStep": 7
+   },
+   "entryMarkOverflow": false
+  },
+  "ENGINE_READY_EXISTING_SAUCES_ONLY": {
+   "refillAllMaterialsPitz": 1650,
+   "materialsFinite": 36,
+   "name": "ENGINE_READY_EXISTING_SAUCES_ONLY",
+   "recipes": 36,
+   "newRecipes": 9,
+   "appendedLadderSteps": 8,
+   "totalLadderSteps": 33,
+   "appendedSteps": [
+    {
+     "step": 26,
+     "ingredientIds": [
+      "bell-pepper"
+     ],
+     "keyRecipeId": "supreme",
+     "tier": "T3"
+    },
+    {
+     "step": 27,
+     "ingredientIds": [
+      "artichoke"
+     ],
+     "keyRecipeId": "ai-carciofi",
+     "tier": "T3"
+    },
+    {
+     "step": 28,
+     "ingredientIds": [
+      "porcini"
+     ],
+     "keyRecipeId": "ai-funghi-porcini",
+     "tier": "T3"
+    },
+    {
+     "step": 29,
+     "ingredientIds": [
+      "ricotta-salata"
+     ],
+     "keyRecipeId": "alla-norma",
+     "tier": "T3"
+    },
+    {
+     "step": 30,
+     "ingredientIds": [
+      "zucchini"
+     ],
+     "keyRecipeId": "ortolana",
+     "tier": "T4"
+    },
+    {
+     "step": 31,
+     "ingredientIds": [
+      "breadcrumb"
+     ],
+     "keyRecipeId": "pugliese",
+     "tier": "T4"
+    },
+    {
+     "step": 32,
+     "ingredientIds": [
+      "ricotta"
+     ],
+     "keyRecipeId": "ricotta-bianca",
+     "tier": "T4"
+    },
+    {
+     "step": 33,
+     "ingredientIds": [
+      "provolone",
+      "steak"
+     ],
+     "keyRecipeId": "philly-cheesesteak",
+     "tier": "T4"
+    }
+   ],
+   "newIngredientsUnlocked": 9,
+   "materialsTotalAfter": 39,
+   "rolesAfter": {
+    "sauce": 3,
+    "cheese": 7,
+    "topping": 29
+   },
+   "toppingsOwnedAtEnd": 29,
+   "handActiveFromStep": 12,
+   "tierCountsOfSteps16Plus": {
+    "T3": 5,
+    "T4": 4
+   },
+   "firstT4Step": 30,
+   "chaptersByKeyStepTier": {
+    "T1": 6,
+    "T2": 11,
+    "T3": 15,
+    "T4": 4
+   },
+   "poolMinSlackAppended": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "poolMinSlackAll": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "stepsWithSinglePool": 7,
+   "stepsWithPoolGE2": 26,
+   "softlockSteps": [],
+   "hardBlockedStepsIfUncookableCounted": [],
+   "keyRecipesThatCurrentEngineCannotProduce": {},
+   "literalUnreachableRecipes": [],
+   "hardBlockedStepsLiteral": [],
+   "newRecipesNeedingNoNewMaterial": [
+    "boscaiola"
+   ],
+   "unreachableIngredients": [],
+   "maxSimultaneousResearchEntries": {
+    "maxSimultaneousEntries": 2,
+    "atStep": 7
+   },
+   "entryMarkOverflow": false
+  },
+  "ENGINE_READY_AND_SOURCE_CLEAN": {
+   "refillAllMaterialsPitz": 1520,
+   "materialsFinite": 34,
+   "name": "ENGINE_READY_AND_SOURCE_CLEAN",
+   "recipes": 32,
+   "newRecipes": 5,
+   "appendedLadderSteps": 5,
+   "totalLadderSteps": 30,
+   "appendedSteps": [
+    {
+     "step": 26,
+     "ingredientIds": [
+      "artichoke"
+     ],
+     "keyRecipeId": "ai-carciofi",
+     "tier": "T3"
+    },
+    {
+     "step": 27,
+     "ingredientIds": [
+      "breadcrumb"
+     ],
+     "keyRecipeId": "pugliese",
+     "tier": "T3"
+    },
+    {
+     "step": 28,
+     "ingredientIds": [
+      "ricotta"
+     ],
+     "keyRecipeId": "ricotta-bianca",
+     "tier": "T3"
+    },
+    {
+     "step": 29,
+     "ingredientIds": [
+      "bell-pepper",
+      "zucchini"
+     ],
+     "keyRecipeId": "ortolana",
+     "tier": "T3"
+    },
+    {
+     "step": 30,
+     "ingredientIds": [
+      "provolone",
+      "steak"
+     ],
+     "keyRecipeId": "philly-cheesesteak",
+     "tier": "T4"
+    }
+   ],
+   "newIngredientsUnlocked": 7,
+   "materialsTotalAfter": 37,
+   "rolesAfter": {
+    "sauce": 3,
+    "cheese": 6,
+    "topping": 28
+   },
+   "toppingsOwnedAtEnd": 28,
+   "handActiveFromStep": 12,
+   "tierCountsOfSteps16Plus": {
+    "T3": 5,
+    "T4": 1
+   },
+   "firstT4Step": 30,
+   "chaptersByKeyStepTier": {
+    "T1": 6,
+    "T2": 10,
+    "T3": 15,
+    "T4": 1
+   },
+   "poolMinSlackAppended": [
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "poolMinSlackAll": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "stepsWithSinglePool": 30,
+   "stepsWithPoolGE2": 0,
+   "softlockSteps": [],
+   "hardBlockedStepsIfUncookableCounted": [],
+   "keyRecipesThatCurrentEngineCannotProduce": {},
+   "literalUnreachableRecipes": [],
+   "hardBlockedStepsLiteral": [],
+   "newRecipesNeedingNoNewMaterial": [],
+   "unreachableIngredients": [],
+   "maxSimultaneousResearchEntries": {
+    "maxSimultaneousEntries": 1,
+    "atStep": 1
+   },
+   "entryMarkOverflow": false
+  }
+ },
+ "candidateRecipes": [
+  {
+   "id": "ortolana",
+   "nameJa": "オルトラーナ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "bell-pepper",
+    "cherry-tomato",
+    "mozzarella",
+    "onion",
+    "tomato-sauce",
+    "zucchini"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "toppingKinds": 4,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "prosciutto",
+   "nameJa": "プロシュート",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "arugula",
+    "mozzarella",
+    "parmigiano",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [
+    "prosciutto-crudo",
+    "arugula"
+   ],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "arugula",
+    "prosciutto-crudo"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 2,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "diavola",
+   "nameJa": "ディアボラ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "chili-oil",
+    "mozzarella",
+    "spicy-salami",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [
+    "chili-oil"
+   ],
+   "sauceCategoryIngredients": [
+    "chili-oil",
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "chili-oil",
+    "spicy-salami"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "diavola-pizza-pizzadb-p5",
+    "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "MULTI_SAUCE",
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "frutti-di-mare",
+   "nameJa": "フルッティ・ディ・マーレ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "garlic",
+    "olive-oil",
+    "parsley",
+    "shrimp"
+   ],
+   "finishingIngredients": [
+    "parsley"
+   ],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "parsley",
+    "shrimp"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 0,
+   "pizzaDbEvidence": {
+    "evidenceId": "frutti-di-mare-pizzadb-p11",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "quattro-stagioni",
+   "nameJa": "クアトロ・スタジオーニ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "quadrantPlacement"
+   ],
+   "ingredients": [
+    "artichoke",
+    "black-olive",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "artichoke"
+   ],
+   "toppingKinds": 4,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "quattro-stagioni-pizzadb",
+    "relation": "IDENTICAL",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "ZONED_PLACEMENT"
+    ],
+    "productDecisionStatus": "READY",
+    "capabilityStrengths": [
+     [
+      "ZONED_PLACEMENT",
+      "phase0_sample_mechanic_tag"
+     ]
+    ]
+   },
+   "flags": [
+    "NEW_MECHANIC:quadrantPlacement"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "mezza-e-mezza",
+   "nameJa": "メッザ・エ・メッザ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "scatter",
+    "halfAndHalfSplit"
+   ],
+   "ingredients": [],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [],
+   "newIngredients": [],
+   "toppingKinds": 0,
+   "cheeseKinds": 0,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "PLACEHOLDER_NO_INGREDIENTS",
+    "NEW_MECHANIC:halfAndHalfSplit"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "calzone",
+   "nameJa": "カルツォーネ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "foldDough"
+   ],
+   "ingredients": [
+    "ham",
+    "mozzarella",
+    "ricotta",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "ricotta"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 2,
+   "pizzaDbEvidence": {
+    "evidenceId": "calzone-pizzadb",
+    "relation": "DIVERGENT",
+    "representability": "NOT_REPRESENTABLE",
+    "requiredCapabilities": [
+     "ENCLOSE"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "ENCLOSE",
+      "phase0_sample_mechanic_tag"
+     ],
+     [
+      "ENCLOSE",
+      "source_profile_text"
+     ]
+    ]
+   },
+   "flags": [
+    "NEW_MECHANIC:foldDough",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "prosciutto-e-funghi",
+   "nameJa": "プロシュート・エ・フンギ",
+   "catalogStatus": "deferred",
+   "gameDesignStatus": "deferred",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "mushroom",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [
+    "prosciutto-crudo"
+   ],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "prosciutto-crudo"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "DEFERRED",
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "romana",
+   "nameJa": "ロマーナ",
+   "catalogStatus": "deferred",
+   "gameDesignStatus": "deferred",
+   "implementationClass": "E",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "anchovy",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 2,
+   "cheeseKinds": 0,
+   "pizzaDbEvidence": {
+    "evidenceId": "pizza-romana-pizzadb-p9",
+    "relation": "PIZZADB_SUPERSET",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "DOUGH_VARIANT"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "DOUGH_VARIANT",
+      "source_dough_field"
+     ]
+    ]
+   },
+   "flags": [
+    "DEFERRED",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "fugazzeta",
+   "nameJa": "フガゼータ",
+   "catalogStatus": "deferred",
+   "gameDesignStatus": "deferred",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "stuffedDough"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "fugazzetta-pizzadb-p10",
+    "relation": "PIZZADB_SUBSET",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "DOUGH_VARIANT"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "DOUGH_VARIANT",
+      "source_dough_field"
+     ]
+    ]
+   },
+   "flags": [
+    "DEFERRED",
+    "NEW_MECHANIC:stuffedDough",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "boscaiola",
+   "nameJa": "ボスカイオーラ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "mushroom",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "boscaiola-pizzadb-p12",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "pugliese",
+   "nameJa": "プリエーゼ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "breadcrumb",
+    "mozzarella",
+    "onion",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "breadcrumb"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "siciliana",
+   "nameJa": "シチリアーナ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "specialShapePan"
+   ],
+   "ingredients": [
+    "anchovy",
+    "breadcrumb",
+    "caciocavallo",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "breadcrumb",
+    "caciocavallo"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "siciliana-pizzadb",
+    "relation": "DIVERGENT",
+    "representability": "NOT_REPRESENTABLE",
+    "requiredCapabilities": [
+     "DOUGH_VARIANT",
+     "PAN_BAKE",
+     "DOUGH_SHAPE_TARGET"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "DOUGH_SHAPE_TARGET",
+      "source_profile_text"
+     ],
+     [
+      "DOUGH_VARIANT",
+      "source_profile_text"
+     ],
+     [
+      "PAN_BAKE",
+      "catalog_design_tag"
+     ]
+    ]
+   },
+   "flags": [
+    "NEW_MECHANIC:specialShapePan",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "calabrese",
+   "nameJa": "カラブレーゼ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "nduja",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "nduja"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "SPREAD_PLACED_TOPPING"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "ai-carciofi",
+   "nameJa": "アーティチョークのピザ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "artichoke",
+    "garlic",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "artichoke"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "alla-norma",
+   "nameJa": "アッラ・ノルマ風",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "basil",
+    "eggplant",
+    "mozzarella",
+    "olive-oil",
+    "ricotta-salata"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "ricotta-salata"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 2,
+   "pizzaDbEvidence": {
+    "evidenceId": "pizza-alla-norma-pizzadb-p9",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "contadina",
+   "nameJa": "コンタディーナ",
+   "catalogStatus": "rejected_duplicate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "E",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "bell-pepper",
+    "mozzarella",
+    "mushroom",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "bell-pepper"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "REJECTED_DUPLICATE"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "ai-funghi-porcini",
+   "nameJa": "ポルチーニのピザ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "porcini",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "porcini"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "porcini-pizza-pizzadb-p13",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "al-tartufo",
+   "nameJa": "トリュフのピザ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "fontina",
+    "olive-oil",
+    "truffle"
+   ],
+   "finishingIngredients": [
+    "truffle"
+   ],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "truffle"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "black-truffle-pizza-pizzadb-p14",
+    "relation": "DIVERGENT",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "LATE_ADDITION"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "LATE_ADDITION",
+      "catalog_design_tag"
+     ]
+    ]
+   },
+   "flags": [
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "speck-e-brie",
+   "nameJa": "スペック・エ・ブリー",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "arugula",
+    "brie",
+    "olive-oil",
+    "speck",
+    "walnut"
+   ],
+   "finishingIngredients": [
+    "arugula"
+   ],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "arugula",
+    "brie",
+    "speck",
+    "walnut"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "speck-e-brie-pizzadb-p4",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "wurstel-e-patatine",
+   "nameJa": "ウインナー・エ・ポテト",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "french-fries",
+    "mozzarella",
+    "tomato-sauce",
+    "wurstel"
+   ],
+   "finishingIngredients": [
+    "french-fries"
+   ],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "french-fries",
+    "wurstel"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "bbq-chicken",
+   "nameJa": "BBQチキン",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "bbq-sauce",
+    "chicken",
+    "cilantro",
+    "mozzarella",
+    "onion"
+   ],
+   "finishingIngredients": [
+    "cilantro"
+   ],
+   "sauceCategoryIngredients": [
+    "bbq-sauce"
+   ],
+   "newIngredients": [
+    "bbq-sauce",
+    "cilantro"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "bbq-chicken-pizzadb",
+    "relation": "IDENTICAL",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "LATE_ADDITION"
+    ],
+    "productDecisionStatus": "READY",
+    "capabilityStrengths": [
+     [
+      "LATE_ADDITION",
+      "catalog_design_tag"
+     ]
+    ]
+   },
+   "flags": [
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "buffalo-chicken",
+   "nameJa": "バッファローチキン",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "buffalo-sauce",
+    "chicken",
+    "gorgonzola",
+    "mozzarella",
+    "olive-oil"
+   ],
+   "finishingIngredients": [
+    "buffalo-sauce"
+   ],
+   "sauceCategoryIngredients": [
+    "buffalo-sauce",
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "buffalo-sauce"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 2,
+   "pizzaDbEvidence": {
+    "evidenceId": "buffalo-chicken-pizzadb",
+    "relation": "DIVERGENT",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "MULTI_SPREAD_LAYER",
+     "LATE_ADDITION"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "LATE_ADDITION",
+      "catalog_design_tag"
+     ],
+     [
+      "MULTI_SPREAD_LAYER",
+      "source_ingredient_field"
+     ]
+    ]
+   },
+   "flags": [
+    "MULTI_SAUCE",
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "supreme",
+   "nameJa": "スプリーム",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "bell-pepper",
+    "black-olive",
+    "mozzarella",
+    "mushroom",
+    "onion",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "bell-pepper"
+   ],
+   "toppingKinds": 6,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "supreme-pizzadb",
+    "relation": "PIZZADB_SUBSET",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "ricotta-bianca",
+   "nameJa": "リコッタ・ビアンカ",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "garlic",
+    "mozzarella",
+    "olive-oil",
+    "ricotta"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "ricotta"
+   ],
+   "toppingKinds": 1,
+   "cheeseKinds": 2,
+   "pizzaDbEvidence": null,
+   "flags": [],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "philly-cheesesteak",
+   "nameJa": "フィリーチーズステーキ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "B",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "bell-pepper",
+    "olive-oil",
+    "onion",
+    "provolone",
+    "steak"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "bell-pepper",
+    "provolone",
+    "steak"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [],
+   "currentEngineReady": true,
+   "currentEngineReadyNewSauceFree": true
+  },
+  {
+   "id": "chicago-deep-dish",
+   "nameJa": "シカゴ・ディープディッシュ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "layeredReverseOrder",
+    "specialShapePan"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "chicago-deep-dish-pizzadb",
+    "relation": "PIZZADB_SUPERSET",
+    "representability": "NOT_REPRESENTABLE",
+    "requiredCapabilities": [
+     "STEP_ORDER",
+     "PAN_BAKE"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "PAN_BAKE",
+      "catalog_design_tag"
+     ],
+     [
+      "PAN_BAKE",
+      "source_profile_text"
+     ],
+     [
+      "STEP_ORDER",
+      "phase0_sample_mechanic_tag"
+     ],
+     [
+      "STEP_ORDER",
+      "source_profile_text"
+     ]
+    ]
+   },
+   "flags": [
+    "IDENTITY_COLLISION",
+    "NEW_MECHANIC:layeredReverseOrder+specialShapePan",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "detroit-style",
+   "nameJa": "デトロイト・スタイル",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "specialShapePan",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [
+    "tomato-sauce"
+   ],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "detroit-style-pizza-pizzadb-p5",
+    "relation": "DIVERGENT",
+    "representability": "NOT_REPRESENTABLE",
+    "requiredCapabilities": [
+     "DOUGH_VARIANT",
+     "LATE_ADDITION",
+     "PAN_BAKE",
+     "DOUGH_SHAPE_TARGET"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "DOUGH_SHAPE_TARGET",
+      "source_dough_field"
+     ],
+     [
+      "DOUGH_VARIANT",
+      "source_dough_field"
+     ],
+     [
+      "LATE_ADDITION",
+      "catalog_design_tag"
+     ],
+     [
+      "PAN_BAKE",
+      "source_dough_field"
+     ]
+    ]
+   },
+   "flags": [
+    "IDENTITY_COLLISION",
+    "POST_BAKE_FINISH",
+    "NEW_MECHANIC:specialShapePan",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "stuffed-crust",
+   "nameJa": "スタッフドクラスト",
+   "catalogStatus": "game_design_candidate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "C",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "ringPlacement"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 0,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "IDENTITY_COLLISION",
+    "NEW_MECHANIC:ringPlacement"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "shrimp-mayo",
+   "nameJa": "エビマヨ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "corn",
+    "mayo",
+    "mozzarella",
+    "shrimp",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [
+    "mayo"
+   ],
+   "sauceCategoryIngredients": [
+    "mayo",
+    "tomato-sauce"
+   ],
+   "newIngredients": [
+    "mayo",
+    "shrimp"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "MULTI_SAUCE",
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "teriyaki-chicken",
+   "nameJa": "テリヤキチキン",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "chicken",
+    "corn",
+    "mayo",
+    "mozzarella",
+    "nori",
+    "onion",
+    "teriyaki-sauce"
+   ],
+   "finishingIngredients": [
+    "mayo",
+    "nori"
+   ],
+   "sauceCategoryIngredients": [
+    "mayo",
+    "teriyaki-sauce"
+   ],
+   "newIngredients": [
+    "mayo",
+    "nori",
+    "teriyaki-sauce"
+   ],
+   "toppingKinds": 4,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+    "relation": "INDETERMINATE_UNSPECIFIED_SAUCE_BASE",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "LATE_ADDITION"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "LATE_ADDITION",
+      "catalog_design_tag"
+     ],
+     [
+      "MULTI_SPREAD_LAYER",
+      "repo_inference"
+     ]
+    ]
+   },
+   "flags": [
+    "MULTI_SAUCE",
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "potato-bacon",
+   "nameJa": "ポテト・ベーコン",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "bacon",
+    "mayo",
+    "olive-oil",
+    "potato",
+    "rosemary"
+   ],
+   "finishingIngredients": [
+    "mayo"
+   ],
+   "sauceCategoryIngredients": [
+    "mayo",
+    "olive-oil"
+   ],
+   "newIngredients": [
+    "mayo"
+   ],
+   "toppingKinds": 3,
+   "cheeseKinds": 0,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "MULTI_SAUCE",
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "nutella-dessert",
+   "nameJa": "ヌテラ・デザートピザ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "nutella-spread",
+    "powdered-sugar",
+    "strawberry"
+   ],
+   "finishingIngredients": [
+    "powdered-sugar"
+   ],
+   "sauceCategoryIngredients": [
+    "nutella-spread"
+   ],
+   "newIngredients": [
+    "nutella-spread",
+    "powdered-sugar",
+    "strawberry"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 0,
+   "pizzaDbEvidence": {
+    "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+    "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "LATE_ADDITION"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "LATE_ADDITION",
+      "catalog_design_tag"
+     ]
+    ]
+   },
+   "flags": [
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "honey-fig",
+   "nameJa": "はちみつ・いちじくのデザートピザ",
+   "catalogStatus": "verification_pending",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "D",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "postBakeFinishing"
+   ],
+   "ingredients": [
+    "fig",
+    "honey",
+    "mascarpone",
+    "walnut"
+   ],
+   "finishingIngredients": [
+    "honey"
+   ],
+   "sauceCategoryIngredients": [
+    "honey"
+   ],
+   "newIngredients": [
+    "fig",
+    "honey",
+    "mascarpone",
+    "walnut"
+   ],
+   "toppingKinds": 2,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "NO_SAUCE",
+    "NEW_SAUCE_ID",
+    "POST_BAKE_FINISH"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "bufalina",
+   "nameJa": "ブファリーナ",
+   "catalogStatus": "rejected_duplicate",
+   "gameDesignStatus": "candidate",
+   "implementationClass": "E",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 1,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": null,
+   "flags": [
+    "REJECTED_DUPLICATE",
+    "IDENTITY_COLLISION"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "ny-style",
+   "nameJa": "ニューヨーク・スタイル",
+   "catalogStatus": "deferred",
+   "gameDesignStatus": "deferred",
+   "implementationClass": "E",
+   "catalogMechanics": [
+    "spread",
+    "scatter"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 0,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "ny-style-pizzadb",
+    "relation": "IDENTICAL",
+    "representability": "PARTIAL",
+    "requiredCapabilities": [
+     "DOUGH_VARIANT"
+    ],
+    "productDecisionStatus": "READY_WITH_REVIEW",
+    "capabilityStrengths": [
+     [
+      "DOUGH_VARIANT",
+      "source_profile_text"
+     ],
+     [
+      "SERVE_FORM",
+      "repo_inference"
+     ]
+    ]
+   },
+   "flags": [
+    "DEFERRED",
+    "IDENTITY_COLLISION"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  },
+  {
+   "id": "greek-style",
+   "nameJa": "ギリシャ・スタイル",
+   "catalogStatus": "deferred",
+   "gameDesignStatus": "deferred",
+   "implementationClass": "E",
+   "catalogMechanics": [
+    "spread",
+    "scatter",
+    "specialShapePan"
+   ],
+   "ingredients": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "finishingIngredients": [],
+   "sauceCategoryIngredients": [
+    "tomato-sauce"
+   ],
+   "newIngredients": [],
+   "toppingKinds": 0,
+   "cheeseKinds": 1,
+   "pizzaDbEvidence": {
+    "evidenceId": "greek-style-pizzadb",
+    "relation": "PIZZADB_SUPERSET",
+    "representability": "NOT_REPRESENTABLE",
+    "requiredCapabilities": [
+     "DOUGH_VARIANT",
+     "PAN_BAKE"
+    ],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": [
+     [
+      "DOUGH_VARIANT",
+      "source_profile_text"
+     ],
+     [
+      "PAN_BAKE",
+      "catalog_design_tag"
+     ],
+     [
+      "PAN_BAKE",
+      "source_profile_text"
+     ]
+    ]
+   },
+   "flags": [
+    "DEFERRED",
+    "IDENTITY_COLLISION",
+    "NEW_MECHANIC:specialShapePan",
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "currentEngineReady": false,
+   "currentEngineReadyNewSauceFree": false
+  }
+ ],
+ "ingredients": [
+  {
+   "id": "anchovy",
+   "nameJa": "アンチョビ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "seafood",
+   "shelf": "seafood",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "napoletana",
+    "romana",
+    "siciliana"
+   ]
+  },
+  {
+   "id": "artichoke",
+   "nameJa": "アーティチョーク",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "ai-carciofi",
+    "quattro-stagioni"
+   ]
+  },
+  {
+   "id": "arugula",
+   "nameJa": "ルッコラ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "prosciutto",
+    "speck-e-brie"
+   ]
+  },
+  {
+   "id": "bacon",
+   "nameJa": "ベーコン",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "breakfast-pizza",
+    "meat-lovers",
+    "potato-bacon"
+   ]
+  },
+  {
+   "id": "basil",
+   "nameJa": "バジル",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "herb",
+   "shelf": "herb",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "alla-norma",
+    "bufalina",
+    "margherita"
+   ]
+  },
+  {
+   "id": "bbq-sauce",
+   "nameJa": "BBQソース",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION",
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "bbq-chicken"
+   ]
+  },
+  {
+   "id": "bell-pepper",
+   "nameJa": "パプリカ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID"
+   ],
+   "usedByCatalogRecipes": [
+    "contadina",
+    "ortolana",
+    "philly-cheesesteak",
+    "supreme"
+   ]
+  },
+  {
+   "id": "black-olive",
+   "nameJa": "ブラックオリーブ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "capricciosa",
+    "quattro-stagioni",
+    "supreme"
+   ]
+  },
+  {
+   "id": "breadcrumb",
+   "nameJa": "パン粉",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "other",
+   "shelf": "other",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "pugliese",
+    "siciliana"
+   ]
+  },
+  {
+   "id": "brie",
+   "nameJa": "ブリーチーズ",
+   "inProduction": false,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "speck-e-brie"
+   ]
+  },
+  {
+   "id": "buffalo-sauce",
+   "nameJa": "バッファローソース",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "SAUCE_ROLE_USED_AS_POST_BAKE_FINISH",
+    "SECOND_SAUCE_IN_RECIPE",
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION"
+   ],
+   "usedByCatalogRecipes": [
+    "buffalo-chicken"
+   ]
+  },
+  {
+   "id": "caciocavallo",
+   "nameJa": "カチョカヴァロ",
+   "inProduction": false,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "siciliana"
+   ]
+  },
+  {
+   "id": "capers",
+   "nameJa": "ケッパー",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "spice",
+   "shelf": "spice",
+   "state": "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": []
+  },
+  {
+   "id": "cherry-tomato",
+   "nameJa": "チェリートマト",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "genovese",
+    "ortolana"
+   ]
+  },
+  {
+   "id": "chicken",
+   "nameJa": "チキン",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_SHIPPED_OD_T7",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "bbq-chicken",
+    "buffalo-chicken",
+    "teriyaki-chicken"
+   ]
+  },
+  {
+   "id": "chili-oil",
+   "nameJa": "チリオイル",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "SAUCE_ROLE_USED_AS_POST_BAKE_FINISH",
+    "SECOND_SAUCE_IN_RECIPE",
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION"
+   ],
+   "usedByCatalogRecipes": [
+    "diavola"
+   ]
+  },
+  {
+   "id": "cilantro",
+   "nameJa": "パクチー",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "herb",
+   "shelf": "herb",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID"
+   ],
+   "usedByCatalogRecipes": [
+    "bbq-chicken"
+   ]
+  },
+  {
+   "id": "clam",
+   "nameJa": "あさり",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "seafood",
+   "shelf": "seafood",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": []
+  },
+  {
+   "id": "corn",
+   "nameJa": "コーン",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "shrimp-mayo",
+    "teriyaki-chicken"
+   ]
+  },
+  {
+   "id": "egg",
+   "nameJa": "たまご",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "other",
+   "shelf": "other",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "bismarck",
+    "breakfast-pizza"
+   ]
+  },
+  {
+   "id": "eggplant",
+   "nameJa": "ナス",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "alla-norma"
+   ]
+  },
+  {
+   "id": "fig",
+   "nameJa": "いちじく",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "fruit",
+   "shelf": "fruit",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "honey-fig"
+   ]
+  },
+  {
+   "id": "fontina",
+   "nameJa": "フォンティーナ",
+   "inProduction": true,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "al-tartufo",
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "id": "french-fries",
+   "nameJa": "フライドポテト",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "other",
+   "shelf": "other",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID"
+   ],
+   "usedByCatalogRecipes": [
+    "wurstel-e-patatine"
+   ]
+  },
+  {
+   "id": "fresh-tomato",
+   "nameJa": "トマト",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": []
+  },
+  {
+   "id": "garlic",
+   "nameJa": "にんにく",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "herb",
+   "shelf": "herb",
+   "state": "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "ai-carciofi",
+    "frutti-di-mare",
+    "marinara",
+    "ricotta-bianca"
+   ]
+  },
+  {
+   "id": "gorgonzola",
+   "nameJa": "ゴルゴンゾーラ",
+   "inProduction": true,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "buffalo-chicken",
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "id": "ham",
+   "nameJa": "ハム",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "calzone",
+    "capricciosa",
+    "hawaiian",
+    "meat-lovers",
+    "quattro-stagioni"
+   ]
+  },
+  {
+   "id": "honey",
+   "nameJa": "はちみつ",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "SAUCE_ROLE_USED_AS_POST_BAKE_FINISH",
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION"
+   ],
+   "usedByCatalogRecipes": [
+    "honey-fig"
+   ]
+  },
+  {
+   "id": "mascarpone",
+   "nameJa": "マスカルポーネ",
+   "inProduction": false,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "DEFERRED_CATEGORY_OD_T4",
+   "classification": "ROLE_DEFERRED_OD_T4",
+   "ownerDecisionNeeded": "REQUIRED: category (cheese vs other) at runtime introduction",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "honey-fig"
+   ]
+  },
+  {
+   "id": "mayo",
+   "nameJa": "マヨネーズ",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "SAUCE_ROLE_USED_AS_POST_BAKE_FINISH",
+    "SECOND_SAUCE_IN_RECIPE",
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION"
+   ],
+   "usedByCatalogRecipes": [
+    "potato-bacon",
+    "shrimp-mayo",
+    "teriyaki-chicken"
+   ]
+  },
+  {
+   "id": "mozzarella",
+   "nameJa": "モッツァレラ",
+   "inProduction": true,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "ai-carciofi",
+    "ai-funghi-porcini",
+    "alla-norma",
+    "bbq-chicken",
+    "bismarck",
+    "boscaiola",
+    "breakfast-pizza",
+    "bufalina",
+    "buffalo-chicken",
+    "calabrese",
+    "calzone",
+    "capricciosa",
+    "chicago-deep-dish",
+    "contadina",
+    "detroit-style",
+    "diavola",
+    "fugazzeta",
+    "funghi",
+    "genovese",
+    "greek-style",
+    "hawaiian",
+    "margherita",
+    "meat-lovers",
+    "napoletana",
+    "ny-style",
+    "ortolana",
+    "pepperoni",
+    "prosciutto",
+    "prosciutto-e-funghi",
+    "pugliese",
+    "quattro-formaggi",
+    "quattro-stagioni",
+    "ricotta-bianca",
+    "salsiccia",
+    "shrimp-mayo",
+    "stuffed-crust",
+    "supreme",
+    "teriyaki-chicken",
+    "tonno-e-cipolla",
+    "wurstel-e-patatine"
+   ]
+  },
+  {
+   "id": "mushroom",
+   "nameJa": "マッシュルーム",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "boscaiola",
+    "capricciosa",
+    "contadina",
+    "funghi",
+    "prosciutto-e-funghi",
+    "quattro-stagioni",
+    "supreme"
+   ]
+  },
+  {
+   "id": "nduja",
+   "nameJa": "ンドゥイヤ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "spread",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "TOPPING_WITH_SPREAD_PLACEMENT"
+   ],
+   "usedByCatalogRecipes": [
+    "calabrese"
+   ]
+  },
+  {
+   "id": "nori",
+   "nameJa": "のり",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "other",
+   "shelf": "other",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "teriyaki-chicken"
+   ]
+  },
+  {
+   "id": "nutella-spread",
+   "nameJa": "チョコヘーゼルナッツソース",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION"
+   ],
+   "usedByCatalogRecipes": [
+    "nutella-dessert"
+   ]
+  },
+  {
+   "id": "olive-oil",
+   "nameJa": "オリーブオイル",
+   "inProduction": true,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "al-tartufo",
+    "alla-norma",
+    "buffalo-chicken",
+    "frutti-di-mare",
+    "fugazza",
+    "fugazzeta",
+    "philly-cheesesteak",
+    "pizza-bianca",
+    "potato-bacon",
+    "quattro-formaggi",
+    "ricotta-bianca",
+    "speck-e-brie"
+   ]
+  },
+  {
+   "id": "onion",
+   "nameJa": "たまねぎ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "bbq-chicken",
+    "fugazza",
+    "fugazzeta",
+    "ortolana",
+    "philly-cheesesteak",
+    "pugliese",
+    "supreme",
+    "teriyaki-chicken",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "id": "oregano",
+   "nameJa": "オレガノ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "herb",
+   "shelf": "herb",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "capricciosa",
+    "fugazza",
+    "fugazzeta",
+    "marinara",
+    "napoletana",
+    "pugliese",
+    "romana"
+   ]
+  },
+  {
+   "id": "parmigiano",
+   "nameJa": "パルミジャーノ",
+   "inProduction": true,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "prosciutto",
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "id": "parsley",
+   "nameJa": "パセリ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "herb",
+   "shelf": "herb",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "frutti-di-mare"
+   ]
+  },
+  {
+   "id": "pepperoni",
+   "nameJa": "ペパロニ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "detroit-style",
+    "meat-lovers",
+    "pepperoni",
+    "supreme"
+   ]
+  },
+  {
+   "id": "pesto",
+   "nameJa": "ジェノベーゼソース",
+   "inProduction": true,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "genovese"
+   ]
+  },
+  {
+   "id": "pineapple",
+   "nameJa": "パイナップル",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "fruit",
+   "shelf": "fruit",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "hawaiian"
+   ]
+  },
+  {
+   "id": "porcini",
+   "nameJa": "ポルチーニ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID"
+   ],
+   "usedByCatalogRecipes": [
+    "ai-funghi-porcini"
+   ]
+  },
+  {
+   "id": "potato",
+   "nameJa": "じゃがいも",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "potato-bacon"
+   ]
+  },
+  {
+   "id": "powdered-sugar",
+   "nameJa": "粉砂糖",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "other",
+   "shelf": "other",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "nutella-dessert"
+   ]
+  },
+  {
+   "id": "prosciutto-crudo",
+   "nameJa": "生ハム",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID",
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "prosciutto",
+    "prosciutto-e-funghi"
+   ]
+  },
+  {
+   "id": "provolone",
+   "nameJa": "プロヴォローネ",
+   "inProduction": false,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "philly-cheesesteak"
+   ]
+  },
+  {
+   "id": "ricotta",
+   "nameJa": "リコッタチーズ",
+   "inProduction": false,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "calzone",
+    "ricotta-bianca"
+   ]
+  },
+  {
+   "id": "ricotta-salata",
+   "nameJa": "リコッタサラータ",
+   "inProduction": false,
+   "role": "cheese",
+   "playerFacingCategoryJa": "チーズ",
+   "placement": "scatter",
+   "toppingFamily": null,
+   "shelf": "cheese",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "alla-norma"
+   ]
+  },
+  {
+   "id": "rosemary",
+   "nameJa": "ローズマリー",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "herb",
+   "shelf": "herb",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "pizza-bianca",
+    "potato-bacon"
+   ]
+  },
+  {
+   "id": "sausage",
+   "nameJa": "ソーセージ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "boscaiola",
+    "chicago-deep-dish",
+    "contadina",
+    "meat-lovers",
+    "salsiccia",
+    "supreme"
+   ]
+  },
+  {
+   "id": "shrimp",
+   "nameJa": "エビ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "seafood",
+   "shelf": "seafood",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "frutti-di-mare",
+    "shrimp-mayo"
+   ]
+  },
+  {
+   "id": "speck",
+   "nameJa": "スペック",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID"
+   ],
+   "usedByCatalogRecipes": [
+    "speck-e-brie"
+   ]
+  },
+  {
+   "id": "spicy-salami",
+   "nameJa": "サラミ（ピリ辛）",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID",
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "diavola"
+   ]
+  },
+  {
+   "id": "steak",
+   "nameJa": "ステーキ肉",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID",
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "philly-cheesesteak"
+   ]
+  },
+  {
+   "id": "strawberry",
+   "nameJa": "いちご",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "fruit",
+   "shelf": "fruit",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "nutella-dessert"
+   ]
+  },
+  {
+   "id": "teriyaki-sauce",
+   "nameJa": "照り焼きソース",
+   "inProduction": false,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "CATEGORY_FROM_CATALOG_ONLY",
+   "classification": "ROLE_FROM_CATALOG_ARTIFACT_ONLY",
+   "ownerDecisionNeeded": "REQUIRED per ingredient at runtime introduction (OD-T5)",
+   "flags": [
+    "SECOND_SAUCE_IN_RECIPE",
+    "NEEDS_SAUCE_PROFILE_TYPE_EXTENSION",
+    "NAME_NEEDS_SEARCH_ALIAS_OR_READING"
+   ],
+   "usedByCatalogRecipes": [
+    "teriyaki-chicken"
+   ]
+  },
+  {
+   "id": "tomato-sauce",
+   "nameJa": "トマトソース",
+   "inProduction": true,
+   "role": "sauce",
+   "playerFacingCategoryJa": "ソース",
+   "placement": "spread",
+   "toppingFamily": null,
+   "shelf": "sauce",
+   "state": "SHELF_BY_CATEGORY",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "ai-carciofi",
+    "ai-funghi-porcini",
+    "bismarck",
+    "boscaiola",
+    "breakfast-pizza",
+    "bufalina",
+    "calabrese",
+    "calzone",
+    "capricciosa",
+    "chicago-deep-dish",
+    "contadina",
+    "detroit-style",
+    "diavola",
+    "funghi",
+    "greek-style",
+    "hawaiian",
+    "margherita",
+    "marinara",
+    "meat-lovers",
+    "napoletana",
+    "ny-style",
+    "ortolana",
+    "pepperoni",
+    "prosciutto",
+    "prosciutto-e-funghi",
+    "pugliese",
+    "quattro-stagioni",
+    "romana",
+    "salsiccia",
+    "shrimp-mayo",
+    "siciliana",
+    "stuffed-crust",
+    "supreme",
+    "tonno-e-cipolla",
+    "wurstel-e-patatine"
+   ]
+  },
+  {
+   "id": "truffle",
+   "nameJa": "トリュフ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "al-tartufo"
+   ]
+  },
+  {
+   "id": "tuna",
+   "nameJa": "ツナ",
+   "inProduction": true,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "seafood",
+   "shelf": "seafood",
+   "state": "CLASSIFIED_PRODUCTION",
+   "classification": "PRODUCTION",
+   "ownerDecisionNeeded": "none",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "id": "walnut",
+   "nameJa": "くるみ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "other",
+   "shelf": "other",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "honey-fig",
+    "speck-e-brie"
+   ]
+  },
+  {
+   "id": "wurstel",
+   "nameJa": "ウインナー",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "meat",
+   "shelf": "meat",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [
+    "NEAR_ALIAS_OF_EXISTING_BUT_INDEPENDENT_ID"
+   ],
+   "usedByCatalogRecipes": [
+    "wurstel-e-patatine"
+   ]
+  },
+  {
+   "id": "zucchini",
+   "nameJa": "ズッキーニ",
+   "inProduction": false,
+   "role": "topping",
+   "playerFacingCategoryJa": "具材",
+   "placement": "scatter",
+   "toppingFamily": "vegetable",
+   "shelf": "vegetable",
+   "state": "OWNER_CONFIRMED_PENDING_RUNTIME",
+   "classification": "CLASSIFIABLE_OWNER_CONFIRMED_PENDING_RUNTIME",
+   "ownerDecisionNeeded": "none (OD-T1/T2); taxonomy row must ship in the introducing PR (OD-T7)",
+   "flags": [],
+   "usedByCatalogRecipes": [
+    "ortolana"
+   ]
+  }
+ ],
+ "taxonomySummary": {
+  "newIngredients": 35,
+  "byRole": {
+   "topping": 22,
+   "sauce": 7,
+   "cheese": 6
+  },
+  "toppingFamilyResolved": 22,
+  "toppingFamilyUnresolved": 0,
+  "roleNotOwnerConfirmed": [
+   "bbq-sauce",
+   "brie",
+   "buffalo-sauce",
+   "caciocavallo",
+   "chili-oil",
+   "honey",
+   "mascarpone",
+   "mayo",
+   "nutella-spread",
+   "provolone",
+   "ricotta",
+   "ricotta-salata",
+   "teriyaki-sauce"
+  ],
+  "roleUsageConflict": [
+   "buffalo-sauce",
+   "chili-oil",
+   "honey",
+   "mayo",
+   "nduja",
+   "teriyaki-sauce"
+  ],
+  "newToppingFamilyCounts": {
+   "vegetable": 6,
+   "other": 5,
+   "herb": 2,
+   "fruit": 2,
+   "meat": 6,
+   "seafood": 1
+  },
+  "unionToppingFamilyCounts": {
+   "seafood": 4,
+   "vegetable": 14,
+   "meat": 11,
+   "herb": 6,
+   "other": 6,
+   "spice": 1,
+   "fruit": 3
+  },
+  "namesNeedingAliasOrReading": [
+   "bbq-sauce",
+   "breadcrumb",
+   "powdered-sugar",
+   "prosciutto-crudo",
+   "spicy-salami",
+   "steak",
+   "teriyaki-sauce"
+  ],
+  "needSauceProfileTypeExtension": [
+   "bbq-sauce",
+   "buffalo-sauce",
+   "chili-oil",
+   "honey",
+   "mayo",
+   "nutella-spread",
+   "teriyaki-sauce"
+  ],
+  "unresolvedCount": 13
+ },
+ "hand": {
+  "capacity": 12,
+  "handIsPerCategoryAndFreeCookOnly": true,
+  "productionToppingsAllOwned": 23,
+  "productionHiddenFromHandWhenAllOwned": 11,
+  "unionToppings": 45,
+  "unionHiddenFromHandWhenAllOwned": 33,
+  "unionSauces": 10,
+  "unionCheeses": 10,
+  "handActiveForSauceOrCheese": false,
+  "maxDistinctToppingsInOneRecipe": 6,
+  "trayPages": {
+   "production": {
+    "sauce": 1,
+    "cheese": 1,
+    "topping": 4
+   },
+   "union": {
+    "sauce": 2,
+    "cheese": 2,
+    "topping": 8
+   }
+  },
+  "dinnerAndLunchRushKeepPagedTrayWorstTaps": {
+   "production": 4,
+   "union": 8
+  },
+  "shelfChipsMax": 9,
+  "toppingFamilyChipsMax": 7,
+  "newFamilyIdsNeeded": 0,
+  "familySizesProduction": {
+   "meat": 5,
+   "seafood": 3,
+   "vegetable": 8,
+   "fruit": 1,
+   "herb": 4,
+   "spice": 1,
+   "other": 1
+  },
+  "familySizesUnion": {
+   "seafood": 4,
+   "vegetable": 14,
+   "meat": 11,
+   "herb": 6,
+   "other": 6,
+   "spice": 1,
+   "fruit": 3
+  },
+  "largestFamilyUnion": [
+   "vegetable",
+   14
+  ],
+  "searchVisibleWhenOwnedRowsGT": 6,
+  "productionReadingJaFields": 0,
+  "searchAliasEntriesProduction": 3
+ },
+ "notebook": {
+  "limit": 200,
+  "truncation": "none; recordAttempt rejects > 200 (INVALID_FEEDBACK, nothing stored)",
+  "worstCaseProduction_sauce1": 109,
+  "worstCaseProduction_sauce3_contractMethod": 126,
+  "contractDocumentedWorstCase": 126,
+  "worstCaseUnion_sauce1": 173,
+  "worstCaseUnion_sauce1_allCheesesUsed_labelFallbackIndex11": 174,
+  "worstCaseUnion_with具材Label": 170,
+  "cheesesInUnion": 10,
+  "cheeseRowIsUncapped": true,
+  "note": "worst case = longest label + every cheese of the population judged + 3 longest unknown toppings + 1 sauce; a real attempt is shorter.",
+  "headroomUnion": 27
+ },
+ "cookingStepCandidates": [
+  {
+   "id": "prosciutto",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: prosciutto-crudo,arugula"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "diavola",
+   "needs": [
+    {
+     "kind": "SECOND_SPREAD_LAYER",
+     "basis": "2+ sauce-category ingredients; pizza.sauceIds holds 1 sauce"
+    },
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: chili-oil"
+    }
+   ],
+   "pizzaDbRow": "diavola-pizza-pizzadb-p5",
+   "pizzaDbRequiredCapabilities": [],
+   "pizzaDbRepresentability": "FULL",
+   "pizzaDbCapabilityStrengths": [],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "frutti-di-mare",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: parsley"
+    }
+   ],
+   "pizzaDbRow": "frutti-di-mare-pizzadb-p11",
+   "pizzaDbRequiredCapabilities": [],
+   "pizzaDbRepresentability": "FULL",
+   "pizzaDbCapabilityStrengths": [],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "quattro-stagioni",
+   "needs": [
+    {
+     "kind": "ZONED_QUADRANT",
+     "basis": "catalog mechanic tag quadrantPlacement"
+    }
+   ],
+   "pizzaDbRow": "quattro-stagioni-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "ZONED_PLACEMENT"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "ZONED_PLACEMENT",
+     "phase0_sample_mechanic_tag"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "mezza-e-mezza",
+   "needs": [
+    {
+     "kind": "COMPOSITE_OF_TWO_RECIPES",
+     "basis": "catalog mezza-e-mezza has no ingredients of its own"
+    },
+    {
+     "kind": "SPLIT_CANVAS",
+     "basis": "catalog mechanic tag halfAndHalfSplit"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "calzone",
+   "needs": [
+    {
+     "kind": "FOLD_SEAL",
+     "basis": "catalog mechanic tag foldDough"
+    }
+   ],
+   "pizzaDbRow": "calzone-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "ENCLOSE"
+   ],
+   "pizzaDbRepresentability": "NOT_REPRESENTABLE",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "ENCLOSE",
+     "phase0_sample_mechanic_tag"
+    ],
+    [
+     "ENCLOSE",
+     "source_profile_text"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "prosciutto-e-funghi",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: prosciutto-crudo"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "deferred"
+  },
+  {
+   "id": "fugazzeta",
+   "needs": [
+    {
+     "kind": "ENCLOSE_STUFF",
+     "basis": "catalog mechanic tag stuffedDough"
+    }
+   ],
+   "pizzaDbRow": "fugazzetta-pizzadb-p10",
+   "pizzaDbRequiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "DOUGH_VARIANT",
+     "source_dough_field"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "deferred"
+  },
+  {
+   "id": "siciliana",
+   "needs": [
+    {
+     "kind": "PAN_SHAPE",
+     "basis": "catalog mechanic tag specialShapePan"
+    }
+   ],
+   "pizzaDbRow": "siciliana-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "pizzaDbRepresentability": "NOT_REPRESENTABLE",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "DOUGH_SHAPE_TARGET",
+     "source_profile_text"
+    ],
+    [
+     "DOUGH_VARIANT",
+     "source_profile_text"
+    ],
+    [
+     "PAN_BAKE",
+     "catalog_design_tag"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "calabrese",
+   "needs": [
+    {
+     "kind": "SPREAD_PLACED_TOPPING",
+     "basis": "catalog placementType=spread on a topping-role ingredient"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "al-tartufo",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: truffle"
+    }
+   ],
+   "pizzaDbRow": "black-truffle-pizza-pizzadb-p14",
+   "pizzaDbRequiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "LATE_ADDITION",
+     "catalog_design_tag"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "speck-e-brie",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: arugula"
+    }
+   ],
+   "pizzaDbRow": "speck-e-brie-pizzadb-p4",
+   "pizzaDbRequiredCapabilities": [],
+   "pizzaDbRepresentability": "FULL",
+   "pizzaDbCapabilityStrengths": [],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "wurstel-e-patatine",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: french-fries"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "bbq-chicken",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: cilantro"
+    },
+    {
+     "kind": "UNUSUAL_BASE_SPREAD",
+     "basis": "base sauce outside tomato-sauce/olive-oil/pesto: bbq-sauce"
+    }
+   ],
+   "pizzaDbRow": "bbq-chicken-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "LATE_ADDITION",
+     "catalog_design_tag"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "buffalo-chicken",
+   "needs": [
+    {
+     "kind": "SECOND_SPREAD_LAYER",
+     "basis": "2+ sauce-category ingredients; pizza.sauceIds holds 1 sauce"
+    },
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: buffalo-sauce"
+    }
+   ],
+   "pizzaDbRow": "buffalo-chicken-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "MULTI_SPREAD_LAYER",
+    "LATE_ADDITION"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "LATE_ADDITION",
+     "catalog_design_tag"
+    ],
+    [
+     "MULTI_SPREAD_LAYER",
+     "source_ingredient_field"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "chicago-deep-dish",
+   "needs": [
+    {
+     "kind": "REVERSE_LAYER",
+     "basis": "catalog mechanic tag layeredReverseOrder"
+    },
+    {
+     "kind": "PAN_SHAPE",
+     "basis": "catalog mechanic tag specialShapePan"
+    },
+    {
+     "kind": "IDENTITY_COLLISION_NEEDS_DIMENSION",
+     "basis": "same ingredient set + sauce base as another recipe"
+    }
+   ],
+   "pizzaDbRow": "chicago-deep-dish-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "STEP_ORDER",
+    "PAN_BAKE"
+   ],
+   "pizzaDbRepresentability": "NOT_REPRESENTABLE",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "PAN_BAKE",
+     "catalog_design_tag"
+    ],
+    [
+     "PAN_BAKE",
+     "source_profile_text"
+    ],
+    [
+     "STEP_ORDER",
+     "phase0_sample_mechanic_tag"
+    ],
+    [
+     "STEP_ORDER",
+     "source_profile_text"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "detroit-style",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: tomato-sauce"
+    },
+    {
+     "kind": "PAN_SHAPE",
+     "basis": "catalog mechanic tag specialShapePan"
+    },
+    {
+     "kind": "IDENTITY_COLLISION_NEEDS_DIMENSION",
+     "basis": "same ingredient set + sauce base as another recipe"
+    }
+   ],
+   "pizzaDbRow": "detroit-style-pizza-pizzadb-p5",
+   "pizzaDbRequiredCapabilities": [
+    "DOUGH_VARIANT",
+    "LATE_ADDITION",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "pizzaDbRepresentability": "NOT_REPRESENTABLE",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "DOUGH_SHAPE_TARGET",
+     "source_dough_field"
+    ],
+    [
+     "DOUGH_VARIANT",
+     "source_dough_field"
+    ],
+    [
+     "LATE_ADDITION",
+     "catalog_design_tag"
+    ],
+    [
+     "PAN_BAKE",
+     "source_dough_field"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "stuffed-crust",
+   "needs": [
+    {
+     "kind": "EDGE_RING_FILL",
+     "basis": "catalog mechanic tag ringPlacement"
+    },
+    {
+     "kind": "IDENTITY_COLLISION_NEEDS_DIMENSION",
+     "basis": "same ingredient set + sauce base as another recipe"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "shrimp-mayo",
+   "needs": [
+    {
+     "kind": "SECOND_SPREAD_LAYER",
+     "basis": "2+ sauce-category ingredients; pizza.sauceIds holds 1 sauce"
+    },
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: mayo"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "teriyaki-chicken",
+   "needs": [
+    {
+     "kind": "SECOND_SPREAD_LAYER",
+     "basis": "2+ sauce-category ingredients; pizza.sauceIds holds 1 sauce"
+    },
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: mayo,nori"
+    }
+   ],
+   "pizzaDbRow": "teriyaki-chicken-pizza-pizzadb-p14",
+   "pizzaDbRequiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "LATE_ADDITION",
+     "catalog_design_tag"
+    ],
+    [
+     "MULTI_SPREAD_LAYER",
+     "repo_inference"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "potato-bacon",
+   "needs": [
+    {
+     "kind": "SECOND_SPREAD_LAYER",
+     "basis": "2+ sauce-category ingredients; pizza.sauceIds holds 1 sauce"
+    },
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: mayo"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "nutella-dessert",
+   "needs": [
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: powdered-sugar"
+    },
+    {
+     "kind": "UNUSUAL_BASE_SPREAD",
+     "basis": "base sauce outside tomato-sauce/olive-oil/pesto: nutella-spread"
+    }
+   ],
+   "pizzaDbRow": "nutella-dessert-pizza-pizzadb-p6",
+   "pizzaDbRequiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "LATE_ADDITION",
+     "catalog_design_tag"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_ROW__CAPABILITY_FROM_CATALOG_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "honey-fig",
+   "needs": [
+    {
+     "kind": "NO_SAUCE",
+     "basis": "catalog: no sauce-category ingredient"
+    },
+    {
+     "kind": "LATE_POST_BAKE_ADDITION",
+     "basis": "catalog finishingIngredients / postBakeFinishing: honey"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "bufalina",
+   "needs": [
+    {
+     "kind": "IDENTITY_COLLISION_NEEDS_DIMENSION",
+     "basis": "same ingredient set + sauce base as another recipe"
+    }
+   ],
+   "pizzaDbRow": null,
+   "pizzaDbRequiredCapabilities": null,
+   "pizzaDbRepresentability": null,
+   "pizzaDbCapabilityStrengths": null,
+   "evidenceGrade": "NO_PIZZA_DB_ROW__CATALOG_DESIGN_TAG_ONLY",
+   "catalogStatus": "rejected_duplicate"
+  },
+  {
+   "id": "ny-style",
+   "needs": [
+    {
+     "kind": "IDENTITY_COLLISION_NEEDS_DIMENSION",
+     "basis": "same ingredient set + sauce base as another recipe"
+    }
+   ],
+   "pizzaDbRow": "ny-style-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "pizzaDbRepresentability": "PARTIAL",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "DOUGH_VARIANT",
+     "source_profile_text"
+    ],
+    [
+     "SERVE_FORM",
+     "repo_inference"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "deferred"
+  },
+  {
+   "id": "greek-style",
+   "needs": [
+    {
+     "kind": "PAN_SHAPE",
+     "basis": "catalog mechanic tag specialShapePan"
+    },
+    {
+     "kind": "IDENTITY_COLLISION_NEEDS_DIMENSION",
+     "basis": "same ingredient set + sauce base as another recipe"
+    }
+   ],
+   "pizzaDbRow": "greek-style-pizzadb",
+   "pizzaDbRequiredCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "pizzaDbRepresentability": "NOT_REPRESENTABLE",
+   "pizzaDbCapabilityStrengths": [
+    [
+     "DOUGH_VARIANT",
+     "source_profile_text"
+    ],
+    [
+     "PAN_BAKE",
+     "catalog_design_tag"
+    ],
+    [
+     "PAN_BAKE",
+     "source_profile_text"
+    ]
+   ],
+   "evidenceGrade": "PIZZA_DB_SOURCE_OR_PROFILE_TEXT",
+   "catalogStatus": "deferred"
+  }
+ ],
+ "cookingStepNeedCounts": {
+  "LATE_POST_BAKE_ADDITION": 15,
+  "SECOND_SPREAD_LAYER": 5,
+  "ZONED_QUADRANT": 1,
+  "COMPOSITE_OF_TWO_RECIPES": 1,
+  "SPLIT_CANVAS": 1,
+  "FOLD_SEAL": 1,
+  "ENCLOSE_STUFF": 1,
+  "PAN_SHAPE": 4,
+  "SPREAD_PLACED_TOPPING": 1,
+  "UNUSUAL_BASE_SPREAD": 2,
+  "REVERSE_LAYER": 1,
+  "IDENTITY_COLLISION_NEEDS_DIMENSION": 6,
+  "EDGE_RING_FILL": 1,
+  "NO_SAUCE": 1
+ },
+ "verticalSliceShortlist": [
+  {
+   "id": "boscaiola",
+   "newIngredients": [],
+   "evidence": {
+    "evidenceId": "boscaiola-pizzadb-p12",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "ai-funghi-porcini",
+   "newIngredients": [
+    "porcini"
+   ],
+   "evidence": {
+    "evidenceId": "porcini-pizza-pizzadb-p13",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "ricotta-bianca",
+   "newIngredients": [
+    "ricotta"
+   ],
+   "evidence": null,
+   "flags": [],
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "ai-carciofi",
+   "newIngredients": [
+    "artichoke"
+   ],
+   "evidence": null,
+   "flags": [],
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "alla-norma",
+   "newIngredients": [
+    "ricotta-salata"
+   ],
+   "evidence": {
+    "evidenceId": "pizza-alla-norma-pizzadb-p9",
+    "relation": "DIVERGENT",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "pugliese",
+   "newIngredients": [
+    "breadcrumb"
+   ],
+   "evidence": null,
+   "flags": [],
+   "catalogStatus": "verification_pending"
+  },
+  {
+   "id": "supreme",
+   "newIngredients": [
+    "bell-pepper"
+   ],
+   "evidence": {
+    "evidenceId": "supreme-pizzadb",
+    "relation": "PIZZADB_SUBSET",
+    "representability": "FULL",
+    "requiredCapabilities": [],
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "capabilityStrengths": []
+   },
+   "flags": [
+    "SOURCE_COMPOSITION_CONFLICT"
+   ],
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "ortolana",
+   "newIngredients": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "evidence": null,
+   "flags": [],
+   "catalogStatus": "game_design_candidate"
+  },
+  {
+   "id": "philly-cheesesteak",
+   "newIngredients": [
+    "bell-pepper",
+    "provolone",
+    "steak"
+   ],
+   "evidence": null,
+   "flags": [],
+   "catalogStatus": "verification_pending"
+  }
+ ],
+ "constants": {
+  "handCapacity": 12,
+  "trayPageSlots": 6,
+  "notebookMax": 200,
+  "researchToppingK": 3,
+  "entryMarks": 10,
+  "priceTiers": [
+   [
+    "T1",
+    1,
+    5
+   ],
+   [
+    "T2",
+    6,
+    14
+   ],
+   [
+    "T3",
+    15,
+    29
+   ],
+   [
+    "T4",
+    30,
+    null
+   ]
+  ]
+ }
+}
