@@ -37,10 +37,10 @@ const DECOYS: Decoys = {
   session: { lcHand: "12", "lc-hand-preview-v1": "12", handCapacity: "12" },
 };
 
-/** `LC_R6B_SCREENSHOTS=1` writes the Human Verification screenshots to docs/reports/screenshots/lc-r6b-preview-activation/. */
+/** `LC_R6E_SCREENSHOTS=1` writes the Human Verification before/after screenshots to docs/reports/screenshots/lc-r6e-production-activation/. */
 async function shot(page: import("@playwright/test").Page, name: string) {
-  if (process.env.LC_R6B_SCREENSHOTS !== "1") return;
-  await page.screenshot({ path: `docs/reports/screenshots/lc-r6b-preview-activation/${name}.png` });
+  if (process.env.LC_R6E_SCREENSHOTS !== "1") return;
+  await page.screenshot({ path: `docs/reports/screenshots/lc-r6e-production-activation/${name}.png` });
 }
 
 test.describe.configure({ mode: "serial" });
@@ -112,6 +112,15 @@ test("Production Hand activation: ON (12) with Preview parity, variant/decoys in
   const rolled = await captureFreeSnapshots(page, `${origin}${ROLLBACK}`, PRODUCTION_KEY);
   expect(Object.keys(rolled).filter((k) => k.startsWith("free22.topping.page")).length, "rollback: 22 toppings, 4 pages (no hand)").toBe(4);
   await expect(page.locator(".preview-badge")).toHaveCount(0);
+  await openFree(page, `${origin}${ROLLBACK}`, PRODUCTION_KEY, saveWithToppings(22));
+  await toSauce(page);
+  await toCheese(page);
+  await toTopping(page);
+  await shot(page, "before-rollback-topping-hand-off");
+  await page.getByRole("button", { name: /食材庫/ }).click();
+  await page.waitForSelector(".pantry-sheet");
+  await shot(page, "before-rollback-pantry-no-pin-ui");
+  await page.keyboard.press("Escape");
   if (browserName === "chromium") {
     const golden = JSON.parse(fs.readFileSync(GOLDEN_FILE, "utf8")) as { snapshots: Record<string, string | null> };
     expect(rolled, "rolled-back production DOM = the R5-e baseline golden").toEqual(golden.snapshots);
