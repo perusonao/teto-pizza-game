@@ -139,4 +139,22 @@ describe("Research context across the transitions of a Research round", () => {
     const s = gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" });
     expect(hasContext(s)).toBe(false);
   });
+
+  // Contract 2.1 S3: no pre-attempt declaration UI exists in any PREPARE step (the flag is ON under vitest).
+  it("no ingredient picker / declaration control or copy in any PREPARE step; the Research context stays", () => {
+    let s = researchRound();
+    const prepareStates = [s];
+    for (const a of [{ type: "CONFIRM_MAKING_STEP" }, { type: "CONFIRM_MAKING_STEP" }, { type: "CONFIRM_MAKING_STEP" }] as GameAction[]) {
+      s = gameReducer(s, a);
+      prepareStates.push(s);
+    }
+    for (const st of prepareStates) {
+      const r = renderAt(st);
+      expect(screen.queryByTestId("research-test-button")).toBeNull();
+      expect(screen.queryByTestId("research-test-picker")).toBeNull();
+      expect(r.container.textContent ?? "").not.toMatch(/調べる食材|今回調べる|食材調査なし|試作中は変更できません/);
+      if (st.phase === "PREPARE") expect(screen.queryByTestId("research-context")).not.toBeNull();
+      r.unmount();
+    }
+  });
 });

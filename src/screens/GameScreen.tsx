@@ -2,8 +2,6 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientPantry } from "../components/IngredientPantry";
-import { ResearchTestPicker } from "../components/ResearchTestPicker";
-import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { IngredientTray } from "../components/IngredientTray";
 import { isLargeCatalogEligible } from "../logic/catalog/freeEligibility";
 import { HAND_ENFORCEMENT_ENABLED } from "../logic/catalog/handPolicy";
@@ -41,7 +39,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
-import { canDeclareResearchTest, hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView, researchTargetView } from "../state/discoveryHint";
+import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView } from "../state/discoveryHint";
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
@@ -167,8 +165,6 @@ interface GameScreenProps {
    *  (RETRY_SAME_RECIPE), replacing the old single "もう一度作る" button that always started a
    *  *different* recipe. */
   onRetrySameRecipe: () => void;
-  /** #356: declares (or clears with `null`) the one ingredient to check this attempt (SET_RESEARCH_TEST). */
-  onSetResearchTest?: (ingredientId: string | null) => void;
   /** Issue #47 Finding D: DISCOVERED's "別のピザを作る" -- returns to Pizza Select so the
    *  player can explicitly choose a different recipe (mirrors HOME's own 「ピザを作る」 entry
    *  point rather than picking a new recipe at random). */
@@ -255,7 +251,6 @@ export function GameScreen({
   onBakeTick,
   onConfirmBake,
   onRetrySameRecipe,
-  onSetResearchTest,
   onBackToPizzaSelect,
   onOpenShop,
   onOpenDex,
@@ -291,22 +286,8 @@ export function GameScreen({
   const hintSheetOpen = isHintSheetVisible(state);
   // The one read-only relay of the session notebook's display view (Hint sheet + the Research RESULT's sheet).
   const notebookRows = notebookView(state.trialNotebook);
-  const researchView = state.freeCook ? researchTargetView(state) : null;
   // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
   const researchResult = state.freeCook ? researchResultView(state) : null;
-  // #356 Slice 2: 「今回調べる食材」 is offered only in the PREPARE of an explicit, valid Research Target round (flag ON).
-  const researchTestAvailable = RESEARCH_IDENTIFY_ENABLED && !!onSetResearchTest && state.phase === "PREPARE" && state.freeCook && researchView !== null;
-  const [researchPickerOpen, setResearchPickerOpen] = useState(false);
-  const researchPickerButtonRef = useRef<HTMLButtonElement>(null);
-  const researchPickerVisible = researchPickerOpen && researchTestAvailable;
-  // The open flag never outlives the PREPARE of a Research Target round (no automatic re-open on the next one).
-  if (researchPickerOpen && !researchTestAvailable) setResearchPickerOpen(false);
-  const closeResearchPicker = () => {
-    setResearchPickerOpen(false);
-    queueMicrotask(() => researchPickerButtonRef.current?.focus());
-  };
-  const researchTestIngredient =
-    state.researchTest && state.researchTest.recipeId === state.researchTargetId ? getIngredient(state.researchTest.ingredientId) : undefined;
   // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
   const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
   const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
@@ -395,9 +376,8 @@ export function GameScreen({
     : largeCatalogEligible && state.phase === "PREPARE" && state.makingStep === "DOUGH" && dockReserve.pantryWorthwhile
       ? { kind: "later" }
       : undefined;
-  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry and, #356, for the
-  // 「今回調べる食材」 picker too (a modal over the stage must never leave it interactive behind).
-  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible || researchPickerVisible;
+  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
+  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
   if (pantryOpen && !pantryAvailable) setPantryOpen(false);
@@ -657,19 +637,6 @@ export function GameScreen({
           <div className="order-card__text">
             <span className="order-card__recipe-name order-card__recipe-name--research">
               <span>🔎 研究中　{researchResult.label}</span>
-              {researchTestAvailable && (
-                <button
-                  ref={researchPickerButtonRef}
-                  type="button"
-                  className="research-test-button"
-                  data-testid="research-test-button"
-                  aria-haspopup="dialog"
-                  aria-label={researchTestIngredient ? `今回調べる: ${researchTestIngredient.nameJa}（えらびなおす）` : "今回調べる食材をえらぶ"}
-                  onClick={() => setResearchPickerOpen(true)}
-                >
-                  {researchTestIngredient ? `🔬 今回調べる: ${researchTestIngredient.nameJa}` : "🔬 調べる食材をえらぶ"}
-                </button>
-              )}
             </span>
             <span className="order-card__hint">
               わかっていること：
@@ -681,25 +648,6 @@ export function GameScreen({
             </span>
           </div>
         </div>
-      )}
-
-      {researchPickerVisible && researchView && (
-        <ResearchTestPicker
-          ownedIngredientIds={state.ownedIngredientIds}
-          inventory={state.inventory}
-          candidateIds={state.ownedIngredientIds.filter((id) => !researchView.knownExactIngredientIds.includes(id))}
-          selectableIds={new Set(state.ownedIngredientIds.filter((id) => canDeclareResearchTest(state, id)))}
-          selectedId={researchTestIngredient?.id ?? null}
-          onSelect={(id) => {
-            onSetResearchTest?.(id);
-            closeResearchPicker();
-          }}
-          onClear={() => {
-            onSetResearchTest?.(null);
-            closeResearchPicker();
-          }}
-          onClose={closeResearchPicker}
-        />
       )}
 
       {state.phase === "PREPARE" && state.freeCook && !researchResult && (
@@ -1098,7 +1046,6 @@ export function GameScreen({
           // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)
           nearMiss={resultNearMiss(state)}
           researchLabelJa={researchResult?.label ?? null}
-          ingredientTest={RESEARCH_IDENTIFY_ENABLED ? state.lastIngredientTest : null}
           onOpenAttemptLog={() => setResultNotebookOpen(true)}
           attemptLogEntryRef={resultNotebookEntryRef}
           postDiscovery={
