@@ -126,9 +126,6 @@ describe("catalog boundary", () => {
       // LC-R5-c: the pantry edits pins through `pinEdit` (and names the `HandSession` type); GameScreen relays the
       // App-level pins and passes the enforcement flag as the dormant `handEditing` switch; App owns the pins.
       "../../components/IngredientPantry.tsx": ["catalogQuery", "catalogSource", "usageSignals", "handSession", "pinEdit"],
-      // #356 Slice 2: the 「今回調べる食材」 picker reuses the pantry's read-only query (owned rows + shelves); it pins,
-      // hands and selects nothing of the Builder.
-      "../../components/ResearchTestPicker.tsx": ["catalogQuery", "catalogSource", "usageSignals"],
       "../../screens/GameScreen.tsx": ["freeEligibility", "handPolicy", "handSession"],
       // LC-R5-d: App derives the dormant tray hand (`handTray`, over the runtime catalog and the candidate capacity).
       "../../App.tsx": ["handSession", "handTray", "catalogSource", "handPolicy"],
