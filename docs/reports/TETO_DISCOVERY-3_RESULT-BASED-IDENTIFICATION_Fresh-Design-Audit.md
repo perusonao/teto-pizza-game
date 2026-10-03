@@ -6,15 +6,16 @@
 > audited main: `6d9d1ced98113dc42d8bd1e0688536f362431f61`（#357 merge 後）
 > 比較対象 PR #359 HEAD: `ad48bd6919f495a6e61f29ad71c8744f84443a80`（**HOLD**。close / merge / rewrite しない）
 > 関連: #346 / #356（Anti-Oracle Contract 2.0）/ #357 / #358 / #360（Hint 重複 Audit）/ #355（無関係）
+> **補正（2026-10-03）**: 初版は「複数 sauce を 1 attempt で同時に試せる」と誤って仮定していた。実 code では 1 枚の pizza に載る sauce は 1 種類（`APPLY_SAUCE` / `COMMIT_SAUCE_DISPENSE` が `sauceIds` を 1 要素で置換）。**本書の数値・例は補正済みで、canonical は Contract 2.1 §15**。
 > 本書の数値は repo のデータ（`RECIPES` 27 / `INGREDIENTS` 30 / `DISCOVERY_LADDER` 25 step）から算出した使い捨てスクリプトの結果で、スクリプトはコミットしていない。
 
 ## 0. 要約
 
 - Owner 案 B（RESULT で使用材料すべてに ○×）を**無制限で入れると「全部乗せ」が最適解になる**。現 Production データ（27 recipe / 30 ingredient）で、
-  どの recipe も **2 attempt**（全部載せて 1 回、正解を作って 1 回）で発見できる。現行 A の期待 321 attempt（27 recipe 合計）→ 54（B 無制限）。
+  どの recipe も **2〜3 attempt**（sauce 以外を全部載せて 1 回、sauce は 1 種類ずつ、正解を作って発見）で発見できる。現行 A の期待 321 attempt（27 recipe 合計）→ 64（B 無制限）。
 - **「1 attempt で開示する情報量が、載せた材料の数に比例しない」**ことが、この 2 つの目標（遊びやすさ ↔ 全部乗せ耐性）を両立する鍵。
-  推奨は中間案 **C-1「種類上限つき項目別 ○×」**: sauce / cheese は常に項目別、**topping は『まだ分かっていない種類』が K（推奨 3）以内のときだけ**項目別 ○×、count は出さない。
-  27 recipe 合計 **約 93 attempt**（A の 約 1/3.5、B の 約 1.7 倍）、全部乗せは無効化、事前の「調べる食材」選択・LOCK・未使用確認は不要。
+  推奨は中間案 **C-1「種類上限つき項目別 ○×」**: sauce（1 種 / attempt）/ cheese は常に項目別、**topping は『まだ分かっていない種類』が K（推奨 3）以内のときだけ**項目別 ○×、count は出さない。
+  27 recipe 合計 **約 97 attempt**（A の 約 1/3.3、B の 約 1.5 倍）、全部乗せは無効化、事前の「調べる食材」選択・LOCK・未使用確認は不要。
 - 結論は Owner Decision（§16）。実装はまだ開始しない。
 
 ## 1. 現行 A（#359 / #357）のループ
@@ -50,31 +51,31 @@ C-1 が Owner の目標（作る→見る→直す→また作る、説明不要
 ## 4. 具体的な 1 プレイ例（pesto-pollo = pesto + mozzarella + fresh-tomato + chicken、Dex 25・所持 30、unlock fact = chicken）
 
 **A**: 研究する → 「今回の調査」で basil を指定 → basil を載せて焼く →「basil は特定できませんでした」→ 次は egg … 期待 約 22 attempt（最悪 29）。
-**B（無制限）**: 研究する → 30 材料を全部載せて焼く → 「pesto ○ mozzarella ○ fresh-tomato ○ chicken ○、他は全部 ×」→ 4 つだけ載せて焼く → NEW PIZZA。**2 attempt**。
+**B（無制限）**: 研究する → 1 つの sauce（例: pesto）と、他の cheese / topping を全部載せて焼く → 「pesto ○ mozzarella ○ fresh-tomato ○（chicken は既知）、他は全部 ×」→ 4 つだけ載せて焼く → NEW PIZZA。**2 attempt**（最初に選ぶ sauce が外れなら、sauce を替えて 3 attempt）。
 **C-1（K=3）**:
-1. tomato-sauce + pesto + mozzarella + basil + egg + mushroom → 「ソース: トマト× ペスト○／チーズ: モッツァレラ○／トッピング: basil× egg× mushroom×」
-2. pesto + mozzarella + 未知 3 つ（例: ham, onion, fresh-tomato）→ 「ham× onion× fresh-tomato○」
+1. tomato-sauce + mozzarella + basil + egg + mushroom → 「ソース: トマトソース×／チーズ: モッツァレラ○／トッピング: basil× egg× mushroom×」（sauce は 1 種類しか載らない）
+2. pesto + mozzarella + 未知 3 つ（例: ham, onion, fresh-tomato）→ 「ソース: ペスト○／トッピング: ham× onion× fresh-tomato○」
 3. （○ の固まり pesto + mozzarella + fresh-tomato + chicken）→ NEW PIZZA。期待 約 5 attempt（3〜8）。
 **C-2**: A と同じ 1 材料/attempt（22 attempt）。ただし事前選択なしで「焼いた後に 1 つ確かめる」。
 
 ## 5. 全部乗せ / brute-force シミュレーション（現 Production: 27 recipe / 30 ingredient）
 
 方法: 各 recipe を、その recipe が研究可能になる ladder step の**所持集合**（unlock = 最後に所有した食材は既知）で、**事前知識なしの blind scan**（候補を無作為順に確かめる）を仮定。
-A は期待位置 `m(c+1)/(m+1)`（c = 候補数、m = 未知の正解数）、C は topping 候補を K ずつ走査（4000 回 Monte Carlo）+ 最終の exact 1 回。sauce / cheese は 1 回目に同時に確認。
+A は期待位置 `m(c+1)/(m+1)`（c = 候補数、m = 未知の正解数）、C は topping 候補を K ずつ走査（4000 回 Monte Carlo）+ 最終の exact 1 回。sauce は 1 枚の pizza に 1 種類しか載らないため attempt ごとに 1 種類を順に試し、cheese は全件、topping は未知 K 種ずつ並行して走査する。
 **注意**: 人間は事前知識（定番の組み合わせ）で速くなる。数値は「何も考えない」基準の上限側の目安。
 
 | 方式 | 27 recipe 合計（期待） | 平均 / recipe | step 25（pesto-pollo） | 全部乗せ |
 |---|---|---|---|---|
 | A（#359） | **321**（最悪 409） | 11.9 | 22.5（最悪 29） | 効かない（1 材料） |
-| B 無制限 | **54** | 2.0 | 2 | **最適解**（定数 2） |
-| C-1 K=4 | 81 | 3.0 | 4.3 | 無効 |
-| **C-1 K=3** | **93** | 3.4 | 5.2 | 無効 |
-| C-1 K=2 | 117 | 4.3 | 7.0 | 無効 |
-| C-3 1 開示/attempt | 108 | 4.0 | 4 | 正解数 + 1 回（定数的） |
+| B 無制限 | **64** | 2.4 | 3 | **最適解**（2〜3） |
+| C-1 K=4 | 85 | 3.2 | 4.5 | 無効 |
+| **C-1 K=3** | **97** | 3.6 | 5.4 | 無効 |
+| C-1 K=2 | 121 | 4.5 | 7.0 | 無効 |
+| C-3 1 開示/attempt | 約 108（概算、sauce 制約の再計算なし） | 4.0 | 4 | 正解数 + 1 回（定数的） |
 | C-2 事後 1 タップ | 321 | 11.9 | 22.5 | 効かない |
 
-recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、capricciosa 12.5/4.4、pizza-portuguesa 13.3/4.5、puttanesca-pizza 21.6/6.8、pesto-pollo 22.5/5.2。
-注: recipe は構造的に偏っている（多くが tomato-sauce + mozzarella + topping 1〜4 種）。**情報は topping に集中**するため、sauce / cheese を項目別にしても漏れは小さい（1 attempt で sauce 3 / cheese 4 を網羅でき、これは許容してよい）。
+recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、capricciosa 12.5/4.4、pizza-portuguesa 13.3/4.5、puttanesca-pizza 21.6/6.8、pesto-pollo 22.5/5.4。
+注: recipe は構造的に偏っている（多くが tomato-sauce + mozzarella + topping 1〜4 種）。**情報は topping に集中**するため、sauce / cheese を項目別にしても漏れは小さい（cheese 4 種は 1 attempt で網羅できる。sauce は 1 attempt 1 種類。これは許容してよい）。
 
 ## 6. 論点別の監査
 
@@ -86,12 +87,12 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 6. **Trial Notebook**: schema 変更なしで足りる。entry の feedback は `{kind, textJa ≤ 200字}` なので、**RESULT で開示した判定（○ / ×）だけ**を 1 行で記録できる（kind `RESEARCH_ROWS`）。既知 ✓・over-cap の非開示・hidden membership は記録しない。最悪ケースは現カタログで 126 字（判定部分のみ約 115 字）で 200 字に収まり、truncate は行わない（Contract 2.1 §7、OD-RB-13 / 14）。Notebook は session-only で、× を覚える負担が Notebook に移る（B/C の遊びやすさに直結）。
 7. **Hint 5.0 の価値**: A でも `ing:` で既知の rung は 0 Pitz になる（OD-I-14）が、B / C では **sauce / cheese / key topping の rung はほぼ無価値**（RESULT が無料で同じ情報を出す）。残るのは **STRUCTURE（total）と SUB_CLASS（分類）**。C-1 は count を出さないのでこの 2 つの価値が残る。B 無制限は Hint 5.0 全体を無価値化する。
 8. **Dex / Research Entry**: Research Entry は「RESULT の ○× の基準になる匿名ターゲット」として**必須で残る**（per-attempt の調査選択だけが不要）。Dex カードの「わかっていること ✓」は ○ の保存結果になる。targetless の free cook には従来どおり ○× を出さない。
-9. **W1 / progression / ladderCredit**: ladder は「key recipe の発見」で材料が解禁される（25 step）ので、**発見までの attempt 数 = 進行速度**。A: 27 recipe で期待 321 attempt、B 無制限: 54（約 6 倍速）、C-1 K=3: 93（約 3.5 倍速）。コード変更は不要だが、**Pitz 経済（初回発見ボーナス、Hint / 補充の sink）とペース設計の再確認が必要**。finite 食材（1 pack = 10 pizza）の在庫消費は A / C で同程度（1 attempt = 載せた材料 × 1）。B 無制限の全部乗せは材料 30 個を購入済みのときだけ可能で、購入済みの所持集合が上限になる。
+9. **W1 / progression / ladderCredit**: ladder は「key recipe の発見」で材料が解禁される（25 step）ので、**発見までの attempt 数 = 進行速度**。A: 27 recipe で期待 321 attempt、B 無制限: 64（約 5 倍速）、C-1 K=3: 97（約 3.3 倍速）。コード変更は不要だが、**Pitz 経済（初回発見ボーナス、Hint / 補充の sink）とペース設計の再確認が必要**。finite 食材（1 pack = 10 pizza）の在庫消費は A / C で同程度（1 attempt = 載せた材料 × 1）。B 無制限の全部乗せは、sauce 1 種 + 購入済みの cheese / topping だけが対象で、購入済みの所持集合が上限になる。
 10. **cross-recipe exact match**: 変更なし。B / C でも hidden target A 中に別 recipe B を exact 再現したら B は DISCOVERED、A への ○× パネルは出さない（OD-I-8）。
 11. **INCOMPLETE / AMBIGUOUS**: ○× パネルは ORIGINAL / INCOMPLETE / AMBIGUOUS で**同一の見え方**（count を出さない前提）。FAILED（量 / 焼き）は matcher 一致後の話で ORIGINAL には来ない。
 12. **recipe identity ではない失敗との分離**: ○× は**材料の membership だけ**。quantity / 焼き加減 / 配置 / ソース量は ○× に影響させず、既存の recipe 非依存アドバイス（`executionAdvice`、OD-D3-23）に任せる。「× = 量が足りない」と読まれない文言が必要。
-13. **現 Production の brute-force 容易さ**: A でも最悪 29 attempt で完走可能（#356 の R-1 実測）。B 無制限は 2 attempt。C-1 K=3 は期待 3〜7 attempt。**sauce / cheese は 1 attempt で確定**（3 / 4 種のみ）。topping が主戦場（23 種）。
-14. **将来スケール**（推定、前提を明記）: 53 recipe（所持 ≈ 38、topping ≈ 31 と仮定）→ A ≈ 28、C-1 K=3 ≈ 8、B = 2。172 recipe（#293 の分類 Audit: 62 ingredient、topping ≈ 52 と仮定）→ A ≈ 50、C-1 K=3 ≈ 14、B = 2。**A / C は候補数に比例して重くなる**ので、K を固定にするか候補数に応じて動かすかは Decision（固定の方が説明不要）。B 無制限は規模に依らず 2 で、**規模が増えるほど「全部乗せ」の価値だけが相対的に上がる**。
+13. **現 Production の brute-force 容易さ**: A でも最悪 29 attempt で完走可能（#356 の R-1 実測）。B 無制限は 2〜3 attempt。C-1 K=3 は期待 3〜7 attempt。**cheese は 1 attempt で確定**（4 種のみ）、sauce は 1 attempt 1 種類（3 種のみ）。topping が主戦場（23 種）。
+14. **将来スケール**: 初版の見積り（53 recipe / 172 recipe）は sauce 複数投入の前提を含みうるため**撤回**し、数値は authority にしない。再監査 trigger は Contract 2.1 §13.1（Expansion Gate）。定性的には、**A / C は候補数に比例して重くなる**ので K を固定にするか動かすかは別途 balance audit（固定の方が説明不要）。
 
 ## 7. 評価軸の比較（trade-off、点数化しない）
 
@@ -104,7 +105,7 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 | 全部乗せ耐性 | 高 | **なし** | 高（超過で無効） | 高 |
 | Hint の価値 | 中（sauce / cheese は ALREADY_KNOWN 化） | **全面無価値** | 残る（STRUCTURE / SUB_CLASS） | 中 |
 | Notebook の価値 | 低（×を覚えない） | 高（×の履歴） | 高 | 低〜中 |
-| progression 互換 | 現ペース | 約 6 倍速（要再設計） | 約 3.5 倍速（要確認） | 現ペース |
+| progression 互換 | 現ペース | 約 5 倍速（要再設計） | 約 3.3 倍速（要確認） | 現ペース |
 | mobile UI 複雑度 | picker + 状態 pill + 確認ダイアログ | RESULT に行が増える | RESULT に 3 行（sauce / cheese / topping） | RESULT に確認ボタン |
 | 実装複雑度 | 実装済み（#359） | 純関数の一般化 + RESULT 行 | B + 上限ロジック + 既知の扱い | A の UI 差し替え |
 | save migration | なし | なし | なし | なし |
@@ -141,11 +142,11 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 
 1. **方式**: A 維持 / B 無制限 / **C-1（推奨）** / C-2 / その他。
 2. **K の値**（2 / 3 / 4）と、固定か規模に応じて動かすか（53 / 172 recipe への備え）。
-3. sauce / cheese を**常に全件 ○×** にしてよいか（1 attempt で確定する）。
+3. sauce / cheese を**常に全件 ○×** にしてよいか（cheese は 1 attempt で確定、sauce は 1 attempt 1 種類）。
 4. **× を RESULT に出す**ことの承認（#356 は「✗ は保存しない、今回だけの中立表示は可」。複数 × の表示は新しい開示）。
 5. count 非表示（STRUCTURE は有料のまま）の承認。
 6. **targetless では ○× を出さない**（Research Target は必須）の承認。
-7. **進行ペースの再設計**（約 3.5 倍速）と Pitz 経済（Hint / 補充の sink 縮小）の許容。
+7. **進行ペースの再設計**（約 3.3 倍速）と Pitz 経済（Hint / 補充の sink 縮小）の許容。
 8. Hint 5.0 の位置づけ（STRUCTURE / SUB_CLASS 中心へ）と #360（重複 Audit）の扱い。
 9. **#359 の扱い**（close + cherry-pick か、保持か）と、#357 の merge 済みコード（picker 等）の撤去時期。
 10. Anti-Oracle Contract 2.0 → 2.1 改訂（§8）の承認と、flag を Preview ON のまま比較するか。
@@ -165,14 +166,14 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 
 | 案 | 合計 | 評価 |
 |---|---|---|
-| **A. sauce / cheese は使用した全件 ○×（採用）** | 93 | UX が最も単純。Hint の段が空洞化する（accepted consequence、#360） |
-| B. sauce 1 種・cheese 1 種までの bounded reveal | 100（+7） | 「なし」の推論が最大 1 attempt 遅れるだけ。ルールが 1 つ増える |
+| **A. sauce / cheese は使用した全件 ○×（採用）** | 97 | UX が最も単純。Hint の段が空洞化する（accepted consequence、#360） |
+| B. sauce 1 種・cheese 1 種までの bounded reveal | 100（+3） | 「なし」の推論が最大 1 attempt 遅れるだけ。ルールが 1 つ増える |
 | C. カテゴリごとに 1 件だけ判定 | B と同数 | どれが判定されるか分かりにくい |
-| D1. sauce・cheese・topping 合計で未知 3 種まで | 143（+50） | 遅い。OD-RB-3 とずれる |
+| D1. sauce・cheese・topping 合計で未知 3 種まで | 旧 143（取り下げ） | sauce 1 種 / attempt の制約下では割り当てが変わるため再計算せず取り下げ。OD-RB-3 ともずれる |
 | D2. sauce / cheese を判定しない | 約 +100〜130（概算） | 推測ゲーム化（sauce × cheese の組み合わせ 258 通り）。非推奨 |
 
-- sauce: 全 recipe がちょうど 1 つ（sauce なしは存在しない）。所有 1 種が 14 recipe（情報増なし）、2〜3 種が 13 recipe（1 回で確定。うち 2 recipe は unlock fact で既知）。
+- sauce: 全 recipe がちょうど 1 つ（sauce なしは存在しない）。所有 1 種が 14 recipe（情報増なし）、2〜3 種が 13 recipe（sauce は 1 attempt 1 種類なので、attempt ごとに別の sauce を試して確定する。うち 2 recipe は unlock fact で既知）。
 - cheese: 所有 1 種が 5 recipe、2〜4 種が 22 recipe。no-cheese は 6 recipe（marinara / fugazza / pizza-bianca / pesto-tonno / puttanesca-pizza / brazilian-calabresa、いずれも所有 cheese 2 種）。
-- 全投入の節約は平均 0.26 attempt / recipe（最大 2: quattro-formaggi）。Hint 5.0 は production で ON のため、SAUCE（11 recipe）/ CHEESE（22 recipe）rung の価値低下は A / B どちらでも残る → #360。
+- cheese 全件投入の節約は 27 recipe 合計で約 3 attempt（平均 0.1、最大 約 1: quattro-formaggi）。Hint 5.0 は production で ON のため、SAUCE（11 recipe）/ CHEESE（22 recipe）rung の価値低下は A / B どちらでも残る → #360。
 
-**Q-6〜Q-10 確定（2026-10-03）**: RESULT はカテゴリごとの compact chip（既知 ✓ はパネルに混ぜない、固定 px は authority にしない）/ `RESEARCH_IDENTIFY_ENABLED` を再利用（旧方式は variant として残さない）/ progression・Pitz は実装 blocker にせず **Production ON Gate の必須条件**（約 3.5 倍速を activation risk として残す）/ Target の有効性は attempt 開始時基準（RESULT 時点の cookability に依存しない）/ #359 は rewrite せず、各 commit を fresh audit して必要な hunk だけ新しい小 PR へ抽出（Slice 2〜4 は再利用しない）。authority は Contract 2.1 §1（OD-RB-15〜19）・§12・§13。
+**Q-6〜Q-10 確定（2026-10-03）**: RESULT はカテゴリごとの compact chip（既知 ✓ はパネルに混ぜない、固定 px は authority にしない）/ `RESEARCH_IDENTIFY_ENABLED` を再利用（旧方式は variant として残さない）/ progression・Pitz は実装 blocker にせず **Production ON Gate の必須条件**（約 3.3 倍速を activation risk として残す）/ Target の有効性は attempt 開始時基準（RESULT 時点の cookability に依存しない）/ #359 は rewrite せず、各 commit を fresh audit して必要な hunk だけ新しい小 PR へ抽出（Slice 2〜4 は再利用しない）。authority は Contract 2.1 §1（OD-RB-15〜19）・§12・§13。
