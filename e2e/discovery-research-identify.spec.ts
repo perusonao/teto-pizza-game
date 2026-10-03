@@ -346,3 +346,28 @@ test("#358: baking without the declared ingredient is allowed (このまま焼�
   expect(Object.values(await savedFacts(page)).flat().filter((f) => f.includes("egg"))).toEqual([]);
   await shot(page, "15-result-not-used");
 });
+
+test("#358 OD-358-7: an attempt started without a selection shows 「🔬 今回は食材調査なし」 (no selector), in PREPARE and BAKE", async ({ page }) => {
+  test.setTimeout(120_000);
+  await open(page);
+  await startResearch(page);
+  await expect(page.getByTestId("research-test-button")).toBeVisible();
+  await expect(page.getByTestId("research-test-status")).toHaveCount(0); // EDITABLE: the selector only
+  const before = await measure(page);
+  await completeDoughStep(page);
+  await bar(page).getByRole("button", { name: /次へ/ }).click(); // first CONFIRM_MAKING_STEP -> LOCKED, nothing declared
+  const tag = process.env.HV_TAG ?? "after";
+  const dir = process.env.HV_SCREENSHOT_DIR;
+  if (dir) await page.screenshot({ path: `${dir}/${test.info().project.name.replace("iphone-", "")}-no-selection-locked-${tag}.png` });
+  await expect(page.getByTestId("research-test-button")).toHaveCount(0);
+  await expect(page.getByTestId("research-test-status")).toHaveText("🔬 今回は食材調査なし");
+  const after = await measure(page);
+  expect(Math.abs(after.cardH - before.cardH), "research card height").toBeLessThanOrEqual(3);
+  expect(Math.abs(after.stageH - before.stageH), "pizza stage height").toBeLessThanOrEqual(3);
+  expect(await page.getByTestId("research-context").innerText()).not.toMatch(ORACLE);
+  await expectNoOverflow(page, "no-selection locked");
+  await expectInViewport(page, page.getByTestId("research-test-status"), "status");
+  await page.getByRole("button", { name: "やり直す" }).click();
+  await expect(page.getByTestId("research-test-status")).toHaveText("🔬 今回は食材調査なし");
+  await expect(page.getByTestId("research-test-button")).toHaveCount(0);
+});

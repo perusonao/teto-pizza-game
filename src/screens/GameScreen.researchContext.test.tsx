@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, screen } from "@testing-library/react";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../state/gameReducer";
 import { discoveredDex } from "../state/testSupport/guidedRound";
@@ -90,11 +90,68 @@ describe("Slice 4: research card = knowledge / current hypothesis / step instruc
     }
   });
 
-  it("no selection: nothing is shown as a hypothesis once locked", () => {
-    renderAt(gameReducer(researchRound(), { type: "CONFIRM_MAKING_STEP" }));
-    expect(screen.queryByTestId("research-test-button")).not.toBeInTheDocument();
+  it("OD-358-7 priority: EDITABLE + valid target -> the selector only; never 「今回は食材調査なし」 beside it", () => {
+    renderAt(researchRound());
+    expect(screen.getByTestId("research-test-button")).toHaveTextContent("今回の調査をえらぶ");
     expect(screen.queryByTestId("research-test-status")).not.toBeInTheDocument();
+    expect(screen.queryByText(/今回は食材調査なし/)).not.toBeInTheDocument();
+  });
+
+  it("LOCKED without a selection: no selector, a read-only 「🔬 今回は食材調査なし」 (PREPARE, after RESET, BAKE)", () => {
+    const locked = gameReducer(researchRound(), { type: "CONFIRM_MAKING_STEP" });
+    expect(locked.researchTest).toBeNull();
+    for (const s of [locked, gameReducer(locked, { type: "RESET_PIZZA" }), gameReducer(researchRound(), { type: "START_BAKE" })]) {
+      const r = renderAt(s);
+      expect(screen.queryByTestId("research-test-button")).not.toBeInTheDocument();
+      const status = screen.getByTestId("research-test-status");
+      expect(status).toHaveTextContent("🔬 今回は食材調査なし");
+      expect(status.tagName).toBe("SPAN");
+      r.unmount();
+    }
+    // the research context itself is still there on the locked PREPARE card
+    renderAt(locked);
     expect(screen.getByTestId("research-context")).toHaveTextContent("研究中");
+  });
+
+  it("selector unavailable (the target is not cookable any more): the same status, as a fact", () => {
+    const owned = ladderOwned(25);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const inv: Record<string, number> = Object.fromEntries(owned.map((id) => [id, 10]));
+    for (const id of ["chicken", "mozzarella", "fresh-tomato", "pesto"]) inv[id] = 1;
+    let s = gameReducer({ ...base, inventory: inv }, { type: "START_FREE_COOK", researchTargetId: T });
+    s = [{ type: "CONFIRM_MAKING_STEP" }, { type: "APPLY_SAUCE", ingredientId: "pesto", x: 50, y: 50 }, { type: "CONFIRM_MAKING_STEP" }, { type: "CONFIRM_MAKING_STEP" },
+      { type: "PLACE_TOPPING", ingredientId: "chicken", x: 40, y: 40 }, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: 68 }, { type: "CONFIRM_MAKING_STEP" }, { type: "REGISTER_TO_DEX" }].reduce(
+      (a, x) => gameReducer(a, x as GameAction), s);
+    s = gameReducer(s, { type: "RETRY_SAME_RECIPE" }); // EDITABLE, but chicken is used up: no selector can be offered
+    expect(s.researchTestLocked).toBe(false);
+    renderAt(s);
+    expect(screen.queryByTestId("research-test-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("research-test-status")).toHaveTextContent("🔬 今回は食材調査なし");
+  });
+
+  it("LOCKED with a selection keeps 「🔬 調査中：○○」, never the 「なし」 status", () => {
+    renderAt(declared({ type: "CONFIRM_MAKING_STEP" }));
+    expect(screen.getByTestId("research-test-status")).toHaveTextContent("🔬 調査中：たまご");
+    expect(screen.queryByText(/今回は食材調査なし/)).not.toBeInTheDocument();
+  });
+
+  it("Production flag OFF: no identification UI at all (no selector, no status)", async () => {
+    vi.resetModules();
+    vi.doMock("../logic/discovery/researchIdentifyFlag", () => ({ RESEARCH_IDENTIFY_ENABLED: false }));
+    try {
+      const support = await import("./testSupport/researchRound");
+      const reducer = await import("../state/gameReducer");
+      for (const s of [support.researchRound(), reducer.gameReducer(support.researchRound(), { type: "CONFIRM_MAKING_STEP" })]) {
+        const r = support.renderGameScreen(s);
+        expect(screen.getByTestId("research-context")).toHaveTextContent("研究中");
+        expect(screen.queryByTestId("research-test-button")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("research-test-status")).not.toBeInTheDocument();
+        r.unmount();
+      }
+    } finally {
+      vi.doUnmock("../logic/discovery/researchIdentifyFlag");
+      vi.resetModules();
+    }
   });
 
   it("shows no count / ratio / percentage / hidden identity", () => {

@@ -312,9 +312,15 @@ export function GameScreen({
   const researchTestIngredient =
     state.researchTest && state.researchTest.recipeId === state.researchTargetId ? getIngredient(state.researchTest.ingredientId) : undefined;
   // #358 OD-358-6: once the experiment started the hypothesis is a read-only status (never a button).
+  // #358 OD-358-7: no declaration and no selector to offer (the attempt started without one, or the target is not
+  // cookable) says so as a fact, instead of leaving the card with no sign of the feature. Never beside the selector.
   const researchTestStatus = researchTestIngredient ? (
     <span className="research-test-status" data-testid="research-test-status">
       🔬 調査中：{researchTestIngredient.nameJa}
+    </span>
+  ) : RESEARCH_IDENTIFY_ENABLED && researchResult ? (
+    <span className="research-test-status" data-testid="research-test-status" data-test-state="none">
+      🔬 今回は食材調査なし
     </span>
   ) : null;
   // #358 Slice 3: 「🔥 焼く！」 with the declared ingredient not on the player's own pizza asks first (never forbids).
@@ -702,7 +708,7 @@ export function GameScreen({
                   {researchTestIngredient ? `🔬 今回の調査: ${researchTestIngredient.nameJa}` : "🔬 今回の調査をえらぶ"}
                 </button>
               ) : (
-                researchTestIngredient && researchTestStatus
+                researchTestStatus
               )}
             </span>
             <span className="order-card__hint">
