@@ -83,7 +83,7 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 3. **粒度**: sauce / cheese = 項目別 ○×（カテゴリが小さく漏れが小さい。matcher の `sauceBase` と同じ単位）。topping = 項目別 ○× だが **開示数に上限**。カテゴリ一致 1 bit（C-4）は ×が何も教えず不満が大きい。
 4. **count（「トッピングの種類 3 種類 ×」）**: **Hint 5.0 STRUCTURE rung（5 Pitz、「全部で N 種類」）と競合する**。count 一致の 1 bit を数回引けば N が分かり、有料ヒントの価値が消える。さらに INCOMPLETE（exact だが量 / 焼き不足）で「全 ○ + count ○」が出ると **「構成は正解」= PR-1 で除去した oracle**（#346 / OD-D3-20）が復活する。**count は出さない**（STRUCTURE 購入後のみ、は可）。count を出さなければ「全 ○ なのに発見されない」は「欠けている材料がある」か「実行の失敗」の区別がつかず、INV-3 の parity が保たれる。
 5. **○× の保存 vs RESULT のみ**: ○ は既存 `discoveryHintFacts` の `ing:` に保存（#357 INV-6 と同じ、価値が永続・reload 後も残る）。× を永続保存すると negative membership の台帳ができ、brute-force の記憶装置になる（#356 OD-I-6 / Non-Goal）→ **× は RESULT と Notebook（session-only）のみ**。
-6. **Trial Notebook**: schema 変更なしで足りる。entry の feedback は `{kind, textJa ≤ 200字}` なので、**RESULT で見せた 1 行（例「ソース ペスト○ チーズ モッツァレラ○ ham× onion×」）をそのまま記録**できる（kind 例 `RESULT_ROWS`）。「Notebook は player が見た内容だけを持つ」原則（OD-P3-4）と一致し、× を覚える負担が Notebook に移る（B/C の遊びやすさに直結）。Notebook は session-only なので reload で消える（保存しない方針と整合）。
+6. **Trial Notebook**: schema 変更なしで足りる。entry の feedback は `{kind, textJa ≤ 200字}` なので、**RESULT で開示した判定（○ / ×）だけ**を 1 行で記録できる（kind `RESEARCH_ROWS`）。既知 ✓・over-cap の非開示・hidden membership は記録しない。最悪ケースは現カタログで 126 字（判定部分のみ約 115 字）で 200 字に収まり、truncate は行わない（Contract 2.1 §7、OD-RB-13 / 14）。Notebook は session-only で、× を覚える負担が Notebook に移る（B/C の遊びやすさに直結）。
 7. **Hint 5.0 の価値**: A でも `ing:` で既知の rung は 0 Pitz になる（OD-I-14）が、B / C では **sauce / cheese / key topping の rung はほぼ無価値**（RESULT が無料で同じ情報を出す）。残るのは **STRUCTURE（total）と SUB_CLASS（分類）**。C-1 は count を出さないのでこの 2 つの価値が残る。B 無制限は Hint 5.0 全体を無価値化する。
 8. **Dex / Research Entry**: Research Entry は「RESULT の ○× の基準になる匿名ターゲット」として**必須で残る**（per-attempt の調査選択だけが不要）。Dex カードの「わかっていること ✓」は ○ の保存結果になる。targetless の free cook には従来どおり ○× を出さない。
 9. **W1 / progression / ladderCredit**: ladder は「key recipe の発見」で材料が解禁される（25 step）ので、**発見までの attempt 数 = 進行速度**。A: 27 recipe で期待 321 attempt、B 無制限: 54（約 6 倍速）、C-1 K=3: 93（約 3.5 倍速）。コード変更は不要だが、**Pitz 経済（初回発見ボーナス、Hint / 補充の sink）とペース設計の再確認が必要**。finite 食材（1 pack = 10 pizza）の在庫消費は A / C で同程度（1 attempt = 載せた材料 × 1）。B 無制限の全部乗せは材料 30 個を購入済みのときだけ可能で、購入済みの所持集合が上限になる。
@@ -131,13 +131,13 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 
 1. 「研究する」で Research Target を選ぶのは従来どおり（Dex 研究カード）。**attempt ごとの選択 / LOCK / 未使用確認 / picker は廃止**。
 2. Research Target ありの ORIGINAL / INCOMPLETE / AMBIGUOUS の RESULT に「🧪 今回の試作結果」を出す（exact な別 recipe 発見時・targetless・FAILED では出さない）。
-3. **ソース / チーズ**: 載せた材料それぞれに ○×（○ は `ing:` 保存）。
+3. **ソース / チーズ**: **使った材料の全件**に ○×（○ は `ing:` 保存）。上限なし（Q-2a で確定）。「チーズなし」等は直接表示しない。
 4. **トッピング**: 載せた**未知**の種類が **K = 3 以内**なら各 ○×。超えたら topping 行は「3種類までなら結果が見られるよ」のみ（sauce / cheese は表示）。既知（✓）は上限に数えず、○ として表示。
-5. **count は出さない**（STRUCTURE は Hint 5.0 の購入のみ）。× は RESULT と session-only Notebook の 1 行に限り、永続化しない。
+5. **count は出さない**（STRUCTURE は Hint 5.0 の購入のみ）。× は RESULT と session-only Notebook（開示した判定だけの 1 行）に限り、永続化しない。○ は ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH の 3 outcome すべてで保存する（Q-1）。
 6. Hint 5.0 は価格・順序とも不変。Dex の「わかっていること」は ○ の保存結果を表示。cross-recipe exact は従来どおり。
 7. save schema / Trial Notebook schema / matcher / membership authority は不変。flag は default OFF のまま。
 
-## 11. Owner Decision が必要な点
+## 11. Owner Decision が必要な点（2026-10-03 時点の状況は §13）
 
 1. **方式**: A 維持 / B 無制限 / **C-1（推奨）** / C-2 / その他。
 2. **K の値**（2 / 3 / 4）と、固定か規模に応じて動かすか（53 / 172 recipe への備え）。
@@ -156,3 +156,21 @@ recipe 個別（抜粋、A / C K=3）: margherita 2.0/2.0、funghi 4.0/2.0、cap
 - 人間のプレイでは事前知識で attempt はさらに減る。逆に操作時間（A の 1 attempt ≈ 15 操作、全部乗せ ≈ 60 操作）は未実測。
 - scale の推定（53 / 172 recipe）は材料数の仮定を含む。
 - 実装は開始していない。
+
+## 13. Owner 追補（2026-10-03）と Q-2 data audit
+
+**確定**: 方式 C-1・K=3（OD-RB-1〜10）、Q-1（3 outcome すべてで ○ を保存、INV-D6）、Q-2a（sauce / cheese は使用した全件 ○×、bounded reveal なし）、Q-3（Notebook は開示した判定のみ、truncate なし）、Q-4（Notebook の Target 識別 = Entry 番号 + unlock 名）。authority は Contract 2.1 §1 / §7 / §10。
+
+**Q-2 data audit（27 recipe の実データ、blind scan の期待 attempt 合計）**
+
+| 案 | 合計 | 評価 |
+|---|---|---|
+| **A. sauce / cheese は使用した全件 ○×（採用）** | 93 | UX が最も単純。Hint の段が空洞化する（accepted consequence、#360） |
+| B. sauce 1 種・cheese 1 種までの bounded reveal | 100（+7） | 「なし」の推論が最大 1 attempt 遅れるだけ。ルールが 1 つ増える |
+| C. カテゴリごとに 1 件だけ判定 | B と同数 | どれが判定されるか分かりにくい |
+| D1. sauce・cheese・topping 合計で未知 3 種まで | 143（+50） | 遅い。OD-RB-3 とずれる |
+| D2. sauce / cheese を判定しない | 約 +100〜130（概算） | 推測ゲーム化（sauce × cheese の組み合わせ 258 通り）。非推奨 |
+
+- sauce: 全 recipe がちょうど 1 つ（sauce なしは存在しない）。所有 1 種が 14 recipe（情報増なし）、2〜3 種が 13 recipe（1 回で確定。うち 2 recipe は unlock fact で既知）。
+- cheese: 所有 1 種が 5 recipe、2〜4 種が 22 recipe。no-cheese は 6 recipe（marinara / fugazza / pizza-bianca / pesto-tonno / puttanesca-pizza / brazilian-calabresa、いずれも所有 cheese 2 種）。
+- 全投入の節約は平均 0.26 attempt / recipe（最大 2: quattro-formaggi）。Hint 5.0 は production で ON のため、SAUCE（11 recipe）/ CHEESE（22 recipe）rung の価値低下は A / B どちらでも残る → #360。
