@@ -23,11 +23,23 @@ REPORT = ROOT / "docs/reports/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.md"
 # sha256 of the production / frozen source files at the audited main. A mismatch means main moved
 # (for example a runtime-introduction PR added a taxonomy row, OD-T7): this audit is a point-in-time
 # record, so re-audit instead of silently regenerating.
-AUDITED_FILE_SHA256 = {
+# S-0 sync (2026-10-03): re-pinned from the original audited main 21dc0a6 (29 ingredients / 22 rows) to the
+# post-#342 production files (30 ingredients / 23 rows: `chicken` shipped with its row, as OD-T7 requires).
+# The master catalog hash is unchanged. The original 21dc0a6 hashes are kept below as history only.
+ORIGINAL_AUDITED_MAIN_SHA = "21dc0a670e586f478661a6cf54671313b2a7cb5b"
+ORIGINAL_AUDITED_FILE_SHA256 = {  # history, not checked
     "src/data/ingredientTaxonomy.ts": "f5ee6b79e51323d258a4acdbc170b2d28447a090077527fb03d6fa6642885437",
     "src/data/ingredients.ts": "c4f73bd74f979aaff097bbeb3b39df9dcc56ceaff735492a6f66b3542ca8fbca",
     "data/recipes/ingredient_master_catalog.json": "287e391fed307acfece0308627316ad1ca9a46042ae61d2519b0b18e90cbc4c1",
 }
+AUDITED_FILE_SHA256 = {
+    "src/data/ingredientTaxonomy.ts": "981c9e0e9f7f8a37b5888937380c159c9183f1693b5bcae9eef80f7791b1c6b0",
+    "src/data/ingredients.ts": "100ba550e36b0cffcaef68f9822f74ff519f439e2395d730725ba129860ccb8f",
+    "data/recipes/ingredient_master_catalog.json": "287e391fed307acfece0308627316ad1ca9a46042ae61d2519b0b18e90cbc4c1",
+}
+# Owner-confirmed (OD-T1) ids whose production row has shipped since the audit: id -> PR. Their row must equal the
+# Owner-confirmed family (OD-T7). Nothing else may be added here without a runtime-introduction PR.
+SHIPPED_SINCE_AUDIT = {"chicken": "#342"}
 OWNER_DATE = "2026-09-29"
 # Owner Authority, recorded verbatim from the Owner's OD-T1..T8 answers. Nothing here is inferred.
 OD_T1 = {  # confirmed families, independent ids (bell-pepper / cilantro / porcini / prosciutto-crudo not aliased)
@@ -139,30 +151,35 @@ def validate(prod, rows, families, master, pr255, out):
     fam, prod_cat = dict(rows), dict(prod)
     for rel, want in AUDITED_FILE_SHA256.items():
         assert sha256_file(rel) == want, f"{rel} differs from the audited main (point-in-time audit; re-audit required)"
-    assert len(rows) == 22 and len(fam) == 22, "production taxonomy must still have 22 unique rows"
-    assert len(prod) == 29 and sum(1 for _, c in prod if c == "topping") == 22
+    assert len(rows) == 23 and len(fam) == 23, "production taxonomy must have 23 unique rows (22 audited + chicken, #342)"
+    assert len(prod) == 30 and sum(1 for _, c in prod if c == "topping") == 23
     assert set(fam) <= {i for i, c in prod if c == "topping"}
     assert len(OD_T1) == 16 and len(OD_T2) == 7                                  # 1, 2
     assert not (set(OD_T1) & set(OD_T2)) and len({*OD_T1, *OD_T2}) == 23          # 3
     confirmed = {**OD_T1, **OD_T2}
+    shipped = {i for i in confirmed if i in fam}
+    assert shipped == set(SHIPPED_SINCE_AUDIT), "an Owner-confirmed id gained / lost a production row without being recorded"
+    assert all(fam[i] == confirmed[i] for i in shipped), "a shipped Owner-confirmed id must carry its confirmed family (OD-T7)"
+    pending = set(confirmed) - shipped
     derived_unresolved = {m["id"] for m in master if m["category"] == "topping"} - set(fam)
-    assert len(derived_unresolved) == 23 and derived_unresolved == set(confirmed), \
-        "the 23 Owner-confirmed ids must equal the master-catalog toppings that have no production row"  # 3, 4, 5
+    assert len(pending) == 22 and derived_unresolved == pending, \
+        "the 22 pending Owner-confirmed ids must equal the master-catalog toppings that have no production row"  # 3, 4, 5
     state = {r["id"]: r["state"] for r in out}
-    assert all(state[i] == "OWNER_CONFIRMED_PENDING_RUNTIME" for i in confirmed)   # 4
+    assert all(state[i] == "OWNER_CONFIRMED_PENDING_RUNTIME" for i in pending)     # 4
+    assert all(state[i] == "OWNER_CONFIRMED_SHIPPED_OD_T7" for i in shipped)
     assert not [r["id"] for r in out if r["state"] == "UNRESOLVED"]                # 5
     valid_fams = set(families)
     assert len(valid_fams) == 7 and set(confirmed.values()) <= valid_fams          # 6 (families are the existing 7)
     r1, r2, r3 = parse_report_owner_rows()
     assert r1 == OD_T1 and r2 == OD_T2 and r3 == OD_T3, "generator Owner Authority differs from report section 0"  # 6
-    assert all(i not in fam and i not in prod_cat for i in confirmed)              # 7
+    assert all(i not in fam and i not in prod_cat for i in pending)                # 7
     assert all(fam.get(i) == f for i, f in OD_T3.items())                          # 8
     mm = next(m for m in master if m["id"] == "mascarpone")
     assert OD_T4_DEFER == ["mascarpone"] and mm["category"] == "cheese" and "mascarpone" not in prod_cat
     assert state["mascarpone"] == "DEFERRED_CATEGORY_OD_T4"                        # 9
     return {  # 10 is the pinned-file-hash assertion above plus the OD-T3 / 22-row / not-in-production checks
         "od_t1_count_16": True, "od_t2_count_7": True, "confirmed_23_unique_and_equals_derived_unresolved": True,
-        "all_23_owner_confirmed": True, "unresolved_0": True, "families_within_existing_7": True,
+        "all_23_owner_confirmed": True, "pending_22_shipped_1": True, "unresolved_0": True, "families_within_existing_7": True,
         "owner_authority_matches_report_section_0": True, "confirmed_absent_from_production": True,
         "od_t3_matches_production": True, "mascarpone_deferred": True, "production_files_match_audited_sha256": True,
     }
@@ -202,6 +219,13 @@ def build(audited_sha):
                 assert fam.get(iid) == OD_T3[iid], iid  # OD-T3 = keep production
                 rec["state"] = "CLASSIFIED_PRODUCTION_OWNER_CONFIRMED_OD_T3"
                 rec["ownerDecision"] = {"id": "OD-T3", "family": OD_T3[iid], "date": OWNER_DATE, "productionChange": False}
+            elif iid in fam and (iid in OD_T1 or iid in OD_T2):
+                od, f = ("OD-T1", OD_T1[iid]) if iid in OD_T1 else ("OD-T2", OD_T2[iid])
+                rec["state"] = "OWNER_CONFIRMED_SHIPPED_OD_T7"
+                rec["ownerDecision"] = {"id": od, "family": f, "independentId": True, "date": OWNER_DATE,
+                                        "productionRowAdded": True, "shippedIn": SHIPPED_SINCE_AUDIT.get(iid),
+                                        "matchesPr255Candidate": x.get("family") == f}
+                rec["ownerConfirmedSource"] = f"Owner {od} {OWNER_DATE}; production row shipped in {SHIPPED_SINCE_AUDIT.get(iid)} (OD-T7)"
             elif iid in fam:
                 rec["state"] = "CLASSIFIED_PRODUCTION"
             elif iid in OD_T1 or iid in OD_T2:
@@ -230,15 +254,19 @@ def build(audited_sha):
         "states": {s: n(s) for s in sorted({r["state"] for r in out})},
         "unresolvedToppingIds": sorted(r["id"] for r in out if r["state"] == "UNRESOLVED"),
         "unresolvedToppingsBeforeOwnerDecision": 23,
-        "ownerConfirmedFromUnresolved": sum(1 for r in out if r["state"] == "OWNER_CONFIRMED_PENDING_RUNTIME"),
+        "ownerConfirmedFromUnresolved": sum(1 for r in out if r["state"] in ("OWNER_CONFIRMED_PENDING_RUNTIME", "OWNER_CONFIRMED_SHIPPED_OD_T7")),
+        "ownerConfirmedPendingRuntime": n("OWNER_CONFIRMED_PENDING_RUNTIME"),
+        "ownerConfirmedShippedSinceAudit": {i: SHIPPED_SINCE_AUDIT[i] for i in sorted(SHIPPED_SINCE_AUDIT)},
         "ownerConfirmedByDecision": {"OD-T1": len(OD_T1), "OD-T2": len(OD_T2), "OD-T3": len(OD_T3)},
         "deferred": ["mascarpone (OD-T4 category)"],
         "pr255NeedsReviewProductionRows": sorted(r["id"] for r in out if r["inProduction"] and r.get("pr255NeedsReview")),
-        "productionTaxonomyChanged": False,
+        "productionTaxonomyChangedByThisAudit": False,
     }
     validation = validate(prod, rows, families, master, t255, out)
     return {"schemaNote": "Records the Owner Authority OD-T1..T8 (2026-09-29) for the 62-ingredient taxonomy / HCG audit. This artifact is NOT the production taxonomy: production taxonomy is src/data/ingredientTaxonomy.ts and is unchanged. Ingredients in state OWNER_CONFIRMED_PENDING_RUNTIME are Owner-confirmed but are NOT production rows; each is added to ingredientTaxonomy.ts only in the PR that introduces it to runtime (OD-T7). The audit itself classifies nothing.",
             "generatedBy": "tools/ingredient_taxonomy_hcg_authority_audit.py", "auditedMainSha": audited_sha,
+            "originalAuditedMainSha": ORIGINAL_AUDITED_MAIN_SHA,
+            "syncNote": "S-0 (2026-10-03): re-synced to the post-#342 production files (30 ingredients / 23 topping rows). The Owner Authority OD-T1..T8 text is unchanged; chicken (OD-T1, meat) now has its production row (OD-T7). The original audit values (29 / 22, 23 pending) are history in the Fresh Audit report.",
             "evidenceSnapshot": {"path": "docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json", "rowsSha256": snap_sha, "sources": {"pr255": PIN_255, "pr293": PIN_293}, "note": "audit evidence only, not authority"},
             "validation": validation, "ownerDecisions": {"recordedOn": OWNER_DATE, "status": "OWNER AUTHORITY (recorded; production taxonomy NOT changed)", "decisions": DECISIONS},
             "summary": summary, "ingredients": out}

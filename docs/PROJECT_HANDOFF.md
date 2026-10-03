@@ -373,6 +373,27 @@ edited; this section supersedes them.
   counts before Phase 5 (OD-CT-6, `familyCounts` stays unused); PR #272 is untouched and stays
   "rebase/revise before LC-2" (verdict B). No production code changed by this decision.
 
+## Ingredient Taxonomy — Fresh Audit + S-0 sync (Owner, 2026-10-03; docs / audit tool only)
+
+Full record: `docs/reports/TETO_INGREDIENT-TAXONOMY_x_CATALOG-SELECTION_Fresh-Audit.md` (§16); data:
+`docs/reports/data/TETO_INGREDIENT-TAXONOMY_PRODUCTION30_Fresh-Audit.json`.
+
+- **Current production taxonomy authority (main `fbd5305`): 30 ingredients (sauce 3 / cheese 4 / topping 23), 23 topping → family
+  rows, 9 shelves, 30 / 30 classified, 0 unclassified, 0 conflicts.** `chicken` shipped in #342 with its `meat` row (OD-T7).
+  The earlier "29 / 22" values elsewhere in this file and in older reports are **historical** (their own audited time) and are kept.
+- The shared taxonomy and the category chips are **already implemented and live** (Shop #301, Ingredients #302, 食材庫 LC-R3..R5-b).
+  Wording: **ROLE** = `Ingredient.category` (sauce / cheese / topping, = making step); **FAMILY** = 7 ids, toppings only (1 ingredient =
+  1 family); **SHELF** = derived view (role for sauce / cheese, family for toppings), never stored. **Family ids are persisted**
+  (`attr:family:<id>` in `discoveryHintFacts`) and must never be renamed / split / merged; labels may change.
+- Owner Decisions: **OD-1** unify the player-facing topping ROLE word to 「具材」 (direction only; no UI change yet; the affected
+  displays are recorded in the audit §16.2; sentence copy and `キートッピング` / `サブトッピング` are a separate call, OD-1b).
+  **OD-2** family `other` stays 「その他」 (chip) / 「ちょっと変わった材料」 (Hint). **OD-3** #272 / #307 reconcile, do not close
+  without the Owner. **OD-4** sauce / cheese sub-division deferred to the 105-ingredient Scale Audit. **OD-5** hand capacity 9 / 12
+  undecided; the R6 390×844 real-device comparison is the decision gate. **OD-6** future-ingredient categories (mascarpone / honey /
+  nutella-spread …) are confirmed on the 53 / 172 Scale Audit side; nothing is added to the production taxonomy by inference.
+- `tools/ingredient_taxonomy_hcg_authority_audit.py --sha fbd5305… --check` is re-synced (OK). It stays a point-in-time check: the next
+  runtime-introduction PR that adds a taxonomy row must update its pinned hashes and `SHIPPED_SINCE_AUDIT` in the same PR.
+
 ## Large Catalog UX — current SSOT (Owner, 2026-09-29; docs-only)
 
 Authority: `docs/reports/TETO_LARGE-CATALOG-UX_Fresh-Rebase-Revision-Gate.md` (§17 for the decisions). Older #272

@@ -112,7 +112,7 @@ Meaning of the numbers (verified in `data/recipes`): the **53** is the `pizza_ma
 | Taxonomy fail-closed for expansion | `auditShelfAuthority()` is injectable and already used by a 62-catalog detection gate; G1 / G16 / G22–G24 fail CI on an unclassified runtime topping. |
 | Scale problem the taxonomy does **not** solve | Sauce 18 and cheese 16 have **no sub-structure at all** (a single shelf each). In the pantry they are browsable only by search (> 6 rows) and paging. No data supports sub-shelves; **do not invent them** (§11, OD-4). |
 
-**Stale numbers found in earlier reports (drift, no action by this audit):** the 62-Ingredient audit and its generator state production = 29 ingredients / 22 taxonomy rows. Main is **30 / 23** (`chicken` shipped with No.27 in #342). `tools/ingredient_taxonomy_hcg_authority_audit.py --sha fbd5305… --check` fails with *"ingredientTaxonomy.ts differs from the audited main"* (it is a point-in-time check; reproduced here). The audit also still lists `chicken` among "23 unresolved toppings"; the real non-production topping count is **22** (computed from the artifact: 42 toppings − 20 production ones in it).
+**Stale numbers found in earlier reports (drift; resolved by S-0, §16):** the 62-Ingredient audit and its generator state production = 29 ingredients / 22 taxonomy rows. Main is **30 / 23** (`chicken` shipped with No.27 in #342). `tools/ingredient_taxonomy_hcg_authority_audit.py --sha fbd5305… --check` fails with *"ingredientTaxonomy.ts differs from the audited main"* (it is a point-in-time check; reproduced here). The audit also still lists `chicken` among "23 unresolved toppings"; the real non-production topping count is **22** (computed from the artifact: 42 toppings − 20 production ones in it).
 
 ## 7. Current UI structure
 
@@ -254,3 +254,49 @@ Not applied here: this task is audit-only and edits no existing authority.
 - Not run: vitest / e2e / WebKit (no `node_modules`, audit-only), no new viewport measurement (existing measurements cited).
 
 **FINAL STATUS: A. AUDIT COMPLETE — the shared taxonomy and category-chip selection UI are already implemented; no new taxonomy proposed; remaining work is Owner label decisions (OD-1, OD-2), R6 hand activation, and the 53 per-ingredient expansion gate.**
+
+## 16. S-0 record — Owner Decisions (2026-10-03) and authority sync
+
+**Owner approval:** the Fresh Audit result is approved. Decisions:
+
+| ID | Decision (Owner) |
+|---|---|
+| OD-1 | The player-facing ROLE word for topping is to be unified to **「具材」**, direction only. **No UI change in S-0**; S-0 records which displays would change (below). |
+| OD-2 | Family `other` stays as is: category chip 「その他」, Hint 「ちょっと変わった材料」 — purpose-specific labels from the same family id. |
+| OD-3 | #272 / #307: re-check the latest GitHub state, reconcile with what main already holds, **do not close**, report the needed action (§16.3). |
+| OD-4 | sauce / cheese family sub-division is **deferred** to the 105-ingredient Scale Audit. |
+| OD-5 | Hand capacity 9 / 12 stays **undecided**; the R6 390×844 real-device comparison is the Owner Decision Gate. |
+| OD-6 | Future-ingredient categories (mascarpone / honey / nutella-spread …) are confirmed on the 53 / 172 Scale Audit side; **nothing is added to the production taxonomy by inference**. |
+
+### 16.1 Authority sync (S-0)
+
+Audited main `fbd5305fb9452e0a6d38b188dd6f3099898a7ae8` (unchanged since the Fresh Audit). Between the 62-audit's main `21dc0a6` and now, the only change to the three authority files is #342 (`chicken` + its `meat` row): `git diff 21dc0a6 HEAD -- ingredients.ts ingredientTaxonomy.ts ingredient_master_catalog.json` = +17 / +1 / 0 lines.
+**Why `--check` failed:** not a data error. The point-in-time tool pinned `ingredientTaxonomy.ts` / `ingredients.ts` sha256 and hard-coded 29 / 22 / "23 pending = derived unresolved"; `chicken` is both an OD-T1 id and now a production row, so four assertions (hashes, 22 rows, 29 ingredients, "confirmed ids absent from production") and the generated JSON drifted. Fix (tools + data only, taxonomy untouched): re-pin the two hashes, count 30 / 23, and model `chicken` as `OWNER_CONFIRMED_SHIPPED_OD_T7` (production family must equal the Owner-confirmed one), pending 22. Result: `--sha fbd5305… --check` = OK; the regenerated JSON differs only in chicken-related fields, counts and the new sync fields.
+**Current authority:** 30 ingredients (sauce 3 / cheese 4 / topping 23), 23 family rows, 9 shelves, 30 / 30 classified.
+
+### 16.2 OD-1 — displays that would change to 「具材」 (recorded only; nothing changed)
+
+Verified by `grep` on main. Player-visible *category* label for topping:
+
+| # | Location | Surface | Today |
+|---|---|---|---|
+| 1 | `src/data/ingredients.ts:571` `CATEGORY_LABEL.topping` | 食材庫 sheet subtitle (`IngredientPantry.tsx:204`), Inventory card label (`InventoryOverlay.tsx`) | トッピング |
+| 2 | `src/components/HintSheet.tsx:104` `CATEGORY_LABEL.topping` | Hint sheet row label | トッピング |
+| 3 | `src/components/ResultPanel.tsx:710` `RESEARCH_ROW_CATEGORIES` | Research「今回の試作結果」group header (ソース / チーズ / トッピング) | トッピング |
+| 4 | `src/logic/discovery/researchResultFeedback.ts:35` `CATEGORY_LABEL_JA.topping` | Research rows feedback copy (same triple) | トッピング |
+| 5 | `src/logic/discovery/deductionHint.ts:246` `CATEGORY_JA` | legacy 特徴 / attr category line (Hint 5.0 ON retires the purchases; old stored facts may still render) | トッピング |
+
+Already 「具材」: `STEP_LABEL.TOPPING` (`makingStepLabels.ts:15`), `ResultPanel.tsx:169` score row, `quantityMessages.ts:11` fallback name.
+
+**Not a category label, separate Owner call (OD-1b, not decided here):** sentence copy (`ResultPanel.tsx:705` 「トッピングは一度に3種類まで調べられるよ」, `deductionRequest.ts:155` 「トッピングは◯種類使うよ」, `dialogue.ts:25,27`), and the compound hint terms `キートッピング` (`HintSheet.tsx:815`, `hint5Ladder.ts:473,478`) / `サブトッピング` (`HintSheet.tsx:808,823,892,946`, `hint5Ladder.ts:478`). `src/preview/hvSeeds.ts` strings are Preview/DEV only (not player-facing). `GameScreen.tsx:581` is a comment.
+**Cost when it is done:** UI text only, no id / save change; ~25 unit-test files and ~19 e2e lines mention 「トッピング」 (some are the compound words, so the exact set is decided in the slice); the UI-text change needs Human Verification (Policy §2); Hint/Research copy is Anti-Oracle-neutral, so a pure label swap should not change the privacy contract but must be re-gated by the existing oracle / copy tests.
+
+### 16.3 #272 / #307 (read-only; GitHub state fetched 2026-10-03; nothing changed, nothing closed)
+
+- **#272** — open, not draft, base `e21fbc2` (stale), 11 commits, 75 files, **"Closes #269"** in its body (merging would auto-close #269). A local trial merge into main (`git merge-tree`, no push) conflicts in **all 14 files of `src/logic/catalog/**`** (add/add: main already holds the LC-R0-ported, shelf-reconciled versions). Its content is **superseded by LC-R0..R5 on main** (OD-4: frozen as porting source). Action for the Owner: it must **not** be merged; close as superseded when ready (OD-3: not done here); then close or re-scope #269 (its slices landed through different PRs).
+- **#307** — open, 2 files (+2 / −1): adds the "LC-R4 MERGED / COMPLETE (PR #306 …)" line to `PROJECT_HANDOFF.md` and the merged status to the LC-R4 Result. **Not a duplicate: main does not contain this content** (`grep "LC-R4 MERGED"` = 0; the Result still says "No PR yet"), PR #306 itself is in main. It conflicts with main in `PROJECT_HANDOFF.md` only (trial merge). Action: either resolve the one handoff conflict and merge (docs-only), or fold the two lines into the next docs sync PR and close #307 as superseded.
+- Related, unchanged: #319 (R6-b) is untouched by S-0.
+
+### 16.4 Historical values retained (not edited)
+
+All of these state 29 / 22 as the value *at their own audited time* and are kept: `PROJECT_HANDOFF.md` Hint 5.0 section (Round 2 "T-COV runtime 25 / 29", dated 2026-09-28); H5-0 design OD-H5-T-COV / §669 ("25 recipes / 29 ingredients", "22 / 22 toppings"); the 62-audit body (`21dc0a6`, now with an S-0 banner and four `[S-0: now …]` tags); `TETO_HINT-5_TAXONOMY-COVERAGE_Fresh-Audit.json` (#293 snapshot); DH4-1 / DH4-2 / Hint-5 audit and result reports; Large Catalog LC-R1..R5 and Category Tabs P3 / P4 reports and their measurements ("22 toppings owned", "29 production parity"); Progression W1 reports ("22 toppings, 4 pages"). The Category Tabs visibility JSONs record 22 / 29 rows as measurements of their date.

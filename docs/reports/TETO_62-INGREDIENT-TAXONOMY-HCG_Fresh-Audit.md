@@ -5,12 +5,28 @@ given on 2026-09-29 (OD-T1..T8); the rest of the report is the audit as original
 §0 supersedes it (marked "[superseded by §0]").** Every family value is either copied from an existing
 source with its status, or is an Owner-confirmed value from §0. No classification was added by the auditor.
 
+> **S-0 sync note (2026-10-03, main `fbd5305`) — read before using any count below.**
+> This report is a **point-in-time audit of main `21dc0a6`** and its body is kept as the historical record
+> (production **29 ingredients / 22 topping rows**; **23** Owner-confirmed toppings pending runtime). Since then
+> only one production change touched this authority: **`chicken` shipped in #342** (No.27 pesto-pollo) **with its
+> `ingredientTaxonomy.ts` row** (`meat`, equal to the OD-T1 value; this is exactly what OD-T7 requires). **Current production authority:
+> 30 ingredients (sauce 3 / cheese 4 / topping 23), 23 taxonomy rows, 9 shelves, 30 / 30 classified, 0 unclassified.**
+> Current Owner-confirmed-pending-runtime toppings: **22** (the 23 of §0 minus `chicken`, which is now production);
+> non-production toppings in the 62 master catalog: **22** (42 − 20 production ids that are in it).
+> Owner Authority OD-T1..T8, the family values and the 62 / 65 id universe are **unchanged**.
+> Lines that state 29 / 22 / 23 as the *audited-main state* (§0 record, §1, §3, §4, §11, §12) are historical;
+> only the cells tagged `[S-0: now …]` below are re-stated as current values. The generator
+> (`tools/ingredient_taxonomy_hcg_authority_audit.py`) and the companion JSON are re-synced to `fbd5305`
+> (`--check` = OK); the JSON keeps `originalAuditedMainSha = 21dc0a6`. The audit tool remains a point-in-time
+> check: it pins the production file hashes, so the **next** runtime-introduction PR that adds a row must update the pins
+> (and `SHIPPED_SINCE_AUDIT`) in the same PR.
+
 | Deliverable | Path |
 |---|---|
 | Report (this file) | `docs/reports/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.md` |
 | Machine-readable companion (65 rows + summary) | `docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Fresh-Audit.json` |
 | Evidence snapshot | `docs/reports/data/TETO_62-INGREDIENT-TAXONOMY-HCG_Evidence-Snapshot.json`: the minimal PR #255 (`e221e36`) / #293 (`1bb4f9d`) rows the generator reads (45 + 42 rows), with source PR / SHA / purpose and a `rowsSha256` tamper check. **Audit evidence only: not a production authority, not read by `src/**`, and no classification is inferred from it.** |
-| Generator / checker | `tools/ingredient_taxonomy_hcg_authority_audit.py`. `--sha 21dc0a6… [--check]` regenerates / checks from the working tree plus the committed snapshot; **no git object of PR #255 / #293 is needed** (works in fresh and shallow clones). `--refresh-snapshot` (maintainer only) is the sole path that reads those PR objects. `--check` also validates the Owner Authority (counts, 23 unique ids, UNRESOLVED = 0, families, OD-T3 vs production, mascarpone deferred, production file hashes, generator vs §0 text). Not in CI; not imported by `src/**`. |
+| Generator / checker | `tools/ingredient_taxonomy_hcg_authority_audit.py`. `--sha <audited main SHA> [--check]` regenerates [S-0: now run with `--sha fbd5305…`] / checks from the working tree plus the committed snapshot; **no git object of PR #255 / #293 is needed** (works in fresh and shallow clones). `--refresh-snapshot` (maintainer only) is the sole path that reads those PR objects. `--check` also validates the Owner Authority (counts, 23 unique ids, UNRESOLVED = 0, families, OD-T3 vs production, mascarpone deferred, production file hashes, generator vs §0 text). Not in CI; not imported by `src/**`. |
 
 ## 0. Owner Authority record (2026-09-29): OD-T1..OD-T8
 
@@ -62,10 +78,10 @@ Note: PRs #255 / #293 / #296 were cut on older mains (`5a33d85`, `86b48fd`). Bet
 
 | Layer | Authority (source of truth) | State on main |
 |---|---|---|
-| Production ingredient set | `src/data/ingredients.ts` | **29** ingredients: sauce 3, cheese 4, topping 22 |
+| Production ingredient set | `src/data/ingredients.ts` | **29** ingredients: sauce 3, cheese 4, topping 22 **[S-0: now 30 — sauce 3, cheese 4, topping 23]** |
 | Category (sauce / cheese / topping) | `Ingredient.category` in `ingredients.ts` (production); `data/recipes/ingredient_master_catalog.json` for non-production (research artifact, "NOT wired into src") | production 29 only |
 | **62 catalog** | `data/recipes/ingredient_master_catalog.json` (catalogVersion 2.0.0, 2026-09-19): 62 rows = sauce 10 / cheese 10 / topping 42 | **Not production.** Production ≠ 62. |
-| Hint family (**ATTRIBUTE_FAMILIES**) | `src/data/ingredientTaxonomy.ts`: 7 family ids, 4 group ids, **22 topping → family rows** (OD-DH4-4; merged via DH4-1 #254). Sauce / cheese have no family. | complete for production toppings |
+| Hint family (**ATTRIBUTE_FAMILIES**) | `src/data/ingredientTaxonomy.ts`: 7 family ids, 4 group ids, **22 topping → family rows** **[S-0: now 23, + `chicken` = meat, #342]** (OD-DH4-4; merged via DH4-1 #254). Sauce / cheese have no family. | complete for production toppings |
 | Hint 5.0 display | `src/data/hintClassDisplay.ts` (`HINT_CLASS_DISPLAY`, keyed by the 7 family ids; OD-H5-C4 final) | display only |
 | Hint 5.0 fail-fast | `src/logic/discovery/hint5Taxonomy.gate.test.ts` (G1 / G16 / G22–G24 …): every runtime topping has exactly one family; missing = `NOT_A_TARGET`; the 172 fixture cannot ship an unclassified topping | on main |
 | **Shelf** (Large Catalog / Category Tabs) | `src/data/ingredientShelf.ts`: **composed view, no table of its own.** shelf(topping) = its family; shelf(sauce / cheese) = its category. 9 shelves: sauce, cheese, meat, seafood, vegetable, fruit, herb, spice, other. `auditShelfAuthority` reports unclassified / duplicate / orphan / non-topping rows. Fail-closed: `null` shelf → "すべて" only. | on main (LC-R1 / R4 use it) |
@@ -222,7 +238,7 @@ Amended for §0. S0 is done. OD-T7 forbids a second runtime taxonomy authority, 
 
 Historical text of the original verdict follows.
 
-- Production (29 ingredients, 22 topping rows, 9 shelves) is **complete and internally consistent**; the fail-fast gates cover it. Nothing here needs a production fix.
+- Production (29 ingredients, 22 topping rows, 9 shelves) **[S-0: now 30 / 23 / 9]** is **complete and internally consistent**; the fail-fast gates cover it. Nothing here needs a production fix.
 - The 62-catalog taxonomy is **not completable without the Owner**: 23 toppings are unresolved, **0 have an Owner-confirmed source**; 16 have a documented #255 proposal, 7 are genuine judgment calls, plus 2 under-review production rows and 1 category question.
 - The structure is reusable for 62 → 172 with rows only and no new family.
 - **LC-R5b conflict: none.** This branch is additive docs / data / tools; PR creation is deferred to the Owner's call after reading this.
