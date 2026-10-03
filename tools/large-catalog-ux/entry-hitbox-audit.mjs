@@ -96,7 +96,7 @@ try {
     await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, ["teto-pizza-save-v1", JSON.stringify(SAVE)]);
     await page.goto(BASE);
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /フリークッキング/ }).click();
+    await page.getByRole("button", { name: /レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");
     const dough = await page.locator(".pizza-dough").boundingBox();
     for (let i = 0; i < 8; i += 1) { const a = (i / 8) * Math.PI * 2; await page.mouse.move(dough.x + dough.width / 2 + Math.cos(a) * dough.width * 0.466, dough.y + dough.height / 2 + Math.sin(a) * dough.width * 0.466); await page.mouse.down(); await page.mouse.up(); }
