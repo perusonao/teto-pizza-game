@@ -136,7 +136,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
   });
 
-  test("a large owned set pages inside the tray and PREPARE still fits one screen", async ({ page }) => {
+  test("a large owned set is capped to the 12-ingredient hand (2 tray pages) and PREPARE still fits one screen", async ({ page }) => {
     test.setTimeout(45_000);
     const toppings = [
       "garlic", "oregano", "mushroom", "egg", "cherry-tomato", "onion", "sausage", "pepperoni",
@@ -164,7 +164,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     await expectOneScreen(page, "CHEESE (4 owned)");
     await page.getByRole("button", { name: /次へ/ }).click();
 
-    // TOPPING: basil + every owned topping that exists in the catalog, 6 per page.
+    // TOPPING (LC-R6-e, Hand ON): the tray holds the hand (capacity 12 of basil + 14 owned toppings), 6 per page.
     const nav = page.getByRole("group", { name: "素材ページ切り替え" });
     await expect(nav).toBeVisible();
     await expectOneScreen(page, "TOPPING page 1");
@@ -179,11 +179,10 @@ test.describe("Free Cooking (Issue #194)", () => {
       await next.click();
       await expectOneScreen(page, "TOPPING next page");
     }
-    expect(seen.has("バジル")).toBe(true);
-    expect(seen.has("たまねぎ")).toBe(true);
-    expect(seen.size).toBe(15); // basil + all 14 owned toppings, across 3 pages
-    // 0 stock: listed, disabled (existing Stock Gate contract).
-    expect(onionDisabled).toBe(true);
+    expect(seen.size).toBe(12); // the hand: 12 of the 15 owned, across 2 pages; the rest is one 食材庫 away
+    await expect(page.getByRole("button", { name: /食材庫/ })).toBeVisible();
+    // 0 stock: listed, disabled (existing Stock Gate contract) -- whenever the hand holds it.
+    if (onionDisabled !== null) expect(onionDisabled).toBe(true);
 
     // Chips stay comfortably tappable.
     const chip = await page.locator(".ingredient-chip").first().boundingBox();

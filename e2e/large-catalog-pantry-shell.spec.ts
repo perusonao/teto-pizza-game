@@ -233,7 +233,7 @@ for (const width of [390, 360] as const) {
       expect(after.stage).toBeCloseTo(before.stage!, 1);
       expect(after.dock).toBeCloseTo(before.dock!, 1);
       const placedBefore = await page.locator(".pizza-topping").count();
-      await page.getByRole("button", { name: /バジル/ }).first().click();
+      await page.locator(".ingredient-chip:not([disabled])").first().click(); // any hand topping (Hand ON: the tray holds 12 of the 23)
       await tapDoughPercent(page, 45, 60);
       await expect(page.locator(".pizza-topping")).toHaveCount(placedBefore + 1);
 

@@ -144,7 +144,7 @@ for (const width of [390, 360] as const) {
       await toTopping(page);
       const stageBefore = await layout(page);
       // Pick a Builder selection first: pantry filtering must never touch it.
-      const basilChip = page.locator(".ingredient-chip", { hasText: "バジル" }).first();
+      const basilChip = page.locator(".ingredient-chip:not([disabled])").first(); // a hand topping (Hand ON: the tray holds 12 of the 23)
       await basilChip.click();
       await expect(basilChip).toHaveAttribute("aria-pressed", "true");
 
@@ -248,7 +248,7 @@ for (const width of [390, 360] as const) {
 
       // ---- cooking continues
       const placed = await page.locator(".pizza-topping").count();
-      await page.locator(".ingredient-chip", { hasText: "バジル" }).first().click();
+      await page.locator(".ingredient-chip:not([disabled])").first().click();
       await tapDoughPercent(page, 45, 60);
       await expect(page.locator(".pizza-topping")).toHaveCount(placed + 1);
     }
