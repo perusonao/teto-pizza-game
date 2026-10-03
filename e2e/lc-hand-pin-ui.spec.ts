@@ -6,6 +6,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { buildLcApp, serveBuilds } from "./support/lcHandBuild";
 import { openFree, PREVIEW_KEY, saveWithToppings, TOPPING_COUNTS, toCheese, toSauce, toTopping } from "./support/lcHandDom";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Large Catalog UX LC-R6-c: the Preview Hand / Pin UI on a REAL build. A Preview build of this source tree with the HV
@@ -220,7 +221,7 @@ for (const [, capacity] of BUILDS) {
     await page.getByRole("button", { name: /閉じる|もどる/ }).first().click().catch(() => {});
     await page.goto(`${origin}/h${capacity}/`); // a reload keeps the seeded save (the seed applies to a fresh navigation only)
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /レシピ発見/ }).first().click();
+    await startTargetlessFreeCook(page); // #373: HOME 「レシピ発見」 researches (or opens the Dex) when an entry is cookable
     await page.waitForSelector(".pizza-stage");
     await toSauce(page);
     await toCheese(page);
