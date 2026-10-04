@@ -21,3 +21,17 @@ Before/after screenshots: `docs/reports/screenshots/378-stock-blocked-research/`
 
 ## Save/schema impact
 None.
+
+## Merge / post-merge (recorded 2026-10-04)
+- PR #381 squash-merged: `9e2ee5885b810b812d17af8981d1c9416cdd3499` (head `680e1feb`, required CI 9/9, WebKit 4 shards + WebKit Gate success, 0 review findings, 0 unresolved threads).
+- Production deploy: Deploy to GitHub Pages #271 success (source `9e2ee58`). Post-merge E2E WebKit #511 success.
+
+## Owner Production HV — PASS (Owner, real device)
+1. Stock-blocked Research card shows 「研究を続けるには材料の補充が必要」 and 「🛒 ショップで補充する」 — PASS.
+2. Shop: owned material at stock 0 (たまご) shows 「在庫なし」 with 在庫 0 — PASS.
+3. Refill: たまご refilled for 30 Pitz, stock 0 → 10 — PASS.
+4. Back in the Dex: the stock notice is gone and 「🔎 このピザを研究する」 is back — PASS.
+5. Research resumed: Research Target 「？？？ピザ」 and 「✓ たまごを使う」 kept, research screen reached — PASS.
+6. Privacy: no hidden recipe name, no required-ingredient list / required count / missing count — PASS.
+
+Owner Production HV: **PASS**. Remaining blocker for #378: none. Out of scope and unchanged: Dex footer 「次のピザを作る」 label/action mismatch (separate scope), #377, #360, Expansion Slice 1.
