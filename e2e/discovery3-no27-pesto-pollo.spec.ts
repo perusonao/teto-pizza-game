@@ -183,7 +183,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     const card = page.locator(".dex-card").filter({ hasText: "ペストポッロピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.11"); // chapter-relative slot 11 of 第3章
-    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("11/11");
+    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("11/12");
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page);
     await capture(page, "no27-dex-no27", project);
