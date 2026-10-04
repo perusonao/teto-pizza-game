@@ -85,7 +85,7 @@ describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
     }
   });
 
-  it("M3: every legacy fact set gives the same rendered sheet as a fresh save (only 「以前のヒント」 differs)", () => {
+  it("M3: every legacy fact set gives the same rendered sheet as a fresh save (only 「これまでにわかったこと」 differs)", () => {
     for (const r of TARGETS) {
       const sellable = buildSelectableHintModel(r.id, { discoveredCount: 1 })!.purchasableFacts.map((f) => `ing:${f.ingredientId}`);
       const { container } = renderLadder(pres(r.id, []));
@@ -100,7 +100,7 @@ describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
     }
   });
 
-  it("「以前のヒント」 never repeats what the board shows (a ladder-bought total or name)", () => {
+  it("「これまでにわかったこと」 never repeats what the board shows (a ladder-bought total or name)", () => {
     const stored = prefix("hawaiian", 4)!;
     const view = { ...selectable(), deduction: { structureLines: ["このピザは全部で4種類の材料を使うよ"], attributeLines: [] } as never };
     const { container } = render(<HintSheet view={view} hint5={pres("hawaiian", stored)} onUnlock={() => {}} onClose={() => {}} />);
@@ -112,6 +112,52 @@ describe("Hint 5.0 ladder DOM: FREE LEAK (H5-INV-5) and M3", () => {
     const { container } = renderLadder(pres("hawaiian", ["h5:sauce"]), "HINT5_ALREADY_KNOWN");
     expect(container).toHaveTextContent(ALREADY_KNOWN);
     expect(container.querySelector(".hint-sheet__h5-next .hint-sheet__price")).toHaveTextContent("10 Pitz");
+  });
+});
+
+describe("#360 S2: source-neutral archive 「これまでにわかったこと」", () => {
+  const archiveOf = (c: HTMLElement) => c.querySelector(".hint-sheet__legacy");
+  const ORIGIN_CLAIM = /以前のヒント|前のヒント方式/;
+
+  it("RESULT ○ origin: a stored ing: fact with no rung completion is archived under the neutral title, on no board row", () => {
+    const { container } = renderLadder(pres("hawaiian", ["ing:pineapple"]));
+    expect(archiveOf(container)!.querySelector(".hint-sheet__legacy-title")!.textContent).toBe("これまでにわかったこと");
+    expect(archiveOf(container)).toHaveTextContent("パイナップル");
+    expect(container.querySelector('[data-hint-section="hint5-names"]')).toBeNull();
+    expect(container.textContent).not.toMatch(ORIGIN_CLAIM);
+  });
+
+  it("Hint origin: the same fact bought through its rung sits on the board and is not repeated in the archive", () => {
+    const stored = prefix("hawaiian", 3)!; // SAUCE, CHEESE, KEY_TOPPING
+    const { container } = renderLadder(pres("hawaiian", stored));
+    expect(container.querySelector('[data-hint5-rung="KEY_TOPPING"]')).toHaveTextContent("パイナップル");
+    expect(archiveOf(container)).toBeNull();
+  });
+
+  it("unlock-derived origin (ALREADY_KNOWN stores only the h5:key marker): the legacy KEY row shows once on the board, no archive", () => {
+    const { container } = renderLadder(pres("hawaiian", ["h5:sauce", "h5:cheese", "h5:key"]));
+    expect(container.querySelector('[data-hint5-rung="KEY_TOPPING"]')).not.toBeNull();
+    expect(archiveOf(container)).toBeNull();
+  });
+
+  it("key-free recipe: no KEY row, and a stored ○ name uses the same neutral archive", () => {
+    const { container } = renderLadder(pres("pesto-pollo", ["ing:chicken"]));
+    expect(container.querySelector('[data-hint5-rung="KEY_TOPPING"]')).toBeNull();
+    expect(archiveOf(container)).toHaveTextContent("これまでにわかったこと");
+    expect(archiveOf(container)).toHaveTextContent("チキン");
+    expect(container.textContent).not.toMatch(ORIGIN_CLAIM);
+  });
+
+  it("no hidden information is added: with a known name the offer, price and ladder are the fresh-save ones", () => {
+    for (const id of ["hawaiian", "pesto-pollo"]) {
+      const fresh = renderLadder(pres(id, []));
+      const freshShape = shape(fresh.container);
+      cleanup();
+      const known = renderLadder(pres(id, ["ing:pineapple"]));
+      expect(shape(known.container)).toBe(freshShape);
+      expect(known.container.textContent).not.toContain(ALREADY_KNOWN);
+      cleanup();
+    }
   });
 });
 
