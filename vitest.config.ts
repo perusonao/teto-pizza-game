@@ -1,4 +1,5 @@
 import { defineConfig, type Plugin } from "vitest/config";
+import { testHooksPlugin } from "./tools/testHooksPlugin.ts";
 
 /**
  * LC-R5-e-h (test-only): the Large Catalog hand ACTIVATION projects.
@@ -57,6 +58,8 @@ function handRollback(): Plugin {
 }
 
 export default defineConfig({
+  // #377: the test-only targetless-start hook (tools/testHooksPlugin.ts); Vitest only, never `vite build`.
+  plugins: [testHooksPlugin()],
   test: {
     // jsdom (added for Issue #24's HOME/GAME component tests) is a superset of what the
     // existing pure-logic/data `.test.ts` suite needs -- none of it depends on `window`

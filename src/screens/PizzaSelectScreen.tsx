@@ -34,7 +34,7 @@ interface PizzaSelectScreenProps {
   inventory?: InventoryState;
   onSelectRecipe: (recipeId: RecipeId) => void;
   onBack: () => void;
-  /** Opens Free Cooking directly (App.tsx's `handleStartFreeCook`) -- the discovery path. */
+  /** The discovery path (App.tsx's `handleStartDiscovery`, #377): the same Research Entry 0 / 1 / 2+ routing as HOME. */
   onGoFreeCook?: () => void;
   /** Opens the Shop overlay (the SHOP prompt card, and an out-of-stock recipe's detail). */
   onOpenShop?: () => void;

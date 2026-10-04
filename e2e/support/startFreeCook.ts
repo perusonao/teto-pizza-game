@@ -1,19 +1,20 @@
 import type { Page } from "@playwright/test";
 
 /**
- * Issue #373: HOME 「レシピ発見」 researches the cookable Research Entries (one: that entry is the Target; 2+: the Dex's
- * Research cards open), so on a save that has a cookable entry it is no longer the targetless Free Cook. Specs that
- * pin the targetless contract (Hint sheet / pricing, no research context, layout baselines) start it the way that
- * still is one: Pizza Select's 「レシピ発見へ」 (`START_FREE_COOK` without a target). A save with no cookable entry
- * has no such prompt, and HOME's own 「レシピ発見」 is the targetless start there (OD-2).
+ * Issue #373 / #377: HOME 「レシピ発見」 and Pizza Select 「レシピ発見へ」 share one routing -- a save with a cookable Research
+ * Entry researches it (the Dex opens for 2+), so neither is the targetless Free Cook there, and there is deliberately no
+ * Production UI for it. Specs that pin the targetless contract (Hint sheet / pricing, no research context, layout
+ * baselines) start it through the test-only hook that `tools/testHooksPlugin.ts` adds in memory to a dev server started
+ * with TETO_TEST_HOOKS=1 (the Playwright `webServer`); it dispatches `START_FREE_COOK` without a target. No shipped build
+ * has the hook. A build without it (the Large Catalog bundle specs) is only used with saves that have no cookable entry,
+ * where HOME's own 「レシピ発見」 is the targetless start (OD-2).
  */
 export async function startTargetlessFreeCook(page: Page): Promise<void> {
-  await page.getByRole("button", { name: /ピザを作る/ }).click();
-  const prompt = page.getByRole("button", { name: /レシピ発見へ/ });
-  if (await prompt.waitFor({ state: "visible", timeout: 1500 }).then(() => true, () => false)) {
-    await prompt.click();
-    return;
-  }
-  await page.getByRole("button", { name: /ホーム/ }).click();
+  const hooked = await page.evaluate(() => {
+    const hooks = (globalThis as { __tetoTest?: { startTargetlessFreeCook: () => void } }).__tetoTest;
+    hooks?.startTargetlessFreeCook();
+    return Boolean(hooks);
+  });
+  if (hooked) return;
   await page.getByRole("button", { name: /レシピ発見/ }).first().click();
 }
