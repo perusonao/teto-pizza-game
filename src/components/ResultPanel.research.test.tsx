@@ -59,6 +59,16 @@ describe("Research ORIGINAL copy", () => {
     expect(screen.getByText(/研究中 ？？？ピザ ①/)).toBeInTheDocument();
   });
 
+  it("Research RESULT note is the target-independent notebook sentence; targetless FREE keeps the Dex-match sentence", () => {
+    original(ORDINARY);
+    expect(screen.getByText("試作結果とノートを見て、次に試す材料を考えてみよう。")).toBeInTheDocument();
+    expect(screen.queryByText(/図鑑のピザと同じ組み合わせ/)).toBeNull();
+    cleanup();
+    original(ORDINARY, { researchLabelJa: null });
+    expect(screen.getByText("図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。")).toBeInTheDocument();
+    expect(screen.queryByText(/試作結果とノートを見て/)).toBeNull();
+  });
+
   it("ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH render byte-identically (no identity or correctness feedback)", () => {
     const o = original(ORDINARY).html;
     expect(original(AMBIGUOUS).html).toBe(o);
@@ -144,7 +154,7 @@ describe("post-discovery primary CTA on a NEW_DISCOVERY result", () => {
     expect(one.onResearchNext).toHaveBeenCalledWith("e1");
     expect(screen.queryByRole("button", { name: "📖 図鑑を見る" })).toBeNull();
     const many = discovered(postDiscoveryPrimary({ researchableEntryIds: ["e1", "e2"], newMaterialAvailable: false }));
-    fireEvent.click(screen.getByRole("button", { name: "🔎 次のピザを研究する" }));
+    fireEvent.click(screen.getByRole("button", { name: "🔎 次のピザを選んで研究する" }));
     expect(many.onResearchNext).toHaveBeenCalledWith(null);
   });
 

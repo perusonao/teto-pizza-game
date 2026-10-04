@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
@@ -8,6 +8,7 @@ import type { IngredientCategory } from "../data/ingredients";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { discoveredDex } from "../state/testSupport/guidedRound";
+import { RESEARCH_UX_COPY } from "../components/researchUxCopy";
 
 /**
  * Issue #358 Slice 1: where does the Research Target context (`research-context`: 「🔎 研究中 ？？？ピザ」) live across
@@ -156,5 +157,86 @@ describe("Research context across the transitions of a Research round", () => {
       if (st.phase === "PREPARE") expect(screen.queryByTestId("research-context")).not.toBeNull();
       r.unmount();
     }
+  });
+});
+
+// Research UX Phase 1 (P1-a / P1-b / P1-c): PREPARE guidance, direct 試作ノート entry, Hint sheet label.
+describe("Research UX Phase 1 in PREPARE", () => {
+  const lastStockRetry = () => {
+    const owned = ladderOwned(25);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const inv: Record<string, number> = Object.fromEntries(owned.map((id) => [id, 10]));
+    for (const id of ["chicken", "mozzarella", "fresh-tomato", "pesto"]) inv[id] = 1;
+    let s = gameReducer({ ...base, inventory: inv }, { type: "START_FREE_COOK", researchTargetId: T });
+    s = [{ type: "CONFIRM_MAKING_STEP" }, { type: "APPLY_SAUCE", ingredientId: "pesto", x: 50, y: 50 }, { type: "CONFIRM_MAKING_STEP" }, { type: "CONFIRM_MAKING_STEP" },
+      { type: "PLACE_TOPPING", ingredientId: "chicken", x: 40, y: 40 }, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: 68 }, { type: "CONFIRM_MAKING_STEP" }, { type: "REGISTER_TO_DEX" }].reduce(
+      (a, x) => gameReducer(a, x as GameAction), s);
+    return gameReducer(s, { type: "RETRY_SAME_RECIPE" });
+  };
+
+  it("a valid target shows the fixed ○× guidance and the 試作ノート entry (same text for any target)", () => {
+    const s = researchRound();
+    expect(s.researchTargetValidAtStart).toBe(true);
+    renderAt(s);
+    expect(screen.getByTestId("research-guidance").textContent).toBe(RESEARCH_UX_COPY.prepareGuidance);
+    expect(screen.getByTestId("research-guidance").textContent).toBe("材料を足して試そう。焼くと使った材料の○×がわかるよ");
+    expect(screen.getByTestId("research-notebook-entry").textContent).toBe("📓 試作ノート");
+    expect(screen.getByTestId("research-context").textContent).toContain("🔎 研究中 ？？？ピザ");
+    // static, no count / recipe / hidden wording
+    expect(RESEARCH_UX_COPY.prepareGuidance).not.toMatch(/[0-9０-９]|種類|全部|残り|あと|ペスト|チキン|正解|なし/);
+  });
+
+  it("last-stock retry (target not valid at start): no ○× promise, the notebook sentence instead", () => {
+    const s = lastStockRetry();
+    expect(s.researchTargetId).toBe(T);
+    expect(s.researchTargetValidAtStart).toBe(false);
+    renderAt(s);
+    expect(screen.getByTestId("research-guidance").textContent).toBe("試作ノートを見て、次に試す材料を考えよう");
+    expect(screen.getByTestId("research-context").textContent).not.toMatch(/○|×/);
+    expect(screen.getByTestId("research-notebook-entry")).toBeTruthy();
+  });
+
+  it("targetless FREE has neither guidance nor notebook entry", () => {
+    const owned = ladderOwned(25);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    renderAt(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }));
+    expect(screen.queryByTestId("research-guidance")).toBeNull();
+    expect(screen.queryByTestId("research-notebook-entry")).toBeNull();
+  });
+
+  it("a guided (non-FREE) round has neither guidance nor notebook entry", () => {
+    const owned = ladderOwned(25);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25)]), owned, 1000);
+    renderAt(gameReducer(base, { type: "SELECT_RECIPE", recipeId: "margherita" } as GameAction));
+    expect(screen.queryByTestId("research-guidance")).toBeNull();
+    expect(screen.queryByTestId("research-notebook-entry")).toBeNull();
+  });
+
+  it("the entry opens the read-only notebook (labelled, back = もどる) and focus returns to the entry", async () => {
+    renderAt(researchRound());
+    const entry = screen.getByTestId("research-notebook-entry");
+    fireEvent.click(entry);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.textContent).toContain("？？？ピザ");
+    expect(dialog.textContent).toContain("もどる");
+    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(entry));
+  });
+
+  it("the Hint sheet names the Research Target with the public label only", () => {
+    const s = gameReducer(researchRound(), { type: "SHOW_HINT" });
+    renderAt(s);
+    const band = document.querySelector("[data-hint-research]");
+    expect(band?.textContent).toBe("🔎 研究中 ？？？ピザ");
+    expect(band?.textContent).not.toMatch(/ペスト|pesto|チキン|chicken|[0-9０-９]/);
+  });
+
+  it("the Hint sheet of a targetless FREE round shows no research band", () => {
+    const owned = ladderOwned(25);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const s = gameReducer(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }), { type: "SHOW_HINT" });
+    renderAt(s);
+    expect(document.querySelector("[data-hint-research]")).toBeNull();
   });
 });

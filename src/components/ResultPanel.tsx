@@ -15,6 +15,7 @@ import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind } from "
 import type { ResultNearMissLine } from "../state/resultNearMiss";
 import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
+import { RESEARCH_UX_COPY } from "./researchUxCopy";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -351,7 +352,7 @@ export function ResultPanel({
         {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
         <p className="original-pizza__note">
-          図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。
+          {research ? RESEARCH_UX_COPY.resultNote : "図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。"}
         </p>
         {research ? (
           <div className="action-row action-row--column result-panel__actions">
