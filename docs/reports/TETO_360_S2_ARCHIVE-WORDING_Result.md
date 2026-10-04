@@ -11,10 +11,10 @@
 
 ## Tests
 
-`HintSheet.hint5.test.tsx` new block (RESULT ○ stored fact, Hint-bought fact, unlock-derived `h5:key` only, legacy KEY vs key-free, wording, fresh-save-identical offer/price); `App.hint5Ladder.test.tsx` updated. Full suite 6033 passed.
+`HintSheet.hint5.test.tsx` new block (seeded RESULT-known `ing:` fact, Hint-bought fact, unlock-derived `h5:key` only, legacy KEY vs key-free, wording, fresh-save-identical offer/price); `App.hint5Ladder.test.tsx` updated. Full suite 6033 passed.
 
 ## Human Verification Videos
 
-390×844, seeded save (meat-lovers, `ing:` facts only = persisted RESULT ○), before/after screenshots in `docs/reports/screenshots/360-s2-hint-archive-wording/`. Video `360-s2-hint-archive-wording-390x844.mp4` (H.264, 9.4 s, 175 KB) delivered directly, not committed: sheet open → archive wording → ask SAUCE (0 Pitz, balance 300 unchanged, ladder advances to ヒント2) . No horizontal overflow; price/order unchanged.
+**Evidence type: seedした `ing:` fact による RESULT-known state の再現** (実際の RESULT 操作で ○ を取得したものではない)。390×844, seeded save (meat-lovers, `ing:` facts only, RESULT ○ 相当), before/after screenshots in `docs/reports/screenshots/360-s2-hint-archive-wording/`. Video `360-s2-hint-archive-wording-390x844.mp4` (H.264, 9.4 s, 175 KB) delivered directly, not committed: sheet open → archive wording → ask SAUCE (0 Pitz, balance 300 unchanged, ladder advances to ヒント2) . No horizontal overflow; price/order unchanged.
 
 Video Verification: PASS
