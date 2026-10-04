@@ -49,6 +49,125 @@ export interface LunchRushMissionScoreResult {
  *  accepts the single currently-known value (see functions/src/submitLunchRushScore.ts). */
 export const LUNCH_RUSH_RULESET_VERSION = "lunch-rush-v1";
 
+/**
+ * Lunch Rush v2 (Ingredient Selection, PR-A = server/shared infrastructure only). `lunch-rush-v1`
+ * above is untouched and stays the only ruleset the production client submits until PR-B switches
+ * it. The server accepts both: a v1 submission is validated, recomputed and bucketed exactly as
+ * before; a v2 submission is validated and recomputed with the v2 authority below and bucketed
+ * into v2-only period ids (./lunchRushPeriodIds.ts), so v1 leaderboards are never mixed with or
+ * overwritten by v2 scores. Any other value is rejected.
+ */
+export const LUNCH_RUSH_RULESET_VERSION_V1 = LUNCH_RUSH_RULESET_VERSION;
+export const LUNCH_RUSH_RULESET_VERSION_V2 = "lunch-rush-v2";
+
+export type LunchRushRulesetVersion =
+  | typeof LUNCH_RUSH_RULESET_VERSION_V1
+  | typeof LUNCH_RUSH_RULESET_VERSION_V2;
+
+/** Total: anything that is not exactly a known ruleset id is `null` (never throws). */
+export function parseLunchRushRulesetVersion(value: unknown): LunchRushRulesetVersion | null {
+  if (value === LUNCH_RUSH_RULESET_VERSION_V1) return LUNCH_RUSH_RULESET_VERSION_V1;
+  if (value === LUNCH_RUSH_RULESET_VERSION_V2) return LUNCH_RUSH_RULESET_VERSION_V2;
+  return null;
+}
+
+/**
+ * v2 accuracy factor, indexed by `wrongIngredientTypes` (the number of distinct ingredient types
+ * on the final pizza that the recipe does not require). A fixed table, deliberately not
+ * `Math.pow(0.8, w)`: the browser (V8 / JavaScriptCore) and the Cloud Function (V8) must produce
+ * bit-identical values, and `pow` is not guaranteed to round identically across engines. `w >= 3`
+ * has no entry: such a pizza is a Completion Gate FAILED and never becomes a counted serve.
+ * 0.80 / 0.64 are gameplay calibration values (adjustable until the v2 client ships; after v2 is
+ * public a change needs a new ruleset id, not a silent edit of this table).
+ */
+export const LUNCH_RUSH_V2_ACCURACY_FACTORS: readonly number[] = Object.freeze([1, 0.8, 0.64]);
+
+/** The largest `wrongIngredientTypes` a PASS serve can carry (`w >= 3` is FAILED). */
+export const LUNCH_RUSH_V2_MAX_WRONG_TYPES_FOR_PASS = LUNCH_RUSH_V2_ACCURACY_FACTORS.length - 1;
+
+/** Upper bound accepted on a FAILED entry's `wrongIngredientTypes` (defensive: a pizza cannot
+ *  carry more distinct ingredient types than the catalog has). */
+export const LUNCH_RUSH_V2_MAX_WRONG_TYPES_RECORDED = 64;
+
+/** The v2 factor for `wrongIngredientTypes`, or `null` when there is none (not a non-negative
+ *  integer, or beyond `LUNCH_RUSH_V2_MAX_WRONG_TYPES_FOR_PASS`). */
+export function lunchRushV2AccuracyFactor(wrongIngredientTypes: unknown): number | null {
+  if (typeof wrongIngredientTypes !== "number" || !Number.isInteger(wrongIngredientTypes)) return null;
+  if (wrongIngredientTypes < 0 || wrongIngredientTypes > LUNCH_RUSH_V2_MAX_WRONG_TYPES_FOR_PASS) return null;
+  return LUNCH_RUSH_V2_ACCURACY_FACTORS[wrongIngredientTypes];
+}
+
+/** A v2 serve entry: the v1 shape plus the number of wrong ingredient types on that pizza. */
+export interface LunchRushServeRecordV2 extends LunchRushServeRecord {
+  wrongIngredientTypes: number;
+}
+
+/** v2 counterpart of `isValidLunchRushServeRecord`: the v1 checks, plus `wrongIngredientTypes` is
+ *  a non-negative integer, and a PASS entry must have a factor (w <= 2). A PASS with w >= 3 is
+ *  impossible under v2 (it is a Completion Gate FAILED) and is rejected. */
+export function isValidLunchRushServeRecordV2(value: unknown): value is LunchRushServeRecordV2 {
+  if (!isValidLunchRushServeRecord(value)) return false;
+  const wrong = (value as unknown as Record<string, unknown>).wrongIngredientTypes;
+  if (typeof wrong !== "number" || !Number.isInteger(wrong) || wrong < 0) return false;
+  if (wrong > LUNCH_RUSH_V2_MAX_WRONG_TYPES_RECORDED) return false;
+  if (value.completionStatus === "PASS" && lunchRushV2AccuracyFactor(wrong) === null) return false;
+  return true;
+}
+
+/**
+ * v2 Mission Score: each PASS serve is worth `(100 + qualityTotal) * factor[wrongIngredientTypes]`
+ * and the run score is the rounded sum. FAILED entries contribute nothing. `totalQualityScore`
+ * and `bestQualityScore` stay the raw (un-factored) quality figures, as in v1. Pure, total,
+ * deterministic; callers validate entries with `isValidLunchRushServeRecordV2` first (a PASS entry
+ * without a factor is skipped here rather than guessed at).
+ */
+export function calculateLunchRushMissionScoreV2(
+  serves: readonly LunchRushServeRecordV2[],
+): LunchRushMissionScoreResult {
+  let servedCount = 0;
+  let totalQualityScore = 0;
+  let bestQualityScore = 0;
+  let totalServedValue = 0;
+
+  for (const serve of serves) {
+    if (serve.completionStatus !== "PASS") continue;
+    const factor = lunchRushV2AccuracyFactor(serve.wrongIngredientTypes);
+    if (factor === null) continue;
+    servedCount += 1;
+    totalQualityScore += serve.qualityTotal;
+    bestQualityScore = Math.max(bestQualityScore, serve.qualityTotal);
+    totalServedValue += (100 + serve.qualityTotal) * factor;
+  }
+
+  return {
+    servedCount,
+    totalQualityScore,
+    bestQualityScore,
+    score: Math.round(totalServedValue),
+  };
+}
+
+/** Per-ruleset serve validation (the server's single dispatch point). */
+export function isValidLunchRushServeRecordForRuleset(
+  ruleset: LunchRushRulesetVersion,
+  value: unknown,
+): value is LunchRushServeRecord {
+  return ruleset === LUNCH_RUSH_RULESET_VERSION_V2
+    ? isValidLunchRushServeRecordV2(value)
+    : isValidLunchRushServeRecord(value);
+}
+
+/** Per-ruleset score derivation (the server's single dispatch point). `serves` must already have
+ *  passed `isValidLunchRushServeRecordForRuleset(ruleset, …)`. */
+export function calculateLunchRushMissionScoreForRuleset(
+  ruleset: LunchRushRulesetVersion,
+  serves: readonly LunchRushServeRecord[],
+): LunchRushMissionScoreResult {
+  return ruleset === LUNCH_RUSH_RULESET_VERSION_V2
+    ? calculateLunchRushMissionScoreV2(serves as readonly LunchRushServeRecordV2[])
+    : calculateLunchRushMissionScore(serves);
+}
+
 /** Must be kept in sync with src/mission/lunchRush.ts's `DEFAULT_MISSION_DURATION_SECONDS` --
  *  duplicated here (not imported) so this module never pulls in that file's own dependency on
  *  ../data/orders, keeping the Cloud Functions bundle this module is also compiled into as small
