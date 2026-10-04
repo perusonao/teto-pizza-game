@@ -165,7 +165,8 @@ describe("Hint 5.0 ladder sheet in the App (flag ON)", () => {
     expect(cta(dialog)).toHaveTextContent("たずねる 10 Pitz");
     expect(dialog).not.toHaveTextContent("もう知っていた");
     const archive = dialog.querySelector(".hint-sheet__legacy")!;
-    expect(archive).toHaveTextContent("以前のヒント");
+    expect(archive).toHaveTextContent("これまでにわかったこと");
+    expect(archive).not.toHaveTextContent("前のヒント方式");
     expect(archive).toHaveTextContent("トマトソース");
     expect(dialog.querySelector('[data-hint-section="hint5-names"]')).toBeNull();
     // ALL known: sauce -> 0 Pitz, told after the request.

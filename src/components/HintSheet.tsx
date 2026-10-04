@@ -803,8 +803,9 @@ const HINT5_COPY = {
   shortNote: "Pitzがたまったら、またためしてね。このまま作ってもOK！",
   /** OD-H5-M3: shown only after the reducer completed the requested rung for 0 Pitz. */
   alreadyKnown: "このヒントはもう知っていたよ！（Pitzは使っていないよ）",
-  legacyTitle: "以前のヒント",
-  legacyExplainer: "前のヒント方式でわかっていたこと（そのまま残してあるよ）",
+  /** OD-360-2: source-neutral (a RESULT ○, a Hint or any other stored fact all land here). */
+  legacyTitle: "これまでにわかったこと",
+  legacyExplainer: "すでにわかっていたこと（そのまま残してあるよ）",
   classSection: "サブトッピングの分類",
   /** Round 6 (OD-H5-P4-CHEESE / P4b): the answer of a bought empty CHEESE / KEY rung. */
   none: "なし",
