@@ -143,9 +143,23 @@ test("Research UX Phase 1: PREPARE guidance / notebook / hint label -> RESULT no
   await expect(notebook.locator("[data-trial-notebook-empty]")).toBeVisible();
   await expectNoOverflow(page, "PREPARE notebook");
   await shot(page, "p1-02-prepare-notebook");
+  // PR #390 Codex P2 (real Chromium inert): Tab / Shift+Tab never leave the sheet and Enter cannot act on the screen behind it
+  const outside = () => page.evaluate(() => !document.activeElement?.closest("[data-trial-notebook]") && document.activeElement !== document.body);
+  for (let i = 0; i < 4; i += 1) {
+    await page.keyboard.press("Shift+Tab");
+    expect(await outside(), `Shift+Tab #${i + 1} stayed in the notebook`).toBe(false);
+    await page.keyboard.press("Tab");
+    expect(await outside(), `Tab #${i + 1} stayed in the notebook`).toBe(false);
+  }
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Enter"); // would be やり直す / 次へ / ヒント if reachable
+  await expect(notebook).toBeVisible();
+  await expect(page.getByRole("dialog", { name: /ヒント/ })).toHaveCount(0);
   await notebook.getByRole("button", { name: /もどる/ }).click();
   await expect(notebook).toHaveCount(0);
   await expect(entry).toBeFocused();
+  await expect(page.locator("[inert]")).toHaveCount(0);
+  await expect(bar(page).getByRole("button", { name: "ヒント" })).toBeEnabled(); // controls work again
 
   // P1-b: the Hint sheet names the Research Target
   await bar(page).getByRole("button", { name: "ヒント" }).click();

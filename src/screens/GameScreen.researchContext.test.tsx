@@ -224,6 +224,46 @@ describe("Research UX Phase 1 in PREPARE", () => {
     await waitFor(() => expect(document.activeElement).toBe(entry));
   });
 
+  // PR #390 Codex P2: the PREPARE notebook is modal for the keyboard / assistive technology too.
+  it("while the notebook is open everything behind it is inert; closing removes the inert and returns focus", async () => {
+    renderAt(researchRound());
+    const entry = screen.getByTestId("research-notebook-entry");
+    const root = document.querySelector(".game-screen")!;
+    expect(root.hasAttribute("inert")).toBe(false);
+    fireEvent.click(entry);
+    const dialog = screen.getByRole("dialog");
+    // the cooking screen is inert, the sheet is not inside it
+    expect(root.hasAttribute("inert")).toBe(true);
+    expect(dialog.closest("[inert]")).toBeNull();
+    expect(root.contains(dialog)).toBe(false);
+    // every focusable control in the document is either in the sheet or behind an inert ancestor
+    const focusables = Array.from(document.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]"));
+    expect(focusables.length).toBeGreaterThan(3);
+    for (const el of focusables) {
+      if (dialog.contains(el)) continue;
+      expect(el.closest("[inert]"), `${el.textContent?.slice(0, 12)} must be unreachable`).not.toBeNull();
+    }
+    // the sheet takes focus on open
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(root.hasAttribute("inert")).toBe(false);
+    expect(document.querySelectorAll("[inert]").length).toBe(0);
+    await waitFor(() => expect(document.activeElement).toBe(entry));
+  });
+
+  it("targetless FREE never gets an inert game screen", () => {
+    const owned = ladderOwned(25);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    renderAt(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }));
+    expect(document.querySelectorAll("[inert]").length).toBe(0);
+  });
+
+  it("the Hint sheet of a Research round: no inert game screen from the PREPARE notebook logic", () => {
+    renderAt(gameReducer(researchRound(), { type: "SHOW_HINT" }));
+    expect(document.querySelector(".game-screen")!.hasAttribute("inert")).toBe(false);
+  });
+
   it("the Hint sheet names the Research Target with the public label only", () => {
     const s = gameReducer(researchRound(), { type: "SHOW_HINT" });
     renderAt(s);

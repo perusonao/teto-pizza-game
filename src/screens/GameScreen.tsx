@@ -517,7 +517,14 @@ export function GameScreen({
     (state.phase === "POST_BAKE" && state.makingStep === "CUT");
 
   return (
-    <div className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}>
+    <>
+    <div
+      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}
+      // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
+      // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
+      // beside this root, below, so it is not inert. Same pattern as the Hint sheet's own notebook.
+      inert={prepareNotebookVisible || undefined}
+    >
       {/* Issue #47 Finding K: Shop/Pizza Dex were reachable from every Making phase
           (ORDER/PREPARE/BAKE/RESULT/DISCOVERED) via this header -- removed so Making stays
           focused on making and HOME remains the sole hub for Shop/Dex navigation (Issue #22's
@@ -1100,18 +1107,6 @@ export function GameScreen({
         />
       )}
 
-      {prepareNotebookVisible && researchResult && (
-        <TrialNotebookSheet
-          entries={notebookRows}
-          backLabel={RESEARCH_UX_COPY.notebookBack}
-          researchLabelJa={researchResult.label}
-          onBack={() => {
-            setPrepareNotebookOpen(false);
-            queueMicrotask(() => prepareNotebookEntryRef.current?.focus());
-          }}
-        />
-      )}
-
       {isFreeResultScreen && resultNotebookOpen && researchResult && (
         <TrialNotebookSheet
           entries={notebookRows}
@@ -1183,5 +1178,18 @@ export function GameScreen({
         />
       )}
     </div>
+      {/* Rendered beside (not inside) the inert game screen. */}
+      {prepareNotebookVisible && researchResult && (
+        <TrialNotebookSheet
+          entries={notebookRows}
+          backLabel={RESEARCH_UX_COPY.notebookBack}
+          researchLabelJa={researchResult.label}
+          onBack={() => {
+            setPrepareNotebookOpen(false);
+            queueMicrotask(() => prepareNotebookEntryRef.current?.focus());
+          }}
+        />
+      )}
+    </>
   );
 }
