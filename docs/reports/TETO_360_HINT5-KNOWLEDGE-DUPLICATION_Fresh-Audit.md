@@ -81,7 +81,7 @@ Authority recipes with no cheese rung subject: marinara, fugazza, pizza-bianca, 
 2. Duplicate display: Research card, Hint archive, then the board.
 3. The archive mislabels RESULT ○ names. `hint5Ownership.knownNameIds` takes every stored `ing:`, so a ○ name is shown pre-purchase under 「以前のヒント／前のヒント方式でわかっていたこと」. (The derived unlock fact is not in the archive; only after completion on the board.)
 4. A fully known rung is rejected with `INSUFFICIENT_PITZ` when balance < normal price (balance gate precedes the known check, M3).
-5. Provenance is not recorded: ○ / unlock / purchase all end as `ing:` + `h5:*`; ALREADY_KNOWN is a transient `hintOutcome`.
+5. Provenance is not recorded: a RESULT ○ and a purchase both end as stored `ing:` (+ `h5:*`), so they are indistinguishable afterwards. An unlock-derived fact is **not** persisted as `ing:` (request-time input only): an unlock-only ALREADY_KNOWN rung stores only its `h5:*` completion marker, and the unlock source stays derivable from ownership. ALREADY_KNOWN itself is a transient `hintOutcome`.
 
 ## 6. Privacy findings
 
@@ -109,7 +109,7 @@ Contract 2.1 unchanged (K = 3, known ✓ excluded from K, only positive ○ pers
 
 - **S1** (this PR): docs-only authority record. No runtime / test / save / schema change.
 - **S2** (separate branch / PR after S1 merge): HintSheet archive source-neutral wording and removal of needless knowledge duplication on the board. Out of scope: ladder order, prices, reducer, persistence, save schema, Contract 2.1 RESULT rules, SAUCE auto-skip. UI change -> HV policy applies (390×844 video delivered directly + before/after screenshots under `docs/reports/screenshots/`).
-- **S3** (separate from S2): fully known / effective-cost-0 rung completes under insufficient balance; partly known unchanged. M3 contract change -> focused regression required.
+- **S3** (separate from S2): fully known / effective-cost-0 rung completes under insufficient balance; partly known unchanged. M3 contract change -> focused regression required. S3 is not only a reducer / `requestHint5Rung` gate reorder: today `hint5Presentation` sets `next.affordable = false` when balance < normal price and `HintSheet.tsx` disables the button, so the request never reaches the gate. S3 must also define and test a **privacy-safe** presentation / CTA behaviour for the low-balance state (the pre-purchase view must not reveal whether the rung is fully known, H5-INV-5 / M3), and because it changes visible CTA behaviour it carries the UI HV requirement (390×844 video delivered directly + before/after screenshots) in addition to the focused regression.
 
 ## 10. Explicitly deferred (re-audit when Expansion needs them)
 
