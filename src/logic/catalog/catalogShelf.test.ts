@@ -44,7 +44,7 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
   const catalog = runtimeCatalog();
 
   it("equals ingredientShelf(id) for every production ingredient and is never null", () => {
-    expect(catalog).toHaveLength(31);
+    expect(catalog).toHaveLength(34);
     for (const item of catalog) expect(item.shelf).toBe(ingredientShelf(item.id));
     expect(catalog.every((i) => i.shelf !== null)).toBe(true);
   });
@@ -57,11 +57,11 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id) : i.category;
       byShelf[shelf!] = (byShelf[shelf!] ?? 0) + 1;
     }
-    expect(byCategory).toEqual({ sauce: 3, cheese: 4, topping: 24 });
+    expect(byCategory).toEqual({ sauce: 3, cheese: 4, topping: 27 });
     const seen: Record<string, number> = {};
     for (const i of catalog) seen[i.shelf!] = (seen[i.shelf!] ?? 0) + 1;
     expect(seen).toEqual(byShelf);
-    expect(seen).toEqual({ sauce: 3, cheese: 4, meat: 5, seafood: 4, vegetable: 8, fruit: 1, herb: 4, spice: 1, other: 1 });
+    expect(seen).toEqual({ sauce: 3, cheese: 4, meat: 5, seafood: 4, vegetable: 10, fruit: 1, herb: 5, spice: 1, other: 1 });
   });
 });
 
@@ -71,7 +71,7 @@ describe("LC-R1: queryCatalog shelves filter", () => {
 
   it("undefined / empty shelves = no shelf filter (すべて)", () => {
     const all = ids(queryCatalog(catalog, own, usage));
-    expect(all).toHaveLength(31);
+    expect(all).toHaveLength(34);
     expect(ids(queryCatalog(catalog, own, usage, { shelves: [] }))).toEqual(all);
     expect(ids(queryCatalog(catalog, own, usage, { shelves: undefined }))).toEqual(all);
   });
@@ -156,17 +156,17 @@ describe("LC-R1: queryCatalog shelves filter", () => {
 describe("LC-R1: 62 catalog (design target, not activated) is fail-closed", () => {
   const catalog = project62();
 
-  it("independent recount: sauce 10 / cheese 10 / topping 42, classified 21, unclassified 21 (No.27 gave chicken its meat row; Expansion Slice 1 gave shrimp its seafood row)", () => {
+  it("independent recount: sauce 10 / cheese 10 / topping 42, classified 24, unclassified 18 (No.27 gave chicken its meat row; Expansion Slice 1 gave shrimp its seafood row; Wave 2 gave parsley / bell-pepper / zucchini theirs)", () => {
     const byCategory: Record<string, number> = {};
     for (const i of catalog) byCategory[i.category] = (byCategory[i.category] ?? 0) + 1;
     expect(catalog).toHaveLength(62);
     expect(byCategory).toEqual({ sauce: 10, cheese: 10, topping: 42 });
     const toppings = catalog.filter((i) => i.category === "topping");
-    expect(toppings.filter((i) => i.shelf !== null)).toHaveLength(21);
-    expect(toppings.filter((i) => i.shelf === null)).toHaveLength(21);
+    expect(toppings.filter((i) => i.shelf !== null)).toHaveLength(24);
+    expect(toppings.filter((i) => i.shelf === null)).toHaveLength(18);
     // Recounted straight from the taxonomy table, without the audit helper.
     const rows = catalog62.ingredients as { id: string; category: string }[];
-    expect(rows.filter((r) => r.category === "topping" && ingredientAttributeFamily(r.id) === null)).toHaveLength(21);
+    expect(rows.filter((r) => r.category === "topping" && ingredientAttributeFamily(r.id) === null)).toHaveLength(18);
     // Nulls are exactly what the authority's audit reports; nothing is guessed.
     const audit = auditShelfAuthority({ ingredients: rows, familyRowIds: TAXONOMY_INGREDIENT_IDS, familyOf: ingredientAttributeFamily });
     expect(audit.unclassified.sort()).toEqual(ids(catalog.filter((i) => i.shelf === null)).sort());
@@ -186,7 +186,7 @@ describe("LC-R1: 62 catalog (design target, not activated) is fail-closed", () =
     expect(everything).toHaveLength(62);
     for (const id of nulls) expect(everything).toContain(id);
     const anyShelf = ids(queryCatalog(catalog, own, usage, { shelves: [...INGREDIENT_SHELF_ORDER] }));
-    expect(anyShelf).toHaveLength(62 - 21);
+    expect(anyShelf).toHaveLength(62 - 18);
     for (const id of nulls) expect(anyShelf).not.toContain(id);
     for (const shelf of INGREDIENT_SHELF_ORDER) {
       expect(queryCatalog(catalog, own, usage, { shelves: [shelf] }).every((i) => i.shelf === shelf)).toBe(true);

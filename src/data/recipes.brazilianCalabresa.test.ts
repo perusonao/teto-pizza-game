@@ -23,7 +23,7 @@ const nonSauce = recipe.requiredIngredients.filter((q) => getIngredient(q.ingred
 
 describe("brazilian-calabresa authoring (PR-4b-B)", () => {
   it("is production recipe No.26, right after the existing 25 (their order / No. unchanged; No.27 pesto-pollo and Expansion's pesto-gamberi follow)", () => {
-    expect(RECIPES).toHaveLength(28);
+    expect(RECIPES).toHaveLength(31);
     expect(RECIPES[25].id).toBe(ID);
     expect(RECIPES.slice(0, 25).filter((r) => r.id === ID)).toEqual([]);
     expect(recipe.nameJa).toBe("ブラジリアン・カラブレーザ");
@@ -49,7 +49,7 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
       expect(getIngredient(q.ingredientId)!.category, q.ingredientId).not.toBe("cheese");
     }
     expect(recipe.requiredIngredients.map((q) => q.ingredientId)).toContain("black-olive");
-    expect(INGREDIENTS).toHaveLength(31); // + No.27's chicken and Expansion Slice 1's shrimp; calabresa itself still adds none
+    expect(INGREDIENTS).toHaveLength(34); // + Expansion Wave 2's 3 materials; + No.27's chicken and Expansion Slice 1's shrimp; calabresa itself still adds none
   });
 
   it("is non-credit and out of Lunch Rush; the other 25 originals are unchanged on both", () => {
@@ -67,7 +67,7 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
 
   it("does not move the ladder: the 24 frozen steps are untouched (No.27 appends step 25, Expansion Slice 1 step 26), calabresa is nobody's key recipe", () => {
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(26);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(28); // + Expansion Wave 2 steps 27 / 28
     expect(DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)).not.toContain(ID);
   });
 
@@ -121,7 +121,7 @@ describe("brazilian-calabresa Hint: key-free, structure-derived rungs only", () 
   it("is key-free in the roles table (the 25 originals keep their keyed roles)", () => {
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as Recipe["id"]])).toBe(true);
     expect(RECIPE_HINT_ROLES[ID as Recipe["id"]]).toEqual({ keyFree: true });
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(3); // calabresa + No.27 pesto-pollo + Expansion pesto-gamberi
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(6); // calabresa + No.27 pesto-pollo + Expansion pesto-gamberi + Wave 2's 3
   });
 
   it("has SAUCE, STRUCTURE, then one SUB_CLASS per topping: no KEY_TOPPING, no CHEESE, no empty rung", () => {

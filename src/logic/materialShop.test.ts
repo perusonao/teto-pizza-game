@@ -58,6 +58,10 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["chicken", 25, "T3", 3, 30, 100, 50],
   // Expansion Slice 1: appended step 26 (LAD-1); k = shrimp x3 in pesto-gamberi.
   ["shrimp", 26, "T3", 3, 30, 100, 50],
+  // Expansion Wave 2: k = 2 -> pack 20 (derived from the economy authority, nothing hand-written on the ingredient).
+  ["parsley", 27, "T3", 2, 20, 100, 50],
+  ["bell-pepper", 28, "T3", 2, 20, 100, 50],
+  ["zucchini", 28, "T3", 2, 20, 100, 50],
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -206,11 +210,13 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(13)).toEqual({ discoveriesNeeded: 1, step: 14 });
   });
 
-  it("points at the appended steps 25 / 26 after the W1 24, and is null once the ladder is complete", () => {
+  it("points at the appended steps 25-28 after the W1 24, and is null once the ladder is complete", () => {
     expect(nextMaterialHint(24)).toEqual({ discoveriesNeeded: 1, step: 25 });
     expect(nextMaterialHint(25)).toEqual({ discoveriesNeeded: 1, step: 26 });
-    expect(nextMaterialHint(26)).toBeNull();
-    expect(nextMaterialHint(27)).toBeNull();
+    expect(nextMaterialHint(26)).toEqual({ discoveriesNeeded: 1, step: 27 });
+    expect(nextMaterialHint(27)).toEqual({ discoveriesNeeded: 1, step: 28 });
+    expect(nextMaterialHint(28)).toBeNull();
+    expect(nextMaterialHint(29)).toBeNull();
   });
 
   it("treats invalid counts as 0", () => {

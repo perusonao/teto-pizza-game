@@ -84,19 +84,19 @@ afterEach(() => {
 });
 
 describe("LC-R5-d OFF equivalence / R6-e rollback (flag = false)", () => {
-  it("FREE Cooking with 22 toppings keeps today's tray: 4 pages in catalog order; #197 clears on a page switch; the pantry has no pin UI and never touches the tray", async () => {
+  it("FREE Cooking with 22 toppings keeps today's tray: 5 pages in catalog order; #197 clears on a page switch; the pantry has no pin UI and never touches the tray", async () => {
     seedFree();
     const user = userEvent.setup();
     render(<App />);
     await toToppingStep(user);
-    expect(pageLabel()).toBe("1 / 4");
+    expect(pageLabel()).toBe("1 / 5"); // 27 toppings (Expansion Wave 2), 6 per page
     const all: string[] = [];
-    for (let page = 0; page < 4; page += 1) {
+    for (let page = 0; page < 5; page += 1) {
       all.push(...trayNames());
-      if (page < 3) await user.click(screen.getByRole("button", { name: "次のページ" }));
+      if (page < 4) await user.click(screen.getByRole("button", { name: "次のページ" }));
     }
     expect(all).toEqual(TOPPINGS.map((t) => t.nameJa));
-    // On page 4: select, open / search / close the pantry: nothing moves or clears.
+    // On page 5: select, open / search / close the pantry: nothing moves or clears.
     await user.click(chipByName(all[all.length - 1]));
     const before = JSON.stringify({ names: trayNames(), page: pageLabel(), selected: document.querySelector(".ingredient-chip--selected")?.textContent });
     await user.click(screen.getByRole("button", { name: /食材庫/ }));

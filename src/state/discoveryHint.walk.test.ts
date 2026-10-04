@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { getIngredient } from "../data/ingredients";
 import { RECIPES, countsTowardLadder } from "../data/recipes";
 import { buildHintSteps } from "../logic/discovery/hintSteps";
@@ -93,7 +94,7 @@ const TOTAL = RECIPES.length;
 
 describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hints only", () => {
   it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi (28)", () => {
-    expect(TOTAL).toBe(28);
+    expect(TOTAL).toBe(31);
   });
 
   it("every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery", () => {
@@ -128,7 +129,9 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         expect(s.hintSession).toBeNull();
         const pool = RECIPES.filter((r) => recipeDiscoveryState(r, s) === "DISCOVERABLE");
         expect(pool.length, `Dex ${dexCount}: a pool of 2+`).toBeGreaterThanOrEqual(2);
-        const pick = pool.find((r) => !countsTowardLadder(r.id))!;
+        // Expansion Wave 2 (step 28): pesto-vegetariana and ratatouille-pizza are BOTH credited and discoverable at once
+        // (the intended Branching Discovery); there is no non-credit one to find first, so the walk finds the first blind.
+        const pick = pool.find((r) => !countsTowardLadder(r.id)) ?? pool[0];
         s = act(s, { type: "CLOSE_HINT" });
         s = bake(s, [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))]);
         expect(s.lastDiscovery, `Dex ${dexCount}: the blind pool pick`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: pick.id });
@@ -229,10 +232,12 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     // an unchanged count may reuse a material an earlier stage already bought (a branching pool
     // lets either recipe be the one that triggers the purchase). On a single-path ladder every
     // stage has its own count, so this is "every stage after the first visits the Shop".
+    // Expansion Wave 2: the ladder ends at step 28, and its pair (pesto-vegetariana / ratatouille-pizza) is a
+    // branching pool, so the last stage runs at count 29 with no step of its own: only counts that ARE a ladder step sell.
     const seenCounts = new Set<number>();
     let credited = 0;
     for (const r of records) {
-      if (r.dex >= 1 && !seenCounts.has(credited)) expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
+      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited)) expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
       seenCounts.add(credited);
       if (countsTowardLadder(r.target)) credited += 1;
     }

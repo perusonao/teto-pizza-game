@@ -170,7 +170,7 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
         walked += 1;
       }
     }
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(28);
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(31);
     expect(walked).toBeGreaterThanOrEqual(28);
   });
 

@@ -577,6 +577,40 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * Expansion Wave 2: three finite ladder materials (parsley at step 27; bell-pepper and zucchini
+   * together at step 28; all T3, sold only by the material Shop -- price / pack derive from the
+   * economy authority, so no legacy `pricePitz` / `restockQuantity` / `starterGrantOnly`).
+   * Families live in ./ingredientTaxonomy.ts. Glyphs are distinct from every Hint class symbol (G18).
+   */
+  {
+    id: "parsley",
+    category: "topping",
+    nameJa: "パセリ",
+    color: "#3f8a3a",
+    emoji: "\u{2618}\u{FE0F}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
+  },
+  {
+    id: "bell-pepper",
+    category: "topping",
+    nameJa: "パプリカ",
+    color: "#d8402f",
+    emoji: "\u{1FAD1}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "zucchini",
+    category: "topping",
+    nameJa: "ズッキーニ",
+    color: "#5c9a3c",
+    emoji: "\u{1F952}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

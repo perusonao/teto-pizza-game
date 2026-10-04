@@ -1,0 +1,388 @@
+{
+  "base": "expansion2",
+  "recipeIds": [
+    "vongole",
+    "pesto-vegetariana",
+    "ratatouille-pizza"
+  ],
+  "rows": [
+    {
+      "recipeId": "vongole",
+      "variant": "ideal",
+      "available": true,
+      "totalScore": 99.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "offset",
+      "available": true,
+      "totalScore": 70.58381074433359,
+      "stars": 3,
+      "components": {
+        "sauce": 43.4304052775646,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "poor",
+      "available": true,
+      "totalScore": 24.038125659433554,
+      "stars": 1,
+      "components": {
+        "sauce": 33.095355100385454,
+        "pieces": 11.666666666666666,
+        "recipe": 75,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "noSauce",
+      "available": true,
+      "totalScore": 45,
+      "stars": 2,
+      "components": {
+        "sauce": 0,
+        "pieces": 100,
+        "recipe": 75,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "halfPieces",
+      "available": true,
+      "totalScore": 73.55549139857003,
+      "stars": 3,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 90.83333333333333,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 0.75
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "extraPiece",
+      "available": true,
+      "totalScore": 97.14065519809337,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "raw",
+      "available": true,
+      "totalScore": 95.37398853142672,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 79.16666666666666,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "burnt",
+      "available": true,
+      "totalScore": 95.37398853142672,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 79.16666666666666,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "vongole",
+      "variant": "unbaked",
+      "available": true,
+      "totalScore": 79.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 0,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "ideal",
+      "available": true,
+      "totalScore": 99.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "offset",
+      "available": true,
+      "totalScore": 70.58381074433359,
+      "stars": 3,
+      "components": {
+        "sauce": 43.4304052775646,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "poor",
+      "available": true,
+      "totalScore": 23.00479232610022,
+      "stars": 1,
+      "components": {
+        "sauce": 33.095355100385454,
+        "pieces": 10.000000000000002,
+        "recipe": 60,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "noSauce",
+      "available": true,
+      "totalScore": 45.6,
+      "stars": 2,
+      "components": {
+        "sauce": 0,
+        "pieces": 100,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "halfPieces",
+      "available": true,
+      "totalScore": 73.45549139857002,
+      "stars": 3,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 90,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 0.75
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "extraPiece",
+      "available": true,
+      "totalScore": 97.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 83.33333333333334,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "raw",
+      "available": true,
+      "totalScore": 94.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 75,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "burnt",
+      "available": true,
+      "totalScore": 94.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 75,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-vegetariana",
+      "variant": "unbaked",
+      "available": true,
+      "totalScore": 79.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 0,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "ideal",
+      "available": true,
+      "totalScore": 99.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "offset",
+      "available": true,
+      "totalScore": 70.58381074433359,
+      "stars": 3,
+      "components": {
+        "sauce": 43.4304052775646,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "poor",
+      "available": true,
+      "totalScore": 23.00479232610022,
+      "stars": 1,
+      "components": {
+        "sauce": 33.095355100385454,
+        "pieces": 10.000000000000002,
+        "recipe": 60,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "noSauce",
+      "available": true,
+      "totalScore": 45.6,
+      "stars": 2,
+      "components": {
+        "sauce": 0,
+        "pieces": 100,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "halfPieces",
+      "available": true,
+      "totalScore": 73.75549139857003,
+      "stars": 3,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 92.5,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 0.75
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "extraPiece",
+      "available": true,
+      "totalScore": 97.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 83.33333333333334,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "raw",
+      "available": true,
+      "totalScore": 95.12889049221103,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 77.94117647058823,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "burnt",
+      "available": true,
+      "totalScore": 95.12889049221103,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 77.94117647058823,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "ratatouille-pizza",
+      "variant": "unbaked",
+      "available": true,
+      "totalScore": 79.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 0,
+        "quantityFactor": 1
+      }
+    }
+  ]
+}

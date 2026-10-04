@@ -15,10 +15,10 @@ describe("recipeChapters (OD-DISC-9)", () => {
       [
         "quattro-formaggi", "genovese", "napoletana", "tonno-e-cipolla", "pizza-bianca",
         "pesto-tonno", "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
-        "pesto-pollo", "pesto-gamberi",
+        "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza",
       ],
     ].map((ids) => [...ids].sort((a, b) => RECIPES.findIndex((r) => r.id === a) - RECIPES.findIndex((r) => r.id === b))));
-    expect(chapters.map((c) => c.recipes.length)).toEqual([6, 10, 12]);
+    expect(chapters.map((c) => c.recipes.length)).toEqual([6, 10, 15]);
   });
 
   it("chapter follows the key step (last material's step), margherita (starters only) is chapter 1", () => {
@@ -49,7 +49,7 @@ describe("recipeChapters (OD-DISC-9)", () => {
     const [c1, c2, c3] = buildRecipeChapters();
     expect(chapterProgress(c1, dex)).toEqual({ discovered: 2, total: 6 });
     expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 10 });
-    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 12 });
+    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 15 });
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "margherita")!)).toBe(1);
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "marinara")!)).toBe(1);
   });

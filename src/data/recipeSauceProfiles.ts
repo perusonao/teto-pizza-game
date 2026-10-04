@@ -173,6 +173,25 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "pesto",
     interaction: "PAINT",
   },
+  // Expansion Wave 2. vongole's olive-oil is its OWN existing sauce-slot mapping (PAINT_TEMPORARY,
+  // like pizza-bianca) -- NOT a general "no-sauce family = olive-oil sauce" rule; TQ-1D / NO_SAUCE
+  // authority is unchanged.
+  vongole: {
+    recipeId: "vongole",
+    ingredientId: "olive-oil",
+    // TODO: olive-oil -> DRIZZLE candidate.
+    interaction: "PAINT_TEMPORARY",
+  },
+  "pesto-vegetariana": {
+    recipeId: "pesto-vegetariana",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
+  "ratatouille-pizza": {
+    recipeId: "ratatouille-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {

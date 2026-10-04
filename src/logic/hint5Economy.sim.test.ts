@@ -84,9 +84,13 @@ describe("P-C pricing outside the design population", () => {
 /** A stage's full-ladder total: the authored P-C row, else the pure authority's own total. */
 const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal(id);
 
+/** Expansion Wave 2 step 28 makes pesto-vegetariana and ratatouille-pizza discoverable together (pool 2): the
+ *  sim's walk finds the first blind, so only the second has a hint target. */
+const WAVE2_BLIND_POOL2_RECIPE = "pesto-vegetariana";
+
 describe("P-C progression walk (real reducer, flag ON)", () => {
-  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi (28)", () => {
-    expect(TOTAL).toBe(28);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi + Wave 2's 3 (31)", () => {
+    expect(TOTAL).toBe(31);
   });
 
   it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {
@@ -108,9 +112,12 @@ describe("P-C progression walk (real reducer, flag ON)", () => {
         if (profile === "NONE") expect(r.totalHintSpend).toBe(0);
         if (profile === "FULL" && r.insufficientHintAttempts === 0) {
           // A full ladder is bought for every target, the 「なし」 ones included.
-          // The one stage with no hint target (PR-4b-B pool 2, D-1: the calabresa is found blind) buys nothing.
+          // Two stages have no hint target (pool 2, D-1): the calabresa, and Expansion Wave 2's step-28 pair
+          // (pesto-vegetariana is the one found blind, the remaining ratatouille-pizza is then hinted). They buy nothing.
           for (const st of r.stages.slice(1)) {
-            expect(st.hintSpend, st.recipe).toBe(countsTowardLadder(st.recipe) ? fullLadderTotal(st.recipe) : 0);
+            expect(st.hintSpend, st.recipe).toBe(
+              countsTowardLadder(st.recipe) && st.recipe !== WAVE2_BLIND_POOL2_RECIPE ? fullLadderTotal(st.recipe) : 0,
+            );
           }
         }
       }

@@ -13,10 +13,10 @@ describe("Discovery Progression Inspector screen", () => {
   it("lists every step with Step / Unlock / Newly Discoverable / Pool / Result from production data", () => {
     render(<DiscoveryProgressionInspector />);
     expect(screen.getByRole("heading", { name: "Discovery Progression Inspector" })).toBeInTheDocument();
-    expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent("28");
-    expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent("31");
-    expect(screen.getByTestId("dpi-step-count")).toHaveTextContent("26");
-    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("1");
+    expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent("31");
+    expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent("34");
+    expect(screen.getByTestId("dpi-step-count")).toHaveTextContent("28");
+    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("2");
     const first = screen.getByTestId("dpi-row-1");
     expect(first).toHaveTextContent("🆕 たまご");
     expect(first).toHaveTextContent("Pool 1");
@@ -59,11 +59,11 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-row-18")).toHaveTextContent("ジェノベーゼ");
 
     await user.click(screen.getByRole("button", { name: "複数recipe同時解禁" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent("1 / 26");
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent("2 / 28"); // step 12 + Wave 2 step 28
     expect(screen.getByTestId("dpi-row-12")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OPEN_POOL関連" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent("15 / 26");
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent("17 / 28");
 
     await user.click(screen.getByRole("button", { name: "全step" }));
     await user.type(screen.getByRole("searchbox", { name: "search" }), "cherry-tomato");

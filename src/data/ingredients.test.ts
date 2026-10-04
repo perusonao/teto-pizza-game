@@ -150,7 +150,7 @@ describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited i
   });
 
   it("total production ingredient count is now 31 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 2 + W1's 7 + No.27's chicken + Expansion Slice 1's shrimp)", () => {
-    expect(INGREDIENTS).toHaveLength(31);
+    expect(INGREDIENTS).toHaveLength(34); // + Expansion Wave 2's parsley / bell-pepper / zucchini
   });
 });
 
@@ -174,8 +174,8 @@ const W1_MATERIALS: readonly {
 ];
 
 describe("W1 materials (Progression 2.0 I5a)", () => {
-  it("are the 7 catalog rows before No.27's chicken and Expansion's shrimp, in this order (existing tray order untouched)", () => {
-    expect(INGREDIENTS.slice(-9, -2).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
+  it("are the 7 catalog rows before No.27's chicken, Expansion's shrimp and Wave 2's 3 materials, in this order (existing tray order untouched)", () => {
+    expect(INGREDIENTS.slice(-12, -5).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
   });
 
   it.each(W1_MATERIALS)("$id: $nameJa, finite scatter topping with the approved visual", (m) => {
