@@ -11,7 +11,11 @@ import { getIngredient } from "../src/data/ingredients";
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keys = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId), "brazilian-calabresa"];
-const mats = DISCOVERY_LADDER.steps.flatMap((s) => [...s.ingredientIds]).filter((id) => !!getIngredient(id)?.unlockCondition);
+// Step 25 state: the step-26 material (shrimp, Expansion Slice 1) is not entitled yet, so it is not seeded.
+const mats = DISCOVERY_LADDER.steps
+  .filter((s) => s.step <= 25)
+  .flatMap((s) => [...s.ingredientIds])
+  .filter((id) => !!getIngredient(id)?.unlockCondition);
 const SAVE = {
   schemaVersion: 2,
   dex: keys.map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),

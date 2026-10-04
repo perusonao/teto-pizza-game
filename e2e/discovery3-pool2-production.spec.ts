@@ -147,7 +147,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*27/);
+    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*28/);
     // calabresa found, portuguesa left: a pool of 1 again -> no aggregated unknown, its own hint entrance.
     await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(1);
