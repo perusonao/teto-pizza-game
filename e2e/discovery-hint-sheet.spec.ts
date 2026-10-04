@@ -36,7 +36,13 @@ const LADDER = [
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
   ["pesto-pollo", ["chicken"]], // No.27: the appended step 25
   ["pesto-gamberi", ["shrimp"]], // Expansion Slice 1: the appended step 26
+  ["vongole", ["parsley"]], // Expansion Wave 2: the appended step 27
+  ["pesto-vegetariana", ["bell-pepper", "zucchini"]], // Expansion Wave 2: the appended step 28
 ] as const;
+
+/** Credited recipes that are nobody's key recipe (Wave 2: ratatouille-pizza becomes makeable at step 28 with pesto-vegetariana). A COMPLETE
+ *  seed discovers them too. */
+const NON_KEY_CREDITED: readonly string[] = ["ratatouille-pizza"];
 
 /** Production recipes that never advance the ladder (`ladderCredit: false`). The ladder's own recipes are not the whole population
  *  once one exists, so "every ladder recipe discovered" is not "complete": a COMPLETE seed also discovers these. Empty while every
@@ -54,7 +60,7 @@ function ladderSave(
   const owned = materials.filter((m) => opts.newestOwned !== false || !(newest as readonly string[]).includes(m));
   return {
     schemaVersion: 2,
-    dex: [...LADDER.slice(0, count).map(([recipeId]) => recipeId as string), ...(opts.complete ? NON_CREDIT : [])].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+    dex: [...LADDER.slice(0, count).map(([recipeId]) => recipeId as string), ...(opts.complete ? [...NON_CREDIT, ...NON_KEY_CREDITED] : [])].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
     pitzBalance: opts.pitz ?? 999,
     ...(opts.purchases ? { discoveryHintPurchases: opts.purchases } : {}),
     ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...owned],
@@ -77,7 +83,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] }) {
   }, [SAVE_KEY, JSON.stringify(save)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/28`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/31`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -408,7 +414,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(27, { complete: true }), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(29, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);

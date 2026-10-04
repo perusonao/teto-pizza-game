@@ -216,7 +216,7 @@ for (const width of [390, 360] as const) {
       expect(open.pageScrolls, `${label}: page does not scroll while open`).toBe(false);
       const during = await layout(page);
       expect(during.stage, `${label}: stage unchanged while the sheet is open`).toBeCloseTo(before.stage!, 1);
-      expect(open.tiles, `${label}: owned toppings only (all 24 owned here)`).toBe(24);
+      expect(open.tiles, `${label}: owned toppings only (all 27 owned here)`).toBe(27);
 
       // ---- scroll ownership: PageDown on the focused list scrolls the list, never the page
       await page.locator(".pantry-sheet__list").focus();

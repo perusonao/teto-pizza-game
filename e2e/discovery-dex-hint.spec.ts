@@ -45,7 +45,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX11_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/11\/28/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/11\/31/);
 }
 
 function profilesFor(browserName: string): Profile[] {

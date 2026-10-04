@@ -230,8 +230,11 @@ test.describe("Expansion Wave 2", () => {
     await capture(page, "exp2-vongole-new-recipe-discovered", project);
     await hold(page, 3000);
 
-    // 7. Dex: Chapter 3 No.13; schema v2 unchanged.
-    await page.getByRole("button", { name: /図鑑を見る/ }).first().click();
+    // 7. Dex: Chapter 3 No.13; schema v2 unchanged. (This discovery reaches step 28, so the RESULT announces the new materials and
+    // its CTA is the Shop; the Dex is opened from HOME.)
+    await expect(discovery).toContainText("新しい材料が入荷");
+    await page.getByRole("button", { name: /ホーム/ }).first().click();
+    await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
     await expect(page.locator(".dex-overlay")).toContainText(/29\s*\/\s*31/);
     const card = page.locator(".dex-card").filter({ hasText: "ヴォンゴレピザ" });
@@ -281,7 +284,7 @@ test.describe("Expansion Wave 2", () => {
     await hold(page, 2200);
 
     // 3. Target selection: the player picks one anonymous card.
-    await research.getByRole("button", { name: "？？？ピザを研究する" }).first().click();
+    await research.getByRole("button", { name: "？？？ピザ ①を研究する" }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 4. A real trial (pesto + eggplant + zucchini + bell-pepper; no cheese, no oregano -- identifies neither recipe).
@@ -334,11 +337,8 @@ test.describe("Expansion Wave 2", () => {
     await hold(page, 3000);
 
     // 8. The remaining target (ratatouille-pizza) is still a Research Entry: research it and discover it.
-    await page.getByRole("button", { name: /次のピザを研究する|図鑑を見る/ }).first().click();
-    if (!(await page.locator(".dex-overlay").count())) await page.waitForSelector(".dex-overlay");
-    const remaining = page.locator(".dex-overlay__research");
-    await expect(remaining.locator(".dex-research-card")).toHaveCount(1);
-    await remaining.getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await expect(first.getByRole("button", { name: "🔎 次のピザを研究する" })).toBeVisible();
+    await first.getByRole("button", { name: "🔎 次のピザを研究する" }).click(); // one entry left -> starts it directly
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
     await cookPrepared(page, {
       sauce: /トマトソース/,
