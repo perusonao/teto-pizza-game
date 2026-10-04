@@ -78,24 +78,53 @@ export function monthId(epochMs: number): string {
 
 export const ALL_TIME_PERIOD_ID = "all_all";
 
+/** Lunch Rush v2 (PR-A): v2 scores live in their own period ids so they can never be mixed with,
+ *  or overwrite, a v1 leaderboard entry. The weekly id keeps the `weekly_` prefix so the existing
+ *  `leaderboards/{periodId}/entries` read rule (`^weekly_.*`) covers it unchanged; the monthly and
+ *  all-time ids are not client-readable (as for v1). */
+export const ALL_TIME_PERIOD_ID_V2 = "all_v2";
+
+/** The ruleset a period id set is derived for. Literal ids (not imported from ./lunchRushScoring)
+ *  so this module stays dependency-free; a test pins them to the scoring module's constants. */
+export type LunchRushPeriodRuleset = "lunch-rush-v1" | "lunch-rush-v2";
+
 export interface LunchRushPeriodIds {
-  /** `leaderboards/{weekly}/entries/{uid}` doc path segment, e.g. `"weekly_2026-W38"`. */
+  /** `leaderboards/{weekly}/entries/{uid}` doc path segment, e.g. `"weekly_2026-W38"` (v1) or
+   *  `"weekly_v2_2026-W38"` (v2). */
   weekly: string;
-  /** e.g. `"monthly_2026-09"`. */
+  /** e.g. `"monthly_2026-09"` (v1) or `"monthly_v2_2026-09"` (v2). */
   monthly: string;
-  /** Constant -- one running leaderboard, no rollover (Phase 0 audit §6). */
+  /** Constant -- one running leaderboard, no rollover (Phase 0 audit §6): `"all_all"` (v1) or
+   *  `"all_v2"` (v2). */
   allTime: string;
+}
+
+/** The weekly period id for `epochMs` under `ruleset` -- the single derivation both the server's
+ *  write path and the client's read path (src/firebase/getWeeklyLeaderboard.ts) use. */
+export function weeklyPeriodId(epochMs: number, ruleset: LunchRushPeriodRuleset = "lunch-rush-v1"): string {
+  return ruleset === "lunch-rush-v2" ? `weekly_v2_${isoWeekId(epochMs)}` : `weekly_${isoWeekId(epochMs)}`;
 }
 
 /**
  * The three `leaderboards/*` collection ids a single accepted submission upserts into (see
  * ../../functions/src/submitLunchRushScore.ts) -- all derived from the exact same server-clock
  * `epochMs`, so a run can never be bucketed into a weekly period and a monthly period that
- * disagree about which JST day it landed on.
+ * disagree about which JST day it landed on. `ruleset` defaults to v1, so every pre-existing
+ * caller keeps getting exactly the v1 ids.
  */
-export function computeLunchRushPeriodIds(epochMs: number): LunchRushPeriodIds {
+export function computeLunchRushPeriodIds(
+  epochMs: number,
+  ruleset: LunchRushPeriodRuleset = "lunch-rush-v1",
+): LunchRushPeriodIds {
+  if (ruleset === "lunch-rush-v2") {
+    return {
+      weekly: weeklyPeriodId(epochMs, ruleset),
+      monthly: `monthly_v2_${monthId(epochMs)}`,
+      allTime: ALL_TIME_PERIOD_ID_V2,
+    };
+  }
   return {
-    weekly: `weekly_${isoWeekId(epochMs)}`,
+    weekly: weeklyPeriodId(epochMs, ruleset),
     monthly: `monthly_${monthId(epochMs)}`,
     allTime: ALL_TIME_PERIOD_ID,
   };
