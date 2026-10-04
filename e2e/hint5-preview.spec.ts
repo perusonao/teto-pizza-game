@@ -408,8 +408,12 @@ const SCENARIOS: Scenario[] = [
     act: async (page, dialog) => {
       await ask(page);
       await expect(wallet(page)).toContainText("所持 2 Pitz");
-      await expect(cta(page)).toBeDisabled();
+      // #360 S3: the CTA stays tappable below the normal price; the shortage note follows a refused tap only.
+      await expect(cta(page)).toBeEnabled();
+      await expect(dialog).not.toContainText("Pitzがたまったら");
+      await cta(page).click();
       await expect(dialog).toContainText("Pitzがたまったら");
+      await expect(wallet(page)).toContainText("所持 2 Pitz");
     },
   },
 ];

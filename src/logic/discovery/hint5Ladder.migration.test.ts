@@ -19,7 +19,7 @@ import {
  *
  * - Legacy facts never complete a rung, so the pre-purchase view is the same with or without them.
  * - At request time only:
- *   - ALL known -> ALREADY_KNOWN, 0 Pitz, only the completion record stored;
+ *   - ALL known -> ALREADY_KNOWN, 0 Pitz (even below the normal price, #360 S3), only the completion record stored;
  *   - PARTIALLY known / NONE known -> the normal P-C price.
  * - Nothing is converted, rewritten or deleted (E3). A request only returns ids to append.
  */
@@ -101,8 +101,17 @@ describe("M3 with the round-6 「なし」 rungs (OD-H5-P4-CHEESE / P4b)", () =>
         charge: 0,
         persist: true,
       });
-      // Below the normal price it is refused like any other request.
-      expect(req(id, { storedFactIds: ["h5:sauce"], legacyPurchases: legacy, expectedRungIndex: 2, pitzBalance: 9 }), id).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+      // #360 S3 (OD-360-3): ALL known costs 0 Pitz, so it completes even below the normal price.
+      for (const pitzBalance of [9, 0]) {
+        expect(req(id, { storedFactIds: ["h5:sauce"], legacyPurchases: legacy, expectedRungIndex: 2, pitzBalance }), id).toEqual({
+          outcome: "ALREADY_KNOWN",
+          rungIndex: 2,
+          kind: "CHEESE",
+          addFactIds: [HINT5_RUNG_MARKER.CHEESE],
+          charge: 0,
+          persist: true,
+        });
+      }
     }
   });
 
@@ -175,8 +184,8 @@ describe("M3 at request time: ALL / PARTIAL / NONE known", () => {
     });
   });
 
-  it("the 0-Pitz completion needs an affordable request: with a balance below the normal price it is refused like any other", () => {
-    expect(req("hawaiian", { storedFactIds: ["ing:tomato-sauce"], pitzBalance: 9 })).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
+  it("#360 S3: below the normal price an ALL known rung still completes for 0 Pitz; a NONE known rung is refused", () => {
+    expect(req("hawaiian", { storedFactIds: ["ing:tomato-sauce"], pitzBalance: 9 })).toMatchObject({ outcome: "ALREADY_KNOWN", charge: 0 });
     expect(req("hawaiian", { storedFactIds: [], pitzBalance: 9 })).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
   });
 

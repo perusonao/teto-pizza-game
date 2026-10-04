@@ -222,8 +222,9 @@ export function HintSheet({
   const ladder = view.kind === "SELECTABLE" ? hint5 : null;
   const ladderClosed = view.kind === "SELECTABLE" && !ladder && hint5Active;
   // SELECTABLE: the 「ヒントをもらう」 entry is always enabled (it only opens the family panel; the
-  // panel manages its own focus). Hint 5.0: the one rung request, while affordable.
-  const ctaEnabled = ladder ? !!ladder.next && ladder.next.affordable : ladderClosed ? false : view.kind === "SELECTABLE" ? true : !!next && next.affordable;
+  // panel manages its own focus). Hint 5.0: the one rung request, whenever a rung is offered (#360 S3:
+  // never gated on the balance, so the sheet cannot tell a fully known rung from an unknown one).
+  const ctaEnabled = ladder ? !!ladder.next : ladderClosed ? false : view.kind === "SELECTABLE" ? true : !!next && next.affordable;
   const latch = (): boolean => {
     if (buyLatchRef.current) return false;
     buyLatchRef.current = true;
@@ -862,6 +863,13 @@ function Hint5LadderBody({
   );
   const showArchive = ladder.legacyKnownIngredientIds.length > 0 || archiveLines.length > 0;
   const alreadyKnown = view.outcome === "HINT5_ALREADY_KNOWN";
+  // #360 S3: the CTA stays tappable below the normal price. The reducer decides; if it refuses, the rung
+  // is still the offered one, so the existing shortage note is shown for that rung only (and only after
+  // the tap, never before it: the pre-purchase view carries nothing but the balance).
+  const [shortAskedRung, setShortAskedRung] = useState<number | null>(null);
+  const showShort = !!ladder.next && !ladder.next.affordable && shortAskedRung === ladder.next.rungIndex;
+  // The previous 「もう知っていた」 outcome describes the rung that was just completed, not the refused one.
+  const knownShown = alreadyKnown && !showShort;
 
   // Entries completed since the previous render of this open sheet: highlighted and scrolled into view.
   const keys = ladder.board.map(hint5EntryKey).join(",");
@@ -879,7 +887,7 @@ function Hint5LadderBody({
   }, [fresh]);
   const isNew = (entry: Hint5BoardEntry) => fresh.has(hint5EntryKey(entry));
 
-  const liveText = alreadyKnown
+  const liveText = knownShown
     ? HINT5_COPY.alreadyKnown
     : ladder.board
         .filter(isNew)
@@ -898,7 +906,7 @@ function Hint5LadderBody({
   return (
     <>
       <p className="sr-only" role="status" aria-live="polite">
-        {liveText ? (alreadyKnown ? liveText : `わかったこと：${liveText}`) : ""}
+        {liveText ? (knownShown ? liveText : `わかったこと：${liveText}`) : ""}
       </p>
       <p className="hint-sheet__caption">{view.existenceText}</p>
       <div className={`hint-sheet__scroll${cue.above ? " hint-sheet__scroll--above" : ""}${cue.below ? " hint-sheet__scroll--below" : ""}`}>
@@ -993,7 +1001,7 @@ function Hint5LadderBody({
         </span>
       </div>
       <div className="hint-sheet__footer hint-sheet__footer--selectable hint-sheet__footer--h5">
-        {alreadyKnown && <p className="hint-sheet__outcome hint-sheet__h5-known">{HINT5_COPY.alreadyKnown}</p>}
+        {knownShown && <p className="hint-sheet__outcome hint-sheet__h5-known">{HINT5_COPY.alreadyKnown}</p>}
         {ladder.next ? (
           <div className="hint-sheet__h5-next" data-hint5-next={ladder.next.kind}>
             <p className="hint-sheet__card-title">
@@ -1003,14 +1011,20 @@ function Hint5LadderBody({
             <button
               ref={ctaRef}
               type="button"
-              className={`cta-button hint-sheet__next hint-sheet__next--paid${ladder.next.affordable ? "" : " hint-sheet__next--short"}`}
-              disabled={!ladder.next.affordable}
+              className="cta-button hint-sheet__next hint-sheet__next--paid"
               aria-disabled={latched || undefined}
-              onClick={() => onBuy(ladder.next!.rungIndex)}
+              onClick={() => {
+                if (!latched && !ladder.next!.affordable) setShortAskedRung(ladder.next!.rungIndex);
+                onBuy(ladder.next!.rungIndex);
+              }}
             >
               <span className="hint-sheet__next-label">{HINT5_COPY.ask}</span> <span className="hint-sheet__price">{ladder.next.price} Pitz</span>
             </button>
-            {!ladder.next.affordable && <p className="hint-sheet__wallet hint-sheet__wallet-note">{HINT5_COPY.shortNote}</p>}
+            {showShort && (
+              <p className="hint-sheet__wallet hint-sheet__wallet-note" role="status">
+                {HINT5_COPY.shortNote}
+              </p>
+            )}
           </div>
         ) : null}
         <p className="hint-sheet__wallet">

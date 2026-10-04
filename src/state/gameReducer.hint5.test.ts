@@ -74,6 +74,38 @@ function reload(storage: StorageLike): GameState {
 const TARGETS = RECIPES.filter((r) => r.id !== "margherita").map((r) => r.id);
 const NONE_TARGETS = TARGETS.filter((id) => hint5EmptyFixedRungs(id)!.length > 0);
 
+describe("#360 S3: wallet below the normal price through the reducer", () => {
+  it("a fully known SAUCE then CHEESE complete at wallet 0 (charge 0, only the completion records); the next unknown rung is refused untouched", () => {
+    let s = sheetOn("hawaiian", 0, { hawaiian: ["ing:tomato-sauce", "ing:mozzarella"] });
+    expect(next(s)).toMatchObject({ kind: "SAUCE", price: 10 });
+    s = buy(s);
+    expect(s.pitzBalance).toBe(0);
+    expect(s.hintOutcome).toBe("HINT5_ALREADY_KNOWN");
+    expect(facts(s, "hawaiian")).toContain("h5:sauce");
+    expect(next(s)).toMatchObject({ kind: "CHEESE" });
+    s = buy(s);
+    expect(s.pitzBalance).toBe(0);
+    expect(facts(s, "hawaiian")).toContain("h5:cheese");
+    // KEY (pineapple is not known) is refused: same state object, nothing completed
+    expect(next(s)).toMatchObject({ kind: "KEY_TOPPING" });
+    expect(buy(s)).toBe(s);
+  });
+
+  it("a partially known CHEESE at wallet 0 is refused: no completion, no charge", () => {
+    const s = sheetOn("parmigiana-pizza", 0, { "parmigiana-pizza": ["h5:sauce", "ing:mozzarella"] });
+    expect(next(s)).toMatchObject({ kind: "CHEESE" });
+    expect(buy(s)).toBe(s);
+  });
+
+  it("an unknown rung at wallet 0 is refused; at the normal price the paid behaviour is unchanged", () => {
+    const poor = sheetOn("hawaiian", 0);
+    expect(buy(poor)).toBe(poor);
+    const paid = buy(sheetOn("hawaiian", 10));
+    expect(paid.pitzBalance).toBe(0);
+    expect(facts(paid, "hawaiian")).toEqual(["ing:tomato-sauce", "h5:sauce"]);
+  });
+});
+
 describe("flag ON: the ladder through the reducer", () => {
   it("hawaiian: rung by rung at the P-C price, appending ing: / meta: / cls: facts, then complete", () => {
     let s = sheetOn("hawaiian", 100);
