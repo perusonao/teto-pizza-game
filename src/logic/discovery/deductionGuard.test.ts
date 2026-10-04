@@ -339,7 +339,10 @@ describe("T-15 wiring boundary (DH4-2B)", () => {
     // Hint 5.0 H5-1 (Issue #292, Final Design §14) adds two sanctioned read-only readers. They are
     // unwired: no production module imports them (hint5Production.gate.test.ts).
     // Ingredient Category Tabs 1.0 Phase 1: ingredientShelf.ts reads the family ids only (unwired UI shelf authority).
+    // Pantry / Category Tabs OD-A: data/familyDisplay.ts is the leaf display authority over the same family ids
+    // (hintClassDisplay.ts re-publishes it); it never imports Hint 5.0.
     expect([...importers].sort()).toEqual([
+      "../../data/familyDisplay.ts",
       "../../data/hintClassDisplay.ts",
       "../../data/ingredientShelf.ts",
       "../../state/discoveryHint.ts",

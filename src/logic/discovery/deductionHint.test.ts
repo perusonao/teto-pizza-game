@@ -357,7 +357,10 @@ describe("DH4-1 wiring boundary", () => {
     // the structure-total fact. It is sanctioned read-only, and hint5Production.gate.test.ts pins it as unwired.
     // Ingredient Category Tabs 1.0 Phase 1: src/data/ingredientShelf.ts is a sanctioned read-only
     // reader of the family ids (UI filter shelves). Unwired; it never imports the Hint layer.
+    // Pantry / Category Tabs OD-A: data/familyDisplay.ts is the leaf display authority over the same family ids
+    // (hintClassDisplay.ts re-publishes it); it never imports the Hint layer.
     expect(importers).toEqual([
+      "../../data/familyDisplay.ts",
       "../../data/hintClassDisplay.ts",
       "../../data/ingredientShelf.ts",
       "../../state/discoveryHint.ts",

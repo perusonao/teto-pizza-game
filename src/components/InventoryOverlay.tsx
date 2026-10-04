@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { CATEGORY_LABEL, INGREDIENTS } from "../data/ingredients";
-import { filterByShelf, shelvesPresent, type ShelfFilter } from "../data/ingredientShelf";
+import { INGREDIENTS } from "../data/ingredients";
+import {
+  familiesPresent,
+  filterBySelection,
+  majorsPresent,
+  resolveSelection,
+  SELECTION_ALL,
+  type ShelfSelection,
+} from "../data/ingredientShelf";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { remainingStock, type InventoryState } from "../state/inventory";
 import { ingredientCollectionCount } from "../state/materialEntitlement";
 import { IngredientGlyph } from "./IngredientGlyph";
-import { ShelfChips } from "./ShelfChips";
+import { FamilyTag } from "./FamilyTag";
+import { ShelfTabs } from "./ShelfTabs";
 
 /**
  * Inventory Screen (next phase after Issue #86 UX-2): a READ-ONLY view of "what do I currently
@@ -34,16 +42,14 @@ interface InventoryOverlayProps {
 }
 
 export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: InventoryOverlayProps) {
-  const [activeShelf, setActiveShelf] = useState<ShelfFilter>("all");
+  const [selection, setSelection] = useState<ShelfSelection>(SELECTION_ALL);
 
   const owned = INGREDIENTS.filter((ingredient) => ownedIngredientIds.includes(ingredient.id));
   const collection = ingredientCollectionCount(ownedIngredientIds);
-  const presentShelves = shelvesPresent(owned);
-  // A shelf that is no longer listed reads as 「すべて」 (derived while rendering: no setState in
-  // render or in an effect). The stored choice is only ever written by a chip tap.
-  const shelfFilter: ShelfFilter =
-    activeShelf === "all" || presentShelves.includes(activeShelf) ? activeShelf : "all";
-  const shownIds = new Set(filterByShelf(owned, shelfFilter).map((i) => i.id));
+  // A tab that no owned row holds reads as 「すべて」 (derived while rendering: no setState in render or in an
+  // effect). The stored choice is only ever written by a tab tap.
+  const activeSelection = resolveSelection(selection, owned);
+  const shownIds = new Set(filterBySelection(owned, activeSelection).map((i) => i.id));
   const visible = owned.filter((ingredient) => shownIds.has(ingredient.id));
 
   return (
@@ -62,11 +68,11 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
           </p>
 
           <div className="inventory-overlay__shelves">
-            <ShelfChips
-              shelves={presentShelves}
-              active={shelfFilter}
-              onChange={setActiveShelf}
-              ariaLabel="材料の分類"
+            <ShelfTabs
+              majors={majorsPresent(owned)}
+              families={familiesPresent(owned)}
+              selection={activeSelection}
+              onChange={setSelection}
             />
           </div>
 
@@ -91,7 +97,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
                         </span>
                       )}
                       <span className="inventory-card__name">{ingredient.nameJa}</span>
-                      <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
+                      <FamilyTag ingredientId={ingredient.id} className="inventory-card__family" />
                       <span
                         className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
                       >

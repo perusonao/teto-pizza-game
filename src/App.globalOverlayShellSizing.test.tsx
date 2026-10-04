@@ -128,12 +128,12 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);
 
-    await user.click(within(overlay).getByRole("button", { name: "ハーブ・香味" }));
+    await user.click(within(overlay).getByRole("button", { name: "具材" }));
     expect(panel.className).toBe(classNameBefore);
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);
 
-    await user.click(within(overlay).getByRole("button", { name: "すべて" }));
+    await user.click(within(within(overlay).getByRole("group", { name: "材料の大分類" })).getByRole("button", { name: "すべて" }));
     expect(panel.className).toBe(classNameBefore);
     expect(panel.children.length).toBe(childCountBefore);
     expectPanelShellShape(panel);

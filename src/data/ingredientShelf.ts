@@ -15,15 +15,20 @@
  * (62 / 172) that ships an unclassified topping fails a gate instead of silently disappearing
  * from every shelf tab.
  *
- * Labels are the *shelf* (UI filter) labels. They are derived from the same tables the player
- * already sees in the current UI (`ATTRIBUTE_FAMILIES.labelJa`, `CATEGORY_LABEL`) and are
- * deliberately separate from Hint 5.0's display labels (`./hintClassDisplay.ts`, e.g. 「肉系」,
- * and 「ちょっと変わった材料」 for `other`, OD-CT-3): this module never imports them. The shared
- * part is the id authority only.
+ * Labels: a sauce / cheese shelf reads `CATEGORY_LABEL`; a family shelf reads `FAMILY_DISPLAY`
+ * (./familyDisplay.ts), the one player-facing family label authority that Hint 5.0 re-publishes
+ * (Pantry / Category Tabs OD-2 / OD-A: the shelf label and the Hint label are the same string, so they
+ * cannot drift). This module still never imports Hint 5.0's display module (./hintClassDisplay.ts):
+ * the shared part is the leaf `familyDisplay`, not Hint.
+ *
+ * Two-tier tabs (OD-1 / OD-8): a *major* tab (すべて / ソース / チーズ / 具材) selects a ROLE group and, only for
+ * 具材, an optional family. The selection helpers below turn a selection into a set of shelf ids (an OR over
+ * shelves); they classify nothing and add no taxonomy.
  *
  * Nothing here reads or writes game state, save, inventory, unlock, purchase, selection or
  * scoring; every function returns fresh arrays and never mutates its input.
  */
+import { FAMILY_DISPLAY } from "./familyDisplay";
 import { CATEGORY_LABEL, getIngredient, INGREDIENTS, type Ingredient } from "./ingredients";
 import {
   ATTRIBUTE_FAMILIES,
@@ -40,7 +45,7 @@ export type ShelfFilter = "all" | IngredientShelfId;
 export interface IngredientShelf {
   readonly id: IngredientShelfId;
   readonly kind: "category" | "family";
-  /** UI shelf label (context: filter chip). Not Hint 5.0's label. */
+  /** UI shelf label (context: filter chip). A family reads the same string as Hint 5.0 (./familyDisplay.ts). */
   readonly labelJa: string;
 }
 
@@ -55,7 +60,7 @@ export const INGREDIENT_SHELVES: readonly IngredientShelf[] = Object.freeze(
     [
       { id: "sauce", kind: "category", labelJa: CATEGORY_LABEL.sauce },
       { id: "cheese", kind: "category", labelJa: CATEGORY_LABEL.cheese },
-      ...ATTRIBUTE_FAMILIES.map((f): IngredientShelf => ({ id: f.id, kind: "family", labelJa: f.labelJa })),
+      ...ATTRIBUTE_FAMILIES.map((f): IngredientShelf => ({ id: f.id, kind: "family", labelJa: FAMILY_DISPLAY[f.id].labelJa })),
     ] satisfies IngredientShelf[]
   ).map((shelf) => Object.freeze(shelf)),
 );
@@ -115,6 +120,87 @@ export function shelvesPresent(items: readonly { id: string }[]): IngredientShel
     if (shelf) present.add(shelf);
   }
   return INGREDIENT_SHELF_ORDER.filter((id) => present.has(id));
+}
+
+/** The family shelf ids, in authority order (meat, seafood, vegetable, fruit, herb, spice, other). */
+export const FAMILY_SHELF_IDS: readonly AttributeFamilyId[] = Object.freeze(ATTRIBUTE_FAMILIES.map((f) => f.id));
+
+/** The ROLE groups a major tab can select. `topping` is the internal id; players read 「具材」. */
+export type MajorShelfId = "sauce" | "cheese" | "topping";
+export type MajorFilter = "all" | MajorShelfId;
+export const MAJOR_SHELF_ORDER: readonly MajorShelfId[] = Object.freeze(["sauce", "cheese", "topping"] as const);
+export type FamilyFilter = "all" | AttributeFamilyId;
+
+/** Two-tier tab selection. `family` is only meaningful while `major === "topping"` (otherwise it is "all"). */
+export interface ShelfSelection {
+  major: MajorFilter;
+  family: FamilyFilter;
+}
+
+export const SELECTION_ALL: ShelfSelection = Object.freeze({ major: "all", family: "all" });
+
+export function majorLabel(major: MajorFilter): string {
+  return major === "all" ? SHELF_ALL_LABEL_JA : CATEGORY_LABEL[major];
+}
+
+function majorOfShelf(shelf: IngredientShelfId): MajorShelfId {
+  return shelf === "sauce" || shelf === "cheese" ? shelf : "topping";
+}
+
+/** The major tabs that hold at least one of `items`, in `MAJOR_SHELF_ORDER`. */
+export function majorsPresent(items: readonly { id: string }[]): MajorShelfId[] {
+  const present = new Set(shelvesPresent(items).map(majorOfShelf));
+  return MAJOR_SHELF_ORDER.filter((m) => present.has(m));
+}
+
+/** The family shelves that hold at least one of `items`, in authority order. */
+export function familiesPresent(items: readonly { id: string }[]): AttributeFamilyId[] {
+  const present = new Set<string>(shelvesPresent(items));
+  return FAMILY_SHELF_IDS.filter((f) => present.has(f));
+}
+
+/**
+ * The shelf ids a selection matches (an OR over shelves), or `null` for no restriction (「すべて」, which also
+ * includes unclassified ids). 「具材」 with no family is all 7 family shelves: a topping without a family row is
+ * reachable only through 「すべて」 (fail-closed, OD-CT-7; `auditShelfAuthority` is the gate).
+ */
+export function shelvesForSelection(selection: ShelfSelection): readonly IngredientShelfId[] | null {
+  if (selection.major === "all") return null;
+  if (selection.major === "topping") return selection.family === "all" ? FAMILY_SHELF_IDS : [selection.family];
+  return [selection.major];
+}
+
+/** Display filter for a selection; input order kept, always a new array. */
+export function filterBySelection<T extends { id: string }>(items: readonly T[], selection: ShelfSelection): T[] {
+  const shelves = shelvesForSelection(selection);
+  if (shelves === null) return [...items];
+  const wanted = new Set<string>(shelves);
+  return items.filter((item) => {
+    const shelf = ingredientShelf(item.id);
+    return shelf !== null && wanted.has(shelf);
+  });
+}
+
+/**
+ * A stored selection read against the rows now listed: a major tab or a family that no row holds reads as
+ * 「すべて」 (derived while rendering, like the other shelf screens), and a family never outlives its major.
+ */
+export function resolveSelection(selection: ShelfSelection, items: readonly { id: string }[]): ShelfSelection {
+  if (selection.major === "all" || !majorsPresent(items).includes(selection.major)) return SELECTION_ALL;
+  if (selection.major !== "topping" || !familiesPresent(items).includes(selection.family as AttributeFamilyId)) {
+    return selection.family === "all" ? selection : { major: selection.major, family: "all" };
+  }
+  return selection;
+}
+
+/** OD-5 / OD-D: another major resets the family to 「すべて」; re-tapping the active major changes nothing. */
+export function selectMajor(selection: ShelfSelection, major: MajorFilter): ShelfSelection {
+  return selection.major === major ? selection : { major, family: "all" };
+}
+
+/** A family can only be chosen under 「具材」. */
+export function selectFamily(selection: ShelfSelection, family: FamilyFilter): ShelfSelection {
+  return selection.major === "topping" ? { major: "topping", family } : selection;
 }
 
 export interface ShelfAuditInput {

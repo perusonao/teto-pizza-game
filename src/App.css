@@ -2835,6 +2835,35 @@
   text-decoration-thickness: 2px;
 }
 
+/* Ingredient Pantry / Category Tabs: the two-tier tabs (Inventory / Shop). Each tier is one `.shelf-chips` row
+   (horizontal scroll, 44px chips); the second tier exists only while 具材 is selected. */
+.shelf-tabs {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The family line on a 具材 card (Pantry tile / Inventory card / Shop item): symbol + label, one line, shown
+   whatever filter is active. 9px like the card metadata it replaces; the long 「ちょっと変わった材料」 may wrap. */
+.family-tag {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #a1662f;
+}
+
+.shop-item__family {
+  align-self: flex-start;
+  justify-content: flex-start;
+  font-size: 11px;
+}
+
 .shop-overlay__list {
   display: flex;
   flex-direction: column;
@@ -3087,12 +3116,6 @@
   font-weight: 700;
   color: #4a2e0a;
   line-height: 1.2;
-}
-
-.inventory-card__category {
-  font-size: 9px;
-  font-weight: 600;
-  color: #a1662f;
 }
 
 .inventory-card__stock {
@@ -6540,6 +6563,14 @@ p.hint-sheet__step {
   font-weight: 700;
   color: #4a2e0a;
   line-height: 1.2;
+}
+
+/* Pantry / Category Tabs (measured, OD-6): the family line costs a tile row 12.8px, which left the 360x640 keyboard-fitted list
+   (87px, K=338) 1px short of one full row (88px). Inside the pantry tile the line sits flush under the name (no flex gap) with a
+   9px line box: 9px per row instead of 12.8px, no hidden UI and no layout change when the search field takes the focus. */
+.pantry-tile__family {
+  margin-top: -2px;
+  line-height: 1;
 }
 
 .pantry-tile__stock {

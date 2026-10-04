@@ -1053,7 +1053,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).getByText("新しいピザを発見すると、材料が入荷します")).toBeInTheDocument();
     expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
     expect(within(shop).queryByText(/腕前|★/)).not.toBeInTheDocument();
-    expect(within(shop).queryByRole("group", { name: "材料の分類" })).not.toBeInTheDocument();
+    expect(within(shop).queryByRole("group", { name: "材料の大分類" })).not.toBeInTheDocument();
   });
 
   it("C. an early Shop shows the ladder progress hint alongside the real row (not instead of it)", async () => {
@@ -1068,7 +1068,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
-    expect(within(shop).getByRole("group", { name: "材料の分類" })).toBeInTheDocument();
+    expect(within(shop).getByRole("group", { name: "材料の大分類" })).toBeInTheDocument();
   });
 
   it("D. once every ladder step is reached (all 27 credited recipes discovered) the progress hint is gone", async () => {
@@ -1106,12 +1106,13 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).queryByText("ゴルゴンゾーラ")).not.toBeInTheDocument();
     expect(within(shop).queryByText("マッシュルーム")).not.toBeInTheDocument();
 
-    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
+    await user.click(within(shop).getByRole("button", { name: "具材" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ系" }));
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
     expect(within(shop).getByText("たまねぎ")).toBeInTheDocument();
     expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
 
-    await user.click(within(shop).getByRole("button", { name: "すべて" }));
+    await user.click(within(within(shop).getByRole("group", { name: "材料の大分類" })).getByRole("button", { name: "すべて" }));
     expect(within(shop).getByText("オリーブオイル")).toBeInTheDocument();
     expect(within(shop).getByText("ゴルゴンゾーラ")).toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
@@ -1129,9 +1130,9 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    const chips = within(shop).getByRole("group", { name: "材料の分類" });
+    const chips = within(shop).getByRole("group", { name: "材料の大分類" });
     expect(within(chips).getAllByRole("button").map((b) => b.textContent)).toEqual(["すべて", "ソース", "チーズ"]);
-    for (const name of ["トッピング", "肉", "魚介", "野菜・きのこ", "果物", "ハーブ・香味", "スパイス・薬味", "その他"]) {
+    for (const name of ["トッピング", "具材", "肉系", "魚介系", "野菜・きのこ系", "果物系", "ハーブ・香味系", "スパイス・薬味系", "ちょっと変わった材料"]) {
       expect(within(shop).queryByRole("button", { name })).not.toBeInTheDocument();
       expect(shop.textContent).not.toContain(name);
     }
@@ -1148,7 +1149,8 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
-    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
+    await user.click(within(shop).getByRole("button", { name: "具材" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ系" }));
     expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
     expect(within(shop).getByText(/補充 .*40 Pitz/)).toBeInTheDocument(); // onion's T2 refill, unchanged by filtering
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
@@ -1172,7 +1174,8 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
 
     await user.click(within(shop).getByRole("button", { name: "すべて" }));
     expect(within(shop).queryByText("たまねぎ")).not.toBeInTheDocument();
-    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
+    await user.click(within(shop).getByRole("button", { name: "具材" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ系" }));
     expect(within(shop).queryByText("たまねぎ")).not.toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
   });
@@ -1189,8 +1192,9 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
     await user.click(within(shop).getByRole("button", { name: "ソース" }));
-    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ" }));
-    await user.click(within(shop).getByRole("button", { name: "すべて" }));
+    await user.click(within(shop).getByRole("button", { name: "具材" }));
+    await user.click(within(shop).getByRole("button", { name: "野菜・きのこ系" }));
+    await user.click(within(within(shop).getByRole("group", { name: "材料の大分類" })).getByRole("button", { name: "すべて" }));
 
     expect(screen.getByLabelText("Pitz残高 321")).toBeInTheDocument();
     expect(within(shop).getByText(/在庫 7/)).toBeInTheDocument();

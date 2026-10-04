@@ -20,6 +20,7 @@ import {
   type SearchInputState,
 } from "./pantrySearchIme";
 import { usePantryViewportFit } from "./pantryViewportFit";
+import { FamilyTag } from "./FamilyTag";
 import { ShelfChips } from "./ShelfChips";
 
 /**
@@ -227,7 +228,8 @@ export function IngredientPantry({
           </button>
         </div>
 
-        <p className="pantry-sheet__subtitle">{CATEGORY_LABEL[category]}</p>
+        {/* OD-B: sauce / cheese have no subtitle (the step already says which); 具材 keeps its label. */}
+        {category === "topping" && <p className="pantry-sheet__subtitle">{CATEGORY_LABEL[category]}</p>}
 
         {showSearch && (
           <div className="pantry-sheet__search" role="search">
@@ -280,7 +282,7 @@ export function IngredientPantry({
 
         {showChips && (
           <div className="pantry-sheet__shelves">
-            <ShelfChips shelves={presentShelves} active={shelfFilter} onChange={handleShelfChange} ariaLabel="材料の分類" />
+            <ShelfChips shelves={presentShelves} active={shelfFilter} onChange={handleShelfChange} ariaLabel="具材の分類" />
           </div>
         )}
 
@@ -345,6 +347,7 @@ export function IngredientPantry({
                       </span>
                     )}
                     <span className="pantry-tile__name">{ingredient.nameJa}</span>
+                    <FamilyTag ingredientId={ingredient.id} className="pantry-tile__family" />
                     <span className={`pantry-tile__stock${stock === 0 ? " pantry-tile__stock--zero" : ""}`}>
                       {stock === "UNLIMITED" ? "∞" : `×${stock}`}
                     </span>

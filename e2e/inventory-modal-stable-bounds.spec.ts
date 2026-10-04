@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 
 /**
  * Ingredients (Inventory) modal: fixed outer size regardless of how many cards the shelf filter
- * shows. Only the ingredient list scrolls; summary + ShelfChips stay pinned.
+ * shows. Only the ingredient list scrolls; summary + the shelf tabs stay pinned.
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
@@ -89,10 +89,21 @@ for (const vp of VIEWPORTS) {
       expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight + 1)).toBe(true);
       expect(closeBtn.top).toBeGreaterThanOrEqual(0);
 
-      for (const name of ["魚介", "肉", "スパイス・薬味", "ソース", "すべて", "スパイス・薬味"]) {
-        await page.locator(".shelf-chips").evaluate((el) => { el.scrollLeft = el.scrollWidth; });
-        await page.getByRole("button", { name }).scrollIntoViewIfNeeded();
-        await page.getByRole("button", { name }).click();
+      // Two-tier tabs: the family row exists only under 具材, so it appears / disappears while the shell stays fixed.
+      for (const [tier, name] of [
+        ["材料の大分類", "具材"],
+        ["具材の分類", "魚介系"],
+        ["具材の分類", "肉系"],
+        ["具材の分類", "スパイス・薬味系"],
+        ["材料の大分類", "ソース"],
+        ["材料の大分類", "すべて"],
+        ["材料の大分類", "具材"],
+        ["具材の分類", "スパイス・薬味系"],
+      ] as const) {
+        const group = page.getByRole("group", { name: tier });
+        await group.evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+        await group.getByRole("button", { name, exact: true }).scrollIntoViewIfNeeded();
+        await group.getByRole("button", { name, exact: true }).click();
         const now = await rect(page, shell);
         expect(now.top).toBe(all.top);
         expect(now.bottom).toBe(all.bottom);

@@ -348,10 +348,10 @@ describe("LC-R4 chips are derived from the OWNED rows of the active category", (
   it("topping step: すべて + only the represented shelves, in the shelf authority order, no counts", () => {
     render(<Harness initial={freeTopping()} />);
     fireEvent.click(entry()!);
-    expect(shelfChipLabels()).toEqual(["すべて", "肉", "魚介", "野菜・きのこ", "ハーブ・香味", "その他"]);
+    expect(shelfChipLabels()).toEqual(["すべて", "肉系", "魚介系", "野菜・きのこ系", "ハーブ・香味系", "ちょっと変わった材料"]);
     const dialog = screen.getByRole("dialog");
     // Unrepresented shelves have no chip, node, data attribute or text.
-    for (const absent of ["果物", "スパイス・薬味", "ソース", "チーズ"]) expect(dialog.textContent).not.toContain(absent);
+    for (const absent of ["果物系", "スパイス・薬味系", "ソース", "チーズ"]) expect(dialog.textContent).not.toContain(absent);
     for (const shelf of ["fruit", "spice", "sauce", "cheese"]) expect(dialog.querySelector(`[data-shelf="${shelf}"]`)).toBeNull();
     for (const c of dialog.querySelectorAll(".shelf-chip")) expect(c.textContent).not.toMatch(/\d/);
   });
@@ -367,7 +367,7 @@ describe("LC-R4 chips are derived from the OWNED rows of the active category", (
     // LC-R5-b: the topping category has more than one page of owned rows, so the search row sits between the subtitle and the chips.
     expect(slot.previousElementSibling?.className).toContain("pantry-sheet__search");
     expect(slot.previousElementSibling?.previousElementSibling?.className).toContain("pantry-sheet__subtitle");
-    expect(screen.getByRole("group", { name: "材料の分類" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "具材の分類" })).toBeInTheDocument();
   });
 
   it("sauce step and cheese step (one shelf each): no chip row at all", () => {
@@ -386,7 +386,7 @@ describe("LC-R4 chips are derived from the OWNED rows of the active category", (
     const two = createInitialGameState([], owned, 0, Object.fromEntries(owned.map((id) => [id, 4])), [], FINITE, {});
     render(<Harness initial={toStep(two, "TOPPING")} />);
     fireEvent.click(entry()!);
-    expect(shelfChipLabels()).toEqual(["すべて", "肉", "ハーブ・香味"]);
+    expect(shelfChipLabels()).toEqual(["すべて", "肉系", "ハーブ・香味系"]);
   });
 });
 
@@ -402,11 +402,11 @@ describe("LC-R4 filtering", () => {
     render(<Harness initial={freeTopping()} />);
     fireEvent.click(entry()!);
     const expected: Record<string, string[]> = {
-      肉: ["sausage", "pepperoni"],
-      魚介: ["anchovy"],
-      "野菜・きのこ": ["cherry-tomato", "mushroom", "onion"],
-      "ハーブ・香味": ["basil", "garlic", "oregano"],
-      その他: ["egg"],
+      "肉系": ["sausage", "pepperoni"],
+      "魚介系": ["anchovy"],
+      "野菜・きのこ系": ["cherry-tomato", "mushroom", "onion"],
+      "ハーブ・香味系": ["basil", "garlic", "oregano"],
+      "ちょっと変わった材料": ["egg"],
     };
     const catalogOrder = TOPPINGS.filter((id) => OWNED_TOPPINGS.includes(id));
     for (const [label, ids] of Object.entries(expected)) {
@@ -423,7 +423,7 @@ describe("LC-R4 filtering", () => {
     render(<Harness initial={freeTopping()} />);
     fireEvent.click(entry()!);
     const ownedNames = OWNED.map((id) => getIngredient(id)!.nameJa);
-    for (const label of ["すべて", "肉", "魚介", "野菜・きのこ", "ハーブ・香味", "その他"]) {
+    for (const label of ["すべて", "肉系", "魚介系", "野菜・きのこ系", "ハーブ・香味系", "ちょっと変わった材料"]) {
       fireEvent.click(chip(label));
       const dialog = screen.getByRole("dialog");
       const text = dialog.textContent ?? "";
@@ -444,7 +444,7 @@ describe("LC-R4 filtering", () => {
     const list = document.querySelector<HTMLElement>(".pantry-sheet__list")!;
     let top = 120;
     Object.defineProperty(list, "scrollTop", { configurable: true, get: () => top, set: (v: number) => void (top = v) });
-    fireEvent.click(chip("肉"));
+    fireEvent.click(chip("肉系"));
     expect(top).toBe(0);
     top = 90;
     fireEvent.click(chip("すべて"));
@@ -454,7 +454,7 @@ describe("LC-R4 filtering", () => {
   it("close and reopen: the shelf filter is back on すべて (not saved, not in GameState)", () => {
     render(<Harness initial={freeTopping()} />);
     fireEvent.click(entry()!);
-    fireEvent.click(chip("肉"));
+    fireEvent.click(chip("肉系"));
     expect(tileNames()).toEqual(namesOf(["sausage", "pepperoni"]));
     const json = stateJson();
     fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
@@ -470,7 +470,7 @@ describe("LC-R4 focus, keyboard and the Builder selection", () => {
   it("chip taps keep the sheet open and inside the dialog; Escape (from a chip) still closes and returns focus to the entry", () => {
     render(<Harness initial={freeTopping()} />);
     fireEvent.click(entry()!);
-    const meat = chip("肉");
+    const meat = chip("肉系");
     meat.focus();
     fireEvent.click(meat);
     expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -486,10 +486,10 @@ describe("LC-R4 focus, keyboard and the Builder selection", () => {
     const before = { json: stateJson(), chips: chipNames(), selected: screen.getByTestId("selected").textContent };
     expect(before.selected).toBe("basil");
     fireEvent.click(entry()!);
-    fireEvent.click(chip("肉")); // basil (herb) is now NOT in the pantry list; it is still on the Builder tray
+    fireEvent.click(chip("肉系")); // basil (herb) is now NOT in the pantry list; it is still on the Builder tray
     expect(tileNames()).not.toContain("バジル");
     expect(screen.getByTestId("selected").textContent).toBe("basil");
-    fireEvent.click(chip("魚介"));
+    fireEvent.click(chip("魚介系"));
     fireEvent.click(chip("すべて"));
     fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
     expect({ json: stateJson(), chips: chipNames(), selected: screen.getByTestId("selected").textContent }).toEqual(before);

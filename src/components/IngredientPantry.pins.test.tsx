@@ -124,7 +124,7 @@ describe("forced on (handEditing): Model D direct pin edit", () => {
     expect(document.querySelectorAll(".pantry-tile")).toHaveLength(0);
     expect(within(strip()!).getByRole("button", { name: `${name(TOPPINGS[0])}を外す` })).toBeInTheDocument();
     fireEvent.change(field(), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "肉" }));
+    fireEvent.click(screen.getByRole("button", { name: "肉系" }));
     expect(latest.topping).toEqual([TOPPINGS[0]]);
   });
 

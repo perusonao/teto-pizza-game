@@ -71,10 +71,10 @@ describe("InventoryOverlay scalability (Issue #86-style catalog growth)", () => 
     expect(cheeseCount).toBeLessThan(62);
   });
 
-  it("test 20 (mocked 62): toppings with no taxonomy row get no shelf (fail-closed): no family chip, listed under すべて only", () => {
+  it("test 20 (mocked 62): toppings with no taxonomy row get no shelf (fail-closed): no 具材 tab and no family row, listed under すべて only", () => {
     const allOwned = MOCK_CATALOG.map((i) => i.id);
     render(<InventoryOverlay ownedIngredientIds={allOwned} inventory={{}} onClose={() => {}} />);
-    const chips = screen.getByRole("group", { name: "材料の分類" });
+    const chips = screen.getByRole("group", { name: "材料の大分類" });
     expect(Array.from(chips.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["すべて", "ソース", "チーズ"]);
     expect(screen.getAllByText(/^素材\d+$/)).toHaveLength(62);
   });

@@ -36,12 +36,15 @@ async function openShop(page: Page, data: unknown) {
   await page.waitForSelector(".shop-overlay__body");
 }
 
-const chips = (page: Page) => page.locator(".shelf-chips .shelf-chip");
-const chipTexts = (page: Page) => chips(page).allTextContents();
+const MAJOR = "材料の大分類";
+const FAMILY = "具材の分類";
+const row = (page: Page, label: string) => page.getByRole("group", { name: label });
+const chipTexts = (page: Page, label = MAJOR) => row(page, label).locator(".shelf-chip").allTextContents();
+const tapIn = (page: Page, label: string, name: string) => row(page, label).getByRole("button", { name, exact: true }).click();
 
-async function chipRowFacts(page: Page) {
-  return page.evaluate(() => {
-    const row = document.querySelector<HTMLElement>(".shelf-chips")!;
+async function chipRowFacts(page: Page, label = MAJOR) {
+  return page.evaluate((groupLabel) => {
+    const row = document.querySelector<HTMLElement>(`.shelf-chips[aria-label="${groupLabel}"]`)!;
     const rects = [...row.querySelectorAll<HTMLElement>(".shelf-chip")].map((c) => c.getBoundingClientRect());
     const rr = row.getBoundingClientRect();
     return {
@@ -58,14 +61,17 @@ async function chipRowFacts(page: Page) {
       rowHeight: rr.height,
       chipsInsideRow: rects.every((r) => r.top >= rr.top - 0.5 && r.bottom <= rr.bottom + 0.5),
     };
-  });
+  }, label);
 }
 
-test.describe("Shop shelf chips", () => {
-  test("A. early Shop: only listed shelves, one row, 44px, no overflow", async ({ page }) => {
+test.describe("Shop shelf tabs (two tiers)", () => {
+  test("A. early Shop: only listed majors (具材), one row, 44px, no overflow; the family row is under 具材 only", async ({ page }) => {
     await openShop(page, save(["egg", "ham"]));
-    expect(await chipTexts(page)).toEqual(["すべて", "肉", "その他"]);
-    const f = await chipRowFacts(page);
+    expect(await chipTexts(page)).toEqual(["すべて", "具材"]);
+    await expect(row(page, FAMILY)).toHaveCount(0);
+    await tapIn(page, MAJOR, "具材");
+    expect(await chipTexts(page, FAMILY)).toEqual(["すべて", "肉系", "ちょっと変わった材料"]);
+    const f = await chipRowFacts(page, FAMILY);
     expect(f.oneRow).toBe(true);
     expect(f.minHeight).toBeGreaterThanOrEqual(44);
     expect(f.fontPx).toBeGreaterThanOrEqual(14);
@@ -74,12 +80,15 @@ test.describe("Shop shelf chips", () => {
     expect(await page.getByText("トッピング").count()).toBe(0);
   });
 
-  test("B/C. many shelves: the row scrolls by itself, never wraps, labels are readable", async ({ page }) => {
+  test("B/C. many families: the 4 major chips fit; the family row scrolls by itself, never wraps, labels are readable", async ({ page }) => {
     await openShop(page, save(FINITE));
-    expect(await chipTexts(page)).toEqual([
-      "すべて", "ソース", "チーズ", "肉", "魚介", "野菜・きのこ", "果物", "ハーブ・香味", "スパイス・薬味", "その他",
+    expect(await chipTexts(page)).toEqual(["すべて", "ソース", "チーズ", "具材"]);
+    expect((await chipRowFacts(page)).scrollable).toBe(false);
+    await tapIn(page, MAJOR, "具材");
+    expect(await chipTexts(page, FAMILY)).toEqual([
+      "すべて", "肉系", "魚介系", "野菜・きのこ系", "果物系", "ハーブ・香味系", "スパイス・薬味系", "ちょっと変わった材料",
     ]);
-    const f = await chipRowFacts(page);
+    const f = await chipRowFacts(page, FAMILY);
     expect(f.wrap).toBe("nowrap");
     // A long list below must not squash the row (the overlay body is a column flexbox).
     expect(f.rowHeight).toBeGreaterThanOrEqual(44);
@@ -89,12 +98,14 @@ test.describe("Shop shelf chips", () => {
     expect(f.scrollable).toBe(true);
     expect(f.pageOverflow).toBe(false);
     expect(f.clipped).toBe(false);
+    expect((await chipRowFacts(page, MAJOR)).rowHeight).toBeGreaterThanOrEqual(44);
     // Some chip straddles the row's right edge: the row visibly continues to the right.
     const straddles = await page.evaluate(() => {
-      const row = document.querySelector<HTMLElement>(".shelf-chips")!.getBoundingClientRect();
-      return [...document.querySelectorAll<HTMLElement>(".shelf-chip")].some((c) => {
+      const row = document.querySelector<HTMLElement>('.shelf-chips[aria-label="具材の分類"]')!;
+      const rr = row.getBoundingClientRect();
+      return [...row.querySelectorAll<HTMLElement>(".shelf-chip")].some((c) => {
         const r = c.getBoundingClientRect();
-        return r.left < row.right - 4 && r.right > row.right + 4;
+        return r.left < rr.right - 1 && r.right > rr.right + 1;
       });
     });
     expect(straddles).toBe(true);
@@ -104,23 +115,25 @@ test.describe("Shop shelf chips", () => {
     await openShop(page, save(FINITE));
     const body = page.locator(".dex-overlay__body");
     const bodyTopBefore = await body.evaluate((el) => el.scrollTop);
-    await page.locator(".shelf-chips").evaluate((el) => { el.scrollLeft = el.scrollWidth; });
-    await page.getByRole("button", { name: "スパイス・薬味" }).click();
-    await expect(page.getByRole("button", { name: "スパイス・薬味" })).toHaveAttribute("aria-pressed", "true");
-    const chip = await page.getByRole("button", { name: "スパイス・薬味" }).boundingBox();
+    await tapIn(page, MAJOR, "具材");
+    await row(page, FAMILY).evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+    await tapIn(page, FAMILY, "スパイス・薬味系");
+    await expect(row(page, FAMILY).getByRole("button", { name: "スパイス・薬味系" })).toHaveAttribute("aria-pressed", "true");
+    const chip = await row(page, FAMILY).getByRole("button", { name: "スパイス・薬味系" }).boundingBox();
     const vp = page.viewportSize()!;
     expect(chip!.x).toBeGreaterThanOrEqual(0);
     expect(chip!.x + chip!.width).toBeLessThanOrEqual(vp.width + 1);
     await expect(page.locator(".shop-item")).toHaveCount(1);
     await expect(page.locator('.shop-item[data-ingredient-id="capers"]')).toHaveCount(1);
     expect(await body.evaluate((el) => el.scrollTop)).toBe(bodyTopBefore);
-    expect((await chipRowFacts(page)).pageOverflow).toBe(false);
+    expect((await chipRowFacts(page, FAMILY)).pageOverflow).toBe(false);
   });
 
   test("E/F. buy under a shelf: same semantics; close and reopen leaves the save consistent", async ({ page }) => {
     await openShop(page, save(["mushroom", "ham"], []));
     const listedBefore = await page.locator(".shop-item").count();
-    await page.getByRole("button", { name: "野菜・きのこ" }).click();
+    await tapIn(page, MAJOR, "具材");
+    await tapIn(page, FAMILY, "野菜・きのこ系");
     await expect(page.locator(".shop-item")).toHaveCount(1);
     await page.getByRole("button", { name: "仕入れる" }).click();
     await expect(page.locator(".shop-item__restock-button")).toHaveCount(1); // NEW -> OWNED row stays visible
@@ -133,7 +146,8 @@ test.describe("Shop shelf chips", () => {
     await page.getByRole("button", { name: /ショップ/ }).click();
     const reopened = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), SAVE_KEY);
     expect(reopened).toEqual(after);
-    await expect(page.getByRole("button", { name: "すべて" })).toHaveAttribute("aria-pressed", "true");
+    await expect(row(page, MAJOR).getByRole("button", { name: "すべて" })).toHaveAttribute("aria-pressed", "true");
+    await expect(row(page, FAMILY)).toHaveCount(0);
     await expect(page.locator(".shop-item")).toHaveCount(listedBefore);
   });
 });
