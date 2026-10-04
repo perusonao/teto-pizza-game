@@ -237,7 +237,10 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await expect(section.locator(".dex-card__research-stock-notice")).toHaveText("研究を続けるには材料の補充が必要");
     await expect(section.getByRole("button", { name: /研究する/ })).toHaveCount(0);
     const text = (await section.textContent()) ?? "";
-    expect(text).not.toMatch(/ペスト|ガンベリ|エビ|No\.|あと|残り|不足|種類|\d/);
+    // The card carries only the player's own known fact (the shrimp they unlocked, as on every Research Entry) and the fixed
+    // notice: no hidden recipe name, no required-ingredient list / count, no number, no remaining / shortage wording.
+    expect(text).not.toMatch(/ペスト|ガンベリ|ジェノベーゼ|トマト|にんにく|ニンニク|No\.|あと|残り|不足|種類|\d/);
+    expect(text).toContain("研究を続けるには材料の補充が必要");
     await noOverflow(page, "Dex stock-blocked");
     await capture(page, "exp1-378-dex-stock-blocked", project);
     await hold(page, 2500);

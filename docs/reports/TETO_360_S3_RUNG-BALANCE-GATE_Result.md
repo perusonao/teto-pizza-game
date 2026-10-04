@@ -40,4 +40,4 @@ Evidence type: seeded saves (wallet 0; facts `ing:tomato-sauce` on breakfast-piz
 Video `360-s3-rung-balance-gate-390x844.mp4`: H.264, 390×844, 14.6 s, 244 KB; delivered directly, not committed. Video Verification: PASS
 
 ## Status
-Pending PR CI / Codex review (no auto-merge).
+MERGED (PR #387, `78f4114` on `main`). #360 S1–S3 are all merged (#385 / #386 / #387).
