@@ -99,7 +99,7 @@ def main():
         "existingK": {i: cur_k.get(i) for i in ("pesto", "fresh-tomato", "garlic")},
         "invariantToKeepExistingPacksUnchanged": "pesto-gamberi minCount: pesto <= 1, fresh-tomato <= 3, garlic <= 3 (No.27 pinned the same way)",
         "ingredientFieldsRequired": {"id": "shrimp", "category": "topping", "placement": "scatter", "unlockCondition": {"minTotalStars": 0}, "pricePitz": "absent (derived from ladder tier)", "restockQuantity": "absent", "starterGrantOnly": "absent",
-                                     "nameJa": cat_ing["shrimp"]["nameJa"], "color": "NOT in any source", "emoji": "NOT in any source"},
+                                     "nameJa": cat_ing["shrimp"]["nameJa"], "color": "#f4977c (Owner C3 = A)", "emoji": "U+1F990 (Owner C3 = A)", "pieceVisual": "absent (plain emoji)"},
     }
 
     # ---- 8. taxonomy
@@ -166,7 +166,7 @@ def main():
     }
     assert invariants["existingPacksUnchanged"]
     owner = {
-        "C1_minCount": calib, "C2_bakeTarget": {"start": 50, "end": 70}, "C3_shrimpVisual": "OPEN (only remaining Gate): candidates in C3Candidates",
+        "C1_minCount": calib, "C2_bakeTarget": {"start": 50, "end": 70}, "C3_shrimpVisual": {"decision": "A", "emoji": "U+1F990", "emojiSourceForm": "\\u{1F990} (same escape form as chicken)", "color": "#f4977c", "dedicatedSvg": "not in Slice 1 (follow-up slice may consider after Human Feel)", "finalLook": "Human Verification after implementation; NOT a gate that blocks starting implementation"},
         "C4_ladderCredit": "true (granted): step 26 formal progression recipe; credited recipes 26 -> 27",
         "C5_lunchRush": "false in Slice 1 (not a ban on future participation)", "C6_cut": "no CUT in Slice 1 (not in CUT_ELIGIBLE_RECIPE_IDS; 5 tabs)",
         "C7_hintRoles": "key-free (no KEY_TOPPING)", "C8_copy": "description / order copy presented in the implementation PR for Owner confirmation",
@@ -190,6 +190,7 @@ def main():
     def nearest(c):
         return sorted((round(math.dist(_lab(c), _lab(v)), 1), k) for k, v in tops.items())[:3]
     c3 = {
+        "chosen": "A",
         "toppingColorIsRenderedToday": False,
         "toppingColorNote": "ingredient.color is read for sauce (paint) and cheese (--cheese-color) only; a topping is drawn by its emoji / dedicated SVG (IngredientGlyph) -> color is metadata for toppings",
         "existingSeafood": {k: {"emoji": prod_field(k, "emoji"), "color": tops[k], "dedicatedVisual": k == "clam"} for k in ("anchovy", "tuna", "clam")},
@@ -205,9 +206,9 @@ def main():
     # ---- release gate
     out = {"auditedMainSha": "b8617ac0218bf20eb53f68ed12dea09db20e3fa8", "generatedBy": "tools/expansion_slice1_pesto_gamberi_gate_audit.py", "composition": composition, "impact27to28": impact, "shop": shop,
            "taxonomy": taxonomy, "compat": compat, "hand": hand, "save": save,
-           "ownerDecisionsApplied": owner, "C3Candidates": c3, "remainingGate": ["C3"],
-           "readiness": {"implementationReady": False, "reason": "C3 (shrimp visual) is the only remaining Gate; no other authority blocker", "afterC3Chosen": "YES"},
-           "issue378": {"state": "open (read 2026-10-03)", "implementationPr": None, "od3786Audit": "not done", "productionReleaseBlocker": True, "implementationStartBlocker": False}}
+           "ownerDecisionsApplied": owner, "C3Candidates": c3, "remainingGate": [], "implementationTimeGates": ["C8 description / order copy: presented in the implementation PR for Owner confirmation", "Human Verification of final shrimp look (device emoji differences) after implementation", "regression gates (ladder / append-only / matcher / hint5 taxonomy / DH4 / save forward-compat / count pins)", "taxonomy audit tool pins updated in the same PR (OD-T7)"],
+           "readiness": {"implementationReady": True, "reason": "C1..C7 all Owner-confirmed; composition / shrimp / taxonomy / ladder / shop / compat audits PASS; no authority blocker", "productionReleaseBlockers": ["#378 (OD-P6): open, no implementation PR, OD-378-6 Audit not done"]},
+           "issue378": {"state": "open (re-read 2026-10-04)", "implementationPr": None, "od3786Audit": "not done", "productionReleaseBlocker": True, "implementationStartBlocker": False}}
     text = json.dumps(out, ensure_ascii=False, indent=1) + "\n"
     if check:
         ok = OUT.exists() and OUT.read_text(encoding="utf-8") == text
