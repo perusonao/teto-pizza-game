@@ -1,7 +1,7 @@
 # LC-R6-e — Production Hand activation: Fresh Audit + Gate Report (pre-activation)
 
 Issue #375 · PR #376 (**MERGED** `b8617ac`, 2026-10-03) · parent #369 · authority: OD-5 (HAND capacity = **12**).
-Status: **COMPLETE** — Owner approved the activation, Production deploy #269 succeeded, Owner iPhone Production HV PASS (section 8). Sections 1–7 are the pre-activation Gate Report as delivered.
+Status: **COMPLETE on the Owner-confirmed scope** — Owner approved the activation, Production deploy #269 succeeded, Owner iPhone Production HV PASS on the checks listed in section 8. Section 7 items the Owner did not report are listed in section 8 as NOT recorded (not claimed). Sections 1–7 are the pre-activation Gate Report as delivered.
 
 ## 1. Activation diff (the whole behavioral change)
 
@@ -52,4 +52,10 @@ Production deploy: Deploy to GitHub Pages #269 for `b8617ac0218bf20eb53f68ed12de
 
 **Separate follow-up candidate (NOT a #376 blocker):** before anything is pinned, nothing shows that a 食材庫 card is tappable (in hand mode the whole card is the pin toggle; the 📌 badge and the 「選択中」 strip appear only after a pin). Duplicate Gate: no existing issue covers it (#369 scope = Dinner shelves, counts, LC-4, favorites / recents; #377 / #378 are Discovery routing / stock deadlock). Recorded on #369 as a follow-up candidate; no UX work started.
 
-**Status:** HAND 12 Production activation (R6-e) COMPLETE. Save / schema impact: none.
+**Section 7 checklist vs what the Owner reported (nothing below is claimed as Owner-verified unless listed above):**
+- Owner-confirmed PASS: tray pages 1/2 and 2/2, 食材庫 opens, pin / unpin, 「📌 選択中」 strip and 📌 badges, capacity-full notice, pinned hand reflected on the tray, 所持 30/30種 / レシピ 27/27.
+- NOT reported / not recorded as Owner-verified on the Production iPhone: search → pin (keyboard), reaching an off-hand ingredient in a Research trial, Dinner / Lunch Rush unchanged, reload dropping the pins with the save intact, HOME / Dex / Research routing regression pass, horizontal-scroll / layout check.
+- Automated coverage that exists for those items (CI green on `f11120a` / `b8617ac`; this is test evidence, NOT an Owner HV claim): `discovery-research-rows` (Research trial reaching an off-hand ingredient through the 食材庫), `e2e/home-research-entry-parity` (HOME routing coexistence), the Dinner / guided / Lunch Rush exclusion unit tests (`isLargeCatalogEligible`), session-only hand / pins (no save change), `lc-hand-pin-ui` (search → pin, Preview build) and the layout-contract / WebKit shards.
+- Owner decision (2026-10-04): the Production HV is judged PASS on the confirmed scope and the unreported items do not block closing R6-e; they remain open as optional Owner spot-checks.
+
+**Status:** HAND 12 Production activation (R6-e) COMPLETE on the Owner-confirmed scope. Save / schema impact: none.
