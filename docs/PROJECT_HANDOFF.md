@@ -532,6 +532,7 @@ See `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md` (OD-RB-1 更新).
 Dex's own targetless CTA, Hint 5.0, #378, HAND 12, save / reducer unchanged. Targetless fixtures no longer use Production UX: they start
 through the in-memory test-only hook `tools/testHooksPlugin.ts` (Vitest, and the Playwright dev server with `TETO_TEST_HOOKS=1`; never
 in `npm run build`). Whether a fully targetless trial stays available at Entry ≥ 1 is undecided (OD-377-3).
+**#377 status: COMPLETE** (PR #383 merged `a4944e4`, deployed; Owner Production HV: Entry 0 PASS, Entry 1 / 2+ not performed, automated PASS). See `docs/reports/TETO_377_PIZZA-SELECT-ROUTING_Result.md`.
 
 ## Product goal
 
