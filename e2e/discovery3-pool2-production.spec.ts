@@ -48,7 +48,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/27/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/28/);
 }
 
 async function capture(page: Page, name: string, projectName: string) {
@@ -104,7 +104,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     const research = page.locator(".dex-overlay__research");
     await expect(research.locator(".dex-research-card")).toHaveCount(2);
     await expect(research).not.toContainText(/[0-9]/);
-    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(27);
+    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(28);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
     const body = await page.locator(".dex-overlay").innerText();

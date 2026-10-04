@@ -14,7 +14,7 @@ const ALL_IDS = INGREDIENTS.map((i) => i.id);
 const TOPPING_IDS = INGREDIENTS.filter((i) => i.category === "topping").map((i) => i.id);
 const NON_TOPPING_IDS = INGREDIENTS.filter((i) => i.category !== "topping").map((i) => i.id);
 
-/** `free22` = the FULL topping catalog (more than either hand candidate; 22 when named, 23 since chicken #342 -- the key name is kept, the value follows the catalog); 6 = well under both. */
+/** `free22` = the FULL topping catalog (more than either hand candidate; 22 when named, 23 since chicken #342, 24 since shrimp (Expansion Slice 1) -- the key name is kept, the value follows the catalog); 6 = well under both. */
 export const TOPPING_COUNTS = { free22: TOPPING_IDS.length, free6: 6 } as const;
 
 export function saveWithToppings(count: number) {

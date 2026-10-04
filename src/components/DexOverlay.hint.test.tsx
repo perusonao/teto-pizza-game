@@ -177,10 +177,10 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expect(onGoFreeCook).toHaveBeenCalledTimes(1);
   });
 
-  it("the chapters still render all 27 slots", () => {
+  it("the chapters still render all 28 slots", () => {
     renderDex(ladder(11));
     expect(document.querySelectorAll(".dex-overlay__chapter")).toHaveLength(3);
-    expect(document.querySelectorAll(".dex-card")).toHaveLength(27);
+    expect(document.querySelectorAll(".dex-card")).toHaveLength(28);
   });
 });
 
@@ -202,13 +202,13 @@ describe("Dex pool 0 / 1 / 2+ (PR-4b-A D-2 / D-3)", () => {
     }
   });
 
-  it("pool 2+ (any save, state-derived): no aggregate card for Research Entries, the 27 slots are unchanged, nothing numbered or counted", () => {
+  it("pool 2+ (any save, state-derived): no aggregate card for Research Entries, the 28 slots are unchanged, nothing numbered or counted", () => {
     const inputs = legacy();
     const candidates = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE");
     expect(candidates.length).toBeGreaterThanOrEqual(2);
     renderDex(inputs);
     expect(aggregated()).toHaveLength(0); // #346 S4: every candidate is a registered Research Entry
-    expect(document.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(27);
+    expect(document.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(28);
     expect(hintButtons()).toHaveLength(0);
     // The candidates' own slots are plain unknown slots: no 🎨 tag, no button, no CTA.
     expect(document.querySelectorAll(".dex-overlay__chapter [data-dex-state=\"DISCOVERABLE\"]")).toHaveLength(0);

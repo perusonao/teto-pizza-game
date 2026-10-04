@@ -11,7 +11,7 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  *
  * Shop: chicken is NEW (T3 first pack 100 Pitz) -> purchase. Hint: key-free sheet. FREE: a trial without
  * chicken is recorded in the Trial Notebook, the retry with chicken shows "＋ チキン" in the diff and
- * discovers NEW RECIPE (ペストポッロピザ). Dex: No.27 in 第3章 (11 slots), schema v2 unchanged.
+ * discovers NEW RECIPE (ペストポッロピザ). Dex: No.27 in 第3章 (12 slots since Expansion Slice 1), schema v2 unchanged.
  *
  * Optional output: HV_SCREENSHOT_DIR.
  */
@@ -116,7 +116,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/26\/27/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/26\/28/);
 
     // Shop: step 25 reached, chicken is NEW and not bought yet.
     await page.getByRole("button", { name: /ショップ/ }).click();
@@ -176,10 +176,10 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await noOverflow(page);
     await capture(page, "no27-new-recipe-discovered", project);
 
-    // Dex: No.27, chapter 3 now 11 slots, 27 total; schema unchanged.
+    // Dex: No.27, chapter 3 now 12 slots, 28 total; schema unchanged.
     await page.getByRole("button", { name: /図鑑を見る/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/27\s*\/\s*27/);
+    await expect(page.locator(".dex-overlay")).toContainText(/27\s*\/\s*28/);
     const card = page.locator(".dex-card").filter({ hasText: "ペストポッロピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.11"); // chapter-relative slot 11 of 第3章

@@ -49,13 +49,13 @@ function seeded(seed: number): () => number {
 }
 
 describe("25/25 reachability on the production ladder", () => {
-  it("the production ladder is the 24-step W1 ladder + No.27's appended step 25, over 26 credited recipes (+ the non-credit calabresa = 27)", () => {
-    expect(ALL).toHaveLength(27);
-    expect(ALL.filter((r) => r.ladderCredit !== false)).toHaveLength(26);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
+  it("the production ladder is the 24-step W1 ladder + No.27's step 25 and Expansion Slice 1's step 26, over 27 credited recipes (+ the non-credit calabresa = 28)", () => {
+    expect(ALL).toHaveLength(28);
+    expect(ALL.filter((r) => r.ladderCredit !== false)).toHaveLength(27);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(26);
   });
 
-  it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches every recipe (27)", () => {
+  it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches every recipe (28)", () => {
     expect(playForward([], [], (o) => o[0])).toBe(TOTAL);
     expect(playForward([], [], (o) => o[o.length - 1])).toBe(TOTAL);
   });
@@ -68,7 +68,7 @@ describe("25/25 reachability on the production ladder", () => {
     }
   });
 
-  it.each([0, 1, 5, 10, 15])("representative migration: %i old-ladder discoveries, then the switch, reaches every recipe (26)", (k) => {
+  it.each([0, 1, 5, 10, 15])("representative migration: %i old-ladder discoveries, then the switch, reaches every recipe (28)", (k) => {
     // Progress on the old 15-recipe ladder, discovering in EP1 order where possible.
     const discovered: string[] = [];
     let ledger: string[] = [];
@@ -80,7 +80,7 @@ describe("25/25 reachability on the production ladder", () => {
     expect(playForward(discovered, ledger, (o) => o[0])).toBe(TOTAL);
   });
 
-  it("2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach every recipe (26)", () => {
+  it("2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach every recipe (28)", () => {
     let stuck = 0;
     for (let seed = 0; seed < 2000; seed += 1) {
       const rand = seeded(seed);

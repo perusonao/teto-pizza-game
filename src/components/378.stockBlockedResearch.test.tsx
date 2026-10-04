@@ -259,6 +259,6 @@ describe("G. save/schema untouched", () => {
       const src = fs.readFileSync(f, "utf8");
       expect(src).not.toMatch(/localStorage|persistence|schemaVersion/);
     }
-    expect(RECIPES.length).toBe(27);
+    expect(RECIPES.length).toBe(28);
   });
 });

@@ -26,8 +26,8 @@ const AVERAGE_QUALITY = 65; // ★3, earnedPitz 80
 const QUALITIES = [80, 65, 30]; // ★4 (100), ★3 (80), ★1 (floor 20)
 
 describe("Discovery Hint Economy 1.0: 25-recipe hint-price simulation (analysis harness)", () => {
-  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo (27)", () => {
-    expect(TOTAL).toBe(27);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi (28)", () => {
+    expect(TOTAL).toBe(28);
   });
 
   it("every price curve x player profile reaches Dex 26 without a hard deadlock (★3)", () => {

@@ -47,11 +47,11 @@ const chapterTitles = () =>
   Array.from(document.querySelectorAll(".dex-overlay__chapter-title")).map((e) => e.textContent);
 
 describe("W1-f Dex", () => {
-  it("3 chapters (6 / 10 / 11) with per-chapter counts and fixed No. slots", () => {
+  it("3 chapters (6 / 10 / 12) with per-chapter counts and fixed No. slots", () => {
     renderDex({ dex: discoveredDex(["margherita", "marinara"]) });
-    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/10", "第3章0/11"]);
+    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/10", "第3章0/12"]);
     const chapters = Array.from(document.querySelectorAll(".dex-overlay__chapter"));
-    expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual([6, 10, 11]);
+    expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual([6, 10, 12]);
     expect(within(chapters[1] as HTMLElement).getByText(/マリナーラ/).textContent).toContain("No.01");
   });
 
@@ -76,8 +76,8 @@ describe("W1-f Dex", () => {
     expect(freeSlot).toHaveTextContent("🎨 今の材料で作れるかも");
     await userEvent.click(within(freeSlot).getByRole("button", { name: "レシピ発見へ" }));
     expect(free.onGoFreeCook).toHaveBeenCalledTimes(1);
-    expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(25);
-    expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(25);
+    expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(26);
+    expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(26);
   });
 
   it("nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (arrived / bought)", () => {
@@ -110,11 +110,11 @@ describe("W1-f Dex", () => {
           expect(scrubbed, `${bought ? "B" : "A"} Dex ${n}: ${r.id}`).not.toContain(r.nameJa);
           expect(everything, r.id).not.toContain(r.description);
         }
-        // 27 recipes; the walk never discovers the non-credit calabresa. Once the key recipe's materials are owned (Dex
+        // 28 recipes; the walk never discovers the non-credit calabresa. Once the key recipe's materials are owned (Dex
         // 12 bought) and until the 26th (step 25's pesto-pollo is the last key recipe), the ladder's key recipe and calabresa are both DISCOVERABLE:
         // pool 2 used to add one extra aggregated card (D-2); #346 S4: both candidates are registered Research
         // Entries (their own cards), so the aggregate card is gone and the locked-card count is just the slots.
-        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(27 - n);
+        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(28 - n);
         expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
         expect(document.querySelectorAll(".dex-card--locked .dex-card__ingredient, .dex-card--locked svg")).toHaveLength(0);
         cleanup();
