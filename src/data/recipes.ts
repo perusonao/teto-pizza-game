@@ -596,6 +596,25 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "pesto-gamberi",
+    nameJa: "ペストガンベリピザ",
+    description: "ジェノベーゼソースにエビ、トマト、にんにくをのせた、香り立つ魚介の一枚。",
+    // Expansion Slice 1 (Owner-approved). SOURCE AUTHORITY (PIZZA DB p11 `pesto-gamberi-pizzadb-p11`,
+    // 172 matrix): sauce base pesto, ingredients エビ / トマト / にんにく (= shrimp / fresh-tomato /
+    // garlic), no cheese. GAMEPLAY CALIBRATION (not source): counts pesto 1 / fresh-tomato 2 /
+    // garlic 2 / shrimp 3, bake 50-70; 7 non-sauce pieces (2 + 2 + 3) <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "garlic", minCount: 2 },
+      { ingredientId: "shrimp", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

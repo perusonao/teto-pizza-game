@@ -275,7 +275,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
     }
   });
 
-  it("OD-I5B-2: the 10 W1 recipes (+ PR-4b-B's calabresa and No.27's pesto-pollo) have no recipe gate -- on a fresh save they are available exactly when their materials are owned", () => {
+  it("OD-I5B-2: the 10 W1 recipes (+ PR-4b-B's calabresa and No.27's pesto-pollo and Expansion Slice 1's pesto-gamberi) have no recipe gate -- on a fresh save they are available exactly when their materials are owned", () => {
     const w1 = (RECIPES as readonly Recipe[]).filter((r) => !r.unlockCondition && r.id !== "margherita");
     expect(w1.map((r) => r.id).sort()).toEqual(
       [
@@ -286,6 +286,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "new-haven-apizza",
         "parmigiana-pizza",
         "pesto-caprese",
+        "pesto-gamberi",
         "pesto-patate",
         "pesto-pollo",
         "pesto-tonno",

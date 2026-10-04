@@ -172,6 +172,12 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "チキンとトマトのペストポッロピザ、食べてみたいな！作ってみて！",
   },
+  {
+    id: "order-pesto-gamberi",
+    recipeId: "pesto-gamberi",
+    requestedBy: "mito",
+    lineJa: "エビとにんにくのペストガンベリピザ、香りがよさそう！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

@@ -1658,6 +1658,62 @@ export const PESTO_POLLO_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Expansion Slice 1: Reference Truth for `pesto-gamberi`. Pieces (fresh-tomato 2, garlic 2,
+ * shrimp 3 = 7 non-sauce) take the RT-01 8-piece ring consecutively in `requiredIngredients`
+ * order (the `PESTO_POLLO_REFERENCE` precedent). Slot assignment is GAMEPLAY / REFERENCE
+ * CALIBRATION, not source authority.
+ */
+export const PESTO_GAMBERI_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-gamberi",
+  sauce: computeMechanicalSauceReference("pesto-gamberi"),
+  pieceGroups: [
+    {
+      ingredientId: "fresh-tomato",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "shrimp",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -1686,6 +1742,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
   [BRAZILIAN_CALABRESA_REFERENCE.recipeId, BRAZILIAN_CALABRESA_REFERENCE],
   [PESTO_POLLO_REFERENCE.recipeId, PESTO_POLLO_REFERENCE],
+  [PESTO_GAMBERI_REFERENCE.recipeId, PESTO_GAMBERI_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

@@ -46,10 +46,10 @@ const PRODUCTION: LadderRecipe[] = RECIPES.map((r) => ({
   ingredientIds: r.requiredIngredients.map((q) => q.ingredientId),
 }));
 
-/** The W1 population: production minus the appended-step recipe (No.27 pesto-pollo needs `chicken`,
- *  which W1 does not sell). The synthetic extension tests below extend THIS, so they keep exercising
+/** The W1 population: production minus the appended-step recipes (No.27 pesto-pollo needs `chicken`,
+ *  Expansion Slice 1 pesto-gamberi needs `shrimp`; W1 sells neither). The synthetic extension tests below extend THIS, so they keep exercising
  *  "a W1 ladder + a hypothetical addition" independent of the real appended step. */
-const PRODUCTION_W1: LadderRecipe[] = PRODUCTION.filter((r) => r.id !== "pesto-pollo");
+const PRODUCTION_W1: LadderRecipe[] = PRODUCTION.filter((r) => r.id !== "pesto-pollo" && r.id !== "pesto-gamberi");
 
 /** A recipe made only of W1 materials and a starter (the TQ-1 Aussie shape, synthetic here: LAD-1
  *  adds no recipe to production). */
@@ -81,17 +81,25 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
     expect(validateAppendOnlyExtension(W1_25_DISCOVERY_LADDER, DISCOVERY_LADDER)).toEqual([]);
   });
 
-  it("appends exactly one step (No.27: 25 chicken -> pesto-pollo); every other production recipe is makeable from the starters + W1 materials", () => {
-    expect(POST_W1_APPENDED_STEPS).toEqual([{ ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" }]);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
+  it("appends exactly two steps (No.27: 25 chicken -> pesto-pollo; Expansion Slice 1: 26 shrimp -> pesto-gamberi); every other production recipe is makeable from the starters + W1 materials", () => {
+    expect(POST_W1_APPENDED_STEPS).toEqual([
+      { ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" },
+      { ingredientIds: ["shrimp"], keyRecipeId: "pesto-gamberi" },
+    ]);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(26);
     expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
+    expect(DISCOVERY_LADDER.steps[25]).toEqual({ step: 26, kind: "MATERIAL", ingredientIds: ["shrimp"], keyRecipeId: "pesto-gamberi" });
     expect(DISCOVERY_LADDER.populationId).toBe("w1-25");
     // W1-only population (without pesto-pollo) appends nothing.
     expect(buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, PRODUCTION_W1)).toEqual(W1_25_DISCOVERY_LADDER);
   });
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
-    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, PRODUCTION));
+    // The recipe-id tie-break alone would order pesto-gamberi before pesto-pollo; steps 1..25 are
+    // frozen, so step 25 (chicken) is fixed and only step 26 is derived.
+    const fixed25 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 25) };
+    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed25, PRODUCTION));
+    expect(validateAppendOnlyExtension(fixed25, DISCOVERY_LADDER)).toEqual([]);
   });
 
   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {

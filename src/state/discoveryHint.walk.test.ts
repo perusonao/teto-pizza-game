@@ -92,8 +92,8 @@ interface StageRecord {
 const TOTAL = RECIPES.length;
 
 describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hints only", () => {
-  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo (27)", () => {
-    expect(TOTAL).toBe(27);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi (28)", () => {
+    expect(TOTAL).toBe(28);
   });
 
   it("every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery", () => {

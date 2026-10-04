@@ -168,6 +168,11 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "pesto",
     interaction: "PAINT",
   },
+  "pesto-gamberi": {
+    recipeId: "pesto-gamberi",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {

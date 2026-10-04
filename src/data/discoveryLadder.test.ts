@@ -31,23 +31,27 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   it("the current ladder is the 25-recipe W1 ladder (I5b-3); the shipped-15 ladder stays as history", () => {
     // LAD-1 (OD-W2-1): composed as the frozen W1 ladder + appended steps (none yet), so it is an
     // equal copy rather than the same object.
-    // No.27 appended step 25 (chicken -> pesto-pollo); steps 1..24 are exactly the frozen W1 ladder.
+    // No.27 appended step 25 (chicken -> pesto-pollo), Expansion Slice 1 step 26 (shrimp -> pesto-gamberi); steps 1..24 are exactly the frozen W1 ladder.
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
     expect(DISCOVERY_LADDER.populationId).toBe("w1-25");
     expect(SHIPPED_15_DISCOVERY_LADDER.populationId).toBe("shipped-15");
   });
 
-  it("targets the credited 26-recipe population (24 W1 steps + No.27's appended step 25; PR-4b-B's non-credit calabresa adds none); shipped-15 had 15 recipes (14 steps)", () => {
-    expect(RECIPES).toHaveLength(27);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(26);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(25);
+  it("targets the credited 27-recipe population (24 W1 steps + No.27's step 25 + Expansion Slice 1's step 26; PR-4b-B's non-credit calabresa adds none); shipped-15 had 15 recipes (14 steps)", () => {
+    expect(RECIPES).toHaveLength(28);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(27);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(26);
     expect(SHIPPED_15_RECIPES).toHaveLength(15);
     expect(SHIPPED_15_DISCOVERY_LADDER.steps).toHaveLength(14);
   });
 
   it("the production ladder equals the REC-04 key-recipe rule applied append-only to the production recipe data", () => {
     // LAD-1 (OD-W2-1): the W1 steps are frozen; the rule only ever appends after them.
-    const derived = buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, PRODUCTION_POPULATION);
+    // The rule's recipe-id tie-break would order pesto-gamberi before pesto-pollo, so the frozen
+    // step 25 (chicken) is part of `fixed`: only step 26 (shrimp) is derived.
+    const fixed25 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 25) };
+    expect(fixed25.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
+    const derived = buildAppendOnlyLadder(fixed25, PRODUCTION_POPULATION);
     expect(DISCOVERY_LADDER).toEqual(derived);
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
   });
