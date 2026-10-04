@@ -518,3 +518,84 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     expect(save.discoveryHintPurchases ?? {}).toEqual({});
   });
 });
+
+// Research UX Phase 1 (PR #390 Codex P2): reading the PREPARE 試作ノート is never billed, same as the Hint sheet.
+describe("Cooking Time: PREPARE 試作ノート pause (Research UX Phase 1)", () => {
+  function seedWithDiscoverable(): void {
+    seedBismarckUnlocked();
+    const save = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    save.ownedIngredientIds.push("bacon"); // breakfast-pizza becomes DISCOVERABLE: the one Research Entry
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
+  }
+
+  async function bakeBismarck(user: ReturnType<typeof userEvent.setup>) {
+    await advanceThroughMakingSteps(user);
+    const needle = controlBakeNeedle();
+    needle.stub();
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65);
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
+    needle.unstub();
+  }
+
+  it("open -> time passes -> close: the reading time is not counted, and the clock resumes after closing", async () => {
+    seedWithDiscoverable();
+    let now = 8_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    expect(screen.getByTestId("research-notebook-entry")).toBeInTheDocument();
+    now += 5_000; // active work
+    await user.click(screen.getByTestId("research-notebook-entry"));
+    expect(screen.getByRole("dialog", { name: /試作ノート/ })).toBeInTheDocument();
+    now += 30_000; // reading the notebook -- never billed
+    now += 30_000; // still open: nothing accrues however long
+    await user.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(screen.queryByRole("dialog", { name: /試作ノート/ })).toBeNull();
+    now += 3_000; // active work again: the clock resumed
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:08");
+  });
+
+  it("overlapping reasons: notebook open + window blur -> blur ends first -> still paused until the notebook closes", async () => {
+    seedWithDiscoverable();
+    let now = 9_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    now += 4_000;
+    await user.click(screen.getByTestId("research-notebook-entry"));
+    now += 10_000;
+    fireEvent(window, new Event("blur"));
+    now += 10_000;
+    fireEvent(window, new Event("focus"));
+    now += 10_000; // notebook still open
+    await user.click(screen.getByRole("button", { name: /もどる/ }));
+    now += 4_000;
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:08");
+  });
+
+  it("targetless FREE has no notebook entry and its timing is unchanged", async () => {
+    seedWithDiscoverable();
+    let now = 10_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
+    await startTargetlessFreeCookViaTestHook(user);
+    expect(screen.queryByTestId("research-notebook-entry")).toBeNull();
+    now += 8_000;
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:08");
+  });
+});

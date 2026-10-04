@@ -181,6 +181,8 @@ interface GameScreenProps {
   /** #346 S4: the post-discovery 「🔎 次のピザを研究する」 -- starts the one remaining Research Entry
    *  (`recipeId`) or, with `null`, opens the Dex's anonymous Research cards. */
   onResearchNext?: (recipeId: string | null) => void;
+  /** Research UX Phase 1: relays whether the PREPARE 試作ノート sheet is open so App pauses the cooking clock while it is read. */
+  onPrepareNotebookOpenChange?: (open: boolean) => void;
   onMissionServeNext: () => void;
   /** Issue #212 (H-R): 「この注文をスキップ」 on a short Lunch Rush order. */
   onMissionSkipOrder: () => void;
@@ -257,6 +259,7 @@ export function GameScreen({
   onOpenShop,
   onOpenDex,
   onResearchNext,
+  onPrepareNotebookOpenChange,
   onMissionServeNext,
   onMissionSkipOrder,
   onMissionStart,
@@ -388,6 +391,12 @@ export function GameScreen({
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
   if (pantryOpen && !pantryAvailable) setPantryOpen(false);
   if (prepareNotebookOpen && !prepareNotebookVisible) setPrepareNotebookOpen(false);
+  // Reports "open" while visible; the cleanup reports "closed" on close, on leaving PREPARE and on unmount, so the pause can never stick.
+  useEffect(() => {
+    if (!prepareNotebookVisible) return;
+    onPrepareNotebookOpenChange?.(true);
+    return () => onPrepareNotebookOpenChange?.(false);
+  }, [prepareNotebookVisible, onPrepareNotebookOpenChange]);
   const wasPantryVisibleRef = useRef(pantryVisible);
   useEffect(() => {
     if (wasPantryVisibleRef.current && !pantryVisible) pantryEntryRef.current?.focus();
