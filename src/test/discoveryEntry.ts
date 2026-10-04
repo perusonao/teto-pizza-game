@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import type { UserEvent } from "@testing-library/user-event";
 
 /**
@@ -12,11 +12,13 @@ export async function pickFirstResearchIfDexOpened(user: UserEvent): Promise<voi
 }
 
 /**
- * A targetless Free Cook for tests that pin the targetless / Hint contracts: HOME's 「レシピ発見」 no longer is one
- * when the save has a cookable Research Entry, but Pizza Select's 「レシピ発見へ」 still starts `START_FREE_COOK`
- * without a target.
+ * A targetless Free Cook for tests that pin the targetless / Hint contracts. Neither HOME's 「レシピ発見」 nor (since #377)
+ * Pizza Select's 「レシピ発見へ」 is one when the save has a cookable Research Entry, and there is deliberately no
+ * Production UI for it. The Vitest-only hook (`tools/testHooksPlugin.ts`, never in a shipped build) dispatches the same
+ * `START_FREE_COOK` without a target. `user` is unused; the signature stays so call sites read like the other helpers.
  */
-export async function startTargetlessFreeCookViaPizzaSelect(user: UserEvent): Promise<void> {
-  await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-  await user.click(screen.getByRole("button", { name: /レシピ発見へ/ }));
+export async function startTargetlessFreeCookViaTestHook(_user?: UserEvent): Promise<void> {
+  const hooks = (globalThis as { __tetoTest?: { startTargetlessFreeCook: () => void } }).__tetoTest;
+  if (!hooks) throw new Error("test hook missing: run under vitest.config.ts (tools/testHooksPlugin.ts)");
+  await act(async () => hooks.startTargetlessFreeCook());
 }

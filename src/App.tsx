@@ -1034,7 +1034,8 @@ function App() {
 
   // Issue #373: HOME's 「レシピ発見」 follows the cookable Research Entries so it researches like the Dex's
   // 「このピザを研究する」 does: none -> targetless Free Cook; one -> that entry is the Research Target; 2+ -> the
-  // Dex's anonymous Research cards (the player picks; nothing is chosen for them). Only HOME uses this.
+  // Dex's anonymous Research cards (the player picks; nothing is chosen for them). HOME and Pizza Select (#377,
+  // OD-377-1) share this one routing.
   function handleStartDiscovery() {
     const route = homeDiscoveryRoute(state);
     if (route.kind === "RESEARCH") handleStartResearch(route.recipeId);
@@ -1186,7 +1187,7 @@ function App() {
           inventory={state.inventory}
           onSelectRecipe={handleSelectRecipe}
           onBack={handleBackFromPizzaSelect}
-          onGoFreeCook={handleStartFreeCook}
+          onGoFreeCook={handleStartDiscovery}
           onOpenShop={openShop}
           newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
         />

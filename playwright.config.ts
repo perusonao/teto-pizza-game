@@ -79,6 +79,8 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- --port 5183 --strictPort",
     url: "http://localhost:5183/teto-pizza-game/",
+    // #377: the dev server (never a production build) carries the test-only targetless-start hook; see tools/testHooksPlugin.ts.
+    env: { TETO_TEST_HOOKS: "1" },
     reuseExistingServer: true,
     timeout: 30_000,
   },

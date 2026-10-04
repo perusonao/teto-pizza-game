@@ -5,7 +5,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
-import { startTargetlessFreeCookViaPizzaSelect } from "./test/discoveryEntry";
+import { startTargetlessFreeCookViaTestHook } from "./test/discoveryEntry";
 
 
 // Hint 5.0 is ON in production (H5-6). This suite pins the pre-Hint-5.0 purchase behaviour, which is the
@@ -455,7 +455,7 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     render(<App />);
 
     // A cheese-only Free Cooking pizza matches no recipe -> RESULT with the hint CTA.
-    await startTargetlessFreeCookViaPizzaSelect(user);
+    await startTargetlessFreeCookViaTestHook(user);
     const needle = controlBakeNeedle();
     needle.stub();
     completeDoughStep();

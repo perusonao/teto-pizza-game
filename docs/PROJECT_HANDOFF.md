@@ -527,6 +527,12 @@ player picks (never auto-selected, #353). No targetless escape from HOME while a
 「レシピ発見へ」 and the Dex's own targetless CTAs are unchanged (candidate follow-up). No reducer / save / Hint 5.0 change.
 See `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md` (OD-RB-1 更新).
 
+**Issue #377 — Pizza Select 「レシピ発見へ」 routing (OD-RB-1 追補, Owner 2026-10-04).** Pizza Select's 「レシピ発見へ」 now uses the same
+`handleStartDiscovery` / `homeDiscoveryRoute` routing as HOME (0 targetless / 1 that entry / 2+ Dex). Dex 「このピザを研究する」, #353 pin,
+Dex's own targetless CTA, Hint 5.0, #378, HAND 12, save / reducer unchanged. Targetless fixtures no longer use Production UX: they start
+through the in-memory test-only hook `tools/testHooksPlugin.ts` (Vitest, and the Playwright dev server with `TETO_TEST_HOOKS=1`; never
+in `npm run build`). Whether a fully targetless trial stays available at Entry ≥ 1 is undecided (OD-377-3).
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.

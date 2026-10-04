@@ -66,7 +66,8 @@ const MIME: Record<string, string> = {
 };
 
 function build(outDir: string, base: string, preview: boolean) {
-  const env: NodeJS.ProcessEnv = { ...process.env, NODE_ENV: "production" };
+  // #377: both fixture builds carry the test-only targetless-start hook (tools/testHooksPlugin.ts); the shipped build never does (bundle gates: lcHandPreview.bundle.gate.test.ts).
+  const env: NodeJS.ProcessEnv = { ...process.env, NODE_ENV: "production", TETO_TEST_HOOKS: "1" };
   if (preview) {
     env.VITE_PREVIEW_MODE = "1";
     env.VITE_PREVIEW_PR = "297";

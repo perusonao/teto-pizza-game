@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build, type Plugin } from "vite";
+import { testHooksPlugin } from "../../tools/testHooksPlugin.ts";
 
 /**
  * LC-R6-b (test-only): real `vite build`s of THIS source tree for the Preview activation proofs.
@@ -29,6 +30,8 @@ export interface LcBuildSpec {
   variant: 9 | 12 | null;
   /** LC-R6-e: build with the Production flag rolled back (`HAND_ENFORCEMENT_PRODUCTION = false`), i.e. what a rollback commit deploys. */
   rollback?: boolean;
+  /** #377: add the test-only targetless-start hook (tools/testHooksPlugin.ts) so `openFree` can start a targetless round on a save with a cookable entry. A bundle-level gate never sets it. */
+  testHooks?: boolean;
 }
 
 function rollbackPlugin(): Plugin {
@@ -77,7 +80,7 @@ export async function buildLcApp(spec: LcBuildSpec, write: boolean): Promise<str
       base: spec.base,
       logLevel: "silent",
       mode: "production",
-      plugins: [...(spec.variant === null ? [] : [variantPlugin(spec.variant)]), ...(spec.rollback ? [rollbackPlugin()] : [])],
+      plugins: [...(spec.variant === null ? [] : [variantPlugin(spec.variant)]), ...(spec.rollback ? [rollbackPlugin()] : []), ...(spec.testHooks ? [testHooksPlugin()] : [])],
       build: { write, outDir: spec.outDir, emptyOutDir: true, minify: true, reportCompressedSize: false },
     });
     const outputs = (Array.isArray(result) ? result : [result]).flatMap((r) => ("output" in r ? r.output : []));
