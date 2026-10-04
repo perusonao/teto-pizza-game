@@ -116,7 +116,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/26\/28/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/26\/31/);
 
     // Shop: step 25 reached, chicken is NEW and not bought yet.
     await page.getByRole("button", { name: /ショップ/ }).click();
@@ -177,19 +177,19 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await capture(page, "no27-new-recipe-discovered", project);
 
     // Expansion Slice 1: the 26th credited discovery reaches step 26, so the RESULT announces the new material (shrimp) and
-    // its CTA is 「新しい食材を見る」; the slot line reads chapter 3 No.11 of 12. The Dex is then opened from HOME.
-    await expect(discovery).toContainText("No.11（第3章 11/12）");
+    // its CTA is 「新しい食材を見る」; the slot line reads chapter 3 No.11 of 15. The Dex is then opened from HOME.
+    await expect(discovery).toContainText("No.11（第3章 11/15）");
     await expect(discovery).toContainText("新しい材料が入荷：エビ");
     await expect(discovery.getByRole("button", { name: "🛒 新しい食材を見る" })).toBeVisible();
-    // Dex: No.27, chapter 3 now 12 slots, 28 total; schema unchanged.
+    // Dex: No.27, chapter 3 now 15 slots, 31 total; schema unchanged.
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/27\s*\/\s*28/);
+    await expect(page.locator(".dex-overlay")).toContainText(/27\s*\/\s*31/);
     const card = page.locator(".dex-card").filter({ hasText: "ペストポッロピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.11"); // chapter-relative slot 11 of 第3章
-    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("11/12");
+    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("11/15");
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page);
     await capture(page, "no27-dex-no27", project);

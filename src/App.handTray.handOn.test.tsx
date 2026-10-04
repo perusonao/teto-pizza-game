@@ -362,7 +362,7 @@ describe(`LC-R5-d tray hand (real handPolicy compiled ON, capacity ${CAP}, activ
     completeDoughStep();
     for (let i = 0; i < 3; i += 1) await user.click(screen.getByRole("button", { name: /次へ/ }));
     expect(screen.queryByRole("button", { name: /食材庫/ })).toBeNull();
-    expect(pageLabel()).toBe("1 / 4");
+    expect(pageLabel()).toBe("1 / 5"); // 27 toppings (Expansion Wave 2), 6 per page
     expect(trayNames()).toHaveLength(6);
   });
 });

@@ -1714,6 +1714,196 @@ export const PESTO_GAMBERI_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Expansion Wave 2: Reference Truth for `vongole`. Pieces (clam 3, garlic 2, parsley 2 = 7
+ * non-sauce; the olive-oil sauce is not a piece) take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const VONGOLE_REFERENCE: ReferencePizza = {
+  recipeId: "vongole",
+  sauce: computeMechanicalSauceReference("vongole"),
+  pieceGroups: [
+    {
+      ingredientId: "clam",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "parsley",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Wave 2: Reference Truth for `pesto-vegetariana`. Pieces (mozzarella 2, eggplant 2,
+ * zucchini 2, bell-pepper 2 = 8 non-sauce) fill the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION.
+ */
+export const PESTO_VEGETARIANA_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-vegetariana",
+  sauce: computeMechanicalSauceReference("pesto-vegetariana"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "eggplant",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "zucchini",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bell-pepper",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Wave 2: Reference Truth for `ratatouille-pizza`. Pieces (eggplant 2, zucchini 2,
+ * bell-pepper 2, oregano 1 = 7 non-sauce) take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION.
+ */
+export const RATATOUILLE_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "ratatouille-pizza",
+  sauce: computeMechanicalSauceReference("ratatouille-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "eggplant",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "zucchini",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bell-pepper",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "oregano",
+      positions: [
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -1743,6 +1933,9 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [BRAZILIAN_CALABRESA_REFERENCE.recipeId, BRAZILIAN_CALABRESA_REFERENCE],
   [PESTO_POLLO_REFERENCE.recipeId, PESTO_POLLO_REFERENCE],
   [PESTO_GAMBERI_REFERENCE.recipeId, PESTO_GAMBERI_REFERENCE],
+  [VONGOLE_REFERENCE.recipeId, VONGOLE_REFERENCE],
+  [PESTO_VEGETARIANA_REFERENCE.recipeId, PESTO_VEGETARIANA_REFERENCE],
+  [RATATOUILLE_PIZZA_REFERENCE.recipeId, RATATOUILLE_PIZZA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

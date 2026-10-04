@@ -178,6 +178,24 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "エビとにんにくのペストガンベリピザ、香りがよさそう！食べてみたいな！",
   },
+  {
+    id: "order-vongole",
+    recipeId: "vongole",
+    requestedBy: "mito",
+    lineJa: "あさりとパセリのヴォンゴレピザ、香りがよさそう！食べてみたいな！",
+  },
+  {
+    id: "order-pesto-vegetariana",
+    recipeId: "pesto-vegetariana",
+    requestedBy: "mito",
+    lineJa: "ズッキーニとパプリカのペストベジタリアーナピザ、彩りがきれい！食べてみたいな！",
+  },
+  {
+    id: "order-ratatouille-pizza",
+    recipeId: "ratatouille-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスとズッキーニのラタトゥイユピザ、野菜がたっぷりでおいしそう！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

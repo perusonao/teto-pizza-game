@@ -36,9 +36,9 @@ const stateAfter = (found: readonly string[], opts: { shrimpBought: boolean }): 
 };
 
 describe("Expansion Slice 1 authoring: production data", () => {
-  it("recipe count 27 -> 28, ingredient count 30 -> 31, pesto-gamberi = No.28 (existing order unchanged)", () => {
-    expect(RECIPES).toHaveLength(28);
-    expect(INGREDIENTS).toHaveLength(31);
+  it("recipe count 27 -> 28, ingredient count 30 -> 31, pesto-gamberi = No.28 (existing order unchanged; Wave 2 later appends No.29-31 / ingredients 32-34)", () => {
+    expect(RECIPES).toHaveLength(31);
+    expect(INGREDIENTS).toHaveLength(34);
     expect(RECIPES[27].id).toBe(ID);
     expect(RECIPES[26].id).toBe("pesto-pollo");
     expect(INGREDIENTS[30].id).toBe("shrimp");
@@ -103,21 +103,21 @@ describe("Expansion Slice 1 authoring: production data", () => {
 
 describe("Expansion Slice 1 ladder: step 26 unlocks shrimp; steps 1..25 frozen", () => {
   it("appended step 26 = shrimp -> pesto-gamberi; steps 1..24 and step 25 are byte-identical", () => {
-    expect(POST_W1_APPENDED_STEPS).toEqual([
+    expect(POST_W1_APPENDED_STEPS.slice(0, 2)).toEqual([
       { ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" },
       { ingredientIds: ["shrimp"], keyRecipeId: ID },
     ]);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(26);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(28); // Wave 2 appends steps 27 / 28 after this slice
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
     expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
     expect(DISCOVERY_LADDER.steps[25]).toEqual({ step: 26, kind: "MATERIAL", ingredientIds: ["shrimp"], keyRecipeId: ID });
   });
 
-  it("credit: 27 credited recipes (calabresa stays non-credit); shrimp unlocks at the 26th credited discovery only", () => {
+  it("credit: pesto-gamberi is credited (30 credited recipes after Wave 2; calabresa stays non-credit); shrimp unlocks at the 26th credited discovery only", () => {
     expect(countsTowardLadder(ID)).toBe(true);
     expect(recipe.ladderCredit).toBeUndefined();
     expect(countsTowardLadder("brazilian-calabresa")).toBe(false);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(27);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(30);
     expect(discoveredRecipeCount(discoverAll(UP_TO_POLLO), countsTowardLadder)).toBe(26);
     expect(resolveShopEntitlement(discoverAll(W1_ORDER), [], []).unlockedForShopIngredientIds).not.toContain("shrimp");
     expect(resolveShopEntitlement(discoverAll(UP_TO_POLLO), [], []).unlockedForShopIngredientIds).toContain("shrimp");
@@ -135,11 +135,11 @@ describe("Expansion Slice 1 ladder: step 26 unlocks shrimp; steps 1..25 frozen",
     expect(recipeDiscoveryState(recipe as Recipe, stateAfter(UP_TO_POLLO, { shrimpBought: true }))).toBe("DISCOVERABLE");
   });
 
-  it("target: after pollo, with calabresa found, the lone DISCOVERABLE is pesto-gamberi; COMPLETE once everything is found", () => {
+  it("target: after pollo, with calabresa found, the lone DISCOVERABLE is pesto-gamberi; once it is found, Wave 2's vongole (step 27) is next", () => {
     const found = [...UP_TO_POLLO, "brazilian-calabresa"];
     expect(selectHintTarget(stateAfter(found, { shrimpBought: false })).kind).toBe("SHOP_NEW");
     expect(selectHintTarget(stateAfter(found, { shrimpBought: true }))).toMatchObject({ kind: "TARGET", recipeId: ID });
-    expect(selectHintTarget(stateAfter([...found, ID], { shrimpBought: true })).kind).toBe("COMPLETE");
+    expect(selectHintTarget(stateAfter([...found, ID], { shrimpBought: true }))).toMatchObject({ kind: "TARGET", recipeId: "vongole" });
   });
 });
 

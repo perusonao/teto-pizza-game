@@ -27,8 +27,8 @@ const model = buildInspectorModel();
 const step = (n: number) => model.steps.find((s) => s.step === n)!;
 const stepOf = (ingredientId: string) => step(ingredientUnlockStep(ingredientId)!);
 
-/** The production walk: the W1 order, then each appended step's key recipe (steps 25 / 26). */
-const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, "pesto-pollo", "pesto-gamberi"];
+/** The production walk: the W1 order, then each appended step's key recipe (steps 25-27; step 28's pair is a branching pool, walked only as far as its After pool). */
+const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, "pesto-pollo", "pesto-gamberi", "vongole"];
 
 describe("production authority reuse (no second DISCOVERABLE logic)", () => {
   it("calls the production predicate, entitlement bridge and hint target selection", () => {
@@ -66,11 +66,11 @@ describe("production authority reuse (no second DISCOVERABLE logic)", () => {
 });
 
 describe("current production population", () => {
-  it("28 recipes, 31 ingredients, 26 steps (24 frozen W1 + No.27's step 25 + Expansion Slice 1's step 26), all read from production data", () => {
+  it("31 recipes, 34 ingredients, 28 steps (24 frozen W1 + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28), all read from production data", () => {
     expect(model.recipeCount).toBe(RECIPES.length);
     expect(model.ingredientCount).toBe(INGREDIENTS.length);
     expect(model.stepCount).toBe(DISCOVERY_LADDER.steps.length);
-    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([28, 31, 26]);
+    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([31, 34, 28]);
     expect(model.startingPool.map((m) => m.recipeId)).toEqual(["margherita"]);
   });
 });
@@ -108,17 +108,17 @@ describe("onion (step 12)", () => {
 });
 
 describe("multi-recipe unlock", () => {
-  it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12 only)", () => {
+  it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12, and Wave 2's step 28 = pesto-vegetariana + ratatouille-pizza, the intended Branching Discovery)", () => {
     expect(model.multiRecipeStepNumbers).toEqual(model.steps.filter((s) => s.newlyDiscoverable.length >= 2).map((s) => s.step));
-    expect(model.multiRecipeStepNumbers).toEqual([12]);
-    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12]);
+    expect(model.multiRecipeStepNumbers).toEqual([12, 28]);
+    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12, 28]);
   });
 });
 
 describe("OPEN_POOL classification follows selectHintTarget, not 'candidate >= 2'", () => {
-  it("OPEN_POOL only at step 12; OPEN_POOL POSSIBLE for 13..26 (25: carried calabresa + new pesto-pollo; 26: carried calabresa + new pesto-gamberi); NORMAL (pool 1) before", () => {
+  it("OPEN_POOL only at step 12; OPEN_POOL POSSIBLE for 13..28 (25: carried calabresa + new pesto-pollo; 26: + pesto-gamberi; 27: + vongole; 28: + pesto-vegetariana & ratatouille-pizza); NORMAL (pool 1) before", () => {
     expect(model.openPoolStepNumbers).toEqual([12]);
-    expect(model.openPoolPossibleStepNumbers).toEqual(Array.from({ length: 14 }, (_, i) => 13 + i));
+    expect(model.openPoolPossibleStepNumbers).toEqual(Array.from({ length: 16 }, (_, i) => 13 + i));
     for (let n = 1; n <= 11; n += 1) {
       expect(step(n).classification).toBe("NORMAL");
       expect(step(n).afterPool).toHaveLength(1);
@@ -144,7 +144,7 @@ describe("ladderCredit:false (brazilian-calabresa)", () => {
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));
     expect(calabresa.firstDiscoverableStep).toBe(12);
-    expect(calabresa.poolSteps).toEqual(Array.from({ length: 15 }, (_, i) => 12 + i)); // 12..26 (steps 25 / 26 add pesto-pollo / pesto-gamberi beside it)
+    expect(calabresa.poolSteps).toEqual(Array.from({ length: 17 }, (_, i) => 12 + i)); // 12..28 (steps 25-28 add the appended-step recipes beside it)
     expect(step(12).newlyDiscoverable.find((r) => r.recipeId === "brazilian-calabresa")!.ladderCredit).toBe(false);
   });
   it("finding it leaves the production ladder count and the entitlement unchanged", () => {
@@ -163,7 +163,7 @@ describe("filters / search", () => {
     expect(hit("pizza-portuguesa")).toContain(12);
     expect(hit("ブラジリアン")).toContain(12);
     expect(hit("zzz-not-there")).toEqual([]);
-    expect(hit("")).toHaveLength(26);
+    expect(hit("")).toHaveLength(28);
   });
 });
 

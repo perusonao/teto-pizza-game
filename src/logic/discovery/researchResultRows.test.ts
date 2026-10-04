@@ -195,7 +195,7 @@ describe("Production constraints (Contract §3 / §10 / §13.1)", () => {
     RECIPES.find((r) => r.id === id)!.requiredIngredients.filter((q) => getIngredient(q.ingredientId)?.category === "sauce").length;
 
   it("Production fixture: every one of the 28 recipes uses exactly one sauce (no multi-sauce, no no-sauce target)", () => {
-    expect(RECIPES).toHaveLength(28);
+    expect(RECIPES).toHaveLength(31);
     for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe(1);
   });
   it("there is no reserved / no-sauce target in the current Production 27: a sauce row is always possible", () => {

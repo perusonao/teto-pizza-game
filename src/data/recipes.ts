@@ -615,6 +615,61 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "vongole",
+    nameJa: "ヴォンゴレピザ",
+    description: "オリーブオイルを塗った生地に、あさりとにんにく、パセリをのせた、磯の香りのシンプルな一枚。",
+    // Expansion Wave 2 (Chapter 3 No.13, Owner-approved). GAMEPLAY CALIBRATION (not source
+    // authority): counts olive-oil 1 / clam 3 / garlic 2 / parsley 2, bake 62-82; no cheese;
+    // 7 non-sauce pieces (3 + 2 + 2) <= the 8-slot ring. The olive-oil sauce slot is vongole's
+    // own existing sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca), NOT a general
+    // "no-sauce family = olive-oil sauce" rule; TQ-1D / NO_SAUCE authority is untouched.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "clam", minCount: 3 },
+      { ingredientId: "garlic", minCount: 2 },
+      { ingredientId: "parsley", minCount: 2 },
+    ],
+    bakeTarget: { start: 62, end: 82 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pesto-vegetariana",
+    nameJa: "ペストベジタリアーナピザ",
+    description: "ジェノベーゼソースにナス、ズッキーニ、パプリカ、モッツァレラを合わせた、香り豊かな野菜の一枚。",
+    // Expansion Wave 2 (Chapter 3 No.14). GAMEPLAY CALIBRATION: pesto 1 / mozzarella 2 /
+    // eggplant 2 / zucchini 2 / bell-pepper 2, bake 50-70; 8 non-sauce pieces fill the 8-slot ring.
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "zucchini", minCount: 2 },
+      { ingredientId: "bell-pepper", minCount: 2 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "ratatouille-pizza",
+    nameJa: "ラタトゥイユピザ",
+    description: "トマトソースにナス、ズッキーニ、パプリカ、オレガノをのせた、プロヴァンス風の彩り野菜の一枚。",
+    // Expansion Wave 2 (Chapter 3 No.15). GAMEPLAY CALIBRATION: tomato-sauce 1 / eggplant 2 /
+    // zucchini 2 / bell-pepper 2 / oregano 1, bake 58-78; no cheese; 7 non-sauce pieces.
+    // Becomes makeable at ladder step 28 together with pesto-vegetariana (intended Branching Discovery).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "zucchini", minCount: 2 },
+      { ingredientId: "bell-pepper", minCount: 2 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

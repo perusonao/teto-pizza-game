@@ -13,7 +13,9 @@ const recipe = (id: string): Recipe => RECIPES.find((r) => r.id === id)!;
  *  is a different population (see "branching pool" below), never an exception hidden in this one.
  *  No.27 pesto-pollo and Expansion Slice 1 pesto-gamberi (credited, but the appended steps 25 / 26's key recipes) are outside the W1 walk; it is
  *  pinned by the No.27 vertical-slice tests. */
-const W1_RECIPES = RECIPES.filter((r) => countsTowardLadder(r.id) && r.id !== "pesto-pollo" && r.id !== "pesto-gamberi");
+// The W1 population: the appended-step recipes (steps 25-28) are outside it.
+const POST_W1_IDS = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza"];
+const W1_RECIPES = RECIPES.filter((r) => countsTowardLadder(r.id) && !POST_W1_IDS.includes(r.id));
 const W1 = { recipes: W1_RECIPES };
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 

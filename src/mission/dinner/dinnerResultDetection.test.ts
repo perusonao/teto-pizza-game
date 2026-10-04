@@ -137,11 +137,11 @@ function deepFreeze<T>(value: T): T {
 }
 
 describe("identity: the Free Cooking matcher, reused (§3 / §4)", () => {
-  it("32: every one of the 28 runtime recipes has a unique signature and its Reference identifies itself", () => {
-    expect(RECIPES).toHaveLength(28);
-    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(28);
+  it("32: every one of the 31 runtime recipes has a unique signature and its Reference identifies itself", () => {
+    expect(RECIPES).toHaveLength(31);
+    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(31);
     const keys = RECIPE_DISCOVERY_CATALOG.map((t) => JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]));
-    expect(new Set(keys).size).toBe(28); // 0 identical signatures
+    expect(new Set(keys).size).toBe(31); // 0 identical signatures
     for (const recipe of RECIPES) {
       expect(resolveDinnerIdentity(pizzaFor(recipe.id)), recipe.id).toEqual({ kind: "RECIPE", recipeId: recipe.id });
     }
@@ -767,8 +767,8 @@ describe("Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P
         }
       }
     }
-    expect(windows).toHaveLength(29); // FREE + 28 recipes (PR-4b-B: calabresa shares 58-78; No.27: pesto-pollo 50-70; Expansion: pesto-gamberi 50-70)
-    expect(cases).toBe(11_658);
+    expect(windows).toHaveLength(32); // FREE + 31 recipes (PR-4b-B: calabresa shares 58-78; No.27: pesto-pollo 50-70; Expansion: pesto-gamberi 50-70; Wave 2: vongole 62-82, pesto-vegetariana 50-70, ratatouille-pizza 58-78)
+    expect(cases).toBe(12_864);
   });
 
   it("D-P runtime: for every CUT recipe's Reference pizza, bake 0..100, the forwarded verdict never mismatches", () => {

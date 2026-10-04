@@ -45,14 +45,15 @@ function legacy(n: number): DiscoveryHintState {
 }
 
 describe("PR-4b-A leaves production and the save schema alone", () => {
-  it("production is 25 credited recipes + the non-credit brazilian-calabresa as No.26 (PR-4b-B) + the credited pesto-pollo as No.27 + the credited pesto-gamberi as No.28", () => {
-    expect(RECIPES).toHaveLength(28);
+  it("production is 25 credited recipes + the non-credit brazilian-calabresa as No.26 (PR-4b-B) + the credited pesto-pollo as No.27 + the credited pesto-gamberi as No.28 + the credited vongole / pesto-vegetariana / ratatouille-pizza as No.29-31 (Expansion Wave 2)", () => {
+    expect(RECIPES).toHaveLength(31);
     expect(RECIPES[25].id).toBe("brazilian-calabresa");
     expect(RECIPES[26].id).toBe("pesto-pollo");
     expect(RECIPES[27].id).toBe("pesto-gamberi");
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(27);
-    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(28);
-    expect(Object.keys(RECIPE_HINT_ROLES)).toHaveLength(28);
+    expect(RECIPES.slice(28).map((r) => r.id)).toEqual(["vongole", "pesto-vegetariana", "ratatouille-pizza"]);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(30);
+    expect(RECIPE_DISCOVERY_CATALOG).toHaveLength(31);
+    expect(Object.keys(RECIPE_HINT_ROLES)).toHaveLength(31);
   });
 
   it("the save is still schema v2 with the same top-level fields", () => {

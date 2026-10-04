@@ -94,7 +94,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/27\/28/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/27\/31/);
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
@@ -210,14 +210,16 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await capture(page, "exp1-new-recipe-discovered", project);
     await hold(page, 3000);
 
-    // 8. Dex: Chapter 3 No.12, 28 / 28; schema v2 unchanged.
-    await page.getByRole("button", { name: /図鑑を見る/ }).first().click();
+    // 8. Dex: Chapter 3 No.12; schema v2 unchanged. (Expansion Wave 2: this discovery reaches step 27, so the RESULT
+    // announces the new material (parsley) and its CTA is the Shop; the Dex is opened from HOME, as in the No.27 spec.)
+    await page.getByRole("button", { name: /ホーム/ }).first().click();
+    await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/28\s*\/\s*28/);
+    await expect(page.locator(".dex-overlay")).toContainText(/28\s*\/\s*31/);
     const card = page.locator(".dex-card").filter({ hasText: "ペストガンベリピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.12");
-    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("12/12");
+    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("12/15");
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
     await capture(page, "exp1-dex-no12", project);

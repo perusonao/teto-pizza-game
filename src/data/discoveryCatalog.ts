@@ -55,6 +55,10 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "pesto-pollo": "pesto-pollo-pizzadb-p12",
   // Expansion Slice 1: PIZZA DB evidence id from the 172 matrix (`pesto-gamberi-pizzadb-p11`).
   "pesto-gamberi": "pesto-gamberi-pizzadb-p11",
+  // Expansion Wave 2: PIZZA DB evidence ids from the 172 master evidence matrix.
+  vongole: "vongole-pizzadb",
+  "pesto-vegetariana": "pesto-vegetariana-pizzadb-p12",
+  "ratatouille-pizza": "ratatouille-pizza-pizzadb-p13",
 };
 
 export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => ({
