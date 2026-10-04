@@ -142,16 +142,61 @@ describe("Hint 5.0 ladder sheet in the App (flag ON)", () => {
     expect(nextLabel(dialog)).toBe("ヒント2: チーズ");
   });
 
-  it("insufficient Pitz: the CTA is disabled at the normal price and nothing is saved", async () => {
+  it("insufficient Pitz (#360 S3): the CTA stays tappable at the normal price; the shortage note only follows a refused tap and nothing is saved", async () => {
     window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save(5)));
     const user = userEvent.setup();
     render(<App />);
     const dialog = await openSheet(user);
     const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
-    expect(cta(dialog)).toBeDisabled();
-    expect(cta(dialog)).toHaveTextContent("10 Pitz");
-    expect(dialog).toHaveTextContent("Pitzがたまったら、またためしてね");
+    expect(cta(dialog)).not.toBeDisabled();
+    expect(cta(dialog)).toHaveTextContent("たずねる 10 Pitz");
+    expect(dialog).not.toHaveTextContent("Pitzがたまったら、またためしてね");
+    await ask(user, dialog);
+    await waitFor(() => expect(dialog).toHaveTextContent("Pitzがたまったら、またためしてね"));
+    expect(nextLabel(dialog)).toBe("ヒント1: ソース");
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+  });
+
+  it("#360 S3: a fully known rung with wallet 0 completes for 0 Pitz (no shortage note); an unknown rung then is refused", async () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save(0, { "breakfast-pizza": ["ing:tomato-sauce"] })));
+    const user = userEvent.setup();
+    render(<App />);
+    const dialog = await openSheet(user);
+    expect(cta(dialog)).toHaveTextContent("たずねる 10 Pitz");
+    expect(dialog).not.toHaveTextContent("Pitzがたまったら、またためしてね");
+    await ask(user, dialog);
+    await waitFor(() => expect(dialog).toHaveTextContent("このヒントはもう知っていたよ！"));
+    expect(stored().pitzBalance).toBe(0);
+    expect(nextLabel(dialog)).toBe("ヒント2: チーズ");
+    expect(dialog).not.toHaveTextContent("Pitzがたまったら、またためしてね");
+    // the cheese is not known: refused, no completion, no charge
+    const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    await ask(user, dialog);
+    await waitFor(() => expect(dialog).toHaveTextContent("Pitzがたまったら、またためしてね"));
+    // the earlier 「もう知っていた」 line is not left beside the refusal of the next rung
+    expect(dialog).not.toHaveTextContent("このヒントはもう知っていたよ！");
+    expect(nextLabel(dialog)).toBe("ヒント2: チーズ");
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+  });
+
+  it("#360 S3 privacy: at wallet 0 a fully known and an unknown first rung render the same CTA (copy, price, class, enabled) before any tap", async () => {
+    const snapshot = async (facts: Record<string, string[]>) => {
+      window.localStorage.clear();
+      window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save(0, facts)));
+      const user = userEvent.setup();
+      const { unmount } = render(<App />);
+      const dialog = await openSheet(user);
+      const button = cta(dialog)!;
+      const out = { label: nextLabel(dialog), text: button.textContent, cls: button.className, disabled: button.disabled, aria: button.getAttribute("aria-disabled"), note: dialog.querySelector(".hint-sheet__wallet-note") === null };
+      unmount();
+      cleanup();
+      return out;
+    };
+    const known = await snapshot({ "breakfast-pizza": ["ing:tomato-sauce"] });
+    const unknown = await snapshot({});
+    expect(known).toEqual(unknown);
+    expect(known.disabled).toBe(false);
+    expect(known.note).toBe(true);
   });
 
   it("M3 legacy save: the same next rung and price as a fresh save; ALL known -> 0 Pitz + 「もう知っていた」 only after the request; PARTIAL / NONE -> normal price", async () => {

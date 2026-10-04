@@ -224,6 +224,41 @@ describe("F. unlock exact fact vs Hint (no double charge, no duplicate knowledge
     expect(facts(withTarget.state, "pesto-pollo")).not.toContain("ing:chicken");
   });
 
+  it("#360 S3: the unlock-derived fully known rung completes at wallet 0 (request-side knowledge), charge 0, no name written", () => {
+    const s = single();
+    let t = act(startResearch(s, "pesto-pollo"), { type: "SHOW_HINT" });
+    // Walk the ladder paying; at each rung try the same request with wallet 0. Only the chicken rung (the
+    // derived unlock fact) is accepted; every other rung is refused untouched.
+    let done: GameState | null = null;
+    let accepted = 0;
+    for (let i = 0; i < 12 && hint5SheetView(t)?.next; i += 1) {
+      const broke = { ...t, pitzBalance: 0 };
+      const attempt = act(broke, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: hint5SheetView(broke)!.next!.rungIndex });
+      if (attempt === broke) t = buyNext(t);
+      else {
+        accepted += 1;
+        done = attempt;
+        expect(hint5SheetView(t)!.next!.kind).toBe("SUB_CLASS");
+        break;
+      }
+    }
+    expect(accepted).toBe(1);
+    const broke = { ...t, pitzBalance: 0 };
+    expect(done!.pitzBalance).toBe(0);
+    expect(done!.hintOutcome).toBe("HINT5_ALREADY_KNOWN");
+    expect(facts(done!, "pesto-pollo")).toHaveLength(facts(broke, "pesto-pollo").length + 1);
+    expect(facts(done!, "pesto-pollo")).not.toContain("ing:chicken");
+  });
+
+  it("#360 S3: the same wallet-0 request without a Research Target is refused and changes nothing", () => {
+    const s = single();
+    const viaPin = act(act(s, { type: "START_FREE_COOK" }), { type: "SHOW_HINT", pinnedRecipeId: "pesto-pollo" });
+    let t = viaPin;
+    while (hint5SheetView(t)?.next && hint5SheetView(t)!.next!.kind !== "SUB_CLASS") t = buyNext(t);
+    const broke = { ...t, pitzBalance: 0 };
+    expect(act(broke, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: hint5SheetView(broke)!.next!.rungIndex })).toBe(broke);
+  });
+
   it("without a Research Target nothing is derived: the same rung is charged", () => {
     const s = single();
     const viaPin = act(act(s, { type: "START_FREE_COOK" }), { type: "SHOW_HINT", pinnedRecipeId: "pesto-pollo" });

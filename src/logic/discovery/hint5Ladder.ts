@@ -374,12 +374,16 @@ export type Hint5RequestResult =
   | { outcome: "REJECTED"; reason: Hint5Rejection };
 
 /**
- * One request, in a fixed order so that a refusal never depends on what is left or what is known:
- * target -> STALE -> complete -> price and balance (the normal P-C price of the rung kind) -> empty
- * rung -> already known (M3) -> answer.
+ * One request, in a fixed order:
+ * target -> STALE -> complete -> price and balance (the normal P-C price of the rung kind, unless the
+ * rung is ALL known: #360 S3) -> empty rung -> already known (M3) -> answer.
  *
- * - The balance check uses the normal price even when the rung turns out to be already known. So
- *   the 0-Pitz completion can only be discovered by an affordable request, never before one (M3).
+ * - The balance check uses the normal price, except for a rung that is ALL known (#360 S3,
+ *   OD-360-3): its effective cost is 0 Pitz, so it completes even when the balance is below the
+ *   normal price. A PARTIALLY known or NONE known rung (and a RESERVED empty rung) is still refused
+ *   with INSUFFICIENT_PITZ. This is decided here, at request time, from the same knowledge set the
+ *   answer uses; the pre-purchase view never carries it (M3 / H5-INV-5). The one thing a low-balance
+ *   request reveals is whether the rung was effective-cost-0 (accepted, OD-360-S3-1).
  * - ALL known -> ALREADY_KNOWN, 0 Pitz, only the completion record.
  * - PARTIALLY known or NONE known -> ANSWERED at the normal price, with the new facts and the
  *   completion record.
@@ -403,7 +407,9 @@ export function requestHint5Rung(
   const rung = ladder.rungs[own.nextIndex - 1];
   const onboarding = isHintOnboardingFree(input.discoveredCount, ladder.recipeId);
   const price = onboarding ? 0 : HINT5_RUNG_PRICE[rung.kind];
-  if (!Number.isFinite(input.pitzBalance) || input.pitzBalance < price) return { outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" };
+  // #360 S3 (OD-360-3): an ALL known rung costs 0 Pitz, so the normal price gates every other rung only.
+  const effectiveCostZero = own.allKnown[rung.index - 1];
+  if (!effectiveCostZero && (!Number.isFinite(input.pitzBalance) || input.pitzBalance < price)) return { outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" };
   if (own.statuses[rung.index - 1] === "EMPTY") return { outcome: "RESERVED_EMPTY_RUNG", rungIndex: rung.index, kind: rung.kind, addFactIds: [], charge: 0 };
   const stored = new Set(storedStrings(input.storedFactIds));
   const completion = completionFactId(rung);
