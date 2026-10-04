@@ -928,7 +928,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
     expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 28/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/27/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/28/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {
