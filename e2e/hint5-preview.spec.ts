@@ -71,7 +71,9 @@ function build(outDir: string, base: string, preview: boolean) {
     env.VITE_PREVIEW_MODE = "1";
     env.VITE_PREVIEW_PR = "297";
     env.VITE_PREVIEW_SHA = "h5-5";
+    env.TETO_TEST_HOOKS = "1"; // #377: the test-only targetless-start hook (tools/testHooksPlugin.ts); the production build below never gets it
   } else {
+    delete env.TETO_TEST_HOOKS;
     delete env.VITE_PREVIEW_MODE;
     delete env.VITE_PREVIEW_PR;
     delete env.VITE_PREVIEW_SHA;

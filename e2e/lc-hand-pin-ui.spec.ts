@@ -31,7 +31,7 @@ test.beforeAll(async () => {
   const roots: [string, string][] = [];
   for (const [base, variant] of BUILDS) {
     const outDir = path.join(workDir, base.replaceAll("/", ""));
-    await buildLcApp({ outDir, base, preview: true, variant }, true);
+    await buildLcApp({ outDir, base, preview: true, variant, testHooks: true }, true);
     roots.push([base, outDir]);
   }
   const server = await serveBuilds(roots);
