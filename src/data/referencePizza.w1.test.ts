@@ -48,9 +48,9 @@ function radius(p: { x: number; y: number }) {
   return Math.hypot(p.x - 50, p.y - 50);
 }
 
-describe("MD-01: every production recipe has a Reference (27 / 27)", () => {
-  it("RECIPES 27, REFERENCE_PIZZAS 27", () => {
-    expect(RECIPES).toHaveLength(27);
+describe("MD-01: every production recipe has a Reference (28 / 28)", () => {
+  it("RECIPES 28, REFERENCE_PIZZAS 28", () => {
+    expect(RECIPES).toHaveLength(28);
     for (const r of RECIPES) expect(getReferencePizza(r.id)?.recipeId).toBe(r.id);
   });
 

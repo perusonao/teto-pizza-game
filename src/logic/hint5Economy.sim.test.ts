@@ -85,8 +85,8 @@ describe("P-C pricing outside the design population", () => {
 const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal(id);
 
 describe("P-C progression walk (real reducer, flag ON)", () => {
-  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo (27)", () => {
-    expect(TOTAL).toBe(27);
+  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi (28)", () => {
+    expect(TOTAL).toBe(28);
   });
 
   it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {

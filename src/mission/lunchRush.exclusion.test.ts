@@ -14,17 +14,19 @@ const inputs = { dex: discoverAll(RECIPES.map((r) => r.id)), ownedIngredientIds:
 const optOut = (id: string): Recipe[] => RECIPES.map((r) => (r.id === id ? { ...r, lunchRush: false as const } : r));
 
 describe("lunchRush: false foundation", () => {
-  it("the 25 original production recipes all participate; only brazilian-calabresa (PR-4b-B) and No.27 pesto-pollo opt out", () => {
-    expect(RECIPES).toHaveLength(27);
+  it("the 25 original production recipes all participate; only brazilian-calabresa (PR-4b-B), No.27 pesto-pollo and Expansion Slice 1 pesto-gamberi opt out", () => {
+    expect(RECIPES).toHaveLength(28);
     expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false).map((r) => r.id)).toEqual([
       "brazilian-calabresa",
       "pesto-pollo",
+      "pesto-gamberi",
     ]);
-    const original = RECIPES.filter((r) => r.id !== "brazilian-calabresa" && r.id !== "pesto-pollo");
+    const original = RECIPES.filter((r) => r.id !== "brazilian-calabresa" && r.id !== "pesto-pollo" && r.id !== "pesto-gamberi");
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);
     expect(participatesInLunchRush("brazilian-calabresa")).toBe(false);
     expect(participatesInLunchRush("pesto-pollo")).toBe(false);
+    expect(participatesInLunchRush("pesto-gamberi")).toBe(false);
     expect(missionOrderRecipeIds(inputs).sort()).toEqual(original.map((r) => r.id).sort());
   });
 
@@ -40,7 +42,7 @@ describe("lunchRush: false foundation", () => {
   it("an opted-out recipe never enters the mission order pool, even discovered + owned + in stock", () => {
     const pool = missionOrderRecipeIds(inputs, [], optOut("pizza-bianca"));
     expect(pool).not.toContain("pizza-bianca");
-    expect(pool).toHaveLength(RECIPES.length - 3); // pizza-bianca + the calabresa and pesto-pollo already opted out
+    expect(pool).toHaveLength(RECIPES.length - 4); // pizza-bianca + the calabresa, pesto-pollo and pesto-gamberi already opted out
   });
 
   it("only the explicit false opts out: absent, unknown id and true-ish values participate", () => {

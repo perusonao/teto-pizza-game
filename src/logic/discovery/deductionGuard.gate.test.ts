@@ -115,7 +115,8 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     }
     // Re-measured at No.27 (30 ingredients: the synthetic families are cut from the production TOPPINGS,
     // so adding chicken re-shapes them). The property that matters is the hardened `toEqual([])` above.
-    expect(dh42aLeaks).toBe(76);
+    // Re-measured again at Expansion Slice 1 (31 ingredients: shrimp joins the TOPPINGS the families are cut from).
+    expect(dh42aLeaks).toBe(68);
   }, 120_000);
 });
 

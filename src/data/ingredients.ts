@@ -561,6 +561,22 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * Expansion Slice 1 (pesto-gamberi): the 31st ingredient, a finite ladder material like `chicken`
+   * -- unlocked at appended ladder step 26 (T3: first purchase 100 / refill 50 Pitz, pack 30 from
+   * k = 3 x pack-pizzas), sold only by the material Shop, so no legacy `pricePitz` /
+   * `restockQuantity` / `starterGrantOnly`. Family `seafood` lives in ./ingredientTaxonomy.ts.
+   * 🦐 is the ingredient glyph; the seafood Hint class symbol is 🌊 (hintClassDisplay.ts, G18).
+   */
+  {
+    id: "shrimp",
+    category: "topping",
+    nameJa: "エビ",
+    color: "#f08a6b",
+    emoji: "\u{1F990}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

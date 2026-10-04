@@ -56,6 +56,8 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["gorgonzola", 24, "T3", 2, 20, 100, 50],
   // Discovery 3.0 No.27: appended step 25 (LAD-1); k = chicken x3 in pesto-pollo.
   ["chicken", 25, "T3", 3, 30, 100, 50],
+  // Expansion Slice 1: appended step 26 (LAD-1); k = shrimp x3 in pesto-gamberi.
+  ["shrimp", 26, "T3", 3, 30, 100, 50],
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -204,10 +206,11 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(13)).toEqual({ discoveriesNeeded: 1, step: 14 });
   });
 
-  it("points at the appended step 25 after the W1 24, and is null once the ladder is complete", () => {
+  it("points at the appended steps 25 / 26 after the W1 24, and is null once the ladder is complete", () => {
     expect(nextMaterialHint(24)).toEqual({ discoveriesNeeded: 1, step: 25 });
-    expect(nextMaterialHint(25)).toBeNull();
+    expect(nextMaterialHint(25)).toEqual({ discoveriesNeeded: 1, step: 26 });
     expect(nextMaterialHint(26)).toBeNull();
+    expect(nextMaterialHint(27)).toBeNull();
   });
 
   it("treats invalid counts as 0", () => {

@@ -43,7 +43,7 @@ async function openWithSave(page: Page, raw: { dex: unknown[] }, query = "") {
   );
   await page.goto(`./${query}`);
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${raw.dex.length}/27`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${raw.dex.length}/28`));
 }
 
 async function startRun(page: Page) {

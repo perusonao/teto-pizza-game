@@ -69,4 +69,6 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "brazilian-calabresa": { keyFree: true },
   // No.27: key-free like calabresa (Migration A contract kept; no KEY_TOPPING added).
   "pesto-pollo": { keyFree: true },
+  // Expansion Slice 1: permanently key-free (no KEY_TOPPING / hintKeyToppingId).
+  "pesto-gamberi": { keyFree: true },
 };

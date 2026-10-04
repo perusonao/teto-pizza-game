@@ -26,16 +26,16 @@ import {
 
 /** Progression 2.0 I5a: catalog-only W1 materials, priced by the REC-04 material Shop instead. */
 const W1_MATERIAL_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
-/** Discovery 3.0 No.27: the ladder-appended material, also priced by the material Shop (no legacy price). */
-const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, "chicken"];
+/** Discovery 3.0 No.27 (chicken) / Expansion Slice 1 (shrimp): the ladder-appended materials, also priced by the material Shop (no legacy price). */
+const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, "chicken", "shrimp"];
 
 // A. current economy table consistency ---------------------------------------------------
 
 describe("economy table consistency (A)", () => {
   const table = financeIngredientTable();
 
-  it("has exactly 30 ingredients, 19 of them legacy-priced (the 7 W1 materials and No.27's chicken carry no legacy price)", () => {
-    expect(INGREDIENTS.length).toBe(30);
+  it("has exactly 31 ingredients, 19 of them legacy-priced (the 7 W1 materials, No.27's chicken and Expansion's shrimp carry no legacy price)", () => {
+    expect(INGREDIENTS.length).toBe(31);
     expect(table.length).toBe(19);
     const finiteUnpriced = INGREDIENTS.filter((i) => i.unlockCondition && !i.starterGrantOnly).map((i) => i.id);
     expect(finiteUnpriced.sort()).toEqual([...LADDER_ONLY_MATERIAL_IDS].sort());
@@ -47,7 +47,7 @@ describe("economy table consistency (A)", () => {
   });
 
   it("simulates the 15 EP-era recipes; the 10 W1 recipes (no EP1 gate) are outside this EP4 model", () => {
-    expect(RECIPES.length).toBe(27);
+    expect(RECIPES.length).toBe(28);
     expect(EP_ERA_RECIPES).toHaveLength(15);
     expect((RECIPES as readonly Recipe[]).filter((r) => !EP_ERA_RECIPES.includes(r)).every((r) => !r.unlockCondition)).toBe(true);
   });

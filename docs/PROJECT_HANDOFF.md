@@ -52,6 +52,8 @@ PASS via PR #54; **Save v2 / Inventory E0 migration MERGED via PR #56** (schemaV
 `inventory` field reserved, no gameplay change yet -- E1 InventoryState is the next Save v2 step,
 independent of Issue #38).)
 
+**2026-10-04 addendum (Expansion Slice 1 — pesto-gamberi + shrimp, PR pending Final Gate)** — see `docs/reports/TETO_EXPANSION-SLICE-1_PESTO-GAMBERI_Result.md`. The first Expansion Vertical Slice adds production recipe No.28 `pesto-gamberi` (ペストガンベリピザ; Chapter 3 No.12; key-free Hint; `ladderCredit` true; `lunchRush` false; no CUT) and the 31st ingredient `shrimp` (🦐, family `seafood`, appended ladder step 26 / T3: first purchase 100 Pitz, refill 50, pack 30). Authority counts: 27 → 28 recipes, 30 → 31 ingredients, topping 23 → 24, ladder 25 → 26 steps (steps 1–25 frozen), chapters 6 / 10 / 11 → 6 / 10 / 12. The seafood Hint class symbol moved 🦐 → 🌊 (魚介系) so it no longer collides with the shrimp ingredient glyph (G18 / H5-INV-2; display authority only). Save schema unchanged (v2); HAND capacity unchanged (12).
+
 **2026-10-03 addendum (Large Catalog UX — R6-c and OD-5)** — see `docs/reports/TETO_LARGE-CATALOG-UX_LC-R6c_Pin-UI_Result.md`. LC-R6-b MERGED (#319, `4250767`; production Hand stays OFF). LC-R6-c (Issue #371, PR #372): pin UI only for an active hand, a number-free capacity-full notice, keyboard kept on pin during search. **OD-5 (Owner, 2026-10-03): the hand's production capacity is 12**, decided after a real-device ABBA comparison with HAND 9 (Preview variants `33fe17b` = HAND 9, `da17f12` = HAND 12); not re-evaluated. R6-e (production activation) was a separate Issue / PR: **superseded — R6-e MERGED (#376, `b8617ac`), `HAND_ENFORCEMENT_PRODUCTION = true` in Production** (see the LC-R6-e addendum near the end of this file). The 2026-09-30 addendum below is historical.
 
 **2026-09-30 addendum (LC-R6-b Preview Activation Infrastructure, PR pending Final Gate)** — see `docs/reports/TETO_LARGE-CATALOG-UX_LC-R6b_Preview-Activation-Infrastructure_Result.md`. A2 committed variant `LC_HAND_PREVIEW_CAPACITY` (main = `null`), read only behind `VITE_PREVIEW_MODE`; production Hand stays OFF (`HAND_ENFORCEMENT_PRODUCTION = false`, byte-identical production bundle / DOM golden), capacity 9 vs 12 still undecided (R6-d/R6-e).
@@ -516,7 +518,7 @@ Final verification report: `docs/reports/TETO_ANTI-ORACLE-CONTRACT-2.1_S6_Final-
   Production Pages deploy #262 SUCCESS; **Owner Production iPhone HV = PASS, Production blocker = NONE.** The Owner HV covered the Research Target → trial →
   RESULT × / ○ → Trial Notebook → retry → prior-○ ✓ → NEW PIZZA flow. Last-stock boundary, topping > K=3, ×-not-persisted after reload and 360×800 on a real device
   were **not** repeated in the Owner HV (automated evidence only). Record, evidence split and rollback: `docs/reports/TETO_CONTRACT-2.1_PRODUCTION-POST-ACTIVATION-HV-CHECKLIST.md`.
-- **Not done (separate gates):** #360 (Hint knowledge duplication), the 53 / 172-recipe Scale Audit (Expansion Gate A / §13.1), the post-Production re-evaluation of
+- **Not done (separate gates):** the 53 / 172-recipe Scale Audit (Expansion Gate A / §13.1), the post-Production re-evaluation of
   ★3-FULL replay / refill cost (Gate C §12.1), and the Trial Notebook readability UX follow-up.
 
 

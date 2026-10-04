@@ -55,10 +55,10 @@ describe("strategy (pure chooser)", () => {
 describe("attempt-aware walk (real reducer)", () => {
   it("runs with the Research flag ON", () => {
     expect(RESEARCH_IDENTIFY_ENABLED).toBe(true);
-    expect(RECIPES.length).toBe(27);
+    expect(RECIPES.length).toBe(28);
   });
 
-  it("every profile x quality reaches Dex 27 with the Contract invariants intact on every attempt", async () => {
+  it("every profile x quality reaches Dex 28 with the Contract invariants intact on every attempt", async () => {
     const runs = [];
     for (const explorePieces of ["FULL", "ONE"] as const) for (const qualityTotal of QUALITIES) {
       for (const profile of RESEARCH_HINT_PROFILES) {
@@ -66,7 +66,7 @@ describe("attempt-aware walk (real reducer)", () => {
         runs.push({ ...r, finalState: undefined });
         const tag = `${profile} q${qualityTotal} ${explorePieces}`;
         expect(r.completed, tag).toBe(true);
-        expect(r.stages.at(-1)!.discovery, tag).toBe(27);
+        expect(r.stages.at(-1)!.discovery, tag).toBe(28);
         expect(r.violations, tag).toEqual([]);
         expect(r.minPitz, tag).toBeGreaterThanOrEqual(0);
         expect(r.reservedStops, tag).toBe(0);

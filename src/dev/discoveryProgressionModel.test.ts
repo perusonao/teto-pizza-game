@@ -27,6 +27,9 @@ const model = buildInspectorModel();
 const step = (n: number) => model.steps.find((s) => s.step === n)!;
 const stepOf = (ingredientId: string) => step(ingredientUnlockStep(ingredientId)!);
 
+/** The production walk: the W1 order, then each appended step's key recipe (steps 25 / 26). */
+const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, "pesto-pollo", "pesto-gamberi"];
+
 describe("production authority reuse (no second DISCOVERABLE logic)", () => {
   it("calls the production predicate, entitlement bridge and hint target selection", () => {
     vi.mocked(recipeDiscoveryState).mockClear();
@@ -40,14 +43,14 @@ describe("production authority reuse (no second DISCOVERABLE logic)", () => {
 
   it("every step's After pool equals the production walk fixture's pool (poolOf / walkState), step by step", () => {
     for (const s of model.steps) {
-      const prod = poolOf(walkState(W1_ORDER.slice(0, s.step)));
+      const prod = poolOf(walkState(PRODUCTION_ORDER.slice(0, s.step)));
       expect(s.afterPool.map((m) => m.recipeId).sort(), `step ${s.step}`).toEqual(prod.sort());
     }
   });
 
   it("every step's Hint target equals what selectHintTarget returns for the same state", () => {
     for (const s of model.steps) {
-      const result = selectHintTarget(walkState(W1_ORDER.slice(0, s.step)));
+      const result = selectHintTarget(walkState(PRODUCTION_ORDER.slice(0, s.step)));
       expect(s.hintTargetKind, `step ${s.step}`).toBe(result.kind === "TARGET" ? `TARGET:${result.recipeId}` : result.kind);
     }
   });
@@ -63,11 +66,11 @@ describe("production authority reuse (no second DISCOVERABLE logic)", () => {
 });
 
 describe("current production population", () => {
-  it("27 recipes, 30 ingredients, 25 steps (24 frozen W1 + No.27's step 25), all read from production data", () => {
+  it("28 recipes, 31 ingredients, 26 steps (24 frozen W1 + No.27's step 25 + Expansion Slice 1's step 26), all read from production data", () => {
     expect(model.recipeCount).toBe(RECIPES.length);
     expect(model.ingredientCount).toBe(INGREDIENTS.length);
     expect(model.stepCount).toBe(DISCOVERY_LADDER.steps.length);
-    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([27, 30, 25]);
+    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([28, 31, 26]);
     expect(model.startingPool.map((m) => m.recipeId)).toEqual(["margherita"]);
   });
 });
@@ -113,9 +116,9 @@ describe("multi-recipe unlock", () => {
 });
 
 describe("OPEN_POOL classification follows selectHintTarget, not 'candidate >= 2'", () => {
-  it("OPEN_POOL only at step 12; OPEN_POOL POSSIBLE for 13..25 (25: carried calabresa + new pesto-pollo); NORMAL (pool 1) before", () => {
+  it("OPEN_POOL only at step 12; OPEN_POOL POSSIBLE for 13..26 (25: carried calabresa + new pesto-pollo; 26: carried calabresa + new pesto-gamberi); NORMAL (pool 1) before", () => {
     expect(model.openPoolStepNumbers).toEqual([12]);
-    expect(model.openPoolPossibleStepNumbers).toEqual(Array.from({ length: 13 }, (_, i) => 13 + i));
+    expect(model.openPoolPossibleStepNumbers).toEqual(Array.from({ length: 14 }, (_, i) => 13 + i));
     for (let n = 1; n <= 11; n += 1) {
       expect(step(n).classification).toBe("NORMAL");
       expect(step(n).afterPool).toHaveLength(1);
@@ -141,7 +144,7 @@ describe("ladderCredit:false (brazilian-calabresa)", () => {
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));
     expect(calabresa.firstDiscoverableStep).toBe(12);
-    expect(calabresa.poolSteps).toEqual(Array.from({ length: 14 }, (_, i) => 12 + i)); // 12..25 (until step 25 adds pesto-pollo beside it)
+    expect(calabresa.poolSteps).toEqual(Array.from({ length: 15 }, (_, i) => 12 + i)); // 12..26 (steps 25 / 26 add pesto-pollo / pesto-gamberi beside it)
     expect(step(12).newlyDiscoverable.find((r) => r.recipeId === "brazilian-calabresa")!.ladderCredit).toBe(false);
   });
   it("finding it leaves the production ladder count and the entitlement unchanged", () => {
@@ -160,7 +163,7 @@ describe("filters / search", () => {
     expect(hit("pizza-portuguesa")).toContain(12);
     expect(hit("ブラジリアン")).toContain(12);
     expect(hit("zzz-not-there")).toEqual([]);
-    expect(hit("")).toHaveLength(25);
+    expect(hit("")).toHaveLength(26);
   });
 });
 

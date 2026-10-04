@@ -66,6 +66,7 @@ const TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
   ["anchovy", "seafood"],
   ["tuna", "seafood"],
   ["clam", "seafood"],
+  ["shrimp", "seafood"],
   ["mushroom", "vegetable"],
   ["cherry-tomato", "vegetable"],
   ["onion", "vegetable"],

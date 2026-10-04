@@ -35,6 +35,7 @@ const LADDER = [
   ["pesto-patate", ["potato"]], ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]],
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
   ["pesto-pollo", ["chicken"]], // No.27: the appended step 25
+  ["pesto-gamberi", ["shrimp"]], // Expansion Slice 1: the appended step 26
 ] as const;
 
 /** Production recipes that never advance the ladder (`ladderCredit: false`). The ladder's own recipes are not the whole population
@@ -76,7 +77,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] }) {
   }, [SAVE_KEY, JSON.stringify(save)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/27`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/28`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -407,7 +408,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(26, { complete: true }), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(27, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);
