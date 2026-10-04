@@ -2963,6 +2963,11 @@
   box-shadow: 0 0 0 2px #f2b705, 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
+/* #378 Option 1: an OWNED material with stock 0 (every such row, never recipe-dependent). */
+.shop-item--empty {
+  box-shadow: 0 0 0 2px #b4432f, 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 .shop-item__badge {
   font-size: 10px;
   font-weight: 800;
@@ -2971,6 +2976,11 @@
   border-radius: 999px;
   padding: 2px 8px;
   white-space: nowrap;
+}
+
+.shop-item__badge--empty {
+  background: #b4432f;
+  color: #fff;
 }
 
 .shop-item__pack {
@@ -4678,6 +4688,15 @@
   padding: 0;
   font-size: 13px;
   color: #3b4a63;
+  overflow-wrap: anywhere;
+}
+
+/* #378 Option 1: a stock-blocked Research Entry's fixed notice (text only, same for every entry). */
+.dex-card__research-stock-notice {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #7a3b12;
   overflow-wrap: anywhere;
 }
 

@@ -212,12 +212,16 @@ export function ShopOverlay({
                 const { ingredient, state, offer } = row;
                 const price = state === "NEW" ? offer.packPrice : offer.refillPrice;
                 const shortfall = Math.max(0, price - pitzBalance);
+                // #378 Option 1 (OD-378-2): the same zero-stock mark for EVERY owned material -- never filtered,
+                // sorted or highlighted by what any Research Entry needs.
+                const outOfStock = state === "OWNED" && (inventory[ingredient.id] ?? 0) <= 0;
                 return (
                   <div
                     key={ingredient.id}
-                    className={`shop-item${state === "NEW" ? " shop-item--new" : ""}`}
+                    className={`shop-item${state === "NEW" ? " shop-item--new" : ""}${outOfStock ? " shop-item--empty" : ""}`}
                     data-ingredient-id={ingredient.id}
                     data-shop-state={state}
+                    data-stock-state={outOfStock ? "EMPTY" : undefined}
                   >
                     <div className="shop-item__row">
                       <div className="shop-item__info">
@@ -226,6 +230,7 @@ export function ShopOverlay({
                         </span>
                         <span className="shop-item__name">{ingredient.nameJa}</span>
                         {state === "NEW" && <span className="shop-item__badge">NEW 入荷</span>}
+                        {outOfStock && <span className="shop-item__badge shop-item__badge--empty">在庫なし</span>}
                       </div>
                       <span className="shop-item__stock">在庫 {remainingStock(ingredient, inventory)}</span>
                     </div>

@@ -8,6 +8,7 @@ import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipe
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
 import { researchEntryViews, type ResearchEntryView } from "../state/discoveryHint";
+import { isResearchStockBlocked } from "../state/researchStockBlock";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 interface DexOverlayProps {
@@ -43,7 +44,21 @@ interface DexOverlayProps {
 /** #346 S2/S3: one anonymous Research Entry card. The label is a plain "this card" marker in the
  *  stable anonymous order -- never a name, No.xx or recipe id. S3 adds the research CTA, shown only
  *  for an entry the player can cook right now (the id travels through the callback, never the DOM). */
-function ResearchEntryCard({ view, onResearch }: { view: ResearchEntryView; onResearch?: () => void }) {
+/** #378 Option 1: the fixed, recipe-agnostic notice of a stock-blocked entry. Never a name, count or missing count. */
+export const RESEARCH_STOCK_NOTICE_JA = "研究を続けるには材料の補充が必要";
+
+function ResearchEntryCard({
+  view,
+  onResearch,
+  stockBlocked,
+  onOpenShop,
+}: {
+  view: ResearchEntryView;
+  onResearch?: () => void;
+  /** #378: the entry cannot start because of stock (`isResearchStockBlocked`); never set together with `onResearch`. */
+  stockBlocked?: boolean;
+  onOpenShop?: () => void;
+}) {
   return (
     <div className="dex-research-card">
       <h3 className="dex-card__research-title">{view.label}</h3>
@@ -66,6 +81,23 @@ function ResearchEntryCard({ view, onResearch }: { view: ResearchEntryView; onRe
         >
           🔎 このピザを研究する
         </button>
+      )}
+      {stockBlocked && (
+        <>
+          <p className="dex-card__research-stock-notice" data-research-stock-blocked="true">
+            {RESEARCH_STOCK_NOTICE_JA}
+          </p>
+          {onOpenShop && (
+            <button
+              type="button"
+              className="dex-card__tag-cta dex-card__tag-cta--shop"
+              onClick={onOpenShop}
+              aria-label={`${view.label}の材料をショップで補充する`}
+            >
+              {"\u{1F6D2}"} ショップで補充する
+            </button>
+          )}
+        </>
       )}
     </div>
   );
@@ -174,6 +206,11 @@ export function DexOverlay({
     const recipe = RECIPES.find((r) => r.id === recipeId);
     return !!recipe && recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE";
   };
+  // #378 Option 1: stock is the explicit cause (registered, every finite material owned, one at stock 0).
+  const stockBlockedNow = (recipeId: string) => {
+    const recipe = RECIPES.find((r) => r.id === recipeId);
+    return !!recipe && isResearchStockBlocked(recipe, { dex, ownedIngredientIds, inventory });
+  };
   // W1-d: opened right after a discovery (Result's 「📖 図鑑を見る」), the Dex lands on the new slot.
   const bodyRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -256,6 +293,8 @@ export function DexOverlay({
                     key={view.recipeId}
                     view={view}
                     onResearch={onResearch && cookableNow(view.recipeId) ? () => onResearch(view.recipeId) : undefined}
+                    stockBlocked={stockBlockedNow(view.recipeId)}
+                    onOpenShop={onOpenShop}
                   />
                 ))}
               </div>

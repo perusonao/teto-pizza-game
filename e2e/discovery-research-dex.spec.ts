@@ -46,7 +46,10 @@ test("research section: anonymous cards, no overflow, formal Dex intact", async 
   const titles = await section.locator(".dex-research-card h3").allTextContents();
   expect(titles.length).toBeGreaterThanOrEqual(2);
   expect(titles.slice(0, 2)).toEqual(["？？？ピザ ①", "？？？ピザ ②"]);
-  await expect(section.locator("button")).toHaveCount(0);
+  // #378: every material is at stock 0 here, so each (registered) card carries the fixed notice and the Shop
+  // CTA -- and still no research CTA, name, number or count.
+  await expect(section.locator("button", { hasText: "研究する" })).toHaveCount(0);
+  await expect(section.locator(".dex-card__research-stock-notice")).toHaveCount(titles.length);
   await expect(section).not.toContainText(/No\.|残り|あと|\/|%/);
   await expect(page.locator(".dex-overlay__chapter")).toHaveCount(3);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
