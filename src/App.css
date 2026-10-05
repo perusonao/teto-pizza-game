@@ -7145,7 +7145,16 @@ p.hint-sheet__step {
   pointer-events: none;
 }
 
+/* Issue #399 (OD-FAMILY-UX-1): in the family row an idle pager (the filtered list fits one page) gives its 128px + gap back
+   to the chips instead of holding an invisible slot. The node stays (aria-hidden, inert); a list that pages shows the
+   pager exactly as before, buttons unchanged. */
+.ingredient-page-nav--with-family .ingredient-page-nav__pager--idle {
+  display: none;
+}
+
 .tray-family-chips {
+  --fade-start: 0px;
+  --fade-end: 0px;
   position: relative; /* the chips' offsetParent: ShelfChipRow's keep-active-visible scroll reads offsetLeft */
   display: flex;
   flex: 1 1 0;
@@ -7156,36 +7165,74 @@ p.hint-sheet__step {
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /* Issue #399: the chips are 44px tall tap targets (see .tray-family-chip) in a 44px scroller whose negative margin gives
+     the 16px back, so the row's layout height stays 28px (dock delta 0). The 44px has to be the chip button itself: an
+     overflow:auto box clips hit-testing to itself, so a ::after past its edge would never be hit, and a tap on bare
+     scroller padding reaches no chip. Same 8px above / below as the 食材庫 entry: the row's 6px margin plus 2px into the
+     tray's last row above, the spacer under the bake bar (which paints over it) below. */
+  box-sizing: border-box;
+  height: 44px;
+  margin-block: -8px;
+  align-items: stretch;
 }
 
 .tray-family-chips::-webkit-scrollbar {
   display: none;
 }
 
-.tray-family-chips--more-right {
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+/* Issue #399: an edge fade on each side that still hides chips, as wide as ShelfChipRow says (--fade-start / --fade-end,
+   shrunk so it never covers the active chip's own text). Hard stops at 0 make a side with no fade fully opaque. */
+.tray-family-chips[data-more-start="true"],
+.tray-family-chips[data-more-end="true"] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
 }
 
+/* The chip is a 44px tap target; the 28px pill the player sees is its ::before (8px of hit area above and below, none of it
+   visible). Text, width (12px each side = the old 10px padding + 2px border) and the 6px gap between chips are as before. */
 .tray-family-chip {
+  position: relative;
+  isolation: isolate;
   flex: none;
-  height: 28px;
-  padding: 0 10px;
-  border: 2px solid #e6d3a3;
-  border-radius: 999px;
-  background: #fff8ea;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
   color: #8a6a45;
   font-size: 12px;
   font-weight: 700;
-  line-height: 24px;
+  line-height: 44px;
   white-space: nowrap;
 }
 
+.tray-family-chip::before {
+  content: "";
+  position: absolute;
+  inset: 8px 0;
+  z-index: -1;
+  box-sizing: border-box;
+  border: 2px solid #e6d3a3;
+  border-radius: 999px;
+  background: #fff8ea;
+}
+
+.tray-family-chip:focus-visible {
+  outline: none;
+}
+
+.tray-family-chip:focus-visible::before {
+  outline: 2px solid #c08a3e;
+  outline-offset: 1px;
+}
+
 .tray-family-chip--active {
-  background: #f2b705;
-  border-color: #b98700;
   color: #4a2e0a;
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 2px;
+}
+
+.tray-family-chip--active::before {
+  background: #f2b705;
+  border-color: #b98700;
 }
