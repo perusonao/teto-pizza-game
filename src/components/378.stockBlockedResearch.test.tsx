@@ -16,7 +16,7 @@ import { discoveredDex } from "../state/testSupport/guidedRound";
 /**
  * #378 Option 1 (OD-378-2/3/4/5): a registered Research Entry that cannot start because a required material is at
  * stock 0 says so (fixed, recipe-agnostic copy) and offers the Shop; the Shop marks EVERY owned material at stock 0.
- * Production data: step 25 with brazilian-calabresa closed -> `pesto-pollo` is the single entry (needs chicken).
+ * Production data: step 25 with the non-credit brazilian-calabresa and aussie (TQ-1D) closed -> `pesto-pollo` is the single entry (needs chicken).
  */
 
 afterEach(cleanup);
@@ -34,8 +34,8 @@ function save(step: number, extraDiscovered: readonly string[], stock: (id: stri
   return { ...base, inventory: Object.fromEntries(finiteOf(owned).map((id) => [id, stock(id)])) };
 }
 /** One entry (pesto-pollo); every material stocked except the ones in `zero`. */
-const single = (zero: readonly string[] = []) => save(25, ["brazilian-calabresa"], (id) => (zero.includes(id) ? 0 : 10));
-/** Step 12: two entries (pizza-portuguesa + brazilian-calabresa). */
+const single = (zero: readonly string[] = []) => save(25, ["brazilian-calabresa", "aussie"], (id) => (zero.includes(id) ? 0 : 10));
+/** Step 12: three entries (pizza-portuguesa + brazilian-calabresa + aussie). */
 const multi = (stock: (id: string) => number) => save(12, [], stock);
 
 function DexProps(s: GameState) {
@@ -259,6 +259,6 @@ describe("G. save/schema untouched", () => {
       const src = fs.readFileSync(f, "utf8");
       expect(src).not.toMatch(/localStorage|persistence|schemaVersion/);
     }
-    expect(RECIPES.length).toBe(31);
+    expect(RECIPES.length).toBe(32);
   });
 });

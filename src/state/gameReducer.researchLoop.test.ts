@@ -29,8 +29,7 @@ function save(step: number, extraDiscovered: readonly string[] = [], pitz = 1000
   const base = createInitialGameState(discoveredDex([...keysBefore(step), ...extraDiscovered]), owned, pitz);
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) };
 }
-const single = () => save(25, ["brazilian-calabresa"]);
-const multi = () => save(12);
+const single = () => save(25, ["brazilian-calabresa", "aussie"]);
 const entryIds = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);
 const startResearch = (s: GameState, recipeId: string) => act(s, { type: "START_FREE_COOK", researchTargetId: recipeId });
 const isSauce = (id: string) => getIngredient(id)?.category === "sauce";
@@ -148,7 +147,7 @@ describe("C. ORIGINAL -> Hint -> knowledge grows from the purchase only -> retry
 
 describe("D/E. exact match promotes the entry; the target never constrains the matcher", () => {
   it("target A, exact B -> B is DISCOVERED and leaves the Research section; A stays an entry", () => {
-    const s = multi();
+    const s = save(12, ["aussie"]); // portuguesa + calabresa are the two entries (TQ-1D's aussie already found)
     const [a, b] = entryIds(s);
     const done = cookExactly(startResearch(s, a), b);
     expect(done.lastDiscovery).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: b });
@@ -183,7 +182,7 @@ describe("F/G/H. post-discovery primary CTA (OD-RX-4)", () => {
     });
 
   it("F. another researchable entry remains -> 「次のピザを研究する」", () => {
-    const s = multi();
+    const s = save(12, ["aussie"]); // exactly two entries
     const [a, b] = entryIds(s);
     const done = cookExactly(startResearch(s, a), b);
     const p = primaryOf(done);
@@ -209,7 +208,7 @@ describe("F/G/H. post-discovery primary CTA (OD-RX-4)", () => {
   });
 
   it("I. two or more entries left -> back to the anonymous Research cards (no direct pick)", () => {
-    const s = save(12); // both entries, nothing discovered yet this round
+    const s = save(12); // all three entries, nothing discovered yet this round
     expect(primaryOf(s)).toMatchObject({ kind: "RESEARCH_NEXT", directResearchId: null });
   });
 });

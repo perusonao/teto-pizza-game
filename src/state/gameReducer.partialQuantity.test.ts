@@ -32,7 +32,7 @@ function pizzaWithCount(recipeId: RecipeId, ingredientId: string, count: number)
   const reference = getReferencePizza(recipeId)!;
   return {
     ...createEmptyPizza(),
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) => {
       const positions =

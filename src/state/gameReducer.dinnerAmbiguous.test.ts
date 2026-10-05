@@ -46,7 +46,7 @@ describe("R14: an ambiguous composition falls back safely at runtime", () => {
     const reference = getReferencePizza("funghi")!;
     const pizza = {
       ...createEmptyPizza(),
-      sauceIds: [reference.sauce.ingredientId],
+      sauceIds: [reference.sauce!.ingredientId],
       sauceDeposits: buildIdealSauceFixture(),
       toppings: reference.pieceGroups.flatMap((g, gi) => g.positions.map((p, i) => ({ id: `f-${gi}-${i}`, ingredientId: g.ingredientId, ...p }))),
     };

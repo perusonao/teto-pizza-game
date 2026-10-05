@@ -43,7 +43,7 @@ function save(step: number, extra: readonly string[] = [], stock = 10): GameStat
   const base = createInitialGameState(discoveredDex([...keysBefore(step), ...extra]), owned, 1000);
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, stock])) };
 }
-const single = (stock = 10) => save(25, ["brazilian-calabresa"], stock);
+const single = (stock = 10) => save(25, ["brazilian-calabresa", "aussie"], stock);
 const multi = () => save(12);
 const T = "pesto-pollo";
 const LABEL = "？？？ピザ（チキン）";
@@ -362,7 +362,7 @@ describe("feature flag OFF keeps the existing Production behavior", () => {
     vi.resetModules();
     vi.doMock("../logic/discovery/researchIdentifyFlag", () => ({ RESEARCH_IDENTIFY_ENABLED: false }));
     const mod = await import("./gameReducer");
-    const s0 = mod.createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), ladderOwned(25), 1000);
+    const s0 = mod.createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), ladderOwned(25), 1000);
     const base = { ...s0, inventory: Object.fromEntries(ladderOwned(25).map((id) => [id, 10])) };
     const run = (a: GameAction) => {
       let t = mod.gameReducer(base, a);

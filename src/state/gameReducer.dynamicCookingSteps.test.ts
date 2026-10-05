@@ -53,7 +53,7 @@ function idealPizzaFor(recipeId: RecipeId, bakeResult: number): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return {
     ...createEmptyPizza(),
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({

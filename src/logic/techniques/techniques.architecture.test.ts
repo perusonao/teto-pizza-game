@@ -66,7 +66,8 @@ describe("INV-TQ-NB: a recipe is discoverable while its technique is undiscovere
   const SYN_NO_SAUCE: RecipeDiscoveryTarget = {
     targetId: "syn:aussie-shape",
     recipeId: "syn-aussie" as RecipeDiscoveryTarget["recipeId"],
-    items: ["bacon", "egg", "mozzarella", "onion"],
+    // A subset of the real aussie (TQ-1D), so it collides with no production recipe.
+    items: ["egg", "mozzarella", "onion"],
     sauceBase: [],
     capabilities: [],
     identityDimensions: DEFAULT_IDENTITY_DIMENSIONS,
@@ -75,7 +76,7 @@ describe("INV-TQ-NB: a recipe is discoverable while its technique is undiscovere
   const CATALOG = [...RECIPE_DISCOVERY_CATALOG, SYN_NO_SAUCE];
 
   it("a synthetic no-sauce target is a NEW_DISCOVERY with an empty technique ledger", () => {
-    const sig = signatureOfPizza(pizza([], ["onion", "bacon", "mozzarella", "egg"]));
+    const sig = signatureOfPizza(pizza([], ["onion", "mozzarella", "egg"]));
     expect(evaluateDiscovery(sig, CATALOG, [])).toEqual({ kind: "NEW_DISCOVERY", recipeId: "syn-aussie", targetId: "syn:aussie-shape" });
   });
 

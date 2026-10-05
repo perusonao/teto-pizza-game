@@ -89,18 +89,33 @@ describe("T15a: the OD-TQ1C-2 audit baseline (SSOT §1.1)", () => {
   });
 });
 
-describe("T20: architecture -- no screen reads technique state in TQ-1C", () => {
+describe("T20: architecture -- which screens may read technique state (TQ-1D)", () => {
   const ui = import.meta.glob<string>(["../../components/**/*.tsx", "../../screens/**/*.tsx", "!../../**/*.test.tsx"], {
     query: "?raw",
     import: "default",
     eager: true,
   });
 
-  it("components and screens never mention the ledger, the reveal or a technique module (UI-visible change 0)", () => {
+  // TQ-1D: exactly these four files render a technique: the Dex section (pre-computed views), the RESULT's
+  // technique stage (the component + its host), and the screen that hands `lastTechniqueDiscovery` over.
+  const TECHNIQUE_UI = [
+    "components/DexOverlay.tsx",
+    "components/ResultPanel.tsx",
+    "components/TechniqueReveal.tsx",
+    "screens/GameScreen.tsx",
+  ];
+
+  it("only the Dex section, the RESULT technique stage and its host mention a technique module", () => {
     expect(Object.keys(ui).length).toBeGreaterThan(10);
-    for (const [path, source] of Object.entries(ui)) {
-      expect(/discoveredTechniqueIds|lastTechniqueDiscovery|discoveryReveal|techniques/.test(source), path).toBe(false);
-    }
+    const mentioning = Object.entries(ui)
+      .filter(([, source]) => /discoveredTechniqueIds|lastTechniqueDiscovery|discoveryReveal|techniques/.test(source))
+      .map(([path]) => path.replace(/^(\.\.\/)+/, ""))
+      .sort();
+    expect(mentioning).toEqual(TECHNIQUE_UI);
+  });
+
+  it("no screen reads the raw ledger: it reaches the UI only as the just-discovered list or pre-computed Dex views", () => {
+    for (const [path, source] of Object.entries(ui)) expect(/discoveredTechniqueIds/.test(source), path).toBe(false);
   });
 
   it("the runtime reads technique state only in the reducer, App (hydrate + persist), the reveal selector and persistence", () => {
@@ -115,6 +130,6 @@ describe("T20: architecture -- no screen reads technique state in TQ-1C", () => 
       .filter(([, source]) => /discoveredTechniqueIds|lastTechniqueDiscovery/.test(source))
       .map(([path]) => path.replace(/^(\.\.\/)+/, ""))
       .sort();
-    expect(readers).toEqual(["App.tsx", "state/discoveryReveal.ts", "state/gameReducer.ts", "state/persistence.ts"]);
+    expect(readers).toEqual(["App.tsx", "screens/GameScreen.tsx", "state/discoveryReveal.ts", "state/gameReducer.ts", "state/persistence.ts"]);
   });
 });

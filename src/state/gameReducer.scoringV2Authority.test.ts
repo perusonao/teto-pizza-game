@@ -72,7 +72,7 @@ function perfectPizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId);
   if (!reference) throw new Error(`Missing Reference fixture for ${recipeId}`);
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({
@@ -88,7 +88,7 @@ function goodPizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId);
   if (!reference) throw new Error(`Missing Reference fixture for ${recipeId}`);
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: ring(28, 24, 0.02),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({
@@ -116,7 +116,7 @@ function poorPizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId);
   if (!reference) throw new Error(`Missing Reference fixture for ${recipeId}`);
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: ring(25, 16, 0.02),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((_, i) => ({

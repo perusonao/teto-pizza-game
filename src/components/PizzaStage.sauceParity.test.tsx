@@ -88,7 +88,9 @@ function drag(dough: HTMLElement, pointerId = 1) {
 
 describe("PizzaStage recipe sauce interaction parity (golden path: recipe's own sauce)", () => {
   for (const recipe of RECIPES) {
-    const expectedSauce = getRecipeSauceProfile(recipe.id).ingredientId;
+    const profile = getRecipeSauceProfile(recipe.id);
+    if (profile === null) continue; // TQ-1D: aussie is made without a sauce
+    const expectedSauce = profile.ingredientId;
 
     it(`${recipe.id} (${expectedSauce}) starts a field dispense on pointerdown/move and commits on pointerup`, () => {
       const { onTap, onDispenseProgress, onDispenseCommit, dough } = renderStage(
@@ -139,7 +141,7 @@ describe("Issue #32 Fresh Audit Finding 1-B fix: an off-recipe sauce uses the sa
 
   for (const { label, recipeId, offRecipeSauce } of offRecipeCases) {
     it(`${label}: tap commits one small starter-tick dab (never a full-spread onTap/APPLY_SAUCE)`, () => {
-      expect(getRecipeSauceProfile(recipeId).ingredientId).not.toBe(offRecipeSauce);
+      expect(getRecipeSauceProfile(recipeId)!.ingredientId).not.toBe(offRecipeSauce);
       const { onTap, onDispenseCommit, dough } = renderStage(recipeId, offRecipeSauce);
 
       tap(dough);

@@ -37,7 +37,7 @@ const stateAfter = (found: readonly string[], opts: { shrimpBought: boolean }): 
 
 describe("Expansion Slice 1 authoring: production data", () => {
   it("recipe count 27 -> 28, ingredient count 30 -> 31, pesto-gamberi = No.28 (existing order unchanged; Wave 2 later appends No.29-31 / ingredients 32-34)", () => {
-    expect(RECIPES).toHaveLength(31);
+    expect(RECIPES).toHaveLength(32); // + TQ-1D No.32 aussie (no new ingredient)
     expect(INGREDIENTS).toHaveLength(34);
     expect(RECIPES[27].id).toBe(ID);
     expect(RECIPES[26].id).toBe("pesto-pollo");
@@ -135,8 +135,8 @@ describe("Expansion Slice 1 ladder: step 26 unlocks shrimp; steps 1..25 frozen",
     expect(recipeDiscoveryState(recipe as Recipe, stateAfter(UP_TO_POLLO, { shrimpBought: true }))).toBe("DISCOVERABLE");
   });
 
-  it("target: after pollo, with calabresa found, the lone DISCOVERABLE is pesto-gamberi; once it is found, Wave 2's vongole (step 27) is next", () => {
-    const found = [...UP_TO_POLLO, "brazilian-calabresa"];
+  it("target: after pollo, with calabresa and aussie found, the lone DISCOVERABLE is pesto-gamberi; once it is found, Wave 2's vongole (step 27) is next", () => {
+    const found = [...UP_TO_POLLO, "brazilian-calabresa", "aussie"]; // the two non-credit onion-step recipes (calabresa, TQ-1D aussie)
     expect(selectHintTarget(stateAfter(found, { shrimpBought: false })).kind).toBe("SHOP_NEW");
     expect(selectHintTarget(stateAfter(found, { shrimpBought: true }))).toMatchObject({ kind: "TARGET", recipeId: ID });
     expect(selectHintTarget(stateAfter([...found, ID], { shrimpBought: true }))).toMatchObject({ kind: "TARGET", recipeId: "vongole" });

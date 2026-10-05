@@ -23,10 +23,11 @@ import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, swee
  * random acquisition orders (T1a: the starters first, then any order), each at every point where the
  * target is makeable.
  *
- * **Cooking Techniques contract (TQ-1D).** Every production recipe has exactly one sauce, so none of
- * them is a NO_SAUCE (Technique) recipe, and 構成 / 特徴 read ingredients only. The first test here
- * fails as soon as a production recipe breaks that; TQ-1D must then re-run this whole gate (and the
- * DH4 privacy sweeps) with the Technique recipes before it ships them.
+ * **Cooking Techniques contract (TQ-1D).** Every production recipe has exactly one sauce except `aussie`
+ * (TQ-1D, OD-TQ1D-1), the one NO_SAUCE (Technique) recipe, and 構成 / 特徴 read ingredients only. The
+ * first test here fails as soon as any other recipe breaks that; that recipe's PR must then re-run this
+ * whole gate (and the DH4 privacy sweeps) with it before shipping it. The sweeps below already include
+ * aussie (every GATE_STATE is a production recipe), which is TQ-1D's re-run of this gate.
  */
 
 /** The sweeps cover thousands of states: seconds locally, more on a shared CI runner. */
@@ -117,13 +118,14 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
   });
 });
 
-describe("DH4-PROD gate: Cooking Techniques privacy on the 31 production recipes (TQ-1D contract)", () => {
-  it("31 production recipes, each with exactly one sauce: no NO_SAUCE (Technique) recipe exists yet", () => {
-    expect(RECIPES).toHaveLength(31);
+describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
+  it("32 production recipes, each with exactly one sauce except the one NO_SAUCE (Technique) recipe, aussie", () => {
+    expect(RECIPES).toHaveLength(32);
     const breaking = RECIPES.filter((r) => sauceCount(r.id) !== 1).map((r) => r.id);
-    // If this fails, a Technique recipe reached production: re-run the DH4 Production gate and the
+    // If this fails, another Technique recipe reached production: re-run the DH4 Production gate and the
     // DH4 privacy sweeps with it (TQ-1D contract) before shipping it.
-    expect(breaking, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([]);
+    expect(breaking, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(["aussie"]);
+    expect(sauceCount("aussie")).toBe(0);
   });
   it("no request, stored id or line ever carries Technique information", () => {
     const techWords = TECHNIQUES.flatMap((t) => [t.id, t.nameJa, t.riddleJa]);
@@ -140,14 +142,14 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 31 production recipes
       }
     }
   }, SWEEP_TIMEOUT_MS);
-  it("INV-TQ-4 on the TQ-1C runtime: no production target requires a technique and no affordance opens", () => {
+  it("INV-TQ-4 on the runtime: aussie is the only production target requiring a technique, and the only affordance is its own onion step", () => {
     const { catalog, materialStep } = productionTechniqueContext();
     expect(catalog).toBe(RECIPE_DISCOVERY_CATALOG);
     expect(catalog.map((t) => t.recipeId).sort()).toEqual(RECIPES.map((r) => r.id).sort());
     const requiring = catalog.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    // If this fails, TQ-1D brought a Technique recipe: re-run this DH4 gate with it first.
-    expect(requiring, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([]);
-    for (const t of TECHNIQUES) expect(techniqueAffordanceStep(t.id, catalog, materialStep), t.id).toBeNull();
+    // If this fails, another Technique recipe arrived: re-run this DH4 gate with it first.
+    expect(requiring, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(["aussie"]);
+    for (const t of TECHNIQUES) expect(techniqueAffordanceStep(t.id, catalog, materialStep), t.id).toBe(12);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
     const sources = import.meta.glob<string>(
@@ -172,7 +174,7 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 31 production recipes
 
 describe("DH4-PROD gate: privacy on real data (ladder + random acquisition orders)", () => {
   it("covers every non-onboarding production recipe in a few thousand states", () => {
-    expect(new Set(GATE_STATES.map((s) => s.recipeId)).size).toBe(30); // every recipe but margherita (the onboarding one)
+    expect(new Set(GATE_STATES.map((s) => s.recipeId)).size).toBe(31); // every recipe but margherita (the onboarding one)
     expect(GATE_STATES.length).toBeGreaterThan(2000);
   });
 

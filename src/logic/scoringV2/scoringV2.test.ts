@@ -110,13 +110,13 @@ describe("scoreSauceComponentV2", () => {
 
   it("the Reference fixture itself scores near-perfect and finite", () => {
     const metrics = computeSauceMetrics(buildIdealMargheritaSauceFixture());
-    const result = scoreSauceComponentV2(metrics, reference);
+    const result = scoreSauceComponentV2(metrics, reference!);
     expect(Number.isFinite(result.score)).toBe(true);
     expect(result.score).toBeGreaterThan(90);
   });
 
   it("empty sauce (no deposits) scores 0, not a placeholder-propped-up partial credit", () => {
-    const result = scoreSauceComponentV2(emptySauceMetrics(), reference);
+    const result = scoreSauceComponentV2(emptySauceMetrics(), reference!);
     expect(result.score).toBe(0);
     expect(result.quantitySimilarity).toBe(0);
     expect(result.coverageSimilarity).toBe(0);
@@ -128,16 +128,16 @@ describe("scoreSauceComponentV2", () => {
 
   it("too little sauce (a single light dab) scores far below the Reference fixture", () => {
     const metrics = computeSauceMetrics(ring(4, 2, 0.02));
-    const tooLittle = scoreSauceComponentV2(metrics, reference);
-    const perfect = scoreSauceComponentV2(computeSauceMetrics(buildIdealMargheritaSauceFixture()), reference);
+    const tooLittle = scoreSauceComponentV2(metrics, reference!);
+    const perfect = scoreSauceComponentV2(computeSauceMetrics(buildIdealMargheritaSauceFixture()), reference!);
     expect(Number.isFinite(tooLittle.score)).toBe(true);
     expect(tooLittle.score).toBeLessThan(perfect.score);
   });
 
   it("a concentrated dump (same total quantity as the fixture, all in one spot) scores worse on evenness than the fixture", () => {
     const dumpDeposits: SauceDeposit[] = Array.from({ length: 46 }, () => ({ x: 50, y: 50, amount: 0.02 }));
-    const dump = scoreSauceComponentV2(computeSauceMetrics(dumpDeposits), reference);
-    const fixture = scoreSauceComponentV2(computeSauceMetrics(buildIdealMargheritaSauceFixture()), reference);
+    const dump = scoreSauceComponentV2(computeSauceMetrics(dumpDeposits), reference!);
+    const fixture = scoreSauceComponentV2(computeSauceMetrics(buildIdealMargheritaSauceFixture()), reference!);
     expect(Number.isFinite(dump.score)).toBe(true);
     expect(dump.evennessScore).toBeLessThan(fixture.evennessScore);
     expect(dump.score).toBeLessThan(fixture.score);
@@ -146,9 +146,9 @@ describe("scoreSauceComponentV2", () => {
   it("broad but uneven sauce (wide coverage, lumpy density) scores between concentrated-dump and the fixture", () => {
     // A broad ring, revisited unevenly (extra passes over half the ring only).
     const unevenDeposits = [...ring(30, 24, 0.02), ...ring(30, 12, 0.03).slice(0, 6)];
-    const uneven = scoreSauceComponentV2(computeSauceMetrics(unevenDeposits), reference);
+    const uneven = scoreSauceComponentV2(computeSauceMetrics(unevenDeposits), reference!);
     const dumpDeposits: SauceDeposit[] = Array.from({ length: 46 }, () => ({ x: 50, y: 50, amount: 0.02 }));
-    const dump = scoreSauceComponentV2(computeSauceMetrics(dumpDeposits), reference);
+    const dump = scoreSauceComponentV2(computeSauceMetrics(dumpDeposits), reference!);
     expect(Number.isFinite(uneven.score)).toBe(true);
     expect(uneven.coverageSimilarity).toBeGreaterThan(dump.coverageSimilarity);
   });
@@ -157,8 +157,8 @@ describe("scoreSauceComponentV2", () => {
     // Radius 44 sits beyond SAUCE_TARGET_RADIUS (40) but still inside the dough (48) --
     // squarely in the "touched the ear" edge band.
     const edgeDeposits = ring(44, 20, 0.02);
-    const edgeCase = scoreSauceComponentV2(computeSauceMetrics(edgeDeposits), reference);
-    const fixture = scoreSauceComponentV2(computeSauceMetrics(buildIdealMargheritaSauceFixture()), reference);
+    const edgeCase = scoreSauceComponentV2(computeSauceMetrics(edgeDeposits), reference!);
+    const fixture = scoreSauceComponentV2(computeSauceMetrics(buildIdealMargheritaSauceFixture()), reference!);
     expect(Number.isFinite(edgeCase.score)).toBe(true);
     expect(edgeCase.edgeScore).toBeLessThan(fixture.edgeScore);
   });
@@ -169,8 +169,8 @@ describe("scoreSauceComponentV2", () => {
     // path into `sauceDeposits`, so the scoring component (which only ever sees the resulting
     // SauceMetrics) cannot tell them apart, and must not need to.
     const deposits = ring(20, 10, 0.02);
-    const a = scoreSauceComponentV2(computeSauceMetrics(deposits), reference);
-    const b = scoreSauceComponentV2(computeSauceMetrics([...deposits]), reference);
+    const a = scoreSauceComponentV2(computeSauceMetrics(deposits), reference!);
+    const b = scoreSauceComponentV2(computeSauceMetrics([...deposits]), reference!);
     expect(a).toEqual(b);
   });
 });
@@ -937,7 +937,7 @@ describe("Golden ordering (Fresh Audit scoring principle: better physical pizza 
 function referenceLikePizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({
@@ -952,7 +952,7 @@ function referenceLikePizzaForRecipe(recipeId: RecipeId): PizzaState {
 function goodPizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: ring(28, 24, 0.02), // decent coverage, a bit short of the full fixture (same shape as Margherita's own "good" fixture above)
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({
@@ -968,7 +968,7 @@ function goodPizzaForRecipe(recipeId: RecipeId): PizzaState {
 function poorPizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: Array.from({ length: 10 }, () => ({ x: 55, y: 55, amount: 0.02 })), // dumped, off-center
     toppings: [
       { id: `${recipeId}-poor-0`, ingredientId: reference.pieceGroups[0].ingredientId, x: 12, y: 12 },

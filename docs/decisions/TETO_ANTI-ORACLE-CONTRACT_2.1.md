@@ -6,6 +6,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 根拠・比較・試算: [`docs/reports/TETO_DISCOVERY-3_RESULT-BASED-IDENTIFICATION_Fresh-Design-Audit.md`](../reports/TETO_DISCOVERY-3_RESULT-BASED-IDENTIFICATION_Fresh-Design-Audit.md)
 基準: main `6d9d1ced98113dc42d8bd1e0688536f362431f61`（#357 merge 後）。PR #359（旧方式 A の改善）は HEAD `ad48bd6` で **HOLD**（比較対象）。
 
+> **TQ-1D 同期（2026-10-05、Owner Decision OD-TQ1D-1）:** Cooking Techniques 1.0 TQ-1D が初の no-sauce recipe（`aussie`）を Production に追加した。**Expansion Gate A（§13.1）は waiver せず、TQ-1D で正式に解消し CLOSED とした。** Production の population は 32 recipe / 34 ingredient で、そのうち no-sauce は `aussie` の 1 つ。解消の中身は §3（標準パネルの population）、§4 INV-D7、§13.1 に記録した。本書のそれ以外の決定は変更しない。以下の本文に残る「27 recipe / 30 ingredient」は各決定の**当時の audit 母集団**であり、現在の数値ではない（現在値は §15 冒頭の注を参照）。
+
 ## 0. この文書の位置づけ
 
 - **Contract 2.0** は repo 内の文書ではなく **Issue #356 §4**（Anti-Oracle Contract 2.0 / INV-1〜INV-7 / OD-I-1〜18）と、実装コメント
@@ -66,7 +68,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 - **直接の「なし」表示の禁止（OD-RB-12）**: パネルは player が実際に試した ingredient についてだけ「モッツァレラ ×」「パルミジャーノ ×」のように表示する。**「チーズなし」「ソースなし」「〜は使わない」を直接書かない**（行ごと・文言ごと）。player 自身が結果から「チーズなしでは？」と推理することは許容する（§10）。
 - **表示順**は player 自身の pizza の順序（置いた順 / 種類順）で、`canonical(T)` の順序や catalog の順序を使わない。
 - パネルに **○ / × の個数、「全部正解」「あと少し」等の総評、色による総括、count、進捗** を置かない。
-- **標準パネルを target 非依存に同一表示できない target は、パネルの対象 population に含めない**（例: Hint 5.0 で sauce rung が RESERVED の target / no-sauce の target）。**カテゴリ行だけを条件付きで省略する設計は採用しない**: target の性質によって sauce 行だけが消えると、パネルの省略そのものが hidden property（reserved / no-sauce class）を漏らすため（INV-D4、INV-5）。現 Production の 27 recipe に該当 target はない（全 recipe がちょうど 1 つの sauce を使い、Hint 5.0 の RESERVED sauce rung に到達する recipe は存在しない: M2 条件 3）ので、**Production-27 の実装 blocker にはしない**。no-sauce 等の population を Production に追加する前に、**Scale Audit の Expansion Gate A として RESERVED / INV-D4 / INV-D7 を再設計する**（§13）。
+- **標準パネルを target 非依存に同一表示できない target は、パネルの対象 population に含めない**（例: Hint 5.0 で sauce rung が RESERVED の target）。**カテゴリ行だけを条件付きで省略する設計は採用しない**: target の性質によって sauce 行だけが消えると、パネルの省略そのものが hidden property（reserved / no-sauce class）を漏らすため（INV-D4、INV-5）。
+  - **TQ-1D による解消（OD-TQ1D-1、Expansion Gate A CLOSED）:** no-sauce の `aussie` は**この除外に当てはまらない**。標準パネルは元々 target 非依存で、行は **player が実際に使った ingredient** だけから作られる（`researchResultRows`）。sauce 行が出るのは player が sauce を使った時だけで、sauce を使わなかった pizza には**どの target でも**sauce 行は無い（Aussie だけが省略されるのではない）。player が sauce を使えば、Aussie でも他の target と同じ通常の ×（member でない sauce）になる。したがって Aussie 専用の特殊行（「ソースなし」「ソース不要」）も、0 点の sauce 行も、条件付き省略も**作らない**。Hint 5.0 は RESERVED を復活させず、Aussie は key-free で **SAUCE rung を持たない**（最初の有効 rung は CHEESE）。「ソースなし」は **player が実際に作った pizza の組成から Technique `no-sauce` を発見した後**にだけ、Technique の名称として公開してよい（RESULT の技法段 / Dex）。target の identity から sauce-none を判定・開示することはない。
 
 ## 4. 不変条件（Contract 2.1）
 
@@ -131,7 +134,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 | 5 | `src/state/trialRecord.ts` 冒頭、Near/Far Neutralization Phase 1 | Notebook の stored feedback は常に `null` | Near/Far 行を記録しない方針は維持。Research パネルの**開示した判定**に限り `feedback` を使う（schema の `{kind, textJa}` の範囲内、§7）。実装時に `trialRecord` の「常に null」コメント / テストを更新する |
 | 6 | Trial Notebook OD-P3-4 / OD-P3-14 | 「見せた P2 feedback 行そのまま」を持てる。内部 outcome / recipe / hidden 回答は持たない | 整合（開示した判定のみ、outcome は記録しない） |
 | 7 | #346 S3 / S4 Result「attempts add no knowledge」、OD-RX-3、AC6 | 試作は knowledge を作らない（`ing:` は購入のみ） | #356 で限定的に上書き済み。2.1 はその範囲を「RESULT で開示した ○」へ拡張（保存先は同じ `ing:`）。S4 AC6（指定なしの oracle 中立性）は「targetless / パネルなし」で維持 |
-| 8 | Hint 5.0 H5-0 OD-H5-U1「no FREE LEAK」、OD-H5-P4-CHEESE「購入前は『なし』と言わない」、OD-H5-P4-SAUCE（RESERVED） | rung は有料。cheese / key の「なし」は購入後のみ。sauce の「なし」は Hint 5.0 の authority ではない | **直接の「なし」は表示しない**（INV-D7）。ただし player が全 cheese を試して全 × を見れば「なし」を**推論できる**。これを **accepted consequence**（§10）とし、Hint 側の改善は #360 に委譲。RESERVED / no-sauce の target はパネルの対象 population に含めない（§3、行の条件付き省略はしない） |
+| 8 | Hint 5.0 H5-0 OD-H5-U1「no FREE LEAK」、OD-H5-P4-CHEESE「購入前は『なし』と言わない」、OD-H5-P4-SAUCE（RESERVED） | rung は有料。cheese / key の「なし」は購入後のみ。sauce の「なし」は Hint 5.0 の authority ではない | **直接の「なし」は表示しない**（INV-D7）。ただし player が全 cheese を試して全 × を見れば「なし」を**推論できる**。これを **accepted consequence**（§10）とし、Hint 側の改善は #360 に委譲。RESERVED の target はパネルの対象 population に含めない（§3、行の条件付き省略はしない）。**TQ-1D 以降:** no-sauce の `aussie` は Production の target だが、パネルは target 非依存のため特殊扱いしない（§3 の TQ-1D 解消）。OD-H5-P4-SAUCE の RESERVED は復活させない（Aussie に SAUCE rung は無い） |
 | 9 | Hint 5.0 OD-H5-E1（価格 sauce 10 / cheese 10 / key 10 / structure 5 / class 5） | 価格不変 | 不変（OD-RB-9）。○ の `ing:` は既存の ALREADY_KNOWN 経路（OD-I-14） |
 | 10 | Issue #356 OD-I-8（cross-recipe）/ OD-D3-20・23（INCOMPLETE を ORIGINAL と同一に） | 別 recipe exact は通常 DISCOVERED、INCOMPLETE は ORIGINAL と見分けがつかない | 維持（§8、INV-D3） |
 | 11 | #346 S4「Research ORIGINAL の RESULT は near/far を出さない」 | Research round は Near/Far 行なし | 維持。パネルは Near/Far ではない |
@@ -146,7 +149,7 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 1. **Hint 5.0 の SAUCE / CHEESE rung の価値が低下する。** sauce / cheese の項目別 ○× は topping の走査と並行して無料で進むため、SAUCE rung（10 Pitz）は 11 recipe、CHEESE rung（10 Pitz）は 22 recipe で、RESULT が同じ情報を数 attempt 以内に無料で与える（sauce は 1 attempt 1 種のため、所有する sauce が s 種なら最大 s attempt。Hint 5.0 は production で ON）。上限つき案でも消えないため（27 recipe 合計 97 → 100 attempt）、本 Contract の実装では解決しない。**改善は #360 の Design/Audit scope に残す。**
 2. **「チーズなし」を player が推論できる。** 6 recipe（marinara、fugazza、pizza-bianca、pesto-tonno、puttanesca-pizza、brazilian-calabresa）は cheese を使わない。所有している cheese（この 6 recipe では 2 種）をすべて載せて全 × になれば、player は「cheese なし」を推論できる。
 3. これは**直接の「cheese なし」の開示ではない**。パネルは player が実際に試した ingredient についてだけ「モッツァレラ ×」「パルミジャーノ ×」と表示する（INV-D7）。**player 自身の experiment 結果からの推論として、Contract 2.1 では許容する。**
-4. sauce の「なし」は production に存在しない（全 27 recipe がちょうど 1 つの sauce を使う）。sauce は 1 枚の pizza に 1 種類しか載せられないため、1 attempt では 1 種類しか判定できない。所有する sauce が 2〜3 種の recipe（13 recipe、うち 2 recipe は unlock fact で既知）は、attempt ごとに別の sauce を試して確定する（topping の走査と並行）。cheese は複数載せられるので 1 attempt で確定する。
+4. （27 recipe 当時の audit。TQ-1D 以降は no-sauce の `aussie` が 1 つ存在するが、player が sauce を使わなければ sauce 行は出ず、使えば通常の ×。§3 の TQ-1D 解消を参照）sauce の「なし」は 27 recipe の production には存在しなかった（全 27 recipe がちょうど 1 つの sauce を使う）。sauce は 1 枚の pizza に 1 種類しか載せられないため、1 attempt では 1 種類しか判定できない。所有する sauce が 2〜3 種の recipe（13 recipe、うち 2 recipe は unlock fact で既知）は、attempt ごとに別の sauce を試して確定する（topping の走査と並行）。cheese は複数載せられるので 1 attempt で確定する。
 5. cheese の全件投入が合理的になる recipe は 22 あるが、節約は 27 recipe 合計で約 3 attempt（平均 0.1 attempt / recipe、最大 約 1 attempt: quattro-formaggi。上限つき案 100 と比較した 97）で、攻撃面は小さい。
 
 ## 11. 実装 Gate に求めるテスト契約（実装時に固定する）
@@ -192,7 +195,11 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 
 ### 13.1 Scale Audit の再監査 trigger（Expansion Gate）
 
-- **Expansion Gate A（no-sauce / RESERVED population）**: no-sauce 等の population を Production へ追加する前に、RESERVED / INV-D4 / INV-D7 を再設計する（§3: カテゴリ行の条件付き省略は採用しない）。
+- **Expansion Gate A（no-sauce / RESERVED population）— CLOSED（TQ-1D、OD-TQ1D-1、2026-10-05）。** waiver ではなく正式な解消である。no-sauce の population（`aussie`）を Production に追加するにあたり、RESERVED / INV-D4 / INV-D7 を次のとおり確定した:
+  - **INV-D4（target 非依存の表示）:** 標準パネルの行は player 自身の pizza と known facts だけで決まり、target の sauce 有無では決まらない。sauce を使わなかった pizza は、どの target でも sauce 行を持たない。Aussie 専用の行・省略・文言は無い。
+  - **INV-D7（直接の「なし」を出さない）:** 維持。パネル・aria・Notebook・保存のどこにも「ソースなし」「ソース不要」「ソース：なし」に相当する表現を置かない。Technique の名称「ソースなし」は、**実際の pizza の組成から `no-sauce` を発見した後**にだけ、RESULT の技法段と Dex の「調理法」で公開する（membership feedback ではなく、発見の報酬としての表示。★ / Pitz は付かない）。
+  - **RESERVED:** 復活させない。Aussie は永続的に key-free（`recipeHintRoles`）で、key-free の ladder は適用されない rung を持たないため SAUCE rung が無い。最初の有効 rung は CHEESE。KEY_TOPPING も無い。`hint5ReservedRungs` は production で空のまま（G7 / RESERVED gate が固定）。
+  - **固定している場所:** `researchResultRows.test.ts`（Gate A: 構造が全 target で同一）、`gameReducer.techniques.privacy.test.ts`（target ごとの rows / Notebook / 保存 / Research Entry / Hint 5.0 view / near-miss の absence 走査）、`hint5Production.gate.test.ts`（G7 / RESERVED gate）、`deductionProduction.gate.test.ts`（DH4 privacy sweep に Aussie を含む）。
 - **53 / 172 recipe の Scale Audit**: 旧版の見積り（本書の旧 §6 の将来スケール）は sauce 複数投入の前提を含む可能性があり、**現時点で authority にしない**。拡張 population（53 / 172）を扱う前に、sauce 1 種 / attempt（§3、§15）の前提で**再監査する**（trigger の記録のみ。数値はここでは確定しない）。Production-27 の実装 blocker ではない。
 
 ## 14. Non-Goals
@@ -200,6 +207,8 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
 
 ## 15. Canonical numbers（Production 27 recipe / 30 ingredient、**sauce は 1 attempt 1 種類**）
+
+> 現在の Production（TQ-1D 後、main から機械的に再計算）: **32 recipe / 34 ingredient（topping 27）/ ladder 28 step / credited 30 recipe（`ladderCredit:false` は `brazilian-calabresa` と `aussie`）/ chapter 6 / 11 / 15**。下の表は 27 recipe 当時の audit 値のままで、現在値ではない。
 
 旧版（`f8194a5` 以前）の数値は「複数 sauce を 1 attempt で同時に試せる」前提を含んでいた。**実 code では 1 枚の pizza に載る sauce は 1 種類**（`APPLY_SAUCE` / `COMMIT_SAUCE_DISPENSE` が `sauceIds` を 1 要素で置換、`src/state/gameReducer.ts`）なので、本節の数値を canonical とし、旧値を置換する。cheese は複数載せられるため cheese の分析は変更しない。
 

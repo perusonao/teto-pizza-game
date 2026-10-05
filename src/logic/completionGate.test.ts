@@ -41,7 +41,7 @@ function singleDab(): SauceDeposit[] {
 function idealMargherita(bakeResult: number): PizzaState {
   const reference = getReferencePizza("margherita")!;
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({
@@ -217,13 +217,13 @@ describe("evaluatePizzaCompletion", () => {
 
   it("27. all 28 recipes can be evaluated by the Completion Gate (PASS for an ideal pizza, FAILED for an empty one)", () => {
     const allIds: readonly RecipeId[] = RECIPES.map((r) => r.id);
-    expect(allIds.length).toBe(31);
+    expect(allIds.length).toBe(32);
     for (const id of allIds) {
       const recipe = getRecipe(id)!;
       const reference = getReferencePizza(id);
       expect(reference).not.toBeNull();
       const idealPizza = pizzaWith({
-        sauceIds: [reference!.sauce.ingredientId],
+        sauceIds: reference!.sauce ? [reference!.sauce.ingredientId] : [],
         sauceDeposits: buildIdealSauceFixture(),
         toppings: reference!.pieceGroups.flatMap((group, gi) =>
           group.positions.map((p, i) => ({

@@ -109,7 +109,7 @@ export const HV_SCENARIOS: readonly HvScenario[] = [
   {
     id: "pool2-onion",
     recipeId: "pizza-portuguesa",
-    labelJa: "H: 発見できるピザが2つ (onion 解禁直後)",
+    labelJa: "H: 発見できるピザが3つ (onion 解禁直後)",
     pitz: 300,
     facts: [],
     noTarget: true,
@@ -145,12 +145,19 @@ export function buildHvSnapshot(scenario: HvScenario): ProgressionSnapshot {
   const index = scenario.dexAfterLadder ? steps.length : steps.findIndex((step) => step.keyRecipeId === scenario.recipeId);
   if (index < 0) throw new Error(`${PREVIEW_HELPER_MARK}: ${scenario.recipeId} is not on the ladder`);
   const materials = steps.slice(0, scenario.dexAfterLadder ? steps.length : index + 1).flatMap((step) => step.ingredientIds);
-  // #353: from the onion step on, the non-credit brazilian-calabresa is a second registered Research Entry beside
-  // the scenario's recipe, which would make the seed a "2 entries, no target" save (the sheet then asks to choose).
-  // These seeds stand for ONE hint target, so it is already found. The pool-2 seed (`noTarget`) and the seeds at or
-  // before that step are left as they were.
+  // #353: from the onion step on, the non-credit brazilian-calabresa (and, since TQ-1D, the non-credit aussie) are
+  // further registered Research Entries beside the scenario's recipe, which would make the seed a "2+ entries, no
+  // target" save (the sheet then asks to choose). These seeds stand for ONE hint target, so both are already found.
+  // The pool seed (`noTarget`) and the seeds at or before that step are left as they were.
   const onionIndex = steps.findIndex((step) => step.keyRecipeId === "pizza-portuguesa");
-  const companion = !scenario.noTarget && !scenario.dexAfterLadder && onionIndex >= 0 && index > onionIndex ? ["brazilian-calabresa"] : [];
+  const NON_CREDIT_ONION_RECIPES = ["brazilian-calabresa", "aussie"];
+  const companion =
+    !scenario.noTarget && !scenario.dexAfterLadder && onionIndex >= 0 && index > onionIndex
+      ? NON_CREDIT_ONION_RECIPES
+      : // a seed that stands for brazilian-calabresa itself keeps only aussie found, so calabresa is the lone target
+        scenario.dexAfterLadder
+        ? ["aussie"]
+        : [];
   const dex: DexEntry[] = ["margherita", ...steps.slice(0, index).map((step) => step.keyRecipeId), ...companion].map((recipeId) => ({
     recipeId,
     discovered: true,

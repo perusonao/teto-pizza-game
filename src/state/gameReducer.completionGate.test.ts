@@ -36,7 +36,7 @@ function ring(radius: number, count: number, amount = 0.02): SauceDeposit[] {
 function idealPizzaFor(recipeId: RecipeId, bakeResult: number): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({
@@ -171,7 +171,7 @@ describe("Completion Gate Phase 1: FAILED semantics", () => {
     const reference = getReferencePizza("fugazza")!;
     const onionGroup = reference.pieceGroups.find((g) => g.ingredientId === "onion")!;
     const pizza = pizzaWith({
-      sauceIds: [reference.sauce.ingredientId],
+      sauceIds: [reference.sauce!.ingredientId],
       sauceDeposits: buildIdealSauceFixture(),
       // oregano deliberately omitted -- fugazza requires { ingredientId: "oregano", minCount: 1 }.
       toppings: onionGroup.positions.map((p, i) => ({
@@ -236,7 +236,7 @@ describe("Completion Gate Phase 1: sauce minimum uses ring()'s own PASS boundary
   it("a mediocre-but-real sauce (ring(25, 16)) still PASSes and registers normally", () => {
     const reference = getReferencePizza("margherita")!;
     const pizza = pizzaWith({
-      sauceIds: [reference.sauce.ingredientId],
+      sauceIds: [reference.sauce!.ingredientId],
       sauceDeposits: ring(25, 16),
       toppings: reference.pieceGroups.flatMap((group, gi) =>
         group.positions.map((p, i) => ({

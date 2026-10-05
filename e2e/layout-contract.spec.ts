@@ -49,6 +49,7 @@ const ALL_RECIPES = [
   "pepperoni", "napoletana", "tonno-e-cipolla", "pizza-bianca", "breakfast-pizza", "capricciosa", "meat-lovers",
   "melanzane-pizza", "parmigiana-pizza", "bambino", "hawaiian", "pizza-portuguesa", "pesto-tonno",
   "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza", "brazilian-calabresa",
+  "aussie", // TQ-1D: makeable once onion is owned, so the seeded "everything found" save must include it (else it is a Research Entry)
 ];
 // FREE_COOK_BAKE_TARGET (src/data/freeCook.ts) and the recipes' own bakeTarget (src/data/recipes.ts).
 const FREE_BAKE = { start: 58, end: 78 };
@@ -106,7 +107,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] } | null, query =
   );
   await page.goto(`/${query}`);
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/31`));
+  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/32`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -451,8 +452,8 @@ test.describe("I5b-5 Layout Contract", () => {
     await lc.apply(mount);
     await page.getByRole("button", { name: /ピザを作る/ }).first().click();
     await page.waitForSelector(".pizza-select-grid-card");
-    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(26);
-    await lc.checkpoint({ label: "Pizza Select grid (26 cards)", meta: { screen: "PIZZA_SELECT" } }, ["L-D", "L-L"], {
+    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(27);
+    await lc.checkpoint({ label: "Pizza Select grid (27 cards)", meta: { screen: "PIZZA_SELECT" } }, ["L-D", "L-L"], {
       primary: ".pizza-select-grid-card",
       names: { name: ".pizza-select-grid-card .pizza-select-card__name", card: ".pizza-select-grid-card" },
     }, mount);

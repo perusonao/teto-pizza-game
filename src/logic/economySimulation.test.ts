@@ -47,7 +47,7 @@ describe("economy table consistency (A)", () => {
   });
 
   it("simulates the 15 EP-era recipes; the 10 W1 recipes (no EP1 gate) are outside this EP4 model", () => {
-    expect(RECIPES.length).toBe(31);
+    expect(RECIPES.length).toBe(32);
     expect(EP_ERA_RECIPES).toHaveLength(15);
     expect((RECIPES as readonly Recipe[]).filter((r) => !EP_ERA_RECIPES.includes(r)).every((r) => !r.unlockCondition)).toBe(true);
   });

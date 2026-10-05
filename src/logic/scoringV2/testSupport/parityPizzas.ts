@@ -34,7 +34,7 @@ function ring(radius: number, count: number, amount = 0.02): SauceDeposit[] {
 
 export function parityPizza(recipe: Recipe, variant: ParityVariant): PizzaState {
   const reference = getReferencePizza(recipe.id);
-  const sauceId = reference?.sauce.ingredientId ?? null;
+  const sauceId = reference?.sauce?.ingredientId ?? null;
   const groups = reference?.pieceGroups ?? [];
   const mid = (recipe.bakeTarget.start + recipe.bakeTarget.end) / 2;
   const pieces = groups.flatMap((g, gi) =>
@@ -43,7 +43,8 @@ export function parityPizza(recipe: Recipe, variant: ParityVariant): PizzaState 
   const base: PizzaState = {
     ...createEmptyPizza(),
     sauceIds: sauceId ? [sauceId] : [],
-    sauceDeposits: buildIdealSauceFixture(),
+    // A recipe without a sauce (aussie, TQ-1D) has no deposits either.
+    sauceDeposits: sauceId ? buildIdealSauceFixture() : [],
     toppings: pieces,
     bakeResult: mid,
   };

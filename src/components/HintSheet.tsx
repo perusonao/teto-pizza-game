@@ -845,8 +845,8 @@ function hint5EntryKey(entry: Hint5BoardEntry): string {
  * holds the ONE next rung: its fixed label and description, its normal price and 「たずねる」.
  * Nothing here shows a rung count, what comes later, a sub-topping name or glyph, or a 0 price
  * (M3). An empty fixed rung is offered like any other. Round 6: a bought empty CHEESE / KEY rung shows
- * 「なし」 in its row (「チーズ」 | 「なし」); an empty SAUCE rung stays RESERVED and is never shown as
- * 「なし」 (OD-H5-P4-SAUCE, TQ-1D).
+ * 「なし」 in its row (「チーズ」 | 「なし」); an empty SAUCE rung stays RESERVED (fail-closed; no production recipe reaches it
+ * since TQ-1D) and is never shown as 「なし」 (OD-H5-P4-SAUCE).
  */
 function Hint5LadderBody({
   view,

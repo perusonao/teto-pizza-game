@@ -13,7 +13,7 @@ const OPT_OUT_KEY = "teto.dev.researchIdentify";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const materials = DISCOVERY_LADDER.steps.filter((s) => s.step <= 25).flatMap((s) => s.ingredientIds as readonly string[]);
-const discovered = [...keysBefore(25), "brazilian-calabresa"];
+const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie"];
 const SPOTS: ReadonlyArray<readonly [number, number]> = [[38, 42], [50, 38], [62, 42], [42, 56], [58, 56], [50, 66], [34, 52], [66, 52]];
 
 interface SaveOpts {

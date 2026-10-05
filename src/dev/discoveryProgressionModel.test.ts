@@ -66,11 +66,11 @@ describe("production authority reuse (no second DISCOVERABLE logic)", () => {
 });
 
 describe("current production population", () => {
-  it("31 recipes, 34 ingredients, 28 steps (24 frozen W1 + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28), all read from production data", () => {
+  it("32 recipes, 34 ingredients, 28 steps (24 frozen W1 + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28; TQ-1D's aussie adds a recipe, not a step), all read from production data", () => {
     expect(model.recipeCount).toBe(RECIPES.length);
     expect(model.ingredientCount).toBe(INGREDIENTS.length);
     expect(model.stepCount).toBe(DISCOVERY_LADDER.steps.length);
-    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([31, 34, 28]);
+    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([32, 34, 28]);
     expect(model.startingPool.map((m) => m.recipeId)).toEqual(["margherita"]);
   });
 });
@@ -84,23 +84,23 @@ describe("cherry-tomato (step 18)", () => {
     expect(s.newlyDiscoverable[0].ladderCredit).toBe(true);
     expect(stepMatchesFilter(s, "multi")).toBe(false);
   });
-  it("the pool is genovese plus the carried-over brazilian-calabresa", () => {
-    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["brazilian-calabresa", "genovese"]);
-    expect(s.beforePool.map((m) => m.recipeId)).toEqual(["brazilian-calabresa"]);
+  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa and aussie", () => {
+    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese"]);
+    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa"]);
     expect(s.classification).toBe("OPEN_POOL_POSSIBLE");
   });
 });
 
 describe("onion (step 12)", () => {
   const s = stepOf("onion");
-  it("newly makes pizza-portuguesa AND brazilian-calabresa DISCOVERABLE", () => {
+  it("newly makes pizza-portuguesa, brazilian-calabresa AND (TQ-1D) aussie DISCOVERABLE", () => {
     expect(s.step).toBe(12);
-    expect(s.newlyDiscoverable.map((r) => r.recipeId).sort()).toEqual(["brazilian-calabresa", "pizza-portuguesa"]);
+    expect(s.newlyDiscoverable.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "pizza-portuguesa"]);
     for (const r of s.newlyDiscoverable) expect(r.missingBefore.map((i) => i.id)).toEqual(["onion"]);
     expect(s.beforePool).toEqual([]); // capricciosa is already found on this path
-    expect(s.afterPool).toHaveLength(2);
+    expect(s.afterPool).toHaveLength(3);
   });
-  it("is OPEN_POOL (both are new, nothing can be a maintained target)", () => {
+  it("is OPEN_POOL (all are new, nothing can be a maintained target)", () => {
     expect(s.classification).toBe("OPEN_POOL");
     expect(s.hintTargetKind).toBe("OPEN_POOL");
     expect(s.maintainableTargetIds).toEqual([]);
@@ -129,17 +129,25 @@ describe("OPEN_POOL classification follows selectHintTarget, not 'candidate >= 2
     const w = walkState(W1_ORDER.slice(0, 13));
     expect(selectHintTarget(w)).toEqual({ kind: "OPEN_POOL" });
     expect(selectHintTarget(w, { stickyRecipeId: "brazilian-calabresa" })).toMatchObject({ kind: "TARGET", recipeId: "brazilian-calabresa" });
-    expect(s.maintainableTargetIds).toEqual(["brazilian-calabresa"]);
+    expect([...s.maintainableTargetIds].sort()).toEqual(["aussie", "brazilian-calabresa"]);
   });
   it("the OPEN_POOL filter is exactly the OPEN_POOL and OPEN_POOL POSSIBLE steps", () => {
     expect(model.steps.filter((s) => stepMatchesFilter(s, "open-pool")).map((s) => s.step)).toEqual([12, ...model.openPoolPossibleStepNumbers]);
   });
 });
 
-describe("ladderCredit:false (brazilian-calabresa)", () => {
+describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", () => {
+  it("aussie is read from the same credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
+    const aussie = model.nonCreditRecipes.find((r) => r.recipeId === "aussie")!;
+    expect(aussie.advancesLadder).toBe(countsTowardLadder("aussie"));
+    expect(aussie.advancesLadder).toBe(false);
+    expect(aussie.lunchRush).toBe(participatesInLunchRush("aussie"));
+    expect(aussie.firstDiscoverableStep).toBe(12);
+    expect(aussie.poolSteps).toEqual(Array.from({ length: 17 }, (_, i) => 12 + i));
+  });
   it("is read from the production credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
     const calabresa = model.nonCreditRecipes.find((r) => r.recipeId === "brazilian-calabresa")!;
-    expect(model.nonCreditRecipes).toHaveLength(1);
+    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa"]);
     expect(calabresa.advancesLadder).toBe(countsTowardLadder("brazilian-calabresa"));
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));

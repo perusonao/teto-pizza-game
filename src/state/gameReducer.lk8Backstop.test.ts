@@ -57,7 +57,7 @@ function idealPizzaFor(recipeId: RecipeId, extra: readonly string[] = []): Pizza
   const recipe = getRecipe(recipeId)!;
   return {
     ...createEmptyPizza(),
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: [
       ...reference.pieceGroups.flatMap((g, gi) =>

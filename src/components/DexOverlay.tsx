@@ -9,6 +9,7 @@ import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
 import { researchEntryViews, type ResearchEntryView } from "../state/discoveryHint";
 import { isResearchStockBlocked } from "../state/researchStockBlock";
+import type { TechniqueDexView } from "../logic/techniques/dexView";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 interface DexOverlayProps {
@@ -39,6 +40,9 @@ interface DexOverlayProps {
   /** #346 S3: a Research Entry card's 「このピザを研究する」 -- Free Cooking with that entry as the
    *  Research Target. Offered only for an entry that is cookable now (DISCOVERABLE). */
   onResearch?: (recipeId: string) => void;
+  /** Cooking Techniques TQ-1D: the 「調理法」 section (../logic/techniques/dexView.ts). A discovered technique shows
+   *  its name; an undiscovered one whose affordance is open shows only 「？？？」 and its riddle; the rest are absent. */
+  techniqueViews?: readonly TechniqueDexView[];
 }
 
 /** #346 S2/S3: one anonymous Research Entry card. The label is a plain "this card" marker in the
@@ -183,6 +187,7 @@ export function DexOverlay({
   onShowHint,
   discoveryHintFacts,
   onResearch,
+  techniqueViews = [],
 }: DexOverlayProps) {
   const total = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -284,6 +289,28 @@ export function DexOverlay({
             </div>
             <p className="dex-overlay__mastery-total">{"⭐"} 合計★ {mastery}</p>
           </div>
+          {techniqueViews.length > 0 && (
+            <section className="dex-overlay__techniques" data-dex-techniques="">
+              <h3 className="dex-overlay__chapter-title">{"\u{1F373}"} 調理法</h3>
+              <div className="dex-overlay__list">
+                {techniqueViews.map((view) =>
+                  view.state === "DISCOVERED" ? (
+                    <div key={view.id} className="dex-card dex-card--technique" data-technique-state="DISCOVERED">
+                      <h3>{view.nameJa}</h3>
+                    </div>
+                  ) : (
+                    <div key={view.id} className="dex-card dex-card--technique dex-card--locked" data-technique-state="RIDDLE">
+                      <span className="dex-card__lock-icon">🔒</span>
+                      <div className="dex-card__lock-text">
+                        <p className="dex-card__lock-label">？？？</p>
+                        <p className="dex-card__lock-hint">{view.riddleJa}</p>
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            </section>
+          )}
           {researchEntries.length > 0 && (
             <section className="dex-overlay__research">
               <h3 className="dex-overlay__chapter-title">🔎 研究中のピザ</h3>

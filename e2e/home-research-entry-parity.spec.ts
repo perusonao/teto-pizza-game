@@ -32,7 +32,7 @@ function saveWith(discovered: string[]) {
   };
 }
 // The Dex 25 ladder save with calabresa closed: pesto-pollo is the single Research Entry (as discovery-research-result.spec).
-const ONE_ENTRY = saveWith([...keysBefore(25), "brazilian-calabresa"]);
+const ONE_ENTRY = saveWith([...keysBefore(25), "brazilian-calabresa", "aussie"]);
 // Calabresa left undiscovered as well: two cookable Research Entries.
 const TWO_ENTRIES = saveWith(keysBefore(25));
 const bar = (page: Page) => page.locator(".prepare-bake-bar");

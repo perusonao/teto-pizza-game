@@ -41,7 +41,7 @@ function TargetThumbnail({ recipeId }: { recipeId: string }) {
   const reference = getReferencePizza(recipeId);
   const recipe = getRecipe(recipeId as RecipeId);
   if (reference) {
-    return <ReferenceThumbnail sauceIngredientId={reference.sauce.ingredientId} pieceGroups={reference.pieceGroups} />;
+    return <ReferenceThumbnail sauceIngredientId={reference.sauce?.ingredientId ?? null} pieceGroups={reference.pieceGroups} />;
   }
   if (!recipe) return null;
   const player = getPlayerReferencePizza(recipe);

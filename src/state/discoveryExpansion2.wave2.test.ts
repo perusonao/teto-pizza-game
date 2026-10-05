@@ -29,6 +29,8 @@ import { createDefaultSave } from "./persistence";
  * production functions throughout (no mocked catalog).
  */
 const IDS = ["vongole", "pesto-vegetariana", "ratatouille-pizza"] as const;
+/** The non-credit onion-step recipes (calabresa, and TQ-1D's aussie): excluded where a test isolates the Wave 2 pool. */
+const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie"];
 const [VONGOLE, PESTO_VEG, RATATOUILLE] = IDS;
 const rec = (id: string) => getRecipe(id as RecipeId)! as Recipe;
 const NEW_INGREDIENTS = ["parsley", "bell-pepper", "zucchini"] as const;
@@ -45,18 +47,18 @@ const stateAfter = (found: readonly string[], bought: readonly string[] = []): R
 };
 
 describe("Expansion Wave 2 authoring: exact production data", () => {
-  it("counts: recipes 28 -> 31, ingredients 31 -> 34, toppings 24 -> 27, ladder 26 -> 28, credited 27 -> 30, chapters 6 / 10 / 15", () => {
-    expect(RECIPES).toHaveLength(31);
+  it("counts: recipes 28 -> 31, ingredients 31 -> 34, toppings 24 -> 27, ladder 26 -> 28, credited 27 -> 30, chapters 6 / 10 / 15 (TQ-1D then appends the non-credit aussie: 32 recipes, chapters 6 / 11 / 15)", () => {
+    expect(RECIPES).toHaveLength(32);
     expect(INGREDIENTS).toHaveLength(34);
     expect(INGREDIENTS.filter((i) => i.category === "topping")).toHaveLength(27);
     expect(DISCOVERY_LADDER.steps).toHaveLength(28);
     expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(30);
-    expect(buildRecipeChapters().map((c) => c.recipes.length)).toEqual([6, 10, 15]);
+    expect(buildRecipeChapters().map((c) => c.recipes.length)).toEqual([6, 11, 15]);
   });
 
   it("RECIPES declaration order: pesto-gamberi (No.28) is followed by vongole, pesto-vegetariana, ratatouille-pizza", () => {
     expect(RECIPES[27].id).toBe("pesto-gamberi");
-    expect(RECIPES.slice(28).map((r) => r.id)).toEqual([...IDS]);
+    expect(RECIPES.slice(28, 31).map((r) => r.id)).toEqual([...IDS]);
     expect(RECIPES.filter((r) => IDS.includes(r.id as never))).toHaveLength(3);
   });
 
@@ -123,10 +125,10 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
     expect(r.baseRewardPitz).toBe(100);
   });
 
-  it("no identity collision: all 31 identities (ingredient set + counts) are unique and each new recipe matches only itself", () => {
+  it("no identity collision: all 32 identities (ingredient set + counts) are unique and each new recipe matches only itself", () => {
     const keys = RECIPES.map((r) => JSON.stringify([...r.requiredIngredients].map((q) => [q.ingredientId, q.minCount]).sort()));
-    expect(new Set(keys).size).toBe(31);
-    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(31);
+    expect(new Set(keys).size).toBe(32);
+    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(32);
     for (const id of IDS) {
       const m = matchDiscovery(signatureOfPizza(pizzaOf(rec(id).requiredIngredients.map((q) => q.ingredientId))), RECIPE_DISCOVERY_CATALOG);
       expect(m.kind, id).toBe("UNIQUE_MATCH");
@@ -215,12 +217,12 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
     ]);
   });
 
-  it("ladderCredit true for all 3 (key rung or not): 27 -> 30 credited; the calabresa stays the only non-credit recipe", () => {
+  it("ladderCredit true for all 3 (key rung or not): 27 -> 30 credited; the non-credit recipes stay calabresa and (TQ-1D) aussie", () => {
     for (const id of IDS) {
       expect(rec(id).ladderCredit, id).toBeUndefined();
       expect(countsTowardLadder(id), id).toBe(true);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa"]);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie"]);
   });
 
   it("states: vongole UNKNOWN before step 27, KBMM until parsley is bought, DISCOVERABLE after", () => {
@@ -236,14 +238,14 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
     const s = stateAfter(UP_TO_VONGOLE, ["parsley", ...bought]);
     expect(poolOf(s).filter((id) => (IDS as readonly string[]).includes(id)).sort()).toEqual([PESTO_VEG, RATATOUILLE]);
     // The intended pool-2 state: nothing is named (privacy), the target is chosen by the player.
-    expect(selectHintTarget(s, { recipes: RECIPES.filter((r) => r.id !== "brazilian-calabresa") }).kind).toBe("OPEN_POOL");
+    expect(selectHintTarget(s, { recipes: RECIPES.filter((r) => !NON_CREDIT.includes(r.id)) }).kind).toBe("OPEN_POOL");
     // KBMM until BOTH new materials are bought: ratatouille needs both bell-pepper and zucchini.
     expect(recipeDiscoveryState(rec(RATATOUILLE), stateAfter(UP_TO_VONGOLE, ["parsley", "bell-pepper"]))).toBe("KNOWN_BUT_MISSING_MATERIAL");
     // Discovering either one leaves the other as the lone remaining target (the intended Branching Discovery).
     for (const [first, rest] of [[PESTO_VEG, RATATOUILLE], [RATATOUILLE, PESTO_VEG]] as const) {
       const after = stateAfter([...UP_TO_VONGOLE, first], ["parsley", ...bought]);
       expect(poolOf(after).filter((id) => (IDS as readonly string[]).includes(id)), first).toEqual([rest]);
-      expect(selectHintTarget(after, { recipes: RECIPES.filter((r) => r.id !== "brazilian-calabresa") })).toMatchObject({ kind: "TARGET", recipeId: rest });
+      expect(selectHintTarget(after, { recipes: RECIPES.filter((r) => !NON_CREDIT.includes(r.id)) })).toMatchObject({ kind: "TARGET", recipeId: rest });
     }
   });
 
@@ -258,22 +260,22 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
         expect(pool.length, `after ${order.length} discoveries`).toBeGreaterThan(0);
         order.push(pick(pool));
       }
-      expect(new Set(order).size).toBe(31);
+      expect(new Set(order).size).toBe(32);
       expect(remainingOf(walkState(order))).toEqual([]);
     }
   });
 });
 
 describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () => {
-  it("vongole's olive-oil is its OWN sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca) -- not a no-sauce rule; TQ-1D is not activated", () => {
+  it("vongole's olive-oil is its OWN sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca) -- not a no-sauce rule (TQ-1D's aussie is the one sauceless recipe, with a null profile)", () => {
     expect(getRecipeSauceProfile(VONGOLE as RecipeId)).toMatchObject({ ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" });
     expect(getRecipeSauceProfile("pizza-bianca" as RecipeId)).toMatchObject({ ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" });
     expect(getRecipeSauceProfile(PESTO_VEG as RecipeId)).toMatchObject({ ingredientId: "pesto", interaction: "PAINT" });
     expect(getRecipeSauceProfile(RATATOUILLE as RecipeId)).toMatchObject({ ingredientId: "tomato-sauce", interaction: "PAINT" });
-    // olive-oil is a sauce-category ingredient, so every one of the 31 recipes still has exactly one sauce (no NO_SAUCE recipe).
+    // olive-oil is a sauce-category ingredient, so vongole has exactly one sauce; only TQ-1D's aussie has none.
     expect(getIngredient("olive-oil")!.category).toBe("sauce");
     for (const r of RECIPES) {
-      expect(r.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category === "sauce"), r.id).toHaveLength(1);
+      expect(r.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category === "sauce"), r.id).toHaveLength(r.id === "aussie" ? 0 : 1);
     }
   });
 
@@ -281,12 +283,12 @@ describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () 
     for (const id of IDS) expect(isCutEligible(id as RecipeId), id).toBe(false);
   });
 
-  it("Lunch Rush: all 3 opt out (lunchRush false), opt-out total = 6, never in the mission pool", () => {
+  it("Lunch Rush: all 3 opt out (lunchRush false), opt-out total = 7 (with TQ-1D aussie), never in the mission pool", () => {
     for (const id of IDS) {
       expect(rec(id).lunchRush, id).toBe(false);
       expect(participatesInLunchRush(id), id).toBe(false);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false)).toHaveLength(6);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false)).toHaveLength(7);
     const all = INGREDIENTS.map((i) => i.id);
     const pool = missionOrderRecipeIds({
       dex: discoverAll(RECIPES.map((r) => r.id)),

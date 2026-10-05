@@ -81,7 +81,7 @@ function pizzaFor(recipeId: string, counts: Record<string, number> = {}, extra: 
   ];
   return {
     ...createEmptyPizza(),
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: groups.flatMap((group, gi) => {
       const count = counts[group.ingredientId] ?? extra[group.ingredientId] ?? group.positions.length;

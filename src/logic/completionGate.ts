@@ -169,7 +169,8 @@ function checkSauceQuantity(
   safeSauceIds: readonly string[],
 ): CompletionFailureDetail | null {
   const reference = getReferencePizza(recipe.id);
-  if (!reference) return null;
+  // TQ-1D: a recipe made without a sauce has no sauce amount to check.
+  if (!reference?.sauce) return null;
   const sauceIngredientId = reference.sauce.ingredientId;
   const isRequired = recipe.requiredIngredients.some((req) => req.ingredientId === sauceIngredientId);
   if (!isRequired || !safeSauceIds.includes(sauceIngredientId)) return null;
