@@ -14,6 +14,14 @@ import {
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
 import { SAVE_ID_PATTERN } from "./saveIdGrammar";
+import {
+  emptyResearchExclusions,
+  isEmptyResearchExclusions,
+  sameResearchExclusions,
+  sanitizeResearchExclusions,
+  unionResearchExclusions,
+  type ResearchExclusions,
+} from "./researchExclusions";
 
 /**
  * Minimal cross-reload persistence (Phase 3C-2, see
@@ -190,6 +198,13 @@ export interface PersistentSaveV2 {
    *  `PersistentSaveV2` can never write this state where the records belong. Absent key (every
    *  earlier save) reads as empty; a save that never had a record is written without the key. */
   dinnerMissionRecordsState: DinnerMissionRecordsState;
+  /** Research 2.0 Phase 2 (OD-R1-2): the additive negative ledger `recipeId -> bare ingredient ids` the player was
+   *  actually SHOWN as NEGATIVE (./researchExclusions.ts; INV-B1). Top-level key `researchExclusions`, save v2, no
+   *  schema bump. Merged per recipe as a set union, never lowered or removed except by `resetSave`. Holds KNOWN recipe
+   *  ids only in memory (what gameplay reads); a well-formed recipe id this build does not know is kept in storage by
+   *  `writeSave`. An EMPTY ledger is never written: the key is absent until the first exclusion is stored (and stays
+   *  absent for a save that never had one). It is never a Hint fact (INV-B9). */
+  researchExclusions: Record<string, string[]>;
 }
 
 /** TQ-1A: upper bound of stored technique ids (known + unknown). The registry is far smaller. */
@@ -522,6 +537,8 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     discoveredTechniqueIds: [],
     // DM-4-2: Dinner did not exist in v1.
     dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE,
+    // Research 2.0 Phase 2: no negative ledger existed in v1 (absent key = empty; no migration step).
+    researchExclusions: emptyResearchExclusions(),
   };
 }
 
@@ -539,6 +556,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     discoveryHintFacts: emptyHintFacts(),
     discoveredTechniqueIds: [],
     dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE,
+    researchExclusions: emptyResearchExclusions(),
   };
 }
 
@@ -614,6 +632,11 @@ interface ForwardCompatExtras {
   /** DM-4-2: the stored `dinnerMissionRecords` value, verbatim (`undefined` when absent). The
    *  write merges into it rather than replacing it (./dinnerMissionRecordsSave.ts). */
   dinnerMissionRecordsRaw: unknown;
+  /** Research 2.0 Phase 2: the stored ledger's recipe ids this build does not know (well-formed ids, sanitized values). */
+  researchExclusions: Record<string, string[]>;
+  /** The stored `researchExclusions` value, verbatim, when it is not a plain object (a shape a newer build may use).
+   *  Kept only while this build has no exclusion of its own to write. */
+  researchExclusionsOpaque: unknown;
 }
 
 const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
@@ -629,6 +652,9 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "discoveryHintFacts",
   "discoveredTechniqueIds",
   "dinnerMissionRecords",
+  // Research 2.0 Phase 2: the negative ledger. Known => not an opaque extra; `extractForwardCompatExtras` reads its
+  // unknown-id part (`researchExclusions` below) and `writeSave` unions it back.
+  "researchExclusions",
   // DM-4-2: the in-memory name of the parsed Dinner state. Never stored; listed so a stray
   // serialized copy is neither read nor carried through as a forward-compat extra.
   "dinnerMissionRecordsState",
@@ -710,6 +736,11 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     discoveryHintFacts: hintFactsFor(r.discoveryHintFacts, isUnknownRecipeId),
     discoveredTechniqueIds: unknownIdsIn(r.discoveredTechniqueIds, KNOWN_TECHNIQUE_IDS),
     dinnerMissionRecordsRaw: r.dinnerMissionRecords,
+    researchExclusions: sanitizeResearchExclusions(r.researchExclusions, (id) => !KNOWN_RECIPE_IDS.includes(id)),
+    researchExclusionsOpaque:
+      r.researchExclusions !== undefined && (typeof r.researchExclusions !== "object" || r.researchExclusions === null || Array.isArray(r.researchExclusions))
+        ? r.researchExclusions
+        : undefined,
   };
 }
 
@@ -745,15 +776,23 @@ function writeSave(
   // DM-4-2: the Dinner records are merged into what storage holds -- never serialized from
   // `next` -- so a broken record, a future mission id or an unknown field is never dropped or
   // overwritten, and a save that never had a record stays without the key.
-  const { dinnerMissionRecordsState, ...nextFields } = next;
+  const { dinnerMissionRecordsState, researchExclusions: nextExclusions, ...nextFields } = next;
   const dinner = mergeDinnerMissionRecordsForWrite(extras?.dinnerMissionRecordsRaw, dinnerMissionRecordsState.records);
   // DM-4-3: the all-or-nothing check again, against what storage holds *at this write* (another tab
   // may have broken the record since the caller's read). Refused -> nothing is stored.
   if (options.requireDinnerRecords && dinner.refusedMissionIds.length > 0) {
     return { refusedDinnerMissionIds: dinner.refusedMissionIds };
   }
+  // Research 2.0 Phase 2: the ledger is unioned with the stored unknown-recipe part and written only when non-empty
+  // (an empty ledger never creates the key). A stored shape this build cannot read is put back while it has no own.
+  const ledger = unionResearchExclusions(nextExclusions, extras?.researchExclusions ?? {});
+  const withLedger = <T extends object>(value: T) => {
+    if (!isEmptyResearchExclusions(ledger)) return { ...value, researchExclusions: ledger };
+    if (extras?.researchExclusionsOpaque !== undefined) return { ...value, researchExclusions: extras.researchExclusionsOpaque };
+    return value;
+  };
   const withDinner = <T extends object>(value: T) =>
-    dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value };
+    withLedger(dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value });
   if (!extras) {
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(nextFields)));
     return { refusedDinnerMissionIds: [] };
@@ -822,6 +861,8 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     // parsed state). Read for every recognized root, v1 included, so load and `writeSave` (which
     // merges into the same stored value) always see the same records.
     dinnerMissionRecordsState: parseDinnerMissionRecords(r.dinnerMissionRecords),
+    // Research 2.0 Phase 2: read from the stored root (like the Dinner records): known recipe ids only.
+    researchExclusions: sanitizeResearchExclusions(r.researchExclusions, isKnownRecipeId),
   };
 }
 
@@ -963,6 +1004,9 @@ export interface ProgressionSnapshot {
    *  (`mergeDinnerMissionRecord`: first-clear flag OR-ed, clears max, bests monotonic within a
    *  revision); a record of a blocked mission (broken stored record) is refused, never written. */
   dinnerMissionRecordUpdates?: Readonly<Record<string, DinnerMissionRecord>>;
+  /** Research 2.0 Phase 2: the negative ledger. Optional -- absent leaves the stored ledger as it is; a given one is
+   *  merged per recipe as a set union (never lowered, never removed; known recipe ids only). */
+  researchExclusions?: ResearchExclusions;
   /** DM-4-3: all-or-nothing for the Dinner settlement. When true and any record update
    *  is refused (its mission became blocked in storage underneath this session), NOTHING is written
    *  -- not the Pitz either -- so a payout can never be saved without the record that proves it.
@@ -1079,6 +1123,11 @@ export function persistProgress(
     refusedDinnerMissionIds = dinnerMerge.refusedMissionIds;
     if (snapshot.requireDinnerRecords && refusedDinnerMissionIds.length > 0) return { refusedDinnerMissionIds };
     const dinnerUnchanged = dinnerMerge.state === current.dinnerMissionRecordsState;
+    const nextResearchExclusions =
+      snapshot.researchExclusions === undefined
+        ? current.researchExclusions
+        : unionResearchExclusions(current.researchExclusions, sanitizeResearchExclusions(snapshot.researchExclusions, isKnownRecipeId));
+    const exclusionsUnchanged = sameResearchExclusions(nextResearchExclusions, current.researchExclusions);
     if (
       dexUnchanged &&
       pitzUnchanged &&
@@ -1089,7 +1138,8 @@ export function persistProgress(
       purchasesUnchanged &&
       factsUnchanged &&
       techniquesUnchanged &&
-      dinnerUnchanged
+      dinnerUnchanged &&
+      exclusionsUnchanged
     ) {
       return { refusedDinnerMissionIds };
     }
@@ -1106,6 +1156,7 @@ export function persistProgress(
       discoveryHintFacts: nextDiscoveryHintFacts,
       discoveredTechniqueIds: nextDiscoveredTechniqueIds,
       dinnerMissionRecordsState: dinnerMerge.state,
+      researchExclusions: nextResearchExclusions,
     };
     const written = writeSave(storage, next, { requireDinnerRecords: snapshot.requireDinnerRecords });
     if (written.refusedDinnerMissionIds.length > 0) {

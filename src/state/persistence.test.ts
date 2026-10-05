@@ -729,7 +729,7 @@ describe("loadSave: v1 -> v2 migration pipeline (Save v2 / Inventory E0)", () =>
 describe("loadSave: v2 sanitize/pass-through (Save v2 / Inventory E0)", () => {
   it("round-trips an already-v2 save unchanged", () => {
     // A v2 save as written before DM-4-2 (no `dinnerMissionRecords` key on disk).
-    const v2: Omit<PersistentSaveV2, "dinnerMissionRecordsState"> = {
+    const v2: Omit<PersistentSaveV2, "dinnerMissionRecordsState" | "researchExclusions"> = {
       schemaVersion: 2,
       dex: [validEntry],
       pitzBalance: 60,
@@ -743,7 +743,7 @@ describe("loadSave: v2 sanitize/pass-through (Save v2 / Inventory E0)", () => {
       discoveredTechniqueIds: ["no-sauce"],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(v2) });
-    expect(loadSave(storage)).toEqual({ ...v2, dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE });
+    expect(loadSave(storage)).toEqual({ ...v2, dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE, researchExclusions: {} });
   });
 
   it("re-loading an already-v2 save repeatedly is idempotent (tier-2 pass-through only)", () => {
@@ -1010,6 +1010,8 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
         // Dinner Mission DM-4-2 (Issue #274): the parsed Dinner records state (in memory only; stored
         // under `dinnerMissionRecords` by writeSave's merge), not a scoring field.
         "dinnerMissionRecordsState",
+        // Research 2.0 Phase 2 (OD-R1-2): the negative ledger (in memory; the key is stored only when non-empty), not a scoring field.
+        "researchExclusions",
       ].sort(),
     );
   });
@@ -1048,7 +1050,7 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
  */
 describe("Save compatibility across the A1 Authority Cutover (pre-cutover save still loads)", () => {
   it("a save written under legacy scorePizza authority loads unchanged post-cutover -- no migration triggered by the formula switch", () => {
-    const preCutoverSave: Omit<PersistentSaveV2, "dinnerMissionRecordsState"> = {
+    const preCutoverSave: Omit<PersistentSaveV2, "dinnerMissionRecordsState" | "researchExclusions"> = {
       schemaVersion: 2,
       dex: [
         { recipeId: "margherita", discovered: true, bestScore: 91, bestStars: 5, timesMade: 3 },
@@ -1066,7 +1068,7 @@ describe("Save compatibility across the A1 Authority Cutover (pre-cutover save s
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(preCutoverSave) });
     const loaded = loadSave(storage);
-    expect(loaded).toEqual({ ...preCutoverSave, dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE });
+    expect(loaded).toEqual({ ...preCutoverSave, dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE, researchExclusions: {} });
   });
 
   it("registerScoreToDex against a pre-cutover BEST only raises it when the new (Scoring 2.0-derived) score is actually better", () => {

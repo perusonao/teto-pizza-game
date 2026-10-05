@@ -57,8 +57,9 @@ function fakeStorage(initial?: unknown): StorageLike & { raw(): Record<string, u
 
 /** A save as stored on disk (never a stringified `PersistentSaveV2`: its Dinner field is parsed state). */
 function storedSave(extra: Record<string, unknown> = {}) {
-  const { dinnerMissionRecordsState: _parsed, ...stored } = createDefaultSave();
+  const { dinnerMissionRecordsState: _parsed, researchExclusions: _ledger, ...stored } = createDefaultSave();
   void _parsed;
+  void _ledger; // Research 2.0 Phase 2: an empty negative ledger is never stored (the key is absent)
   return {
     ...stored,
     dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],

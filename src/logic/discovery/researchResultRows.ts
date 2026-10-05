@@ -64,6 +64,10 @@ export interface ResearchResultRows {
   toppingOverCap: boolean;
   /** `ing:<id>` for the POSITIVE rows only, in row order. Negatives and over-capped toppings are never here. */
   persistFactIds: readonly string[];
+  /** Research 2.0 Phase 2 (INV-B1 / B2): the bare ingredient ids of the NEGATIVE rows only -- exactly the rows the RESULT
+   *  discloses, so "disclosed = stored" holds by construction. A known ingredient, an untried one and an over-capped
+   *  topping are never rows and therefore never here. Never an `ing:` fact (INV-B9). */
+  persistExclusionIds: readonly string[];
 }
 
 /** The ingredient ids carried by a ledger's `ing:<id>` facts (any other fact kind is ignored). */
@@ -117,5 +121,6 @@ export function researchResultRows(input: ResearchResultRowsInput): ResearchResu
     rows,
     toppingOverCap,
     persistFactIds: rows.filter((r) => r.verdict === "POSITIVE").map((r) => hintFactId(r.ingredientId)),
+    persistExclusionIds: rows.filter((r) => r.verdict === "NEGATIVE").map((r) => r.ingredientId),
   };
 }

@@ -69,6 +69,7 @@ describe("PR-4b-A leaves production and the save schema alone", () => {
       "missionBest",
       "ownedIngredientIds",
       "pitzBalance",
+      "researchExclusions", // Research 2.0 Phase 2: additive negative ledger (stored only when non-empty)
       "schemaVersion",
       "starterGrantClaimedRecipeIds",
       "unlockedForShopIngredientIds",

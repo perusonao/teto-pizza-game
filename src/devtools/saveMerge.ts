@@ -66,6 +66,9 @@ const HANDLED_TOP_LEVEL_KEYS: ReadonlySet<string> = new Set([
   "missionBest",
   "dinnerMissionRecords",
   "dinnerMissionRecordsState",
+  // Research 2.0 Phase 2: the game-owned negative ledger. NOT an editable field and never in a preset: it is carried
+  // over from the stored save verbatim whatever the options say (see `keepLedger`).
+  "researchExclusions",
 ]);
 
 export interface PreservedReport {
@@ -73,6 +76,8 @@ export interface PreservedReport {
   unknownIds: number;
   missionBest: boolean;
   dinnerRecords: boolean;
+  /** The stored negative ledger (`researchExclusions`) was carried over verbatim. */
+  researchExclusions: boolean;
 }
 
 export interface MergeResult {
@@ -120,7 +125,7 @@ function mergeUnknownOwnedAtStoredPositions(edited: readonly string[], storedOrd
 }
 
 function defaultSaveObject(): Record<string, unknown> {
-  const { dinnerMissionRecordsState: _derived, ...stored } = createDefaultSave();
+  const { dinnerMissionRecordsState: _derived, researchExclusions: _ledger, ...stored } = createDefaultSave();
   return { ...stored };
 }
 
@@ -130,7 +135,7 @@ export function mergeEditedSave(
   catalog: EditorCatalog,
   options: MergeOptions = DEFAULT_MERGE_OPTIONS,
 ): MergeResult {
-  const preserved: PreservedReport = { topLevelKeys: [], unknownIds: 0, missionBest: false, dinnerRecords: false };
+  const preserved: PreservedReport = { topLevelKeys: [], unknownIds: 0, missionBest: false, dinnerRecords: false, researchExclusions: false };
   if (original.kind !== "readable") return { value: canonical, preserved };
   const stored = original.value;
   const out: Record<string, unknown> = {};
@@ -167,13 +172,17 @@ export function mergeEditedSave(
 
   const keepMissionBest = options.preserveMissionBest && isPlainObject(stored.missionBest) && Object.keys(stored.missionBest).length > 0;
   const keepDinner = options.preserveDinnerRecords && stored.dinnerMissionRecords !== undefined;
+  // The negative ledger is game progression the editor does not edit: always carried over, independent of
+  // `preserveUnknown` (a canonical save never contains the key -- an empty ledger is never written).
+  const keepLedger = stored.researchExclusions !== undefined;
+  preserved.researchExclusions = keepLedger;
   preserved.missionBest = keepMissionBest;
   preserved.dinnerRecords = keepDinner;
   const countUnknown = () =>
     Object.values(unknownIdsOnly).reduce<number>((n, v) => n + (Array.isArray(v) ? v.length : 0), 0);
   preserved.unknownIds = countUnknown();
 
-  const nothingToKeep = preserved.topLevelKeys.length === 0 && preserved.unknownIds === 0 && !keepMissionBest && !keepDinner;
+  const nothingToKeep = preserved.topLevelKeys.length === 0 && preserved.unknownIds === 0 && !keepMissionBest && !keepDinner && !keepLedger;
   if (nothingToKeep) return { value: canonical, preserved };
 
   const base = canonical ?? defaultSaveObject();
@@ -196,5 +205,6 @@ export function mergeEditedSave(
   }
   if (keepMissionBest) out.missionBest = stored.missionBest;
   if (keepDinner) out.dinnerMissionRecords = stored.dinnerMissionRecords;
+  if (keepLedger) out.researchExclusions = stored.researchExclusions;
   return { value: out, preserved };
 }
