@@ -7107,3 +7107,85 @@ p.hint-sheet__step {
     transition: none;
   }
 }
+
+/* ---------- Cooking Tray family filter (Issue #396) ----------
+   The 具材 step's family chips live INSIDE the utility row the dock already reserves (28px + 6px margin), between the
+   食材庫 entry and the pager: [食材庫] [family chips, scroll sideways] [◀ 1/2 ▶]. No new row, so the dock height and the
+   pizza stage are byte-for-byte what they were (LC-S / LC-R3 contracts). The chips are 28px like the row's other
+   controls. More chips than fit scroll sideways; a chip cut by the row's right edge plus a short fade say "more". The
+   pager keeps its place when the filtered list fits one page (invisible and inert, as before) so the chips never
+   change width. */
+.ingredient-page-nav--with-family {
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+/* The entry leaves its absolute slot to sit in the flow; relative keeps its 44px hit-area ::after on the button
+   itself (the row is `position: relative` too, and would otherwise be covered by it). */
+.ingredient-page-nav--with-family .pantry-entry {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  flex: none;
+}
+
+.ingredient-page-nav--with-family .pantry-entry::after {
+  inset: -8px 0;
+}
+
+/* The pager keeps its own size (36x28 buttons, 12px gaps): its registered tap-target finding is unchanged. */
+.ingredient-page-nav--with-family .ingredient-page-nav__pager {
+  flex: none;
+  margin-left: auto;
+}
+
+.ingredient-page-nav__pager--idle {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tray-family-chips {
+  position: relative; /* the chips' offsetParent: ShelfChipRow's keep-active-visible scroll reads offsetLeft */
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tray-family-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.tray-family-chips--more-right {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+}
+
+.tray-family-chip {
+  flex: none;
+  height: 28px;
+  padding: 0 10px;
+  border: 2px solid #e6d3a3;
+  border-radius: 999px;
+  background: #fff8ea;
+  color: #8a6a45;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.tray-family-chip--active {
+  background: #f2b705;
+  border-color: #b98700;
+  color: #4a2e0a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+}

@@ -67,6 +67,8 @@ import type { QualityStars } from "./logic/scoring";
 import { runtimeCatalog } from "./logic/catalog/catalogSource";
 import { DEFAULT_HAND_CAPACITY_CANDIDATE } from "./logic/catalog/handPolicy";
 import { emptyHandSession, type HandSession } from "./logic/catalog/handSession";
+import { familyFirstPageIds } from "./logic/trayFamilyFilter";
+import type { FamilyFilter } from "./data/ingredientShelf";
 import { handTrayTransition, pinFitsHand, resolveTrayHandIds, type TrayHandInput } from "./logic/catalog/handTray";
 import "./App.css";
 
@@ -370,6 +372,8 @@ function App() {
     candidateCapacity: DEFAULT_HAND_CAPACITY_CANDIDATE,
   };
   const trayHandIds = resolveTrayHandIds(trayHandInput);
+  // Issue #396: the tray publishes its current family filter here (display state stays in the tray; nothing is lifted).
+  const trayFamilyRef = useRef<FamilyFilter>("all");
   const trayHandKey = `${roundKey}|${activeCategory}`;
   const [trayHandTrack, setTrayHandTrack] = useState<{ key: string; ids: readonly string[] } | null>(null);
   if (trayHandIds === null) {
@@ -378,7 +382,15 @@ function App() {
     setTrayHandTrack({ key: trayHandKey, ids: trayHandIds });
     if (trayHandTrack !== null && trayHandTrack.key === trayHandKey) {
       const next = handTrayTransition({ before: trayHandTrack.ids, after: trayHandIds, selectedIngredientId });
-      if (next.selectedIngredientId !== selectedIngredientId) setSelectedIngredientId(next.selectedIngredientId);
+      // Issue #396: with a tray family filter, page 1 is the FILTERED first page, so a selection the unfiltered rule
+      // drops is still kept when it is on the page the player sees. Only ever keeps more (a filtered position is never
+      // later than the unfiltered one); a selection that left the hand or the filtered page is cleared as before.
+      const keep =
+        next.selectedIngredientId === null &&
+        selectedIngredientId !== null &&
+        familyFirstPageIds(trayHandIds, trayFamilyRef.current).includes(selectedIngredientId);
+      const nextSelected = keep ? selectedIngredientId : next.selectedIngredientId;
+      if (nextSelected !== selectedIngredientId) setSelectedIngredientId(nextSelected);
     }
   }
   const trayHand = {
@@ -1219,6 +1231,7 @@ function App() {
           handSession={handSession}
           onHandSessionChange={setHandSession}
           trayHand={trayHand}
+          trayFamilyRef={trayFamilyRef}
           bakeProgress={bakeProgress}
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
