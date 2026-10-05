@@ -568,6 +568,12 @@ class StageStability {
     await this.lc.checkpoint({ label: `LC-S ${this.mode} ${step}`, meta: { mode: this.mode, step } }, ids, slots, this.mount, {
       beforeMeasure: async (profile) => {
         const rects = await stageRects(this.page);
+        const dg = await this.page.evaluate(() => {
+          const dock = document.querySelector<HTMLElement>(".prepare-dock");
+          const st = document.querySelector<HTMLElement>(".game-screen--cooking > .pizza-stage");
+          return JSON.stringify({ vh: window.innerHeight, short: matchMedia("(max-height: 700px)").matches, cls: dock?.className, fam: dock?.style.getPropertyValue("--dock-family"), vars: dock?.getAttribute("style"), dockH: dock?.getBoundingClientRect().height, stageH: st?.getBoundingClientRect().height, row: !!document.querySelector(".tray-family-row") });
+        });
+        (globalThis as any).__dg = ((globalThis as any).__dg ?? []).concat(`${this.mode} ${step} @${profile.id} ${dg}`);
         perProfile.set(profile.id, rects);
         lcS4(rects, `${this.mode} ${step} @${profile.id}`);
       },
@@ -599,6 +605,7 @@ class StageStability {
         expect.soft(min + TOL, `LC-S3 ${this.mode} @${profile.id}: smallest PREPARE diameter ${Math.round(min)} >= ${floor}`).toBeGreaterThanOrEqual(floor);
       }
     }
+    if (testInfo.project.name.startsWith("webkit")) expect.soft(false, "DIAG\n" + ((globalThis as any).__dg ?? []).join("\n")).toBe(true);
     await testInfo.attach(`stage-diameters-${this.mode}.json`, { body: JSON.stringify(table, null, 1), contentType: "application/json" });
   }
 }
