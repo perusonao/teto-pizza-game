@@ -49,7 +49,7 @@ function nameOf(id: string): string {
 }
 
 function names(ids: readonly string[]): string {
-  return ids.length === 0 ? NOTEBOOK_COPY.noSauce : ids.map(nameOf).join("、");
+  return ids.map(nameOf).join("、");
 }
 
 /** Only what changed: no empty rows and no "unchanged" lines. */
@@ -64,11 +64,15 @@ function DiffBlock({ diff }: { diff: TrialDiff }) {
         {diff.removed.map((id) => (
           <li key={`-${id}`}>− {nameOf(id)}</li>
         ))}
-        {diff.sauce && (
+        {/* INV-D7 (OD-TQ1D-4): a change to or from "no sauce" is shown as an ordinary ＋ / − of the sauce that
+            changed -- never as a 「ソース：… → なし」 absence. Only a sauce-to-sauce change keeps the arrow. */}
+        {diff.sauce && diff.sauce.before.length > 0 && diff.sauce.after.length > 0 && (
           <li>
             {NOTEBOOK_COPY.diffSauce}：{names(diff.sauce.before)} → {names(diff.sauce.after)}
           </li>
         )}
+        {diff.sauce && diff.sauce.before.length === 0 && diff.sauce.after.length > 0 && <li>＋ {names(diff.sauce.after)}</li>}
+        {diff.sauce && diff.sauce.before.length > 0 && diff.sauce.after.length === 0 && <li>− {names(diff.sauce.before)}</li>}
       </ul>
     </div>
   );
@@ -146,12 +150,15 @@ export function TrialNotebookSheet({
                 return (
                   <li key={entry.number} className="trial-notebook__entry" data-trial-entry={entry.number}>
                     <p className="trial-notebook__entry-title">試作 #{entry.number}</p>
-                    <div className="hint-sheet__row">
-                      <span className="hint-sheet__row-label">{NOTEBOOK_COPY.sauce}</span>
-                      <span className="hint-sheet__chips">
-                        <IngredientChips ids={entry.combination.sauceBase} emptyText={NOTEBOOK_COPY.noSauce} />
-                      </span>
-                    </div>
+                    {/* INV-D7 (OD-TQ1D-4): an attempt made without a sauce has NO sauce row (no 「ソース: なし」 chip). */}
+                    {entry.combination.sauceBase.length > 0 && (
+                      <div className="hint-sheet__row">
+                        <span className="hint-sheet__row-label">{NOTEBOOK_COPY.sauce}</span>
+                        <span className="hint-sheet__chips">
+                          <IngredientChips ids={entry.combination.sauceBase} emptyText="" />
+                        </span>
+                      </div>
+                    )}
                     <div className="hint-sheet__row">
                       <span className="hint-sheet__row-label">{NOTEBOOK_COPY.toppings}</span>
                       <span className="hint-sheet__chips">

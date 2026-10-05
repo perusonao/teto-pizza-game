@@ -78,7 +78,7 @@ E2E notes (honest): after the first full run, 10 specs needed edits that follow 
 
 - Dex before discovery: 「？？？」 + riddle only, and only once the affordance (12 credited discoveries) is open; never the name, id or Aussie identity (`expectNoUndiscoveredIdentity` + attribute scan on the Dex, RESULT, Notebook).
 - Research RESULT / Notebook feedback / Research Entry / Hint 5.0 view / near-miss: no absence wording and no technique word, for every target (unit sweep + E2E).
-- Interpretation recorded for the Owner: the Notebook still shows the **player's own** attempt composition (「ソース  なし」 for an attempt the player made without a sauce). That existed before TQ-1D, is derived from the player's pizza (target-independent), and is not a membership statement; the Notebook **feedback** line never contains it. If the Owner reads INV-D7 as forbidding that chip too, it is a one-line follow-up (hide the empty sauce row), not part of this PR.
+- **OD-TQ1D-4 (Owner, applied):** the Notebook's per-attempt entries are covered by INV-D7 too. An attempt made without a sauce now has **no sauce row / 「ソース: なし」 chip**, and a change to or from "no sauce" in the diff is shown as an ordinary ＋ / − of the sauce that changed (never 「ソース：… → なし」). Attempts that used a sauce, the membership feedback, RESULT rules, Technique discovery, persistence and the schema are unchanged. Pinned by `TrialNotebookSheet.test.tsx` (DOM text + aria). Contract 2.1 INV-D7 now reads as one simple rule across the Research panel / aria / Notebook / persistence.
 - Near-miss: production RESULT shows the single neutral line (`resultNearMiss`), so there is no directional / SAUCE_ONLY line to leak; the k ≥ 2 pure code is **not** wired (Owner prohibition).
 
 ## 9. Technique reveal verification
@@ -112,8 +112,12 @@ Screenshots (committed): `docs/reports/screenshots/tq-1d-no-sauce/` — `before-
 - WebKit is CI-only here.
 - Step 12 now offers three Research Entries; a player who has found portuguesa and calabresa but not Aussie sees a lone entry whose research line appears (as it did for calabresa) — intended, but it changes the vertical budget of that state (layout contract seed updated, passes).
 - The riddle copy 「いつもの“ぬるもの”がなくても…？」 is the Owner-approved working copy; the section heading 「調理法」 itself shows that a technique category exists once the affordance opens (P6).
-- Notebook own-attempt chip: see §8.
 - Calibration values (counts / bake 50–70 / Reference slots) are GAMEPLAY CALIBRATION, as for every recent recipe.
+
+## 11b. Main sync and #397 integration (HEAD update)
+
+- Main moved to `960bb3e` (#397 Cooking Tray family filter). `origin/main` was **merged** into the branch (no rebase / force push); the only conflict was `docs/PROJECT_HANDOFF.md` (both addenda kept). `App.tsx` / `App.css` / `GameScreen.tsx` auto-merged with no production conflict. #397's code and its tests were not modified.
+- #397 integration: on the merged head the **full** Vitest (349 files, 6265 passed, 1 skipped) and the **full** Chromium E2E (390×844 + 360×800 + layout-chromium: 441 passed, 0 failed, 49 project-gated skips) passed, including #397's `cooking-tray-family-filter` spec (tray / HAND on-off / family filter / Pantry), the Research flows, Aussie Research / RESULT / technique reveal, the Dex and the layout contract. No timeout, retry or skip was used. The Research-screen family-filter gap seen in Production HV is #398-out-of-scope and is not touched.
 
 ## 12. FINAL GATE readiness
 
