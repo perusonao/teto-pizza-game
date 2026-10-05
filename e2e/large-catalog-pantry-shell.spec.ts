@@ -172,8 +172,10 @@ for (const width of [390, 360] as const) {
       expect(e.x, `${label}: entry inside the row`).toBeGreaterThanOrEqual(before.row!.x - 0.5);
       expect(e.r, `${label}: entry left of the pager group`).toBeLessThanOrEqual(before.pager!.x - 2);
       expect(e.h, `${label}: visual height stays within the row`).toBeLessThanOrEqual(28.5);
-      const hitTop = e.y - 8;
-      const hitBottom = e.b + 8;
+      // The family-above layout moves 1px of the hit area from below to above (9 / 7): the gap to the last card stays positive and
+      // the bake bar takes over from 7.5px below the row.
+      const hitTop = e.y - (before.familyAbove ? 9 : 8);
+      const hitBottom = e.b + (before.familyAbove ? 7 : 8);
       expect(hitBottom - hitTop, `${label}: hit area >= 44px`).toBeGreaterThanOrEqual(44);
       // Free space above the row is the 6px margin; the last 2px of the hit area may touch the chips' bottom edge.
       expect(before.lowestChip! - hitTop, `${label}: hit area overlaps the chips by at most 2px`).toBeLessThanOrEqual(2.5);

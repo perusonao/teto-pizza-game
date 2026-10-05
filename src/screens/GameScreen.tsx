@@ -390,7 +390,7 @@ export function GameScreen({
       // The pizza's cap, read from the zero-size probe App.css sizes with the very `--pizza-cap-*` the dough uses.
       const pizzaCap = parseFloat(getComputedStyle(stage, "::before").width);
       const shortViewport = typeof window.matchMedia === "function" && window.matchMedia(SHORT_HEIGHT_QUERY).matches;
-      setFamilyAbove((placedAbove) => familyRowFits({ contentHeight, pizzaCap, placedAbove, shortViewport }));
+      setFamilyAbove((placedAbove) => { const r = familyRowFits({ contentHeight, pizzaCap, placedAbove, shortViewport }); ((window as any).__famlog ??= []).push(`${Math.round(performance.now())}:${window.innerHeight}:s${+shortViewport}:c${Math.round(contentHeight)}:a${+placedAbove}>${+r}`); return r; });
     };
     // A change of layout takes a render and a layout pass to show in the stage, and the engines deliver resize / observer
     // notifications at different moments: so after every trigger the stage is read again over the next few frames, until
@@ -403,7 +403,8 @@ export function GameScreen({
       settleLeft -= 1;
       if (settleLeft > 0) frame = requestAnimationFrame(settle);
     };
-    const trigger = () => {
+    const trigger = (e?: unknown) => {
+      ((window as any).__famlog ??= []).push(`${Math.round(performance.now())}:TRIG:${(e as any)?.type ?? (e as any)?.constructor?.name ?? "init"}`);
       cancelAnimationFrame(frame);
       settleLeft = 6;
       settle();
