@@ -10,7 +10,7 @@ import type { HandSession } from "../logic/catalog/handSession";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
-import { familyRowFits, prepareDockReserve } from "../logic/prepareDock";
+import { familyRowFits, prepareDockReserve, SHORT_HEIGHT_QUERY } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -387,15 +387,32 @@ export function GameScreen({
       const contentHeight = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
       // The pizza's cap, read from the zero-size probe App.css sizes with the very `--pizza-cap-*` the dough uses.
       const pizzaCap = parseFloat(getComputedStyle(stage, "::before").width);
-      setFamilyAbove((placedAbove) => familyRowFits({ contentHeight, pizzaCap, placedAbove }));
+      const shortViewport = typeof window.matchMedia === "function" && window.matchMedia(SHORT_HEIGHT_QUERY).matches;
+      setFamilyAbove((placedAbove) => familyRowFits({ contentHeight, pizzaCap, placedAbove, shortViewport }));
     };
-    measure();
-    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    // A change of layout takes a render and a layout pass to show in the stage, and the engines deliver resize / observer
+    // notifications at different moments: so after every trigger the stage is read again over the next few frames, until
+    // the placement has stopped changing. The rule is a fixed point, so this only ever confirms it.
+    let frame = 0;
+    let settleLeft = 0;
+    const settle = () => {
+      measure();
+      settleLeft -= 1;
+      if (settleLeft > 0) frame = requestAnimationFrame(settle);
+    };
+    const trigger = () => {
+      cancelAnimationFrame(frame);
+      settleLeft = 6;
+      settle();
+    };
+    trigger();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(trigger) : null;
     observer?.observe(stage);
-    window.addEventListener("resize", measure);
+    window.addEventListener("resize", trigger);
     return () => {
+      cancelAnimationFrame(frame);
       observer?.disconnect();
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", trigger);
     };
   }, [familyRowReserved, inPrepare]);
 

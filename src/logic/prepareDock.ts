@@ -78,16 +78,22 @@ export interface PrepareDockReserve {
  *  pager row for the same reason. */
 export const FAMILY_ROW_PX = 42;
 
+/** DM-3R-0's short-height media query (App.css `@media (max-height: 700px)`: Safari with its toolbars, 390x664 / 360x640).
+ *  The family row never takes its own row on a viewport this short: the stage has nothing to spare there, and the pizza
+ *  minimum (LC-S3) is not up for trade. App.css guards that this is the same query. */
+export const SHORT_HEIGHT_QUERY = "(max-height: 700px)";
+
 /**
  * Issue #399: may the family filter take its own row above the tray without making the pizza any smaller than it is
  * with the filter in the utility row? Yes exactly while the stage keeps `FAMILY_ROW_PX` more than the pizza's cap needs
- * (the cap is read from CSS, the same `--pizza-cap-*` the dough uses).
+ * (the cap is read from CSS, the same `--pizza-cap-*` the dough uses), and never on a short viewport.
  * `contentHeight` is the stage's content height as measured NOW (= the dough's `100cqh`); when the row is already above,
  * its height is already out of that number, so it is added back and the rule reads the same in both placements (no
  * flip-flop: the pizza is at its cap in both, and a 2px margin applies only to the switch above).
  */
-export function familyRowFits(options: { contentHeight: number; pizzaCap: number; placedAbove: boolean }): boolean {
-  const { contentHeight, pizzaCap, placedAbove } = options;
+export function familyRowFits(options: { contentHeight: number; pizzaCap: number; placedAbove: boolean; shortViewport?: boolean }): boolean {
+  const { contentHeight, pizzaCap, placedAbove, shortViewport = false } = options;
+  if (shortViewport) return false;
   if (!Number.isFinite(contentHeight) || !Number.isFinite(pizzaCap)) return false; // no layout (or no probe): keep the one-row layout
   const spareInline = contentHeight + (placedAbove ? FAMILY_ROW_PX : 0) - pizzaCap;
   return spareInline >= FAMILY_ROW_PX + (placedAbove ? 0 : 2);

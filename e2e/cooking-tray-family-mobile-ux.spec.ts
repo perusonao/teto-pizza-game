@@ -48,7 +48,7 @@ for (const vp of VIEWPORTS) {
   ];
 
   for (const sc of scenarios) {
-    test(`family chips: selected chip whole and clear of the fades, every family, pager coherent, pizza/dock unchanged: ${sc.name} ${wh}`, async ({ page }, testInfo) => {
+    test(`family chips: selected chip whole and clear of the fades, every family, pager coherent, pizza/dock unchanged: ${sc.name} ${wh}`, async ({ page, browserName }, testInfo) => {
       runOnlyOnWidth(testInfo, vp.width);
       await sc.boot(page);
       await toTopping(page);
@@ -58,7 +58,16 @@ for (const vp of VIEWPORTS) {
       const pizza = (await dough(page))!;
       const s0 = await rowState(page);
       expect(s0.mode, "a short visible height keeps the one-row layout").toBe("compact");
-      if (sc.name !== "Research") expect(Math.abs(pizza.width - vp.pizzaFree), `pizza width ${pizza.width}`).toBeLessThanOrEqual(0.6); // exactly today's pizza
+      // The pizza is exactly what #401's one-row layout gives. The absolute sizes were measured on Chromium (WebKit lays the
+      // same layout out about a pixel larger: 270 at 390x664), so there they are not compared; every engine is held to the
+      // stage's own limit instead (the pizza is stage-limited on a short height: its diameter is the stage's content height).
+      if (sc.name !== "Research" && browserName === "chromium") expect(Math.abs(pizza.width - vp.pizzaFree), `pizza width ${pizza.width}`).toBeLessThanOrEqual(0.6);
+      const stageLimit = await page.evaluate(() => {
+        const st = document.querySelector(".pizza-stage")!;
+        const cs = getComputedStyle(st);
+        return st.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      });
+      expect(Math.abs(pizza.width - stageLimit), "short height: the pizza is as large as its stage allows").toBeLessThanOrEqual(1.5);
       expect(s0.navHeight, "utility row visual height").toBe(28);
       expect(s0.rowHeight, "family scroller hit height (44px) in a 28px row").toBe(44);
       const dockBefore = (await page.locator(".prepare-dock").boundingBox())!;

@@ -4,7 +4,7 @@ import { getRecipe, type Recipe } from "../data/recipes";
 import { getCookingProfile, preBakeSteps } from "../data/cookingProfiles";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { FAMILY_ROW_PX, familyRowFits, prepareDockReserve, trayIngredientsFor } from "./prepareDock";
+import { FAMILY_ROW_PX, familyRowFits, prepareDockReserve, SHORT_HEIGHT_QUERY, trayIngredientsFor } from "./prepareDock";
 
 /**
  * DM-3R-0 Cooking Stage Size Stability (Issue #245): the PREPARE dock's per-round reservation.
@@ -229,6 +229,12 @@ describe("familyRowFits: may the family filter take its own row without shrinkin
     }
   });
 
+  it("a short viewport (DM-3R-0's query) never takes the row, however much the stage seems to spare", () => {
+    expect(familyRowFits({ contentHeight: 900, pizzaCap: CAP, placedAbove: false, shortViewport: true })).toBe(false);
+    expect(familyRowFits({ contentHeight: 900, pizzaCap: CAP, placedAbove: true, shortViewport: true })).toBe(false);
+    expect(familyRowFits({ contentHeight: 900, pizzaCap: CAP, placedAbove: false, shortViewport: false })).toBe(true);
+  });
+
   it("no layout (jsdom: NaN) or no probe: the one-row layout", () => {
     expect(fits(Number.NaN)).toBe(false);
     expect(familyRowFits({ contentHeight: 400, pizzaCap: Number.NaN, placedAbove: false })).toBe(false);
@@ -243,6 +249,11 @@ describe("App.css: the family row height and the pizza cap have one authority ea
     const pager = /\.prepare-dock--family-above \.ingredient-page-nav\s*\{[^}]*margin-top:\s*10px;/s.test(cssSource());
     expect(row && pager).toBe(true);
     expect(28 + 10 + (10 - 6)).toBe(FAMILY_ROW_PX);
+  });
+
+  it("the short-height query the family row defers to is DM-3R-0's own media query in App.css", () => {
+    expect(SHORT_HEIGHT_QUERY).toBe("(max-height: 700px)");
+    expect(cssSource()).toContain("@media (max-height: 700px) {\n  .prepare-dock {\n    --chip-h: 58px;");
   });
 
   it("the pizza's size caps are written once, as --pizza-cap-compact / --pizza-cap-roomy: the dough and the probe both read them", () => {

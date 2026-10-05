@@ -1,3 +1,4 @@
+import { FAMILY_ROW_PX } from "../src/logic/prepareDock";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
@@ -74,6 +75,7 @@ async function layout(page: Page) {
     return {
       stage: r(document.querySelector(".pizza-dough"))?.w ?? null,
       dock: r(document.querySelector(".prepare-dock"))?.h ?? null,
+      familyAbove: document.querySelector(".tray-family-row") !== null, // Issue #399: the family filter has its own row above the tray
       row: r(document.querySelector(".ingredient-page-nav")),
       pager: r(document.querySelector(".ingredient-page-nav__pager")),
       entry: r(document.querySelector(".pantry-entry")),
@@ -157,7 +159,10 @@ for (const width of [390, 360] as const) {
       // And against the LC-R2 measurement taken on the code without the entry (Chromium): a sanity bound only,
       // wide enough for WebKit's rounding (WebKit measured 246 vs 245.1 at 360x640).
       expect(Math.abs(before.stage! - base.doughDiameter), `${label}: stage within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
-      expect(Math.abs(before.dock! - base.dockHeight), `${label}: dock within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
+      // Issue #399: where the stage can spare it the family filter takes its own row above the tray and the dock reserves it
+      // (FAMILY_ROW_PX); the pizza stays what it was. The dock is the pre-R3 one plus exactly that row, or exactly the pre-R3 one.
+      const expectedDock = base.dockHeight + (before.familyAbove ? FAMILY_ROW_PX : 0);
+      expect(Math.abs(before.dock! - expectedDock), `${label}: dock within 1.5px of the pre-R3 measurement (+ the family row when it is above)`).toBeLessThanOrEqual(1.5);
       expect(before.row!.h, `${label}: pager row stays 28px`).toBeCloseTo(28, 0);
       expect(before.docScrollW, `${label}: no horizontal overflow`).toBeLessThanOrEqual(before.innerW);
       expect(before.gameScreenScrolls, `${label}: game screen does not scroll`).toBe(false);

@@ -72,9 +72,6 @@ function expectNoJumps(samples: Sample[], cap: number, where: string) {
     if (i === 0) continue;
     const p = samples[i - 1]!;
     const dh = s.h - p.h;
-    // DM-3R-0's own `@media (max-height: 700px)` (chip rows 64 -> 58px, dock 174 -> 162) is a step the app has always had, with or
-    // without the family row; the pair that crosses it says nothing about this feature.
-    if (p.h > 700 && s.h <= 700) continue;
     expect(Math.abs(s.pizza - p.pizza), `${where} h=${p.h}->${s.h}: pizza jump`).toBeLessThanOrEqual(Math.abs(dh) + 0.6); // it only follows the stage, never more than the height change
     if (s.mode !== p.mode) {
       expect(Math.abs(s.pizza - p.pizza), `${where} h=${p.h}->${s.h}: the pizza does not change at the switch`).toBeLessThanOrEqual(0.6);
@@ -97,7 +94,9 @@ for (const width of [390, 360] as const) {
 
       // coarse pass down: where does the layout switch?
       const coarse: Sample[] = [];
-      for (let h = 880; h >= 660; h -= 4) coarse.push(await sample(page, h));
+      // stop above DM-3R-0's own `@media (max-height: 700px)` step (chip rows 64 -> 58px): it sits at a slightly different height per engine
+      // and is not what is being tested; the family row never expands at or below it, which family-layout-contract.spec.ts holds
+      for (let h = 880; h >= 708; h -= 4) coarse.push(await sample(page, h));
       const idx = switches(coarse);
       expect(idx.length, "one switch on the way down").toBe(1);
       const switchAt = coarse[idx[0]!]!.h;
