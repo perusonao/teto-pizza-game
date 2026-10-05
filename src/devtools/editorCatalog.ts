@@ -2,6 +2,7 @@ import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder"
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { countsTowardLadder, RECIPES } from "../data/recipes";
 import { KNOWN_TECHNIQUE_IDS } from "../data/techniques";
+import { deriveResearchEntries, researchLetter } from "../logic/discovery/researchEntry";
 import { initialTechniqueLedger } from "../logic/techniques/runtime";
 import type { DexState } from "../state/dex";
 
@@ -29,6 +30,14 @@ export interface CatalogIngredient {
   unlockCondition?: unknown;
 }
 
+/** What the editor needs of a Research Entry (the real derivation's own fields, Research 2.0 / #402). */
+export interface CatalogResearchEntry {
+  recipeId: string;
+  unlockIngredientId: string;
+  /** The stable cohort letter (A, B, ...), or null for a single cohort. */
+  cohortLetter: string | null;
+}
+
 export interface EditorCatalog {
   recipes: readonly CatalogRecipe[];
   ingredients: readonly CatalogIngredient[];
@@ -38,6 +47,13 @@ export interface EditorCatalog {
   countsTowardLadder: (recipeId: string) => boolean;
   /** The technique ledger a save with this Dex must carry (INV-TQ-1: a discovered recipe's technique is known). */
   techniqueLedgerFor: (saved: readonly string[], dex: DexState) => string[];
+  /**
+   * The Research Entries of a state, from the game's own derivation (`deriveResearchEntries`), so the cohort
+   * letters are Research Stable Identity's (#402), never recomputed or copied here.
+   */
+  researchEntries: (dex: DexState, ownedIngredientIds: readonly string[]) => readonly CatalogResearchEntry[];
+  /** The authority's letter of the zero-based cohort index (0 -> A, 1 -> B, ...). */
+  researchLetter: (index: number) => string;
 }
 
 export function productionCatalog(): EditorCatalog {
@@ -49,6 +65,8 @@ export function productionCatalog(): EditorCatalog {
     techniqueIds: KNOWN_TECHNIQUE_IDS,
     countsTowardLadder,
     techniqueLedgerFor: (saved, dex) => initialTechniqueLedger(saved, dex),
+    researchEntries: (dex, ownedIngredientIds) => deriveResearchEntries({ dex, ownedIngredientIds }).entries,
+    researchLetter,
   };
 }
 

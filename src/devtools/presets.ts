@@ -24,6 +24,7 @@ export type PresetId =
   | "margherita-discovered"
   | "research-step12-ready"
   | "step12-abc-undiscovered"
+  | "step12-b-discovered"
   | "all-ingredients"
   | "all-recipes"
   | "everything-unlocked";
@@ -39,25 +40,11 @@ export const PRESETS: readonly PresetDefinition[] = [
   { id: "margherita-discovered", labelJa: "Margherita discovered", descriptionJa: "最初のピザだけ発見済み" },
   { id: "research-step12-ready", labelJa: "Research Step 12 Ready", descriptionJa: "step 12 の材料を取得する直前（Dex は step 12 到達、材料は Shop 解放済み・未取得）" },
   { id: "step12-abc-undiscovered", labelJa: "Step 12 A/B/C undiscovered", descriptionJa: "step 12 の材料を最後に取得。Research Entry の A/B/C がすべて未発見" },
+  { id: "step12-b-discovered", labelJa: "Step 12 B discovered", descriptionJa: "step 12 の cohort のうち B（Brazilian Calabresa）だけ発見済み。残りは A / C のまま（letter は #402 の Research Stable Identity から導出）" },
   { id: "all-ingredients", labelJa: "All Ingredients", descriptionJa: "全材料 OWNED（finite 在庫は既定値）" },
   { id: "all-recipes", labelJa: "All Recipes", descriptionJa: "全ピザ発見済み" },
   { id: "everything-unlocked", labelJa: "Everything Unlocked", descriptionJa: "全材料 OWNED + 全ピザ発見済み + 全 Technique" },
 ];
-
-/**
- * Owner Decision OD-1 / Owner Contract 10: a preset that depends on PR #402's Research Stable Identity (the
- * cohort letter A = Aussie, B = Brazilian Calabresa, C = Pizza Portuguesa). It has NO builder and is NOT in
- * `PRESETS`: its final wiring waits for #402 to merge, and the provisional anonymous order is never made a
- * permanent spec. `buildPreset` refuses it.
- */
-export const PENDING_PRESETS = [
-  {
-    id: "step12-b-discovered",
-    labelJa: "Step 12 B discovered",
-    blockedBy: "#402",
-    descriptionJa: "step 12 で B（Brazilian Calabresa）だけ発見済み。#402 の authority を正とするため、#402 merge まで配線しない",
-  },
-] as const;
 
 function dexEntry(recipeId: string): DexEntry {
   return { recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 };
@@ -133,6 +120,18 @@ export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCat
         inventory: stockOf(owned),
       });
     }
+    case "step12-b-discovered": {
+      // The cohort is Research Stable Identity's (#402): the letters come from the game's own derivation over the
+      // step-12 state (nothing discovered yet), and "B" is the authority's second letter. Nothing here knows a
+      // recipe id, a letter order or a hash: a different catalog gives a different B, and the other letters stay.
+      const abc = buildPreset("step12-abc-undiscovered", catalog);
+      const stepMaterials = new Set(stepContext(catalog, RESEARCH_PRESET_STEP).stepMaterials);
+      const letter = catalog.researchLetter(1);
+      const cohort = catalog.researchEntries(abc.dex, abc.ownedIngredientIds).filter((e) => stepMaterials.has(e.unlockIngredientId));
+      const target = cohort.find((e) => e.cohortLetter === letter);
+      if (!target) throw new Error(`the step-${RESEARCH_PRESET_STEP} cohort has no entry lettered ${letter}`);
+      return normalizeEditableState({ ...abc, dex: [...abc.dex, dexEntry(target.recipeId)] }, catalog);
+    }
     case "all-ingredients": {
       const finite = allFiniteInLadderOrder(catalog);
       return base({ pitzBalance: PRESET_PITZ, ownedIngredientIds: [...starters, ...finite], inventory: stockOf(finite) });
@@ -152,12 +151,9 @@ export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCat
   }
 }
 
-/** `buildPreset` for an id that comes from outside (a URL, a list): a pending or unknown id throws. */
+/** `buildPreset` for an id that comes from outside (a URL, a list): an unknown id throws. */
 export function buildPresetById(id: string, catalog: EditorCatalog = productionCatalog()): EditableState {
   const def = PRESETS.find((p) => p.id === id);
-  if (!def) {
-    const pending = PENDING_PRESETS.find((p) => p.id === id);
-    throw new Error(pending ? `preset ${id} is blocked by ${pending.blockedBy} and has no builder` : `unknown preset ${id}`);
-  }
+  if (!def) throw new Error(`unknown preset ${id}`);
   return buildPreset(def.id, catalog);
 }

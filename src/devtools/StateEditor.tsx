@@ -9,7 +9,7 @@ import { clearHints, diffEditable, hintCounts, ingredientName, lastAcquiredFinit
 import { IngredientsPanel } from "./IngredientsPanel";
 import { DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "./marks";
 import { NumberField } from "./NumberField";
-import { buildPreset, PENDING_PRESETS, PRESETS, type PresetId } from "./presets";
+import { buildPreset, PRESETS, type PresetId } from "./presets";
 import { ReviewPanel } from "./ReviewPanel";
 import { freshEditableState, normalizeEditableState, type EditableState } from "./stateModel";
 import "./stateEditorShell.css";
@@ -190,14 +190,6 @@ export function StateEditor({ storage, catalog: catalogProp, now }: StateEditorP
                   <button type="button" className="dse-btn dse-preset" data-preset-id={p.id} onClick={() => loadPreset(p.id, p.labelJa)}>
                     <b>{p.labelJa}</b>
                     <span className="dse-preset__desc">{p.descriptionJa}</span>
-                  </button>
-                </li>
-              ))}
-              {PENDING_PRESETS.map((p) => (
-                <li key={p.id}>
-                  <button type="button" className="dse-btn dse-preset" disabled aria-disabled="true" data-preset-id={p.id}>
-                    <b>{p.labelJa}</b>
-                    <span className="dse-preset__desc">{p.blockedBy} merge まで配線しない（Research Stable Identity の authority を複製しません）</span>
                   </button>
                 </li>
               ))}

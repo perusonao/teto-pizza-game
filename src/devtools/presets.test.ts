@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
-import { deriveResearchEntries } from "../logic/discovery/researchEntry";
+import { deriveResearchEntries, researchEntryLabel } from "../logic/discovery/researchEntry";
 import { finiteIngredientIds, onboardingRecipeId, productionCatalog, type EditorCatalog } from "./editorCatalog";
 import {
   allFiniteInLadderOrder,
   buildPreset,
   buildPresetById,
-  PENDING_PRESETS,
   PRESET_FINITE_STOCK,
   PRESETS,
   RESEARCH_PRESET_STEP,
@@ -18,21 +17,18 @@ const catalog = productionCatalog();
 const stepTarget = catalog.ladder.steps[RESEARCH_PRESET_STEP - 1];
 
 describe("presets are derived from the real catalog", () => {
-  it("the preset list is the seven designed presets; the #402-dependent one has no builder", () => {
+  it("the preset list is the eight designed presets, Step 12 B discovered included (#402 merged)", () => {
     expect(PRESETS.map((p) => p.id)).toEqual([
       "fresh-start",
       "margherita-discovered",
       "research-step12-ready",
       "step12-abc-undiscovered",
+      "step12-b-discovered",
       "all-ingredients",
       "all-recipes",
       "everything-unlocked",
     ]);
-    expect(PENDING_PRESETS.map((p) => p.id)).toEqual(["step12-b-discovered"]);
-    for (const pending of PENDING_PRESETS) {
-      expect(PRESETS.some((p) => (p.id as string) === pending.id)).toBe(false);
-      expect(() => buildPresetById(pending.id)).toThrow(/blocked by #402/);
-    }
+    expect(() => buildPresetById("step12-b-discovered")).not.toThrow();
     expect(() => buildPresetById("nope")).toThrow(/unknown preset/);
   });
 
@@ -75,6 +71,59 @@ describe("presets are derived from the real catalog", () => {
     expect(projection.entries.map((e) => e.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "pizza-portuguesa"]);
     for (const e of projection.entries) expect(e.unlockIngredientId).toBe(stepTarget.ingredientIds[0]);
     for (const e of projection.entries) expect(state.dex.map((d) => d.recipeId)).not.toContain(e.recipeId);
+  });
+
+  it("Step 12 B discovered (Research Stable Identity, #402): B = Brazilian Calabresa is discovered; A and C stay, with their letters", () => {
+    const abc = buildPreset("step12-abc-undiscovered");
+    const abcEntries = deriveResearchEntries({ dex: abc.dex, ownedIngredientIds: abc.ownedIngredientIds }).entries;
+    const letterOf = (recipeId: string) => abcEntries.find((e) => e.recipeId === recipeId)?.cohortLetter;
+    // Owner OD-1: A = Aussie, B = Brazilian Calabresa, C = Pizza Portuguesa -- as the AUTHORITY's letters say
+    expect([letterOf("aussie"), letterOf("brazilian-calabresa"), letterOf("pizza-portuguesa")]).toEqual(["A", "B", "C"]);
+
+    const state = buildPreset("step12-b-discovered");
+    const discovered = state.dex.map((e) => e.recipeId);
+    expect(discovered).toContain("brazilian-calabresa");
+    expect(discovered).not.toContain("aussie");
+    expect(discovered).not.toContain("pizza-portuguesa");
+    const loaded = loadCanonical(state);
+    const entries = deriveResearchEntries({ dex: loaded.dex, ownedIngredientIds: loaded.ownedIngredientIds }).entries;
+    // the remaining entries are A and C: C does NOT move up to B
+    expect(entries.map((e) => [e.cohortLetter, e.recipeId])).toEqual(expect.arrayContaining([["A", "aussie"], ["C", "pizza-portuguesa"]]));
+    expect(entries).toHaveLength(2);
+    expect(entries.map((e) => e.cohortLetter).sort()).toEqual(["A", "C"]);
+    for (const e of entries) expect(e.unlockIngredientId).toBe(stepTarget.ingredientIds[0]);
+    expect(entries.some((e) => e.recipeId === "brazilian-calabresa")).toBe(false);
+    // the label is the authority's: ？？？ピザ A（たまねぎ） / ？？？ピザ C（たまねぎ）
+    expect(entries.map((e) => researchEntryLabel(e))).toEqual(expect.arrayContaining(["？？？ピザ A（たまねぎ）", "？？？ピザ C（たまねぎ）"]));
+    expect(researchEntryLabel({ unlockIngredientId: stepTarget.ingredientIds[0], cohortLetter: "B" })).toBe("？？？ピザ B（たまねぎ）");
+    // acquisition order, ownership and stock are exactly the A/B/C preset's: only the Dex differs by one recipe
+    expect(state.ownedIngredientIds).toEqual(abc.ownedIngredientIds);
+    expect(state.inventory).toEqual(abc.inventory);
+    expect(state.dex).toHaveLength(abc.dex.length + 1);
+    expect(abc.dex.map((e) => e.recipeId)).not.toContain("brazilian-calabresa");
+    // the preset names no recipe: it is the entry the authority letters B (the second of the cohort)
+    const b = abcEntries.find((e) => e.cohortLetter === catalog.researchLetter(1))!;
+    expect(discovered).toContain(b.recipeId);
+  });
+
+  it("the B preset follows the authority, not a recipe id: a catalog whose cohort differs gets its own B", () => {
+    const stubbed: EditorCatalog = {
+      ...catalog,
+      researchEntries: (dex, owned) => {
+        const real = catalog.researchEntries(dex, owned);
+        // reverse the lettering of the step cohort: the entry the real authority calls A is now B
+        const swap = (l: string | null) => (l === "A" ? "B" : l === "B" ? "A" : l);
+        return real.map((e) => ({ ...e, cohortLetter: swap(e.cohortLetter) }));
+      },
+    };
+    const state = buildPreset("step12-b-discovered", stubbed);
+    expect(state.dex.map((e) => e.recipeId)).toContain("aussie");
+    expect(state.dex.map((e) => e.recipeId)).not.toContain("brazilian-calabresa");
+  });
+
+  it("the B preset fails loudly when the cohort has no entry with that letter", () => {
+    const none: EditorCatalog = { ...catalog, researchEntries: () => [] };
+    expect(() => buildPreset("step12-b-discovered", none)).toThrow(/no entry lettered B/);
   });
 
   it("acquisition order matters: with the step's material owned EARLIER the unlock fact is a different material", () => {
@@ -152,6 +201,32 @@ function syntheticCatalog(recipeCount: number, starterCount: number, ingredientC
     techniqueIds: [],
     countsTowardLadder: () => true,
     techniqueLedgerFor: () => [],
+    ...syntheticResearch(recipes, ingredients),
+  };
+}
+
+/**
+ * A test double of the Research derivation for the synthetic catalog (the real authority reads the shipped catalog):
+ * a recipe is registrable when every finite material it needs is owned; its unlock is the one acquired last; a cohort
+ * shares an unlock; letters follow the sorted ids. Only the synthetic scale test uses it.
+ */
+function syntheticResearch(recipes: EditorCatalog["recipes"], ingredients: EditorCatalog["ingredients"]): Pick<EditorCatalog, "researchEntries" | "researchLetter"> {
+  const finite = new Set(ingredients.filter((i) => i.unlockCondition !== undefined).map((i) => i.id));
+  return {
+    researchLetter: (i) => String.fromCharCode(65 + i),
+    researchEntries: (dex, owned) => {
+      const found = new Set(dex.map((e) => e.recipeId));
+      const cohorts = new Map<string, string[]>();
+      for (const r of recipes) {
+        const needs = r.requiredIngredients.map((q) => q.ingredientId).filter((id) => finite.has(id));
+        if (needs.length === 0 || needs.some((id) => !owned.includes(id))) continue;
+        const unlock = needs.reduce((a, b) => (owned.indexOf(b) > owned.indexOf(a) ? b : a));
+        cohorts.set(unlock, [...(cohorts.get(unlock) ?? []), r.id]);
+      }
+      return [...cohorts].flatMap(([unlock, ids]) =>
+        [...ids].sort().map((recipeId, i) => ({ recipeId, unlockIngredientId: unlock, cohortLetter: ids.length > 1 ? String.fromCharCode(65 + i) : null })).filter((e) => !found.has(e.recipeId)),
+      );
+    },
   };
 }
 

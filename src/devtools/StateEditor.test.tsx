@@ -75,14 +75,13 @@ describe("opening and browsing never writes (Owner Contract 7)", () => {
 });
 
 describe("presets", () => {
-  it("a preset only replaces the DRAFT: the status shows it, storage is untouched, the pending one is disabled", async () => {
+  it("a preset only replaces the DRAFT: the status shows it and storage is untouched", async () => {
     const storage = spyStorage();
     const user = userEvent.setup();
     render(<StateEditor storage={storage} now={NOW} />);
     await openTab(user, "プリセット");
-    const pending = document.querySelector('[data-preset-id="step12-b-discovered"]') as HTMLButtonElement;
-    expect(pending).toBeDisabled();
-    expect(pending).toHaveTextContent("#402");
+    const bPreset = document.querySelector('[data-preset-id="step12-b-discovered"]') as HTMLButtonElement;
+    expect(bPreset).toBeEnabled(); // #402 is merged: the preset is wired
     await user.click(screen.getByRole("button", { name: /Step 12 A\/B\/C undiscovered/ }));
     expect(screen.getByRole("status")).toHaveTextContent("まだ適用されていません");
     await openTab(user, "状態");
@@ -90,6 +89,21 @@ describe("presets", () => {
     expect(entries.getAttribute("data-research-entries")).toBe("3");
     expect(entries).toHaveTextContent(ingredientName(catalog, catalog.ladder.steps[11].ingredientIds[0]));
     expect(screen.getByText(/変更: [1-9]\d* 件/)).toBeInTheDocument();
+    expect(storage.writes).toEqual([]);
+  });
+});
+
+describe("Step 12 B discovered", () => {
+  it("loads into the draft: 2 Research Entries (A and C), the Dex gains one recipe, nothing is written", async () => {
+    const storage = spyStorage();
+    const user = userEvent.setup();
+    render(<StateEditor storage={storage} now={NOW} />);
+    await openTab(user, "プリセット");
+    await user.click(screen.getByRole("button", { name: /Step 12 B discovered/ }));
+    await openTab(user, "状態");
+    expect(document.querySelector("[data-research-entries]")!.getAttribute("data-research-entries")).toBe("2");
+    await openTab(user, "適用");
+    expect(document.querySelector('[data-diff-id="dex"]')).toHaveTextContent(`Dex: 0 → ${buildPreset("step12-abc-undiscovered").dex.length + 1}`);
     expect(storage.writes).toEqual([]);
   });
 });

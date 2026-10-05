@@ -1,4 +1,6 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
+import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { PREVIEW_BASE, PREVIEW_KEY, PROD_BASE, PROD_KEY, startDevStateServers, type DevStateServers } from "./support/devStateBuilds";
 
 /**
@@ -115,7 +117,7 @@ test("HV: edit, review, apply, reload, the game, backup, restore", async ({ page
   // -- preset: Step 12 A/B/C undiscovered
   await openTab(page, "プリセット");
   await expectLayout(page, "presets");
-  await expect(page.locator('[data-preset-id="step12-b-discovered"]')).toBeDisabled();
+  await expect(page.locator('[data-preset-id="step12-b-discovered"]')).toBeEnabled(); // #402 is merged: wired
   await shot(page, "03-presets");
   await page.getByRole("button", { name: /Step 12 A\/B\/C undiscovered/ }).click();
   await expect(page.getByRole("status")).toContainText("まだ適用されていません");
@@ -307,4 +309,82 @@ test("HV: Step 12 A/B/C reaches the game's Research, and the acquisition order c
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /レシピ発見/ }).click();
   await expect(page.getByText(/^✓ .+を使う$/)).toHaveCount(0);
+});
+
+const LABEL_A = "？？？ピザ A（たまねぎ）";
+const LABEL_B = "？？？ピザ B（たまねぎ）";
+const LABEL_C = "？？？ピザ C（たまねぎ）";
+
+test("HV: Step 12 B discovered -> Apply -> the game shows Brazilian Calabresa discovered and A / C (C does not become B); reload; editor; restore", async ({ page }) => {
+  test.setTimeout(180_000);
+  await seed(page, { [PREVIEW_KEY]: SEED_RAW });
+
+  // -- the editor: the preset is wired (#402 merged), review shows the Dex gain, apply
+  await page.goto(editorUrl());
+  await openTab(page, "プリセット");
+  await expectLayout(page, "presets");
+  await expect(page.locator('[data-preset-id="step12-b-discovered"]')).toBeEnabled();
+  await page.getByRole("button", { name: /Step 12 B discovered/ }).click();
+  await openTab(page, "状態");
+  await expect(page.locator("[data-research-entries]")).toHaveAttribute("data-research-entries", "2");
+  await shot(page, "19-b-preset-status");
+  await openTab(page, "適用");
+  await expect(page.locator('[data-diff-id="dex"]')).toBeVisible();
+  await expectLayout(page, "apply (B preset)");
+  await shot(page, "20-b-preset-review");
+  await hold(page);
+  await page.getByRole("checkbox", { name: /変更内容と backup を確認/ }).click();
+  await page.getByRole("button", { name: "適用する" }).click();
+  await expect(page.getByRole("status").last()).toContainText("適用しました（本物の loader で検証済み）");
+  const discovered = (JSON.parse((await stored(page))!).dex as { recipeId: string }[]).map((d) => d.recipeId);
+  expect(discovered).toContain("brazilian-calabresa");
+  expect(discovered).not.toContain("aussie");
+  expect(discovered).not.toContain("pizza-portuguesa");
+
+  // -- the game: Dex shows Brazilian Calabresa; Research shows A and C, never B
+  await page.getByRole("link", { name: "ゲームを開く" }).click();
+  await page.waitForSelector(".app-frame");
+  const researchTitles = async () => {
+    await page.getByRole("button", { name: /ピザ図鑑/ }).click();
+    await page.waitForSelector(".dex-overlay");
+    const section = page.locator(".dex-overlay__research");
+    await section.scrollIntoViewIfNeeded();
+    return { section, titles: await section.locator(".dex-research-card h3").allTextContents() };
+  };
+  let { section, titles } = await researchTitles();
+  expect(titles.sort()).toEqual([LABEL_A, LABEL_C]);
+  expect(titles).not.toContain(LABEL_B);
+  await expect(section.getByRole("button", { name: `${LABEL_A}を研究する` })).toBeVisible();
+  await expect(section.getByRole("button", { name: `${LABEL_C}を研究する` })).toBeVisible();
+  await expect(section.getByRole("button", { name: `${LABEL_B}を研究する` })).toHaveCount(0);
+  const calabresa = RECIPES.find((r) => r.id === "brazilian-calabresa")!;
+  await expect(page.locator(".dex-overlay")).toContainText(calabresa.nameJa);
+  await expectNoUndiscoveredIdentity(page, discovered, "game Dex after the B preset");
+  const overflow = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, vw: window.innerWidth }));
+  expect(overflow.sw).toBeLessThanOrEqual(overflow.vw);
+  await shot(page, "21-b-game-dex-research-ac");
+  await hold(page, 2500);
+
+  // -- reload: still A and C
+  await page.reload();
+  await page.waitForSelector(".app-frame");
+  ({ section, titles } = await researchTitles());
+  expect(titles.sort()).toEqual([LABEL_A, LABEL_C]);
+  await shot(page, "22-b-game-dex-after-reload");
+  const inGame = JSON.parse((await stored(page))!);
+  expect(inGame.futureTopLevel).toEqual({ keep: true });
+  expect(inGame.missionBest).toEqual({ "lunch-rush": 640 });
+
+  // -- back in the editor the save reads fine (2 entries, no pending change), then restore the original raw
+  await page.goto(editorUrl());
+  await expect(page.getByRole("main")).toContainText("読み取り可");
+  await expect(page.getByText(/変更: 0 件/)).toBeVisible();
+  await expect(page.locator("[data-research-entries]")).toHaveAttribute("data-research-entries", "2");
+  await openTab(page, "バックアップ");
+  await expect(page.locator('[data-backup-slot="original"]')).toContainText("save あり");
+  await page.locator('[data-backup-slot="original"]').getByRole("button", { name: /この backup に戻す/ }).click();
+  await page.locator('[data-backup-slot="original"]').getByRole("button", { name: "復元する" }).click();
+  await expect(page.getByRole("status").last()).toContainText("復元しました");
+  expect(await stored(page)).toBe(SEED_RAW);
+  await shot(page, "23-b-restored");
 });

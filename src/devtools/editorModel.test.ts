@@ -153,6 +153,8 @@ describe("the editor model scales to a synthetic 172-recipe / 62-ingredient cata
       techniqueIds: [],
       countsTowardLadder: () => true,
       techniqueLedgerFor: () => [],
+      researchEntries: () => [],
+      researchLetter: (i) => String.fromCharCode(65 + i),
     };
   }
 
