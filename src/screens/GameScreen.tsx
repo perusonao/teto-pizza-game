@@ -377,12 +377,14 @@ export function GameScreen({
   const familyRowReserved = dockReserve.familyRow;
   const inPrepare = state.phase === "PREPARE";
   useLayoutEffect(() => {
-    const stage = screenRef.current?.querySelector<HTMLElement>(".pizza-stage");
-    if (!stage || !familyRowReserved) {
-      setFamilyAbove(false);
-      return;
-    }
+    // Read the stage afresh each time (it is a different element if the screen was ever re-keyed) and never keep a stale
+    // placement: without a reserved row there is nothing above.
     const measure = () => {
+      const stage = screenRef.current?.querySelector<HTMLElement>(".pizza-stage");
+      if (!stage || !familyRowReserved) {
+        setFamilyAbove(false);
+        return;
+      }
       const style = getComputedStyle(stage);
       const contentHeight = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
       // The pizza's cap, read from the zero-size probe App.css sizes with the very `--pizza-cap-*` the dough uses.
@@ -392,7 +394,8 @@ export function GameScreen({
     };
     // A change of layout takes a render and a layout pass to show in the stage, and the engines deliver resize / observer
     // notifications at different moments: so after every trigger the stage is read again over the next few frames, until
-    // the placement has stopped changing. The rule is a fixed point, so this only ever confirms it.
+    // the placement has stopped changing. The rule is a fixed point, so this only ever confirms it. The short-height query
+    // is listened to directly: it is the one input that flips the layout without the stage's own size being the cause.
     let frame = 0;
     let settleLeft = 0;
     const settle = () => {
@@ -406,12 +409,16 @@ export function GameScreen({
       settle();
     };
     trigger();
-    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(trigger) : null;
-    observer?.observe(stage);
+    const stage = screenRef.current?.querySelector<HTMLElement>(".pizza-stage");
+    const observer = typeof ResizeObserver === "function" && stage ? new ResizeObserver(trigger) : null;
+    if (stage) observer?.observe(stage);
+    const short = typeof window.matchMedia === "function" ? window.matchMedia(SHORT_HEIGHT_QUERY) : null;
+    short?.addEventListener?.("change", trigger);
     window.addEventListener("resize", trigger);
     return () => {
       cancelAnimationFrame(frame);
       observer?.disconnect();
+      short?.removeEventListener?.("change", trigger);
       window.removeEventListener("resize", trigger);
     };
   }, [familyRowReserved, inPrepare]);
