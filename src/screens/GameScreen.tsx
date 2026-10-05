@@ -16,6 +16,7 @@ import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
+import { RESEARCH_UX_COPY } from "../components/researchUxCopy";
 import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
@@ -180,6 +181,8 @@ interface GameScreenProps {
   /** #346 S4: the post-discovery 「🔎 次のピザを研究する」 -- starts the one remaining Research Entry
    *  (`recipeId`) or, with `null`, opens the Dex's anonymous Research cards. */
   onResearchNext?: (recipeId: string | null) => void;
+  /** Research UX Phase 1: relays whether the PREPARE 試作ノート sheet is open so App pauses the cooking clock while it is read. */
+  onPrepareNotebookOpenChange?: (open: boolean) => void;
   onMissionServeNext: () => void;
   /** Issue #212 (H-R): 「この注文をスキップ」 on a short Lunch Rush order. */
   onMissionSkipOrder: () => void;
@@ -256,6 +259,7 @@ export function GameScreen({
   onOpenShop,
   onOpenDex,
   onResearchNext,
+  onPrepareNotebookOpenChange,
   onMissionServeNext,
   onMissionSkipOrder,
   onMissionStart,
@@ -292,6 +296,9 @@ export function GameScreen({
   // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
   const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
   const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
+  // Research UX Phase 1: the same read-only sheet opened from the PREPARE research card (UI-only, never dispatched).
+  const [prepareNotebookOpen, setPrepareNotebookOpen] = useState(false);
+  const prepareNotebookEntryRef = useRef<HTMLButtonElement>(null);
   const hintButtonRef = useRef<HTMLButtonElement>(null);
   const wasHintSheetOpenRef = useRef(hintSheetOpen);
   const hintToPantryRef = useRef(false);
@@ -378,10 +385,18 @@ export function GameScreen({
       ? { kind: "later" }
       : undefined;
   // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
-  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible;
+  const prepareNotebookVisible = prepareNotebookOpen && state.phase === "PREPARE" && researchResult !== null;
+  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible || prepareNotebookVisible;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
   if (pantryOpen && !pantryAvailable) setPantryOpen(false);
+  if (prepareNotebookOpen && !prepareNotebookVisible) setPrepareNotebookOpen(false);
+  // Reports "open" while visible; the cleanup reports "closed" on close, on leaving PREPARE and on unmount, so the pause can never stick.
+  useEffect(() => {
+    if (!prepareNotebookVisible) return;
+    onPrepareNotebookOpenChange?.(true);
+    return () => onPrepareNotebookOpenChange?.(false);
+  }, [prepareNotebookVisible, onPrepareNotebookOpenChange]);
   const wasPantryVisibleRef = useRef(pantryVisible);
   useEffect(() => {
     if (wasPantryVisibleRef.current && !pantryVisible) pantryEntryRef.current?.focus();
@@ -502,7 +517,14 @@ export function GameScreen({
     (state.phase === "POST_BAKE" && state.makingStep === "CUT");
 
   return (
-    <div className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}>
+    <>
+    <div
+      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}
+      // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
+      // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
+      // beside this root, below, so it is not inert. Same pattern as the Hint sheet's own notebook.
+      inert={prepareNotebookVisible || undefined}
+    >
       {/* Issue #47 Finding K: Shop/Pizza Dex were reachable from every Making phase
           (ORDER/PREPARE/BAKE/RESULT/DISCOVERED) via this header -- removed so Making stays
           focused on making and HOME remains the sole hub for Shop/Dex navigation (Issue #22's
@@ -637,7 +659,7 @@ export function GameScreen({
         <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
           <div className="order-card__text">
             <span className="order-card__recipe-name order-card__recipe-name--research">
-              <span>🔎 研究中　{researchResult.label}</span>
+              <span>{RESEARCH_UX_COPY.contextLine(researchResult.label)}</span>
             </span>
             <span className="order-card__hint">
               わかっていること：
@@ -647,7 +669,24 @@ export function GameScreen({
                 ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
               ].join("　")}
             </span>
+            {/* Research UX Phase 1 (O-1 / O-2): one fixed sentence, identical for every target. Without a verdict this round
+                (the target was not valid at the round's start, so RESULT has no ○×) it promises none. */}
+            <span className="order-card__hint order-card__guidance" data-testid="research-guidance">
+              {RESEARCH_IDENTIFY_ENABLED && state.researchTargetValidAtStart
+                ? RESEARCH_UX_COPY.prepareGuidance
+                : RESEARCH_UX_COPY.prepareGuidanceNoRows}
+            </span>
           </div>
+          <button
+            ref={prepareNotebookEntryRef}
+            type="button"
+            className="order-card__notebook"
+            data-testid="research-notebook-entry"
+            aria-haspopup="dialog"
+            onClick={() => setPrepareNotebookOpen(true)}
+          >
+            {RESEARCH_UX_COPY.notebookEntry}
+          </button>
         </div>
       )}
 
@@ -712,7 +751,7 @@ export function GameScreen({
           <div className="order-card__text">
             <span className="order-card__recipe-name">
               {state.freeCook ? (
-                researchResult ? <>🔎 研究中　{researchResult.label}</> : <>{"\u{1F3A8}"} レシピ発見の試作</>
+                researchResult ? <>{RESEARCH_UX_COPY.contextLine(researchResult.label)}</> : <>{"\u{1F3A8}"} レシピ発見の試作</>
               ) : (
                 state.recipe.nameJa
               )}
@@ -967,6 +1006,7 @@ export function GameScreen({
               onBuyHint5={onBuyHint5Rung}
               notebook={notebookRows}
               pantry={hintPantryAccess}
+              researchLabelJa={researchResult?.label ?? null}
               onChooseResearch={
                 onOpenDex
                   ? () => {
@@ -1138,5 +1178,18 @@ export function GameScreen({
         />
       )}
     </div>
+      {/* Rendered beside (not inside) the inert game screen. */}
+      {prepareNotebookVisible && researchResult && (
+        <TrialNotebookSheet
+          entries={notebookRows}
+          backLabel={RESEARCH_UX_COPY.notebookBack}
+          researchLabelJa={researchResult.label}
+          onBack={() => {
+            setPrepareNotebookOpen(false);
+            queueMicrotask(() => prepareNotebookEntryRef.current?.focus());
+          }}
+        />
+      )}
+    </>
   );
 }

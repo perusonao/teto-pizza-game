@@ -29,18 +29,21 @@ export interface PostDiscoveryPrimary {
   directResearchId: string | null;
 }
 
-export const POST_DISCOVERY_LABEL_JA: Readonly<Record<PostDiscoveryPrimaryKind, string>> = {
+export const POST_DISCOVERY_LABEL_JA: Readonly<Record<PostDiscoveryPrimaryKind | "RESEARCH_NEXT_CHOOSE", string>> = {
   RESEARCH_NEXT: "\u{1F50E} 次のピザを研究する",
+  /** RESEARCH_NEXT with 2+ researchable entries: the player picks on the Dex's anonymous Research cards. */
+  RESEARCH_NEXT_CHOOSE: "\u{1F50E} 次のピザを選んで研究する",
   SHOP_NEW_MATERIAL: "\u{1F6D2} 新しい食材を見る",
   DEX: "\u{1F4D6} 図鑑を見る",
 };
 
 export function postDiscoveryPrimary(input: PostDiscoveryPrimaryInput): PostDiscoveryPrimary {
   if (input.researchableEntryIds.length > 0) {
+    const direct = input.researchableEntryIds.length === 1;
     return {
       kind: "RESEARCH_NEXT",
-      labelJa: POST_DISCOVERY_LABEL_JA.RESEARCH_NEXT,
-      directResearchId: input.researchableEntryIds.length === 1 ? input.researchableEntryIds[0] : null,
+      labelJa: direct ? POST_DISCOVERY_LABEL_JA.RESEARCH_NEXT : POST_DISCOVERY_LABEL_JA.RESEARCH_NEXT_CHOOSE,
+      directResearchId: direct ? input.researchableEntryIds[0] : null,
     };
   }
   if (input.newMaterialAvailable) {

@@ -13,7 +13,13 @@ describe("postDiscoveryPrimary (OD-RX-4)", () => {
     const p = postDiscoveryPrimary({ researchableEntryIds: entries, newMaterialAvailable: material });
     expect(p.kind).toBe(kind);
     expect(p.directResearchId).toBe(direct);
-    expect(p.labelJa).toBe(POST_DISCOVERY_LABEL_JA[p.kind]);
+    const key = p.kind === "RESEARCH_NEXT" && direct === null ? "RESEARCH_NEXT_CHOOSE" : p.kind;
+    expect(p.labelJa).toBe(POST_DISCOVERY_LABEL_JA[key]);
+  });
+
+  it("2+ researchable entries read 「次のピザを選んで研究する」; exactly one keeps 「次のピザを研究する」", () => {
+    expect(postDiscoveryPrimary({ researchableEntryIds: ["a", "b"], newMaterialAvailable: false }).labelJa).toBe("🔎 次のピザを選んで研究する");
+    expect(postDiscoveryPrimary({ researchableEntryIds: ["a"], newMaterialAvailable: false }).labelJa).toBe("🔎 次のピザを研究する");
   });
 
   it("the labels carry no count, remaining or completion wording", () => {
