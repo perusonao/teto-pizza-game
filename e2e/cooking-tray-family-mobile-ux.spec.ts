@@ -265,6 +265,16 @@ for (const vp of VIEWPORTS) {
     await row.getByRole("button", { name: `${LONGEST_LABEL}の具材だけ表示` }).click();
     const s = await expectSelectedClear(page, "longest");
     expect(s.chip!.width).toBeGreaterThan(130); // the real 144px chip, not a shrunk one
+    // The 1px trailing box (CSS ::after, the 6px gap taken back) keeps the last chip's end inside the scroll range: empty,
+    // invisible, and the row keeps its 28px layout height / 44px hit area.
+    const tail = await row.evaluate((r) => {
+      const cs = getComputedStyle(r, "::after");
+      const last = r.lastElementChild as HTMLElement;
+      return { width: cs.width, margin: cs.marginInlineStart, content: cs.content, spare: r.scrollWidth - (last.getBoundingClientRect().right - r.getBoundingClientRect().left + r.scrollLeft) };
+    });
+    expect(tail.width).toBe("1px");
+    expect(tail.margin).toBe("-6px");
+    expect(tail.spare, "the chip's end is reachable: the scroll range extends at least ~1px past it").toBeGreaterThanOrEqual(0.5 - 1e-6);
     await expect(row.getByRole("button", { name: `${LONGEST_LABEL}の具材だけ表示` })).toHaveAttribute("aria-pressed", "true");
     await shot(page, "longest-label-selected");
     // first / middle / last family each in turn, in a fresh scroll position from the far end.

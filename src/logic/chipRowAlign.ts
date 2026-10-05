@@ -38,9 +38,19 @@ export function chipRowPads(view: ChipRowMeasure, chip: ChipRect, fade: number =
   return { start: start * scale, end: end * scale };
 }
 
+/** Float noise below this is not a real overshoot (keeps an exactly-fitting integer target from rounding up a whole pixel). */
+const EPS = 1e-6;
+
 /**
  * The `scrollLeft` that shows `chip` whole and clear of the fades, moving as little as possible (the current value when
  * it already does). Always within the row's own scroll range.
+ *
+ * `chip` and `view` are fractional layout measurements (getBoundingClientRect based, not the integer `offset*`), and the
+ * result is a WHOLE pixel: an engine that stores `scrollLeft` as an integer (WebKit) then lands exactly where we asked,
+ * instead of up to half a pixel away from a fractional target. The rounding goes to the safe side of the edge being
+ * revealed: scrolling right to reveal the chip's end rounds UP (the end can only move further inside), scrolling left to
+ * reveal its start rounds DOWN. Whole visibility is the hard contract and beats integer alignment: a rounded target that
+ * would push the chip out of the view on the other side falls back to the nearest scroll that still shows it whole.
  */
 export function alignChipScrollLeft(view: ChipRowMeasure, chip: ChipRect, fade: number = CHIP_ROW_FADE_PX): number {
   const max = Math.max(0, view.scrollWidth - view.viewWidth);
@@ -48,9 +58,25 @@ export function alignChipScrollLeft(view: ChipRowMeasure, chip: ChipRect, fade: 
   if (chip.width >= view.viewWidth) return clamp(chip.left, 0, max);
   const pads = chipRowPads(view, chip, fade);
   const right = chip.left + chip.width;
-  if (chip.left < current + pads.start) return clamp(chip.left - pads.start, 0, max);
-  if (right > current + view.viewWidth - pads.end) return clamp(right - view.viewWidth + pads.end, 0, max);
-  return current;
+  const lo = right - view.viewWidth + pads.end; // least scroll that keeps the chip's end clear of the end fade
+  const hi = chip.left - pads.start; // most scroll that keeps the chip's start clear of the start fade
+  const hardLo = right - view.viewWidth; // whole visibility, whatever the fade room: the scroll must stay within [hardLo, hardHi]
+  const hardHi = chip.left;
+  const loInt = Math.ceil(lo - EPS);
+  const hiInt = Math.floor(hi + EPS);
+  let target: number;
+  if (loInt <= hiInt) {
+    // A whole-pixel scroll exists that keeps the chip clear of both fades: stay if already there, else the nearest one,
+    // rounded toward the edge being revealed (up to reveal the end, down to reveal the start).
+    if (current >= lo - EPS && current <= hi + EPS) return current;
+    target = current < lo ? loInt : hiInt;
+  } else {
+    // Too tight for a whole pixel clear of both fades (the fades shrink to the real gaps, see chipRowEdges): whole
+    // visibility is all that is asked, so a scroll that already shows the chip whole stays (no 1px back and forth).
+    if (current >= hardLo - EPS && current <= hardHi + EPS) return current;
+    target = clamp(Math.round((lo + hi) / 2), hardLo, hardHi);
+  }
+  return clamp(target, 0, max);
 }
 
 export interface ChipRowEdges {

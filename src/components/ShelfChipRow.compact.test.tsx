@@ -5,7 +5,8 @@ import { ShelfChipRow, type ShelfChipOption } from "./ShelfChipRow";
 
 /**
  * The compact (Cooking Tray) row's alignment and edge-fade wiring (Issue #399). jsdom has no layout, so the geometry is
- * stubbed: 8 chips of 54px on a 60px pitch (offsetLeft = index * 60) in a 150px row that scrolls 480px. The geometry maths
+ * stubbed: 8 chips of 54px on a 60px pitch (left = index * 60 in scroll coordinates) in a 150px row that scrolls 480px,
+ * read through getBoundingClientRect like the real row does (not the integer offset*). The geometry maths
  * itself is covered in src/logic/chipRowAlign.test.ts; here: when it runs, what it writes, and what it leaves alone.
  */
 const OPTIONS: ShelfChipOption[] = Array.from({ length: 8 }, (_, i) => ({ id: `f${i}`, label: `chip${i}`, ariaLabel: `chip${i}を表示` }));
@@ -16,8 +17,14 @@ let rowWidth = 150;
 beforeEach(() => {
   rowWidth = 150;
   const proto = HTMLElement.prototype;
-  Object.defineProperty(proto, "offsetLeft", { configurable: true, get() { return Array.prototype.indexOf.call((this as HTMLElement).parentElement?.children ?? [], this) * 60; } });
-  Object.defineProperty(proto, "offsetWidth", { configurable: true, get() { return 54; } });
+  Object.defineProperty(proto, "getBoundingClientRect", {
+    configurable: true,
+    value(this: HTMLElement) {
+      if (isRow(this)) return { left: 0, top: 0, width: rowWidth, height: 28, right: rowWidth, bottom: 28, x: 0, y: 0, toJSON: () => ({}) };
+      const left = Array.prototype.indexOf.call(this.parentElement?.children ?? [], this) * 60 - (scrollLefts.get(this.parentElement!) ?? 0);
+      return { left, top: 0, width: 54, height: 28, right: left + 54, bottom: 28, x: left, y: 0, toJSON: () => ({}) };
+    },
+  });
   Object.defineProperty(proto, "clientWidth", { configurable: true, get() { return isRow(this as Element) ? rowWidth : 0; } });
   Object.defineProperty(proto, "scrollWidth", { configurable: true, get() { return isRow(this as Element) ? 8 * 60 - 6 : 0; } });
   Object.defineProperty(proto, "scrollLeft", {
@@ -29,7 +36,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  for (const k of ["offsetLeft", "offsetWidth", "clientWidth", "scrollWidth", "scrollLeft"]) delete (HTMLElement.prototype as unknown as Record<string, unknown>)[k];
+  for (const k of ["getBoundingClientRect", "clientWidth", "scrollWidth", "scrollLeft"]) delete (HTMLElement.prototype as unknown as Record<string, unknown>)[k];
 });
 
 const renderRow = (active: string, options = OPTIONS, onChange = vi.fn()) =>

@@ -35,8 +35,12 @@ function measureRow(row: HTMLElement): ChipRowMeasure {
   return { scrollLeft: row.scrollLeft, viewWidth: row.clientWidth, scrollWidth: row.scrollWidth };
 }
 
+/** Fractional layout position of `chip` in the row's scroll coordinates. Not `offsetLeft` / `offsetWidth`: those round to
+ *  whole pixels, while WebKit lays the chips out at fractional widths, so a position built from them can be a pixel off. */
 function chipRect(row: HTMLElement, chip: HTMLElement): ChipRect {
-  return { left: chip.offsetLeft, width: chip.offsetWidth, isFirst: chip === row.firstElementChild, isLast: chip === row.lastElementChild };
+  const rowBox = row.getBoundingClientRect();
+  const box = chip.getBoundingClientRect();
+  return { left: box.left - rowBox.left - row.clientLeft + row.scrollLeft, width: box.width, isFirst: chip === row.firstElementChild, isLast: chip === row.lastElementChild };
 }
 
 /** Writes the fade state onto the row (data attributes + CSS variables the stylesheet reads). Imperative on purpose:

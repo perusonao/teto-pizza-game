@@ -7180,6 +7180,17 @@ p.hint-sheet__step {
   display: none;
 }
 
+/* A browser reports scrollWidth / clientWidth as whole pixels while the chips are laid out at fractional widths (WebKit
+   fonts), so the last chip's end can sit up to ~0.5px past the largest scroll position and never be reachable. A 1px
+   trailing box (the 6px gap is taken back by the negative margin) keeps the whole last chip inside the scroll range.
+   Nothing visible: it is empty and transparent. */
+.tray-family-chips::after {
+  content: "";
+  flex: none;
+  width: 1px;
+  margin-inline-start: -6px;
+}
+
 /* Issue #399: an edge fade on each side that still hides chips, as wide as ShelfChipRow says (--fade-start / --fade-end,
    shrunk so it never covers the active chip's own text). Hard stops at 0 make a side with no fade fully opaque. */
 .tray-family-chips[data-more-start="true"],
