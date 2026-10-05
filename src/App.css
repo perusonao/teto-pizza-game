@@ -4835,14 +4835,40 @@
   container-type: size;
 }
 
+/* The pizza's own size caps live in these two custom properties and nowhere else: `.pizza-dough` below and the zero-size
+   probe after them both read them, so GameScreen's `familyRowFits` measure (Issue #399) reads the SAME cap the dough
+   uses (`getComputedStyle(stage, "::before").width`) instead of repeating the numbers in script. */
+.game-screen--cooking {
+  --pizza-cap-compact: min(76vw, 290px);
+  --pizza-cap-roomy: min(92vw, 380px);
+}
+
 .game-screen--cooking > .pizza-stage--compact .pizza-dough {
-  width: min(76vw, 290px, 100cqh);
-  height: min(76vw, 290px, 100cqh);
+  width: min(var(--pizza-cap-compact), 100cqh);
+  height: min(var(--pizza-cap-compact), 100cqh);
 }
 
 .game-screen--cooking > .pizza-stage--roomy .pizza-dough {
-  width: min(92vw, 380px, 100cqh);
-  height: min(92vw, 380px, 100cqh);
+  width: min(var(--pizza-cap-roomy), 100cqh);
+  height: min(var(--pizza-cap-roomy), 100cqh);
+}
+
+/* The probe: out of flow, empty, invisible, never hit; only its resolved width (= the cap) is read. */
+.game-screen--cooking > .pizza-stage--compact::before,
+.game-screen--cooking > .pizza-stage--roomy::before {
+  content: "";
+  position: absolute;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.game-screen--cooking > .pizza-stage--compact::before {
+  width: var(--pizza-cap-compact);
+}
+
+.game-screen--cooking > .pizza-stage--roomy::before {
+  width: var(--pizza-cap-roomy);
 }
 
 .game-screen--cooking .prepare-bake-bar {
@@ -4879,6 +4905,8 @@
      readout block  = 6 + 24 (tiers) + 4 + 18 (live line) + 6 + 4 (margin)   = 62px
      tray           = 6 (panel padding + section margin) + rows x 64 + (rows - 1) x 6
      pager row      = 6 (margin) + 28                                        = 34px
+     family row     = 28 + 10 (gap), ABOVE the tray, + 4 more gap above the pager row, only when the stage can
+                      spare it (#399)                                         = 42px (`--family-h`)
    `min-height`, never `height`: if something is ever taller than reserved (Preview's expanded
    開発用 metrics), the dock grows and the pizza gives way as before -- nothing overlaps. */
 .prepare-dock {
@@ -4886,6 +4914,7 @@
   --tray-gap: 6px;
   --panel-overhead: 6px;
   --pager-h: 34px;
+  --family-h: 42px;
   --readout-block: 62px;
   display: flex;
   flex-direction: column;
@@ -4902,7 +4931,7 @@
     calc(
       var(--panel-overhead) +
         max(0px, var(--dock-other-rows, 0) * (var(--chip-h) + var(--tray-gap)) - var(--tray-gap)) +
-        var(--dock-pager, 0) * var(--pager-h)
+        var(--dock-pager, 0) * var(--pager-h) + var(--dock-family, 0) * var(--family-h)
     )
   );
 }
@@ -7183,6 +7212,39 @@ p.hint-sheet__step {
    pager exactly as before, buttons unchanged. */
 .ingredient-page-nav--with-family .ingredient-page-nav__pager--idle {
   display: none;
+}
+
+/* Issue #399: the family filter above the tray (GameScreen's `familyPlacement="above"`, only while the pizza stage has
+   `--family-h` to spare): its own full-width row, 28px + a 10px gap; `--dock-family` reserves it. The same
+   `.tray-family-chips` scroller, fades and 44px chips as the inline placement. */
+.tray-family-row {
+  display: flex;
+  height: 28px;
+  margin-bottom: 10px; /* the chips' 44px hit area reaches 8px below the row: a 2px gap to the first card remains */
+}
+
+/* Above placement: the utility row's gap to the tray is 10px (not 6) for the same reason, the pager's 44px hit area
+   reaching 8px above the row. The dock's `--family-h` includes these 4px. */
+.prepare-dock--family-above .ingredient-page-nav {
+  margin-top: 10px;
+}
+
+/* In the above placement the utility row keeps only the entry and the pager. Their buttons stay 36x28 and get a 44px hit
+   area, like the 食材庫 entry: 9px above (inside the row's 10px gap to the tray: a 1px gap to the last card remains), 7px
+   below (the bake bar takes over from 7.5px, so 7 is what is really the control's) and 4px to each side (the 12px gaps to
+   the label). Not in the inline row, where the 6px gap allows 8px above. */
+.ingredient-page-nav--with-entry:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button {
+  position: relative;
+}
+
+.ingredient-page-nav--with-entry:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button::after {
+  content: "";
+  position: absolute;
+  inset: -9px -4px -7px -4px;
+}
+
+.prepare-dock--family-above .pantry-entry::after {
+  inset: -9px -4px -7px -4px;
 }
 
 .tray-family-chips {

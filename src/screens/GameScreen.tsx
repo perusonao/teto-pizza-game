@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
@@ -10,7 +10,7 @@ import type { HandSession } from "../logic/catalog/handSession";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
-import { prepareDockReserve } from "../logic/prepareDock";
+import { familyRowFits, prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -368,6 +368,37 @@ export function GameScreen({
     largeCatalogEligible,
   });
 
+  // Issue #399: the family filter sits in its own row ABOVE the tray only while the pizza stage can spare that row's
+  // height (`familyRowFits`): the rule reads the stage as laid out now, so it holds for every round (FREE, Research,
+  // Dinner) and every viewport / safe-area without a per-case breakpoint. A short visible height keeps the one-row
+  // layout (the filter inside the utility row) and so the pizza keeps exactly the size it has today.
+  const screenRef = useRef<HTMLDivElement>(null);
+  const [familyAbove, setFamilyAbove] = useState(false);
+  const familyRowReserved = dockReserve.familyRow;
+  const inPrepare = state.phase === "PREPARE";
+  useLayoutEffect(() => {
+    const stage = screenRef.current?.querySelector<HTMLElement>(".pizza-stage");
+    if (!stage || !familyRowReserved) {
+      setFamilyAbove(false);
+      return;
+    }
+    const measure = () => {
+      const style = getComputedStyle(stage);
+      const contentHeight = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+      // The pizza's cap, read from the zero-size probe App.css sizes with the very `--pizza-cap-*` the dough uses.
+      const pizzaCap = parseFloat(getComputedStyle(stage, "::before").width);
+      setFamilyAbove((placedAbove) => familyRowFits({ contentHeight, pizzaCap, placedAbove }));
+    };
+    measure();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    observer?.observe(stage);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [familyRowReserved, inPrepare]);
+
   // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
   // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
   // PREPARE tray screen (an empty-Dex initial state is FREE_COOK in ORDER: no tray, no entry), a step that
@@ -525,6 +556,7 @@ export function GameScreen({
   return (
     <>
     <div
+      ref={screenRef}
       className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}
       // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
       // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
@@ -881,7 +913,7 @@ export function GameScreen({
               included (empty there), with the same reserved height for the whole round, so the
               pizza stage above it never changes size between steps. */}
           <div
-            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}`}
+            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}${dockReserve.familyRow && familyAbove ? " prepare-dock--family-above" : ""}`}
             data-testid="prepare-dock"
             style={
               {
@@ -889,6 +921,7 @@ export function GameScreen({
                 "--dock-other-rows": dockReserve.otherRows,
                 "--dock-readout": dockReserve.readout ? 1 : 0,
                 "--dock-pager": dockReserve.utilityRow ? 1 : 0,
+                "--dock-family": dockReserve.familyRow && familyAbove ? 1 : undefined, // absent unless the family row is above (the CSS default is 0)
               } as CSSProperties
             }
           >
@@ -936,6 +969,7 @@ export function GameScreen({
                 reservePagerRow={dockReserve.utilityRow}
                 handIds={trayHand?.ids ?? null}
                 familyRef={trayFamilyRef}
+                familyPlacement={familyAbove ? "above" : "inline"}
                 pantryEntry={
                   pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
                 }

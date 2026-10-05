@@ -64,3 +64,53 @@ The Owner's question, to be judged on the videos / screenshots: the selected chi
 - The scroller's hit area overlaps the tray's last row by 2px and sits over the spacer above the bake bar (which paints over it): the same compromise the 食材庫 entry already makes, asserted by the E2E.
 - An idle pager now changes the chip window when the list's page count crosses 1; the alignment only moves a chip that is no longer whole, and a leftover left offset can show a left fade even when everything would fit (cosmetic).
 - Production DOM golden needed a (verified, deliberate) rebaseline; WebKit not run locally.
+
+## 7. Owner HV follow-up (2026-10-05): the responsive family row
+
+Owner HV on the Preview (`994e879`) found the family filter, below the tray and sharing its row with the pager, hard to find and not what #401's fix was about. Owner Decisions: the filter goes ABOVE the ingredients on its own row, the pager below them (order "pick a family → see the ingredients → place one"); LC-S3, the pizza minimum and the Layout Contract are NOT relaxed; a +34px row on every viewport (and Pantry on a third row, +68px) were rejected because they shrink the pizza on a real Safari height (S390 262 → 236); the layout is therefore **responsive**: expanded where the stage can spare the row, the #401 one-row layout where it cannot.
+
+### Layouts
+
+- **Expanded** (normal heights): `[filter, full width, 1 row, scrolls sideways]` / `[3 x 2 ingredients]` / `[🧺 食材庫 … ◀ 1 / 2 ▶]` (the LC-R3 utility row). The 食材庫 entry and the pager share their row with no chips; the filter shares its width with nothing.
+- **Compact** (short heights): the #401 layout, unchanged (`[食材庫][filter][◀ 1 / 2 ▶]`, an idle pager collapses; B4).
+- One `ShelfChipRow` element, mounted in either place (`IngredientTray` `familyPlacement`): same chips, labels, bilateral fades, no-snap-back scroll, 44px chips. Nothing of `familyDisplay`, taxonomy, Pantry, HAND, Research, recipes or pagination changed.
+
+### Responsive authority (no fixed breakpoint)
+
+`prepareDock.ts` `familyRowFits({ contentHeight, pizzaCap, placedAbove })`, measured by `GameScreen` from the pizza stage (ResizeObserver + resize): the filter takes its own row only while the stage keeps `FAMILY_ROW_PX` (42) more than the pizza's cap needs, i.e. while the pizza is exactly as large as the one-row layout makes it. The same reading holds in both layouts (the row's own height is added back when it is already above), so the switch is a fixed point: no oscillation, a 2px margin only on the way in. The DM-3R-0 `max-height: 700px` breakpoint could not serve: where the row fits depends on the round (FREE ≥ 741, Research ≥ 772 at 390 wide) and a constant 700 would have shrunk the Research pizza by up to 34px between 701 and 779px. The pizza cap is no longer written twice: App.css defines `--pizza-cap-compact` / `--pizza-cap-roomy` once; the dough and a zero-size `::before` probe read them, and `GameScreen` reads the probe's resolved width (a unit test pins this).
+
+Switch heights measured by 1px sweeps on one page, down then up (FREE / Research, 390 / 360 wide): FREE 390 compact at ≤ 738, expanded at ≥ 741; FREE 360 722 / 725; Research 390 769 / 772; Research 360 786 / 789 (a 3px hysteresis). Across every sweep: one switch each way, the pizza never jumps (0.0px at the switch), the bake bar follows the height 1:1, the tray-to-bar distance changes only by the pager row's extra 4px gap at the switch, no sideways scroll.
+
+### Measured (real Chromium, FREE, hand on)
+
+| profile | layout | pizza before → after | dock | filter usable width |
+|---|---|---|---|---|
+| N390 390×844 | expanded | 290 → 290 | 174 → 216 | 151 → **366** |
+| N360 360×800 | expanded | 273.59 → 273.59 | 174 → 216 | 121 → **336** |
+| P390i 844 + inset | expanded | 290 → 290 | 174 → 216 | 151 → 366 |
+| S390 390×664 | compact | 269.06 → 269.06 | 162 (unchanged) | 151 (unchanged) |
+| S360 360×640 | compact | 245.06 → 245.06 | 162 | 121 |
+| E390i 664 + inset | compact | 188.06 → 188.06 | 162 | 151 |
+| E360i 640 + inset | compact | 164.06 → 164.06 | 162 | 121 |
+
+LC-S3 and the Layout Contract are untouched and pass on all seven profiles. In the expanded layout the bake bar, and the tray's position relative to it, move by nothing but the pager row's 4px gap (below).
+
+### Hit areas never overlap (expanded)
+
+The chips' 44px target ends 2px before the first card; the pager's and the entry's 44px targets (9px above their 28px body, 7px below: the bake bar takes over from 7.5px) end 1px before the last card; the chips' target starts below the pizza (4.5px at the narrowest). To get that: the family row's gap to the tray is 10px (was 6) and the utility row's gap above it is 10px in the expanded layout; both are in `--family-h` (42px = 28 + 10 + 4), which the dock reserves. Hit-testing in the E2E agrees at every edge (card top edge = card; chip box top and bottom edge = chip; pager 8.5px above / 6.5px below / 3.5px beside = pager; bar = bar). Nothing was removed from the 44px targets and the pizza was not reduced.
+
+### Production DOM golden
+
+Re-baselined with the Owner's approval (`rebaselineNote6`), after checking item by item: 7 snapshots change (`free22.sauce`, `free22.cheese`: the `.prepare-dock` element only, class `prepare-dock--family-above` and `--dock-family: 1`; `free22.topping.page1-4` / `afterPantry`: the same, plus the family chip group moved into `<div class="tray-family-row">` above the ingredients and the utility row losing `ingredient-page-nav--with-family`). Applying exactly those transformations to the previous golden reproduces all 7 byte for byte; the other 6 snapshots (`free6.*`, `free22.topping.pantryEntry` / `pantry`) are byte-identical (`--dock-family` is absent unless the row is above).
+
+### Tests
+
+- Unit: `familyRowFits` (boundary, hysteresis, fixed-point and 1px-sweep properties, no layout), `prepareDockReserve().familyRow`, IngredientTray placement (above / inline, one filter element, order, page 1, placeholder), App.css guards (`--family-h` = `FAMILY_ROW_PX`, the pizza cap written once).
+- E2E (Chromium): `cooking-tray-family-expanded.spec.ts` (every family × FREE hand on / off / 8 chips / paging family / Research at 390 and 360: filter width 366 / 336, pizza and dock, nothing moves per family, longest label with the left fade, manual scroll and Shift+Tab, pager below and idle placeholder, Pantry, hit areas, ingredient tap, bake bar); `cooking-tray-family-responsive.spec.ts` (1px sweeps); `family-layout-contract.spec.ts` (the seven profiles); `cooking-tray-family-mobile-ux.spec.ts` now pins the compact layout at 390×664 / 360×640 (pizza equal to #401's). #397's spec, layout-contract (LC-S3) and layout-invariants unchanged and green.
+- Before / after screenshots: `docs/reports/screenshots/cooking-tray-family-responsive/` (390×844, 360×800 expanded; 390×664, 360×640 compact = unchanged).
+
+### Residual risks
+
+- On a real iPhone the layout depends on the visible height: when Safari's toolbars come and go, the filter moves between the two places (the pizza does not move). A 3px hysteresis keeps it from flickering at the boundary.
+- At the boundary the tray is 4px nearer the bake bar in the expanded layout (the pager row's larger gap that keeps its hit area off the cards).
+- Dinner rounds were not swept by height (the Layout Contract's Dinner flows pass on all profiles); the rule reads the stage, so it holds for them too.
