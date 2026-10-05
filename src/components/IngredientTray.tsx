@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
+  type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
   type Ref,
 } from "react";
@@ -107,6 +108,9 @@ interface IngredientTrayProps {
    *  today's `trayIngredientsFor` list (every production render while enforcement is off). A change of this list
    *  returns the tray to page 0 (the App evaluates the #197 selection rule in the same render). */
   handIds?: readonly string[] | null;
+  /** Issue #396: the tray writes its current family filter here so App's HAND-change selection rule can judge the
+   *  filtered first page. Write-only for the tray; the filter itself stays tray state. */
+  familyRef?: MutableRefObject<FamilyFilter>;
   pantryEntry?: { onOpen: () => void; buttonRef?: Ref<HTMLButtonElement> };
 }
 
@@ -145,6 +149,7 @@ export function IngredientTray({
   makingStepToken,
   reservePagerRow = true,
   handIds = null,
+  familyRef,
   pantryEntry,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
@@ -180,6 +185,9 @@ export function IngredientTray({
   const [familySelection, setFamilySelection] = useState<FamilyFilter>("all");
   const familyChoices = activeCategory === "topping" ? trayFamilyChoices(trayPopulation) : [];
   const family = resolveTrayFamily(familySelection, familyChoices);
+  useEffect(() => {
+    if (familyRef) familyRef.current = family;
+  }, [familyRef, family]);
   const requiredItems: Ingredient[] = family === "all" ? trayPopulation : applyTrayFamily(trayPopulation, family);
   // LC-R5-d (dormant): in hand mode only, an actual change of the hand list returns the tray to page 0 during render
   // (no effect, so no frame shows the old page over the new list). `null` (production) never enters this block.

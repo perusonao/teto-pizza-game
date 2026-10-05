@@ -58,3 +58,11 @@ Screenshots: `docs/reports/screenshots/cooking-tray-family-filter/` (`before-*`,
 - Chip height is 28px (the row's existing control height). The dock / pizza contracts forbid more; the pager next to it is 36×28 on the same registered finding.
 - The row is tight: at 390 the visible chips are すべて · 肉系 · part of 魚介系; at 360 すべて · 肉系 · a sliver. When the filtered list fits one page the idle pager leaves a short empty gap where the fade is less obvious.
 - The Pantry and the tray behind it both expose family chips; tray chips have their own accessible names (`…の具材だけ表示`) to keep them distinct.
+
+## 6. Codex P2 follow-up (fix on a new HEAD)
+
+Finding: a Pantry pin that changes the HAND judged the selection with `handTrayTransition` against the **unfiltered** first page, while a family-filtered tray shows the **filtered** first page, so a selection still visible there was cleared.
+
+Fix (no state lifted, helper and HAND/pin authority unchanged): the tray publishes its current family through a write-only ref (`familyRef`, passed App → GameScreen → tray). When the existing transition decides to clear, App re-checks the same pure rule the tray renders (`familyFirstPageIds`: population → family filter → page 1) and keeps the selection if it is still on that page. A filtered position is never later than the unfiltered one, so this only ever keeps more; a selection that left the hand or the filtered page is cleared as before, and an unfiltered tray is byte-identical in behavior. Family switch pruning and pagination pruning (`changeFamily` / `goToPage`) are untouched.
+
+Tests: `App.handTray.familyFilter.handOn.test.tsx` (hand-on 9 and 12) — keep on filtered page 1 (fails without the fix at both capacities), clear when truly displaced, unfiltered rule unchanged, family switch still clears a hidden selection and keeps the pin; `trayFamilyFilter.test.ts` (`familyFirstPageIds`). Re-run on this change only: tsc, oxlint, the focused Vitest suites (App.handTray*, tray, catalog, screens: 463 passed) and Chromium `cooking-tray-family-filter` + `lc-hand-pin-ui` + `lc-hand-preview-activation` (golden unchanged). Full Vitest was not repeated (the change is confined to App's transition, the tray ref and a new pure helper).

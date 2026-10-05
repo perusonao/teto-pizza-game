@@ -32,3 +32,14 @@ export function resolveTrayFamily(family: FamilyFilter, choices: readonly Attrib
 export function applyTrayFamily<T extends { id: string }>(population: readonly T[], family: FamilyFilter): T[] {
   return filterBySelection(population, { major: "topping", family });
 }
+
+/**
+ * The ids the tray shows on its first page for `population` under `family`: the same population -> family filter ->
+ * page 1 the tray renders (IngredientTray), as ids. App reads it when a Pantry pin changes the HAND, to keep a selection
+ * that is still on the page the player is looking at; it never changes the hand.
+ */
+export function familyFirstPageIds(population: readonly string[], family: FamilyFilter): string[] {
+  const items = population.map((id) => ({ id }));
+  const shown = applyTrayFamily(items, resolveTrayFamily(family, trayFamilyChoices(items)));
+  return shown.slice(0, MAX_INGREDIENT_PALETTE_SLOTS).map((i) => i.id);
+}
