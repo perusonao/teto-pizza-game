@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -90,47 +90,146 @@ export async function enterBakePaused(page: Page) {
   throw new Error("enterBakePaused: clock.pauseAt kept landing in the past");
 }
 
+/** Needle landing accepts a stop within `target`, widened to at least this many points either
+ *  side of its center -- single-point targets (e.g. `{ start: 2, end: 2 }`) can only be hit to
+ *  within one animation frame (~0.9 pt at BakeOverlay's 55 pt/s). */
+const NEEDLE_LANDING_MIN_TOLERANCE_PT = 1.5;
+/** Upper bound for the measure -> run -> verify landing loop below. */
+const NEEDLE_LANDING_MAX_ATTEMPTS = 5;
+
 /**
- * The second half of `bakeToTarget`: from the paused clock, runs virtual time exactly until the
- * needle reaches `target`'s center, clicks 取り出す！ and resumes real time. The needle bounces
+ * Resolves once React has committed everything already scheduled. `BakeOverlay`'s needle style is
+ * written by a render that React's Scheduler runs from a `MessageChannel` task, which
+ * `page.clock` does not fake -- so one round trip through a fresh channel (queued behind the
+ * Scheduler's own message) is a state signal, where a fixed `waitForTimeout` was only a guess at
+ * how long the commit takes. Twice, so a render that chains further work is covered as well.
+ */
+async function flushReactCommit(page: Page) {
+  for (let i = 0; i < 2; i += 1) {
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = () => {
+            channel.port1.close();
+            resolve();
+          };
+          channel.port2.postMessage(null);
+        }),
+    );
+  }
+}
+
+/**
+ * The second half of `bakeToTarget`: from the paused clock, runs virtual time until the needle
+ * reaches `target`'s center, clicks 取り出す！ and resumes real time. The needle bounces
  * 0 -> 100 -> 0 (BakeOverlay), so after an arbitrary pause (e.g. past the Guide fade) its
  * direction is read from one short step before computing the remaining distance.
+ *
+ * #394 Phase 1: a closed loop on committed state instead of one open-loop plan. Every read of
+ * `.bake-gauge__needle`'s `style.left` first flushes React's commit (`flushReactCommit`; virtual
+ * time stays paused, so the committed style then equals `BakeOverlay`'s `positionRef`, the value
+ * 取り出す！ scores). The landing is measured, run, and *verified* to be inside `target` before
+ * the click; a miss re-plans from where the needle really is (bounded by
+ * `NEEDLE_LANDING_MAX_ATTEMPTS`, then an explicit error rather than a silent bad take-out).
  */
 export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }) {
   const center = (target.start + target.end) / 2;
+  const tolerance = Math.max((target.end - target.start) / 2, NEEDLE_LANDING_MIN_TOLERANCE_PT);
   const needle = page.locator(".bake-gauge__needle");
-  // The needle's style is written by a React render scheduled from the (faked) animation frame;
-  // a short real-time wait lets that render commit before reading (virtual time stays paused).
   const read = async () => {
-    await page.waitForTimeout(50);
+    await flushReactCommit(page);
     return needle.evaluate((el) => Number.parseFloat((el as HTMLElement).style.left) || 0);
   };
-  let position = await read();
-  let direction = 1;
-  if (position > 0) {
+  const landed = (position: number) => Math.abs(position - center) <= tolerance;
+
+  const trail: number[] = [];
+  for (let attempt = 1; attempt <= NEEDLE_LANDING_MAX_ATTEMPTS; attempt += 1) {
+    const before = await read();
     await page.clock.runFor(20);
-    const next = await read();
-    direction = next >= position ? 1 : -1;
-    if (next === 100) direction = -1;
-    position = next;
+    let position = await read();
+    let direction = position > before ? 1 : position < before ? -1 : position >= 100 ? -1 : 1;
+    if (position >= 100) direction = -1; // bounced off the right end during this step
+    if (position <= 0) direction = 1;
+    trail.push(position);
+
+    if (!landed(position)) {
+      const distance =
+        direction > 0
+          ? center >= position
+            ? center - position
+            : 100 - position + (100 - center)
+          : center <= position
+            ? position - center
+            : position + center;
+      const remainingMs = Math.max(0, Math.round((distance / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
+      if (remainingMs > 0) await page.clock.runFor(remainingMs);
+      position = await read();
+      trail.push(position);
+    }
+
+    if (landed(position)) {
+      await page.getByRole("button", { name: "取り出す！" }).click();
+      await page.clock.resume();
+      return;
+    }
   }
-  const distance =
-    direction > 0
-      ? center >= position
-        ? center - position
-        : 100 - position + (100 - center)
-      : center <= position
-        ? position - center
-        : position + center;
-  const remainingMs = Math.max(0, Math.round((distance / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
-  if (remainingMs > 0) await page.clock.runFor(remainingMs);
-  await page.getByRole("button", { name: "取り出す！" }).click();
-  await page.clock.resume();
+  throw new Error(
+    `landNeedleAndTakeOut: needle never settled within ${tolerance} of ${center} in ` +
+      `${NEEDLE_LANDING_MAX_ATTEMPTS} attempts (committed positions: ${trail.map((p) => p.toFixed(1)).join(", ")})`,
+  );
+}
+
+const DOUGH_SELECTOR = '[data-pizza-drop-target="true"]';
+
+/**
+ * #394 Phase 1: whether a `page.mouse` press (at `point`, viewport coordinates, when given) would
+ * reach the dough *and count*. A single in-page predicate, polled from Node by
+ * `waitUntilDoughReady` (so it needs no page timer or animation frame, which the faked clock
+ * can affect):
+ *  - `.pizza-dough--interactive` is present: it mirrors the `interactive` prop that
+ *    `PizzaStage.handlePointerDown` silently gates on (a press while it is off is dropped);
+ *  - the dough is visible and has a usable box;
+ *  - `document.elementFromPoint(point)` is the dough or one of its descendants. Pointer handlers
+ *    live on the dough root and its decorative layers are `pointer-events: none`, so a hit
+ *    inside the dough bubbles to them, while a covering element (sheet, popover, backdrop) does
+ *    not.
+ * Deliberately NOT Playwright's `hover()`/stable actionability: a tap re-reads the box for every
+ * press and a press takes milliseconds, so the dough holding still for two animation frames is
+ * not a precondition -- and that wait timed out on WebKit CI (#395 first push,
+ * `original-result-duplicate-notice.spec.ts:241`, "waiting for element to be visible and stable").
+ */
+async function isDoughReady(page: Page, point?: { x: number; y: number }) {
+  return page.evaluate(
+    ({ selector, point: at }) => {
+      const dough = document.querySelector(selector);
+      if (!(dough instanceof HTMLElement) || !dough.classList.contains("pizza-dough--interactive")) return false;
+      const rect = dough.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0 || getComputedStyle(dough).visibility === "hidden") return false;
+      if (!at) return true;
+      const hit = document.elementFromPoint(at.x, at.y);
+      return hit !== null && dough.contains(hit);
+    },
+    { selector: DOUGH_SELECTOR, point },
+  );
+}
+
+/** Waits (bounded only by the test's own timeout, like the `locator.waitFor` it replaces) until
+ *  `isDoughReady` holds -- no sleep, no extra timeout. */
+async function waitUntilDoughReady(page: Page, point?: { x: number; y: number }) {
+  const where = point ? ` at (${point.x.toFixed(1)}, ${point.y.toFixed(1)})` : "";
+  await expect
+    .poll(() => isDoughReady(page, point), {
+      message: `pizza dough never became ready for a press${where} (interactive, visible, hit-testable)`,
+      timeout: 0,
+    })
+    .toBe(true);
 }
 
 async function doughBox(page: Page) {
-  const box = await page.locator('[data-pizza-drop-target="true"]').boundingBox();
-  if (!box) throw new Error("Pizza dough missing");
+  await waitUntilDoughReady(page);
+  const box = await page.locator(DOUGH_SELECTOR).boundingBox();
+  if (!box || box.width <= 0 || box.height <= 0) throw new Error("Pizza dough has no usable box");
   return { cx: box.x + box.width / 2, cy: box.y + box.height / 2, r: box.width * 0.46, box };
 }
 
@@ -138,6 +237,7 @@ export async function tapDoughPercent(page: Page, xPercent: number, yPercent: nu
   const { box } = await doughBox(page);
   const x = box.x + (xPercent / 100) * box.width;
   const y = box.y + (yPercent / 100) * box.height;
+  await waitUntilDoughReady(page, { x, y });
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.up();
@@ -147,7 +247,10 @@ export async function completeDoughStep(page: Page) {
   const { cx, cy, r } = await doughBox(page);
   for (let i = 0; i < 8; i += 1) {
     const angle = (i / 8) * Math.PI * 2;
-    await page.mouse.move(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    await waitUntilDoughReady(page, { x, y });
+    await page.mouse.move(x, y);
     await page.mouse.down();
     await page.mouse.up();
   }
@@ -183,6 +286,7 @@ export async function physicalDragToDough(
   const { box } = await doughBox(page);
   const targetX = box.x + (xPercent / 100) * box.width;
   const targetY = box.y + (yPercent / 100) * box.height;
+  await waitUntilDoughReady(page, { x: targetX, y: targetY });
   await page.mouse.move(startX, startY);
   await page.mouse.down();
   await page.mouse.move(startX + 2, startY - 10, { steps: 3 });
@@ -200,6 +304,7 @@ export async function cutThreeLines(page: Page) {
     const angle = (angleDeg * Math.PI) / 180;
     const dx = Math.cos(angle) * r;
     const dy = Math.sin(angle) * r;
+    await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
     await page.mouse.move(cx - dx, cy - dy);
     await page.mouse.down();
     await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
