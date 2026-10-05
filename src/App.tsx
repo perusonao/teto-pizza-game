@@ -258,6 +258,9 @@ function App() {
   // fold it in, reusing PizzaStage's existing "interactive went false -> abort" effect
   // instead of adding a second, parallel abort mechanism.
   const [isReferencePopoverOpen, setReferencePopoverOpen] = useState(false);
+  // Research UX Phase 1: GameScreen's PREPARE 試作ノート sheet is UI-local; this only relays "is it open" so reading it never
+  // costs cooking time (same as the Hint sheet, OD-HINT-8). Nothing is stored or dispatched from it.
+  const [isPrepareNotebookOpen, setPrepareNotebookOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 7 -- Cancel Transaction: the current in-progress
   // dispense session's not-yet-committed deposits, mirrored up from PizzaStage purely so
   // Prototype Metrics can show live numbers while holding -- see handleDispenseProgress/
@@ -504,6 +507,7 @@ function App() {
     isInventoryOpen,
     // Discovery Hint 2.0 (229-B, OD-HINT-8 no penalty): reading hints never costs cooking time.
     isHintSheetOpen,
+    isPrepareNotebookOpen,
     isDocumentHidden,
     isWindowBlurred,
   );
@@ -1259,6 +1263,7 @@ function App() {
           onMissionCloseIntro={() => missionDispatch({ type: "EXIT_TO_FREE" })}
           onShowRanking={() => setRankingOpen(true)}
           onReferencePopoverChange={setReferencePopoverOpen}
+          onPrepareNotebookOpenChange={setPrepareNotebookOpen}
           onDispenseProgress={handleDispenseProgress}
           onDispenseCommit={handleDispenseCommit}
           onDoughStretchProgress={handleDoughStretchProgress}

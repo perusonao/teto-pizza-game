@@ -177,6 +177,28 @@
   overflow: hidden;
 }
 
+/* Research UX Phase 1: the PREPARE research card's guidance line (same clamp as the hint) and its direct 試作ノート entry,
+   which takes the card's right slot (where the normal card keeps 見本) so the card gains no extra row. */
+.order-card__notebook {
+  flex: 0 0 auto;
+  border: 1px solid #d9c08a;
+  background: #fff4d6;
+  border-radius: 999px;
+  padding: 6px 10px;
+  min-height: 44px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3d2a16;
+  white-space: nowrap;
+}
+
+.hint-sheet__research {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
 /* ---------- Pizza Cutting 1.0 Phase 2: CUT progress readout ---------- */
 .cut-progress-readout {
   text-align: center;
