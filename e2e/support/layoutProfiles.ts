@@ -123,6 +123,30 @@ export class ProfileDriver {
     });
   }
 
+  /** Real-time wait until the dock and the stage stop moving: some layout is chosen by script from the stage as laid out
+   *  (the family row's placement, #399), and an engine delivers the resize / observer notifications that drive it on its
+   *  own schedule (WebKit can take more than the fixed wait above). Nothing is tolerated here: it only waits for the last
+   *  layout to be the one that is judged; it returns as soon as three reads 50ms apart agree (or after 3s). */
+  private async waitForLayoutQuiet(): Promise<void> {
+    const read = () =>
+      this.page.evaluate(() =>
+        [".prepare-dock", ".game-screen--cooking > .pizza-stage"]
+          .map((sel) => {
+            const r = document.querySelector(sel)?.getBoundingClientRect();
+            return r ? `${r.top.toFixed(2)},${r.height.toFixed(2)}` : "-";
+          })
+          .join("|"),
+      );
+    let prev = await read();
+    let same = 0;
+    for (let i = 0; i < 60 && same < 3; i += 1) {
+      await this.page.waitForTimeout(50);
+      const now = await read();
+      same = now === prev ? same + 1 : 0;
+      prev = now;
+    }
+  }
+
   /** Resize, set/clear the inset, let layout settle, then verify what actually applied. Uses a
    *  real-time wait (not rAF): BAKE cycles run with `page.clock` paused. */
   async apply(profile: Profile): Promise<AppliedProfile> {
@@ -132,6 +156,7 @@ export class ProfileDriver {
     await this.page.setViewportSize({ width: profile.width, height: profile.height });
     await this.setSafeArea(profile.inset);
     await this.page.waitForTimeout(120);
+    await this.waitForLayoutQuiet();
     const applied = await readViewport(this.page);
     const want = profile.inset ?? { top: 0, bottom: 0 };
     const problems: string[] = [];

@@ -568,22 +568,6 @@ class StageStability {
     await this.lc.checkpoint({ label: `LC-S ${this.mode} ${step}`, meta: { mode: this.mode, step } }, ids, slots, this.mount, {
       beforeMeasure: async (profile) => {
         const rects = await stageRects(this.page);
-        const probe = () => this.page.evaluate(() => {
-          const st = document.querySelector<HTMLElement>(".game-screen--cooking > .pizza-stage");
-          const cs = st ? getComputedStyle(st) : null;
-          return JSON.stringify({ cls: st?.className, probe: st ? getComputedStyle(st, "::before").width : null, ch: st?.clientHeight, pt: cs?.paddingTop, pb: cs?.paddingBottom, dock: document.querySelector(".prepare-dock")?.className });
-        });
-        const p1 = await probe();
-        await this.page.waitForTimeout(400);
-        const p2 = await probe();
-        const dg0 = await this.page.evaluate(() => {
-          const dock = document.querySelector<HTMLElement>(".prepare-dock");
-          const st = document.querySelector<HTMLElement>(".game-screen--cooking > .pizza-stage");
-          return JSON.stringify({ vh: window.innerHeight, short: matchMedia("(max-height: 700px)").matches, cls: dock?.className, fam: dock?.style.getPropertyValue("--dock-family"), vars: dock?.getAttribute("style"), dockH: dock?.getBoundingClientRect().height, stageH: st?.getBoundingClientRect().height, row: !!document.querySelector(".tray-family-row") });
-        });
-        const lg = await this.page.evaluate(() => JSON.stringify(((window as any).__famlog ?? []).slice(-14)));
-        const dg = dg0 + " LOG " + lg + " P1 " + p1 + " P2 " + p2;
-        (globalThis as any).__dg = ((globalThis as any).__dg ?? []).concat(`${this.mode} ${step} @${profile.id} ${dg}`);
         perProfile.set(profile.id, rects);
         lcS4(rects, `${this.mode} ${step} @${profile.id}`);
       },
@@ -615,7 +599,6 @@ class StageStability {
         expect.soft(min + TOL, `LC-S3 ${this.mode} @${profile.id}: smallest PREPARE diameter ${Math.round(min)} >= ${floor}`).toBeGreaterThanOrEqual(floor);
       }
     }
-    if ((testInfo.project.name.startsWith("webkit") || !!process.env.DIAG)) expect.soft(false, "DIAG\n" + ((globalThis as any).__dg ?? []).join("\n")).toBe(true);
     await testInfo.attach(`stage-diameters-${this.mode}.json`, { body: JSON.stringify(table, null, 1), contentType: "application/json" });
   }
 }
