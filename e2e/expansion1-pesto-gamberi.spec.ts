@@ -21,7 +21,7 @@ const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
-const DISCOVERED = [...keysBefore(27), "brazilian-calabresa"].filter((id) => id !== "pesto-gamberi");
+const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie"].filter((id) => id !== "pesto-gamberi");
 const OWNED_BEFORE = materialsUpTo(25);
 const UNLOCKED = materialsUpTo(26);
 
@@ -94,7 +94,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/27\/31/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/28\/32/);
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
@@ -138,7 +138,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await expectNoUndiscoveredIdentity(page, DISCOVERED, "Dex Research Entry");
     await capture(page, "exp1-research-entry", project);
     await hold(page, 2000);
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 4. A real trial: pesto + shrimp (HAND/pin via the Pantry when it is not in the 12-slot hand) + eggplant + tomato.
@@ -215,7 +215,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/28\s*\/\s*31/);
+    await expect(page.locator(".dex-overlay")).toContainText(/29\s*\/\s*32/);
     const card = page.locator(".dex-card").filter({ hasText: "ペストガンベリピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.12");

@@ -1,0 +1,132 @@
+{
+  "base": "tq1d",
+  "recipeId": "aussie",
+  "rows": [
+    {
+      "recipeId": "aussie",
+      "variant": "ideal",
+      "available": true,
+      "totalScore": 100,
+      "stars": 5,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "offset",
+      "available": true,
+      "totalScore": 100,
+      "stars": 5,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "poor",
+      "available": true,
+      "totalScore": 16.4,
+      "stars": 1,
+      "components": {
+        "sauce": null,
+        "pieces": 10.000000000000002,
+        "recipe": 50,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "noSauce",
+      "available": true,
+      "totalScore": 100,
+      "stars": 5,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "halfPieces",
+      "available": true,
+      "totalScore": 71.17500000000001,
+      "stars": 3,
+      "components": {
+        "sauce": null,
+        "pieces": 92.5,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 0.75
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "extraPiece",
+      "available": true,
+      "totalScore": 97.6,
+      "stars": 5,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "raw",
+      "available": true,
+      "totalScore": 95,
+      "stars": 4,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 75,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "burnt",
+      "available": true,
+      "totalScore": 95,
+      "stars": 4,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 75,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "aussie",
+      "variant": "unbaked",
+      "available": true,
+      "totalScore": 80,
+      "stars": 4,
+      "components": {
+        "sauce": null,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 0,
+        "quantityFactor": 1
+      }
+    }
+  ]
+}

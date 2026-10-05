@@ -17,12 +17,15 @@ describe("getPlayerReferencePizza", () => {
     for (const recipe of RECIPES) {
       const reference = getPlayerReferencePizza(recipe);
       expect(reference.recipeId).toBe(recipe.id);
-      expect(reference.sauceIngredientId).not.toBeNull();
+      // TQ-1D: a recipe without a sauce (aussie) has no sauce identity to communicate.
+      if (recipe.id === "aussie") expect(reference.sauceIngredientId).toBeNull();
+      else expect(reference.sauceIngredientId).not.toBeNull();
     }
   });
 
   it("communicates sauce identity via a real sauce-category ingredient id", () => {
     for (const recipe of RECIPES) {
+      if (recipe.id === "aussie") continue;
       const reference = getPlayerReferencePizza(recipe);
       const sauceIngredient = getIngredient(reference.sauceIngredientId ?? "");
       expect(sauceIngredient?.category).toBe("sauce");

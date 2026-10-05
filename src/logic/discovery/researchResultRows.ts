@@ -21,7 +21,10 @@
  *   on them. Whether to call this for ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH is the caller's gate (S4).
  * - **Anti-Oracle**: the result carries no count, distance, similarity, remaining / missing figure and no recipe
  *   identity. `toppingOverCap` is a function of the player's own pizza and `known(T)` only (INV-D4).
- * - No sauce-less / reserved population is handled: row groups are never conditionally omitted by target (Contract §3).
+ * - No sauce-less / reserved population is special-cased: row groups are never conditionally omitted by target (Contract §3).
+ *   `aussie`, the one production recipe without a sauce (TQ-1D, Expansion Gate A CLOSED), is judged by exactly this rule: a sauce
+ *   row exists only because the PLAYER used a sauce (an ordinary NEGATIVE when it is not a member), never as a statement about
+ *   the target, and nothing here ever says "no sauce".
  */
 import { getIngredient } from "../../data/ingredients";
 import { getRecipe, type RecipeId } from "../../data/recipes";

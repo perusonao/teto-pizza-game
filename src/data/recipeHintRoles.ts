@@ -75,4 +75,7 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   vongole: { keyFree: true },
   "pesto-vegetariana": { keyFree: true },
   "ratatouille-pizza": { keyFree: true },
+  // TQ-1D: permanently key-free. A key-free ladder has no SAUCE rung for a recipe without a sauce (no
+  // KEY_TOPPING either), so nothing here is reserved, empty or says "no sauce".
+  aussie: { keyFree: true },
 };

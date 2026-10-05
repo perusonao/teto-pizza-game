@@ -89,7 +89,7 @@ describe("TQ-1B: weight profiles", () => {
     for (const id of ["margherita", "pizza-bianca", "quattro-formaggi", "fugazza", "new-haven-apizza"] as const) {
       const recipe = getRecipe(id)!;
       const ref = getReferencePizza(id)!;
-      const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: [ref.sauce.ingredientId], bakeResult: 60 };
+      const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: [ref.sauce!.ingredientId], bakeResult: 60 };
       expect(computeScoringV2(recipe, pizza).weightProfile).toBe("STANDARD");
     }
   });
@@ -270,7 +270,7 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
     const funghiWithMargheritaId = { ...getReferencePizza("funghi")!, recipeId: "margherita" as const };
     expect(computeScoringV2(margherita, pizza, { reference: funghiWithMargheritaId }).available).toBe(false);
-    const foreignSauce = { ...getReferencePizza("margherita")!, sauce: { ...getReferencePizza("margherita")!.sauce, ingredientId: "pesto" } };
+    const foreignSauce = { ...getReferencePizza("margherita")!, sauce: { ...getReferencePizza("margherita")!.sauce!, ingredientId: "pesto" } };
     expect(computeScoringV2(margherita, pizza, { reference: foreignSauce }).available).toBe(false);
     const foreignGroup = { ...SYN_REFERENCE, pieceGroups: [...PIECE_GROUPS, groupOf(TONNO_E_CIPOLLA_REFERENCE, "tuna")] };
     expect(score(noSaucePizza(), SYN_RECIPE, foreignGroup).result.available).toBe(false);
@@ -282,7 +282,7 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
     const sauceAsGroup = { ...ref, pieceGroups: [...ref.pieceGroups, { ...ref.pieceGroups[0], ingredientId: "tomato-sauce" }] };
     expect(computeScoringV2(margherita, pizza, { reference: sauceAsGroup }).available).toBe(false);
-    const pieceAsSauce = { ...ref, sauce: { ...ref.sauce, ingredientId: "mozzarella" } };
+    const pieceAsSauce = { ...ref, sauce: { ...ref.sauce!, ingredientId: "mozzarella" } };
     expect(computeScoringV2(margherita, pizza, { reference: pieceAsSauce }).available).toBe(false);
     expect(computeScoringV2(margherita, pizza, { reference: ref }).available).toBe(true);
   });
@@ -330,7 +330,7 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(computeScoringV2(margherita, pizza, { reference: inflated }).available).toBe(false);
     const moved = withGroup({ ...first, positions: first.positions.map((p) => ({ x: p.x + 1, y: p.y })) });
     expect(computeScoringV2(margherita, pizza, { reference: moved }).available).toBe(false);
-    const otherSauce = { ...ref, sauce: { ...ref.sauce, coverage: ref.sauce.coverage / 2 } };
+    const otherSauce = { ...ref, sauce: { ...ref.sauce!, coverage: ref.sauce!.coverage / 2 } };
     expect(computeScoringV2(margherita, pizza, { reference: otherSauce }).available).toBe(false);
     // A structurally equal copy of the production Reference is accepted.
     expect(computeScoringV2(margherita, pizza, { reference: structuredClone(ref) }).available).toBe(true);
@@ -425,7 +425,7 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     const ref = getReferencePizza("margherita")!;
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
     for (const bad of [{ quantity: -1 }, { coverage: 2 }, { quantity: 1.0001 }, { coverage: -0.0001 }]) {
-      const result = computeScoringV2(margherita, pizza, { reference: { ...ref, sauce: { ...ref.sauce, ...bad } } });
+      const result = computeScoringV2(margherita, pizza, { reference: { ...ref, sauce: { ...ref.sauce!, ...bad } } });
       expect(result.available, JSON.stringify(bad)).toBe(false);
       expect(result.totalScore).toBeNull();
     }
@@ -436,7 +436,7 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     const synRecipe: Recipe = { ...margherita, id: synId };
     expect(computeScoringV2(synRecipe, pizza, { reference: { ...ref, recipeId: synId } }).available).toBe(true);
     for (const edge of [{ quantity: 0, coverage: 0 }, { quantity: 1, coverage: 1 }]) {
-      const synRef = { ...ref, recipeId: synId, sauce: { ...ref.sauce, ...edge } };
+      const synRef = { ...ref, recipeId: synId, sauce: { ...ref.sauce!, ...edge } };
       expect(computeScoringV2(synRecipe, pizza, { reference: synRef }).available, JSON.stringify(edge)).toBe(false);
     }
   });

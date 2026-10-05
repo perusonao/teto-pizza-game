@@ -8,7 +8,6 @@ export const NOTEBOOK_COPY = {
   order: "さいごに作った順にならんでるよ",
   sauce: "ソース",
   toppings: "のせたもの",
-  noSauce: "なし",
   diffTitle: "前回からの変更",
   diffSauce: "ソース",
   noToppings: "なし",

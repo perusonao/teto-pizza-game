@@ -52,6 +52,10 @@ PASS via PR #54; **Save v2 / Inventory E0 migration MERGED via PR #56** (schemaV
 `inventory` field reserved, no gameplay change yet -- E1 InventoryState is the next Save v2 step,
 independent of Issue #38).)
 
+**2026-10-05 addendum 5 (Research 2.0 Phase 0 + Phase 1: Stable Research Identity, Issue #400, PR pending Final Gate)** — Owner decisions and contract amendments are in `docs/decisions/TETO_RESEARCH-2.0_OWNER-DECISIONS.md` (the Design Gate R-2 → R-1 → R-3 over the Post-#398 Research / Discovery UX Fresh Audit; no P0, P1 = R-1 / R-2 / R-3). **Phase 1 (this PR)**: the Research Entry label is now the D+ Cohort Letter — `？？？ピザ B（たまねぎ）` for same-unlock siblings, `？？？ピザ（チキン）` for a single cohort; the ①②③ marks are retired. A cohort is the set of recipes whose last-acquired finite ingredient is the same (discovered siblings keep their slot, so a sibling's discovery never moves a letter and a slot is never reused); letters are `A…Z, AA, AB…` in the anonymous hash order. One label authority (`researchEntryLabel`) serves the Dex, PREPARE, RESULT, Hint sheet and Notebook; it carries only the unlock ingredient and the letter (INV-B7). **Nothing is saved** (OD-R2-2) and there is no save / schema change; the letter is a catalog-local public display identifier, not a permanent ID — a catalog revision that adds a recipe to an existing cohort may change letters, and Research identifier compatibility must be re-audited at a Fresh Gate before 53 / 172 population (no save mapping may be added to solve it). Production example: step 12 A = Aussie / B = Brazilian Calabresa / C = Pizza Portuguesa, step 28 A = Ratatouille / B = Pesto Vegetariana. **Approved but NOT implemented (Phases 2–4, serial)**: the additive ×-ledger and Research Board (Notebook sheet top 「わかったこと」), and disclosing ○× + a Notebook record on a bake-FAILED Research trial (inventory still consumed; no Technique / Dex / Pitz on FAILED). Technique privacy, INV-D7 / OD-TQ1D-4, Hint 5.0, progression and Pitz are unchanged.
+
+**2026-10-05 addendum 4 (TQ-1D / NO_SAUCE Production Activation, PR pending Final Gate)** — see `docs/reports/TETO_TQ-1D_NO-SAUCE-ACTIVATION_Result.md`. Production recipe No.32 `aussie` (オージーピザ, Chapter 2 No.11, key step = onion 12) is the first NO_SAUCE recipe: mozzarella 2 / bacon 2 / egg 1 / onion 2, **no sauce**, bake 50–70 (GAMEPLAY CALIBRATION), `ladderCredit:false`, `lunchRush:false`, no CUT, permanently key-free (no SAUCE rung, no KEY_TOPPING, no RESERVED). `ReferencePizza.sauce` is nullable (only Aussie is `null`; NO_SAUCE scoring selected from TQ-1B). The Technique `no-sauce` (「ソースなし」) is discovered from the finished pizza's composition (usage path, Free Cooking, affordance = ladder step 12 counting only credited discoveries — OD-TQ1D-2) or by discovering Aussie (recipe path); the RESULT reveals it before the recipe, the Dex shows 「調理法」 (「？？？」 + riddle until discovered). **Contract 2.1 Expansion Gate A is CLOSED (OD-TQ1D-1, not waived)**; INV-D7 kept; no 「ソース：なし」 row anywhere. Authority counts: 31 → 32 recipes, 34 ingredients (unchanged; topping 27), 28 ladder steps (unchanged), credited 30 (unchanged; `ladderCredit:false` 1 → 2), `lunchRush:false` 6 → 7, chapters 6 / 10 / 15 → 6 / **11** / 15. Step 12 now makes pizza-portuguesa, brazilian-calabresa **and** aussie makeable together (Research Entry pool 3). Save schema unchanged (v2); near-miss production wiring is not revived.
+
 **2026-10-05 addendum (Cooking Tray Family Filter, Issue #396, PR pending Final Gate)** — see `docs/reports/TETO_COOKING-TRAY-FAMILY-FILTER_Result.md`. The normal 具材 tray gets family chips (すべて + the `familyDisplay` labels) without opening the 食材庫: they sit inside the existing utility row (`[食材庫][chips][◀ 1 / 2 ▶]`, dock height Δ0), appear only when the tray list pages (> 6) and spans ≥ 2 families, and filter after HAND / pin and before pagination (page → 1, pins / inventory / discovery untouched). sauce / cheese never get the row. No new taxonomy; #392 Pantry / Inventory / Shop unchanged. The Production DOM golden was intentionally re-baselined (`rebaselineNote4`).
 
 **2026-10-05 addendum (Cooking Tray family row Mobile UX, Issue #399, PR pending Final Gate)** — see `docs/reports/TETO_COOKING-TRAY-FAMILY-MOBILE-UX_Result.md`. Follow-up to #397 on real-device findings (chips cut off, selected chip lost, 360px window too small). The family row (compact `ShelfChipRow`) keeps the active chip whole and clear of per-side edge fades (pure `src/logic/chipRowAlign.ts`; never undoes a manual scroll), chips are 44px tap targets with a 28px pill (row height / dock Δ0 / pizza 290·274 unchanged), and an idle pager (one-page filtered list) in the family row gives its room back to the chips (OD-FAMILY-UX-1; a paging list keeps the pager unchanged). Pantry, labels, taxonomy and pagination semantics untouched; the Production DOM golden was re-baselined again (`rebaselineNote5`, family chip group attributes only).
@@ -347,7 +351,7 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   is done. See `docs/reports/TETO_DISCOVERY-HINT-5_H5-3_Ladder-UI_Result.md`.
 - **H5-4 Fresh Gate** (`5eadb96`): `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Fresh-Gate.md`.
 - **Round 6 (Owner):** P4-CHEESE and P4b adopted (a paid 「なし」 answer after purchase, `h5:cheese` / `h5:key`);
-  P4-SAUCE **reserved for TQ-1D** (「ソース：なし」 = Technique `no-sauce`, TQ P2 / P6); M2 = all 25; RETIRE
+  P4-SAUCE **reserved for TQ-1D** (「ソース：なし」 = Technique `no-sauce`, TQ P2 / P6) — *resolved by TQ-1D (2026-10-05): Aussie is key-free and has no SAUCE rung; RESERVED is not revived*; M2 = all 25; RETIRE
   (flag ON ends the 材料 / 構成 / 特徴 purchases).
 - **H5-4** (round 6 behind the flag; all 25 recipes complete the ladder with the flag ON) is done. See
   `docs/reports/TETO_DISCOVERY-HINT-5_H5-4_Round6-Enablement_Result.md`. **The production flag stays OFF.**
@@ -359,8 +363,8 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   in `src/logic/discovery/hint5Flag.ts`; rollback = set it back to `false`. The old DEV opt-IN is gone; a DEV-only
   opt-OUT (`teto.dev.hint5Ladder = "0"`) keeps the pre-Hint-5.0 suites runnable. Preview helper / seeds / badge are
   still compiled out of production (isolation gate).
-- **Open:** merging the H5-6 activation PR (the Owner decides) and OD-H5-P4-SAUCE (TQ-1D).
-  The TQ-1D re-audit tripwire (G7) and the RESERVED gate keep any sauceless / Technique recipe out.
+- **Open:** merging the H5-6 activation PR (the Owner decides). OD-H5-P4-SAUCE was resolved by TQ-1D (Aussie only).
+  The re-audit tripwire (G7) and the RESERVED gate now allow exactly one sauceless / Technique recipe (`aussie`, key-free, no SAUCE rung); any other one fails the build on purpose.
 
 ## Ingredient Category Tabs 1.0 — Builder decision (Owner, 2026-09-29; docs-only)
 
@@ -466,18 +470,18 @@ design docs and wireframes are historical where they disagree.
   - the recipe path (INV-TQ-1: a discovered recipe implies its techniques) runs in every FREE
     round;
   - Lunch Rush and Dinner never discover a technique.
-- **Near-miss privacy** (OD-TQ1C-2): SAUCE_ONLY gets the k ≥ 2 rule uniformly, with no side
-  channel, and fails closed below that. This changes 12 of 44 production SAUCE_ONLY cases, so it
-  goes live only in TQ-1D with Human Verification — **not in TQ-1C**.
-- **INV-TQ-4:** while no production recipe requires a technique, nothing is recognised. TQ-1C is
-  inert in production. TQ-1 adds no technique requirement to a production recipe; Aussie arrives
-  in TQ-1D.
+- **Near-miss privacy** (OD-TQ1C-2): the k ≥ 2 rule exists as pure code (`nearMissPrivacy.ts`) but is **not
+  wired**: production's RESULT near-miss is the single neutral line (Near/Far Neutralization), so no
+  directional SAUCE_ONLY line exists, and the Owner does not revive near-miss production wiring (TQ-1D).
+- **INV-TQ-4 (TQ-1D):** a technique no recipe requires is never recognised. `aussie` (TQ-1D) is the one production
+  recipe that requires `no-sauce`, so the loop is live: the affordance opens at ladder step 12 (onion),
+  counting only `ladderCredit` discoveries (OD-TQ1D-2).
 - **DH4 privacy re-gate (contract, OD-DH4-PROD-1):** 構成 / 特徴 hints are live in production
-  (DH4-PROD, #290). The first production recipe that requires a technique (TQ-1D) makes
-  `src/logic/discovery/deductionProduction.gate.test.ts` fail on purpose. TQ-1D must re-run that
-  gate and the DH4 privacy sweeps with its Technique recipes, and pass them, before it ships.
-- **Merged so far:** LAD-1 `4f7443a` (#268), TQ-1A `73c8ad0` (#273) and TQ-1B `bcac961` (#271).
-  The ledger `discoveredTechniqueIds` is in the save; scoring parity is pinned (225 rows).
+  (DH4-PROD, #290). TQ-1D re-ran `src/logic/discovery/deductionProduction.gate.test.ts` and the DH4 privacy
+  sweeps with Aussie included and passes them; the gate now pins `aussie` as the only technique recipe.
+- **Merged so far:** LAD-1 `4f7443a` (#268), TQ-1A `73c8ad0` (#273), TQ-1B `bcac961` (#271) and TQ-1C. TQ-1D (Aussie,
+  the technique stage and Dex section) is in its PR. The ledger `discoveredTechniqueIds` is in the save (schema v2,
+  unchanged); scoring parity is pinned (225 rows + one fixture per added recipe, `aussie` included).
 - **Detailed docs:** `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md`
   (the Owner authority record), `..._OWNER-DECISION-GATE.md` (the rules) and
   `..._TQ-1C_PRE-IMPLEMENTATION-GATE.md` (the TQ-1C wiring map and test plan).

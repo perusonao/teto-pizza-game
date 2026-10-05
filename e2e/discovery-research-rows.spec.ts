@@ -13,7 +13,7 @@ const OPT_OUT_KEY = "teto.dev.researchIdentify";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const materials = DISCOVERY_LADDER.steps.filter((s) => s.step <= 25).flatMap((s) => s.ingredientIds as readonly string[]);
-const discovered = [...keysBefore(25), "brazilian-calabresa"];
+const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie"];
 const SAVE = {
   schemaVersion: 2,
   dex: discovered.map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
@@ -45,7 +45,7 @@ async function pickChip(page: Page, name: RegExp) {
 async function startResearch(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
-  await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+  await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
   await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 }
 

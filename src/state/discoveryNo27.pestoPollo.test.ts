@@ -31,6 +31,7 @@ import { discoverAll, W1_ORDER } from "../logic/testSupport/branchingFixture";
  */
 const ID = "pesto-pollo";
 const CAL = "brazilian-calabresa";
+const AUS = "aussie"; // TQ-1D: the second non-credit onion-step recipe
 const recipe = getRecipe(ID as RecipeId)!;
 
 /** The 25 credited W1 recipes found (everything the frozen ladder counts). */
@@ -56,7 +57,7 @@ const target = (s: RecipeDiscoveryInputs) => {
 
 describe("No.27 authoring: production data", () => {
   it("recipe count 26 -> 27, ingredient count 29 -> 30, existing No.1..26 unchanged, pesto-pollo = No.27 (Expansion Slice 1 then appends No.28 / the 31st ingredient; Wave 2 No.29-31 / ingredients 32-34)", () => {
-    expect(RECIPES).toHaveLength(31);
+    expect(RECIPES).toHaveLength(32); // + TQ-1D No.32 aussie (no new ingredient)
     expect(INGREDIENTS).toHaveLength(34);
     expect(RECIPES[26].id).toBe(ID);
     expect(RECIPES[25].id).toBe(CAL);
@@ -135,19 +136,21 @@ describe("No.27 ladder: step 25 unlocks chicken; steps 1..24 unchanged", () => {
 });
 
 describe("No.27 step-25 pool (production functions)", () => {
-  it("Case A (calabresa undiscovered): before chicken purchase pool = calabresa only; after purchase pool = calabresa + pesto-pollo -> OPEN_POOL", () => {
-    const before = stateAfter(W1_DONE, { chickenBought: false });
+  it("Case A (calabresa undiscovered, aussie found): before chicken purchase pool = calabresa only; after purchase pool = calabresa + pesto-pollo -> OPEN_POOL", () => {
+    // (TQ-1D: the no-sauce aussie is a second non-credit onion-step recipe; with it undiscovered the pool is 2 already.)
+    expect(pool(stateAfter(W1_DONE, { chickenBought: false })).sort()).toEqual([AUS, CAL].sort());
+    const before = stateAfter([...W1_DONE, AUS], { chickenBought: false });
     expect(pool(before)).toEqual([CAL]);
     expect(target(before)).toBe(`TARGET:${CAL}`);
     expect(recipeDiscoveryState(recipe as Recipe, before)).toBe("KNOWN_BUT_MISSING_MATERIAL");
-    const after = stateAfter(W1_DONE, { chickenBought: true });
+    const after = stateAfter([...W1_DONE, AUS], { chickenBought: true });
     expect(pool(after).sort()).toEqual([CAL, ID].sort());
     expect(target(after)).toBe("OPEN_POOL");
     expect(hintSheetView(hintState(after))).toEqual({ kind: "CHOOSE_RESEARCH" }); // #353: 2 registered entries; names no candidate
   });
 
-  it("Case B (calabresa discovered): after chicken purchase pool = pesto-pollo only -> auto target", () => {
-    const found = [...W1_DONE, CAL];
+  it("Case B (calabresa and aussie discovered): after chicken purchase pool = pesto-pollo only -> auto target", () => {
+    const found = [...W1_DONE, CAL, AUS];
     expect(pool(stateAfter(found, { chickenBought: false }))).toEqual([]);
     expect(target(stateAfter(found, { chickenBought: false }))).toBe("SHOP_NEW");
     const after = stateAfter(found, { chickenBought: true });
@@ -155,12 +158,12 @@ describe("No.27 step-25 pool (production functions)", () => {
     expect(target(after)).toBe(`TARGET:${ID}`);
   });
 
-  it("after the discovery: pesto-pollo is DISCOVERED; COMPLETE once calabresa is found too", () => {
-    const done = stateAfter([...W1_DONE, CAL, ID], { chickenBought: true });
+  it("after the discovery: pesto-pollo is DISCOVERED; COMPLETE once calabresa and aussie are found too", () => {
+    const done = stateAfter([...W1_DONE, CAL, AUS, ID], { chickenBought: true });
     expect(pool(done)).toEqual([]);
     // Expansion Slice 1: pesto-gamberi (shrimp, step 26) is now the next undiscovered recipe.
     expect(target(done)).toBe("SHOP_NEW");
-    const calOnly = stateAfter([...W1_DONE, ID], { chickenBought: true });
+    const calOnly = stateAfter([...W1_DONE, AUS, ID], { chickenBought: true });
     expect(pool(calOnly)).toEqual([CAL]);
   });
 });
@@ -184,8 +187,9 @@ describe("No.27 ladderCredit / Lunch Rush", () => {
     const pool = missionOrderRecipeIds({ dex: discoverAll(RECIPES.map((r) => r.id)), ownedIngredientIds: all, inventory: Object.fromEntries(all.map((i) => [i, 30])) });
     expect(pool).not.toContain(ID);
     expect(pool).not.toContain(CAL);
+    expect(pool).not.toContain(AUS);
     expect(pool).not.toContain("pesto-gamberi");
-    expect(pool).toHaveLength(RECIPES.length - 6);
+    expect(pool).toHaveLength(RECIPES.length - 7);
   });
 });
 
@@ -207,7 +211,7 @@ describe("No.27 Hint: key-free (Migration A kept, no KEY_TOPPING)", () => {
   it("roles are key-free; the rung ladder has no KEY_TOPPING, no empty rung, and names no ingredient / recipe", () => {
     expect(RECIPE_HINT_ROLES[ID as RecipeId]).toEqual({ keyFree: true });
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as RecipeId])).toBe(true);
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(6); // calabresa + pesto-pollo + Expansion pesto-gamberi; no other recipe moved
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(7); // calabresa + pesto-pollo + Expansion pesto-gamberi + Wave 2's 3 + TQ-1D aussie; no other recipe moved
     const rungs = buildHint5Ladder(ID)!.rungs;
     expect(rungs.map((r) => r.kind)).not.toContain("KEY_TOPPING");
     for (const r of rungs) if (r.kind !== "STRUCTURE") expect(r.subjectIds.length).toBeGreaterThan(0);

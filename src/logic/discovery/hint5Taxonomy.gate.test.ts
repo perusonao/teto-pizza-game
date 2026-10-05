@@ -48,9 +48,9 @@ const APPROVED_KEY_TOPPINGS: Record<string, string | null> = {
 };
 
 describe("Hint 5.0 authority data (OD-H5-C1 / C1a / C1b)", () => {
-  it("RECIPE_HINT_ROLES covers all 31 production recipes: the 25 keyed ones with the Owner-approved key toppings, calabresa, No.27 pesto-pollo, Expansion pesto-gamberi and Wave 2 vongole / pesto-vegetariana / ratatouille-pizza key-free", () => {
+  it("RECIPE_HINT_ROLES covers all 32 production recipes: the 25 keyed ones with the Owner-approved key toppings, calabresa, No.27 pesto-pollo, Expansion pesto-gamberi and Wave 2 vongole / pesto-vegetariana / ratatouille-pizza key-free", () => {
     expect(Object.keys(RECIPE_HINT_ROLES).sort()).toEqual(RECIPES.map((r) => r.id).sort());
-    expect(RECIPES).toHaveLength(31);
+    expect(RECIPES).toHaveLength(32);
     expect(KEYED_RECIPES).toHaveLength(25);
     expect(KEYED_RECIPES.map((r) => r.id)).not.toContain("brazilian-calabresa");
     expect(KEYED_RECIPES.map((r) => r.id)).not.toContain("pesto-pollo");

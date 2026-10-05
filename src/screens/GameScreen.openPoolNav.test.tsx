@@ -113,9 +113,9 @@ const hintDialog = () => screen.queryByRole("dialog", { name: /ヒント/ });
 const pantryDialog = () => screen.queryByRole("dialog", { name: /食材庫/ });
 const stateJson = () => screen.getByTestId("state-json").textContent;
 
-describe("IP-1 OPEN_POOL action UI (Dex 12, pool 2)", () => {
-  it("fixture: the pool is exactly 2 and the sheet (#353: 2 registered Research Entries, no target) is CHOOSE_RESEARCH, which keeps the IP-1 actions", () => {
-    expect(poolOf(w)).toHaveLength(2);
+describe("IP-1 OPEN_POOL action UI (Dex 12, pool 3)", () => {
+  it("fixture: the pool is exactly 3 (portuguesa, calabresa, TQ-1D aussie) and the sheet (#353: 3 registered Research Entries, no target) is CHOOSE_RESEARCH, which keeps the IP-1 actions", () => {
+    expect(poolOf(w)).toHaveLength(3);
     render(<Harness initial={toStep(dex12(), "TOPPING")} />);
     openHint();
     expect(hintDialog()).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");

@@ -15,7 +15,7 @@ import { startTargetlessFreeCookViaTestHook } from "./test/discoveryEntry";
 /**
  * Issue #377 (OD-377-1) through the real App: Pizza Select's 「レシピ発見へ」 uses HOME's Research Entry routing
  * (0 targetless / 1 that entry is the Research Target / 2+ the Dex's Research cards). Production data only (ladder
- * step 12 = 2 entries, step 25 + calabresa closed = 1, a fresh save = 0). Mirrors App.homeDiscovery.test.tsx so the two
+ * step 12 = 3 entries, step 25 + calabresa and aussie closed = 1, a fresh save = 0). Mirrors App.homeDiscovery.test.tsx so the two
  * doors are compared on identical saves.
  */
 
@@ -38,13 +38,13 @@ function seed(step: number, extraDiscovered: readonly string[] = [], drain: read
     }),
   );
 }
-const seedSingle = () => seed(25, ["brazilian-calabresa"]);
+const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie"]);
 const seedMulti = () => seed(12);
 
 /** #378: the registered entries of the step-12 save, and a finite material only the second one needs (draining it stock-blocks that entry alone). */
 function multiDrainTarget(): string {
   const owned = [...STARTER_INGREDIENT_IDS, ...materialsUpTo(12)];
-  const s = createInitialGameState(discoveredDex(keysBefore(12)), owned, 1000);
+  const s = createInitialGameState(discoveredDex([...keysBefore(12), "aussie"]), owned, 1000); // portuguesa + calabresa registered
   const [a, b] = deriveResearchEntries(s).entries.map((e) => e.recipeId);
   const finiteOf = (id: string) =>
     new Set(getRecipe(id as RecipeId)!.requiredIngredients.map((r) => r.ingredientId).filter((i) => !!getIngredient(i)?.unlockCondition));
@@ -99,7 +99,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     expect(document.querySelectorAll(".dex-overlay__research .dex-research-card").length).toBeGreaterThanOrEqual(2);
     await user.click(screen.getAllByRole("button", { name: /を研究する/ })[1]);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ ②/);
+    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("HOME parity: Pizza Select and HOME reach the same research state on the same save (Entry 1; Entry 2+ opens the same Dex)", async () => {
@@ -128,12 +128,12 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
   });
 
   it("#378: a stock-blocked entry is not a routing candidate (2 registered, 1 cookable -> that one is the Target)", async () => {
-    seed(12, [], [multiDrainTarget()]);
+    seed(12, ["aussie"], [multiDrainTarget()]);
     const user = userEvent.setup();
     render(<App />);
     await pizzaSelectDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ ①/);
+    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("the Dex 「このピザを研究する」 is unchanged (single entry)", async () => {
@@ -141,7 +141,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    await user.click(screen.getByRole("button", { name: "？？？ピザを研究する" }));
+    await user.click(screen.getByRole("button", { name: "？？？ピザ（チキン）を研究する" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
     expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });

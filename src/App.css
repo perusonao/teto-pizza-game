@@ -4703,6 +4703,39 @@
   border-color: #e0a14a;
 }
 
+/* TQ-1D: the Dex's 調理法 section -- same chapter-style stack as the research section. */
+.dex-overlay__techniques {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* TQ-1D: the RESULT's technique stage, shown before the recipe (SSOT P5). */
+.technique-reveal {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid #e0a14a;
+  background: #fff6e5;
+  text-align: center;
+}
+
+.technique-reveal__stamp {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a5a12;
+}
+
+.technique-reveal__name {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #3a2a1a;
+}
+
 /* #346 S2: Research Entry cards -- visually apart from formal Dex cards, text-only, no CTA. */
 .dex-overlay__research {
   display: flex;
@@ -7246,4 +7279,11 @@ p.hint-sheet__step {
 .tray-family-chip--active::before {
   background: #f2b705;
   border-color: #b98700;
+}
+
+/* Research 2.0 Phase 1: the stable Research label (「？？？ピザ B（たまねぎ）」) never breaks inside a part on a narrow card;
+   a long label wraps between the letter part and the unlock-ingredient part. Presentation only (same text, no attribute). */
+.research-label__part {
+  display: inline-block;
+  white-space: nowrap;
 }

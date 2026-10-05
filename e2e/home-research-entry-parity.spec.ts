@@ -32,7 +32,7 @@ function saveWith(discovered: string[]) {
   };
 }
 // The Dex 25 ladder save with calabresa closed: pesto-pollo is the single Research Entry (as discovery-research-result.spec).
-const ONE_ENTRY = saveWith([...keysBefore(25), "brazilian-calabresa"]);
+const ONE_ENTRY = saveWith([...keysBefore(25), "brazilian-calabresa", "aussie"]);
 // Calabresa left undiscovered as well: two cookable Research Entries.
 const TWO_ENTRIES = saveWith(keysBefore(25));
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -111,9 +111,9 @@ test.describe("HOME レシピ発見 follows the cookable Research Entries (#373)
     await expectNoUndiscoveredIdentity(page, [...keysBefore(25)], "HOME -> Dex Research cards");
     await cards.nth(1).getByRole("button", { name: /を研究する/ }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ ②");
+    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ B（たまねぎ）");
     await cookOriginal(page);
-    await expect(page.locator(".result-panel--original")).toContainText("研究中 ？？？ピザ ②");
+    await expect(page.locator(".result-panel--original")).toContainText("研究中 ？？？ピザ B（たまねぎ）");
     await expect(page.getByTestId("research-rows")).toBeVisible();
   });
 
@@ -131,7 +131,7 @@ test.describe("HOME レシピ発見 follows the cookable Research Entries (#373)
     // Dex door (same save, same ingredients)
     await open(page, ONE_ENTRY);
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await page.waitForSelector(".pizza-stage");
     const dex = await researchSnapshotAfterAttempt(page);
 

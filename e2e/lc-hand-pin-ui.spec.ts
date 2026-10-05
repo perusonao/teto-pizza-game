@@ -238,7 +238,7 @@ const SAVE_KEY_PREVIEW = PREVIEW_KEY;
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
-const discovered = [...keysBefore(25), "brazilian-calabresa"];
+const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie"];
 const materials = materialsUpTo(25);
 const RESEARCH_SAVE = {
   schemaVersion: 2,
@@ -264,7 +264,7 @@ for (const [, capacity] of BUILDS) {
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
     await page.waitForSelector(".pizza-stage");
     await completeDoughStep(page);

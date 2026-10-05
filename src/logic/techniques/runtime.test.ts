@@ -100,16 +100,30 @@ describe("resolveRoundTechniques", () => {
     expect(withUnknown).toEqual({ ledger: ["no-sauce"], newlyDiscovered: ["no-sauce"] });
   });
 
-  it("T16 / INV-TQ-4: with the production context nothing is ever recorded", () => {
+  it("T16 / INV-TQ-4 (TQ-1D): with the production context only aussie's no-sauce is recorded, and only by its own paths", () => {
     const production = productionTechniqueContext();
     expect(production.catalog).toBe(RECIPE_DISCOVERY_CATALOG);
-    const everything = dex(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId));
+    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie").map((t) => t.recipeId);
+    const withoutAussie = dex(others);
+    const withAussie = dex([...others, "aussie"]);
     for (const eligibility of ["FREE_COOK", "FREE_GUIDED"] as const) {
-      for (const signature of [noSauceSignature, tomatoSignature]) {
-        const result = resolveRoundTechniques(input({ eligibility, signature, context: production, dexBefore: everything, dexAfter: everything }));
-        expect(result).toEqual({ ledger: [], newlyDiscovered: [] });
-      }
+      // A sauced pizza that matched no aussie never records it.
+      expect(resolveRoundTechniques(input({ eligibility, signature: tomatoSignature, context: production, dexBefore: withoutAussie, dexAfter: withoutAussie }))).toEqual({
+        ledger: [],
+        newlyDiscovered: [],
+      });
+      // The recipe path: aussie newly in the Dex records it in every FREE round (INV-TQ-1).
+      expect(resolveRoundTechniques(input({ eligibility, signature: tomatoSignature, context: production, dexBefore: withoutAussie, dexAfter: withAussie }))).toEqual({
+        ledger: ["no-sauce"],
+        newlyDiscovered: ["no-sauce"],
+      });
     }
+    // The usage path: Free Cooking only, and only once the affordance (credited discoveries >= step 12) is open.
+    const base = { eligibility: "FREE_COOK" as const, signature: noSauceSignature, context: production };
+    const credited = (n: number) => dex(others.slice(0, n));
+    expect(resolveRoundTechniques(input({ ...base, dexBefore: credited(11), dexAfter: credited(11) }))).toEqual({ ledger: [], newlyDiscovered: [] });
+    expect(resolveRoundTechniques(input({ ...base, dexBefore: credited(12), dexAfter: credited(12) }))).toEqual({ ledger: ["no-sauce"], newlyDiscovered: ["no-sauce"] });
+    expect(resolveRoundTechniques(input({ ...base, eligibility: "FREE_GUIDED", dexBefore: credited(12), dexAfter: credited(12) }))).toEqual({ ledger: [], newlyDiscovered: [] });
   });
 });
 
@@ -120,9 +134,12 @@ describe("T19: initialTechniqueLedger (INV-TQ-1 at load)", () => {
     expect(initialTechniqueLedger([], [], OPEN)).toEqual([]);
   });
 
-  it("is a no-op for every production save today", () => {
+  it("is a no-op for every production save without aussie; a save with aussie is backfilled (INV-TQ-1)", () => {
+    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie").map((t) => t.recipeId));
+    expect(initialTechniqueLedger([], others)).toEqual([]);
+    expect(initialTechniqueLedger(["no-sauce"], others)).toEqual(["no-sauce"]);
     const everything = dex(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId));
-    expect(initialTechniqueLedger([], everything)).toEqual([]);
+    expect(initialTechniqueLedger([], everything)).toEqual(["no-sauce"]);
     expect(initialTechniqueLedger(["no-sauce"], everything)).toEqual(["no-sauce"]);
   });
 });

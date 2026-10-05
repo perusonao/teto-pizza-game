@@ -18,6 +18,7 @@ import { ResultPanel } from "../components/ResultPanel";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
 import { RESEARCH_UX_COPY } from "../components/researchUxCopy";
+import { ResearchContextLine } from "../components/ResearchLabel";
 import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
@@ -47,6 +48,7 @@ import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
+import { discoveryRevealOrder } from "../state/discoveryReveal";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
 import { buildQuantityNote } from "../data/quantityMessages";
@@ -663,7 +665,9 @@ export function GameScreen({
         <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
           <div className="order-card__text">
             <span className="order-card__recipe-name order-card__recipe-name--research">
-              <span>{RESEARCH_UX_COPY.contextLine(researchResult.label)}</span>
+              <span>
+                <ResearchContextLine labelJa={researchResult.label} />
+              </span>
             </span>
             <span className="order-card__hint">
               わかっていること：
@@ -723,7 +727,7 @@ export function GameScreen({
             <span className="mini-reference__thumb" aria-hidden="true">
               <ReferenceThumbnail
                 sauceIngredientId={
-                  referencePizza ? referencePizza.sauce.ingredientId : playerReference.sauceIngredientId
+                  referencePizza ? (referencePizza.sauce?.ingredientId ?? null) : playerReference.sauceIngredientId
                 }
                 pieceGroups={referencePizza ? referencePizza.pieceGroups : playerReference.pieceGroups}
               />
@@ -755,7 +759,7 @@ export function GameScreen({
           <div className="order-card__text">
             <span className="order-card__recipe-name">
               {state.freeCook ? (
-                researchResult ? <>{RESEARCH_UX_COPY.contextLine(researchResult.label)}</> : <>{"\u{1F3A8}"} レシピ発見の試作</>
+                researchResult ? <ResearchContextLine labelJa={researchResult.label} /> : <>{"\u{1F3A8}"} レシピ発見の試作</>
               ) : (
                 state.recipe.nameJa
               )}
@@ -896,6 +900,7 @@ export function GameScreen({
             {state.makingStep !== "DOUGH" &&
               referenceModeEnabled &&
               referencePizza &&
+              referencePizza.sauce &&
               activeCategory === "sauce" && (
                 <SauceMetricsPanel
                   metrics={sauceMetrics}
@@ -1106,6 +1111,7 @@ export function GameScreen({
               : null
           }
           onResearchNext={onResearchNext}
+          techniqueReveal={discoveryRevealOrder(state).includes("TECHNIQUE") ? state.lastTechniqueDiscovery : null}
           executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}

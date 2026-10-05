@@ -10,7 +10,7 @@ import { discoveredDex } from "./testSupport/guidedRound";
 /**
  * Issue #373 (OD-RB-1 update): HOME 「レシピ発見」 routes by the COOKABLE Research Entries (`researchableEntryIds`, the
  * OD-RX-4 authority), never by the registered total, and never by a remembered pick (#353).
- * Production data only: ladder step 12 = 2 registered entries, step 25 (calabresa closed) = 1, a fresh save = 0.
+ * Production data only: ladder step 12 = 3 registered entries (portuguesa, calabresa, TQ-1D aussie), step 25 (calabresa and aussie closed) = 1, a fresh save = 0.
  */
 
 const ladderOwned = (step: number) => [
@@ -25,7 +25,7 @@ function save(step: number, extraDiscovered: readonly string[] = [], over: Parti
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])), ...over };
 }
 const multi = (over: Partial<GameState> = {}) => save(12, [], over);
-const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa"], over);
+const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa", "aussie"], over);
 const registered = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);
 
 /** Starts HOME's discovery exactly as App.handleStartDiscovery does with the route. */
@@ -66,13 +66,13 @@ describe("homeDiscoveryRoute (#373)", () => {
   });
 
   it("the population is the cookable count: 2 registered, 1 cookable -> RESEARCH the cookable one (never the registered total)", () => {
-    const s = multi();
+    const s = save(12, ["aussie"]); // portuguesa + calabresa registered (TQ-1D's aussie already found)
     const [a, b] = registered(s);
     const finiteOf = (id: string) =>
       new Set(getRecipe(id as RecipeId)!.requiredIngredients.map((r) => r.ingredientId).filter((i) => !!getIngredient(i)?.unlockCondition));
     const onlyB = [...finiteOf(b)].find((i) => !finiteOf(a).has(i));
     expect(onlyB, "fixture: an entry-B-only material").toBeTruthy();
-    const drained = multi({ inventory: { ...s.inventory, [onlyB!]: 0 } });
+    const drained = save(12, ["aussie"], { inventory: { ...s.inventory, [onlyB!]: 0 } });
     expect(registered(drained)).toHaveLength(2);
     expect(homeDiscoveryRoute(drained)).toEqual({ kind: "RESEARCH", recipeId: a });
   });
@@ -87,7 +87,7 @@ describe("HOME start vs Dex start (#373 parity)", () => {
     expect(home.researchTargetId).toBe(id);
     expect(home.researchTargetValidAtStart).toBe(true);
     expect(home).toEqual(dex);
-    expect(researchResultView(home)?.label).toBe("？？？ピザ");
+    expect(researchResultView(home)?.label).toBe("？？？ピザ（チキン）");
 
     const fresh = startFromHome(createInitialGameState());
     expect(fresh.researchTargetId).toBeNull();

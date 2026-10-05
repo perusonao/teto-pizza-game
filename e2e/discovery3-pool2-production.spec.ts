@@ -4,10 +4,10 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
- * Discovery 3.0 PR-4b-B: the first production Discovery pool of 2, played for real.
+ * Discovery 3.0 PR-4b-B: the first production Discovery pool > 1, played for real (a pool of 3 since TQ-1D).
  *
- * The save is the Dex 12 ladder save (onion just unlocked and stocked): pizza-portuguesa and
- * brazilian-calabresa are both DISCOVERABLE. The Dex shows ONE aggregated unknown (no count, name,
+ * The save is the Dex 12 ladder save (onion just unlocked and stocked): pizza-portuguesa,
+ * brazilian-calabresa and (TQ-1D) the no-sauce aussie are all DISCOVERABLE. The Dex shows ONE aggregated unknown (no count, name,
  * identity or per-candidate hint), the hint sheet names no recipe and sells nothing, and
  * FREE Cooking -> a trial -> a retry -> NEW RECIPE DISCOVERED -> the Dex works, with the Dex pill
  * counting 27 recipes. Finding the non-credit calabresa first leaves one candidate (the hint is back);
@@ -48,7 +48,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/31/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/32/);
 }
 
 async function capture(page: Page, name: string, projectName: string) {
@@ -95,21 +95,25 @@ async function cookCalabresa(page: Page, opts: { oregano: number; from: "HOME" |
 test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calabresa)", () => {
   test.setTimeout(240_000);
 
-  test("Dex: two Research cards (no aggregate card), 27 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
+  test("Dex: three Research cards (no aggregate card), 32 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
     await openWithSave(page);
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
     // #346 S4: both candidates are registered Research Entries -> their own cards, no aggregate card.
     await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
     const research = page.locator(".dex-overlay__research");
-    await expect(research.locator(".dex-research-card")).toHaveCount(2);
+    await expect(research.locator(".dex-research-card")).toHaveCount(3);
     await expect(research).not.toContainText(/[0-9]/);
-    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(31);
+    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(32);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
     const body = await page.locator(".dex-overlay").innerText();
     expect(body).not.toContain("ブラジリアン");
     expect(body).not.toContain("ポルトゲーザ");
+    expect(body).not.toContain("オージー");
+    // The onion step also opens the no-sauce technique's affordance: the Dex shows only its 「？？？」 + riddle, never its name.
+    expect(body).not.toMatch(/ソースなし|ソース不要/);
+    await expect(page.locator("[data-dex-techniques] [data-technique-state]")).toHaveAttribute("data-technique-state", "RIDDLE");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
     await research.scrollIntoViewIfNeeded();
     await capture(page, "pool2-dex-research-cards", testInfo.project.name);
@@ -136,21 +140,30 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await expect(page.locator(".result-panel--discovery")).toContainText("ブラジリアン・カラブレーザ");
     await capture(page, "pool2-new-recipe-discovered", testInfo.project.name);
 
-    // #346 S4 (OD-RX-4): portuguesa is still a researchable entry, so the primary CTA is 「次のピザを研究する」
-    // (not 「図鑑を見る」). The Dex stays reachable from HOME.
-    await expect(page.getByRole("button", { name: "🔎 次のピザを研究する" })).toBeVisible();
+    // #346 S4 (OD-RX-4): portuguesa and aussie are still researchable entries, so the primary CTA is 「次のピザを選んで研究する」
+    // (not 「図鑑を見る」); with two left it opens the Dex's anonymous Research cards (no direct pick). The Dex stays reachable.
+    await expect(page.getByRole("button", { name: "🔎 次のピザを選んで研究する" })).toBeVisible();
     await expect(page.getByRole("button", { name: "📖 図鑑を見る" })).toHaveCount(0);
-    await page.getByRole("button", { name: "🔎 次のピザを研究する" }).click(); // one entry left -> starts it directly
+    await page.getByRole("button", { name: "🔎 次のピザを選んで研究する" }).click();
+    await page.waitForSelector(".dex-overlay");
+    await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(2);
+    // Research 2.0: calabresa (B) was just discovered live; its siblings keep their letters (A and C, never A and B).
+    expect(await page.locator(".dex-overlay__research .dex-research-card h3").allTextContents()).toEqual([
+      "？？？ピザ A（たまねぎ）",
+      "？？？ピザ C（たまねぎ）",
+    ]);
+    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
     await capture(page, "pool2-research-next-started", testInfo.project.name);
     page.on("dialog", (d) => void d.accept());
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*31/);
-    // calabresa found, portuguesa left: a pool of 1 again -> no aggregated unknown, its own hint entrance.
+    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*32/);
+    // calabresa found; portuguesa and aussie left: a pool of 2 -> no aggregated unknown (both are Research Entries), no per-card hint.
     await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(1);
+    await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(2);
+    await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await capture(page, "pool2-dex-after-calabresa", testInfo.project.name);
     // The ladder did not move: the Shop's next material (olive-oil) is still not entitled.
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}"), SAVE_KEY);

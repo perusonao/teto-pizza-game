@@ -31,17 +31,17 @@ const TOLERANCE = 0.03;
 describe("Reference fixture reachability", () => {
   it("the fixture's own computed metrics land within tolerance of the derived target", () => {
     const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
-    expect(Math.abs(metrics.quantity - MARGHERITA_REFERENCE.sauce.quantity)).toBeLessThanOrEqual(
+    expect(Math.abs(metrics.quantity - MARGHERITA_REFERENCE.sauce!.quantity)).toBeLessThanOrEqual(
       TOLERANCE,
     );
-    expect(Math.abs(metrics.coverage - MARGHERITA_REFERENCE.sauce.coverage)).toBeLessThanOrEqual(
+    expect(Math.abs(metrics.coverage - MARGHERITA_REFERENCE.sauce!.coverage)).toBeLessThanOrEqual(
       TOLERANCE,
     );
   });
 
   it("scores a high shadow similarity against its own target (it IS the target, by construction)", () => {
     const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
-    const shadow = scoreSauceAgainstReference(metrics, MARGHERITA_REFERENCE.sauce);
+    const shadow = scoreSauceAgainstReference(metrics, MARGHERITA_REFERENCE.sauce!);
     expect(shadow.quantitySimilarity).toBeGreaterThan(0.95);
     expect(shadow.coverageSimilarity).toBeGreaterThan(0.95);
     expect(shadow.overall).toBeGreaterThan(0.95);
@@ -54,10 +54,10 @@ describe("Reference fixture reachability", () => {
   });
 
   it("target quantity and coverage are both in a sane, non-degenerate range", () => {
-    expect(MARGHERITA_REFERENCE.sauce.quantity).toBeGreaterThan(0.1);
-    expect(MARGHERITA_REFERENCE.sauce.quantity).toBeLessThan(1);
-    expect(MARGHERITA_REFERENCE.sauce.coverage).toBeGreaterThan(0.1);
-    expect(MARGHERITA_REFERENCE.sauce.coverage).toBeLessThan(1);
+    expect(MARGHERITA_REFERENCE.sauce!.quantity).toBeGreaterThan(0.1);
+    expect(MARGHERITA_REFERENCE.sauce!.quantity).toBeLessThan(1);
+    expect(MARGHERITA_REFERENCE.sauce!.coverage).toBeGreaterThan(0.1);
+    expect(MARGHERITA_REFERENCE.sauce!.coverage).toBeLessThan(1);
   });
 
   it("buildIdealMargheritaSauceFixture is deterministic (same fixture every call)", () => {
@@ -65,7 +65,7 @@ describe("Reference fixture reachability", () => {
   });
 
   it("real values are not real grams/ml -- ingredientId is the only identity field, no unit field exists", () => {
-    expect(Object.keys(MARGHERITA_REFERENCE.sauce).sort()).toEqual(
+    expect(Object.keys(MARGHERITA_REFERENCE.sauce!).sort()).toEqual(
       ["coverage", "ingredientId", "quantity"].sort(),
     );
   });
@@ -278,31 +278,33 @@ describe("computeMechanicalSauceReference (B2 mechanical infra)", () => {
     expect(computeMechanicalSauceReference("margherita")).toEqual(MARGHERITA_REFERENCE.sauce);
   });
 
-  it.each(RECIPES.map((r) => r.id))(
+  it.each(RECIPES.map((r) => r.id).filter((id) => id !== "aussie"))(
     "produces a reachable, sane, correctly-identified sauce target for %s",
     (recipeId) => {
       const target = computeMechanicalSauceReference(recipeId);
       const profile = getRecipeSauceProfile(recipeId);
 
-      expect(target.ingredientId).toBe(profile.ingredientId);
-      expect(target.quantity).toBeGreaterThan(0.1);
-      expect(target.quantity).toBeLessThan(1);
-      expect(target.coverage).toBeGreaterThan(0.1);
-      expect(target.coverage).toBeLessThan(1);
+      expect(target!.ingredientId).toBe(profile!.ingredientId);
+      expect(target!.quantity).toBeGreaterThan(0.1);
+      expect(target!.quantity).toBeLessThan(1);
+      expect(target!.coverage).toBeGreaterThan(0.1);
+      expect(target!.coverage).toBeLessThan(1);
 
       // Reachability, same standard as the Margherita-specific test above: the fixture that
       // produced this exact target scores near-perfectly against its own derived target,
       // regardless of which sauce ingredient the recipe actually uses (the geometry, not the
       // ingredient identity, is what similarity is computed from).
       const metrics = computeSauceMetrics(buildIdealSauceFixture());
-      const shadow = scoreSauceAgainstReference(metrics, target);
+      const shadow = scoreSauceAgainstReference(metrics, target!);
       expect(shadow.overall).toBeGreaterThan(0.95);
     },
   );
 
   it("every recipe's mechanical target uses that recipe's own real sauce ingredient (never a fabricated stand-in)", () => {
-    const ids = new Set(RECIPES.map((r) => computeMechanicalSauceReference(r.id).ingredientId));
-    expect(ids).toEqual(new Set(["tomato-sauce", "pesto", "olive-oil"]));
+    const ids = new Set(RECIPES.map((r) => computeMechanicalSauceReference(r.id)?.ingredientId));
+    // aussie (TQ-1D) has no sauce at all: its target is null, never a stand-in.
+    expect(ids).toEqual(new Set(["tomato-sauce", "pesto", "olive-oil", undefined]));
+    expect(computeMechanicalSauceReference("aussie")).toBeNull();
   });
 });
 

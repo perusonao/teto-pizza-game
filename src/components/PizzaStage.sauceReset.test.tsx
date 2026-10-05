@@ -62,8 +62,8 @@ function Harness({
   );
   const [resetToken, setResetToken] = useState(0);
   const profile = getRecipeSauceProfile(recipeId);
-  const ingredient = getIngredient(profile.ingredientId);
-  if (!ingredient) throw new Error(`Missing ingredient fixture for ${profile.ingredientId}`);
+  const ingredient = getIngredient(profile!.ingredientId);
+  if (!ingredient) throw new Error(`Missing ingredient fixture for ${profile!.ingredientId}`);
 
   function handleReset() {
     // Mirrors GameScreen's canonical reset wiring: the same generation invalidates local

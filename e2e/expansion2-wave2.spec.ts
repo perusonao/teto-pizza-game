@@ -22,7 +22,7 @@ const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.fi
 const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 const saveJson = (step: number, bought: readonly string[] = []) => {
-  const discovered = [...keysBefore(step), "brazilian-calabresa"];
+  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie"];
   const owned = [...materialsUpTo(step - 1), ...bought];
   return JSON.stringify({
     schemaVersion: 2,
@@ -136,9 +136,9 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa"];
+    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie"];
     await open(page, saveJson(27));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/28\/31/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/29\/32/);
     await hold(page);
 
     // 1. Shop: parsley ☘️ is NEW, then bought (finite T3 material, 20 pieces).
@@ -157,7 +157,7 @@ test.describe("Expansion Wave 2", () => {
     await expectNoUndiscoveredIdentity(page, DISCOVERED, "Dex Research Entry");
     await capture(page, "exp2-research-entry-vongole", project);
     await hold(page, 2000);
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 3. A real trial: olive-oil + parsley + clam + eggplant (an eggplant is not part of vongole).
@@ -236,7 +236,7 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/29\s*\/\s*31/);
+    await expect(page.locator(".dex-overlay")).toContainText(/30\s*\/\s*32/);
     const card = page.locator(".dex-card").filter({ hasText: "ヴォンゴレピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.13");
@@ -255,9 +255,9 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const found = [...keysBefore(28), "brazilian-calabresa"];
+    const found = [...keysBefore(28), "brazilian-calabresa", "aussie"];
     await open(page, saveJson(28));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/29\/31/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/30\/32/);
     await hold(page);
 
     // 1. Shop: both materials are NEW at once, then bought.
@@ -284,7 +284,7 @@ test.describe("Expansion Wave 2", () => {
     await hold(page, 2200);
 
     // 3. Target selection: the player picks one anonymous card.
-    await research.getByRole("button", { name: "？？？ピザ ①を研究する" }).click();
+    await research.getByRole("button", { name: "？？？ピザ A（ズッキーニ）を研究する" }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 4. A real trial (pesto + eggplant + zucchini + bell-pepper; no cheese, no oregano -- identifies neither recipe).
@@ -355,7 +355,7 @@ test.describe("Expansion Wave 2", () => {
     // 9. Dex: Chapter 3 No.14 / No.15, 31 / 31; schema v2 unchanged.
     await page.getByRole("button", { name: /図鑑を見る/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/31\s*\/\s*31/);
+    await expect(page.locator(".dex-overlay")).toContainText(/32\s*\/\s*32/);
     for (const [name, no] of [["ペストベジタリアーナピザ", "No.14"], ["ラタトゥイユピザ", "No.15"]]) {
       const card = page.locator(".dex-card").filter({ hasText: name });
       await expect(card).toHaveCount(1);

@@ -80,10 +80,10 @@ function pizzaWithItems(ids: readonly string[]): PizzaState {
   };
 }
 
-describe("production tables: 28 recipes, one row each", () => {
+describe("production tables: 32 recipes, one row each", () => {
   it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 28 ids", () => {
     const ids = RECIPES.map((r) => r.id).sort();
-    expect(ids).toHaveLength(31);
+    expect(ids).toHaveLength(32);
     expect(ORDERS.map((o) => o.recipeId).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_SAUCE_PROFILES).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_DISCOVERY_TARGET_IDS).sort()).toEqual(ids);
@@ -160,7 +160,7 @@ describe("CUT: New Haven ends at BAKE; the other W1 recipes cut", () => {
     const steps = s.cookingProfile.steps.filter((step) => step !== "CUT");
     for (const step of steps) {
       if (step === "SAUCE") {
-        s = gameReducer(s, { type: "COMMIT_SAUCE_DISPENSE", ingredientId: reference.sauce.ingredientId, deposits: buildIdealSauceFixture() });
+        s = gameReducer(s, { type: "COMMIT_SAUCE_DISPENSE", ingredientId: reference.sauce!.ingredientId, deposits: buildIdealSauceFixture() });
       }
       if (step === "CHEESE" || step === "TOPPING") {
         for (const g of reference.pieceGroups) {

@@ -45,7 +45,7 @@ function renderDex(p: {
 }
 
 const single = () => ({
-  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa"]),
+  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), // the two non-credit onion-step recipes (TQ-1D: aussie) are found
   owned: ladderOwned(25),
 });
 const multi = () => ({ dex: discoveredDex(keysBefore(12)), owned: ladderOwned(12) });
@@ -57,20 +57,20 @@ describe("Research Dex section", () => {
     expect(container.textContent).not.toMatch(/研究中|研究できる|すべて発見/);
   });
 
-  it("B: a single entry shows an unnumbered ？？？ピザ with the unlock fact", () => {
+  it("B: a single cohort shows a letterless ？？？ピザ（unlock fact）", () => {
     const { cards } = renderDex(single());
     expect(cards).toHaveLength(1);
-    expect(cards[0].querySelector("h3")?.textContent).toBe("？？？ピザ");
+    expect(cards[0].querySelector("h3")?.textContent).toBe("？？？ピザ（チキン）");
     expect(cards[0].textContent).toContain("わかっていること");
     expect(cards[0].textContent).toContain("✓ チキンを使う");
     expect(cards[0].querySelector("button")).toBeNull();
   });
 
-  it("C: multiple entries get ①② labels and no hidden names", () => {
+  it("C: cohort siblings get stable letters (A（たまねぎ）, B（たまねぎ）) and no hidden names", () => {
     const { cards, section } = renderDex(multi());
     expect(cards.length).toBeGreaterThanOrEqual(2);
-    expect(cards.map((c) => c.querySelector("h3")?.textContent).slice(0, 2)).toEqual(["？？？ピザ ①", "？？？ピザ ②"]);
-    for (const id of ["pizza-portuguesa", "brazilian-calabresa"]) {
+    expect(cards.map((c) => c.querySelector("h3")?.textContent).slice(0, 2)).toEqual(["？？？ピザ A（たまねぎ）", "？？？ピザ B（たまねぎ）"]);
+    for (const id of ["pizza-portuguesa", "brazilian-calabresa", "aussie"]) {
       const name = RECIPES.find((r) => r.id === id)!.nameJa;
       expect(section!.textContent).not.toContain(name);
     }
@@ -117,7 +117,7 @@ describe("S3: 「このピザを研究する」 (Research Target selection)", ()
     const { cards } = renderDex({ ...p, inventory: stocked(p.owned), onResearch: (id) => picked.push(id) });
     const button = cards[0].querySelector("button")!;
     expect(button.textContent).toContain("このピザを研究する");
-    expect(button.getAttribute("aria-label")).toBe("？？？ピザを研究する");
+    expect(button.getAttribute("aria-label")).toBe("？？？ピザ（チキン）を研究する");
     fireEvent.click(button);
     expect(picked).toEqual(["pesto-pollo"]);
   });
@@ -127,7 +127,7 @@ describe("S3: 「このピザを研究する」 (Research Target selection)", ()
     const p = multi();
     const { cards, section } = renderDex({ ...p, inventory: stocked(p.owned), onResearch: (id) => picked.push(id) });
     const buttons = cards.map((c) => c.querySelector("button")!);
-    expect(buttons.map((b) => b.getAttribute("aria-label")).slice(0, 2)).toEqual(["？？？ピザ ①を研究する", "？？？ピザ ②を研究する"]);
+    expect(buttons.map((b) => b.getAttribute("aria-label")).slice(0, 2)).toEqual(["？？？ピザ A（たまねぎ）を研究する", "？？？ピザ B（たまねぎ）を研究する"]);
     fireEvent.click(buttons[1]);
     expect(picked).toHaveLength(1);
     const html = section!.outerHTML;

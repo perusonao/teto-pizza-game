@@ -118,7 +118,7 @@ describe("STRUCTURE privacy", () => {
   it("does not expose remaining counts or unknown slots at any stage", () => {
     for (const facts of [undefined, { "pesto-pollo": [INGREDIENT_TOTAL_FACT_ID] }]) {
       const keys = Object.keys(entry(facts)).sort();
-      expect(keys).toEqual(["knownExactIngredientIds", "recipeId", "state", "totalIngredientCount", "unlockIngredientId"]);
+      expect(keys).toEqual(["cohortLetter", "knownExactIngredientIds", "recipeId", "state", "totalIngredientCount", "unlockIngredientId"]);
       expect(JSON.stringify(entry(facts))).not.toMatch(/remaining|slot|unknown|candidate|percent|name/i);
     }
   });
@@ -142,7 +142,8 @@ describe("public projection shape", () => {
 });
 
 describe("single entry: pesto-pollo + chicken (ladder step 25)", () => {
-  const play = () => ladderPlay(25, ["brazilian-calabresa"]);
+  // (the non-credit calabresa and, since TQ-1D, the non-credit aussie are already found: both are makeable from step 12 on)
+  const play = () => ladderPlay(25, ["brazilian-calabresa", "aussie"]);
 
   it("lone entry: chicken is the known fact; RESEARCHING once targeted or a fact is bought", () => {
     const entries = deriveResearchEntries(play()).entries;
@@ -161,9 +162,9 @@ describe("single entry: pesto-pollo + chicken (ladder step 25)", () => {
 describe("multiple entries: Step 12 onion", () => {
   const play = () => ladderPlay(12);
 
-  it("registers pizza-portuguesa and brazilian-calabresa together, both with the onion fact", () => {
+  it("registers pizza-portuguesa, brazilian-calabresa and (TQ-1D) aussie together, all with the onion fact", () => {
     const entries = deriveResearchEntries(play()).entries;
-    expect(entries.map((e) => e.recipeId).sort()).toEqual(["brazilian-calabresa", "pizza-portuguesa"]);
+    expect(entries.map((e) => e.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "pizza-portuguesa"]);
     for (const e of entries) {
       expect(e.unlockIngredientId).toBe("onion");
       expect(e.knownExactIngredientIds).toEqual(["onion"]);
@@ -176,14 +177,16 @@ describe("multiple entries: Step 12 onion", () => {
     expect(ids(without)).toEqual([]);
   });
 
-  it("discovering one leaves the other; a discovered recipe never re-enters", () => {
+  it("discovering one leaves the others; a discovered recipe never re-enters", () => {
     const i = { ...play(), dex: discover("margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 12).map((s) => s.keyRecipeId), "brazilian-calabresa") };
-    expect(ids(i)).toEqual(["pizza-portuguesa"]);
+    expect([...ids(i)].sort()).toEqual(["aussie", "pizza-portuguesa"]);
+    const both = { ...play(), dex: discover("margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 12).map((s) => s.keyRecipeId), "brazilian-calabresa", "aussie") };
+    expect(ids(both)).toEqual(["pizza-portuguesa"]);
   });
 
-  it("targeting one leaves the other PROVISIONAL (target only changes the CTA word)", () => {
+  it("targeting one leaves the others PROVISIONAL (target only changes the CTA word)", () => {
     const entries = deriveResearchEntries(play(), { targetRecipeId: "pizza-portuguesa" }).entries;
-    expect(Object.fromEntries(entries.map((e) => [e.recipeId, e.state]))).toEqual({ "pizza-portuguesa": "RESEARCHING", "brazilian-calabresa": "PROVISIONAL" });
+    expect(Object.fromEntries(entries.map((e) => [e.recipeId, e.state]))).toEqual({ "pizza-portuguesa": "RESEARCHING", "brazilian-calabresa": "PROVISIONAL", aussie: "PROVISIONAL" });
   });
 });
 
@@ -196,15 +199,18 @@ describe("stable anonymous ordering", () => {
   });
 
   it("orders by registration (unlock acquisition index) first", () => {
-    const entries = deriveResearchEntries(ladderPlay(25)).entries;
-    expect(entries.map((e) => e.recipeId)).toEqual(["brazilian-calabresa", "pesto-pollo"]);
+    const entries = deriveResearchEntries(ladderPlay(25)).entries.map((e) => e.recipeId);
+    // The onion pair (calabresa and, since TQ-1D, aussie) registered at step 12, before the chicken at step 25.
+    expect(entries.slice(0, 2).sort()).toEqual(["aussie", "brazilian-calabresa"]);
+    expect(entries[2]).toBe("pesto-pollo");
+    expect(entries).toHaveLength(3);
   });
 
   it("ties are not ordered by ingredient count or catalog position", () => {
     const a = recipe("pizza-portuguesa");
     const b = recipe("brazilian-calabresa");
     expect(a.requiredIngredients.length).not.toBe(b.requiredIngredients.length);
-    const order = deriveResearchEntries(ladderPlay(12)).entries.map((e) => e.recipeId);
+    const order = deriveResearchEntries(ladderPlay(12), {}, [a, b]).entries.map((e) => e.recipeId);
     // Whatever the opaque tie-break chose, it must equal the order for any permutation of the input.
     for (const recipes of [[a, b], [b, a]]) {
       expect(deriveResearchEntries(ladderPlay(12), {}, recipes).entries.map((e) => e.recipeId)).toEqual(order);

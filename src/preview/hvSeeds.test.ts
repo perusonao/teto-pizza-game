@@ -96,7 +96,7 @@ describe("HV scenarios against the real ladder", () => {
 });
 
 describe("PR-4b-B scenarios: the first production pool of 2, and the key-free recipe's own ladder", () => {
-  it("pool2-onion: pizza-portuguesa and brazilian-calabresa are both DISCOVERABLE; the sheet names no recipe", () => {
+  it("pool2-onion: pizza-portuguesa, brazilian-calabresa and aussie are all DISCOVERABLE; the sheet names no recipe", () => {
     expect(TARGETLESS).toEqual(["pool2-onion"]);
     const snapshot = buildHvSnapshot(findHvScenario("pool2-onion")!);
     const inputs = {
@@ -107,7 +107,7 @@ describe("PR-4b-B scenarios: the first production pool of 2, and the key-free re
     };
     expect(snapshot.dex).toHaveLength(12);
     expect(snapshot.ownedIngredientIds).toContain("onion");
-    expect(discoverableHintCandidates(inputs).map((r) => r.id).sort()).toEqual(["brazilian-calabresa", "pizza-portuguesa"]);
+    expect(discoverableHintCandidates(inputs).map((r) => r.id).sort()).toEqual(["aussie", "brazilian-calabresa", "pizza-portuguesa"]);
     expect(selectHintTarget(inputs)).toEqual({ kind: "OPEN_POOL" });
     expect(selectHintTarget(inputs, { pinnedRecipeId: "brazilian-calabresa" })).toEqual({ kind: "OPEN_POOL" });
   });
@@ -121,7 +121,7 @@ describe("PR-4b-B scenarios: the first production pool of 2, and the key-free re
       unlockedForShopIngredientIds: snapshot.unlockedForShopIngredientIds ?? [],
       inventory: snapshot.inventory,
     };
-    expect(snapshot.dex).toHaveLength(25);
+    expect(snapshot.dex).toHaveLength(26); // 25 W1 recipes + the non-credit aussie (TQ-1D), so calabresa is the lone one left
     expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: "brazilian-calabresa", source: "auto" });
     expect(buildHint5Ladder("brazilian-calabresa")!.rungs.map((r) => r.kind)).toEqual(["SAUCE", "STRUCTURE", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS"]);
   });

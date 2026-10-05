@@ -158,12 +158,12 @@ function mockRecipes(count: number): Recipe[] {
 }
 
 describe("buildRecipeSections (Recipe Select 2.0A position-based sections)", () => {
-  it("splits today's 31 production recipes into 第1章 (7) / 第2章 (8) / 第3章 (8) / 第4章 (8), preserving RECIPES' own order", () => {
+  it("splits today's 32 production recipes into 第1章 (7) / 第2章 (8) / 第3章 (8) / 第4章 (8) / 第5章 (1), preserving RECIPES' own order", () => {
     // W1 I5b-3 appended 10 recipes; the existing fallback chunking (8) groups them unchanged.
     const sections = buildRecipeSections(RECIPES);
-    expect(RECIPES.length).toBe(31);
-    expect(sections.map((s) => s.titleJa)).toEqual(["第1章", "第2章", "第3章", "第4章"]);
-    expect(sections.map((s) => s.recipes.length)).toEqual([7, 8, 8, 8]);
+    expect(RECIPES.length).toBe(32);
+    expect(sections.map((s) => s.titleJa)).toEqual(["第1章", "第2章", "第3章", "第4章", "第5章"]);
+    expect(sections.map((s) => s.recipes.length)).toEqual([7, 8, 8, 8, 1]);
     expect(sections.flatMap((s) => s.recipes.map((r) => r.id))).toEqual(RECIPES.map((r) => r.id));
   });
 

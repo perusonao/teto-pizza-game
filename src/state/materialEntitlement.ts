@@ -31,6 +31,19 @@ function isFiniteMaterial(id: string): boolean {
   return !!getIngredient(id)?.unlockCondition;
 }
 
+/**
+ * The ladder's own input from play: how many discovered recipes advance the ladder (`countsTowardLadder`,
+ * so a `ladderCredit: false` recipe is not counted). Cooking Techniques TQ-1D (OD-TQ1D-2): the technique
+ * affordance reads the Dex through this one bridge, so it can never open earlier than the ladder step its
+ * recipe is derived from.
+ */
+export function creditedDiscoveredCount(
+  dex: DexState,
+  countsTowardLadder: (recipeId: string) => boolean = recipeCountsTowardLadder,
+): number {
+  return discoveredRecipeCount(dex, countsTowardLadder);
+}
+
 export function resolveShopEntitlement(
   dex: DexState,
   ownedIngredientIds: readonly string[],

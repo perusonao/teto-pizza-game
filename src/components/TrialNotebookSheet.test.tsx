@@ -26,6 +26,27 @@ function notebookOf(attempts: { sauce: string[]; set: string[]; line?: string | 
 const openPool = { kind: "OPEN_POOL" } as unknown as HintSheetView;
 
 describe("TrialNotebookSheet", () => {
+  it("INV-D7 (OD-TQ1D-4): an attempt made without a sauce has no sauce row, chip or absence text anywhere (DOM text, aria, feedback)", () => {
+    const nb = notebookOf([
+      { sauce: ["tomato-sauce"], set: ["mozzarella", "tomato-sauce"], line: LINE },
+      { sauce: [], set: ["mozzarella", "onion"], line: LINE }, // no sauce: no 「ソース: なし」
+      { sauce: ["pesto"], set: ["mozzarella", "onion", "pesto"], line: LINE },
+    ]);
+    const { container } = render(<TrialNotebookSheet entries={notebookView(nb)} onBack={() => {}} />);
+    const noSauceEntry = container.querySelector('[data-trial-entry="2"]')!;
+    expect(noSauceEntry).toBeTruthy();
+    // no sauce label row and no chip (the diff may legitimately say "− トマトソース": that sauce was dropped)
+    expect([...noSauceEntry.querySelectorAll(".hint-sheet__row-label")].map((e) => e.textContent)).toEqual(["のせたもの"]);
+    expect(noSauceEntry.textContent).not.toMatch(/ソース\s*[:：]?\s*なし|ソースなし|ソース不要/);
+    // The whole sheet: no direct sauce-absence wording in text, aria or the diff lines (to / from "no sauce" is a ＋ / − of the sauce).
+    const attrs = [...container.querySelectorAll("*")].flatMap((e) => [...e.attributes].map((x) => x.value)).join("|");
+    const all = `${container.textContent}|${attrs}`;
+    expect(all).not.toMatch(/ソース\s*[:：]?\s*なし|ソースなし|ソース不要|→\s*なし/);
+    // Attempts that did use a sauce still record it.
+    expect(container.querySelector('[data-trial-entry="1"]')).toHaveTextContent("トマトソース");
+    expect(container.querySelector('[data-trial-entry="3"]')).toHaveTextContent("ジェノベーゼソース");
+  });
+
   it("shows an empty state (not a blank screen) with a way back", () => {
     const onBack = vi.fn();
     render(<TrialNotebookSheet entries={[]} onBack={onBack} />);

@@ -86,7 +86,7 @@ function referencePieces(recipeId: RecipeId): PlacedTopping[] {
 function idealPizzaFor(recipeId: RecipeId, bakeResult = BAKE): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: [getReferencePizza(recipeId)!.sauce.ingredientId],
+    sauceIds: ((sauce) => (sauce ? [sauce.ingredientId] : []))(getReferencePizza(recipeId)!.sauce),
     sauceDeposits: buildIdealSauceFixture(),
     toppings: referencePieces(recipeId),
     bakeResult,
@@ -330,14 +330,16 @@ describe("T9: Dinner never discovers a technique", () => {
   });
 });
 
-describe("T16: INV-TQ-4 -- the production context records nothing", () => {
-  it("every production recipe's ideal pizza (Free Cooking) and a no-sauce original pizza leave the ledger empty", () => {
+describe("T16: INV-TQ-4 (TQ-1D) -- with the production context only aussie records a technique", () => {
+  it("every production recipe's ideal pizza (Free Cooking) leaves the ledger empty except aussie's, and a no-sauce original before the affordance opens records nothing", () => {
     for (const recipe of RECIPES) {
       const result = freeCookToResult(idealPizzaFor(recipe.id, Math.round((recipe.bakeTarget.start + recipe.bakeTarget.end) / 2)));
       const base = { ...createInitialGameState(EMPTY_DEX, ALL_IDS, 0, {}, []) };
       const after = register(freeCookToResult(result.pizza, base));
-      expect(after.discoveredTechniqueIds, recipe.id).toEqual([]);
-      expect(after.lastTechniqueDiscovery ?? [], recipe.id).toEqual([]);
+      // The recipe path (INV-TQ-1): discovering aussie records `no-sauce`, revealed in that same round.
+      const expected = recipe.id === "aussie" ? ["no-sauce"] : [];
+      expect(after.discoveredTechniqueIds, recipe.id).toEqual(expected);
+      expect(after.lastTechniqueDiscovery ?? [], recipe.id).toEqual(expected);
     }
     const original = register(freeCookToResult(noSaucePizza()));
     expect(original.lastDiscovery?.kind).toBe("ORIGINAL");

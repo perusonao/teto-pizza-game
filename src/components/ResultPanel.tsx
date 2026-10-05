@@ -16,6 +16,9 @@ import type { ResultNearMissLine } from "../state/resultNearMiss";
 import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
 import { RESEARCH_UX_COPY } from "./researchUxCopy";
+import { ResearchLabel } from "./ResearchLabel";
+import type { TechniqueId } from "../data/techniques";
+import { TechniqueReveal } from "./TechniqueReveal";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -124,7 +127,7 @@ interface ResultPanelProps {
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
-  /** #346 S4: the valid Research Target's anonymous label (「？？？ピザ ①」), or `null`/omitted without one. Only
+  /** #346 S4: the valid Research Target's anonymous label (「？？？ピザ B（たまねぎ）」), or `null`/omitted without one. Only
    *  with it does an ORIGINAL result use the Research copy, 「📓 試作ノート」 and the retry wording; the label is
    *  never a recipe name or id. */
   researchLabelJa?: string | null;
@@ -142,6 +145,9 @@ interface ResultPanelProps {
   /** 「🔎 次のピザを研究する」: the entry id when exactly one is left (start it), else `null` (back to the Dex's
    *  anonymous Research cards). */
   onResearchNext?: (recipeId: string | null) => void;
+  /** Cooking Techniques TQ-1D (SSOT P5): the techniques discovered in this round (handed over by the screen),
+   *  shown before the recipe on a finished pizza. Omitted / null / empty renders nothing. */
+  techniqueReveal?: readonly TechniqueId[] | null;
 }
 
 const MAX_STARS = 5;
@@ -216,6 +222,7 @@ export function ResultPanel({
   attemptLogEntryRef,
   postDiscovery = null,
   onResearchNext,
+  techniqueReveal = null,
 }: ResultPanelProps) {
   // #346 S4: with a valid Research Target no near/far line is ever shown (Research ORIGINAL contract).
   const nearMiss = researchLabelJa !== null ? null : nearMissLine;
@@ -303,9 +310,10 @@ export function ResultPanel({
         </p>
         {research && (
           <p className="result-panel__research-context" data-research-context="">
-            {"\u{1F50E}"} 研究中 {researchLabelJa}
+            {"\u{1F50E}"} 研究中 <ResearchLabel labelJa={researchLabelJa} />
           </p>
         )}
+        <TechniqueReveal techniqueIds={techniqueReveal} />
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
             {recipeDiscovery ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
@@ -405,6 +413,7 @@ export function ResultPanel({
 
   return (
     <div className={`result-panel${isDiscoveryResult ? " result-panel--discovery" : ""}`}>
+      <TechniqueReveal techniqueIds={techniqueReveal} />
       {isDiscoveryResult ? (
         <>
           <p className="discovered-banner discovered-banner--new-pizza" aria-live="polite">

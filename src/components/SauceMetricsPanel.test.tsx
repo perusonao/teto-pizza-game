@@ -5,7 +5,7 @@ import { computeSauceMetrics } from "../logic/sauceField";
 import { IDEAL_MARGHERITA_SAUCE_FIXTURE, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { scoreSauceAgainstReference } from "../logic/referenceScoring";
 
-const REFERENCE = MARGHERITA_REFERENCE.sauce;
+const REFERENCE = MARGHERITA_REFERENCE.sauce!;
 
 function ring(radius: number, count: number, amount = 0.02) {
   const deposits = [];

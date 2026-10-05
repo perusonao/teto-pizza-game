@@ -670,6 +670,27 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "aussie",
+    nameJa: "オージーピザ",
+    description: "モッツァレラにベーコン、卵、玉ねぎをのせた、ボリュームたっぷりの一枚。",
+    // TQ-1D (Cooking Techniques 1.0, OD-TQ-18): the first NO_SAUCE recipe. SOURCE AUTHORITY (PIZZA DB
+    // `aussie-pizzadb`, 172 matrix): ingredients bacon / egg / mozzarella / onion, no sauce. GAMEPLAY
+    // CALIBRATION (not source): counts mozzarella 2 / bacon 2 / egg 1 / onion 2, bake 50-70; 7 pieces
+    // <= the 8-slot ring. It requires no sauce, so its Technique `no-sauce` is derived from that;
+    // nothing here names the absence. `ladderCredit: false` (it never advances the ladder),
+    // `lunchRush: false` (outside the Lunch Rush pool), no CUT, permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "bacon", minCount: 2 },
+      { ingredientId: "egg", minCount: 1 },
+      { ingredientId: "onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

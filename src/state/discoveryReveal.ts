@@ -1,7 +1,7 @@
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the order a DISCOVERED round reveals its news in.
  * SSOT P5: a technique found in the same round as a recipe is revealed first -- ① Technique,
- * ② Recipe. Pure; nothing renders it until TQ-1D adds the technique stage.
+ * ② Recipe. Pure; since TQ-1D the RESULT renders the technique stage (components/TechniqueReveal.tsx) from it.
  */
 import type { GameState } from "./gameReducer";
 

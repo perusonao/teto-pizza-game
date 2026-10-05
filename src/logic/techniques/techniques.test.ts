@@ -66,8 +66,10 @@ describe("detection", () => {
     expect(requiredTechniquesOf({})).toEqual([]);
   });
 
-  it("no production recipe requires a technique yet (Aussie ships in TQ-1D)", () => {
-    for (const t of RECIPE_DISCOVERY_CATALOG) expect(requiredTechniquesOf(t)).toEqual([]);
+  it("exactly one production recipe requires a technique: aussie, NO_SAUCE (TQ-1D)", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG) {
+      expect(requiredTechniquesOf(t), t.recipeId).toEqual(t.recipeId === "aussie" ? ["no-sauce"] : []);
+    }
   });
 });
 
@@ -119,20 +121,29 @@ describe("backfill (INV-TQ-1 at load)", () => {
     expect(backfillTechniqueLedger(once.ledger, [AUSSIE_SHAPE])).toEqual({ ledger: once.ledger, added: [] });
   });
 
-  it("is a no-op for every production Dex today (no recipe requires a technique)", () => {
-    expect(backfillTechniqueLedger([], RECIPE_DISCOVERY_CATALOG)).toEqual({ ledger: [], added: [] });
+  it("is a no-op for every production Dex without aussie, and adds no-sauce once aussie is discovered", () => {
+    const withoutAussie = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie");
+    expect(backfillTechniqueLedger([], withoutAussie)).toEqual({ ledger: [], added: [] });
+    expect(backfillTechniqueLedger([], RECIPE_DISCOVERY_CATALOG)).toEqual({ ledger: ["no-sauce"], added: ["no-sauce"] });
   });
 });
 
 describe("affordance (derived from the ladder; INV-TQ-4)", () => {
-  it("never opens while no target requires the technique -- the production catalog today", () => {
-    const step = techniqueAffordanceStep("no-sauce", RECIPE_DISCOVERY_CATALOG, materialStep);
+  it("never opens while no target requires the technique -- the production catalog without aussie", () => {
+    const step = techniqueAffordanceStep("no-sauce", RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie"), materialStep);
     expect(step).toBeNull();
     for (const count of [0, 12, 25, 1000]) expect(isTechniqueAffordanceOpen(step, count)).toBe(false);
   });
 
+  it("opens at W1 step 12 (onion) on the production catalog, because aussie requires it (TQ-1D)", () => {
+    const step = techniqueAffordanceStep("no-sauce", RECIPE_DISCOVERY_CATALOG, materialStep);
+    expect(step).toBe(12);
+    expect(isTechniqueAffordanceOpen(step, 11)).toBe(false);
+    expect(isTechniqueAffordanceOpen(step, 12)).toBe(true);
+  });
+
   it("opens at the first step where a requiring recipe becomes makeable (the Aussie shape -> W1 step 12, onion)", () => {
-    const step = techniqueAffordanceStep("no-sauce", [...RECIPE_DISCOVERY_CATALOG, AUSSIE_SHAPE], materialStep);
+    const step = techniqueAffordanceStep("no-sauce", [...RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie"), AUSSIE_SHAPE], materialStep);
     expect(step).toBe(12);
     expect(isTechniqueAffordanceOpen(step, 11)).toBe(false);
     expect(isTechniqueAffordanceOpen(step, 12)).toBe(true);

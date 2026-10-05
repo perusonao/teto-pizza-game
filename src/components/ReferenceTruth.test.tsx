@@ -62,7 +62,7 @@ describe("Reference Truth: authoritative data source (Issue #167 PR-B §5/§13.1
       const reference = getReferencePizza(recipe.id);
       const playerReference = getPlayerReferencePizza(recipe);
       const pieceGroups = reference ? reference.pieceGroups : playerReference.pieceGroups;
-      const sauceIngredientId = reference ? reference.sauce.ingredientId : playerReference.sauceIngredientId;
+      const sauceIngredientId = reference ? (reference.sauce?.ingredientId ?? null) : playerReference.sauceIngredientId;
 
       const { container: thumbContainer } = render(
         <ReferenceThumbnail sauceIngredientId={sauceIngredientId} pieceGroups={pieceGroups} />,
@@ -80,13 +80,14 @@ describe("Reference Truth: sauce type/coverage matches the recipe's own authorit
     const reference = getReferencePizza(recipe.id);
     if (!reference) continue;
     const expectedProfile = getRecipeSauceProfile(recipe.id);
+    if (expectedProfile === null) continue; // TQ-1D: aussie has no sauce (see its own test below)
     const expectedIngredient = getIngredient(expectedProfile.ingredientId)!;
 
     it(`${recipe.id}: ReferenceThumbnail's sauce heatmap uses the recipe's own sauce color/ideal deterministic coverage`, () => {
       render(
-        <ReferenceThumbnail sauceIngredientId={reference.sauce.ingredientId} pieceGroups={reference.pieceGroups} />,
+        <ReferenceThumbnail sauceIngredientId={reference.sauce!.ingredientId} pieceGroups={reference.pieceGroups} />,
       );
-      expect(reference.sauce.ingredientId).toBe(expectedProfile.ingredientId);
+      expect(reference.sauce!.ingredientId).toBe(expectedProfile.ingredientId);
       const probe = screen.getByTestId("sauce-heatmap-probe");
       expect(probe.dataset.color).toBe(expectedIngredient.color);
       expect(Number(probe.dataset.depositCount)).toBe(IDEAL_SAUCE_FIXTURE.length);
@@ -110,6 +111,27 @@ describe("Reference Truth: sauce type/coverage matches the recipe's own authorit
 
   it("the ideal Reference dough shape is a uniform circle at DOUGH_RADIUS -- the same ideal target the DOUGH step's own guide ring/completion threshold use, never a fabricated shape", () => {
     expect(new Set(IDEAL_DOUGH_SHAPE.radii).size).toBe(1);
+  });
+});
+
+describe("TQ-1D: a Reference without a sauce shows no sauce anywhere (aussie)", () => {
+  it("ReferencePreview: no sauce caption, bars or heatmap; the pieces are still shown", () => {
+    const recipe = getRecipe("aussie")!;
+    const reference = getReferencePizza("aussie")!;
+    expect(reference.sauce).toBeNull();
+    render(<ReferencePreview reference={reference} recipeNameJa={recipe.nameJa} isOpen onOpenChange={() => {}} />);
+    expect(screen.queryByTestId("sauce-heatmap-probe")).toBeNull();
+    expect(document.querySelectorAll(".reference-preview__bar-row")).toHaveLength(0);
+    expect(document.querySelector(".reference-preview__caption")?.textContent).not.toMatch(/ソース|塗/);
+    expect(document.querySelector(".reference-preview__caption")?.textContent).toContain("を見本に近く置こう");
+    expect(document.querySelectorAll(".reference-mini-pizza__topping")).toHaveLength(7);
+  });
+
+  it("ReferenceThumbnail with no sauce id renders the pieces and no heatmap", () => {
+    const reference = getReferencePizza("aussie")!;
+    const { container } = render(<ReferenceThumbnail sauceIngredientId={reference.sauce?.ingredientId ?? null} pieceGroups={reference.pieceGroups} />);
+    expect(screen.queryByTestId("sauce-heatmap-probe")).toBeNull();
+    expect(container.querySelectorAll(".reference-thumbnail__piece")).toHaveLength(7);
   });
 });
 
@@ -161,7 +183,7 @@ describe("Reference Truth: every shipped recipe renders without runtime error (I
       const reference = getReferencePizza(recipe.id);
       const playerReference = getPlayerReferencePizza(recipe);
       const pieceGroups = reference ? reference.pieceGroups : playerReference.pieceGroups;
-      const sauceIngredientId = reference ? reference.sauce.ingredientId : playerReference.sauceIngredientId;
+      const sauceIngredientId = reference ? (reference.sauce?.ingredientId ?? null) : playerReference.sauceIngredientId;
 
       expect(() =>
         render(<ReferenceThumbnail sauceIngredientId={sauceIngredientId} pieceGroups={pieceGroups} />),

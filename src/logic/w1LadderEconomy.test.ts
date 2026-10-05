@@ -253,8 +253,8 @@ describe("k / pack foundation", () => {
 });
 
 describe("I5b-3 activation: production runs the 25-recipe ladder", () => {
-  it("RECIPES 31 (30 credited), the 24 frozen W1 steps + appended steps 25-28, 34 catalog rows, 34 obtainable (3/34 on a fresh save)", () => {
-    expect(RECIPES).toHaveLength(31);
+  it("RECIPES 32 (30 credited, + the non-credit aussie), the 24 frozen W1 steps + appended steps 25-28, 34 catalog rows, 34 obtainable (3/34 on a fresh save)", () => {
+    expect(RECIPES).toHaveLength(32);
     expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(30);
     // LAD-1 (OD-W2-1): frozen W1 + appended steps 25 (No.27 chicken -> pesto-pollo) / 26 (shrimp -> pesto-gamberi) / 27 (parsley -> vongole) / 28 (bell-pepper + zucchini -> pesto-vegetariana).
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);

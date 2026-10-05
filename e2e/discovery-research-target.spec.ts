@@ -61,17 +61,17 @@ async function shot(page: Page, name: string) {
 }
 
 test("A. single entry (pesto-pollo): select -> research context -> Hint opens on it and buys a rung", async ({ page }) => {
-  const { discovered, json } = save(25, ["brazilian-calabresa"]);
+  const { discovered, json } = save(25, ["brazilian-calabresa", "aussie"]);
   await open(page, json);
   await openDex(page);
   const section = page.locator(".dex-overlay__research");
   await expect(section.locator(".dex-research-card")).toHaveCount(1);
   await section.scrollIntoViewIfNeeded();
-  await expect(section.locator(".dex-research-card h3")).toHaveText("？？？ピザ");
+  await expect(section.locator(".dex-research-card h3")).toHaveText("？？？ピザ（チキン）");
   await expect(section).toContainText("✓ チキンを使う");
   await expectNoOverflow(page, "dex");
   await shot(page, "01-dex-research-card");
-  await section.getByRole("button", { name: "？？？ピザを研究する" }).click();
+  await section.getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
 
   // cooking: research context replaces the free-cook order card
   await page.waitForSelector(".pizza-stage");
@@ -101,14 +101,14 @@ test("A. single entry (pesto-pollo): select -> research context -> Hint opens on
   await expectNoUndiscoveredIdentity(page, discovered, "after purchase");
 });
 
-test("B. Step 12 multiple: pick ② -> only it is the Hint subject, the other stays anonymous", async ({ page }) => {
+test("B. Step 12 multiple: pick B -> only it is the Hint subject, the other stays anonymous", async ({ page }) => {
   const { discovered, json } = save(12);
   await open(page, json);
   await openDex(page);
   const section = page.locator(".dex-overlay__research");
   await section.scrollIntoViewIfNeeded();
   const titles = await section.locator(".dex-research-card h3").allTextContents();
-  expect(titles.slice(0, 2)).toEqual(["？？？ピザ ①", "？？？ピザ ②"]);
+  expect(titles.slice(0, 2)).toEqual(["？？？ピザ A（たまねぎ）", "？？？ピザ B（たまねぎ）"]);
   const ctas = section.locator("button");
   await expect(ctas).toHaveCount(titles.length);
   // no hidden name / id in the section DOM or its aria labels
@@ -119,11 +119,11 @@ test("B. Step 12 multiple: pick ② -> only it is the Hint subject, the other st
   }
   await expectNoOverflow(page, "dex multi");
   await shot(page, "04-dex-multi");
-  await section.getByRole("button", { name: "？？？ピザ ②を研究する" }).click();
+  await section.getByRole("button", { name: "？？？ピザ B（たまねぎ）を研究する" }).click();
   await page.waitForSelector(".pizza-stage");
   const ctx = page.getByTestId("research-context");
-  await expect(ctx).toContainText("？？？ピザ ②");
-  await expect(ctx).not.toContainText("？？？ピザ ①");
+  await expect(ctx).toContainText("？？？ピザ B（たまねぎ）");
+  await expect(ctx).not.toContainText("？？？ピザ A（たまねぎ）");
   await expectNoOverflow(page, "cooking multi");
   await shot(page, "05-cooking-multi");
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
@@ -148,10 +148,10 @@ test("D. no Research Target (2 entries): plain Free Cooking asks to choose a res
 });
 
 test("E. a bought rung survives a reload and shows on the research card (discoveryHintFacts only)", async ({ page }) => {
-  const { json } = save(25, ["brazilian-calabresa"]);
+  const { json } = save(25, ["brazilian-calabresa", "aussie"]);
   await open(page, json);
   await openDex(page);
-  await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+  await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
   await page.waitForSelector(".pizza-stage");
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
   const dialog = page.getByRole("dialog", { name: /ヒント/ });

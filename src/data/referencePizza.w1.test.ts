@@ -48,9 +48,9 @@ function radius(p: { x: number; y: number }) {
   return Math.hypot(p.x - 50, p.y - 50);
 }
 
-describe("MD-01: every production recipe has a Reference (28 / 28)", () => {
-  it("RECIPES 28, REFERENCE_PIZZAS 28", () => {
-    expect(RECIPES).toHaveLength(31);
+describe("MD-01: every production recipe has a Reference (32 / 32)", () => {
+  it("RECIPES 32, REFERENCE_PIZZAS 32", () => {
+    expect(RECIPES).toHaveLength(32);
     for (const r of RECIPES) expect(getReferencePizza(r.id)?.recipeId).toBe(r.id);
   });
 
@@ -93,11 +93,11 @@ describe("sauce: the mechanical derivation for each recipe's own sauce profile",
   it.each(W1_IDS)("%s: sauce ingredient = its profile's; target and interaction = the shipped precedent's", (id) => {
     const profile = getRecipeSauceProfile(id);
     const sauceReq = recipe(id).requiredIngredients.find((q) => getIngredient(q.ingredientId)!.category === "sauce")!;
-    expect(profile.ingredientId).toBe(sauceReq.ingredientId);
+    expect(profile!.ingredientId).toBe(sauceReq.ingredientId);
     expect(reference(id).sauce).toEqual(computeMechanicalSauceReference(id));
-    const precedent = PRECEDENT[profile.ingredientId];
+    const precedent = PRECEDENT[profile!.ingredientId];
     expect(reference(id).sauce).toEqual(computeMechanicalSauceReference(precedent));
-    expect(profile.interaction).toBe(getRecipeSauceProfile(precedent).interaction);
+    expect(profile!.interaction).toBe(getRecipeSauceProfile(precedent)!.interaction);
   });
 
   it("New Haven's olive-oil keeps PAINT_TEMPORARY; the tomato and pesto recipes PAINT", () => {
@@ -107,7 +107,7 @@ describe("sauce: the mechanical derivation for each recipe's own sauce profile",
       interaction: "PAINT_TEMPORARY",
     });
     for (const id of W1_IDS.filter((i) => i !== "new-haven-apizza")) {
-      expect(getRecipeSauceProfile(id).interaction).toBe("PAINT");
+      expect(getRecipeSauceProfile(id)!.interaction).toBe("PAINT");
     }
   });
 });
@@ -159,7 +159,7 @@ describe("RT-01c: literal Reference Truth == the RT-01 generator == what the pla
 
   it.each(W1_IDS)("%s: the player reference (mini 見本 / popover source) is the same layout", (id) => {
     const player = getPlayerReferencePizza(recipe(id));
-    expect(player.sauceIngredientId).toBe(reference(id).sauce.ingredientId);
+    expect(player.sauceIngredientId).toBe(reference(id).sauce!.ingredientId);
     expect(player.pieceGroups).toEqual(reference(id).pieceGroups.map((g) => ({ ingredientId: g.ingredientId, positions: g.positions })));
   });
 
@@ -210,7 +210,7 @@ describe("perfect-score regression through the production computeScoringV2", () 
     const r = recipe(id);
     return {
       ...createEmptyPizza(),
-      sauceIds: [ref.sauce.ingredientId],
+      sauceIds: [ref.sauce!.ingredientId],
       sauceDeposits: buildIdealSauceFixture(),
       toppings: ref.pieceGroups.flatMap((g, gi) =>
         g.positions.map((p, i) => ({ id: `${tag}-${gi}-${i}`, ingredientId: g.ingredientId, ...p })),

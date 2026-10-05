@@ -8,7 +8,7 @@ import type { TrialEntryView } from "../logic/discovery/trialNotebook";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { CHOOSE_RESEARCH_COPY, OPEN_POOL_ACTIONS } from "./openPoolCopy";
 import { TrialNotebookSheet } from "./TrialNotebookSheet";
-import { RESEARCH_UX_COPY } from "./researchUxCopy";
+import { ResearchContextLine } from "./ResearchLabel";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet.
@@ -202,7 +202,7 @@ export function HintSheet({
   pantry?: HintPantryAccess;
   /** #353: the way from CHOOSE_RESEARCH to the Dex's anonymous Research cards (UI navigation only). */
   onChooseResearch?: () => void;
-  /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ ①」), shown as one context line. Never a
+  /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ B（たまねぎ）」 / 「？？？ピザ（チキン）」, `researchEntryLabel`), shown as one context line. Never a
    *  recipe name or id; `null` (no valid target) renders nothing. */
   researchLabelJa?: string | null;
   onClose: () => void;
@@ -295,7 +295,7 @@ export function HintSheet({
 
         {researchLabelJa && (
           <p className="hint-sheet__research" data-hint-research="">
-            {RESEARCH_UX_COPY.contextLine(researchLabelJa)}
+            <ResearchContextLine labelJa={researchLabelJa} />
           </p>
         )}
 
@@ -845,8 +845,8 @@ function hint5EntryKey(entry: Hint5BoardEntry): string {
  * holds the ONE next rung: its fixed label and description, its normal price and 「たずねる」.
  * Nothing here shows a rung count, what comes later, a sub-topping name or glyph, or a 0 price
  * (M3). An empty fixed rung is offered like any other. Round 6: a bought empty CHEESE / KEY rung shows
- * 「なし」 in its row (「チーズ」 | 「なし」); an empty SAUCE rung stays RESERVED and is never shown as
- * 「なし」 (OD-H5-P4-SAUCE, TQ-1D).
+ * 「なし」 in its row (「チーズ」 | 「なし」); an empty SAUCE rung stays RESERVED (fail-closed; no production recipe reaches it
+ * since TQ-1D) and is never shown as 「なし」 (OD-H5-P4-SAUCE).
  */
 function Hint5LadderBody({
   view,

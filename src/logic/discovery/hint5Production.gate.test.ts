@@ -33,8 +33,10 @@ import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
  * its ladder to the end (gate A), and none may reach RESERVED_EMPTY_RUNG (gate B, M2 condition 3).
  *
  * **Cooking Techniques tripwire (TQ-1D, §12).** Every production recipe is single-sauce and requires
- * no technique. The tripwire test fails on purpose as soon as one does: TQ-1D (or that recipe's PR)
- * must re-audit Hint 5.0 privacy and decide OD-H5-P4 before shipping it. Never weaken it to pass.
+ * no technique, except `aussie` (TQ-1D, OD-TQ1D-1): the one NO_SAUCE recipe. It is key-free, so its
+ * ladder simply has no SAUCE rung (never an empty or RESERVED one) and starts at CHEESE. The tripwire
+ * test fails on purpose as soon as any other recipe requires a technique or lacks a sauce: that recipe's
+ * PR must re-audit Hint 5.0 privacy first. Never weaken it to pass.
  */
 
 const LADDER_INDEX = new Map(ladderTargets(W1_25_DISCOVERY_LADDER).map((id, i) => [id, i]));
@@ -170,13 +172,13 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
         walked += 1;
       }
     }
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(31);
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(32);
     expect(walked).toBeGreaterThanOrEqual(28);
   });
 
-  it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; OD-H5-P4-SAUCE stays reserved for TQ-1D)", () => {
+  it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; RESERVED stays retired: the one sauceless recipe, aussie, has no SAUCE rung at all)", () => {
     const reaching = RECIPES.filter((r) => hint5ReservedRungs(r.id)!.length > 0).map((r) => r.id);
-    expect(reaching, "a sauceless recipe needs OD-H5-P4-SAUCE (TQ-1D) before it can be a production target").toEqual([]);
+    expect(reaching, "a recipe may only lack a sauce by being key-free, which has no SAUCE rung (never an empty one)").toEqual([]);
     // And no reachable request state returns it, with or without legacy facts.
     for (const r of RECIPES) {
       for (const { stored, view } of purchaseStates(r.id, 5)) {
@@ -309,11 +311,18 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
 });
 
 describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
-  it("every production recipe is single-sauce and requires no technique; otherwise re-audit Hint 5.0 privacy and decide OD-H5-P4 first", () => {
+  it("only aussie requires a technique and lacks a sauce, and it does so without a SAUCE rung; any other recipe must re-audit Hint 5.0 privacy first", () => {
     const requiring = RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    expect(requiring, "TQ-1D (or the recipe PR) must re-audit Hint 5.0 privacy and decide OD-H5-P4 before shipping this recipe").toEqual([]);
-    const notSingleSauce = RECIPES.filter((r) => buildHint5Ladder(r.id)!.rungs[0].subjectIds.length !== 1).map((r) => r.id);
-    expect(notSingleSauce, "TQ-1D (or the recipe PR) must re-audit Hint 5.0 privacy and decide OD-H5-P4 before shipping this recipe").toEqual([]);
+    expect(requiring, "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual(["aussie"]);
+    const sauceRung = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SAUCE");
+    const notSingleSauce = RECIPES.filter((r) => sauceRung(r.id).length !== 1 || sauceRung(r.id)[0].subjectIds.length !== 1).map((r) => r.id);
+    expect(notSingleSauce, "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(["aussie"]);
+    // Aussie: no SAUCE rung at all (not an empty / RESERVED one), no KEY_TOPPING, and the first rung is CHEESE.
+    const aussie = buildHint5Ladder("aussie")!;
+    expect(aussie.rungs.map((r) => r.kind)).toEqual(["CHEESE", "STRUCTURE", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS"]);
+    expect(aussie.rungs.map((r) => r.index)).toEqual([1, 2, 3, 4, 5]);
+    expect(hint5ReservedRungs("aussie")).toEqual([]);
+    expect(hint5EmptyFixedRungs("aussie")).toEqual([]);
   });
 
   it("no Hint 5.0 view carries Technique identity, and the Hint 5.0 modules never read Technique state", () => {

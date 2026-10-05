@@ -20,7 +20,7 @@ const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
-const discovered = [...keysBefore(25), "brazilian-calabresa"];
+const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie"];
 const materials = materialsUpTo(25);
 const SAVE = {
   schemaVersion: 2,
@@ -100,7 +100,7 @@ test("Research loop: ORIGINAL result -> Notebook -> Hint -> retry keeps the same
   // Dex -> the single Research Entry -> 研究する
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
-  await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+  await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
   await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
   await cookOriginalFromPrepare(page);
 

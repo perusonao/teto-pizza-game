@@ -11,7 +11,7 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
-const STEP = 12; // pizza-portuguesa + brazilian-calabresa are both entries
+const STEP = 12; // pizza-portuguesa + brazilian-calabresa + (TQ-1D) aussie are all entries
 const keysBefore = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < STEP).map((s) => s.keyRecipeId)];
 const materials = DISCOVERY_LADDER.steps.filter((s) => s.step <= STEP).flatMap((s) => s.ingredientIds as readonly string[]);
 
@@ -49,7 +49,7 @@ async function shot(page: Page, name: string) {
   await page.screenshot({ path: `${dir}/${test.info().project.name.replace("iphone-", "")}-${name}.png` });
 }
 
-test("targetless + 2 entries + bought facts: the sheet asks to choose; the Dex choice then shows that entry's Hint", async ({ page }) => {
+test("targetless + 3 entries + bought facts: the sheet asks to choose; the Dex choice then shows that entry's Hint", async ({ page }) => {
   await open(page);
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
@@ -75,12 +75,12 @@ test("targetless + 2 entries + bought facts: the sheet asks to choose; the Dex c
   await choose.click();
   await page.waitForSelector(".dex-overlay");
   const section = page.locator(".dex-overlay__research");
-  await expect(section.locator(".dex-research-card")).toHaveCount(2);
+  await expect(section.locator(".dex-research-card")).toHaveCount(3);
   await section.scrollIntoViewIfNeeded();
   await expectNoOverflow(page, "dex research cards");
   await shot(page, "after-02-dex-research-cards");
 
-  await section.getByRole("button", { name: "？？？ピザ ①を研究する" }).click();
+  await section.getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toBeVisible();
   await hintButton.click();

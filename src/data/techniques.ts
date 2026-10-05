@@ -6,8 +6,9 @@
  * discovers by doing it -- never bought, never a ⭐/Pitz reward, never a precondition for a recipe.
  * TQ-1 ships exactly one: NO_SAUCE.
  *
- * Unwired in TQ-1A: no reducer, UI or save writer reads this module yet (TQ-1C/1D). `nameJa` and
- * `riddleJa` are working copy for the future Dex section; the final copy is decided in TQ-1D.
+ * Wired since TQ-1C / TQ-1D (the reducer, the RESULT's technique stage and the Dex's 調理法 section read it).
+ * `nameJa` is shown only after the technique is discovered; `riddleJa` is the Dex's fixed clue (TQ-1D final copy,
+ * Owner-approved: 「ソースなし」 / 「いつもの“ぬるもの”がなくても…？」).
  */
 
 export type TechniqueId = "no-sauce";
