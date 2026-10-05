@@ -28,6 +28,9 @@ import { isDiscovered, type DexState } from "../../state/dex";
  *   the unlock fact in `ownedIngredientIds`), then a hash of the id that is unrelated to the
  *   recipe's structure; it is NOT `compareHintCandidates` (that sorts by ingredient count).
  * - The projection has no count of entries or of unregistered recipes: an array only.
+ * - **Stable public label (Research 2.0 Phase 1, D+ Cohort Letter, OD-R2-1..5)**: the label is derived from the
+ *   catalog and ownership only -- never from the live entry array -- so a sibling's discovery cannot move it.
+ *   See `researchCohortLetters` / `researchEntryLabel`. Nothing about it is saved.
  */
 
 /**
@@ -65,6 +68,11 @@ export interface ResearchEntry {
   knownExactIngredientIds: readonly string[];
   /** The distinct ingredient total once STRUCTURE was bought, else `null` (never a guess). */
   totalIngredientCount: number | null;
+  /**
+   * D+ Cohort Letter: `A`, `B`, ... only when this entry has registrable siblings (a discovered sibling still holds
+   * its slot); `null` for a single cohort. Display only: never a key, never saved, never a count.
+   */
+  cohortLetter: string | null;
 }
 
 export interface ResearchProjection {
@@ -137,6 +145,58 @@ export function researchStateOf(
 }
 
 /**
+ * The spreadsheet-style letter of the zero-based `index`: 0 -> A ... 25 -> Z, 26 -> AA, 27 -> AB ... (Research 2.0
+ * OD-R2-4: a cohort of more than 26 siblings stays labelled without a new alphabet).
+ */
+export function researchLetter(index: number): string {
+  let n = Math.max(0, Math.floor(index)) + 1;
+  let letters = "";
+  while (n > 0) {
+    n -= 1;
+    letters = String.fromCharCode(65 + (n % 26)) + letters;
+    n = Math.floor(n / 26);
+  }
+  return letters;
+}
+
+/**
+ * D+ Cohort Letter (Research 2.0 Phase 1, OD-R2-1..4). A **cohort** is the set of recipes whose unlock fact is the
+ * same ingredient: they became registrable at the same moment (the acquisition of that ingredient), so a player
+ * can already see every member -- as a Research Entry or in the Dex. The cohort is computed from OWNERSHIP only and
+ * deliberately ignores the Dex: a discovered sibling keeps its slot, so the letters of the others never move and a
+ * slot is never reused (OD-R2-3). Members are ordered by the same anonymous key as the entry order (a hash of the id
+ * that is unrelated to the recipe's structure, then the id) and lettered A, B, C ...
+ *
+ * - Only recipes that are registrable (every finite material owned) are counted, so an unregistered recipe is never
+ *   represented: no hidden recipe, count or cohort size can be read from a letter (INV-B7).
+ * - A single-member cohort has no letter. Nothing here is persisted (OD-R2-2).
+ * - The letter is stable within one catalog authority only: a catalog revision that adds a recipe to an existing
+ *   cohort may change that cohort's letters. That is accepted (Owner contract); it is re-audited before 53 / 172.
+ *
+ * Returns `recipeId -> letter` for lettered cohorts only.
+ */
+export function researchCohortLetters(
+  ownedIngredientIds: readonly string[],
+  recipes: readonly Recipe[] = RECIPES,
+): ReadonlyMap<string, string> {
+  const cohorts = new Map<string, { recipeId: string; hash: number }[]>();
+  for (const recipe of recipes) {
+    const unlock = unlockIngredientOf(recipe, ownedIngredientIds);
+    if (unlock === null) continue;
+    const members = cohorts.get(unlock.id) ?? [];
+    members.push({ recipeId: recipe.id, hash: opaqueHash(recipe.id) });
+    cohorts.set(unlock.id, members);
+  }
+  const letters = new Map<string, string>();
+  for (const members of cohorts.values()) {
+    if (members.length < 2) continue;
+    members.sort((a, b) => a.hash - b.hash || (a.recipeId < b.recipeId ? -1 : 1));
+    members.forEach((m, i) => letters.set(m.recipeId, researchLetter(i)));
+  }
+  return letters;
+}
+
+/**
  * Every registered Research Entry, in the stable anonymous order. Discovered recipes are excluded;
  * unregistered recipes are not represented in any form.
  */
@@ -146,6 +206,7 @@ export function deriveResearchEntries(
   recipes: readonly Recipe[] = RECIPES,
 ): ResearchProjection {
   const ranked: { entry: ResearchEntry; index: number; hash: number }[] = [];
+  const cohortLetters = researchCohortLetters(inputs.ownedIngredientIds, recipes);
   for (const recipe of recipes) {
     if (isDiscovered(inputs.dex, recipe.id)) continue;
     const unlock = unlockIngredientOf(recipe, inputs.ownedIngredientIds);
@@ -159,6 +220,7 @@ export function deriveResearchEntries(
         unlockIngredientId: unlock.id,
         knownExactIngredientIds: [unlock.id],
         totalIngredientCount: structureTotal(recipe, inputs.discoveryHintFacts),
+        cohortLetter: cohortLetters.get(recipe.id) ?? null,
       },
       index: unlock.index,
       hash: opaqueHash(recipe.id),
@@ -168,13 +230,19 @@ export function deriveResearchEntries(
   return { entries: ranked.map((r) => r.entry) };
 }
 
-const ENTRY_MARKS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"];
-
 /**
- * The player-facing anonymous label of the entry at `index` of `count` registered entries (S2 / S3).
- * One entry: 「？？？ピザ」; several: 「？？？ピザ ①」… in the stable anonymous order. A plain
- * "this card" marker, never a name, No.xx or recipe id.
+ * The player-facing anonymous label of an entry (Research 2.0 Phase 1, OD-R2-4): the one authority shared by the Dex,
+ * PREPARE, RESULT, the Hint sheet and the Trial Notebook.
+ *
+ * - Cohort siblings: 「？？？ピザ B（たまねぎ）」; a single cohort: 「？？？ピザ（チキン）」.
+ * - It carries only the unlock ingredient (already shown as the card's first known fact) and the cohort letter. It never
+ *   carries a recipe name / id, No.xx, a count, a cohort size or a hash value (INV-B7).
+ * - The ① ② ③ marks are retired: they came from the live array index and moved when a sibling was discovered.
+ *
+ * Fails closed to the bare 「？？？ピザ」 when the unlock ingredient is not in the catalog.
  */
-export function researchEntryLabel(index: number, count: number): string {
-  return count > 1 ? `？？？ピザ ${ENTRY_MARKS[index] ?? index + 1}` : "？？？ピザ";
+export function researchEntryLabel(entry: Pick<ResearchEntry, "unlockIngredientId" | "cohortLetter">): string {
+  const unlockName = getIngredient(entry.unlockIngredientId)?.nameJa;
+  const head = entry.cohortLetter ? `？？？ピザ ${entry.cohortLetter}` : "？？？ピザ";
+  return unlockName ? `${head}（${unlockName}）` : head;
 }

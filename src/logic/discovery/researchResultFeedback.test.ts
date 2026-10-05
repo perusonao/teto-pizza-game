@@ -7,7 +7,7 @@ import { createTrialNotebook, notebookView, recordAttempt } from "./trialNoteboo
 /** Contract 2.1 S2: RESEARCH_ROWS feedback formatter + Trial Notebook compatibility. */
 /** A canonical v1 fingerprint literal (the notebook only parses its shape). */
 const FP = `fp1:${JSON.stringify([[], ["ing-00001"]])}`;
-const LABEL = "？？？ピザ ①（チキン）";
+const LABEL = "？？？ピザ（チキン）";
 const row = (ingredientId: string, category: ResearchResultRow["category"], verdict: ResearchResultRow["verdict"]): ResearchResultRow => ({ ingredientId, category, verdict });
 const name = (id: string) => getIngredient(id)!.nameJa;
 const fmt = (rows: ResearchResultRow[], labelJa = LABEL) => researchRowsFeedback({ labelJa, rows });
@@ -46,7 +46,7 @@ describe("format", () => {
   it("is deterministic and keeps labelJa byte for byte", () => {
     const rows = [row("ham", "topping", "POSITIVE")];
     expect(fmt(rows)).toEqual(fmt(rows));
-    const odd = "？？？ピザ ⑩（ジェノベーゼソース） ";
+    const odd = "？？？ピザ J（ジェノベーゼソース） ";
     expect(fmt(rows, odd)!.textJa.startsWith(odd + " ")).toBe(true);
   });
 });
@@ -98,7 +98,8 @@ describe("200-char gate (no truncation)", () => {
     ...longest("cheese", 4).map((i) => row(i.id, "cheese", "NEGATIVE")),
     ...longest("topping", 3).map((i) => row(i.id, "topping", "NEGATIVE")),
   ];
-  const WORST_LABEL = "？？？ピザ ㉚（ジェノベーゼソース）";
+  // Research 2.0 OD-R2-4: letter (at most two for 27..702 siblings) + the longest possible unlock ingredient name.
+  const WORST_LABEL = `？？？ピザ ZZ（${[...INGREDIENTS].sort((a, b) => b.nameJa.length - a.nameJa.length)[0].nameJa}）`;
 
   it("current Production worst case (sauce 3 + cheese 4 + topping 3, longest names and label) is <= 200 chars", () => {
     const fb = fmt(worstRows(), WORST_LABEL)!;
@@ -121,8 +122,8 @@ describe("200-char gate (no truncation)", () => {
 describe("Trial Notebook compatibility and latest-attempt replacement (existing recordAttempt, unchanged)", () => {
   const fingerprint = FP;
   const first = (nb: ReturnType<typeof createTrialNotebook>) => notebookView(nb)[0];
-  const A = fmt([row("ham", "topping", "POSITIVE")], "？？？ピザ ①（チキン）");
-  const B = fmt([row("egg", "topping", "NEGATIVE")], "？？？ピザ ②（マッシュルーム）");
+  const A = fmt([row("ham", "topping", "POSITIVE")], "？？？ピザ A（チキン）");
+  const B = fmt([row("egg", "topping", "NEGATIVE")], "？？？ピザ B（マッシュルーム）");
 
   it("RESEARCH_ROWS fits the existing schema (kind pattern, {kind,textJa} only)", () => {
     const res = recordAttempt(createTrialNotebook(), { fingerprint, feedback: A });

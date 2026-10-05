@@ -81,8 +81,8 @@ describe("B. multiple entries: only the selected target is the Hint subject", ()
   it("the cooking context speaks only of the selected anonymous entry", () => {
     const s = multi();
     const [first, second] = entryIds(s);
-    expect(researchTargetView(startResearch(s, first))?.label).toBe("？？？ピザ ①");
-    expect(researchTargetView(startResearch(s, second))?.label).toBe("？？？ピザ ②");
+    expect(researchTargetView(startResearch(s, first))?.label).toBe("？？？ピザ A（たまねぎ）");
+    expect(researchTargetView(startResearch(s, second))?.label).toBe("？？？ピザ B（たまねぎ）");
     const text = JSON.stringify({ ...researchTargetView(startResearch(s, first)), recipeId: undefined });
     for (const r of RECIPES) expect(text).not.toContain(r.nameJa);
   });

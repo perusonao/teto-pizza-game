@@ -16,6 +16,7 @@ import type { ResultNearMissLine } from "../state/resultNearMiss";
 import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
 import { RESEARCH_UX_COPY } from "./researchUxCopy";
+import { ResearchLabel } from "./ResearchLabel";
 import type { TechniqueId } from "../data/techniques";
 import { TechniqueReveal } from "./TechniqueReveal";
 
@@ -126,7 +127,7 @@ interface ResultPanelProps {
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
-  /** #346 S4: the valid Research Target's anonymous label (「？？？ピザ ①」), or `null`/omitted without one. Only
+  /** #346 S4: the valid Research Target's anonymous label (「？？？ピザ B（たまねぎ）」), or `null`/omitted without one. Only
    *  with it does an ORIGINAL result use the Research copy, 「📓 試作ノート」 and the retry wording; the label is
    *  never a recipe name or id. */
   researchLabelJa?: string | null;
@@ -309,7 +310,7 @@ export function ResultPanel({
         </p>
         {research && (
           <p className="result-panel__research-context" data-research-context="">
-            {"\u{1F50E}"} 研究中 {researchLabelJa}
+            {"\u{1F50E}"} 研究中 <ResearchLabel labelJa={researchLabelJa} />
           </p>
         )}
         <TechniqueReveal techniqueIds={techniqueReveal} />

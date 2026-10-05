@@ -157,7 +157,7 @@ test.describe("Expansion Wave 2", () => {
     await expectNoUndiscoveredIdentity(page, DISCOVERED, "Dex Research Entry");
     await capture(page, "exp2-research-entry-vongole", project);
     await hold(page, 2000);
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 3. A real trial: olive-oil + parsley + clam + eggplant (an eggplant is not part of vongole).
@@ -284,7 +284,7 @@ test.describe("Expansion Wave 2", () => {
     await hold(page, 2200);
 
     // 3. Target selection: the player picks one anonymous card.
-    await research.getByRole("button", { name: "？？？ピザ ①を研究する" }).click();
+    await research.getByRole("button", { name: "？？？ピザ A（ズッキーニ）を研究する" }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 4. A real trial (pesto + eggplant + zucchini + bell-pepper; no cheese, no oregano -- identifies neither recipe).
