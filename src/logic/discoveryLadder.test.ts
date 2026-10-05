@@ -433,6 +433,11 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // production entitlement authority. ../main.tsx reaches it only behind the DEV / Preview env check
       // (dynamic import), and ../preview/previewIsolation.gate.test.ts proves a production bundle has none of it.
       "../dev/discoveryProgressionModel.ts",
+      // DEV State Editor (Issue #403): the DEV / Preview-only editor derives its presets from the ladder (the
+      // step order, no ids or counts of its own) and reads it only through ./editorCatalog.ts. ../main.tsx
+      // reaches the editor only behind the DEV / Preview env check (dynamic import), and
+      // ../preview/previewIsolation.gate.test.ts proves a production bundle has none of it.
+      "../devtools/editorCatalog.ts",
       // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
       // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts

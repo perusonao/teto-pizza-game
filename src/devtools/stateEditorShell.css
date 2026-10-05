@@ -1,0 +1,57 @@
+.dse {
+  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  font-family: system-ui, -apple-system, "Hiragino Sans", sans-serif;
+  color: #1f2430;
+  background: #fff8ef;
+  min-height: 100dvh;
+}
+.dse__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dse__title {
+  margin: 0;
+  font-size: 20px;
+}
+.dse__badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #1f2430;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.dse__note,
+.dse__row {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dse__card {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #d9cdb8;
+  border-radius: 8px;
+  background: #fff;
+}
+.dse__h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.dse__list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.dse__link {
+  display: inline-block;
+  min-height: 44px;
+  line-height: 44px;
+  color: #0b5cad;
+}

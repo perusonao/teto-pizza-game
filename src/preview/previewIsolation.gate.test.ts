@@ -2,6 +2,8 @@
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
+import { DEV_BACKUP_KEY_SUFFIX, DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "../devtools/marks";
+import { PENDING_PRESETS, PRESETS } from "../devtools/presets";
 import { HV_SCENARIOS } from "./hvSeeds";
 
 /**
@@ -45,6 +47,14 @@ const PREVIEW_ONLY_STRINGS = [
   "teto-pizza-preview-save-v1", // the Preview save namespace (already compiled out before H5-5)
   "teto.dev.hint5Ladder", // the DEV opt-in key (already compiled out before H5-5)
   "discovery-progression-inspector-v1", // INSPECTOR_MARK: the DEV / Preview-only Discovery Progression Inspector (src/dev)
+  // Issue #403: the DEV / Preview-only State Editor (src/devtools): its mark, title, backup-key suffix and preset labels / ids.
+  DEV_STATE_EDITOR_MARK,
+  DEV_STATE_EDITOR_TITLE,
+  DEV_BACKUP_KEY_SUFFIX,
+  ...PRESETS.map((p) => p.labelJa),
+  ...PENDING_PRESETS.map((p) => p.labelJa),
+  "research-step12-ready",
+  "step12-abc-undiscovered",
 ];
 
 let production = "";

@@ -130,6 +130,19 @@ describe("T20: architecture -- which screens may read technique state (TQ-1D)", 
       .filter(([, source]) => /discoveredTechniqueIds|lastTechniqueDiscovery/.test(source))
       .map(([path]) => path.replace(/^(\.\.\/)+/, ""))
       .sort();
-    expect(readers).toEqual(["App.tsx", "screens/GameScreen.tsx", "state/discoveryReveal.ts", "state/gameReducer.ts", "state/persistence.ts"]);
+    // DEV State Editor (Issue #403): the DEV / Preview-only editor edits the technique ledger as one of the save's
+    // progression fields (devtools/stateModel.ts the field, presets.ts the presets, saveMerge.ts the unknown-id
+    // preservation). It is not part of the runtime: ../main.tsx reaches it only behind the DEV / Preview env check
+    // (dynamic import) and ../preview/previewIsolation.gate.test.ts proves a production bundle has none of it.
+    expect(readers).toEqual([
+      "App.tsx",
+      "devtools/presets.ts",
+      "devtools/saveMerge.ts",
+      "devtools/stateModel.ts",
+      "screens/GameScreen.tsx",
+      "state/discoveryReveal.ts",
+      "state/gameReducer.ts",
+      "state/persistence.ts",
+    ]);
   });
 });
