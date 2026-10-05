@@ -1,3 +1,4 @@
+import { FAMILY_DISPLAY } from "./familyDisplay";
 import type { AttributeFamilyId } from "./ingredientTaxonomy";
 
 /**
@@ -20,12 +21,8 @@ export interface HintClassDisplay {
   labelJa: string;
 }
 
-export const HINT_CLASS_DISPLAY: Readonly<Record<AttributeFamilyId, HintClassDisplay>> = {
-  meat: { symbol: "\u{1F969}", labelJa: "肉系" }, // 🥩
-  seafood: { symbol: "\u{1F30A}", labelJa: "魚介系" }, // 🌊 (🦐 is the shrimp ingredient glyph)
-  vegetable: { symbol: "\u{1F96C}", labelJa: "野菜・きのこ系" }, // 🥬
-  herb: { symbol: "\u{1FAB4}", labelJa: "ハーブ・香味系" }, // 🪴
-  spice: { symbol: "\u{1F9C2}", labelJa: "スパイス・薬味系" }, // 🧂
-  fruit: { symbol: "\u{1F347}", labelJa: "果物系" }, // 🍇
-  other: { symbol: "✨", labelJa: "ちょっと変わった材料" }, // ✨
-};
+/**
+ * OD-A (Ingredient Pantry / Category Tabs): the values live in ./familyDisplay.ts, the single player-facing family
+ * display authority. This is a re-publish, not a copy, so the Hint label and the shelf / card label cannot drift.
+ */
+export const HINT_CLASS_DISPLAY: Readonly<Record<AttributeFamilyId, HintClassDisplay>> = FAMILY_DISPLAY;

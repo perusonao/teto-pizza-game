@@ -122,6 +122,12 @@ test("Production Hand activation: ON (12) with Preview parity, variant/decoys in
   await shot(page, "before-rollback-pantry-no-pin-ui");
   await page.keyboard.press("Escape");
   if (browserName === "chromium") {
+    // `LC_GOLDEN_WRITE=1` re-captures the golden from the rollback build (a deliberate, reviewed rebaseline only: the
+    // metadata notes in the file are edited by hand and the diff is checked item by item).
+    if (process.env.LC_GOLDEN_WRITE === "1") {
+      const current = JSON.parse(fs.readFileSync(GOLDEN_FILE, "utf8")) as Record<string, unknown>;
+      fs.writeFileSync(GOLDEN_FILE, JSON.stringify({ ...current, snapshots: rolled }, null, 2) + "\n");
+    }
     const golden = JSON.parse(fs.readFileSync(GOLDEN_FILE, "utf8")) as { snapshots: Record<string, string | null> };
     expect(rolled, "rolled-back production DOM = the R5-e baseline golden").toEqual(golden.snapshots);
   }

@@ -1,7 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
+import { INGREDIENTS } from "../src/data/ingredients";
 
 /**
- * Ingredient Category Tabs 1.0 Phase 4 (Ingredients): the shelf chip row on the Ingredients
+ * Ingredient Category Tabs 1.0 Phase 4 (Ingredients), two-tier since Pantry / Category Tabs (OD-1 / OD-8): the shelf tabs on the Ingredients
  * (Inventory) screen through real layout at 390x844 and 360x800 (Chromium and WebKit projects),
  * plus the cross-screen contract: unlock != ownership; purchase -> ownership -> shelf chip.
  */
@@ -42,12 +43,16 @@ const openShop = async (page: Page) => {
   await page.waitForSelector(".shop-overlay__body");
 };
 const close = (page: Page) => page.getByRole("button", { name: "閉じる" }).first().click();
-const chipTexts = (page: Page) => page.locator(".shelf-chips .shelf-chip").allTextContents();
+const MAJOR = "材料の大分類";
+const FAMILY = "具材の分類";
+const row = (page: Page, label: string) => page.getByRole("group", { name: label });
+const chipTexts = (page: Page, label = MAJOR) => row(page, label).locator(".shelf-chip").allTextContents();
+const tapIn = (page: Page, label: string, name: string) => row(page, label).getByRole("button", { name, exact: true }).click();
 const cards = (page: Page) => page.locator(".inventory-card__name").allTextContents();
 
-async function facts(page: Page) {
-  return page.evaluate(() => {
-    const row = document.querySelector<HTMLElement>(".shelf-chips")!;
+async function facts(page: Page, label = MAJOR) {
+  return page.evaluate((groupLabel) => {
+    const row = document.querySelector<HTMLElement>(`.shelf-chips[aria-label="${groupLabel}"]`)!;
     const chips = [...row.querySelectorAll<HTMLElement>(".shelf-chip")].map((c) => c.getBoundingClientRect());
     const rr = row.getBoundingClientRect();
     return {
@@ -61,16 +66,17 @@ async function facts(page: Page) {
       pageOverflow: document.documentElement.scrollWidth > window.innerWidth,
       clipped: [...row.querySelectorAll<HTMLElement>(".shelf-chip")].some((c) => c.scrollWidth > c.clientWidth + 1),
       tabs: document.querySelectorAll("[role=tab], [role=tablist]").length,
-      straddles: chips.some((r) => r.left < rr.right - 4 && r.right > rr.right + 4),
+      straddles: chips.some((r) => r.left < rr.right - 1 && r.right > rr.right + 1),
     };
-  });
+  }, label);
 }
 
-test.describe("Ingredients shelf chips", () => {
-  test("A. starters only: exactly 4 chips, one row, 44px, no overflow", async ({ page }) => {
+test.describe("Ingredients shelf tabs (two tiers)", () => {
+  test("A. starters only: exactly 4 major chips, no family row, one row, 44px, no overflow", async ({ page }) => {
     await load(page, save(["egg", "ham"]));
     await openIngredients(page);
-    expect(await chipTexts(page)).toEqual(["すべて", "ソース", "チーズ", "ハーブ・香味"]);
+    expect(await chipTexts(page)).toEqual(["すべて", "ソース", "チーズ", "具材"]);
+    await expect(row(page, FAMILY)).toHaveCount(0);
     const f = await facts(page);
     expect(f.oneRow).toBe(true);
     expect(f.rowHeight).toBeGreaterThanOrEqual(44);
@@ -81,13 +87,19 @@ test.describe("Ingredients shelf chips", () => {
     expect(f.tabs).toBe(0);
   });
 
-  test("C/E. full ownership: 10 chips scroll inside the row, never wrap, never squashed by the long list", async ({ page }) => {
+  test("C/E. full ownership: the 4 major chips fit; under 具材 the 8 family chips scroll inside their own row, never wrap, never squashed by the long list", async ({ page }) => {
     await load(page, save(FINITE, FINITE));
     await openIngredients(page);
-    expect(await chipTexts(page)).toEqual([
-      "すべて", "ソース", "チーズ", "肉", "魚介", "野菜・きのこ", "果物", "ハーブ・香味", "スパイス・薬味", "その他",
+    expect(await chipTexts(page)).toEqual(["すべて", "ソース", "チーズ", "具材"]);
+    const major = await facts(page);
+    expect(major.scrollable).toBe(false);
+    expect(major.oneRow).toBe(true);
+    expect(major.minChipHeight).toBeGreaterThanOrEqual(44);
+    await tapIn(page, MAJOR, "具材");
+    expect(await chipTexts(page, FAMILY)).toEqual([
+      "すべて", "肉系", "魚介系", "野菜・きのこ系", "果物系", "ハーブ・香味系", "スパイス・薬味系", "ちょっと変わった材料",
     ]);
-    const f = await facts(page);
+    const f = await facts(page, FAMILY);
     expect(f.wrap).toBe("nowrap");
     expect(f.oneRow).toBe(true);
     // Regression pin (Shop's 2px collapse): the row keeps its height with 29 cards below.
@@ -98,34 +110,55 @@ test.describe("Ingredients shelf chips", () => {
     expect(f.straddles).toBe(true);
     expect(f.pageOverflow).toBe(false);
     expect(f.clipped).toBe(false);
+    expect((await facts(page, MAJOR)).rowHeight).toBeGreaterThanOrEqual(44);
   });
 
-  test("F. scroll the row, pick a late shelf: correct filter, chip stays inside the row, body does not jump", async ({ page }) => {
+  test("F. scroll the family row, pick a late family: correct filter, chip stays inside the row, body does not jump", async ({ page }) => {
     await load(page, save(FINITE, FINITE));
     await openIngredients(page);
+    await tapIn(page, MAJOR, "具材");
     const body = page.locator(".dex-overlay__body");
     const top = await body.evaluate((el) => el.scrollTop);
-    await page.locator(".shelf-chips").evaluate((el) => { el.scrollLeft = el.scrollWidth; });
-    await page.getByRole("button", { name: "スパイス・薬味" }).click();
-    await expect(page.getByRole("button", { name: "スパイス・薬味" })).toHaveAttribute("aria-pressed", "true");
+    await row(page, FAMILY).evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+    await tapIn(page, FAMILY, "スパイス・薬味系");
+    await expect(row(page, FAMILY).getByRole("button", { name: "スパイス・薬味系" })).toHaveAttribute("aria-pressed", "true");
     expect(await cards(page)).toEqual(["ケッパー"]);
-    const box = await page.getByRole("button", { name: "スパイス・薬味" }).boundingBox();
+    const box = await row(page, FAMILY).getByRole("button", { name: "スパイス・薬味系" }).boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
     expect(await body.evaluate((el) => el.scrollTop)).toBe(top);
-    expect((await facts(page)).pageOverflow).toBe(false);
+    expect((await facts(page, FAMILY)).pageOverflow).toBe(false);
   });
 
-  test("B/C. Shop purchase -> ownership -> Ingredients: an unbought NEW material adds no chip; buying it does", async ({ page }) => {
+  test("G. the family tag is on every 具材 card (also under a family filter) and on no sauce / cheese card", async ({ page }) => {
+    await load(page, save(FINITE, FINITE));
+    await openIngredients(page);
+    const tags = await page.locator(".inventory-card").evaluateAll((els) =>
+      els.map((e) => [e.querySelector(".inventory-card__name")!.textContent, e.querySelector(".family-tag")?.textContent ?? null]),
+    );
+    for (const [name, tag] of tags) {
+      const sauceOrCheese = INGREDIENTS.find((i) => i.nameJa === name)!.category !== "topping";
+      expect(tag === null, String(name)).toBe(sauceOrCheese);
+    }
+    await tapIn(page, MAJOR, "具材");
+    await tapIn(page, FAMILY, "肉系");
+    const meat = await page.locator(".inventory-card .family-tag").allTextContents();
+    expect(meat.length).toBeGreaterThan(0);
+    for (const t of meat) expect(t).toContain("肉系");
+  });
+
+  test("B/C. Shop purchase -> ownership -> Ingredients: an unbought NEW material adds no family chip; buying it does", async ({ page }) => {
     await load(page, save(["mushroom", "ham"]));
     // B: mushroom is a Shop NEW row (entitled, unbought) -> Ingredients must not show its shelf.
     await openIngredients(page);
-    expect(await chipTexts(page)).toEqual(["すべて", "ソース", "チーズ", "ハーブ・香味"]);
+    await tapIn(page, MAJOR, "具材");
+    expect(await chipTexts(page, FAMILY)).toEqual(["すべて", "ハーブ・香味系"]);
     expect(await page.locator("body").innerText()).not.toContain("野菜・きのこ");
     await close(page);
     // Buy it in the Shop.
     await openShop(page);
-    await page.getByRole("button", { name: "野菜・きのこ" }).click();
+    await tapIn(page, MAJOR, "具材");
+    await tapIn(page, FAMILY, "野菜・きのこ系");
     await page.getByRole("button", { name: "仕入れる" }).click();
     const afterBuy = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), SAVE_KEY);
     expect(afterBuy.ownedIngredientIds).toContain("mushroom");
@@ -133,12 +166,13 @@ test.describe("Ingredients shelf chips", () => {
     await close(page);
     // C: Ingredients now shows the material and, for the first time, its shelf chip.
     await openIngredients(page);
-    expect(await chipTexts(page)).toEqual(["すべて", "ソース", "チーズ", "野菜・きのこ", "ハーブ・香味"]);
     expect(await cards(page)).toContain("マッシュルーム");
-    await page.getByRole("button", { name: "野菜・きのこ" }).click();
+    await tapIn(page, MAJOR, "具材");
+    expect(await chipTexts(page, FAMILY)).toEqual(["すべて", "野菜・きのこ系", "ハーブ・香味系"]);
+    await tapIn(page, FAMILY, "野菜・きのこ系");
     expect(await cards(page)).toEqual(["マッシュルーム"]);
-    // The unbought ham is still not owned and adds no 肉 chip.
-    expect(await chipTexts(page)).not.toContain("肉");
+    // The unbought ham is still not owned and adds no 肉系 chip.
+    expect(await chipTexts(page, FAMILY)).not.toContain("肉系");
     // G: filtering and closing/reopening leave the save untouched.
     const beforeClose = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), SAVE_KEY);
     await close(page);
@@ -146,6 +180,6 @@ test.describe("Ingredients shelf chips", () => {
     const reopened = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), SAVE_KEY);
     expect(reopened).toEqual(beforeClose);
     expect(reopened).toEqual(afterBuy);
-    await expect(page.getByRole("button", { name: "すべて" })).toHaveAttribute("aria-pressed", "true");
+    await expect(row(page, MAJOR).getByRole("button", { name: "すべて" })).toHaveAttribute("aria-pressed", "true");
   });
 });

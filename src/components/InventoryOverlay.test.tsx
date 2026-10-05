@@ -82,7 +82,7 @@ describe("InventoryOverlay (read-only stock view)", () => {
     expect(within(card).getByText("×0")).toBeInTheDocument();
   });
 
-  it("test 6: starters only -> chips are すべて / ソース / チーズ / ハーブ・香味 (buttons, no tabs), and filter by the active one", () => {
+  it("test 6: starters only -> major tabs are すべて / ソース / チーズ / 具材 (buttons, no tabs), and filter by the active one", () => {
     render(
       <InventoryOverlay
         ownedIngredientIds={[...STARTER_INGREDIENT_IDS]}
@@ -90,12 +90,12 @@ describe("InventoryOverlay (read-only stock view)", () => {
         onClose={() => {}}
       />,
     );
-    const chips = screen.getByRole("group", { name: "材料の分類" });
+    const chips = screen.getByRole("group", { name: "材料の大分類" });
     expect(within(chips).getAllByRole("button").map((b) => b.textContent)).toEqual([
       "すべて",
       "ソース",
       "チーズ",
-      "ハーブ・香味",
+      "具材",
     ]);
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
@@ -177,11 +177,12 @@ describe("InventoryOverlay (read-only stock view)", () => {
       />,
     );
     const card = screen.getByText("モッツァレラ").closest(".inventory-card") as HTMLElement;
-    expect(within(card).getByText("チーズ")).toBeInTheDocument();
+    // OD-C: a cheese card carries no category line and no family tag (the 大分類 tab says it).
+    expect(card.querySelector(".inventory-card__category, .family-tag")).toBeNull();
     expect(card.querySelector(".pizza-cheese")).toBeInTheDocument();
   });
 
-  it("test 12: displays each card's category label", () => {
+  it("test 12: a 具材 card shows its family tag; sauce / cheese cards show no category line", () => {
     render(
       <InventoryOverlay
         ownedIngredientIds={[...STARTER_INGREDIENT_IDS]}
@@ -190,9 +191,9 @@ describe("InventoryOverlay (read-only stock view)", () => {
       />,
     );
     const sauceCard = screen.getByText("トマトソース").closest(".inventory-card") as HTMLElement;
-    expect(within(sauceCard).getByText("ソース")).toBeInTheDocument();
+    expect(sauceCard.querySelector(".inventory-card__category, .family-tag")).toBeNull();
     const toppingCard = screen.getByText("バジル").closest(".inventory-card") as HTMLElement;
-    expect(within(toppingCard).getByText("トッピング")).toBeInTheDocument();
+    expect(within(toppingCard).getByText("ハーブ・香味系")).toBeInTheDocument();
   });
 
   it("test 13: shows a live owned/total summary count", () => {

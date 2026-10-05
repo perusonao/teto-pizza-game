@@ -44,7 +44,7 @@ describe("search field visibility (owned rows of the active category > 6; never 
     expect(names()).toEqual([]);
     expect(field()).not.toBeNull();
     expect(field()).toHaveValue("zzzz");
-    fireEvent.click(screen.getByRole("button", { name: "肉" }));
+    fireEvent.click(screen.getByRole("button", { name: "肉系" }));
     expect(field()).not.toBeNull();
   });
 
@@ -118,7 +118,7 @@ describe("search matching (owned only, AND shelf, approved aliases)", () => {
     type("ハ");
     expect(chips()).toEqual(before);
     const withText = names();
-    fireEvent.click(screen.getByRole("button", { name: "肉" }));
+    fireEvent.click(screen.getByRole("button", { name: "肉系" }));
     expect(names().every((n) => withText.includes(n!))).toBe(true);
     expect(names()).toEqual(["ハム"]);
     expect(chips()).toEqual(before);

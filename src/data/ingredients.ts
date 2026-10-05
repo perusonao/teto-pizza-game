@@ -615,10 +615,12 @@ export const INGREDIENTS: Ingredient[] = [
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];
 
+// Player-facing role labels. `topping` reads 「具材」 (OD-4; the internal id is unchanged). Natural-language uses of
+// 「トッピング」 elsewhere (Hint / Research copy, dialogue) are separate strings and are deliberately not touched.
 export const CATEGORY_LABEL: Record<IngredientCategory, string> = {
   sauce: "ソース",
   cheese: "チーズ",
-  topping: "トッピング",
+  topping: "具材",
 };
 
 // Progression 2.0 I4b-4: `EARLY_GAME_HINT_THRESHOLD` (the Shop's old "レシピを解放すると…" hint

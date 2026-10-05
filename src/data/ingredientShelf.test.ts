@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 import catalog62 from "../../data/recipes/ingredient_master_catalog.json";
 import shelfSource from "./ingredientShelf.ts?raw";
+import { FAMILY_DISPLAY } from "./familyDisplay";
 import { HINT_CLASS_DISPLAY } from "./hintClassDisplay";
 import {
   auditShelfAuthority,
+  familiesPresent,
   filterByShelf,
+  filterBySelection,
+  majorLabel,
+  majorsPresent,
+  resolveSelection,
+  SELECTION_ALL,
+  selectFamily,
+  selectMajor,
+  shelvesForSelection,
   INGREDIENT_SHELF_ORDER,
   INGREDIENT_SHELVES,
   ingredientShelf,
@@ -109,22 +119,21 @@ describe("gate 4: topping family parity (Hint 5.0 / DH4-1)", () => {
     expect([...familyShelves].sort()).toEqual(Object.keys(HINT_CLASS_DISPLAY).sort());
   });
 
-  it("labels stay context-separate: shelf 「その他」 vs Hint 「ちょっと変わった材料」", () => {
-    expect(ingredientShelfLabel("other")).toBe("その他");
-    expect(HINT_CLASS_DISPLAY.other.labelJa).toBe("ちょっと変わった材料");
-  });
-
-  it("drift alarm: a Hint label for every other family still reads as its shelf label + 系", () => {
-    for (const s of INGREDIENT_SHELVES.filter((x) => x.kind === "family" && x.id !== "other")) {
-      const hint = HINT_CLASS_DISPLAY[s.id as keyof typeof HINT_CLASS_DISPLAY].labelJa;
-      expect(hint, s.id).toBe(`${s.labelJa}系`);
+  it("OD-2 / OD-A: a family shelf label is the familyDisplay label, and Hint 5.0 re-publishes the very same record", () => {
+    for (const f of INGREDIENT_SHELVES.filter((x) => x.kind === "family")) {
+      const id = f.id as keyof typeof HINT_CLASS_DISPLAY;
+      expect(f.labelJa, id).toBe(FAMILY_DISPLAY[id].labelJa);
+      expect(HINT_CLASS_DISPLAY[id], id).toBe(FAMILY_DISPLAY[id]);
     }
+    expect(ingredientShelfLabel("other")).toBe("ちょっと変わった材料");
+    expect(HINT_CLASS_DISPLAY).toBe(FAMILY_DISPLAY);
   });
 
   it("ingredientShelf.ts never imports the Hint display module (labels are not moved or copied)", () => {
     const src = shelfSource;
     expect(src).not.toMatch(/from\s+["'][^"']*hintClassDisplay["']/);
-    expect(src).not.toContain("ちょっと変わった材料\"");
+    // The label text itself lives only in ./familyDisplay.ts.
+    expect(src).not.toContain("ちょっと変わった材料");
   });
 });
 
@@ -170,13 +179,13 @@ describe("gate 9: deterministic order", () => {
     expect(INGREDIENT_SHELVES.map((s) => s.labelJa)).toEqual([
       "ソース",
       "チーズ",
-      "肉",
-      "魚介",
-      "野菜・きのこ",
-      "果物",
-      "ハーブ・香味",
-      "スパイス・薬味",
-      "その他",
+      "肉系",
+      "魚介系",
+      "野菜・きのこ系",
+      "果物系",
+      "ハーブ・香味系",
+      "スパイス・薬味系",
+      "ちょっと変わった材料",
     ]);
     expect(ingredientShelfLabel("all")).toBe("すべて");
     expect(ingredientShelfLabel("sauce")).toBe(CATEGORY_LABEL.sauce);
@@ -211,7 +220,7 @@ describe("gate 9: deterministic order", () => {
     expect([...INGREDIENT_SHELF_ORDER]).toEqual(order);
     expect(INGREDIENT_SHELVES.map((s) => s.id)).toEqual(order);
     expect(ingredientShelfLabel("sauce")).toBe("ソース");
-    expect(ingredientShelfLabel("meat")).toBe("肉");
+    expect(ingredientShelfLabel("meat")).toBe("肉系");
     expect(ingredientShelf("olive-oil")).toBe("sauce");
     for (const s of INGREDIENT_SHELVES) {
       expect(isIngredientShelfId(s.id)).toBe(true);
@@ -280,9 +289,76 @@ describe("62-catalog expansion detection (no guessing)", () => {
 });
 
 describe("purity boundary", () => {
-  it("imports only ./ingredients and ./ingredientTaxonomy (no state, save, progression, scoring, React, hint display)", () => {
+  it("imports only ./ingredients, ./ingredientTaxonomy and the leaf ./familyDisplay (no state, save, progression, scoring, React, hint display)", () => {
     const src = shelfSource;
     const imports = [...src.matchAll(/from\s+["']([^"']+)["']/g)].map((m) => m[1]);
-    expect(imports.sort()).toEqual(["./ingredientTaxonomy", "./ingredients"]);
+    expect(imports.sort()).toEqual(["./familyDisplay", "./ingredientTaxonomy", "./ingredients"]);
+  });
+});
+
+describe("two-tier selection (OD-1 / OD-5 / OD-D)", () => {
+  const all = INGREDIENTS.map((i) => i.id);
+  const rows = (ids: readonly string[]) => ids.map((id) => ({ id }));
+
+  it("major labels: すべて / ソース / チーズ / 具材 (the internal id stays topping)", () => {
+    expect(majorLabel("all")).toBe("すべて");
+    expect(majorLabel("sauce")).toBe("ソース");
+    expect(majorLabel("cheese")).toBe("チーズ");
+    expect(majorLabel("topping")).toBe("具材");
+  });
+
+  it("majorsPresent / familiesPresent derive from the listed rows only, in authority order", () => {
+    expect(majorsPresent(rows(["basil"]))).toEqual(["topping"]);
+    expect(majorsPresent(rows(["mozzarella", "olive-oil", "ham"]))).toEqual(["sauce", "cheese", "topping"]);
+    expect(familiesPresent(rows(["egg", "ham", "basil", "mushroom"]))).toEqual(["meat", "vegetable", "herb", "other"]);
+    expect(familiesPresent(rows(["olive-oil", "mozzarella", "ghost"]))).toEqual([]);
+  });
+
+  it("shelvesForSelection: すべて = no restriction; 具材 = the 7 family shelves (OR); 具材 + family = that one; sauce / cheese = themselves", () => {
+    expect(shelvesForSelection(SELECTION_ALL)).toBeNull();
+    expect(shelvesForSelection({ major: "sauce", family: "all" })).toEqual(["sauce"]);
+    expect(shelvesForSelection({ major: "cheese", family: "all" })).toEqual(["cheese"]);
+    expect(shelvesForSelection({ major: "topping", family: "all" })).toEqual(ATTRIBUTE_FAMILIES.map((f) => f.id));
+    expect(shelvesForSelection({ major: "topping", family: "herb" })).toEqual(["herb"]);
+  });
+
+  it("filterBySelection: every production ingredient is in exactly one major; 具材 = every topping; input order kept; new array", () => {
+    const items = rows(all);
+    const bySel = (major: "sauce" | "cheese" | "topping") => filterBySelection(items, { major, family: "all" }).map((i) => i.id);
+    const ids = INGREDIENTS.map((i) => [i.id, i.category] as const);
+    for (const major of ["sauce", "cheese", "topping"] as const) {
+      expect(bySel(major)).toEqual(ids.filter(([, c]) => c === major).map(([id]) => id));
+    }
+    expect(filterBySelection(items, SELECTION_ALL)).toEqual(items);
+    expect(filterBySelection(items, SELECTION_ALL)).not.toBe(items);
+    expect(filterBySelection(items, { major: "topping", family: "meat" }).map((i) => i.id)).toEqual(filterByShelf(items, "meat").map((i) => i.id));
+  });
+
+  it("fail-closed: an unclassified topping is only under すべて (not 具材, not any family); the audit gate is what reports it", () => {
+    const unclassified = rows(["ghost-topping"]);
+    expect(filterBySelection(unclassified, SELECTION_ALL)).toHaveLength(1);
+    expect(filterBySelection(unclassified, { major: "topping", family: "all" })).toHaveLength(0);
+    expect(auditShelfAuthority({ ingredients: [{ id: "x", category: "topping" }], familyRowIds: [], familyOf: () => null }).unclassified).toEqual(["x"]);
+  });
+
+  it("selectMajor: another major resets the family; the active major is a no-op (same object)", () => {
+    const t = { major: "topping", family: "meat" } as const;
+    expect(selectMajor(t, "topping")).toBe(t);
+    expect(selectMajor(t, "sauce")).toEqual({ major: "sauce", family: "all" });
+    expect(selectMajor(selectMajor(t, "cheese"), "topping")).toEqual({ major: "topping", family: "all" });
+    expect(selectMajor(SELECTION_ALL, "topping")).toEqual({ major: "topping", family: "all" });
+  });
+
+  it("selectFamily only applies under 具材", () => {
+    expect(selectFamily({ major: "topping", family: "all" }, "herb")).toEqual({ major: "topping", family: "herb" });
+    expect(selectFamily(SELECTION_ALL, "herb")).toBe(SELECTION_ALL);
+    expect(selectFamily({ major: "sauce", family: "all" }, "herb")).toEqual({ major: "sauce", family: "all" });
+  });
+
+  it("resolveSelection: a major / family no row holds reads as すべて; a family never outlives its major", () => {
+    expect(resolveSelection({ major: "cheese", family: "all" }, rows(["basil"]))).toEqual(SELECTION_ALL);
+    expect(resolveSelection({ major: "topping", family: "meat" }, rows(["basil"]))).toEqual({ major: "topping", family: "all" });
+    expect(resolveSelection({ major: "topping", family: "herb" }, rows(["basil", "ham"]))).toEqual({ major: "topping", family: "herb" });
+    expect(resolveSelection({ major: "sauce", family: "meat" }, rows(["olive-oil"]))).toEqual({ major: "sauce", family: "all" });
   });
 });

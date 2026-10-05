@@ -75,11 +75,11 @@ async function layout(page: Page) {
 /**
  * Large Catalog UX LC-R4: shelf filtering inside the active-category pantry, in real layout at the four Owner
  * viewports (390x844, 360x800, 390x664, 360x640). Contract (PR #304 stable-height + Owner OD-R4-1 / OD-R4-2):
- *  - ShelfChips sit in a FIXED slot between the subtitle and the list; the sheet's outer bounds, header and 閉じる
+ *  - the family chips sit in a FIXED slot between the subtitle and the list; the sheet's outer bounds, header and 閉じる
  *    never move with the filter, the chip row never wraps or grows, only .pantry-sheet__list scrolls;
  *  - the chip row scrolls horizontally on its own (never the page); chips are >= 44px; the list keeps room for rows;
  *  - filtering resets the list scrollTop to 0; reopening starts on 「すべて」;
- *  - sauce / cheese steps (one shelf) show no chip row; the stage / dock geometry never changes;
+ *  - sauce / cheese steps (one shelf) show no chip row and (OD-B) no subtitle; the stage / dock geometry never changes;
  *  - the Builder selection is untouched by pantry filtering.
  */
 
@@ -155,7 +155,7 @@ for (const width of [390, 360] as const) {
 
       // ---- chips: all 24 toppings own 7 shelves => すべて + 7
       expect(all.chipBoxes.map((c) => c.label), `${label}: すべて + represented shelves in authority order`).toEqual([
-        "すべて", "肉", "魚介", "野菜・きのこ", "果物", "ハーブ・香味", "スパイス・薬味", "その他",
+        "すべて", "肉系", "魚介系", "野菜・きのこ系", "果物系", "ハーブ・香味系", "スパイス・薬味系", "ちょっと変わった材料",
       ]);
       expect(all.chipBoxes[0].pressed).toBe("true");
       expect(all.tiles, `${label}: すべて lists every owned topping`).toHaveLength(27);
@@ -179,8 +179,10 @@ for (const width of [390, 360] as const) {
       expect(sauce.sheet!.h, `${label}: same height as the chip-less sauce sheet`).toBeCloseTo(all.sheet!.h, 0);
       const cost = sauce.list!.h - all.list!.h;
       // LC-R5-b: the topping step (22 owned) now also carries the search row (44px field + 8px gap) above the chips.
+      // Pantry / Category Tabs OD-B: the sauce step has no subtitle any more, so its (chip-less) list is one subtitle line
+      // (+ the 8px gap) taller than before; the topping step keeps its 「具材」 subtitle. Cost = search + chips + that line.
       expect(cost, `${label}: list viewport loses only the search + chip slots (${cost.toFixed(1)}px)`).toBeGreaterThan(46 + 44);
-      expect(cost).toBeLessThan(60 + 60);
+      expect(cost).toBeLessThan(60 + 60 + 30);
       expect(all.list!.h, `${label}: list still shows about three tile rows`).toBeGreaterThanOrEqual(250);
       expect(all.listScrollable, `${label}: 24 toppings scroll inside the list`).toBe(true);
       expect(all.close!.h).toBeGreaterThanOrEqual(43.5);
@@ -203,7 +205,7 @@ for (const width of [390, 360] as const) {
       await page.locator(".pantry-sheet__list").focus();
       await page.keyboard.press("PageDown");
       await expect.poll(async () => (await shelfFacts(page)).listScrollTop, { timeout: 4000 }).toBeGreaterThan(0);
-      const filters: Record<string, number> = { 野菜・きのこ: 10, 肉: 5, その他: 1, 魚介: 4, すべて: 27 };
+      const filters: Record<string, number> = { "野菜・きのこ系": 10, "肉系": 5, "ちょっと変わった材料": 1, "魚介系": 4, すべて: 27 };
       for (const [name, count] of Object.entries(filters)) {
         await page.locator(".pantry-sheet__list").focus();
         await page.keyboard.press("PageDown");
@@ -225,11 +227,11 @@ for (const width of [390, 360] as const) {
       }
 
       // ---- privacy in the DOM (real page): after filtering, no unowned / hidden hint of another shelf's names
-      await page.getByRole("button", { name: "その他", exact: true }).click();
+      await page.getByRole("button", { name: "ちょっと変わった材料", exact: true }).click();
       expect(await page.locator(".pantry-sheet").innerText()).not.toMatch(/\?\?\?|NEW|LOCKED/);
 
       // ---- Escape from a focused chip closes; focus returns to the entry; the Builder selection survived filtering
-      await page.getByRole("button", { name: "肉", exact: true }).focus();
+      await page.getByRole("button", { name: "肉系", exact: true }).focus();
       await page.keyboard.press("Escape");
       await expect(page.getByRole("dialog")).toHaveCount(0);
       expect(await page.evaluate(() => document.activeElement?.classList.contains("pantry-entry")), `${label}: focus returns to the entry`).toBe(true);

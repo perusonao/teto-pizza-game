@@ -26,8 +26,8 @@ describe("LC-R4 unclassified (shelf === null) rows", () => {
   it("are listed under すべて, get no chip, and never appear under a specific shelf", () => {
     render(<IngredientPantry category="topping" ownedIngredientIds={owned} inventory={inventory} onClose={() => {}} />);
     expect(tileNames()).toContain("たまねぎ");
-    expect(chips()).toEqual(["すべて", "肉", "野菜・きのこ", "ハーブ・香味"]);
-    for (const label of ["肉", "野菜・きのこ", "ハーブ・香味"]) {
+    expect(chips()).toEqual(["すべて", "肉系", "野菜・きのこ系", "ハーブ・香味系"]);
+    for (const label of ["肉系", "野菜・きのこ系", "ハーブ・香味系"]) {
       fireEvent.click(screen.getByRole("button", { name: label }));
       expect(tileNames(), label).not.toContain("たまねぎ");
     }
@@ -53,10 +53,10 @@ describe("LC-R4 a stored shelf that is no longer represented reads as すべて"
     const { rerender } = render(
       <IngredientPantry category="topping" ownedIngredientIds={["basil", "sausage", "pepperoni"]} inventory={inventory} onClose={() => {}} />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "肉" }));
+    fireEvent.click(screen.getByRole("button", { name: "肉系" }));
     expect(tileNames()).toHaveLength(2);
     rerender(<IngredientPantry category="topping" ownedIngredientIds={["basil", "mushroom"]} inventory={inventory} onClose={() => {}} />);
-    expect(chips()).toEqual(["すべて", "野菜・きのこ", "ハーブ・香味"]);
+    expect(chips()).toEqual(["すべて", "野菜・きのこ系", "ハーブ・香味系"]);
     expect(screen.getByRole("button", { name: "すべて" })).toHaveAttribute("aria-pressed", "true");
     expect(tileNames()).toHaveLength(2);
   });

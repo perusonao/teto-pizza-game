@@ -200,7 +200,7 @@ for (const width of [390, 360] as const) {
         ["one row", async () => input.fill("バジル")],
         ["alias 玉ねぎ", async () => input.fill("玉ねぎ")],
         ["zero rows", async () => input.fill("zzzz")],
-        ["shelf 肉 with no text", async () => { await input.fill(""); await page.getByRole("button", { name: "肉" }).click(); }],
+        ["shelf 肉系 with no text", async () => { await input.fill(""); await page.getByRole("button", { name: "肉系", exact: true }).click(); }],
         ["shelf すべて", async () => page.getByRole("button", { name: "すべて" }).click()],
       ] as const) {
         await act();
@@ -260,7 +260,7 @@ for (const width of [390, 360] as const) {
       // ordinary state changes while fitted do not move the fitted sheet
       await input.fill("ハ");
       expect(same((await searchFacts(page)).sheet, kb.sheet), `${label}: text change keeps the fitted bounds`).toBe(true);
-      await page.getByRole("button", { name: "肉" }).click();
+      await page.getByRole("button", { name: "肉系", exact: true }).click();
       expect(same((await searchFacts(page)).sheet, kb.sheet), `${label}: shelf change keeps the fitted bounds`).toBe(true);
       await input.fill("");
       await page.getByRole("button", { name: "すべて" }).click();

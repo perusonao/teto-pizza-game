@@ -88,7 +88,7 @@ describe("catalog boundary", () => {
   });
 
   it("LC-R1: no catalog module reaches the taxonomy, Hint 5 display / ladder, or the shelf filter helpers", () => {
-    const forbidden = [/ingredientTaxonomy/, /hintClassDisplay/, /hint5/i, /discovery\/(?!$)/];
+    const forbidden = [/ingredientTaxonomy/, /hintClassDisplay/, /familyDisplay/, /hint5/i, /discovery\/(?!$)/];
     const violations: string[] = [];
     for (const [file, text] of Object.entries(CATALOG_SOURCES)) {
       for (const { spec } of imports(text)) if (forbidden.some((re) => re.test(spec))) violations.push(`${file} -> ${spec}`);

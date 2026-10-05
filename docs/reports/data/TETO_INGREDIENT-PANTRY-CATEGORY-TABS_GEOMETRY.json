@@ -1,0 +1,1717 @@
+{
+  "generatedBy": "tools/ingredient-category-tabs/pantry-family-geometry.measure.spec.ts",
+  "note": "before = main c62db17 (one chip row, no family tags, \u300c\u30c8\u30c3\u30d4\u30f3\u30b0\u300d subtitle); after = the Ingredient Pantry / Category Tabs branch. Chromium, simulated visual viewport (Chromium has no soft keyboard), K = shrink in px. Numbers are px from real layout.",
+  "keyboardsPx": [
+    300,
+    338,
+    380
+  ],
+  "before": {
+    "390x844": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 655,
+          "b": 828
+        },
+        "cardH": 92.1875,
+        "fullRows": 6,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 109,
+          "h": 723,
+          "b": 832
+        },
+        "tileRows": 1,
+        "firstRowH": 71.1875,
+        "maxRowH": 71.1875,
+        "minRowH": 71.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 617,
+          "b": 832
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 7,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 75.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 536,
+          "b": 544
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 329,
+          "b": 532
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 4,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 498,
+          "b": 506
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 291,
+          "b": 494
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 3,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 456,
+          "b": 464
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 249,
+          "b": 452
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 3,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    },
+    "360x800": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 611,
+          "b": 784
+        },
+        "cardH": 99.375,
+        "fullRows": 6,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 109,
+          "h": 679,
+          "b": 788
+        },
+        "tileRows": 1,
+        "firstRowH": 84.375,
+        "maxRowH": 84.375,
+        "minRowH": 84.375,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 573,
+          "b": 788
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 6,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 75.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 492,
+          "b": 500
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 285,
+          "b": 488
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 3,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 454,
+          "b": 462
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 247,
+          "b": 450
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 3,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 412,
+          "b": 420
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 205,
+          "b": 408
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 2,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    },
+    "390x664": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 475,
+          "b": 648
+        },
+        "cardH": 92.1875,
+        "fullRows": 5,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 109,
+          "h": 543,
+          "b": 652
+        },
+        "tileRows": 1,
+        "firstRowH": 71.1875,
+        "maxRowH": 71.1875,
+        "minRowH": 71.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 437,
+          "b": 652
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 5,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 75.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 356,
+          "b": 364
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 149,
+          "b": 352
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 318,
+          "b": 326
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 111,
+          "b": 314
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 276,
+          "b": 284
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 69,
+          "b": 272
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 0,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    },
+    "360x640": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 451,
+          "b": 624
+        },
+        "cardH": 99.375,
+        "fullRows": 4,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 109,
+          "h": 519,
+          "b": 628
+        },
+        "tileRows": 1,
+        "firstRowH": 84.375,
+        "maxRowH": 84.375,
+        "minRowH": 84.375,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 413,
+          "b": 628
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 5,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 75.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 332,
+          "b": 340
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 125,
+          "b": 328
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 294,
+          "b": 302
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 87,
+          "b": 290
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 252,
+          "b": 260
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 45,
+          "b": 248
+        },
+        "tileRows": 9,
+        "firstRowH": 75.1875,
+        "maxRowH": 76.453125,
+        "minRowH": 75.1875,
+        "fullRows": 0,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    }
+  },
+  "after": {
+    "390x844": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 655,
+          "b": 828
+        },
+        "cardH": 94.78125,
+        "fullRows": 7,
+        "docOverflowX": false
+      },
+      "inventoryTopping": {
+        "panel": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 601,
+          "b": 828
+        },
+        "cardH": 94.78125,
+        "fullRows": 6,
+        "docOverflowX": false
+      },
+      "inventoryToppingMeat": {
+        "panel": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 601,
+          "b": 828
+        },
+        "cardH": 83.984375,
+        "fullRows": 2,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "subtitle": null,
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 84,
+          "h": 748,
+          "b": 832
+        },
+        "tileRows": 1,
+        "firstRowH": 71.1875,
+        "maxRowH": 71.1875,
+        "minRowH": 71.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 824,
+          "b": 844
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 617,
+          "b": 832
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 6,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 93.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 536,
+          "b": 544
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 329,
+          "b": 532
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 3,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 498,
+          "b": 506
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 291,
+          "b": 494
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 3,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 456,
+          "b": 464
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 249,
+          "b": 452
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 2,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    },
+    "360x800": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 611,
+          "b": 784
+        },
+        "cardH": 94.78125,
+        "fullRows": 6,
+        "docOverflowX": false
+      },
+      "inventoryTopping": {
+        "panel": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 557,
+          "b": 784
+        },
+        "cardH": 94.78125,
+        "fullRows": 6,
+        "docOverflowX": false
+      },
+      "inventoryToppingMeat": {
+        "panel": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 557,
+          "b": 784
+        },
+        "cardH": 83.984375,
+        "fullRows": 2,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "subtitle": null,
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 84,
+          "h": 704,
+          "b": 788
+        },
+        "tileRows": 1,
+        "firstRowH": 84.375,
+        "maxRowH": 84.375,
+        "minRowH": 84.375,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 780,
+          "b": 800
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 573,
+          "b": 788
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 6,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 93.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 492,
+          "b": 500
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 285,
+          "b": 488
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 3,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 454,
+          "b": 462
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 247,
+          "b": 450
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 2,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 412,
+          "b": 420
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 205,
+          "b": 408
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 2,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    },
+    "390x664": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 475,
+          "b": 648
+        },
+        "cardH": 94.78125,
+        "fullRows": 5,
+        "docOverflowX": false
+      },
+      "inventoryTopping": {
+        "panel": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 421,
+          "b": 648
+        },
+        "cardH": 94.78125,
+        "fullRows": 4,
+        "docOverflowX": false
+      },
+      "inventoryToppingMeat": {
+        "panel": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 421,
+          "b": 648
+        },
+        "cardH": 83.984375,
+        "fullRows": 2,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "subtitle": null,
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 84,
+          "h": 568,
+          "b": 652
+        },
+        "tileRows": 1,
+        "firstRowH": 71.1875,
+        "maxRowH": 71.1875,
+        "minRowH": 71.1875,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 644,
+          "b": 664
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 437,
+          "b": 652
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 4,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 93.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 356,
+          "b": 364
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 149,
+          "b": 352
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 1,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 318,
+          "b": 326
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 111,
+          "b": 314
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 1,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 276,
+          "b": 284
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 69,
+          "b": 272
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 0,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    },
+    "360x640": {
+      "inventoryAll": {
+        "panel": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "tabs": {
+          "y": 115,
+          "h": 46,
+          "b": 161
+        },
+        "list": {
+          "y": 173,
+          "h": 451,
+          "b": 624
+        },
+        "cardH": 94.78125,
+        "fullRows": 4,
+        "docOverflowX": false
+      },
+      "inventoryTopping": {
+        "panel": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 397,
+          "b": 624
+        },
+        "cardH": 94.78125,
+        "fullRows": 4,
+        "docOverflowX": false
+      },
+      "inventoryToppingMeat": {
+        "panel": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "tabs": {
+          "y": 115,
+          "h": 100,
+          "b": 215
+        },
+        "list": {
+          "y": 227,
+          "h": 397,
+          "b": 624
+        },
+        "cardH": 83.984375,
+        "fullRows": 2,
+        "docOverflowX": false
+      },
+      "pantrySauce": {
+        "sheet": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "subtitle": null,
+        "search": null,
+        "chips": null,
+        "list": {
+          "y": 84,
+          "h": 544,
+          "b": 628
+        },
+        "tileRows": 1,
+        "firstRowH": 84.375,
+        "maxRowH": 84.375,
+        "minRowH": 84.375,
+        "fullRows": 1,
+        "familyTagH": null,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryTopping": {
+        "sheet": {
+          "y": 20,
+          "h": 620,
+          "b": 640
+        },
+        "subtitle": {
+          "y": 84,
+          "h": 17,
+          "b": 101
+        },
+        "search": {
+          "y": 109,
+          "h": 44,
+          "b": 153
+        },
+        "chips": {
+          "y": 161,
+          "h": 46,
+          "b": 207
+        },
+        "list": {
+          "y": 215,
+          "h": 413,
+          "b": 628
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 4,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": false
+      },
+      "pantryToppingOtherTileH": 93.2,
+      "pantryToppingKeyboard300": {
+        "sheet": {
+          "y": 8,
+          "h": 332,
+          "b": 340
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 125,
+          "b": 328
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 1,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard338": {
+        "sheet": {
+          "y": 8,
+          "h": 294,
+          "b": 302
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 87,
+          "b": 290
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 1,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      },
+      "pantryToppingKeyboard380": {
+        "sheet": {
+          "y": 8,
+          "h": 252,
+          "b": 260
+        },
+        "subtitle": {
+          "y": 72,
+          "h": 17,
+          "b": 89
+        },
+        "search": {
+          "y": 97,
+          "h": 44,
+          "b": 141
+        },
+        "chips": {
+          "y": 149,
+          "h": 46,
+          "b": 195
+        },
+        "list": {
+          "y": 203,
+          "h": 45,
+          "b": 248
+        },
+        "tileRows": 9,
+        "firstRowH": 84.1875,
+        "maxRowH": 93.1875,
+        "minRowH": 84.1875,
+        "fullRows": 0,
+        "familyTagH": 18,
+        "tilesOverflowX": false,
+        "docOverflowX": false,
+        "fit": true
+      }
+    }
+  }
+}
