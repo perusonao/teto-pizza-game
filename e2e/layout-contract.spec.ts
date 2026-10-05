@@ -568,11 +568,20 @@ class StageStability {
     await this.lc.checkpoint({ label: `LC-S ${this.mode} ${step}`, meta: { mode: this.mode, step } }, ids, slots, this.mount, {
       beforeMeasure: async (profile) => {
         const rects = await stageRects(this.page);
-        const dg = await this.page.evaluate(() => {
+        const probe = () => this.page.evaluate(() => {
+          const st = document.querySelector<HTMLElement>(".game-screen--cooking > .pizza-stage");
+          const cs = st ? getComputedStyle(st) : null;
+          return JSON.stringify({ cls: st?.className, probe: st ? getComputedStyle(st, "::before").width : null, ch: st?.clientHeight, pt: cs?.paddingTop, pb: cs?.paddingBottom, dock: document.querySelector(".prepare-dock")?.className });
+        });
+        const p1 = await probe();
+        await this.page.waitForTimeout(400);
+        const p2 = await probe();
+        const dg0 = await this.page.evaluate(() => {
           const dock = document.querySelector<HTMLElement>(".prepare-dock");
           const st = document.querySelector<HTMLElement>(".game-screen--cooking > .pizza-stage");
           return JSON.stringify({ vh: window.innerHeight, short: matchMedia("(max-height: 700px)").matches, cls: dock?.className, fam: dock?.style.getPropertyValue("--dock-family"), vars: dock?.getAttribute("style"), dockH: dock?.getBoundingClientRect().height, stageH: st?.getBoundingClientRect().height, row: !!document.querySelector(".tray-family-row") });
         });
+        const dg = dg0 + " P1 " + p1 + " P2 " + p2;
         (globalThis as any).__dg = ((globalThis as any).__dg ?? []).concat(`${this.mode} ${step} @${profile.id} ${dg}`);
         perProfile.set(profile.id, rects);
         lcS4(rects, `${this.mode} ${step} @${profile.id}`);
