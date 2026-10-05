@@ -264,7 +264,7 @@ for (const [, capacity] of BUILDS) {
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
     await page.waitForSelector(".pizza-stage");
     await completeDoughStep(page);

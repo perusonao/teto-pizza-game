@@ -80,7 +80,7 @@ test("targetless + 3 entries + bought facts: the sheet asks to choose; the Dex c
   await expectNoOverflow(page, "dex research cards");
   await shot(page, "after-02-dex-research-cards");
 
-  await section.getByRole("button", { name: "？？？ピザ ①を研究する" }).click();
+  await section.getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toBeVisible();
   await hintButton.click();

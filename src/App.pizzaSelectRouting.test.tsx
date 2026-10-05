@@ -99,7 +99,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     expect(document.querySelectorAll(".dex-overlay__research .dex-research-card").length).toBeGreaterThanOrEqual(2);
     await user.click(screen.getAllByRole("button", { name: /を研究する/ })[1]);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ ②/);
+    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("HOME parity: Pizza Select and HOME reach the same research state on the same save (Entry 1; Entry 2+ opens the same Dex)", async () => {
@@ -133,7 +133,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     render(<App />);
     await pizzaSelectDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ ①/);
+    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("the Dex 「このピザを研究する」 is unchanged (single entry)", async () => {
@@ -141,7 +141,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    await user.click(screen.getByRole("button", { name: "？？？ピザを研究する" }));
+    await user.click(screen.getByRole("button", { name: "？？？ピザ（チキン）を研究する" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
     expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });

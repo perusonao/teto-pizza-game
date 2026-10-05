@@ -7222,3 +7222,10 @@ p.hint-sheet__step {
   text-underline-offset: 3px;
   text-decoration-thickness: 2px;
 }
+
+/* Research 2.0 Phase 1: the stable Research label (「？？？ピザ B（たまねぎ）」) never breaks inside a part on a narrow card;
+   a long label wraps between the letter part and the unlock-ingredient part. Presentation only (same text, no attribute). */
+.research-label__part {
+  display: inline-block;
+  white-space: nowrap;
+}

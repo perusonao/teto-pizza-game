@@ -96,7 +96,7 @@ const NOTEBOOK_GUIDANCE = "試作ノートを見て、次に試す材料を考�
 async function startResearch(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
-  await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+  await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
   await expect(page.getByTestId("research-context")).toBeVisible();
 }
 

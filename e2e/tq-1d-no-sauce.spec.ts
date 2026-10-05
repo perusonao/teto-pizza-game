@@ -111,7 +111,7 @@ const withoutTechniqueBlock = (page: Page) =>
 async function researchTheEntry(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
-  await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+  await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
   await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 }
 
@@ -146,7 +146,7 @@ test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
     await hold(page, 2500);
 
     // 2. Research the entry; a sauce-free pizza that is NOT Aussie: ORIGINAL + the technique stage; the rows have no sauce row.
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
     await cookPrepared(page, NOT_AUSSIE);
     const original = page.locator(".result-panel--original");

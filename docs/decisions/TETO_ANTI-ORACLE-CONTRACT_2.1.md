@@ -8,6 +8,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 > **TQ-1D 同期（2026-10-05、Owner Decision OD-TQ1D-1）:** Cooking Techniques 1.0 TQ-1D が初の no-sauce recipe（`aussie`）を Production に追加した。**Expansion Gate A（§13.1）は waiver せず、TQ-1D で正式に解消し CLOSED とした。** Production の population は 32 recipe / 34 ingredient で、そのうち no-sauce は `aussie` の 1 つ。解消の中身は §3（標準パネルの population）、§4 INV-D7、§13.1 に記録した。本書のそれ以外の決定は変更しない。以下の本文に残る「27 recipe / 30 ingredient」は各決定の**当時の audit 母集団**であり、現在の数値ではない（現在値は §15 冒頭の注を参照）。
 
+> **Research 2.0 同期（2026-10-05、Owner Decisions OD-R2-1〜5 / OD-R1-1〜4 / OD-R3-1〜3 / OD-C-1）:** 正本は [`TETO_RESEARCH-2.0_OWNER-DECISIONS.md`](./TETO_RESEARCH-2.0_OWNER-DECISIONS.md)。**Phase 1 で有効になる改訂**: Research Entry の label は ①②③ をやめ、`？？？ピザ B（たまねぎ）`（兄弟 cohort のみ letter）/ `？？？ピザ（チキン）`（単独）に統一する（D+ Cohort Letter、導出のみ・save しない、OD-RB-14 は存置）。下の §3 / §7 の `？？？ピザ ①（…）` 表記は **この改訂で置き換わった旧表記**として読む。**承認済みだが未実装（Phase 2〜4）**: ×の加算 ledger（OD-RB-7 / INV-6' / §6 / §14 の「negative の永続化」を Phase 2 で上書き）、Notebook 上部の Research Board、焼き FAILED でも○× を開示し Notebook に記録（INV-D6 / OD-P3-16 の拡張、在庫消費は維持）。**それまで本書の §6（× は session のみ）は現行挙動のまま**。INV-D7 / OD-TQ1D-4 / Technique privacy は変更しない。
+
 ## 0. この文書の位置づけ
 
 - **Contract 2.0** は repo 内の文書ではなく **Issue #356 §4**（Anti-Oracle Contract 2.0 / INV-1〜INV-7 / OD-I-1〜18）と、実装コメント
@@ -44,7 +46,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 ## 2. 用語
 
-- **Target `T`**: 有効な Research Target（登録済み Research Entry の匿名ラベル「？？？ピザ ①」）。recipe 名・id は出さない。
+- **Target `T`**: 有効な Research Target（登録済み Research Entry の匿名ラベル「？？？ピザ B（たまねぎ）」「？？？ピザ（チキン）」。Research 2.0 で①②③から置換）。recipe 名・id は出さない。
 - **`canonical(T)`**: `getRecipe(T).requiredIngredients[].ingredientId`（matcher の `RECIPE_DISCOVERY_CATALOG.items` と同じ元データ。新しい membership 表は作らない）。
 - **`used(pizza)`**: pizza に実際に置かれた distinct な ingredient id（sauce + topping。`pizzaUsesIngredient` と同じ sanitize 経路）。
 - **`known(T)`**: 保存済み `ing:<id>`（`discoveryHintFacts[T]`）∪ 導出済みの S1 unlock fact（`researchEntryViews(...).knownExactIngredientIds` と同一）。
@@ -104,11 +106,11 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 **形式（既存 schema `{ kind, textJa }` の範囲内、deterministic）**:
 - `kind = "RESEARCH_ROWS"`（`^[A-Z][A-Z0-9_]{0,31}$` を満たす）。
 - `textJa` = `<Target 識別> <行> <行> …`（区切りは半角スペース 1 つ）。
-  - **Target 識別**: RESULT / Research card に表示されたラベル文字列そのまま + `（<unlock fact の ingredient 名>）`。例 `？？？ピザ ①（チキン）`。Research Entry が 1 件のときのラベル（番号なし）はその表示のとおり。
+  - **Target 識別**: RESULT / Research card に表示されたラベル文字列そのまま + `（<unlock fact の ingredient 名>）`。例 `？？？ピザ B（たまねぎ）` / `？？？ピザ（チキン）`（Research 2.0 OD-R2-4: label は unlock 名を常に含み、同じ unlock 名の兄弟 cohort だけが letter を持つ。旧表記 `？？？ピザ ①（チキン）` は置換済み）。
   - **行**: `ソース: <名前><○|×> …`、`チーズ: …`、`トッピング: …`。判定が 1 件以上ある行だけを、この順序で出す。名前は player の pizza の順序（置いた順）。同じ ingredient は 1 回。
-  - 例: `？？？ピザ ①（チキン） ソース: ペスト○ チーズ: モッツァレラ○ トッピング: ham× onion×`（表示名は実データの `nameJa`）。
-- **Target 識別に使ってよい情報（OD-RB-14）**: すでに公開されている **Research Entry 番号**と **unlock fact の ingredient 名**だけ（unlock fact は ownership 由来で、研究カードに「✓ ○○を使う」として表示済み）。**hidden recipe の名前・id・hash・内部 id は使用禁止**。
-- **再計算の禁止**: 保存時の表示文字列をそのまま使う。Notebook 表示時に Research Entry 番号や unlock 名を再計算しない（`trialRecord` の「表示時に再計算しない」原則）。Research Entry の増減で番号が変わっても、古い行は記録時の表示のまま（番号のずれは unlock 名が補う）。
+  - 例: `？？？ピザ（チキン） ソース: ペスト○ チーズ: モッツァレラ○ トッピング: ham× onion×`（表示名は実データの `nameJa`）。
+- **Target 識別に使ってよい情報（OD-RB-14）**: すでに公開されている **Research Entry の label（Research 2.0: cohort letter + unlock fact の ingredient 名）**だけ（unlock fact は ownership 由来で、研究カードに「✓ ○○を使う」として表示済み）。**hidden recipe の名前・id・hash・内部 id は使用禁止**。
+- **再計算の禁止**: 保存時の表示文字列をそのまま使う。Notebook 表示時に Research Entry 番号や unlock 名を再計算しない（`trialRecord` の「表示時に再計算しない」原則）。古い行は記録時の表示のまま。Research 2.0 以降は label が兄弟の発見・新 cohort の追加で動かない（letter は現 catalog 内で安定。冒頭の Research 2.0 同期注記）ため、旧①②③のような番号のずれは起きない。
 - **retry replacement の制約**: Notebook の identity は attempt fingerprint（材料の組み合わせ）単位で、既存の retry 規則（OD-P3-15b）により、**同じ組み合わせを再試行すると feedback は最新の表示に置き換わる**。別の Research Target で同じ組み合わせを試した場合も同様で、**以前の Target の行は上書きされる**（最新の Target の識別が行に入るので、どの Target の結果かは常に分かる）。schema は変えないため、Target ごとの履歴は持たない。
 - **文字数（audit evidence）**: 現 Production の `INGREDIENTS`（27 recipe / 30 ingredient）の最長の名前で、**sauce 3 + cheese 4 + 未知 topping 3 の判定をすべて並べ、unlock 名も最長（ジェノベーゼソース）にした最悪ケースが 126 字**（判定部分のみで約 115 字）。上限 200 字に収まる。実際の判定は recipe の特性上これより短い。
 - **truncate はしない**。将来のカタログ拡大等で最悪ケースが 200 字を超える場合は、**テストで検出して schema / design decision に戻す**（§11）。切り詰めて意味を壊す設計にはしない。

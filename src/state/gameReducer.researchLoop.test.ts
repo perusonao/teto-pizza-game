@@ -82,7 +82,7 @@ describe("A. ORIGINAL -> retry keeps the Research Target (session-only)", () => 
     expect(original.score).toBeNull();
     expect(original.lastDiscovery?.kind).toBe("ORIGINAL");
     expect(original.researchTargetId).toBe("pesto-pollo");
-    expect(researchTargetView(original)?.label).toBe("？？？ピザ");
+    expect(researchTargetView(original)?.label).toBe("？？？ピザ（チキン）");
     const retry = act(original, { type: "RETRY_SAME_RECIPE" });
     expect(retry.phase).toBe("PREPARE");
     expect(retry.freeCook).toBe(true);
@@ -97,7 +97,7 @@ describe("A. ORIGINAL -> retry keeps the Research Target (session-only)", () => 
     const original = cookOriginal(started);
     expect(original.inventory.chicken ?? 0).toBe(0); // consumed by the bake
     expect(researchTargetView(original)).toBeNull(); // no longer cookable now ...
-    expect(researchResultView(original)?.label).toBe("？？？ピザ"); // ... but the attempt was still research
+    expect(researchResultView(original)?.label).toBe("？？？ピザ（チキン）"); // ... but the attempt was still research
     expect(original.researchTargetId).toBe("pesto-pollo");
   });
 

@@ -6,7 +6,7 @@
  * `{ kind: "RESEARCH_ROWS", textJa }`, or `null`. This module never reads a recipe or a membership list and never
  * recomputes a verdict; the rows are the authority, and only rows that were disclosed are recorded (INV-D2).
  *
- * - `labelJa` is the label fixed when the Research Entry was registered (`？？？ピザ ①（<unlock ingredient>）`). It is
+ * - `labelJa` is the label fixed when the Research Entry was registered (`？？？ピザ B（<unlock ingredient>）` / `？？？ピザ（<unlock ingredient>）`, the stable Research 2.0 label). It is
  *   stored byte for byte and never recomputed here. No recipe id / name / hash is an input or an output.
  * - Format: `<labelJa> ソース: A○ チーズ: B○ トッピング: C× D○` (single half-width spaces). Groups follow the order of
  *   the rows (S1: sauce -> cheese -> topping); items inside a group keep the row order (placement order). No sorting.

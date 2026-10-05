@@ -138,7 +138,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await expectNoUndiscoveredIdentity(page, DISCOVERED, "Dex Research Entry");
     await capture(page, "exp1-research-entry", project);
     await hold(page, 2000);
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
 
     // 4. A real trial: pesto + shrimp (HAND/pin via the Pantry when it is not in the 12-slot hand) + eggplant + tomato.

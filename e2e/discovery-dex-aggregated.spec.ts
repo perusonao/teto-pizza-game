@@ -50,7 +50,7 @@ test.describe("Dex with several Research Entries (pool 2+)", () => {
     await research.scrollIntoViewIfNeeded();
     expect(await research.locator(".dex-research-card").count()).toBeGreaterThanOrEqual(2);
     expect(await research.locator(".dex-research-card h3").allTextContents()).toEqual(
-      expect.arrayContaining(["？？？ピザ ①", "？？？ピザ ②"]),
+      expect.arrayContaining(["？？？ピザ A（たまねぎ）", "？？？ピザ B（たまねぎ）"]),
     );
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);

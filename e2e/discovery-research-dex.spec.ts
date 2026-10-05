@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 
 /**
  * Discovery 3.0 #346 S2: the Dex 「🔎 研究中のピザ」 section. Two or more registered entries show
- * anonymous ①② cards (display only, no CTA), no hidden name / No.xx / count, and no horizontal
+ * anonymous cards labelled by unlock fact and cohort letter (Research 2.0; display only, no CTA), no hidden name / No.xx / count, and no horizontal
  * overflow at the two iPhone widths; the formal chapters below still render.
  */
 
@@ -45,7 +45,15 @@ test("research section: anonymous cards, no overflow, formal Dex intact", async 
   await expect(section).toContainText("🔎 研究中のピザ");
   const titles = await section.locator(".dex-research-card h3").allTextContents();
   expect(titles.length).toBeGreaterThanOrEqual(2);
-  expect(titles.slice(0, 2)).toEqual(["？？？ピザ ①", "？？？ピザ ②"]);
+  // Research 2.0 (D+ Cohort Letter): entries of different cohorts are told apart by their unlock fact, only the
+  // three onion siblings carry letters (never the retired ①②③).
+  expect(titles).toEqual([
+    "？？？ピザ（オレガノ）",
+    "？？？ピザ A（たまねぎ）",
+    "？？？ピザ B（たまねぎ）",
+    "？？？ピザ C（たまねぎ）",
+    "？？？ピザ（にんにく）",
+  ]);
   // #378: every material is at stock 0 here, so each (registered) card carries the fixed notice and the Shop
   // CTA -- and still no research CTA, name, number or count.
   await expect(section.locator("button", { hasText: "研究する" })).toHaveCount(0);
