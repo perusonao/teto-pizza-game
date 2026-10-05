@@ -39,7 +39,7 @@ function freeCook(state: GameState, recipeId: RecipeId): GameState {
   s = gameReducer(s, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
   s = gameReducer(s, {
     type: "COMMIT_SAUCE_DISPENSE",
-    ingredientId: reference.sauce.ingredientId,
+    ingredientId: reference.sauce!.ingredientId,
     deposits: buildIdealSauceFixture(),
   });
   s = gameReducer(s, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE

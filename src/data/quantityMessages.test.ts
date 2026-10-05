@@ -9,7 +9,7 @@ function funghiWithMushrooms(count: number): PizzaState {
   const reference = getReferencePizza("funghi")!;
   return {
     ...createEmptyPizza(),
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) => {
       const positions =

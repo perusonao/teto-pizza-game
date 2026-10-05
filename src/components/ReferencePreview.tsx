@@ -58,7 +58,9 @@ export function ReferencePreview({
   onOpenChange,
   renderTrigger = true,
 }: ReferencePreviewProps) {
-  const sauceIngredient = getIngredient(reference.sauce.ingredientId);
+  // TQ-1D: a recipe made without a sauce (`reference.sauce === null`) shows no sauce caption, bars or heatmap.
+  const referenceSauce = reference.sauce;
+  const sauceIngredient = referenceSauce ? getIngredient(referenceSauce.ingredientId) : undefined;
   const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("と");
 
   return (
@@ -122,28 +124,33 @@ export function ReferencePreview({
             </div>
 
             <p className="reference-preview__caption">
-              {sauceIngredient?.nameJa ?? "ソース"}をまんべんなく塗って、{pieceCaption}
+              {referenceSauce ? `${sauceIngredient?.nameJa ?? "ソース"}をまんべんなく塗って、` : ""}
+              {pieceCaption}
               を見本に近く置こう。
             </p>
 
-            <div className="reference-preview__bar-row">
-              <span className="reference-preview__bar-label">ソース量の目安</span>
-              <div className="reference-preview__bar">
-                <div
-                  className="reference-preview__bar-fill"
-                  style={{ width: `${reference.sauce.quantity * 100}%` }}
-                />
-              </div>
-            </div>
-            <div className="reference-preview__bar-row">
-              <span className="reference-preview__bar-label">塗り広げの目安</span>
-              <div className="reference-preview__bar">
-                <div
-                  className="reference-preview__bar-fill"
-                  style={{ width: `${reference.sauce.coverage * 100}%` }}
-                />
-              </div>
-            </div>
+            {referenceSauce && (
+              <>
+                <div className="reference-preview__bar-row">
+                  <span className="reference-preview__bar-label">ソース量の目安</span>
+                  <div className="reference-preview__bar">
+                    <div
+                      className="reference-preview__bar-fill"
+                      style={{ width: `${referenceSauce.quantity * 100}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="reference-preview__bar-row">
+                  <span className="reference-preview__bar-label">塗り広げの目安</span>
+                  <div className="reference-preview__bar">
+                    <div
+                      className="reference-preview__bar-fill"
+                      style={{ width: `${referenceSauce.coverage * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -199,8 +199,8 @@ export interface ScoringV2WeightProfile {
  * TQ-1B (Issue #263): the Reference shape Scoring 2.0 reads. The production `ReferencePizza`
  * (../../data/referencePizza.ts) always carries a sauce and is assignable to this type unchanged;
  * `sauce: null` means "this recipe is made without a spread sauce" and selects the `NO_SAUCE`
- * weight profile. Widening the production type itself (and the UI null guards that come with it)
- * belongs to the slice that first ships a no-sauce recipe (TQ-1D), not to this scoring foundation.
+ * weight profile. TQ-1D (the first no-sauce recipe, `aussie`) widened the production `ReferencePizza.sauce`
+ * to the same `ReferenceSauce | null`, with the UI null guards that come with it.
  */
 export interface ScoringReferencePizza {
   readonly recipeId: string;

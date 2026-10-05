@@ -153,6 +153,8 @@ function isApprovedSauceTarget(ingredientId: string, quantity: unknown, coverage
   if (approvedSauceTargets === null) {
     const targets = new Map<string, ScoringSauceTarget[]>();
     for (const ref of listReferencePizzas()) {
+      // TQ-1D: a Reference without a sauce (aussie) has no sauce target to approve.
+      if (ref.sauce === null) continue;
       const list = targets.get(ref.sauce.ingredientId) ?? [];
       list.push({ quantity: ref.sauce.quantity, coverage: ref.sauce.coverage });
       targets.set(ref.sauce.ingredientId, list);

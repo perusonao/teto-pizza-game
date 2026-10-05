@@ -13,14 +13,14 @@
  *   round (a guided round can discover another recipe through the matcher).
  * Lunch Rush and Dinner record nothing on either path.
  *
- * INV-TQ-4: with the production catalog no target requires a technique, so the affordance never
- * opens and no recipe adds one -- this step is inert in production until TQ-1D adds such a recipe.
- * The catalog is injectable so the whole loop can be tested with a synthetic one.
+ * INV-TQ-4: a technique no catalog target requires never opens and no recipe adds it. TQ-1D adds the
+ * first such recipe (`aussie`, `no-sauce`), so the loop is live in production. The catalog is
+ * injectable so the whole loop can also be tested with a synthetic one.
  */
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { TECHNIQUES, type TechniqueId } from "../../data/techniques";
-import { discoveredRecipeIds, isDiscovered, type DexState } from "../../state/dex";
-import { ingredientUnlockStep } from "../../state/materialEntitlement";
+import { isDiscovered, type DexState } from "../../state/dex";
+import { creditedDiscoveredCount, ingredientUnlockStep } from "../../state/materialEntitlement";
 import type { RuntimeSignature } from "../discovery/signature";
 import type { TechniqueTargetView } from "./detection";
 import {
@@ -41,11 +41,21 @@ export interface TechniqueRuntimeContext {
   catalog: readonly TechniqueCatalogEntry[];
   /** 0 for a starter, the ladder step that unlocks a material, or null when no step does. */
   materialStep: (ingredientId: string) => number | null;
+  /**
+   * OD-TQ1D-2: whether discovering this recipe advances the ladder -- the same authority the ladder
+   * itself reads (`countsTowardLadder`). The affordance counts only those, so a `ladderCredit: false`
+   * recipe never opens a technique earlier than the ladder step it is derived from. Defaults to the
+   * production rule (`creditedDiscoveredCount`'s default; an id it does not know counts, as for the ladder).
+   */
+  countsTowardLadder?: (recipeId: string) => boolean;
 }
 
 /** The runtime catalog and the Discovery Ladder -- what the game uses. */
 export function productionTechniqueContext(): TechniqueRuntimeContext {
-  return { catalog: RECIPE_DISCOVERY_CATALOG, materialStep: (id) => ingredientUnlockStep(id) };
+  return {
+    catalog: RECIPE_DISCOVERY_CATALOG,
+    materialStep: (id) => ingredientUnlockStep(id),
+  };
 }
 
 /**
@@ -90,7 +100,7 @@ export function resolveRoundTechniques(input: RoundTechniqueInput): RoundTechniq
   const ledger = knownTechniqueIds(input.ledger);
   if (input.eligibility === "NONE") return { ledger, newlyDiscovered: [] };
 
-  const discoveredCount = new Set(discoveredRecipeIds(input.dexBefore)).size;
+  const discoveredCount = creditedDiscoveredCount(input.dexBefore, input.context.countsTowardLadder);
   const usage =
     input.eligibility === "FREE_COOK" && input.completionPassed
       ? registerTechniqueDiscovery({

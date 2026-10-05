@@ -28,7 +28,7 @@ function pizzaWith(overrides: Partial<PizzaState>): PizzaState {
 function idealMargherita(bakeResult: number): PizzaState {
   const reference = getReferencePizza("margherita")!;
   return pizzaWith({
-    sauceIds: [reference.sauce.ingredientId],
+    sauceIds: [reference.sauce!.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({

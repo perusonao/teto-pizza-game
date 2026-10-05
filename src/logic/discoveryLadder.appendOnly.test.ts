@@ -54,8 +54,8 @@ const PRODUCTION: LadderRecipe[] = RECIPES.map((r) => ({
 const POST_W1_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza"];
 const PRODUCTION_W1: LadderRecipe[] = PRODUCTION.filter((r) => !POST_W1_RECIPE_IDS.includes(r.id));
 
-/** A recipe made only of W1 materials and a starter (the TQ-1 Aussie shape, synthetic here: LAD-1
- *  adds no recipe to production). */
+/** A recipe made only of W1 materials and a starter (the TQ-1 Aussie shape). Since TQ-1D the real `aussie` is
+ *  one too (and adds no ladder step); this synthetic copy keeps the extension tests independent of it. */
 const SYN_ALL_W1: LadderRecipe = { id: "syn-all-w1", ingredientIds: ["bacon", "egg", "mozzarella", "onion"] };
 /** Two recipes that need materials W1 does not sell (a Wave-2-shaped addition, synthetic). */
 const SYN_NEW_A: LadderRecipe = { id: "syn-new-a", ingredientIds: ["syn-mat-a", "mozzarella", "tomato-sauce"] };
@@ -131,7 +131,8 @@ describe("LAD-1: adding content never reorders W1", () => {
   it("... while a full regeneration would reorder W1 from step 3 (negative control, the reason for OD-W2-1)", () => {
     const regenerated = toMaterialLadder("regen", buildKeyRecipeLadder([...PRODUCTION_W1, SYN_ALL_W1]));
     expect(stepKey(regenerated).slice(0, 2)).toEqual(stepKey(W1_25_DISCOVERY_LADDER).slice(0, 2));
-    expect(regenerated.steps[2]).toMatchObject({ step: 3, ingredientIds: ["onion"], keyRecipeId: "syn-all-w1" });
+    // The real Aussie (TQ-1D) is made of W1 materials only too, and its id sorts before the synthetic one.
+    expect(regenerated.steps[2]).toMatchObject({ step: 3, ingredientIds: ["onion"], keyRecipeId: "aussie" });
     expect(validateAppendOnlyExtension(W1_25_DISCOVERY_LADDER, regenerated).length).toBeGreaterThan(0);
   });
 

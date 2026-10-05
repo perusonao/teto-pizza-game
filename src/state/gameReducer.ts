@@ -388,7 +388,7 @@ export interface GameState {
   discoveredTechniqueIds: readonly TechniqueId[];
   /** TQ-1C: techniques REGISTER_TO_DEX newly discovered this round, in registry order -- revealed
    *  before the recipe (SSOT P5, `discoveryRevealOrder`). `null` until REGISTER_TO_DEX, reset every
-   *  fresh round, never persisted (so a reload never replays it). Not rendered until TQ-1D. */
+   *  fresh round, never persisted (so a reload never replays it). Rendered by the RESULT's technique stage (TQ-1D). */
   lastTechniqueDiscovery: readonly TechniqueId[] | null;
   /** Progression 2.0 Phase 3-2 (Issue #194): true for a free-cook round (START_FREE_COOK) -- no
    *  recipe was selected, the tray offers every OWNED ingredient, and CONFIRM_BAKE decides what

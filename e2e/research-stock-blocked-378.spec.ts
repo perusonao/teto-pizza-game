@@ -5,12 +5,12 @@ import { getIngredient } from "../src/data/ingredients";
 /**
  * #378 Option 1: a registered Research Entry blocked only by stock shows the fixed notice + Shop CTA; the Shop marks
  * every owned stock-0 material 「在庫なし」; refilling and closing the Shop brings the research CTA back.
- * Production data: ladder step 25 with brazilian-calabresa found -> pesto-pollo is the single entry (chicken stock 0).
+ * Production data: ladder step 25 with brazilian-calabresa and aussie (TQ-1D) found -> pesto-pollo is the single entry (chicken stock 0).
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
-const keys = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId), "brazilian-calabresa"];
+const keys = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId), "brazilian-calabresa", "aussie"];
 // Step 25 state: the step-26 material (shrimp, Expansion Slice 1) is not entitled yet, so it is not seeded.
 const mats = DISCOVERY_LADDER.steps
   .filter((s) => s.step <= 25)

@@ -927,8 +927,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 31/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/31/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 32/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/32/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {

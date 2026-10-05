@@ -10,7 +10,7 @@ import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 /**
  * Issue #373 through the real App: HOME 「レシピ発見」 follows the cookable Research Entries (0 targetless / 1 that
  * entry is the Research Target / 2+ the Dex's Research cards, the player picks) and reaches the same research state as
- * the Dex's 「このピザを研究する」. Production data only (ladder step 12 = 2 entries, step 25 + calabresa closed = 1).
+ * the Dex's 「このピザを研究する」. Production data only (ladder step 12 = 3 entries, step 25 + calabresa and TQ-1D aussie closed = 1).
  */
 
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
@@ -32,7 +32,7 @@ function seed(step: number, extraDiscovered: readonly string[] = []): void {
     }),
   );
 }
-const seedSingle = () => seed(25, ["brazilian-calabresa"]);
+const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie"]);
 const seedMulti = () => seed(12);
 
 const homeDiscovery = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole("button", { name: /レシピ発見/ }));

@@ -196,6 +196,12 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ナスとズッキーニのラタトゥイユピザ、野菜がたっぷりでおいしそう！食べてみたいな！",
   },
+  {
+    id: "order-aussie",
+    recipeId: "aussie",
+    requestedBy: "mito",
+    lineJa: "ベーコンと卵ののったオージーピザ、ボリュームたっぷり！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

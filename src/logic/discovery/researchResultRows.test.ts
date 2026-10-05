@@ -194,13 +194,45 @@ describe("Production constraints (Contract §3 / §10 / §13.1)", () => {
   const sauceCount = (id: string) =>
     RECIPES.find((r) => r.id === id)!.requiredIngredients.filter((q) => getIngredient(q.ingredientId)?.category === "sauce").length;
 
-  it("Production fixture: every one of the 28 recipes uses exactly one sauce (no multi-sauce, no no-sauce target)", () => {
-    expect(RECIPES).toHaveLength(31);
-    for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe(1);
+  it("Production fixture: every one of the 32 recipes uses exactly one sauce, except aussie (the one no-sauce target, TQ-1D); no multi-sauce", () => {
+    expect(RECIPES).toHaveLength(32);
+    for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe(r.id === "aussie" ? 0 : 1);
   });
-  it("there is no reserved / no-sauce target in the current Production 27: a sauce row is always possible", () => {
-    const noSauce = RECIPES.filter((r) => sauceCount(r.id) === 0).map((r) => r.id);
-    expect(noSauce).toEqual([]);
+  it("Expansion Gate A is CLOSED: the one no-sauce target is judged by the standard rule, never specially (OD-TQ1D-1)", () => {
+    expect(RECIPES.filter((r) => sauceCount(r.id) === 0).map((r) => r.id)).toEqual(["aussie"]);
+    // A sauce row appears only when the PLAYER used a sauce; with no sauce there is no sauce row, for EVERY target alike.
+    for (const r of RECIPES) {
+      const rows = run(r.id, pizza([], ["bacon", "egg"])).rows;
+      expect(rows.filter((x) => x.category === "sauce"), r.id).toEqual([]);
+    }
+    // A sauce on aussie is an ordinary NEGATIVE, the same shape as a non-member sauce on any other target.
+    expect(view(run("aussie", pizza(["tomato-sauce"], [])))).toEqual(["sauce:tomato-sauce:NEGATIVE"]);
+    expect(run("aussie", pizza(["tomato-sauce"], [])).rows.map((x) => [x.category, x.verdict])).toEqual(
+      run("margherita", pizza(["pesto"], [])).rows.map((x) => [x.category, x.verdict]),
+    );
+  });
+  it("the row structure (groups, order, ingredients) is target-independent: only the verdict may differ, for every target incl. aussie", () => {
+    const pizzas = [
+      pizza(["tomato-sauce"], ["mozzarella", "bacon", "egg", "onion"]),
+      pizza([], ["mozzarella", "bacon", "egg", "onion"]),
+      pizza(["pesto"], ["onion", "ham"]),
+    ];
+    for (const p of pizzas) {
+      const shapes = RECIPES.map((r) => JSON.stringify(run(r.id, p).rows.map((x) => [x.category, x.ingredientId])));
+      expect(new Set(shapes).size).toBe(1);
+      const caps = RECIPES.map((r) => run(r.id, p).toppingOverCap);
+      expect(new Set(caps).size).toBe(1);
+    }
+  });
+  it("nothing the rows return can state an absence: the row type has no 'none' / 'no sauce' verdict or field", () => {
+    const every = RECIPES.flatMap((r) => [run(r.id, pizza(["tomato-sauce"], ["onion"])), run(r.id, pizza([], ["onion"]))]);
+    for (const result of every) {
+      expect(Object.keys(result).sort()).toEqual(["persistFactIds", "rows", "toppingOverCap"]);
+      for (const row of result.rows) {
+        expect(Object.keys(row).sort()).toEqual(["category", "ingredientId", "verdict"]);
+        expect(["POSITIVE", "NEGATIVE"]).toContain(row.verdict);
+      }
+    }
   });
   it("a one-sauce pizza (the reducer replaces sauceIds with one element) yields exactly one sauce row for every target", () => {
     for (const r of RECIPES) {

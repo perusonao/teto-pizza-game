@@ -34,7 +34,7 @@ function referencePieces(recipeId: RecipeId): PlacedTopping[] {
 function idealPizzaFor(recipeId: RecipeId, bakeResult = BAKE): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: [getReferencePizza(recipeId)!.sauce.ingredientId],
+    sauceIds: ((sauce) => (sauce ? [sauce.ingredientId] : []))(getReferencePizza(recipeId)!.sauce),
     sauceDeposits: buildIdealSauceFixture(),
     toppings: referencePieces(recipeId),
     bakeResult,

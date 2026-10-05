@@ -6,12 +6,12 @@ import { RECIPES, type RecipeId } from "./recipes";
 /** Discovery 3.0 PR-4b-A (D-5): the production table is typed `HintRoles`, so a key-free recipe fits
  *  without a type change, while the 25 production entries stay authored (Hint 5.0 output unchanged). */
 describe("RECIPE_HINT_ROLES is typed HintRoles", () => {
-  it("accepts a key-free entry (compile-time + runtime), and the 25 original production entries stay keyed (only brazilian-calabresa, No.27 pesto-pollo Expansion Slice 1 pesto-gamberi and Wave 2's 3 recipes are key-free)", () => {
+  it("accepts a key-free entry (compile-time + runtime), and the 25 original production entries stay keyed (only brazilian-calabresa, No.27 pesto-pollo Expansion Slice 1 pesto-gamberi Wave 2's 3 recipes and TQ-1D's aussie are key-free)", () => {
     const withKeyFree: Readonly<Record<RecipeId, HintRoles>> = { ...RECIPE_HINT_ROLES, margherita: { keyFree: true } };
     expect(isKeyFreeHintRoles(withKeyFree.margherita)).toBe(true);
-    expect(RECIPES).toHaveLength(31);
+    expect(RECIPES).toHaveLength(32);
     for (const r of RECIPES) {
-      expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[r.id]), r.id).toBe(r.id === "brazilian-calabresa" || r.id === "pesto-pollo" || r.id === "pesto-gamberi" || r.id === "vongole" || r.id === "pesto-vegetariana" || r.id === "ratatouille-pizza");
+      expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[r.id]), r.id).toBe(r.id === "aussie" || r.id === "brazilian-calabresa" || r.id === "pesto-pollo" || r.id === "pesto-gamberi" || r.id === "vongole" || r.id === "pesto-vegetariana" || r.id === "ratatouille-pizza");
     }
   });
 

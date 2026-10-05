@@ -57,7 +57,7 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
 
 /** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
  *  not evidence). */
-const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza"];
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -108,6 +108,8 @@ const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
   vongole: ["DOUGH", "SAUCE", "TOPPING"],
   "pesto-vegetariana": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "ratatouille-pizza": ["DOUGH", "SAUCE", "TOPPING"],
+  // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
+  aussie: ["DOUGH", "CHEESE", "TOPPING"],
 };
 
 /** No-CHEESE recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
@@ -221,11 +223,12 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
       }
     });
 
-    it("every recipe keeps DOUGH and SAUCE (universal today, still derived rather than hardcoded)", () => {
+    it("every recipe keeps DOUGH, and SAUCE unless it needs no sauce (aussie, TQ-1D; derived, not hardcoded)", () => {
       for (const recipe of RECIPES) {
         const steps = preBakeSteps(getCookingProfile(recipe.id));
         expect(steps[0], recipe.id).toBe("DOUGH");
-        expect(steps, recipe.id).toContain("SAUCE");
+        if (recipe.id === "aussie") expect(steps, recipe.id).not.toContain("SAUCE");
+        else expect(steps, recipe.id).toContain("SAUCE");
       }
     });
 

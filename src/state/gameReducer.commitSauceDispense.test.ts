@@ -170,6 +170,7 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
       expect(state.pizza.sauceDeposits).toEqual([]);
 
       const profile = getRecipeSauceProfile(recipe.id);
+      if (profile === null) continue; // TQ-1D: aussie is made without a sauce
       const after = gameReducer(state, {
         type: "COMMIT_SAUCE_DISPENSE",
         ingredientId: profile.ingredientId,

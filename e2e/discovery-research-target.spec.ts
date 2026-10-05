@@ -61,7 +61,7 @@ async function shot(page: Page, name: string) {
 }
 
 test("A. single entry (pesto-pollo): select -> research context -> Hint opens on it and buys a rung", async ({ page }) => {
-  const { discovered, json } = save(25, ["brazilian-calabresa"]);
+  const { discovered, json } = save(25, ["brazilian-calabresa", "aussie"]);
   await open(page, json);
   await openDex(page);
   const section = page.locator(".dex-overlay__research");
@@ -148,7 +148,7 @@ test("D. no Research Target (2 entries): plain Free Cooking asks to choose a res
 });
 
 test("E. a bought rung survives a reload and shows on the research card (discoveryHintFacts only)", async ({ page }) => {
-  const { json } = save(25, ["brazilian-calabresa"]);
+  const { json } = save(25, ["brazilian-calabresa", "aussie"]);
   await open(page, json);
   await openDex(page);
   await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザを研究する" }).click();

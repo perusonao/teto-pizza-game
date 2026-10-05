@@ -82,7 +82,9 @@ export interface ReferencePizza {
    *  report cited above) -- a type-level prerequisite for adding other recipes' References,
    *  not itself new Reference data. */
   readonly recipeId: RecipeId;
-  readonly sauce: ReferenceSauce;
+  /** The sauce target, or `null` for a recipe made without a spread sauce (TQ-1D: `aussie`, the
+   *  Technique `no-sauce`). Every other production recipe has exactly one. */
+  readonly sauce: ReferenceSauce | null;
   /** Phase 4A-1B game-authored prototype layout; never a PIZZA DB quantity claim. */
   readonly pieceGroups: readonly ReferencePieceGroup[];
 }
@@ -163,8 +165,11 @@ function round2(value: number): number {
  * future authoring pass can read off ready-to-use sauce numbers without recomputing them by
  * hand, and so this file's own tests can prove the derivation is consistent across recipes.
  */
-export function computeMechanicalSauceReference(recipeId: RecipeId): ReferenceSauce {
+export function computeMechanicalSauceReference(recipeId: Exclude<RecipeId, "aussie">): ReferenceSauce;
+export function computeMechanicalSauceReference(recipeId: RecipeId): ReferenceSauce | null;
+export function computeMechanicalSauceReference(recipeId: RecipeId): ReferenceSauce | null {
   const profile = getRecipeSauceProfile(recipeId);
+  if (profile === null) return null;
   return {
     ingredientId: profile.ingredientId,
     quantity: round2(IDEAL_MARGHERITA_SAUCE_METRICS.quantity),
@@ -1904,6 +1909,73 @@ export const RATATOUILLE_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * TQ-1D: Reference Truth for `aussie`, the first recipe made without a sauce (`sauce: null`, so
+ * Scoring 2.0 selects the NO_SAUCE weight profile). Pieces (mozzarella 2, bacon 2, egg 1, onion 2 =
+ * 7) take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is
+ * GAMEPLAY / REFERENCE CALIBRATION, not source authority. The single egg keeps the 14 / 30
+ * tolerance every other single-egg group uses.
+ */
+export const AUSSIE_REFERENCE: ReferencePizza = {
+  recipeId: "aussie",
+  sauce: computeMechanicalSauceReference("aussie"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "egg",
+      positions: [{ x: 38, y: 79 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 14, zeroCreditRadius: 30 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -1936,6 +2008,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [VONGOLE_REFERENCE.recipeId, VONGOLE_REFERENCE],
   [PESTO_VEGETARIANA_REFERENCE.recipeId, PESTO_VEGETARIANA_REFERENCE],
   [RATATOUILLE_PIZZA_REFERENCE.recipeId, RATATOUILLE_PIZZA_REFERENCE],
+  [AUSSIE_REFERENCE.recipeId, AUSSIE_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

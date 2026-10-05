@@ -38,6 +38,7 @@ import {
   resetSave,
 } from "./state/persistence";
 import { initialTechniqueLedger } from "./logic/techniques/runtime";
+import { techniqueDexViews } from "./logic/techniques/dexView";
 import { ingredientCollectionCount, newShopMaterialCount, resolveShopEntitlement } from "./state/materialEntitlement";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
@@ -1107,6 +1108,11 @@ function App() {
   // current in-progress gesture's uncommitted shape (`pendingDoughShape`) alongside the
   // canonical committed one, mirroring `sauceMetrics`' own live-preview pattern above, so the
   // CTA can unlock mid-drag rather than only after the player releases.
+  // Cooking Techniques TQ-1D: the Dex's 「調理法」 section, from the ledger + the Dex + the ladder only.
+  const techniqueViews = useMemo(
+    () => techniqueDexViews(state.discoveredTechniqueIds, state.dex),
+    [state.discoveredTechniqueIds, state.dex],
+  );
   const doughShapeComplete = useMemo(
     () => isDoughShapeComplete(pendingDoughShape ?? state.pizza.doughShape),
     [pendingDoughShape, state.pizza.doughShape],
@@ -1138,7 +1144,7 @@ function App() {
   );
   const sauceShadowScore = useMemo(
     () =>
-      referencePizza
+      referencePizza?.sauce
         ? scoreSauceAgainstReference(sauceMetrics, referencePizza.sauce)
         : { quantitySimilarity: 0, coverageSimilarity: 0, overall: 0 },
     [referencePizza, sauceMetrics],
@@ -1300,6 +1306,7 @@ function App() {
           unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
           inventory={state.inventory}
           discoveryHintFacts={state.discoveryHintFacts}
+          techniqueViews={techniqueViews}
           onGoFreeCook={
             mission.mode === "FREE"
               ? () => {

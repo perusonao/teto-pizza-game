@@ -4,7 +4,7 @@
  *
  * Authority: docs/design/TETO_DISCOVERY-HINT-5_H5-0_FINAL-DESIGN.md (Owner Decisions OD-H5-P1..P3,
  * C1..C4, C1a / C1b / C1-P, U1, E1..E3, E3b, M1, M3, T-COV, and round 6: P4-CHEESE, P4b, M2 = all 25;
- * P4-SAUCE stays reserved for TQ-1D).
+ * P4-SAUCE: resolved by TQ-1D (OD-TQ1D-1) -- a recipe without a sauce is key-free and simply has no SAUCE rung).
  *
  * ## The ladder (§5)
  *
@@ -22,9 +22,11 @@
  * - **An empty fixed rung** is never skipped, and before purchase it looks like any other rung (§5.3):
  *   - no cheese (OD-H5-P4-CHEESE) / no key topping (OD-H5-P4b): a normal paid rung. The answer is
  *     "none" (`none: true` on its board entry), stored as its completion record only;
- *   - no sauce (OD-H5-P4-SAUCE, reserved for TQ-1D): `RESERVED_EMPTY_RUNG` (0 Pitz, no fact). "No
- *     sauce" is the Technique `no-sauce`, so nothing here ever says it (H5-INV-4). The production gates
- *     keep every such recipe out of the target set (`hint5ReservedRungs`, G7).
+ *   - no sauce (OD-H5-P4-SAUCE, resolved by TQ-1D): there is NO SAUCE rung. The only production recipe
+ *     without a sauce (`aussie`) is key-free, and a key-free ladder omits a rung that does not apply, so
+ *     its first rung is CHEESE. `RESERVED_EMPTY_RUNG` stays retired for production: "no sauce" is the
+ *     Technique `no-sauce`, so nothing here ever says it (H5-INV-4). The production gates keep the
+ *     reserved set empty (`hint5ReservedRungs`, G7) and every sauceless recipe key-free.
  *
  * ## Taxonomy: fail fast, never coarsen (OD-H5-T-COV, H5-INV-7)
  *
@@ -231,8 +233,9 @@ export function hint5EmptyFixedRungs(recipeId: unknown, recipes?: readonly Recip
   return ladder.rungs.filter((r) => r.kind !== "STRUCTURE" && r.kind !== "SUB_CLASS" && r.subjectIds.length === 0).map((r) => r.kind);
 }
 
-/** Round 6: an empty CHEESE / KEY rung is answered "none" (OD-H5-P4-CHEESE, OD-H5-P4b); only an empty
- *  SAUCE rung stays RESERVED (OD-H5-P4-SAUCE, TQ-1D). */
+/** Round 6: an empty CHEESE / KEY rung is answered "none" (OD-H5-P4-CHEESE, OD-H5-P4b). An empty SAUCE rung is
+ *  the fail-closed RESERVED state (OD-H5-P4-SAUCE); it is unreachable in production since TQ-1D, whose one sauceless
+ *  recipe is key-free and has no SAUCE rung at all (the production gates keep the reserved set empty). */
 function isReservedRung(rung: Hint5Rung): boolean {
   return rung.kind === "SAUCE" && rung.subjectIds.length === 0;
 }
@@ -267,7 +270,7 @@ export const HINT5_RUNG_MARKER: Readonly<Record<Exclude<Hint5RungKind, "SUB_CLAS
 
 /**
  * - COMPLETED: completed on the Hint 5.0 ladder (bought, or completed free as already known).
- * - EMPTY: an empty SAUCE rung (RESERVED_EMPTY_RUNG; OD-H5-P4-SAUCE, TQ-1D). An empty CHEESE / KEY
+ * - EMPTY: an empty SAUCE rung (RESERVED_EMPTY_RUNG; fail-closed, unreachable in production). An empty CHEESE / KEY
  *   rung is a normal rung (OPEN or COMPLETED).
  * - OPEN: not completed. It says nothing about what the player already knows.
  */

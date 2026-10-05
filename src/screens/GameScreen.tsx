@@ -47,6 +47,7 @@ import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
+import { discoveryRevealOrder } from "../state/discoveryReveal";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
 import { buildQuantityNote } from "../data/quantityMessages";
@@ -723,7 +724,7 @@ export function GameScreen({
             <span className="mini-reference__thumb" aria-hidden="true">
               <ReferenceThumbnail
                 sauceIngredientId={
-                  referencePizza ? referencePizza.sauce.ingredientId : playerReference.sauceIngredientId
+                  referencePizza ? (referencePizza.sauce?.ingredientId ?? null) : playerReference.sauceIngredientId
                 }
                 pieceGroups={referencePizza ? referencePizza.pieceGroups : playerReference.pieceGroups}
               />
@@ -896,6 +897,7 @@ export function GameScreen({
             {state.makingStep !== "DOUGH" &&
               referenceModeEnabled &&
               referencePizza &&
+              referencePizza.sauce &&
               activeCategory === "sauce" && (
                 <SauceMetricsPanel
                   metrics={sauceMetrics}
@@ -1106,6 +1108,7 @@ export function GameScreen({
               : null
           }
           onResearchNext={onResearchNext}
+          techniqueReveal={discoveryRevealOrder(state).includes("TECHNIQUE") ? state.lastTechniqueDiscovery : null}
           executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}

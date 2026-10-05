@@ -36,7 +36,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
 
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/31/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/32/);
 
   const readSave = () => page.evaluate(() => JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"));
   await expect.poll(async () => (await readSave()).unlockedForShopIngredientIds).toContain("egg");
@@ -50,7 +50,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
 
   await page.reload();
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/31/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/32/);
   const reloaded = await readSave();
   expect(reloaded.discoveryHintFacts).toEqual(FACTS);
   expect(reloaded.discoveryHintPurchases).toEqual(SAVE.discoveryHintPurchases);

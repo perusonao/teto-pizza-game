@@ -27,9 +27,9 @@ function save(step: number, extraDiscovered: readonly string[] = [], pitz = 1000
   const base = createInitialGameState(discoveredDex([...keysBefore(step), ...extraDiscovered]), owned, pitz);
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) };
 }
-/** Step 25 with brazilian-calabresa closed: pesto-pollo is the single entry. */
-const single = (pitz?: number) => save(25, ["brazilian-calabresa"], pitz);
-/** Step 12: pizza-portuguesa + brazilian-calabresa are both entries. */
+/** Step 25 with the non-credit brazilian-calabresa and aussie closed: pesto-pollo is the single entry. */
+const single = (pitz?: number) => save(25, ["brazilian-calabresa", "aussie"], pitz);
+/** Step 12: pizza-portuguesa + brazilian-calabresa + aussie (TQ-1D) are all entries. */
 const multi = () => save(12);
 
 const entryIds = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);

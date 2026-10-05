@@ -23,7 +23,7 @@ const nonSauce = recipe.requiredIngredients.filter((q) => getIngredient(q.ingred
 
 describe("brazilian-calabresa authoring (PR-4b-B)", () => {
   it("is production recipe No.26, right after the existing 25 (their order / No. unchanged; No.27 pesto-pollo and Expansion's pesto-gamberi follow)", () => {
-    expect(RECIPES).toHaveLength(31);
+    expect(RECIPES).toHaveLength(32);
     expect(RECIPES[25].id).toBe(ID);
     expect(RECIPES.slice(0, 25).filter((r) => r.id === ID)).toEqual([]);
     expect(recipe.nameJa).toBe("ブラジリアン・カラブレーザ");
@@ -121,7 +121,7 @@ describe("brazilian-calabresa Hint: key-free, structure-derived rungs only", () 
   it("is key-free in the roles table (the 25 originals keep their keyed roles)", () => {
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as Recipe["id"]])).toBe(true);
     expect(RECIPE_HINT_ROLES[ID as Recipe["id"]]).toEqual({ keyFree: true });
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(6); // calabresa + No.27 pesto-pollo + Expansion pesto-gamberi + Wave 2's 3
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(7); // calabresa + No.27 pesto-pollo + Expansion pesto-gamberi + Wave 2's 3 + TQ-1D's aussie
   });
 
   it("has SAUCE, STRUCTURE, then one SUB_CLASS per topping: no KEY_TOPPING, no CHEESE, no empty rung", () => {

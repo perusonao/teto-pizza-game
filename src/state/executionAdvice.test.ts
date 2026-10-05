@@ -27,6 +27,11 @@ describe("the shared sauce reference", () => {
     const generic = genericSauceReference();
     for (const recipe of RECIPES) {
       const reference = getReferencePizza(recipe.id)!;
+      // TQ-1D: aussie has no sauce Reference, so there is no sauce amount to compare.
+      if (reference.sauce === null) {
+        expect(recipe.id).toBe("aussie");
+        continue;
+      }
       expect({ id: recipe.id, quantity: reference.sauce.quantity, coverage: reference.sauce.coverage }).toEqual({ id: recipe.id, ...generic });
     }
   });

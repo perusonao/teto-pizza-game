@@ -45,7 +45,7 @@ function renderDex(p: {
 }
 
 const single = () => ({
-  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa"]),
+  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), // the two non-credit onion-step recipes (TQ-1D: aussie) are found
   owned: ladderOwned(25),
 });
 const multi = () => ({ dex: discoveredDex(keysBefore(12)), owned: ladderOwned(12) });
@@ -70,7 +70,7 @@ describe("Research Dex section", () => {
     const { cards, section } = renderDex(multi());
     expect(cards.length).toBeGreaterThanOrEqual(2);
     expect(cards.map((c) => c.querySelector("h3")?.textContent).slice(0, 2)).toEqual(["？？？ピザ ①", "？？？ピザ ②"]);
-    for (const id of ["pizza-portuguesa", "brazilian-calabresa"]) {
+    for (const id of ["pizza-portuguesa", "brazilian-calabresa", "aussie"]) {
       const name = RECIPES.find((r) => r.id === id)!.nameJa;
       expect(section!.textContent).not.toContain(name);
     }

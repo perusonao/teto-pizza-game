@@ -16,6 +16,8 @@ import type { ResultNearMissLine } from "../state/resultNearMiss";
 import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
 import { RESEARCH_UX_COPY } from "./researchUxCopy";
+import type { TechniqueId } from "../data/techniques";
+import { TechniqueReveal } from "./TechniqueReveal";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -142,6 +144,9 @@ interface ResultPanelProps {
   /** 「🔎 次のピザを研究する」: the entry id when exactly one is left (start it), else `null` (back to the Dex's
    *  anonymous Research cards). */
   onResearchNext?: (recipeId: string | null) => void;
+  /** Cooking Techniques TQ-1D (SSOT P5): the techniques discovered in this round (handed over by the screen),
+   *  shown before the recipe on a finished pizza. Omitted / null / empty renders nothing. */
+  techniqueReveal?: readonly TechniqueId[] | null;
 }
 
 const MAX_STARS = 5;
@@ -216,6 +221,7 @@ export function ResultPanel({
   attemptLogEntryRef,
   postDiscovery = null,
   onResearchNext,
+  techniqueReveal = null,
 }: ResultPanelProps) {
   // #346 S4: with a valid Research Target no near/far line is ever shown (Research ORIGINAL contract).
   const nearMiss = researchLabelJa !== null ? null : nearMissLine;
@@ -306,6 +312,7 @@ export function ResultPanel({
             {"\u{1F50E}"} 研究中 {researchLabelJa}
           </p>
         )}
+        <TechniqueReveal techniqueIds={techniqueReveal} />
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
             {recipeDiscovery ? RESEARCH_ORIGINAL_LEAD_COPY : leadJa}
@@ -405,6 +412,7 @@ export function ResultPanel({
 
   return (
     <div className={`result-panel${isDiscoveryResult ? " result-panel--discovery" : ""}`}>
+      <TechniqueReveal techniqueIds={techniqueReveal} />
       {isDiscoveryResult ? (
         <>
           <p className="discovered-banner discovered-banner--new-pizza" aria-live="polite">

@@ -22,7 +22,8 @@ import { discoveredDex } from "./testSupport/guidedRound";
 /**
  * #353 (Owner Option B): with 2+ REGISTERED Research Entries and no valid Research Target the system never picks a
  * recipe for the player (no legacy sticky / purchase / session pick); the player's own Dex choice still does.
- * Production data only: ladder step 12 = 2 entries (pizza-portuguesa + brazilian-calabresa), step 25 = 1 entry.
+ * Production data only: ladder step 12 = 3 entries (pizza-portuguesa + brazilian-calabresa + TQ-1D's aussie), step 25 = 1 entry
+ * once calabresa and aussie are found.
  */
 
 afterEach(cleanup);
@@ -41,15 +42,15 @@ function save(step: number, extraDiscovered: readonly string[] = [], over: Parti
 }
 
 const multi = (over: Partial<GameState> = {}, stock?: number) => save(12, [], over, stock);
-const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa"], over);
+const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa", "aussie"], over);
 const entryIds = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);
-const [A, B] = entryIds(multi());
+const [A, B, C] = entryIds(multi());
 const BOUGHT = { discoveryHintFacts: { [A]: ["ing:tomato-sauce"] } } as const;
 const startFree = (s: GameState, researchTargetId?: string) => act(s, { type: "START_FREE_COOK", researchTargetId });
 
 describe("multi-entry + targetless + bought facts: no implicit recipe", () => {
-  it("fixture: two registered entries, facts bought on one of them", () => {
-    expect(entryIds(multi())).toHaveLength(2);
+  it("fixture: three registered entries, facts bought on one of them", () => {
+    expect(entryIds(multi())).toHaveLength(3);
     expect(multi(BOUGHT).discoveryHintFacts[A]).toEqual(["ing:tomato-sauce"]);
   });
 
@@ -99,7 +100,7 @@ describe("multi-entry + targetless + bought facts: no implicit recipe", () => {
 
   it("stock 0 does not change the count: the entries still exist, so the choice is still asked", () => {
     const s = multi(BOUGHT, 0);
-    expect(entryIds(s)).toHaveLength(2);
+    expect(entryIds(s)).toHaveLength(3);
     expect(needsResearchTargetChoice(s)).toBe(true);
   });
 });
@@ -180,8 +181,8 @@ describe("unchanged states", () => {
     expect(act(startFree(single()), { type: "SHOW_HINT" }).hintSession?.targetId).toBe("pesto-pollo");
   });
 
-  it("two entries become one once one is discovered: the remaining one is the target again", () => {
-    const s = save(12, [B]);
+  it("three entries become one once two are discovered: the remaining one is the target again", () => {
+    const s = save(12, [B, C]);
     expect(entryIds(s)).toHaveLength(1);
     expect(act(startFree({ ...s, ...BOUGHT }), { type: "SHOW_HINT" }).hintSession).not.toBeNull();
   });

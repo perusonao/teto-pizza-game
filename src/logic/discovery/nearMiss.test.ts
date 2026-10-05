@@ -163,7 +163,8 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
   }
 
   // Pool-size aware (Discovery 3.0 PR-4a / PR-4b-B): at a step the DISCOVERABLE pool is the W1 key
-  // recipe, plus the non-credit brazilian-calabresa once its materials are owned (Dex 12+). Under D-1
+  // recipe, plus the non-credit brazilian-calabresa and (TQ-1D) the non-credit no-sauce aussie once their materials
+  // are owned (Dex 12+). Under D-1
   // a pool of 2+ names no hint target, so each member's hint is reached in the order where the
   // other member(s) were found first (A -> B and B -> A each end at a pool of 1). Every pool
   // member must be reachable that way, and the W1 key recipe is always one of them.
@@ -171,7 +172,7 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
     const base = ladderInputs(count);
     const members = discoverableHintCandidates(base);
     expect(members.map((c) => c.id)).toContain(LADDER_ORDER[count]);
-    expect(members.length).toBe(count >= 12 ? 2 : 1);
+    expect(members.length).toBe(count >= 12 ? 3 : 1);
     for (const r of members) {
       const others = members.filter((c) => c.id !== r.id).map((c) => c.id);
       const inputs: RecipeDiscoveryInputs = { ...base, dex: discover([...LADDER_ORDER.slice(0, count), ...others]) };

@@ -13,7 +13,7 @@ describe("Discovery Progression Inspector screen", () => {
   it("lists every step with Step / Unlock / Newly Discoverable / Pool / Result from production data", () => {
     render(<DiscoveryProgressionInspector />);
     expect(screen.getByRole("heading", { name: "Discovery Progression Inspector" })).toBeInTheDocument();
-    expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent("31");
+    expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent("32");
     expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent("34");
     expect(screen.getByTestId("dpi-step-count")).toHaveTextContent("28");
     expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("2");
@@ -25,7 +25,8 @@ describe("Discovery Progression Inspector screen", () => {
     expect(onion).toHaveTextContent("🆕");
     expect(onion).toHaveTextContent("ポルトゲーザ");
     expect(onion).toHaveTextContent("ブラジリアン・カラブレーザ");
-    expect(onion).toHaveTextContent("Pool 2");
+    expect(onion).toHaveTextContent("オージーピザ"); // TQ-1D: the third recipe made makeable by the onion
+    expect(onion).toHaveTextContent("Pool 3");
     expect(within(onion).getByText("OPEN_POOL")).toBeInTheDocument();
     expect(screen.getByTestId("dpi-row-13")).toHaveTextContent("OPEN_POOL POSSIBLE");
   });
@@ -40,7 +41,7 @@ describe("Discovery Progression Inspector screen", () => {
     expect(detail).toHaveTextContent("After owned");
     expect(detail).toHaveTextContent("Before pool");
     expect(detail).toHaveTextContent("After pool");
-    expect(screen.getByTestId("dpi-newly-count-12")).toHaveTextContent("2");
+    expect(screen.getByTestId("dpi-newly-count-12")).toHaveTextContent("3");
     const calabresa = within(detail).getByTestId("dpi-recipe-brazilian-calabresa");
     expect(calabresa).toHaveTextContent(/No\.\d\d/);
     expect(calabresa).toHaveTextContent("ladderCredit: false");

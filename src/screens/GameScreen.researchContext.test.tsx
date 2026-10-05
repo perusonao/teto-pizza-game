@@ -23,7 +23,7 @@ const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.fi
 const T = "pesto-pollo";
 function researchRound(): GameState {
   const owned = ladderOwned(25);
-  const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+  const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
   const s: GameState = { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) };
   return gameReducer(s, { type: "START_FREE_COOK", researchTargetId: T });
 }
@@ -116,7 +116,7 @@ describe("Research context across the transitions of a Research round", () => {
 
   it("retry after an attempt that used the target's last finite stock", () => {
     const owned = ladderOwned(25);
-    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
     const inv: Record<string, number> = Object.fromEntries(owned.map((id) => [id, 10]));
     for (const id of ["chicken", "mozzarella", "fresh-tomato", "pesto"]) inv[id] = 1;
     let s = gameReducer({ ...base, inventory: inv }, { type: "START_FREE_COOK", researchTargetId: T });
@@ -136,7 +136,7 @@ describe("Research context across the transitions of a Research round", () => {
 
   it("a targetless free cook has no research context", () => {
     const owned = ladderOwned(25);
-    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
     const s = gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" });
     expect(hasContext(s)).toBe(false);
   });
@@ -164,7 +164,7 @@ describe("Research context across the transitions of a Research round", () => {
 describe("Research UX Phase 1 in PREPARE", () => {
   const lastStockRetry = () => {
     const owned = ladderOwned(25);
-    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
     const inv: Record<string, number> = Object.fromEntries(owned.map((id) => [id, 10]));
     for (const id of ["chicken", "mozzarella", "fresh-tomato", "pesto"]) inv[id] = 1;
     let s = gameReducer({ ...base, inventory: inv }, { type: "START_FREE_COOK", researchTargetId: T });
@@ -198,7 +198,7 @@ describe("Research UX Phase 1 in PREPARE", () => {
 
   it("targetless FREE has neither guidance nor notebook entry", () => {
     const owned = ladderOwned(25);
-    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
     renderAt(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }));
     expect(screen.queryByTestId("research-guidance")).toBeNull();
     expect(screen.queryByTestId("research-notebook-entry")).toBeNull();
@@ -254,7 +254,7 @@ describe("Research UX Phase 1 in PREPARE", () => {
 
   it("targetless FREE never gets an inert game screen", () => {
     const owned = ladderOwned(25);
-    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
     renderAt(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }));
     expect(document.querySelectorAll("[inert]").length).toBe(0);
   });
@@ -274,7 +274,7 @@ describe("Research UX Phase 1 in PREPARE", () => {
 
   it("the Hint sheet of a targetless FREE round shows no research band", () => {
     const owned = ladderOwned(25);
-    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa"]), owned, 1000);
+    const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
     const s = gameReducer(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }), { type: "SHOW_HINT" });
     renderAt(s);
     expect(document.querySelector("[data-hint-research]")).toBeNull();

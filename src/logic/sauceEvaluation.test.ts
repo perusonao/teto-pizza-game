@@ -37,8 +37,8 @@ function ring(
 describe("Sauce Human Feel Gate (Fix 2 brief section 6)", () => {
   it("A: center only -> 「もう少し広げよう」, 広さ poor", () => {
     const metrics = computeSauceMetrics([...ring(3, 4, 0.02), ...ring(6, 6, 0.02)]);
-    expect(deriveSauceLiveMessage(metrics, REFERENCE)).toBe(SAUCE_LIVE_MESSAGE.spreadMore);
-    expect(evaluateSauceForPlayer(metrics, REFERENCE).coverageTier).toBe("poor");
+    expect(deriveSauceLiveMessage(metrics, REFERENCE!)).toBe(SAUCE_LIVE_MESSAGE.spreadMore);
+    expect(evaluateSauceForPlayer(metrics, REFERENCE!).coverageTier).toBe("poor");
   });
 
   it("B: partial overlap (a thick pile on top of an otherwise even spread) -> 「厚いところを広げよう」, 均一さ poor, 広さ/ふち not poor", () => {
@@ -50,8 +50,8 @@ describe("Sauce Human Feel Gate (Fix 2 brief section 6)", () => {
     ];
     const thickPile = Array.from({ length: 40 }, () => ({ x: 42, y: 42, amount: 0.02 }));
     const metrics = computeSauceMetrics([...evenSpread, ...thickPile]);
-    expect(deriveSauceLiveMessage(metrics, REFERENCE)).toBe(SAUCE_LIVE_MESSAGE.smoothThickArea);
-    const evaluation = evaluateSauceForPlayer(metrics, REFERENCE);
+    expect(deriveSauceLiveMessage(metrics, REFERENCE!)).toBe(SAUCE_LIVE_MESSAGE.smoothThickArea);
+    const evaluation = evaluateSauceForPlayer(metrics, REFERENCE!);
     expect(evaluation.evennessTier).toBe("poor");
     expect(evaluation.coverageTier).not.toBe("poor");
     expect(evaluation.edgeTier).not.toBe("poor");
@@ -59,8 +59,8 @@ describe("Sauce Human Feel Gate (Fix 2 brief section 6)", () => {
 
   it("C: painted to the ear (rim band, still technically on the dough) -> 「耳は残そう」, ふち poor, even though coverage also reads low", () => {
     const metrics = computeSauceMetrics(ring(45, 24, 0.02));
-    expect(deriveSauceLiveMessage(metrics, REFERENCE)).toBe(SAUCE_LIVE_MESSAGE.keepRimClear);
-    const evaluation = evaluateSauceForPlayer(metrics, REFERENCE);
+    expect(deriveSauceLiveMessage(metrics, REFERENCE!)).toBe(SAUCE_LIVE_MESSAGE.keepRimClear);
+    const evaluation = evaluateSauceForPlayer(metrics, REFERENCE!);
     expect(evaluation.edgeTier).toBe("poor");
     // Coverage is also poor here (a thin ring covers little of the dough) -- pins that edge
     // still wins the *message* despite that, per deriveSauceLiveMessage's priority order.
@@ -69,8 +69,8 @@ describe("Sauce Human Feel Gate (Fix 2 brief section 6)", () => {
 
   it("D: the reference fixture itself, painted evenly within the target area -> 「いい感じ！」, all three great", () => {
     const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
-    expect(deriveSauceLiveMessage(metrics, REFERENCE)).toBe(SAUCE_LIVE_MESSAGE.good);
-    expect(evaluateSauceForPlayer(metrics, REFERENCE)).toEqual({
+    expect(deriveSauceLiveMessage(metrics, REFERENCE!)).toBe(SAUCE_LIVE_MESSAGE.good);
+    expect(evaluateSauceForPlayer(metrics, REFERENCE!)).toEqual({
       coverageTier: "great",
       evennessTier: "great",
       edgeTier: "great",
@@ -79,7 +79,7 @@ describe("Sauce Human Feel Gate (Fix 2 brief section 6)", () => {
 
   it("nothing painted yet is never mistaken for 良好 -- 広さ poor, no live message claims 良好", () => {
     const metrics = computeSauceMetrics([]);
-    expect(evaluateSauceForPlayer(metrics, REFERENCE).coverageTier).toBe("poor");
-    expect(deriveSauceLiveMessage(metrics, REFERENCE)).not.toBe(SAUCE_LIVE_MESSAGE.good);
+    expect(evaluateSauceForPlayer(metrics, REFERENCE!).coverageTier).toBe("poor");
+    expect(deriveSauceLiveMessage(metrics, REFERENCE!)).not.toBe(SAUCE_LIVE_MESSAGE.good);
   });
 });

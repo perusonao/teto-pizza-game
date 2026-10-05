@@ -19,10 +19,10 @@
 | P4 | レシピを発見したら、そのレシピが要求する技法も発見済みになる（INV-TQ-1）。オリジナルピザでも、affordance が開いていれば技法を発見できる（INV-TQ-6） | INV-TQ-1 / 6 |
 | P5 | **同時発見の表示順は ① Technique → ② Recipe。** 保存は 1 回の遷移（REGISTER_TO_DEX）の中で 1 回だけ行う | Final Gate §1 |
 | P6 | 技法の**操作そのものは発見前から可能**（例: SAUCE step の「なしでもOK」）。ただし未発見の技法の**名称・説明は出さない**（Dex の「？？？」となぞかけだけ。なぞかけは affordance 到達後に限る） | OD-TQ-4 / 5 / 16 |
-| P7 | near-miss の SAUCE_ONLY 文言には **k 規則を一律に適用する**。整合する答えが 2 つ以上ある時（k ≥ 2）だけ SAUCE_ONLY を出し、k < 2 なら fallback「おしい！あと少し、なにかが違うみたい…？」にする（fail-closed。技法固有の情報は出さない）。target が技法を要求するかどうかで分岐しないので、**side channel を作らない**。**有効化は TQ-1D（Human Verification 付き）で行い、TQ-1C では有効化しない** | OD-TQ-P1、**OD-TQ1C-2** |
+| P7 | near-miss の SAUCE_ONLY 文言には **k 規則を一律に適用する**。整合する答えが 2 つ以上ある時（k ≥ 2）だけ SAUCE_ONLY を出し、k < 2 なら fallback「おしい！あと少し、なにかが違うみたい…？」にする（fail-closed。技法固有の情報は出さない）。target が技法を要求するかどうかで分岐しないので、**side channel を作らない**。**有効化は TQ-1D（Human Verification 付き）で行い、TQ-1C では有効化しない** **【TQ-1D 注記（Owner 決定）】production の RESULT の near-miss は Near/Far Neutralization（Discovery 3.0 Phase 1）により、ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH のすべてに同一の中立行 1 つだけを出す。方向つき・SAUCE_ONLY の行は production に存在せず、Owner は near-miss の production wiring を復活させない（TQ-1D は k 規則を配線しない）。`nearMissPrivacy.ts` は pure のまま。** | OD-TQ-P1、**OD-TQ1C-2** |
 | P8 | **技法の発見経路は 2 つ:** (a) **使用経路**（使った技法を affordance の条件付きで認識する）は **Free Cooking（`freeCook`）だけ**。(b) **レシピ経路**（INV-TQ-1: レシピを新しく発見したら、そのレシピが要求する技法も記録する）は、**FREE の全 round**（guided を含む）で記録してよい。guided round が matcher 経由で別のレシピを発見する現行の挙動と整合させる。**Lunch Rush と Dinner では、両経路とも技法の発見は 0** | OD-TQ-10改、**OD-TQ1C-3** |
-| P9 | TQ-1 では **production recipe に技法の要求を追加しない**（Aussie の production 追加は TQ-1D） | OD-TQ-18、Final Gate §1 |
-| P10 | **INV-TQ-4 を維持する:** 技法を要求する runtime recipe が 1 つもない間は、その技法の affordance は開かず、技法は認識されない（TQ-1C は production では不活性） | INV-TQ-4 |
+| P9 | TQ-1 の production recipe に技法の要求を追加するのは **TQ-1D の `aussie` だけ**（OD-TQ-18、Final Gate §1）。それ以外の recipe が技法を要求する時は、その PR が Hint 5.0 / DH4 privacy を再 audit する（G7 / DH4 gate が意図的に fail する） | OD-TQ-18、Final Gate §1、OD-TQ1D-1 |
+| P10 | **INV-TQ-4 を維持する:** 技法を要求する runtime recipe が 1 つもない技法は affordance が開かず、認識されない。TQ-1D 以降 `no-sauce` は `aussie` が要求するため、affordance は **ladder step 12（onion）** で開く（**OD-TQ1D-2:** 開く条件の発見数は ladder と同じ `countsTowardLadder` で数える。`ladderCredit:false` の recipe は数えない） | INV-TQ-4、OD-TQ1D-2 |
 | P11 | 最初の技法は NO_SAUCE（`"no-sauce"`） | OD-TQ-15 |
 
 ### 1.1 OD-TQ1C-2 の監査記録（k 規則を一律に適用した場合の production 影響）
@@ -43,8 +43,8 @@
 | INV-TQ-1 | Dex で発見済みのレシピが要求する技法は、すべて台帳にある | `registerTechniqueDiscovery`（レシピ経由）、`backfillTechniqueLedger`（load 時） |
 | INV-TQ-2 | 台帳は増えるだけ。同じ技法を 2 回発見しない | registration（冪等）、persistence（union） |
 | INV-TQ-3 | scoring、Pitz、★、Dex BEST は技法を読まない。既存 25 recipe の score は不変 | architecture test、`scoreParity.main-7bb0116.json`（225 行） |
-| INV-TQ-4 | 要求するレシピが 0 の技法は affordance が開かない | `techniqueAffordanceStep` が `null` を返す |
-| INV-TQ-5 | 未発見の技法について、名称や具体操作を出さない。SAUCE_ONLY は k ≥ 2 の時だけ出す（一律に適用、TQ-1D で有効化） | `nearMissPrivacy.ts`（pure 部分）。wiring は TQ-1D |
+| INV-TQ-4 | 要求するレシピが 0 の技法は affordance が開かない。`no-sauce` の要求元は `aussie` だけ（affordance = step 12、credited 発見数のみで数える） | `techniqueAffordanceStep`、`creditedDiscoveredCount`、`deductionProduction.gate.test.ts` |
+| INV-TQ-5 | 未発見の技法について、名称や具体操作を出さない（Dex は「？？？」となぞかけまで。名称は actual pizza の組成から発見した後だけ）。near-miss の方向つき文言は production に無い（P7 注記） | `techniques.tq1c.test.ts` T20、`dexView.test.ts`、`TechniqueUi.test.tsx`、`gameReducer.techniques.privacy.test.ts` |
 | INV-TQ-6 | ORIGINAL ピザから技法を認識するのは affordance の到達後だけ | `registerTechniqueDiscovery` の `isAffordanceOpen` |
 
 ## 3. Scoring / Reference の境界（TQ-1B で固定済み。変更しない）
@@ -56,7 +56,7 @@
   - weight profiles の freeze;
   - injected Reference の検証（recipe id、ingredient の 1 対 1 対応、ingredient の役割、`minCount` と一致する positions、ingredient ごとの tolerance band と sauce target、slot 領域）;
   - 既存 25 recipe の parity。
-- `ReferencePizza.sauce` の nullable 化は **TQ-1D** で行う。TQ-1C では行わない。
+- `ReferencePizza.sauce` の nullable 化は **TQ-1D で完了**（`ReferenceSauce | null`。`aussie` だけが `null`。`scoringV2` の `approvedSauceTargets` は null を skip、`completionGate` / `App` / `GameScreen` / `ReferencePreview` / `DinnerGameUi` は null-safe。no-sauce の ReferencePreview は sauce 表示を出さない）。
 
 ## 4. Save
 
@@ -85,5 +85,16 @@
 | TQ-1B | no-sauce scoring（score 不変） | merged `bcac961` |
 | TQ-1C-0 | 本書を含む authority を main へ取り込む（docs only） | 本 PR |
 | TQ-1C | runtime wiring（production では不活性。near-miss の文言は変えない） | TQ-1C-0 の後 |
-| TQ-1D | Aussie、表示（技法段、Dex の「調理法」、RESULT の sauce 行）、`ReferencePizza.sauce` の nullable 化、near-miss の k 規則の有効化。ここで loop が有効になる | 未着手 |
+| TQ-1D | Aussie（sauce なし / mozzarella 2・bacon 2・egg 1・onion 2 / bake 50–70 / `ladderCredit:false` / Lunch Rush false / CUT なし / key-free）、表示（RESULT の技法段 ①Technique → ②Recipe、Dex の「調理法」）、`ReferencePizza.sauce` の nullable 化、affordance の ladderCredit 整合（OD-TQ1D-2）、Contract 2.1 Expansion Gate A の解消（OD-TQ1D-1）。**near-miss の k 規則は配線しない**（Owner、P7 注記）。RESULT に「ソース：なし」行は出さない。save schema 不変（既存の技法台帳を使う）。ここで loop が有効になる | 実装済み（PR で最終確認中） |
 | TQ-1E | Human Verification | 未着手 |
+
+## 7. TQ-1D の Owner Decision（2026-10-05）
+
+| ID | 決定 |
+|---|---|
+| OD-TQ1D-1 | Contract 2.1 の **Expansion Gate A は waiver しない。TQ-1D で正式に解消する（CLOSED）。** no-sauce recipe について: 発見前に sauce absence を直接開示しない / Research RESULT・Notebook に「ソースなし」を出さない / target identity を根拠に sauce-none を判定しない / **実際の pizza の組成から `no-sauce` を発見した後だけ**名称を公開する / INV-D7 を維持 / RESERVED を復活させない。Aussie だけを対象にした特殊行（「ソースなし」「ソース不要」）は追加しない。absence そのものを membership feedback として公開しない |
+| OD-TQ1D-2 | `runtime.ts` の affordance の発見数は、ladder の進行と同じ `ladderCredit` authority（`countsTowardLadder` / credited discovery）を使う。`ladderCredit:false` の recipe は数えない。新しい progression rule は作らない（既存 authority へ揃える最小修正） |
+| OD-TQ1D-3 | chapter 数その他の population 値は最新 main から機械的に再計算する。古い docs / comment の数値は authority にしない |
+
+- **TQ-1D の population（main `28fcabb` から再計算 → Aussie 追加後）:** recipe 31 → 32 / ingredient 34 → 34（topping 27）/ ladder step 28 → 28 / credited 30 → 30 / `ladderCredit:false` 1 → 2 / `lunchRush:false` 6 → 7（participating 25）/ chapter 6·10·15 → 6·**11**·15（Aussie の key step は onion の 12、T2 = 第 2 章）。
+- **Technique の表示:** 名称「ソースなし」、なぞかけ「いつもの“ぬるもの”がなくても…？」。未発見のときは Dex に「？？？」となぞかけまで（affordance が開いた後だけ）。発見後は RESULT の技法段と Dex の「調理法」で名称を出す。技法の発見は ★ も Pitz も付けない。

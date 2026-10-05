@@ -16,7 +16,12 @@ export interface RecipeSauceProfile {
   interaction: SauceInteractionKind;
 }
 
-export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>> = {
+/**
+ * TQ-1D: `null` means "this recipe is made without a spread sauce" (the Technique `no-sauce`). It is
+ * authored here, next to every other recipe's sauce mapping, and nothing derives it from a target
+ * identity at runtime. Only `aussie` is `null`.
+ */
+export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile | null>> = {
   margherita: {
     recipeId: "margherita",
     ingredientId: "tomato-sauce",
@@ -192,8 +197,10 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // TQ-1D: the first no-sauce recipe. Not an olive-oil mapping (unlike vongole / pizza-bianca): it uses no sauce.
+  aussie: null,
 };
 
-export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {
+export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile | null {
   return RECIPE_SAUCE_PROFILES[recipeId];
 }
