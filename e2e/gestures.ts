@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -183,23 +183,53 @@ export async function landNeedleAndTakeOut(page: Page, target: { start: number; 
 const DOUGH_SELECTOR = '[data-pizza-drop-target="true"]';
 
 /**
- * #394 Phase 1: the dough is ready for a `page.mouse` gesture when it is visible, `PizzaStage`
- * accepts presses on it (`.pizza-dough--interactive` mirrors the `interactive` prop that
- * `handlePointerDown` silently gates on), it is stable and is what a press at its center would
- * hit (`hover()` runs Playwright's own visible / stable / receives-events actionability checks),
- * and it has a usable box. `boundingBox()` alone neither waits nor says whether presses count.
+ * #394 Phase 1: whether a `page.mouse` press (at `point`, viewport coordinates, when given) would
+ * reach the dough *and count*. A single in-page predicate, polled from Node by
+ * `waitUntilDoughReady` (so it needs no page timer or animation frame, which the faked clock
+ * can affect):
+ *  - `.pizza-dough--interactive` is present: it mirrors the `interactive` prop that
+ *    `PizzaStage.handlePointerDown` silently gates on (a press while it is off is dropped);
+ *  - the dough is visible and has a usable box;
+ *  - `document.elementFromPoint(point)` is the dough or one of its descendants. Pointer handlers
+ *    live on the dough root and its decorative layers are `pointer-events: none`, so a hit
+ *    inside the dough bubbles to them, while a covering element (sheet, popover, backdrop) does
+ *    not.
+ * Deliberately NOT Playwright's `hover()`/stable actionability: a tap re-reads the box for every
+ * press and a press takes milliseconds, so the dough holding still for two animation frames is
+ * not a precondition -- and that wait timed out on WebKit CI (#395 first push,
+ * `original-result-duplicate-notice.spec.ts:241`, "waiting for element to be visible and stable").
  */
-async function waitForDoughReady(page: Page) {
-  const dough = page.locator(`${DOUGH_SELECTOR}.pizza-dough--interactive`);
-  await dough.waitFor({ state: "visible" });
-  await dough.hover();
-  const box = await dough.boundingBox();
-  if (!box || box.width <= 0 || box.height <= 0) throw new Error("Pizza dough has no usable box");
-  return box;
+async function isDoughReady(page: Page, point?: { x: number; y: number }) {
+  return page.evaluate(
+    ({ selector, point: at }) => {
+      const dough = document.querySelector(selector);
+      if (!(dough instanceof HTMLElement) || !dough.classList.contains("pizza-dough--interactive")) return false;
+      const rect = dough.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0 || getComputedStyle(dough).visibility === "hidden") return false;
+      if (!at) return true;
+      const hit = document.elementFromPoint(at.x, at.y);
+      return hit !== null && dough.contains(hit);
+    },
+    { selector: DOUGH_SELECTOR, point },
+  );
+}
+
+/** Waits (bounded only by the test's own timeout, like the `locator.waitFor` it replaces) until
+ *  `isDoughReady` holds -- no sleep, no extra timeout. */
+async function waitUntilDoughReady(page: Page, point?: { x: number; y: number }) {
+  const where = point ? ` at (${point.x.toFixed(1)}, ${point.y.toFixed(1)})` : "";
+  await expect
+    .poll(() => isDoughReady(page, point), {
+      message: `pizza dough never became ready for a press${where} (interactive, visible, hit-testable)`,
+      timeout: 0,
+    })
+    .toBe(true);
 }
 
 async function doughBox(page: Page) {
-  const box = await waitForDoughReady(page);
+  await waitUntilDoughReady(page);
+  const box = await page.locator(DOUGH_SELECTOR).boundingBox();
+  if (!box || box.width <= 0 || box.height <= 0) throw new Error("Pizza dough has no usable box");
   return { cx: box.x + box.width / 2, cy: box.y + box.height / 2, r: box.width * 0.46, box };
 }
 
@@ -207,6 +237,7 @@ export async function tapDoughPercent(page: Page, xPercent: number, yPercent: nu
   const { box } = await doughBox(page);
   const x = box.x + (xPercent / 100) * box.width;
   const y = box.y + (yPercent / 100) * box.height;
+  await waitUntilDoughReady(page, { x, y });
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.up();
@@ -216,7 +247,10 @@ export async function completeDoughStep(page: Page) {
   const { cx, cy, r } = await doughBox(page);
   for (let i = 0; i < 8; i += 1) {
     const angle = (i / 8) * Math.PI * 2;
-    await page.mouse.move(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    await waitUntilDoughReady(page, { x, y });
+    await page.mouse.move(x, y);
     await page.mouse.down();
     await page.mouse.up();
   }
@@ -252,6 +286,7 @@ export async function physicalDragToDough(
   const { box } = await doughBox(page);
   const targetX = box.x + (xPercent / 100) * box.width;
   const targetY = box.y + (yPercent / 100) * box.height;
+  await waitUntilDoughReady(page, { x: targetX, y: targetY });
   await page.mouse.move(startX, startY);
   await page.mouse.down();
   await page.mouse.move(startX + 2, startY - 10, { steps: 3 });
@@ -269,6 +304,7 @@ export async function cutThreeLines(page: Page) {
     const angle = (angleDeg * Math.PI) / 180;
     const dx = Math.cos(angle) * r;
     const dy = Math.sin(angle) * r;
+    await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
     await page.mouse.move(cx - dx, cy - dy);
     await page.mouse.down();
     await page.mouse.move(cx + dx, cy + dy, { steps: 5 });

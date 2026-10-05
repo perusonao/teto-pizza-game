@@ -29,9 +29,12 @@ helper never checked either. The real-CI cause of the null box is still unconfir
   center for single-point targets) -> only then click 取り出す！. A miss re-plans from the real
   position; max 5 attempts, then an explicit error listing the committed positions.
   `waitForTimeout(50)` removed. The `pauseAt` buffer retry is unchanged.
-- B: new `waitForDoughReady` (used by `doughBox`): `.pizza-dough--interactive` visible, then
-  `hover()` (Playwright actionability: stable + receives events at the center), then a usable
-  `boundingBox()`. No sleep, no timeout change.
+- B: dough readiness before any `page.mouse` gesture (first push used `hover()`; **superseded**, see
+  "Final Gate follow-up" below). Final form: one in-page predicate polled from Node
+  (`expect.poll`, `timeout: 0` = bounded only by the test's own timeout, no sleep) -- the dough has
+  `.pizza-dough--interactive`, is visible with a usable box, and `document.elementFromPoint` at the
+  *actual press point* is the dough or one of its descendants. Checked per press in
+  `tapDoughPercent` / `completeDoughStep` / `cutThreeLines` / `physicalDragToDough`.
 - Not unified into one helper; the only shared idea is "wait on a state signal".
 
 ## Spike (Step 1)
@@ -53,8 +56,9 @@ so they do not depend on runner speed.
 | `paintSauceRing`, dough `display:none` for 1500ms | RED: `Pizza dough missing` | GREEN |
 | `paintSauceRing`, dough covered for 1500ms | RED: no sauce registered | GREEN |
 | `paintSauceRing`, dough non-interactive (見本 popover, click-through backdrop) for 1500ms | RED: no sauce registered | GREEN |
+| `paintSauceRing`, dough box jitters sub-pixel forever (still pressable) -- added in the follow-up | green (base helper) / **RED with the `hover()` helper (30s)** | GREEN |
 
-New spec also GREEN on 360×800 (12/12 across both viewports).
+New spec also GREEN on 360×800 (14/14 across both viewports after the follow-up).
 
 ## Verification
 
@@ -93,3 +97,40 @@ New spec also GREEN on 360×800 (12/12 across both viewports).
 - `e2e/gestures.ts`
 - `e2e/gestures-helper.spec.ts` (new)
 - `docs/reports/TETO_CI_WEBKIT_E2E_INSTABILITY_PHASE1_Result.md` (new)
+
+## Final Gate follow-up (HEAD `576ffb7` FAIL -> B contract fix)
+
+- **Final Gate on `576ffb7`: FAIL.** GitHub Actions run 37256135037: `webkit-390x844 shard 2/2` RED
+  (108 passed / 10 skipped / 1 failed), hence WebKit Gate RED. Other shards (390 shard 1/2, 360 shards 1/2
+  and 2/2), `build`, `classify`, `layout-chromium`, Layout Contract Gate were green; Codex: no major issue.
+- **Failing test**: `e2e/original-result-duplicate-notice.spec.ts:241` (OD-D3-23, the 5th `cookFree`).
+  `Error: locator.hover: Test timeout of 30000ms exceeded` at `waitForDoughReady` (`gestures.ts:195`),
+  call log `waiting for element to be visible and stable` after the locator had resolved to the
+  `.pizza-dough--interactive` dough. A regression introduced by this PR's `hover()` (the base helper had no
+  stable wait), not a #394 known flake (`Pizza dough missing` / 生焼け).
+- **Code audit of "is stable a real precondition?" -- no.**
+  - `.pizza-dough` has no geometry animation (`transition: filter` only; `sauce-spread` animates inner layers).
+  - Chromium measurement over the whole failing spec (rect sampled every 16ms): the dough box is constant
+    (290x290 at 50,241.47) for every interactive period; it changes only at phase changes.
+  - Every tap re-reads the box and a press takes milliseconds; the real preconditions are `interactive`
+    (`handlePointerDown` drops presses otherwise), visibility, and that the press point reaches the dough.
+    Pointer handlers sit on the dough root and its decorative layers are `pointer-events: none`, so a
+    hit on the dough or a descendant is a valid press.
+  - **Why WebKit never saw a stable box is not established** (no WebKit run here, no artifact inspected).
+    The fix does not depend on it: the stable requirement is removed.
+- **B follow-up**: `hover()` removed. New contract = interactive + visible + usable box + per-press
+  `elementFromPoint` hit-test at the exact coordinates passed to `page.mouse` (see Fix). Polled from Node,
+  so it needs no page timer / animation frame (the faked `page.clock` can affect those); no sleep and no
+  new timeout.
+- **New regression** (jitter): the dough is given a 7ms sub-pixel `transform` animation (not a multiple of
+  the 16ms frame, so no two consecutive frames share a box) -- pressable, never "stable". `hover()` helper:
+  **RED** (30s test timeout); new helper: **GREEN**; base helper (no readiness): green. This models the
+  "readiness demands more than a press needs" mechanism; it does not claim to be the WebKit cause.
+- Existing B regressions (hidden / covered / non-interactive): GREEN with the new helper; RED with the base
+  helper (unchanged evidence), and GREEN with the `hover()` helper.
+- **A unchanged**: `landNeedleAndTakeOut` / `flushReactCommit` are byte-identical to `576ffb7`; the three A
+  regression tests still pass in the new spec.
+- Focused verification (Chromium iphone-390x844 / iphone-360x800): `e2e/gestures-helper.spec.ts` 14/14,
+  `original-result-duplicate-notice.spec.ts:241` GREEN on 390 (1 skipped = its own `runOnlyOnWidth`).
+  The 57 earlier Chromium results were not re-run (same A code; B change covered by the above).
+- Production files changed = 0; playwright config = 0; CI workflow = 0; #392 untouched.

@@ -24,7 +24,10 @@ import {
  *  B. `doughBox` read `boundingBox()` once (no auto-wait; null -> "Pizza dough missing") and the
  *     tap helpers then fired `page.mouse` at once, while `PizzaStage`'s pointerdown silently drops
  *     presses when the dough is not `interactive`. Here the dough is made un-laid-out, covered,
- *     or non-interactive for UNREADY_MS of real time right before the gesture starts.
+ *     or non-interactive for UNREADY_MS of real time right before the gesture starts. The
+ *     readiness wait must also not demand more than a press needs: a dough whose box never holds
+ *     still (sub-pixel jitter) is still perfectly pressable, so Playwright's "stable" wait (a
+ *     `hover()`-based readiness timed out on WebKit CI that way, #395) must not come back.
  *
  * Test-only: no production code, hook or data-attribute is involved.
  */
@@ -142,6 +145,21 @@ test.describe("e2e/gestures helpers (#394 Phase 1)", () => {
     await page.evaluate((ms) => {
       setTimeout(() => (document.querySelector(".reference-preview__close") as HTMLElement | null)?.click(), ms);
     }, UNREADY_MS);
+    await paintSauceRing(page, 25, 16);
+    await expect(heatmap.first()).toBeVisible(); // a registered sauce deposit renders the heatmap
+  });
+
+  test("paintSauceRing does not wait for a dough box that never holds still (sub-pixel jitter is still pressable)", async ({ page }) => {
+    test.setTimeout(30_000); // a readiness that demands a stable box would otherwise sit here for the whole 120s
+    await reachSauceStep(page);
+    const heatmap = page.locator(".pizza-dough .pizza-sauce-heatmap");
+    await expect(heatmap).toHaveCount(0);
+    // 7ms is not a multiple of the 16ms frame, so no two consecutive frames share a box.
+    await page.addStyleTag({
+      content:
+        "@keyframes gesture-test-jitter { from { transform: translate(0, 0); } to { transform: translate(0.5px, 0.5px); } }" +
+        "[data-pizza-drop-target] { animation: gesture-test-jitter 7ms linear infinite alternate !important; }",
+    });
     await paintSauceRing(page, 25, 16);
     await expect(heatmap.first()).toBeVisible(); // a registered sauce deposit renders the heatmap
   });
