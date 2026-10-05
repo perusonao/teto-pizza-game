@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
+import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientPantry } from "../components/IngredientPantry";
@@ -117,6 +118,8 @@ interface GameScreenProps {
    *  `HAND_ENFORCEMENT_ENABLED` is false, for every non-FREE round and when the hand is inactive), and the Model C
    *  pin-fit rule for the pantry. Computed once in App; GameScreen only relays. */
   trayHand?: { ids: readonly string[] | null; pinFits?: (candidate: HandSession, id: string) => boolean };
+  /** Issue #396: where the tray publishes its family filter (read by App's HAND-change selection rule). */
+  trayFamilyRef?: MutableRefObject<FamilyFilter>;
   bakeProgress: number | null;
   referenceModeEnabled: boolean;
   referencePizza: ReferencePizza | null;
@@ -227,6 +230,7 @@ export function GameScreen({
   handSession,
   onHandSessionChange,
   trayHand,
+  trayFamilyRef,
   bakeProgress,
   referenceModeEnabled,
   referencePizza,
@@ -928,6 +932,7 @@ export function GameScreen({
                 makingStepToken={state.makingStepToken}
                 reservePagerRow={dockReserve.utilityRow}
                 handIds={trayHand?.ids ?? null}
+                familyRef={trayFamilyRef}
                 pantryEntry={
                   pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
                 }

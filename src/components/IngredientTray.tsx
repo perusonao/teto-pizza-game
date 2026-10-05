@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
+  type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
   type Ref,
 } from "react";
@@ -20,6 +21,9 @@ import type { Recipe } from "../data/recipes";
 import { canPlaceIngredient, remainingStock, type InventoryState } from "../state/inventory";
 import type { PizzaState } from "../state/pizzaState";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { ShelfChipRow } from "./ShelfChipRow";
+import { ingredientShelfLabel, SHELF_ALL_LABEL_JA, type FamilyFilter } from "../data/ingredientShelf";
+import { applyTrayFamily, resolveTrayFamily, trayFamilyChoices } from "../logic/trayFamilyFilter";
 
 /**
  * PR-A (Issue #167 §9): the Phase 0 Fresh Audit's own follow-up review found the `∞` badge's
@@ -104,6 +108,9 @@ interface IngredientTrayProps {
    *  today's `trayIngredientsFor` list (every production render while enforcement is off). A change of this list
    *  returns the tray to page 0 (the App evaluates the #197 selection rule in the same render). */
   handIds?: readonly string[] | null;
+  /** Issue #396: the tray writes its current family filter here so App's HAND-change selection rule can judge the
+   *  filtered first page. Write-only for the tray; the filter itself stays tray state. */
+  familyRef?: MutableRefObject<FamilyFilter>;
   pantryEntry?: { onOpen: () => void; buttonRef?: Ref<HTMLButtonElement> };
 }
 
@@ -142,6 +149,7 @@ export function IngredientTray({
   makingStepToken,
   reservePagerRow = true,
   handIds = null,
+  familyRef,
   pantryEntry,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
@@ -157,7 +165,7 @@ export function IngredientTray({
   // "Preserve ... ingredient-selection behavior except where #159 explicitly changes ...
   // locking"); IngredientTray.recommendedOther.test.tsx's old FREE-creativity assertions are
   // updated accordingly (see that file's own new header comment).
-  const requiredItems: Ingredient[] = handIds
+  const trayPopulation: Ingredient[] = handIds
     ? handIds.flatMap((id) => {
         const ingredient = getIngredient(id);
         return ingredient ? [ingredient] : [];
@@ -171,6 +179,16 @@ export function IngredientTray({
   // renders in practice only as a defensive cap against a future wider recipe, never for any
   // recipe shipped today.
   const [page, setPage] = useState(0);
+  // Issue #396: the 具材 step's family filter. Order is population (ownership -> HAND / pin, above) -> family filter ->
+  // pagination, so the filter never changes the hand or a pin. Read against the population now listed (a family
+  // nobody holds reads as すべて) and only ever offered on the topping tray.
+  const [familySelection, setFamilySelection] = useState<FamilyFilter>("all");
+  const familyChoices = activeCategory === "topping" ? trayFamilyChoices(trayPopulation) : [];
+  const family = resolveTrayFamily(familySelection, familyChoices);
+  useEffect(() => {
+    if (familyRef) familyRef.current = family;
+  }, [familyRef, family]);
+  const requiredItems: Ingredient[] = family === "all" ? trayPopulation : applyTrayFamily(trayPopulation, family);
   // LC-R5-d (dormant): in hand mode only, an actual change of the hand list returns the tray to page 0 during render
   // (no effect, so no frame shows the old page over the new list). `null` (production) never enters this block.
   const handKey = handIds ? handIds.join("|") : null;
@@ -332,7 +350,29 @@ export function IngredientTray({
   useEffect(() => {
     if (sessionRef.current) clearSession();
     setPage(0);
+    setFamilySelection("all");
   }, [activeCategory]);
+
+  // Issue #396: a family change returns the tray to page 1 and ends any in-flight drag on a chip that just left.
+  useEffect(() => {
+    if (sessionRef.current) clearSession();
+    setPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the family change.
+  }, [family]);
+
+  function changeFamily(next: FamilyFilter) {
+    if (next === family) return;
+    const nextItems = next === "all" ? trayPopulation : applyTrayFamily(trayPopulation, next);
+    // Same contract as a page switch (PR #197 review P2): never leave the selection on a chip the filter just hid.
+    if (
+      selectedIngredientId !== null &&
+      trayPopulation.some((i) => i.id === selectedIngredientId) &&
+      !nextItems.slice(0, MAX_INGREDIENT_PALETTE_SLOTS).some((i) => i.id === selectedIngredientId)
+    ) {
+      onClearSelection?.();
+    }
+    setFamilySelection(next);
+  }
 
   // A page switch unmounts the currently-dragged chip's button element (React reconciles it
   // away once it's no longer in `items`), so any in-flight session on it must end the same way
@@ -516,7 +556,67 @@ export function IngredientTray({
           with one page it keeps its height but is invisible and inert (aria-hidden, disabled
           buttons), so the tray / pager / CTA-bar stack has the same height with 6 or 22
           ingredients and nothing moves when a category gains a second page. */}
-      {pantryEntry && (pageCount > 1 || reservePagerRow) ? (
+      {familyChoices.length > 0 ? (
+        // Issue #396: the family chips share the utility row with the 食材庫 entry and the pager (no new row, no
+        // height change). The pager keeps its place, idle (invisible, inert), when the filtered list fits one page.
+        <div className="ingredient-page-nav ingredient-page-nav--with-entry ingredient-page-nav--with-family">
+          {pantryEntry ? (
+            <button
+              ref={pantryEntry.buttonRef}
+              type="button"
+              className="pantry-entry"
+              onClick={pantryEntry.onOpen}
+              aria-haspopup="dialog"
+            >
+              {"\u{1F9FA}"} 食材庫
+            </button>
+          ) : null}
+          <ShelfChipRow
+            compact
+            options={[
+              { id: "all", label: SHELF_ALL_LABEL_JA, ariaLabel: "全ての具材を表示" },
+              ...familyChoices.map((id) => {
+                const label = ingredientShelfLabel(id) ?? "";
+                return { id, label, ariaLabel: `${label}の具材だけ表示` };
+              }),
+            ]}
+            active={family}
+            onChange={(id) => changeFamily(id as FamilyFilter)}
+            ariaLabel="具材の絞り込み"
+            dataAttr="data-tray-family"
+          />
+          <div
+            className={`ingredient-page-nav__pager${pageCount > 1 ? "" : " ingredient-page-nav__pager--idle"}`}
+            role={pageCount > 1 ? "group" : undefined}
+            aria-label={pageCount > 1 ? "素材ページ切り替え" : undefined}
+            aria-hidden={pageCount > 1 ? undefined : true}
+          >
+            <button
+              type="button"
+              className="ingredient-page-nav__button"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 0}
+              tabIndex={pageCount > 1 ? undefined : -1}
+              aria-label="前のページ"
+            >
+              {"◀"}
+            </button>
+            <span className="ingredient-page-nav__label">
+              {currentPage + 1} / {pageCount}
+            </span>
+            <button
+              type="button"
+              className="ingredient-page-nav__button"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === pageCount - 1}
+              tabIndex={pageCount > 1 ? undefined : -1}
+              aria-label="次のページ"
+            >
+              {"▶"}
+            </button>
+          </div>
+        </div>
+      ) : pantryEntry && (pageCount > 1 || reservePagerRow) ? (
         // LC-R3: same row, same height. The pager keeps its own group (or its invisible placeholder); the
         // entry is a sibling pinned to the row's left edge, so the centred pager does not move.
         <div

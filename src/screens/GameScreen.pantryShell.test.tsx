@@ -342,7 +342,8 @@ const shelfChipLabels = () => [...document.querySelectorAll(".shelf-chip")].map(
 const tileNames = () => [...document.querySelectorAll(".pantry-tile__name")].map((n) => n.textContent);
 const namesOf = (ids: string[]) => ids.map((id) => getIngredient(id)!.nameJa);
 const ALL_NAMES = namesOf(OWNED_TOPPINGS);
-const chip = (label: string) => screen.getByRole("button", { name: label, pressed: undefined });
+// Scoped to the pantry sheet: the Builder tray (Issue #396) has its own family chips with the same labels.
+const chip = (label: string) => within(screen.getByRole("dialog")).getByRole("button", { name: label, pressed: undefined });
 
 describe("LC-R4 chips are derived from the OWNED rows of the active category", () => {
   it("topping step: すべて + only the represented shelves, in the shelf authority order, no counts", () => {
