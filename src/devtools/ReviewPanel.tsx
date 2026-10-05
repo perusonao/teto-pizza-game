@@ -62,7 +62,10 @@ export function ReviewPanel({ storage, catalog, base, draft, inspection, origina
   const warnings = issues.filter((i) => i.severity === "warning");
   const unreadable = inspection.kind === "corrupt" || inspection.kind === "unknown-schema";
   const orderChanged = diff.some((r) => r.id === "order" || r.id === "last-acquired");
-  const canApply = diff.length > 0 && !hasErrors(issues) && confirmed && (!unreadable || acknowledgeUnreadable) && storage !== null;
+  // An unreadable stored save is itself something to apply over: the game reads it as the default save, so a Fresh
+  // draft has an empty diff, yet applying it (after the acknowledgement) is the way to clear that save to a real one.
+  const hasChange = diff.length > 0 || unreadable;
+  const canApply = hasChange && !hasErrors(issues) && confirmed && (!unreadable || acknowledgeUnreadable) && storage !== null;
 
   function apply() {
     if (!canApply) return;
@@ -76,7 +79,7 @@ export function ReviewPanel({ storage, catalog, base, draft, inspection, origina
     <div>
       <h2 className="dse__h2">{DEV_EDITOR_REVIEW_TITLE}</h2>
       {diff.length === 0 ? (
-        <p className="dse-note">変更はありません（下書きは現在の save と同じです）。</p>
+        <p className="dse-note">{unreadable ? "下書きの内容は、ゲームが読み込む状態（読めない save は初期状態として扱われます）と同じです。適用すると、読める save で置き換えます。" : "変更はありません（下書きは現在の save と同じです）。"}</p>
       ) : (
         <ul className="dse-list" aria-label="変更内容">
           {diff.map((row) => (
@@ -128,7 +131,7 @@ export function ReviewPanel({ storage, catalog, base, draft, inspection, origina
         </label>
       )}
       <label className="dse-check">
-        <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} disabled={diff.length === 0} /> 上の変更内容と backup を確認しました
+        <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} disabled={!hasChange} /> 上の変更内容と backup を確認しました
       </label>
       <button type="button" className="dse-btn dse-btn--primary" disabled={!canApply} onClick={apply}>
         適用する

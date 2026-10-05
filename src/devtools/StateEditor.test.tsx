@@ -280,6 +280,40 @@ describe("review and the explicit apply", () => {
   });
 });
 
+describe("an unreadable save can be cleared to a fresh one through the editor (Codex P2)", () => {
+  it("Fresh Start has an empty diff over a corrupt save, yet Apply works after the acknowledgement; the raw text stays restorable", async () => {
+    for (const raw of ["{broken", JSON.stringify({ schemaVersion: 9, dex: [] })]) {
+      cleanup();
+      const storage = spyStorage({ [KEY]: raw });
+      const user = userEvent.setup();
+      render(<StateEditor storage={storage} now={NOW} />);
+      await openTab(user, "プリセット");
+      await user.click(screen.getByRole("button", { name: /Fresh Start/ }));
+      await openTab(user, "適用");
+      expect(diffIds()).toEqual([]);
+      expect(screen.getByRole("checkbox", { name: /変更内容と backup を確認/ })).toBeEnabled();
+      await user.click(screen.getByRole("checkbox", { name: /変更内容と backup を確認/ }));
+      expect(screen.getByRole("button", { name: "適用する" })).toBeDisabled(); // still needs the acknowledgement
+      await user.click(screen.getByRole("checkbox", { name: /読めない save を上書きする/ }));
+      await user.click(screen.getByRole("button", { name: "適用する" }));
+      expect(screen.getByRole("status")).toHaveTextContent("適用しました");
+      expect(storage.inner.getItem(KEY)).toBeNull(); // a brand-new save has no key
+      expect(storage.inner.getItem(backupKey("original"))).not.toBeNull();
+      await openTab(user, "バックアップ");
+      await user.click(within(document.querySelector('[data-backup-slot="original"]') as HTMLElement).getByRole("button", { name: /この backup に戻す/ }));
+      await user.click(screen.getByRole("button", { name: "復元する" }));
+      expect(storage.inner.getItem(KEY)).toBe(raw);
+    }
+  });
+
+  it("a readable save with no change still has nothing to apply", async () => {
+    const user = userEvent.setup();
+    render(<StateEditor storage={spyStorage({ [KEY]: FUTURE_RAW })} now={NOW} />);
+    await openTab(user, "適用");
+    expect(screen.getByRole("checkbox", { name: /変更内容と backup を確認/ })).toBeDisabled();
+  });
+});
+
 describe("backup / restore", () => {
   it("restore asks twice, puts the raw text back byte for byte, and the editor shows the restored save", async () => {
     const storage = spyStorage({ [KEY]: FUTURE_RAW });

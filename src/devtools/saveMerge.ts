@@ -98,6 +98,27 @@ function asList(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
 }
 
+/**
+ * The acquisition order is history (the Research unlock fact and the Deduction guard read it), and the game's own
+ * writer keeps the stored positions of ids it does not know (`mergeOwnedOrder`). So an unknown id is NOT appended
+ * behind the edited known ids: it goes back right after the closest earlier stored id that is still in the result
+ * (a known id the edit kept, or an unknown id already placed); with none, it keeps the front. An edit that does not
+ * touch the order therefore leaves the stored order exactly as it was.
+ */
+function mergeUnknownOwnedAtStoredPositions(edited: readonly string[], storedOrder: readonly unknown[], unknown: ReadonlySet<string>): string[] {
+  const result = [...edited];
+  const stored = storedOrder.filter((id): id is string => typeof id === "string");
+  const placed = new Set<string>();
+  stored.forEach((id, i) => {
+    if (!unknown.has(id) || placed.has(id)) return;
+    placed.add(id);
+    let anchor = -1;
+    for (let j = i - 1; j >= 0 && anchor < 0; j -= 1) anchor = result.indexOf(stored[j]);
+    result.splice(anchor + 1, 0, id);
+  });
+  return result;
+}
+
 function defaultSaveObject(): Record<string, unknown> {
   const { dinnerMissionRecordsState: _derived, ...stored } = createDefaultSave();
   return { ...stored };
@@ -161,7 +182,9 @@ export function mergeEditedSave(
     if (extra.length > 0) out[field] = [...asList(out[field]), ...extra];
   };
   append("dex", asList(unknownIdsOnly.dex));
-  append("ownedIngredientIds", asList(unknownIdsOnly.ownedIngredientIds));
+  if (asList(unknownIdsOnly.ownedIngredientIds).length > 0) {
+    out.ownedIngredientIds = mergeUnknownOwnedAtStoredPositions(asList(out.ownedIngredientIds) as string[], asList(stored.ownedIngredientIds), new Set(asList(unknownIdsOnly.ownedIngredientIds) as string[]));
+  }
   append("starterGrantClaimedRecipeIds", asList(unknownIdsOnly.starterGrantClaimedRecipeIds));
   append("unlockedForShopIngredientIds", asList(unknownIdsOnly.unlockedForShopIngredientIds));
   if (asList(unknownIdsOnly.discoveredTechniqueIds).length > 0) {

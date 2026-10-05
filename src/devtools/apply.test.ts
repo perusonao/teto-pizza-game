@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loadSave, persistProgress, SAVE_STORAGE_KEY, type StorageLike } from "../state/persistence";
 import { applyEditableState, inspectStoredSave } from "./apply";
 import { backupKey, discardBackup, makeBackupEntry, readBackup, restoreBackup, writeBackup } from "./backup";
+import { productionCatalog } from "./editorCatalog";
 import { createMemoryStorage } from "./memoryStorage";
 import { PRESETS, buildPreset } from "./presets";
 import { editableFromSave, loadCanonical, toSnapshot } from "./stateModel";
@@ -137,6 +138,21 @@ describe("apply: round trips over every kind of stored save", () => {
     expect(stored.missionBest).toEqual({ "lunch-rush": 9 });
     expect(restoreBackup(storage, "original").ok).toBe(true);
     expect(storage.getItem(KEY)).toBe(raw);
+  });
+});
+
+describe("apply keeps the stored acquisition order around unknown ids (Codex P2)", () => {
+  it("a Pitz-only apply over a save with newer-build ingredients between the known ones leaves ownedIngredientIds as stored", () => {
+    const catalogFinite = productionCatalog().ingredients.filter((i) => i.unlockCondition !== undefined).map((i) => i.id);
+    const [a, b] = catalogFinite;
+    const owned = [...productionCatalog().starterIds, a, "future-x", b];
+    const raw = JSON.stringify({ schemaVersion: 2, dex: [], pitzBalance: 1, ownedIngredientIds: owned, inventory: { [a]: 3, [b]: 4 }, missionBest: {} });
+    const storage = createMemoryStorage({ [KEY]: raw });
+    const state = { ...editableFromSave(loadSave(storage)), pitzBalance: 500 };
+    expect(applyEditableState(state, storage, { now: NOW }).ok).toBe(true);
+    const stored = JSON.parse(storage.getItem(KEY)!) as { ownedIngredientIds: string[]; pitzBalance: number };
+    expect(stored.pitzBalance).toBe(500);
+    expect(stored.ownedIngredientIds).toEqual(owned);
   });
 });
 

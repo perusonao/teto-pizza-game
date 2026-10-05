@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { productionCatalog } from "./editorCatalog";
 import { classifyRawSave, DEFAULT_MERGE_OPTIONS, mergeEditedSave, type RawSaveClass } from "./saveMerge";
 import { buildPreset } from "./presets";
-import { canonicalSaveObject } from "./stateModel";
+import { canonicalSaveObject, freshEditableState } from "./stateModel";
 
 const catalog = productionCatalog();
 
@@ -54,6 +54,44 @@ describe("classifyRawSave (the game's own root gate)", () => {
   });
 });
 
+describe("mergeEditedSave: unknown owned ids keep their acquisition positions (Codex P2)", () => {
+  const [f0, f1, f2] = catalog.ingredients.filter((i) => i.unlockCondition !== undefined).map((i) => i.id);
+  const starters = [...catalog.starterIds];
+  const store = (owned: string[]): RawSaveClass => readable({ schemaVersion: 2, dex: [], ownedIngredientIds: owned });
+  const edited = (owned: string[]) => canonicalSaveObject({ ...freshEditableState(), ownedIngredientIds: owned });
+  const ownedOf = (value: Record<string, unknown> | null) => value!.ownedIngredientIds as string[];
+
+  it("an edit that does not touch the order (Pitz) leaves the stored order exactly as it was, unknown ids in the middle included", () => {
+    const stored = [...starters, f0, "future-a", f1, "future-b", f2];
+    const canonical = canonicalSaveObject({ ...freshEditableState(), ownedIngredientIds: [...starters, f0, f1, f2], pitzBalance: 99 });
+    expect(ownedOf(mergeEditedSave(canonical, store(stored), catalog).value)).toEqual(stored);
+  });
+
+  it("a reordered known sequence: each unknown id follows the stored id it came after", () => {
+    const stored = [...starters, f0, "future-a", f1, f2];
+    const result = ownedOf(mergeEditedSave(edited([...starters, f1, f0, f2]), store(stored), catalog).value);
+    expect(result).toEqual([...starters, f1, f0, "future-a", f2]);
+  });
+
+  it("when its anchor was removed by the edit, it follows the closest earlier id that is still there; consecutive unknown ids keep their relative order", () => {
+    const stored = [...starters, f0, "future-a", "future-b", f1];
+    const result = ownedOf(mergeEditedSave(edited([...starters, f1]), store(stored), catalog).value);
+    expect(result).toEqual([...starters, "future-a", "future-b", f1]);
+  });
+
+  it("an unknown id stored before every known id keeps the front", () => {
+    const result = ownedOf(mergeEditedSave(edited([...starters, f0]), store(["future-a", ...starters, f0]), catalog).value);
+    expect(result).toEqual(["future-a", ...starters, f0]);
+  });
+
+  it("a newly OWNED known id stays where the edit put it; unknown ids are never duplicated or dropped", () => {
+    const stored = [...starters, "future-a", f0];
+    const result = ownedOf(mergeEditedSave(edited([...starters, f0, f1]), store(stored), catalog).value);
+    expect(result).toEqual([...starters, "future-a", f0, f1]);
+    expect(result.filter((id) => id === "future-a")).toHaveLength(1);
+  });
+});
+
 describe("mergeEditedSave: replace the known editable fields, keep everything else", () => {
   const state = buildPreset("margherita-discovered");
   const canonical = canonicalSaveObject({ ...state, pitzBalance: 300 });
@@ -70,7 +108,8 @@ describe("mergeEditedSave: replace the known editable fields, keep everything el
     const dex = value?.dex as { recipeId: string }[];
     expect(dex.map((e) => e.recipeId)).toEqual(["margherita", "future-recipe"]);
     expect(value?.ownedIngredientIds).toContain("future-ingredient");
-    expect((value!.ownedIngredientIds as string[]).indexOf("future-ingredient")).toBeGreaterThanOrEqual(catalog.starterIds.length);
+    // an unknown id keeps its STORED position (here right after the first starter), see the positions test below
+    expect((value!.ownedIngredientIds as string[]).indexOf("future-ingredient")).toBe(1);
     expect(value?.inventory).toEqual({ "future-ingredient": 5 });
     expect(value?.starterGrantClaimedRecipeIds).toEqual(["future-recipe"]);
     expect(value?.unlockedForShopIngredientIds).toContain("future-ingredient");
