@@ -658,7 +658,7 @@ export function isValidResearchTarget(
 export interface ResearchEntryView {
   /** Opaque key for wiring only (callbacks); never rendered. */
   recipeId: string;
-  /** 「？？？ピザ」 / 「？？？ピザ ①」 */
+  /** The shared stable label (`researchEntryLabel`): 「？？？ピザ B（たまねぎ）」 / 「？？？ピザ（チキン）」. */
   label: string;
   /** Exact ingredients known: the unlock fact, then bought exact-name Hint facts (`ing:`). */
   knownExactIngredientIds: readonly string[];
@@ -670,7 +670,7 @@ export interface ResearchEntryView {
 
 type ResearchViewInputs = Pick<DiscoveryHintState, "dex" | "ownedIngredientIds"> & Partial<Pick<DiscoveryHintState, "discoveryHintFacts">>;
 
-function viewOf(entry: ResearchEntry, index: number, count: number, stored: readonly string[]): ResearchEntryView {
+function viewOf(entry: ResearchEntry, stored: readonly string[]): ResearchEntryView {
   const recipe = getRecipe(entry.recipeId as RecipeId);
   const inRecipe = new Set(recipe?.requiredIngredients.map((r) => r.ingredientId) ?? []);
   // Exact: S1's unlock fact, then the player's own bought `ing:` names (Hint authority), recipe-checked.
@@ -692,7 +692,7 @@ function viewOf(entry: ResearchEntry, index: number, count: number, stored: read
   }
   return {
     recipeId: entry.recipeId,
-    label: researchEntryLabel(index, count),
+    label: researchEntryLabel(entry),
     knownExactIngredientIds: exact,
     classLinesJa: classLines,
     totalIngredientCount: entry.totalIngredientCount,
@@ -702,7 +702,7 @@ function viewOf(entry: ResearchEntry, index: number, count: number, stored: read
 /** Every registered Research Entry as the UI may show it, in S1's stable anonymous order. */
 export function researchEntryViews(state: ResearchViewInputs): ResearchEntryView[] {
   const { entries } = deriveResearchEntries(state);
-  return entries.map((entry, index) => viewOf(entry, index, entries.length, storedFactIds({ discoveryHintFacts: state.discoveryHintFacts ?? {} }, entry.recipeId)));
+  return entries.map((entry) => viewOf(entry, storedFactIds({ discoveryHintFacts: state.discoveryHintFacts ?? {} }, entry.recipeId)));
 }
 
 /** The Research Target's view for the cooking context, or `null` without a valid target. */
@@ -753,7 +753,7 @@ export function researchResultView(state: DiscoveryHintState): ResearchEntryView
 
 /** What REGISTER_TO_DEX needs of the attempt's Research Target: its already-public label and the full known(T). */
 export interface ResearchAttemptContext {
-  /** The registered entry's public label with its unlock fact: 「？？？ピザ ①（チキン）」. Never a recipe name / id. */
+  /** The registered entry's stable public label (unlock fact + cohort letter): 「？？？ピザ B（たまねぎ）」. Never a recipe name / id. */
   labelJa: string;
   /** known(T): the derived unlock fact plus every stored `ing:` fact (Contract 2.1 §2), as `researchResultView` knows it. */
   knownIngredientIds: readonly string[];
@@ -767,10 +767,9 @@ export interface ResearchAttemptContext {
 export function researchAttemptContext(state: DiscoveryHintState): ResearchAttemptContext | null {
   const view = researchResultView(state);
   if (!view) return null;
-  const unlockId = deriveResearchEntries(state).entries.find((e) => e.recipeId === view.recipeId)?.knownExactIngredientIds[0];
-  const unlockName = unlockId ? getIngredient(unlockId)?.nameJa : undefined;
+  // The one label authority (`researchEntryLabel`) already carries the unlock fact: no recomposition here.
   return {
-    labelJa: unlockName ? `${view.label}（${unlockName}）` : view.label,
+    labelJa: view.label,
     knownIngredientIds: view.knownExactIngredientIds,
   };
 }

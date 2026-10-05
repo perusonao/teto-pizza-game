@@ -268,8 +268,9 @@ describe("Research UX Phase 1 in PREPARE", () => {
     const s = gameReducer(researchRound(), { type: "SHOW_HINT" });
     renderAt(s);
     const band = document.querySelector("[data-hint-research]");
-    expect(band?.textContent).toBe("🔎 研究中 ？？？ピザ");
-    expect(band?.textContent).not.toMatch(/ペスト|pesto|チキン|chicken|[0-9０-９]/);
+    expect(band?.textContent).toBe("🔎 研究中 ？？？ピザ（チキン）");
+    // The unlock ingredient (チキン) is the one public fact of the label (Research 2.0 OD-R2-4); nothing else may appear.
+    expect(band?.textContent).not.toMatch(/ペスト|pesto|chicken|[0-9０-９]/);
   });
 
   it("the Hint sheet of a targetless FREE round shows no research band", () => {

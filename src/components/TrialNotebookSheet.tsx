@@ -4,6 +4,7 @@ import type { TrialEntryView } from "../logic/discovery/trialNotebook";
 import { diffsForView, type TrialDiff } from "../logic/discovery/trialNotebookDiff";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { NOTEBOOK_COPY } from "./trialNotebookCopy";
+import { ResearchLabel } from "./ResearchLabel";
 
 /**
  * Discovery 3.0 Notebook N1: the read-only 試作ノート, opened from the Hint sheet and closed back onto it.
@@ -88,7 +89,7 @@ export function TrialNotebookSheet({
   onBack: () => void;
   /** Where 「もどる」 leads: the Hint sheet (default) or the RESULT. */
   backLabel?: string;
-  /** #346 S4: the current Research Target's anonymous label (「？？？ピザ ①」), shown once as a header band for
+  /** #346 S4: the current Research Target's anonymous label (「？？？ピザ B（たまねぎ）」), shown once as a header band for
    *  the whole notebook. Never per row: a row carries no target (the notebook has no recipe field). */
   researchLabelJa?: string | null;
 }) {
@@ -131,7 +132,7 @@ export function TrialNotebookSheet({
         </div>
         {researchLabelJa && (
           <p className="trial-notebook__research" data-trial-research="">
-            {NOTEBOOK_COPY.researchContext}：{"\u{1F50E}"} {researchLabelJa}
+            {NOTEBOOK_COPY.researchContext}：{"\u{1F50E}"} <ResearchLabel labelJa={researchLabelJa} />
           </p>
         )}
         {entries.length === 0 ? (

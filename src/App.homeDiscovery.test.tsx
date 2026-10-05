@@ -77,7 +77,7 @@ describe("HOME レシピ発見 (#373)", () => {
     expect(cards.length).toBeGreaterThanOrEqual(2);
     await user.click(screen.getAllByRole("button", { name: /を研究する/ })[1]);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ ②/);
+    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("D. the Dex's 研究する is unchanged (single entry): Research Target round", async () => {
@@ -85,7 +85,7 @@ describe("HOME レシピ発見 (#373)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    await user.click(screen.getByRole("button", { name: "？？？ピザを研究する" }));
+    await user.click(screen.getByRole("button", { name: "？？？ピザ（チキン）を研究する" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
     expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });
@@ -105,7 +105,7 @@ describe("HOME レシピ発見 (#373)", () => {
     seedSingle();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
-    await user.click(screen.getByRole("button", { name: "？？？ピザを研究する" }));
+    await user.click(screen.getByRole("button", { name: "？？？ピザ（チキン）を研究する" }));
     const dexHint = (await (async () => {
       await user.click(screen.getByRole("button", { name: "ヒント" }));
       return screen.getByRole("dialog", { name: /ヒント/ });

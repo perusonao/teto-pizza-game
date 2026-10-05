@@ -147,7 +147,12 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await page.getByRole("button", { name: "🔎 次のピザを選んで研究する" }).click();
     await page.waitForSelector(".dex-overlay");
     await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(2);
-    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ ①を研究する" }).click();
+    // Research 2.0: calabresa (B) was just discovered live; its siblings keep their letters (A and C, never A and B).
+    expect(await page.locator(".dex-overlay__research .dex-research-card h3").allTextContents()).toEqual([
+      "？？？ピザ A（たまねぎ）",
+      "？？？ピザ C（たまねぎ）",
+    ]);
+    await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
     await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
     await capture(page, "pool2-research-next-started", testInfo.project.name);
     page.on("dialog", (d) => void d.accept());

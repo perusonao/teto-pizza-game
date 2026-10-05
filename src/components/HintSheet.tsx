@@ -8,7 +8,7 @@ import type { TrialEntryView } from "../logic/discovery/trialNotebook";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { CHOOSE_RESEARCH_COPY, OPEN_POOL_ACTIONS } from "./openPoolCopy";
 import { TrialNotebookSheet } from "./TrialNotebookSheet";
-import { RESEARCH_UX_COPY } from "./researchUxCopy";
+import { ResearchContextLine } from "./ResearchLabel";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet.
@@ -202,7 +202,7 @@ export function HintSheet({
   pantry?: HintPantryAccess;
   /** #353: the way from CHOOSE_RESEARCH to the Dex's anonymous Research cards (UI navigation only). */
   onChooseResearch?: () => void;
-  /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ ①」), shown as one context line. Never a
+  /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ B（たまねぎ）」 / 「？？？ピザ（チキン）」, `researchEntryLabel`), shown as one context line. Never a
    *  recipe name or id; `null` (no valid target) renders nothing. */
   researchLabelJa?: string | null;
   onClose: () => void;
@@ -295,7 +295,7 @@ export function HintSheet({
 
         {researchLabelJa && (
           <p className="hint-sheet__research" data-hint-research="">
-            {RESEARCH_UX_COPY.contextLine(researchLabelJa)}
+            <ResearchContextLine labelJa={researchLabelJa} />
           </p>
         )}
 

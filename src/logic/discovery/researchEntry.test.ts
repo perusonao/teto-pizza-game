@@ -118,7 +118,7 @@ describe("STRUCTURE privacy", () => {
   it("does not expose remaining counts or unknown slots at any stage", () => {
     for (const facts of [undefined, { "pesto-pollo": [INGREDIENT_TOTAL_FACT_ID] }]) {
       const keys = Object.keys(entry(facts)).sort();
-      expect(keys).toEqual(["knownExactIngredientIds", "recipeId", "state", "totalIngredientCount", "unlockIngredientId"]);
+      expect(keys).toEqual(["cohortLetter", "knownExactIngredientIds", "recipeId", "state", "totalIngredientCount", "unlockIngredientId"]);
       expect(JSON.stringify(entry(facts))).not.toMatch(/remaining|slot|unknown|candidate|percent|name/i);
     }
   });

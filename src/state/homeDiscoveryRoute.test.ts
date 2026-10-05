@@ -87,7 +87,7 @@ describe("HOME start vs Dex start (#373 parity)", () => {
     expect(home.researchTargetId).toBe(id);
     expect(home.researchTargetValidAtStart).toBe(true);
     expect(home).toEqual(dex);
-    expect(researchResultView(home)?.label).toBe("？？？ピザ");
+    expect(researchResultView(home)?.label).toBe("？？？ピザ（チキン）");
 
     const fresh = startFromHome(createInitialGameState());
     expect(fresh.researchTargetId).toBeNull();
