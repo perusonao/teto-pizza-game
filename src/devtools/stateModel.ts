@@ -45,6 +45,19 @@ export const EDITABLE_STATE_KEYS = [
   "discoveredTechniqueIds",
 ] as const satisfies readonly (keyof EditableState)[];
 
+/** Japanese labels of the editable fields, for the apply review (kept here with the field list itself). */
+export const EDITABLE_FIELD_LABELS_JA: Record<keyof EditableState, string> = {
+  dex: "Dex（発見済みピザ）",
+  pitzBalance: "Pitz",
+  ownedIngredientIds: "所有材料（取得順）",
+  inventory: "在庫",
+  starterGrantClaimedRecipeIds: "Starter Grant 台帳",
+  unlockedForShopIngredientIds: "Shop 解放台帳（load 時にゲームが再導出）",
+  discoveryHintPurchases: "Hint 購入履歴",
+  discoveryHintFacts: "Hint facts",
+  discoveredTechniqueIds: "発見済み Technique",
+};
+
 export function editableFromSave(save: PersistentSaveV2): EditableState {
   return {
     dex: save.dex.map((e) => ({ ...e })),

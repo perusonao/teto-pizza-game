@@ -2,7 +2,7 @@
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
-import { DEV_BACKUP_KEY_SUFFIX, DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "../devtools/marks";
+import { DEV_BACKUP_KEY_SUFFIX, DEV_EDITOR_BACKUP_TITLE, DEV_EDITOR_REVIEW_TITLE, DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "../devtools/marks";
 import { PENDING_PRESETS, PRESETS } from "../devtools/presets";
 import { HV_SCENARIOS } from "./hvSeeds";
 
@@ -51,6 +51,8 @@ const PREVIEW_ONLY_STRINGS = [
   DEV_STATE_EDITOR_MARK,
   DEV_STATE_EDITOR_TITLE,
   DEV_BACKUP_KEY_SUFFIX,
+  DEV_EDITOR_REVIEW_TITLE,
+  DEV_EDITOR_BACKUP_TITLE,
   ...PRESETS.map((p) => p.labelJa),
   ...PENDING_PRESETS.map((p) => p.labelJa),
   "research-step12-ready",

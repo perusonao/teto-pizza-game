@@ -15,12 +15,16 @@ import type { DexState } from "../state/dex";
  */
 export interface CatalogRecipe {
   id: string;
+  /** Display name (DEV UI only). Absent in a synthetic catalog: the id is shown instead. */
+  nameJa?: string;
   requiredIngredients: readonly { ingredientId: string }[];
   ladderCredit?: false;
 }
 
 export interface CatalogIngredient {
   id: string;
+  /** Display name (DEV UI only). Absent in a synthetic catalog: the id is shown instead. */
+  nameJa?: string;
   /** Present = a finite (purchasable, stocked) material; absent = a starter. */
   unlockCondition?: unknown;
 }

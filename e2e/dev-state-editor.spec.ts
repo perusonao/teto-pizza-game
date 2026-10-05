@@ -196,10 +196,13 @@ test.describe("Preview build: ?dev=state opens the shell and changes nothing", (
     await expect(main).toContainText("PREVIEW");
     await expect(main).toContainText(PREVIEW_KEY);
     await expect(main).toContainText("読み取り可");
+    // S4: the presets are on their own tab; opening the page and switching tabs only reads (checked below).
+    await expect(main.getByRole("tab")).toHaveCount(6);
+    await main.getByRole("tab", { name: "プリセット" }).click();
     for (const label of ["Fresh Start", "Margherita discovered", "Research Step 12 Ready", "Step 12 A/B/C undiscovered", "All Ingredients", "All Recipes", "Everything Unlocked", "Step 12 B discovered"]) {
       await expect(main.getByText(label, { exact: true })).toBeVisible();
     }
-    await expect(page.getByRole("button")).toHaveCount(0);
+    await main.getByRole("tab", { name: "状態" }).click();
     const m = await page.evaluate(() => ({ vw: window.innerWidth, scrollWidth: document.documentElement.scrollWidth, link: document.querySelector<HTMLElement>(".dse__link")!.getBoundingClientRect().height }));
     expect(m.scrollWidth, "horizontal overflow").toBeLessThanOrEqual(m.vw);
     expect(m.link, "link tap height").toBeGreaterThanOrEqual(44);

@@ -23,7 +23,23 @@ const devtoolsSources = Object.entries(all).filter(([file]) => inDevtools(file))
 describe("DEV State Editor access (source)", () => {
   it("the scan sees the app and the editor", () => {
     expect(Object.keys(all).length).toBeGreaterThan(100);
-    expect(devtoolsSources.map(([f]) => baseName(f)).sort()).toEqual(["StateEditorShell.tsx", "apply.ts", "backup.ts", "editorCatalog.ts", "marks.ts", "memoryStorage.ts", "presets.ts", "saveMerge.ts", "stateModel.ts"]);
+    expect(devtoolsSources.map(([f]) => baseName(f)).sort()).toEqual([
+      "BackupPanel.tsx",
+      "IngredientsPanel.tsx",
+      "NumberField.tsx",
+      "ReviewPanel.tsx",
+      "StateEditor.tsx",
+      "StateEditorShell.tsx",
+      "apply.ts",
+      "backup.ts",
+      "editorCatalog.ts",
+      "editorModel.ts",
+      "marks.ts",
+      "memoryStorage.ts",
+      "presets.ts",
+      "saveMerge.ts",
+      "stateModel.ts",
+    ]);
   });
 
   it("no production source outside src/devtools and src/main.tsx refers to the editor, its URL parameter or its keys", () => {

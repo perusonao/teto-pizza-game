@@ -13,3 +13,7 @@ export const DEV_BACKUP_KEY_SUFFIX = ".dev-backup-v1";
 
 /** The page title shown by the editor shell. */
 export const DEV_STATE_EDITOR_TITLE = "DEV State Editor";
+
+/** Titles that exist only in the editor UI chunk (the production-bundle gate scans for them too). */
+export const DEV_EDITOR_REVIEW_TITLE = "適用前の確認（DEV）";
+export const DEV_EDITOR_BACKUP_TITLE = "DEV backup / restore";
