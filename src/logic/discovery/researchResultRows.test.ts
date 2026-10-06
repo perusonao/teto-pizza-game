@@ -83,7 +83,7 @@ describe("known check-marked ingredients", () => {
   });
   it("an all-known pizza yields nothing", () => {
     const r = run(MEAT, pizza(["tomato-sauce"], ["ham"]), ["tomato-sauce", "ham"]);
-    expect(r).toEqual({ rows: [], toppingOverCap: false, persistFactIds: [] });
+    expect(r).toEqual({ rows: [], toppingOverCap: false, persistFactIds: [], persistExclusionIds: [] });
   });
   it("known ids are read from `ing:` facts only", () => {
     expect(knownIngredientIdsFromFacts(["ing:ham", "ing:ham", "cls:meat", "meta:ingredient-total", 3, undefined])).toEqual(["ham"]);
@@ -111,6 +111,27 @@ describe("order", () => {
   });
 });
 
+describe("exclusion candidates (Research 2.0 Phase 2: INV-B1 / B2 / B9)", () => {
+  it("are the NEGATIVE rows only, as bare ingredient ids, in row order -- never an ing: fact", () => {
+    const r = run(MEAT, pizza(["pesto"], ["gorgonzola", "egg", "ham"]));
+    expect(r.persistExclusionIds).toEqual(r.rows.filter((x) => x.verdict === "NEGATIVE").map((x) => x.ingredientId));
+    expect(r.persistExclusionIds.length).toBeGreaterThan(0);
+    expect(r.persistExclusionIds.some((id) => id.includes(":"))).toBe(false);
+    expect(r.persistFactIds.some((id) => r.persistExclusionIds.includes(id.slice(4)))).toBe(false);
+  });
+  it("a known ingredient, an over-capped topping and an unused ingredient are never candidates", () => {
+    const known = run(MEAT, pizza([], ["egg"]), ["egg"]);
+    expect(known.persistExclusionIds).toEqual([]);
+    const over = run(MEAT, pizza([], ["egg", "onion", "bacon-bits", "mushroom", "pineapple"]));
+    expect(over.toppingOverCap).toBe(true);
+    expect(over.persistExclusionIds).toEqual([]);
+  });
+  it("positives are never exclusion candidates (disclosure = persist, per ledger)", () => {
+    const r = run(MEAT, pizza(["tomato-sauce"], ["mozzarella", "ham"]));
+    expect(r.persistExclusionIds).toEqual([]);
+  });
+});
+
 describe("persistence candidates", () => {
   it("are the positive rows only, as ing:<id>, in row order", () => {
     const r = run(MEAT, pizza(["tomato-sauce"], ["mozzarella", "gorgonzola", "ham", "egg"]));
@@ -130,9 +151,9 @@ describe("persistence candidates", () => {
 
 describe("Anti-Oracle shape", () => {
   const FORBIDDEN = /count|total|distance|similar|missing|remaining|candidate|correct|score|near|far|recipe|target|name|rate|ratio|percent/i;
-  it("exposes only rows / toppingOverCap / persistFactIds, with no counting or identity field", () => {
+  it("exposes only rows / toppingOverCap / persistFactIds, with no counting or identity field (persistExclusionIds = the bare NEGATIVE ids, Research 2.0 Phase 2)", () => {
     const r = run(CAPRI, pizza(["tomato-sauce"], ["mozzarella", "mushroom", "egg"]));
-    expect(Object.keys(r).sort()).toEqual(["persistFactIds", "rows", "toppingOverCap"]);
+    expect(Object.keys(r).sort()).toEqual(["persistExclusionIds", "persistFactIds", "rows", "toppingOverCap"]);
     for (const row of r.rows) expect(Object.keys(row).sort()).toEqual(["category", "ingredientId", "verdict"]);
     for (const key of [...Object.keys(r), ...r.rows.flatMap((x) => Object.keys(x))]) expect(key).not.toMatch(FORBIDDEN);
   });
@@ -179,7 +200,7 @@ describe("independence from cooking / matcher quality (INV-D6)", () => {
 
 describe("robustness (fail closed)", () => {
   it("malformed pizza containers, unknown ingredient ids and an unknown target never throw", () => {
-    expect(run(MEAT, { sauceIds: null, toppings: "x" })).toEqual({ rows: [], toppingOverCap: false, persistFactIds: [] });
+    expect(run(MEAT, { sauceIds: null, toppings: "x" })).toEqual({ rows: [], toppingOverCap: false, persistFactIds: [], persistExclusionIds: [] });
     expect(view(run(MEAT, { sauceIds: [1, "tomato-sauce"], toppings: [null, { ingredientId: 3 }, t("no-such-ingredient"), t("ham")] }))).toEqual([
       "sauce:tomato-sauce:POSITIVE",
       "topping:ham:POSITIVE",
@@ -227,7 +248,7 @@ describe("Production constraints (Contract §3 / §10 / §13.1)", () => {
   it("nothing the rows return can state an absence: the row type has no 'none' / 'no sauce' verdict or field", () => {
     const every = RECIPES.flatMap((r) => [run(r.id, pizza(["tomato-sauce"], ["onion"])), run(r.id, pizza([], ["onion"]))]);
     for (const result of every) {
-      expect(Object.keys(result).sort()).toEqual(["persistFactIds", "rows", "toppingOverCap"]);
+      expect(Object.keys(result).sort()).toEqual(["persistExclusionIds", "persistFactIds", "rows", "toppingOverCap"]);
       for (const row of result.rows) {
         expect(Object.keys(row).sort()).toEqual(["category", "ingredientId", "verdict"]);
         expect(["POSITIVE", "NEGATIVE"]).toContain(row.verdict);

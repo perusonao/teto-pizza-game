@@ -5,6 +5,8 @@ import { diffsForView, type TrialDiff } from "../logic/discovery/trialNotebookDi
 import { IngredientGlyph } from "./IngredientGlyph";
 import { NOTEBOOK_COPY } from "./trialNotebookCopy";
 import { ResearchLabel } from "./ResearchLabel";
+import { ResearchBoardPanel } from "./ResearchBoardPanel";
+import type { ResearchBoard } from "../logic/discovery/researchBoard";
 
 /**
  * Discovery 3.0 Notebook N1: the read-only 試作ノート, opened from the Hint sheet and closed back onto it.
@@ -84,6 +86,7 @@ export function TrialNotebookSheet({
   onBack,
   backLabel = NOTEBOOK_COPY.back,
   researchLabelJa = null,
+  researchBoard = null,
 }: {
   entries: readonly TrialEntryView[];
   onBack: () => void;
@@ -92,6 +95,9 @@ export function TrialNotebookSheet({
   /** #346 S4: the current Research Target's anonymous label (「？？？ピザ B（たまねぎ）」), shown once as a header band for
    *  the whole notebook. Never per row: a row carries no target (the notebook has no recipe field). */
   researchLabelJa?: string | null;
+  /** Research Board (Phase 2 / S4): the S1 read model of the current Research Target, shown above the session attempts.
+   *  Rendered as given; `null` (no valid target) renders nothing. */
+  researchBoard?: ResearchBoard | null;
 }) {
   const titleId = useId();
   const backRef = useRef<HTMLButtonElement>(null);
@@ -135,10 +141,12 @@ export function TrialNotebookSheet({
             {NOTEBOOK_COPY.researchContext}：{"\u{1F50E}"} <ResearchLabel labelJa={researchLabelJa} />
           </p>
         )}
+        {researchBoard && <ResearchBoardPanel board={researchBoard} />}
         {entries.length === 0 ? (
           <div className="trial-notebook__empty" data-trial-notebook-empty="">
             <p className="trial-notebook__empty-title">{NOTEBOOK_COPY.empty}</p>
             <p className="trial-notebook__empty-body">{NOTEBOOK_COPY.emptyHint}</p>
+            <p className="trial-notebook__session-note">{NOTEBOOK_COPY.sessionOnly}</p>
           </div>
         ) : (
           <div className="trial-notebook__body">
@@ -173,9 +181,10 @@ export function TrialNotebookSheet({
                 );
               })}
             </ul>
+            {/* Directly under the attempt history (not under the saved Research Board above it): only the attempts vanish on reload. */}
+            <p className="trial-notebook__session-note">{NOTEBOOK_COPY.sessionOnly}</p>
           </div>
         )}
-        <p className="trial-notebook__session-note">{NOTEBOOK_COPY.sessionOnly}</p>
       </section>
     </div>
   );

@@ -50,6 +50,8 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
       "missionBest",
       "ownedIngredientIds",
       "pitzBalance",
+      // Research 2.0 Phase 2 (OD-R1-2): the negative ledger (stored only when non-empty), not a Reference field.
+      "researchExclusions",
       "schemaVersion",
       "starterGrantClaimedRecipeIds",
       // I4b-2: the Discovery Ladder Shop entitlement ledger (REC-04), not a Reference field.

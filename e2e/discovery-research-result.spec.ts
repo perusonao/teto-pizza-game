@@ -32,6 +32,8 @@ const SAVE = {
   inventory: Object.fromEntries(materials.map((m) => [m, 30])),
   starterGrantClaimedRecipeIds: [],
   unlockedForShopIngredientIds: materials,
+  // Research Board (S4): a saved disclosed-NEGATIVE row, shown as ✗ above the attempt log.
+  researchExclusions: { "pesto-pollo": ["egg"] },
 };
 
 // Wording the Research RESULT / Notebook must never use (recipe-attributed correctness, counts, distance, near/far).
@@ -129,6 +131,17 @@ test("Research loop: ORIGINAL result -> Notebook -> Hint -> retry keeps the same
   await expect(notebook).toBeVisible();
   await expect(notebook.locator("[data-trial-research]")).toContainText("いまの研究対象");
   await expect(notebook.locator("[data-trial-research]")).toContainText("？？？ピザ");
+  // Research Board (S4): saved facts of the current target only, above the session attempt log
+  const board = notebook.locator("[data-research-board]");
+  await expect(board).toBeVisible();
+  await expect(board).toContainText("これまでの試作で確定して、保存された情報");
+  await expect(board.locator("[data-research-board-known]")).toContainText("チキン");
+  await expect(board.locator("[data-research-board-excluded]")).toContainText("たまご");
+  await expect(board.locator("[data-research-board-unsure]")).toHaveCount(0);
+  expect(await board.innerText()).not.toMatch(/No\.|候補|残り|回目|テクニック|試作 #/);
+  const boardBox = (await board.boundingBox())!;
+  const firstEntryBox = (await notebook.locator("[data-trial-entry]").first().boundingBox())!;
+  expect(boardBox.y + boardBox.height, "Board sits above the attempt log").toBeLessThanOrEqual(firstEntryBox.y);
   await expect(notebook.locator("[data-trial-entry]")).toHaveCount(1);
   await expect(notebook.locator("[data-trial-entry]")).toContainText("チキン");
   await expect(notebook.locator("[data-trial-entry]")).toContainText("トマトソース");

@@ -8,6 +8,7 @@ import type { TrialEntryView } from "../logic/discovery/trialNotebook";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { CHOOSE_RESEARCH_COPY, OPEN_POOL_ACTIONS } from "./openPoolCopy";
 import { TrialNotebookSheet } from "./TrialNotebookSheet";
+import type { ResearchBoard } from "../logic/discovery/researchBoard";
 import { ResearchContextLine } from "./ResearchLabel";
 
 /**
@@ -179,6 +180,7 @@ export function HintSheet({
   pantry,
   onChooseResearch,
   researchLabelJa = null,
+  researchBoard = null,
   researchDetails = null,
   freeCookNote = null,
   onClose,
@@ -207,6 +209,8 @@ export function HintSheet({
   /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ B（たまねぎ）」 / 「？？？ピザ（チキン）」, `researchEntryLabel`), shown as one context line. Never a
    *  recipe name or id; `null` (no valid target) renders nothing. */
   researchLabelJa?: string | null;
+  /** Research Board (S4): the read model of the current Research Target, forwarded to the notebook. */
+  researchBoard?: ResearchBoard | null;
   /** The Research round's PREPARE details (they used to be a card above the pizza): what the player already knows and the one
    *  fixed guidance sentence, both already public strings. `null` renders nothing. */
   researchDetails?: { knownJa: string; guidanceJa: string } | null;
@@ -436,7 +440,7 @@ export function HintSheet({
         )}
       </section>
       {/* Rendered beside (not inside) the sheet: the sheet's own transform would re-anchor a fixed child. */}
-      {notebookOpen && <TrialNotebookSheet entries={notebook} onBack={closeNotebook} researchLabelJa={researchLabelJa} />}
+      {notebookOpen && <TrialNotebookSheet entries={notebook} onBack={closeNotebook} researchLabelJa={researchLabelJa} researchBoard={researchBoard} />}
     </div>
   );
 }

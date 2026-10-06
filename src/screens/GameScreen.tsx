@@ -17,6 +17,7 @@ import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
+import { researchBoardOf } from "../logic/discovery/researchBoard";
 import { RESEARCH_UX_COPY } from "../components/researchUxCopy";
 import { ResearchContextLine } from "../components/ResearchLabel";
 import { MissionHud } from "../components/MissionHud";
@@ -299,6 +300,18 @@ export function GameScreen({
   const notebookRows = notebookView(state.trialNotebook);
   // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
   const researchResult = state.freeCook ? researchResultView(state) : null;
+  // Research Board (Phase 2 / S4): the S1 read model of the selected Research Target only; no target -> no Board.
+  const researchBoard = researchResult
+    ? researchBoardOf(
+        {
+          dex: state.dex,
+          ownedIngredientIds: state.ownedIngredientIds,
+          discoveryHintFacts: state.discoveryHintFacts,
+          researchExclusions: state.researchExclusions,
+        },
+        researchResult.recipeId,
+      )
+    : null;
   // #346 S4: the Trial Notebook opened from a Research ORIGINAL result (UI-only; reads the session notebook).
   const [resultNotebookOpen, setResultNotebookOpen] = useState(false);
   const resultNotebookEntryRef = useRef<HTMLButtonElement>(null);
@@ -981,6 +994,7 @@ export function GameScreen({
               notebook={notebookRows}
               pantry={hintPantryAccess}
               researchLabelJa={researchResult?.label ?? null}
+              researchBoard={researchBoard}
               freeCookNote={
                 state.freeCook && !researchResult
                   ? { titleJa: "\u{1F3A8} レシピ発見の試作", bodyJa: state.hint?.textJa ?? state.recipe.description }
@@ -1107,6 +1121,7 @@ export function GameScreen({
           entries={notebookRows}
           backLabel="結果にもどる"
           researchLabelJa={researchResult.label}
+          researchBoard={researchBoard}
           onBack={() => {
             setResultNotebookOpen(false);
             queueMicrotask(() => resultNotebookEntryRef.current?.focus());
@@ -1179,6 +1194,7 @@ export function GameScreen({
           entries={notebookRows}
           backLabel={RESEARCH_UX_COPY.notebookBack}
           researchLabelJa={researchResult.label}
+          researchBoard={researchBoard}
           onBack={() => {
             setPrepareNotebookOpen(false);
             queueMicrotask(() => prepareNotebookEntryRef.current?.focus());
