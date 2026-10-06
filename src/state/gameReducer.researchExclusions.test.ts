@@ -98,9 +98,10 @@ describe("INV-B2: nothing undisclosed is written", () => {
     const noTarget = finish(act(single(), { type: "START_FREE_COOK" }), mk("pesto", "egg"));
     expect(noTarget.researchExclusions).toEqual({});
   });
-  it("a round that is not a research ORIGINAL (a FAILED bake stays parked on RESULT) writes nothing yet", () => {
-    const parked = act(toResult(start(single()), mk("pesto", "egg"), 1), { type: "REGISTER_TO_DEX" });
-    if (parked.phase !== "DISCOVERED") expect(parked.researchExclusions).toEqual({});
+  it("a FAILED bake stays parked on RESULT through REGISTER_TO_DEX and never writes a second time", () => {
+    const parked = toResult(start(single()), mk("pesto", "egg"), 1);
+    expect(parked.phase).toBe("RESULT");
+    expect(act(parked, { type: "REGISTER_TO_DEX" })).toBe(parked);
   });
   it("REGISTER_TO_DEX is exactly-once: a repeated dispatch does not write twice", () => {
     const done = finish(start(single()), mk("pesto", "egg"));
