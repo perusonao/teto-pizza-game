@@ -7107,6 +7107,34 @@ p.hint-sheet__step {
   color: #6b4226;
 }
 
+/* Research Board (Phase 2 / S4): the saved facts of the current Research Target, above the session attempts. */
+.research-board {
+  flex: 0 0 auto;
+  max-height: 38dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 2px solid #e2c98f;
+  border-radius: 12px;
+  background: #fff3d6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.research-board__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.research-board__note {
+  margin: 0 0 2px;
+  font-size: 11px;
+  color: #8a6a4a;
+}
+
 /* ---------- 更新情報 (changelog) overlay: scrolls via the shared .dex-overlay__body ---------- */
 .changelog-list {
   list-style: none;

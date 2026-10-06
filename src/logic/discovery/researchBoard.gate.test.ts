@@ -30,9 +30,20 @@ describe("Research Board read model: disclosed information only", () => {
       expect(code, String(forbidden)).not.toMatch(new RegExp(`from\\s+["'][^"']*${forbidden.source}`, forbidden.flags));
     }
   });
-  it("is UNWIRED: no production module imports it yet (the Notebook UI is Phase 3 / S4)", () => {
-    const users = production.filter(([path, src]) => path !== BOARD && importsOf(src).some((i) => /researchBoard$/.test(i))).map(([p]) => p);
-    expect(users).toEqual([]);
+  it("S4 wiring: only the Notebook UI path imports it (GameScreen derives, HintSheet / Notebook / Panel render)", () => {
+    const users = production.filter(([path, src]) => path !== BOARD && importsOf(src).some((i) => /researchBoard$/.test(i))).map(([p]) => p).sort();
+    expect(users).toEqual(
+      [
+        "/src/components/HintSheet.tsx",
+        "/src/components/ResearchBoardPanel.tsx",
+        "/src/components/TrialNotebookSheet.tsx",
+        "/src/screens/GameScreen.tsx",
+      ].sort(),
+    );
+  });
+  it("the Board panel renders the read model only: no ledger, Hint, Technique or Trial Notebook model import", () => {
+    const code = stripComments(sources["/src/components/ResearchBoardPanel.tsx"]);
+    expect(code).not.toMatch(/researchExclusions|discoveryHint|hint5|selectableHint|deductionHint|techniques?\/|trialNotebook"|candidate/i);
   });
 });
 
@@ -51,6 +62,7 @@ describe("negative ledger: who may mention it", () => {
         "/src/App.tsx",
         "/src/devtools/saveMerge.ts",
         "/src/logic/discovery/researchBoard.ts",
+        "/src/screens/GameScreen.tsx", // S4: passes the stored ledger to the Board read model, nothing else
         "/src/state/gameReducer.ts",
         "/src/state/persistence.ts",
       ].sort(),
@@ -69,13 +81,14 @@ describe("negative ledger: who may mention it", () => {
       "/src/state/trialRecord.ts",
       "/src/logic/discovery/researchEntry.ts",
       "/src/logic/discovery/researchResultFeedback.ts",
-      "/src/components/HintSheet.tsx",
-      "/src/components/TrialNotebookSheet.tsx",
-      "/src/screens/GameScreen.tsx",
     ];
     for (const path of production) {
       if (!protectedPrefixes.includes(path[0]) && !path[0].startsWith("/src/logic/techniques/")) continue;
       expect(/researchExclusions|researchBoard/.test(stripComments(path[1])), path[0]).toBe(false);
+    }
+    // S4: the sheets receive the already-derived Board; only GameScreen touches the raw ledger.
+    for (const path of ["/src/components/HintSheet.tsx", "/src/components/TrialNotebookSheet.tsx"]) {
+      expect(/researchExclusions/.test(stripComments(sources[path])), path).toBe(false);
     }
   });
   it("the Hint ledger (`discoveryHintFacts`) is never fed by the exclusion path", () => {
