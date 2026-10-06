@@ -85,12 +85,14 @@ describe("P-C pricing outside the design population", () => {
 const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal(id);
 
 /** Expansion Wave 2 step 28 makes pesto-vegetariana and ratatouille-pizza discoverable together (pool 2): the
- *  sim's walk finds the first blind, so only the second has a hint target. */
-const WAVE2_BLIND_POOL2_RECIPE = "pesto-vegetariana";
+ *  sim's walk finds the first blind. Slice 3 step 29 (almond) then makes the remaining ratatouille-pizza and
+ *  pesto-trapanese discoverable together (pool 2 again): the walk finds ratatouille-pizza blind, so only
+ *  pesto-trapanese has a hint target. */
+const BLIND_POOL2_RECIPES: readonly string[] = ["pesto-vegetariana", "ratatouille-pizza"];
 
 describe("P-C progression walk (real reducer, flag ON)", () => {
   it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi + Wave 2's 3 + TQ-1D's non-credit aussie (32)", () => {
-    expect(TOTAL).toBe(32);
+    expect(TOTAL).toBe(33);
   });
 
   it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {
@@ -112,11 +114,12 @@ describe("P-C progression walk (real reducer, flag ON)", () => {
         if (profile === "NONE") expect(r.totalHintSpend).toBe(0);
         if (profile === "FULL" && r.insufficientHintAttempts === 0) {
           // A full ladder is bought for every target, the 「なし」 ones included.
-          // Two stages have no hint target (pool 2, D-1): the calabresa, and Expansion Wave 2's step-28 pair
-          // (pesto-vegetariana is the one found blind, the remaining ratatouille-pizza is then hinted). They buy nothing.
+          // Some stages have no hint target (pool 2, D-1): the calabresa, Expansion Wave 2's step-28 pair
+          // (pesto-vegetariana is found blind) and Slice 3's step-29 pair (ratatouille-pizza is found blind, the remaining
+          // pesto-trapanese is then hinted). They buy nothing.
           for (const st of r.stages.slice(1)) {
             expect(st.hintSpend, st.recipe).toBe(
-              countsTowardLadder(st.recipe) && st.recipe !== WAVE2_BLIND_POOL2_RECIPE ? fullLadderTotal(st.recipe) : 0,
+              countsTowardLadder(st.recipe) && !BLIND_POOL2_RECIPES.includes(st.recipe) ? fullLadderTotal(st.recipe) : 0,
             );
           }
         }

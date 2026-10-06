@@ -611,6 +611,21 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * Expansion Slice 3 (pesto-trapanese): the 35th ingredient, a finite ladder material like `shrimp` --
+   * unlocked at appended ladder step 29 (T3), sold only by the material Shop, so no legacy `pricePitz` /
+   * `restockQuantity` / `starterGrantOnly`. Family `other` ("egg, nuts and sweets share `other`") lives in
+   * ./ingredientTaxonomy.ts; 🥜 is the ingredient glyph, distinct from every Hint class symbol (G18).
+   */
+  {
+    id: "almond",
+    category: "topping",
+    nameJa: "アーモンド",
+    color: "#c89b6a",
+    emoji: "\u{1F95C}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

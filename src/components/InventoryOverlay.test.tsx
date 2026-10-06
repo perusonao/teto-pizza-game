@@ -206,7 +206,7 @@ describe("InventoryOverlay (read-only stock view)", () => {
     );
     // Progression 2.0 I5a-3: the total is the obtainable ingredients (starters + current Discovery
     // Ladder materials) -- 31 since Expansion Slice 1 (30 since No.27, 29 since the 25-recipe ladder, W1 I5b-3).
-    expect(screen.getByText(/所持 3\/34種/)).toBeInTheDocument();
+    expect(screen.getByText(/所持 3\/35種/)).toBeInTheDocument();
   });
 
   it("test 14: reflects a Starter Grant landing (e.g. onion +40) exactly like remainingStock would", () => {
@@ -244,9 +244,9 @@ describe("InventoryOverlay (read-only stock view)", () => {
     render(
       <InventoryOverlay ownedIngredientIds={allOwned} inventory={EMPTY_INVENTORY} onClose={() => {}} />,
     );
-    expect(INGREDIENTS.length).toBe(34);
+    expect(INGREDIENTS.length).toBe(35);
     // Every catalog row is obtainable with the 25-recipe ladder (W1 I5b-3).
-    expect(screen.getByText(/所持 34\/34種/)).toBeInTheDocument();
+    expect(screen.getByText(/所持 35\/35種/)).toBeInTheDocument();
     for (const ingredient of INGREDIENTS) {
       expect(screen.getByText(ingredient.nameJa)).toBeInTheDocument();
     }

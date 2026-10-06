@@ -56,7 +56,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/32/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/33/);
 }
 
 async function place(page: Page, name: RegExp, spots: [number, number][]) {

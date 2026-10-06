@@ -79,10 +79,10 @@ describe("discoveredRecipeCount", () => {
   });
 
   it("is 30 once every shipped recipe is discovered, 32 recipes with calabresa and aussie non-credit (W1 I5b-3 / PR-4b-B / No.27 / Expansion Slice 1 / TQ-1D)", () => {
-    expect(RECIPES).toHaveLength(32);
+    expect(RECIPES).toHaveLength(33);
     const all = RECIPES.map((r) => dexEntry(r.id));
-    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(30); // the credited population
-    expect(discoveredRecipeCount(all)).toBe(32); // the raw default counts every recipe
+    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(31); // the credited population
+    expect(discoveredRecipeCount(all)).toBe(33); // the raw default counts every recipe
   });
 });
 

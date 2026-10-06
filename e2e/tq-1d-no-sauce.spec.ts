@@ -125,7 +125,7 @@ test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/14\/32/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/14\/33/);
     await hold(page);
 
     // 1. Dex before: the technique is undiscovered but its affordance is open -> 「？？？」 + the fixed riddle, never the name.

@@ -15,7 +15,7 @@ const optOut = (id: string): Recipe[] => RECIPES.map((r) => (r.id === id ? { ...
 
 describe("lunchRush: false foundation", () => {
   it("the 25 original production recipes all participate; only brazilian-calabresa (PR-4b-B), No.27 pesto-pollo and Expansion Slice 1 pesto-gamberi opt out (and, since TQ-1D, aussie)", () => {
-    expect(RECIPES).toHaveLength(32);
+    expect(RECIPES).toHaveLength(33);
     expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false).map((r) => r.id)).toEqual([
       "brazilian-calabresa",
       "pesto-pollo",
@@ -24,7 +24,8 @@ describe("lunchRush: false foundation", () => {
       "pesto-vegetariana",
       "ratatouille-pizza",
       "aussie",
-    ]); // opt-out total = 7
+      "pesto-trapanese",
+    ]); // opt-out total = 8
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);
@@ -50,7 +51,7 @@ describe("lunchRush: false foundation", () => {
   it("an opted-out recipe never enters the mission order pool, even discovered + owned + in stock", () => {
     const pool = missionOrderRecipeIds(inputs, [], optOut("pizza-bianca"));
     expect(pool).not.toContain("pizza-bianca");
-    expect(pool).toHaveLength(RECIPES.length - 8); // pizza-bianca + the calabresa, pesto-pollo, pesto-gamberi, Wave 2's vongole / pesto-vegetariana / ratatouille-pizza and TQ-1D's aussie already opted out (7 + pizza-bianca = 8 total)
+    expect(pool).toHaveLength(RECIPES.length - 9); // pizza-bianca + the calabresa, pesto-pollo, pesto-gamberi, Wave 2's vongole / pesto-vegetariana / ratatouille-pizza and TQ-1D's aussie already opted out (7 + pizza-bianca = 8 total)
   });
 
   it("only the explicit false opts out: absent, unknown id and true-ish values participate", () => {

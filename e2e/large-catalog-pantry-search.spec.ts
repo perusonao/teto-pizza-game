@@ -181,7 +181,7 @@ for (const width of [390, 360] as const) {
       expect(base.sheet!.h, `${label}: baseline sheet height = the shell ceiling`).toBeCloseTo(base.innerH - 20, 0);
       expect(sauce.sheet!.h, `${label}: same outer height with and without a search row`).toBeCloseTo(base.sheet!.h, 0);
       expect(base.sheet!.b, `${label}: bottom anchored`).toBeCloseTo(base.innerH, 0);
-      expect(base.search, `${label}: 27 owned toppings show the search field`).not.toBeNull();
+      expect(base.search, `${label}: 28 owned toppings show the search field`).not.toBeNull();
       expect(base.search!.h).toBeGreaterThanOrEqual(44);
       expect(base.clear!.h).toBeGreaterThanOrEqual(44);
       expect(base.clear!.w).toBeGreaterThanOrEqual(44);
@@ -226,10 +226,10 @@ for (const width of [390, 360] as const) {
       if (browserName === "chromium") {
         const cdp = await page.context().newCDPSession(page);
         await cdp.send("Input.imeSetComposition", { text: "たまねき", selectionStart: 4, selectionEnd: 4 });
-        expect((await searchFacts(page)).tiles, `${label}: composing: list unchanged (27)`).toBe(27);
+        expect((await searchFacts(page)).tiles, `${label}: composing: list unchanged (28)`).toBe(28);
         await expect(page.locator(".pantry-sheet__empty")).toHaveCount(0);
         await cdp.send("Input.imeSetComposition", { text: "玉ねぎ", selectionStart: 3, selectionEnd: 3 });
-        expect((await searchFacts(page)).tiles).toBe(27);
+        expect((await searchFacts(page)).tiles).toBe(28);
         await cdp.send("Input.insertText", { text: "玉ねぎ" });
         await expect.poll(async () => (await searchFacts(page)).tiles, { message: `${label}: confirmed 玉ねぎ applies`, timeout: 3000 }).toBe(1);
       }
@@ -288,7 +288,7 @@ for (const width of [390, 360] as const) {
       await page.getByRole("button", { name: /食材庫/ }).click();
       await expect(page.getByRole("dialog")).toBeVisible();
       const reopened = await searchFacts(page);
-      expect(reopened.tiles, `${label}: reopening resets the search`).toBe(27);
+      expect(reopened.tiles, `${label}: reopening resets the search`).toBe(28);
       expect(same(reopened.sheet, base.sheet), `${label}: reopened bounds identical`).toBe(true);
       await page.keyboard.press("Escape");
       const after = await layout(page);

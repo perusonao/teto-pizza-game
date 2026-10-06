@@ -140,7 +140,7 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
 
   it("P1 / P2: a family with a single catalog member is still shown as its classification (narrowing to one candidate = PASS)", () => {
     const singletons = INGREDIENTS.filter((i) => i.category === "topping" && INGREDIENTS.filter((j) => ingredientAttributeFamily(j.id) === ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
-    expect(singletons.sort()).toEqual(["capers", "egg", "pineapple"]);
+    expect(singletons.sort()).toEqual(["capers", "pineapple"]);
     for (const [recipeId, sub] of [["breakfast-pizza", "egg"], ["pizza-portuguesa", "egg"]] as const) {
       const final = purchaseStates(recipeId, 5).pop()!.view;
       const entry = final.board.find((e) => e.kind === "SUB_CLASS" && "classView" in e && e.classView.family === ingredientAttributeFamily(sub));
@@ -172,7 +172,7 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
         walked += 1;
       }
     }
-    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(32);
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(33);
     expect(walked).toBeGreaterThanOrEqual(28);
   });
 

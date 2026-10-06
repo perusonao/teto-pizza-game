@@ -49,9 +49,9 @@ const chapterTitles = () =>
 describe("W1-f Dex", () => {
   it("3 chapters (6 / 11 / 15) with per-chapter counts and fixed No. slots", () => {
     renderDex({ dex: discoveredDex(["margherita", "marinara"]) });
-    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/11", "第3章0/15"]);
+    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/11", "第3章0/16"]);
     const chapters = Array.from(document.querySelectorAll(".dex-overlay__chapter"));
-    expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual([6, 11, 15]);
+    expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual([6, 11, 16]);
     expect(within(chapters[1] as HTMLElement).getByText(/マリナーラ/).textContent).toContain("No.01");
   });
 
@@ -76,8 +76,8 @@ describe("W1-f Dex", () => {
     expect(freeSlot).toHaveTextContent("🎨 今の材料で作れるかも");
     await userEvent.click(within(freeSlot).getByRole("button", { name: "レシピ発見へ" }));
     expect(free.onGoFreeCook).toHaveBeenCalledTimes(1);
-    expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(30);
-    expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(30);
+    expect(document.querySelectorAll('[data-dex-state="UNKNOWN"]').length).toBe(31);
+    expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(31);
   });
 
   it("nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (arrived / bought)", () => {
@@ -114,7 +114,7 @@ describe("W1-f Dex", () => {
         // 12 bought) and until the 26th (step 25's pesto-pollo is the last key recipe), the ladder's key recipe and calabresa are both DISCOVERABLE:
         // pool 2 used to add one extra aggregated card (D-2); #346 S4: both candidates are registered Research
         // Entries (their own cards), so the aggregate card is gone and the locked-card count is just the slots.
-        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(32 - n);
+        expect(document.querySelectorAll(".dex-card--locked"), `${bought ? "B" : "A"} Dex ${n}`).toHaveLength(33 - n);
         expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
         expect(document.querySelectorAll(".dex-card--locked .dex-card__ingredient, .dex-card--locked svg")).toHaveLength(0);
         cleanup();

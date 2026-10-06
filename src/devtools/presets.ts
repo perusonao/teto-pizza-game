@@ -25,6 +25,7 @@ export type PresetId =
   | "research-step12-ready"
   | "step12-abc-undiscovered"
   | "step12-b-discovered"
+  | "last-step-ready"
   | "all-ingredients"
   | "all-recipes"
   | "everything-unlocked";
@@ -41,6 +42,7 @@ export const PRESETS: readonly PresetDefinition[] = [
   { id: "research-step12-ready", labelJa: "Research Step 12 Ready", descriptionJa: "step 12 の材料を取得する直前（Dex は step 12 到達、材料は Shop 解放済み・未取得）" },
   { id: "step12-abc-undiscovered", labelJa: "Step 12 A/B/C undiscovered", descriptionJa: "step 12 の材料を最後に取得。Research Entry の A/B/C がすべて未発見" },
   { id: "step12-b-discovered", labelJa: "Step 12 B discovered", descriptionJa: "step 12 の cohort のうち B（Brazilian Calabresa）だけ発見済み。残りは A / C のまま（letter は #402 の Research Stable Identity から導出）" },
+  { id: "last-step-ready", labelJa: "Last Step Ready", descriptionJa: "最後の ladder step に到達。その step の材料は Shop 解放済み・未購入で、その材料を使うピザだけが未発見（他は全て発見済み）" },
   { id: "all-ingredients", labelJa: "All Ingredients", descriptionJa: "全材料 OWNED（finite 在庫は既定値）" },
   { id: "all-recipes", labelJa: "All Recipes", descriptionJa: "全ピザ発見済み" },
   { id: "everything-unlocked", labelJa: "Everything Unlocked", descriptionJa: "全材料 OWNED + 全ピザ発見済み + 全 Technique" },
@@ -131,6 +133,20 @@ export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCat
       const target = cohort.find((e) => e.cohortLetter === letter);
       if (!target) throw new Error(`the step-${RESEARCH_PRESET_STEP} cohort has no entry lettered ${letter}`);
       return normalizeEditableState({ ...abc, dex: [...abc.dex, dexEntry(target.recipeId)] }, catalog);
+    }
+    case "last-step-ready": {
+      // The LAST ladder step is reached (every earlier key recipe discovered), its own materials are Shop-unlocked
+      // but not bought (entitlement is derived on normalize), and the only undiscovered recipes are the ones that
+      // need those materials. Nothing here names a recipe or an ingredient: the next appended step changes it.
+      const ctx = stepContext(catalog, catalog.ladder.steps.length);
+      const lastMaterials = new Set(ctx.stepMaterials);
+      const dex = catalog.recipes.filter((r) => !r.requiredIngredients.some((q) => lastMaterials.has(q.ingredientId))).map((r) => dexEntry(r.id));
+      return base({
+        dex,
+        pitzBalance: PRESET_PITZ,
+        ownedIngredientIds: [...starters, ...ctx.ownedBefore],
+        inventory: stockOf(ctx.ownedBefore),
+      });
     }
     case "all-ingredients": {
       const finite = allFiniteInLadderOrder(catalog);

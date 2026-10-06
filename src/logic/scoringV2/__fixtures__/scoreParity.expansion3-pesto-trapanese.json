@@ -1,0 +1,132 @@
+{
+  "base": "expansion3",
+  "recipeId": "pesto-trapanese",
+  "rows": [
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "ideal",
+      "available": true,
+      "totalScore": 99.54065519809338,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "offset",
+      "available": true,
+      "totalScore": 70.58381074433359,
+      "stars": 3,
+      "components": {
+        "sauce": 43.4304052775646,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "poor",
+      "available": true,
+      "totalScore": 24.171458992766883,
+      "stars": 1,
+      "components": {
+        "sauce": 33.095355100385454,
+        "pieces": 13.333333333333336,
+        "recipe": 75,
+        "bake": 100,
+        "quantityFactor": 0.5
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "noSauce",
+      "available": true,
+      "totalScore": 45,
+      "stars": 2,
+      "components": {
+        "sauce": 0,
+        "pieces": 100,
+        "recipe": 75,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "halfPieces",
+      "available": true,
+      "totalScore": 73.55549139857003,
+      "stars": 3,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 90.83333333333333,
+        "recipe": 100,
+        "bake": 100,
+        "quantityFactor": 0.75
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "extraPiece",
+      "available": true,
+      "totalScore": 97.14065519809337,
+      "stars": 5,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 80,
+        "bake": 100,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "raw",
+      "available": true,
+      "totalScore": 94.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 75,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "burnt",
+      "available": true,
+      "totalScore": 94.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 75,
+        "quantityFactor": 1
+      }
+    },
+    {
+      "recipeId": "pesto-trapanese",
+      "variant": "unbaked",
+      "available": true,
+      "totalScore": 79.54065519809338,
+      "stars": 4,
+      "components": {
+        "sauce": 99.11664461171804,
+        "pieces": 100,
+        "recipe": 100,
+        "bake": 0,
+        "quantityFactor": 1
+      }
+    }
+  ]
+}
