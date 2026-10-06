@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
@@ -158,7 +159,7 @@ test.describe("Expansion Wave 2", () => {
     await capture(page, "exp2-research-entry-vongole", project);
     await hold(page, 2000);
     await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
 
     // 3. A real trial: olive-oil + parsley + clam + eggplant (an eggplant is not part of vongole).
     await cookPrepared(page, {
@@ -217,7 +218,7 @@ test.describe("Expansion Wave 2", () => {
     await dialog.getByRole("button", { name: "閉じる" }).click();
 
     // 6. The exact recipe: olive-oil 1, clam 3, garlic 2, parsley 2, no cheese -> NEW RECIPE.
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await cookPrepared(page, {
       sauce: /オリーブオイル/,
       toppings: [[/あさり/, 3], [/にんにく/, 2], [/パセリ/, 2]],
@@ -285,7 +286,7 @@ test.describe("Expansion Wave 2", () => {
 
     // 3. Target selection: the player picks one anonymous card.
     await research.getByRole("button", { name: "？？？ピザ A（ズッキーニ）を研究する" }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
 
     // 4. A real trial (pesto + eggplant + zucchini + bell-pepper; no cheese, no oregano -- identifies neither recipe).
     const veg: Cook = {
@@ -327,7 +328,7 @@ test.describe("Expansion Wave 2", () => {
     await dialog.getByRole("button", { name: "閉じる" }).click();
 
     // 7. Discover pesto-vegetariana (pesto 1, mozzarella 2, eggplant 2, zucchini 2, bell-pepper 2).
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await cookPrepared(page, { ...veg, cheese: [[/モッツァレラ/, 2]], toppings: veg.toppings });
     const first = page.locator(".result-panel--discovery");
     await expect(first).toBeVisible();
@@ -339,7 +340,7 @@ test.describe("Expansion Wave 2", () => {
     // 8. The remaining target (ratatouille-pizza) is still a Research Entry: research it and discover it.
     await expect(first.getByRole("button", { name: "🔎 次のピザを研究する" })).toBeVisible();
     await first.getByRole("button", { name: "🔎 次のピザを研究する" }).click(); // one entry left -> starts it directly
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await cookPrepared(page, {
       sauce: /トマトソース/,
       toppings: [[/ナス/, 2], [/ズッキーニ/, 2], [/パプリカ/, 2], [/オレガノ/, 1]],

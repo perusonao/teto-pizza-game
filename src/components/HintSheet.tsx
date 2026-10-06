@@ -311,7 +311,7 @@ export function HintSheet({
             <p className="hint-sheet__note-line">{researchDetails.guidanceJa}</p>
           </div>
         )}
-        {!researchLabelJa && freeCookNote && (
+        {!researchLabelJa && freeCookNote && view.kind !== "CHOOSE_RESEARCH" && (
           <div className="hint-sheet__research-details" data-hint-free-note="">
             <p className="hint-sheet__research">{freeCookNote.titleJa}</p>
             <p className="hint-sheet__note-line">{freeCookNote.bodyJa}</p>

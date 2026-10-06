@@ -73,20 +73,23 @@ test("A. single entry (pesto-pollo): select -> research context -> Hint opens on
   await shot(page, "01-dex-research-card");
   await section.getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
 
-  // cooking: research context replaces the free-cook order card
+  // cooking: no Research card above the pizza (Owner decision #401 HV); the research context leads the Hint sheet
   await page.waitForSelector(".pizza-stage");
-  const ctx = page.getByTestId("research-context");
-  await expect(ctx).toBeVisible();
-  await expect(ctx).toContainText("🔎 研究中");
-  await expect(ctx).toContainText("？？？ピザ");
-  await expect(ctx).toContainText("✓ チキン");
-  await expect(ctx).not.toContainText(/全部で|残り|あと|No\./);
+  await expect(page.getByTestId("research-context")).toHaveCount(0);
   await expectNoOverflow(page, "cooking");
   await expectNoUndiscoveredIdentity(page, discovered, "cooking context");
-  const box = await ctx.boundingBox();
-  const vh = page.viewportSize()!.height;
-  expect(box!.y + box!.height).toBeLessThanOrEqual(vh);
+  await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
+  const lead = page.getByRole("dialog", { name: /ヒント/ });
+  const ctx = lead.locator("[data-hint-research]");
+  const known = lead.locator("[data-hint-research-details]");
+  await expect(ctx).toContainText("🔎 研究中");
+  await expect(ctx).toContainText("？？？ピザ");
+  await expect(known).toContainText("✓ チキン");
+  await expect(ctx).not.toContainText(/全部で|残り|あと|No\./);
+  await expect(known).not.toContainText(/残り|あと|No\./);
+  await expectNoUndiscoveredIdentity(page, discovered, "hint lead");
   await shot(page, "02-cooking-research-context");
+  await lead.getByRole("button", { name: "閉じる" }).click();
 
   // Hint: the explicit Research Target is the subject (a pool of one here, and the ladder opens)
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
@@ -121,13 +124,13 @@ test("B. Step 12 multiple: pick B -> only it is the Hint subject, the other stay
   await shot(page, "04-dex-multi");
   await section.getByRole("button", { name: "？？？ピザ B（たまねぎ）を研究する" }).click();
   await page.waitForSelector(".pizza-stage");
-  const ctx = page.getByTestId("research-context");
-  await expect(ctx).toContainText("？？？ピザ B（たまねぎ）");
-  await expect(ctx).not.toContainText("？？？ピザ A（たまねぎ）");
+  await expect(page.getByTestId("research-context")).toHaveCount(0);
   await expectNoOverflow(page, "cooking multi");
   await shot(page, "05-cooking-multi");
   await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
   const dialog = page.getByRole("dialog", { name: /ヒント/ });
+  await expect(dialog.locator("[data-hint-research]")).toContainText("？？？ピザ B（たまねぎ）");
+  await expect(dialog.locator("[data-hint-research]")).not.toContainText("？？？ピザ A（たまねぎ）");
   await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
   await expectNoUndiscoveredIdentity(page, discovered, "hint sheet multi");
   await expectNoOverflow(page, "hint multi");

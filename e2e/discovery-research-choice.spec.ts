@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
@@ -82,7 +83,7 @@ test("targetless + 3 entries + bought facts: the sheet asks to choose; the Dex c
 
   await section.getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
   await page.waitForSelector(".pizza-stage");
-  await expect(page.getByTestId("research-context")).toBeVisible();
+  await expectResearchLead(page, "研究中");
   await hintButton.click();
   const picked = page.getByRole("dialog", { name: /ヒント/ });
   await expect(picked).toHaveAttribute("data-hint-kind", "SELECTABLE");

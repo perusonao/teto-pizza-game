@@ -97,33 +97,41 @@ async function startResearch(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
   await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-  await expect(page.getByTestId("research-context")).toBeVisible();
+  await page.waitForSelector(".pizza-stage");
+  // Owner decision (#401 HV): no Research card above the pizza; the context leads the Hint sheet.
+  await expect(page.getByTestId("research-context")).toHaveCount(0);
 }
 
+/** PREPARE of a Research round: the screen fits, the pizza is not shrunk, and the Hint sheet leads with the research context. */
 async function expectPrepareFits(page: Page, where: string, expectedGuidance: string) {
   await page.waitForSelector(".pizza-stage");
-  const card = page.getByTestId("research-context");
-  await expect(card).toContainText("🔎 研究中 ？？？ピザ");
-  await expect(page.getByTestId("research-guidance")).toHaveText(expectedGuidance);
+  await expect(page.getByTestId("research-context")).toHaveCount(0);
   const vp = page.viewportSize()!;
   for (const [name, loc] of [
-    ["card", card],
-    ["guidance", page.getByTestId("research-guidance")],
-    ["notebook CTA", page.getByTestId("research-notebook-entry")],
     ["hint CTA", bar(page).getByRole("button", { name: "ヒント" })],
     ["bake/next CTA", bar(page).locator(".cta-button--bake")],
   ] as const) {
     await expectInViewport(page, loc, `${where} ${name}`);
   }
-  const cardBox = (await card.boundingBox())!;
-  const nb = (await page.getByTestId("research-notebook-entry").boundingBox())!;
-  expect(nb.height, `${where}: notebook touch target`).toBeGreaterThanOrEqual(44);
   const dough = (await page.locator(".pizza-dough").first().boundingBox())!;
   const expected = Math.min(0.76 * vp.width, 290, vp.height - 439);
-  console.log(`[measure ${test.info().project.name}] ${where}: card h=${Math.round(cardBox.height)} dough=${Math.round(dough.width)} expected>=${Math.round(expected)}`);
+  console.log(`[measure ${test.info().project.name}] ${where}: dough=${Math.round(dough.width)} expected>=${Math.round(expected)}`);
   expect(dough.width, `${where}: pizza not shrunk`).toBeGreaterThanOrEqual(expected - 2);
   await expectNoOverflow(page, where);
   await expectNoUndiscoveredIdentity(page, discovered, where);
+
+  await bar(page).getByRole("button", { name: "ヒント" }).click();
+  const sheet = page.getByRole("dialog", { name: /ヒント/ });
+  await expect(sheet.locator("[data-hint-research]")).toContainText("🔎 研究中 ？？？ピザ");
+  await expect(sheet.locator("[data-hint-research-details]")).toContainText(expectedGuidance);
+  const entry = sheet.getByRole("button", { name: /試作ノートを見る/ });
+  await expectInViewport(page, sheet.locator("[data-hint-research]"), `${where} research lead`);
+  await expectInViewport(page, entry, `${where} notebook entry`);
+  expect((await entry.boundingBox())!.height, `${where}: notebook touch target`).toBeGreaterThanOrEqual(44);
+  await expectNoOverflow(page, `${where} hint`);
+  await expectNoUndiscoveredIdentity(page, discovered, `${where} hint`);
+  await sheet.getByRole("button", { name: "閉じる" }).click();
+  await expect(sheet).toHaveCount(0);
 }
 
 test("Research UX Phase 1: PREPARE guidance / notebook / hint label -> RESULT note -> notebook -> retry", async ({ page }) => {
@@ -131,11 +139,18 @@ test("Research UX Phase 1: PREPARE guidance / notebook / hint label -> RESULT no
   await open(page);
   await startResearch(page);
   await expectPrepareFits(page, "PREPARE (valid target)", PREPARE_GUIDANCE);
-  expect(await page.getByTestId("research-context").innerText()).not.toMatch(ORACLE);
   await shot(page, "p1-01-prepare");
 
-  // P1-c: the PREPARE notebook entry (read-only, session notebook; empty on the first attempt), focus returns
-  const entry = page.getByTestId("research-notebook-entry");
+  // The Hint sheet leads with the research context (label, what is known, the fixed ○× sentence) and no oracle
+  await bar(page).getByRole("button", { name: "ヒント" }).click();
+  const dialog = page.getByRole("dialog", { name: /ヒント/ });
+  await expect(dialog.locator("[data-hint-research]")).toContainText("🔎 研究中 ？？？ピザ");
+  expect(await dialog.locator("[data-hint-research], [data-hint-research-details]").allInnerTexts().then((t) => t.join(" "))).not.toMatch(ORACLE);
+  await expectNoOverflow(page, "hint sheet");
+  await shot(page, "p1-03-hint-label");
+
+  // P1-c: the 試作ノート entry of the sheet (read-only, session notebook; empty on the first attempt), focus returns to it
+  const entry = dialog.getByRole("button", { name: /試作ノートを見る/ });
   await entry.click();
   const notebook = page.locator("[data-trial-notebook]");
   await expect(notebook).toBeVisible();
@@ -143,33 +158,26 @@ test("Research UX Phase 1: PREPARE guidance / notebook / hint label -> RESULT no
   await expect(notebook.locator("[data-trial-notebook-empty]")).toBeVisible();
   await expectNoOverflow(page, "PREPARE notebook");
   await shot(page, "p1-02-prepare-notebook");
-  // PR #390 Codex P2 (real Chromium inert): Tab / Shift+Tab never leave the sheet and Enter cannot act on the screen behind it
-  const outside = () => page.evaluate(() => !document.activeElement?.closest("[data-trial-notebook]") && document.activeElement !== document.body);
+  // PR #390 Codex P2, as far as the Hint sheet path goes: while the notebook is open the Hint sheet under it is inert, so Tab /
+  // Shift+Tab can never land in the sheet behind it, and the notebook itself keeps the focus on first open.
+  await expect(page.locator(".hint-sheet[inert]")).toHaveCount(1);
+  const inSheetBehind = () => page.evaluate(() => !!document.activeElement?.closest(".hint-sheet"));
   for (let i = 0; i < 4; i += 1) {
     await page.keyboard.press("Shift+Tab");
-    expect(await outside(), `Shift+Tab #${i + 1} stayed in the notebook`).toBe(false);
+    expect(await inSheetBehind(), `Shift+Tab #${i + 1} never lands in the inert Hint sheet`).toBe(false);
     await page.keyboard.press("Tab");
-    expect(await outside(), `Tab #${i + 1} stayed in the notebook`).toBe(false);
+    expect(await inSheetBehind(), `Tab #${i + 1} never lands in the inert Hint sheet`).toBe(false);
   }
-  await page.keyboard.press("Shift+Tab");
-  await page.keyboard.press("Enter"); // would be やり直す / 次へ / ヒント if reachable
   await expect(notebook).toBeVisible();
-  await expect(page.getByRole("dialog", { name: /ヒント/ })).toHaveCount(0);
+  await expect(dialog).toHaveCount(1);
   await notebook.getByRole("button", { name: /もどる/ }).click();
   await expect(notebook).toHaveCount(0);
   await expect(entry).toBeFocused();
-  await expect(page.locator("[inert]")).toHaveCount(0);
-  await expect(bar(page).getByRole("button", { name: "ヒント" })).toBeEnabled(); // controls work again
-
-  // P1-b: the Hint sheet names the Research Target
-  await bar(page).getByRole("button", { name: "ヒント" }).click();
-  const dialog = page.getByRole("dialog", { name: /ヒント/ });
-  await expect(dialog.locator("[data-hint-research]")).toContainText("🔎 研究中 ？？？ピザ");
-  await expectNoOverflow(page, "hint sheet");
-  await expectNoUndiscoveredIdentity(page, discovered, "hint sheet");
-  await shot(page, "p1-03-hint-label");
+  await expect(page.locator(".hint-sheet[inert]")).toHaveCount(0); // the sheet works again
   await dialog.getByRole("button", { name: "閉じる" }).click();
-  await expect(page.getByTestId("research-context")).toBeVisible();
+  await expect(dialog).toHaveCount(0);
+  await expect(bar(page).getByRole("button", { name: "ヒント" })).toBeEnabled(); // controls work again
+  await expect(page.getByTestId("research-context")).toHaveCount(0);
 
   // P1-e: RESULT note
   await cookOriginalFromPrepare(page);
@@ -180,10 +188,11 @@ test("Research UX Phase 1: PREPARE guidance / notebook / hint label -> RESULT no
   await expectNoOverflow(page, "RESULT");
   await shot(page, "p1-04-result");
 
-  // the entry now has one attempt; retry keeps the target and the PREPARE entry shows it
+  // the entry now has one attempt; retry keeps the target and the Hint sheet's notebook shows it
   await result.getByRole("button", { name: "もう一度試す" }).click();
   await expectPrepareFits(page, "PREPARE (retry)", PREPARE_GUIDANCE);
-  await page.getByTestId("research-notebook-entry").click();
+  await bar(page).getByRole("button", { name: "ヒント" }).click();
+  await page.getByRole("dialog", { name: /ヒント/ }).getByRole("button", { name: /試作ノートを見る/ }).click();
   await expect(page.locator("[data-trial-entry]")).toHaveCount(1);
   await page.locator("[data-trial-notebook]").getByRole("button", { name: /もどる/ }).click();
 });
@@ -204,7 +213,9 @@ test("Research UX Phase 1: last-stock retry has no ○× promise; targetless FRE
   await expect(page.locator(".result-panel--original")).toContainText("試作結果とノートを見て");
   await page.locator(".result-panel--original").getByRole("button", { name: "もう一度試す" }).click();
   await expectPrepareFits(page, "PREPARE retry after the last stock", NOTEBOOK_GUIDANCE);
-  expect(await page.getByTestId("research-context").innerText()).not.toMatch(/○|×/);
+  await bar(page).getByRole("button", { name: "ヒント" }).click();
+  expect(await page.locator("[data-hint-research]").innerText()).not.toMatch(/○|×/);
+  await page.getByRole("dialog", { name: /ヒント/ }).getByRole("button", { name: "閉じる" }).click();
   await shot(page, "p1-05-last-stock-retry");
 
   await page.goto("/");
@@ -212,7 +223,8 @@ test("Research UX Phase 1: last-stock retry has no ○× promise; targetless FRE
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);
-  await expect(page.getByTestId("research-guidance")).toHaveCount(0);
-  await expect(page.getByTestId("research-notebook-entry")).toHaveCount(0);
+  await bar(page).getByRole("button", { name: "ヒント" }).click();
+  await expect(page.locator("[data-hint-research], [data-hint-research-details]")).toHaveCount(0); // a targetless round has no research block
+  await page.getByRole("dialog", { name: /ヒント/ }).getByRole("button", { name: "閉じる" }).click();
   await expectNoOverflow(page, "targetless FREE");
 });

@@ -5429,6 +5429,11 @@
 }
 
 .hint-sheet__empty {
+  /* the sheet is at most 45dvh: a tall empty-state body (with the leading Research / Free note block) scrolls inside it */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -7353,6 +7358,7 @@ p.hint-sheet__step {
 /* #401 (Owner HV): the Research / Free Cooking note that used to be a card above the pizza leads the Hint sheet as its own
    block, so it is read before the ordinary hint. */
 .hint-sheet__research-details {
+  flex: none;
   margin: 0 0 10px;
   padding: 8px 10px;
   border-radius: 10px;

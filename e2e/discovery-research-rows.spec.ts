@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -46,7 +47,7 @@ async function startResearch(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
   await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-  await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+  await expectResearchLead(page, "？？？ピザ");
 }
 
 /** Dough -> tomato sauce -> no cheese -> each topping placed once -> bake. Ends on RESULT. */
