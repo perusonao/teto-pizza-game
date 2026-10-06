@@ -208,6 +208,8 @@ function App() {
       // Cooking Techniques TQ-1C: the technique ledger (known ids), repaired at load so every
       // technique a discovered recipe requires is present (INV-TQ-1). A no-op for today's saves.
       initialTechniqueLedger(save.discoveredTechniqueIds, save.dex),
+      // Research 2.0 Phase 2: the persisted negative ledger (known recipe ids).
+      save.researchExclusions,
     );
   });
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
@@ -436,6 +438,8 @@ function App() {
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       discoveryHintPurchases: state.discoveryHintPurchases,
       discoveryHintFacts: state.discoveryHintFacts,
+      // Research 2.0 Phase 2: the additive negative ledger (a union on write; never lowered).
+      researchExclusions: state.researchExclusions,
       // TQ-1C: saved in the same write as the Dex it came with (a union: never lowered, and ids a
       // newer build wrote are kept by the write's forward-compat merge).
       discoveredTechniqueIds: state.discoveredTechniqueIds,
@@ -460,6 +464,7 @@ function App() {
     state.unlockedForShopIngredientIds,
     state.discoveryHintPurchases,
     state.discoveryHintFacts,
+    state.researchExclusions,
     state.discoveredTechniqueIds,
     state.dinnerMissionRecordsState,
   ]);

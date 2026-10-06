@@ -50,6 +50,7 @@ import {
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
+import { addResearchExclusions, type ResearchExclusions } from "./researchExclusions";
 import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
 import { researchRowsFeedback } from "../logic/discovery/researchResultFeedback";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
@@ -369,6 +370,10 @@ export interface GameState {
    *  `recordTrialAttempt`, empty in a fresh `createInitialGameState` (reload / Full Game Reset), and never part
    *  of the save. Not rendered by any UI in this slice. */
   trialNotebook: TrialNotebook;
+  /** Research 2.0 Phase 2 (OD-R1-2): the persisted negative ledger `recipeId -> bare ingredient ids`, written only by
+   *  REGISTER_TO_DEX's free-cook ORIGINAL branch (`researchAttemptResult`) from the NEGATIVE rows the RESULT disclosed
+   *  (INV-B1), saved by App as an additive ledger. Never part of `discoveryHintFacts` (INV-B9). Not rendered yet. */
+  researchExclusions: ResearchExclusions;
   /** P3-3a: the display-only result of the Trial Notebook record committed by this round's REGISTER_TO_DEX
    *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for
    *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
@@ -614,6 +619,8 @@ interface ProgressionCarry {
   discoveredTechniqueIds: readonly TechniqueId[];
   /** P3-3a: the session-only Trial Notebook survives every round transition (guided / Lunch Rush / Dinner included). */
   trialNotebook: TrialNotebook;
+  /** Research 2.0 Phase 2: the persisted negative ledger (disclosed NEGATIVE rows only) survives every round transition. */
+  researchExclusions: ResearchExclusions;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -806,6 +813,7 @@ export function createInitialGameState(
   discoveryHintFacts: Readonly<Record<string, readonly string[]>> = {},
   dinnerMissionRecordsState: DinnerMissionRecordsState = EMPTY_DINNER_MISSION_RECORDS_STATE,
   discoveredTechniqueIds: readonly TechniqueId[] = [],
+  researchExclusions: ResearchExclusions = {},
 ): GameState {
   return nextOrderState(
     {
@@ -824,6 +832,7 @@ export function createInitialGameState(
       dinnerMissionRecordsState,
       discoveredTechniqueIds,
       trialNotebook: createTrialNotebook(),
+      researchExclusions,
     },
     { preferFirst: true },
   );
@@ -1368,6 +1377,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         return {
           ...state,
           discoveryHintFacts: research.discoveryHintFacts,
+          researchExclusions: research.researchExclusions,
           lastResearchRows: research.lastResearchRows,
           phase: "DISCOVERED",
           lastDiscovery: resolution.outcome,
@@ -1814,10 +1824,16 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
  */
 function researchAttemptResult(state: GameState): {
   discoveryHintFacts: GameState["discoveryHintFacts"];
+  researchExclusions: GameState["researchExclusions"];
   lastResearchRows: LastResearchRows | null;
   feedback: ReturnType<typeof researchRowsFeedback>;
 } {
-  const none = { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows: null, feedback: null };
+  const none = {
+    discoveryHintFacts: state.discoveryHintFacts,
+    researchExclusions: state.researchExclusions,
+    lastResearchRows: null,
+    feedback: null,
+  };
   const targetId = state.researchTargetId;
   if (!RESEARCH_IDENTIFY_ENABLED || !targetId || !state.researchTargetValidAtStart) return none;
   const context = researchAttemptContext(state);
@@ -1832,13 +1848,16 @@ function researchAttemptResult(state: GameState): {
     toppingOverCap: result.toppingOverCap,
     knownIngredientIds: [...context.knownIngredientIds],
   };
+  // Phase 2 (INV-B1): the NEGATIVE rows this RESULT discloses, and only those, join the separate ledger -- never
+  // `discoveryHintFacts` (INV-B9). Same rows as the RESULT panel and the Notebook line; same reference when nothing is new.
+  const researchExclusions = addResearchExclusions(state.researchExclusions, targetId, result.persistExclusionIds);
   const own = Object.prototype.hasOwnProperty.call(state.discoveryHintFacts, targetId) ? state.discoveryHintFacts[targetId] : [];
   const added = result.persistFactIds.filter((id) => !own.includes(id));
-  if (added.length === 0) return { discoveryHintFacts: state.discoveryHintFacts, lastResearchRows, feedback };
+  if (added.length === 0) return { discoveryHintFacts: state.discoveryHintFacts, researchExclusions, lastResearchRows, feedback };
   const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
   for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
   ledger[targetId] = [...own, ...added];
-  return { discoveryHintFacts: ledger, lastResearchRows, feedback };
+  return { discoveryHintFacts: ledger, researchExclusions, lastResearchRows, feedback };
 }
 
 function carryOf(state: GameState): ProgressionCarry {
@@ -1858,6 +1877,7 @@ function carryOf(state: GameState): ProgressionCarry {
     dinnerMissionRecordsState: state.dinnerMissionRecordsState,
     discoveredTechniqueIds: state.discoveredTechniqueIds,
     trialNotebook: state.trialNotebook,
+    researchExclusions: state.researchExclusions,
   };
 }
 
