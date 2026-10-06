@@ -1,3 +1,4 @@
+import { expectFreeNote } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
@@ -79,7 +80,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     // A. HOME -> FREE COOKING, no recipe selection on the way.
     await startFreeCook(page);
     await expect(page.locator(".pizza-select-screen")).toHaveCount(0);
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
+    await expectFreeNote(page);
     await expect(page.locator(".mini-reference")).toHaveCount(0);
     await expectOneScreen(page, "DOUGH");
 
@@ -109,7 +110,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     await page.locator(".app-header__home-button").click();
     await startFreeCook(page);
     await expect(page.locator(".result-panel")).toHaveCount(0);
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
+    await expectFreeNote(page);
     await cookStarterPizza(page, { basil: true });
     await expect(page.locator(".free-cook-known")).toHaveText(/マルゲリータができた！（発見済み）/);
     await expect(page.getByText(/を発見しました/)).toHaveCount(0);
@@ -134,7 +135,7 @@ test.describe("Free Cooking (Issue #194)", () => {
     await startFreeCook(page);
     await expect(page.locator(".result-panel")).toHaveCount(0);
     await expect(page.locator(".discovered-banner")).toHaveCount(0);
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
+    await expectFreeNote(page);
   });
 
   test("a large owned set is capped to the 12-ingredient hand (2 tray pages) and PREPARE still fits one screen", async ({ page }) => {

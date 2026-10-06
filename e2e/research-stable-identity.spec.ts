@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { expectResearchLead } from "./support/hintNote";
 
 /**
  * Research 2.0 Phase 1 (Stable Research Identity, D+ Cohort Letter): the Dex / PREPARE / Hint / RESULT / Notebook all read
@@ -137,11 +138,16 @@ test("step 12: A / B / C in the Dex; B's PREPARE, Hint, RESULT and Notebook all 
   // pick B
   await section.getByRole("button", { name: `${LABELS.B}を研究する` }).click();
   await page.waitForSelector(".pizza-stage");
-  const ctx = page.getByTestId("research-context");
+  // Owner decision (#401 HV): no Research card above the pizza; the label is the first block of the ヒント sheet.
+  await expect(page.getByTestId("research-context")).toHaveCount(0);
+  await bar(page).getByRole("button", { name: "ヒント" }).click();
+  const dialog = page.getByRole("dialog", { name: /ヒント/ });
+  const ctx = dialog.locator("[data-hint-research]");
   await expect(ctx).toContainText(`🔎 研究中 ${LABELS.B}`);
   await expect(ctx).not.toContainText(LABELS.A);
   await expect(ctx).not.toContainText(LABELS.C);
-  const nameBox = await ctx.locator(".order-card__recipe-name--research").evaluate((e) => ({ clip: e.scrollWidth - e.clientWidth, right: e.getBoundingClientRect().right, vw: window.innerWidth }));
+  await expect(dialog.locator("[data-hint-research-details]")).toContainText("わかっていること");
+  const nameBox = await ctx.evaluate((e) => ({ clip: e.scrollWidth - e.clientWidth, right: e.getBoundingClientRect().right, vw: window.innerWidth }));
   // the label never breaks inside a part (「たまねぎ」 stays whole): every part is a single line at both widths
   const partLines = await ctx.locator(".research-label__part").evaluateAll((parts) =>
     // a one-line box is at most ~1.8 font sizes tall (normal line height is ~1.2-1.5)
@@ -149,16 +155,8 @@ test("step 12: A / B / C in the Dex; B's PREPARE, Hint, RESULT and Notebook all 
   );
   expect(partLines.length).toBeGreaterThanOrEqual(2);
   for (const oneLine of partLines) expect(oneLine, "label part is one line").toBe(true);
-  expect(nameBox.clip, "PREPARE label is not clipped").toBeLessThanOrEqual(1);
-  expect(nameBox.right, "PREPARE label inside the viewport").toBeLessThanOrEqual(nameBox.vw);
-  await expectNoOverflow(page, "PREPARE B");
-  await expectNoUndiscoveredIdentity(page, discovered, "PREPARE B");
-  await shot(page, "r2-02-prepare-b");
-
-  // Hint sheet
-  await bar(page).getByRole("button", { name: "ヒント" }).click();
-  const dialog = page.getByRole("dialog", { name: /ヒント/ });
-  await expect(dialog.locator("[data-hint-research]")).toContainText(`🔎 研究中 ${LABELS.B}`);
+  expect(nameBox.clip, "Hint sheet label is not clipped").toBeLessThanOrEqual(1);
+  expect(nameBox.right, "Hint sheet label inside the viewport").toBeLessThanOrEqual(nameBox.vw);
   await expectNoOverflow(page, "hint B");
   await expectNoUndiscoveredIdentity(page, discovered, "hint B");
   await shot(page, "r2-03-hint-b");
@@ -197,7 +195,7 @@ test("step 12 with B discovered: A and C stay A and C (also after a reload), and
   expect(await titlesOf(section)).toEqual([LABELS.A, LABELS.C]);
   await section.getByRole("button", { name: `${LABELS.C}を研究する` }).click();
   await page.waitForSelector(".pizza-stage");
-  await expect(page.getByTestId("research-context")).toContainText(`🔎 研究中 ${LABELS.C}`);
+  await expectResearchLead(page, `🔎 研究中 ${LABELS.C}`);
   await expectNoOverflow(page, "PREPARE C");
   await shot(page, "r2-07-prepare-c");
 });
@@ -220,7 +218,7 @@ test("step 28: A (Ratatouille) / B (Pesto Vegetariana); with A discovered B stay
   await shot(page, "r2-09-dex-step28-after-a");
   await section.getByRole("button", { name: `${LABELS.vegB}を研究する` }).click();
   await page.waitForSelector(".pizza-stage");
-  await expect(page.getByTestId("research-context")).toContainText(`🔎 研究中 ${LABELS.vegB}`);
+  await expectResearchLead(page, `🔎 研究中 ${LABELS.vegB}`);
   await expectNoOverflow(page, "PREPARE step 28 B");
   await shot(page, "r2-09b-prepare-step28-b");
 });

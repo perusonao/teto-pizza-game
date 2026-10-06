@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
@@ -244,5 +244,33 @@ describe("Research UX Phase 1 in PREPARE", () => {
     const s = gameReducer(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }), { type: "SHOW_HINT" });
     renderAt(s);
     expect(document.querySelector("[data-hint-research]")).toBeNull();
+  });
+
+  // The contracts that used to be tested through the PREPARE card's notebook entry (that card is gone, Owner decision #401 HV):
+  // the 試作ノート is reached from the Hint sheet now, and is just as read-only, labelled, modal and focus-returning.
+  it("Hint sheet -> 試作ノート: the notebook opens read-only (labelled, back = もどる) and focus returns to the sheet's entry", async () => {
+    renderAt({ ...researchRound(), hintSheetOpen: true });
+    const entry = screen.getByRole("button", { name: /試作ノートを見る/ });
+    fireEvent.click(entry);
+    const notebook = screen.getByRole("dialog", { name: /試作ノート/ });
+    expect(notebook.textContent).toContain("？？？ピザ");
+    expect(notebook.textContent).toContain("もどる");
+    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(screen.queryByRole("dialog", { name: /試作ノート/ })).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /試作ノートを見る/ })));
+  });
+
+  // PR #390 Codex P2 (moved): the notebook is modal for the keyboard / assistive technology too.
+  it("Hint sheet -> 試作ノート: while the notebook is open the Hint sheet behind it is inert; closing removes the inert", () => {
+    renderAt({ ...researchRound(), hintSheetOpen: true });
+    const sheet = document.querySelector(".hint-sheet")!;
+    expect(sheet.hasAttribute("inert")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /試作ノートを見る/ }));
+    const notebook = screen.getByRole("dialog", { name: /試作ノート/ });
+    expect(sheet.hasAttribute("inert")).toBe(true);
+    expect(notebook.closest("[inert]")).toBeNull();
+    expect(sheet.contains(notebook)).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(sheet.hasAttribute("inert")).toBe(false);
   });
 });

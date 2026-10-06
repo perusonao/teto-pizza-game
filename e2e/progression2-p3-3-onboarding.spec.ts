@@ -1,3 +1,4 @@
+import { expectFreeNote, freeNoteText } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 
@@ -72,33 +73,33 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     // B continued: routes straight into Free Cooking, not a guided SELECT_RECIPE round.
     await goFreeCookButton.click();
     await page.waitForSelector(".pizza-stage");
-    await expect(page.locator(".order-card__recipe-name")).toHaveText(/レシピ発見の試作/);
+    await expectFreeNote(page);
     await expect(page.locator(".pizza-select-screen")).toHaveCount(0);
 
     // C. Hint escalation: level 0 is the pre-existing generic free-cook hint; three
     // non-matching (ORIGINAL) attempts escalate it through levels 1-3, never before that.
-    await expect(page.locator(".order-card__hint")).not.toContainText(/赤・白・緑|トマトソースを塗って、モッツァレラ/);
+    expect(await freeNoteText(page)).not.toMatch(/赤・白・緑|トマトソースを塗って、モッツァレラ/);
 
     await cookStarterPizza(page, { basil: false }); // attempt 1 -> ORIGINAL
     await expect(page.locator(".result-panel__heading--original")).toBeVisible();
     await page.getByRole("button", { name: "もう一度試す" }).click();
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click(); // DOUGH -> SAUCE, level 1 hint
-    await expect(page.locator(".order-card__hint")).toContainText("赤・白・緑");
+    expect(await freeNoteText(page)).toContain("赤・白・緑");
     await page.getByRole("button", { name: "やり直す" }).click();
 
     await cookStarterPizza(page, { basil: false }); // attempt 2 -> ORIGINAL
     await page.getByRole("button", { name: "もう一度試す" }).click();
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click(); // level 2 hint
-    await expect(page.locator(".order-card__hint")).toContainText("赤いソース、とろける白いチーズ");
+    expect(await freeNoteText(page)).toContain("赤いソース、とろける白いチーズ");
     await page.getByRole("button", { name: "やり直す" }).click();
 
     await cookStarterPizza(page, { basil: false }); // attempt 3 -> ORIGINAL
     await page.getByRole("button", { name: "もう一度試す" }).click();
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click(); // level 3 hint -- near-explicit
-    await expect(page.locator(".order-card__hint")).toContainText("トマトソースを塗って、モッツァレラをのせて、バジルをちらして");
+    expect(await freeNoteText(page)).toContain("トマトソースを塗って、モッツァレラをのせて、バジルをちらして");
     await page.getByRole("button", { name: "やり直す" }).click();
 
     // D. First discovery: the same starter trio, now with basil, matches Margherita.

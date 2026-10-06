@@ -142,7 +142,7 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     await page.getByRole("button", { name: /ヒントを見る/ }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toBeVisible();
-    await expect(page.locator(".order-card--free-cook")).toBeVisible();
+    await expect(page.locator(".order-card--free-cook")).toHaveCount(0); // the note card is gone (Hint sheet, Owner decision #401 HV)
     await expect(sheet.locator(".hint-sheet__caption")).toHaveCount(1);
     await expect(sheet).not.toContainText("フンギ");
     await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet");

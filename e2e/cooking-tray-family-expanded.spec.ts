@@ -24,18 +24,21 @@ import {
 /**
  * Cooking Tray family row, EXPANDED layout (Issue #399, Owner HV): at a normal visible height the family filter is its own
  * full-width row ABOVE the ingredients and the 食材庫 entry and the pager share the utility row BELOW them. Real Chromium,
- * 390x844 and 360x800. Facts: the pizza keeps its size (and every step the same), the filter has the whole row width, the
+ * 390x844 and 360x800 (and the short 390x664 / 360x640). Facts: the pizza keeps its size (and every step the same), the filter has the whole row width, the
  * selected chip is whole and clear of the fades for every family, nothing moves when a family is chosen or a page turned, the
  * 44px hit areas of the chips, the pager and the entry never overlap an ingredient card (nor the pizza), the bake bar still
- * wins its own tap, and the page never scrolls sideways. The short-height (compact) layout is in
- * cooking-tray-family-mobile-ux.spec.ts, the switch between the two in cooking-tray-family-responsive.spec.ts.
+ * wins its own tap, and the page never scrolls sideways. The same holds on the short heights (390x664 / 360x640), where the
+ * pizza gives way by the row's height instead of keeping its size.
  */
 const VIEWPORTS = [
-  { width: 390, height: 844, pizza: 290, family: 366 },
-  { width: 360, height: 800, pizza: 273.6, family: 336 },
+  { width: 390, height: 844, pizza: 290 as number | null, family: 366, dock: 174 + 42, short: null },
+  { width: 360, height: 800, pizza: 273.6 as number | null, family: 336, dock: 174 + 42, short: null },
+  // A short visible height (Safari with its toolbars): the row is above here too (Owner decision) and the 上部 note cards are gone
+  // (Research and Free Cooking: they are in the ヒント sheet), so the pizza (stage-limited here) is at least what it was before the
+  // family filter (269.1 / 245.1 on FREE); the measured sizes are 274 / 250 on Chromium. The dock is the 162px short dock + the row.
+  { width: 390, height: 664, pizza: null, family: 366, dock: 162 + 42, short: { pizza: 274, atLeast: 269.1 } },
+  { width: 360, height: 640, pizza: null, family: 336, dock: 162 + 42, short: { pizza: 250, atLeast: 245.1 } },
 ] as const;
-/** What the expanded layout adds to the dock (App.css `--family-h`), on top of today's 174px FREE dock. */
-const DOCK_FREE_EXPANDED = 174 + 42;
 
 interface Geometry {
   mode: string;
@@ -87,7 +90,7 @@ for (const vp of VIEWPORTS) {
   ];
 
   for (const sc of scenarios) {
-    test(`expanded: family row above the tray, whole row width, pizza and dock fixed, nothing moves per family: ${sc.name} ${wh}`, async ({ page }, testInfo) => {
+    test(`expanded: family row above the tray, whole row width, pizza and dock fixed, nothing moves per family: ${sc.name} ${wh}`, async ({ page, browserName }, testInfo) => {
       runOnlyOnWidth(testInfo, vp.width);
       await sc.boot(page);
       const doughAtStart = (await dough(page))!; // DOUGH step: the same dock is already reserved
@@ -101,10 +104,21 @@ for (const vp of VIEWPORTS) {
       expect(s0.rowHeight, "the chips are 44px tap targets").toBe(44);
       expect(Math.abs(s0.rowWidth - vp.family), `filter usable width ${s0.rowWidth}`).toBeLessThanOrEqual(1);
       const pizza = (await dough(page))!;
-      expect(Math.abs(pizza.width - vp.pizza), `pizza ${pizza.width}`).toBeLessThanOrEqual(0.6); // the size the compact layout has too
+      if (vp.pizza !== null) expect(Math.abs(pizza.width - vp.pizza), `pizza ${pizza.width}`).toBeLessThanOrEqual(0.6);
+      else {
+        const stageLimit = await page.evaluate(() => {
+          const st = document.querySelector(".pizza-stage")!;
+          const cs = getComputedStyle(st);
+          return st.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        });
+        expect(Math.abs(pizza.width - stageLimit), "short height: the pizza is as large as its stage allows").toBeLessThanOrEqual(1.5);
+        // Final authority: not smaller than before the family filter existed (WebKit lays the same layout out about a pixel larger).
+        expect(pizza.width, "the pizza is at least its pre-family-filter size").toBeGreaterThanOrEqual(vp.short!.atLeast - 0.5);
+        if (browserName === "chromium") expect(Math.abs(pizza.width - vp.short!.pizza), `short height pizza ${pizza.width}`).toBeLessThanOrEqual(0.6);
+      }
       expect(Math.abs(pizza.width - doughAtStart.width), "the pizza is one size from DOUGH to 具材").toBeLessThanOrEqual(0.5);
       const g0 = await geometry(page);
-      if (sc.free) expect(g0.dockHeight, "dock = today's 174 + the row").toBeCloseTo(DOCK_FREE_EXPANDED, 0);
+      if (sc.free) expect(g0.dockHeight, "dock = the viewport's own FREE dock + the row").toBeCloseTo(vp.dock, 0);
       // order on the screen: filter row, then the ingredients, then the utility row
       expect(g0.chipBox.top).toBeLessThan(g0.firstCardTop);
       expect(g0.pager!.top).toBeGreaterThan(g0.lastCardBottom);

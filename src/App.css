@@ -7359,6 +7359,11 @@ p.hint-sheet__step {
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
+.hint-sheet__note-line {
+  margin: 0;
+  font-size: 13px;
+  color: #4a3722;
+}
 .hint-sheet__research-details > p + p {
   margin-top: 4px;
 }

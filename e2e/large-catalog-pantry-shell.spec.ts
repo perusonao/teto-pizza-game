@@ -158,7 +158,15 @@ for (const width of [390, 360] as const) {
       expect(before.row!.h, `${label}: pager row identical with / without the entry`).toBeCloseTo(withoutEntry.row!.h, 1);
       // And against the LC-R2 measurement taken on the code without the entry (Chromium): a sanity bound only,
       // wide enough for WebKit's rounding (WebKit measured 246 vs 245.1 at 360x640).
-      expect(Math.abs(before.stage! - base.doughDiameter), `${label}: stage within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
+      // Issue #399 (Owner decision): the family row is always above and reserved in the dock, and the note card above the pizza is
+      // gone (Hint sheet). A normal height has stage to spare (the pizza stays at its cap, the pre-R3 size); a short height is
+      // stage-limited and gets the card's height (47px) back for the row's (42px): the pizza is at least the pre-R3 one.
+      if (before.innerH <= 700) {
+        expect(before.stage!, `${label}: short height: the pizza is at least the pre-R3 / pre-family-filter size`).toBeGreaterThanOrEqual(base.doughDiameter - 1.5);
+        expect(before.stage!, `${label}: and not more than 6px above it (47px card back, 42px row taken)`).toBeLessThanOrEqual(base.doughDiameter + 6);
+      } else {
+        expect(Math.abs(before.stage! - base.doughDiameter), `${label}: stage within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
+      }
       // Issue #399: where the stage can spare it the family filter takes its own row above the tray and the dock reserves it
       // (FAMILY_ROW_PX); the pizza stays what it was. The dock is the pre-R3 one plus exactly that row, or exactly the pre-R3 one.
       const expectedDock = base.dockHeight + (before.familyAbove ? FAMILY_ROW_PX : 0);

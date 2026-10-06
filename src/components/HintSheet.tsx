@@ -307,14 +307,14 @@ export function HintSheet({
         )}
         {researchLabelJa && researchDetails && (
           <div className="hint-sheet__research-details" data-hint-research-details="">
-            <p className="hint-sheet__caption">わかっていること：{researchDetails.knownJa}</p>
-            <p className="hint-sheet__caption">{researchDetails.guidanceJa}</p>
+            <p className="hint-sheet__note-line">わかっていること：{researchDetails.knownJa}</p>
+            <p className="hint-sheet__note-line">{researchDetails.guidanceJa}</p>
           </div>
         )}
         {!researchLabelJa && freeCookNote && (
           <div className="hint-sheet__research-details" data-hint-free-note="">
             <p className="hint-sheet__research">{freeCookNote.titleJa}</p>
-            <p className="hint-sheet__caption">{freeCookNote.bodyJa}</p>
+            <p className="hint-sheet__note-line">{freeCookNote.bodyJa}</p>
           </div>
         )}
 

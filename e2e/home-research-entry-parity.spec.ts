@@ -1,3 +1,4 @@
+import { closeHint, expectFreeNote, expectResearchLead, openHint } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -78,7 +79,9 @@ async function cookOriginal(page: Page) {
 const norm = (t: string | null) => (t ?? "").replace(/\s+/g, "");
 
 async function researchSnapshotAfterAttempt(page: Page) {
-  const context = norm(await page.getByTestId("research-context").textContent());
+  const sheet = await openHint(page);
+  const context = norm((await sheet.locator("[data-hint-research]").textContent()) + (await sheet.locator("[data-hint-research-details]").textContent()));
+  await closeHint(page);
   await cookOriginal(page);
   const result = page.locator(".result-panel--original");
   await expect(result).toContainText("研究中 ？？？ピザ");
@@ -96,8 +99,7 @@ test.describe("HOME レシピ発見 follows the cookable Research Entries (#373)
     await page.getByRole("button", { name: /レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await expect(page.getByTestId("research-context")).toHaveCount(0);
-    await expect(page.locator(".order-card--free-cook")).toContainText("レシピ発見の試作");
+    await expectFreeNote(page); // no card above the pizza; the note is the first block of the Hint sheet
   });
 
   test("2+ entries: HOME opens the Dex's Research cards, picks nothing, and starts research only after the player picks", async ({ page }) => {
@@ -111,7 +113,7 @@ test.describe("HOME レシピ発見 follows the cookable Research Entries (#373)
     await expectNoUndiscoveredIdentity(page, [...keysBefore(25)], "HOME -> Dex Research cards");
     await cards.nth(1).getByRole("button", { name: /を研究する/ }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ B（たまねぎ）");
+    await expectResearchLead(page, "？？？ピザ B（たまねぎ）");
     await cookOriginal(page);
     await expect(page.locator(".result-panel--original")).toContainText("研究中 ？？？ピザ B（たまねぎ）");
     await expect(page.getByTestId("research-rows")).toBeVisible();
@@ -124,7 +126,7 @@ test.describe("HOME レシピ発見 follows the cookable Research Entries (#373)
     await page.getByRole("button", { name: /レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await expect(page.getByTestId("research-context")).toContainText("研究中");
+    await expectResearchLead(page, "研究中");
     const home = await researchSnapshotAfterAttempt(page);
     expect(home.rows).toMatch(/[○×]/);
 

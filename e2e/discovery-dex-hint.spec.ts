@@ -151,7 +151,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
 
     await card(page).getByRole("button", { name: /ヒントを見る/ }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
-    await expect(page.locator(".order-card--free-cook")).toBeVisible();
+    await expect(page.locator(".order-card--free-cook")).toHaveCount(0); // the note card is gone (Hint sheet, Owner decision #401 HV)
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toBeVisible();
     await expect(sheet.locator(".hint-sheet__caption")).toHaveCount(1);
