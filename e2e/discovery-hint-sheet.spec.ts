@@ -38,6 +38,7 @@ const LADDER = [
   ["pesto-gamberi", ["shrimp"]], // Expansion Slice 1: the appended step 26
   ["vongole", ["parsley"]], // Expansion Wave 2: the appended step 27
   ["pesto-vegetariana", ["bell-pepper", "zucchini"]], // Expansion Wave 2: the appended step 28
+  ["pesto-trapanese", ["almond"]], // Expansion Slice 3: the appended step 29
 ] as const;
 
 /** Credited recipes that are nobody's key recipe (Wave 2: ratatouille-pizza becomes makeable at step 28 with pesto-vegetariana). A COMPLETE
@@ -414,7 +415,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(29, { complete: true }), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(30, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);

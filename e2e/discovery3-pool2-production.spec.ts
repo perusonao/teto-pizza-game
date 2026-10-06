@@ -96,7 +96,7 @@ async function cookCalabresa(page: Page, opts: { oregano: number; from: "HOME" |
 test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calabresa)", () => {
   test.setTimeout(240_000);
 
-  test("Dex: three Research cards (no aggregate card), 32 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
+  test("Dex: three Research cards (no aggregate card), 33 slots, no hint entrance, no count; Free Cooking's sheet names nothing", async ({ page }, testInfo) => {
     await openWithSave(page);
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
@@ -105,7 +105,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     const research = page.locator(".dex-overlay__research");
     await expect(research.locator(".dex-research-card")).toHaveCount(3);
     await expect(research).not.toContainText(/[0-9]/);
-    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(32);
+    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(33);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
     const body = await page.locator(".dex-overlay").innerText();
