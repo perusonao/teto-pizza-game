@@ -146,6 +146,7 @@ export function TrialNotebookSheet({
           <div className="trial-notebook__empty" data-trial-notebook-empty="">
             <p className="trial-notebook__empty-title">{NOTEBOOK_COPY.empty}</p>
             <p className="trial-notebook__empty-body">{NOTEBOOK_COPY.emptyHint}</p>
+            <p className="trial-notebook__session-note">{NOTEBOOK_COPY.sessionOnly}</p>
           </div>
         ) : (
           <div className="trial-notebook__body">
@@ -180,9 +181,10 @@ export function TrialNotebookSheet({
                 );
               })}
             </ul>
+            {/* Directly under the attempt history (not under the saved Research Board above it): only the attempts vanish on reload. */}
+            <p className="trial-notebook__session-note">{NOTEBOOK_COPY.sessionOnly}</p>
           </div>
         )}
-        <p className="trial-notebook__session-note">{NOTEBOOK_COPY.sessionOnly}</p>
       </section>
     </div>
   );

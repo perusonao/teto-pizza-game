@@ -11,5 +11,5 @@ export const NOTEBOOK_COPY = {
   diffTitle: "前回からの変更",
   diffSauce: "ソース",
   noToppings: "なし",
-  sessionOnly: "この記録は、ゲームを読み込みなおすと消えるよ",
+  sessionOnly: "この試作の記録は、ゲームを読み込みなおすと消えるよ",
 } as const;
