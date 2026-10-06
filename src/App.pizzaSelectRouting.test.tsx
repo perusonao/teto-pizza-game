@@ -59,7 +59,16 @@ const pizzaSelectDiscovery = async (user: User) => {
   await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
   await user.click(screen.getByRole("button", { name: /レシピ発見へ/ }));
 };
-const researchContext = () => document.querySelector("[data-testid='research-context']");
+/** Owner decision (#401 HV): the Research context is no longer a card above the pizza; it is the first lines of the ヒント sheet.
+ *  Opens the sheet, takes its research line, closes it again (null: no ヒント button here, or no Research Target). */
+const researchContext = async (user: ReturnType<typeof userEvent.setup>) => {
+  const hint = screen.queryByRole("button", { name: "ヒント" });
+  if (!hint) return null;
+  await user.click(hint);
+  const line = document.querySelector("[data-hint-research]")?.cloneNode(true) ?? null;
+  await user.click(screen.getByRole("button", { name: /閉じる/ }));
+  return line as Element | null;
+};
 
 beforeEach(() => window.localStorage.clear());
 afterEach(() => {
@@ -75,8 +84,10 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     await pizzaSelectDiscovery(user);
     expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toBeNull();
-    expect(document.querySelector(".order-card--free-cook")).toHaveTextContent("レシピ発見の試作");
+    expect(await researchContext(user)).toBeNull();
+    expect(document.querySelector(".order-card--free-cook")).toBeNull(); // Owner decision (#401 HV): no note card above the pizza
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toHaveTextContent("レシピ発見の試作"); // it is in the Hint sheet
   });
 
   it("Entry 1: that entry is the Research Target (研究中 ？？？ピザ), no Dex detour", async () => {
@@ -85,7 +96,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     render(<App />);
     await pizzaSelectDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });
 
   it("Entry 2+: the Dex's Research cards open, nothing is started or picked; the player's pick starts it", async () => {
@@ -95,11 +106,11 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     await pizzaSelectDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeInTheDocument();
     expect(document.querySelector(".pizza-stage")).toBeNull();
-    expect(researchContext()).toBeNull();
+    expect(await researchContext(user)).toBeNull();
     expect(document.querySelectorAll(".dex-overlay__research .dex-research-card").length).toBeGreaterThanOrEqual(2);
     await user.click(screen.getAllByRole("button", { name: /を研究する/ })[1]);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("HOME parity: Pizza Select and HOME reach the same research state on the same save (Entry 1; Entry 2+ opens the same Dex)", async () => {
@@ -107,12 +118,12 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     const user = userEvent.setup();
     render(<App />);
     await homeDiscovery(user);
-    const homeContext = researchContext()?.textContent;
+    const homeContext = (await researchContext(user))?.textContent;
     cleanup();
     seedSingle();
     render(<App />);
     await pizzaSelectDiscovery(user);
-    expect(researchContext()?.textContent).toBe(homeContext);
+    expect((await researchContext(user))?.textContent).toBe(homeContext);
     cleanup();
 
     seedMulti();
@@ -133,7 +144,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     render(<App />);
     await pizzaSelectDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("the Dex 「このピザを研究する」 is unchanged (single entry)", async () => {
@@ -143,7 +154,7 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
     await user.click(screen.getByRole("button", { name: "？？？ピザ（チキン）を研究する" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });
 
   it("test fixture: the test-only hook starts a targetless round on a save with a cookable entry, and Production UX does not", async () => {
@@ -152,6 +163,6 @@ describe("Pizza Select レシピ発見へ (#377)", () => {
     render(<App />);
     await startTargetlessFreeCookViaTestHook(user);
     expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
-    expect(researchContext()).toBeNull();
+    expect(await researchContext(user)).toBeNull();
   });
 });

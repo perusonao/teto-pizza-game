@@ -1,4 +1,5 @@
 import { mkdirSync } from "node:fs";
+import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
@@ -153,7 +154,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
       "？？？ピザ C（たまねぎ）",
     ]);
     await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await capture(page, "pool2-research-next-started", testInfo.project.name);
     page.on("dialog", (d) => void d.accept());
     await page.getByRole("button", { name: /ホーム/ }).first().click();

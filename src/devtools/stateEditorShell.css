@@ -9,7 +9,13 @@
   font-family: system-ui, -apple-system, "Hiragino Sans", sans-serif;
   color: #1f2430;
   background: #fff8ef;
-  min-height: 100dvh;
+  /* index.css locks html / body / #root to the viewport with `overflow: hidden` (the game is a fixed-chrome shell), so a
+     page taller than the screen could never scroll on a phone: the editor is its own vertical scroll container. */
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   overflow-wrap: anywhere;
 }
 .dse *,

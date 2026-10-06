@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -55,7 +56,7 @@ async function startResearch(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
   await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-  await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+  await expectResearchLead(page, "？？？ピザ");
 }
 
 interface Cook {
@@ -303,7 +304,7 @@ test.describe("Contract 2.1 final (mobile)", () => {
     expect(await chipsOf(page)).toEqual(["トマトソース×", "ナス×", "トマト○"]);
     await expect(usedItem(page, /トマト$/).last()).not.toContainText("✓");
     await result(page).getByRole("button", { name: "もう一度試す" }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await cookPrepared(page, { toppings: [/ナス/, TOMATO] }); // the very same combination
     expect(await chipsOf(page)).toEqual(["トマトソース×", "ナス×"]);
     await expect(page.getByTestId("research-rows")).not.toContainText("トマト○");

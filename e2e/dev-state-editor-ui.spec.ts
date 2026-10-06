@@ -388,3 +388,29 @@ test("HV: Step 12 B discovered -> Apply -> the game shows Brazilian Calabresa di
   expect(await stored(page)).toBe(SEED_RAW);
   await shot(page, "23-b-restored");
 });
+
+test("the editor scrolls vertically on a phone: every tab reaches its bottom, the way back to the game is reachable", async ({ page }) => {
+  test.setTimeout(120_000);
+  await seed(page, { [PREVIEW_KEY]: SEED_RAW });
+  await page.goto(editorUrl());
+  await expect(page.getByRole("main", { name: "DEV State Editor" })).toBeVisible();
+  // html / body / #root are locked to the viewport by the game's shell: the editor itself must be the scroller.
+  const scroller = page.locator(".dse");
+  for (const tab of ["Pitz・Hint", "材料", "レシピ"]) {
+    const tabButton = page.getByRole("tab", { name: new RegExp(tab) });
+    if (await tabButton.count()) await tabButton.first().click();
+    const state = await scroller.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+      return { top: el.scrollTop, max: el.scrollHeight - el.clientHeight, locked: getComputedStyle(el).overflowY };
+    });
+    expect(state.locked, tab).toBe("auto");
+    if (state.max > 0) expect(state.top, `${tab}: scrolled to the bottom`).toBeGreaterThanOrEqual(state.max - 1);
+    await scroller.evaluate((el) => (el.scrollTop = 0));
+  }
+  // The long list scrolls by touch-like wheel input too, and the back link can be brought into view and pressed.
+  await page.mouse.move(195, 400);
+  await page.mouse.wheel(0, 3000);
+  const back = page.getByRole("link", { name: "ゲームへ戻る" });
+  await back.scrollIntoViewIfNeeded();
+  await expect(back).toBeInViewport();
+});

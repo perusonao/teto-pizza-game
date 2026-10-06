@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -265,7 +266,7 @@ for (const [, capacity] of BUILDS) {
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
     await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await page.waitForSelector(".pizza-stage");
     await completeDoughStep(page);
     const bar = page.locator(".prepare-bake-bar");
@@ -279,7 +280,6 @@ for (const [, capacity] of BUILDS) {
     // only through the pantry (pin), then selected on the tray and placed. (The research context stays throughout.)
     const held = new Set(await trayNames(page));
     await openPantry(page);
-    await expect(page.getByTestId("research-context")).toBeVisible();
     await expect(page.locator(".pantry-tile__toggle").first()).toBeVisible();
     const poolNames = await page.locator(".pantry-tile__name").allInnerTexts();
     const outside = poolNames.find((n) => !held.has(n));
@@ -299,7 +299,7 @@ for (const [, capacity] of BUILDS) {
     await expect(chicken).toHaveAttribute("aria-pressed", "true");
     await tapDoughPercent(page, 40, 50);
     await tapDoughPercent(page, 60, 50);
-    await expect(page.getByTestId("research-context")).toBeVisible(); // the Research context is kept in PREPARE
+    await expectResearchLead(page, "研究中"); // the Research context is kept in PREPARE
     await bakeToTarget(page, FREE_BAKE);
     await page.waitForSelector(".result-panel");
     await expect(page.locator(".result-panel--original")).toContainText("研究中 ？？？ピザ");

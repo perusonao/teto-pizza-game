@@ -85,10 +85,12 @@ function renderAt(state: GameState) {
 
 afterEach(cleanup);
 
-// PREPARE shows the dedicated card; BAKE keeps the label in its compact row.
+// Owner decision (#401 HV): PREPARE no longer has a card above the pizza; the Research context is the first lines of the ヒント
+// sheet (rendered open here). BAKE keeps the label in its compact row.
 const hasContext = (s: GameState) => {
-  const r = renderAt(s);
-  const has = !!screen.queryByTestId("research-context") || (s.phase === "BAKE" && !!screen.queryByText(/研究中/));
+  const r = renderAt(s.phase === "PREPARE" ? { ...s, hintSheetOpen: true } : s);
+  expect(screen.queryByTestId("research-context"), "no Research card above the pizza").toBeNull();
+  const has = !!document.querySelector("[data-hint-research]") || (s.phase === "BAKE" && !!screen.queryByText(/研究中/));
   r.unmount();
   return has;
 };
@@ -154,7 +156,7 @@ describe("Research context across the transitions of a Research round", () => {
       expect(screen.queryByTestId("research-test-button")).toBeNull();
       expect(screen.queryByTestId("research-test-picker")).toBeNull();
       expect(r.container.textContent ?? "").not.toMatch(/調べる食材|今回調べる|食材調査なし|試作中は変更できません/);
-      if (st.phase === "PREPARE") expect(screen.queryByTestId("research-context")).not.toBeNull();
+      if (st.phase === "PREPARE") expect(screen.queryByTestId("research-context")).toBeNull(); // the card is gone; the Hint sheet carries it
       r.unmount();
     }
   });
@@ -177,11 +179,14 @@ describe("Research UX Phase 1 in PREPARE", () => {
   it("a valid target shows the fixed ○× guidance and the 試作ノート entry (same text for any target)", () => {
     const s = researchRound();
     expect(s.researchTargetValidAtStart).toBe(true);
-    renderAt(s);
-    expect(screen.getByTestId("research-guidance").textContent).toBe(RESEARCH_UX_COPY.prepareGuidance);
-    expect(screen.getByTestId("research-guidance").textContent).toBe("材料を足して試そう。焼くと使った材料の○×がわかるよ");
-    expect(screen.getByTestId("research-notebook-entry").textContent).toBe("📓 試作ノート");
-    expect(screen.getByTestId("research-context").textContent).toContain("🔎 研究中 ？？？ピザ");
+    renderAt({ ...s, hintSheetOpen: true });
+    const details = document.querySelector("[data-hint-research-details]")!;
+    expect(details.textContent).toContain(RESEARCH_UX_COPY.prepareGuidance);
+    expect(details.textContent).toContain("材料を足して試そう。焼くと使った材料の○×がわかるよ");
+    expect(details.textContent).toContain("わかっていること：");
+    expect(screen.getByRole("dialog").textContent).toContain("試作ノート"); // the way to the notebook is the sheet's own entry
+    expect(document.querySelector("[data-hint-research]")!.textContent).toContain("🔎 研究中 ？？？ピザ");
+    expect(screen.queryByTestId("research-context")).toBeNull();
     // static, no count / recipe / hidden wording
     expect(RESEARCH_UX_COPY.prepareGuidance).not.toMatch(/[0-9０-９]|種類|全部|残り|あと|ペスト|チキン|正解|なし/);
   });
@@ -190,10 +195,10 @@ describe("Research UX Phase 1 in PREPARE", () => {
     const s = lastStockRetry();
     expect(s.researchTargetId).toBe(T);
     expect(s.researchTargetValidAtStart).toBe(false);
-    renderAt(s);
-    expect(screen.getByTestId("research-guidance").textContent).toBe("試作ノートを見て、次に試す材料を考えよう");
-    expect(screen.getByTestId("research-context").textContent).not.toMatch(/○|×/);
-    expect(screen.getByTestId("research-notebook-entry")).toBeTruthy();
+    renderAt({ ...s, hintSheetOpen: true });
+    const details = document.querySelector("[data-hint-research-details]")!;
+    expect(details.textContent).toContain("試作ノートを見て、次に試す材料を考えよう");
+    expect(document.querySelector("[data-hint-research]")!.textContent).not.toMatch(/○|×/);
   });
 
   it("targetless FREE has neither guidance nor notebook entry", () => {
@@ -210,46 +215,6 @@ describe("Research UX Phase 1 in PREPARE", () => {
     renderAt(gameReducer(base, { type: "SELECT_RECIPE", recipeId: "margherita" } as GameAction));
     expect(screen.queryByTestId("research-guidance")).toBeNull();
     expect(screen.queryByTestId("research-notebook-entry")).toBeNull();
-  });
-
-  it("the entry opens the read-only notebook (labelled, back = もどる) and focus returns to the entry", async () => {
-    renderAt(researchRound());
-    const entry = screen.getByTestId("research-notebook-entry");
-    fireEvent.click(entry);
-    const dialog = screen.getByRole("dialog");
-    expect(dialog.textContent).toContain("？？？ピザ");
-    expect(dialog.textContent).toContain("もどる");
-    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
-    expect(screen.queryByRole("dialog")).toBeNull();
-    await waitFor(() => expect(document.activeElement).toBe(entry));
-  });
-
-  // PR #390 Codex P2: the PREPARE notebook is modal for the keyboard / assistive technology too.
-  it("while the notebook is open everything behind it is inert; closing removes the inert and returns focus", async () => {
-    renderAt(researchRound());
-    const entry = screen.getByTestId("research-notebook-entry");
-    const root = document.querySelector(".game-screen")!;
-    expect(root.hasAttribute("inert")).toBe(false);
-    fireEvent.click(entry);
-    const dialog = screen.getByRole("dialog");
-    // the cooking screen is inert, the sheet is not inside it
-    expect(root.hasAttribute("inert")).toBe(true);
-    expect(dialog.closest("[inert]")).toBeNull();
-    expect(root.contains(dialog)).toBe(false);
-    // every focusable control in the document is either in the sheet or behind an inert ancestor
-    const focusables = Array.from(document.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]"));
-    expect(focusables.length).toBeGreaterThan(3);
-    for (const el of focusables) {
-      if (dialog.contains(el)) continue;
-      expect(el.closest("[inert]"), `${el.textContent?.slice(0, 12)} must be unreachable`).not.toBeNull();
-    }
-    // the sheet takes focus on open
-    expect(dialog.contains(document.activeElement)).toBe(true);
-    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(root.hasAttribute("inert")).toBe(false);
-    expect(document.querySelectorAll("[inert]").length).toBe(0);
-    await waitFor(() => expect(document.activeElement).toBe(entry));
   });
 
   it("targetless FREE never gets an inert game screen", () => {
@@ -279,5 +244,33 @@ describe("Research UX Phase 1 in PREPARE", () => {
     const s = gameReducer(gameReducer({ ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) }, { type: "START_FREE_COOK" }), { type: "SHOW_HINT" });
     renderAt(s);
     expect(document.querySelector("[data-hint-research]")).toBeNull();
+  });
+
+  // The contracts that used to be tested through the PREPARE card's notebook entry (that card is gone, Owner decision #401 HV):
+  // the 試作ノート is reached from the Hint sheet now, and is just as read-only, labelled, modal and focus-returning.
+  it("Hint sheet -> 試作ノート: the notebook opens read-only (labelled, back = もどる) and focus returns to the sheet's entry", async () => {
+    renderAt({ ...researchRound(), hintSheetOpen: true });
+    const entry = screen.getByRole("button", { name: /試作ノートを見る/ });
+    fireEvent.click(entry);
+    const notebook = screen.getByRole("dialog", { name: /試作ノート/ });
+    expect(notebook.textContent).toContain("？？？ピザ");
+    expect(notebook.textContent).toContain("もどる");
+    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(screen.queryByRole("dialog", { name: /試作ノート/ })).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /試作ノートを見る/ })));
+  });
+
+  // PR #390 Codex P2 (moved): the notebook is modal for the keyboard / assistive technology too.
+  it("Hint sheet -> 試作ノート: while the notebook is open the Hint sheet behind it is inert; closing removes the inert", () => {
+    renderAt({ ...researchRound(), hintSheetOpen: true });
+    const sheet = document.querySelector(".hint-sheet")!;
+    expect(sheet.hasAttribute("inert")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /試作ノートを見る/ }));
+    const notebook = screen.getByRole("dialog", { name: /試作ノート/ });
+    expect(sheet.hasAttribute("inert")).toBe(true);
+    expect(notebook.closest("[inert]")).toBeNull();
+    expect(sheet.contains(notebook)).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
+    expect(sheet.hasAttribute("inert")).toBe(false);
   });
 });

@@ -503,15 +503,18 @@ const SAUCE_MIN_RATIO = 0.9;
  *  tallest dock of each mode (Result Report §6: GUIDED 279/255/198/174, FREE 269/245/188/164,
  *  LUNCH 236/212/155/131 on S390/S360/E390i/E360i) minus ~6px for real-font variance. DM-3R-2
  *  adds DINNER, measured the same way (265/241/184/160: Free Cooking's paged tray with the target
- *  row in the order card's place, 4px under FREE). */
+ *  row in the order card's place, 4px under FREE). Issue #399 (Owner decision): the family row is always above the ingredient
+ *  cards and takes 42px of the dock, so the DINNER floors on the short / safe-area profiles are 42px lower (measured 223/199/142/118,
+ *  the same ~6px of font variance under them); Dinner keeps its target row, so unlike FREE / Research it gets no card height back.
+ *  N / P are the cap and do not move. */
 const STAGE_FLOOR: Record<string, Record<StageMode, number>> = {
   N390: { GUIDED: 290, FREE: 290, LUNCH: 290, DINNER: 290 },
   N360: { GUIDED: 274, FREE: 274, LUNCH: 274, DINNER: 274 },
   P390i: { GUIDED: 290, FREE: 290, LUNCH: 290, DINNER: 290 },
-  S390: { GUIDED: 272, FREE: 262, LUNCH: 230, DINNER: 259 },
-  S360: { GUIDED: 248, FREE: 238, LUNCH: 205, DINNER: 235 },
-  E390i: { GUIDED: 192, FREE: 182, LUNCH: 148, DINNER: 178 },
-  E360i: { GUIDED: 168, FREE: 158, LUNCH: 125, DINNER: 154 },
+  S390: { GUIDED: 272, FREE: 262, LUNCH: 230, DINNER: 217 },
+  S360: { GUIDED: 248, FREE: 238, LUNCH: 205, DINNER: 193 },
+  E390i: { GUIDED: 192, FREE: 182, LUNCH: 148, DINNER: 136 },
+  E360i: { GUIDED: 168, FREE: 158, LUNCH: 125, DINNER: 112 },
 };
 type StageMode = "GUIDED" | "FREE" | "LUNCH" | "DINNER";
 const PREPARE_STEPS = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] as const;

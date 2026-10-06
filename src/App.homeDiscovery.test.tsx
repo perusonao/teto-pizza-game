@@ -36,7 +36,16 @@ const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie"]);
 const seedMulti = () => seed(12);
 
 const homeDiscovery = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole("button", { name: /レシピ発見/ }));
-const researchContext = () => document.querySelector("[data-testid='research-context']");
+/** Owner decision (#401 HV): the Research context is no longer a card above the pizza; it is the first lines of the ヒント sheet.
+ *  Opens the sheet, takes its research line, closes it again (null: no ヒント button here, or no Research Target). */
+const researchContext = async (user: ReturnType<typeof userEvent.setup>) => {
+  const hint = screen.queryByRole("button", { name: "ヒント" });
+  if (!hint) return null;
+  await user.click(hint);
+  const line = document.querySelector("[data-hint-research]")?.cloneNode(true) ?? null;
+  await user.click(screen.getByRole("button", { name: /閉じる/ }));
+  return line as Element | null;
+};
 
 beforeEach(() => window.localStorage.clear());
 afterEach(() => {
@@ -52,8 +61,10 @@ describe("HOME レシピ発見 (#373)", () => {
     await homeDiscovery(user);
     expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toBeNull();
-    expect(document.querySelector(".order-card--free-cook")).toHaveTextContent("レシピ発見の試作");
+    expect(await researchContext(user)).toBeNull();
+    expect(document.querySelector(".order-card--free-cook")).toBeNull(); // Owner decision (#401 HV): no note card above the pizza
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toHaveTextContent("レシピ発見の試作"); // it is in the Hint sheet
   });
 
   it("B. one cookable entry: that entry is the Research Target (研究中 ？？？ピザ), no Dex detour", async () => {
@@ -62,7 +73,7 @@ describe("HOME レシピ発見 (#373)", () => {
     render(<App />);
     await homeDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });
 
   it("C. two or more cookable entries: the Dex's Research cards open, nothing is started or picked; the player's pick starts it", async () => {
@@ -72,12 +83,12 @@ describe("HOME レシピ発見 (#373)", () => {
     await homeDiscovery(user);
     expect(document.querySelector(".dex-overlay")).toBeInTheDocument();
     expect(document.querySelector(".pizza-stage")).toBeNull();
-    expect(researchContext()).toBeNull();
+    expect(await researchContext(user)).toBeNull();
     const cards = document.querySelectorAll(".dex-overlay__research .dex-research-card");
     expect(cards.length).toBeGreaterThanOrEqual(2);
     await user.click(screen.getAllByRole("button", { name: /を研究する/ })[1]);
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ B（たまねぎ）/);
   });
 
   it("D. the Dex's 研究する is unchanged (single entry): Research Target round", async () => {
@@ -87,7 +98,7 @@ describe("HOME レシピ発見 (#373)", () => {
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
     await user.click(screen.getByRole("button", { name: "？？？ピザ（チキン）を研究する" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
-    expect(researchContext()).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
+    expect(await researchContext(user)).toHaveTextContent(/研究中\s*？？？ピザ(?! )/);
   });
 
   it("E. parity: the same entry from HOME and from the Dex shows the same research context and Hint sheet", async () => {
@@ -95,7 +106,7 @@ describe("HOME レシピ発見 (#373)", () => {
     const user = userEvent.setup();
     render(<App />);
     await homeDiscovery(user);
-    const homeContext = researchContext()?.textContent;
+    const homeContext = (await researchContext(user))?.textContent;
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const homeHint = screen.getByRole("dialog", { name: /ヒント/ });
     const homeKind = homeHint.getAttribute("data-hint-kind");
@@ -110,7 +121,7 @@ describe("HOME レシピ発見 (#373)", () => {
       await user.click(screen.getByRole("button", { name: "ヒント" }));
       return screen.getByRole("dialog", { name: /ヒント/ });
     })());
-    expect(researchContext()?.textContent).toBe(homeContext);
+    expect((await researchContext(user))?.textContent).toBe(homeContext);
     expect(dexHint.getAttribute("data-hint-kind")).toBe(homeKind);
     expect(dexHint.textContent).toBe(homeText);
   });

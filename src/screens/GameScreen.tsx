@@ -368,6 +368,10 @@ export function GameScreen({
     largeCatalogEligible,
   });
 
+  // Issue #399 (Owner decision): the family filter is ALWAYS its own row ABOVE the ingredient cards, on every viewport
+  // height; the dock reserves that row (`--dock-family`) and the pizza gives way as it does for any other dock row.
+  const familyAbove = dockReserve.familyRow;
+
   // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
   // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
   // PREPARE tray screen (an empty-Dex initial state is FREE_COOK in ORDER: no tray, no entry), a step that
@@ -659,53 +663,11 @@ export function GameScreen({
         </>
       )}
 
-      {state.phase === "PREPARE" && state.freeCook && researchResult && (
-        // #346 S3: the Research context replaces the free-cook order card (same slot, same card
-        // component). It shows only what the player already knows -- never the hidden identity.
-        <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
-          <div className="order-card__text">
-            <span className="order-card__recipe-name order-card__recipe-name--research">
-              <span>
-                <ResearchContextLine labelJa={researchResult.label} />
-              </span>
-            </span>
-            <span className="order-card__hint">
-              わかっていること：
-              {[
-                ...researchResult.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
-                ...researchResult.classLinesJa,
-                ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
-              ].join("　")}
-            </span>
-            {/* Research UX Phase 1 (O-1 / O-2): one fixed sentence, identical for every target. Without a verdict this round
-                (the target was not valid at the round's start, so RESULT has no ○×) it promises none. */}
-            <span className="order-card__hint order-card__guidance" data-testid="research-guidance">
-              {RESEARCH_IDENTIFY_ENABLED && state.researchTargetValidAtStart
-                ? RESEARCH_UX_COPY.prepareGuidance
-                : RESEARCH_UX_COPY.prepareGuidanceNoRows}
-            </span>
-          </div>
-          <button
-            ref={prepareNotebookEntryRef}
-            type="button"
-            className="order-card__notebook"
-            data-testid="research-notebook-entry"
-            aria-haspopup="dialog"
-            onClick={() => setPrepareNotebookOpen(true)}
-          >
-            {RESEARCH_UX_COPY.notebookEntry}
-          </button>
-        </div>
-      )}
+      {/* Owner decision (#401 HV): during a Research round the context card above the pizza is gone -- its content (the label,
+          わかっていること, the one fixed guidance sentence and the way to the 試作ノート) is in the ヒント sheet below, and the
+          height it took goes back to the pizza. The same already-public strings, nothing new. */}
 
-      {state.phase === "PREPARE" && state.freeCook && !researchResult && (
-        <div className="order-card order-card--free-cook">
-          <div className="order-card__text">
-            <span className="order-card__recipe-name">{"\u{1F3A8}"} レシピ発見の試作</span>
-            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
-          </div>
-        </div>
-      )}
+      {/* Owner decision (#401 HV): the targetless Free Cooking note card above the pizza is gone too; it is in the ヒント sheet. */}
 
       {state.phase === "PREPARE" && !state.freeCook && state.dinner === null && (
         <div className="order-card">
@@ -881,7 +843,7 @@ export function GameScreen({
               included (empty there), with the same reserved height for the whole round, so the
               pizza stage above it never changes size between steps. */}
           <div
-            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}`}
+            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}${familyAbove ? " prepare-dock--family-above" : ""}`}
             data-testid="prepare-dock"
             style={
               {
@@ -889,6 +851,7 @@ export function GameScreen({
                 "--dock-other-rows": dockReserve.otherRows,
                 "--dock-readout": dockReserve.readout ? 1 : 0,
                 "--dock-pager": dockReserve.utilityRow ? 1 : 0,
+                "--dock-family": familyAbove ? 1 : undefined, // absent when the round has no family row (the CSS default is 0)
               } as CSSProperties
             }
           >
@@ -936,6 +899,7 @@ export function GameScreen({
                 reservePagerRow={dockReserve.utilityRow}
                 handIds={trayHand?.ids ?? null}
                 familyRef={trayFamilyRef}
+                familyPlacement={familyAbove ? "above" : "inline"}
                 pantryEntry={
                   pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
                 }
@@ -1017,6 +981,26 @@ export function GameScreen({
               notebook={notebookRows}
               pantry={hintPantryAccess}
               researchLabelJa={researchResult?.label ?? null}
+              freeCookNote={
+                state.freeCook && !researchResult
+                  ? { titleJa: "\u{1F3A8} レシピ発見の試作", bodyJa: state.hint?.textJa ?? state.recipe.description }
+                  : null
+              }
+              researchDetails={
+                researchResult
+                  ? {
+                      knownJa: [
+                        ...researchResult.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
+                        ...researchResult.classLinesJa,
+                        ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
+                      ].join("　"),
+                      guidanceJa:
+                        RESEARCH_IDENTIFY_ENABLED && state.researchTargetValidAtStart
+                          ? RESEARCH_UX_COPY.prepareGuidance
+                          : RESEARCH_UX_COPY.prepareGuidanceNoRows,
+                    }
+                  : null
+              }
               onChooseResearch={
                 onOpenDex
                   ? () => {

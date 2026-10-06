@@ -1,3 +1,4 @@
+import { expectFreeNote, freeNoteText } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -116,9 +117,8 @@ test("HOME -> レシピ発見 -> cooking -> ORIGINAL RESULT (no Research Target)
   await shot(page, "s0-02-home");
   await startTargetlessFreeCook(page); // #373: HOME 「レシピ発見」 researches when an entry is cookable; Pizza Select's is the targetless door
   await page.waitForSelector(".pizza-stage");
-  await expect(page.getByTestId("research-context")).toHaveCount(0);
-  await expect(page.locator(".order-card--free-cook")).toContainText("レシピ発見の試作");
-  expect(await page.locator(".order-card--free-cook").innerText()).not.toMatch(OLD_WORDING);
+  await expectFreeNote(page); // no card above the pizza; the note is the Hint sheet's first block
+  expect(await freeNoteText(page)).not.toMatch(OLD_WORDING);
   await expectNoOverflow(page, "cooking");
   await shot(page, "s0-03-cooking");
   await cookOriginalFromPrepare(page);

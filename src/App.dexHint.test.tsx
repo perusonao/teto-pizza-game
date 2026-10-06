@@ -75,7 +75,7 @@ describe("Dex with several DISCOVERABLE recipes through the App (229-D, PR-4b-A 
     await user.click(screen.getByRole("button", { name: "閉じる" }));
     expect(document.querySelector(".dex-overlay")).toBeNull();
     await startTargetlessFreeCookViaTestHook(user);
-    expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
+    expect(document.querySelector(".order-card--free-cook")).toBeNull(); // the note lives in the Hint sheet (Owner decision #401 HV)
     await user.click(screen.getByRole("button", { name: "ヒント" }));
     const sheet = screen.getByRole("dialog", { name: /ヒント/ });
     // #353: 2+ registered Research Entries and no target: the sheet only asks the player to choose one.

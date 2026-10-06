@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
@@ -139,7 +140,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await capture(page, "exp1-research-entry", project);
     await hold(page, 2000);
     await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
 
     // 4. A real trial: pesto + shrimp (HAND/pin via the Pantry when it is not in the 12-slot hand) + eggplant + tomato.
     await cookPrepared(page, { toppings: [[/エビ/, 1], [/ナス/, 1], [/(?<!チェリー)トマト(?!ソース)/, 1]] });
@@ -199,7 +200,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await dialog.getByRole("button", { name: "閉じる" }).click();
 
     // 7. The exact recipe: pesto 1, tomato 2, garlic 2, shrimp 3, no cheese -> NEW RECIPE.
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await cookPrepared(page, {
       toppings: [[/(?<!チェリー)トマト(?!ソース)/, 2], [/にんにく/, 2], [/エビ/, 3]],
     });
@@ -267,7 +268,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await expect(section.locator(".dex-card__research-stock-notice")).toHaveCount(0);
     await capture(page, "exp1-378-research-resumed", project);
     await section.getByRole("button", { name: /を研究する/ }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await hold(page, 2000);
   });
 });

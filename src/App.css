@@ -4835,14 +4835,40 @@
   container-type: size;
 }
 
+/* The pizza's own size caps live in these two custom properties and nowhere else: `.pizza-dough` below and the zero-size
+   probe after them both read them, so GameScreen's `familyRowFits` measure (Issue #399) reads the SAME cap the dough
+   uses (`getComputedStyle(stage, "::before").width`) instead of repeating the numbers in script. */
+.game-screen--cooking {
+  --pizza-cap-compact: min(76vw, 290px);
+  --pizza-cap-roomy: min(92vw, 380px);
+}
+
 .game-screen--cooking > .pizza-stage--compact .pizza-dough {
-  width: min(76vw, 290px, 100cqh);
-  height: min(76vw, 290px, 100cqh);
+  width: min(var(--pizza-cap-compact), 100cqh);
+  height: min(var(--pizza-cap-compact), 100cqh);
 }
 
 .game-screen--cooking > .pizza-stage--roomy .pizza-dough {
-  width: min(92vw, 380px, 100cqh);
-  height: min(92vw, 380px, 100cqh);
+  width: min(var(--pizza-cap-roomy), 100cqh);
+  height: min(var(--pizza-cap-roomy), 100cqh);
+}
+
+/* The probe: out of flow, empty, invisible, never hit; only its resolved width (= the cap) is read. */
+.game-screen--cooking > .pizza-stage--compact::before,
+.game-screen--cooking > .pizza-stage--roomy::before {
+  content: "";
+  position: absolute;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.game-screen--cooking > .pizza-stage--compact::before {
+  width: var(--pizza-cap-compact);
+}
+
+.game-screen--cooking > .pizza-stage--roomy::before {
+  width: var(--pizza-cap-roomy);
 }
 
 .game-screen--cooking .prepare-bake-bar {
@@ -4879,6 +4905,8 @@
      readout block  = 6 + 24 (tiers) + 4 + 18 (live line) + 6 + 4 (margin)   = 62px
      tray           = 6 (panel padding + section margin) + rows x 64 + (rows - 1) x 6
      pager row      = 6 (margin) + 28                                        = 34px
+     family row     = 28 + 10 (gap), ABOVE the tray, + 4 more gap above the pager row, only when the stage can
+                      spare it (#399)                                         = 42px (`--family-h`)
    `min-height`, never `height`: if something is ever taller than reserved (Preview's expanded
    開発用 metrics), the dock grows and the pizza gives way as before -- nothing overlaps. */
 .prepare-dock {
@@ -4886,6 +4914,7 @@
   --tray-gap: 6px;
   --panel-overhead: 6px;
   --pager-h: 34px;
+  --family-h: 42px;
   --readout-block: 62px;
   display: flex;
   flex-direction: column;
@@ -4902,7 +4931,7 @@
     calc(
       var(--panel-overhead) +
         max(0px, var(--dock-other-rows, 0) * (var(--chip-h) + var(--tray-gap)) - var(--tray-gap)) +
-        var(--dock-pager, 0) * var(--pager-h)
+        var(--dock-pager, 0) * var(--pager-h) + var(--dock-family, 0) * var(--family-h)
     )
   );
 }
@@ -5400,6 +5429,11 @@
 }
 
 .hint-sheet__empty {
+  /* the sheet is at most 45dvh: a tall empty-state body (with the leading Research / Free note block) scrolls inside it */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -7178,7 +7212,49 @@ p.hint-sheet__step {
   pointer-events: none;
 }
 
+/* Issue #399 (OD-FAMILY-UX-1): in the family row an idle pager (the filtered list fits one page) gives its 128px + gap back
+   to the chips instead of holding an invisible slot. The node stays (aria-hidden, inert); a list that pages shows the
+   pager exactly as before, buttons unchanged. */
+.ingredient-page-nav--with-family .ingredient-page-nav__pager--idle {
+  display: none;
+}
+
+/* Issue #399: the family filter above the tray (GameScreen's `familyPlacement="above"`, only while the pizza stage has
+   `--family-h` to spare): its own full-width row, 28px + a 10px gap; `--dock-family` reserves it. The same
+   `.tray-family-chips` scroller, fades and 44px chips as the inline placement. */
+.tray-family-row {
+  display: flex;
+  height: 28px;
+  margin-bottom: 10px; /* the chips' 44px hit area reaches 8px below the row: a 2px gap to the first card remains */
+}
+
+/* Above placement: the utility row's gap to the tray is 10px (not 6) for the same reason, the pager's 44px hit area
+   reaching 8px above the row. The dock's `--family-h` includes these 4px. */
+.prepare-dock--family-above .ingredient-page-nav {
+  margin-top: 10px;
+}
+
+/* In the above placement the utility row keeps only the entry and the pager. Their buttons stay 36x28 and get a 44px hit
+   area, like the 食材庫 entry: 9px above (inside the row's 10px gap to the tray: a 1px gap to the last card remains), 7px
+   below (the bake bar takes over from 7.5px, so 7 is what is really the control's) and 4px to each side (the 12px gaps to
+   the label). Not in the inline row, where the 6px gap allows 8px above. */
+.ingredient-page-nav--with-entry:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button {
+  position: relative;
+}
+
+.ingredient-page-nav--with-entry:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button::after {
+  content: "";
+  position: absolute;
+  inset: -9px -4px -7px -4px;
+}
+
+.prepare-dock--family-above .pantry-entry::after {
+  inset: -9px -4px -7px -4px;
+}
+
 .tray-family-chips {
+  --fade-start: 0px;
+  --fade-end: 0px;
   position: relative; /* the chips' offsetParent: ShelfChipRow's keep-active-visible scroll reads offsetLeft */
   display: flex;
   flex: 1 1 0;
@@ -7189,38 +7265,87 @@ p.hint-sheet__step {
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /* Issue #399: the chips are 44px tall tap targets (see .tray-family-chip) in a 44px scroller whose negative margin gives
+     the 16px back, so the row's layout height stays 28px (dock delta 0). The 44px has to be the chip button itself: an
+     overflow:auto box clips hit-testing to itself, so a ::after past its edge would never be hit, and a tap on bare
+     scroller padding reaches no chip. Same 8px above / below as the 食材庫 entry: the row's 6px margin plus 2px into the
+     tray's last row above, the spacer under the bake bar (which paints over it) below. */
+  box-sizing: border-box;
+  height: 44px;
+  margin-block: -8px;
+  align-items: stretch;
 }
 
 .tray-family-chips::-webkit-scrollbar {
   display: none;
 }
 
-.tray-family-chips--more-right {
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+/* A browser reports scrollWidth / clientWidth as whole pixels while the chips are laid out at fractional widths (WebKit
+   fonts), so the last chip's end can sit up to ~0.5px past the largest scroll position and never be reachable. A 1px
+   trailing box (the 6px gap is taken back by the negative margin) keeps the whole last chip inside the scroll range.
+   Nothing visible: it is empty and transparent. */
+.tray-family-chips::after {
+  content: "";
+  flex: none;
+  width: 1px;
+  margin-inline-start: -6px;
 }
 
+/* Issue #399: an edge fade on each side that still hides chips, as wide as ShelfChipRow says (--fade-start / --fade-end,
+   shrunk so it never covers the active chip's own text). Hard stops at 0 make a side with no fade fully opaque. */
+.tray-family-chips[data-more-start="true"],
+.tray-family-chips[data-more-end="true"] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+}
+
+/* The chip is a 44px tap target; the 28px pill the player sees is its ::before (8px of hit area above and below, none of it
+   visible). Text, width (12px each side = the old 10px padding + 2px border) and the 6px gap between chips are as before. */
 .tray-family-chip {
+  position: relative;
+  isolation: isolate;
   flex: none;
-  height: 28px;
-  padding: 0 10px;
-  border: 2px solid #e6d3a3;
-  border-radius: 999px;
-  background: #fff8ea;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
   color: #8a6a45;
   font-size: 12px;
   font-weight: 700;
-  line-height: 24px;
+  line-height: 44px;
   white-space: nowrap;
 }
 
+.tray-family-chip::before {
+  content: "";
+  position: absolute;
+  inset: 8px 0;
+  z-index: -1;
+  box-sizing: border-box;
+  border: 2px solid #e6d3a3;
+  border-radius: 999px;
+  background: #fff8ea;
+}
+
+.tray-family-chip:focus-visible {
+  outline: none;
+}
+
+.tray-family-chip:focus-visible::before {
+  outline: 2px solid #c08a3e;
+  outline-offset: 1px;
+}
+
 .tray-family-chip--active {
-  background: #f2b705;
-  border-color: #b98700;
   color: #4a2e0a;
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 2px;
+}
+
+.tray-family-chip--active::before {
+  background: #f2b705;
+  border-color: #b98700;
 }
 
 /* Research 2.0 Phase 1: the stable Research label (「？？？ピザ B（たまねぎ）」) never breaks inside a part on a narrow card;
@@ -7228,4 +7353,23 @@ p.hint-sheet__step {
 .research-label__part {
   display: inline-block;
   white-space: nowrap;
+}
+
+/* #401 (Owner HV): the Research / Free Cooking note that used to be a card above the pizza leads the Hint sheet as its own
+   block, so it is read before the ordinary hint. */
+.hint-sheet__research-details {
+  flex: none;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.hint-sheet__note-line {
+  margin: 0;
+  font-size: 13px;
+  color: #4a3722;
+}
+.hint-sheet__research-details > p + p {
+  margin-top: 4px;
 }

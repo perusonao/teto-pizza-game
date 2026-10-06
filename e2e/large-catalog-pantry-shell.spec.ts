@@ -1,3 +1,4 @@
+import { FAMILY_ROW_PX } from "../src/logic/prepareDock";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
@@ -74,6 +75,7 @@ async function layout(page: Page) {
     return {
       stage: r(document.querySelector(".pizza-dough"))?.w ?? null,
       dock: r(document.querySelector(".prepare-dock"))?.h ?? null,
+      familyAbove: document.querySelector(".tray-family-row") !== null, // Issue #399: the family filter has its own row above the tray
       row: r(document.querySelector(".ingredient-page-nav")),
       pager: r(document.querySelector(".ingredient-page-nav__pager")),
       entry: r(document.querySelector(".pantry-entry")),
@@ -156,8 +158,19 @@ for (const width of [390, 360] as const) {
       expect(before.row!.h, `${label}: pager row identical with / without the entry`).toBeCloseTo(withoutEntry.row!.h, 1);
       // And against the LC-R2 measurement taken on the code without the entry (Chromium): a sanity bound only,
       // wide enough for WebKit's rounding (WebKit measured 246 vs 245.1 at 360x640).
-      expect(Math.abs(before.stage! - base.doughDiameter), `${label}: stage within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
-      expect(Math.abs(before.dock! - base.dockHeight), `${label}: dock within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
+      // Issue #399 (Owner decision): the family row is always above and reserved in the dock, and the note card above the pizza is
+      // gone (Hint sheet). A normal height has stage to spare (the pizza stays at its cap, the pre-R3 size); a short height is
+      // stage-limited and gets the card's height (47px) back for the row's (42px): the pizza is at least the pre-R3 one.
+      if (before.innerH <= 700) {
+        expect(before.stage!, `${label}: short height: the pizza is at least the pre-R3 / pre-family-filter size`).toBeGreaterThanOrEqual(base.doughDiameter - 1.5);
+        expect(before.stage!, `${label}: and not more than 6px above it (47px card back, 42px row taken)`).toBeLessThanOrEqual(base.doughDiameter + 6);
+      } else {
+        expect(Math.abs(before.stage! - base.doughDiameter), `${label}: stage within 1.5px of the pre-R3 measurement`).toBeLessThanOrEqual(1.5);
+      }
+      // Issue #399: where the stage can spare it the family filter takes its own row above the tray and the dock reserves it
+      // (FAMILY_ROW_PX); the pizza stays what it was. The dock is the pre-R3 one plus exactly that row, or exactly the pre-R3 one.
+      const expectedDock = base.dockHeight + (before.familyAbove ? FAMILY_ROW_PX : 0);
+      expect(Math.abs(before.dock! - expectedDock), `${label}: dock within 1.5px of the pre-R3 measurement (+ the family row when it is above)`).toBeLessThanOrEqual(1.5);
       expect(before.row!.h, `${label}: pager row stays 28px`).toBeCloseTo(28, 0);
       expect(before.docScrollW, `${label}: no horizontal overflow`).toBeLessThanOrEqual(before.innerW);
       expect(before.gameScreenScrolls, `${label}: game screen does not scroll`).toBe(false);
@@ -167,8 +180,10 @@ for (const width of [390, 360] as const) {
       expect(e.x, `${label}: entry inside the row`).toBeGreaterThanOrEqual(before.row!.x - 0.5);
       expect(e.r, `${label}: entry left of the pager group`).toBeLessThanOrEqual(before.pager!.x - 2);
       expect(e.h, `${label}: visual height stays within the row`).toBeLessThanOrEqual(28.5);
-      const hitTop = e.y - 8;
-      const hitBottom = e.b + 8;
+      // The family-above layout moves 1px of the hit area from below to above (9 / 7): the gap to the last card stays positive and
+      // the bake bar takes over from 7.5px below the row.
+      const hitTop = e.y - (before.familyAbove ? 9 : 8);
+      const hitBottom = e.b + (before.familyAbove ? 7 : 8);
       expect(hitBottom - hitTop, `${label}: hit area >= 44px`).toBeGreaterThanOrEqual(44);
       // Free space above the row is the 6px margin; the last 2px of the hit area may touch the chips' bottom edge.
       expect(before.lowestChip! - hitTop, `${label}: hit area overlaps the chips by at most 2px`).toBeLessThanOrEqual(2.5);

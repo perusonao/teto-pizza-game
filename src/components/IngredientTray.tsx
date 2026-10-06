@@ -111,6 +111,10 @@ interface IngredientTrayProps {
   /** Issue #396: the tray writes its current family filter here so App's HAND-change selection rule can judge the
    *  filtered first page. Write-only for the tray; the filter itself stays tray state. */
   familyRef?: MutableRefObject<FamilyFilter>;
+  /** Issue #399: where the family filter sits. `"inline"` (default) = the utility row below the tray, between the 食材庫
+   *  entry and the pager (Issue #396 / #401). `"above"` = its own full-width row above the tray, the utility row keeping
+   *  only the entry and the pager. GameScreen chooses `"above"` only while the extra row costs the pizza nothing. */
+  familyPlacement?: "above" | "inline";
   pantryEntry?: { onOpen: () => void; buttonRef?: Ref<HTMLButtonElement> };
 }
 
@@ -150,6 +154,7 @@ export function IngredientTray({
   reservePagerRow = true,
   handIds = null,
   familyRef,
+  familyPlacement = "inline",
   pantryEntry,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
@@ -538,11 +543,33 @@ export function IngredientTray({
     return <span className="ingredient-chip__stock">∞</span>;
   }
 
+  // Issue #399: the ONE family filter element; `familyPlacement` only decides where it is mounted (above the tray, or in
+  // the utility row), so both placements share the same chips, scroll behaviour, fades and tap targets.
+  const familyFilter =
+    familyChoices.length > 0 ? (
+      <ShelfChipRow
+        compact
+        options={[
+          { id: "all", label: SHELF_ALL_LABEL_JA, ariaLabel: "全ての具材を表示" },
+          ...familyChoices.map((id) => {
+            const label = ingredientShelfLabel(id) ?? "";
+            return { id, label, ariaLabel: `${label}の具材だけ表示` };
+          }),
+        ]}
+        active={family}
+        onChange={(id) => changeFamily(id as FamilyFilter)}
+        ariaLabel="具材の絞り込み"
+        dataAttr="data-tray-family"
+      />
+    ) : null;
+  const familyAbove = familyFilter !== null && familyPlacement === "above";
+
   return (
     <div className="ingredient-panel">
       {/* Issue #159 P0: no "このピザにおすすめ"/"その他" heading -- this recipe's own required
           ingredients (owned, active category) are the only thing offered, so there is nothing
           left to label as a subset. */}
+      {familyAbove ? <div className="tray-family-row">{familyFilter}</div> : null}
       <section className="ingredient-section">
         <div className="ingredient-tray">{items.map((ingredient) => renderChip(ingredient))}</div>
       </section>
@@ -556,7 +583,7 @@ export function IngredientTray({
           with one page it keeps its height but is invisible and inert (aria-hidden, disabled
           buttons), so the tray / pager / CTA-bar stack has the same height with 6 or 22
           ingredients and nothing moves when a category gains a second page. */}
-      {familyChoices.length > 0 ? (
+      {familyFilter !== null && !familyAbove ? (
         // Issue #396: the family chips share the utility row with the 食材庫 entry and the pager (no new row, no
         // height change). The pager keeps its place, idle (invisible, inert), when the filtered list fits one page.
         <div className="ingredient-page-nav ingredient-page-nav--with-entry ingredient-page-nav--with-family">
@@ -571,20 +598,7 @@ export function IngredientTray({
               {"\u{1F9FA}"} 食材庫
             </button>
           ) : null}
-          <ShelfChipRow
-            compact
-            options={[
-              { id: "all", label: SHELF_ALL_LABEL_JA, ariaLabel: "全ての具材を表示" },
-              ...familyChoices.map((id) => {
-                const label = ingredientShelfLabel(id) ?? "";
-                return { id, label, ariaLabel: `${label}の具材だけ表示` };
-              }),
-            ]}
-            active={family}
-            onChange={(id) => changeFamily(id as FamilyFilter)}
-            ariaLabel="具材の絞り込み"
-            dataAttr="data-tray-family"
-          />
+          {familyFilter}
           <div
             className={`ingredient-page-nav__pager${pageCount > 1 ? "" : " ingredient-page-nav__pager--idle"}`}
             role={pageCount > 1 ? "group" : undefined}

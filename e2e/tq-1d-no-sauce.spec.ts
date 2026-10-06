@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
@@ -112,7 +113,7 @@ async function researchTheEntry(page: Page) {
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
   await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
-  await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+  await expectResearchLead(page, "？？？ピザ");
 }
 
 test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
@@ -147,7 +148,7 @@ test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
 
     // 2. Research the entry; a sauce-free pizza that is NOT Aussie: ORIGINAL + the technique stage; the rows have no sauce row.
     await page.locator(".dex-overlay__research").getByRole("button", { name: "？？？ピザ A（たまねぎ）を研究する" }).click();
-    await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+    await expectResearchLead(page, "？？？ピザ");
     await cookPrepared(page, NOT_AUSSIE);
     const original = page.locator(".result-panel--original");
     await expect(original).toBeVisible();

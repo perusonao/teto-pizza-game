@@ -1,3 +1,4 @@
+import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -101,7 +102,7 @@ test("Research loop: ORIGINAL result -> Notebook -> Hint -> retry keeps the same
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
   await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（[^（）]+）を研究する$/ }).click();
-  await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+  await expectResearchLead(page, "？？？ピザ");
   await cookOriginalFromPrepare(page);
 
   // A. Research ORIGINAL result
@@ -155,13 +156,13 @@ test("Research loop: ORIGINAL result -> Notebook -> Hint -> retry keeps the same
   await dialog.getByRole("button", { name: "閉じる" }).click();
 
   // The round the Hint opened is still the Research Target's; another trial, then 「もう一度試す」
-  await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+  await expectResearchLead(page, "？？？ピザ");
   await cookOriginalFromPrepare(page);
   await expect(page.locator(".result-panel--original")).toContainText("研究中 ？？？ピザ");
   await expect(page.locator(".result-panel--original")).toContainText("まだ新しいレシピは見つかっていません");
   await page.locator(".result-panel--original").getByRole("button", { name: "もう一度試す" }).click();
   await page.waitForSelector(".pizza-stage");
-  await expect(page.getByTestId("research-context")).toContainText("？？？ピザ");
+  await expectResearchLead(page, "？？？ピザ");
   await expectNoOverflow(page, "retry");
   await expectNoUndiscoveredIdentity(page, discovered, "retry");
   await shot(page, "04-retry-same-target");

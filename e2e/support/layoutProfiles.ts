@@ -123,6 +123,40 @@ export class ProfileDriver {
     });
   }
 
+  /** A headless WebKit page can sit without any rendering update for a long while after a viewport change, and the resize /
+   *  observer / media-query notifications are only delivered by a rendering update: ask for two frames so that they are
+   *  delivered now. Under a paused `page.clock` (BAKE) no frame comes, so the wait is bounded in real time. */
+  private async pumpFrames(): Promise<void> {
+    await Promise.race([
+      this.page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done())))).catch(() => undefined),
+      new Promise<void>((resolve) => setTimeout(resolve, 150)),
+    ]);
+  }
+
+  /** Real-time wait until the dock and the stage stop moving: some layout is chosen by script from the stage as laid out
+   *  (the family row's placement, #399), and an engine delivers the resize / observer notifications that drive it on its
+   *  own schedule (WebKit can take more than the fixed wait above). Nothing is tolerated here: it only waits for the last
+   *  layout to be the one that is judged; it returns as soon as three reads 50ms apart agree (or after 3s). */
+  private async waitForLayoutQuiet(): Promise<void> {
+    const read = () =>
+      this.page.evaluate(() =>
+        [".prepare-dock", ".game-screen--cooking > .pizza-stage"]
+          .map((sel) => {
+            const r = document.querySelector(sel)?.getBoundingClientRect();
+            return r ? `${r.top.toFixed(2)},${r.height.toFixed(2)}` : "-";
+          })
+          .join("|"),
+      );
+    let prev = await read();
+    let same = 0;
+    for (let i = 0; i < 60 && same < 3; i += 1) {
+      await this.page.waitForTimeout(50);
+      const now = await read();
+      same = now === prev ? same + 1 : 0;
+      prev = now;
+    }
+  }
+
   /** Resize, set/clear the inset, let layout settle, then verify what actually applied. Uses a
    *  real-time wait (not rAF): BAKE cycles run with `page.clock` paused. */
   async apply(profile: Profile): Promise<AppliedProfile> {
@@ -131,7 +165,12 @@ export class ProfileDriver {
     }
     await this.page.setViewportSize({ width: profile.width, height: profile.height });
     await this.setSafeArea(profile.inset);
+    // A headless WebKit page can drop the viewport notification of the first resize after a load (it is only delivered with
+    // the next viewport change): deliver it once, so every listener re-reads the viewport that is actually applied.
+    await this.page.evaluate(() => window.dispatchEvent(new Event("resize")));
     await this.page.waitForTimeout(120);
+    await this.pumpFrames();
+    await this.waitForLayoutQuiet();
     const applied = await readViewport(this.page);
     const want = profile.inset ?? { top: 0, bottom: 0 };
     const problems: string[] = [];

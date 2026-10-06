@@ -539,7 +539,9 @@ describe("Cooking Time: PREPARE 試作ノート pause (Research UX Phase 1)", ()
     needle.unstub();
   }
 
-  it("open -> time passes -> close: the reading time is not counted, and the clock resumes after closing", async () => {
+  // Owner decision (#401 HV): the PREPARE card with the notebook entry is gone; the 試作ノート is opened from the ヒント sheet. The
+  // reading time is never billed either way (the Hint sheet already pauses the clock; the notebook opens over it).
+  it("Hint sheet -> 試作ノート -> back -> close: the reading time is not counted, and the clock resumes after closing", async () => {
     seedWithDiscoverable();
     let now = 8_000_000;
     vi.spyOn(Date, "now").mockImplementation(() => now);
@@ -547,21 +549,23 @@ describe("Cooking Time: PREPARE 試作ノート pause (Research UX Phase 1)", ()
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
-    expect(screen.getByTestId("research-notebook-entry")).toBeInTheDocument();
     now += 5_000; // active work
-    await user.click(screen.getByTestId("research-notebook-entry"));
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    await user.click(screen.getByRole("button", { name: /試作ノートを見る/ }));
     expect(screen.getByRole("dialog", { name: /試作ノート/ })).toBeInTheDocument();
     now += 30_000; // reading the notebook -- never billed
     now += 30_000; // still open: nothing accrues however long
     await user.click(screen.getByRole("button", { name: /もどる/ }));
     expect(screen.queryByRole("dialog", { name: /試作ノート/ })).toBeNull();
+    now += 20_000; // the Hint sheet is still open: still paused
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
     now += 3_000; // active work again: the clock resumed
     await bakeBismarck(user);
 
     expect(readDisplayedCookingTime()).toBe("0:08");
   });
 
-  it("overlapping reasons: notebook open + window blur -> blur ends first -> still paused until the notebook closes", async () => {
+  it("overlapping reasons: Hint sheet + notebook + window blur -> blur ends first -> still paused until the notebook and the sheet close", async () => {
     seedWithDiscoverable();
     let now = 9_000_000;
     vi.spyOn(Date, "now").mockImplementation(() => now);
@@ -570,13 +574,16 @@ describe("Cooking Time: PREPARE 試作ノート pause (Research UX Phase 1)", ()
 
     await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
     now += 4_000;
-    await user.click(screen.getByTestId("research-notebook-entry"));
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    await user.click(screen.getByRole("button", { name: /試作ノートを見る/ }));
     now += 10_000;
     fireEvent(window, new Event("blur"));
     now += 10_000;
     fireEvent(window, new Event("focus"));
     now += 10_000; // notebook still open
     await user.click(screen.getByRole("button", { name: /もどる/ }));
+    now += 10_000; // Hint sheet still open
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
     now += 4_000;
     await bakeBismarck(user);
 

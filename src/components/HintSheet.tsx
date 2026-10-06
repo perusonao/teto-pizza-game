@@ -179,6 +179,8 @@ export function HintSheet({
   pantry,
   onChooseResearch,
   researchLabelJa = null,
+  researchDetails = null,
+  freeCookNote = null,
   onClose,
 }: {
   view: HintSheetView;
@@ -205,6 +207,11 @@ export function HintSheet({
   /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ B（たまねぎ）」 / 「？？？ピザ（チキン）」, `researchEntryLabel`), shown as one context line. Never a
    *  recipe name or id; `null` (no valid target) renders nothing. */
   researchLabelJa?: string | null;
+  /** The Research round's PREPARE details (they used to be a card above the pizza): what the player already knows and the one
+   *  fixed guidance sentence, both already public strings. `null` renders nothing. */
+  researchDetails?: { knownJa: string; guidanceJa: string } | null;
+  /** A targetless Free Cooking round's PREPARE note (it used to be a card above the pizza): the title and the one line under it. */
+  freeCookNote?: { titleJa: string; bodyJa: string } | null;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -297,6 +304,18 @@ export function HintSheet({
           <p className="hint-sheet__research" data-hint-research="">
             <ResearchContextLine labelJa={researchLabelJa} />
           </p>
+        )}
+        {researchLabelJa && researchDetails && (
+          <div className="hint-sheet__research-details" data-hint-research-details="">
+            <p className="hint-sheet__note-line">わかっていること：{researchDetails.knownJa}</p>
+            <p className="hint-sheet__note-line">{researchDetails.guidanceJa}</p>
+          </div>
+        )}
+        {!researchLabelJa && freeCookNote && view.kind !== "CHOOSE_RESEARCH" && (
+          <div className="hint-sheet__research-details" data-hint-free-note="">
+            <p className="hint-sheet__research">{freeCookNote.titleJa}</p>
+            <p className="hint-sheet__note-line">{freeCookNote.bodyJa}</p>
+          </div>
         )}
 
         {view.kind === "SELECTABLE" && ladder ? (
