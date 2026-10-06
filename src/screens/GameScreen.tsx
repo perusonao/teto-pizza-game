@@ -667,14 +667,7 @@ export function GameScreen({
           わかっていること, the one fixed guidance sentence and the way to the 試作ノート) is in the ヒント sheet below, and the
           height it took goes back to the pizza. The same already-public strings, nothing new. */}
 
-      {state.phase === "PREPARE" && state.freeCook && !researchResult && (
-        <div className="order-card order-card--free-cook">
-          <div className="order-card__text">
-            <span className="order-card__recipe-name">{"\u{1F3A8}"} レシピ発見の試作</span>
-            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
-          </div>
-        </div>
-      )}
+      {/* Owner decision (#401 HV): the targetless Free Cooking note card above the pizza is gone too; it is in the ヒント sheet. */}
 
       {state.phase === "PREPARE" && !state.freeCook && state.dinner === null && (
         <div className="order-card">
@@ -988,6 +981,11 @@ export function GameScreen({
               notebook={notebookRows}
               pantry={hintPantryAccess}
               researchLabelJa={researchResult?.label ?? null}
+              freeCookNote={
+                state.freeCook && !researchResult
+                  ? { titleJa: "\u{1F3A8} レシピ発見の試作", bodyJa: state.hint?.textJa ?? state.recipe.description }
+                  : null
+              }
               researchDetails={
                 researchResult
                   ? {

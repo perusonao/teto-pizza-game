@@ -163,12 +163,13 @@ describe("Free Cooking hint sheet in GameScreen (229-B)", () => {
     expect(hintButton()).toHaveFocus();
   });
 
-  it("the order-card line does not change when the sheet opens (no double hint)", () => {
+  it("no note card above the pizza (Owner decision #401 HV): the Free Cooking note is the first block of the sheet, with no double hint", () => {
     render(<Harness />);
-    const line = () => document.querySelector(".order-card--free-cook .order-card__hint")?.textContent;
-    const before = line();
+    expect(document.querySelector(".order-card--free-cook")).toBeNull();
     fireEvent.click(hintButton());
+    const note = document.querySelector("[data-hint-free-note]");
+    expect(note?.textContent).toContain("レシピ発見の試作");
     fireEvent.click(screen.getByRole("button", { name: "次のヒントを見る" }));
-    expect(line()).toBe(before);
+    expect(document.querySelector("[data-hint-free-note]")?.textContent).toBe(note?.textContent);
   });
 });

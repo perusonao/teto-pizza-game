@@ -62,7 +62,9 @@ describe("HOME レシピ発見 (#373)", () => {
     expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
     expect(document.querySelector(".dex-overlay")).toBeNull();
     expect(await researchContext(user)).toBeNull();
-    expect(document.querySelector(".order-card--free-cook")).toHaveTextContent("レシピ発見の試作");
+    expect(document.querySelector(".order-card--free-cook")).toBeNull(); // Owner decision (#401 HV): no note card above the pizza
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toHaveTextContent("レシピ発見の試作"); // it is in the Hint sheet
   });
 
   it("B. one cookable entry: that entry is the Research Target (研究中 ？？？ピザ), no Dex detour", async () => {

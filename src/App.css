@@ -7349,3 +7349,16 @@ p.hint-sheet__step {
   display: inline-block;
   white-space: nowrap;
 }
+
+/* #401 (Owner HV): the Research / Free Cooking note that used to be a card above the pizza leads the Hint sheet as its own
+   block, so it is read before the ordinary hint. */
+.hint-sheet__research-details {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.hint-sheet__research-details > p + p {
+  margin-top: 4px;
+}

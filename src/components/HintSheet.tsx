@@ -180,6 +180,7 @@ export function HintSheet({
   onChooseResearch,
   researchLabelJa = null,
   researchDetails = null,
+  freeCookNote = null,
   onClose,
 }: {
   view: HintSheetView;
@@ -209,6 +210,8 @@ export function HintSheet({
   /** The Research round's PREPARE details (they used to be a card above the pizza): what the player already knows and the one
    *  fixed guidance sentence, both already public strings. `null` renders nothing. */
   researchDetails?: { knownJa: string; guidanceJa: string } | null;
+  /** A targetless Free Cooking round's PREPARE note (it used to be a card above the pizza): the title and the one line under it. */
+  freeCookNote?: { titleJa: string; bodyJa: string } | null;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -306,6 +309,12 @@ export function HintSheet({
           <div className="hint-sheet__research-details" data-hint-research-details="">
             <p className="hint-sheet__caption">わかっていること：{researchDetails.knownJa}</p>
             <p className="hint-sheet__caption">{researchDetails.guidanceJa}</p>
+          </div>
+        )}
+        {!researchLabelJa && freeCookNote && (
+          <div className="hint-sheet__research-details" data-hint-free-note="">
+            <p className="hint-sheet__research">{freeCookNote.titleJa}</p>
+            <p className="hint-sheet__caption">{freeCookNote.bodyJa}</p>
           </div>
         )}
 
