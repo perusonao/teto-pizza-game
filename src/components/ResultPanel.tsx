@@ -260,13 +260,26 @@ export function ResultPanel({
   // Dex/Pitz-credit markup, so a FAILED pizza can never be misread as a normal ★1 result.
   if (completion?.status === "FAILED") {
     const failureMessage = buildCompletionFailureMessage(completion);
+    // OD-R3-1: a bake-FAILED Research trial that used an ingredient discloses the same ○× panel as the ORIGINAL card
+    // (rows are only ever set by the reducer for such a trial); nothing else about the failed card changes.
+    const failedResearch = freeCook && researchLabelJa !== null && researchRows !== null;
+    const failedTrialNoticeText = failedResearch ? duplicateTrialNoticeJa(trialNoticeNumber) : null;
     return (
       <div className="result-panel result-panel--failed">
         <p className="result-panel__heading result-panel__heading--failed">失敗</p>
+        {failedResearch && (
+          <p className="result-panel__research-context" data-research-context="">
+            {"\u{1F50E}"} 研究中 <ResearchLabel labelJa={researchLabelJa} />
+          </p>
+        )}
         <div className="result-panel__headline">
           <p className="result-panel__failed-reason" role="alert">
             {failureMessage}
           </p>
+          {failedResearch && researchRows && (
+            <ResearchRowsPanel rows={researchRows.rows} toppingOverCap={researchRows.toppingOverCap} />
+          )}
+          {failedTrialNoticeText && <p className="original-pizza__trial-notice">{failedTrialNoticeText}</p>}
           {bakeState && (
             <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
               {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
@@ -283,7 +296,29 @@ export function ResultPanel({
           </p>
         </div>
 
-        {actions}
+        {failedResearch && onOpenAttemptLog ? (
+          <div className="action-row action-row--column result-panel__actions">
+            <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
+              もう一度試す
+            </button>
+            <div className="result-panel__research-actions">
+              <button
+                ref={attemptLogEntryRef}
+                type="button"
+                className="result-near-miss__cta"
+                aria-haspopup="dialog"
+                onClick={onOpenAttemptLog}
+              >
+                {"\u{1F4D3}"} 試作ノート
+              </button>
+            </div>
+            <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
+              レシピを選んで作る
+            </button>
+          </div>
+        ) : (
+          actions
+        )}
       </div>
     );
   }

@@ -48,6 +48,22 @@ export function recordTrialAttempt(
   feedback: ShownFeedback | null = null,
 ): TrialRecordResult {
   if (!isTrialRecordEligible(outcome)) return { trialNotebook: input.trialNotebook, lastTrialAttempt: null };
+  return commitTrialAttempt(input, feedback);
+}
+
+/**
+ * OD-R3-3: a bake-FAILED Research trial that used at least one ingredient is recorded like any other attempt (same
+ * fingerprint, same feedback line, same `#n` model). There is no matcher outcome to gate on; the caller (CONFIRM_BAKE,
+ * Research FAILED only) has already decided the attempt is eligible.
+ */
+export function recordFailedResearchAttempt(
+  input: TrialRecordInput,
+  feedback: ShownFeedback | null = null,
+): TrialRecordResult {
+  return commitTrialAttempt(input, feedback);
+}
+
+function commitTrialAttempt(input: TrialRecordInput, feedback: ShownFeedback | null): TrialRecordResult {
   const result = recordAttempt(input.trialNotebook, {
     fingerprint: attemptFingerprintOfPizza(input.pizza),
     feedback,
