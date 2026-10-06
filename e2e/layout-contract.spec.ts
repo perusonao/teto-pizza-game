@@ -568,7 +568,6 @@ class StageStability {
     await this.lc.checkpoint({ label: `LC-S ${this.mode} ${step}`, meta: { mode: this.mode, step } }, ids, slots, this.mount, {
       beforeMeasure: async (profile) => {
         const rects = await stageRects(this.page);
-        await this.page.evaluate((m) => { ((window as any).__famlog ??= []).push(`${Math.round(performance.now())}:#### ${m}`); }, `${this.mode} ${step} @${profile.id} stage=${rects.stage?.height} dock=${rects.dock?.height}`);
         perProfile.set(profile.id, rects);
         lcS4(rects, `${this.mode} ${step} @${profile.id}`);
       },
@@ -600,7 +599,6 @@ class StageStability {
         expect.soft(min + TOL, `LC-S3 ${this.mode} @${profile.id}: smallest PREPARE diameter ${Math.round(min)} >= ${floor}`).toBeGreaterThanOrEqual(floor);
       }
     }
-    if (testInfo.project.name.startsWith("webkit") && this.mode === "DINNER") expect.soft(false, "DIAG\n" + (await this.page.evaluate(() => ((window as any).__famlog ?? []).join("\n")))).toBe(true);
     await testInfo.attach(`stage-diameters-${this.mode}.json`, { body: JSON.stringify(table, null, 1), contentType: "application/json" });
   }
 }

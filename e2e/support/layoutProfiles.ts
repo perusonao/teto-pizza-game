@@ -123,6 +123,16 @@ export class ProfileDriver {
     });
   }
 
+  /** A headless WebKit page can sit without any rendering update for a long while after a viewport change, and the resize /
+   *  observer / media-query notifications are only delivered by a rendering update: ask for two frames so that they are
+   *  delivered now. Under a paused `page.clock` (BAKE) no frame comes, so the wait is bounded in real time. */
+  private async pumpFrames(): Promise<void> {
+    await Promise.race([
+      this.page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done())))).catch(() => undefined),
+      new Promise<void>((resolve) => setTimeout(resolve, 150)),
+    ]);
+  }
+
   /** Real-time wait until the dock and the stage stop moving: some layout is chosen by script from the stage as laid out
    *  (the family row's placement, #399), and an engine delivers the resize / observer notifications that drive it on its
    *  own schedule (WebKit can take more than the fixed wait above). Nothing is tolerated here: it only waits for the last
@@ -156,6 +166,7 @@ export class ProfileDriver {
     await this.page.setViewportSize({ width: profile.width, height: profile.height });
     await this.setSafeArea(profile.inset);
     await this.page.waitForTimeout(120);
+    await this.pumpFrames();
     await this.waitForLayoutQuiet();
     const applied = await readViewport(this.page);
     const want = profile.inset ?? { top: 0, bottom: 0 };
