@@ -57,8 +57,8 @@ const target = (s: RecipeDiscoveryInputs) => {
 
 describe("No.27 authoring: production data", () => {
   it("recipe count 26 -> 27, ingredient count 29 -> 30, existing No.1..26 unchanged, pesto-pollo = No.27 (Expansion Slice 1 then appends No.28 / the 31st ingredient; Wave 2 No.29-31 / ingredients 32-34)", () => {
-    expect(RECIPES).toHaveLength(32); // + TQ-1D No.32 aussie (no new ingredient)
-    expect(INGREDIENTS).toHaveLength(34);
+    expect(RECIPES).toHaveLength(33); // + TQ-1D No.32 aussie (no new ingredient)
+    expect(INGREDIENTS).toHaveLength(35);
     expect(RECIPES[26].id).toBe(ID);
     expect(RECIPES[25].id).toBe(CAL);
     expect(RECIPES.slice(0, 26).filter((r) => r.id === ID)).toEqual([]);
@@ -121,8 +121,8 @@ describe("No.27 authoring: production data", () => {
 describe("No.27 ladder: step 25 unlocks chicken; steps 1..24 unchanged", () => {
   it("appended step 25 = chicken -> pesto-pollo; the 24 W1 steps are byte-identical (Expansion Slice 1 appends step 26 after it)", () => {
     expect(POST_W1_APPENDED_STEPS[0]).toEqual({ ingredientIds: ["chicken"], keyRecipeId: ID });
-    expect(POST_W1_APPENDED_STEPS).toHaveLength(4); // Expansion Slice 1 step 26, Wave 2 steps 27 / 28
-    expect(DISCOVERY_LADDER.steps).toHaveLength(28);
+    expect(POST_W1_APPENDED_STEPS).toHaveLength(5); // Expansion Slice 1 step 26, Wave 2 steps 27 / 28
+    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
     expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: ID });
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
   });
@@ -189,7 +189,7 @@ describe("No.27 ladderCredit / Lunch Rush", () => {
     expect(pool).not.toContain(CAL);
     expect(pool).not.toContain(AUS);
     expect(pool).not.toContain("pesto-gamberi");
-    expect(pool).toHaveLength(RECIPES.length - 7);
+    expect(pool).toHaveLength(RECIPES.length - 8);
   });
 });
 
@@ -211,7 +211,7 @@ describe("No.27 Hint: key-free (Migration A kept, no KEY_TOPPING)", () => {
   it("roles are key-free; the rung ladder has no KEY_TOPPING, no empty rung, and names no ingredient / recipe", () => {
     expect(RECIPE_HINT_ROLES[ID as RecipeId]).toEqual({ keyFree: true });
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as RecipeId])).toBe(true);
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(7); // calabresa + pesto-pollo + Expansion pesto-gamberi + Wave 2's 3 + TQ-1D aussie; no other recipe moved
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(8); // calabresa + pesto-pollo + Expansion pesto-gamberi + Wave 2's 3 + TQ-1D aussie; no other recipe moved
     const rungs = buildHint5Ladder(ID)!.rungs;
     expect(rungs.map((r) => r.kind)).not.toContain("KEY_TOPPING");
     for (const r of rungs) if (r.kind !== "STRUCTURE") expect(r.subjectIds.length).toBeGreaterThan(0);

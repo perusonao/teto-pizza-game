@@ -291,6 +291,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "pesto-patate",
         "pesto-pollo",
         "pesto-tonno",
+        "pesto-trapanese",
         "pesto-vegetariana",
         "pizza-portuguesa",
         "puttanesca-pizza",

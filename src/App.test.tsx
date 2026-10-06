@@ -927,8 +927,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 32/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/32/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 33/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/33/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {
@@ -1087,7 +1087,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     // Since the 25-recipe ladder (W1 I5b-3) every finite material has an offer, so every owned one
     // is a refill row.
     expect(UNOFFERED).toEqual([]);
-    expect(MANY).toHaveLength(31);
+    expect(MANY).toHaveLength(32);
   });
 
   it("E. shelf filtering narrows the visible list to that shelf only", async () => {

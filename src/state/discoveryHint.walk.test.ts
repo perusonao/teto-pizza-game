@@ -94,7 +94,7 @@ const TOTAL = RECIPES.length;
 
 describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hints only", () => {
   it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi + Wave 2's 3 + TQ-1D's non-credit aussie (32)", () => {
-    expect(TOTAL).toBe(32);
+    expect(TOTAL).toBe(33);
   });
 
   it("every stage has a DISCOVERABLE target (or a Shop step), never shows the full answer after Dex 0, and ends in its discovery", () => {
@@ -234,13 +234,16 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     // stage has its own count, so this is "every stage after the first visits the Shop".
     // Expansion Wave 2: the ladder ends at step 28, and its pair (pesto-vegetariana / ratatouille-pizza) is a
     // branching pool, so the last stage runs at count 29 with no step of its own: only counts that ARE a ladder step sell.
+    // Expansion Slice 3: step 29 (almond) is reached while ratatouille-pizza is still the one recipe that needs no new
+    // material, so that stage never visits the Shop for it; the almond purchase is the pesto-trapanese stage's (checked below).
     const seenCounts = new Set<number>();
     let credited = 0;
     for (const r of records) {
-      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited)) expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
+      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited) && r.target !== "ratatouille-pizza") expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
       seenCounts.add(credited);
       if (countsTowardLadder(r.target)) credited += 1;
     }
+    expect(records.find((r) => r.target === "pesto-trapanese")!.shop.length, "pesto-trapanese buys almond in the Shop").toBeGreaterThanOrEqual(1);
     // Facts stay after the discovery: every paid recipe with a purchasable fact (Margherita was
     // free), each within its Hint 2.0 cost (OD-H3-4 parity cap 35 / 75); the legacy ledger never moved.
     const paid = records.slice(1).filter((r) => r.steps > 0);

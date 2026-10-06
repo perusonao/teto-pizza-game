@@ -1976,6 +1976,62 @@ export const AUSSIE_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Expansion Slice 3: Reference Truth for `pesto-trapanese`. Pieces (fresh-tomato 2, garlic 2,
+ * almond 3 = 7 non-sauce) take the RT-01 8-piece ring consecutively in `requiredIngredients`
+ * order (the `PESTO_POLLO_REFERENCE` precedent). Slot assignment is GAMEPLAY / REFERENCE
+ * CALIBRATION, not source authority.
+ */
+export const PESTO_TRAPANESE_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-trapanese",
+  sauce: computeMechanicalSauceReference("pesto-trapanese"),
+  pieceGroups: [
+    {
+      ingredientId: "fresh-tomato",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "almond",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -2009,6 +2065,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PESTO_VEGETARIANA_REFERENCE.recipeId, PESTO_VEGETARIANA_REFERENCE],
   [RATATOUILLE_PIZZA_REFERENCE.recipeId, RATATOUILLE_PIZZA_REFERENCE],
   [AUSSIE_REFERENCE.recipeId, AUSSIE_REFERENCE],
+  [PESTO_TRAPANESE_REFERENCE.recipeId, PESTO_TRAPANESE_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

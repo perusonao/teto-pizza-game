@@ -400,7 +400,7 @@ describe("ESC_PARITY pricing (OD-H3-4 / OD-H3-15)", () => {
   it("measurement: the 24 paid targets' full unlock total (not asserted to 1480, not an economy authority)", () => {
     // The snapshot is of the credited W1 population (a branching recipe, and No.27 pesto-pollo / Expansion
     // pesto-gamberi / Wave 2 recipes behind the appended steps 25-28, are measured on their own).
-    const perRecipe = Object.fromEntries(PAID_TARGETS.filter((r) => countsTowardLadder(r.id) && !["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza"].includes(r.id)).map((r) => [r.id, fullCost(model(r.id))]));
+    const perRecipe = Object.fromEntries(PAID_TARGETS.filter((r) => countsTowardLadder(r.id) && !["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese"].includes(r.id)).map((r) => [r.id, fullCost(model(r.id))]));
     const total = Object.values(perRecipe).reduce((a, b) => a + b, 0);
     // Snapshot of today's data under OD-H3-4/5/6/7 (Result Report §9); re-measure when recipes change.
     expect(total).toBe(515);

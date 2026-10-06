@@ -691,6 +691,25 @@ export const RECIPES = [
     ladderCredit: false,
     lunchRush: false,
   },
+  {
+    id: "pesto-trapanese",
+    nameJa: "ペストトラパネーゼピザ",
+    description: "ジェノベーゼソースにトマト、にんにく、アーモンドをのせた、香ばしいシチリア風の一枚。",
+    // Expansion Slice 3 (Chapter 3). SOURCE AUTHORITY (PIZZA DB p11 `pesto-trapanese-pizzadb-p11`, 172
+    // matrix): sauce base pesto, ingredients アーモンド / トマト / にんにく (= almond / fresh-tomato /
+    // garlic), no cheese. GAMEPLAY CALIBRATION (not source): counts pesto 1 / fresh-tomato 2 / garlic 2 /
+    // almond 3, bake 50-70 (the pesto-gamberi precedent); 7 non-sauce pieces (2 + 2 + 3) <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "garlic", minCount: 2 },
+      { ingredientId: "almond", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

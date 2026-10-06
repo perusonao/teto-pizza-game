@@ -6,7 +6,7 @@ import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot,
 
 /** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10; No.27 pesto-pollo (key step 25, T3) makes it 6 / 10 / 11; Expansion Slice 1 pesto-gamberi (key step 26, T3) makes it 6 / 10 / 12 (Chapter 3 No.12). */
 describe("recipeChapters (OD-DISC-9)", () => {
-  it("partitions the 32 recipes 6 / 11 / 15 by price tier, in RECIPES order", () => {
+  it("partitions the 33 recipes 6 / 11 / 16 by price tier, in RECIPES order", () => {
     const chapters = buildRecipeChapters();
     expect(chapters.map((c) => c.titleJa)).toEqual(["第1章", "第2章", "第3章"]);
     expect(chapters.map((c) => c.recipes.map((r) => r.id))).toEqual([
@@ -15,10 +15,10 @@ describe("recipeChapters (OD-DISC-9)", () => {
       [
         "quattro-formaggi", "genovese", "napoletana", "tonno-e-cipolla", "pizza-bianca",
         "pesto-tonno", "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
-        "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza",
+        "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese",
       ],
     ].map((ids) => [...ids].sort((a, b) => RECIPES.findIndex((r) => r.id === a) - RECIPES.findIndex((r) => r.id === b))));
-    expect(chapters.map((c) => c.recipes.length)).toEqual([6, 11, 15]);
+    expect(chapters.map((c) => c.recipes.length)).toEqual([6, 11, 16]);
   });
 
   it("chapter follows the key step (last material's step), margherita (starters only) is chapter 1", () => {
@@ -51,7 +51,7 @@ describe("recipeChapters (OD-DISC-9)", () => {
     const [c1, c2, c3] = buildRecipeChapters();
     expect(chapterProgress(c1, dex)).toEqual({ discovered: 2, total: 6 });
     expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 11 });
-    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 15 });
+    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 16 });
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "margherita")!)).toBe(1);
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "marinara")!)).toBe(1);
   });

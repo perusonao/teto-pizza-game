@@ -24,6 +24,7 @@ describe("presets are derived from the real catalog", () => {
       "research-step12-ready",
       "step12-abc-undiscovered",
       "step12-b-discovered",
+      "last-step-ready",
       "all-ingredients",
       "all-recipes",
       "everything-unlocked",
@@ -229,6 +230,21 @@ function syntheticResearch(recipes: EditorCatalog["recipes"], ingredients: Edito
     },
   };
 }
+
+describe("last-step-ready (Expansion Slice 3 Owner HV)", () => {
+  it("reaches the last ladder step with its materials unbought and only the recipes that need them undiscovered", () => {
+    const last = catalog.ladder.steps[catalog.ladder.steps.length - 1];
+    const state = buildPreset("last-step-ready");
+    const found = new Set(state.dex.map((e) => e.recipeId));
+    const undiscovered = catalog.recipes.filter((r) => !found.has(r.id)).map((r) => r.id);
+    expect(undiscovered).toEqual([last.keyRecipeId]);
+    for (const m of last.ingredientIds) {
+      expect(state.ownedIngredientIds).not.toContain(m);
+      expect(state.unlockedForShopIngredientIds).toContain(m);
+    }
+    expect(state.pitzBalance).toBeGreaterThanOrEqual(100);
+  });
+});
 
 describe("presets scale to a synthetic 172-recipe / 62-ingredient catalog", () => {
   const big = syntheticCatalog(172, 3, 62);
