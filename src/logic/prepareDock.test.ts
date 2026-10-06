@@ -61,6 +61,14 @@ describe("All-Owned Cooking Tray derivation (食材庫廃止)", () => {
     expect(trayIngredientsFor("topping", options).length).toBe(toppings.length);
   });
 
+  it("the newest material (almond, Expansion Slice 3) is on the FREE tray once owned and absent while unowned", () => {
+    const base = owned(5);
+    const without = trayIngredientsFor("topping", { ownedIngredientIds: base, freeCook: true, recipe: margherita }).map((i) => i.id);
+    const withAlmond = trayIngredientsFor("topping", { ownedIngredientIds: [...base, "almond"], freeCook: true, recipe: margherita }).map((i) => i.id);
+    expect(without).not.toContain("almond");
+    expect(withAlmond).toContain("almond");
+  });
+
   it("Guided / Lunch Rush keep their recipe-limited tray (the mode filter is unchanged)", () => {
     const r = recipe("pizza-portuguesa");
     const ids = trayIngredientsFor("topping", { ownedIngredientIds: ALL_OWNED, freeCook: false, recipe: r }).map((i) => i.id);
