@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
@@ -10,7 +10,7 @@ import type { HandSession } from "../logic/catalog/handSession";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
-import { familyRowFits, prepareDockReserve, SHORT_HEIGHT_QUERY } from "../logic/prepareDock";
+import { prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -368,60 +368,9 @@ export function GameScreen({
     largeCatalogEligible,
   });
 
-  // Issue #399: the family filter sits in its own row ABOVE the tray only while the pizza stage can spare that row's
-  // height (`familyRowFits`): the rule reads the stage as laid out now, so it holds for every round (FREE, Research,
-  // Dinner) and every viewport / safe-area without a per-case breakpoint. A short visible height keeps the one-row
-  // layout (the filter inside the utility row) and so the pizza keeps exactly the size it has today.
-  const screenRef = useRef<HTMLDivElement>(null);
-  const [familyAbove, setFamilyAbove] = useState(false);
-  const familyRowReserved = dockReserve.familyRow;
-  const inPrepare = state.phase === "PREPARE";
-  useLayoutEffect(() => {
-    // Read the stage afresh each time (it is a different element if the screen was ever re-keyed) and never keep a stale
-    // placement: without a reserved row there is nothing above.
-    const measure = () => {
-      const stage = screenRef.current?.querySelector<HTMLElement>(".pizza-stage");
-      if (!stage || !familyRowReserved) {
-        setFamilyAbove(false);
-        return;
-      }
-      const style = getComputedStyle(stage);
-      const contentHeight = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
-      // The pizza's cap, read from the zero-size probe App.css sizes with the very `--pizza-cap-*` the dough uses.
-      const pizzaCap = parseFloat(getComputedStyle(stage, "::before").width);
-      const shortViewport = typeof window.matchMedia === "function" && window.matchMedia(SHORT_HEIGHT_QUERY).matches;
-      setFamilyAbove((placedAbove) => familyRowFits({ contentHeight, pizzaCap, placedAbove, shortViewport }));
-    };
-    // A change of layout takes a render and a layout pass to show in the stage, and the engines deliver resize / observer
-    // notifications at different moments: so after every trigger the stage is read again over the next few frames, until
-    // the placement has stopped changing. The rule is a fixed point, so this only ever confirms it. The short-height query
-    // is listened to directly: it is the one input that flips the layout without the stage's own size being the cause.
-    let frame = 0;
-    let settleLeft = 0;
-    const settle = () => {
-      measure();
-      settleLeft -= 1;
-      if (settleLeft > 0) frame = requestAnimationFrame(settle);
-    };
-    const trigger = () => {
-      cancelAnimationFrame(frame);
-      settleLeft = 6;
-      settle();
-    };
-    trigger();
-    const stage = screenRef.current?.querySelector<HTMLElement>(".pizza-stage");
-    const observer = typeof ResizeObserver === "function" && stage ? new ResizeObserver(trigger) : null;
-    if (stage) observer?.observe(stage);
-    const short = typeof window.matchMedia === "function" ? window.matchMedia(SHORT_HEIGHT_QUERY) : null;
-    short?.addEventListener?.("change", trigger);
-    window.addEventListener("resize", trigger);
-    return () => {
-      cancelAnimationFrame(frame);
-      observer?.disconnect();
-      short?.removeEventListener?.("change", trigger);
-      window.removeEventListener("resize", trigger);
-    };
-  }, [familyRowReserved, inPrepare]);
+  // Issue #399 (Owner decision): the family filter is ALWAYS its own row ABOVE the ingredient cards, on every viewport
+  // height; the dock reserves that row (`--dock-family`) and the pizza gives way as it does for any other dock row.
+  const familyAbove = dockReserve.familyRow;
 
   // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
   // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
@@ -580,7 +529,6 @@ export function GameScreen({
   return (
     <>
     <div
-      ref={screenRef}
       className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}
       // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
       // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
@@ -937,7 +885,7 @@ export function GameScreen({
               included (empty there), with the same reserved height for the whole round, so the
               pizza stage above it never changes size between steps. */}
           <div
-            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}${dockReserve.familyRow && familyAbove ? " prepare-dock--family-above" : ""}`}
+            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}${familyAbove ? " prepare-dock--family-above" : ""}`}
             data-testid="prepare-dock"
             style={
               {
@@ -945,7 +893,7 @@ export function GameScreen({
                 "--dock-other-rows": dockReserve.otherRows,
                 "--dock-readout": dockReserve.readout ? 1 : 0,
                 "--dock-pager": dockReserve.utilityRow ? 1 : 0,
-                "--dock-family": dockReserve.familyRow && familyAbove ? 1 : undefined, // absent unless the family row is above (the CSS default is 0)
+                "--dock-family": familyAbove ? 1 : undefined, // absent when the round has no family row (the CSS default is 0)
               } as CSSProperties
             }
           >
