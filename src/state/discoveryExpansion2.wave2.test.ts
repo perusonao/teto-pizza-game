@@ -30,7 +30,8 @@ import { createDefaultSave } from "./persistence";
  */
 const IDS = ["vongole", "pesto-vegetariana", "ratatouille-pizza"] as const;
 /** The non-credit onion-step recipes (calabresa, and TQ-1D's aussie): excluded where a test isolates the Wave 2 pool. */
-const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie"];
+// Outside the Wave 2 population: the two non-credit recipes, and Slice 3 pesto-trapanese (appended step 29, after this Wave).
+const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "pesto-trapanese"];
 const [VONGOLE, PESTO_VEG, RATATOUILLE] = IDS;
 const rec = (id: string) => getRecipe(id as RecipeId)! as Recipe;
 const NEW_INGREDIENTS = ["parsley", "bell-pepper", "zucchini"] as const;
@@ -48,12 +49,12 @@ const stateAfter = (found: readonly string[], bought: readonly string[] = []): R
 
 describe("Expansion Wave 2 authoring: exact production data", () => {
   it("counts: recipes 28 -> 31, ingredients 31 -> 34, toppings 24 -> 27, ladder 26 -> 28, credited 27 -> 30, chapters 6 / 10 / 15 (TQ-1D then appends the non-credit aussie: 32 recipes, chapters 6 / 11 / 15)", () => {
-    expect(RECIPES).toHaveLength(32);
-    expect(INGREDIENTS).toHaveLength(34);
-    expect(INGREDIENTS.filter((i) => i.category === "topping")).toHaveLength(27);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(28);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(30);
-    expect(buildRecipeChapters().map((c) => c.recipes.length)).toEqual([6, 11, 15]);
+    expect(RECIPES).toHaveLength(33);
+    expect(INGREDIENTS).toHaveLength(35);
+    expect(INGREDIENTS.filter((i) => i.category === "topping")).toHaveLength(28);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(31);
+    expect(buildRecipeChapters().map((c) => c.recipes.length)).toEqual([6, 11, 16]);
   });
 
   it("RECIPES declaration order: pesto-gamberi (No.28) is followed by vongole, pesto-vegetariana, ratatouille-pizza", () => {
@@ -63,7 +64,7 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
   });
 
   it("exactly the 3 new ingredients are appended after shrimp, in order (existing catalog untouched)", () => {
-    expect(INGREDIENTS.slice(31).map((i) => i.id)).toEqual([...NEW_INGREDIENTS]);
+    expect(INGREDIENTS.slice(31, 34).map((i) => i.id)).toEqual([...NEW_INGREDIENTS]);
     expect(INGREDIENTS[30].id).toBe("shrimp");
   });
 
@@ -127,8 +128,8 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
 
   it("no identity collision: all 32 identities (ingredient set + counts) are unique and each new recipe matches only itself", () => {
     const keys = RECIPES.map((r) => JSON.stringify([...r.requiredIngredients].map((q) => [q.ingredientId, q.minCount]).sort()));
-    expect(new Set(keys).size).toBe(32);
-    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(32);
+    expect(new Set(keys).size).toBe(33);
+    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(33);
     for (const id of IDS) {
       const m = matchDiscovery(signatureOfPizza(pizzaOf(rec(id).requiredIngredients.map((q) => q.ingredientId))), RECIPE_DISCOVERY_CATALOG);
       expect(m.kind, id).toBe("UNIQUE_MATCH");
@@ -201,6 +202,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
       { ingredientIds: ["shrimp"], keyRecipeId: "pesto-gamberi" },
       { ingredientIds: ["parsley"], keyRecipeId: VONGOLE },
       { ingredientIds: ["bell-pepper", "zucchini"], keyRecipeId: PESTO_VEG },
+      { ingredientIds: ["almond"], keyRecipeId: "pesto-trapanese" }, // Expansion Slice 3, appended after Wave 2
     ]);
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
     expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
@@ -260,7 +262,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
         expect(pool.length, `after ${order.length} discoveries`).toBeGreaterThan(0);
         order.push(pick(pool));
       }
-      expect(new Set(order).size).toBe(32);
+      expect(new Set(order).size).toBe(33);
       expect(remainingOf(walkState(order))).toEqual([]);
     }
   });
@@ -288,7 +290,7 @@ describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () 
       expect(rec(id).lunchRush, id).toBe(false);
       expect(participatesInLunchRush(id), id).toBe(false);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false)).toHaveLength(7);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false)).toHaveLength(8);
     const all = INGREDIENTS.map((i) => i.id);
     const pool = missionOrderRecipeIds({
       dex: discoverAll(RECIPES.map((r) => r.id)),

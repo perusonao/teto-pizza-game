@@ -34,8 +34,8 @@ describe("LC-1b scale fixtures", () => {
       }),
     );
     expect(sizes).toEqual({
-      // PR-4b-B: the id keeps its LC-1b name; the fixture is the real runtime catalog (now 32 recipes incl. TQ-1D's aussie, No.27 pesto-pollo, Expansion pesto-gamberi and Wave 2's 3 / 34 ingredients incl. chicken, shrimp and Wave 2's 3).
-      "runtime-29x25": [34, 32],
+      // PR-4b-B: the id keeps its LC-1b name; the fixture is the real runtime catalog (now 33 recipes incl. TQ-1D's aussie, No.27 pesto-pollo, Expansion pesto-gamberi, Wave 2's 3 and Slice 3's pesto-trapanese / 35 ingredients incl. chicken, shrimp, Wave 2's 3 and almond).
+      "runtime-29x25": [35, 33],
       "w2a-37x34": [37, 34],
       "w2a-mixed-37x34": [37, 34],
       "mid-40x34": [40, 34],
@@ -48,8 +48,8 @@ describe("LC-1b scale fixtures", () => {
 
   it("runtime fixture is the real catalog: 3 / 4 / 27 and chapters 6 / 11 / 15", () => {
     const f = largeCatalogFixture("runtime-29x25");
-    expect(f.split).toEqual({ sauce: 3, cheese: 4, topping: 27 });
-    expect(f.chapterSizes).toEqual([6, 11, 15]);
+    expect(f.split).toEqual({ sauce: 3, cheese: 4, topping: 28 });
+    expect(f.chapterSizes).toEqual([6, 11, 16]);
     expect(f.starterIds).toEqual(["tomato-sauce", "mozzarella", "basil"]);
   });
 

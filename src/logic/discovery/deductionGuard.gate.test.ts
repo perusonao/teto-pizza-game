@@ -93,7 +93,9 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     const recipe = synthetic(["mozzarella", "egg", "mushroom"]);
     const parts = targetReserveParts(recipe.id, { discoveredCount: 5, ownedIngredientIds: ALL_INGREDIENT_IDS }, [recipe])!;
     expect(parts.reserveId).toBe("egg");
-    expect(dh42aGuardedAnswer(parts)!.factId).toBe("attr:category:topping");
+    // Expansion Slice 3: `other` now has two catalog members (egg, almond), so the family answer is no longer a singleton
+    // fallback; the property under test (the hardened guard leaks nothing) is the assertions below.
+    expect(dh42aGuardedAnswer(parts)!.factId).toBe("attr:family:other");
     expect(leakPriors(DH4_2A, recipe, parts)).toContain("none");
     expect(hypotheticalReserves(parts)).toContain("egg");
     expect(leakPriors(HARDENED, recipe, parts)).toEqual([]);
@@ -116,7 +118,8 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // Re-measured at No.27 (30 ingredients: the synthetic families are cut from the production TOPPINGS,
     // so adding chicken re-shapes them). The property that matters is the hardened `toEqual([])` above.
     // Re-measured again at Expansion Slice 1 (31 ingredients: shrimp joins the TOPPINGS the families are cut from).
-    expect(dh42aLeaks).toBe(68);
+    // Re-measured again at Expansion Slice 3 (35 ingredients: almond joins the TOPPINGS the families are cut from).
+    expect(dh42aLeaks).toBe(88);
   }, 120_000);
 });
 

@@ -50,7 +50,7 @@ function radius(p: { x: number; y: number }) {
 
 describe("MD-01: every production recipe has a Reference (32 / 32)", () => {
   it("RECIPES 32, REFERENCE_PIZZAS 32", () => {
-    expect(RECIPES).toHaveLength(32);
+    expect(RECIPES).toHaveLength(33);
     for (const r of RECIPES) expect(getReferencePizza(r.id)?.recipeId).toBe(r.id);
   });
 

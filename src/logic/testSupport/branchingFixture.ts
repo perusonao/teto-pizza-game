@@ -30,7 +30,7 @@ import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 /** Credited recipes behind the appended ladder steps 25-28 (not W1): No.27 pesto-pollo (chicken), Expansion
  *  Slice 1 pesto-gamberi (shrimp), Wave 2 vongole (parsley), pesto-vegetariana (bell-pepper + zucchini) and
  *  ratatouille-pizza (makeable at step 28, nobody's key recipe). */
-const POST_W1_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza"];
+const POST_W1_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese"];
 
 /** The credited W1 recipes: what the frozen W1 ladder counts. The appended-step recipes above are credited
  *  too but are outside the W1 walk this fixture models. */

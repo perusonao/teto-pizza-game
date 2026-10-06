@@ -83,7 +83,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] }) {
   }, [SAVE_KEY, JSON.stringify(save)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/32`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/33`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");

@@ -44,7 +44,7 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
   const catalog = runtimeCatalog();
 
   it("equals ingredientShelf(id) for every production ingredient and is never null", () => {
-    expect(catalog).toHaveLength(34);
+    expect(catalog).toHaveLength(35);
     for (const item of catalog) expect(item.shelf).toBe(ingredientShelf(item.id));
     expect(catalog.every((i) => i.shelf !== null)).toBe(true);
   });
@@ -57,11 +57,11 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id) : i.category;
       byShelf[shelf!] = (byShelf[shelf!] ?? 0) + 1;
     }
-    expect(byCategory).toEqual({ sauce: 3, cheese: 4, topping: 27 });
+    expect(byCategory).toEqual({ sauce: 3, cheese: 4, topping: 28 });
     const seen: Record<string, number> = {};
     for (const i of catalog) seen[i.shelf!] = (seen[i.shelf!] ?? 0) + 1;
     expect(seen).toEqual(byShelf);
-    expect(seen).toEqual({ sauce: 3, cheese: 4, meat: 5, seafood: 4, vegetable: 10, fruit: 1, herb: 5, spice: 1, other: 1 });
+    expect(seen).toEqual({ sauce: 3, cheese: 4, meat: 5, seafood: 4, vegetable: 10, fruit: 1, herb: 5, spice: 1, other: 2 });
   });
 });
 
@@ -71,7 +71,7 @@ describe("LC-R1: queryCatalog shelves filter", () => {
 
   it("undefined / empty shelves = no shelf filter (すべて)", () => {
     const all = ids(queryCatalog(catalog, own, usage));
-    expect(all).toHaveLength(34);
+    expect(all).toHaveLength(35);
     expect(ids(queryCatalog(catalog, own, usage, { shelves: [] }))).toEqual(all);
     expect(ids(queryCatalog(catalog, own, usage, { shelves: undefined }))).toEqual(all);
   });

@@ -49,7 +49,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/32/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/33/);
 }
 
 async function capture(page: Page, name: string, projectName: string) {
@@ -160,7 +160,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*32/);
+    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*33/);
     // calabresa found; portuguesa and aussie left: a pool of 2 -> no aggregated unknown (both are Research Entries), no per-card hint.
     await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
     await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(2);

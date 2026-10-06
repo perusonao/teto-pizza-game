@@ -107,7 +107,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] } | null, query =
   );
   await page.goto(`/${query}`);
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/32`));
+  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/33`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");

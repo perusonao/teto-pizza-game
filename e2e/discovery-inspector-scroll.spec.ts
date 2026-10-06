@@ -12,7 +12,7 @@ const URL = "/teto-pizza-game/?inspector=discovery";
 async function openInspector(page: Page) {
   await page.goto(URL);
   await expect(page.locator("[data-inspector]")).toBeVisible();
-  await expect(page.getByTestId("dpi-step-count")).toHaveText("28"); // 24 W1 steps + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28
+  await expect(page.getByTestId("dpi-step-count")).toHaveText("29"); // 24 W1 steps + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28
 }
 
 /** Scrolls the Inspector's own scroller to the bottom the way a finger would end up, and reports it. */
@@ -52,7 +52,7 @@ test("Inspector still scrolls after the search box and a filter chip, and with a
   await chips.nth(0).click();
   await page.getByLabel("search").fill("egg");
   await page.getByLabel("search").fill("");
-  await expect(page.getByTestId("dpi-visible-count")).toContainText("28 / 28");
+  await expect(page.getByTestId("dpi-visible-count")).toContainText("29 / 29");
   await page.getByTestId("dpi-row-1").locator("button").first().click();
   await page.locator("[data-inspector]").evaluate((el) => (el.scrollTop = 0));
   await expectLastStepReachable(page);

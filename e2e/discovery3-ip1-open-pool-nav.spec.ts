@@ -55,7 +55,7 @@ async function startDex12Free(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX12_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/32/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/33/);
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
 }

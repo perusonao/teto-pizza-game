@@ -158,7 +158,7 @@ for (const width of [390, 360] as const) {
         "すべて", "肉系", "魚介系", "野菜・きのこ系", "果物系", "ハーブ・香味系", "スパイス・薬味系", "ちょっと変わった材料",
       ]);
       expect(all.chipBoxes[0].pressed).toBe("true");
-      expect(all.tiles, `${label}: すべて lists every owned topping`).toHaveLength(27);
+      expect(all.tiles, `${label}: すべて lists every owned topping`).toHaveLength(28);
       expect(all.rowInsideList, `${label}: chip row is outside the scroll region`).toBe(false);
       expect(all.row!.b, `${label}: chip row sits above the list`).toBeLessThanOrEqual(all.list!.y + 0.5);
       expect(all.row!.y, `${label}: chip row sits below the subtitle`).toBeGreaterThanOrEqual(all.subtitle!.b - 0.5);
@@ -205,7 +205,7 @@ for (const width of [390, 360] as const) {
       await page.locator(".pantry-sheet__list").focus();
       await page.keyboard.press("PageDown");
       await expect.poll(async () => (await shelfFacts(page)).listScrollTop, { timeout: 4000 }).toBeGreaterThan(0);
-      const filters: Record<string, number> = { "野菜・きのこ系": 10, "肉系": 5, "ちょっと変わった材料": 1, "魚介系": 4, すべて: 27 };
+      const filters: Record<string, number> = { "野菜・きのこ系": 10, "肉系": 5, "ちょっと変わった材料": 2, "魚介系": 4, すべて: 28 };
       for (const [name, count] of Object.entries(filters)) {
         await page.locator(".pantry-sheet__list").focus();
         await page.keyboard.press("PageDown");
@@ -244,7 +244,7 @@ for (const width of [390, 360] as const) {
       await page.getByRole("button", { name: /食材庫/ }).click();
       const reopened = await shelfFacts(page);
       expect(reopened.chipBoxes.filter((c) => c.pressed === "true").map((c) => c.label), `${label}: reopen resets to すべて`).toEqual(["すべて"]);
-      expect(reopened.tiles).toHaveLength(27);
+      expect(reopened.tiles).toHaveLength(28);
       expect(same(reopened.sheet, all.sheet), `${label}: reopened bounds identical`).toBe(true);
       await page.getByRole("dialog").getByRole("button", { name: "閉じる" }).click();
       await expect(page.getByRole("dialog")).toHaveCount(0);

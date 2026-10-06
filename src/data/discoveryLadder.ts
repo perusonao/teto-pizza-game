@@ -145,6 +145,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   // Step 28 (Expansion Wave 2): `bell-pepper` + `zucchini`, key recipe `pesto-vegetariana` (T3).
   // `ratatouille-pizza` becomes makeable here too (intended Branching Discovery; credited).
   { ingredientIds: ["bell-pepper", "zucchini"], keyRecipeId: "pesto-vegetariana" },
+  // Step 29 (Expansion Slice 3): `almond`, key recipe `pesto-trapanese` (T3). Steps 1-28 frozen.
+  { ingredientIds: ["almond"], keyRecipeId: "pesto-trapanese" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

@@ -197,6 +197,12 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Expansion Slice 3: pesto, the existing standard PAINT sauce (no cheese; nothing new).
+  "pesto-trapanese": {
+    recipeId: "pesto-trapanese",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
   // TQ-1D: the first no-sauce recipe. Not an olive-oil mapping (unlike vongole / pizza-bianca): it uses no sauce.
   aussie: null,
 };

@@ -20,7 +20,7 @@ describe("obtainableIngredientIds", () => {
     const ids = obtainableIngredientIds();
     // LAD-1 (OD-W2-1): frozen W1 + the appended steps 25 (No.27 chicken) and 26 (Expansion Slice 1 shrimp).
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
-    expect(ids).toHaveLength(34);
+    expect(ids).toHaveLength(35);
     expect(new Set(ids)).toEqual(new Set([...STARTER_INGREDIENT_IDS, ...materialIdsOfSteps(DISCOVERY_LADDER.steps)]));
     expect(ids).toEqual(INGREDIENTS.map((i) => i.id));
     for (const id of W1) expect(ids).toContain(id);
@@ -50,17 +50,17 @@ describe("obtainableIngredientIds", () => {
 
 describe("ingredientCollectionCount", () => {
   it("a fresh save reads 3/31", () => {
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 34 });
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 35 });
   });
 
   it("counts owned obtainable ingredients, W1 materials included", () => {
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS, "egg", "clam"])).toEqual({ owned: 5, total: 34 });
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS, "egg", "clam"])).toEqual({ owned: 5, total: 35 });
   });
 
   it("a save with every material plus unknown ids never reads above the total", () => {
     expect(ingredientCollectionCount([...obtainableIngredientIds(), "calabresa", "future-thing"])).toEqual({
-      owned: 34,
-      total: 34,
+      owned: 35,
+      total: 35,
     });
   });
 });
