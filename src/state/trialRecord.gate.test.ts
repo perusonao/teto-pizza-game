@@ -92,12 +92,13 @@ describe("reducer: exactly one commit point, in the free-cook ORIGINAL branch of
 
   it("the notebook is written in exactly one place: the commit (besides carry / initial value)", () => {
     const assignments = [...reducer.matchAll(/\btrialNotebook:\s*([^,\n]+)/g)].map((m) => m[1].trim()).sort();
-    expect(assignments).toEqual(["TrialNotebook;", "TrialNotebook;", "createTrialNotebook()", "state.trialNotebook", "trial.trialNotebook"].sort());
+    // Research 2.0 Phase 4 (OD-R3-3): the second write is CONFIRM_BAKE's bake-FAILED Research commit (`failedTrial`).
+    expect(assignments).toEqual(["TrialNotebook;", "TrialNotebook;", "createTrialNotebook()", "state.trialNotebook", "trial.trialNotebook", "failedTrial.trialNotebook"].sort());
   });
 
   it("the record result is reset by the one fresh-round builder and set only by the commit", () => {
     const assignments = [...reducer.matchAll(/\blastTrialAttempt:\s*([^,\n]+)/g)].map((m) => m[1].trim()).sort();
-    expect(assignments).toEqual(["LastTrialAttempt | null;", "null", "trial.lastTrialAttempt"].sort());
+    expect(assignments).toEqual(["LastTrialAttempt | null;", "null", "trial.lastTrialAttempt", "failedTrial.lastTrialAttempt"].sort());
   });
 
   it("the notebook rides ProgressionCarry and carryOf (so every fresh-round path keeps it)", () => {
@@ -190,7 +191,8 @@ describe("what must stay out", () => {
     expect(hint).toBeGreaterThan(-1);
     expect(notice).toBeGreaterThan(hint);
     expect(note).toBeGreaterThan(notice);
-    expect(panel.match(/original-pizza__trial-notice/g)).toHaveLength(1);
+    // Research 2.0 Phase 4 (OD-R3-3): the bake-FAILED Research card shows the same static paragraph once more.
+    expect(panel.match(/original-pizza__trial-notice/g)).toHaveLength(2);
     expect(panel.match(/trialNoticeText/g)).toHaveLength(3); // declaration, guard, text
     expect(original.slice(notice - 120, notice + 160)).not.toMatch(/aria-live|role=/);
     expect(panel.slice(panel.indexOf("const freeCookMatch"))).not.toMatch(/trialNotice/);

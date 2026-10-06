@@ -40,7 +40,8 @@ import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/mat
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
 import { createTrialNotebook, type TrialNotebook } from "../logic/discovery/trialNotebook";
-import { recordTrialAttempt, type LastTrialAttempt } from "./trialRecord";
+import { sanitizeStringArray, sanitizeToppings } from "../logic/scoringV2/boundary";
+import { recordFailedResearchAttempt, recordTrialAttempt, type LastTrialAttempt } from "./trialRecord";
 import type { TechniqueId } from "../data/techniques";
 import {
   productionTechniqueContext,
@@ -1246,6 +1247,17 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           discoveredRecipeIds(state.dex).length === 0
             ? state.preDiscoveryFreeCookAttempts + 1
             : state.preDiscoveryFreeCookAttempts;
+        // OD-R3-1..3 (Research 2.0 Phase 4): a bake-FAILED Research trial that used at least one ingredient joins the
+        // same shared membership path as an ORIGINAL (`researchAttemptResult`) and is recorded in the Trial Notebook,
+        // here (BAKE -> RESULT happens once per round) rather than in REGISTER_TO_DEX, where a FAILED round stays parked.
+        // An empty pizza (no sauce, no piece) discloses and writes nothing. Dex / Technique / Pitz are untouched: FAILED
+        // never reaches the registration branches, and the inventory below is consumed exactly as before.
+        const failedResearch =
+          freeCook.kind === "FAILED" && hasPlacedIngredient(pizza) ? researchAttemptResult({ ...state, pizza }) : null;
+        const failedTrial =
+          failedResearch && failedResearch.lastResearchRows
+            ? recordFailedResearchAttempt({ ...state, pizza }, failedResearch.feedback)
+            : null;
         return {
           ...state,
           pizza,
@@ -1256,6 +1268,15 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           inventory: consumePizzaInventory(pizza, state.inventory),
           phase: "RESULT",
           preDiscoveryFreeCookAttempts,
+          ...(failedResearch && failedTrial
+            ? {
+                discoveryHintFacts: failedResearch.discoveryHintFacts,
+                researchExclusions: failedResearch.researchExclusions,
+                lastResearchRows: failedResearch.lastResearchRows,
+                trialNotebook: failedTrial.trialNotebook,
+                lastTrialAttempt: failedTrial.lastTrialAttempt,
+              }
+            : {}),
         };
       }
       const recipe = freeCook ? freeCook.recipe : state.recipe;
@@ -1858,6 +1879,11 @@ function researchAttemptResult(state: GameState): {
   for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
   ledger[targetId] = [...own, ...added];
   return { discoveryHintFacts: ledger, researchExclusions, lastResearchRows, feedback };
+}
+
+/** True when the pizza carries at least one sauce or placed piece (the ingredients a Research trial can judge). */
+function hasPlacedIngredient(pizza: PizzaState): boolean {
+  return sanitizeStringArray(pizza.sauceIds).length > 0 || sanitizeToppings(pizza.toppings).length > 0;
 }
 
 function carryOf(state: GameState): ProgressionCarry {
