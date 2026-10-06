@@ -165,6 +165,9 @@ export class ProfileDriver {
     }
     await this.page.setViewportSize({ width: profile.width, height: profile.height });
     await this.setSafeArea(profile.inset);
+    // A headless WebKit page can drop the viewport notification of the first resize after a load (it is only delivered with
+    // the next viewport change): deliver it once, so every listener re-reads the viewport that is actually applied.
+    await this.page.evaluate(() => window.dispatchEvent(new Event("resize")));
     await this.page.waitForTimeout(120);
     await this.pumpFrames();
     await this.waitForLayoutQuiet();
