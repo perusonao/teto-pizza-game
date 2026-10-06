@@ -30,8 +30,8 @@ function saveWith(owned: readonly string[]) {
   });
 }
 
-const HAND_ON_OWNED = INGREDIENTS.map((i) => i.id); // owned >= 13: the production Hand is active
-const HAND_OFF_OWNED = ["tomato-sauce", "mozzarella", ...TOPPING_IDS.slice(0, 9)]; // 11 owned: no hand, still > 6 toppings
+const HAND_ON_OWNED = INGREDIENTS.map((i) => i.id); // every ingredient owned: the whole catalog on the tray (paged)
+const HAND_OFF_OWNED = ["tomato-sauce", "mozzarella", ...TOPPING_IDS.slice(0, 9)]; // 11 owned: still > 6 toppings
 
 async function boot(page: Page, width: number, height: number, owned: readonly string[]) {
   await page.setViewportSize({ width, height });
@@ -76,10 +76,10 @@ const nameToFamily = (name: string) => {
 };
 
 for (const vp of VIEWPORTS) {
-  for (const hand of ["HAND on", "HAND off"] as const) {
+  for (const hand of ["many owned", "few owned"] as const) {
     test(`tray family filter ${vp.width}x${vp.height} ${hand}`, async ({ page }, testInfo) => {
       runOnlyOnWidth(testInfo, vp.width);
-      await boot(page, vp.width, vp.height, hand === "HAND on" ? HAND_ON_OWNED : HAND_OFF_OWNED);
+      await boot(page, vp.width, vp.height, hand === "many owned" ? HAND_ON_OWNED : HAND_OFF_OWNED);
       const sauceDough = await toTopping(page);
 
       // Visible on arrival, inside the viewport, bar still on screen, page does not scroll, pizza keeps its size.
@@ -118,24 +118,15 @@ for (const vp of VIEWPORTS) {
     });
   }
 
-  test(`tray family filter: page reset + pin kept + Pantry unchanged ${vp.width}x${vp.height}`, async ({ page }, testInfo) => {
+  test(`tray family filter: choosing a family returns to page 1; no 食材庫 exists ${vp.width}x${vp.height}`, async ({ page }, testInfo) => {
     runOnlyOnWidth(testInfo, vp.width);
     await boot(page, vp.width, vp.height, HAND_ON_OWNED);
     await toTopping(page);
     const row = familyRow(page);
     const labels = await row.getByRole("button").allTextContents();
+    await expect(page.getByRole("button", { name: /食材庫/ })).toHaveCount(0);
 
-    // Pin one ingredient in the Pantry (HAND active), close, then filter.
-    await page.getByRole("button", { name: /食材庫/ }).click();
-    await page.waitForSelector(".pantry-sheet");
-    await expect(page.getByRole("group", { name: "具材の分類" })).toBeVisible(); // #392 Pantry family row unchanged
-    const pinnable = page.locator(".pantry-tile__toggle[aria-pressed=false]").first();
-    const pinnedName = ((await pinnable.textContent()) ?? "").trim();
-    await pinnable.click();
-    await page.getByRole("button", { name: "閉じる" }).click();
-    await page.waitForSelector(".pantry-sheet", { state: "detached" });
-
-    // Page 2 -> filter -> page 1.
+    // Page 2 -> filter -> page 1 -> すべて.
     const next = page.getByRole("button", { name: "次のページ" });
     if (await next.isEnabled().catch(() => false)) {
       await next.click();
@@ -143,13 +134,7 @@ for (const vp of VIEWPORTS) {
     }
     await row.getByRole("button", { name: `${labels[1]}の具材だけ表示` }).click();
     await expect(page.locator(".ingredient-page-nav__label")).toContainText("1 /");
-
-    // The pin and the hand are untouched by the filter.
     await row.getByRole("button", { name: "全ての具材を表示" }).click();
-    await page.getByRole("button", { name: /食材庫/ }).click();
-    await page.waitForSelector(".pantry-sheet");
-    const pins = page.locator(".pantry-sheet__pins");
-    await expect(pins).toContainText(pinnedName.slice(0, 2));
-    await page.getByRole("button", { name: "閉じる" }).click();
+    await expect(page.locator(".ingredient-page-nav__label")).toContainText("1 /");
   });
 }

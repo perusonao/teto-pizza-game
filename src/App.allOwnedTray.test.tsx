@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
@@ -8,10 +8,10 @@ import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { pickFirstResearchIfDexOpened } from "./test/discoveryEntry";
 
 /**
- * LC-R5-d OFF equivalence through the real App, kept as the LC-R6-e ROLLBACK gate: this file runs in the `hand-off` project (the real
- * `handPolicy.ts` with the production flag literal set back to false, no mock).
- * With 22 toppings owned the FREE Cooking tray is exactly today's paged tray (catalog order, 4 pages, everything
- * reachable by paging), the selection rules of PR #197 are untouched, and the pantry shows no pin UI.
+ * All-Owned Cooking Tray (食材庫廃止) through the real App: with every topping owned, the FREE Cooking tray lists all of them
+ * (catalog order, paged, everything reachable by paging) with no 食材庫 to pre-register them into; the selection rule of
+ * PR #197 is untouched. Production hand enforcement is off (`HAND_ENFORCEMENT_PRODUCTION = false`), so the default
+ * project already exercises the shipped path.
  */
 const TOPPINGS = INGREDIENTS.filter((i) => i.category === "topping");
 
@@ -83,8 +83,8 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-describe("LC-R5-d OFF equivalence / R6-e rollback (flag = false)", () => {
-  it("FREE Cooking with 22 toppings keeps today's tray: 5 pages in catalog order; #197 clears on a page switch; the pantry has no pin UI and never touches the tray", async () => {
+describe("All-Owned Cooking Tray: FREE Cooking lists every owned topping (hand enforcement off in production)", () => {
+  it("FREE Cooking with 22 toppings keeps today's tray: 5 pages in catalog order; #197 clears on a page switch; there is no 食材庫 at all", async () => {
     seedFree();
     const user = userEvent.setup();
     render(<App />);
@@ -96,18 +96,14 @@ describe("LC-R5-d OFF equivalence / R6-e rollback (flag = false)", () => {
       if (page < 4) await user.click(screen.getByRole("button", { name: "次のページ" }));
     }
     expect(all).toEqual(TOPPINGS.map((t) => t.nameJa));
-    // On page 5: select, open / search / close the pantry: nothing moves or clears.
+    // There is no 食材庫 to pre-register ingredients into: no entry, no pin UI, nothing between the player and the tray.
+    expect(screen.queryByRole("button", { name: /食材庫/ })).toBeNull();
+    expect(document.querySelector(".pantry-entry, .pantry-sheet, .pantry-tile")).toBeNull();
+    // On page 5: select an ingredient; it stays selected until the page is left.
     await user.click(chipByName(all[all.length - 1]));
-    const before = JSON.stringify({ names: trayNames(), page: pageLabel(), selected: document.querySelector(".ingredient-chip--selected")?.textContent });
-    await user.click(screen.getByRole("button", { name: /食材庫/ }));
-    expect(document.querySelector(".pantry-tile__toggle, .pantry-sheet__pins, .pantry-tile__pin-badge")).toBeNull();
-    for (const tile of document.querySelectorAll(".pantry-tile")) await user.click(tile);
-    await user.type(screen.getByRole("searchbox", { name: "材料を検索" }), "に");
-    await user.click(screen.getByRole("button", { name: "閉じる" }));
-    expect(JSON.stringify({ names: trayNames(), page: pageLabel(), selected: document.querySelector(".ingredient-chip--selected")?.textContent })).toBe(before);
+    expect(document.querySelector(".ingredient-chip--selected")?.textContent).toContain(all[all.length - 1]);
     // Leaving the page still clears the selection (the existing PR #197 rule).
     await user.click(screen.getByRole("button", { name: "前のページ" }));
     expect(document.querySelector(".ingredient-chip--selected")).toBeNull();
-    expect(within(document.body).queryByRole("group", { name: "選択中の材料" })).toBeNull();
   });
 });

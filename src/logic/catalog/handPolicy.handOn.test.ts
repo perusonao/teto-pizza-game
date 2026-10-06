@@ -26,8 +26,8 @@ describe("hand-on project: the real handPolicy is compiled ON (no vi.mock)", () 
     }
   });
 
-  it("the shipped source is ON since LC-R6-e (these projects compile the same flag value; they pin the capacity)", () => {
-    expect(POLICY_SOURCE).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = true;$/m);
+  it("the shipped source is OFF since the All-Owned Cooking Tray (these projects compile the flag ON on top of it; they pin the capacity)", () => {
+    expect(POLICY_SOURCE).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = false;$/m);
   });
 
   it("the Preview variant is not what turned it on: no variant is in effect in these projects", () => {
@@ -36,7 +36,7 @@ describe("hand-on project: the real handPolicy is compiled ON (no vi.mock)", () 
 
   it("no *.handOn test mocks the hand policy (the flag and capacity function are never mocked together)", () => {
     const files = Object.entries(HAND_ON_TESTS);
-    expect(files.length).toBeGreaterThanOrEqual(1); // the importing file itself is excluded by Vite
+    // (the importing file itself is excluded by Vite; the App-level hand-on tests went with the pantry, so none may remain)
     for (const [file, text] of files) {
       expect(text, file).not.toMatch(/vi\.(?:do)?[mM]ock\(\s*["'][^"']*handPolicy/);
     }

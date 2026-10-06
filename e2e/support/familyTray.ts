@@ -8,7 +8,7 @@ import { startTargetlessFreeCook } from "./startFreeCook";
 
 /**
  * Shared by the family filter specs (Issue #399): the saves, the boots, and the measures of the family row. The row is
- * either `expanded` (its own full-width row above the tray, the pager and 食材庫 in the utility row below) or `compact`
+ * either `expanded` (its own full-width row above the tray, the pager alone in the utility row below) or `compact`
  * (inside the utility row, the one-row layout a short visible height keeps); `rowState().mode` says which.
  */
 export const SAVE_KEY = "teto-pizza-save-v1";
@@ -25,11 +25,11 @@ export const base = (owned: readonly string[]) => ({
   inventory: Object.fromEntries(INGREDIENTS.map((i) => [i.id, 9])),
   starterGrantClaimedRecipeIds: [] as string[],
 });
-export const HAND_ON_OWNED = INGREDIENTS.map((i) => i.id); // owned >= 13: the production Hand is active
-export const HAND_OFF_OWNED = ["tomato-sauce", "mozzarella", ...TOPPING_IDS.slice(0, 9)]; // 11 owned: no hand, still > 6 toppings
-/** 11 owned = no Hand: every one of the 7 families present (so the longest chip 「ちょっと変わった材料」 is in the row). */
+export const HAND_ON_OWNED = INGREDIENTS.map((i) => i.id); // every ingredient owned: the whole catalog on the tray (paged)
+export const HAND_OFF_OWNED = ["tomato-sauce", "mozzarella", ...TOPPING_IDS.slice(0, 9)]; // 11 owned: still > 6 toppings
+/** 11 owned: every one of the 7 families present (so the longest chip 「ちょっと変わった材料」 is in the row). */
 export const ALL_FAMILIES_OWNED = ["tomato-sauce", "mozzarella", "sausage", "anchovy", "mushroom", "pineapple", "basil", "capers", "egg", "onion", "bacon"];
-/** 11 owned = no Hand: 8 vegetables + 1 meat, so a FAMILY (野菜・きのこ系) itself pages (2 pages) next to a one-page family. */
+/** 11 owned: 8 vegetables + 1 meat, so a FAMILY (野菜・きのこ系) itself pages (2 pages) next to a one-page family. */
 export const PAGING_FAMILY_OWNED = ["tomato-sauce", "mozzarella", "mushroom", "cherry-tomato", "onion", "black-olive", "corn", "eggplant", "fresh-tomato", "potato", "sausage"];
 
 export async function openWith(page: Page, width: number, height: number, save: object) {

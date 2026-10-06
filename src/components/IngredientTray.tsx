@@ -5,7 +5,6 @@ import {
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
-  type Ref,
 } from "react";
 import {
   getIngredient,
@@ -101,9 +100,6 @@ interface IngredientTrayProps {
    *  reserved per round, so there is no later page to make room for). Defaults to `true`, the
    *  W1 I5b-4b "always keep the pager's place" behavior. */
   reservePagerRow?: boolean;
-  /** Large Catalog UX LC-R3: the 「食材庫」 entry. Present only when the caller (GameScreen) has decided the
-   *  round is eligible (FREE Cooking, not Dinner, cooking screen, pager row reserved). It lives INSIDE the
-   *  existing pager row -- no new row, no height change. Opening the pantry changes nothing else here. */
   /** LC-R5-d (dormant): the tray's ingredient ids in catalog order when the hand feeds the tray; `null` / absent =
    *  today's `trayIngredientsFor` list (every production render while enforcement is off). A change of this list
    *  returns the tray to page 0 (the App evaluates the #197 selection rule in the same render). */
@@ -111,11 +107,9 @@ interface IngredientTrayProps {
   /** Issue #396: the tray writes its current family filter here so App's HAND-change selection rule can judge the
    *  filtered first page. Write-only for the tray; the filter itself stays tray state. */
   familyRef?: MutableRefObject<FamilyFilter>;
-  /** Issue #399: where the family filter sits. `"inline"` (default) = the utility row below the tray, between the 食材庫
-   *  entry and the pager (Issue #396 / #401). `"above"` = its own full-width row above the tray, the utility row keeping
-   *  only the entry and the pager. GameScreen chooses `"above"` only while the extra row costs the pizza nothing. */
+  /** Issue #399: where the family filter sits. `"inline"` (default) = the utility row below the tray, left of the pager (Issue #396 / #401). `"above"` = its own full-width row above the tray, the utility row keeping
+   *  only the pager. GameScreen chooses `"above"` only while the extra row costs the pizza nothing. */
   familyPlacement?: "above" | "inline";
-  pantryEntry?: { onOpen: () => void; buttonRef?: Ref<HTMLButtonElement> };
 }
 
 interface DragSession {
@@ -155,7 +149,6 @@ export function IngredientTray({
   handIds = null,
   familyRef,
   familyPlacement = "inline",
-  pantryEntry,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
   // "Recommended" (this round's own recipe requirements) and "Other" (every remaining owned
@@ -584,20 +577,8 @@ export function IngredientTray({
           buttons), so the tray / pager / CTA-bar stack has the same height with 6 or 22
           ingredients and nothing moves when a category gains a second page. */}
       {familyFilter !== null && !familyAbove ? (
-        // Issue #396: the family chips share the utility row with the 食材庫 entry and the pager (no new row, no
-        // height change). The pager keeps its place, idle (invisible, inert), when the filtered list fits one page.
-        <div className="ingredient-page-nav ingredient-page-nav--with-entry ingredient-page-nav--with-family">
-          {pantryEntry ? (
-            <button
-              ref={pantryEntry.buttonRef}
-              type="button"
-              className="pantry-entry"
-              onClick={pantryEntry.onOpen}
-              aria-haspopup="dialog"
-            >
-              {"\u{1F9FA}"} 食材庫
-            </button>
-          ) : null}
+        // Issue #396: the family chips share the utility row with the pager (no new row, no height change). The pager keeps its place, idle (invisible, inert), when the filtered list fits one page.
+        <div className="ingredient-page-nav ingredient-page-nav--with-family">
           {familyFilter}
           <div
             className={`ingredient-page-nav__pager${pageCount > 1 ? "" : " ingredient-page-nav__pager--idle"}`}
@@ -630,21 +611,13 @@ export function IngredientTray({
             </button>
           </div>
         </div>
-      ) : pantryEntry && (pageCount > 1 || reservePagerRow) ? (
-        // LC-R3: same row, same height. The pager keeps its own group (or its invisible placeholder); the
-        // entry is a sibling pinned to the row's left edge, so the centred pager does not move.
+      ) : pageCount > 1 || reservePagerRow ? (
+        // The utility row holds the pager alone. One page: the row keeps its height but is invisible and inert (its pager
+        // is an aria-hidden placeholder), so the tray / pager / CTA-bar stack never moves.
         <div
-          className={`ingredient-page-nav ingredient-page-nav--with-entry${pageCount > 1 ? "" : " ingredient-page-nav--placeholder"}`}
+          className={`ingredient-page-nav ingredient-page-nav--row${pageCount > 1 ? "" : " ingredient-page-nav--placeholder"}`}
+          aria-hidden={pageCount > 1 ? undefined : true}
         >
-          <button
-            ref={pantryEntry.buttonRef}
-            type="button"
-            className="pantry-entry"
-            onClick={pantryEntry.onOpen}
-            aria-haspopup="dialog"
-          >
-            {"\u{1F9FA}"} 食材庫
-          </button>
           {pageCount > 1 ? (
             <div className="ingredient-page-nav__pager" role="group" aria-label="素材ページ切り替え">
               <button
@@ -681,45 +654,7 @@ export function IngredientTray({
             </div>
           )}
         </div>
-      ) : (
-        <>
-      {pageCount > 1 ? (
-        <div className="ingredient-page-nav" role="group" aria-label="素材ページ切り替え">
-          <button
-            type="button"
-            className="ingredient-page-nav__button"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 0}
-            aria-label="前のページ"
-          >
-            {"◀"}
-          </button>
-          <span className="ingredient-page-nav__label">
-            {currentPage + 1} / {pageCount}
-          </span>
-          <button
-            type="button"
-            className="ingredient-page-nav__button"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === pageCount - 1}
-            aria-label="次のページ"
-          >
-            {"▶"}
-          </button>
-        </div>
-      ) : reservePagerRow ? (
-        <div className="ingredient-page-nav ingredient-page-nav--placeholder" aria-hidden="true">
-          <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
-            {"◀"}
-          </button>
-          <span className="ingredient-page-nav__label">1 / 1</span>
-          <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
-            {"▶"}
-          </button>
-        </div>
       ) : null}
-        </>
-      )}
 
       {/* Visual Polish 1A (Ingredient Tray Overflow, P1-1): the true end of this panel's
           in-flow content -- see this ref's own doc comment above and `.ingredient-panel__

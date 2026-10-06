@@ -70,7 +70,7 @@ import { DEFAULT_HAND_CAPACITY_CANDIDATE } from "./logic/catalog/handPolicy";
 import { emptyHandSession, type HandSession } from "./logic/catalog/handSession";
 import { familyFirstPageIds } from "./logic/trayFamilyFilter";
 import type { FamilyFilter } from "./data/ingredientShelf";
-import { handTrayTransition, pinFitsHand, resolveTrayHandIds, type TrayHandInput } from "./logic/catalog/handTray";
+import { handTrayTransition, resolveTrayHandIds, type TrayHandInput } from "./logic/catalog/handTray";
 import "./App.css";
 
 /** LC-R5-d: the catalog descriptors the dormant tray hand reads (ids / category / order only). */
@@ -239,8 +239,8 @@ function App() {
   // Large Catalog UX LC-R5-c (OD-R5-9): the hand pins are App-level and session-only. Unlike the selection above
   // they are NOT reset on a round change, a making-step change, HOME, a FREE restart or a Dinner run; a reload /
   // app restart (and so Full Game Reset, which reloads) starts empty. Never saved, never in GameState. The only
-  // writer is the pantry's pin editing, which stays dormant until R6 (`HAND_ENFORCEMENT_ENABLED`).
-  const [handSession, setHandSession] = useState<HandSession>(emptyHandSession);
+  // writer was the pantry's pin editing, which is gone with the pantry (All-Owned Cooking Tray): the pins stay empty.
+  const [handSession] = useState<HandSession>(emptyHandSession);
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
@@ -398,7 +398,6 @@ function App() {
   }
   const trayHand = {
     ids: trayHandIds,
-    pinFits: (candidate: HandSession, id: string) => pinFitsHand(trayHandInput, candidate, id),
   };
 
   // Cancels any still-pending auto-clear timeout from a rejection shown *before* this step
@@ -1239,8 +1238,6 @@ function App() {
           missionBestAtStartOfRun={missionBestAtStartOfRun}
           activeCategory={activeCategory}
           selectedIngredientId={selectedIngredientId}
-          handSession={handSession}
-          onHandSessionChange={setHandSession}
           trayHand={trayHand}
           trayFamilyRef={trayFamilyRef}
           bakeProgress={bakeProgress}

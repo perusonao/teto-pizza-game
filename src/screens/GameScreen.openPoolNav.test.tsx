@@ -7,16 +7,15 @@ import { createInitialGameState, gameReducer, type GameState } from "../state/ga
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
-import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import { getIngredient, INGREDIENTS, MAX_INGREDIENT_PALETTE_SLOTS, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { poolOf, walkState, W1_ORDER } from "../logic/testSupport/branchingFixture";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { hintSheetView } from "../state/discoveryHint";
 import { OPEN_POOL_ACTIONS } from "../components/openPoolCopy";
-import { createDefaultSave } from "../state/persistence";
 
 /**
- * Discovery 3.0 IP-1: OPEN_POOL -> Notebook / Pantry navigation, inside the real GameScreen and reducer on the
+ * Discovery 3.0 IP-1: the OPEN_POOL next-action UI (Notebook entry; the 食材庫 route is retired with the pantry), inside the real GameScreen and reducer on the
  * production-representative Dex 12 pool-2 state (pizza-portuguesa + brazilian-calabresa both DISCOVERABLE).
  */
 const ONION_STEP = DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes("onion"))!.step;
@@ -110,8 +109,6 @@ afterEach(() => cleanup());
 
 const openHint = () => fireEvent.click(screen.getByRole("button", { name: "ヒント" }));
 const hintDialog = () => screen.queryByRole("dialog", { name: /ヒント/ });
-const pantryDialog = () => screen.queryByRole("dialog", { name: /食材庫/ });
-const stateJson = () => screen.getByTestId("state-json").textContent;
 
 describe("IP-1 OPEN_POOL action UI (Dex 12, pool 3)", () => {
   it("fixture: the pool is exactly 3 (portuguesa, calabresa, TQ-1D aussie) and the sheet (#353: 3 registered Research Entries, no target) is CHOOSE_RESEARCH, which keeps the IP-1 actions", () => {
@@ -121,13 +118,14 @@ describe("IP-1 OPEN_POOL action UI (Dex 12, pool 3)", () => {
     expect(hintDialog()).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
   });
 
-  it("at a tray step: notebook line + header notebook entry kept + a 食材庫 button; no ingredient/family/recipe/count", () => {
+  it("at a tray step: notebook line + header notebook entry kept; no 食材庫 route, no ingredient/family/recipe/count", () => {
     render(<Harness initial={toStep(dex12(), "TOPPING")} />);
     openHint();
     const sheet = hintDialog()!;
     expect(within(sheet).getByRole("button", { name: /試作ノートを見る/ })).toBeInTheDocument(); // header entry kept
     expect(sheet).toHaveTextContent(OPEN_POOL_ACTIONS.notebook);
-    expect(within(sheet).getByRole("button", { name: OPEN_POOL_ACTIONS.pantryButton })).toBeInTheDocument();
+    expect(within(sheet).queryByRole("button", { name: /食材庫/ })).toBeNull();
+    expect(sheet.textContent).not.toContain("食材庫");
     const actions = sheet.querySelector("[data-open-pool-actions]")!;
     expect(actions.textContent).not.toMatch(/\d/);
     expect(actions.textContent).not.toMatch(CANDIDATE_TEXT);
@@ -135,62 +133,32 @@ describe("IP-1 OPEN_POOL action UI (Dex 12, pool 3)", () => {
     expect(sheet.textContent).not.toMatch(CANDIDATE_TEXT);
   });
 
-  it("at the DOUGH step the pantry does not exist: copy only, no button (the step has no tray)", () => {
+  it("at the DOUGH step: the notebook entry only, no 食材庫 copy or button", () => {
     render(<Harness initial={gameReducer(dex12(), { type: "BEGIN_PREPARE" })} />);
     openHint();
     const sheet = hintDialog()!;
     expect(within(sheet).queryByRole("button", { name: /食材庫/ })).toBeNull();
-    expect(sheet).toHaveTextContent(OPEN_POOL_ACTIONS.pantryLater);
+    expect(sheet.textContent).not.toContain("食材庫");
     expect(within(sheet).getByRole("button", { name: /試作ノートを見る/ })).toBeInTheDocument();
   });
 });
 
-describe("IP-1 Hint -> existing pantry -> back to FREE", () => {
-  it("opens the pantry on the player's current category with nothing preselected; the cooking state is untouched", () => {
-    render(<Harness initial={toStep(dex12(), "TOPPING")} category="topping" />);
-    const before = stateJson();
-    openHint();
-    fireEvent.click(screen.getByRole("button", { name: OPEN_POOL_ACTIONS.pantryButton }));
-    expect(hintDialog()).toBeNull();
-    const pantry = pantryDialog()!;
-    expect(pantry).toBeInTheDocument();
-    // no family/shelf chip is preselected: 「すべて」 is the pressed shelf chip when chips exist
-    const pressed = pantry.querySelectorAll('[aria-pressed="true"]');
-    for (const p of pressed) expect(p).toHaveTextContent("すべて");
-    // focus is on the pantry, not stolen back by the 「ヒント」 button
-    expect(pantry.contains(document.activeElement)).toBe(true);
-    // hint closing changes nothing but the hint flag
-    expect(JSON.parse(stateJson()!)).toEqual({ ...JSON.parse(before!), hintSheetOpen: false });
-  });
-
-  it("search and category work in the reused pantry (search field present, filters the owned rows)", () => {
-    render(<Harness initial={toStep(dex12(), "TOPPING")} category="topping" />);
-    openHint();
-    fireEvent.click(screen.getByRole("button", { name: OPEN_POOL_ACTIONS.pantryButton }));
-    const pantry = pantryDialog()!;
-    const search = within(pantry).getByRole("searchbox");
-    const rowsBefore = pantry.querySelectorAll(".pantry-sheet__list li").length;
-    expect(rowsBefore).toBeGreaterThan(6);
-    fireEvent.change(search, { target: { value: "たまご" } });
-    const rowsAfter = pantry.querySelectorAll(".pantry-sheet__list li").length;
-    expect(rowsAfter).toBeGreaterThan(0);
-    expect(rowsAfter).toBeLessThan(rowsBefore);
-  });
-
-  it("閉じる returns to the FREE cooking screen (hint stays closed, same step), focus back on the pantry entry", () => {
-    render(<Harness initial={toStep(dex12(), "TOPPING")} category="topping" />);
-    openHint();
-    fireEvent.click(screen.getByRole("button", { name: OPEN_POOL_ACTIONS.pantryButton }));
-    fireEvent.click(within(pantryDialog()!).getByRole("button", { name: "閉じる" }));
-    expect(pantryDialog()).toBeNull();
-    expect(hintDialog()).toBeNull();
-    expect(JSON.parse(stateJson()!)).toMatchObject({ phase: "PREPARE", makingStep: "TOPPING", freeCook: true, hintSheetOpen: false });
-    expect(document.activeElement).toBe(screen.getByRole("button", { name: /食材庫/ }));
-  });
-
-  it("does not touch the save schema", () => {
-    expect(createDefaultSave().schemaVersion).toBe(2);
-    expect(Object.keys(createDefaultSave())).not.toContain("trialNotebook");
+describe("All-Owned Cooking Tray inside the real GameScreen (FREE / Research round)", () => {
+  it("lists every owned topping through the pager (no 食材庫 entry), and never an unowned one", () => {
+    const state = toStep(dex12(), "TOPPING");
+    render(<Harness initial={state} category="topping" />);
+    expect(screen.queryByRole("button", { name: /食材庫/ })).toBeNull();
+    const ownedToppings = INGREDIENTS.filter((i) => i.category === "topping" && state.ownedIngredientIds.includes(i.id));
+    const unowned = INGREDIENTS.filter((i) => i.category === "topping" && !state.ownedIngredientIds.includes(i.id));
+    expect(unowned.length).toBeGreaterThan(0); // the Dex 12 fixture does not own the whole catalog (locked stays off the tray)
+    const seen = new Set<string>();
+    const pages = Math.ceil(ownedToppings.length / MAX_INGREDIENT_PALETTE_SLOTS);
+    for (let page = 0; page < pages; page += 1) {
+      for (const chip of document.querySelectorAll<HTMLElement>(".ingredient-chip")) seen.add(chip.textContent ?? "");
+      if (page < pages - 1) fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
+    }
+    for (const ingredient of ownedToppings) expect([...seen].some((text) => text.includes(ingredient.nameJa)), ingredient.id).toBe(true);
+    for (const ingredient of unowned) expect([...seen].some((text) => text.includes(ingredient.nameJa)), ingredient.id).toBe(false);
   });
 });
 

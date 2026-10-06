@@ -209,7 +209,7 @@ test.describe("I5b-5 Layout Contract", () => {
     await cp({ label: "FREE CHEESE", meta: { mode: "FREE", step: "CHEESE" } }, PREPARE_CHECKS);
     await next(page);
 
-    // Margherita needs basil, which the 12-ingredient hand may not hold: pin it from the pantry when it is off the tray.
+    // Margherita needs basil: page the all-owned tray until it is on screen.
     await (await chipOnTrayOrPin(page, /バジル/)).click();
     for (const [x, y] of [[45, 60], [58, 42]] as [number, number][]) await tapDoughPercent(page, x, y);
     await goToTrayPage(page, "first");

@@ -96,10 +96,6 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   },
 };
 
-/** IP-1: how the OPEN_POOL sheet reaches the existing pantry. `open`: the pantry is available on this step (the caller
- *  closes the sheet and opens it). `later`: the pantry exists this round but not on this step (DOUGH). Absent: no pantry. */
-export type HintPantryAccess = { kind: "open"; onOpen: () => void } | { kind: "later" };
-
 const CATEGORY_LABEL: Record<HintCategory, string> = {
   sauce: "ソース",
   cheese: "チーズ",
@@ -177,7 +173,6 @@ export function HintSheet({
   onBuySelectable = () => {},
   onBuyHint5 = () => {},
   notebook = [],
-  pantry,
   onChooseResearch,
   researchLabelJa = null,
   researchBoard = null,
@@ -202,8 +197,6 @@ export function HintSheet({
   /** Notebook N1: the player's own session-only attempts (the notebook display view), read-only. The 「試作ノートを見る」
    *  entry is the same for every view kind and every target; its open state is UI-only (nothing dispatched). */
   notebook?: readonly TrialEntryView[];
-  /** IP-1: the way from OPEN_POOL to the existing pantry (UI navigation only; see `HintPantryAccess`). */
-  pantry?: HintPantryAccess;
   /** #353: the way from CHOOSE_RESEARCH to the Dex's anonymous Research cards (UI navigation only). */
   onChooseResearch?: () => void;
   /** Research UX Phase 1: the Research Target's already-public label (「？？？ピザ B（たまねぎ）」 / 「？？？ピザ（チキン）」, `researchEntryLabel`), shown as one context line. Never a
@@ -424,16 +417,6 @@ export function HintSheet({
             {(view.kind === "OPEN_POOL" || view.kind === "CHOOSE_RESEARCH") && (
               <div className="hint-sheet__open-pool-actions" data-open-pool-actions>
                 <p className="hint-sheet__empty-body">{OPEN_POOL_ACTIONS.notebook}</p>
-                {pantry?.kind === "open" ? (
-                  <>
-                    <p className="hint-sheet__empty-body">{OPEN_POOL_ACTIONS.pantryOpen}</p>
-                    <button type="button" className="cta-button hint-sheet__pantry-entry" onClick={pantry.onOpen}>
-                      {OPEN_POOL_ACTIONS.pantryButton}
-                    </button>
-                  </>
-                ) : pantry?.kind === "later" ? (
-                  <p className="hint-sheet__empty-body">{OPEN_POOL_ACTIONS.pantryLater}</p>
-                ) : null}
               </div>
             )}
           </div>

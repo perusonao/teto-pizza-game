@@ -2,11 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject 
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
-import { IngredientPantry } from "../components/IngredientPantry";
 import { IngredientTray } from "../components/IngredientTray";
-import { isLargeCatalogEligible } from "../logic/catalog/freeEligibility";
-import { HAND_ENFORCEMENT_ENABLED } from "../logic/catalog/handPolicy";
-import type { HandSession } from "../logic/catalog/handSession";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
@@ -42,7 +38,7 @@ import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
-import { HintSheet, type HintFamily, type HintPantryAccess } from "../components/HintSheet";
+import { HintSheet, type HintFamily } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
 import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView } from "../state/discoveryHint";
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
@@ -112,14 +108,10 @@ interface GameScreenProps {
   missionBestAtStartOfRun: number;
   activeCategory: IngredientCategory;
   selectedIngredientId: string | null;
-  /** LC-R5-c: the App-level, session-only pins (OD-R5-9). GameScreen only relays them to the pantry. */
-  handSession?: HandSession;
-  /** LC-R5-c: the App-level pin writer (an updater). Reached only when pin editing is on (not before R6). */
-  onHandSessionChange?: (update: (previous: HandSession) => HandSession) => void;
   /** LC-R5-d (dormant): the Builder tray's hand ids in catalog order, or `null` = today's tray (always `null` while
-   *  `HAND_ENFORCEMENT_ENABLED` is false, for every non-FREE round and when the hand is inactive), and the Model C
-   *  pin-fit rule for the pantry. Computed once in App; GameScreen only relays. */
-  trayHand?: { ids: readonly string[] | null; pinFits?: (candidate: HandSession, id: string) => boolean };
+   *  `HAND_ENFORCEMENT_ENABLED` is false, for every non-FREE round and when the hand is inactive). Computed once in
+   *  App; GameScreen only relays. */
+  trayHand?: { ids: readonly string[] | null };
   /** Issue #396: where the tray publishes its family filter (read by App's HAND-change selection rule). */
   trayFamilyRef?: MutableRefObject<FamilyFilter>;
   bakeProgress: number | null;
@@ -229,8 +221,6 @@ export function GameScreen({
   missionBestAtStartOfRun,
   activeCategory,
   selectedIngredientId,
-  handSession,
-  onHandSessionChange,
   trayHand,
   trayFamilyRef,
   bakeProgress,
@@ -320,18 +310,13 @@ export function GameScreen({
   const prepareNotebookEntryRef = useRef<HTMLButtonElement>(null);
   const hintButtonRef = useRef<HTMLButtonElement>(null);
   const wasHintSheetOpenRef = useRef(hintSheetOpen);
-  const hintToPantryRef = useRef(false);
+  const hintToDexRef = useRef(false);
   useEffect(() => {
-    // IP-1: closing the sheet to open the pantry hands focus to the pantry (its own 閉じる), not back to 「ヒント」.
-    // #353: the same for 「研究するピザを選ぶ」 -> Dex (an overlay over this screen): never focus the covered button.
-    if (wasHintSheetOpenRef.current && !hintSheetOpen && !hintToPantryRef.current) hintButtonRef.current?.focus();
-    hintToPantryRef.current = false;
+    // #353: closing the sheet to open 「研究するピザを選ぶ」 -> Dex (an overlay over this screen): never focus the covered button.
+    if (wasHintSheetOpenRef.current && !hintSheetOpen && !hintToDexRef.current) hintButtonRef.current?.focus();
+    hintToDexRef.current = false;
     wasHintSheetOpenRef.current = hintSheetOpen;
   }, [hintSheetOpen]);
-  // Large Catalog UX LC-R3: the 食材庫 (pantry) sheet shell. UI-only state (open / closed + the entry ref for
-  // focus return): no picks, shelf, search or hand state, nothing dispatched, nothing saved.
-  const [pantryOpen, setPantryOpen] = useState(false);
-  const pantryEntryRef = useRef<HTMLButtonElement>(null);
 
   function handleResetPizza() {
     setPizzaResetToken((token) => token + 1);
@@ -371,48 +356,22 @@ export function GameScreen({
   // DM-3R-2 (OD-R5): a Dinner round is recipe-free like Free Cooking -- every OWNED ingredient on
   // the tray -- without being a Free Cooking (Discovery) round.
   const recipeFreeTray = state.freeCook || state.dinner !== null;
-  const largeCatalogEligible = isLargeCatalogEligible(state);
   const dockReserve = prepareDockReserve({
     steps: activePreBakeSteps,
     ownedIngredientIds: state.ownedIngredientIds,
     freeCook: recipeFreeTray,
     recipe: state.recipe,
     sauceReadout: referenceModeEnabled && referencePizza !== null,
-    largeCatalogEligible,
   });
 
   // Issue #399 (Owner decision): the family filter is ALWAYS its own row ABOVE the ingredient cards, on every viewport
   // height; the dock reserves that row (`--dock-family`) and the pizza gives way as it does for any other dock row.
   const familyAbove = dockReserve.familyRow;
 
-  // Large Catalog UX LC-R3 (OD-1): the pantry entry exists only on the real FREE Cooking cooking screen --
-  // `isLargeCatalogEligible` (roundKind FREE_COOK and dinner null; never `freeCook` / `recipeFreeTray`), the
-  // PREPARE tray screen (an empty-Dex initial state is FREE_COOK in ORDER: no tray, no entry), a step that
-  // shows the tray, and `pantryWorthwhile` (LC-R5-a, OD-R5-10: an OWNED-count fact, independent of the pager
-  // and the hand; the entry lives in the utility row the dock already reserves -- no new row).
-  const pantryAvailable =
-    largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;
-  const pantryVisible = pantryOpen && pantryAvailable;
-  // Discovery 3.0 IP-1: OPEN_POOL -> the existing pantry. Only the screen's own facts decide (eligible FREE round, the
-  // current step, owned counts) -- never the hint view or the hidden pool. DOUGH has no pantry: copy only, no button.
-  const hintPantryAccess: HintPantryAccess | undefined = pantryAvailable
-    ? {
-        kind: "open",
-        onOpen: () => {
-          hintToPantryRef.current = true;
-          onCloseHint();
-          setPantryOpen(true);
-        },
-      }
-    : largeCatalogEligible && state.phase === "PREPARE" && state.makingStep === "DOUGH" && dockReserve.pantryWorthwhile
-      ? { kind: "later" }
-      : undefined;
-  // Everything that pauses the cooking inputs for a global overlay pauses them for the pantry too.
   const prepareNotebookVisible = prepareNotebookOpen && state.phase === "PREPARE" && researchResult !== null;
-  const cookingInputPaused = isGlobalOverlayOpen || pantryVisible || prepareNotebookVisible;
+  const cookingInputPaused = isGlobalOverlayOpen || prepareNotebookVisible;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
-  if (pantryOpen && !pantryAvailable) setPantryOpen(false);
   if (prepareNotebookOpen && !prepareNotebookVisible) setPrepareNotebookOpen(false);
   // Reports "open" while visible; the cleanup reports "closed" on close, on leaving PREPARE and on unmount, so the pause can never stick.
   useEffect(() => {
@@ -420,11 +379,6 @@ export function GameScreen({
     onPrepareNotebookOpenChange?.(true);
     return () => onPrepareNotebookOpenChange?.(false);
   }, [prepareNotebookVisible, onPrepareNotebookOpenChange]);
-  const wasPantryVisibleRef = useRef(pantryVisible);
-  useEffect(() => {
-    if (wasPantryVisibleRef.current && !pantryVisible) pantryEntryRef.current?.focus();
-    wasPantryVisibleRef.current = pantryVisible;
-  }, [pantryVisible]);
 
   // Gameplay UX Phase 1 (材料選択スクロール解消, see docs/reports/
   // TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md sec.1.4): PREPARE no longer gets the larger roomy
@@ -856,14 +810,14 @@ export function GameScreen({
               included (empty there), with the same reserved height for the whole round, so the
               pizza stage above it never changes size between steps. */}
           <div
-            className={`prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}${familyAbove ? " prepare-dock--family-above" : ""}`}
+            className={`prepare-dock${dockReserve.pager ? "" : " prepare-dock--no-pager"}${familyAbove ? " prepare-dock--family-above" : ""}`}
             data-testid="prepare-dock"
             style={
               {
                 "--dock-sauce-rows": dockReserve.sauceRows,
                 "--dock-other-rows": dockReserve.otherRows,
                 "--dock-readout": dockReserve.readout ? 1 : 0,
-                "--dock-pager": dockReserve.utilityRow ? 1 : 0,
+                "--dock-pager": dockReserve.pager ? 1 : 0,
                 "--dock-family": familyAbove ? 1 : undefined, // absent when the round has no family row (the CSS default is 0)
               } as CSSProperties
             }
@@ -909,13 +863,10 @@ export function GameScreen({
                 onPhysicalDrop={onPhysicalDrop}
                 resetToken={pizzaResetToken}
                 makingStepToken={state.makingStepToken}
-                reservePagerRow={dockReserve.utilityRow}
+                reservePagerRow={dockReserve.pager}
                 handIds={trayHand?.ids ?? null}
                 familyRef={trayFamilyRef}
                 familyPlacement={familyAbove ? "above" : "inline"}
-                pantryEntry={
-                  pantryAvailable ? { onOpen: () => setPantryOpen(true), buttonRef: pantryEntryRef } : undefined
-                }
               />
             )}
           </div>
@@ -968,21 +919,6 @@ export function GameScreen({
               </button>
             )}
           </div>
-          {pantryVisible && (
-            <IngredientPantry
-              category={activeCategory}
-              ownedIngredientIds={state.ownedIngredientIds}
-              inventory={state.inventory}
-              onClose={() => setPantryOpen(false)}
-              // LC-R5-c (OD-R5c-1): pin editing is off while enforcement is off. LC-R6-c (OD-R5e-1): and it exists only
-              // while THIS category's hand is active (`trayHand.ids` is the App's own active-hand fact, no new rule), so
-              // sauce / cheese, a topping list within the capacity and every non-FREE round keep the read-only pantry.
-              handEditing={HAND_ENFORCEMENT_ENABLED && trayHand?.ids != null}
-              pinSession={handSession}
-              onPinSessionChange={onHandSessionChange}
-              pinFits={trayHand?.pinFits}
-            />
-          )}
           {hintSheetOpen && (
             <HintSheet
               view={hintSheetView(state)}
@@ -992,7 +928,6 @@ export function GameScreen({
               onBuySelectable={onBuySelectableHint}
               onBuyHint5={onBuyHint5Rung}
               notebook={notebookRows}
-              pantry={hintPantryAccess}
               researchLabelJa={researchResult?.label ?? null}
               researchBoard={researchBoard}
               freeCookNote={
@@ -1018,7 +953,7 @@ export function GameScreen({
               onChooseResearch={
                 onOpenDex
                   ? () => {
-                      hintToPantryRef.current = true;
+                      hintToDexRef.current = true;
                       onCloseHint();
                       onOpenDex();
                     }

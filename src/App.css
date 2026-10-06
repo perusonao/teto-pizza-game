@@ -5453,7 +5453,7 @@
   color: #6b4a2b;
 }
 
-/* Discovery 3.0 IP-1: OPEN_POOL next actions (notebook line, pantry line + entry). Sits inside the sheet's own scroll. */
+/* Discovery 3.0 IP-1: OPEN_POOL next actions (the notebook line). Sits inside the sheet's own scroll. */
 .hint-sheet__open-pool-actions {
   display: flex;
   flex-direction: column;
@@ -6474,377 +6474,13 @@ p.hint-sheet__step {
   outline-offset: -2px;
 }
 
-/* ---------- Large Catalog UX LC-R3: the 食材庫 entry and pantry sheet SHELL ----------
-   Entry: a sibling inside the EXISTING pager row (28px, margin-top 6 = the reserved 34px), pinned to the
-   row's left edge so the centred pager does not move. No new row, no height change: the pizza stage keeps
-   its size. The visual button is 28px; an ::after extends the hit area to 44px: 8px below (exactly the fixed
-   spacer above the bake bar, which sits on top of anything beyond it) and 8px above (the 6px row margin plus
-   2px into the bottom edge of the first chip column: the only way to reach 44px without adding height). */
-.ingredient-page-nav--with-entry {
-  position: relative;
-}
-
+/* ---------- The Cooking Tray's utility row: the pager alone (the 食材庫 entry is gone) ----------
+   The row is the reserved 28px (+ margin-top 6) pager row; the pager is centred. */
 .ingredient-page-nav__pager {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-}
-
-/* One page: the row keeps its placeholder semantics (invisible, inert pager) but the entry stays visible and
-   tappable; the fake pager inside stays aria-hidden. */
-.ingredient-page-nav--with-entry.ingredient-page-nav--placeholder .pantry-entry {
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.pantry-entry {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 28px;
-  min-width: 44px;
-  padding: 0 10px;
-  border: none;
-  border-radius: 8px;
-  background: #e6d5ae;
-  color: #6b4226;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.pantry-entry::after {
-  content: "";
-  position: absolute;
-  inset: -8px -4px -8px -4px;
-}
-
-.pantry-entry:focus-visible {
-  outline: 2px solid #c08a3e;
-  outline-offset: 1px;
-}
-
-/* Pantry sheet: fixed to the viewport in the same centred column as the hint sheet (so opening it moves
-   nothing behind it), above the bake bar (10) at the shared modal level (25). PR #304 stable-height
-   contract: ONE outer height whatever the row count (never `auto`), pinned header, a single scroll list,
-   page / body never scroll, content ends above the home-indicator inset.
-   LC-R5-b (OD-R5-5): the baseline height is the shell ceiling (the same value as Inventory / Dex), no longer 70dvh
-   (a real iPhone needs the room for search + chips); the value is confirmed by the four-viewport measurement in
-   docs/reports/TETO_LARGE-CATALOG-UX_LC-R5b_*_Result.md. */
-.pantry-sheet__backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(30, 18, 8, 0.35);
-  z-index: 25;
-}
-
-.pantry-sheet {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 390px;
-  height: calc(100vh - 20px);
-  height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: #fff8ea;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-}
-
-.pantry-sheet__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex: none;
-}
-
-.pantry-sheet__title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.pantry-sheet__close {
-  border: none;
-  background: #e6d5ae;
-  border-radius: 999px;
-  padding: 8px 14px;
-  min-height: 44px;
-  min-width: 44px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.pantry-sheet__subtitle {
-  flex: none;
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  color: #6b4226;
-}
-
-.pantry-sheet__list {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-.pantry-sheet__list:focus-visible {
-  outline: 2px solid #c08a3e;
-  outline-offset: -2px;
-}
-
-.pantry-sheet__empty {
-  margin: 0;
-  padding: 12px 4px;
-  font-size: 12px;
-  color: #8a6a45;
-}
-
-.pantry-sheet__grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.pantry-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 8px 6px 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  text-align: center;
-}
-
-.pantry-tile__emoji {
-  font-size: 22px;
-  line-height: 1;
-}
-
-.pantry-tile__cheese-slot {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pantry-tile__name {
-  font-size: 11px;
-  font-weight: 700;
-  color: #4a2e0a;
-  line-height: 1.2;
-}
-
-/* Pantry / Category Tabs (measured, OD-6): the family line costs a tile row 12.8px, which left the 360x640 keyboard-fitted list
-   (87px, K=338) 1px short of one full row (88px). Inside the pantry tile the line sits flush under the name (no flex gap) with a
-   9px line box: 9px per row instead of 12.8px, no hidden UI and no layout change when the search field takes the focus. */
-.pantry-tile__family {
-  margin-top: -2px;
-  line-height: 1;
-}
-
-.pantry-tile__stock {
-  font-size: 12px;
-  font-weight: 800;
-  color: #4c9a2a;
-}
-
-.pantry-tile__stock--zero {
-  color: #b4432f;
-  opacity: 0.75;
-}
-
-/* ---------- Large Catalog UX LC-R4: shelf chips inside the pantry sheet ----------
-   A fixed (non-scrolling) slot between the subtitle and the list: the sheet's outer height is unchanged (it is
-   never `auto`), the chip row never wraps or grows (ShelfChips scrolls itself horizontally), and only
-   .pantry-sheet__list absorbs the height. Spacing comes from the sheet's own 8px gap. */
-.pantry-sheet__shelves {
-  flex: 0 0 auto;
-  min-width: 0;
-}
-
-/* ---------- Large Catalog UX LC-R5-b: pantry search field + Mode C keyboard fit ----------
-   The search row is a fixed (non-scrolling) slot between the subtitle and the chips, present only while the
-   category has more owned rows than one tray page. 16px text (iOS does not zoom a >=16px field on focus), 44px
-   tall field and clear button. The native cancel button is hidden (the sheet has its own ✕). */
-.pantry-sheet__search {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-
-.pantry-sheet__search-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 44px;
-  border: 2px solid #e6d5ae;
-  border-radius: 10px;
-  padding: 0 12px;
-  font-size: 16px;
-  color: #4a2e0a;
-  background: #fffdf7;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.pantry-sheet__search-input::-webkit-search-cancel-button,
-.pantry-sheet__search-input::-webkit-search-decoration {
-  -webkit-appearance: none;
-  display: none;
-}
-
-.pantry-sheet__search-input:focus-visible {
-  outline: 2px solid #c08a3e;
-  outline-offset: 1px;
-}
-
-.pantry-sheet__search-clear {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 10px;
-  background: #e6d5ae;
-  font-size: 16px;
-  font-weight: 800;
-  color: #6b4226;
-}
-
-/* Mode C (only while `usePantryViewportFit` publishes the visual viewport, i.e. the soft keyboard is up or the field
-   is focused): follow the VISUAL viewport, never grow past the ceiling, keep the safe-area top and an 8px margin,
-   and sit on the visual viewport's bottom edge. Without the class (no visualViewport / abnormal values) the plain
-   ceiling above applies unchanged. No transition: the keyboard animates by itself. */
-.pantry-sheet.pantry-sheet--fit {
-  height: min(
-    calc(100dvh - env(safe-area-inset-top, 0px) - 20px),
-    calc(var(--pantry-vv-h) - env(safe-area-inset-top, 0px) - 8px)
-  );
-  bottom: var(--pantry-vv-bottom, 0px);
-}
-
-/* ---------- Large Catalog UX LC-R5-c: dormant pin UI (方式 D; rendered only with `handEditing`, i.e. not before R6) ----------
-   Nothing below matches the production (R5-b) DOM: the tile toggle, badge and 「選択中」 strip exist only when pin
-   editing is on. The strip is a fixed, horizontally scrolling slot above the list (the list absorbs its height);
-   while the sheet is keyboard-fitted (Mode C) it is hidden (OD-R5c-2 / -3) and the tile badge + aria-pressed stay. */
-.pantry-tile--editable {
-  position: relative;
-  padding: 0;
-}
-
-.pantry-tile__toggle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  width: 100%;
-  min-height: 44px;
-  padding: 8px 6px 10px;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background: none;
-  font: inherit;
-  color: inherit;
-  text-align: center;
-}
-
-.pantry-tile__toggle--pinned {
-  border-color: #c08a3e;
-  background: #fff3d6;
-}
-
-.pantry-tile__toggle[aria-disabled="true"] {
-  opacity: 0.6;
-}
-
-.pantry-tile__no-stock {
-  font-size: 10px;
-  font-weight: 800;
-  color: #b4432f;
-}
-
-.pantry-tile__pin-badge {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  font-size: 12px;
-  line-height: 1;
-}
-
-.pantry-sheet__pins {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  height: 44px;
-}
-
-.pantry-sheet.pantry-sheet--fit .pantry-sheet__pins {
-  display: none;
-}
-
-.pantry-sheet__pins-label {
-  flex: none;
-  font-size: 12px;
-  font-weight: 800;
-  color: #6b4226;
-}
-
-.pantry-sheet__pins-scroll {
-  flex: 1 1 auto;
-  display: flex;
-  gap: 6px;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-}
-
-.pantry-pin {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 44px;
-  padding: 0 10px;
-  border: none;
-  border-radius: 999px;
-  background: #fff3d6;
-  font-size: 12px;
-  font-weight: 700;
-  color: #4a2e0a;
-}
-
-.pantry-sheet__pins-reset {
-  flex: none;
-  min-height: 44px;
-  padding: 0 10px;
-  border: none;
-  border-radius: 10px;
-  background: #e6d5ae;
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b4226;
 }
 
 /* Discovery 3.0 Notebook N1: the 試作ノート entry (Hint sheet header) and the read-only notebook sheet. */
@@ -7182,42 +6818,9 @@ p.hint-sheet__step {
   line-height: 1.6;
 }
 
-/* LC-R6-c (OD-R5e-3 / OD-R6a-4): the capacity-full notice of the pantry pin UI. An overlay at the sheet's bottom edge
-   (the sheet is `position: fixed`, so it follows the visual viewport while the keyboard is up): out of flow, never
-   pushes the list / strip / chips, no pointer events. The element is always mounted while pin editing is on (it is the
-   `role="status"` region), and invisible while empty. */
-.pantry-sheet__notice {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  z-index: 3;
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(58, 38, 18, 0.94);
-  color: #fff;
-  font-size: 14px;
-  line-height: 1.4;
-  text-align: center;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.12s ease;
-}
-
-.pantry-sheet__notice--shown {
-  opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pantry-sheet__notice {
-    transition: none;
-  }
-}
-
 /* ---------- Cooking Tray family filter (Issue #396) ----------
-   The 具材 step's family chips live INSIDE the utility row the dock already reserves (28px + 6px margin), between the
-   食材庫 entry and the pager: [食材庫] [family chips, scroll sideways] [◀ 1/2 ▶]. No new row, so the dock height and the
+   The 具材 step's family chips live INSIDE the utility row the dock already reserves (28px + 6px margin), left of
+   the pager: [family chips, scroll sideways] [◀ 1/2 ▶]. No new row, so the dock height and the
    pizza stage are byte-for-byte what they were (LC-S / LC-R3 contracts). The chips are 28px like the row's other
    controls. More chips than fit scroll sideways; a chip cut by the row's right edge plus a short fade say "more". The
    pager keeps its place when the filtered list fits one page (invisible and inert, as before) so the chips never
@@ -7229,17 +6832,6 @@ p.hint-sheet__step {
 
 /* The entry leaves its absolute slot to sit in the flow; relative keeps its 44px hit-area ::after on the button
    itself (the row is `position: relative` too, and would otherwise be covered by it). */
-.ingredient-page-nav--with-family .pantry-entry {
-  position: relative;
-  top: auto;
-  left: auto;
-  transform: none;
-  flex: none;
-}
-
-.ingredient-page-nav--with-family .pantry-entry::after {
-  inset: -8px 0;
-}
 
 /* The pager keeps its own size (36x28 buttons, 12px gaps): its registered tap-target finding is unchanged. */
 .ingredient-page-nav--with-family .ingredient-page-nav__pager {
@@ -7274,21 +6866,17 @@ p.hint-sheet__step {
   margin-top: 10px;
 }
 
-/* In the above placement the utility row keeps only the entry and the pager. Their buttons stay 36x28 and get a 44px hit
-   area, like the 食材庫 entry: 9px above (inside the row's 10px gap to the tray: a 1px gap to the last card remains), 7px
+/* In the above placement the utility row keeps only the pager. Its buttons stay 36x28 and get a 44px hit
+   area: 9px above (inside the row's 10px gap to the tray: a 1px gap to the last card remains), 7px
    below (the bake bar takes over from 7.5px, so 7 is what is really the control's) and 4px to each side (the 12px gaps to
    the label). Not in the inline row, where the 6px gap allows 8px above. */
-.ingredient-page-nav--with-entry:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button {
+.ingredient-page-nav--row:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button {
   position: relative;
 }
 
-.ingredient-page-nav--with-entry:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button::after {
+.ingredient-page-nav--row:not(.ingredient-page-nav--with-family) .ingredient-page-nav__button::after {
   content: "";
   position: absolute;
-  inset: -9px -4px -7px -4px;
-}
-
-.prepare-dock--family-above .pantry-entry::after {
   inset: -9px -4px -7px -4px;
 }
 
@@ -7308,7 +6896,7 @@ p.hint-sheet__step {
   /* Issue #399: the chips are 44px tall tap targets (see .tray-family-chip) in a 44px scroller whose negative margin gives
      the 16px back, so the row's layout height stays 28px (dock delta 0). The 44px has to be the chip button itself: an
      overflow:auto box clips hit-testing to itself, so a ::after past its edge would never be hit, and a tap on bare
-     scroller padding reaches no chip. Same 8px above / below as the 食材庫 entry: the row's 6px margin plus 2px into the
+     scroller padding reaches no chip. Same 8px above / below as the pager: the row's 6px margin plus 2px into the
      tray's last row above, the spacer under the bake bar (which paints over it) below. */
   box-sizing: border-box;
   height: 44px;
