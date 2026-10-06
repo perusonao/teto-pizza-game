@@ -69,7 +69,7 @@ export async function bootResearch(page: Page, width: number, height: number) {
   await section.scrollIntoViewIfNeeded();
   await section.getByRole("button", { name: /を研究する/ }).first().click();
   await page.waitForSelector(".pizza-stage");
-  await expect(page.getByTestId("research-context")).toBeVisible();
+  await expect(page.getByTestId("research-context"), "Owner decision: no Research card above the pizza").toHaveCount(0);
   await completeDoughStep(page);
 }
 

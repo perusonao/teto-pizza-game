@@ -225,8 +225,8 @@ describe("OD-RB-18 retry after the last stock: the context stays, the next attem
     expect(chipTexts()).toContain(`${nm("fresh-tomato")}○`);
     cleanup();
     const retry = act(first, { type: "RETRY_SAME_RECIPE" });
-    renderAt(retry);
-    expect(screen.getByTestId("research-context")).toBeInTheDocument(); // #362 continuity
+    renderAt({ ...retry, hintSheetOpen: true });
+    expect(document.querySelector("[data-hint-research]")).toBeInTheDocument(); // #362 continuity (now in the Hint sheet, Owner decision #401)
     cleanup();
     const second = result(retry, mk("pesto", "chicken", "egg"));
     renderAt(second);

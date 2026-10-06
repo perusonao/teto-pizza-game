@@ -539,50 +539,6 @@ describe("Cooking Time: PREPARE 試作ノート pause (Research UX Phase 1)", ()
     needle.unstub();
   }
 
-  it("open -> time passes -> close: the reading time is not counted, and the clock resumes after closing", async () => {
-    seedWithDiscoverable();
-    let now = 8_000_000;
-    vi.spyOn(Date, "now").mockImplementation(() => now);
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
-    expect(screen.getByTestId("research-notebook-entry")).toBeInTheDocument();
-    now += 5_000; // active work
-    await user.click(screen.getByTestId("research-notebook-entry"));
-    expect(screen.getByRole("dialog", { name: /試作ノート/ })).toBeInTheDocument();
-    now += 30_000; // reading the notebook -- never billed
-    now += 30_000; // still open: nothing accrues however long
-    await user.click(screen.getByRole("button", { name: /もどる/ }));
-    expect(screen.queryByRole("dialog", { name: /試作ノート/ })).toBeNull();
-    now += 3_000; // active work again: the clock resumed
-    await bakeBismarck(user);
-
-    expect(readDisplayedCookingTime()).toBe("0:08");
-  });
-
-  it("overlapping reasons: notebook open + window blur -> blur ends first -> still paused until the notebook closes", async () => {
-    seedWithDiscoverable();
-    let now = 9_000_000;
-    vi.spyOn(Date, "now").mockImplementation(() => now);
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByRole("button", { name: /レシピ発見/ }));
-    now += 4_000;
-    await user.click(screen.getByTestId("research-notebook-entry"));
-    now += 10_000;
-    fireEvent(window, new Event("blur"));
-    now += 10_000;
-    fireEvent(window, new Event("focus"));
-    now += 10_000; // notebook still open
-    await user.click(screen.getByRole("button", { name: /もどる/ }));
-    now += 4_000;
-    await bakeBismarck(user);
-
-    expect(readDisplayedCookingTime()).toBe("0:08");
-  });
-
   it("targetless FREE has no notebook entry and its timing is unchanged", async () => {
     seedWithDiscoverable();
     let now = 10_000_000;

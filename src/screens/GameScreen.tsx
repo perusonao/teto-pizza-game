@@ -663,44 +663,9 @@ export function GameScreen({
         </>
       )}
 
-      {state.phase === "PREPARE" && state.freeCook && researchResult && (
-        // #346 S3: the Research context replaces the free-cook order card (same slot, same card
-        // component). It shows only what the player already knows -- never the hidden identity.
-        <div className="order-card order-card--free-cook order-card--research" data-testid="research-context">
-          <div className="order-card__text">
-            <span className="order-card__recipe-name order-card__recipe-name--research">
-              <span>
-                <ResearchContextLine labelJa={researchResult.label} />
-              </span>
-            </span>
-            <span className="order-card__hint">
-              わかっていること：
-              {[
-                ...researchResult.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
-                ...researchResult.classLinesJa,
-                ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
-              ].join("　")}
-            </span>
-            {/* Research UX Phase 1 (O-1 / O-2): one fixed sentence, identical for every target. Without a verdict this round
-                (the target was not valid at the round's start, so RESULT has no ○×) it promises none. */}
-            <span className="order-card__hint order-card__guidance" data-testid="research-guidance">
-              {RESEARCH_IDENTIFY_ENABLED && state.researchTargetValidAtStart
-                ? RESEARCH_UX_COPY.prepareGuidance
-                : RESEARCH_UX_COPY.prepareGuidanceNoRows}
-            </span>
-          </div>
-          <button
-            ref={prepareNotebookEntryRef}
-            type="button"
-            className="order-card__notebook"
-            data-testid="research-notebook-entry"
-            aria-haspopup="dialog"
-            onClick={() => setPrepareNotebookOpen(true)}
-          >
-            {RESEARCH_UX_COPY.notebookEntry}
-          </button>
-        </div>
-      )}
+      {/* Owner decision (#401 HV): during a Research round the context card above the pizza is gone -- its content (the label,
+          わかっていること, the one fixed guidance sentence and the way to the 試作ノート) is in the ヒント sheet below, and the
+          height it took goes back to the pizza. The same already-public strings, nothing new. */}
 
       {state.phase === "PREPARE" && state.freeCook && !researchResult && (
         <div className="order-card order-card--free-cook">
@@ -1023,6 +988,21 @@ export function GameScreen({
               notebook={notebookRows}
               pantry={hintPantryAccess}
               researchLabelJa={researchResult?.label ?? null}
+              researchDetails={
+                researchResult
+                  ? {
+                      knownJa: [
+                        ...researchResult.knownExactIngredientIds.map((id) => `✓ ${getIngredient(id)?.nameJa ?? ""}を使う`),
+                        ...researchResult.classLinesJa,
+                        ...(researchResult.totalIngredientCount !== null ? [`全部で${researchResult.totalIngredientCount}種類`] : []),
+                      ].join("　"),
+                      guidanceJa:
+                        RESEARCH_IDENTIFY_ENABLED && state.researchTargetValidAtStart
+                          ? RESEARCH_UX_COPY.prepareGuidance
+                          : RESEARCH_UX_COPY.prepareGuidanceNoRows,
+                    }
+                  : null
+              }
               onChooseResearch={
                 onOpenDex
                   ? () => {
