@@ -10,6 +10,7 @@ import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { materialIdsOfSteps } from "../logic/discoveryLadder";
 import type { InventoryState } from "../state/inventory";
 import type { QualityStars } from "../logic/scoring";
+import { CATALOG_COUNTS } from "../logic/catalog/testSupport/catalogDerived";
 
 afterEach(() => {
   cleanup();
@@ -93,10 +94,10 @@ function everythingRendered(): string {
 }
 
 describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
-  it("Dex 0: no recipe card, only the first-discovery prompt to Free Cooking; chapters 0/6, 0/11, 0/15", async () => {
+  it("Dex 0: no recipe card, only the first-discovery prompt to Free Cooking; chapters 0/n per the ledger's sizes", async () => {
     const { onGoFreeCook, onSelectRecipe } = renderSelect();
     expect(gridCards()).toHaveLength(0);
-    expect(sectionHeadings()).toEqual(["第1章発見 0/6", "第2章発見 0/11", "第3章発見 0/16"]);
+    expect(sectionHeadings()).toEqual(CATALOG_COUNTS.chapterSizes.map((n, i) => `第${i + 1}章発見 0/${n}`));
     const prompt = document.querySelector(".pizza-select-prompt") as HTMLElement;
     expect(prompt).toHaveTextContent("まずはレシピ発見で1枚目のピザを見つけよう！");
     await userEvent.click(within(prompt).getByRole("button", { name: /レシピ発見/ }));
@@ -105,13 +106,13 @@ describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
     for (const r of RECIPES) expect(everythingRendered(), r.id).not.toContain(r.nameJa);
   });
 
-  it("shows exactly the discovered recipes, each in its canonical chapter (6 / 11 / 15), in RECIPES order", () => {
+  it("shows exactly the discovered recipes, each in its canonical chapter, in RECIPES order", () => {
     const ids = ["margherita", "marinara", "bismarck", "quattro-formaggi", "hawaiian"];
     renderSelect({ dex: dexDiscovering(ids), ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...ALL_FINITE], inventory: FULL_STOCK });
     const sections = Array.from(document.querySelectorAll<HTMLElement>(".pizza-select-section"));
     const namesIn = (s: HTMLElement) =>
       Array.from(s.querySelectorAll(".pizza-select-card__name")).map((e) => e.textContent);
-    expect(sectionHeadings()).toEqual(["第1章発見 2/6", "第2章発見 2/11", "第3章発見 1/16"]);
+    expect(sectionHeadings()).toEqual(CATALOG_COUNTS.chapterSizes.map((n, i) => `第${i + 1}章発見 ${[2, 2, 1, 0][i] ?? 0}/${n}`));
     expect(namesIn(sections[0])).toEqual(["マルゲリータ", "ビスマルク"]);
     expect(namesIn(sections[1])).toEqual(["マリナーラ", "ハワイアンピザ"]);
     expect(namesIn(sections[2])).toEqual(["クアトロ フォルマッジ"]);
