@@ -97,4 +97,9 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "polish-kielbasa": { keyFree: true },
   "porchetta-pizza": { keyFree: true },
   "salsiccia-e-friarielli": { keyFree: true },
+  // Expansion Batch 4: permanently key-free (no KEY_TOPPING / hintKeyToppingId).
+  "brazilian-catupiry-corn-pizza": { keyFree: true },
+  "jalapeno-popper-pizza": { keyFree: true },
+  "pizza-feta-eliniki": { keyFree: true },
+  "pizza-moscow": { keyFree: true },
 };

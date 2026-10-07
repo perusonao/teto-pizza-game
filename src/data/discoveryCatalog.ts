@@ -78,6 +78,11 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "polish-kielbasa": "polish-kielbasa-pizzadb-p12",
   "porchetta-pizza": "porchetta-pizza-pizzadb-p12",
   "salsiccia-e-friarielli": "salsiccia-e-friarielli-pizzadb-p3",
+  // Expansion Batch 4: PIZZA DB evidence ids from the 172 matrix.
+  "brazilian-catupiry-corn-pizza": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+  "jalapeno-popper-pizza": "jalapeno-popper-pizza-pizzadb-p7",
+  "pizza-feta-eliniki": "pizza-feta-eliniki-pizzadb-p9",
+  "pizza-moscow": "pizza-moscow-pizzadb-p9",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };

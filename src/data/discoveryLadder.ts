@@ -164,6 +164,11 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["sauerkraut"], keyRecipeId: "polish-kielbasa" },
   { ingredientIds: ["pork"], keyRecipeId: "porchetta-pizza" },
   { ingredientIds: ["friarielli"], keyRecipeId: "salsiccia-e-friarielli" },
+  // Steps 44-47 (Expansion Batch 4, T4): one step per recipe. Steps 1-43 frozen.
+  { ingredientIds: ["catupiry"], keyRecipeId: "brazilian-catupiry-corn-pizza" },
+  { ingredientIds: ["jalapeno"], keyRecipeId: "jalapeno-popper-pizza" },
+  { ingredientIds: ["feta"], keyRecipeId: "pizza-feta-eliniki" },
+  { ingredientIds: ["sardine"], keyRecipeId: "pizza-moscow" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

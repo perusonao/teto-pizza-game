@@ -292,6 +292,30 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ソーセージとフリアリエッリのサルシッチャ・エ・フリアリエッリ、ナポリの味みたい！食べてみたいな！",
   },
+  {
+    id: "order-brazilian-catupiry-corn-pizza",
+    recipeId: "brazilian-catupiry-corn-pizza",
+    requestedBy: "mito",
+    lineJa: "カトゥピリとコーンのブラジリアンピザ、とろっとしてそう！食べてみたいな！",
+  },
+  {
+    id: "order-jalapeno-popper-pizza",
+    recipeId: "jalapeno-popper-pizza",
+    requestedBy: "mito",
+    lineJa: "ハラペーニョのポッパーピザ、ピリッとしてそう！食べてみたいな！",
+  },
+  {
+    id: "order-pizza-feta-eliniki",
+    recipeId: "pizza-feta-eliniki",
+    requestedBy: "mito",
+    lineJa: "フェタのピッツァ・エッリニキ、ギリシャの味みたい！食べてみたいな！",
+  },
+  {
+    id: "order-pizza-moscow",
+    recipeId: "pizza-moscow",
+    requestedBy: "mito",
+    lineJa: "イワシのピッツァ・モスクワ、海の幸たっぷりだね！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

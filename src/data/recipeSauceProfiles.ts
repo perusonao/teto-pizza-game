@@ -189,6 +189,13 @@ export const RECIPE_SAUCE_PROFILES = {
     // TODO: olive-oil -> DRIZZLE candidate.
     interaction: "PAINT_TEMPORARY",
   },
+  // Expansion Batch 4. pizza-feta-eliniki's olive-oil is its OWN sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca / vongole), not a general rule.
+  "pizza-feta-eliniki": {
+    recipeId: "pizza-feta-eliniki",
+    ingredientId: "olive-oil",
+    // TODO: olive-oil -> DRIZZLE candidate.
+    interaction: "PAINT_TEMPORARY",
+  },
   "pesto-vegetariana": {
     recipeId: "pesto-vegetariana",
     ingredientId: "pesto",
@@ -257,6 +264,10 @@ export const RECIPE_SAUCE_PROFILES = {
   "polish-kielbasa": null,
   "porchetta-pizza": null,
   "salsiccia-e-friarielli": null,
+  // Expansion Batch 4: NO_SAUCE (the existing `null` mapping); pizza-feta-eliniki is NOT NO_SAUCE: it keeps olive-oil (its own existing PAINT_TEMPORARY slot mapping, like pizza-bianca / vongole).
+  "brazilian-catupiry-corn-pizza": null,
+  "jalapeno-popper-pizza": null,
+  "pizza-moscow": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */
