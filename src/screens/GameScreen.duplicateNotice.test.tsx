@@ -78,8 +78,6 @@ function Screen({ state, dispatch }: { state: GameState; dispatch: Dispatch<Game
       onDoughStretchProgress={() => {}}
       onDoughStretchCommit={() => {}}
       onAddCutLine={() => {}}
-      onUndoCutLine={() => {}}
-      cutRejectionMessage={null}
       onDoughElementChange={() => {}}
       resolvePhysicalDrop={() => null}
       onPhysicalDrop={() => {}}

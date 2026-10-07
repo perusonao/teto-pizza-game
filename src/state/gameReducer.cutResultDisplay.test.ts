@@ -62,46 +62,12 @@ function bakedMargheritaAtCut(): GameState {
   return state;
 }
 
-describe("re-cut after undo computes a fresh evaluation, never a stale one", () => {
-  it("undoing a bad line and redrawing the ideal one scores as if the bad line never happened", () => {
-    let state = bakedMargheritaAtCut();
-    // Draw two lines clustered together (a bad/uneven cut) -- 18deg apart, just outside Phase
-    // 4A's own duplicate-rejection gate (MIN_CUT_ANGULAR_SEPARATION_RADIANS, 15deg,
-    // ../logic/cut/geometry.ts) so this still exercises "uneven, but distinct" rather than
-    // tripping the new "near-duplicate" rejection this phase adds.
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.3, 3) });
-    // ...then undo the bad second line and redraw the correct, evenly-spaced one instead.
-    state = gameReducer(state, { type: "UNDO_CUT_LINE" });
-    expect(state.cutState.lines).toHaveLength(1);
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(1, 3) });
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(2, 3) });
-
-    const confirmed = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
-    expect(confirmed.phase).toBe("RESULT");
-    // The final, confirmed evaluation reflects only the 3 ideal lines actually in `lines` at
-    // confirm time -- the undone, tightly-clustered line's own effect on uniformity is gone,
-    // not blended into the final score.
-    expect(confirmed.cutState.evaluation?.completedCutCount).toBe(3);
-    expect(confirmed.cutState.evaluation?.actualPieceCount).toBe(6);
-    expect(confirmed.cutState.evaluation?.uniformity).toBeGreaterThan(0.95);
-  });
-
-  it("adding a line after an evaluation was already computed invalidates it back to null (no stale evaluation survives a further edit)", () => {
+describe("a committed line invalidates any prior evaluation", () => {
+  it("adding a line leaves evaluation null until CONFIRM_MAKING_STEP computes it", () => {
     let state = bakedMargheritaAtCut();
     for (let i = 0; i < 3; i += 1) {
       state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(i, 3) });
     }
-    // Reducer-level guard: CONFIRM_MAKING_STEP is the only call site that computes an
-    // evaluation, and it always transitions phase away from POST_BAKE's own CUT step in the
-    // same dispatch -- so ADD_CUT_LINE/UNDO_CUT_LINE can never be dispatched again afterward to
-    // observe a "confirmed, then further edited" state (the exact no-op backstop
-    // gameReducer.cutStep.test.ts's own "10. ADD_CUT_LINE/UNDO_CUT_LINE are no-ops outside
-    // POST_BAKE's own CUT step" section already pins). This test instead pins the in-progress
-    // half of that same contract: `state.ts`'s own `addCutLine`/`undoLastCutLine` always
-    // invalidate a stale `evaluation` back to `null`, confirmed directly against the pure
-    // module (mirrors ../logic/cut/state.test.ts, exercised here through the real reducer
-    // action types instead of calling the module directly).
     expect(state.cutState.evaluation).toBeNull();
   });
 });

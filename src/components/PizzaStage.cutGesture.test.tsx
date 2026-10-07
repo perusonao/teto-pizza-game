@@ -78,6 +78,11 @@ afterEach(() => {
   cleanup();
 });
 
+function lastCommittedPath(): string | null {
+  const els = document.querySelectorAll(".pizza-cut-line");
+  return els.length ? els[els.length - 1].getAttribute("points") : null;
+}
+
 describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
   it("6. a real edge-to-edge drag commits exactly one CutLine via ADD_CUT_LINE", () => {
     render(<Harness />);
@@ -100,10 +105,8 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(preview?.style.opacity).toBe("0"); // not yet dragging -- no movement past the pointerdown
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 285, clientY: 150 });
     expect(preview?.style.opacity).toBe("1");
-    // The preview reflects the real rim-to-rim chord the drag would commit right now, not the
-    // raw un-clamped pointer coordinates.
-    expect(Number(preview?.getAttribute("x1"))).toBeLessThan(5);
-    expect(Number(preview?.getAttribute("x2"))).toBeGreaterThan(95);
+    // The preview is the finger's own trace so far (start -> current point), not an extended chord.
+    expect(preview?.getAttribute("points")).toBe("5.00,50.00 95.00,50.00");
     // No commit yet -- still mid-gesture.
     expect(screen.getByTestId("line-count").textContent).toBe("0");
   });
@@ -166,5 +169,58 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     }
     expect(screen.getByTestId("line-count").textContent).toBe("2");
     expect(document.querySelectorAll(".pizza-cut-line")).toHaveLength(2);
+  });
+
+  it("#418: a curved trace is kept as drawn -- not straightened or extended to the rim", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 20;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 90, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 100 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
+    expect(screen.getByTestId("line-count").textContent).toBe("1");
+    // Starts where the finger pressed (30%,50%), bends through (50%,33.33%), stops at (70%,50%).
+    expect(lastCommittedPath()).toBe("30,50 50,33.33333333333333 70,50");
+  });
+
+  it("#418: a stroke that stops inside the dough commits as a partial cut, unextended", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 21;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
+    expect(screen.getByTestId("line-count").textContent).toBe("1");
+    expect(lastCommittedPath()).toBe("50,50 70,50");
+  });
+
+  it("#418: leaving the dough ends the cut on the rim; later movement is ignored", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 22;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 400, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 280 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 280 });
+    expect(lastCommittedPath()).toBe("50,50 98,50");
+  });
+
+  it("#418: a second finger is ignored while the first is tracing", () => {
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 30, clientX: 90, clientY: 150 });
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 31, clientX: 150, clientY: 60 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 31, clientX: 150, clientY: 240 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 31, clientX: 150, clientY: 240 });
+    expect(screen.getByTestId("line-count").textContent).toBe("0");
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 30, clientX: 210, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 30, clientX: 210, clientY: 150 });
+    expect(lastCommittedPath()).toBe("30,50 70,50");
+  });
+
+  it("#418: there is no undo control in the CUT step", () => {
+    render(<Harness />);
+    expect(screen.queryByText(/1本戻す/)).toBeNull();
   });
 });

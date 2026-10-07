@@ -1,0 +1,77 @@
+/**
+ * Issue #418 (Pizza Cutting Human Feel): the player's traced finger path is the authority for a
+ * cut. Pure helpers -- no DOM, no React -- that turn raw dough-percent pointer samples into the
+ * committed trace. Deliberately NOT a straightening step: the only filtering is dropping samples
+ * closer than `TRACE_SAMPLE_MIN_DISTANCE` to the previous one (sensor jitter); the path is never
+ * smoothed, fitted or snapped to an ideal centre/angle/slice.
+ */
+import { DOUGH_CENTER, DOUGH_RADIUS, isInsideDough, type DoughPoint } from "../pizzaCoordinates";
+import { buildRimToRimCutLine, type CutLine } from "./types";
+
+/** Samples closer than this (dough-percent) to the last kept sample are sensor jitter. */
+export const TRACE_SAMPLE_MIN_DISTANCE = 1;
+/** A traced path shorter than this (dough-percent) is a tap, not a cut, and is discarded. */
+export const TRACE_MIN_LENGTH = 8;
+
+export function tracePathLength(path: readonly DoughPoint[]): number {
+  let total = 0;
+  for (let i = 1; i < path.length; i += 1) {
+    total += Math.hypot(path[i].x - path[i - 1].x, path[i].y - path[i - 1].y);
+  }
+  return total;
+}
+
+/** Where the segment `inside -> outside` crosses the dough's rim. */
+function rimCrossing(inside: DoughPoint, outside: DoughPoint): DoughPoint {
+  const dx = outside.x - inside.x;
+  const dy = outside.y - inside.y;
+  const ox = inside.x - DOUGH_CENTER;
+  const oy = inside.y - DOUGH_CENTER;
+  const a = dx * dx + dy * dy;
+  if (a === 0) return inside;
+  const b = 2 * (ox * dx + oy * dy);
+  const c = ox * ox + oy * oy - DOUGH_RADIUS * DOUGH_RADIUS;
+  const t = (-b + Math.sqrt(Math.max(0, b * b - 4 * a * c))) / (2 * a);
+  return { x: inside.x + t * dx, y: inside.y + t * dy };
+}
+
+export interface TraceAppendResult {
+  readonly path: readonly DoughPoint[];
+  /** True once the finger left the dough: the cut ends on the rim and later samples are ignored. */
+  readonly exited: boolean;
+}
+
+/** Adds one raw sample to an in-progress trace (which must already hold its inside-dough start). */
+export function appendTraceSample(path: readonly DoughPoint[], sample: DoughPoint): TraceAppendResult {
+  const last = path[path.length - 1];
+  if (!isInsideDough(sample.x, sample.y)) {
+    return { path: [...path, rimCrossing(last, sample)], exited: true };
+  }
+  if (Math.hypot(sample.x - last.x, sample.y - last.y) < TRACE_SAMPLE_MIN_DISTANCE) {
+    return { path, exited: false };
+  }
+  return { path: [...path, sample], exited: false };
+}
+
+/**
+ * Builds the committed cut from a completed trace, or `null` for a tap-length path. `path` is the
+ * authority (what is drawn and kept); `start`/`end` is only the straight chord the legacy,
+ * non-scoring preview evaluation (./evaluation.ts) still requires -- a transitional input until
+ * #288 defines CUT scoring on traces. It uses the sample farthest from the start so a path that
+ * curls back near its start still has a direction.
+ */
+export function buildTracedCutLine(path: readonly DoughPoint[]): CutLine | null {
+  if (path.length < 2 || tracePathLength(path) < TRACE_MIN_LENGTH) return null;
+  const first = path[0];
+  let farthest = path[1];
+  let best = -1;
+  for (const p of path) {
+    const d = Math.hypot(p.x - first.x, p.y - first.y);
+    if (d > best) {
+      best = d;
+      farthest = p;
+    }
+  }
+  const chord = buildRimToRimCutLine(first, farthest);
+  return chord ? { ...chord, path } : null;
+}

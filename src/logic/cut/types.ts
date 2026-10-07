@@ -23,6 +23,9 @@ import { DOUGH_CENTER, DOUGH_RADIUS, distanceFromCenter, type DoughPoint } from 
 export interface CutLine {
   readonly start: DoughPoint;
   readonly end: DoughPoint;
+  /** Issue #418: the player's traced finger path, in order. When present it is what is drawn and
+   *  kept as the cut; `start`/`end` is then only the chord the legacy preview evaluation reads. */
+  readonly path?: readonly DoughPoint[];
 }
 
 /** Phase 1 ships only 6 (design doc §3.2); 4/8 are represented in the type and fully supported

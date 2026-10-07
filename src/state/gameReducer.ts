@@ -85,12 +85,10 @@ import {
   addCutLine,
   createCutState,
   evaluateCutState,
-  undoLastCutLine,
   type CutState,
 } from "../logic/cut/state";
 import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { requiredCutCount } from "../logic/cut/evaluation";
-import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
@@ -557,17 +555,13 @@ export type GameAction =
   // or leak into a Mission round.
   | { type: "PAUSE_COOKING_TIMING"; now: number }
   | { type: "RESUME_COOKING_TIMING"; now: number }
-  // Pizza Cutting 1.0 Phase 2 (design doc §2.2/§15.3): commits one complete edge-to-edge drag
-  // gesture (../logic/cut/types.ts's `buildRimToRimCutLine`, already clamped to a genuine
-  // rim-to-rim chord by the gesture layer) as a single atomic line -- mirrors
+  // Issue #418: commits one completed finger trace (../logic/cut/trace.ts's `buildTracedCutLine`;
+  // `line.path` is the authority) immediately and irrevocably -- there is no undo. A single atomic line -- mirrors
   // COMMIT_DOUGH_STRETCH's own "gesture layer buffers locally, dispatches once at a successful
   // pointerup" contract. Rejected (state unchanged) outside POST_BAKE's own CUT step, for a
   // line that isn't genuinely edge-to-edge, or once the cut limit (`requiredCutCount + 2`) is
   // already reached -- see the reducer case below for the full independent-of-the-UI guard.
   | { type: "ADD_CUT_LINE"; line: CutLine }
-  // design doc §8.4: removes exactly the most recently committed line ("1本戻す"). A no-op
-  // outside POST_BAKE's own CUT step or with zero lines to undo.
-  | { type: "UNDO_CUT_LINE" }
   | DinnerAction;
 
 /**
@@ -1183,19 +1177,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!isEdgeToEdgeCutLine(action.line)) return state;
       const limit = requiredCutCount(resolveRequestedSliceCount(state.cutState.config)) + 2;
       if (state.cutState.lines.length >= limit) return state;
-      // Pizza Cutting 1.0 Phase 4A (design doc §2.2/Phase 4 Fresh Audit §5B/§15): the reducer-
-      // level backstop behind the gesture layer's own pre-dispatch check (App.tsx's
-      // `handleAddCutLine`) -- never trusts the UI alone, exactly like the limit check above. A
-      // near-duplicate line is rejected outright (state unchanged, same no-op contract as every
-      // other ADD_CUT_LINE rejection above): it never grows `cutState.lines`, never invalidates
-      // undo history, and leaves `evaluation` exactly as it was.
-      if (isDuplicateCutLine(action.line, state.cutState.lines)) return state;
+      // Issue #418: no duplicate/near-angle gate -- a completed trace is committed as drawn.
       return { ...state, cutState: addCutLine(state.cutState, action.line) };
-    }
-
-    case "UNDO_CUT_LINE": {
-      if (state.phase !== "POST_BAKE" || state.makingStep !== "CUT") return state;
-      return { ...state, cutState: undoLastCutLine(state.cutState) };
     }
 
     case "START_BAKE": {
@@ -2042,7 +2025,6 @@ const DINNER_COOKING_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<GameActi
   "START_BAKE",
   "CONFIRM_BAKE",
   "ADD_CUT_LINE",
-  "UNDO_CUT_LINE",
 ]);
 
 function isDinnerAction(action: GameAction): action is DinnerAction {

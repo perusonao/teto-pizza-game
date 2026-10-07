@@ -16,7 +16,6 @@ import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic
 import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { CutLine } from "./logic/cut/types";
-import { isDuplicateCutLine } from "./logic/cut/geometry";
 import type { SauceDeposit } from "./state/pizzaState";
 import { RECIPES, type RecipeId } from "./data/recipes";
 import { getIngredient, STARTER_INGREDIENT_IDS, type Ingredient, type IngredientCategory } from "./data/ingredients";
@@ -77,15 +76,6 @@ import "./App.css";
 const HAND_CATALOG = runtimeCatalog();
 
 const MISSION_TICK_MS = 250;
-
-/** Pizza Cutting 1.0 Phase 4A: how long a duplicate-cut-line rejection message stays visible
- *  before auto-clearing -- long enough to read in one glance, short enough to never linger past
- *  the player's next attempt. */
-const CUT_DUPLICATE_REJECTION_MESSAGE_MS = 1800;
-
-/** Same tone as ../data/completionMessages.ts's own short, plain FAILED-reason copy -- one
- *  concrete, non-blaming sentence, no jargon (never "angular separation"/"duplicate"). */
-const CUT_DUPLICATE_LINE_MESSAGE = "同じ位置には切れません";
 
 /**
  * Production always runs the canonical 180s Lunch Rush duration. The only way to shorten it
@@ -278,15 +268,6 @@ function App() {
   // state ever seeing an uncommitted gesture. `null` whenever no DOUGH gesture is active.
   const [pendingDoughShape, setPendingDoughShape] = useState<DoughShape | null>(null);
   const [liveBake, setLiveBake] = useState(0);
-  // Pizza Cutting 1.0 Phase 4A (design doc §2.2/Phase 4 Fresh Audit §5B): a short-lived, local-
-  // only rejection message for a near-duplicate CUT line -- never part of `GameState` (the
-  // reducer's own `ADD_CUT_LINE` rejection is a pure, silent no-op, matching every other
-  // "reject at the source" gate in this app; the *user-facing* message is purely a gesture-layer
-  // concern, mirroring `pendingSauceDeposits`/`pendingDoughShape`'s own "mirrored up from a
-  // gesture, canonical state never sees it" pattern). Cleared automatically after a short delay
-  // and on every CUT step (re-)entry/exit below.
-  const [cutRejectionMessage, setCutRejectionMessage] = useState<string | null>(null);
-  const cutRejectionTimeoutRef = useRef<number | null>(null);
   const bakeFrameSkip = useRef(0);
   const pizzaDropTargetRef = useRef<HTMLDivElement | null>(null);
 
@@ -340,11 +321,6 @@ function App() {
     if (lastRoundKey === roundKey) {
       setSelectedIngredientId(state.makingStep === "SAUCE" ? findPrimarySauceId(state.recipe) : null);
     }
-    // Pizza Cutting 1.0 Phase 4A: a duplicate-line rejection message never survives past the CUT
-    // step it was shown in -- entering CUT fresh (a new round) or leaving it (confirm) both
-    // clear it, so it can never reappear stale on a later round. Mirrors `setSelectedIngredientId`
-    // just above: plain derived-state-during-render, same as every other reset in this block.
-    setCutRejectionMessage(null);
   }
 
   // Large Catalog UX LC-R5-d (DORMANT): the hand as the Builder tray shows it. `resolveTrayHandIds` is `null` while
@@ -399,20 +375,6 @@ function App() {
   const trayHand = {
     ids: trayHandIds,
   };
-
-  // Cancels any still-pending auto-clear timeout from a rejection shown *before* this step
-  // change, so it can never fire later and clear a different, freshly-shown rejection message
-  // from a subsequent CUT attempt. Pure cleanup, no `setState` call -- kept in its own effect
-  // (rather than the render-phase block above) purely because a ref read/write belongs in an
-  // effect/event handler, never directly in the render body.
-  useEffect(() => {
-    return () => {
-      if (cutRejectionTimeoutRef.current !== null) {
-        window.clearTimeout(cutRejectionTimeoutRef.current);
-        cutRejectionTimeoutRef.current = null;
-      }
-    };
-  }, [state.makingStep]);
 
   const [lastPhase, setLastPhase] = useState(state.phase);
   if (lastPhase !== state.phase) {
@@ -829,33 +791,9 @@ function App() {
     setPendingDoughShape(null);
   }
 
-  // Pizza Cutting 1.0 Phase 2: mirrors handleDoughStretchCommit's own "gesture layer buffers
-  // locally, dispatches once at a successful pointerup" contract -- PizzaStage's CUT-mode
-  // pointer handling already constructed a genuine rim-to-rim `CutLine` (../logic/cut/types.ts's
-  // `buildRimToRimCutLine`) before calling this.
-  // Pizza Cutting 1.0 Phase 4A (design doc §2.2/Phase 4 Fresh Audit §5B): checks the exact same
-  // orientation-modulo-pi rule the reducer's own `ADD_CUT_LINE` backstop enforces
-  // (`isDuplicateCutLine`, ../logic/cut/geometry.ts -- one shared rule, never two independently
-  // drifting copies of it) *before* dispatching, purely so a rejected line can show the player a
-  // short reason instead of a silent no-op. A near-duplicate line is never dispatched at all: it
-  // cannot increment `cutState.lines`, invalidate `evaluation`, or disturb undo history, because
-  // the reducer never even sees it.
+  // Issue #418: a completed trace is committed at once; no duplicate gate, no undo.
   function handleAddCutLine(line: CutLine) {
-    if (isDuplicateCutLine(line, state.cutState.lines)) {
-      if (cutRejectionTimeoutRef.current !== null) window.clearTimeout(cutRejectionTimeoutRef.current);
-      setCutRejectionMessage(CUT_DUPLICATE_LINE_MESSAGE);
-      cutRejectionTimeoutRef.current = window.setTimeout(() => {
-        setCutRejectionMessage(null);
-        cutRejectionTimeoutRef.current = null;
-      }, CUT_DUPLICATE_REJECTION_MESSAGE_MS);
-      return;
-    }
-    setCutRejectionMessage(null);
     dispatch({ type: "ADD_CUT_LINE", line });
-  }
-
-  function handleUndoCutLine() {
-    dispatch({ type: "UNDO_CUT_LINE" });
   }
 
   function handleBakeTick(value: number) {
@@ -1290,8 +1228,6 @@ function App() {
           onDoughStretchProgress={handleDoughStretchProgress}
           onDoughStretchCommit={handleDoughStretchCommit}
           onAddCutLine={handleAddCutLine}
-          onUndoCutLine={handleUndoCutLine}
-          cutRejectionMessage={cutRejectionMessage}
           onDoughElementChange={handleDoughElementChange}
           resolvePhysicalDrop={resolvePhysicalDrop}
           onPhysicalDrop={handlePhysicalDrop}

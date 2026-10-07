@@ -39,7 +39,8 @@ import {
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
-import { buildRimToRimCutLine, resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { appendTraceSample, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
@@ -165,6 +166,9 @@ interface GestureState {
   dragging: boolean;
   pathD: string;
   lastInsideDough: DoughPoint | null;
+  /** Issue #418: the in-progress CUT finger trace (dough-percent), ended once it exits the rim. */
+  cutTrace: readonly DoughPoint[];
+  cutTraceExited: boolean;
 }
 
 function createGestureState(): GestureState {
@@ -177,6 +181,8 @@ function createGestureState(): GestureState {
     dragging: false,
     pathD: "",
     lastInsideDough: null,
+    cutTrace: [],
+    cutTraceExited: false,
   };
 }
 
@@ -228,7 +234,7 @@ export function PizzaStage({
   /** Pizza Cutting 1.0 Phase 2: imperative refs for the in-progress drag preview -- mirrors
    *  `pathRef`'s own "ref + direct SVG attribute writes while dragging" pattern exactly, never
    *  triggering a React re-render per pointermove. */
-  const cutPreviewLineRef = useRef<SVGLineElement>(null);
+  const cutPreviewLineRef = useRef<SVGPolylineElement>(null);
   const cutCutterIconRef = useRef<HTMLSpanElement>(null);
   /** The angle-guide `<g>`'s own opacity is driven by a self-contained requestAnimationFrame
    *  loop (see the effect below), independent of React state, matching every other purely
@@ -256,8 +262,8 @@ export function PizzaStage({
   // needs it in its own dependency array.
   const isCutStep = makingStep === "CUT";
   const cutRequiredCount = requiredCutCount(resolveRequestedSliceCount(cutState.config));
-  // design doc §8.4: `requiredCutCount + 2` -- bounds the interaction with slack for an
-  // intentional redraw-via-undo-then-redraw cycle, without feeling hard-gated.
+  // Issue #418: `requiredCutCount + 2` is now only a runaway guard (cuts can't be undone, so a
+  // missed cut stays and the player may add a little slack) -- not an Undo allowance.
   const cutLimit = cutRequiredCount + 2;
 
   // Phase 4A-1A (Post-Codex-Fix) dispense session bookkeeping. `forceRender` is the escape
@@ -351,23 +357,12 @@ export function PizzaStage({
     if (cutCutterIconRef.current) cutCutterIconRef.current.style.opacity = "0";
   }
 
-  /** Updates the in-progress CUT preview line + cutter icon to the real rim-to-rim chord the
-   *  current drag would commit if released right now (`buildRimToRimCutLine`, same construction
-   *  `handlePointerUp` uses for the real commit) -- so the preview never lies about what's about
-   *  to happen. The cutter icon (🔪) follows the live pointer position, offset above it (design
-   *  doc §8.3) so it's never hidden under the finger itself. */
-  function updateCutPreviewLine(start: DoughPoint, current: DoughPoint) {
-    const line = buildRimToRimCutLine(start, current);
+  /** Issue #418: draws the finger's own trace so far (never a straightened chord) plus the
+   *  cutter icon, offset above the live pointer (design doc §8.3) so the finger doesn't hide it. */
+  function updateCutPreviewLine(trace: readonly DoughPoint[], current: DoughPoint) {
     const previewEl = cutPreviewLineRef.current;
-    if (!previewEl) return;
-    if (!line) {
-      previewEl.style.opacity = "0";
-      return;
-    }
-    previewEl.setAttribute("x1", line.start.x.toFixed(2));
-    previewEl.setAttribute("y1", line.start.y.toFixed(2));
-    previewEl.setAttribute("x2", line.end.x.toFixed(2));
-    previewEl.setAttribute("y2", line.end.y.toFixed(2));
+    if (!previewEl || trace.length < 2) return;
+    previewEl.setAttribute("points", trace.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" "));
     previewEl.style.opacity = "1";
     const cutterEl = cutCutterIconRef.current;
     if (cutterEl) {
@@ -622,6 +617,8 @@ export function PizzaStage({
       dragging: false,
       pathD: "",
       lastInsideDough: dough,
+      cutTrace: [dough],
+      cutTraceExited: false,
     };
 
     // MUST FIX 9: prevents this press from also producing a compatibility mouse event, a
@@ -731,7 +728,12 @@ export function PizzaStage({
     // Pizza Cutting 1.0 Phase 2 (design doc §2.2): reuses the exact same DRAG_THRESHOLD_PX
     // tap-vs-drag distinction above verbatim -- the live preview only appears once a real drag
     // is underway, never for a press that turns out to be a tap.
-    if (isCutStep && g.dragging) updateCutPreviewLine(g.startDough, dough);
+    if (isCutStep && g.dragging && !g.cutTraceExited) {
+      const next = appendTraceSample(g.cutTrace, dough);
+      g.cutTrace = next.path;
+      g.cutTraceExited = next.exited;
+      updateCutPreviewLine(g.cutTrace, dough);
+    }
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -807,18 +809,19 @@ export function PizzaStage({
       return;
     }
 
-    // Pizza Cutting 1.0 Phase 2 (design doc §2.2): CUT has no "tap" outcome at all -- a press
-    // with no real drag is simply discarded (never a degenerate zero-length cut, never routed
-    // to the generic onTap fallback below). A genuine drag commits one rim-to-rim `CutLine`,
-    // constructed from the raw press/release pair (`buildRimToRimCutLine` extends both ends out
-    // to the dough's rim along the drag's own direction, satisfying the "press/release may land
-    // short of the rim" start tolerance) -- ahead of every other branch below since CUT is
-    // mutually exclusive with sauce paint/topping drag by construction (`makingStep` gate).
+    // Issue #418: CUT has no "tap" outcome -- a press with no real drag (or a trace shorter than
+    // TRACE_MIN_LENGTH) is discarded. A completed trace commits at once as drawn (no extension to
+    // the rim, no straightening), ahead of every other branch since CUT is mutually exclusive
+    // with sauce paint/topping drag by construction (`makingStep` gate).
     if (isCutStep) {
       clearCutPreviewLine();
       if (g.dragging) {
-        const releaseDough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
-        const line = buildRimToRimCutLine(g.startDough, releaseDough);
+        // The release sample itself is part of the trace (unless the finger already left the rim).
+        let trace = g.cutTrace;
+        if (!g.cutTraceExited) {
+          trace = appendTraceSample(trace, clientPointToDoughPercent(event.clientX, event.clientY, rect)).path;
+        }
+        const line = buildTracedCutLine(trace);
         if (line) onAddCutLine(line);
       }
       gestureRef.current = createGestureState();
@@ -1252,23 +1255,28 @@ export function PizzaStage({
               ))}
             </g>
             <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
-            {cutState.lines.map((line, index) => (
-              <line
-                key={index}
-                className="pizza-cut-line"
-                x1={line.start.x}
-                y1={line.start.y}
-                x2={line.end.x}
-                y2={line.end.y}
-              />
-            ))}
-            <line
+            {cutState.lines.map((line, index) =>
+              line.path ? (
+                <polyline
+                  key={index}
+                  className="pizza-cut-line"
+                  points={line.path.map((p) => `${p.x},${p.y}`).join(" ")}
+                />
+              ) : (
+                <line
+                  key={index}
+                  className="pizza-cut-line"
+                  x1={line.start.x}
+                  y1={line.start.y}
+                  x2={line.end.x}
+                  y2={line.end.y}
+                />
+              ),
+            )}
+            <polyline
               ref={cutPreviewLineRef}
               className="pizza-cut-preview-line"
-              x1={0}
-              y1={0}
-              x2={0}
-              y2={0}
+              points=""
               style={{ opacity: 0 }}
             />
           </svg>
