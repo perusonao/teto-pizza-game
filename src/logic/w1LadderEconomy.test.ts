@@ -40,9 +40,9 @@ const W1_OPTIONS = { ladder: W1_25_DISCOVERY_LADDER, recipes: RECIPES };
 // credited recipes minus the recipes of the appended steps 25-28 (not W1): No.27 pesto-pollo (`chicken`),
 // Expansion Slice 1 pesto-gamberi (`shrimp`), Wave 2 vongole (`parsley`) / pesto-vegetariana (`bell-pepper` +
 // `zucchini`) and ratatouille-pizza (makeable at step 28, nobody's key recipe).
-const APPENDED_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese"];
+const APPENDED_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"];
 /** The materials the appended steps 25-28 sell (not W1). */
-const APPENDED_MATERIAL_IDS: readonly string[] = ["chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond"];
+const APPENDED_MATERIAL_IDS: readonly string[] = ["chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond", "pine-nuts", "prosciutto-crudo", "green-pepper"];
 const W1_POPULATION = RECIPES.filter((r) => countsTowardLadder(r.id) && !APPENDED_RECIPE_IDS.includes(r.id));
 /** The finite catalog materials the frozen W1 ladder sells (everything but the 5 appended-step materials). */
 const W1_FINITE_IDS = INGREDIENTS.filter((i) => i.unlockCondition && !APPENDED_MATERIAL_IDS.includes(i.id)).map((i) => i.id);

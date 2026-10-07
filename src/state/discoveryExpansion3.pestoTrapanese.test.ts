@@ -104,7 +104,7 @@ describe("Expansion Slice 3 authoring: production data", () => {
     expect(HINT_CLASS_DISPLAY.other).toEqual({ symbol: "✨", labelJa: "ちょっと変わった材料" });
     expect(Object.values(HINT_CLASS_DISPLAY).map((d) => d.symbol)).not.toContain(getIngredient("almond")!.emoji);
     expect(HINT_CLASS_DISPLAY.seafood.symbol).toBe("\u{1F30A}");
-    expect(INGREDIENTS.filter((i) => ingredientAttributeFamily(i.id) === "other").map((i) => i.id)).toEqual(["egg", "almond"]);
+    expect(INGREDIENTS.filter((i) => ingredientAttributeFamily(i.id) === "other").map((i) => i.id)).toEqual(["egg", "almond", "pine-nuts"]); // + Expansion Batch 1's pine-nuts
     // Nothing else shares the new glyph.
     expect(INGREDIENTS.filter((i) => i.emoji === getIngredient("almond")!.emoji)).toHaveLength(1);
   });

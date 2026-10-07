@@ -280,6 +280,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
     expect(w1.map((r) => r.id).sort()).toEqual(
       [
         "aussie",
+        "baba-ganoush-pizza",
         "bambino",
         "brazilian-calabresa",
         "hawaiian",
@@ -294,8 +295,10 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "pesto-trapanese",
         "pesto-vegetariana",
         "pizza-portuguesa",
+        "prosciutto-funghi",
         "puttanesca-pizza",
         "ratatouille-pizza",
+        "veggie-supreme-pizza",
         "vongole",
       ],
     );

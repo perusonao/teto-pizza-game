@@ -6,15 +6,15 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** The next 3-recipe batch (33 -> 36). PLANNED: none of these recipes / materials exist yet. */
+/** Expansion Batch 1 (33 -> 36 recipes): LANDED. Declarations are checked against the data by the validator. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-4",
-  status: "planned",
+  status: "landed",
   afterRecipeId: "pesto-trapanese",
   recipes: [
-    { recipeId: "baba-ganoush-pizza", keyIngredientId: "pine-nuts" },
-    { recipeId: "prosciutto-funghi", keyIngredientId: "prosciutto-crudo" },
-    { recipeId: "veggie-supreme-pizza", keyIngredientId: "green-pepper" },
+    { recipeId: "baba-ganoush-pizza", keyIngredientId: "pine-nuts", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "prosciutto-funghi", keyIngredientId: "prosciutto-crudo", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "veggie-supreme-pizza", keyIngredientId: "green-pepper", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
 };
 

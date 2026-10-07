@@ -6,9 +6,9 @@ import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot,
 
 /** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10; No.27 pesto-pollo (key step 25, T3) makes it 6 / 10 / 11; Expansion Slice 1 pesto-gamberi (key step 26, T3) makes it 6 / 10 / 12 (Chapter 3 No.12). */
 describe("recipeChapters (OD-DISC-9)", () => {
-  it("partitions the recipes by price tier, in RECIPES order (chapters 1 / 2 are closed; later batches only append to the last chapter)", () => {
+  it("partitions the recipes by price tier, in RECIPES order (chapters 1 / 2 / 3 are closed; Expansion Batch 1's step 30+ recipes open chapter 4, the first T4 band)", () => {
     const chapters = buildRecipeChapters();
-    expect(chapters.map((c) => c.titleJa)).toEqual(["第1章", "第2章", "第3章"]);
+    expect(chapters.map((c) => c.titleJa)).toEqual(["第1章", "第2章", "第3章", "第4章"]);
     const expected = [
       ["margherita", "bismarck", "funghi", "breakfast-pizza", "melanzane-pizza", "parmigiana-pizza"],
       ["marinara", "fugazza", "salsiccia", "pepperoni", "capricciosa", "meat-lovers", "bambino", "hawaiian", "pizza-portuguesa", "brazilian-calabresa", "aussie"],
@@ -17,11 +17,13 @@ describe("recipeChapters (OD-DISC-9)", () => {
         "pesto-tonno", "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
         "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese",
       ],
+      ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"],
     ].map((ids) => [...ids].sort((a, b) => RECIPES.findIndex((r) => r.id === a) - RECIPES.findIndex((r) => r.id === b)));
     const actual = chapters.map((c) => c.recipes.map((r) => r.id));
     expect(actual[0]).toEqual(expected[0]);
     expect(actual[1]).toEqual(expected[1]);
-    expect(actual[2].slice(0, expected[2].length)).toEqual(expected[2]); // the last chapter grows by appending
+    expect(actual[2]).toEqual(expected[2]);
+    expect(actual[3].slice(0, expected[3].length)).toEqual(expected[3]); // the last chapter grows by appending
   });
 
   it("chapter follows the key step (last material's step), margherita (starters only) is chapter 1", () => {

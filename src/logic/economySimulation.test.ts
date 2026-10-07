@@ -27,14 +27,14 @@ import {
 /** Progression 2.0 I5a: catalog-only W1 materials, priced by the REC-04 material Shop instead. */
 const W1_MATERIAL_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 /** Discovery 3.0 No.27 (chicken) / Expansion Slice 1 (shrimp) / Wave 2 (parsley, bell-pepper, zucchini): the ladder-appended materials, also priced by the material Shop (no legacy price). */
-const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, "chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond"];
+const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, "chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond", "pine-nuts", "prosciutto-crudo", "green-pepper"];
 
 // A. current economy table consistency ---------------------------------------------------
 
 describe("economy table consistency (A)", () => {
   const table = financeIngredientTable();
 
-  it("has exactly 35 ingredients, 19 of them legacy-priced (the 7 W1 materials, No.27's chicken, Expansion's shrimp, Wave 2's 3 materials and Slice 3's almond carry no legacy price)", () => {
+  it("has exactly 19 legacy-priced ingredients (every ladder-only material -- W1's 7, chicken, shrimp, Wave 2's 3, almond and Batch 1's 3 -- carries no legacy price)", () => {
     expect(table.length).toBe(19);
     const finiteUnpriced = INGREDIENTS.filter((i) => i.unlockCondition && !i.starterGrantOnly).map((i) => i.id);
     expect(finiteUnpriced.sort()).toEqual([...LADDER_ONLY_MATERIAL_IDS].sort());

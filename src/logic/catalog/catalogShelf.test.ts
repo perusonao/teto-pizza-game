@@ -86,7 +86,7 @@ describe("LC-R1: queryCatalog shelves filter", () => {
   it("multiple shelves = union, in catalog order", () => {
     const got = queryCatalog(catalog, own, usage, { shelves: ["seafood", "meat"] });
     expect(got.every((i) => i.shelf === "meat" || i.shelf === "seafood")).toBe(true);
-    expect(got).toHaveLength(9); // meat 5 (incl. No.27 chicken) + seafood 4 (incl. Expansion shrimp)
+    expect(got).toHaveLength(catalog.filter((i) => i.shelf === "meat" || i.shelf === "seafood").length); // derived: no per-batch pin
     expect(ids(got)).toEqual(ids([...got].sort((a, b) => a.catalogIndex - b.catalogIndex)));
   });
 
@@ -156,17 +156,17 @@ describe("LC-R1: queryCatalog shelves filter", () => {
 describe("LC-R1: 62 catalog (design target, not activated) is fail-closed", () => {
   const catalog = project62();
 
-  it("independent recount: sauce 10 / cheese 10 / topping 42, classified 24, unclassified 18 (No.27 gave chicken its meat row; Expansion Slice 1 gave shrimp its seafood row; Wave 2 gave parsley / bell-pepper / zucchini theirs)", () => {
+  it("independent recount: sauce 10 / cheese 10 / topping 42; classified + unclassified recounted from the taxonomy table (derived, no per-batch pin)", () => {
     const byCategory: Record<string, number> = {};
     for (const i of catalog) byCategory[i.category] = (byCategory[i.category] ?? 0) + 1;
     expect(catalog).toHaveLength(62);
     expect(byCategory).toEqual({ sauce: 10, cheese: 10, topping: 42 });
     const toppings = catalog.filter((i) => i.category === "topping");
-    expect(toppings.filter((i) => i.shelf !== null)).toHaveLength(24);
-    expect(toppings.filter((i) => i.shelf === null)).toHaveLength(18);
     // Recounted straight from the taxonomy table, without the audit helper.
     const rows = catalog62.ingredients as { id: string; category: string }[];
-    expect(rows.filter((r) => r.category === "topping" && ingredientAttributeFamily(r.id) === null)).toHaveLength(18);
+    const unclassifiedCount = rows.filter((r) => r.category === "topping" && ingredientAttributeFamily(r.id) === null).length;
+    expect(toppings.filter((i) => i.shelf === null)).toHaveLength(unclassifiedCount);
+    expect(toppings.filter((i) => i.shelf !== null)).toHaveLength(toppings.length - unclassifiedCount);
     // Nulls are exactly what the authority's audit reports; nothing is guessed.
     const audit = auditShelfAuthority({ ingredients: rows, familyRowIds: TAXONOMY_INGREDIENT_IDS, familyOf: ingredientAttributeFamily });
     expect(audit.unclassified.sort()).toEqual(ids(catalog.filter((i) => i.shelf === null)).sort());
@@ -186,7 +186,7 @@ describe("LC-R1: 62 catalog (design target, not activated) is fail-closed", () =
     expect(everything).toHaveLength(62);
     for (const id of nulls) expect(everything).toContain(id);
     const anyShelf = ids(queryCatalog(catalog, own, usage, { shelves: [...INGREDIENT_SHELF_ORDER] }));
-    expect(anyShelf).toHaveLength(62 - 18);
+    expect(anyShelf).toHaveLength(62 - nulls.length);
     for (const id of nulls) expect(anyShelf).not.toContain(id);
     for (const shelf of INGREDIENT_SHELF_ORDER) {
       expect(queryCatalog(catalog, own, usage, { shelves: [shelf] }).every((i) => i.shelf === shelf)).toBe(true);

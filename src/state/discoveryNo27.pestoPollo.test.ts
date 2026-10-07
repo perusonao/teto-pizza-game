@@ -186,7 +186,7 @@ describe("No.27 ladderCredit / Lunch Rush", () => {
     expect(pool).not.toContain(CAL);
     expect(pool).not.toContain(AUS);
     expect(pool).not.toContain("pesto-gamberi");
-    expect(pool).toHaveLength(RECIPES.length - 8);
+    expect(pool).toHaveLength(RECIPES.filter((r) => r.lunchRush !== false).length); // derived: every opted-out recipe is absent
   });
 });
 
@@ -208,7 +208,7 @@ describe("No.27 Hint: key-free (Migration A kept, no KEY_TOPPING)", () => {
   it("roles are key-free; the rung ladder has no KEY_TOPPING, no empty rung, and names no ingredient / recipe", () => {
     expect(RECIPE_HINT_ROLES[ID as RecipeId]).toEqual({ keyFree: true });
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as RecipeId])).toBe(true);
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(8); // calabresa + pesto-pollo + Expansion pesto-gamberi + Wave 2's 3 + TQ-1D aussie; no other recipe moved
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(RECIPES.length - 25); // every recipe appended after the 25 originals is key-free (derived); no original moved
     const rungs = buildHint5Ladder(ID)!.rungs;
     expect(rungs.map((r) => r.kind)).not.toContain("KEY_TOPPING");
     for (const r of rungs) if (r.kind !== "STRUCTURE") expect(r.subjectIds.length).toBeGreaterThan(0);

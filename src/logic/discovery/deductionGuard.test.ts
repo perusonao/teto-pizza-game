@@ -67,7 +67,7 @@ describe("DH4-2A sweep universe", () => {
       expect(parts.recipeIngredientIds.every((id) => s.owned.includes(id)), `${s.recipeId}@${s.step}`).toBe(true);
     }
     // The frozen W1 ladder (24 steps) owns every ingredient except the appended-step materials (chicken No.27, shrimp Expansion Slice 1, parsley / bell-pepper / zucchini Wave 2).
-    expect(new Set(ownedAt(24, LADDER))).toEqual(new Set(ALL_INGREDIENT_IDS.filter((id) => !["chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond"].includes(id))));
+    expect(new Set(ownedAt(24, LADDER))).toEqual(new Set(ALL_INGREDIENT_IDS.filter((id) => !["chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond", "pine-nuts", "prosciutto-crudo", "green-pepper"].includes(id))));
   });
 });
 

@@ -119,7 +119,8 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // so adding chicken re-shapes them). The property that matters is the hardened `toEqual([])` above.
     // Re-measured again at Expansion Slice 1 (31 ingredients: shrimp joins the TOPPINGS the families are cut from).
     // Re-measured again at Expansion Slice 3 (35 ingredients: almond joins the TOPPINGS the families are cut from).
-    expect(dh42aLeaks).toBe(88);
+    // Re-measured again at Expansion Batch 1 (38 ingredients: pine-nuts / prosciutto-crudo / green-pepper join the TOPPINGS).
+    expect(dh42aLeaks).toBe(84);
   }, 120_000);
 });
 

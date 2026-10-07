@@ -279,12 +279,12 @@ describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () 
     for (const id of IDS) expect(isCutEligible(id as RecipeId), id).toBe(false);
   });
 
-  it("Lunch Rush: all 3 opt out (lunchRush false), opt-out total = 7 (with TQ-1D aussie), never in the mission pool", () => {
+  it("Lunch Rush: all 3 opt out (lunchRush false), never in the mission pool", () => {
     for (const id of IDS) {
       expect(rec(id).lunchRush, id).toBe(false);
       expect(participatesInLunchRush(id), id).toBe(false);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false)).toHaveLength(8);
+    for (const id of IDS) expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false).map((r) => r.id)).toContain(id); // the opt-out total is pinned once, in lunchRush.exclusion.test.ts
     const all = INGREDIENTS.map((i) => i.id);
     const pool = missionOrderRecipeIds({
       dex: discoverAll(RECIPES.map((r) => r.id)),

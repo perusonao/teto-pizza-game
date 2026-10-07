@@ -118,7 +118,7 @@ describe("brazilian-calabresa Hint: key-free, structure-derived rungs only", () 
   it("is key-free in the roles table (the 25 originals keep their keyed roles)", () => {
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as Recipe["id"]])).toBe(true);
     expect(RECIPE_HINT_ROLES[ID as Recipe["id"]]).toEqual({ keyFree: true });
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(8); // calabresa + No.27 pesto-pollo + Expansion pesto-gamberi + Wave 2's 3 + TQ-1D's aussie
+    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(RECIPES.length - 25); // every recipe appended after the 25 originals is key-free (derived)
   });
 
   it("has SAUCE, STRUCTURE, then one SUB_CLASS per topping: no KEY_TOPPING, no CHEESE, no empty rung", () => {
