@@ -8,6 +8,7 @@ import {
 } from "../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
+import { POST_W1_RECIPE_IDS } from "./catalog/testSupport/catalogDerived";
 import { loadSave, persistProgress, SAVE_STORAGE_KEY, type StorageLike } from "../state/persistence";
 import {
   appendLadderSteps,
@@ -51,7 +52,6 @@ const PRODUCTION: LadderRecipe[] = RECIPES.map((r) => ({
  *  "a W1 ladder + a hypothetical addition" independent of the real appended step. */
 /** Recipes behind the appended ladder steps 25-28 (chicken / shrimp / parsley / bell-pepper + zucchini);
  *  ratatouille-pizza becomes makeable at step 28 but is nobody's key recipe. */
-const POST_W1_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"];
 const PRODUCTION_W1: LadderRecipe[] = PRODUCTION.filter((r) => !POST_W1_RECIPE_IDS.includes(r.id));
 
 /** A recipe made only of W1 materials and a starter (the TQ-1 Aussie shape). Since TQ-1D the real `aussie` is
@@ -110,10 +110,10 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley); steps 1..29 are frozen, so they are fixed and only steps 30-32 (Expansion Batch 1) are derived.
-    const fixed29 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 29) };
-    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed29, PRODUCTION));
-    expect(validateAppendOnlyExtension(fixed29, DISCOVERY_LADDER)).toEqual([]);
+    // parsley); steps 1..32 are frozen, so they are fixed and only steps 33-37 (Expansion Batch 2) are derived.
+    const fixed32 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 32) };
+    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed32, PRODUCTION));
+    expect(validateAppendOnlyExtension(fixed32, DISCOVERY_LADDER)).toEqual([]);
   });
 
   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {

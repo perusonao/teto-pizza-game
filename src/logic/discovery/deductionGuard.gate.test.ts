@@ -120,7 +120,8 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // Re-measured again at Expansion Slice 1 (31 ingredients: shrimp joins the TOPPINGS the families are cut from).
     // Re-measured again at Expansion Slice 3 (35 ingredients: almond joins the TOPPINGS the families are cut from).
     // Re-measured again at Expansion Batch 1 (38 ingredients: pine-nuts / prosciutto-crudo / green-pepper join the TOPPINGS).
-    expect(dh42aLeaks).toBe(84);
+    // Re-measured again at Expansion Batch 2 (45 ingredients: salami / arugula / lemon / salmon join the TOPPINGS; the cheeses do not).
+    expect(dh42aLeaks).toBe(95);
   }, 120_000);
 });
 

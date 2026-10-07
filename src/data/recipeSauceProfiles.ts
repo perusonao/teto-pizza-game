@@ -220,6 +220,32 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Expansion Batch 2: the standard PAINT mapping (tomato-sauce / pesto), no new sauce behaviour.
+  "vegan-cashew-cheese-pizza": {
+    recipeId: "vegan-cashew-cheese-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "calabresa-argentina": {
+    recipeId: "calabresa-argentina",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "jamon-serrano-pizza": {
+    recipeId: "jamon-serrano-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "rucola-e-grana": {
+    recipeId: "rucola-e-grana",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "pesto-salmone": {
+    recipeId: "pesto-salmone",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
   // TQ-1D: the first no-sauce recipe. Not an olive-oil mapping (unlike vongole / pizza-bianca): it uses no sauce.
   aussie: null,
 };

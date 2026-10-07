@@ -2231,6 +2231,287 @@ export const VEGGIE_SUPREME_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Expansion Batch 2: Reference Truth for `vegan-cashew-cheese-pizza`. Pieces take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order (slot assignment is GAMEPLAY / REFERENCE CALIBRATION).
+ */
+export const VEGAN_CASHEW_CHEESE_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "vegan-cashew-cheese-pizza",
+  sauce: computeMechanicalSauceReference("vegan-cashew-cheese-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "cashew-cheese",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bell-pepper",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "zucchini",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Batch 2: Reference Truth for `calabresa-argentina`. Pieces take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order (slot assignment is GAMEPLAY / REFERENCE CALIBRATION).
+ */
+export const CALABRESA_ARGENTINA_REFERENCE: ReferencePizza = {
+  recipeId: "calabresa-argentina",
+  sauce: computeMechanicalSauceReference("calabresa-argentina"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "salami",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "oregano",
+      positions: [
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Batch 2: Reference Truth for `jamon-serrano-pizza`. Pieces take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order (slot assignment is GAMEPLAY / REFERENCE CALIBRATION).
+ */
+export const JAMON_SERRANO_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "jamon-serrano-pizza",
+  sauce: computeMechanicalSauceReference("jamon-serrano-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "prosciutto-crudo",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "arugula",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Batch 2: Reference Truth for `rucola-e-grana`. Pieces take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order (slot assignment is GAMEPLAY / REFERENCE CALIBRATION).
+ */
+export const RUCOLA_E_GRANA_REFERENCE: ReferencePizza = {
+  recipeId: "rucola-e-grana",
+  sauce: computeMechanicalSauceReference("rucola-e-grana"),
+  pieceGroups: [
+    {
+      ingredientId: "prosciutto-crudo",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "arugula",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "grana-padano",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Batch 2: Reference Truth for `pesto-salmone`. Pieces take the RT-01 8-piece ring consecutively in
+ * `requiredIngredients` order (slot assignment is GAMEPLAY / REFERENCE CALIBRATION).
+ */
+export const PESTO_SALMONE_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-salmone",
+  sauce: computeMechanicalSauceReference("pesto-salmone"),
+  pieceGroups: [
+    {
+      ingredientId: "salmon",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "cream-cheese",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "lemon",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -2268,6 +2549,11 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [BABA_GANOUSH_PIZZA_REFERENCE.recipeId, BABA_GANOUSH_PIZZA_REFERENCE],
   [PROSCIUTTO_FUNGHI_REFERENCE.recipeId, PROSCIUTTO_FUNGHI_REFERENCE],
   [VEGGIE_SUPREME_PIZZA_REFERENCE.recipeId, VEGGIE_SUPREME_PIZZA_REFERENCE],
+  [VEGAN_CASHEW_CHEESE_PIZZA_REFERENCE.recipeId, VEGAN_CASHEW_CHEESE_PIZZA_REFERENCE],
+  [CALABRESA_ARGENTINA_REFERENCE.recipeId, CALABRESA_ARGENTINA_REFERENCE],
+  [JAMON_SERRANO_PIZZA_REFERENCE.recipeId, JAMON_SERRANO_PIZZA_REFERENCE],
+  [RUCOLA_E_GRANA_REFERENCE.recipeId, RUCOLA_E_GRANA_REFERENCE],
+  [PESTO_SALMONE_REFERENCE.recipeId, PESTO_SALMONE_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

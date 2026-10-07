@@ -5,7 +5,7 @@
  * participatesInLunchRush), so adding a recipe batch no longer edits ~90 files. The ONE explicit expected-total
  * ledger is `src/data/catalogLedger.test.ts`; nothing here asserts anything.
  */
-import { DISCOVERY_LADDER } from "../../../data/discoveryLadder";
+import { DISCOVERY_LADDER, W1_FIXED_STEP_COUNT } from "../../../data/discoveryLadder";
 import { INGREDIENTS } from "../../../data/ingredients";
 import { RECIPES, participatesInLunchRush, type Recipe } from "../../../data/recipes";
 import { buildRecipeChapters } from "../../../state/recipeChapters";
@@ -74,3 +74,13 @@ export function ladderSave(count: number, opts: LadderSaveOpts = {}) {
     unlockedForShopIngredientIds: materials,
   };
 }
+
+/** The materials the ladder steps appended after the frozen W1 steps sell (derived: no per-batch list). */
+export const POST_W1_MATERIAL_IDS: readonly string[] = DISCOVERY_LADDER.steps
+  .filter((s) => s.step > W1_FIXED_STEP_COUNT)
+  .flatMap((s) => s.ingredientIds as readonly string[]);
+
+/** The recipes outside the W1 population: No.27 pesto-pollo onward, except TQ-1D's aussie (a W1-pool recipe). Derived. */
+export const POST_W1_RECIPE_IDS: readonly string[] = ALL_RECIPES.slice(ALL_RECIPES.findIndex((r) => r.id === "pesto-pollo"))
+  .map((r) => r.id as string)
+  .filter((id) => id !== "aussie");

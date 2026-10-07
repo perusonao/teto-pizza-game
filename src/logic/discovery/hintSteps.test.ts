@@ -120,10 +120,8 @@ describe("buildHintSteps -- anti-spoiler (T-1) and determinism (T-4)", () => {
       for (let dex = 0; dex <= 24; dex += 1) {
         for (const { textJa } of buildHintSteps(r, { discoveredCount: dex })) {
           const stripped = byLength.reduce((t, n) => t.split(n).join("□"), textJa);
-          for (const other of RECIPES) {
-            expect(stripped).not.toContain(other.nameJa);
-            expect(textJa).not.toContain(other.description);
-          }
+          // One check per line (not one expect per recipe pair): the catalog grows, the cost per line must not grow with it.
+          expect(RECIPES.find((other) => stripped.includes(other.nameJa) || textJa.includes(other.description))?.id).toBeUndefined();
           expect(textJa).not.toMatch(/[A-Za-z]/);
         }
       }

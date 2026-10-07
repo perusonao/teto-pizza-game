@@ -206,7 +206,8 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     }
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
-    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
+    // Expansion Batch 2: pesto-caprese joins (a new material shrinks one of its Hint 3.0 candidate sets to a single candidate; the DH4 guard stays fail-closed: existence, no clause).
+    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza", "pesto-caprese"]);
   }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {

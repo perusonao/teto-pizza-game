@@ -84,4 +84,10 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "baba-ganoush-pizza": { keyFree: true },
   "prosciutto-funghi": { keyFree: true },
   "veggie-supreme-pizza": { keyFree: true },
+  // Expansion Batch 2: permanently key-free.
+  "vegan-cashew-cheese-pizza": { keyFree: true },
+  "calabresa-argentina": { keyFree: true },
+  "jamon-serrano-pizza": { keyFree: true },
+  "rucola-e-grana": { keyFree: true },
+  "pesto-salmone": { keyFree: true },
 };

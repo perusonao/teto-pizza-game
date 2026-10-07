@@ -82,6 +82,8 @@ const TQ1D_RECIPE_IDS: readonly RecipeId[] = ["aussie"];
 /** Expansion Slice 3: Chapter 3, appended after aussie (existing No. never move). */
 const EXPANSION3_RECIPE_IDS: readonly RecipeId[] = ["pesto-trapanese"];
 const BATCH1_RECIPE_IDS: readonly RecipeId[] = ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"];
+/** Expansion Batch 2: Chapter 4, appended after Batch 1. */
+const BATCH2_RECIPE_IDS: readonly RecipeId[] = ["jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone"];
 
 describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14; Batch 1B-C adds #15)", () => {
   it("has exactly 31 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1 + W1's 10 + PR-4b-B's 1 + No.27's 1 + Expansion Slice 1's 1 + Wave 2's 3 + TQ-1D's 1)", () => {
@@ -92,7 +94,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
     expect(RECIPES.slice(28, 31).map((r) => r.id)).toEqual(EXPANSION2_RECIPE_IDS); // appended: No.29-31 (Wave 2)
     expect(RECIPES.slice(31, 32).map((r) => r.id)).toEqual(TQ1D_RECIPE_IDS); // appended: No.32 (TQ-1D, the first NO_SAUCE recipe)
     expect(RECIPES.slice(32, 33).map((r) => r.id)).toEqual(EXPANSION3_RECIPE_IDS); // appended: No.33 (Expansion Slice 3)
-    expect(RECIPES.slice(33).map((r) => r.id)).toEqual(BATCH1_RECIPE_IDS); // appended: No.34-36 (Expansion Batch 1)
+    expect(RECIPES.slice(33, 36).map((r) => r.id)).toEqual(BATCH1_RECIPE_IDS); // appended: No.34-36 (Expansion Batch 1)
+    expect(RECIPES.slice(36).map((r) => r.id)).toEqual(BATCH2_RECIPE_IDS); // appended: No.37-41 (Expansion Batch 2)
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -111,7 +114,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !EXPANSION2_RECIPE_IDS.includes(r.id) &&
           !TQ1D_RECIPE_IDS.includes(r.id) &&
           !EXPANSION3_RECIPE_IDS.includes(r.id) &&
-          !BATCH1_RECIPE_IDS.includes(r.id),
+          !BATCH1_RECIPE_IDS.includes(r.id) &&
+          !BATCH2_RECIPE_IDS.includes(r.id),
       )
         .map((r) => r.id)
         .sort(),

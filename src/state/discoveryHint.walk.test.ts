@@ -235,7 +235,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     const seenCounts = new Set<number>();
     let credited = 0;
     for (const r of records) {
-      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited) && r.target !== "ratatouille-pizza" && r.target !== "baba-ganoush-pizza") expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
+      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited) && credited <= 28) expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
       seenCounts.add(credited);
       if (countsTowardLadder(r.target)) credited += 1;
     }
@@ -243,7 +243,10 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     // Expansion Batch 1: steps 29 / 30 are both entitled by the time the walk reaches pesto-trapanese, so that stage also buys
     // pine-nuts and baba-ganoush-pizza's stage needs no Shop visit (same lag as Slice 3); steps 31 / 32 are bought together by
     // the prosciutto-funghi stage. Every Batch 1 material is bought exactly once.
-    for (const material of ["pine-nuts", "prosciutto-crudo", "green-pepper"]) {
+    // Expansion Batch 2 (steps 33-37) keeps the same lag: from step 29 on a stage may be entitled ahead of its own Shop visit, so only
+    // "every appended material from step 29 on is bought exactly once" is pinned (derived from the ladder, no per-batch list).
+    const lateMaterials = DISCOVERY_LADDER.steps.filter((l) => l.step >= 29).flatMap((l) => l.ingredientIds as readonly string[]);
+    for (const material of lateMaterials) {
       expect(records.flatMap((r) => r.shop).filter((id) => id === material), `${material} is bought exactly once`).toHaveLength(1);
     }
     // Facts stay after the discovery: every paid recipe with a purchasable fact (Margherita was

@@ -31,7 +31,7 @@ function makeable(recipes: readonly Recipe[], ledger: readonly string[]): Recipe
 /** Plays forward on the production ladder from (discovered, ledger); returns the final count. */
 function playForward(discovered: string[], ledger: readonly string[], pick: (options: Recipe[]) => Recipe): number {
   let current = [...ledger];
-  for (let guard = 0; guard < 40; guard += 1) {
+  for (let guard = 0; guard < ALL.length + 1; guard += 1) {
     current = [...resolveShopEntitlement(dexOf(discovered), [...STARTER_INGREDIENT_IDS], current).unlockedForShopIngredientIds];
     const options = makeable(ALL, current).filter((r) => !discovered.includes(r.id));
     if (options.length === 0) break;

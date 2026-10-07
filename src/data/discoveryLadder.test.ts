@@ -45,10 +45,10 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   it("the production ladder equals the REC-04 key-recipe rule applied append-only to the production recipe data", () => {
     // LAD-1 (OD-W2-1): the W1 steps are frozen; the rule only ever appends after them.
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley), so steps 1-29 are frozen as `fixed`: only steps 30-32 (Expansion Batch 1) are derived.
-    const fixed29 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 29) };
-    expect(fixed29.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
-    const derived = buildAppendOnlyLadder(fixed29, PRODUCTION_POPULATION);
+    // parsley), so steps 1-32 are frozen as `fixed`: only steps 33-37 (Expansion Batch 2) are derived.
+    const fixed32 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 32) };
+    expect(fixed32.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
+    const derived = buildAppendOnlyLadder(fixed32, PRODUCTION_POPULATION);
     expect(DISCOVERY_LADDER).toEqual(derived);
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
   });
