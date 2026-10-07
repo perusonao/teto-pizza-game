@@ -560,7 +560,6 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
-  transition: opacity 120ms ease;
 }
 
 .pizza-cut-cutter-icon {
@@ -569,7 +568,6 @@
   font-size: 22px;
   pointer-events: none;
   z-index: 6;
-  transition: opacity 120ms ease;
 }
 
 .pizza-topping {

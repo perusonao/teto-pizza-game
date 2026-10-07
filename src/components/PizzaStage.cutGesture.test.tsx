@@ -223,4 +223,38 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     render(<Harness />);
     expect(screen.queryByText(/1本戻す/)).toBeNull();
   });
+
+  it("#418: a hand-shaky (slow) straight stroke is committed as a clean straight segment", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 40;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 60, clientY: 150 });
+    for (const [x, y] of [[90, 153], [120, 147], [150, 154], [180, 146], [210, 152], [240, 150]]) {
+      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
+    }
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
+    // Only start and end remain -- not extended to the rim, not snapped to an ideal angle.
+    expect(lastCommittedPath()).toBe("20,50 80,50");
+  });
+
+  it("#418: a quick two-sample swipe is a straight segment ending where the finger lifted", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 41;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 60, clientY: 90 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 210 });
+    expect(lastCommittedPath()).toBe("20,30 80,70");
+  });
+
+  it("#418: the cut line starts drawing after only a few pixels of movement", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 42;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 156, clientY: 150 });
+    const preview = document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line");
+    expect(preview?.style.opacity).toBe("1");
+    expect(preview?.getAttribute("points")).toBe("50.00,50.00 52.00,50.00");
+  });
 });

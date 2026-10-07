@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { isEdgeToEdgeCutLine } from "./types";
-import { appendTraceSample, buildTracedCutLine, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
+import { appendTraceSample, buildTracedCutLine, stabilizeTrace, TRACE_STRAIGHT_TOLERANCE, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
 
 const C = DOUGH_CENTER;
 
@@ -48,5 +48,27 @@ describe("buildTracedCutLine", () => {
       { x: 50, y: 51 },
     ];
     expect(buildTracedCutLine(path)).not.toBeNull();
+  });
+});
+
+describe("stabilizeTrace", () => {
+  it("collapses a stroke that hugs its chord to just start and end (no extension, no snap)", () => {
+    const p = [{ x: 20, y: 50 }, { x: 35, y: 51.5 }, { x: 50, y: 48.8 }, { x: 65, y: 50.9 }, { x: 80, y: 52 }];
+    expect(stabilizeTrace(p)).toEqual([p[0], p[4]]);
+  });
+
+  it("keeps a clear curve exactly as traced", () => {
+    const p = [{ x: 20, y: 50 }, { x: 50, y: 50 - 3 * TRACE_STRAIGHT_TOLERANCE }, { x: 80, y: 50 }];
+    expect(stabilizeTrace(p)).toBe(p);
+  });
+
+  it("keeps a clear change of direction (L-turn)", () => {
+    const p = [{ x: 20, y: 50 }, { x: 50, y: 50 }, { x: 50, y: 20 }];
+    expect(stabilizeTrace(p)).toBe(p);
+  });
+
+  it("keeps a stroke that doubles back", () => {
+    const p = [{ x: 20, y: 50 }, { x: 60, y: 50 }, { x: 40, y: 50.5 }, { x: 55, y: 50 }];
+    expect(stabilizeTrace(p)).toBe(p);
   });
 });

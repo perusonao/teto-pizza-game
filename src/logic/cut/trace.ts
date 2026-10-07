@@ -10,6 +10,13 @@ import { buildRimToRimCutLine, type CutLine } from "./types";
 
 /** Samples closer than this (dough-percent) to the last kept sample are sensor jitter. */
 export const TRACE_SAMPLE_MIN_DISTANCE = 1;
+/**
+ * Light straightening: a stroke whose every point stays within this distance (dough-percent,
+ * ~7px on a phone) of the start->end chord, without doubling back, is treated as an intended
+ * straight cut and drawn as that straight segment. Anything that strays further is a deliberate
+ * curve/turn and is kept exactly as traced.
+ */
+export const TRACE_STRAIGHT_TOLERANCE = 2.5;
 /** A traced path shorter than this (dough-percent) is a tap, not a cut, and is discarded. */
 export const TRACE_MIN_LENGTH = 8;
 
@@ -19,6 +26,30 @@ export function tracePathLength(path: readonly DoughPoint[]): number {
     total += Math.hypot(path[i].x - path[i - 1].x, path[i].y - path[i - 1].y);
   }
   return total;
+}
+
+/**
+ * Absorbs hand shake only: returns `[start, end]` when the whole path hugs its own start->end chord
+ * (see `TRACE_STRAIGHT_TOLERANCE`), else the path untouched. Never fits, snaps to an ideal angle
+ * or extends the ends -- start and end stay exactly where the finger put them.
+ */
+export function stabilizeTrace(path: readonly DoughPoint[]): readonly DoughPoint[] {
+  if (path.length < 3) return path;
+  const a = path[0];
+  const b = path[path.length - 1];
+  const length = Math.hypot(b.x - a.x, b.y - a.y);
+  if (length < TRACE_MIN_LENGTH) return path;
+  const ux = (b.x - a.x) / length;
+  const uy = (b.y - a.y) / length;
+  for (let i = 1; i < path.length - 1; i += 1) {
+    const rx = path[i].x - a.x;
+    const ry = path[i].y - a.y;
+    const along = rx * ux + ry * uy;
+    const across = Math.abs(rx * uy - ry * ux);
+    if (across > TRACE_STRAIGHT_TOLERANCE) return path;
+    if (along < -TRACE_STRAIGHT_TOLERANCE || along > length + TRACE_STRAIGHT_TOLERANCE) return path;
+  }
+  return [a, b];
 }
 
 /** Where the segment `inside -> outside` crosses the dough's rim. */
@@ -60,8 +91,9 @@ export function appendTraceSample(path: readonly DoughPoint[], sample: DoughPoin
  * #288 defines CUT scoring on traces. It uses the sample farthest from the start so a path that
  * curls back near its start still has a direction.
  */
-export function buildTracedCutLine(path: readonly DoughPoint[]): CutLine | null {
-  if (path.length < 2 || tracePathLength(path) < TRACE_MIN_LENGTH) return null;
+export function buildTracedCutLine(rawPath: readonly DoughPoint[]): CutLine | null {
+  if (rawPath.length < 2 || tracePathLength(rawPath) < TRACE_MIN_LENGTH) return null;
+  const path = stabilizeTrace(rawPath);
   const first = path[0];
   let farthest = path[1];
   let best = -1;
