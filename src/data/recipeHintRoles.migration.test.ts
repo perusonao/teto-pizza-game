@@ -10,7 +10,8 @@ describe("RECIPE_HINT_ROLES is typed HintRoles", () => {
     const withKeyFree: Readonly<Record<RecipeId, HintRoles>> = { ...RECIPE_HINT_ROLES, margherita: { keyFree: true } };
     expect(isKeyFreeHintRoles(withKeyFree.margherita)).toBe(true);
     for (const r of RECIPES) {
-      expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[r.id]), r.id).toBe(r.id === "aussie" || r.id === "brazilian-calabresa" || r.id === "pesto-pollo" || r.id === "pesto-gamberi" || r.id === "vongole" || r.id === "pesto-vegetariana" || r.id === "ratatouille-pizza" || r.id === "pesto-trapanese");
+      // The first 25 recipes keep authored (keyed) roles; every recipe appended after them is key-free.
+      expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[r.id]), r.id).toBe(RECIPES.indexOf(r) >= 25);
     }
   });
 

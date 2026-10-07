@@ -235,11 +235,17 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     const seenCounts = new Set<number>();
     let credited = 0;
     for (const r of records) {
-      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited) && r.target !== "ratatouille-pizza") expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
+      if (r.dex >= 1 && !seenCounts.has(credited) && DISCOVERY_LADDER.steps.some((l) => l.step === credited) && r.target !== "ratatouille-pizza" && r.target !== "baba-ganoush-pizza") expect(r.shop.length, `Dex ${r.dex} ${r.target}: first stage at ladder count ${credited}`).toBeGreaterThanOrEqual(1);
       seenCounts.add(credited);
       if (countsTowardLadder(r.target)) credited += 1;
     }
     expect(records.find((r) => r.target === "pesto-trapanese")!.shop.length, "pesto-trapanese buys almond in the Shop").toBeGreaterThanOrEqual(1);
+    // Expansion Batch 1: steps 29 / 30 are both entitled by the time the walk reaches pesto-trapanese, so that stage also buys
+    // pine-nuts and baba-ganoush-pizza's stage needs no Shop visit (same lag as Slice 3); steps 31 / 32 are bought together by
+    // the prosciutto-funghi stage. Every Batch 1 material is bought exactly once.
+    for (const material of ["pine-nuts", "prosciutto-crudo", "green-pepper"]) {
+      expect(records.flatMap((r) => r.shop).filter((id) => id === material), `${material} is bought exactly once`).toHaveLength(1);
+    }
     // Facts stay after the discovery: every paid recipe with a purchasable fact (Margherita was
     // free), each within its Hint 2.0 cost (OD-H3-4 parity cap 35 / 75); the legacy ledger never moved.
     const paid = records.slice(1).filter((r) => r.steps > 0);

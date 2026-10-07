@@ -710,6 +710,66 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "baba-ganoush-pizza",
+    nameJa: "ババガヌーシュピザ",
+    description: "オリーブオイルを塗った生地に、ナスとパセリ、松の実をのせた、香ばしい中東風の一枚。",
+    // Expansion Batch 1 (Chapter 3). SOURCE AUTHORITY (PIZZA DB p7 `baba-ganoush-pizza-pizzadb-p7`, 172
+    // matrix): sauce base olive-oil, ingredients eggplant / parsley / pine-nuts, no cheese. GAMEPLAY
+    // CALIBRATION (not source): counts olive-oil 1 / eggplant 2 / parsley 2 / pine-nuts 3, bake 62-82 (the
+    // vongole olive-oil precedent); 7 non-sauce pieces (2 + 2 + 3) <= the 8-slot ring. The olive-oil sauce slot
+    // is this recipe's own existing sauce-slot mapping (PAINT_TEMPORARY, like vongole), NOT a NO_SAUCE Technique.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "parsley", minCount: 2 },
+      { ingredientId: "pine-nuts", minCount: 3 },
+    ],
+    bakeTarget: { start: 62, end: 82 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "prosciutto-funghi",
+    nameJa: "プロシュットフンギ",
+    description: "トマトソースとモッツァレラに、マッシュルームと生ハムをのせた、塩気とうま味の一枚。",
+    // Expansion Batch 1 (Chapter 3). SOURCE AUTHORITY (PIZZA DB p11 `prosciutto-funghi-pizzadb-p11`, 172
+    // matrix): tomato-sauce / mozzarella / mushroom / prosciutto-crudo. GAMEPLAY CALIBRATION (not source):
+    // counts tomato-sauce 1 / mozzarella 2 / mushroom 2 / prosciutto-crudo 3, bake 58-78; 7 non-sauce pieces
+    // (2 + 2 + 3) <= the 8-slot ring. Ladder-credited; `lunchRush: false`.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "mushroom", minCount: 2 },
+      { ingredientId: "prosciutto-crudo", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "veggie-supreme-pizza",
+    nameJa: "ベジースプリームピザ",
+    description: "トマトソースとモッツァレラに、オリーブ、トマト、マッシュルーム、玉ねぎ、ピーマンをのせた野菜たっぷりの一枚。",
+    // Expansion Batch 1 (Chapter 3). SOURCE AUTHORITY (PIZZA DB p11 `veggie-supreme-pizza-pizzadb-p11`, 172
+    // matrix): tomato-sauce / mozzarella / black-olive / fresh-tomato / mushroom / onion / green-pepper.
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / mozzarella 2 / black-olive 1 / fresh-tomato 1
+    // / mushroom 1 / onion 1 / green-pepper 2, bake 50-70; 8 non-sauce pieces fill the 8-slot ring.
+    // `green-pepper` is its own ingredient, never `bell-pepper`. Ladder-credited; `lunchRush: false`.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "black-olive", minCount: 1 },
+      { ingredientId: "fresh-tomato", minCount: 1 },
+      { ingredientId: "mushroom", minCount: 1 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "green-pepper", minCount: 2 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

@@ -48,9 +48,10 @@ const chapterTitles = () =>
   Array.from(document.querySelectorAll(".dex-overlay__chapter-title")).map((e) => e.textContent);
 
 describe("W1-f Dex", () => {
-  it("3 chapters (6 / 11 / 15) with per-chapter counts and fixed No. slots", () => {
+  it("chapters (the ledger's sizes) with per-chapter counts and fixed No. slots", () => {
     renderDex({ dex: discoveredDex(["margherita", "marinara"]) });
-    expect(chapterTitles()).toEqual(["第1章1/6", "第2章1/11", "第3章0/16"]);
+    const sizes = CATALOG_COUNTS.chapterSizes;
+    expect(chapterTitles()).toEqual(sizes.map((n, i) => `第${i + 1}章${i < 2 ? 1 : 0}/${n}`));
     const chapters = Array.from(document.querySelectorAll(".dex-overlay__chapter"));
     expect(chapters.map((c) => c.querySelectorAll(".dex-card").length)).toEqual(CATALOG_COUNTS.chapterSizes);
     expect(within(chapters[1] as HTMLElement).getByText(/マリナーラ/).textContent).toContain("No.01");

@@ -57,7 +57,7 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
 
 /** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
  *  not evidence). */
-const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese"];
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -110,12 +110,16 @@ const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
   "ratatouille-pizza": ["DOUGH", "SAUCE", "TOPPING"],
   // Expansion Slice 3: pesto + toppings, no cheese; no CUT.
   "pesto-trapanese": ["DOUGH", "SAUCE", "TOPPING"],
+  // Expansion Batch 1: no CUT. baba-ganoush (olive-oil, no cheese) has no CHEESE step; the other two have mozzarella.
+  "baba-ganoush-pizza": ["DOUGH", "SAUCE", "TOPPING"],
+  "prosciutto-funghi": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "veggie-supreme-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
 };
 
 /** No-CHEESE recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
-const NO_CHEESE_RECIPES: readonly RecipeId[] = ["marinara", "fugazza", "pizza-bianca", "pesto-tonno", "puttanesca-pizza", "brazilian-calabresa", "vongole", "ratatouille-pizza", "pesto-trapanese"];
+const NO_CHEESE_RECIPES: readonly RecipeId[] = ["marinara", "fugazza", "pizza-bianca", "pesto-tonno", "puttanesca-pizza", "brazilian-calabresa", "vongole", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza"];
 /** No-TOPPING recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
 const NO_TOPPING_RECIPES: readonly RecipeId[] = ["quattro-formaggi"];
 

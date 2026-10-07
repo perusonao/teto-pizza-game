@@ -364,7 +364,7 @@ test.describe("Expansion Wave 2", () => {
       await expect(card).toHaveCount(1);
       await expect(card).toContainText(no);
     }
-    await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("15/16");
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("15/16");
     await page.locator(".dex-card").filter({ hasText: "ラタトゥイユピザ" }).scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
     await capture(page, "exp2-dex-no14-15", project);

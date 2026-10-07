@@ -171,7 +171,8 @@ const W1_MATERIALS: readonly {
 
 describe("W1 materials (Progression 2.0 I5a)", () => {
   it("are the 7 catalog rows before No.27's chicken, Expansion's shrimp and Wave 2's 3 materials, in this order (existing tray order untouched)", () => {
-    expect(INGREDIENTS.slice(-13, -6).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
+    const chicken = INGREDIENTS.findIndex((i) => i.id === "chicken"); // the first post-W1 material: derived, no per-batch offset
+    expect(INGREDIENTS.slice(chicken - 7, chicken).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
   });
 
   it.each(W1_MATERIALS)("$id: $nameJa, finite scatter topping with the approved visual", (m) => {

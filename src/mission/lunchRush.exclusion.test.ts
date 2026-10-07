@@ -24,7 +24,10 @@ describe("lunchRush: false foundation", () => {
       "ratatouille-pizza",
       "aussie",
       "pesto-trapanese",
-    ]); // opt-out total = 8
+      "baba-ganoush-pizza",
+      "prosciutto-funghi",
+      "veggie-supreme-pizza",
+    ]); // opt-out total = 11
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);
@@ -34,6 +37,7 @@ describe("lunchRush: false foundation", () => {
     expect(participatesInLunchRush("vongole")).toBe(false);
     expect(participatesInLunchRush("pesto-vegetariana")).toBe(false);
     expect(participatesInLunchRush("ratatouille-pizza")).toBe(false);
+    for (const id of ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"]) expect(participatesInLunchRush(id), id).toBe(false); // Expansion Batch 1
     expect(participatesInLunchRush("aussie")).toBe(false); // TQ-1D: Lunch Rush never serves a Technique recipe
     expect(missionOrderRecipeIds(inputs).sort()).toEqual(original.map((r) => r.id).sort());
   });
@@ -50,7 +54,8 @@ describe("lunchRush: false foundation", () => {
   it("an opted-out recipe never enters the mission order pool, even discovered + owned + in stock", () => {
     const pool = missionOrderRecipeIds(inputs, [], optOut("pizza-bianca"));
     expect(pool).not.toContain("pizza-bianca");
-    expect(pool).toHaveLength(RECIPES.length - 9); // pizza-bianca + the calabresa, pesto-pollo, pesto-gamberi, Wave 2's vongole / pesto-vegetariana / ratatouille-pizza and TQ-1D's aussie already opted out (7 + pizza-bianca = 8 total)
+    const alreadyOptedOut = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false).length; // derived: no per-batch pin
+    expect(pool).toHaveLength(RECIPES.length - alreadyOptedOut - 1); // + pizza-bianca
   });
 
   it("only the explicit false opts out: absent, unknown id and true-ish values participate", () => {

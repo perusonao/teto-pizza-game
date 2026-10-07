@@ -626,6 +626,47 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * Expansion Batch 1 (baba-ganoush-pizza): the 36th ingredient, a finite ladder material like `almond` --
+   * appended ladder step 30 (T4), material Shop only. Family `other` (./ingredientTaxonomy.ts). 🌰 is distinct
+   * from `almond`'s 🥜 and from every Hint class symbol (G18).
+   */
+  {
+    id: "pine-nuts",
+    category: "topping",
+    nameJa: "松の実",
+    color: "#e6d3a3",
+    emoji: "\u{1F330}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 1 (prosciutto-funghi): finite ladder material, step 31 (T4). Family `meat`. 🍥 (pink swirl)
+   * reads as thin-sliced cured ham and is distinct from `ham` 🍖 / `bacon` 🥓 and the meat class symbol 🥩 (G18).
+   */
+  {
+    id: "prosciutto-crudo",
+    category: "topping",
+    nameJa: "生ハム",
+    color: "#d9728a",
+    emoji: "\u{1F365}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 1 (veggie-supreme-pizza): finite ladder material, step 32 (T4). Family `vegetable`. Its own
+   * ingredient, never `bell-pepper` (パプリカ 🫑): 🌶️ is a different glyph, and the Japanese names differ
+   * (ピーマン / パプリカ), so the two cannot be confused in the tray, Shop or Dex.
+   */
+  {
+    id: "green-pepper",
+    category: "topping",
+    nameJa: "ピーマン",
+    color: "#4aa03a",
+    emoji: "\u{1F336}\u{FE0F}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

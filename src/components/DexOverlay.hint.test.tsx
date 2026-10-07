@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
+import { CATALOG_COUNTS } from "../logic/catalog/testSupport/catalogDerived";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
 import { resolveShopEntitlement } from "../state/materialEntitlement";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../state/recipeDiscoveryState";
@@ -180,9 +181,9 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     expect(onGoFreeCook).toHaveBeenCalledTimes(1);
   });
 
-  it("the chapters still render all 28 slots", () => {
+  it("the chapters still render every slot", () => {
     renderDex(ladder(11));
-    expect(document.querySelectorAll(".dex-overlay__chapter")).toHaveLength(3);
+    expect(document.querySelectorAll(".dex-overlay__chapter")).toHaveLength(CATALOG_COUNTS.chapterSizes.length);
     expect(document.querySelectorAll(".dex-card")).toHaveLength(RECIPES.length);
   });
 });

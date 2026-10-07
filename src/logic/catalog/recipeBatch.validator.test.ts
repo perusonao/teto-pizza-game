@@ -18,22 +18,12 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("the next batch manifest is PLANNED and consistent: none of it exists, it is next in line, no id repeats", () => {
+  it("Expansion Batch 1 is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
-    expect(NEXT_RECIPE_BATCH.status).toBe("planned");
+    expect(NEXT_RECIPE_BATCH.status).toBe("landed");
     expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"]);
     expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["pine-nuts", "prosciutto-crudo", "green-pepper"]);
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
-  });
-
-  it("the LANDED path holds on real data: the last shipped recipe, declared explicitly, validates against production", () => {
-    const landed: RecipeBatchManifest = {
-      batchId: "self-check-pesto-trapanese",
-      status: "landed",
-      afterRecipeId: "aussie",
-      recipes: [{ recipeId: "pesto-trapanese", keyIngredientId: "almond", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-    };
-    expect(validateBatchManifest(landed, view)).toEqual([]);
   });
 });
 
@@ -50,7 +40,7 @@ describe("validator catches", () => {
   });
 
   it("a finite material no ladder step unlocks", () => {
-    expect(validateCatalogTables({ ...view, ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, -1) } }).some((p) => p.startsWith("MATERIAL_NOT_ON_LADDER: almond"))).toBe(true);
+    expect(validateCatalogTables({ ...view, ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, -1) } }).some((p) => p.startsWith("MATERIAL_NOT_ON_LADDER: green-pepper"))).toBe(true);
   });
 
   it("CUT eligibility without a CUT step, a step the runtime does not wire, an unsupported capability", () => {
@@ -60,31 +50,29 @@ describe("validator catches", () => {
   });
 
   it("a planned batch that already exists, or is not next in line", () => {
-    const exists: RecipeBatchManifest = { ...NEXT_RECIPE_BATCH, recipes: [{ recipeId: tail, keyIngredientId: "almond" }] };
+    const planned: RecipeBatchManifest = { ...NEXT_RECIPE_BATCH, status: "planned" };
+    const exists: RecipeBatchManifest = { ...planned, recipes: [{ recipeId: tail, keyIngredientId: "almond" }] };
     expect(validateBatchManifest(exists, view)).toEqual(expect.arrayContaining([`PLANNED_RECIPE_EXISTS: ${tail}`, "PLANNED_INGREDIENT_EXISTS: almond"]));
-    expect(validateBatchManifest({ ...NEXT_RECIPE_BATCH, afterRecipeId: "aussie" }, view)).toContain("BASE_NOT_LAST: aussie is not the last recipe");
+    expect(validateBatchManifest({ ...planned, afterRecipeId: "aussie" }, view)).toContain("BASE_NOT_LAST: aussie is not the last recipe");
   });
 
   it("a landed batch with a wrong tail (No. identity), a missing / wrong declaration, or a moved ladder", () => {
-    const landed: RecipeBatchManifest = {
-      batchId: "x",
-      status: "landed",
-      afterRecipeId: "aussie",
-      recipes: [{ recipeId: "pesto-trapanese", keyIngredientId: "almond", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-    };
-    expect(validateBatchManifest({ ...landed, afterRecipeId: "ratatouille-pizza" }, view).some((p) => p.startsWith("NO_IDENTITY"))).toBe(true);
-    expect(validateBatchManifest({ ...landed, recipes: [{ ...landed.recipes[0], lunchRush: undefined, cut: undefined }] }, view)).toEqual(expect.arrayContaining(["DECLARATION_MISSING: pesto-trapanese.lunchRush", "DECLARATION_MISSING: pesto-trapanese.cut"]));
-    expect(validateBatchManifest({ ...landed, recipes: [{ ...landed.recipes[0], lunchRush: true, cut: true, hint: "keyed", ladderCredit: false }] }, view)).toEqual(
-      expect.arrayContaining(["LUNCH_RUSH_MISMATCH: pesto-trapanese declared true", "CUT_MISMATCH: pesto-trapanese declared true", "HINT_MISMATCH: pesto-trapanese declared keyed", "LADDER_CREDIT_MISMATCH: pesto-trapanese declared false"]),
+    const landed = NEXT_RECIPE_BATCH;
+    const [first, ...rest] = landed.recipes;
+    const id = first.recipeId;
+    expect(validateBatchManifest({ ...landed, afterRecipeId: "aussie" }, view).some((p) => p.startsWith("NO_IDENTITY"))).toBe(true);
+    expect(validateBatchManifest({ ...landed, recipes: [{ ...first, lunchRush: undefined, cut: undefined }, ...rest] }, view)).toEqual(expect.arrayContaining([`DECLARATION_MISSING: ${id}.lunchRush`, `DECLARATION_MISSING: ${id}.cut`]));
+    expect(validateBatchManifest({ ...landed, recipes: [{ ...first, lunchRush: true, cut: true, hint: "keyed", ladderCredit: false }, ...rest] }, view)).toEqual(
+      expect.arrayContaining([`LUNCH_RUSH_MISMATCH: ${id} declared true`, `CUT_MISMATCH: ${id} declared true`, `HINT_MISMATCH: ${id} declared keyed`, `LADDER_CREDIT_MISMATCH: ${id} declared false`]),
     );
-    expect(validateBatchManifest({ ...landed, recipes: [{ ...landed.recipes[0], keyIngredientId: "zucchini" }] }, view)).toEqual(expect.arrayContaining([expect.stringMatching(/^LADDER_MATERIAL|^COHORT_UNLOCK/)]));
+    expect(validateBatchManifest({ ...landed, recipes: [{ ...first, keyIngredientId: "zucchini" }, ...rest] }, view)).toEqual(expect.arrayContaining([expect.stringMatching(/^LADDER_MATERIAL|^COHORT_UNLOCK/)]));
   });
 
   it("a new recipe that joins an existing single-member Research cohort (the existing recipe would gain a letter)", () => {
     // The tail recipe re-authored to unlock on garlic joins marinara's cohort (garlic is its last finite material).
     const joiner = { ...last, requiredIngredients: [{ ingredientId: "tomato-sauce", minCount: 1 }, { ingredientId: "mozzarella", minCount: 1 }, { ingredientId: "garlic", minCount: 1 }] };
     const v = withRecipes([...RECIPES.slice(0, -1), joiner]);
-    const landed: RecipeBatchManifest = { batchId: "x", status: "landed", afterRecipeId: "aussie", recipes: [{ recipeId: last.id, keyIngredientId: "almond", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }] };
+    const landed = NEXT_RECIPE_BATCH;
     expect(validateBatchManifest(landed, v).some((p) => p.startsWith("COHORT_LETTER_SHIFT"))).toBe(true);
   });
 });

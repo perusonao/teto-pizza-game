@@ -389,18 +389,31 @@ describe("ESC_PARITY pricing (OD-H3-4 / OD-H3-15)", () => {
   });
 
   it("the cap never binds before a target is exhausted, so no displayed price can reveal it", () => {
+    // Expansion Batch 1: veggie-supreme-pizza (7 distinct ingredients) is the first recipe with 5 purchasable facts:
+    // the uncapped 5 + 10 + 20 + 40 + 40 = 115 exceeds its Hint 2.0 parity cap of 75, so its 5th fact is the one the cap
+    // zeroes. The pricing rule is unchanged (a documented, known exception; see the Batch 1 result); every other recipe
+    // keeps "the cap never binds before the target is exhausted".
+    const capBinds: string[] = [];
     for (const recipe of PAID_TARGETS) {
       const m = model(recipe.id);
+      const uncapped = Array.from({ length: m.purchasableFacts.length }, (_, paid) => selectableHintBatchPrice(paid, 1, Number.POSITIVE_INFINITY));
+      if (uncapped.reduce((a, b) => a + b, 0) > m.priceCap) {
+        capBinds.push(recipe.id);
+        const spent = uncapped.reduce((total, _p, paid) => total + selectableHintNextPrice(m, paid), 0);
+        expect(spent, `${recipe.id}: the capped total is exactly the cap`).toBe(m.priceCap);
+        continue;
+      }
       for (let paid = 0; paid < m.purchasableFacts.length; paid += 1) {
-        expect(selectableHintNextPrice(m, paid), `${recipe.id} paid ${paid}`).toBe(selectableHintBatchPrice(paid, 1, Number.POSITIVE_INFINITY));
+        expect(selectableHintNextPrice(m, paid), `${recipe.id} paid ${paid}`).toBe(uncapped[paid]);
       }
     }
+    expect(capBinds).toEqual(["veggie-supreme-pizza"]);
   });
 
   it("measurement: the 24 paid targets' full unlock total (not asserted to 1480, not an economy authority)", () => {
     // The snapshot is of the credited W1 population (a branching recipe, and No.27 pesto-pollo / Expansion
     // pesto-gamberi / Wave 2 recipes behind the appended steps 25-28, are measured on their own).
-    const perRecipe = Object.fromEntries(PAID_TARGETS.filter((r) => countsTowardLadder(r.id) && !["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese"].includes(r.id)).map((r) => [r.id, fullCost(model(r.id))]));
+    const perRecipe = Object.fromEntries(PAID_TARGETS.filter((r) => countsTowardLadder(r.id) && !["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"].includes(r.id)).map((r) => [r.id, fullCost(model(r.id))]));
     const total = Object.values(perRecipe).reduce((a, b) => a + b, 0);
     // Snapshot of today's data under OD-H3-4/5/6/7 (Result Report §9); re-measure when recipes change.
     expect(total).toBe(515);

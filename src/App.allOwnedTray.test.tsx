@@ -89,11 +89,12 @@ describe("All-Owned Cooking Tray: FREE Cooking lists every owned topping (hand e
     const user = userEvent.setup();
     render(<App />);
     await toToppingStep(user);
-    expect(pageLabel()).toBe("1 / 5"); // 27 toppings (Expansion Wave 2), 6 per page
+    const pages = Math.ceil(TOPPINGS.length / 6); // every owned topping, 6 per page (derived: no per-batch pin)
+    expect(pageLabel()).toBe(`1 / ${pages}`);
     const all: string[] = [];
-    for (let page = 0; page < 5; page += 1) {
+    for (let page = 0; page < pages; page += 1) {
       all.push(...trayNames());
-      if (page < 4) await user.click(screen.getByRole("button", { name: "次のページ" }));
+      if (page < pages - 1) await user.click(screen.getByRole("button", { name: "次のページ" }));
     }
     expect(all).toEqual(TOPPINGS.map((t) => t.nameJa));
     // There is no 食材庫 to pre-register ingredients into: no entry, no pin UI, nothing between the player and the tray.

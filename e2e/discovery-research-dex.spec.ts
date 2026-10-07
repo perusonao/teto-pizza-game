@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery 3.0 #346 S2: the Dex 「🔎 研究中のピザ」 section. Two or more registered entries show
@@ -59,7 +60,7 @@ test("research section: anonymous cards, no overflow, formal Dex intact", async 
   await expect(section.locator("button", { hasText: "研究する" })).toHaveCount(0);
   await expect(section.locator(".dex-card__research-stock-notice")).toHaveCount(titles.length);
   await expect(section).not.toContainText(/No\.|残り|あと|\/|%/);
-  await expect(page.locator(".dex-overlay__chapter")).toHaveCount(3);
+  await expect(page.locator(".dex-overlay__chapter")).toHaveCount(CATALOG_COUNTS.chapterSizes.length);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
   const bodyOverflow = await page.locator(".dex-overlay__body").evaluate((e) => e.scrollWidth - e.clientWidth);

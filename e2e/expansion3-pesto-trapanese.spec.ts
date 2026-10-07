@@ -17,7 +17,8 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 50, end: 70 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "pesto-trapanese";
-const DISCOVERED = RECIPES.map((r) => r.id as string).filter((id) => id !== ID);
+// The recipes of the catalog up to and including this slice (later batches are not found yet).
+const DISCOVERED = RECIPES.slice(0, RECIPES.findIndex((r) => r.id === ID) + 1).map((r) => r.id as string).filter((id) => id !== ID);
 const OWNED_BEFORE = materialsUpTo(28);
 
 const saveJson = () =>
@@ -111,7 +112,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`33\\s*/\\s*${CATALOG_COUNTS.recipes}`));
   const card = page.locator(".dex-card").filter({ hasText: "ペストトラパネーゼピザ" });
   await expect(card).toHaveCount(1);
-  await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("16/16");
+  await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("16/16");
   await card.scrollIntoViewIfNeeded();
   await noOverflow(page, "Dex");
   const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}"), SAVE_KEY);

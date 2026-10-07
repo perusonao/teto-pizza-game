@@ -203,6 +203,23 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "pesto",
     interaction: "PAINT",
   },
+  // Expansion Batch 1: baba-ganoush's olive-oil reuses vongole's own PAINT_TEMPORARY sauce-slot mapping (not a
+  // NO_SAUCE Technique); the other two use the standard tomato PAINT.
+  "baba-ganoush-pizza": {
+    recipeId: "baba-ganoush-pizza",
+    ingredientId: "olive-oil",
+    interaction: "PAINT_TEMPORARY",
+  },
+  "prosciutto-funghi": {
+    recipeId: "prosciutto-funghi",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "veggie-supreme-pizza": {
+    recipeId: "veggie-supreme-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
   // TQ-1D: the first no-sauce recipe. Not an olive-oil mapping (unlike vongole / pizza-bianca): it uses no sauce.
   aussie: null,
 };
