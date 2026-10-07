@@ -101,6 +101,7 @@ const TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
   ["friarielli", "vegetable"],
   ["jalapeno", "vegetable"],
   ["sardine", "seafood"],
+  ["hot-dog", "meat"],
 ];
 
 const FAMILY_BY_INGREDIENT = new Map<string, AttributeFamilyId>(TOPPING_FAMILY_ROWS);

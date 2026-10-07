@@ -102,4 +102,7 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "jalapeno-popper-pizza": { keyFree: true },
   "pizza-feta-eliniki": { keyFree: true },
   "pizza-moscow": { keyFree: true },
+  // Expansion Batch 5: permanently key-free (no KEY_TOPPING / hintKeyToppingId).
+  "pizza-bianca-ricotta": { keyFree: true },
+  "pizza-overload": { keyFree: true },
 };

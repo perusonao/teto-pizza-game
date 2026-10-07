@@ -268,6 +268,18 @@ export const RECIPE_SAUCE_PROFILES = {
   "brazilian-catupiry-corn-pizza": null,
   "jalapeno-popper-pizza": null,
   "pizza-moscow": null,
+  // Expansion Batch 5: single-sauce recipes, no new sauce behaviour. pizza-bianca-ricotta's olive-oil is its OWN existing sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca / vongole / pizza-feta-eliniki); pizza-overload uses tomato-sauce (PAINT).
+  "pizza-bianca-ricotta": {
+    recipeId: "pizza-bianca-ricotta",
+    ingredientId: "olive-oil",
+    // TODO: olive-oil -> DRIZZLE candidate.
+    interaction: "PAINT_TEMPORARY",
+  },
+  "pizza-overload": {
+    recipeId: "pizza-overload",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */
