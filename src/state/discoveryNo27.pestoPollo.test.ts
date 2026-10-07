@@ -186,7 +186,7 @@ describe("No.27 ladderCredit / Lunch Rush", () => {
     expect(pool).not.toContain(CAL);
     expect(pool).not.toContain(AUS);
     expect(pool).not.toContain("pesto-gamberi");
-    expect(pool).toHaveLength(RECIPES.filter((r) => r.lunchRush !== false).length); // derived: every opted-out recipe is absent
+    expect(pool).toHaveLength((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false).length); // derived: every opted-out recipe is absent
   });
 });
 

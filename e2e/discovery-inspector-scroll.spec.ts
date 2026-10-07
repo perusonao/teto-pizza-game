@@ -13,7 +13,7 @@ const URL = "/teto-pizza-game/?inspector=discovery";
 async function openInspector(page: Page) {
   await page.goto(URL);
   await expect(page.locator("[data-inspector]")).toBeVisible();
-  await expect(page.getByTestId("dpi-step-count")).toHaveText("29"); // 24 W1 steps + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28
+  await expect(page.getByTestId("dpi-step-count")).toHaveText(String(CATALOG_COUNTS.ladderSteps)); // derived from the ladder (no per-batch pin)
 }
 
 /** Scrolls the Inspector's own scroller to the bottom the way a finger would end up, and reports it. */
@@ -36,7 +36,7 @@ async function expectLastStepReachable(page: Page) {
   expect(s.scrollable).toBe(true);
   expect(s.after).toBeGreaterThan(s.before);
   expect(s.hOverflow).toBe(false);
-  await expect(page.getByTestId("dpi-row-28")).toBeInViewport();
+  await expect(page.getByTestId(`dpi-row-${CATALOG_COUNTS.ladderSteps}`)).toBeInViewport();
   await expect(page.getByTestId("dpi-row-1")).not.toBeInViewport();
 }
 

@@ -2,6 +2,9 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { DISCOVERY_LADDER } from "../data/discoveryLadder";
+import { INGREDIENTS } from "../data/ingredients";
+import { RECIPES } from "../data/recipes";
 import { DiscoveryProgressionInspector } from "./DiscoveryProgressionInspector";
 
 afterEach(() => {
@@ -13,9 +16,9 @@ describe("Discovery Progression Inspector screen", () => {
   it("lists every step with Step / Unlock / Newly Discoverable / Pool / Result from production data", () => {
     render(<DiscoveryProgressionInspector />);
     expect(screen.getByRole("heading", { name: "Discovery Progression Inspector" })).toBeInTheDocument();
-    expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent("33");
-    expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent("35");
-    expect(screen.getByTestId("dpi-step-count")).toHaveTextContent("29");
+    expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent(String(RECIPES.length));
+    expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent(String(INGREDIENTS.length));
+    expect(screen.getByTestId("dpi-step-count")).toHaveTextContent(String(DISCOVERY_LADDER.steps.length));
     expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("2");
     const first = screen.getByTestId("dpi-row-1");
     expect(first).toHaveTextContent("🆕 たまご");
@@ -60,11 +63,11 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-row-18")).toHaveTextContent("ジェノベーゼ");
 
     await user.click(screen.getByRole("button", { name: "複数recipe同時解禁" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent("2 / 29"); // step 12 + Wave 2 step 28
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`2 / ${DISCOVERY_LADDER.steps.length}`); // step 12 + Wave 2 step 28
     expect(screen.getByTestId("dpi-row-12")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OPEN_POOL関連" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent("18 / 29");
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`${DISCOVERY_LADDER.steps.length - 11} / ${DISCOVERY_LADDER.steps.length}`); // step 12 + 13..last
 
     await user.click(screen.getByRole("button", { name: "全step" }));
     await user.type(screen.getByRole("searchbox", { name: "search" }), "cherry-tomato");

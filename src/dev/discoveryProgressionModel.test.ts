@@ -29,7 +29,7 @@ const step = (n: number) => model.steps.find((s) => s.step === n)!;
 const stepOf = (ingredientId: string) => step(ingredientUnlockStep(ingredientId)!);
 
 /** The production walk: the W1 order, then each appended step's key recipe (steps 25-27; step 28's pair is a branching pool, walked only as far as its After pool). */
-const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana"];
+const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi"];
 
 describe("production authority reuse (no second DISCOVERABLE logic)", () => {
   it("calls the production predicate, entitlement bridge and hint target selection", () => {
@@ -118,7 +118,7 @@ describe("multi-recipe unlock", () => {
 describe("OPEN_POOL classification follows selectHintTarget, not 'candidate >= 2'", () => {
   it("OPEN_POOL only at step 12; OPEN_POOL POSSIBLE for 13..28 (25: carried calabresa + new pesto-pollo; 26: + pesto-gamberi; 27: + vongole; 28: + pesto-vegetariana & ratatouille-pizza); NORMAL (pool 1) before", () => {
     expect(model.openPoolStepNumbers).toEqual([12]);
-    expect(model.openPoolPossibleStepNumbers).toEqual(Array.from({ length: 17 }, (_, i) => 13 + i));
+    expect(model.openPoolPossibleStepNumbers).toEqual(Array.from({ length: DISCOVERY_LADDER.steps.length - 12 }, (_, i) => 13 + i));
     for (let n = 1; n <= 11; n += 1) {
       expect(step(n).classification).toBe("NORMAL");
       expect(step(n).afterPool).toHaveLength(1);
@@ -143,7 +143,7 @@ describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", ()
     expect(aussie.advancesLadder).toBe(false);
     expect(aussie.lunchRush).toBe(participatesInLunchRush("aussie"));
     expect(aussie.firstDiscoverableStep).toBe(12);
-    expect(aussie.poolSteps).toEqual(Array.from({ length: 18 }, (_, i) => 12 + i));
+    expect(aussie.poolSteps).toEqual(Array.from({ length: DISCOVERY_LADDER.steps.length - 11 }, (_, i) => 12 + i));
   });
   it("is read from the production credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
     const calabresa = model.nonCreditRecipes.find((r) => r.recipeId === "brazilian-calabresa")!;
