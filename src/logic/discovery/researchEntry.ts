@@ -4,7 +4,7 @@ import { isDiscovered, type DexState } from "../../state/dex";
 
 /**
  * Discovery 3.0 Research Recipe (Issue #346), S1: the pure domain foundation of the Research Entry.
- * UNWIRED: no reducer, save, Dex, Hint, Notebook, Shop or copy reads this module (S2/S3 wire it).
+ * Wired: the Dex, Hint sheet, RESULT, Notebook and Research Board read it (`researchEntryLabel` is the one label authority).
  *
  * A Research Entry is a recipe the player has a clue for but has not discovered yet. It is derived
  * only from state the save already carries -- the Dex, `ownedIngredientIds` and (read-only) the

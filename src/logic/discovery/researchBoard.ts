@@ -4,8 +4,9 @@ import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recip
 import { deriveResearchEntries, researchEntryLabel, type ResearchEntry, type ResearchInputs } from "./researchEntry";
 
 /**
- * Research 2.0 Phase 2 (OD-R1-1 / R1-3 / R1-4): the Research Board READ MODEL. UNWIRED: no reducer, UI, save or
- * Notebook reads this module yet (the Notebook UI is Phase 3 / S4). Pure; reads no storage and dispatches nothing.
+ * Research 2.0 Phase 2 (OD-R1-1 / R1-3 / R1-4): the Research Board READ MODEL. Pure; reads no storage and dispatches
+ * nothing. Wired (S4): `GameScreen` builds the Board of the current Research Target with `researchBoardOf` and the
+ * Trial Notebook sheet renders it through `ResearchBoardPanel`.
  *
  * The Board re-shows only what the player was actually told, per Research Entry:
  *   ✓ known positive   the unlock fact and the bought exact-name `ing:` facts,
