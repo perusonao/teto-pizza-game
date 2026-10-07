@@ -119,7 +119,7 @@ test.describe("Expansion Batch 2 (representative: step 37, pesto-salmone)", () =
     await page.waitForSelector(".pizza-stage");
     await completeDoughStep(page);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
-    await page.locator(".ingredient-chip").filter({ hasText: /ペスト/ }).first().click();
+    await page.locator(".ingredient-chip").filter({ hasText: /ジェノベーゼソース/ }).first().click();
     await paintSauceRing(page, 25, 16);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     let spot = 0;
