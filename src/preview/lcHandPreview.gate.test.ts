@@ -26,8 +26,8 @@ const productionSources = walk("src").filter((f) => /\.tsx?$/.test(f) && !isTest
 describe("LC-R6-b source gates (P-2)", () => {
   it("main commits the variant as null (the only value that may be merged)", () => {
     expect(read("src/preview/lcHandPreview.ts")).toMatch(/^export const LC_HAND_PREVIEW_CAPACITY: LcHandPreviewCapacity = null;$/m);
-    // LC-R6-e: the production switch is ON; the variant stays null on main (the rollback is that one literal back to false).
-    expect(read("src/logic/catalog/handPolicy.ts")).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = true;$/m);
+    // All-Owned Cooking Tray: the production switch is OFF; the variant stays null on main.
+    expect(read("src/logic/catalog/handPolicy.ts")).toMatch(/^export const HAND_ENFORCEMENT_PRODUCTION = false;$/m);
   });
 
   it("only handPolicy.ts (value) and PreviewBadge.tsx (marker / label) import the variant module", () => {
