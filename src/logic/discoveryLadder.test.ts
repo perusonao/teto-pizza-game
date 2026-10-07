@@ -429,6 +429,7 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // Recipe Expansion speed-up Phase 1: catalog-derived test seeds and the Recipe Batch Validator read the ladder
       // (test-only; nothing in production imports them).
       "./catalog/testSupport/catalogDerived.ts",
+      "./catalog/testSupport/recipeBatchValidator.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
