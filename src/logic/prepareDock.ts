@@ -5,7 +5,6 @@ import {
   type IngredientCategory,
 } from "../data/ingredients";
 import type { Recipe } from "../data/recipes";
-import { isPantryWorthwhile, resolveUtilityRow } from "./catalog/pantryAvailability";
 import { trayFamilyChoices } from "./trayFamilyFilter";
 import type { MakingStep } from "../state/gameReducer";
 
@@ -57,14 +56,8 @@ export interface PrepareDockReserve {
   sauceRows: number;
   /** The most chip rows any CHEESE / TOPPING step shows on one page. */
   otherRows: number;
-  /** Some step of this round has more than one tray page: every step keeps the pager row. */
+  /** Some step of this round has more than one tray page: every step keeps the pager row (`--dock-pager`). */
   pager: boolean;
-  /** LC-R5-a (OD-R5-10): some step category has more OWNED ingredients than one page holds. Ownership only --
-   *  independent of the pager, the hand and eligibility (see `catalog/pantryAvailability`). */
-  pantryWorthwhile: boolean;
-  /** LC-R5-a: the reserved utility (pager / pantry entry) row: `pager || (eligible && pantryWorthwhile)`.
-   *  Equal to `pager` for every non-eligible round. Drives `--dock-pager` / `prepare-dock--no-pager`. */
-  utilityRow: boolean;
   /** The SAUCE step shows the ソースのでき readout above the tray. */
   readout: boolean;
   /** Issue #399: the 具材 step shows the family filter row ABOVE the tray (the tray lists more than one page and spans
@@ -110,16 +103,12 @@ export function prepareDockReserve(options: {
   freeCook: boolean;
   recipe: Recipe;
   sauceReadout: boolean;
-  /** `isLargeCatalogEligible(state)` (FREE Cooking only); absent = not eligible. */
-  largeCatalogEligible?: boolean;
 }): PrepareDockReserve {
-  const { steps, sauceReadout, largeCatalogEligible = false, ...trayOptions } = options;
+  const { steps, sauceReadout, ...trayOptions } = options;
   const reserve: PrepareDockReserve = {
     sauceRows: 0,
     otherRows: 0,
     pager: false,
-    pantryWorthwhile: false,
-    utilityRow: false,
     readout: false,
     familyRow: false,
   };
@@ -136,14 +125,5 @@ export function prepareDockReserve(options: {
       reserve.otherRows = Math.max(reserve.otherRows, rowsFor(count));
     }
   }
-  reserve.pantryWorthwhile = isPantryWorthwhile({
-    categories: prepareStepCategories(steps),
-    ownedIngredientIds: trayOptions.ownedIngredientIds,
-  });
-  reserve.utilityRow = resolveUtilityRow({
-    pager: reserve.pager,
-    largeCatalogEligible,
-    pantryWorthwhile: reserve.pantryWorthwhile,
-  });
   return reserve;
 }

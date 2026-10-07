@@ -160,24 +160,22 @@ describe("IngredientTray family filter (Issue #396)", () => {
 });
 
 /**
- * Issue #399 (Owner HV): the family filter may sit ABOVE the tray (`familyPlacement="above"`), with the 食材庫 entry and
- * the pager together in the utility row below it. The filter itself is the same element in both placements.
+ * Issue #399 (Owner HV): the family filter may sit ABOVE the tray (`familyPlacement="above"`), with the pager alone in the
+ * utility row below it (the 食材庫 entry is gone). The filter itself is the same element in both placements.
  */
 describe("family filter placement (Issue #399)", () => {
-  const pantryEntry = { onOpen: () => {} };
-
-  it("inline (the default) keeps the filter in the utility row between the entry and the pager", () => {
-    renderTray({ pantryEntry });
+  it("inline (the default) keeps the filter in the utility row beside the pager", () => {
+    renderTray();
     const row = screen.getByRole("group", { name: FAMILY_ROW });
     const nav = row.parentElement!;
     expect(nav.className).toContain("ingredient-page-nav--with-family");
-    expect(nav.querySelector(".pantry-entry")).not.toBeNull();
+    expect(nav.querySelector(".pantry-entry")).toBeNull();
     expect(nav.querySelector(".ingredient-page-nav__pager")).not.toBeNull();
     expect(document.querySelector(".tray-family-row")).toBeNull();
   });
 
-  it("above: the filter is its own row BEFORE the ingredients; the utility row below keeps only the entry and the pager", () => {
-    const { container } = renderTray({ pantryEntry, familyPlacement: "above" });
+  it("above: the filter is its own row BEFORE the ingredients; the utility row below keeps only the pager", () => {
+    const { container } = renderTray({ familyPlacement: "above" });
     const group = screen.getByRole("group", { name: FAMILY_ROW });
     expect(screen.getAllByRole("group", { name: FAMILY_ROW })).toHaveLength(1); // one filter, never a copy per placement
     const familyRow = group.parentElement!;
@@ -189,14 +187,14 @@ describe("family filter placement (Issue #399)", () => {
     expect(tray.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(nav.className).not.toContain("ingredient-page-nav--with-family");
     expect(nav.contains(group)).toBe(false);
-    expect(nav.querySelector(".pantry-entry")?.textContent).toContain("食材庫");
-    expect(nav.querySelector(".ingredient-page-nav__pager")).not.toBeNull();
+    expect(nav.querySelector(".pantry-entry")).toBeNull();
+    expect(nav.querySelector(".ingredient-page-nav__button")).not.toBeNull(); // the pager alone
     expect(container.querySelector(".ingredient-page-nav--with-family")).toBeNull();
   });
 
   it("above: the same chips, labels and accessible names as inline", () => {
     const names = (placement: "above" | "inline") => {
-      const { unmount } = renderTray({ pantryEntry, familyPlacement: placement });
+      const { unmount } = renderTray({ familyPlacement: placement });
       const out = within(screen.getByRole("group", { name: FAMILY_ROW })).getAllByRole("button").map((b) => [b.textContent, b.getAttribute("aria-label")]);
       unmount();
       return out;
@@ -205,19 +203,18 @@ describe("family filter placement (Issue #399)", () => {
   });
 
   it("above: choosing a family returns to page 1, shows only that family, and the pager stays below (idle when it fits one page)", () => {
-    const { container } = renderTray({ pantryEntry, familyPlacement: "above" });
+    const { container } = renderTray({ familyPlacement: "above" });
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
     expect(container.querySelector(".ingredient-page-nav__label")?.textContent).toContain("2 /");
     const row = screen.getByRole("group", { name: FAMILY_ROW });
     fireEvent.click(within(row).getByRole("button", { name: only("果物系") }));
     const nav = container.querySelector(".ingredient-page-nav")!;
-    expect(nav.className).toContain("ingredient-page-nav--placeholder"); // one page: the row keeps its place (the entry stays), the pager is inert
-    expect(nav.querySelector(".pantry-entry")).not.toBeNull();
+    expect(nav.className).toContain("ingredient-page-nav--placeholder"); // one page: the row keeps its place, the pager is inert
     fireEvent.click(within(row).getByRole("button", { name: ALL }));
     expect(container.querySelector(".ingredient-page-nav__label")?.textContent).toContain("1 /");
   });
 
-  it("above without a pantry entry: no entry, the pager row below as before, the filter still above", () => {
+  it("above: no 食材庫 entry anywhere, the pager row below as before, the filter still above", () => {
     const { container } = renderTray({ familyPlacement: "above" });
     expect(container.querySelector(".tray-family-row")).not.toBeNull();
     expect(container.querySelector(".pantry-entry")).toBeNull();

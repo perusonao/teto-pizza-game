@@ -315,7 +315,7 @@ describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () 
 
   it("save schema is unchanged (v2) and HAND capacity stays 12", () => {
     expect(createDefaultSave().schemaVersion).toBe(2);
-    expect(HAND_ENFORCEMENT_PRODUCTION).toBe(true);
+    expect(HAND_ENFORCEMENT_PRODUCTION).toBe(false); // All-Owned Cooking Tray: the HAND is off in production
     expect(DEFAULT_HAND_CAPACITY_PRODUCTION).toBe(12);
   });
 });

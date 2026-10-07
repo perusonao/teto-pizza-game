@@ -23,7 +23,7 @@ import {
 
 /**
  * Cooking Tray family row, EXPANDED layout (Issue #399, Owner HV): at a normal visible height the family filter is its own
- * full-width row ABOVE the ingredients and the 食材庫 entry and the pager share the utility row BELOW them. Real Chromium,
+ * full-width row ABOVE the ingredients and the pager alone sits in the utility row BELOW them (the 食材庫 entry is gone). Real Chromium,
  * 390x844 and 360x800 (and the short 390x664 / 360x640). Facts: the pizza keeps its size (and every step the same), the filter has the whole row width, the
  * selected chip is whole and clear of the fades for every family, nothing moves when a family is chosen or a page turned, the
  * 44px hit areas of the chips, the pager and the entry never overlap an ingredient card (nor the pizza), the bake bar still
@@ -47,7 +47,6 @@ interface Geometry {
   lastCardBottom: number;
   doughBottom: number;
   pager: { top: number; bottom: number; width: number; height: number } | null;
-  pantry: { top: number; bottom: number } | null;
   barTop: number;
   barBottom: number;
   trayTop: number;
@@ -61,7 +60,6 @@ async function geometry(page: Page): Promise<Geometry> {
     const cards = [...document.querySelectorAll(".ingredient-chip")].map((c) => R(c));
     const chip = R(document.querySelector("[data-tray-family]"));
     const next = document.querySelector(".ingredient-page-nav__pager .ingredient-page-nav__button"); // also the idle placeholder
-    const pantry = document.querySelector(".pantry-entry");
     const bar = R(document.querySelector(".prepare-bake-bar"));
     return {
       mode: document.querySelector(".tray-family-row") ? "expanded" : "compact",
@@ -70,7 +68,6 @@ async function geometry(page: Page): Promise<Geometry> {
       lastCardBottom: Math.max(...cards.map((c) => c.bottom)),
       doughBottom: R(document.querySelector(".pizza-dough")).bottom,
       pager: next ? { top: R(next).top, bottom: R(next).bottom, width: R(next).width, height: R(next).height } : null,
-      pantry: pantry ? { top: R(pantry).top, bottom: R(pantry).bottom } : null,
       barTop: bar.top,
       barBottom: bar.bottom,
       trayTop: Math.min(...cards.map((c) => c.top)),
@@ -237,11 +234,11 @@ for (const vp of VIEWPORTS) {
     expect((await expectSelectedClear(page, "野菜・きのこ系")).pagerShown).toBe(true);
     await page.getByRole("button", { name: "次のページ" }).click();
     await expect(pagerLabel(page)).toContainText("2 /");
-    await row.getByRole("button", { name: "肉系の具材だけ表示" }).click(); // one page: the pager is an inert placeholder, 食材庫 stays
+    await row.getByRole("button", { name: "肉系の具材だけ表示" }).click(); // one page: the pager is an inert placeholder
     const meat = await expectSelectedClear(page, "肉系");
     expect(meat.pagerShown).toBe(false);
     await expect(page.locator(".ingredient-page-nav__pager")).toHaveAttribute("aria-hidden", "true");
-    await expect(page.getByRole("button", { name: /食材庫/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /食材庫/ })).toHaveCount(0);
     const gAfter = await geometry(page);
     expect(gAfter.pager!.top, "the row keeps its place: no layout shift when the pager goes idle").toBeCloseTo(g.pager!.top, 0);
     expect(gAfter.dockHeight).toBe(g.dockHeight);
@@ -250,27 +247,21 @@ for (const vp of VIEWPORTS) {
     await expectNoPageOverflow(page, "pager");
   });
 
-  test(`expanded: Pantry stays a separate control below the tray, and opens / closes with the row intact ${wh}`, async ({ page }, testInfo) => {
+  test(`expanded: there is no 食材庫 entry; the utility row below the tray holds the pager alone ${wh}`, async ({ page }, testInfo) => {
     runOnlyOnWidth(testInfo, vp.width);
     await bootFree(page, vp.width, vp.height, ALL_FAMILIES_OWNED);
     await toTopping(page);
     const row = familyRow(page);
-    const entry = page.getByRole("button", { name: /食材庫/ });
-    await expect(entry).toHaveText("🧺 食材庫"); // OD-FAMILY-UX-2: label and accessible name untouched
+    await expect(page.getByRole("button", { name: /食材庫/ })).toHaveCount(0);
+    await expect(page.locator(".pantry-entry")).toHaveCount(0);
     const g = await geometry(page);
-    expect(g.pantry!.top, "the entry is in the utility row under the tray").toBeGreaterThan(g.lastCardBottom);
+    expect(g.pager!.top, "the pager is in the utility row under the tray").toBeGreaterThan(g.lastCardBottom);
     await row.getByRole("button", { name: `${LONGEST_LABEL}の具材だけ表示` }).click();
-    await expectSelectedClear(page, "before Pantry");
-    await entry.click();
-    await page.waitForSelector(".pantry-sheet");
-    await expect(page.getByRole("group", { name: "具材の分類" })).toBeVisible();
-    await page.getByRole("button", { name: "閉じる" }).click();
-    await page.waitForSelector(".pantry-sheet", { state: "detached" });
-    await expectSelectedClear(page, "after Pantry");
-    await expectNoPageOverflow(page, "Pantry");
+    await expectSelectedClear(page, "filtered");
+    await expectNoPageOverflow(page, "no pantry");
   });
 
-  test(`expanded: hit areas never overlap: chips >= 44px, a positive gap to the first card and the pizza, pager and entry the same to the last card ${wh}`, async ({ page }, testInfo) => {
+  test(`expanded: hit areas never overlap: chips >= 44px, a positive gap to the first card and the pizza, the pager the same to the last card ${wh}`, async ({ page }, testInfo) => {
     runOnlyOnWidth(testInfo, vp.width);
     await bootFree(page, vp.width, vp.height, ALL_FAMILIES_OWNED);
     await toTopping(page);
@@ -282,7 +273,6 @@ for (const vp of VIEWPORTS) {
     expect(g.chipBox.height, "chip tap target height").toBe(44);
     expect(g.firstCardTop - g.chipBox.bottom, "family chip target -> first card: positive gap").toBeGreaterThanOrEqual(1.5);
     expect(g.pager!.top - 9 - g.lastCardBottom, "pager target (9px above its body) -> last card: positive gap").toBeGreaterThanOrEqual(0.5);
-    expect(g.pantry!.top - 9 - g.lastCardBottom, "食材庫 target (9px above its body) -> last card: positive gap").toBeGreaterThanOrEqual(0.5);
     expect(g.chipBox.top - g.doughBottom, "family chip target -> pizza: no overlap").toBeGreaterThanOrEqual(0);
     expect(g.barTop - (g.pager!.bottom + 7), "pager target (7px below its body) -> bake bar: no overlap").toBeGreaterThanOrEqual(0);
 
@@ -304,9 +294,6 @@ for (const vp of VIEWPORTS) {
     expect((await probe(nx, next.y - 8.5)).label, "pager target, 8.5px above its body").toBe("次のページ");
     expect((await probe(nx, next.y + next.height + 6.5)).label, "pager target, 6.5px below its body").toBe("次のページ");
     expect(next.height + 9 + 7, "pager target height").toBeGreaterThanOrEqual(44);
-    const entryBox = (await page.getByRole("button", { name: /食材庫/ }).boundingBox())!;
-    expect((await probe(entryBox.x + entryBox.width / 2, entryBox.y - 8.5)).label ?? "pantry").toBe("pantry"); // reaches the entry (its own aria name is its text)
-    expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest(".pantry-entry") !== null, [entryBox.x + entryBox.width / 2, entryBox.y - 8.5] as const), "食材庫 target, 8.5px above its body").toBe(true);
     expect((await probe(next.x + next.width + 3.5, next.y + next.height / 2)).label, "pager target, 3.5px beside its body").toBe("次のページ");
     const lastCard = (await page.locator(".ingredient-chip").last().boundingBox())!;
     expect((await probe(lastCard.x + lastCard.width / 2, g.lastCardBottom - 0.5)).card, "the last card's own bottom edge is the card").toBe(true);

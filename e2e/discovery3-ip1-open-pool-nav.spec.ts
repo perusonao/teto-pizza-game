@@ -5,10 +5,10 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
- * Discovery 3.0 IP-1: OPEN_POOL -> Notebook / Pantry navigation, played for real on both iPhone widths.
+ * Discovery 3.0 IP-1: the OPEN_POOL next-action UI (Notebook entry), played for real on both iPhone widths. The 食材庫 route is
+ * retired with the pantry (All-Owned Cooking Tray): the sheet offers no pantry button or copy at any step.
  *
- * Dex 12 (pool 2: portuguesa + calabresa): Hint (OPEN_POOL) -> 試作ノート -> back -> 食材庫 -> search / shelf chips -> 閉じる
- * -> FREE cooking screen, same step. At the DOUGH step the Hint shows the pantry as copy only (no pantry exists there).
+ * Dex 12 (pool 2: portuguesa + calabresa): Hint (OPEN_POOL) -> 試作ノート -> back -> close -> FREE cooking screen, same step.
  * Nothing about the hidden recipes (name / count / ingredients) reaches the DOM, nothing overflows or clips, no console error.
  *
  * Optional output: HV_SCREENSHOT_DIR.
@@ -38,7 +38,6 @@ const bar = (page: Page) => page.locator(".prepare-bake-bar");
 const hintButton = (page: Page) => page.getByRole("button", { name: "ヒント", exact: true });
 const hintSheet = (page: Page) => page.getByRole("dialog", { name: /^💡 ヒント/ });
 const notebook = (page: Page) => page.getByRole("dialog", { name: /試作ノート/ });
-const pantry = (page: Page) => page.getByRole("dialog", { name: /食材庫/ });
 
 async function capture(page: Page, name: string, projectName: string) {
   const dir = process.env.HV_SCREENSHOT_DIR;
@@ -72,25 +71,25 @@ async function expectInsideViewport(page: Page, locator: ReturnType<Page["locato
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 }
 
-test.describe("Discovery 3.0 IP-1 (OPEN_POOL -> 試作ノート / 食材庫)", () => {
+test.describe("Discovery 3.0 IP-1 (OPEN_POOL -> 試作ノート)", () => {
   test.setTimeout(180_000);
 
-  test("Hint(OPEN_POOL) -> Notebook -> back -> Pantry (search / shelf chips) -> back to FREE; DOUGH shows copy only", async ({ page }, testInfo) => {
+  test("Hint(OPEN_POOL) -> Notebook -> back -> close -> FREE; no 食材庫 anywhere", async ({ page }, testInfo) => {
     const errors: string[] = [];
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     await startDex12Free(page);
 
-    // DOUGH: the sheet explains the pantry as copy only -- a pantry button here would open nothing.
+    // DOUGH: no 食材庫 copy or button (the pantry is gone).
     await hintButton(page).click();
     await expect(hintSheet(page)).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
     await expect(hintSheet(page).getByRole("button", { name: /食材庫/ })).toHaveCount(0);
-    await expect(hintSheet(page)).toContainText("食材庫");
+    await expect(hintSheet(page)).not.toContainText("食材庫");
     await expectInsideViewport(page, hintSheet(page));
     await capture(page, "ip1-dough-copy-only", testInfo.project.name);
     await hintSheet(page).getByRole("button", { name: "閉じる" }).click();
 
-    // Walk to the topping step (tray + pantry entry).
+    // Walk to the topping step (the tray).
     await completeDoughStep(page);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await page.getByRole("button", { name: /トマトソース/ }).first().click();
@@ -99,15 +98,14 @@ test.describe("Discovery 3.0 IP-1 (OPEN_POOL -> 試作ノート / 食材庫)", (
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await page.waitForSelector(".ingredient-chip");
 
-    // Hint -> OPEN_POOL with both next actions.
+    // Hint -> OPEN_POOL with its one next action (the notebook).
     await hintButton(page).click();
     const sheet = hintSheet(page);
     await expect(sheet).toHaveAttribute("data-hint-kind", "CHOOSE_RESEARCH");
     await expect(sheet).toContainText("研究するピザを選ぼう");
     await expect(sheet.getByRole("button", { name: /試作ノートを見る/ })).toBeVisible();
-    await expect(sheet.getByRole("button", { name: "🧺 食材庫で材料を探す" })).toBeVisible();
+    await expect(sheet.getByRole("button", { name: /食材庫/ })).toHaveCount(0);
     await expectInsideViewport(page, sheet);
-    await expectInsideViewport(page, sheet.getByRole("button", { name: "🧺 食材庫で材料を探す" }));
     await expectNoUndiscoveredIdentity(page, DISCOVERED_12, "OPEN_POOL action UI");
     expect(await sheet.innerText()).not.toMatch(/[0-9０-９]+\s*(種類|個|件)|候補|%|％/);
     await capture(page, "ip1-open-pool", testInfo.project.name);
@@ -121,39 +119,11 @@ test.describe("Discovery 3.0 IP-1 (OPEN_POOL -> 試作ノート / 食材庫)", (
     await expect(notebook(page)).toHaveCount(0);
     await expect(sheet).toBeVisible();
 
-    // Pantry: the existing sheet, current category, nothing preselected.
-    await sheet.getByRole("button", { name: "🧺 食材庫で材料を探す" }).click();
-    await expect(hintSheet(page)).toHaveCount(0);
-    const p = pantry(page);
-    await expect(p).toBeVisible();
-    await expectInsideViewport(page, p);
-    await expect(p.locator('.shelf-chips [aria-pressed="true"]')).toHaveText(/すべて/);
-    await expect(p.getByRole("button", { name: "閉じる" })).toBeFocused();
-    await capture(page, "ip1-pantry", testInfo.project.name);
-
-    const rows = p.locator(".pantry-sheet__list li");
-    const total = await rows.count();
-    expect(total).toBeGreaterThan(6);
-    // shelf chips filter the list; 「すべて」 restores it
-    const chips = p.locator(".shelf-chips button");
-    expect(await chips.count()).toBeGreaterThan(1);
-    await chips.nth(1).click();
-    expect(await rows.count()).toBeLessThanOrEqual(total);
-    await chips.first().click();
-    expect(await rows.count()).toBe(total);
-    // search narrows
-    await p.getByRole("searchbox").fill("たまご");
-    const found = await rows.count();
-    expect(found).toBeGreaterThan(0);
-    expect(found).toBeLessThan(total);
-    await expectInsideViewport(page, p);
-    await capture(page, "ip1-pantry-search", testInfo.project.name);
-
+    // Close the hint: back on the FREE topping step.
+    await sheet.getByRole("button", { name: "閉じる" }).click();
     // Back: the FREE topping step, hint closed, tray intact.
-    await p.getByRole("button", { name: "閉じる" }).click();
-    await expect(pantry(page)).toHaveCount(0);
     await expect(hintSheet(page)).toHaveCount(0);
-    await expect(page.locator(".pantry-entry")).toBeFocused();
+    await expect(page.locator(".pantry-entry")).toHaveCount(0);
     await expect(page.locator(".ingredient-chip").first()).toBeVisible();
     await expect(bar(page).getByRole("button", { name: /焼く/ })).toBeVisible();
     await expectInsideViewport(page, bar(page));

@@ -49,7 +49,6 @@ describe("catalog boundary", () => {
       "./handSession.ts",
       "./handTray.ts",
       "./hintDisclosure.ts",
-      "./pantryAvailability.ts",
       "./pinEdit.ts",
       "./usageSignals.ts",
       "./workingSet.ts",
@@ -121,18 +120,11 @@ describe("catalog boundary", () => {
   });
 
   it("B-6 (LC-R3): only the named production files import the catalog, and only the named modules", () => {
-    // LC-R3 wires the pantry SHELL: the pantry component reads OWNED rows through the query, and GameScreen
-    // reads only the FREE-only eligibility gate. The working set, hand operations, hand policy and hint
-    // disclosure stay unwired (R4 / R5 / enforcement flip lift their own line here, deliberately).
+    // All-Owned Cooking Tray: the pantry (and its catalog reads) is gone. Only App derives the dormant tray hand; the
+    // working set, hand operations, hand policy and hint disclosure stay behind it.
     const ALLOWED: Record<string, readonly string[]> = {
-      // LC-R5-c: the pantry edits pins through `pinEdit` (and names the `HandSession` type); GameScreen relays the
-      // App-level pins and passes the enforcement flag as the dormant `handEditing` switch; App owns the pins.
-      "../../components/IngredientPantry.tsx": ["catalogQuery", "catalogSource", "usageSignals", "handSession", "pinEdit"],
-      "../../screens/GameScreen.tsx": ["freeEligibility", "handPolicy", "handSession"],
       // LC-R5-d: App derives the dormant tray hand (`handTray`, over the runtime catalog and the candidate capacity).
       "../../App.tsx": ["handSession", "handTray", "catalogSource", "handPolicy"],
-      // LC-R5-a: the dock reservation reads the ownership-only pantry availability authority.
-      "../prepareDock.ts": ["pantryAvailability"],
     };
     const violations: string[] = [];
     for (const [path, text] of Object.entries(ALL_SOURCES)) {
@@ -148,92 +140,27 @@ describe("catalog boundary", () => {
     for (const path of Object.keys(ALLOWED)) expect(ALL_SOURCES[path], path).toBeDefined();
   });
 
-  it("LC-R4: the pantry filters only itself -- no selection, hand, save or shelf-membership logic of its own", () => {
-    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-    const pantry = strip(ALL_SOURCES["../../components/IngredientPantry.tsx"]);
-    // #197 / OD-2: the Builder selection and the resolved hand are not the pantry's business (R5-c pins come in as
-    // props and are edited only through `pinEdit`; see the LC-R5-c test below).
-    expect(pantry).not.toMatch(/selectedIngredientId|selectionAfterVisibleChange|resolveHand|workingSet|handPolicy|HAND_ENFORCEMENT/);
-    // OD-R4-2: session-local UI state only (no save, no browser storage).
-    expect(pantry).not.toMatch(/localStorage|sessionStorage|dispatch|saveGame|persist/);
-    // Membership is `ingredientShelf` (through the descriptor); no taxonomy / family table of its own.
-    expect(pantry).not.toMatch(/ingredientTaxonomy|ATTRIBUTE_FAMILIES|ingredientAttributeFamily/);
-    expect(imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]).map((i) => i.spec)).toContain("./ShelfChips");
-  });
-
-  it("LC-R5-a (OD-R5-10): the pantry entry gate is eligible + PREPARE + not DOUGH + pantryWorthwhile -- never the pager, the hand or freeCook", () => {
-    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-    const game = strip(ALL_SOURCES["../../screens/GameScreen.tsx"]).replace(/\s+/g, " ");
-    expect(game).toContain("const largeCatalogEligible = isLargeCatalogEligible(state);");
-    expect(game).toContain(
-      'const pantryAvailable = largeCatalogEligible && state.phase === "PREPARE" && state.makingStep !== "DOUGH" && dockReserve.pantryWorthwhile;',
-    );
-    const gate = game.slice(game.indexOf("const pantryAvailable"), game.indexOf("const pantryVisible"));
-    expect(gate).not.toMatch(/\bpager\b|resolveHand|workingSet|handSession|freeCook|recipeFreeTray/);
-    // The reserved utility row (not the pager) drives the dock class, its CSS variable and the tray's reserved row.
-    expect(game).toContain('prepare-dock${dockReserve.utilityRow ? "" : " prepare-dock--no-pager"}');
-    expect(game).toContain('"--dock-pager": dockReserve.utilityRow ? 1 : 0');
-    expect(game).toContain("reservePagerRow={dockReserve.utilityRow}");
-    expect(game).not.toMatch(/dockReserve\.pager\b/);
-  });
-
-  it("LC-R5-a: pantryAvailability reads ownership only -- no pager, hand, pin, stock, recipe, discovery or enforcement", () => {
-    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-    const src = strip(CATALOG_SOURCES["./pantryAvailability.ts"]);
-    expect(src).not.toMatch(/resolveHand|workingSet|handSession|handPolicy|HAND_ENFORCEMENT|pin|inventory|remainingStock|recipe|discovery|pageCount|MakingStep/i);
-    expect(imports(CATALOG_SOURCES["./pantryAvailability.ts"]).map((i) => i.spec)).toEqual(["../../data/ingredients"]);
-  });
-
-  it("LC-R5-b: the alias table is read only by catalogSource, and it imports no recipe, discovery, hint or state code", () => {
-    const importers: string[] = [];
-    for (const [path, text] of Object.entries(ALL_SOURCES)) {
-      if (imports(text).some((i) => /ingredientSearchAliases$/.test(i.spec))) importers.push(path);
-    }
-    expect(importers).toEqual(["./catalogSource.ts"]);
-    expect(imports(ALL_SOURCES["../../data/ingredientSearchAliases.ts"])).toEqual([]);
-  });
-
-  it("LC-R5-b: visualViewport is used only by the pantry's keyboard-fit module; the pantry search never persists or logs text", () => {
-    const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-    const users = Object.entries(ALL_SOURCES)
-      .filter(([, text]) => /visualViewport/.test(strip(text)))
-      .map(([path]) => path);
-    expect(users).toEqual(["../../components/pantryViewportFit.ts"]);
-    for (const file of ["../../components/pantrySearchIme.ts", "../../components/pantryViewportFit.ts", "../../components/IngredientPantry.tsx"]) {
-      expect(strip(ALL_SOURCES[file]), file).not.toMatch(/localStorage|sessionStorage|indexedDB|console\.|saveGame|persist|selectedIngredientId|resolveHand|workingSet|handPolicy|HAND_ENFORCEMENT/);
-    }
-    // The pantry may import the two R5-b helpers and nothing from recipes / discovery / hints.
-    const specs = imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]).map((i) => i.spec);
-    expect(specs).toEqual(expect.arrayContaining(["./pantrySearchIme", "./pantryViewportFit"]));
-    expect(specs.filter((spec) => /recipes|discovery|hint|matcher/i.test(spec))).toEqual([]);
-  });
-
-  it("LC-R5-c / R6-e: pin editing has one switch (the enforcement flag AND an active hand), is App-owned, session-only and privacy-neutral", () => {
+  it("All-Owned Cooking Tray: no pin UI remains -- no production file passes `handEditing`, the production flag is off, the pins stay empty and unsaved", () => {
     const strip = (t: string) => t.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
     // pinEdit reads only the catalog types and the R2 hand operations: no recipe / discovery / hint / state / save.
     expect(imports(CATALOG_SOURCES["./pinEdit.ts"]).map((i) => i.spec).sort()).toEqual(["./catalogTypes", "./handSession"]);
     expect(strip(CATALOG_SOURCES["./pinEdit.ts"])).not.toMatch(/recipe|discover|hint|selectedIngredient|selectionAfter|localStorage|persist|HAND_ENFORCEMENT|workingSet|resolveHand/i);
-    // The pantry names the HandSession TYPE only (operations come through pinEdit).
-    const pantryImports = imports(ALL_SOURCES["../../components/IngredientPantry.tsx"]);
-    expect(pantryImports.filter((i) => /handSession$/.test(i.spec)).every((i) => i.typeOnly)).toBe(true);
-    // The only `handEditing` value any production file passes is the enforcement flag AND the App's own active-hand fact
-    // (LC-R6-c, OD-R5e-1: no pin UI where the hand is inactive; ON in production since LC-R6-e).
+    // Nothing hands a pin editor to any screen any more.
     const passes: string[] = [];
     for (const [path, text] of Object.entries(ALL_SOURCES)) {
       for (const m of strip(text).matchAll(/handEditing=\{([^}]*)\}/g)) passes.push(`${path}:${m[1]}`);
     }
-    expect(passes).toEqual(["../../screens/GameScreen.tsx:HAND_ENFORCEMENT_ENABLED && trayHand?.ids != null"]);
-    expect(strip(CATALOG_SOURCES["./handPolicy.ts"])).toMatch(/export const HAND_ENFORCEMENT_PRODUCTION = true;/);
-    // App owns the pins; the only writer handed out is the setter itself (no reset on round / HOME / FREE / Dinner).
+    expect(passes).toEqual([]);
+    expect(strip(CATALOG_SOURCES["./handPolicy.ts"])).toMatch(/export const HAND_ENFORCEMENT_PRODUCTION = false;/);
+    // App keeps the (now never written) session pins: no setter exists, so the pins stay empty for the whole session.
     const app = strip(ALL_SOURCES["../../App.tsx"]);
     expect(app).toContain("useState<HandSession>(emptyHandSession)");
-    expect([...app.matchAll(/setHandSession/g)].length).toBe(2); // declaration + onHandSessionChange={setHandSession}
-    expect(app).toContain("onHandSessionChange={setHandSession}");
+    expect(app).not.toMatch(/setHandSession|onHandSessionChange/);
     // Never saved: persistence and the reducer know nothing about pins.
     for (const file of ["../../state/persistence.ts", "../../state/gameReducer.ts"]) {
       expect(strip(ALL_SOURCES[file]), file).not.toMatch(/handSession|HandSession|pinEdit|pinSession/);
     }
-    // The Builder tray does not read pins in R5-c (R5-d wires the hand).
+    // The Builder tray does not read pins.
     expect(strip(ALL_SOURCES["../../components/IngredientTray.tsx"])).not.toMatch(/handSession|HandSession|pinSession|pinEdit|resolveHand/);
   });
   it("LC-R5-d: the tray hand is dormant (flag-first), catalog-ordered, App-derived, and the tray only receives ids", () => {
@@ -261,8 +188,6 @@ describe("catalog boundary", () => {
     // The tray takes plain ids: no catalog / session knowledge.
     expect(imports(ALL_SOURCES["../../components/IngredientTray.tsx"]).filter((i) => /catalog\//.test(i.spec))).toEqual([]);
     expect(strip(ALL_SOURCES["../../components/IngredientTray.tsx"])).not.toMatch(/handSession|HandSession|pinSession|pinEdit|resolveHand|handTray/);
-    // The pantry sees only the fit callback (no capacity / hand / enforcement knowledge).
-    expect(strip(ALL_SOURCES["../../components/IngredientPantry.tsx"])).not.toMatch(/pinFitsHand|handTray|resolveHand|HAND_CAPACITY|candidateCapacity/);
     // Persistence and the reducer stay unaware.
     for (const file of ["../../state/persistence.ts", "../../state/gameReducer.ts"]) {
       expect(strip(ALL_SOURCES[file]), file).not.toMatch(/handTray|trayHand/);

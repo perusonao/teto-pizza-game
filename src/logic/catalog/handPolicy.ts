@@ -6,10 +6,12 @@
  * (docs/reports/TETO_LARGE-CATALOG-UX_LC-R6c_Pin-UI_Result.md). 9 stays a supported VALUE of the Preview variant /
  * test parameter only (`HAND_CAPACITY_CANDIDATES`), never a production value.
  *
- * LC-R6-e (Production activation): enforcement is ON in production (the pantry, search, shelf chips and pin UI can reach every
- * owned ingredient the hand does not hold). The ROLLBACK is one line: `HAND_ENFORCEMENT_PRODUCTION = false` -- then
+ * All-Owned Cooking Tray (食材庫廃止): enforcement is OFF in production again. LC-R6-e had switched it on (the pantry, search,
+ * shelf chips and pin UI reached every owned ingredient the hand did not hold); the Cooking Tray now lists EVERY owned
+ * ingredient of the step (paged, Family Filter on the 具材 tray) and there is no pantry to pin from. With the flag off
  * `handCapacityFor` returns a capacity that always fits every owned ingredient of the category, `selectWorkingSet` is inactive
- * (= the previous paged tray, no pin UI, nothing hidden). The `hand-off` Vitest project proves that state continuously.
+ * (= the paged all-owned tray, no pin UI, nothing hidden). The `hand-off` Vitest project proves that state continuously;
+ * the hand machinery itself stays dormant (session-only, never saved) for a follow-up cleanup.
  */
 import { LC_HAND_PREVIEW_CAPACITY } from "../../preview/lcHandPreview";
 
@@ -21,7 +23,7 @@ export type HandCapacityCandidate = (typeof HAND_CAPACITY_CANDIDATES)[number];
  * effect: hand and pins are session-only). Kept as a literal line on purpose: the hand-on / hand-off Vitest projects
  * (`vitest.config.ts`) rewrite it, and `handPolicy.production.test.ts` pins its value.
  */
-export const HAND_ENFORCEMENT_PRODUCTION = true;
+export const HAND_ENFORCEMENT_PRODUCTION = false;
 
 export function isHandCapacityCandidate(value: unknown): value is HandCapacityCandidate {
   return HAND_CAPACITY_CANDIDATES.some((c) => c === value);
