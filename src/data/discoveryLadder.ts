@@ -157,14 +157,13 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["grana-padano"], keyRecipeId: "rucola-e-grana" },
   { ingredientIds: ["cashew-cheese"], keyRecipeId: "vegan-cashew-cheese-pizza" },
   { ingredientIds: ["cream-cheese", "lemon", "salmon"], keyRecipeId: "pesto-salmone" },
-  // Steps 38-44 (Expansion Batch 3, T4): one step per recipe. Steps 1-37 frozen.
+  // Steps 38-43 (Expansion Batch 3, T4): one step per recipe. Steps 1-37 frozen.
+  { ingredientIds: ["salt-cod"], keyRecipeId: "bacalhau" },
+  { ingredientIds: ["baked-beans"], keyRecipeId: "full-english-pizza" },
+  { ingredientIds: ["palm-heart"], keyRecipeId: "palmito-pizza" },
+  { ingredientIds: ["sauerkraut"], keyRecipeId: "polish-kielbasa" },
   { ingredientIds: ["pork"], keyRecipeId: "porchetta-pizza" },
   { ingredientIds: ["friarielli"], keyRecipeId: "salsiccia-e-friarielli" },
-  { ingredientIds: ["sauerkraut"], keyRecipeId: "polish-kielbasa" },
-  { ingredientIds: ["palm-heart"], keyRecipeId: "palmito-pizza" },
-  { ingredientIds: ["baked-beans"], keyRecipeId: "full-english-pizza" },
-  { ingredientIds: ["salt-cod"], keyRecipeId: "bacalhau" },
-  { ingredientIds: ["green-onion"], keyRecipeId: "tsukimi-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

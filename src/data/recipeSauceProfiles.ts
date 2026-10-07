@@ -251,13 +251,12 @@ export const RECIPE_SAUCE_PROFILES = {
   // TQ-1D: the first no-sauce recipe. Not an olive-oil mapping (unlike vongole / pizza-bianca): it uses no sauce.
   aussie: null,
   // Expansion Batch 3: NO_SAUCE recipes (the existing TQ-1D `null` mapping, like aussie); no new sauce behaviour.
+  bacalhau: null,
+  "full-english-pizza": null,
+  "palmito-pizza": null,
+  "polish-kielbasa": null,
   "porchetta-pizza": null,
   "salsiccia-e-friarielli": null,
-  "polish-kielbasa": null,
-  "palmito-pizza": null,
-  "full-english-pizza": null,
-  bacalhau: null,
-  "tsukimi-pizza": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */

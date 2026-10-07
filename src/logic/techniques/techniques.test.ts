@@ -14,6 +14,10 @@ import {
   registerTechniqueDiscovery,
   techniqueAffordanceStep,
 } from "./registration";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
+
+/** The production catalog without any NO_SAUCE target (derived from the sauce-profile authority). */
+const WITHOUT_NO_SAUCE = RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId));
 
 /** Cooking Techniques 1.0 TQ-1A (Issue #262): the pure technique model. */
 
@@ -66,9 +70,9 @@ describe("detection", () => {
     expect(requiredTechniquesOf({})).toEqual([]);
   });
 
-  it("exactly one production recipe requires a technique: aussie, NO_SAUCE (TQ-1D)", () => {
+  it("exactly the NO_SAUCE production recipes require a technique (TQ-1D; the set is derived from the sauce-profile authority)", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG) {
-      expect(requiredTechniquesOf(t), t.recipeId).toEqual(t.recipeId === "aussie" ? ["no-sauce"] : []);
+      expect(requiredTechniquesOf(t), t.recipeId).toEqual((noSauceRecipeIds() as readonly string[]).includes(t.recipeId) ? ["no-sauce"] : []);
     }
   });
 });
@@ -121,8 +125,8 @@ describe("backfill (INV-TQ-1 at load)", () => {
     expect(backfillTechniqueLedger(once.ledger, [AUSSIE_SHAPE])).toEqual({ ledger: once.ledger, added: [] });
   });
 
-  it("is a no-op for every production Dex without aussie, and adds no-sauce once aussie is discovered", () => {
-    const withoutAussie = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie");
+  it("is a no-op for every production Dex without a NO_SAUCE recipe, and adds no-sauce once one is discovered", () => {
+    const withoutAussie = WITHOUT_NO_SAUCE;
     expect(backfillTechniqueLedger([], withoutAussie)).toEqual({ ledger: [], added: [] });
     expect(backfillTechniqueLedger([], RECIPE_DISCOVERY_CATALOG)).toEqual({ ledger: ["no-sauce"], added: ["no-sauce"] });
   });
@@ -130,7 +134,7 @@ describe("backfill (INV-TQ-1 at load)", () => {
 
 describe("affordance (derived from the ladder; INV-TQ-4)", () => {
   it("never opens while no target requires the technique -- the production catalog without aussie", () => {
-    const step = techniqueAffordanceStep("no-sauce", RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie"), materialStep);
+    const step = techniqueAffordanceStep("no-sauce", WITHOUT_NO_SAUCE, materialStep);
     expect(step).toBeNull();
     for (const count of [0, 12, 25, 1000]) expect(isTechniqueAffordanceOpen(step, count)).toBe(false);
   });
@@ -143,7 +147,7 @@ describe("affordance (derived from the ladder; INV-TQ-4)", () => {
   });
 
   it("opens at the first step where a requiring recipe becomes makeable (the Aussie shape -> W1 step 12, onion)", () => {
-    const step = techniqueAffordanceStep("no-sauce", [...RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie"), AUSSIE_SHAPE], materialStep);
+    const step = techniqueAffordanceStep("no-sauce", [...WITHOUT_NO_SAUCE, AUSSIE_SHAPE], materialStep);
     expect(step).toBe(12);
     expect(isTechniqueAffordanceOpen(step, 11)).toBe(false);
     expect(isTechniqueAffordanceOpen(step, 12)).toBe(true);

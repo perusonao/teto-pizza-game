@@ -857,6 +857,78 @@ export const RECIPES = [
     lunchRush: false,
   },
   {
+    id: "bacalhau",
+    nameJa: "バカリャウピザ",
+    description: "モッツァレラに、塩ダラと玉ねぎ、ブラックオリーブをのせた、ポルトガル風の一枚。",
+    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `bacalhau-pizzadb`, 172 matrix): mozzarella / onion / black-olive / salt-cod, no sauce (cheese base). NO_SAUCE (the
+    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / onion 2 / black-olive 1 / salt-cod 2, bake 56-76; 7 pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "onion", minCount: 2 },
+      { ingredientId: "black-olive", minCount: 1 },
+      { ingredientId: "salt-cod", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "full-english-pizza",
+    nameJa: "フルイングリッシュピザ",
+    description: "モッツァレラに、ベーコン、卵、ソーセージ、ベイクドビーンズをのせた、イギリスの朝ごはん風の一枚。",
+    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `full-english-pizza-pizzadb-p10`, 172 matrix): mozzarella / bacon / egg / sausage / baked-beans, no sauce (cheese base). NO_SAUCE (the
+    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / bacon 1 / egg 1 / sausage 2 / baked-beans 2, bake 60-80; 8 pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "bacon", minCount: 1 },
+      { ingredientId: "egg", minCount: 1 },
+      { ingredientId: "sausage", minCount: 2 },
+      { ingredientId: "baked-beans", minCount: 2 },
+    ],
+    bakeTarget: { start: 60, end: 80 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "palmito-pizza",
+    nameJa: "パルミットピザ",
+    description: "モッツァレラに、ヤシの芽のパルミットとブラックオリーブをのせた、ブラジル風の一枚。",
+    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `palmito-pizza-pizzadb-p7`, 172 matrix): mozzarella / black-olive / palm-heart, no sauce (cheese base). NO_SAUCE (the
+    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / black-olive 2 / palm-heart 3, bake 54-74; 7 pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "black-olive", minCount: 2 },
+      { ingredientId: "palm-heart", minCount: 3 },
+    ],
+    bakeTarget: { start: 54, end: 74 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "polish-kielbasa",
+    nameJa: "ポーリッシュ・キエルバサピザ",
+    description: "モッツァレラに、ソーセージと玉ねぎ、ザワークラウトをのせた、ポーランド風の一枚。",
+    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `polish-kielbasa-pizzadb-p12`, 172 matrix): mozzarella / sausage / onion / sauerkraut, no sauce (cheese base). NO_SAUCE (the
+    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / sausage 2 / onion 1 / sauerkraut 2, bake 56-76; 7 pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "sausage", minCount: 2 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "sauerkraut", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
     id: "porchetta-pizza",
     nameJa: "ポルケッタピザ",
     description: "モッツァレラに、豚肉とローズマリーをのせた、香り高い一枚。",
@@ -887,96 +959,6 @@ export const RECIPES = [
       { ingredientId: "friarielli", minCount: 2 },
     ],
     bakeTarget: { start: 58, end: 78 },
-    baseRewardPitz: 100,
-    lunchRush: false,
-  },
-  {
-    id: "polish-kielbasa",
-    nameJa: "ポーリッシュ・キエルバサピザ",
-    description: "モッツァレラに、ソーセージと玉ねぎ、ザワークラウトをのせた、ポーランド風の一枚。",
-    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `polish-kielbasa-pizzadb-p12`, 172 matrix): mozzarella / sausage / onion / sauerkraut, no sauce (cheese base). NO_SAUCE (the
-    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
-    // (not source): counts mozzarella 2 / sausage 2 / onion 1 / sauerkraut 2, bake 56-76; 7 pieces <= the 8-slot ring.
-    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
-    requiredIngredients: [
-      { ingredientId: "mozzarella", minCount: 2 },
-      { ingredientId: "sausage", minCount: 2 },
-      { ingredientId: "onion", minCount: 1 },
-      { ingredientId: "sauerkraut", minCount: 2 },
-    ],
-    bakeTarget: { start: 56, end: 76 },
-    baseRewardPitz: 100,
-    lunchRush: false,
-  },
-  {
-    id: "palmito-pizza",
-    nameJa: "パルミットピザ",
-    description: "モッツァレラに、ヤシの芽のパルミットとブラックオリーブをのせた、ブラジル風の一枚。",
-    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `palmito-pizza-pizzadb-p7`, 172 matrix): mozzarella / black-olive / palm-heart, no sauce (cheese base). NO_SAUCE (the
-    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
-    // (not source): counts mozzarella 2 / black-olive 2 / palm-heart 3, bake 54-74; 7 pieces <= the 8-slot ring.
-    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
-    requiredIngredients: [
-      { ingredientId: "mozzarella", minCount: 2 },
-      { ingredientId: "black-olive", minCount: 2 },
-      { ingredientId: "palm-heart", minCount: 3 },
-    ],
-    bakeTarget: { start: 54, end: 74 },
-    baseRewardPitz: 100,
-    lunchRush: false,
-  },
-  {
-    id: "full-english-pizza",
-    nameJa: "フルイングリッシュピザ",
-    description: "モッツァレラに、ベーコン、卵、ソーセージ、ベイクドビーンズをのせた、イギリスの朝ごはん風の一枚。",
-    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `full-english-pizza-pizzadb-p10`, 172 matrix): mozzarella / bacon / egg / sausage / baked-beans, no sauce (cheese base). NO_SAUCE (the
-    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
-    // (not source): counts mozzarella 2 / bacon 1 / egg 1 / sausage 2 / baked-beans 2, bake 60-80; 8 pieces <= the 8-slot ring.
-    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
-    requiredIngredients: [
-      { ingredientId: "mozzarella", minCount: 2 },
-      { ingredientId: "bacon", minCount: 1 },
-      { ingredientId: "egg", minCount: 1 },
-      { ingredientId: "sausage", minCount: 2 },
-      { ingredientId: "baked-beans", minCount: 2 },
-    ],
-    bakeTarget: { start: 60, end: 80 },
-    baseRewardPitz: 100,
-    lunchRush: false,
-  },
-  {
-    id: "bacalhau",
-    nameJa: "バカリャウピザ",
-    description: "モッツァレラに、塩ダラと玉ねぎ、ブラックオリーブをのせた、ポルトガル風の一枚。",
-    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `bacalhau-pizzadb`, 172 matrix): mozzarella / onion / black-olive / salt-cod, no sauce (cheese base). NO_SAUCE (the
-    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
-    // (not source): counts mozzarella 2 / onion 2 / black-olive 1 / salt-cod 2, bake 56-76; 7 pieces <= the 8-slot ring.
-    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
-    requiredIngredients: [
-      { ingredientId: "mozzarella", minCount: 2 },
-      { ingredientId: "onion", minCount: 2 },
-      { ingredientId: "black-olive", minCount: 1 },
-      { ingredientId: "salt-cod", minCount: 2 },
-    ],
-    bakeTarget: { start: 56, end: 76 },
-    baseRewardPitz: 100,
-    lunchRush: false,
-  },
-  {
-    id: "tsukimi-pizza",
-    nameJa: "月見ピザ",
-    description: "モッツァレラにベーコン、卵、青ねぎをのせた、お月見のような一枚。",
-    // Expansion Batch 3 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `tsukimi-pizza-pizzadb-p14`, 172 matrix): mozzarella / bacon / egg / green-onion, no sauce (cheese base). NO_SAUCE (the
-    // existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
-    // (not source): counts mozzarella 2 / bacon 2 / egg 1 / green-onion 2, bake 52-72; 7 pieces <= the 8-slot ring.
-    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
-    requiredIngredients: [
-      { ingredientId: "mozzarella", minCount: 2 },
-      { ingredientId: "bacon", minCount: 2 },
-      { ingredientId: "egg", minCount: 1 },
-      { ingredientId: "green-onion", minCount: 2 },
-    ],
-    bakeTarget: { start: 52, end: 72 },
     baseRewardPitz: 100,
     lunchRush: false,
   },

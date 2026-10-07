@@ -110,10 +110,10 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley); steps 1..32 are frozen, so they are fixed and only steps 33-37 (Expansion Batch 2) are derived.
-    const fixed32 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 32) };
-    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed32, PRODUCTION));
-    expect(validateAppendOnlyExtension(fixed32, DISCOVERY_LADDER)).toEqual([]);
+    // parsley); steps 1..37 are frozen, so they are fixed and only steps 38-43 (Expansion Batch 3) are derived.
+    const fixed37 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 37) };
+    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed37, PRODUCTION));
+    expect(validateAppendOnlyExtension(fixed37, DISCOVERY_LADDER)).toEqual([]);
   });
 
   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {

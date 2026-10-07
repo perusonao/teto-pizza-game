@@ -58,7 +58,7 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
 
 /** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
  *  not evidence). */
-const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone"];
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -121,6 +121,13 @@ const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
   "jamon-serrano-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "rucola-e-grana": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "pesto-salmone": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // Expansion Batch 3: six more NO_SAUCE recipes (the existing TQ-1D mechanic): no SAUCE step (mozzarella = cheese, the rest = toppings); no CUT.
+  "porchetta-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  "salsiccia-e-friarielli": ["DOUGH", "CHEESE", "TOPPING"],
+  "polish-kielbasa": ["DOUGH", "CHEESE", "TOPPING"],
+  "palmito-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  "full-english-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  bacalhau: ["DOUGH", "CHEESE", "TOPPING"],
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
 };

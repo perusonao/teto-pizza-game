@@ -737,57 +737,7 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Expansion Batch 3: finite ladder material, step 38 (T4). Family `meat`. 🐖 pig; distinct from `ham` 🍖 / `bacon` 🥓 / `sausage` 🌭 and the meat class symbol 🥩 (G18). */
-  {
-    id: "pork",
-    category: "topping",
-    nameJa: "豚肉",
-    color: "#e3a08f",
-    emoji: "\u{1F416}",
-    placement: "scatter",
-    unlockCondition: { minTotalStars: 0 },
-  },
-  /** Expansion Batch 3: finite ladder material, step 39 (T4). Family `vegetable`. 🥦 (broccoli-rabe); distinct from the vegetable class symbol 🥬 and every other glyph (G18). */
-  {
-    id: "friarielli",
-    category: "topping",
-    nameJa: "フリアリエッリ",
-    color: "#3f7a3a",
-    emoji: "\u{1F966}",
-    placement: "scatter",
-    unlockCondition: { minTotalStars: 0 },
-  },
-  /** Expansion Batch 3: finite ladder material, step 40 (T4). Family `vegetable`. 🥫 (a jar / can of preserved cabbage); distinct from the vegetable class symbol 🥬 (G18). */
-  {
-    id: "sauerkraut",
-    category: "topping",
-    nameJa: "ザワークラウト",
-    color: "#e4e0a6",
-    emoji: "\u{1F96B}",
-    placement: "scatter",
-    unlockCondition: { minTotalStars: 0 },
-  },
-  /** Expansion Batch 3: finite ladder material, step 41 (T4). Family `vegetable`. 🌴 palm; distinct from every other glyph (G18). */
-  {
-    id: "palm-heart",
-    category: "topping",
-    nameJa: "パルミット",
-    color: "#efe6c4",
-    emoji: "\u{1F334}",
-    placement: "scatter",
-    unlockCondition: { minTotalStars: 0 },
-  },
-  /** Expansion Batch 3: finite ladder material, step 42 (T4). Family `vegetable`. 🫘 beans; family `vegetable` by the existing rule (plant produce: corn / potato precedent; `other` stays egg / nuts). */
-  {
-    id: "baked-beans",
-    category: "topping",
-    nameJa: "ベイクドビーンズ",
-    color: "#b5562b",
-    emoji: "\u{1FAD8}",
-    placement: "scatter",
-    unlockCondition: { minTotalStars: 0 },
-  },
-  /** Expansion Batch 3: finite ladder material, step 43 (T4). Family `seafood`. 🐡 distinct from `anchovy` 🐟 / `tuna` 🐠 / `salmon` 🍣 / `shrimp` 🦐 / `clam` 🦪 and the seafood class symbol 🌊 (G18). */
+  /** Expansion Batch 3: finite ladder material, step 38 (T4). Family `seafood`. 🐡 distinct from `anchovy` 🐟 / `tuna` 🐠 / `salmon` 🍣 / `shrimp` 🦐 / `clam` 🦪 and the seafood class symbol 🌊 (G18). */
   {
     id: "salt-cod",
     category: "topping",
@@ -797,13 +747,53 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Expansion Batch 3: finite ladder material, step 44 (T4). Family `vegetable`. 🎋 (a long green stalk); distinct from `onion` 🧅 and every other glyph (G18). */
+  /** Expansion Batch 3: finite ladder material, step 39 (T4). Family `vegetable`. 🫘 beans; family `vegetable` by the existing rule (plant produce: corn / potato precedent; `other` stays egg / nuts). */
   {
-    id: "green-onion",
+    id: "baked-beans",
     category: "topping",
-    nameJa: "青ねぎ",
-    color: "#6fae4e",
-    emoji: "\u{1F38B}",
+    nameJa: "ベイクドビーンズ",
+    color: "#b5562b",
+    emoji: "\u{1FAD8}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 3: finite ladder material, step 40 (T4). Family `vegetable`. 🌴 palm; distinct from every other glyph (G18). */
+  {
+    id: "palm-heart",
+    category: "topping",
+    nameJa: "パルミット",
+    color: "#efe6c4",
+    emoji: "\u{1F334}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 3: finite ladder material, step 41 (T4). Family `vegetable`. 🥫 (a jar / can of preserved cabbage); distinct from the vegetable class symbol 🥬 (G18). */
+  {
+    id: "sauerkraut",
+    category: "topping",
+    nameJa: "ザワークラウト",
+    color: "#e4e0a6",
+    emoji: "\u{1F96B}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 3: finite ladder material, step 42 (T4). Family `meat`. 🐖 pig; distinct from `ham` 🍖 / `bacon` 🥓 / `sausage` 🌭 and the meat class symbol 🥩 (G18). */
+  {
+    id: "pork",
+    category: "topping",
+    nameJa: "豚肉",
+    color: "#e3a08f",
+    emoji: "\u{1F416}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 3: finite ladder material, step 43 (T4). Family `vegetable`. 🥦 (broccoli-rabe); distinct from the vegetable class symbol 🥬 and every other glyph (G18). */
+  {
+    id: "friarielli",
+    category: "topping",
+    nameJa: "フリアリエッリ",
+    color: "#3f7a3a",
+    emoji: "\u{1F966}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },

@@ -72,13 +72,12 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "rucola-e-grana": "rucola-e-grana-pizzadb-p13",
   "pesto-salmone": "pesto-salmone-pizzadb-p11",
   // Expansion Batch 3: PIZZA DB evidence ids from the 172 matrix.
+  bacalhau: "bacalhau-pizzadb",
+  "full-english-pizza": "full-english-pizza-pizzadb-p10",
+  "palmito-pizza": "palmito-pizza-pizzadb-p7",
+  "polish-kielbasa": "polish-kielbasa-pizzadb-p12",
   "porchetta-pizza": "porchetta-pizza-pizzadb-p12",
   "salsiccia-e-friarielli": "salsiccia-e-friarielli-pizzadb-p3",
-  "polish-kielbasa": "polish-kielbasa-pizzadb-p12",
-  "palmito-pizza": "palmito-pizza-pizzadb-p7",
-  "full-english-pizza": "full-english-pizza-pizzadb-p10",
-  bacalhau: "bacalhau-pizzadb",
-  "tsukimi-pizza": "tsukimi-pizza-pizzadb-p14",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };

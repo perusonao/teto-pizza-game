@@ -257,6 +257,30 @@ export const ORDERS: Order[] = [
     lineJa: "サーモンとレモンのペストサーモン、爽やかそう！食べてみたいな！",
   },
   {
+    id: "order-bacalhau",
+    recipeId: "bacalhau",
+    requestedBy: "mito",
+    lineJa: "塩ダラのバカリャウピザ、ポルトガルの味みたい！食べてみたいな！",
+  },
+  {
+    id: "order-full-english-pizza",
+    recipeId: "full-english-pizza",
+    requestedBy: "mito",
+    lineJa: "ベイクドビーンズのフルイングリッシュピザ、朝ごはんみたい！食べてみたいな！",
+  },
+  {
+    id: "order-palmito-pizza",
+    recipeId: "palmito-pizza",
+    requestedBy: "mito",
+    lineJa: "パルミットのパルミットピザ、シャキシャキしてそう！食べてみたいな！",
+  },
+  {
+    id: "order-polish-kielbasa",
+    recipeId: "polish-kielbasa",
+    requestedBy: "mito",
+    lineJa: "ザワークラウトのポーリッシュ・キエルバサピザ、ちょっと酸っぱそう！食べてみたいな！",
+  },
+  {
     id: "order-porchetta-pizza",
     recipeId: "porchetta-pizza",
     requestedBy: "mito",
@@ -267,36 +291,6 @@ export const ORDERS: Order[] = [
     recipeId: "salsiccia-e-friarielli",
     requestedBy: "mito",
     lineJa: "ソーセージとフリアリエッリのサルシッチャ・エ・フリアリエッリ、ナポリの味みたい！食べてみたいな！",
-  },
-  {
-    id: "order-polish-kielbasa",
-    recipeId: "polish-kielbasa",
-    requestedBy: "mito",
-    lineJa: "ザワークラウトのポーリッシュ・キエルバサピザ、ちょっと酸っぱそう！食べてみたいな！",
-  },
-  {
-    id: "order-palmito-pizza",
-    recipeId: "palmito-pizza",
-    requestedBy: "mito",
-    lineJa: "パルミットのパルミットピザ、シャキシャキしてそう！食べてみたいな！",
-  },
-  {
-    id: "order-full-english-pizza",
-    recipeId: "full-english-pizza",
-    requestedBy: "mito",
-    lineJa: "ベイクドビーンズのフルイングリッシュピザ、朝ごはんみたい！食べてみたいな！",
-  },
-  {
-    id: "order-bacalhau",
-    recipeId: "bacalhau",
-    requestedBy: "mito",
-    lineJa: "塩ダラのバカリャウピザ、ポルトガルの味みたい！食べてみたいな！",
-  },
-  {
-    id: "order-tsukimi-pizza",
-    recipeId: "tsukimi-pizza",
-    requestedBy: "mito",
-    lineJa: "青ねぎをのせた月見ピザ、お月さまみたい！食べてみたいな！",
   },
 ];
 

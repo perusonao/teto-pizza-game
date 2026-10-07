@@ -91,11 +91,10 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "rucola-e-grana": { keyFree: true },
   "pesto-salmone": { keyFree: true },
   // Expansion Batch 3: permanently key-free (NO_SAUCE: no SAUCE rung, no KEY_TOPPING).
+  bacalhau: { keyFree: true },
+  "full-english-pizza": { keyFree: true },
+  "palmito-pizza": { keyFree: true },
+  "polish-kielbasa": { keyFree: true },
   "porchetta-pizza": { keyFree: true },
   "salsiccia-e-friarielli": { keyFree: true },
-  "polish-kielbasa": { keyFree: true },
-  "palmito-pizza": { keyFree: true },
-  "full-english-pizza": { keyFree: true },
-  bacalhau: { keyFree: true },
-  "tsukimi-pizza": { keyFree: true },
 };
