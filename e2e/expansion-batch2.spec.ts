@@ -126,6 +126,7 @@ test.describe("Expansion Batch 2 (representative: step 37, pesto-salmone)", () =
     await (await chipOnTrayOrPin(page, /クリームチーズ/)).click(); // the CHEESE tab is paged (6 per page): cream-cheese sits on page 2
     for (let i = 0; i < 2; i += 1) await tapDoughPercent(page, ...SPOTS[spot++]);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
+    await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible(); // the tab switch re-pages the tray: wait for it before looking for a chip
     const salmonChip = await chipOnTrayOrPin(page, /サーモン/);
     await expect(salmonChip).toContainText("🍣");
     await capture(page, "batch2-tray-salmon", project);
