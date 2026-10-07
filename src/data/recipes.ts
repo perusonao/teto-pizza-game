@@ -1031,6 +1031,42 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "pizza-bianca-ricotta",
+    nameJa: "ピッツァ・ビアンカ・リコッタ",
+    description: "オリーブオイルを塗った生地に、モッツァレラとリコッタ、ローズマリーをのせた、やさしい白いピザ。",
+    // Expansion Batch 5 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `bianca-pizzadb-row`, 172 matrix): mozzarella / ricotta / olive-oil / rosemary. A distinct third "Bianca" (never merged with pizza-bianca / ricotta-bianca; Owner-confirmed id and name). Sauce slot: olive-oil, PAINT_TEMPORARY (the
+    // existing mapping, like pizza-bianca / vongole / pizza-feta-eliniki). GAMEPLAY CALIBRATION (not source): counts olive-oil 1 / mozzarella 2 / ricotta 3 / rosemary 2, bake 54-74; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited (step 48, key material ricotta); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint). Reserve (Rule W) = rosemary.
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "ricotta", minCount: 3 },
+      { ingredientId: "rosemary", minCount: 2 },
+    ],
+    bakeTarget: { start: 54, end: 74 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-overload",
+    nameJa: "ピザオーバーロード",
+    description: "トマトソースに、ハム・ベーコン・ホットドッグ、パイナップルをのせた、具だくさんすぎる一枚。",
+    // Expansion Batch 5 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `pizza-overload-pizzadb-p7`, 172 matrix): tomato-sauce (family-derived) / mozzarella / pineapple / ham / bacon / hot-dog. hot-dog is an independent topping (Owner: family meat, glyph 🍢). GAMEPLAY CALIBRATION
+    // (not source): counts tomato-sauce 1 / mozzarella 2 / pineapple 2 / ham 1 / bacon 1 / hot-dog 2, bake 58-78; 8 non-sauce pieces = the 8-slot ring. The key (hot-dog) is last and the Rule W reserve is bacon (meat family).
+    // Ladder-credited (step 49, key material hot-dog); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "pineapple", minCount: 2 },
+      { ingredientId: "ham", minCount: 1 },
+      { ingredientId: "bacon", minCount: 1 },
+      { ingredientId: "hot-dog", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

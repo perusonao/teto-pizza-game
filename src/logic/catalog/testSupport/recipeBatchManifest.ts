@@ -6,16 +6,14 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** Expansion Batch 4 (47 -> 51 recipes: catupiry / jalapeno / feta / sardine key materials): the manifest the validator checks. Batches 1-3 (landed) are covered by the catalog-wide tests. */
+/** Expansion Batch 5 (51 -> 53 recipes: ricotta / hot-dog key materials): the manifest the validator checks. Batches 1-4 (landed) are covered by the catalog-wide tests. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
-  batchId: "expansion-batch-7",
+  batchId: "expansion-batch-8",
   status: "landed",
-  afterRecipeId: "salsiccia-e-friarielli",
+  afterRecipeId: "pizza-moscow",
   recipes: [
-    { recipeId: "brazilian-catupiry-corn-pizza", keyIngredientId: "catupiry", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "jalapeno-popper-pizza", keyIngredientId: "jalapeno", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "pizza-feta-eliniki", keyIngredientId: "feta", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "pizza-moscow", keyIngredientId: "sardine", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pizza-bianca-ricotta", keyIngredientId: "ricotta", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pizza-overload", keyIngredientId: "hot-dog", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
 };
 

@@ -316,6 +316,18 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "イワシのピッツァ・モスクワ、海の幸たっぷりだね！食べてみたいな！",
   },
+  {
+    id: "order-pizza-bianca-ricotta",
+    recipeId: "pizza-bianca-ricotta",
+    requestedBy: "mito",
+    lineJa: "リコッタのピッツァ・ビアンカ、やさしい味みたい！食べてみたいな！",
+  },
+  {
+    id: "order-pizza-overload",
+    recipeId: "pizza-overload",
+    requestedBy: "mito",
+    lineJa: "ホットドッグ入りのピザオーバーロード、具だくさんだね！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

@@ -3067,6 +3067,137 @@ export const PIZZA_FETA_ELINIKI_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Expansion Batch 5: Reference Truth for `pizza-bianca-ricotta` (olive-oil PAINT_TEMPORARY sauce (the olive-oil sauce is not a piece)). Pieces (mozzarella 2 / ricotta 3 / rosemary 2 = 7) take
+ * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
+ * not source authority.
+ */
+export const PIZZA_BIANCA_RICOTTA_REFERENCE: ReferencePizza = {
+  recipeId: "pizza-bianca-ricotta",
+  sauce: computeMechanicalSauceReference("pizza-bianca-ricotta"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ricotta",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "rosemary",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Batch 5: Reference Truth for `pizza-overload` (tomato-sauce PAINT sauce). Pieces (mozzarella 2 / pineapple 2 / ham 1 / bacon 1 / hot-dog 2 = 8) take
+ * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
+ * not source authority.
+ */
+export const PIZZA_OVERLOAD_REFERENCE: ReferencePizza = {
+  recipeId: "pizza-overload",
+  sauce: computeMechanicalSauceReference("pizza-overload"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "pineapple",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ham",
+      positions: [{ x: 38, y: 79 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [{ x: 22, y: 63 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "hot-dog",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
  * Expansion Batch 4: Reference Truth for `pizza-moscow` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / onion 1 / salmon 1 / sardine 2 / tuna 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -3194,6 +3325,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [JALAPENO_POPPER_PIZZA_REFERENCE.recipeId, JALAPENO_POPPER_PIZZA_REFERENCE],
   [PIZZA_FETA_ELINIKI_REFERENCE.recipeId, PIZZA_FETA_ELINIKI_REFERENCE],
   [PIZZA_MOSCOW_REFERENCE.recipeId, PIZZA_MOSCOW_REFERENCE],
+  [PIZZA_BIANCA_RICOTTA_REFERENCE.recipeId, PIZZA_BIANCA_RICOTTA_REFERENCE],
+  [PIZZA_OVERLOAD_REFERENCE.recipeId, PIZZA_OVERLOAD_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

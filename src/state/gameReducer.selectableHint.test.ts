@@ -528,7 +528,7 @@ describe("privacy (matrix 33-35)", () => {
       expect(chips(s), id).not.toContain(reserved);
       expect(s.discoveryHintFacts[id] ?? [], id).not.toContain(hintFactId(reserved));
     }
-  });
+  }, 60_000); // iterates every recipe (8 purchases each): ~6.5s locally, over the 5s default as the catalog grows (Batch 5)
 
   it("the runtime view equals H3-1's presentation fed from both ledgers (no second pricing path)", () => {
     const s = sheetOn("capricciosa", 100, { purchases: { capricciosa: 1 }, facts: { capricciosa: ["ing:ham"] } });

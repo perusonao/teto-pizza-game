@@ -42,7 +42,9 @@ describe("lunchRush: false foundation", () => {
       "jalapeno-popper-pizza",
       "pizza-feta-eliniki",
       "pizza-moscow",
-    ]); // opt-out total = 26
+      "pizza-bianca-ricotta",
+      "pizza-overload",
+    ]); // opt-out total = 28
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);
@@ -52,7 +54,7 @@ describe("lunchRush: false foundation", () => {
     expect(participatesInLunchRush("vongole")).toBe(false);
     expect(participatesInLunchRush("pesto-vegetariana")).toBe(false);
     expect(participatesInLunchRush("ratatouille-pizza")).toBe(false);
-    for (const id of ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow"]) expect(participatesInLunchRush(id), id).toBe(false); // Expansion Batches 1-4
+    for (const id of ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload"]) expect(participatesInLunchRush(id), id).toBe(false); // Expansion Batches 1-5
     expect(participatesInLunchRush("aussie")).toBe(false); // TQ-1D: Lunch Rush never serves a Technique recipe
     expect(missionOrderRecipeIds(inputs).sort()).toEqual(original.map((r) => r.id).sort());
   });

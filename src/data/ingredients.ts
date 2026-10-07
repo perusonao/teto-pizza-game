@@ -837,6 +837,26 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** Expansion Batch 5: finite ladder material, step 48 (T4). Cheese category like every cheese (shared 🧀 convention, told apart by name / colour); no cheese subdivision. */
+  {
+    id: "ricotta",
+    category: "cheese",
+    nameJa: "リコッタ",
+    color: "#f6f2e4",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 5: finite ladder material, step 49 (T4). Family `meat` (Owner: hot-dog = meat, never `other`: OD-DH4-2-9). 🍢 oden skewer: distinct from `sausage` 🌭 (an ingredient glyph is never reused) and from every class symbol (G18); Owner HV confirms the glyph on Preview. */
+  {
+    id: "hot-dog",
+    category: "topping",
+    nameJa: "ホットドッグ",
+    color: "#c0583c",
+    emoji: "\u{1F362}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

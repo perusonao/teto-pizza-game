@@ -55,7 +55,7 @@
    "category": 1
   },
   "catalogComparisonCandidates": {
-   "category": 9
+   "category": 10
   },
   "bits": {
    "material": 1,
@@ -95,7 +95,7 @@
   "catalogComparisonCandidates": {
    "family": 3,
    "group": 3,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 1,
@@ -129,7 +129,7 @@
    "category": 1
   },
   "catalogComparisonCandidates": {
-   "category": 9
+   "category": 10
   },
   "bits": {
    "material": 2,
@@ -169,7 +169,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 6,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 2,
@@ -211,7 +211,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 6,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 2,
@@ -245,7 +245,7 @@
    "category": 2
   },
   "catalogComparisonCandidates": {
-   "category": 9
+   "category": 10
   },
   "bits": {
    "material": 2.81,
@@ -279,7 +279,7 @@
    "category": 2
   },
   "catalogComparisonCandidates": {
-   "category": 9
+   "category": 10
   },
   "bits": {
    "material": 3,
@@ -321,9 +321,9 @@
    "category": 5
   },
   "catalogComparisonCandidates": {
-   "family": 5,
-   "group": 12,
-   "category": 40
+   "family": 6,
+   "group": 13,
+   "category": 41
   },
   "bits": {
    "material": 2.58,
@@ -361,9 +361,9 @@
    "category": 8
   },
   "catalogComparisonCandidates": {
-   "family": 8,
-   "group": 15,
-   "category": 42
+   "family": 9,
+   "group": 16,
+   "category": 43
   },
   "bits": {
    "material": 3.17,
@@ -401,9 +401,9 @@
    "category": 9
   },
   "catalogComparisonCandidates": {
-   "family": 8,
-   "group": 15,
-   "category": 42
+   "family": 9,
+   "group": 16,
+   "category": 43
   },
   "bits": {
    "material": 3.32,
@@ -447,7 +447,7 @@
   "catalogComparisonCandidates": {
    "family": 16,
    "group": 18,
-   "category": 40
+   "category": 41
   },
   "bits": {
    "material": 3.32,
@@ -491,7 +491,7 @@
   "catalogComparisonCandidates": {
    "family": 16,
    "group": 18,
-   "category": 40
+   "category": 41
   },
   "bits": {
    "material": 3.46,
@@ -528,7 +528,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 6,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 3.91,
@@ -565,7 +565,7 @@
   "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 4,
@@ -605,7 +605,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 6,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 4,
@@ -645,7 +645,7 @@
   "catalogComparisonCandidates": {
    "family": 17,
    "group": 19,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 4.09,
@@ -684,7 +684,7 @@
   "catalogComparisonCandidates": {
    "family": 16,
    "group": 18,
-   "category": 41
+   "category": 42
   },
   "bits": {
    "material": 4.17,
@@ -718,7 +718,7 @@
    "category": 2
   },
   "catalogComparisonCandidates": {
-   "category": 9
+   "category": 10
   },
   "bits": {
    "material": 4.32,
@@ -758,7 +758,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 6,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 4.32,
@@ -798,7 +798,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 6,
-   "category": 42
+   "category": 43
   },
   "bits": {
    "material": 4.39,
@@ -836,9 +836,9 @@
    "category": 19
   },
   "catalogComparisonCandidates": {
-   "family": 8,
-   "group": 15,
-   "category": 42
+   "family": 9,
+   "group": 16,
+   "category": 43
   },
   "bits": {
    "material": 4.46,
@@ -909,7 +909,7 @@
   "catalogComparisonCandidates": {
    "family": 5,
    "group": 5,
-   "category": 40
+   "category": 41
   },
   "bits": {
    "material": 4.52,
@@ -946,7 +946,7 @@
    "category": 1
   },
   "catalogComparisonCandidates": {
-   "category": 6
+   "category": 7
   },
   "bits": {
    "material": 4.64,
