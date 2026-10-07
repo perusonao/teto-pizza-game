@@ -6,7 +6,7 @@
  * smoothed, fitted or snapped to an ideal centre/angle/slice.
  */
 import { DOUGH_CENTER, DOUGH_RADIUS, isInsideDough, type DoughPoint } from "../pizzaCoordinates";
-import { buildRimToRimCutLine, type CutLine } from "./types";
+import { buildRimToRimCutLine, isNearRim, type CutLine } from "./types";
 
 /** Samples closer than this (dough-percent) to the last kept sample are sensor jitter. */
 export const TRACE_SAMPLE_MIN_DISTANCE = 1;
@@ -69,6 +69,31 @@ export function rimCrossing(inside: DoughPoint, outside: DoughPoint): DoughPoint
   return { x: inside.x + t * dx, y: inside.y + t * dy };
 }
 
+/**
+ * A fast flick can jump from outside the pizza to outside the other side between two samples.
+ * If the segment a->b crosses the dough, returns its two rim crossings (entry, exit), else null.
+ */
+export function segmentRimChord(a: DoughPoint, b: DoughPoint): [DoughPoint, DoughPoint] | null {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const A = dx * dx + dy * dy;
+  if (A === 0) return null;
+  const ox = a.x - DOUGH_CENTER;
+  const oy = a.y - DOUGH_CENTER;
+  const B = 2 * (ox * dx + oy * dy);
+  const C = ox * ox + oy * oy - DOUGH_RADIUS * DOUGH_RADIUS;
+  const disc = B * B - 4 * A * C;
+  if (disc <= 0) return null;
+  const root = Math.sqrt(disc);
+  const t1 = (-B - root) / (2 * A);
+  const t2 = (-B + root) / (2 * A);
+  if (t1 < 0 || t2 > 1) return null;
+  return [
+    { x: a.x + t1 * dx, y: a.y + t1 * dy },
+    { x: a.x + t2 * dx, y: a.y + t2 * dy },
+  ];
+}
+
 export interface TraceAppendResult {
   readonly path: readonly DoughPoint[];
   /** True once the finger left the dough: the cut ends on the rim and later samples are ignored. */
@@ -109,4 +134,19 @@ export function buildTracedCutLine(rawPath: readonly DoughPoint[]): CutLine | nu
   }
   const chord = buildRimToRimCutLine(first, farthest);
   return chord ? { ...chord, path } : null;
+}
+
+/** Ends within the crust border (~ the dough border width) of the rim count as reaching it. */
+export const CUT_RIM_REACH_TOLERANCE = 2;
+
+/**
+ * Visual only (#418): did this cut run rim to rim? A chord-only legacy line always did. Used for
+ * the faint "pieces parted" look; never read by cut authority, evaluation, save or economy.
+ */
+export function isThroughCut(line: CutLine): boolean {
+  if (!line.path || line.path.length < 2) return true;
+  return (
+    isNearRim(line.path[0], CUT_RIM_REACH_TOLERANCE) &&
+    isNearRim(line.path[line.path.length - 1], CUT_RIM_REACH_TOLERANCE)
+  );
 }

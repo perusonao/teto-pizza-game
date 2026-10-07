@@ -294,4 +294,44 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
     expect(lastCommittedPath()).toBe("20,50 50,20 80,50");
   });
+
+  it("#418: a rim-to-rim cut renders as a groove with lit lips and the through (parted) treatment", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 60;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: -30, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 330, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 330, clientY: 150 });
+    const mark = document.querySelector(".pizza-cut-mark");
+    expect(mark).toHaveClass("pizza-cut-mark--through");
+    expect(mark?.querySelector(".pizza-cut-edge--lit")).toBeInTheDocument();
+    expect(mark?.querySelector(".pizza-cut-edge--far")).toBeInTheDocument();
+    expect(mark?.querySelector(".pizza-cut-line")).toBeInTheDocument();
+  });
+
+  it("#418: a partial stroke is only a groove with one lit lip -- no parted treatment", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 61;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
+    const mark = document.querySelector(".pizza-cut-mark");
+    expect(mark).not.toHaveClass("pizza-cut-mark--through");
+    expect(mark?.querySelector(".pizza-cut-edge--lit")).toBeInTheDocument();
+    expect(mark?.querySelector(".pizza-cut-edge--far")).toBeNull();
+  });
+
+  it("#418: a curved cut stays a curved groove and every cut remains drawn", () => {
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 62, clientX: 60, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 62, clientX: 150, clientY: 60 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 62, clientX: 240, clientY: 150 });
+    expect(document.querySelector(".pizza-cut-line")?.getAttribute("points")).toBe("20,50 50,20 80,50");
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 63, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
+    expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(2);
+  });
 });

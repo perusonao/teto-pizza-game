@@ -546,12 +546,36 @@
   fill: rgba(107, 66, 38, 0.35);
 }
 
+/* Issue #418: a cut reads as a score in the baked pizza, not a drawn line -- a thin dark groove
+   plus a faint lit lip on one side; rim-to-rim cuts (--through) are a hair wider with a second
+   faint lip, as if the two sides parted by a pixel or two. Visual only. */
 .pizza-cut-line {
-  stroke: rgba(42, 26, 12, 0.88);
-  stroke-width: 2;
+  stroke: rgba(48, 25, 10, 0.78);
+  stroke-width: 0.55;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
+}
+
+.pizza-cut-edge {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pizza-cut-edge--lit {
+  stroke: rgba(255, 246, 222, 0.8);
+  stroke-width: 0.55;
+}
+
+.pizza-cut-edge--far {
+  stroke: rgba(255, 246, 222, 0.38);
+  stroke-width: 0.4;
+}
+
+.pizza-cut-mark--through .pizza-cut-line {
+  stroke: rgba(26, 12, 4, 0.92);
+  stroke-width: 0.9;
 }
 
 .pizza-cut-preview-line {

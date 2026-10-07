@@ -40,7 +40,7 @@ import {
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
-import { appendTraceSample, buildTracedCutLine, rimCrossing, stabilizeTrace } from "../logic/cut/trace";
+import { appendTraceSample, buildTracedCutLine, isThroughCut, rimCrossing, segmentRimChord, stabilizeTrace } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
@@ -736,7 +736,16 @@ export function PizzaStage({
       const inside = isInsideDough(dough.x, dough.y);
       if (g.cutTrace.length === 0) {
         if (!inside) {
+          // Outside -> outside straight across the pizza in one sample: the cut is that chord.
+          const chord = g.cutOutside ? segmentRimChord(g.cutOutside, dough) : null;
           g.cutOutside = dough;
+          if (chord) {
+            g.cutTrace = chord;
+            g.cutTraceExited = true;
+            g.dragging = true;
+            updateCutPreviewLine(chord, chord[1]);
+            return;
+          }
           updateCutPreviewLine([], dough);
           return;
         }
@@ -1291,24 +1300,39 @@ export function PizzaStage({
               ))}
             </g>
             <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
-            {cutState.lines.map((line, index) =>
-              line.path ? (
-                <polyline
-                  key={index}
-                  className="pizza-cut-line"
-                  points={line.path.map((p) => `${p.x},${p.y}`).join(" ")}
-                />
-              ) : (
-                <line
-                  key={index}
-                  className="pizza-cut-line"
-                  x1={line.start.x}
-                  y1={line.start.y}
-                  x2={line.end.x}
-                  y2={line.end.y}
-                />
-              ),
-            )}
+            {cutState.lines.map((line, index) => {
+              // Issue #418: a cut reads as a score in the baked pizza -- a dark groove with a faint
+              // lit lip on one side; only a rim-to-rim cut also gets the slight "parted" look.
+              const pts = (line.path ?? [line.start, line.end]).map((p) => `${p.x},${p.y}`).join(" ");
+              const dx = line.end.x - line.start.x;
+              const dy = line.end.y - line.start.y;
+              const len = Math.hypot(dx, dy) || 1;
+              // Unit normal pointing to the lower-right (light from the upper-left).
+              let nx = -dy / len;
+              let ny = dx / len;
+              if (nx + ny < 0) {
+                nx = -nx;
+                ny = -ny;
+              }
+              const through = isThroughCut(line);
+              return (
+                <g key={index} className={`pizza-cut-mark${through ? " pizza-cut-mark--through" : ""}`}>
+                  <polyline
+                    className="pizza-cut-edge pizza-cut-edge--lit"
+                    points={pts}
+                    transform={`translate(${(nx * 0.75).toFixed(3)} ${(ny * 0.75).toFixed(3)})`}
+                  />
+                  {through && (
+                    <polyline
+                      className="pizza-cut-edge pizza-cut-edge--far"
+                      points={pts}
+                      transform={`translate(${(-nx * 0.75).toFixed(3)} ${(-ny * 0.75).toFixed(3)})`}
+                    />
+                  )}
+                  <polyline className="pizza-cut-line" points={pts} />
+                </g>
+              );
+            })}
             <polyline
               ref={cutPreviewLineRef}
               className="pizza-cut-preview-line"
