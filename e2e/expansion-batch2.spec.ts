@@ -123,7 +123,7 @@ test.describe("Expansion Batch 2 (representative: step 37, pesto-salmone)", () =
     await paintSauceRing(page, 25, 16);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     let spot = 0;
-    await page.locator(".ingredient-chip").filter({ hasText: /クリームチーズ/ }).first().click();
+    await (await chipOnTrayOrPin(page, /クリームチーズ/)).click(); // the CHEESE tab is paged (6 per page): cream-cheese sits on page 2
     for (let i = 0; i < 2; i += 1) await tapDoughPercent(page, ...SPOTS[spot++]);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     const salmonChip = await chipOnTrayOrPin(page, /サーモン/);
