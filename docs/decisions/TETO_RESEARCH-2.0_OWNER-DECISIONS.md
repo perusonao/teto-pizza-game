@@ -1,7 +1,9 @@
 # Research 2.0 — Owner Decisions（Design Gate 確定）
 
-Status: **Owner 承認済みの設計 authority。** Phase 0（本書）+ Phase 1（Stable Research Identity）が実装対象。
-Phase 2〜4 は**承認済みの方針のみ**で、実装は未着手（各 Phase の前に別 Gate を置く）。
+Status: **Owner 承認済みの設計 authority。** **Phase 0〜4 はすべて main に実装済み**（Status Sync: 2026-10-07、
+実装の詳細は [`TETO_RESEARCH-2.0_PHASE2-4_Result.md`](../reports/TETO_RESEARCH-2.0_PHASE2-4_Result.md)）。
+以降、本書は設計 authority（決定・不変条件）として残り、実装状態は §8 の表を正とする。
+※下記の「基準 main」「本 PR」は承認時点の記述（履歴）。
 Path: `docs/decisions/TETO_RESEARCH-2.0_OWNER-DECISIONS.md`
 承認日: 2026-10-05（Owner Review）。実装 Issue: #400。
 基準: main `d144f0890a881e766da23bb788743863dfccea87`（#398 TQ-1D 後）。
@@ -23,18 +25,18 @@ Path: `docs/decisions/TETO_RESEARCH-2.0_OWNER-DECISIONS.md`
 
 | ID | 決定 | 実装 Phase |
 |---|---|---|
-| **OD-R2-1** | **YES。D+ / Cohort Letter を採用する。** | Phase 1（**本 PR**） |
+| **OD-R2-1** | **YES。D+ / Cohort Letter を採用する。** | Phase 1（実装済み: #402） |
 | **OD-R2-2** | **NO。Research 表示識別子は save しない。** 現行 catalog から導出する。 | Phase 1 |
 | **OD-R2-3** | **NO（再利用しない）。** 発見済み兄弟の letter 枠は保持し、残存 entry へ再利用しない。 | Phase 1 |
 | **OD-R2-4** | **YES。** 現在の①②③形式を廃止し、`？？？ピザ A（たまねぎ）` / `？？？ピザ B（たまねぎ）` / `？？？ピザ C（たまねぎ）` 形式へ統一する。単独 cohort は letter なし（`？？？ピザ（チキン）`）。 | Phase 1 |
 | **OD-R2-5** | **OD-RB-14 は存置する。**（Notebook は表示文字列を保存時のまま持ち、再計算しない。） | Phase 1 |
-| **OD-R1-1** | **YES。** Research Board を今後導入する。 | Phase 2 / 3（未実装） |
-| **OD-R1-2** | **YES。** プレイヤーへ実際に開示済みの NEGATIVE / × fact **だけ**を、専用の加算 ledger として save する方針を承認する。Phase 1 では実装しない。 | Phase 2（未実装） |
-| **OD-R1-3** | Board は **Trial Notebook sheet 上部の「わかったこと」section** を第一配置とする。 | Phase 3（未実装） |
+| **OD-R1-1** | **YES。** Research Board を今後導入する。 | Phase 2 / 3（実装済み: ×ledger + Board read model + Notebook UI） |
+| **OD-R1-2** | **YES。** プレイヤーへ実際に開示済みの NEGATIVE / × fact **だけ**を、専用の加算 ledger として save する方針を承認する。Phase 1 では実装しない。 | Phase 2（実装済み） |
+| **OD-R1-3** | Board は **Trial Notebook sheet 上部の「わかったこと」section** を第一配置とする。 | Phase 3（実装済み） |
 | **OD-R1-4** | 試作回数・最終試作・Technique・残り候補等は Board へ**追加しない**。 | Phase 2 / 3 |
-| **OD-R3-1** | **YES。** 材料が 1 個以上ある Research trial なら、焼き FAILED でも通常と**同一**の membership ○× を開示する。Phase 1 では実装しない。 | Phase 4（未実装） |
-| **OD-R3-2** | **YES。** FAILED でも在庫は従来どおり消費する。 | Phase 4（現状維持） |
-| **OD-R3-3** | **YES。** FAILED trial も Notebook へ記録する。 | Phase 4（未実装） |
+| **OD-R3-1** | **YES。** 材料が 1 個以上ある Research trial なら、焼き FAILED でも通常と**同一**の membership ○× を開示する。Phase 1 では実装しない。 | Phase 4（実装済み） |
+| **OD-R3-2** | **YES。** FAILED でも在庫は従来どおり消費する。 | Phase 4（実装済み。在庫は従来どおり消費） |
+| **OD-R3-3** | **YES。** FAILED trial も Notebook へ記録する。 | Phase 4（実装済み） |
 | **OD-C-1** | **YES。** 必要な Research 契約改訂を承認する（§6）。 | Phase 0（本書） |
 
 ## 3. D+ Cohort Letter（Phase 1 の契約）
@@ -74,7 +76,7 @@ letter は**「永久不変の Research ID」ではない**。**同一 catalog a
 
 ## 5. Phase 2〜4 が参照する不変条件（INV-B1〜B9）
 
-Phase 2〜4 の実装・テストは以下を固定する。**INV-B7 は Phase 1 の必須 Gate**（本 PR で実装・テスト済み）。それ以外は承認済みの契約として将来 Phase が参照する。
+Phase 2〜4 の実装・テストは以下を固定する。**INV-B7 は Phase 1 の必須 Gate**（Phase 1 = #402 で実装・テスト済み）。それ以外は承認済みの契約として将来 Phase が参照する。
 
 | ID | 不変条件 | 主な Phase |
 |---|---|---|
@@ -88,7 +90,7 @@ Phase 2〜4 の実装・テストは以下を固定する。**INV-B7 は Phase 1
 | **INV-B8** | Notebook は Board を参照しない。feedback は `{kind, textJa}`（schema 不変）。 | 2 / 3 |
 | **INV-B9** | save の差分は×ledger の追加のみ。×が `discoveryHintFacts` に入らない。 | 2 |
 
-**Phase 2〜4 の前提（承認済みの方針、未実装）**:
+**Phase 2〜4 の前提（承認済みの方針。いずれも実装済み。§8 参照）**:
 - **×ledger（OD-R1-2）**: 新しい top-level key の**加算 ledger**（例 `researchExclusions: { [recipeId]: string[] }`）。`schemaVersion` は 2 のまま、`KNOWN_SAVE_KEYS` に追加、旧ビルドは未知 key を持ち回る。unknown recipe / ingredient id は forward-compat で持ち回る。merge は recipe ごとの集合 union（削除しない）。全リセットで消す。stale な×（現 recipe 定義と矛盾）は表示時に静かに外す。Notebook の試作履歴は session-only のまま。
 - **Board の内容（OD-R1-1 / 1-3 / 1-4）**: 確定○（unlock + `ing:`）、除外×（表示済み NEGATIVE のみ）、購入済み `cls:` / 総数。試作回数・最終試作・Technique・残り候補は入れない。
 - **FAILED（OD-R3-1〜3）**: 材料 1 個以上の Research trial は、焼き FAILED でも ORIGINAL と同一の○×を開示し、Notebook に記録する。在庫は従来どおり消費。**Technique・recipe 発見・Pitz は FAILED では付与しない**（完成した焼きが必要）。実装位置は `CONFIRM_BAKE` の非 MATCHED 分岐（BAKE→RESULT の遷移は phase guard で 1 回きり。REGISTER_TO_DEX の FAILED は RESULT に居座るので exactly-once にならない）。
@@ -102,11 +104,11 @@ Phase 2〜4 の実装・テストは以下を固定する。**INV-B7 は Phase 1
 |---|---|---|---|
 | Contract 2.1 §3 / OD-RB-14 / §7 の label 例 `？？？ピザ ①（チキン）` | label は「Research Entry 番号 + unlock 名」 | **label は `？？？ピザ [letter]（unlock 名）`**。番号は廃止。OD-RB-14 自体（公開情報のみで識別、保存時の表示を固定、再計算しない）は**存置** | **Phase 1 で有効** |
 | Contract 2.1 §7「Research Entry の増減で番号が変わっても…番号のずれは unlock 名が補う」 | 番号のずれを unlock 名で補う | letter が兄弟の増減で動かないため、ずれ自体が起きない（現 catalog 内）。保存文字列を固定する規則は不変 | **Phase 1 で有効** |
-| Contract 2.1 OD-RB-7 / INV-6'「× は永続保存しない」 | × は session のみ | **OD-R1-2 により、開示済みの NEGATIVE を専用の加算 ledger として save する方針を承認**。`discoveryHintFacts` の `ing:` には×を入れない（INV-B9） | **Phase 2 まで現行どおり**（×は session のみ、実装が入るまで Contract 2.1 の記述が現行挙動） |
-| Contract 2.1 INV-D2「Disclosure = Persist(○) = Notebook」 | ○ の保存 = 表示 = Notebook | ×ledger を加えて **Disclosure = Persist(○, ×) = Notebook**（INV-B1）に拡張 | Phase 2 |
-| Contract 2.1 INV-D6 / D3「品質・outcome から独立」 | ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH で同一 | 焼き FAILED（材料 1 個以上）にも拡張（INV-B6）。Technique・発見・Pitz は対象外 | Phase 4 |
-| OD-P3-16 / OD-D3-23（Notebook は ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH を記録） | FAILED は記録しない | **OD-R3-3 により FAILED も記録**。重複通知 `#n` は composition でなく焼き結果のみで決まるため、composition の正誤を漏らさない | Phase 4 |
-| Contract 2.1 §14 Non-Goals「negative の永続化」 | 非目標 | OD-R1-2 で**この項目のみ**を Non-Goal から外す（Phase 2 以降）。他の Non-Goal（count / distance / Near・Far / Notebook schema 変更 等）は維持 | Phase 2 |
+| Contract 2.1 OD-RB-7 / INV-6'「× は永続保存しない」 | × は session のみ | **OD-R1-2 により、開示済みの NEGATIVE を専用の加算 ledger として save する方針を承認**。`discoveryHintFacts` の `ing:` には×を入れない（INV-B9） | **Phase 2 で実装済み**（開示済み NEGATIVE を `researchExclusions` ledger へ加算保存。Contract 2.1 の「× は session のみ」は現行挙動ではない） |
+| Contract 2.1 INV-D2「Disclosure = Persist(○) = Notebook」 | ○ の保存 = 表示 = Notebook | ×ledger を加えて **Disclosure = Persist(○, ×) = Notebook**（INV-B1）に拡張 | Phase 2（実装済み） |
+| Contract 2.1 INV-D6 / D3「品質・outcome から独立」 | ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH で同一 | 焼き FAILED（材料 1 個以上）にも拡張（INV-B6）。Technique・発見・Pitz は対象外 | Phase 4（実装済み） |
+| OD-P3-16 / OD-D3-23（Notebook は ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH を記録） | FAILED は記録しない | **OD-R3-3 により FAILED も記録**。重複通知 `#n` は composition でなく焼き結果のみで決まるため、composition の正誤を漏らさない | Phase 4（実装済み） |
+| Contract 2.1 §14 Non-Goals「negative の永続化」 | 非目標 | OD-R1-2 で**この項目のみ**を Non-Goal から外す（Phase 2 以降）。他の Non-Goal（count / distance / Near・Far / Notebook schema 変更 等）は維持 | Phase 2（実装済み） |
 | INV-D7 / OD-TQ1D-4 / Technique privacy | 直接の「なし」を出さない | **変更なし**。label・Board・FAILED のいずれも維持（INV-B3 / B4） | 全 Phase |
 | `save`（schemaVersion 2、forward-compat union） | 追加 key のみ許容 | Phase 1 は save 変更なし。Phase 2 は加算 key のみ | 1 / 2 |
 | Hint 5.0（ladder / 価格 / ALREADY_KNOWN） | | **変更なし**（INV-B5） | 全 Phase |
@@ -128,10 +130,14 @@ Phase 2〜4 の実装・テストは以下を固定する。**INV-B7 は Phase 1
 
 | Phase | 内容 | 状態 |
 |---|---|---|
-| 0 | 本書 + Contract 2.1 / PROJECT_HANDOFF への参照・注記（docs のみ） | **本 PR** |
-| 1 | Stable Research Identity（D+ Cohort Letter）。導出のみ、save / schema 変更なし | **本 PR** |
-| 2 | Research Board domain / storage（×ledger） | 承認済み・未実装 |
-| 3 | Research Board UI（Notebook sheet 上部「わかったこと」） | 承認済み・未実装 |
-| 4 | FAILED behavior（○× 開示 + Notebook 記録、在庫消費は維持） | 承認済み・未実装 |
+| 0 | 本書 + Contract 2.1 / PROJECT_HANDOFF への参照・注記（docs のみ） | **実装済み**（#402。PROJECT_HANDOFF の Phase 2〜4 addendum は #410 merge 後に同期） |
+| 1 | Stable Research Identity（D+ Cohort Letter）。導出のみ、save / schema 変更なし | **実装済み**（#402） |
+| 2 | Research Board domain / storage（×ledger） | **実装済み**（S1〜S3, `3ceb7d1`） |
+| 3 | Research Board UI（Notebook sheet 上部「わかったこと」） | **実装済み**（S4, #405。対象は現在の Research Target 1 件のみ） |
+| 4 | FAILED behavior（○× 開示 + Notebook 記録、在庫消費は維持） | **実装済み**（`fbbed9c`） |
 
-Phase 2〜4 は直列（R-1 と R-3 は研究記録経路を共有）。各 Phase の前に、その時点の main で Gate を行う。
+Phase 2〜4 は直列（R-1 と R-3 は研究記録経路を共有）だった。各 Phase の前に、その時点の main で Gate を行った。
+
+**未実装（Owner 判断待ち / 別 Gate）**: Board の複数 target 表示（OD-RBF-1 の B 案）、× 入り DEV preset（OD-RBF-3）、
+Issue #358（Discovery 3.2）、53 / 172 population 前の Research identifier Fresh Gate（§7）。
+詳細は [`TETO_RESEARCH-2.0_PHASE2-4_Result.md`](../reports/TETO_RESEARCH-2.0_PHASE2-4_Result.md) §5。

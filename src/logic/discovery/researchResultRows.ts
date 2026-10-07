@@ -1,6 +1,6 @@
 /**
  * Anti-Oracle Contract 2.1 (docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md) S1: the pure `researchResultRows` domain.
- * UNWIRED: no reducer, state, save, Notebook, UI or flag reads this module (S2 / S4 / S5 wire it).
+ * Wired: the reducer (`researchAttemptResult`, REGISTER_TO_DEX and the bake-FAILED branch of CONFIRM_BAKE) and the RESULT panel read it.
  *
  * Given the pizza the player actually made, the ingredients already known (check-marked) for the Research Target
  * and the target id, it returns the membership rows that may be disclosed on the RESULT panel (Contract §3).

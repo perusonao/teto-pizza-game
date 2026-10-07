@@ -4,6 +4,7 @@
 - Branch: `claude/research-tray-fresh-audit-c4sjgq`（本ファイル 1 つだけを追加。production code 変更なし）
 - 手法: 静的読解のみ（`node_modules` なし。test / build / CI / Preview は実行していない）。
 - 並行作業の保護: PR #410（head `c6e3a11`）は **checkout / merge / rebase / push していない**。diff の読み取り（`git diff origin/main...c6e3a11 --name-only`）のみ。Final Gate の判定はしていない。
+- 追記（Status Sync 時点）: 本書の作成後に PR #410 が main へ merge された（`2c9dc28`）。以下の #410 に関する記述は監査時点（open）のもの。
 - 用語: repo に「Research tray」という名称は無い（grep 0 件）。本書は **Research 2.0 の研究記録面（Research Board / ×ledger / FAILED 記録 / Trial Notebook）と、Research が使う Cooking Tray（FREE_COOK と同じ tray）** を指すものとして監査した。
 
 ## 0. 結論

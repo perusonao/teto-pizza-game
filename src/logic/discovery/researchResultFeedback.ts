@@ -1,6 +1,6 @@
 /**
  * Anti-Oracle Contract 2.1 S2 (docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md §7): the pure Trial Notebook feedback
- * for the RESULT rows. UNWIRED: no reducer, state or UI calls this (S4 wires it).
+ * for the RESULT rows. Wired: the reducer records its feedback in the Trial Notebook (ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH and bake-FAILED).
  *
  * One direction only: S1's `researchResultRows(...).rows` + the already-fixed target label -> a feedback
  * `{ kind: "RESEARCH_ROWS", textJa }`, or `null`. This module never reads a recipe or a membership list and never
