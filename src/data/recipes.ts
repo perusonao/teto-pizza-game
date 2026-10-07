@@ -962,6 +962,75 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "brazilian-catupiry-corn-pizza",
+    nameJa: "ブラジリアン・カトゥピリ・コーンピザ",
+    description: "モッツァレラに、カトゥピリとコーンをのせた、とろりとやさしいブラジル風の一枚。",
+    // Expansion Batch 4 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `brazilian-catupiry-corn-pizzadb-p10`, 172 matrix): mozzarella / catupiry / corn, no sauce (cheese base). NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / catupiry 3 / corn 2, bake 56-76; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "catupiry", minCount: 3 },
+      { ingredientId: "corn", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "jalapeno-popper-pizza",
+    nameJa: "ハラペーニョ・ポッパーピザ",
+    description: "モッツァレラとクリームチーズに、ベーコンとハラペーニョをのせた、ピリッと香ばしい一枚。",
+    // Expansion Batch 4 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `jalapeno-popper-pizza-pizzadb-p7`, 172 matrix): mozzarella / cream-cheese / bacon / jalapeno, no sauce (cheese base). NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / cream-cheese 1 / bacon 2 / jalapeno 2, bake 54-74; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "cream-cheese", minCount: 1 },
+      { ingredientId: "bacon", minCount: 2 },
+      { ingredientId: "jalapeno", minCount: 2 },
+    ],
+    bakeTarget: { start: 54, end: 74 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-feta-eliniki",
+    nameJa: "ピッツァ・フェタ・エッリニキ",
+    description: "オリーブオイルを塗った生地に、フェタとトマト、ブラックオリーブ、オレガノをのせた、ギリシャ風の一枚。",
+    // Expansion Batch 4 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `pizza-feta-eliniki-pizzadb-p9`, 172 matrix): olive-oil / feta / black-olive / fresh-tomato / oregano (no mozzarella). NOT NO_SAUCE: the olive-oil sauce slot is its own existing mapping (PAINT_TEMPORARY, like pizza-bianca / vongole), not a general rule. GAMEPLAY CALIBRATION
+    // (not source): counts olive-oil 1 / feta 3 / black-olive 1 / fresh-tomato 2 / oregano 1, bake 58-78; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "feta", minCount: 3 },
+      { ingredientId: "black-olive", minCount: 1 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-moscow",
+    nameJa: "ピッツァ・モスクワ",
+    description: "モッツァレラに、イワシとツナ、サーモン、玉ねぎをのせた、魚介たっぷりの一枚。",
+    // Expansion Batch 4 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `pizza-moscow-pizzadb-p9`, 172 matrix): mozzarella / onion / salmon / sardine / tuna, no sauce (cheese base). NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step; nothing here names the absence). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / onion 1 / salmon 1 / sardine 2 / tuna 2, bake 60-80; 8 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "salmon", minCount: 1 },
+      { ingredientId: "sardine", minCount: 2 },
+      { ingredientId: "tuna", minCount: 2 },
+    ],
+    bakeTarget: { start: 60, end: 80 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

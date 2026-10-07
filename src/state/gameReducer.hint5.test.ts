@@ -147,7 +147,7 @@ describe("flag ON: the ladder through the reducer", () => {
       const total = buildHint5Ladder(id)!.rungs.reduce((sum, r) => sum + HINT5_RUNG_PRICE[r.kind], 0);
       expect(1000 - s.pitzBalance, id).toBe(total);
     }
-  });
+  }, 60_000); // iterates every recipe: ~3.5s locally, over the 5s default under CI load as the catalog grows (Batch 4)
 
   it("only the next rung is purchasable: any other index is refused with no change", () => {
     const s = sheetOn("capricciosa", 100);

@@ -797,6 +797,46 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** Expansion Batch 4: finite ladder material, step 44 (T4). Cheese category like every cheese (shared 🧀 convention, told apart by name / colour); no cheese subdivision. */
+  {
+    id: "catupiry",
+    category: "cheese",
+    nameJa: "カトゥピリ",
+    color: "#f7efd8",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 4: finite ladder material, step 45 (T4). Family `vegetable` (OD: jalapeno = vegetable). 🟩 green square: distinct from `green-pepper` / `bell-pepper` / the vegetable class symbol 🥬 (G18); Owner HV confirms the glyph on Preview. */
+  {
+    id: "jalapeno",
+    category: "topping",
+    nameJa: "ハラペーニョ",
+    color: "#4d8f2f",
+    emoji: "\u{1F7E9}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 4: finite ladder material, step 46 (T4). Cheese category like every cheese (shared 🧀 convention); no cheese subdivision. */
+  {
+    id: "feta",
+    category: "cheese",
+    nameJa: "フェタ",
+    color: "#f4f1e6",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 4: finite ladder material, step 47 (T4). Family `seafood` (OD: sardine = seafood). 🎏 carp streamer: distinct from `anchovy` 🐟 / `tuna` 🐠 / `salmon` 🍣 / `salt-cod` 🐡 and the seafood class symbol 🌊 (G18); Owner HV confirms the glyph on Preview. */
+  {
+    id: "sardine",
+    category: "topping",
+    nameJa: "イワシ",
+    color: "#9db4c4",
+    emoji: "\u{1F38F}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];
