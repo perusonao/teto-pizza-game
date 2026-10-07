@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getIngredient } from "./ingredients";
 import { RECIPES } from "./recipes";
-import { getRecipeSauceProfile, RECIPE_SAUCE_PROFILES } from "./recipeSauceProfiles";
+import { getRecipeSauceProfile, noSauceRecipeIds, RECIPE_SAUCE_PROFILES } from "./recipeSauceProfiles";
 
 describe("recipe sauce interaction profiles", () => {
   it("covers all 32 recipes and points at each recipe's required sauce (a recipe without one has a null profile)", () => {
@@ -22,8 +22,10 @@ describe("recipe sauce interaction profiles", () => {
     }
   });
 
-  it("aussie is the only recipe without a sauce profile (TQ-1D, the Technique no-sauce)", () => {
-    expect(RECIPES.filter((r) => getRecipeSauceProfile(r.id) === null).map((r) => r.id)).toEqual(["aussie"]);
+  it("the NO_SAUCE set (TQ-1D, the Technique no-sauce) is derived from this table and equals the recipes that require no sauce ingredient", () => {
+    const requiresNoSauce = RECIPES.filter((r) => !r.requiredIngredients.some(({ ingredientId }) => getIngredient(ingredientId)?.category === "sauce")).map((r) => r.id);
+    expect([...noSauceRecipeIds()].sort()).toEqual([...requiresNoSauce].sort());
+    expect(noSauceRecipeIds()).toContain("aussie");
   });
 
   it("uses PAINT for tomato/pesto and explicitly marks olive oil as temporary paint", () => {

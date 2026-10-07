@@ -19,9 +19,11 @@ export interface RecipeSauceProfile {
 /**
  * TQ-1D: `null` means "this recipe is made without a spread sauce" (the Technique `no-sauce`). It is
  * authored here, next to every other recipe's sauce mapping, and nothing derives it from a target
- * identity at runtime. Only `aussie` is `null`.
+ * identity at runtime. The set of NO_SAUCE recipes is exactly the `null` entries (`NoSauceRecipeId` /
+ * `noSauceRecipeIds()` below derive it; nothing else lists them). `satisfies` (not an annotation) keeps each
+ * entry's literal `null`, so the type-level set can be derived from this one table.
  */
-export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile | null>> = {
+export const RECIPE_SAUCE_PROFILES = {
   margherita: {
     recipeId: "margherita",
     ingredientId: "tomato-sauce",
@@ -248,8 +250,23 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
   },
   // TQ-1D: the first no-sauce recipe. Not an olive-oil mapping (unlike vongole / pizza-bianca): it uses no sauce.
   aussie: null,
-};
+  // Expansion Batch 3: NO_SAUCE recipes (the existing TQ-1D `null` mapping, like aussie); no new sauce behaviour.
+  bacalhau: null,
+  "full-english-pizza": null,
+  "palmito-pizza": null,
+  "polish-kielbasa": null,
+  "porchetta-pizza": null,
+  "salsiccia-e-friarielli": null,
+} as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
+
+/** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */
+export type NoSauceRecipeId = { [K in RecipeId]: (typeof RECIPE_SAUCE_PROFILES)[K] extends null ? K : never }[RecipeId];
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile | null {
   return RECIPE_SAUCE_PROFILES[recipeId];
+}
+
+/** The NO_SAUCE recipe ids, derived from the sauce-profile authority (every `null` entry). */
+export function noSauceRecipeIds(): readonly NoSauceRecipeId[] {
+  return (Object.keys(RECIPE_SAUCE_PROFILES) as RecipeId[]).filter((id): id is NoSauceRecipeId => RECIPE_SAUCE_PROFILES[id] === null);
 }

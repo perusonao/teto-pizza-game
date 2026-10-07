@@ -4,6 +4,7 @@ import { TECHNIQUES } from "../../data/techniques";
 import type { DexEntry, DexState } from "../../state/dex";
 import { W1_ORDER } from "../testSupport/branchingFixture";
 import { techniqueDexViews } from "./dexView";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 
 /**
  * Cooking Techniques 1.0 TQ-1D (SSOT P6, OD-TQ1D-2): what the Dex's 調理法 section may show. It reads the
@@ -48,7 +49,7 @@ describe("techniqueDexViews", () => {
   });
 
   it("injected context: a technique no catalog target requires never appears", () => {
-    const noRequirement = { catalog: RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie"), materialStep: () => 0 };
+    const noRequirement = { catalog: RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId)), materialStep: () => 0 };
     expect(techniqueDexViews([], dexOf(W1_ORDER), noRequirement)).toEqual([]);
   });
 });

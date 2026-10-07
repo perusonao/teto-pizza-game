@@ -6,17 +6,18 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** Expansion Batch 2 (36 -> 41 recipes): the manifest the validator checks. Batch 1 (landed) is covered by the catalog-wide tests. */
+/** Expansion Batch 3 (41 -> 47 recipes, six NO_SAUCE recipes): the manifest the validator checks. Batches 1-2 (landed) are covered by the catalog-wide tests. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
-  batchId: "expansion-batch-5",
+  batchId: "expansion-batch-6",
   status: "landed",
-  afterRecipeId: "veggie-supreme-pizza",
+  afterRecipeId: "pesto-salmone",
   recipes: [
-    { recipeId: "jamon-serrano-pizza", keyIngredientId: "arugula", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "calabresa-argentina", keyIngredientId: "salami", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "rucola-e-grana", keyIngredientId: "grana-padano", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "vegan-cashew-cheese-pizza", keyIngredientId: "cashew-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "pesto-salmone", keyIngredientId: "salmon", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "bacalhau", keyIngredientId: "salt-cod", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "full-english-pizza", keyIngredientId: "baked-beans", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "palmito-pizza", keyIngredientId: "palm-heart", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "polish-kielbasa", keyIngredientId: "sauerkraut", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "porchetta-pizza", keyIngredientId: "pork", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "salsiccia-e-friarielli", keyIngredientId: "friarielli", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
 };
 

@@ -12,6 +12,7 @@ import {
   phase2Targets,
   type Phase2Profile,
 } from "../logic/discovery/testSupport/phase2Matrix";
+import { noSauceRecipeIds } from "./recipeSauceProfiles";
 
 function signatureKey(t: { items: readonly string[]; identityDimensions: unknown }): string {
   return JSON.stringify([[...t.items].sort(), t.identityDimensions]);
@@ -48,8 +49,8 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("every target declares its base: exactly the recipe's sauce-category ingredients", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       expect(t.sauceBase, t.recipeId).toBeDefined();
-      // TQ-1D: aussie declares an EMPTY base (the Technique no-sauce); every other recipe has a sauce.
-      if (t.recipeId === "aussie") expect(t.sauceBase).toEqual([]);
+      // TQ-1D: a NO_SAUCE recipe (derived from the sauce-profile authority) declares an EMPTY base (the Technique no-sauce); every other recipe has a sauce.
+      if ((noSauceRecipeIds() as readonly string[]).includes(t.recipeId)) expect(t.sauceBase).toEqual([]);
       else expect(t.sauceBase!.length, t.recipeId).toBeGreaterThan(0);
       for (const id of t.sauceBase!) expect(t.items).toContain(id);
     }

@@ -11,6 +11,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("./discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
 const { RECIPES, countsTowardLadder } = await import("../data/recipes");
+const { DISCOVERY_LADDER } = await import("../data/discoveryLadder");
 const { hint5EmptyFixedRungs } = await import("./discovery/hint5Ladder");
 const { selectableHintPriceCap } = await import("./discovery/selectableHint");
 const { hint5LadderDesignTotal, hint5LadderTotalBeforeRound6, HINT5_PROFILES, simulateHint5Economy } = await import("./testSupport/hint5EconomySim");
@@ -90,8 +91,11 @@ const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal
  *  pesto-trapanese has a hint target. Because ratatouille-pizza is a second credited recipe of step 28, every later
  *  step unlocks one discovery before its key recipe's turn, so the pool-2 chain continues through Expansion Batch 1's
  *  steps 30-32 (baba-ganoush-pizza, prosciutto-funghi, veggie-supreme-pizza are found blind) and Expansion Batch 2's
- *  steps 33-36 (the same lag), so only the very last recipe (pesto-salmone) is alone and hinted. */
-const BLIND_POOL2_RECIPES: readonly string[] = ["pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza"];
+ *  steps 33-37 and Expansion Batch 3's steps 38-43 (the same lag), so only the very last recipe (the final ladder step's) is alone and hinted. (Derived below: no per-batch list.) */
+const BLIND_POOL2_RECIPES: readonly string[] = [
+  "ratatouille-pizza", // a second credited recipe of step 28: the origin of the one-discovery lag
+  ...DISCOVERY_LADDER.steps.filter((s) => s.step >= 28).slice(0, -1).map((s) => s.keyRecipeId), // derived: every appended key recipe but the last
+];
 
 describe("P-C progression walk (real reducer, flag ON)", () => {
   it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {

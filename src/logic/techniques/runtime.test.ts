@@ -10,6 +10,7 @@ import {
   type RoundTechniqueInput,
   type TechniqueRuntimeContext,
 } from "./runtime";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the pure per-round technique step
@@ -100,10 +101,10 @@ describe("resolveRoundTechniques", () => {
     expect(withUnknown).toEqual({ ledger: ["no-sauce"], newlyDiscovered: ["no-sauce"] });
   });
 
-  it("T16 / INV-TQ-4 (TQ-1D): with the production context only aussie's no-sauce is recorded, and only by its own paths", () => {
+  it("T16 / INV-TQ-4 (TQ-1D): with the production context only the NO_SAUCE recipes' no-sauce is recorded (aussie shown; the set is derived from the sauce-profile authority), and only by their own paths", () => {
     const production = productionTechniqueContext();
     expect(production.catalog).toBe(RECIPE_DISCOVERY_CATALOG);
-    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie").map((t) => t.recipeId);
+    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId)).map((t) => t.recipeId);
     const withoutAussie = dex(others);
     const withAussie = dex([...others, "aussie"]);
     for (const eligibility of ["FREE_COOK", "FREE_GUIDED"] as const) {
@@ -135,7 +136,7 @@ describe("T19: initialTechniqueLedger (INV-TQ-1 at load)", () => {
   });
 
   it("is a no-op for every production save without aussie; a save with aussie is backfilled (INV-TQ-1)", () => {
-    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "aussie").map((t) => t.recipeId));
+    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId)).map((t) => t.recipeId));
     expect(initialTechniqueLedger([], others)).toEqual([]);
     expect(initialTechniqueLedger(["no-sauce"], others)).toEqual(["no-sauce"]);
     const everything = dex(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId));

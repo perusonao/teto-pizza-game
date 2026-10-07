@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getIngredient } from "../../data/ingredients";
 import { RECIPES } from "../../data/recipes";
 import { knownIngredientIdsFromFacts, RESEARCH_TOPPING_CAP, researchResultRows } from "./researchResultRows";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 
 /** Anti-Oracle Contract 2.1 S1: the pure RESULT-row rule. Targets are real Production recipes. */
 const MEAT = "meat-lovers"; // tomato-sauce, mozzarella, bacon, ham, pepperoni, sausage
@@ -215,11 +216,11 @@ describe("Production constraints (Contract §3 / §10 / §13.1)", () => {
   const sauceCount = (id: string) =>
     RECIPES.find((r) => r.id === id)!.requiredIngredients.filter((q) => getIngredient(q.ingredientId)?.category === "sauce").length;
 
-  it("Production fixture: every one of the 32 recipes uses exactly one sauce, except aussie (the one no-sauce target, TQ-1D); no multi-sauce", () => {
-    for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe(r.id === "aussie" ? 0 : 1);
+  it("Production fixture: every recipe uses exactly one sauce, except the NO_SAUCE targets (TQ-1D; derived from the sauce-profile authority); no multi-sauce", () => {
+    for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe((noSauceRecipeIds() as readonly string[]).includes(r.id) ? 0 : 1);
   });
-  it("Expansion Gate A is CLOSED: the one no-sauce target is judged by the standard rule, never specially (OD-TQ1D-1)", () => {
-    expect(RECIPES.filter((r) => sauceCount(r.id) === 0).map((r) => r.id)).toEqual(["aussie"]);
+  it("Expansion Gate A is CLOSED: the no-sauce targets (the sauce-profile authority's NO_SAUCE set) are judged by the standard rule, never specially (OD-TQ1D-1)", () => {
+    expect(RECIPES.filter((r) => sauceCount(r.id) === 0).map((r) => r.id).sort()).toEqual([...noSauceRecipeIds()].sort());
     // A sauce row appears only when the PLAYER used a sauce; with no sauce there is no sauce row, for EVERY target alike.
     for (const r of RECIPES) {
       const rows = run(r.id, pizza([], ["bacon", "egg"])).rows;

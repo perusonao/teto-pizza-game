@@ -22,6 +22,7 @@ import { resolveShopEntitlement } from "./materialEntitlement";
 import { recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
 import { createDefaultSave } from "./persistence";
+import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
 
 /**
  * Expansion Wave 2: vongole (No.13) / pesto-vegetariana (No.14) / ratatouille-pizza (No.15) and the
@@ -268,10 +269,10 @@ describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () 
     expect(getRecipeSauceProfile("pizza-bianca" as RecipeId)).toMatchObject({ ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" });
     expect(getRecipeSauceProfile(PESTO_VEG as RecipeId)).toMatchObject({ ingredientId: "pesto", interaction: "PAINT" });
     expect(getRecipeSauceProfile(RATATOUILLE as RecipeId)).toMatchObject({ ingredientId: "tomato-sauce", interaction: "PAINT" });
-    // olive-oil is a sauce-category ingredient, so vongole has exactly one sauce; only TQ-1D's aussie has none.
+    // olive-oil is a sauce-category ingredient, so vongole has exactly one sauce; only the NO_SAUCE recipes (the sauce-profile authority; TQ-1D's aussie and Expansion Batch 3) have none.
     expect(getIngredient("olive-oil")!.category).toBe("sauce");
     for (const r of RECIPES) {
-      expect(r.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category === "sauce"), r.id).toHaveLength(r.id === "aussie" ? 0 : 1);
+      expect(r.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category === "sauce"), r.id).toHaveLength((noSauceRecipeIds() as readonly string[]).includes(r.id) ? 0 : 1);
     }
   });
 

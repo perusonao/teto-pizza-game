@@ -14,6 +14,7 @@ import { ingredientUnlockStep } from "./materialEntitlement";
 import { loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type ProgressionSnapshot, type StorageLike } from "./persistence";
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "./pizzaState";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
 
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the technique step at the REGISTER_TO_DEX integration
@@ -330,14 +331,14 @@ describe("T9: Dinner never discovers a technique", () => {
   });
 });
 
-describe("T16: INV-TQ-4 (TQ-1D) -- with the production context only aussie records a technique", () => {
-  it("every production recipe's ideal pizza (Free Cooking) leaves the ledger empty except aussie's, and a no-sauce original before the affordance opens records nothing", () => {
+describe("T16: INV-TQ-4 (TQ-1D) -- with the production context only the NO_SAUCE recipes record a technique", () => {
+  it("every production recipe's ideal pizza (Free Cooking) leaves the ledger empty except the NO_SAUCE recipes' (derived from the sauce-profile authority), and a no-sauce original before the affordance opens records nothing", () => {
     for (const recipe of RECIPES) {
       const result = freeCookToResult(idealPizzaFor(recipe.id, Math.round((recipe.bakeTarget.start + recipe.bakeTarget.end) / 2)));
       const base = { ...createInitialGameState(EMPTY_DEX, ALL_IDS, 0, {}, []) };
       const after = register(freeCookToResult(result.pizza, base));
-      // The recipe path (INV-TQ-1): discovering aussie records `no-sauce`, revealed in that same round.
-      const expected = recipe.id === "aussie" ? ["no-sauce"] : [];
+      // The recipe path (INV-TQ-1): discovering a NO_SAUCE recipe records `no-sauce`, revealed in that same round.
+      const expected = (noSauceRecipeIds() as readonly string[]).includes(recipe.id) ? ["no-sauce"] : [];
       expect(after.discoveredTechniqueIds, recipe.id).toEqual(expected);
       expect(after.lastTechniqueDiscovery ?? [], recipe.id).toEqual(expected);
     }

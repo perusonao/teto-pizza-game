@@ -5,6 +5,7 @@ import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
 import { ingredientAttributeFamily } from "../../data/ingredientTaxonomy";
 import { RECIPES } from "../../data/recipes";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { TECHNIQUES } from "../../data/techniques";
 import { requiredTechniquesOf } from "../techniques/detection";
 import { INGREDIENT_TOTAL_FACT_ID } from "./deductionHint";
@@ -33,10 +34,11 @@ import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
  * its ladder to the end (gate A), and none may reach RESERVED_EMPTY_RUNG (gate B, M2 condition 3).
  *
  * **Cooking Techniques tripwire (TQ-1D, §12).** Every production recipe is single-sauce and requires
- * no technique, except `aussie` (TQ-1D, OD-TQ1D-1): the one NO_SAUCE recipe. It is key-free, so its
- * ladder simply has no SAUCE rung (never an empty or RESERVED one) and starts at CHEESE. The tripwire
- * test fails on purpose as soon as any other recipe requires a technique or lacks a sauce: that recipe's
- * PR must re-audit Hint 5.0 privacy first. Never weaken it to pass.
+ * no technique, except the NO_SAUCE recipes (TQ-1D, OD-TQ1D-1; the set is DERIVED from the sauce-profile authority
+ * `noSauceRecipeIds()`, never listed here). Each is key-free, so its ladder simply has no SAUCE rung (never an
+ * empty or RESERVED one) and starts at CHEESE. The tripwire test fails on purpose as soon as a recipe requires a
+ * technique or lacks a sauce WITHOUT being a NO_SAUCE recipe of that authority (or a NO_SAUCE recipe fails to):
+ * that recipe's PR must re-audit Hint 5.0 privacy first. Never weaken it to pass.
  */
 
 const LADDER_INDEX = new Map(ladderTargets(W1_25_DISCOVERY_LADDER).map((id, i) => [id, i]));
@@ -175,7 +177,7 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
     expect(walked).toBeGreaterThanOrEqual(28);
   });
 
-  it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; RESERVED stays retired: the one sauceless recipe, aussie, has no SAUCE rung at all)", () => {
+  it("B: RESERVED gate — no production recipe can reach RESERVED_EMPTY_RUNG (M2 condition 3; RESERVED stays retired: every sauceless recipe, derived from the sauce-profile authority, has no SAUCE rung at all)", () => {
     const reaching = RECIPES.filter((r) => hint5ReservedRungs(r.id)!.length > 0).map((r) => r.id);
     expect(reaching, "a recipe may only lack a sauce by being key-free, which has no SAUCE rung (never an empty one)").toEqual([]);
     // And no reachable request state returns it, with or without legacy facts.
@@ -310,18 +312,24 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
 });
 
 describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
-  it("only aussie requires a technique and lacks a sauce, and it does so without a SAUCE rung; any other recipe must re-audit Hint 5.0 privacy first", () => {
+  it("exactly the NO_SAUCE recipes (sauce-profile authority) require a technique and lack a sauce, each without a SAUCE rung; any other recipe must re-audit Hint 5.0 privacy first", () => {
+    const noSauce = [...noSauceRecipeIds()].sort();
+    expect(noSauce.length).toBeGreaterThan(0);
     const requiring = RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    expect(requiring, "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual(["aussie"]);
+    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
     const sauceRung = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SAUCE");
     const notSingleSauce = RECIPES.filter((r) => sauceRung(r.id).length !== 1 || sauceRung(r.id)[0].subjectIds.length !== 1).map((r) => r.id);
-    expect(notSingleSauce, "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(["aussie"]);
-    // Aussie: no SAUCE rung at all (not an empty / RESERVED one), no KEY_TOPPING, and the first rung is CHEESE.
-    const aussie = buildHint5Ladder("aussie")!;
-    expect(aussie.rungs.map((r) => r.kind)).toEqual(["CHEESE", "STRUCTURE", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS"]);
-    expect(aussie.rungs.map((r) => r.index)).toEqual([1, 2, 3, 4, 5]);
-    expect(hint5ReservedRungs("aussie")).toEqual([]);
-    expect(hint5EmptyFixedRungs("aussie")).toEqual([]);
+    expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
+    // Every NO_SAUCE recipe: no SAUCE rung at all (not an empty / RESERVED one), no KEY_TOPPING, the first rung is CHEESE,
+    // then STRUCTURE and one SUB_CLASS per topping, indexed 1..n.
+    for (const id of noSauce) {
+      const { rungs } = buildHint5Ladder(id)!;
+      const toppings = RECIPES.find((r) => r.id === id)!.requiredIngredients.filter((q) => getIngredient(q.ingredientId)?.category === "topping").length;
+      expect(rungs.map((r) => r.kind), id).toEqual(["CHEESE", "STRUCTURE", ...Array.from({ length: toppings }, () => "SUB_CLASS")]);
+      expect(rungs.map((r) => r.index), id).toEqual(rungs.map((_, i) => i + 1));
+      expect(hint5ReservedRungs(id), id).toEqual([]);
+      expect(hint5EmptyFixedRungs(id), id).toEqual([]);
+    }
   });
 
   it("no Hint 5.0 view carries Technique identity, and the Hint 5.0 modules never read Technique state", () => {

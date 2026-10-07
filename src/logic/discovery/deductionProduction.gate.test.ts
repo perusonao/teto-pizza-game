@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
 import { RECIPES } from "../../data/recipes";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { TECHNIQUES } from "../../data/techniques";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { requiredTechniquesOf } from "../techniques/detection";
@@ -23,11 +24,12 @@ import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, swee
  * random acquisition orders (T1a: the starters first, then any order), each at every point where the
  * target is makeable.
  *
- * **Cooking Techniques contract (TQ-1D).** Every production recipe has exactly one sauce except `aussie`
- * (TQ-1D, OD-TQ1D-1), the one NO_SAUCE (Technique) recipe, and 構成 / 特徴 read ingredients only. The
- * first test here fails as soon as any other recipe breaks that; that recipe's PR must then re-run this
- * whole gate (and the DH4 privacy sweeps) with it before shipping it. The sweeps below already include
- * aussie (every GATE_STATE is a production recipe), which is TQ-1D's re-run of this gate.
+ * **Cooking Techniques contract (TQ-1D).** Every production recipe has exactly one sauce except the NO_SAUCE
+ * (Technique) recipes (TQ-1D, OD-TQ1D-1; the set is DERIVED from the sauce-profile authority
+ * `noSauceRecipeIds()`, never listed here), and 構成 / 特徴 read ingredients only. The first test here fails as soon
+ * as any other recipe breaks that; that recipe's PR must then re-run this whole gate (and the DH4 privacy
+ * sweeps) with it before shipping it. The sweeps below already include every NO_SAUCE recipe (every GATE_STATE
+ * is a production recipe), which is the re-run of this gate for each of them.
  */
 
 /** The sweeps cover thousands of states: seconds locally, more on a shared CI runner. */
@@ -119,12 +121,14 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
 });
 
 describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
-  it("32 production recipes, each with exactly one sauce except the one NO_SAUCE (Technique) recipe, aussie", () => {
+  it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority", () => {
+    const noSauce = [...noSauceRecipeIds()].sort();
+    expect(noSauce.length).toBeGreaterThan(0);
     const breaking = RECIPES.filter((r) => sauceCount(r.id) !== 1).map((r) => r.id);
-    // If this fails, another Technique recipe reached production: re-run the DH4 Production gate and the
-    // DH4 privacy sweeps with it (TQ-1D contract) before shipping it.
-    expect(breaking, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(["aussie"]);
-    expect(sauceCount("aussie")).toBe(0);
+    // If this fails, a Technique recipe reached production outside the NO_SAUCE authority: re-run the DH4 Production
+    // gate and the DH4 privacy sweeps with it (TQ-1D contract) before shipping it.
+    expect(breaking.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(noSauce);
+    for (const id of noSauce) expect(sauceCount(id), id).toBe(0);
   });
   it("no request, stored id or line ever carries Technique information", () => {
     const techWords = TECHNIQUES.flatMap((t) => [t.id, t.nameJa, t.riddleJa]);
@@ -141,13 +145,13 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
       }
     }
   }, SWEEP_TIMEOUT_MS);
-  it("INV-TQ-4 on the runtime: aussie is the only production target requiring a technique, and the only affordance is its own onion step", () => {
+  it("INV-TQ-4 on the runtime: the NO_SAUCE recipes are the only production targets requiring a technique, and the only affordance is the earliest one's own step (onion, 12)", () => {
     const { catalog, materialStep } = productionTechniqueContext();
     expect(catalog).toBe(RECIPE_DISCOVERY_CATALOG);
     expect(catalog.map((t) => t.recipeId).sort()).toEqual(RECIPES.map((r) => r.id).sort());
     const requiring = catalog.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
     // If this fails, another Technique recipe arrived: re-run this DH4 gate with it first.
-    expect(requiring, "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(["aussie"]);
+    expect(requiring.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([...noSauceRecipeIds()].sort());
     for (const t of TECHNIQUES) expect(techniqueAffordanceStep(t.id, catalog, materialStep), t.id).toBe(12);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
@@ -206,8 +210,8 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     }
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
-    // Expansion Batch 2: pesto-caprese joins (a new material shrinks one of its Hint 3.0 candidate sets to a single candidate; the DH4 guard stays fail-closed: existence, no clause).
-    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza", "pesto-caprese"]);
+    // Measured snapshot of the Hint 3.0 public model (every state's guard assertions above held): Expansion Batch 2 added pesto-caprese (a new material shrank one of its candidate sets to a single candidate); Expansion Batch 3's six new materials widen that candidate set again, so it leaves the list (existence / no-clause stays asserted for every member).
+    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
   }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {

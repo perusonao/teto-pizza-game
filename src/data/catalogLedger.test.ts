@@ -11,12 +11,12 @@ import { INGREDIENTS } from "./ingredients";
 describe("catalog ledger (the single hand-maintained total)", () => {
   it("recipes / credited / ingredients / toppings / ladder steps / chapter sizes / Lunch Rush pool", () => {
     expect(CATALOG_COUNTS).toEqual({
-      recipes: 41,
-      credited: 39,
-      ingredients: 45,
-      toppings: 35,
-      ladderSteps: 37,
-      chapterSizes: [6, 11, 16, 8],
+      recipes: 47,
+      credited: 45,
+      ingredients: 51,
+      toppings: 41,
+      ladderSteps: 43,
+      chapterSizes: [6, 11, 16, 14],
       lunchRushPool: 25,
     });
   });
@@ -27,6 +27,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 3, cheese: 7, meat: 7, seafood: 5, vegetable: 12, fruit: 2, herb: 5, spice: 1, other: 3 });
+    expect(byShelf).toEqual({ sauce: 3, cheese: 7, meat: 8, seafood: 6, vegetable: 16, fruit: 2, herb: 5, spice: 1, other: 3 });
   });
 });

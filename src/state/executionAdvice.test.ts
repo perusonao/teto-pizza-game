@@ -4,6 +4,7 @@ import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizz
 import { evaluatePizzaCompletion } from "../logic/completionGate";
 import { executionAdviceJa, genericSauceReference, SAUCE_THIN_ADVICE_JA } from "./executionAdvice";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
+import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
 
 /**
  * Discovery 3.0 PR-1: the recipe-independent execution advice. It is a pure function of the player's own pizza:
@@ -27,9 +28,9 @@ describe("the shared sauce reference", () => {
     const generic = genericSauceReference();
     for (const recipe of RECIPES) {
       const reference = getReferencePizza(recipe.id)!;
-      // TQ-1D: aussie has no sauce Reference, so there is no sauce amount to compare.
+      // TQ-1D: a NO_SAUCE recipe (derived from the sauce-profile authority) has no sauce Reference, so there is no sauce amount to compare.
       if (reference.sauce === null) {
-        expect(recipe.id).toBe("aussie");
+        expect(noSauceRecipeIds() as readonly string[]).toContain(recipe.id);
         continue;
       }
       expect({ id: recipe.id, quantity: reference.sauce.quantity, coverage: reference.sauce.coverage }).toEqual({ id: recipe.id, ...generic });

@@ -7,6 +7,7 @@ import wave2Snapshot from "./__fixtures__/scoreParity.expansion2-wave2.json";
 import trapaneseSnapshot from "./__fixtures__/scoreParity.expansion3-pesto-trapanese.json";
 import aussieSnapshot from "./__fixtures__/scoreParity.tq1d-aussie.json";
 import { computeParityRows, PARITY_VARIANTS, type ParityRow } from "./testSupport/parityPizzas";
+import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 
 /**
  * TQ-1B (Issue #263, OD-TQ-S1 absolute condition): the no-sauce profile must not move any existing
@@ -83,10 +84,10 @@ describe("TQ-1B: existing recipe scores are bit-identical to main 7bb0116", () =
     expect(allRows.filter((r) => r.recipeId === "aussie")).toEqual(addedAussie.rows);
   });
 
-  it("every production recipe but aussie has a sauce Reference, so only aussie takes the no-sauce profile (no sauce component, never a fabricated 0)", () => {
+  it("every production recipe but the NO_SAUCE ones (derived from the sauce-profile authority) has a sauce Reference, so only those take the no-sauce profile (no sauce component, never a fabricated 0)", () => {
     for (const row of allRows.filter((r) => r.variant === "ideal")) {
       expect(row.available).toBe(true);
-      if (row.recipeId === "aussie") expect(row.components.sauce).toBeNull();
+      if ((noSauceRecipeIds() as readonly string[]).includes(row.recipeId)) expect(row.components.sauce).toBeNull();
       else expect(row.components.sauce).not.toBeNull();
     }
   });
