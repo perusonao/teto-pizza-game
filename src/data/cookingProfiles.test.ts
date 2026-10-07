@@ -10,6 +10,7 @@ import {
   type CookingProfile,
 } from "./cookingProfiles";
 import { RECIPES, type RecipeId } from "./recipes";
+import { noSauceRecipeIds } from "./recipeSauceProfiles";
 import type { MakingStep } from "../state/gameReducer";
 
 /**
@@ -235,11 +236,11 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
       }
     });
 
-    it("every recipe keeps DOUGH, and SAUCE unless it needs no sauce (aussie, TQ-1D; derived, not hardcoded)", () => {
+    it("every recipe keeps DOUGH, and SAUCE unless it needs no sauce (the NO_SAUCE set, TQ-1D; derived from the sauce-profile authority, not hardcoded)", () => {
       for (const recipe of RECIPES) {
         const steps = preBakeSteps(getCookingProfile(recipe.id));
         expect(steps[0], recipe.id).toBe("DOUGH");
-        if (recipe.id === "aussie") expect(steps, recipe.id).not.toContain("SAUCE");
+        if ((noSauceRecipeIds() as readonly string[]).includes(recipe.id)) expect(steps, recipe.id).not.toContain("SAUCE");
         else expect(steps, recipe.id).toContain("SAUCE");
       }
     });

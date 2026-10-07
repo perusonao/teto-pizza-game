@@ -14,7 +14,7 @@ import {
   QUATTRO_FORMAGGI_REFERENCE,
 } from "./referencePizza";
 import { RECIPES } from "./recipes";
-import { getRecipeSauceProfile } from "./recipeSauceProfiles";
+import { getRecipeSauceProfile, noSauceRecipeIds } from "./recipeSauceProfiles";
 import { computeSauceMetrics } from "../logic/sauceField";
 import { scoreSauceAgainstReference } from "../logic/referenceScoring";
 
@@ -278,7 +278,7 @@ describe("computeMechanicalSauceReference (B2 mechanical infra)", () => {
     expect(computeMechanicalSauceReference("margherita")).toEqual(MARGHERITA_REFERENCE.sauce);
   });
 
-  it.each(RECIPES.map((r) => r.id).filter((id) => id !== "aussie"))(
+  it.each(RECIPES.map((r) => r.id).filter((id) => !(noSauceRecipeIds() as readonly string[]).includes(id)))(
     "produces a reachable, sane, correctly-identified sauce target for %s",
     (recipeId) => {
       const target = computeMechanicalSauceReference(recipeId);
@@ -302,9 +302,13 @@ describe("computeMechanicalSauceReference (B2 mechanical infra)", () => {
 
   it("every recipe's mechanical target uses that recipe's own real sauce ingredient (never a fabricated stand-in)", () => {
     const ids = new Set(RECIPES.map((r) => computeMechanicalSauceReference(r.id)?.ingredientId));
-    // aussie (TQ-1D) has no sauce at all: its target is null, never a stand-in.
+    // A NO_SAUCE recipe (TQ-1D; the set is derived from the sauce-profile authority) has no sauce at all: its target is null, never a stand-in.
     expect(ids).toEqual(new Set(["tomato-sauce", "pesto", "olive-oil", undefined]));
-    expect(computeMechanicalSauceReference("aussie")).toBeNull();
+    expect(noSauceRecipeIds().length).toBeGreaterThan(0);
+    for (const id of noSauceRecipeIds()) {
+      expect(computeMechanicalSauceReference(id), id).toBeNull();
+      expect(getReferencePizza(id)!.sauce, id).toBeNull();
+    }
   });
 });
 

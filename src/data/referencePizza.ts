@@ -36,7 +36,7 @@
 import { computeSauceMetrics, type SauceDepositLike, type SauceMetrics } from "../logic/sauceField";
 import { SAUCE_RATE_PER_TICK } from "../logic/sauceQuantity";
 import type { RecipeId } from "./recipes";
-import { getRecipeSauceProfile } from "./recipeSauceProfiles";
+import { getRecipeSauceProfile, type NoSauceRecipeId } from "./recipeSauceProfiles";
 
 export type InteractionFamily =
   | "SPREAD"
@@ -165,7 +165,7 @@ function round2(value: number): number {
  * future authoring pass can read off ready-to-use sauce numbers without recomputing them by
  * hand, and so this file's own tests can prove the derivation is consistent across recipes.
  */
-export function computeMechanicalSauceReference(recipeId: Exclude<RecipeId, "aussie">): ReferenceSauce;
+export function computeMechanicalSauceReference(recipeId: Exclude<RecipeId, NoSauceRecipeId>): ReferenceSauce;
 export function computeMechanicalSauceReference(recipeId: RecipeId): ReferenceSauce | null;
 export function computeMechanicalSauceReference(recipeId: RecipeId): ReferenceSauce | null {
   const profile = getRecipeSauceProfile(recipeId);

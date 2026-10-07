@@ -3,6 +3,7 @@ import { getPlayerReferencePizza } from "./playerReference";
 import { RECIPES } from "./recipes";
 import { getIngredient } from "./ingredients";
 import { getReferencePizza } from "./referencePizza";
+import { noSauceRecipeIds } from "./recipeSauceProfiles";
 import { REFERENCE_SLOT_MIN_GAP, getReferenceSlots, minimumSlotGap } from "../logic/pizzaReferenceLayout";
 import type { Recipe, RecipeId } from "./recipes";
 
@@ -12,20 +13,22 @@ import type { Recipe, RecipeId } from "./recipes";
  * Scoring 2.0's own Margherita-only `referencePizza.ts` (which this suite also pins as
  * unchanged, per the task's explicit scope guard).
  */
+const noSauce: readonly string[] = noSauceRecipeIds();
+
 describe("getPlayerReferencePizza", () => {
   it("is available for every recipe in RECIPES (Finding F: no recipe is left without a player reference)", () => {
     for (const recipe of RECIPES) {
       const reference = getPlayerReferencePizza(recipe);
       expect(reference.recipeId).toBe(recipe.id);
-      // TQ-1D: a recipe without a sauce (aussie) has no sauce identity to communicate.
-      if (recipe.id === "aussie") expect(reference.sauceIngredientId).toBeNull();
+      // TQ-1D: a NO_SAUCE recipe (derived from the sauce-profile authority) has no sauce identity to communicate.
+      if (noSauce.includes(recipe.id)) expect(reference.sauceIngredientId).toBeNull();
       else expect(reference.sauceIngredientId).not.toBeNull();
     }
   });
 
   it("communicates sauce identity via a real sauce-category ingredient id", () => {
     for (const recipe of RECIPES) {
-      if (recipe.id === "aussie") continue;
+      if (noSauce.includes(recipe.id)) continue;
       const reference = getPlayerReferencePizza(recipe);
       const sauceIngredient = getIngredient(reference.sauceIngredientId ?? "");
       expect(sauceIngredient?.category).toBe("sauce");
