@@ -29,3 +29,6 @@ Snapshots that moved (measured values, with the assertions around them intact): 
 
 ## 3. Owner HV (Preview)
 Screenshots in `docs/reports/screenshots/expansion-batch4/` (390×844). The 390×844 Review Playthrough video is delivered directly, never committed. Check on Preview: the 🟩 (jalapeno) and 🎏 (sardine) glyphs, the feta recipe's olive-oil sauce step, the three NO_SAUCE recipes' lack of a sauce step.
+
+## 4. Owner HV: PASS (Preview source `e932688`)
+Owner-confirmed: sardine NEW 120 Pitz (300 -> 180); Research shows no identity leak; FAILED Research marks and the trial-note save are normal; NO_SAUCE `pizza-moscow` discovered normally; `pizza-moscow` = No.18 of Chapter 4 (18/18); glyphs jalapeno 🟩 / sardine 🎏 CONFIRMED as-is; no serious UI issue. No further Owner HV, video, full Vitest, multiple E2E or local WebKit required (Owner, 2026-10-07).
