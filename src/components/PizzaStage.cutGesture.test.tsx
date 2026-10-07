@@ -144,14 +144,14 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(screen.getByTestId("line-count").textContent).toBe("0");
   });
 
-  it("a press starting outside the dough never starts a CUT gesture", () => {
+  it("a press outside the dough that never enters it never cuts", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 6;
     // Far outside the 300x300 dough circle's own bounding box.
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: -50, clientY: -50 });
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 285, clientY: 150 });
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 285, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: -40, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: -40, clientY: 150 });
     expect(screen.getByTestId("line-count").textContent).toBe("0");
   });
 
@@ -256,5 +256,42 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     const preview = document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line");
     expect(preview?.style.opacity).toBe("1");
     expect(preview?.getAttribute("points")).toBe("50.00,50.00 52.00,50.00");
+  });
+
+  it("#418: a stroke that starts outside the pizza begins at the rim where the finger crossed it", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 50;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: -30, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 285, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 285, clientY: 150 });
+    expect(lastCommittedPath()).toBe("2,50 95,50");
+  });
+
+  it("#418: CUT exposes a capture zone that reaches past the pizza", () => {
+    render(<Harness />);
+    expect(document.querySelector(".pizza-cut-hit-zone")).toBeInTheDocument();
+  });
+
+  it("#418: a natural arm arc over a long stroke is committed straight", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 51;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 30, clientY: 150 });
+    for (const [x, y] of [[90, 138], [150, 132], [210, 138]]) {
+      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
+    }
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 270, clientY: 150 });
+    expect(lastCommittedPath()).toBe("10,50 90,50");
+  });
+
+  it("#418: a deliberate bend is kept as a curve", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 52;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 60, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 60 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
+    expect(lastCommittedPath()).toBe("20,50 50,20 80,50");
   });
 });

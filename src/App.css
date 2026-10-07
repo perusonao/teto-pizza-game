@@ -562,6 +562,13 @@
   fill: none;
 }
 
+.pizza-cut-hit-zone {
+  position: absolute;
+  inset: -6% -12%;
+  z-index: 5;
+  touch-action: none;
+}
+
 .pizza-cut-cutter-icon {
   position: absolute;
   transform: translate(-50%, -100%);

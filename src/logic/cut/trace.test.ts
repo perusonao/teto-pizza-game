@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { isEdgeToEdgeCutLine } from "./types";
-import { appendTraceSample, buildTracedCutLine, stabilizeTrace, TRACE_STRAIGHT_TOLERANCE, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
+import { appendTraceSample, buildTracedCutLine, stabilizeTrace, rimCrossing, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
 
 const C = DOUGH_CENTER;
 
@@ -58,8 +58,15 @@ describe("stabilizeTrace", () => {
   });
 
   it("keeps a clear curve exactly as traced", () => {
-    const p = [{ x: 20, y: 50 }, { x: 50, y: 50 - 3 * TRACE_STRAIGHT_TOLERANCE }, { x: 80, y: 50 }];
+    const p = [{ x: 20, y: 50 }, { x: 50, y: 35 }, { x: 80, y: 50 }];
     expect(stabilizeTrace(p)).toBe(p);
+  });
+
+  it("scales the allowance with stroke length: a natural arm arc on a long stroke stays straight", () => {
+    const arc = [{ x: 10, y: 50 }, { x: 30, y: 46 }, { x: 50, y: 44.5 }, { x: 70, y: 46 }, { x: 90, y: 50 }];
+    expect(stabilizeTrace(arc)).toEqual([arc[0], arc[4]]); // 5.5 sag on an 80 chord (~7%)
+    const bowed = [{ x: 10, y: 50 }, { x: 50, y: 32 }, { x: 90, y: 50 }]; // 18 sag (~22%)
+    expect(stabilizeTrace(bowed)).toBe(bowed);
   });
 
   it("keeps a clear change of direction (L-turn)", () => {
@@ -70,5 +77,13 @@ describe("stabilizeTrace", () => {
   it("keeps a stroke that doubles back", () => {
     const p = [{ x: 20, y: 50 }, { x: 60, y: 50 }, { x: 40, y: 50.5 }, { x: 55, y: 50 }];
     expect(stabilizeTrace(p)).toBe(p);
+  });
+});
+
+describe("rimCrossing", () => {
+  it("finds the rim point between an outside and an inside sample (stroke entering the pizza)", () => {
+    const entry = rimCrossing({ x: 95, y: 50 }, { x: -10, y: 50 });
+    expect(entry.x).toBeCloseTo(DOUGH_CENTER - DOUGH_RADIUS, 6);
+    expect(entry.y).toBeCloseTo(50, 6);
   });
 });

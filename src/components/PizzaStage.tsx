@@ -40,16 +40,13 @@ import {
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
-import { appendTraceSample, buildTracedCutLine, stabilizeTrace } from "../logic/cut/trace";
+import { appendTraceSample, buildTracedCutLine, rimCrossing, stabilizeTrace } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
-/** CUT draws from the first few pixels so the line keeps up with the finger (#418); tap-length
- *  strokes are still discarded by TRACE_MIN_LENGTH. */
-const CUT_DRAG_THRESHOLD_PX = 3;
 /** How long the freehand paint trail lingers before fading, roughly matching the sauce-spread
  * animation's own duration so the trail reads as "becoming" the sauce rather than vanishing. */
 const TRAIL_FADE_MS = 260;
@@ -172,6 +169,8 @@ interface GestureState {
   /** Issue #418: the in-progress CUT finger trace (dough-percent), ended once it exits the rim. */
   cutTrace: readonly DoughPoint[];
   cutTraceExited: boolean;
+  /** CUT: last sample seen outside the dough before the stroke entered it (entry point source). */
+  cutOutside: DoughPoint | null;
 }
 
 function createGestureState(): GestureState {
@@ -186,6 +185,7 @@ function createGestureState(): GestureState {
     lastInsideDough: null,
     cutTrace: [],
     cutTraceExited: false,
+    cutOutside: null,
   };
 }
 
@@ -371,9 +371,10 @@ export function PizzaStage({
     const shown = stabilizeTrace(
       lastPoint && lastPoint.x === current.x && lastPoint.y === current.y ? trace : [...trace, current],
     );
-    if (shown.length < 2) return;
-    previewEl.setAttribute("points", shown.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" "));
-    previewEl.style.opacity = "1";
+    if (trace.length > 0 && shown.length >= 2) {
+      previewEl.setAttribute("points", shown.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" "));
+      previewEl.style.opacity = "1";
+    }
     const cutterEl = cutCutterIconRef.current;
     if (cutterEl) {
       cutterEl.style.left = `${current.x}%`;
@@ -610,7 +611,9 @@ export function PizzaStage({
 
     const rect = circleRef.current.getBoundingClientRect();
     const dough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
-    if (!isInsideDough(dough.x, dough.y)) return;
+    // Issue #418: a CUT stroke may start outside the pizza (the capture zone extends past it) and
+    // begins where the finger crosses the rim; every other gesture still needs an inside press.
+    if (!isCutStep && !isInsideDough(dough.x, dough.y)) return;
     // design doc §8.4: once the cut limit is reached, a new press simply starts no gesture at
     // all (mirrors every other "reject at the source" gate in this component) -- ADD_CUT_LINE's
     // own reducer-level guard is the real backstop, this is purely to avoid a confusing
@@ -627,8 +630,9 @@ export function PizzaStage({
       dragging: false,
       pathD: "",
       lastInsideDough: dough,
-      cutTrace: [dough],
+      cutTrace: isInsideDough(dough.x, dough.y) ? [dough] : [],
       cutTraceExited: false,
+      cutOutside: isInsideDough(dough.x, dough.y) ? null : dough,
     };
 
     // MUST FIX 9: prevents this press from also producing a compatibility mouse event, a
@@ -725,23 +729,38 @@ export function PizzaStage({
       return;
     }
 
+    // Issue #418: CUT has no drag threshold -- the trace itself (and TRACE_MIN_LENGTH at release)
+    // decides what counts, and the line follows the fingertip from the first movement.
+    if (isCutStep) {
+      if (g.cutTraceExited) return;
+      const inside = isInsideDough(dough.x, dough.y);
+      if (g.cutTrace.length === 0) {
+        if (!inside) {
+          g.cutOutside = dough;
+          updateCutPreviewLine([], dough);
+          return;
+        }
+        // Entered the pizza: the cut begins on the rim where the finger crossed it.
+        g.cutTrace = [g.cutOutside ? rimCrossing(dough, g.cutOutside) : dough];
+      }
+      const next = appendTraceSample(g.cutTrace, dough);
+      g.cutTrace = next.path;
+      g.cutTraceExited = next.exited;
+      g.dragging = g.cutTrace.length >= 2;
+      updateCutPreviewLine(g.cutTrace, next.exited ? g.cutTrace[g.cutTrace.length - 1] : dough);
+      return;
+    }
+
     if (!g.dragging) {
       const dx = clientX - g.startClientX;
       const dy = clientY - g.startClientY;
-      if (Math.hypot(dx, dy) < (isCutStep ? CUT_DRAG_THRESHOLD_PX : DRAG_THRESHOLD_PX)) return;
+      if (Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
       g.dragging = true;
       if (isPaintMode) appendTrailPoint(g.startDough.x, g.startDough.y);
     }
 
     if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
     if (isPaintMode) appendTrailPoint(dough.x, dough.y);
-    // Issue #418: the live preview starts after CUT_DRAG_THRESHOLD_PX and follows the fingertip.
-    if (isCutStep && g.dragging && !g.cutTraceExited) {
-      const next = appendTraceSample(g.cutTrace, dough);
-      g.cutTrace = next.path;
-      g.cutTraceExited = next.exited;
-      updateCutPreviewLine(g.cutTrace, next.exited ? g.cutTrace[g.cutTrace.length - 1] : dough);
-    }
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -826,7 +845,7 @@ export function PizzaStage({
       if (g.dragging) {
         // The release sample itself is part of the trace (unless the finger already left the rim).
         let trace = g.cutTrace;
-        if (!g.cutTraceExited) {
+        if (!g.cutTraceExited && trace.length > 0) {
           const release = clientPointToDoughPercent(event.clientX, event.clientY, rect);
           const next = appendTraceSample(trace, release);
           // A release that jitter-filtering dropped still is where the finger lifted: keep it.
@@ -1298,6 +1317,8 @@ export function PizzaStage({
             />
           </svg>
         )}
+        {/* Issue #418: CUT's capture zone reaches past the pizza so a stroke can start outside it. */}
+        {isCutStep && interactive && <div className="pizza-cut-hit-zone" aria-hidden="true" />}
         {isCutStep && (
           <span ref={cutCutterIconRef} className="pizza-cut-cutter-icon" aria-hidden="true" style={{ opacity: 0 }}>
             {"\u{1F52A}"}
