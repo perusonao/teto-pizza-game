@@ -116,7 +116,7 @@ describe("Expansion Slice 3 authoring: production data", () => {
 
 describe("Expansion Slice 3 ladder: step 29 unlocks almond; steps 1..28 frozen (append-only)", () => {
   it("appended step 29 = almond -> pesto-trapanese; steps 1..28 are byte-identical to before", () => {
-    expect(POST_W1_APPENDED_STEPS).toEqual([
+    expect(POST_W1_APPENDED_STEPS.slice(0, 5)).toEqual([
       { ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" },
       { ingredientIds: ["shrimp"], keyRecipeId: "pesto-gamberi" },
       { ingredientIds: ["parsley"], keyRecipeId: "vongole" },

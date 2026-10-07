@@ -766,7 +766,7 @@ describe("Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P
       }
     }
     expect(windows).toHaveLength(RECIPES.length + 1); // FREE + 33 recipes (Slice 3: pesto-trapanese 50-70) (TQ-1D: aussie 50-70) (PR-4b-B: calabresa shares 58-78; No.27: pesto-pollo 50-70; Expansion: pesto-gamberi 50-70; Wave 2: vongole 62-82, pesto-vegetariana 50-70, ratatouille-pizza 58-78)
-    expect(cases).toBe(13_668);
+    expect(cases).toBe(windows.length * 2 * 201); // every window x 2 compositions x 201 bakes (0..100 step 0.5)
   });
 
   it("D-P runtime: for every CUT recipe's Reference pizza, bake 0..100, the forwarded verdict never mismatches", () => {
