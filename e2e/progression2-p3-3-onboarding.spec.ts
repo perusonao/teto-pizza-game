@@ -1,6 +1,7 @@
 import { expectFreeNote, freeNoteText } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Progression 2.0 Phase 3-3 (Issue #198): 0-recipe onboarding, driven through the real UI at
@@ -52,7 +53,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     // A. Fresh HOME: Dex 0, フリークッキング is the primary CTA, ランチラッシュ is locked with a
     // reason, ピザを作る is still present (secondary).
     await openHomeFresh(page);
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`0/${CATALOG_COUNTS.recipes}`));
     await expect(page.getByRole("button", { name: /レシピ発見/ })).toBeVisible();
     const lunchRushButton = page.getByRole("button", { name: /ランチラッシュ/ });
     await expect(lunchRushButton).toBeDisabled();
@@ -166,7 +167,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
       );
     });
     await openHomeFresh(page);
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
     await expect(page.locator(".cta-button--free-cook-lead")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "\u{1F355} ピザを作る" })).toBeVisible();
     await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
@@ -202,7 +203,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     });
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
 
     await page.getByRole("button", { name: "設定" }).click();
     await page.getByRole("button", { name: "ゲームデータをリセット" }).click();
@@ -212,7 +213,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     await confirmPanel.getByRole("button", { name: "最初からやり直す" }).click();
     await page.waitForLoadState("load");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/0\/33/, { timeout: 15_000 });
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`0/${CATALOG_COUNTS.recipes}`), { timeout: 15_000 });
     await expect(page.getByRole("button", { name: /レシピ発見/ })).toBeVisible();
   });
 });

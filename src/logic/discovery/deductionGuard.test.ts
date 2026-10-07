@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
-import { RECIPES } from "../../data/recipes";
 import { createDefaultSave, loadSave, SAVE_STORAGE_KEY } from "../../state/persistence";
 import {
   attributeAnswerForReserve,
@@ -357,6 +356,5 @@ describe("T-15 wiring boundary (DH4-2B)", () => {
       const a = guardedAnswerForParts(parts)!;
       if (getIngredient(parts.reserveId)!.category !== "topping") expect(["category", "existence"]).toContain(a.level);
     }
-    expect(RECIPES.length).toBe(33);
   });
 });

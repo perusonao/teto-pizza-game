@@ -5,6 +5,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * TQ-1D / NO_SAUCE Production Activation: Aussie (オージーピザ, the first recipe made without a sauce) and the
@@ -19,7 +20,6 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 /** Aussie is the lone entry: the onion step's other two recipes are found. */
 const FOUND = [...keysBefore(12), "pizza-portuguesa", "brazilian-calabresa"];
@@ -125,7 +125,7 @@ test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/14\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`14/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Dex before: the technique is undiscovered but its affordance is open -> 「？？？」 + the fixed riddle, never the name.

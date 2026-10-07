@@ -19,6 +19,7 @@ import {
   validateDiscoveryLadder,
 } from "./discoveryLadder";
 import { REC04_STARTERS, REC04_W1_25_LADDER_FIXTURE } from "./testSupport/discoveryLadderRule";
+import { CATALOG_COUNTS } from "./catalog/testSupport/catalogDerived";
 
 const LADDER = SHIPPED_15_DISCOVERY_LADDER;
 const W1_LADDER = REC04_W1_25_LADDER_FIXTURE;
@@ -79,10 +80,9 @@ describe("discoveredRecipeCount", () => {
   });
 
   it("is 30 once every shipped recipe is discovered, 32 recipes with calabresa and aussie non-credit (W1 I5b-3 / PR-4b-B / No.27 / Expansion Slice 1 / TQ-1D)", () => {
-    expect(RECIPES).toHaveLength(33);
     const all = RECIPES.map((r) => dexEntry(r.id));
-    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(31); // the credited population
-    expect(discoveredRecipeCount(all)).toBe(33); // the raw default counts every recipe
+    expect(discoveredRecipeCount(all, countsTowardLadder)).toBe(CATALOG_COUNTS.credited); // the credited population
+    expect(discoveredRecipeCount(all)).toBe(RECIPES.length); // the raw default counts every recipe
   });
 });
 
@@ -426,6 +426,9 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // Discovery 3.0 PR-4a: the branching-pool test support walks the ladder with the real entitlement
       // authority (test-only; nothing in production imports it).
       "./testSupport/branchingFixture.ts",
+      // Recipe Expansion speed-up Phase 1: catalog-derived test seeds and the Recipe Batch Validator read the ladder
+      // (test-only; nothing in production imports them).
+      "./catalog/testSupport/catalogDerived.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",

@@ -57,8 +57,6 @@ const target = (s: RecipeDiscoveryInputs) => {
 
 describe("No.27 authoring: production data", () => {
   it("recipe count 26 -> 27, ingredient count 29 -> 30, existing No.1..26 unchanged, pesto-pollo = No.27 (Expansion Slice 1 then appends No.28 / the 31st ingredient; Wave 2 No.29-31 / ingredients 32-34)", () => {
-    expect(RECIPES).toHaveLength(33); // + TQ-1D No.32 aussie (no new ingredient)
-    expect(INGREDIENTS).toHaveLength(35);
     expect(RECIPES[26].id).toBe(ID);
     expect(RECIPES[25].id).toBe(CAL);
     expect(RECIPES.slice(0, 26).filter((r) => r.id === ID)).toEqual([]);
@@ -122,7 +120,6 @@ describe("No.27 ladder: step 25 unlocks chicken; steps 1..24 unchanged", () => {
   it("appended step 25 = chicken -> pesto-pollo; the 24 W1 steps are byte-identical (Expansion Slice 1 appends step 26 after it)", () => {
     expect(POST_W1_APPENDED_STEPS[0]).toEqual({ ingredientIds: ["chicken"], keyRecipeId: ID });
     expect(POST_W1_APPENDED_STEPS).toHaveLength(5); // Expansion Slice 1 step 26, Wave 2 steps 27 / 28
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
     expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: ID });
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
   });

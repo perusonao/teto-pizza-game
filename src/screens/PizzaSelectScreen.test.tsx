@@ -3,6 +3,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PizzaSelectScreen } from "./PizzaSelectScreen";
 import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
+import { buildRecipeChapters } from "../state/recipeChapters";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
@@ -172,9 +173,9 @@ describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...ALL_FINITE],
       inventory: FULL_STOCK,
     });
-    expect(gridCards()).toHaveLength(33);
+    expect(gridCards()).toHaveLength(RECIPES.length);
     expect(document.querySelector(".pizza-select-prompt")).toBeNull();
-    expect(sectionHeadings()).toEqual(["第1章発見 6/6", "第2章発見 11/11", "第3章発見 16/16"]);
+    expect(sectionHeadings()).toEqual(buildRecipeChapters().map((c) => `${c.titleJa}発見 ${c.recipes.length}/${c.recipes.length}`));
   });
 });
 

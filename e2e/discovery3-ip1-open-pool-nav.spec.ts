@@ -3,6 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep, paintSauceRing } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery 3.0 IP-1: the OPEN_POOL next-action UI (Notebook entry), played for real on both iPhone widths. The 食材庫 route is
@@ -54,7 +55,7 @@ async function startDex12Free(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX12_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`12/${CATALOG_COUNTS.recipes}`));
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
 }

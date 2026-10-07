@@ -7,6 +7,7 @@ import {
   syntheticCatalog,
   syntheticRecipes,
 } from "./testSupport/largeCatalogFixtures";
+import { CATALOG_COUNTS } from "./testSupport/catalogDerived";
 
 const MODEL_RAW = import.meta.glob<string>("../../../docs/reports/data/TETO_LARGE-CATALOG-UX_SCALE-MODEL.json", {
   query: "?raw",
@@ -35,7 +36,7 @@ describe("LC-1b scale fixtures", () => {
     );
     expect(sizes).toEqual({
       // PR-4b-B: the id keeps its LC-1b name; the fixture is the real runtime catalog (now 33 recipes incl. TQ-1D's aussie, No.27 pesto-pollo, Expansion pesto-gamberi, Wave 2's 3 and Slice 3's pesto-trapanese / 35 ingredients incl. chicken, shrimp, Wave 2's 3 and almond).
-      "runtime-29x25": [35, 33],
+      "runtime-29x25": [CATALOG_COUNTS.ingredients, CATALOG_COUNTS.recipes],
       "w2a-37x34": [37, 34],
       "w2a-mixed-37x34": [37, 34],
       "mid-40x34": [40, 34],
@@ -46,10 +47,10 @@ describe("LC-1b scale fixtures", () => {
     });
   });
 
-  it("runtime fixture is the real catalog: 3 / 4 / 27 and chapters 6 / 11 / 15", () => {
+  it("runtime fixture is the real catalog: 3 sauces / 4 cheeses / every topping, and the real chapter sizes", () => {
     const f = largeCatalogFixture("runtime-29x25");
-    expect(f.split).toEqual({ sauce: 3, cheese: 4, topping: 28 });
-    expect(f.chapterSizes).toEqual([6, 11, 16]);
+    expect(f.split).toEqual({ sauce: 3, cheese: 4, topping: CATALOG_COUNTS.toppings });
+    expect(f.chapterSizes).toEqual(CATALOG_COUNTS.chapterSizes);
     expect(f.starterIds).toEqual(["tomato-sauce", "mozzarella", "basil"]);
   });
 

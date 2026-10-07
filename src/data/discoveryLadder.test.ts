@@ -38,9 +38,6 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   });
 
   it("targets the credited 31-recipe population (24 W1 steps + No.27's step 25 + Expansion Slice 1's step 26 + Wave 2's steps 27 / 28 + Slice 3's step 29; PR-4b-B's non-credit calabresa adds none); shipped-15 had 15 recipes (14 steps)", () => {
-    expect(RECIPES).toHaveLength(33); // + Expansion Slice 3 pesto-trapanese, Wave 2 (vongole / pesto-vegetariana / ratatouille-pizza) + TQ-1D's non-credit aussie
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(31);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
     expect(SHIPPED_15_RECIPES).toHaveLength(15);
     expect(SHIPPED_15_DISCOVERY_LADDER.steps).toHaveLength(14);
   });

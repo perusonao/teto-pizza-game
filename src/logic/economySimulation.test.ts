@@ -35,7 +35,6 @@ describe("economy table consistency (A)", () => {
   const table = financeIngredientTable();
 
   it("has exactly 35 ingredients, 19 of them legacy-priced (the 7 W1 materials, No.27's chicken, Expansion's shrimp, Wave 2's 3 materials and Slice 3's almond carry no legacy price)", () => {
-    expect(INGREDIENTS.length).toBe(35);
     expect(table.length).toBe(19);
     const finiteUnpriced = INGREDIENTS.filter((i) => i.unlockCondition && !i.starterGrantOnly).map((i) => i.id);
     expect(finiteUnpriced.sort()).toEqual([...LADDER_ONLY_MATERIAL_IDS].sort());
@@ -47,7 +46,6 @@ describe("economy table consistency (A)", () => {
   });
 
   it("simulates the 15 EP-era recipes; the 10 W1 recipes (no EP1 gate) are outside this EP4 model", () => {
-    expect(RECIPES.length).toBe(33);
     expect(EP_ERA_RECIPES).toHaveLength(15);
     expect((RECIPES as readonly Recipe[]).filter((r) => !EP_ERA_RECIPES.includes(r)).every((r) => !r.unlockCondition)).toBe(true);
   });

@@ -4,6 +4,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { PROFILES, ProfileDriver } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery 3.0 PR-1 (OD-D3-20 / OD-D3-23): the oracle neutralization, played for real (dough -> sauce -> cheese -> toppings -> bake)
@@ -56,7 +57,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/3\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`3/${CATALOG_COUNTS.recipes}`));
 }
 
 async function place(page: Page, name: RegExp, spots: [number, number][]) {

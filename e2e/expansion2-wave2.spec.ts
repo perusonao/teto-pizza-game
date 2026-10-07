@@ -5,6 +5,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Expansion Wave 2 (vongole / pesto-vegetariana / ratatouille-pizza; parsley at ladder step 27, bell-pepper + zucchini at
@@ -20,7 +21,6 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 const saveJson = (step: number, bought: readonly string[] = []) => {
   const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie"];
@@ -139,7 +139,7 @@ test.describe("Expansion Wave 2", () => {
     const project = testInfo.project.name;
     const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie"];
     await open(page, saveJson(27));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/29\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`29/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: parsley ☘️ is NEW, then bought (finite T3 material, 20 pieces).
@@ -237,7 +237,7 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/30\s*\/\s*33/);
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`30\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ヴォンゴレピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.13");
@@ -258,7 +258,7 @@ test.describe("Expansion Wave 2", () => {
     const project = testInfo.project.name;
     const found = [...keysBefore(28), "brazilian-calabresa", "aussie"];
     await open(page, saveJson(28));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/30\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`30/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: both materials are NEW at once, then bought.
@@ -358,7 +358,7 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/32\s*\/\s*33/);
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`32\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     for (const [name, no] of [["ペストベジタリアーナピザ", "No.14"], ["ラタトゥイユピザ", "No.15"]]) {
       const card = page.locator(".dex-card").filter({ hasText: name });
       await expect(card).toHaveCount(1);

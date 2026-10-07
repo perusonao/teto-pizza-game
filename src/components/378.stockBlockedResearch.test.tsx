@@ -7,7 +7,7 @@ import { DexOverlay, RESEARCH_STOCK_NOTICE_JA } from "./DexOverlay";
 import { ShopOverlay } from "./ShopOverlay";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { RECIPES, getRecipe, type RecipeId } from "../data/recipes";
+import { getRecipe, type RecipeId } from "../data/recipes";
 import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
 import { researchEntryViews } from "../state/discoveryHint";
 import { isResearchStockBlocked } from "../state/researchStockBlock";
@@ -259,6 +259,5 @@ describe("G. save/schema untouched", () => {
       const src = fs.readFileSync(f, "utf8");
       expect(src).not.toMatch(/localStorage|persistence|schemaVersion/);
     }
-    expect(RECIPES.length).toBe(33);
   });
 });

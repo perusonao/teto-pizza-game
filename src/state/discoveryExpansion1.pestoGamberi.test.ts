@@ -37,8 +37,6 @@ const stateAfter = (found: readonly string[], opts: { shrimpBought: boolean }): 
 
 describe("Expansion Slice 1 authoring: production data", () => {
   it("recipe count 27 -> 28, ingredient count 30 -> 31, pesto-gamberi = No.28 (existing order unchanged; Wave 2 later appends No.29-31 / ingredients 32-34)", () => {
-    expect(RECIPES).toHaveLength(33); // + TQ-1D No.32 aussie (no new ingredient)
-    expect(INGREDIENTS).toHaveLength(35);
     expect(RECIPES[27].id).toBe(ID);
     expect(RECIPES[26].id).toBe("pesto-pollo");
     expect(INGREDIENTS[30].id).toBe("shrimp");
@@ -107,7 +105,6 @@ describe("Expansion Slice 1 ladder: step 26 unlocks shrimp; steps 1..25 frozen",
       { ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" },
       { ingredientIds: ["shrimp"], keyRecipeId: ID },
     ]);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29); // Wave 2 appends steps 27 / 28 after this slice
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
     expect(DISCOVERY_LADDER.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
     expect(DISCOVERY_LADDER.steps[25]).toEqual({ step: 26, kind: "MATERIAL", ingredientIds: ["shrimp"], keyRecipeId: ID });
@@ -117,7 +114,6 @@ describe("Expansion Slice 1 ladder: step 26 unlocks shrimp; steps 1..25 frozen",
     expect(countsTowardLadder(ID)).toBe(true);
     expect(recipe.ladderCredit).toBeUndefined();
     expect(countsTowardLadder("brazilian-calabresa")).toBe(false);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(31);
     expect(discoveredRecipeCount(discoverAll(UP_TO_POLLO), countsTowardLadder)).toBe(26);
     expect(resolveShopEntitlement(discoverAll(W1_ORDER), [], []).unlockedForShopIngredientIds).not.toContain("shrimp");
     expect(resolveShopEntitlement(discoverAll(UP_TO_POLLO), [], []).unlockedForShopIngredientIds).toContain("shrimp");

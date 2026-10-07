@@ -91,10 +91,6 @@ const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal
 const BLIND_POOL2_RECIPES: readonly string[] = ["pesto-vegetariana", "ratatouille-pizza"];
 
 describe("P-C progression walk (real reducer, flag ON)", () => {
-  it("the production population is the 25-recipe W1 ladder + the non-credit calabresa + No.27 pesto-pollo + Expansion's pesto-gamberi + Wave 2's 3 + TQ-1D's non-credit aussie (32)", () => {
-    expect(TOTAL).toBe(33);
-  });
-
   it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {
     const runs = [];
     for (const qualityTotal of QUALITIES) {

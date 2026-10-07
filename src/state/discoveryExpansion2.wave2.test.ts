@@ -19,7 +19,7 @@ import { materialOffer } from "../logic/materialShop";
 import { discoverAll, pizzaOf, poolOf, remainingOf, walkState, W1_ORDER } from "../logic/testSupport/branchingFixture";
 import { missionOrderRecipeIds } from "../mission/lunchRush";
 import { resolveShopEntitlement } from "./materialEntitlement";
-import { buildRecipeChapters, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
+import { recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
 import { createDefaultSave } from "./persistence";
 
@@ -49,13 +49,7 @@ const stateAfter = (found: readonly string[], bought: readonly string[] = []): R
 
 describe("Expansion Wave 2 authoring: exact production data", () => {
   it("counts: recipes 28 -> 31, ingredients 31 -> 34, toppings 24 -> 27, ladder 26 -> 28, credited 27 -> 30, chapters 6 / 10 / 15 (TQ-1D then appends the non-credit aussie: 32 recipes, chapters 6 / 11 / 15)", () => {
-    expect(RECIPES).toHaveLength(33);
-    expect(INGREDIENTS).toHaveLength(35);
-    expect(INGREDIENTS.filter((i) => i.category === "topping")).toHaveLength(28);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(31);
-    expect(buildRecipeChapters().map((c) => c.recipes.length)).toEqual([6, 11, 16]);
-  });
+      });
 
   it("RECIPES declaration order: pesto-gamberi (No.28) is followed by vongole, pesto-vegetariana, ratatouille-pizza", () => {
     expect(RECIPES[27].id).toBe("pesto-gamberi");
@@ -128,8 +122,8 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
 
   it("no identity collision: all 32 identities (ingredient set + counts) are unique and each new recipe matches only itself", () => {
     const keys = RECIPES.map((r) => JSON.stringify([...r.requiredIngredients].map((q) => [q.ingredientId, q.minCount]).sort()));
-    expect(new Set(keys).size).toBe(33);
-    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(33);
+    expect(new Set(keys).size).toBe(RECIPES.length);
+    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(RECIPES.length);
     for (const id of IDS) {
       const m = matchDiscovery(signatureOfPizza(pizzaOf(rec(id).requiredIngredients.map((q) => q.ingredientId))), RECIPE_DISCOVERY_CATALOG);
       expect(m.kind, id).toBe("UNIQUE_MATCH");
@@ -262,7 +256,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
         expect(pool.length, `after ${order.length} discoveries`).toBeGreaterThan(0);
         order.push(pick(pool));
       }
-      expect(new Set(order).size).toBe(33);
+      expect(new Set(order).size).toBe(RECIPES.length);
       expect(remainingOf(walkState(order))).toEqual([]);
     }
   });

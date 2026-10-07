@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Progression 2.0 Phase 3-4B: save forward-compat, in a real browser. A save written by a newer
@@ -40,7 +41,7 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
 
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
   await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
 
   const readSave = () =>
@@ -61,7 +62,7 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
 
   await page.reload();
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
   const reloaded = await readSave();
   expect(reloaded.dex).toContainEqual(FUTURE_SAVE.dex[1]);
   expect(reloaded.ownedIngredientIds).toContain("calabresa");

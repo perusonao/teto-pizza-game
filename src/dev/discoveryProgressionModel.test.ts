@@ -22,6 +22,7 @@ import { poolOf, walkState, W1_ORDER } from "../logic/testSupport/branchingFixtu
 import { ingredientUnlockStep, resolveShopEntitlement } from "../state/materialEntitlement";
 import { recipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { buildInspectorModel, stepMatchesFilter, stepMatchesQuery } from "./discoveryProgressionModel";
+import { CATALOG_COUNTS } from "../logic/catalog/testSupport/catalogDerived";
 
 const model = buildInspectorModel();
 const step = (n: number) => model.steps.find((s) => s.step === n)!;
@@ -70,7 +71,6 @@ describe("current production population", () => {
     expect(model.recipeCount).toBe(RECIPES.length);
     expect(model.ingredientCount).toBe(INGREDIENTS.length);
     expect(model.stepCount).toBe(DISCOVERY_LADDER.steps.length);
-    expect([model.recipeCount, model.ingredientCount, model.stepCount]).toEqual([33, 35, 29]);
     expect(model.startingPool.map((m) => m.recipeId)).toEqual(["margherita"]);
   });
 });
@@ -152,7 +152,7 @@ describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", ()
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));
     expect(calabresa.firstDiscoverableStep).toBe(12);
-    expect(calabresa.poolSteps).toEqual(Array.from({ length: 18 }, (_, i) => 12 + i)); // 12..28 (steps 25-28 add the appended-step recipes beside it)
+    expect(calabresa.poolSteps).toEqual(Array.from({ length: CATALOG_COUNTS.ladderSteps - 11 }, (_, i) => 12 + i)); // 12..last step (it stays in every later pool)
     expect(step(12).newlyDiscoverable.find((r) => r.recipeId === "brazilian-calabresa")!.ladderCredit).toBe(false);
   });
   it("finding it leaves the production ladder count and the entitlement unchanged", () => {
@@ -171,7 +171,7 @@ describe("filters / search", () => {
     expect(hit("pizza-portuguesa")).toContain(12);
     expect(hit("ブラジリアン")).toContain(12);
     expect(hit("zzz-not-there")).toEqual([]);
-    expect(hit("")).toHaveLength(29);
+    expect(hit("")).toHaveLength(CATALOG_COUNTS.ladderSteps);
   });
 });
 

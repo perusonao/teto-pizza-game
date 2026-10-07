@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, playFullMargheritaRound, tapDoughPercent } from "./gestures";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Issue #212 (H-R / OD-2): Lunch Rush material-shortage orders in a real browser, at 390x844 and
@@ -43,7 +44,7 @@ async function openWithSave(page: Page, raw: { dex: unknown[] }, query = "") {
   );
   await page.goto(`./${query}`);
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${raw.dex.length}/33`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${raw.dex.length}/${CATALOG_COUNTS.recipes}`));
 }
 
 async function startRun(page: Page) {

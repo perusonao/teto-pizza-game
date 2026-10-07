@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery Hint 3.0 (Issue #238), H3-2: the Selectable Hint fact ledger in a real browser. A save
@@ -36,7 +37,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
 
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
 
   const readSave = () => page.evaluate(() => JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"));
   await expect.poll(async () => (await readSave()).unlockedForShopIngredientIds).toContain("egg");
@@ -50,7 +51,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
 
   await page.reload();
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
   const reloaded = await readSave();
   expect(reloaded.discoveryHintFacts).toEqual(FACTS);
   expect(reloaded.discoveryHintPurchases).toEqual(SAVE.discoveryHintPurchases);

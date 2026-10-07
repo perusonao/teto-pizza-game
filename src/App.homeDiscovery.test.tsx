@@ -6,6 +6,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY } from "./state/persistence";
 import { DISCOVERY_LADDER } from "./data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { materialsUpTo } from "./logic/catalog/testSupport/catalogDerived";
 
 /**
  * Issue #373 through the real App: HOME 「レシピ発見」 follows the cookable Research Entries (0 targetless / 1 that
@@ -14,7 +15,6 @@ import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
  */
 
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 function seed(step: number, extraDiscovered: readonly string[] = []): void {
   const materials = materialsUpTo(step);

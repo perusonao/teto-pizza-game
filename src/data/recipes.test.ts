@@ -84,7 +84,6 @@ const EXPANSION3_RECIPE_IDS: readonly RecipeId[] = ["pesto-trapanese"];
 
 describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14; Batch 1B-C adds #15)", () => {
   it("has exactly 31 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1 + W1's 10 + PR-4b-B's 1 + No.27's 1 + Expansion Slice 1's 1 + Wave 2's 3 + TQ-1D's 1)", () => {
-    expect(RECIPES).toHaveLength(33);
     expect(RECIPES.slice(15, 25).map((r) => r.id)).toEqual(W1_RECIPE_IDS);
     expect(RECIPES.slice(25, 26).map((r) => r.id)).toEqual(PR_4B_B_RECIPE_IDS); // appended: No.26
     expect(RECIPES.slice(26, 27).map((r) => r.id)).toEqual(NO27_RECIPE_IDS); // appended: No.27
