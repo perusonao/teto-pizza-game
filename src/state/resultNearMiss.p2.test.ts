@@ -236,5 +236,5 @@ describe("P2-B truthfulness: every directional line is followed to a real discov
       }
     }
     expect(checked).toBeGreaterThan(200);
-  });
+  }, 60_000); // walks every recipe with the real matcher: ~3.9s locally, over the 5s default under CI load as the catalog grows (Batch 4)
 });
