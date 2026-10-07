@@ -222,7 +222,7 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
     s = act(s, { type: "CLOSE_HINT" });
   }
 
-  for (let stageGuard = 0; stageGuard < 40; stageGuard += 1) {
+  for (let stageGuard = 0; stageGuard < RECIPES.length + 4; stageGuard += 1) {
     const dexCount = discoveredRecipeIds(s.dex).length;
     // Done when every recipe is discovered. Not "25": with a branching pool the walk may end after
     // more (or in a different order) than a single-path ladder, and the stop must not assume one.

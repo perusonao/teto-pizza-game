@@ -6,15 +6,17 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** Expansion Batch 1 (33 -> 36 recipes): LANDED. Declarations are checked against the data by the validator. */
+/** Expansion Batch 2 (36 -> 41 recipes): the manifest the validator checks. Batch 1 (landed) is covered by the catalog-wide tests. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
-  batchId: "expansion-batch-4",
+  batchId: "expansion-batch-5",
   status: "landed",
-  afterRecipeId: "pesto-trapanese",
+  afterRecipeId: "veggie-supreme-pizza",
   recipes: [
-    { recipeId: "baba-ganoush-pizza", keyIngredientId: "pine-nuts", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "prosciutto-funghi", keyIngredientId: "prosciutto-crudo", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "veggie-supreme-pizza", keyIngredientId: "green-pepper", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "jamon-serrano-pizza", keyIngredientId: "arugula", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "calabresa-argentina", keyIngredientId: "salami", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "rucola-e-grana", keyIngredientId: "grana-padano", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "vegan-cashew-cheese-pizza", keyIngredientId: "cashew-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pesto-salmone", keyIngredientId: "salmon", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
 };
 

@@ -29,7 +29,7 @@ const step = (n: number) => model.steps.find((s) => s.step === n)!;
 const stepOf = (ingredientId: string) => step(ingredientUnlockStep(ingredientId)!);
 
 /** The production walk: the W1 order, then each appended step's key recipe (steps 25-27; step 28's pair is a branching pool, walked only as far as its After pool). */
-const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi"];
+const PRODUCTION_ORDER: readonly string[] = [...W1_ORDER, ...DISCOVERY_LADDER.steps.slice(W1_ORDER.length - 1).map((s) => s.keyRecipeId)]; // derived: no per-batch list
 
 describe("production authority reuse (no second DISCOVERABLE logic)", () => {
   it("calls the production predicate, entitlement bridge and hint target selection", () => {

@@ -770,6 +770,92 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "jamon-serrano-pizza",
+    nameJa: "ハモンセラーノピザ",
+    description: "トマトソースとモッツァレラに、生ハムとルッコラをのせた、塩気と苦みのさっぱりした一枚。",
+    // Expansion Batch 2 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `jamon-serrano-pizza-pizzadb-p7`, 172 matrix): tomato-sauce / mozzarella / prosciutto-crudo / arugula (the matrix's tomato-sauce is family-derived; the thin-dough note is not a mechanic here).
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / mozzarella 2 / prosciutto-crudo 3 / arugula 2, bake 58-78; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "prosciutto-crudo", minCount: 3 },
+      { ingredientId: "arugula", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "calabresa-argentina",
+    nameJa: "カラブレサ・アルヘンティーナ",
+    description: "トマトソースとモッツァレラに、サラミとブラックオリーブ、オレガノをのせた、アルゼンチン風の一枚。",
+    // Expansion Batch 2 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `calabresa-argentina-pizzadb`, 172 matrix): tomato-sauce / mozzarella / salami / black-olive / oregano (naming cluster NC-4 with brazilian-calabresa: composition differs, sausage-onion vs salami-olive).
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / mozzarella 2 / salami 3 / black-olive 1 / oregano 1, bake 58-78; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "salami", minCount: 3 },
+      { ingredientId: "black-olive", minCount: 1 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "rucola-e-grana",
+    nameJa: "ルーコラ・エ・グラナ",
+    description: "トマトソースに生ハム、ルッコラとグラナ・パダーノをのせた、香りのよい一枚。",
+    // Expansion Batch 2 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `rucola-e-grana-pizzadb-p13`, 172 matrix): tomato-sauce / prosciutto-crudo / arugula / grana-padano (the matrix's tomato-sauce is family-derived; no mozzarella, so it never matches jamon-serrano-pizza).
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / prosciutto-crudo 3 / arugula 2 / grana-padano 2, bake 58-78; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "prosciutto-crudo", minCount: 3 },
+      { ingredientId: "arugula", minCount: 2 },
+      { ingredientId: "grana-padano", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "vegan-cashew-cheese-pizza",
+    nameJa: "ヴィーガンカシューチーズピザ",
+    description: "トマトソースにカシューチーズ、パプリカとズッキーニをのせた、乳製品を使わない野菜たっぷりの一枚。",
+    // Expansion Batch 2 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `vegan-cashew-cheese-pizza-pizzadb-p1`, 172 matrix): tomato-sauce / cashew-cheese / bell-pepper / zucchini (the matrix's tomato-sauce is family-derived).
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / cashew-cheese 2 / bell-pepper 2 / zucchini 2, bake 58-78; 6 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "cashew-cheese", minCount: 2 },
+      { ingredientId: "bell-pepper", minCount: 2 },
+      { ingredientId: "zucchini", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pesto-salmone",
+    nameJa: "ペストサーモン",
+    description: "ペストにサーモンとクリームチーズ、レモンをのせた、爽やかな一枚。",
+    // Expansion Batch 2 (Chapter 4). SOURCE AUTHORITY (PIZZA DB `pesto-salmone-pizzadb-p11`, 172 matrix): pesto / salmon / cream-cheese / lemon (the matrix's pesto is family-derived).
+    // GAMEPLAY CALIBRATION (not source): counts pesto 1 / salmon 3 / cream-cheese 2 / lemon 2, bake 58-78; 7 non-sauce pieces <= the 8-slot ring.
+    // Ladder-credited; `lunchRush: false` keeps it out of the Lunch Rush pool.
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "salmon", minCount: 3 },
+      { ingredientId: "cream-cheese", minCount: 2 },
+      { ingredientId: "lemon", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

@@ -151,6 +151,12 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["pine-nuts"], keyRecipeId: "baba-ganoush-pizza" },
   { ingredientIds: ["prosciutto-crudo"], keyRecipeId: "prosciutto-funghi" },
   { ingredientIds: ["green-pepper"], keyRecipeId: "veggie-supreme-pizza" },
+  // Steps 33-37 (Expansion Batch 2, T4): one step per recipe. Steps 1-32 frozen.
+  { ingredientIds: ["arugula"], keyRecipeId: "jamon-serrano-pizza" },
+  { ingredientIds: ["salami"], keyRecipeId: "calabresa-argentina" },
+  { ingredientIds: ["grana-padano"], keyRecipeId: "rucola-e-grana" },
+  { ingredientIds: ["cashew-cheese"], keyRecipeId: "vegan-cashew-cheese-pizza" },
+  { ingredientIds: ["cream-cheese", "lemon", "salmon"], keyRecipeId: "pesto-salmone" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

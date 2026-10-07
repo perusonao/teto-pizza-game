@@ -65,6 +65,12 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "baba-ganoush-pizza": "baba-ganoush-pizza-pizzadb-p7",
   "prosciutto-funghi": "prosciutto-funghi-pizzadb-p11",
   "veggie-supreme-pizza": "veggie-supreme-pizza-pizzadb-p11",
+  // Expansion Batch 2: PIZZA DB evidence ids from the 172 matrix.
+  "vegan-cashew-cheese-pizza": "vegan-cashew-cheese-pizza-pizzadb-p1",
+  "calabresa-argentina": "calabresa-argentina-pizzadb",
+  "jamon-serrano-pizza": "jamon-serrano-pizza-pizzadb-p7",
+  "rucola-e-grana": "rucola-e-grana-pizzadb-p13",
+  "pesto-salmone": "pesto-salmone-pizzadb-p11",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };

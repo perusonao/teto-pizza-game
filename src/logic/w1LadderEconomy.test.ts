@@ -7,6 +7,7 @@ import {
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
 import { RECIPES, countsTowardLadder, type Recipe } from "../data/recipes";
 import { materialIdsOfSteps, validateDiscoveryLadder } from "./discoveryLadder";
+import { POST_W1_MATERIAL_IDS, POST_W1_RECIPE_IDS } from "./catalog/testSupport/catalogDerived";
 import {
   MATERIAL_PRICE_TIERS,
   materialK,
@@ -40,9 +41,9 @@ const W1_OPTIONS = { ladder: W1_25_DISCOVERY_LADDER, recipes: RECIPES };
 // credited recipes minus the recipes of the appended steps 25-28 (not W1): No.27 pesto-pollo (`chicken`),
 // Expansion Slice 1 pesto-gamberi (`shrimp`), Wave 2 vongole (`parsley`) / pesto-vegetariana (`bell-pepper` +
 // `zucchini`) and ratatouille-pizza (makeable at step 28, nobody's key recipe).
-const APPENDED_RECIPE_IDS: readonly string[] = ["pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"];
+const APPENDED_RECIPE_IDS: readonly string[] = POST_W1_RECIPE_IDS; // derived: no per-batch list
 /** The materials the appended steps 25-28 sell (not W1). */
-const APPENDED_MATERIAL_IDS: readonly string[] = ["chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond", "pine-nuts", "prosciutto-crudo", "green-pepper"];
+const APPENDED_MATERIAL_IDS: readonly string[] = POST_W1_MATERIAL_IDS; // derived: no per-batch list
 const W1_POPULATION = RECIPES.filter((r) => countsTowardLadder(r.id) && !APPENDED_RECIPE_IDS.includes(r.id));
 /** The finite catalog materials the frozen W1 ladder sells (everything but the 5 appended-step materials). */
 const W1_FINITE_IDS = INGREDIENTS.filter((i) => i.unlockCondition && !APPENDED_MATERIAL_IDS.includes(i.id)).map((i) => i.id);

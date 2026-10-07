@@ -89,9 +89,9 @@ const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal
  *  pesto-trapanese discoverable together (pool 2 again): the walk finds ratatouille-pizza blind, so only
  *  pesto-trapanese has a hint target. Because ratatouille-pizza is a second credited recipe of step 28, every later
  *  step unlocks one discovery before its key recipe's turn, so the pool-2 chain continues through Expansion Batch 1's
- *  steps 30 / 31 (baba-ganoush-pizza, prosciutto-funghi are found blind); only the last recipe (veggie-supreme-pizza)
- *  is then alone and hinted. */
-const BLIND_POOL2_RECIPES: readonly string[] = ["pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi"];
+ *  steps 30-32 (baba-ganoush-pizza, prosciutto-funghi, veggie-supreme-pizza are found blind) and Expansion Batch 2's
+ *  steps 33-36 (the same lag), so only the very last recipe (pesto-salmone) is alone and hinted. */
+const BLIND_POOL2_RECIPES: readonly string[] = ["pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza"];
 
 describe("P-C progression walk (real reducer, flag ON)", () => {
   it("every profile x quality reaches Dex 26 with no hard deadlock; charges are P-C prices only; no RESERVED stop", async () => {

@@ -82,9 +82,10 @@ describe("W1-f Dex", () => {
     expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(RECIPES.length - 2);
   });
 
-  it("nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (arrived / bought)", () => {
+  // Two tests (arrived / bought), not one loop: each render is ~50 ms, and the ladder only ever grows.
+  it.each([false, true])("nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (bought: %s)", (bought) => {
     const keyOrder = ["margherita", ...DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
-    for (const bought of [false, true]) {
+    {
       for (let n = 0; n <= keyOrder.length; n++) {
         const unlocked = materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step <= n));
         const owned = bought ? unlocked : materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step < n));
@@ -103,15 +104,15 @@ describe("W1-f Dex", () => {
         // own privacy contract is pinned in DexOverlay.research.test.tsx.
         const research = document.querySelector(".dex-overlay__research")?.textContent ?? "";
         const everything = `${(document.body.textContent ?? "").split(research).join("")}||${attrs}`;
-        for (const r of RECIPES.filter((x) => !known.has(x.id))) {
-          // NF-8 lexical overlaps (not leaks): a discovered card's own ingredient
-          // (ジェノベーゼソース contains ジェノベーゼ) and marinara's own description (「ナポリ生まれ」
-          // contains ナポリ). Scrubbed by exact phrase, never by loose substring.
-          const overlap: Record<string, string> = { ジェノベーゼ: "ジェノベーゼソース", ナポリ: "ナポリ生まれ" };
+        // NF-8 lexical overlaps (not leaks): a discovered card's own ingredient (ジェノベーゼソース contains ジェノベーゼ) and
+        // marinara's own description (「ナポリ生まれ」 contains ナポリ). Scrubbed by exact phrase, never by loose substring.
+        // One aggregate check per render (not one expect per recipe): the catalog grows, the cost per render must not grow with it.
+        const overlap: Record<string, string> = { ジェノベーゼ: "ジェノベーゼソース", ナポリ: "ナポリ生まれ" };
+        const leaked = RECIPES.filter((x) => !known.has(x.id)).filter((r) => {
           const scrubbed = overlap[r.nameJa] ? everything.split(overlap[r.nameJa]).join("") : everything;
-          expect(scrubbed, `${bought ? "B" : "A"} Dex ${n}: ${r.id}`).not.toContain(r.nameJa);
-          expect(everything, r.id).not.toContain(r.description);
-        }
+          return scrubbed.includes(r.nameJa) || everything.includes(r.description);
+        });
+        expect(leaked.map((r) => r.id), `${bought ? "B" : "A"} Dex ${n}`).toEqual([]);
         // 28 recipes; the walk never discovers the non-credit calabresa. Once the key recipe's materials are owned (Dex
         // 12 bought) and until the 26th (step 25's pesto-pollo is the last key recipe), the ladder's key recipe and calabresa are both DISCOVERABLE:
         // pool 2 used to add one extra aggregated card (D-2); #346 S4: both candidates are registered Research

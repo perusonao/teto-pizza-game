@@ -226,6 +226,36 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ピーマンもたっぷりのベジースプリームピザ、彩りがきれい！食べてみたいな！",
   },
+  {
+    id: "order-jamon-serrano-pizza",
+    recipeId: "jamon-serrano-pizza",
+    requestedBy: "mito",
+    lineJa: "生ハムとルッコラのハモンセラーノピザ、さっぱりしてそう！食べてみたいな！",
+  },
+  {
+    id: "order-calabresa-argentina",
+    recipeId: "calabresa-argentina",
+    requestedBy: "mito",
+    lineJa: "サラミとオリーブのカラブレサ・アルヘンティーナ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-rucola-e-grana",
+    recipeId: "rucola-e-grana",
+    requestedBy: "mito",
+    lineJa: "生ハムとルッコラ、グラナ・パダーノのルッコラ・エ・グラナ、おしゃれ！食べてみたいな！",
+  },
+  {
+    id: "order-vegan-cashew-cheese-pizza",
+    recipeId: "vegan-cashew-cheese-pizza",
+    requestedBy: "mito",
+    lineJa: "カシューチーズとパプリカ、ズッキーニのヴィーガンピザ、ヘルシーそう！食べてみたいな！",
+  },
+  {
+    id: "order-pesto-salmone",
+    recipeId: "pesto-salmone",
+    requestedBy: "mito",
+    lineJa: "サーモンとレモンのペストサーモン、爽やかそう！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

@@ -57,7 +57,7 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
 
 /** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
  *  not evidence). */
-const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"];
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -114,6 +114,12 @@ const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
   "baba-ganoush-pizza": ["DOUGH", "SAUCE", "TOPPING"],
   "prosciutto-funghi": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "veggie-supreme-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // Expansion Batch 2: no CUT; each has a sauce, a cheese-category ingredient (mozzarella / cashew-cheese / grana-padano / cream-cheese) and toppings.
+  "vegan-cashew-cheese-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "calabresa-argentina": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "jamon-serrano-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "rucola-e-grana": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pesto-salmone": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
 };

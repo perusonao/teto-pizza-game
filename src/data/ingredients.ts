@@ -667,6 +667,76 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** Expansion Batch 2: finite ladder material, step 33 (T4). Cheese category like every cheese (shared 🧀 convention, told apart by name / colour). */
+  {
+    id: "cashew-cheese",
+    category: "cheese",
+    nameJa: "カシューチーズ",
+    color: "#efe3c2",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 2: finite ladder material, step 34 (T4). Family `meat`. 🟤 is distinct from `pepperoni` 🔴 / `sausage` / `ham` and the meat class symbol 🥩 (G18). */
+  {
+    id: "salami",
+    category: "topping",
+    nameJa: "サラミ",
+    color: "#a8433a",
+    emoji: "\u{1F7E4}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 2: finite ladder material, step 35 (T4). Family `vegetable`. 🥗 (not the vegetable class symbol 🥬) is distinct from every herb glyph. */
+  {
+    id: "arugula",
+    category: "topping",
+    nameJa: "ルッコラ",
+    color: "#4f8a3a",
+    emoji: "\u{1F957}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 2: finite ladder material, step 36 (T4). Cheese category (shared 🧀 convention). */
+  {
+    id: "grana-padano",
+    category: "cheese",
+    nameJa: "グラナ・パダーノ",
+    color: "#f1de9a",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 2: finite ladder material, step 37 (T4, with salmon / lemon). Cheese category (shared 🧀 convention). */
+  {
+    id: "cream-cheese",
+    category: "cheese",
+    nameJa: "クリームチーズ",
+    color: "#fbf7ec",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 2: finite ladder material, step 37 (T4). Family `fruit`. 🍋 is distinct from `pineapple` 🍍. */
+  {
+    id: "lemon",
+    category: "topping",
+    nameJa: "レモン",
+    color: "#f2d338",
+    emoji: "\u{1F34B}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Expansion Batch 2: finite ladder material, step 37 (T4). Family `seafood`. 🍣 is distinct from `tuna` 🐟 / `anchovy` 🐠 / `shrimp` 🦐. */
+  {
+    id: "salmon",
+    category: "topping",
+    nameJa: "サーモン",
+    color: "#f08a6c",
+    emoji: "\u{1F363}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

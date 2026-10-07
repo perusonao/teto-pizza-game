@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { INGREDIENTS } from "../data/ingredients";
+import { POST_W1_MATERIAL_IDS } from "./catalog/testSupport/catalogDerived";
 import {
   GOOD_PLAYER,
   NORMAL_PLAYER,
@@ -27,7 +28,7 @@ import {
 /** Progression 2.0 I5a: catalog-only W1 materials, priced by the REC-04 material Shop instead. */
 const W1_MATERIAL_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 /** Discovery 3.0 No.27 (chicken) / Expansion Slice 1 (shrimp) / Wave 2 (parsley, bell-pepper, zucchini): the ladder-appended materials, also priced by the material Shop (no legacy price). */
-const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, "chicken", "shrimp", "parsley", "bell-pepper", "zucchini", "almond", "pine-nuts", "prosciutto-crudo", "green-pepper"];
+const LADDER_ONLY_MATERIAL_IDS = [...W1_MATERIAL_IDS, ...POST_W1_MATERIAL_IDS]; // derived: no per-batch list
 
 // A. current economy table consistency ---------------------------------------------------
 

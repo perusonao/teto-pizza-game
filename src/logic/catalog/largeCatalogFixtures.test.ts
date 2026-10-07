@@ -1,3 +1,4 @@
+import { INGREDIENTS } from "../../data/ingredients";
 import { describe, expect, it } from "vitest";
 import {
   CHAPTER_SIZES,
@@ -47,9 +48,9 @@ describe("LC-1b scale fixtures", () => {
     });
   });
 
-  it("runtime fixture is the real catalog: 3 sauces / 4 cheeses / every topping, and the real chapter sizes", () => {
+  it("runtime fixture is the real catalog: 3 sauces / every cheese / every topping, and the real chapter sizes", () => {
     const f = largeCatalogFixture("runtime-29x25");
-    expect(f.split).toEqual({ sauce: 3, cheese: 4, topping: CATALOG_COUNTS.toppings });
+    expect(f.split).toEqual({ sauce: 3, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
     expect(f.chapterSizes).toEqual(CATALOG_COUNTS.chapterSizes);
     expect(f.starterIds).toEqual(["tomato-sauce", "mozzarella", "basil"]);
   });

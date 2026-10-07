@@ -18,11 +18,11 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("Expansion Batch 1 is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
+  it("Expansion Batch 2 is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
     expect(NEXT_RECIPE_BATCH.status).toBe("landed");
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza"]);
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["pine-nuts", "prosciutto-crudo", "green-pepper"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["arugula", "salami", "grana-padano", "cashew-cheese", "salmon"]);
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
   });
 });
@@ -40,7 +40,7 @@ describe("validator catches", () => {
   });
 
   it("a finite material no ladder step unlocks", () => {
-    expect(validateCatalogTables({ ...view, ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, -1) } }).some((p) => p.startsWith("MATERIAL_NOT_ON_LADDER: green-pepper"))).toBe(true);
+    expect(validateCatalogTables({ ...view, ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, -1) } }).some((p) => p.startsWith(`MATERIAL_NOT_ON_LADDER: ${view.ladder.steps.at(-1)!.ingredientIds[0]}`))).toBe(true);
   });
 
   it("CUT eligibility without a CUT step, a step the runtime does not wire, an unsupported capability", () => {
