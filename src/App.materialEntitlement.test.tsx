@@ -5,6 +5,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY, createDefaultSave, type PersistentSaveV2 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { LUNCH_RUSH_MISSION_ID } from "./mission/lunchRush";
+import { CATALOG_COUNTS } from "./logic/catalog/testSupport/catalogDerived";
 
 /**
  * Progression 2.0 W1 Integration I4b-3: App.tsx's load path resolves the Discovery Ladder
@@ -240,9 +241,9 @@ describe("I5a-3 / I5b-3: Home and Inventory read '所持 N/M種' from the obtain
   it("a fresh save reads 3/31 on Home and in Inventory (25-recipe ladder: every catalog row obtainable)", async () => {
     const user = userEvent.setup();
     render(<App />);
-    expect(homeSummary()).toBe("所持 3/35種");
+    expect(homeSummary()).toBe(`所持 3/${CATALOG_COUNTS.ingredients}種`);
     await user.click(screen.getByRole("button", { name: /材料/ }));
-    expect(document.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 3/35種");
+    expect(document.querySelector(".inventory-overlay__summary")!.textContent).toBe(`所持 3/${CATALOG_COUNTS.ingredients}種`);
   });
 
   it("an I5a-era save owning W1 materials counts them (now obtainable), never an unknown id, on both", async () => {
@@ -258,10 +259,10 @@ describe("I5a-3 / I5b-3: Home and Inventory read '所持 N/M種' from the obtain
     );
     const user = userEvent.setup();
     render(<App />);
-    expect(homeSummary()).toBe("所持 6/35種");
+    expect(homeSummary()).toBe(`所持 6/${CATALOG_COUNTS.ingredients}種`);
     await user.click(screen.getByRole("button", { name: /材料/ }));
     const inventory = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(inventory.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 6/35種");
+    expect(inventory.querySelector(".inventory-overlay__summary")!.textContent).toBe(`所持 6/${CATALOG_COUNTS.ingredients}種`);
     expect(within(inventory).getByText("あさり")).toBeInTheDocument();
     expect(within(inventory).getByText("コーン")).toBeInTheDocument();
   });

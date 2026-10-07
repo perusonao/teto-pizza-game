@@ -11,6 +11,7 @@ import { chipOnTrayOrPin } from "./support/handPick";
 import { COOKING_SLOTS, LayoutContract, measureLayout, type SlotSelectors, type StateLabel } from "./support/layoutContract";
 import { compareStable, evaluateInvariants, type InvariantId } from "./support/layoutInvariants";
 import { PROFILES, readViewport, SAFE_AREA_INSET } from "./support/layoutProfiles";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Progression 2.0 W1 I5b-5 Layout Contract (LC-0..LC-5).
@@ -107,7 +108,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] } | null, query =
   );
   await page.goto(`/${query}`);
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/33`));
+  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/${CATALOG_COUNTS.recipes}`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");

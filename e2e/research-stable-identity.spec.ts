@@ -3,6 +3,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { expectResearchLead } from "./support/hintNote";
+import { materialsUpTo } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Research 2.0 Phase 1 (Stable Research Identity, D+ Cohort Letter): the Dex / PREPARE / Hint / RESULT / Notebook all read
@@ -15,7 +16,6 @@ import { expectResearchLead } from "./support/hintNote";
 const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
 
 const LABELS = {

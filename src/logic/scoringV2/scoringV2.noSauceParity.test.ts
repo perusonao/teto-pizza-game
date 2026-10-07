@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { RECIPES } from "../../data/recipes";
 import snapshot from "./__fixtures__/scoreParity.main-7bb0116.json";
 import calabresaSnapshot from "./__fixtures__/scoreParity.pr4bb-brazilian-calabresa.json";
 import pestoPolloSnapshot from "./__fixtures__/scoreParity.no27-pesto-pollo.json";
@@ -34,14 +33,13 @@ describe("TQ-1B: existing recipe scores are bit-identical to main 7bb0116", () =
   const addedWave2 = wave2Snapshot as { base: string; recipeIds: string[]; rows: ParityRow[] };
   const addedAussie = aussieSnapshot as { base: string; recipeId: string; rows: ParityRow[] };
   const addedTrapanese = trapaneseSnapshot as { base: string; recipeId: string; rows: ParityRow[] };
-  const rows = allRows.filter(
-    (r) => r.recipeId !== "brazilian-calabresa" && r.recipeId !== "pesto-pollo" && r.recipeId !== "pesto-gamberi" && r.recipeId !== "aussie" && r.recipeId !== "pesto-trapanese" && !addedWave2.recipeIds.includes(r.recipeId),
-  );
+  // The frozen snapshot defines "existing" recipes; any recipe added after it has its own fixture / is outside this parity.
+  const frozenIds = new Set(frozen.rows.map((r) => r.recipeId));
+  const rows = allRows.filter((r) => frozenIds.has(r.recipeId));
 
   it("covers every production recipe x every variant (the original 25 frozen, the 26th-33rd in their own fixtures)", () => {
     expect(frozen.base).toBe("7bb0116");
-    expect(RECIPES).toHaveLength(33);
-    expect(frozen.rows).toHaveLength((RECIPES.length - 8) * PARITY_VARIANTS.length);
+    expect(frozen.rows).toHaveLength(frozenIds.size * PARITY_VARIANTS.length);
     expect(addedAussie.rows).toHaveLength(PARITY_VARIANTS.length);
     expect(addedAussie.rows.every((r) => r.recipeId === "aussie")).toBe(true);
     expect(addedTrapanese.rows).toHaveLength(PARITY_VARIANTS.length);

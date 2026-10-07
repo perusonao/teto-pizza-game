@@ -3,6 +3,7 @@ import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery 3.0 PR-4b-B: the first production Discovery pool > 1, played for real (a pool of 3 since TQ-1D).
@@ -49,7 +50,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/12\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`12/${CATALOG_COUNTS.recipes}`));
 }
 
 async function capture(page: Page, name: string, projectName: string) {
@@ -105,7 +106,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     const research = page.locator(".dex-overlay__research");
     await expect(research.locator(".dex-research-card")).toHaveCount(3);
     await expect(research).not.toContainText(/[0-9]/);
-    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(33);
+    await expect(page.locator(".dex-overlay__chapter .dex-card")).toHaveCount(CATALOG_COUNTS.recipes);
     await expect(page.getByRole("button", { name: /ヒントを見る/ })).toHaveCount(0);
     await expect(page.locator('.dex-overlay__chapter [data-dex-state="DISCOVERABLE"]')).toHaveCount(0);
     const body = await page.locator(".dex-overlay").innerText();
@@ -160,7 +161,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/発見 13\s*\/\s*33/);
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`発見 13\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     // calabresa found; portuguesa and aussie left: a pool of 2 -> no aggregated unknown (both are Research Entries), no per-card hint.
     await expect(page.locator("[data-dex-aggregated]")).toHaveCount(0);
     await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(2);

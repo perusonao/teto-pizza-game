@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { DISCOVERY_LADDER, SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
+import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { resolveShopEntitlement } from "../state/materialEntitlement";
 import type { DexEntry, DexState } from "../state/dex";
 
@@ -49,12 +49,6 @@ function seeded(seed: number): () => number {
 }
 
 describe("25/25 reachability on the production ladder", () => {
-  it("the production ladder is the 24-step W1 ladder + No.27's step 25 and Expansion Slice 1's step 26, over 27 credited recipes (+ the non-credit calabresa = 28)", () => {
-    expect(ALL).toHaveLength(33);
-    expect(ALL.filter((r) => r.ladderCredit !== false)).toHaveLength(31);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
-  });
-
   it("deterministic: from a fresh save, always taking the first / the last makeable recipe, reaches every recipe (28)", () => {
     expect(playForward([], [], (o) => o[0])).toBe(TOTAL);
     expect(playForward([], [], (o) => o[o.length - 1])).toBe(TOTAL);

@@ -1,10 +1,10 @@
 import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
-import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Expansion Slice 3 (pesto-trapanese + almond, appended ladder step 29), played for real on both iPhone widths.
@@ -17,7 +17,6 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 50, end: 70 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "pesto-trapanese";
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 const DISCOVERED = RECIPES.map((r) => r.id as string).filter((id) => id !== ID);
 const OWNED_BEFORE = materialsUpTo(28);
 
@@ -51,7 +50,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   }, [SAVE_KEY, saveJson()] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/32\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`32/${CATALOG_COUNTS.recipes}`));
 
   // 1. Shop: almond is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
   await page.getByRole("button", { name: /ショップ/ }).click();
@@ -109,7 +108,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   await page.getByRole("button", { name: /ホーム/ }).first().click();
   await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
   await page.waitForSelector(".dex-overlay");
-  await expect(page.locator(".dex-overlay")).toContainText(/33\s*\/\s*33/);
+  await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`33\\s*/\\s*${CATALOG_COUNTS.recipes}`));
   const card = page.locator(".dex-card").filter({ hasText: "ペストトラパネーゼピザ" });
   await expect(card).toHaveCount(1);
   await expect(page.locator(".dex-overlay__chapter-title").last()).toContainText("16/16");

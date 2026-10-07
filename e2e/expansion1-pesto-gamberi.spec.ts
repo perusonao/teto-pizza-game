@@ -5,6 +5,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Expansion Slice 1 (pesto-gamberi + shrimp, appended ladder step 26), played for real on both iPhone widths.
@@ -20,7 +21,6 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 50, end: 70 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie"].filter((id) => id !== "pesto-gamberi");
 const OWNED_BEFORE = materialsUpTo(25);
@@ -95,7 +95,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/28\/33/);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`28/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
@@ -216,7 +216,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(/29\s*\/\s*33/);
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`29\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ペストガンベリピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.12");

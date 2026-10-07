@@ -4,6 +4,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { materialsUpTo } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery 3.0 #346 S0: player-facing 「レシピ発見」. HOME -> レシピ発見 (no Research Target) -> cooking -> ORIGINAL RESULT, on a
@@ -15,7 +16,6 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie"];
 const materials = materialsUpTo(25);

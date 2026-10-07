@@ -3,6 +3,7 @@ import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { RECIPES } from "../src/data/recipes";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { materialsUpTo } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery 3.0 #346 S3: Research Entry -> 「このピザを研究する」 -> Free Cooking research context -> Hint.
@@ -13,7 +14,6 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 function save(step: number, extraDiscovered: readonly string[] = [], facts: Record<string, string[]> = {}) {
   const materials = materialsUpTo(step);

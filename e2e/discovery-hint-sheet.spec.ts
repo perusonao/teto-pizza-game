@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { LADDER_PLAY, ladderSave } from "../src/logic/catalog/testSupport/catalogDerived";
 import { RECIPES } from "../src/data/recipes";
 import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
@@ -25,54 +26,8 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const SEED_DOCUMENT = "icons/icon-16.png";
-const LADDER = [
-  ["margherita", []], ["bismarck", ["egg"]], ["breakfast-pizza", ["bacon"]], ["funghi", ["mushroom"]],
-  ["melanzane-pizza", ["eggplant"]], ["parmigiana-pizza", ["parmigiano"]], ["pepperoni", ["pepperoni"]],
-  ["salsiccia", ["sausage"]], ["meat-lovers", ["ham"]], ["bambino", ["corn"]], ["hawaiian", ["pineapple"]],
-  ["capricciosa", ["black-olive", "oregano"]], ["pizza-portuguesa", ["onion"]], ["fugazza", ["olive-oil"]],
-  ["marinara", ["garlic"]], ["napoletana", ["anchovy"]], ["tonno-e-cipolla", ["tuna"]], ["pesto-tonno", ["pesto"]],
-  ["genovese", ["cherry-tomato"]], ["new-haven-apizza", ["clam"]], ["pesto-caprese", ["fresh-tomato"]],
-  ["pesto-patate", ["potato"]], ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]],
-  ["quattro-formaggi", ["fontina", "gorgonzola"]],
-  ["pesto-pollo", ["chicken"]], // No.27: the appended step 25
-  ["pesto-gamberi", ["shrimp"]], // Expansion Slice 1: the appended step 26
-  ["vongole", ["parsley"]], // Expansion Wave 2: the appended step 27
-  ["pesto-vegetariana", ["bell-pepper", "zucchini"]], // Expansion Wave 2: the appended step 28
-  ["pesto-trapanese", ["almond"]], // Expansion Slice 3: the appended step 29
-] as const;
 
-/** Credited recipes that are nobody's key recipe (Wave 2: ratatouille-pizza becomes makeable at step 28 with pesto-vegetariana). A COMPLETE
- *  seed discovers them too. */
-const NON_KEY_CREDITED: readonly string[] = ["ratatouille-pizza"];
-
-/** Production recipes that never advance the ladder (`ladderCredit: false`). The ladder's own recipes are not the whole population
- *  once one exists, so "every ladder recipe discovered" is not "complete": a COMPLETE seed also discovers these. Empty while every
- *  production recipe is credited (the seed is then unchanged). */
-const NON_CREDIT: readonly string[] = RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit === false).map((r) => r.id as string);
-
-/** The ladder played to `count` discoveries; the materials of steps <= count owned with `stock`
- *  (the newest step's with `newestStock`, or not owned at all when `newestOwned` is false). */
-function ladderSave(
-  count: number,
-  opts: { newestOwned?: boolean; newestStock?: number; pitz?: number; purchases?: Record<string, number>; complete?: boolean } = {},
-) {
-  const materials = LADDER.slice(1, count + 1).flatMap(([, m]) => m);
-  const newest = count >= 1 && count < LADDER.length ? LADDER[count][1] : [];
-  const owned = materials.filter((m) => opts.newestOwned !== false || !(newest as readonly string[]).includes(m));
-  return {
-    schemaVersion: 2,
-    dex: [...LADDER.slice(0, count).map(([recipeId]) => recipeId as string), ...(opts.complete ? [...NON_CREDIT, ...NON_KEY_CREDITED] : [])].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
-    pitzBalance: opts.pitz ?? 999,
-    ...(opts.purchases ? { discoveryHintPurchases: opts.purchases } : {}),
-    ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...owned],
-    missionBest: {},
-    inventory: Object.fromEntries(owned.map((m) => [m, (newest as readonly string[]).includes(m) ? (opts.newestStock ?? 10) : 10])),
-    starterGrantClaimedRecipeIds: [],
-    unlockedForShopIngredientIds: materials,
-  };
-}
-
-const DEX11 = LADDER.slice(0, 11).map(([id]) => id);
+const DEX11 = LADDER_PLAY.slice(0, 11).map(([id]) => id);
 
 async function openWithSave(page: Page, save: { dex: unknown[] }) {
   await page.goto(SEED_DOCUMENT);
@@ -84,7 +39,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] }) {
   }, [SAVE_KEY, JSON.stringify(save)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/33`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/${RECIPES.length}`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
@@ -415,7 +370,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   for (const [kind, save, text] of [
     ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
-    ["COMPLETE", ladderSave(30, { complete: true }), /図鑑コンプリート/],
+    ["COMPLETE", ladderSave(LADDER_PLAY.length, { complete: true }), /図鑑コンプリート/],
   ] as const) {
     test(`empty state ${kind}`, async ({ page, browserName }) => {
       const driver = await ProfileDriver.create(page, browserName);

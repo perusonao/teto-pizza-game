@@ -3,6 +3,7 @@ import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-D): Recipe Dex 🎨 ？？？ card -> 「💡 ヒントを見る」 -> Free
@@ -45,7 +46,7 @@ async function openWithSave(page: Page) {
   }, [SAVE_KEY, JSON.stringify(DEX11_SAVE)] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/11\/33/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`11/${CATALOG_COUNTS.recipes}`));
 }
 
 function profilesFor(browserName: string): Profile[] {

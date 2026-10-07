@@ -148,10 +148,6 @@ describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited i
       ["tomato-sauce", "mozzarella", "basil"].sort(),
     );
   });
-
-  it("total production ingredient count is now 31 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 2 + W1's 7 + No.27's chicken + Expansion Slice 1's shrimp)", () => {
-    expect(INGREDIENTS).toHaveLength(35); // + Expansion Wave 2's parsley / bell-pepper / zucchini
-  });
 });
 
 /**

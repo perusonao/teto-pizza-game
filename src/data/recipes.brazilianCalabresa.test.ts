@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getIngredient, INGREDIENTS } from "./ingredients";
+import { getIngredient } from "./ingredients";
 import { getCookingProfile, isCutEligible } from "./cookingProfiles";
 import { DISCOVERY_LADDER, W1_25_DISCOVERY_LADDER } from "./discoveryLadder";
 import { RECIPE_DISCOVERY_CATALOG } from "./discoveryCatalog";
@@ -23,7 +23,6 @@ const nonSauce = recipe.requiredIngredients.filter((q) => getIngredient(q.ingred
 
 describe("brazilian-calabresa authoring (PR-4b-B)", () => {
   it("is production recipe No.26, right after the existing 25 (their order / No. unchanged; No.27 pesto-pollo and Expansion's pesto-gamberi follow)", () => {
-    expect(RECIPES).toHaveLength(33);
     expect(RECIPES[25].id).toBe(ID);
     expect(RECIPES.slice(0, 25).filter((r) => r.id === ID)).toEqual([]);
     expect(recipe.nameJa).toBe("ブラジリアン・カラブレーザ");
@@ -49,7 +48,6 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
       expect(getIngredient(q.ingredientId)!.category, q.ingredientId).not.toBe("cheese");
     }
     expect(recipe.requiredIngredients.map((q) => q.ingredientId)).toContain("black-olive");
-    expect(INGREDIENTS).toHaveLength(35); // + Expansion Wave 2's 3 materials; + No.27's chicken and Expansion Slice 1's shrimp; calabresa itself still adds none
   });
 
   it("is non-credit and out of Lunch Rush; the other 25 originals are unchanged on both", () => {
@@ -67,7 +65,6 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
 
   it("does not move the ladder: the 24 frozen steps are untouched (No.27 appends step 25, Expansion Slice 1 step 26), calabresa is nobody's key recipe", () => {
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29); // + Expansion Wave 2 steps 27 / 28
     expect(DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)).not.toContain(ID);
   });
 

@@ -11,6 +11,7 @@ import { deriveResearchEntries } from "./logic/discovery/researchEntry";
 import { createInitialGameState } from "./state/gameReducer";
 import { discoveredDex } from "./state/testSupport/guidedRound";
 import { startTargetlessFreeCookViaTestHook } from "./test/discoveryEntry";
+import { materialsUpTo } from "./logic/catalog/testSupport/catalogDerived";
 
 /**
  * Issue #377 (OD-377-1) through the real App: Pizza Select's 「レシピ発見へ」 uses HOME's Research Entry routing
@@ -20,7 +21,6 @@ import { startTargetlessFreeCookViaTestHook } from "./test/discoveryEntry";
  */
 
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 
 function seed(step: number, extraDiscovered: readonly string[] = [], drain: readonly string[] = []): void {
   const materials = materialsUpTo(step);

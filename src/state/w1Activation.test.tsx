@@ -83,7 +83,6 @@ function pizzaWithItems(ids: readonly string[]): PizzaState {
 describe("production tables: 32 recipes, one row each", () => {
   it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 28 ids", () => {
     const ids = RECIPES.map((r) => r.id).sort();
-    expect(ids).toHaveLength(33);
     expect(ORDERS.map((o) => o.recipeId).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_SAUCE_PROFILES).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_DISCOVERY_TARGET_IDS).sort()).toEqual(ids);
@@ -388,7 +387,6 @@ describe("onboarding: the starters still make only Margherita", () => {
   });
 
   it("step 1 is still egg and DISCOVERY_LADDER is the 24-step W1 ladder + No.27's step 25 and Expansion Slice 1's step 26", () => {
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
     expect(DISCOVERY_LADDER.steps[0]).toMatchObject({ step: 1, ingredientIds: ["egg"] });
     expect(resolveShopEntitlement(dexOf(1), [...STARTER_INGREDIENT_IDS], []).newlyUnlockedMaterialIds).toEqual(["egg"]);
   });

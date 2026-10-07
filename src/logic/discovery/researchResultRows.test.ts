@@ -216,7 +216,6 @@ describe("Production constraints (Contract §3 / §10 / §13.1)", () => {
     RECIPES.find((r) => r.id === id)!.requiredIngredients.filter((q) => getIngredient(q.ingredientId)?.category === "sauce").length;
 
   it("Production fixture: every one of the 32 recipes uses exactly one sauce, except aussie (the one no-sauce target, TQ-1D); no multi-sauce", () => {
-    expect(RECIPES).toHaveLength(33);
     for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe(r.id === "aussie" ? 0 : 1);
   });
   it("Expansion Gate A is CLOSED: the one no-sauce target is judged by the standard rule, never specially (OD-TQ1D-1)", () => {

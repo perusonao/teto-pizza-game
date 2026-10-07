@@ -254,14 +254,10 @@ describe("k / pack foundation", () => {
 
 describe("I5b-3 activation: production runs the 25-recipe ladder", () => {
   it("RECIPES 33 (31 credited, + the non-credit calabresa and aussie), the 24 frozen W1 steps + appended steps 25-29, 35 catalog rows, 35 obtainable (3/35 on a fresh save)", () => {
-    expect(RECIPES).toHaveLength(33);
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit !== false)).toHaveLength(31);
     // LAD-1 (OD-W2-1): frozen W1 + appended steps 25 (No.27 chicken -> pesto-pollo) / 26 (shrimp -> pesto-gamberi) / 27 (parsley -> vongole) / 28 (bell-pepper + zucchini -> pesto-vegetariana) / 29 (almond -> pesto-trapanese).
     expect(DISCOVERY_LADDER.steps.slice(0, 24)).toEqual(W1_25_DISCOVERY_LADDER.steps);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(29);
-    expect(INGREDIENTS).toHaveLength(35);
-    expect(obtainableIngredientIds()).toHaveLength(35);
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 35 });
+    expect(obtainableIngredientIds()).toHaveLength(INGREDIENTS.length);
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: INGREDIENTS.length });
   });
 
   it("each new material is entitled and announced exactly when the discovery count reaches its step", () => {

@@ -3,6 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
+import { materialsUpTo } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Issue #373: HOME 「レシピ発見」 follows the cookable Research Entries (OD-RB-1 update), so it researches like the Dex's
@@ -17,7 +18,6 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
-const materialsUpTo = (step: number) => DISCOVERY_LADDER.steps.filter((s) => s.step <= step).flatMap((s) => s.ingredientIds as readonly string[]);
 const materials = materialsUpTo(25);
 
 function saveWith(discovered: string[]) {

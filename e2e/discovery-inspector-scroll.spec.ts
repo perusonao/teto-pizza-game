@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
  * Discovery Progression Inspector bugfix: the game shell (index.css) locks html/body/#root to a fixed
@@ -52,7 +53,7 @@ test("Inspector still scrolls after the search box and a filter chip, and with a
   await chips.nth(0).click();
   await page.getByLabel("search").fill("egg");
   await page.getByLabel("search").fill("");
-  await expect(page.getByTestId("dpi-visible-count")).toContainText("29 / 29");
+  await expect(page.getByTestId("dpi-visible-count")).toContainText(`${CATALOG_COUNTS.ladderSteps} / ${CATALOG_COUNTS.ladderSteps}`);
   await page.getByTestId("dpi-row-1").locator("button").first().click();
   await page.locator("[data-inspector]").evaluate((el) => (el.scrollTop = 0));
   await expectLastStepReachable(page);

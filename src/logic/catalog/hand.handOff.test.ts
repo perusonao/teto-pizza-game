@@ -26,6 +26,7 @@ import {
 } from "./handSession";
 import { emptyUsageSession, recordNewlyOwned, recordUse } from "./usageSignals";
 import { selectWorkingSet } from "./workingSet";
+import { CATALOG_COUNTS } from "./testSupport/catalogDerived";
 
 const ALL_IDS = INGREDIENTS.map((i) => i.id);
 const FINITE_IDS = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
@@ -105,7 +106,7 @@ describe("LC-R2 FREE-only eligibility (OD-1)", () => {
     const recipe = getRecipe("margherita" as RecipeId)!;
     const guided = trayIngredientsFor("topping", { ownedIngredientIds: ALL_IDS, freeCook: false, recipe });
     expect(guided.map((i) => i.id).sort()).toEqual(recipe.requiredIngredients.map((r) => r.ingredientId).filter((id) => toppingIds.includes(id)).sort());
-    expect(trayIngredientsFor("topping", { ownedIngredientIds: ALL_IDS, freeCook: true, recipe: FREE_COOK_RECIPE })).toHaveLength(28);
+    expect(trayIngredientsFor("topping", { ownedIngredientIds: ALL_IDS, freeCook: true, recipe: FREE_COOK_RECIPE })).toHaveLength(CATALOG_COUNTS.toppings);
   });
 });
 
