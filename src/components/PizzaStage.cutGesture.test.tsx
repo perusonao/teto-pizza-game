@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { useReducer } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { gameReducer, type GameState } from "../state/gameReducer";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { PizzaStage } from "./PizzaStage";
@@ -75,7 +75,6 @@ function getDough(): HTMLElement {
 const POINTER_BASE = { isPrimary: true, pointerType: "touch" as const };
 
 afterEach(() => {
-  vi.useRealTimers();
   cleanup();
 });
 
@@ -172,7 +171,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(2);
   });
 
-  it("#418: a curved trace is kept as drawn -- not straightened or extended to the rim", () => {
+  it("#418: a cut is the straight line from press to lift -- the path in between never bends it", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 20;
@@ -181,8 +180,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 210, clientY: 150 });
     expect(screen.getByTestId("line-count").textContent).toBe("1");
-    // Starts where the finger pressed (30%,50%), bends through (50%,33.33%), stops at (70%,50%).
-    expect(lastCommittedPath()).toBe("30,50 50,33.33333333333333 70,50");
+    expect(lastCommittedPath()).toBe("30,50 70,50");
   });
 
   it("#418: a stroke that stops inside the dough commits as a partial cut, unextended", () => {
@@ -196,15 +194,18 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(lastCommittedPath()).toBe("50,50 70,50");
   });
 
-  it("#418: leaving the dough ends the cut on the rim; later movement is ignored", () => {
+  it("#418: dragging past the rim clips the cut to the rim on the same line; the end keeps following the finger", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 22;
+    const preview = () => document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!;
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 400, clientY: 150 });
+    expect(preview().getAttribute("points")).toBe("50.00,50.00 98.00,50.00");
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 280 });
+    expect(preview().getAttribute("points")).toBe("50.00,50.00 50.00,93.33");
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 280 });
-    expect(lastCommittedPath()).toBe("50,50 98,50");
+    expect(lastCommittedPath()).toBe("50,50 50,93.33333333333333");
   });
 
   it("#418: a second finger is ignored while the first is tracing", () => {
@@ -225,7 +226,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(screen.queryByText(/1本戻す/)).toBeNull();
   });
 
-  it("#418: a hand-shaky stroke is committed exactly as traced (no straightening)", () => {
+  it("#418: a shaky drag is the clean straight line between press and lift", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 40;
@@ -234,33 +235,33 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
       fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
     }
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
-    // Every sample stays where the finger put it: the traced path is the cut.
-    const path = (lastCommittedPath() ?? "").split(" ");
-    expect(path.length).toBeGreaterThan(2);
-    expect(path[0]).toBe("20,50");
-    expect(path).toContain("40,49");
-    expect(path[path.length - 1]).toBe("80,50");
+    expect(lastCommittedPath()).toBe("20,50 80,50");
   });
 
-  it("#418: a quick swipe keeps its samples and ends where the finger lifted", () => {
+  it("#418: release commits exactly the line that was shown, never a jump to a different lift position", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 41;
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 60, clientY: 90 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
+    const shown = document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!.getAttribute("points");
+    expect(shown).toBe("20.00,30.00 50.00,50.00");
+    // the lift reports somewhere else (e.g. the finger rolled as it left the glass)
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 210 });
-    expect(lastCommittedPath()).toBe("20,30 50,50 80,70");
+    expect(lastCommittedPath()).toBe("20,30 50,50");
   });
 
-  it("#418: the cut line starts drawing after only a few pixels of movement", () => {
+  it("#418: the line only appears once it has some length on the pizza (no accidental dots)", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 42;
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 156, clientY: 150 });
     const preview = document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line");
+    expect(preview?.style.opacity).toBe("0"); // 2 units: a tap-sized wiggle
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 180, clientY: 150 });
     expect(preview?.style.opacity).toBe("1");
-    expect(preview?.getAttribute("points")).toBe("50.00,50.00 52.00,50.00");
+    expect(preview?.getAttribute("points")).toBe("50.00,50.00 60.00,50.00");
   });
 
   it("#418: a stroke that starts outside the pizza begins at the rim where the finger crossed it", () => {
@@ -278,26 +279,84 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(document.querySelector(".pizza-cut-hit-zone")).toBeInTheDocument();
   });
 
-  it("#418: a gentle arm arc over a long stroke stays an arc (the cut follows the finger)", () => {
-    render(<Harness />);
-    const dough = getDough();
-    const pointerId = 51;
-    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 30, clientY: 150 });
-    for (const [x, y] of [[90, 138], [150, 132], [210, 138]]) {
-      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
-    }
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 270, clientY: 150 });
-    expect(lastCommittedPath()).toBe("10,50 30,46 50,44 70,46 90,50");
-  });
-
-  it("#418: a deliberate bend is kept as a curve", () => {
+  it("#418: the start is fixed at the press; only the end follows the finger", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 52;
+    const preview = () => document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!;
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 60, clientY: 150 });
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 60 });
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
-    expect(lastCommittedPath()).toBe("20,50 50,20 80,50");
+    for (const [x, y, expected] of [
+      [150, 100, "20.00,50.00 50.00,33.33"],
+      [240, 200, "20.00,50.00 80.00,66.67"],
+      [200, 60, "20.00,50.00 66.67,20.00"],
+    ] as const) {
+      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
+      expect(preview().getAttribute("points")).toBe(expected);
+    }
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 200, clientY: 60 });
+    const [a, b] = (lastCommittedPath() ?? "").split(" ").map((q) => q.split(",").map(Number));
+    expect(a).toEqual([20, 50]);
+    expect(b[0]).toBeCloseTo(66.6667, 3);
+    expect(b[1]).toBe(20);
+  });
+
+  it("#418: a drag from outside to outside across the pizza commits exactly what was shown", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const pointerId = 53;
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: -30, clientY: 90 });
+    expect(document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!.style.opacity).toBe("0"); // off the pizza
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 330, clientY: 210 });
+    const shown = document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!.getAttribute("points")!;
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 330, clientY: 210 });
+    const committed = lastCommittedPath()!.split(" ").map((q) => q.split(",").map(Number));
+    const shownPts = shown.split(" ").map((q) => q.split(",").map(Number));
+    committed.forEach((pt, i) => {
+      expect(pt[0]).toBeCloseTo(shownPts[i][0], 1);
+      expect(pt[1]).toBeCloseTo(shownPts[i][1], 1);
+    });
+  });
+
+  it("#418: horizontal, vertical and diagonal drags commit exactly on their axis", () => {
+    render(<Harness />);
+    const dough = getDough();
+    for (const [id, sx, sy, ex, ey, expected] of [
+      [70, 30, 120, 270, 120, "10,40 90,40"],
+      [71, 190, 30, 190, 270, "x"],
+      [72, 60, 60, 240, 240, "20,20 80,80"],
+    ] as const) {
+      fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: id, clientX: sx, clientY: sy });
+      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: id, clientX: ex, clientY: ey });
+      fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: id, clientX: ex, clientY: ey });
+      if (expected === "x") {
+        const [a, b] = (lastCommittedPath() ?? "").split(" ").map((q) => q.split(",").map(Number));
+        expect(a[0]).toBe(b[0]); // exactly vertical
+        expect(a[0]).toBeCloseTo(63.3333, 3);
+        expect([a[1], b[1]]).toEqual([10, 90]);
+      } else {
+        expect(lastCommittedPath()).toBe(expected);
+      }
+    }
+  });
+
+  it("#418: three cuts in a row -- earlier cuts never move", () => {
+    render(<Harness />);
+    const dough = getDough();
+    const traces: string[] = [];
+    for (const [id, sx, sy, ex, ey] of [
+      [80, -30, 120, 330, 126],
+      [81, 150, -20, 160, 330],
+      [82, -20, 240, 320, 60],
+    ] as const) {
+      fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: id, clientX: sx, clientY: sy });
+      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: id, clientX: ex, clientY: ey });
+      fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: id, clientX: ex, clientY: ey });
+      const marks = [...document.querySelectorAll(".pizza-cut-mark")].map((m) => m.getAttribute("data-trace")!);
+      expect(marks).toHaveLength(traces.length + 1);
+      expect(marks.slice(0, traces.length)).toEqual(traces); // every earlier cut is byte-identical
+      traces.push(marks[marks.length - 1]);
+    }
+    expect(document.querySelectorAll(".pizza-piece").length).toBeGreaterThanOrEqual(6);
   });
 
   it("#418: a rim-to-rim cut splits the pizza into pieces; nothing is drawn on the seam", () => {
@@ -328,19 +387,6 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(mark?.querySelector(".pizza-cut-edge--lit")).toBeInTheDocument();
   });
 
-  it("#418: a curved cut stays a curved groove and every cut remains drawn", () => {
-    render(<Harness />);
-    const dough = getDough();
-    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 62, clientX: 60, clientY: 150 });
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 62, clientX: 150, clientY: 60 });
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 62, clientX: 240, clientY: 150 });
-    expect(document.querySelector(".pizza-cut-mark")?.getAttribute("data-trace")).toBe("20,50 50,20 80,50");
-    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 63, clientX: 150, clientY: 150 });
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
-    expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(2);
-  });
-
   it("#418: only the newest cut carries the one-shot flash", () => {
     render(<Harness />);
     const dough = getDough();
@@ -359,117 +405,5 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(marks).toHaveLength(2);
     expect(marks[0].querySelector(".pizza-cut-flash")).toBeNull(); // back to a normal cut
     expect(marks[1].querySelector(".pizza-cut-flash")).toBeInTheDocument();
-  });
-});
-
-describe("#418 explicit straight-line assist (hold still)", () => {
-  const preview = () => document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!;
-  const hold = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
-  const swipe = (id: number, dough: ReturnType<typeof getDough>) => {
-    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: id, clientX: 60, clientY: 150 });
-    for (const [x, y] of [[90, 153], [120, 147], [150, 154], [180, 146], [210, 152], [240, 150]]) {
-      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: id, clientX: x, clientY: y });
-    }
-  };
-
-  it("holding still straightens the line before release; release commits exactly what is shown", () => {
-    vi.useFakeTimers();
-    render(<Harness />);
-    const dough = getDough();
-    swipe(80, dough);
-    expect(preview().hasAttribute("data-straight")).toBe(false); // not yet: still the traced line
-    expect(preview().getAttribute("points")!.split(" ").length).toBeGreaterThan(2);
-    hold(399);
-    expect(preview().hasAttribute("data-straight")).toBe(false);
-    hold(1);
-    expect(preview().getAttribute("data-straight")).toBe("true");
-    const shown = preview().getAttribute("points");
-    expect(shown).toBe("20.00,50.00 80.00,50.00"); // start -> where the finger rests
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 80, clientX: 240, clientY: 150 });
-    expect(lastCommittedPath()).toBe("20,50 80,50");
-  });
-
-  it("finger wobble within the tolerance neither restarts the hold nor moves the line", () => {
-    vi.useFakeTimers();
-    render(<Harness />);
-    const dough = getDough();
-    swipe(81, dough);
-    hold(200);
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 81, clientX: 242, clientY: 152 }); // ~0.9 units
-    hold(200);
-    expect(preview().getAttribute("data-straight")).toBe("true");
-    const shown = preview().getAttribute("points"); // ends where the finger rested when it straightened
-    expect(shown).toBe("20.00,50.00 80.67,50.67");
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 81, clientX: 243, clientY: 149 });
-    expect(preview().getAttribute("points")).toBe(shown); // later wobble does not move the line
-    // a lift that wobbled a little still commits the straight line, with no extra tail segment
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 81, clientX: 243, clientY: 149 });
-    const path = (lastCommittedPath() ?? "").split(" ").map((q) => q.split(",").map(Number));
-    expect(path).toHaveLength(2);
-    expect(path[1][0]).toBeCloseTo(80.667, 2);
-    expect(path[1][1]).toBeCloseTo(50.667, 2);
-  });
-
-  it("moving on before the hold completes means no assist (the trace is kept as drawn)", () => {
-    vi.useFakeTimers();
-    render(<Harness />);
-    const dough = getDough();
-    swipe(82, dough);
-    hold(300);
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 82, clientX: 255, clientY: 150 }); // moved on: timer restarts
-    hold(300);
-    expect(preview().hasAttribute("data-straight")).toBe(false);
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 82, clientX: 255, clientY: 150 });
-    expect((lastCommittedPath() ?? "").split(" ").length).toBeGreaterThan(2);
-  });
-
-  it("after the straightening, moving on carries the stroke on from the tip (no jump back)", () => {
-    vi.useFakeTimers();
-    render(<Harness />);
-    const dough = getDough();
-    swipe(83, dough);
-    hold(400);
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 83, clientX: 270, clientY: 150 });
-    expect(preview().hasAttribute("data-straight")).toBe(false);
-    expect(preview().getAttribute("points")).toBe("20.00,50.00 80.00,50.00 90.00,50.00");
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 83, clientX: 270, clientY: 150 });
-    expect(lastCommittedPath()).toBe("20,50 80,50 90,50");
-  });
-
-  it("a hold in a clearly curved stroke, or in a very short one, changes nothing", () => {
-    vi.useFakeTimers();
-    render(<Harness />);
-    const dough = getDough();
-    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 84, clientX: 60, clientY: 150 });
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 84, clientX: 150, clientY: 60 });
-    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 84, clientX: 240, clientY: 150 });
-    hold(800);
-    expect(preview().hasAttribute("data-straight")).toBe(false);
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 84, clientX: 240, clientY: 150 });
-    expect(lastCommittedPath()).toBe("20,50 50,20 80,50");
-    cleanup();
-
-    render(<Harness />);
-    const d2 = getDough();
-    fireEvent.pointerDown(d2, { ...POINTER_BASE, pointerId: 85, clientX: 150, clientY: 150 });
-    fireEvent.pointerMove(d2, { ...POINTER_BASE, pointerId: 85, clientX: 165, clientY: 150 });
-    hold(800);
-    expect(preview().hasAttribute("data-straight")).toBe(false);
-  });
-
-  it("a press that never moves (or a stroke that ended) starts no hold", () => {
-    vi.useFakeTimers();
-    render(<Harness />);
-    const dough = getDough();
-    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 86, clientX: 60, clientY: 150 });
-    hold(2000);
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 86, clientX: 60, clientY: 150 });
-    expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(0);
-    swipe(87, dough);
-    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 87, clientX: 240, clientY: 150 });
-    const committed = lastCommittedPath();
-    hold(2000); // nothing fires after release
-    expect(lastCommittedPath()).toBe(committed);
-    expect(preview().hasAttribute("data-straight")).toBe(false);
   });
 });
