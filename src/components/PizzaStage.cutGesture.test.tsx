@@ -307,7 +307,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(mark).toHaveClass("pizza-cut-mark--through");
     expect(mark?.querySelector(".pizza-cut-line")).toBeNull();
     expect(mark?.querySelector(".pizza-cut-edge--lit")).toBeNull();
-    expect(document.querySelector(".pizza-pieces-shade")).toBeInTheDocument();
+    expect(document.querySelector(".pizza-pieces-shade")).toBeNull(); // no dark under-layer: that was the black line
   });
 
   it("#418: a partial stroke never separates: no pieces, just a groove with one lit lip", () => {

@@ -1263,11 +1263,6 @@ export function PizzaStage({
         )}
         {pieceLayout ? (
           <>
-          <div
-            className="pizza-pieces-shade"
-            aria-hidden="true"
-            style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
-          />
           <div className="pizza-pieces" data-piece-count={pieceLayout.pieces.length}>
             {pieceLayout.pieces.map((piece, pieceIndex) => {
               let node = (
@@ -1340,11 +1335,15 @@ export function PizzaStage({
           >
             {isCutStep && (
               <>
-                <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
-                  {cutGuideLines.map((line, index) => (
-                    <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
-                  ))}
-                </g>
+                {/* Issue #418: the angle guide only helps choose the first cut; once a cut has
+                    parted the pizza it would just be dashed lines across the pieces. */}
+                {!pieceLayout && (
+                  <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
+                    {cutGuideLines.map((line, index) => (
+                      <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
+                    ))}
+                  </g>
+                )}
                 <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
               </>
             )}

@@ -93,7 +93,7 @@ describe("PizzaStage cut pieces", () => {
     cleanup();
     const b = render(stage(state, [clearlyPartial], "CUT"));
     expect(b.container.querySelector(".pizza-pieces")).toBeNull();
-    expect(b.container.querySelector(".pizza-pieces-shade")).toBeNull();
+    expect(b.container.querySelector(".pizza-cut-guide-lines")).toBeInTheDocument(); // no cut has parted it: guide stays
   });
 
   it("an uncut pizza (or only partial strokes) is rendered as one body, as before", () => {
@@ -141,13 +141,13 @@ describe("PizzaStage cut pieces", () => {
     const inCut = render(stage(state, lines, "CUT"));
     expect(inCut.container.querySelectorAll(".pizza-piece")).toHaveLength(4);
     expect(inCut.container.querySelector(".pizza-cut-flash")).toBeInTheDocument();
-    expect(inCut.container.querySelector(".pizza-cut-guide-lines")).toBeInTheDocument();
+    expect(inCut.container.querySelector(".pizza-cut-guide-lines")).toBeNull(); // parted: the angle guide is gone
     cleanup();
 
     const inResult = render(stage(state, lines, null as unknown as GameState["makingStep"]));
     expect(inResult.container.querySelectorAll(".pizza-piece")).toHaveLength(4);
     expect(inResult.container.querySelectorAll(".pizza-cut-mark--through")).toHaveLength(2);
-    expect(inResult.container.querySelector(".pizza-pieces-shade")).toBeInTheDocument();
+    expect(inResult.container.querySelector(".pizza-pieces-shade")).toBeNull();
     expect(inResult.container.querySelectorAll(".pizza-cut-mark--through .pizza-cut-line")).toHaveLength(0);
     expect(inResult.container.querySelectorAll(".pizza-cut-mark--partial")).toHaveLength(1); // the miss stays
     expect(inResult.container.querySelector(".pizza-cut-flash")).toBeNull();
