@@ -52,15 +52,30 @@ async function expectActionBarUsable(page: Page, label: string) {
   }
 }
 
+/**
+ * The auto-scroll runs from the (asynchronous) `toggle` event, so how long it takes depends on the browser and the runner's
+ * load. Poll the real condition -- the last opened detail's bottom edge is at or above the bar's top edge -- instead of
+ * sleeping a fixed time. If the scroll never happens, the poll times out and the test fails with the remaining overlap.
+ */
+async function expectLastOpenedDetailClearsBar(page: Page, label: string) {
+  await expect
+    .poll(
+      async () => {
+        const m = await measure(page);
+        return m.lastBottom === null ? Number.POSITIVE_INFINITY : Math.round(m.lastBottom - m.barTop);
+      },
+      { message: `${label} must end above the fixed bar (px past the bar's top edge)`, timeout: 5_000, intervals: [50, 100, 200] },
+    )
+    .toBeLessThanOrEqual(0);
+}
+
 async function expectEveryOpenedDetailClearsBar(page: Page) {
   const summaries = page.locator(".result-panel summary");
   const n = await summaries.count();
   expect(n).toBeGreaterThan(0);
   for (let i = 0; i < n; i++) {
     await summaries.nth(i).click();
-    await page.waitForTimeout(150);
-    const m = await measure(page);
-    expect(m.lastBottom, `detail #${i} must end above the fixed bar`).toBeLessThanOrEqual(m.barTop);
+    await expectLastOpenedDetailClearsBar(page, `detail #${i}`);
     await expectActionBarUsable(page, `open ${i + 1}/${n}`);
   }
   expect((await measure(page)).nOpen).toBe(n);
@@ -99,9 +114,7 @@ test.describe("#423 RESULT detail vs fixed action bar", () => {
       await expectActionBarUsable(page, `closed again (${round + 1})`);
       for (let i = 0; i < n; i++) {
         await summaries.nth(i).click();
-        await page.waitForTimeout(150);
-        const m = await measure(page);
-        expect(m.lastBottom).toBeLessThanOrEqual(m.barTop);
+        await expectLastOpenedDetailClearsBar(page, `re-opened detail #${i} (round ${round + 1})`);
       }
     }
     // The primary button really works: a tap starts the next round (RESULT is left).
