@@ -1,0 +1,108 @@
+/* Design mock only (#422). Colours/radii copied from the production tokens in src/App.css
+   (.dex-overlay*, .dex-card*, .shop-item*, .shop-overlay__*) so the mock reads like the real app.
+   Nothing here is imported by src/. Variant A = density-first (.v-a), variant B = usability-first (.v-b). */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;color:#4a2e0a;-webkit-text-size-adjust:100%}
+body{background:#3b2410}
+.backdrop{position:absolute;inset:0;background:rgba(30,18,8,.55);display:flex;align-items:flex-end}
+.panel{width:100%;max-height:calc(100dvh - 20px);background:#fff8ea;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.panel__header{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 0;margin-bottom:12px;flex:0 0 auto}
+.panel__header h2{margin:0;font-size:20px;color:#4a2e0a}
+.close{border:none;background:#e6d5ae;border-radius:999px;padding:8px 14px;font-weight:700;min-height:40px;font-size:14px;color:#4a2e0a}
+.body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.progress{display:flex;flex-direction:column;gap:4px;background:#f5ecd8;border-radius:12px;padding:8px 14px}
+.progress__row{display:flex;justify-content:space-between;align-items:baseline}
+.progress__count{margin:0;font-size:16px;font-weight:800;color:#6b4226}
+.progress__sub{margin:0;font-size:12px;font-weight:700;color:#a1662f}
+.progress__stars{margin:0;font-size:12px;font-weight:700;color:#8a6a1f}
+.chapter{display:flex;flex-direction:column;gap:8px}
+.chapter__title{margin:6px 0 0;font-size:15px;color:#6b4226;display:flex;justify-content:space-between;align-items:baseline}
+.chapter__count{font-size:12px;color:#a1662f}
+.chips{display:flex;gap:8px;overflow-x:auto;flex:0 0 auto;scrollbar-width:none}
+.chip{flex:0 0 auto;border:none;border-radius:999px;background:#efe3c3;color:#6b4226;font-weight:700;font-size:14px;padding:0 16px;min-height:44px}
+.chip[aria-selected="true"]{background:#6b4226;color:#fff}
+.balance{font-size:15px;font-weight:800;color:#6b4226;background:#f5ecd8;border-radius:12px;padding:8px 14px}
+
+/* ---- shared silhouette + locked slot (the only shared presentation part, per OD-DISPLAY-1 D7) ---- */
+.sil{flex:0 0 auto;display:block}
+.lock{background:#f3ead4;border:1.5px dashed #cdb98f;border-radius:12px;color:#7a5a33;font-weight:800}
+.lock .q{letter-spacing:.05em}
+
+/* ---- Dex ---- */
+.dex-list{display:flex;flex-direction:column}
+.dex-grid{display:grid}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.card h3{margin:0;font-size:15px}
+.card--found{grid-column:1/-1}
+.card .stars{color:#c98a00;font-weight:800}
+.card .best{color:#8a6a45}
+.tag-card{display:flex;align-items:center;gap:10px;grid-column:1/-1}
+.cta{border:none;border-radius:999px;background:#f2b705;color:#4a2e0a;font-weight:800;font-size:13px;padding:0 14px}
+
+.v-a .dex-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+.v-a .dex-list{gap:6px}
+.v-a .card--found{display:flex;justify-content:space-between;align-items:center;padding:0 12px;min-height:44px}
+.v-a .card--found h3{font-size:14px}
+.v-a .card--found .meta{font-size:12px}
+.v-a .lock--dex{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;min-height:78px;text-align:center}
+.v-a .lock--dex .no{font-size:11px}
+.v-a .lock--dex .q{font-size:12px}
+.v-a .lock--dex .sil{width:30px;height:30px}
+.v-a .tag-card{padding:8px 12px;min-height:56px}
+.v-a .tag-card .sil{width:30px;height:30px}
+.v-a .cta{min-height:32px}
+
+.v-b .dex-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.v-b .dex-list{gap:10px}
+.v-b .card--found{padding:12px 14px;min-height:72px;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.v-b .card--found .meta{font-size:13px}
+.v-b .lock--dex{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 8px;min-height:116px;text-align:center}
+.v-b .lock--dex .no{font-size:12px}
+.v-b .lock--dex .q{font-size:14px}
+.v-b .lock--dex .tagline{font-size:11px;font-weight:600;color:#8a6a45}
+.v-b .lock--dex .sil{width:48px;height:48px}
+.v-b .tag-card{padding:12px 14px;min-height:80px}
+.v-b .tag-card .sil{width:44px;height:44px}
+.v-b .cta{min-height:44px}
+.tag-card .t{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.tag-card .t .lbl{font-size:13px;font-weight:800;color:#6b4226}
+.tag-card .t .hint{font-size:11px;color:#8a6a45}
+
+/* ---- Shop ---- */
+.shop-list{display:flex;flex-direction:column}
+.item{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.12);display:flex;flex-direction:column}
+.item--new{box-shadow:0 0 0 2px #f2b705,0 1px 3px rgba(0,0,0,.12)}
+.item .name{font-weight:700;color:#4a2e0a;display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;font-weight:800;color:#4a2e0a;background:#f2b705;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.item .fam{font-size:11px;color:#8a6a45}
+.item .pack{font-size:12px;color:#6b4226}
+.item .price{font-size:12px;font-weight:700;color:#6b4226;white-space:nowrap}
+.buy{border:none;border-radius:999px;background:#4c9a2a;color:#fff;font-weight:800;padding:0 14px;font-size:13px}
+.buy--restock{background:#e6d5ae;color:#4a2e0a}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sec-title{margin:6px 0 0;font-size:13px;font-weight:800;color:#6b4226}
+.locked{display:flex;flex-direction:column;gap:8px}
+.locked h3{margin:6px 0 0;font-size:14px;color:#6b4226}
+.hints{display:flex;flex-direction:column;gap:6px}
+.hint-box{margin:0;font-weight:700;color:#6b4226;background:#fff3c9;border-radius:10px;line-height:1.4}
+.locked-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr)}
+
+.v-a .shop-list{gap:6px}
+.v-a .item{padding:8px 12px;gap:2px}
+.v-a .item .name{font-size:14px}
+.v-a .buy{min-height:36px}
+.v-a .hint-box{font-size:12px;padding:6px 10px}
+.v-a .locked-grid{gap:6px}
+.v-a .lock--shop{display:flex;align-items:center;gap:8px;padding:0 10px;min-height:44px;font-size:13px}
+.v-a .lock--shop .sil{width:26px;height:26px}
+
+.v-b .shop-list{gap:10px}
+.v-b .item{padding:12px 14px;gap:6px}
+.v-b .item .name{font-size:15px}
+.v-b .buy{min-height:44px;min-width:92px}
+.v-b .hint-box{font-size:13px;padding:10px 12px}
+.v-b .locked-grid{gap:10px}
+.v-b .lock--shop{display:flex;align-items:center;gap:10px;padding:0 12px;min-height:64px;font-size:14px}
+.v-b .lock--shop .sil{width:40px;height:40px}
+.lock--shop .lbl{display:flex;flex-direction:column;line-height:1.25}
+.v-a .lock--shop .lbl{flex-direction:row;gap:6px}
