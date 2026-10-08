@@ -115,8 +115,6 @@ function renderAt(state: GameState, referencePizza: typeof MARGHERITA_REFERENCE 
       onDoughStretchProgress={() => {}}
       onDoughStretchCommit={() => {}}
       onAddCutLine={() => {}}
-      onUndoCutLine={() => {}}
-      cutRejectionMessage={null}
       onDoughElementChange={() => {}}
       resolvePhysicalDrop={() => null}
       onPhysicalDrop={() => {}}

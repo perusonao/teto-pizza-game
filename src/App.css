@@ -527,8 +527,13 @@
 .pizza-cut-layer {
   position: absolute;
   inset: calc(-1 * var(--dough-border-width));
+  /* An <svg> is a replaced element: inset alone does not stretch it, it keeps its viewBox's square
+     ratio. Size it explicitly to the dough's border-box so x and y map exactly like the pointer math. */
+  width: calc(100% + 2 * var(--dough-border-width));
+  height: calc(100% + 2 * var(--dough-border-width));
   pointer-events: none;
-  clip-path: circle(48% at 50% 50%);
+  /* Fallback only: PizzaStage clips this layer to the player's actual dough silhouette (inline). */
+  clip-path: circle(50% at 50% 50%);
   z-index: 4;
 }
 
@@ -546,27 +551,144 @@
   fill: rgba(107, 66, 38, 0.35);
 }
 
+/* Issue #418: a cut reads as a score in the baked pizza, not a drawn line -- a thin dark groove
+   plus a faint lit lip on one side; rim-to-rim cuts (--through) are a hair wider with a second
+   faint lip, as if the two sides parted by a pixel or two. Visual only. */
 .pizza-cut-line {
-  stroke: rgba(42, 26, 12, 0.88);
-  stroke-width: 2;
+  stroke: rgba(48, 25, 10, 0.78);
+  stroke-width: 0.55;
   stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.pizza-cut-edge {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pizza-cut-edge--lit {
+  stroke: rgba(255, 246, 222, 0.8);
+  stroke-width: 0.55;
+}
+
+/* The newest cut flashes once (~300ms) along its groove, then it is just a normal cut again. */
+.pizza-cut-flash {
+  fill: none;
+  stroke: rgba(255, 252, 232, 0.95);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  animation: pizza-cut-flash 300ms ease-out;
+}
+
+@keyframes pizza-cut-flash {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pizza-cut-flash {
+    animation: none;
+  }
+}
+
+/* Issue #418: a cut pizza is drawn as pieces -- each a full copy of the pizza body (silhouette,
+   sauce, toppings, bake look) clipped to its region and nudged ~1.5px away from the centre (the
+   offset is set inline). Same box as the dough layer (border-box) so clip polygons are in
+   dough-percent; the body container returns to the padding box the layers were laid out against. */
+.pizza-pieces {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+  /* The cut-face relief is an SVG lighting filter set inline (PieceReliefFilter.tsx). */
+}
+
+.pizza-piece,
+.pizza-piece-clip {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pizza-piece-body {
+  position: absolute;
+  inset: var(--dough-border-width);
+  pointer-events: none;
+}
+
+/* The copies are not new placements: no landing/spreading animation replay when a cut re-draws them. */
+.pizza-piece-body .pizza-topping,
+.pizza-piece-body .pizza-topping-half,
+.pizza-piece-body .pizza-sauce-layer {
+  animation: none;
+}
+
+/* A topping sliced by a cut: its part inside a neighbouring piece (positioned like .pizza-topping). */
+.pizza-topping-half {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .pizza-cut-preview-line {
   stroke: rgba(42, 26, 12, 0.55);
   stroke-width: 1.6;
   stroke-linecap: round;
-  stroke-dasharray: 3 2;
-  transition: opacity 120ms ease;
+  stroke-linejoin: round;
+  fill: none;
 }
 
-.pizza-cut-cutter-icon {
+.pizza-cut-hit-zone {
   position: absolute;
-  transform: translate(-50%, -100%);
-  font-size: 22px;
+  inset: -6% -12%;
+  z-index: 5;
+  touch-action: none;
+}
+
+/* The knife lives in a layer that is exactly the dough's border-box (the box the pointer math and the
+   cut layer use), so its left/top percentages are the cut's own dough-percent. */
+.pizza-cut-tool-layer {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
   z-index: 6;
-  transition: opacity 120ms ease;
+}
+
+/* Zero-size anchor at the cut's end; the knife's blade tip is the svg's bottom-left corner, which
+   sits exactly on the anchor, with the blade rising up and to the right of it. */
+.pizza-cut-cutter-icon {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.pizza-cut-knife {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1.5px rgba(40, 18, 6, 0.45));
+}
+
+.pizza-cut-knife__blade {
+  fill: #eceae4;
+  stroke: #4a3a2c;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.pizza-cut-knife__handle {
+  fill: #6b3f1d;
+  stroke: #3a2210;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
 }
 
 .pizza-topping {

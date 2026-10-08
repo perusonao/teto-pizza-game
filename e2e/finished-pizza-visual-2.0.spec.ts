@@ -82,7 +82,7 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
 
     await expect(page.locator(".result-panel")).toBeVisible();
@@ -94,7 +94,8 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
     );
 
     // Crust: continuous dough-shape background is present and non-empty (baked, not raw pale).
-    const doughBackground = await page.locator(".pizza-dough-shape").evaluate((el) => (el as HTMLElement).style.background);
+    // (A cut pizza is drawn as pieces, each a full copy of the body, so there is one per piece.)
+    const doughBackground = await page.locator(".pizza-dough-shape").first().evaluate((el) => (el as HTMLElement).style.background);
     expect(doughBackground).not.toBe("");
 
     // Cheese: keeps its own dedicated melt/toast/char curve, distinct from the topping curve.
@@ -103,7 +104,7 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
     expect(cheese).not.toBe(basilFilterAtResult);
 
     // CUT visibility persists into RESULT.
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await expect(page.locator(".cut-evaluation-summary")).toBeVisible();
 
     // RESULT 1-Screen 2.0 (PR #181) / Timing Transparency (PR #185) regressions.
@@ -150,7 +151,9 @@ test.describe("Scenario B: topping-heavy recipe (Capricciosa) IDEAL -- multiple 
 
     // Every placed piece is still individually visible (identity preserved, not collapsed into
     // one indistinguishable mass).
-    await expect(page.locator(".pizza-cheese")).toHaveCount(2);
+    // (After CUT the pizza is drawn as pieces: a topping sliced by a cut also shows its part in the
+    // neighbouring piece as a `.pizza-topping-half` -- not another placed piece.)
+    await expect(page.locator(".pizza-cheese:not(.pizza-topping-half *)")).toHaveCount(2);
     await expect(page.locator(".pizza-topping--mushroom")).toHaveCount(2);
     await expect(page.locator(".pizza-topping--oregano")).toHaveCount(1);
     await expect(page.locator(".pizza-topping--ham")).toHaveCount(1);
@@ -189,7 +192,7 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
     await expect(page.locator(".result-panel")).toBeVisible();
     const overbakedBasil = await toppingFilter(page, "basil");
@@ -200,7 +203,7 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
     expect(bodyFilter === "none" || bodyFilter === "").toBe(true);
 
     // UI (CTA/header) unaffected, CUT still visible at RESULT.
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await expect(page.getByRole("button", { name: "もう一度つくる" })).toBeVisible();
 
     // Compare against a fresh IDEAL round's own basil filter (Scenario A's own target center) --

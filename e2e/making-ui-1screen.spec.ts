@@ -489,6 +489,6 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
     // CUT line drag at the shrunk dough size -- same pointer-accuracy concern as the physical
     // drag above, for the other gesture family (drag-across rather than drag-and-drop).
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
   });
 });

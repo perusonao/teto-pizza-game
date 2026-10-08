@@ -85,7 +85,7 @@ test.describe("Scenario A: Marinara (no CHEESE step) @390x844", () => {
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
 
     await expect(page.locator(".result-panel")).toBeVisible();

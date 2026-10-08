@@ -113,7 +113,7 @@ for (const [label, width, height] of [
     await landNeedleAndTakeOut(page, { start: 58, end: 78 });
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
   });
 }
 

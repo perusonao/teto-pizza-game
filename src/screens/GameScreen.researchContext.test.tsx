@@ -74,8 +74,6 @@ function renderAt(state: GameState) {
       onDoughStretchProgress={() => {}}
       onDoughStretchCommit={() => {}}
       onAddCutLine={() => {}}
-      onUndoCutLine={() => {}}
-      cutRejectionMessage={null}
       onDoughElementChange={() => {}}
       resolvePhysicalDrop={() => null}
       onPhysicalDrop={() => {}}

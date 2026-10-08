@@ -197,11 +197,6 @@ interface GameScreenProps {
   onDoughStretchProgress: (shape: DoughShape | null) => void;
   onDoughStretchCommit: (shape: DoughShape) => void;
   onAddCutLine: (line: CutLine) => void;
-  onUndoCutLine: () => void;
-  /** Pizza Cutting 1.0 Phase 4A: a short-lived, App.tsx-local rejection message for the most
-   *  recent near-duplicate CUT line attempt -- `null` whenever nothing was just rejected. Never
-   *  part of `GameState` (see App.tsx's own `cutRejectionMessage` doc comment). */
-  cutRejectionMessage: string | null;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
   onPhysicalDrop: (ingredient: Ingredient, point: DoughPoint) => void;
@@ -269,8 +264,6 @@ export function GameScreen({
   onDoughStretchProgress,
   onDoughStretchCommit,
   onAddCutLine,
-  onUndoCutLine,
-  cutRejectionMessage,
   onDoughElementChange,
   resolvePhysicalDrop,
   onPhysicalDrop,
@@ -745,7 +738,7 @@ export function GameScreen({
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own
-          bottom bar -- "1本戻す" (undo last line) / "切り終わる" (confirm, gated on
+          bottom bar -- "切り終わる" (confirm, gated on
           `cutConfirmReady`, same "reducer is the real backstop" discipline every other CTA in
           this screen already follows). Deliberately its own bar, not a relabeled
           `.prepare-bake-bar` -- "やり直す" there discards the *whole pizza* (RESET_PIZZA, PREPARE
@@ -765,23 +758,7 @@ export function GameScreen({
               ? "・切り終わったよ！"
               : `・あと${cutRequiredCount - state.cutState.lines.length}本切ろう`}
           </div>
-          {/* Pizza Cutting 1.0 Phase 4A (design doc §2.2/Phase 4 Fresh Audit §5B/§8): plain text,
-              never color-only (this task's own Accessibility/Touch requirement) -- `role="status"`
-              announces it to a screen reader the same moment a sighted player sees it appear. */}
-          {cutRejectionMessage && (
-            <p className="cut-rejection-feedback" role="status">
-              {cutRejectionMessage}
-            </p>
-          )}
           <div className="action-row prepare-bake-bar">
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={onUndoCutLine}
-              disabled={state.cutState.lines.length === 0}
-            >
-              {"\u{21A9}"} 1本戻す
-            </button>
             <button
               type="button"
               className="cta-button cta-button--bake"

@@ -31,6 +31,8 @@ other interaction family in this codebase (DOUGH stretch, sauce dispense, toppin
 
 ---
 
+> **Superseded in part by Issue #418 (Owner Decisions, 2026-10-07):** §2.1 (Option A, rim-to-rim chord) and §8.4 (Undo / "1本戻す" / `requiredCutCount + 2` redraw slack) no longer describe the shipped gesture. The player's traced finger path (`CutLine.path`, `src/logic/cut/trace.ts`) is the cut's authority and commits immediately; there is no Undo, the 15° duplicate gate is removed, and a missed cut stays in the pizza. `requiredCutCount + 2` remains only as a runaway guard. The straight `start`/`end` chord kept on a `CutLine` is a transitional input for the non-scoring preview evaluation until #288 defines trace-based CUT scoring.
+
 ## 1. Basic flow — CUT's place in `CookingProfile`
 
 Per the merged SSOT (§8), the state machine already designed for this is:

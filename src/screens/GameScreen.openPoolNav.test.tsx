@@ -94,8 +94,6 @@ function Harness({ initial, category = "topping" }: { initial: GameState; catego
         onDoughStretchProgress={() => {}}
         onDoughStretchCommit={() => {}}
         onAddCutLine={() => {}}
-        onUndoCutLine={() => {}}
-        cutRejectionMessage={null}
         onDoughElementChange={() => {}}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={() => {}}

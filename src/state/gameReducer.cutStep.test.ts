@@ -4,7 +4,6 @@ import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { DEFAULT_COOKING_PROFILE, getCookingProfile } from "../data/cookingProfiles";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
-import { MIN_CUT_ANGULAR_SEPARATION_RADIANS } from "../logic/cut/geometry";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { createCutState } from "../logic/cut/state";
@@ -145,7 +144,7 @@ describe("5. cutState is created fresh every round", () => {
   });
 });
 
-describe("10. ADD_CUT_LINE/UNDO_CUT_LINE are no-ops outside POST_BAKE's own CUT step", () => {
+describe("10. ADD_CUT_LINE is a no-op outside POST_BAKE's own CUT step", () => {
   it("ADD_CUT_LINE during PREPARE is rejected", () => {
     const state = preparedMargheritaState();
     const line = idealCutLine(0, 3);
@@ -183,12 +182,6 @@ describe("10. ADD_CUT_LINE/UNDO_CUT_LINE are no-ops outside POST_BAKE's own CUT 
     expect(after).toBe(state);
   });
 
-  it("UNDO_CUT_LINE outside CUT is a no-op", () => {
-    const state = preparedMargheritaState();
-    const after = gameReducer(state, { type: "UNDO_CUT_LINE" });
-    expect(after).toBe(state);
-  });
-
   it("a malformed (non-edge-to-edge) line is rejected even during CUT", () => {
     const state = bakedMargheritaAtCut();
     const notEdgeToEdge: CutLine = { start: { x: 50, y: 50 }, end: { x: 55, y: 50 } };
@@ -198,9 +191,7 @@ describe("10. ADD_CUT_LINE/UNDO_CUT_LINE are no-ops outside POST_BAKE's own CUT 
   });
 });
 
-/** Degrees-based sibling of `idealCutLine` above, used only by the duplicate-rejection tests
- *  below where an exact angle offset (e.g. "5deg off an existing line") reads more directly than
- *  a fraction of a full slice count. */
+/** Degrees-based sibling of `idealCutLine` above. */
 function cutLineAtAngleDegrees(angleDegrees: number): CutLine {
   const angleRadians = (angleDegrees * Math.PI) / 180;
   const dx = Math.cos(angleRadians) * DOUGH_RADIUS;
@@ -211,95 +202,37 @@ function cutLineAtAngleDegrees(angleDegrees: number): CutLine {
   };
 }
 
-describe("10c. ADD_CUT_LINE rejects a near-duplicate of an already-committed line (Phase 4A)", () => {
-  it("an exact duplicate (identical start/end) is rejected -- state unchanged, same reference", () => {
+describe("10c. Issue #418: every completed cut commits as drawn (no duplicate gate, no undo)", () => {
+  it("an identical or near-identical cut is committed, not rejected", () => {
     let state = bakedMargheritaAtCut();
     state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
-    const rejected = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
-    expect(rejected).toBe(state);
-    expect(rejected.cutState.lines).toHaveLength(1);
-  });
-
-  it("the same line with reversed start/end is rejected (0deg and 180deg are the same orientation)", () => {
-    let state = bakedMargheritaAtCut();
-    const first = cutLineAtAngleDegrees(0);
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: first });
-    const reversed: CutLine = { start: first.end, end: first.start };
-    const rejected = gameReducer(state, { type: "ADD_CUT_LINE", line: reversed });
-    expect(rejected).toBe(state);
-    expect(rejected.cutState.lines).toHaveLength(1);
-  });
-
-  it("a near-duplicate a few degrees off an existing line is rejected", () => {
-    let state = bakedMargheritaAtCut();
     state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
-    const rejected = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(5) });
-    expect(rejected).toBe(state);
-    expect(rejected.cutState.lines).toHaveLength(1);
-  });
-
-  it("a line just outside the minimum angular separation is accepted", () => {
-    let state = bakedMargheritaAtCut();
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
-    const thresholdDegrees = (MIN_CUT_ANGULAR_SEPARATION_RADIANS * 180) / Math.PI;
-    const accepted = gameReducer(state, {
-      type: "ADD_CUT_LINE",
-      line: cutLineAtAngleDegrees(thresholdDegrees + 1),
-    });
-    expect(accepted).not.toBe(state);
-    expect(accepted.cutState.lines).toHaveLength(2);
-  });
-
-  it("a normal 3-line/6-slice pattern (60deg apart) is entirely unaffected by the duplicate gate", () => {
-    let state = bakedMargheritaAtCut();
-    for (let i = 0; i < 3; i += 1) {
-      state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(i, 3) });
-    }
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(3) });
     expect(state.cutState.lines).toHaveLength(3);
   });
 
-  it("a rejected duplicate never increments the committed cut count", () => {
-    let state = bakedMargheritaAtCut();
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
-    for (let i = 0; i < 3; i += 1) {
-      state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(2) });
-    }
-    expect(state.cutState.lines).toHaveLength(1);
+  it("the traced path is stored on the committed line untouched", () => {
+    const path = [
+      { x: 30, y: 40 },
+      { x: 45, y: 52 },
+      { x: 70, y: 48 },
+    ];
+    const line: CutLine = { ...cutLineAtAngleDegrees(10), path };
+    const state = gameReducer(bakedMargheritaAtCut(), { type: "ADD_CUT_LINE", line });
+    expect(state.cutState.lines[0].path).toBe(path);
   });
 
-  it("undo after a rejected duplicate attempt still removes exactly the last real line", () => {
+  it("there is no UNDO_CUT_LINE action: a missed cut stays in the pizza's result", () => {
     let state = bakedMargheritaAtCut();
     state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
-    const firstLine = state.cutState.lines[0];
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(60) });
-    // A rejected duplicate attempt in between -- must not corrupt undo history.
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(61) });
-    expect(state.cutState.lines).toHaveLength(2);
-    state = gameReducer(state, { type: "UNDO_CUT_LINE" });
-    expect(state.cutState.lines).toHaveLength(1);
-    expect(state.cutState.lines[0]).toEqual(firstLine);
-  });
-
-  it("evaluation is deterministic and identical whether or not rejected duplicate attempts were made in between", () => {
-    let withoutAttempts = bakedMargheritaAtCut();
-    for (let i = 0; i < 3; i += 1) {
-      withoutAttempts = gameReducer(withoutAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(i, 3) });
+    // @ts-expect-error UNDO_CUT_LINE was removed (#418)
+    const after = gameReducer(state, { type: "UNDO_CUT_LINE" });
+    expect(after.cutState.lines).toHaveLength(1);
+    for (const line of [60, 120].map(cutLineAtAngleDegrees)) {
+      state = gameReducer(state, { type: "ADD_CUT_LINE", line });
     }
-    withoutAttempts = gameReducer(withoutAttempts, { type: "CONFIRM_MAKING_STEP" });
-
-    let withAttempts = bakedMargheritaAtCut();
-    withAttempts = gameReducer(withAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
-    // A near-duplicate of the just-committed line -- rejected, must not perturb the final result.
-    withAttempts = gameReducer(withAttempts, {
-      type: "ADD_CUT_LINE",
-      line: cutLineAtAngleDegrees(2),
-    });
-    withAttempts = gameReducer(withAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(1, 3) });
-    withAttempts = gameReducer(withAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(2, 3) });
-    withAttempts = gameReducer(withAttempts, { type: "CONFIRM_MAKING_STEP" });
-
-    expect(withAttempts.cutState.lines).toHaveLength(3);
-    expect(withAttempts.cutState.evaluation).toEqual(withoutAttempts.cutState.evaluation);
+    const confirmed = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
+    expect(confirmed.cutState.lines).toHaveLength(3);
   });
 });
 
@@ -323,22 +256,6 @@ describe("11. first/second/third line progress", () => {
     // Confirm computes an evaluation once required lines exist...
     const confirmed = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
     expect(confirmed.phase).toBe("RESULT");
-  });
-
-  it("undo removes exactly the most recently committed line, no others", () => {
-    let state = bakedMargheritaAtCut();
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
-    const firstLine = state.cutState.lines[0];
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(1, 3) });
-    state = gameReducer(state, { type: "UNDO_CUT_LINE" });
-    expect(state.cutState.lines).toHaveLength(1);
-    expect(state.cutState.lines[0]).toEqual(firstLine);
-  });
-
-  it("undo below zero lines is a no-op", () => {
-    const state = bakedMargheritaAtCut();
-    const after = gameReducer(state, { type: "UNDO_CUT_LINE" });
-    expect(after.cutState.lines).toHaveLength(0);
   });
 
   it("the cut limit (requiredCutCount + 2) rejects further lines beyond it", () => {
