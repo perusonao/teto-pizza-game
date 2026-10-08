@@ -641,6 +641,12 @@
   fill: none;
 }
 
+/* Straight assist: once a hold has straightened the line it reads as firm, before the finger lifts. */
+.pizza-cut-preview-line[data-straight="true"] {
+  stroke: rgba(42, 26, 12, 0.9);
+  stroke-width: 2.2;
+}
+
 .pizza-cut-hit-zone {
   position: absolute;
   inset: -6% -12%;

@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { useReducer } from "react";
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { gameReducer, type GameState } from "../state/gameReducer";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { PizzaStage } from "./PizzaStage";
@@ -75,6 +75,7 @@ function getDough(): HTMLElement {
 const POINTER_BASE = { isPrimary: true, pointerType: "touch" as const };
 
 afterEach(() => {
+  vi.useRealTimers();
   cleanup();
 });
 
@@ -224,7 +225,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(screen.queryByText(/1本戻す/)).toBeNull();
   });
 
-  it("#418: a hand-shaky straight stroke is pulled onto its own start->tip line (ends fixed)", () => {
+  it("#418: a hand-shaky stroke is committed exactly as traced (no straightening)", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 40;
@@ -233,12 +234,12 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
       fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
     }
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
-    // Straight-line assist: the sway is absorbed, the start and where the finger lifted are not.
-    const path = (lastCommittedPath() ?? "").split(" ").map((q) => q.split(",").map(Number));
+    // Every sample stays where the finger put it: the traced path is the cut.
+    const path = (lastCommittedPath() ?? "").split(" ");
     expect(path.length).toBeGreaterThan(2);
-    expect(path[0]).toEqual([20, 50]);
-    expect(path[path.length - 1]).toEqual([80, 50]);
-    for (const [, y] of path) expect(y).toBeCloseTo(50, 6);
+    expect(path[0]).toBe("20,50");
+    expect(path).toContain("40,49");
+    expect(path[path.length - 1]).toBe("80,50");
   });
 
   it("#418: a quick swipe keeps its samples and ends where the finger lifted", () => {
@@ -358,5 +359,117 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(marks).toHaveLength(2);
     expect(marks[0].querySelector(".pizza-cut-flash")).toBeNull(); // back to a normal cut
     expect(marks[1].querySelector(".pizza-cut-flash")).toBeInTheDocument();
+  });
+});
+
+describe("#418 explicit straight-line assist (hold still)", () => {
+  const preview = () => document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!;
+  const hold = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
+  const swipe = (id: number, dough: ReturnType<typeof getDough>) => {
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: id, clientX: 60, clientY: 150 });
+    for (const [x, y] of [[90, 153], [120, 147], [150, 154], [180, 146], [210, 152], [240, 150]]) {
+      fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: id, clientX: x, clientY: y });
+    }
+  };
+
+  it("holding still straightens the line before release; release commits exactly what is shown", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    const dough = getDough();
+    swipe(80, dough);
+    expect(preview().hasAttribute("data-straight")).toBe(false); // not yet: still the traced line
+    expect(preview().getAttribute("points")!.split(" ").length).toBeGreaterThan(2);
+    hold(399);
+    expect(preview().hasAttribute("data-straight")).toBe(false);
+    hold(1);
+    expect(preview().getAttribute("data-straight")).toBe("true");
+    const shown = preview().getAttribute("points");
+    expect(shown).toBe("20.00,50.00 80.00,50.00"); // start -> where the finger rests
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 80, clientX: 240, clientY: 150 });
+    expect(lastCommittedPath()).toBe("20,50 80,50");
+  });
+
+  it("finger wobble within the tolerance neither restarts the hold nor moves the line", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    const dough = getDough();
+    swipe(81, dough);
+    hold(200);
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 81, clientX: 242, clientY: 152 }); // ~0.9 units
+    hold(200);
+    expect(preview().getAttribute("data-straight")).toBe("true");
+    const shown = preview().getAttribute("points"); // ends where the finger rested when it straightened
+    expect(shown).toBe("20.00,50.00 80.67,50.67");
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 81, clientX: 243, clientY: 149 });
+    expect(preview().getAttribute("points")).toBe(shown); // later wobble does not move the line
+    // a lift that wobbled a little still commits the straight line, with no extra tail segment
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 81, clientX: 243, clientY: 149 });
+    const path = (lastCommittedPath() ?? "").split(" ").map((q) => q.split(",").map(Number));
+    expect(path).toHaveLength(2);
+    expect(path[1][0]).toBeCloseTo(80.667, 2);
+    expect(path[1][1]).toBeCloseTo(50.667, 2);
+  });
+
+  it("moving on before the hold completes means no assist (the trace is kept as drawn)", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    const dough = getDough();
+    swipe(82, dough);
+    hold(300);
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 82, clientX: 255, clientY: 150 }); // moved on: timer restarts
+    hold(300);
+    expect(preview().hasAttribute("data-straight")).toBe(false);
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 82, clientX: 255, clientY: 150 });
+    expect((lastCommittedPath() ?? "").split(" ").length).toBeGreaterThan(2);
+  });
+
+  it("after the straightening, moving on carries the stroke on from the tip (no jump back)", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    const dough = getDough();
+    swipe(83, dough);
+    hold(400);
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 83, clientX: 270, clientY: 150 });
+    expect(preview().hasAttribute("data-straight")).toBe(false);
+    expect(preview().getAttribute("points")).toBe("20.00,50.00 80.00,50.00 90.00,50.00");
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 83, clientX: 270, clientY: 150 });
+    expect(lastCommittedPath()).toBe("20,50 80,50 90,50");
+  });
+
+  it("a hold in a clearly curved stroke, or in a very short one, changes nothing", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 84, clientX: 60, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 84, clientX: 150, clientY: 60 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 84, clientX: 240, clientY: 150 });
+    hold(800);
+    expect(preview().hasAttribute("data-straight")).toBe(false);
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 84, clientX: 240, clientY: 150 });
+    expect(lastCommittedPath()).toBe("20,50 50,20 80,50");
+    cleanup();
+
+    render(<Harness />);
+    const d2 = getDough();
+    fireEvent.pointerDown(d2, { ...POINTER_BASE, pointerId: 85, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(d2, { ...POINTER_BASE, pointerId: 85, clientX: 165, clientY: 150 });
+    hold(800);
+    expect(preview().hasAttribute("data-straight")).toBe(false);
+  });
+
+  it("a press that never moves (or a stroke that ended) starts no hold", () => {
+    vi.useFakeTimers();
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 86, clientX: 60, clientY: 150 });
+    hold(2000);
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 86, clientX: 60, clientY: 150 });
+    expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(0);
+    swipe(87, dough);
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 87, clientX: 240, clientY: 150 });
+    const committed = lastCommittedPath();
+    hold(2000); // nothing fires after release
+    expect(lastCommittedPath()).toBe(committed);
+    expect(preview().hasAttribute("data-straight")).toBe(false);
   });
 });

@@ -45,7 +45,7 @@ import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { buildCutVisual } from "../logic/cut/cutVisual";
 import { computePieceLayout, placeTopping } from "../logic/cut/pieces";
-import { appendTraceSample, buildTracedCutLine, rimCrossing, segmentRimChord, shapeTrace } from "../logic/cut/trace";
+import { appendTraceSample, buildTracedCutLine, rimCrossing, segmentRimChord, straightenTrace, STRAIGHT_HOLD_MS, STRAIGHT_HOLD_TOLERANCE } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
@@ -178,6 +178,12 @@ interface GestureState {
   cutTraceExited: boolean;
   /** CUT: last sample seen outside the dough before the stroke entered it (entry point source). */
   cutOutside: DoughPoint | null;
+  /** CUT straight assist: where the finger has been resting (the hold timer's anchor). */
+  cutHoldAnchor: DoughPoint | null;
+  /** CUT straight assist: the latest finger position inside the dough. */
+  cutLast: DoughPoint | null;
+  /** CUT straight assist: the tip of the straightened line while the hold is in effect. */
+  cutStraight: DoughPoint | null;
 }
 
 function createGestureState(): GestureState {
@@ -193,6 +199,9 @@ function createGestureState(): GestureState {
     cutTrace: [],
     cutTraceExited: false,
     cutOutside: null,
+    cutHoldAnchor: null,
+    cutLast: null,
+    cutStraight: null,
   };
 }
 
@@ -240,6 +249,7 @@ export function PizzaStage({
   const pathRef = useRef<SVGPathElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
+  const cutHoldTimerRef = useRef<number | null>(null);
   /** Pizza Cutting 1.0 Phase 2: imperative refs for the in-progress drag preview -- mirrors
    *  `pathRef`'s own "ref + direct SVG attribute writes while dragging" pattern exactly, never
    *  triggering a React re-render per pointermove. */
@@ -363,24 +373,35 @@ export function PizzaStage({
    *  every commit and every abort trigger, mirroring `clearTrail`'s own role for the sauce
    *  paint trail. Safe to call with no active CUT gesture (a no-op opacity write). */
   function clearCutPreviewLine() {
-    if (cutPreviewLineRef.current) cutPreviewLineRef.current.style.opacity = "0";
+    clearCutHold();
+    if (cutPreviewLineRef.current) {
+      cutPreviewLineRef.current.style.opacity = "0";
+      cutPreviewLineRef.current.removeAttribute("data-straight");
+    }
     if (cutCutterIconRef.current) cutCutterIconRef.current.style.opacity = "0";
   }
 
-  /** Issue #418: draws the finger's own trace so far (never a straightened chord) plus the
-   *  cutter icon, offset above the live pointer (design doc §8.3) so the finger doesn't hide it. */
-  function updateCutPreviewLine(trace: readonly DoughPoint[], current: DoughPoint) {
+  function clearCutHold() {
+    if (cutHoldTimerRef.current !== null) {
+      window.clearTimeout(cutHoldTimerRef.current);
+      cutHoldTimerRef.current = null;
+    }
+  }
+
+  /** Issue #418: draws the finger's own trace so far (exactly as traced; only an explicit hold
+   *  straightens it, see `onCutHold`) plus the cutter icon, offset above the live pointer
+   *  (design doc §8.3) so the finger doesn't hide it. */
+  function updateCutPreviewLine(trace: readonly DoughPoint[], current: DoughPoint, straight = false) {
     const previewEl = cutPreviewLineRef.current;
     if (!previewEl) return;
-    // Include the live fingertip (jitter-dropped samples never enter `trace`) and show it through
-    // the same `shapeTrace` the commit uses: the line ends at the finger and is the path release
-    // will commit, so it never jumps.
+    // Include the live fingertip (jitter-dropped samples never enter `trace`): the line is the
+    // exact path release will commit.
     const lastPoint = trace[trace.length - 1];
-    const shown = shapeTrace(
-      lastPoint && lastPoint.x === current.x && lastPoint.y === current.y ? trace : [...trace, current],
-    );
+    const shown = lastPoint && lastPoint.x === current.x && lastPoint.y === current.y ? trace : [...trace, current];
     if (trace.length > 0 && shown.length >= 2) {
       previewEl.setAttribute("points", shown.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" "));
+      if (straight) previewEl.setAttribute("data-straight", "true");
+      else previewEl.removeAttribute("data-straight");
       previewEl.style.opacity = "1";
     }
     const cutterEl = cutCutterIconRef.current;
@@ -389,6 +410,36 @@ export function PizzaStage({
       cutterEl.style.top = `${Math.max(0, current.y - 8)}%`;
       cutterEl.style.opacity = "1";
     }
+  }
+
+  /** Straight assist: the finger has rested for `STRAIGHT_HOLD_MS`. If the stroke so far is short or
+   *  clearly curved nothing happens; otherwise it becomes the straight start->tip line, shown at once
+   *  (the finger is still down), and release commits exactly what is shown. */
+  function onCutHold() {
+    cutHoldTimerRef.current = null;
+    const g = gestureRef.current;
+    if (g.pointerId === null || g.cutTraceExited || g.cutStraight || !g.cutLast || g.cutTrace.length === 0) return;
+    const last = g.cutTrace[g.cutTrace.length - 1];
+    const tip = g.cutLast;
+    const straight = straightenTrace(
+      Math.hypot(tip.x - last.x, tip.y - last.y) > 1e-9 ? [...g.cutTrace, tip] : g.cutTrace,
+    );
+    if (!straight) return;
+    g.cutTrace = straight;
+    g.cutStraight = straight[1];
+    g.dragging = true;
+    updateCutPreviewLine(straight, straight[1], true);
+  }
+
+  /** (Re)arms the hold timer: it restarts only when the finger moves beyond the wobble tolerance. */
+  function armCutHold(at: DoughPoint) {
+    const g = gestureRef.current;
+    g.cutLast = at;
+    const anchor = g.cutHoldAnchor;
+    if (anchor && cutHoldTimerRef.current !== null && Math.hypot(at.x - anchor.x, at.y - anchor.y) <= STRAIGHT_HOLD_TOLERANCE) return;
+    g.cutHoldAnchor = at;
+    clearCutHold();
+    cutHoldTimerRef.current = window.setTimeout(onCutHold, STRAIGHT_HOLD_MS);
   }
 
   /** Shared cleanup for every abort trigger (ingredient change, Reference overlay open via
@@ -413,6 +464,7 @@ export function PizzaStage({
   useEffect(() => {
     return () => {
       if (fadeTimeoutRef.current !== null) window.clearTimeout(fadeTimeoutRef.current);
+      if (cutHoldTimerRef.current !== null) window.clearTimeout(cutHoldTimerRef.current);
       if (activeSessionRef.current) endDispenseSession(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount-only cleanup.
@@ -641,6 +693,9 @@ export function PizzaStage({
       cutTrace: isInsideDough(dough.x, dough.y) ? [dough] : [],
       cutTraceExited: false,
       cutOutside: isInsideDough(dough.x, dough.y) ? null : dough,
+      cutHoldAnchor: null,
+      cutLast: null,
+      cutStraight: null,
     };
 
     // MUST FIX 9: prevents this press from also producing a compatibility mouse event, a
@@ -760,11 +815,22 @@ export function PizzaStage({
         // Entered the pizza: the cut begins on the rim where the finger crossed it.
         g.cutTrace = [g.cutOutside ? rimCrossing(dough, g.cutOutside) : dough];
       }
+      if (g.cutStraight) {
+        // Straightened by a hold: finger wobble around the tip changes nothing; moving on resumes tracing.
+        if (Math.hypot(dough.x - g.cutStraight.x, dough.y - g.cutStraight.y) <= STRAIGHT_HOLD_TOLERANCE) {
+          updateCutPreviewLine(g.cutTrace, g.cutStraight, true);
+          return;
+        }
+        g.cutStraight = null;
+        g.cutHoldAnchor = null;
+      }
       const next = appendTraceSample(g.cutTrace, dough);
       g.cutTrace = next.path;
       g.cutTraceExited = next.exited;
       g.dragging = g.cutTrace.length >= 2;
       updateCutPreviewLine(g.cutTrace, next.exited ? g.cutTrace[g.cutTrace.length - 1] : dough);
+      if (next.exited) clearCutHold();
+      else armCutHold(dough);
       return;
     }
 
@@ -862,13 +928,17 @@ export function PizzaStage({
       if (g.dragging) {
         // The release sample itself is part of the trace (unless the finger already left the rim).
         let trace = g.cutTrace;
+        const heldStraight = g.cutStraight;
+        const releasedAtHold = (r: DoughPoint) =>
+          heldStraight !== null && Math.hypot(r.x - heldStraight.x, r.y - heldStraight.y) <= STRAIGHT_HOLD_TOLERANCE;
         if (!g.cutTraceExited && trace.length > 0) {
           const release = clientPointToDoughPercent(event.clientX, event.clientY, rect);
           const next = appendTraceSample(trace, release);
           // A release that jitter-filtering dropped still is where the finger lifted: keep it.
           const last = trace[trace.length - 1];
-          trace =
-            next.path === trace &&
+          trace = releasedAtHold(release)
+            ? trace // the straightened line is committed exactly as shown
+            : next.path === trace &&
             isInsideDough(release.x, release.y) &&
             Math.hypot(release.x - last.x, release.y - last.y) > 1e-9
               ? [...trace, release]
