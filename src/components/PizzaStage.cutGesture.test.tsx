@@ -80,7 +80,7 @@ afterEach(() => {
 
 function lastCommittedPath(): string | null {
   const els = document.querySelectorAll(".pizza-cut-line");
-  return els.length ? els[els.length - 1].getAttribute("points") : null;
+  return els.length ? els[els.length - 1].getAttribute("data-trace") : null;
 }
 
 describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
@@ -328,10 +328,34 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 62, clientX: 60, clientY: 150 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 62, clientX: 150, clientY: 60 });
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 62, clientX: 240, clientY: 150 });
-    expect(document.querySelector(".pizza-cut-line")?.getAttribute("points")).toBe("20,50 50,20 80,50");
+    expect(document.querySelector(".pizza-cut-line")?.getAttribute("data-trace")).toBe("20,50 50,20 80,50");
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 63, clientX: 150, clientY: 150 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
     expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(2);
+  });
+
+  it("#418: only the newest cut carries the one-shot flash; a rim-to-rim cut gets crust details", () => {
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 70, clientX: 150, clientY: -20 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 70, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 70, clientX: 150, clientY: 330 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 70, clientX: 150, clientY: 330 });
+    let marks = document.querySelectorAll(".pizza-cut-mark");
+    expect(marks).toHaveLength(1);
+    expect(marks[0]).toHaveClass("pizza-cut-mark--through");
+    expect(marks[0].querySelectorAll(".pizza-cut-crust-crack")).toHaveLength(4); // 2 per end
+    expect(marks[0].querySelectorAll(".pizza-cut-crust-shadow")).toHaveLength(2);
+    expect(marks[0].querySelector(".pizza-cut-flash")).toBeInTheDocument();
+
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 71, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 71, clientX: 210, clientY: 150 });
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 71, clientX: 210, clientY: 150 });
+    marks = document.querySelectorAll(".pizza-cut-mark");
+    expect(marks).toHaveLength(2);
+    expect(marks[0].querySelector(".pizza-cut-flash")).toBeNull(); // back to a normal cut
+    expect(marks[1].querySelector(".pizza-cut-flash")).toBeInTheDocument();
+    expect(marks[1].querySelector(".pizza-cut-crust")).toBeNull(); // partial: no crust details
   });
 });

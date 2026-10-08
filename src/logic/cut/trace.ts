@@ -6,7 +6,7 @@
  * smoothed, fitted or snapped to an ideal centre/angle/slice.
  */
 import { DOUGH_CENTER, DOUGH_RADIUS, isInsideDough, type DoughPoint } from "../pizzaCoordinates";
-import { buildRimToRimCutLine, isNearRim, type CutLine } from "./types";
+import { buildRimToRimCutLine, type CutLine } from "./types";
 
 /** Samples closer than this (dough-percent) to the last kept sample are sensor jitter. */
 export const TRACE_SAMPLE_MIN_DISTANCE = 1;
@@ -134,19 +134,4 @@ export function buildTracedCutLine(rawPath: readonly DoughPoint[]): CutLine | nu
   }
   const chord = buildRimToRimCutLine(first, farthest);
   return chord ? { ...chord, path } : null;
-}
-
-/** Ends within the crust border (~ the dough border width) of the rim count as reaching it. */
-export const CUT_RIM_REACH_TOLERANCE = 2;
-
-/**
- * Visual only (#418): did this cut run rim to rim? A chord-only legacy line always did. Used for
- * the faint "pieces parted" look; never read by cut authority, evaluation, save or economy.
- */
-export function isThroughCut(line: CutLine): boolean {
-  if (!line.path || line.path.length < 2) return true;
-  return (
-    isNearRim(line.path[0], CUT_RIM_REACH_TOLERANCE) &&
-    isNearRim(line.path[line.path.length - 1], CUT_RIM_REACH_TOLERANCE)
-  );
 }

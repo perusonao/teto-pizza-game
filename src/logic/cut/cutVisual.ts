@@ -1,0 +1,123 @@
+/**
+ * Issue #418: pure drawing geometry for a committed cut. Visual only -- cut authority
+ * (`CutLine.path`), evaluation, scoring, save and economy never read anything here.
+ *
+ * A cut that really reached the pizza's edge is drawn through the crust to the visible edge (the
+ * player's hand-shaped silhouette, not the ideal circle) and gets crust details at both ends. A
+ * stroke that stopped inside is drawn exactly to where it stopped.
+ */
+import { doughShapeRadiusAtAngle, type DoughShape } from "../doughShape";
+import { DOUGH_CENTER, DOUGH_RADIUS, type DoughPoint } from "../pizzaCoordinates";
+import { isNearRim, type CutLine } from "./types";
+
+/** Ends within this many dough-percent of the visible edge count as having reached it. */
+export const CUT_RIM_REACH_TOLERANCE = 2;
+/** The dough layer's box edge: nothing is ever drawn past it. */
+const BOX_EDGE_RADIUS = 50;
+/** Drawn cuts run on this far past the traced end; the cut layer is clipped to the pizza. */
+const THROUGH_OVERSHOOT_RADIUS = 53;
+
+export interface CutEnd {
+  /** Where the cut meets the visible pizza edge. */
+  readonly tip: DoughPoint;
+  /** Unit vector of the cut's direction as it leaves the pizza. */
+  readonly dir: DoughPoint;
+}
+
+export interface CutVisual {
+  readonly points: readonly DoughPoint[];
+  readonly through: boolean;
+  /** Both ends for a through cut; empty for a partial stroke. */
+  readonly ends: readonly CutEnd[];
+}
+
+/** The visible pizza edge radius in the direction of `p` from the centre (<= the dough layer box). */
+function edgeRadiusToward(p: DoughPoint, shape: DoughShape | undefined): number {
+  if (!shape) return DOUGH_RADIUS;
+  const r = doughShapeRadiusAtAngle(shape, Math.atan2(p.y - DOUGH_CENTER, p.x - DOUGH_CENTER));
+  return Math.min(BOX_EDGE_RADIUS, Math.max(1, r));
+}
+
+/** Did this cut run edge to edge? (chord-only legacy lines always did). Visual only. */
+export function isThroughCut(line: CutLine, shape?: DoughShape): boolean {
+  const path = line.path;
+  if (!path || path.length < 2) return true;
+  const reached = (p: DoughPoint) => {
+    if (isNearRim(p, CUT_RIM_REACH_TOLERANCE)) return true;
+    const r = Math.hypot(p.x - DOUGH_CENTER, p.y - DOUGH_CENTER);
+    return r >= Math.min(DOUGH_RADIUS, edgeRadiusToward(p, shape)) - CUT_RIM_REACH_TOLERANCE;
+  };
+  return reached(path[0]) && reached(path[path.length - 1]);
+}
+
+/** The point reached by walking from `from` along unit `dir` until it is `radius` from the centre. */
+export function rayToRadius(from: DoughPoint, dir: DoughPoint, radius: number): DoughPoint {
+  const ox = from.x - DOUGH_CENTER;
+  const oy = from.y - DOUGH_CENTER;
+  const b = ox * dir.x + oy * dir.y;
+  const c = ox * ox + oy * oy - radius * radius;
+  const disc = b * b - c;
+  if (disc < 0) return from;
+  const t = -b + Math.sqrt(disc);
+  return t <= 0 ? from : { x: from.x + dir.x * t, y: from.y + dir.y * t };
+}
+
+function unit(dx: number, dy: number): DoughPoint | null {
+  const len = Math.hypot(dx, dy);
+  return len < 1e-9 ? null : { x: dx / len, y: dy / len };
+}
+
+export function buildCutVisual(line: CutLine, shape?: DoughShape): CutVisual {
+  const base = line.path && line.path.length >= 2 ? line.path : [line.start, line.end];
+  if (!isThroughCut(line, shape)) return { points: base, through: false, ends: [] };
+
+  const chord = unit(line.end.x - line.start.x, line.end.y - line.start.y) ?? { x: 1, y: 0 };
+  const first = base[0];
+  const last = base[base.length - 1];
+  const dirA = unit(first.x - base[1].x, first.y - base[1].y) ?? { x: -chord.x, y: -chord.y };
+  const dirB = unit(last.x - base[base.length - 2].x, last.y - base[base.length - 2].y) ?? chord;
+
+  const reach = (p: DoughPoint, dir: DoughPoint) => rayToRadius(p, dir, THROUGH_OVERSHOOT_RADIUS);
+  const tipOf = (p: DoughPoint, dir: DoughPoint) => rayToRadius(p, dir, edgeRadiusToward(reach(p, dir), shape));
+  return {
+    points: [reach(first, dirA), ...base, reach(last, dirB)],
+    through: true,
+    ends: [
+      { tip: tipOf(first, dirA), dir: dirA },
+      { tip: tipOf(last, dirB), dir: dirB },
+    ],
+  };
+}
+
+type Segment = readonly [DoughPoint, DoughPoint];
+
+export interface CrustDetail {
+  /** Two short cracks fanning out of the groove inside the crust. */
+  readonly cracks: readonly Segment[];
+  /** A tiny lit chip on one side of the groove where it meets the edge (the "step"). */
+  readonly chip: Segment;
+  /** A soft shadow smudge along the groove across the crust. */
+  readonly shadow: Segment;
+}
+
+function rotate(d: DoughPoint, degrees: number): DoughPoint {
+  const a = (degrees * Math.PI) / 180;
+  return { x: d.x * Math.cos(a) - d.y * Math.sin(a), y: d.x * Math.sin(a) + d.y * Math.cos(a) };
+}
+
+const along = (p: DoughPoint, d: DoughPoint, t: number): DoughPoint => ({ x: p.x + d.x * t, y: p.y + d.y * t });
+
+/** Small crust details at a through cut's end. `lightNormal` is the lit side (see PizzaStage). */
+export function crustDetailAt(end: CutEnd, lightNormal: DoughPoint): CrustDetail {
+  const { tip, dir } = end;
+  const crustStart = along(tip, dir, -5.2);
+  const chipAt = along(tip, dir, -2.2);
+  return {
+    cracks: [
+      [crustStart, along(crustStart, rotate(dir, 27), 5.6)],
+      [crustStart, along(crustStart, rotate(dir, -29), 4.8)],
+    ],
+    chip: [along(chipAt, lightNormal, 1.5), along(chipAt, lightNormal, 2.9)],
+    shadow: [along(tip, dir, -5.0), along(tip, dir, 0.4)],
+  };
+}

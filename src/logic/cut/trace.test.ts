@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { isEdgeToEdgeCutLine } from "./types";
-import { appendTraceSample, buildTracedCutLine, stabilizeTrace, rimCrossing, isThroughCut, segmentRimChord, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
+import { appendTraceSample, buildTracedCutLine, stabilizeTrace, rimCrossing, segmentRimChord, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
 
 const C = DOUGH_CENTER;
 
@@ -85,25 +85,6 @@ describe("rimCrossing", () => {
     const entry = rimCrossing({ x: 95, y: 50 }, { x: -10, y: 50 });
     expect(entry.x).toBeCloseTo(DOUGH_CENTER - DOUGH_RADIUS, 6);
     expect(entry.y).toBeCloseTo(50, 6);
-  });
-});
-
-describe("isThroughCut (visual only)", () => {
-  const R = DOUGH_RADIUS;
-  it("is true for a trace running rim to rim", () => {
-    const path = [{ x: C - R, y: C }, { x: C, y: C + 3 }, { x: C + R, y: C }];
-    expect(isThroughCut({ start: path[0], end: path[2], path })).toBe(true);
-  });
-  it("is false for a partial stroke that stops inside", () => {
-    const path = [{ x: C, y: C }, { x: C + 20, y: C }];
-    expect(isThroughCut({ start: { x: C - R, y: C }, end: { x: C + R, y: C }, path })).toBe(false);
-  });
-  it("is false when only one end reaches the rim", () => {
-    const path = [{ x: C - R, y: C }, { x: C, y: C }];
-    expect(isThroughCut({ start: path[0], end: { x: C + R, y: C }, path })).toBe(false);
-  });
-  it("treats a chord-only legacy line as through", () => {
-    expect(isThroughCut({ start: { x: C - R, y: C }, end: { x: C + R, y: C } })).toBe(true);
   });
 });
 

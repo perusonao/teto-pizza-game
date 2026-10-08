@@ -40,7 +40,8 @@ import {
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
-import { appendTraceSample, buildTracedCutLine, isThroughCut, rimCrossing, segmentRimChord, stabilizeTrace } from "../logic/cut/trace";
+import { buildCutVisual, crustDetailAt } from "../logic/cut/cutVisual";
+import { appendTraceSample, buildTracedCutLine, rimCrossing, segmentRimChord, stabilizeTrace } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
@@ -1293,7 +1294,12 @@ export function PizzaStage({
             0-100 dough-percent coordinate space every other overlay already uses. Shown only
             while CUT is actually the active step. */}
         {isCutStep && (
-          <svg className="pizza-cut-layer" viewBox="0 0 100 100" aria-hidden="true">
+          <svg
+            className="pizza-cut-layer"
+            viewBox="0 0 100 100"
+            aria-hidden="true"
+            style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
+          >
             <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
               {cutGuideLines.map((line, index) => (
                 <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
@@ -1302,8 +1308,12 @@ export function PizzaStage({
             <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
             {cutState.lines.map((line, index) => {
               // Issue #418: a cut reads as a score in the baked pizza -- a dark groove with a faint
-              // lit lip on one side; only a rim-to-rim cut also gets the slight "parted" look.
-              const pts = (line.path ?? [line.start, line.end]).map((p) => `${p.x},${p.y}`).join(" ");
+              // lit lip on one side. A cut that reached the edge runs through the crust to the
+              // visible edge (cracks, a chip, a shadow there) and looks slightly parted; a stroke
+              // that stopped inside is drawn exactly to where it stopped. The newest cut also
+              // flashes once (CSS animation, ~300ms) along its groove.
+              const visual = buildCutVisual(line, pizza.doughShape);
+              const pts = visual.points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
               const dx = line.end.x - line.start.x;
               const dy = line.end.y - line.start.y;
               const len = Math.hypot(dx, dy) || 1;
@@ -1314,22 +1324,45 @@ export function PizzaStage({
                 nx = -nx;
                 ny = -ny;
               }
-              const through = isThroughCut(line);
+              const seg = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+                `${a.x.toFixed(2)},${a.y.toFixed(2)} ${b.x.toFixed(2)},${b.y.toFixed(2)}`;
               return (
-                <g key={index} className={`pizza-cut-mark${through ? " pizza-cut-mark--through" : ""}`}>
+                <g key={index} className={`pizza-cut-mark${visual.through ? " pizza-cut-mark--through" : ""}`}>
+                  {visual.ends.map((end, endIndex) => {
+                    const [a, b] = crustDetailAt(end, { x: nx, y: ny }).shadow;
+                    return <polyline key={`s${endIndex}`} className="pizza-cut-crust-shadow" points={seg(a, b)} />;
+                  })}
                   <polyline
                     className="pizza-cut-edge pizza-cut-edge--lit"
                     points={pts}
                     transform={`translate(${(nx * 0.75).toFixed(3)} ${(ny * 0.75).toFixed(3)})`}
                   />
-                  {through && (
+                  {visual.through && (
                     <polyline
                       className="pizza-cut-edge pizza-cut-edge--far"
                       points={pts}
                       transform={`translate(${(-nx * 0.75).toFixed(3)} ${(-ny * 0.75).toFixed(3)})`}
                     />
                   )}
-                  <polyline className="pizza-cut-line" points={pts} />
+                  <polyline
+                    className="pizza-cut-line"
+                    points={pts}
+                    data-trace={line.path ? line.path.map((p) => `${p.x},${p.y}`).join(" ") : undefined}
+                  />
+                  {visual.ends.map((end, endIndex) => {
+                    const d = crustDetailAt(end, { x: nx, y: ny });
+                    return (
+                      <g key={`c${endIndex}`} className="pizza-cut-crust">
+                        {d.cracks.map((c, ci) => (
+                          <polyline key={ci} className="pizza-cut-crust-crack" points={seg(c[0], c[1])} />
+                        ))}
+                        <polyline className="pizza-cut-crust-chip" points={seg(d.chip[0], d.chip[1])} />
+                      </g>
+                    );
+                  })}
+                  {index === cutState.lines.length - 1 && (
+                    <polyline className="pizza-cut-flash" points={pts} />
+                  )}
                 </g>
               );
             })}
