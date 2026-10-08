@@ -19,6 +19,7 @@ import { RESEARCH_UX_COPY } from "./researchUxCopy";
 import { ResearchLabel } from "./ResearchLabel";
 import type { TechniqueId } from "../data/techniques";
 import { TechniqueReveal } from "./TechniqueReveal";
+import { useRevealOpenedResultDetail } from "./revealOpenedResultDetail";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -224,6 +225,7 @@ export function ResultPanel({
   onResearchNext,
   techniqueReveal = null,
 }: ResultPanelProps) {
+  useRevealOpenedResultDetail();
   // #346 S4: with a valid Research Target no near/far line is ever shown (Research ORIGINAL contract).
   const nearMiss = researchLabelJa !== null ? null : nearMissLine;
   // 229-C: a secondary row under the result itself -- the line (if any) and the hint CTA.
