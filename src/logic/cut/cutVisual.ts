@@ -88,36 +88,3 @@ export function buildCutVisual(line: CutLine, shape?: DoughShape): CutVisual {
     ],
   };
 }
-
-type Segment = readonly [DoughPoint, DoughPoint];
-
-export interface CrustDetail {
-  /** Two short cracks fanning out of the groove inside the crust. */
-  readonly cracks: readonly Segment[];
-  /** A tiny lit chip on one side of the groove where it meets the edge (the "step"). */
-  readonly chip: Segment;
-  /** A soft shadow smudge along the groove across the crust. */
-  readonly shadow: Segment;
-}
-
-function rotate(d: DoughPoint, degrees: number): DoughPoint {
-  const a = (degrees * Math.PI) / 180;
-  return { x: d.x * Math.cos(a) - d.y * Math.sin(a), y: d.x * Math.sin(a) + d.y * Math.cos(a) };
-}
-
-const along = (p: DoughPoint, d: DoughPoint, t: number): DoughPoint => ({ x: p.x + d.x * t, y: p.y + d.y * t });
-
-/** Small crust details at a through cut's end. `lightNormal` is the lit side (see PizzaStage). */
-export function crustDetailAt(end: CutEnd, lightNormal: DoughPoint): CrustDetail {
-  const { tip, dir } = end;
-  const crustStart = along(tip, dir, -5.2);
-  const chipAt = along(tip, dir, -2.2);
-  return {
-    cracks: [
-      [crustStart, along(crustStart, rotate(dir, 27), 5.6)],
-      [crustStart, along(crustStart, rotate(dir, -29), 4.8)],
-    ],
-    chip: [along(chipAt, lightNormal, 1.5), along(chipAt, lightNormal, 2.9)],
-    shadow: [along(tip, dir, -5.0), along(tip, dir, 0.4)],
-  };
-}

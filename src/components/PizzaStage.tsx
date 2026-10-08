@@ -27,7 +27,8 @@ import {
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
-import { insideDoughShapeFraction, SAUCE_TARGET_RADIUS } from "../logic/sauceField";
+import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
+import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -40,7 +41,8 @@ import {
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
-import { buildCutVisual, crustDetailAt } from "../logic/cut/cutVisual";
+import { buildCutVisual } from "../logic/cut/cutVisual";
+import { computePieceLayout, placeTopping } from "../logic/cut/pieces";
 import { appendTraceSample, buildTracedCutLine, rimCrossing, segmentRimChord, stabilizeTrace } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
@@ -48,14 +50,16 @@ import { computeGuideOpacity } from "../logic/bakeGuideFade";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
+/** How far (CSS px) each piece of a cut pizza is nudged away from the centre -- a hair, not an explosion. */
+const PIECE_SEPARATION_PX = 1.5;
+
+/** CSS clip-path for one side polygon of a cut (dough-percent points; even-odd like the geometry). */
+function polygonClip(points: readonly { x: number; y: number }[]): string {
+  return `polygon(evenodd, ${points.map((p) => `${p.x.toFixed(2)}% ${p.y.toFixed(2)}%`).join(", ")})`;
+}
 /** How long the freehand paint trail lingers before fading, roughly matching the sauce-spread
  * animation's own duration so the trail reads as "becoming" the sauce rather than vanishing. */
 const TRAIL_FADE_MS = 260;
-/** Internal pixel resolution of the overflow-marker canvas -- matches `SauceHeatmapCanvas`'s
- * own internal resolution (../components/SauceHeatmapCanvas.tsx) purely so the two overlaid
- * canvases share one rasterization fidelity; independent of SAUCE_FIELD_SIZE. */
-const OVERFLOW_MARKER_CANVAS_PX = 200;
-
 interface PizzaStageProps {
   pizza: PizzaState;
   recipe: Recipe;
@@ -232,7 +236,6 @@ export function PizzaStage({
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  const overflowCanvasRef = useRef<HTMLCanvasElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
   /** Pizza Cutting 1.0 Phase 2: imperative refs for the in-progress drag preview -- mirrors
@@ -1069,42 +1072,164 @@ export function PizzaStage({
   const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
-  // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline (buildSauceField ->
-  // smoothSauceFieldForDisplay -> sauceFieldToRgbaPixels) that used to live inline here has
-  // moved to `SauceHeatmapCanvas` (../components/SauceHeatmapCanvas.tsx), shared verbatim with
-  // the static Reference views -- see that component's own doc comment. This effect now only
-  // draws the overflow markers, which stay PizzaStage-only: an interactive, in-progress
-  // painting-mistake signal with no meaning for a static target that is correct by
-  // construction. Overlaid in its own canvas, same box as SauceHeatmapCanvas's, drawn after it
-  // in DOM order.
-  useEffect(() => {
-    if (!showSauceHeatmap) return;
-    const canvas = overflowCanvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+  // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
+  // `SauceHeatmapCanvas`, and the overflow markers in `OverflowMarkerCanvas` (Issue #418) -- both
+  // pure functions of their props, so a cut pizza can render one copy per piece.
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Issue #418: the pizza "body" (dough silhouette + sauce + toppings + bake look) is rendered by
+  // these two functions so a cut pizza can draw one copy per piece. Uncut, `PizzaStage` renders them
+  // once exactly as before. The silhouette's <clipPath> is defined once, outside the body.
+  const renderShapeLayer = () =>
+    showDoughShape ? (
+      <div
+        className="pizza-dough-shape"
+        aria-hidden="true"
+        style={{ clipPath: `url(#${doughClipId})`, ...doughShapeStyle }}
+      />
+    ) : null;
 
-    // Overflow markers where sauce landed off (or straddling) the player's *actual* dough
-    // silhouette -- alpha scaled by how much of that deposit actually missed it, so a near-rim
-    // dab reads as a faint touch and a fully overflowed one (genuinely off the dough entirely)
-    // as a solid mark. Only sauce that misses the real (possibly D3A-distorted) dough shape
-    // gets this treatment now; sauce inside it, even past the old fixed DOUGH_RADIUS circle, is
-    // real heatmap paint (SauceHeatmapCanvas), not a marker dot.
-    for (const deposit of effectiveDeposits) {
-      const overflowFraction = 1 - insideDoughShapeFraction(pizza.doughShape, deposit.x, deposit.y);
-      if (overflowFraction <= 0) continue;
-      const px = (deposit.x / 100) * canvas.width;
-      const py = (deposit.y / 100) * canvas.height;
-      ctx.save();
-      ctx.globalAlpha = 0.55 * overflowFraction;
-      ctx.fillStyle = fieldSauceColor;
-      ctx.beginPath();
-      ctx.arc(px, py, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor, pizza.doughShape]);
+  const pieceLayout = useMemo(
+    () => computePieceLayout(cutState.lines, pizza.doughShape),
+    [cutState.lines, pizza.doughShape],
+  );
+  const pieceClips = useMemo(
+    () =>
+      pieceLayout?.cuts.map((c) => [polygonClip(c.sideA), polygonClip(c.sideB)] as const) ?? [],
+    [pieceLayout],
+  );
+  const toppingPlacements = useMemo(() => {
+    if (!pieceLayout) return null;
+    return new Map(pizza.toppings.map((t) => [t.id, placeTopping(pieceLayout, t.x, t.y)] as const));
+  }, [pieceLayout, pizza.toppings]);
+  /** Toppings drawn in one piece: those whose centre is in it whole, plus the sliced part of any
+   *  topping that straddles into it. With no `piece` (uncut pizza) every topping, whole. */
+  const toppingsFor = (piece?: number) =>
+    pizza.toppings.flatMap((t) => {
+      const placement = piece === undefined ? null : toppingPlacements?.get(t.id);
+      if (!placement) return [{ t, half: false }];
+      if (placement.home === piece) return [{ t, half: false }];
+      return piece !== undefined && placement.halves.includes(piece) ? [{ t, half: true }] : [];
+    });
+
+  const renderBodyLayers = (piece?: number) => (
+    <>
+      {sauceIngredient && !isFieldSauceContext && (
+        <div
+          key={pizza.sauceToken}
+          className={`pizza-sauce-layer ${isOilSauce ? "pizza-sauce-layer--oil" : ""}`}
+          style={{
+            ...(isOilSauce ? {} : { backgroundColor: sauceIngredient.color, opacity: 0.85 }),
+            ...sauceOriginStyle,
+          }}
+        />
+      )}
+      {showSauceHeatmap && (
+        <SauceHeatmapCanvas
+          deposits={effectiveDeposits}
+          doughShape={pizza.doughShape}
+          color={fieldSauceColor}
+          className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
+            bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
+          }`}
+        />
+      )}
+      {/* Issue #167 PR-B (Reference Truth): overflow markers (see the effect above) live in
+          their own overlaid canvas now that the base sauce pixels render via the shared
+          SauceHeatmapCanvas -- same box/filter classes (so the markers keep the exact same
+          blur/bake-state tint the pre-extraction single-canvas version applied to them),
+          drawn after it in DOM order so the markers sit on top. */}
+      {showSauceHeatmap && (
+        <OverflowMarkerCanvas
+          deposits={effectiveDeposits}
+          doughShape={pizza.doughShape}
+          color={fieldSauceColor}
+          className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
+            bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
+          }`}
+        />
+      )}
+      {/* Issue #159 P1 (olive oil visibility): olive oil's own paint color (#e9d9a0,
+          ingredients.ts) is a near-match for the dough's own warm pale gold background, so
+          even with the existing saturate/contrast/drop-shadow filter (Issue #32 Finding 2-A/
+          2-B, above) a real-device Fresh Audit (2026-09-21) still found it hard to read at a
+          glance. This adds a distinct glossy highlight sweep + a soft ring tracing the dough's
+          own edge -- rendering-only (a `pointer-events: none` decorative layer keyed off the
+          same `isOilSauce`/`showSauceHeatmap`/`!isFieldSauceContext` conditions the sauce
+          visuals above already use), never reads or writes
+          `sauceDeposits`/`sauceIds`/anything Scoring 2.0 sees. */}
+      {isOilSauce && (showSauceHeatmap || !isFieldSauceContext) && (
+        <div className="pizza-sauce-oil-sheen" aria-hidden="true" />
+      )}
+      {toppingsFor(piece).map(({ t, half }) => {
+        const ingredient = getIngredient(t.ingredientId);
+        if (!ingredient) return null;
+        return (
+          <span
+            key={t.id}
+            className={half ? "pizza-topping-half" : `pizza-topping pizza-topping--${ingredient.id}`}
+            data-topping-id={t.id}
+            style={{
+              left: `${t.x}%`,
+              top: `${t.y}%`,
+              "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
+            } as CSSProperties}
+          >
+            {/* Issue #167 PR-B (Reference Truth): unified with every Reference view's own
+                piece rendering (renderPizzaVisualPieces, ../components/PizzaVisualPieces.tsx)
+                -- both branches now always go through IngredientPieceVisual, instead of a
+                locally hand-rolled `.pizza-topping__emoji` span bypassing it for non-cheese
+                ingredients. Gameplay UX PR-E: the cheese branch keeps `cheeseStyle` (bake
+                melt/spread/toast/char); every other ingredient gets its own dedicated
+                `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
+                variable's own comment above for why. */}
+            <IngredientPieceVisual
+              ingredient={ingredient}
+              style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+            />
+          </span>
+        );
+      })}
+      {piece === undefined && placement?.status === "rejected" && (
+        <span
+          key={placement.token}
+          className="pizza-reject-mark"
+          style={{ left: `${placement.x}%`, top: `${placement.y}%` }}
+        >
+          {"✕"}
+        </span>
+      )}
+      {/* M3A Bake Judgment: the old `pizza-bake-overlay--raw/--perfect/--burnt` swapped
+          `background` (a radial-gradient) per discrete `bakeState` -- the same un-animatable
+          snap `../logic/bakeVisual.ts`'s file header documents for the dough color. Split
+          into two always-mounted layers whose only per-frame change is `opacity` (which
+          *does* transition/interpolate natively), each driven by a continuous intensity, so
+          neither can pop in or swap look at a fixed instant. */}
+      {bakeProgress !== null && (
+        <>
+          <div className="pizza-bake-overlay pizza-bake-overlay--sheen" style={{ opacity: bakeRawSheenIntensity * 0.5 }} />
+          <div className="pizza-bake-overlay pizza-bake-overlay--char" style={{ opacity: bakeCharIntensity * 0.85 }} />
+        </>
+      )}
+      {bakeProgress !== null && (
+        <>
+          <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />
+          {/* `smoke-rise`'s own keyframes (App.css) already drive this span's opacity each
+              cycle -- a CSS animation always wins the cascade over an inline style on the
+              same property, so `bakeCharIntensity` fades a wrapping element instead. */}
+          <span className="pizza-smoke-wrap" style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}>
+            <span className="pizza-smoke">{"\u{1F4A8}"}</span>
+          </span>
+          <span className="pizza-smoke-wrap" style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}>
+            <span className="pizza-smoke pizza-smoke--delay">{"\u{1F4A8}"}</span>
+          </span>
+        </>
+      )}
+      {resultRevealed && bakeState === "perfect" && (
+        <div key="perfect-glow" className="pizza-perfect-glow" />
+      )}
+
+    </>
+  );
 
   const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}`;
 
@@ -1127,31 +1252,48 @@ export function PizzaStage({
         onContextMenu={handleContextMenu}
         onKeyDown={handleKeyDown}
       >
-        {/* Issue #33 D1: the player's actual hand-shaped dough boundary -- rendered from
-            `displayDoughShape` (the live in-progress gesture while dragging, else the
-            canonical committed `pizza.doughShape`), clipped to itself via an
-            objectBoundingBox <clipPath> so only this layer (not the outer .pizza-dough
-            plate/border) takes the organic shape. First child (below sauce/heatmap/toppings)
-            so they visually sit on top of it, satisfying "sauce/cheese/toppings sit on the
-            shaped dough" with no per-layer change needed elsewhere. Carries through every
-            phase once the round has entered PREPARE (`showDoughShape`), including BAKE/RESULT's
-            own continuous doneness coloring (M3A Bake Judgment: `doughShapeStyle` above,
-            ../logic/bakeVisual.ts) overriding App.css's neutral has-shape-layer default. */}
         {showDoughShape && (
-          <div
-            className="pizza-dough-shape"
-            aria-hidden="true"
-            style={{ clipPath: `url(#${doughClipId})`, ...doughShapeStyle }}
-          >
-            <svg width="0" height="0" style={{ position: "absolute" }}>
-              <defs>
-                <clipPath id={doughClipId} clipPathUnits="objectBoundingBox">
-                  <path d={doughClipPathD} />
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
+          <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+            <defs>
+              <clipPath id={doughClipId} clipPathUnits="objectBoundingBox">
+                <path d={doughClipPathD} />
+              </clipPath>
+            </defs>
+          </svg>
         )}
+        {pieceLayout ? (
+          <div className="pizza-pieces" data-piece-count={pieceLayout.pieces.length}>
+            {pieceLayout.pieces.map((piece, pieceIndex) => {
+              let node = (
+                <div className="pizza-piece-body">
+                  {renderShapeLayer()}
+                  {renderBodyLayers(pieceIndex)}
+                </div>
+              );
+              for (let c = pieceLayout.cuts.length - 1; c >= 0; c -= 1) {
+                node = (
+                  <div className="pizza-piece-clip" style={{ clipPath: pieceClips[c][piece.sides[c] ? 0 : 1] }}>
+                    {node}
+                  </div>
+                );
+              }
+              const dx = (piece.outward.x * PIECE_SEPARATION_PX).toFixed(2);
+              const dy = (piece.outward.y * PIECE_SEPARATION_PX).toFixed(2);
+              return (
+                <div
+                  key={pieceIndex}
+                  className="pizza-piece"
+                  data-piece={pieceIndex}
+                  style={{ transform: `translate(${dx}px, ${dy}px)` }}
+                >
+                  {node}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <>
+            {renderShapeLayer()}
         {/* Issue #33 D1: a faint dashed ring at the full DOUGH_RADIUS target -- the same
             "paint/stretch up to here" guide convention as Human Feel Fix 2's own
             sauce-target-guide below, so a first-time player always has a visible target to
@@ -1175,145 +1317,49 @@ export function PizzaStage({
             <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
           </svg>
         )}
-        {sauceIngredient && !isFieldSauceContext && (
-          <div
-            key={pizza.sauceToken}
-            className={`pizza-sauce-layer ${isOilSauce ? "pizza-sauce-layer--oil" : ""}`}
-            style={{
-              ...(isOilSauce ? {} : { backgroundColor: sauceIngredient.color, opacity: 0.85 }),
-              ...sauceOriginStyle,
-            }}
-          />
-        )}
-        {showSauceHeatmap && (
-          <SauceHeatmapCanvas
-            deposits={effectiveDeposits}
-            doughShape={pizza.doughShape}
-            color={fieldSauceColor}
-            className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
-              bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
-            }`}
-          />
-        )}
-        {/* Issue #167 PR-B (Reference Truth): overflow markers (see the effect above) live in
-            their own overlaid canvas now that the base sauce pixels render via the shared
-            SauceHeatmapCanvas -- same box/filter classes (so the markers keep the exact same
-            blur/bake-state tint the pre-extraction single-canvas version applied to them),
-            drawn after it in DOM order so the markers sit on top. */}
-        {showSauceHeatmap && (
-          <canvas
-            ref={overflowCanvasRef}
-            className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
-              bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
-            }`}
-            width={OVERFLOW_MARKER_CANVAS_PX}
-            height={OVERFLOW_MARKER_CANVAS_PX}
-            aria-hidden="true"
-          />
-        )}
-        {/* Issue #159 P1 (olive oil visibility): olive oil's own paint color (#e9d9a0,
-            ingredients.ts) is a near-match for the dough's own warm pale gold background, so
-            even with the existing saturate/contrast/drop-shadow filter (Issue #32 Finding 2-A/
-            2-B, above) a real-device Fresh Audit (2026-09-21) still found it hard to read at a
-            glance. This adds a distinct glossy highlight sweep + a soft ring tracing the dough's
-            own edge -- rendering-only (a `pointer-events: none` decorative layer keyed off the
-            same `isOilSauce`/`showSauceHeatmap`/`!isFieldSauceContext` conditions the sauce
-            visuals above already use), never reads or writes
-            `sauceDeposits`/`sauceIds`/anything Scoring 2.0 sees. */}
-        {isOilSauce && (showSauceHeatmap || !isFieldSauceContext) && (
-          <div className="pizza-sauce-oil-sheen" aria-hidden="true" />
-        )}
-        {pizza.toppings.map((t) => {
-          const ingredient = getIngredient(t.ingredientId);
-          if (!ingredient) return null;
-          return (
-            <span
-              key={t.id}
-              className={`pizza-topping pizza-topping--${ingredient.id}`}
-              style={{
-                left: `${t.x}%`,
-                top: `${t.y}%`,
-                "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
-              } as CSSProperties}
-            >
-              {/* Issue #167 PR-B (Reference Truth): unified with every Reference view's own
-                  piece rendering (renderPizzaVisualPieces, ../components/PizzaVisualPieces.tsx)
-                  -- both branches now always go through IngredientPieceVisual, instead of a
-                  locally hand-rolled `.pizza-topping__emoji` span bypassing it for non-cheese
-                  ingredients. Gameplay UX PR-E: the cheese branch keeps `cheeseStyle` (bake
-                  melt/spread/toast/char); every other ingredient gets its own dedicated
-                  `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
-                  variable's own comment above for why. */}
-              <IngredientPieceVisual
-                ingredient={ingredient}
-                style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
-              />
-            </span>
-          );
-        })}
-        {placement?.status === "rejected" && (
-          <span
-            key={placement.token}
-            className="pizza-reject-mark"
-            style={{ left: `${placement.x}%`, top: `${placement.y}%` }}
-          >
-            {"✕"}
-          </span>
-        )}
-        {/* M3A Bake Judgment: the old `pizza-bake-overlay--raw/--perfect/--burnt` swapped
-            `background` (a radial-gradient) per discrete `bakeState` -- the same un-animatable
-            snap `../logic/bakeVisual.ts`'s file header documents for the dough color. Split
-            into two always-mounted layers whose only per-frame change is `opacity` (which
-            *does* transition/interpolate natively), each driven by a continuous intensity, so
-            neither can pop in or swap look at a fixed instant. */}
-        {bakeProgress !== null && (
-          <>
-            <div className="pizza-bake-overlay pizza-bake-overlay--sheen" style={{ opacity: bakeRawSheenIntensity * 0.5 }} />
-            <div className="pizza-bake-overlay pizza-bake-overlay--char" style={{ opacity: bakeCharIntensity * 0.85 }} />
+            {renderBodyLayers()}
           </>
-        )}
-        {bakeProgress !== null && (
-          <>
-            <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />
-            {/* `smoke-rise`'s own keyframes (App.css) already drive this span's opacity each
-                cycle -- a CSS animation always wins the cascade over an inline style on the
-                same property, so `bakeCharIntensity` fades a wrapping element instead. */}
-            <span className="pizza-smoke-wrap" style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}>
-              <span className="pizza-smoke">{"\u{1F4A8}"}</span>
-            </span>
-            <span className="pizza-smoke-wrap" style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}>
-              <span className="pizza-smoke pizza-smoke--delay">{"\u{1F4A8}"}</span>
-            </span>
-          </>
-        )}
-        {resultRevealed && bakeState === "perfect" && (
-          <div key="perfect-glow" className="pizza-perfect-glow" />
         )}
         {/* Pizza Cutting 1.0 Phase 2 (design doc §8): angle guide (fades, §8.2.1) + persistent
-            center marker + committed cut lines + the in-progress drag preview, all in the same
-            0-100 dough-percent coordinate space every other overlay already uses. Shown only
-            while CUT is actually the active step. */}
-        {isCutStep && (
+            center marker + the in-progress drag preview -- CUT only -- plus the committed cuts,
+            which stay on the pizza after CUT (RESULT) as well. All in the same 0-100 dough-percent
+            coordinate space every other overlay already uses. */}
+        {(isCutStep || cutState.lines.length > 0) && (
           <svg
             className="pizza-cut-layer"
             viewBox="0 0 100 100"
             aria-hidden="true"
             style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
           >
-            <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
-              {cutGuideLines.map((line, index) => (
-                <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
-              ))}
-            </g>
-            <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
+            {isCutStep && (
+              <>
+                <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
+                  {cutGuideLines.map((line, index) => (
+                    <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
+                  ))}
+                </g>
+                <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
+              </>
+            )}
             {cutState.lines.map((line, index) => {
-              // Issue #418: a cut reads as a score in the baked pizza -- a dark groove with a faint
-              // lit lip on one side. A cut that reached the edge runs through the crust to the
-              // visible edge (cracks, a chip, a shadow there) and looks slightly parted; a stroke
-              // that stopped inside is drawn exactly to where it stopped. The newest cut also
-              // flashes once (CSS animation, ~300ms) along its groove.
+              // Issue #418: a cut that ran rim to rim has split the pizza into pieces (see
+              // `pieceLayout`), so its mark is only the shadow in the seam between them. A stroke
+              // that stopped inside is just a score in the surface: a dark groove with a faint lit
+              // lip, drawn exactly to where it stopped. In CUT the newest cut also flashes once
+              // (CSS animation, ~300ms) along its path.
               const visual = buildCutVisual(line, pizza.doughShape);
+              const seam = pieceLayout !== null && visual.through;
               const pts = visual.points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+              const trace = line.path ? line.path.map((p) => `${p.x},${p.y}`).join(" ") : undefined;
+              const flash = isCutStep && index === cutState.lines.length - 1;
+              if (seam) {
+                return (
+                  <g key={index} className="pizza-cut-mark pizza-cut-mark--seam">
+                    <polyline className="pizza-cut-line pizza-cut-line--seam" points={pts} data-trace={trace} />
+                    {flash && <polyline className="pizza-cut-flash" points={pts} />}
+                  </g>
+                );
+              }
               const dx = line.end.x - line.start.x;
               const dy = line.end.y - line.start.y;
               const len = Math.hypot(dx, dy) || 1;
@@ -1324,54 +1370,26 @@ export function PizzaStage({
                 nx = -nx;
                 ny = -ny;
               }
-              const seg = (a: { x: number; y: number }, b: { x: number; y: number }) =>
-                `${a.x.toFixed(2)},${a.y.toFixed(2)} ${b.x.toFixed(2)},${b.y.toFixed(2)}`;
               return (
-                <g key={index} className={`pizza-cut-mark${visual.through ? " pizza-cut-mark--through" : ""}`}>
-                  {visual.ends.map((end, endIndex) => {
-                    const [a, b] = crustDetailAt(end, { x: nx, y: ny }).shadow;
-                    return <polyline key={`s${endIndex}`} className="pizza-cut-crust-shadow" points={seg(a, b)} />;
-                  })}
+                <g key={index} className="pizza-cut-mark pizza-cut-mark--partial">
                   <polyline
                     className="pizza-cut-edge pizza-cut-edge--lit"
                     points={pts}
                     transform={`translate(${(nx * 0.75).toFixed(3)} ${(ny * 0.75).toFixed(3)})`}
                   />
-                  {visual.through && (
-                    <polyline
-                      className="pizza-cut-edge pizza-cut-edge--far"
-                      points={pts}
-                      transform={`translate(${(-nx * 0.75).toFixed(3)} ${(-ny * 0.75).toFixed(3)})`}
-                    />
-                  )}
-                  <polyline
-                    className="pizza-cut-line"
-                    points={pts}
-                    data-trace={line.path ? line.path.map((p) => `${p.x},${p.y}`).join(" ") : undefined}
-                  />
-                  {visual.ends.map((end, endIndex) => {
-                    const d = crustDetailAt(end, { x: nx, y: ny });
-                    return (
-                      <g key={`c${endIndex}`} className="pizza-cut-crust">
-                        {d.cracks.map((c, ci) => (
-                          <polyline key={ci} className="pizza-cut-crust-crack" points={seg(c[0], c[1])} />
-                        ))}
-                        <polyline className="pizza-cut-crust-chip" points={seg(d.chip[0], d.chip[1])} />
-                      </g>
-                    );
-                  })}
-                  {index === cutState.lines.length - 1 && (
-                    <polyline className="pizza-cut-flash" points={pts} />
-                  )}
+                  <polyline className="pizza-cut-line" points={pts} data-trace={trace} />
+                  {flash && <polyline className="pizza-cut-flash" points={pts} />}
                 </g>
               );
             })}
-            <polyline
-              ref={cutPreviewLineRef}
-              className="pizza-cut-preview-line"
-              points=""
-              style={{ opacity: 0 }}
-            />
+            {isCutStep && (
+              <polyline
+                ref={cutPreviewLineRef}
+                className="pizza-cut-preview-line"
+                points=""
+                style={{ opacity: 0 }}
+              />
+            )}
           </svg>
         )}
         {/* Issue #418: CUT's capture zone reaches past the pizza so a stroke can start outside it. */}

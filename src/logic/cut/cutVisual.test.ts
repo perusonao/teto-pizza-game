@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
-import { buildCutVisual, crustDetailAt, isThroughCut, rayToRadius } from "./cutVisual";
+import { buildCutVisual, isThroughCut, rayToRadius } from "./cutVisual";
 import type { CutLine } from "./types";
 
 const C = DOUGH_CENTER;
@@ -63,13 +63,7 @@ describe("buildCutVisual", () => {
   });
 });
 
-describe("crustDetailAt / rayToRadius", () => {
-  it("builds two cracks, a chip and a shadow around the tip", () => {
-    const d = crustDetailAt({ tip: { x: C + R, y: C }, dir: { x: 1, y: 0 } }, { x: 0, y: 1 });
-    expect(d.cracks).toHaveLength(2);
-    expect(d.chip[0].y).toBeGreaterThan(C);
-    expect(d.shadow[1].x).toBeGreaterThan(d.shadow[0].x);
-  });
+describe("rayToRadius", () => {
   it("walks a ray to a target radius", () => {
     const p = rayToRadius({ x: C, y: C }, { x: 0, y: 1 }, 30);
     expect(p.x).toBeCloseTo(C, 9);

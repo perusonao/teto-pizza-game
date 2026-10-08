@@ -569,38 +569,6 @@
   stroke-width: 0.55;
 }
 
-.pizza-cut-edge--far {
-  stroke: rgba(255, 246, 222, 0.38);
-  stroke-width: 0.4;
-}
-
-.pizza-cut-mark--through .pizza-cut-line {
-  stroke: rgba(26, 12, 4, 0.92);
-  stroke-width: 0.9;
-}
-
-/* Crust details at a rim-to-rim cut's ends: hairline cracks, a tiny lit chip, a soft shadow. */
-.pizza-cut-crust-crack {
-  fill: none;
-  stroke: rgba(48, 25, 10, 0.85);
-  stroke-width: 0.42;
-  stroke-linecap: round;
-}
-
-.pizza-cut-crust-chip {
-  fill: none;
-  stroke: rgba(255, 246, 222, 0.9);
-  stroke-width: 0.55;
-  stroke-linecap: round;
-}
-
-.pizza-cut-crust-shadow {
-  fill: none;
-  stroke: rgba(40, 18, 6, 0.3);
-  stroke-width: 2.3;
-  stroke-linecap: round;
-}
-
 /* The newest cut flashes once (~300ms) along its groove, then it is just a normal cut again. */
 .pizza-cut-flash {
   fill: none;
@@ -625,6 +593,50 @@
   .pizza-cut-flash {
     animation: none;
   }
+}
+
+/* Issue #418: a rim-to-rim cut has parted the pizza into pieces (.pizza-pieces below); its mark is
+   only a faint shadow in the seam. */
+.pizza-cut-line--seam {
+  stroke: rgba(40, 18, 6, 0.3);
+  stroke-width: 0.5;
+}
+
+/* Issue #418: a cut pizza is drawn as pieces -- each a full copy of the pizza body (silhouette,
+   sauce, toppings, bake look) clipped to its region and nudged ~1.5px away from the centre (the
+   offset is set inline). Same box as the dough layer (border-box) so clip polygons are in
+   dough-percent; the body container returns to the padding box the layers were laid out against. */
+.pizza-pieces {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+}
+
+.pizza-piece,
+.pizza-piece-clip {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pizza-piece-body {
+  position: absolute;
+  inset: var(--dough-border-width);
+  pointer-events: none;
+}
+
+/* The copies are not new placements: no landing/spreading animation replay when a cut re-draws them. */
+.pizza-piece-body .pizza-topping,
+.pizza-piece-body .pizza-topping-half,
+.pizza-piece-body .pizza-sauce-layer {
+  animation: none;
+}
+
+/* A topping sliced by a cut: its part inside a neighbouring piece (positioned like .pizza-topping). */
+.pizza-topping-half {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .pizza-cut-preview-line {
