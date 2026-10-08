@@ -1,9 +1,10 @@
 # Ingredient Icon 2.0 — Style Lock v2 (Issue #417)
 
-Status: **Owner 承認済みの設計 authority（Style Lock）。実装は未着手（実装待機）。**
+Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。実装は未着手（実装待機）。**
 Path: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`
 Design reference (SVG + comparison sheet): [`docs/design/references/ingredient-icons-2.0/`](../design/references/ingredient-icons-2.0/)
 Comparison history (v1 / v2, before/after): `docs/reports/screenshots/ingredient-icons-2-style-lock/`
+Remaining-17 comparison sheets / candidates: [`docs/design/candidates/ingredient-icons-2.0-remaining/`](../design/candidates/ingredient-icons-2.0-remaining/)
 Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.md)
 
 ## 1. 決定（Owner）
@@ -27,8 +28,61 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 - **sausage の赤背景での暗さは現状維持。追加の色調整は行わない**（Owner 決定）。
 - チーズ 6 種は暫定採用から **確定**。確認済み: 64 / 28 / 24 / 20px、赤背景、sausage↔hot-dog のグレースケール。
 
-> 注: 対象 26 種（チーズ 10 / 肉 9 / 魚介 7）のうち、本書で Style Lock したのはこの 8 種のみ。
-> 残り（チーズ 4・肉 7・魚介 7）は別途デザイン比較 → Style Lock を行う（本書の「既存方針」は共通で適用）。
+## 1b. 残り 17 種の決定（Owner、比較シート ①②を確認して採用）
+
+| ingredient id | 日本語名 | 系統 | 採用 | 参照 SVG | 識別の要点 |
+|---|---|---|---|---|---|
+| `fontina` | フォンティーナ | cheese | A | `fontina.svg` | 穴あきの黄色い扇形 + 橙の皮 |
+| `cashew-cheese` | カシューチーズ | cheese | A | `cashew-cheese.svg` | 小さな丸塊 + カシュー 2 粒 |
+| `cream-cheese` | クリームチーズ | cheese | A | `cream-cheese.svg` | 青みのある銀紙包みの角丸ブロック |
+| `catupiry` | カトゥピリ | cheese | A | `catupiry.svg` | 渦巻き状に盛った滑らかなクリーム |
+| `pepperoni` | ペパロニ | meat | A | `pepperoni.svg` | 明るい赤橙の円 2 枚 + 脂の斑点 |
+| `bacon` | ベーコン | meat | A | `bacon.svg` | 赤 + クリーム縞の波打つ帯 2 本 |
+| `ham` | ハム | meat | A | `ham.svg` | 骨付きもも（桃色の塊 + 骨） |
+| `chicken` | チキン | meat | A | `chicken.svg` | ドラムスティック |
+| `salami` | サラミ | meat | **B** | `salami.svg` | 暗い赤紫のログ + 断面スライス（白い脂粒） |
+| `prosciutto-crudo` | 生ハム | meat | **B** | `prosciutto-crudo.svg` | ひだ状に重なる薄切りリボン |
+| `pork` | 豚肉 | meat | **B** | `pork.svg` | ポルケッタ断面（渦巻き + 焼き皮） |
+| `anchovy` | アンチョビ | seafood | A | `anchovy.svg` | 細い S 字の茶色いフィレ 2 本 |
+| `sardine` | イワシ | seafood | **B** | `sardine.svg` | 青背の銀魚 1 匹 |
+| `tuna` | ツナ | seafood | A | `tuna.svg` | 赤身ブロック（白い筋目） |
+| `shrimp` | エビ | seafood | A | `shrimp.svg` | 橙の丸まった海老（節・尾・目） |
+| `salmon` | サーモン | seafood | A | `salmon.svg` | 橙 + 白い脂の縞 + 銀の皮 |
+| `salt-cod` | 塩ダラ | seafood | **B** | `salt-cod.svg` | 白い切り身 + 粗塩の結晶 |
+
+不採用（`docs/design/candidates/ingredient-icons-2.0-remaining/svg-not-adopted/`）: ham-B, prosciutto-crudo-A, pork-A, salami-A, sardine-A, tuna-B, salt-cod-A。
+
+### clam（既存維持）
+
+`clam` は既存 32×32 の `clam-valve` を**維持し変更しない**（Owner 決定）。新規 64×64 は作らない。
+
+### 26 種の対象の確定状況（照合）
+
+| 系統 | 対象 | 確定 8（v2） | 新規 17 | 既存維持 |
+|---|---|---|---|---|
+| cheese | 10 | mozzarella, ricotta, grana-padano, parmigiano, gorgonzola, feta（6） | fontina, cashew-cheese, cream-cheese, catupiry（4） | — |
+| meat | 9 | sausage, hot-dog（2） | pepperoni, bacon, ham, chicken, salami, prosciutto-crudo, pork（7） | — |
+| seafood | 7 | — | anchovy, sardine, tuna, shrimp, salmon, salt-cod（6） | clam（1） |
+| 計 | **26** | **8** | **17** | **1** |
+
+8 + 17 + 1 = 26。重複・漏れなし（`src/data/ingredientTaxonomy.ts` / `ingredients.ts` の cheese 10・meat 9・seafood 7 と一致）。
+`tomato-slice` / `caper-cluster` は 26 種の対象外（既存 32×32 のまま）。
+
+### 既存 v2 の 8 種との整合
+
+- 17 種の参照 SVG も §2 の共通仕様（64×64・透明背景・線幅 2.4・接地影・2 トーン・`id` / gradient / `<defs>` なし）を満たす。`docs/design/references/ingredient-icons-2.0/` に 8 + 17 = 25 点の SVG が揃った（clam は既存のため参照 SVG なし）。
+- 色の住み分け（v2 の 8 種との衝突確認）: 白〜淡黄のチーズは形が全て異なる（扇形 / 丸塊 + ナッツ / 銀紙ブロック / 渦盛り vs 球 / 山 / 角切り / 板 / 砕けた塊 / くさび）。丸スライス系（pepperoni / hot-dog / sausage）は色で区別。
+- v2 の 8 種は変更していない。
+
+## 1c. 今後のゲーム内 Human Verification 項目（デザイン時点の既知リスク）
+
+実装 Pilot の HV（390×844 動画 + before/after screenshot）で、実機の描画サイズ・背景で必ず確認する。
+
+1. **salami B の 20px 識別性**: ログ + スライスの構図が 20px でブロック状に潰れ、salami と読めるか。pepperoni A（明るい赤橙の円）・sausage / hot-dog（確定）と並んだ時に区別できるか（グレースケール含む）。不足なら Owner に再デザインを諮る（形・色の変更は Owner 承認が必要）。
+2. **salt-cod B とチーズ類の類似**: 白い切り身 + 粗塩が feta / cream-cheese / mozzarella / ricotta（確定）と 20〜24px・淡色/赤背景で混同されないか。チップ・在庫・Dex で系統（魚介 vs チーズ）が取り違えられないか。
+3. （参考・比較シートで指摘済み）anchovy ↔ bacon のグレースケール近似、pepperoni ↔ salami の色頼りの差。
+
+HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner の明示承認を要する。
 
 ## 2. 共通仕様（確定方針の再掲）
 
@@ -65,6 +119,9 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 | `hot-dog` | `hot-dog-slices` |
 
 各 ingredient 行は `pieceVisual: "<visual>"` を 1 行足すだけ（`emoji` は必須テキストとして残す。既存 capers / clam / fresh-tomato と同じ扱い）。
+
+残り 17 種（§1b）の `pieceVisual` 名（案。実装 Issue で確定。visual 名は id と独立の原則を維持）:
+`fontina-wedge` / `cashew-cheese-wheel` / `cream-cheese-block` / `catupiry-swirl` / `pepperoni-slices` / `bacon-strips` / `ham-leg` / `chicken-drumstick` / `salami-log` / `prosciutto-ribbon` / `porchetta-roll` / `anchovy-fillets` / `sardine-fish` / `tuna-block` / `shrimp-curl` / `salmon-fillet` / `salt-cod-fillet`。`clam` は既存 `clam-valve`（32×32）のまま。
 
 ### 4.2 コンポーネント
 
@@ -108,11 +165,11 @@ Pilot A は共通基盤（型・viewBox 表・テスト更新）を含む。B / 
 ## 7. 実装開始の前提 / ガード
 
 - **#418 が Owner HV FAIL 中のため、Production コードの変更は禁止**（本書作成時点）。#418 の解消（または Owner の明示許可）まで実装に着手しない。#418 のブランチには触れない。
-- 実装 Issue は #418 解消後に Owner が起票する（Pilot A から）。
+- 実装 Issue は #418 解消後に Owner が起票する（Pilot A から。残り 17 種の Pilot 割当は §1b 確定後に Owner が決める）。
 - 本書の変更範囲は docs と比較資料のみ。PR / merge / deploy は本書では行わない。
 
 ## 8. 未確定（実装前に Owner / Pilot HV で確認）
 
 - 接地影のピザ上での見え方（§4.2-3）。
 - 新 visual に `.ingredient-glyph--<visual>` のサイズ補正が必要か（§3）。
-- 残り 18 種のデザイン比較の順序。
+- ~~残り 18 種のデザイン比較の順序~~ → §1b で全て確定（clam は既存維持）。実装の Pilot 順は §5 を 26 種へ拡張する際に別途 Owner と決める。

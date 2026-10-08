@@ -1,6 +1,8 @@
 # #417 残り18種 デザイン比較 — 報告（候補 / Owner 判断待ち）
 
-Status: **候補のみ。Owner 承認前につき Style Lock していない。** Production コード・確定 8 種・既存 32×32 3 種・#418 は未変更。
+Status: **Owner 採用済み（A: fontina / cashew-cheese / cream-cheese / catupiry / pepperoni / bacon / ham / chicken / anchovy / tuna / shrimp / salmon、B: salami / prosciutto-crudo / pork / sardine / salt-cod、clam 既存維持）。Style Lock 記録は `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md` §1b。この文書は比較時点の履歴。** 採用 SVG は `docs/design/references/ingredient-icons-2.0/` へ移動（ファイル名 = ingredient id）、不採用は `svg-not-adopted/`。
+
+（以下は比較時点の報告。） Production コード・確定 8 種・既存 32×32 3 種・#418 は未変更。
 
 - 比較シート: [`sheet1.png`](./sheet1.png)（候補一覧: 64 / 28·24·20px × 淡色・赤・グレースケール）、[`sheet2.png`](./sheet2.png)（似た食材 6 グループの識別比較）
 - 候補 SVG（64×64・透明背景・id/gradient/defs なし・Style Lock v2 の線幅 2.4 / 接地影 / 2 トーン）: [`svg/`](./svg/)
