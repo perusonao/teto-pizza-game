@@ -29,6 +29,8 @@ import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer"
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
+import { PieceReliefFilter } from "./PieceReliefFilter";
+import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -254,6 +256,7 @@ export function PizzaStage({
    *  `onDoughStretchCommit` at a successful pointerup, discarded on every other end trigger. */
   const doughGestureShapeRef = useRef<DoughShape | null>(null);
   const doughClipId = useId();
+  const reliefFilterId = useId();
 
   // Issue #33 D1: gates the DOUGH radial-stretch gesture branch below, mirroring isPaintMode's
   // own role for sauce -- mutually exclusive with it in practice (IngredientTray/activeIngredient
@@ -1111,6 +1114,30 @@ export function PizzaStage({
       return piece !== undefined && placement.halves.includes(piece) ? [{ t, half: true }] : [];
     });
 
+  // Animated bake effects (smoke, the perfect glow) are not part of the pizza body: with the pizza in
+  // pieces they are drawn once, outside the filtered pieces, so they never force the relief filter
+  // to re-render every frame.
+  const renderBakeEffects = () => (
+    <>
+      {bakeProgress !== null && (
+        <>
+          {/* `smoke-rise`'s own keyframes (App.css) already drive this span's opacity each
+              cycle -- a CSS animation always wins the cascade over an inline style on the
+              same property, so `bakeCharIntensity` fades a wrapping element instead. */}
+          <span className="pizza-smoke-wrap" style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}>
+            <span className="pizza-smoke">{"\u{1F4A8}"}</span>
+          </span>
+          <span className="pizza-smoke-wrap" style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}>
+            <span className="pizza-smoke pizza-smoke--delay">{"\u{1F4A8}"}</span>
+          </span>
+        </>
+      )}
+      {resultRevealed && bakeState === "perfect" && (
+        <div key="perfect-glow" className="pizza-perfect-glow" />
+      )}
+    </>
+  );
+
   const renderBodyLayers = (piece?: number) => (
     <>
       {sauceIngredient && !isFieldSauceContext && (
@@ -1210,23 +1237,8 @@ export function PizzaStage({
           <div className="pizza-bake-overlay pizza-bake-overlay--char" style={{ opacity: bakeCharIntensity * 0.85 }} />
         </>
       )}
-      {bakeProgress !== null && (
-        <>
-          <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />
-          {/* `smoke-rise`'s own keyframes (App.css) already drive this span's opacity each
-              cycle -- a CSS animation always wins the cascade over an inline style on the
-              same property, so `bakeCharIntensity` fades a wrapping element instead. */}
-          <span className="pizza-smoke-wrap" style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}>
-            <span className="pizza-smoke">{"\u{1F4A8}"}</span>
-          </span>
-          <span className="pizza-smoke-wrap" style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}>
-            <span className="pizza-smoke pizza-smoke--delay">{"\u{1F4A8}"}</span>
-          </span>
-        </>
-      )}
-      {resultRevealed && bakeState === "perfect" && (
-        <div key="perfect-glow" className="pizza-perfect-glow" />
-      )}
+      {bakeProgress !== null && <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />}
+      {piece === undefined && renderBakeEffects()}
 
     </>
   );
@@ -1263,7 +1275,12 @@ export function PizzaStage({
         )}
         {pieceLayout ? (
           <>
-          <div className="pizza-pieces" data-piece-count={pieceLayout.pieces.length}>
+          <PieceReliefFilter id={reliefFilterId} scale={resultCompact ? RESULT_RELIEF_SCALE : 1} />
+          <div
+            className="pizza-pieces"
+            data-piece-count={pieceLayout.pieces.length}
+            style={{ filter: pieceReliefFilterCss(reliefFilterId, resultCompact ? RESULT_RELIEF_SCALE : 1) }}
+          >
             {pieceLayout.pieces.map((piece, pieceIndex) => {
               let node = (
                 <div className="pizza-piece-body">
@@ -1292,6 +1309,7 @@ export function PizzaStage({
               );
             })}
           </div>
+          {renderBakeEffects()}
           </>
         ) : (
           <>

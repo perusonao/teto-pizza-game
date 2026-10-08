@@ -603,11 +603,7 @@
   position: absolute;
   inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
-  /* Cut face: one filter on the whole set of pieces, so it follows every piece's outline,
-     including the edges facing the gaps. Light from the upper left, so the face of the cut shows
-     down and to the right of every piece, whatever direction the seam runs: first the pale dough
-     cross-section (not the crust colour), then a soft shadow cast on the plate. */
-  filter: drop-shadow(1.5px 1.5px 0 #f4e3b9) drop-shadow(1px 2px 2.5px rgba(40, 18, 6, 0.45));
+  /* The cut-face relief is an SVG lighting filter set inline (PieceReliefFilter.tsx). */
 }
 
 .pizza-piece,

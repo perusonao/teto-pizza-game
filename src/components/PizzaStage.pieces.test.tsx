@@ -154,4 +154,18 @@ describe("PizzaStage cut pieces", () => {
     expect(inResult.container.querySelector(".pizza-cut-guide-lines")).toBeNull();
     expect(inResult.container.querySelector(".pizza-cut-hit-zone")).toBeNull();
   });
+
+  it("D2: one lighting filter on the pieces container; uncut pizza has none; animated bake effects stay outside it", () => {
+    const uncut = render(stage(state, [], "CUT"));
+    expect(uncut.container.querySelector("[data-piece-relief]")).toBeNull();
+    cleanup();
+    const { container } = render(stage(state, [through(0), through(60)], "CUT"));
+    const pieces = container.querySelector<HTMLElement>(".pizza-pieces")!;
+    const id = container.querySelector("[data-piece-relief] filter")!.id;
+    expect(id).not.toBe("");
+    expect(container.querySelector("[data-piece-relief] feDiffuseLighting")).toBeInTheDocument();
+    expect(pieces.style.filter).toMatch(new RegExp(`url\\("?#${id}"?\\)`));
+    expect(container.querySelectorAll("[data-piece-relief]")).toHaveLength(1);
+    expect(pieces.querySelector("[class*=smoke], .pizza-perfect-glow")).toBeNull();
+  });
 });
