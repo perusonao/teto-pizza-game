@@ -569,7 +569,7 @@ Authority: [`docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`](decision
 reference SVGs (25, named by ingredient id): `docs/design/references/ingredient-icons-2.0/`; comparison sheets / non-adopted candidates: `docs/design/candidates/ingredient-icons-2.0-remaining/`.
 Existing 32x32 SVGs (`tomato-slice` / `caper-cluster` / `clam-valve`) and on-pizza cheese CSS stay unchanged.
 Owner adoption (17): A = fontina, cashew-cheese, cream-cheese, catupiry, pepperoni, bacon, ham, chicken, anchovy, tuna, shrimp, salmon; B = salami, prosciutto-crudo, pork, sardine, salt-cod.
-Future in-game HV items: **salami B 20px legibility** (vs pepperoni / sausage / hot-dog) and **salt-cod B vs cheeses** (feta / cream-cheese / mozzarella / ricotta). Next step: Owner opens implementation Issues (Pilot order for the 17 TBD) after #418 is resolved.
+Future in-game HV items: **salami B 20px legibility** (vs pepperoni / sausage / hot-dog) and **salt-cod B vs cheeses** (feta / cream-cheese / mozzarella / ricotta). Next step: Owner opens implementation Issues (Pilot order for the 17 TBD) after #423 is complete (#418 hold already released).
 
 ## Product goal
 
