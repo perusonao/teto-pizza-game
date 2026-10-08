@@ -407,3 +407,41 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(marks[1].querySelector(".pizza-cut-flash")).toBeInTheDocument();
   });
 });
+
+describe("#418 knife position: the blade tip is the cut's end, in the cut's own coordinates", () => {
+  const knife = () => document.querySelector<HTMLElement>(".pizza-cut-cutter-icon")!;
+
+  it("the knife sits in the border-box tool layer, and its tip (left/top) is exactly the line's end", () => {
+    render(<Harness />);
+    const dough = getDough();
+    expect(knife().parentElement).toHaveClass("pizza-cut-tool-layer"); // same box as the cut layer
+    expect(knife().querySelector("svg.pizza-cut-knife")).toBeInTheDocument();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 90, clientX: 60, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 90, clientX: 240, clientY: 120 });
+    const line = document.querySelector<SVGPolylineElement>(".pizza-cut-preview-line")!;
+    const end = line.getAttribute("points")!.split(" ").pop()!.split(",").map(Number);
+    expect(end).toEqual([80, 40]);
+    expect(knife().style.left).toBe("80%");
+    expect(knife().style.top).toBe("40%");
+    expect(knife().style.opacity).toBe("1");
+  });
+
+  it("with the finger past the rim the tip stays on the cut's clipped end, not under the finger", () => {
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 91, clientX: 150, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 91, clientX: 420, clientY: 150 });
+    expect(knife().style.left).toBe("98%");
+    expect(knife().style.top).toBe("50%");
+  });
+
+  it("no offset above the finger any more, and the knife hides when the drag ends", () => {
+    render(<Harness />);
+    const dough = getDough();
+    fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 92, clientX: 60, clientY: 150 });
+    fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 92, clientX: 150, clientY: 60 });
+    expect(knife().style.top).toBe("20%"); // finger at y=20%, not 20% - 8%
+    fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 92, clientX: 150, clientY: 60 });
+    expect(knife().style.opacity).toBe("0");
+  });
+});

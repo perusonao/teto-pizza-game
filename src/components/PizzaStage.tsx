@@ -366,8 +366,9 @@ export function PizzaStage({
   }
 
   /** Issue #418: draws the straight cut that release will commit (the drag's start fixed, its end at
-   *  the finger, clipped to the pizza) plus the cutter icon, offset above the live pointer
-   *  (design doc §8.3) so the finger doesn't hide it. `path` is hidden while the drag misses the pizza. */
+   *  the finger, clipped to the pizza) plus the knife, whose blade tip is exactly the cut's end
+   *  (the clipped end when the finger is past the rim; the finger itself while the drag misses the
+   *  pizza). `path` is hidden while the drag misses the pizza. */
   function updateCutPreviewLine(path: readonly [DoughPoint, DoughPoint] | null, finger: DoughPoint) {
     const previewEl = cutPreviewLineRef.current;
     if (previewEl) {
@@ -380,8 +381,9 @@ export function PizzaStage({
     }
     const cutterEl = cutCutterIconRef.current;
     if (cutterEl) {
-      cutterEl.style.left = `${finger.x}%`;
-      cutterEl.style.top = `${Math.max(0, finger.y - 8)}%`;
+      const tip = path ? path[1] : finger;
+      cutterEl.style.left = `${tip.x}%`;
+      cutterEl.style.top = `${tip.y}%`;
       cutterEl.style.opacity = "1";
     }
   }
@@ -1312,6 +1314,9 @@ export function PizzaStage({
           <svg
             className="pizza-cut-layer"
             viewBox="0 0 100 100"
+            // Pointer math scales x and y independently (percent of the box); the default
+            // "meet" would letterbox a not-quite-square box and offset every drawn point by a px or two.
+            preserveAspectRatio="none"
             aria-hidden="true"
             style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
           >
@@ -1384,9 +1389,16 @@ export function PizzaStage({
         {/* Issue #418: CUT's capture zone reaches past the pizza so a stroke can start outside it. */}
         {isCutStep && interactive && <div className="pizza-cut-hit-zone" aria-hidden="true" />}
         {isCutStep && (
-          <span ref={cutCutterIconRef} className="pizza-cut-cutter-icon" aria-hidden="true" style={{ opacity: 0 }}>
-            {"\u{1F52A}"}
-          </span>
+          // Same border-box box as the cut layer / pointer math, so a left/top percentage here is the
+          // same dough-percent the cut is drawn at. The knife's blade tip is the element's origin.
+          <div className="pizza-cut-tool-layer" aria-hidden="true">
+            <span ref={cutCutterIconRef} className="pizza-cut-cutter-icon" style={{ opacity: 0 }}>
+              <svg className="pizza-cut-knife" viewBox="0 0 36 36" width="36" height="36">
+                <path className="pizza-cut-knife__blade" d="M0 36 L18 9 L26 14.5 Z" />
+                <path className="pizza-cut-knife__handle" d="M18 9 L26 14.5 L33.5 3 L25.5 -2.5 Z" />
+              </svg>
+            </span>
+          </div>
         )}
         <svg className="pizza-paint-trail" viewBox="0 0 100 100" aria-hidden="true">
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />

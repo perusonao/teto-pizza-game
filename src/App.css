@@ -527,6 +527,10 @@
 .pizza-cut-layer {
   position: absolute;
   inset: calc(-1 * var(--dough-border-width));
+  /* An <svg> is a replaced element: inset alone does not stretch it, it keeps its viewBox's square
+     ratio. Size it explicitly to the dough's border-box so x and y map exactly like the pointer math. */
+  width: calc(100% + 2 * var(--dough-border-width));
+  height: calc(100% + 2 * var(--dough-border-width));
   pointer-events: none;
   /* Fallback only: PizzaStage clips this layer to the player's actual dough silhouette (inline). */
   clip-path: circle(50% at 50% 50%);
@@ -648,12 +652,43 @@
   touch-action: none;
 }
 
-.pizza-cut-cutter-icon {
+/* The knife lives in a layer that is exactly the dough's border-box (the box the pointer math and the
+   cut layer use), so its left/top percentages are the cut's own dough-percent. */
+.pizza-cut-tool-layer {
   position: absolute;
-  transform: translate(-50%, -100%);
-  font-size: 22px;
+  inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
   z-index: 6;
+}
+
+/* Zero-size anchor at the cut's end; the knife's blade tip is the svg's bottom-left corner, which
+   sits exactly on the anchor, with the blade rising up and to the right of it. */
+.pizza-cut-cutter-icon {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.pizza-cut-knife {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1.5px rgba(40, 18, 6, 0.45));
+}
+
+.pizza-cut-knife__blade {
+  fill: #eceae4;
+  stroke: #4a3a2c;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.pizza-cut-knife__handle {
+  fill: #6b3f1d;
+  stroke: #3a2210;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
 }
 
 .pizza-topping {
