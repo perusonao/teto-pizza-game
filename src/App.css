@@ -1635,18 +1635,6 @@
   --result-action-bar-reserve: 176px;
 }
 
-/* Issue #423 (Owner HV on 268bd66): once `useResultActionBarInset` has measured the fixed bar, the scroll area ends where the
-   bar begins (the bar sits in the space this margin frees), so no content -- collapsed or open -- is ever drawn under it, on
-   any viewport height. The reserve above is then only a small end gap; without the hook (no JS measure) it stays as the
-   fallback. */
-.game-screen[data-result-bar] {
-  margin-bottom: var(--result-bar-h, 0px);
-}
-
-.game-screen[data-result-bar] .result-panel {
-  padding-bottom: 12px;
-}
-
 .result-panel__heading {
   font-size: 15px;
   font-weight: 700;
@@ -1785,7 +1773,12 @@
      own real Chromium-measured height (~122px: two stacked buttons + 10px gap + this padding)
      plus an 8px real-device safety slack. */
   padding: 8px 20px calc(8px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, rgba(239, 220, 179, 0) 0%, #efdcb3 40%, #efdcb3 100%);
+  /* Issue #423 (Owner HV): the old see-through gradient let content that scrolled (or, on a short iPhone viewport, sat from the
+     first frame) under the bar show through its upper edge, which read as the label being overlapped by the buttons. The bar is
+     opaque, so content is cleanly cut at its top edge -- the same footer behaviour as any scroll list -- and `#efdcb3` is the
+     frame's own colour at the bottom, so it blends in. A short shadow marks the edge. */
+  background: #efdcb3;
+  box-shadow: 0 -6px 10px -8px rgba(107, 66, 38, 0.35);
   z-index: 10;
 }
 
