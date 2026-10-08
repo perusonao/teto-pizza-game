@@ -1,11 +1,20 @@
 # Ingredient Icon 2.0 — Style Lock v2 (Issue #417)
 
-Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。実装は未着手（実装待機）。**
+Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。Pilot A = hot-dog / sausage / feta / ricotta（§5、2026-10-08 Owner 決定）。実装は未着手。Production コード実装は #423 完了まで禁止（§7）。**
 Path: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`
 Design reference (SVG + comparison sheet): [`docs/design/references/ingredient-icons-2.0/`](../design/references/ingredient-icons-2.0/)
-Comparison history (v1 / v2, before/after): `docs/reports/screenshots/ingredient-icons-2-style-lock/`
 Remaining-17 comparison sheets / candidates: [`docs/design/candidates/ingredient-icons-2.0-remaining/`](../design/candidates/ingredient-icons-2.0-remaining/)
 Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.md)
+
+> **比較履歴（v1 / v2 の before/after スクリーンショット）はこのリポジトリに含まれない。** 履歴は未マージの別ブランチ `claude/ingredient-icon-comparison-qqjfch`（commit `1e758f3`）にのみ存在する。authority ではなく、採用判断は本書と `docs/design/references/ingredient-icons-2.0/` の SVG / 比較シートが正。以前ここにあった `docs/reports/screenshots/ingredient-icons-2-style-lock/` へのリンクは、そのパスが main にも本ブランチにも無いため削除した。
+
+## 0. 2026-10-08 Owner 決定（本版で反映）
+
+1. **Pilot A は `hot-dog` / `sausage` / `feta` / `ricotta` の 4 種**とする（旧: hot-dog / feta / ricotta）。sausage を A へ前倒しし、Issue の受入条件「hot-dog と sausage の区別」を Pilot A の HV で判定できるようにする。
+2. **チーズのアイコンは、Tray チップ・在庫（Inventory）・Shop・Dex 等の「アイコン用途」で SVG を使う。**
+3. **ピザ上のチーズ・ドラッグ preview・完成ピザサムネイルは従来の CSS 物理形状（`.pizza-cheese` / `.pizza-cheese--<id>`）を維持する。**（§2、§4.4）
+4. **#418 起因の実装禁止ゲートは解除する**（#418 は #425 として main に取り込み済み）。ただし **#423 が完了するまで Production コード実装は禁止**（§7）。
+5. デザイン資産は **docs-only PR で main に取り込む**（本書・参照 SVG・比較シートを含む）。
 
 ## 1. 決定（Owner）
 
@@ -88,7 +97,7 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 
 - 新規 SVG は **64×64（`viewBox="0 0 64 64"`）・透明背景**。
 - **既存 3 種（`tomato-slice` / `caper-cluster` / `clam-valve`）の 32×32 SVG は変更しない**（viewBox・描画・CSS とも現状維持）。
-- **ピザ上のチーズ CSS 表現（`.pizza-cheese` / `.pizza-cheese--<id>`）は変更しない。** 本アイコンはチップ / 在庫 / Dex / RESULT 一覧 / Pizza Select サムネイル / ドラッグ preview 等の「具材グリフ」にのみ使う。
+- **ピザ上のチーズ CSS 表現（`.pizza-cheese` / `.pizza-cheese--<id>`）は変更しない。** チーズのアイコンは「アイコン用途」（Tray チップ / 在庫 / Shop / Dex / Hint / Notebook / Research / RESULT 一覧 / MissionShortage）にのみ使い、**ピザ上のチーズ・ドラッグ preview・完成ピザ（Pizza Select）サムネイルは CSS 物理形状のまま**にする（詳細 §4.4）。
 - 拡張方式は **`pieceVisual` 拡張方式**（既存の `Ingredient.pieceVisual` を使う。新フィールドは作らない）。
 - 20px では「食材の系統が識別できる」ことを基準とし、細部（脂塊・カビ筋の粒）が潰れることは許容する。
 - SVG に `id` / gradient / `<defs>` を使わない（同一ページに何個あっても衝突しない。`IngredientGlyph.tsx` 既存規約）。参照 SVG 8 点は全て満たしている。
@@ -137,17 +146,33 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 
 `.pizza-cheese*` CSS、Save スキーマ（`pieceVisual` は save に出さない）、discovery / recipe / shop のロジック、既存 3 種の描画。
 
+### 4.4 チーズの描画範囲（2026-10-08 Owner 決定）
+
+現行コードは、チーズを次の 4 か所で `category === "cheese"` により `IngredientPieceVisual`（CSS 物理形状）へ分岐している（実装前の調査結果。本 PR では変更しない）。
+
+| 場所 | 現行 | 決定後 |
+|---|---|---|
+| Tray チップ（`IngredientTray.tsx`） | CSS（`ingredient-chip__cheese-slot`） | **SVG アイコン**（実装で分岐を変更） |
+| 在庫（`InventoryOverlay.tsx`） | CSS（`inventory-card__cheese-slot`） | **SVG アイコン**（実装で分岐を変更） |
+| Shop / Dex / Hint / Notebook / Research / RESULT 一覧 / MissionShortage | `IngredientGlyph`（emoji 🧀） | **SVG アイコン**（`pieceVisual` で自動） |
+| ピザ上のチーズ | CSS（`.pizza-cheese`） | **CSS のまま** |
+| ドラッグ preview（`IngredientTray.tsx`） | CSS | **CSS のまま** |
+| 完成ピザ / Pizza Select サムネイル（`PizzaThumbnail.tsx`） | CSS | **CSS のまま** |
+
+- 実装上の要点: Tray チップと在庫の cheese 分岐を `IngredientGlyph` 経由に切り替える。ピース・ドラッグ preview・サムネイルの分岐は触らない。
+- 非チーズ（sausage / hot-dog 等）は従来どおり `IngredientPieceVisual` → `IngredientGlyph` を通るので、ピザ上のピースにも SVG が出る（接地影の見え方は §8 の HV 項目）。
+
 ## 5. Pilot 実装順序
 
-露出の小さい順に 3 Pilot に分け、各 Pilot で 1 PR・1 回の Human Verification とする。
+3 Pilot に分け、各 Pilot で 1 PR・1 回の Human Verification とする。
 
 | Pilot | 対象 | 理由 |
 |---|---|---|
-| **A** | `hot-dog`, `feta`, `ricotta` | 後半 Batch の希少具材。露出が小さく、64px viewBox 共存の仕組み（§4.2-1）を最小リスクで検証できる |
+| **A** | `hot-dog`, `sausage`, `feta`, `ricotta` | 64px viewBox 共存の仕組み（§4.2-1）と、チーズのアイコン用途の分岐変更（§4.4）を最小の種類数で検証する。**hot-dog と sausage を同時に出し、受入条件「hot-dog / sausage の区別」を A の HV で判定する**（2026-10-08 Owner 決定で sausage を C から前倒し） |
 | **B** | `grana-padano`, `parmigiano`, `gorgonzola` | 形で区別する組（grana↔parmigiano）を同時に実機確認できる |
-| **C** | `mozzarella`, `sausage` | 序盤の高露出具材（Starter Stock 等）。A / B で共通基盤が固まってから最後に切り替える |
+| **C** | `mozzarella` | 序盤の高露出具材（Starter Stock 等）。A / B で共通基盤が固まってから最後に切り替える |
 
-Pilot A は共通基盤（型・viewBox 表・テスト更新）を含む。B / C は visual 追加のみ。
+Pilot A は共通基盤（型・viewBox 表・チーズ分岐変更・テスト更新）を含む。B / C は visual 追加のみ。残り 17 種（§1b）の Pilot 割当は未定（Owner が A〜C の HV 後に決める）。
 
 ## 6. 最小テスト（各 Pilot 共通）
 
@@ -164,12 +189,15 @@ Pilot A は共通基盤（型・viewBox 表・テスト更新）を含む。B / 
 
 ## 7. 実装開始の前提 / ガード
 
-- **#418 が Owner HV FAIL 中のため、Production コードの変更は禁止**（本書作成時点）。#418 の解消（または Owner の明示許可）まで実装に着手しない。#418 のブランチには触れない。
-- 実装 Issue は #418 解消後に Owner が起票する（Pilot A から。残り 17 種の Pilot 割当は §1b 確定後に Owner が決める）。
-- 本書の変更範囲は docs と比較資料のみ。PR / merge / deploy は本書では行わない。
+- **#418 起因の実装禁止ゲートは解除済み**（2026-10-08 Owner 決定。#418 は #425 として main に取り込み済み）。
+- **ただし #423（RESULT: 詳細展開時に固定ボタンが内容に重なる）が完了するまで、Production コード（`src` / CSS / runtime）の実装は禁止。** #423 の作業ブランチには触れない。
+- 実装は #423 完了後の**最新 main** から開始する。実装 Issue は Owner が起票する（Pilot A から）。
+- 本書とデザイン資産（参照 SVG・比較シート・候補）は docs-only PR で main に取り込む。この PR に `src` / CSS / runtime の変更は含めない。merge と deploy は Owner の判断で行う。
 
 ## 8. 未確定（実装前に Owner / Pilot HV で確認）
 
 - 接地影のピザ上での見え方（§4.2-3）。
 - 新 visual に `.ingredient-glyph--<visual>` のサイズ補正が必要か（§3）。
 - ~~残り 18 種のデザイン比較の順序~~ → §1b で全て確定（clam は既存維持）。実装の Pilot 順は §5 を 26 種へ拡張する際に別途 Owner と決める。
+- Tray チップ・在庫の cheese 分岐を SVG に切り替えた後の、チップ幅・タップ領域・行高への影響（§4.4。390×844 / 360×800）。
+- sausage ↔ hot-dog の 20px 識別（Pilot A の HV で判定）。

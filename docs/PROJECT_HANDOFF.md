@@ -564,7 +564,7 @@ in `npm run build`). Whether a fully targetless trial stays available at Entry �
 
 ## Ingredient Icon 2.0 — Style Lock v2 (Issue #417; docs / design reference only)
 
-**All 26 target icons are decided: 8 (v2) + 17 (this round) + `clam` kept as the existing 32x32 `clam-valve` (unchanged).** Implementation is on hold while #418 is Owner HV FAIL (no Production code is touched; #418 branch untouched).
+**All 26 target icons are decided: 8 (v2) + 17 (this round) + `clam` kept as the existing 32x32 `clam-valve` (unchanged).** Implementation has not started. The old #418 hold is released (#418 merged via #425), but **Production code stays prohibited until #423 is complete** (2026-10-08 Owner decision); implementation starts from latest `main` after that. **Pilot A = hot-dog / sausage / feta / ricotta.** Cheese icons are SVG only in icon contexts (Tray chip / Inventory / Shop / Dex etc.); on-pizza cheese, drag preview and finished-pizza thumbnails keep the CSS physical shape (decision doc §0, §4.4).
 Authority: [`docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`](decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md) (§1 the 8, §1b the 17 + 26-count reconciliation, §1c in-game HV items);
 reference SVGs (25, named by ingredient id): `docs/design/references/ingredient-icons-2.0/`; comparison sheets / non-adopted candidates: `docs/design/candidates/ingredient-icons-2.0-remaining/`.
 Existing 32x32 SVGs (`tomato-slice` / `caper-cluster` / `clam-valve`) and on-pizza cheese CSS stay unchanged.
