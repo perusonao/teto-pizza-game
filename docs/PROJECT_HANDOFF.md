@@ -562,6 +562,15 @@ through the in-memory test-only hook `tools/testHooksPlugin.ts` (Vitest, and the
 in `npm run build`). Whether a fully targetless trial stays available at Entry ≥ 1 is undecided (OD-377-3).
 **#377 status: COMPLETE** (PR #383 merged `a4944e4`, deployed; Owner Production HV: Entry 0 PASS, Entry 1 / 2+ not performed, automated PASS). See `docs/reports/TETO_377_PIZZA-SELECT-ROUTING_Result.md`.
 
+## Ingredient Icon 2.0 — Style Lock v2 (Issue #417; docs / design reference only)
+
+**All 26 target icons are decided: 8 (v2) + 17 (this round) + `clam` kept as the existing 32x32 `clam-valve` (unchanged).** Implementation has not started. The old #418 hold is released (#418 merged via #425), but **Production code stays prohibited until #423 is complete** (2026-10-08 Owner decision); implementation starts from latest `main` after that. **Pilot A = hot-dog / sausage / feta / ricotta.** Cheese icons are SVG only in icon contexts (Tray chip / Inventory / Shop / Dex etc.); on-pizza cheese, drag preview and finished-pizza thumbnails keep the CSS physical shape (decision doc §0, §4.4).
+Authority: [`docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`](decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md) (§1 the 8, §1b the 17 + 26-count reconciliation, §1c in-game HV items);
+reference SVGs (25, named by ingredient id): `docs/design/references/ingredient-icons-2.0/`; comparison sheets / non-adopted candidates: `docs/design/candidates/ingredient-icons-2.0-remaining/`.
+Existing 32x32 SVGs (`tomato-slice` / `caper-cluster` / `clam-valve`) and on-pizza cheese CSS stay unchanged.
+Owner adoption (17): A = fontina, cashew-cheese, cream-cheese, catupiry, pepperoni, bacon, ham, chicken, anchovy, tuna, shrimp, salmon; B = salami, prosciutto-crudo, pork, sardine, salt-cod.
+Future in-game HV items: **salami B 20px legibility** (vs pepperoni / sausage / hot-dog) and **salt-cod B vs cheeses** (feta / cream-cheese / mozzarella / ricotta). Next step: Owner opens implementation Issues (Pilot order for the 17 TBD) after #423 is complete (#418 hold already released).
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.
