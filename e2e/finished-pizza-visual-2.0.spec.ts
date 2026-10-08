@@ -94,7 +94,8 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
     );
 
     // Crust: continuous dough-shape background is present and non-empty (baked, not raw pale).
-    const doughBackground = await page.locator(".pizza-dough-shape").evaluate((el) => (el as HTMLElement).style.background);
+    // (A cut pizza is drawn as pieces, each a full copy of the body, so there is one per piece.)
+    const doughBackground = await page.locator(".pizza-dough-shape").first().evaluate((el) => (el as HTMLElement).style.background);
     expect(doughBackground).not.toBe("");
 
     // Cheese: keeps its own dedicated melt/toast/char curve, distinct from the topping curve.
@@ -150,7 +151,9 @@ test.describe("Scenario B: topping-heavy recipe (Capricciosa) IDEAL -- multiple 
 
     // Every placed piece is still individually visible (identity preserved, not collapsed into
     // one indistinguishable mass).
-    await expect(page.locator(".pizza-cheese")).toHaveCount(2);
+    // (After CUT the pizza is drawn as pieces: a topping sliced by a cut also shows its part in the
+    // neighbouring piece as a `.pizza-topping-half` -- not another placed piece.)
+    await expect(page.locator(".pizza-cheese:not(.pizza-topping-half *)")).toHaveCount(2);
     await expect(page.locator(".pizza-topping--mushroom")).toHaveCount(2);
     await expect(page.locator(".pizza-topping--oregano")).toHaveCount(1);
     await expect(page.locator(".pizza-topping--ham")).toHaveCount(1);
