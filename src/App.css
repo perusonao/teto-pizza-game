@@ -1635,6 +1635,18 @@
   --result-action-bar-reserve: 176px;
 }
 
+/* Issue #423 (Owner HV on 268bd66): once `useResultActionBarInset` has measured the fixed bar, the scroll area ends where the
+   bar begins (the bar sits in the space this margin frees), so no content -- collapsed or open -- is ever drawn under it, on
+   any viewport height. The reserve above is then only a small end gap; without the hook (no JS measure) it stays as the
+   fallback. */
+.game-screen[data-result-bar] {
+  margin-bottom: var(--result-bar-h, 0px);
+}
+
+.game-screen[data-result-bar] .result-panel {
+  padding-bottom: 12px;
+}
+
 .result-panel__heading {
   font-size: 15px;
   font-weight: 700;
