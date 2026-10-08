@@ -8,10 +8,15 @@
  */
 import { doughShapeRadiusAtAngle, type DoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS, type DoughPoint } from "../pizzaCoordinates";
-import { isNearRim, type CutLine } from "./types";
+import type { CutLine } from "./types";
 
-/** Ends within this many dough-percent of the visible edge count as having reached it. */
-export const CUT_RIM_REACH_TOLERANCE = 2;
+/**
+ * Owner Decision (#418): a cut that ends within the crust's width of the visible pizza edge counts
+ * as having reached the edge, for display only -- it is then drawn on through the crust and the
+ * pizza parts along it. Anything ending further in is a partial cut: no extension, no separation.
+ * (Dough-percent; the stored `CutLine.path` and every scoring input are never touched.)
+ */
+export const CUT_CRUST_WIDTH = 6;
 /** The dough layer's box edge: nothing is ever drawn past it. */
 const BOX_EDGE_RADIUS = 50;
 /** Drawn cuts run on this far past the traced end; the cut layer is clipped to the pizza. */
@@ -43,9 +48,8 @@ export function isThroughCut(line: CutLine, shape?: DoughShape): boolean {
   const path = line.path;
   if (!path || path.length < 2) return true;
   const reached = (p: DoughPoint) => {
-    if (isNearRim(p, CUT_RIM_REACH_TOLERANCE)) return true;
     const r = Math.hypot(p.x - DOUGH_CENTER, p.y - DOUGH_CENTER);
-    return r >= Math.min(DOUGH_RADIUS, edgeRadiusToward(p, shape)) - CUT_RIM_REACH_TOLERANCE;
+    return r >= Math.min(DOUGH_RADIUS, edgeRadiusToward(p, shape)) - CUT_CRUST_WIDTH;
   };
   return reached(path[0]) && reached(path[path.length - 1]);
 }

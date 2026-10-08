@@ -4,6 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import { gameReducer, type GameState } from "../state/gameReducer";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { createIdealDoughShape } from "../logic/doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import type { CutLine } from "../logic/cut/types";
 import { PizzaStage } from "./PizzaStage";
@@ -55,7 +56,7 @@ const partial: CutLine = {
 function stage(state: GameState, lines: CutLine[], makingStep: GameState["makingStep"]) {
   return (
     <PizzaStage
-      pizza={state.pizza}
+      pizza={{ ...state.pizza, doughShape: createIdealDoughShape() }} // a finished dough, as in a real CUT
       recipe={state.recipe}
       interactive={false}
       activeIngredient={null}
@@ -83,6 +84,17 @@ afterEach(() => cleanup());
 describe("PizzaStage cut pieces", () => {
   const state = bakedMargheritaAtCut();
   const toppingCount = state.pizza.toppings.length;
+
+  it("a cut that ends within the crust width of the edge parts the pizza; one that stops further in does not", () => {
+    const nearlyThrough: CutLine = { start: { x: 8, y: 50 }, end: { x: 92, y: 50 }, path: [{ x: 8, y: 50 }, { x: 92, y: 50 }] }; // r = 42
+    const clearlyPartial: CutLine = { start: { x: 14, y: 50 }, end: { x: 86, y: 50 }, path: [{ x: 14, y: 50 }, { x: 86, y: 50 }] }; // r = 36
+    const a = render(stage(state, [nearlyThrough], "CUT"));
+    expect(a.container.querySelectorAll(".pizza-piece")).toHaveLength(2);
+    cleanup();
+    const b = render(stage(state, [clearlyPartial], "CUT"));
+    expect(b.container.querySelector(".pizza-pieces")).toBeNull();
+    expect(b.container.querySelector(".pizza-pieces-shade")).toBeNull();
+  });
 
   it("an uncut pizza (or only partial strokes) is rendered as one body, as before", () => {
     const { container, rerender } = render(stage(state, [], "CUT"));
@@ -134,7 +146,9 @@ describe("PizzaStage cut pieces", () => {
 
     const inResult = render(stage(state, lines, null as unknown as GameState["makingStep"]));
     expect(inResult.container.querySelectorAll(".pizza-piece")).toHaveLength(4);
-    expect(inResult.container.querySelectorAll(".pizza-cut-mark--seam")).toHaveLength(2);
+    expect(inResult.container.querySelectorAll(".pizza-cut-mark--through")).toHaveLength(2);
+    expect(inResult.container.querySelector(".pizza-pieces-shade")).toBeInTheDocument();
+    expect(inResult.container.querySelectorAll(".pizza-cut-mark--through .pizza-cut-line")).toHaveLength(0);
     expect(inResult.container.querySelectorAll(".pizza-cut-mark--partial")).toHaveLength(1); // the miss stays
     expect(inResult.container.querySelector(".pizza-cut-flash")).toBeNull();
     expect(inResult.container.querySelector(".pizza-cut-guide-lines")).toBeNull();

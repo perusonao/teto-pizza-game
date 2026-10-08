@@ -1262,6 +1262,12 @@ export function PizzaStage({
           </svg>
         )}
         {pieceLayout ? (
+          <>
+          <div
+            className="pizza-pieces-shade"
+            aria-hidden="true"
+            style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
+          />
           <div className="pizza-pieces" data-piece-count={pieceLayout.pieces.length}>
             {pieceLayout.pieces.map((piece, pieceIndex) => {
               let node = (
@@ -1291,6 +1297,7 @@ export function PizzaStage({
               );
             })}
           </div>
+          </>
         ) : (
           <>
             {renderShapeLayer()}
@@ -1348,14 +1355,15 @@ export function PizzaStage({
               // lip, drawn exactly to where it stopped. In CUT the newest cut also flashes once
               // (CSS animation, ~300ms) along its path.
               const visual = buildCutVisual(line, pizza.doughShape);
-              const seam = pieceLayout !== null && visual.through;
+              const through = pieceLayout !== null && visual.through;
               const pts = visual.points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
               const trace = line.path ? line.path.map((p) => `${p.x},${p.y}`).join(" ") : undefined;
               const flash = isCutStep && index === cutState.lines.length - 1;
-              if (seam) {
+              if (through) {
+                // The pieces themselves are the cut (gap + shade + side); nothing is drawn on top
+                // of the seam but the one-shot flash. The mark still carries the trace.
                 return (
-                  <g key={index} className="pizza-cut-mark pizza-cut-mark--seam">
-                    <polyline className="pizza-cut-line pizza-cut-line--seam" points={pts} data-trace={trace} />
+                  <g key={index} className="pizza-cut-mark pizza-cut-mark--through" data-trace={trace}>
                     {flash && <polyline className="pizza-cut-flash" points={pts} />}
                   </g>
                 );
@@ -1371,13 +1379,13 @@ export function PizzaStage({
                 ny = -ny;
               }
               return (
-                <g key={index} className="pizza-cut-mark pizza-cut-mark--partial">
+                <g key={index} className="pizza-cut-mark pizza-cut-mark--partial" data-trace={trace}>
                   <polyline
                     className="pizza-cut-edge pizza-cut-edge--lit"
                     points={pts}
                     transform={`translate(${(nx * 0.75).toFixed(3)} ${(ny * 0.75).toFixed(3)})`}
                   />
-                  <polyline className="pizza-cut-line" points={pts} data-trace={trace} />
+                  <polyline className="pizza-cut-line" points={pts} />
                   {flash && <polyline className="pizza-cut-flash" points={pts} />}
                 </g>
               );

@@ -79,7 +79,7 @@ afterEach(() => {
 });
 
 function lastCommittedPath(): string | null {
-  const els = document.querySelectorAll(".pizza-cut-line");
+  const els = document.querySelectorAll(".pizza-cut-mark");
   return els.length ? els[els.length - 1].getAttribute("data-trace") : null;
 }
 
@@ -155,7 +155,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(screen.getByTestId("line-count").textContent).toBe("0");
   });
 
-  it("committed lines render as permanent .pizza-cut-line elements, one per commit", () => {
+  it("committed cuts render as permanent .pizza-cut-mark elements, one per commit", () => {
     render(<Harness />);
     const dough = getDough();
     for (const [startX, startY, endX, endY] of [
@@ -168,7 +168,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
       fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: endX, clientY: endY });
     }
     expect(screen.getByTestId("line-count").textContent).toBe("2");
-    expect(document.querySelectorAll(".pizza-cut-line")).toHaveLength(2);
+    expect(document.querySelectorAll(".pizza-cut-mark")).toHaveLength(2);
   });
 
   it("#418: a curved trace is kept as drawn -- not straightened or extended to the rim", () => {
@@ -295,7 +295,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(lastCommittedPath()).toBe("20,50 50,20 80,50");
   });
 
-  it("#418: a rim-to-rim cut splits the pizza into pieces; its mark is only the seam shadow", () => {
+  it("#418: a rim-to-rim cut splits the pizza into pieces; nothing is drawn on the seam", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 60;
@@ -304,9 +304,10 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 330, clientY: 150 });
     expect(document.querySelectorAll(".pizza-piece")).toHaveLength(2);
     const mark = document.querySelector(".pizza-cut-mark");
-    expect(mark).toHaveClass("pizza-cut-mark--seam");
-    expect(mark?.querySelector(".pizza-cut-line--seam")).toBeInTheDocument();
+    expect(mark).toHaveClass("pizza-cut-mark--through");
+    expect(mark?.querySelector(".pizza-cut-line")).toBeNull();
     expect(mark?.querySelector(".pizza-cut-edge--lit")).toBeNull();
+    expect(document.querySelector(".pizza-pieces-shade")).toBeInTheDocument();
   });
 
   it("#418: a partial stroke never separates: no pieces, just a groove with one lit lip", () => {
@@ -328,7 +329,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 62, clientX: 60, clientY: 150 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 62, clientX: 150, clientY: 60 });
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 62, clientX: 240, clientY: 150 });
-    expect(document.querySelector(".pizza-cut-line")?.getAttribute("data-trace")).toBe("20,50 50,20 80,50");
+    expect(document.querySelector(".pizza-cut-mark")?.getAttribute("data-trace")).toBe("20,50 50,20 80,50");
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId: 63, clientX: 150, clientY: 150 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId: 63, clientX: 210, clientY: 150 });

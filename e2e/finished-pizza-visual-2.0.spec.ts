@@ -82,7 +82,7 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
 
     await expect(page.locator(".result-panel")).toBeVisible();
@@ -103,7 +103,7 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
     expect(cheese).not.toBe(basilFilterAtResult);
 
     // CUT visibility persists into RESULT.
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await expect(page.locator(".cut-evaluation-summary")).toBeVisible();
 
     // RESULT 1-Screen 2.0 (PR #181) / Timing Transparency (PR #185) regressions.
@@ -189,7 +189,7 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
     await expect(page.locator(".result-panel")).toBeVisible();
     const overbakedBasil = await toppingFilter(page, "basil");
@@ -200,7 +200,7 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
     expect(bodyFilter === "none" || bodyFilter === "").toBe(true);
 
     // UI (CTA/header) unaffected, CUT still visible at RESULT.
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await expect(page.getByRole("button", { name: "もう一度つくる" })).toBeVisible();
 
     // Compare against a fresh IDEAL round's own basil filter (Scenario A's own target center) --

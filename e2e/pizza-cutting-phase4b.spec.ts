@@ -68,7 +68,7 @@ test.describe("Scenario A: Margherita regression (CUT unchanged)", () => {
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
 
     await expect(page.locator(".result-panel")).toBeVisible();
@@ -105,7 +105,7 @@ test.describe("Scenario B: newly CUT-enabled non-margherita recipe (Salsiccia)",
     // Salsiccia is now CUT-eligible -- the same POST_BAKE/CUT step margherita already had.
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
 
     await expect(page.locator(".result-panel")).toBeVisible();
@@ -151,7 +151,7 @@ test.describe("Scenario C: topping-heavy recipe CUT at the secondary 360x800 vie
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
     await page.getByRole("button", { name: /切り終わる/ }).click();
 
     // No horizontal overflow at any point that mattered -- re-check at the final RESULT screen,

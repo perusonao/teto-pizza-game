@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
-import { buildCutVisual, isThroughCut, rayToRadius } from "./cutVisual";
+import { buildCutVisual, CUT_CRUST_WIDTH, isThroughCut, rayToRadius } from "./cutVisual";
 import type { CutLine } from "./types";
 
 const C = DOUGH_CENTER;
@@ -28,9 +28,21 @@ describe("isThroughCut (visual only)", () => {
   it("treats a chord-only legacy line as through", () => {
     expect(isThroughCut({ start: throughLine.start, end: throughLine.end })).toBe(true);
   });
+  it("counts an end within the crust width of the edge as reached -- and only that", () => {
+    const at = (r: number): CutLine => ({
+      start: { x: C - r, y: C },
+      end: { x: C + r, y: C },
+      path: [{ x: C - r, y: C }, { x: C + r, y: C }],
+    });
+    expect(CUT_CRUST_WIDTH).toBe(6);
+    expect(isThroughCut(at(R - CUT_CRUST_WIDTH + 0.1))).toBe(true);
+    expect(isThroughCut(at(R - CUT_CRUST_WIDTH - 0.1))).toBe(false);
+    expect(isThroughCut(at(R - 3))).toBe(true); // a finger lifted a little short of the rim
+    expect(isThroughCut(at(R - 12))).toBe(false); // clearly partial
+  });
   it("measures reach against a smaller hand-shaped pizza's own edge, not the ideal circle", () => {
     const small = { radii: new Array(8).fill(40) };
-    const path = [{ x: C - 40, y: C }, { x: C + 40, y: C }];
+    const path = [{ x: C - 36, y: C }, { x: C + 36, y: C }];
     expect(isThroughCut({ start: path[0], end: path[1], path }, small)).toBe(true);
     expect(isThroughCut({ start: path[0], end: path[1], path })).toBe(false);
   });

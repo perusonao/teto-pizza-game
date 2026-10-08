@@ -595,13 +595,6 @@
   }
 }
 
-/* Issue #418: a rim-to-rim cut has parted the pizza into pieces (.pizza-pieces below); its mark is
-   only a faint shadow in the seam. */
-.pizza-cut-line--seam {
-  stroke: rgba(40, 18, 6, 0.3);
-  stroke-width: 0.5;
-}
-
 /* Issue #418: a cut pizza is drawn as pieces -- each a full copy of the pizza body (silhouette,
    sauce, toppings, bake look) clipped to its region and nudged ~1.5px away from the centre (the
    offset is set inline). Same box as the dough layer (border-box) so clip polygons are in
@@ -610,6 +603,18 @@
   position: absolute;
   inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
+  /* Thickness: one filter on the whole set of pieces, so it follows every piece's outline --
+     including the edges facing the gaps. A 1px lower side in crust colour, then a soft shadow. */
+  filter: drop-shadow(0 1px 0 rgba(168, 108, 44, 0.95)) drop-shadow(0 1.5px 2px rgba(40, 18, 6, 0.4));
+}
+
+/* Under the pieces, in the (original) pizza silhouette: the gaps show a dark shadowed cut, never the
+   pale plate. */
+.pizza-pieces-shade {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+  background: #4a2a14;
 }
 
 .pizza-piece,
