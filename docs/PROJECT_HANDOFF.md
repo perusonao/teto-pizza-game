@@ -562,6 +562,12 @@ through the in-memory test-only hook `tools/testHooksPlugin.ts` (Vitest, and the
 in `npm run build`). Whether a fully targetless trial stays available at Entry ≥ 1 is undecided (OD-377-3).
 **#377 status: COMPLETE** (PR #383 merged `a4944e4`, deployed; Owner Production HV: Entry 0 PASS, Entry 1 / 2+ not performed, automated PASS). See `docs/reports/TETO_377_PIZZA-SELECT-ROUTING_Result.md`.
 
+## Ingredient Icon 2.0 — Style Lock v2 (Issue #417; docs / design reference only)
+
+8 icons (cheese x6 + sausage / hot-dog) are Owner Style-Locked; implementation is on hold while #418 is Owner HV FAIL.
+Authority: [`docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`](decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md);
+reference SVGs: `docs/design/references/ingredient-icons-2.0/`. Existing 32x32 SVGs and on-pizza cheese CSS stay unchanged.
+
 ## Product goal
 
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.
