@@ -224,7 +224,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(screen.queryByText(/1本戻す/)).toBeNull();
   });
 
-  it("#418: a hand-shaky stroke is committed exactly as traced (no straightening)", () => {
+  it("#418: a hand-shaky straight stroke is pulled onto its own start->tip line (ends fixed)", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 40;
@@ -233,12 +233,12 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
       fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
     }
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
-    // Every sample stays where the finger put it: the traced path is the cut.
-    const path = (lastCommittedPath() ?? "").split(" ");
+    // Straight-line assist: the sway is absorbed, the start and where the finger lifted are not.
+    const path = (lastCommittedPath() ?? "").split(" ").map((q) => q.split(",").map(Number));
     expect(path.length).toBeGreaterThan(2);
-    expect(path[0]).toBe("20,50");
-    expect(path).toContain("40,49");
-    expect(path[path.length - 1]).toBe("80,50");
+    expect(path[0]).toEqual([20, 50]);
+    expect(path[path.length - 1]).toEqual([80, 50]);
+    for (const [, y] of path) expect(y).toBeCloseTo(50, 6);
   });
 
   it("#418: a quick swipe keeps its samples and ends where the finger lifted", () => {

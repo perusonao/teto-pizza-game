@@ -3,14 +3,57 @@
  * cut. Pure helpers -- no DOM, no React -- that turn raw dough-percent pointer samples into the
  * committed trace. Deliberately NOT a straightening step: the only filtering is dropping samples
  * closer than `TRACE_SAMPLE_MIN_DISTANCE` to the previous one (sensor jitter); the path is never
- * smoothed, fitted, straightened or snapped to an ideal centre/angle/slice -- the traced path is
- * exactly where the pizza is cut.
+ * snapped to an ideal centre/angle/slice. The one correction is `shapeTrace` (below): a bounded,
+ * continuous pull towards the start->tip line that is shared by the live preview and the commit,
+ * so what is drawn is exactly where the pizza is cut.
  */
 import { DOUGH_CENTER, DOUGH_RADIUS, isInsideDough, type DoughPoint } from "../pizzaCoordinates";
 import { buildRimToRimCutLine, type CutLine } from "./types";
 
 /** Samples closer than this (dough-percent) to the last kept sample are sensor jitter. */
 export const TRACE_SAMPLE_MIN_DISTANCE = 1;
+/**
+ * Straight-line assist (Pilot values, tuned on Owner HV). A stroke whose sag from its own
+ * start->tip line is small relative to its length (`s = maxSag / length`) is a stroke meant to be
+ * straight: every point is pulled onto that line by `lambda`, which is 1 up to `SHAPE_S1`, falls
+ * linearly to 0 at `SHAPE_S2` and stays 0 beyond (a deliberate arc / S keeps its shape).
+ * Below `SHAPE_MIN_LENGTH` nothing is corrected; the assist then fades in over `SHAPE_RAMP`.
+ * Because `lambda` is continuous in `s` and the length, the line never switches on or off.
+ */
+export const SHAPE_S1 = 0.025;
+export const SHAPE_S2 = 0.045;
+export const SHAPE_MIN_LENGTH = 25;
+export const SHAPE_RAMP = 10;
+
+/**
+ * Pure and deterministic: the same samples always give the same path, so the live preview
+ * (`shapeTrace` of the trace so far) and the commit (`shapeTrace` of the whole trace) are one line.
+ * The first and last points -- where the stroke began and where the finger is -- never move.
+ */
+export function shapeTrace(raw: readonly DoughPoint[]): readonly DoughPoint[] {
+  if (raw.length < 3) return raw;
+  const a = raw[0];
+  const b = raw[raw.length - 1];
+  const length = Math.hypot(b.x - a.x, b.y - a.y);
+  if (length <= SHAPE_MIN_LENGTH) return raw;
+  const ux = (b.x - a.x) / length;
+  const uy = (b.y - a.y) / length;
+  let sag = 0;
+  const offsets = raw.map((p) => {
+    const across = (p.x - a.x) * uy - (p.y - a.y) * ux;
+    sag = Math.max(sag, Math.abs(across));
+    return across;
+  });
+  const s = sag / length;
+  const fit = s <= SHAPE_S1 ? 1 : s >= SHAPE_S2 ? 0 : 1 - (s - SHAPE_S1) / (SHAPE_S2 - SHAPE_S1);
+  const lambda = fit * Math.min(1, (length - SHAPE_MIN_LENGTH) / SHAPE_RAMP);
+  if (lambda <= 0) return raw;
+  const last = raw.length - 1;
+  return raw.map((p, i) =>
+    i === 0 || i === last ? p : { x: p.x - lambda * offsets[i] * uy, y: p.y + lambda * offsets[i] * ux },
+  );
+}
+
 /** A traced path shorter than this (dough-percent) is a tap, not a cut, and is discarded. */
 export const TRACE_MIN_LENGTH = 8;
 
@@ -88,7 +131,7 @@ export function appendTraceSample(path: readonly DoughPoint[], sample: DoughPoin
  */
 export function buildTracedCutLine(rawPath: readonly DoughPoint[]): CutLine | null {
   if (rawPath.length < 2 || tracePathLength(rawPath) < TRACE_MIN_LENGTH) return null;
-  const path = rawPath;
+  const path = shapeTrace(rawPath);
   const first = path[0];
   let farthest = path[1];
   let best = -1;

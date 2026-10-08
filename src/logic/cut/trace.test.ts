@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { isEdgeToEdgeCutLine } from "./types";
-import { appendTraceSample, buildTracedCutLine, tracePathLength, rimCrossing, segmentRimChord, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
+import { appendTraceSample, buildTracedCutLine, shapeTrace, SHAPE_MIN_LENGTH, SHAPE_RAMP, SHAPE_S1, SHAPE_S2, rimCrossing, segmentRimChord, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
 
 const C = DOUGH_CENTER;
 
@@ -63,37 +63,89 @@ function fingerPath(a: [number, number], b: [number, number], bow: number, turns
   });
 }
 
-function distToPolyline(p: { x: number; y: number }, poly: readonly { x: number; y: number }[]) {
-  let best = Infinity;
-  for (let i = 1; i < poly.length; i += 1) {
-    const a = poly[i - 1];
-    const b = poly[i];
-    const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
-    const t = l2 ? Math.max(0, Math.min(1, ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2)) : 0;
-    best = Math.min(best, Math.hypot(p.x - a.x - t * (b.x - a.x), p.y - a.y - t * (b.y - a.y)));
-  }
-  return best;
-}
-
-describe("buildTracedCutLine keeps the finger's path (no straightening)", () => {
-  const cases: [string, [number, number], [number, number], number, number][] = [
+describe("shapeTrace (straight-line assist)", () => {
+  const keep: [string, [number, number], [number, number], number, number][] = [
     ["arc 6%", [4, 60], [96, 60], 0.06, 0.5],
     ["arc 10%", [4, 60], [96, 60], 0.1, 0.5],
     ["arc 14%", [4, 60], [96, 60], 0.14, 0.5],
     ["diagonal arc 8%", [14, 14], [86, 86], 0.08, 0.5],
     ["S curve 5%", [4, 45], [96, 55], 0.05, 1],
-    ["straight, off centre", [4, 30], [96, 30], 0, 0.5],
   ];
-  for (const [name, a, b, bow, turns] of cases) {
-    it(`${name}: stored path is the traced path, sample for sample`, () => {
+  for (const [name, a, b, bow, turns] of keep) {
+    it(`${name}: a deliberate curve is kept exactly as traced`, () => {
       const finger = fingerPath(a, b, bow, turns);
-      const line = buildTracedCutLine(finger)!;
-      expect(line.path).toEqual(finger);
-      // the committed boundary never strays from where the finger went
-      for (const p of finger) expect(distToPolyline(p, line.path!)).toBeLessThan(1e-9);
-      expect(tracePathLength(line.path!)).toBeCloseTo(tracePathLength(finger), 9);
+      expect(shapeTrace(finger)).toBe(finger);
+      expect(buildTracedCutLine(finger)!.path).toEqual(finger);
     });
   }
+
+  it("a perfectly straight stroke is unchanged", () => {
+    const finger = fingerPath([4, 30], [96, 30], 0);
+    expect(shapeTrace(finger).every((p, i) => Math.abs(p.y - finger[i].y) < 1e-9)).toBe(true);
+  });
+
+  it("hand sway within the assist band is pulled onto the start->tip line; ends never move", () => {
+    const finger = fingerPath([4, 40], [96, 40], 0.02); // sag 2% of the chord
+    const out = shapeTrace(finger);
+    expect(out[0]).toBe(finger[0]);
+    expect(out[out.length - 1]).toBe(finger[finger.length - 1]);
+    for (const p of out) expect(Math.abs(p.y - 40)).toBeLessThan(1e-9);
+  });
+
+  it("the correction never exceeds SHAPE_S1 of the stroke length (gentle S 3% measured)", () => {
+    for (const [bow, turns] of [[0.03, 1], [0.03, 0.5], [0.04, 0.5], [0.02, 1]] as const) {
+      const finger = fingerPath([4, 45], [96, 55], bow, turns);
+      const out = shapeTrace(finger);
+      const len = Math.hypot(92, 10);
+      let worst = 0;
+      finger.forEach((p, i) => {
+        worst = Math.max(worst, Math.hypot(p.x - out[i].x, p.y - out[i].y));
+      });
+      expect(worst).toBeLessThanOrEqual(SHAPE_S1 * len + 1e-9);
+    }
+  });
+
+  it("is continuous: no jump as the bow grows through the assist band, or as the stroke lengthens", () => {
+    let prev = shapeTrace(fingerPath([4, 60], [96, 60], 0));
+    for (let bow = 0.001; bow <= 0.06; bow += 0.001) {
+      const cur = shapeTrace(fingerPath([4, 60], [96, 60], bow));
+      let step = 0;
+      cur.forEach((p, i) => {
+        step = Math.max(step, Math.hypot(p.x - prev[i].x, p.y - prev[i].y));
+      });
+      // a 0.1%-of-length change of bow moves the raw path ~0.09; the taper (1/(S2-S1) = 50x) adds at most ~0.17 more
+      expect(step).toBeLessThan(0.3);
+      prev = cur;
+    }
+    let prevLen = shapeTrace(fingerPath([10, 50], [10 + SHAPE_MIN_LENGTH, 50], 0.03));
+    for (let len = SHAPE_MIN_LENGTH; len <= SHAPE_MIN_LENGTH + SHAPE_RAMP + 5; len += 0.5) {
+      const raw = fingerPath([10, 50], [10 + len, 50], 0.03);
+      const out = shapeTrace(raw);
+      // each vertex is at most 3% of the length off the line; ramping in moves it at most that far
+      const worst = Math.max(...out.map((p, i) => Math.hypot(p.x - raw[i].x, p.y - raw[i].y)));
+      expect(worst).toBeLessThanOrEqual(0.03 * len + 1e-9);
+      prevLen = out;
+    }
+    expect(prevLen.length).toBeGreaterThan(2);
+  });
+
+  it("does nothing to a short stroke", () => {
+    const short = fingerPath([30, 50], [30 + SHAPE_MIN_LENGTH, 50], 0.02);
+    expect(shapeTrace(short)).toBe(short);
+  });
+
+  it("the commit is the preview: buildTracedCutLine stores exactly shapeTrace of the trace", () => {
+    for (const bow of [0.01, 0.03, 0.035, 0.05, 0.1]) {
+      const finger = fingerPath([4, 60], [96, 60], bow);
+      expect(buildTracedCutLine(finger)!.path).toEqual(shapeTrace(finger));
+    }
+    expect(SHAPE_S2).toBeGreaterThan(SHAPE_S1);
+  });
+
+  it("keeps a clear change of direction (L-turn)", () => {
+    const l = [{ x: 20, y: 50 }, { x: 50, y: 50 }, { x: 50, y: 20 }];
+    expect(shapeTrace(l)).toBe(l);
+  });
 });
 
 describe("rimCrossing", () => {
