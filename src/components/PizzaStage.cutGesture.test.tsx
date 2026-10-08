@@ -224,7 +224,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(screen.queryByText(/1本戻す/)).toBeNull();
   });
 
-  it("#418: a hand-shaky (slow) straight stroke is committed as a clean straight segment", () => {
+  it("#418: a hand-shaky stroke is committed exactly as traced (no straightening)", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 40;
@@ -233,18 +233,22 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
       fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
     }
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 150 });
-    // Only start and end remain -- not extended to the rim, not snapped to an ideal angle.
-    expect(lastCommittedPath()).toBe("20,50 80,50");
+    // Every sample stays where the finger put it: the traced path is the cut.
+    const path = (lastCommittedPath() ?? "").split(" ");
+    expect(path.length).toBeGreaterThan(2);
+    expect(path[0]).toBe("20,50");
+    expect(path).toContain("40,49");
+    expect(path[path.length - 1]).toBe("80,50");
   });
 
-  it("#418: a quick two-sample swipe is a straight segment ending where the finger lifted", () => {
+  it("#418: a quick swipe keeps its samples and ends where the finger lifted", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 41;
     fireEvent.pointerDown(dough, { ...POINTER_BASE, pointerId, clientX: 60, clientY: 90 });
     fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: 150, clientY: 150 });
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 240, clientY: 210 });
-    expect(lastCommittedPath()).toBe("20,30 80,70");
+    expect(lastCommittedPath()).toBe("20,30 50,50 80,70");
   });
 
   it("#418: the cut line starts drawing after only a few pixels of movement", () => {
@@ -273,7 +277,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
     expect(document.querySelector(".pizza-cut-hit-zone")).toBeInTheDocument();
   });
 
-  it("#418: a natural arm arc over a long stroke is committed straight", () => {
+  it("#418: a gentle arm arc over a long stroke stays an arc (the cut follows the finger)", () => {
     render(<Harness />);
     const dough = getDough();
     const pointerId = 51;
@@ -282,7 +286,7 @@ describe("Pizza Cutting 1.0 Phase 2: PizzaStage CUT gesture", () => {
       fireEvent.pointerMove(dough, { ...POINTER_BASE, pointerId, clientX: x, clientY: y });
     }
     fireEvent.pointerUp(dough, { ...POINTER_BASE, pointerId, clientX: 270, clientY: 150 });
-    expect(lastCommittedPath()).toBe("10,50 90,50");
+    expect(lastCommittedPath()).toBe("10,50 30,46 50,44 70,46 90,50");
   });
 
   it("#418: a deliberate bend is kept as a curve", () => {

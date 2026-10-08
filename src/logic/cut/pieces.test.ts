@@ -90,3 +90,36 @@ describe("placeTopping", () => {
     expect(straddling.halves[0]).not.toBe(straddling.home);
   });
 });
+
+describe("traced (curved) cuts: the piece boundary is the finger's path", () => {
+  const arc = (bow: number, y: number): CutLine => {
+    const path = Array.from({ length: 41 }, (_, i) => {
+      const t = i / 40;
+      return { x: 4 + 92 * t, y: y + bow * 92 * Math.sin(Math.PI * t) };
+    });
+    return { start: path[0], end: path[40], path };
+  };
+  const sidesOf = (lines: CutLine[], p: { x: number; y: number }, cut = 0) => {
+    const layout = computePieceLayout(lines, shape)!;
+    return sidesAt(layout, p.x, p.y)[cut];
+  };
+
+  it("points just either side of the traced arc fall in different pieces, along its whole length", () => {
+    for (const bow of [0.06, 0.1, 0.14]) {
+      const line = arc(bow, 60);
+      for (const p of line.path!.filter((q) => Math.hypot(q.x - C, q.y - C) < 40)) {
+        expect(sidesOf([line], { x: p.x, y: p.y - 1.5 })).not.toBe(sidesOf([line], { x: p.x, y: p.y + 1.5 }));
+      }
+    }
+  });
+
+  it("the first cut's boundary does not move when a 2nd and 3rd cut are added", () => {
+    const first = arc(0.1, 60);
+    const second = { ...diameter(90) };
+    const third = arc(-0.07, 38);
+    const one = computePieceLayout([first], shape)!;
+    const three = computePieceLayout([first, second, third], shape)!;
+    expect(three.cuts[0].sideA).toEqual(one.cuts[0].sideA);
+    expect(three.cuts[0].sideB).toEqual(one.cuts[0].sideB);
+  });
+});

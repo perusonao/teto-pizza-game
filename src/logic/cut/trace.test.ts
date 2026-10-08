@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { isEdgeToEdgeCutLine } from "./types";
-import { appendTraceSample, buildTracedCutLine, stabilizeTrace, rimCrossing, segmentRimChord, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
+import { appendTraceSample, buildTracedCutLine, tracePathLength, rimCrossing, segmentRimChord, TRACE_MIN_LENGTH, TRACE_SAMPLE_MIN_DISTANCE } from "./trace";
 
 const C = DOUGH_CENTER;
 
@@ -51,33 +51,49 @@ describe("buildTracedCutLine", () => {
   });
 });
 
-describe("stabilizeTrace", () => {
-  it("collapses a stroke that hugs its chord to just start and end (no extension, no snap)", () => {
-    const p = [{ x: 20, y: 50 }, { x: 35, y: 51.5 }, { x: 50, y: 48.8 }, { x: 65, y: 50.9 }, { x: 80, y: 52 }];
-    expect(stabilizeTrace(p)).toEqual([p[0], p[4]]);
+/** A rim-to-rim finger path from `a` to `b`, bowed by `bow` (fraction of the chord) with a sine profile. */
+function fingerPath(a: [number, number], b: [number, number], bow: number, turns = 0.5, n = 40) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy);
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const t = i / n;
+    const off = bow * len * Math.sin(2 * Math.PI * turns * t);
+    return { x: a[0] + dx * t - (dy / len) * off, y: a[1] + dy * t + (dx / len) * off };
   });
+}
 
-  it("keeps a clear curve exactly as traced", () => {
-    const p = [{ x: 20, y: 50 }, { x: 50, y: 35 }, { x: 80, y: 50 }];
-    expect(stabilizeTrace(p)).toBe(p);
-  });
+function distToPolyline(p: { x: number; y: number }, poly: readonly { x: number; y: number }[]) {
+  let best = Infinity;
+  for (let i = 1; i < poly.length; i += 1) {
+    const a = poly[i - 1];
+    const b = poly[i];
+    const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+    const t = l2 ? Math.max(0, Math.min(1, ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2)) : 0;
+    best = Math.min(best, Math.hypot(p.x - a.x - t * (b.x - a.x), p.y - a.y - t * (b.y - a.y)));
+  }
+  return best;
+}
 
-  it("scales the allowance with stroke length: a natural arm arc on a long stroke stays straight", () => {
-    const arc = [{ x: 10, y: 50 }, { x: 30, y: 46 }, { x: 50, y: 44.5 }, { x: 70, y: 46 }, { x: 90, y: 50 }];
-    expect(stabilizeTrace(arc)).toEqual([arc[0], arc[4]]); // 5.5 sag on an 80 chord (~7%)
-    const bowed = [{ x: 10, y: 50 }, { x: 50, y: 32 }, { x: 90, y: 50 }]; // 18 sag (~22%)
-    expect(stabilizeTrace(bowed)).toBe(bowed);
-  });
-
-  it("keeps a clear change of direction (L-turn)", () => {
-    const p = [{ x: 20, y: 50 }, { x: 50, y: 50 }, { x: 50, y: 20 }];
-    expect(stabilizeTrace(p)).toBe(p);
-  });
-
-  it("keeps a stroke that doubles back", () => {
-    const p = [{ x: 20, y: 50 }, { x: 60, y: 50 }, { x: 40, y: 50.5 }, { x: 55, y: 50 }];
-    expect(stabilizeTrace(p)).toBe(p);
-  });
+describe("buildTracedCutLine keeps the finger's path (no straightening)", () => {
+  const cases: [string, [number, number], [number, number], number, number][] = [
+    ["arc 6%", [4, 60], [96, 60], 0.06, 0.5],
+    ["arc 10%", [4, 60], [96, 60], 0.1, 0.5],
+    ["arc 14%", [4, 60], [96, 60], 0.14, 0.5],
+    ["diagonal arc 8%", [14, 14], [86, 86], 0.08, 0.5],
+    ["S curve 5%", [4, 45], [96, 55], 0.05, 1],
+    ["straight, off centre", [4, 30], [96, 30], 0, 0.5],
+  ];
+  for (const [name, a, b, bow, turns] of cases) {
+    it(`${name}: stored path is the traced path, sample for sample`, () => {
+      const finger = fingerPath(a, b, bow, turns);
+      const line = buildTracedCutLine(finger)!;
+      expect(line.path).toEqual(finger);
+      // the committed boundary never strays from where the finger went
+      for (const p of finger) expect(distToPolyline(p, line.path!)).toBeLessThan(1e-9);
+      expect(tracePathLength(line.path!)).toBeCloseTo(tracePathLength(finger), 9);
+    });
+  }
 });
 
 describe("rimCrossing", () => {

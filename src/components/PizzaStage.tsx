@@ -45,7 +45,7 @@ import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { buildCutVisual } from "../logic/cut/cutVisual";
 import { computePieceLayout, placeTopping } from "../logic/cut/pieces";
-import { appendTraceSample, buildTracedCutLine, rimCrossing, segmentRimChord, stabilizeTrace } from "../logic/cut/trace";
+import { appendTraceSample, buildTracedCutLine, rimCrossing, segmentRimChord } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
@@ -372,12 +372,10 @@ export function PizzaStage({
   function updateCutPreviewLine(trace: readonly DoughPoint[], current: DoughPoint) {
     const previewEl = cutPreviewLineRef.current;
     if (!previewEl) return;
-    // Include the live fingertip (jitter-dropped samples never enter `trace`) and show the same
-    // stabilized shape release will commit, so the line tracks the finger without a jump.
+    // Include the live fingertip (jitter-dropped samples never enter `trace`): the line is the
+    // exact path release will commit, so it tracks the finger without a jump.
     const lastPoint = trace[trace.length - 1];
-    const shown = stabilizeTrace(
-      lastPoint && lastPoint.x === current.x && lastPoint.y === current.y ? trace : [...trace, current],
-    );
+    const shown = lastPoint && lastPoint.x === current.x && lastPoint.y === current.y ? trace : [...trace, current];
     if (trace.length > 0 && shown.length >= 2) {
       previewEl.setAttribute("points", shown.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" "));
       previewEl.style.opacity = "1";
