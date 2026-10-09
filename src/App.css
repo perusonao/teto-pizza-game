@@ -7206,3 +7206,10 @@ p.hint-sheet__step {
 .hint-sheet__research-details > p + p {
   margin-top: 4px;
 }
+
+/* Batch 6 PR-3: the Lunch Rush run-result copy of the notice (message only, no CTA). Compact so the
+   result panel keeps fitting 360x800 without page scroll. */
+.material-unlock-notice--mission {
+  margin: 4px auto 0;
+  padding: 4px 10px;
+}

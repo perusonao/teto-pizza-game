@@ -42,7 +42,7 @@ import { HintSheet, type HintFamily } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
 import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView } from "../state/discoveryHint";
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
-import { newShopMaterialCount } from "../state/materialEntitlement";
+import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
@@ -1097,6 +1097,7 @@ export function GameScreen({
           onGoHome={onGoHome}
           endedEarly={mission.endedEarly}
           retryBlocked={!canStartLunchRush(state)}
+          materialUnlockNotice={buildMaterialUnlockNotice(state.missionMaterialUnlockIds)}
         />
       )}
     </div>
