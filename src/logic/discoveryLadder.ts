@@ -75,17 +75,37 @@ export function materialIdsOfSteps(steps: readonly ProgressionStep[]): string[] 
   return ids;
 }
 
-/** Materials the ladder alone grants at `discoveredCount` (no entitlement history). */
+/** Whether a cumulative star count satisfies `starGate` (absent gate = always). A non-finite or
+ *  negative `totalStars` counts as 0, so a corrupt value can only keep a gated material locked. */
+export function meetsStarGate(totalStars: number, starGate: number | undefined): boolean {
+  if (starGate === undefined) return true;
+  const stars = Number.isFinite(totalStars) && totalStars > 0 ? totalStars : 0;
+  return stars >= starGate;
+}
+
+/** Materials the ladder alone grants at `discoveredCount` and `totalStars` (no entitlement
+ *  history). A material with a `starGates` entry needs its step reached AND `totalStars` at or
+ *  above the gate; `totalStars` defaults to 0, so gated materials stay locked unless it is given. */
 export function ladderUnlockedMaterialIds(
   ladder: DiscoveryLadder,
   discoveredCount: number,
+  totalStars = 0,
 ): string[] {
-  return materialIdsOfSteps(reachedLadderSteps(ladder, discoveredCount));
+  const ids: string[] = [];
+  for (const step of reachedLadderSteps(ladder, discoveredCount)) {
+    if (step.kind !== "MATERIAL") continue;
+    for (const id of step.ingredientIds) {
+      if (!ids.includes(id) && meetsStarGate(totalStars, step.starGates?.[id])) ids.push(id);
+    }
+  }
+  return ids;
 }
 
 export interface ResolveMaterialUnlocksInput {
   ladder: DiscoveryLadder;
   discoveredCount: number;
+  /** Accumulated Dex BEST stars (`totalStars(dex)`), read only by `starGates`. Defaults to 0. */
+  totalStars?: number;
   /** Materials the player was already entitled to (e.g. persisted by I4b). Order is kept; ids not
    *  in `ladder` -- including ids unknown to this build -- are kept as well. Non-string/empty
    *  entries and duplicates are dropped. */
@@ -111,6 +131,7 @@ export interface MaterialUnlockResolution {
 export function resolveMaterialUnlocks({
   ladder,
   discoveredCount,
+  totalStars = 0,
   alreadyUnlockedMaterialIds,
 }: ResolveMaterialUnlocksInput): MaterialUnlockResolution {
   const unlockedMaterialIds: string[] = [];
@@ -119,7 +140,7 @@ export function resolveMaterialUnlocks({
       unlockedMaterialIds.push(id);
     }
   }
-  const newlyUnlockedMaterialIds = ladderUnlockedMaterialIds(ladder, discoveredCount).filter(
+  const newlyUnlockedMaterialIds = ladderUnlockedMaterialIds(ladder, discoveredCount, totalStars).filter(
     (id) => !unlockedMaterialIds.includes(id),
   );
   return {
@@ -152,6 +173,10 @@ export function validateDiscoveryLadder(ladder: DiscoveryLadder): string[] {
     if (s.keyRecipeId === "") problems.push(`step ${s.step} has no keyRecipeId`);
     if (s.kind === "MATERIAL") {
       if (s.ingredientIds.length === 0) problems.push(`step ${s.step} unlocks no material`);
+      for (const [gateId, gate] of Object.entries(s.starGates ?? {})) {
+        if (!s.ingredientIds.includes(gateId)) problems.push(`step ${s.step} starGate names ${gateId}, not one of its ingredients`);
+        if (!Number.isInteger(gate) || gate <= 0) problems.push(`step ${s.step} starGate for ${gateId} must be a positive integer`);
+      }
       for (const id of s.ingredientIds) {
         if (id === "") {
           problems.push(`step ${s.step} has an empty ingredient id`);
@@ -179,6 +204,8 @@ export function validateDiscoveryLadder(ladder: DiscoveryLadder): string[] {
  */
 export interface AppendedLadderStep {
   ingredientIds: readonly string[];
+  /** Batch 6 star gates, carried onto the generated step (see `MaterialProgressionStep.starGates`). */
+  starGates?: Readonly<Record<string, number>>;
   keyRecipeId: string;
 }
 
@@ -198,14 +225,22 @@ export function appendLadderSteps(
         step: fixed.length + index + 1,
         kind: "MATERIAL" as const,
         ingredientIds: [...s.ingredientIds],
+        ...(s.starGates ? { starGates: { ...s.starGates } } : {}),
         keyRecipeId: s.keyRecipeId,
       })),
     ],
   };
 }
 
+function sameStarGates(a: ProgressionStep, b: ProgressionStep): boolean {
+  const ea = Object.entries(a.starGates ?? {});
+  const gb = b.starGates ?? {};
+  return ea.length === Object.keys(gb).length && ea.every(([id, gate]) => gb[id] === gate);
+}
+
 function sameStep(a: ProgressionStep, b: ProgressionStep): boolean {
   return (
+    sameStarGates(a, b) &&
     a.step === b.step &&
     a.kind === b.kind &&
     a.keyRecipeId === b.keyRecipeId &&
