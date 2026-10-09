@@ -22,6 +22,7 @@ import {
 import { IngredientGlyph } from "./IngredientGlyph";
 import { FamilyTag } from "./FamilyTag";
 import { ShelfTabs } from "./ShelfTabs";
+import { ShopLockedSection } from "./ShopLockedSection";
 
 interface ShopOverlayProps {
   dex: DexState;
@@ -46,7 +47,8 @@ interface ShopOverlayProps {
  *
  * - NEW: unlocked by the Discovery Ladder, not bought yet, stock 0 -- offers the first pack.
  * - OWNED: bought (or granted by the retired EP4) -- shows stock and offers a refill.
- * - LOCKED materials are never listed; one progress line says how many more discoveries bring
+ * - LOCKED materials are never listed by name (#422 PR-B shows them only as anonymous slots, see
+ *   ShopLockedSection); one progress line says how many more discoveries bring
  *   the next material, without naming it. The onboarding starters are never listed.
  *
  * Every price and quantity comes from ../logic/materialShop.ts's `materialOffer`, the same pure
@@ -72,6 +74,18 @@ function shopRows(
   }
   // NEW first (the next thing to do), then OWNED; catalog order within each group.
   return [...rows.filter((r) => r.state === "NEW"), ...rows.filter((r) => r.state === "OWNED")];
+}
+
+/** #422 PR-B: how many materials are LOCKED -- `materialShopState` is the only judge. Starters
+ *  (UNLIMITED) are never LOCKED, and a material with no `materialOffer` still counts: this is a
+ *  count of slots, never a list of materials, so nothing about any one of them can leak. */
+function lockedMaterialCount(
+  ownedIngredientIds: readonly string[],
+  unlockedForShopIngredientIds: readonly string[],
+): number {
+  return INGREDIENTS.filter(
+    (i) => materialShopState(i, ownedIngredientIds, unlockedForShopIngredientIds) === "LOCKED",
+  ).length;
 }
 
 /** "10ピザ分（30個）" -- a scatter pack also names its piece count; a spread (sauce) pack is
@@ -110,6 +124,7 @@ export function ShopOverlay({
   onClose,
 }: ShopOverlayProps) {
   const rows = shopRows(ownedIngredientIds, unlockedForShopIngredientIds);
+  const lockedCount = lockedMaterialCount(ownedIngredientIds, unlockedForShopIngredientIds);
   const progress = nextMaterialHint(
     discoveredRecipeCount(dex, countsTowardLadder),
     unlockedForShopIngredientIds,
@@ -160,7 +175,7 @@ export function ShopOverlay({
       <div className="dex-overlay__panel shop-overlay__panel">
         <div className="dex-overlay__header">
           <h2>{"\u{1F6D2}"} SHOP</h2>
-          <button type="button" className="dex-overlay__close" onClick={onClose}>
+          <button type="button" className="dex-overlay__close dex-overlay__close--tap44" onClick={onClose}>
             閉じる
           </button>
         </div>
@@ -278,6 +293,8 @@ export function ShopOverlay({
               })}
             </div>
           )}
+
+          <ShopLockedSection count={lockedCount} />
         </div>
       </div>
     </div>
