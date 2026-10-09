@@ -11,21 +11,57 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # CI optimization Phase 1: a documentation-only pull request skips npm ci / lint / Vitest / build.
+  #
+  # The `build` job is the required check and it ALWAYS runs and always reports a conclusion: there is
+  # no `paths` / `paths-ignore` filter on the trigger and no job-level `if`, so the check can never stay
+  # "Expected". Only the heavy STEPS are skipped, by a per-step condition on the classifier's output.
+  # Fail-safe: any change outside docs Markdown / docs images / root Markdown (src, tests, tools,
+  # scripts, workflows, config, lockfiles, docs JSON that tests import, ...) -- and any classifier
+  # failure or empty output -- leaves `docs_only` != 'true', so every step runs exactly as before.
+  # scripts/ci/test-ci-docs-only.sh pins these invariants (including this file's own shape).
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The PR merge commit plus both parents: enough to list exactly what the PR changes
+          # (`git diff HEAD^1 HEAD`); the heavy steps still get the full working tree.
+          fetch-depth: 2
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - name: Classify the change (docs-only?)
+        id: classify
+        # A crash here must not turn into a skip or a failure: no output -> the heavy steps run.
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: bash scripts/ci/classify-ci-docs-only.sh
+
+      - name: npm ci
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
+        run: npm ci
       # Issue #207: hermetic tests for the WebKit Gate / classifier / shard-evidence scripts, so a
       # regression in the gate logic fails fast here instead of only surfacing inside a WebKit run.
       - name: WebKit CI scripts tests
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
         run: bash scripts/ci/test-webkit-ci.sh
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
+      # CI optimization Phase 1: the docs-only classifier, its driver and this workflow's invariants.
+      - name: CI docs-only classifier tests
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
+        run: bash scripts/ci/test-ci-docs-only.sh
+      - name: Lint
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
+        run: npm run lint
+      - name: Vitest
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
+        run: npm test
+      - name: Build
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
+        run: npm run build
