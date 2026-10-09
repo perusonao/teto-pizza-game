@@ -38,4 +38,25 @@ PREVIEW badge `8204434` matched.
 | No horizontal overflow / bottom clipping | PASS |
 | PREVIEW badge = 8204434 | PASS |
 
-The video was delivered to the Owner directly and is not committed (HV policy). The commit after `8204434` is docs-only (this report).
+The video was delivered to the Owner directly and is not committed (HV policy).
+
+## Review follow-up (PR #434) — Codex P2 and Layout Contract Gate
+- Codex P2: the Shop close button now carries `dex-overlay__close--tap44` (44x44 minimum); the shared `.dex-overlay__close` is unchanged, so
+  no other overlay is affected. `e2e/shop-locked-422.spec.ts` asserts >= 44x44, inside the viewport, and that a tap closes the Shop.
+- Layout Contract Gate (`LC-5 … Shop (last row)`, a different cause from the 44px point): the test scrolled the Shop body to its very end
+  and expected the last NEW / OWNED row's button there. The LOCKED grid now sits below the list, so that row was off-screen
+  (`L-A CTA under header`). LC-5 now scrolls the last NEW / OWNED row to the middle of the view; the L-A / L-D / L-I checks are
+  unchanged. (`scrollIntoViewIfNeeded` was tried first and failed `L-A CTA bottom` at E360i, so `block: "center"` is used.)
+  The end of the LOCKED section is covered by `shop-locked-422.spec.ts`.
+
+### Owner iPhone Human Verification (follow-up) — PASS
+Preview source `4b0fd564cba1a258671402d1022b6db553d72e10` (`deploy-from-source.yml` run 37921558339, Pages run 37926906846).
+
+| Item | Result |
+|---|---|
+| PREVIEW badge matches (4b0fd56) | PASS |
+| Shop close button display | PASS |
+| Tap closes the Shop and returns to the previous screen | PASS |
+| LOCKED grid (previous HV PASS at `8204434`, not re-verified) | maintained |
+
+Commits after `4b0fd56` are docs-only (this report).
