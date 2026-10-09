@@ -1,6 +1,10 @@
+import { MATERIAL_UNLOCK_NOTICE_LEAD_JA, type MaterialUnlockNotice } from "../state/materialEntitlement";
 import type { MissionResultStats } from "../logic/missionResultStats";
 
 interface MissionResultOverlayProps {
+  /** Batch 6 PR-3 (OD-B6-PR3-1): the materials this run's serves newly unlocked (a star gate crossed), or
+   *  `null`. Message only -- the Shop CTA is not repeated here (the run result keeps its CTAs). */
+  materialUnlockNotice?: MaterialUnlockNotice | null;
   /** Lunch Rush Phase 4 (Result Summary): `deriveMissionResultStats(mission.serves)` --
    *  attempts/successes/failures/successRatePercent for this run, PASS-vs-FAILED per the
    *  Completion Gate (../logic/completionGate.ts). `stats.successes` is what the old standalone
@@ -55,6 +59,7 @@ export function MissionResultOverlay({
   onGoHome,
   endedEarly = false,
   retryBlocked = false,
+  materialUnlockNotice = null,
 }: MissionResultOverlayProps) {
   return (
     <div className="mission-overlay">
@@ -103,6 +108,19 @@ export function MissionResultOverlay({
         <p className="mission-result__balance">
           現在残高: {"\u{1FA99}"} {pitzBalance} Pitz
         </p>
+        {materialUnlockNotice && (
+          <div className="material-unlock-notice material-unlock-notice--mission" aria-live="polite">
+            <p className="material-unlock-notice__message">
+              {MATERIAL_UNLOCK_NOTICE_LEAD_JA}
+              {materialUnlockNotice.namesJa.map((name, i) => (
+                <span key={materialUnlockNotice.ingredientIds[i]} className="material-unlock-notice__name">
+                  {name}
+                  {i < materialUnlockNotice.namesJa.length - 1 ? "・" : ""}
+                </span>
+              ))}
+            </p>
+          </div>
+        )}
         <button type="button" className="secondary-button mission-result__ranking-link" onClick={onShowRanking}>
           {"\u{1F3C6}"} ランキングを見る
         </button>
