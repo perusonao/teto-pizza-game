@@ -1,5 +1,6 @@
 import type { DexEntry } from "../state/dex";
 import { finiteIngredientIds, onboardingRecipeId, productionCatalog, type EditorCatalog } from "./editorCatalog";
+import { buildStarState, starTargetsOf } from "./starStates";
 import { freshEditableState, normalizeEditableState, type EditableState } from "./stateModel";
 
 /**
@@ -30,8 +31,12 @@ export type PresetId =
   | "all-recipes"
   | "everything-unlocked";
 
-export interface PresetDefinition {
-  id: PresetId;
+/** Issue #441: a star-state preset, `stars-<accumulated stars>`. Which ones exist is derived from the ladder's `starGates`. */
+export type StarPresetId = `stars-${number}`;
+export type AnyPresetId = PresetId | StarPresetId;
+
+export interface PresetDefinition<Id extends AnyPresetId = PresetId> {
+  id: Id;
   labelJa: string;
   descriptionJa: string;
 }
@@ -47,6 +52,28 @@ export const PRESETS: readonly PresetDefinition[] = [
   { id: "all-recipes", labelJa: "All Recipes", descriptionJa: "全ピザ発見済み" },
   { id: "everything-unlocked", labelJa: "Everything Unlocked", descriptionJa: "全材料 OWNED + 全ピザ発見済み + 全 Technique" },
 ];
+
+/**
+ * Issue #441: the star-state presets of a catalog's ladder: for each `starGates` threshold, "just below" and "at" it
+ * (production: 119 / 120 / 129 / 130). They are a separate list from PRESETS because which ones exist depends on the
+ * ladder: a catalog with no star gate has none (PRESETS stays the same fixed, catalog-independent list).
+ */
+export function starPresetsOf(catalog: EditorCatalog = productionCatalog()): PresetDefinition<StarPresetId>[] {
+  return starTargetsOf(catalog.ladder).map(({ stars, gate, side }) => ({
+    id: `stars-${stars}` as StarPresetId,
+    labelJa: `⭐${stars}`,
+    descriptionJa:
+      side === "below"
+        ? `累計⭐${stars}（${gate.gate}⭐の1つ手前。ladder step ${gate.step} 到達済み、⭐条件付き材料はまだ解放されない）`
+        : `累計⭐${stars}（${gate.gate}⭐ちょうど。ladder step ${gate.step} 到達済み、⭐条件付き材料が Shop に解放される・未購入）`,
+  }));
+}
+
+export const STAR_PRESETS: readonly PresetDefinition<StarPresetId>[] = starPresetsOf();
+
+function isStarPresetId(id: string): id is StarPresetId {
+  return /^stars-\d+$/.test(id);
+}
 
 function dexEntry(recipeId: string): DexEntry {
   return { recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 };
@@ -89,7 +116,8 @@ function stepContext(catalog: EditorCatalog, step: number): StepContext {
   };
 }
 
-export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCatalog()): EditableState {
+export function buildPreset(id: AnyPresetId, catalog: EditorCatalog = productionCatalog()): EditableState {
+  if (isStarPresetId(id)) return buildStarState(catalog, Number(id.slice("stars-".length)));
   // The authority's default save, with the catalog's own starters (for the production catalog they are the same).
   const starters = [...catalog.starterIds];
   const fresh: EditableState = { ...freshEditableState(), ownedIngredientIds: starters };
@@ -169,7 +197,7 @@ export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCat
 
 /** `buildPreset` for an id that comes from outside (a URL, a list): an unknown id throws. */
 export function buildPresetById(id: string, catalog: EditorCatalog = productionCatalog()): EditableState {
-  const def = PRESETS.find((p) => p.id === id);
+  const def = PRESETS.find((p) => p.id === id) ?? STAR_PRESETS.find((p) => p.id === id);
   if (!def) throw new Error(`unknown preset ${id}`);
   return buildPreset(def.id, catalog);
 }
