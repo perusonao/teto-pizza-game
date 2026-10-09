@@ -31,6 +31,7 @@
  * - Shop purchases the player cannot afford are paid by Margherita replays (grind bakes).
  * - Dex 0 (the Margherita onboarding) is free and never uses the ladder.
  */
+import { replayForGateStars } from "./starGateReplay";
 import { getIngredient } from "../../data/ingredients";
 import { countsTowardLadder, getRecipe, RECIPES, type RecipeId } from "../../data/recipes";
 import { selectHintTarget } from "../discovery/hintTarget";
@@ -223,6 +224,8 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
   }
 
   for (let stageGuard = 0; stageGuard < RECIPES.length + 4; stageGuard += 1) {
+  // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must; see starGateReplay.ts).
+  s = replayForGateStars(s);
     const dexCount = discoveredRecipeIds(s.dex).length;
     // Done when every recipe is discovered. Not "25": with a branching pool the walk may end after
     // more (or in a different order) than a single-path ladder, and the stop must not assume one.

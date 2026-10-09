@@ -149,12 +149,19 @@ describe("Discovery Ladder: Dex discovered count >= step number (exhaustive, shi
     // at least `count + 1` makeable recipes (i.e. one not yet discovered) until all are found.
     // The production pairing: RECIPES (25 since I5b-3) with the production ladder.
     for (let count = 0; count < RECIPES.length; count += 1) {
-      const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(DISCOVERY_LADDER, count)]);
+      // Batch 6 PR-2: with enough cumulative stars for the step 50 / 51 gates (120 / 130); the star-limited case is pinned below.
+      const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(DISCOVERY_LADDER, count, 1000)]);
       const makeable = RECIPES.filter((r) =>
         r.requiredIngredients.every((q) => owned.has(q.ingredientId)),
       );
       expect(makeable.length).toBeGreaterThanOrEqual(count + 1);
     }
+  });
+
+  it("without the stars, exactly the two Batch 6 recipes wait on their gate (the player replays for stars; nothing else is blocked)", () => {
+    const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(DISCOVERY_LADDER, RECIPES.length, 0)]);
+    const blocked = RECIPES.filter((r) => !r.requiredIngredients.every((q) => owned.has(q.ingredientId))).map((r) => r.id);
+    expect(blocked).toEqual(["california-style-pizza", "spinach-artichoke-pizza"]);
   });
 });
 
@@ -426,6 +433,8 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // Discovery 3.0 PR-4a: the branching-pool test support walks the ladder with the real entitlement
       // authority (test-only; nothing in production imports it).
       "./testSupport/branchingFixture.ts",
+      // Batch 6 PR-2: the walk harnesses replay for the star gates of ladder steps 50 / 51 (test-only; nothing in production imports it).
+      "./testSupport/starGateReplay.ts",
       // Recipe Expansion speed-up Phase 1: catalog-derived test seeds and the Recipe Batch Validator read the ladder
       // (test-only; nothing in production imports them).
       "./catalog/testSupport/catalogDerived.ts",

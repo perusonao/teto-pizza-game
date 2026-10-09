@@ -45,11 +45,13 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   it("the production ladder equals the REC-04 key-recipe rule applied append-only to the production recipe data", () => {
     // LAD-1 (OD-W2-1): the W1 steps are frozen; the rule only ever appends after them.
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley), so steps 1-47 are frozen as `fixed`: only steps 48-49 (Expansion Batch 5) are derived.
-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 47) };
+    // parsley), so steps 1-49 are frozen as `fixed`: only steps 50-51 (Batch 6) are derived.
+    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 49) };
     expect(fixed47.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
     const derived = buildAppendOnlyLadder(fixed47, PRODUCTION_POPULATION);
-    expect(DISCOVERY_LADDER).toEqual(derived);
+    // The REC-04 rule derives step/ingredientIds/keyRecipeId only; the Batch 6 `starGates` are authored data, so they are stripped here and pinned separately.
+    const withoutGates = { ...DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.map(({ starGates: _gates, ...step }) => step) };
+    expect(withoutGates).toEqual(derived);
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
   });
 
@@ -121,8 +123,16 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
     expect(makeable(owned).size).toBe(recipes.length);
   });
 
-  it("uses no star gate: steps carry only step/kind/ingredientIds/keyRecipeId", () => {
-    for (const step of [...SHIPPED_15_DISCOVERY_LADDER.steps, ...DISCOVERY_LADDER.steps]) {
+  it("uses star gates only where Issue #420 OD-420-1 assigns them: goat-cheese (step 50, 120 stars) and spinach (step 51, 130 stars)", () => {
+    for (const step of SHIPPED_15_DISCOVERY_LADDER.steps) {
+      expect(Object.keys(step).sort()).toEqual(["ingredientIds", "keyRecipeId", "kind", "step"]);
+    }
+    const gated = DISCOVERY_LADDER.steps.filter((s) => s.starGates !== undefined);
+    expect(gated.map((s) => [s.step, s.ingredientIds, s.starGates])).toEqual([
+      [50, ["avocado", "goat-cheese"], { "goat-cheese": 120 }],
+      [51, ["artichoke", "spinach"], { spinach: 130 }],
+    ]);
+    for (const step of DISCOVERY_LADDER.steps.filter((s) => s.starGates === undefined)) {
       expect(Object.keys(step).sort()).toEqual(["ingredientIds", "keyRecipeId", "kind", "step"]);
     }
   });

@@ -86,6 +86,9 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   // Expansion Batch 5: PIZZA DB evidence ids from the 172 matrix.
   "pizza-bianca-ricotta": "bianca-pizzadb-row",
   "pizza-overload": "pizza-overload-pizzadb-p7",
+  // Batch 6 PR-2: PIZZA DB evidence ids from the 172 matrix.
+  "california-style-pizza": "california-style-pizza-pizzadb-p2",
+  "spinach-artichoke-pizza": "spinach-artichoke-pizza-pizzadb-p4",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };

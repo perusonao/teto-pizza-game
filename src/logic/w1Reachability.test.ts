@@ -19,8 +19,9 @@ const ALL = RECIPES as readonly Recipe[];
 const TOTAL = ALL.length;
 const PRE_W1 = ALL.filter((r) => r.id === "margherita" || r.unlockCondition);
 
+/** Batch 6 PR-2: ★3 per recipe (150 stars at 50 discoveries) meets the 120 / 130 star gates of steps 50 / 51; a ★1-only player replays for stars first (see starGateReplay.ts). */
 function dexOf(ids: readonly string[]): DexState {
-  return ids.map((recipeId): DexEntry => ({ recipeId: recipeId as RecipeId, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }));
+  return ids.map((recipeId): DexEntry => ({ recipeId: recipeId as RecipeId, discovered: true, bestScore: 60, bestStars: 3, timesMade: 1 }));
 }
 
 function makeable(recipes: readonly Recipe[], ledger: readonly string[]): Recipe[] {

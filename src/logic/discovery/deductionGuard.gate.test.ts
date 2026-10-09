@@ -123,7 +123,8 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // Re-measured again at Expansion Batch 2 (45 ingredients: salami / arugula / lemon / salmon join the TOPPINGS; the cheeses do not).
     // Re-measured again at Expansion Batch 4 (55 ingredients: catupiry / jalapeno / feta / sardine join; the hardened `toEqual([])` above held for every state).
     // Re-measured again at Expansion Batch 5 (57 ingredients: ricotta (a cheese) and hot-dog join; the hardened `toEqual([])` above held for every state).
-    expect(dh42aLeaks).toBe(116);
+    // Re-measured again at Batch 6 PR-2 (61 ingredients: avocado / goat-cheese / artichoke / spinach join; the hardened `toEqual([])` above held for every state).
+    expect(dh42aLeaks).toBe(123);
   }, 120_000);
 });
 

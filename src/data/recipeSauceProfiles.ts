@@ -280,6 +280,9 @@ export const RECIPE_SAUCE_PROFILES = {
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Batch 6 PR-2: NO_SAUCE (cheese base, no spread sauce; the existing TQ-1D mechanic).
+  "california-style-pizza": null,
+  "spinach-artichoke-pizza": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */

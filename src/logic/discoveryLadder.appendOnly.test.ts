@@ -110,9 +110,11 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley); steps 1..47 are frozen, so they are fixed and only steps 48-49 (Expansion Batch 5) are derived.
-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 47) };
-    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
+    // parsley); steps 1..49 are frozen, so they are fixed and only steps 50-51 (Batch 6) are derived.
+    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 49) };
+    // `starGates` (Batch 6) are authored data the REC-04 rule does not derive: strip them, they are pinned in discoveryLadder.test.ts.
+    const withoutGates = { ...DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.map(({ starGates: _gates, ...step }) => step) };
+    expect(withoutGates).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
     expect(validateAppendOnlyExtension(fixed47, DISCOVERY_LADDER)).toEqual([]);
   });
 

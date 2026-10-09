@@ -35,6 +35,7 @@
  * Shop purchase is paid by Margherita replays (zero-cost income = `grindBakes`). A hint is never ground for: an
  * unaffordable rung is skipped.
  */
+import { replayForGateStars } from "./starGateReplay";
 import { getIngredient } from "../../data/ingredients";
 import { getRecipe, RECIPES, type RecipeId } from "../../data/recipes";
 import { starsFromTotal } from "../scoring";
@@ -395,6 +396,8 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
   }
 
   for (let stageGuard = 0; stageGuard < 80; stageGuard += 1) {
+  // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must; see starGateReplay.ts).
+  s = replayForGateStars(s);
     const dexIds = discoveredRecipeIds(s.dex);
     if (dexIds.length === RECIPES.length) {
       completed = true;

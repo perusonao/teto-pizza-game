@@ -857,6 +857,46 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** Batch 6 PR-2 (#420): finite ladder material, step 50 (T4), unlocked by the Ladder alone. Family `vegetable`. 🥑 is the real avocado glyph. */
+  {
+    id: "avocado",
+    category: "topping",
+    nameJa: "アボカド",
+    color: "#6f8f3a",
+    emoji: "\u{1F951}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 6 PR-2 (#420): finite ladder material, step 50 (T4), star-gated at 120 cumulative stars (OD-420-1; the gate lives on the Ladder step's `starGates`, NOT on `unlockCondition`, which stays inert like every Ladder material). Cheese category (shared 🧀 convention, told apart by name / colour). */
+  {
+    id: "goat-cheese",
+    category: "cheese",
+    nameJa: "ヤギのチーズ",
+    color: "#f4f1e6",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 6 PR-2 (#420): finite ladder material, step 51 (T4), unlocked by the Ladder alone. Family `vegetable`. 🌱 (Owner-specified; shares the glyph with `rosemary`, told apart by name / colour; Owner HV confirms on Preview). */
+  {
+    id: "artichoke",
+    category: "topping",
+    nameJa: "アーティチョーク",
+    color: "#8a9a5b",
+    emoji: "\u{1F331}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 6 PR-2 (#420): finite ladder material, step 51 (T4), star-gated at 130 cumulative stars (OD-420-1; gate on the Ladder step's `starGates`). Family `vegetable`. 🍃 (Owner-specified; shares the glyph with `oregano`, told apart by name / colour; Owner HV confirms on Preview). */
+  {
+    id: "spinach",
+    category: "topping",
+    nameJa: "ほうれん草",
+    color: "#2f6b2f",
+    emoji: "\u{1F343}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

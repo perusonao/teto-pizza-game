@@ -35,6 +35,7 @@
  *   recorded as an insufficient-Pitz attempt and skipped.
  * - Dex 0 (the Margherita onboarding) hints are free when `onboardingFree` is set (the proposal).
  */
+import { replayForGateStars } from "./starGateReplay";
 import { getIngredient } from "../../data/ingredients";
 import { countsTowardLadder, getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { purchaseDiscoveryHint } from "../discovery/hintPurchase";
@@ -393,6 +394,8 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
   }
 
   for (let stageGuard = 0; stageGuard < RECIPES.length + 4; stageGuard += 1) {
+  // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must; see starGateReplay.ts).
+  s = replayForGateStars(s);
     const dexCount = discoveredRecipeIds(s.dex).length;
     // Done when every recipe is discovered. Not "25": with a branching pool the walk may end after
     // more (or in a different order) than a single-path ladder, and the stop must not assume one.

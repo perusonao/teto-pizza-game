@@ -77,8 +77,8 @@ describe("starGate (Batch 6 PR-1)", () => {
     expect(ladderUnlockedMaterialIds(LADDER, 2, 10)).toEqual(["egg", "avocado", "goat-cheese"]);
   });
 
-  it("leaves the production ladder untouched (no gates yet) and validates gate shape", () => {
-    expect(DISCOVERY_LADDER.steps.some((s) => s.starGates)).toBe(false);
+  it("gates only the two Batch 6 materials in production (OD-420-1) and validates gate shape", () => {
+    expect(DISCOVERY_LADDER.steps.filter((s) => s.starGates).map((s) => s.step)).toEqual([50, 51]);
     expect(validateDiscoveryLadder(LADDER)).toEqual([]);
     const bad: DiscoveryLadder = {
       populationId: "bad",

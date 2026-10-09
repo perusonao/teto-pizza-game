@@ -1,3 +1,4 @@
+import { replayForGateStars } from "../logic/testSupport/starGateReplay";
 import { describe, expect, it, vi } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { getIngredient } from "../data/ingredients";
@@ -98,6 +99,8 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     const records: StageRecord[] = [];
 
     for (let guard = 0; guard < 80; guard += 1) {
+      // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must).
+      s = replayForGateStars(s);
       const dexCount = discoveredRecipeIds(s.dex).length;
       if (dexCount === TOTAL) break;
       const shop: string[] = [];
