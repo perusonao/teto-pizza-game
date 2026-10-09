@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         source: [canonical, main]
-        engine: [webkit, chromium]
+        engine: [webkit]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +45,7 @@ jobs:
           PROBE_OUT: ${{ github.workspace }}/probe-out
         run: >-
           npx playwright test -c tools/webkit-edge-probe/playwright.config.ts
-          --project=${{ matrix.engine }}-390x844 --project=${{ matrix.engine }}-360x800
+          --project=${{ matrix.engine }}-390x844 --project=${{ matrix.engine }}-390x844-dpr3 --project=${{ matrix.engine }}-360x800
       - name: Analyze
         if: always()
         run: |
@@ -58,3 +58,52 @@ jobs:
           name: probe-${{ matrix.source }}-${{ matrix.engine }}
           path: probe-out/
           retention-days: 14
+
+  # Publish a small, quantized subset of the screenshots to a results branch (so they can be fetched with git; the
+  # Actions artifact blob host is not reachable from every environment). Investigation only.
+  publish:
+    name: publish screenshots
+    needs: probe
+    if: always() && needs.probe.result != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: probe-*
+          path: dl
+      - name: Reduce
+        run: |
+          pip install pillow >/dev/null
+          python3 - <<'PY'
+          import glob, os
+          from PIL import Image
+          cases = ["pairVertRight_cross", "pairVertRight_cross_stretch49", "pairVertRightRim_cross_stretch49", "control_three_through_center", "control_three_stretch49"]
+          keep = ["01-cut-after.png", "10-result-asis.png", "10-result-no-filter.png", "10-result-filter-url-only.png", "10-result-no-clip-path.png", "10-result-no-piece-transform.png"]
+          n = 0
+          for src in glob.glob("dl/*/*/*/*.png"):
+              parts = src.split(os.sep)  # dl/<artifact>/<project>/<case>/<file>
+              artifact, project, case, name = parts[1], parts[2], parts[3], parts[4]
+              if case not in cases or name not in keep: continue
+              dst = os.path.join("results", artifact, project, case, name)
+              os.makedirs(os.path.dirname(dst), exist_ok=True)
+              im = Image.open(src).convert("RGB")
+              im.quantize(colors=96).save(dst, optimize=True)
+              n += 1
+          print("kept", n)
+          PY
+          du -sh results
+      - name: Push results branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan claude/probe-results-427
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          git add -f results
+          git commit -q -m "probe results for ${{ github.sha }}"
+          git push -f origin HEAD:claude/probe-results-427

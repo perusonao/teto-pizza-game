@@ -15,6 +15,8 @@ export default defineConfig({
   use: { baseURL: "http://localhost:5190/teto-pizza-game/", trace: "off", video: "off", screenshot: "off" },
   projects: [
     { name: "webkit-390x844", use: { ...devices["Desktop Safari"], viewport: { width: 390, height: 844 } } },
+    // The iPhone's real pixel density (the CI default above is DPR 2); the SVG filter / clip-path raster may differ.
+    { name: "webkit-390x844-dpr3", use: { ...devices["Desktop Safari"], viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 } },
     { name: "webkit-360x800", use: { ...devices["Desktop Safari"], viewport: { width: 360, height: 800 } } },
     { name: "chromium-390x844", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } } },
     { name: "chromium-360x800", use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 800 } } },
