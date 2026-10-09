@@ -18,11 +18,11 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("Expansion Batch 5 is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
+  it("Batch 6 PR-2 is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
     expect(NEXT_RECIPE_BATCH.status).toBe("landed");
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["pizza-bianca-ricotta", "pizza-overload"]);
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["ricotta", "hot-dog"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["california-style-pizza", "spinach-artichoke-pizza"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["goat-cheese", "spinach"]);
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
   });
 });

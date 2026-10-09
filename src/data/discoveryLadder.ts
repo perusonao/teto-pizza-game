@@ -9,7 +9,10 @@ import { appendLadderSteps, type AppendedLadderStep } from "../logic/discoveryLa
  * OD-REC04-1 (CONFIRMED_OWNER_DECISION):
  * - Every new pizza discovery advances the player one **ordered progression step**: step `s` is
  *   reached once the Dex discovered count is `>= s`.
- * - Stars (⭐) are never a material unlock condition.
+ * - Stars (⭐) are never a material unlock condition -- EXCEPT the two materials Issue #420 OD-420-1 gates by
+ *   cumulative stars (Batch 6): goat-cheese (step 50, 120 stars) and spinach (step 51, 130 stars), via a step's
+ *   `starGates`. That exception is limited to those two ingredients and supersedes the earlier 140-star
+ *   Phase-3/4 sketch (`docs/design/TETO_PROGRESSION2_PHASE34_UNLOCKS.md`).
  * - The authority is the ordered step list, not "1 discovery = any one material". Each step has a
  *   `kind`, so later waves can add non-material steps; in W1 every step is `MATERIAL`.
  *
@@ -182,6 +185,10 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   // Steps 48-49 (Expansion Batch 5, T4): one step per recipe. Steps 1-47 frozen.
   { ingredientIds: ["ricotta"], keyRecipeId: "pizza-bianca-ricotta" },
   { ingredientIds: ["hot-dog"], keyRecipeId: "pizza-overload" },
+  // Steps 50-51 (Batch 6, T4; Issue #420 OD-420-1). Steps 1-49 frozen. The second material of each step is star-gated: it unlocks only when the step is reached AND the cumulative Dex BEST stars reach the gate
+  // (never spent, never re-locked; an exception to OD-REC04-1 limited to these two materials, superseding the earlier 140-star Phase-3/4 sketch). The key recipe needs both materials.
+  { ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": 120 }, keyRecipeId: "california-style-pizza" },
+  { ingredientIds: ["artichoke", "spinach"], starGates: { spinach: 130 }, keyRecipeId: "spinach-artichoke-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

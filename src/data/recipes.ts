@@ -1067,6 +1067,41 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "california-style-pizza",
+    nameJa: "カリフォルニアスタイルピザ",
+    description: "ヤギのチーズにトマト、ルッコラ、アボカドをのせた、さっぱり軽やかな一枚。",
+    // Batch 6 PR-2 (Chapter 4; Issue #420). SOURCE AUTHORITY (PIZZA DB `california-style-pizza-pizzadb-p2`, 172 matrix): goat-cheese / fresh-tomato / arugula / avocado, cheese base, no spread sauce. NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient, so no SAUCE step). GAMEPLAY CALIBRATION
+    // (not source): counts goat-cheese 2 / fresh-tomato 2 / arugula 2 / avocado 2, bake 56-76; 8 non-sauce pieces = the 8-slot ring.
+    // Ladder-credited (step 50, key material avocado; goat-cheese is star-gated at 120 so this recipe needs both); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "goat-cheese", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "arugula", minCount: 2 },
+      { ingredientId: "avocado", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "spinach-artichoke-pizza",
+    nameJa: "スピナッチアーティチョークピザ",
+    description: "クリームチーズとモッツァレラ、パルミジャーノに、ほうれん草とアーティチョークをのせた、濃厚な一枚。",
+    // Batch 6 PR-2 (Chapter 4; Issue #420). SOURCE AUTHORITY (PIZZA DB `spinach-artichoke-pizza-pizzadb-p4`, 172 matrix): mozzarella / cream-cheese / parmigiano / spinach / artichoke, cheese base, no spread sauce. NO_SAUCE (the existing TQ-1D mechanic). GAMEPLAY CALIBRATION
+    // (not source): counts mozzarella 2 / cream-cheese 1 / parmigiano 1 / spinach 2 / artichoke 2, bake 54-74; 8 non-sauce pieces = the 8-slot ring.
+    // Ladder-credited (step 51, key material artichoke; spinach is star-gated at 130 so this recipe needs both); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "cream-cheese", minCount: 1 },
+      { ingredientId: "parmigiano", minCount: 1 },
+      { ingredientId: "spinach", minCount: 2 },
+      { ingredientId: "artichoke", minCount: 2 },
+    ],
+    bakeTarget: { start: 54, end: 74 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

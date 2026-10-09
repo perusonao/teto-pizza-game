@@ -123,5 +123,5 @@ describe("W1-f Dex", () => {
         cleanup();
       }
     }
-  });
+  }, 30_000); // Batch 6 PR-2: two more ladder Dex states (steps 50 / 51) took this near the 5 s default
 });

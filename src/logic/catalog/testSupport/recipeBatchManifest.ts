@@ -6,14 +6,14 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** Expansion Batch 5 (51 -> 53 recipes: ricotta / hot-dog key materials): the manifest the validator checks. Batches 1-4 (landed) are covered by the catalog-wide tests. */
+/** Batch 6 PR-2 (53 -> 55 recipes: goat-cheese / spinach are the last-unlocking (star-gated) key materials of steps 50 / 51; avocado / artichoke unlock on the Ladder alone): the manifest the validator checks. Batches 1-5 (landed) are covered by the catalog-wide tests. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
-  batchId: "expansion-batch-8",
+  batchId: "batch-6-pr-2",
   status: "landed",
-  afterRecipeId: "pizza-moscow",
+  afterRecipeId: "pizza-overload",
   recipes: [
-    { recipeId: "pizza-bianca-ricotta", keyIngredientId: "ricotta", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "pizza-overload", keyIngredientId: "hot-dog", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "california-style-pizza", keyIngredientId: "goat-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "spinach-artichoke-pizza", keyIngredientId: "spinach", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
 };
 

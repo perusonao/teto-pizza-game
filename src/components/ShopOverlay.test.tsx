@@ -282,7 +282,7 @@ describe("W1-b: no undiscovered recipe name anywhere in the Shop", () => {
       }
       cleanup();
     }
-  });
+  }, 30_000); // Batch 6 PR-2: two more ladder Dex states (steps 50 / 51) took this near the 5 s default
 
   it("keeps the NEW badge, price, pack and stock semantics", () => {
     renderShop({ unlocked: ["egg"] });

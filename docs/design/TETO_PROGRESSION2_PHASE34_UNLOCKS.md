@@ -2,6 +2,8 @@
 
 Audited `origin/main`: `08b04f8f1c59b8adb38964d4ec3e08e6acb6cbc2`. Generated from the Phase-2 matrix; JSON is authoritative.
 
+> **Superseded in part (Issue #420 OD-420-1, Batch 6):** the 140-star placement of `spinach`, `avocado` and `goat-cheese` below is historical. `goat-cheese` is now Step 50 AND 120 cumulative stars, `spinach` Step 51 AND 130; `avocado` and `artichoke` unlock on the Ladder alone. See `docs/reports/TETO_BATCH-6_PR-2_Result.md`.
+
 ## Verdict
 
 **READY, APPROVED FOR PRODUCTION IMPLEMENTATION.** OD-01 and OD-02 are both APPROVED (Approved by repo owner (perusonao) in PR #196 comment, 2026-09-23.); the matrix is implementation-readable without prose reinterpretation.

@@ -105,4 +105,7 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   // Expansion Batch 5: permanently key-free (no KEY_TOPPING / hintKeyToppingId).
   "pizza-bianca-ricotta": { keyFree: true },
   "pizza-overload": { keyFree: true },
+  // Batch 6 PR-2: permanently key-free.
+  "california-style-pizza": { keyFree: true },
+  "spinach-artichoke-pizza": { keyFree: true },
 };
