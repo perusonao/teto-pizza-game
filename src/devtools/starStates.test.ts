@@ -207,6 +207,21 @@ describe("star presets scale: a synthetic catalog with its own gates", () => {
     expect(buildStarState(c, 149).unlockedForShopIngredientIds).not.toContain("f-39");
   });
 
+  it("buildPresetById resolves a star preset against the SUPPLIED catalog (stars-60 exists only here)", () => {
+    const c = gated();
+    const state = buildPresetById("stars-60", c);
+    expect(state.dex.reduce((n, e) => n + e.bestStars, 0)).toBe(60);
+    expect(state.unlockedForShopIngredientIds).toContain("f-49");
+    expect(buildPresetById("stars-59", c).unlockedForShopIngredientIds).not.toContain("f-49");
+  });
+
+  it("the same catalog rejects the production-only star ids, and production still rejects the synthetic ones", () => {
+    const c = gated();
+    for (const id of ["stars-119", "stars-120", "stars-129", "stars-130"]) expect(() => buildPresetById(id, c), id).toThrow(/unknown preset/);
+    expect(() => buildPresetById("stars-60")).toThrow(/unknown preset/);
+    expect(buildPresetById("stars-120").dex.reduce((n, e) => n + e.bestStars, 0)).toBe(120); // production unchanged
+  });
+
   it("a catalog without gates has no star presets, and building one fails loudly", () => {
     const c = { ...gated(), ladder: { populationId: "none", steps: gated().ladder.steps.map(({ starGates: _g, ...s }) => s) } };
     expect(starPresetsOf(c)).toEqual([]);

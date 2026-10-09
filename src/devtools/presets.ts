@@ -195,9 +195,10 @@ export function buildPreset(id: AnyPresetId, catalog: EditorCatalog = production
   }
 }
 
-/** `buildPreset` for an id that comes from outside (a URL, a list): an unknown id throws. */
+/** `buildPreset` for an id that comes from outside (a URL, a list): an unknown id throws. A star-state id is looked up
+ *  in the SUPPLIED catalog's own star presets (`starPresetsOf(catalog)`), never in the production list. */
 export function buildPresetById(id: string, catalog: EditorCatalog = productionCatalog()): EditableState {
-  const def = PRESETS.find((p) => p.id === id) ?? STAR_PRESETS.find((p) => p.id === id);
+  const def = PRESETS.find((p) => p.id === id) ?? starPresetsOf(catalog).find((p) => p.id === id);
   if (!def) throw new Error(`unknown preset ${id}`);
   return buildPreset(def.id, catalog);
 }
