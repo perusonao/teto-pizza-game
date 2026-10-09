@@ -1,4 +1,4 @@
-# CUT regions (#427 / #426) — Result Report (Preview, awaiting Owner iPhone HV)
+# CUT regions (#427 / #426) — Result Report (Owner iPhone HV PASS)
 
 Branch `claude/cut-regions-427-426`, base `main` `dfe80d2`. No PR yet; **not merged**. Plan and Owner Decisions:
 https://github.com/perusonao/teto-pizza-game/issues/427#issuecomment-6071980595 (Decision 5 = Y, Preview URL query, two-stage HV).
@@ -48,20 +48,34 @@ Boundaries (identical for rotations 0/10/20/30/45°): d = 3.5 → 6, 3.75 → 7;
 Stage 1 (automatic, coordinate-injected) — done, table above. Run it again with
 `npx playwright test -c tools/cut-preview-hv/playwright.config.ts` (builds the real Preview bundle locally).
 
-Stage 2 (Owner, iPhone, Preview URL below):
+Stage 2 — **Owner iPhone HV: PASS** on Preview source `4d88496` (the HEAD that was HV'd; the commit after it is docs only).
 
-1. Check the badge shows the exact short SHA. Make 3 cuts aimed at the centre, 5 times: RESULT should say 6等分 every time and the pizza should look like 6.
-2. Move the 3rd cut a little (less than a finger width): looks like 6 → RESULT 6等分 (before: often 7等分（目標 6等分）).
-3. Move the 3rd cut clearly (a small triangle you can see, ≳ 12 px a side): you see 7 pieces → RESULT 7等分（目標 6等分）.
-4. Two cuts almost on top of each other (#426) plus a third: the thin strip is drawn (no see-through gap); RESULT does not contradict what you see.
-5. A stroke stopped short of the rim: only a groove; RESULT does not count it as a split.
-6. Compare thresholds in one session by adding the query to the Preview URL, e.g. `…/teto-pizza-game-preview/?cutAreaPct=0.20&cutMinWidth=1.0` (also `0.05/0.5`, `0.10/1.0`); the badge shows `CUT x%/yu`. Record which pair feels right and where the ~10-point CUT score step (now at d≈3.55 instead of 0.7) falls — for #288.
-7. Video (390×844) is delivered directly; do not commit it. Screenshots: `docs/reports/screenshots/cut-regions-427-426/` (`before-*` = `main`, `after-*` = this branch, 3 cases × 390 / 360).
+| Case | Result on the iPhone |
+|---|---|
+| Normal 6-way (3 cuts through the centre) | 6等分 · CUT 95 |
+| 7-way (third cut clearly off) | 7等分（目標 6等分） · CUT 81 |
+| Two close cuts + one crossing cut (#426) | 5等分 · CUT 50; **no right-edge clipping** |
+| Stopped stroke (grooves) | 1等分 · CUT 3 |
+
+Scope of this PR beyond `bcee4e5` (the first HV build): `4d88496` adds the straight-only contract (Owner Decision, case B):
+`ADD_CUT_LINE` reduces a multi-point `path` to its first and last point (`normalizeCutLine`, `trace.ts`); the input is never mutated; the rim check,
+cut limit and scoring are unchanged. The legacy 64-sample grid in `pieces.ts` is kept only for a direct pure call with a curved path; a reducer test
+shows the game flow never reaches it (it fails if the normalisation is removed).
+
+### Right-edge clipping seen on `bcee4e5` — cause NOT determined (recorded as such)
+
+On `bcee4e5` the Owner saw the pizza's right end cut off vertically on RESULT after two close cuts + one crossing cut. It did not recur on `4d88496`
+(HV above). A WebKit investigation (Playwright WebKit at DPR 2 and 3, 390×844 / 360×800, 5 hand-picked cases + 40 random right-edge-biased cases,
+layer-by-layer experiments, canonical vs `main` source) **could not reproduce it**, so the cause is unknown and **no rendering change was made**
+(`PizzaStage.tsx` / `App.css` untouched). Region coverage was checked separately (1920 close-pair + crossing configurations: 0% uncovered area).
+The automatic missing-area detector had limited sensitivity, so this is "not reproduced", not "ruled out". Investigation branches (not for merge):
+`claude/webkit-edge-probe-427`, `claude/webkit-edge-search-427`. No further investigation is planned (Owner decision).
 
 ## Risks / not done
 
 - Thresholds (0.1% / 1.0 u) are initial; they are tuned on the device, not by tests. The score step at the 6↔7 boundary (~10 points) remains; making it continuous is #288.
 - Regions stay on the ideal circle; irregular dough is #429. `isThroughCut(line, shape)` is shared, so the through set agrees with the drawing for every silhouette.
 - Pieces are drawn per region (each copies the pizza layers): up to 16 regions for 5 cuts, as before; a tiny region costs one more copy.
+- WebKit CI: a manual run on `4d88496` (run 622) failed twice on one unrelated test, `e2e/cooking-tray-family-expanded.spec.ts:166` (ingredient-tray chip row `scrollLeft`: 341 vs 0 at 390×664, then 1 vs 0 at 390×844); the same spec passed on `f85d160`. It does not touch CUT. The PR run is the authority.
 - WebKit: the pointer position may round to whole pixels there; the dev-server E2E uses generous margins (nothing within ~1 u of a boundary).
 - Not in scope / untouched: #417, #429, #288 duplicate-line handling, scoring / save / economy.
