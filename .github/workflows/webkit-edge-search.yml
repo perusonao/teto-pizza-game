@@ -1,0 +1,53 @@
+name: WebKit edge search (#427 investigation)
+
+# Investigation only (never merged): searches for the RESULT right-edge clipping seen on iPhone after
+# "two close cuts + one crossing cut" on WebKit and Chromium, at 390x844 and 360x800, for the product source as
+# checked out (canonical CUT branch) and for main's src (overlay), and uploads screenshots + layer experiments.
+# Triggered by pushes to claude/webkit-edge-search-* only (a push runs the workflow file of the pushed commit).
+
+on:
+  push:
+    branches: ["claude/webkit-edge-search-*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  search:
+    name: search canonical / webkit dpr3
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install WebKit
+        run: npx playwright install --with-deps webkit
+      - name: Random search
+        env:
+          PROBE_OUT: ${{ github.workspace }}/search-out
+          SEARCH_COUNT: "40"
+        run: npx playwright test -c tools/webkit-edge-probe/playwright.config.ts --project=webkit-390x844-dpr3 search.spec.ts --workers=3
+      - name: Analyze
+        if: always()
+        run: |
+          pip install pillow numpy >/dev/null
+          python3 tools/webkit-edge-probe/search-analyze.py search-out results | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Push worst cases to a results branch
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan claude/search-results-427
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          git add -f results
+          git commit -q -m "search results for ${{ github.sha }}"
+          git push -f origin HEAD:claude/search-results-427
