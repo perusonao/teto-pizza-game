@@ -469,17 +469,19 @@ test.describe("I5b-5 Layout Contract", () => {
     await page.getByRole("button", { name: /ホーム/ }).click();
     await page.locator(".home-menu__card").filter({ hasText: "ショップ" }).click();
     await page.waitForSelector(".shop-overlay__list");
-    // The Shop list scrolls inside `.dex-overlay__body` (its bottom padding includes the inset):
-    // scroll it to its very end, then the last row's button must be fully reachable (L-A).
+    // The Shop list scrolls inside `.dex-overlay__body` (its bottom padding includes the inset). #422 PR-B
+    // appends the anonymous LOCKED grid below the list, so the very end of the body is no longer the last
+    // NEW / OWNED row: scroll that last row to the middle of the view instead, and its button must be fully reachable (L-A).
+    // The LOCKED section's own end is covered by e2e/shop-locked-422.spec.ts.
     const lastBuy = ".shop-overlay__list > :last-child .shop-item__buy button";
-    await lc.checkpoint({ label: "Shop last row (list scrolled to end)", meta: { screen: "SHOP" } }, ["L-A", "L-D", "L-I"], {
+    await lc.checkpoint({ label: "Shop last row (scrolled to view middle)", meta: { screen: "SHOP" } }, ["L-A", "L-D", "L-I"], {
       primary: lastBuy,
       header: ".dex-overlay__header",
       headerControls: ".dex-overlay__close",
       bottomControls: ":not(*)",
     }, mount, {
       beforeMeasure: async () => {
-        await page.locator(".dex-overlay__body").evaluate((el) => el.scrollTo(0, el.scrollHeight));
+        await page.locator(".shop-overlay__list > :last-child").evaluate((el) => el.scrollIntoView({ block: "center" }));
       },
     });
   });

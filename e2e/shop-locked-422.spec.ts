@@ -89,6 +89,17 @@ test.describe("Shop LOCKED section (#422 PR-B)", () => {
     await shot(page, "after-end");
   });
 
+  test("the Shop close button is at least 44x44 and closes the Shop", async ({ page }) => {
+    await openShop(page, save(["egg"], []));
+    const close = page.locator(".shop-overlay__panel .dex-overlay__close");
+    const box = (await close.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+    await close.click();
+    await expect(page.locator(".shop-overlay__body")).toHaveCount(0);
+  });
+
   test("the category tabs do not affect the LOCKED section", async ({ page }) => {
     await openShop(page, save(["egg", "bacon", "ham"], []));
     const before = await page.locator(".shop-locked__cell").count();
