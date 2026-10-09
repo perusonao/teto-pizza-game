@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDiameterCutLine, createIdealSliceFixtureLines } from "./fixtures";
+import { createDiameterCutLine, createGrooveCutLine, createIdealSliceFixtureLines } from "./fixtures";
 import { addCutLine, createCutState, evaluateCutState, resetCutState } from "./state";
 
 describe("createCutState", () => {
@@ -86,3 +86,13 @@ describe("evaluateCutState (evaluation refresh)", () => {
     expect(state.evaluation?.actualPieceCount).toBe(4);
   });
 });
+
+describe("evaluateCutState passes the dough silhouette to the evaluation (#427: the through test must match the drawing)", () => {
+  it("a stroke 14 u short of the rim reached the edge of a dough shrunk to radius 36, but not of the ideal one", () => {
+    const lines = [createDiameterCutLine(0), createDiameterCutLine(90), createGrooveCutLine(45, 14)];
+    const state = lines.reduce(addCutLine, createCutState());
+    expect(evaluateCutState(state).evaluation!.actualPieceCount).toBe(4);
+    expect(evaluateCutState(state, { radii: new Array(8).fill(36) }).evaluation!.actualPieceCount).toBe(6);
+  });
+});
+

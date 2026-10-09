@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
+import { createChordCutLine, createGrooveCutLine } from "./fixtures";
 import { buildSidePolygons, computePieceLayout, placeTopping, sidesAt } from "./pieces";
+import { computeCutRegions, isSignificantRegion } from "./regions";
+import { evaluateCut } from "./evaluation";
 import type { CutLine } from "./types";
 
 const C = DOUGH_CENTER;
@@ -121,5 +124,85 @@ describe("traced (curved) cuts: the piece boundary is the finger's path", () => 
     const three = computePieceLayout([first, second, third], shape)!;
     expect(three.cuts[0].sideA).toEqual(one.cuts[0].sideA);
     expect(three.cuts[0].sideB).toEqual(one.cuts[0].sideB);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// #426: every region that exists is drawn, however small; never a sample-grid miss
+// ---------------------------------------------------------------------------------------------
+describe("computePieceLayout draws every exact region (#426)", () => {
+  const pieceCount = (lines: CutLine[]) => computePieceLayout(lines, shape)!.pieces.length;
+
+  it.each([0.25, 0.5, 1, 3])("two parallel cuts %s u apart: 3 pieces (the strip is drawn; it used to vanish at 0.5)", (gap) => {
+    expect(pieceCount([createChordCutLine(0, 0), createChordCutLine(0, gap)])).toBe(3);
+  });
+
+  it("two cuts crossing at 1 degree: 4 pieces, the thin wedges included", () => {
+    expect(pieceCount([createChordCutLine(0, 0), createChordCutLine(1, 0)])).toBe(4);
+  });
+
+  it.each([
+    [1, 1],
+    [0.5, 0.5],
+  ])("three parallel cuts, gaps %s / %s: 4 pieces (was 3)", (g1, g2) => {
+    expect(pieceCount([createChordCutLine(0, -g1), createChordCutLine(0, 0), createChordCutLine(0, g2)])).toBe(4);
+  });
+
+  it("three nearly concurrent cuts: the tiny centre triangle is drawn (7 pieces)", () => {
+    for (const d of [0.25, 1, 3, 6]) {
+      expect(pieceCount([createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, d)])).toBe(7);
+    }
+    expect(pieceCount([createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, 0)])).toBe(6);
+  });
+
+  it("every piece has a distinct side combination, a centroid inside the pizza, and area-based bookkeeping", () => {
+    const lines = [createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, 1)];
+    const layout = computePieceLayout(lines, shape)!;
+    const keys = layout.pieces.map((p) => p.sides.join(","));
+    expect(new Set(keys).size).toBe(layout.pieces.length);
+    for (const p of layout.pieces) {
+      expect(Math.hypot(p.centroid.x - C, p.centroid.y - C)).toBeLessThan(R);
+      expect(p.sampleCount).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("the pieces are exactly the regions of the through cuts: a groove adds none (grooves stay grooves)", () => {
+    const through = [createChordCutLine(0), createChordCutLine(90)];
+    const groove = createGrooveCutLine(45, 14);
+    expect(pieceCount([...through, groove])).toBe(4);
+    expect(computePieceLayout([groove], shape)).toBeNull();
+  });
+
+  it("placeTopping resolves a topping inside a tiny piece and never drops it", () => {
+    const lines = [createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, 1)];
+    const layout = computePieceLayout(lines, shape)!;
+    const tiny = layout.pieces.reduce((a, b) => (a.sampleCount <= b.sampleCount ? a : b));
+    const placement = placeTopping(layout, tiny.centroid.x, tiny.centroid.y);
+    expect(layout.pieces[placement.home]).toBe(tiny);
+    const away = placeTopping(layout, C + 30, C - 30);
+    expect(away.home).toBeGreaterThanOrEqual(0);
+  });
+
+  it("drawn pieces minus counted pieces = the regions that are not significant", () => {
+    const cases: CutLine[][] = [
+      [createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, 1)],
+      [createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, 6)],
+      [createChordCutLine(0, 0), createChordCutLine(0, 0.5)],
+      [createChordCutLine(0, 0), createChordCutLine(1.15, 0)],
+      [createChordCutLine(0, -0.5), createChordCutLine(0, 0), createChordCutLine(0, 0.5)],
+    ];
+    for (const lines of cases) {
+      const drawn = computePieceLayout(lines, shape)!.pieces.length;
+      const regions = computeCutRegions(lines);
+      const notSignificant = regions.filter((r) => !isSignificantRegion(r)).length;
+      expect(drawn).toBe(regions.length);
+      expect(drawn - evaluateCut(lines).actualPieceCount).toBe(notSignificant);
+    }
+  });
+
+  it("a curved traced path still splits along its own path (the old sample grid remains for it only)", () => {
+    const path = [{ x: C - R, y: C }, { x: C, y: C - 25 }, { x: C + R, y: C }];
+    const layout = computePieceLayout([{ start: path[0], end: path[2], path }], shape)!;
+    expect(layout.pieces).toHaveLength(2);
   });
 });

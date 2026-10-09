@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { createDiameterCutLine, createIdealSliceFixtureLines } from "./fixtures";
+import { createChordCutLine, createDiameterCutLine, createGrooveCutLine, createIdealSliceFixtureLines } from "./fixtures";
 import { CUT_SCORE_WEIGHTS, evaluateCut, requiredCutCount } from "./evaluation";
+import { createIdealDoughShape } from "../doughShape";
 import type { CutLine } from "./types";
 
 function expectAllFinite(evaluation: ReturnType<typeof evaluateCut>): void {
@@ -206,5 +207,146 @@ describe("evaluateCut -- boundary case: chord tangent to the rim", () => {
     const evaluation = evaluateCut([tangentLike], { requestedSliceCount: 6 });
     expectAllFinite(evaluation);
     expect(evaluation.centerAccuracy).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// #427 / #426: exact regions, significant pieces only, through cuts only
+// ---------------------------------------------------------------------------------------------
+describe("evaluateCut -- the centre triangle of three nearly concurrent cuts (#427)", () => {
+  const triangle = (d: number): CutLine[] => [createChordCutLine(0), createChordCutLine(60), createChordCutLine(120, d)];
+
+  it("a tiny triangle (d=1) is no 7th slice: still 6 pieces, and pieceAreas agrees", () => {
+    const evaluation = evaluateCut(triangle(1));
+    expect(evaluation.actualPieceCount).toBe(6);
+    expect(evaluation.pieceAreas).toHaveLength(6);
+    expect(evaluation.countCorrectness).toBe(1);
+    expect(evaluation.cutScore).toBeGreaterThan(98);
+  });
+
+  it("a clear triangle (d=6) is a 7th piece -- RESULT may say 7等分 (目標 6等分)", () => {
+    const evaluation = evaluateCut(triangle(6));
+    expect(evaluation.actualPieceCount).toBe(7);
+    expect(evaluation.pieceAreas).toHaveLength(7);
+    expect(evaluation.requestedSliceCount).toBe(6);
+    expect(evaluation.countCorrectness).toBeCloseTo(1 - 1 / 6, 10);
+  });
+
+  it("the boundary is the same on both sides for every rotation: 3.5 -> 6, 3.75 -> 7", () => {
+    for (const angle of [0, 10, 20, 30, 45]) {
+      const at = (d: number) =>
+        evaluateCut([createChordCutLine(angle), createChordCutLine(angle + 60), createChordCutLine(angle + 120, d)]);
+      expect(at(3.5).actualPieceCount).toBe(6);
+      expect(at(3.75).actualPieceCount).toBe(7);
+    }
+  });
+
+  it("the score no longer steps at d~0.7 (it jumped ~10 points with the sampling grid): smooth from 0 to 3.5", () => {
+    let previous = evaluateCut(triangle(0)).cutScore;
+    for (let d = 0.05; d <= 3.5; d += 0.05) {
+      const score = evaluateCut(triangle(d)).cutScore;
+      expect(Math.abs(score - previous), `step at d=${d.toFixed(2)}`).toBeLessThan(0.3);
+      previous = score;
+    }
+  });
+
+  it("a perfectly concentric 6-slice is 100 within the polygon's own rounding", () => {
+    const evaluation = evaluateCut([...createIdealSliceFixtureLines(6)]);
+    expect(evaluation.actualPieceCount).toBe(6);
+    expect(evaluation.cutScore).toBeCloseTo(100, 2);
+  });
+});
+
+describe("evaluateCut -- a requested slice count of 4 / 8 uses the same significance (the predicate has no slice input)", () => {
+  it("4 and 8 slices: tiny extra region ignored, the ideal fixture exact", () => {
+    expect(evaluateCut([...createIdealSliceFixtureLines(4)], { requestedSliceCount: 4 }).actualPieceCount).toBe(4);
+    expect(evaluateCut([...createIdealSliceFixtureLines(8)], { requestedSliceCount: 8 }).actualPieceCount).toBe(8);
+    const nearlyConcurrent4 = [createChordCutLine(0), createChordCutLine(45), createChordCutLine(90), createChordCutLine(135, 1)];
+    expect(evaluateCut(nearlyConcurrent4, { requestedSliceCount: 8 }).actualPieceCount).toBe(8);
+  });
+});
+
+describe("evaluateCut -- two near-parallel cuts (#426): the strip counts only when it is wide enough", () => {
+  it("a 0.45 u gap: 2 pieces; a 0.55 u gap: 3", () => {
+    expect(evaluateCut([createChordCutLine(0), createChordCutLine(0, 0.45)]).actualPieceCount).toBe(2);
+    expect(evaluateCut([createChordCutLine(0), createChordCutLine(0, 0.55)]).actualPieceCount).toBe(3);
+  });
+});
+
+describe("evaluateCut -- through cuts only split the pizza and fill completeness / centre (Decision 5 = Y)", () => {
+  const grooves = [createGrooveCutLine(0, 20), createGrooveCutLine(60, 20), createGrooveCutLine(120, 20)];
+
+  it("three grooves toward the centre cut nothing: 1 piece, completeness 0, centre 0, score 3.3 (was 100)", () => {
+    const evaluation = evaluateCut(grooves);
+    expect(evaluation.actualPieceCount).toBe(1);
+    expect(evaluation.completeness).toBe(0);
+    expect(evaluation.centerAccuracy).toBe(0);
+    expect(evaluation.uniformity).toBe(0);
+    expect(evaluation.cutScore).toBeCloseTo(3.33, 1);
+    expect(evaluation.completedCutCount).toBe(3); // the display still counts every committed line
+  });
+
+  it("two through cuts: 61.7; adding a groove adds NOTHING (it used to inflate completeness to 68.3)", () => {
+    const two = [createDiameterCutLine(0), createDiameterCutLine(60)];
+    const base = evaluateCut(two);
+    expect(base.cutScore).toBeCloseTo(61.7, 1);
+    const withGroove = evaluateCut([...two, grooves[2]]);
+    expect(withGroove.cutScore).toBeCloseTo(base.cutScore, 6);
+    expect(withGroove.completeness).toBeCloseTo(base.completeness, 10);
+    expect(withGroove.completedCutCount).toBe(3);
+    expect(base.completedCutCount).toBe(2);
+  });
+
+  it("grooves do not dilute the centre error either (3 off-centre through cuts with and without 2 grooves)", () => {
+    const through = [createChordCutLine(0, 20), createChordCutLine(60, 0), createChordCutLine(120, 0)];
+    const plain = evaluateCut(through);
+    const withGrooves = evaluateCut([...through, grooves[0], grooves[1]]);
+    expect(withGrooves.centerAccuracy).toBeCloseTo(plain.centerAccuracy, 10);
+    expect(withGrooves.cutScore).toBeCloseTo(plain.cutScore, 6);
+  });
+
+  it("a groove among real cuts never becomes a region", () => {
+    const lines = [createDiameterCutLine(0), grooves[1], createDiameterCutLine(90)];
+    expect(evaluateCut(lines).actualPieceCount).toBe(4);
+  });
+
+  it.each([
+    [5.5, true],
+    [6, true],
+    [6.5, false],
+    [8, false],
+  ])("a third stroke stopping %s u short of the rim: through = %s (the crust width is 6)", (k, through) => {
+    const lines = [createDiameterCutLine(0), createDiameterCutLine(90), createGrooveCutLine(45, k)];
+    // A through 3rd cut makes 6 regions; a groove leaves 4.
+    expect(evaluateCut(lines).actualPieceCount).toBe(through ? 6 : 4);
+  });
+});
+
+describe("evaluateCut -- known remaining overcount: a duplicated through cut (tracked in #288, not changed here)", () => {
+  it("the same through cut laid over again still counts for completeness (68.3 vs 61.7)", () => {
+    const two = [createDiameterCutLine(0), createDiameterCutLine(60)];
+    const doubled = evaluateCut([...two, createDiameterCutLine(60)]);
+    expect(doubled.actualPieceCount).toBe(4);
+    expect(doubled.completeness).toBe(1);
+    expect(doubled.cutScore).toBeCloseTo(68.3, 1);
+  });
+});
+
+describe("evaluateCut -- order independence and the dough silhouette (through test only)", () => {
+  it("reordering the lines changes nothing", () => {
+    const lines = [createChordCutLine(10, 4), createChordCutLine(70, -3), createChordCutLine(130, 8), createGrooveCutLine(40, 15)];
+    const a = evaluateCut(lines);
+    const b = evaluateCut([...lines].reverse());
+    expect(b.actualPieceCount).toBe(a.actualPieceCount);
+    expect(b.cutScore).toBeCloseTo(a.cutScore, 6);
+  });
+
+  it("an ideal-circle silhouette gives the same answer as none; a shrunken one only changes which strokes reached the edge", () => {
+    const lines = [createDiameterCutLine(0), createDiameterCutLine(60), createGrooveCutLine(120, 14)];
+    expect(evaluateCut(lines, undefined, createIdealDoughShape()).cutScore).toBeCloseTo(evaluateCut(lines).cutScore, 10);
+    // On a dough shrunk to radius 36, a stroke ending 14 u inside the IDEAL rim (34 from the centre) reached its edge.
+    const shrunk = { radii: new Array(8).fill(36) };
+    expect(evaluateCut(lines, undefined, shrunk).actualPieceCount).toBe(6);
+    expect(evaluateCut(lines).actualPieceCount).toBe(4);
   });
 });

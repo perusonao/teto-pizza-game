@@ -14,6 +14,7 @@
  * Never persisted: no `PersistentSaveV2` field, no `CURRENT_SCHEMA_VERSION` involvement, exactly
  * as transient as `sauceDeposits`/`toppings` already are (design doc §10).
  */
+import type { DoughShape } from "../doughShape";
 import { DEFAULT_CUT_CONFIG, type CutConfig, type CutEvaluation, type CutLine } from "./types";
 import { evaluateCut } from "./evaluation";
 
@@ -47,10 +48,10 @@ export function resetCutState(state: CutState): CutState {
   return { config: state.config, lines: [], evaluation: null };
 }
 
-/** Computes `evaluateCut(state.lines, state.config)` and stores it as `evaluation` -- the CUT
+/** Computes `evaluateCut(state.lines, state.config, shape)` and stores it as `evaluation` -- the CUT
  *  step's own confirm action calls this exactly once per attempt (design doc §11). Safe to call
  *  with zero lines (returns the same defined, non-`NaN` worst-case result `evaluateCut` always
  *  produces for an empty `lines` array). */
-export function evaluateCutState(state: CutState): CutState {
-  return { ...state, evaluation: evaluateCut(state.lines, state.config) };
+export function evaluateCutState(state: CutState, shape?: DoughShape): CutState {
+  return { ...state, evaluation: evaluateCut(state.lines, state.config, shape) };
 }

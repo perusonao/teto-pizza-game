@@ -1,7 +1,14 @@
-import type { CutEvaluation } from "../logic/cut/types";
+import type { DoughShape } from "../logic/doughShape";
+import { isThroughCut } from "../logic/cut/cutVisual";
+import { computeCutRegions, getCutSignificanceThresholds, isSignificantRegion } from "../logic/cut/regions";
+import type { CutEvaluation, CutLine } from "../logic/cut/types";
 
 interface CutDebugPanelProps {
   evaluation: CutEvaluation | null;
+  /** #427: with the committed lines (and the dough silhouette the through test uses) the panel also shows how many regions
+   *  exist and how many of them are significant (the pieces the evaluation counts). */
+  lines?: readonly CutLine[];
+  shape?: DoughShape;
 }
 
 function round(value: number): number {
@@ -20,9 +27,13 @@ function round(value: number): number {
  * `.cut-evaluation-summary` (ResultPanel.tsx) never will; that one only ever shows the three
  * signals the design doc's own RESULT UI section calls for, as rounded 0-100 percentages/points.
  */
-export function CutDebugPanel({ evaluation }: CutDebugPanelProps) {
+export function CutDebugPanel({ evaluation, lines, shape }: CutDebugPanelProps) {
   if (!import.meta.env.VITE_PREVIEW_MODE) return null;
   if (!evaluation) return null;
+
+  const thresholds = getCutSignificanceThresholds();
+  const regions = lines ? computeCutRegions(lines.filter((line) => isThroughCut(line, shape))) : null;
+  const significant = regions ? regions.filter((region) => isSignificantRegion(region, thresholds)).length : null;
 
   return (
     <div className="cut-debug-panel">
@@ -33,6 +44,14 @@ export function CutDebugPanel({ evaluation }: CutDebugPanelProps) {
           分割 {evaluation.actualPieceCount}/{evaluation.requestedSliceCount}
         </span>
         <span className="cut-debug-panel__chip">本数 {evaluation.completedCutCount}</span>
+        {regions && (
+          <span className="cut-debug-panel__chip">
+            全領域 {regions.length} / 有意 {significant}
+          </span>
+        )}
+        <span className="cut-debug-panel__chip">
+          閾値 {(thresholds.areaFraction * 100).toFixed(2)}% / {thresholds.minWidth.toFixed(1)}u
+        </span>
         <span className="cut-debug-panel__chip">count {round(evaluation.countCorrectness * 100)}%</span>
         <span className="cut-debug-panel__chip">complete {round(evaluation.completeness * 100)}%</span>
         <span className="cut-debug-panel__chip">center {round(evaluation.centerAccuracy * 100)}%</span>

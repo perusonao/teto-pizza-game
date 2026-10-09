@@ -1055,7 +1055,7 @@ export function GameScreen({
           for every non-CUT recipe and any round that hasn't confirmed CUT yet, so this
           renders nothing then (CutDebugPanel.tsx's own guard). */}
       {(isFreeResultScreen || (state.phase === "RESULT" && isMissionPlaying)) && (
-        <CutDebugPanel evaluation={state.cutState.evaluation} />
+        <CutDebugPanel evaluation={state.cutState.evaluation} lines={state.cutState.lines} shape={state.pizza.doughShape} />
       )}
 
       {dinnerRun && !dinnerPlaying && dinnerUi && (

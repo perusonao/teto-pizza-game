@@ -1124,7 +1124,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         const required = requiredCutCount(resolveRequestedSliceCount(state.cutState.config));
         if (state.cutState.lines.length < required) return state;
       }
-      const cutState = isConfirmingCut ? evaluateCutState(state.cutState) : state.cutState;
+      const cutState = isConfirmingCut ? evaluateCutState(state.cutState, state.pizza.doughShape) : state.cutState;
       if (state.phase === "POST_BAKE" && currentIndex === steps.length - 1) {
         return {
           ...state,
