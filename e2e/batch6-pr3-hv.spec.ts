@@ -20,7 +20,20 @@ const OUT = process.env.HV_OUT_DIR;
 const [VW, VH] = (process.env.HV_VIDEO_SIZE ?? "").split("x").map(Number);
 test.use({ video: VW && VH ? { mode: "on", size: { width: VW, height: VH } } : "on" });
 
-const hold = (page: Page, ms = 1800) => page.waitForTimeout(ms);
+/**
+ * Hold a screen for `ms`. Playwright's screencast only emits a frame when the page repaints, so a perfectly still screen (a result
+ * overlay, a Shop list) can collapse to ~0s in the recording. An invisible repaint (a 1/255 background flip, test-only, never touches
+ * the game's DOM structure or state) every 100ms keeps frames coming so the hold lasts as long on video as it does on the clock.
+ */
+async function hold(page: Page, ms = 1800) {
+  const end = Date.now() + ms;
+  let n = 0;
+  while (Date.now() < end) {
+    await page.evaluate((i) => { document.documentElement.style.backgroundColor = i % 2 ? "#fffffe" : "#ffffff"; }, n++);
+    await page.waitForTimeout(100);
+  }
+  await page.evaluate(() => { document.documentElement.style.backgroundColor = ""; });
+}
 async function shot(page: Page, name: string, project: string) {
   if (!OUT) return;
   mkdirSync(OUT, { recursive: true });
