@@ -12,14 +12,12 @@
 import type { DoughShape } from "../doughShape";
 import { DOUGH_CENTER, type DoughPoint } from "../pizzaCoordinates";
 import { buildCutVisual, rayToRadius } from "./cutVisual";
+import { computeRegions, polygonCentroid } from "./regions";
 import type { CutLine } from "./types";
 
 /** Radius of the huge disk the side polygons are closed on (far outside the pizza). */
 const BIG_RADIUS = 400;
 const ARC_STEP_RADIANS = (12 * Math.PI) / 180;
-/** Grid used to find which side combinations really contain pizza (dough-percent per axis). */
-const SAMPLE_GRID = 64;
-const SAMPLE_RADIUS = 51;
 /** A toppings' reach, used to decide which neighbouring pieces also show a sliced topping's half. */
 export const TOPPING_REACH = 5;
 /** Pieces whose centroid is this close to the pizza centre are not pushed in any direction. */
@@ -39,6 +37,7 @@ export interface PizzaPiece {
   readonly centroid: DoughPoint;
   /** Unit vector from the pizza centre towards the piece (zero for a piece around the centre). */
   readonly outward: DoughPoint;
+  /** Region area in dough-percent^2, rounded (was a grid sample count before #427). */
   readonly sampleCount: number;
 }
 
@@ -113,33 +112,23 @@ export function computePieceLayout(lines: readonly CutLine[], shape?: DoughShape
   });
   if (cuts.length === 0) return null;
 
-  const groups = new Map<string, { sides: boolean[]; sx: number; sy: number; n: number }>();
-  const step = (SAMPLE_RADIUS * 2) / SAMPLE_GRID;
-  for (let row = 0; row < SAMPLE_GRID; row += 1) {
-    const y = DOUGH_CENTER - SAMPLE_RADIUS + (row + 0.5) * step;
-    for (let col = 0; col < SAMPLE_GRID; col += 1) {
-      const x = DOUGH_CENTER - SAMPLE_RADIUS + (col + 0.5) * step;
-      if (Math.hypot(x - DOUGH_CENTER, y - DOUGH_CENTER) > SAMPLE_RADIUS) continue;
-      const sides = sidesAt({ cuts }, x, y);
-      const key = keyOf(sides);
-      const g = groups.get(key);
-      if (g) {
-        g.sx += x;
-        g.sy += y;
-        g.n += 1;
-      } else {
-        groups.set(key, { sides, sx: x, sy: y, n: 1 });
-      }
-    }
-  }
-
-  const pieces: PizzaPiece[] = [...groups.values()].map((g) => {
-    const centroid = { x: g.sx / g.n, y: g.sy / g.n };
+  // One piece per geometrically existing region (slivers included: they are drawn even when too small to
+  // count as a piece in scoring). Each region is keyed by the sides at its centroid -- convex, so the
+  // centroid is inside -- which is exactly what the renderer's nested clips and `placeTopping` read.
+  const throughLines = cuts.map((c) => lines[c.lineIndex]);
+  const seen = new Set<string>();
+  const pieces: PizzaPiece[] = [];
+  for (const region of computeRegions(throughLines)) {
+    const centroid = polygonCentroid(region.polygon);
+    const sides = sidesAt({ cuts }, centroid.x, centroid.y);
+    const key = keyOf(sides);
+    if (seen.has(key)) continue;
+    seen.add(key);
     const dx = centroid.x - DOUGH_CENTER;
     const dy = centroid.y - DOUGH_CENTER;
     const outward = Math.hypot(dx, dy) < MIN_CENTROID_OFFSET ? { x: 0, y: 0 } : unit(dx, dy);
-    return { sides: g.sides, centroid, outward, sampleCount: g.n };
-  });
+    pieces.push({ sides, centroid, outward, sampleCount: Math.max(1, Math.round(region.area)) });
+  }
   return { cuts, pieces };
 }
 

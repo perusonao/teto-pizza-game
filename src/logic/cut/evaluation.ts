@@ -12,7 +12,10 @@
  * *computes* a score, never gates anything).
  */
 import { DOUGH_RADIUS } from "../pizzaCoordinates";
-import { CIRCLE_AREA, computePieceAreas, perpendicularDistanceFromCenter } from "./geometry";
+import type { DoughShape } from "../doughShape";
+import { isThroughCut } from "./cutVisual";
+import { CIRCLE_AREA, perpendicularDistanceFromCenter } from "./geometry";
+import { computeRegions, significantRegions } from "./regions";
 import {
   resolveRequestedSliceCount,
   type CutConfig,
@@ -99,6 +102,11 @@ function uniformityOf(pieceAreas: readonly number[], requestedSliceCount: number
 }
 
 /**
+ * #427 / #426: only *through* cuts (`isThroughCut(line, shape)`, the same test the renderer uses) split the
+ * pizza, and only *significant* regions (./regions.ts) count as pieces, so `actualPieceCount` matches what
+ * the player sees. A partial stroke (a groove) is not a split and does not raise `completeness` or dilute
+ * `centerAccuracy`; `completedCutCount` still counts every committed line. Duplicate lines are not excluded (#288).
+ *
  * Computes all four evaluation signals plus the standalone preview `cutScore`, once, from
  * `lines`/`config` alone -- mirrors `computeScoringV2`'s own "one call site, computed from the
  * exact canonical data that was just committed" contract (design doc §5's closing paragraph).
@@ -109,15 +117,17 @@ function uniformityOf(pieceAreas: readonly number[], requestedSliceCount: number
 export function evaluateCut(
   lines: readonly CutLine[],
   config: CutConfig | undefined = undefined,
+  shape: DoughShape | undefined = undefined,
 ): CutEvaluation {
   const requestedSliceCount = resolveRequestedSliceCount(config);
-  const pieceAreas = computePieceAreas(lines);
+  const throughLines = lines.filter((line) => isThroughCut(line, shape));
+  const pieceAreas = significantRegions(computeRegions(throughLines)).map((r) => r.area);
   const actualPieceCount = pieceAreas.length;
   const completedCutCount = lines.length;
 
   const countCorrectness = countCorrectnessOf(actualPieceCount, requestedSliceCount);
-  const completeness = completenessOf(completedCutCount, requestedSliceCount);
-  const centerAccuracy = centerAccuracyOf(lines);
+  const completeness = completenessOf(throughLines.length, requestedSliceCount);
+  const centerAccuracy = centerAccuracyOf(throughLines);
   const uniformity = uniformityOf(pieceAreas, requestedSliceCount);
 
   const cutScore =

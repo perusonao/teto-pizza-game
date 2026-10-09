@@ -1,6 +1,10 @@
+import { getSignificanceThresholds } from "../logic/cut/regions";
+import { cutThresholdBadgeLabel } from "../preview/cutThresholdPreview";
 import { LC_HAND_PREVIEW_CAPACITY, LC_HAND_PREVIEW_MARK, lcHandPreviewBadgeLabel } from "../preview/lcHandPreview";
 
 /**
+ * #427: an active CUT threshold override (`?cutAreaPct=&cutMinWidth=`) adds `· CUT 0.20%/1.0u`.
+ *
  * Renders only when the build sets `VITE_PREVIEW_MODE` -- the production `vite build` (see
  * vite.config.ts) never sets it, so this component and its one caller in App.tsx compile out
  * to nothing observable in production; `import.meta.env.VITE_PREVIEW_MODE` being statically
@@ -20,11 +24,14 @@ export function PreviewBadge() {
   const pr = import.meta.env.VITE_PREVIEW_PR;
   const sha = import.meta.env.VITE_PREVIEW_SHA;
   const hand = lcHandPreviewBadgeLabel(LC_HAND_PREVIEW_CAPACITY);
+  const thresholds = getSignificanceThresholds();
+  const cut = cutThresholdBadgeLabel(thresholds.areaFraction * 100, thresholds.minWidth);
   return (
     <div className="preview-badge" aria-hidden="true" data-lc-hand-preview={hand === null ? undefined : LC_HAND_PREVIEW_MARK}>
       PREVIEW{pr ? ` · PR#${pr}` : ""}
       {sha ? ` · ${sha}` : ""}
       {hand === null ? "" : ` · ${hand}`}
+      {cut === null ? "" : ` · ${cut}`}
     </div>
   );
 }

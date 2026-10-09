@@ -6,7 +6,7 @@
  * of each test file re-deriving its own angle math.
  */
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
-import type { CutLine } from "./types";
+import { buildRimToRimCutLine, type CutLine } from "./types";
 
 /**
  * A full diameter chord through `DOUGH_CENTER` at `angleDegrees` (0 = +x axis, measured in the
@@ -38,4 +38,33 @@ export function createIdealSliceFixtureLines(sliceCount: number): readonly CutLi
   return Array.from({ length: lineCount }, (_, i) =>
     createDiameterCutLine((180 / lineCount) * i),
   );
+}
+
+/**
+ * #427: a rim-to-rim chord with direction `angleDegrees`, shifted `offset` dough units sideways from
+ * the centre (`offset` 0 = a diameter). Both ends land on the rim.
+ */
+export function createOffsetCutLine(angleDegrees: number, offset: number): CutLine {
+  const a = (angleDegrees * Math.PI) / 180;
+  const press = { x: DOUGH_CENTER - Math.sin(a) * offset, y: DOUGH_CENTER + Math.cos(a) * offset };
+  const line = buildRimToRimCutLine(press, { x: press.x + Math.cos(a), y: press.y + Math.sin(a) });
+  if (!line) throw new Error("degenerate fixture");
+  return { ...line, path: [line.start, line.end] };
+}
+
+/** Three lines at 0/60/120 degrees (+ `rotation`); the third is shifted `d` from the centre. */
+export function createCentralTriangleFixture(d: number, rotation = 0): readonly CutLine[] {
+  return [
+    createOffsetCutLine(rotation, 0),
+    createOffsetCutLine(rotation + 60, 0),
+    createOffsetCutLine(rotation + 120, d),
+  ];
+}
+
+/** A stroke that starts on the rim and stops `k` dough units short of the opposite rim. */
+export function createStoppedCutLine(angleDegrees: number, k: number): CutLine {
+  const a = (angleDegrees * Math.PI) / 180;
+  const start = { x: DOUGH_CENTER - Math.cos(a) * DOUGH_RADIUS, y: DOUGH_CENTER - Math.sin(a) * DOUGH_RADIUS };
+  const end = { x: DOUGH_CENTER + Math.cos(a) * (DOUGH_RADIUS - k), y: DOUGH_CENTER + Math.sin(a) * (DOUGH_RADIUS - k) };
+  return { start, end, path: [start, end] };
 }

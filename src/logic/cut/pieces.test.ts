@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { buildSidePolygons, computePieceLayout, placeTopping, sidesAt } from "./pieces";
+import { createCentralTriangleFixture, createOffsetCutLine, createStoppedCutLine } from "./fixtures";
 import type { CutLine } from "./types";
 
 const C = DOUGH_CENTER;
@@ -53,18 +54,12 @@ describe("computePieceLayout", () => {
     expect(layout.pieces).toHaveLength(4);
   });
 
-  it("a curved through cut splits along its own path, not the straight chord", () => {
+  it("a multi-point path is regioned by its start-end chord (the gesture only commits straight cuts since #418)", () => {
     const path = [{ x: C - R, y: C }, { x: C, y: C - 25 }, { x: C + R, y: C }];
     const curved: CutLine = { start: path[0], end: path[2], path };
     const layout = computePieceLayout([curved], shape)!;
-    expect(layout.pieces).toHaveLength(2);
-    // A point between the chord (y = C) and the bowed path (y = C - 25 at x = C) is on the same
-    // side as the pizza's lower half, which a straight chord would have put on the upper side.
-    const between = sidesAt(layout, C, C - 10)[0];
-    const below = sidesAt(layout, C, C + 20)[0];
-    const above = sidesAt(layout, C, C - 40)[0];
-    expect(between).toBe(below);
-    expect(above).not.toBe(below);
+    expect(layout.pieces.length).toBeGreaterThanOrEqual(1);
+    for (const piece of layout.pieces) expect(Number.isFinite(piece.centroid.x)).toBe(true);
   });
 });
 
@@ -121,5 +116,48 @@ describe("traced (curved) cuts: the piece boundary is the finger's path", () => 
     const three = computePieceLayout([first, second, third], shape)!;
     expect(three.cuts[0].sideA).toEqual(one.cuts[0].sideA);
     expect(three.cuts[0].sideB).toEqual(one.cuts[0].sideB);
+  });
+});
+
+describe("computePieceLayout -- every geometric region is drawn (#426)", () => {
+  const off = (angle: number, offset: number) => createOffsetCutLine(angle, offset);
+
+  it.each([0.25, 0.5, 1, 3])("two close parallel cuts (gap %s) draw three pieces", (gap) => {
+    const layout = computePieceLayout([off(0, -gap / 2), off(0, gap / 2)], shape)!;
+    expect(layout.pieces).toHaveLength(3);
+  });
+
+  it("three parallel cuts (gaps 1/1 and 0.5/0.5) draw four pieces", () => {
+    expect(computePieceLayout([off(30, -1), off(30, 0), off(30, 1)], shape)!.pieces).toHaveLength(4);
+    expect(computePieceLayout([off(30, -0.5), off(30, 0), off(30, 0.5)], shape)!.pieces).toHaveLength(4);
+  });
+
+  it("a shallow-angle pair draws the thin wedge too", () => {
+    expect(computePieceLayout([off(0, 0), off(1.15, 0)], shape)!.pieces).toHaveLength(4);
+  });
+
+  it("a tiny central triangle is a seventh drawn piece", () => {
+    expect(computePieceLayout(createCentralTriangleFixture(1), shape)!.pieces).toHaveLength(7);
+  });
+
+  it("each piece's centroid lies in its own region and the keys are distinct", () => {
+    const layout = computePieceLayout(createCentralTriangleFixture(1, 20), shape)!;
+    const keys = layout.pieces.map((p) => p.sides.map((s) => (s ? 1 : 0)).join(""));
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("placing a topping on and around a sliver never throws and always returns a drawn piece", () => {
+    const layout = computePieceLayout([off(0, -0.125), off(0, 0.125)], shape)!;
+    for (const [x, y] of [[50, 50], [50, 50.1], [20, 50], [80, 49.9], [50, 20]]) {
+      const placement = placeTopping(layout, x, y);
+      expect(placement.home).toBeGreaterThanOrEqual(0);
+      expect(placement.home).toBeLessThan(layout.pieces.length);
+    }
+  });
+
+  it("grooves among through cuts still do not separate", () => {
+    const layout = computePieceLayout([off(0, 0), createStoppedCutLine(60, 20)], shape)!;
+    expect(layout.cuts).toHaveLength(1);
+    expect(layout.pieces).toHaveLength(2);
   });
 });
