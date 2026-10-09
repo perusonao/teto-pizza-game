@@ -10,6 +10,8 @@ export const ANONYMOUS_LOCK_HINTS = {
   SHOP: "\u{1F3EA} ショップの材料で作れるかも",
   /** The D-2 aggregated card: there is still a pizza to find, no number, no slot. */
   AGGREGATED: "\u{1F3A8} まだ発見できるピザがあるよ",
+  /** #422 PR-B: a Shop slot for a material that is not unlocked yet -- the same line for every one. */
+  SHOP_LOCKED: "入荷前の材料",
 } as const;
 
 export type AnonymousLockHint = (typeof ANONYMOUS_LOCK_HINTS)[keyof typeof ANONYMOUS_LOCK_HINTS];

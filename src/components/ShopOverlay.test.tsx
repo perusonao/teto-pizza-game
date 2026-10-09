@@ -59,8 +59,8 @@ function row(id: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`.shop-item[data-ingredient-id="${id}"]`);
 }
 
-describe("rows: LOCKED hidden, NEW and OWNED shown", () => {
-  it("only NEW and OWNED materials are listed -- never LOCKED ones, never starters", () => {
+describe("rows: LOCKED never listed as a row, NEW and OWNED shown", () => {
+  it("only NEW and OWNED materials are listed as rows -- LOCKED ones are anonymous slots elsewhere, never starters", () => {
     renderShop({ owned: [...STARTER_INGREDIENT_IDS, "mushroom"], unlocked: ["egg"] });
     const listed = Array.from(document.querySelectorAll<HTMLElement>(".shop-item")).map((e) => e.dataset.ingredientId);
     expect(listed).toEqual(["egg", "mushroom"]); // NEW first, then OWNED
@@ -197,11 +197,15 @@ describe("progress hint", () => {
 });
 
 describe("copy", () => {
-  it("no star-based material wording and no free-gift wording anywhere in the Shop", () => {
+  it("no star-based material wording and no free-gift wording anywhere in the Shop (the 🔒 belongs to the anonymous LOCKED section only)", () => {
     const all = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
     renderShop({ dex: [], owned: all.slice(0, 5), unlocked: all.slice(5, 10), pitz: 0 });
     const text = document.body.textContent ?? "";
-    expect(text).not.toMatch(/★|腕前|プレゼント|無料|\u{1F512}/u);
+    expect(text).not.toMatch(/★|腕前|プレゼント|無料/u);
+    // #422 PR-B: 🔒 exists, but only inside the anonymous LOCKED section.
+    const outside = document.body.cloneNode(true) as HTMLElement;
+    outside.querySelectorAll("[data-shop-locked-section]").forEach((n) => n.remove());
+    expect(outside.textContent ?? "").not.toMatch(/\u{1F512}/u);
   });
 });
 

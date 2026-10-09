@@ -3216,6 +3216,47 @@
   line-height: 1.4;
 }
 
+/* #422 PR-B: the Shop's LOCKED section -- a separate 2-column grid below the NEW / OWNED list, outside
+   the category tabs. The slots reuse AnonymousLockFrame, stacked (silhouette over text) to fit a half row. */
+.shop-locked {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.shop-locked__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.shop-locked__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.shop-locked__cell {
+  min-width: 0;
+  display: flex;
+}
+
+.shop-locked__cell .anonymous-lock {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  min-width: 0;
+  min-height: 88px;
+}
+
+.shop-locked__cell .dex-card__lock-text {
+  align-items: center;
+}
+
 /* ---------- Inventory Screen (read-only stock view) ---------- */
 /* Fixed-height modal: the panel takes its full shell ceiling (the same viewport-derived value as
    .dex-overlay__panel's max-height) so filtering to few/one card never resizes it. Summary and
