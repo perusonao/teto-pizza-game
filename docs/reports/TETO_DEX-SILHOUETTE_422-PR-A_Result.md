@@ -25,3 +25,20 @@ Base: `main` `bd05b6580beec5d10f208f3e4141d02899a0f0f3`. Authority: Issue #422 (
 
 ## Screenshots
 `docs/reports/screenshots/dex-silhouette-pr-a/{before,after}/` (390x844 and 360x800; 0 / 11 / all discovered; top and bottom).
+
+## Owner iPhone Human Verification — PASS
+Preview source `fbc67723d753a78103046ad091cdb0a9c452faa1` (built by the existing `teto-pizza-game-preview` pipeline, `deploy-from-source.yml`
+run 37905691367, Pages run 37906046588). Owner result: **PASS**.
+
+| Item | Result |
+|---|---|
+| Common silhouette on undiscovered cards | PASS |
+| No. / 🔒 legibility | PASS |
+| Distinguishable from discovered cards | PASS |
+| Card order and scrolling | PASS |
+| Bottom button visible | PASS |
+| 「閉じる」 operation | PASS |
+| 「ショップを見る」 operation | PASS |
+
+The video was delivered to the Owner directly and is not committed (HV policy). The commit after `fbc6772` is docs-only (this section).
+Out of scope, unchanged: Shop LOCKED rows (PR-B), save, Research, economy, CUT.
