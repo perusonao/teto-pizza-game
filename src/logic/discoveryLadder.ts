@@ -204,6 +204,8 @@ export function validateDiscoveryLadder(ladder: DiscoveryLadder): string[] {
  */
 export interface AppendedLadderStep {
   ingredientIds: readonly string[];
+  /** Batch 6 star gates, carried onto the generated step (see `MaterialProgressionStep.starGates`). */
+  starGates?: Readonly<Record<string, number>>;
   keyRecipeId: string;
 }
 
@@ -223,14 +225,22 @@ export function appendLadderSteps(
         step: fixed.length + index + 1,
         kind: "MATERIAL" as const,
         ingredientIds: [...s.ingredientIds],
+        ...(s.starGates ? { starGates: { ...s.starGates } } : {}),
         keyRecipeId: s.keyRecipeId,
       })),
     ],
   };
 }
 
+function sameStarGates(a: ProgressionStep, b: ProgressionStep): boolean {
+  const ea = Object.entries(a.starGates ?? {});
+  const gb = b.starGates ?? {};
+  return ea.length === Object.keys(gb).length && ea.every(([id, gate]) => gb[id] === gate);
+}
+
 function sameStep(a: ProgressionStep, b: ProgressionStep): boolean {
   return (
+    sameStarGates(a, b) &&
     a.step === b.step &&
     a.kind === b.kind &&
     a.keyRecipeId === b.keyRecipeId &&

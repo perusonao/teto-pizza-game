@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DiscoveryLadder } from "../data/discoveryLadder";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
-import { ladderUnlockedMaterialIds, validateDiscoveryLadder } from "../logic/discoveryLadder";
+import { appendLadderSteps, ladderUnlockedMaterialIds, validateAppendOnlyExtension, validateDiscoveryLadder } from "../logic/discoveryLadder";
 import type { DexEntry, DexState } from "./dex";
 import { resolveShopEntitlement } from "./materialEntitlement";
 
@@ -85,5 +85,23 @@ describe("starGate (Batch 6 PR-1)", () => {
       steps: [{ step: 1, kind: "MATERIAL", ingredientIds: ["egg"], starGates: { ham: 5, egg: 0 }, keyRecipeId: "a" }],
     };
     expect(validateDiscoveryLadder(bad)).toHaveLength(2);
+  });
+
+  it("carries star gates through appended steps and compares them as part of a fixed step", () => {
+    const base: DiscoveryLadder = { populationId: "b", steps: [LADDER.steps[0]] };
+    const appended = appendLadderSteps(base, [
+      { ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": 10 }, keyRecipeId: "b" },
+    ]);
+    expect(appended.steps[1].starGates).toEqual({ "goat-cheese": 10 });
+    expect(ladderUnlockedMaterialIds(appended, 2, 0)).toEqual(["egg", "avocado"]);
+    expect(validateAppendOnlyExtension(LADDER, appended)).toEqual([]);
+
+    const changed: DiscoveryLadder = {
+      ...LADDER,
+      steps: [LADDER.steps[0], { ...LADDER.steps[1], starGates: { "goat-cheese": 11 } }],
+    };
+    const removed: DiscoveryLadder = { ...LADDER, steps: [LADDER.steps[0], { ...LADDER.steps[1], starGates: undefined }] };
+    expect(validateAppendOnlyExtension(LADDER, changed)).toEqual(["FIXED_STEP_CHANGED: step 2"]);
+    expect(validateAppendOnlyExtension(LADDER, removed)).toEqual(["FIXED_STEP_CHANGED: step 2"]);
   });
 });
