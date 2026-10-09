@@ -11,10 +11,12 @@ import { cutAndConfirm, counted, drawn, triangle } from "./support/cutInjection"
  */
 
 test.describe("#427 / #426: what is drawn vs what RESULT counts (real gestures, dough-unit coordinates)", () => {
-  test("three diameters through the centre: 6 drawn, 6等分, no target note", async ({ page }) => {
+  test("three diameters aimed at the centre: 6等分 with no target note (6 or 7 regions drawn)", async ({ page }) => {
     test.setTimeout(90_000);
     await cutAndConfirm(page, triangle(0));
-    expect(await drawn(page)).toBe("6");
+    // A browser may round the pointer to whole pixels (WebKit does), so the three lines need not meet in one point: the
+    // tiny centre triangle that then exists is drawn (7) -- and still not counted. Either way RESULT says 6.
+    expect(["6", "7"]).toContain(await drawn(page));
     const text = await counted(page);
     expect(text).toContain("6等分");
     expect(text).not.toContain("目標");
