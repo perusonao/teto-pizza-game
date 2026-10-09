@@ -53,14 +53,6 @@ describe("computePieceLayout", () => {
     const layout = computePieceLayout([horizontal, vertical], shape)!;
     expect(layout.pieces).toHaveLength(4);
   });
-
-  it("a multi-point path is regioned by its start-end chord (the gesture only commits straight cuts since #418)", () => {
-    const path = [{ x: C - R, y: C }, { x: C, y: C - 25 }, { x: C + R, y: C }];
-    const curved: CutLine = { start: path[0], end: path[2], path };
-    const layout = computePieceLayout([curved], shape)!;
-    expect(layout.pieces.length).toBeGreaterThanOrEqual(1);
-    for (const piece of layout.pieces) expect(Number.isFinite(piece.centroid.x)).toBe(true);
-  });
 });
 
 describe("buildSidePolygons", () => {

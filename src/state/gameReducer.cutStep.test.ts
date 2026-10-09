@@ -7,6 +7,7 @@ import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { createCutState } from "../logic/cut/state";
+import { computePieceLayout, sidesAt } from "../logic/cut/pieces";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import { createGuidedInitialState } from "./testSupport/guidedRound";
@@ -211,7 +212,7 @@ describe("10c. Issue #418: every completed cut commits as drawn (no duplicate ga
     expect(state.cutState.lines).toHaveLength(3);
   });
 
-  it("the traced path is stored on the committed line untouched", () => {
+  it("a multi-point path is committed as its first and last point (#427: cuts are straight)", () => {
     const path = [
       { x: 30, y: 40 },
       { x: 45, y: 52 },
@@ -219,7 +220,8 @@ describe("10c. Issue #418: every completed cut commits as drawn (no duplicate ga
     ];
     const line: CutLine = { ...cutLineAtAngleDegrees(10), path };
     const state = gameReducer(bakedMargheritaAtCut(), { type: "ADD_CUT_LINE", line });
-    expect(state.cutState.lines[0].path).toBe(path);
+    expect(state.cutState.lines[0].path).toEqual([path[0], path[2]]);
+    expect(line.path).toBe(path);
   });
 
   it("there is no UNDO_CUT_LINE action: a missed cut stays in the pizza's result", () => {
@@ -513,5 +515,67 @@ describe("27. Completion Gate is never perturbed by CUT", () => {
     expect(state.phase).toBe("RESULT");
     expect(state.completion?.status).toBe("FAILED");
     expect(state.cutState.lines).toHaveLength(0);
+  });
+});
+
+describe("#427: cuts are straight -- a curved path is reduced to its two ends at ADD_CUT_LINE", () => {
+  const C = DOUGH_CENTER;
+  const R = DOUGH_RADIUS;
+  const bowed = (bow: number): CutLine => {
+    const path = [{ x: C - R, y: C }, { x: C - 20, y: C + bow / 2 }, { x: C, y: C + bow }, { x: C + 20, y: C + bow / 2 }, { x: C + R, y: C }];
+    return { start: path[0], end: path[4], path };
+  };
+
+  it("commits the first and last point of the path and leaves the dispatched object untouched", () => {
+    const line = bowed(25);
+    const snapshot = JSON.stringify(line);
+    const state = gameReducer(bakedMargheritaAtCut(), { type: "ADD_CUT_LINE", line });
+    expect(state.cutState.lines).toHaveLength(1);
+    expect(state.cutState.lines[0].path).toEqual([line.path![0], line.path![4]]);
+    expect(state.cutState.lines[0].start).toEqual(line.start);
+    expect(state.cutState.lines[0].end).toEqual(line.end);
+    expect(JSON.stringify(line)).toBe(snapshot);
+    expect(line.path).toHaveLength(5);
+  });
+
+  it("a straight two-point path and a path-less line are committed unchanged (same object)", () => {
+    const straight: CutLine = { start: { x: C - R, y: C }, end: { x: C + R, y: C }, path: [{ x: C - R, y: C }, { x: C + R, y: C }] };
+    const bare = idealCutLine(1, 3);
+    let state = gameReducer(bakedMargheritaAtCut(), { type: "ADD_CUT_LINE", line: straight });
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: bare });
+    expect(state.cutState.lines[0]).toBe(straight);
+    expect(state.cutState.lines[1]).toBe(bare);
+  });
+
+  it("the rim check and the cut limit still apply to a curved line", () => {
+    const off: CutLine = { ...bowed(10), start: { x: C, y: C }, end: { x: C + 10, y: C } };
+    const base = bakedMargheritaAtCut();
+    expect(gameReducer(base, { type: "ADD_CUT_LINE", line: off })).toBe(base);
+    let state = base;
+    for (let i = 0; i < 6; i += 1) state = gameReducer(state, { type: "ADD_CUT_LINE", line: bowed(25) });
+    expect(state.cutState.lines).toHaveLength(requiredCutCount(6) + 2);
+  });
+
+  it("a curved dispatch scores and draws like the straight cut: same count, no missing pizza", () => {
+    let curved = bakedMargheritaAtCut();
+    let straight = bakedMargheritaAtCut();
+    const lines = [bowed(25), idealCutLine(1, 3), idealCutLine(2, 3)];
+    for (const line of lines) {
+      curved = gameReducer(curved, { type: "ADD_CUT_LINE", line });
+      straight = gameReducer(straight, { type: "ADD_CUT_LINE", line: { start: line.start, end: line.end } });
+    }
+    curved = gameReducer(curved, { type: "CONFIRM_MAKING_STEP" });
+    straight = gameReducer(straight, { type: "CONFIRM_MAKING_STEP" });
+    expect(curved.cutState.evaluation).toEqual(straight.cutState.evaluation);
+
+    const layout = computePieceLayout(curved.cutState.lines, curved.pizza.doughShape)!;
+    expect(layout.pieces).toHaveLength(curved.cutState.evaluation!.actualPieceCount);
+    const keys = new Set(layout.pieces.map((p) => p.sides.join()));
+    for (let y = 2.5; y < 100; y += 5) {
+      for (let x = 2.5; x < 100; x += 5) {
+        if (Math.hypot(x - C, y - C) > R) continue;
+        expect(keys.has(sidesAt(layout, x, y).join())).toBe(true);
+      }
+    }
   });
 });

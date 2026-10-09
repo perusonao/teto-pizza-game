@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { isEdgeToEdgeCutLine } from "./types";
-import { buildDragCutPath, buildTracedCutLine, TRACE_MIN_LENGTH } from "./trace";
+import { buildDragCutPath, buildTracedCutLine, normalizeCutLine, TRACE_MIN_LENGTH } from "./trace";
 
 const C = DOUGH_CENTER;
 const R = DOUGH_RADIUS;
@@ -84,5 +84,24 @@ describe("buildTracedCutLine", () => {
     const line = buildTracedCutLine(path)!;
     expect(line.path).toBe(path);
     expect(isEdgeToEdgeCutLine(line)).toBe(true);
+  });
+});
+
+describe("normalizeCutLine (#427: cuts are straight)", () => {
+  const p = (x: number, y: number) => ({ x, y });
+  it("reduces a longer path to its first and last point without touching the input", () => {
+    const line = { start: p(2, 50), end: p(98, 50), path: [p(2, 50), p(30, 60), p(70, 40), p(98, 50)] };
+    const out = normalizeCutLine(line);
+    expect(out.path).toEqual([p(2, 50), p(98, 50)]);
+    expect(out.start).toBe(line.start);
+    expect(out.end).toBe(line.end);
+    expect(line.path).toHaveLength(4);
+    expect(out).not.toBe(line);
+  });
+  it("returns a two-point path and a path-less line as the same object", () => {
+    const two = { start: p(2, 50), end: p(98, 50), path: [p(2, 50), p(98, 50)] };
+    const bare = { start: p(2, 50), end: p(98, 50) };
+    expect(normalizeCutLine(two)).toBe(two);
+    expect(normalizeCutLine(bare)).toBe(bare);
   });
 });

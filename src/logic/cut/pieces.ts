@@ -1,6 +1,6 @@
 /**
  * Issue #418: visual piece separation. Pure geometry -- no DOM, no React. Derived read-only from the
- * committed `CutLine.path`s; cut authority, evaluation, scoring, save and economy never read it.
+ * committed straight `CutLine`s (the reducer reduces any longer `path` to its two ends, #427); cut authority, evaluation, scoring, save and economy never read it.
  *
  * Every rim-to-rim ("through") cut splits the pizza into two sides. Instead of a polygon-clipping
  * engine, each cut is turned into two simple polygons that tile a huge disk (the drawn cut path,

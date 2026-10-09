@@ -50,12 +50,23 @@ export function buildDragCutPath(start: DoughPoint, end: DoughPoint): readonly [
 
 /**
  * Builds the committed cut from a drag path, or `null` for a tap-length path. `path` is the
- * authority (what is drawn and kept); `start`/`end` is only the straight chord the legacy,
- * non-scoring preview evaluation (./evaluation.ts) still requires -- a transitional input until
- * #288 defines CUT scoring on traces.
+ * cut as drawn (always the two points of a straight drag, see `buildDragCutPath`); `start`/`end`
+ * is the same line run out to the rim, which is what evaluation and the piece regions use.
  */
 export function buildTracedCutLine(path: readonly DoughPoint[]): CutLine | null {
   if (path.length < 2 || tracePathLength(path) < TRACE_MIN_LENGTH) return null;
   const chord = buildRimToRimCutLine(path[0], path[path.length - 1]);
   return chord ? { ...chord, path } : null;
+}
+
+/**
+ * #427: the CUT contract is straight cuts only. A line whose `path` has more than two points
+ * (never produced by the gesture; only a direct dispatch can carry one) is committed as the
+ * straight segment between the path's first and last point, so drawing, pieces and scoring all
+ * describe the same straight line. Anything else is returned as is. Never mutates `line`.
+ */
+export function normalizeCutLine(line: CutLine): CutLine {
+  const path = line.path;
+  if (!path || path.length <= 2) return line;
+  return { ...line, path: [path[0], path[path.length - 1]] };
 }
