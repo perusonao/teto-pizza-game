@@ -1,0 +1,60 @@
+name: WebKit edge probe (#427 investigation)
+
+# Investigation only (never merged): reproduces the RESULT right-edge clipping seen on iPhone after
+# "two close cuts + one crossing cut" on WebKit and Chromium, at 390x844 and 360x800, for the product source as
+# checked out (canonical CUT branch) and for main's src (overlay), and uploads screenshots + layer experiments.
+# Triggered by pushes to claude/webkit-edge-probe-* only (a push runs the workflow file of the pushed commit).
+
+on:
+  push:
+    branches: ["claude/webkit-edge-probe-*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: probe ${{ matrix.source }} / ${{ matrix.engine }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [canonical, main]
+        engine: [webkit, chromium]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Use main's src for the comparison run
+        if: matrix.source == 'main'
+        run: |
+          git fetch origin main
+          git checkout origin/main -- src public index.html
+          git status --short | head -5
+      - run: npm ci
+      - name: Install browsers
+        run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Run probe
+        env:
+          PROBE_OUT: ${{ github.workspace }}/probe-out
+        run: >-
+          npx playwright test -c tools/webkit-edge-probe/playwright.config.ts
+          --project=${{ matrix.engine }}-390x844 --project=${{ matrix.engine }}-360x800
+      - name: Analyze
+        if: always()
+        run: |
+          pip install pillow numpy >/dev/null
+          python3 tools/webkit-edge-probe/analyze.py probe-out | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-${{ matrix.source }}-${{ matrix.engine }}
+          path: probe-out/
+          retention-days: 14
