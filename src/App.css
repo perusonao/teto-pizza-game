@@ -2322,6 +2322,13 @@
   min-height: 40px;
 }
 
+/* #422 PR-A: the Dex's own close button is a 44x44 target (the other overlays that share
+   .dex-overlay__close keep their size; the Shop is PR-B's). */
+.dex-overlay__close--tap44 {
+  min-width: 44px;
+  min-height: 44px;
+}
+
 .dex-overlay__progress {
   display: flex;
   flex-direction: column;
@@ -2382,16 +2389,39 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
+/* #422 PR-A: no whole-card opacity any more (it dimmed the CTA inside too). The locked look is
+   set with explicit background / text colours instead, so a CTA keeps its own contrast. */
 .dex-card--locked {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 56px;
   padding: 8px 12px;
-  opacity: 0.6;
+  background: #fbf3e2;
+  box-shadow: 0 1px 2px rgba(107, 66, 38, 0.1);
 }
 
 .dex-card__lock-icon {
   font-size: 18px;
+}
+
+/* #422 PR-A: the one generic pizza silhouette (pure CSS: crust ring, pale cheese disc, lock).
+   Identical for every locked slot -- no per-slot size, rotation, colour or id. */
+.generic-pizza-silhouette {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, #efe2c2 0 56%, #d9bf86 58% 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(107, 66, 38, 0.28);
+}
+
+.generic-pizza-silhouette__lock {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .dex-card__lock-text {
@@ -2407,7 +2437,7 @@
 
 .dex-card__lock-hint {
   font-size: 11px;
-  color: #8a6a45;
+  color: #7a5a36;
 }
 
 .dex-card--new {
@@ -4916,6 +4946,13 @@
   font-family: inherit;
   font-size: 13px;
   font-weight: 800;
+}
+
+/* #422 PR-A: a CTA inside a locked slot (hint / free cook / shop) is a 44x44 target; the Research
+   card's CTAs (not locked slots) keep their size. */
+.dex-card--locked .dex-card__tag-cta {
+  min-width: 44px;
+  min-height: 44px;
 }
 
 /* W1 Discovery 2.0 (W1-e): small inline badges inside the existing HOME menu cards -- no new CTA,

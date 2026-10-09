@@ -11,6 +11,8 @@ import { researchEntryViews, type ResearchEntryView } from "../state/discoveryHi
 import { isResearchStockBlocked } from "../state/researchStockBlock";
 import type { TechniqueDexView } from "../logic/techniques/dexView";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { AnonymousLockFrame } from "./AnonymousLockFrame";
+import { ANONYMOUS_LOCK_HINTS } from "./anonymousLockHints";
 
 interface DexOverlayProps {
   dex: DexState;
@@ -125,33 +127,31 @@ function UndiscoveredSlot({
 }) {
   const tag =
     state === "DISCOVERABLE"
-      ? "\u{1F3A8} 今の材料で作れるかも"
+      ? ANONYMOUS_LOCK_HINTS.DISCOVERABLE
       : state === "KNOWN_BUT_MISSING_MATERIAL"
-        ? "\u{1F3EA} ショップの材料で作れるかも"
+        ? ANONYMOUS_LOCK_HINTS.SHOP
         : null;
   const cta = state === "DISCOVERABLE" ? onGoFreeCook : state === "KNOWN_BUT_MISSING_MATERIAL" ? onOpenShop : undefined;
   return (
-    <div className={`dex-card dex-card--locked${tag ? " dex-card--tagged" : ""}`} data-dex-state={state}>
-      <span className="dex-card__lock-icon">🔒</span>
-      <div className="dex-card__lock-text">
-        <p className="dex-card__lock-label">
-          <span className="dex-card__no">No.{String(slot).padStart(2, "0")}</span> ？？？
-        </p>
-        <p className="dex-card__lock-hint">{tag ?? "まだ見ぬピザ"}</p>
-        {state === "DISCOVERABLE" && onShowHint ? (
-          <button type="button" className="dex-card__tag-cta dex-card__tag-cta--hint" onClick={onShowHint}>
-            {"\u{1F4A1}"} ヒントを見る
+    <AnonymousLockFrame
+      lead={`No.${String(slot).padStart(2, "0")}`}
+      hint={tag ?? ANONYMOUS_LOCK_HINTS.UNKNOWN}
+      tagged={!!tag}
+      dataAttributes={{ "data-dex-state": state }}
+    >
+      {state === "DISCOVERABLE" && onShowHint ? (
+        <button type="button" className="dex-card__tag-cta dex-card__tag-cta--hint" onClick={onShowHint}>
+          {"\u{1F4A1}"} ヒントを見る
+        </button>
+      ) : (
+        tag &&
+        cta && (
+          <button type="button" className="dex-card__tag-cta" onClick={cta}>
+            {state === "DISCOVERABLE" ? "レシピ発見へ" : "ショップを見る"}
           </button>
-        ) : (
-          tag &&
-          cta && (
-            <button type="button" className="dex-card__tag-cta" onClick={cta}>
-              {state === "DISCOVERABLE" ? "レシピ発見へ" : "ショップを見る"}
-            </button>
-          )
-        )}
-      </div>
-    </div>
+        )
+      )}
+    </AnonymousLockFrame>
   );
 }
 
@@ -159,18 +159,17 @@ function UndiscoveredSlot({
  *  "there is still a pizza to find" -- one card, no number, no slot, no per-recipe Hint entrance. */
 function AggregatedUnknownCard({ onGoFreeCook }: { onGoFreeCook?: () => void }) {
   return (
-    <div className="dex-card dex-card--locked dex-card--tagged" data-dex-state="DISCOVERABLE" data-dex-aggregated="true">
-      <span className="dex-card__lock-icon">🔒</span>
-      <div className="dex-card__lock-text">
-        <p className="dex-card__lock-label">？？？</p>
-        <p className="dex-card__lock-hint">{"\u{1F3A8}"} まだ発見できるピザがあるよ</p>
-        {onGoFreeCook && (
-          <button type="button" className="dex-card__tag-cta" onClick={onGoFreeCook}>
-            レシピ発見へ
-          </button>
-        )}
-      </div>
-    </div>
+    <AnonymousLockFrame
+      hint={ANONYMOUS_LOCK_HINTS.AGGREGATED}
+      tagged
+      dataAttributes={{ "data-dex-state": "DISCOVERABLE", "data-dex-aggregated": "true" }}
+    >
+      {onGoFreeCook && (
+        <button type="button" className="dex-card__tag-cta" onClick={onGoFreeCook}>
+          レシピ発見へ
+        </button>
+      )}
+    </AnonymousLockFrame>
   );
 }
 
@@ -273,7 +272,7 @@ export function DexOverlay({
       <div className="dex-overlay__panel">
         <div className="dex-overlay__header">
           <h2>レシピ図鑑</h2>
-          <button type="button" className="dex-overlay__close" onClick={onClose}>
+          <button type="button" className="dex-overlay__close dex-overlay__close--tap44" onClick={onClose}>
             閉じる
           </button>
         </div>
