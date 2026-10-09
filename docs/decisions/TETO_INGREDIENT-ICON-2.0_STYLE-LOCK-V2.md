@@ -160,6 +160,7 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 | 完成ピザ / Pizza Select サムネイル（`PizzaThumbnail.tsx`） | CSS | **CSS のまま** |
 
 - 実装上の要点: Tray チップと在庫の cheese 分岐を `IngredientGlyph` 経由に切り替える。ピース・ドラッグ preview・サムネイルの分岐は触らない。
+- **未移行チーズの扱い（2026-10-09 Owner 決定）:** 上表の「SVG アイコン」は **`pieceVisual` を持つチーズにのみ**適用する。`pieceVisual` を持たない未移行チーズ（例: Pilot A 時点の mozzarella / goat-cheese）は、Tray チップ・在庫でも**従来の CSS 表示（`IngredientPieceVisual` の `.pizza-cheese--<id>`）を維持**する。全チーズを `IngredientGlyph` へ一括切替してはならない（未移行チーズが 🧀 絵文字へ退行するため）。分岐は「`category === "cheese"` かつ `pieceVisual` あり → `IngredientGlyph`、それ以外の cheese → 従来の CSS」とする。
 - 非チーズ（sausage / hot-dog 等）は従来どおり `IngredientPieceVisual` → `IngredientGlyph` を通るので、ピザ上のピースにも SVG が出る（接地影の見え方は §8 の HV 項目）。
 
 ## 5. Pilot 実装順序
@@ -201,3 +202,12 @@ Pilot A は共通基盤（型・viewBox 表・チーズ分岐変更・テスト�
 - ~~残り 18 種のデザイン比較の順序~~ → §1b で全て確定（clam は既存維持）。実装の Pilot 順は §5 を 26 種へ拡張する際に別途 Owner と決める。
 - Tray チップ・在庫の cheese 分岐を SVG に切り替えた後の、チップ幅・タップ領域・行高への影響（§4.4。390×844 / 360×800）。
 - sausage ↔ hot-dog の 20px 識別（Pilot A の HV で判定）。
+
+## 9. 追加決定（2026-10-09 Owner）— goat-cheese
+
+1. `goat-cheese`（cheese、Batch 6 PR-2 / #437 で追加）を **27 種目の SVG 化対象に追加する**。§1 / §1b / 「26 種の対象の確定状況」の「26 種」「cheese 10」は 2026-10-08 時点の確定数としてそのまま残し、本節で 1 件加算する（cheese 11、計 27）。
+2. **Pilot A / B / C の対象と順序（§5）は変更しない。** Pilot A は `hot-dog` / `sausage` / `feta` / `ricotta`（実装 Issue #438）のまま。goat-cheese は Pilot A / B / C に含めず、**実装時期は後続で Owner が決める**（残り 17 種の割り当てと同じ枠）。実装の優先順位は Batch 6 PR-3 が先。
+3. デザインは未作成。§1b と同じ手順（比較シート → Owner 採用 → 参照 SVG）で決め、既存チーズ 10 種との識別を確認する。`pieceVisual` 名は実装 Issue で確定する（visual 名は id と独立の原則を維持）。
+4. 共通仕様（§2）、cheese の描画範囲（§4.4）、`pieceVisual` 方式は変更しない。
+5. SVG が採用・実装されるまで、goat-cheese は `pieceVisual` を持たない未移行チーズとして、§4.4 のとおり**従来の CSS 表示を維持**する。
+6. 対象外: `artichoke` / `rosemary`（🌱）、`spinach` / `oregano`（🍃）の絵文字重複は、Owner 決定により本アイコン 2.0 の対象外とする（Owner の HV は通過済み）。
