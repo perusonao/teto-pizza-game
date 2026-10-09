@@ -89,6 +89,7 @@ import {
 } from "../logic/cut/state";
 import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { requiredCutCount } from "../logic/cut/evaluation";
+import { normalizeCutLine } from "../logic/cut/trace";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
@@ -555,8 +556,9 @@ export type GameAction =
   // or leak into a Mission round.
   | { type: "PAUSE_COOKING_TIMING"; now: number }
   | { type: "RESUME_COOKING_TIMING"; now: number }
-  // Issue #418: commits one completed finger trace (../logic/cut/trace.ts's `buildTracedCutLine`;
-  // `line.path` is the authority) immediately and irrevocably -- there is no undo. A single atomic line -- mirrors
+  // Issue #418: commits one completed straight drag (../logic/cut/trace.ts's `buildTracedCutLine`;
+  // `line.path` is the drawn cut, and #427's `normalizeCutLine` reduces any longer path to its two ends)
+  // immediately and irrevocably -- there is no undo. A single atomic line -- mirrors
   // COMMIT_DOUGH_STRETCH's own "gesture layer buffers locally, dispatches once at a successful
   // pointerup" contract. Rejected (state unchanged) outside POST_BAKE's own CUT step, for a
   // line that isn't genuinely edge-to-edge, or once the cut limit (`requiredCutCount + 2`) is
@@ -1124,7 +1126,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         const required = requiredCutCount(resolveRequestedSliceCount(state.cutState.config));
         if (state.cutState.lines.length < required) return state;
       }
-      const cutState = isConfirmingCut ? evaluateCutState(state.cutState) : state.cutState;
+      const cutState = isConfirmingCut ? evaluateCutState(state.cutState, state.pizza.doughShape) : state.cutState;
       if (state.phase === "POST_BAKE" && currentIndex === steps.length - 1) {
         return {
           ...state,
@@ -1177,8 +1179,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!isEdgeToEdgeCutLine(action.line)) return state;
       const limit = requiredCutCount(resolveRequestedSliceCount(state.cutState.config)) + 2;
       if (state.cutState.lines.length >= limit) return state;
-      // Issue #418: no duplicate/near-angle gate -- a completed trace is committed as drawn.
-      return { ...state, cutState: addCutLine(state.cutState, action.line) };
+      // Issue #418: no duplicate/near-angle gate. #427: cuts are straight -- a longer path is reduced to its two ends.
+      return { ...state, cutState: addCutLine(state.cutState, normalizeCutLine(action.line)) };
     }
 
     case "START_BAKE": {

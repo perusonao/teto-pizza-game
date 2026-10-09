@@ -6,7 +6,7 @@
  * of each test file re-deriving its own angle math.
  */
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
-import type { CutLine } from "./types";
+import { buildRimToRimCutLine, type CutLine } from "./types";
 
 /**
  * A full diameter chord through `DOUGH_CENTER` at `angleDegrees` (0 = +x axis, measured in the
@@ -38,4 +38,37 @@ export function createIdealSliceFixtureLines(sliceCount: number): readonly CutLi
   return Array.from({ length: lineCount }, (_, i) =>
     createDiameterCutLine((180 / lineCount) * i),
   );
+}
+
+/**
+ * #427 / #426: a straight rim-to-rim chord at `angleDegrees`, shifted `offset` dough units sideways from the centre
+ * (0 = a diameter). Both endpoints are on the rim and `path` is the chord itself, exactly what the straight-drag gesture
+ * commits. Boundary / regression tests build every cut arrangement from this.
+ */
+export function createChordCutLine(angleDegrees: number, offset = 0): CutLine {
+  const angle = (angleDegrees * Math.PI) / 180;
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
+  const cx = DOUGH_CENTER - uy * offset;
+  const cy = DOUGH_CENTER + ux * offset;
+  const half = Math.sqrt(DOUGH_RADIUS * DOUGH_RADIUS - offset * offset);
+  const start = { x: cx - ux * half, y: cy - uy * half };
+  const end = { x: cx + ux * half, y: cy + uy * half };
+  return { start, end, path: [start, end] };
+}
+
+/**
+ * #427: a stroke that starts on the rim (at `angleDegrees + 180`) and runs through the pizza toward `angleDegrees`, but stops
+ * `distanceFromRim` dough units short of the rim there -- a through cut while `distanceFromRim` is within the crust width (6),
+ * a groove beyond it. `start`/`end` is the rim-to-rim chord through the stroke, as `buildTracedCutLine` stores it.
+ */
+export function createGrooveCutLine(angleDegrees: number, distanceFromRim: number): CutLine {
+  const angle = (angleDegrees * Math.PI) / 180;
+  const reach = DOUGH_RADIUS - distanceFromRim;
+  const path = [
+    { x: DOUGH_CENTER - Math.cos(angle) * DOUGH_RADIUS, y: DOUGH_CENTER - Math.sin(angle) * DOUGH_RADIUS },
+    { x: DOUGH_CENTER + Math.cos(angle) * reach, y: DOUGH_CENTER + Math.sin(angle) * reach },
+  ];
+  const chord = buildRimToRimCutLine(path[0], path[1])!;
+  return { ...chord, path };
 }

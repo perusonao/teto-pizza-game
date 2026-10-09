@@ -23,8 +23,10 @@ import { DOUGH_CENTER, DOUGH_RADIUS, distanceFromCenter, type DoughPoint } from 
 export interface CutLine {
   readonly start: DoughPoint;
   readonly end: DoughPoint;
-  /** Issue #418: the player's traced finger path, in order. When present it is what is drawn and
-   *  kept as the cut; `start`/`end` is then only the chord the legacy preview evaluation reads. */
+  /** Issue #418 / #427: the two points of the straight drag (where it started, where it stopped; a stroke
+   *  that stops short of the rim is a groove). `start`/`end` is the same line run out to the rim, which
+   *  evaluation and the piece regions use. Cuts are straight only: `ADD_CUT_LINE` reduces a longer path to its
+   *  first and last point (`normalizeCutLine`, ./trace.ts). */
   readonly path?: readonly DoughPoint[];
 }
 

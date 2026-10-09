@@ -1,40 +1,19 @@
 /**
- * Pizza Cutting 1.0 Phase 1 (docs/design/TETO_PIZZA-CUTTING_1.0.md §4.2): deterministic
- * grid-sampling piece-area approximation. Deliberately **not** a polygon-clipping/DCEL
- * computational-geometry engine -- the design doc's own §4.2 rejects that approach explicitly
- * (candidate B) in favor of this one, because every committed `CutLine` is, by the Phase 2
- * gesture layer's own construction, a full rim-to-rim chord, which removes the need for any
- * segment-intersection or face-enumeration code.
+ * Pizza Cutting 1.0 Phase 1 (docs/design/TETO_PIZZA-CUTTING_1.0.md §4.2): piece-area geometry for CUT evaluation.
  *
- * Algorithm: lay a fixed `GRID_RESOLUTION x GRID_RESOLUTION` grid of candidate points over the
- * dough's bounding square, keep only the points inside the ideal circle (`isInsideDough`,
- * reused unchanged), and classify each kept point by which side of every committed chord it
- * falls on (a `+1`/`-1` sign per line). Two points with the identical sign tuple are
- * unambiguously in the same piece; `pieceArea = (pointsInGroup / totalKeptPoints) * circleArea`.
+ * #427 / #426: the 96x96 grid-sampling approximation this module used is gone. Pieces are now the exact convex regions the
+ * cuts make inside the ideal circle (./regions.ts, a 720-gon clipped by one half-plane per chord), the same computation the
+ * piece drawing uses (./pieces.ts) -- so a tiny region can no longer be counted by one and missed by the other.
  *
- * Deterministic by construction: the grid is fixed (never `Math.random()`), so the same
- * `lines` array always produces the exact same `pieceAreas` array (test #5/#20 in the Result
- * Report). Scored against the recipe's *ideal* circle (`DOUGH_CENTER`/`DOUGH_RADIUS`), never the
- * player's D3A-distorted dough silhouette (../doughShape.ts) -- same existing precedent
- * Scoring 2.0's own Sauce component already established for `isInsideDough` (design doc §4.2's
- * closing note).
+ * Still scored against the recipe's *ideal* circle (`DOUGH_CENTER`/`DOUGH_RADIUS`), never the player's D3A-distorted dough
+ * silhouette (../doughShape.ts) -- the same precedent Scoring 2.0's own Sauce component set for `isInsideDough` (design doc
+ * §4.2's closing note). Dough-shape-based regions are #429.
  */
-import { DOUGH_CENTER, DOUGH_RADIUS, isInsideDough, type DoughPoint } from "../pizzaCoordinates";
+import { DOUGH_CENTER, DOUGH_RADIUS, type DoughPoint } from "../pizzaCoordinates";
+import { CIRCLE_AREA, computeCutRegions } from "./regions";
 import type { CutLine } from "./types";
 
-/**
- * 96x96 candidate points over the bounding square -- roughly 7,200 land inside the circle
- * (`~pi * DOUGH_RADIUS^2` of the ~9,216-point square), each checked against at most 4 lines
- * (the 8-slice case): on the order of 30,000 simple arithmetic comparisons, well under a
- * millisecond on any real device (design doc §4.2 point 3). Kept as a named constant, never
- * inlined, so a future phase can retune it with a recorded reason instead of a silent edit --
- * matching ../sauceField.ts's own `SAUCE_FIELD_SIZE` precedent.
- */
-export const GRID_RESOLUTION = 96;
-
-/** The ideal pizza's total area -- the authority every piece-area fraction is measured against
- *  (design doc §4.2's `circleArea`). */
-export const CIRCLE_AREA = Math.PI * DOUGH_RADIUS * DOUGH_RADIUS;
+export { CIRCLE_AREA };
 
 /** Below this chord length, a line carries no reliable direction (it is, numerically, a point,
  *  not a line) -- `sidesOf`/`perpendicularDistanceFromCenter` treat it via the documented
@@ -56,61 +35,18 @@ export function sidesOf(point: DoughPoint, line: CutLine): 1 | -1 {
   return cross >= 0 ? 1 : -1;
 }
 
-function signTupleKey(point: DoughPoint, lines: readonly CutLine[]): string {
-  let key = "";
-  for (let i = 0; i < lines.length; i++) {
-    key += sidesOf(point, lines[i]);
-    key += ",";
-  }
-  return key;
-}
-
 /**
- * Returns one approximate area (dough-percent^2, same unit family as `DOUGH_RADIUS`) per
- * distinct region `lines` actually produced -- however many that is, **never** assumed to equal
- * `requestedSliceCount` (that comparison is `countCorrectness`'s job, ./evaluation.ts). Handles
- * every degenerate/adversarial input "for free", with no special-case branch: crossing lines,
- * near-duplicate angles, an empty `lines` array (the whole circle, one region), and a
- * near-tangent/duplicate-endpoint line all simply produce whatever distinct sign-tuples they
- * produce (design doc §4.2 point 2).
+ * One area (dough-percent^2, same unit family as `DOUGH_RADIUS`) per region `lines` actually produce -- ALL of them, however
+ * small (the areas add up to ~`CIRCLE_AREA`), and never assumed to equal `requestedSliceCount`. Every line is taken as an
+ * infinite chord, a partial stroke included; which regions count as pieces, and which lines count as cuts at all, is
+ * `evaluateCut`'s job (./evaluation.ts). An empty `lines` array is the whole circle, one region; a degenerate (zero-length)
+ * line splits nothing.
  *
- * Order-independence: the returned array's *order* depends on scan order and is not meaningful
- * on its own -- every caller in this module family (`evaluateCut`, ./evaluation.ts) only ever
- * reads this array's `length` or aggregates over its values (mean, mean absolute deviation),
- * never a specific index, so reordering `lines` cannot change any evaluation signal (Result
- * Report test #6).
+ * Order-independence: the returned array's *order* is not meaningful on its own -- every caller only reads its `length` or
+ * aggregates over its values (mean, mean absolute deviation), never a specific index.
  */
-export function computePieceAreas(
-  lines: readonly CutLine[],
-  gridResolution: number = GRID_RESOLUTION,
-): readonly number[] {
-  const counts = new Map<string, number>();
-  let totalKept = 0;
-  const step = (DOUGH_RADIUS * 2) / gridResolution;
-  const minCoord = DOUGH_CENTER - DOUGH_RADIUS;
-
-  for (let row = 0; row < gridResolution; row++) {
-    const y = minCoord + (row + 0.5) * step;
-    for (let col = 0; col < gridResolution; col++) {
-      const x = minCoord + (col + 0.5) * step;
-      if (!isInsideDough(x, y)) continue;
-      totalKept++;
-      const key = signTupleKey({ x, y }, lines);
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-  }
-
-  // Grid resolution is a fixed positive constant in every real call, so `totalKept` is always
-  // well over zero in practice -- this guard exists purely to keep the function provably
-  // NaN/Infinity-free (Result Report's numerical-robustness requirement) rather than to handle a
-  // realistic input.
-  if (totalKept === 0) return [CIRCLE_AREA];
-
-  const areas: number[] = [];
-  for (const count of counts.values()) {
-    areas.push((count / totalKept) * CIRCLE_AREA);
-  }
-  return areas;
+export function computePieceAreas(lines: readonly CutLine[]): readonly number[] {
+  return computeCutRegions(lines).map((region) => region.area);
 }
 
 /**

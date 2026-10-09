@@ -8,10 +8,22 @@
  * direction). A point's "side" for that cut is just point-in-polygon. A piece is a distinct
  * combination of sides over all through cuts, so curved cuts and cuts that cross each other need no
  * special casing; the renderer nests one clip per cut to draw a piece exactly.
+ *
+ * #426: WHICH combinations exist is no longer found by sampling a grid (a thin piece between two near-parallel cuts fell
+ * between the sample centres and was never drawn). When every through cut is a straight chord -- every cut the game can
+ * make -- the pieces are the exact convex regions (./regions.ts, the same computation the CUT evaluation uses), every one
+ * of them, however small; a region's side combination is read at its centroid, which is always inside it. Only a curved
+ * traced path (no gesture produces one any more) still uses the sample grid below.
+ *
+ * #427: every cut the reducer commits is straight (`ADD_CUT_LINE` reduces a longer path to its two ends,
+ * `normalizeCutLine` in ./trace.ts), so the sample grid is not reached by the game flow. It stays only for a direct
+ * call of this pure function with a curved path (its own tests and any future trace-based cut, #288); removing it is a
+ * separate decision.
  */
 import type { DoughShape } from "../doughShape";
 import { DOUGH_CENTER, type DoughPoint } from "../pizzaCoordinates";
 import { buildCutVisual, rayToRadius } from "./cutVisual";
+import { computeCutRegions, isStraightCut } from "./regions";
 import type { CutLine } from "./types";
 
 /** Radius of the huge disk the side polygons are closed on (far outside the pizza). */
@@ -39,6 +51,7 @@ export interface PizzaPiece {
   readonly centroid: DoughPoint;
   /** Unit vector from the pizza centre towards the piece (zero for a piece around the centre). */
   readonly outward: DoughPoint;
+  /** The piece's size in sample-grid cells (area / one cell's area, at least 1). Informational: nothing reads it. */
   readonly sampleCount: number;
 }
 
@@ -113,6 +126,40 @@ export function computePieceLayout(lines: readonly CutLine[], shape?: DoughShape
   });
   if (cuts.length === 0) return null;
 
+  const throughLines = cuts.map((c) => lines[c.lineIndex]);
+  const pieces = throughLines.every((line) => isStraightCut(line))
+    ? piecesFromRegions(cuts, throughLines)
+    : piecesFromSamples(cuts);
+  return { cuts, pieces };
+}
+
+/** Area of one sample-grid cell (dough-percent^2): the unit `PizzaPiece.sampleCount` is counted in. */
+const SAMPLE_CELL_AREA = ((SAMPLE_RADIUS * 2) / SAMPLE_GRID) ** 2;
+
+function makePiece(sides: boolean[], centroid: DoughPoint, sampleCount: number): PizzaPiece {
+  const dx = centroid.x - DOUGH_CENTER;
+  const dy = centroid.y - DOUGH_CENTER;
+  const outward = Math.hypot(dx, dy) < MIN_CENTROID_OFFSET ? { x: 0, y: 0 } : unit(dx, dy);
+  return { sides, centroid, outward, sampleCount };
+}
+
+/** Every exact region is a piece; its side combination is read at its centroid (inside a convex region by construction). */
+function piecesFromRegions(cuts: readonly SplitCut[], throughLines: readonly CutLine[]): PizzaPiece[] {
+  const byKey = new Map<string, PizzaPiece>();
+  for (const region of computeCutRegions(throughLines)) {
+    const sides = sidesAt({ cuts }, region.centroid.x, region.centroid.y);
+    const key = keyOf(sides);
+    const sampleCount = Math.max(1, Math.round(region.area / SAMPLE_CELL_AREA));
+    const known = byKey.get(key);
+    // Distinct cells of a line arrangement have distinct side combinations; a repeat can only be numerical noise on a
+    // vanishing region, so the larger one wins rather than drawing the same clip twice.
+    if (!known || sampleCount > known.sampleCount) byKey.set(key, makePiece(sides, region.centroid, sampleCount));
+  }
+  return [...byKey.values()];
+}
+
+/** The pre-#426 method, kept for curved traced paths only: which side combinations hold a sample of the pizza. */
+function piecesFromSamples(cuts: readonly SplitCut[]): PizzaPiece[] {
   const groups = new Map<string, { sides: boolean[]; sx: number; sy: number; n: number }>();
   const step = (SAMPLE_RADIUS * 2) / SAMPLE_GRID;
   for (let row = 0; row < SAMPLE_GRID; row += 1) {
@@ -132,15 +179,7 @@ export function computePieceLayout(lines: readonly CutLine[], shape?: DoughShape
       }
     }
   }
-
-  const pieces: PizzaPiece[] = [...groups.values()].map((g) => {
-    const centroid = { x: g.sx / g.n, y: g.sy / g.n };
-    const dx = centroid.x - DOUGH_CENTER;
-    const dy = centroid.y - DOUGH_CENTER;
-    const outward = Math.hypot(dx, dy) < MIN_CENTROID_OFFSET ? { x: 0, y: 0 } : unit(dx, dy);
-    return { sides: g.sides, centroid, outward, sampleCount: g.n };
-  });
-  return { cuts, pieces };
+  return [...groups.values()].map((g) => makePiece(g.sides, { x: g.sx / g.n, y: g.sy / g.n }, g.n));
 }
 
 export interface ToppingPlacement {

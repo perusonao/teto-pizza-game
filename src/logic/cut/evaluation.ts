@@ -11,8 +11,11 @@
  * stays `false` (design doc §7), which this module has nothing to do with (it only ever
  * *computes* a score, never gates anything).
  */
+import type { DoughShape } from "../doughShape";
 import { DOUGH_RADIUS } from "../pizzaCoordinates";
-import { CIRCLE_AREA, computePieceAreas, perpendicularDistanceFromCenter } from "./geometry";
+import { isThroughCut } from "./cutVisual";
+import { perpendicularDistanceFromCenter } from "./geometry";
+import { CIRCLE_AREA, computeCutRegions, getCutSignificanceThresholds, isSignificantRegion } from "./regions";
 import {
   resolveRequestedSliceCount,
   type CutConfig,
@@ -105,19 +108,35 @@ function uniformityOf(pieceAreas: readonly number[], requestedSliceCount: number
  * No Reference-fixture-availability gate is needed (unlike Scoring 2.0's Margherita-only gate):
  * this is computable for any recipe, any `lines`, including zero lines (Result Report test #11 --
  * every field below stays a finite, defined number, never `NaN`/`Infinity`).
+ *
+ * #427 / #426 (Owner Decisions):
+ * - Only THROUGH cuts (`isThroughCut`, the same test the drawing uses) split the pizza. A stroke that stopped short of the
+ *   rim is a groove: it makes no region, and it counts for neither `completeness` nor `centerAccuracy` (it used to add free
+ *   completeness and dilute the centre error). `completedCutCount` is still every committed line, as `CutDebugPanel` shows.
+ * - Regions are exact (./regions.ts). Every region is drawn, but only SIGNIFICANT ones (area and width above the thresholds)
+ *   are pieces here: `pieceAreas` / `actualPieceCount` / `uniformity` read those alone, so a fleck at the crossing of three
+ *   nearly concurrent cuts is no 7th slice.
+ * - Duplicate (overlapping) through cuts are NOT filtered; that is #288 (CUT-S1).
+ * `shape` is the player's dough silhouette, used only for the through test (it must match what is drawn); regions stay on the
+ * ideal circle (#429).
  */
 export function evaluateCut(
   lines: readonly CutLine[],
   config: CutConfig | undefined = undefined,
+  shape: DoughShape | undefined = undefined,
 ): CutEvaluation {
   const requestedSliceCount = resolveRequestedSliceCount(config);
-  const pieceAreas = computePieceAreas(lines);
+  const throughLines = lines.filter((line) => isThroughCut(line, shape));
+  const thresholds = getCutSignificanceThresholds();
+  const pieceAreas = computeCutRegions(throughLines)
+    .filter((region) => isSignificantRegion(region, thresholds))
+    .map((region) => region.area);
   const actualPieceCount = pieceAreas.length;
   const completedCutCount = lines.length;
 
   const countCorrectness = countCorrectnessOf(actualPieceCount, requestedSliceCount);
-  const completeness = completenessOf(completedCutCount, requestedSliceCount);
-  const centerAccuracy = centerAccuracyOf(lines);
+  const completeness = completenessOf(throughLines.length, requestedSliceCount);
+  const centerAccuracy = centerAccuracyOf(throughLines);
   const uniformity = uniformityOf(pieceAreas, requestedSliceCount);
 
   const cutScore =

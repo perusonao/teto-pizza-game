@@ -63,3 +63,51 @@ describe("Production/Preview gating (mirrors ScoringV2DebugPanel's pattern)", ()
     expect(screen.getByText(/uniform \d+%/)).toBeInTheDocument();
   });
 });
+
+describe("regions and thresholds (#427, Preview only)", () => {
+  const triangle = (d: number): CutLine[] => [
+    { ...idealCutLine(0, 3) },
+    { ...idealCutLine(1, 3) },
+    // the third diameter shifted sideways by d
+    (() => {
+      const base = idealCutLine(2, 3);
+      const ux = base.end.x - base.start.x;
+      const uy = base.end.y - base.start.y;
+      const len = Math.hypot(ux, uy);
+      const nx = -uy / len;
+      const ny = ux / len;
+      const half = Math.sqrt(DOUGH_RADIUS * DOUGH_RADIUS - d * d);
+      const cx = DOUGH_CENTER + nx * d;
+      const cy = DOUGH_CENTER + ny * d;
+      return {
+        start: { x: cx - (ux / len) * half, y: cy - (uy / len) * half },
+        end: { x: cx + (ux / len) * half, y: cy + (uy / len) * half },
+      };
+    })(),
+  ];
+
+  it("shows all regions / significant ones and the thresholds; a tiny centre triangle is 7 regions, 6 significant", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    const lines = triangle(1);
+    render(<CutDebugPanel evaluation={evaluateCut(lines)} lines={lines} />);
+    expect(screen.getByText("全領域 7 / 有意 6")).toBeInTheDocument();
+    expect(screen.getByText("閾値 0.10% / 1.0u")).toBeInTheDocument();
+    expect(screen.getByText(/分割 6\/6/)).toBeInTheDocument();
+  });
+
+  it("the 本数 chip still counts every committed line (a groove included)", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    const lines = [...triangle(0), { start: { x: 10, y: 50 }, end: { x: 90, y: 50 }, path: [{ x: 6, y: 50 }, { x: 40, y: 50 }] }];
+    render(<CutDebugPanel evaluation={evaluateCut(lines)} lines={lines} />);
+    expect(screen.getByText("本数 4")).toBeInTheDocument();
+    expect(screen.getByText("全領域 6 / 有意 6")).toBeInTheDocument();
+  });
+
+  it("without lines the original chips are unchanged and no regions chip appears", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    render(<CutDebugPanel evaluation={idealEvaluation()} />);
+    expect(screen.queryByText(/全領域/)).not.toBeInTheDocument();
+    expect(screen.getByText("本数 3")).toBeInTheDocument();
+  });
+});
+
