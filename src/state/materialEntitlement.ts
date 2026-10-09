@@ -2,6 +2,7 @@ import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder"
 import { INGREDIENTS, getIngredient } from "../data/ingredients";
 import { countsTowardLadder as recipeCountsTowardLadder } from "../data/recipes";
 import { discoveredRecipeCount, materialIdsOfSteps, resolveMaterialUnlocks } from "../logic/discoveryLadder";
+import { totalStars } from "../logic/mastery";
 import type { DexState } from "./dex";
 
 /**
@@ -54,6 +55,9 @@ export function resolveShopEntitlement(
   const { unlockedMaterialIds, newlyUnlockedMaterialIds } = resolveMaterialUnlocks({
     ladder,
     discoveredCount: discoveredRecipeCount(dex, countsTowardLadder),
+    // Batch 6 starGate: derived from the Dex BEST stars every call (no new save field, nothing
+    // spent), so an existing save is evaluated retroactively and the union below never re-locks.
+    totalStars: totalStars(dex),
     alreadyUnlockedMaterialIds: [
       ...unlockedForShopIngredientIds,
       ...ownedIngredientIds.filter(isFiniteMaterial),

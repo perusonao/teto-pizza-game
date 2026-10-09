@@ -43,6 +43,16 @@ export interface MaterialProgressionStep {
   /** Ingredients this step makes available for purchase in the Shop, in authored order. Usually
    *  one; several when the key recipe needs more than one new ingredient at once. */
   ingredientIds: readonly string[];
+  /**
+   * Batch 6 / #420 (OD-420-1): per-ingredient accumulated-star gate. An ingredient listed here is
+   * unlocked only when this step is reached AND `totalStars(dex)` (the sum of Dex BEST stars) is
+   * `>= starGates[id]`; ingredients not listed unlock on the step alone, exactly as before. Stars
+   * are a non-consumed cumulative achievement (never spent), and a granted unlock never re-locks
+   * (see `resolveMaterialUnlocks`). Keys must be members of `ingredientIds`. An exception to
+   * OD-REC04-1's "stars are never a material unlock condition", limited to the ingredients an
+   * Owner Decision gates this way.
+   */
+  starGates?: Readonly<Record<string, number>>;
   /** The recipe this step completes (the reason the step exists -- no step is a useless unlock). */
   keyRecipeId: string;
 }
