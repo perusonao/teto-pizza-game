@@ -14,6 +14,11 @@
  * make -- the pieces are the exact convex regions (./regions.ts, the same computation the CUT evaluation uses), every one
  * of them, however small; a region's side combination is read at its centroid, which is always inside it. Only a curved
  * traced path (no gesture produces one any more) still uses the sample grid below.
+ *
+ * #427: every cut the reducer commits is straight (`ADD_CUT_LINE` reduces a longer path to its two ends,
+ * `normalizeCutLine` in ./trace.ts), so the sample grid is not reached by the game flow. It stays only for a direct
+ * call of this pure function with a curved path (its own tests and any future trace-based cut, #288); removing it is a
+ * separate decision.
  */
 import type { DoughShape } from "../doughShape";
 import { DOUGH_CENTER, type DoughPoint } from "../pizzaCoordinates";
