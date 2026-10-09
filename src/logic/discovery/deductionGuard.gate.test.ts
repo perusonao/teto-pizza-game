@@ -159,7 +159,11 @@ describe("Hardened guard: H completeness, H-only branches, fail closed", () => {
       // answer does not narrow that side at all, e.g. a constant existence answer).
       for (const [key, n] of classes) expect(n >= 2 || n === sides.get(key.split("|")[0]), `${parts.recipeIngredientIds.join(",")} ${key}`).toBe(true);
     }
-  }, 120_000);
+  // This sweep is exhaustive on purpose: ~3,800 parts (300 runtime + the synthetic families, which grow with the catalog), and for each of
+  // ~65,000 hypotheses it recomputes H, the partition branch and the guarded answer. Measured at 61 ingredients (single core): ~95s, of
+  // which `partitionAllowsDh41` ~37s and `guardedAnswerForParts` ~42s (each is O(|H|) over the DH4-1 answers, |H| up to 60). On a shared
+  // 2-vCPU CI runner it crossed the former 120s limit (PR #440, twice). The checks and assertions are unchanged; only this test's limit moves.
+  }, 300_000);
   it("a told clause is never 0, and no hypothesis in H has a zero topping total when it is told (P2-2)", () => {
     for (const parts of all) {
       if (!toppingClauseAllowedForParts(parts)) continue;
