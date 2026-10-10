@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -14,7 +15,8 @@ import { expect, type Page } from "@playwright/test";
 /** `BakeOverlay`'s own needle speed (`src/components/BakeOverlay.tsx`'s `SPEED` constant,
  *  percent per second) -- the one real-time fact `bakeToTarget` below needs to convert a target
  *  needle position into a virtual-clock duration. */
-const BAKE_NEEDLE_SPEED_PCT_PER_S = 55;
+// One source of truth with BakeOverlay (src/logic/bakeProgress.ts): a retuned bake duration needs no e2e edit.
+const BAKE_NEEDLE_SPEED_PCT_PER_S = BAKE_SPEED_PCT_PER_S;
 
 /**
  * Pizza Cutting 1.0 Phase 4B: clicks 焼く, drives `BakeOverlay`'s needle to the exact center of
@@ -92,7 +94,7 @@ export async function enterBakePaused(page: Page) {
 
 /** Needle landing accepts a stop within `target`, widened to at least this many points either
  *  side of its center -- single-point targets (e.g. `{ start: 2, end: 2 }`) can only be hit to
- *  within one animation frame (~0.9 pt at BakeOverlay's 55 pt/s). */
+ *  within one animation frame (~0.24 pt at BakeOverlay's ~14.3 pt/s). */
 const NEEDLE_LANDING_MIN_TOLERANCE_PT = 1.5;
 /** Upper bound for the measure -> run -> verify landing loop below. */
 const NEEDLE_LANDING_MAX_ATTEMPTS = 5;
@@ -122,9 +124,10 @@ async function flushReactCommit(page: Page) {
 
 /**
  * The second half of `bakeToTarget`: from the paused clock, runs virtual time until the needle
- * reaches `target`'s center, clicks 取り出す！ and resumes real time. The needle bounces
- * 0 -> 100 -> 0 (BakeOverlay), so after an arbitrary pause (e.g. past the Guide fade) its
- * direction is read from one short step before computing the remaining distance.
+ * reaches `target`'s center, clicks 取り出す！ and resumes real time. Since Issue #419 the needle
+ * moves one way only (0 -> 100 in 10s, then holds), so the landing is a single forward run; a
+ * needle that is already past the window cannot come back, which is reported as an explicit error
+ * (a caller that pauses too long, or aims too close to 0, has a test bug, not a flake).
  *
  * #394 Phase 1: a closed loop on committed state instead of one open-loop plan. Every read of
  * `.bake-gauge__needle`'s `style.left` first flushes React's commit (`flushReactCommit`; virtual
@@ -145,25 +148,17 @@ export async function landNeedleAndTakeOut(page: Page, target: { start: number; 
 
   const trail: number[] = [];
   for (let attempt = 1; attempt <= NEEDLE_LANDING_MAX_ATTEMPTS; attempt += 1) {
-    const before = await read();
-    await page.clock.runFor(20);
     let position = await read();
-    let direction = position > before ? 1 : position < before ? -1 : position >= 100 ? -1 : 1;
-    if (position >= 100) direction = -1; // bounced off the right end during this step
-    if (position <= 0) direction = 1;
     trail.push(position);
-
     if (!landed(position)) {
-      const distance =
-        direction > 0
-          ? center >= position
-            ? center - position
-            : 100 - position + (100 - center)
-          : center <= position
-            ? position - center
-            : position + center;
-      const remainingMs = Math.max(0, Math.round((distance / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
-      if (remainingMs > 0) await page.clock.runFor(remainingMs);
+      if (position > center + tolerance) {
+        throw new Error(
+          `landNeedleAndTakeOut: the one-way needle is already at ${position.toFixed(1)}, past the ` +
+            `window ${target.start}-${target.end} (it cannot return); pause earlier or widen the window`,
+        );
+      }
+      const remainingMs = Math.max(1, Math.round(((center - position) / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
+      await page.clock.runFor(remainingMs);
       position = await read();
       trail.push(position);
     }

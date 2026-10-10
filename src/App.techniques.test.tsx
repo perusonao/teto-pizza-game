@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { BAKE_SPEED_PCT_PER_S } from "./logic/bakeProgress";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -74,10 +75,13 @@ async function playMargherita(user: ReturnType<typeof userEvent.setup>) {
   vi.stubGlobal("cancelAnimationFrame", () => {});
   vi.stubGlobal("performance", { now: () => now });
   await user.click(screen.getByRole("button", { name: /焼く/ }));
-  now += (70 / 55) * 1000;
-  const cb = raf as FrameRequestCallback | null;
-  raf = null;
-  cb?.(now);
+  // #419: one-way needle (BAKE_SPEED_PCT_PER_S); a frame adds at most 0.1s, so advance in small frames.
+  for (let i = 0; i < Math.ceil(((70 / BAKE_SPEED_PCT_PER_S) * 1000) / 50); i += 1) {
+    now += 50;
+    const cb = raf as FrameRequestCallback | null;
+    raf = null;
+    cb?.(now);
+  }
   await user.click(screen.getByRole("button", { name: "取り出す！" }));
   vi.unstubAllGlobals();
   await screen.findByText("NEW PIZZA! ✨");
