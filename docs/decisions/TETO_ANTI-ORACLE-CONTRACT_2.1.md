@@ -10,6 +10,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 > **Research 2.0 同期（2026-10-05、Owner Decisions OD-R2-1〜5 / OD-R1-1〜4 / OD-R3-1〜3 / OD-C-1）:** 正本は [`TETO_RESEARCH-2.0_OWNER-DECISIONS.md`](./TETO_RESEARCH-2.0_OWNER-DECISIONS.md)。**Phase 1 で有効になる改訂**: Research Entry の label は ①②③ をやめ、`？？？ピザ B（たまねぎ）`（兄弟 cohort のみ letter）/ `？？？ピザ（チキン）`（単独）に統一する（D+ Cohort Letter、導出のみ・save しない、OD-RB-14 は存置）。下の §3 / §7 の `？？？ピザ ①（…）` 表記は **この改訂で置き換わった旧表記**として読む。**承認済みだが未実装（Phase 2〜4）**: ×の加算 ledger（OD-RB-7 / INV-6' / §6 / §14 の「negative の永続化」を Phase 2 で上書き）、Notebook 上部の Research Board、焼き FAILED でも○× を開示し Notebook に記録（INV-D6 / OD-P3-16 の拡張、在庫消費は維持）。**それまで本書の §6（× は session のみ）は現行挙動のまま**。INV-D7 / OD-TQ1D-4 / Technique privacy は変更しない。
 
+> **Hint 5.0 BASE rung 同期（2026-10-10、Owner Decisions OD-H5-BASE-1〜7）:** 正本は [`TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`](./TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md)。key-free レシピの Hint 梯子は、sauce / cheese が無い target で該当 rung を省いていたため、購入前のラベルから「ソースなし / チーズなし」が分かっていた。これを **`BASE → 構成 → サブ分類…` の固定形（全 key-free で同一）** に統一する（PR-D 実装・PR-E 有効化。**それまでは現行挙動**）。BASE は「なし」を書かない。本書の §3「カテゴリ行だけを条件付きで省略する設計は採用しない」は、RESULT パネルだけでなく Hint の梯子にも適用される。INV-D7 / OD-TQ1D-1 / §10 の accepted consequence・Contract 2.1 の価格・K・永続化は変更しない。
+
 ## 0. この文書の位置づけ
 
 - **Contract 2.0** は repo 内の文書ではなく **Issue #356 §4**（Anti-Oracle Contract 2.0 / INV-1〜INV-7 / OD-I-1〜18）と、実装コメント
@@ -70,7 +72,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 - **直接の「なし」表示の禁止（OD-RB-12）**: パネルは player が実際に試した ingredient についてだけ「モッツァレラ ×」「パルミジャーノ ×」のように表示する。**「チーズなし」「ソースなし」「〜は使わない」を直接書かない**（行ごと・文言ごと）。player 自身が結果から「チーズなしでは？」と推理することは許容する（§10）。
 - **表示順**は player 自身の pizza の順序（置いた順 / 種類順）で、`canonical(T)` の順序や catalog の順序を使わない。
 - パネルに **○ / × の個数、「全部正解」「あと少し」等の総評、色による総括、count、進捗** を置かない。
-- **標準パネルを target 非依存に同一表示できない target は、パネルの対象 population に含めない**（例: Hint 5.0 で sauce rung が RESERVED の target）。**カテゴリ行だけを条件付きで省略する設計は採用しない**: target の性質によって sauce 行だけが消えると、パネルの省略そのものが hidden property（reserved / no-sauce class）を漏らすため（INV-D4、INV-5）。
+- **標準パネルを target 非依存に同一表示できない target は、パネルの対象 population に含めない**（例: Hint 5.0 で sauce rung が RESERVED の target）。**カテゴリ行だけを条件付きで省略する設計は採用しない**（Hint 5.0 の key-free 梯子にも同じ原則を適用する。BASE rung、OD-H5-BASE-1）: target の性質によって sauce 行だけが消えると、パネルの省略そのものが hidden property（reserved / no-sauce class）を漏らすため（INV-D4、INV-5）。
   - **TQ-1D による解消（OD-TQ1D-1、Expansion Gate A CLOSED）:** no-sauce の `aussie` は**この除外に当てはまらない**。標準パネルは元々 target 非依存で、行は **player が実際に使った ingredient** だけから作られる（`researchResultRows`）。sauce 行が出るのは player が sauce を使った時だけで、sauce を使わなかった pizza には**どの target でも**sauce 行は無い（Aussie だけが省略されるのではない）。player が sauce を使えば、Aussie でも他の target と同じ通常の ×（member でない sauce）になる。したがって Aussie 専用の特殊行（「ソースなし」「ソース不要」）も、0 点の sauce 行も、条件付き省略も**作らない**。Hint 5.0 は RESERVED を復活させず、Aussie は key-free で **SAUCE rung を持たない**（最初の有効 rung は CHEESE）。「ソースなし」は **player が実際に作った pizza の組成から Technique `no-sauce` を発見した後**にだけ、Technique の名称として公開してよい（RESULT の技法段 / Dex）。target の identity から sauce-none を判定・開示することはない。
 
 ## 4. 不変条件（Contract 2.1）
