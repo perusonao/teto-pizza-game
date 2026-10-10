@@ -67,7 +67,7 @@ State read: `discoveryHintFacts[recipeId]` (a list of fact-id strings). Rung ind
 |---|---|
 | **M-1** | BASE is **COMPLETED** iff **every applicable marker** is stored. |
 | **M-2** | BASE is **OPEN** iff **no** applicable marker is stored. Normal M3 pricing: 10 Pitz, or 0 if every subject is already known. |
-| **M-3** | **Legacy partial** = some but not all applicable markers are stored. The only reachable case is a recipe with a sauce **and** a cheese where `h5:sauce` is stored and `h5:cheese` is not (the old ladder was strictly linear; 12 recipes). Completing it is **CREDITED**: charge **0** (even if the balance is below 10, as in OD-360-3), appending the missing `ing:` names and markers. Reason: at least 10 Pitz was already paid, which is the BASE price. |
+| **M-3** | **Legacy partial** = some but not all applicable markers are stored. The only reachable case is a recipe with a sauce **and** a cheese where `h5:sauce` is stored and `h5:cheese` is not (the old ladder was strictly linear; 12 recipes). Completing it is **CREDITED**: charge **0** (even if the balance is below 10, as in OD-360-3), appending the missing `ing:` names and markers. Reason: in the normal case at least 10 Pitz was already paid for the sauce rung, which is the BASE price. This is a presumption, not a fact the save can prove: M-7 shows a free marker looks the same. The credit is therefore justified by the migration rule, not by a proven payment. |
 | **M-4** | CREDITED is the new outcome `ANSWERED_CREDITED` (§5). **Precedence at request time:** (1) BASE completed → nothing to buy; (2) **every subject name already known → `ALREADY_KNOWN`** (0 Pitz, markers only), even when the save is a legacy partial, because nothing new is disclosed; (3) otherwise a legacy partial → `ANSWERED_CREDITED` (0 Pitz, discloses the missing names); (4) otherwise `ANSWERED` at 10 Pitz. Migration tests expect exactly this order. |
 | **M-5** | **No refund** for a player who bought both old rungs (OD-H5-BASE-7). |
 | **M-6** | Progress after BASE (`h5:structure`, `cls:<id>`) is untouched and still valid. It can exist only when BASE is complete (verified, §4.1). |
@@ -96,7 +96,7 @@ A BASE purchase writes the same facts the two old rungs wrote (§2). Verified on
 
 - Result shape: `{ outcome: "ANSWERED_CREDITED", rungIndex, kind: "BASE", addFactIds, charge: 0, persist }`.
 - It is produced only by M-3, and only when at least one subject name is still unknown (M-4 precedence: all-known is `ALREADY_KNOWN`). It never occurs for any other rung or for the keyed ladder.
-- The reducer applies it like `ANSWERED` with `charge = 0`: no Pitz change, facts appended, the transient `hintOutcome` set to a new value. The line shown after it is neutral (proposal: 「前に払ったぶんで、ベースのヒントがそろったよ」); the exact copy is confirmed at HV.
+- The reducer applies it like `ANSWERED` with `charge = 0`: no Pitz change, facts appended, the transient `hintOutcome` set to a new value. The line shown after it is neutral (proposal: 「前のヒントのぶんで、ベースのヒントがそろったよ」; it must not say the player paid, because M-7 saves did not); the exact copy is confirmed at HV.
 - **H5-INV-6 (charging) is amended by one clause only:** "Only ANSWERED **and ANSWERED_CREDITED** are *answers*. ANSWERED charges the rung price. ANSWERED_CREDITED charges 0 and only ever completes a legacy partial BASE. The other no-charge cases are unchanged."
 - The "0 Pitz never appears in production" sentence stays true for everything except ALREADY_KNOWN (OD-H5-M3) and ANSWERED_CREDITED.
 
