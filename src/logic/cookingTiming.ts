@@ -168,6 +168,24 @@ export function advanceStepTiming(
 }
 
 /**
+ * Issue #453 (PR #454 review): excludes a span (a blocking HOME-leave confirmation that was
+ * cancelled) from the currently active step's elapsed time, for the phases where
+ * `pauseCookingTiming` cannot act (POST_BAKE/CUT: the whole-round clock is already finalized, so
+ * pause/resume are no-ops there). Slides `stepStartedAt` forward by `spanMs`, clamped so the window
+ * never starts in the future of `now`; a no-op with no active step, a pause in progress, or a
+ * non-positive span. Touches nothing else -- `completedMs` and every other step stay byte-identical.
+ */
+export function excludeActiveStepSpan(
+  timing: CookingTimingState,
+  now: number,
+  spanMs: number,
+): CookingTimingState {
+  if (timing.activeStep === null || timing.stepStartedAt === null || timing.pausedAt !== null) return timing;
+  if (!Number.isFinite(spanMs) || spanMs <= 0) return timing;
+  return { ...timing, stepStartedAt: Math.min(now, timing.stepStartedAt + spanMs) };
+}
+
+/**
  * Cooking Time CT2: combines every independent pause reason (Reference popover, Dex/Shop/
  * Inventory overlay, app backgrounded via `visibilitychange`/`blur`) into the one signal
  * `App.tsx` dispatches PAUSE/RESUME_COOKING_TIMING on the transitions of. A plain boolean OR is

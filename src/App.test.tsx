@@ -660,6 +660,117 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".home-screen")).toBeInTheDocument();
   });
 
+  it("Issue #453: confirms before leaving Guided POST_BAKE/CUT for HOME, and a confirmed exit resets the round", async () => {
+    seedBismarckUnlocked();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    await paintSauceRing(user, "トマトソース", 25, 16);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+    await selectAndTapPizza(user, "たまご", 50, 65);
+    const needle = controlBakeNeedle();
+    needle.stub();
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65);
+    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> POST_BAKE/CUT
+    needle.unstub();
+    expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+
+    // Cancel: stays in CUT.
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(false);
+    await user.click(screen.getByRole("button", { name: /ホーム/ }));
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+
+    // OK: back to HOME, and the next round starts fresh (no stale POST_BAKE/CUT).
+    confirmSpy.mockReturnValueOnce(true);
+    await user.click(screen.getByRole("button", { name: /ホーム/ }));
+    expect(confirmSpy).toHaveBeenCalledTimes(2);
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
+    expect(screen.queryByRole("button", { name: /切り終わる/ })).not.toBeInTheDocument();
+    expect(document.querySelector(".order-card")).toHaveTextContent("ビスマルク");
+  });
+
+  it("Issue #453 (PR #454 review): a cancelled HOME confirmation's dwell time is excluded from the CUT step only", async () => {
+    // Only `Date` is faked (the reducer's timing clock): userEvent keeps real timers.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(1_000_000);
+      const tick = (ms: number) => vi.setSystemTime(Date.now() + ms);
+      seedBismarckUnlocked();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+      await selectRecipeInPizzaSelect(user, "bismarck");
+      tick(4_000);
+      completeDoughStep();
+      await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH 4s
+      tick(3_000);
+      await paintSauceRing(user, "トマトソース", 25, 16);
+      await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE 3s
+      tick(2_000);
+      await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+      await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+      await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+      await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE 2s
+      tick(5_000);
+      await selectAndTapPizza(user, "たまご", 50, 65);
+      const needle = controlBakeNeedle();
+      needle.stub();
+      await user.click(screen.getByRole("button", { name: /焼く/ })); // TOPPING 5s, whole round 14s
+      needle.driveTo(65);
+      await user.click(screen.getByRole("button", { name: "取り出す！" })); // CUT starts
+      needle.unstub();
+      expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+
+      // CUT: 3s, then a HOME confirmation left open for 7s and cancelled, 1s, a second one left
+      // open for 4s and cancelled, then 2s more -> 3 + 1 + 2 = 6s of CUT, not 6 + 11 = 17s.
+      tick(3_000);
+      const confirmSpy = vi.spyOn(window, "confirm").mockImplementationOnce(() => {
+        tick(7_000);
+        return false;
+      });
+      await user.click(screen.getByRole("button", { name: /ホーム/ }));
+      expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+      tick(1_000);
+      confirmSpy.mockImplementationOnce(() => {
+        tick(4_000);
+        return false;
+      });
+      await user.click(screen.getByRole("button", { name: /ホーム/ }));
+      expect(confirmSpy).toHaveBeenCalledTimes(2);
+      tick(2_000);
+      await completeCutStepIfPresent(user);
+
+      await screen.findByText(/スムーズ/);
+      const details = document.querySelector(".cooking-timing-summary");
+      const rows = Object.fromEntries(
+        Array.from(details?.querySelectorAll(".cooking-timing-summary__row") ?? []).map((row) => [
+          row.querySelector("dt")?.textContent,
+          row.querySelector("dd")?.textContent,
+        ]),
+      );
+      expect(rows["カット"]).toBe("0:06");
+      // Everything else is untouched: per-step times and the BAKE-excluded whole-round total.
+      expect(rows["生地"]).toBe("0:04");
+      expect(rows["ソース"]).toBe("0:03");
+      expect(rows["チーズ"]).toBe("0:02");
+      expect(rows["具材"]).toBe("0:05");
+      expect(details?.querySelector("summary")).toHaveTextContent("0:14");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("starts a fresh round instead of reopening a finished round from HOME's CTA", async () => {
     seedBismarckUnlocked();
     const user = userEvent.setup();

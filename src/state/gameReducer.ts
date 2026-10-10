@@ -19,6 +19,7 @@ import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
 import {
   advanceStepTiming,
+  excludeActiveStepSpan,
   finishCookingTiming,
   pauseCookingTiming,
   resumeCookingTiming,
@@ -564,6 +565,9 @@ export type GameAction =
   // (Mission rounds always have it `null`), so a stray dispatch can never affect BAKE/RESULT
   // or leak into a Mission round.
   | { type: "PAUSE_COOKING_TIMING"; now: number }
+  /** Issue #453: a cancelled HOME-leave confirmation during POST_BAKE/CUT -- `spanMs` of dialog
+   *  dwell time is removed from the active step's elapsed time (see `excludeActiveStepSpan`). */
+  | { type: "EXCLUDE_STEP_SPAN"; now: number; spanMs: number }
   | { type: "RESUME_COOKING_TIMING"; now: number }
   // Issue #418: commits one completed straight drag (../logic/cut/trace.ts's `buildTracedCutLine`;
   // `line.path` is the drawn cut, and #427's `normalizeCutLine` reduces any longer path to its two ends)
@@ -1817,6 +1821,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     case "PAUSE_COOKING_TIMING": {
       if (state.phase !== "PREPARE" || !state.cookingTiming) return state;
       return { ...state, cookingTiming: pauseCookingTiming(state.cookingTiming, action.now) };
+    }
+
+    case "EXCLUDE_STEP_SPAN": {
+      if (state.phase !== "POST_BAKE" || !state.cookingTiming) return state;
+      const cookingTiming = excludeActiveStepSpan(state.cookingTiming, action.now, action.spanMs);
+      return cookingTiming === state.cookingTiming ? state : { ...state, cookingTiming };
     }
 
     case "RESUME_COOKING_TIMING": {
