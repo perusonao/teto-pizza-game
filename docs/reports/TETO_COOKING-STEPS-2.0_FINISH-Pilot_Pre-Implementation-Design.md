@@ -14,7 +14,7 @@
 
 ## 0. 結論
 
-1. **Owner方針（FINISH先行・Undo先行・#294分担維持・6タブ・推理保護）はすべて両立できる。** 構成は 5 PR（Phase 1 Undo → Phase 2 土台 → Phase 3 FINISH engine（inert）→ Phase 4a 技法TQ-2基盤（inert）→ Phase 4b 有効化）。本番で見えるのは Phase 1 と Phase 4b だけ。
+1. **Owner方針（FINISH先行・Undo先行・#294分担維持・6タブ・推理保護）はすべて両立できる。** 構成は 5 PR（Phase 1 Undo［#451 で完了済み］→ Phase 2 土台 → Phase 3 FINISH engine（inert）→ Phase 4a 技法TQ-2基盤（inert）→ Phase 4b 有効化）。本番で見えるのは Phase 1 と Phase 4b だけ。
 2. **PR #295 の CS-1a は 55 レシピ環境へ再基準化できる。** 実測: コード差分 5 ファイル（+163/−10）が main へほぼそのまま当たる。競合は `GameScreen.tsx` の import 1 行のみ。`tsc -b` / oxlint clean、関連 19 ファイル 342 テスト通過。**失敗するのは tab-gate テストのハードコード（25 レシピ・18/7 件）だけ**で、main が「カタログ件数を固定しない」方針のため、導出式へ直す修正が要る。PR #295 自体は触らず、**CS-1a のコードを新PRへ移植する**ことを推奨（§2）。
 3. **前回監査の訂正:** 前回「FREE に仕上げタブを常設すると全 FREE が 7 タブ」と書いたのは**誤り**。実測で **Free Cooking は 5 タブ**（DOUGH/SAUCE/CHEESE/TOPPING/焼く、CUT なし）。常設の仕上げタブを足しても **6 タブで上限内**（§4）。前回レポートの該当箇所は本コミットで訂正済み。
 4. **Undo は履歴スタックを持たない設計が成立する。** `pizza.toppings` は追記専用・カテゴリでゲート済みなので、「現ステップのカテゴリの最後の1個」を配列から導出できる。新しい保存状態・schema 変更はなし。`44879be` 時点の main には Undo が存在せず、この設計が最初の Undo になった。**Undo（P1）は #451 で実装・merge 済み**（§3 は設計の根拠）。
@@ -302,20 +302,20 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 
 ```
 Phase 0  Owner 判断（UD-A..UD-I）                         docs / Issue 起票は Owner 判断後  ※ UD-A 実装済み・UD-C 決定済み（2026-10-10）
-Phase 1  Undo last placement                    [本番可視]  親: #270
+Phase 1  Undo last placement                    [本番可視]  親: #270  ※ 完了（#451 で実装・merge 済み）
 Phase 2  Cooking Steps 土台（CS-1a 移植 → CS-1b） [不可視]    親: #294
 Phase 3  FINISH engine（inert, fixture 検証）    [不可視]    親: #294
 Phase 4a 技法 TQ-2 基盤（検出/軸/near-miss/Dex）  [不可視]    親: 新規（TQ-2）
 Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]  親: 新規（TQ-2）
 ```
 
-依存（§7.2 の表と同一）: P1 ⟂ P2（並行可）。P2: PR-A（docs）→ P2a（CS-1a, PR-B）→ P2b（CS-1b, PR-C）の順。P3 ← P2b ＋ Owner 決定（UD-H = OD-CS-7、OD-CS-3、OD-CS-11）。P4a ← P3 ＋ Owner 決定（UD-D、UD-G）。P4b ← P4a ＋ Owner 決定（UD-B/D/E/F、UD-G、UD-I）。P4a・P4b はともに CS-3 の共通ゲート（OD-CS-4〜8、OD-CS-10、Hint 再監査計画、TQ-1D 出荷済み。NEXT-PHASE_DESIGN G-CS-F）を満たすまで開始できない。P2a の開始には PR-A（docs）の merge も要る。このゲートは P4 全体の共通前提で、P4a / P4b への個別の割当ては決めていない。**P1 は他に依存しない**ので最初に出せる。
+依存（§7.2 の表と同一）: P1（Undo）は #451 で実装・merge 済みで、残作業はない（再実装の計画ではない）。未完了の作業は P2 から始まる。P2: PR-A（docs）→ P2a（CS-1a, PR-B）→ P2b（CS-1b, PR-C）の順。P3 ← P2b ＋ Owner 決定（UD-H = OD-CS-7、OD-CS-3、OD-CS-11）。P4a ← P3 ＋ Owner 決定（UD-D、UD-G）。P4b ← P4a ＋ Owner 決定（UD-B/D/E/F、UD-G、UD-I）。P4a・P4b はともに CS-3 の共通ゲート（OD-CS-4〜8、OD-CS-10、Hint 再監査計画、TQ-1D 出荷済み。NEXT-PHASE_DESIGN G-CS-F）を満たすまで開始できない。P2a の開始には PR-A（docs）の merge も要る。このゲートは P4 全体の共通前提で、P4a / P4b への個別の割当ては決めていない。P1 は完了済みのため、次に着手できるのは PR-A（本 PR）の merge 後の PR-B（P2a）。
 
 ### 7.2 各 Phase
 
 | Phase | 範囲 | 依存 | 主なテスト | HV |
 |---|---|---|---|---|
-| **P1 Undo** | `UNDO_LAST_PLACEMENT`（CHEESE/TOPPING）、↩ ボタン、Dinner ガード、トークン | なし | §3.9。既存 PREPARE E2E 全回帰。**Production DOM golden の再基準化が要る可能性**（バーにボタン追加）→ 項目ごとに確認 | **必須**（390×844 動画: 配置→Undo→再配置→ドラッグ中Undo→RESULT。360×800 は幅の実測のため追加）＋ before/after |
+| **P1 Undo（完了・#451 で merge 済み。以降の列は設計時の範囲）** | `UNDO_LAST_PLACEMENT`（CHEESE/TOPPING）、↩ ボタン、Dinner ガード、トークン | なし | §3.9。既存 PREPARE E2E 全回帰。**Production DOM golden の再基準化が要る可能性**（バーにボタン追加）→ 項目ごとに確認 | **必須**（390×844 動画: 配置→Undo→再配置→ドラッグ中Undo→RESULT。360×800 は幅の実測のため追加）＋ before/after |
 | **P2a 移植** | CS-1a（tab gate、`renderedPostBakeStep`）を main へ。tab-gate の導出化（§2.3） | UD-C、PR-A（docs, 本 PR）の merge | Vitest、`tsc`、`layout-contract` / `dynamic-cooking-steps` / `pizza-cutting-phase4b` が無改変で緑 | 不要（内部refactor・見た目不変、既存DOM同一） |
 | **P2b CS-1b** | `finalizeRound()` 抽出、golden（`RECIPES` 全件から導出 × FREE/LR/Dinner × bake {生/適正/焦げ}。件数は固定しない。`e0397ae` 時点で 55） | P2a（PR-B）の完了 | golden の before/after バイト一致、`App.dinner`/`App.techniques` 無改変 | 不要 |
 | **P3 FINISH engine** | `RecipeRequirement.applicationPhase?`、`deriveCoreSteps` が FINISH を付与、`PlacedTopping.stage?`、FINISH 配置＋Undo 拡張、暫定判定/再確定（§5.3）、在庫の差分消費、fresh 描画、reducer ガード。**検証は test-only の BBQ型 fixture（`RECIPES` に入れない）** | P2b、**UD-H**（= OD-CS-7。失敗ピザの FINISH スキップ。同一決定）、**OD-CS-3**・**OD-CS-11**（Authority Index §2、回答が必要） | 「本番プロファイルに FINISH を含むものがない」不変条件、7タブ fixture でゲート失敗、再確定の golden、在庫の二重計上なし | 不要（本番で見えない） |
@@ -324,13 +324,13 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 
 ### 7.3 Issue 方針
 
-- P1 → 既存 #270 に紐づけ。P2/P3 → 既存 #294（CS 番号に合流）。P4 → **TQ-2 の Issue は未存在**のため、Owner の了承後に起票（本セッションでは作成しない）。
+- P1 → 既存 #270 に紐づけ（#451 で実装・merge 済み）。P2/P3 → 既存 #294（CS 番号に合流）。P4 → **TQ-2 の Issue は未存在**のため、Owner の了承後に起票（本セッションでは作成しない）。
 
 ---
 
 ## 8. 受け入れ条件
 
-### 8.1 Undo（P1）
+### 8.1 Undo（P1。#451 で実装済み。以下は設計時の受け入れ条件）
 
 | ID | 条件 |
 |---|---|
