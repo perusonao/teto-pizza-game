@@ -226,86 +226,91 @@ export function ShopOverlay({
             <p className="shop-overlay__empty">新しいピザを発見すると、材料が入荷します</p>
           )}
 
+          {/* #455: the tabs and the list share one wrapper so the tabs stay pinned (CSS `sticky`) while the
+              list scrolls and release before the LOCKED section, which the tabs never filter. Shop only: ShelfTabs
+              and the Inventory are untouched. */}
           {rows.length > 0 && (
-            <ShelfTabs
-              majors={majorsPresent(listedIngredients)}
-              families={familiesPresent(listedIngredients)}
-              selection={activeSelection}
-              onChange={setSelection}
-            />
-          )}
+            <div className="shop-overlay__shelf">
+              <ShelfTabs
+                majors={majorsPresent(listedIngredients)}
+                families={familiesPresent(listedIngredients)}
+                selection={activeSelection}
+                onChange={setSelection}
+              />
 
-          {rows.length > 0 && visibleRows.length === 0 && (
-            <p className="shop-overlay__empty">このカテゴリで買える材料はまだありません</p>
-          )}
+              {visibleRows.length === 0 && (
+                <p className="shop-overlay__empty">このカテゴリで買える材料はまだありません</p>
+              )}
 
-          {visibleRows.length > 0 && (
-            <div className="shop-overlay__list">
-              {visibleRows.map((row) => {
-                const { ingredient, state, offer } = row;
-                const price = state === "NEW" ? offer.packPrice : offer.refillPrice;
-                const shortfall = Math.max(0, price - pitzBalance);
-                // #378 Option 1 (OD-378-2): the same zero-stock mark for EVERY owned material -- never filtered,
-                // sorted or highlighted by what any Research Entry needs.
-                const outOfStock = state === "OWNED" && (inventory[ingredient.id] ?? 0) <= 0;
-                return (
-                  <div
-                    key={ingredient.id}
-                    className={`shop-item${state === "NEW" ? " shop-item--new" : ""}${outOfStock ? " shop-item--empty" : ""}`}
-                    data-ingredient-id={ingredient.id}
-                    data-shop-state={state}
-                    data-stock-state={outOfStock ? "EMPTY" : undefined}
-                  >
-                    <div className="shop-item__row">
-                      <div className="shop-item__info">
-                        <span className="shop-item__emoji">
-                          <IngredientGlyph ingredient={ingredient} />
-                        </span>
-                        <span className="shop-item__name">{ingredient.nameJa}</span>
-                        {state === "NEW" && <span className="shop-item__badge">NEW 入荷</span>}
-                        {outOfStock && <span className="shop-item__badge shop-item__badge--empty">在庫なし</span>}
-                      </div>
-                      <span className="shop-item__stock">在庫 {remainingStock(ingredient, inventory)}</span>
-                    </div>
-                    <FamilyTag ingredientId={ingredient.id} className="shop-item__family" />
-                    <div className="shop-item__row">
-                      <span className="shop-item__pack">
-                        {state === "NEW" ? "" : "+"}
-                        {"\u{1F355}"}
-                        {packLabelJa(ingredient, offer)}
-                      </span>
-                      <div className="shop-item__buy">
-                        <span className="shop-item__price">
-                          {state === "NEW" ? "初回" : "補充"} {"\u{1FA99}"} {price} Pitz
-                        </span>
-                        {state === "NEW" ? (
-                          <button
-                            type="button"
-                            className="shop-item__buy-button"
-                            disabled={shortfall > 0}
-                            onClick={() => handleBuy(row)}
-                          >
-                            仕入れる
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="shop-item__restock-button"
-                            disabled={shortfall > 0}
-                            onClick={() => handleRefill(row)}
-                          >
-                            補充する
-                          </button>
+              {visibleRows.length > 0 && (
+                <div className="shop-overlay__list">
+                  {visibleRows.map((row) => {
+                    const { ingredient, state, offer } = row;
+                    const price = state === "NEW" ? offer.packPrice : offer.refillPrice;
+                    const shortfall = Math.max(0, price - pitzBalance);
+                    // #378 Option 1 (OD-378-2): the same zero-stock mark for EVERY owned material -- never filtered,
+                    // sorted or highlighted by what any Research Entry needs.
+                    const outOfStock = state === "OWNED" && (inventory[ingredient.id] ?? 0) <= 0;
+                    return (
+                      <div
+                        key={ingredient.id}
+                        className={`shop-item${state === "NEW" ? " shop-item--new" : ""}${outOfStock ? " shop-item--empty" : ""}`}
+                        data-ingredient-id={ingredient.id}
+                        data-shop-state={state}
+                        data-stock-state={outOfStock ? "EMPTY" : undefined}
+                      >
+                        <div className="shop-item__row">
+                          <div className="shop-item__info">
+                            <span className="shop-item__emoji">
+                              <IngredientGlyph ingredient={ingredient} />
+                            </span>
+                            <span className="shop-item__name">{ingredient.nameJa}</span>
+                            {state === "NEW" && <span className="shop-item__badge">NEW 入荷</span>}
+                            {outOfStock && <span className="shop-item__badge shop-item__badge--empty">在庫なし</span>}
+                          </div>
+                          <span className="shop-item__stock">在庫 {remainingStock(ingredient, inventory)}</span>
+                        </div>
+                        <FamilyTag ingredientId={ingredient.id} className="shop-item__family" />
+                        <div className="shop-item__row">
+                          <span className="shop-item__pack">
+                            {state === "NEW" ? "" : "+"}
+                            {"\u{1F355}"}
+                            {packLabelJa(ingredient, offer)}
+                          </span>
+                          <div className="shop-item__buy">
+                            <span className="shop-item__price">
+                              {state === "NEW" ? "初回" : "補充"} {"\u{1FA99}"} {price} Pitz
+                            </span>
+                            {state === "NEW" ? (
+                              <button
+                                type="button"
+                                className="shop-item__buy-button"
+                                disabled={shortfall > 0}
+                                onClick={() => handleBuy(row)}
+                              >
+                                仕入れる
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="shop-item__restock-button"
+                                disabled={shortfall > 0}
+                                onClick={() => handleRefill(row)}
+                              >
+                                補充する
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {shortfall > 0 && (
+                          <p className="shop-item__shortfall">あと {shortfall} Pitz たりません</p>
                         )}
+                        {state === "NEW" && <p className="shop-item__unlocks">{SHOP_NEW_MATERIAL_HINT_JA}</p>}
                       </div>
-                    </div>
-                    {shortfall > 0 && (
-                      <p className="shop-item__shortfall">あと {shortfall} Pitz たりません</p>
-                    )}
-                    {state === "NEW" && <p className="shop-item__unlocks">{SHOP_NEW_MATERIAL_HINT_JA}</p>}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

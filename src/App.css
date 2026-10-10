@@ -3088,6 +3088,26 @@
   gap: 8px;
 }
 
+/* #455: the tabs and the list share this wrapper (ShopOverlay), so the tab block stays pinned to the top of the
+   scrolling Shop body while the list scrolls, and is released before the LOCKED section the tabs never filter.
+   Scoped to the Shop: `.shelf-tabs` itself (shared with the Inventory) is unchanged. The negative margin + padding
+   let the opaque background cover the body's 16px gutters, so a card never shows beside the pinned tabs. */
+.shop-overlay__shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-overlay__shelf > .shelf-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -16px;
+  padding: 6px 16px;
+  background: #fff8ea;
+  box-shadow: 0 6px 6px -6px rgba(74, 46, 10, 0.28);
+}
+
 .shop-item {
   display: flex;
   flex-direction: column;
@@ -3155,7 +3175,7 @@
   font-size: 12px;
   border-radius: 999px;
   padding: 8px 14px;
-  min-height: 36px;
+  min-height: 44px; /* #455: the primary Shop action is a 44px tap target */
 }
 
 .shop-item__buy-button:disabled {
@@ -3194,7 +3214,7 @@
   font-size: 12px;
   border-radius: 999px;
   padding: 8px 14px;
-  min-height: 36px;
+  min-height: 44px; /* #455: the primary Shop action is a 44px tap target */
 }
 
 .shop-item__restock-button:disabled {
