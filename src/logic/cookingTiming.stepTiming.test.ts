@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   advanceStepTiming,
+  excludeActiveStepSpan,
   finishCookingTiming,
   pauseCookingTiming,
   resumeCookingTiming,
@@ -147,5 +148,36 @@ describe("advanceStepTiming", () => {
     const sum = Object.values(finished.perStepElapsedMs).reduce((a, b) => a + (b ?? 0), 0);
     expect(sum).toBe(finished.completedMs);
     expect(finished.completedMs).toBe(20_000);
+  });
+});
+
+describe("excludeActiveStepSpan (Issue #453)", () => {
+  const finished = (): CookingTimingState => ({
+    ...advanceStepTiming(finishCookingTiming(startCookingTiming(0, "DOUGH"), 1_000), 1_000, "CUT"),
+  });
+
+  it("removes the span from the active step's elapsed ms and leaves completedMs untouched", () => {
+    const timing = finished();
+    const excluded = excludeActiveStepSpan(timing, 6_000, 4_000);
+    expect(excluded.completedMs).toBe(1_000);
+    expect(advanceStepTiming(excluded, 6_000, null).perStepElapsedMs.CUT).toBe(1_000);
+    // control: without the exclusion the dialog dwell counts
+    expect(advanceStepTiming(timing, 6_000, null).perStepElapsedMs.CUT).toBe(5_000);
+  });
+
+  it("accumulates over repeated cancelled confirmations", () => {
+    let timing = excludeActiveStepSpan(finished(), 3_000, 1_000);
+    timing = excludeActiveStepSpan(timing, 6_000, 2_000);
+    expect(advanceStepTiming(timing, 8_000, null).perStepElapsedMs.CUT).toBe(4_000);
+  });
+
+  it("clamps so the step window never starts after now, and ignores bad spans / no active step", () => {
+    const timing = finished();
+    expect(advanceStepTiming(excludeActiveStepSpan(timing, 2_000, 99_000), 2_000, null).perStepElapsedMs.CUT).toBe(0);
+    expect(excludeActiveStepSpan(timing, 5_000, 0)).toBe(timing);
+    expect(excludeActiveStepSpan(timing, 5_000, -3)).toBe(timing);
+    expect(excludeActiveStepSpan(timing, 5_000, Number.NaN)).toBe(timing);
+    const closed = advanceStepTiming(timing, 2_000, null);
+    expect(excludeActiveStepSpan(closed, 5_000, 1_000)).toBe(closed);
   });
 });

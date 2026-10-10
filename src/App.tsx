@@ -889,8 +889,15 @@ function App() {
       if (dinnerRuntime.requestLeave()) setScreen("HOME");
       return;
     }
-    if (isRoundInProgress() && !window.confirm(GO_HOME_CONFIRM_MESSAGE)) {
-      return;
+    if (isRoundInProgress()) {
+      const confirmOpenedAt = Date.now();
+      if (!window.confirm(GO_HOME_CONFIRM_MESSAGE)) {
+        // Issue #453: the native dialog blocks without any pause signal, and POST_BAKE/CUT has no
+        // pausable whole-round clock, so the dwell time is excluded from the CUT step explicitly.
+        const now = Date.now();
+        dispatch({ type: "EXCLUDE_STEP_SPAN", now, spanMs: now - confirmOpenedAt });
+        return;
+      }
     }
     if (mission.mode !== "FREE") {
       // Also tidies up a lingering Mission Intro/Result overlay (no confirmation needed for
