@@ -188,6 +188,24 @@ describe("BakeOverlay background / blur safety", () => {
     expect(needleLeft()).toBeGreaterThan(before);
   });
 
+  it("stays paused when a hidden tab is shown again while the window is still blurred", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
+    advanceSeconds(2);
+    const before = needleLeft();
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    act(() => setHidden(true));
+    act(() => setHidden(false)); // visible again, but still not focused
+    advanceSeconds(10);
+    expect(needleLeft()).toBe(before);
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    advanceSeconds(1);
+    expect(needleLeft()).toBeGreaterThan(before);
+  });
+
   it("caps a single huge frame (no jump to 100%)", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     tick(60_000);

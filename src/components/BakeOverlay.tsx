@@ -48,21 +48,29 @@ export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeO
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
-    // Hidden or blurred -> the clock is paused (a blur can happen without the tab being hidden).
-    let paused = document.hidden;
+    // Hidden and blurred are two independent pause reasons (a restored-but-unfocused window is
+    // visible yet must stay paused), same as App.tsx's Cooking Time signals.
+    let hidden = document.hidden;
+    let blurred = false;
+    let paused = hidden;
 
-    function pause() {
-      paused = true;
-    }
-    function resume() {
-      if (document.hidden) return;
-      paused = false;
-      // The next frame measures from "now", so the time spent away is never counted.
-      last = performance.now();
+    function sync() {
+      const nextPaused = hidden || blurred;
+      // Coming back from any pause: the next frame measures from "now", so time away is never counted.
+      if (paused && !nextPaused) last = performance.now();
+      paused = nextPaused;
     }
     function handleVisibility() {
-      if (document.hidden) pause();
-      else resume();
+      hidden = document.hidden;
+      sync();
+    }
+    function handleBlur() {
+      blurred = true;
+      sync();
+    }
+    function handleFocus() {
+      blurred = false;
+      sync();
     }
 
     function tick(now: number) {
@@ -78,14 +86,14 @@ export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeO
     }
 
     document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("blur", pause);
-    window.addEventListener("focus", resume);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("blur", pause);
-      window.removeEventListener("focus", resume);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
