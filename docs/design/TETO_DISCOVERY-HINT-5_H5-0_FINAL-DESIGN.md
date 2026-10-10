@@ -33,7 +33,7 @@
 - **Round 7 (2026-10-10, after the Hint 5.0 audit of the key-free ladder):** the key-free ladder becomes
   `BASE → STRUCTURE → SUB_CLASS…` (OD-H5-BASE-1..7, α / β sub-order decisions, the #436 tag scope). The
   authority is `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; §5.4, §9.5 and §13 here point to it.
-  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **OD-H5-BASE-3b (the board display of a free `ALREADY_KNOWN` BASE completion) is open; the default is no BASE lines.** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
+  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **OD-H5-BASE-3b (free vs paid BASE completion display; no provenance is stored, so both look the same after a reload) is open and has no implementable default; it blocks the BASE board display in PR-D.** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
 - **Still open:** OD-H5-P4-SAUCE (TQ-1D), and the production activation itself (flag ON).
 - H5-0 itself changed no production code.
 
