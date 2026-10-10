@@ -63,9 +63,10 @@ export interface StarTarget {
 }
 
 /**
- * For each distinct threshold `g`: `g - 1` (just below) and `g` (at). Ascending by stars, one entry per star count that
- * keeps ALL the gates it stands for. A count below STAR_MIN (a Dex row holds at least one star) is not a target.
- * Whether a target can be built from the ladder's own Dex is a separate question (`planStarState`).
+ * The CANDIDATE targets of a ladder: for each distinct threshold `g`, `g - 1` (just below) and `g` (at), ascending by
+ * stars, one entry per star count that keeps ALL the gates it stands for (`step` = the highest of their steps). A count
+ * below STAR_MIN (a Dex row holds at least one star) is not a target. Candidates are not yet checked against the Dex a
+ * catalog can build: `planStarState` / `buildableStarTargets` keep only the gates (and targets) that can be built.
  */
 export function starTargetsOf(ladder: Ladder): StarTarget[] {
   const byStars = new Map<number, StarTargetGate[]>();
@@ -109,28 +110,51 @@ export type StarStatePlan =
   | { ok: true; target: StarTarget; dexIds: string[]; earlier: Ladder["steps"][number][] }
   | { ok: false; reason: string };
 
+type DexPlan = { ok: true; dexIds: string[]; earlier: Ladder["steps"][number][] } | { ok: false; reason: string };
+
 /**
- * What a star target needs and whether the ladder's own Dex can supply it: the Dex holds the onboarding recipe + the key
- * recipe of every step BEFORE the target's step (the ladder's own derivation), which must make that step reachable
- * (`credited >= step`), and the target's stars must fit the Dex (1..5 per row). A target that cannot is "unreachable".
+ * The Dex that reaches ladder step `step` (the ladder's own derivation: the onboarding recipe + the key recipe of every
+ * step BEFORE it) and whether it is valid for `stars`: the step must be reachable (`credited >= step`) and the stars must
+ * fit the Dex (1..5 per row).
  */
-export function planStarState(catalog: EditorCatalog, stars: number): StarStatePlan {
-  const target = starTargetsOf(catalog.ladder).find((t) => t.stars === stars);
-  if (!target) return { ok: false, reason: `the catalog has no star-gate target of ${stars} stars` };
-  const earlier = [...catalog.ladder.steps].filter((s) => s.step < target.step).sort((a, b) => a.step - b.step);
+function dexPlanForStep(catalog: EditorCatalog, step: number, stars: number): DexPlan {
+  const earlier = [...catalog.ladder.steps].filter((s) => s.step < step).sort((a, b) => a.step - b.step);
   const onboarding = onboardingRecipeId(catalog);
   const dexIds = unique([...(onboarding ? [onboarding] : []), ...earlier.map((s) => s.keyRecipeId)]);
   const credited = dexIds.filter((id) => catalog.countsTowardLadder(id)).length;
-  if (credited < target.step) return { ok: false, reason: `${stars} stars: step ${target.step} is not reached by the ladder's own Dex (${credited} credited recipes)` };
+  if (credited < step) return { ok: false, reason: `${stars} stars: step ${step} is not reached by the ladder's own Dex (${credited} credited recipes)` };
   if (stars < dexIds.length * STAR_MIN || stars > dexIds.length * STAR_MAX) {
-    return { ok: false, reason: `${stars} stars cannot be held by the ${dexIds.length} recipes step ${target.step} needs (${dexIds.length * STAR_MIN}..${dexIds.length * STAR_MAX})` };
+    return { ok: false, reason: `${stars} stars cannot be held by the ${dexIds.length} recipes step ${step} needs (${dexIds.length * STAR_MIN}..${dexIds.length * STAR_MAX})` };
   }
-  return { ok: true, target, dexIds, earlier };
+  return { ok: true, dexIds, earlier };
 }
 
-/** The star targets of the catalog that `buildStarState` can build (the presets the editor lists). */
+/**
+ * What a star target needs and whether the ladder's own Dex can supply it. A star count can stand for several gates;
+ * each is judged on its OWN step: a gate whose step cannot be reached with these stars (or whose Dex cannot hold them)
+ * is dropped, the others stay. The state is built at the highest step of the gates that stay, and its Dex is valid for
+ * the stars by construction (it is the Dex of one of those gates). No gate left = the target is unreachable.
+ */
+export function planStarState(catalog: EditorCatalog, stars: number): StarStatePlan {
+  const candidate = starTargetsOf(catalog.ladder).find((t) => t.stars === stars);
+  if (!candidate) return { ok: false, reason: `the catalog has no star-gate target of ${stars} stars` };
+  const kept = candidate.gates.filter((g) => dexPlanForStep(catalog, g.gate.step, stars).ok);
+  if (kept.length === 0) {
+    const first = dexPlanForStep(catalog, candidate.step, stars);
+    return { ok: false, reason: first.ok ? `${stars} stars: no gate of this count can be built` : first.reason };
+  }
+  const step = Math.max(...kept.map((g) => g.gate.step));
+  const plan = dexPlanForStep(catalog, step, stars);
+  if (!plan.ok) return { ok: false, reason: plan.reason };
+  return { ok: true, target: { stars, gates: kept, step }, dexIds: plan.dexIds, earlier: plan.earlier };
+}
+
+/** The star targets of the catalog that `buildStarState` can build, with only the gates that were kept (the presets the editor lists). */
 export function buildableStarTargets(catalog: EditorCatalog): StarTarget[] {
-  return starTargetsOf(catalog.ladder).filter((t) => planStarState(catalog, t.stars).ok);
+  return starTargetsOf(catalog.ladder).flatMap((t) => {
+    const plan = planStarState(catalog, t.stars);
+    return plan.ok ? [plan.target] : [];
+  });
 }
 
 /**

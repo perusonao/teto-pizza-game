@@ -409,3 +409,149 @@ describe("production star presets are unchanged by the multi-gate audit (stars-1
     expect(byId["stars-130"]).toBe(`累計⭐130（130⭐ちょうど。ladder step ${spinach.step} 到達済み、⭐条件付き材料が Shop に解放される・未購入）`);
   });
 });
+
+describe("a gate that cannot be reached does not hide the reachable ones it shares a count with (Codex P2, starStates.ts:82)", () => {
+  it("30 stars at step 20 AND step 50: the step-20 boundary presets stay, the step-50 gate is not unlocked", () => {
+    const c = ladderCatalog({ 20: 30, 50: 30 }); // step 50 needs a 50-row Dex = at least 50 stars: 29 / 30 cannot reach it
+    expect(starTargetsOf(c.ladder).map((t) => [t.stars, t.gates.length, t.step])).toEqual([[29, 2, 50], [30, 2, 50]]); // candidates keep both
+    expect(buildableStarTargets(c).map((t) => [t.stars, t.gates.map((g) => g.gate.ingredientId), t.step])).toEqual([
+      [29, ["f-19"], 20],
+      [30, ["f-19"], 20],
+    ]);
+    expect(starPresetsOf(c).map((p) => p.id)).toEqual(["stars-29", "stars-30"]);
+    const at = derived(c, 30);
+    expect(at.sum).toBe(30);
+    expect(at.step).toBeGreaterThanOrEqual(20);
+    expect(at.unlocked.has("f-19")).toBe(true); // the step-20 gate's material
+    expect(at.unlocked.has("f-49")).toBe(false); // the step-50 gate is unreachable at 30 stars: never unlocked
+    const below = derived(c, 29);
+    expect(below.unlocked.has("f-19")).toBe(false);
+    expect(below.unlocked.has("f-49")).toBe(false);
+  });
+
+  it("the description names only the gates that were kept", () => {
+    const c = ladderCatalog({ 20: 30, 50: 31 }); // 30 = "at" step 20 and "below" step 50 (unreachable at 30)
+    const byId = Object.fromEntries(starPresetsOf(c).map((p) => [p.id, p.descriptionJa]));
+    expect(byId["stars-30"]).toBe("累計⭐30（30⭐ちょうど。ladder step 20 到達済み、⭐条件付き材料が Shop に解放される・未購入）");
+    expect(byId["stars-30"]).not.toContain("31⭐");
+  });
+
+  it("a count whose every gate is unreachable is not listed at all", () => {
+    const c = ladderCatalog({ 50: 30, 55: 30 });
+    expect(starTargetsOf(c.ladder).map((t) => t.stars)).toEqual([29, 30]);
+    expect(buildableStarTargets(c)).toEqual([]);
+    expect(starPresetsOf(c)).toEqual([]);
+    expect(() => buildStarState(c, 30)).toThrow(/cannot be held/);
+  });
+
+  it("adjacent, non-adjacent, equal and step-swapped ladders keep what is reachable", () => {
+    // adjacent: 100 stars is the "at" of step 50 and the "below" of step 55: both stay
+    expect(buildableStarTargets(ladderCatalog({ 50: 100, 55: 101 })).map((t) => [t.stars, t.gates.length, t.step])).toEqual([[99, 1, 50], [100, 2, 55], [101, 1, 55]]);
+    // step-swapped (the lower threshold sits at the higher step)
+    expect(buildableStarTargets(ladderCatalog({ 50: 101, 55: 100 })).map((t) => [t.stars, t.gates.length, t.step])).toEqual([[99, 1, 55], [100, 2, 55], [101, 1, 50]]);
+    // non-adjacent, one gate unreachable (step 55 with 20 stars): only the other pair stays
+    expect(buildableStarTargets(ladderCatalog({ 50: 100, 55: 20 })).map((t) => t.stars)).toEqual([99, 100]);
+  });
+});
+
+describe("star targets: property test over generated ladders (fixed seed)", () => {
+  const SEED = 441;
+  const CASES = 120;
+  /** mulberry32: a small deterministic PRNG, so a failing case is reproduced by its seed alone. */
+  function rng(seed: number) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /** A generated ladder: up to 5 gates on distinct steps (thresholds drawn feasible, arbitrary, or equal / adjacent to an earlier one), and up to 2 key recipes that do not credit the ladder. */
+  function generate(seed: number) {
+    const next = rng(seed);
+    const int = (lo: number, hi: number) => lo + Math.floor(next() * (hi - lo + 1));
+    const gates: Record<number, number> = {};
+    const thresholds: number[] = [];
+    for (let k = int(0, 5); k > 0; k--) {
+      const step = int(1, 60);
+      if (gates[step] !== undefined) continue;
+      const roll = next();
+      const gate =
+        thresholds.length > 0 && roll < 0.35 ? thresholds[int(0, thresholds.length - 1)] + int(-1, 1) // equal / adjacent to an earlier threshold
+        : roll < 0.7 ? int(step, step * 5) // inside the window step `step` can hold
+        : int(1, 320); // anywhere: often unreachable
+      if (gate < 1) continue;
+      gates[step] = gate;
+      thresholds.push(gate);
+    }
+    const notCredited = Array.from({ length: int(0, 2) }, () => `r-${int(1, 59)}`);
+    return { gates, notCredited };
+  }
+
+  /** Independent oracle: can step `step` be built with `stars`? (the Dex = onboarding r-0 + key recipes r-1..r-(step-1): `step` rows). */
+  function feasible(step: number, stars: number, notCredited: readonly string[]) {
+    const rows = Array.from({ length: step }, (_, i) => `r-${i}`);
+    const credited = rows.filter((id) => !notCredited.includes(id)).length;
+    return credited >= step && stars >= rows.length * STAR_MIN && stars <= rows.length * STAR_MAX;
+  }
+
+  it(`${CASES} generated ladders: every listed target builds, and nothing reachable disappears`, () => {
+    let listed = 0;
+    let dropped = 0;
+    for (let i = 0; i < CASES; i++) {
+      const caseSeed = SEED + i;
+      const { gates: gateMap, notCredited } = generate(caseSeed);
+      const where = `seed=${caseSeed} (SEED ${SEED} + case ${i}) gates=${JSON.stringify(gateMap)} notCredited=${JSON.stringify(notCredited)}`;
+      const c = ladderCatalog(gateMap, notCredited);
+      const allGates = starGatesOf(c.ladder);
+
+      // the oracle: a star count is expected iff some gate that stands for it (threshold t or t + 1) is reachable on its own
+      const expected = new Map<number, { ids: string[]; step: number }>();
+      for (const g of allGates) {
+        for (const stars of [g.gate - 1, g.gate]) {
+          if (stars < STAR_MIN || !feasible(g.step, stars, notCredited)) continue;
+          const e = expected.get(stars) ?? { ids: [], step: 0 };
+          expected.set(stars, { ids: [...e.ids, g.ingredientId].sort(), step: Math.max(e.step, g.step) });
+        }
+      }
+      const targets = buildableStarTargets(c);
+      expect(targets.map((t) => t.stars), `${where}: the listed star counts`).toEqual([...expected.keys()].sort((a, b) => a - b));
+      for (const t of targets) {
+        const e = expected.get(t.stars)!;
+        expect(t.gates.map((g) => g.gate.ingredientId).sort(), `${where}: gates kept at ${t.stars}`).toEqual(e.ids);
+        expect(t.step, `${where}: step at ${t.stars}`).toBe(e.step);
+      }
+      expect(starPresetsOf(c).map((p) => p.id), `${where}: the presets`).toEqual(targets.map((t) => `stars-${t.stars}`));
+      listed += targets.length;
+      dropped += starTargetsOf(c.ladder).length - targets.length;
+
+      for (const t of targets) {
+        const what = `${where} @${t.stars}`;
+        let r: ReturnType<typeof derived>;
+        try {
+          r = derived(c, t.stars); // every listed target builds
+        } catch (error) {
+          throw new Error(`${what}: build failed: ${(error as Error).message}`);
+        }
+        expect(r.sum, `${what}: the Dex stars`).toBe(t.stars);
+        for (const row of r.state.dex) expect(row.bestStars >= STAR_MIN && row.bestStars <= STAR_MAX, `${what}: ${row.recipeId} stars`).toBe(true);
+        expect(hasErrors(validateEditableState(r.state, c)), `${what}: validates`).toBe(false);
+        expect(r.entitlement.newlyUnlockedMaterialIds, `${what}: already what the game derives`).toEqual([]);
+        for (const g of allGates) {
+          // a material is unlocked ONLY when its step is reached AND its threshold is met (never the other way round)
+          if (r.unlocked.has(g.ingredientId)) expect(r.step >= g.step && t.stars >= g.gate, `${what}: ${g.ingredientId} (step ${g.step}, gate ${g.gate}) unlocked wrongly`).toBe(true);
+        }
+        for (const tg of t.gates) {
+          expect(r.step, `${what}: reaches the step of ${tg.gate.ingredientId}`).toBeGreaterThanOrEqual(tg.gate.step);
+          expect(r.unlocked.has(tg.gate.ingredientId), `${what}: ${tg.side} ${tg.gate.ingredientId}`).toBe(tg.side === "at");
+        }
+      }
+    }
+    // the generator really exercises both outcomes (otherwise the test would pass for the wrong reason)
+    expect(listed).toBeGreaterThan(100);
+    expect(dropped).toBeGreaterThan(20);
+  });
+});

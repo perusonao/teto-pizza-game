@@ -23,6 +23,7 @@ Issue #441（#442 / #443 は未着手）。既存 DEV State Editor（#403）の�
 ## レビュー対応の監査（Codex P2 × 3、カタログ依存の取りこぼし）
 
 - `starTargetsOf` は、同じ星数が表すすべての gate を保持する（`StarTarget.gates`）。必要な step は保持した gate の最大 step。最大 step に届いても、星数が足りない gate の材料は解放されない（ゲーム側の解放判定は不変。テストで「解放 ⟺ step 到達 かつ 閾値到達」を同値・隣接・非隣接・先頭・末尾の ladder で確認）。
+- 同じ星数を共有する gate は、それぞれ自分の step で Dex を作れるかを個別に判定し、作れない gate だけを除外する（作れる gate は残り、最大 step は残った gate から採る）。全 gate が作れない星数は一覧に出さない。固定 seed の性質テスト（120 個の合成 ladder、失敗時は seed と ladder 構成を出力）で、一覧に出た target が必ず作れる・Dex 星合計が一致する・解放が「step 到達 かつ 閾値到達」と一致する・到達可能な target が消えない、を検証。
 - 星数が Dex の保持範囲（1〜5⭐×必要レシピ数）外、または step に届かない target は、一覧に出さず、build は理由つきで失敗する（`planStarState` / `buildableStarTargets`）。
 - 説明文は、1つの星数が複数の役割（ちょうど／1つ手前）を兼ねる場合に両方を述べる。production の4説明文は不変。
 - 観察（変更せず）: 129 / 130 の Dex には step 50 の key recipe（california-style-pizza）が入るが、その必須材料 goat-cheese は未所有（Shop で NEW）。実プレイでは起きない状態だが、production プリセットの挙動と Shop の NEW 表示を変えないため、そのままにしている。
