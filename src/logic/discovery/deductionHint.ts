@@ -54,7 +54,7 @@
  * a target), and owned ids that are not catalog ingredients are ignored. Lookups use arrays, Sets and
  * Maps, never object keys.
  */
-import { getIngredient } from "../../data/ingredients";
+import { ingredientCategory } from "./ingredientCategoryIndex";
 import {
   attributeFamily,
   attributeGroup,
@@ -125,7 +125,7 @@ export function structureTotalFact(
 export function ownedCatalogIds(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   const out = new Set<string>();
-  for (const value of raw) if (typeof value === "string" && getIngredient(value)) out.add(value);
+  for (const value of raw) if (typeof value === "string" && ingredientCategory(value) !== undefined) out.add(value);
   return [...out];
 }
 
@@ -155,10 +155,10 @@ export interface ReserveAttributeInput {
 
 function levelsForReserve(input: ReserveAttributeInput): ReserveLevels | null {
   const reserve = input.reserveId;
-  const category = getIngredient(reserve)?.category;
+  const category = ingredientCategory(reserve);
   if (!category) return null;
   const levels: { answer: ReserveAttributeAnswer; matches: LevelMatch }[] = [];
-  const sameCategory = (id: string) => getIngredient(id)?.category === category;
+  const sameCategory = (id: string) => ingredientCategory(id) === category;
   const family = category === "topping" ? ingredientAttributeFamily(reserve) : null;
   if (family) {
     const group = ingredientAttributeGroup(reserve)!;
@@ -184,6 +184,17 @@ function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: re
     reserveId: model.reservedIngredientId,
     ownedIngredientIds: context.ownedIngredientIds,
   });
+}
+
+/** `privacyWorstCaseCandidates(levels, matches).length >= MIN_ATTRIBUTE_CANDIDATES`, counted without
+ *  building the array and stopping at the threshold (the reserve itself is the first candidate). */
+function enoughCandidates(levels: ReserveLevels, matches: LevelMatch): boolean {
+  let count = 1;
+  if (count >= MIN_ATTRIBUTE_CANDIDATES) return true;
+  for (const id of levels.owned) {
+    if (!levels.recipeIds.has(id) && matches(id) && ++count >= MIN_ATTRIBUTE_CANDIDATES) return true;
+  }
+  return false;
 }
 
 /** The privacy worst-case candidate universe of one level (see the module header). */
@@ -220,7 +231,7 @@ export function attributeAnswerForReserve(input: ReserveAttributeInput): Reserve
 
 function firstPassingLevel(levels: ReserveLevels): ReserveAttributeAnswer {
   for (const level of levels.levels) {
-    if (privacyWorstCaseCandidates(levels, level.matches).length >= MIN_ATTRIBUTE_CANDIDATES) return level.answer;
+    if (enoughCandidates(levels, level.matches)) return level.answer;
   }
   return { level: "existence", factId: "attr:existence" };
 }
