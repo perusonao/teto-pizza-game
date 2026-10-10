@@ -122,7 +122,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 - **cross-recipe exact（OD-I-8 維持）**: `T` 中に別 recipe `B` を exact に再現したら `B` は通常どおり DISCOVERED。`T` の ○× パネルも保存も出さない。
 - **INCOMPLETE / AMBIGUOUS**: §3 の表示条件に含める。パネルは ORIGINAL と同一（INV-D3）。FAILED は matcher 一致後の話で ORIGINAL には来ない。
-- **Hint 5.0**: ladder / 価格 / 順序は不変（OD-RB-9）。○ の `ing:` は既存どおり `hint5Ownership.known` に入り、全て既知の rung は ALREADY_KNOWN / 0 Pitz（OD-I-14）。STRUCTURE（全部で N）と SUB_CLASS は count / 分類を出さないので価値が残る。**SAUCE / CHEESE rung の価値低下は accepted consequence（§10）で、解決は #360 に委譲**。
+- **Hint 5.0**: ladder / 価格 / 順序は不変（OD-RB-9。**ただし key-free レシピの BASE 化（OD-H5-BASE-1/2）は別の Hint 側 Owner Decision による例外で、本 Contract の RESULT 実装が Hint を変えないという意味。冒頭の BASE 同期注を参照**）。○ の `ing:` は既存どおり `hint5Ownership.known` に入り、全て既知の rung は ALREADY_KNOWN / 0 Pitz（OD-I-14）。STRUCTURE（全部で N）と SUB_CLASS は count / 分類を出さないので価値が残る。**SAUCE / CHEESE rung の価値低下は accepted consequence（§10）で、解決は #360 に委譲**。
 - **Research Entry / Dex**: Research Entry は匿名ターゲットとして必須で残る。Dex / 研究カードの「わかっていること ✓」は保存済み ○ の表示になる。
 - **progression**: コード変更なし。発見までの attempt 数が減る（監査: 27 recipe 合計 期待 321 → 約 97、約 3.3 倍速、§15）。**実装の blocker にはせず、Production ON Gate の必須条件とする**（§13、OD-RB-17）。
 - **feature flag（OD-RB-16）**: 既存 `RESEARCH_IDENTIFY_ENABLED`（Production 既定 OFF、dev / Preview ON、dev opt-out）を再利用する。OFF = 現 Production の挙動、ON = Contract 2.1。旧 picker / LOCK 方式を ON の別 variant として残さない。**Production ON は別 Gate**（§13）で、flag を変更する追加 commit / PR は禁止（OD-I-18 を継承）。
@@ -139,7 +139,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 | 6 | Trial Notebook OD-P3-4 / OD-P3-14 | 「見せた P2 feedback 行そのまま」を持てる。内部 outcome / recipe / hidden 回答は持たない | 整合（開示した判定のみ、outcome は記録しない） |
 | 7 | #346 S3 / S4 Result「attempts add no knowledge」、OD-RX-3、AC6 | 試作は knowledge を作らない（`ing:` は購入のみ） | #356 で限定的に上書き済み。2.1 はその範囲を「RESULT で開示した ○」へ拡張（保存先は同じ `ing:`）。S4 AC6（指定なしの oracle 中立性）は「targetless / パネルなし」で維持 |
 | 8 | Hint 5.0 H5-0 OD-H5-U1「no FREE LEAK」、OD-H5-P4-CHEESE「購入前は『なし』と言わない」、OD-H5-P4-SAUCE（RESERVED） | rung は有料。cheese / key の「なし」は購入後のみ。sauce の「なし」は Hint 5.0 の authority ではない | **直接の「なし」は表示しない**（INV-D7）。ただし player が全 cheese を試して全 × を見れば「なし」を**推論できる**。これを **accepted consequence**（§10）とし、Hint 側の改善は #360 に委譲。RESERVED の target はパネルの対象 population に含めない（§3、行の条件付き省略はしない）。**TQ-1D 以降:** no-sauce の `aussie` は Production の target だが、パネルは target 非依存のため特殊扱いしない（§3 の TQ-1D 解消）。OD-H5-P4-SAUCE の RESERVED は復活させない（Aussie に SAUCE rung は無い） |
-| 9 | Hint 5.0 OD-H5-E1（価格 sauce 10 / cheese 10 / key 10 / structure 5 / class 5） | 価格不変 | 不変（OD-RB-9）。○ の `ing:` は既存の ALREADY_KNOWN 経路（OD-I-14） |
+| 9 | Hint 5.0 OD-H5-E1（価格 sauce 10 / cheese 10 / key 10 / structure 5 / class 5。key-free は OD-H5-BASE-2 で BASE 10 を追加） | 価格不変 | 不変（OD-RB-9。key-free の BASE 10 は Hint 側の別 Decision）。○ の `ing:` は既存の ALREADY_KNOWN 経路（OD-I-14） |
 | 10 | Issue #356 OD-I-8（cross-recipe）/ OD-D3-20・23（INCOMPLETE を ORIGINAL と同一に） | 別 recipe exact は通常 DISCOVERED、INCOMPLETE は ORIGINAL と見分けがつかない | 維持（§8、INV-D3） |
 | 11 | #346 S4「Research ORIGINAL の RESULT は near/far を出さない」 | Research round は Near/Far 行なし | 維持。パネルは Near/Far ではない |
 | 12 | Issue #356 OD-I-16 | cap / 回数制限 / 課金を入れない | 維持（K は回数制限ではなく**開示量の上限**） |
@@ -166,7 +166,7 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 - **Notebook 形式**: `RESEARCH_ROWS` の形式が deterministic（同じ入力で同じ文字列）。ラベルは表示文字列をそのまま保存し再計算しない。**現カタログでの最悪ケースが 200 字以内**であることを固定するテスト（カタログ拡大でこのテストが落ちたら、truncate せず schema / design decision に戻す）。retry replacement（同じ組み合わせ・別 Target で feedback が最新に置換）を固定。
 - **cross-recipe**: `T` 中の別 recipe exact でパネルなし・`T` への保存なし。targetless / MATCHED / FAILED / flag OFF でパネルなし。
 - **privacy scan**: DOM / aria / Notebook に hidden recipe 名・id・count・割合・「n 個中」が出ない。
-- **回帰**: `INV-4`（matcher 非依存）、Hint 5.0 価格・rung 不変、Trial Notebook schema 不変、Production flag default OFF。
+- **回帰**: `INV-4`（matcher 非依存）、Hint 5.0 価格・rung 不変（key-free の BASE 化は OD-H5-BASE-1/2 の例外）、Trial Notebook schema 不変、Production flag default OFF。
 - **mobile**: 390×844 / 360×800 で overflow なし・CTA 到達可能（Layout Contract Gate を含む）。chip が wrap し、典型ケースが compact であること、最悪ケース（判定 10 chip）でも CTA に到達できることを実測で固定（固定 px 高さは assert しない）。
 - **Target の有効性**: 最後の在庫を使い切る attempt で、パネル・`ing:` 保存・Notebook 行が欠落しない（RESULT 時点の cookability に依存しない）。
 - **flag**: OFF で現 Production と byte 同一（パネルなし・picker なし）。旧 picker / `researchTest` / LOCK / `BakeUnusedConfirm` が ON / OFF どちらにも存在しない。
@@ -209,7 +209,7 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 
 ## 14. Non-Goals
 
-correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
+correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（本 Contract の実装としては行わない。key-free の BASE 化は OD-H5-BASE-1/2 が別途決定。SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
 
 ## 15. Canonical numbers（Production 27 recipe / 30 ingredient、**sauce は 1 attempt 1 種類**）
 
