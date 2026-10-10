@@ -114,3 +114,12 @@ Re-baselined with the Owner's approval (`rebaselineNote6`), after checking item 
 - On a real iPhone the layout depends on the visible height: when Safari's toolbars come and go, the filter moves between the two places (the pizza does not move). A 3px hysteresis keeps it from flickering at the boundary.
 - At the boundary the tray is 4px nearer the bake bar in the expanded layout (the pager row's larger gap that keeps its hit area off the cards).
 - Dinner rounds were not swept by height (the Layout Contract's Dinner flows pass on all profiles); the rule reads the stage, so it holds for them too.
+
+## 8. 追記（2026-10-10）: 現行仕様との対応（Issue #447 / Research UX Fresh Audit）
+
+上の §0〜§7 は当時の判断記録として変更しない。**現在の実装**との差を次に示す。詳細は `TETO_COOKING-TRAY-FAMILY-ROW-STABLE_Result.md`。
+
+- **配置は「常にトレイの上」**（§7 の後に Owner が決定、commit `9c69a55`）。§7 の「responsive（`familyRowFits` で、余裕のある高さだけ上、短い高さは #401 の 1 行）」と、そこに載せた切替高さ（FREE 390 の 738 / 741 など）・S390 / S360 / E390i / E360i の compact 実測は、**置き換えられた hybrid の記録**。`familyRowFits` は `prepareDock.ts` に残っているが `GameScreen` から呼ばれていない（整理は別件）。390×664 / 360×640 でも行は上にあり、ピザは 274 / 250。
+- **食材庫は廃止済み**（2026-10-06 All-Owned Cooking Tray、#408）。§7 の「`[🧺 食材庫 … ◀ 1 / 2 ▶]`」「pager と食材庫の entry」「Pantry open / close」は現在存在せず、トレイ下の utility row は pager のみ。
+- **「nothing moves per family」の範囲**: §3 / §7 の E2E（`cooking-tray-family-expanded.spec.ts`）は、全 family を巡回して「すべて」へ戻した後の dock / tray top / bake bar を比べる。途中の family（結果が 3 件以下で 1 行になるもの）でのタブ行の y は検証していなかった。そのため、1 行の family でタブ行が **+70px**（390×844: 548 → 618、360×800: 504 → 574）動く不具合を見逃していた（Issue #447）。
+- **#447 の修正**: タブ行が表示されている間はトレイを常に 2 行分の高さに固定（CSS のみ）。タブ行・トレイ上端・pager・dock・bake bar・ピザは全 family で動かない。§1 の「dock Δ0」「ピザ 290 / 274」は変わらない。
