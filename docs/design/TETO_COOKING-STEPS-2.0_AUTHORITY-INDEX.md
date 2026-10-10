@@ -22,7 +22,8 @@ Audited `main`: `e0397ae`.
 | OD-CS-1 = A, OD-CS-2 = B, OD-CS-9 (a), OD-CS-20 | **Decided** (authority) |
 | UD-A (Undo modes) | Implemented by #451 (Guided / Free / Research / Dinner; not Lunch Rush) |
 | UD-C | **Decided: C1** |
-| OD-CS-3..8, 10..19; UD-B, D, E, F, G, H, I | **Open.** Not decided here. FINISH (CS-2 / Phase 3) cannot start until the ones it names are answered (OD-CS-3, OD-CS-11; UD-H for failed bakes) |
+| OD-CS-3..8, 10..19; UD-B, D, E, F, G, H, I | **Open.** Not decided here. FINISH (CS-2 / Phase 3) cannot start until the ones it names are answered (OD-CS-3, OD-CS-11; OD-CS-7 = UD-H for failed bakes) |
+| UD-H ≡ OD-CS-7 | **Same decision** (Owner, 2026-10-10): OD-CS-7 is the formal ID, UD-H is the alias used in the FINISH Pilot. Skip or keep FINISH after a failed bake is **still undecided**. One answer covers both IDs; they are never asked separately |
 
 ## 3. Phase 2 PR plan and acceptance conditions
 

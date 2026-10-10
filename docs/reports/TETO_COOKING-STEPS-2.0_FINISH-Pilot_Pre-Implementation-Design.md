@@ -20,7 +20,7 @@
 4. **Undo は履歴スタックを持たない設計が成立する。** `pizza.toppings` は追記専用・カテゴリでゲート済みなので、「現ステップのカテゴリの最後の1個」を配列から導出できる。新しい保存状態・schema 変更はなし。`44879be` 時点の main には Undo が存在せず、この設計が最初の Undo になった。**Undo（P1）は #451 で実装・merge 済み**（§3 は設計の根拠）。
 5. **FINISH の最大の設計難所は「確定のタイミング」**。main の `CONFIRM_BAKE` はスコア・完成判定・在庫消費・FREE の識別を一括で確定する。後乗せレシピは焼成後の素材が無い状態では判定できない。OD-CS-2=B（通常レシピは現状どおり、後乗せだけ暫定→FINISH後に再確定）を、**「FINISH を含むプロファイルでは、0 個のスキップを含め FINISH の確認のたびに、後乗せ要件を含む完全な最終評価を必ず再実行する」**という形で具体化した（§5.3）。暫定評価は後乗せ要件を除いているため、0 個を「暫定＝最終」とみなすと必須の後乗せ素材が未配置のまま完成扱いになる。在庫消費は未消費の後乗せ piece の差分だけで、再確認しても冪等。FINISH を含まない既存の全レシピは再評価の対象外で、現行とバイト同一のまま。
 6. **焼成失敗時の FINISH スキップは、#256 の `bakeCompletionFailure()` をそのまま再利用すれば新しい閾値なしで実現できる**（§5）。
-7. **Owner 未決定事項は 7 件**（UD-B / D / E / F / G / H / I、§9）。UD-A（Undo の対象モード）は #451 で実装済み、UD-C（#295 の扱い）は Owner が C1 で決定済み。着手前（P2 まで）に Owner 回答が必須の未決定事項は残っていない。FINISH engine（P3）の前には UD-H、有効化（P4b）の前には UD-B / D / E / F / G / I が必要（§9）。
+7. **Owner 未決定事項は 7 件**（UD-B / D / E / F / G / H / I、§9）。UD-A（Undo の対象モード）は #451 で実装済み、UD-C（#295 の扱い）は Owner が C1 で決定済み。着手前（P2 まで）に Owner 回答が必須の未決定事項は残っていない。FINISH engine（P3）の前には UD-H（= OD-CS-7 の別名。同一決定）、有効化（P4b）の前には UD-B / D / E / F / G / I が必要（§9）。
 
 ---
 
@@ -307,7 +307,7 @@ Phase 4a 技法 TQ-2 基盤（検出/軸/near-miss/Dex）  [不可視]    親: �
 Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]  親: 新規（TQ-2）
 ```
 
-依存（§7.2 の表と同一）: P1 ⟂ P2（並行可）。P2: PR-A（docs）→ P2a（CS-1a, PR-B）→ P2b（CS-1b, PR-C）の順。P3 ← P2b ＋ Owner 決定（UD-H、OD-CS-3、OD-CS-11）。P4a ← P3 ＋ Owner 決定（UD-D、UD-G）。P4b ← P4a ＋ Owner 決定（UD-B/D/E/F、UD-G、UD-I）。P4a・P4b はともに CS-3 の共通ゲート（OD-CS-4〜8、OD-CS-10、Hint 再監査計画、TQ-1D 出荷済み。NEXT-PHASE_DESIGN G-CS-F）を満たすまで開始できない。P2a の開始には PR-A（docs）の merge も要る。このゲートは P4 全体の共通前提で、P4a / P4b への個別の割当ては決めていない。**P1 は他に依存しない**ので最初に出せる。
+依存（§7.2 の表と同一）: P1 ⟂ P2（並行可）。P2: PR-A（docs）→ P2a（CS-1a, PR-B）→ P2b（CS-1b, PR-C）の順。P3 ← P2b ＋ Owner 決定（UD-H = OD-CS-7、OD-CS-3、OD-CS-11）。P4a ← P3 ＋ Owner 決定（UD-D、UD-G）。P4b ← P4a ＋ Owner 決定（UD-B/D/E/F、UD-G、UD-I）。P4a・P4b はともに CS-3 の共通ゲート（OD-CS-4〜8、OD-CS-10、Hint 再監査計画、TQ-1D 出荷済み。NEXT-PHASE_DESIGN G-CS-F）を満たすまで開始できない。P2a の開始には PR-A（docs）の merge も要る。このゲートは P4 全体の共通前提で、P4a / P4b への個別の割当ては決めていない。**P1 は他に依存しない**ので最初に出せる。
 
 ### 7.2 各 Phase
 
@@ -316,7 +316,7 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 | **P1 Undo** | `UNDO_LAST_PLACEMENT`（CHEESE/TOPPING）、↩ ボタン、Dinner ガード、トークン | なし | §3.9。既存 PREPARE E2E 全回帰。**Production DOM golden の再基準化が要る可能性**（バーにボタン追加）→ 項目ごとに確認 | **必須**（390×844 動画: 配置→Undo→再配置→ドラッグ中Undo→RESULT。360×800 は幅の実測のため追加）＋ before/after |
 | **P2a 移植** | CS-1a（tab gate、`renderedPostBakeStep`）を main へ。tab-gate の導出化（§2.3） | UD-C、PR-A（docs, 本 PR）の merge | Vitest、`tsc`、`layout-contract` / `dynamic-cooking-steps` / `pizza-cutting-phase4b` が無改変で緑 | 不要（内部refactor・見た目不変、既存DOM同一） |
 | **P2b CS-1b** | `finalizeRound()` 抽出、golden（`RECIPES` 全件から導出 × FREE/LR/Dinner × bake {生/適正/焦げ}。件数は固定しない。`e0397ae` 時点で 55） | P2a（PR-B）の完了 | golden の before/after バイト一致、`App.dinner`/`App.techniques` 無改変 | 不要 |
-| **P3 FINISH engine** | `RecipeRequirement.applicationPhase?`、`deriveCoreSteps` が FINISH を付与、`PlacedTopping.stage?`、FINISH 配置＋Undo 拡張、暫定判定/再確定（§5.3）、在庫の差分消費、fresh 描画、reducer ガード。**検証は test-only の BBQ型 fixture（`RECIPES` に入れない）** | P2b、**UD-H**（失敗ピザの FINISH スキップ）、**OD-CS-3**・**OD-CS-11**（Authority Index §2、回答が必要） | 「本番プロファイルに FINISH を含むものがない」不変条件、7タブ fixture でゲート失敗、再確定の golden、在庫の二重計上なし | 不要（本番で見えない） |
+| **P3 FINISH engine** | `RecipeRequirement.applicationPhase?`、`deriveCoreSteps` が FINISH を付与、`PlacedTopping.stage?`、FINISH 配置＋Undo 拡張、暫定判定/再確定（§5.3）、在庫の差分消費、fresh 描画、reducer ガード。**検証は test-only の BBQ型 fixture（`RECIPES` に入れない）** | P2b、**UD-H**（= OD-CS-7。失敗ピザの FINISH スキップ。同一決定）、**OD-CS-3**・**OD-CS-11**（Authority Index §2、回答が必要） | 「本番プロファイルに FINISH を含むものがない」不変条件、7タブ fixture でゲート失敗、再確定の golden、在庫の二重計上なし | 不要（本番で見えない） |
 | **P4a TQ-2 基盤** | 新技法 id、`late` 軸 OBSERVED、`LATE_ADDITION` を supported に、near-miss DIMENSION＋k 規則、Dex 調理法。**合成カタログで検証（TQ-1C の前例）** | P3、**UD-D**（後乗せ出荷の帰属）、**UD-G**（新技法の名称・コピー）、**CS-3 共通ゲート（P4 全体）**: OD-CS-4〜8 の回答、OD-CS-10 の回答、Hint 再監査計画、TQ-1D 出荷済み（NEXT-PHASE_DESIGN G-CS-F） | 検出・台帳 union・近似 near-miss・Research 台帳不変、Hint tripwire の「赤を確認」 | 不要（INV-TQ-4: 本番で不活性） |
 | **P4b 有効化** | `bbq-sauce`・`cilantro`・ladder 追記・BBQ型レシピ・基準ピザ・FREE 仕上げタブ（案 A）・ガイドの仕上げ・Hint/Discovery 再監査・コピー | P4a、UD-B/D/E/F、**UD-G**（コピー）、**UD-I**（Dinner / Lunch Rush の扱い）、**CS-3 共通ゲート（P4 全体）**: OD-CS-4〜8 の回答、OD-CS-10 の回答、Hint 再監査計画、TQ-1D 出荷済み（NEXT-PHASE_DESIGN G-CS-F） | 全層（pure/reducer/component/App/E2E/WebKit）＋Hint 5.0 gate | **必須**（FREE と ガイド、390×844＋360×800。Research 匿名ラウンドで仕上げタブが同一に見えること、焼成失敗でのスキップ、後乗せ発見→調理法の同時発見表示順） |
 
@@ -384,7 +384,7 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 | **UD-E** | ガイド（レシピ指定）の仕上げ表示 | 後乗せレシピのみ表示／全レシピ常設 | 後乗せレシピのみ（現行レシピの見た目を変えない） | P4b 前 |
 | **UD-F** | BBQ型の材料条件 | `starGates` の有無、T4 価格、1 ステップ 2 素材、キー素材 | Batch 6 前例踏襲（Owner 数値） | P4b 前 |
 | **UD-G** | 新技法の名称・なぞかけ・Dex 表示コピー | Owner 文言 | — | P4a/P4b |
-| **UD-H** | 失敗ピザの FINISH スキップ | スキップ／許可 | スキップ（§5） | P3 前 |
+| **UD-H**（= **OD-CS-7**） | 失敗ピザの FINISH スキップ。UD-H は Pilot で使う参照 ID で、正式 ID は NEXT-PHASE_DESIGN の OD-CS-7（同一決定。別々の回答は求めず、OD-CS-7 への回答が UD-H を兼ねる） | スキップ／許可 | スキップ（§5。OD-CS-7 の推奨と同じ。Owner は未決定） | P3 前 |
 | **UD-I** | 後乗せレシピの Dinner / Lunch Rush | 両方除外／Dinner のみ再設計 | 両方除外（OD-CS-5/6 案） | P4b 前 |
 
 ---

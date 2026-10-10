@@ -251,7 +251,7 @@ Each phase is its own PR, reverts on its own, and ships nothing visible until it
 |---|---|---|---|---|
 | **CS-0** | This design (docs only) | no | — | Cooking Steps |
 | **CS-1 Post-bake seam** | (a) unit invariant: max visible tabs over `RECIPES` ≤ 6; (b) `GameScreen` 6 CUT sites → one post-bake step view (CUT the only consumer); (c) pure `finalizeRound()` extracted from CONFIRM_BAKE, called from the **same** place, golden-pinned for every recipe in `RECIPES` (derived, never a fixed count; 55 at `e0397ae`) × FREE / Lunch Rush / Dinner × bake bands | **no** (byte-identical) | #275 merged or closed; OD-CS-9 (a) | Cooking Steps |
-| **CS-2 FINISH engine (inert)** | `RecipeRequirement.applicationPhase?` (absent = pre-bake); `deriveCoreSteps` appends FINISH for post-bake requirements; FINISH placement (+ last-piece undo); per-piece `stage`; fresh (un-roasted) late-piece visuals; (re)finalization per OD-CS-2; reducer guards. Verified on a **test-only** BBQ-chicken-shaped fixture using existing ingredients. No production recipe gets FINISH. | **no** (INV: no production requirement has `applicationPhase: POST_BAKE`, pinned by test) | CS-1; OD-CS-1, 2, 3, 11; UD-H | Cooking Steps |
+| **CS-2 FINISH engine (inert)** | `RecipeRequirement.applicationPhase?` (absent = pre-bake); `deriveCoreSteps` appends FINISH for post-bake requirements; FINISH placement (+ last-piece undo); per-piece `stage`; fresh (un-roasted) late-piece visuals; (re)finalization per OD-CS-2; reducer guards. Verified on a **test-only** BBQ-chicken-shaped fixture using existing ingredients. No production recipe gets FINISH. | **no** (INV: no production requirement has `applicationPhase: POST_BAKE`, pinned by test) | CS-1; OD-CS-1, 2, 3, 11; OD-CS-7 (= Pilot UD-H) | Cooking Steps |
 | **CS-3 = TQ-2 activation** | Late technique id, `late` axis OBSERVED, near-miss DIMENSION + k-rule, Free Cooking FINISH (OD-CS-4), content (BBQ chicken: bbq-sauce, chicken, cilantro; ladder append per LAD-1), Dinner / Lunch Rush policy, Hint re-audit, HV | **yes** | CS-2; **TQ-1D shipped**; OD-CS-4..8, 10 | Techniques (TQ-2) |
 | **CS-4 Tab strip for 7+** | T2 (grouped phase strip) or T3 (compact chips) UI audit then implementation | yes | OD-CS-9 (b) | Cooking Steps / UI |
 | **CS-5 FINISH → CUT on a 6-tab recipe** | e.g. wasabi-beef (7 tabs) | yes | CS-3, CS-4 | TQ-2 content |
@@ -329,7 +329,7 @@ None of these is decided here. "Recommended" is advice only. *(Status 2026-10-10
 | **OD-CS-4** | Free Cooking and FINISH | (a) FREE always has 仕上げ, tray = all owned toppings; (b) FINISH only in guided; (c) tray in FINISH = only late-capable items | (b) late recipes are undiscoverable by free cooking; (c) leaks which items are late (affordance vs identity, OD-TQ-16) | (a) — FREE is D·S·C·T·焼く·仕上げ = 6 tabs |
 | **OD-CS-5** | Dinner and late recipes | (a) exclude late recipes from Dinner targets; (b) move Stage A after FINISH; (c) always show FINISH in Dinner | (b) reworks DM-3R / DM-4 settlement invariants; (c) adds a tab to every Dinner pizza | (a) until a Dinner audit |
 | **OD-CS-6** | Lunch Rush and late recipes | include / exclude in the order pool | FINISH costs serve time → `lunch-rush-v1` ranking comparability (#224) | decide with #224 |
-| **OD-CS-7** | #275 skip and FINISH | on a bake failure skip FINISH too / keep FINISH | keeping it lets players place on a failed pizza; skipping keeps #275's single verdict | skip, consistent with #275 (only after #275 lands) |
+| **OD-CS-7** (Pilot alias: UD-H; same decision) | #275 skip and FINISH | on a bake failure skip FINISH too / keep FINISH | keeping it lets players place on a failed pizza; skipping keeps #275's single verdict | skip, consistent with #275 (only after #275 lands) |
 | **OD-CS-8** | FINISH time and Cooking Time | count / don't count in `completedMs` | efficiency and Pitz time bands | don't count (mirror CUT) |
 | **OD-CS-9** | Tab ceiling | (a) ≤6 unit invariant now; (b) when to build T2 / T3 | (b) gates CS-5, multi-spread drizzle and every 7-tab recipe | (a) yes; (b) before CS-5 |
 | **OD-CS-10** | Late representative | BBQ チキン / wasabi-beef / keep the audit's prosciutto e rucola | rucola has no late evidence (OD-TQ-12) | BBQ チキン |
@@ -404,8 +404,8 @@ leak Technique identity through a hint.
 | G-CS-B | PR #275 is merged or closed, and this design's §1.2 D6 is re-checked on the new `main` *(#275 merged; the D6 re-check is PR-B's)*. |
 | G-CS-C | Fresh `git fetch origin main`; the CS-1 branch is cut from the new SHA; the audit table in §1 is re-verified (tab counts, GameScreen CUT sites, CONFIRM_BAKE shape). |
 | G-CS-D | No change to Hint 5.0 / #292, PR #291, PR #255, W1 activation, I5b-3 / I5b-4, 3-4C, TQ-1D, #275, #260 is needed by the slice. If one is, stop and ask. |
-| G-CS-E (CS-2 only) | OD-CS-3 and OD-CS-11 answered; **UD-H** (FINISH skip after a failed bake; Pilot §9, open) answered; CS-1 merged. |
-| G-CS-F (CS-3 only) | TQ-1D shipped; OD-CS-4..8, 10 answered; Hint re-audit plan agreed. |
+| G-CS-E (CS-2 only) | OD-CS-3 and OD-CS-11 answered; **OD-CS-7** (= Pilot **UD-H**: skip or keep FINISH after a failed bake; open; answered once for both IDs) answered; CS-1 merged. |
+| G-CS-F (CS-3 only) | TQ-1D shipped; OD-CS-4..8, 10 answered (OD-CS-7 = UD-H is already answered at G-CS-E and is not asked again); Hint re-audit plan agreed. |
 
 ---
 
@@ -413,7 +413,7 @@ leak Technique identity through a hint.
 
 **次に実装可能な Phase (after G-CS-A..D):** CS-1 Post-bake seam (inert, byte-identical).
 
-**まだ実装してはいけない Phase:** CS-2 (needs CS-1 + OD-CS-2/3/11 + UD-H); CS-3 = TQ-2 (needs TQ-1D);
+**まだ実装してはいけない Phase:** CS-2 (needs CS-1 + OD-CS-2/3/11 + OD-CS-7 (= UD-H)); CS-3 = TQ-2 (needs TQ-1D);
 CS-4 tabs (needs OD-CS-9 b); CS-5; CS-6 = TQ-3; CS-7 dough; CS-8 small variants (own audit);
 every MAJOR mechanic (pan, shape / boat, enclose, prep, mid-bake, fry, laminate); any
 no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as data under the normal recipe gates.
@@ -421,7 +421,7 @@ no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as dat
 **Owner Decision の状態 (2026-10-10 re-baseline; authority = §13 and the Authority Index §2):**
 - **決定済み:** OD-CS-1 = A, OD-CS-2 = B, OD-CS-9 (a), OD-CS-20 (§13). CS-1 の決定ゲートは満たされている。
 - **未決定のまま:** OD-CS-3..8, 10..19 (§8) と OD-CS-9 (b)。ここでは決定しない。
-- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能（順序は PR-A → PR-B (CS-1a) → PR-C (CS-1b)。CS-1b は CS-1a の移植後）。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 と UD-H（失敗ピザの FINISH スキップ、Pilot §9、未決定）の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
+- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能（順序は PR-A → PR-B (CS-1a) → PR-C (CS-1b)。CS-1b は CS-1a の移植後）。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 と OD-CS-7（= Pilot の UD-H。失敗ピザの FINISH スキップ。未決定。1 回の回答で両 ID を兼ねる）の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
 
 ---
 
