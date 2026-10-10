@@ -130,22 +130,27 @@ function dexPlanForStep(catalog: EditorCatalog, step: number, stars: number): De
 }
 
 /**
- * What a star target needs and whether the ladder's own Dex can supply it. A star count can stand for several gates;
- * each is judged on its OWN step: a gate whose step cannot be reached with these stars (or whose Dex cannot hold them)
- * is dropped, the others stay. The state is built at the highest step of the gates that stay, and its Dex is valid for
- * the stars by construction (it is the Dex of one of those gates). No gate left = the target is unreachable.
+ * What a star target needs and whether the ladder's own Dex can supply it. The FINAL STATE is the standard:
+ * 1. the final step is the highest step among the represented gates whose own step can be built with these stars
+ *    (`dexPlanForStep`); none = the target is unreachable and is not offered;
+ * 2. every represented gate whose step the final state has reached (`gate.step <= final step`) is kept, whether or not its
+ *    OWN step could hold the stars: in the final state it is reached, so the stars alone decide it (`at` = unlocked,
+ *    `below` = still locked, by the game's own entitlement rule);
+ * 3. a represented gate above the final step is not reached in the final state and is not kept.
+ * The Dex is the final step's, valid for the stars by construction (it is the Dex of one of the seeding gates).
  */
 export function planStarState(catalog: EditorCatalog, stars: number): StarStatePlan {
   const candidate = starTargetsOf(catalog.ladder).find((t) => t.stars === stars);
   if (!candidate) return { ok: false, reason: `the catalog has no star-gate target of ${stars} stars` };
-  const kept = candidate.gates.filter((g) => dexPlanForStep(catalog, g.gate.step, stars).ok);
-  if (kept.length === 0) {
+  const seeds = candidate.gates.filter((g) => dexPlanForStep(catalog, g.gate.step, stars).ok);
+  if (seeds.length === 0) {
     const first = dexPlanForStep(catalog, candidate.step, stars);
     return { ok: false, reason: first.ok ? `${stars} stars: no gate of this count can be built` : first.reason };
   }
-  const step = Math.max(...kept.map((g) => g.gate.step));
+  const step = Math.max(...seeds.map((g) => g.gate.step));
   const plan = dexPlanForStep(catalog, step, stars);
   if (!plan.ok) return { ok: false, reason: plan.reason };
+  const kept = candidate.gates.filter((g) => g.gate.step <= step);
   return { ok: true, target: { stars, gates: kept, step }, dexIds: plan.dexIds, earlier: plan.earlier };
 }
 

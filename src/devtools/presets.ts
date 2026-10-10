@@ -54,19 +54,22 @@ export const PRESETS: readonly PresetDefinition[] = [
 ];
 
 /**
- * The description of a star target. One star count can stand for several gates (equal thresholds, or `g` = the "at" of
- * one gate and the "below" of the gate at `g + 1`), so every role it has is said, never just the first one.
+ * The description of a star target, said about the FINAL state the preset builds: the gates it kept, each by its
+ * threshold. A kept `at` gate is unlocked and a kept `below` gate is locked in that state (the game's own rule: its step
+ * is reached, the stars alone decide), so those are the only claims made, scoped to their threshold (another threshold's
+ * material may be unlocked as well, and is not talked about). One count can stand for both roles (`g` is the "at" of one
+ * gate and the "below" of the gate at `g + 1`), and then both are said.
  */
-function starTargetDescription(t: StarTarget): string {
-  const at = t.gates.filter((g) => g.side === "at");
-  const below = t.gates.filter((g) => g.side === "below");
+export function starTargetDescription(t: StarTarget): string {
+  const hasAt = t.gates.some((g) => g.side === "at");
+  const below = t.gates.find((g) => g.side === "below");
   const head = `累計⭐${t.stars}（`;
   const reached = `ladder step ${t.step} 到達済み`;
-  if (below.length === 0) return `${head}${t.stars}⭐ちょうど。${reached}、⭐条件付き材料が Shop に解放される・未購入）`;
-  const next = below[0].gate.gate;
-  if (at.length === 0) return `${head}${next}⭐の1つ手前。${reached}、⭐条件付き材料はまだ解放されない）`;
+  if (!below) return `${head}${t.stars}⭐ちょうど。${reached}、${t.stars}⭐条件の⭐条件付き材料が Shop に解放される・未購入）`;
+  const next = below.gate.gate;
+  if (!hasAt) return `${head}${next}⭐の1つ手前。${reached}、${next}⭐条件の⭐条件付き材料はまだ解放されない）`;
   // Both roles: the count meets one threshold and is one star short of the next.
-  return `${head}${t.stars}⭐の⭐条件付き材料は Shop に解放される・未購入、${next}⭐の材料はまだ解放されない。${reached}）`;
+  return `${head}${t.stars}⭐条件の⭐条件付き材料は Shop に解放される・未購入、${next}⭐条件の材料はまだ解放されない。${reached}）`;
 }
 
 /**
