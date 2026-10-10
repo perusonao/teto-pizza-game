@@ -33,7 +33,7 @@
 - **Round 7 (2026-10-10, after the Hint 5.0 audit of the key-free ladder):** the key-free ladder becomes
   `BASE → STRUCTURE → SUB_CLASS…` (OD-H5-BASE-1..7, α / β sub-order decisions, the #436 tag scope). The
   authority is `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; §5.4, §9.5 and §13 here point to it.
-  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **OD-H5-BASE-3b is DECIDED by the Owner as Option A: every completed BASE (free `ALREADY_KNOWN`, paid, credited; new or existing; same after a reload) shows its existing items, with no extra charge and no new save key or provenance; the exception is limited to the Hint 5.0 BASE board (not Notebook, RESULT or Technique).** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
+  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the completed BASE board content; the other conditions stay).** **OD-H5-BASE-3b is DECIDED by the Owner as Option A: every completed BASE (free `ALREADY_KNOWN`, paid, credited; new or existing; same after a reload) shows its existing items, with no extra charge and no new save key or provenance; the exception is limited to the Hint 5.0 BASE board (not Notebook, RESULT or Technique).** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
 - **Still open:** OD-H5-P4-SAUCE (TQ-1D), and the production activation itself (flag ON).
 - H5-0 itself changed no production code.
 
@@ -112,7 +112,7 @@ These invariants are hard. Every H5 phase must keep them and test them.
 | **H5-INV-6 (charging)** | Only ANSWERED charges. The following are never charged: owned information, a stale or double request, insufficient Pitz, a no-fact result (ALREADY_KNOWN / RESERVED), and a rejection. 0 Pitz never appears in production. | the reducer |
 
 **Round 7 amendments (2026-10-10; authority: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`):**
-- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, label, price) never depends on whether the target has a sauce or a cheese. Once a BASE is completed (paid, credited or free, OD-H5-BASE-3b = A) the board shows the existing items only, so a missing sauce line is inferable; this is the explicit, narrow supersede OD-H5-BASE-3 (of OD-TQ1D-1 and Contract 2.1 §3, for the purchased Hint board only). Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
+- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, label, price) never depends on whether the target has a sauce or a cheese. Once a BASE is completed (paid, credited or free, OD-H5-BASE-3b = A) the board shows the existing items only, so a missing sauce line is inferable; this is the explicit, narrow supersede OD-H5-BASE-3 (of OD-TQ1D-1 and Contract 2.1 §3, for the completed BASE board only: free, paid or credited, existing or new saves). Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
 - **H5-INV-6** gains one clause: `ANSWERED_CREDITED` (charge 0) is an answer, produced only when a legacy partial BASE is completed (§9.5). All other no-charge cases are unchanged.
 
 ## 4. Authority conflict table (updated)
@@ -135,7 +135,7 @@ does not govern Hint 5.0 rungs.
 | DH4-1 `ingredientTaxonomy.ts` header ("an ingredient without a row has no family; the guard answers at category level") and the DH4 coarsening (`deductionHint.ts`, `deductionGuard.ts` `classOf`) | A missing row silently coarsens | **Not reused by Hint 5.0** (OD-H5-T-COV, PR #293 F-2). The Hint 5.0 answer fails closed (`NOT_A_TARGET`, 0 Pitz) and CI fails first. The DH4 path is unchanged. H5-1 amends the header comment to say the DH4 behaviour does not apply to Hint 5.0. |
 | OD-TQ1C-2, INV-TQ-4, the OD-DH4-PROD-1 TQ-1D contract | Re-audit when a Technique recipe ships | **Kept and extended** (§12) |
 | OD-D3-21 (key-free: a rung that does not apply is absent) | The key-free ladder's pre-purchase shape depended on the target's sauce / cheese | **Amended by OD-H5-BASE-1** (§5.4): BASE is always present, KEY_TOPPING stays absent |
-| Contract 2.1 §3 ("do not conditionally omit a category row") | Stated for the RESULT panel only | **Applied to the Hint ladder's pre-purchase shape** by §5.4; **narrowly superseded** for the content of a purchased BASE entry (OD-H5-BASE-3) |
+| Contract 2.1 §3 ("do not conditionally omit a category row") | Stated for the RESULT panel only | **Applied to the Hint ladder's pre-purchase shape** by §5.4; **narrowly superseded** for the content of a completed BASE board entry (OD-H5-BASE-3 / 3b) |
 
 ## 5. The ladder model
 
@@ -525,8 +525,11 @@ So the pre-purchase view is the same as a fresh save's in all of these: the next
 its price, whether it can be bought, and the board. The one exception is the 「以前のヒント」
 archive of the player's own earlier names and lines, which never depends on the target.
 
-**At request time the order is:** target → STALE → complete → balance at the normal price →
-empty rung → known check.
+**At request time the order is:** target → STALE → complete → (known / credited check) → balance at
+the normal price (charged rungs only) → empty rung → answer. Since OD-360-3, and for the key-free BASE rung
+since round 7 (M-3 / M-4), a rung that completes at **0 Pitz** is decided before the balance check and is never
+refused for insufficient balance: an ALL-known rung (`ALREADY_KNOWN`) and a credited legacy partial BASE
+(`ANSWERED_CREDITED`). A normal purchase at the rung price (BASE 10 included) still requires balance ≥ price.
 
 | Known state | Result |
 |---|---|
@@ -536,8 +539,9 @@ empty rung → known check.
 - The M3 rule applies to **every** rung kind. Structure and sub-topping rungs follow the same rule
   as the name rungs, because a view-time skip of any rung would leak in the same way (H5-2 Result
   §5).
-- A request below the normal price is refused, so a 0-Pitz completion can never be learnt without
-  an affordable request.
+- A charged request below the normal price is refused (`INSUFFICIENT_PITZ`). A 0-Pitz completion (ALL known,
+  or a credited legacy partial BASE) is not refused for balance; the pre-purchase view still never shows it
+  (OD-360-S3-1: a low-balance tap reveals only that the rung was effective-cost-0).
 
 **Principles (E3):**
 - never delete, never rewrite, never convert a stored id;

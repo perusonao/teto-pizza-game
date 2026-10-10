@@ -130,10 +130,10 @@ Defined as a data/logic test, derived from the code and data at run time (no har
 | #360 OD-360-3 (known rung is completable below the price) | Reused for M-3. |
 | #360 OD-360-4 (no provenance, no schema) | Kept. M-7 is the accepted price of that. |
 | **OD-D3-21** (key-free: a non-applicable rung is absent) | **Amended** by OD-H5-BASE-1: BASE is always present; KEY_TOPPING stays absent. |
-| **H5-INV-4** (no rung reveals the absence of sauce) | Reworded: no rung *states* an absence, and **nothing before purchase** (rung kinds, order, label, price) depends on it. This removes the existing pre-purchase omission. The purchased BASE board still shows only existing items (OD-H5-BASE-3 supersede below). |
+| **H5-INV-4** (no rung reveals the absence of sauce) | Reworded: no rung *states* an absence, and **nothing before purchase** (rung kinds, order, label, price) depends on it. This removes the existing pre-purchase omission. The completed BASE board (free, paid or credited) still shows only existing items (OD-H5-BASE-3 / 3b supersede below). |
 | OD-H5-P4-SAUCE / OD-TQ1D-1 | Kept: no 「ソース：なし」 anywhere, RESERVED is not revived, no Technique name before discovery, no target-dependent pre-purchase shape. **Narrowly superseded (OD-H5-BASE-3):** after the player pays for BASE, the missing sauce line is inferable. |
 | OD-H5-P4-CHEESE | Satisfied: nothing says 「なし」 before purchase. Keyed no-cheese recipes keep their paid 「チーズ：なし」. |
-| Contract 2.1 §3 (no conditional row omission) | Applied to the Hint ladder's pre-purchase shape. **Narrowly superseded (OD-H5-BASE-3)** for the content of a purchased BASE entry. |
+| Contract 2.1 §3 (no conditional row omission) | Applied to the Hint ladder's pre-purchase shape. **Narrowly superseded (OD-H5-BASE-3 / 3b)** for the content of a completed BASE board entry (free, paid or credited; existing or new saves). |
 | **G15** | Rewritten (§3): groups are {keyed, key-free}. |
 | G7 / reserved gates | Unchanged. A new data gate: a key-free recipe has at least one sauce or cheese. |
 | H5-INV-5 (FREE LEAK) | Kept. The credit is request-time only. |
