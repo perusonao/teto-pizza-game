@@ -1,5 +1,8 @@
 # Discovery 3.0 PR-4a: Branching / pool > 1 test foundation — Result Report
 
+> **2026-10-10 supersede note:** OD-D3-21 ("a key-free ladder omits a rung that does not apply"; defined in this report and in code comments) is **amended by OD-H5-BASE-1** (`docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`): the key-free ladder becomes `BASE → STRUCTURE → SUB_CLASS…` for every key-free recipe. This report is a historical record and is not otherwise edited. The change takes effect when PR-E merges.
+
+
 Branch `claude/discovery3-pr4a-pool-foundation`, from `origin/main` `a0201e3` (PR-1 #322, PR-2 #323, PR-3 #324 merged; #295 still open and untouched).
 Authority: Pre-PR4 Gate (`TETO_DISCOVERY-3_PRE-PR4_Gate.md`, audit branch), Owner review of that gate (PR-4a = GO, PR-4b = NO-GO).
 

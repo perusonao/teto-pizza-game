@@ -30,6 +30,10 @@
   - **OD-H5-RETIRE** (with the flag ON, the 材料 / 構成 / 特徴 purchases end).
   - **OD-H5-P4-SAUCE is RESERVED** until TQ-1D: 「ソース：なし」 is never an answer in Hint 5.0.
   - **H5-4 implements these behind the flag. The production flag stays OFF.**
+- **Round 7 (2026-10-10, after the Hint 5.0 audit of the key-free ladder):** the key-free ladder becomes
+  `BASE → STRUCTURE → SUB_CLASS…` (OD-H5-BASE-1..7, α / β sub-order decisions, the #436 tag scope). The
+  authority is `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; §5.4, §9.5 and §13 here point to it.
+  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the completed BASE board content; the other conditions stay).** **OD-H5-BASE-3b is DECIDED by the Owner as Option A: every completed BASE (free `ALREADY_KNOWN`, paid, credited; new or existing; same after a reload) shows its existing items, with no extra charge and no new save key or provenance; the exception is limited to the Hint 5.0 BASE board (not Notebook, RESULT or Technique).** **OD-H5-BASE-3c is DECIDED (Option A): from a completed BASE board the absence of a sauce *or a cheese* may be inferred for the first time; same scope and constraints.** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
 - **Still open:** OD-H5-P4-SAUCE (TQ-1D), and the production activation itself (flag ON).
 - H5-0 itself changed no production code.
 
@@ -72,7 +76,7 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-C4 (final, round 2)** | **No new taxonomy family.** The existing **7 families** of DH4-1 / PR #255 OD-TAX are kept. Only the UI display is made human-friendly. **「きのこ系」 is not an independent family**: mushroom stays in `vegetable`, and the display 「野菜・きのこ系」 is wording only. The invariant **"a classification emoji never collides with a real ingredient's emoji" is kept** (H5-INV-2, G18). | APPROVED (C4a / C4b closed) |
 | **OD-H5-U1** | The basic UX is a **single ladder**, not the 3-way choice: sauce → cheese → key topping → structure → sub-topping ① … ⓝ. There is **no FREE LEAK**: the final rung count, the sub-topping count and the kinds of later rungs are not visible before purchase. The player always sees **what the next hint is** and **its price**. | APPROVED |
 | **OD-H5-E3** | Existing coarse `attr:group:*` / `attr:category:*` facts are **never deleted** and **never converted** to `cls:<ingredientId>`. Stored facts stay forward-compatible. Only facts that map safely are reused. Full Reset, unknown ids and forward compatibility are kept. | APPROVED |
-| **OD-H5-E1** | **Pricing = P-C:** sauce **10**, cheese **10**, key topping **10**, structure **5**, sub-topping classification **5 each**. The price depends on the rung kind only. | **APPROVED (price authority)** |
+| **OD-H5-E1** | **Pricing = P-C:** sauce **10**, cheese **10**, key topping **10**, structure **5**, sub-topping classification **5 each** (round 7 adds the key-free BASE rung at **10**, OD-H5-BASE-2). The price depends on the rung kind only. | **APPROVED (price authority)** |
 | **OD-H5-E2** | **No per-recipe cap.** At round 2 every runtime recipe totalled ≤ its existing 35 / 75 cap under P-C. With P4-CHEESE (round 6), marinara and fugazza total 40 (above the old 35); no cap still applies. | APPROVED |
 | **OD-H5-E3b** | Owning a coarse 特徴 fact (`attr:group:*` / `attr:category:*`) does **not** auto-grant any individual classification. The facts stay stored, forward-compatible. | APPROVED |
 | **OD-H5-M1** | The Hint 3.0 **free key**'s shown / purchased state is **not** carried over to the Hint 5.0 paid key-topping rung. They are separate concepts. | APPROVED |
@@ -87,6 +91,8 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-P4-SAUCE — resolved by TQ-1D (2026-10-05, OD-TQ1D-1)** | The sauceless recipe is `aussie` only: permanently key-free, so its ladder has **no SAUCE rung** (never an empty / RESERVED one) and starts at CHEESE; no KEY_TOPPING. 「ソース：なし」 is still not Hint 5.0 authority and RESERVED is not revived (`hint5ReservedRungs` stays empty in production, G7). The text of this document that says "25 recipes" / "RESERVED until TQ-1D" is the Round 6 historical record; the production population is now 32 recipes. | – |
 | **OD-H5-M2** | **All 25 recipes at once.** This is the implementation authority for the flag-ON target set; it does not turn the production flag on. Conditions: (1) P4-CHEESE implemented, (2) P4b implemented, (3) no production recipe can reach a RESERVED rung, (4) G7 PASS, (5) taxonomy eligibility PASS, (6) M3-D FREE LEAK gates PASS. | **APPROVED (round 6)** |
 | **OD-H5-RETIRE** | With the Hint 5.0 flag ON, the **new-purchase paths** of the old 材料 / 構成 / 特徴 hints end. Bought facts are never deleted or converted and stay in 「以前のヒント」. No save migration, no schema bump. | **APPROVED (round 6)** |
+| **OD-H5-BASE-1..7** (round 7) | Key-free ladder = `BASE → STRUCTURE → SUB_CLASS…`; BASE = all sauces + cheeses, 10 Pitz, never states an absence; migration M-1..M-8; new outcome `ANSWERED_CREDITED` (H5-INV-6 amended by one clause); two-PR roll-out (flag OFF, then ON); no refund. Amends OD-D3-21. Full text and spec: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`. | **APPROVED (2026-10-10)** |
+| **OD-H5-SUBORD-1 / -2** (round 7) | α: key-free sub rows must keep ≥ 2 candidate assignments; a violation is CI RED and waits for the Owner (no automatic exception). β: a new key-free recipe may use a sub order that is not the catalog order; the existing 30 keep it. | **APPROVED (2026-10-10)** |
 
 ## 3. Authority: deduction vs. disclosure (normative)
 
@@ -98,12 +104,16 @@ These invariants are hard. Every H5 phase must keep them and test them.
 
 | Invariant | Rule | Surfaces |
 |---|---|---|
-| **H5-INV-1 (ingredient)** | Only a purchased **name rung** (sauce / cheese / key topping) displays an ingredient's name or glyph. A sub-topping's name, id, glyph or `IngredientGlyph` is **never** displayed. The one exception is a legacy fact the player already owns (§9). | text, DOM, aria, `data-*`, `title`, img alt / src, test ids visible to the player, the view model |
+| **H5-INV-1 (ingredient)** | Only a purchased **name rung** (sauce / cheese / key topping, or the key-free BASE rung, round 7) displays an ingredient's name or glyph. A sub-topping's name, id, glyph or `IngredientGlyph` is **never** displayed. The exceptions are (a) a legacy fact the player already owns, and (b) the names written by a credited completion of a legacy partial BASE (`ANSWERED_CREDITED`, round 7, M-3), because that completion is the migration outcome of a legacy partial purchase (M-3), whether or not that player's earlier marker was paid (M-7), not because a payment is proven (§9). | text, DOM, aria, `data-*`, `title`, img alt / src, test ids visible to the player, the view model |
 | **H5-INV-2 (label)** | A classification label is one of the fixed family labels. It is never derived from an ingredient's name. Its emoji is **never equal to any catalog ingredient's emoji** (§7). | the display table plus a data gate |
 | **H5-INV-3 (recipe)** | A recipe's name, id, description and image are never displayed, and never placed in the view model. | as above |
 | **H5-INV-4 (technique)** | An undiscovered Technique's name, id and riddle are never displayed by a hint. No rung reveals the absence of sauce while P4 is reserved (§12). | as above |
 | **H5-INV-5 (FREE LEAK)** | Before a purchase, the presentation depends only on things the player already owns or has bought, and on constants: the rung kind, the rung index and the price. It never depends on the target's unbought content. | the view model |
 | **H5-INV-6 (charging)** | Only ANSWERED charges. The following are never charged: owned information, a stale or double request, insufficient Pitz, a no-fact result (ALREADY_KNOWN / RESERVED), and a rejection. 0 Pitz never appears in production. | the reducer |
+
+**Round 7 amendments (2026-10-10; authority: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`):**
+- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, label, price) never depends on whether the target has a sauce or a cheese. Once a BASE is completed (paid, credited or free, OD-H5-BASE-3b = A) the board shows the existing items only, so a missing sauce or cheese line is inferable (OD-H5-BASE-3c); this is the explicit, narrow supersede OD-H5-BASE-3 / 3b / 3c (of OD-TQ1D-1 and Contract 2.1 §3, for the completed BASE board only: free, paid or credited, existing or new saves). Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
+- **H5-INV-6** gains one clause: `ANSWERED_CREDITED` (charge 0) is an answer, produced only when a legacy partial BASE is completed (§9.5). All other no-charge cases are unchanged.
 
 ## 4. Authority conflict table (updated)
 
@@ -124,6 +134,8 @@ does not govern Hint 5.0 rungs.
 | OD-H3-4 ESC + cap 35 / 75, OD-H3-9 (the rung never rolls back), OD-DH4-PROD-1 (5 / 5), OD-HE-5 (Dex-0 onboarding is free), OD-HE-7 ("No H5") | – | **Superseded for Hint 5.0 rungs by OD-H5-E1 (P-C) / E2 (no cap).** The prices are fixed per rung kind, so OD-H3-9 rung continuity has nothing to roll back. The ESC ladder and 5 / 5 still govern non-Hint-5.0 targets. OD-HE-5 is **kept**: the Dex-0 Margherita onboarding is free and never persisted. OD-HE-7 refers to the Hint 2.0 level H5 and is unrelated; player copy must avoid 「H5」. |
 | DH4-1 `ingredientTaxonomy.ts` header ("an ingredient without a row has no family; the guard answers at category level") and the DH4 coarsening (`deductionHint.ts`, `deductionGuard.ts` `classOf`) | A missing row silently coarsens | **Not reused by Hint 5.0** (OD-H5-T-COV, PR #293 F-2). The Hint 5.0 answer fails closed (`NOT_A_TARGET`, 0 Pitz) and CI fails first. The DH4 path is unchanged. H5-1 amends the header comment to say the DH4 behaviour does not apply to Hint 5.0. |
 | OD-TQ1C-2, INV-TQ-4, the OD-DH4-PROD-1 TQ-1D contract | Re-audit when a Technique recipe ships | **Kept and extended** (§12) |
+| OD-D3-21 (key-free: a rung that does not apply is absent) | The key-free ladder's pre-purchase shape depended on the target's sauce / cheese | **Amended by OD-H5-BASE-1** (§5.4): BASE is always present, KEY_TOPPING stays absent |
+| Contract 2.1 §3 ("do not conditionally omit a category row") | Stated for the RESULT panel only | **Applied to the Hint ladder's pre-purchase shape** by §5.4; **narrowly superseded** for the content of a completed BASE board entry (OD-H5-BASE-3 / 3b) |
 
 ## 5. The ladder model
 
@@ -182,6 +194,22 @@ skipped (a visible skip is a FREE LEAK) and it keeps its normal label and price 
 - In the 172 complete rows: 29 have no sauce (reserved, TQ-1D), 16 have no cheese, and 25 have
   0 sub-toppings (allowed by P3, not an empty rung).
 - **Mixed mode is not used (M2 = all 25):** "which sheet you get" would reveal the empty rung.
+
+### 5.4 Key-free ladder: the BASE rung (round 7, OD-H5-BASE-1..7)
+
+*Authority and the full migration spec:* `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`. This section only fixes the model; do not copy the spec here.
+
+| # | Kind | Subject | Reveals | Stored facts |
+|---|---|---|---|---|
+| 1 | `BASE` | **every** sauce and **every** cheese of the recipe | their names; never an absence | `ing:<id>` for each, plus every *applicable* `h5:sauce` / `h5:cheese` marker |
+| 2 | `STRUCTURE` | the recipe | the distinct ingredient total | unchanged |
+| 3.. | `SUB_CLASS` ①.. | one topping each, catalog order | family label only | unchanged |
+
+- Applies to every key-free recipe (30 today); the 25 keyed recipes keep §5.1.
+- Price 10 Pitz for every key-free recipe. A key-free recipe must have at least one sauce or cheese (data gate).
+- BASE never writes 「ソース：なし」 / 「チーズ：なし」 / an empty line (OD-H5-BASE-3). §5.3 (empty fixed rungs) therefore applies to keyed recipes only.
+- Completion is derived from the existing markers; a legacy partial purchase is completed for 0 Pitz at request time (§9.5).
+- **Status:** specified, not implemented. PR-D adds it behind an OFF flag, PR-E turns it on; until then key-free keeps the §5.1 behaviour described in the code.
 
 ## 6. Data model (C1: field names and placement)
 
@@ -470,6 +498,8 @@ The sheet shows three things.
 This satisfies both H5-INV-5 and the Owner's priority: the player always knows "what am I
 buying, and for how much".
 
+*Round 7:* a key-free recipe shows 「ヒント1: ベース」 (10 Pitz) instead of 「ソース」 / 「チーズ」, then 構成, then the sub-class rungs, identically for all 30 (§5.4). The label table above stays the keyed ladder's. The exact BASE wording is confirmed at HV.
+
 ## 9. Migration design (final)
 
 ### 9.0 OD-H5-M3 = D (authority; supersedes the view-time settlement in §9.1)
@@ -495,8 +525,11 @@ So the pre-purchase view is the same as a fresh save's in all of these: the next
 its price, whether it can be bought, and the board. The one exception is the 「以前のヒント」
 archive of the player's own earlier names and lines, which never depends on the target.
 
-**At request time the order is:** target → STALE → complete → balance at the normal price →
-empty rung → known check.
+**At request time the order is:** target → STALE → complete → (known / credited check) → balance at
+the normal price (charged rungs only) → empty rung → answer. Since OD-360-3, and for the key-free BASE rung
+since round 7 (M-3 / M-4), a rung that completes at **0 Pitz** is decided before the balance check and is never
+refused for insufficient balance: an ALL-known rung (`ALREADY_KNOWN`) and a credited legacy partial BASE
+(`ANSWERED_CREDITED`). A normal purchase at the rung price (BASE 10 included) still requires balance ≥ price.
 
 | Known state | Result |
 |---|---|
@@ -506,8 +539,9 @@ empty rung → known check.
 - The M3 rule applies to **every** rung kind. Structure and sub-topping rungs follow the same rule
   as the name rungs, because a view-time skip of any rung would leak in the same way (H5-2 Result
   §5).
-- A request below the normal price is refused, so a 0-Pitz completion can never be learnt without
-  an affordable request.
+- A charged request below the normal price is refused (`INSUFFICIENT_PITZ`). A 0-Pitz completion (ALL known,
+  or a credited legacy partial BASE) is not refused for balance; the pre-purchase view still never shows it
+  (OD-360-S3-1: a low-balance tap reveals only that the rung was effective-cost-0).
 
 **Principles (E3):**
 - never delete, never rewrite, never convert a stored id;
@@ -561,6 +595,16 @@ So a rollback loses no data.
   when the index differs.
 - The index reveals nothing unbought.
 
+### 9.5 Key-free BASE migration (round 7)
+
+The seven-line summary; the authority and the verification are in `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md` §4.
+
+- **M-1** BASE is completed iff every applicable marker (`h5:sauce` if the recipe has a sauce, `h5:cheese` if it has a cheese) is stored. **M-2** open iff none is stored.
+- **M-3** A legacy partial (sauce marker only, on a recipe with both) is completed by a purchase request for **0 Pitz**, even below 10 Pitz, appending the missing names and markers. **M-4** outcome `ANSWERED_CREDITED`, only when a subject name is still unknown (all-known is `ALREADY_KNOWN`, which takes precedence). **M-5** no refund. **M-6** `h5:structure` / `cls:` are untouched. **M-7** a free ALREADY_KNOWN marker is indistinguishable from a paid one, so it is credited too (player-favouring, at most 10 Pitz). **M-8** totals match a fresh player's, except the M-7 case (a free marker is credited, total 0).
+- The credit applies **only inside a request**. Loading a save never changes Pitz or facts. No key is added or renamed, and no schema bump.
+- Rollback: a BASE purchase writes exactly the facts the old two rungs wrote, so the pre-BASE build continues the ladder without a recharge.
+- E3 still holds: nothing is deleted, rewritten or converted.
+
 ## 10. Pricing (OD-H5-E1 = P-C, OD-H5-E2 = no cap: APPROVED)
 
 ### 10.0 Price authority
@@ -572,6 +616,7 @@ So a rollback loses no data.
 | KEY_TOPPING | **10** |
 | STRUCTURE | **5** |
 | SUB_CLASS (each) | **5** |
+| **BASE** (round 7, key-free only: every sauce and cheese, one rung; OD-H5-BASE-2) | **10** |
 
 **Rules:**
 - **The price depends only on the rung kind.** This is FREE-LEAK safe, and there is no rung
@@ -579,6 +624,7 @@ So a rollback loses no data.
 - **No per-recipe cap** (E2).
 - **Never charged:** an empty rung (RESERVED), a rung that is ALREADY_KNOWN, a completed ladder,
   and the Dex-0 onboarding (OD-HE-5, free).
+- **Credited remainder (round 7, M-3):** completing a legacy partial BASE costs 0 Pitz (`ANSWERED_CREDITED`); it is the only 0-Pitz answer besides ALREADY_KNOWN.
 - **Partly known multi-subject rung:** a rung whose subjects are partly known through legacy
   `ing:` facts (for example 1 of 2 cheeses) costs its full kind price, because it reveals at least
   one new name.
@@ -731,7 +777,7 @@ with the chosen curve before H5-4.
 | G12 | Legacy saves: every row of the §9.1 table, including `attr:group` / `category` staying archive-only and `attr:family` mapping only under its condition | pure + persistence | H5-1 / H5-2 |
 | G13 | Unknown and future ids (including `cls:` in an old build) survive load and write | persistence | H5-2 |
 | G14 | Full Reset clears both ledgers | App | H5-3 |
-| G15 | FREE LEAK: before rung 4 is owned, every target's presentation is identical given the same owned rungs and balance. The price depends on the rung kind only. | pure sweep | H5-1 |
+| G15 | FREE LEAK: before STRUCTURE is owned (rung 4 on the keyed ladder, rung 2 on the key-free ladder), every target's presentation is identical given the same owned rungs and balance. The price depends on the rung kind only. **Round 7:** the comparison groups are {keyed, key-free}; inside key-free all 30 recipes show byte-identical *unpurchased* offers and the same rung sequence and price (no split by sauce / cheese presence). The names and entry count inside a completed BASE (paid, credited or free) are excluded. | pure sweep | H5-1; rewritten in PR-D |
 | G16 | Future 172 fixture gate (§11) | fixture | H5-1 |
 | G17 | Authored fields: `hintKeyToppingId` is a topping of the recipe or null (null only when the recipe has no topping); `hintSubToppingOrder` is exactly the recipe's toppings minus the key, with no duplicates; every `RecipeId` has an entry (compile-time) | data | H5-1 |
 | G18 | Display emoji never equals any ingredient emoji; labels come from the fixed table | data | H5-1 |
@@ -741,14 +787,22 @@ with the chosen curve before H5-4.
 | G22 | G-REC-1: every recipe ingredient id exists in `INGREDIENTS` (INV-T3) | data | H5-1 |
 | G23 | No silent fallback: a missing classification → `NOT_A_TARGET` (0 Pitz, no fact), never existence / group / category. Unreachable in production. | pure + sweep | H5-1 |
 | G24 | `TOPPING_FAMILY_ROWS`: unique, in the catalog, topping only (INV-T2) | data | H5-1 |
-| G-PRICE | The P-C table (10 / 10 / 10 / 5 / 5). The price depends on the rung kind only. No cap. Empty / known / complete / onboarding rungs are 0 and never charged. | pure (H5-1), reducer (H5-2) | H5-1 / H5-2 |
+| G-PRICE | The P-C table (10 / 10 / 10 / 5 / 5) **and, for the key-free ladder, BASE = 10 (round 7)**. The price depends on the rung kind only, so every key-free recipe pays the same BASE price. No cap. Empty / known / complete / onboarding rungs are 0 and never charged; the credited remainder of a legacy partial BASE is the one other 0-Pitz answer. | pure (H5-1), reducer (H5-2); BASE row added in PR-D |
+| G25 | Key-free shape: every key-free ladder is `BASE → STRUCTURE → SUB_CLASS…`, and a key-free recipe has at least one sauce or cheese | data + pure | PR-D |
+| G26 | BASE migration: M-1..M-3 over every reachable old-ladder state of the 30 key-free recipes; 0 violations; STRUCTURE / SUB_CLASS never exist before BASE is complete | pure sweep | PR-B (reference), PR-D |
+| G27 | Credit is request-time only: loading a save never changes Pitz or facts; `ANSWERED_CREDITED` charges 0 and only completes a legacy partial BASE | pure + reducer + persistence | PR-D |
+| G28 | Rollback: facts written by a BASE purchase (and by a credited remainder) let the pre-BASE ladder continue with no recharge, for all 30 recipes | pure sweep against the pre-BASE build | PR-B (reference), PR-D, PR-E |
+| G29 | α: key-free sub rows keep ≥ 2 assignments; the set of recipes with exactly 1 equals the Owner allowlist; no 1-member family × tag cell except capers. A failure is RED and waits for the Owner; no automatic exception | data + logic | PR-C |
+| G30 | Sub order immutability: the sub order of every released recipe equals its golden (all 55 pinned) | golden | PR-B, PR-F |
+| G31 | Flag OFF is byte-identical to main (ladder, view, request result, facts, DOM) | golden | PR-D |
 
 ## 14. H5-1 implementation scope (concrete; not started)
 
 **Goal:** the pure, **unwired** Hint 5.0 layer and its data gates. It has **no** reducer, sheet,
 save writer or flag.
 - The P-C table may be declared as data (`HINT5_RUNG_PRICE`) and pinned by G-PRICE.
-- `requestHint5Rung` still takes the price as an input, the DH4-2A pattern, so the wiring stays
+- `requestHint5Rung` does **not** take a price as an input (the shipped API has no `rungPrice`
+  argument). The price is derived from the rung kind through `HINT5_RUNG_PRICE`; the wiring stays
   in H5-2.
 - H5-1 also amends the `ingredientTaxonomy.ts` header comment, a comment-only change. It will
   state that DH4's "no row → category" coarsening does not apply to Hint 5.0 (PR #293 F-2).
@@ -760,7 +814,7 @@ save writer or flag.
 |---|---|
 | `src/data/recipeHintRoles.ts` | `RecipeHintRoles`, `RECIPE_HINT_ROLES` (25 entries, §6.1, after OD-H5-C1a) |
 | `src/data/hintClassDisplay.ts` | `HINT_CLASS_DISPLAY`: the §7 table (OD-H5-C4 final), pinned by G18 |
-| `src/logic/discovery/hint5Ladder.ts` | `recipeHintRoles(recipeId)`; `hint5Rungs(recipeId, context)`; `subToppingClass(recipeId, ingredientId)` (fail closed); `hint5Ownership(recipeId, storedFactIds, legacyPurchases)` (the §9.1 read-time mapping); `requestHint5Rung({ recipeId, context, storedFactIds, legacyPurchases, expectedRungIndex, rungPrice, pitzBalance })`, which returns `ANSWERED \| ALREADY_KNOWN \| RESERVED_EMPTY_RUNG \| LADDER_COMPLETE \| REJECTED(reason)` in the fixed evaluation order target → rung → price → STALE → balance → answer; `hint5Presentation(...)`, the privacy-safe view model (§8) |
+| `src/logic/discovery/hint5Ladder.ts` | `recipeHintRoles(recipeId)`; `hint5Rungs(recipeId, context)`; `subToppingClass(recipeId, ingredientId)` (fail closed); `hint5Ownership(recipeId, storedFactIds, legacyPurchases)` (the §9.1 read-time mapping); `requestHint5Rung({ recipeId, discoveredCount, storedFactIds, legacyPurchases, expectedRungIndex, pitzBalance })` (the shipped input type; the price comes from the rung kind, there is no `context` or `rungPrice` argument), which returns `ANSWERED \| ANSWERED_CREDITED \| ALREADY_KNOWN \| RESERVED_EMPTY_RUNG \| LADDER_COMPLETE \| REJECTED(reason)`. **Its fixed evaluation order is the one in §9.0, which is the only authority:** target → STALE → complete → (known / credited 0-Pitz check, never refused for balance: OD-360-3, round 7 M-3 / M-4) → balance (charged rungs only) → empty rung → answer; `hint5Presentation(...)`, the privacy-safe view model (§8) |
 
 **New tests:**
 - `hint5Ladder.test.ts`
@@ -828,6 +882,13 @@ save writer or flag.
 | Production activation | Turning the production flag ON (Preview + the Owner's iPhone HV) | after H5-4 |
 
 **Closed in round 6:** P4-CHEESE, P4b, M2 (all 25), RETIRE.
+
+**Closed in round 7 (2026-10-10):** OD-H5-BASE-1..7, OD-H5-SUBORD-1 / -2, the #436 tag decisions (`docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`).
+
+**Open after round 7:**
+- the concrete sub order for new key-free recipes (family order leaks a free negative fact, see §6.1's authoring guidance; an opaque deterministic order is recommended), decided before PR-F;
+- **OD-H5-BASE-3b: DECIDED (Option A)**, no longer open. Every completed BASE (free, paid or credited; new or existing saves) shows its existing items; no extra charge; no provenance or new save key; the exception is limited to the Hint 5.0 BASE board. Authority: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`. PR-D implements it.
+- the BASE player-facing copy (label, description, credited line), decided at HV in PR-D / PR-E.
 
 **Closed in round 2:**
 - E1 / E2: P-C, no cap.

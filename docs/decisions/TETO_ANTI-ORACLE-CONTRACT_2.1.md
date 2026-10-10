@@ -10,6 +10,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 > **Research 2.0 同期（2026-10-05、Owner Decisions OD-R2-1〜5 / OD-R1-1〜4 / OD-R3-1〜3 / OD-C-1）:** 正本は [`TETO_RESEARCH-2.0_OWNER-DECISIONS.md`](./TETO_RESEARCH-2.0_OWNER-DECISIONS.md)。**Phase 1 で有効になる改訂**: Research Entry の label は ①②③ をやめ、`？？？ピザ B（たまねぎ）`（兄弟 cohort のみ letter）/ `？？？ピザ（チキン）`（単独）に統一する（D+ Cohort Letter、導出のみ・save しない、OD-RB-14 は存置）。下の §3 / §7 の `？？？ピザ ①（…）` 表記は **この改訂で置き換わった旧表記**として読む。**承認済みだが未実装（Phase 2〜4）**: ×の加算 ledger（OD-RB-7 / INV-6' / §6 / §14 の「negative の永続化」を Phase 2 で上書き）、Notebook 上部の Research Board、焼き FAILED でも○× を開示し Notebook に記録（INV-D6 / OD-P3-16 の拡張、在庫消費は維持）。**それまで本書の §6（× は session のみ）は現行挙動のまま**。INV-D7 / OD-TQ1D-4 / Technique privacy は変更しない。
 
+> **Hint 5.0 BASE rung 同期（2026-10-10、Owner Decisions OD-H5-BASE-1〜7）:** 正本は [`TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`](./TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md)。key-free レシピの Hint 梯子は、sauce / cheese が無い target で該当 rung を省いていたため、購入前のラベルから「ソースなし / チーズなし」が分かっていた。これを **`BASE → 構成 → サブ分類…` の固定形（全 key-free で同一）** に統一する（PR-D 実装・PR-E 有効化。**それまでは現行挙動**）。BASE は「なし」を書かない。ただし完了済み BASE の盤面は存在する item だけを表示するので、ソース行またはチーズ行が無いことから、ソースまたはチーズの不在を推理できる（有料・クレジット・無料 `ALREADY_KNOWN` の完了を区別せず、OD-H5-BASE-3b = Owner 決定 A、OD-H5-BASE-3c = Owner 決定 A。新しい保存キー・来歴は追加しない）（OD-H5-BASE-3: OD-TQ1D-1 / 本書 §3 の「完了済み BASE 盤面」（無料 `ALREADY_KNOWN`・有料・クレジットの別なく、既存セーブ・新規とも）に限った明示的な部分 supersede。ソースまたはチーズの不在が初めて推理できる場合も、この盤面内に限り Owner 承認済み（OD-H5-BASE-3c）。未完了のヒントは対象外で、購入前の target 非依存性と通常の購入条件を維持する。**この文言は Owner が確認済み（選択肢 A・条件付き）**: 許容するのは Hint 5.0 BASE 盤面の内容からの推理だけで（図鑑・RESULT・Technique 等には拡張しない）、RESULT・Notebook の公開条件、Technique no-sauce の公開時期、保存キー・価格・クレジット、本書のその他の Anti-Oracle 条件は維持する）。購入前の形は target 非依存。本書の §3「カテゴリ行だけを条件付きで省略する設計は採用しない」は、RESULT パネルだけでなく Hint の梯子にも適用される。INV-D7 / §10 の accepted consequence・Contract 2.1 の価格・K・永続化は変更しない。OD-TQ1D-1 は、完了済み BASE 盤面の内容（上記の明示的な部分 supersede）**以外**の範囲で維持する（未完了のヒント・RESULT・Notebook・購入前の Hint 形・Technique 名の公開時期・図鑑は不変）。
+
 ## 0. この文書の位置づけ
 
 - **Contract 2.0** は repo 内の文書ではなく **Issue #356 §4**（Anti-Oracle Contract 2.0 / INV-1〜INV-7 / OD-I-1〜18）と、実装コメント
@@ -70,8 +72,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 - **直接の「なし」表示の禁止（OD-RB-12）**: パネルは player が実際に試した ingredient についてだけ「モッツァレラ ×」「パルミジャーノ ×」のように表示する。**「チーズなし」「ソースなし」「〜は使わない」を直接書かない**（行ごと・文言ごと）。player 自身が結果から「チーズなしでは？」と推理することは許容する（§10）。
 - **表示順**は player 自身の pizza の順序（置いた順 / 種類順）で、`canonical(T)` の順序や catalog の順序を使わない。
 - パネルに **○ / × の個数、「全部正解」「あと少し」等の総評、色による総括、count、進捗** を置かない。
-- **標準パネルを target 非依存に同一表示できない target は、パネルの対象 population に含めない**（例: Hint 5.0 で sauce rung が RESERVED の target）。**カテゴリ行だけを条件付きで省略する設計は採用しない**: target の性質によって sauce 行だけが消えると、パネルの省略そのものが hidden property（reserved / no-sauce class）を漏らすため（INV-D4、INV-5）。
-  - **TQ-1D による解消（OD-TQ1D-1、Expansion Gate A CLOSED）:** no-sauce の `aussie` は**この除外に当てはまらない**。標準パネルは元々 target 非依存で、行は **player が実際に使った ingredient** だけから作られる（`researchResultRows`）。sauce 行が出るのは player が sauce を使った時だけで、sauce を使わなかった pizza には**どの target でも**sauce 行は無い（Aussie だけが省略されるのではない）。player が sauce を使えば、Aussie でも他の target と同じ通常の ×（member でない sauce）になる。したがって Aussie 専用の特殊行（「ソースなし」「ソース不要」）も、0 点の sauce 行も、条件付き省略も**作らない**。Hint 5.0 は RESERVED を復活させず、Aussie は key-free で **SAUCE rung を持たない**（最初の有効 rung は CHEESE）。「ソースなし」は **player が実際に作った pizza の組成から Technique `no-sauce` を発見した後**にだけ、Technique の名称として公開してよい（RESULT の技法段 / Dex）。target の identity から sauce-none を判定・開示することはない。
+- **標準パネルを target 非依存に同一表示できない target は、パネルの対象 population に含めない**（例: Hint 5.0 で sauce rung が RESERVED の target）。**カテゴリ行だけを条件付きで省略する設計は採用しない**（Hint 5.0 の key-free 梯子の購入前の形にも同じ原則を適用する。BASE rung、OD-H5-BASE-1。完了済み BASE 盤面の内容は OD-H5-BASE-3 / 3b / 3c の部分 supersede）: target の性質によって sauce 行だけが消えると、パネルの省略そのものが hidden property（reserved / no-sauce class）を漏らすため（INV-D4、INV-5）。
+  - **TQ-1D による解消（OD-TQ1D-1、Expansion Gate A CLOSED）:** no-sauce の `aussie` は**この除外に当てはまらない**。標準パネルは元々 target 非依存で、行は **player が実際に使った ingredient** だけから作られる（`researchResultRows`）。sauce 行が出るのは player が sauce を使った時だけで、sauce を使わなかった pizza には**どの target でも**sauce 行は無い（Aussie だけが省略されるのではない）。player が sauce を使えば、Aussie でも他の target と同じ通常の ×（member でない sauce）になる。したがって Aussie 専用の特殊行（「ソースなし」「ソース不要」）も、0 点の sauce 行も、条件付き省略も**作らない**。Hint 5.0 は RESERVED を復活させず、Aussie は key-free で **SAUCE rung を持たない**（最初の有効 rung は CHEESE。**これは TQ-1D 当時から現行（PR-E 前）までの仕様・履歴の記録**で、Hint 5.0 PR-E で BASE が有効になった後は key-free の先頭 rung は BASE になる。PR-E 実装前から BASE が有効という意味ではない）。「ソースなし」は **player が実際に作った pizza の組成から Technique `no-sauce` を発見した後**にだけ、Technique の名称として公開してよい（RESULT の技法段 / Dex）。target の identity から sauce-none を判定・開示することはない。
 
 ## 4. 不変条件（Contract 2.1）
 
@@ -120,7 +122,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 - **cross-recipe exact（OD-I-8 維持）**: `T` 中に別 recipe `B` を exact に再現したら `B` は通常どおり DISCOVERED。`T` の ○× パネルも保存も出さない。
 - **INCOMPLETE / AMBIGUOUS**: §3 の表示条件に含める。パネルは ORIGINAL と同一（INV-D3）。FAILED は matcher 一致後の話で ORIGINAL には来ない。
-- **Hint 5.0**: ladder / 価格 / 順序は不変（OD-RB-9）。○ の `ing:` は既存どおり `hint5Ownership.known` に入り、全て既知の rung は ALREADY_KNOWN / 0 Pitz（OD-I-14）。STRUCTURE（全部で N）と SUB_CLASS は count / 分類を出さないので価値が残る。**SAUCE / CHEESE rung の価値低下は accepted consequence（§10）で、解決は #360 に委譲**。
+- **Hint 5.0**: ladder / 価格 / 順序は不変（OD-RB-9。**ただし key-free レシピの BASE 化（OD-H5-BASE-1/2）は別の Hint 側 Owner Decision による例外で、本 Contract の RESULT 実装が Hint を変えないという意味。冒頭の BASE 同期注を参照**）。○ の `ing:` は既存どおり `hint5Ownership.known` に入り、全て既知の rung は ALREADY_KNOWN / 0 Pitz（OD-I-14）。STRUCTURE（全部で N）と SUB_CLASS は count / 分類を出さないので価値が残る。**SAUCE / CHEESE rung の価値低下は accepted consequence（§10）で、解決は #360 に委譲**。
 - **Research Entry / Dex**: Research Entry は匿名ターゲットとして必須で残る。Dex / 研究カードの「わかっていること ✓」は保存済み ○ の表示になる。
 - **progression**: コード変更なし。発見までの attempt 数が減る（監査: 27 recipe 合計 期待 321 → 約 97、約 3.3 倍速、§15）。**実装の blocker にはせず、Production ON Gate の必須条件とする**（§13、OD-RB-17）。
 - **feature flag（OD-RB-16）**: 既存 `RESEARCH_IDENTIFY_ENABLED`（Production 既定 OFF、dev / Preview ON、dev opt-out）を再利用する。OFF = 現 Production の挙動、ON = Contract 2.1。旧 picker / LOCK 方式を ON の別 variant として残さない。**Production ON は別 Gate**（§13）で、flag を変更する追加 commit / PR は禁止（OD-I-18 を継承）。
@@ -137,7 +139,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 | 6 | Trial Notebook OD-P3-4 / OD-P3-14 | 「見せた P2 feedback 行そのまま」を持てる。内部 outcome / recipe / hidden 回答は持たない | 整合（開示した判定のみ、outcome は記録しない） |
 | 7 | #346 S3 / S4 Result「attempts add no knowledge」、OD-RX-3、AC6 | 試作は knowledge を作らない（`ing:` は購入のみ） | #356 で限定的に上書き済み。2.1 はその範囲を「RESULT で開示した ○」へ拡張（保存先は同じ `ing:`）。S4 AC6（指定なしの oracle 中立性）は「targetless / パネルなし」で維持 |
 | 8 | Hint 5.0 H5-0 OD-H5-U1「no FREE LEAK」、OD-H5-P4-CHEESE「購入前は『なし』と言わない」、OD-H5-P4-SAUCE（RESERVED） | rung は有料。cheese / key の「なし」は購入後のみ。sauce の「なし」は Hint 5.0 の authority ではない | **直接の「なし」は表示しない**（INV-D7）。ただし player が全 cheese を試して全 × を見れば「なし」を**推論できる**。これを **accepted consequence**（§10）とし、Hint 側の改善は #360 に委譲。RESERVED の target はパネルの対象 population に含めない（§3、行の条件付き省略はしない）。**TQ-1D 以降:** no-sauce の `aussie` は Production の target だが、パネルは target 非依存のため特殊扱いしない（§3 の TQ-1D 解消）。OD-H5-P4-SAUCE の RESERVED は復活させない（Aussie に SAUCE rung は無い） |
-| 9 | Hint 5.0 OD-H5-E1（価格 sauce 10 / cheese 10 / key 10 / structure 5 / class 5） | 価格不変 | 不変（OD-RB-9）。○ の `ing:` は既存の ALREADY_KNOWN 経路（OD-I-14） |
+| 9 | Hint 5.0 OD-H5-E1（価格 sauce 10 / cheese 10 / key 10 / structure 5 / class 5。key-free は OD-H5-BASE-2 で BASE 10 を追加） | 価格不変 | 不変（OD-RB-9。key-free の BASE 10 は Hint 側の別 Decision）。○ の `ing:` は既存の ALREADY_KNOWN 経路（OD-I-14） |
 | 10 | Issue #356 OD-I-8（cross-recipe）/ OD-D3-20・23（INCOMPLETE を ORIGINAL と同一に） | 別 recipe exact は通常 DISCOVERED、INCOMPLETE は ORIGINAL と見分けがつかない | 維持（§8、INV-D3） |
 | 11 | #346 S4「Research ORIGINAL の RESULT は near/far を出さない」 | Research round は Near/Far 行なし | 維持。パネルは Near/Far ではない |
 | 12 | Issue #356 OD-I-16 | cap / 回数制限 / 課金を入れない | 維持（K は回数制限ではなく**開示量の上限**） |
@@ -164,7 +166,7 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 - **Notebook 形式**: `RESEARCH_ROWS` の形式が deterministic（同じ入力で同じ文字列）。ラベルは表示文字列をそのまま保存し再計算しない。**現カタログでの最悪ケースが 200 字以内**であることを固定するテスト（カタログ拡大でこのテストが落ちたら、truncate せず schema / design decision に戻す）。retry replacement（同じ組み合わせ・別 Target で feedback が最新に置換）を固定。
 - **cross-recipe**: `T` 中の別 recipe exact でパネルなし・`T` への保存なし。targetless / MATCHED / FAILED / flag OFF でパネルなし。
 - **privacy scan**: DOM / aria / Notebook に hidden recipe 名・id・count・割合・「n 個中」が出ない。
-- **回帰**: `INV-4`（matcher 非依存）、Hint 5.0 価格・rung 不変、Trial Notebook schema 不変、Production flag default OFF。
+- **回帰**: `INV-4`（matcher 非依存）、Hint 5.0 価格・rung 不変（key-free の BASE 化は OD-H5-BASE-1/2 の例外）、Trial Notebook schema 不変、Production flag default OFF。
 - **mobile**: 390×844 / 360×800 で overflow なし・CTA 到達可能（Layout Contract Gate を含む）。chip が wrap し、典型ケースが compact であること、最悪ケース（判定 10 chip）でも CTA に到達できることを実測で固定（固定 px 高さは assert しない）。
 - **Target の有効性**: 最後の在庫を使い切る attempt で、パネル・`ing:` 保存・Notebook 行が欠落しない（RESULT 時点の cookability に依存しない）。
 - **flag**: OFF で現 Production と byte 同一（パネルなし・picker なし）。旧 picker / `researchTest` / LOCK / `BakeUnusedConfirm` が ON / OFF どちらにも存在しない。
@@ -201,13 +203,13 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
   - **INV-D4（target 非依存の表示）:** 標準パネルの行は player 自身の pizza と known facts だけで決まり、target の sauce 有無では決まらない。sauce を使わなかった pizza は、どの target でも sauce 行を持たない。Aussie 専用の行・省略・文言は無い。
   - **INV-D7（直接の「なし」を出さない）:** 維持。パネル・aria・Notebook・保存のどこにも「ソースなし」「ソース不要」「ソース：なし」に相当する表現を置かない。Technique の名称「ソースなし」は、**実際の pizza の組成から `no-sauce` を発見した後**にだけ、RESULT の技法段と Dex の「調理法」で公開する（membership feedback ではなく、発見の報酬としての表示。★ / Pitz は付かない）。
   - **OD-TQ1D-4（Owner、2026-10-05）:** INV-D7 は Notebook の試作 entry にも適用する。sauce を使わなかった試作に「ソース: なし」の chip / row を出さない（diff の「sauce → なし」も ＋ / − 表示にする）。player 自身の composition 記録であっても、INV-D7 は「Research panel / aria / Notebook / persistence に直接的な sauce absence 表現を置かない」という単純な契約に統一する。
-  - **RESERVED:** 復活させない。Aussie は永続的に key-free（`recipeHintRoles`）で、key-free の ladder は適用されない rung を持たないため SAUCE rung が無い。最初の有効 rung は CHEESE。KEY_TOPPING も無い。`hint5ReservedRungs` は production で空のまま（G7 / RESERVED gate が固定）。
+  - **RESERVED:** 復活させない。Aussie は永続的に key-free（`recipeHintRoles`）で、key-free の ladder は適用されない rung を持たないため SAUCE rung が無い。最初の有効 rung は CHEESE（TQ-1D から現行・PR-E 前の仕様。Hint 5.0 PR-E 有効化後は key-free の BASE が先頭になる）。KEY_TOPPING も無い。`hint5ReservedRungs` は production で空のまま（G7 / RESERVED gate が固定）。
   - **固定している場所:** `researchResultRows.test.ts`（Gate A: 構造が全 target で同一）、`gameReducer.techniques.privacy.test.ts`（target ごとの rows / Notebook / 保存 / Research Entry / Hint 5.0 view / near-miss の absence 走査）、`hint5Production.gate.test.ts`（G7 / RESERVED gate）、`deductionProduction.gate.test.ts`（DH4 privacy sweep に Aussie を含む）。
 - **53 / 172 recipe の Scale Audit**: 旧版の見積り（本書の旧 §6 の将来スケール）は sauce 複数投入の前提を含む可能性があり、**現時点で authority にしない**。拡張 population（53 / 172）を扱う前に、sauce 1 種 / attempt（§3、§15）の前提で**再監査する**（trigger の記録のみ。数値はここでは確定しない）。Production-27 の実装 blocker ではない。
 
 ## 14. Non-Goals
 
-correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
+correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（本 Contract の実装としては行わない。key-free の BASE 化は OD-H5-BASE-1/2 が別途決定。SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
 
 ## 15. Canonical numbers（Production 27 recipe / 30 ingredient、**sauce は 1 attempt 1 種類**）
 
