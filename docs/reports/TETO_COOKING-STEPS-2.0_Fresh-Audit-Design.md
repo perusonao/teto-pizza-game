@@ -202,7 +202,7 @@ A=実装済・正常 / B=実装済・操作性改善要 / C=部分実装（基�
 | **レシピデータモデル** | `Recipe` 無変更。`RecipeRequirement.applicationPhase?: "PRE_BAKE"\|"POST_BAKE"` を追加（absent=PRE_BAKE）。**食材側にフラグを持たせない**（`attr:category`/`attr:group` ヒントへ漏れる＝OD-CS-3、#294 §10 H3） | ✅ 後方互換（既存55レシピは無変更） |
 | **CookingProfile / 工程の順序** | `steps` は既に順序配列。FINISH は `deriveCoreSteps` が `applicationPhase` から追加。**任意工程**＝プロファイル省略、**複数回工程**＝現状は1ステップ1回（FINISH 内で複数個配置は"複数回"ではなく*同ステップ内の反復*で表現）、**焼成前後分岐**＝`isPostBakeStep()` がステップ固有で表現済み | ✅ データで表現可能 |
 | **Cooking Steps / Technique** | 後乗せは**技法 TQ-2**（OD-TQ-2）。新技法 id（例 `late-addition`）を `techniques.ts` に追加、検出は `signature` の `late` 軸（現在 `FIXED_BY_FLOW`）を OBSERVED 化。**技法は購入しない・前提にしない**（OD-TQ-1） | ⚠ 技法側のOwner判断が必須（本書は決めない） |
-| **Free Cooking / Research** | FREE で仕上げを選べないと後乗せレシピは発見不能（OD-CS-4）。一方 FREE に常時「仕上げ」タブを出すと**全FREEピザが 7タブ**になる恐れ（6＋仕上げ）。Research の○×/Notebook に「焼成後」次元が新規で出るためヒントの漏洩（H6/H8）を再監査 | ⚠ **未決（§8 UD-1）** |
+| **Free Cooking / Research** | FREE で仕上げを選べないと後乗せレシピは発見不能（OD-CS-4）。一方 FREE に常時「仕上げ」タブを出すと FREE は 5→6 タブ（**訂正: 初版は「7タブ」と誤記。FREE は現在 5 タブ（CUTなし）で、6 は上限内**。詳細は FINISH Pilot 実装前設計レポート §1.3 / §4）。Research の○×/Notebook に「焼成後」次元が新規で出るためヒントの漏洩（H6/H8）を再監査 | ⚠ **未決（§8 UD-1）** |
 | **Discovery / Dex** | Dex の「調理法」に新技法を追加（「？？？」＋なぞかけ）。レシピ識別は `(材料集合 + 生地/パン/後乗せ…)` のキーに拡張（matrix §6: 「材料だけで識別してはいけない」） | ✅ 既存の技法Dex枠を再利用 |
 | **Shop / Inventory** | 新素材（bbq-sauce, cilantro）は既存の ladder append-only＋T4価格＋`starGates`。在庫消費は CONFIRM_BAKE で一括（後乗せ分の消費タイミングは OD-CS-2=B「後乗せレシピのみ provisional→FINISH後に確定」） | ✅ ただし finalize の抽出（CS-1b）が前提 |
 | **Lunch Rush** | 後乗せレシピは `lunchRush:false`（既存フィールド）で除外が最安。ランキング互換（#224, `lunch-rush-v1`）を守る | ✅ 新工程は Lunch Rush に入れない |
@@ -316,7 +316,7 @@ PizzaState.toppings[ { id, ingredientId, x, y, stage?: "pre" | "post" } ]       
 | # | リスク | 影響 | 緩和 |
 |---|---|---|---|
 | R1 | **根拠の再検証不能**：pizzadb.jp へ本セッションから接続していない。行は repo 内の取り込み済み証拠に依存 | 根拠の鮮度 | 有効化段階で Owner が対象行（BBQチキン）のみ再確認 |
-| R2 | FREE に「仕上げ」を常時出すと全FREEが7タブ化（UD-1） | 上限不変条件に衝突 | S0 で方針決定。後乗せレシピ時のみ表示すると**識別が漏洩**（OD-TQ-16/H6） |
+| R2 | FREE に「仕上げ」を常時出すと FREE は 6 タブ（**訂正: 初版の「7タブ」は誤り**。FREE は現在 5 タブ）。FREE に CUT が入ると 7 になる | 現状は上限内。将来 CUT 導入時に衝突 | S0 で方針決定。後乗せレシピ時のみ表示すると**識別が漏洩**（OD-TQ-16/H6） |
 | R3 | finalize を CONFIRM_BAKE から分離（OD-CS-2=B）の複雑化 | Dex/Pitz/在庫の二重計上・取りこぼし | golden＋"abandon during FINISH" テスト。S2 で先に抽出し inert 化 |
 | R4 | Dinner は START_BAKE で識別・post-BAKE ステップを決める（D4）→ 後乗せレシピが識別不能・同定漏洩 | Dinner 破損 | 後乗せレシピは Dinner から除外（OD-CS-5 案a） |
 | R5 | bake 失敗時に FINISH を許すか（#256 の方針と整合） | 失敗ピザに置ける不整合 | AC-6。スキップを推奨（OD-CS-7案） |
