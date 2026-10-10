@@ -33,7 +33,7 @@
 - **Round 7 (2026-10-10, after the Hint 5.0 audit of the key-free ladder):** the key-free ladder becomes
   `BASE → STRUCTURE → SUB_CLASS…` (OD-H5-BASE-1..7, α / β sub-order decisions, the #436 tag scope). The
   authority is `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; §5.4, §9.5 and §13 here point to it.
-  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **OD-H5-BASE-3b (free vs paid BASE completion display; no provenance is stored, so both look the same after a reload) is open and has no implementable default; it blocks the BASE board display in PR-D.** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
+  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **OD-H5-BASE-3b is DECIDED by the Owner as Option A: every completed BASE (free `ALREADY_KNOWN`, paid, credited; new or existing; same after a reload) shows its existing items, with no extra charge and no new save key or provenance; the exception is limited to the Hint 5.0 BASE board (not Notebook, RESULT or Technique).** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
 - **Still open:** OD-H5-P4-SAUCE (TQ-1D), and the production activation itself (flag ON).
 - H5-0 itself changed no production code.
 
@@ -112,7 +112,7 @@ These invariants are hard. Every H5 phase must keep them and test them.
 | **H5-INV-6 (charging)** | Only ANSWERED charges. The following are never charged: owned information, a stale or double request, insufficient Pitz, a no-fact result (ALREADY_KNOWN / RESERVED), and a rejection. 0 Pitz never appears in production. | the reducer |
 
 **Round 7 amendments (2026-10-10; authority: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`):**
-- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, label, price) never depends on whether the target has a sauce or a cheese. After the player pays for BASE the board shows the purchased items only, so a missing sauce line is inferable; this is the explicit, narrow supersede OD-H5-BASE-3 (of OD-TQ1D-1 and Contract 2.1 §3, for the purchased Hint board only). Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
+- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, label, price) never depends on whether the target has a sauce or a cheese. Once a BASE is completed (paid, credited or free, OD-H5-BASE-3b = A) the board shows the existing items only, so a missing sauce line is inferable; this is the explicit, narrow supersede OD-H5-BASE-3 (of OD-TQ1D-1 and Contract 2.1 §3, for the purchased Hint board only). Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
 - **H5-INV-6** gains one clause: `ANSWERED_CREDITED` (charge 0) is an answer, produced only when a legacy partial BASE is completed (§9.5). All other no-charge cases are unchanged.
 
 ## 4. Authority conflict table (updated)
@@ -773,7 +773,7 @@ with the chosen curve before H5-4.
 | G12 | Legacy saves: every row of the §9.1 table, including `attr:group` / `category` staying archive-only and `attr:family` mapping only under its condition | pure + persistence | H5-1 / H5-2 |
 | G13 | Unknown and future ids (including `cls:` in an old build) survive load and write | persistence | H5-2 |
 | G14 | Full Reset clears both ledgers | App | H5-3 |
-| G15 | FREE LEAK: before STRUCTURE is owned (rung 4 on the keyed ladder, rung 2 on the key-free ladder), every target's presentation is identical given the same owned rungs and balance. The price depends on the rung kind only. **Round 7:** the comparison groups are {keyed, key-free}; inside key-free all 30 recipes show byte-identical *unpurchased* offers and the same rung sequence and price (no split by sauce / cheese presence). The names and entry count inside a completed BASE are purchased content and are excluded. | pure sweep | H5-1; rewritten in PR-D |
+| G15 | FREE LEAK: before STRUCTURE is owned (rung 4 on the keyed ladder, rung 2 on the key-free ladder), every target's presentation is identical given the same owned rungs and balance. The price depends on the rung kind only. **Round 7:** the comparison groups are {keyed, key-free}; inside key-free all 30 recipes show byte-identical *unpurchased* offers and the same rung sequence and price (no split by sauce / cheese presence). The names and entry count inside a completed BASE (paid, credited or free) are excluded. | pure sweep | H5-1; rewritten in PR-D |
 | G16 | Future 172 fixture gate (§11) | fixture | H5-1 |
 | G17 | Authored fields: `hintKeyToppingId` is a topping of the recipe or null (null only when the recipe has no topping); `hintSubToppingOrder` is exactly the recipe's toppings minus the key, with no duplicates; every `RecipeId` has an entry (compile-time) | data | H5-1 |
 | G18 | Display emoji never equals any ingredient emoji; labels come from the fixed table | data | H5-1 |
@@ -882,7 +882,7 @@ save writer or flag.
 
 **Open after round 7:**
 - the concrete sub order for new key-free recipes (family order leaks a free negative fact, see §6.1's authoring guidance; an opaque deterministic order is recommended), decided before PR-F;
-- **OD-H5-BASE-3b**: how a completed BASE is shown when a free (`ALREADY_KNOWN`) and a paid completion are indistinguishable after a reload, including existing saves (options A / B / E / D in `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; choosing E rewrites OD-H5-BASE-3's purchased-board statement, choosing D reopens the no-save-change conditions). **Blocks the BASE board display in PR-D**; PR-B, PR-C and PR-F are not affected;
+- **OD-H5-BASE-3b: DECIDED (Option A)**, no longer open. Every completed BASE (free, paid or credited; new or existing saves) shows its existing items; no extra charge; no provenance or new save key; the exception is limited to the Hint 5.0 BASE board. Authority: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`. PR-D implements it.
 - the BASE player-facing copy (label, description, credited line), decided at HV in PR-D / PR-E.
 
 **Closed in round 2:**
