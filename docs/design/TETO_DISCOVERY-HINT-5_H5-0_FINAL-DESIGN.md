@@ -112,7 +112,7 @@ These invariants are hard. Every H5 phase must keep them and test them.
 | **H5-INV-6 (charging)** | Only ANSWERED charges. The following are never charged: owned information, a stale or double request, insufficient Pitz, a no-fact result (ALREADY_KNOWN / RESERVED), and a rejection. 0 Pitz never appears in production. | the reducer |
 
 **Round 7 amendments (2026-10-10; authority: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`):**
-- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, price) never depends on whether the target has a sauce or a cheese. Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
+- **H5-INV-4** now reads: no rung *states* an absence of sauce, and the pre-purchase shape (rung kinds, order, label, price) never depends on whether the target has a sauce or a cheese. After the player pays for BASE the board shows the purchased items only, so a missing sauce line is inferable; this is the explicit, narrow supersede OD-H5-BASE-3 (of OD-TQ1D-1 and Contract 2.1 §3, for the purchased Hint board only). Before round 7 the key-free ladder omitted a non-applicable rung, so its pre-purchase label did depend on it.
 - **H5-INV-6** gains one clause: `ANSWERED_CREDITED` (charge 0) is an answer, produced only when a legacy partial BASE is completed (§9.5). All other no-charge cases are unchanged.
 
 ## 4. Authority conflict table (updated)
@@ -135,7 +135,7 @@ does not govern Hint 5.0 rungs.
 | DH4-1 `ingredientTaxonomy.ts` header ("an ingredient without a row has no family; the guard answers at category level") and the DH4 coarsening (`deductionHint.ts`, `deductionGuard.ts` `classOf`) | A missing row silently coarsens | **Not reused by Hint 5.0** (OD-H5-T-COV, PR #293 F-2). The Hint 5.0 answer fails closed (`NOT_A_TARGET`, 0 Pitz) and CI fails first. The DH4 path is unchanged. H5-1 amends the header comment to say the DH4 behaviour does not apply to Hint 5.0. |
 | OD-TQ1C-2, INV-TQ-4, the OD-DH4-PROD-1 TQ-1D contract | Re-audit when a Technique recipe ships | **Kept and extended** (§12) |
 | OD-D3-21 (key-free: a rung that does not apply is absent) | The key-free ladder's pre-purchase shape depended on the target's sauce / cheese | **Amended by OD-H5-BASE-1** (§5.4): BASE is always present, KEY_TOPPING stays absent |
-| Contract 2.1 §3 ("do not conditionally omit a category row") | Stated for the RESULT panel only | **Extended to the Hint ladder** by §5.4 |
+| Contract 2.1 §3 ("do not conditionally omit a category row") | Stated for the RESULT panel only | **Applied to the Hint ladder's pre-purchase shape** by §5.4; **narrowly superseded** for the content of a purchased BASE entry (OD-H5-BASE-3) |
 
 ## 5. The ladder model
 
@@ -596,7 +596,7 @@ So a rollback loses no data.
 The seven-line summary; the authority and the verification are in `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md` §4.
 
 - **M-1** BASE is completed iff every applicable marker (`h5:sauce` if the recipe has a sauce, `h5:cheese` if it has a cheese) is stored. **M-2** open iff none is stored.
-- **M-3** A legacy partial (sauce marker only, on a recipe with both) is completed by a purchase request for **0 Pitz**, even below 10 Pitz, appending the missing names and markers. **M-4** outcome `ANSWERED_CREDITED`. **M-5** no refund. **M-6** `h5:structure` / `cls:` are untouched. **M-7** a free ALREADY_KNOWN marker is indistinguishable from a paid one, so it is credited too (player-favouring, at most 10 Pitz). **M-8** totals match a fresh player's.
+- **M-3** A legacy partial (sauce marker only, on a recipe with both) is completed by a purchase request for **0 Pitz**, even below 10 Pitz, appending the missing names and markers. **M-4** outcome `ANSWERED_CREDITED`. **M-5** no refund. **M-6** `h5:structure` / `cls:` are untouched. **M-7** a free ALREADY_KNOWN marker is indistinguishable from a paid one, so it is credited too (player-favouring, at most 10 Pitz). **M-8** totals match a fresh player's, except the M-7 case (a free marker is credited, total 0).
 - The credit applies **only inside a request**. Loading a save never changes Pitz or facts. No key is added or renamed, and no schema bump.
 - Rollback: a BASE purchase writes exactly the facts the old two rungs wrote, so the pre-BASE build continues the ladder without a recharge.
 - E3 still holds: nothing is deleted, rewritten or converted.
@@ -771,7 +771,7 @@ with the chosen curve before H5-4.
 | G12 | Legacy saves: every row of the §9.1 table, including `attr:group` / `category` staying archive-only and `attr:family` mapping only under its condition | pure + persistence | H5-1 / H5-2 |
 | G13 | Unknown and future ids (including `cls:` in an old build) survive load and write | persistence | H5-2 |
 | G14 | Full Reset clears both ledgers | App | H5-3 |
-| G15 | FREE LEAK: before rung 4 is owned, every target's presentation is identical given the same owned rungs and balance. The price depends on the rung kind only. **Round 7:** the comparison groups are {keyed, key-free}; inside key-free all 30 recipes are byte-identical (no split by sauce / cheese presence), BASE 10 then 5 / 5. | pure sweep | H5-1; rewritten in PR-D |
+| G15 | FREE LEAK: before rung 4 is owned, every target's presentation is identical given the same owned rungs and balance. The price depends on the rung kind only. **Round 7:** the comparison groups are {keyed, key-free}; inside key-free all 30 recipes show byte-identical *unpurchased* offers and the same rung sequence and price (no split by sauce / cheese presence). The names and entry count inside a completed BASE are purchased content and are excluded. | pure sweep | H5-1; rewritten in PR-D |
 | G16 | Future 172 fixture gate (§11) | fixture | H5-1 |
 | G17 | Authored fields: `hintKeyToppingId` is a topping of the recipe or null (null only when the recipe has no topping); `hintSubToppingOrder` is exactly the recipe's toppings minus the key, with no duplicates; every `RecipeId` has an entry (compile-time) | data | H5-1 |
 | G18 | Display emoji never equals any ingredient emoji; labels come from the fixed table | data | H5-1 |

@@ -20,7 +20,7 @@ Path: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`
 |---|---|---|
 | **OD-H5-BASE-1** | The key-free ladder is `BASE → STRUCTURE → SUB_CLASS ①…`. `BASE` is one rung whose subjects are **all sauces and all cheeses** of the recipe. There is no separate SAUCE or CHEESE rung and no KEY_TOPPING rung for a key-free recipe. The 25 keyed recipes are unchanged (SAUCE → CHEESE → KEY_TOPPING → STRUCTURE → SUB_CLASS). Amends **OD-D3-21** ("a rung that does not apply is absent"). | APPROVED |
 | **OD-H5-BASE-2** | The BASE price is **10 Pitz**, for every key-free recipe. The price never depends on what BASE contains. | APPROVED |
-| **OD-H5-BASE-3** | BASE **never states an absence**: no 「ソース：なし」, no 「チーズ：なし」, no empty line, before or after purchase. The board shows only the items that exist. After the purchase the player may *infer* an absence; that is the same accepted-consequence class as Contract 2.1 INV-D7. | APPROVED |
+| **OD-H5-BASE-3** | BASE **never states an absence**: no 「ソース：なし」, no 「チーズ：なし」, no empty line, before or after purchase. **Before purchase** nothing about BASE depends on the target (§3). **After purchase** the board shows exactly the purchased content, i.e. the items that exist, so a player who paid for BASE can *infer* that a missing sauce line means no sauce. **This is an explicit, narrowly scoped supersede** (§8): of OD-TQ1D-1's "do not disclose sauce absence from the target's identity before the Technique is discovered", and of Contract 2.1 §3's "no conditional row omission" **as applied to the purchased board of the Hint ladder only**. It is not the INV-D7 class (INV-D7 concerns RESULT rows, which are built from what the player actually tried). | APPROVED as Q1 = C (2026-10-10). **The explicit-supersede wording is proposed in PR-A review (Codex P1) and awaits Owner confirmation before merge.** |
 | **OD-H5-BASE-4** | Migration rules **M-1…M-8** (§4): completion is derived from the existing `h5:*` markers, a legacy partial purchase is completed for 0 Pitz at request time, nothing is refunded, no save key or schema changes. | APPROVED |
 | **OD-H5-BASE-5** | A new request outcome **`ANSWERED_CREDITED`** (charge 0, discloses names, persists). **H5-INV-6 is amended minimally** (§5). | APPROVED |
 | **OD-H5-BASE-6** | Roll-out in two PRs: **PR-D** implements BASE behind a build-time flag that is **OFF** (behaviour identical to main); **PR-E** turns it ON (§9). | APPROVED |
@@ -54,7 +54,9 @@ Path: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`
 
 ## 3. Pre-purchase shape (what G15 now pins)
 
-Before STRUCTURE is owned, for the same completed rungs and balance, **all 30 key-free recipes show byte-identical offers and boards, with the same price** (BASE 10, then STRUCTURE 5, then SUB_CLASS 5). The old split by "has a sauce / has a cheese" disappears. The only remaining group split is keyed vs key-free.
+G15 compares **what has not been bought yet**: before STRUCTURE is owned, for the same completed rungs and balance, **all 30 key-free recipes show byte-identical *unpurchased* offers (kind, label, description, price) and the same rung sequence** (BASE 10, then STRUCTURE 5, then SUB_CLASS 5). The old split by "has a sauce / has a cheese" disappears. The only remaining group split is keyed vs key-free.
+
+**Excluded from the comparison:** the *content* of a completed BASE. Once the player has paid, the board shows the purchased names, so its entry count and names legitimately differ by recipe (sauce only, cheese only, several cheeses). That is purchased information (H5-INV-1), not a FREE LEAK, and it is the post-purchase inference accepted in OD-H5-BASE-3. G15 therefore pins: (a) the next unpurchased offer, (b) the kind / index sequence of the board's rungs, and (c) the price, but never the names or the number of lines inside a completed BASE.
 
 ## 4. Migration rules (existing saves)
 
@@ -69,7 +71,7 @@ State read: `discoveryHintFacts[recipeId]` (a list of fact-id strings). Rung ind
 | **M-5** | **No refund** for a player who bought both old rungs (OD-H5-BASE-7). |
 | **M-6** | Progress after BASE (`h5:structure`, `cls:<id>`) is untouched and still valid. It can exist only when BASE is complete (verified, §4.1). |
 | **M-7** | **Provenance gap, accepted.** A marker written by a free `ALREADY_KNOWN` is indistinguishable from a paid one, so a legacy-partial save whose sauce was free (known from a RESULT ○) also gets the remainder credited (at most 10 Pitz in the player's favour). The alternative, charging 10, would double-charge real payers. |
-| **M-8** | **Parity.** A fresh player pays 10 for BASE. A legacy-partial player pays 10 in total. A RESULT-○ player keeps the old totals: sauce known + cheese 10 = 10. |
+| **M-8** | **Parity, with its one exception.** A fresh player pays 10 for BASE. A legacy-partial player who paid for the sauce rung pays 10 in total. A RESULT-○ player with **no** marker keeps the old total: sauce known (free) + cheese 10 = 10. **Exception (M-7):** a legacy-partial save whose `h5:sauce` was written free by `ALREADY_KNOWN` (sauce known from a RESULT ○) is credited, so its total is **0**, not 10. Migration tests must assert this exception explicitly; the parity statement is not unconditional. |
 
 Consequences stated once: the credit is a request-time effective cost, like OD-360-3. The pre-purchase view still shows the normal price 10 (M3 / H5-INV-5) and the CTA is not disabled by balance. Nothing is computed or applied when a save is loaded.
 
@@ -127,10 +129,10 @@ Defined as a data/logic test, derived from the code and data at run time (no har
 | #360 OD-360-3 (known rung is completable below the price) | Reused for M-3. |
 | #360 OD-360-4 (no provenance, no schema) | Kept. M-7 is the accepted price of that. |
 | **OD-D3-21** (key-free: a non-applicable rung is absent) | **Amended** by OD-H5-BASE-1: BASE is always present; KEY_TOPPING stays absent. |
-| **H5-INV-4** (no rung reveals the absence of sauce) | Reworded, not weakened: no rung *states* an absence, and the pre-purchase shape no longer depends on it. This removes the existing pre-purchase omission. |
-| OD-H5-P4-SAUCE / OD-TQ1D-1 | Kept: no 「ソース：なし」 anywhere, RESERVED is not revived, absence is not disclosed directly before the Technique is discovered. |
+| **H5-INV-4** (no rung reveals the absence of sauce) | Reworded: no rung *states* an absence, and **nothing before purchase** (rung kinds, order, label, price) depends on it. This removes the existing pre-purchase omission. The purchased BASE board still shows only existing items (OD-H5-BASE-3 supersede below). |
+| OD-H5-P4-SAUCE / OD-TQ1D-1 | Kept: no 「ソース：なし」 anywhere, RESERVED is not revived, no Technique name before discovery, no target-dependent pre-purchase shape. **Narrowly superseded (OD-H5-BASE-3):** after the player pays for BASE, the missing sauce line is inferable. |
 | OD-H5-P4-CHEESE | Satisfied: nothing says 「なし」 before purchase. Keyed no-cheese recipes keep their paid 「チーズ：なし」. |
-| Contract 2.1 §3 (no conditional row omission) | Hint now follows the same principle. |
+| Contract 2.1 §3 (no conditional row omission) | Applied to the Hint ladder's pre-purchase shape. **Narrowly superseded (OD-H5-BASE-3)** for the content of a purchased BASE entry. |
 | **G15** | Rewritten (§3): groups are {keyed, key-free}. |
 | G7 / reserved gates | Unchanged. A new data gate: a key-free recipe has at least one sauce or cheese. |
 | H5-INV-5 (FREE LEAK) | Kept. The credit is request-time only. |
@@ -176,7 +178,7 @@ Order: A → B → (C ∥ F) → D → E. Rollback: revert E (flag), then D. No 
 
 1. Players who bought both old rungs (12 recipes) paid 20, new players 10. No refund (OD-H5-BASE-7).
 2. The M-7 provenance gap gives at most 10 Pitz in the player's favour.
-3. After a BASE purchase the absence of a sauce is inferable, which weakens the Technique `no-sauce` riddle. Unavoidable once the shape is uniform.
+3. After a BASE purchase the absence of a sauce is inferable from the missing line (OD-H5-BASE-3, an explicit narrow supersede of OD-TQ1D-1 / Contract 2.1 §3 for the purchased Hint board). This weakens the Technique `no-sauce` riddle for a player who bought BASE. It cannot be avoided without stating the absence, which is forbidden, or showing a placeholder, which states it. The Technique's *name* is still shown only after the player discovers it from a real composition.
 4. bacalhau is exactly on the α threshold. Any later change can turn CI red (by design, OD-H5-SUBORD-1).
 5. The 30 existing key-free recipes keep the catalog-order leak. α and β only stop it from growing.
 6. The catalog must stay append-only until PR-B pins the 30 orders.
