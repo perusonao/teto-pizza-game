@@ -19,7 +19,7 @@
 3. **前回監査の訂正:** 前回「FREE に仕上げタブを常設すると全 FREE が 7 タブ」と書いたのは**誤り**。実測で **Free Cooking は 5 タブ**（DOUGH/SAUCE/CHEESE/TOPPING/焼く、CUT なし）。常設の仕上げタブを足しても **6 タブで上限内**（§4）。前回レポートの該当箇所は本コミットで訂正済み。
 4. **Undo は履歴スタックを持たない設計が成立する。** `pizza.toppings` は追記専用・カテゴリでゲート済みなので、「現ステップのカテゴリの最後の1個」を配列から導出できる。新しい保存状態・schema 変更はなし。`44879be` 時点の main には Undo が存在せず、この設計が最初の Undo になった。**Undo（P1）は #451 で実装・merge 済み**（§3 は設計の根拠）。
 5. **FINISH の最大の設計難所は「確定のタイミング」**。main の `CONFIRM_BAKE` はスコア・完成判定・在庫消費・FREE の識別を一括で確定する。後乗せレシピは焼成後の素材が無い状態では判定できない。OD-CS-2=B（通常レシピは現状どおり、後乗せだけ暫定→FINISH後に再確定）を、**「FINISH を含むプロファイルでは、0 個のスキップを含め FINISH の確認のたびに、後乗せ要件を含む完全な最終評価を必ず再実行する」**という形で具体化した（§5.3）。暫定評価は後乗せ要件を除いているため、0 個を「暫定＝最終」とみなすと必須の後乗せ素材が未配置のまま完成扱いになる。在庫消費は未消費の後乗せ piece の差分だけで、再確認しても冪等。FINISH を含まない既存の全レシピは再評価の対象外で、現行とバイト同一のまま。
-6. **焼成失敗時の FINISH スキップは、#256 の `bakeCompletionFailure()` をそのまま再利用すれば新しい閾値なしで実現できる**（§5）。
+6. **焼成失敗時の FINISH スキップ（推奨案。OD-CS-7 = UD-H は未決定）は、#256 の `bakeCompletionFailure()` をそのまま再利用すれば新しい閾値なしで実現できる**（§5）。
 7. **Owner 未決定事項は 7 件**（UD-B / D / E / F / G / H / I、§9）。UD-A（Undo の対象モード）は #451 で実装済み、UD-C（#295 の扱い）は Owner が C1 で決定済み。着手前（P2 まで）に Owner 回答が必須の未決定事項は残っていない。FINISH engine（P3）の前には UD-H（= OD-CS-7 の別名。同一決定）、有効化（P4b）の前には UD-B / D / E / F / G / I が必要（§9）。
 
 ---
@@ -212,6 +212,8 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 
 ## 5. 焼成失敗時の FINISH スキップ（STEP 5）
 
+> **推奨案であり確定仕様ではない。** 本節の「スキップ」は OD-CS-7（= UD-H）の推奨案で、Owner は未決定。OD-CS-7 が「許可」に決まった場合は、その決定に従って本節と AC-F4 を改訂する。
+
 ### 5.1 既存の仕組み【main】
 
 `CONFIRM_BAKE` は `postBake = bakeCompletionFailure(completion) ? [] : postBakeSteps(profile)`（`gameReducer.ts:1327`）。`bakeCompletionFailure` は Completion Gate の `failures` に `UNDERBAKED`/`OVERBAKED` があるときだけ値を返す（`completionGate.ts:254`）。構成不足のみの失敗は CUT を残す。Dinner は同じ判定を Stage B へ `cutWaivedFor` として渡す（fail-closed）。FREE の失敗（`resolveFreeCookPizza` が `FAILED`）は現状 CUT がないため、そのまま RESULT へ行く。
@@ -225,10 +227,10 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 | ガイド/レシピ: 焼成失敗（生焼け/焦げ） | FINISH スキップ → RESULT（FAILED）。`bakeCompletionFailure()` が非 null |
 | ガイド: 構成のみ失敗（暫定判定で後乗せ素材が未配置は**失敗にしない**、§5.3） | FINISH へ進む |
 | FREE: `freeCook.kind==="FAILED"`（焼成帯域外 or 空ピザ） | FINISH スキップ → RESULT（FAILED） |
-| FREE: 焼成成功 | FINISH へ（案 A の常設タブ） |
+| FREE: 焼成成功 | FINISH へ（案 A の常設タブ。UD-B の推奨案で未決定） |
 | FINISH 中に放棄（ホーム） | CUT と同じ。在庫は `CONFIRM_BAKE` で消費済み、Dex は RESULT まで登録されない |
 
-- 結果として**焼成に失敗したピザでは後乗せレシピは完成しない**（技法も発見されない）。これは「失敗ピザに素材を足して救済できる」という不整合を避ける（OD-CS-7 の推奨と同じ）。
+- （OD-CS-7 の推奨案を採った場合）結果として**焼成に失敗したピザでは後乗せレシピは完成しない**（技法も発見されない）。これは「失敗ピザに素材を足して救済できる」という不整合を避ける（OD-CS-7 の推奨と同じ）。
 - 順序は **FINISH → CUT**（Cooking Steps 1.0 §1.1）。FINISH をスキップしたら CUT も #256 の判定どおり。
 
 ### 5.3 暫定判定（OD-CS-2=B の具体化）
@@ -279,12 +281,12 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 
 | リスク | 設計上の対策 |
 |---|---|
-| 「仕上げ」タブの出現で後乗せレシピが分かる | 案 A（常設）で全 FREE 同一。素材所持に連動させない（案 C 却下） |
+| 「仕上げ」タブの出現で後乗せレシピが分かる | 案 A（常設。UD-B の推奨案で未決定）で全 FREE 同一。素材所持に連動させない（案 C 却下） |
 | `attr:category` / `attr:group` ヒントから後乗せが漏れる | 後乗せを**レシピ側の `applicationPhase`** に置く（素材側にフラグを持たせない＝OD-CS-3）。新しい分類カテゴリ（「仕上げ素材」等）を作らない |
 | STRUCTURE（材料総数）が後乗せを除外/別集計 | 後乗せ素材も**材料総数に含める**（`meta:ingredient-total` 不変） |
 | 焼成前に cilantro を置く（同じ材料集合・時機だけ違う） | 識別は材料集合＋`late` 軸。`late` が違えばマッチしない。near-miss は **DIMENSION 系の「おしい」**にしつつ、候補が1つのままだと答えが特定されるため **k 規則（OD-TQ1C-2: 候補<2 は fail-closed＝汎用文言「おしい！あと少し、なにかが違うみたい…？」）**を適用 |
 | Research の ○× 台帳 | 材料の○×は変えず、時機の違いは台帳に出さない（時機は軸であって素材ではない） |
-| 失敗ピザからの情報 | FINISH はスキップされ、後乗せ情報は一切開示されない |
+| 失敗ピザからの情報 | （OD-CS-7 の推奨案＝スキップの場合）FINISH はスキップされ、後乗せ情報は一切開示されない。「許可」に決まれば別途再監査 |
 | Hint 5.0 tripwire | `G7`（ソース数≠1）は BBQ=1 ソースで通る見込みだが、**新ソース・新素材・新技法で `deductionProduction.gate` が赤になるのは想定内**。弱めず再監査して緑にする（#294 §10 H11） |
 | 技法台帳の公開 | 「調理法」欄は未発見＝「？？？」。なぞかけは動作を名指ししない（OD-TQ-5/6） |
 
@@ -355,7 +357,7 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 | AC-F1 | `RecipeRequirement.applicationPhase` が absent の全レシピで、プロファイル・スコア・完成判定・在庫・Dex が変更前と同一 |
 | AC-F2 | FINISH は `POST_BAKE` かつ `makingStep==="FINISH"` でのみ配置可。在庫0・カテゴリ違い・所持外は reducer が拒否 |
 | AC-F3 | FINISH を含むプロファイルでは、FINISH の確認ごと（0 個のスキップを含む）に完全な最終評価が再計算される。必須の後乗せ素材が 0 個ならば完成扱いにならず失敗として評価される（暫定の成功を引き継がない）。在庫は後乗せ piece の未消費差分だけ消費（各 piece 1 回、再確認しても冪等） |
-| AC-F4 | 焼成失敗（`bakeCompletionFailure` 非 null / FREE の FAILED）では FINISH を含む post-BAKE が出ず RESULT へ。新しい閾値を持たない |
+| AC-F4 | **条件付き（OD-CS-7 = UD-H の決定後に確定。現時点は未決定で、いずれも確定挙動として扱わない）**: 「スキップ」に決まった場合は、焼成失敗（`bakeCompletionFailure` 非 null / FREE の FAILED）で FINISH を含む post-BAKE が出ず RESULT へ進む。「許可」に決まった場合はその決定に従う。いずれも新しい閾値を持たない |
 | AC-F5 | 焼成前に置いた同一素材と FINISH で置いた素材が Stock Gate で二重計上されない |
 | AC-F6 | FINISH の Undo は `stage==="post"` の piece だけを戻し、焼成前 piece を除去しない |
 | AC-F7 | `RECIPES` と `FREE` の本番プロファイルに FINISH を含むものがない（不変条件）。FREE に CUT が入って 7 タブになる変更はゲートで落ちる |
@@ -365,11 +367,11 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 
 | ID | 条件 |
 |---|---|
-| AC-A1 | 全 FREE/Research ラウンドで「仕上げ」タブが同一に表示され、素材所持・レシピ・ヒント購入状況に依存しない。何も置かずに完了できる |
+| AC-A1 | （UD-B が案 A に決まった場合）全 FREE/Research ラウンドで「仕上げ」タブが同一に表示され、素材所持・レシピ・ヒント購入状況に依存しない。何も置かずに完了できる |
 | AC-A2 | 焼成後に cilantro を置いた BBQ型でレシピと技法が同時発見され、表示順が ① 技法 → ② レシピ。焼成前に置いた場合は発見されず、候補<2 の汎用 near-miss 文言になる |
 | AC-A3 | Research ○× 台帳・Notebook・Hint 事実・STRUCTURE 件数に時機の情報が出ない。`deductionProduction.gate` / Hint 5.0 G7 は再監査後に緑（弱めていない） |
 | AC-A4 | 既存レシピの点数・ランキング・Pitz は不変（`lunch-rush-v1` 不変） |
-| AC-A5 | HV（390×844 動画＋360×800、before/after）。FREE・ガイド・焼成失敗スキップ・Undo in FINISH を含む |
+| AC-A5 | HV（390×844 動画＋360×800、before/after）。FREE・ガイド・焼成失敗時の FINISH の扱い（OD-CS-7 の決定に従う）・Undo in FINISH を含む |
 
 ---
 
