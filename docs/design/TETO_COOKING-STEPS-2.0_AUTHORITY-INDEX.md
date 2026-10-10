@@ -32,7 +32,7 @@ Audited `main`: `e0397ae`.
 |---|---|---|
 | **A (this PR)** | Import authority docs from PR #295 / the Pilot branch; re-baseline counts to 55 recipes; regenerate classifier | Docs/data only. Counts derive from `main` at `e0397ae`; no `src`/CSS/runtime diff; #295 left open |
 | **B — CS-1a** | `MAX_VISIBLE_COOKING_TABS` + gate test; `renderedPostBakeStep()` replacing the six `POST_BAKE && CUT` sites | Gate test derives from `RECIPES` (no 25 / 18 / 7 pins), max = 6 reached, FREE and all Dinner strips ≤ 6, 7-tab fixture fails; DOM identical to `main`; existing E2E unmodified and green; HV not required |
-| **C — CS-1b** | pure `finalizeRound` extracted from `CONFIRM_BAKE`; golden over `RECIPES` × {FREE, Lunch Rush, Dinner} × {raw, good, burnt} | Before/after deep-equal; #275 verdict, exactly-once consumption and Dinner `cutWaivedFor` unchanged; OD-CS-2 = B is not implemented, only left possible |
+| **C — CS-1b** | pure `finalizeRound` extracted from `CONFIRM_BAKE`; golden over `RECIPES` × {guided, FREE, Lunch Rush, Dinner} (OD-CS-20) × {raw, good, burnt} | Before/after deep-equal; #275 verdict, exactly-once consumption and Dinner `cutWaivedFor` unchanged; OD-CS-2 = B is not implemented, only left possible |
 | later | FINISH engine (Phase 3), TQ-2 | Out of scope; blocked on the open decisions above |
 
 ## 4. Fixed-value hazards (for PR-B / PR-C)
