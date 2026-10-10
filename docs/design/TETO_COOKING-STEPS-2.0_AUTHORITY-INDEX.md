@@ -23,6 +23,7 @@ Audited `main`: `e0397ae`.
 | UD-A (Undo modes) | Implemented by #451 (Guided / Free / Research / Dinner; not Lunch Rush) |
 | UD-C | **Decided: C1** |
 | OD-CS-3..8, 10..19; UD-B, D, E, F, G, H, I | **Open.** Not decided here. FINISH (CS-2 / Phase 3) cannot start until the ones it names are answered (OD-CS-3, OD-CS-11; OD-CS-7 = UD-H for failed bakes) |
+| Open-decision convention | Recommended options in the Next-Phase Design and the FINISH Pilot (e.g. skip FINISH after a failed bake, FREE finish-tab option A, Dinner / Lunch Rush exclusion) are **not** settled specs: any acceptance criterion, phase row or test that depends on an open decision is conditional on its answer, and an exclusion, if chosen, is itself asserted |
 | UD-H ≡ OD-CS-7 | **Same decision** (Owner, 2026-10-10): OD-CS-7 is the formal ID, UD-H is the alias used in the FINISH Pilot. Skip or keep FINISH after a failed bake is **still undecided**. One answer covers both IDs; they are never asked separately |
 
 ## 3. Phase 2 PR plan and acceptance conditions

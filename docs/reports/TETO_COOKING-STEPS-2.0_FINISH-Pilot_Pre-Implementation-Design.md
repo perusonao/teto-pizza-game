@@ -204,7 +204,7 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 - **漏洩なし・6タブ上限内・実装が最小**。CS-1a の post-bake view を `FINISH` に拡張するだけ。
 - 仕上げ素材のトレイは FREE では **所持する全具材**（OD-CS-4 a。「どれが後乗せか」を絞らない）。
 - ガイド（レシピ指定）ラウンドは**レシピ固有プロファイル**: 後乗せ要件を持つレシピだけ `FINISH` を持つ（BBQ型＝D·S·C·T·焼く·仕上げ＝6）。持たないレシピ（現行55）は**現状のまま**で、仕上げタブは付かない。
-- Dinner は仕上げを持たない（OD-CS-5 a。Stage A が START_BAKE で識別するため、後乗せ素材が焼成後にしか来ない設計と相容れない）。Lunch Rush も除外（`lunchRush:false`）。
+- Dinner は仕上げを持たない（OD-CS-5 a の推奨案。UD-I / OD-CS-5 / OD-CS-6 は未決定。Stage A が START_BAKE で識別するため、後乗せ素材が焼成後にしか来ない設計と相容れない）。Lunch Rush も除外（推奨案。`lunchRush:false`）。
 - **将来のトリップワイヤ:** FREE に CUT が入った場合は 5+CUT+仕上げ＝7 となりゲートで落ちる。その時点で案 B（または CS-4 のタブ UI）へ切り替える。この前提を AC に固定する（§8 AC-F7）。
 - 要確認（UD-B に含める）: ガイドの Pizza Select で、未発見レシピが**名前つきで選べるのか**。選べない（`？？？` ロック）なら、ガイドの仕上げタブ表示は識別に影響しない。
 
@@ -261,7 +261,7 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 | ソース | `bbq-sauce` は `category:"sauce"`。ソース描画は素材の `color` で決まり**描画コードの追加は不要**。変更が要るのは `RecipeSauceProfile.ingredientId` の**型ユニオン**（現在 3 値）、基準ピザ（reference fixture）、ソース量プロファイル |
 | 分類 | `cilantro` は family「ハーブ・香味系」、`bbq-sauce` は sauce 扱い。Ingredient Icons 2.0 の Style Lock（#417/#438）に従うアイコン方針の確認が必要 |
 | 生地根拠なし | CUT なし（REC-02 / OD-W2-4）→ タブは D·S·C·T·焼く·仕上げ＝**6** |
-| Lunch Rush / Dinner | `lunchRush:false`、Dinner 対象外 |
+| Lunch Rush / Dinner | `lunchRush:false`、Dinner 対象外（推奨案。UD-I = OD-CS-5/6 は未決定で、決定に従う） |
 | Batch 7 との競合 | ladder は追記専用で順序が固定される。Batch 7 の着地順で step 番号が決まる。**Batch 7 実装branchには触れていない**ため、Phase 4b 着手時に最新 ladder 末尾を再確認 |
 
 ### 6.2 技法（TQ-2）
@@ -320,7 +320,7 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 | **P2b CS-1b** | `finalizeRound()` 抽出、golden（`RECIPES` 全件から導出 × FREE/LR/Dinner × bake {生/適正/焦げ}。件数は固定しない。`e0397ae` 時点で 55） | P2a（PR-B）の完了 | golden の before/after バイト一致、`App.dinner`/`App.techniques` 無改変 | 不要 |
 | **P3 FINISH engine** | `RecipeRequirement.applicationPhase?`、`deriveCoreSteps` が FINISH を付与、`PlacedTopping.stage?`、FINISH 配置＋Undo 拡張、暫定判定/再確定（§5.3）、在庫の差分消費、fresh 描画、reducer ガード。**検証は test-only の BBQ型 fixture（`RECIPES` に入れない）** | P2b、**UD-H**（= OD-CS-7。失敗ピザの FINISH スキップ。同一決定）、**OD-CS-3**・**OD-CS-11**（Authority Index §2、回答が必要） | 「本番プロファイルに FINISH を含むものがない」不変条件、7タブ fixture でゲート失敗、再確定の golden、在庫の二重計上なし | 不要（本番で見えない） |
 | **P4a TQ-2 基盤** | 新技法 id、`late` 軸 OBSERVED、`LATE_ADDITION` を supported に、near-miss DIMENSION＋k 規則、Dex 調理法。**合成カタログで検証（TQ-1C の前例）** | P3、**UD-D**（後乗せ出荷の帰属）、**UD-G**（新技法の名称・コピー）、**CS-3 共通ゲート（P4 全体）**: OD-CS-4〜8 の回答、OD-CS-10 の回答、Hint 再監査計画、TQ-1D 出荷済み（NEXT-PHASE_DESIGN G-CS-F） | 検出・台帳 union・近似 near-miss・Research 台帳不変、Hint tripwire の「赤を確認」 | 不要（INV-TQ-4: 本番で不活性） |
-| **P4b 有効化** | `bbq-sauce`・`cilantro`・ladder 追記・BBQ型レシピ・基準ピザ・FREE 仕上げタブ（案 A）・ガイドの仕上げ・Hint/Discovery 再監査・コピー | P4a、UD-B/D/E/F、**UD-G**（コピー）、**UD-I**（Dinner / Lunch Rush の扱い）、**CS-3 共通ゲート（P4 全体）**: OD-CS-4〜8 の回答、OD-CS-10 の回答、Hint 再監査計画、TQ-1D 出荷済み（NEXT-PHASE_DESIGN G-CS-F） | 全層（pure/reducer/component/App/E2E/WebKit）＋Hint 5.0 gate | **必須**（FREE と ガイド、390×844＋360×800。Research 匿名ラウンドで仕上げタブが同一に見えること、焼成失敗でのスキップ、後乗せ発見→調理法の同時発見表示順） |
+| **P4b 有効化** | `bbq-sauce`・`cilantro`・ladder 追記・BBQ型レシピ・基準ピザ・FREE の仕上げ UI（UD-B の決定に従う。案 A は推奨で未決定）・ガイドの仕上げ（UD-E の決定に従う）・Hint/Discovery 再監査・コピー | P4a、UD-B/D/E/F、**UD-G**（コピー）、**UD-I**（Dinner / Lunch Rush の扱い）、**CS-3 共通ゲート（P4 全体）**: OD-CS-4〜8 の回答、OD-CS-10 の回答、Hint 再監査計画、TQ-1D 出荷済み（NEXT-PHASE_DESIGN G-CS-F） | 全層（pure/reducer/component/App/E2E/WebKit）＋Hint 5.0 gate | **必須**（FREE と ガイド、390×844＋360×800。Research 匿名ラウンドで仕上げ UI が同一に見えること（UD-B の決定に従う）、焼成失敗時の FINISH の扱い（OD-CS-7 の決定に従う）、後乗せ発見→調理法の同時発見表示順） |
 
 ### 7.3 Issue 方針
 
