@@ -2,7 +2,7 @@
 
 Status: PR-A of Phase 2 (Owner decision UD-C = C1, 2026-10-10). Docs only; no `src/**`, `e2e/**`, CSS or
 runtime change. This index records which document is authoritative for what. It decides nothing new.
-Audited `main`: `db04247`.
+Audited `main`: `e0397ae`.
 
 ## 1. Order of authority (highest first)
 
@@ -13,7 +13,7 @@ Audited `main`: `db04247`.
 3. **FINISH Pilot design** (`docs/reports/TETO_COOKING-STEPS-2.0_FINISH-Pilot_Pre-Implementation-Design.md`) — Phase 1–4 split, acceptance
    criteria §8, Owner questions UD-A..I. Its P2a / P2b are the same work as CS-1a / CS-1b.
 4. **History / reference only:** `…_PHASE1_FRESH-AUDIT.md` (audit of `12a09de`), `…_CS-1_PRE-START-GATE.md` (WAIT verdict, superseded),
-   `…_172-MECHANIC-CLASSIFICATION_ROWS.md` + JSON (derived; regenerated at `db04247`; generator `docs/reports/data/TETO_POST-W1_COOKING-STEPS_classify.py`).
+   `…_172-MECHANIC-CLASSIFICATION_ROWS.md` + JSON (derived; regenerated at `e0397ae`; generator `docs/reports/data/TETO_POST-W1_COOKING-STEPS_classify.py`, which reads every input from the given commit via `git show` and rejects an unresolvable SHA; test: `python3 -I docs/reports/data/TETO_POST-W1_COOKING-STEPS_classify_test.py`).
 
 ## 2. Status of decisions
 
@@ -28,7 +28,7 @@ Audited `main`: `db04247`.
 
 | PR | Scope | Acceptance |
 |---|---|---|
-| **A (this PR)** | Import authority docs from PR #295 / the Pilot branch; re-baseline counts to 55 recipes; regenerate classifier | Docs/data only. Counts derive from `main` at `db04247`; no `src`/CSS/runtime diff; #295 left open |
+| **A (this PR)** | Import authority docs from PR #295 / the Pilot branch; re-baseline counts to 55 recipes; regenerate classifier | Docs/data only. Counts derive from `main` at `e0397ae`; no `src`/CSS/runtime diff; #295 left open |
 | **B — CS-1a** | `MAX_VISIBLE_COOKING_TABS` + gate test; `renderedPostBakeStep()` replacing the six `POST_BAKE && CUT` sites | Gate test derives from `RECIPES` (no 25 / 18 / 7 pins), max = 6 reached, FREE and all Dinner strips ≤ 6, 7-tab fixture fails; DOM identical to `main`; existing E2E unmodified and green; HV not required |
 | **C — CS-1b** | pure `finalizeRound` extracted from `CONFIRM_BAKE`; golden over `RECIPES` × {FREE, Lunch Rush, Dinner} × {raw, good, burnt} | Before/after deep-equal; #275 verdict, exactly-once consumption and Dinner `cutWaivedFor` unchanged; OD-CS-2 = B is not implemented, only left possible |
 | later | FINISH engine (Phase 3), TQ-2 | Out of scope; blocked on the open decisions above |

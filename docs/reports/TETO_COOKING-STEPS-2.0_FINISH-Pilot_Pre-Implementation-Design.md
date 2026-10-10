@@ -6,7 +6,7 @@
 **前提レポート:** `docs/reports/TETO_COOKING-STEPS-2.0_Fresh-Audit-Design.md`（以下「前回監査」）
 **HV:** docs-only のため対象外（`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` §2）。§8 の HV 条件は *実装時* のもの。
 
-> **更新 (2026-10-10, `main` `db04247`):** P1 Undo は #451 で merge 済み（UD-A 実装済み）。#275 は merge 済み。UD-C = C1 を Owner が採用（P2a / P2b は別PR、本ファイルは PR-A で main に取り込み）。UD-B / D / E / F / G / H / I は **未決定のまま**（§9）。`44879be` 基準の記述は履歴。
+> **更新 (2026-10-10, `main` `e0397ae`):** P1 Undo は #451 で merge 済み（UD-A 実装済み）。#275 は merge 済み。UD-C = C1 を Owner が採用（P2a / P2b は別PR、本ファイルは PR-A で main に取り込み）。UD-B / D / E / F / G / H / I は **未決定のまま**（§9）。`44879be` 基準の記述は履歴。
 
 > 証拠の区別: 【main】= `44879be` のコードを読んだ/実行した事実。【#295】= PR #295 branch（未main）の内容。【実測】= 隔離worktreeで実際に適用・実行した結果（worktreeは削除済み、リポジトリには何も残していない）。
 
@@ -238,8 +238,8 @@ reducer（ガード・対象選択・カテゴリ境界・連続Undo・空のと
 | 項目 | 設計 |
 |---|---|
 | 暫定判定 | `CONFIRM_BAKE` では `applicationPhase==="POST_BAKE"` の要件を**除いて**評価する（通常レシピは該当要件なし＝現行どおり）。FREE は暫定識別を行い、結果は FINISH 確定までは**表示しない**（RESULT は FINISH 後） |
-| 再確定 | FINISH 確認時に、**後乗せ piece が1個以上置かれた場合のみ** `finalizeRound` を再実行する。0個（スキップ）なら暫定＝最終で、現行とバイト同一 |
-| 在庫 | `CONFIRM_BAKE` が焼成前 piece を消費 → FINISH 確認が `stage==="post"` の差分だけを消費（純関数を2回に分割。**各 piece は1回しか数えない**） |
+| 再確定 | **FINISH を含むプロファイルでは、FINISH の確認（置いた piece が 0 個のスキップも含む）のたびに、後乗せ要件を含む完全な最終評価（`finalizeRound`）を必ず再実行する。** 暫定判定は後乗せ要件を除いて評価しているため、0 個を「暫定＝最終」とみなすと必須の後乗せ素材が未配置のまま完成扱いになる（Codex P1, PR #452）。0 個なら必須後乗せ要件が未充足として評価され、`MISSING` 相当の失敗になる（新しい閾値は作らない）。FINISH を含まないプロファイル（現行の全レシピ）は再評価の対象外で、現行とバイト同一 |
+| 在庫 | `CONFIRM_BAKE` が焼成前 piece を消費 → FINISH 確認が `stage==="post"` の差分だけを消費（純関数を2回に分割。**各 piece は1回しか数えない**） |。再確定は評価の再計算であり消費ではない: 消費は `stage==="post"` の未消費差分だけで、FINISH 確認を重ねても冪等（0 個なら消費 0）
 | スコア | 既存の Pieces/Recipe 成分で構造的に採点（OD-CS-11 案。新ボーナスなし、ruleset 不変）。後乗せ piece は最終判定の入力に入る |
 | REGISTER_TO_DEX | 既に「最後の post-bake 確認後に RESULT になった時」に発火する構造（`App.tsx` `handleConfirmMakingStep`）。変更不要 |
 | 前提 | `finalizeRound()` の抽出と golden 固定（#294 の CS-1b）。**Phase 2 で先に行う** |
@@ -354,7 +354,7 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 |---|---|
 | AC-F1 | `RecipeRequirement.applicationPhase` が absent の全レシピで、プロファイル・スコア・完成判定・在庫・Dex が変更前と同一 |
 | AC-F2 | FINISH は `POST_BAKE` かつ `makingStep==="FINISH"` でのみ配置可。在庫0・カテゴリ違い・所持外は reducer が拒否 |
-| AC-F3 | FINISH で 0 個ならば暫定＝最終（現行とバイト同一）。1 個以上で再確定され、在庫は後乗せ piece の差分だけ消費（各 piece 1 回） |
+| AC-F3 | FINISH を含むプロファイルでは、FINISH の確認ごと（0 個のスキップを含む）に完全な最終評価が再計算される。必須の後乗せ素材が 0 個ならば完成扱いにならず失敗として評価される（暫定の成功を引き継がない）。在庫は後乗せ piece の未消費差分だけ消費（各 piece 1 回、再確認しても冪等） |
 | AC-F4 | 焼成失敗（`bakeCompletionFailure` 非 null / FREE の FAILED）では FINISH を含む post-BAKE が出ず RESULT へ。新しい閾値を持たない |
 | AC-F5 | 焼成前に置いた同一素材と FINISH で置いた素材が Stock Gate で二重計上されない |
 | AC-F6 | FINISH の Undo は `stage==="post"` の piece だけを戻し、焼成前 piece を除去しない |

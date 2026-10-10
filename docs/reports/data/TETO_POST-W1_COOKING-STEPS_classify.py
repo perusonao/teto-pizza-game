@@ -2,23 +2,48 @@
 
 Inputs (read-only): docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json rows
 (evidence-derived fields only; the src-derived header fields are stale, see #260) and
-src/data/ingredients.ts / recipes.ts on the audited main SHA. Writes nothing outside its arguments.
+src/data/ingredients.ts / recipes.ts. ALL inputs are read from the given commit with `git show`, never
+from the working tree, so the output is reproducible and its `auditedMainSha` is always the commit the data
+came from. The SHA must resolve to a commit in <repo-root>; otherwise the run is rejected (exit 2).
+The recorded value is the full 40-char SHA. Writes nothing outside its arguments.
 
 Usage: python3 docs/reports/data/TETO_POST-W1_COOKING-STEPS_classify.py <repo-root> <out.json> <out-rows.md> <audited-sha>
 """
 import json, re, sys, collections as C
 
+import subprocess
+
+
+def _git(*args):
+    return subprocess.run(["git", "-C", ROOT, *args], capture_output=True, text=True)
+
+
+if len(sys.argv) != 5:
+    sys.exit("usage: classify.py <repo-root> <out.json> <out-rows.md> <audited-sha>")
 ROOT = sys.argv[1]
 OUT_JSON = sys.argv[2]
 OUT_MD = sys.argv[3]
-SHA = sys.argv[4]
+_resolved = _git("rev-parse", "--verify", "--quiet", f"{sys.argv[4]}^{{commit}}")
+if _resolved.returncode != 0:
+    sys.stderr.write(f"audited SHA {sys.argv[4]!r} does not resolve to a commit in {ROOT}\n")
+    sys.exit(2)
+SHA = _resolved.stdout.strip()
 
-m = json.load(open(f"{ROOT}/docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"))
+
+def read_at_sha(path):
+    r = _git("show", f"{SHA}:{path}")
+    if r.returncode != 0:
+        sys.stderr.write(f"{path} is missing at {SHA}\n")
+        sys.exit(2)
+    return r.stdout
+
+
+m = json.loads(read_at_sha("docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"))
 rows = m["rows"]
-ing_src = open(f"{ROOT}/src/data/ingredients.ts").read()
+ing_src = read_at_sha("src/data/ingredients.ts")
 RUNTIME_ING = set(re.findall(r'^\s{4}id: "([^"]+)"', ing_src, re.M))
 RUNTIME_SAUCES = {"tomato-sauce", "olive-oil", "pesto"}
-rec_src = open(f"{ROOT}/src/data/recipes.ts").read()
+rec_src = read_at_sha("src/data/recipes.ts")
 RUNTIME_RECIPES = set(re.findall(r'^\s{4}id: "([^"]+)"', rec_src, re.M))
 
 ORDER = ["CURRENT_ENGINE", "DATA_ONLY", "SMALL_ENGINE", "MAJOR", "AUTHORITY_GAP"]

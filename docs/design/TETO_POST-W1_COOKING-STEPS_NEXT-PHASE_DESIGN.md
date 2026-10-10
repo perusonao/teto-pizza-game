@@ -4,11 +4,11 @@ Status: **Design complete — STOP before implementation.** No `src/**`, `e2e/**
 tooling or test change. No merge. Nothing here is an Owner Decision; every open question is listed
 in §8 with options, and nothing is decided on the Owner's behalf.
 
-> **Re-baseline note (Phase 2 PR-A, 2026-10-10, `main` `db04247`).** This file is imported unchanged
+> **Re-baseline note (Phase 2 PR-A, 2026-10-10, `main` `e0397ae`).** This file is imported unchanged
 > from PR #295 (audit snapshot `86b48fd`, 25 runtime recipes) except for the items below. The
 > snapshot body in §1 (audit tables, D1–D7, §1.3 tab counts) is **history**; current values are:
 >
-> | Item | At `86b48fd` (snapshot) | At `db04247` |
+> | Item | At `86b48fd` (snapshot) | At `e0397ae` |
 > |---|---|---|
 > | Runtime recipes | 25 | **55** (derive from `RECIPES`; never pin) |
 > | 172-row classes (CURRENT / DATA / SMALL / MAJOR / GAP) | 15 / 59 / 19 / 30 / 49 | **32 / 42 / 19 / 30 / 49** (regenerated; §3.2) |
@@ -50,7 +50,7 @@ in §8 with options, and nothing is decided on the Owner's behalf.
    also the content OD-TQ-2 already names for TQ-2.
 3. **172-row classification** (§3), by what the engine must gain:
    **CURRENT_ENGINE 15 · DATA_ONLY 59 · SMALL_ENGINE 19 · MAJOR 30 · AUTHORITY_GAP 49** at `86b48fd`
-   (re-run at `db04247`: **32 · 42 · 19 · 30 · 49**, see §3.2).
+   (re-run at `e0397ae`: **32 · 42 · 19 · 30 · 49**, see §3.2).
 4. **Recommended next slice: CS-1, "Post-bake seam" — technique-neutral, inert, no visible
    change** (§6): a ≤6-tab invariant test, the six hard-coded `makingStep === "CUT"` checks in
    `GameScreen` generalized to a post-bake step view, and a pure `finalizeRound` extraction of the
@@ -159,7 +159,7 @@ technique (TQ-3). That is more than one data field plus a guard.
 | DATA_ONLY | **42** (was 59) | 29 of them only because of **no sauce** (→ TQ-1D); 16 are already runtime recipes; the rest are new ingredients / new sauces. The 17 rows that left this class moved to CURRENT_ENGINE because their ingredients shipped |
 | SMALL_ENGINE | **19** | 13 dough variant (incl. **piadina**), 4 late post-bake (**BBQ chicken**, wasabi-beef, nutella-dessert, black-truffle), 1 step order (Trenton), 1 zoned (quattro stagioni) |
 | MAJOR | **30** | 14 multi-spread, 8 pan, 5 shape (incl. **pide boat**), 4 enclose, mid-bake, prep, fry |
-| AUTHORITY_GAP | **49** | 33 unspecified sauce base, 11 mechanic interpretation (8 page-8 salad rows, taco, lahmacun, eel), 3 unresolved sauce, 2 scope, 2 evidence gap. Underlying class if resolved: CURRENT 2 · DATA 30 · SMALL 9 · MAJOR 7 · (still gap) 1 |
+| AUTHORITY_GAP | **49** | 33 unspecified sauce base, 11 mechanic interpretation (8 page-8 salad rows, taco, lahmacun, eel), 3 unresolved sauce, 2 scope, 2 evidence gap. Underlying class if resolved: CURRENT 3 · DATA 29 · SMALL 9 · MAJOR 7 · (still gap) 1 |
 
 Full per-row table: `docs/reports/TETO_POST-W1_COOKING-STEPS_172-MECHANIC-CLASSIFICATION_ROWS.md`.
 
