@@ -813,7 +813,7 @@ save writer or flag.
 |---|---|
 | `src/data/recipeHintRoles.ts` | `RecipeHintRoles`, `RECIPE_HINT_ROLES` (25 entries, §6.1, after OD-H5-C1a) |
 | `src/data/hintClassDisplay.ts` | `HINT_CLASS_DISPLAY`: the §7 table (OD-H5-C4 final), pinned by G18 |
-| `src/logic/discovery/hint5Ladder.ts` | `recipeHintRoles(recipeId)`; `hint5Rungs(recipeId, context)`; `subToppingClass(recipeId, ingredientId)` (fail closed); `hint5Ownership(recipeId, storedFactIds, legacyPurchases)` (the §9.1 read-time mapping); `requestHint5Rung({ recipeId, context, storedFactIds, legacyPurchases, expectedRungIndex, rungPrice, pitzBalance })`, which returns `ANSWERED \| ALREADY_KNOWN \| RESERVED_EMPTY_RUNG \| LADDER_COMPLETE \| REJECTED(reason)` in the fixed evaluation order target → rung → price → STALE → balance → answer; `hint5Presentation(...)`, the privacy-safe view model (§8) |
+| `src/logic/discovery/hint5Ladder.ts` | `recipeHintRoles(recipeId)`; `hint5Rungs(recipeId, context)`; `subToppingClass(recipeId, ingredientId)` (fail closed); `hint5Ownership(recipeId, storedFactIds, legacyPurchases)` (the §9.1 read-time mapping); `requestHint5Rung({ recipeId, context, storedFactIds, legacyPurchases, expectedRungIndex, rungPrice, pitzBalance })`, which returns `ANSWERED \| ANSWERED_CREDITED \| ALREADY_KNOWN \| RESERVED_EMPTY_RUNG \| LADDER_COMPLETE \| REJECTED(reason)` in the fixed evaluation order target → rung → price → STALE → complete → (known / credited check: a 0-Pitz completion is never refused for balance, OD-360-3 and round 7 M-3 / M-4, §9.0) → balance (charged rungs only) → answer; `hint5Presentation(...)`, the privacy-safe view model (§8) |
 
 **New tests:**
 - `hint5Ladder.test.ts`
