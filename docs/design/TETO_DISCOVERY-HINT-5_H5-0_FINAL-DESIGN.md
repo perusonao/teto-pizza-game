@@ -880,7 +880,7 @@ save writer or flag.
 
 **Open after round 7:**
 - the concrete sub order for new key-free recipes (family order leaks a free negative fact, see §6.1's authoring guidance; an opaque deterministic order is recommended), decided before PR-F;
-- **OD-H5-BASE-3b**: how a completed BASE is shown when a free (`ALREADY_KNOWN`) and a paid completion are indistinguishable after a reload, including existing saves (options A / B / D in `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`). **Blocks the BASE board display in PR-D**; PR-B, PR-C and PR-F are not affected;
+- **OD-H5-BASE-3b**: how a completed BASE is shown when a free (`ALREADY_KNOWN`) and a paid completion are indistinguishable after a reload, including existing saves (options A / B / E / D in `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; choosing E rewrites OD-H5-BASE-3's purchased-board statement, choosing D reopens the no-save-change conditions). **Blocks the BASE board display in PR-D**; PR-B, PR-C and PR-F are not affected;
 - the BASE player-facing copy (label, description, credited line), decided at HV in PR-D / PR-E.
 
 **Closed in round 2:**
