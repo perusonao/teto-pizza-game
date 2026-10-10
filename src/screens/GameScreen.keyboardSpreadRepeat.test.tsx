@@ -148,6 +148,7 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onGoHome={() => {}}
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+        onUndoPlacement={() => {}}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => {}}
