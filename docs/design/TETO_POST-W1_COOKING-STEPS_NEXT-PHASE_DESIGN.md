@@ -297,7 +297,7 @@ catalog change) → D·S·C·T·焼く·仕上げ = 6 tabs with no CUT. The fixt
 | Mechanic | First representative | Why | Tabs | Status / caveat |
 |---|---|---|---:|---|
 | Post-bake seam (CS-1) | margherita, new-haven-apizza, marinara, quattro-formaggi, capricciosa | cover CUT / no-CUT / no-cheese / olive-oil / max pieces | 6/5/5/5/6 | runtime, byte-identical |
-| **Late addition (scatter)** | **BBQ チキン** `bbq-chicken-pizzadb` | Evidence counted REQUIRED (`catalog_design_tag`, cilantro); READY; scatter-only; one new single sauce (bbq-sauce) on the shared paint path; already named as TQ-2 content by the Techniques gate; dough evidence absent → no CUT (REC-02 / OD-W2-4) → **6 tabs** | 6 | 3 new ingredients; TQ-2 |
+| **Late addition (scatter)** | **BBQ チキン** `bbq-chicken-pizzadb` | Evidence counted REQUIRED (`catalog_design_tag`, cilantro); READY; scatter-only; one new single sauce (bbq-sauce) on the shared paint path; already named as TQ-2 content by the Techniques gate; dough evidence absent → no CUT (REC-02 / OD-W2-4) → **6 tabs** | 6 | 2 new ingredients (`bbq-sauce`, `cilantro`; `chicken` already exists at `e0397ae`; classifier `newIngredientCount: 2`); TQ-2 |
 | Late → CUT order | wasabi-beef `wasabi-beef-pizza` | strongest evidence (`source_profile_text`: 焼き上がり後に添える); thin dough → CUT | **7** | needs CS-4 |
 | Late + no sauce | black-truffle | 1 new ingredient; 5 tabs | 5 | **two techniques** in one recipe; composition conflict; after TQ-2 (TQ-1D shipped) |
 | ~~Prosciutto e rucola~~ | `rucola-e-grana-pizzadb-p13` | — | — | **Not a late representative:** FULL, no late evidence; OD-TQ-12 forbids promotion (supersedes the authority audit §11 default; OD-CS-10) |
