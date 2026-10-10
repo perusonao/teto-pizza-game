@@ -120,7 +120,7 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     await research.scrollIntoViewIfNeeded();
     await capture(page, "pool2-dex-research-cards", testInfo.project.name);
 
-    await page.getByRole("button", { name: "閉じる" }).click();
+    await page.getByRole("button", { name: "閉じる", exact: true }).click();
     await startTargetlessFreeCook(page);
     await page.getByRole("button", { name: "ヒント", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
@@ -145,7 +145,8 @@ test.describe("Discovery 3.0 PR-4b-B: production pool 2 (portuguesa beside calab
     // #346 S4 (OD-RX-4): portuguesa and aussie are still researchable entries, so the primary CTA is 「次のピザを選んで研究する」
     // (not 「図鑑を見る」); with two left it opens the Dex's anonymous Research cards (no direct pick). The Dex stays reachable.
     await expect(page.getByRole("button", { name: "🔎 次のピザを選んで研究する" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "📖 図鑑を見る" })).toHaveCount(0);
+    // #457: the Dex link sits beside that primary as a secondary.
+    await expect(page.getByRole("button", { name: "📖 図鑑を見る" })).toHaveCount(1);
     await page.getByRole("button", { name: "🔎 次のピザを選んで研究する" }).click();
     await page.waitForSelector(".dex-overlay");
     await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(2);

@@ -233,7 +233,7 @@ describe("E. privacy / spoiler", () => {
   });
 });
 
-describe("F. 「次のピザを作る」 is unchanged (close only)", () => {
+describe("F. the Dex footer 「閉じる」 closes only (#457: label matches the action)", () => {
   it("10: the Dex footer calls onClose and nothing else, blocked or not", async () => {
     const user = userEvent.setup();
     for (const zero of [[], ["chicken"]]) {
@@ -243,7 +243,9 @@ describe("F. 「次のピザを作る」 is unchanged (close only)", () => {
       const onResearch = vi.fn();
       const onGoFreeCook = vi.fn();
       render(<DexOverlay {...DexProps(single(zero))} onClose={onClose} onOpenShop={onOpenShop} onResearch={onResearch} onGoFreeCook={onGoFreeCook} />);
-      await user.click(screen.getByRole("button", { name: "次のピザを作る" }));
+      expect(screen.queryByRole("button", { name: "次のピザを作る" })).toBeNull();
+      expect(screen.getByRole("button", { name: "図鑑を閉じる" })).toHaveTextContent("閉じる");
+      await user.click(screen.getByRole("button", { name: "図鑑を閉じる" }));
       expect(onClose).toHaveBeenCalledTimes(1);
       expect(onOpenShop).not.toHaveBeenCalled();
       expect(onResearch).not.toHaveBeenCalled();

@@ -704,7 +704,11 @@ describe("W1-d: Discovery Result hierarchy", () => {
     expect(shopButtons).toHaveLength(1);
     await userEvent.click(shopButtons[0]);
     expect(onOpenShop).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole("button", { name: /図鑑を見る/ })).not.toBeInTheDocument(); // priority unchanged: one primary
+    // #457: the primary stays the Shop; the Dex is a secondary link beside it (not a second primary).
+    const dexLink = screen.getByRole("button", { name: /図鑑を見る/ });
+    expect(dexLink).not.toHaveClass("dex-registration-row__cta--primary");
+    expect(document.querySelector(".dex-registration-row")!.contains(dexLink)).toBe(true);
+    expect(document.querySelectorAll(".dex-registration-row__cta--primary")).toHaveLength(1);
   });
 
   it("#358: a different primary (次のピザを研究する) keeps the notice's own Shop link (a distinct destination, not a duplicate)", () => {

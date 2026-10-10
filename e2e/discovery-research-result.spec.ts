@@ -189,7 +189,7 @@ test("Research loop: ORIGINAL result -> Notebook -> Hint -> retry keeps the same
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();
   await page.waitForSelector(".dex-overlay");
   await expect(page.locator(".dex-overlay__research .dex-research-card")).toHaveCount(1);
-  await page.getByRole("button", { name: "閉じる" }).click();
+  await page.getByRole("button", { name: "閉じる", exact: true }).click();
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("research-context")).toHaveCount(0);

@@ -48,7 +48,7 @@ test.describe("Static screens fit the viewport with no page/body scroll", () => 
       await page.getByRole("button", { name }).click();
       const s = await pageScrollState(page);
       expect(s.docScrollHeight, `${name} overlay produced page scroll`).toBeLessThanOrEqual(s.innerHeight);
-      await page.getByRole("button", { name: "閉じる" }).click();
+      await page.getByRole("button", { name: "閉じる", exact: true }).click();
     }
     await page.getByRole("button", { name: "設定" }).click();
     const s = await pageScrollState(page);
@@ -233,7 +233,7 @@ test.describe("Lunch Rush RESULT -> Weekly Ranking stack never scrolls the page"
 
     // Regression: closing the ranking overlay returns to a still-intact RESULT panel underneath
     // (Gameplay UX Phase 2, Issue #157 scenario A).
-    await page.getByRole("button", { name: "閉じる" }).click();
+    await page.getByRole("button", { name: "閉じる", exact: true }).click();
     await page.waitForTimeout(200);
     await expect(page.locator(".mission-overlay__panel")).toBeVisible();
     await expect(page.getByRole("button", { name: /ホームへ/ })).toBeVisible();

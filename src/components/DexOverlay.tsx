@@ -351,8 +351,8 @@ export function DexOverlay({
             );
           })}
           <div className="dex-overlay__footer">
-            <button type="button" className="cta-button cta-button--primary" onClick={onClose}>
-              {isComplete ? "もう一枚作る" : "次のピザを作る"}
+            <button type="button" className="cta-button cta-button--primary" aria-label="図鑑を閉じる" onClick={onClose}>
+              閉じる
             </button>
           </div>
         </div>

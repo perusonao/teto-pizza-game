@@ -59,7 +59,7 @@ test.describe("Dex with several Research Entries (pool 2+)", () => {
     const dir = process.env.HV_SCREENSHOT_DIR;
     if (dir) await page.screenshot({ path: `${dir}/dex-research-only-${testInfo.project.name}.png` });
 
-    await page.getByRole("button", { name: "閉じる" }).click();
+    await page.getByRole("button", { name: "閉じる", exact: true }).click();
     await expect(page.locator(".dex-overlay")).toHaveCount(0);
     await startTargetlessFreeCook(page);
     await page.getByRole("button", { name: "ヒント", exact: true }).click();

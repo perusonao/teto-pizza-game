@@ -152,7 +152,8 @@ describe("post-discovery primary CTA on a NEW_DISCOVERY result", () => {
     const one = discovered(postDiscoveryPrimary({ researchableEntryIds: ["e1"], newMaterialAvailable: true }));
     fireEvent.click(screen.getByRole("button", { name: "🔎 次のピザを研究する" }));
     expect(one.onResearchNext).toHaveBeenCalledWith("e1");
-    expect(screen.queryByRole("button", { name: "📖 図鑑を見る" })).toBeNull();
+    // #457: the Dex link is a secondary beside the primary, never the primary itself.
+    expect(screen.getByRole("button", { name: "📖 図鑑を見る" })).toBeInTheDocument();
     const many = discovered(postDiscoveryPrimary({ researchableEntryIds: ["e1", "e2"], newMaterialAvailable: false }));
     fireEvent.click(screen.getByRole("button", { name: "🔎 次のピザを選んで研究する" }));
     expect(many.onResearchNext).toHaveBeenCalledWith(null);
@@ -162,6 +163,25 @@ describe("post-discovery primary CTA on a NEW_DISCOVERY result", () => {
     const cb = discovered(postDiscoveryPrimary({ researchableEntryIds: [], newMaterialAvailable: true }));
     fireEvent.click(screen.getByRole("button", { name: "🛒 新しい食材を見る" }));
     expect(cb.onOpenShop).toHaveBeenCalledTimes(1);
+  });
+
+  it("#457: with a Shop / Research primary the Dex link is added beside it and opens the Dex", () => {
+    for (const input of [
+      { researchableEntryIds: [], newMaterialAvailable: true },
+      { researchableEntryIds: ["e1"], newMaterialAvailable: false },
+      { researchableEntryIds: ["e1", "e2"], newMaterialAvailable: false },
+    ]) {
+      const cb = discovered(postDiscoveryPrimary(input));
+      const row = document.querySelector(".dex-registration-row")!;
+      const dex = screen.getAllByRole("button", { name: "📖 図鑑を見る" });
+      expect(dex).toHaveLength(1);
+      expect(row.contains(dex[0])).toBe(true);
+      expect(dex[0]).not.toHaveClass("dex-registration-row__cta--primary");
+      fireEvent.click(dex[0]);
+      expect(cb.onOpenDex).toHaveBeenCalledTimes(1);
+      expect(cb.onOpenShop).not.toHaveBeenCalled();
+      expect(cb.onResearchNext).not.toHaveBeenCalled();
+    }
   });
 
   it("H: neither -> 「図鑑を見る」 opens the Dex", () => {
