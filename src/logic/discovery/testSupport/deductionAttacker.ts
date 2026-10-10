@@ -18,7 +18,8 @@
  * (category-defined): the candidate set is narrowed by it, and a leak is counted only when the prior
  * holds for the real recipe (a refuted prior names nothing).
  */
-import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../../data/ingredients";
+import { ingredientCategory } from "../ingredientCategoryIndex";
 import type { Recipe } from "../../../data/recipes";
 import type { ReserveAttributeAnswer } from "../deductionHint";
 import type { ReserveParts } from "../deductionGuard";
@@ -31,7 +32,7 @@ export type Category = "sauce" | "cheese" | "topping";
 const RANK: Readonly<Record<Category, number>> = { sauce: 0, cheese: 1, topping: 2 };
 
 export function categoryOf(id: string): Category | null {
-  return (getIngredient(id)?.category as Category | undefined) ?? null;
+  return (ingredientCategory(id) as Category | undefined) ?? null;
 }
 
 /** The system under attack: its player-facing outputs for any (real or hypothetical) parts. */
