@@ -812,7 +812,9 @@ function App() {
   // to have actually moved (past the DOUGH making step, or with sauce/toppings already on the
   // pizza -- Issue #33 D1: DOUGH is now the first step, replacing SAUCE here). BAKE is
   // unconditional: reaching it always means TOPPING was confirmed, a real step worth
-  // confirming before discarding.
+  // confirming before discarding. POST_BAKE (CUT) is likewise unconditional (Issue #453): the
+  // bake already consumed the inventory, but Dex/Pitz registration only happens once the
+  // post-BAKE steps finish, so leaving there silently loses the reward.
   function isRoundInProgress(): boolean {
     const hasStartedPreparing =
       state.makingStep !== "DOUGH" ||
@@ -821,7 +823,9 @@ function App() {
     return (
       mission.mode === "PLAYING" ||
       (mission.mode === "FREE" &&
-        (state.phase === "BAKE" || (state.phase === "PREPARE" && hasStartedPreparing)))
+        (state.phase === "BAKE" ||
+          state.phase === "POST_BAKE" ||
+          (state.phase === "PREPARE" && hasStartedPreparing)))
     );
   }
 
@@ -892,7 +896,7 @@ function App() {
       // Also tidies up a lingering Mission Intro/Result overlay (no confirmation needed for
       // those -- nothing in-progress to lose there).
       exitMissionToFree();
-    } else if (state.phase === "PREPARE" || state.phase === "BAKE") {
+    } else if (state.phase === "PREPARE" || state.phase === "BAKE" || state.phase === "POST_BAKE") {
       dispatch({ type: "PLAY_AGAIN" });
     }
     setScreen("HOME");

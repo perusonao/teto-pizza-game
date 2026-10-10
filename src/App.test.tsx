@@ -660,6 +660,46 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".home-screen")).toBeInTheDocument();
   });
 
+  it("Issue #453: confirms before leaving Guided POST_BAKE/CUT for HOME, and a confirmed exit resets the round", async () => {
+    seedBismarckUnlocked();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    await paintSauceRing(user, "トマトソース", 25, 16);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+    await selectAndTapPizza(user, "たまご", 50, 65);
+    const needle = controlBakeNeedle();
+    needle.stub();
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65);
+    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> POST_BAKE/CUT
+    needle.unstub();
+    expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+
+    // Cancel: stays in CUT.
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(false);
+    await user.click(screen.getByRole("button", { name: /ホーム/ }));
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+
+    // OK: back to HOME, and the next round starts fresh (no stale POST_BAKE/CUT).
+    confirmSpy.mockReturnValueOnce(true);
+    await user.click(screen.getByRole("button", { name: /ホーム/ }));
+    expect(confirmSpy).toHaveBeenCalledTimes(2);
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
+    expect(screen.queryByRole("button", { name: /切り終わる/ })).not.toBeInTheDocument();
+    expect(document.querySelector(".order-card")).toHaveTextContent("ビスマルク");
+  });
+
   it("starts a fresh round instead of reopening a finished round from HOME's CTA", async () => {
     seedBismarckUnlocked();
     const user = userEvent.setup();
