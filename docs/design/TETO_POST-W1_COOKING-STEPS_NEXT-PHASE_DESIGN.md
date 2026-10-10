@@ -131,7 +131,7 @@ Exact per-recipe derivation (from `deriveCoreSteps` + the CUT allowlist on `86b4
 Source rows: the 172 evidence rows of `TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json`
 (evidence-derived fields only). Its header fields that are derived from `src` (`shippedRecipeIds`,
 15) are stale after W1; that drift is Issue **#260** and is **not** touched here — runtime facts
-are read from `src` on `86b48fd` instead. The classifier is read-only and deterministic.
+are read from `src` at the audited commit instead (`e0397ae` for the regenerated outputs, recorded as `auditedMainSha` in the JSON; the PR #295 snapshot read `86b48fd`, kept as history in §1). The classifier is read-only and deterministic.
 
 ### 3.1 Class rules
 
@@ -250,7 +250,7 @@ Each phase is its own PR, reverts on its own, and ships nothing visible until it
 | Phase | Scope | Production-visible? | Depends on | Owner |
 |---|---|---|---|---|
 | **CS-0** | This design (docs only) | no | — | Cooking Steps |
-| **CS-1 Post-bake seam** | (a) unit invariant: max visible tabs over `RECIPES` ≤ 6; (b) `GameScreen` 6 CUT sites → one post-bake step view (CUT the only consumer); (c) pure `finalizeRound()` extracted from CONFIRM_BAKE, called from the **same** place, golden-pinned for all 25 recipes × FREE / Lunch Rush / Dinner × bake bands | **no** (byte-identical) | #275 merged or closed; OD-CS-9 (a) | Cooking Steps |
+| **CS-1 Post-bake seam** | (a) unit invariant: max visible tabs over `RECIPES` ≤ 6; (b) `GameScreen` 6 CUT sites → one post-bake step view (CUT the only consumer); (c) pure `finalizeRound()` extracted from CONFIRM_BAKE, called from the **same** place, golden-pinned for every recipe in `RECIPES` (derived, never a fixed count; 55 at `e0397ae`) × FREE / Lunch Rush / Dinner × bake bands | **no** (byte-identical) | #275 merged or closed; OD-CS-9 (a) | Cooking Steps |
 | **CS-2 FINISH engine (inert)** | `RecipeRequirement.applicationPhase?` (absent = pre-bake); `deriveCoreSteps` appends FINISH for post-bake requirements; FINISH placement (+ last-piece undo); per-piece `stage`; fresh (un-roasted) late-piece visuals; (re)finalization per OD-CS-2; reducer guards. Verified on a **test-only** BBQ-chicken-shaped fixture using existing ingredients. No production recipe gets FINISH. | **no** (INV: no production requirement has `applicationPhase: POST_BAKE`, pinned by test) | CS-1; OD-CS-1, 2, 3, 11 | Cooking Steps |
 | **CS-3 = TQ-2 activation** | Late technique id, `late` axis OBSERVED, near-miss DIMENSION + k-rule, Free Cooking FINISH (OD-CS-4), content (BBQ chicken: bbq-sauce, chicken, cilantro; ladder append per LAD-1), Dinner / Lunch Rush policy, Hint re-audit, HV | **yes** | CS-2; **TQ-1D shipped**; OD-CS-4..8, 10 | Techniques (TQ-2) |
 | **CS-4 Tab strip for 7+** | T2 (grouped phase strip) or T3 (compact chips) UI audit then implementation | yes | OD-CS-9 (b) | Cooking Steps / UI |
@@ -319,7 +319,7 @@ catalog change) → D·S·C·T·焼く·仕上げ = 6 tabs with no CUT. The fixt
 
 ## 8. Authority gaps / Owner Decisions
 
-None of these is decided here. "Recommended" is advice only.
+None of these is decided here. "Recommended" is advice only. *(Status 2026-10-10: OD-CS-1, OD-CS-2, OD-CS-9 (a) and OD-CS-20 are decided in §13, which supersedes this table for those IDs; every other row stays open.)*
 
 | ID | Question | Options | Downstream impact | Recommended |
 |---|---|---|---|---|
@@ -358,7 +358,7 @@ multi-spread layer timing; grandma / sfincione form; no written SSOT for the "�
 | Phase | Pure logic | Reducer | Component | App-level | Chromium E2E | WebKit Gate | Human Verification |
 |---|---|---|---|---|---|---|---|
 | CS-0 (docs) | — | — | — | — | — | — | — (audit-only exemption) |
-| **CS-1** | ✅ tab invariant over `RECIPES`; `finalizeRound` golden (25 × FREE / LR / Dinner × raw / perfect / burnt) | ✅ CONFIRM_BAKE result deep-equal before/after; POST_BAKE walk unchanged | ✅ GameScreen post-bake view (CUT only); MakingStepTabs unchanged | ◐ `App.test`, `App.dinner`, `App.techniques` unchanged | ✅ existing `pizza-cutting-phase4b`, `dynamic-cooking-steps`, `making-ui-1screen`, `layout-contract`, `dinner-mission` **unmodified** at 390×844 + 360×800 | ✅ (src change) | — no visible change; state so in the Result Report, with before/after screenshots proving identity |
+| **CS-1** | ✅ tab invariant over `RECIPES`; `finalizeRound` golden (`RECIPES`-derived × FREE / LR / Dinner × raw / perfect / burnt) | ✅ CONFIRM_BAKE result deep-equal before/after; POST_BAKE walk unchanged | ✅ GameScreen post-bake view (CUT only); MakingStepTabs unchanged | ◐ `App.test`, `App.dinner`, `App.techniques` unchanged | ✅ existing `pizza-cutting-phase4b`, `dynamic-cooking-steps`, `making-ui-1screen`, `layout-contract`, `dinner-mission` **unmodified** at 390×844 + 360×800 | ✅ (src change) | — no visible change; state so in the Result Report, with before/after screenshots proving identity |
 | **CS-2** | ✅ `applicationPhase` derivation, FINISH step derivation, stage-aware completion / consume / score on the fixture | ✅ FINISH placement guards (phase, step, ownership, category, stock), undo, re-finalization, "no production requirement is POST_BAKE" invariant, Dinner / LR untouched | ✅ late piece renders fresh (no `bakeHeat` frame); tray in FINISH | ◐ fixture round through App reducer wiring | ◐ none in production (inert); existing suites unmodified | ✅ | — inert; screenshots of the fixture only if a harness exists |
 | **CS-3 / TQ-2** | ✅ late detection, `late` axis OBSERVED, near-miss k-rule | ✅ technique usage / recipe paths, REGISTER_TO_DEX one transition, Dinner exclusion | ✅ Dex 調理法, RESULT | ✅ Free Cooking discovery loop | ✅ new `finish-step` spec: FREE + guided + LR, 390×844 + 360×800, ≤6 tabs, pieces fresh after bake | ✅ | ✅ **required** (390×844 video + before/after screenshots) |
 | CS-4 tabs | ◐ | — | ✅ | ◐ | ✅ 7-tab fixture at 360×800 | ✅ | ✅ |
@@ -400,8 +400,8 @@ leak Technique identity through a hint.
 
 | Gate | Condition to pass |
 |---|---|
-| G-CS-A | The Owner has read this design and answered **OD-CS-1, OD-CS-2, OD-CS-9 (a)**. |
-| G-CS-B | PR #275 is merged or closed, and this design's §1.2 D6 is re-checked on the new `main`. |
+| G-CS-A | The Owner has read this design and answered **OD-CS-1, OD-CS-2, OD-CS-9 (a)** *(satisfied: §13)*. |
+| G-CS-B | PR #275 is merged or closed, and this design's §1.2 D6 is re-checked on the new `main` *(#275 merged; the D6 re-check is PR-B's)*. |
 | G-CS-C | Fresh `git fetch origin main`; the CS-1 branch is cut from the new SHA; the audit table in §1 is re-verified (tab counts, GameScreen CUT sites, CONFIRM_BAKE shape). |
 | G-CS-D | No change to Hint 5.0 / #292, PR #291, PR #255, W1 activation, I5b-3 / I5b-4, 3-4C, TQ-1D, #275, #260 is needed by the slice. If one is, stop and ask. |
 | G-CS-E (CS-2 only) | OD-CS-3 and OD-CS-11 answered; CS-1 merged. |
@@ -418,8 +418,10 @@ CS-4 tabs (needs OD-CS-9 b); CS-5; CS-6 = TQ-3; CS-7 dough; CS-8 small variants 
 every MAJOR mechanic (pan, shape / boat, enclose, prep, mid-bake, fry, laminate); any
 no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as data under the normal recipe gates.
 
-**Owner Decision 待ち:** OD-CS-1 … OD-CS-19 (§8); the gating ones for CS-1 are OD-CS-1, OD-CS-2
-and OD-CS-9 (a).
+**Owner Decision の状態 (2026-10-10 re-baseline; authority = §13 and the Authority Index §2):**
+- **決定済み:** OD-CS-1 = A, OD-CS-2 = B, OD-CS-9 (a), OD-CS-20 (§13). CS-1 の決定ゲートは満たされている。
+- **未決定のまま:** OD-CS-3..8, 10..19 (§8) と OD-CS-9 (b)。ここでは決定しない。
+- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
 
 ---
 
@@ -432,7 +434,7 @@ Recorded from the Owner. These supersede the "recommended" columns in §8 for th
 | **OD-CS-1** | **A.** Cooking Steps owns only the late-addition **engine foundation**, inert in Production. Production enablement of late-addition recipes is **TQ-2's** authority. | CS-2 scope; CS-3 = TQ-2 |
 | **OD-CS-2** | **B.** Normal recipes finalize at CONFIRM_BAKE as today. Only future late-addition recipes are **provisional at CONFIRM_BAKE → final after FINISH completes**. **Not implemented in CS-1a.** Recorded as the authority for the CS-1b `finalizeRound` design and its golden tests. | CS-1b, CS-2 |
 | **OD-CS-9 (a)** | **Adopted.** Current Production is fixed at **max 6 visible tabs** by a test invariant. When 7+ tabs are needed, the test is **not** relaxed; it is the gate that requires **CS-4** first. | CS-1a gate; CS-4 |
-| **OD-CS-20** | **Adopted.** CS-1 is split. **CS-1a:** Production max-6-tab invariant (Free Cooking profile included); GameScreen post-bake rendering generalized; current CUT display and behaviour fully preserved; no new non-CUT post-bake UI. **CS-1b:** `finalizeRound` extraction; 25-recipe golden tests over guided / FREE / Lunch Rush / Dinner and raw / good / burnt bakes; starts only after PR #275 is resolved. | CS-1a / CS-1b |
+| **OD-CS-20** | **Adopted.** CS-1 is split. **CS-1a:** Production max-6-tab invariant (Free Cooking profile included); GameScreen post-bake rendering generalized; current CUT display and behaviour fully preserved; no new non-CUT post-bake UI. **CS-1b:** `finalizeRound` extraction; 25-recipe golden tests over guided / FREE / Lunch Rush / Dinner and raw / good / burnt bakes *(re-baseline 2026-10-10: the golden is derived from all of `RECIPES`, 55 at `e0397ae`; the recorded "25" was the count at decision time and is not pinned)*; starts only after PR #275 is resolved. | CS-1a / CS-1b |
 | PR #275 | Not changed, merged or closed by this track. Stays on Owner Human Verification. *(Update 2026-10-10: #275 has since been merged by the Owner; the CS-1b blocker is cleared.)* | CS-1b blocker |
 
 **Out of CS-1a / CS-1b (Owner):** the FREE-mode POST_BAKE / CUT HOME gap (`isRoundInProgress()` does not
