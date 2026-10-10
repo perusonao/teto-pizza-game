@@ -14,7 +14,7 @@ in §8 with options, and nothing is decided on the Owner's behalf.
 > | 172-row classes (CURRENT / DATA / SMALL / MAJOR / GAP) | 15 / 59 / 19 / 30 / 49 | **32 / 42 / 19 / 30 / 49** (regenerated; §3.2) |
 > | PR #275 (#256 CUT skip) | open, CS-1b blocker | **merged**; `bakeCompletionFailure` is on `main` |
 > | Undo (#270 / #449) | none | **merged** (#451); `UNDO_LAST_PLACEMENT` on `main` |
-> | TQ-1D (no-sauce production) | not shipped; gated every no-sauce recipe | **shipped** (Aussie live; further no-sauce recipes already on `main`). The 29 no-sauce DATA_ONLY rows are **data-only, not blocked** (no engine or technique gate) |
+> | TQ-1D (no-sauce production) | not shipped; gated every no-sauce recipe | **shipped** (Aussie live; further no-sauce recipes already on `main`). The 29 no-sauce DATA_ONLY rows are **data-only, not blocked** by an engine or technique gate (20 need nothing else; 9 also need new ingredients, 1 of them a new sauce) |
 > | `GameScreen` CUT sites | 6 | 6 (unchanged; CS-1a target) |
 > | Tab counts | 18 × 6, 7 × 5 | max 6 still holds; the per-count split is measured by the PR-B derived gate (FINISH-Pilot §2.2 measured 18 × 6 / 19 × 5 on `44879be`) |
 >
@@ -157,7 +157,7 @@ technique (TQ-3). That is more than one data field plus a guard.
 | Class | Rows | Notes |
 |---|---:|---|
 | CURRENT_ENGINE | **32** (was 15 at `86b48fd`) | 29 are runtime recipes already (W1 and every later batch); 3 are not yet shipped: `supreme-pizzadb`, `pizza-baiana`, `pizza-chilena-pizzadb-p8` |
-| DATA_ONLY | **42** (was 59) | 29 of them only because of **no sauce** (data-only; TQ-1D already shipped); 16 are already runtime recipes; the rest are new ingredients / new sauces. The 17 rows that left this class moved to CURRENT_ENGINE because their ingredients shipped |
+| DATA_ONLY | **42** (was 59) | 29 contain **no sauce** (data-only; TQ-1D already shipped): 20 need nothing else, 9 also need new ingredients (1 of the 9 also needs a new sauce); 16 of the 42 are already runtime recipes; the rest are new ingredients / new sauces. The 17 rows that left this class moved to CURRENT_ENGINE because their ingredients shipped |
 | SMALL_ENGINE | **19** | 13 dough variant (incl. **piadina**), 4 late post-bake (**BBQ chicken**, wasabi-beef, nutella-dessert, black-truffle), 1 step order (Trenton), 1 zoned (quattro stagioni) |
 | MAJOR | **30** | 14 multi-spread, 8 pan, 5 shape (incl. **pide boat**), 4 enclose, mid-bake, prep, fry |
 | AUTHORITY_GAP | **49** | 33 unspecified sauce base, 11 mechanic interpretation (8 page-8 salad rows, taco, lahmacun, eel), 3 unresolved sauce, 2 scope, 2 evidence gap. Underlying class if resolved: CURRENT 3 · DATA 29 · SMALL 9 · MAJOR 7 · (still gap) 1 |
@@ -251,7 +251,7 @@ Each phase is its own PR, reverts on its own, and ships nothing visible until it
 |---|---|---|---|---|
 | **CS-0** | This design (docs only) | no | — | Cooking Steps |
 | **CS-1 Post-bake seam** | (a) unit invariant: max visible tabs over `RECIPES` ≤ 6; (b) `GameScreen` 6 CUT sites → one post-bake step view (CUT the only consumer); (c) pure `finalizeRound()` extracted from CONFIRM_BAKE, called from the **same** place, golden-pinned for every recipe in `RECIPES` (derived, never a fixed count; 55 at `e0397ae`) × FREE / Lunch Rush / Dinner × bake bands | **no** (byte-identical) | #275 merged or closed; OD-CS-9 (a) | Cooking Steps |
-| **CS-2 FINISH engine (inert)** | `RecipeRequirement.applicationPhase?` (absent = pre-bake); `deriveCoreSteps` appends FINISH for post-bake requirements; FINISH placement (+ last-piece undo); per-piece `stage`; fresh (un-roasted) late-piece visuals; (re)finalization per OD-CS-2; reducer guards. Verified on a **test-only** BBQ-chicken-shaped fixture using existing ingredients. No production recipe gets FINISH. | **no** (INV: no production requirement has `applicationPhase: POST_BAKE`, pinned by test) | CS-1; OD-CS-1, 2, 3, 11 | Cooking Steps |
+| **CS-2 FINISH engine (inert)** | `RecipeRequirement.applicationPhase?` (absent = pre-bake); `deriveCoreSteps` appends FINISH for post-bake requirements; FINISH placement (+ last-piece undo); per-piece `stage`; fresh (un-roasted) late-piece visuals; (re)finalization per OD-CS-2; reducer guards. Verified on a **test-only** BBQ-chicken-shaped fixture using existing ingredients. No production recipe gets FINISH. | **no** (INV: no production requirement has `applicationPhase: POST_BAKE`, pinned by test) | CS-1; OD-CS-1, 2, 3, 11; UD-H | Cooking Steps |
 | **CS-3 = TQ-2 activation** | Late technique id, `late` axis OBSERVED, near-miss DIMENSION + k-rule, Free Cooking FINISH (OD-CS-4), content (BBQ chicken: bbq-sauce, chicken, cilantro; ladder append per LAD-1), Dinner / Lunch Rush policy, Hint re-audit, HV | **yes** | CS-2; **TQ-1D shipped**; OD-CS-4..8, 10 | Techniques (TQ-2) |
 | **CS-4 Tab strip for 7+** | T2 (grouped phase strip) or T3 (compact chips) UI audit then implementation | yes | OD-CS-9 (b) | Cooking Steps / UI |
 | **CS-5 FINISH → CUT on a 6-tab recipe** | e.g. wasabi-beef (7 tabs) | yes | CS-3, CS-4 | TQ-2 content |
@@ -404,7 +404,7 @@ leak Technique identity through a hint.
 | G-CS-B | PR #275 is merged or closed, and this design's §1.2 D6 is re-checked on the new `main` *(#275 merged; the D6 re-check is PR-B's)*. |
 | G-CS-C | Fresh `git fetch origin main`; the CS-1 branch is cut from the new SHA; the audit table in §1 is re-verified (tab counts, GameScreen CUT sites, CONFIRM_BAKE shape). |
 | G-CS-D | No change to Hint 5.0 / #292, PR #291, PR #255, W1 activation, I5b-3 / I5b-4, 3-4C, TQ-1D, #275, #260 is needed by the slice. If one is, stop and ask. |
-| G-CS-E (CS-2 only) | OD-CS-3 and OD-CS-11 answered; CS-1 merged. |
+| G-CS-E (CS-2 only) | OD-CS-3 and OD-CS-11 answered; **UD-H** (FINISH skip after a failed bake; Pilot §9, open) answered; CS-1 merged. |
 | G-CS-F (CS-3 only) | TQ-1D shipped; OD-CS-4..8, 10 answered; Hint re-audit plan agreed. |
 
 ---
@@ -413,7 +413,7 @@ leak Technique identity through a hint.
 
 **次に実装可能な Phase (after G-CS-A..D):** CS-1 Post-bake seam (inert, byte-identical).
 
-**まだ実装してはいけない Phase:** CS-2 (needs CS-1 + OD-CS-2/3/11); CS-3 = TQ-2 (needs TQ-1D);
+**まだ実装してはいけない Phase:** CS-2 (needs CS-1 + OD-CS-2/3/11 + UD-H); CS-3 = TQ-2 (needs TQ-1D);
 CS-4 tabs (needs OD-CS-9 b); CS-5; CS-6 = TQ-3; CS-7 dough; CS-8 small variants (own audit);
 every MAJOR mechanic (pan, shape / boat, enclose, prep, mid-bake, fry, laminate); any
 no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as data under the normal recipe gates.
@@ -421,7 +421,7 @@ no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as dat
 **Owner Decision の状態 (2026-10-10 re-baseline; authority = §13 and the Authority Index §2):**
 - **決定済み:** OD-CS-1 = A, OD-CS-2 = B, OD-CS-9 (a), OD-CS-20 (§13). CS-1 の決定ゲートは満たされている。
 - **未決定のまま:** OD-CS-3..8, 10..19 (§8) と OD-CS-9 (b)。ここでは決定しない。
-- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能（順序は PR-A → PR-B (CS-1a) → PR-C (CS-1b)。CS-1b は CS-1a の移植後）。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
+- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能（順序は PR-A → PR-B (CS-1a) → PR-C (CS-1b)。CS-1b は CS-1a の移植後）。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 と UD-H（失敗ピザの FINISH スキップ、Pilot §9、未決定）の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
 
 ---
 
