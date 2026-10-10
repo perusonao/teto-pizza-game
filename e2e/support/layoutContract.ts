@@ -9,7 +9,7 @@ import {
   type InvariantResult,
   type LayoutMeasurement,
 } from "./layoutInvariants";
-import { mountProfileFor, ProfileDriver, profilesFor, type AppliedProfile, type Profile, type ProfileId } from "./layoutProfiles";
+import { mountProfileFor, ProfileDriver, profilesFor, Trail, type AppliedProfile, type Profile, type ProfileId } from "./layoutProfiles";
 
 /**
  * Progression 2.0 W1 I5b-5 Layout Contract helper (Design `d4f96d0` §5.3 / §12, Preflight §5 /
@@ -24,6 +24,9 @@ import { mountProfileFor, ProfileDriver, profilesFor, type AppliedProfile, type 
  * - A failing sample also gets an annotated screenshot (slot boxes drawn by a `pointer-events:
  *   none` overlay injected AFTER the hit tests, removed right after).
  * - `finish()` attaches `layout-evidence.json` (every sample, pass or fail) to the test.
+ * - Issue #394 diagnostics: `trail` (see `Trail`) records checkpoint labels, ProfileDriver stages and page / context /
+ *   browser lifecycle events in memory only. A lifecycle event writes the recent trail to stderr; `finish()` attaches
+ *   `layout-trail.json` only when the test failed or such an event fired (a passing test adds nothing).
  */
 
 /**
@@ -321,11 +324,30 @@ export class LayoutContract {
     readonly testInfo: TestInfo,
     readonly driver: ProfileDriver,
     readonly profiles: Profile[],
+    readonly trail: Trail,
+    private readonly detachLifecycle: () => void,
   ) {}
 
   static async start(page: Page, testInfo: TestInfo, browserName: string): Promise<LayoutContract> {
-    const driver = await ProfileDriver.create(page, browserName);
-    return new LayoutContract(page, testInfo, driver, profilesFor(testInfo));
+    const trail = new Trail(`${testInfo.project.name} ${testInfo.title.slice(0, 60)}`);
+    const context = page.context();
+    const browser = context.browser();
+    const onCrash = () => trail.lifecycleEvent("page.crash");
+    const onPageClose = () => trail.lifecycleEvent("page.close");
+    const onContextClose = () => trail.lifecycleEvent("context.close");
+    const onDisconnected = () => trail.lifecycleEvent("browser.disconnected");
+    page.on("crash", onCrash);
+    page.on("close", onPageClose);
+    context.on("close", onContextClose);
+    browser?.on("disconnected", onDisconnected);
+    const detach = () => {
+      page.off("crash", onCrash);
+      page.off("close", onPageClose);
+      context.off("close", onContextClose);
+      browser?.off("disconnected", onDisconnected);
+    };
+    const driver = await ProfileDriver.create(page, browserName, trail);
+    return new LayoutContract(page, testInfo, driver, profilesFor(testInfo), trail, detach);
   }
 
   mountProfile(kind: "short" | "nominal"): Profile {
@@ -345,9 +367,12 @@ export class LayoutContract {
     opts: { beforeMeasure?: (p: Profile) => Promise<void> } = {},
   ): Promise<Map<ProfileId, LayoutMeasurement>> {
     const out = new Map<ProfileId, LayoutMeasurement>();
+    this.trail.mark("cp", `enter ${state.label}`);
     for (const profile of this.profiles) {
+      this.trail.mark("cp", `profile ${profile.id}`);
       const applied = await this.driver.apply(profile);
       if (opts.beforeMeasure) await opts.beforeMeasure(profile);
+      this.trail.mark("cp", `measure ${profile.id}`);
       const m = await measureLayout(this.page, slots);
       const ctx = { profileId: profile.id, state: state.label };
       const results = evaluateInvariants(m, checks, ctx);
@@ -359,7 +384,9 @@ export class LayoutContract {
       await this.record(state, profile, applied, m, results, checks.includes("L-N"));
       out.set(profile.id, m);
     }
+    this.trail.mark("cp", `restore ${restore.id}`);
     await this.driver.apply(restore);
+    this.trail.mark("cp", `exit ${state.label}`);
     return out;
   }
 
@@ -421,6 +448,8 @@ export class LayoutContract {
   }
 
   async finish() {
+    // Detach first: the page / context closing in this test's own teardown is normal and must stay silent.
+    this.detachLifecycle();
     const all = this.samples.flatMap((s) => s.results);
     const doughs = this.samples.flatMap((s) => s.advisory.map((a) => ({ profile: s.profile.id, state: s.state.label, px: a.doughDiameterPx })));
     const evidence = {
@@ -441,6 +470,10 @@ export class LayoutContract {
       },
     };
     await this.testInfo.attach("layout-evidence.json", { body: JSON.stringify(evidence, null, 1), contentType: "application/json" });
+    if (this.testInfo.errors.length > 0 || this.trail.lifecycle.length > 0) {
+      const trail = { schema: "teto-layout-trail/1", test: this.testInfo.title, project: this.testInfo.project.name, lifecycle: this.trail.lifecycle, entries: this.trail.entries };
+      await this.testInfo.attach("layout-trail.json", { body: JSON.stringify(trail, null, 1), contentType: "application/json" });
+    }
     // Leave the page clean for any later step (the CDP override would outlive this test's page
     // otherwise only within this context, but clear it anyway).
     await this.driver.setSafeArea(null).catch(() => {});
