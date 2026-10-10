@@ -12,6 +12,7 @@ import {
   type MaterialUnlockNotice,
 } from "./materialEntitlement";
 import { buildHintLine } from "../data/hints";
+import { undoablePlacementIndex } from "./undoPlacement";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -330,6 +331,11 @@ export interface GameState {
    *  fresh round (`buildOrderState` below) like `lastPitzCredit`; never persisted. It replaces
    *  EP4's retired Starter Grant notice (`lastStarterGrantNotice`, removed). */
   lastMaterialUnlockNotice: MaterialUnlockNotice | null;
+  /** Batch 6 PR-3 (OD-B6-PR3-1): materials newly unlocked while serving the CURRENT Lunch Rush run
+   *  (`MISSION_NEXT_ORDER`'s `newlyUnlockedMaterialIds`, in unlock order, no duplicates), announced on the
+   *  run's result overlay. Transient like `lastMaterialUnlockNotice`: never persisted, emptied when a run
+   *  starts and on every non-Mission round. */
+  missionMaterialUnlockIds: readonly string[];
   /** Cooking Time CT1/CT2: deterministic FREE-only "active making" timing (../logic/
    *  cookingTiming.ts), spanning `BEGIN_PREPARE`/an equivalent fresh-PREPARE entry (SELECT_RECIPE,
    *  RETRY_SAME_RECIPE) through `START_BAKE` -- BAKE's own needle-tap minigame is deliberately
@@ -434,6 +440,9 @@ export type GameAction =
   // against the current recipe's shared sauce profile for both FREE and Lunch Rush.
   | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
+  // Cooking Steps 2.0 Phase 1 (Issue #449 / #270): takes back the piece placed last in the current CHEESE / TOPPING
+  // step. No payload; see ./undoPlacement.ts for the rule (PREPARE only, never Lunch Rush, never a confirmed step).
+  | { type: "UNDO_LAST_PLACEMENT" }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -597,6 +606,8 @@ export type DinnerAction =
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
  *  added here later. */
 interface ProgressionCarry {
+  /** Run-scoped (see `GameState.missionMaterialUnlockIds`); `buildOrderState` empties it for a non-Mission round. */
+  missionMaterialUnlockIds: readonly string[];
   dex: DexState;
   ownedIngredientIds: readonly string[];
   pitzBalance: number;
@@ -681,6 +692,7 @@ function buildOrderState(
     placement: null,
     lastPitzCredit: null,
     lastMaterialUnlockNotice: null,
+    missionMaterialUnlockIds: isMissionRound ? carry.missionMaterialUnlockIds : [],
     lastEfficiencyCredit: null,
     lastDiscovery: null,
     lastTrialAttempt: null,
@@ -814,6 +826,7 @@ export function createInitialGameState(
 ): GameState {
   return nextOrderState(
     {
+      missionMaterialUnlockIds: [],
       dex,
       ownedIngredientIds,
       pitzBalance,
@@ -1045,6 +1058,24 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           y: spot.y,
           token: placementTokenCounter,
         },
+      };
+    }
+
+    case "UNDO_LAST_PLACEMENT": {
+      // The reducer is the real backstop (the button's disabled state is only a hint): the rule lives in one
+      // pure function shared with the UI. Nothing here touches inventory (consumed once at CONFIRM_BAKE),
+      // cookingTiming (like RESET_PIZZA, the clock keeps running), score, completion, the Dex or the save.
+      const index = undoablePlacementIndex(state);
+      if (index < 0) return state;
+      const pizza: PizzaState = {
+        ...state.pizza,
+        toppings: state.pizza.toppings.filter((_, i) => i !== index),
+      };
+      return {
+        ...state,
+        pizza,
+        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
+        placement: null,
       };
     }
 
@@ -1595,7 +1626,18 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       };
       // Issue #212 (OD-2): nothing cookable left -> the served round stays at RESULT (registered)
       // and App.tsx ends the run (END_EARLY); BEGIN_PREPARE's phase guard keeps it there.
-      return nextMissionOrderState(registered, state.missionSoldOutRecipeIds, false) ?? registered;
+      // Batch 6 PR-3 (OD-B6-PR3-1): a star gate crossed by this serve (a better BEST on a re-served recipe) is
+      // announced on the run's result overlay. Only `newlyUnlockedMaterialIds` is recorded, so a material
+      // already in the ledger can never be announced twice.
+      const missionMaterialUnlockIds = [
+        ...state.missionMaterialUnlockIds,
+        ...entitlement.newlyUnlockedMaterialIds.filter((id) => !state.missionMaterialUnlockIds.includes(id)),
+      ];
+      const withUnlocks: GameState =
+        missionMaterialUnlockIds.length === state.missionMaterialUnlockIds.length
+          ? registered
+          : { ...registered, missionMaterialUnlockIds };
+      return nextMissionOrderState(withUnlocks, state.missionSoldOutRecipeIds, false) ?? withUnlocks;
     }
 
     // Forces a fresh Mission order regardless of the current phase -- used when a Mission run
@@ -1604,7 +1646,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // Issue #212: a new run starts with an empty SOLD OUT set. With nothing cookable the state is
     // returned unchanged (App.tsx never starts such a run -- `canStartLunchRush`).
     case "MISSION_RESET_ORDER":
-      return nextMissionOrderState(state, [], false) ?? state;
+      return nextMissionOrderState({ ...state, missionMaterialUnlockIds: [] }, [], false) ?? state;
 
     // Issue #212 (H-R): the only way past a short Lunch Rush order. Accepted only for the Mission
     // ORDER the player is looking at, and only while it really is short -- a cookable order can
@@ -1873,6 +1915,7 @@ function hasPlacedIngredient(pizza: PizzaState): boolean {
 
 function carryOf(state: GameState): ProgressionCarry {
   return {
+    missionMaterialUnlockIds: state.missionMaterialUnlockIds,
     dex: state.dex,
     ownedIngredientIds: state.ownedIngredientIds,
     pitzBalance: state.pitzBalance,
@@ -2016,6 +2059,7 @@ const DINNER_COMPOSITION_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<Game
   "APPLY_SAUCE",
   "COMMIT_SAUCE_DISPENSE",
   "PLACE_TOPPING",
+  "UNDO_LAST_PLACEMENT",
   "RESET_PIZZA",
   "COMMIT_DOUGH_STRETCH",
 ]);

@@ -56,6 +56,7 @@ function Screen({ state, dispatch }: { state: GameState; dispatch: Dispatch<Game
       onGoHome={() => {}}
       onBeginPrepare={() => {}}
       onResetPizza={() => {}}
+      onUndoPlacement={() => {}}
       onConfirmMakingStep={() => {}}
       onStartBake={() => {}}
       onShowHint={() => {}}

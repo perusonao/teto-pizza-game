@@ -93,6 +93,7 @@ function renderAt(state: GameState, referencePizza: typeof MARGHERITA_REFERENCE 
       onGoHome={() => {}}
       onBeginPrepare={() => {}}
       onResetPizza={() => {}}
+      onUndoPlacement={() => {}}
       onConfirmMakingStep={() => {}}
       onStartBake={() => {}}
       onShowHint={() => {}}

@@ -2,7 +2,7 @@ import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder"
 import type { Ingredient } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import type { InventoryState } from "../state/inventory";
-import { normalizeDiscoveredCount } from "./discoveryLadder";
+import { meetsStarGate, normalizeDiscoveredCount } from "./discoveryLadder";
 
 /**
  * Progression 2.0 W1 Integration I4b-1: the material Shop's economy as pure functions (REC-04
@@ -187,6 +187,40 @@ export function nextMaterialHint(
     );
   if (!next) return null;
   return { discoveriesNeeded: next.step - count, step: next.step };
+}
+
+export interface NextStarGateHint {
+  /** Stars still missing for the nearest star-gated material (always >= 1). */
+  starsNeeded: number;
+}
+
+/**
+ * Batch 6 PR-3 (OD-B6-PR3-3/4): the Shop's aggregated "⭐あと○個" line. Applies only to a material whose
+ * ladder step is already REACHED (`step <= discoveredCount`), that has a `starGates` entry the
+ * accumulated stars do not meet yet, and that is not already entitled. Several such materials
+ * -> only the smallest shortfall is reported. A step not reached yet is the discovery-count
+ * hint's job (`nextMaterialHint`); this never reads one. Carries a number only: no id, name,
+ * step or gate leaves this function, so no caller can render which material it is.
+ */
+export function nextStarGateHint(
+  discoveredCount: number,
+  totalStars: number,
+  unlockedForShopIngredientIds: readonly string[] = [],
+  ladder: DiscoveryLadder = DISCOVERY_LADDER,
+): NextStarGateHint | null {
+  const count = normalizeDiscoveredCount(discoveredCount);
+  const entitled = new Set(unlockedForShopIngredientIds);
+  let best: number | null = null;
+  for (const step of ladder.steps) {
+    if (step.kind !== "MATERIAL" || step.step > count) continue;
+    for (const [id, gate] of Object.entries(step.starGates ?? {})) {
+      if (entitled.has(id) || meetsStarGate(totalStars, gate)) continue;
+      const stars = Number.isFinite(totalStars) && totalStars > 0 ? totalStars : 0;
+      const needed = gate - stars;
+      if (needed >= 1 && (best === null || needed < best)) best = needed;
+    }
+  }
+  return best === null ? null : { starsNeeded: best };
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -45,7 +45,8 @@
  * The taxonomy is not changed for privacy (OD-DH4-2-3). Ingredients without a family row are
  * classed by category only; nothing is inferred from names. Lookups use arrays, Sets and Maps.
  */
-import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
+import { ingredientCategory } from "./ingredientCategoryIndex";
 import { ingredientAttributeFamily, ingredientAttributeGroup } from "../../data/ingredientTaxonomy";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import {
@@ -81,7 +82,7 @@ function byCatalogOrder(ids: Iterable<string>): string[] {
 }
 
 function categoryOf(id: string): string | null {
-  return getIngredient(id)?.category ?? null;
+  return ingredientCategory(id) ?? null;
 }
 
 /** Rule W's category order (OD-H3-5): the reserve is in the highest category among the non-key
@@ -137,7 +138,7 @@ export function ownedAcquisitionOrder(raw: unknown): string[] | null {
   const seen = new Set<string>();
   let nonStarterSeen = false;
   for (const value of raw) {
-    if (typeof value !== "string" || !getIngredient(value) || seen.has(value)) return null;
+    if (typeof value !== "string" || ingredientCategory(value) === undefined || seen.has(value)) return null;
     const starter = STARTER_IDS.has(value);
     if (starter && nonStarterSeen) return null;
     if (!starter) nonStarterSeen = true;
@@ -229,7 +230,11 @@ export function hypotheticalParts(parts: ReserveParts, x: string): ReserveParts 
 
 function dh41Answer(parts: ReserveParts): ReserveAttributeAnswer | null {
   // T1a: the DH4-1 decoys come from the same makeable prefix as H, never from later purchases.
-  return attributeAnswerForReserve({ recipeIngredientIds: parts.recipeIngredientIds, reserveId: parts.reserveId, ownedIngredientIds: makeablePrefix(parts) ?? [] });
+  return dh41AnswerOver(parts, makeablePrefix(parts) ?? []);
+}
+
+function dh41AnswerOver(parts: ReserveParts, prefix: readonly string[]): ReserveAttributeAnswer | null {
+  return attributeAnswerForReserve({ recipeIngredientIds: parts.recipeIngredientIds, reserveId: parts.reserveId, ownedIngredientIds: prefix });
 }
 
 type StrictLevel = "family" | "group" | "category";
@@ -280,8 +285,11 @@ export function partitionAllowsDh41(parts: ReserveParts): boolean {
   const h = hypotheticalReserves(parts);
   if (!h.includes(parts.reserveId)) return false;
   const sizes = new Map<string, number>();
+  // Every hypothesis shares the known part (H excludes it) and the owned list, so the makeable prefix
+  // is the same for all of them: computed once per call, never kept between calls.
+  const prefix = makeablePrefix(parts) ?? [];
   for (const x of h) {
-    const answer = dh41Answer(hypotheticalParts(parts, x));
+    const answer = dh41AnswerOver(hypotheticalParts(parts, x), prefix);
     const key = `${categoryOf(x)}|${answer ? answer.factId : "none"}`;
     sizes.set(key, (sizes.get(key) ?? 0) + 1);
   }

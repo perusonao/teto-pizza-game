@@ -12,11 +12,13 @@ import type { DexState } from "../state/dex";
 import { remainingStock, type InventoryState } from "../state/inventory";
 import { countsTowardLadder } from "../data/recipes";
 import { discoveredRecipeCount } from "../logic/discoveryLadder";
+import { totalStars } from "../logic/mastery";
 import {
   MATERIAL_PACK_PIZZAS,
   materialOffer,
   materialShopState,
   nextMaterialHint,
+  nextStarGateHint,
   type MaterialOffer,
 } from "../logic/materialShop";
 import { IngredientGlyph } from "./IngredientGlyph";
@@ -129,6 +131,11 @@ export function ShopOverlay({
     discoveredRecipeCount(dex, countsTowardLadder),
     unlockedForShopIngredientIds,
   );
+  const starProgress = nextStarGateHint(
+    discoveredRecipeCount(dex, countsTowardLadder),
+    totalStars(dex),
+    unlockedForShopIngredientIds,
+  );
   const [feedback, setFeedback] = useState<ShopFeedback | null>(null);
   // Ingredient Pantry / Category Tabs: a display-only two-tier shelf filter (./ingredientShelf.ts is the authority
   // for ids, order, labels and membership). The tabs are derived from the rows this Shop already lists (NEW /
@@ -204,6 +211,14 @@ export function ShopOverlay({
           {progress && (
             <p className="shop-overlay__progress">
               {"\u{1F51C}"} あと{progress.discoveriesNeeded}つ発見で新しい材料が入荷
+            </p>
+          )}
+
+          {/* Batch 6 PR-3 (OD-B6-PR3-3): one aggregated line, outside the LOCKED slots. A number only -- no
+              material, step or gate is nameable from here. */}
+          {starProgress && (
+            <p className="shop-overlay__progress" data-shop-star-progress="true">
+              {"\u2B50"} あと{starProgress.starsNeeded}個で新しい材料が入荷
             </p>
           )}
 

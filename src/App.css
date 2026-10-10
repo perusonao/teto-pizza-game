@@ -1516,6 +1516,45 @@
   font-weight: 700;
 }
 
+/* Cooking Steps 2.0 Phase 1 (Issue #449): 「1つ戻す」 (↩) in the PREPARE bar. A 44x44 round icon button -- never
+   shrinks (flex: none), so the CTA and 「やり直す」 keep their rhythm at 360px; the slot is rendered in every
+   PREPARE step of a non-Lunch-Rush round and only its disabled state changes. */
+.prepare-undo-button {
+  flex: none;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prepare-undo-button:disabled {
+  opacity: 0.45;
+}
+
+/* With the ↩ slot the bar holds four controls (やり直す / ↩ / CTA / ヒント). At 360px (328px of content) the default
+   10px gaps and paddings squeeze the CTA to ~97px and wrap 「焼く！」 onto a second line (bar 70px -> 86px). Tightening
+   gaps and side paddings only in this modifier gives the CTA ~125px, keeps every control >= 44px tall, and leaves the
+   Lunch Rush bar (no ↩) exactly as it was. */
+.prepare-bake-bar--undo {
+  gap: 6px;
+}
+
+.prepare-bake-bar--undo .secondary-button:not(.prepare-undo-button) {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.prepare-bake-bar--undo .cta-button {
+  padding-left: 12px;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+
 /* ---------- Bake overlay ---------- */
 .bake-overlay {
   display: flex;
@@ -7065,6 +7104,15 @@ p.hint-sheet__step {
   margin-bottom: 10px; /* the chips' 44px hit area reaches 8px below the row: a 2px gap to the first card remains */
 }
 
+/* Issue #447: while the family row is shown, the tray is always two rows tall (the dock already reserves two). The
+   dock hugs its bottom (`justify-content: flex-end`), so a one-row family (<= 3 ingredients) used to shrink the tray
+   64px + 6px and pull the family row 70px down with it. The cards stay at the top of the fixed box; the spare row is
+   empty. Same `--chip-h` / `--tray-gap` the dock reserves with (58px chips on a short height). */
+.ingredient-panel:has(> .tray-family-row) .ingredient-tray {
+  min-height: calc(2 * var(--chip-h) + var(--tray-gap));
+  align-content: start;
+}
+
 /* Above placement: the utility row's gap to the tray is 10px (not 6) for the same reason, the pager's 44px hit area
    reaching 8px above the row. The dock's `--family-h` includes these 4px. */
 .prepare-dock--family-above .ingredient-page-nav {
@@ -7205,4 +7253,11 @@ p.hint-sheet__step {
 }
 .hint-sheet__research-details > p + p {
   margin-top: 4px;
+}
+
+/* Batch 6 PR-3: the Lunch Rush run-result copy of the notice (message only, no CTA). Compact so the
+   result panel keeps fitting 360x800 without page scroll. */
+.material-unlock-notice--mission {
+  margin: 4px auto 0;
+  padding: 4px 10px;
 }

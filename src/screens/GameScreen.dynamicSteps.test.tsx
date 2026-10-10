@@ -65,6 +65,7 @@ function renderAt(state: GameState) {
       onGoHome={() => {}}
       onBeginPrepare={() => {}}
       onResetPizza={() => {}}
+      onUndoPlacement={() => {}}
       onConfirmMakingStep={() => {}}
       onStartBake={() => {}}
       onShowHint={() => {}}

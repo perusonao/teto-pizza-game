@@ -8,12 +8,12 @@
  * the recipe has a sauce no sauce is a hypothesis, when it has none only sauces are. A sauceless
  * recipe therefore dropped its real reserve from H.
  */
-import { getIngredient } from "../../../data/ingredients";
+import { ingredientCategory } from "../ingredientCategoryIndex";
 import { ingredientAttributeFamily, ingredientAttributeGroup } from "../../../data/ingredientTaxonomy";
 import { attributeAnswerForReserve, MIN_ATTRIBUTE_CANDIDATES, type ReserveAttributeAnswer } from "../deductionHint";
 import type { ReserveParts } from "../deductionGuard";
 
-const categoryOf = (id: string) => getIngredient(id)?.category ?? null;
+const categoryOf = (id: string) => ingredientCategory(id) ?? null;
 const knownPart = (p: ReserveParts) => p.recipeIngredientIds.filter((id) => id !== p.reserveId);
 
 function universeW(p: ReserveParts): string[] {

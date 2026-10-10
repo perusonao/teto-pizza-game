@@ -42,7 +42,7 @@ import { HintSheet, type HintFamily } from "../components/HintSheet";
 import { notebookView } from "../logic/discovery/trialNotebook";
 import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, researchableEntryIds, researchResultView } from "../state/discoveryHint";
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
-import { newShopMaterialCount } from "../state/materialEntitlement";
+import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
@@ -71,6 +71,8 @@ import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
+import { canUndoPlacement } from "../state/undoPlacement";
+import { isLunchRushRound } from "../state/roundKind";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -140,6 +142,8 @@ interface GameScreenProps {
   onGoHome: () => void;
   onBeginPrepare: () => void;
   onResetPizza: () => void;
+  /** Cooking Steps 2.0 Phase 1 (Issue #449): "1つ戻す" -- dispatches UNDO_LAST_PLACEMENT. */
+  onUndoPlacement: () => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
@@ -232,6 +236,7 @@ export function GameScreen({
   onGoHome,
   onBeginPrepare,
   onResetPizza,
+  onUndoPlacement,
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
@@ -314,6 +319,18 @@ export function GameScreen({
   function handleResetPizza() {
     setPizzaResetToken((token) => token + 1);
     onResetPizza();
+  }
+
+  // Cooking Steps 2.0 Phase 1 (Issue #449): the same gesture-abort generation as 「やり直す」, so a tray drag still in
+  // flight when the piece is taken back can never commit a late PLACE_TOPPING. The button is rendered in every
+  // PREPARE step of a non-Lunch-Rush round (a constant slot, so the CTA never shifts between steps) and is
+  // enabled only while the reducer would accept the action (`canUndoPlacement` is the reducer's own rule).
+  const showUndoButton = !isLunchRushRound(state);
+  const undoAvailable = canUndoPlacement(state);
+  function handleUndoPlacement() {
+    if (!undoAvailable) return;
+    setPizzaResetToken((token) => token + 1);
+    onUndoPlacement();
   }
 
   // Issue #86 (UX-2): the single gate for "may the immediate next making step be entered right
@@ -865,10 +882,22 @@ export function GameScreen({
               additionally disabled until `doughShapeComplete` (the task's own "size-only"
               completion gate) -- the only step whose CTA is ever disabled; SAUCE/CHEESE's has
               never been (no reducer-side completion gate exists for them either, by design). */}
-          <div className="action-row prepare-bake-bar">
+          <div className={`action-row prepare-bake-bar${showUndoButton ? " prepare-bake-bar--undo" : ""}`}>
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>
+            {showUndoButton && (
+              <button
+                type="button"
+                className="secondary-button prepare-undo-button"
+                onClick={handleUndoPlacement}
+                disabled={!undoAvailable}
+                aria-label="1つ戻す"
+                title="1つ戻す"
+              >
+                <span aria-hidden="true">{"\u21A9"}</span>
+              </button>
+            )}
             {isLastPrepareStep ? (
               <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>
                 {"\u{1F525}"} 焼く！
@@ -1097,6 +1126,7 @@ export function GameScreen({
           onGoHome={onGoHome}
           endedEarly={mission.endedEarly}
           retryBlocked={!canStartLunchRush(state)}
+          materialUnlockNotice={buildMaterialUnlockNotice(state.missionMaterialUnlockIds)}
         />
       )}
     </div>
