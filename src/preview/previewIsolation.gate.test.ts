@@ -3,7 +3,7 @@ import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
 import { DEV_BACKUP_KEY_SUFFIX, DEV_EDITOR_BACKUP_TITLE, DEV_EDITOR_REVIEW_TITLE, DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "../devtools/marks";
-import { PRESETS } from "../devtools/presets";
+import { PRESETS, STAR_PRESETS } from "../devtools/presets";
 import { HV_SCENARIOS } from "./hvSeeds";
 
 /**
@@ -54,6 +54,9 @@ const PREVIEW_ONLY_STRINGS = [
   DEV_EDITOR_REVIEW_TITLE,
   DEV_EDITOR_BACKUP_TITLE,
   ...PRESETS.map((p) => p.labelJa),
+  // Issue #441: a fixed phrase of the star-state presets' description (their ids / labels are derived at run time, so
+  // they are never bundle literals: the production-only check below covers them).
+  "⭐条件付き材料",
   "research-step12-ready",
   "step12-abc-undiscovered",
 ];
@@ -71,6 +74,11 @@ describe("Preview Hint 5.0 helper isolation (real vite builds)", () => {
     production = await bundleText(false);
     expect(production.length).toBeGreaterThan(100_000); // a real app bundle, not an empty result
     for (const needle of PREVIEW_ONLY_STRINGS) expect(production.includes(needle), `production bundle contains ${needle}`).toBe(false);
+    // Issue #441: the derived star-state preset ids / labels (stars-119, ⭐119 ...) are in no production bundle either.
+    for (const p of STAR_PRESETS) {
+      expect(production.includes(p.id), `production bundle contains ${p.id}`).toBe(false);
+      expect(production.includes(p.labelJa), `production bundle contains ${p.labelJa}`).toBe(false);
+    }
   }, 180_000);
 
   it("the scan can see the helper: a Preview bundle has the opt-in, every seed and the Preview keys", async () => {

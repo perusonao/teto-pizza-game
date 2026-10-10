@@ -4,7 +4,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { loadSave, SAVE_STORAGE_KEY, type StorageLike } from "../state/persistence";
 import { backupKey } from "./backup";
-import { productionCatalog } from "./editorCatalog";
+import { productionCatalog, type EditorCatalog } from "./editorCatalog";
 import { ingredientName } from "./editorModel";
 import { createMemoryStorage } from "./memoryStorage";
 import { buildPreset } from "./presets";
@@ -370,5 +370,39 @@ describe("backup / restore", () => {
     expect(within(document.querySelector('[data-backup-slot="previous"]') as HTMLElement).queryByRole("button", { name: /この backup に戻す/ })).toBeNull();
     expect(storage.writes).toEqual([]);
     vi.restoreAllMocks();
+  });
+});
+
+
+describe("star-state presets follow the catalog (Issue #441)", () => {
+  const presetIds = () => Array.from(document.querySelectorAll("[data-preset-id]")).map((el) => el.getAttribute("data-preset-id"));
+  const starIds = () => presetIds().filter((id) => id?.startsWith("stars-"));
+
+  /** The production catalog with its own gates replaced: one gate of 60 stars at step 50, none at step 51. */
+  function gatedCatalog(): EditorCatalog {
+    const steps = catalog.ladder.steps.map((s) => {
+      if (s.step === 50) return { ...s, starGates: { [s.ingredientIds[0]]: 60 } };
+      const { starGates: _gates, ...rest } = s;
+      return rest;
+    });
+    return { ...catalog, ladder: { ...catalog.ladder, steps } };
+  }
+
+  it("the normal editor (no catalog prop) lists the four production star presets", async () => {
+    const user = userEvent.setup();
+    render(<StateEditor storage={createMemoryStorage()} now={NOW} />);
+    await openTab(user, "プリセット");
+    expect(starIds()).toEqual(["stars-119", "stars-120", "stars-129", "stars-130"]);
+  });
+
+  it("a supplied catalog lists ITS star presets (stars-60), not the production ones", async () => {
+    const user = userEvent.setup();
+    render(<StateEditor storage={createMemoryStorage()} catalog={gatedCatalog()} now={NOW} />);
+    await openTab(user, "プリセット");
+    expect(starIds()).toEqual(["stars-59", "stars-60"]);
+    for (const id of ["stars-119", "stars-120", "stars-129", "stars-130"]) expect(presetIds()).not.toContain(id);
+    // and the listed preset really loads into the draft (no throw)
+    await user.click(document.querySelector('[data-preset-id="stars-60"]') as HTMLElement);
+    expect(screen.getByRole("status")).toHaveTextContent("まだ適用されていません");
   });
 });
