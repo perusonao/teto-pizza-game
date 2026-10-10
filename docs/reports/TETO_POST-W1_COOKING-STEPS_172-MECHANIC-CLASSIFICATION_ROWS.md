@@ -44,7 +44,7 @@
 | 42 | `argentine-napolitana-pizzadb-p1` | アルゼンチン風ナポリターナ |  | **SMALL_ENGINE** |  | DOUGH_VARIANT, NO_SAUCE |  |  |
 | 43 | `ikura-salmon-pizza-pizzadb-p1` | いくらとサーモンのピザ |  | **DATA_ONLY** |  | NO_SAUCE |  |  |
 | 44 | `vegan-cashew-cheese-pizza-pizzadb-p1` | ヴィーガンカシューチーズピザ | vegan-cashew-cheese-pizza | **CURRENT_ENGINE** |  |  |  |  |
-| 45 | `eel-pizza-pizzadb-p1` | うなぎピザ |  | **AUTHORITY_GAP** | AUTHORITY_GAP | LATE_ADDITION:unresolved:mid_bake|post_bake | unresolved:mid_bake|post_bake:eel |  |
+| 45 | `eel-pizza-pizzadb-p1` | うなぎピザ |  | **AUTHORITY_GAP** | AUTHORITY_GAP | LATE_ADDITION:unresolved:mid_bake\|post_bake | unresolved:mid_bake\|post_bake:eel |  |
 | 46 | `jerusalem-mixed-grill-pizza-pizzadb-p1` | エルサレムミックスグリルピザ |  | **AUTHORITY_GAP** | DATA_ONLY |  |  |  |
 | 47 | `old-forge-style-pizza-pizzadb-p1` | オールドフォージスタイルピザ |  | **MAJOR** |  | DOUGH_VARIANT, PAN_BAKE, DOUGH_SHAPE_TARGET |  |  |
 | 48 | `okonomiyaki-style-pizza-pizzadb-p1` | お好み焼き風ピザ |  | **MAJOR** |  | MULTI_SPREAD_LAYER |  |  |

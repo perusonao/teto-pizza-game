@@ -14,6 +14,7 @@ in §8 with options, and nothing is decided on the Owner's behalf.
 > | 172-row classes (CURRENT / DATA / SMALL / MAJOR / GAP) | 15 / 59 / 19 / 30 / 49 | **32 / 42 / 19 / 30 / 49** (regenerated; §3.2) |
 > | PR #275 (#256 CUT skip) | open, CS-1b blocker | **merged**; `bakeCompletionFailure` is on `main` |
 > | Undo (#270 / #449) | none | **merged** (#451); `UNDO_LAST_PLACEMENT` on `main` |
+> | TQ-1D (no-sauce production) | not shipped; gated every no-sauce recipe | **shipped** (Aussie live; further no-sauce recipes already on `main`). The 29 no-sauce DATA_ONLY rows are **data-only, not blocked** (no engine or technique gate) |
 > | `GameScreen` CUT sites | 6 | 6 (unchanged; CS-1a target) |
 > | Tab counts | 18 × 6, 7 × 5 | max 6 still holds; the per-count split is measured by the PR-B derived gate (FINISH-Pilot §2.2 measured 18 × 6 / 19 × 5 on `44879be`) |
 >
@@ -116,7 +117,7 @@ Exact per-recipe derivation (from `deriveCoreSteps` + the CUT allowlist on `86b4
 | Round dough stretch | ✅ | not scored | — | shipped |
 | One spread layer (tomato / pesto / olive oil) | ✅ one field pipeline | Sauce 52 | `sauceBase` OBSERVED | shipped |
 | No cheese / no topping | ✅ (`deriveCoreSteps`) | ✅ | ✅ | shipped |
-| **No sauce** | ✅ steps / completion / discovery | ✅ `NO_SAUCE` profile (TQ-1B) | `sauceBase` OBSERVED; technique `no-sauce` registered | **inert — production = TQ-1D** |
+| **No sauce** | ✅ steps / completion / discovery | ✅ `NO_SAUCE` profile (TQ-1B) | `sauceBase` OBSERVED; technique `no-sauce` registered | **live — TQ-1D shipped (Aussie); more no-sauce recipes are data-only** |
 | Single bake window | ✅ | Bake 20 | — | shipped |
 | CUT 4/6/8 slices | ✅ (all use 6) | separate `cutScore` | excluded | shipped |
 | No CUT | ✅ (allowlist) | — | — | shipped (new-haven) |
@@ -137,7 +138,7 @@ are read from `src` on `86b48fd` instead. The classifier is read-only and determ
 | Class | Rule |
 |---|---|
 | **CURRENT_ENGINE** | No required capability; sauce is tomato-sauce / olive-oil / pesto; every ingredient already in `src/data/ingredients.ts`; CUT by the existing allowlist rule. Needs only a recipe row + reference fixture. |
-| **DATA_ONLY** | No engine change: new ingredient ids, one new sauce id on the shared paint path, a no-sauce reference (engine + scoring exist; **production gated by TQ-1D**), or a CUT opt-out. |
+| **DATA_ONLY** | No engine change: new ingredient ids, one new sauce id on the shared paint path, a no-sauce reference (engine, scoring and the TQ-1D technique are shipped; **not gated**), or a CUT opt-out. |
 | **SMALL_ENGINE** | Reuses an existing phase / step / gesture and existing score components; adds a data field plus a guard: `DOUGH_VARIANT`, `STEP_ORDER`, `ZONED_PLACEMENT`, `LATE_ADDITION post_bake` (after the one-time finalization prerequisite). |
 | **MAJOR** | New gesture, new score component, new geometry, split bake or new phase type: `MULTI_SPREAD_LAYER`, `LATE_ADDITION mid_bake`, `PAN_BAKE`, `DOUGH_SHAPE_TARGET`, `ENCLOSE`, `PREP_STEP`, `LAMINATE`, `FRY_COOK`. |
 | **AUTHORITY_GAP** | Recipe data alone cannot decide: a `MECHANIC_INTERPRETATION` / `EVIDENCE_GAP` / `SCOPE_QUESTION` / `BASE_SAUCE_UNSPECIFIED` blocker, an unresolved sauce, or an unresolved late mode. |
@@ -156,7 +157,7 @@ technique (TQ-3). That is more than one data field plus a guard.
 | Class | Rows | Notes |
 |---|---:|---|
 | CURRENT_ENGINE | **32** (was 15 at `86b48fd`) | 29 are runtime recipes already (W1 and every later batch); 3 are not yet shipped: `supreme-pizzadb`, `pizza-baiana`, `pizza-chilena-pizzadb-p8` |
-| DATA_ONLY | **42** (was 59) | 29 of them only because of **no sauce** (→ TQ-1D); 16 are already runtime recipes; the rest are new ingredients / new sauces. The 17 rows that left this class moved to CURRENT_ENGINE because their ingredients shipped |
+| DATA_ONLY | **42** (was 59) | 29 of them only because of **no sauce** (data-only; TQ-1D already shipped); 16 are already runtime recipes; the rest are new ingredients / new sauces. The 17 rows that left this class moved to CURRENT_ENGINE because their ingredients shipped |
 | SMALL_ENGINE | **19** | 13 dough variant (incl. **piadina**), 4 late post-bake (**BBQ chicken**, wasabi-beef, nutella-dessert, black-truffle), 1 step order (Trenton), 1 zoned (quattro stagioni) |
 | MAJOR | **30** | 14 multi-spread, 8 pan, 5 shape (incl. **pide boat**), 4 enclose, mid-bake, prep, fry |
 | AUTHORITY_GAP | **49** | 33 unspecified sauce base, 11 mechanic interpretation (8 page-8 salad rows, taco, lahmacun, eel), 3 unresolved sauce, 2 scope, 2 evidence gap. Underlying class if resolved: CURRENT 3 · DATA 29 · SMALL 9 · MAJOR 7 · (still gap) 1 |
@@ -172,8 +173,8 @@ Full per-row table: `docs/reports/TETO_POST-W1_COOKING-STEPS_172-MECHANIC-CLASSI
 | **Multiple topping timing** | 12 + prep 3 | — | per-requirement `applicationPhase` | Every late row also has pre-bake items (OD-TQ-2 C5). Mixed post-bake scatter + spread: teriyaki (mayo + nori). Three timings in one recipe: lomo saltado (prep + mid-bake), detroit (pan + post-bake sauce). |
 | **Boat shape** | 1 (pide) | MAJOR (+ unresolved ingredients) | non-circle dough target, placement bounds, shape-aware CUT, thumbnails | Only boat row; blocked on 2 unresolved ingredients. |
 | **Pan / vessel** | 8 pan + fry 1 | MAJOR | pan bake curve, press-in-pan gesture, square geometry (4 of 8) | Round-pan rows without a shape change: montreal (deep), new-england-bar (shallow), greek (pan), chicago-deep-dish. Piadina's *testo* griddle is **not evidenced** (OD-CS-13). |
-| **Piadina** | 1 | SMALL (dough variant + no sauce) | dough variant; TQ-1D for no sauce | OD-TQ-2 C3: piadina = dough (材料) × no-sauce (technique). Real-world griddle cooking, post-cook filling and fold-to-serve are **not in the evidence**. |
-| **No-sauce family** | 44 | DATA 29 · SMALL 5 · MAJOR 1 · GAP 9 | nothing (TQ-1B) | Production is TQ-1D (Aussie first). Hint 5.0 keeps these targets on Hint 3/4 until OD-H5-P4. |
+| **Piadina** | 1 | SMALL (dough variant + no sauce) | dough variant; no sauce (TQ-1D shipped) | OD-TQ-2 C3: piadina = dough (材料) × no-sauce (technique). Real-world griddle cooking, post-cook filling and fold-to-serve are **not in the evidence**. |
+| **No-sauce family** | 44 | DATA 29 · SMALL 5 · MAJOR 1 · GAP 9 | nothing (TQ-1B, TQ-1D shipped) | Production is live (Aussie first, more on `main`). Hint 5.0 keeps these targets on Hint 3/4 until OD-H5-P4. |
 | **Bake-dependent step change** | late 12 + mid-bake 3 + fry 1 | — | post-bake step content; split bake | FINISH changes what follows BAKE; mid-bake changes BAKE itself. |
 | **CUT relation** | 7 no-CUT / unspecified; 5 shape-aware | — | allowlist exists; shape-aware CUT missing | REC-02 / OD-W2-4: no dough evidence → no CUT. |
 
@@ -298,12 +299,12 @@ catalog change) → D·S·C·T·焼く·仕上げ = 6 tabs with no CUT. The fixt
 | Post-bake seam (CS-1) | margherita, new-haven-apizza, marinara, quattro-formaggi, capricciosa | cover CUT / no-CUT / no-cheese / olive-oil / max pieces | 6/5/5/5/6 | runtime, byte-identical |
 | **Late addition (scatter)** | **BBQ チキン** `bbq-chicken-pizzadb` | Evidence counted REQUIRED (`catalog_design_tag`, cilantro); READY; scatter-only; one new single sauce (bbq-sauce) on the shared paint path; already named as TQ-2 content by the Techniques gate; dough evidence absent → no CUT (REC-02 / OD-W2-4) → **6 tabs** | 6 | 3 new ingredients; TQ-2 |
 | Late → CUT order | wasabi-beef `wasabi-beef-pizza` | strongest evidence (`source_profile_text`: 焼き上がり後に添える); thin dough → CUT | **7** | needs CS-4 |
-| Late + no sauce | black-truffle | 1 new ingredient; 5 tabs | 5 | **two techniques** in one recipe; composition conflict; after TQ-1D + TQ-2 |
+| Late + no sauce | black-truffle | 1 new ingredient; 5 tabs | 5 | **two techniques** in one recipe; composition conflict; after TQ-2 (TQ-1D shipped) |
 | ~~Prosciutto e rucola~~ | `rucola-e-grana-pizzadb-p13` | — | — | **Not a late representative:** FULL, no late evidence; OD-TQ-12 forbids promotion (supersedes the authority audit §11 default; OD-CS-10) |
 | Multi-spread | burrata-pizza `burrata-pizza-pizzadb-p10` | READY; tomato + olive oil (both runtime sauces); 1 new ingredient (burrata); neapolitan dough → CUT; 6 tabs if the oil layer stays inside the SAUCE step | 6 (7 if FINISH drizzle) | layer timing unevidenced (OD-CS-14). Runner-up: grandma (0 new ingredients, but real-world sheet-pan form unevidenced) |
-| No sauce | Aussie `aussie-pizzadb` | Techniques authority's own choice | 4 | **TQ-1D**, not Cooking Steps |
+| No sauce | Aussie `aussie-pizzadb` | Techniques authority's own choice | 4 | shipped in **TQ-1D** (live), not Cooking Steps |
 | Dough variant | pinsa-romana `pinsa-romana-pizzadb-p9` | READY; its only collision partner (jamon-serrano) differs by dough alone → tests the identity split | 6 | OD-CS-12 |
-| Piadina | piadina-romagnola | the only piadina row; dough × no-sauce junction (OD-TQ-2 C3) | 5 (D·C·T·焼く·CUT) | TQ-1D + CS-7 + OD-CS-13 |
+| Piadina | piadina-romagnola | the only piadina row; dough × no-sauce junction (OD-TQ-2 C3) | 5 (D·C·T·焼く·CUT) | CS-7 + OD-CS-13 (TQ-1D shipped) |
 | Step order | trenton-tomato-pie | 2 existing ingredients only; pure order change | 5 | READY_WITH_REVIEW |
 | Zoned | quattro-stagioni | only zoned row | 6 | 1 new ingredient (artichoke) |
 | Pan (round) | montreal-style | deep pan **without** a shape change; all 4 ingredients already runtime | 6 | isolates PAN from SHAPE |
@@ -415,7 +416,7 @@ leak Technique identity through a hint.
 **まだ実装してはいけない Phase:** CS-2 (needs CS-1 + OD-CS-2/3/11); CS-3 = TQ-2 (needs TQ-1D);
 CS-4 tabs (needs OD-CS-9 b); CS-5; CS-6 = TQ-3; CS-7 dough; CS-8 small variants (own audit);
 every MAJOR mechanic (pan, shape / boat, enclose, prep, mid-bake, fry, laminate); any
-no-sauce production recipe (TQ-1D).
+no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as data under the normal recipe gates.
 
 **Owner Decision 待ち:** OD-CS-1 … OD-CS-19 (§8); the gating ones for CS-1 are OD-CS-1, OD-CS-2
 and OD-CS-9 (a).
@@ -444,5 +445,5 @@ Issue candidate (Pre-start Gate §10) and is not fixed here.
 |---|---|
 | CS-0 | ✅ design + pre-start gate (docs) |
 | **CS-1a** | ✅ implemented, not merged — `docs/reports/TETO_POST-W1_COOKING-STEPS_CS-1A_Result.md` (tab gate `MAX_VISIBLE_COOKING_TABS`; `renderedPostBakeStep()` in `src/screens/postBakeView.ts`) |
-| CS-1b | ⏸ WAIT — PR #275 OPEN (Owner HV). Authority: OD-CS-2 = B |
+| CS-1b | ▶ not started — PR #275 **merged** (blocker cleared); waits on PR-A merge (this PR). Authority: OD-CS-2 = B |
 | CS-2 … | not started |

@@ -69,6 +69,16 @@ class ClassifyTests(unittest.TestCase):
         self.assertIn('"show", f"{SHA}:{path}"', src)
         self.assertNotRegex(src, r"open\(f?[\"'].*ROOT", "repo inputs must not be opened from the working tree")
 
+    def test_markdown_rows_have_constant_column_count_and_escape_pipes(self):
+        md = _read(COMMITTED_MD).splitlines()
+        counts = {len(re.split(r"(?<!\\)\|", l)) for l in md}
+        self.assertEqual(len(counts), 1, f"ragged table columns: {counts}")
+        self.assertIn("unresolved:mid_bake\\|post_bake", "\n".join(md), "eel row must carry an escaped pipe")
+
+    def test_no_stale_tq1d_gate_wording(self):
+        for path in (SCRIPT, COMMITTED_JSON, DESIGN):
+            self.assertNotRegex(_read(path), r"gated by TQ-1D|production = TQ-1D|PR #275 OPEN", path)
+
     def test_design_doc_numbers_match_generated_json(self):
         s = _load(COMMITTED_JSON)["summary"]
         doc = _read(DESIGN)

@@ -92,7 +92,7 @@ def classify(r):
             mode = key.split(":", 1)[1]
             k = "SMALL_ENGINE" if mode == "post_bake" else ("MAJOR" if mode == "mid_bake" else "AUTHORITY_GAP")
         elif key == "NO_SAUCE":
-            k = "DATA_ONLY"  # engine + TQ-1B scoring exist; production gated by TQ-1D (technique)
+            k = "DATA_ONLY"  # engine + TQ-1B scoring + TQ-1D technique shipped (aussie is live); more no-sauce recipes are data
         elif key == "NO_CUT_OR_CUT_UNSPECIFIED":
             k = "DATA_ONLY"  # CUT allowlist opt-out (REC-02: no dough evidence -> no CUT)
         else:
@@ -160,7 +160,7 @@ summary = {
 json.dump({"schemaNote": "Post-W1 Cooking Steps Next-Phase Design (docs-only). Derived, read-only view of the 172 mechanic matrix rows; the matrix JSON stays the evidence authority.",
            "classRules": {
                "CURRENT_ENGINE": "no required capability, sauce is one of tomato-sauce/olive-oil/pesto, every ingredient already in src/data/ingredients.ts, CUT per existing allowlist rule",
-               "DATA_ONLY": "no engine change: new ingredient ids, a new single sauce id on the shared paint path, a no-sauce reference (TQ-1B scoring exists; production gated by TQ-1D), or a CUT opt-out",
+               "DATA_ONLY": "no engine change: new ingredient ids, a new single sauce id on the shared paint path, a no-sauce reference (TQ-1B scoring and the TQ-1D `no-sauce` technique are shipped; aussie is live), or a CUT opt-out",
                "SMALL_ENGINE": "reuses an existing phase/step/gesture and existing score components; adds a data field plus a guard: DOUGH_VARIANT, STEP_ORDER, ZONED_PLACEMENT, LATE_ADDITION post_bake (after the one-time finalization prerequisite)",
                "MAJOR": "new gesture, new score component, new geometry, split bake or new phase type: MULTI_SPREAD_LAYER, LATE_ADDITION mid_bake, PAN_BAKE, DOUGH_SHAPE_TARGET, ENCLOSE, PREP_STEP, LAMINATE, FRY_COOK",
                "AUTHORITY_GAP": "the row cannot be classified from recipe data alone: MECHANIC_INTERPRETATION / EVIDENCE_GAP / SCOPE_QUESTION / BASE_SAUCE_UNSPECIFIED blocker, unresolved sauce, or an unresolved late-addition mode",
@@ -169,9 +169,17 @@ json.dump({"schemaNote": "Post-W1 Cooking Steps Next-Phase Design (docs-only). D
            "summary": summary, "rows": out}, open(OUT_JSON, "w"), ensure_ascii=False, indent=1)
 
 # markdown table
+def cell(v):
+    """Escape characters that would break a GitHub-flavored Markdown table cell (pipes; newlines)."""
+    return str(v).replace("\\", "\\\\").replace("|", "\\|").replace("\n", " ")
+
+
 lines = ["| # | evidenceId | 名前 | runtime | class | (if resolved) | mechanic keys | late | candidate-only |", "|---|---|---|---|---|---|---|---|---|"]
 for i, o in enumerate(out, 1):
     late = "; ".join(f"{l['mode']}:{','.join(l['ingredients']) or '—'}" for l in o["lateAdditions"]) or ""
-    lines.append(f"| {i} | `{o['evidenceId']}` | {o['nameJa']} | {o['runtimeRecipeId'] or ''} | **{o['class']}** | {o['mechanicClassIfAuthorityResolved'] if o['class']=='AUTHORITY_GAP' else ''} | {', '.join(o['mechanicKeys'])} | {late} | {', '.join(o['candidateOnlyCapabilities'])} |")
+    cells = [str(i), f"`{cell(o['evidenceId'])}`", cell(o['nameJa']), cell(o['runtimeRecipeId'] or ''), f"**{o['class']}**",
+             cell(o['mechanicClassIfAuthorityResolved'] if o['class'] == 'AUTHORITY_GAP' else ''),
+             cell(', '.join(o['mechanicKeys'])), cell(late), cell(', '.join(o['candidateOnlyCapabilities']))]
+    lines.append("| " + " | ".join(cells) + " |")
 open(OUT_MD, "w").write("\n".join(lines) + "\n")
 print(json.dumps(summary, ensure_ascii=False, indent=1))
