@@ -38,6 +38,7 @@ describe("DEV State Editor access (source)", () => {
       "memoryStorage.ts",
       "presets.ts",
       "saveMerge.ts",
+      "starStates.ts",
       "stateModel.ts",
     ]);
   });

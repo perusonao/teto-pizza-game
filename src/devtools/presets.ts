@@ -1,5 +1,6 @@
 import type { DexEntry } from "../state/dex";
 import { finiteIngredientIds, onboardingRecipeId, productionCatalog, type EditorCatalog } from "./editorCatalog";
+import { buildableStarTargets, buildStarState, type StarTarget } from "./starStates";
 import { freshEditableState, normalizeEditableState, type EditableState } from "./stateModel";
 
 /**
@@ -30,8 +31,12 @@ export type PresetId =
   | "all-recipes"
   | "everything-unlocked";
 
-export interface PresetDefinition {
-  id: PresetId;
+/** Issue #441: a star-state preset, `stars-<accumulated stars>`. Which ones exist is derived from the ladder's `starGates`. */
+export type StarPresetId = `stars-${number}`;
+export type AnyPresetId = PresetId | StarPresetId;
+
+export interface PresetDefinition<Id extends AnyPresetId = PresetId> {
+  id: Id;
   labelJa: string;
   descriptionJa: string;
 }
@@ -47,6 +52,45 @@ export const PRESETS: readonly PresetDefinition[] = [
   { id: "all-recipes", labelJa: "All Recipes", descriptionJa: "全ピザ発見済み" },
   { id: "everything-unlocked", labelJa: "Everything Unlocked", descriptionJa: "全材料 OWNED + 全ピザ発見済み + 全 Technique" },
 ];
+
+/**
+ * The description of a star target, said about the FINAL state the preset builds: the gates it kept, each by its
+ * threshold. A kept `at` gate is unlocked and a kept `below` gate is locked in that state (the game's own rule: its step
+ * is reached, the stars alone decide), so those are the only claims made, scoped to their threshold (another threshold's
+ * material may be unlocked as well, and is not talked about). One count can stand for both roles (`g` is the "at" of one
+ * gate and the "below" of the gate at `g + 1`), and then both are said.
+ */
+export function starTargetDescription(t: StarTarget): string {
+  const hasAt = t.gates.some((g) => g.side === "at");
+  const below = t.gates.find((g) => g.side === "below");
+  const head = `累計⭐${t.stars}（`;
+  const reached = `ladder step ${t.step} 到達済み`;
+  if (!below) return `${head}${t.stars}⭐ちょうど。${reached}、${t.stars}⭐条件の⭐条件付き材料が Shop に解放される・未購入）`;
+  const next = below.gate.gate;
+  if (!hasAt) return `${head}${next}⭐の1つ手前。${reached}、${next}⭐条件の⭐条件付き材料はまだ解放されない）`;
+  // Both roles: the count meets one threshold and is one star short of the next.
+  return `${head}${t.stars}⭐条件の⭐条件付き材料は Shop に解放される・未購入、${next}⭐条件の材料はまだ解放されない。${reached}）`;
+}
+
+/**
+ * Issue #441: the star-state presets of a catalog's ladder: for each `starGates` threshold, "just below" and "at" it
+ * (production: 119 / 120 / 129 / 130). They are a separate list from PRESETS because which ones exist depends on the
+ * ladder: a catalog with no star gate has none (PRESETS stays the same fixed, catalog-independent list).
+ */
+export function starPresetsOf(catalog: EditorCatalog = productionCatalog()): PresetDefinition<StarPresetId>[] {
+  // Only the targets the ladder's own Dex can build: a listed preset never throws when it is picked.
+  return buildableStarTargets(catalog).map((t) => ({
+    id: `stars-${t.stars}` as StarPresetId,
+    labelJa: `⭐${t.stars}`,
+    descriptionJa: starTargetDescription(t),
+  }));
+}
+
+export const STAR_PRESETS: readonly PresetDefinition<StarPresetId>[] = starPresetsOf();
+
+function isStarPresetId(id: string): id is StarPresetId {
+  return /^stars-\d+$/.test(id);
+}
 
 function dexEntry(recipeId: string): DexEntry {
   return { recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 };
@@ -89,7 +133,8 @@ function stepContext(catalog: EditorCatalog, step: number): StepContext {
   };
 }
 
-export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCatalog()): EditableState {
+export function buildPreset(id: AnyPresetId, catalog: EditorCatalog = productionCatalog()): EditableState {
+  if (isStarPresetId(id)) return buildStarState(catalog, Number(id.slice("stars-".length)));
   // The authority's default save, with the catalog's own starters (for the production catalog they are the same).
   const starters = [...catalog.starterIds];
   const fresh: EditableState = { ...freshEditableState(), ownedIngredientIds: starters };
@@ -167,9 +212,10 @@ export function buildPreset(id: PresetId, catalog: EditorCatalog = productionCat
   }
 }
 
-/** `buildPreset` for an id that comes from outside (a URL, a list): an unknown id throws. */
+/** `buildPreset` for an id that comes from outside (a URL, a list): an unknown id throws. A star-state id is looked up
+ *  in the SUPPLIED catalog's own star presets (`starPresetsOf(catalog)`), never in the production list. */
 export function buildPresetById(id: string, catalog: EditorCatalog = productionCatalog()): EditableState {
-  const def = PRESETS.find((p) => p.id === id);
+  const def = PRESETS.find((p) => p.id === id) ?? starPresetsOf(catalog).find((p) => p.id === id);
   if (!def) throw new Error(`unknown preset ${id}`);
   return buildPreset(def.id, catalog);
 }
