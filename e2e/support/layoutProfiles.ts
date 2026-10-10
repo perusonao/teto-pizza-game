@@ -96,19 +96,65 @@ export async function readViewport(page: Page): Promise<AppliedProfile> {
   });
 }
 
+/**
+ * Issue #394 diagnostics: an in-memory, ordered trail of what the fixture was doing (checkpoint labels,
+ * ProfileDriver stages, `waitForLayoutQuiet` read numbers) and of the page / context / browser lifecycle events.
+ * A "Target page, context or browser has been closed" failure used to leave nothing to tell a page crash from a
+ * teardown (WebKit has no trace, and a closed page cannot be screenshotted). Normal operation only pushes to an
+ * array: no await, no page call, no timer. The last entries are written to stderr only when a lifecycle event
+ * fires (`LayoutContract` detaches the listeners before the test's own teardown, so a normal close is silent).
+ */
+export interface TrailEntry {
+  seq: number;
+  tMs: number;
+  kind: string;
+  detail: string;
+}
+
+export class Trail {
+  static readonly CAP = 500;
+  static readonly STDERR_TAIL = 30;
+  readonly entries: TrailEntry[] = [];
+  /** Lifecycle events (crash / close / disconnected) seen while the listeners were attached. */
+  readonly lifecycle: string[] = [];
+  private seq = 0;
+  private readonly t0 = performance.now();
+
+  constructor(private readonly label = "") {}
+
+  mark(kind: string, detail = ""): void {
+    this.entries.push({ seq: (this.seq += 1), tMs: Math.round(performance.now() - this.t0), kind, detail });
+    if (this.entries.length > Trail.CAP) this.entries.shift();
+  }
+
+  /** Records an abnormal lifecycle event; the first one also writes the recent trail to stderr. */
+  lifecycleEvent(event: string): void {
+    this.mark("lifecycle", event);
+    this.lifecycle.push(event);
+    const head = `[lc-trail] ${this.label} LIFECYCLE ${event}`;
+    if (this.lifecycle.length > 1) {
+      process.stderr.write(`${head}\n`);
+      return;
+    }
+    const tail = this.entries.slice(-Trail.STDERR_TAIL).map((e) => `[lc-trail]   #${e.seq} +${e.tMs}ms ${e.kind} ${e.detail}`.trimEnd());
+    process.stderr.write([head, ...tail].join("\n") + "\n");
+  }
+}
+
 /** One per test. Chromium gets a CDP session for the safe-area override; WebKit gets none. */
 export class ProfileDriver {
   private constructor(
     private readonly page: Page,
     readonly engine: Engine,
     private readonly cdp: CDPSession | null,
+    private readonly trail: Trail,
   ) {}
 
-  static async create(page: Page, browserName: string): Promise<ProfileDriver> {
+  static async create(page: Page, browserName: string, trail: Trail = new Trail()): Promise<ProfileDriver> {
     if (browserName === "chromium") {
-      return new ProfileDriver(page, "chromium", await page.context().newCDPSession(page));
+      return new ProfileDriver(page, "chromium", await page.context().newCDPSession(page), trail);
     }
-    if (browserName === "webkit") return new ProfileDriver(page, "webkit", null);
+    if (browserName === "webkit") return new ProfileDriver(page, "webkit", null, trail);
     throw new Error(`Layout Contract: unsupported engine ${browserName}`);
   }
 
@@ -147,14 +193,17 @@ export class ProfileDriver {
           })
           .join("|"),
       );
+    this.trail.mark("quiet", "read#0");
     let prev = await read();
     let same = 0;
     for (let i = 0; i < 60 && same < 3; i += 1) {
       await this.page.waitForTimeout(50);
+      this.trail.mark("quiet", `read#${i + 1}`);
       const now = await read();
       same = now === prev ? same + 1 : 0;
       prev = now;
     }
+    this.trail.mark("quiet", `done same=${same}`);
   }
 
   /** Resize, set/clear the inset, let layout settle, then verify what actually applied. Uses a
@@ -163,14 +212,21 @@ export class ProfileDriver {
     if (profile.inset && this.engine !== "chromium") {
       throw new Error(`Layout Contract: ${profile.id} needs the CDP inset override (Chromium only)`);
     }
+    this.trail.mark("apply", `${profile.id} setViewport`);
     await this.page.setViewportSize({ width: profile.width, height: profile.height });
+    this.trail.mark("apply", `${profile.id} safeArea`);
     await this.setSafeArea(profile.inset);
     // A headless WebKit page can drop the viewport notification of the first resize after a load (it is only delivered with
     // the next viewport change): deliver it once, so every listener re-reads the viewport that is actually applied.
+    this.trail.mark("apply", `${profile.id} resizeEvent`);
     await this.page.evaluate(() => window.dispatchEvent(new Event("resize")));
+    this.trail.mark("apply", `${profile.id} wait120`);
     await this.page.waitForTimeout(120);
+    this.trail.mark("apply", `${profile.id} pumpFrames`);
     await this.pumpFrames();
+    this.trail.mark("apply", `${profile.id} quiet`);
     await this.waitForLayoutQuiet();
+    this.trail.mark("apply", `${profile.id} readViewport`);
     const applied = await readViewport(this.page);
     const want = profile.inset ?? { top: 0, bottom: 0 };
     const problems: string[] = [];
@@ -181,6 +237,7 @@ export class ProfileDriver {
     if (problems.length) {
       throw new Error(`Layout Contract self-check failed @${profile.id} (${this.engine}): ${problems.join("; ")}`);
     }
+    this.trail.mark("apply", `${profile.id} done`);
     return applied;
   }
 }
