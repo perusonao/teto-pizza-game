@@ -9,7 +9,7 @@ import { clearHints, diffEditable, hintCounts, ingredientName, lastAcquiredFinit
 import { IngredientsPanel } from "./IngredientsPanel";
 import { DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "./marks";
 import { NumberField } from "./NumberField";
-import { type AnyPresetId, buildPreset, PRESETS, STAR_PRESETS } from "./presets";
+import { type AnyPresetId, buildPreset, PRESETS, starPresetsOf } from "./presets";
 import { ReviewPanel } from "./ReviewPanel";
 import { freshEditableState, normalizeEditableState, type EditableState } from "./stateModel";
 import "./stateEditorShell.css";
@@ -82,6 +82,9 @@ export function StateEditor({ storage, catalog: catalogProp, now }: StateEditorP
   const [tab, setTab] = useState<TabId>("status");
   const [notice, setNotice] = useState<string>("");
   const mode = import.meta.env.DEV ? "DEV" : "PREVIEW";
+
+  // The star-state presets belong to the catalog's own ladder (`starGates`), so the list follows the supplied catalog.
+  const starPresets = useMemo(() => starPresetsOf(catalog), [catalog]);
 
   const effective = useMemo(() => normalizeEditableState(draft, catalog), [draft, catalog]);
   const diff = useMemo(() => diffEditable(base, effective, catalog), [base, effective, catalog]);
@@ -185,7 +188,7 @@ export function StateEditor({ storage, catalog: catalogProp, now }: StateEditorP
             <h2 className="dse__h2">プリセット</h2>
             <p className="dse-note">選ぶと下書きが置き換わります（保存はされません）。</p>
             <ul className="dse-list">
-              {[...PRESETS, ...STAR_PRESETS].map((p) => (
+              {[...PRESETS, ...starPresets].map((p) => (
                 <li key={p.id}>
                   <button type="button" className="dse-btn dse-preset" data-preset-id={p.id} onClick={() => loadPreset(p.id, p.labelJa)}>
                     <b>{p.labelJa}</b>
