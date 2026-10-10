@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { BAKE_SPEED_PCT_PER_S } from "./logic/bakeProgress";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -137,8 +138,8 @@ describe("free-cook tray paging never leaves a hidden selection active (PR #197 
     vi.stubGlobal("cancelAnimationFrame", () => {});
     vi.stubGlobal("performance", { now: () => now });
     await user.click(screen.getByRole("button", { name: /焼く/ }));
-    // #419: one-way needle at 10 pt/s; a frame adds at most 0.1s, so advance in small frames.
-    for (let i = 0; i < 140; i += 1) {
+    // #419: one-way needle (BAKE_SPEED_PCT_PER_S); a frame adds at most 0.1s, so advance in small frames.
+    for (let i = 0; i < Math.ceil(((70 / BAKE_SPEED_PCT_PER_S) * 1000) / 50); i += 1) {
       now += 50;
       const cb = raf as FrameRequestCallback | null;
       raf = null;

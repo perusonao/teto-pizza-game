@@ -1,9 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
+import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
 import { completeDoughStep, enterBakePaused, paintSauceRing, startFreshMargherita, tapDoughPercent } from "./gestures";
 
 /**
- * Issue #419 (Bake Human Feel): BAKE is one-way. The needle runs 0 -> 100 in 10s and stops at the
- * right end; the target zone is shown for 3s, fades over 3-5s and is gone from 5s on; the track and
+ * Issue #419 (Bake Human Feel): BAKE is one-way. The needle runs 0 -> 100 in BAKE_DURATION_S (7s) and stops at
+ * the right end; the target zone is shown for 2s, fades over 2-3.5s and is gone from 3.5s on; the track and
  * the needle stay; nothing else (needle colour, caption, CTA glow) points at the correct position.
  * Runs on both authority viewports (390x844 and 360x800 projects). The virtual clock is used so
  * every sample is deterministic.
@@ -67,7 +68,7 @@ test.describe("Issue #419 Bake Human Feel", () => {
     let previous = await snapshot(page);
     expect(previous.left).toBeLessThan(5);
     for (let i = 0; i < 70; i += 1) {
-      await page.clock.runFor(250); // ~17.5s total, well past the 10s end
+      await page.clock.runFor(250); // ~17.5s total, well past the 7s end
       const current = await snapshot(page);
       expect(current.left, `step ${i}`).toBeGreaterThanOrEqual(previous.left);
       expect(current.char, `char step ${i}`).toBeGreaterThanOrEqual(previous.char - 1e-6);
@@ -77,22 +78,23 @@ test.describe("Issue #419 Bake Human Feel", () => {
     await page.clock.resume();
   });
 
-  test("the target zone is shown to 3s, fades 3-5s, is gone from 5s; track and needle stay", async ({ page }) => {
+  test("the target zone is shown to 2s, fades 2-3.5s, is gone from 3.5s; track and needle stay", async ({ page }) => {
     await reachBake(page);
     const start = await snapshot(page);
     expect(start.zones).toBe(1);
 
-    // Align to ~2.9s of BAKE time using the needle itself (10 pt/s).
-    await page.clock.runFor(Math.max(0, 2900 - start.left * 100));
+    // Align to ~1.9s of BAKE time using the needle itself (elapsed = position / speed).
+    const elapsedMs = (start.left / BAKE_SPEED_PCT_PER_S) * 1000;
+    await page.clock.runFor(Math.max(0, 1900 - elapsedMs));
     expect((await snapshot(page)).zones).toBe(1);
 
-    await page.clock.runFor(1100); // ~4.0s
+    await page.clock.runFor(850); // ~2.75s, mid-fade
     const mid = (await snapshot(page)).zones;
     expect(mid).not.toBeNull();
     expect(mid!).toBeGreaterThan(0.2);
     expect(mid!).toBeLessThan(0.8);
 
-    await page.clock.runFor(1300); // ~5.3s
+    await page.clock.runFor(950); // ~3.7s
     const gone = await snapshot(page);
     expect(gone.zones).toBeNull();
     expect(gone.hasTrack).toBe(true);

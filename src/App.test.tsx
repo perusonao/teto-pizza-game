@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BAKE_SPEED_PCT_PER_S } from "./logic/bakeProgress";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
@@ -132,9 +133,9 @@ function controlBakeNeedle() {
       vi.stubGlobal("performance", { now: () => now });
     },
     driveTo(targetPosition: number) {
-      // #419: the needle is one-way (BAKE_SPEED_PCT_PER_S = 10) and one frame adds at most
+      // #419: the needle is one-way (BAKE_SPEED_PCT_PER_S) and one frame adds at most
       // BAKE_MAX_FRAME_DT_S, so the target is reached by many small frames, not one big jump.
-      const BAKE_NEEDLE_SPEED = 10; // percent per second
+      const BAKE_NEEDLE_SPEED = BAKE_SPEED_PCT_PER_S;
       const FRAME_MS = 50;
       let remainingMs = (targetPosition / BAKE_NEEDLE_SPEED) * 1000;
       while (remainingMs > 1e-6) {

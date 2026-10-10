@@ -58,7 +58,7 @@ const PORTUGUESA_BAKE = { start: 58, end: 78 };
 const NEW_HAVEN_BAKE = { start: 62, end: 82 };
 const BISMARCK_BAKE = { start: 55, end: 75 };
 // GUIDE_FADE_END_S (src/logic/bakeGuideFade.ts) = 7.2 s, plus a margin.
-const AFTER_GUIDE_FADE_MS = 5_200; // #419: the target zone is gone from 5s; the one-way needle is then at ~52
+const AFTER_GUIDE_FADE_MS = 3_700; // #419: the target zone is gone from 3.5s; the one-way needle is then at ~53
 
 /** Every material owned (99 each); `discovered` recipes in the Dex. */
 function makeSave(discovered: readonly string[]) {

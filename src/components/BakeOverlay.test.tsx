@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { BakeOverlay } from "./BakeOverlay";
+import { BAKE_DURATION_S, BAKE_MAX_FRAME_DT_S, BAKE_SPEED_PCT_PER_S } from "../logic/bakeProgress";
 
 /**
  * Issue #419: BakeOverlay drives its one-way needle position *and* its target-zone fade from
@@ -57,7 +58,7 @@ afterEach(() => {
 });
 
 describe("BakeOverlay one-way needle", () => {
-  it("moves 0 -> 100 in 10s, stops at the right end and never returns", () => {
+  it("moves 0 -> 100 in BAKE_DURATION_S (7s), stops at the right end and never returns", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     expect(needleLeft()).toBe(0);
 
@@ -71,11 +72,11 @@ describe("BakeOverlay one-way needle", () => {
     expect(previous).toBe(100);
   });
 
-  it("is at ~50% after 5s and at 100% after 10s", () => {
+  it("is at ~50% at half the duration (3.5s) and at 100% after 7s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(5);
+    advanceSeconds(BAKE_DURATION_S / 2);
     expect(needleLeft()).toBeCloseTo(50, 0);
-    advanceSeconds(5);
+    advanceSeconds(BAKE_DURATION_S / 2);
     expect(needleLeft()).toBeCloseTo(100, 5);
     advanceSeconds(1);
     expect(needleLeft()).toBe(100);
@@ -92,25 +93,25 @@ describe("BakeOverlay one-way needle", () => {
   });
 });
 
-describe("BakeOverlay target-zone visibility (OD-419)", () => {
-  it("shows the zone at full opacity for the first 3s", () => {
+describe("BakeOverlay target-zone visibility (0-2s shown, 2-3.5s fade, 3.5s+ gone)", () => {
+  it("shows the zone at full opacity for the first 2s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     expect(zonesOpacity()).toBe(1);
-    advanceSeconds(3);
+    advanceSeconds(2);
     expect(zonesOpacity()).toBeCloseTo(1, 1);
   });
 
-  it("fades the zone between 3s and 5s", () => {
+  it("fades the zone between 2s and 3.5s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(4);
+    advanceSeconds(2.75);
     const mid = zonesOpacity();
     expect(mid).toBeGreaterThan(0.3);
     expect(mid).toBeLessThan(0.7);
   });
 
-  it("removes the zone from 5s on and never brings it back, while track and needle stay", () => {
+  it("removes the zone from 3.5s on and never brings it back, while track and needle stay", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(5.2);
+    advanceSeconds(3.7);
     expect(zonesOpacity()).toBeNull();
     advanceSeconds(10);
     expect(zonesOpacity()).toBeNull();
@@ -120,12 +121,12 @@ describe("BakeOverlay target-zone visibility (OD-419)", () => {
 
   it("uses the same fade for every target window (not recipe dependent)", () => {
     const { unmount } = render(<BakeOverlay targetStart={45} targetEnd={65} onConfirm={vi.fn()} />);
-    advanceSeconds(4);
+    advanceSeconds(2.75);
     const a = zonesOpacity();
     unmount();
     now = 0;
     render(<BakeOverlay targetStart={65} targetEnd={85} onConfirm={vi.fn()} />);
-    advanceSeconds(4);
+    advanceSeconds(2.75);
     expect(zonesOpacity()).toBeCloseTo(a as number, 5);
   });
 });
@@ -209,7 +210,7 @@ describe("BakeOverlay background / blur safety", () => {
   it("caps a single huge frame (no jump to 100%)", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     tick(60_000);
-    expect(needleLeft()).toBeLessThanOrEqual(1.01);
+    expect(needleLeft()).toBeLessThanOrEqual(BAKE_MAX_FRAME_DT_S * BAKE_SPEED_PCT_PER_S + 0.01);
   });
 });
 
@@ -220,7 +221,7 @@ describe("BakeOverlay confirm/finish action", () => {
     screen.getByRole("button", { name: "取り出す！" }).click(); // immediately: not locked
     expect(onConfirm).toHaveBeenCalledWith(0);
 
-    advanceSeconds(6);
+    advanceSeconds(4.2); // 60% of 7s
     screen.getByRole("button", { name: "取り出す！" }).click();
     expect(onConfirm.mock.calls[1][0]).toBeCloseTo(60, 0);
 

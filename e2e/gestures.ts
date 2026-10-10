@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -14,7 +15,8 @@ import { expect, type Page } from "@playwright/test";
 /** `BakeOverlay`'s own needle speed (`src/components/BakeOverlay.tsx`'s `SPEED` constant,
  *  percent per second) -- the one real-time fact `bakeToTarget` below needs to convert a target
  *  needle position into a virtual-clock duration. */
-const BAKE_NEEDLE_SPEED_PCT_PER_S = 10;
+// One source of truth with BakeOverlay (src/logic/bakeProgress.ts): a retuned bake duration needs no e2e edit.
+const BAKE_NEEDLE_SPEED_PCT_PER_S = BAKE_SPEED_PCT_PER_S;
 
 /**
  * Pizza Cutting 1.0 Phase 4B: clicks 焼く, drives `BakeOverlay`'s needle to the exact center of
@@ -92,7 +94,7 @@ export async function enterBakePaused(page: Page) {
 
 /** Needle landing accepts a stop within `target`, widened to at least this many points either
  *  side of its center -- single-point targets (e.g. `{ start: 2, end: 2 }`) can only be hit to
- *  within one animation frame (~0.17 pt at BakeOverlay's 10 pt/s). */
+ *  within one animation frame (~0.24 pt at BakeOverlay's ~14.3 pt/s). */
 const NEEDLE_LANDING_MIN_TOLERANCE_PT = 1.5;
 /** Upper bound for the measure -> run -> verify landing loop below. */
 const NEEDLE_LANDING_MAX_ATTEMPTS = 5;
