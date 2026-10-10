@@ -33,7 +33,7 @@
 - **Round 7 (2026-10-10, after the Hint 5.0 audit of the key-free ladder):** the key-free ladder becomes
   `BASE → STRUCTURE → SUB_CLASS…` (OD-H5-BASE-1..7, α / β sub-order decisions, the #436 tag scope). The
   authority is `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`; §5.4, §9.5 and §13 here point to it.
-  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
+  **OD-H5-BASE-3's explicit-supersede wording is confirmed by the Owner (Option A, conditional: only the inference from the purchased BASE content; the other conditions stay).** **OD-H5-BASE-3b (the board display of a free `ALREADY_KNOWN` BASE completion) is open; the default is no BASE lines.** **Docs only: no code changed yet.** The shipped behaviour (§5.1 / §5.3 for key-free) stays until PR-E.
 - **Still open:** OD-H5-P4-SAUCE (TQ-1D), and the production activation itself (flag ON).
 - H5-0 itself changed no production code.
 
@@ -596,7 +596,7 @@ So a rollback loses no data.
 The seven-line summary; the authority and the verification are in `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md` §4.
 
 - **M-1** BASE is completed iff every applicable marker (`h5:sauce` if the recipe has a sauce, `h5:cheese` if it has a cheese) is stored. **M-2** open iff none is stored.
-- **M-3** A legacy partial (sauce marker only, on a recipe with both) is completed by a purchase request for **0 Pitz**, even below 10 Pitz, appending the missing names and markers. **M-4** outcome `ANSWERED_CREDITED`. **M-5** no refund. **M-6** `h5:structure` / `cls:` are untouched. **M-7** a free ALREADY_KNOWN marker is indistinguishable from a paid one, so it is credited too (player-favouring, at most 10 Pitz). **M-8** totals match a fresh player's, except the M-7 case (a free marker is credited, total 0).
+- **M-3** A legacy partial (sauce marker only, on a recipe with both) is completed by a purchase request for **0 Pitz**, even below 10 Pitz, appending the missing names and markers. **M-4** outcome `ANSWERED_CREDITED`, only when a subject name is still unknown (all-known is `ALREADY_KNOWN`, which takes precedence). **M-5** no refund. **M-6** `h5:structure` / `cls:` are untouched. **M-7** a free ALREADY_KNOWN marker is indistinguishable from a paid one, so it is credited too (player-favouring, at most 10 Pitz). **M-8** totals match a fresh player's, except the M-7 case (a free marker is credited, total 0).
 - The credit applies **only inside a request**. Loading a save never changes Pitz or facts. No key is added or renamed, and no schema bump.
 - Rollback: a BASE purchase writes exactly the facts the old two rungs wrote, so the pre-BASE build continues the ladder without a recharge.
 - E3 still holds: nothing is deleted, rewritten or converted.
