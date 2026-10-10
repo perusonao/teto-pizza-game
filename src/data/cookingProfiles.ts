@@ -209,3 +209,19 @@ export function preBakeSteps(profile: CookingProfile): readonly MakingStep[] {
 export function postBakeSteps(profile: CookingProfile): readonly MakingStep[] {
   return profile.steps.filter((step) => isPostBakeStep(step));
 }
+
+/**
+ * Cooking Steps 2.0 CS-1a (Owner Decision OD-CS-9 (a), see
+ * docs/design/TETO_POST-W1_COOKING-STEPS_NEXT-PHASE_DESIGN.md §13): the Production ceiling on the
+ * making-step strip. I5b-4 measured 6 tabs as the most that fit at 360px (7 tight, 8 impossible).
+ * `cookingProfiles.tabGate.test.ts` pins every Production profile to it. The Owner rule: when a
+ * recipe needs 7+ tabs, this is never raised to make a test pass -- the tab-strip redesign (CS-4)
+ * comes first.
+ */
+export const MAX_VISIBLE_COOKING_TABS = 6;
+
+/** The number of tabs `MakingStepTabs` renders for `profile`: one per PREPARE step, the fixed
+ *  「焼く」 tab, then one per POST_BAKE step (../components/MakingStepTabs.tsx). */
+export function visibleCookingTabCount(profile: CookingProfile): number {
+  return preBakeSteps(profile).length + 1 + postBakeSteps(profile).length;
+}
