@@ -3,7 +3,7 @@
 Path: `docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`
 
 - **Parent:** #292 (Hint 5.0). Related: #360 (closed, OD-360-1..6), #436 (tags, open).
-- **Status:** Owner Decisions APPROVED 2026-10-10. **This document is the authority. It changes no code.**
+- **Status:** Owner Decisions APPROVED 2026-10-10, **with one exception: the explicit-supersede wording of OD-H5-BASE-3 (§1, §8) is PENDING Owner confirmation.** Until the Owner confirms it, OD-H5-BASE-3 and everything that depends on it (the BASE rung itself: PR-D and PR-E) are **not** authority to implement; the other decisions are. When the Owner confirms, this note and the pending marks in the BASE-3 row, in the H5-0 Round 7 line and in the Contract 2.1 sync note are removed in a commit on PR-A before it merges. **This document changes no code.**
   Implementation follows in separate PRs (§9). Until PR-E merges, the shipped behaviour is unchanged.
 - **Audited `main`:** `e0397aef5af3a665438f7e505b0af10811e506a4` (55 recipes, 47 toppings, 25 keyed + 30 key-free).
 - **Why:** the Hint 5.0 audit of 2026-10-10 found that the key-free ladder omits the SAUCE / CHEESE rung
