@@ -30,4 +30,9 @@ Decisions: Issue #419 comments "READ-ONLY 再監査 + Owner 判断依頼" (D-0..
 
 ## Verification
 
-See the PR description for the final test/CI numbers, the 390×844 and 360×800 screenshots under `docs/reports/screenshots/bake-human-feel-419/`, and the HV video (delivered directly to the Owner, not committed).
+- Unit: full vitest suite green after updating the rAF needle drivers (see PR for the final run); typecheck / oxlint clean on the touched files.
+- e2e (local, Chromium 390×844 + layout-chromium, the 44 bake-touching specs): all pass; the multi-round `original-result-duplicate-notice.spec.ts` got a 120s budget because a bake is now a 10s run (it timed out at 30s on WebKit CI and locally). New `e2e/bake-one-way.spec.ts` passes on 390×844 and 360×800.
+- Screenshots (before = main `8cb5d72`, after = this branch) at 390×844 and 360×800, taken 1s / 4s / 6.5s into BAKE and at RESULT: `docs/reports/screenshots/bake-human-feel-419/{before,after}/`.
+- Human Verification video (390×844, delivered directly to the Owner, not committed): `issue-419-bake-human-feel-390x844.mp4`, H.264, 390×844, ~45.8s, ~0.8MB. Round 1 shows the full 10s bake (zone visible, fading at 3–5s, gone, needle only moving right, pizza browning), a take-out at ~7s, CUT and RESULT; round 2 lets the needle run to the right end, sit there while the pizza is burnt, then take out.
+
+Video Verification: PASS
