@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
 import { countsTowardLadder } from "../data/recipes";
 import { reachedStepNumber } from "../logic/discoveryLadder";
+import { onboardingRecipeId } from "./editorCatalog";
 import { starsFromTotal } from "../logic/scoring";
 import { totalStars } from "../logic/mastery";
 import { creditedDiscoveredCount, resolveShopEntitlement } from "../state/materialEntitlement";
@@ -10,7 +11,7 @@ import { applyEditableState, inspectStoredSave } from "./apply";
 import { productionCatalog, type EditorCatalog } from "./editorCatalog";
 import { createMemoryStorage } from "./memoryStorage";
 import { buildPreset, buildPresetById, PRESETS, STAR_PRESETS, starPresetsOf } from "./presets";
-import { distributeStars, SCORE_FOR_STARS, STAR_MAX, STAR_MIN, starGatesOf, starTargetsOf, buildStarState } from "./starStates";
+import { buildableStarTargets, buildStarState, distributeStars, planStarState, SCORE_FOR_STARS, STAR_MAX, STAR_MIN, starGatesOf, starTargetsOf, STAR_PRESET_PITZ, STAR_PRESET_STOCK } from "./starStates";
 import { canonicalSaveObject, editableFromSave, hasErrors, normalizeEditableState, roundTripIssues, validateEditableState } from "./stateModel";
 
 const catalog = productionCatalog();
@@ -226,5 +227,185 @@ describe("star presets scale: a synthetic catalog with its own gates", () => {
     const c = { ...gated(), ladder: { populationId: "none", steps: gated().ladder.steps.map(({ starGates: _g, ...s }) => s) } };
     expect(starPresetsOf(c)).toEqual([]);
     expect(() => buildStarState(c, 120)).toThrow(/no star-gate target/);
+  });
+});
+
+
+/** A synthetic catalog: 60 ladder steps (step i unlocks `f-(i-1)`, its key recipe is `r-i`), with the given gates ({step: threshold}). */
+function ladderCatalog(gates: Record<number, number>, notCredited: readonly string[] = []): EditorCatalog {
+  const finite = Array.from({ length: 60 }, (_, i) => `f-${i}`);
+  const ingredients = [{ id: "s-0" }, ...finite.map((id) => ({ id, unlockCondition: { kind: "x" } }))];
+  const recipes = Array.from({ length: 61 }, (_, k) => ({ id: `r-${k}`, requiredIngredients: [{ ingredientId: "s-0" }, ...(k === 0 ? [] : [{ ingredientId: finite[k - 1] }])] }));
+  const steps = finite.map((id, i) => ({ step: i + 1, kind: "MATERIAL" as const, ingredientIds: [id], keyRecipeId: `r-${i + 1}`, ...(gates[i + 1] !== undefined ? { starGates: { [id]: gates[i + 1] } } : {}) }));
+  return {
+    recipes,
+    ingredients,
+    starterIds: ["s-0"],
+    ladder: { populationId: "synthetic-gates", steps },
+    techniqueIds: [],
+    countsTowardLadder: (id) => !notCredited.includes(id),
+    techniqueLedgerFor: () => [],
+    researchEntries: () => [],
+    researchLetter: (i) => String.fromCharCode(65 + i),
+  };
+}
+
+/** What the game would derive for a built state: the step it reaches and which gated materials are unlocked. */
+function derived(c: EditorCatalog, stars: number) {
+  const state = buildStarState(c, stars);
+  const credited = state.dex.filter((e) => c.countsTowardLadder(e.recipeId)).length;
+  const step = reachedStepNumber(c.ladder, credited);
+  const unlocked = new Set(state.unlockedForShopIngredientIds);
+  const entitlement = resolveShopEntitlement(state.dex, state.ownedIngredientIds, state.unlockedForShopIngredientIds, c.ladder, c.countsTowardLadder);
+  return { state, step, unlocked, entitlement, sum: state.dex.reduce((n, e) => n + e.bestStars, 0) };
+}
+
+describe("star targets keep EVERY gate they stand for (Codex P2, starStates.ts:63)", () => {
+  it("equal thresholds at different steps: one count stands for both and reaches the higher step", () => {
+    const c = ladderCatalog({ 50: 100, 55: 100 });
+    const targets = starTargetsOf(c.ladder);
+    expect(targets.map((t) => [t.stars, t.step, t.gates.map((g) => `${g.side}:${g.gate.ingredientId}`)])).toEqual([
+      [99, 55, ["below:f-49", "below:f-54"]],
+      [100, 55, ["at:f-49", "at:f-54"]],
+    ]);
+    const at = derived(c, 100);
+    expect(at.sum).toBe(100);
+    expect(at.step).toBeGreaterThanOrEqual(55);
+    expect(at.unlocked.has("f-49") && at.unlocked.has("f-54")).toBe(true); // both gates' materials, not just the first
+    const below = derived(c, 99);
+    expect(below.step).toBeGreaterThanOrEqual(55);
+    expect(below.unlocked.has("f-49") || below.unlocked.has("f-54")).toBe(false); // step reached, stars short: still locked
+  });
+
+  it("adjacent thresholds: the shared count reaches the later gate's step but never unlocks the gate it is short of", () => {
+    const c = ladderCatalog({ 50: 100, 55: 101 });
+    const t100 = starTargetsOf(c.ladder).find((t) => t.stars === 100)!;
+    expect(t100.gates.map((g) => g.side).sort()).toEqual(["at", "below"]);
+    expect(t100.step).toBe(55);
+    const r = derived(c, 100);
+    expect(r.step).toBeGreaterThanOrEqual(55);
+    expect(r.unlocked.has("f-49")).toBe(true); // 100 >= 100
+    expect(r.unlocked.has("f-54")).toBe(false); // 100 < 101: step 55 is reached, the stars are not
+    const next = derived(c, 101);
+    expect(next.unlocked.has("f-49") && next.unlocked.has("f-54")).toBe(true);
+    expect(derived(c, 99).unlocked.has("f-49")).toBe(false);
+  });
+
+  it("non-adjacent thresholds, in either step order, give independent targets", () => {
+    for (const gates of [{ 50: 100, 55: 200 }, { 50: 200, 55: 100 }]) {
+      const c = ladderCatalog(gates);
+      expect(starTargetsOf(c.ladder).map((t) => t.stars)).toEqual([99, 100, 199, 200]);
+      expect(buildableStarTargets(c).map((t) => t.stars)).toEqual([99, 100, 199, 200]);
+    }
+    const c = ladderCatalog({ 50: 100, 55: 200 });
+    expect(derived(c, 100).unlocked.has("f-54")).toBe(false);
+    expect(derived(c, 200).unlocked.has("f-54")).toBe(true);
+  });
+
+  it("the first and the last gate of a ladder", () => {
+    const c = ladderCatalog({ 3: 4, 60: 300 });
+    // first gate: 3 stars needs 3 recipes at step 3 -> 3 is under the Dex's own minimum (3 rows): buildable only from 3 up
+    expect(buildableStarTargets(c).map((t) => t.stars)).toEqual([3, 4, 299, 300].filter((n) => planStarState(c, n).ok));
+    expect(derived(c, 4).unlocked.has("f-2")).toBe(true);
+    expect(derived(c, 3).unlocked.has("f-2")).toBe(false);
+    // last gate: 300 over the 60 recipes of steps 1..59 + onboarding is within 5 each
+    expect(derived(c, 300).unlocked.has("f-59")).toBe(true);
+    expect(derived(c, 299).unlocked.has("f-59")).toBe(false);
+  });
+
+  it("an invariant over mixed ladders: a gated material is unlocked only when its step is reached AND its threshold is met", () => {
+    for (const gates of [{ 50: 100, 55: 100 }, { 50: 100, 55: 101 }, { 50: 101, 55: 100 }, { 52: 120, 53: 120, 58: 121 }] as Record<number, number>[]) {
+      const c = ladderCatalog(gates);
+      for (const t of buildableStarTargets(c)) {
+        const r = derived(c, t.stars);
+        for (const g of starGatesOf(c.ladder)) {
+          const unlocked = r.unlocked.has(g.ingredientId);
+          if (unlocked) expect(r.step >= g.step && t.stars >= g.gate, `${JSON.stringify(gates)} @${t.stars}: ${g.ingredientId} unlocked wrongly`).toBe(true);
+          for (const tg of t.gates) {
+            expect(r.step, `${JSON.stringify(gates)} @${t.stars} reaches the step of ${tg.gate.ingredientId}`).toBeGreaterThanOrEqual(tg.gate.step);
+            expect(r.unlocked.has(tg.gate.ingredientId), `${JSON.stringify(gates)} @${t.stars} ${tg.side}:${tg.gate.ingredientId}`).toBe(tg.side === "at");
+          }
+        }
+        expect(r.entitlement.newlyUnlockedMaterialIds, "the state is already what the game derives").toEqual([]);
+        expect(hasErrors(validateEditableState(r.state, c))).toBe(false);
+      }
+    }
+  });
+
+  it("unreachable star counts are not offered, and building one fails loudly", () => {
+    const tooFew = ladderCatalog({ 50: 40 }); // step 50 needs 50 rows = at least 50 stars
+    expect(starTargetsOf(tooFew.ladder).map((t) => t.stars)).toEqual([39, 40]);
+    expect(buildableStarTargets(tooFew)).toEqual([]);
+    expect(starPresetsOf(tooFew)).toEqual([]);
+    expect(planStarState(tooFew, 40)).toMatchObject({ ok: false });
+    expect(() => buildStarState(tooFew, 40)).toThrow(/cannot be held/);
+
+    const tooMany = ladderCatalog({ 50: 400 }); // 50 rows hold at most 250 stars
+    expect(buildableStarTargets(tooMany)).toEqual([]);
+
+    const unreached = ladderCatalog({ 50: 120 }, ["r-10"]); // one key recipe does not credit the ladder: 49 credited < step 50
+    expect(planStarState(unreached, 120)).toMatchObject({ ok: false });
+    expect(() => buildStarState(unreached, 120)).toThrow(/not reached/);
+    expect(starPresetsOf(unreached)).toEqual([]);
+
+    expect(() => buildStarState(ladderCatalog({ 50: 120 }), 121)).toThrow(/no star-gate target/);
+    // every listed preset of every catalog above builds (a click never throws)
+    for (const c of [tooFew, tooMany, unreached, ladderCatalog({ 50: 100, 55: 101 })]) {
+      for (const p of starPresetsOf(c)) expect(() => buildPreset(p.id, c), p.id).not.toThrow();
+    }
+  });
+
+  it("the description names every role of a shared count and never claims a locked material is unlocked", () => {
+    const c = ladderCatalog({ 50: 100, 55: 101 });
+    const byId = Object.fromEntries(starPresetsOf(c).map((p) => [p.id, p.descriptionJa]));
+    expect(byId["stars-99"]).toContain("100⭐の1つ手前");
+    expect(byId["stars-99"]).toContain("まだ解放されない");
+    expect(byId["stars-101"]).toContain("101⭐ちょうど");
+    expect(byId["stars-100"]).toContain("100⭐の⭐条件付き材料は Shop に解放される");
+    expect(byId["stars-100"]).toContain("101⭐の材料はまだ解放されない");
+    expect(byId["stars-100"]).toContain("ladder step 55");
+    // every description keeps the fixed phrase the production-bundle gate looks for
+    for (const d of Object.values(byId)) expect(d).toContain("⭐条件付き材料");
+  });
+});
+
+describe("production star presets are unchanged by the multi-gate audit (stars-119 / 120 / 129 / 130)", () => {
+  /** The pre-audit construction, written independently of the code under test (step of the first gate, earlier steps by position). */
+  function reference(stars: number) {
+    const gate = gates.find((g) => g.gate === stars || g.gate === stars + 1)!;
+    const earlier = DISCOVERY_LADDER.steps.filter((s) => s.step < gate.step);
+    const dexIds = [...new Set([onboardingRecipeId(catalog)!, ...earlier.map((s) => s.keyRecipeId)])];
+    const gatedIds = new Set(gates.map((g) => g.ingredientId));
+    const owned = [...new Set(earlier.flatMap((s) => [...s.ingredientIds]))].filter((id) => !gatedIds.has(id));
+    const rows = distributeStars(dexIds.length, stars);
+    return normalizeEditableState(
+      {
+        ...buildPreset("fresh-start"),
+        dex: dexIds.map((recipeId, i) => ({ recipeId, discovered: true, bestScore: SCORE_FOR_STARS[rows[i]], bestStars: rows[i] as 1, timesMade: 1 })),
+        pitzBalance: STAR_PRESET_PITZ,
+        ownedIngredientIds: [...catalog.starterIds, ...owned],
+        inventory: Object.fromEntries(owned.map((id) => [id, STAR_PRESET_STOCK])),
+      },
+      catalog,
+    );
+  }
+
+  it("the four production targets keep their single gate each and their step", () => {
+    const targets = starTargetsOf(DISCOVERY_LADDER);
+    expect(targets.map((t) => [t.stars, t.gates.length, t.gates[0].side])).toEqual([[119, 1, "below"], [120, 1, "at"], [129, 1, "below"], [130, 1, "at"]]);
+    expect(targets.map((t) => t.step)).toEqual([goat.step, goat.step, spinach.step, spinach.step]);
+    expect(buildableStarTargets(catalog).map((t) => t.stars)).toEqual([119, 120, 129, 130]);
+  });
+
+  it("each preset equals the independent reference state, field for field", () => {
+    for (const stars of [119, 120, 129, 130]) expect(buildPreset(`stars-${stars}`), `stars-${stars}`).toEqual(reference(stars));
+  });
+
+  it("the descriptions the editor shows are the same as before", () => {
+    const byId = Object.fromEntries(STAR_PRESETS.map((p) => [p.id, p.descriptionJa]));
+    expect(byId["stars-119"]).toBe(`累計⭐119（120⭐の1つ手前。ladder step ${goat.step} 到達済み、⭐条件付き材料はまだ解放されない）`);
+    expect(byId["stars-120"]).toBe(`累計⭐120（120⭐ちょうど。ladder step ${goat.step} 到達済み、⭐条件付き材料が Shop に解放される・未購入）`);
+    expect(byId["stars-129"]).toBe(`累計⭐129（130⭐の1つ手前。ladder step ${spinach.step} 到達済み、⭐条件付き材料はまだ解放されない）`);
+    expect(byId["stars-130"]).toBe(`累計⭐130（130⭐ちょうど。ladder step ${spinach.step} 到達済み、⭐条件付き材料が Shop に解放される・未購入）`);
   });
 });

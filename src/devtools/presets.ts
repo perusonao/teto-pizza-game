@@ -1,6 +1,6 @@
 import type { DexEntry } from "../state/dex";
 import { finiteIngredientIds, onboardingRecipeId, productionCatalog, type EditorCatalog } from "./editorCatalog";
-import { buildStarState, starTargetsOf } from "./starStates";
+import { buildableStarTargets, buildStarState, type StarTarget } from "./starStates";
 import { freshEditableState, normalizeEditableState, type EditableState } from "./stateModel";
 
 /**
@@ -54,18 +54,32 @@ export const PRESETS: readonly PresetDefinition[] = [
 ];
 
 /**
+ * The description of a star target. One star count can stand for several gates (equal thresholds, or `g` = the "at" of
+ * one gate and the "below" of the gate at `g + 1`), so every role it has is said, never just the first one.
+ */
+function starTargetDescription(t: StarTarget): string {
+  const at = t.gates.filter((g) => g.side === "at");
+  const below = t.gates.filter((g) => g.side === "below");
+  const head = `累計⭐${t.stars}（`;
+  const reached = `ladder step ${t.step} 到達済み`;
+  if (below.length === 0) return `${head}${t.stars}⭐ちょうど。${reached}、⭐条件付き材料が Shop に解放される・未購入）`;
+  const next = below[0].gate.gate;
+  if (at.length === 0) return `${head}${next}⭐の1つ手前。${reached}、⭐条件付き材料はまだ解放されない）`;
+  // Both roles: the count meets one threshold and is one star short of the next.
+  return `${head}${t.stars}⭐の⭐条件付き材料は Shop に解放される・未購入、${next}⭐の材料はまだ解放されない。${reached}）`;
+}
+
+/**
  * Issue #441: the star-state presets of a catalog's ladder: for each `starGates` threshold, "just below" and "at" it
  * (production: 119 / 120 / 129 / 130). They are a separate list from PRESETS because which ones exist depends on the
  * ladder: a catalog with no star gate has none (PRESETS stays the same fixed, catalog-independent list).
  */
 export function starPresetsOf(catalog: EditorCatalog = productionCatalog()): PresetDefinition<StarPresetId>[] {
-  return starTargetsOf(catalog.ladder).map(({ stars, gate, side }) => ({
-    id: `stars-${stars}` as StarPresetId,
-    labelJa: `⭐${stars}`,
-    descriptionJa:
-      side === "below"
-        ? `累計⭐${stars}（${gate.gate}⭐の1つ手前。ladder step ${gate.step} 到達済み、⭐条件付き材料はまだ解放されない）`
-        : `累計⭐${stars}（${gate.gate}⭐ちょうど。ladder step ${gate.step} 到達済み、⭐条件付き材料が Shop に解放される・未購入）`,
+  // Only the targets the ladder's own Dex can build: a listed preset never throws when it is picked.
+  return buildableStarTargets(catalog).map((t) => ({
+    id: `stars-${t.stars}` as StarPresetId,
+    labelJa: `⭐${t.stars}`,
+    descriptionJa: starTargetDescription(t),
   }));
 }
 

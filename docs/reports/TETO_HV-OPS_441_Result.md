@@ -20,6 +20,13 @@ Issue #441（#442 / #443 は未着手）。既存 DEV State Editor（#403）の�
 - ⭐条件付き材料は「Shop 解放・未購入」（NEW）になる。ledger の導出は `normalizeEditableState` → ゲーム本体の `resolveShopEntitlement`。解放台帳の非縮小仕様はゲーム側のまま（変更なし）。
 - 注意: プリセットの適用は「状態を丸ごと置き換える」ので、台帳もプリセットの値になる（例: 130 → 119 を続けて適用すると 119 側の台帳）。元のセーブは `original` バックアップから復元できる。部分編集では台帳は縮まない（テストで固定）。
 
+## レビュー対応の監査（Codex P2 × 3、カタログ依存の取りこぼし）
+
+- `starTargetsOf` は、同じ星数が表すすべての gate を保持する（`StarTarget.gates`）。必要な step は保持した gate の最大 step。最大 step に届いても、星数が足りない gate の材料は解放されない（ゲーム側の解放判定は不変。テストで「解放 ⟺ step 到達 かつ 閾値到達」を同値・隣接・非隣接・先頭・末尾の ladder で確認）。
+- 星数が Dex の保持範囲（1〜5⭐×必要レシピ数）外、または step に届かない target は、一覧に出さず、build は理由つきで失敗する（`planStarState` / `buildableStarTargets`）。
+- 説明文は、1つの星数が複数の役割（ちょうど／1つ手前）を兼ねる場合に両方を述べる。production の4説明文は不変。
+- 観察（変更せず）: 129 / 130 の Dex には step 50 の key recipe（california-style-pizza）が入るが、その必須材料 goat-cheese は未所有（Shop で NEW）。実プレイでは起きない状態だが、production プリセットの挙動と Shop の NEW 表示を変えないため、そのままにしている。
+
 ## 検証
 
 - 全体 Vitest: 368 ファイル / 6885 PASS（skip 1 は既存）。`tsc -b` クリーン、`npm run build` OK、oxlint エラー 0（既存の warning のみ）。
