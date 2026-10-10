@@ -65,6 +65,7 @@ function Harness() {
         onGoHome={() => {}}
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+        onUndoPlacement={() => {}}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => dispatch({ type: "SHOW_HINT" })}

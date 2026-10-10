@@ -12,6 +12,7 @@ import {
   type MaterialUnlockNotice,
 } from "./materialEntitlement";
 import { buildHintLine } from "../data/hints";
+import { undoablePlacementIndex } from "./undoPlacement";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -439,6 +440,9 @@ export type GameAction =
   // against the current recipe's shared sauce profile for both FREE and Lunch Rush.
   | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
+  // Cooking Steps 2.0 Phase 1 (Issue #449 / #270): takes back the piece placed last in the current CHEESE / TOPPING
+  // step. No payload; see ./undoPlacement.ts for the rule (PREPARE only, never Lunch Rush, never a confirmed step).
+  | { type: "UNDO_LAST_PLACEMENT" }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -1054,6 +1058,24 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           y: spot.y,
           token: placementTokenCounter,
         },
+      };
+    }
+
+    case "UNDO_LAST_PLACEMENT": {
+      // The reducer is the real backstop (the button's disabled state is only a hint): the rule lives in one
+      // pure function shared with the UI. Nothing here touches inventory (consumed once at CONFIRM_BAKE),
+      // cookingTiming (like RESET_PIZZA, the clock keeps running), score, completion, the Dex or the save.
+      const index = undoablePlacementIndex(state);
+      if (index < 0) return state;
+      const pizza: PizzaState = {
+        ...state.pizza,
+        toppings: state.pizza.toppings.filter((_, i) => i !== index),
+      };
+      return {
+        ...state,
+        pizza,
+        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
+        placement: null,
       };
     }
 
@@ -2037,6 +2059,7 @@ const DINNER_COMPOSITION_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<Game
   "APPLY_SAUCE",
   "COMMIT_SAUCE_DISPENSE",
   "PLACE_TOPPING",
+  "UNDO_LAST_PLACEMENT",
   "RESET_PIZZA",
   "COMMIT_DOUGH_STRETCH",
 ]);

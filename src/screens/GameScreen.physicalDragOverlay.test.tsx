@@ -91,6 +91,7 @@ function Harness({ category }: { category: IngredientCategory }) {
         onGoHome={() => {}}
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+        onUndoPlacement={() => {}}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => {}}

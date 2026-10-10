@@ -1516,6 +1516,45 @@
   font-weight: 700;
 }
 
+/* Cooking Steps 2.0 Phase 1 (Issue #449): 「1つ戻す」 (↩) in the PREPARE bar. A 44x44 round icon button -- never
+   shrinks (flex: none), so the CTA and 「やり直す」 keep their rhythm at 360px; the slot is rendered in every
+   PREPARE step of a non-Lunch-Rush round and only its disabled state changes. */
+.prepare-undo-button {
+  flex: none;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prepare-undo-button:disabled {
+  opacity: 0.45;
+}
+
+/* With the ↩ slot the bar holds four controls (やり直す / ↩ / CTA / ヒント). At 360px (328px of content) the default
+   10px gaps and paddings squeeze the CTA to ~97px and wrap 「焼く！」 onto a second line (bar 70px -> 86px). Tightening
+   gaps and side paddings only in this modifier gives the CTA ~125px, keeps every control >= 44px tall, and leaves the
+   Lunch Rush bar (no ↩) exactly as it was. */
+.prepare-bake-bar--undo {
+  gap: 6px;
+}
+
+.prepare-bake-bar--undo .secondary-button:not(.prepare-undo-button) {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.prepare-bake-bar--undo .cta-button {
+  padding-left: 12px;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+
 /* ---------- Bake overlay ---------- */
 .bake-overlay {
   display: flex;
