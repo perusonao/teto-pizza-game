@@ -7,6 +7,12 @@ from the working tree, so the output is reproducible and its `auditedMainSha` is
 came from. The SHA must resolve to a commit in <repo-root>; otherwise the run is rejected (exit 2).
 The recorded value is the full 40-char SHA. Writes nothing outside its arguments.
 
+Re-baselining at a new SHA: RUNTIME_SAUCES below is a snapshot for the committed audited SHA, not derived from
+the runtime. Before regenerating at another SHA, read that SHA's `src/data/ingredients.ts` (and the sauce-profile
+authority) for the supported sauce ids, update RUNTIME_SAUCES (and the CURRENT_ENGINE rule text) to match, then
+regenerate; classify_test.py fails if the set and the recorded SHA disagree. Dynamic derivation is intentionally
+not implemented (out of scope for PR-A).
+
 Usage: python3 docs/reports/data/TETO_POST-W1_COOKING-STEPS_classify.py <repo-root> <out.json> <out-rows.md> <audited-sha>
 """
 import json, re, sys, collections as C
@@ -42,6 +48,10 @@ m = json.loads(read_at_sha("docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDA
 rows = m["rows"]
 ing_src = read_at_sha("src/data/ingredients.ts")
 RUNTIME_ING = set(re.findall(r'^\s{4}id: "([^"]+)"', ing_src, re.M))
+# SNAPSHOT, not derived: the sauce ids the runtime supports at the audited SHA recorded in the committed JSON
+# (`e0397ae`: tomato-sauce / olive-oil / pesto = every `category: "sauce"` ingredient there). It is deliberately
+# fixed; see "Re-baselining at a new SHA" in the module docstring. classify_test.py checks it against the
+# audited SHA's ingredients.ts.
 RUNTIME_SAUCES = {"tomato-sauce", "olive-oil", "pesto"}
 rec_src = read_at_sha("src/data/recipes.ts")
 RUNTIME_RECIPES = set(re.findall(r'^\s{4}id: "([^"]+)"', rec_src, re.M))

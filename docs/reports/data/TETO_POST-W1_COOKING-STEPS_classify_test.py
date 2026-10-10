@@ -75,6 +75,20 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(len(counts), 1, f"ragged table columns: {counts}")
         self.assertIn("unresolved:mid_bake\\|post_bake", "\n".join(md), "eel row must carry an escaped pipe")
 
+    def test_supported_sauce_snapshot_matches_recorded_sha(self):
+        """RUNTIME_SAUCES is a fixed snapshot; it must equal the sauce-category ingredients at the recorded SHA."""
+        sha = committed_sha()
+        if not have_commit(sha):
+            self.skipTest(f"{sha} not in this clone (shallow?)")
+        m = re.search(r"^RUNTIME_SAUCES = \{([^}]*)\}", _read(SCRIPT), re.M)
+        self.assertIsNotNone(m, "RUNTIME_SAUCES snapshot not found")
+        snapshot = set(re.findall(r'"([^"]+)"', m.group(1)))
+        src = subprocess.run(["git", "-C", ROOT, "show", f"{sha}:src/data/ingredients.ts"],
+                             capture_output=True, text=True, check=True).stdout
+        at_sha = set(re.findall(r'^\s{4}id: "([^"]+)",\s*\n\s*category: "sauce"', src, re.M))
+        self.assertEqual(snapshot, at_sha,
+                         f"RUNTIME_SAUCES does not match the sauces at {sha[:7]}; update it when re-baselining")
+
     def test_no_stale_tq1d_gate_wording(self):
         for path in (SCRIPT, COMMITTED_JSON, DESIGN):
             self.assertNotRegex(_read(path), r"gated by TQ-1D|production = TQ-1D|PR #275 OPEN", path)

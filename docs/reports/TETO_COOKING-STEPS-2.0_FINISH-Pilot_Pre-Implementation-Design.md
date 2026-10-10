@@ -316,9 +316,9 @@ Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]
 | **P1 Undo** | `UNDO_LAST_PLACEMENT`（CHEESE/TOPPING）、↩ ボタン、Dinner ガード、トークン | なし | §3.9。既存 PREPARE E2E 全回帰。**Production DOM golden の再基準化が要る可能性**（バーにボタン追加）→ 項目ごとに確認 | **必須**（390×844 動画: 配置→Undo→再配置→ドラッグ中Undo→RESULT。360×800 は幅の実測のため追加）＋ before/after |
 | **P2a 移植** | CS-1a（tab gate、`renderedPostBakeStep`）を main へ。tab-gate の導出化（§2.3） | UD-C | Vitest、`tsc`、`layout-contract` / `dynamic-cooking-steps` / `pizza-cutting-phase4b` が無改変で緑 | 不要（内部refactor・見た目不変、既存DOM同一） |
 | **P2b CS-1b** | `finalizeRound()` 抽出、golden（`RECIPES` 全件から導出 × FREE/LR/Dinner × bake {生/適正/焦げ}。件数は固定しない。`e0397ae` 時点で 55） | P2a | golden の before/after バイト一致、`App.dinner`/`App.techniques` 無改変 | 不要 |
-| **P3 FINISH engine** | `RecipeRequirement.applicationPhase?`、`deriveCoreSteps` が FINISH を付与、`PlacedTopping.stage?`、FINISH 配置＋Undo 拡張、暫定判定/再確定（§5.3）、在庫の差分消費、fresh 描画、reducer ガード。**検証は test-only の BBQ型 fixture（`RECIPES` に入れない）** | P2b | 「本番プロファイルに FINISH を含むものがない」不変条件、7タブ fixture でゲート失敗、再確定の golden、在庫の二重計上なし | 不要（本番で見えない） |
-| **P4a TQ-2 基盤** | 新技法 id、`late` 軸 OBSERVED、`LATE_ADDITION` を supported に、near-miss DIMENSION＋k 規則、Dex 調理法。**合成カタログで検証（TQ-1C の前例）** | P3 | 検出・台帳 union・近似 near-miss・Research 台帳不変、Hint tripwire の「赤を確認」 | 不要（INV-TQ-4: 本番で不活性） |
-| **P4b 有効化** | `bbq-sauce`・`cilantro`・ladder 追記・BBQ型レシピ・基準ピザ・FREE 仕上げタブ（案 A）・ガイドの仕上げ・Hint/Discovery 再監査・コピー | P4a、UD-B/D/E/F | 全層（pure/reducer/component/App/E2E/WebKit）＋Hint 5.0 gate | **必須**（FREE と ガイド、390×844＋360×800。Research 匿名ラウンドで仕上げタブが同一に見えること、焼成失敗でのスキップ、後乗せ発見→調理法の同時発見表示順） |
+| **P3 FINISH engine** | `RecipeRequirement.applicationPhase?`、`deriveCoreSteps` が FINISH を付与、`PlacedTopping.stage?`、FINISH 配置＋Undo 拡張、暫定判定/再確定（§5.3）、在庫の差分消費、fresh 描画、reducer ガード。**検証は test-only の BBQ型 fixture（`RECIPES` に入れない）** | P2b、**UD-H**（失敗ピザの FINISH スキップ）、**OD-CS-3**・**OD-CS-11**（Authority Index §2、回答が必要） | 「本番プロファイルに FINISH を含むものがない」不変条件、7タブ fixture でゲート失敗、再確定の golden、在庫の二重計上なし | 不要（本番で見えない） |
+| **P4a TQ-2 基盤** | 新技法 id、`late` 軸 OBSERVED、`LATE_ADDITION` を supported に、near-miss DIMENSION＋k 規則、Dex 調理法。**合成カタログで検証（TQ-1C の前例）** | P3、**UD-D**（後乗せ出荷の帰属）、**UD-G**（新技法の名称・コピー） | 検出・台帳 union・近似 near-miss・Research 台帳不変、Hint tripwire の「赤を確認」 | 不要（INV-TQ-4: 本番で不活性） |
+| **P4b 有効化** | `bbq-sauce`・`cilantro`・ladder 追記・BBQ型レシピ・基準ピザ・FREE 仕上げタブ（案 A）・ガイドの仕上げ・Hint/Discovery 再監査・コピー | P4a、UD-B/D/E/F、**UD-G**（コピー）、**UD-I**（Dinner / Lunch Rush の扱い） | 全層（pure/reducer/component/App/E2E/WebKit）＋Hint 5.0 gate | **必須**（FREE と ガイド、390×844＋360×800。Research 匿名ラウンドで仕上げタブが同一に見えること、焼成失敗でのスキップ、後乗せ発見→調理法の同時発見表示順） |
 
 ### 7.3 Issue 方針
 
