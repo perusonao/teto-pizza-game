@@ -120,7 +120,7 @@ jobs:
     # explicit, successful "false" skips it.
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       # Every shard always finishes, so one failing test never hides another shard's results.
       # (WebKit Gate fails on any non-success shard either way.)
