@@ -307,7 +307,7 @@ Phase 4a 技法 TQ-2 基盤（検出/軸/near-miss/Dex）  [不可視]    親: �
 Phase 4b 有効化（素材2・レシピ・FREE 仕上げ・HV） [本番可視]  親: 新規（TQ-2）
 ```
 
-依存: P1 ⟂ P2（並行可）。P3 ← P2。P4a ← P3。P4b ← P4a ＋ Owner 決定（UD-B/D/E/F）。**P1 は他に依存しない**ので最初に出せる。
+依存（§7.2 の表と同一）: P1 ⟂ P2（並行可）。P2: PR-A（docs）→ P2a（CS-1a, PR-B）→ P2b（CS-1b, PR-C）の順。P3 ← P2b ＋ Owner 決定（UD-H、OD-CS-3、OD-CS-11）。P4a ← P3 ＋ Owner 決定（UD-D、UD-G）。P4b ← P4a ＋ Owner 決定（UD-B/D/E/F、UD-G、UD-I）。**P1 は他に依存しない**ので最初に出せる。
 
 ### 7.2 各 Phase
 

@@ -421,7 +421,7 @@ no-sauce production recipe is no longer blocked (TQ-1D shipped); add them as dat
 **Owner Decision の状態 (2026-10-10 re-baseline; authority = §13 and the Authority Index §2):**
 - **決定済み:** OD-CS-1 = A, OD-CS-2 = B, OD-CS-9 (a), OD-CS-20 (§13). CS-1 の決定ゲートは満たされている。
 - **未決定のまま:** OD-CS-3..8, 10..19 (§8) と OD-CS-9 (b)。ここでは決定しない。
-- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
+- **phase 別ゲート:** CS-1a / CS-1b は上記の決定済み項目と PR #275 merged で着手可能（順序は PR-A → PR-B (CS-1a) → PR-C (CS-1b)。CS-1b は CS-1a の移植後）。CS-2 (FINISH) は OD-CS-3 / OD-CS-11 の回答が必要。CS-3 = TQ-2 は OD-CS-4..8, 10 の回答と Hint 再監査計画が必要 (TQ-1D は shipped)。CS-4 は OD-CS-9 (b)。
 
 ---
 
@@ -446,6 +446,6 @@ Issue candidate (Pre-start Gate §10) and is not fixed here.
 | Phase | Status |
 |---|---|
 | CS-0 | ✅ design + pre-start gate (docs) |
-| **CS-1a** | ✅ implemented, not merged — `docs/reports/TETO_POST-W1_COOKING-STEPS_CS-1A_Result.md` (tab gate `MAX_VISIBLE_COOKING_TABS`; `renderedPostBakeStep()` in `src/screens/postBakeView.ts`) |
-| CS-1b | ▶ not started — PR #275 **merged** (blocker cleared); waits on PR-A merge (this PR). Authority: OD-CS-2 = B |
+| **CS-1a** | ◻ **not started on `main`** (PR-B). The existing implementation lives in the superseded PR #295 (`docs/reports/TETO_POST-W1_COOKING-STEPS_CS-1A_Result.md`: tab gate `MAX_VISIBLE_COOKING_TABS`; `renderedPostBakeStep()` in `src/screens/postBakeView.ts`) and is the replacement source only; it is re-baselined and ported as PR-B after PR-A |
+| CS-1b | ⏸ not started — PR #275 **merged** (blocker cleared), but CS-1b (PR-C) **depends on the CS-1a port (PR-B)**, which depends on PR-A (this PR): PR-A → PR-B → PR-C. Authority: OD-CS-2 = B |
 | CS-2 … | not started |
