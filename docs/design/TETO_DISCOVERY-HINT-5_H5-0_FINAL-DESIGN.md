@@ -801,7 +801,8 @@ with the chosen curve before H5-4.
 **Goal:** the pure, **unwired** Hint 5.0 layer and its data gates. It has **no** reducer, sheet,
 save writer or flag.
 - The P-C table may be declared as data (`HINT5_RUNG_PRICE`) and pinned by G-PRICE.
-- `requestHint5Rung` still takes the price as an input, the DH4-2A pattern, so the wiring stays
+- `requestHint5Rung` does **not** take a price as an input (the shipped API has no `rungPrice`
+  argument). The price is derived from the rung kind through `HINT5_RUNG_PRICE`; the wiring stays
   in H5-2.
 - H5-1 also amends the `ingredientTaxonomy.ts` header comment, a comment-only change. It will
   state that DH4's "no row → category" coarsening does not apply to Hint 5.0 (PR #293 F-2).
