@@ -22,7 +22,7 @@ import {
  * range (90-100) is too narrow to hit reliably.
  */
 
-const RAW = 2;
+const RAW = { start: 0, end: 20 };
 const PERFECT = 70;
 const MARINARA_BURNT = 97;
 
@@ -58,9 +58,11 @@ async function prepareMarinara(page: Page) {
   await tapDoughPercent(page, 55, 30);
 }
 
-async function bakeAt(page: Page, value: number) {
+async function bakeAt(page: Page, value: number | { start: number; end: number }) {
   await enterBakePaused(page);
-  await landNeedleAndTakeOut(page, { start: value, end: value });
+  // #419: the needle only moves forward, so a "raw" take-out is a window at the start of the run
+  // (every recipe's bake window starts at 45 or later), not a single point the needle may have passed.
+  await landNeedleAndTakeOut(page, typeof value === "number" ? { start: value, end: value } : value);
 }
 
 const cutButton = (page: Page) => page.getByRole("button", { name: /切り終わる/ });

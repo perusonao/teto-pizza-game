@@ -82,10 +82,10 @@ async function reachBakeStep(page: Page) {
 test.describe("e2e/gestures helpers (#394 Phase 1)", () => {
   test.setTimeout(120_000);
 
-  // A: margherita's bakeTarget is 60-80. `advanceMs` parks the needle (55 pt/s, bouncing at 100):
-  // 1200ms ~ 66 going up, 2500ms ~ 62 coming down, 3300ms ~ 18 coming down. In every case the
+  // A: margherita's bakeTarget is 60-80. `advanceMs` parks the one-way needle (10 pt/s, #419):
+  // 1200ms ~ 12, 3300ms ~ 33, 5200ms ~ 52 -- all still short of the window. In every case the
   // committed style lags the real position by the delayed commit.
-  for (const advanceMs of [1200, 2500, 3300]) {
+  for (const advanceMs of [1200, 3300, 5200]) {
     test(`bake landing is correct when the React commit is ${SCHEDULER_DELAY_MS}ms late (needle parked after ${advanceMs}ms)`, async ({ page }) => {
       await installSchedulerDelay(page);
       await reachBakeStep(page);

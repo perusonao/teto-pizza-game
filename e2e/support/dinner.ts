@@ -174,7 +174,7 @@ export async function cookDinnerPizza(page: Page, pizza: keyof typeof PIZZAS, op
   await options.onStep?.("toppings");
   await enterBakePaused(page);
   await options.onStep?.("bake");
-  const window = options.underbake ? { start: 2, end: 4 } : options.overbake ? { start: 97, end: 99 } : spec.bake;
+  const window = options.underbake ? { start: 0, end: 20 } : options.overbake ? { start: 97, end: 99 } : spec.bake;
   await landNeedleAndTakeOut(page, window);
   if (spec.cut && !options.underbake && !options.overbake) {
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();

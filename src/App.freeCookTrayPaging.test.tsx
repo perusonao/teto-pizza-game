@@ -137,10 +137,13 @@ describe("free-cook tray paging never leaves a hidden selection active (PR #197 
     vi.stubGlobal("cancelAnimationFrame", () => {});
     vi.stubGlobal("performance", { now: () => now });
     await user.click(screen.getByRole("button", { name: /焼く/ }));
-    now += (70 / 55) * 1000;
-    const cb = raf as FrameRequestCallback | null;
-    raf = null;
-    cb?.(now);
+    // #419: one-way needle at 10 pt/s; a frame adds at most 0.1s, so advance in small frames.
+    for (let i = 0; i < 140; i += 1) {
+      now += 50;
+      const cb = raf as FrameRequestCallback | null;
+      raf = null;
+      cb?.(now);
+    }
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
     vi.unstubAllGlobals();
 

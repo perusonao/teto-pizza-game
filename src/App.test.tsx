@@ -132,11 +132,19 @@ function controlBakeNeedle() {
       vi.stubGlobal("performance", { now: () => now });
     },
     driveTo(targetPosition: number) {
-      const BAKE_NEEDLE_SPEED = 55; // percent per second, BakeOverlay.tsx's own SPEED constant
-      now += (targetPosition / BAKE_NEEDLE_SPEED) * 1000;
-      const callback = rafCallback;
-      rafCallback = null;
-      callback?.(now);
+      // #419: the needle is one-way (BAKE_SPEED_PCT_PER_S = 10) and one frame adds at most
+      // BAKE_MAX_FRAME_DT_S, so the target is reached by many small frames, not one big jump.
+      const BAKE_NEEDLE_SPEED = 10; // percent per second
+      const FRAME_MS = 50;
+      let remainingMs = (targetPosition / BAKE_NEEDLE_SPEED) * 1000;
+      while (remainingMs > 1e-6) {
+        const step = Math.min(FRAME_MS, remainingMs);
+        remainingMs -= step;
+        now += step;
+        const callback = rafCallback;
+        rafCallback = null;
+        callback?.(now);
+      }
     },
     unstub() {
       vi.unstubAllGlobals();

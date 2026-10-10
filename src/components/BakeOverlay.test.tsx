@@ -1,10 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { BakeOverlay } from "./BakeOverlay";
-import { computeGuideOpacity } from "../logic/bakeGuideFade";
 
 /**
- * M3A Bake Judgment Phase 6: BakeOverlay drives its needle position *and* its Guide fade from
+ * Issue #419: BakeOverlay drives its one-way needle position *and* its target-zone fade from
  * its own internal `requestAnimationFrame` loop (see that component's own file header), so
  * these tests stub `requestAnimationFrame`/`performance.now` and drive the loop by hand,
  * one controlled frame at a time, rather than waiting on real wall-clock time.
@@ -30,10 +29,15 @@ function advanceSeconds(totalSeconds: number, stepMs = 100) {
   }
 }
 
-function getGaugeOpacity(): number {
-  const gauge = document.querySelector<HTMLElement>(".bake-gauge");
-  if (!gauge) throw new Error(".bake-gauge missing");
-  return Number(gauge.style.opacity);
+function zonesOpacity(): number | null {
+  const zones = document.querySelector<HTMLElement>(".bake-gauge__zones");
+  return zones ? Number(zones.style.opacity) : null;
+}
+
+function needleLeft(): number {
+  const needle = document.querySelector<HTMLElement>(".bake-gauge__needle");
+  if (!needle) throw new Error(".bake-gauge__needle missing");
+  return parseFloat(needle.style.left);
 }
 
 beforeEach(() => {
@@ -52,87 +56,158 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("computeGuideOpacity", () => {
-  it("is fully visible before the fade window starts", () => {
-    expect(computeGuideOpacity(0)).toBe(1);
-    expect(computeGuideOpacity(3.6)).toBe(1);
-  });
+describe("BakeOverlay one-way needle", () => {
+  it("moves 0 -> 100 in 10s, stops at the right end and never returns", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
+    expect(needleLeft()).toBe(0);
 
-  it("decreases monotonically across the fade window", () => {
-    let previous = Infinity;
-    for (let t = 0; t <= 10; t += 0.1) {
-      const value = computeGuideOpacity(t);
-      expect(value).toBeLessThanOrEqual(previous + 1e-9);
-      previous = value;
+    let previous = 0;
+    for (let i = 0; i < 150; i += 1) {
+      tick(100); // 15s total, past the end
+      const current = needleLeft();
+      expect(current).toBeGreaterThanOrEqual(previous);
+      previous = current;
     }
+    expect(previous).toBe(100);
   });
 
-  it("is fully hidden once the fade window ends", () => {
-    expect(computeGuideOpacity(7.2)).toBe(0);
-    expect(computeGuideOpacity(100)).toBe(0);
+  it("is at ~50% after 5s and at 100% after 10s", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
+    advanceSeconds(5);
+    expect(needleLeft()).toBeCloseTo(50, 0);
+    advanceSeconds(5);
+    expect(needleLeft()).toBeCloseTo(100, 5);
+    advanceSeconds(1);
+    expect(needleLeft()).toBe(100);
+  });
+
+  it("reports the same monotonic position through onTick", () => {
+    const onTick = vi.fn();
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} onTick={onTick} />);
+    advanceSeconds(12);
+    const values = onTick.mock.calls.map((call) => call[0] as number);
+    expect(values.length).toBeGreaterThan(10);
+    for (let i = 1; i < values.length; i += 1) expect(values[i]).toBeGreaterThanOrEqual(values[i - 1]);
+    expect(values[values.length - 1]).toBe(100);
   });
 });
 
-describe("BakeOverlay guide visibility", () => {
-  it("shows the guide at full opacity at BAKE start", () => {
+describe("BakeOverlay target-zone visibility (OD-419)", () => {
+  it("shows the zone at full opacity for the first 3s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    expect(getGaugeOpacity()).toBe(1);
+    expect(zonesOpacity()).toBe(1);
+    advanceSeconds(3);
+    expect(zonesOpacity()).toBeCloseTo(1, 1);
   });
 
-  it("fades the guide's opacity down over elapsed BAKE time, deterministically", () => {
+  it("fades the zone between 3s and 5s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-
-    advanceSeconds(3.6);
-    expect(getGaugeOpacity()).toBeCloseTo(1, 1);
-
-    advanceSeconds(1.8); // now ~5.4s elapsed, mid-fade
-    const midOpacity = getGaugeOpacity();
-    expect(midOpacity).toBeGreaterThan(0);
-    expect(midOpacity).toBeLessThan(1);
-
-    advanceSeconds(1.8); // now ~7.2s elapsed
-    expect(getGaugeOpacity()).toBeCloseTo(0, 1);
+    advanceSeconds(4);
+    const mid = zonesOpacity();
+    expect(mid).toBeGreaterThan(0.3);
+    expect(mid).toBeLessThan(0.7);
   });
 
-  it("keeps the guide's opacity monotonically non-increasing across many small frames", () => {
+  it("removes the zone from 5s on and never brings it back, while track and needle stay", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    let previous = Infinity;
-    for (let i = 0; i < 90; i += 1) {
-      tick(100);
-      const current = getGaugeOpacity();
-      expect(current).toBeLessThanOrEqual(previous + 1e-9);
-      previous = current;
-    }
+    advanceSeconds(5.2);
+    expect(zonesOpacity()).toBeNull();
+    advanceSeconds(10);
+    expect(zonesOpacity()).toBeNull();
+    expect(document.querySelector(".bake-gauge")).not.toBeNull();
+    expect(document.querySelector(".bake-gauge__needle")).not.toBeNull();
   });
 
-  it("becomes fully hidden and swaps to a neutral, state-independent caption", () => {
-    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(8);
-    expect(getGaugeOpacity()).toBe(0);
-    expect(screen.getByText("見た目で焼き加減を確かめて！")).toBeInTheDocument();
+  it("uses the same fade for every target window (not recipe dependent)", () => {
+    const { unmount } = render(<BakeOverlay targetStart={45} targetEnd={65} onConfirm={vi.fn()} />);
+    advanceSeconds(4);
+    const a = zonesOpacity();
+    unmount();
+    now = 0;
+    render(<BakeOverlay targetStart={65} targetEnd={85} onConfirm={vi.fn()} />);
+    advanceSeconds(4);
+    expect(zonesOpacity()).toBeCloseTo(a as number, 5);
   });
+});
 
-  it("never applies the target-zone glow once the guide is fully hidden", () => {
-    // targetStart/targetEnd cover the needle's entire resting range so it is always "in
-    // target" -- isolates the glow-gating assertion from needle position timing.
-    render(<BakeOverlay targetStart={0} targetEnd={100} onConfirm={vi.fn()} />);
+describe("BakeOverlay does not reveal the correct position", () => {
+  it("keeps one needle colour, a neutral caption and no CTA glow at every position", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     const button = screen.getByRole("button", { name: "取り出す！" });
+    const needle = document.querySelector<HTMLElement>(".bake-gauge__needle")!;
+    const seenInline = new Set<string>();
+    for (let i = 0; i < 110; i += 1) {
+      tick(100); // sweeps raw -> target -> burnt
+      seenInline.add(needle.getAttribute("style")!.replace(/left:[^;]+;?/, ""));
+      expect(button.className).not.toContain("glow");
+      expect(screen.getByText("見た目で焼き加減を確かめて！")).toBeInTheDocument();
+    }
+    expect(seenInline.size).toBe(1);
+    expect([...seenInline][0]).not.toContain("background");
+  });
+});
 
-    expect(button.className).toContain("cta-button--glow");
+describe("BakeOverlay background / blur safety", () => {
+  function setHidden(hidden: boolean) {
+    Object.defineProperty(document, "hidden", { configurable: true, get: () => hidden });
+    document.dispatchEvent(new Event("visibilitychange"));
+  }
 
-    advanceSeconds(8);
-    expect(button.className).not.toContain("cta-button--glow");
+  afterEach(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
+  });
+
+  it("does not advance while hidden, and resumes without a jump", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
+    advanceSeconds(2);
+    const before = needleLeft();
+
+    act(() => setHidden(true));
+    advanceSeconds(30); // rAF may still fire in tests; the clock must not move
+    expect(needleLeft()).toBe(before);
+
+    now += 120_000; // a long gap while away
+    act(() => setHidden(false));
+    tick(16);
+    expect(needleLeft() - before).toBeLessThan(1);
+  });
+
+  it("pauses on window blur and resumes on focus", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
+    advanceSeconds(2);
+    const before = needleLeft();
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    advanceSeconds(20);
+    expect(needleLeft()).toBe(before);
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    advanceSeconds(1);
+    expect(needleLeft()).toBeGreaterThan(before);
+  });
+
+  it("caps a single huge frame (no jump to 100%)", () => {
+    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
+    tick(60_000);
+    expect(needleLeft()).toBeLessThanOrEqual(1.01);
   });
 });
 
 describe("BakeOverlay confirm/finish action", () => {
-  it("still confirms the current needle position after the guide has faded", () => {
+  it("confirms the raw current needle position (0..100) with no input lock", () => {
     const onConfirm = vi.fn();
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={onConfirm} />);
-    advanceSeconds(8);
+    screen.getByRole("button", { name: "取り出す！" }).click(); // immediately: not locked
+    expect(onConfirm).toHaveBeenCalledWith(0);
 
+    advanceSeconds(6);
     screen.getByRole("button", { name: "取り出す！" }).click();
-    expect(onConfirm).toHaveBeenCalledTimes(1);
-    expect(typeof onConfirm.mock.calls[0][0]).toBe("number");
+    expect(onConfirm.mock.calls[1][0]).toBeCloseTo(60, 0);
+
+    advanceSeconds(10);
+    screen.getByRole("button", { name: "取り出す！" }).click();
+    expect(onConfirm.mock.calls[2][0]).toBe(100);
   });
 });

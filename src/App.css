@@ -1489,10 +1489,6 @@
   min-height: 54px;
 }
 
-.cta-button--glow {
-  box-shadow: 0 0 0 4px rgba(255, 210, 100, 0.7), 0 4px 12px rgba(179, 38, 10, 0.5);
-}
-
 /* Issue #33 D1: the DOUGH step's own CTA is the first `.cta-button` ever disabled (SAUCE/
    CHEESE's 次へ never is) -- without this, `disabled` blocked the click correctly but looked
    identical to the enabled button, contradicting the task's own "Before threshold: Next
@@ -1610,6 +1606,13 @@
   overflow: hidden;
 }
 
+/* Issue #419: the target zone + its raw / burnt flanks share one fading layer; the track and the
+   needle sit outside it and stay visible. */
+.bake-gauge__zones {
+  position: absolute;
+  inset: 0;
+}
+
 .bake-gauge__target {
   position: absolute;
   top: 0;
@@ -1640,7 +1643,8 @@
   height: 26px;
   border-radius: 3px;
   transform: translateX(-50%);
-  transition: background-color 0.2s ease;
+  /* Issue #419: one neutral colour for the whole step -- the needle never signals raw / perfect / burnt. */
+  background-color: #6b4226;
 }
 
 /* ---------- Result panel ---------- */
