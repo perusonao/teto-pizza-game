@@ -51,7 +51,7 @@ Research UX Fresh Audit（読み取り専用、main `44879be`）で発見。分�
 | `npm run build` | OK |
 | Vitest 全体 | 370 files 中 369 PASS / 6887 PASS、1 FAIL。FAIL は `HintSheet.test.tsx` の anti-spoiler DOM sweep の **5000ms タイムアウト**（全体並列の負荷による。単独では 33/33 PASS、変更を除いた main でも単独で PASS）。今回の変更（CSS のみ）との関係は無い |
 | Chromium E2E（iphone-390x844 / 360x800 / layout-chromium）: 新規 spec、`cooking-tray-family-{filter,expanded,mobile-ux,responsive}`、`family-layout-contract`、`layout-contract` | 79 passed / 66 skipped（既存の OD-V-6 once-per-engine skip）/ 0 failed |
-| 追加 Chromium E2E: `free-cooking-phase3-2`、`dinner-mission`、`research-*`、`layout-invariants-lb` | 本書末尾の追記を参照 |
+| 追加 Chromium E2E（iphone-390x844 / 360x800）: `free-cooking-phase3-2`、`dinner-mission`、`research-ux-phase1`、`research-failed-trial`、`discovery-research-rows`、`layout-invariants-lb` | 46 passed / 0 failed |
 | WebKit E2E | **ローカル未実行**（この環境に WebKit が無い）。PR の CI（`e2e-webkit.yml`）の結果で確認する |
 
 ## Human Verification Videos
