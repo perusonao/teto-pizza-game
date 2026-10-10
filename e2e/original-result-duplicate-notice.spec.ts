@@ -202,6 +202,10 @@ async function checkState(
 const evidence: Record<string, unknown> = {};
 
 test.describe("Original Pizza Recovery P3-3b: RESULT duplicate notice", () => {
+  // #419: a bake is now a 10s one-way run (the landing replays ~7 virtual seconds of frames), and these
+  // tests cook 3-5 rounds each, so the default 30s budget no longer fits on a loaded WebKit runner.
+  test.setTimeout(120_000);
+
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
   for (const [name, pieces, p2, shot] of [
