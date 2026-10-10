@@ -7065,6 +7065,15 @@ p.hint-sheet__step {
   margin-bottom: 10px; /* the chips' 44px hit area reaches 8px below the row: a 2px gap to the first card remains */
 }
 
+/* Issue #447: while the family row is shown, the tray is always two rows tall (the dock already reserves two). The
+   dock hugs its bottom (`justify-content: flex-end`), so a one-row family (<= 3 ingredients) used to shrink the tray
+   64px + 6px and pull the family row 70px down with it. The cards stay at the top of the fixed box; the spare row is
+   empty. Same `--chip-h` / `--tray-gap` the dock reserves with (58px chips on a short height). */
+.ingredient-panel:has(> .tray-family-row) .ingredient-tray {
+  min-height: calc(2 * var(--chip-h) + var(--tray-gap));
+  align-content: start;
+}
+
 /* Above placement: the utility row's gap to the tray is 10px (not 6) for the same reason, the pager's 44px hit area
    reaching 8px above the row. The dock's `--family-h` includes these 4px. */
 .prepare-dock--family-above .ingredient-page-nav {
