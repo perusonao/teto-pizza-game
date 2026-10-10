@@ -76,7 +76,7 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-C4 (final, round 2)** | **No new taxonomy family.** The existing **7 families** of DH4-1 / PR #255 OD-TAX are kept. Only the UI display is made human-friendly. **「きのこ系」 is not an independent family**: mushroom stays in `vegetable`, and the display 「野菜・きのこ系」 is wording only. The invariant **"a classification emoji never collides with a real ingredient's emoji" is kept** (H5-INV-2, G18). | APPROVED (C4a / C4b closed) |
 | **OD-H5-U1** | The basic UX is a **single ladder**, not the 3-way choice: sauce → cheese → key topping → structure → sub-topping ① … ⓝ. There is **no FREE LEAK**: the final rung count, the sub-topping count and the kinds of later rungs are not visible before purchase. The player always sees **what the next hint is** and **its price**. | APPROVED |
 | **OD-H5-E3** | Existing coarse `attr:group:*` / `attr:category:*` facts are **never deleted** and **never converted** to `cls:<ingredientId>`. Stored facts stay forward-compatible. Only facts that map safely are reused. Full Reset, unknown ids and forward compatibility are kept. | APPROVED |
-| **OD-H5-E1** | **Pricing = P-C:** sauce **10**, cheese **10**, key topping **10**, structure **5**, sub-topping classification **5 each**. The price depends on the rung kind only. | **APPROVED (price authority)** |
+| **OD-H5-E1** | **Pricing = P-C:** sauce **10**, cheese **10**, key topping **10**, structure **5**, sub-topping classification **5 each** (round 7 adds the key-free BASE rung at **10**, OD-H5-BASE-2). The price depends on the rung kind only. | **APPROVED (price authority)** |
 | **OD-H5-E2** | **No per-recipe cap.** At round 2 every runtime recipe totalled ≤ its existing 35 / 75 cap under P-C. With P4-CHEESE (round 6), marinara and fugazza total 40 (above the old 35); no cap still applies. | APPROVED |
 | **OD-H5-E3b** | Owning a coarse 特徴 fact (`attr:group:*` / `attr:category:*`) does **not** auto-grant any individual classification. The facts stay stored, forward-compatible. | APPROVED |
 | **OD-H5-M1** | The Hint 3.0 **free key**'s shown / purchased state is **not** carried over to the Hint 5.0 paid key-topping rung. They are separate concepts. | APPROVED |
@@ -104,7 +104,7 @@ These invariants are hard. Every H5 phase must keep them and test them.
 
 | Invariant | Rule | Surfaces |
 |---|---|---|
-| **H5-INV-1 (ingredient)** | Only a purchased **name rung** (sauce / cheese / key topping) displays an ingredient's name or glyph. A sub-topping's name, id, glyph or `IngredientGlyph` is **never** displayed. The one exception is a legacy fact the player already owns (§9). | text, DOM, aria, `data-*`, `title`, img alt / src, test ids visible to the player, the view model |
+| **H5-INV-1 (ingredient)** | Only a purchased **name rung** (sauce / cheese / key topping, or the key-free BASE rung, round 7) displays an ingredient's name or glyph. A sub-topping's name, id, glyph or `IngredientGlyph` is **never** displayed. The one exception is a legacy fact the player already owns (§9). | text, DOM, aria, `data-*`, `title`, img alt / src, test ids visible to the player, the view model |
 | **H5-INV-2 (label)** | A classification label is one of the fixed family labels. It is never derived from an ingredient's name. Its emoji is **never equal to any catalog ingredient's emoji** (§7). | the display table plus a data gate |
 | **H5-INV-3 (recipe)** | A recipe's name, id, description and image are never displayed, and never placed in the view model. | as above |
 | **H5-INV-4 (technique)** | An undiscovered Technique's name, id and riddle are never displayed by a hint. No rung reveals the absence of sauce while P4 is reserved (§12). | as above |
@@ -612,6 +612,7 @@ The seven-line summary; the authority and the verification are in `docs/decision
 | KEY_TOPPING | **10** |
 | STRUCTURE | **5** |
 | SUB_CLASS (each) | **5** |
+| **BASE** (round 7, key-free only: every sauce and cheese, one rung; OD-H5-BASE-2) | **10** |
 
 **Rules:**
 - **The price depends only on the rung kind.** This is FREE-LEAK safe, and there is no rung
@@ -619,6 +620,7 @@ The seven-line summary; the authority and the verification are in `docs/decision
 - **No per-recipe cap** (E2).
 - **Never charged:** an empty rung (RESERVED), a rung that is ALREADY_KNOWN, a completed ladder,
   and the Dex-0 onboarding (OD-HE-5, free).
+- **Credited remainder (round 7, M-3):** completing a legacy partial BASE costs 0 Pitz (`ANSWERED_CREDITED`); it is the only 0-Pitz answer besides ALREADY_KNOWN.
 - **Partly known multi-subject rung:** a rung whose subjects are partly known through legacy
   `ing:` facts (for example 1 of 2 cheeses) costs its full kind price, because it reveals at least
   one new name.
@@ -781,7 +783,7 @@ with the chosen curve before H5-4.
 | G22 | G-REC-1: every recipe ingredient id exists in `INGREDIENTS` (INV-T3) | data | H5-1 |
 | G23 | No silent fallback: a missing classification → `NOT_A_TARGET` (0 Pitz, no fact), never existence / group / category. Unreachable in production. | pure + sweep | H5-1 |
 | G24 | `TOPPING_FAMILY_ROWS`: unique, in the catalog, topping only (INV-T2) | data | H5-1 |
-| G-PRICE | The P-C table (10 / 10 / 10 / 5 / 5). The price depends on the rung kind only. No cap. Empty / known / complete / onboarding rungs are 0 and never charged. | pure (H5-1), reducer (H5-2) | H5-1 / H5-2 |
+| G-PRICE | The P-C table (10 / 10 / 10 / 5 / 5) **and, for the key-free ladder, BASE = 10 (round 7)**. The price depends on the rung kind only, so every key-free recipe pays the same BASE price. No cap. Empty / known / complete / onboarding rungs are 0 and never charged; the credited remainder of a legacy partial BASE is the one other 0-Pitz answer. | pure (H5-1), reducer (H5-2); BASE row added in PR-D |
 | G25 | Key-free shape: every key-free ladder is `BASE → STRUCTURE → SUB_CLASS…`, and a key-free recipe has at least one sauce or cheese | data + pure | PR-D |
 | G26 | BASE migration: M-1..M-3 over every reachable old-ladder state of the 30 key-free recipes; 0 violations; STRUCTURE / SUB_CLASS never exist before BASE is complete | pure sweep | PR-B (reference), PR-D |
 | G27 | Credit is request-time only: loading a save never changes Pitz or facts; `ANSWERED_CREDITED` charges 0 and only completes a legacy partial BASE | pure + reducer + persistence | PR-D |
