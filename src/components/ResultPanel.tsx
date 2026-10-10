@@ -444,6 +444,10 @@ export function ResultPanel({
   // link is never added to it). Teto's heading and the bake badge are left out of this variant
   // only. Known / guided / ORIGINAL / FAILED results keep their quality-first layout.
   const isDiscoveryResult = freeCookMatch === "NEW_DISCOVERY";
+  // The registration row's primary CTA is 研究 / Shop (not the Dex link itself) -> the Dex link is added beside it.
+  const primaryLeadsElsewhere =
+    (postDiscovery?.kind === "RESEARCH_NEXT" && !!onResearchNext) ||
+    (postDiscovery?.kind === "SHOP_NEW_MATERIAL" && !!onOpenShop);
   const totalPitz = pitzCredit
     ? pitzCredit.earnedPitz + pitzCredit.discoveryBonusPitz + (efficiencyCredit?.bonusPitz ?? 0)
     : null;
@@ -486,6 +490,13 @@ export function ResultPanel({
                   {"\u{1F4D6}"} 図鑑を見る
                 </button>
               )
+            )}
+            {/* Phase A (#457, Owner): the Dex stays one tap away when the primary CTA leads elsewhere (研究 / Shop). The
+                Dex opens as an overlay over this result, so closing it returns here. The primary CTA is unchanged. */}
+            {onOpenDex && primaryLeadsElsewhere && (
+              <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
+                {"\u{1F4D6}"} 図鑑を見る
+              </button>
             )}
           </div>
         </>

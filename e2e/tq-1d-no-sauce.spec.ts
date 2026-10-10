@@ -272,7 +272,7 @@ test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
     await expect(page.locator("[data-dex-techniques]")).toHaveCount(0);
     await expect(page.locator(".dex-overlay")).not.toContainText(/調理法|ソースなし/);
     await capture(page, "tq1d-07-dex-before-affordance", project);
-    await page.getByRole("button", { name: "閉じる" }).click();
+    await page.getByRole("button", { name: "閉じる", exact: true }).click();
     await page.getByRole("button", { name: /レシピ発見/ }).first().click();
     await page.waitForSelector(".pizza-stage");
     await cookPrepared(page, { cheese: [[/モッツァレラ/, 2]], toppings: [] });

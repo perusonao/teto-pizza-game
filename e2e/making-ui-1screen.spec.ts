@@ -353,7 +353,7 @@ async function assertReferenceModalLifecycle(page: Page, label: string) {
     openState.innerHeight,
   );
 
-  const closeBtn = page.getByRole("button", { name: "閉じる" });
+  const closeBtn = page.getByRole("button", { name: "閉じる", exact: true });
   await expect(closeBtn, `${label}: close button visible`).toBeVisible();
   const closeBox = await closeBtn.boundingBox();
   expect(closeBox, `${label}: close button has a bounding box`).not.toBeNull();
