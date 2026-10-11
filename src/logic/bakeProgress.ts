@@ -12,9 +12,9 @@
  * so neither the speed nor the fade can depend on the correct position.
  */
 
-/** Seconds from 0% to 100%. A provisional comparison value (Owner HV on a real iPhone decides: 10s and 7s both felt long,
- *  5s is the current candidate) -- change it here only; every test and e2e helper derives from it. */
-export const BAKE_DURATION_S = 5;
+/** Seconds from 0% to 100%. A provisional comparison value (Owner HV on a real iPhone decides: 10s, 7s and 5s all felt long,
+ *  3s is the current candidate) -- change it here only; every test and e2e helper derives from it. */
+export const BAKE_DURATION_S = 3;
 
 /** Percent per second, derived from `BAKE_DURATION_S`. */
 export const BAKE_SPEED_PCT_PER_S = 100 / BAKE_DURATION_S;
@@ -26,10 +26,11 @@ export const BAKE_SPEED_PCT_PER_S = 100 / BAKE_DURATION_S;
  */
 export const BAKE_MAX_FRAME_DT_S = 0.1;
 
-/** Target zone fully shown until here (Owner HV on the 7s bake: "the zone may disappear earlier" -> 1s / 2s for the 5s bake) ... */
-export const BAKE_ZONE_FADE_START_S = 1;
+/** Target zone fully shown until here (the 5s bake's 1s / 2s, kept at the same needle positions -- 20% / 40% -- for the 3s bake,
+ *  so the zone is still gone before any recipe's bake window starts at 45) ... */
+export const BAKE_ZONE_FADE_START_S = 0.6;
 /** ... fades out until here, and stays hidden (never returns) afterwards. */
-export const BAKE_ZONE_FADE_END_S = 2;
+export const BAKE_ZONE_FADE_END_S = 1.2;
 
 /** `dt` actually added to the clock: NaN / negative -> 0, otherwise capped at `BAKE_MAX_FRAME_DT_S`. */
 export function clampBakeFrameDt(dtSeconds: number): number {

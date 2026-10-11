@@ -8,8 +8,8 @@ import {
 import { completeDoughStep, paintSauceRing, startFreshMargherita, tapDoughPercent } from "./gestures";
 
 /**
- * Issue #419 (Bake Human Feel): BAKE is one-way. The needle runs 0 -> 100 in BAKE_DURATION_S (5s, a comparison candidate)
- * and stops at the right end; the target zone is shown for 1s, fades over 1-2s and is gone from 2s on (every time here is
+ * Issue #419 (Bake Human Feel): BAKE is one-way. The needle runs 0 -> 100 in BAKE_DURATION_S (3s, a comparison candidate)
+ * and stops at the right end; the target zone is shown for 0.6s, fades over 0.6-1.2s and is gone from 1.2s on (every time here is
  * derived from src/logic/bakeProgress.ts, so a later tuning is a constant change); the track and the needle stay; nothing else (needle colour, caption, CTA glow) points at the correct position.
  * Runs on both authority viewports (390x844 and 360x800 projects). The virtual clock is used so
  * every sample is deterministic.
@@ -35,7 +35,7 @@ async function reachBake(page: Page) {
 
 /**
  * Enters BAKE with the virtual clock already paused, so the needle starts at exactly 0 and a sample at "t seconds" is
- * deterministic. (`enterBakePaused` pauses a few hundred real ms AFTER the click; at 20 pt/s that is already several
+ * deterministic. (`enterBakePaused` pauses a few hundred real ms AFTER the click; at 33 pt/s that is already several
  * points -- and past the zone's first second on a loaded runner -- so these assertions cannot start from it.) The click
  * is a DOM click: Playwright's own actionability wait would need a running rAF.
  */
@@ -106,7 +106,7 @@ test.describe("Issue #419 Bake Human Feel", () => {
     await page.clock.resume();
   });
 
-  test("the target zone is shown to 1s, fades 1-2s, is gone from 2s; track and needle stay", async ({ page }) => {
+  test("the target zone is shown to 0.6s, fades 0.6-1.2s, is gone from 1.2s; track and needle stay", async ({ page }) => {
     await reachBake(page);
     const start = await snapshot(page);
     expect(start.zones).toBe(1);
@@ -168,7 +168,8 @@ test.describe("Issue #419 Bake Human Feel", () => {
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await page.clock.runFor(100);
     const after = await snapshot(page);
-    expect(after.left - before.left).toBeLessThan(3);
+    // Only the 100ms run after the refocus may count (not the 30s of blur): its needle travel plus a 1pt margin.
+    expect(after.left - before.left).toBeLessThan(BAKE_SPEED_PCT_PER_S * 0.1 + 1);
     expect(after.left).toBeLessThan(50);
     await page.clock.resume();
   });

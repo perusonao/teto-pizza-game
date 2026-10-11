@@ -25,8 +25,8 @@ const CAPTION = "見た目で焼き加減を確かめて！";
  * BAKE time (../logic/bakeProgress.ts), so `PizzaStage`'s continuous bake visual, which reads the
  * same value through `onTick`, cannot run backwards either.
  *
- * The Guide is only the target zone (with its raw / burnt flanks): shown for the first 3s, faded
- * out over 3-5s, then hidden for good. The track and the needle stay visible for the whole step,
+ * The Guide is only the target zone (with its raw / burnt flanks): shown for the first 0.6s, faded
+ * out over 0.6-1.2s, then hidden for good. The track and the needle stay visible for the whole step,
  * in one neutral colour; the caption is neutral and the CTA has no glow, so nothing keeps
  * announcing the correct position after the zone is gone. The fade depends only on elapsed time,
  * never on the recipe or the needle (it is separate from CUT's guide fade, ../logic/bakeGuideFade.ts).

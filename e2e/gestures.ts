@@ -94,7 +94,7 @@ export async function enterBakePaused(page: Page) {
 
 /** Needle landing accepts a stop within `target`, widened to at least this many points either
  *  side of its center -- single-point targets (e.g. `{ start: 2, end: 2 }`) can only be hit to
- *  within one animation frame (~0.24 pt at BakeOverlay's ~14.3 pt/s). */
+ *  within one animation frame (~0.56 pt at BakeOverlay's ~33.3 pt/s). */
 const NEEDLE_LANDING_MIN_TOLERANCE_PT = 1.5;
 /** Upper bound for the measure -> run -> verify landing loop below. */
 const NEEDLE_LANDING_MAX_ATTEMPTS = 5;
@@ -125,7 +125,7 @@ async function flushReactCommit(page: Page) {
 /**
  * The second half of `bakeToTarget`: from the paused clock, runs virtual time until the needle
  * reaches `target`'s center, clicks 取り出す！ and resumes real time. Since Issue #419 the needle
- * moves one way only (0 -> 100 in 10s, then holds), so the landing is a single forward run; a
+ * moves one way only (0 -> 100 in BAKE_DURATION_S, then holds), so the landing is a single forward run; a
  * needle that is already past the window cannot come back, which is reported as an explicit error
  * (a caller that pauses too long, or aims too close to 0, has a test bug, not a flake).
  *

@@ -58,13 +58,13 @@ afterEach(() => {
 });
 
 describe("BakeOverlay one-way needle", () => {
-  it("moves 0 -> 100 in BAKE_DURATION_S (5s), stops at the right end and never returns", () => {
+  it("moves 0 -> 100 in BAKE_DURATION_S (3s), stops at the right end and never returns", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     expect(needleLeft()).toBe(0);
 
     let previous = 0;
     for (let i = 0; i < 150; i += 1) {
-      tick(100); // 15s total, well past the 5s end
+      tick(100); // 15s total, well past the 3s end
       const current = needleLeft();
       expect(current).toBeGreaterThanOrEqual(previous);
       previous = current;
@@ -72,7 +72,7 @@ describe("BakeOverlay one-way needle", () => {
     expect(previous).toBe(100);
   });
 
-  it("is at ~50% at half the duration (2.5s) and at 100% after 5s", () => {
+  it("is at ~50% at half the duration (1.5s) and at 100% after 3s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     advanceSeconds(BAKE_DURATION_S / 2);
     expect(needleLeft()).toBeCloseTo(50, 0);
@@ -93,25 +93,25 @@ describe("BakeOverlay one-way needle", () => {
   });
 });
 
-describe("BakeOverlay target-zone visibility (0-1s shown, 1-2s fade, 2s+ gone)", () => {
-  it("shows the zone at full opacity for the first 1s", () => {
+describe("BakeOverlay target-zone visibility (0-0.6s shown, 0.6-1.2s fade, 1.2s+ gone)", () => {
+  it("shows the zone at full opacity for the first 0.6s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
     expect(zonesOpacity()).toBe(1);
-    advanceSeconds(1);
+    advanceSeconds(0.6);
     expect(zonesOpacity()).toBeCloseTo(1, 1);
   });
 
-  it("fades the zone between 1s and 2s", () => {
+  it("fades the zone between 0.6s and 1.2s", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(1.5);
+    advanceSeconds(0.9);
     const mid = zonesOpacity();
     expect(mid).toBeGreaterThan(0.3);
     expect(mid).toBeLessThan(0.7);
   });
 
-  it("removes the zone from 2s on and never brings it back, while track and needle stay", () => {
+  it("removes the zone from 1.2s on and never brings it back, while track and needle stay", () => {
     render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(2.2);
+    advanceSeconds(1.4);
     expect(zonesOpacity()).toBeNull();
     advanceSeconds(10);
     expect(zonesOpacity()).toBeNull();
@@ -121,12 +121,12 @@ describe("BakeOverlay target-zone visibility (0-1s shown, 1-2s fade, 2s+ gone)",
 
   it("uses the same fade for every target window (not recipe dependent)", () => {
     const { unmount } = render(<BakeOverlay targetStart={45} targetEnd={65} onConfirm={vi.fn()} />);
-    advanceSeconds(1.5);
+    advanceSeconds(0.9);
     const a = zonesOpacity();
     unmount();
     now = 0;
     render(<BakeOverlay targetStart={65} targetEnd={85} onConfirm={vi.fn()} />);
-    advanceSeconds(1.5);
+    advanceSeconds(0.9);
     expect(zonesOpacity()).toBeCloseTo(a as number, 5);
   });
 });
@@ -221,7 +221,7 @@ describe("BakeOverlay confirm/finish action", () => {
     screen.getByRole("button", { name: "取り出す！" }).click(); // immediately: not locked
     expect(onConfirm).toHaveBeenCalledWith(0);
 
-    advanceSeconds(3); // 60% of 5s
+    advanceSeconds(1.8); // 60% of 3s
     screen.getByRole("button", { name: "取り出す！" }).click();
     expect(onConfirm.mock.calls[1][0]).toBeCloseTo(60, 0);
 

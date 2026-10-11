@@ -11,8 +11,8 @@ import {
 import { GUIDE_FADE_END_S, GUIDE_FADE_START_S } from "./bakeGuideFade";
 
 describe("bakePositionAt (one-way clock)", () => {
-  it("is 0 at the start and exactly 100 after BAKE_DURATION_S (5s)", () => {
-    expect(BAKE_DURATION_S).toBe(5);
+  it("is 0 at the start and exactly 100 after BAKE_DURATION_S (3s)", () => {
+    expect(BAKE_DURATION_S).toBe(3);
     expect(bakePositionAt(0)).toBe(0);
     expect(bakePositionAt(BAKE_DURATION_S / 2)).toBeCloseTo(50);
     expect(bakePositionAt(BAKE_DURATION_S)).toBe(100);
@@ -54,20 +54,20 @@ describe("clampBakeFrameDt (no time jump on return from background)", () => {
   });
 });
 
-describe("computeBakeZoneOpacity (0-1s shown, 1-2s fade, 2s+ hidden)", () => {
-  it("is fully visible through 1s", () => {
+describe("computeBakeZoneOpacity (0-0.6s shown, 0.6-1.2s fade, 1.2s+ hidden)", () => {
+  it("is fully visible through 0.6s", () => {
     expect(computeBakeZoneOpacity(0)).toBe(1);
     expect(computeBakeZoneOpacity(BAKE_ZONE_FADE_START_S)).toBe(1);
   });
 
-  it("fades linearly between 1s and 2s", () => {
-    expect(computeBakeZoneOpacity(1.5)).toBeCloseTo(0.5);
-    expect(computeBakeZoneOpacity(1.25)).toBeCloseTo(0.75);
+  it("fades linearly between 0.6s and 1.2s", () => {
+    expect(computeBakeZoneOpacity(0.9)).toBeCloseTo(0.5);
+    expect(computeBakeZoneOpacity(0.75)).toBeCloseTo(0.75);
   });
 
-  it("is hidden from 2s on and never comes back", () => {
-    expect(BAKE_ZONE_FADE_START_S).toBe(1);
-    expect(BAKE_ZONE_FADE_END_S).toBe(2);
+  it("is hidden from 1.2s on and never comes back", () => {
+    expect(BAKE_ZONE_FADE_START_S).toBe(0.6);
+    expect(BAKE_ZONE_FADE_END_S).toBe(1.2);
     let previous = Infinity;
     for (let t = 0; t <= 20; t += 0.05) {
       const value = computeBakeZoneOpacity(t);
