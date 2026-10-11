@@ -173,6 +173,9 @@ describe("HintSheet -- anti-spoiler DOM sweep (25 recipes, every revealed step)"
     expect((document.body.textContent ?? "").split("Pitz").join(""), `${where}: ASCII id`).not.toMatch(/[a-z]{3,}/);
   }
 
+  // 25 recipes x every revealed step (+ 3 sheets), each rendered and swept: ~3.5s alone, ~5s in a full parallel run and 13s on a
+  // CPU-constrained box -- over the 5s default on a loaded CI runner (build run 38114405233, twice). Only the limit is raised:
+  // every render and every assertion is unchanged, and a hang still fails at 30s.
   it("no recipe name, description or id in text, aria-* or data-*", () => {
     for (const r of RECIPES) {
       for (const dex of r.id === "margherita" ? [0, 1] : [1, 12]) {
@@ -189,7 +192,7 @@ describe("HintSheet -- anti-spoiler DOM sweep (25 recipes, every revealed step)"
       expectNoRecipeIdentity(kind);
       cleanup();
     }
-  });
+  }, 30_000);
 
   it("normal progression never shows every ingredient; Dex-0 Margherita may", () => {
     const shownIngredients = (id: string, dex: number) => {
