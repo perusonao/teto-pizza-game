@@ -132,9 +132,42 @@ async function attachCloseup(page: Page, name: string) {
   await test.info().attach(`${name}-${size.width}x${size.height}.png`, { body: await page.screenshot({ clip: box, scale: "css" }), contentType: "image/png" });
 }
 
-/** Mean colour of the darkest ~4% of pixels of the first mozzarella (the browning blotches), as actually painted. */
-async function darkestSpotColor(page: Page): Promise<{ r: number; g: number; b: number }> {
-  const png = await page.locator(".pizza-cheese--mozzarella").first().screenshot();
+type Rgb = { r: number; g: number; b: number };
+
+/**
+ * Mean colour of the darkest ~4% of the pixels of the first mozzarella, as painted by the cheese ALONE.
+ * `.pizza-bake-overlay--char` / `.pizza-char-spots` are later-painted siblings that cover the cheese, so a plain locator
+ * screenshot would sample them instead (Codex P2): they are hidden for the capture and restored afterwards.
+ * `spots`: "as-is" keeps the real blotches, "off" makes every `--bake-cheese-spot*` colour transparent, "grey" keeps the
+ * same alpha but paints them neutral grey (the regression a brown-channel assertion has to catch).
+ */
+async function darkestCheeseColor(page: Page, spots: "as-is" | "off" | "grey"): Promise<Rgb> {
+  const cheese = page.locator(".pizza-cheese--mozzarella").first();
+  const restore = await page.evaluate((mode) => {
+    const el = document.querySelector(".pizza-cheese--mozzarella") as HTMLElement;
+    const hidden = [...document.querySelectorAll<HTMLElement>(".pizza-bake-overlay--char, .pizza-char-spots")].map((n) => [n, n.style.visibility] as const);
+    for (const [n] of hidden) n.style.visibility = "hidden";
+    const saved: Array<[string, string]> = [];
+    if (mode !== "as-is") {
+      for (let i = 0; i < el.style.length; i += 1) {
+        const name = el.style[i];
+        if (!name.startsWith("--bake-cheese-spot")) continue; // only the colours; positions / radii (--bake-cheese-spN-*) stay
+        const value = el.style.getPropertyValue(name);
+        saved.push([name, value]);
+        const alpha = /rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/.exec(value)?.[1] ?? "1";
+        el.style.setProperty(name, mode === "off" ? "rgba(0, 0, 0, 0)" : `rgba(96, 96, 96, ${alpha})`);
+      }
+    }
+    (window as unknown as { __restoreMelt: () => void }).__restoreMelt = () => {
+      for (const [n, v] of hidden) n.style.visibility = v;
+      for (const [name, value] of saved) el.style.setProperty(name, value);
+    };
+    return saved.length;
+  }, spots);
+  if (spots !== "as-is") expect(restore, "spot colour variables found on the mozzarella").toBeGreaterThan(0);
+  await page.waitForTimeout(350); // the cheese's own 0.3 s background transition (real time, clock is faked)
+  const png = await cheese.screenshot();
+  await page.evaluate(() => (window as unknown as { __restoreMelt: () => void }).__restoreMelt());
   return page.evaluate(async (b64) => {
     const img = new Image();
     img.src = `data:image/png;base64,${b64}`;
@@ -158,6 +191,12 @@ async function darkestSpotColor(page: Page): Promise<{ r: number; g: number; b: 
   }, png.toString("base64"));
 }
 
+const luma = (c: Rgb) => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+/** Red-over-blue warmth relative to brightness: ~0 for grey, larger for brown. */
+const warmth = (c: Rgb) => (c.r - c.b) / Math.max(1, luma(c));
+/** Dark and BROWN (red > green > blue with a clear red-blue gap), not grey (r ~ g ~ b). */
+const isBrownBlotch = (c: Rgb) => c.r < 110 && c.r - c.b >= 14 && c.r > c.g && c.g > c.b;
+
 test.describe("Mozzarella melt Pilot (#421)", () => {
   test("raw -> melting -> baked -> deep -> overbaked: the cheese changes shape, spread and browning", async ({ page }) => {
     await startFreshMargherita(page);
@@ -167,7 +206,6 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     const looks: Record<string, Awaited<ReturnType<typeof mozzarellaLook>>> = {};
     let outlines: Awaited<ReturnType<typeof allMozzarellaOutlines>> = [];
     let rawTransforms: string[] = [];
-    let overbakedSpot = { r: 0, g: 0, b: 0 };
     const positions: Record<string, number> = {};
     for (const { name, needle } of BAKE_STAGES) {
       let position = await needlePosition(page);
@@ -188,9 +226,21 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
       if (name === "1-raw") rawTransforms = await allMozzarellaTransforms(page);
       await shot(page, `bake-${name}`);
       await attachCloseup(page, `bake-${name}`);
-      if (name === "5-overbaked") overbakedSpot = await darkestSpotColor(page);
     }
 
+    // Overbaked, the cheese ALONE (char overlays hidden): the blotches are dark and BROWN as painted, they are what darkens it
+    // (with vs without), and the same check rejects grey blotches (negative control: a grey regression must fail it).
+    const withSpots = await darkestCheeseColor(page, "as-is");
+    const withoutSpots = await darkestCheeseColor(page, "off");
+    const greySpots = await darkestCheeseColor(page, "grey");
+    const seen = JSON.stringify({ withSpots, withoutSpots, greySpots, warmth: [warmth(withSpots), warmth(greySpots)] });
+    expect(isBrownBlotch(withSpots), seen).toBe(true);
+    expect(luma(withoutSpots) - luma(withSpots), seen).toBeGreaterThanOrEqual(12);
+    // The overbaked cheese filter warms everything, so even grey blotches come out brownish in absolute terms; what tells brown
+    // from grey is how much of the red-over-blue warmth survives at the same darkness (measured: brown ~0.66, grey ~0.44).
+    expect(warmth(withSpots) - warmth(greySpots), seen).toBeGreaterThanOrEqual(0.12);
+    expect(warmth(withSpots), seen).toBeGreaterThanOrEqual(0.55);
+    expect(warmth(greySpots), seen).toBeLessThan(0.52);
     if (SHOTS_DIR) writeFileSync(`${SHOTS_DIR}/needle-positions-${page.viewportSize()!.width}.json`, JSON.stringify(positions, null, 2));
     // Raw cheese is the unchanged raw look: melt variable at 0 and the original outline.
     expect(Number(looks["1-raw"].melt)).toBeLessThan(0.05);
@@ -199,11 +249,6 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(looks["3-baked"].radius).not.toBe(looks["1-raw"].radius);
     expect(looks["3-baked"].boxShadow).not.toBe(looks["1-raw"].boxShadow);
     expect(looks["3-baked"].transform).not.toBe(looks["1-raw"].transform);
-    // Overbaked: the blotches are dark and BROWN as painted (red > green > blue), not grey (r ~ g ~ b).
-    expect(overbakedSpot.r, JSON.stringify(overbakedSpot)).toBeLessThan(110);
-    expect(overbakedSpot.r - overbakedSpot.b, JSON.stringify(overbakedSpot)).toBeGreaterThanOrEqual(14);
-    expect(overbakedSpot.r, JSON.stringify(overbakedSpot)).toBeGreaterThan(overbakedSpot.g);
-    expect(overbakedSpot.g, JSON.stringify(overbakedSpot)).toBeGreaterThan(overbakedSpot.b);
     expect(rawTransforms).toHaveLength(3);
     expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);
     // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.
