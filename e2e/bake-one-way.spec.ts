@@ -5,7 +5,7 @@ import {
   BAKE_ZONE_FADE_END_S,
   BAKE_ZONE_FADE_START_S,
 } from "../src/logic/bakeProgress";
-import { completeDoughStep, enterBakePaused, paintSauceRing, startFreshMargherita, tapDoughPercent } from "./gestures";
+import { completeDoughStep, paintSauceRing, startFreshMargherita, tapDoughPercent } from "./gestures";
 
 /**
  * Issue #419 (Bake Human Feel): BAKE is one-way. The needle runs 0 -> 100 in BAKE_DURATION_S (5s, a comparison candidate)
@@ -30,7 +30,27 @@ async function reachBake(page: Page) {
   await page.getByRole("button", { name: /バジル/ }).click();
   await tapDoughPercent(page, 45, 55);
   await tapDoughPercent(page, 55, 45);
-  await enterBakePaused(page);
+  await enterBakeAtZero(page);
+}
+
+/**
+ * Enters BAKE with the virtual clock already paused, so the needle starts at exactly 0 and a sample at "t seconds" is
+ * deterministic. (`enterBakePaused` pauses a few hundred real ms AFTER the click; at 20 pt/s that is already several
+ * points -- and past the zone's first second on a loaded runner -- so these assertions cannot start from it.) The click
+ * is a DOM click: Playwright's own actionability wait would need a running rAF.
+ */
+async function enterBakeAtZero(page: Page) {
+  await page.clock.install();
+  for (const buffer of [300, 800, 2000]) {
+    try {
+      await page.clock.pauseAt(Date.now() + buffer);
+      break;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
+  await page.getByRole("button", { name: /焼く/ }).evaluate((el) => (el as HTMLButtonElement).click());
+  await page.waitForSelector(".bake-gauge__needle");
 }
 
 async function flush(page: Page) {
