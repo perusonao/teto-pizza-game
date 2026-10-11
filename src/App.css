@@ -803,28 +803,28 @@
     /* soft gloss of melted cheese */
     radial-gradient(ellipse at 38% 28%, var(--bake-cheese-gloss, transparent) 0 14%, transparent 46%),
     /* melted body: creamier, edge feathered out (alpha only; colours come finished from TypeScript) */
-    radial-gradient(ellipse closest-side at var(--bake-cheese-body-at, 46% 44%), var(--bake-cheese-body-0, transparent) 0, var(--bake-cheese-body-1, transparent) 58%, var(--bake-cheese-body-2, transparent) 82%, var(--bake-cheese-body-3, transparent) 100%),
+    radial-gradient(ellipse closest-side at var(--bake-cheese-body-at, 46% 44%), var(--bake-cheese-body-0, transparent) 0, var(--bake-cheese-body-1, transparent) 50%, var(--bake-cheese-body-2, transparent) 74%, var(--bake-cheese-body-3, transparent) 100%),
     /* raw lump (fades out as it melts; at melt 0 this is exactly the original gradient) */
     radial-gradient(circle at 35% 30%, var(--bake-cheese-raw-0, #fffdf5), var(--bake-cheese-raw-1, #f3ead0) 65%, var(--bake-cheese-raw-2, #e6d8ae) 100%);
   box-shadow:
-    0 2px 3px rgba(30, 16, 4, 0.3),
+    0 2px 3px var(--bake-cheese-drop, rgba(30, 16, 4, 0.3)),
     /* the crisp white ring dissolves as the cheese melts */
     0 0 0 1.5px var(--bake-cheese-ring, rgba(255, 255, 255, 0.8)),
     0 0 calc(3px * var(--melt)) calc(2px * var(--melt)) var(--bake-cheese-halo, transparent),
     /* a faint sauce-coloured stain on one side of the edge (partial blend into the sauce) */
     var(--bake-cheese-bleed-off, 0 0) 4px 0.5px var(--bake-cheese-bleed, transparent),
     /* irregular spread: lumpy cream lobes bleeding out in different directions */
-    calc(5px * var(--melt)) calc(1.5px * var(--melt)) calc(2px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-a, transparent),
-    calc(-4.5px * var(--melt)) calc(3px * var(--melt)) calc(2px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-b, transparent),
-    calc(1.5px * var(--melt)) calc(-4px * var(--melt)) calc(2px * var(--melt)) calc(0.2px * var(--melt)) var(--bake-cheese-lobe-a, transparent),
-    calc(-5px * var(--melt)) calc(-1.5px * var(--melt)) calc(1.5px * var(--melt)) 0 var(--bake-cheese-lobe-b, transparent),
-    calc(3px * var(--melt)) calc(4px * var(--melt)) calc(1.5px * var(--melt)) 0 var(--bake-cheese-lobe-b, transparent),
+    calc(5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-1, var(--bake-cheese-lobe-a, transparent)),
+    calc(-4.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-2, var(--bake-cheese-lobe-b, transparent)),
+    calc(1.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2px * var(--melt)) calc(0.2px * var(--melt)) var(--bake-cheese-lobe-3, var(--bake-cheese-lobe-a, transparent)),
+    calc(-5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-1.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.5px * var(--melt)) 0 var(--bake-cheese-lobe-4, var(--bake-cheese-lobe-b, transparent)),
+    calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.5px * var(--melt)) 0 var(--bake-cheese-lobe-5, var(--bake-cheese-lobe-b, transparent)),
     /* the melted pool sits on the pizza */
     0 calc(2.5px * var(--melt)) calc(4px * var(--melt)) calc(1px * var(--melt)) var(--bake-cheese-pool, transparent),
     inset 0 -3px 4px var(--bake-cheese-inset, rgba(255, 255, 255, 0.55));
   /* wider and a little flatter as it spreads; at melt 0 this is exactly the uniform scale `.pizza-cheese` sets */
   transform: scale(
-    calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 + 0.1 * var(--melt))),
+    calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 + 0.1 * var(--melt)) * var(--bake-cheese-aspect, 1)),
     calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 - 0.05 * var(--melt)))
   );
 }

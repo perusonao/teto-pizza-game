@@ -219,7 +219,7 @@ export function cheeseMeltsShape(ingredientId: string): boolean {
 /** Browning spot colour at char 0 (golden) and char 1 (dark brown), as the spot is *drawn on the cheese element*: the
  *  cheese's own bake `filter` (`cheeseVisualFrame`: brightness 0.6 / saturate 0.75 / sepia 0.25 at heat 2) then darkens it
  *  once more, so the char end is a mid brown that lands on dark brown on screen, never a grey. */
-const SPOT_GOLDEN = [200, 138, 58] as const;
+const SPOT_GOLDEN = [190, 146, 90] as const;
 const SPOT_CHARRED = [124, 68, 28] as const;
 
 function rgba(r: number, g: number, b: number, a: number): string {
@@ -281,19 +281,21 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
   // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
   const body = clamp01(melt * 1.6);
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
-  // 4 outline + 2 body-centre + 2 bleed direction + 4 x 4 blotch values
-  const j = seedKey === undefined ? new Array<number>(24).fill(0) : cheeseMeltJitter(seedKey, 24);
+  // 4 outline + 2 body-centre / bleed direction + 4 x 4 blotch values + 5 lobe strengths + spread + aspect
+  const j = seedKey === undefined ? new Array<number>(32).fill(0) : cheeseMeltJitter(seedKey, 32);
   const pct = (value: number) => `${clampRange(value, 24, 70).toFixed(1)}%`;
   const radius =
-    `${pct(55 - 15 * melt + 9 * melt * j[0])} ${pct(45 + 15 * melt + 9 * melt * j[1])} ` +
-    `${pct(48 + 10 * melt + 9 * melt * j[2])} ${pct(52 - 14 * melt + 9 * melt * j[3])} / ` +
-    `${pct(55 + 7 * melt + 7 * melt * j[1])} ${pct(50 - 10 * melt + 7 * melt * j[2])} ` +
-    `${pct(50 + 10 * melt + 7 * melt * j[3])} ${pct(45 - 7 * melt + 7 * melt * j[0])}`;
+    `${pct(55 - 15 * melt + 13 * melt * j[0])} ${pct(45 + 15 * melt + 13 * melt * j[1])} ` +
+    `${pct(48 + 10 * melt + 13 * melt * j[2])} ${pct(52 - 14 * melt + 13 * melt * j[3])} / ` +
+    `${pct(55 + 7 * melt + 10 * melt * j[1])} ${pct(50 - 10 * melt + 10 * melt * j[2])} ` +
+    `${pct(50 + 10 * melt + 10 * melt * j[3])} ${pct(45 - 7 * melt + 10 * melt * j[0])}`;
   const vars: Record<string, string> = {
     "--bake-melt": melt.toFixed(3),
     "--bake-cheese-radius": radius,
     // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly
     "--bake-cheese-body-at": `${(46 + 13 * j[4]).toFixed(1)}% ${(44 + 13 * j[5]).toFixed(1)}%`,
+    // melted cheese lies flat in the sauce: the lump's drop shadow fades with melt
+    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 - 0.7 * melt)),
     "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
     "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
     // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
@@ -301,31 +303,39 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     "--bake-cheese-raw-0": rgba(255, 253, 245, 1 - melt),
     "--bake-cheese-raw-1": rgba(243, 234, 208, 1 - melt),
     "--bake-cheese-raw-2": rgba(230, 216, 174, 1 - melt),
-    "--bake-cheese-body-0": rgba(252, 243, 214, body),
-    "--bake-cheese-body-1": rgba(245, 232, 194, body),
-    "--bake-cheese-body-2": rgba(238, 221, 176, 0.95 * body),
-    "--bake-cheese-body-3": rgba(234, 214, 166, 0.7 * body),
+    "--bake-cheese-body-0": rgba(240, 235, 223, body),
+    "--bake-cheese-body-1": rgba(237, 231, 216, body),
+    "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
+    "--bake-cheese-body-3": rgba(230, 220, 200, 0.7 * body),
     // cream halo right outside the feathered edge, so the sauce never shows through as a ring between body and spread
-    "--bake-cheese-halo": rgba(240, 226, 186, 0.8 * melt),
+    "--bake-cheese-halo": rgba(232, 224, 204, 0.5 * melt),
     // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
-    "--bake-cheese-bleed": rgba(222, 110, 58, 0.38 * melt),
+    "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
-    "--bake-cheese-gloss": rgba(255, 251, 238, 0.7 * melt),
-    "--bake-cheese-lobe-a": rgba(244, 235, 208, 0.95 * melt),
-    "--bake-cheese-lobe-b": rgba(240, 229, 198, 0.78 * melt),
-    "--bake-cheese-pool": rgba(60, 30, 8, 0.22 * melt),
+    "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
+    "--bake-cheese-lobe-a": rgba(241, 237, 224, 0.6 * melt),
+    "--bake-cheese-lobe-b": rgba(237, 231, 214, 0.5 * melt),
+    "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
     "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
     "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
   };
   SPOTS.forEach((spot, i) => {
     const o = 6 + i * 4;
-    const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.4);
-    const size = clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
+    const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.3);
+    const size = 0.72 * clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
     vars[`--bake-cheese-sp${i + 1}-at`] = `${(spot.x + 12 * j[o]).toFixed(1)}% ${(spot.y + 10 * j[o + 1]).toFixed(1)}%`;
     vars[`--bake-cheese-sp${i + 1}-r`] = `${(spot.rx * size).toFixed(2)}px ${(spot.ry * size).toFixed(2)}px`;
-    vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast * strength);
-    vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast * strength);
+    vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
+    vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
   });
+  // the five spread lobes are not equally strong, and the whole spread is a little wider or tighter per piece: a melt that
+  // runs further on one side. The factors keep every lobe inside A3's reach (offset x spread <= 1.1, strength <= 1).
+  for (let i = 0; i < 5; i += 1) {
+    const base = i % 2 === 0 ? [241, 237, 224, 0.6] : [237, 231, 214, 0.5];
+    vars[`--bake-cheese-lobe-${i + 1}`] = rgba(base[0], base[1], base[2], base[3] * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
+  }
+  vars["--bake-cheese-spread"] = clampRange(0.88 + 0.22 * j[27], 0.6, 1.1).toFixed(3);
+  vars["--bake-cheese-aspect"] = clampRange(1 + 0.05 * j[28], 0.95, 1.05).toFixed(3);
   return vars;
 }
 

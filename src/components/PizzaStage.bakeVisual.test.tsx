@@ -330,7 +330,7 @@ describe("PizzaStage cheese melt variables (#421 Pilot)", () => {
     const { unmount } = renderStage(0);
     const raw = document.querySelector<HTMLElement>(".pizza-cheese--mozzarella")!;
     expect(raw.style.getPropertyValue("--bake-melt")).toBe("0.000");
-    expect(raw.style.getPropertyValue("--bake-cheese-spot")).toBe("rgba(200, 138, 58, 0.000)");
+    expect(raw.style.getPropertyValue("--bake-cheese-spot")).toBe("rgba(190, 146, 90, 0.000)");
     unmount();
 
     const centre = (RECIPE.bakeTarget.start + RECIPE.bakeTarget.end) / 2;
@@ -338,7 +338,7 @@ describe("PizzaStage cheese melt variables (#421 Pilot)", () => {
     const perfect = document.querySelector<HTMLElement>(".pizza-cheese--mozzarella")!;
     expect(perfect.style.getPropertyValue("--bake-melt")).toBe("1.000");
     expect(perfect.style.getPropertyValue("--bake-cheese-ring")).toBe("rgba(255, 255, 255, 0.000)");
-    expect(perfect.style.getPropertyValue("--bake-cheese-spot")).not.toBe("rgba(200, 138, 58, 0.000)");
+    expect(perfect.style.getPropertyValue("--bake-cheese-spot")).not.toBe("rgba(190, 146, 90, 0.000)");
     second.unmount();
 
     renderStage(100);
