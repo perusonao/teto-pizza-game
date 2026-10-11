@@ -54,6 +54,7 @@ import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
 import type { DoughShape } from "../logic/doughShape";
+import { DOUGH_SIZE_STATUS_TEXT, type DoughSizeStatus } from "../logic/doughFeedback";
 import {
   buildMitoOrderLine,
   buildTetoBakeLine,
@@ -140,6 +141,10 @@ interface GameScreenProps {
    *  including the current in-progress gesture -- drives the DOUGH step's own CTA
    *  disabled/enabled state. */
   doughShapeComplete: boolean;
+  /** Issue #474 A-1: display-only status for the DOUGH step's one-line readout under the pizza
+   *  (why 次へ is unavailable). Optional: absent, it falls back to what `doughShapeComplete` alone
+   *  says, so it can never disagree with the CTA. */
+  doughSizeStatus?: DoughSizeStatus;
   onGoHome: () => void;
   onBeginPrepare: () => void;
   onResetPizza: () => void;
@@ -234,6 +239,7 @@ export function GameScreen({
   pieceShadowMetrics,
   showDoughShape,
   doughShapeComplete,
+  doughSizeStatus: doughSizeStatusProp,
   onGoHome,
   onBeginPrepare,
   onResetPizza,
@@ -341,6 +347,9 @@ export function GameScreen({
   // completion -- see onewayFlow.test.ts) is defined in exactly one place, never duplicated.
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
+  // Issue #474 A-1: the status line must agree with the CTA above, so an unavailable 次へ always
+  // reads SMALL whatever the (optional) prop says.
+  const doughStatus: DoughSizeStatus = !doughShapeComplete ? "SMALL" : doughSizeStatusProp === "LARGE" ? "LARGE" : "READY";
 
   // Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): the active round's own recipe-specific
   // pre-BAKE sequence (`../data/cookingProfiles.ts`'s `deriveCoreSteps`, via `getCookingProfile`) --
@@ -838,6 +847,20 @@ export function GameScreen({
                   pieceMetrics={pieceShadowMetrics}
                 />
               )}
+            {/* Issue #474 A-1: DOUGH's one fixed-height status line (inside the dock's own reserved,
+                otherwise-empty DOUGH space, so nothing moves). Words only: no number, no score. */}
+            {state.makingStep === "DOUGH" && (
+              <div
+                id="dough-size-status"
+                className="dough-status-readout"
+                role="status"
+                aria-live="polite"
+                data-testid="dough-size-status"
+                data-status={doughStatus}
+              >
+                {DOUGH_SIZE_STATUS_TEXT[doughStatus]}
+              </div>
+            )}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}
@@ -912,6 +935,7 @@ export function GameScreen({
                 className="cta-button cta-button--bake"
                 onClick={onConfirmMakingStep}
                 disabled={!nextStepReady}
+                aria-describedby={state.makingStep === "DOUGH" ? "dough-size-status" : undefined}
               >
                 次へ {"→"}
               </button>
