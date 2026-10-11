@@ -235,7 +235,9 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     const greySpots = await darkestCheeseColor(page, "grey");
     const seen = JSON.stringify({ withSpots, withoutSpots, greySpots, warmth: [warmth(withSpots), warmth(greySpots)] });
     expect(isBrownBlotch(withSpots), seen).toBe(true);
-    expect(luma(withoutSpots) - luma(withSpots), seen).toBeGreaterThanOrEqual(12);
+    // The only difference between the two captures is the blotch colours, so any real darkening means they paint. The size of the
+    // darkening depends on the engine's compositing (measured: Chromium 12.4-13.0, WebKit 10.8 in CI), hence a floor well under both.
+    expect(luma(withoutSpots) - luma(withSpots), seen).toBeGreaterThanOrEqual(6);
     // The overbaked cheese filter warms everything, so even grey blotches come out brownish in absolute terms; what tells brown
     // from grey is how much of the red-over-blue warmth survives at the same darkness (measured: brown ~0.66, grey ~0.44).
     expect(warmth(withSpots) - warmth(greySpots), seen).toBeGreaterThanOrEqual(0.12);
