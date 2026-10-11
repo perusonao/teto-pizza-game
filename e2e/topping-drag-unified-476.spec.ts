@@ -9,7 +9,7 @@ import { DM_A, dinnerSave, openDinnerDetail, openWithSave } from "./support/dinn
  * Issue #476 (Topping Placement Human Feel 2.0), slice S1: tray drag-and-drop belongs to the ROUND, not to a Reference.
  * Guided (a recipe that is not Margherita), Free Cooking, Research and Dinner drag every scatter piece (a cheese AND a
  * non-mozzarella / non-basil topping); Lunch Rush still cannot. Real mouse gestures at 390x844 and 360x800 (the two
- * Chromium projects; WebKit in CI). Pinned alongside the drag: it lands at the requested point (no change to the
+ * Chromium projects; WebKit in CI). Pinned alongside the drag: it lands at the requested point, within 1 percentage point (no change to the
  * placement coordinates), Escape cancels, 1つ戻す takes the piece back, nothing overflows and every chip stays >= 44px.
  */
 
@@ -42,6 +42,13 @@ async function expectLayoutSane(page: Page, where: string) {
   }
 }
 
+/** WebKit rounds pointer coordinates to device pixels (a drop at 40%/50% reads 39.77%/49.82% at 360x800, and a plain tap shows the
+ *  same offset), so a dropped point is compared to the requested one within 1 percentage point (~3px), not byte for byte. */
+function expectNear(actual: { left: string; top: string }, x: number, y: number, message: string) {
+  expect(Math.abs(Number.parseFloat(actual.left) - x), `${message} (left ${actual.left})`).toBeLessThanOrEqual(1);
+  expect(Math.abs(Number.parseFloat(actual.top) - y), `${message} (top ${actual.top})`).toBeLessThanOrEqual(1);
+}
+
 /** Drags `chip` to (x%, y%) and returns the piece it created, read from the DOM (the placed coordinates). */
 async function dragAndRead(page: Page, chip: RegExp, x: number, y: number) {
   const before = await pieces(page).count();
@@ -56,7 +63,7 @@ async function exerciseDrag(page: Page, label: string, topping: RegExp) {
   await expect(physicalChips(page).first()).toBeVisible();
 
   const cheese = await dragAndRead(page, /モッツァレラ/, 40, 50);
-  expect(cheese, `${label}: dropped exactly where it was released`).toEqual({ left: "40%", top: "50%" });
+  expectNear(cheese, 40, 50, `${label}: dropped where it was released`);
 
   // Escape mid-drag cancels: nothing is placed.
   const chipBox = (await page.getByRole("button", { name: /モッツァレラ/ }).boundingBox())!;
@@ -73,7 +80,7 @@ async function exerciseDrag(page: Page, label: string, topping: RegExp) {
   await expectLayoutSane(page, `${label} TOPPING`);
   await expect(page.getByRole("button", { name: topping })).toHaveClass(/ingredient-chip--physical/);
   const placed = await dragAndRead(page, topping, 62, 52);
-  expect(placed, `${label}: a non-mozzarella/basil topping drops where released`).toEqual({ left: "62%", top: "52%" });
+  expectNear(placed, 62, 52, `${label}: a non-mozzarella/basil topping drops where released`);
   await expect(pieces(page)).toHaveCount(2);
 
   await page.getByRole("button", { name: "1つ戻す" }).click();
@@ -150,6 +157,6 @@ test.describe("S1: unified tray drag (#476)", () => {
     await tapDoughPercent(page, 65, 50);
     await expect(pieces(page)).toHaveCount(2);
     const first = await pieces(page).first().evaluate((el) => (el as HTMLElement).style.left);
-    expect(first).toBe("35%");
+    expect(Math.abs(Number.parseFloat(first) - 35)).toBeLessThanOrEqual(1);
   });
 });

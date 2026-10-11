@@ -81,6 +81,11 @@ Video Verification: PASS（ffprobe で codec / 解像度 / 長さ確認。再生
 - 確認: 事実。Dinner の見本の開閉は共有の `isReferencePopoverOpen` が持っており、`dinnerReferenceId` は閉じても消えない。
 - 対応: `dinnerReferenceId === null` をゲートから削除（`isReferencePopoverOpen` のみで一時停止）。e2e の Dinner に「見本を開く→閉じる→ドラッグできる」を追加し、修正前のソースで失敗・修正後に通過することを確認。unit は Dinner の見本が `state.dinner` 必須のため e2e で担保。
 
+## 4.6 WebKit CI での e2e 失敗と対応（テストの厳しすぎ）
+
+- `82b4b86` の `webkit-360x800 shard 2/2` で、新規 e2e の 5 件が失敗（実装ではなく座標の比較）。離した位置の期待値 `40%/50%` に対し WebKit は `39.77%/49.82%`、tap のみのテストでも `35%` に対し `34.65%`。WebKit はポインタ座標をデバイスピクセルに丸めるため、tap でも同じずれが出る（= 今回のドラッグ変更とは無関係の描画エンジン差）。
+- 対応: 座標の比較を「要求位置から 1 ポイント以内」に変更（テストのみ。実装は不変）。Chromium 両 viewport で 12 passed。WebKit はローカルに無いため CI で確認。
+
 ## 5. 未確認・リスク
 
 1. **iPhone 実機（Safari）**: ドラッグのつまみやすさ、プレビューが指の 30px 上に描かれる点と着地（指の真下）のずれ、押し出し（約 9%）の体感は実機で確認が必要（Phase 0 報告どおり）。
