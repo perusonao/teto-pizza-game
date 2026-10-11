@@ -21,6 +21,10 @@ import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived"
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 58, end: 78 };
+// The card HTML is compared byte-for-byte across cooks, and the 焼き加減 badge is 5-level (#469: ジャスト is the centre ±3pt of
+// FREE_BAKE, 68). Landing anywhere in the window can read 惜しい on one cook and ジャスト on the other, so aim at the centre
+// (the landing helper's tolerance is max(half-width, 1.5pt) -> 66.5-69.5, always ジャスト).
+const FREE_BAKE_JUST = { start: 67, end: 69 };
 const SAVE = {
   schemaVersion: 2,
   dex: ["margherita", "bismarck", "breakfast-pizza"].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
@@ -83,7 +87,7 @@ async function cook(page: Page, p: Pieces, from: "HOME" | "RESULT") {
     await place(page, name, spots.slice(s % 6, (s % 6) + n));
     s += n;
   }
-  await bakeToTarget(page, FREE_BAKE);
+  await bakeToTarget(page, FREE_BAKE_JUST);
   await page.waitForSelector(".result-panel");
 }
 
