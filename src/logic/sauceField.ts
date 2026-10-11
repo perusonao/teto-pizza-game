@@ -506,3 +506,11 @@ export function sauceFieldToRgbaPixels(
   }
   return pixels;
 }
+
+/**
+ * Issue #475 Slice 1 (display only): the alpha curve and visibility floor the display rasterizer in
+ * `./sauceDisplay.ts` shares with `sauceFieldToRgbaPixels` above, so the two can never drift apart.
+ * Re-exports of the private values above -- nothing here changes how any existing function behaves.
+ */
+export const SAUCE_DISPLAY_MIN_VISIBLE_VALUE = MIN_VISIBLE_VALUE;
+export const sauceDensityToAlpha = densityToAlpha;
