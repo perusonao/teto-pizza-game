@@ -22,6 +22,7 @@ import {
   cheeseMeltsShape,
   cheeseVisualFrame,
   crustBakeIntensity,
+  crustBlotchBackground,
   sauceBakeFrame,
   computeBakeHeat,
   doughVisualColors,
@@ -1068,11 +1069,21 @@ export function PizzaStage({
   // once exactly as before. The silhouette's <clipPath> is defined once, outside the body.
   const renderShapeLayer = () =>
     showDoughShape ? (
-      <div
-        className="pizza-dough-shape"
-        aria-hidden="true"
-        style={{ clipPath: `url(#${doughClipId})`, ...doughShapeStyle }}
-      />
+      <>
+        <div
+          className="pizza-dough-shape"
+          aria-hidden="true"
+          style={{ clipPath: `url(#${doughClipId})`, ...doughShapeStyle }}
+        />
+        {/* Issue #421: the crust blotches sit directly on the dough, *under* the sauce and
+            toppings (DOM order), so they only show where the crust is actually bare. */}
+        {bakeProgress !== null && (
+          <div
+            className="pizza-bake-overlay pizza-bake-overlay--crust"
+            style={{ opacity: crustBake, background: crustBlotchBackground(pizza.doughShape) }}
+          />
+        )}
+      </>
     ) : null;
 
   const pieceLayout = useMemo(
@@ -1224,7 +1235,6 @@ export function PizzaStage({
           neither can pop in or swap look at a fixed instant. */}
       {bakeProgress !== null && (
         <>
-          <div className="pizza-bake-overlay pizza-bake-overlay--crust" style={{ opacity: crustBake }} />
           <div className="pizza-bake-overlay pizza-bake-overlay--sheen" style={{ opacity: bakeRawSheenIntensity * 0.5 }} />
           <div className="pizza-bake-overlay pizza-bake-overlay--char" style={{ opacity: bakeCharIntensity * 0.85 }} />
         </>

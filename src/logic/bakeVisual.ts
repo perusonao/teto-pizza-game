@@ -17,6 +17,8 @@
  */
 import type { BakeTarget } from "../data/recipes";
 import { clamp01 } from "./referenceMatching";
+import { doughShapeRadiusAtAngle, type DoughShape } from "./doughShape";
+import { DOUGH_CENTER } from "./pizzaCoordinates";
 
 /**
  * Continuous "doneness" scalar: 0 at `progress` = 0, exactly 1 at the recipe's own target
@@ -314,4 +316,24 @@ export function sauceBakeFrame(heat: number): SauceBakeFrame {
 /** 0..1: crust puffs lighter at the rim with darker blotches as the bake progresses. */
 export function crustBakeIntensity(heat: number): number {
   return smooth01((heat - 0.4) / 0.9);
+}
+
+/**
+ * Crust blotches placed on the player's *actual* dough silhouette: each sits at 95% of
+ * `doughShapeRadiusAtAngle`, so a hand-shrunk or lopsided dough keeps its baked spots on its own
+ * crust instead of on the sauce or off the pizza. Returns a CSS `background` (stacked radial
+ * gradients in dough-percent space, same as the layer it paints); pure and render-only.
+ */
+export function crustBlotchBackground(shape: DoughShape): string {
+  const layers: string[] = [];
+  for (let i = 0; i < 8; i += 1) {
+    const angle = (i * Math.PI) / 4 + 0.26;
+    const r = doughShapeRadiusAtAngle(shape, angle) * 0.95;
+    const x = DOUGH_CENTER + Math.cos(angle) * r;
+    const y = DOUGH_CENTER + Math.sin(angle) * r;
+    const dark = i % 2 === 0;
+    const colour = dark ? "rgba(120, 66, 22, 0.42)" : "rgba(255, 224, 150, 0.4)";
+    layers.push(`radial-gradient(circle at ${x.toFixed(1)}% ${y.toFixed(1)}%, ${colour} 0 2%, transparent 4.4%)`);
+  }
+  return layers.join(", ");
 }

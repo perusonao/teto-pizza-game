@@ -336,6 +336,9 @@ describe("Issue #421 finished-pizza appeal wiring", () => {
     expect(sauce).not.toBeNull();
     expect(Number(sauce!.style.getPropertyValue("--sauce-gloss"))).toBe(1);
     expect(Number(crust!.style.opacity)).toBeGreaterThan(0.5);
+    // The crust blotches sit on the dough (right after the shape layer), under the sauce overlay.
+    expect(crust!.previousElementSibling?.classList.contains("pizza-dough-shape")).toBe(true);
+    expect(crust!.compareDocumentPosition(sauce!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("non-pilot cheeses keep the scale-only look (no melt vars)", () => {

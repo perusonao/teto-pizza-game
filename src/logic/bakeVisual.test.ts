@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { BakeTarget } from "../data/recipes";
+import { createIdealDoughShape, doughShapeRadiusAtAngle } from "./doughShape";
 import {
   bakeVisualStage,
   cheeseMeltShapeFrame,
   cheeseMeltsShape,
   crustBakeIntensity,
+  crustBlotchBackground,
   sauceBakeFrame,
   cheeseVisualFrame,
   charIntensity,
@@ -259,5 +261,37 @@ describe("Issue #421 finished-pizza appeal frames", () => {
     expect(cheeseMeltsShape("mozzarella")).toBe(true);
     expect(cheeseMeltsShape("gorgonzola")).toBe(false);
     expect(cheeseMeltsShape("basil")).toBe(false);
+  });
+});
+
+describe("Issue #421 crust blotches follow the real dough silhouette", () => {
+  function blotchPoints(css: string): { x: number; y: number }[] {
+    return [...css.matchAll(/circle at ([\d.]+)% ([\d.]+)%/g)].map((m) => ({ x: Number(m[1]), y: Number(m[2]) }));
+  }
+
+  it("places 8 blotches inside the silhouette, near the rim, for any shape", () => {
+    const ideal = createIdealDoughShape();
+    const shapes = [
+      ideal,
+      { radii: ideal.radii.map((r) => r * 0.6) },
+      { radii: ideal.radii.map((r, i) => (i % 2 ? r * 1.15 : r * 0.7)) },
+    ];
+    for (const shape of shapes) {
+      const points = blotchPoints(crustBlotchBackground(shape));
+      expect(points).toHaveLength(8);
+      for (const { x, y } of points) {
+        const distance = Math.hypot(x - 50, y - 50);
+        const rim = doughShapeRadiusAtAngle(shape, Math.atan2(y - 50, x - 50));
+        expect(distance).toBeLessThanOrEqual(rim);
+        expect(distance).toBeGreaterThan(rim * 0.85);
+      }
+    }
+  });
+
+  it("a smaller dough moves the blotches inward (never left on the original rim)", () => {
+    const ideal = createIdealDoughShape();
+    const small = { radii: ideal.radii.map((r) => r * 0.6) };
+    const far = (css: string) => Math.max(...blotchPoints(css).map(({ x, y }) => Math.hypot(x - 50, y - 50)));
+    expect(far(crustBlotchBackground(small))).toBeLessThan(far(crustBlotchBackground(ideal)) * 0.7);
   });
 });
