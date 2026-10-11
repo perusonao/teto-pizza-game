@@ -41,14 +41,17 @@ async function reachBake(page: Page) {
  */
 async function enterBakeAtZero(page: Page) {
   await page.clock.install();
+  let paused = false;
   for (const buffer of [300, 800, 2000]) {
     try {
       await page.clock.pauseAt(Date.now() + buffer);
+      paused = true;
       break;
     } catch (error) {
       if (!String(error).includes("to the past")) throw error;
     }
   }
+  if (!paused) throw new Error("enterBakeAtZero: could not pause the clock before BAKE (every pauseAt landed in the past)");
   await page.getByRole("button", { name: /焼く/ }).evaluate((el) => (el as HTMLButtonElement).click());
   await page.waitForSelector(".bake-gauge__needle");
 }
