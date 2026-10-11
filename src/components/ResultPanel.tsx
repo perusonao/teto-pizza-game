@@ -281,6 +281,11 @@ export function ResultPanel({
           {failedResearch && researchRows && (
             <ResearchRowsPanel rows={researchRows.rows} toppingOverCap={researchRows.toppingOverCap} />
           )}
+          {failedResearch && researchRows && researchRowsHaveChips(researchRows.rows) && (
+            <p className="result-panel__research-kept" data-testid="research-failed-kept">
+              {RESEARCH_UX_COPY.failedKept}
+            </p>
+          )}
           {failedTrialNoticeText && <p className="original-pizza__trial-notice">{failedTrialNoticeText}</p>}
           {bakeState && (
             <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
@@ -774,6 +779,11 @@ const RESEARCH_ROW_CATEGORIES: readonly { category: ResearchResultCategory; labe
  * not rendered at all, and nothing says "なし" / counts / totals / a verdict on the whole pizza. The same markup for every
  * original outcome. The symbol, not the colour, carries the meaning; the accessible name states it in words.
  */
+/** True when `ResearchRowsPanel` will draw at least one ○× chip (a topping-cap note alone is not a ○× result). */
+function researchRowsHaveChips(rows: readonly ResearchResultRow[]): boolean {
+  return rows.some((r) => RESEARCH_ROW_CATEGORIES.some((g) => g.category === r.category) && !!getIngredient(r.ingredientId)?.nameJa);
+}
+
 function ResearchRowsPanel({ rows, toppingOverCap }: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean }) {
   const groups = RESEARCH_ROW_CATEGORIES.map((g) => ({ ...g, rows: rows.filter((r) => r.category === g.category) }));
   const hasRows = groups.some((g) => g.rows.length > 0);

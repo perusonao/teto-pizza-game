@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
+import { buildCompletionFailureMessage } from "../data/completionMessages";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { getRecipe } from "../data/recipes";
 import { notebookView } from "../logic/discovery/trialNotebook";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
@@ -130,5 +132,45 @@ describe("FAILED without a Research target", () => {
     expect(s.lastResearchRows).toBeNull();
     expect(s.lastTrialAttempt).toBeNull();
     expect(s.researchExclusions).toEqual({});
+  });
+});
+
+/**
+ * Issue #472: the FAILED reason line of a Research trial is built from the recipe-free Free Cook gate (empty
+ * `requiredIngredients`), so it can only ever be one of three fixed sentences and never carries an ingredient id,
+ * the hidden recipe's name / id or a Research identifier (Contract 2.1, INV-B3 / B6 / B7).
+ */
+describe("FAILED Research reason line leaks nothing", () => {
+  const BURNT = 99;
+  const FIXED_REASONS = ["材料が入っていません", "生焼けで提供できません", "焦げすぎて提供できません"];
+  const hidden = getRecipe(T)!;
+  const cases: { name: string; pizza: PizzaState; value: number; expected: string }[] = [
+    { name: "ingredients, raw", pizza: mk("pesto", "fresh-tomato", "egg"), value: FAIL, expected: "生焼けで提供できません" },
+    { name: "ingredients, burnt", pizza: mk("pesto", "egg"), value: BURNT, expected: "焦げすぎて提供できません" },
+    { name: "empty pizza, raw", pizza: mk(null), value: FAIL, expected: "材料が入っていません" },
+    { name: "empty pizza, burnt", pizza: mk(null), value: BURNT, expected: "材料が入っていません" },
+  ];
+
+  for (const c of cases) {
+    it(`${c.name}: one fixed sentence, no ingredient id, no recipe identity`, () => {
+      const s = finish(start(single()), c.pizza, c.value);
+      expect(s.completion?.status).toBe("FAILED");
+      if (s.completion?.status !== "FAILED") return;
+      const line = buildCompletionFailureMessage(s.completion);
+      expect(line).toBe(c.expected);
+      expect(FIXED_REASONS).toContain(line);
+      // Free Cook never reports a per-ingredient failure: no `ingredientId` on any failure detail.
+      for (const f of s.completion.failures) expect("ingredientId" in f && f.ingredientId !== undefined).toBe(false);
+      expect(JSON.stringify(s.completion)).not.toMatch(/ingredientId/);
+      for (const needle of [hidden.id, hidden.nameJa, "チキン", "pesto-pollo", "？？？"]) expect(line).not.toContain(needle);
+    });
+  }
+
+  it("the reason line is the same for a Research trial and a targetless Free Cook of the same pizza", () => {
+    const research = finish(start(single()), mk("pesto", "egg"), FAIL);
+    const plain = finish(act(single(), { type: "START_FREE_COOK" }), mk("pesto", "egg"), FAIL);
+    if (research.completion?.status !== "FAILED" || plain.completion?.status !== "FAILED") throw new Error("expected FAILED");
+    expect(buildCompletionFailureMessage(research.completion)).toBe(buildCompletionFailureMessage(plain.completion));
+    expect(research.completion).toEqual(plain.completion);
   });
 });

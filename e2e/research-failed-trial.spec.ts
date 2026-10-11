@@ -91,6 +91,19 @@ test("bake-FAILED Research trial: RESULT shows ○×, the Notebook records it an
   const text = await failed.innerText();
   expect(text).toContain("+0 Pitz");
   expect(text).not.toMatch(/No\.|候補|残り|個中|テクニック|NEW PIZZA/);
+  // Issue #472: the reason line is one fixed sentence, the ○× stay note sits under the panel, and the card (text + DOM +
+  // aria) names neither the hidden recipe nor an ingredient the player did not use (the public label 「？？？ピザ（チキン）」
+  // is the one place the unlock ingredient may appear, INV-B7; the sauce used here is tomato, so pesto must not).
+  await expect(failed.locator(".result-panel__failed-reason")).toHaveText("生焼けで提供できません");
+  const kept = failed.getByTestId("research-failed-kept");
+  await expect(kept).toHaveText("使った材料の○×は残ったよ");
+  expect((await panel.boundingBox())!.y).toBeLessThan((await kept.boundingBox())!.y);
+  const html = await failed.innerHTML();
+  for (const needle of ["ペストポッロ", "pesto-pollo", "ペスト", "pesto"]) {
+    expect(text, needle).not.toContain(needle);
+    expect(html, needle).not.toContain(needle);
+  }
+  expect(html).not.toMatch(/data-(kind|outcome|candidate|target|recipe)/i);
   const m = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, vw: window.innerWidth }));
   expect(m.sw, "horizontal overflow").toBeLessThanOrEqual(m.vw);
   const cta = failed.getByRole("button", { name: "もう一度試す" });
@@ -111,4 +124,23 @@ test("bake-FAILED Research trial: RESULT shows ○×, the Notebook records it an
   await shot(page, "failed-notebook-board");
   const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}").researchExclusions, SAVE_KEY);
   expect(saved["pesto-pollo"]).toEqual(expect.arrayContaining(["tomato-sauce", "eggplant"]));
+});
+
+test("bake-FAILED Research trial with an empty pizza: fixed reason, no ○× panel and no 「○×は残ったよ」", async ({ page }) => {
+  test.setTimeout(240_000);
+  await open(page);
+  await startResearch(page);
+  await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page);
+  for (let i = 0; i < 3; i += 1) await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await bakeToTarget(page, RAW_BAKE);
+  await page.waitForSelector(".result-panel");
+  const failed = page.locator(".result-panel--failed");
+  await expect(failed).toBeVisible();
+  await expect(failed.locator(".result-panel__failed-reason")).toHaveText("材料が入っていません");
+  await expect(failed.getByTestId("research-rows")).toHaveCount(0);
+  await expect(failed.getByTestId("research-failed-kept")).toHaveCount(0);
+  const html = await failed.innerHTML();
+  for (const needle of ["ペストポッロ", "pesto-pollo", "ペスト", "pesto", "○", "×"]) expect(html, needle).not.toContain(needle);
+  await shot(page, "failed-result-empty");
 });

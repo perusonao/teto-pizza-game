@@ -8,6 +8,8 @@ export const RESEARCH_UX_COPY = {
   prepareGuidanceNoRows: "試作ノートを見て、次に試す材料を考えよう",
   /** RESULT (Research ORIGINAL): replaces the general free-cook sentence, which is about Dex matches. */
   resultNote: "試作結果とノートを見て、次に試す材料を考えてみよう。",
+  /** FAILED RESULT card, shown only while the ○× panel is rendered (>= 1 row): the bake failed but the disclosed ○× stay. */
+  failedKept: "使った材料の○×は残ったよ",
   /** The PREPARE card's direct Notebook entry. */
   notebookEntry: "\u{1F4D3} 試作ノート",
   notebookBack: "もどる",
