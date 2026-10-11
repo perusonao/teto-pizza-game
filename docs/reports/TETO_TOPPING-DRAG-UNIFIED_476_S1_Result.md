@@ -13,7 +13,7 @@
 | 材料の判定を純関数 `isDraggablePiece`（`placement === "scatter"` の cheese / topping。sauce は常に対象外）に | `src/logic/pieceDrag.ts` |
 | ラウンドの判定を純関数 `allowsPieceDragInRound`（Lunch Rush 以外）に | `src/state/roundKind.ts` |
 | `draggableIngredientIds` prop を廃止し、チップごとに `isDraggablePiece` で判定 | `src/components/IngredientTray.tsx` |
-| `physicalDragEnabled = allowsPieceDragInRound && phase==="PREPARE" && !Reference popover && !Dinner 見本 popover && !cookingInputPaused && !Dinner abandon` | `src/screens/GameScreen.tsx` |
+| `physicalDragEnabled = allowsPieceDragInRound && phase==="PREPARE" && !Reference popover && !cookingInputPaused && !Dinner abandon` | `src/screens/GameScreen.tsx` |
 
 効果:
 
@@ -74,6 +74,12 @@ Video Verification: PASS（ffprobe で codec / 解像度 / 長さ確認。再生
 3. Lunch Rush（不変）: ドラッグしても何も置かれず、チップを選んで tap すると置ける。
 
 実機 iPhone HV は **未実施**（Owner の完了条件 D9）。動画は Chromium。
+
+## 4.5 Codex review 指摘（P1）への対応
+
+- 指摘: `dinnerReferenceId`（Dinner の見本チップ用ローカル state）は見本を閉じても null に戻らず、`pieceDragEnabled` に含めると Dinner のドラッグが以後ずっと無効になる。
+- 確認: 事実。Dinner の見本の開閉は共有の `isReferencePopoverOpen` が持っており、`dinnerReferenceId` は閉じても消えない。
+- 対応: `dinnerReferenceId === null` をゲートから削除（`isReferencePopoverOpen` のみで一時停止）。e2e の Dinner に「見本を開く→閉じる→ドラッグできる」を追加し、修正前のソースで失敗・修正後に通過することを確認。unit は Dinner の見本が `state.dinner` 必須のため e2e で担保。
 
 ## 5. 未確認・リスク
 

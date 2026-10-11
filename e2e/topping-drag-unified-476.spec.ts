@@ -120,6 +120,12 @@ test.describe("S1: unified tray drag (#476)", () => {
     await openDinnerDetail(page, /ディナーミッション 1/);
     await page.getByRole("button", { name: /スタート/ }).click();
     await expect(page.getByTestId("dinner-target-row")).toBeVisible();
+    // Looking at a target's 見本 pauses the drag only while it is open: after closing it, dragging works again.
+    await page.getByTestId("dinner-chip-bismarck").click();
+    const popover = page.getByRole("dialog", { name: /ビスマルクの見本/ });
+    await expect(popover).toBeVisible();
+    await popover.getByRole("button", { name: /閉じる/ }).click();
+    await expect(popover).toHaveCount(0);
     await toCheeseStep(page);
     await exerciseDrag(page, "dinner", /にんにく/);
   });

@@ -384,14 +384,14 @@ export function GameScreen({
   // Issue #476 (S1): tray drag-and-drop belongs to the round, not to a Reference. It is on in Guided, Free Cooking /
   // Research and Dinner and off in Lunch Rush (`allowsPieceDragInRound`); the recipe, and whether it has a Reference
   // (none in Free Cooking / Research / Dinner), no longer matters. Every other signal that used to switch it off still
-  // does -- a Reference popover (Guided's own, Dinner's target chip), a global overlay or the 試作ノート sheet, the
+  // does -- a Reference popover (`isReferencePopoverOpen`, which Guided's 見本 and Dinner's target chip both drive; the Dinner chip's own
+  // `dinnerReferenceId` is never cleared on close, so it must not gate this), a global overlay or the 試作ノート sheet, the
   // Dinner abandon dialog -- and so does leaving PREPARE: IngredientTray drops a drag in flight the moment this turns
   // false, and the reducer's own PREPARE / category-for-step / stock gates remain the real backstop.
   const pieceDragEnabled =
     allowsPieceDragInRound(state) &&
     state.phase === "PREPARE" &&
     !isReferencePopoverOpen &&
-    dinnerReferenceId === null &&
     !cookingInputPaused &&
     !state.dinner?.abandonRequested;
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
