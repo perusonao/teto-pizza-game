@@ -22,7 +22,7 @@ import {
  * range (90-100) is too narrow to hit reliably.
  */
 
-const RAW = { start: 0, end: 20 };
+const RAW = { start: 0, end: 40 };
 const PERFECT = 70;
 const MARINARA_BURNT = 97;
 

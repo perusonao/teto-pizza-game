@@ -7,7 +7,7 @@ Decisions: Issue #419 comments "READ-ONLY 再監査 + Owner 判断依頼" (D-0..
 
 | Area | Change |
 |---|---|
-| `src/logic/bakeProgress.ts` (new) | The pure one-way clock: `BAKE_DURATION_S` (provisional, Owner HV retunes it — the only place to change it; **10s in the first HEAD `92db3d9`, 7s in the comparison candidate below**), `bakePositionAt`, `clampBakeFrameDt` (cap 0.1s/frame), BAKE-only zone fade constants and `computeBakeZoneOpacity`. |
+| `src/logic/bakeProgress.ts` (new) | The pure one-way clock: `BAKE_DURATION_S` (provisional, Owner HV retunes it — the only place to change it; **10s in `92db3d9`, 7s in `3e22563`, 5s in the current comparison candidate below**), `bakePositionAt`, `clampBakeFrameDt` (cap 0.1s/frame), BAKE-only zone fade constants and `computeBakeZoneOpacity`. |
 | `src/components/BakeOverlay.tsx` | Needle position = f(elapsed active time): 0→100 in 10s, holds at 100, never reverses. The clock pauses on `visibilitychange` hidden and window `blur`, restarts from "now" on return, and one frame adds at most 0.1s. Only the target zone (with its raw/burnt flanks) is in a fading layer: 0–3s shown, 3–5s fade, removed from 5s. Track + needle always visible. Needle is one neutral colour, the caption is always the neutral line, the CTA glow is gone. No input lock. |
 | `src/App.css` | `.bake-gauge__zones` layer, neutral needle colour, dead `.cta-button--glow` removed. |
 | Tests | New `bakeProgress.test.ts`, rewritten `BakeOverlay.test.tsx`, new `e2e/bake-one-way.spec.ts`; the rAF needle drivers in `App.test.tsx`, `App.cookingTimingBackground.test.tsx`, `App.techniques.test.tsx`, `App.freeCookTrayPaging.test.tsx` and the e2e helpers (`gestures.ts` landing, speed 55 → 10, one-way landing; `cut-skip-failed-bake`, `dinner`, `layout-contract`, `gestures-helper` windows) were updated for the new speed. |
@@ -24,7 +24,7 @@ Decisions: Issue #419 comments "READ-ONLY 再監査 + Owner 判断依頼" (D-0..
 ## Open items for the Owner
 
 - D-7 (HV): the zone is gone while the needle is still at ~50% (before most windows, 45–85, start) in both versions.
-- Duration is provisional (`BAKE_DURATION_S`). Owner HV on the iPhone found 10s "long overall"; **7s is a comparison candidate, not a decision** (Owner PR comment 2026-10-11).
+- Duration is provisional (`BAKE_DURATION_S`). Owner HV on the iPhone found 10s "long overall"; **7s was a comparison candidate; Owner iPhone HV found it too long and approved implementing a 5s candidate (also not a decision)** (Owner PR comments 2026-10-11).
 - Known, pre-existing, not changed here: `PizzaStage` still applies the discrete `pizza-dough--raw/--perfect/--burnt` class (crust border colour and sauce-layer filter) from `classifyBake`, so there is a small visual step at the window boundary during BAKE. It was already present after M3A and is not a reversal, but it is a faint "you are in the window" tell. Removing it touches `PizzaStage` and the finished-pizza look, so it is left for an Owner decision (separate Issue if wanted).
 - The Reference popover / global overlays are not a pause reason for BAKE (they were not before either); only hidden/blur pause the bake.
 
@@ -45,3 +45,12 @@ Owner comment on PR #466 (2026-10-11) asked for a 7s version on this branch for 
 - Unchanged: neutral needle colour and caption, no CTA glow, hidden/blur pause, 0.1s frame cap, no input lock; CUT's shared fade constants, `CONFIRM_BAKE`, Scoring 2.0, economy, save, Research.
 - Tests and e2e helpers now derive from `src/logic/bakeProgress.ts` (speed, duration, fade) instead of hard-coded 10s/55%/s numbers, so the next retune is a one-constant change.
 - Rollback to the 10s version = reset the three constants (`BAKE_DURATION_S = 10`, fade 3 / 5) or use HEAD `92db3d9`.
+
+## 5s comparison candidate (follow-up to Owner iPhone HV on the 7s version)
+
+Owner iPhone HV (2026-10-11): the 7s bake is too long; gauge movement PASS; post-bake flow PASS; the target-zone guide could disappear sooner. 7s: HV NOT APPROVED. The Owner then approved implementing a 5s comparison candidate on this branch (not a final approval; preview deploy and merge need separate Owner authorization).
+
+- `BAKE_DURATION_S` 7 → 5 (0→100, one-way, stops at the right end, 20 pt/s). Zone fade 0–1s shown / 1–2s fade / hidden from 2s (needle and track stay). At 2s the needle is at 40, before every recipe's bake window (45–85).
+- Unchanged: needle behaviour, hidden/blur pause, 0.1s frame cap, neutral needle colour and caption, no CTA glow, no input lock; Scoring 2.0, `CONFIRM_BAKE`, CUT (and its shared fade constants), economy, save, Research, the post-bake flow.
+- Tests: the unit tests and e2e specs that pin timings were updated; the rAF drivers and the e2e helpers still derive speed from `src/logic/bakeProgress.ts`. The "raw" take-out windows in `cut-skip-failed-bake` and the Dinner underbake were widened to 0–40 (every window starts at 45+, and at 20 pt/s a late virtual-clock pause can already be past 20).
+- Risk to watch in HV: at 20 pt/s one 0.1s frame moves the needle ~2 points and the whole run is 5s, so the take-out is less forgiving. Rollback = reset the three constants or use HEAD `3e22563` (7s) / `92db3d9` (10s).
