@@ -6,7 +6,9 @@ import {
   charIntensity,
   computeBakeHeat,
   doughVisualColors,
+  cheeseMeltCssVars,
   cheeseMeltLook,
+  cheeseMeltsShape,
   meltIntensity,
   rawSheenIntensity,
   toastIntensity,
@@ -235,5 +237,61 @@ describe("cheeseMeltLook (#421 Pilot)", () => {
     expect(burnt.melt).toBe(1);
     expect(burnt.toast).toBe(1);
     expect(burnt.char).toBeCloseTo(1, 10); // (2 - 1.6) / 0.4 is 0.9999999999999998 in floating point
+  });
+});
+
+describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
+  const vars = (heat: number) => cheeseMeltCssVars(cheeseMeltLook(heat));
+  const alpha = (css: string) => Number(/,\s*([\d.]+)\)$/.exec(css)![1]);
+  const rgb = (css: string) => /rgba\((\d+), (\d+), (\d+),/.exec(css)!.slice(1, 4).map(Number);
+
+  it("only mozzarella opts into the shape melt", () => {
+    expect(cheeseMeltsShape("mozzarella")).toBe(true);
+    for (const id of ["gorgonzola", "parmigiano", "fontina", "cheddar", "goat-cheese", "pepperoni"]) {
+      expect(cheeseMeltsShape(id)).toBe(false);
+    }
+  });
+
+  it("every value is a finished rgba() string or a plain 0..1 number, never CSS math (no calc inside a colour)", () => {
+    for (let heat = -0.5; heat <= 2.5; heat += 0.1) {
+      const v = vars(heat);
+      for (const [name, value] of Object.entries(v)) {
+        expect(value, name).not.toContain("calc");
+        if (name === "--bake-melt") expect(value).toMatch(/^[01]?\.?\d*$/);
+        else expect(value, name).toMatch(/^rgba\(\d{1,3}, \d{1,3}, \d{1,3}, [01](\.\d{1,3})?\)$/);
+      }
+    }
+  });
+
+  it("raw heat is the raw look: ring 0.8, inset 0.55, and no lobes / gloss / pool / spots", () => {
+    const v = vars(0);
+    expect(v["--bake-melt"]).toBe("0.000");
+    expect(alpha(v["--bake-cheese-ring"])).toBeCloseTo(0.8, 3);
+    expect(alpha(v["--bake-cheese-inset"])).toBeCloseTo(0.55, 3);
+    for (const k of ["gloss", "lobe-a", "lobe-b", "pool", "spot", "spot-soft"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(0);
+  });
+
+  it("melting dissolves the ring and brings the lobes in; browning shows by the target centre", () => {
+    const perfect = vars(1);
+    expect(alpha(perfect["--bake-cheese-ring"])).toBe(0);
+    expect(alpha(perfect["--bake-cheese-lobe-a"])).toBeGreaterThan(0.9);
+    expect(alpha(perfect["--bake-cheese-spot"])).toBeGreaterThan(0.4); // visible golden blotches at the properly baked point
+  });
+
+  it("charred spots are dark BROWN, not grey: red > green > blue by a clear margin, and darker than golden", () => {
+    const golden = rgb(vars(1)["--bake-cheese-spot"]);
+    const charred = rgb(vars(2)["--bake-cheese-spot"]);
+    expect(alpha(vars(2)["--bake-cheese-spot"])).toBe(1);
+    expect(charred[0]).toBeGreaterThan(charred[1] + 30);
+    expect(charred[1]).toBeGreaterThan(charred[2] + 20);
+    expect(charred[0]).toBeLessThan(golden[0]);
+    expect(charred[1]).toBeLessThan(golden[1]);
+    // monotonic darkening between golden and charred
+    let prev = rgb(vars(1.6)["--bake-cheese-spot"]);
+    for (let heat = 1.65; heat <= 2; heat += 0.05) {
+      const c = rgb(vars(heat)["--bake-cheese-spot"]);
+      expect(c[0]).toBeLessThanOrEqual(prev[0]);
+      prev = c;
+    }
   });
 });

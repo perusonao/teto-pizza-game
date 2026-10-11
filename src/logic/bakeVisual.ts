@@ -190,20 +190,63 @@ export function cheeseVisualFrame(heat: number): Omit<CheeseVisualFrame, "heat">
  * Issue #421 (Finished Pizza Appetite Appeal, Pilot): the three 0..1 scalars a cheese's *shape-level* melt look reads.
  * Nothing new is decided here -- they are the existing `meltIntensity` / `toastIntensity` / `charIntensity` of the same
  * continuous `heat` (so there is still exactly one doneness authority, and a value of 0 across the board is the raw cheese
- * every non-bake context already draws). PizzaStage exposes them as `--bake-melt` / `--bake-toast` / `--bake-char` on every
- * cheese; a cheese kind opts in by reading them in CSS (mozzarella only in the Pilot, `.pizza-cheese--mozzarella`).
+ * every non-bake context already draws).
  */
 export interface CheeseMeltLook {
   /** 0 raw lump -> 1 fully melted (soft irregular outline, spread, gloss). */
   melt: number;
   /** 0 -> 1 local golden browning spots. */
   toast: number;
-  /** 0 -> 1 the browning spots turn dark (overbaked). */
+  /** 0 -> 1 the browning spots turn dark brown (overbaked). */
   char: number;
 }
 
 export function cheeseMeltLook(heat: number): CheeseMeltLook {
   return { melt: meltIntensity(heat), toast: toastIntensity(heat), char: charIntensity(heat) };
+}
+
+/**
+ * Cheeses that get the shape-level melt (Issue #421 Pilot: mozzarella only). Opt-in by ingredient id, so every other cheese
+ * keeps its scale-only look and receives none of the variables below. To add a cheese: add its id here AND give its
+ * `.pizza-cheese--<id>` CSS rule (src/App.css) the same `var(--bake-cheese-*)` reads as `.pizza-cheese--mozzarella`.
+ */
+export const MELT_SHAPE_CHEESE_IDS: ReadonlySet<string> = new Set(["mozzarella"]);
+
+export function cheeseMeltsShape(ingredientId: string): boolean {
+  return MELT_SHAPE_CHEESE_IDS.has(ingredientId);
+}
+
+/** Browning spot colour at char 0 (golden) and char 1 (dark brown), as the spot is *drawn on the cheese element*: the
+ *  cheese's own bake `filter` (`cheeseVisualFrame`: brightness 0.6 / saturate 0.75 / sepia 0.25 at heat 2) then darkens it
+ *  once more, so the char end is a mid brown that lands on dark brown on screen, never a grey. */
+const SPOT_GOLDEN = [200, 138, 58] as const;
+const SPOT_CHARRED = [124, 68, 28] as const;
+
+function rgba(r: number, g: number, b: number, a: number): string {
+  return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${clamp01(a).toFixed(3)})`;
+}
+
+/**
+ * The CSS custom properties `.pizza-cheese--mozzarella` reads (src/App.css). All colours are resolved to plain `rgba()`
+ * strings here, not computed in CSS: CSS math inside a colour function (`rgba(calc(...))`) is not safe on every engine
+ * (older Safari / in-app WebViews drop the whole declaration), so the stylesheet only ever receives finished values. Every
+ * variable has the raw look as its CSS fallback, so a cheese without them is drawn exactly as before. Pure function of the
+ * existing scalars; geometry (`--bake-melt`) stays a unitless 0..1 number used in length `calc()`, which every engine supports.
+ */
+export function cheeseMeltCssVars(look: CheeseMeltLook): Record<string, string> {
+  const { melt, toast, char } = look;
+  const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
+  return {
+    "--bake-melt": melt.toFixed(3),
+    "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
+    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.3 * melt),
+    "--bake-cheese-gloss": rgba(255, 251, 238, 0.7 * melt),
+    "--bake-cheese-lobe-a": rgba(244, 235, 208, 0.95 * melt),
+    "--bake-cheese-lobe-b": rgba(240, 229, 198, 0.78 * melt),
+    "--bake-cheese-pool": rgba(60, 30, 8, 0.22 * melt),
+    "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
+    "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
+  };
 }
 
 /**
