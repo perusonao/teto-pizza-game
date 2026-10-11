@@ -6901,6 +6901,16 @@ p.hint-sheet__step {
   text-align: center;
 }
 
+/* Issue #472: the one fixed line under the ○× panel of a bake-FAILED Research trial (same calm tone as the row note). */
+.result-panel__research-kept {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #5a4632;
+  text-align: center;
+}
+
 /* Contract 2.1 S5: 「今回の試作結果」 -- compact category groups of ingredient chips (name + ○ / ×). No fixed height:
    the chips wrap. The symbol carries the meaning; × is a calm neutral tone, not an error red. */
 .research-rows {
