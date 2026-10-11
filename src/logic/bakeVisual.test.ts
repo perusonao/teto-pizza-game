@@ -6,6 +6,7 @@ import {
   charIntensity,
   computeBakeHeat,
   doughVisualColors,
+  cheeseMeltLook,
   meltIntensity,
   rawSheenIntensity,
   toastIntensity,
@@ -196,5 +197,43 @@ describe("toppingVisualFrame", () => {
     expect(toppingVisualFrame(50, false)).toEqual(toppingVisualFrame(2, false));
     expect(toppingVisualFrame(-5, true)).toEqual(toppingVisualFrame(0, true));
     expect(toppingVisualFrame(50, true)).toEqual(toppingVisualFrame(2, true));
+  });
+});
+
+describe("cheeseMeltLook (#421 Pilot)", () => {
+  it("is exactly the existing melt / toast / char intensities of the same heat (no second doneness authority)", () => {
+    for (let heat = -0.5; heat <= 2.5; heat += 0.05) {
+      expect(cheeseMeltLook(heat)).toEqual({
+        melt: meltIntensity(heat),
+        toast: toastIntensity(heat),
+        char: charIntensity(heat),
+      });
+    }
+  });
+
+  it("raw cheese (heat 0) is all zeros, i.e. the unchanged raw look", () => {
+    expect(cheeseMeltLook(0)).toEqual({ melt: 0, toast: 0, char: 0 });
+  });
+
+  it("melts before it browns and browns before it chars; all stay in [0, 1] and never decrease", () => {
+    let prev = cheeseMeltLook(0);
+    for (let heat = 0; heat <= 2; heat += 0.01) {
+      const look = cheeseMeltLook(heat);
+      for (const key of ["melt", "toast", "char"] as const) {
+        expect(look[key]).toBeGreaterThanOrEqual(0);
+        expect(look[key]).toBeLessThanOrEqual(1);
+        expect(look[key]).toBeGreaterThanOrEqual(prev[key] - 1e-12);
+      }
+      prev = look;
+    }
+    const perfect = cheeseMeltLook(1);
+    expect(perfect.melt).toBe(1); // fully melted by the target centre
+    expect(perfect.toast).toBeGreaterThan(0);
+    expect(perfect.toast).toBeLessThan(1);
+    expect(perfect.char).toBe(0);
+    const burnt = cheeseMeltLook(2);
+    expect(burnt.melt).toBe(1);
+    expect(burnt.toast).toBe(1);
+    expect(burnt.char).toBeCloseTo(1, 10); // (2 - 1.6) / 0.4 is 0.9999999999999998 in floating point
   });
 });

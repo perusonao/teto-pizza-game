@@ -3,6 +3,12 @@
 - Status: **READ-ONLY audit + design proposal. docs-only. No production code, no deploy, no PR merge.**
 - Base: `main` `8cb5d72` (branch `claude/issue-421-appetite-appeal-design`)
 - Written: 2026-10-11
+- **Update (Owner decision, 2026-10-11): implementation approved, mozzarella-only Pilot, stronger melt.** This document is the
+  single design baseline. A second, parallel design branch (`claude/issue-421-finished-pizza-appeal`,
+  `TETO_FINISHED-PIZZA-APPEAL_421_Design.md`) reached the same diagnosis and is not carried forward as a separate document; its
+  distinct points (paint cost of many cheese pieces, DOM golden, Preview slot) are listed under the Pilot's remaining risks in
+  `TETO_APPETITE-APPEAL_421_Pilot_Result.md`. §3.2 (sauce) and §3.3 (crust) are **out of the Pilot** and stay as follow-ups.
+  What was built, and its evidence, is in the Result report.
 - HV policy: docs-only / audit-only, so no video or screenshots (`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`
   §2; `docs/PROJECT_HANDOFF.md` "Audit-only tasks are exempt").
 - Everything below was read from source on `main`. **No rendered screenshot was taken**, so "looks like X" statements are

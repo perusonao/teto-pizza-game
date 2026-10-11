@@ -296,3 +296,52 @@ describe("PizzaStage topping roast visual (PR-E)", () => {
     expect(toppingEmojiFilter("pepperoni")).toContain("drop-shadow(");
   });
 });
+
+describe("PizzaStage cheese melt variables (#421 Pilot)", () => {
+  function meltVars(): { melt: string; toast: string; char: string } {
+    const el = document.querySelector<HTMLElement>(".pizza-cheese");
+    if (!el) throw new Error(".pizza-cheese missing");
+    return {
+      melt: el.style.getPropertyValue("--bake-melt"),
+      toast: el.style.getPropertyValue("--bake-toast"),
+      char: el.style.getPropertyValue("--bake-char"),
+    };
+  }
+
+  afterEach(cleanup);
+
+  it("sets nothing outside BAKE (the raw look every tray / Reference / PREPARE cheese keeps)", () => {
+    renderStage(null);
+    expect(meltVars()).toEqual({ melt: "", toast: "", char: "" });
+  });
+
+  it("raw needle: all zero; target centre: fully melted, partly browned, not charred; far right: charred", () => {
+    const { unmount } = renderStage(0);
+    expect(meltVars()).toEqual({ melt: "0.000", toast: "0.000", char: "0.000" });
+    unmount();
+
+    const centre = (RECIPE.bakeTarget.start + RECIPE.bakeTarget.end) / 2;
+    const second = renderStage(centre);
+    const perfect = meltVars();
+    expect(perfect.melt).toBe("1.000");
+    expect(Number(perfect.toast)).toBeGreaterThan(0);
+    expect(Number(perfect.toast)).toBeLessThan(1);
+    expect(perfect.char).toBe("0.000");
+    second.unmount();
+
+    renderStage(100);
+    expect(meltVars()).toEqual({ melt: "1.000", toast: "1.000", char: "1.000" });
+  });
+
+  it("is also set on a non-mozzarella cheese (ready for later cheeses), where the CSS simply does not read it", () => {
+    renderStage(70, { pizza: pizzaCheeseOnly() });
+    const gorgonzola = document.querySelector<HTMLElement>(".pizza-cheese--gorgonzola");
+    expect(gorgonzola?.style.getPropertyValue("--bake-melt")).not.toBe("");
+  });
+
+  it("never touches a non-cheese topping", () => {
+    renderStage(70, { pizza: pizzaWithMixedToppings() });
+    const pepperoni = document.querySelector<HTMLElement>('[class*="ingredient-piece-visual"]:not(.pizza-cheese)');
+    expect(pepperoni?.style.getPropertyValue("--bake-melt") ?? "").toBe("");
+  });
+});

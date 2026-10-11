@@ -18,6 +18,7 @@ import type { MakingStep } from "../state/gameReducer";
 import { classifyBake } from "../logic/bake";
 import {
   charIntensity,
+  cheeseMeltLook,
   cheeseVisualFrame,
   computeBakeHeat,
   doughVisualColors,
@@ -944,9 +945,15 @@ export function PizzaStage({
       }
     : undefined;
   const cheeseFrame = bakeProgress === null ? null : cheeseVisualFrame(bakeHeat);
+  // #421: the shape-level melt scalars (same heat; see ../logic/bakeVisual.ts `cheeseMeltLook`). Set on every cheese; only
+  // a cheese kind whose CSS reads them (mozzarella in the Pilot) looks different. Absent outside BAKE/CUT/RESULT => raw look.
+  const cheeseMelt = bakeProgress === null ? null : cheeseMeltLook(bakeHeat);
   const cheeseStyle: CSSProperties | undefined = cheeseFrame
     ? ({
         "--bake-melt-scale": cheeseFrame.scale,
+        "--bake-melt": cheeseMelt?.melt.toFixed(3),
+        "--bake-toast": cheeseMelt?.toast.toFixed(3),
+        "--bake-char": cheeseMelt?.char.toFixed(3),
         filter: `brightness(${cheeseFrame.brightness.toFixed(3)}) saturate(${cheeseFrame.saturate.toFixed(3)}) sepia(${cheeseFrame.sepia.toFixed(3)})`,
       } as CSSProperties)
     : undefined;

@@ -187,6 +187,26 @@ export function cheeseVisualFrame(heat: number): Omit<CheeseVisualFrame, "heat">
 }
 
 /**
+ * Issue #421 (Finished Pizza Appetite Appeal, Pilot): the three 0..1 scalars a cheese's *shape-level* melt look reads.
+ * Nothing new is decided here -- they are the existing `meltIntensity` / `toastIntensity` / `charIntensity` of the same
+ * continuous `heat` (so there is still exactly one doneness authority, and a value of 0 across the board is the raw cheese
+ * every non-bake context already draws). PizzaStage exposes them as `--bake-melt` / `--bake-toast` / `--bake-char` on every
+ * cheese; a cheese kind opts in by reading them in CSS (mozzarella only in the Pilot, `.pizza-cheese--mozzarella`).
+ */
+export interface CheeseMeltLook {
+  /** 0 raw lump -> 1 fully melted (soft irregular outline, spread, gloss). */
+  melt: number;
+  /** 0 -> 1 local golden browning spots. */
+  toast: number;
+  /** 0 -> 1 the browning spots turn dark (overbaked). */
+  char: number;
+}
+
+export function cheeseMeltLook(heat: number): CheeseMeltLook {
+  return { melt: meltIntensity(heat), toast: toastIntensity(heat), char: charIntensity(heat) };
+}
+
+/**
  * Gameplay UX PR-E (Finished Pizza Visual 2.0).
  *
  * Fresh Audit finding (docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md section 7):
