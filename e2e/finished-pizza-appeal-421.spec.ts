@@ -80,7 +80,12 @@ async function expectLayersInsideStage(page: Page, expectedPieces?: number) {
       }),
     );
     expect(boxes.length, `${selector} count`).toBeGreaterThan(0);
-    if (expectedPieces) expect(boxes.length, `${selector} per piece`).toBeGreaterThanOrEqual(expectedPieces);
+    // Crust / sauce layers are part of every piece's body copy; cheese only appears in the piece(s) a
+    // piece of cheese actually lies in (one on a cut line is cloned into each neighbour), so it has no
+    // per-piece count.
+    if (expectedPieces && selector !== ".pizza-cheese--meltable") {
+      expect(boxes.length, `${selector} per piece`).toBeGreaterThanOrEqual(expectedPieces);
+    }
     for (const b of boxes) {
       expect(b.w, `${selector} width`).toBeGreaterThan(0);
       expect(b.h, `${selector} height`).toBeGreaterThan(0);
