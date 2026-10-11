@@ -791,20 +791,19 @@
   --melt: var(--bake-melt, 0);
   width: 28px;
   height: 23px;
-  /* raw blob -> a wider, lopsided, softer outline */
-  border-radius:
-    calc(55% - 15% * var(--melt)) calc(45% + 15% * var(--melt)) calc(48% + 10% * var(--melt)) calc(52% - 14% * var(--melt)) /
-    calc(55% + 7% * var(--melt)) calc(50% - 10% * var(--melt)) calc(50% + 10% * var(--melt)) calc(45% - 7% * var(--melt));
+  /* raw blob -> a wider, lopsided, softer outline; resolved per piece in TypeScript (`--bake-cheese-radius`), so the pieces of one
+     pizza are not the same disc. The fallback is the raw outline. */
+  border-radius: var(--bake-cheese-radius, 55% 45% 48% 52% / 55% 50% 50% 45%);
   background:
     /* local browning: uneven soft blotches, golden when toasted, dark brown when charred */
-    radial-gradient(ellipse 3.6px 2.3px at 27% 34%, var(--bake-cheese-spot, transparent) 0, var(--bake-cheese-spot-soft, transparent) 45%, transparent 100%),
-    radial-gradient(ellipse 2px 2.8px at 64% 25%, var(--bake-cheese-spot, transparent) 0, var(--bake-cheese-spot-soft, transparent) 45%, transparent 100%),
-    radial-gradient(ellipse 3.2px 2.6px at 73% 63%, var(--bake-cheese-spot, transparent) 0, var(--bake-cheese-spot-soft, transparent) 45%, transparent 100%),
-    radial-gradient(ellipse 2.6px 1.5px at 40% 74%, var(--bake-cheese-spot, transparent) 0, var(--bake-cheese-spot-soft, transparent) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp1-r, 3.6px 2.3px) at var(--bake-cheese-sp1-at, 27% 34%), var(--bake-cheese-spot-1, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-1, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp2-r, 2px 2.8px) at var(--bake-cheese-sp2-at, 64% 25%), var(--bake-cheese-spot-2, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-2, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp3-r, 3.2px 2.6px) at var(--bake-cheese-sp3-at, 73% 63%), var(--bake-cheese-spot-3, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-3, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp4-r, 2.6px 1.5px) at var(--bake-cheese-sp4-at, 40% 74%), var(--bake-cheese-spot-4, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-4, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
     /* soft gloss of melted cheese */
     radial-gradient(ellipse at 38% 28%, var(--bake-cheese-gloss, transparent) 0 14%, transparent 46%),
     /* melted body: creamier, edge feathered out (alpha only; colours come finished from TypeScript) */
-    radial-gradient(ellipse closest-side at 46% 44%, var(--bake-cheese-body-0, transparent) 0, var(--bake-cheese-body-1, transparent) 58%, var(--bake-cheese-body-2, transparent) 82%, var(--bake-cheese-body-3, transparent) 100%),
+    radial-gradient(ellipse closest-side at var(--bake-cheese-body-at, 46% 44%), var(--bake-cheese-body-0, transparent) 0, var(--bake-cheese-body-1, transparent) 58%, var(--bake-cheese-body-2, transparent) 82%, var(--bake-cheese-body-3, transparent) 100%),
     /* raw lump (fades out as it melts; at melt 0 this is exactly the original gradient) */
     radial-gradient(circle at 35% 30%, var(--bake-cheese-raw-0, #fffdf5), var(--bake-cheese-raw-1, #f3ead0) 65%, var(--bake-cheese-raw-2, #e6d8ae) 100%);
   box-shadow:
@@ -812,6 +811,8 @@
     /* the crisp white ring dissolves as the cheese melts */
     0 0 0 1.5px var(--bake-cheese-ring, rgba(255, 255, 255, 0.8)),
     0 0 calc(3px * var(--melt)) calc(2px * var(--melt)) var(--bake-cheese-halo, transparent),
+    /* a faint sauce-coloured stain on one side of the edge (partial blend into the sauce) */
+    var(--bake-cheese-bleed-off, 0 0) 4px 0.5px var(--bake-cheese-bleed, transparent),
     /* irregular spread: lumpy cream lobes bleeding out in different directions */
     calc(5px * var(--melt)) calc(1.5px * var(--melt)) calc(2px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-a, transparent),
     calc(-4.5px * var(--melt)) calc(3px * var(--melt)) calc(2px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-b, transparent),

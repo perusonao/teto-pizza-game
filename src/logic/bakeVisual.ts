@@ -227,19 +227,73 @@ function rgba(r: number, g: number, b: number, a: number): string {
 }
 
 /**
+ * #421 A4: a deterministic per-piece variation, so three mozzarella pieces on one pizza are not the same disc with the same
+ * pattern. Same key -> same values on every render (no Math.random, nothing that changes frame to frame or between the
+ * BAKE / CUT / RESULT copies of a piece). The key is the piece's own ingredient id + placement, exactly what
+ * `stablePieceRotation` (../logic/pieceDrag.ts) hashes. Returns `count` numbers in [-1, 1].
+ */
+export function cheeseMeltJitter(key: string, count: number): number[] {
+  let state = 2166136261;
+  for (let i = 0; i < key.length; i += 1) {
+    state ^= key.charCodeAt(i);
+    state = Math.imul(state, 16777619);
+  }
+  state = state >>> 0 || 1;
+  const out: number[] = [];
+  for (let i = 0; i < count; i += 1) {
+    // xorshift32: a few cheap, well-spread values from the one hash
+    state ^= state << 13;
+    state >>>= 0;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    state >>>= 0;
+    out.push((state / 0xffffffff) * 2 - 1);
+  }
+  return out;
+}
+
+/** The four browning blotches: A3's centre / radii (the fallback the stylesheet carries) plus how far each may drift. */
+const SPOTS: ReadonlyArray<{ x: number; y: number; rx: number; ry: number }> = [
+  { x: 27, y: 34, rx: 3.6, ry: 2.3 },
+  { x: 64, y: 25, rx: 2, ry: 2.8 },
+  { x: 73, y: 63, rx: 3.2, ry: 2.6 },
+  { x: 40, y: 74, rx: 2.6, ry: 1.5 },
+];
+
+function clampRange(value: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, value));
+}
+
+/**
  * The CSS custom properties `.pizza-cheese--mozzarella` reads (src/App.css). All colours are resolved to plain `rgba()`
  * strings here, not computed in CSS: CSS math inside a colour function (`rgba(calc(...))`) is not safe on every engine
  * (older Safari / in-app WebViews drop the whole declaration), so the stylesheet only ever receives finished values. Every
  * variable has the raw look as its CSS fallback, so a cheese without them is drawn exactly as before. Pure function of the
- * existing scalars; geometry (`--bake-melt`) stays a unitless 0..1 number used in length `calc()`, which every engine supports.
+ * existing scalars (plus an optional per-piece `seedKey`, see `cheeseMeltJitter`); geometry (`--bake-melt`) stays a unitless
+ * 0..1 number used in length `calc()`, which every engine supports.
+ *
+ * Without a `seedKey` every piece is drawn as A3 drew it. With one, the outline, the browning blotches (position, size,
+ * strength) and where the body's feathered edge is thinnest vary a little per piece, all scaled by `melt` / `toast`, so
+ * the raw cheese (melt 0, toast 0) is unaffected.
  */
-export function cheeseMeltCssVars(look: CheeseMeltLook): Record<string, string> {
+export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Record<string, string> {
   const { melt, toast, char } = look;
   // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
   const body = clamp01(melt * 1.6);
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
-  return {
+  // 4 outline + 2 body-centre + 2 bleed direction + 4 x 4 blotch values
+  const j = seedKey === undefined ? new Array<number>(24).fill(0) : cheeseMeltJitter(seedKey, 24);
+  const pct = (value: number) => `${clampRange(value, 24, 70).toFixed(1)}%`;
+  const radius =
+    `${pct(55 - 15 * melt + 9 * melt * j[0])} ${pct(45 + 15 * melt + 9 * melt * j[1])} ` +
+    `${pct(48 + 10 * melt + 9 * melt * j[2])} ${pct(52 - 14 * melt + 9 * melt * j[3])} / ` +
+    `${pct(55 + 7 * melt + 7 * melt * j[1])} ${pct(50 - 10 * melt + 7 * melt * j[2])} ` +
+    `${pct(50 + 10 * melt + 7 * melt * j[3])} ${pct(45 - 7 * melt + 7 * melt * j[0])}`;
+  const vars: Record<string, string> = {
     "--bake-melt": melt.toFixed(3),
+    "--bake-cheese-radius": radius,
+    // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly
+    "--bake-cheese-body-at": `${(46 + 13 * j[4]).toFixed(1)}% ${(44 + 13 * j[5]).toFixed(1)}%`,
     "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
     "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
     // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
@@ -253,6 +307,9 @@ export function cheeseMeltCssVars(look: CheeseMeltLook): Record<string, string> 
     "--bake-cheese-body-3": rgba(234, 214, 166, 0.7 * body),
     // cream halo right outside the feathered edge, so the sauce never shows through as a ring between body and spread
     "--bake-cheese-halo": rgba(240, 226, 186, 0.8 * melt),
+    // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
+    "--bake-cheese-bleed": rgba(222, 110, 58, 0.38 * melt),
+    "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
     "--bake-cheese-gloss": rgba(255, 251, 238, 0.7 * melt),
     "--bake-cheese-lobe-a": rgba(244, 235, 208, 0.95 * melt),
     "--bake-cheese-lobe-b": rgba(240, 229, 198, 0.78 * melt),
@@ -260,6 +317,16 @@ export function cheeseMeltCssVars(look: CheeseMeltLook): Record<string, string> 
     "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
     "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
   };
+  SPOTS.forEach((spot, i) => {
+    const o = 6 + i * 4;
+    const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.4);
+    const size = clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
+    vars[`--bake-cheese-sp${i + 1}-at`] = `${(spot.x + 12 * j[o]).toFixed(1)}% ${(spot.y + 10 * j[o + 1]).toFixed(1)}%`;
+    vars[`--bake-cheese-sp${i + 1}-r`] = `${(spot.rx * size).toFixed(2)}px ${(spot.ry * size).toFixed(2)}px`;
+    vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast * strength);
+    vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast * strength);
+  });
+  return vars;
 }
 
 /**

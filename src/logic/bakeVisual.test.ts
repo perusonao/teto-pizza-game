@@ -7,6 +7,7 @@ import {
   computeBakeHeat,
   doughVisualColors,
   cheeseMeltCssVars,
+  cheeseMeltJitter,
   cheeseMeltLook,
   cheeseMeltsShape,
   meltIntensity,
@@ -258,7 +259,10 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       for (const [name, value] of Object.entries(v)) {
         expect(value, name).not.toContain("calc");
         if (name === "--bake-melt") expect(value).toMatch(/^[01]?\.?\d*$/);
-        else expect(value, name).toMatch(/^rgba\(\d{1,3}, \d{1,3}, \d{1,3}, [01](\.\d{1,3})?\)$/);
+        else if (/^--bake-cheese-(radius|body-at|bleed-off|sp\d-at|sp\d-r)$/.test(name)) {
+          // geometry resolved in TypeScript: plain percentages / lengths (and the `/` of border-radius), never CSS math
+          expect(value, name).toMatch(/^[-\d.]+(%|px)?( [-\d.]+(%|px)?| \/ [-\d.]+%)*$/);
+        } else expect(value, name).toMatch(/^rgba\(\d{1,3}, \d{1,3}, \d{1,3}, [01](\.\d{1,3})?\)$/);
       }
     }
   });
@@ -318,6 +322,58 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       expect(1 - (1 - raw) * (1 - body)).toBeGreaterThan(0.8);
       prevRaw = raw;
       prevBody = body;
+    }
+  });
+
+  it("A4: the per-piece variation is deterministic, differs between pieces, and leaves the raw cheese untouched", () => {
+    const keyA = "mozzarella:40.00:50.00";
+    const keyB = "mozzarella:60.00:50.00";
+    const keyC = "mozzarella:50.00:30.00";
+    // same key -> identical values, every time (nothing random between renders / BAKE / CUT / RESULT)
+    expect(cheeseMeltJitter(keyA, 24)).toEqual(cheeseMeltJitter(keyA, 24));
+    expect(cheeseMeltCssVars(cheeseMeltLook(1), keyA)).toEqual(cheeseMeltCssVars(cheeseMeltLook(1), keyA));
+    for (const v of cheeseMeltJitter(keyA, 24)) {
+      expect(v).toBeGreaterThanOrEqual(-1);
+      expect(v).toBeLessThanOrEqual(1);
+    }
+    // three pieces of one pizza are not the same disc with the same pattern
+    const [a, b, c] = [keyA, keyB, keyC].map((k) => cheeseMeltCssVars(cheeseMeltLook(1.2), k));
+    for (const name of ["--bake-cheese-radius", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-at"]) {
+      expect(new Set([a[name], b[name], c[name]]).size, name).toBe(3);
+    }
+    // no key -> the A3 look (centres and radii the stylesheet carries as fallbacks)
+    const plain = cheeseMeltCssVars(cheeseMeltLook(1.2));
+    expect(plain["--bake-cheese-sp1-at"]).toBe("27.0% 34.0%");
+    expect(plain["--bake-cheese-sp1-r"]).toBe("3.60px 2.30px");
+    expect(plain["--bake-cheese-body-at"]).toBe("46.0% 44.0%");
+    // raw cheese: whatever the key, the outline is the raw outline and every blotch / bleed / body layer is invisible
+    const raw = cheeseMeltCssVars(cheeseMeltLook(0), keyA);
+    expect(raw["--bake-cheese-radius"]).toBe("55.0% 45.0% 48.0% 52.0% / 55.0% 50.0% 50.0% 45.0%");
+    expect(raw["--bake-cheese-bleed-off"]).toBe("0.00px 0.00px");
+    for (const k of ["spot-1", "spot-2", "spot-3", "spot-4", "spot-soft-1", "spot-soft-4", "bleed", "body-0", "halo"]) {
+      expect(alpha(raw[`--bake-cheese-${k}`]), k).toBe(0);
+    }
+  });
+
+  it("A4: the variation stays inside a modest range: outline radii, blotch positions and strengths cannot run away", () => {
+    for (let i = 0; i < 200; i += 1) {
+      const v = cheeseMeltCssVars(cheeseMeltLook(2), `mozzarella:${i}:${(i * 7) % 100}`);
+      for (const r of v["--bake-cheese-radius"].split(/[ /]+/)) {
+        const n = parseFloat(r);
+        expect(n).toBeGreaterThanOrEqual(24);
+        expect(n).toBeLessThanOrEqual(70);
+      }
+      for (let s = 1; s <= 4; s += 1) {
+        const [x, y] = v[`--bake-cheese-sp${s}-at`].split(" ").map(parseFloat);
+        expect(x).toBeGreaterThan(5);
+        expect(x).toBeLessThan(95);
+        expect(y).toBeGreaterThan(5);
+        expect(y).toBeLessThan(95);
+        const strength = alpha(v[`--bake-cheese-spot-${s}`]);
+        expect(strength).toBeGreaterThan(0.85); // char 1 / toast 1: base 2.0 clamps to 1, 0.45 x 2 stays visible
+        expect(strength).toBeLessThanOrEqual(1);
+      }
+      expect(Math.abs(parseFloat(v["--bake-cheese-bleed-off"]))).toBeLessThanOrEqual(3);
     }
   });
 

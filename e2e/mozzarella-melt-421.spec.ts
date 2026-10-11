@@ -100,6 +100,16 @@ async function mozzarellaLook(page: Page) {
 }
 
 
+/** Computed outline and blotch centre of every mozzarella piece (A4: the pieces of one pizza must not be the same disc). */
+async function allMozzarellaOutlines(page: Page) {
+  return page.locator(".pizza-cheese--mozzarella").evaluateAll((els) =>
+    els.map((el) => {
+      const cs = getComputedStyle(el);
+      return { radius: `${cs.borderTopLeftRadius}|${cs.borderTopRightRadius}|${cs.borderBottomRightRadius}|${cs.borderBottomLeftRadius}`, bodyAt: (el as HTMLElement).style.getPropertyValue("--bake-cheese-body-at") };
+    }),
+  );
+}
+
 /** Attaches a small close-up of all the mozzarella pieces to the test report (so a CI WebKit run leaves visible evidence). */
 async function attachCloseup(page: Page, name: string) {
   const box = await page.evaluate(() => {
@@ -151,6 +161,7 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     await enterBakePaused(page);
 
     const looks: Record<string, Awaited<ReturnType<typeof mozzarellaLook>>> = {};
+    let outlines: Awaited<ReturnType<typeof allMozzarellaOutlines>> = [];
     let overbakedSpot = { r: 0, g: 0, b: 0 };
     const positions: Record<string, number> = {};
     for (const { name, needle } of BAKE_STAGES) {
@@ -167,6 +178,7 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
       await page.waitForTimeout(350); // the cheese's own 0.3 s transform/filter transition (real time, clock is faked)
       await flushReactCommit(page);
       looks[name] = await mozzarellaLook(page);
+      if (name === "3-baked") outlines = await allMozzarellaOutlines(page);
       await shot(page, `bake-${name}`);
       await attachCloseup(page, `bake-${name}`);
       if (name === "5-overbaked") overbakedSpot = await darkestSpotColor(page);
@@ -185,6 +197,10 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(overbakedSpot.r - overbakedSpot.b, JSON.stringify(overbakedSpot)).toBeGreaterThanOrEqual(14);
     expect(overbakedSpot.r, JSON.stringify(overbakedSpot)).toBeGreaterThan(overbakedSpot.g);
     expect(overbakedSpot.g, JSON.stringify(overbakedSpot)).toBeGreaterThan(overbakedSpot.b);
+    // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.
+    expect(outlines).toHaveLength(3);
+    expect(new Set(outlines.map((o) => o.radius)).size).toBe(3);
+    expect(new Set(outlines.map((o) => o.bodyAt)).size).toBe(3);
     // Not just a uniform scale: the matrix is anisotropic once melted.
     const m = /matrix\(([^,]+),[^,]+,[^,]+,([^,]+),/.exec(looks["3-baked"].transform);
     expect(m).not.toBeNull();

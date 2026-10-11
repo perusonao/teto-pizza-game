@@ -61,6 +61,19 @@ function pizzaCheeseOnly(): PizzaState {
   };
 }
 
+/** Three mozzarella pieces, as the e2e scene places them. */
+function pizzaThreeMozzarella(): PizzaState {
+  return {
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce"],
+    toppings: [
+      { id: "t1", ingredientId: "mozzarella", x: 40, y: 50 },
+      { id: "t2", ingredientId: "mozzarella", x: 60, y: 50 },
+      { id: "t3", ingredientId: "mozzarella", x: 50, y: 30 },
+    ],
+  };
+}
+
 function noop() {}
 
 function renderStage(
@@ -347,5 +360,24 @@ describe("PizzaStage cheese melt variables (#421 Pilot)", () => {
     const pepperoni = document.querySelector<HTMLElement>('[class*="ingredient-piece-visual"]:not(.pizza-cheese)');
     expect(pepperoni?.style.getPropertyValue("--bake-melt") ?? "").toBe("");
     expect(pepperoni?.style.getPropertyValue("--bake-cheese-spot") ?? "").toBe("");
+  });
+
+  it("A4: three mozzarella pieces are not the same disc, and each piece keeps its own look from render to render", () => {
+    const snapshot = () =>
+      [...document.querySelectorAll<HTMLElement>(".pizza-cheese--mozzarella")].map((el) => ({
+        radius: el.style.getPropertyValue("--bake-cheese-radius"),
+        spot: el.style.getPropertyValue("--bake-cheese-sp1-at"),
+        bodyAt: el.style.getPropertyValue("--bake-cheese-body-at"),
+      }));
+    const first = renderStage(70, { pizza: pizzaThreeMozzarella() });
+    const a = snapshot();
+    expect(a).toHaveLength(3);
+    expect(new Set(a.map((p) => p.radius)).size).toBe(3);
+    expect(new Set(a.map((p) => p.spot)).size).toBe(3);
+    expect(new Set(a.map((p) => p.bodyAt)).size).toBe(3);
+    // a fresh render of the same pizza (a later frame, the CUT / RESULT copy) draws exactly the same pieces
+    first.unmount();
+    renderStage(70, { pizza: pizzaThreeMozzarella() });
+    expect(snapshot()).toEqual(a);
   });
 });
