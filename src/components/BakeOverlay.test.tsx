@@ -64,7 +64,7 @@ describe("BakeOverlay one-way needle", () => {
 
     let previous = 0;
     for (let i = 0; i < 150; i += 1) {
-      tick(100); // 15s total, past the end
+      tick(100); // 15s total, well past the 5s end
       const current = needleLeft();
       expect(current).toBeGreaterThanOrEqual(previous);
       previous = current;

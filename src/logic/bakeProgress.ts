@@ -12,8 +12,8 @@
  * so neither the speed nor the fade can depend on the correct position.
  */
 
-/** Seconds from 0% to 100%. A provisional comparison value (Owner HV on a real iPhone decides: 10s and 7s felt long, 5s is
- *  the current candidate) -- change it here only; every test and e2e helper derives from it. */
+/** Seconds from 0% to 100%. A provisional comparison value (Owner HV on a real iPhone decides: 10s and 7s both felt long,
+ *  5s is the current candidate) -- change it here only; every test and e2e helper derives from it. */
 export const BAKE_DURATION_S = 5;
 
 /** Percent per second, derived from `BAKE_DURATION_S`. */
@@ -26,7 +26,7 @@ export const BAKE_SPEED_PCT_PER_S = 100 / BAKE_DURATION_S;
  */
 export const BAKE_MAX_FRAME_DT_S = 0.1;
 
-/** Target zone fully shown until here (Owner HV feedback scaled OD-419's 3s / 5s to the 5s bake: 1s / 2s) ... */
+/** Target zone fully shown until here (Owner HV on the 7s bake: "the zone may disappear earlier" -> 1s / 2s for the 5s bake) ... */
 export const BAKE_ZONE_FADE_START_S = 1;
 /** ... fades out until here, and stays hidden (never returns) afterwards. */
 export const BAKE_ZONE_FADE_END_S = 2;
