@@ -12,9 +12,9 @@
  * so neither the speed nor the fade can depend on the correct position.
  */
 
-/** Seconds from 0% to 100%. A provisional comparison value (Owner HV on a real iPhone decides: 10s felt long, 7s is the
- *  current candidate) -- change it here only; every test and e2e helper derives from it. */
-export const BAKE_DURATION_S = 7;
+/** Seconds from 0% to 100%. A provisional comparison value (Owner HV on a real iPhone decides: 10s felt long, 7s was the
+ *  previous candidate, 5s is the current one) -- change it here only; every test and e2e helper derives from it. */
+export const BAKE_DURATION_S = 5;
 
 /** Percent per second, derived from `BAKE_DURATION_S`. */
 export const BAKE_SPEED_PCT_PER_S = 100 / BAKE_DURATION_S;
@@ -26,10 +26,10 @@ export const BAKE_SPEED_PCT_PER_S = 100 / BAKE_DURATION_S;
  */
 export const BAKE_MAX_FRAME_DT_S = 0.1;
 
-/** Target zone fully shown until here (Owner HV feedback scaled OD-419's 3s / 5s to the 7s bake: 2s / 3.5s) ... */
-export const BAKE_ZONE_FADE_START_S = 2;
+/** Target zone fully shown until here (OD-419's 3s / 5s scaled in proportion to the 5s bake: 1.5s / 2.5s) ... */
+export const BAKE_ZONE_FADE_START_S = 1.5;
 /** ... fades out until here, and stays hidden (never returns) afterwards. */
-export const BAKE_ZONE_FADE_END_S = 3.5;
+export const BAKE_ZONE_FADE_END_S = 2.5;
 
 /** `dt` actually added to the clock: NaN / negative -> 0, otherwise capped at `BAKE_MAX_FRAME_DT_S`. */
 export function clampBakeFrameDt(dtSeconds: number): number {
