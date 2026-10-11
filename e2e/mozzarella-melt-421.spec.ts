@@ -30,7 +30,6 @@ const BAKE_STAGES: ReadonlyArray<{ name: string; needle: number }> = [
   { name: "4-deep", needle: 80 },
   { name: "5-overbaked", needle: 98 },
 ];
-const NEEDLE_PT_PER_S = 55; // BakeOverlay's SPEED (src/components/BakeOverlay.tsx) on this base
 
 async function shot(page: Page, name: string) {
   if (!SHOTS_DIR) return;
@@ -154,9 +153,10 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     const positions: Record<string, number> = {};
     for (const { name, needle } of BAKE_STAGES) {
       let position = await needlePosition(page);
-      // Walk up to the stage's needle position and VERIFY it (a before/after pair is only comparable at the same heat).
-      for (let attempt = 0; attempt < 4 && needle - position > 2; attempt += 1) {
-        await page.clock.runFor(Math.max(1, Math.round(((needle - position) / NEEDLE_PT_PER_S) * 1000)));
+      // Walk up to the stage's needle position in small closed-loop steps (independent of the gauge's speed / direction, e.g.
+      // #419's 7 s one-way gauge) and VERIFY it: a before/after pair is only comparable at the same heat.
+      for (let step = 0; step < 600 && needle - position > 1.5; step += 1) {
+        await page.clock.runFor(40);
         position = await needlePosition(page);
       }
       positions[name] = Math.round(position * 10) / 10;
