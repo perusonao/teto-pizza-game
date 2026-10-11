@@ -22,6 +22,8 @@ import {
 const SHOTS_DIR = process.env.MELT_SHOTS_DIR;
 // iPhone-like density so the 28 px mozzarella is judged at the resolution the Owner sees it at.
 test.use({ deviceScaleFactor: 3 });
+// Real WebKit at DPR 3 is slower than Chromium (a full RESULT page capture alone can take seconds); the default 30 s was not enough.
+test.setTimeout(120_000);
 
 const BAKE_STAGES: ReadonlyArray<{ name: string; needle: number }> = [
   { name: "1-raw", needle: 0 },
@@ -113,7 +115,7 @@ async function attachCloseup(page: Page, name: string) {
   });
   if (!box) return;
   const size = page.viewportSize()!;
-  await test.info().attach(`${name}-${size.width}x${size.height}.png`, { body: await page.screenshot({ clip: box }), contentType: "image/png" });
+  await test.info().attach(`${name}-${size.width}x${size.height}.png`, { body: await page.screenshot({ clip: box, scale: "css" }), contentType: "image/png" });
 }
 
 /** Mean colour of the darkest ~4% of pixels of the first mozzarella (the browning blotches), as actually painted. */
