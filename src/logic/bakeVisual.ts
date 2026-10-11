@@ -235,11 +235,24 @@ function rgba(r: number, g: number, b: number, a: number): string {
  */
 export function cheeseMeltCssVars(look: CheeseMeltLook): Record<string, string> {
   const { melt, toast, char } = look;
+  // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
+  const body = clamp01(melt * 1.6);
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
   return {
     "--bake-melt": melt.toFixed(3),
     "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
-    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.3 * melt),
+    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
+    // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
+    // feathered edge fades in, so the hard white disc outline goes away as `melt` rises. Both layers are plain rgba() here.
+    "--bake-cheese-raw-0": rgba(255, 253, 245, 1 - melt),
+    "--bake-cheese-raw-1": rgba(243, 234, 208, 1 - melt),
+    "--bake-cheese-raw-2": rgba(230, 216, 174, 1 - melt),
+    "--bake-cheese-body-0": rgba(252, 243, 214, body),
+    "--bake-cheese-body-1": rgba(245, 232, 194, body),
+    "--bake-cheese-body-2": rgba(238, 221, 176, 0.95 * body),
+    "--bake-cheese-body-3": rgba(234, 214, 166, 0.7 * body),
+    // cream halo right outside the feathered edge, so the sauce never shows through as a ring between body and spread
+    "--bake-cheese-halo": rgba(240, 226, 186, 0.8 * melt),
     "--bake-cheese-gloss": rgba(255, 251, 238, 0.7 * melt),
     "--bake-cheese-lobe-a": rgba(244, 235, 208, 0.95 * melt),
     "--bake-cheese-lobe-b": rgba(240, 229, 198, 0.78 * melt),

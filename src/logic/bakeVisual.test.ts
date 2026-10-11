@@ -278,6 +278,49 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     expect(alpha(perfect["--bake-cheese-spot"])).toBeGreaterThan(0.4); // visible golden blotches at the properly baked point
   });
 
+  it("raw heat draws the original raw gradient colours at full alpha and none of the melted body / halo", () => {
+    const v = vars(0);
+    expect(rgb(v["--bake-cheese-raw-0"])).toEqual([255, 253, 245]); // #fffdf5
+    expect(rgb(v["--bake-cheese-raw-1"])).toEqual([243, 234, 208]); // #f3ead0
+    expect(rgb(v["--bake-cheese-raw-2"])).toEqual([230, 216, 174]); // #e6d8ae
+    for (const k of ["raw-0", "raw-1", "raw-2"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(1);
+    for (const k of ["body-0", "body-1", "body-2", "body-3", "halo"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(0);
+  });
+
+  it("melted cheese: the white lump is gone, the body is cream (not white) with a feathered edge and a cream halo", () => {
+    const melted = vars(1);
+    for (const k of ["raw-0", "raw-1", "raw-2"]) expect(alpha(melted[`--bake-cheese-${k}`]), k).toBe(0);
+    expect(alpha(melted["--bake-cheese-body-0"])).toBe(1);
+    expect(alpha(melted["--bake-cheese-body-1"])).toBe(1);
+    // feathered: the outermost stop is clearly more transparent than the core, and a halo carries on outside the box
+    expect(alpha(melted["--bake-cheese-body-3"])).toBeLessThan(alpha(melted["--bake-cheese-body-0"]));
+    expect(alpha(melted["--bake-cheese-body-3"])).toBeGreaterThan(0.3);
+    expect(alpha(melted["--bake-cheese-halo"])).toBeGreaterThan(0.5);
+    // cream, not white: blue is clearly below the raw lump's #fffdf5 core and red stays highest
+    const core = rgb(melted["--bake-cheese-body-0"]);
+    expect(core[2]).toBeLessThan(225);
+    expect(core[0]).toBeGreaterThan(core[1]);
+    expect(core[1]).toBeGreaterThan(core[2]);
+    // the hard bottom highlight rim is nearly gone
+    expect(alpha(melted["--bake-cheese-inset"])).toBeLessThan(0.1);
+  });
+
+  it("the raw lump and the melted body cross-fade without a see-through gap, monotonically", () => {
+    let prevRaw = 1;
+    let prevBody = 0;
+    for (let heat = 0; heat <= 1.2; heat += 0.05) {
+      const v = vars(heat);
+      const raw = alpha(v["--bake-cheese-raw-0"]);
+      const body = alpha(v["--bake-cheese-body-0"]);
+      expect(raw).toBeLessThanOrEqual(prevRaw + 1e-9);
+      expect(body).toBeGreaterThanOrEqual(prevBody - 1e-9);
+      // combined core coverage stays high through the whole melt (no translucent mid-melt look)
+      expect(1 - (1 - raw) * (1 - body)).toBeGreaterThan(0.8);
+      prevRaw = raw;
+      prevBody = body;
+    }
+  });
+
   it("charred spots are dark BROWN, not grey: red > green > blue by a clear margin, and darker than golden", () => {
     const golden = rgb(vars(1)["--bake-cheese-spot"]);
     const charred = rgb(vars(2)["--bake-cheese-spot"]);
