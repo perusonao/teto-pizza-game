@@ -335,7 +335,8 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     vars[`--bake-cheese-lobe-${i + 1}`] = rgba(base[0], base[1], base[2], base[3] * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
   }
   vars["--bake-cheese-spread"] = clampRange(0.88 + 0.22 * j[27], 0.6, 1.1).toFixed(3);
-  vars["--bake-cheese-aspect"] = clampRange(1 + 0.05 * j[28], 0.95, 1.05).toFixed(3);
+  // scaled by `melt`, so it is exactly 1 for the raw cheese (the width must not change when BAKE starts at melt 0)
+  vars["--bake-cheese-aspect"] = clampRange(1 + 0.05 * melt * j[28], 0.95, 1.05).toFixed(3);
   return vars;
 }
 

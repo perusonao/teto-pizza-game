@@ -101,6 +101,10 @@ async function mozzarellaLook(page: Page) {
 
 
 /** Computed outline and blotch centre of every mozzarella piece (A4: the pieces of one pizza must not be the same disc). */
+async function allMozzarellaTransforms(page: Page) {
+  return page.locator(".pizza-cheese--mozzarella").evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
+}
+
 async function allMozzarellaOutlines(page: Page) {
   return page.locator(".pizza-cheese--mozzarella").evaluateAll((els) =>
     els.map((el) => {
@@ -162,6 +166,7 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
 
     const looks: Record<string, Awaited<ReturnType<typeof mozzarellaLook>>> = {};
     let outlines: Awaited<ReturnType<typeof allMozzarellaOutlines>> = [];
+    let rawTransforms: string[] = [];
     let overbakedSpot = { r: 0, g: 0, b: 0 };
     const positions: Record<string, number> = {};
     for (const { name, needle } of BAKE_STAGES) {
@@ -179,6 +184,8 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
       await flushReactCommit(page);
       looks[name] = await mozzarellaLook(page);
       if (name === "3-baked") outlines = await allMozzarellaOutlines(page);
+      // The raw cheese must not move when BAKE starts: before the melt every piece has the very same (uniform) transform.
+      if (name === "1-raw") rawTransforms = await allMozzarellaTransforms(page);
       await shot(page, `bake-${name}`);
       await attachCloseup(page, `bake-${name}`);
       if (name === "5-overbaked") overbakedSpot = await darkestSpotColor(page);
@@ -197,6 +204,8 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(overbakedSpot.r - overbakedSpot.b, JSON.stringify(overbakedSpot)).toBeGreaterThanOrEqual(14);
     expect(overbakedSpot.r, JSON.stringify(overbakedSpot)).toBeGreaterThan(overbakedSpot.g);
     expect(overbakedSpot.g, JSON.stringify(overbakedSpot)).toBeGreaterThan(overbakedSpot.b);
+    expect(rawTransforms).toHaveLength(3);
+    expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);
     // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.
     expect(outlines).toHaveLength(3);
     expect(new Set(outlines.map((o) => o.radius)).size).toBe(3);

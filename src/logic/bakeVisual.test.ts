@@ -404,7 +404,17 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     // raw keeps the original drop shadow (0.3); fully melted lies flat (<= 0.1)
     expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])["--bake-cheese-drop"])).toBeCloseTo(0.3, 3);
     expect(alpha(cheeseMeltCssVars(cheeseMeltLook(1), keys[0])["--bake-cheese-drop"])).toBeLessThanOrEqual(0.1);
-    // raw: every lobe invisible, spread / aspect neutral-looking values only matter once melted
+    // raw: the aspect is exactly neutral whatever the key (BAKE starts at melt 0 and the raw width must not move)
+    for (let i = 0; i < 100; i += 1) {
+      expect(cheeseMeltCssVars(cheeseMeltLook(0), `mozzarella:${i}:${(i * 7) % 100}`)["--bake-cheese-aspect"]).toBe("1.000");
+    }
+    // it eases in with melt rather than switching on, and reaches its full range only when fully melted
+    const widest = Array.from({ length: 200 }, (_, i) => `mozzarella:${i}:${(i * 13) % 100}`);
+    const dev = (heat: number) => Math.max(...widest.map((k) => Math.abs(1 - parseFloat(cheeseMeltCssVars(cheeseMeltLook(heat), k)["--bake-cheese-aspect"]))));
+    expect(dev(0.6)).toBeLessThan(dev(0.75));
+    expect(dev(0.75)).toBeLessThan(dev(1));
+    expect(dev(1)).toBeGreaterThan(0.03);
+    // raw: every lobe invisible
     for (let l = 1; l <= 5; l += 1) expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])[`--bake-cheese-lobe-${l}`])).toBe(0);
   });
 

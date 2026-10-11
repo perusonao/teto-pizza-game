@@ -16,6 +16,9 @@
 - **Small, quiet, irregular browning:** blotches 0.72x the A4 size, pale golden-tan (190,146,90) instead of orange, strength 1.6x toast (A4: 2x) with the per-piece strength 0.45-1.3. Overbaked blotches are still dark brown (190 -> 124,68,28; unchanged).
 - Raw and the melt ramp are unchanged: at melt 0 / toast 0 every new layer is transparent and the raw colours / outline are the raw ones (pinned by tests), and `melt` / `toast` / `char` are still the existing continuous scalars, so nothing switches abruptly.
 
+## Review fix (Codex P2 on `224bde6`)
+Codex found that the per-piece width factor `--bake-cheese-aspect` (0.95-1.05) was not tied to `melt`, so a raw piece changed width by up to 5% the moment BAKE started (melt 0). Fixed: the deviation is now `0.05 * melt * jitter`, exactly 1 at melt 0 and easing in with the melt. Pinned by a unit test (raw aspect "1.000" for 100 keys, growing monotonically with melt) and by the Chromium e2e (at the raw stage the three pieces have one identical transform; the new assertion fails on the old code: raw transforms 1.0231 / 1.0261 / 1.0090). The other new variables are already gated by `melt` / `toast` (lobes, spread, bleed offset, outline jitter, blotch alpha, body alpha). The images were regenerated after the fix.
+
 ## Constraints check
 - Unchanged: placement coordinates, push-out distance, ingredient counts, scoring, save format, economy, 3 s bake, CUT judgement, recipe judgement, UI structure. Changed non-test source files: `src/logic/bakeVisual.ts`, `src/App.css` (the mozzarella rule only); `PizzaStage.tsx` is untouched in A5.
 - No SVG filter, no clip-path, no pseudo-element, no extra DOM, no `mix-blend-mode`, no CSS math inside a colour; gradients / box-shadow / border-radius / transform only.
@@ -26,6 +29,7 @@
 `docs/reports/screenshots/finished-pizza-appeal-421/`: `compare-a4-a5-closeup-*.png` (raw / melting / baked / deep / overbaked, A4 | A5), `compare-a4-a5-cut-result-*.png` (CUT and RESULT, A4 | A5), `zoom-a4-a5-baked-deep-390x844.png` (the two lower pieces: A4 | A5 try 2 | final A5).
 - A5: milky ivory instead of a yellow centre, a soft translucent rim instead of a bright ring, the pieces differ in outline / spread / blotches, small pale browning, CUT / RESULT carry the same pieces.
 - Iteration notes: try 1 had a blown-out white core and a pink inner ring; try 2 still blew out the core. The final tones are slightly darker (the cheese filter adds brightness) and the edge more opaque.
+- The zoom image now shows A4 | final A5 (the earlier try-2 column was dropped when the images were regenerated after the review fix below).
 
 ## Verification
 - `tsc -b` clean; oxlint no findings on touched files; full Vitest 381 files / 7018 passed / 1 skipped.
