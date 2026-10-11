@@ -116,7 +116,6 @@ function Harness({
         inventory={GENEROUS_INVENTORY}
         pizza={state.pizza}
         physicalDragEnabled
-        draggableIngredientIds={["mozzarella", "basil"]}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}
         resetToken={resetToken}
@@ -318,12 +317,12 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
     expect(screen.getByTestId("selected-id").textContent).toBe("onion");
   });
 
-  it("onion is not in draggableIngredientIds, so it selects via tap like every other non-physical topping", () => {
+  it("onion is a scatter topping, so it is draggable like every other piece (#476) and a tap still selects it", () => {
     render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
     const onionChip = screen.getByRole("button", { name: /たまねぎ/ });
 
-    expect(onionChip.className).not.toMatch(/ingredient-chip--physical/);
+    expect(onionChip.className).toMatch(/ingredient-chip--physical/);
     fireEvent.click(onionChip);
     expect(screen.getByTestId("selected-id").textContent).toBe("onion");
   });

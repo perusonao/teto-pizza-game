@@ -28,6 +28,15 @@ export function isLunchRushRound(state: HasRoundKind): boolean {
   return state.roundKind === "LUNCH_RUSH";
 }
 
+/**
+ * Issue #476 (S1): tray drag-and-drop of a piece is on for Guided, Free Cooking (Research is a Free Cooking round) and
+ * Dinner, and stays off in Lunch Rush (the Owner's UD-A line, the same one the 1つ戻す button draws). Round authority
+ * only: it does not read the recipe, so it cannot depend on whether a Reference exists.
+ */
+export function allowsPieceDragInRound(state: HasRoundKind): boolean {
+  return !isLunchRushRound(state);
+}
+
 export function isFreeCookingRound(state: HasRoundKind): boolean {
   return state.roundKind === "FREE_COOK";
 }

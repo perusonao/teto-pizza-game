@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   hasPieceDragIntent,
+  isDraggablePiece,
   PIECE_DRAG_THRESHOLD_PX,
   PIECE_DROP_EDGE_GRACE,
   resolvePieceDrop,
   stablePieceRotation,
 } from "./pieceDrag";
+import { INGREDIENTS } from "../data/ingredients";
 import { clampToDough, DOUGH_CENTER, DOUGH_RADIUS, isInsideDough } from "./pizzaCoordinates";
 import { createInitialGameState, gameReducer } from "../state/gameReducer";
 
@@ -221,5 +223,25 @@ describe("PLACE_TOPPING accepts every grace-annulus drop resolvePieceDrop resolv
       placedCount += 1;
       expect(state.pizza.toppings).toHaveLength(placedCount);
     }
+  });
+});
+
+describe("isDraggablePiece (Issue #476 S1)", () => {
+  it("is true for every scatter cheese and topping and false for every sauce, with no per-id list", () => {
+    for (const ingredient of INGREDIENTS) {
+      const expected = ingredient.placement === "scatter" && ingredient.category !== "sauce";
+      expect(isDraggablePiece(ingredient), ingredient.id).toBe(expected);
+    }
+  });
+
+  it("covers both formerly special ingredients and the rest of the catalog", () => {
+    const draggable = INGREDIENTS.filter(isDraggablePiece).map((i) => i.id);
+    expect(draggable).toEqual(expect.arrayContaining(["mozzarella", "basil", "sausage", "gorgonzola", "egg"]));
+    expect(draggable.length).toBe(INGREDIENTS.filter((i) => i.category !== "sauce").length);
+  });
+
+  it("is false for a sauce even if it were marked scatter, and false for a spread piece", () => {
+    expect(isDraggablePiece({ category: "sauce", placement: "scatter" })).toBe(false);
+    expect(isDraggablePiece({ category: "topping", placement: "spread" })).toBe(false);
   });
 });
