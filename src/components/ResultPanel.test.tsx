@@ -761,3 +761,24 @@ describe("W1-d: Discovery Result hierarchy", () => {
     expect(document.querySelector(".pitz-credit-summary__headline")).toHaveTextContent("今回の獲得 +106 Pitz");
   });
 });
+
+describe("ResultPanel bake badge 5-level (Issue #469)", () => {
+  afterEach(() => cleanup());
+
+  it.each([
+    ["raw", "raw", "焼き加減: 生焼け"],
+    ["underdone", "perfect", "焼き加減: 惜しい（焼き不足）"],
+    ["just", "perfect", "焼き加減: ジャスト"],
+    ["overdone", "perfect", "焼き加減: 惜しい（焼きすぎ）"],
+    ["burnt", "burnt", "焼き加減: 焦げ"],
+  ] as const)("shows %s", (level, state, text) => {
+    const { container } = render(<ResultPanel {...baseProps()} bakeState={state} bakeLevel5={level} />);
+    expect(container.querySelector(".result-panel__bake-badge")).toHaveTextContent(text);
+    expect(container.querySelector(`.result-panel__bake-badge--${state}`)).not.toBeNull();
+  });
+
+  it("falls back to the 3-level label without bakeLevel5", () => {
+    const { container } = render(<ResultPanel {...baseProps()} />);
+    expect(container.querySelector(".result-panel__bake-badge")).toHaveTextContent("焼き加減: いい焼き加減");
+  });
+});

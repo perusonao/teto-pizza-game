@@ -5,6 +5,7 @@ import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
+import { classifyBake5 } from "../logic/bake";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
 import { prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
@@ -1016,6 +1017,11 @@ export function GameScreen({
           completion={state.completion}
           score={state.score}
           bakeState={state.bakeState}
+          bakeLevel5={
+            state.pizza.bakeResult !== null
+              ? classifyBake5(state.pizza.bakeResult, state.recipe.bakeTarget)
+              : null
+          }
           sauceScore={
             state.scoringV2Result?.components.sauce.available
               ? state.scoringV2Result.components.sauce.score
