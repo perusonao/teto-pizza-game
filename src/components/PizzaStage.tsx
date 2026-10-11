@@ -31,6 +31,7 @@ import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
+import { isPieceReliefOffForPreview } from "../preview/pieceReliefPreview";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -255,6 +256,8 @@ export function PizzaStage({
   const doughGestureShapeRef = useRef<DoughShape | null>(null);
   const doughClipId = useId();
   const reliefFilterId = useId();
+  // #467 diagnostic: Preview-only `?pieceRelief=off` (compiled out of production); default = the SVG lighting filter on.
+  const reliefLighting = !(import.meta.env.VITE_PREVIEW_MODE && isPieceReliefOffForPreview());
 
   // Issue #33 D1: gates the DOUGH radial-stretch gesture branch below, mirroring isPaintMode's
   // own role for sauce -- mutually exclusive with it in practice (IngredientTray/activeIngredient
@@ -1245,7 +1248,7 @@ export function PizzaStage({
           <div
             className="pizza-pieces"
             data-piece-count={pieceLayout.pieces.length}
-            style={{ filter: pieceReliefFilterCss(reliefFilterId, resultCompact ? RESULT_RELIEF_SCALE : 1) }}
+            style={{ filter: pieceReliefFilterCss(reliefFilterId, resultCompact ? RESULT_RELIEF_SCALE : 1, reliefLighting) }}
           >
             {pieceLayout.pieces.map((piece, pieceIndex) => {
               let node = (

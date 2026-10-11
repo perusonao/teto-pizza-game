@@ -1,5 +1,6 @@
 import { DEFAULT_CUT_SIGNIFICANCE, getCutSignificanceThresholds } from "../logic/cut/regions";
 import { CUT_THRESHOLD_PREVIEW_MARK, cutThresholdBadgeLabel } from "../preview/cutThresholdPreview";
+import { isPieceReliefOffForPreview, PIECE_RELIEF_PREVIEW_MARK, pieceReliefBadgeLabel } from "../preview/pieceReliefPreview";
 import { LC_HAND_PREVIEW_CAPACITY, LC_HAND_PREVIEW_MARK, lcHandPreviewBadgeLabel } from "../preview/lcHandPreview";
 
 /**
@@ -27,17 +28,20 @@ export function PreviewBadge() {
   const sha = import.meta.env.VITE_PREVIEW_SHA;
   const hand = lcHandPreviewBadgeLabel(LC_HAND_PREVIEW_CAPACITY);
   const cut = cutThresholdBadgeLabel(getCutSignificanceThresholds(), DEFAULT_CUT_SIGNIFICANCE);
+  const relief = pieceReliefBadgeLabel(isPieceReliefOffForPreview());
   return (
     <div
       className="preview-badge"
       aria-hidden="true"
       data-lc-hand-preview={hand === null ? undefined : LC_HAND_PREVIEW_MARK}
       data-cut-threshold-preview={cut === null ? undefined : CUT_THRESHOLD_PREVIEW_MARK}
+      data-piece-relief-preview={relief === null ? undefined : PIECE_RELIEF_PREVIEW_MARK}
     >
       PREVIEW{pr ? ` · PR#${pr}` : ""}
       {sha ? ` · ${sha}` : ""}
       {hand === null ? "" : ` · ${hand}`}
       {cut === null ? "" : ` · ${cut}`}
+      {relief === null ? "" : ` · ${relief}`}
     </div>
   );
 }

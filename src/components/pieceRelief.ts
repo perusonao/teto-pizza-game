@@ -11,8 +11,10 @@ export const SPECULAR_EXPONENT = 128;
 /** The RESULT pizza is drawn at roughly this fraction of the stage pizza; the relief scales with it. */
 export const RESULT_RELIEF_SCALE = 0.55;
 
-export function pieceReliefFilterCss(id: string, scale: number): string {
+export function pieceReliefFilterCss(id: string, scale: number, lighting = true): string {
   const px = (n: number) => `${(n * scale).toFixed(2)}px`;
-  return `url(#${id}) drop-shadow(${px(1)} ${px(1.5)} ${px(2)} rgba(40, 18, 6, 0.35))`;
+  const shadow = `drop-shadow(${px(1)} ${px(1.5)} ${px(2)} rgba(40, 18, 6, 0.35))`;
+  // #467 diagnostic (Preview `?pieceRelief=off`): `lighting = false` drops only the SVG lighting reference.
+  return lighting ? `url(#${id}) ${shadow}` : shadow;
 }
 
