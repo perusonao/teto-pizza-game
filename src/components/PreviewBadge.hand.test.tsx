@@ -24,19 +24,19 @@ afterEach(() => {
 describe("PreviewBadge Hand variant label (LC-R6-b)", () => {
   it.each([9, 12] as const)("variant %s: 'PREVIEW · PR# · sha · HAND %s'", async (variant) => {
     const el = await badge(true, variant);
-    expect(el?.textContent).toBe(`PREVIEW · PR#318 · abc1234 · HAND ${variant}`);
+    expect(el?.textContent).toBe(`PREVIEW · PR#318 · abc1234 · HAND ${variant} · BROWSER·C?`);
     expect(el?.getAttribute("data-lc-hand-preview")).toBe("lc-hand-preview-v1");
   });
 
   it("variant null (normal Preview): the ordinary badge with no HAND suffix", async () => {
     const el = await badge(true, null);
-    expect(el?.textContent).toBe("PREVIEW · PR#318 · abc1234");
+    expect(el?.textContent).toBe("PREVIEW · PR#318 · abc1234 · BROWSER·C?");
     expect(el?.hasAttribute("data-lc-hand-preview")).toBe(false);
   });
 
   it("an invalid variant shows no HAND label (Hand is OFF)", async () => {
     const el = await badge(true, 10);
-    expect(el?.textContent).toBe("PREVIEW · PR#318 · abc1234");
+    expect(el?.textContent).toBe("PREVIEW · PR#318 · abc1234 · BROWSER·C?");
   });
 
   it.each([null, 9, 12])("production (no VITE_PREVIEW_MODE), variant %s: no badge at all", async (variant) => {

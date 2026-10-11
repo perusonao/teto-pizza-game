@@ -2,6 +2,7 @@
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
+import { BROWSER_ENV_PREVIEW_MARK } from "./browserEnvPreview";
 import { PIECE_RELIEF_PARAM, PIECE_RELIEF_PREVIEW_MARK } from "./pieceReliefPreview";
 
 /**
@@ -28,7 +29,7 @@ async function bundleText(previewMode: boolean): Promise<string> {
   }
 }
 
-const PREVIEW_ONLY = [PIECE_RELIEF_PARAM, PIECE_RELIEF_PREVIEW_MARK, "RELIEF OFF", "data-piece-relief-preview"];
+const PREVIEW_ONLY = [PIECE_RELIEF_PARAM, PIECE_RELIEF_PREVIEW_MARK, "RELIEF OFF", "data-piece-relief-preview", BROWSER_ENV_PREVIEW_MARK, "data-browser-env-preview"];
 
 let production = "";
 let preview = "";

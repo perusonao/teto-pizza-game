@@ -21,14 +21,14 @@ afterEach(() => {
 describe("PreviewBadge CUT threshold label (#427)", () => {
   it("an override: 'PREVIEW · PR# · sha · CUT 0.20%/1.5u' with the marker attribute", async () => {
     const el = await badge(true, "?cutAreaPct=0.2&cutMinWidth=1.5");
-    expect(el?.textContent).toBe("PREVIEW · PR#427 · abc1234 · CUT 0.20%/1.5u");
+    expect(el?.textContent).toBe("PREVIEW · PR#427 · abc1234 · CUT 0.20%/1.5u · BROWSER·C?");
     expect(el?.getAttribute("data-cut-threshold-preview")).toBe("cut-threshold-preview-v1");
   });
 
   it("the defaults (no query, invalid query, or the default values given explicitly): the ordinary badge", async () => {
     for (const search of ["", "?cutAreaPct=abc", "?cutAreaPct=0.10&cutMinWidth=1.0"]) {
       const el = await badge(true, search);
-      expect(el?.textContent).toBe("PREVIEW · PR#427 · abc1234");
+      expect(el?.textContent).toBe("PREVIEW · PR#427 · abc1234 · BROWSER·C?");
       expect(el?.hasAttribute("data-cut-threshold-preview")).toBe(false);
     }
   });
