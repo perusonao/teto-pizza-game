@@ -296,3 +296,54 @@ describe("PizzaStage topping roast visual (PR-E)", () => {
     expect(toppingEmojiFilter("pepperoni")).toContain("drop-shadow(");
   });
 });
+
+describe("Issue #421 finished-pizza appeal wiring", () => {
+  function meltVars() {
+    const el = document.querySelector<HTMLElement>(".pizza-cheese--mozzarella");
+    if (!el) throw new Error(".pizza-cheese--mozzarella missing");
+    return {
+      el,
+      melt: el.style.getPropertyValue("--melt"),
+      brown: el.style.getPropertyValue("--melt-brown"),
+    };
+  }
+
+  it("sets no melt vars before BAKE, and no sauce/crust overlays", () => {
+    renderStage(null);
+    const { el, melt } = meltVars();
+    expect(melt).toBe("");
+    expect(el.classList.contains("pizza-cheese--meltable")).toBe(true);
+    expect(document.querySelector(".pizza-bake-overlay--sauce")).toBeNull();
+    expect(document.querySelector(".pizza-bake-overlay--crust")).toBeNull();
+  });
+
+  it("melt grows from raw to the perfect bake, brown follows, and CUT-phase reuse keeps the look", () => {
+    const { unmount } = renderStage(5);
+    const raw = Number(meltVars().melt);
+    unmount();
+    const { unmount: unmount2 } = renderStage(70);
+    const done = meltVars();
+    expect(raw).toBeLessThan(Number(done.melt));
+    expect(Number(done.melt)).toBe(1);
+    expect(Number(done.brown)).toBeGreaterThan(0);
+    unmount2();
+  });
+
+  it("renders sauce and crust overlays during bake, with opacity/vars driven by heat", () => {
+    renderStage(70);
+    const sauce = document.querySelector<HTMLElement>(".pizza-bake-overlay--sauce");
+    const crust = document.querySelector<HTMLElement>(".pizza-bake-overlay--crust");
+    expect(sauce).not.toBeNull();
+    expect(Number(sauce!.style.getPropertyValue("--sauce-gloss"))).toBe(1);
+    expect(Number(crust!.style.opacity)).toBeGreaterThan(0.5);
+  });
+
+  it("non-pilot cheeses keep the scale-only look (no melt vars)", () => {
+    renderStage(70, {
+      pizza: { ...createEmptyPizza(), toppings: [{ id: "t1", ingredientId: "gorgonzola", x: 50, y: 50 }] },
+    });
+    const el = document.querySelector<HTMLElement>(".pizza-cheese--gorgonzola")!;
+    expect(el.style.getPropertyValue("--melt")).toBe("");
+    expect(el.classList.contains("pizza-cheese--meltable")).toBe(false);
+  });
+});

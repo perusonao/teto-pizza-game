@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { BakeTarget } from "../data/recipes";
 import {
   bakeVisualStage,
+  cheeseMeltShapeFrame,
+  cheeseMeltsShape,
+  crustBakeIntensity,
+  sauceBakeFrame,
   cheeseVisualFrame,
   charIntensity,
   computeBakeHeat,
@@ -196,5 +200,64 @@ describe("toppingVisualFrame", () => {
     expect(toppingVisualFrame(50, false)).toEqual(toppingVisualFrame(2, false));
     expect(toppingVisualFrame(-5, true)).toEqual(toppingVisualFrame(0, true));
     expect(toppingVisualFrame(50, true)).toEqual(toppingVisualFrame(2, true));
+  });
+});
+
+describe("Issue #421 finished-pizza appeal frames", () => {
+  const heats = Array.from({ length: 41 }, (_, i) => i * 0.05);
+
+  it("cheese melt: unbaked is exactly 0, melt is monotonic and reaches 1 by the perfect bake", () => {
+    expect(cheeseMeltShapeFrame(0)).toEqual({ melt: 0, brown: 0 });
+    let previous = 0;
+    for (const heat of heats.filter((h) => h <= 1)) {
+      const { melt } = cheeseMeltShapeFrame(heat);
+      expect(melt).toBeGreaterThanOrEqual(previous);
+      previous = melt;
+    }
+    expect(cheeseMeltShapeFrame(1).melt).toBe(1);
+  });
+
+  it("cheese brown: rises through the perfect bake and stays within 0..1 with no jumps", () => {
+    expect(cheeseMeltShapeFrame(0.5).brown).toBe(0);
+    expect(cheeseMeltShapeFrame(1.4).brown).toBeGreaterThan(cheeseMeltShapeFrame(1).brown);
+    let previous = cheeseMeltShapeFrame(0).brown;
+    for (const heat of heats) {
+      const { brown } = cheeseMeltShapeFrame(heat);
+      expect(brown).toBeGreaterThanOrEqual(0);
+      expect(brown).toBeLessThanOrEqual(1);
+      expect(Math.abs(brown - previous)).toBeLessThan(0.15);
+      previous = brown;
+    }
+  });
+
+  it("sauce: tint starts at 0, grows monotonically; gloss peaks at heat 1 and dries when burnt", () => {
+    expect(sauceBakeFrame(0)).toEqual({ tint: 0, gloss: 0.0 });
+    let previous = 0;
+    for (const heat of heats) {
+      const { tint, gloss } = sauceBakeFrame(heat);
+      expect(tint).toBeGreaterThanOrEqual(previous);
+      expect(gloss).toBeLessThanOrEqual(sauceBakeFrame(1).gloss);
+      previous = tint;
+    }
+    expect(sauceBakeFrame(1).gloss).toBe(1);
+    expect(sauceBakeFrame(2).gloss).toBe(0);
+  });
+
+  it("crust: 0 unbaked, monotonic, clamped to 1", () => {
+    expect(crustBakeIntensity(0)).toBe(0);
+    let previous = 0;
+    for (const heat of heats) {
+      const v = crustBakeIntensity(heat);
+      expect(v).toBeGreaterThanOrEqual(previous);
+      expect(v).toBeLessThanOrEqual(1);
+      previous = v;
+    }
+    expect(crustBakeIntensity(2)).toBe(1);
+  });
+
+  it("only the Pilot cheese opts into the shape melt", () => {
+    expect(cheeseMeltsShape("mozzarella")).toBe(true);
+    expect(cheeseMeltsShape("gorgonzola")).toBe(false);
+    expect(cheeseMeltsShape("basil")).toBe(false);
   });
 });

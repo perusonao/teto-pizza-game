@@ -262,3 +262,56 @@ function interpolateToppingFrames(
 export function toppingVisualFrame(heat: number, roastResistant: boolean): ToppingVisualFrame {
   return interpolateToppingFrames(roastResistant ? HERB_FRAMES : TOPPING_FRAMES, heat);
 }
+
+/**
+ * Issue #421 (Finished Pizza Appetite Appeal) -- Pilot: mozzarella shape melt, tomato-sauce
+ * tint, crust puff. Every value below is derived from the one `bakeHeat` scalar (no second
+ * raw/baked state) and is render-only: nothing here is read by scoring, save or economy.
+ *
+ * Cheese is opt-in by ingredient id so another cheese joins by adding its id to
+ * `MELT_SHAPE_CHEESE_IDS` (and, if it needs a distinct colour, `--cheese-color` already comes
+ * from the ingredient). Cheeses outside the set keep the pre-#421 scale-only look.
+ */
+export const MELT_SHAPE_CHEESE_IDS: ReadonlySet<string> = new Set(["mozzarella"]);
+
+export function cheeseMeltsShape(ingredientId: string): boolean {
+  return MELT_SHAPE_CHEESE_IDS.has(ingredientId);
+}
+
+function smooth01(t: number): number {
+  const x = clamp01(t);
+  return x * x * (3 - 2 * x);
+}
+
+export interface CheeseMeltShapeFrame {
+  /** 0..1: round lump -> irregular soft pool (outline softens, skirt spreads). */
+  melt: number;
+  /** 0..1: local golden-brown spots on the cheese, fading again once the pizza is charred. */
+  brown: number;
+}
+
+export function cheeseMeltShapeFrame(heat: number): CheeseMeltShapeFrame {
+  return {
+    melt: smooth01(meltIntensity(heat)),
+    brown: smooth01(toastIntensity(heat)) * (1 - 0.6 * charIntensity(heat)),
+  };
+}
+
+export interface SauceBakeFrame {
+  /** 0..1: sauce deepens toward a darker, richer red. */
+  tint: number;
+  /** 0..1: glossy sheen, peaking at the perfect bake and drying out when burnt. */
+  gloss: number;
+}
+
+export function sauceBakeFrame(heat: number): SauceBakeFrame {
+  return {
+    tint: smooth01((heat - 0.3) / 0.9),
+    gloss: smooth01(1 - Math.abs(heat - 1) / 0.7),
+  };
+}
+
+/** 0..1: crust puffs lighter at the rim with darker blotches as the bake progresses. */
+export function crustBakeIntensity(heat: number): number {
+  return smooth01((heat - 0.4) / 0.9);
+}

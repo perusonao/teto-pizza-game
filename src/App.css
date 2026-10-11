@@ -816,6 +816,73 @@
   box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8), inset 0 -2px 3px rgba(255, 255, 255, 0.35);
 }
 
+/* Issue #421 (Finished Pizza Appetite Appeal) -- shape-melt cheeses (bakeVisual.ts
+   `MELT_SHAPE_CHEESE_IDS`; Pilot: mozzarella). `--melt` / `--melt-brown` (0..1, default 0 =
+   the unbaked look, so Reference / thumbnail / tray renders are unchanged) are set inline by
+   PizzaStage from `cheeseMeltShapeFrame(bakeHeat)`. Pure CSS gradients and pseudo-elements:
+   no filter() beyond the existing brightness/saturate/sepia, no clip-path, no SVG. */
+.pizza-cheese--meltable {
+  position: relative;
+  border-radius: calc(55% - var(--melt, 0) * 8%) calc(45% + var(--melt, 0) * 10%) calc(48% + var(--melt, 0) * 4%) calc(52% - var(--melt, 0) * 6%) /
+    calc(55% - var(--melt, 0) * 10%) calc(50% + var(--melt, 0) * 8%) calc(50% - var(--melt, 0) * 4%) calc(45% + var(--melt, 0) * 12%);
+  /* The crisp white ring and hard shadow of a raw lump soften as the cheese melts. */
+  box-shadow:
+    0 calc(2px - var(--melt, 0) * 1px) calc(3px + var(--melt, 0) * 2px) rgba(30, 16, 4, calc(0.3 - var(--melt, 0) * 0.08)),
+    0 0 0 1.5px rgba(255, 255, 255, calc(0.8 - var(--melt, 0) * 0.7)),
+    inset 0 -3px 4px rgba(255, 255, 255, calc(0.55 - var(--melt, 0) * 0.35)),
+    inset 2px 2px 3px rgba(255, 250, 225, calc(var(--melt, 0) * 0.7));
+}
+
+/* Spread skirt: a soft, irregular pool of melted cheese under/around the lump. */
+.pizza-cheese--meltable::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--melt, 0) * -22%);
+  z-index: -1;
+  border-radius: 62% 38% 55% 45% / 48% 60% 40% 52%;
+  background: radial-gradient(ellipse at 40% 38%, var(--cheese-color, #f3ead0) 0 45%, rgba(243, 226, 170, 0.55) 72%, rgba(243, 226, 170, 0) 100%);
+  opacity: calc(var(--melt, 0) * 0.85);
+  pointer-events: none;
+}
+
+/* Local golden-brown spots on the cheese itself. */
+.pizza-cheese--meltable::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(196, 128, 40, 0.75) 0 2.2px, transparent 3.6px),
+    radial-gradient(circle at 68% 58%, rgba(184, 112, 32, 0.7) 0 2px, transparent 3.4px),
+    radial-gradient(circle at 48% 78%, rgba(200, 136, 48, 0.6) 0 1.6px, transparent 3px);
+  opacity: var(--melt-brown, 0);
+  pointer-events: none;
+}
+
+/* Issue #421: tomato-sauce bake tint (deeper red + wet gloss), driven by `--sauce-tint` /
+   `--sauce-gloss`. Multiply keeps the sauce's own colour and the dough visible. */
+.pizza-bake-overlay--sauce {
+  inset: 6%;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, calc(var(--sauce-gloss, 0) * 0.28)) 0 14%, transparent 34%),
+    radial-gradient(circle at 62% 66%, rgba(120, 18, 10, calc(var(--sauce-tint, 0) * 0.34)) 0 18%, transparent 40%),
+    radial-gradient(circle, rgba(150, 30, 18, calc(var(--sauce-tint, 0) * 0.3)) 30%, rgba(110, 20, 12, calc(var(--sauce-tint, 0) * 0.16)) 100%);
+}
+
+/* Issue #421: crust puff -- a lighter rim band with darker baked blotches. Opacity is the only
+   per-frame change (set inline from `crustBakeIntensity`). */
+.pizza-bake-overlay--crust {
+  background:
+    radial-gradient(circle at 14% 16%, rgba(120, 66, 22, 0.42) 0 2.5%, transparent 5.5%),
+    radial-gradient(circle at 86% 16%, rgba(120, 66, 22, 0.36) 0 2.5%, transparent 5.5%),
+    radial-gradient(circle at 87% 82%, rgba(120, 66, 22, 0.42) 0 2.5%, transparent 5.5%),
+    radial-gradient(circle at 15% 84%, rgba(120, 66, 22, 0.34) 0 2.5%, transparent 5.5%),
+    radial-gradient(circle at 50% 2.5%, rgba(120, 66, 22, 0.36) 0 2.5%, transparent 5.5%),
+    radial-gradient(circle at 50% 97.5%, rgba(120, 66, 22, 0.4) 0 2.5%, transparent 5.5%),
+    radial-gradient(circle, transparent 90%, rgba(255, 224, 150, 0.3) 95%, rgba(150, 90, 30, 0.22) 100%);
+}
+
 /* Legacy discrete melt look -- PizzaStage's own live bake path no longer applies these
    classNames (see `.pizza-cheese`'s own `--bake-melt-scale` comment above); kept only for
    IngredientPieceVisual's generic className passthrough contract (its own test still exercises

@@ -18,7 +18,11 @@ import type { MakingStep } from "../state/gameReducer";
 import { classifyBake } from "../logic/bake";
 import {
   charIntensity,
+  cheeseMeltShapeFrame,
+  cheeseMeltsShape,
   cheeseVisualFrame,
+  crustBakeIntensity,
+  sauceBakeFrame,
   computeBakeHeat,
   doughVisualColors,
   rawSheenIntensity,
@@ -950,6 +954,20 @@ export function PizzaStage({
         filter: `brightness(${cheeseFrame.brightness.toFixed(3)}) saturate(${cheeseFrame.saturate.toFixed(3)}) sepia(${cheeseFrame.sepia.toFixed(3)})`,
       } as CSSProperties)
     : undefined;
+  // Issue #421: shape-melt cheeses (bakeVisual.ts `MELT_SHAPE_CHEESE_IDS`) additionally get
+  // `--melt` / `--melt-brown`, read only by `.pizza-cheese--meltable` (App.css). Absent outside
+  // BAKE..RESULT, where the CSS defaults (0) render the unbaked look.
+  const meltFrame = bakeProgress === null ? null : cheeseMeltShapeFrame(bakeHeat);
+  const cheesePieceStyle = (ingredient: Ingredient): CSSProperties | undefined =>
+    cheeseMeltsShape(ingredient.id) && meltFrame
+      ? ({
+          ...cheeseStyle,
+          "--melt": meltFrame.melt.toFixed(3),
+          "--melt-brown": meltFrame.brown.toFixed(3),
+        } as CSSProperties)
+      : cheeseStyle;
+  const sauceBake = bakeProgress === null ? null : sauceBakeFrame(bakeHeat);
+  const crustBake = bakeProgress === null ? 0 : crustBakeIntensity(bakeHeat);
   // Gameplay UX PR-E (Finished Pizza Visual 2.0): a non-cheese topping's own dedicated,
   // continuous roast curve (../logic/bakeVisual.ts's own file comment on `toppingVisualFrame`
   // explains why this replaces reusing `cheeseStyle` for every topping) -- keyed per-ingredient
@@ -1116,6 +1134,12 @@ export function PizzaStage({
           }}
         />
       )}
+      {sauceBake && (sauceIngredient || showSauceHeatmap) && !isOilSauce && (
+        <div
+          className="pizza-bake-overlay pizza-bake-overlay--sauce"
+          style={{ "--sauce-tint": sauceBake.tint.toFixed(3), "--sauce-gloss": sauceBake.gloss.toFixed(3) } as CSSProperties}
+        />
+      )}
       {showSauceHeatmap && (
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}
@@ -1177,7 +1201,8 @@ export function PizzaStage({
                 variable's own comment above for why. */}
             <IngredientPieceVisual
               ingredient={ingredient}
-              style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+              className={cheeseMeltsShape(ingredient.id) ? "pizza-cheese--meltable" : undefined}
+              style={ingredient.category === "cheese" ? cheesePieceStyle(ingredient) : toppingPieceStyle(ingredient)}
             />
           </span>
         );
@@ -1199,6 +1224,7 @@ export function PizzaStage({
           neither can pop in or swap look at a fixed instant. */}
       {bakeProgress !== null && (
         <>
+          <div className="pizza-bake-overlay pizza-bake-overlay--crust" style={{ opacity: crustBake }} />
           <div className="pizza-bake-overlay pizza-bake-overlay--sheen" style={{ opacity: bakeRawSheenIntensity * 0.5 }} />
           <div className="pizza-bake-overlay pizza-bake-overlay--char" style={{ opacity: bakeCharIntensity * 0.85 }} />
         </>
