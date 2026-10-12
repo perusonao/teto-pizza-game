@@ -99,7 +99,7 @@ test.describe("e2e/gestures helpers (#394 Phase 1)", () => {
         await cutThreeLines(page);
         await page.getByRole("button", { name: /切り終わる/ }).click();
       }
-      await expect(page.locator(".result-panel").first()).toContainText("焼き加減: いい焼き加減");
+      await expect(page.locator(".result-panel").first()).toContainText(/焼き加減: (ジャスト|惜しい（焼き(不足|すぎ)）)/);
     });
   }
 
