@@ -812,10 +812,11 @@
     0 0 0 1.5px var(--bake-cheese-ring, rgba(255, 255, 255, 0.8)),
     /* a faint sauce-coloured stain on one side of the edge (partial blend into the sauce) */
     var(--bake-cheese-bleed-off, 0 0) 4px 0.5px var(--bake-cheese-bleed, transparent),
-    /* irregular outline (#421 outline prototype): six shifted copies of the body's own outline, each with its own offset / spread /
-       strength (resolved per piece in TypeScript as finished lengths, `--bake-cheese-film-N-g` = "x y blur spread"). Hard-ish (<= 0.6px
-       blur) and translucent, so the silhouette is the UNION of several overlapping ellipses (an uneven puddle, with thin film
-       tongues where only one or two copies reach) instead of one blurred cloud. Raw fallback: zero geometry, transparent. */
+    /* feathered skirt (#421 outline prototype 2): four soft near layers and two faint far tongues, each its own offset / blur / spread /
+       strength (resolved per piece in TypeScript as finished lengths, `--bake-cheese-film-N-g` = "x y blur spread"). Prototype 1 used
+       hard-ish copies of the outline, which read as stacked ovals; here every layer is feathered and the body's own rim fades to the
+       strength the skirt has where it starts, so thick centre -> thin film is one continuous gradient. Raw fallback: zero geometry,
+       transparent. */
     var(--bake-cheese-film-1-g, 0 0 0 0) var(--bake-cheese-film-1, transparent),
     var(--bake-cheese-film-2-g, 0 0 0 0) var(--bake-cheese-film-2, transparent),
     var(--bake-cheese-film-3-g, 0 0 0 0) var(--bake-cheese-film-3, transparent),

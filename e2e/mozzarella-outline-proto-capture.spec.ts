@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import {
   completeDoughStep,
   cutThreeLines,
@@ -63,6 +63,18 @@ async function closeup(page: Page, path: string) {
   if (box) await page.screenshot({ path, clip: box, scale: "device" });
 }
 
+/** The mozzarella pieces' bounding boxes in the stage's own CSS-pixel frame, for the ring-brightness measurement in the report. */
+async function pieceRects(page: Page, path: string) {
+  const rects = await page.evaluate(() => {
+    const st = document.querySelector(".pizza-stage")!.getBoundingClientRect();
+    return [...document.querySelectorAll(".pizza-cheese--mozzarella")].map((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.left - st.left, y: r.top - st.top, w: r.width, h: r.height };
+    });
+  });
+  writeFileSync(path, JSON.stringify(rects));
+}
+
 async function build(page: Page) {
   await startFreshMargherita(page);
   await completeDoughStep(page);
@@ -98,6 +110,7 @@ test("capture baked mozzarella stages", async ({ page }) => {
     await flush(page);
     await page.locator(".pizza-stage").screenshot({ path: `${DIR}/${tag}-${name}.png` });
     await closeup(page, `${DIR}/${tag}-${name}-closeup.png`);
+    await pieceRects(page, `${DIR}/${tag}-${name}.json`);
   }
 });
 

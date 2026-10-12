@@ -253,17 +253,24 @@ export function cheeseMeltJitter(key: string, count: number): number[] {
 }
 
 /**
- * #421 outline prototype (Fresh Audit plan A): M1 only made the blurred spread lobes quieter, and the Owner still could not tell a
- * natural melt from a tidy oval. The silhouette itself is rebuilt here: six hard-ish, translucent copies of the body's own outline,
- * each shifted in its own direction by its own distance and grown by its own spread, so the piece's outline is the union of
- * several overlapping ellipses (an uneven puddle) and the thin film sits where only one or two copies reach.
+ * #421 outline prototype 2: prototype 1 drew six hard-ish copies of the outline, and the Owner read them as a stack of white
+ * ovals (a visible inner oval edge, round overhangs, sheet-like layers). The mechanism is now a feathered SKIRT, not copies:
+ *  - the body's own rim fades to about the strength the skirt has where it starts (`--bake-cheese-body-3`), so there is no step
+ *    between the thick milky centre and the thin cream film around it;
+ *  - four near layers (soft, 1.6 - 2.2 px blur) are the skirt: lopsided per piece, small reach, each only a shade stronger toward
+ *    the body, so overlaps build a continuous thick -> thin gradient;
+ *  - two far layers (2.4 px blur, weak) are the thin tongues: only a short, faint irregularity beyond the skirt, never a round bulge.
+ * No layer has an edge crisp enough to read as its own shape; the silhouette is the soft sum.
  */
 const FILM_COUNT = 6;
-const FILM_BLUR_PX = 0.8;
-/** Base film strength; overlapped copies add up near the body (thicker) and stay at this value at a lone tongue (thin film). */
-const FILM_ALPHA = 0.62;
-const LOBE_CREAM_A = [241, 235, 218] as const;
-const LOBE_CREAM_B = [238, 228, 204] as const;
+const FILM_NEAR = 4;
+/** blur / reach / spread / alpha for the near skirt layers and the far tongues (px, px, px, 0..1) */
+const FILM_NEAR_BLUR = [1.6, 2.2, 1.9, 2.0] as const;
+const FILM_FAR_BLUR = 2.4;
+const FILM_NEAR_ALPHA = 0.3;
+const FILM_FAR_ALPHA = 0.24;
+const LOBE_CREAM_A = [236, 222, 194] as const;
+const LOBE_CREAM_B = [232, 214, 184] as const;
 /** What a lobe's colour moves towards: a pale golden while the cheese toasts, a brown (like the blotches) once it chars. */
 const LOBE_TOASTED = [222, 190, 140] as const;
 const LOBE_CHARRED = [132, 96, 64] as const;
@@ -330,8 +337,8 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     "--bake-cheese-raw-2": rgba(230, 216, 174, 1 - melt),
     "--bake-cheese-body-0": rgba(240, 235, 223, body),
     "--bake-cheese-body-1": rgba(237, 231, 216, body),
-    "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
-    "--bake-cheese-body-3": rgba(232, 222, 202, 0.94 * body),
+    "--bake-cheese-body-2": rgba(235, 226, 207, 0.9 * body),
+    "--bake-cheese-body-3": rgba(230, 216, 188, 0.72 * body),
     // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
     "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
@@ -349,18 +356,23 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
     vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
   });
-  // Film copies: direction spread around the piece (with a per-piece twist), distance / spread / strength each their own. All lengths are
-  // already multiplied by `melt`, so at melt 0 every copy has zero geometry and zero alpha (the raw look). The vertical reach is shorter
-  // because the piece is a flat oval (and the element is squashed vertically as it melts).
+  // Skirt layers: all lengths are already multiplied by `melt`, so at melt 0 every layer has zero geometry and zero alpha (the raw look).
+  // Near layers sit in four loosely spread directions (a per-piece twist + jitter) with a small, uneven reach; the two far layers are
+  // faint tongues, kept mostly horizontal (the piece is a flat oval, squashed vertically as it melts). Vertical reach is x0.8.
   const twist = 0.9 * j[27];
   for (let i = 0; i < FILM_COUNT; i += 1) {
-    const angle = twist + (i / FILM_COUNT) * 2 * Math.PI + 0.95 * j[22 + (i % 5)];
-    const reach = (i < 3 ? 5 : 1.8) * clampRange(1 + 0.4 * j[32 + i], 0.55, 1.45) * melt;
-    const grow = (0.4 + 0.5 * (0.5 + 0.5 * j[38 + i])) * melt;
+    const near = i < FILM_NEAR;
+    const angle = near
+      ? twist + (i / FILM_NEAR) * 2 * Math.PI + 0.55 * j[22 + (i % 5)]
+      : twist + (i === FILM_NEAR ? 0.3 : Math.PI + 0.3) + 0.9 * j[22 + (i % 5)];
+    const reach = (near ? 1 + 2.2 * (0.5 + 0.5 * j[32 + i]) : 4.2 + 2.6 * (0.5 + 0.5 * j[32 + i])) * melt;
+    const grow = (near ? 0.3 + 0.6 * (0.5 + 0.5 * j[38 + i]) : 0) * melt;
+    const blur = (near ? FILM_NEAR_BLUR[i] : FILM_FAR_BLUR) * melt;
     const [fr, fg, fb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
-    const strength = FILM_ALPHA * clampRange(0.8 + 0.3 * j[38 + ((i + 3) % 6)], 0.55, 1.05);
+    const base = near ? FILM_NEAR_ALPHA : FILM_FAR_ALPHA;
+    const strength = base * clampRange(0.85 + 0.25 * j[38 + ((i + 3) % 6)], 0.6, 1.05);
     vars[`--bake-cheese-film-${i + 1}-g`] =
-      `${(reach * Math.cos(angle)).toFixed(2)}px ${(reach * Math.sin(angle) * 0.8).toFixed(2)}px ${(FILM_BLUR_PX * melt).toFixed(2)}px ${grow.toFixed(2)}px`;
+      `${(reach * Math.cos(angle)).toFixed(2)}px ${(reach * Math.sin(angle) * 0.8).toFixed(2)}px ${blur.toFixed(2)}px ${grow.toFixed(2)}px`;
     vars[`--bake-cheese-film-${i + 1}`] = rgba(fr, fg, fb, strength * melt);
   }
   // scaled by `melt`, so it is exactly 1 for the raw cheese (the width must not change when BAKE starts at melt 0)

@@ -257,13 +257,13 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(looks["3-baked"].radius).not.toBe(looks["1-raw"].radius);
     expect(looks["3-baked"].boxShadow).not.toBe(looks["1-raw"].boxShadow);
     expect(looks["3-baked"].transform).not.toBe(looks["1-raw"].transform);
-    // Outline prototype: the outline is six hard-ish film copies (computed style, so engine-independent):
-    // drop, ring, bleed, 6 film copies, pool, inset = 11 layers, every film copy blurred <= 1px.
+    // Outline prototype 2: the outline is six feathered skirt layers (computed style, so engine-independent):
+    // drop, ring, bleed, 6 film copies, pool, inset = 11 layers, every skirt layer blurred <= 3.5px (a crisp copy would read as a stacked oval).
     const layers = looks["3-baked"].boxShadow.replace(/rgba?\([^)]*\)/g, "C").split(",").map((l) => l.trim());
     expect(layers, `box-shadow layers ${looks["3-baked"].boxShadow}`).toHaveLength(11);
     for (const lobe of layers.slice(3, 9)) {
       const blur = Number.parseFloat((lobe.match(/-?\d*\.?\d+px/g) ?? [])[2]);
-      expect(blur, `film layer ${lobe}`).toBeLessThanOrEqual(1.05);
+      expect(blur, `film layer ${lobe}`).toBeLessThanOrEqual(3.5);
     }
     expect(rawTransforms).toHaveLength(3);
     expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);

@@ -282,10 +282,10 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
   it("melting dissolves the ring and brings the lobes in; browning shows by the target centre", () => {
     const perfect = vars(1);
     expect(alpha(perfect["--bake-cheese-ring"])).toBe(0);
-    // outline prototype: six translucent film copies carry the outline (not the A5 / M1 blurred lobes)
+    // outline prototype 2: six feathered skirt layers (4 near, 2 far) carry the outline
     for (let i = 1; i <= 6; i += 1) {
-      expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeGreaterThan(0.25);
-      expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeLessThanOrEqual(0.65);
+      expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeGreaterThan(0.1);
+      expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeLessThanOrEqual(0.35);
     }
     expect(alpha(perfect["--bake-cheese-spot"])).toBeGreaterThan(0.4); // visible golden blotches at the properly baked point
   });
@@ -300,7 +300,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     expect(v["--bake-cheese-halo"], "M1 removed the halo variable").toBeUndefined();
   });
 
-  it("melted cheese: the white lump is gone, the body is cream (not white) with a feathered edge (and no halo, M1)", () => {
+  it("melted cheese: the white lump is gone, the body is cream (not white) with a feathered edge (and no halo)", () => {
     const melted = vars(1);
     for (const k of ["raw-0", "raw-1", "raw-2"]) expect(alpha(melted[`--bake-cheese-${k}`]), k).toBe(0);
     expect(alpha(melted["--bake-cheese-body-0"])).toBe(1);
@@ -406,17 +406,19 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       expect(parseFloat(v["--bake-cheese-aspect"])).toBeLessThanOrEqual(1.05);
       for (let l = 1; l <= 6; l += 1) {
         const [x, y, blur, grow] = px(v[`--bake-cheese-film-${l}-g`]);
-        // bounded: the farthest tongue (5 px x 1.45) plus its spread stays inside ~8.5 px; the blur is the fixed hard-ish 0.8 px
-        expect(Math.hypot(x, y), `film ${l} reach`).toBeLessThanOrEqual(5 * 1.45 + 0.01);
-        expect(blur).toBeCloseTo(0.8, 2);
+        // bounded: near layers reach <= 3.2 px, far tongues <= 6.8 px (no big round overhang); every layer is feathered (> 1.5 px blur,
+        // never a crisp copy of the outline) and weak (<= 0.3 x 1.05)
+        expect(Math.hypot(x, y), `film ${l} reach`).toBeLessThanOrEqual((l <= 4 ? 3.2 : 6.8) + 0.01);
+        expect(blur, `film ${l} blur`).toBeGreaterThanOrEqual(1.5);
+        expect(blur, `film ${l} blur`).toBeLessThanOrEqual(3.2 + 0.001);
         expect(grow).toBeLessThanOrEqual(0.9 + 0.001);
-        expect(alpha(v[`--bake-cheese-film-${l}`]), `film ${l} alpha`).toBeLessThanOrEqual(0.62 * 1.05 + 0.001);
+        expect(alpha(v[`--bake-cheese-film-${l}`]), `film ${l} alpha`).toBeLessThanOrEqual(0.3 * 1.05 + 0.001);
       }
     }
     // a few directions reach far and the others stay close (tongues, not an even halo)
-    const reaches = px(vs[0]["--bake-cheese-film-1-g"]).slice(0, 2);
-    const near = px(vs[0]["--bake-cheese-film-4-g"]).slice(0, 2);
-    expect(Math.hypot(reaches[0], reaches[1])).toBeGreaterThan(Math.hypot(near[0], near[1]));
+    const far = px(vs[0]["--bake-cheese-film-5-g"]).slice(0, 2);
+    const near = px(vs[0]["--bake-cheese-film-1-g"]).slice(0, 2);
+    expect(Math.hypot(far[0], far[1])).toBeGreaterThan(Math.hypot(near[0], near[1]));
     // raw keeps the original drop shadow (0.3); fully melted lies flat (<= 0.1)
     expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])["--bake-cheese-drop"])).toBeCloseTo(0.3, 3);
     expect(alpha(cheeseMeltCssVars(cheeseMeltLook(1), keys[0])["--bake-cheese-drop"])).toBeLessThanOrEqual(0.1);
@@ -445,7 +447,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     const baked = film(1);
     const deep = film(1.6);
     const charred = film(2);
-    expect(melted).toEqual([241, 235, 218]);
+    expect(melted).toEqual([236, 222, 194]);
     const sum = (c: number[]) => c[0] + c[1] + c[2];
     expect(sum(baked)).toBeLessThan(sum(melted));
     expect(sum(deep)).toBeLessThan(sum(baked));
