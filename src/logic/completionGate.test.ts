@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { evaluatePizzaCompletion } from "./completionGate";
+import { bakeCompletionFailure, evaluatePizzaCompletion } from "./completionGate";
+import { classifyBake } from "./bake";
 import { computeScoringV2 } from "./scoringV2";
 import { RECIPES, getRecipe, type RecipeId } from "../data/recipes";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
@@ -148,47 +149,49 @@ describe("evaluatePizzaCompletion", () => {
     expect(result.status === "FAILED" && result.reason).toBe("UNDERBAKED");
   });
 
-  it("11. acceptable slightly underbaked (inside the margin, outside the perfect zone) -> PASS", () => {
-    // 52 is between the FAIL boundary (50) and the perfect zone's own start (60).
+  // Issue #482 (OD-CUT256-1 revised, OD-B1): the bake window of the Gate IS the window `classifyBake` shows.
+  it("11. slightly underbaked (the old 10-point margin band) -> FAILED UNDERBAKED", () => {
+    // 52 is below margherita's start (60): 生焼け, no longer "acceptable but degraded".
     const result = evaluatePizzaCompletion(getRecipe("margherita")!, idealMargherita(52));
-    expect(result.status).toBe("PASS");
+    expect(result).toMatchObject({ status: "FAILED", reason: "UNDERBAKED" });
   });
-
-  it("12. ideal bake (inside the perfect zone) -> PASS", () => {
-    const result = evaluatePizzaCompletion(getRecipe("margherita")!, idealMargherita(70));
-    expect(result.status).toBe("PASS");
-  });
-
-  it("13. acceptable slightly overbaked (inside the margin, outside the perfect zone) -> PASS", () => {
-    // 88 is between the perfect zone's own end (80) and the FAIL boundary (90).
+  it("13. slightly overbaked (the old 10-point margin band) -> FAILED OVERBAKED", () => {
+    // 88 is above margherita's end (80): 焦げ.
     const result = evaluatePizzaCompletion(getRecipe("margherita")!, idealMargherita(88));
-    expect(result.status).toBe("PASS");
+    expect(result).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
   });
-
-  it("14. clear overbake/burnt (well beyond the acceptable margin) -> FAILED OVERBAKED", () => {
-    const result = evaluatePizzaCompletion(getRecipe("margherita")!, idealMargherita(99));
-    expect(result.status).toBe("FAILED");
-    expect(result.status === "FAILED" && result.reason).toBe("OVERBAKED");
-  });
-
-  it("15. within the PASS range, Bake Score still varies (Scoring 2.0 is untouched by the gate)", () => {
+  it("15. Scoring 2.0's Bake component is untouched by the gate: it still grades the distance, and is 100 anywhere inside the window", () => {
     const recipe = getRecipe("margherita")!;
-    const edge = idealMargherita(52); // acceptable but degraded
-    const ideal = idealMargherita(70); // dead center of the perfect zone
-    expect(evaluatePizzaCompletion(recipe, edge).status).toBe("PASS");
-    expect(evaluatePizzaCompletion(recipe, ideal).status).toBe("PASS");
-    const edgeScore = computeScoringV2(recipe, edge).components.bake;
-    const idealScore = computeScoringV2(recipe, ideal).components.bake;
-    expect(edgeScore.available && idealScore.available).toBe(true);
-    if (edgeScore.available && idealScore.available) {
-      expect(idealScore.score).toBeGreaterThan(edgeScore.score);
-      expect(idealScore.score).toBe(100);
+    const outside = idealMargherita(52);
+    const inside = idealMargherita(70); // dead center of the window
+    expect(evaluatePizzaCompletion(recipe, outside).status).toBe("FAILED");
+    expect(evaluatePizzaCompletion(recipe, inside).status).toBe("PASS");
+    const outsideScore = computeScoringV2(recipe, outside).components.bake;
+    const insideScore = computeScoringV2(recipe, inside).components.bake;
+    expect(outsideScore.available && insideScore.available).toBe(true);
+    if (outsideScore.available && insideScore.available) {
+      expect(insideScore.score).toBeGreaterThan(outsideScore.score);
+      expect(insideScore.score).toBe(100);
     }
   });
-
-  it("boundary: exactly at the FAIL/PASS bake edge is PASS (only strictly outside the margin fails)", () => {
-    const result = evaluatePizzaCompletion(getRecipe("margherita")!, idealMargherita(50));
-    expect(result.status).toBe("PASS");
+  it("boundary: both window edges PASS, strictly outside FAILS (margherita 60-80)", () => {
+    const recipe = getRecipe("margherita")!;
+    expect(evaluatePizzaCompletion(recipe, idealMargherita(60)).status).toBe("PASS");
+    expect(evaluatePizzaCompletion(recipe, idealMargherita(80)).status).toBe("PASS");
+    expect(evaluatePizzaCompletion(recipe, idealMargherita(59.99))).toMatchObject({ status: "FAILED", reason: "UNDERBAKED" });
+    expect(evaluatePizzaCompletion(recipe, idealMargherita(80.01))).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
+  });
+  it("the Gate's bake verdict is exactly classifyBake's, for every recipe (生焼け / 焦げ <=> FAILED, 惜しい / ジャスト <=> servable)", () => {
+    for (const recipe of RECIPES) {
+      const { start, end } = recipe.bakeTarget;
+      for (const bake of [0, start - 10, start - 0.01, start, (start + end) / 2, end, end + 0.01, end + 10, 100]) {
+        const verdict = bakeCompletionFailure(evaluatePizzaCompletion(recipe, idealMargherita(bake)));
+        const state = classifyBake(bake, recipe.bakeTarget);
+        expect(verdict === null, `${recipe.id}@${bake}`).toBe(state === "perfect");
+        if (state === "raw") expect(verdict).toBe("UNDERBAKED");
+        if (state === "burnt") expect(verdict).toBe("OVERBAKED");
+      }
+    }
   });
 
   it("multiple simultaneous failures: priority picks the ingredient failure over the bake one", () => {

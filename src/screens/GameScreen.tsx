@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
+import { classifyBake5, isNearMiss } from "../logic/bake";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
 import { prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
+import { withFreeCookBakeWindow } from "../logic/discovery/freeCook";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
 import { researchBoardOf } from "../logic/discovery/researchBoard";
@@ -54,6 +56,7 @@ import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
 import type { DoughShape } from "../logic/doughShape";
+import { DOUGH_SIZE_STATUS_TEXT, type DoughSizeStatus } from "../logic/doughFeedback";
 import {
   buildMitoOrderLine,
   buildTetoBakeLine,
@@ -140,6 +143,10 @@ interface GameScreenProps {
    *  including the current in-progress gesture -- drives the DOUGH step's own CTA
    *  disabled/enabled state. */
   doughShapeComplete: boolean;
+  /** Issue #474 A-1: display-only status for the DOUGH step's one-line readout under the pizza
+   *  (why 次へ is unavailable). Optional: absent, it falls back to what `doughShapeComplete` alone
+   *  says, so it can never disagree with the CTA. */
+  doughSizeStatus?: DoughSizeStatus;
   onGoHome: () => void;
   onBeginPrepare: () => void;
   onResetPizza: () => void;
@@ -234,6 +241,7 @@ export function GameScreen({
   pieceShadowMetrics,
   showDoughShape,
   doughShapeComplete,
+  doughSizeStatus: doughSizeStatusProp,
   onGoHome,
   onBeginPrepare,
   onResetPizza,
@@ -278,6 +286,13 @@ export function GameScreen({
   // otherwise abort local pointer state. This generation was introduced for IngredientTray's
   // physical-drag reset race in PR #26 and is now shared with PizzaStage so both topping drags
   // and buffered Sauce gestures become permanently invalid in the same reset transaction.
+  // Issue #482 (OD-B6 F1): a Free Cooking pizza is judged -- Gate, badge and the stage's own bake visuals / perfect glow --
+  // by the generic window its gauge showed. A matched pizza replaces `state.recipe` with the matched recipe (whose own window
+  // is Scoring 2.0's only), so the stage reads the recipe with the generic window swapped in; every other round is untouched.
+  const stageRecipe = useMemo(
+    () => (state.freeCook ? withFreeCookBakeWindow(state.recipe) : state.recipe),
+    [state.freeCook, state.recipe],
+  );
   const [pizzaResetToken, setPizzaResetToken] = useState(0);
   // DM-3R-2: which Dinner target's reference the popover shows. Purely a view choice -- it is never
   // dispatched, stored in GameState or read by the result detection (a tap is not a selection).
@@ -341,6 +356,9 @@ export function GameScreen({
   // completion -- see onewayFlow.test.ts) is defined in exactly one place, never duplicated.
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
+  // Issue #474 A-1: the status line must agree with the CTA above, so an unavailable 次へ always
+  // reads SMALL whatever the (optional) prop says.
+  const doughStatus: DoughSizeStatus = !doughShapeComplete ? "SMALL" : doughSizeStatusProp === "LARGE" ? "LARGE" : "READY";
 
   // Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): the active round's own recipe-specific
   // pre-BAKE sequence (`../data/cookingProfiles.ts`'s `deriveCoreSteps`, via `getCookingProfile`) --
@@ -488,9 +506,15 @@ export function GameScreen({
         })()
       : null;
 
+  // #469 (Owner D2) / #481: the 5-level label is guided-only (FREE keeps the 3-level badge).
+  const resultBakeLevel5 =
+    !state.freeCook && state.pizza.bakeResult !== null
+      ? classifyBake5(state.pizza.bakeResult, state.recipe.bakeTarget)
+      : null;
+
   const resultHeadingJa =
     isFreeResultScreen && state.score && state.bakeState && state.completion?.status !== "FAILED"
-      ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
+      ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult, isNearMiss(resultBakeLevel5)).textJa
       : "";
 
   // Issue #159 P0 (bullet 5): computed once, independent of whether this recipe has a Scoring
@@ -729,7 +753,7 @@ export function GameScreen({
 
       <PizzaStage
         pizza={state.pizza}
-        recipe={state.recipe}
+        recipe={stageRecipe}
         interactive={
           (state.phase === "PREPARE" || postBakeStepRendered) &&
           !isReferencePopoverOpen &&
@@ -838,6 +862,20 @@ export function GameScreen({
                   pieceMetrics={pieceShadowMetrics}
                 />
               )}
+            {/* Issue #474 A-1: DOUGH's one fixed-height status line (inside the dock's own reserved,
+                otherwise-empty DOUGH space, so nothing moves). Words only: no number, no score. */}
+            {state.makingStep === "DOUGH" && (
+              <div
+                id="dough-size-status"
+                className="dough-status-readout"
+                role="status"
+                aria-live="polite"
+                data-testid="dough-size-status"
+                data-status={doughStatus}
+              >
+                {DOUGH_SIZE_STATUS_TEXT[doughStatus]}
+              </div>
+            )}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}
@@ -912,6 +950,7 @@ export function GameScreen({
                 className="cta-button cta-button--bake"
                 onClick={onConfirmMakingStep}
                 disabled={!nextStepReady}
+                aria-describedby={state.makingStep === "DOUGH" ? "dough-size-status" : undefined}
               >
                 次へ {"→"}
               </button>
@@ -979,6 +1018,8 @@ export function GameScreen({
         <BakeOverlay
           targetStart={state.recipe.bakeTarget.start}
           targetEnd={state.recipe.bakeTarget.end}
+          // #481 (Owner): the JUST band is shown for guided-style rounds only; FREE Cooking has no 5-level result.
+          showJustBand={!state.freeCook}
           onConfirm={onConfirmBake}
           onTick={onBakeTick}
         />
@@ -1016,6 +1057,10 @@ export function GameScreen({
           completion={state.completion}
           score={state.score}
           bakeState={state.bakeState}
+          // #469 (Owner D2): FREE Cooking keeps the 3-level badge. The BAKE gauge shows the generic FREE window, but a
+          // matched pizza is judged (and `state.recipe` is replaced) with the matched recipe's own window, so a 5-level
+          // label would disagree with the gauge the player aimed at. Guided / Lunch Rush / Dinner use the window shown.
+          bakeLevel5={resultBakeLevel5}
           sauceScore={
             state.scoringV2Result?.components.sauce.available
               ? state.scoringV2Result.components.sauce.score

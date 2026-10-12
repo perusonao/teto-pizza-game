@@ -1620,6 +1620,15 @@
   background: rgba(76, 154, 42, 0.45);
 }
 
+/* Issue #481: the JUST band (window centre +-3pt) sits inside the target zone, darker than it, and fades
+   with the same layer so it is gone at 1.2s. */
+.bake-gauge__just {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(46, 107, 18, 0.75);
+}
+
 .bake-gauge__zone {
   position: absolute;
   top: 0;
@@ -1753,6 +1762,12 @@
 .result-panel__bake-badge--burnt {
   background: #e9d9d2;
   color: #6b2f18;
+}
+
+/* Issue #481: JUST = gold; near-miss keeps the light green above. */
+.result-panel__bake-badge--just {
+  background: #fdeba8;
+  color: #6b4a00;
 }
 
 /* RESULT 2.0 Slice 1: the old "score breakdown" table (ソース/具材/配置/焼き) is real detail,
@@ -5202,6 +5217,23 @@
         var(--dock-pager, 0) * var(--pager-h) + var(--dock-family, 0) * var(--family-h)
     )
   );
+}
+
+/* Issue #474 A-1: DOUGH's status line. Fixed 20px, pinned to the top of the dock (just under the
+   pizza); the dock's own reserved height already covers it, so the pizza never moves. */
+.prepare-dock .dough-status-readout {
+  box-sizing: border-box;
+  height: 20px;
+  margin-bottom: auto;
+  padding: 0 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 20px;
+  color: #6b4226;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .prepare-dock .ingredient-chip {

@@ -230,3 +230,44 @@ describe("BakeOverlay confirm/finish action", () => {
     expect(onConfirm.mock.calls[2][0]).toBe(100);
   });
 });
+
+describe("BakeOverlay JUST band (Issue #481)", () => {
+  const band = () => document.querySelector<HTMLElement>(".bake-gauge__just");
+
+  it("is hidden by default (FREE Cooking passes no flag)", () => {
+    render(<BakeOverlay targetStart={60} targetEnd={80} onConfirm={vi.fn()} />);
+    expect(band()).toBeNull();
+  });
+
+  it("spans window centre +-3pt (60-80 -> 67-73; 58-78 -> 65-71)", () => {
+    const { unmount } = render(<BakeOverlay targetStart={60} targetEnd={80} showJustBand onConfirm={vi.fn()} />);
+    expect(parseFloat(band()!.style.left)).toBe(67);
+    expect(parseFloat(band()!.style.width)).toBe(6);
+    unmount();
+    render(<BakeOverlay targetStart={58} targetEnd={78} showJustBand onConfirm={vi.fn()} />);
+    expect(parseFloat(band()!.style.left)).toBe(65);
+    expect(parseFloat(band()!.style.width)).toBe(6);
+  });
+
+  it("lives in the fading zone layer: full at 0.6s, fading, gone at 1.2s", () => {
+    render(<BakeOverlay targetStart={60} targetEnd={80} showJustBand onConfirm={vi.fn()} />);
+    expect(band()!.parentElement).toHaveClass("bake-gauge__zones");
+    advanceSeconds(0.6);
+    expect(zonesOpacity()).toBeCloseTo(1, 1);
+    expect(band()).not.toBeNull();
+    advanceSeconds(0.3);
+    expect(zonesOpacity()).toBeLessThan(0.7);
+    expect(band()).not.toBeNull();
+    advanceSeconds(0.4);
+    expect(band()).toBeNull();
+    advanceSeconds(5);
+    expect(band()).toBeNull();
+  });
+
+  it("does not move the needle or the tap target", () => {
+    render(<BakeOverlay targetStart={60} targetEnd={80} showJustBand onConfirm={vi.fn()} />);
+    expect(document.querySelector(".bake-gauge")).toHaveAttribute("aria-hidden", "true");
+    advanceSeconds(BAKE_DURATION_S / 2);
+    expect(needleLeft()).toBeCloseTo(50, 0);
+  });
+});

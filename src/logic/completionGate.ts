@@ -95,14 +95,14 @@ const PRIORITY_ORDER: readonly CompletionFailureReason[] = [
 const SAUCE_MIN_RATIO = COVERAGE_POOR_RATIO / 2;
 
 /**
- * How far outside a recipe's own `bakeTarget` perfect zone counts as "acceptable but degraded"
- * versus a hard failure, as a fraction of that zone's own width -- e.g. a 20-point-wide target
- * gets a 10-point acceptable margin on each side. Derived from the recipe's own authored zone
- * (never a new per-recipe number), and doubles the width of the zone Scoring 2.0's Bake
- * component already grades continuously (../logic/scoringV2/bakeComponent.ts) into a "PASS,
- * but scored down" band before the pizza is unservable.
+ * Issue #482 (OD-CUT256-1 revised, OD-B1): how far outside a window counts as "acceptable but
+ * degraded" versus a hard failure, as a fraction of the window's own width. It is 0: the Gate's
+ * bake window IS the window `classifyBake` (and the gauge) shows, so 生焼け / 焦げ is always FAILED
+ * and only 惜しい / ジャスト (inside the window) are servable. (Until #482 this was 0.5, a 10-point
+ * margin on each side of a 20-point window, so a 生焼け / 焦げ badge could still be scored, paid
+ * and cut.) Scoring 2.0's Bake component keeps grading the distance continuously inside the window.
  */
-const BAKE_ACCEPTABLE_MARGIN_RATIO = 0.5;
+const BAKE_ACCEPTABLE_MARGIN_RATIO = 0;
 
 function ratioOf(value: number, target: number): number {
   if (target <= 0) return value > 0 ? 1 : 0;

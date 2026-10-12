@@ -110,13 +110,14 @@ export const PIZZAS: Record<string, PizzaSpec> = {
   marinara: {
     cheese: [],
     toppings: [{ chip: /にんにく/, count: 3 }, { chip: /オレガノ/, count: 2 }],
-    bake: { start: 60, end: 80 },
+    // marinara's real window (45-65): the helper used to say 60-80 and relied on the old 10-point margin (#482).
+    bake: { start: 45, end: 65 },
     cut: true,
   },
   hawaiian: {
     cheese: [{ chip: /モッツァレラ/, count: 2 }],
     toppings: [{ chip: /ハム/, count: 2 }, { chip: /パイナップル/, count: 3 }],
-    bake: { start: 58, end: 78 },
+    bake: { start: 60, end: 80 }, // hawaiian's real window (was 58-78; #482)
     cut: true,
   },
   /** funghi + one egg: matches no recipe (ORIGINAL), generic window, no CUT. */
