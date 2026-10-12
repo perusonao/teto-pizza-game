@@ -280,7 +280,7 @@ const WOBBLE_SKEW_DEG = 4;
  */
 const CORE_W = 28;
 const CORE_H = 23;
-const PAD_MAX = 11;
+const PAD_MAX = 7;
 /** melt level at which the pad (and so the lobes) starts, and at which the raw lump / ring / drop shadow are gone. */
 const LOBE_START = 0.5;
 /** conservative CSS px per % of dough (360 px-wide phones: 260.8 px interior); used only to keep neighbours from merging. */
@@ -288,6 +288,8 @@ const DOUGH_PX_PER_PCT = 2.6;
 const SETTLED_SCALE_X = 1.16 * (1 + SETTLED_SPREAD_X);
 const SETTLED_SCALE_Y = 1.16 * (1 + SETTLED_SPREAD_Y);
 const MIN_NEIGHBOUR_GAP_PX = 3;
+/** Proto4b: at most this many lobes per piece (3 -> 2 removes one gradient layer; both were compared). */
+const LOBES_MAX = 2;
 
 /** Where the nearest other piece of the same cheese is, in the dough's own frame (angle: radians, y down; gapPx: centre distance in px). */
 export interface CheeseNeighbour {
@@ -337,6 +339,80 @@ const SPOTS: ReadonlyArray<{ x: number; y: number; rx: number; ry: number }> = [
 
 function clampRange(value: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, value));
+}
+
+/** One lobe: an elliptical feathered pool in the (possibly enlarged) box, in px. */
+export interface CheeseLobe {
+  rx: number;
+  ry: number;
+  x: number;
+  y: number;
+  alpha: number;
+  warm: boolean;
+}
+
+export interface CheeseMeltLobes {
+  /** transparent border (px per side) that gives the lobes room; 0 until the second half of the melt */
+  pad: number;
+  lobes: CheeseLobe[];
+  /** local amber blush at the first lobe's tip (null when there is no lobe) */
+  amber: { rx: number; ry: number; x: number; y: number } | null;
+  /** 0 -> 1 as the lobes come in */
+  strength: number;
+}
+
+/**
+ * Proto4: the irregular pools around the thick core. 1 to `LOBES_MAX` lobes per piece, each with its own direction (a per-piece twist; the
+ * first one aims at the nearest neighbour, its reach limited so close pieces keep a gap), size, reach (short: a lobe is a pool, not a wing)
+ * and strength. Pure function of the melt, the piece key and the neighbour; `j` is the piece's jitter (recomputed when absent).
+ */
+export function cheeseMeltLobes(look: CheeseMeltLook, seedKey?: string, neighbour?: CheeseNeighbour | null, jitter?: number[]): CheeseMeltLobes {
+  const { melt } = look;
+  const j = jitter ?? (seedKey === undefined ? new Array<number>(48).fill(0) : cheeseMeltJitter(seedKey, 48));
+  const t = clamp01((melt - LOBE_START) / (1 - LOBE_START));
+  const pad = PAD_MAX * t * t * (3 - 2 * t);
+  const strength = clamp01((melt - LOBE_START) / 0.3);
+  const lobeCount = LOBES_MAX >= 3 && j[20] > -0.2 ? 3 : 2;
+  const spacing = ((2 * Math.PI) / lobeCount) * (1 + 0.2 * j[21]);
+  const base = Math.PI * (1 + j[22]);
+  const cx = pad + CORE_W / 2;
+  const cy = pad + CORE_H / 2;
+  const boxW = CORE_W + 2 * pad;
+  const boxH = CORE_H + 2 * pad;
+  const lobes: CheeseLobe[] = [];
+  let amber: CheeseMeltLobes["amber"] = null;
+  if (pad > 0.001) {
+    for (let i = 0; i < lobeCount; i += 1) {
+      const toward = i === 0 && neighbour != null;
+      const theta = toward ? neighbour.angle : base + i * spacing + 0.5 * j[23 + i];
+      const rx = 6 + 2.2 * (0.5 + 0.5 * j[26 + i]);
+      const ry = 4.6 + 1.6 * (0.5 + 0.5 * j[29 + i]);
+      const coreRad = polarRadius(CORE_W / 2, CORE_H / 2, theta);
+      const lobePolar = polarRadius(rx, ry, theta);
+      let reach = (i === 0 ? 4.4 : 3.2) * (0.6 + 0.4 * (0.5 + 0.5 * j[32 + i])) + 0.6;
+      if (toward) {
+        // screen-space room between the two cores at the settled size, shared by the two lobes facing each other
+        const scale = Math.hypot(Math.cos(theta) * SETTLED_SCALE_X, Math.sin(theta) * SETTLED_SCALE_Y);
+        const coreScreen = polarRadius((CORE_W / 2) * SETTLED_SCALE_X, (CORE_H / 2) * SETTLED_SCALE_Y, theta);
+        const room = neighbour.distancePx - 2 * coreScreen - MIN_NEIGHBOUR_GAP_PX;
+        reach = Math.min(reach, Math.max(0.6, room / 2 / scale));
+      }
+      // the tip reaches about `reach` px beyond the core's edge
+      const dist = coreRad + reach - lobePolar;
+      const x = clampRange(cx + dist * Math.cos(theta), rx, Math.max(rx, boxW - rx));
+      const y = clampRange(cy + dist * Math.sin(theta), ry, Math.max(ry, boxH - ry));
+      lobes.push({ rx, ry, x, y, alpha: 0.92 * strength * (0.8 + 0.2 * j[35 + i]), warm: i % 2 === 1 });
+      if (i === 0) {
+        amber = {
+          rx: 2.8 + 1.2 * j[38],
+          ry: 2 + 0.8 * j[40],
+          x: clampRange(cx + (dist + 0.1 * lobePolar) * Math.cos(theta), 3, boxW - 3),
+          y: clampRange(cy + (dist + 0.1 * lobePolar) * Math.sin(theta), 3, boxH - 3),
+        };
+      }
+    }
+  }
+  return { pad, lobes, amber, strength };
 }
 
 /**
@@ -413,53 +489,54 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string, heat?:
     vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
     vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
   });
-  // Lobes: 2-3 feathered elliptical pools in their own directions (one aims at the nearest neighbour, with its reach limited so the two
-  // pieces get close but keep a gap), thick toward the core and thin film at the tips; amber blush on the lobe edges; a faint underside shade.
-  const lobeCount = j[20] > -0.2 ? 3 : 2;
-  const lobeStrength = clamp01((melt - LOBE_START) / 0.3);
-  const spacing = ((2 * Math.PI) / lobeCount) * (1 + 0.2 * j[21]);
-  const base = Math.PI * (1 + j[22]);
-  const cx = pad + CORE_W / 2;
-  const cy = pad + CORE_H / 2;
-  const boxW = CORE_W + 2 * pad;
-  const boxH = CORE_H + 2 * pad;
-  for (let i = 0; i < 3; i += 1) {
-    const idx = i + 1;
-    const active = i < lobeCount;
-    const toward = i === 0 && neighbour != null;
-    const theta = toward ? neighbour.angle : base + i * spacing + 0.5 * j[23 + i];
-    const lobeRx = 7 + 2.8 * (0.5 + 0.5 * j[26 + i]);
-    const lobeRy = 5.2 + 2 * (0.5 + 0.5 * j[29 + i]);
-    const coreRad = polarRadius(CORE_W / 2, CORE_H / 2, theta);
-    const lobePolar = polarRadius(lobeRx, lobeRy, theta);
-    let reach = (i === 0 ? 6.4 : 4.6) * (0.55 + 0.45 * (0.5 + 0.5 * j[32 + i])) + 0.8;
-    if (toward) {
-      // screen-space room between the two cores at the settled size, shared by the two lobes facing each other
-      const scale = Math.hypot(Math.cos(theta) * SETTLED_SCALE_X, Math.sin(theta) * SETTLED_SCALE_Y);
-      const coreScreen = polarRadius((CORE_W / 2) * SETTLED_SCALE_X, (CORE_H / 2) * SETTLED_SCALE_Y, theta);
-      const room = neighbour.distancePx - 2 * coreScreen - MIN_NEIGHBOUR_GAP_PX;
-      reach = Math.min(reach, Math.max(0.6, room / 2 / scale));
+  // Proto4b: once the box is enlarged the whole background is ONE finished value (`--bake-cheese-bg`) holding only the layers that are visible
+  // at this moment (a CSS custom property can carry the whole `background` list), instead of a fixed 13-layer list of mostly transparent
+  // gradients: gloss + body + the lobes, plus the browning blotches only once there is browning. Before that the stylesheet's own (raw)
+  // list is used, so the raw look and every other context are untouched.
+  if (pad > 0.001) {
+    const layers = cheeseMeltLobes(look, seedKey, neighbour, j);
+    const g = (geo: string, stops: string) => `radial-gradient(${geo}, ${stops})`;
+    const px = (n: number) => `${n.toFixed(2)}px`;
+    const list: string[] = [];
+    if (toast > 0.02) {
+      // three browning blotches (the fourth, smallest one is dropped); the third sits at the first lobe's tip instead of the core (local
+      // amber browning where the film is thin), so there is no separate blush layer
+      SPOTS.slice(0, 3).forEach((spot, i) => {
+        const o = 6 + i * 4;
+        const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.3);
+        const size = 0.9 * clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
+        const tip = i === 2 ? layers.amber : null;
+        const geo = tip
+          ? `ellipse ${px(tip.rx)} ${px(tip.ry)} at ${px(tip.x)} ${px(tip.y)}`
+          : `ellipse ${px(spot.rx * size)} ${px(spot.ry * size)} at ${px(pad + ((spot.x + 12 * j[o]) / 100) * CORE_W)} ${px(pad + ((spot.y + 10 * j[o + 1]) / 100) * CORE_H)}`;
+        list.push(
+          g(
+            geo,
+            `${rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2.1 * toast * strength * (tip ? 0.8 : 1))} 0, ${rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.2 * toast * strength * (tip ? 0.8 : 1))} 45%, transparent 100%`,
+          ),
+        );
+      });
     }
-    // the tip reaches about `reach` px beyond the core's edge (the visible film ends near the lobe's own edge)
-    const dist = coreRad + reach - 1.0 * lobePolar;
-    const lx = clampRange(cx + dist * Math.cos(theta), lobeRx, Math.max(lobeRx, boxW - lobeRx));
-    const ly = clampRange(cy + dist * Math.sin(theta), lobeRy, Math.max(lobeRy, boxH - lobeRy));
-    const a0 = active ? 0.95 * lobeStrength * (0.8 + 0.2 * j[35 + i]) : 0;
-    const [lr, lg, lb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
-    vars[`--bake-cheese-lobe-${idx}-geo`] = `ellipse ${lobeRx.toFixed(2)}px ${lobeRy.toFixed(2)}px at ${lx.toFixed(2)}px ${ly.toFixed(2)}px`;
-    vars[`--bake-cheese-lobe-${idx}-0`] = rgba(lr, lg, lb, a0);
-    vars[`--bake-cheese-lobe-${idx}-1`] = rgba(lr, lg, lb, a0 * 0.78);
-    vars[`--bake-cheese-lobe-${idx}-2`] = rgba(lr, lg, lb, a0 * 0.36);
-    if (i < 2) {
-      // amber blush toward the lobe's tip (local browning where the film is thin)
-      const bx = clampRange(cx + (dist + 0.1 * lobePolar) * Math.cos(theta), 3, boxW - 3);
-      const by = clampRange(cy + (dist + 0.1 * lobePolar) * Math.sin(theta), 3, boxH - 3);
-      vars[`--bake-cheese-amber-${idx}-geo`] = `ellipse ${(2.8 + 1.2 * j[38 + i]).toFixed(2)}px ${(2 + 0.8 * j[40 + i]).toFixed(2)}px at ${bx.toFixed(2)}px ${by.toFixed(2)}px`;
-      vars[`--bake-cheese-amber-${idx}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], (active ? 0.5 : 0) * toast * lobeStrength);
+    // soft gloss on the upper-left of the thick core (a lit top)
+    list.push(g(`ellipse 13px 10px at ${px(pad + 0.4 * CORE_W)} ${px(pad + 0.3 * CORE_H)}`, `${rgba(255, 253, 247, 0.3 * melt)} 0, transparent 100%`));
+    // the thick creamy core: brightest up-left, a warmer, deeper rim down-right (a bevel), feathered to nothing
+    list.push(
+      g(
+        `ellipse ${px(CORE_W / 2 + 1)} ${px(CORE_H / 2 + 1)} at ${px(pad + bodyX)} ${px(pad + bodyY)}`,
+        `${rgba(250, 247, 236, body)} 0, ${rgba(243, 237, 221, body)} 55%, ${rgba(234, 222, 200, 0.96 * body)} 82%, ${rgba(224, 207, 176, 0.72 * body)} 95%, transparent 100%`,
+      ),
+    );
+    for (const lobe of layers.lobes) {
+      const [lr, lg, lb] = lobeRgb(lobe.warm ? LOBE_CREAM_B : LOBE_CREAM_A, toast, char);
+      list.push(
+        g(
+          `ellipse ${px(lobe.rx)} ${px(lobe.ry)} at ${px(lobe.x)} ${px(lobe.y)}`,
+          `${rgba(lr, lg, lb, lobe.alpha)} 0, ${rgba(lr, lg, lb, lobe.alpha * 0.8)} 55%, ${rgba(lr, lg, lb, lobe.alpha * 0.38)} 82%, transparent 100%`,
+        ),
+      );
     }
+    vars["--bake-cheese-bg"] = list.join(", ");
   }
-  vars["--bake-cheese-shade-geo"] = `ellipse ${(CORE_W / 2 + 3).toFixed(1)}px ${(CORE_H / 2 + 2.5).toFixed(1)}px at ${cx.toFixed(2)}px ${(cy + 2.2).toFixed(2)}px`;
-  vars["--bake-cheese-shade"] = rgba(60, 30, 8, 0.16 * body * clamp01(melt - 0.2));
   // Motion: pieces lead / lag each other mid-melt (the stagger is zero at melt 0 and 1, so the raw and the finished look are unaffected),
   // the lump first tightens (puff: smaller and thicker), then spreads wide and flat with a small overshoot that settles, each piece
   // skewing its own way. `-sx/-sy/-skew` are the settled values, `-bx/-by/-wob` the transient part (CSS scales it by `--cheese-motion`,

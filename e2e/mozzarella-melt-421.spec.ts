@@ -109,7 +109,7 @@ async function allMozzarellaOutlines(page: Page) {
   return page.locator(".pizza-cheese--mozzarella").evaluateAll((els) =>
     els.map((el) => {
       const cs = getComputedStyle(el);
-      return { radius: `${cs.borderTopLeftRadius}|${cs.borderTopRightRadius}|${cs.borderBottomRightRadius}|${cs.borderBottomLeftRadius}`, lobe: (el as HTMLElement).style.getPropertyValue("--bake-cheese-lobe-1-geo"), bodyAt: (el as HTMLElement).style.getPropertyValue("--bake-cheese-body-geo") };
+      return { radius: `${cs.borderTopLeftRadius}|${cs.borderTopRightRadius}|${cs.borderBottomRightRadius}|${cs.borderBottomLeftRadius}`, lobe: (el as HTMLElement).style.getPropertyValue("--bake-cheese-bg"), bodyAt: (el as HTMLElement).style.getPropertyValue("--bake-cheese-body-geo") };
     }),
   );
 }
@@ -149,13 +149,15 @@ async function darkestCheeseColor(page: Page, spots: "as-is" | "off" | "grey"): 
     for (const [n] of hidden) n.style.visibility = "hidden";
     const saved: Array<[string, string]> = [];
     if (mode !== "as-is") {
-      for (let i = 0; i < el.style.length; i += 1) {
-        const name = el.style[i];
-        if (!name.startsWith("--bake-cheese-spot")) continue; // only the colours; positions / radii (--bake-cheese-spN-*) stay
-        const value = el.style.getPropertyValue(name);
-        saved.push([name, value]);
-        const alpha = /rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/.exec(value)?.[1] ?? "1";
-        el.style.setProperty(name, mode === "off" ? "rgba(0, 0, 0, 0)" : `rgba(96, 96, 96, ${alpha})`);
+      // Proto4b: from the second half of the melt the whole background is ONE finished value (`--bake-cheese-bg`); once there is browning its
+      // first three gradients are the blotches (the third sits at a lobe's tip). "off" drops them, "grey" keeps their alpha but paints them grey.
+      const bg = el.style.getPropertyValue("--bake-cheese-bg");
+      if (bg) {
+        saved.push(["--bake-cheese-bg", bg]);
+        const parts = bg.split(/(?<=\)), (?=radial-gradient\()/);
+        const blotches = parts.slice(0, 3).map((part) => part.replace(/rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/g, (_m, alpha) => `rgba(96, 96, 96, ${alpha})`));
+        const rest = parts.slice(3);
+        el.style.setProperty("--bake-cheese-bg", (mode === "off" ? rest : [...blotches, ...rest]).join(", "));
       }
     }
     (window as unknown as { __restoreMelt: () => void }).__restoreMelt = () => {
@@ -270,7 +272,7 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);
     // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.
     expect(outlines).toHaveLength(3);
-    // Proto4: once melted the box is a plain ellipse, so the pieces' own outline is their lobes (and body centre)
+    // Proto4: once melted the box is a plain ellipse, so the pieces' own outline is their lobes (the whole background value)
     expect(new Set(outlines.map((o) => o.lobe)).size).toBe(3);
     expect(new Set(outlines.map((o) => o.bodyAt)).size).toBe(3);
     // Not just a uniform scale: the matrix is anisotropic once melted.

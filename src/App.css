@@ -799,28 +799,24 @@
   /* raw blob -> a wider, lopsided, softer outline; resolved per piece in TypeScript (`--bake-cheese-radius`), so the pieces of one
      pizza are not the same disc. The fallback is the raw outline. */
   border-radius: var(--bake-cheese-radius, 55% 45% 48% 52% / 55% 50% 50% 45%);
-  background:
+  /* Proto4b: from the second half of the melt `--bake-cheese-bg` carries the WHOLE background list as one finished value holding only
+     the layers visible at that moment (gloss + thick core + the lobes, plus the browning blotches / amber blush once there is browning),
+     computed in TypeScript (../logic/bakeVisual.ts `cheeseMeltCssVars`). Everywhere else, and before the lump has melted, the raw list
+     below applies, exactly as M1 drew it. */
+  background: var(
+    --bake-cheese-bg,
     /* local browning: uneven soft blotches, golden when toasted, dark brown when charred */
     radial-gradient(ellipse var(--bake-cheese-sp1-r, 3.6px 2.3px) at var(--bake-cheese-sp1-at, 27% 34%), var(--bake-cheese-spot-1, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-1, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
     radial-gradient(ellipse var(--bake-cheese-sp2-r, 2px 2.8px) at var(--bake-cheese-sp2-at, 64% 25%), var(--bake-cheese-spot-2, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-2, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
     radial-gradient(ellipse var(--bake-cheese-sp3-r, 3.2px 2.6px) at var(--bake-cheese-sp3-at, 73% 63%), var(--bake-cheese-spot-3, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-3, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
     radial-gradient(ellipse var(--bake-cheese-sp4-r, 2.6px 1.5px) at var(--bake-cheese-sp4-at, 40% 74%), var(--bake-cheese-spot-4, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-4, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
-    /* Proto4: local amber blush toward the lobe tips, then the soft gloss */
-    radial-gradient(var(--bake-cheese-amber-1-geo, ellipse 1px 1px at 0 0), var(--bake-cheese-amber-1, transparent) 0, transparent 100%),
-    radial-gradient(var(--bake-cheese-amber-2-geo, ellipse 1px 1px at 0 0), var(--bake-cheese-amber-2, transparent) 0, transparent 100%),
     /* soft gloss of melted cheese */
     radial-gradient(ellipse at 38% 28%, var(--bake-cheese-gloss, transparent) 0 14%, transparent 46%),
-    /* melted body: the thick creamy core, edge feathered out (alpha only; colours come finished from TypeScript; geometry in px, in the
-       possibly enlarged box. The fallback is the original closest-side ellipse of the raw box) */
+    /* melted body: creamier, edge feathered out (alpha only; colours come finished from TypeScript) */
     radial-gradient(var(--bake-cheese-body-geo, ellipse closest-side at 46% 44%), var(--bake-cheese-body-0, transparent) 0, var(--bake-cheese-body-1, transparent) 45%, var(--bake-cheese-body-2, transparent) 72%, var(--bake-cheese-body-3, transparent) 90%, transparent 100%),
     /* raw lump (fades out as it melts; at melt 0 this is exactly the original gradient) */
-    radial-gradient(circle at 35% 30%, var(--bake-cheese-raw-0, #fffdf5), var(--bake-cheese-raw-1, #f3ead0) 65%, var(--bake-cheese-raw-2, #e6d8ae) 100%),
-    /* Proto4: 2-3 feathered lobes, each thick toward the core and thin film at the tip (a union of gradients, no blur) */
-    radial-gradient(var(--bake-cheese-lobe-1-geo, ellipse 1px 1px at 0 0), var(--bake-cheese-lobe-1-0, transparent) 0, var(--bake-cheese-lobe-1-1, transparent) 45%, var(--bake-cheese-lobe-1-2, transparent) 75%, transparent 100%),
-    radial-gradient(var(--bake-cheese-lobe-2-geo, ellipse 1px 1px at 0 0), var(--bake-cheese-lobe-2-0, transparent) 0, var(--bake-cheese-lobe-2-1, transparent) 45%, var(--bake-cheese-lobe-2-2, transparent) 75%, transparent 100%),
-    radial-gradient(var(--bake-cheese-lobe-3-geo, ellipse 1px 1px at 0 0), var(--bake-cheese-lobe-3-0, transparent) 0, var(--bake-cheese-lobe-3-1, transparent) 45%, var(--bake-cheese-lobe-3-2, transparent) 75%, transparent 100%),
-    /* faint underside shade (replaces the box-shadows, which would outline the enlarged box) */
-    radial-gradient(var(--bake-cheese-shade-geo, ellipse 1px 1px at 0 0), var(--bake-cheese-shade, transparent) 0, transparent 100%);
+    radial-gradient(circle at 35% 30%, var(--bake-cheese-raw-0, #fffdf5), var(--bake-cheese-raw-1, #f3ead0) 65%, var(--bake-cheese-raw-2, #e6d8ae) 100%)
+  );
   /* gradient geometry is in px from the border box's corner, so it stays valid when the pad (border) grows (after the `background` shorthand, which resets it) */
   background-origin: border-box;
   box-shadow:

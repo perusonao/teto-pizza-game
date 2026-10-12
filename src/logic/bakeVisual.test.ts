@@ -3,6 +3,7 @@ import type { BakeTarget } from "../data/recipes";
 import {
   puffIntensity,
   nearestCheeseNeighbour,
+  cheeseMeltLobes,
   bakeVisualStage,
   cheeseVisualFrame,
   charIntensity,
@@ -263,8 +264,11 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
         if (name === "--bake-melt") expect(value).toMatch(/^[01]?\.?\d*$/);
         else if (name === "--bake-cheese-aspect") expect(value, name).toMatch(/^\d\.\d{3}$/);
         else if (/^--bake-cheese-(sx|sy|bx|by)$/.test(name)) expect(value, name).toMatch(/^-?\d+\.\d{4}$/);
-        else if (name === "--bake-cheese-pad") expect(value, name).toMatch(/^\d+\.\d{2}px$/);
-        else if (/^--bake-cheese-(body|lobe-\d|amber-\d|shade)-geo$/.test(name)) expect(value, name).toMatch(/^ellipse [\d.]+px [\d.]+px at -?[\d.]+px -?[\d.]+px$/);
+        else if (name === "--bake-cheese-bg") {
+          expect(value, name).toMatch(/^radial-gradient\(.*\)$/);
+          expect(value, name).not.toMatch(/blur|filter|url\(/);
+        } else if (name === "--bake-cheese-pad") expect(value, name).toMatch(/^\d+\.\d{2}px$/);
+        else if (/^--bake-cheese-body-geo$/.test(name)) expect(value, name).toMatch(/^ellipse [\d.]+px [\d.]+px at -?[\d.]+px -?[\d.]+px$/);
         else if (/^--bake-cheese-(skew|wob)$/.test(name)) expect(value, name).toMatch(/^-?\d+\.\d{2}deg$/);
         else if (/^--bake-cheese-(radius|body-at|bleed-off|sp\d-at|sp\d-r)$/.test(name)) {
           // geometry resolved in TypeScript: plain percentages / lengths (and the `/` of border-radius), never CSS math
@@ -360,14 +364,14 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     }
     // three pieces of one pizza are not the same disc with the same pattern
     const [a, b, c] = [keyA, keyB, keyC].map((k) => cheeseMeltCssVars(cheeseMeltLook(1.2), k));
-    for (const name of ["--bake-cheese-lobe-1-geo", "--bake-cheese-skew", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-geo"]) {
+    for (const name of ["--bake-cheese-bg", "--bake-cheese-skew", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-geo"]) {
       expect(new Set([a[name], b[name], c[name]]).size, name).toBe(3);
     }
     // no key -> the A3 look (centres and radii the stylesheet carries as fallbacks)
     const plain = cheeseMeltCssVars(cheeseMeltLook(1.2));
     expect(plain["--bake-cheese-sp1-at"]).toMatch(/px /);
     expect(plain["--bake-cheese-sp1-r"]).toBe("2.59px 1.66px"); // the base blotch, scaled to the small A5 size
-    expect(plain["--bake-cheese-body-geo"]).toMatch(/at 23\.88px 21\.12px$/);
+    expect(plain["--bake-cheese-body-geo"]).toMatch(/at 19\.88px 17\.12px$/);
     // raw cheese: whatever the key, the outline is the raw outline and every blotch / bleed / body layer is invisible
     const raw = cheeseMeltCssVars(cheeseMeltLook(0), keyA);
     expect(raw["--bake-cheese-radius"]).toBe("55.0% 45.0% 48.0% 52.0% / 55.0% 50.0% 50.0% 45.0%");
@@ -464,23 +468,31 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     expect(Object.keys(v).filter((k) => /halo|film|spread|blur/.test(k))).toEqual([]);
   });
 
-  describe("Proto4: gradient lobes (irregular pools, thick core, thin film tips)", () => {
+  describe("Proto4b: gradient lobes (irregular pools, thick core, short film tips) in ONE background value", () => {
     const at = (heat: number, k = "mozzarella:40.00:50.00", n?: ReturnType<typeof nearestCheeseNeighbour>) =>
       cheeseMeltCssVars(cheeseMeltLook(heat), k, heat, n);
-    const geo = (v: Record<string, string>, n: string) => {
-      const m = /^ellipse ([\d.]+)px ([\d.]+)px at (-?[\d.]+)px (-?[\d.]+)px$/.exec(v[n]);
-      if (!m) throw new Error(`${n}: ${v[n]}`);
-      return { rx: +m[1], ry: +m[2], x: +m[3], y: +m[4] };
-    };
+    const lobesAt = (heat: number, k = "mozzarella:40.00:50.00", n?: ReturnType<typeof nearestCheeseNeighbour>) =>
+      cheeseMeltLobes(cheeseMeltLook(heat), k, n);
+    const layerCount = (v: Record<string, string>) => (v["--bake-cheese-bg"]?.match(/radial-gradient\(/g) ?? []).length;
 
-    it("the raw look is untouched until the lump has melted: no pad, no lobes, no amber, the outline is the jittered radius", () => {
+    it("the raw look is untouched until the lump has melted: no pad, no background override, no lobes, the outline is the jittered radius", () => {
       for (const heat of [0, 0.3, 0.6, 0.69]) {
         const v = at(heat);
         expect(parseFloat(v["--bake-cheese-pad"]), `pad @${heat}`).toBe(0);
+        expect(v["--bake-cheese-bg"], `bg @${heat}`).toBeUndefined();
         expect(v["--bake-cheese-radius"]).not.toBe("50%");
-        for (let i = 1; i <= 3; i += 1) expect(alpha(v[`--bake-cheese-lobe-${i}-0`]), `lobe ${i} @${heat}`).toBe(0);
-        expect(alpha(v["--bake-cheese-amber-1"])).toBe(0);
+        expect(lobesAt(heat).lobes).toHaveLength(0);
       }
+    });
+
+    it("only the visible layers are emitted: at most 8 gradients, 4 before there is any browning (the old list was 13)", () => {
+      for (let heat = 0.75; heat <= 2; heat += 0.05) {
+        const n = layerCount(at(heat, "mozzarella:12:34"));
+        expect(n, `layers @${heat.toFixed(2)}`).toBeLessThanOrEqual(8);
+        expect(n).toBeGreaterThanOrEqual(4);
+      }
+      expect(layerCount(at(0.72))).toBe(4); // gloss + body + 2 lobes
+      expect(layerCount(at(1.0))).toBe(7); // + 3 blotches (the third at the lobe's tip)
     });
 
     it("the box-shadow plates are gone once the box is enlarged, so nothing outlines the transparent pad", () => {
@@ -495,7 +507,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       }
     });
 
-    it("the pad eases in smoothly (no pop) and stays bounded; every lobe and amber blush stays inside the enlarged box", () => {
+    it("the pad eases in smoothly (no pop) and stays small; every lobe stays inside the enlarged box and falls off to nothing", () => {
       let last = 0;
       for (let heat = 0.7; heat <= 1.2; heat += 0.02) {
         const pad = parseFloat(at(heat)["--bake-cheese-pad"]);
@@ -503,66 +515,53 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
         expect(pad - last).toBeLessThan(2);
         last = pad;
       }
-      expect(last).toBeCloseTo(11, 1);
+      expect(last).toBeCloseTo(7, 1);
       for (let i = 0; i < 300; i += 1) {
-        const v = at(1.2, `mozzarella:${i}:${(i * 13) % 100}`);
-        const pad = parseFloat(v["--bake-cheese-pad"]);
-        const w = 28 + 2 * pad;
-        const h = 23 + 2 * pad;
-        for (let l = 1; l <= 3; l += 1) {
-          const g = geo(v, `--bake-cheese-lobe-${l}-geo`);
-          expect(g.x - g.rx, `lobe ${l} left`).toBeGreaterThanOrEqual(-0.01);
-          expect(g.x + g.rx, `lobe ${l} right`).toBeLessThanOrEqual(w + 0.01);
-          expect(g.y - g.ry, `lobe ${l} top`).toBeGreaterThanOrEqual(-0.01);
-          expect(g.y + g.ry, `lobe ${l} bottom`).toBeLessThanOrEqual(h + 0.01);
-          // thick toward the core, thin film at the tip: alpha strictly falls off, and never exceeds 0.95
-          const a0 = alpha(v[`--bake-cheese-lobe-${l}-0`]);
-          expect(alpha(v[`--bake-cheese-lobe-${l}-1`])).toBeLessThanOrEqual(a0 + 1e-9);
-          expect(alpha(v[`--bake-cheese-lobe-${l}-2`])).toBeLessThanOrEqual(alpha(v[`--bake-cheese-lobe-${l}-1`]) + 1e-9);
-          expect(a0).toBeLessThanOrEqual(0.95);
+        const r = lobesAt(1.2, `mozzarella:${i}:${(i * 13) % 100}`);
+        const w = 28 + 2 * r.pad;
+        const h = 23 + 2 * r.pad;
+        expect(r.lobes.length).toBeGreaterThanOrEqual(1);
+        expect(r.lobes.length).toBeLessThanOrEqual(2); // the third lobe was removed (LOBES_MAX = 2)
+        for (const l of r.lobes) {
+          expect(l.x - l.rx).toBeGreaterThanOrEqual(-0.01);
+          expect(l.x + l.rx).toBeLessThanOrEqual(w + 0.01);
+          expect(l.y - l.ry).toBeGreaterThanOrEqual(-0.01);
+          expect(l.y + l.ry).toBeLessThanOrEqual(h + 0.01);
+          expect(l.alpha).toBeLessThanOrEqual(0.92);
+          expect(l.alpha).toBeGreaterThan(0.5);
         }
+        // short tips: no lobe's centre sits more than 13.5 px from the core's centre (a pool, not a wing)
+        for (const l of r.lobes) expect(Math.hypot(l.x - (r.pad + 14), l.y - (r.pad + 11.5))).toBeLessThanOrEqual(13.5);
       }
     });
 
-    it("2 or 3 lobes are active per piece, deterministic per key, and the pieces of one pizza differ", () => {
-      const counts = new Set<number>();
-      for (let i = 0; i < 200; i += 1) {
-        const v = at(1.2, `mozzarella:${i}:${(i * 7) % 100}`);
-        const active = [1, 2, 3].filter((l) => alpha(v[`--bake-cheese-lobe-${l}-0`]) > 0).length;
-        expect([2, 3]).toContain(active);
-        counts.add(active);
-      }
-      expect(counts.size).toBe(2); // both occur
+    it("lobes are deterministic per key, differ between the pieces of one pizza, and come in smoothly", () => {
       const keys = ["mozzarella:40.00:50.00", "mozzarella:60.00:50.00", "mozzarella:50.00:30.00"];
-      expect(new Set(keys.map((k) => at(1.2, k)["--bake-cheese-lobe-1-geo"])).size).toBe(3);
+      expect(new Set(keys.map((k) => at(1.2, k)["--bake-cheese-bg"])).size).toBe(3);
+      expect(new Set(keys.map((k) => JSON.stringify(lobesAt(1.2, k).lobes[0]))).size).toBe(3);
       expect(at(1.2, keys[0])).toEqual(at(1.2, keys[0]));
+      // strength rises with melt, from nothing
+      expect(lobesAt(0.7).lobes[0]?.alpha ?? 0).toBeLessThan(lobesAt(0.8).lobes[0].alpha);
+      expect(lobesAt(0.8).lobes[0].alpha).toBeLessThanOrEqual(lobesAt(1.0).lobes[0].alpha);
     });
 
     it("a neighbour pulls lobe 1 toward it, but the reach is limited so close pieces keep a gap", () => {
       const key = "mozzarella:40.00:50.00";
-      const far = nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 70, y: 50 }])!; // 78 px
-      expect(far).toBeNull(); // beyond 70 px: no interaction
+      expect(nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 70, y: 50 }])).toBeNull(); // 78 px: beyond 70 px, no interaction
       const mid = nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 60, y: 50 }])!; // 52 px
       const close = nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 50, y: 50 }])!; // 26 px (overlapping cores)
       expect(mid.angle).toBeCloseTo(0, 5);
       expect(mid.distancePx).toBeCloseTo(52, 5);
-      const none = at(1.2, key, null);
-      const withMid = at(1.2, key, mid);
-      const withClose = at(1.2, key, close);
-      const reach = (v: Record<string, string>) => {
-        const g = geo(v, "--bake-cheese-lobe-1-geo");
-        const pad = parseFloat(v["--bake-cheese-pad"]);
-        return Math.hypot(g.x - (pad + 14), g.y - (pad + 11.5));
-      };
+      const reach = (r: ReturnType<typeof cheeseMeltLobes>) => Math.hypot(r.lobes[0].x - (r.pad + 14), r.lobes[0].y - (r.pad + 11.5));
+      const none = lobesAt(1.2, key, null);
+      const withMid = lobesAt(1.2, key, mid);
+      const withClose = lobesAt(1.2, key, close);
       // the lobe now points along +x (toward the neighbour)
-      const g = geo(withMid, "--bake-cheese-lobe-1-geo");
-      expect(g.x).toBeGreaterThan(g.y);
-      // closer neighbours get a shorter reach than far ones, and a touching pair never gets more than the unconstrained one
+      expect(withMid.lobes[0].x - (withMid.pad + 14)).toBeGreaterThan(Math.abs(withMid.lobes[0].y - (withMid.pad + 11.5)));
       expect(reach(withClose)).toBeLessThanOrEqual(reach(withMid) + 1e-9);
       expect(reach(withMid)).toBeLessThanOrEqual(reach(none) + 12);
       expect(nearestCheeseNeighbour({ x: 1, y: 1 }, [])).toBeNull();
-      // the same piece / position: identical results
-      expect(withMid).toEqual(at(1.2, key, nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 60, y: 50 }])));
+      expect(at(1.2, key, mid)).toEqual(at(1.2, key, nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 60, y: 50 }])));
     });
   });
 
