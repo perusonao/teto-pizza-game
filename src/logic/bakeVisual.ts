@@ -187,6 +187,183 @@ export function cheeseVisualFrame(heat: number): Omit<CheeseVisualFrame, "heat">
 }
 
 /**
+ * Issue #421 (Finished Pizza Appetite Appeal, Pilot): the three 0..1 scalars a cheese's *shape-level* melt look reads.
+ * Nothing new is decided here -- they are the existing `meltIntensity` / `toastIntensity` / `charIntensity` of the same
+ * continuous `heat` (so there is still exactly one doneness authority, and a value of 0 across the board is the raw cheese
+ * every non-bake context already draws).
+ */
+export interface CheeseMeltLook {
+  /** 0 raw lump -> 1 fully melted (soft irregular outline, spread, gloss). */
+  melt: number;
+  /** 0 -> 1 local golden browning spots. */
+  toast: number;
+  /** 0 -> 1 the browning spots turn dark brown (overbaked). */
+  char: number;
+}
+
+export function cheeseMeltLook(heat: number): CheeseMeltLook {
+  return { melt: meltIntensity(heat), toast: toastIntensity(heat), char: charIntensity(heat) };
+}
+
+/**
+ * Cheeses that get the shape-level melt (Issue #421 Pilot: mozzarella only). Opt-in by ingredient id, so every other cheese
+ * keeps its scale-only look and receives none of the variables below. To add a cheese: add its id here AND give its
+ * `.pizza-cheese--<id>` CSS rule (src/App.css) the same `var(--bake-cheese-*)` reads as `.pizza-cheese--mozzarella`.
+ */
+export const MELT_SHAPE_CHEESE_IDS: ReadonlySet<string> = new Set(["mozzarella"]);
+
+export function cheeseMeltsShape(ingredientId: string): boolean {
+  return MELT_SHAPE_CHEESE_IDS.has(ingredientId);
+}
+
+/** Browning spot colour at char 0 (golden) and char 1 (dark brown), as the spot is *drawn on the cheese element*: the
+ *  cheese's own bake `filter` (`cheeseVisualFrame`: brightness 0.6 / saturate 0.75 / sepia 0.25 at heat 2) then darkens it
+ *  once more, so the char end is a mid brown that lands on dark brown on screen, never a grey. */
+const SPOT_GOLDEN = [190, 146, 90] as const;
+const SPOT_CHARRED = [124, 68, 28] as const;
+
+function rgba(r: number, g: number, b: number, a: number): string {
+  return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${clamp01(a).toFixed(3)})`;
+}
+
+/**
+ * #421 A4: a deterministic per-piece variation, so three mozzarella pieces on one pizza are not the same disc with the same
+ * pattern. Same key -> same values on every render (no Math.random, nothing that changes frame to frame or between the
+ * BAKE / CUT / RESULT copies of a piece). The key is the piece's own ingredient id + placement, exactly what
+ * `stablePieceRotation` (../logic/pieceDrag.ts) hashes. Returns `count` numbers in [-1, 1].
+ */
+export function cheeseMeltJitter(key: string, count: number): number[] {
+  let state = 2166136261;
+  for (let i = 0; i < key.length; i += 1) {
+    state ^= key.charCodeAt(i);
+    state = Math.imul(state, 16777619);
+  }
+  state = state >>> 0 || 1;
+  const out: number[] = [];
+  for (let i = 0; i < count; i += 1) {
+    // xorshift32: a few cheap, well-spread values from the one hash
+    state ^= state << 13;
+    state >>>= 0;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    state >>>= 0;
+    out.push((state / 0xffffffff) * 2 - 1);
+  }
+  return out;
+}
+
+/**
+ * #421 M1 (Owner decision after the A5 iPhone HV): the five spread lobes drew a milky-white cloud around every melted piece
+ * (measured: with the lobes, 46% of the pixels just outside a baked piece are bright; without them 15%). M1 keeps the lobes (they
+ * are what keeps the irregular, spread-out outline) but makes them a quiet edge: they are LOBE_ALPHA_SCALE of the A5 strength,
+ * their blur / offsets are tightened in the stylesheet, there is no cream halo any more, and their colour follows the bake
+ * (cream -> a little golden while toasting -> brown when charred) instead of staying cream while the rest darkens. Initial
+ * trial values: they are tuned by measurement (docs/reports/TETO_APPETITE-APPEAL_421_M1_Result.md).
+ */
+export const LOBE_ALPHA_SCALE = 0.35;
+const LOBE_CREAM_A = [241, 237, 224] as const;
+const LOBE_CREAM_B = [237, 231, 214] as const;
+/** What a lobe's colour moves towards: a pale golden while the cheese toasts, a brown (like the blotches) once it chars. */
+const LOBE_TOASTED = [222, 190, 140] as const;
+const LOBE_CHARRED = [132, 96, 64] as const;
+
+function lobeRgb(cream: readonly number[], toast: number, char: number): [number, number, number] {
+  const out: number[] = [0, 0, 0];
+  for (let i = 0; i < 3; i += 1) {
+    const toasted = cream[i] + (LOBE_TOASTED[i] - cream[i]) * 0.5 * toast;
+    out[i] = toasted + (LOBE_CHARRED[i] - toasted) * char;
+  }
+  return out as [number, number, number];
+}
+
+/** The four browning blotches: A3's centre / radii (the fallback the stylesheet carries) plus how far each may drift. */
+const SPOTS: ReadonlyArray<{ x: number; y: number; rx: number; ry: number }> = [
+  { x: 27, y: 34, rx: 3.6, ry: 2.3 },
+  { x: 64, y: 25, rx: 2, ry: 2.8 },
+  { x: 73, y: 63, rx: 3.2, ry: 2.6 },
+  { x: 40, y: 74, rx: 2.6, ry: 1.5 },
+];
+
+function clampRange(value: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, value));
+}
+
+/**
+ * The CSS custom properties `.pizza-cheese--mozzarella` reads (src/App.css). All colours are resolved to plain `rgba()`
+ * strings here, not computed in CSS: CSS math inside a colour function (`rgba(calc(...))`) is not safe on every engine
+ * (older Safari / in-app WebViews drop the whole declaration), so the stylesheet only ever receives finished values. Every
+ * variable has the raw look as its CSS fallback, so a cheese without them is drawn exactly as before. Pure function of the
+ * existing scalars (plus an optional per-piece `seedKey`, see `cheeseMeltJitter`); geometry (`--bake-melt`) stays a unitless
+ * 0..1 number used in length `calc()`, which every engine supports.
+ *
+ * Without a `seedKey` every piece is drawn as A3 drew it. With one, the outline, the browning blotches (position, size,
+ * strength) and where the body's feathered edge is thinnest vary a little per piece, all scaled by `melt` / `toast`, so
+ * the raw cheese (melt 0, toast 0) is unaffected.
+ */
+export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Record<string, string> {
+  const { melt, toast, char } = look;
+  // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
+  const body = clamp01(melt * 1.6);
+  const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
+  // 4 outline + 2 body-centre / bleed direction + 4 x 4 blotch values + 5 lobe strengths + spread + aspect
+  const j = seedKey === undefined ? new Array<number>(32).fill(0) : cheeseMeltJitter(seedKey, 32);
+  const pct = (value: number) => `${clampRange(value, 24, 70).toFixed(1)}%`;
+  const radius =
+    `${pct(55 - 15 * melt + 13 * melt * j[0])} ${pct(45 + 15 * melt + 13 * melt * j[1])} ` +
+    `${pct(48 + 10 * melt + 13 * melt * j[2])} ${pct(52 - 14 * melt + 13 * melt * j[3])} / ` +
+    `${pct(55 + 7 * melt + 10 * melt * j[1])} ${pct(50 - 10 * melt + 10 * melt * j[2])} ` +
+    `${pct(50 + 10 * melt + 10 * melt * j[3])} ${pct(45 - 7 * melt + 10 * melt * j[0])}`;
+  const vars: Record<string, string> = {
+    "--bake-melt": melt.toFixed(3),
+    "--bake-cheese-radius": radius,
+    // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly
+    "--bake-cheese-body-at": `${(46 + 13 * j[4]).toFixed(1)}% ${(44 + 13 * j[5]).toFixed(1)}%`,
+    // melted cheese lies flat in the sauce: the lump's drop shadow fades with melt
+    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 - 0.7 * melt)),
+    "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
+    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
+    // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
+    // feathered edge fades in, so the hard white disc outline goes away as `melt` rises. Both layers are plain rgba() here.
+    "--bake-cheese-raw-0": rgba(255, 253, 245, 1 - melt),
+    "--bake-cheese-raw-1": rgba(243, 234, 208, 1 - melt),
+    "--bake-cheese-raw-2": rgba(230, 216, 174, 1 - melt),
+    "--bake-cheese-body-0": rgba(240, 235, 223, body),
+    "--bake-cheese-body-1": rgba(237, 231, 216, body),
+    "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
+    "--bake-cheese-body-3": rgba(230, 220, 200, 0.7 * body),
+    // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
+    "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
+    "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
+    "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
+    "--bake-cheese-lobe-a": rgba(...lobeRgb(LOBE_CREAM_A, toast, char), 0.6 * LOBE_ALPHA_SCALE * melt),
+    "--bake-cheese-lobe-b": rgba(...lobeRgb(LOBE_CREAM_B, toast, char), 0.5 * LOBE_ALPHA_SCALE * melt),
+    "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
+    "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
+    "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
+  };
+  SPOTS.forEach((spot, i) => {
+    const o = 6 + i * 4;
+    const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.3);
+    const size = 0.72 * clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
+    vars[`--bake-cheese-sp${i + 1}-at`] = `${(spot.x + 12 * j[o]).toFixed(1)}% ${(spot.y + 10 * j[o + 1]).toFixed(1)}%`;
+    vars[`--bake-cheese-sp${i + 1}-r`] = `${(spot.rx * size).toFixed(2)}px ${(spot.ry * size).toFixed(2)}px`;
+    vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
+    vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
+  });
+  // the five spread lobes are not equally strong, and the whole spread is a little wider or tighter per piece: a melt that
+  // runs further on one side. The factors keep every lobe inside A3's reach (offset x spread <= 1.1, strength <= 1).
+  for (let i = 0; i < 5; i += 1) {
+    const [lr, lg, lb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
+    const strength = (i % 2 === 0 ? 0.6 : 0.5) * LOBE_ALPHA_SCALE;
+    vars[`--bake-cheese-lobe-${i + 1}`] = rgba(lr, lg, lb, strength * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
+  }
+  vars["--bake-cheese-spread"] = clampRange(0.88 + 0.22 * j[27], 0.6, 1.1).toFixed(3);
+  // scaled by `melt`, so it is exactly 1 for the raw cheese (the width must not change when BAKE starts at melt 0)
+  vars["--bake-cheese-aspect"] = clampRange(1 + 0.05 * melt * j[28], 0.95, 1.05).toFixed(3);
+  return vars;
+}
+
+/**
  * Gameplay UX PR-E (Finished Pizza Visual 2.0).
  *
  * Fresh Audit finding (docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md section 7):

@@ -18,6 +18,9 @@ import type { MakingStep } from "../state/gameReducer";
 import { classifyBake } from "../logic/bake";
 import {
   charIntensity,
+  cheeseMeltCssVars,
+  cheeseMeltLook,
+  cheeseMeltsShape,
   cheeseVisualFrame,
   computeBakeHeat,
   doughVisualColors,
@@ -950,6 +953,16 @@ export function PizzaStage({
         filter: `brightness(${cheeseFrame.brightness.toFixed(3)}) saturate(${cheeseFrame.saturate.toFixed(3)}) sepia(${cheeseFrame.sepia.toFixed(3)})`,
       } as CSSProperties)
     : undefined;
+  // #421: the shape-level melt look of an opted-in cheese (bakeVisual.ts `MELT_SHAPE_CHEESE_IDS`; Pilot: mozzarella). Same
+  // heat, resolved to CSS custom properties by `cheeseMeltCssVars`; absent outside BAKE/CUT/RESULT and on every other cheese,
+  // where the CSS fallbacks are the raw look.
+  const cheeseMeltNow = bakeProgress === null ? null : cheeseMeltLook(bakeHeat);
+  // `seedKey` (the piece's own ingredient + placement, the key `stablePieceRotation` hashes) makes each piece's outline and
+  // browning a little different, the same on every render and in the BAKE / CUT / RESULT copies of that piece.
+  const cheesePieceStyle = (ingredient: Ingredient, seedKey: string): CSSProperties | undefined =>
+    cheeseMeltNow && cheeseMeltsShape(ingredient.id)
+      ? { ...cheeseStyle, ...(cheeseMeltCssVars(cheeseMeltNow, seedKey) as CSSProperties) }
+      : cheeseStyle;
   // Gameplay UX PR-E (Finished Pizza Visual 2.0): a non-cheese topping's own dedicated,
   // continuous roast curve (../logic/bakeVisual.ts's own file comment on `toppingVisualFrame`
   // explains why this replaces reusing `cheeseStyle` for every topping) -- keyed per-ingredient
@@ -1177,7 +1190,11 @@ export function PizzaStage({
                 variable's own comment above for why. */}
             <IngredientPieceVisual
               ingredient={ingredient}
-              style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+              style={
+                ingredient.category === "cheese"
+                  ? cheesePieceStyle(ingredient, `${t.ingredientId}:${t.x.toFixed(2)}:${t.y.toFixed(2)}`)
+                  : toppingPieceStyle(ingredient)
+              }
             />
           </span>
         );

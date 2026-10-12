@@ -778,12 +778,54 @@
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
+/* Issue #421 (Finished Pizza Appetite Appeal, Pilot): mozzarella melts into a soft, irregular, glossy pool with local
+   golden spots instead of only growing 16%. PizzaStage sets these properties from the one bake `heat`
+   (../logic/bakeVisual.ts `cheeseMeltCssVars`, mozzarella only via `MELT_SHAPE_CHEESE_IDS`):
+     --bake-melt             0..1 number, used only inside length / percentage / scale `calc()` (geometry);
+     --bake-cheese-*         finished rgba() colours (ring, inset, gloss, lobes, pool, spots).
+   Colours are resolved in TypeScript, never with CSS math inside a colour function (`rgba(calc(...))` is not safe on every
+   engine). Every property has the raw look as its fallback, so wherever PizzaStage does not set them (tray, Reference,
+   thumbnails, PREPARE, other cheeses) every value below is what this rule always was. Gradients / box-shadow / border-radius /
+   transform only: no filter layer, no SVG, no clip-path (#467). The cream colour stays: it is still recognisably mozzarella. */
 .pizza-cheese--mozzarella {
+  --melt: var(--bake-melt, 0);
   width: 28px;
   height: 23px;
-  border-radius: 55% 45% 48% 52% / 55% 50% 50% 45%;
-  background: radial-gradient(circle at 35% 30%, #fffdf5, #f3ead0 65%, #e6d8ae 100%);
-  box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8), inset 0 -3px 4px rgba(255, 255, 255, 0.55);
+  /* raw blob -> a wider, lopsided, softer outline; resolved per piece in TypeScript (`--bake-cheese-radius`), so the pieces of one
+     pizza are not the same disc. The fallback is the raw outline. */
+  border-radius: var(--bake-cheese-radius, 55% 45% 48% 52% / 55% 50% 50% 45%);
+  background:
+    /* local browning: uneven soft blotches, golden when toasted, dark brown when charred */
+    radial-gradient(ellipse var(--bake-cheese-sp1-r, 3.6px 2.3px) at var(--bake-cheese-sp1-at, 27% 34%), var(--bake-cheese-spot-1, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-1, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp2-r, 2px 2.8px) at var(--bake-cheese-sp2-at, 64% 25%), var(--bake-cheese-spot-2, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-2, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp3-r, 3.2px 2.6px) at var(--bake-cheese-sp3-at, 73% 63%), var(--bake-cheese-spot-3, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-3, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    radial-gradient(ellipse var(--bake-cheese-sp4-r, 2.6px 1.5px) at var(--bake-cheese-sp4-at, 40% 74%), var(--bake-cheese-spot-4, var(--bake-cheese-spot, transparent)) 0, var(--bake-cheese-spot-soft-4, var(--bake-cheese-spot-soft, transparent)) 45%, transparent 100%),
+    /* soft gloss of melted cheese */
+    radial-gradient(ellipse at 38% 28%, var(--bake-cheese-gloss, transparent) 0 14%, transparent 46%),
+    /* melted body: creamier, edge feathered out (alpha only; colours come finished from TypeScript) */
+    radial-gradient(ellipse closest-side at var(--bake-cheese-body-at, 46% 44%), var(--bake-cheese-body-0, transparent) 0, var(--bake-cheese-body-1, transparent) 50%, var(--bake-cheese-body-2, transparent) 74%, var(--bake-cheese-body-3, transparent) 100%),
+    /* raw lump (fades out as it melts; at melt 0 this is exactly the original gradient) */
+    radial-gradient(circle at 35% 30%, var(--bake-cheese-raw-0, #fffdf5), var(--bake-cheese-raw-1, #f3ead0) 65%, var(--bake-cheese-raw-2, #e6d8ae) 100%);
+  box-shadow:
+    0 2px 3px var(--bake-cheese-drop, rgba(30, 16, 4, 0.3)),
+    /* the crisp white ring dissolves as the cheese melts */
+    0 0 0 1.5px var(--bake-cheese-ring, rgba(255, 255, 255, 0.8)),
+    /* a faint sauce-coloured stain on one side of the edge (partial blend into the sauce) */
+    var(--bake-cheese-bleed-off, 0 0) 4px 0.5px var(--bake-cheese-bleed, transparent),
+    /* irregular spread (#421 M1): five quiet lobes, ~0.6 x the A5 offsets, 1px blur, ~0.35 x the A5 strength, colour follows the bake */
+    calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-1, var(--bake-cheese-lobe-a, transparent)),
+    calc(-2.7px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.8px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-2, var(--bake-cheese-lobe-b, transparent)),
+    calc(0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-2.4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.2px * var(--melt)) var(--bake-cheese-lobe-3, var(--bake-cheese-lobe-a, transparent)),
+    calc(-3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) 0 var(--bake-cheese-lobe-4, var(--bake-cheese-lobe-b, transparent)),
+    calc(1.8px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2.4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) 0 var(--bake-cheese-lobe-5, var(--bake-cheese-lobe-b, transparent)),
+    /* the melted pool sits on the pizza */
+    0 calc(2.5px * var(--melt)) calc(4px * var(--melt)) calc(1px * var(--melt)) var(--bake-cheese-pool, transparent),
+    inset 0 -3px 4px var(--bake-cheese-inset, rgba(255, 255, 255, 0.55));
+  /* wider and a little flatter as it spreads; at melt 0 this is exactly the uniform scale `.pizza-cheese` sets */
+  transform: scale(
+    calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 + 0.1 * var(--melt)) * var(--bake-cheese-aspect, 1)),
+    calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 - 0.05 * var(--melt)))
+  );
 }
 
 .pizza-cheese--gorgonzola {

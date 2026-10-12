@@ -61,6 +61,19 @@ function pizzaCheeseOnly(): PizzaState {
   };
 }
 
+/** Three mozzarella pieces, as the e2e scene places them. */
+function pizzaThreeMozzarella(): PizzaState {
+  return {
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce"],
+    toppings: [
+      { id: "t1", ingredientId: "mozzarella", x: 40, y: 50 },
+      { id: "t2", ingredientId: "mozzarella", x: 60, y: 50 },
+      { id: "t3", ingredientId: "mozzarella", x: 50, y: 30 },
+    ],
+  };
+}
+
 function noop() {}
 
 function renderStage(
@@ -294,5 +307,77 @@ describe("PizzaStage topping roast visual (PR-E)", () => {
     renderStage(70, { pizza: pizzaWithMixedToppings(), makingStep: "CUT" });
     expect(document.querySelector(".pizza-cut-layer")).not.toBeNull();
     expect(toppingEmojiFilter("pepperoni")).toContain("drop-shadow(");
+  });
+});
+
+describe("PizzaStage cheese melt variables (#421 Pilot)", () => {
+  const meltOf = (selector: string) => {
+    const el = document.querySelector<HTMLElement>(selector);
+    if (!el) throw new Error(`${selector} missing`);
+    return el.style.getPropertyValue("--bake-melt");
+  };
+
+  afterEach(cleanup);
+
+  it("sets nothing outside BAKE (the raw look every tray / Reference / PREPARE cheese keeps)", () => {
+    renderStage(null);
+    const el = document.querySelector<HTMLElement>(".pizza-cheese--mozzarella")!;
+    expect(el.style.getPropertyValue("--bake-melt")).toBe("");
+    expect(el.style.getPropertyValue("--bake-cheese-spot")).toBe("");
+  });
+
+  it("raw needle: melt 0 and no lobes/spots; target centre: fully melted with spots; far right: dark brown spots", () => {
+    const { unmount } = renderStage(0);
+    const raw = document.querySelector<HTMLElement>(".pizza-cheese--mozzarella")!;
+    expect(raw.style.getPropertyValue("--bake-melt")).toBe("0.000");
+    expect(raw.style.getPropertyValue("--bake-cheese-spot")).toBe("rgba(190, 146, 90, 0.000)");
+    unmount();
+
+    const centre = (RECIPE.bakeTarget.start + RECIPE.bakeTarget.end) / 2;
+    const second = renderStage(centre);
+    const perfect = document.querySelector<HTMLElement>(".pizza-cheese--mozzarella")!;
+    expect(perfect.style.getPropertyValue("--bake-melt")).toBe("1.000");
+    expect(perfect.style.getPropertyValue("--bake-cheese-ring")).toBe("rgba(255, 255, 255, 0.000)");
+    expect(perfect.style.getPropertyValue("--bake-cheese-spot")).not.toBe("rgba(190, 146, 90, 0.000)");
+    second.unmount();
+
+    renderStage(100);
+    expect(document.querySelector<HTMLElement>(".pizza-cheese--mozzarella")!.style.getPropertyValue("--bake-cheese-spot")).toBe(
+      "rgba(124, 68, 28, 1.000)",
+    );
+  });
+
+  it("is not set on a non-pilot cheese or on any other topping (they keep today's look)", () => {
+    renderStage(70, { pizza: pizzaCheeseOnly() });
+    const gorgonzola = document.querySelector<HTMLElement>(".pizza-cheese--gorgonzola")!;
+    expect(gorgonzola.style.getPropertyValue("--bake-melt")).toBe("");
+    expect(gorgonzola.style.getPropertyValue("--bake-cheese-spot")).toBe("");
+    expect(gorgonzola.style.getPropertyValue("--bake-melt-scale")).not.toBe(""); // its existing scale-only look is intact
+    expect(meltOf(".pizza-cheese--mozzarella")).toBe("1.000");
+    cleanup();
+
+    renderStage(70, { pizza: pizzaWithMixedToppings() });
+    const pepperoni = document.querySelector<HTMLElement>('[class*="ingredient-piece-visual"]:not(.pizza-cheese)');
+    expect(pepperoni?.style.getPropertyValue("--bake-melt") ?? "").toBe("");
+    expect(pepperoni?.style.getPropertyValue("--bake-cheese-spot") ?? "").toBe("");
+  });
+
+  it("A4: three mozzarella pieces are not the same disc, and each piece keeps its own look from render to render", () => {
+    const snapshot = () =>
+      [...document.querySelectorAll<HTMLElement>(".pizza-cheese--mozzarella")].map((el) => ({
+        radius: el.style.getPropertyValue("--bake-cheese-radius"),
+        spot: el.style.getPropertyValue("--bake-cheese-sp1-at"),
+        bodyAt: el.style.getPropertyValue("--bake-cheese-body-at"),
+      }));
+    const first = renderStage(70, { pizza: pizzaThreeMozzarella() });
+    const a = snapshot();
+    expect(a).toHaveLength(3);
+    expect(new Set(a.map((p) => p.radius)).size).toBe(3);
+    expect(new Set(a.map((p) => p.spot)).size).toBe(3);
+    expect(new Set(a.map((p) => p.bodyAt)).size).toBe(3);
+    // a fresh render of the same pizza (a later frame, the CUT / RESULT copy) draws exactly the same pieces
+    first.unmount();
+    renderStage(70, { pizza: pizzaThreeMozzarella() });
+    expect(snapshot()).toEqual(a);
   });
 });
