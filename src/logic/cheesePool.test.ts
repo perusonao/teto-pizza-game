@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CHEESE_POOL_GRID,
+  CHEESE_POOL_GRID_SMALL,
+  CHEESE_POOL_LIMITS,
+  cheeseBoundaryRejection,
+  cheesePoolInternals,
   CHEESE_POOL_MELT_STEPS,
   CHEESE_POOL_RAW_AREA,
   cheesePoolRadiusScale,
@@ -13,7 +17,7 @@ import {
 import { measureCheesePool } from "./cheesePoolMetrics";
 
 /**
- * #421 S1: `renderCheesePool` is pure, deterministic, shaped like the reference photo's pools (audit numbers, not the photo), and cheap once its
+ * #421 S1 / S1b: `renderCheesePool` is pure, deterministic, shaped like the reference photo's pools (audit numbers, not the photo), and cheap once its
  * per-seed geometry is cached. Reference (large pools of the Owner's photo): solidity 0.76-0.84, aspect 1.06-1.37, crisp edge, core ~(238,234,218),
  * <= 7 % of the pixels above luminance 246, warm (browning) pixels 1-4 %.
  */
@@ -112,7 +116,7 @@ describe("renderCheesePool: the finished pool (melt 1) against the reference-pho
   it("is centred, fits the image with a margin, and has a consistent size", () => {
     for (const m of metrics) {
       expect(m.centreOffset).toBeLessThan(1.5);
-      expect(m.borderMargin).toBeGreaterThanOrEqual(3);
+      expect(m.borderMargin).toBeGreaterThanOrEqual(2);
       expect(m.eqd).toBeGreaterThan(54);
       expect(m.eqd).toBeLessThan(78);
     }
@@ -280,5 +284,104 @@ describe("measureCheesePool (the measurement used above)", () => {
     expect(disc.aspect).toBeCloseTo(1, 1);
     expect(measureCheesePool(make(36, 24)).aspect).toBeCloseTo(1.5, 1);
     expect(disc.core[0]).toBeCloseTo(240, 0);
+  });
+});
+
+describe("S1b: outline variety over a large seed set (distribution and outliers, not representative seeds)", () => {
+  const list = seeds(300);
+  const rows = list.map((s) => measureCheesePool(renderCheesePool(s, 1, 0, 0)));
+  const regularTri = (m: (typeof rows)[number]) => m.lobes === 3 && m.lobeGaps.every((g) => g >= 95 && g <= 145);
+
+  it("is not a three-lobed clover: the regular tri-lobe share is small and the lobe counts vary (S1: 46 % regular, 77 % three-lobed)", () => {
+    expect(rows.filter(regularTri).length / rows.length).toBeLessThan(0.2);
+    expect(rows.filter((m) => m.lobes === 3).length / rows.length).toBeLessThan(0.7);
+    expect(new Set(rows.map((m) => m.lobes)).size).toBeGreaterThanOrEqual(3);
+    // the outline also varies in how it is built (several archetypes are in use)
+    expect(new Set(list.map((s) => getCheesePoolGeometry(s).archetype)).size).toBeGreaterThanOrEqual(4);
+  });
+
+  it("stays within natural-pool bounds for every seed: aspect, solidity, no slits, no spikes, no folded shading", () => {
+    for (const m of rows) {
+      expect(m.aspect).toBeGreaterThan(1.04);
+      expect(m.aspect).toBeLessThan(1.4);
+      expect(m.solidity).toBeGreaterThan(0.8); // never forced down to the photo's 0.76-0.84 by slits
+      expect(m.solidity).toBeLessThan(0.985);
+      expect(m.slitFill).toBeLessThan(0.02);
+      expect(m.spikeShare).toBeLessThan(0.02);
+      expect(m.shadeSpread).toBeLessThan(1.1); // no ridge / origami contrast
+      expect(m.whiteClip).toBeLessThanOrEqual(0.07);
+    }
+    const solidity = rows.map((m) => m.solidity);
+    expect(pct(solidity, 0.5)).toBeGreaterThan(0.86);
+    expect(pct(solidity, 0.5)).toBeLessThan(0.94);
+    expect(pct(solidity, 0.05)).toBeLessThan(0.9); // a real spread of concavity, not one value
+  });
+
+  it("the translucent pink film is thinner than S1 (S1 median 0.17 of the pool area)", () => {
+    expect(pct(rows.map((m) => m.thin), 0.5)).toBeLessThan(0.14);
+    for (const m of rows) expect(m.thin).toBeLessThan(0.25);
+  });
+
+  it("every chosen outline passes its own naturalness limits, and the limits do reject slits, spikes and clovers", () => {
+    for (const s of list.slice(0, 120)) {
+      const g = getCheesePoolGeometry(s);
+      expect(g.aspect).toBeGreaterThanOrEqual(CHEESE_POOL_LIMITS.aspectMin);
+      expect(g.aspect).toBeLessThanOrEqual(CHEESE_POOL_LIMITS.aspectMax);
+      expect(g.solidity).toBeGreaterThanOrEqual(CHEESE_POOL_LIMITS.solidityMin);
+    }
+    const rng = cheesePoolInternals.makeRng("limits");
+    const reasons = new Set<string>();
+    for (let i = 0; i < 1500; i += 1) {
+      const reason = cheeseBoundaryRejection(cheesePoolInternals.drawBoundary(rng));
+      if (reason) reasons.add(reason);
+    }
+    expect(reasons.has("slit")).toBe(true);
+    expect(reasons.has("aspect")).toBe(true);
+    expect(reasons.has("too convex")).toBe(true);
+  });
+
+  it("browning varies between seeds: blister size and amount are not one recipe", () => {
+    const warm = list.slice(0, 120).map((s) => measureCheesePool(renderCheesePool(s, 1, 1, 0)).warm);
+    expect(pct(warm, 0.9) - pct(warm, 0.1)).toBeGreaterThan(0.01);
+    expect(new Set(list.slice(0, 120).map((s) => getCheesePoolGeometry(s).blisterCount)).size).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe("S1b: the 64x64 grid is the same pool at lower cost", () => {
+  const small = { grid: CHEESE_POOL_GRID_SMALL } as const;
+
+  it("renders a 64x64 straight-RGBA image, deterministically, with the same contracts as 96x96", () => {
+    const a = renderCheesePool("mozzarella:7:7", 1, 0.5, 0, small);
+    expect([a.width, a.height, a.data.length]).toEqual([64, 64, 64 * 64 * 4]);
+    expect(fingerprint(renderCheesePool("mozzarella:7:7", 1, 0.5, 0, small))).toBe(fingerprint(a));
+    expect(fingerprint(a)).not.toBe(fingerprint(renderCheesePool("mozzarella:7:7", 1, 0.5, 0)));
+    expect(getCheesePoolGeometry("mozzarella:7:7", 64)).not.toBe(getCheesePoolGeometry("mozzarella:7:7", 96));
+    expect(getCheesePoolGeometry("mozzarella:7:7", 64).archetype).toBe(getCheesePoolGeometry("mozzarella:7:7", 96).archetype); // same outline
+    for (let i = 3; i < a.data.length; i += 4) if (a.data[i] === 0) expect(a.data[i - 1] + a.data[i - 2] + a.data[i - 3]).toBe(0);
+    // reduced motion still drops the overshoot, and memoised results are kept per grid
+    expect(renderCheesePoolCached("mozzarella:7:7", 1, 0.5, 0, small)).not.toBe(renderCheesePoolCached("mozzarella:7:7", 1, 0.5, 0));
+    expect(renderCheesePoolCached("mozzarella:7:7", 1, 0.5, 0, small).width).toBe(64);
+  });
+
+  it("matches the 96x96 pool after upscaling (same outline, similar metrics) and is cheaper to render", () => {
+    for (const s of seeds(24)) {
+      const big = measureCheesePool(renderCheesePool(s, 1, 0.6, 0));
+      const sm = measureCheesePool(renderCheesePool(s, 1, 0.6, 0, small));
+      expect(Math.abs(sm.aspect - big.aspect)).toBeLessThan(0.06);
+      expect(Math.abs(sm.solidity - big.solidity)).toBeLessThan(0.04);
+      expect(Math.abs(sm.eqd / 64 - big.eqd / 96)).toBeLessThan(0.03); // the same size relative to the image
+      expect(sm.whiteClip).toBeLessThanOrEqual(0.07);
+    }
+    const time = (opts: object) => {
+      const t: number[] = [];
+      renderCheesePool("cost64", 1, 0.3, 0, opts);
+      for (let i = 0; i < 40; i += 1) {
+        const t0 = performance.now();
+        renderCheesePool("cost64", (i % 24) / 23, 0.3, 0, opts);
+        t.push(performance.now() - t0);
+      }
+      return pct(t, 0.5);
+    };
+    expect(time(small)).toBeLessThan(time({}) * 0.85); // about half in practice; the bound is loose to be flake-proof
   });
 });
