@@ -18,7 +18,8 @@ import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
  */
 const SAVE_KEY = "teto-pizza-save-v1";
-const FREE_BAKE = { start: 50, end: 70 };
+// Free Cooking judges by the generic window its gauge shows (58-78), not the recipe's own 50-70 (Issue #482 / OD-B6 F1).
+const FREE_BAKE = { start: 58, end: 78 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 

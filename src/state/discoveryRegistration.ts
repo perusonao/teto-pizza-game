@@ -10,7 +10,7 @@
  * Scoring 2.0 score, bake window and Completion Gate; Phase-2 X-3 "scoring happens only after a
  * match"), and written through the same `registerScoreToDex`, so BEST only ever goes up.
  */
-import { getRecipe, type RecipeId } from "../data/recipes";
+import { getRecipe, type BakeTarget, type RecipeId } from "../data/recipes";
 import { evaluatePizzaCompletion } from "../logic/completionGate";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { computeScoringV2, toLegacyScoreBreakdown } from "../logic/scoringV2";
@@ -29,6 +29,11 @@ export function registerDiscoveryToDex(
    *  that is not discovered yet -- Discovery 2.0: only the matcher may discover it). */
   selectedRecipeId: RecipeId | null,
   pizza: PizzaState,
+  /** Issue #482 (OD-B6 F1, extended to Guided): the bake window the player actually saw and was judged by -- the selected
+   *  recipe's own. The cross-recipe pizza is gated (and star-capped) by it, so a recipe the player never aimed at cannot
+   *  block the discovery; the discovered recipe's own window is Scoring 2.0's Bake component only. Defaults to the
+   *  discovered recipe's window (the pre-#482 behaviour) for a caller that has no selected window. */
+  judgedBakeTarget?: BakeTarget,
 ): DiscoveryRegistration {
   // The selected recipe itself was already registered by the caller; nothing else to write for
   // an original pizza, an ambiguous one, or a recipe that is already in the Dex.
@@ -37,12 +42,13 @@ export function registerDiscoveryToDex(
   }
   const recipe = getRecipe(outcome.recipeId);
   // Issue #215 OD-5: the "recipe" policy -- one piece of each required ingredient discovers.
-  if (!recipe || evaluatePizzaCompletion(recipe, pizza, "recipe").status !== "PASS") {
+  const bakeWindow = judgedBakeTarget ?? recipe?.bakeTarget;
+  if (!recipe || !bakeWindow || evaluatePizzaCompletion({ ...recipe, bakeTarget: bakeWindow }, pizza, "recipe").status !== "PASS") {
     return {
       dex,
       outcome: { kind: "INCOMPLETE_MATCH", recipeId: outcome.recipeId, targetId: outcome.targetId },
     };
   }
-  const score = toLegacyScoreBreakdown(computeScoringV2(recipe, pizza), pizza.bakeResult, recipe.bakeTarget);
+  const score = toLegacyScoreBreakdown(computeScoringV2(recipe, pizza), pizza.bakeResult, bakeWindow);
   return { dex: registerScoreToDex(dex, recipe.id, score).dex, outcome };
 }

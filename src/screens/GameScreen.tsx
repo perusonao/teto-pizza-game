@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
@@ -12,6 +12,7 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
+import { withFreeCookBakeWindow } from "../logic/discovery/freeCook";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
 import { researchBoardOf } from "../logic/discovery/researchBoard";
@@ -285,6 +286,13 @@ export function GameScreen({
   // otherwise abort local pointer state. This generation was introduced for IngredientTray's
   // physical-drag reset race in PR #26 and is now shared with PizzaStage so both topping drags
   // and buffered Sauce gestures become permanently invalid in the same reset transaction.
+  // Issue #482 (OD-B6 F1): a Free Cooking pizza is judged -- Gate, badge and the stage's own bake visuals / perfect glow --
+  // by the generic window its gauge showed. A matched pizza replaces `state.recipe` with the matched recipe (whose own window
+  // is Scoring 2.0's only), so the stage reads the recipe with the generic window swapped in; every other round is untouched.
+  const stageRecipe = useMemo(
+    () => (state.freeCook ? withFreeCookBakeWindow(state.recipe) : state.recipe),
+    [state.freeCook, state.recipe],
+  );
   const [pizzaResetToken, setPizzaResetToken] = useState(0);
   // DM-3R-2: which Dinner target's reference the popover shows. Purely a view choice -- it is never
   // dispatched, stored in GameState or read by the result detection (a tap is not a selection).
@@ -745,7 +753,7 @@ export function GameScreen({
 
       <PizzaStage
         pizza={state.pizza}
-        recipe={state.recipe}
+        recipe={stageRecipe}
         interactive={
           (state.phase === "PREPARE" || postBakeStepRendered) &&
           !isReferencePopoverOpen &&
