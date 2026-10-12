@@ -8,6 +8,9 @@ import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { emptySauceMetrics } from "../logic/sauceField";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { buildIdealSauceFixture } from "../data/referencePizza";
+import { computeBakeHeat, doughVisualColors } from "../logic/bakeVisual";
+import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
+import { getRecipe } from "../data/recipes";
 import { cook, freeRound, MARGHERITA, NOW, ORDINARY, playFreeRound } from "../state/testSupport/trialNotebookFlow";
 
 /**
@@ -17,7 +20,7 @@ import { cook, freeRound, MARGHERITA, NOW, ORDINARY, playFreeRound } from "../st
  */
 afterEach(cleanup);
 
-function Screen({ state, dispatch }: { state: GameState; dispatch: Dispatch<GameAction> }) {
+function Screen({ state, dispatch, bakeProgress = null }: { state: GameState; dispatch: Dispatch<GameAction>; bakeProgress?: number | null }) {
   return (
     <GameScreen
       state={state}
@@ -27,7 +30,7 @@ function Screen({ state, dispatch }: { state: GameState; dispatch: Dispatch<Game
       missionBestAtStartOfRun={0}
       activeCategory="cheese"
       selectedIngredientId={null}
-      bakeProgress={null}
+      bakeProgress={bakeProgress}
       referenceModeEnabled={false}
       referencePizza={null}
       isReferencePopoverOpen={false}
@@ -154,5 +157,56 @@ describe("JUST band and near-miss dialogue through GameScreen (#481)", () => {
     const start = gameReducer(createGuidedInitialState("margherita"), { type: "BEGIN_PREPARE", now: NOW });
     render(<Screen state={cook(start, MARGHERITA, bake)} dispatch={() => {}} />);
     expect(document.body.textContent).not.toContain("完璧");
+  });
+});
+
+/**
+ * Issue #482 (OD-B6 F1, Codex P2): a Free Cooking pizza is judged -- Gate, badge, the stage's bake visuals and its perfect glow --
+ * by the one generic window the gauge showed, although a matched pizza carries the matched recipe in `state.recipe`. Scoring
+ * 2.0 alone reads the recipe's own window. Margherita is 60-80, the generic window 58-78: at 59 the two windows disagree
+ * (recipe: 生焼け, generic: in window).
+ */
+describe("FREE MATCHED: badge, bake colour and glow agree on the generic window (#482)", () => {
+  const expectedDough = (bake: number, window: { start: number; end: number }) => {
+    const { colorA, colorB } = doughVisualColors(computeBakeHeat(bake, window));
+    const probe = document.createElement("div");
+    probe.style.background = `radial-gradient(circle at 40% 35%, ${colorA}, ${colorB} 85%)`;
+    return probe.style.background;
+  };
+  const doughBackground = () => document.querySelector<HTMLElement>(".pizza-dough-shape")!.style.background;
+  const MARGHERITA_WINDOW = getRecipe("margherita")!.bakeTarget;
+
+  it("at 59 (inside the generic window, outside Margherita's): badge いい焼き加減, perfect glow, and the colour of the generic window", () => {
+    const state = cook(gameReducer(freeRound(), { type: "START_FREE_COOK", now: NOW }), MARGHERITA, 59);
+    expect(state.freeCook).toBe(true);
+    expect(state.recipe.id).toBe("margherita");
+    expect(state.bakeState).toBe("perfect");
+    render(<Screen state={state} dispatch={() => {}} bakeProgress={59} />);
+    for (const el of document.querySelectorAll(".result-panel__bake-badge")) expect(el.textContent).toContain("焼き加減: いい焼き加減");
+    expect(document.querySelectorAll(".pizza-perfect-glow")).toHaveLength(1);
+    // The two windows really disagree here (so this test would fail on the recipe window) ...
+    expect(expectedDough(59, FREE_COOK_BAKE_TARGET)).not.toBe(expectedDough(59, MARGHERITA_WINDOW));
+    // ... and the stage paints the generic one.
+    expect(doughBackground()).toBe(expectedDough(59, FREE_COOK_BAKE_TARGET));
+  });
+
+  it("the stage colour and glow of a matched pizza equal those of the same bake read through the generic window, across the range", () => {
+    for (const bake of [58, 59, 62, 68, 74, 78]) {
+      const state = cook(gameReducer(freeRound(), { type: "START_FREE_COOK", now: NOW }), MARGHERITA, bake);
+      render(<Screen state={state} dispatch={() => {}} bakeProgress={bake} />);
+      expect(doughBackground(), String(bake)).toBe(expectedDough(bake, FREE_COOK_BAKE_TARGET));
+      expect(document.querySelectorAll(".pizza-perfect-glow"), String(bake)).toHaveLength(state.bakeState === "perfect" ? 1 : 0);
+      cleanup();
+    }
+  });
+
+  it("Guided is untouched: the stage still reads the recipe's own window (Margherita at 79 is in its window, outside the generic one)", () => {
+    const start = gameReducer(createGuidedInitialState("margherita"), { type: "BEGIN_PREPARE", now: NOW });
+    const state = cook(start, MARGHERITA, 79);
+    expect(state.freeCook).toBe(false);
+    expect(state.completion?.status).toBe("PASS");
+    render(<Screen state={state} dispatch={() => {}} bakeProgress={79} />);
+    expect(doughBackground()).toBe(expectedDough(79, MARGHERITA_WINDOW));
+    expect(doughBackground()).not.toBe(expectedDough(79, FREE_COOK_BAKE_TARGET));
   });
 });
