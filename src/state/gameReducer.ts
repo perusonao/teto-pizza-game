@@ -1474,6 +1474,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             evaluatedDiscovery,
             guidedIdOnly ? null : state.recipe.id,
             state.pizza,
+            // Issue #482: judged by the window the player saw -- the selected recipe's (Free Cooking: the generic one).
+            state.freeCook ? FREE_COOK_BAKE_TARGET : state.recipe.bakeTarget,
           )
         : null;
       const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;
