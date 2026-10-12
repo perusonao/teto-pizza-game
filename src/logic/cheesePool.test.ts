@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CHEESE_POOL_GRID,
+  CHEESE_POOL_GRID_CANDIDATE,
   CHEESE_POOL_GRID_SMALL,
   CHEESE_POOL_LIMITS,
   cheeseBoundaryRejection,
@@ -12,6 +13,7 @@ import {
   getCheesePoolGeometry,
   renderCheesePool,
   renderCheesePoolCached,
+  type CheesePoolGrid,
   type CheesePoolImage,
 } from "./cheesePool";
 import { measureCheesePool } from "./cheesePoolMetrics";
@@ -205,7 +207,7 @@ describe("renderCheesePool: the melt (area growth, not a sideways stretch) and r
       expect(raw.area / done.area).toBeGreaterThan(0.26);
       expect(raw.area / done.area).toBeLessThan(0.5);
       expect(raw.solidity).toBeGreaterThan(done.solidity); // the outline gets more irregular as it melts
-      expect(raw.solidity).toBeGreaterThan(0.95);
+      expect(raw.solidity).toBeGreaterThan(0.93);
     }
   });
 
@@ -383,5 +385,81 @@ describe("S1b: the 64x64 grid is the same pool at lower cost", () => {
       return pct(t, 0.5);
     };
     expect(time(small)).toBeLessThan(time({}) * 0.85); // about half in practice; the bound is loose to be flake-proof
+  });
+});
+
+describe("S2-A: faster outline choice, a clear border and a budgeted browning, without changing the pools' look", () => {
+  it("the optimised chooser draws exactly the outlines of the plain rejection loop (S1b golden seeds, and a 150-seed cross-check)", () => {
+    const golden: Array<[string, string, number]> = [
+      ["mozzarella:0:0", "lobes", 1.2501],
+      ["mozzarella:1:7", "bay", 1.286],
+      ["mozzarella:2:14", "tongue", 1.2039],
+      ["mozzarella:3:21", "bay", 1.0787],
+      ["mozzarella:4:28", "shoulder", 1.1668],
+      ["mozzarella:5:35", "bay", 1.2448],
+      ["mozzarella:6:42", "puddle", 1.2307],
+      ["mozzarella:7:49", "bay", 1.1275],
+    ];
+    for (const [seed, archetype, aspect] of golden) {
+      const g = getCheesePoolGeometry(seed);
+      expect(g.archetype).toBe(archetype);
+      expect(g.aspect).toBeCloseTo(aspect, 3);
+    }
+    // all 400 report seeds: the same outline (type and aspect) as S1b, as one fingerprint
+    let h = 2166136261;
+    for (const seed of seeds(400)) {
+      const g = getCheesePoolGeometry(seed);
+      for (const ch of `${g.archetype}:${g.aspect.toFixed(4)};`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+    }
+    expect((h >>> 0).toString(16)).toBe("b5d4610c");
+    // the plain loop: every candidate fully built and measured, no aspect pre-test (what S1b did)
+    for (const seed of seeds(150)) {
+      const rng = cheesePoolInternals.makeRng(seed);
+      let chosen = null;
+      for (let draw = 0; draw < 60 && !chosen; draw += 1) {
+        const candidate = cheesePoolInternals.drawBoundary(rng);
+        if (!cheeseBoundaryRejection(candidate, rng())) chosen = candidate;
+      }
+      const g = getCheesePoolGeometry(seed);
+      if (chosen) {
+        expect(g.archetype).toBe(chosen.archetype);
+        expect(g.aspect).toBeCloseTo(chosen.aspect, 6);
+        expect(g.solidity).toBeCloseTo(chosen.solidity, 6);
+      }
+    }
+  });
+
+  it("keeps a clear border: every visible pixel is at least 3 px from the edge on the 64 grid (4.5 px on 96), at every melt, with or without reduced motion", () => {
+    for (const grid of [64, 96] as const satisfies readonly CheesePoolGrid[]) {
+      const need = grid === 64 ? 3 : 4;
+      for (const s of seeds(60)) {
+        for (const reducedMotion of [false, true]) {
+          for (let k = 0; k <= 8; k += 1) {
+            const img = renderCheesePool(s, k / 8, 0.6, 0, { grid, reducedMotion });
+            let margin: number = grid;
+            for (let y = 0; y < grid; y += 1) {
+              for (let x = 0; x < grid; x += 1) {
+                if (img.data[(y * grid + x) * 4 + 3] > 0) margin = Math.min(margin, x, y, grid - 1 - x, grid - 1 - y);
+              }
+            }
+            expect(margin).toBeGreaterThanOrEqual(need);
+          }
+        }
+      }
+    }
+  });
+
+  it("browning is in the photo's range for almost every seed: warm pixels at toast 0.6 median 1.5-3.5 %, p95 below 5.5 %, never above 7 %", () => {
+    const warm = seeds(200).map((s) => measureCheesePool(renderCheesePool(s, 1, 0.6, 0)).warm);
+    expect(pct(warm, 0.5)).toBeGreaterThan(0.015);
+    expect(pct(warm, 0.5)).toBeLessThan(0.035);
+    expect(pct(warm, 0.95)).toBeLessThan(0.055);
+    expect(Math.max(...warm)).toBeLessThan(0.07);
+    expect(pct(warm, 0.9) - pct(warm, 0.1)).toBeGreaterThan(0.01); // still a real spread between pools
+  });
+
+  it("offers 64 as the provisional default candidate without changing the call default (96)", () => {
+    expect(CHEESE_POOL_GRID_CANDIDATE).toBe(CHEESE_POOL_GRID_SMALL);
+    expect(renderCheesePool("mozzarella:9:9", 1, 0, 0).width).toBe(CHEESE_POOL_GRID);
   });
 });

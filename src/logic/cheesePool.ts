@@ -26,6 +26,8 @@
 export const CHEESE_POOL_GRID = 96;
 /** The smaller grid (S1b compares both; the shape is identical, only the sampling differs). */
 export const CHEESE_POOL_GRID_SMALL = 64;
+/** Provisional default for S2 (S2-A: ~0.4x the render cost of 96, near-identical image; confirmed on device only after wiring). `renderCheesePool` still defaults to 96 so nothing changes silently. */
+export const CHEESE_POOL_GRID_CANDIDATE = 64;
 export type CheesePoolGrid = 64 | 96;
 /** CSS px the 96 grid is meant to span when S2 draws it (a hint for the wiring; nothing here depends on it). */
 export const CHEESE_POOL_SPAN_PX = 72;
@@ -136,6 +138,8 @@ export interface Boundary {
   /** aspect ratio of the finished shape (sqrt of the covariance eigenvalue ratio), and the direction of its major axis */
   aspect: number;
   phi: number;
+  /** area of the finished outline in boundary units (R = 1 is a unit disc: pi) */
+  area: number;
   /** area / convex-hull area of the finished outline */
   solidity: number;
   /** extreme curvature of the finished outline in units of 1 / (mean radius): a circle is 1; concave bays are negative */
@@ -157,11 +161,72 @@ function skewBump(theta: number, centre: number, sigmaLeft: number, sigmaRight: 
   if (d > Math.PI) d -= TAU;
   if (d < -Math.PI) d += TAU;
   const s = d < 0 ? sigmaLeft : sigmaRight;
-  return Math.exp(-(d * d) / (2 * s * s));
+  const e = (d * d) / (2 * s * s);
+  return e > 40 ? 0 : Math.exp(-e); // exp(-40) = 4e-18: far below the float32 tables, so the outline is the same as without the cut-off
+}
+
+/** cos(k theta), sin(k theta) and theta for every bin (k = 2..10), built once: the candidate loops then need no trigonometry */
+let trig: { cos: Float64Array[]; sin: Float64Array[]; theta: Float64Array; midCos: Float64Array; midSin: Float64Array } | null = null;
+function trigTables() {
+  if (trig) return trig;
+  const theta = new Float64Array(BINS + 1);
+  for (let b = 0; b <= BINS; b += 1) theta[b] = ((b % BINS) / BINS) * TAU;
+  const cos: Float64Array[] = [];
+  const sin: Float64Array[] = [];
+  for (let k = 0; k <= 10; k += 1) {
+    cos.push(Float64Array.from(theta, (t) => Math.cos(k * t)));
+    sin.push(Float64Array.from(theta, (t) => Math.sin(k * t)));
+  }
+  const midCos = new Float64Array(BINS);
+  const midSin = new Float64Array(BINS);
+  for (let b = 0; b < BINS; b += 1) {
+    midCos[b] = Math.cos(((b + 0.5) / BINS) * TAU);
+    midSin[b] = Math.sin(((b + 0.5) / BINS) * TAU);
+  }
+  trig = { cos, sin, theta, midCos, midSin };
+  return trig;
+}
+
+/** aspect ratio of the outline sampled at every 4th bin (the quick pre-test; the exact aspect comes from `measureBoundary`) */
+function coarseAspect(harmonics: Array<{ k: number; a: number; ph: number }>, bumps: Array<{ c: number; a: number; sl: number; sr: number }>): number {
+  const tables = trigTables();
+  const phC = harmonics.map((t) => Math.cos(t.ph));
+  const phS = harmonics.map((t) => Math.sin(t.ph));
+  let area = 0;
+  let mx = 0;
+  let my = 0;
+  let ixx = 0;
+  let iyy = 0;
+  let ixy = 0;
+  for (let b = 2; b < BINS; b += 4) {
+    let r = 1;
+    for (let i = 0; i < harmonics.length; i += 1) r += harmonics[i].a * (tables.cos[harmonics[i].k][b] * phC[i] - tables.sin[harmonics[i].k][b] * phS[i]);
+    const th = tables.theta[b];
+    for (const bump of bumps) r += bump.a * skewBump(th, bump.c, bump.sl, bump.sr);
+    r = Math.max(0.4, r);
+    const c = Math.cos(th);
+    const sn = Math.sin(th);
+    const r2 = r * r;
+    area += r2;
+    mx += r2 * r * c;
+    my += r2 * r * sn;
+    ixx += r2 * r2 * c * c;
+    iyy += r2 * r2 * sn * sn;
+    ixy += r2 * r2 * c * sn;
+  }
+  // (the common 0.5 * dTheta factors cancel in these ratios, except between the first and second moments: 2/3 of r^3 vs 1/2 of r^2, 1/4 of r^4)
+  const cx = ((2 / 3) * mx) / area;
+  const cy = ((2 / 3) * my) / area;
+  const sxx = ixx / 2 / area - cx * cx;
+  const syy = iyy / 2 / area - cy * cy;
+  const sxy = ixy / 2 / area - cx * cy;
+  const mean = (sxx + syy) / 2;
+  const diff = Math.hypot((sxx - syy) / 2, sxy);
+  return Math.sqrt((mean + diff) / Math.max(1e-6, mean - diff));
 }
 
 /** Draws one candidate outline (and measures it). Consumes `rng`; the archetype comes from the stream, so a seed always draws the same sequence. */
-function drawBoundary(rng: () => number): Boundary {
+function drawCandidate(rng: () => number, prefilter: boolean): Boundary | null {
   const pick = rng();
   const archetype: CheeseArchetype = pick < 0.3 ? "puddle" : pick < 0.56 ? "tongue" : pick < 0.78 ? "bay" : pick < 0.92 ? "lobes" : "shoulder";
   const harm = (amp: number, decay: number, kMax: number) => {
@@ -199,15 +264,25 @@ function drawBoundary(rng: () => number): Boundary {
   // a faint high-frequency ripple, so no edge is perfectly smooth (kept small: it must never make a notch)
   const ripple: Array<{ k: number; a: number; ph: number }> = [];
   for (let k = 7; k <= 10; k += 1) ripple.push({ k, a: 0.008 + 0.01 * rng(), ph: rng() * TAU });
+  // Stage 1 (S2-A): the aspect ratio, the commonest reason to reject, is read off every 4th bin first (a quarter of the work); a candidate clearly
+  // outside the band (by more than the sampling error, 0.04) is dropped without building the full outline. The full test below stays authoritative.
+  if (prefilter) {
+    const coarse = coarseAspect(harmonics, bumps);
+    if (coarse < CHEESE_POOL_LIMITS.aspectMin - 0.04 || coarse > CHEESE_POOL_LIMITS.aspectMax + 0.04) return null;
+  }
   const lutH = new Float32Array(BINS + 1);
   const lutT = new Float32Array(BINS + 1);
   const tongue = new Float32Array(BINS + 1);
+  const tables = trigTables();
+  const hc = harmonics.map((t) => t.a * Math.cos(t.ph));
+  const hs = harmonics.map((t) => t.a * Math.sin(t.ph));
+  const hk = harmonics.map((t) => t.k);
   for (let b = 0; b <= BINS; b += 1) {
-    const th = ((b % BINS) / BINS) * TAU;
     let h = 0;
-    for (const t of harmonics) h += t.a * Math.cos(t.k * th + t.ph);
+    for (let i = 0; i < hk.length; i += 1) h += tables.cos[hk[i]][b] * hc[i] - tables.sin[hk[i]][b] * hs[i];
     let tt = 0;
     let tg = 0;
+    const th = tables.theta[b];
     for (const bump of bumps) {
       const g = skewBump(th, bump.c, bump.sl, bump.sr);
       tt += bump.a * g;
@@ -222,6 +297,11 @@ function drawBoundary(rng: () => number): Boundary {
   const boundary = measureBoundary(archetype, lutH, lutT, tongue, anchor);
   boundary.ripple = ripple;
   return boundary;
+}
+
+/** a full candidate, no pre-test (the tests and the failure gallery draw these) */
+function drawBoundary(rng: () => number): Boundary {
+  return drawCandidate(rng, false) as Boundary;
 }
 
 function applyRipple(boundary: Boundary): void {
@@ -249,22 +329,27 @@ function measureBoundary(archetype: CheeseArchetype, lutH: Float32Array, lutT: F
   let rMin = Infinity;
   let rMax = 0;
   let rSum = 0;
-  const pts: Array<[number, number]> = [];
+  const tabs = trigTables();
+  const px = new Float64Array(BINS);
+  const py = new Float64Array(BINS);
   for (let b = 0; b < BINS; b += 1) {
-    const th = ((b + 0.5) / BINS) * TAU;
     const r = r1[b];
-    const c = Math.cos(th);
-    const s = Math.sin(th);
-    area += 0.5 * r * r * dTh;
-    mx += (r * r * r * c * dTh) / 3;
-    my += (r * r * r * s * dTh) / 3;
-    ixx += (r * r * r * r * c * c * dTh) / 4;
-    iyy += (r * r * r * r * s * s * dTh) / 4;
-    ixy += (r * r * r * r * c * s * dTh) / 4;
+    const c = tabs.midCos[b];
+    const s = tabs.midSin[b];
+    const r2 = r * r;
+    const r3 = r2 * r;
+    const r4 = r2 * r2;
+    area += 0.5 * r2 * dTh;
+    mx += (r3 * c * dTh) / 3;
+    my += (r3 * s * dTh) / 3;
+    ixx += (r4 * c * c * dTh) / 4;
+    iyy += (r4 * s * s * dTh) / 4;
+    ixy += (r4 * c * s * dTh) / 4;
     rMin = Math.min(rMin, r);
     rMax = Math.max(rMax, r);
     rSum += r;
-    pts.push([r * c, r * s]);
+    px[b] = r * c;
+    py[b] = r * s;
   }
   const cx = mx / area;
   const cy = my / area;
@@ -277,27 +362,24 @@ function measureBoundary(archetype: CheeseArchetype, lutH: Float32Array, lutT: F
   // the convex hull (and so the solidity) is only needed for outlines whose aspect is acceptable; the others are rejected first (0 = not measured)
   let solidity = 0;
   if (aspect >= CHEESE_POOL_LIMITS.aspectMin && aspect <= CHEESE_POOL_LIMITS.aspectMax) {
-    // convex hull of the outline points (monotone chain)
-    const sorted = [...pts].sort((p, q) => p[0] - q[0] || p[1] - q[1]);
-    const cross = (o: [number, number], a: [number, number], c2: [number, number]) => (a[0] - o[0]) * (c2[1] - o[1]) - (a[1] - o[1]) * (c2[0] - o[0]);
-    const lower: Array<[number, number]> = [];
-    for (const p of sorted) {
-      while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
-      lower.push(p);
+    // convex hull of the outline points: Graham scan from the rightmost point; the points are already in angular order around the origin, which
+    // lies inside this star-shaped outline, so no sort is needed
+    let start = 0;
+    for (let i = 1; i < BINS; i += 1) if (px[i] > px[start] || (px[i] === px[start] && py[i] > py[start])) start = i;
+    const hx = new Float64Array(BINS + 1);
+    const hy = new Float64Array(BINS + 1);
+    let n = 0;
+    for (let k = 0; k <= BINS; k += 1) {
+      const i = (start + k) % BINS;
+      const x = px[i];
+      const y = py[i];
+      while (n >= 2 && (hx[n - 1] - hx[n - 2]) * (y - hy[n - 2]) - (hy[n - 1] - hy[n - 2]) * (x - hx[n - 2]) <= 0) n -= 1;
+      hx[n] = x;
+      hy[n] = y;
+      n += 1;
     }
-    const upper: Array<[number, number]> = [];
-    for (let i = sorted.length - 1; i >= 0; i -= 1) {
-      const p = sorted[i];
-      while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
-      upper.push(p);
-    }
-    const hull = lower.slice(0, -1).concat(upper.slice(0, -1));
     let hullArea = 0;
-    for (let i = 0; i < hull.length; i += 1) {
-      const [x1, y1] = hull[i];
-      const [x2, y2] = hull[(i + 1) % hull.length];
-      hullArea += x1 * y2 - x2 * y1;
-    }
+    for (let i = 0; i + 1 < n; i += 1) hullArea += hx[i] * hy[i + 1] - hx[i + 1] * hy[i];
     hullArea = Math.abs(hullArea) / 2;
     solidity = area / Math.max(1e-6, hullArea);
   }
@@ -314,7 +396,7 @@ function measureBoundary(archetype: CheeseArchetype, lutH: Float32Array, lutT: F
     const rp = sm[(b + 1) % BINS];
     const d1 = (rp - rm) / (2 * dTh);
     const d2 = (rp - 2 * r + rm) / (dTh * dTh);
-    const k = ((r * r + 2 * d1 * d1 - r * d2) / Math.pow(r * r + d1 * d1, 1.5)) * meanR;
+    const k = ((r * r + 2 * d1 * d1 - r * d2) / ((r * r + d1 * d1) * Math.sqrt(r * r + d1 * d1))) * meanR;
     minK = Math.min(minK, k);
     maxK = Math.max(maxK, k);
     maxSlope = Math.max(maxSlope, Math.abs(d1) / r);
@@ -338,6 +420,7 @@ function measureBoundary(archetype: CheeseArchetype, lutH: Float32Array, lutT: F
     cx,
     cy,
     aspect,
+    area,
     phi: 0.5 * Math.atan2(2 * sxy, sxx - syy),
     solidity,
     minCurvature: minK,
@@ -403,13 +486,13 @@ function safeBoundary(rng: () => number): Boundary {
 /** Draws outlines from the seed's stream until one passes the limits (deterministic). `stats` receives the rejection reasons (for the report). */
 function chooseBoundary(rng: () => number, stats?: { draws: number; reasons: Record<string, number> }): Boundary {
   for (let draw = 1; draw <= MAX_DRAWS; draw += 1) {
-    const candidate = drawBoundary(rng);
-    const reason = cheeseBoundaryRejection(candidate, rng());
+    const candidate = drawCandidate(rng, true);
+    const reason = candidate ? cheeseBoundaryRejection(candidate, rng()) : (rng(), "aspect");
     if (stats) {
       stats.draws = draw;
       if (reason) stats.reasons[reason] = (stats.reasons[reason] ?? 0) + 1;
     }
-    if (!reason) {
+    if (!reason && candidate) {
       applyRipple(candidate);
       return candidate;
     }
@@ -444,6 +527,15 @@ export interface CheesePoolGeometry {
   solidity: number;
   aspect: number;
 }
+
+/** clear border around the finished pool, as a fraction of the half-width: 3 px at 64x64 (the smaller grid), 4.5 px at 96x96 */
+export const CHEESE_POOL_MARGIN = 3 / 32;
+/** the soft edge (alpha reaches 0 at 1.045 R) and the melt overshoot (mid-melt, ~+4.5 % radius, on a smaller outline), as a fraction of the finished outline's furthest point; measured: every visible pixel stays >= 3 px (64x64) from the border over 400 seeds x 25 melts */
+const FRAME_SLACK = 1.085;
+
+/** blisters: base radius (px at 96) and the most they may cover of the pool (fraction of its area) */
+const BLISTER_SIZE_BASE = 2.0;
+const BLISTER_COVER_MAX = 0.02;
 
 const GEOMETRY_CACHE_LIMIT = 48;
 const geometryCache = new Map<string, CheesePoolGeometry>();
@@ -483,14 +575,17 @@ function buildGeometryFromBoundary(boundary: Boundary, rng: () => number, N: num
     const gu = u * g;
     return [cphi * gu - sphi * v, sphi * gu + cphi * v];
   };
+  // Frame (S2-A): the finished outline, ripple included, plus the soft edge (alpha reaches 0 at 1.045 R) and the melt's transient overshoot, must keep
+  // `CHEESE_POOL_MARGIN` of the half-width clear on every side (3 px at 64x64, 4.5 px at 96x96), at every melt.
   let maxExtent = 0;
   for (let b = 0; b < BINS; b += 1) {
     const th = ((b + 0.5) / BINS) * TAU;
-    const [px, py] = mapForward(r1[b] * Math.cos(th), r1[b] * Math.sin(th));
-    maxExtent = Math.max(maxExtent, Math.hypot(px, py));
+    const r = Math.max(0.4, 1 + lutH[b] + lutT[b]);
+    const [px, py] = mapForward(r * Math.cos(th), r * Math.sin(th));
+    maxExtent = Math.max(maxExtent, Math.sqrt(px * px + py * py));
   }
   const half = N / 2;
-  const sc = (0.88 * half) / maxExtent;
+  const sc = (half * (1 - CHEESE_POOL_MARGIN)) / (maxExtent * FRAME_SLACK);
   const qr = new Float32Array(N * N);
   const bin0 = new Uint16Array(N * N);
   const binFrac = new Float32Array(N * N);
@@ -511,7 +606,7 @@ function buildGeometryFromBoundary(boundary: Boundary, rng: () => number, N: num
       const i = y * N + x;
       bin0[i] = b;
       binFrac[i] = f - b;
-      qr[i] = Math.hypot(qx, qy); // distance from the shape origin, in boundary units (rho = qr / boundary)
+      qr[i] = Math.sqrt(qx * qx + qy * qy); // distance from the shape origin, in boundary units (rho = qr / boundary)
     }
   }
   const noiseLow = noiseMap(rng, 6, N);
@@ -538,7 +633,7 @@ function buildGeometryFromBoundary(boundary: Boundary, rng: () => number, N: num
         const u = (cr * dx + sr * dy) / rx;
         const v = (-sr * dx + cr * dy) / ry;
         // the distance is warped by the high-frequency noise (an irregular edge) and by the low one (an uneven size)
-        const d = Math.hypot(u, v) * (0.5 + 0.9 * noiseHigh[i]) * (0.8 + 0.4 * noiseLow[i]);
+        const d = Math.sqrt(u * u + v * v) * (0.5 + 0.9 * noiseHigh[i]) * (0.8 + 0.4 * noiseLow[i]);
         const fill = (1 - smoothstep(0.45, 1, d)) * strength;
         const rim = smoothstep(0.55, 0.9, d) * (1 - smoothstep(0.95, 1.35, d)) * strength;
         if (fill > blister[i]) blister[i] = fill;
@@ -546,23 +641,30 @@ function buildGeometryFromBoundary(boundary: Boundary, rng: () => number, N: num
       }
     }
   };
+  // The blisters' total size is budgeted against the pool's area (S2-A): the sizes below are drawn as before (so the shapes keep their variety), then
+  // scaled down together when they would cover more than BLISTER_COVER_MAX of the pool. That removes the over-browned seeds without making every pool alike.
+  const specs: Array<{ bxp: number; byp: number; size: number; stretch: number; rot: number; strength: number; sats: number }> = [];
   for (let k = 0; k < blisterCount; k += 1) {
     const th = k === 0 ? boundary.anchorAngle + (rng() - 0.5) * 0.7 : rng() * TAU;
     const rho = k === 0 ? 0.5 + 0.28 * rng() : 0.2 + 0.55 * rng();
     const rb = r1[Math.min(BINS - 1, Math.floor(((((th % TAU) + TAU) % TAU) / TAU) * BINS))] * rho;
     const [bx, by] = mapForward(rb * Math.cos(th), rb * Math.sin(th));
-    const bxp = half + bx * sc;
-    const byp = half + by * sc;
-    const size = (2.3 + 3.0 * rng() * rng() + 1.0 * rng()) * scale * (k === 0 ? 1.15 : 1);
+    const size = (BLISTER_SIZE_BASE + 3.0 * rng() * rng() + 1.0 * rng()) * scale * (k === 0 ? 1.15 : 1);
     const stretch = 0.45 + 0.55 * rng(); // elongated blisters
     const rot = rng() * Math.PI;
     const strength = 0.7 + 0.3 * rng();
-    addBlister(bxp, byp, size, size * stretch, rot, strength);
-    const satellites = size > 4 * scale ? Math.floor(rng() * 3) : 0;
-    for (let s = 0; s < satellites; s += 1) {
+    specs.push({ bxp: half + bx * sc, byp: half + by * sc, size, stretch, rot, strength, sats: size > 4 * scale ? Math.floor(rng() * 3) : 0 });
+  }
+  const poolPx = boundary.area * sc * sc;
+  const rawCover = specs.reduce((sum, sp) => sum + Math.PI * sp.size * sp.size * sp.stretch, 0) / poolPx;
+  const shrink = rawCover > BLISTER_COVER_MAX ? Math.sqrt(BLISTER_COVER_MAX / rawCover) : 1;
+  for (const sp of specs) {
+    const size = sp.size * shrink;
+    addBlister(sp.bxp, sp.byp, size, size * sp.stretch, sp.rot, sp.strength);
+    for (let s = 0; s < sp.sats; s += 1) {
       const sa = rng() * TAU;
       const sd = size * (1.3 + 0.8 * rng());
-      addBlister(bxp + Math.cos(sa) * sd, byp + Math.sin(sa) * sd, size * (0.22 + 0.2 * rng()), size * (0.18 + 0.2 * rng()), rng() * Math.PI, 0.6 + 0.3 * rng());
+      addBlister(sp.bxp + Math.cos(sa) * sd, sp.byp + Math.sin(sa) * sd, size * (0.22 + 0.2 * rng()), size * (0.18 + 0.2 * rng()), rng() * Math.PI, 0.6 + 0.3 * rng());
     }
   }
   return { grid: N, archetype: boundary.archetype, lutH, lutT, tongue, bin0, binFrac, qr, noiseLow, noiseHigh, blister, blisterRim, blisterCount, solidity: boundary.solidity, aspect: boundary.aspect };
@@ -714,7 +816,7 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
       const y1 = y < N - 1 ? i + N : i;
       const gx = (lit[x1] - lit[x0]) * slope;
       const gy = (lit[y1] - lit[y0]) * slope;
-      const nl = Math.hypot(gx, gy, 1);
+      const nl = Math.sqrt(gx * gx + gy * gy + 1);
       const nx = -gx / nl;
       const ny = -gy / nl;
       const nz = 1 / nl;
