@@ -312,11 +312,11 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     expect(core[0] - core[2]).toBeGreaterThanOrEqual(8);
     expect(core[0] - core[2]).toBeLessThanOrEqual(30);
     expect(core[0] + core[1] + core[2]).toBeLessThan(255 + 253 + 245 - 30);
-    expect(edge[0] - edge[2]).toBeLessThanOrEqual(core[0] - core[2] + 12);
+    expect(edge[0] - edge[2]).toBeLessThanOrEqual(core[0] - core[2] + 22); // stage 1: the rim is a little deeper than the core (natural gradient), not a yolk-like centre;
     expect(core[0]).toBeGreaterThan(core[1]);
     expect(core[1]).toBeGreaterThan(core[2]);
-    // the hard bottom highlight rim is nearly gone
-    expect(alpha(melted["--bake-cheese-inset"])).toBeLessThan(0.1);
+    // stage 1: the white bottom highlight is replaced by a faint warm underside shade (low alpha)
+    expect(alpha(melted["--bake-cheese-inset"])).toBeLessThan(0.25);
   });
 
   it("the raw lump and the melted body cross-fade without a see-through gap, monotonically", () => {
@@ -354,7 +354,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     // no key -> the A3 look (centres and radii the stylesheet carries as fallbacks)
     const plain = cheeseMeltCssVars(cheeseMeltLook(1.2));
     expect(plain["--bake-cheese-sp1-at"]).toBe("27.0% 34.0%");
-    expect(plain["--bake-cheese-sp1-r"]).toBe("2.59px 1.66px"); // the base blotch, scaled to the small A5 size
+    expect(plain["--bake-cheese-sp1-r"]).toBe("3.06px 1.95px"); // the base blotch, scaled to the small A5 size
     expect(plain["--bake-cheese-body-at"]).toBe("46.0% 44.0%");
     // raw cheese: whatever the key, the outline is the raw outline and every blotch / bleed / body layer is invisible
     const raw = cheeseMeltCssVars(cheeseMeltLook(0), keyA);
@@ -405,9 +405,9 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       expect(parseFloat(v["--bake-cheese-aspect"])).toBeLessThanOrEqual(1.05);
       for (let l = 1; l <= 5; l += 1) expect(alpha(v[`--bake-cheese-lobe-${l}`])).toBeLessThanOrEqual(0.6 * LOBE_ALPHA_SCALE + 0.001);
     }
-    // raw keeps the original drop shadow (0.3); fully melted lies flat (<= 0.1)
+    // raw keeps the original drop shadow (0.3); fully melted keeps a soft contact shadow (stage 1: <= 0.16)
     expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])["--bake-cheese-drop"])).toBeCloseTo(0.3, 3);
-    expect(alpha(cheeseMeltCssVars(cheeseMeltLook(1), keys[0])["--bake-cheese-drop"])).toBeLessThanOrEqual(0.1);
+    expect(alpha(cheeseMeltCssVars(cheeseMeltLook(1), keys[0])["--bake-cheese-drop"])).toBeLessThanOrEqual(0.16);
     // raw: the aspect is exactly neutral whatever the key (BAKE starts at melt 0 and the raw width must not move)
     for (let i = 0; i < 100; i += 1) {
       expect(cheeseMeltCssVars(cheeseMeltLook(0), `mozzarella:${i}:${(i * 7) % 100}`)["--bake-cheese-aspect"]).toBe("1.000");

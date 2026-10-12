@@ -219,7 +219,8 @@ export function cheeseMeltsShape(ingredientId: string): boolean {
 /** Browning spot colour at char 0 (golden) and char 1 (dark brown), as the spot is *drawn on the cheese element*: the
  *  cheese's own bake `filter` (`cheeseVisualFrame`: brightness 0.6 / saturate 0.75 / sepia 0.25 at heat 2) then darkens it
  *  once more, so the char end is a mid brown that lands on dark brown on screen, never a grey. */
-const SPOT_GOLDEN = [190, 146, 90] as const;
+const SPOT_GOLDEN = [182, 132, 70] as const;
+const STAGE1_TOAST_BOOST = 1.4;
 const SPOT_CHARRED = [124, 68, 28] as const;
 
 function rgba(r: number, g: number, b: number, a: number): string {
@@ -301,7 +302,9 @@ function clampRange(value: number, lo: number, hi: number): number {
  * the raw cheese (melt 0, toast 0) is unaffected.
  */
 export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Record<string, string> {
-  const { melt, toast, char } = look;
+  const { melt, char } = look;
+  // Stage 1 (local trial): the browning blotches read a little stronger at phone size; display-only, `toastIntensity` unchanged
+  const toast = Math.min(1, look.toast * STAGE1_TOAST_BOOST);
   // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
   const body = clamp01(melt * 1.6);
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
@@ -319,22 +322,26 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly
     "--bake-cheese-body-at": `${(46 + 13 * j[4]).toFixed(1)}% ${(44 + 13 * j[5]).toFixed(1)}%`,
     // melted cheese lies flat in the sauce: the lump's drop shadow fades with melt
-    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 - 0.7 * melt)),
+    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 - 0.5 * melt)),
     "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
-    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
+    // Stage 1: at melt 0 the raw white underside highlight (unchanged); as it melts it becomes a faint warm shade under the body,
+    // so the lump has a lit top and a shaded underside instead of a flat sticker
+    "--bake-cheese-inset": rgba(255 - 105 * melt, 255 - 155 * melt, 255 - 205 * melt, 0.55 - 0.33 * melt),
     // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
     // feathered edge fades in, so the hard white disc outline goes away as `melt` rises. Both layers are plain rgba() here.
     "--bake-cheese-raw-0": rgba(255, 253, 245, 1 - melt),
     "--bake-cheese-raw-1": rgba(243, 234, 208, 1 - melt),
     "--bake-cheese-raw-2": rgba(230, 216, 174, 1 - melt),
-    "--bake-cheese-body-0": rgba(240, 235, 223, body),
-    "--bake-cheese-body-1": rgba(237, 231, 216, body),
-    "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
-    "--bake-cheese-body-3": rgba(230, 220, 200, 0.7 * body),
+    // Stage 1: a natural centre-to-edge gradient (pale cream core -> warmer, slightly deeper rim), and an outer stop that is nearly
+    // opaque, so the red sauce no longer shows through the rim as a pink ring (it was 0.7 alpha cream over red = peach)
+    "--bake-cheese-body-0": rgba(238, 231, 212, body),
+    "--bake-cheese-body-1": rgba(235, 225, 201, body),
+    "--bake-cheese-body-2": rgba(230, 214, 184, 0.97 * body),
+    "--bake-cheese-body-3": rgba(222, 202, 164, 0.94 * body),
     // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
-    "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
+    "--bake-cheese-bleed": rgba(218, 104, 66, 0.06 * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
-    "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
+    "--bake-cheese-gloss": rgba(255, 253, 247, 0.3 * melt),
     "--bake-cheese-lobe-a": rgba(...lobeRgb(LOBE_CREAM_A, toast, char), 0.6 * LOBE_ALPHA_SCALE * melt),
     "--bake-cheese-lobe-b": rgba(...lobeRgb(LOBE_CREAM_B, toast, char), 0.5 * LOBE_ALPHA_SCALE * melt),
     "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
@@ -344,7 +351,7 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
   SPOTS.forEach((spot, i) => {
     const o = 6 + i * 4;
     const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.3);
-    const size = 0.72 * clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
+    const size = 0.85 * clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
     vars[`--bake-cheese-sp${i + 1}-at`] = `${(spot.x + 12 * j[o]).toFixed(1)}% ${(spot.y + 10 * j[o + 1]).toFixed(1)}%`;
     vars[`--bake-cheese-sp${i + 1}-r`] = `${(spot.rx * size).toFixed(2)}px ${(spot.ry * size).toFixed(2)}px`;
     vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
