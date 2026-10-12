@@ -1017,8 +1017,11 @@ export function GameScreen({
           completion={state.completion}
           score={state.score}
           bakeState={state.bakeState}
+          // #469 (Owner D2): FREE Cooking keeps the 3-level badge. The BAKE gauge shows the generic FREE window, but a
+          // matched pizza is judged (and `state.recipe` is replaced) with the matched recipe's own window, so a 5-level
+          // label would disagree with the gauge the player aimed at. Guided / Lunch Rush / Dinner use the window shown.
           bakeLevel5={
-            state.pizza.bakeResult !== null
+            !state.freeCook && state.pizza.bakeResult !== null
               ? classifyBake5(state.pizza.bakeResult, state.recipe.bakeTarget)
               : null
           }
