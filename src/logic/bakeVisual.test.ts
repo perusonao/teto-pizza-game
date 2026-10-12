@@ -285,7 +285,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     // outline prototype 2: six feathered skirt layers (4 near, 2 far) carry the outline
     for (let i = 1; i <= 6; i += 1) {
       expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeGreaterThan(0.1);
-      expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeLessThanOrEqual(0.35);
+      expect(alpha(perfect[`--bake-cheese-film-${i}`]), `film ${i}`).toBeLessThanOrEqual(0.25);
     }
     expect(alpha(perfect["--bake-cheese-spot"])).toBeGreaterThan(0.4); // visible golden blotches at the properly baked point
   });
@@ -406,13 +406,13 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       expect(parseFloat(v["--bake-cheese-aspect"])).toBeLessThanOrEqual(1.05);
       for (let l = 1; l <= 6; l += 1) {
         const [x, y, blur, grow] = px(v[`--bake-cheese-film-${l}-g`]);
-        // bounded: near layers reach <= 3.2 px, far tongues <= 6.8 px (no big round overhang); every layer is feathered (> 1.5 px blur,
-        // never a crisp copy of the outline) and weak (<= 0.3 x 1.05)
-        expect(Math.hypot(x, y), `film ${l} reach`).toBeLessThanOrEqual((l <= 4 ? 3.2 : 6.8) + 0.01);
-        expect(blur, `film ${l} blur`).toBeGreaterThanOrEqual(1.5);
-        expect(blur, `film ${l} blur`).toBeLessThanOrEqual(3.2 + 0.001);
+        // bounded: near layers reach <= 3.2 px, far tongues <= 5.6 px (no big round overhang); every layer is feathered (>= 1.4 px blur,
+        // never a crisp copy of the outline) and weak (<= 0.2 x 1.05)
+        expect(Math.hypot(x, y), `film ${l} reach`).toBeLessThanOrEqual((l <= 4 ? 3.2 : 5.6) + 0.01);
+        expect(blur, `film ${l} blur`).toBeGreaterThanOrEqual(1.4);
+        expect(blur, `film ${l} blur`).toBeLessThanOrEqual(2.4 + 0.001);
         expect(grow).toBeLessThanOrEqual(0.9 + 0.001);
-        expect(alpha(v[`--bake-cheese-film-${l}`]), `film ${l} alpha`).toBeLessThanOrEqual(0.3 * 1.05 + 0.001);
+        expect(alpha(v[`--bake-cheese-film-${l}`]), `film ${l} alpha`).toBeLessThanOrEqual(0.2 * 1.05 + 0.001);
       }
     }
     // a few directions reach far and the others stay close (tongues, not an even halo)
@@ -447,7 +447,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     const baked = film(1);
     const deep = film(1.6);
     const charred = film(2);
-    expect(melted).toEqual([236, 222, 194]);
+    expect(melted).toEqual([232, 208, 176]);
     const sum = (c: number[]) => c[0] + c[1] + c[2];
     expect(sum(baked)).toBeLessThan(sum(melted));
     expect(sum(deep)).toBeLessThan(sum(baked));
