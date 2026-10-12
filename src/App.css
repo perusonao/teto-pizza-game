@@ -812,20 +812,22 @@
     0 0 0 1.5px var(--bake-cheese-ring, rgba(255, 255, 255, 0.8)),
     /* a faint sauce-coloured stain on one side of the edge (partial blend into the sauce) */
     var(--bake-cheese-bleed-off, 0 0) 4px 0.5px var(--bake-cheese-bleed, transparent),
-    /* irregular spread (#421 M1): five quiet lobes, ~0.6 x the A5 offsets, 1px blur, ~0.35 x the A5 strength, colour follows the bake */
-    calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-1, var(--bake-cheese-lobe-a, transparent)),
-    calc(-2.7px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.8px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-2, var(--bake-cheese-lobe-b, transparent)),
-    calc(0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-2.4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.2px * var(--melt)) var(--bake-cheese-lobe-3, var(--bake-cheese-lobe-a, transparent)),
-    calc(-3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) 0 var(--bake-cheese-lobe-4, var(--bake-cheese-lobe-b, transparent)),
-    calc(1.8px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2.4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) 0 var(--bake-cheese-lobe-5, var(--bake-cheese-lobe-b, transparent)),
     /* the melted pool sits on the pizza */
     0 calc(2.5px * var(--melt)) calc(4px * var(--melt)) calc(1px * var(--melt)) var(--bake-cheese-pool, transparent),
     inset 0 -3px 4px var(--bake-cheese-inset, rgba(255, 255, 255, 0.55));
-  /* wider and a little flatter as it spreads; at melt 0 this is exactly the uniform scale `.pizza-cheese` sets */
-  transform: scale(
-    calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 + 0.1 * var(--melt)) * var(--bake-cheese-aspect, 1)),
-    calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (1 - 0.05 * var(--melt)))
-  );
+  /* #421 motion prototype: the melt is carried by motion, with transform only (no extra blur / raster). The lump first tightens
+     (smaller, thicker), then spreads wide and flat with a small overshoot that settles, each piece skewing its own way and leading /
+     lagging the others (all resolved per piece in TypeScript from the one bake `heat`). `--bake-cheese-sx/-sy/-skew` are the settled
+     values, `-bx/-by/-wob` the transient part, which `--cheese-motion` switches off under prefers-reduced-motion. At melt 0 every term
+     is neutral, so this is exactly the uniform scale `.pizza-cheese` sets. */
+  transform:
+    scale(
+      calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--bake-cheese-aspect, 1) * (var(--bake-cheese-sx, 1) + var(--bake-cheese-bx, 0) * var(--cheese-motion, 1))),
+      calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * (var(--bake-cheese-sy, 1) + var(--bake-cheese-by, 0) * var(--cheese-motion, 1)))
+    )
+    skewX(calc(var(--bake-cheese-skew, 0deg) + var(--bake-cheese-wob, 0deg) * var(--cheese-motion, 1)));
+  /* the base 0.3 s transform ease would smooth the choreography away (the whole melt is under a second of a 3 s bake): follow the frames */
+  transition: transform 90ms linear, filter 0.3s ease;
 }
 
 .pizza-cheese--gorgonzola {
@@ -4635,6 +4637,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pizza-cheese--mozzarella {
+    --cheese-motion: 0;
+    transition: none;
+  }
+
   .pizza-topping,
   .pizza-topping--mozzarella,
   .pizza-topping--basil {

@@ -257,14 +257,10 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(looks["3-baked"].radius).not.toBe(looks["1-raw"].radius);
     expect(looks["3-baked"].boxShadow).not.toBe(looks["1-raw"].boxShadow);
     expect(looks["3-baked"].transform).not.toBe(looks["1-raw"].transform);
-    // M1: the spread lobes are a quiet 1px-blur edge and there is no cream halo layer (computed style, so engine-independent):
-    // drop, ring, bleed, 5 lobes, pool, inset = 10 layers, every lobe blurred <= 1px.
+    // Motion prototype: no blurred spread layers any more: drop, ring, bleed, pool, inset = 5 layers (computed style, engine-independent),
+    // and none of them is the old lobe (every non-inset layer is <= 4 px blur).
     const layers = looks["3-baked"].boxShadow.replace(/rgba?\([^)]*\)/g, "C").split(",").map((l) => l.trim());
-    expect(layers, `box-shadow layers ${looks["3-baked"].boxShadow}`).toHaveLength(10);
-    for (const lobe of layers.slice(3, 8)) {
-      const blur = Number.parseFloat((lobe.match(/-?\d*\.?\d+px/g) ?? [])[2]);
-      expect(blur, `lobe layer ${lobe}`).toBeLessThanOrEqual(1.05);
-    }
+    expect(layers, `box-shadow layers ${looks["3-baked"].boxShadow}`).toHaveLength(5);
     expect(rawTransforms).toHaveLength(3);
     expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);
     // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.

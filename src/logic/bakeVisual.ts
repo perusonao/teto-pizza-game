@@ -41,6 +41,12 @@ export function meltIntensity(heat: number): number {
   return clamp01((heat - 0.5) / 0.4);
 }
 
+/** #421 motion prototype: 0..1 "the lump tightens" ramp (smaller, thicker) over the heat (0.1 - 0.5) before `meltIntensity` starts at 0.5. */
+export function puffIntensity(heat: number): number {
+  const t = clamp01((heat - 0.1) / 0.4);
+  return t * t * (3 - 2 * t);
+}
+
 /** 0..1 golden-toast strength, ramping through "good"/"browningDeep". */
 export function toastIntensity(heat: number): number {
   return clamp01((heat - 0.85) / 0.5);
@@ -253,28 +259,17 @@ export function cheeseMeltJitter(key: string, count: number): number[] {
 }
 
 /**
- * #421 M1 (Owner decision after the A5 iPhone HV): the five spread lobes drew a milky-white cloud around every melted piece
- * (measured: with the lobes, 46% of the pixels just outside a baked piece are bright; without them 15%). M1 keeps the lobes (they
- * are what keeps the irregular, spread-out outline) but makes them a quiet edge: they are LOBE_ALPHA_SCALE of the A5 strength,
- * their blur / offsets are tightened in the stylesheet, there is no cream halo any more, and their colour follows the bake
- * (cream -> a little golden while toasting -> brown when charred) instead of staying cream while the rest darkens. Initial
- * trial values: they are tuned by measurement (docs/reports/TETO_APPETITE-APPEAL_421_M1_Result.md).
+ * #421 motion prototype: the shape change is carried by TIME, not by a blurred outline. Only transform scales / skew (cheap, no
+ * extra blur or raster), so there are no spread lobes any more. The choreography is in `cheeseMeltCssVars`.
  */
-export const LOBE_ALPHA_SCALE = 0.35;
-const LOBE_CREAM_A = [241, 237, 224] as const;
-const LOBE_CREAM_B = [237, 231, 214] as const;
-/** What a lobe's colour moves towards: a pale golden while the cheese toasts, a brown (like the blotches) once it chars. */
-const LOBE_TOASTED = [222, 190, 140] as const;
-const LOBE_CHARRED = [132, 96, 64] as const;
-
-function lobeRgb(cream: readonly number[], toast: number, char: number): [number, number, number] {
-  const out: number[] = [0, 0, 0];
-  for (let i = 0; i < 3; i += 1) {
-    const toasted = cream[i] + (LOBE_TOASTED[i] - cream[i]) * 0.5 * toast;
-    out[i] = toasted + (LOBE_CHARRED[i] - toasted) * char;
-  }
-  return out as [number, number, number];
-}
+const SETTLED_SPREAD_X = 0.34;
+const SETTLED_SPREAD_Y = -0.155;
+const PUFF_X = -0.1;
+const PUFF_Y = 0.12;
+const OVERSHOOT_X = 0.07;
+const OVERSHOOT_Y = -0.05;
+const SETTLED_SKEW_DEG = 10;
+const WOBBLE_SKEW_DEG = 4;
 
 /** The four browning blotches: A3's centre / radii (the fallback the stylesheet carries) plus how far each may drift. */
 const SPOTS: ReadonlyArray<{ x: number; y: number; rx: number; ry: number }> = [
@@ -300,8 +295,11 @@ function clampRange(value: number, lo: number, hi: number): number {
  * strength) and where the body's feathered edge is thinnest vary a little per piece, all scaled by `melt` / `toast`, so
  * the raw cheese (melt 0, toast 0) is unaffected.
  */
-export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Record<string, string> {
-  const { melt, toast, char } = look;
+export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string, heat?: number): Record<string, string> {
+  const { melt, char } = look;
+  const toast = look.toast;
+  // the pre-melt tightening needs the raw heat itself (melt is still 0 then); without it (undefined) there is no puff
+  const puffNow = heat === undefined ? 0 : puffIntensity(heat);
   // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
   const body = clamp01(melt * 1.6);
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
@@ -319,7 +317,7 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly
     "--bake-cheese-body-at": `${(46 + 13 * j[4]).toFixed(1)}% ${(44 + 13 * j[5]).toFixed(1)}%`,
     // melted cheese lies flat in the sauce: the lump's drop shadow fades with melt
-    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 - 0.7 * melt)),
+    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 + 0.5 * puffNow * (1 - melt)) * (1 - 0.7 * melt)),
     "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
     "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
     // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
@@ -335,8 +333,6 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
     "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
-    "--bake-cheese-lobe-a": rgba(...lobeRgb(LOBE_CREAM_A, toast, char), 0.6 * LOBE_ALPHA_SCALE * melt),
-    "--bake-cheese-lobe-b": rgba(...lobeRgb(LOBE_CREAM_B, toast, char), 0.5 * LOBE_ALPHA_SCALE * melt),
     "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
     "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
     "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
@@ -350,14 +346,20 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
     vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
   });
-  // the five spread lobes are not equally strong, and the whole spread is a little wider or tighter per piece: a melt that
-  // runs further on one side. The factors keep every lobe inside A3's reach (offset x spread <= 1.1, strength <= 1).
-  for (let i = 0; i < 5; i += 1) {
-    const [lr, lg, lb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
-    const strength = (i % 2 === 0 ? 0.6 : 0.5) * LOBE_ALPHA_SCALE;
-    vars[`--bake-cheese-lobe-${i + 1}`] = rgba(lr, lg, lb, strength * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
-  }
-  vars["--bake-cheese-spread"] = clampRange(0.88 + 0.22 * j[27], 0.6, 1.1).toFixed(3);
+  // Motion: pieces lead / lag each other mid-melt (the stagger is zero at melt 0 and 1, so the raw and the finished look are unaffected),
+  // the lump first tightens (puff: smaller and thicker), then spreads wide and flat with a small overshoot that settles, each piece
+  // skewing its own way. `-sx/-sy/-skew` are the settled values, `-bx/-by/-wob` the transient part (CSS scales it by `--cheese-motion`,
+  // which is 0 under prefers-reduced-motion, so reduced motion keeps only the settled flat, wide shape).
+  const mi = clamp01(melt + 0.15 * j[29] * 4 * melt * (1 - melt));
+  const release = 1 - mi;
+  const puff = puffNow * release;
+  const over = Math.sin(Math.PI * Math.pow(mi, 1.8));
+  vars["--bake-cheese-sx"] = (1 + (SETTLED_SPREAD_X + 0.1 * j[26]) * mi).toFixed(4);
+  vars["--bake-cheese-sy"] = (1 + (SETTLED_SPREAD_Y + 0.04 * j[27]) * mi).toFixed(4);
+  vars["--bake-cheese-bx"] = (PUFF_X * puff + OVERSHOOT_X * over).toFixed(4);
+  vars["--bake-cheese-by"] = (PUFF_Y * puff + OVERSHOOT_Y * over).toFixed(4);
+  vars["--bake-cheese-skew"] = `${(SETTLED_SKEW_DEG * j[30] * mi).toFixed(2)}deg`;
+  vars["--bake-cheese-wob"] = `${(WOBBLE_SKEW_DEG * j[31] * over).toFixed(2)}deg`;
   // scaled by `melt`, so it is exactly 1 for the raw cheese (the width must not change when BAKE starts at melt 0)
   vars["--bake-cheese-aspect"] = clampRange(1 + 0.05 * melt * j[28], 0.95, 1.05).toFixed(3);
   return vars;

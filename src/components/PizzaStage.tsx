@@ -961,7 +961,7 @@ export function PizzaStage({
   // browning a little different, the same on every render and in the BAKE / CUT / RESULT copies of that piece.
   const cheesePieceStyle = (ingredient: Ingredient, seedKey: string): CSSProperties | undefined =>
     cheeseMeltNow && cheeseMeltsShape(ingredient.id)
-      ? { ...cheeseStyle, ...(cheeseMeltCssVars(cheeseMeltNow, seedKey) as CSSProperties) }
+      ? { ...cheeseStyle, ...(cheeseMeltCssVars(cheeseMeltNow, seedKey, bakeHeat) as CSSProperties) }
       : cheeseStyle;
   // Gameplay UX PR-E (Finished Pizza Visual 2.0): a non-cheese topping's own dedicated,
   // continuous roast curve (../logic/bakeVisual.ts's own file comment on `toppingVisualFrame`

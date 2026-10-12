@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BakeTarget } from "../data/recipes";
 import {
-  LOBE_ALPHA_SCALE,
+  puffIntensity,
   bakeVisualStage,
   cheeseVisualFrame,
   charIntensity,
@@ -260,7 +260,9 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       for (const [name, value] of Object.entries(v)) {
         expect(value, name).not.toContain("calc");
         if (name === "--bake-melt") expect(value).toMatch(/^[01]?\.?\d*$/);
-        else if (name === "--bake-cheese-spread" || name === "--bake-cheese-aspect") expect(value, name).toMatch(/^\d\.\d{3}$/);
+        else if (name === "--bake-cheese-aspect") expect(value, name).toMatch(/^\d\.\d{3}$/);
+        else if (/^--bake-cheese-(sx|sy|bx|by)$/.test(name)) expect(value, name).toMatch(/^-?\d+\.\d{4}$/);
+        else if (/^--bake-cheese-(skew|wob)$/.test(name)) expect(value, name).toMatch(/^-?\d+\.\d{2}deg$/);
         else if (/^--bake-cheese-(radius|body-at|bleed-off|sp\d-at|sp\d-r)$/.test(name)) {
           // geometry resolved in TypeScript: plain percentages / lengths (and the `/` of border-radius), never CSS math
           expect(value, name).toMatch(/^[-\d.]+(%|px)?( [-\d.]+(%|px)?| \/ [-\d.]+%)*$/);
@@ -269,20 +271,27 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     }
   });
 
-  it("raw heat is the raw look: ring 0.8, inset 0.55, and no lobes / gloss / pool / spots", () => {
+  it("raw heat is the raw look: ring 0.8, inset 0.55, and no gloss / pool / spots, and every motion term neutral", () => {
     const v = vars(0);
     expect(v["--bake-melt"]).toBe("0.000");
     expect(alpha(v["--bake-cheese-ring"])).toBeCloseTo(0.8, 3);
     expect(alpha(v["--bake-cheese-inset"])).toBeCloseTo(0.55, 3);
-    for (const k of ["gloss", "lobe-a", "lobe-b", "pool", "spot", "spot-soft"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(0);
+    for (const k of ["gloss", "pool", "spot", "spot-soft"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(0);
+    expect([v["--bake-cheese-sx"], v["--bake-cheese-sy"]]).toEqual(["1.0000", "1.0000"]);
+    expect([v["--bake-cheese-bx"], v["--bake-cheese-by"]]).toEqual(["0.0000", "0.0000"]);
+    expect(parseFloat(v["--bake-cheese-skew"])).toBe(0);
+    expect(parseFloat(v["--bake-cheese-wob"])).toBe(0);
   });
 
-  it("melting dissolves the ring and brings the lobes in; browning shows by the target centre", () => {
+  it("melting dissolves the ring; browning shows by the target centre", () => {
     const perfect = vars(1);
     expect(alpha(perfect["--bake-cheese-ring"])).toBe(0);
-    // M1: the lobes are a quiet edge (LOBE_ALPHA_SCALE of the A5 strength 0.6), not the A5 cloud
-    expect(alpha(perfect["--bake-cheese-lobe-a"])).toBeCloseTo(0.6 * LOBE_ALPHA_SCALE, 2);
-    expect(alpha(perfect["--bake-cheese-lobe-a"])).toBeGreaterThan(0.1);
+    // motion prototype: fully melted is the settled wide, flat shape (1.34 x 0.845), with no transient part left
+    // (no key -> no per-piece jitter: the exact settled values)
+    expect(perfect["--bake-cheese-sx"]).toBe("1.3400");
+    expect(perfect["--bake-cheese-sy"]).toBe("0.8450");
+    expect(parseFloat(perfect["--bake-cheese-bx"])).toBeCloseTo(0, 3);
+    expect(parseFloat(perfect["--bake-cheese-by"])).toBeCloseTo(0, 3);
     expect(alpha(perfect["--bake-cheese-spot"])).toBeGreaterThan(0.4); // visible golden blotches at the properly baked point
   });
 
@@ -348,7 +357,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     }
     // three pieces of one pizza are not the same disc with the same pattern
     const [a, b, c] = [keyA, keyB, keyC].map((k) => cheeseMeltCssVars(cheeseMeltLook(1.2), k));
-    for (const name of ["--bake-cheese-radius", "--bake-cheese-spread", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-at"]) {
+    for (const name of ["--bake-cheese-radius", "--bake-cheese-skew", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-at"]) {
       expect(new Set([a[name], b[name], c[name]]).size, name).toBe(3);
     }
     // no key -> the A3 look (centres and radii the stylesheet carries as fallbacks)
@@ -387,60 +396,69 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     }
   });
 
-  it("A5: the five spread lobes differ in strength per piece, stay inside A3's reach, and the lump's drop shadow fades with melt", () => {
+  it("motion prototype: the choreography (tighten -> spread wide and flat -> overshoot -> settle) is smooth, bounded, per piece, and neutral at both ends", () => {
+    const key = "mozzarella:40.00:50.00";
+    const at = (heat: number, k = key) => cheeseMeltCssVars(cheeseMeltLook(heat), k, heat);
+    const f = (v: Record<string, string>, n: string) => parseFloat(v[n]);
+    // puff: the lump tightens (narrower, taller, a darker drop shadow) before it melts, and is gone once melted
+    expect(puffIntensity(0)).toBe(0);
+    expect(puffIntensity(0.5)).toBe(1);
+    const pre = at(0.45); // melt 0, puff ~0.9
+    expect(f(pre, "--bake-cheese-bx")).toBeLessThan(0);
+    expect(f(pre, "--bake-cheese-by")).toBeGreaterThan(0);
+    expect(alpha(pre["--bake-cheese-drop"])).toBeGreaterThan(0.3);
+    expect(f(at(0.5), "--bake-cheese-sx")).toBe(1); // melt has not started
+    // spread: the settled width grows and the settled height shrinks monotonically with melt
+    let lastX = 0;
+    let lastY = 2;
+    for (let heat = 0.5; heat <= 0.9; heat += 0.02) {
+      const v = at(heat, "mozzarella:0:0"); // an arbitrary key: stagger shifts the timing a little, never the order
+      expect(f(v, "--bake-cheese-sx")).toBeGreaterThanOrEqual(lastX - 0.03);
+      expect(f(v, "--bake-cheese-sy")).toBeLessThanOrEqual(lastY + 0.03);
+      lastX = f(v, "--bake-cheese-sx");
+      lastY = f(v, "--bake-cheese-sy");
+    }
+    // overshoot: the transient part peaks mid-melt (clearly non-zero), and is zero again when settled
+    const mid = at(0.78);
+    expect(Math.abs(f(mid, "--bake-cheese-bx"))).toBeGreaterThan(0.015);
+    expect(Math.abs(f(at(1.2), "--bake-cheese-bx"))).toBeLessThan(0.001);
+    // bounded for every piece: never a giant or squashed piece
+    for (let i = 0; i < 300; i += 1) {
+      const v = at(0.5 + (i % 40) * 0.01, `mozzarella:${i}:${(i * 13) % 100}`);
+      const tx = f(v, "--bake-cheese-sx") + f(v, "--bake-cheese-bx");
+      const ty = f(v, "--bake-cheese-sy") + f(v, "--bake-cheese-by");
+      expect(tx).toBeGreaterThan(0.8);
+      expect(tx).toBeLessThan(1.75);
+      expect(ty).toBeGreaterThan(0.7);
+      expect(ty).toBeLessThan(1.15);
+      expect(Math.abs(f(v, "--bake-cheese-skew")) + Math.abs(f(v, "--bake-cheese-wob"))).toBeLessThanOrEqual(14.01);
+    }
+    // per piece: the skew direction / stagger / aspect differ between the pieces of one pizza (deterministic per key)
     const keys = ["mozzarella:40.00:50.00", "mozzarella:60.00:50.00", "mozzarella:50.00:30.00"];
-    const vs = keys.map((k) => cheeseMeltCssVars(cheeseMeltLook(1.2), k));
-    for (let i = 1; i <= 5; i += 1) {
-      expect(new Set(vs.map((v) => v[`--bake-cheese-lobe-${i}`])).size, `lobe ${i}`).toBeGreaterThan(1);
-    }
-    expect(new Set(vs.map((v) => v["--bake-cheese-spread"])).size).toBe(3);
+    const vs = keys.map((k) => at(1.2, k));
+    expect(new Set(vs.map((v) => v["--bake-cheese-skew"])).size).toBe(3);
     expect(new Set(vs.map((v) => v["--bake-cheese-aspect"])).size).toBe(3);
-    for (let i = 0; i < 200; i += 1) {
-      const v = cheeseMeltCssVars(cheeseMeltLook(2), `mozzarella:${i}:${(i * 13) % 100}`);
-      // reach: lobe offsets are scaled by `spread` (<= 1.1) and strength never exceeds the M1 base (0.6 / 0.5, times LOBE_ALPHA_SCALE)
-      expect(parseFloat(v["--bake-cheese-spread"])).toBeLessThanOrEqual(1.1);
-      expect(parseFloat(v["--bake-cheese-spread"])).toBeGreaterThanOrEqual(0.6);
-      // a modest aspect change only (no giant or squashed piece)
-      expect(parseFloat(v["--bake-cheese-aspect"])).toBeGreaterThanOrEqual(0.95);
-      expect(parseFloat(v["--bake-cheese-aspect"])).toBeLessThanOrEqual(1.05);
-      for (let l = 1; l <= 5; l += 1) expect(alpha(v[`--bake-cheese-lobe-${l}`])).toBeLessThanOrEqual(0.6 * LOBE_ALPHA_SCALE + 0.001);
-    }
-    // raw keeps the original drop shadow (0.3); fully melted lies flat (<= 0.1)
-    expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])["--bake-cheese-drop"])).toBeCloseTo(0.3, 3);
-    expect(alpha(cheeseMeltCssVars(cheeseMeltLook(1), keys[0])["--bake-cheese-drop"])).toBeLessThanOrEqual(0.1);
-    // raw: the aspect is exactly neutral whatever the key (BAKE starts at melt 0 and the raw width must not move)
+    expect(new Set(keys.map((k) => at(0.75, k)["--bake-cheese-sx"])).size).toBe(3); // staggered mid-melt
+    expect(at(0.75, keys[0])).toEqual(at(0.75, keys[0])); // same key, same values
+    // the stagger vanishes at the raw end: every piece is identical before it melts
+    expect(new Set(keys.map((k) => at(0.4, k)["--bake-cheese-sx"])).size).toBe(1);
+    // (once settled the per-piece width differs on purpose; the transient part is gone for every piece)
+    for (const k of keys) expect(Math.abs(parseFloat(at(1.0, k)["--bake-cheese-bx"]))).toBeLessThan(0.001);
+    // the lump's drop shadow fades with melt: raw 0.3, fully melted <= 0.1
+    expect(alpha(at(0, keys[0])["--bake-cheese-drop"])).toBeCloseTo(0.3, 3);
+    expect(alpha(at(1, keys[0])["--bake-cheese-drop"])).toBeLessThanOrEqual(0.1);
+    // a modest aspect jitter only, exactly neutral when raw
     for (let i = 0; i < 100; i += 1) {
-      expect(cheeseMeltCssVars(cheeseMeltLook(0), `mozzarella:${i}:${(i * 7) % 100}`)["--bake-cheese-aspect"]).toBe("1.000");
+      expect(at(0, `mozzarella:${i}:${(i * 7) % 100}`)["--bake-cheese-aspect"]).toBe("1.000");
+      const a = f(at(2, `mozzarella:${i}:${(i * 13) % 100}`), "--bake-cheese-aspect");
+      expect(a).toBeGreaterThanOrEqual(0.95);
+      expect(a).toBeLessThanOrEqual(1.05);
     }
-    // it eases in with melt rather than switching on, and reaches its full range only when fully melted
-    const widest = Array.from({ length: 200 }, (_, i) => `mozzarella:${i}:${(i * 13) % 100}`);
-    const dev = (heat: number) => Math.max(...widest.map((k) => Math.abs(1 - parseFloat(cheeseMeltCssVars(cheeseMeltLook(heat), k)["--bake-cheese-aspect"]))));
-    expect(dev(0.6)).toBeLessThan(dev(0.75));
-    expect(dev(0.75)).toBeLessThan(dev(1));
-    expect(dev(1)).toBeGreaterThan(0.03);
-    // raw: every lobe invisible
-    for (let l = 1; l <= 5; l += 1) expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])[`--bake-cheese-lobe-${l}`])).toBe(0);
   });
 
-  it("M1: the lobe colour follows the bake (cream -> a little golden -> brown), never brighter than the A5 cream, and the alpha stays quiet", () => {
-    const key = "mozzarella:40.00:50.00";
-    const lobe = (heat: number) => rgb(cheeseMeltCssVars(cheeseMeltLook(heat), key)["--bake-cheese-lobe-1"]);
-    const melted = lobe(0.8); // melt 1, no toast yet: still the cream
-    const baked = lobe(1);
-    const deep = lobe(1.6);
-    const charred = lobe(2);
-    expect(melted).toEqual([241, 237, 224]);
-    // monotonically darker / warmer as the cheese bakes, ending brown (red > green > blue by a clear margin)
-    const sum = (c: number[]) => c[0] + c[1] + c[2];
-    expect(sum(baked)).toBeLessThan(sum(melted));
-    expect(sum(deep)).toBeLessThan(sum(baked));
-    expect(sum(charred)).toBeLessThan(sum(deep));
-    expect(charred[0]).toBeGreaterThan(charred[1] + 20);
-    expect(charred[1]).toBeGreaterThan(charred[2] + 20);
-    for (const heat of [0.8, 1, 1.6, 2]) {
-      const v = cheeseMeltCssVars(cheeseMeltLook(heat), key);
-      for (let l = 1; l <= 5; l += 1) expect(alpha(v[`--bake-cheese-lobe-${l}`]), `lobe ${l} @${heat}`).toBeLessThanOrEqual(0.22);
-    }
+  it("motion prototype: no blurred spread lobes or halo are drawn any more (transform-only choreography)", () => {
+    const v = cheeseMeltCssVars(cheeseMeltLook(1.2), "mozzarella:40.00:50.00");
+    expect(Object.keys(v).filter((k) => /lobe|halo|film|spread/.test(k))).toEqual([]);
   });
 
   it("charred spots are dark BROWN, not grey: red > green > blue by a clear margin, and darker than golden", () => {
