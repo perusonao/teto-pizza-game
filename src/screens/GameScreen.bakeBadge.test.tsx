@@ -7,6 +7,7 @@ import { gameReducer, type GameAction, type GameState } from "../state/gameReduc
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { emptySauceMetrics } from "../logic/sauceField";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
+import { buildIdealSauceFixture } from "../data/referencePizza";
 import { computeBakeHeat, doughVisualColors } from "../logic/bakeVisual";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { getRecipe } from "../data/recipes";
@@ -117,6 +118,45 @@ describe("the RESULT bake badge by round kind (#469)", () => {
     const texts = badges(state);
     expect(texts.length).toBeGreaterThan(0);
     for (const t of texts) expect(t).toContain(`焼き加減: ${label}`);
+  });
+});
+
+// Issue #481: JUST band on the BAKE gauge (guided only) and no 「完璧」 on a near-miss RESULT.
+function bakePhase(start: GameState, pizza: typeof MARGHERITA): GameState {
+  let s = gameReducer(start, { type: "CONFIRM_MAKING_STEP" });
+  if (pizza.sauce) {
+    s = gameReducer(s, { type: "COMMIT_SAUCE_DISPENSE", ingredientId: pizza.sauce, deposits: pizza.sauceDeposits ?? buildIdealSauceFixture() });
+  }
+  s = gameReducer(s, { type: "CONFIRM_MAKING_STEP" });
+  for (const p of pizza.cheese ?? []) s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: p.id, x: p.x, y: p.y });
+  s = gameReducer(s, { type: "CONFIRM_MAKING_STEP" });
+  for (const p of pizza.toppings ?? []) s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: p.id, x: p.x, y: p.y });
+  return gameReducer(s, { type: "START_BAKE", now: NOW + 60_000 });
+}
+
+describe("JUST band and near-miss dialogue through GameScreen (#481)", () => {
+  it("guided BAKE draws the band at centre +-3 (Margherita 60-80 -> 67 / 6)", () => {
+    const state = bakePhase(gameReducer(createGuidedInitialState("margherita"), { type: "BEGIN_PREPARE", now: NOW }), MARGHERITA);
+    expect(state.phase).toBe("BAKE");
+    render(<Screen state={state} dispatch={() => {}} />);
+    const band = document.querySelector<HTMLElement>(".bake-gauge__just")!;
+    expect(parseFloat(band.style.left)).toBe(67);
+    expect(parseFloat(band.style.width)).toBe(6);
+  });
+
+  it("FREE Cooking BAKE never draws the band", () => {
+    const state = bakePhase(gameReducer(freeRound(), { type: "START_FREE_COOK", now: NOW }), ORDINARY);
+    expect(state.phase).toBe("BAKE");
+    expect(state.freeCook).toBe(true);
+    render(<Screen state={state} dispatch={() => {}} />);
+    expect(document.querySelector(".bake-gauge")).not.toBeNull();
+    expect(document.querySelector(".bake-gauge__just")).toBeNull();
+  });
+
+  it.each([64, 76])("guided near-miss RESULT at %s never says 完璧", (bake) => {
+    const start = gameReducer(createGuidedInitialState("margherita"), { type: "BEGIN_PREPARE", now: NOW });
+    render(<Screen state={cook(start, MARGHERITA, bake)} dispatch={() => {}} />);
+    expect(document.body.textContent).not.toContain("完璧");
   });
 });
 

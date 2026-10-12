@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../data/recipes";
-import { BAKE_LEVEL5_LABEL, JUST_HALF_WIDTH_PT, classifyBake, classifyBake5 } from "./bake";
+import { BAKE_LEVEL5_LABEL, JUST_HALF_WIDTH_PT, classifyBake, classifyBake5, isNearMiss, justBand } from "./bake";
 
 const T = { start: 58, end: 78 }; // centre 68, the Issue #469 worked example
 
@@ -66,5 +66,29 @@ describe("classifyBake5 (Issue #469)", () => {
       expect(classifyBake5(t.start + 10, t)).toBe("just");
       expect(classifyBake5(t.start + 14, t)).toBe("overdone");
     }
+  });
+});
+
+describe("justBand (Issue #481): the meter band is exactly the judged JUST range", () => {
+  it("is centre +-3 for the worked example", () => {
+    expect(justBand(T)).toEqual({ start: 65, end: 71 });
+  });
+
+  it("matches classifyBake5 at and just outside both ends for every recipe", () => {
+    for (const r of RECIPES) {
+      const b = justBand(r.bakeTarget);
+      expect(classifyBake5(b.start, r.bakeTarget)).toBe("just");
+      expect(classifyBake5(b.end, r.bakeTarget)).toBe("just");
+      expect(classifyBake5(b.start - 0.01, r.bakeTarget)).toBe("underdone");
+      expect(classifyBake5(b.end + 0.01, r.bakeTarget)).toBe("overdone");
+      expect(b.end - b.start).toBe(2 * JUST_HALF_WIDTH_PT);
+    }
+  });
+
+  it("isNearMiss is true only for underdone / overdone", () => {
+    expect(["raw", "underdone", "just", "overdone", "burnt"].map((l) => isNearMiss(l as never))).toEqual([
+      false, true, false, true, false,
+    ]);
+    expect(isNearMiss(null)).toBe(false);
   });
 });

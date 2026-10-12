@@ -5,7 +5,7 @@ import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
-import { classifyBake5 } from "../logic/bake";
+import { classifyBake5, isNearMiss } from "../logic/bake";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
 import { prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
@@ -506,9 +506,15 @@ export function GameScreen({
         })()
       : null;
 
+  // #469 (Owner D2) / #481: the 5-level label is guided-only (FREE keeps the 3-level badge).
+  const resultBakeLevel5 =
+    !state.freeCook && state.pizza.bakeResult !== null
+      ? classifyBake5(state.pizza.bakeResult, state.recipe.bakeTarget)
+      : null;
+
   const resultHeadingJa =
     isFreeResultScreen && state.score && state.bakeState && state.completion?.status !== "FAILED"
-      ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
+      ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult, isNearMiss(resultBakeLevel5)).textJa
       : "";
 
   // Issue #159 P0 (bullet 5): computed once, independent of whether this recipe has a Scoring
@@ -1012,6 +1018,8 @@ export function GameScreen({
         <BakeOverlay
           targetStart={state.recipe.bakeTarget.start}
           targetEnd={state.recipe.bakeTarget.end}
+          // #481 (Owner): the JUST band is shown for guided-style rounds only; FREE Cooking has no 5-level result.
+          showJustBand={!state.freeCook}
           onConfirm={onConfirmBake}
           onTick={onBakeTick}
         />
@@ -1052,11 +1060,7 @@ export function GameScreen({
           // #469 (Owner D2): FREE Cooking keeps the 3-level badge. The BAKE gauge shows the generic FREE window, but a
           // matched pizza is judged (and `state.recipe` is replaced) with the matched recipe's own window, so a 5-level
           // label would disagree with the gauge the player aimed at. Guided / Lunch Rush / Dinner use the window shown.
-          bakeLevel5={
-            !state.freeCook && state.pizza.bakeResult !== null
-              ? classifyBake5(state.pizza.bakeResult, state.recipe.bakeTarget)
-              : null
-          }
+          bakeLevel5={resultBakeLevel5}
           sauceScore={
             state.scoringV2Result?.components.sauce.available
               ? state.scoringV2Result.components.sauce.score

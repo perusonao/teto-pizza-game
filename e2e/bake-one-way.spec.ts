@@ -139,6 +139,46 @@ test.describe("Issue #419 Bake Human Feel", () => {
     await page.clock.resume();
   });
 
+  test("Issue #481: the JUST band (window centre +-3pt) is drawn inside the zone layer, never overlaps the CTA, and is gone with the zone at 1.2s", async ({ page }) => {
+    await reachBake(page);
+    await flush(page);
+    const info = await page.evaluate(() => {
+      const band = document.querySelector<HTMLElement>(".bake-gauge__just");
+      const gauge = document.querySelector<HTMLElement>(".bake-gauge")!;
+      const button = document.querySelector<HTMLElement>(".cta-button--bake")!;
+      if (!band) return null;
+      const b = band.getBoundingClientRect();
+      const g = gauge.getBoundingClientRect();
+      const c = button.getBoundingClientRect();
+      return {
+        left: parseFloat(band.style.left),
+        width: parseFloat(band.style.width),
+        inZones: band.parentElement?.classList.contains("bake-gauge__zones") ?? false,
+        pxWidth: b.width,
+        gaugeWidth: g.width,
+        insideGauge: b.left >= g.left - 0.5 && b.right <= g.right + 0.5,
+        ctaBelow: c.top >= g.bottom,
+        ctaInViewport: c.bottom <= window.innerHeight,
+        docScrolls: document.documentElement.scrollWidth > window.innerWidth,
+      };
+    });
+    expect(info).not.toBeNull();
+    expect(info!.left).toBe(67); // Margherita window 60-80, centre 70
+    expect(info!.width).toBe(6);
+    expect(info!.inZones).toBe(true);
+    expect(info!.pxWidth).toBeGreaterThan(info!.gaugeWidth * 0.05);
+    expect(info!.pxWidth).toBeLessThan(info!.gaugeWidth * 0.07);
+    expect(info!.insideGauge).toBe(true);
+    expect(info!.ctaBelow).toBe(true);
+    expect(info!.ctaInViewport).toBe(true);
+    expect(info!.docScrolls).toBe(false);
+
+    await page.clock.runFor((BAKE_ZONE_FADE_END_S + 0.3) * 1000);
+    await flush(page);
+    expect(await page.locator(".bake-gauge__just").count()).toBe(0);
+    await page.clock.resume();
+  });
+
   test("needle colour, caption and CTA never change with the position (no answer is announced)", async ({ page }) => {
     await reachBake(page);
     const first = await snapshot(page);
