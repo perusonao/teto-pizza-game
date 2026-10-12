@@ -174,3 +174,71 @@ describe("FAILED Research reason line leaks nothing", () => {
     expect(research.completion).toEqual(plain.completion);
   });
 });
+
+/**
+ * Issue #482 (OD-B3, Contract 2.1 INV-D3 / INV-D6 / INV-B6): Free Cooking's Completion Gate window is now exactly the
+ * generic window (58-78). The pizzas that used to be ORIGINAL in the old 10-point margin band (48-57.99 / 78.01-88) are
+ * FAILED, and they must disclose, record and persist byte-identically to the same pizza baked inside the window.
+ */
+describe("the generic window edge never changes what is disclosed (#482 / OD-B3)", () => {
+  const pizza = () => mk("pesto", "fresh-tomato", "egg");
+  /** The save JSON without `discoveredTechniqueIds`: an in-window ORIGINAL may pay a Technique (the usage path), a
+   *  FAILED never does (OD-R3) -- a reward the FAILED pizza loses, not a disclosure; it has its own test below. */
+  const saved = (s: GameState) => {
+    const storage = fakeStorage();
+    persistProgress(s, storage);
+    const { discoveredTechniqueIds: _techniques, ...rest } = JSON.parse(storage.getItem(SAVE_STORAGE_KEY)!);
+    return rest;
+  };
+  const disclosed = (s: GameState) => ({
+    rows: s.lastResearchRows,
+    facts: s.discoveryHintFacts,
+    exclusions: s.researchExclusions,
+    notebook: notebookView(s.trialNotebook),
+    attempt: s.lastTrialAttempt,
+    inventory: s.inventory,
+    save: saved(s),
+  });
+  const reference = finish(start(single()), pizza(), OK);
+
+  it("inside the window (both edges) is a finished ORIGINAL pizza", () => {
+    for (const v of [58, 68, 78]) {
+      const r = finish(start(single()), pizza(), v);
+      expect(r.completion?.status, String(v)).toBe("PASS");
+      expect(disclosed(r), String(v)).toEqual(disclosed(reference));
+    }
+  });
+
+  it.each([48, 50, 55, 57.99, 78.01, 80, 85, 88])(
+    "bake %s (FAILED: the old margin band and just outside the window) discloses, records and saves exactly like the in-window pizza",
+    (v) => {
+      const r = finish(start(single()), pizza(), v);
+      expect(r.completion?.status).toBe("FAILED");
+      expect(disclosed(r)).toEqual(disclosed(reference));
+    },
+  );
+
+  it("the one difference is a reward, not a disclosure: the in-window ORIGINAL may pay a Technique the FAILED never does", () => {
+    const failed = finish(start(single()), pizza(), 55);
+    expect(failed.discoveredTechniqueIds).toEqual(start(single()).discoveredTechniqueIds);
+    expect(reference.discoveredTechniqueIds.length).toBeGreaterThanOrEqual(failed.discoveredTechniqueIds.length);
+  });
+
+  it("FAILED grants nothing the ORIGINAL did not show: no discovery, Technique, Dex entry, Pitz or star credit", () => {
+    const base = start(single());
+    for (const v of [55, 85]) {
+      const r = finish(base, pizza(), v);
+      expect(r.dex).toEqual(base.dex);
+      expect(r.discoveredTechniqueIds).toEqual(base.discoveredTechniqueIds);
+      expect(r.lastDiscovery).toBeNull();
+      expect(r.lastPitzCredit).toBeNull();
+      expect(r.pitzBalance).toBe(base.pitzBalance);
+    }
+  });
+
+  it("the failure line reads the same fixed sentence at the old margin band and far away (no new information in the reason)", () => {
+    const near = finish(start(single()), pizza(), 55).completion;
+    const far = finish(start(single()), pizza(), FAIL).completion;
+    expect(near?.status === "FAILED" && buildCompletionFailureMessage(near)).toBe(far?.status === "FAILED" && buildCompletionFailureMessage(far));
+  });
+});

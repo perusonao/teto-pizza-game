@@ -1,3 +1,4 @@
+import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import { EMPTY_DEX, getDexEntry, registerScoreToDex, type DexState } from "./dex";
@@ -231,7 +232,11 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
 
   it("12. every shipped recipe's reference pizza: Free Cooking discovers exactly that recipe and Dex/★/Pitz equal the legacy result", () => {
     for (const recipe of RECIPES) {
-      const bake = Math.round((recipe.bakeTarget.start + recipe.bakeTarget.end) / 2);
+      // Issue #482 (OD-B6 F1): Free Cooking judges by the generic window its gauge shows, so the bake is the middle
+      // of the part of the recipe's own window that the generic window covers (every recipe overlaps it).
+      const bake = Math.round(
+        (Math.max(recipe.bakeTarget.start, FREE_COOK_BAKE_TARGET.start) + Math.min(recipe.bakeTarget.end, FREE_COOK_BAKE_TARGET.end)) / 2,
+      );
       const result = freeCookToResult(idealPizzaFor(recipe.id, bake));
       expect(result.completion?.status, recipe.id).toBe("PASS");
       const after = register(result);

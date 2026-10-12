@@ -97,10 +97,10 @@ describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
     expect(after.pitzBalance).toBe(expected.earnedPitz + expected.discoveryBonusPitz);
   });
 
-  it("credits a mid-quality FREE pizza (a real Scoring 2.0 mid-range score, not a fabricated one)", () => {
-    // A baked-outside-target-but-not-extreme value still yields a real, non-zero, non-perfect
-    // Scoring 2.0 score -- exercising the mid multiplier band without hand-faking `score.total`.
-    const resultState = playFreeMargheritaToResult(85);
+  it("credits an off-centre FREE pizza from its real Scoring 2.0 score, not a fabricated one", () => {
+    // Issue #482: 生焼け / 焦げ is FAILED, so the off-centre bake is the generic window's far edge (78): still
+    // servable, and the real Scoring 2.0 total (margherita's own window is 60-80) drives the multiplier.
+    const resultState = playFreeMargheritaToResult(78);
     const totalBefore = resultState.score!.total;
     const after = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
     // OD-02: also margherita's first-ever discovery in this flow (fresh dex).

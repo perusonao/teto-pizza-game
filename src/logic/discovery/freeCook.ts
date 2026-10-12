@@ -14,7 +14,8 @@
  *    of each required ingredient -- Issue #215 OD-5: quantity is never recipe identity, so an
  *    under-ideal pizza is still a discovery and pays for it in Scoring 2.0's quantity factor --
  *    plus sauce amount and bake window), the same rule Phase 3-1's cross-recipe discovery
- *    applies. PASS -> MATCHED: the round is then
+ *    applies -- except the bake window, which stays the generic one the gauge showed (Issue #482 /
+ *    OD-B6 F1: the recipe's own window is a Scoring 2.0 matter in Free Cooking). PASS -> MATCHED: the round is then
  *    scored, registered and paid as that recipe by the unchanged REGISTER_TO_DEX path.
  *    FAILED -> INCOMPLETE_MATCH, shown as an original pizza with a near-miss note.
  *
@@ -75,6 +76,16 @@ export function evaluateFreeCookCompletion(
   };
 }
 
+/**
+ * Issue #482 (OD-B6 F1): Free Cooking judges "is it a dish" -- and the result badge -- by the one
+ * window its gauge shows (`FREE_COOK_BAKE_TARGET`), never by the matched recipe's own. The recipe's
+ * window only enters Scoring 2.0's Bake component. This returns the recipe with that window swapped
+ * in for the Completion Gate (ingredients and sauce checks are the recipe's own, unchanged).
+ */
+export function withFreeCookBakeWindow(recipe: Recipe): Recipe {
+  return { ...recipe, bakeTarget: FREE_COOK_BAKE_TARGET };
+}
+
 export function resolveFreeCookPizza(pizza: PizzaState, dex: DexState): FreeCookResolution {
   const completion = evaluateFreeCookCompletion(pizza);
   if (completion.status === "FAILED") return { kind: "FAILED", completion };
@@ -88,7 +99,7 @@ export function resolveFreeCookPizza(pizza: PizzaState, dex: DexState): FreeCook
     return { kind: "ORIGINAL", outcome };
   }
   const recipe = getRecipe(outcome.recipeId);
-  if (!recipe || evaluatePizzaCompletion(recipe, pizza, "recipe").status !== "PASS") {
+  if (!recipe || evaluatePizzaCompletion(withFreeCookBakeWindow(recipe), pizza, "recipe").status !== "PASS") {
     return {
       kind: "ORIGINAL",
       outcome: { kind: "INCOMPLETE_MATCH", recipeId: outcome.recipeId, targetId: outcome.targetId },
