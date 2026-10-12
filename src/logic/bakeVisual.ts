@@ -253,16 +253,17 @@ export function cheeseMeltJitter(key: string, count: number): number[] {
 }
 
 /**
- * #421 M1 (Owner decision after the A5 iPhone HV): the five spread lobes drew a milky-white cloud around every melted piece
- * (measured: with the lobes, 46% of the pixels just outside a baked piece are bright; without them 15%). M1 keeps the lobes (they
- * are what keeps the irregular, spread-out outline) but makes them a quiet edge: they are LOBE_ALPHA_SCALE of the A5 strength,
- * their blur / offsets are tightened in the stylesheet, there is no cream halo any more, and their colour follows the bake
- * (cream -> a little golden while toasting -> brown when charred) instead of staying cream while the rest darkens. Initial
- * trial values: they are tuned by measurement (docs/reports/TETO_APPETITE-APPEAL_421_M1_Result.md).
+ * #421 outline prototype (Fresh Audit plan A): M1 only made the blurred spread lobes quieter, and the Owner still could not tell a
+ * natural melt from a tidy oval. The silhouette itself is rebuilt here: six hard-ish, translucent copies of the body's own outline,
+ * each shifted in its own direction by its own distance and grown by its own spread, so the piece's outline is the union of
+ * several overlapping ellipses (an uneven puddle) and the thin film sits where only one or two copies reach.
  */
-export const LOBE_ALPHA_SCALE = 0.35;
-const LOBE_CREAM_A = [241, 237, 224] as const;
-const LOBE_CREAM_B = [237, 231, 214] as const;
+const FILM_COUNT = 6;
+const FILM_BLUR_PX = 0.8;
+/** Base film strength; overlapped copies add up near the body (thicker) and stay at this value at a lone tongue (thin film). */
+const FILM_ALPHA = 0.62;
+const LOBE_CREAM_A = [241, 235, 218] as const;
+const LOBE_CREAM_B = [238, 228, 204] as const;
 /** What a lobe's colour moves towards: a pale golden while the cheese toasts, a brown (like the blotches) once it chars. */
 const LOBE_TOASTED = [222, 190, 140] as const;
 const LOBE_CHARRED = [132, 96, 64] as const;
@@ -306,7 +307,7 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
   const body = clamp01(melt * 1.6);
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
   // 4 outline + 2 body-centre / bleed direction + 4 x 4 blotch values + 5 lobe strengths + spread + aspect
-  const j = seedKey === undefined ? new Array<number>(32).fill(0) : cheeseMeltJitter(seedKey, 32);
+  const j = seedKey === undefined ? new Array<number>(48).fill(0) : cheeseMeltJitter(seedKey, 48);
   const pct = (value: number) => `${clampRange(value, 24, 70).toFixed(1)}%`;
   const radius =
     `${pct(55 - 15 * melt + 13 * melt * j[0])} ${pct(45 + 15 * melt + 13 * melt * j[1])} ` +
@@ -330,13 +331,11 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     "--bake-cheese-body-0": rgba(240, 235, 223, body),
     "--bake-cheese-body-1": rgba(237, 231, 216, body),
     "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
-    "--bake-cheese-body-3": rgba(230, 220, 200, 0.7 * body),
+    "--bake-cheese-body-3": rgba(232, 222, 202, 0.94 * body),
     // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
     "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
     "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
-    "--bake-cheese-lobe-a": rgba(...lobeRgb(LOBE_CREAM_A, toast, char), 0.6 * LOBE_ALPHA_SCALE * melt),
-    "--bake-cheese-lobe-b": rgba(...lobeRgb(LOBE_CREAM_B, toast, char), 0.5 * LOBE_ALPHA_SCALE * melt),
     "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
     "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
     "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
@@ -350,14 +349,20 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
     vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
   });
-  // the five spread lobes are not equally strong, and the whole spread is a little wider or tighter per piece: a melt that
-  // runs further on one side. The factors keep every lobe inside A3's reach (offset x spread <= 1.1, strength <= 1).
-  for (let i = 0; i < 5; i += 1) {
-    const [lr, lg, lb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
-    const strength = (i % 2 === 0 ? 0.6 : 0.5) * LOBE_ALPHA_SCALE;
-    vars[`--bake-cheese-lobe-${i + 1}`] = rgba(lr, lg, lb, strength * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
+  // Film copies: direction spread around the piece (with a per-piece twist), distance / spread / strength each their own. All lengths are
+  // already multiplied by `melt`, so at melt 0 every copy has zero geometry and zero alpha (the raw look). The vertical reach is shorter
+  // because the piece is a flat oval (and the element is squashed vertically as it melts).
+  const twist = 0.9 * j[27];
+  for (let i = 0; i < FILM_COUNT; i += 1) {
+    const angle = twist + (i / FILM_COUNT) * 2 * Math.PI + 0.95 * j[22 + (i % 5)];
+    const reach = (i < 3 ? 5 : 1.8) * clampRange(1 + 0.4 * j[32 + i], 0.55, 1.45) * melt;
+    const grow = (0.4 + 0.5 * (0.5 + 0.5 * j[38 + i])) * melt;
+    const [fr, fg, fb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
+    const strength = FILM_ALPHA * clampRange(0.8 + 0.3 * j[38 + ((i + 3) % 6)], 0.55, 1.05);
+    vars[`--bake-cheese-film-${i + 1}-g`] =
+      `${(reach * Math.cos(angle)).toFixed(2)}px ${(reach * Math.sin(angle) * 0.8).toFixed(2)}px ${(FILM_BLUR_PX * melt).toFixed(2)}px ${grow.toFixed(2)}px`;
+    vars[`--bake-cheese-film-${i + 1}`] = rgba(fr, fg, fb, strength * melt);
   }
-  vars["--bake-cheese-spread"] = clampRange(0.88 + 0.22 * j[27], 0.6, 1.1).toFixed(3);
   // scaled by `melt`, so it is exactly 1 for the raw cheese (the width must not change when BAKE starts at melt 0)
   vars["--bake-cheese-aspect"] = clampRange(1 + 0.05 * melt * j[28], 0.95, 1.05).toFixed(3);
   return vars;
