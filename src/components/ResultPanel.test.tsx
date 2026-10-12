@@ -777,6 +777,28 @@ describe("ResultPanel bake badge 5-level (Issue #469)", () => {
     expect(container.querySelector(`.result-panel__bake-badge--${state}`)).not.toBeNull();
   });
 
+  it.each([
+    ["just", "⭐", "result-panel__bake-badge--just"],
+    ["underdone", "⬅️", "result-panel__bake-badge--near"],
+    ["overdone", "➡️", "result-panel__bake-badge--near"],
+  ] as const)("Issue #481: %s uses icon %s and class %s", (level, icon, cls) => {
+    const { container } = render(<ResultPanel {...baseProps()} bakeState="perfect" bakeLevel5={level} />);
+    const badge = container.querySelector(".result-panel__bake-badge")!;
+    expect(badge.textContent).toContain(icon);
+    expect(badge).toHaveClass(cls);
+    expect(badge.querySelector("[aria-hidden='true']")?.textContent).toBe(icon);
+  });
+
+  it("Issue #481: raw / burnt / 3-level badges keep their icon and get no gold or near class", () => {
+    for (const [state, level, icon] of [["raw", "raw", "\u{1F4A7}"], ["burnt", "burnt", "\u{1F525}"], ["perfect", null, "✅"]] as const) {
+      const { container, unmount } = render(<ResultPanel {...baseProps()} bakeState={state} bakeLevel5={level} />);
+      const badge = container.querySelector(".result-panel__bake-badge")!;
+      expect(badge.textContent).toContain(icon);
+      expect(badge.className).not.toMatch(/--(just|near)/);
+      unmount();
+    }
+  });
+
   it("falls back to the 3-level label without bakeLevel5", () => {
     const { container } = render(<ResultPanel {...baseProps()} />);
     expect(container.querySelector(".result-panel__bake-badge")).toHaveTextContent("焼き加減: いい焼き加減");

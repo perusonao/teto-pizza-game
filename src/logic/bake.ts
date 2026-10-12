@@ -40,6 +40,24 @@ export function classifyBake5(value: number, target: BakeTarget): BakeLevel5 {
   return "just";
 }
 
+/**
+ * Issue #481: the JUST interval `classifyBake5` uses, as gauge points -- the single source for the
+ * BAKE meter's JUST band, so the band can never drift from the judged range. Both ends are inclusive
+ * (`|v-c| <= JUST_HALF_WIDTH_PT`) and clamped to the window.
+ */
+export function justBand(target: BakeTarget): { start: number; end: number } {
+  const center = (target.start + target.end) / 2;
+  return {
+    start: Math.max(target.start, center - JUST_HALF_WIDTH_PT),
+    end: Math.min(target.end, center + JUST_HALF_WIDTH_PT),
+  };
+}
+
+/** Issue #481: the two "惜しい" levels (display + dialogue consistency only). */
+export function isNearMiss(level: BakeLevel5 | null | undefined): boolean {
+  return level === "underdone" || level === "overdone";
+}
+
 export const BAKE_LEVEL5_LABEL: Record<BakeLevel5, string> = {
   raw: "生焼け",
   underdone: "惜しい（焼き不足）",

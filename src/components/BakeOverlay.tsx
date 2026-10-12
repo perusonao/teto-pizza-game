@@ -6,11 +6,15 @@ import {
   clampBakeFrameDt,
   computeBakeZoneOpacity,
 } from "../logic/bakeProgress";
+import { justBand } from "../logic/bake";
 import tetoImg from "../assets/characters/teto.webp";
 
 interface BakeOverlayProps {
   targetStart: number;
   targetEnd: number;
+  /** Issue #481: draw the darker JUST band (window centre +-3pt). Guided / Lunch Rush / Dinner only;
+   *  FREE Cooking keeps the 3-level result, so it never shows the band. Default off. */
+  showJustBand?: boolean;
   onConfirm: (value: number) => void;
   onTick?: (value: number) => void;
 }
@@ -36,7 +40,7 @@ const CAPTION = "見た目で焼き加減を確かめて！";
  * input lock. CONFIRM_BAKE still receives the raw 0..100 position; scoring is untouched.
  */
 
-export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeOverlayProps) {
+export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onConfirm, onTick }: BakeOverlayProps) {
   const [elapsed, setElapsed] = useState(0);
   const elapsedRef = useRef(0);
   const positionRef = useRef(0);
@@ -99,6 +103,7 @@ export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeO
 
   const position = bakePositionAt(elapsed);
   const zoneOpacity = computeBakeZoneOpacity(elapsed);
+  const just = justBand({ start: targetStart, end: targetEnd });
 
   // W1 I5b-4b: 「取り出す！」 sits in the same in-flow bottom CTA bar as PREPARE's 「焼く！」 and
   // CUT's 「切り終わる」 (`.prepare-bake-bar`), not inside this in-flow overlay under the pizza --
@@ -122,6 +127,13 @@ export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeO
                 className="bake-gauge__target"
                 style={{ left: `${targetStart}%`, width: `${targetEnd - targetStart}%` }}
               />
+              {showJustBand && (
+                <div
+                  className="bake-gauge__just"
+                  data-testid="bake-just-band"
+                  style={{ left: `${just.start}%`, width: `${just.end - just.start}%` }}
+                />
+              )}
               <div
                 className="bake-gauge__zone bake-gauge__zone--burnt"
                 style={{ width: `${100 - targetEnd}%` }}

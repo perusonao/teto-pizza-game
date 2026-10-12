@@ -16,6 +16,13 @@ export interface DialogueLine {
  * different recipes/outcomes land on different variants so lines don't feel identical
  * across a run of several pizzas.
  */
+/** Issue #481: a near-miss ("惜しい") result must not say 「完璧」. Existing variants only -- no new
+ *  near-miss line set; if every variant is filtered the full list is kept. */
+function withoutPerfectWording<T extends (name: string) => string>(variants: readonly T[]): readonly T[] {
+  const kept = variants.filter((v) => !v("").includes("完璧"));
+  return kept.length > 0 ? kept : variants;
+}
+
 function pickVariant<T>(variants: readonly T[], seed: number): T {
   const index = ((seed % variants.length) + variants.length) % variants.length;
   return variants[index];
@@ -71,8 +78,10 @@ export function buildTetoResultLine(
   recipe: Recipe,
   bakeState: BakeState,
   bakeResult: number | null,
+  nearMiss = false,
 ): DialogueLine {
-  const variants = TETO_RESULT_VARIANTS[bakeState];
+  const all = TETO_RESULT_VARIANTS[bakeState];
+  const variants = nearMiss ? withoutPerfectWording(all) : all;
   const seed = getRecipeIndex(recipe.id) + Math.floor(bakeResult ?? 0);
   const template = pickVariant(variants, seed);
   return {
@@ -123,9 +132,11 @@ export function buildBlueResultLine(
   score: ScoreBreakdown,
   bakeState: BakeState | null,
   bakeResult: number | null,
+  nearMiss = false,
 ): DialogueLine {
   const band = classifyBlueBand(score, bakeState);
-  const variants = BLUE_RESULT_VARIANTS[band];
+  const all = BLUE_RESULT_VARIANTS[band];
+  const variants = nearMiss ? withoutPerfectWording(all) : all;
   const seed = getRecipeIndex(recipe.id) + Math.floor(bakeResult ?? 0);
   const template = pickVariant(variants, seed);
   return { speaker: "blue", id: `result.blue.${band}.${recipe.id}`, textJa: template(recipe.nameJa) };
