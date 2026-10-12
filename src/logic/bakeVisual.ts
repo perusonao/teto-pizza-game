@@ -262,7 +262,7 @@ export function cheeseMeltJitter(key: string, count: number): number[] {
  * #421 motion prototype: the shape change is carried by TIME, not by a blurred outline. Only transform scales / skew (cheap, no
  * extra blur or raster), so there are no spread lobes any more. The choreography is in `cheeseMeltCssVars`.
  */
-const SETTLED_SPREAD_X = 0.34;
+const SETTLED_SPREAD_X = 0.24;
 const SETTLED_SPREAD_Y = -0.155;
 const PUFF_X = -0.1;
 const PUFF_Y = 0.12;
@@ -270,6 +270,62 @@ const OVERSHOOT_X = 0.07;
 const OVERSHOOT_Y = -0.05;
 const SETTLED_SKEW_DEG = 10;
 const WOBBLE_SKEW_DEG = 4;
+
+/**
+ * #421 Proto4 (reference-photo observations: irregular white pools, thick creamy centres, thin translucent edges against the sauce, a
+ * few amber spots, near-touching neighbours). The shape comes from GRADIENTS only (no blur, no pseudo-element, no extra DOM): once the
+ * lump has melted, the element's box is enlarged by a transparent border (`--bake-cheese-pad`, with an equal negative margin so the
+ * layout never moves) and 2-3 feathered elliptical "lobes" are painted into that room, each in its own direction, reach and size, with
+ * a thick-to-thin alpha ramp. The union of the core and the lobes is the irregular puddle; the tips are thin film.
+ */
+const CORE_W = 28;
+const CORE_H = 23;
+const PAD_MAX = 11;
+/** melt level at which the pad (and so the lobes) starts, and at which the raw lump / ring / drop shadow are gone. */
+const LOBE_START = 0.5;
+/** conservative CSS px per % of dough (360 px-wide phones: 260.8 px interior); used only to keep neighbours from merging. */
+const DOUGH_PX_PER_PCT = 2.6;
+const SETTLED_SCALE_X = 1.16 * (1 + SETTLED_SPREAD_X);
+const SETTLED_SCALE_Y = 1.16 * (1 + SETTLED_SPREAD_Y);
+const MIN_NEIGHBOUR_GAP_PX = 3;
+
+/** Where the nearest other piece of the same cheese is, in the dough's own frame (angle: radians, y down; gapPx: centre distance in px). */
+export interface CheeseNeighbour {
+  angle: number;
+  distancePx: number;
+}
+
+/** The nearest other piece (by centre) among `others`, or null when there is none (or it is far away: no interaction beyond 70 px). */
+export function nearestCheeseNeighbour(self: { x: number; y: number }, others: ReadonlyArray<{ x: number; y: number }>): CheeseNeighbour | null {
+  let best: CheeseNeighbour | null = null;
+  for (const o of others) {
+    const dx = (o.x - self.x) * DOUGH_PX_PER_PCT;
+    const dy = (o.y - self.y) * DOUGH_PX_PER_PCT;
+    const d = Math.hypot(dx, dy);
+    if (d < 1e-6) continue;
+    if (best === null || d < best.distancePx) best = { angle: Math.atan2(dy, dx), distancePx: d };
+  }
+  return best !== null && best.distancePx <= 70 ? best : null;
+}
+
+function polarRadius(a: number, b: number, theta: number): number {
+  return (a * b) / Math.hypot(b * Math.cos(theta), a * Math.sin(theta));
+}
+
+/** Lobe film colours: creamy white, a little golden while toasting, brown when charred (the same drift as the browning blotches). */
+const LOBE_CREAM_A = [240, 233, 216] as const;
+const LOBE_CREAM_B = [236, 226, 204] as const;
+const LOBE_TOASTED = [222, 190, 140] as const;
+const LOBE_CHARRED = [132, 96, 64] as const;
+
+function lobeRgb(cream: readonly number[], toast: number, char: number): [number, number, number] {
+  const out: number[] = [0, 0, 0];
+  for (let i = 0; i < 3; i += 1) {
+    const toasted = cream[i] + (LOBE_TOASTED[i] - cream[i]) * 0.5 * toast;
+    out[i] = toasted + (LOBE_CHARRED[i] - toasted) * char;
+  }
+  return out as [number, number, number];
+}
 
 /** The four browning blotches: A3's centre / radii (the fallback the stylesheet carries) plus how far each may drift. */
 const SPOTS: ReadonlyArray<{ x: number; y: number; rx: number; ry: number }> = [
@@ -295,45 +351,56 @@ function clampRange(value: number, lo: number, hi: number): number {
  * strength) and where the body's feathered edge is thinnest vary a little per piece, all scaled by `melt` / `toast`, so
  * the raw cheese (melt 0, toast 0) is unaffected.
  */
-export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string, heat?: number): Record<string, string> {
+export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string, heat?: number, neighbour?: CheeseNeighbour | null): Record<string, string> {
   const { melt, char } = look;
   const toast = look.toast;
   // the pre-melt tightening needs the raw heat itself (melt is still 0 then); without it (undefined) there is no puff
   const puffNow = heat === undefined ? 0 : puffIntensity(heat);
   // the melted body is opaque by the time the raw lump is half gone (no see-through pink mid-melt)
-  const body = clamp01(melt * 1.6);
+  const body = clamp01(melt * 2);
+  // the pad (room for the lobes) grows over the second half of the melt, smoothly (no pop)
+  const t = clamp01((melt - LOBE_START) / (1 - LOBE_START));
+  const pad = PAD_MAX * t * t * (3 - 2 * t);
+  const fadeOut = clamp01(1 - melt / LOBE_START); // 1 raw -> 0 once the lump has melted (ring, drop shadow, raw lump)
   const spotRgb = SPOT_GOLDEN.map((g, i) => g + (SPOT_CHARRED[i] - g) * char);
   // 4 outline + 2 body-centre / bleed direction + 4 x 4 blotch values + 5 lobe strengths + spread + aspect
-  const j = seedKey === undefined ? new Array<number>(32).fill(0) : cheeseMeltJitter(seedKey, 32);
+  const j = seedKey === undefined ? new Array<number>(48).fill(0) : cheeseMeltJitter(seedKey, 48);
   const pct = (value: number) => `${clampRange(value, 24, 70).toFixed(1)}%`;
   const radius =
     `${pct(55 - 15 * melt + 13 * melt * j[0])} ${pct(45 + 15 * melt + 13 * melt * j[1])} ` +
     `${pct(48 + 10 * melt + 13 * melt * j[2])} ${pct(52 - 14 * melt + 13 * melt * j[3])} / ` +
     `${pct(55 + 7 * melt + 10 * melt * j[1])} ${pct(50 - 10 * melt + 10 * melt * j[2])} ` +
     `${pct(50 + 10 * melt + 10 * melt * j[3])} ${pct(45 - 7 * melt + 10 * melt * j[0])}`;
+  // body centre (px in the core box)
+  const bodyX = ((46 + 13 * j[4]) / 100) * CORE_W;
+  const bodyY = ((44 + 13 * j[5]) / 100) * CORE_H;
   const vars: Record<string, string> = {
     "--bake-melt": melt.toFixed(3),
-    "--bake-cheese-radius": radius,
-    // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly
-    "--bake-cheese-body-at": `${(46 + 13 * j[4]).toFixed(1)}% ${(44 + 13 * j[5]).toFixed(1)}%`,
+    // once the box is enlarged the outline is the gradients', so the box itself is a plain ellipse that clips nothing the lobes paint
+    "--bake-cheese-radius": pad > 0.001 ? "50%" : radius,
+    "--bake-cheese-pad": `${pad.toFixed(2)}px`,
+    // the feathered body edge is thinnest on the side the centre drifts away from, so the edge blends into the sauce unevenly.
+    // Explicit px (the same closest-side ellipse the stylesheet's fallback gives the core) in the possibly enlarged box.
+    "--bake-cheese-body-geo": `ellipse ${(pad > 0.001 ? CORE_W / 2 + 1.5 : Math.min(bodyX, CORE_W - bodyX)).toFixed(2)}px ${(pad > 0.001 ? CORE_H / 2 + 1.5 : Math.min(bodyY, CORE_H - bodyY)).toFixed(2)}px at ${(pad + bodyX).toFixed(2)}px ${(pad + bodyY).toFixed(2)}px`,
     // melted cheese lies flat in the sauce: the lump's drop shadow fades with melt
-    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 + 0.5 * puffNow * (1 - melt)) * (1 - 0.7 * melt)),
-    "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * (1 - melt)),
-    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 - 0.5 * melt),
+    // (the box-shadows are gone by the time the box is enlarged: they would otherwise outline the transparent pad; the shade gradient replaces them)
+    "--bake-cheese-drop": rgba(30, 16, 4, 0.3 * (1 + 0.5 * puffNow * (1 - melt)) * fadeOut),
+    "--bake-cheese-ring": rgba(255, 255, 255, 0.8 * fadeOut),
+    "--bake-cheese-inset": rgba(255, 255, 255, 0.55 * fadeOut),
     // The raw lump (same three colours as the stylesheet's raw gradient) cross-fades out while a softer, creamier body with a
     // feathered edge fades in, so the hard white disc outline goes away as `melt` rises. Both layers are plain rgba() here.
-    "--bake-cheese-raw-0": rgba(255, 253, 245, 1 - melt),
-    "--bake-cheese-raw-1": rgba(243, 234, 208, 1 - melt),
-    "--bake-cheese-raw-2": rgba(230, 216, 174, 1 - melt),
+    "--bake-cheese-raw-0": rgba(255, 253, 245, fadeOut),
+    "--bake-cheese-raw-1": rgba(243, 234, 208, fadeOut),
+    "--bake-cheese-raw-2": rgba(230, 216, 174, fadeOut),
     "--bake-cheese-body-0": rgba(240, 235, 223, body),
     "--bake-cheese-body-1": rgba(237, 231, 216, body),
-    "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
-    "--bake-cheese-body-3": rgba(230, 220, 200, 0.7 * body),
+    "--bake-cheese-body-2": rgba(234, 226, 208, 0.94 * body),
+    "--bake-cheese-body-3": rgba(230, 218, 196, 0.62 * body),
     // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
-    "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
+    "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * fadeOut * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
     "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
-    "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
+    "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt * fadeOut),
     "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
     "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
   };
@@ -341,11 +408,58 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string, heat?:
     const o = 6 + i * 4;
     const strength = clampRange(1 + 0.4 * j[o + 3], 0.45, 1.3);
     const size = 0.72 * clampRange(1 + 0.4 * j[o + 2], 0.6, 1.45);
-    vars[`--bake-cheese-sp${i + 1}-at`] = `${(spot.x + 12 * j[o]).toFixed(1)}% ${(spot.y + 10 * j[o + 1]).toFixed(1)}%`;
+    vars[`--bake-cheese-sp${i + 1}-at`] = `${(pad + ((spot.x + 12 * j[o]) / 100) * CORE_W).toFixed(2)}px ${(pad + ((spot.y + 10 * j[o + 1]) / 100) * CORE_H).toFixed(2)}px`;
     vars[`--bake-cheese-sp${i + 1}-r`] = `${(spot.rx * size).toFixed(2)}px ${(spot.ry * size).toFixed(2)}px`;
     vars[`--bake-cheese-spot-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.6 * toast * strength);
     vars[`--bake-cheese-spot-soft-${i + 1}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], 0.9 * toast * strength);
   });
+  // Lobes: 2-3 feathered elliptical pools in their own directions (one aims at the nearest neighbour, with its reach limited so the two
+  // pieces get close but keep a gap), thick toward the core and thin film at the tips; amber blush on the lobe edges; a faint underside shade.
+  const lobeCount = j[20] > -0.2 ? 3 : 2;
+  const lobeStrength = clamp01((melt - LOBE_START) / 0.3);
+  const spacing = ((2 * Math.PI) / lobeCount) * (1 + 0.2 * j[21]);
+  const base = Math.PI * (1 + j[22]);
+  const cx = pad + CORE_W / 2;
+  const cy = pad + CORE_H / 2;
+  const boxW = CORE_W + 2 * pad;
+  const boxH = CORE_H + 2 * pad;
+  for (let i = 0; i < 3; i += 1) {
+    const idx = i + 1;
+    const active = i < lobeCount;
+    const toward = i === 0 && neighbour != null;
+    const theta = toward ? neighbour.angle : base + i * spacing + 0.5 * j[23 + i];
+    const lobeRx = 7 + 2.8 * (0.5 + 0.5 * j[26 + i]);
+    const lobeRy = 5.2 + 2 * (0.5 + 0.5 * j[29 + i]);
+    const coreRad = polarRadius(CORE_W / 2, CORE_H / 2, theta);
+    const lobePolar = polarRadius(lobeRx, lobeRy, theta);
+    let reach = (i === 0 ? 6.4 : 4.6) * (0.55 + 0.45 * (0.5 + 0.5 * j[32 + i])) + 0.8;
+    if (toward) {
+      // screen-space room between the two cores at the settled size, shared by the two lobes facing each other
+      const scale = Math.hypot(Math.cos(theta) * SETTLED_SCALE_X, Math.sin(theta) * SETTLED_SCALE_Y);
+      const coreScreen = polarRadius((CORE_W / 2) * SETTLED_SCALE_X, (CORE_H / 2) * SETTLED_SCALE_Y, theta);
+      const room = neighbour.distancePx - 2 * coreScreen - MIN_NEIGHBOUR_GAP_PX;
+      reach = Math.min(reach, Math.max(0.6, room / 2 / scale));
+    }
+    // the tip reaches about `reach` px beyond the core's edge (the visible film ends near the lobe's own edge)
+    const dist = coreRad + reach - 1.0 * lobePolar;
+    const lx = clampRange(cx + dist * Math.cos(theta), lobeRx, Math.max(lobeRx, boxW - lobeRx));
+    const ly = clampRange(cy + dist * Math.sin(theta), lobeRy, Math.max(lobeRy, boxH - lobeRy));
+    const a0 = active ? 0.95 * lobeStrength * (0.8 + 0.2 * j[35 + i]) : 0;
+    const [lr, lg, lb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
+    vars[`--bake-cheese-lobe-${idx}-geo`] = `ellipse ${lobeRx.toFixed(2)}px ${lobeRy.toFixed(2)}px at ${lx.toFixed(2)}px ${ly.toFixed(2)}px`;
+    vars[`--bake-cheese-lobe-${idx}-0`] = rgba(lr, lg, lb, a0);
+    vars[`--bake-cheese-lobe-${idx}-1`] = rgba(lr, lg, lb, a0 * 0.78);
+    vars[`--bake-cheese-lobe-${idx}-2`] = rgba(lr, lg, lb, a0 * 0.36);
+    if (i < 2) {
+      // amber blush toward the lobe's tip (local browning where the film is thin)
+      const bx = clampRange(cx + (dist + 0.1 * lobePolar) * Math.cos(theta), 3, boxW - 3);
+      const by = clampRange(cy + (dist + 0.1 * lobePolar) * Math.sin(theta), 3, boxH - 3);
+      vars[`--bake-cheese-amber-${idx}-geo`] = `ellipse ${(2.8 + 1.2 * j[38 + i]).toFixed(2)}px ${(2 + 0.8 * j[40 + i]).toFixed(2)}px at ${bx.toFixed(2)}px ${by.toFixed(2)}px`;
+      vars[`--bake-cheese-amber-${idx}`] = rgba(spotRgb[0], spotRgb[1], spotRgb[2], (active ? 0.5 : 0) * toast * lobeStrength);
+    }
+  }
+  vars["--bake-cheese-shade-geo"] = `ellipse ${(CORE_W / 2 + 3).toFixed(1)}px ${(CORE_H / 2 + 2.5).toFixed(1)}px at ${cx.toFixed(2)}px ${(cy + 2.2).toFixed(2)}px`;
+  vars["--bake-cheese-shade"] = rgba(60, 30, 8, 0.16 * body * clamp01(melt - 0.2));
   // Motion: pieces lead / lag each other mid-melt (the stagger is zero at melt 0 and 1, so the raw and the finished look are unaffected),
   // the lump first tightens (puff: smaller and thicker), then spreads wide and flat with a small overshoot that settles, each piece
   // skewing its own way. `-sx/-sy/-skew` are the settled values, `-bx/-by/-wob` the transient part (CSS scales it by `--cheese-motion`,

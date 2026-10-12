@@ -21,6 +21,8 @@ import {
   cheeseMeltCssVars,
   cheeseMeltLook,
   cheeseMeltsShape,
+  nearestCheeseNeighbour,
+  type CheeseNeighbour,
   cheeseVisualFrame,
   computeBakeHeat,
   doughVisualColors,
@@ -959,9 +961,9 @@ export function PizzaStage({
   const cheeseMeltNow = bakeProgress === null ? null : cheeseMeltLook(bakeHeat);
   // `seedKey` (the piece's own ingredient + placement, the key `stablePieceRotation` hashes) makes each piece's outline and
   // browning a little different, the same on every render and in the BAKE / CUT / RESULT copies of that piece.
-  const cheesePieceStyle = (ingredient: Ingredient, seedKey: string): CSSProperties | undefined =>
+  const cheesePieceStyle = (ingredient: Ingredient, seedKey: string, neighbour?: CheeseNeighbour | null): CSSProperties | undefined =>
     cheeseMeltNow && cheeseMeltsShape(ingredient.id)
-      ? { ...cheeseStyle, ...(cheeseMeltCssVars(cheeseMeltNow, seedKey, bakeHeat) as CSSProperties) }
+      ? { ...cheeseStyle, ...(cheeseMeltCssVars(cheeseMeltNow, seedKey, bakeHeat, neighbour) as CSSProperties) }
       : cheeseStyle;
   // Gameplay UX PR-E (Finished Pizza Visual 2.0): a non-cheese topping's own dedicated,
   // continuous roast curve (../logic/bakeVisual.ts's own file comment on `toppingVisualFrame`
@@ -1192,7 +1194,15 @@ export function PizzaStage({
               ingredient={ingredient}
               style={
                 ingredient.category === "cheese"
-                  ? cheesePieceStyle(ingredient, `${t.ingredientId}:${t.x.toFixed(2)}:${t.y.toFixed(2)}`)
+                  ? cheesePieceStyle(
+                      ingredient,
+                      `${t.ingredientId}:${t.x.toFixed(2)}:${t.y.toFixed(2)}`,
+                      // Proto4: the nearest other piece of the same cheese decides where one lobe reaches (kept short of touching)
+                      nearestCheeseNeighbour(
+                        t,
+                        pizza.toppings.filter((o) => o.id !== t.id && o.ingredientId === t.ingredientId),
+                      ),
+                    )
                   : toppingPieceStyle(ingredient)
               }
             />

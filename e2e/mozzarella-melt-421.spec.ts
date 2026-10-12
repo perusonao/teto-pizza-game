@@ -109,7 +109,7 @@ async function allMozzarellaOutlines(page: Page) {
   return page.locator(".pizza-cheese--mozzarella").evaluateAll((els) =>
     els.map((el) => {
       const cs = getComputedStyle(el);
-      return { radius: `${cs.borderTopLeftRadius}|${cs.borderTopRightRadius}|${cs.borderBottomRightRadius}|${cs.borderBottomLeftRadius}`, bodyAt: (el as HTMLElement).style.getPropertyValue("--bake-cheese-body-at") };
+      return { radius: `${cs.borderTopLeftRadius}|${cs.borderTopRightRadius}|${cs.borderBottomRightRadius}|${cs.borderBottomLeftRadius}`, lobe: (el as HTMLElement).style.getPropertyValue("--bake-cheese-lobe-1-geo"), bodyAt: (el as HTMLElement).style.getPropertyValue("--bake-cheese-body-geo") };
     }),
   );
 }
@@ -166,9 +166,10 @@ async function darkestCheeseColor(page: Page, spots: "as-is" | "off" | "grey"): 
   }, spots);
   if (spots !== "as-is") expect(restore, "spot colour variables found on the mozzarella").toBeGreaterThan(0);
   await page.waitForTimeout(350); // the cheese's own 0.3 s background transition (real time, clock is faked)
+  const pad = Number.parseFloat(await cheese.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--bake-cheese-pad"))) || 0;
   const png = await cheese.screenshot();
   await page.evaluate(() => (window as unknown as { __restoreMelt: () => void }).__restoreMelt());
-  return page.evaluate(async (b64) => {
+  return page.evaluate(async ({ b64, pad: padPx }) => {
     const img = new Image();
     img.src = `data:image/png;base64,${b64}`;
     await img.decode();
@@ -185,7 +186,11 @@ async function darkestCheeseColor(page: Page, spots: "as-is" | "off" | "grey"): 
       // the rounded shape (M1 made those darker than the blotches, so "darkest 4% of the whole box" no longer meant "blotches").
       const cx = (i / 4) % img.width;
       const cy = Math.floor(i / 4 / img.width);
-      if (Math.hypot((cx + 0.5) / img.width - 0.5, (cy + 0.5) / img.height - 0.5) > 0.4) continue; // 0.4 = 80% of the half-width
+      // Proto4: the box is enlarged by `pad` px per side (a transparent border holding the lobes), so the core is the central 14/(14+pad) x 11.5/(11.5+pad)
+      // of the half-box; sample the inner 80% of that core ellipse (pad 0: the old 80% ellipse of the whole box).
+      const nx = (((cx + 0.5) / img.width - 0.5) * 2) / (14 / (14 + padPx));
+      const ny = (((cy + 0.5) / img.height - 0.5) * 2) / (11.5 / (11.5 + padPx));
+      if (Math.hypot(nx, ny) > 0.8) continue;
       px.push([data[i], data[i + 1], data[i + 2], 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]]);
     }
     px.sort((a, b) => a[3] - b[3]);
@@ -193,7 +198,7 @@ async function darkestCheeseColor(page: Page, spots: "as-is" | "off" | "grey"): 
     const dark = px.slice(0, n);
     const mean = (k: 0 | 1 | 2) => dark.reduce((sum, p) => sum + p[k], 0) / dark.length;
     return { r: mean(0), g: mean(1), b: mean(2) };
-  }, png.toString("base64"));
+  }, { b64: png.toString("base64"), pad });
 }
 
 const luma = (c: Rgb) => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
@@ -265,7 +270,8 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);
     // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.
     expect(outlines).toHaveLength(3);
-    expect(new Set(outlines.map((o) => o.radius)).size).toBe(3);
+    // Proto4: once melted the box is a plain ellipse, so the pieces' own outline is their lobes (and body centre)
+    expect(new Set(outlines.map((o) => o.lobe)).size).toBe(3);
     expect(new Set(outlines.map((o) => o.bodyAt)).size).toBe(3);
     // Not just a uniform scale: the matrix is anisotropic once melted.
     const m = /matrix\(([^,]+),[^,]+,[^,]+,([^,]+),/.exec(looks["3-baked"].transform);

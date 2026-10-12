@@ -365,9 +365,9 @@ describe("PizzaStage cheese melt variables (#421 Pilot)", () => {
   it("A4: three mozzarella pieces are not the same disc, and each piece keeps its own look from render to render", () => {
     const snapshot = () =>
       [...document.querySelectorAll<HTMLElement>(".pizza-cheese--mozzarella")].map((el) => ({
-        radius: el.style.getPropertyValue("--bake-cheese-radius"),
+        radius: el.style.getPropertyValue("--bake-cheese-lobe-1-geo"),
         spot: el.style.getPropertyValue("--bake-cheese-sp1-at"),
-        bodyAt: el.style.getPropertyValue("--bake-cheese-body-at"),
+        bodyAt: el.style.getPropertyValue("--bake-cheese-body-geo"),
       }));
     const first = renderStage(70, { pizza: pizzaThreeMozzarella() });
     const a = snapshot();

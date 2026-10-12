@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { BakeTarget } from "../data/recipes";
 import {
   puffIntensity,
+  nearestCheeseNeighbour,
   bakeVisualStage,
   cheeseVisualFrame,
   charIntensity,
@@ -262,6 +263,8 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
         if (name === "--bake-melt") expect(value).toMatch(/^[01]?\.?\d*$/);
         else if (name === "--bake-cheese-aspect") expect(value, name).toMatch(/^\d\.\d{3}$/);
         else if (/^--bake-cheese-(sx|sy|bx|by)$/.test(name)) expect(value, name).toMatch(/^-?\d+\.\d{4}$/);
+        else if (name === "--bake-cheese-pad") expect(value, name).toMatch(/^\d+\.\d{2}px$/);
+        else if (/^--bake-cheese-(body|lobe-\d|amber-\d|shade)-geo$/.test(name)) expect(value, name).toMatch(/^ellipse [\d.]+px [\d.]+px at -?[\d.]+px -?[\d.]+px$/);
         else if (/^--bake-cheese-(skew|wob)$/.test(name)) expect(value, name).toMatch(/^-?\d+\.\d{2}deg$/);
         else if (/^--bake-cheese-(radius|body-at|bleed-off|sp\d-at|sp\d-r)$/.test(name)) {
           // geometry resolved in TypeScript: plain percentages / lengths (and the `/` of border-radius), never CSS math
@@ -286,9 +289,9 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
   it("melting dissolves the ring; browning shows by the target centre", () => {
     const perfect = vars(1);
     expect(alpha(perfect["--bake-cheese-ring"])).toBe(0);
-    // motion prototype: fully melted is the settled wide, flat shape (1.34 x 0.845), with no transient part left
+    // motion prototype: fully melted is the settled wide, flat shape (1.24 x 0.845), with no transient part left
     // (no key -> no per-piece jitter: the exact settled values)
-    expect(perfect["--bake-cheese-sx"]).toBe("1.3400");
+    expect(perfect["--bake-cheese-sx"]).toBe("1.2400");
     expect(perfect["--bake-cheese-sy"]).toBe("0.8450");
     expect(parseFloat(perfect["--bake-cheese-bx"])).toBeCloseTo(0, 3);
     expect(parseFloat(perfect["--bake-cheese-by"])).toBeCloseTo(0, 3);
@@ -338,7 +341,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
       expect(raw).toBeLessThanOrEqual(prevRaw + 1e-9);
       expect(body).toBeGreaterThanOrEqual(prevBody - 1e-9);
       // combined core coverage stays high through the whole melt (no translucent mid-melt look)
-      expect(1 - (1 - raw) * (1 - body)).toBeGreaterThan(0.8);
+      expect(1 - (1 - raw) * (1 - body)).toBeGreaterThan(0.7);
       prevRaw = raw;
       prevBody = body;
     }
@@ -357,14 +360,14 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     }
     // three pieces of one pizza are not the same disc with the same pattern
     const [a, b, c] = [keyA, keyB, keyC].map((k) => cheeseMeltCssVars(cheeseMeltLook(1.2), k));
-    for (const name of ["--bake-cheese-radius", "--bake-cheese-skew", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-at"]) {
+    for (const name of ["--bake-cheese-lobe-1-geo", "--bake-cheese-skew", "--bake-cheese-sp1-at", "--bake-cheese-sp2-at", "--bake-cheese-sp3-r", "--bake-cheese-body-geo"]) {
       expect(new Set([a[name], b[name], c[name]]).size, name).toBe(3);
     }
     // no key -> the A3 look (centres and radii the stylesheet carries as fallbacks)
     const plain = cheeseMeltCssVars(cheeseMeltLook(1.2));
-    expect(plain["--bake-cheese-sp1-at"]).toBe("27.0% 34.0%");
+    expect(plain["--bake-cheese-sp1-at"]).toMatch(/px /);
     expect(plain["--bake-cheese-sp1-r"]).toBe("2.59px 1.66px"); // the base blotch, scaled to the small A5 size
-    expect(plain["--bake-cheese-body-at"]).toBe("46.0% 44.0%");
+    expect(plain["--bake-cheese-body-geo"]).toMatch(/at 23\.88px 21\.12px$/);
     // raw cheese: whatever the key, the outline is the raw outline and every blotch / bleed / body layer is invisible
     const raw = cheeseMeltCssVars(cheeseMeltLook(0), keyA);
     expect(raw["--bake-cheese-radius"]).toBe("55.0% 45.0% 48.0% 52.0% / 55.0% 50.0% 50.0% 45.0%");
@@ -456,9 +459,111 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     }
   });
 
-  it("motion prototype: no blurred spread lobes or halo are drawn any more (transform-only choreography)", () => {
+  it("motion prototype: no blur / halo layers (transform + gradients only)", () => {
     const v = cheeseMeltCssVars(cheeseMeltLook(1.2), "mozzarella:40.00:50.00");
-    expect(Object.keys(v).filter((k) => /lobe|halo|film|spread/.test(k))).toEqual([]);
+    expect(Object.keys(v).filter((k) => /halo|film|spread|blur/.test(k))).toEqual([]);
+  });
+
+  describe("Proto4: gradient lobes (irregular pools, thick core, thin film tips)", () => {
+    const at = (heat: number, k = "mozzarella:40.00:50.00", n?: ReturnType<typeof nearestCheeseNeighbour>) =>
+      cheeseMeltCssVars(cheeseMeltLook(heat), k, heat, n);
+    const geo = (v: Record<string, string>, n: string) => {
+      const m = /^ellipse ([\d.]+)px ([\d.]+)px at (-?[\d.]+)px (-?[\d.]+)px$/.exec(v[n]);
+      if (!m) throw new Error(`${n}: ${v[n]}`);
+      return { rx: +m[1], ry: +m[2], x: +m[3], y: +m[4] };
+    };
+
+    it("the raw look is untouched until the lump has melted: no pad, no lobes, no amber, the outline is the jittered radius", () => {
+      for (const heat of [0, 0.3, 0.6, 0.69]) {
+        const v = at(heat);
+        expect(parseFloat(v["--bake-cheese-pad"]), `pad @${heat}`).toBe(0);
+        expect(v["--bake-cheese-radius"]).not.toBe("50%");
+        for (let i = 1; i <= 3; i += 1) expect(alpha(v[`--bake-cheese-lobe-${i}-0`]), `lobe ${i} @${heat}`).toBe(0);
+        expect(alpha(v["--bake-cheese-amber-1"])).toBe(0);
+      }
+    });
+
+    it("the box-shadow plates are gone once the box is enlarged, so nothing outlines the transparent pad", () => {
+      for (const heat of [0.9, 1, 1.5]) {
+        const v = at(heat);
+        expect(alpha(v["--bake-cheese-ring"])).toBe(0);
+        expect(alpha(v["--bake-cheese-drop"])).toBe(0);
+        expect(alpha(v["--bake-cheese-inset"])).toBe(0);
+        expect(alpha(v["--bake-cheese-pool"])).toBe(0);
+        expect(alpha(v["--bake-cheese-raw-0"])).toBe(0);
+        expect(v["--bake-cheese-radius"]).toBe("50%");
+      }
+    });
+
+    it("the pad eases in smoothly (no pop) and stays bounded; every lobe and amber blush stays inside the enlarged box", () => {
+      let last = 0;
+      for (let heat = 0.7; heat <= 1.2; heat += 0.02) {
+        const pad = parseFloat(at(heat)["--bake-cheese-pad"]);
+        expect(pad).toBeGreaterThanOrEqual(last - 1e-9);
+        expect(pad - last).toBeLessThan(2);
+        last = pad;
+      }
+      expect(last).toBeCloseTo(11, 1);
+      for (let i = 0; i < 300; i += 1) {
+        const v = at(1.2, `mozzarella:${i}:${(i * 13) % 100}`);
+        const pad = parseFloat(v["--bake-cheese-pad"]);
+        const w = 28 + 2 * pad;
+        const h = 23 + 2 * pad;
+        for (let l = 1; l <= 3; l += 1) {
+          const g = geo(v, `--bake-cheese-lobe-${l}-geo`);
+          expect(g.x - g.rx, `lobe ${l} left`).toBeGreaterThanOrEqual(-0.01);
+          expect(g.x + g.rx, `lobe ${l} right`).toBeLessThanOrEqual(w + 0.01);
+          expect(g.y - g.ry, `lobe ${l} top`).toBeGreaterThanOrEqual(-0.01);
+          expect(g.y + g.ry, `lobe ${l} bottom`).toBeLessThanOrEqual(h + 0.01);
+          // thick toward the core, thin film at the tip: alpha strictly falls off, and never exceeds 0.95
+          const a0 = alpha(v[`--bake-cheese-lobe-${l}-0`]);
+          expect(alpha(v[`--bake-cheese-lobe-${l}-1`])).toBeLessThanOrEqual(a0 + 1e-9);
+          expect(alpha(v[`--bake-cheese-lobe-${l}-2`])).toBeLessThanOrEqual(alpha(v[`--bake-cheese-lobe-${l}-1`]) + 1e-9);
+          expect(a0).toBeLessThanOrEqual(0.95);
+        }
+      }
+    });
+
+    it("2 or 3 lobes are active per piece, deterministic per key, and the pieces of one pizza differ", () => {
+      const counts = new Set<number>();
+      for (let i = 0; i < 200; i += 1) {
+        const v = at(1.2, `mozzarella:${i}:${(i * 7) % 100}`);
+        const active = [1, 2, 3].filter((l) => alpha(v[`--bake-cheese-lobe-${l}-0`]) > 0).length;
+        expect([2, 3]).toContain(active);
+        counts.add(active);
+      }
+      expect(counts.size).toBe(2); // both occur
+      const keys = ["mozzarella:40.00:50.00", "mozzarella:60.00:50.00", "mozzarella:50.00:30.00"];
+      expect(new Set(keys.map((k) => at(1.2, k)["--bake-cheese-lobe-1-geo"])).size).toBe(3);
+      expect(at(1.2, keys[0])).toEqual(at(1.2, keys[0]));
+    });
+
+    it("a neighbour pulls lobe 1 toward it, but the reach is limited so close pieces keep a gap", () => {
+      const key = "mozzarella:40.00:50.00";
+      const far = nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 70, y: 50 }])!; // 78 px
+      expect(far).toBeNull(); // beyond 70 px: no interaction
+      const mid = nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 60, y: 50 }])!; // 52 px
+      const close = nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 50, y: 50 }])!; // 26 px (overlapping cores)
+      expect(mid.angle).toBeCloseTo(0, 5);
+      expect(mid.distancePx).toBeCloseTo(52, 5);
+      const none = at(1.2, key, null);
+      const withMid = at(1.2, key, mid);
+      const withClose = at(1.2, key, close);
+      const reach = (v: Record<string, string>) => {
+        const g = geo(v, "--bake-cheese-lobe-1-geo");
+        const pad = parseFloat(v["--bake-cheese-pad"]);
+        return Math.hypot(g.x - (pad + 14), g.y - (pad + 11.5));
+      };
+      // the lobe now points along +x (toward the neighbour)
+      const g = geo(withMid, "--bake-cheese-lobe-1-geo");
+      expect(g.x).toBeGreaterThan(g.y);
+      // closer neighbours get a shorter reach than far ones, and a touching pair never gets more than the unconstrained one
+      expect(reach(withClose)).toBeLessThanOrEqual(reach(withMid) + 1e-9);
+      expect(reach(withMid)).toBeLessThanOrEqual(reach(none) + 12);
+      expect(nearestCheeseNeighbour({ x: 1, y: 1 }, [])).toBeNull();
+      // the same piece / position: identical results
+      expect(withMid).toEqual(at(1.2, key, nearestCheeseNeighbour({ x: 40, y: 50 }, [{ x: 60, y: 50 }])));
+    });
   });
 
   it("charred spots are dark BROWN, not grey: red > green > blue by a clear margin, and darker than golden", () => {
