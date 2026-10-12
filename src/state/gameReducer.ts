@@ -50,8 +50,8 @@ import {
   resolveRoundTechniques,
   techniqueRoundEligibility,
 } from "../logic/techniques/runtime";
-import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
-import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
+import { FREE_COOK_BAKE_TARGET, FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
+import { resolveFreeCookPizza, withFreeCookBakeWindow } from "../logic/discovery/freeCook";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { addResearchExclusions, type ResearchExclusions } from "./researchExclusions";
 import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
@@ -1300,7 +1300,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         };
       }
       const recipe = freeCook ? freeCook.recipe : state.recipe;
-      const bakeState = classifyBake(action.value, recipe.bakeTarget);
+      // Issue #482 (OD-B6 F1): a MATCHED free-cook pizza is judged -- Completion Gate, badge, star cap --
+      // by the generic window its gauge showed; the matched recipe's own window is only Scoring 2.0's
+      // (`computeScoringV2` below reads it from `recipe`). Every other round uses its recipe's window.
+      const judgedBakeTarget = freeCook ? FREE_COOK_BAKE_TARGET : recipe.bakeTarget;
+      const bakeState = classifyBake(action.value, judgedBakeTarget);
       // A1 Authority Cutover: Scoring 2.0 (../logic/scoringV2/) is now authoritative for
       // `state.score` -- computed here, from this exact canonical `pizza`, the one and only
       // Scoring 2.0 call site, shared by FREE and Lunch Rush alike (both dispatch this same
@@ -1310,7 +1314,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // `scorePizza` formula (previously ../logic/scoring.ts) was retired in A3b -- Scoring 2.0
       // is the sole scoring authority now.
       const scoringV2Result = computeScoringV2(recipe, pizza);
-      const score = toLegacyScoreBreakdown(scoringV2Result, action.value, recipe.bakeTarget);
+      const score = toLegacyScoreBreakdown(scoringV2Result, action.value, judgedBakeTarget);
       // Completion Gate Phase 1 / Lunch Rush Completion Gate 1A: computed unconditionally
       // (FREE and Lunch Rush alike), from this exact canonical `pizza`, alongside Scoring 2.0
       // -- the two are independent (see ../logic/completionGate.ts's own file header).
@@ -1322,7 +1326,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // quantity ("order"); every other round completes with one piece of each required
       // ingredient ("recipe") and pays for any shortage in Scoring 2.0's quantity factor.
       const completion = evaluatePizzaCompletion(
-        recipe,
+        freeCook ? withFreeCookBakeWindow(recipe) : recipe,
         pizza,
         // Lunch Rush keeps its own flag exactly as before; Dinner (DM-2) reads the round kind.
         state.isMissionRound ? "order" : completionPolicyForRound(state),
@@ -1470,6 +1474,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             evaluatedDiscovery,
             guidedIdOnly ? null : state.recipe.id,
             state.pizza,
+            // Issue #482: judged by the window the player saw -- the selected recipe's (Free Cooking: the generic one).
+            state.freeCook ? FREE_COOK_BAKE_TARGET : state.recipe.bakeTarget,
           )
         : null;
       const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;

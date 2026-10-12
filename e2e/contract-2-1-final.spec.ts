@@ -349,7 +349,7 @@ test.describe("Contract 2.1 final (mobile)", () => {
     for (let i = 0; i < 2; i += 1) await tapDoughPercent(page, ...SPOTS[s++]);
     await pickChip(page, /チキン/);
     for (let i = 0; i < 3; i += 1) await tapDoughPercent(page, ...SPOTS[s++]);
-    await bakeToTarget(page, { start: 50, end: 70 }); // this recipe's own bake band
+    await bakeToTarget(page, FREE_BAKE); // Free Cooking judges by the generic window (#482), not this recipe's own 50-70
     await expect(page.locator(".result-panel--discovery")).toBeVisible();
     await expect(page.getByTestId("research-rows")).toHaveCount(0);
     await expect(result(page)).toHaveCount(0); // not the Research ORIGINAL card

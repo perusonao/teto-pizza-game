@@ -292,7 +292,9 @@ test.describe("Expansion Wave 2", () => {
     const veg: Cook = {
       sauce: /ジェノベーゼ|ペスト/,
       toppings: [[/ナス/, 2], [/ズッキーニ/, 2], [/パプリカ/, 2]],
-      bake: { start: 50, end: 70 },
+      // Free Cooking judges by the generic window its gauge shows (58-78), not a recipe's own 50-70: aiming at the centre of
+      // 50-70 (60) sits 2 points above the generic start, and a loaded WebKit runner's landing drift fell below it (#482).
+      bake: { start: 58, end: 78 },
     };
     await cookPrepared(page, veg);
     const result = page.locator(".result-panel--original");

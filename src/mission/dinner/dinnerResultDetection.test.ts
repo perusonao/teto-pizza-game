@@ -38,6 +38,7 @@ const T0 = 1_000_000;
 const DURATION = 600_000;
 const NOW = T0 + 10_000;
 const DM_A = getDinnerMission("dm-a")!;
+const DINNER_COMPLETION_POLICY_FOR_FIXTURES = completionPolicyForRound({ roundKind: "DINNER" });
 const DM_B = getDinnerMission("dm-b")!;
 const DM_A_IDS = ["margherita", "bismarck", "breakfast-pizza", "funghi"];
 const DM_B_IDS = ["margherita", "funghi", "melanzane-pizza", "parmigiana-pizza"];
@@ -56,10 +57,10 @@ function midBake(recipeId: string): number {
   return (start + end) / 2;
 }
 
-/** Inside the Completion Gate band but outside the perfect zone: ★ is capped at 4. */
+/** The first bake value inside the window (Issue #482: the Completion band is the window itself, so there is no
+ *  "acceptable but outside the perfect zone" band any more, and a 生焼け / 焦げ badge is always FAILED). */
 function edgeBake(recipeId: string): number {
-  const { start, end } = getRecipe(recipeId as RecipeId)!.bakeTarget;
-  return start - (end - start) * 0.25;
+  return getRecipe(recipeId as RecipeId)!.bakeTarget.start;
 }
 
 /** The Reference pizza of `recipeId` (piece counts overridable, extra pieces appended). */
@@ -89,6 +90,19 @@ function pizzaFor(
     toppings,
     bakeResult: options.bake === undefined ? midBake(recipeId) : options.bake,
   };
+}
+
+/** A servable pizza whose Scoring 2.0 is exactly ★4: the reference pizza with a thinner (but gate-passing) sauce. The
+ *  ★4 used to come from a bake just outside the perfect zone (the ★ cap); Issue #482 removed that band. */
+function fourStarPizza(recipeId: string): PizzaState {
+  const base = pizzaFor(recipeId);
+  const recipe = getRecipe(recipeId as RecipeId)!;
+  for (let n = base.sauceDeposits.length; n >= 5; n -= 1) {
+    const pizza = { ...base, sauceDeposits: base.sauceDeposits.slice(0, n) };
+    if (evaluatePizzaCompletion(recipe, pizza, DINNER_COMPLETION_POLICY_FOR_FIXTURES).status !== "PASS") break;
+    if (toLegacyScoreBreakdown(computeScoringV2(recipe, pizza), pizza.bakeResult, recipe.bakeTarget).stars === 4) return pizza;
+  }
+  throw new Error(`no ★4 fixture for ${recipeId}`);
 }
 
 /** A PLAYING run with `completed` already done. The run holds no stock: each attempt's stock is
@@ -193,11 +207,11 @@ describe("Stage A: bake window and CUT from the composition (§9 / §10)", () =>
       const plan = planDinnerBake(pizzaFor(id, { bake: null }));
       expect(plan.bakeWindow, id).toEqual({ source: "RECIPE", target: getRecipe(id as RecipeId)!.bakeTarget });
     }
-    // bismarck 55-75 (band 45-85): 86 passes the generic band (48-88) but is overbaked for bismarck.
-    const burnt = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck", { bake: 86 }))));
+    // bismarck 55-75: 76 is inside the generic window (58-78) but overbaked for bismarck.
+    const burnt = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck", { bake: 76 }))));
     expect(burnt.classification).toMatchObject({ category: "INVALID_PIZZA", completion: { reason: "OVERBAKED" } });
-    // margherita 60-80 (band 50-90): 89.5 fails the generic band but is inside margherita's.
-    const late = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("margherita", { bake: 89.5 }))));
+    // margherita 60-80: 79.5 fails the generic window (58-78) but is inside margherita's.
+    const late = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("margherita", { bake: 79.5 }))));
     expect(late.classification).toMatchObject({ category: "TARGET_PASS", recipeId: "margherita" });
   });
 
@@ -209,10 +223,10 @@ describe("Stage A: bake window and CUT from the composition (§9 / §10)", () =>
       postBakeSteps: [],
       cutRequired: false,
     });
-    const at86 = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 86 })));
-    expect(at86.classification).toEqual({ category: "ORIGINAL", reason: "NO_MATCH" });
-    const at89 = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 89.5 })));
-    expect(at89.classification).toMatchObject({ category: "INVALID_PIZZA", completion: { reason: "OVERBAKED" } });
+    const atEdge = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 78 })));
+    expect(atEdge.classification).toEqual({ category: "ORIGINAL", reason: "NO_MATCH" });
+    const past = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 78.5 })));
+    expect(past.classification).toMatchObject({ category: "INVALID_PIZZA", completion: { reason: "OVERBAKED" } });
   });
 
   it("16: a CUT recipe needs CUT before the result; the pending call resolves and consumes nothing", () => {
@@ -269,7 +283,7 @@ describe("Stage B: classification (§6)", () => {
   });
 
   it("2: ★ below S is QUALITY_FAIL and the target stays open", () => {
-    const pizza = pizzaFor("funghi", { bake: edgeBake("funghi") });
+    const pizza = fourStarPizza("funghi");
     expect(scoringStars("funghi", pizza)).toBe(4);
     const result = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizza, { minimumStars: 5 })));
     expect(result.classification).toEqual({
@@ -281,7 +295,7 @@ describe("Stage B: classification (§6)", () => {
   });
 
   it("3: ★ exactly S passes", () => {
-    const edge = pizzaFor("funghi", { bake: edgeBake("funghi") });
+    const edge = fourStarPizza("funghi");
     expect(resolved(resolveDinnerAttempt(input(runOf(DM_A), edge, { minimumStars: 4 }))).classification.category).toBe(
       "TARGET_PASS",
     );
@@ -294,10 +308,10 @@ describe("Stage B: classification (§6)", () => {
   it("34: pass <=> Scoring 2.0 ★ >= S, for S = 1..5 over several pizzas", () => {
     const pizzas = [
       pizzaFor("funghi"),
-      pizzaFor("funghi", { bake: edgeBake("funghi") }),
+      fourStarPizza("funghi"),
       { ...pizzaFor("funghi"), sauceDeposits: buildIdealSauceFixture().slice(0, 60) },
       {
-        ...pizzaFor("funghi", { bake: edgeBake("funghi") }),
+        ...fourStarPizza("funghi"),
         toppings: pizzaFor("funghi").toppings.map((t, i) => ({ ...t, x: 30 + i * 3, y: 30 + i * 3 })),
       },
     ];
@@ -475,7 +489,7 @@ describe("inventory: every attempt is consumed, none refunded (§13)", () => {
   const stock: InventoryState = { ...EXACT_A, garlic: 3, oregano: 2, ham: 2, pineapple: 3 };
   const cases: [string, PizzaState, DinnerRunState, number][] = [
     ["18 TARGET_PASS", pizzaFor("funghi"), runOf(DM_A), 3],
-    ["19 QUALITY_FAIL", pizzaFor("funghi", { bake: edgeBake("funghi") }), runOf(DM_A), 5],
+    ["19 QUALITY_FAIL", fourStarPizza("funghi"), runOf(DM_A), 5],
     ["20 DUPLICATE_TARGET", pizzaFor("funghi"), runOf(DM_A, ["funghi"]), 3],
     ["21 NON_TARGET", pizzaFor("marinara"), runOf(DM_A), 3],
     ["22 ORIGINAL", pizzaFor("funghi", { extra: { egg: 1 } }), runOf(DM_A), 3],
@@ -539,7 +553,7 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
   });
 
   it("27: a QUALITY_FAIL melanzane still eats its eggplant, and melanzane + parmigiana no longer fit", () => {
-    const pizza = pizzaFor("melanzane-pizza", { bake: edgeBake("melanzane-pizza") });
+    const pizza = fourStarPizza("melanzane-pizza");
     const result = resolved(resolveDinnerAttempt(input(runOf(DM_B), pizza, { preConsumptionInventory: EXACT_B, minimumStars: 5 })));
     expect(result.classification.category).toBe("QUALITY_FAIL");
     expect(result.postConsumptionInventory.eggplant).toBe(3);
@@ -565,7 +579,7 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
     const scenarios: [DinnerMissionDefinition, InventoryState, string[], PizzaState, QualityStars][] = [
       [DM_A, EXACT_A, [], pizzaFor("bismarck"), 3],
       [DM_A, { egg: 1, bacon: 3 }, ["margherita", "bismarck", "funghi"], pizzaFor("breakfast-pizza"), 3],
-      [DM_B, EXACT_B, [], pizzaFor("melanzane-pizza", { bake: edgeBake("melanzane-pizza") }), 5],
+      [DM_B, EXACT_B, [], fourStarPizza("melanzane-pizza"), 5],
       [DM_B, EXACT_B, [], pizzaFor("parmigiana-pizza"), 3],
     ];
     for (const [mission, stock, completed, pizza, minimumStars] of scenarios) {
@@ -698,8 +712,8 @@ describe("evaluateFreeCookCompletion's optional bake window (the one extension t
 
   it("a recipe window moves only the bake band; the empty-pizza rule is unchanged", () => {
     const bismarck = getRecipe("bismarck")!.bakeTarget;
-    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 86 }))).toEqual({ status: "PASS" });
-    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 86 }), bismarck)).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
+    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 76 }))).toEqual({ status: "PASS" });
+    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 76 }), bismarck)).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
     expect(evaluateFreeCookCompletion({ ...createEmptyPizza(), bakeResult: 65 }, bismarck)).toMatchObject({
       status: "FAILED",
       reason: "MISSING_REQUIRED_INGREDIENT",
@@ -734,7 +748,7 @@ describe("Issue #256: a CUT waived for a Completion-Gate bake failure (D-R / D-P
   it("D-R3: a waiver the classification does not confirm is rejected, fail closed", () => {
     const cases = [
       { bake: midBake("bismarck"), waiver: "UNDERBAKED" }, // in band: not INVALID
-      { bake: edgeBake("bismarck"), waiver: "OVERBAKED" }, // ★4 badge, still PASS
+      { bake: edgeBake("bismarck"), waiver: "OVERBAKED" }, // the window edge: in-window, still PASS
       { bake: 0, waiver: "OVERBAKED" }, // INVALID, but for the other reason
     ] as const;
     for (const { bake, waiver } of cases) {
