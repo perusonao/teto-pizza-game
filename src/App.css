@@ -810,15 +810,14 @@
     0 2px 3px var(--bake-cheese-drop, rgba(30, 16, 4, 0.3)),
     /* the crisp white ring dissolves as the cheese melts */
     0 0 0 1.5px var(--bake-cheese-ring, rgba(255, 255, 255, 0.8)),
-    0 0 calc(3px * var(--melt)) calc(2px * var(--melt)) var(--bake-cheese-halo, transparent),
     /* a faint sauce-coloured stain on one side of the edge (partial blend into the sauce) */
     var(--bake-cheese-bleed-off, 0 0) 4px 0.5px var(--bake-cheese-bleed, transparent),
-    /* irregular spread: lumpy cream lobes bleeding out in different directions */
-    calc(5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-1, var(--bake-cheese-lobe-a, transparent)),
-    calc(-4.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-2, var(--bake-cheese-lobe-b, transparent)),
-    calc(1.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2px * var(--melt)) calc(0.2px * var(--melt)) var(--bake-cheese-lobe-3, var(--bake-cheese-lobe-a, transparent)),
-    calc(-5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-1.5px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.5px * var(--melt)) 0 var(--bake-cheese-lobe-4, var(--bake-cheese-lobe-b, transparent)),
-    calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.5px * var(--melt)) 0 var(--bake-cheese-lobe-5, var(--bake-cheese-lobe-b, transparent)),
+    /* irregular spread (#421 M1): five quiet lobes, ~0.6 x the A5 offsets, 1px blur, ~0.35 x the A5 strength, colour follows the bake */
+    calc(3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.8px * var(--melt)) var(--bake-cheese-lobe-1, var(--bake-cheese-lobe-a, transparent)),
+    calc(-2.7px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1.8px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.6px * var(--melt)) var(--bake-cheese-lobe-2, var(--bake-cheese-lobe-b, transparent)),
+    calc(0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-2.4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) calc(0.2px * var(--melt)) var(--bake-cheese-lobe-3, var(--bake-cheese-lobe-a, transparent)),
+    calc(-3px * var(--melt) * var(--bake-cheese-spread, 1)) calc(-0.9px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) 0 var(--bake-cheese-lobe-4, var(--bake-cheese-lobe-b, transparent)),
+    calc(1.8px * var(--melt) * var(--bake-cheese-spread, 1)) calc(2.4px * var(--melt) * var(--bake-cheese-spread, 1)) calc(1px * var(--melt)) 0 var(--bake-cheese-lobe-5, var(--bake-cheese-lobe-b, transparent)),
     /* the melted pool sits on the pizza */
     0 calc(2.5px * var(--melt)) calc(4px * var(--melt)) calc(1px * var(--melt)) var(--bake-cheese-pool, transparent),
     inset 0 -3px 4px var(--bake-cheese-inset, rgba(255, 255, 255, 0.55));

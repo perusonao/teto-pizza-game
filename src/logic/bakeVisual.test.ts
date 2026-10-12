@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BakeTarget } from "../data/recipes";
 import {
+  LOBE_ALPHA_SCALE,
   bakeVisualStage,
   cheeseVisualFrame,
   charIntensity,
@@ -279,28 +280,31 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
   it("melting dissolves the ring and brings the lobes in; browning shows by the target centre", () => {
     const perfect = vars(1);
     expect(alpha(perfect["--bake-cheese-ring"])).toBe(0);
-    expect(alpha(perfect["--bake-cheese-lobe-a"])).toBeGreaterThan(0.5);
+    // M1: the lobes are a quiet edge (LOBE_ALPHA_SCALE of the A5 strength 0.6), not the A5 cloud
+    expect(alpha(perfect["--bake-cheese-lobe-a"])).toBeCloseTo(0.6 * LOBE_ALPHA_SCALE, 2);
+    expect(alpha(perfect["--bake-cheese-lobe-a"])).toBeGreaterThan(0.1);
     expect(alpha(perfect["--bake-cheese-spot"])).toBeGreaterThan(0.4); // visible golden blotches at the properly baked point
   });
 
-  it("raw heat draws the original raw gradient colours at full alpha and none of the melted body / halo", () => {
+  it("raw heat draws the original raw gradient colours at full alpha and none of the melted body", () => {
     const v = vars(0);
     expect(rgb(v["--bake-cheese-raw-0"])).toEqual([255, 253, 245]); // #fffdf5
     expect(rgb(v["--bake-cheese-raw-1"])).toEqual([243, 234, 208]); // #f3ead0
     expect(rgb(v["--bake-cheese-raw-2"])).toEqual([230, 216, 174]); // #e6d8ae
     for (const k of ["raw-0", "raw-1", "raw-2"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(1);
-    for (const k of ["body-0", "body-1", "body-2", "body-3", "halo"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(0);
+    for (const k of ["body-0", "body-1", "body-2", "body-3"]) expect(alpha(v[`--bake-cheese-${k}`]), k).toBe(0);
+    expect(v["--bake-cheese-halo"], "M1 removed the halo variable").toBeUndefined();
   });
 
-  it("melted cheese: the white lump is gone, the body is cream (not white) with a feathered edge and a cream halo", () => {
+  it("melted cheese: the white lump is gone, the body is cream (not white) with a feathered edge (and no halo, M1)", () => {
     const melted = vars(1);
     for (const k of ["raw-0", "raw-1", "raw-2"]) expect(alpha(melted[`--bake-cheese-${k}`]), k).toBe(0);
     expect(alpha(melted["--bake-cheese-body-0"])).toBe(1);
     expect(alpha(melted["--bake-cheese-body-1"])).toBe(1);
-    // feathered: the outermost stop is clearly more transparent than the core, and a halo carries on outside the box
+    // feathered: the outermost stop is clearly more transparent than the core (M1: no halo carries on outside the box)
     expect(alpha(melted["--bake-cheese-body-3"])).toBeLessThan(alpha(melted["--bake-cheese-body-0"]));
     expect(alpha(melted["--bake-cheese-body-3"])).toBeGreaterThan(0.3);
-    expect(alpha(melted["--bake-cheese-halo"])).toBeGreaterThanOrEqual(0.5);
+    expect(melted["--bake-cheese-halo"]).toBeUndefined();
     // A5: milky ivory, neither the raw lump's blown-out #fffdf5 nor yellow: a small warm cast (red - blue 8..30), clearly
     // darker than the raw core, and the outer stops are no more yellow than the core (no yolk-like warm centre)
     const core = rgb(melted["--bake-cheese-body-0"]);
@@ -356,7 +360,7 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     const raw = cheeseMeltCssVars(cheeseMeltLook(0), keyA);
     expect(raw["--bake-cheese-radius"]).toBe("55.0% 45.0% 48.0% 52.0% / 55.0% 50.0% 50.0% 45.0%");
     expect(raw["--bake-cheese-bleed-off"]).toBe("0.00px 0.00px");
-    for (const k of ["spot-1", "spot-2", "spot-3", "spot-4", "spot-soft-1", "spot-soft-4", "bleed", "body-0", "halo"]) {
+    for (const k of ["spot-1", "spot-2", "spot-3", "spot-4", "spot-soft-1", "spot-soft-4", "bleed", "body-0"]) {
       expect(alpha(raw[`--bake-cheese-${k}`]), k).toBe(0);
     }
   });
@@ -393,13 +397,13 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     expect(new Set(vs.map((v) => v["--bake-cheese-aspect"])).size).toBe(3);
     for (let i = 0; i < 200; i += 1) {
       const v = cheeseMeltCssVars(cheeseMeltLook(2), `mozzarella:${i}:${(i * 13) % 100}`);
-      // reach: lobe offsets are scaled by `spread` (<= 1.1) and strength never exceeds the base (0.6 / 0.5)
+      // reach: lobe offsets are scaled by `spread` (<= 1.1) and strength never exceeds the M1 base (0.6 / 0.5, times LOBE_ALPHA_SCALE)
       expect(parseFloat(v["--bake-cheese-spread"])).toBeLessThanOrEqual(1.1);
       expect(parseFloat(v["--bake-cheese-spread"])).toBeGreaterThanOrEqual(0.6);
       // a modest aspect change only (no giant or squashed piece)
       expect(parseFloat(v["--bake-cheese-aspect"])).toBeGreaterThanOrEqual(0.95);
       expect(parseFloat(v["--bake-cheese-aspect"])).toBeLessThanOrEqual(1.05);
-      for (let l = 1; l <= 5; l += 1) expect(alpha(v[`--bake-cheese-lobe-${l}`])).toBeLessThanOrEqual(0.6);
+      for (let l = 1; l <= 5; l += 1) expect(alpha(v[`--bake-cheese-lobe-${l}`])).toBeLessThanOrEqual(0.6 * LOBE_ALPHA_SCALE + 0.001);
     }
     // raw keeps the original drop shadow (0.3); fully melted lies flat (<= 0.1)
     expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])["--bake-cheese-drop"])).toBeCloseTo(0.3, 3);
@@ -416,6 +420,27 @@ describe("cheeseMeltCssVars / opt-in (#421 Pilot)", () => {
     expect(dev(1)).toBeGreaterThan(0.03);
     // raw: every lobe invisible
     for (let l = 1; l <= 5; l += 1) expect(alpha(cheeseMeltCssVars(cheeseMeltLook(0), keys[0])[`--bake-cheese-lobe-${l}`])).toBe(0);
+  });
+
+  it("M1: the lobe colour follows the bake (cream -> a little golden -> brown), never brighter than the A5 cream, and the alpha stays quiet", () => {
+    const key = "mozzarella:40.00:50.00";
+    const lobe = (heat: number) => rgb(cheeseMeltCssVars(cheeseMeltLook(heat), key)["--bake-cheese-lobe-1"]);
+    const melted = lobe(0.8); // melt 1, no toast yet: still the cream
+    const baked = lobe(1);
+    const deep = lobe(1.6);
+    const charred = lobe(2);
+    expect(melted).toEqual([241, 237, 224]);
+    // monotonically darker / warmer as the cheese bakes, ending brown (red > green > blue by a clear margin)
+    const sum = (c: number[]) => c[0] + c[1] + c[2];
+    expect(sum(baked)).toBeLessThan(sum(melted));
+    expect(sum(deep)).toBeLessThan(sum(baked));
+    expect(sum(charred)).toBeLessThan(sum(deep));
+    expect(charred[0]).toBeGreaterThan(charred[1] + 20);
+    expect(charred[1]).toBeGreaterThan(charred[2] + 20);
+    for (const heat of [0.8, 1, 1.6, 2]) {
+      const v = cheeseMeltCssVars(cheeseMeltLook(heat), key);
+      for (let l = 1; l <= 5; l += 1) expect(alpha(v[`--bake-cheese-lobe-${l}`]), `lobe ${l} @${heat}`).toBeLessThanOrEqual(0.22);
+    }
   });
 
   it("charred spots are dark BROWN, not grey: red > green > blue by a clear margin, and darker than golden", () => {

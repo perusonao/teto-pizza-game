@@ -252,6 +252,30 @@ export function cheeseMeltJitter(key: string, count: number): number[] {
   return out;
 }
 
+/**
+ * #421 M1 (Owner decision after the A5 iPhone HV): the five spread lobes drew a milky-white cloud around every melted piece
+ * (measured: with the lobes, 46% of the pixels just outside a baked piece are bright; without them 15%). M1 keeps the lobes (they
+ * are what keeps the irregular, spread-out outline) but makes them a quiet edge: they are LOBE_ALPHA_SCALE of the A5 strength,
+ * their blur / offsets are tightened in the stylesheet, there is no cream halo any more, and their colour follows the bake
+ * (cream -> a little golden while toasting -> brown when charred) instead of staying cream while the rest darkens. Initial
+ * trial values: they are tuned by measurement (docs/reports/TETO_APPETITE-APPEAL_421_M1_Result.md).
+ */
+export const LOBE_ALPHA_SCALE = 0.35;
+const LOBE_CREAM_A = [241, 237, 224] as const;
+const LOBE_CREAM_B = [237, 231, 214] as const;
+/** What a lobe's colour moves towards: a pale golden while the cheese toasts, a brown (like the blotches) once it chars. */
+const LOBE_TOASTED = [222, 190, 140] as const;
+const LOBE_CHARRED = [132, 96, 64] as const;
+
+function lobeRgb(cream: readonly number[], toast: number, char: number): [number, number, number] {
+  const out: number[] = [0, 0, 0];
+  for (let i = 0; i < 3; i += 1) {
+    const toasted = cream[i] + (LOBE_TOASTED[i] - cream[i]) * 0.5 * toast;
+    out[i] = toasted + (LOBE_CHARRED[i] - toasted) * char;
+  }
+  return out as [number, number, number];
+}
+
 /** The four browning blotches: A3's centre / radii (the fallback the stylesheet carries) plus how far each may drift. */
 const SPOTS: ReadonlyArray<{ x: number; y: number; rx: number; ry: number }> = [
   { x: 27, y: 34, rx: 3.6, ry: 2.3 },
@@ -307,14 +331,12 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
     "--bake-cheese-body-1": rgba(237, 231, 216, body),
     "--bake-cheese-body-2": rgba(234, 226, 208, 0.96 * body),
     "--bake-cheese-body-3": rgba(230, 220, 200, 0.7 * body),
-    // cream halo right outside the feathered edge, so the sauce never shows through as a ring between body and spread
-    "--bake-cheese-halo": rgba(232, 224, 204, 0.5 * melt),
     // a faint tomato-orange stain just outside one side of the edge: the cheese bleeds into the sauce there, not everywhere
     "--bake-cheese-bleed": rgba(218, 104, 66, 0.12 * melt),
     "--bake-cheese-bleed-off": `${(3 * j[4] * melt).toFixed(2)}px ${(2.4 * j[5] * melt).toFixed(2)}px`,
     "--bake-cheese-gloss": rgba(255, 253, 247, 0.22 * melt),
-    "--bake-cheese-lobe-a": rgba(241, 237, 224, 0.6 * melt),
-    "--bake-cheese-lobe-b": rgba(237, 231, 214, 0.5 * melt),
+    "--bake-cheese-lobe-a": rgba(...lobeRgb(LOBE_CREAM_A, toast, char), 0.6 * LOBE_ALPHA_SCALE * melt),
+    "--bake-cheese-lobe-b": rgba(...lobeRgb(LOBE_CREAM_B, toast, char), 0.5 * LOBE_ALPHA_SCALE * melt),
     "--bake-cheese-pool": rgba(60, 30, 8, 0.12 * melt),
     "--bake-cheese-spot": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 2 * toast),
     "--bake-cheese-spot-soft": rgba(spotRgb[0], spotRgb[1], spotRgb[2], 1.1 * toast),
@@ -331,8 +353,9 @@ export function cheeseMeltCssVars(look: CheeseMeltLook, seedKey?: string): Recor
   // the five spread lobes are not equally strong, and the whole spread is a little wider or tighter per piece: a melt that
   // runs further on one side. The factors keep every lobe inside A3's reach (offset x spread <= 1.1, strength <= 1).
   for (let i = 0; i < 5; i += 1) {
-    const base = i % 2 === 0 ? [241, 237, 224, 0.6] : [237, 231, 214, 0.5];
-    vars[`--bake-cheese-lobe-${i + 1}`] = rgba(base[0], base[1], base[2], base[3] * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
+    const [lr, lg, lb] = lobeRgb(i % 2 === 0 ? LOBE_CREAM_A : LOBE_CREAM_B, toast, char);
+    const strength = (i % 2 === 0 ? 0.6 : 0.5) * LOBE_ALPHA_SCALE;
+    vars[`--bake-cheese-lobe-${i + 1}`] = rgba(lr, lg, lb, strength * melt * clampRange(0.72 + 0.28 * j[22 + i], 0.4, 1));
   }
   vars["--bake-cheese-spread"] = clampRange(0.88 + 0.22 * j[27], 0.6, 1.1).toFixed(3);
   // scaled by `melt`, so it is exactly 1 for the raw cheese (the width must not change when BAKE starts at melt 0)

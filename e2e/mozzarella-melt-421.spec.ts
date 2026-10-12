@@ -181,6 +181,11 @@ async function darkestCheeseColor(page: Page, spots: "as-is" | "off" | "grey"): 
     const px: Array<[number, number, number, number]> = [];
     for (let i = 0; i < data.length; i += 4) {
       if (data[i + 3] < 200) continue; // transparent corners of the rounded box
+      // Only the cheese's own face: the inner 80% ellipse of the box. The corners of the box hold the sauce / the outer lobes behind
+      // the rounded shape (M1 made those darker than the blotches, so "darkest 4% of the whole box" no longer meant "blotches").
+      const cx = (i / 4) % img.width;
+      const cy = Math.floor(i / 4 / img.width);
+      if (Math.hypot((cx + 0.5) / img.width - 0.5, (cy + 0.5) / img.height - 0.5) > 0.4) continue; // 0.4 = 80% of the half-width
       px.push([data[i], data[i + 1], data[i + 2], 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]]);
     }
     px.sort((a, b) => a[3] - b[3]);
@@ -235,14 +240,15 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     const greySpots = await darkestCheeseColor(page, "grey");
     const seen = JSON.stringify({ withSpots, withoutSpots, greySpots, warmth: [warmth(withSpots), warmth(greySpots)] });
     expect(isBrownBlotch(withSpots), seen).toBe(true);
-    // The only difference between the two captures is the blotch colours, so any real darkening means they paint. The size of the
-    // darkening depends on the engine's compositing (measured: Chromium 12.4-13.0, WebKit 10.8 in CI), hence a floor well under both.
-    expect(luma(withoutSpots) - luma(withSpots), seen).toBeGreaterThanOrEqual(6);
+    // The only difference between the two captures is the blotch colours, so any real darkening means they paint. Sampled on the cheese's
+    // own face (M1: inner 80% ellipse), Chromium measures ~56 here (it was 12-13 on the whole box, WebKit 10.8, before the face mask), so a
+    // floor of 20 is well under it and still far above "no blotches" (~0).
+    expect(luma(withoutSpots) - luma(withSpots), seen).toBeGreaterThanOrEqual(20);
     // The overbaked cheese filter warms everything, so even grey blotches come out brownish in absolute terms; what tells brown
-    // from grey is how much of the red-over-blue warmth survives at the same darkness (measured: brown ~0.66, grey ~0.44).
-    expect(warmth(withSpots) - warmth(greySpots), seen).toBeGreaterThanOrEqual(0.12);
-    expect(warmth(withSpots), seen).toBeGreaterThanOrEqual(0.55);
-    expect(warmth(greySpots), seen).toBeLessThan(0.52);
+    // from grey is how much of the red-over-blue warmth survives at the same darkness (measured on the cheese's face, M1: brown ~0.58, grey ~0.12).
+    expect(warmth(withSpots) - warmth(greySpots), seen).toBeGreaterThanOrEqual(0.2);
+    expect(warmth(withSpots), seen).toBeGreaterThanOrEqual(0.45);
+    expect(warmth(greySpots), seen).toBeLessThan(0.3);
     if (SHOTS_DIR) writeFileSync(`${SHOTS_DIR}/needle-positions-${page.viewportSize()!.width}.json`, JSON.stringify(positions, null, 2));
     // Raw cheese is the unchanged raw look: melt variable at 0 and the original outline.
     expect(Number(looks["1-raw"].melt)).toBeLessThan(0.05);
@@ -251,6 +257,14 @@ test.describe("Mozzarella melt Pilot (#421)", () => {
     expect(looks["3-baked"].radius).not.toBe(looks["1-raw"].radius);
     expect(looks["3-baked"].boxShadow).not.toBe(looks["1-raw"].boxShadow);
     expect(looks["3-baked"].transform).not.toBe(looks["1-raw"].transform);
+    // M1: the spread lobes are a quiet 1px-blur edge and there is no cream halo layer (computed style, so engine-independent):
+    // drop, ring, bleed, 5 lobes, pool, inset = 10 layers, every lobe blurred <= 1px.
+    const layers = looks["3-baked"].boxShadow.replace(/rgba?\([^)]*\)/g, "C").split(",").map((l) => l.trim());
+    expect(layers, `box-shadow layers ${looks["3-baked"].boxShadow}`).toHaveLength(10);
+    for (const lobe of layers.slice(3, 8)) {
+      const blur = Number.parseFloat((lobe.match(/-?\d*\.?\d+px/g) ?? [])[2]);
+      expect(blur, `lobe layer ${lobe}`).toBeLessThanOrEqual(1.05);
+    }
     expect(rawTransforms).toHaveLength(3);
     expect(new Set(rawTransforms).size, `raw transforms ${JSON.stringify(rawTransforms)}`).toBe(1);
     // A4: the three pieces get their own (deterministic) outline and browning, not one disc copied three times.
