@@ -20,6 +20,7 @@ import type { SauceDeposit } from "./state/pizzaState";
 import { RECIPES, type RecipeId } from "./data/recipes";
 import { getIngredient, STARTER_INGREDIENT_IDS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
+import { doughSizeStatus } from "./logic/doughFeedback";
 import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
 import {
   createInitialGameState,
@@ -1070,6 +1071,11 @@ function App() {
     () => isDoughShapeComplete(pendingDoughShape ?? state.pizza.doughShape),
     [pendingDoughShape, state.pizza.doughShape],
   );
+  // Issue #474 A-1: the same live shape, as a display-only status line under the pizza.
+  const doughSizeStatusValue = useMemo(
+    () => doughSizeStatus(pendingDoughShape ?? state.pizza.doughShape),
+    [pendingDoughShape, state.pizza.doughShape],
+  );
 
   // Mirrors GameScreen's own `isMissionActive` derivation (mission.mode-based, cheap to
   // recompute) -- needed here too because `referenceModeEnabled` below must stay gated on it
@@ -1202,6 +1208,7 @@ function App() {
           pieceShadowMetrics={pieceShadowMetrics}
           showDoughShape={showDoughShape}
           doughShapeComplete={doughShapeComplete}
+          doughSizeStatus={doughSizeStatusValue}
           onGoHome={handleGoHome}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE", now: Date.now() })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}

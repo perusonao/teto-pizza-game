@@ -3,10 +3,12 @@ import { INGREDIENTS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
+import { evaluatePizzaCompletion } from "../logic/completionGate";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import type { QualityStars } from "../logic/scoring";
+import { computeScoringV2, toLegacyScoreBreakdown } from "../logic/scoringV2";
 import { getDinnerMission, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
 import { resolveDinnerAttempt } from "../mission/dinner/dinnerResultDetection";
 import { remainingTargetIds, startDinnerRun } from "../mission/dinner/dinnerRun";
@@ -92,6 +94,20 @@ function pizzaFor(recipeId: string, counts: Record<string, number> = {}, extra: 
       }));
     }),
   };
+}
+
+/** A gate-passing ★4 pizza: a thinner (not failing) sauce. Until Issue #482 the ★4 came from a bake just outside
+ *  the perfect zone; the Completion band is now the window itself, so a 生焼け / 焦げ bake is FAILED instead. */
+function fourStarPizza(recipeId: string): PizzaState {
+  const base = pizzaFor(recipeId);
+  const recipe = getRecipe(recipeId as RecipeId)!;
+  const baked = { ...base, bakeResult: mid(recipeId) };
+  for (let n = base.sauceDeposits.length; n >= 5; n -= 1) {
+    const pizza = { ...baked, sauceDeposits: base.sauceDeposits.slice(0, n) };
+    if (evaluatePizzaCompletion(recipe, pizza, completionPolicyForRound({ roundKind: "DINNER" })).status !== "PASS") break;
+    if (toLegacyScoreBreakdown(computeScoringV2(recipe, pizza), pizza.bakeResult, recipe.bakeTarget).stars === 4) return pizza;
+  }
+  throw new Error(`no ★4 fixture for ${recipeId}`);
 }
 
 function mid(recipeId: string): number {
@@ -247,8 +263,8 @@ describe("result detection wired into the runtime", () => {
   });
 
   it("R5: QUALITY_FAIL (★ below S, or the order gate) keeps the target open and consumes", () => {
-    // Bake inside the acceptable band but outside the perfect window: ★4 < S = 5.
-    const belowStars = cookPizza(started({ ...EXACT_A, egg: 3 }, 5), pizzaFor("bismarck"), 80, T0 + 10);
+    // A servable ★4 pizza (thin sauce) < S = 5.
+    const belowStars = cookPizza(started({ ...EXACT_A, egg: 3 }, 5), fourStarPizza("bismarck"), mid("bismarck"), T0 + 10);
     expect(belowStars.dinner!.lastResult).toMatchObject({
       category: "QUALITY_FAIL",
       failure: { kind: "BELOW_MINIMUM_STARS", stars: 4, minimumStars: 5 },
@@ -315,11 +331,11 @@ describe("START_BAKE: Stage A picks the window and the CUT step, and freezes the
     expect(bismarck.recipe.bakeTarget).toEqual(getRecipe("bismarck")!.bakeTarget);
     // The round never names the identity during BAKE (OD-R6).
     expect([bismarck.recipe.id, bismarck.recipe.nameJa]).toEqual([FREE_COOK_RECIPE.id, FREE_COOK_RECIPE.nameJa]);
-    // bismarck at 86: inside the generic band, outside bismarck's -> INVALID_PIZZA (OVERBAKED).
-    const over = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 86, T0 + 10);
+    // bismarck (55-75) at 76: inside the generic window (58-78), outside bismarck's -> INVALID_PIZZA (OVERBAKED).
+    const over = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 76, T0 + 10);
     expect(over.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason: "OVERBAKED" });
-    // margherita at 89.5: outside the generic band, inside margherita's -> TARGET_PASS.
-    const marg = cookPizza(started(), pizzaFor("margherita"), 89.5, T0 + 10);
+    // margherita (60-80) at 79.5: outside the generic window, inside margherita's -> TARGET_PASS.
+    const marg = cookPizza(started(), pizzaFor("margherita"), 79.5, T0 + 10);
     expect(marg.dinner!.lastResult).toMatchObject({ category: "TARGET_PASS", recipeId: "margherita" });
   });
 
@@ -414,7 +430,7 @@ describe("inventory: exactly once, from the stock captured before CONFIRM_BAKE",
 
   it("R17: every failed category keeps its consumption (no refund)", () => {
     const cases: [string, GameState][] = [
-      ["QUALITY_FAIL", cookPizza(started({ ...EXACT_A, egg: 3 }, 5), pizzaFor("bismarck"), 80, T0 + 1)],
+      ["QUALITY_FAIL", cookPizza(started({ ...EXACT_A, egg: 3 }, 5), fourStarPizza("bismarck"), mid("bismarck"), T0 + 1)],
       ["INVALID_PIZZA", cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 0, T0 + 1)],
       ["ORIGINAL", cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("funghi", {}, { egg: 1 }), 68, T0 + 1)],
     ];
@@ -789,9 +805,9 @@ describe("Issue #256: a CUT recipe whose bake the Completion Gate failed resolve
     if (viaResolver.status === "RESOLVED") expect(skipped.inventory).toEqual(viaResolver.postConsumptionInventory);
   });
 
-  it("D-3: an in-band bake (incl. a ★4 badge-only one) still requires CUT", () => {
+  it("D-3: an in-window bake (both edges included: 惜しい / ジャスト) still requires CUT", () => {
     const { start, end } = getRecipe("bismarck")!.bakeTarget;
-    for (const bake of [start - (end - start) * 0.25, mid("bismarck"), end + (end - start) * 0.25]) {
+    for (const bake of [start, mid("bismarck"), end]) {
       const state = bakeOnly(started(), pizzaFor("bismarck"), bake, T0 + 10);
       expect([state.phase, state.makingStep]).toEqual(["POST_BAKE", "CUT"]);
       expect(state.dinner!.lastResult).toBeNull();

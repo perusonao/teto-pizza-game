@@ -1,5 +1,5 @@
 import type { ScoreBreakdown } from "../logic/scoring";
-import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
+import { BAKE_LEVEL5_LABEL, BAKE_STATE_LABEL, isNearMiss, type BakeLevel5, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
 import { EFFICIENCY_TIER_LABEL_JA, formatCookingTime, type CookingEfficiencyCredit } from "../logic/efficiency";
 import type { StepTimingRow } from "../logic/cookingTimingDisplay";
@@ -32,6 +32,9 @@ interface ResultPanelProps {
    *  is never scored, so it renders the original-pizza card instead of stars/score. */
   score: ScoreBreakdown | null;
   bakeState: BakeState | null;
+  /** Issue #469: display-only 5-level bake label for the 焼き加減 badge (`classifyBake5` of the
+   *  committed needle). Optional/`null` falls back to the 3-level `bakeState` label. */
+  bakeLevel5?: BakeLevel5 | null;
   /** A1 Authority Cutover: Scoring 2.0's Sauce component score (0-100), Scoring 2.0's single
    *  heaviest component (52/100) and the one dimension `ScoreBreakdown` itself has no field
    *  for (see ../logic/scoringV2/toLegacyScoreBreakdown.ts's file header). Read straight from
@@ -162,6 +165,28 @@ const BAKE_STATE_ICON: Record<BakeState, string> = {
   burnt: "\u{1F525}",
 };
 
+/** Issue #481: the 5-level badge icon (JUST = gold star, near-miss = arrow toward the gauge side the needle
+ *  landed on). Unset levels fall back to the 3-level icon. The label text is unchanged and carries the meaning. */
+const BAKE_LEVEL5_ICON: Partial<Record<BakeLevel5, string>> = {
+  just: "⭐",
+  underdone: "⬅️",
+  overdone: "➡️",
+};
+
+function bakeBadgeClass(bakeState: BakeState, level: BakeLevel5 | null | undefined): string {
+  const tone = level === "just" ? " result-panel__bake-badge--just" : isNearMiss(level) ? " result-panel__bake-badge--near" : "";
+  return `result-panel__bake-badge result-panel__bake-badge--${bakeState}${tone}`;
+}
+
+function BakeBadgeText({ bakeState, level }: { bakeState: BakeState; level: BakeLevel5 | null | undefined }) {
+  const icon = (level && BAKE_LEVEL5_ICON[level]) ?? BAKE_STATE_ICON[bakeState];
+  return (
+    <>
+      <span aria-hidden="true">{icon}</span> 焼き加減: {level ? BAKE_LEVEL5_LABEL[level] : BAKE_STATE_LABEL[bakeState]}
+    </>
+  );
+}
+
 /**
  * Small feedback rows shown under the headline stars/score. "具材" blends recipe-required-
  * ingredient presence and purity (the two ingredient-related legacy fields) into one number
@@ -194,6 +219,7 @@ export function ResultPanel({
   completion,
   score,
   bakeState,
+  bakeLevel5,
   sauceScore,
   headingJa,
   recipeNameJa,
@@ -281,10 +307,15 @@ export function ResultPanel({
           {failedResearch && researchRows && (
             <ResearchRowsPanel rows={researchRows.rows} toppingOverCap={researchRows.toppingOverCap} />
           )}
+          {failedResearch && researchRows && researchRowsHaveChips(researchRows.rows) && (
+            <p className="result-panel__research-kept" data-testid="research-failed-kept">
+              {RESEARCH_UX_COPY.failedKept}
+            </p>
+          )}
           {failedTrialNoticeText && <p className="original-pizza__trial-notice">{failedTrialNoticeText}</p>}
           {bakeState && (
-            <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
-              {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
+            <p className={bakeBadgeClass(bakeState, bakeLevel5)}>
+              <BakeBadgeText bakeState={bakeState} level={bakeLevel5} />
             </p>
           )}
         </div>
@@ -386,8 +417,8 @@ export function ResultPanel({
             </ul>
           )}
           {bakeState && (
-            <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
-              {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
+            <p className={bakeBadgeClass(bakeState, bakeLevel5)}>
+              <BakeBadgeText bakeState={bakeState} level={bakeLevel5} />
             </p>
           )}
           {/* Discovery 3.0 PR-1: a static, recipe-independent line about the player's own sauce. It never depends on
@@ -525,8 +556,8 @@ export function ResultPanel({
           </p>
         )}
         {bakeState && !isDiscoveryResult && (
-          <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
-            {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
+          <p className={bakeBadgeClass(bakeState, bakeLevel5)}>
+            <BakeBadgeText bakeState={bakeState} level={bakeLevel5} />
           </p>
         )}
         {quantityNoteJa && <p className="result-panel__quantity-note">{quantityNoteJa}</p>}
@@ -774,6 +805,11 @@ const RESEARCH_ROW_CATEGORIES: readonly { category: ResearchResultCategory; labe
  * not rendered at all, and nothing says "なし" / counts / totals / a verdict on the whole pizza. The same markup for every
  * original outcome. The symbol, not the colour, carries the meaning; the accessible name states it in words.
  */
+/** True when `ResearchRowsPanel` will draw at least one ○× chip (a topping-cap note alone is not a ○× result). */
+function researchRowsHaveChips(rows: readonly ResearchResultRow[]): boolean {
+  return rows.some((r) => RESEARCH_ROW_CATEGORIES.some((g) => g.category === r.category) && !!getIngredient(r.ingredientId)?.nameJa);
+}
+
 function ResearchRowsPanel({ rows, toppingOverCap }: { rows: readonly ResearchResultRow[]; toppingOverCap: boolean }) {
   const groups = RESEARCH_ROW_CATEGORIES.map((g) => ({ ...g, rows: rows.filter((r) => r.category === g.category) }));
   const hasRows = groups.some((g) => g.rows.length > 0);

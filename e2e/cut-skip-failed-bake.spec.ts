@@ -12,14 +12,14 @@ import {
 } from "./gestures";
 
 /**
- * Issue #256 (OD-CUT256-1..3): a pizza the Completion Gate fails for its bake skips CUT and shows
- * its failure at 取り出す, in Guided and Lunch Rush alike; a servable pizza keeps CUT. Dinner's half
- * lives in dinner-mission.spec.ts.
+ * Issue #256 (OD-CUT256-1..3), revised by Issue #482 (the Completion Gate window is the bake window itself): a
+ * pizza the Completion Gate fails for its bake -- 生焼け / 焦げ, always -- skips CUT and shows its failure at
+ * 取り出す, in Guided and Lunch Rush alike; a servable pizza (惜しい / ジャスト) keeps CUT. Dinner's half lives in
+ * dinner-mission.spec.ts.
  *
- * Every take-out stays far from a Completion Gate band edge: the virtual-clock landing can drift
- * by several points on a loaded runner. Margherita (bakeTarget 60-80, band 50-90): raw at 2 and
- * in band at 70. Burnt uses marinara (bakeTarget 45-65, band 35-75) at 97 -- margherita's burnt
- * range (90-100) is too narrow to hit reliably.
+ * Every take-out stays several points from a window edge: the virtual-clock landing can drift by several points
+ * on a loaded runner. Margherita (bakeTarget 60-80): raw at 2, the old 10-point margin band at 52-56 (servable
+ * before #482), in window at 70. Burnt uses marinara (bakeTarget 45-65) at 97.
  */
 
 const RAW = { start: 0, end: 40 };
@@ -72,6 +72,15 @@ test.describe("Issue #256: CUT is skipped only for a Completion-Gate bake failur
     await startFreshMargherita(page);
     await prepareMargherita(page);
     await bakeAt(page, RAW);
+    await expect(page.locator(".result-panel--failed")).toBeVisible();
+    await expect(page.locator(".result-panel--failed")).toContainText("生焼け");
+    await expect(cutButton(page)).toHaveCount(0);
+  });
+
+  test("Guided #482: a take-out in the old margin band (52-56, 生焼け) is FAILED too, with no CUT", async ({ page }) => {
+    await startFreshMargherita(page);
+    await prepareMargherita(page);
+    await bakeAt(page, { start: 52, end: 56 });
     await expect(page.locator(".result-panel--failed")).toBeVisible();
     await expect(page.locator(".result-panel--failed")).toContainText("生焼け");
     await expect(cutButton(page)).toHaveCount(0);

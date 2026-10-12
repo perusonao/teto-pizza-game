@@ -18,7 +18,8 @@ import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived"
  */
 
 const SAVE_KEY = "teto-pizza-save-v1";
-const FREE_BAKE = { start: 50, end: 70 };
+// Free Cooking judges by the generic window its gauge shows (58-78), not the recipe's own 50-70 (Issue #482 / OD-B6 F1).
+const FREE_BAKE = { start: 58, end: 78 };
 const W1: [string, string[]][] = [
   ["margherita", []], ["bismarck", ["egg"]], ["breakfast-pizza", ["bacon"]], ["funghi", ["mushroom"]],
   ["melanzane-pizza", ["eggplant"]], ["parmigiana-pizza", ["parmigiano"]], ["pepperoni", ["pepperoni"]],

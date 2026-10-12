@@ -162,7 +162,7 @@ test.describe("Scenario B: topping-heavy recipe (Capricciosa) IDEAL -- multiple 
 });
 
 test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL, localized darkening", () => {
-  test("toppings/crust roast further than IDEAL, darkening stays on the pizza only, CUT still visible", async ({
+  test("toppings/crust roast further than IDEAL, darkening stays on the pizza only, and the 焦げ pizza is a FAILED round with no CUT (#482)", async ({
     page,
   }) => {
     test.setTimeout(60_000);
@@ -182,29 +182,23 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
     await tapDoughPercent(page, 45, 55);
     await tapDoughPercent(page, 55, 45);
 
-    // Clearly later than IDEAL (target center 70, perfect zone ends at 80) but still inside the
-    // Completion Gate's own BAKE_ACCEPTABLE_MARGIN_RATIO (0.5 -- margherita's own {60,80} span=20 =>
-    // margin=10, band ends at 90) -- an overbaked-but-still-real pizza, not a FAILED round. Issue
-    // #256: a FAILED bake now skips CUT, so this lands at 85 (5 points inside the band) rather than
-    // 89, keeping the CUT assertions below clear of the band edge.
+    // Clearly later than IDEAL (target center 70, perfect zone ends at 80). Issue #482: the Completion Gate's window
+    // is the bake window itself, so an overbaked (焦げ) pizza is a FAILED round that skips CUT and lands on its 失敗
+    // card at 取り出す. The roast must still persist from the BAKE view into that RESULT.
     await bakeToTarget(page, { start: 84, end: 86 });
     const overbakedBasilAtBake = await toppingFilter(page, "basil");
 
-    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
-    await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
-    await page.getByRole("button", { name: /切り終わる/ }).click();
-    await expect(page.locator(".result-panel")).toBeVisible();
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toHaveCount(0);
+    await expect(page.locator(".result-panel--failed")).toBeVisible();
     const overbakedBasil = await toppingFilter(page, "basil");
-    expect(overbakedBasil, "overbaked roast must persist through CUT into RESULT").toBe(overbakedBasilAtBake);
+    expect(overbakedBasil, "overbaked roast must persist into RESULT").toBe(overbakedBasilAtBake);
 
     // Darkening is local to the pizza element, not a page-wide filter/overlay.
     const bodyFilter = await page.evaluate(() => getComputedStyle(document.body).filter);
     expect(bodyFilter === "none" || bodyFilter === "").toBe(true);
 
-    // UI (CTA/header) unaffected, CUT still visible at RESULT.
-    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
-    await expect(page.getByRole("button", { name: "もう一度つくる" })).toBeVisible();
+    // UI (CTA/header) unaffected; CUT never started.
+    await expect(page.locator(".pizza-cut-mark")).toHaveCount(0);
 
     // Compare against a fresh IDEAL round's own basil filter (Scenario A's own target center) --
     // done last, on a fresh round, so it can't disturb the overbaked round's own CUT/RESULT state

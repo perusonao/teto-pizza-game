@@ -1,3 +1,4 @@
+import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import { EMPTY_DEX, getDexEntry, registerScoreToDex, type DexState } from "./dex";
@@ -14,6 +15,13 @@ import { applyPitzCredit } from "../logic/pitzReward";
 import { loadSave, persistProgress, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import { discoveredDex } from "./testSupport/guidedRound";
+import { registerDiscoveryToDex } from "./discoveryRegistration";
+import { evaluatePizzaCompletion } from "../logic/completionGate";
+import { evaluateDiscovery } from "../logic/discovery/matcher";
+import { signatureOfPizza } from "../logic/discovery/signature";
+import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
+import { starsFromTotal } from "../logic/scoring";
+
 
 /**
  * Progression 2.0 Phase 3-1 (Issue #192): discovery at the REGISTER_TO_DEX integration layer --
@@ -231,7 +239,11 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
 
   it("12. every shipped recipe's reference pizza: Free Cooking discovers exactly that recipe and Dex/★/Pitz equal the legacy result", () => {
     for (const recipe of RECIPES) {
-      const bake = Math.round((recipe.bakeTarget.start + recipe.bakeTarget.end) / 2);
+      // Issue #482 (OD-B6 F1): Free Cooking judges by the generic window its gauge shows, so the bake is the middle
+      // of the part of the recipe's own window that the generic window covers (every recipe overlaps it).
+      const bake = Math.round(
+        (Math.max(recipe.bakeTarget.start, FREE_COOK_BAKE_TARGET.start) + Math.min(recipe.bakeTarget.end, FREE_COOK_BAKE_TARGET.end)) / 2,
+      );
       const result = freeCookToResult(idealPizzaFor(recipe.id, bake));
       expect(result.completion?.status, recipe.id).toBe("PASS");
       const after = register(result);
@@ -313,5 +325,106 @@ describe("11. existing save compatibility (no schema change)", () => {
     expect(raw.missionBest).toEqual(V2_SAVE.missionBest);
     expect(loadSave(storage).dex).toEqual(first.dex);
     expect(first.dex.map((e) => e.recipeId)).toEqual(["margherita", "bismarck", "breakfast-pizza"]);
+  });
+});
+
+/**
+ * Issue #482 (OD-B6 F1 extended to Guided): a Guided pizza is judged by the window the player actually saw -- the selected
+ * recipe A's. When its composition is exactly another undiscovered recipe R, the discovery is decided by A's window too; R's
+ * own window is Scoring 2.0's Bake component only.
+ *
+ * The end-to-end reachable (A, R) pairs are the ones where R's composition also satisfies A's own Gate (12 today, e.g. funghi
+ * -> veggie-supreme-pizza); the unit tests below also pin the pair Margherita (60-80) -> marinara (45-65) at the registration layer.
+ */
+describe("Guided cross-recipe discovery is judged by the selected recipe's window (#482)", () => {
+  const MARGHERITA_WINDOW = getRecipe("margherita")!.bakeTarget;
+  const MARINARA = getRecipe("marinara")!;
+  const dexOfMargherita = discoveredDex(["margherita"]);
+  const marinaraPizza = (bake: number) => idealPizzaFor("marinara", bake);
+
+  it("A = Margherita (60-80), R = marinara (45-65), bake 70: discovered although 70 is outside marinara's own window", () => {
+    const pizza = marinaraPizza(70);
+    expect(MARINARA.bakeTarget.end).toBeLessThan(70);
+    const outcome = { kind: "NEW_DISCOVERY" as const, recipeId: "marinara" as RecipeId, targetId: "shipped:marinara" };
+    const registered = registerDiscoveryToDex(dexOfMargherita, outcome, "margherita", pizza, MARGHERITA_WINDOW);
+    expect(registered.outcome.kind).toBe("NEW_DISCOVERY");
+    expect(getDexEntry(registered.dex, "marinara")?.discovered).toBe(true);
+  });
+
+  it("outside the selected recipe's window it is not discovered (bake 59 is inside marinara's window but outside Margherita's)", () => {
+    const pizza = marinaraPizza(59);
+    expect(59).toBeGreaterThanOrEqual(MARINARA.bakeTarget.start);
+    expect(59).toBeLessThanOrEqual(MARINARA.bakeTarget.end);
+    const outcome = { kind: "NEW_DISCOVERY" as const, recipeId: "marinara" as RecipeId, targetId: "shipped:marinara" };
+    const registered = registerDiscoveryToDex(dexOfMargherita, outcome, "margherita", pizza, MARGHERITA_WINDOW);
+    expect(registered.outcome.kind).toBe("INCOMPLETE_MATCH");
+    expect(registered.dex).toBe(dexOfMargherita);
+  });
+
+  it("the discovered recipe's own window stays Scoring 2.0's: the recorded score is marinara's real score at 70 (5 points past its window)", () => {
+    const pizza = marinaraPizza(70);
+    const outcome = { kind: "NEW_DISCOVERY" as const, recipeId: "marinara" as RecipeId, targetId: "shipped:marinara" };
+    const registered = registerDiscoveryToDex(dexOfMargherita, outcome, "margherita", pizza, MARGHERITA_WINDOW);
+    const v2 = computeScoringV2(MARINARA, pizza);
+    const bake = v2.components.bake;
+    expect(bake.available && bake.distanceFromIdeal).toBe(5);
+    expect(bake.available && bake.score).toBeLessThan(100);
+    const expected = toLegacyScoreBreakdown(v2, pizza.bakeResult, MARGHERITA_WINDOW);
+    expect(registered.dex).toEqual(registerScoreToDex(dexOfMargherita, "marinara", expected).dex);
+    // not capped by marinara's own window (70 is "burnt" for it): the stars are exactly the total's
+    expect(expected.stars).toBe(starsFromTotal(expected.total));
+  });
+
+  it("without a judged window the registration still gates by the discovered recipe's own window (pre-#482 default)", () => {
+    const outcome = { kind: "NEW_DISCOVERY" as const, recipeId: "marinara" as RecipeId, targetId: "shipped:marinara" };
+    expect(registerDiscoveryToDex(dexOfMargherita, outcome, "margherita", marinaraPizza(70)).outcome.kind).toBe("INCOMPLETE_MATCH");
+  });
+
+  describe("end to end through the reducer: funghi (58-78) round with the veggie-supreme-pizza (50-70) composition", () => {
+    const dex = discoveredDex(["funghi"]);
+    const veggie = getRecipe("veggie-supreme-pizza")!;
+
+    it("bake 74 (inside funghi's window, outside veggie's): CONFIRM_BAKE passes and REGISTER_TO_DEX discovers veggie-supreme-pizza", () => {
+      expect(74).toBeGreaterThan(veggie.bakeTarget.end);
+      const result = playToResult("funghi", idealPizzaFor("veggie-supreme-pizza", 74), dex);
+      expect(result.completion?.status).toBe("PASS");
+      const after = register(result);
+      expect(after.lastDiscovery).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: "veggie-supreme-pizza" });
+      expect(getDexEntry(after.dex, "veggie-supreme-pizza")?.discovered).toBe(true);
+      // Scoring 2.0 reads veggie's own window: 74 is 4 points past it
+      const bake = computeScoringV2(veggie, after.pizza).components.bake;
+      expect(bake.available && bake.distanceFromIdeal).toBe(4);
+    });
+
+    it("bake 79 (outside funghi's window): the round itself FAILS, so nothing is discovered", () => {
+      const result = playToResult("funghi", idealPizzaFor("veggie-supreme-pizza", 79), dex);
+      expect(result.completion?.status).toBe("FAILED");
+      const after = register(result);
+      expect(getDexEntry(after.dex, "veggie-supreme-pizza")?.discovered ?? false).toBe(false);
+    });
+
+    it("bake 57 (inside veggie's window, outside funghi's): FAILED, nothing discovered", () => {
+      const result = playToResult("funghi", idealPizzaFor("veggie-supreme-pizza", 57), dex);
+      expect(result.completion?.status).toBe("FAILED");
+      expect(getDexEntry(register(result).dex, "veggie-supreme-pizza")?.discovered ?? false).toBe(false);
+    });
+  });
+
+  it("every reachable (A, R) pair discovers R when A's window centre is aimed at (the pre-#482 behaviour), across the whole shipped catalog", () => {
+    let reachable = 0;
+    for (const a of RECIPES) {
+      for (const r of RECIPES) {
+        if (a.id === r.id) continue;
+        const bake = (a.bakeTarget.start + a.bakeTarget.end) / 2;
+        const pizza = idealPizzaFor(r.id, bake);
+        if (evaluatePizzaCompletion(a, pizza, "recipe").status !== "PASS") continue; // A's own Gate fails first: never reaches registration
+        const outcome = evaluateDiscovery(signatureOfPizza(pizza), RECIPE_DISCOVERY_CATALOG, [a.id]);
+        if (outcome.kind !== "NEW_DISCOVERY" || outcome.recipeId !== r.id) continue;
+        reachable += 1;
+        const registered = registerDiscoveryToDex(discoveredDex([a.id]), outcome, a.id, pizza, a.bakeTarget);
+        expect(registered.outcome.kind, `${a.id} -> ${r.id}`).toBe("NEW_DISCOVERY");
+      }
+    }
+    expect(reachable).toBeGreaterThan(0);
   });
 });
