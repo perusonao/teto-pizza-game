@@ -33,7 +33,8 @@ FREE の副作用（承認済み）: 窓が 50–70 のレシピ（11 レシピ�
 ## 追加修正（Codex P2 と Guided cross-recipe、同一 PR、Owner Decision 案を #482 に記録済み）
 - **FREE MATCHED の結果表示（Codex P2）**: `GameScreen.tsx` が、FREE のときだけ `PizzaStage` に `withFreeCookBakeWindow(state.recipe)` を渡す。結果バッジ・焼き色（`bakeHeat`）・結果のパーフェクトグローがすべて generic 窓（58–78）で揃う。照合したレシピの固有窓は Scoring 2.0 だけ。BAKE 中と Guided / Lunch Rush / Dinner は不変。
 - **Guided cross-recipe 発見**: `registerDiscoveryToDex` に `judgedBakeTarget` を追加し、`gameReducer` の REGISTER_TO_DEX が `state.recipe.bakeTarget`（プレイヤーが見た選択レシピ A の窓。FREE は generic 窓）を渡す。別レシピ R の発見は A の窓で成否を決め、R の固有窓は Scoring 2.0 の Bake 成分だけ。引数なしの既定は従来どおり R の窓。
-- **到達可能性の訂正**: 先に報告した「2970 組中 236 組が阻害」は、A 自身の Gate を通らない組（A の必須食材が R の組成に無い）を含む過大な数字だった。REGISTER_TO_DEX まで到達するのは 12 組（例: funghi → veggie-supreme-pizza、margherita → melanzane / parmigiana）で、A の窓中心を狙えば全て発見できる。阻害されるのは A の窓内で R の窓外の bake（最大 8pt、funghi → veggie-supreme-pizza の 71–78 など）。
+- **到達可能性の訂正**: 先に報告した「2970 組中 236 組が阻害」は、A 自身の Gate を通らない組（A の必須食材が R の組成に無い）を含む過大な数字だった。REGISTER_TO_DEX まで届く組成は 12 組（例: funghi → veggie-supreme-pizza、margherita → parmigiana-pizza）で、A の窓中心を狙えば全て発見できる。阻害されるのは A の窓内で R の窓外の bake（最大 8pt、funghi → veggie-supreme-pizza の 71–78 など）。
+- **現行の通常プレイでは到達しない（調査時点）**: 上記 12 組すべてで、R の組成に使う素材の 1 つが R 自身を発見しないと入手できない（discovery ladder の key recipe で解放される。例: パルミジャーノは parmigiana-pizza、ピーマンは veggie-supreme-pizza）。素材の所持を保存データに書いても解放条件で無効になることを実測した。したがって本修正は、現行の条件では本番での効果が確認できず、将来、素材の解放条件やレシピ構成が変更された場合に効果が生じ得る。現行の通常プレイ条件では画面で再現できなかったため、自動テスト（`gameReducer.discovery.test.ts`）で検証している。
 - **テスト**: `GameScreen.bakeBadge.test.tsx`（FREE MATCHED でバッジ・焼き色・グローが generic 窓に一致、Guided は不変、修正を外すと失敗することを確認済み）、`gameReducer.discovery.test.ts`（A=マルゲリータ・R=marinara・bake 70 の発見、A の窓外では発見しない、R の Scoring 2.0 は固有窓、reducer 経由の funghi → veggie-supreme-pizza、全到達ペア）。Vitest 全件 387 ファイル / 7077 件通過。E2E（iphone-390x844 / 360x800）は関連 12 ファイル 108 件通過。
 
 ## Lunch Rush（OD-B2 = A）
