@@ -163,3 +163,16 @@ WebKit full run not needed.
 - **R3:** the gauge re-renders on each deposit via the existing `forceRender`; confirm no extra layout work on a 4× CPU throttle.
 - **R4:** the right margin may be occluded by a right thumb painting the far-right edge; accepted in the audit, to be judged in HV.
 - **R5:** #487 merging first moves `PizzaStage.tsx` line numbers; rebase onto the new main before starting.
+
+## 11. Owner decision on R1 (2026-10-13)
+
+**R1 = option (a) adopted.** Existing sauce dispensing is not changed in this work. The gauge shows the amount the dispenser will really allow, i.e. `1 − (committedTotal + pendingTotal) / SAUCE_MAX_QUANTITY` from the **same** running total `getTotalDispensed` uses (`PizzaStage.tsx:603`). No separate issue and no behavior change now.
+
+**Recorded as a UX improvement candidate (not scheduled, no issue):** after switching to a different sauce, the bottle does not return to full until the first stroke is committed (the stage still counts the previous sauce's committed total; the reducer clears the log only at commit, `gameReducer.ts:951-985`). So right after a switch the gauge shows the previous, lower remainder. A future change would restart the cap on a sauce switch; it alters dispense behavior and scoring input, so it needs its own Owner approval and a golden check.
+
+### Start-of-implementation checklist (gate: #487 Final Gate complete)
+1. Fetch the latest `main`; confirm #487 is merged (or its Final Gate is done and the Owner says to start); rebase / recreate the work branch from that main so #487's `PizzaStage.tsx` changes are included.
+2. Re-read the sauce lines of `PizzaStage.tsx` (`committedTotalRef`, `pendingTotalRef`, `getTotalDispensed`) on the new main before editing.
+3. Single source of truth: one function computes the dispenser's total (used by `getTotalDispensed` and by the gauge), so the two cannot drift.
+4. Parity tests that must exist: (i) for sampled totals, `sauceRemainingFraction(t) × SAUCE_MAX_QUANTITY` equals the headroom `tickDepositAmount(t)` would grant (sum over remaining ticks until it returns 0); (ii) a component test that drives a multi-stroke session (committed + pending) and asserts the gauge value equals `1 − dispenser total / MAX` at each step and is 0 exactly when the controller stops depositing; (iii) a test that pins R1 (a different-sauce switch keeps the previous total, and the gauge matches it) so a future behavior change must update it deliberately.
+5. Runtime / CSS / E2E edits only after steps 1-2.
