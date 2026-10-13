@@ -59,6 +59,9 @@ async function canvasesHavePixels(page: Page): Promise<{ count: number; allVisib
 const noHorizontalOverflow = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
 
 test.describe("#486 Canvas mozzarella production opt-in", () => {
+  // each test plays a whole round (dough -> bake -> CUT -> RESULT); WebKit under CI load needs more than the 30 s default (webkit-390x844 shard 1 hit it at 29.7 s)
+  test.describe.configure({ timeout: 120_000 });
+
   test("default: M1 only, no canvas, key unset", async ({ page }) => {
     await openRound(page, "");
     await bakeToResult(page);
