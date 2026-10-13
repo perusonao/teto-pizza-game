@@ -61,7 +61,7 @@ Mutation checks (each fails the suite, then reverted): Lunch Rush "order" policy
 | Check | Result |
 |---|---|
 | `vitest run src/state/finalizeRound.test.ts` | 22 passed |
-| related regression: `vitest run src/state src/mission src/logic src/data src/screens` | see PR (filled after the run) |
+| related regression: `vitest run src/state src/mission src/logic src/data src/screens` | 279 files passed, 1 skipped; 5492 tests passed, 2 skipped; 0 failed |
 | `tsc -b` | pass |
 | `npm run build` | pass |
 | `oxlint` | no findings in the changed files (pre-existing warnings in unrelated files only) |
