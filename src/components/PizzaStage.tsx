@@ -1181,20 +1181,25 @@ export function PizzaStage({
                 melt/spread/toast/char); every other ingredient gets its own dedicated
                 `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
                 variable's own comment above for why. */}
-            {CHEESE_CANVAS_ALLOWED && ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas" ? (
-              /* #421 S2-B (verification only): the Canvas mozzarella, only behind the Preview / DEV query switch. */
-              <CheesePoolCanvas
-                seed={t.id}
-                {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
-                grid={CHEESE_RENDER_MODE.grid}
-                sizePx={CHEESE_RENDER_MODE.sizePx}
-              />
-            ) : (
-              <IngredientPieceVisual
-                ingredient={ingredient}
-                style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
-              />
-            )}
+            {(() => {
+              const m1Piece = (
+                <IngredientPieceVisual
+                  ingredient={ingredient}
+                  style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+                />
+              );
+              if (!(CHEESE_CANVAS_ALLOWED && ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
+              /* #421 S2-B (verification only): the Canvas mozzarella, only behind the Preview / DEV query switch; M1 when the browser has no 2D context. */
+              return (
+                <CheesePoolCanvas
+                  seed={t.id}
+                  {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
+                  grid={CHEESE_RENDER_MODE.grid}
+                  sizePx={CHEESE_RENDER_MODE.sizePx}
+                  fallback={m1Piece}
+                />
+              );
+            })()}
           </span>
         );
       })}

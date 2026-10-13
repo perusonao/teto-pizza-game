@@ -271,6 +271,28 @@ describe("caches and cost", () => {
   });
 });
 
+describe("measureCheesePool: the core is the full-square erosion", () => {
+  it("keeps every pixel within 6 px of a hole out of the core, also where the hole lies between the old sampling points", () => {
+    const N = 96;
+    const data = new Uint8ClampedArray(N * N * 4);
+    const hole = { x: 48 + 3, y: 48 + 2 }; // not on the centre / +-6 sampling rays of any pixel around it
+    for (let y = 0; y < N; y += 1) {
+      for (let x = 0; x < N; x += 1) {
+        if ((x - 48) ** 2 + (y - 48) ** 2 > 30 ** 2) continue;
+        const o = (y * N + x) * 4;
+        if (x === hole.x && y === hole.y) continue; // alpha 0: a pin-hole in the pool
+        const near = Math.max(Math.abs(x - hole.x), Math.abs(y - hole.y)) <= 5;
+        data.set(near ? [100, 100, 100, 255] : [200, 200, 200, 255], o);
+      }
+    }
+    const m = measureCheesePool({ width: N, height: N, data });
+    // the dark pixels all lie within 5 px of the hole, so none of them is interior: the core is the plain (200,200,200) pixels only
+    expect(m.core[0]).toBeCloseTo(200, 0);
+    expect(m.core[1]).toBeCloseTo(200, 0);
+    expect(m.core[2]).toBeCloseTo(200, 0);
+  });
+});
+
 describe("measureCheesePool (the measurement used above)", () => {
   it("reads a disc as solidity ~1 / aspect ~1 and an ellipse as its axis ratio", () => {
     const make = (rx: number, ry: number): CheesePoolImage => {

@@ -156,15 +156,14 @@ export function measureCheesePool(img: CheesePoolImage): CheesePoolMetrics {
   let cb = 0;
   let cn = 0;
   const R = 6;
+  // the full (2R+1) x (2R+1) erosion: a pixel is interior only when EVERY pixel of the square around it is in the region (the earlier test sampled the
+  // centre and 8 points, so a boundary between the sampled points could leave rim or bay pixels in the "core")
+  const interior = erodeSquare(inside, w, h, R);
   for (let y = R; y < h - R; y += 1) {
     for (let x = R; x < w - R; x += 1) {
       const i = y * w + x;
       if (data[i * 4 + 3] < 250) continue;
-      let ok = true;
-      for (let d = -R; d <= R && ok; d += R) {
-        if (!inside[i + d] || !inside[i + d * w] || !inside[i + d * w + d] || !inside[i + d * w - d]) ok = false;
-      }
-      if (!ok) continue;
+      if (!interior[i]) continue;
       cr += data[i * 4];
       cg += data[i * 4 + 1];
       cb += data[i * 4 + 2];
@@ -227,9 +226,7 @@ export function measureCheesePool(img: CheesePoolImage): CheesePoolMetrics {
     for (let x = R; x < w - R; x += 1) {
       const i = y * w + x;
       if (data[i * 4 + 3] < 250) continue;
-      let ok = true;
-      for (let d = -R; d <= R && ok; d += R) if (!inside[i + d] || !inside[i + d * w] || !inside[i + d * w + d] || !inside[i + d * w - d]) ok = false;
-      if (ok) lums.push(lum(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]));
+      if (interior[i]) lums.push(lum(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]));
     }
   }
   lums.sort((a, b) => a - b);

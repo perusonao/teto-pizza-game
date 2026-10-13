@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { renderCheesePoolCached, type CheesePoolGrid, type CheesePoolImage } from "../logic/cheesePool";
 
 /** one offscreen bitmap per memoised image: every canvas that shows the same pool (a cut pizza repeats each topping once per piece) just copies it */
@@ -19,6 +19,24 @@ function bitmapOf(image: CheesePoolImage): HTMLCanvasElement | null {
   return canvas;
 }
 
+let canvas2dUsable: boolean | null = null;
+
+/** whether this browser gives a 2D drawing context at all (probed once; an old WebView or a locked-down environment may return null) */
+export function canvas2dAvailable(): boolean {
+  if (canvas2dUsable !== null) return canvas2dUsable;
+  try {
+    canvas2dUsable = document.createElement("canvas").getContext("2d") !== null;
+  } catch {
+    canvas2dUsable = false;
+  }
+  return canvas2dUsable;
+}
+
+/** test hook: forget the probe result */
+export function resetCanvas2dProbe(): void {
+  canvas2dUsable = null;
+}
+
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -33,13 +51,16 @@ export interface CheesePoolCanvasProps {
   /** CSS px per side */
   sizePx: number;
   className?: string;
+  /** shown instead of the canvas when the browser gives no 2D context (the pool would otherwise be an invisible piece): the caller's M1 piece */
+  fallback?: ReactNode;
 }
 
 /**
  * #421 S2-B (verification only): the Canvas mozzarella, drawn by the pure `renderCheesePoolCached` (../logic/cheesePool.ts). It replaces the
  * `.pizza-cheese` span of one mozzarella piece when the preview switch asks for it (../preview/cheeseRenderMode.ts). No game state is read or written.
  */
-export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, className }: CheesePoolCanvasProps) {
+export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, className, fallback }: CheesePoolCanvasProps) {
+  const usable = canvas2dAvailable();
   const ref = useRef<HTMLCanvasElement>(null);
   useLayoutEffect(() => {
     const canvas = ref.current;
@@ -51,6 +72,7 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (bitmap) ctx.drawImage(bitmap, 0, 0);
   }, [seed, melt, toast, char, grid]);
+  if (!usable && fallback !== undefined) return <>{fallback}</>;
   return (
     <canvas
       ref={ref}
