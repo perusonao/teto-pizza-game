@@ -41,14 +41,23 @@ export function postBakePieces(pizza: Pick<PizzaState, "toppings">): PizzaState[
 }
 
 /**
- * The pizza as the FINAL evaluation reads it. A requirement declared `POST_BAKE` is met only by pieces placed in FINISH
- * (`stage === "post"`): a piece of that ingredient placed before the bake must not satisfy it, or the recipe would
- * get its late ingredient "for free". Pieces of every other ingredient are untouched. A recipe with no late
- * requirement gets the SAME pizza object back, so every shipped recipe is evaluated exactly as before.
+ * The pizza as the FINAL evaluation reads it. The phase restriction runs in both directions:
+ *  - a requirement declared `POST_BAKE` is met only by pieces placed in FINISH (`stage === "post"`), so a pre-bake
+ *    piece of that ingredient cannot hand the recipe its late ingredient for free;
+ *  - a requirement with no `applicationPhase` (pre-bake) is met only by pieces placed before the bake, so a FINISH
+ *    piece of that ingredient cannot repair a missing ordinary ingredient.
+ * Pieces of ingredients the recipe does not require are untouched, and an ingredient required in BOTH phases is left
+ * as is (the two sets of pieces cannot be told apart by requirement). A recipe with no late requirement gets the SAME
+ * pizza object back, so every shipped recipe is evaluated exactly as before.
  */
 export function pizzaForFinalEvaluation<P extends Pick<PizzaState, "toppings">>(recipe: Pick<Recipe, "requiredIngredients">, pizza: P): P {
   const lateIds = new Set(recipe.requiredIngredients.filter((req) => req.applicationPhase === "POST_BAKE").map((req) => req.ingredientId));
   if (lateIds.size === 0) return pizza;
-  const toppings = pizza.toppings.filter((piece) => piece.stage === "post" || !lateIds.has(piece.ingredientId));
+  const earlyIds = new Set(recipe.requiredIngredients.filter((req) => req.applicationPhase !== "POST_BAKE").map((req) => req.ingredientId));
+  const toppings = pizza.toppings.filter((piece) => {
+    const isPost = piece.stage === "post";
+    if (isPost) return !earlyIds.has(piece.ingredientId) || lateIds.has(piece.ingredientId);
+    return !lateIds.has(piece.ingredientId) || earlyIds.has(piece.ingredientId);
+  });
   return toppings.length === pizza.toppings.length ? pizza : { ...pizza, toppings };
 }

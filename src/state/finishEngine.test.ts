@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES, type Recipe, type RecipeRequirement } from "../data/recipes";
+import { referencePizzaFor } from "./testSupport/confirmBakeMatrix";
 import { MAX_VISIBLE_COOKING_TABS, deriveCoreSteps, getCookingProfile, visibleCookingTabCount } from "../data/cookingProfiles";
 import { INGREDIENTS, getIngredient, type IngredientCategory } from "../data/ingredients";
 import { bakeCompletionFailure } from "../logic/completionGate";
@@ -191,6 +192,30 @@ describe("finalizeRound: provisional -> final (OD-CS-2 = B)", () => {
     const mixed = { ...withEarlyParsley, toppings: [...withEarlyParsley.toppings, piece("parsley", "post")] };
     expect(finalizeRound(input(FX, mixed, { finalization: "FINAL" })).completion.status).toBe("PASS");
     expect(finalizeRound(input(FX, mixed, { finalization: "FINAL", isMissionRound: true })).completion.status).toBe("FAILED");
+  });
+
+  it("a FINISH piece of an ordinary (pre-bake) ingredient cannot repair a missing ordinary ingredient (Codex P2 #2 on #491)", () => {
+    const noChicken = { ...preBakePizza(), toppings: preBakePizza().toppings.filter((t) => t.ingredientId !== "chicken") };
+    const repaired = { ...noChicken, toppings: [...noChicken.toppings, piece("chicken", "post"), piece("chicken", "post"), piece("parsley", "post"), piece("parsley", "post")] };
+    const final = finalizeRound(input(FX, repaired, { finalization: "FINAL" }));
+    expect(final.completion.status).toBe("FAILED");
+    expect(final.completion.status === "FAILED" && final.completion.failures.map((f) => f.ingredientId)).toContain("chicken");
+    // an ingredient the recipe does not require is untouched
+    expect(pizzaForFinalEvaluation(FX, { toppings: [piece("basil", "post"), piece("basil")] }).toppings).toHaveLength(2);
+  });
+
+  it("the provisional score stays available for a recipe with a Reference and a late requirement (Codex P2 on finalizeRound)", () => {
+    const margherita = RECIPES.find((r) => r.id === "margherita")! as unknown as Recipe;
+    const late: Recipe = { ...margherita, requiredIngredients: margherita.requiredIngredients.map((r) => (r.ingredientId === "basil" ? { ...r, applicationPhase: "POST_BAKE" as const } : r)) };
+    const full = referencePizzaFor("margherita");
+    const pre = { ...full, toppings: full.toppings.filter((t) => t.ingredientId !== "basil") };
+    const provisional = finalizeRound(input(late, pre, { finalization: "PROVISIONAL" }));
+    expect(provisional.kind === "SCORED" && provisional.scoringV2Result.available).toBe(true);
+    expect(provisional.completion.status).toBe("PASS"); // basil is not demanded before FINISH
+    const finished = { ...full, toppings: full.toppings.map((t) => (t.ingredientId === "basil" ? { ...t, stage: "post" as const } : t)) };
+    const final = finalizeRound(input(late, finished, { finalization: "FINAL" }));
+    expect(final.kind === "SCORED" && final.scoringV2Result.available).toBe(true);
+    expect(final.completion.status).toBe("PASS");
   });
 
   it("pizzaForFinalEvaluation returns the same pizza for every RECIPES entry and for a fixture pizza with no early late-ingredient", () => {
