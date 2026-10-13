@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { renderCheesePoolCached, type CheesePoolGrid, type CheesePoolImage } from "../logic/cheesePool";
 
 /** one offscreen bitmap per memoised image: every canvas that shows the same pool (a cut pizza repeats each topping once per piece) just copies it */
@@ -51,7 +51,7 @@ export interface CheesePoolCanvasProps {
   /** CSS px per side */
   sizePx: number;
   className?: string;
-  /** shown instead of the canvas when the browser gives no 2D context (the pool would otherwise be an invisible piece): the caller's M1 piece */
+  /** shown instead of the canvas when the browser gives no 2D context, or drawing this canvas fails (the pool would otherwise be an invisible piece): the caller's M1 piece */
   fallback?: ReactNode;
 }
 
@@ -61,18 +61,27 @@ export interface CheesePoolCanvasProps {
  */
 export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, className, fallback }: CheesePoolCanvasProps) {
   const usable = canvas2dAvailable();
+  // a drawing failure of THIS canvas (no context although the probe passed, the bitmap could not be built, or anything threw): sticky for the instance, so the
+  // M1 fallback replaces the canvas once and nothing tries to draw again (the canvas is unmounted, so the effect below finds no element)
+  const [drawFailed, setDrawFailed] = useState(false);
+  const hasFallback = fallback !== undefined; // a boolean, not the element itself: a new element every render must not redraw the canvas
   const ref = useRef<HTMLCanvasElement>(null);
   useLayoutEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const image = renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() });
-    const bitmap = bitmapOf(image);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (bitmap) ctx.drawImage(bitmap, 0, 0);
-  }, [seed, melt, toast, char, grid]);
-  if (!usable && fallback !== undefined) return <>{fallback}</>;
+    try {
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("no 2d context");
+      const image = renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() });
+      const bitmap = bitmapOf(image);
+      if (!bitmap) throw new Error("no bitmap");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bitmap, 0, 0);
+    } catch {
+      if (hasFallback) setDrawFailed(true);
+    }
+  }, [seed, melt, toast, char, grid, hasFallback]);
+  if ((!usable || drawFailed) && hasFallback) return <>{fallback}</>;
   return (
     <canvas
       ref={ref}
