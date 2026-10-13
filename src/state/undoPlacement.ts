@@ -13,8 +13,9 @@
  * any confirmed step.
  */
 import { getIngredient } from "../data/ingredients";
-import type { PizzaState } from "./pizzaState";
+import { isPostBakePiece, type PizzaState } from "./pizzaState";
 import { isLunchRushRound, type HasRoundKind } from "./roundKind";
+import { finishAllowedForRound } from "./finishEngine";
 import type { GamePhase, MakingStep } from "./gameReducer";
 
 /** The slice of `GameState` the rule reads (kept structural so the module has no value import of the reducer). */
@@ -36,6 +37,16 @@ function placedCategoryOf(step: MakingStep): "cheese" | "topping" | null {
  * step, Lunch Rush, or no piece of the current step's category on the pizza).
  */
 export function undoablePlacementIndex(context: UndoPlacementContext): number {
+  // Cooking Steps 2.0 FINISH engine (D1a): in FINISH only a piece placed in FINISH (`stage === "post"`) can be taken
+  // back -- never a pre-bake piece. Every other round kind / step is unchanged below.
+  if (context.phase === "POST_BAKE" && context.makingStep === "FINISH") {
+    if (!finishAllowedForRound(context)) return -1;
+    const pieces = context.pizza.toppings;
+    for (let index = pieces.length - 1; index >= 0; index -= 1) {
+      if (isPostBakePiece(pieces[index]) && getIngredient(pieces[index].ingredientId)?.category === "topping") return index;
+    }
+    return -1;
+  }
   if (context.phase !== "PREPARE") return -1;
   // Lunch Rush is excluded by the Owner (UD-A); Dinner is not a Lunch Rush round and is included.
   if (isLunchRushRound(context)) return -1;
