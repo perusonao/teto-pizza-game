@@ -91,6 +91,15 @@ test.describe("#486 Canvas mozzarella production opt-in", () => {
     expect(result.count).toBeGreaterThanOrEqual(3);
     expect(result.allVisible).toBe(true);
     expect(await noHorizontalOverflow(page)).toBe(true);
+    // a discarded backing store (iOS) is caught: empty one canvas behind the game's back, then bring the page back -> it is redrawn
+    await page.evaluate(() => {
+      const c = document.querySelector<HTMLCanvasElement>("canvas.pizza-cheese-canvas")!;
+      c.getContext("2d")!.clearRect(0, 0, c.width, c.height);
+      window.dispatchEvent(new Event("pageshow"));
+    });
+    const afterReturn = await canvasesHavePixels(page);
+    expect(afterReturn.count).toBeGreaterThanOrEqual(3);
+    expect(afterReturn.allVisible).toBe(true);
     // evidence capture only (SHOT_DIR set by hand; skipped in CI): the RESULT stage with the opt-in on
     if (process.env.SHOT_DIR) await page.screenshot({ path: `${process.env.SHOT_DIR}/${test.info().project.name}-optin-on-result.png` });
     // the save is untouched by the opt-in: the same document the test seeded (plus whatever the round itself saved) and the opt-in key is separate

@@ -112,6 +112,7 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
     drawVerified();
     // iOS may discard canvas memory while the page is hidden: look again when it comes back (a blank canvas is redrawn, then verified like any draw)
     const onReturn = () => {
+      if (!canvas.isConnected) return; // already replaced by the M1 piece: nothing to look at or redraw
       if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
       try {
         const ctx = canvas.getContext("2d");
