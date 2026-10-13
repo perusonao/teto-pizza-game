@@ -8,6 +8,7 @@ import {
   useMemo,
   useReducer as useReactReducer,
   useRef,
+  useState,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -1054,6 +1055,19 @@ export function PizzaStage({
     () => pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0),
     [pizza.sauceDeposits],
   );
+  // COMMIT_SAUCE_DISPENSE replaces `sauceDeposits` when the player switches to a different sauce
+  // (a fresh application, `sauceToken` + 1), so usage of the replaced sauce is carried here and the
+  // gauge never "refills" on a switch. Adjusted during render (React's derived-state pattern) so
+  // there is no frame between the commit and the carry. Cleared when the deposits are emptied.
+  const [gaugeCarry, setGaugeCarry] = useState({ token: pizza.sauceToken, total: sauceCommittedTotal, carried: 0 });
+  if (gaugeCarry.token !== pizza.sauceToken || gaugeCarry.total !== sauceCommittedTotal) {
+    const freshApplication = pizza.sauceToken > gaugeCarry.token && pizza.sauceDeposits.length > 0;
+    setGaugeCarry({
+      token: pizza.sauceToken,
+      total: sauceCommittedTotal,
+      carried: pizza.sauceDeposits.length === 0 ? 0 : gaugeCarry.carried + (freshApplication ? gaugeCarry.total : 0),
+    });
+  }
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
@@ -1436,7 +1450,7 @@ export function PizzaStage({
       </div>
       {showSauceGauge && (
         <div className="pizza-stage__sauce-gauge">
-          <SauceRemainingGauge committedTotal={sauceCommittedTotal} pendingTotal={pendingTotalRef.current} />
+          <SauceRemainingGauge committedTotal={sauceCommittedTotal + gaugeCarry.carried} pendingTotal={pendingTotalRef.current} />
         </div>
       )}
     </div>
