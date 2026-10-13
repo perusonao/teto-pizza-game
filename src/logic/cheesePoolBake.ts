@@ -1,4 +1,4 @@
-import { charIntensity, meltIntensity } from "./bakeVisual";
+import { charIntensity } from "./bakeVisual";
 import { clamp01 } from "./referenceMatching";
 
 /**
@@ -16,5 +16,6 @@ export interface CheesePoolBakeParams {
 
 export function cheesePoolBakeParams(bakeHeat: number | null): CheesePoolBakeParams {
   if (bakeHeat === null) return { melt: 0, toast: 0, char: 0 };
-  return { melt: meltIntensity(bakeHeat), toast: clamp01((bakeHeat - 0.7) / 0.7), char: charIntensity(bakeHeat) };
+  // S2-B2: the melt runs over heat 0.4 .. 0.95 (about 1.1 s of the bake), wider than the dough/M1 melt intensity (0.5 .. 0.9), so the spread reads as a movement and not a pop
+  return { melt: clamp01((bakeHeat - 0.4) / 0.55), toast: clamp01((bakeHeat - 0.7) / 0.7), char: charIntensity(bakeHeat) };
 }

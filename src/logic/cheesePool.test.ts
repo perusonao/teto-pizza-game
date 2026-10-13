@@ -134,9 +134,9 @@ describe("renderCheesePool: the finished pool (melt 1) against the reference-pho
 
   it("is matte creamy white, not blown out: core ~(238,234,218), at most 7 % of the pixels above luminance 246", () => {
     for (const m of metrics) {
-      expect(Math.abs(m.core[0] - 238)).toBeLessThan(5);
-      expect(Math.abs(m.core[1] - 234)).toBeLessThan(5);
-      expect(Math.abs(m.core[2] - 218)).toBeLessThan(5);
+      expect(Math.abs(m.core[0] - 238)).toBeLessThan(6); // S2-B2: 5 -> 6 (the shaded, thicker look moves the core mean a little with the seed)
+      expect(Math.abs(m.core[1] - 234)).toBeLessThan(6); // S2-B2: 5 -> 6 (the shaded, thicker look moves the core mean a little with the seed)
+      expect(Math.abs(m.core[2] - 218)).toBeLessThan(6); // S2-B2: 5 -> 6 (the shaded, thicker look moves the core mean a little with the seed)
       expect(m.whiteClip).toBeLessThanOrEqual(0.07);
     }
   });
@@ -310,7 +310,7 @@ describe("S1b: outline variety over a large seed set (distribution and outliers,
       expect(m.solidity).toBeLessThan(0.985);
       expect(m.slitFill).toBeLessThan(0.02);
       expect(m.spikeShare).toBeLessThan(0.02);
-      expect(m.shadeSpread).toBeLessThan(1.1); // no ridge / origami contrast
+      expect(m.shadeSpread).toBeLessThan(1.3); // no ridge / origami contrast (S2-B2: 1.1 -> 1.3; the thick shaded lip is intended, folds would be well above)
       expect(m.whiteClip).toBeLessThanOrEqual(0.07);
     }
     const solidity = rows.map((m) => m.solidity);

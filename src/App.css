@@ -820,8 +820,8 @@
    centred in it (about 66 % of the box when finished), so it sits where the M1 oval's centre sits. No filter or shadow: the bitmap carries its own shading. */
 .pizza-cheese-canvas {
   display: block;
-  width: var(--cheese-canvas-size, 54px);
-  height: var(--cheese-canvas-size, 54px);
+  width: var(--cheese-canvas-size, 62px);
+  height: var(--cheese-canvas-size, 62px);
   pointer-events: none;
 }
 

@@ -7,12 +7,13 @@ import { CHEESE_POOL_GRID, CHEESE_POOL_GRID_SMALL, type CheesePoolGrid } from ".
  *   ?cheese=m1      the existing CSS mozzarella (the default, and the only mode in production)
  *   ?cheese=c64     the Canvas mozzarella, 64x64 bitmap
  *   ?cheese=c96     the Canvas mozzarella, 96x96 bitmap
- *   &cheesePx=<n>   optional: the Canvas element's CSS size in px (default 54; 36..96)
+ *   &cheesePx=<n>   optional: the Canvas element's CSS size in px (default 62; 36..96)
  */
 export type CheeseRenderMode = { kind: "m1" } | { kind: "canvas"; grid: CheesePoolGrid; sizePx: number };
 
-/** CSS px of the Canvas element: the finished pool is ~0.66 of it (about 36 px across), the raw lump ~0.4 of it (about 22 px), against M1's 28x23. */
-export const CHEESE_CANVAS_DEFAULT_PX = 54;
+/** CSS px of the Canvas element (S2-B2: 54 -> 62): the raw lump is ~0.4 of it (about 25 px across, M1's 28x23 piece is ~25 px area-equivalent), and the finished pool
+ *  ~0.66 of it (about 41 px): the melt spreads it over about 2.6x the raw area, the natural growth the S1 design keeps. */
+export const CHEESE_CANVAS_DEFAULT_PX = 62;
 
 export const CHEESE_RENDER_M1: CheeseRenderMode = { kind: "m1" };
 

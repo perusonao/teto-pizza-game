@@ -535,7 +535,7 @@ const FRAME_SLACK = 1.085;
 
 /** blisters: base radius (px at 96) and the most they may cover of the pool (fraction of its area) */
 const BLISTER_SIZE_BASE = 2.0;
-const BLISTER_COVER_MAX = 0.02;
+const BLISTER_COVER_MAX = 0.015;
 
 const GEOMETRY_CACHE_LIMIT = 48;
 const geometryCache = new Map<string, CheesePoolGeometry>();
@@ -686,11 +686,13 @@ export function cheesePoolRadiusScale(melt: number, reducedMotion = false): numb
 
 // --- rendering -----------------------------------------------------------------------------------------------------------------------------
 
-const CORE = [238, 234, 218] as const; // matte creamy white
+const CORE = [240, 236, 220] as const; // matte creamy white
 const RIM = [226, 216, 192] as const; // the warmer, slightly darker rim just inside the edge
 const RAW = [246, 242, 226] as const; // a raw lump is a little whiter
-const AMBER = [222, 160, 84] as const; // blister fill
-const AMBER_RIM = [196, 124, 58] as const; // the darker rim of a blister
+const AMBER = [214, 142, 62] as const; // blister fill
+const AMBER_RIM = [166, 98, 40] as const; // the darker rim of a blister
+const EDGE_SHADOW = [208, 190, 150] as const; // the thick, slightly shadowed lip at the outline
+const GOLD = [238, 214, 158] as const; // pale golden mottling of a toasted surface
 const BROWN = [122, 74, 42] as const;
 const SCORCH = [156, 130, 104] as const; // overall tint of overbaked cheese
 
@@ -794,7 +796,7 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
   const hy = ly;
   const hz = lz + 1; // half vector with a viewer straight above
   const hLen = Math.hypot(hx, hy, hz);
-  const slope = 5 * (N / 96); // the same lit slope whatever the grid
+  const slope = 8 * (N / 96); // the same lit slope whatever the grid (S2-B2: steeper, so the pool reads as a thick, melted mass at small sizes)
   for (let y = 0; y < N; y += 1) {
     for (let x = 0; x < N; x += 1) {
       const i = y * N + x;
@@ -821,8 +823,10 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
       const ny = -gy / nl;
       const nz = 1 / nl;
       const diffuse = nx * lx + ny * ly + nz * lz;
-      const shade = Math.min(1.035, Math.max(0.95, 1 + 0.4 * (diffuse - lz)));
-      const spec = Math.pow(Math.max(0, (nx * hx + ny * hy + nz * hz) / hLen), 40) * (0.35 + 0.65 * noiseHigh[i]) * 9;
+      const shade = Math.min(1.03, Math.max(0.84, 1 + 0.9 * (diffuse - lz)));
+      const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) / hLen);
+      // S2-B2: a broad soft sheen plus small broken glints (wet cheese), both limited to where the surface faces the light
+      const spec = Math.pow(nh, 22) * (0.4 + 0.6 * noiseHigh[i]) * 3 + Math.pow(nh, 80) * smoothstep(0.5, 0.75, noiseHigh[i]) * 9;
       // colour: matte cream, warmer toward the rim, a little whiter while still raw
       const rimMix = smoothstep(0.62, 1, rho) * 0.65 + thin * 0.35;
       let r = lerp(CORE[0], RIM[0], rimMix);
@@ -834,16 +838,28 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
       r = r * shade + spec;
       g = g * shade + spec;
       bl = bl * shade + spec * 0.9;
+      // the thick lip: the last ~15 % of the radius is a little darker and warmer (a rounded edge catching shadow), so the outline reads as an edge
+      const lip = smoothstep(0.82, 0.99, rho) * 0.3 * (1 - rawMix);
+      r = lerp(r, EDGE_SHADOW[0], lip);
+      g = lerp(g, EDGE_SHADOW[1], lip);
+      bl = lerp(bl, EDGE_SHADOW[2], lip);
+      // toasting also shows as pale golden mottling over the surface, before (and beside) the amber blisters
+      if (toastV > 0) {
+        const gold = toastV * smoothstep(0.55, 0.8, noiseLow[i]) * 0.3;
+        r = lerp(r, GOLD[0], gold);
+        g = lerp(g, GOLD[1], gold);
+        bl = lerp(bl, GOLD[2], gold);
+      }
       // browning: amber blisters with a darker rim (toast) that turn brown when charred, and an overall scorched tint when charred
       if (toastV > 0) {
         const fill = blister[i] * toastV * (0.85 + 0.3 * noiseHigh[i]);
         const rim = blisterRim[i] * toastV;
         if (fill > 0 || rim > 0) {
-          const tf = clamp01(fill) * 0.85;
+          const tf = clamp01(fill) * 0.95;
           r = lerp(r, lerp(AMBER[0], BROWN[0], charV), tf);
           g = lerp(g, lerp(AMBER[1], BROWN[1], charV), tf);
           bl = lerp(bl, lerp(AMBER[2], BROWN[2], charV), tf);
-          const tr = clamp01(rim) * 0.7;
+          const tr = clamp01(rim) * 0.9;
           r = lerp(r, lerp(AMBER_RIM[0], BROWN[0], charV), tr);
           g = lerp(g, lerp(AMBER_RIM[1], BROWN[1], charV), tr);
           bl = lerp(bl, lerp(AMBER_RIM[2], BROWN[2], charV), tr);
