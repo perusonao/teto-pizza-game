@@ -7,11 +7,10 @@ describe("cheesePoolBakeParams (bake heat -> melt / toast / char of the Canvas m
     expect(cheesePoolBakeParams(0)).toEqual({ melt: 0, toast: 0, char: 0 });
   });
 
-  it("is fully melted and lightly toasted at the target centre (heat 1), and not charred", () => {
+  it("is fully melted and golden at the target centre (heat 1; S2-B3a: toast reaches 1 there), and not charred", () => {
     const p = cheesePoolBakeParams(1);
     expect(p.melt).toBe(1);
-    expect(p.toast).toBeGreaterThan(0.3);
-    expect(p.toast).toBeLessThan(0.6);
+    expect(p.toast).toBeGreaterThan(0.9);
     expect(p.char).toBe(0);
   });
 
