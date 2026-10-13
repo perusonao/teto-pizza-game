@@ -18,7 +18,8 @@ const SCENARIOS = {
   /** pieces near the dough edge: the pool must not be clipped or look different from M1 there */
   edge: { cheese: [[76, 50], [24, 52], [50, 78]], basil: [[50, 22]] },
 } as const;
-const BAKE_TARGET = { start: 60, end: 80 };
+// "JUST" (ジャスト) is |needle - 70| <= 3 for Margherita (src/logic/bake.ts): land on the centre of the 60-80 window
+const BAKE_TARGET = { start: 69, end: 71 };
 
 async function startMargherita(page: Page, mode: string) {
   await page.addInitScript(() => {

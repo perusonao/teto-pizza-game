@@ -13,7 +13,7 @@ export type CheeseRenderMode = { kind: "m1" } | { kind: "canvas"; grid: CheesePo
 
 /** CSS px of the Canvas element (S2-B2: 54 -> 62): the raw lump is ~0.4 of it (about 25 px across, M1's 28x23 piece is ~25 px area-equivalent), and the finished pool
  *  ~0.66 of it (about 41 px): the melt spreads it over about 2.6x the raw area, the natural growth the S1 design keeps. */
-export const CHEESE_CANVAS_DEFAULT_PX = 76;
+export const CHEESE_CANVAS_DEFAULT_PX = 70;
 
 export const CHEESE_RENDER_M1: CheeseRenderMode = { kind: "m1" };
 
