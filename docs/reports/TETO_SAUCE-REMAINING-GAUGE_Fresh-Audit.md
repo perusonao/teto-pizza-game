@@ -30,7 +30,7 @@ All units are a normalized internal value, not grams (`sauceQuantity.ts` header)
   Continuous holding empties the bottle in 1.0 / 0.02 = **50 ticks ≈ 2.5 s**. Time-based, independent of pointer events or frame rate.
 - Cap is on the **running total of every deposit, inside the dough and overflow together** (`tickDepositAmount`, `sauceQuantity.ts:96`). Once reached, `SauceDispenseController.step()` deposits nothing (`sauceDispenseController.ts`, `amount <= 0 → break`).
 - Running total = `committedTotalRef` (all committed strokes of this application, `PizzaStage.tsx:305,319`) + `pendingTotalRef` (current uncommitted stroke, `:300-330`). `getTotalDispensed` returns the sum (`:603`).
-- Commit: `COMMIT_SAUCE_DISPENSE` appends deposits to `pizza.sauceDeposits`. A **fresh application** (a different sauce than `sauceIds[0]`) clears the log, so switching sauce refills the bottle (`gameReducer.ts:951-985`). `RESET_PIZZA` empties it (`:1086`). Continuing the same sauce across strokes keeps accumulating toward the same cap.
+- Commit: `COMMIT_SAUCE_DISPENSE` appends deposits to `pizza.sauceDeposits`. A **fresh application** (a different sauce than `sauceIds[0]`) clears the log **when its first stroke is committed** (`gameReducer.ts:951-985`). *Correction (2026-10-13, implementation prep): the original text said switching sauce refills the bottle. It does so only at that commit; while the new stroke is being painted, the stage's cap still counts the previous sauce's committed total (`committedTotalRef`, `PizzaStage.tsx:319,603`, which is only re-synced from `pizza.sauceDeposits`). See §10 item R1.* `RESET_PIZZA` empties it (`:1086`). Continuing the same sauce across strokes keeps accumulating toward the same cap.
 - Deposits outside the dough still count toward the cap and are conserved as `overflowAmount`; `quantity + overflowAmount` = total dispensed (`sauceField.ts:278-320`).
 - The dispense path is entered for **any** `placement === "spread"` ingredient (`isPaintMode`, `PizzaStage.tsx:270`), not only the Reference recipe. Tomato, pesto and olive oil share it.
 
@@ -123,3 +123,43 @@ Not needed: reducer, save, `PizzaState`, new props through `GameScreen`.
 6. Empty feedback: caption text only (default) vs adding a haptic/animation.
 
 Implementation and merge wait for the Owner's approval.
+
+## 10. Implementation prep (Owner policy, 2026-10-13) — docs only
+
+Owner-approved spec: Option B (right-side vertical gauge), ~14×96px initial (tune by measurement), no numeral, no target mark, all SAUCE steps, empty = short caption only (no haptic, no animation), meaning = "dispensable amount left in this sauce application". Scoring, inventory, save, economy and Completion Gate unchanged.
+
+**Gate:** no runtime / CSS / E2E change until the Owner's #487 Final Gate is finished.
+
+### #487 conflict check (read-only, head `dc1d20b`, base = main `cbf3e37`)
+#487 changes 16 files: Canvas mozzarella (`CheesePoolCanvas.tsx`/test, `cheeseRenderMode.ts`/test, `cheeseCanvasProduction.gate.test.ts`, `PizzaStage.cheeseCanvas.test.tsx`, `e2e/canvas-mozzarella-optin-486.spec.ts`, docs, screenshots) and **`PizzaStage.tsx` +2/−5** (removes `CHEESE_CANVAS_ALLOWED` near the imports and edits the mozzarella branch around line 1188). It does **not** touch `App.css`, `sauceQuantity.ts`, `sauceQuantity.test.ts`, `layout-contract.spec.ts`, or any sauce code.
+- Textual conflict: none expected. The two `PizzaStage.tsx` hunks are the cheese constant (top) and the cheese render branch; the gauge goes in the stage wrapper's JSX, away from both. Re-check after #487 merges (rebase on the new main, not before).
+- Semantic conflict: none. The gauge is a sibling of `.pizza-dough` under `.pizza-stage` and does not touch cheese, bake or CUT rendering.
+- Shared risk: both add a `PizzaStage.*.test.tsx`; new file names differ.
+
+### Target files (planned, not yet edited)
+| File | Change |
+|---|---|
+| `src/logic/sauceQuantity.ts` | add pure `sauceRemainingFraction(totalDispensed)` |
+| `src/logic/sauceQuantity.test.ts` | unit tests for it |
+| `src/components/PizzaStage.tsx` | render `.sauce-gauge` (`role="meter"`) from the same total the dispenser uses; SAUCE step only |
+| `src/App.css` | `.sauce-gauge` block only |
+| `src/components/PizzaStage.sauceGauge.test.tsx` (new) | component tests |
+| `e2e/sauce-gauge-489.spec.ts` (new) + one case in `stage-size-stability.spec.ts` | layout invariance, 390×844 / 360×800 (+ short profiles) |
+| `docs/reports/TETO_SAUCE-REMAINING-GAUGE_Result.md` + `docs/reports/screenshots/sauce-remaining-gauge/` | Result report, before/after screenshots |
+Not touched: reducer, `PizzaState`, save, `GameScreen` props, `completionGate`, `scoringV2`, `inventory`.
+
+### Fixed test plan
+1. Unit: fraction 1 at 0, 0 at `SAUCE_MAX_QUANTITY`, monotone, clamped; for sampled totals `fraction × MAX == headroom of tickDepositAmount` (pins gauge to the cap).
+2. Component: rendered only on the SAUCE step (also with no ingredient selected = full); absent on DOUGH / CHEESE / TOPPING / BAKE / CUT / RESULT and for NO_SAUCE; `aria-valuenow` follows a pending stroke; empty shows the caption; `pointer-events: none`, no tab stop; refills after `RESET_PIZZA`; same behavior for Free Cooking, Guided, Lunch Rush, Research, Mission.
+3. R1 pin (below): a test that fixes whichever behavior the Owner chooses.
+4. Regression, unchanged and green: `sauceQuantity`, `sauceDispenseController`, `sauceField`, `sauceEvaluation`, `completionGate`, `scoringV2.*`, `PizzaStage.sauceParity`, `PizzaStage.sauceReset`, `inventory`, reducer sauce tests.
+5. E2E (Chromium): pizza size and dock height identical with the gauge across DOUGH → SAUCE → CHEESE; gauge inside the viewport, no overlap with the dough or tray; a ≈2.5 s hold drains it to empty and further holding changes nothing.
+6. Human Verification per policy: 390×844 video (not committed) + 360×800, before/after screenshots.
+WebKit full run not needed.
+
+### Remaining risks
+- **R1 (new, needs an Owner decision before coding):** switching to a different sauce after painting leaves the dispenser limited by the previous sauce's total until the first stroke commits. The gauge must mirror what the dispenser really allows, so it would show the old, low remainder after the switch. Either (a) accept and show the truth (no behavior change), or (b) fix the cap to restart on a sauce switch (a gameplay-behavior fix with scoring-input consequences; needs its own approval and golden check). Default proposed: (a), and file (b) separately.
+- **R2:** side margin (50px / 43px) is derived, not measured; measure in the implementation PR and shrink the bar if needed.
+- **R3:** the gauge re-renders on each deposit via the existing `forceRender`; confirm no extra layout work on a 4× CPU throttle.
+- **R4:** the right margin may be occluded by a right thumb painting the far-right edge; accepted in the audit, to be judged in HV.
+- **R5:** #487 merging first moves `PizzaStage.tsx` line numbers; rebase onto the new main before starting.
