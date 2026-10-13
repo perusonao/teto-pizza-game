@@ -81,7 +81,7 @@ test.describe("#486 T1 Canvas mozzarella opt-in", () => {
     const canvases = await page.locator(".pizza-cheese-canvas").count();
     expect(canvases).toBeGreaterThanOrEqual(3); // a cut pizza draws a topping in every piece it touches
     expect(await inkedCanvases(page)).toBe(canvases); // none is transparent
-    expect(await page.locator(".pizza-piece").count()).toBe(6);
+    expect(await page.locator(".pizza-piece").count()).toBeGreaterThanOrEqual(6); // three cuts make 6 pieces, or 7 when the gesture lines do not meet at one point (WebKit CI): the count is the cut gesture's, not the cheese's
     expect(await noSideScroll(page)).toBe(true);
     // a discarded backing store (iOS) is caught: clear one canvas behind the game's back, then bring the page back
     await page.evaluate(() => {
