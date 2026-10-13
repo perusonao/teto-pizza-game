@@ -25,7 +25,7 @@ import type { ScoreBreakdown } from "../logic/scoring";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import type { DexState } from "./dex";
 import { consumePizzaInventory, consumePostBakeInventory, type InventoryState } from "./inventory";
-import { withoutPostBakeRequirements } from "./finishEngine";
+import { pizzaForFinalEvaluation, withoutPostBakeRequirements } from "./finishEngine";
 import type { PizzaState } from "./pizzaState";
 import { completionPolicyForRound, type RoundKind } from "./roundKind";
 
@@ -100,6 +100,8 @@ export function finalizeRound(input: FinalizeRoundInput): FinalizedRound {
   // What the Gate and Scoring 2.0 judge against: the same object as `recipe` unless this is a PROVISIONAL pass over a
   // recipe with late requirements.
   const judgedRecipe = finalization === "PROVISIONAL" ? withoutPostBakeRequirements(recipe) : recipe;
+  // FINAL: a late requirement is met by FINISH pieces only (the same object as `pizza` unless the recipe has one).
+  const judgedPizza = finalization === "FINAL" ? pizzaForFinalEvaluation(recipe, pizza) : pizza;
   // Issue #482 (OD-B6 F1): a MATCHED free-cook pizza is judged -- Completion Gate, badge, star cap --
   // by the generic window its gauge showed; the matched recipe's own window is only Scoring 2.0's
   // (`computeScoringV2` below reads it from `recipe`). Every other round uses its recipe's window.
@@ -107,7 +109,7 @@ export function finalizeRound(input: FinalizeRoundInput): FinalizedRound {
   const bakeState = classifyBake(bakeValue, judgedBakeTarget);
   // A1 Authority Cutover: Scoring 2.0 is the sole scoring authority; this is its one call site,
   // shared by FREE and Lunch Rush alike.
-  const scoringV2Result = computeScoringV2(judgedRecipe, pizza);
+  const scoringV2Result = computeScoringV2(judgedRecipe, judgedPizza);
   const score = toLegacyScoreBreakdown(scoringV2Result, bakeValue, judgedBakeTarget);
   // Completion Gate Phase 1 / Lunch Rush Completion Gate 1A: computed unconditionally, from this exact
   // canonical pizza, independently of Scoring 2.0. Issue #215 (OD-1 = G1 / OD-4 = LR-A): a Lunch Rush
@@ -115,7 +117,7 @@ export function finalizeRound(input: FinalizeRoundInput): FinalizedRound {
   // each required ingredient ("recipe"); Dinner reads the round kind.
   const completion = evaluatePizzaCompletion(
     freeCook ? withFreeCookBakeWindow(recipe) : judgedRecipe,
-    pizza,
+    judgedPizza,
     input.isMissionRound ? "order" : completionPolicyForRound({ roundKind: input.roundKind }),
   );
   // EP2: the sole inventory-consumption transaction, from this exact pizza -- ingredients used on a

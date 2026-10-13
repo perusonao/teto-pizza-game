@@ -39,3 +39,16 @@ export function finishAllowedForRound(round: HasRoundKind): boolean {
 export function postBakePieces(pizza: Pick<PizzaState, "toppings">): PizzaState["toppings"] {
   return pizza.toppings.filter((piece) => piece.stage === "post");
 }
+
+/**
+ * The pizza as the FINAL evaluation reads it. A requirement declared `POST_BAKE` is met only by pieces placed in FINISH
+ * (`stage === "post"`): a piece of that ingredient placed before the bake must not satisfy it, or the recipe would
+ * get its late ingredient "for free". Pieces of every other ingredient are untouched. A recipe with no late
+ * requirement gets the SAME pizza object back, so every shipped recipe is evaluated exactly as before.
+ */
+export function pizzaForFinalEvaluation<P extends Pick<PizzaState, "toppings">>(recipe: Pick<Recipe, "requiredIngredients">, pizza: P): P {
+  const lateIds = new Set(recipe.requiredIngredients.filter((req) => req.applicationPhase === "POST_BAKE").map((req) => req.ingredientId));
+  if (lateIds.size === 0) return pizza;
+  const toppings = pizza.toppings.filter((piece) => piece.stage === "post" || !lateIds.has(piece.ingredientId));
+  return toppings.length === pizza.toppings.length ? pizza : { ...pizza, toppings };
+}

@@ -5,7 +5,7 @@ import { INGREDIENTS, getIngredient, type IngredientCategory } from "../data/ing
 import { bakeCompletionFailure } from "../logic/completionGate";
 import { EMPTY_DEX } from "./dex";
 import { finalizeRound, type FinalizeRoundInput } from "./finalizeRound";
-import { finishAllowedForRound, hasPostBakeRequirement, postBakePieces, withoutPostBakeRequirements } from "./finishEngine";
+import { finishAllowedForRound, hasPostBakeRequirement, pizzaForFinalEvaluation, postBakePieces, withoutPostBakeRequirements } from "./finishEngine";
 import { createInitialGameState, gameReducer } from "./gameReducer";
 import { canPlaceIngredient, canPlacePostBakeIngredient, consumePizzaInventory, consumePostBakeInventory, type InventoryState } from "./inventory";
 import type { RoundKind } from "./roundKind";
@@ -178,6 +178,28 @@ describe("finalizeRound: provisional -> final (OD-CS-2 = B)", () => {
     expect(final.inventory).toEqual(consumePizzaInventory(pizza, STOCK));
     expect(finalizeRound(input(FX, pizza, { finalization: "FINAL", inventory: provisional.inventory }))).toEqual(final);
     expect(JSON.stringify(pizza)).toBe(snapshot);
+  });
+
+  it("a pre-bake piece of the late ingredient does not satisfy the late requirement (Codex P2 on #491)", () => {
+    const withEarlyParsley = { ...preBakePizza(), toppings: [...preBakePizza().toppings, piece("parsley"), piece("parsley")] };
+    const final = finalizeRound(input(FX, withEarlyParsley, { finalization: "FINAL" }));
+    expect(final.completion.status).toBe("FAILED");
+    expect(final.completion.status === "FAILED" && final.completion.failures.map((f) => f.reason)).toContain("MISSING_REQUIRED_INGREDIENT");
+    // the returned pizza is the real one, and the early pieces are still charged nowhere twice
+    expect(final.pizza.toppings).toHaveLength(withEarlyParsley.toppings.length);
+    // pre pieces + ONE FINISH piece: the Gate ("recipe" policy) needs one, so PASS; Lunch Rush's "order" (2) would still fail
+    const mixed = { ...withEarlyParsley, toppings: [...withEarlyParsley.toppings, piece("parsley", "post")] };
+    expect(finalizeRound(input(FX, mixed, { finalization: "FINAL" })).completion.status).toBe("PASS");
+    expect(finalizeRound(input(FX, mixed, { finalization: "FINAL", isMissionRound: true })).completion.status).toBe("FAILED");
+  });
+
+  it("pizzaForFinalEvaluation returns the same pizza for every RECIPES entry and for a fixture pizza with no early late-ingredient", () => {
+    for (const recipe of RECIPES) {
+      const pizza = preBakePizza();
+      expect(pizzaForFinalEvaluation(recipe, pizza)).toBe(pizza);
+    }
+    const done = finishedPizza(2);
+    expect(pizzaForFinalEvaluation(FX, done)).toBe(done);
   });
 
   it("a failed bake is visible from the provisional pass (OD-CS-7 = A input); a composition-only failure is not a bake failure", () => {
