@@ -10,8 +10,9 @@ import { SAUCE_MAX_QUANTITY } from "./sauceQuantity";
  * switching the sauce type does not reset it (consumption is never reset here).
  */
 export function sauceRemainingFraction(committedTotal: number, pendingTotal: number): number {
-  const used = (Number.isFinite(committedTotal) ? committedTotal : 0) +
-    (Number.isFinite(pendingTotal) ? pendingTotal : 0);
-  const remaining = 1 - Math.max(0, used) / SAUCE_MAX_QUANTITY;
+  // Sanitize each total on its own so an invalid (negative / non-finite) one can never cancel
+  // legitimate usage carried by the other.
+  const clean = (n: number) => (Number.isFinite(n) ? Math.max(0, n) : 0);
+  const remaining = 1 - (clean(committedTotal) + clean(pendingTotal)) / SAUCE_MAX_QUANTITY;
   return Math.min(1, Math.max(0, remaining));
 }
