@@ -16,7 +16,7 @@ import { undoablePlacementIndex } from "./undoPlacement";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
-import { classifyBake, type BakeState } from "../logic/bake";
+import type { BakeState } from "../logic/bake";
 import {
   advanceStepTiming,
   excludeActiveStepSpan,
@@ -26,10 +26,9 @@ import {
   startCookingTiming,
   type CookingTimingState,
 } from "../logic/cookingTiming";
-import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
+import type { ScoringV2Result } from "../logic/scoringV2";
 import {
   bakeCompletionFailure,
-  evaluatePizzaCompletion,
   type BakeCompletionFailure,
   type PizzaCompletionResult,
 } from "../logic/completionGate";
@@ -51,7 +50,8 @@ import {
   techniqueRoundEligibility,
 } from "../logic/techniques/runtime";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
-import { resolveFreeCookPizza, withFreeCookBakeWindow } from "../logic/discovery/freeCook";
+import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
+import { finalizeRound } from "./finalizeRound";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { addResearchExclusions, type ResearchExclusions } from "./researchExclusions";
 import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
@@ -59,7 +59,6 @@ import { researchRowsFeedback } from "../logic/discovery/researchResultFeedback"
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 import {
   canPlaceIngredient,
-  consumePizzaInventory,
   EMPTY_INVENTORY,
   type InventoryState,
 } from "./inventory";
@@ -82,7 +81,7 @@ import {
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
 import type { QualityStars } from "../logic/scoring";
-import { completionPolicyForRound, isDinnerRound, roundKindFor, type RoundKind } from "./roundKind";
+import { isDinnerRound, roundKindFor, type RoundKind } from "./roundKind";
 import {
   addCutLine,
   createCutState,
@@ -1250,13 +1249,22 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== "BAKE") {
         return state;
       }
-      const pizza: PizzaState = { ...state.pizza, bakeResult: action.value };
-      // Progression 2.0 Phase 3-2: a free-cook pizza is identified here, once, by the Phase 3-1
-      // matcher (../logic/discovery/freeCook.ts). A MATCHED pizza becomes that recipe's round
-      // from this point on (scored, gated and later registered as it); anything else keeps the
-      // sentinel and is either FAILED (not a dish) or an unscored ORIGINAL pizza.
-      const freeCook = state.freeCook ? resolveFreeCookPizza(pizza, state.dex) : null;
-      if (freeCook && freeCook.kind !== "MATCHED") {
+      // Cooking Steps 2.0 CS-1b (Issue #294): the finalization -- free-cook identification, Scoring 2.0, the
+      // Completion Gate, the bake classification and the one inventory consumption -- is the pure
+      // `finalizeRound` (./finalizeRound.ts). Everything below it (the next phase, the #256 post-BAKE skip,
+      // cooking-timing and the non-MATCHED Free Cooking side effects) stays here, unchanged.
+      const finalized = finalizeRound({
+        recipe: state.recipe,
+        pizza: state.pizza,
+        bakeValue: action.value,
+        freeCook: state.freeCook,
+        isMissionRound: state.isMissionRound,
+        roundKind: state.roundKind,
+        dex: state.dex,
+        inventory: state.inventory,
+      });
+      if (finalized.kind === "UNMATCHED_FREE_COOK") {
+        const { pizza, freeCook } = finalized;
         // Progression 2.0 Phase 3-3 (Issue #198): a free-cook round that didn't match anything
         // new (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED, all folded into this one branch)
         // advances the hint-escalation counter, but only while the Dex is still completely
@@ -1282,10 +1290,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           ...state,
           pizza,
           score: null,
-          bakeState: classifyBake(action.value, state.recipe.bakeTarget),
+          bakeState: finalized.bakeState,
           scoringV2Result: null,
-          completion: freeCook.kind === "FAILED" ? freeCook.completion : { status: "PASS" },
-          inventory: consumePizzaInventory(pizza, state.inventory),
+          completion: finalized.completion,
+          inventory: finalized.inventory,
           phase: "RESULT",
           preDiscoveryFreeCookAttempts,
           ...(failedResearch && failedTrial
@@ -1299,46 +1307,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             : {}),
         };
       }
-      const recipe = freeCook ? freeCook.recipe : state.recipe;
-      // Issue #482 (OD-B6 F1): a MATCHED free-cook pizza is judged -- Completion Gate, badge, star cap --
-      // by the generic window its gauge showed; the matched recipe's own window is only Scoring 2.0's
-      // (`computeScoringV2` below reads it from `recipe`). Every other round uses its recipe's window.
-      const judgedBakeTarget = freeCook ? FREE_COOK_BAKE_TARGET : recipe.bakeTarget;
-      const bakeState = classifyBake(action.value, judgedBakeTarget);
-      // A1 Authority Cutover: Scoring 2.0 (../logic/scoringV2/) is now authoritative for
-      // `state.score` -- computed here, from this exact canonical `pizza`, the one and only
-      // Scoring 2.0 call site, shared by FREE and Lunch Rush alike (both dispatch this same
-      // action; see ../logic/scoringV2/index.ts's own file header). `toLegacyScoreBreakdown`
-      // adapts it into the `ScoreBreakdown` shape every downstream consumer already reads
-      // formula-agnostically (see ../logic/scoringV2/toLegacyScoreBreakdown.ts). The legacy
-      // `scorePizza` formula (previously ../logic/scoring.ts) was retired in A3b -- Scoring 2.0
-      // is the sole scoring authority now.
-      const scoringV2Result = computeScoringV2(recipe, pizza);
-      const score = toLegacyScoreBreakdown(scoringV2Result, action.value, judgedBakeTarget);
-      // Completion Gate Phase 1 / Lunch Rush Completion Gate 1A: computed unconditionally
-      // (FREE and Lunch Rush alike), from this exact canonical `pizza`, alongside Scoring 2.0
-      // -- the two are independent (see ../logic/completionGate.ts's own file header).
-      // REGISTER_TO_DEX below branches on it for FREE's own Dex/BEST/Pitz registration; Lunch
-      // Rush's own servedCount/quality/missionScore gating reads this same `state.completion`
-      // one layer up, in App.tsx's `handleMissionServeNext` (see MISSION_NEXT_ORDER's own
-      // comment below for why its Dex/Starter Grant registration itself stays unconditional).
-      // Issue #215 (OD-1 = G1 / OD-4 = LR-A): a Lunch Rush round still needs the ordered
-      // quantity ("order"); every other round completes with one piece of each required
-      // ingredient ("recipe") and pays for any shortage in Scoring 2.0's quantity factor.
-      const completion = evaluatePizzaCompletion(
-        freeCook ? withFreeCookBakeWindow(recipe) : recipe,
-        pizza,
-        // Lunch Rush keeps its own flag exactly as before; Dinner (DM-2) reads the round kind.
-        state.isMissionRound ? "order" : completionPolicyForRound(state),
-      );
-      // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
-      // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
-      // next-inventory value from `state.inventory` + `pizza` -- see consumePizzaInventory's
-      // own doc comment (./inventory.ts) for the full consumption/clamp/atomicity contract.
-      // Completion Gate Phase 1: unaffected by `completion` -- ingredients used on a FAILED
-      // pizza were still genuinely used (see the Result Report's inventory semantics section),
-      // so this consumption happens exactly the same way regardless of the gate's outcome.
-      const inventory = consumePizzaInventory(pizza, state.inventory);
+      const { recipe, pizza, score, bakeState, scoringV2Result, completion, inventory } = finalized;
       // Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8):
       // `postBake` is empty for every one of the 15 shipped recipes (`DEFAULT_COOKING_PROFILE`
       // has no post-BAKE steps), so `phase` below is always "RESULT" and `makingStep` is left
