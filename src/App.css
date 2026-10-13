@@ -228,6 +228,7 @@
   /* PR-A (Issue #167 §5): 6px->4px vertical -- part of this pass's deliberate ~10px real-device
      safety slack, see `.ingredient-tray`'s own comment. */
   padding: 4px 16px;
+  position: relative;
 }
 
 .pizza-dough {
@@ -7348,6 +7349,16 @@ p.hint-sheet__step {
   border: 1px solid rgba(0, 0, 0, 0.35);
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+/* Issue #489 Phase 2: out of flow (absolute), so the pizza's size/centre and its pointer math are
+   untouched; sits in the stage's right gutter, never over the dough's hit area. */
+.pizza-stage__sauce-gauge {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
   pointer-events: none;
 }
 

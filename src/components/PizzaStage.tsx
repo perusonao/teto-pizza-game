@@ -35,6 +35,7 @@ import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { SauceRemainingGauge } from "./SauceRemainingGauge";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -1045,6 +1046,14 @@ export function PizzaStage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFieldSauceContext, pizza.sauceDeposits, pendingVersion]);
   const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
+  // Issue #489 Phase 2: remaining-sauce gauge, SAUCE step only. Committed usage is derived from
+  // canonical deposits directly (not committedTotalRef, which syncs in an effect one render late);
+  // pendingTotalRef is re-read on every pendingVersion bump, like pendingDepositsRef above.
+  const showSauceGauge = makingStep === "SAUCE" && interactive && !resultCompact;
+  const sauceCommittedTotal = useMemo(
+    () => pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0),
+    [pizza.sauceDeposits],
+  );
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
@@ -1425,6 +1434,11 @@ export function PizzaStage({
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
         </svg>
       </div>
+      {showSauceGauge && (
+        <div className="pizza-stage__sauce-gauge">
+          <SauceRemainingGauge committedTotal={sauceCommittedTotal} pendingTotal={pendingTotalRef.current} />
+        </div>
+      )}
     </div>
   );
 }
