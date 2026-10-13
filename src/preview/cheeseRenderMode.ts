@@ -28,10 +28,50 @@ export function resolveCheeseRenderMode(search: string, allowed: boolean): Chees
 }
 
 /**
- * Read once per page load. The env check is a static `import.meta.env` expression, so a production build folds it to `false` and drops the
- * query parsing and (through PizzaStage's `kind === "canvas"` branch) the Canvas path with it.
+ * #486 T1: the PRODUCTION opt-in (plan B, docs/reports/TETO_CANVAS-MOZZARELLA_PRODUCTION-GATE_486.md). While this is `false` (the committed value) a production
+ * build carries no Canvas path at all (the bundle gate in ./cheeseCanvas.bundle.gate.test.ts pins that). Turning it on is a separate, Owner-approved change;
+ * even then the default stays M1 and only a device that carries the opt-in key below shows the Canvas.
+ */
+export const CHEESE_CANVAS_PRODUCTION_ENABLED = false;
+
+/** the opt-in key: its own localStorage entry, apart from the save (a Full Game Reset clears the save only). "c64" / "c96" = Canvas, anything else (or nothing) = M1; "0" is the kill switch. */
+export const CHEESE_CANVAS_OPT_IN_KEY = "teto-pizza-cheese-canvas";
+
+interface ReadableStorage {
+  getItem(key: string): string | null;
+}
+
+/** The stored opt-in as a mode. A failing or missing storage reads as M1 (the safe side). */
+export function resolveCheeseOptIn(storage: ReadableStorage | null): CheeseRenderMode {
+  try {
+    const v = storage?.getItem(CHEESE_CANVAS_OPT_IN_KEY);
+    if (v === "c64") return { kind: "canvas", grid: CHEESE_POOL_GRID_SMALL, sizePx: CHEESE_CANVAS_DEFAULT_PX };
+    if (v === "c96") return { kind: "canvas", grid: CHEESE_POOL_GRID, sizePx: CHEESE_CANVAS_DEFAULT_PX };
+  } catch {
+    // storage blocked: M1
+  }
+  return CHEESE_RENDER_M1;
+}
+
+function readStorage(): ReadableStorage | null {
+  try {
+    return typeof window === "undefined" ? null : window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Read once per page load. Preview / DEV: the query switch (`?cheese=`), else the stored opt-in. Production: the stored opt-in, only when
+ * `CHEESE_CANVAS_PRODUCTION_ENABLED`; otherwise M1. The env check is a static `import.meta.env` expression and the constant is a literal, so a production
+ * build folds both to `false` and drops this parsing and (through PizzaStage's `kind === "canvas"` branch) the Canvas path with it.
  */
 export const CHEESE_RENDER_MODE: CheeseRenderMode =
   import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE
-    ? resolveCheeseRenderMode(typeof window === "undefined" ? "" : window.location.search, true)
-    : CHEESE_RENDER_M1;
+    ? (() => {
+        const q = resolveCheeseRenderMode(typeof window === "undefined" ? "" : window.location.search, true);
+        return q.kind === "canvas" ? q : resolveCheeseOptIn(readStorage());
+      })()
+    : CHEESE_CANVAS_PRODUCTION_ENABLED
+      ? resolveCheeseOptIn(readStorage())
+      : CHEESE_RENDER_M1;

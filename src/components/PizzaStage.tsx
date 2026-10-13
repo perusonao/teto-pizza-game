@@ -1,6 +1,6 @@
 import { CheesePoolCanvas } from "./CheesePoolCanvas";
 import { cheesePoolBakeParams } from "../logic/cheesePoolBake";
-import { CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
+import { CHEESE_CANVAS_PRODUCTION_ENABLED, CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
 import {
   useEffect,
   useCallback,
@@ -54,7 +54,7 @@ import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
 
 /** #421 S2-B: a static env check (folded to `false` in a production build), so the verification-only Canvas path is dropped from production entirely */
-const CHEESE_CANVAS_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE);
+const CHEESE_CANVAS_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE || CHEESE_CANVAS_PRODUCTION_ENABLED);
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -1189,7 +1189,7 @@ export function PizzaStage({
                 />
               );
               if (!(CHEESE_CANVAS_ALLOWED && ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
-              /* #421 S2-B (verification only): the Canvas mozzarella, only behind the Preview / DEV query switch; M1 when the browser has no 2D context. */
+              /* #421 S2-B (#486 T1): the Canvas mozzarella, only behind the Preview / DEV query switch or the (production-disabled) opt-in; M1 when the browser has no 2D context. */
               return (
                 <CheesePoolCanvas
                   seed={t.id}

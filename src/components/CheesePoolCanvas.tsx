@@ -37,6 +37,31 @@ export function resetCanvas2dProbe(): void {
   canvas2dUsable = null;
 }
 
+/** whether any pixel of the canvas is visible: a canvas whose backing store was discarded draws and reads back fully transparent, with no exception (#486 G1) */
+function canvasHasInk(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): boolean {
+  const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  for (let i = 3; i < px.length; i += 4) if (px[i] > 0) return true;
+  return false;
+}
+
+/**
+ * Draw the pool and VERIFY it by reading it back. A blank result (lost backing store of the visible canvas or of the shared offscreen bitmap) rebuilds the
+ * bitmap once and tries once more; anything still wrong (or any exception, e.g. a missing `getImageData`) throws, so the caller shows the M1 piece. Bounded: no loop.
+ */
+function drawPool(canvas: HTMLCanvasElement, image: CheesePoolImage): void {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no 2d context");
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const bitmap = bitmapOf(image);
+    if (!bitmap) throw new Error("no bitmap");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0);
+    if (canvasHasInk(ctx, canvas)) return;
+    bitmaps.delete(image);
+  }
+  throw new Error("blank canvas");
+}
+
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -69,17 +94,26 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
   useLayoutEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    try {
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("no 2d context");
-      const image = renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() });
-      const bitmap = bitmapOf(image);
-      if (!bitmap) throw new Error("no bitmap");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(bitmap, 0, 0);
-    } catch {
-      if (hasFallback) setDrawFailed(true);
-    }
+    const paint = () => {
+      if (!canvas.isConnected) return; // already replaced by the M1 piece: nothing to draw or re-verify
+      try {
+        drawPool(canvas, renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() }));
+      } catch {
+        if (hasFallback) setDrawFailed(true);
+      }
+    };
+    paint();
+    // iOS Safari may drop a canvas's backing store while the page is hidden or in the back/forward cache and then shows it blank WITHOUT any error:
+    // draw again (and verify again) when the page comes back
+    const onVisible = () => {
+      if (document.visibilityState === "visible") paint();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("pageshow", paint);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", paint);
+    };
   }, [seed, melt, toast, char, grid, hasFallback]);
   if ((!usable || drawFailed) && hasFallback) return <>{fallback}</>;
   return (
