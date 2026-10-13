@@ -24,10 +24,16 @@
 - opt-in の保持は localStorage 依存（無効な環境では M1 に戻る＝安全側）。
 - Reference / 図鑑 / サムネイル / トレイは M1 のまま（Owner 決定）。密集時にチーズが塊に見える点は S3 の範囲。
 
-## Owner HV（本番ビルド相当の独立 Preview）
-1. Preview リポジトリで、この PR の exact HEAD を **新規の独立 Preview** として build・deploy（共有 Preview #471 は変更しない。Owner 承認後）。
-2. iPhone Safari でその URL を `?cheeseCanvas=1` 付きで開く（ホーム画面追加も試す）。以降はクエリ無しでも ON が保持されること。
-3. マルゲリータで 焼成 → CUT → RESULT。チーズが透明・欠落・点滅しないこと、M1 の白い円でなく溶けたチーズに見えること、操作に引っかかりがないこと。
-4. アプリを別アプリへ切り替えて戻した後、チーズが消えていないこと（G1 の実機確認）。
-5. `?cheeseCanvas=0` で M1 に戻ること。
-6. 390×844 の動画を Owner へ直接送付（repo にはコミットしない）。
+## Owner HV（iPhone 実機）— 準備状況と制約
+- **制約（要 Owner 判断）**: Preview リポジトリ（`perusonao/teto-pizza-game-preview`）の公開先は `https://perusonao.github.io/teto-pizza-game-preview/` の **1 枠のみ**で、現在は共有 Preview #471 `9a154f6`。ここへ deploy すると共有 Preview が置き換わる（Owner 禁止事項）。「独立 Preview」に当たる別の公開先は現状ない。
+  - 案 A: Owner が一時的な差し替えを承認し、HV 後に #471 `9a154f64f195f74cde9e6cf1db03b334cf593d52`（`pr_number=471`）へ復元する（過去の HV と同じ手順）。
+  - 案 B: Owner が別の公開先（別 repo / 別 Pages）を用意する。
+- **ビルドの性質**: Preview ビルドは `VITE_PREVIEW_MODE=1` なので、`?cheese=` 比較スイッチも有効（本番ビルドでは存在しない）。opt-in（`?cheeseCanvas=1`）は本番と同じ経路で、本番ビルドに同梱されることはバンドル gate で固定済み。本番ビルドそのものの挙動は、バンドル gate と Chromium の本番相当確認で補う。
+- **手順**（公開先が決まった後。deploy は Owner 承認後）:
+  1. この PR の最新 HEAD を Preview の「Build & deploy a source PR/branch」で build し、「Deploy Preview to GitHub Pages」を実行する。
+  2. iPhone Safari で `<公開先>/?cheeseCanvas=1` を開く（ホーム画面追加も試す）。以降はクエリ無しでも ON が保持されること。
+  3. マルゲリータで 焼成 → CUT → RESULT。チーズが透明・欠落・点滅しないこと、白い円でなく溶けたチーズに見えること、操作に引っかかりがないこと。
+  4. 別アプリへ切り替えて戻した後、チーズが消えていないこと（G1 の実機確認）。
+  5. `?cheeseCanvas=0` で M1 に戻ること。
+  6. 390×844 の動画を Owner へ直接送付（repo にはコミットしない）。
+  7. 共有 Preview を差し替えた場合は #471 へ復元する。
