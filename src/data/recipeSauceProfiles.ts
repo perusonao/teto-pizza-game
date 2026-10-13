@@ -283,6 +283,13 @@ export const RECIPE_SAUCE_PROFILES = {
   // Batch 6 PR-2: NO_SAUCE (cheese base, no spread sauce; the existing TQ-1D mechanic).
   "california-style-pizza": null,
   "spinach-artichoke-pizza": null,
+  // Batch 7a: eggplant-ricotta-pizza's olive-oil is its OWN sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca-ricotta / pizza-feta-eliniki); new-zealand-lamb-pizza is NO_SAUCE (the existing `null` mapping).
+  "eggplant-ricotta-pizza": {
+    recipeId: "eggplant-ricotta-pizza",
+    ingredientId: "olive-oil",
+    interaction: "PAINT_TEMPORARY",
+  },
+  "new-zealand-lamb-pizza": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */

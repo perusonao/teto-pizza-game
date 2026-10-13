@@ -45,13 +45,12 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   it("the production ladder equals the REC-04 key-recipe rule applied append-only to the production recipe data", () => {
     // LAD-1 (OD-W2-1): the W1 steps are frozen; the rule only ever appends after them.
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley), so steps 1-49 are frozen as `fixed`: only steps 50-51 (Batch 6) are derived.
-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 49) };
+    // parsley), so steps 1-51 are frozen as `fixed`: only steps 52-53 (Batch 7a) are derived.
+    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
     expect(fixed47.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
     const derived = buildAppendOnlyLadder(fixed47, PRODUCTION_POPULATION);
-    // The REC-04 rule derives step/ingredientIds/keyRecipeId only; the Batch 6 `starGates` are authored data, so they are stripped here and pinned separately.
-    const withoutGates = { ...DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.map(({ starGates: _gates, ...step }) => step) };
-    expect(withoutGates).toEqual(derived);
+    // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived steps 52-53 (Batch 7a) have none.
+    expect(DISCOVERY_LADDER).toEqual(derived);
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
   });
 

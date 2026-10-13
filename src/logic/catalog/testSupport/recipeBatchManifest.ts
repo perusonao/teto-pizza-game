@@ -6,14 +6,14 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** Batch 6 PR-2 (53 -> 55 recipes: goat-cheese / spinach are the last-unlocking (star-gated) key materials of steps 50 / 51; avocado / artichoke unlock on the Ladder alone): the manifest the validator checks. Batches 1-5 (landed) are covered by the catalog-wide tests. */
+/** Batch 7a (55 -> 57 recipes: mint is the key material of step 52, sweet-potato the last-unlocking material of step 53 (lamb + sweet-potato); OD-B7-1): the manifest the validator checks. Batches 1-6 (landed) are covered by the catalog-wide tests. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
-  batchId: "batch-6-pr-2",
+  batchId: "batch-7a",
   status: "landed",
-  afterRecipeId: "pizza-overload",
+  afterRecipeId: "spinach-artichoke-pizza",
   recipes: [
-    { recipeId: "california-style-pizza", keyIngredientId: "goat-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "spinach-artichoke-pizza", keyIngredientId: "spinach", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "eggplant-ricotta-pizza", keyIngredientId: "mint", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "new-zealand-lamb-pizza", keyIngredientId: "sweet-potato", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
 };
 

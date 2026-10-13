@@ -189,6 +189,9 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   // (never spent, never re-locked; an exception to OD-REC04-1 limited to these two materials, superseding the earlier 140-star Phase-3/4 sketch). The key recipe needs both materials.
   { ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": 120 }, keyRecipeId: "california-style-pizza" },
   { ingredientIds: ["artichoke", "spinach"], starGates: { spinach: 130 }, keyRecipeId: "spinach-artichoke-pizza" },
+  // Steps 52-53 (Batch 7a, T4; OD-B7-1): one step per recipe. Steps 1-51 frozen. Cohort keys: mint, sweet-potato (the last material of each step).
+  { ingredientIds: ["mint"], keyRecipeId: "eggplant-ricotta-pizza" },
+  { ingredientIds: ["lamb", "sweet-potato"], keyRecipeId: "new-zealand-lamb-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

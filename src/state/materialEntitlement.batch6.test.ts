@@ -31,7 +31,7 @@ describe("Batch 6 PR-2 production star gates", () => {
     const [s50, s51] = [DISCOVERY_LADDER.steps[49], DISCOVERY_LADDER.steps[50]];
     expect(s50).toEqual({ step: 50, kind: "MATERIAL", ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": GATE_GOAT_CHEESE }, keyRecipeId: "california-style-pizza" });
     expect(s51).toEqual({ step: 51, kind: "MATERIAL", ingredientIds: ["artichoke", "spinach"], starGates: { spinach: GATE_SPINACH }, keyRecipeId: "spinach-artichoke-pizza" });
-    expect(DISCOVERY_LADDER.steps).toHaveLength(51);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(53); // + Batch 7a's steps 52-53 (no star gate)
   });
 
   it("keeps the frozen steps 1..49 byte-identical in meaning (append-only extension)", () => {

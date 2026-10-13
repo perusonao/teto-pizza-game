@@ -1102,6 +1102,40 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "eggplant-ricotta-pizza",
+    nameJa: "ナスとリコッタのピザ",
+    description: "オリーブオイルを塗った生地に、リコッタとナス、ミントをのせた、さっぱりやさしい一枚。",
+    // Batch 7a (Chapter 4). SOURCE AUTHORITY (PIZZA DB `eggplant-ricotta-pizza-pizzadb-p5`, 172 matrix): eggplant / ricotta / olive-oil / mint, cheese base (the olive-oil is the only spread layer). Sauce slot: olive-oil, PAINT_TEMPORARY (the
+    // existing mapping, like pizza-bianca-ricotta / pizza-feta-eliniki). GAMEPLAY CALIBRATION (not source): counts olive-oil 1 / ricotta 3 / eggplant 3 / mint 2, bake 54-74; 8 non-sauce pieces = the 8-slot ring.
+    // Ladder-credited (step 52, key material mint); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint). The key (mint) is last.
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "ricotta", minCount: 3 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "mint", minCount: 2 },
+    ],
+    bakeTarget: { start: 54, end: 74 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "new-zealand-lamb-pizza",
+    nameJa: "ニュージーランドラムピザ",
+    description: "モッツァレラにラムとさつまいも、ローズマリーをのせた、香り豊かでほっくりした一枚。",
+    // Batch 7a (Chapter 4). SOURCE AUTHORITY (PIZZA DB `new-zealand-lamb-pizza-pizzadb-p6`, 172 matrix): lamb / mozzarella / rosemary / sweet-potato, cheese base, no spread sauce. NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient,
+    // so no SAUCE step). GAMEPLAY CALIBRATION (not source): counts mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2, bake 56-76; 8 non-sauce pieces = the 8-slot ring.
+    // Ladder-credited (step 53, cohort key sweet-potato: the last of the step's materials); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "rosemary", minCount: 1 },
+      { ingredientId: "lamb", minCount: 3 },
+      { ingredientId: "sweet-potato", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with
