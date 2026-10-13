@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { cutThreeLines, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { completeDoughStep, cutThreeLines, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "./gestures";
 
 /**
  * #486 T1: the production opt-in of the Canvas mozzarella. OFF by default (M1), `?cheeseCanvas=1` turns it on (remembered in its own key),
@@ -30,11 +30,11 @@ async function openRound(page: Page, query: string) {
   await page.waitForTimeout(600);
 }
 
+/** the bake with a paused clock and a closed-loop needle landing (a raw "click once the needle passes N" can overshoot on a loaded runner, which is a failed bake: CUT is skipped) */
 async function bakeToResult(page: Page) {
-  await page.getByRole("button", { name: /焼く/ }).click();
-  await page.waitForSelector(".bake-gauge__needle");
-  await page.waitForFunction(() => Number.parseFloat((document.querySelector(".bake-gauge__needle") as HTMLElement | null)?.style.left ?? "0") >= 66, undefined, { polling: "raf" });
-  await page.getByRole("button", { name: "取り出す！" }).click();
+  await enterBakePaused(page);
+  await landNeedleAndTakeOut(page, { start: 69, end: 71 });
+  await page.waitForTimeout(400); // the landing animation is real time
 }
 
 async function finishToResult(page: Page) {
