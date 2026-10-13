@@ -55,6 +55,9 @@ The representative E2E was renamed `expansion-batch6.spec.ts` -> `expansion-batc
   - step 53: Shop NEW lamb + sweet-potato (T4, packs 30 / 20) -> purchase -> Research label names only `さつまいも` and no recipe identity reaches the DOM -> cook with **no sauce step** -> NEW DISCOVERY -> Dex (Chapter 4 complete, schema v2).
   - step 52: Shop NEW mint -> purchase -> Research label `ミント` (a single entry; lamb is not researchable until its materials are bought) -> cook with the **olive-oil sauce step** -> NEW DISCOVERY.
 
+### CI finding and fix (WebKit, first push `c3960da`)
+`e2e/batch6-pr3-hv.spec.ts` (Batch 6 PR-3's HV walkthrough, step D "step 51 / 130 stars") asserted `.shop-locked` count 0 ("every material is unlocked"). With Batch 7a, step 51 is no longer the end of the ladder, so the Shop correctly shows the anonymous LOCKED section for the step 52-53 materials. This was the only failure (webkit-360x800 shard 2/2 and webkit-390x844 shard 2/2; 183 / 175 passed). The assertion now uses the spec's own `expectAnonymousLocked` helper (anonymous, identical slots, no identity). No product code changed. Verified locally on Chromium 390x844 and 360x800: `batch6-pr3-hv`, `batch6-pr3-star-notice`, `shop-locked-422`, `shop-buttons-sticky-tabs-455` all pass (24 tests).
+
 ## 6. Owner HV (Preview)
 
 Screenshots in `docs/reports/screenshots/expansion-batch7a/` (390x844). The 390x844 Review Playthrough video is delivered directly, never committed. Check on Preview: the glyphs 🍀 (mint) / 🐑 (lamb) / 🍠 (sweet-potato) on the tray, Shop and RESULT; the NEW 120 Pitz rows (mint; lamb + sweet-potato); the Research entries naming only `ミント` / `さつまいも`; the olive-oil sauce step of eggplant-ricotta and the missing sauce step of the lamb recipe; the 8-piece ring look; **the provisional counts and bake windows (54-74 / 56-76)**.
