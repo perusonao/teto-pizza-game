@@ -8,7 +8,8 @@
 | G1 対策 | `CheesePoolCanvas`: 描画直後に `getImageData` で読み戻し、alpha が全て 0 なら共有ビットマップを 1 回だけ作り直して再描画 → なお空なら（または読み戻し不可・例外）M1 piece に置換。`visibilitychange`(visible) / `pageshow` でも再描画・再検証。置換後は再描画しない（ループなし） |
 | opt-in | `cheeseRenderMode.ts`: キー `teto-pizza-cheese-canvas`（`c64`/`c96` のみ Canvas、`0`・他・未設定・storage 不可は M1）。保存データとは別キー（Full Reset で消えない） |
 | 定数 | `CHEESE_CANVAS_PRODUCTION_ENABLED = false`（コミット値）。false の間、本番ビルドに Canvas 経路は入らない |
-| Preview/DEV | 従来の `?cheese=c64|c96` に加え、クエリが無ければ opt-in キーも読む |
+| Preview/DEV | 従来の `?cheese=c64|c96|m1` が優先（明示 `m1` は保存済み opt-in より強い）。`cheese` クエリが無いときだけ opt-in キーを読む |
+| 本番 opt-in のクエリ | `CHEESE_CANVAS_PRODUCTION_ENABLED=true` のときだけ、`?cheese=c64|c96` がキーを保存して有効化、`?cheese=0|m1` で `0` を保存（実機で Inspector 不要）。false の間は本番バンドルに存在しない |
 | 不変 | scoring / recipes / save / economy / progression / bake / CUT geometry、`PizzaVisualPieces`・Reference・図鑑・サムネイル |
 
 ## テスト
@@ -25,6 +26,6 @@
 
 ## Owner HV 手順（本番ビルド相当 Preview・独立。共有 Preview #471 は変更しない）
 1. 本番ビルド相当（`VITE_PREVIEW_MODE` なし）で、HV 専用の使い捨てコミットで `CHEESE_CANVAS_PRODUCTION_ENABLED = true` にしたビルドを独立 Preview に出す（Owner 承認後。この PR には入れない）。
-2. iPhone Safari で一度 `https://<独立Preview>/` を開き、Web Inspector 不要の方法として HV 用に `localStorage["teto-pizza-cheese-canvas"]="c64"` を設定（またはクエリ付与）。
+2. iPhone Safari で `https://<独立Preview>/?cheese=c64` を一度開く。`CHEESE_CANVAS_PRODUCTION_ENABLED=true` のビルドでは、このクエリがキー `teto-pizza-cheese-canvas` に `c64` を保存して Canvas を有効にする（以後はクエリ無し・ホーム画面起動でも保持）。`?cheese=0`（または `m1`）で kill switch（`0` を保存）。
 3. 確認: 2/6 ピース・CUT〜RESULT・煙あり・チーズが透明でない・ホーム画面起動後も opt-in 保持・アプリ切替で戻った後もチーズが消えない・操作の引っかかり無し。
 4. rollback: キー削除または `"0"`、または定数を false に戻す 1 行 PR。

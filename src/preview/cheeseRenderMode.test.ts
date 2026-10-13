@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CHEESE_CANVAS_DEFAULT_PX, CHEESE_CANVAS_OPT_IN_KEY, CHEESE_CANVAS_PRODUCTION_ENABLED, resolveCheeseOptIn, resolveCheeseRenderMode } from "./cheeseRenderMode";
+import { CHEESE_CANVAS_DEFAULT_PX, CHEESE_CANVAS_OPT_IN_KEY, CHEESE_CANVAS_PRODUCTION_ENABLED, resolveCheeseOptIn, resolvePreviewCheeseMode, resolveProductionCheeseMode, resolveCheeseRenderMode } from "./cheeseRenderMode";
 
 describe("resolveCheeseRenderMode (#421 S2-B verification switch)", () => {
   it("is M1 unless the build allows the switch (production never reads the query)", () => {
@@ -41,5 +41,35 @@ describe("#486 T1: the production opt-in", () => {
         },
       }),
     ).toEqual({ kind: "m1" });
+  });
+
+  const mem = (initial: string | null) => {
+    const data = new Map<string, string>(initial === null ? [] : [[CHEESE_CANVAS_OPT_IN_KEY, initial]]);
+    return { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => void data.set(k, v), data };
+  };
+
+  it("Preview / DEV: an explicit ?cheese=m1 beats a stored Canvas opt-in; the stored value applies only without the parameter", () => {
+    expect(resolvePreviewCheeseMode("?cheese=m1", mem("c64"))).toEqual({ kind: "m1" });
+    expect(resolvePreviewCheeseMode("?cheese=c96", mem("0"))).toMatchObject({ kind: "canvas", grid: 96 });
+    expect(resolvePreviewCheeseMode("", mem("c64"))).toMatchObject({ kind: "canvas", grid: 64 });
+    expect(resolvePreviewCheeseMode("?other=1", mem(null))).toEqual({ kind: "m1" });
+  });
+
+  it("production opt-in: ?cheese=c64 / c96 stores the key and turns the Canvas on; ?cheese=0 / m1 stores the kill switch; no parameter reads the key", () => {
+    const s = mem(null);
+    expect(resolveProductionCheeseMode("?cheese=c64", s)).toMatchObject({ kind: "canvas", grid: 64 });
+    expect(s.data.get(CHEESE_CANVAS_OPT_IN_KEY)).toBe("c64");
+    expect(resolveProductionCheeseMode("", s)).toMatchObject({ kind: "canvas", grid: 64 }); // survives without the parameter (home-screen launch)
+    expect(resolveProductionCheeseMode("?cheese=m1", s)).toEqual({ kind: "m1" });
+    expect(s.data.get(CHEESE_CANVAS_OPT_IN_KEY)).toBe("0");
+    expect(resolveProductionCheeseMode("", s)).toEqual({ kind: "m1" });
+    expect(resolveProductionCheeseMode("?cheese=bogus", mem("c96"))).toMatchObject({ grid: 96 }); // unknown value: the stored key decides
+    const blocked = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error("blocked");
+      },
+    };
+    expect(resolveProductionCheeseMode("?cheese=c64", blocked)).toMatchObject({ kind: "canvas" }); // counts for this load even if it cannot be stored
   });
 });

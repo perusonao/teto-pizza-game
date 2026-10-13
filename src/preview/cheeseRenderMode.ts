@@ -37,23 +37,49 @@ export const CHEESE_CANVAS_PRODUCTION_ENABLED = false;
 /** the opt-in key: its own localStorage entry, apart from the save (a Full Game Reset clears the save only). "c64" / "c96" = Canvas, anything else (or nothing) = M1; "0" is the kill switch. */
 export const CHEESE_CANVAS_OPT_IN_KEY = "teto-pizza-cheese-canvas";
 
-interface ReadableStorage {
+interface OptInStorage {
   getItem(key: string): string | null;
+  setItem?(key: string, value: string): void;
 }
 
-/** The stored opt-in as a mode. A failing or missing storage reads as M1 (the safe side). */
-export function resolveCheeseOptIn(storage: ReadableStorage | null): CheeseRenderMode {
-  try {
-    const v = storage?.getItem(CHEESE_CANVAS_OPT_IN_KEY);
-    if (v === "c64") return { kind: "canvas", grid: CHEESE_POOL_GRID_SMALL, sizePx: CHEESE_CANVAS_DEFAULT_PX };
-    if (v === "c96") return { kind: "canvas", grid: CHEESE_POOL_GRID, sizePx: CHEESE_CANVAS_DEFAULT_PX };
-  } catch {
-    // storage blocked: M1
-  }
+function modeOfKey(v: string | null | undefined): CheeseRenderMode {
+  if (v === "c64") return { kind: "canvas", grid: CHEESE_POOL_GRID_SMALL, sizePx: CHEESE_CANVAS_DEFAULT_PX };
+  if (v === "c96") return { kind: "canvas", grid: CHEESE_POOL_GRID, sizePx: CHEESE_CANVAS_DEFAULT_PX };
   return CHEESE_RENDER_M1;
 }
 
-function readStorage(): ReadableStorage | null {
+/** The stored opt-in as a mode. A failing or missing storage reads as M1 (the safe side). */
+export function resolveCheeseOptIn(storage: OptInStorage | null): CheeseRenderMode {
+  try {
+    return modeOfKey(storage?.getItem(CHEESE_CANVAS_OPT_IN_KEY));
+  } catch {
+    return CHEESE_RENDER_M1; // storage blocked
+  }
+}
+
+/**
+ * The production opt-in with a way to set it on a phone (no dev tools): `?cheese=c64` / `?cheese=c96` stores the key and turns the Canvas on, `?cheese=0`
+ * (or `m1`) stores "0" (the kill switch). Without the parameter the stored key decides. Only reachable when CHEESE_CANVAS_PRODUCTION_ENABLED.
+ */
+export function resolveProductionCheeseMode(search: string, storage: OptInStorage | null): CheeseRenderMode {
+  const q = new URLSearchParams(search).get("cheese");
+  const value = q === "c64" || q === "c96" ? q : q === "0" || q === "m1" ? "0" : null;
+  if (value === null) return resolveCheeseOptIn(storage);
+  try {
+    storage?.setItem?.(CHEESE_CANVAS_OPT_IN_KEY, value);
+  } catch {
+    // storage blocked: the parameter still counts for this page load
+  }
+  return modeOfKey(value);
+}
+
+/** Preview / DEV: an explicit `?cheese=` (including m1) wins; the stored opt-in applies only when the parameter is absent. */
+export function resolvePreviewCheeseMode(search: string, storage: OptInStorage | null): CheeseRenderMode {
+  if (new URLSearchParams(search).has("cheese")) return resolveCheeseRenderMode(search, true);
+  return resolveCheeseOptIn(storage);
+}
+
+function readStorage(): OptInStorage | null {
   try {
     return typeof window === "undefined" ? null : window.localStorage;
   } catch {
@@ -68,10 +94,7 @@ function readStorage(): ReadableStorage | null {
  */
 export const CHEESE_RENDER_MODE: CheeseRenderMode =
   import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE
-    ? (() => {
-        const q = resolveCheeseRenderMode(typeof window === "undefined" ? "" : window.location.search, true);
-        return q.kind === "canvas" ? q : resolveCheeseOptIn(readStorage());
-      })()
+    ? resolvePreviewCheeseMode(typeof window === "undefined" ? "" : window.location.search, readStorage())
     : CHEESE_CANVAS_PRODUCTION_ENABLED
-      ? resolveCheeseOptIn(readStorage())
+      ? resolveProductionCheeseMode(typeof window === "undefined" ? "" : window.location.search, readStorage())
       : CHEESE_RENDER_M1;
