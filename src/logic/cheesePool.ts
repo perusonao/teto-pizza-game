@@ -32,7 +32,7 @@ export type CheesePoolGrid = 64 | 96;
 /** CSS px the 96 grid is meant to span when S2 draws it (a hint for the wiring; nothing here depends on it). */
 export const CHEESE_POOL_SPAN_PX = 72;
 /** Raw lump area as a fraction of the finished pool's area (a 28x23 px piece grows to roughly 1100-1500 px^2). */
-export const CHEESE_POOL_RAW_AREA = 0.38;
+export const CHEESE_POOL_RAW_AREA = 0.22; // S2-B3: 0.38 -> 0.22, so a melted pool spreads over about 4.5x the area of the raw lump
 
 export interface CheesePoolImage {
   width: number;
@@ -534,8 +534,11 @@ export const CHEESE_POOL_MARGIN = 3 / 32;
 const FRAME_SLACK = 1.085;
 
 /** blisters: base radius (px at 96) and the most they may cover of the pool (fraction of its area) */
-const BLISTER_SIZE_BASE = 2.0;
-const BLISTER_COVER_MAX = 0.015;
+const BLISTER_SIZE_BASE = 3.0;
+const BLISTER_COVER_MAX = 0.05;
+
+const OUTLINE_TONGUE_GAIN = 1.5;
+const OUTLINE_HARMONIC_GAIN = 1.25;
 
 const GEOMETRY_CACHE_LIMIT = 48;
 const geometryCache = new Map<string, CheesePoolGeometry>();
@@ -561,6 +564,12 @@ export function getCheesePoolGeometry(seed: string | number, grid: CheesePoolGri
 }
 
 function buildGeometryFromBoundary(boundary: Boundary, rng: () => number, N: number): CheesePoolGeometry {
+  // S2-B3: the finished outline is spread out further than the filtered candidate: tongues and bays x1.5, the low harmonics x1.25 (the frame below is
+  // measured on the amplified outline, so the border margin still holds)
+  for (let b = 0; b <= BINS; b += 1) {
+    boundary.lutT[b] *= OUTLINE_TONGUE_GAIN;
+    boundary.lutH[b] *= OUTLINE_HARMONIC_GAIN;
+  }
   const { lutH, lutT, tongue, r1, cx, cy, phi, aspect } = boundary;
   const cphi = Math.cos(phi);
   const sphi = Math.sin(phi);
@@ -692,7 +701,7 @@ const RAW = [246, 242, 226] as const; // a raw lump is a little whiter
 const AMBER = [214, 142, 62] as const; // blister fill
 const AMBER_RIM = [166, 98, 40] as const; // the darker rim of a blister
 const EDGE_SHADOW = [208, 190, 150] as const; // the thick, slightly shadowed lip at the outline
-const GOLD = [238, 214, 158] as const; // pale golden mottling of a toasted surface
+const BAKED = [204, 148, 74] as const; // golden brown of a baked rim / patch
 const BROWN = [122, 74, 42] as const;
 const SCORCH = [156, 130, 104] as const; // overall tint of overbaked cheese
 
@@ -843,12 +852,14 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
       r = lerp(r, EDGE_SHADOW[0], lip);
       g = lerp(g, EDGE_SHADOW[1], lip);
       bl = lerp(bl, EDGE_SHADOW[2], lip);
-      // toasting also shows as pale golden mottling over the surface, before (and beside) the amber blisters
+      // S2-B3: baked mozzarella browns first where it is thin: the rim and the tongue tips go golden brown, and large mottled patches brown the surface
       if (toastV > 0) {
-        const gold = toastV * smoothstep(0.55, 0.8, noiseLow[i]) * 0.3;
-        r = lerp(r, GOLD[0], gold);
-        g = lerp(g, GOLD[1], gold);
-        bl = lerp(bl, GOLD[2], gold);
+        const edgeBrown = toastV * (smoothstep(0.5, 0.97, rho) * 0.5 + tg * 0.25);
+        const patch = toastV * smoothstep(0.42, 0.7, noiseLow[i]) * 0.48;
+        const k = clamp01(Math.max(edgeBrown, patch));
+        r = lerp(r, BAKED[0], k);
+        g = lerp(g, BAKED[1], k);
+        bl = lerp(bl, BAKED[2], k);
       }
       // browning: amber blisters with a darker rim (toast) that turn brown when charred, and an overall scorched tint when charred
       if (toastV > 0) {
