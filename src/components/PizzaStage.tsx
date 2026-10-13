@@ -1,3 +1,6 @@
+import { CheesePoolCanvas } from "./CheesePoolCanvas";
+import { cheesePoolBakeParams } from "../logic/cheesePoolBake";
+import { CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
 import {
   useEffect,
   useCallback,
@@ -49,6 +52,9 @@ import { buildDragCutPath, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
+
+/** #421 S2-B: a static env check (folded to `false` in a production build), so the verification-only Canvas path is dropped from production entirely */
+const CHEESE_CANVAS_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE);
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -1175,10 +1181,25 @@ export function PizzaStage({
                 melt/spread/toast/char); every other ingredient gets its own dedicated
                 `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
                 variable's own comment above for why. */}
-            <IngredientPieceVisual
-              ingredient={ingredient}
-              style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
-            />
+            {(() => {
+              const m1Piece = (
+                <IngredientPieceVisual
+                  ingredient={ingredient}
+                  style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+                />
+              );
+              if (!(CHEESE_CANVAS_ALLOWED && ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
+              /* #421 S2-B (verification only): the Canvas mozzarella, only behind the Preview / DEV query switch; M1 when the browser has no 2D context. */
+              return (
+                <CheesePoolCanvas
+                  seed={t.id}
+                  {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
+                  grid={CHEESE_RENDER_MODE.grid}
+                  sizePx={CHEESE_RENDER_MODE.sizePx}
+                  fallback={m1Piece}
+                />
+              );
+            })()}
           </span>
         );
       })}

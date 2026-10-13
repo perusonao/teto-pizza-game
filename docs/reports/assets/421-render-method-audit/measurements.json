@@ -1,0 +1,636 @@
+{
+ "photo": {
+  "size": [
+   360,
+   437
+  ],
+  "mask_frac": 0.282,
+  "pools": [
+   {
+    "area": 5002,
+    "eqd": 79.804,
+    "solidity": 0.805,
+    "aspect": 1.062,
+    "touches_border": false,
+    "core_rgb": [
+     236,
+     232,
+     215
+    ],
+    "band_rgb": [
+     230,
+     219,
+     195
+    ],
+    "warm_frac": 0.021,
+    "gloss_frac": 0.018,
+    "profile": {
+     "in1": 0.86,
+     "in2": 0.93,
+     "in3": 0.96,
+     "in4": 0.98,
+     "in6": 0.99,
+     "out1": 0.61,
+     "out2": 0.38,
+     "out3": 0.27,
+     "out4": 0.15,
+     "out6": 0.07
+    }
+   },
+   {
+    "area": 574,
+    "eqd": 27.034,
+    "solidity": 0.853,
+    "aspect": 1.977,
+    "touches_border": false,
+    "core_rgb": [
+     235,
+     231,
+     213
+    ],
+    "band_rgb": [
+     227,
+     214,
+     185
+    ],
+    "warm_frac": 0.0,
+    "gloss_frac": 0.0,
+    "profile": {
+     "in1": null,
+     "in2": null,
+     "in3": null,
+     "in4": null,
+     "in6": null,
+     "out1": null,
+     "out2": null,
+     "out3": null,
+     "out4": null,
+     "out6": null
+    }
+   },
+   {
+    "area": 1192,
+    "eqd": 38.958,
+    "solidity": 0.538,
+    "aspect": 2.318,
+    "touches_border": false,
+    "core_rgb": [
+     233,
+     230,
+     215
+    ],
+    "band_rgb": [
+     222,
+     214,
+     191
+    ],
+    "warm_frac": 0.0,
+    "gloss_frac": 0.0,
+    "profile": {
+     "in1": null,
+     "in2": null,
+     "in3": null,
+     "in4": null,
+     "in6": null,
+     "out1": null,
+     "out2": null,
+     "out3": null,
+     "out4": null,
+     "out6": null
+    }
+   },
+   {
+    "area": 4931,
+    "eqd": 79.236,
+    "solidity": 0.841,
+    "aspect": 1.217,
+    "touches_border": false,
+    "core_rgb": [
+     241,
+     239,
+     226
+    ],
+    "band_rgb": [
+     231,
+     221,
+     205
+    ],
+    "warm_frac": 0.012,
+    "gloss_frac": 0.071,
+    "profile": {
+     "in1": 0.82,
+     "in2": 0.9,
+     "in3": 0.93,
+     "in4": 0.95,
+     "in6": 0.96,
+     "out1": 0.54,
+     "out2": 0.26,
+     "out3": 0.17,
+     "out4": 0.14,
+     "out6": 0.06
+    }
+   },
+   {
+    "area": 4865,
+    "eqd": 78.704,
+    "solidity": 0.763,
+    "aspect": 1.197,
+    "touches_border": false,
+    "core_rgb": [
+     241,
+     237,
+     223
+    ],
+    "band_rgb": [
+     229,
+     218,
+     195
+    ],
+    "warm_frac": 0.025,
+    "gloss_frac": 0.018,
+    "profile": {
+     "in1": 0.79,
+     "in2": 0.88,
+     "in3": 0.92,
+     "in4": 0.95,
+     "in6": 0.97,
+     "out1": 0.49,
+     "out2": 0.24,
+     "out3": 0.17,
+     "out4": 0.13,
+     "out6": 0.07
+    }
+   },
+   {
+    "area": 3391,
+    "eqd": 65.708,
+    "solidity": 0.606,
+    "aspect": 1.368,
+    "touches_border": false,
+    "core_rgb": [
+     235,
+     231,
+     215
+    ],
+    "band_rgb": [
+     222,
+     213,
+     187
+    ],
+    "warm_frac": 0.026,
+    "gloss_frac": 0.002,
+    "profile": {
+     "in1": 0.8,
+     "in2": 0.88,
+     "in3": 0.93,
+     "in4": 0.97,
+     "in6": 1.01,
+     "out1": 0.48,
+     "out2": 0.17,
+     "out3": 0.08,
+     "out4": -0.01,
+     "out6": -0.04
+    }
+   },
+   {
+    "area": 2213,
+    "eqd": 53.082,
+    "solidity": 0.624,
+    "aspect": 1.252,
+    "touches_border": false,
+    "core_rgb": [
+     237,
+     228,
+     208
+    ],
+    "band_rgb": [
+     229,
+     211,
+     184
+    ],
+    "warm_frac": 0.039,
+    "gloss_frac": 0.0,
+    "profile": {
+     "in1": 0.82,
+     "in2": 0.88,
+     "in3": 0.93,
+     "in4": 0.95,
+     "in6": 0.98,
+     "out1": 0.57,
+     "out2": 0.25,
+     "out3": 0.11,
+     "out4": 0.02,
+     "out6": -0.02
+    }
+   }
+  ]
+ },
+ "M1": {
+  "size": [
+   403,
+   376
+  ],
+  "mask_frac": 0.08,
+  "pools": [
+   {
+    "area": 3538,
+    "eqd": 67.117,
+    "solidity": 1.004,
+    "aspect": 1.744,
+    "touches_border": false,
+    "core_rgb": [
+     251,
+     244,
+     217
+    ],
+    "band_rgb": [
+     247,
+     212,
+     182
+    ],
+    "warm_frac": 0.065,
+    "gloss_frac": 0.548,
+    "profile": {
+     "in1": 0.67,
+     "in2": 0.71,
+     "in3": 0.76,
+     "in4": 0.8,
+     "in6": 0.88,
+     "out1": 0.54,
+     "out2": 0.36,
+     "out3": 0.29,
+     "out4": 0.26,
+     "out6": 0.18
+    }
+   },
+   {
+    "area": 3699,
+    "eqd": 68.627,
+    "solidity": 0.951,
+    "aspect": 1.411,
+    "touches_border": false,
+    "core_rgb": [
+     251,
+     244,
+     215
+    ],
+    "band_rgb": [
+     247,
+     218,
+     181
+    ],
+    "warm_frac": 0.059,
+    "gloss_frac": 0.507,
+    "profile": {
+     "in1": 0.69,
+     "in2": 0.74,
+     "in3": 0.78,
+     "in4": 0.82,
+     "in6": 0.89,
+     "out1": 0.54,
+     "out2": 0.33,
+     "out3": 0.25,
+     "out4": 0.22,
+     "out6": 0.14
+    }
+   },
+   {
+    "area": 4879,
+    "eqd": 78.817,
+    "solidity": 1.002,
+    "aspect": 1.445,
+    "touches_border": false,
+    "core_rgb": [
+     251,
+     240,
+     209
+    ],
+    "band_rgb": [
+     247,
+     214,
+     178
+    ],
+    "warm_frac": 0.049,
+    "gloss_frac": 0.397,
+    "profile": {
+     "in1": 0.77,
+     "in2": 0.79,
+     "in3": 0.81,
+     "in4": 0.83,
+     "in6": 0.88,
+     "out1": 0.65,
+     "out2": 0.4,
+     "out3": 0.28,
+     "out4": 0.23,
+     "out6": 0.15
+    }
+   }
+  ]
+ },
+ "Proto3": {
+  "size": [
+   414,
+   353
+  ],
+  "mask_frac": 0.08,
+  "pools": [
+   {
+    "area": 3485,
+    "eqd": 66.613,
+    "solidity": 1.001,
+    "aspect": 2.358,
+    "touches_border": false,
+    "core_rgb": [
+     251,
+     244,
+     217
+    ],
+    "band_rgb": [
+     248,
+     213,
+     183
+    ],
+    "warm_frac": 0.078,
+    "gloss_frac": 0.57,
+    "profile": {
+     "in1": 0.7,
+     "in2": 0.75,
+     "in3": 0.79,
+     "in4": 0.83,
+     "in6": 0.9,
+     "out1": 0.52,
+     "out2": 0.3,
+     "out3": 0.23,
+     "out4": 0.21,
+     "out6": 0.18
+    }
+   },
+   {
+    "area": 4930,
+    "eqd": 79.228,
+    "solidity": 1.001,
+    "aspect": 2.154,
+    "touches_border": false,
+    "core_rgb": [
+     251,
+     240,
+     209
+    ],
+    "band_rgb": [
+     246,
+     214,
+     177
+    ],
+    "warm_frac": 0.047,
+    "gloss_frac": 0.407,
+    "profile": {
+     "in1": 0.78,
+     "in2": 0.8,
+     "in3": 0.82,
+     "in4": 0.84,
+     "in6": 0.89,
+     "out1": 0.55,
+     "out2": 0.16,
+     "out3": 0.01,
+     "out4": -0.01,
+     "out6": -0.03
+    }
+   },
+   {
+    "area": 3325,
+    "eqd": 65.066,
+    "solidity": 0.968,
+    "aspect": 1.878,
+    "touches_border": false,
+    "core_rgb": [
+     251,
+     244,
+     215
+    ],
+    "band_rgb": [
+     245,
+     218,
+     181
+    ],
+    "warm_frac": 0.069,
+    "gloss_frac": 0.53,
+    "profile": {
+     "in1": 0.7,
+     "in2": 0.75,
+     "in3": 0.79,
+     "in4": 0.83,
+     "in6": 0.9,
+     "out1": 0.49,
+     "out2": 0.21,
+     "out3": 0.14,
+     "out4": 0.13,
+     "out6": 0.1
+    }
+   }
+  ]
+ },
+ "Proto4 (0743c23)": {
+  "size": [
+   497,
+   409
+  ],
+  "mask_frac": 0.068,
+  "pools": [
+   {
+    "area": 4891,
+    "eqd": 78.914,
+    "solidity": 0.979,
+    "aspect": 1.518,
+    "touches_border": false,
+    "core_rgb": [
+     252,
+     243,
+     216
+    ],
+    "band_rgb": [
+     247,
+     211,
+     181
+    ],
+    "warm_frac": 0.013,
+    "gloss_frac": 0.452,
+    "profile": {
+     "in1": 0.73,
+     "in2": 0.77,
+     "in3": 0.82,
+     "in4": 0.86,
+     "in6": 0.93,
+     "out1": 0.66,
+     "out2": 0.57,
+     "out3": 0.46,
+     "out4": 0.36,
+     "out6": 0.19
+    }
+   },
+   {
+    "area": 4042,
+    "eqd": 71.739,
+    "solidity": 0.988,
+    "aspect": 1.699,
+    "touches_border": false,
+    "core_rgb": [
+     252,
+     246,
+     220
+    ],
+    "band_rgb": [
+     244,
+     217,
+     182
+    ],
+    "warm_frac": 0.014,
+    "gloss_frac": 0.584,
+    "profile": {
+     "in1": 0.69,
+     "in2": 0.76,
+     "in3": 0.8,
+     "in4": 0.85,
+     "in6": 0.93,
+     "out1": 0.6,
+     "out2": 0.48,
+     "out3": 0.38,
+     "out4": 0.29,
+     "out6": 0.16
+    }
+   },
+   {
+    "area": 4844,
+    "eqd": 78.534,
+    "solidity": 1.01,
+    "aspect": 1.745,
+    "touches_border": false,
+    "core_rgb": [
+     252,
+     245,
+     217
+    ],
+    "band_rgb": [
+     247,
+     217,
+     181
+    ],
+    "warm_frac": 0.011,
+    "gloss_frac": 0.488,
+    "profile": {
+     "in1": 0.7,
+     "in2": 0.75,
+     "in3": 0.8,
+     "in4": 0.85,
+     "in6": 0.92,
+     "out1": 0.63,
+     "out2": 0.55,
+     "out3": 0.45,
+     "out4": 0.34,
+     "out6": 0.17
+    }
+   }
+  ]
+ },
+ "Proto4b": {
+  "size": [
+   480,
+   403
+  ],
+  "mask_frac": 0.072,
+  "pools": [
+   {
+    "area": 4853,
+    "eqd": 78.607,
+    "solidity": 0.972,
+    "aspect": 1.506,
+    "touches_border": false,
+    "core_rgb": [
+     252,
+     248,
+     224
+    ],
+    "band_rgb": [
+     250,
+     221,
+     185
+    ],
+    "warm_frac": 0.013,
+    "gloss_frac": 0.673,
+    "profile": {
+     "in1": 0.77,
+     "in2": 0.83,
+     "in3": 0.87,
+     "in4": 0.9,
+     "in6": 0.94,
+     "out1": 0.72,
+     "out2": 0.66,
+     "out3": 0.56,
+     "out4": 0.42,
+     "out6": 0.16
+    }
+   },
+   {
+    "area": 4216,
+    "eqd": 73.266,
+    "solidity": 0.99,
+    "aspect": 1.741,
+    "touches_border": false,
+    "core_rgb": [
+     252,
+     248,
+     223
+    ],
+    "band_rgb": [
+     248,
+     224,
+     186
+    ],
+    "warm_frac": 0.041,
+    "gloss_frac": 0.706,
+    "profile": {
+     "in1": 0.74,
+     "in2": 0.81,
+     "in3": 0.86,
+     "in4": 0.9,
+     "in6": 0.94,
+     "out1": 0.65,
+     "out2": 0.56,
+     "out3": 0.41,
+     "out4": 0.24,
+     "out6": 0.07
+    }
+   },
+   {
+    "area": 4906,
+    "eqd": 79.035,
+    "solidity": 0.996,
+    "aspect": 1.928,
+    "touches_border": false,
+    "core_rgb": [
+     252,
+     248,
+     224
+    ],
+    "band_rgb": [
+     250,
+     224,
+     185
+    ],
+    "warm_frac": 0.018,
+    "gloss_frac": 0.721,
+    "profile": {
+     "in1": 0.74,
+     "in2": 0.8,
+     "in3": 0.85,
+     "in4": 0.89,
+     "in6": 0.93,
+     "out1": 0.68,
+     "out2": 0.58,
+     "out3": 0.42,
+     "out4": 0.25,
+     "out6": 0.09
+    }
+   }
+  ]
+ }
+}

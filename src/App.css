@@ -816,6 +816,15 @@
   box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8), inset 0 -2px 3px rgba(255, 255, 255, 0.35);
 }
 
+/* #421 S2-B (verification only, ?cheese=c64|c96 on a Preview / DEV build): the Canvas mozzarella. The box is square and the pool is drawn
+   centred in it (about 66 % of the box when finished), so it sits where the M1 oval's centre sits. No filter or shadow: the bitmap carries its own shading. */
+.pizza-cheese-canvas {
+  display: block;
+  width: var(--cheese-canvas-size, 62px);
+  height: var(--cheese-canvas-size, 62px);
+  pointer-events: none;
+}
+
 /* Legacy discrete melt look -- PizzaStage's own live bake path no longer applies these
    classNames (see `.pizza-cheese`'s own `--bake-melt-scale` comment above); kept only for
    IngredientPieceVisual's generic className passthrough contract (its own test still exercises

@@ -241,7 +241,7 @@ describe("Pizza Select A′: nothing about an undiscovered recipe reaches the DO
       expect(everything).not.toMatch(/を1枚完成させると解禁|あと★|未解放/);
       cleanup();
     }
-  });
+  }, 10_000); // explicit timeout: this walk renders the screen 26 times and ran 3.7-4.0 s alone, close to the 5 s default under a full-suite load
 });
 
 describe("PizzaSelectScreen scalability (mocked catalog)", () => {
