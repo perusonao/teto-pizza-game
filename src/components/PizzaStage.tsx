@@ -1164,9 +1164,7 @@ export function PizzaStage({
               className={sauceLayerClassName(layer.ingredientId, bakeState)}
             />
           ))}
-          {sauceLayers.some((layer) => layer.ingredientId === "olive-oil") && (
-            <div className="pizza-sauce-oil-sheen" aria-hidden="true" />
-          )}
+          {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
         </>
       )}
       {showSauceHeatmap && !sauceLayers && (

@@ -9,7 +9,7 @@ untouched; nothing is deployed; the multi-sauce feature is not published (B2 is 
   layer first; the pending stroke joins its kind's layer). It returns `null` unless **two or more kinds have deposits**, so every
   single-source pizza renders through the historical single-heatmap JSX, byte for byte.
 - **Rendering.** One `SauceHeatmapCanvas` per layer (own deposits, own colour, class `pizza-sauce-heatmap--kind-<id>`), then one
-  `OverflowMarkerCanvas` per layer (own colour). The olive-oil class and the single sheen are only for the oil layer, drawn once.
+  `OverflowMarkerCanvas` per layer (own colour). The olive-oil class applies to the oil layer only. The full-pizza `.pizza-sauce-oil-sheen` is not drawn on layered pizzas (it is unmasked and would gloss the other sauces' areas — Codex P2); single-oil pizzas are unchanged.
   After a switch, earlier kinds keep colour and painted positions; switching back adds to the first kind's layer.
 - **Overlap.** Plain alpha stacking (CSS unchanged — `App.css` untouched); later layers sit on earlier ones.
 - Only change outside new files: `ownerOf` in `sauceLedger.ts` is now `export`ed.
@@ -22,7 +22,7 @@ Existing PizzaStage tests (152) pass unchanged. Browser regression `sauce-edge-4
 ## Verification
 - tsc clean; oxlint: only pre-existing warnings; full Vitest 410 files / 7942 tests pass; build OK.
 - New: `sauceLayers.test.ts` (unit), `PizzaStage.sauceLayers.test.tsx` (probe: order, colours, transparency props, cut copies, single
-  sheen), `e2e/sauce-layers-b2.spec.ts` (pixels via getImageData, layout unchanged, scrollWidth ≤ viewport, three kinds persist to
+  no sheen), `e2e/sauce-layers-b2.spec.ts` (pixels via getImageData, layout unchanged, scrollWidth ≤ viewport, three kinds persist to
   CHEESE) — pass at 390×844 and 360×800.
 - Mutation check: `>= 2` → `>= 1` fails 16 tests; reversed layer order fails 4 tests.
 

@@ -155,5 +155,5 @@ test("switching back adds to the first layer and keeps three kinds in order; the
 
   await page.getByRole("button", { name: /次へ/ }).click(); // SAUCE -> CHEESE
   expect((await heatKinds()).slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
-  expect(await page.locator(".pizza-sauce-oil-sheen").count()).toBe(1);
+  expect(await page.locator(".pizza-sauce-oil-sheen").count()).toBe(0);
 });

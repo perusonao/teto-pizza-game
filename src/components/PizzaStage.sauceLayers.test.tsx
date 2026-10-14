@@ -126,12 +126,12 @@ describe("PizzaStage layered sauce painting", () => {
     for (const h of heat) expect(h.className).not.toMatch(/opacity|blend/);
   });
 
-  it("olive oil keeps its own treatment on ITS layer only, and the sheen is drawn once", () => {
+  it("olive oil keeps its own treatment on ITS layer only, and the full-pizza sheen is not drawn", () => {
     const c = renderStage(multi(["tomato-sauce", tomato], ["olive-oil", pesto]));
     const heat = probes(c, "heatmap");
     expect(heat[0].className).not.toContain("pizza-sauce-heatmap--oil");
     expect(heat[1].className).toContain("pizza-sauce-heatmap--oil");
-    expect(c.querySelectorAll(".pizza-sauce-oil-sheen")).toHaveLength(1);
+    expect(c.querySelectorAll(".pizza-sauce-oil-sheen")).toHaveLength(0);
     expect(renderStage(multi(["tomato-sauce", tomato], ["pesto", pesto])).querySelectorAll(".pizza-sauce-oil-sheen")).toHaveLength(0);
   });
 
