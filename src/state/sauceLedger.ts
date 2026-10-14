@@ -27,7 +27,7 @@ function partsOf(pizza: SauceLedgerPizza): { ids: string[]; deposits: SafeSauceD
 }
 
 /** Who laid a deposit: its own stamp, else (history written before a second kind) the only sauce used so far. */
-function ownerOf(deposit: SafeSauceDeposit, ids: readonly string[]): string {
+export function ownerOf(deposit: SafeSauceDeposit, ids: readonly string[]): string {
   return deposit.ingredientId ?? ids[0] ?? "";
 }
 

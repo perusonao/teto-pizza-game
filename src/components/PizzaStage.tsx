@@ -35,6 +35,7 @@ import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
+import { sauceLayersOf } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -1048,6 +1049,15 @@ export function PizzaStage({
   }, [isFieldSauceContext, pizza.sauceDeposits, pendingVersion]);
   const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
+  // Sauce B2 (layered painting): with two or more sauce kinds on the pizza (committed, or one in progress over another) each
+  // kind is drawn as its own layer, the first laid at the bottom. `null` (fewer than two kinds) keeps the single heatmap below
+  // exactly as it has always been drawn, so a one-sauce pizza never takes the layered path.
+  const sauceLayers = useMemo(
+    () => (isFieldSauceContext ? sauceLayersOf(pizza, pendingDepositsRef.current, activeSessionRef.current?.ingredientId ?? null) : null),
+    // pendingVersion is the reactive proxy for pendingDepositsRef.current -- see its own declaration above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isFieldSauceContext, pizza.sauceIds, pizza.sauceDeposits, pendingVersion],
+  );
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
   // `SauceHeatmapCanvas`, and the overflow markers in `OverflowMarkerCanvas` (Issue #418) -- both
@@ -1056,6 +1066,13 @@ export function PizzaStage({
   // Issue #418: the pizza "body" (dough silhouette + sauce + toppings + bake look) is rendered by
   // these two functions so a cut pizza can draw one copy per piece. Uncut, `PizzaStage` renders them
   // once exactly as before. The silhouette's <clipPath> is defined once, outside the body.
+  /** Class list of one sauce layer's canvases: the same tokens the single heatmap carries (the olive-oil treatment, the bake
+   *  tint), plus the kind so tests and the browser checks can tell the layers apart. */
+  const sauceLayerClassName = (ingredientId: string, bake: typeof bakeState) =>
+    `pizza-sauce-heatmap ${ingredientId === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""} ${
+      bake ? `pizza-sauce-heatmap--${bake}` : ""
+    } pizza-sauce-heatmap--kind-${ingredientId}`;
+
   const renderShapeLayer = () =>
     showDoughShape ? (
       <div
@@ -1124,7 +1141,33 @@ export function PizzaStage({
           }}
         />
       )}
-      {showSauceHeatmap && (
+      {showSauceHeatmap && sauceLayers && (
+        <>
+          {/* Sauce B2: one heatmap per sauce kind (first laid at the bottom, later ones on top), each with only ITS deposits and
+              ITS colour; the overflow markers follow all of them so they always sit on top. Same box/filter classes as the
+              single heatmap below, plus a per-kind marker class. */}
+          {sauceLayers.map((layer) => (
+            <SauceHeatmapCanvas
+              key={`heat-${layer.ingredientId}`}
+              deposits={layer.deposits}
+              doughShape={pizza.doughShape}
+              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
+              className={sauceLayerClassName(layer.ingredientId, bakeState)}
+            />
+          ))}
+          {sauceLayers.map((layer) => (
+            <OverflowMarkerCanvas
+              key={`overflow-${layer.ingredientId}`}
+              deposits={layer.deposits}
+              doughShape={pizza.doughShape}
+              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
+              className={sauceLayerClassName(layer.ingredientId, bakeState)}
+            />
+          ))}
+          {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
+        </>
+      )}
+      {showSauceHeatmap && !sauceLayers && (
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
@@ -1139,7 +1182,7 @@ export function PizzaStage({
           SauceHeatmapCanvas -- same box/filter classes (so the markers keep the exact same
           blur/bake-state tint the pre-extraction single-canvas version applied to them),
           drawn after it in DOM order so the markers sit on top. */}
-      {showSauceHeatmap && (
+      {showSauceHeatmap && !sauceLayers && (
         <OverflowMarkerCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
@@ -1158,7 +1201,7 @@ export function PizzaStage({
           same `isOilSauce`/`showSauceHeatmap`/`!isFieldSauceContext` conditions the sauce
           visuals above already use), never reads or writes
           `sauceDeposits`/`sauceIds`/anything Scoring 2.0 sees. */}
-      {isOilSauce && (showSauceHeatmap || !isFieldSauceContext) && (
+      {isOilSauce && !sauceLayers && (showSauceHeatmap || !isFieldSauceContext) && (
         <div className="pizza-sauce-oil-sheen" aria-hidden="true" />
       )}
       {toppingsFor(piece).map(({ t, half }) => {
