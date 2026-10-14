@@ -44,3 +44,23 @@ while a further stroke still dispensed. Owner decided: manage usage cumulatively
 - Tests: `advanceSauceCarry` unit tests; `PizzaStage.sauceCumulative.test.tsx` (normal, switch mid-way, switch back and forth,
   cap after a switch, 0% blocks both sauces, 1.0 of one sauce blocks the other, fresh pizza); E2E hold-to-empty at 390×844 / 360×800.
   The 0% test fails on the previous code and passes now.
+
+## Human Verification Videos
+Videos are delivered to the Owner directly in the session and are NOT committed (policy §6).
+
+| File | Viewport | Duration | Size | Codec | Delivery | Verification |
+|---|---|---|---|---|---|---|
+| `sauce-gauge-494-A-margherita-390x844.mp4` | 390×844 | 29.2 s | 384 KB | H.264 | session (direct) | PASS |
+| `sauce-gauge-494-B-switch-390x844.mp4` | 390×844 | 21.0 s | 176 KB | H.264 | session (direct) | PASS |
+
+Recorded with Playwright (Chromium, headless) at the real 390×844 viewport, converted WebM → MP4 with ffmpeg, checked with ffprobe
+(file exists, size > 0, plays to the end, whole viewport). Operations are held 1.5–3 s so a human can follow them.
+
+What to check:
+- **A (Margherita, guided):** SAUCE starts with a full gauge to the right of the pizza → press 1.2 s: it drains and keeps its value after release →
+  hold to empty: 0% → press again: nothing more is added → 次へ: the gauge is gone (CHEESE) → cheese, bake, cut, RESULT as before.
+- **B (Free Cooking, tomato + genovese owned):** use tomato (gauge drops) → switch to ジェノベーゼ: the gauge does NOT refill and keeps draining
+  from where it was → drain to 0% → switch back to トマト: switching works, but a press adds nothing and the gauge stays at 0%.
+
+Video Verification: PASS
+Screenshots (390×844, committed): `screenshots/sauce-gauge-phase2/` (before / after-full / after-drained, both viewports).
