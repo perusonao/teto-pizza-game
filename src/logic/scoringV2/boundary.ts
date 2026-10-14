@@ -59,6 +59,8 @@ export function sanitizeCoordinates(value: unknown): SafeCoordinate[] {
 
 export interface SafeSauceDeposit extends SafeCoordinate {
   amount: number;
+  /** Sauce B1: kept only when it is a string (see `SauceDeposit.ingredientId`); never added to a deposit without one. */
+  ingredientId?: string;
 }
 
 /** Sanitizes an arbitrary value into a clean array of finite `{x, y, amount}` deposits.
@@ -69,9 +71,9 @@ export function sanitizeSauceDeposits(value: unknown): SafeSauceDeposit[] {
   const result: SafeSauceDeposit[] = [];
   for (const raw of toSafeArray(value)) {
     if (!isPlainObject(raw)) continue;
-    const { x, y, amount } = raw;
+    const { x, y, amount, ingredientId } = raw;
     if (!isFiniteNumber(x) || !isFiniteNumber(y) || !isFiniteNumber(amount)) continue;
-    result.push({ x, y, amount });
+    result.push(typeof ingredientId === "string" ? { x, y, amount, ingredientId } : { x, y, amount });
   }
   return result;
 }

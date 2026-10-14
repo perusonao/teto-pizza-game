@@ -13,6 +13,8 @@ import {
 } from "./materialEntitlement";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
+import { exceedsSauceCaps, planSauceCommit } from "./sauceLedger";
+import { roundRunsFinish } from "./finishEngine";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -59,6 +61,7 @@ import { researchRowsFeedback } from "../logic/discovery/researchResultFeedback"
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 import {
   canPlaceIngredient,
+  canPlacePostBakeIngredient,
   EMPTY_INVENTORY,
   type InventoryState,
 } from "./inventory";
@@ -355,6 +358,11 @@ export interface GameState {
    *  reset" behavior (see docs/reports/TETO_COOKING-TIME_CT2_Efficiency-Result.md's RESET policy
    *  section for the full A/B/C comparison this decision is based on). */
   cookingTiming: CookingTimingState | null;
+  /** Cooking Steps 2.0 FINISH engine (D1b, Issue #294): the bake value confirmed at CONFIRM_BAKE, held ONLY while the
+   *  round waits in FINISH so the FINAL evaluation (CONFIRM_MAKING_STEP leaving FINISH) can re-judge the finished pizza
+   *  against the same bake. `null` in every other situation -- always for a recipe without FINISH -- and reset to `null`
+   *  the moment FINAL has run, which is also what makes FINAL run at most once. Transient: never persisted. */
+  bakeValue: number | null;
   /** Cooking Time CT2: canonical transient RESULT/DISCOVERED display+reward snapshot for this
    *  round's "手際" (Efficiency) evaluation (../logic/efficiency.ts) -- `null` whenever
    *  `lastPitzCredit` is also `null` (Mission round) or `cookingTiming.completedMs` never
@@ -680,6 +688,7 @@ function buildOrderState(
     scoringV2Result: null,
     completion: null,
     cookingTiming: null,
+    bakeValue: null,
     ...carry,
     isMissionRound,
     // Dinner Mission DM-2: a Dinner round is only ever built with `isMissionRound: false` /
@@ -959,25 +968,28 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (!isValidSauceDepositBatch(action.deposits)) return state;
 
-      const isFreshApplication = state.pizza.sauceIds[0] !== action.ingredientId;
-      // EP3 Stock Gate: only a *fresh* application (switching to/starting a sauce this pizza
-      // doesn't already carry) could consume a new unit at CONFIRM_BAKE -- continuing to dispense
-      // more of the already-active sauce is still the same one unit, so it is never re-gated here.
-      if (isFreshApplication && !canPlaceIngredient(dispenseIngredient, state.inventory, state.pizza)) {
+      // Sauce B1 (per-kind ledger, Owner Decision on the #489 line): a switch no longer replaces the pizza's sauce
+      // history. `sauceIds` collects every kind that was actually committed (first-use order) and `sauceDeposits` keeps
+      // every stroke, stamped with its kind once a second kind exists (see ./sauceLedger.ts). One kind behaves exactly
+      // as before. Stock is still consumed ONCE, at CONFIRM_BAKE, per kind in `sauceIds` (consumePizzaInventory).
+      const plan = planSauceCommit(state.pizza, action.ingredientId, action.deposits);
+      // EP3 Stock Gate: only a kind this pizza does not carry yet could consume a new unit at CONFIRM_BAKE -- going back
+      // to a kind already on it is the same one unit, so it is never re-gated here.
+      if (plan.isNewKind && !canPlaceIngredient(dispenseIngredient, state.inventory, state.pizza)) {
+        return state;
+      }
+      // Per-kind (100%) and total (provisional 200%) caps, enforced at the reducer boundary too -- but only once two
+      // kinds are involved, so a one-sauce pizza keeps the old behaviour (its 100% is enforced by the dispenser alone).
+      if (plan.multi && exceedsSauceCaps({ sauceIds: plan.sauceIds, sauceDeposits: plan.sauceDeposits })) {
         return state;
       }
       const firstPoint = action.deposits[0];
       const pizza: PizzaState = {
         ...state.pizza,
-        sauceIds: [action.ingredientId],
-        sauceOrigin: isFreshApplication
-          ? { x: firstPoint.x, y: firstPoint.y }
-          : state.pizza.sauceOrigin,
-        sauceToken: isFreshApplication ? state.pizza.sauceToken + 1 : state.pizza.sauceToken,
-        sauceDeposits: [
-          ...(isFreshApplication ? [] : state.pizza.sauceDeposits),
-          ...action.deposits,
-        ],
+        sauceIds: plan.sauceIds,
+        sauceOrigin: plan.changedActive ? { x: firstPoint.x, y: firstPoint.y } : state.pizza.sauceOrigin,
+        sauceToken: plan.changedActive ? state.pizza.sauceToken + 1 : state.pizza.sauceToken,
+        sauceDeposits: plan.sauceDeposits,
       };
       return {
         ...state,
@@ -990,7 +1002,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // Phase 4A-1B: a tray drag can finish after PREPARE was synchronously left by a
       // second pointer (BAKE/overlay/navigation). Reject the late commit at the canonical
       // boundary, independent of component cleanup.
-      if (state.phase !== "PREPARE") return state;
+      // Cooking Steps 2.0 FINISH engine (D1b): the one other place a piece may be placed is the FINISH step after the
+      // bake, and only in a round that runs FINISH. Everything below is shared; `inFinish` swaps the step check, the
+      // stock gate and the piece's `stage`.
+      const inFinish = state.phase === "POST_BAKE" && state.makingStep === "FINISH" && roundRunsFinish(state);
+      if (state.phase !== "PREPARE" && !inFinish) return state;
       if (!Number.isFinite(action.x) || !Number.isFinite(action.y)) return state;
       if (!isInsideDough(action.x, action.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
@@ -1002,15 +1018,25 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // never be placed via this action.
       const placingIngredient = getIngredient(action.ingredientId);
       if (!placingIngredient) return state;
-      if (placingIngredient.category === "cheese" && state.makingStep !== "CHEESE") return state;
-      if (placingIngredient.category === "topping" && state.makingStep !== "TOPPING") return state;
-      if (placingIngredient.category === "sauce") return state;
+      if (inFinish) {
+        // FINISH places toppings only (the same category the FINISH-only Undo rule takes back).
+        if (placingIngredient.category !== "topping") return state;
+      } else {
+        if (placingIngredient.category === "cheese" && state.makingStep !== "CHEESE") return state;
+        if (placingIngredient.category === "topping" && state.makingStep !== "TOPPING") return state;
+        if (placingIngredient.category === "sauce") return state;
+      }
       // EP3 Stock Gate: a reservation/limit check only -- placed count for a finite (owned,
       // `unlockCondition`-bearing) ingredient can never exceed its remaining stock this round.
       // Never decrements `state.inventory` itself (CONFIRM_BAKE's consumePizzaInventory remains
       // the sole consumption point) -- this only rejects the placement, exactly like the
       // "no open spot" case just below, reusing the same rejected-placement feedback.
-      if (!canPlaceIngredient(placingIngredient, state.inventory, state.pizza)) {
+      // In FINISH the stock is already the post-bake stock (CONFIRM_BAKE consumed the pre-bake pieces), so only the
+      // FINISH pieces count against it.
+      const stockOk = inFinish
+        ? canPlacePostBakeIngredient(placingIngredient, state.inventory, state.pizza)
+        : canPlaceIngredient(placingIngredient, state.inventory, state.pizza);
+      if (!stockOk) {
         placementTokenCounter += 1;
         return {
           ...state,
@@ -1047,6 +1073,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             ingredientId: action.ingredientId,
             x: spot.x,
             y: spot.y,
+            ...(inFinish ? { stage: "post" as const } : {}),
           },
         ],
       };
@@ -1054,7 +1081,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         pizza,
-        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
+        // FINISH has no hint yet (D2): the hint of the step before it is left as it was.
+        hint: inFinish ? state.hint : buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
         placement: {
           status: wasAdjusted ? "adjusted" : "placed",
           x: spot.x,
@@ -1077,7 +1105,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         pizza,
-        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
+        hint: state.makingStep === "FINISH" ? state.hint : buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
         placement: null,
       };
     }
@@ -1148,6 +1176,34 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           ? preBakeSteps(state.cookingProfile)
           : postBakeSteps(state.cookingProfile);
       const currentIndex = steps.indexOf(state.makingStep);
+      // Cooking Steps 2.0 FINISH engine (D1b): leaving FINISH is the one place the FINAL evaluation runs -- the full
+      // recipe on the finished pizza, against the bake held since CONFIRM_BAKE, consuming only the FINISH pieces. It
+      // runs once: `bakeValue` is cleared in the same transition, and the step it belongs to is left. A FINISH that
+      // cannot be finalized (a round that does not run it, or no held bake) is not advanced at all (fail closed).
+      let finalPatch: Partial<GameState> = {};
+      if (state.phase === "POST_BAKE" && state.makingStep === "FINISH") {
+        if (!roundRunsFinish(state) || state.bakeValue === null) return state;
+        const finalized = finalizeRound({
+          recipe: state.recipe,
+          pizza: state.pizza,
+          bakeValue: state.bakeValue,
+          freeCook: state.freeCook,
+          isMissionRound: state.isMissionRound,
+          roundKind: state.roundKind,
+          dex: state.dex,
+          inventory: state.inventory,
+          finalization: "FINAL",
+        });
+        if (finalized.kind !== "SCORED") return state;
+        finalPatch = {
+          score: finalized.score,
+          bakeState: finalized.bakeState,
+          scoringV2Result: finalized.scoringV2Result,
+          completion: finalized.completion,
+          inventory: finalized.inventory,
+          bakeValue: null,
+        };
+      }
       // Pizza Cutting 1.0 Phase 2 (design doc §15.3): confirming CUT itself (whichever
       // POST_BAKE step this happens to be -- always the last one for Margherita's own profile,
       // §1.1's FINISH->CUT ordering means a future profile could still have a step after it)
@@ -1164,6 +1220,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase === "POST_BAKE" && currentIndex === steps.length - 1) {
         return {
           ...state,
+          ...finalPatch,
           phase: "RESULT",
           makingStepToken: state.makingStepToken + 1,
           cutState,
@@ -1188,6 +1245,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // transition (same recipe, same unchanged pizza -> same hint text as before).
       return {
         ...state,
+        ...finalPatch,
         makingStep,
         makingStepToken: state.makingStepToken + 1,
         cutState,
@@ -1253,6 +1311,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // Completion Gate, the bake classification and the one inventory consumption -- is the pure
       // `finalizeRound` (./finalizeRound.ts). Everything below it (the next phase, the #256 post-BAKE skip,
       // cooking-timing and the non-MATCHED Free Cooking side effects) stays here, unchanged.
+      // Cooking Steps 2.0 FINISH engine (D1b): a Guided round whose profile has FINISH is judged PROVISIONALLY here
+      // (the late requirement is left out of the Completion Gate; the pre-bake pieces are consumed now). The FINAL
+      // pass runs once, when FINISH is confirmed. Every other round -- including a profile with FINISH in a round that
+      // does not run it -- finalizes in one pass, exactly as before.
+      const runsFinish = roundRunsFinish(state) && state.cookingProfile.steps.includes("FINISH");
       const finalized = finalizeRound({
         recipe: state.recipe,
         pizza: state.pizza,
@@ -1262,6 +1325,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         roundKind: state.roundKind,
         dex: state.dex,
         inventory: state.inventory,
+        ...(runsFinish ? { finalization: "PROVISIONAL" as const } : {}),
       });
       if (finalized.kind === "UNMATCHED_FREE_COOK") {
         const { pizza, freeCook } = finalized;
@@ -1323,7 +1387,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // band is computed here. A servable pizza (PASS, incl. a ★4 "生焼け / 焦げ" badge) and a
       // composition-only failure keep CUT. A Dinner round forwards the same verdict to Stage B
       // (`dinnerGuardedReducer`), so its CUT gate stays consistent.
-      const postBake = bakeCompletionFailure(completion) ? [] : postBakeSteps(state.cookingProfile);
+      // A failed bake skips FINISH together with CUT (OD-CS-7 = A): the provisional result is then the final one. A
+      // round that does not run FINISH never enters it.
+      const postBake = bakeCompletionFailure(completion)
+        ? []
+        : postBakeSteps(state.cookingProfile).filter((step) => step !== "FINISH" || runsFinish);
       // Phase 1A-T (§22.2/§22.14): starts timing `postBake[0]` the instant the round actually
       // enters POST_BAKE -- `state.cookingTiming.activeStep` is already `null` here (closed out
       // by START_BAKE above), so this is purely a "start", never a re-finalize. No-op (byte-
@@ -1344,6 +1412,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         completion,
         inventory,
         cookingTiming,
+        // Held only while the round waits in FINISH (see `GameState.bakeValue`).
+        bakeValue: postBake.includes("FINISH") ? action.value : null,
         ...(postBake.length > 0
           ? { phase: "POST_BAKE" as const, makingStep: postBake[0] }
           : { phase: "RESULT" as const }),
@@ -2224,6 +2294,9 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
   if (session.run.status !== "PLAYING") return state;
   // The HOME confirmation is open: nothing cooks, bakes or consumes behind it (the clock still runs).
   if (session.abandonRequested) return state;
+  // Cooking Steps 2.0 FINISH engine (D1b, Owner Decision 7): Dinner has no FINISH (UD-I). A profile that carries one is
+  // refused for every cooking action, fail closed; no shipped Dinner profile has it, so the normal flow is untouched.
+  if (state.cookingProfile.steps.includes("FINISH")) return state;
   if (DINNER_COMPOSITION_ACTIONS.has(action.type) && state.phase !== "PREPARE") return state;
 
   if (action.type === "START_BAKE") return dinnerStartBake(state, session, action);
