@@ -127,19 +127,63 @@ describe("renderCheesePool: the finished pool (melt 1) against the reference-pho
 
   it("has a crisp edge (only a few px from opaque to clear) and a limited translucent film", () => {
     for (const m of metrics) {
-      expect(m.edgeWidthPx).toBeLessThan(7.5);
-      expect(m.thin).toBeLessThan(0.35);
+      expect(m.edgeWidthPx).toBeLessThan(11); // #486 look: the thin, translucent outer ring of a melted pool counts as partly transparent pixels too (was 7.5)
+      expect(m.thin).toBeLessThan(0.6); // #486 look: the rim is thin and lets the sauce show (was 0.35); the centre stays opaque
     }
     expect(pct(metrics.map((m) => m.thin), 0.5)).toBeGreaterThan(0.05); // the tongue tips are translucent
   });
 
-  it("is matte creamy white, not blown out: core ~(238,234,218), at most 7 % of the pixels above luminance 246", () => {
+  it("is matte cream, not blown out or chalk white: core ~(234,224,200), at most 7 % of the pixels above luminance 246", () => {
+    // #486 look: a cream centre. The typical pool sits close to the target; the seed spread (shading, bloom, mottling) is bounded more loosely
+    const mid = (k: number) => pct(metrics.map((m) => m.core[k]), 0.5);
+    expect(Math.abs(mid(0) - 234)).toBeLessThan(8);
+    expect(Math.abs(mid(1) - 224)).toBeLessThan(8);
+    expect(Math.abs(mid(2) - 200)).toBeLessThan(10);
     for (const m of metrics) {
-      expect(Math.abs(m.core[0] - 238)).toBeLessThan(7); // S2-B2: 5 -> 6, S2-B3a: 7 (shading and the golden rim move the core mean a little with the seed)
-      expect(Math.abs(m.core[1] - 234)).toBeLessThan(7); // S2-B2: 5 -> 6, S2-B3a: 7 (shading and the golden rim move the core mean a little with the seed)
-      expect(Math.abs(m.core[2] - 218)).toBeLessThan(7); // S2-B2: 5 -> 6, S2-B3a: 7 (shading and the golden rim move the core mean a little with the seed)
+      expect(Math.abs(m.core[0] - 234)).toBeLessThan(20);
+      expect(Math.abs(m.core[1] - 224)).toBeLessThan(20);
+      expect(Math.abs(m.core[2] - 200)).toBeLessThan(20);
       expect(m.whiteClip).toBeLessThanOrEqual(0.07);
     }
+  });
+});
+
+describe("renderCheesePool: the melted look (#486)", () => {
+  const seed = "mozzarella:40.00:50.00";
+  const alphaAt = (img: { data: Uint8ClampedArray; width: number }, x: number, y: number) => img.data[(y * img.width + x) * 4 + 3];
+
+  it("leaves the raw lump and the first moments of the melt untouched: no oil film, no translucent veil up to melt 0.3", () => {
+    for (const m of [0, 0.15, 0.3]) {
+      const img = renderCheesePool(seed, m, 0, 0, { grid: 64 });
+      let partial = 0;
+      for (let i = 3; i < img.data.length; i += 4) if (img.data[i] > 0 && img.data[i] < 255) partial += 1;
+      // only the (unchanged) soft edge is partly transparent; a veil over the body would add hundreds of pixels
+      expect(partial).toBeLessThan(260);
+    }
+  });
+
+  it("a finished pool is thickest in the middle and lets the sauce show toward the rim and in thin spots, while the centre stays opaque", () => {
+    const img = renderCheesePool(seed, 1, 0.6, 0, { grid: 64 });
+    expect(alphaAt(img, 32, 32)).toBe(255);
+    let ringMin = 255;
+    for (let i = 3; i < img.data.length; i += 4) if (img.data[i] > 0) ringMin = Math.min(ringMin, img.data[i]);
+    let translucentBody = 0;
+    for (let i = 3; i < img.data.length; i += 4) if (img.data[i] >= 120 && img.data[i] < 235) translucentBody += 1;
+    expect(translucentBody).toBeGreaterThan(80);
+  });
+
+  it("a finished pool has a faint warm oil film just past its edge (pixels outside the opaque body) that is absent from the raw lump", () => {
+    const film = (m: number) => {
+      const img = renderCheesePool(seed, m, 0, 0, { grid: 64 });
+      let n = 0;
+      for (let i = 0; i < img.data.length; i += 4) {
+        const a = img.data[i + 3];
+        if (a > 0 && a < 60 && img.data[i] > img.data[i + 2] + 60) n += 1; // faint and warm (orange: red well above blue)
+      }
+      return n;
+    };
+    expect(film(1)).toBeGreaterThan(film(0.2));
+    expect(film(1)).toBeGreaterThan(20);
   });
 });
 
@@ -150,7 +194,7 @@ describe("renderCheesePool: browning", () => {
     const none = list.map((s) => measureCheesePool(renderCheesePool(s, 1, 0, 0)).warm);
     const full = list.map((s) => measureCheesePool(renderCheesePool(s, 1, 1, 0)).warm);
     expect(pct(none, 0.9)).toBeLessThan(0.004);
-    expect(pct(full, 0.5)).toBeGreaterThan(0.15);
+    expect(pct(full, 0.5)).toBeGreaterThan(0.05); // #486 look: a restrained bloom, so the warm share (warm AND darker than the cream core) is lower than the S2-B3a 15-30 %
     expect(pct(full, 0.5)).toBeLessThan(0.3);
     expect(pct(full, 0.95)).toBeLessThan(0.4);
   });
@@ -343,8 +387,9 @@ describe("S1b: outline variety over a large seed set (distribution and outliers,
   });
 
   it("the translucent pink film is thinner than S1 (S1 median 0.17 of the pool area)", () => {
-    expect(pct(rows.map((m) => m.thin), 0.5)).toBeLessThan(0.14);
-    for (const m of rows) expect(m.thin).toBeLessThan(0.25);
+    // #486 look: the melted pool is deliberately translucent toward its rim (the sauce shows through), so the share is no longer S1b's 0.14 / 0.25; it is bounded instead
+    expect(pct(rows.map((m) => m.thin), 0.5)).toBeLessThan(0.55);
+    for (const m of rows) expect(m.thin).toBeLessThan(0.65);
   });
 
   it("every chosen outline passes its own naturalness limits, and the limits do reject slits, spikes and clovers", () => {
@@ -474,7 +519,7 @@ describe("S2-A: faster outline choice, a clear border and a budgeted browning, w
 
   it("browning is clear but bounded for every seed (S2-B3a): warm pixels at toast 0.6 median 8-18 %, p95 below 22 %, never above 26 %", () => {
     const warm = seeds(200).map((s) => measureCheesePool(renderCheesePool(s, 1, 0.6, 0)).warm);
-    expect(pct(warm, 0.5)).toBeGreaterThan(0.08);
+    expect(pct(warm, 0.5)).toBeGreaterThan(0.03); // #486 look: restrained browning (was 0.08)
     expect(pct(warm, 0.5)).toBeLessThan(0.18);
     expect(pct(warm, 0.95)).toBeLessThan(0.22);
     expect(Math.max(...warm)).toBeLessThan(0.26);
