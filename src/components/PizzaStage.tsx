@@ -37,6 +37,7 @@ import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
+import { advanceSauceCarry, type SauceCarryState } from "../logic/sauceRemaining";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -301,9 +302,9 @@ export function PizzaStage({
    *  capture/blur/hidden/ingredient-change/overlay-open/BAKE/unmount. */
   const pendingDepositsRef = useRef<SauceDeposit[]>([]);
   const pendingTotalRef = useRef(0);
-  /** Sum of every deposit already committed to canonical state for this sauce application
-   *  (prior finished strokes) -- combined with `pendingTotalRef` to give the dispense
-   *  controller the true running total for cap purposes across the whole application. */
+  /** Cumulative sauce already consumed on this pizza: the committed deposits PLUS the usage of any
+   *  sauce replaced by a switch (`sauceConsumedTotal`) -- combined with `pendingTotalRef` to give the
+   *  dispense controller the true running total for cap purposes. Shared with the remaining gauge. */
   const committedTotalRef = useRef(0);
   const activeIngredientIdRef = useRef<string | null>(activeIngredient?.id ?? null);
   /** Timestamp-preservation follow-up: one instance per active dispense session, built at
@@ -316,10 +317,6 @@ export function PizzaStage({
     circleRef.current = element;
     onDoughElementChange?.(element);
   }, [onDoughElementChange]);
-
-  useEffect(() => {
-    committedTotalRef.current = pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0);
-  }, [pizza.sauceDeposits]);
 
   function resetSessionBuffers() {
     pendingDepositsRef.current = [];
@@ -1056,18 +1053,21 @@ export function PizzaStage({
     [pizza.sauceDeposits],
   );
   // COMMIT_SAUCE_DISPENSE replaces `sauceDeposits` when the player switches to a different sauce
-  // (a fresh application, `sauceToken` + 1), so usage of the replaced sauce is carried here and the
-  // gauge never "refills" on a switch. Adjusted during render (React's derived-state pattern) so
-  // there is no frame between the commit and the carry. Cleared when the deposits are emptied.
-  const [gaugeCarry, setGaugeCarry] = useState({ token: pizza.sauceToken, total: sauceCommittedTotal, carried: 0 });
-  if (gaugeCarry.token !== pizza.sauceToken || gaugeCarry.total !== sauceCommittedTotal) {
-    const freshApplication = pizza.sauceToken > gaugeCarry.token && pizza.sauceDeposits.length > 0;
-    setGaugeCarry({
-      token: pizza.sauceToken,
-      total: sauceCommittedTotal,
-      carried: pizza.sauceDeposits.length === 0 ? 0 : gaugeCarry.carried + (freshApplication ? gaugeCarry.total : 0),
-    });
-  }
+  // (a fresh application, `sauceToken` + 1), so the replaced sauce's usage is carried here (see
+  // `advanceSauceCarry`). Adjusted during render (React's derived-state pattern) so there is no frame
+  // between the commit and the carry. Owner Decision (PR #494): consumption is cumulative across
+  // switches -- the dispense cap (`committedTotalRef`) and the gauge read the SAME `sauceConsumedTotal`.
+  const [sauceCarry, setSauceCarry] = useState<SauceCarryState>({
+    token: pizza.sauceToken,
+    total: sauceCommittedTotal,
+    carried: 0,
+  });
+  const nextSauceCarry = advanceSauceCarry(sauceCarry, pizza.sauceToken, sauceCommittedTotal, pizza.sauceDeposits.length);
+  if (nextSauceCarry !== sauceCarry) setSauceCarry(nextSauceCarry);
+  const sauceConsumedTotal = sauceCommittedTotal + nextSauceCarry.carried;
+  useEffect(() => {
+    committedTotalRef.current = sauceConsumedTotal;
+  }, [sauceConsumedTotal]);
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
@@ -1450,7 +1450,7 @@ export function PizzaStage({
       </div>
       {showSauceGauge && (
         <div className="pizza-stage__sauce-gauge">
-          <SauceRemainingGauge committedTotal={sauceCommittedTotal + gaugeCarry.carried} pendingTotal={pendingTotalRef.current} />
+          <SauceRemainingGauge committedTotal={sauceConsumedTotal} pendingTotal={pendingTotalRef.current} />
         </div>
       )}
     </div>

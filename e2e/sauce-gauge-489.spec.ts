@@ -62,3 +62,27 @@ test("gauge disappears after leaving the SAUCE step", async ({ page }) => {
   await page.getByRole("button", { name: /次へ/ }).click();
   await expect(page.locator(GAUGE)).toHaveCount(0);
 });
+
+test("holding to empty stops the sauce: 0% means nothing more comes out, and the pizza stays put", async ({ page }) => {
+  await startSauceStep(page);
+  const gauge = page.locator(GAUGE);
+  const dough = (await page.locator(".pizza-dough--interactive").boundingBox())!;
+  const centre = { x: dough.x + dough.width / 2, y: dough.y + dough.height / 2 };
+  const hold = async (ms: number) => {
+    await page.mouse.move(centre.x, centre.y);
+    await page.mouse.down();
+    await page.waitForTimeout(ms);
+    await page.mouse.up();
+    await page.waitForTimeout(150);
+  };
+  await hold(3200); // ~2.5s empties the bottle (50 ticks)
+  await expect(gauge).toHaveAttribute("aria-valuenow", "0");
+  const heatmap = () => page.locator("canvas.pizza-sauce-heatmap").first().evaluate((el) => (el as HTMLCanvasElement).toDataURL());
+  const emptied = await heatmap();
+  await hold(800); // a second press at 0%: nothing more comes out
+  await expect(gauge).toHaveAttribute("aria-valuenow", "0");
+  expect(await heatmap()).toBe(emptied);
+  const after = (await page.locator(".pizza-dough--interactive").boundingBox())!;
+  expect(after.width).toBeCloseTo(dough.width, 0);
+  expect(after.x).toBeCloseTo(dough.x, 0);
+});

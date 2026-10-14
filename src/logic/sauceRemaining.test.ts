@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sauceRemainingFraction } from "./sauceRemaining";
+import { advanceSauceCarry, sauceRemainingFraction } from "./sauceRemaining";
 import { SAUCE_MAX_QUANTITY } from "./sauceQuantity";
 
 describe("sauceRemainingFraction (#489)", () => {
@@ -24,5 +24,31 @@ describe("sauceRemainingFraction (#489)", () => {
   });
   it("depends only on totals, so switching sauce type cannot reset it", () => {
     expect(sauceRemainingFraction(0.4, 0)).toBe(sauceRemainingFraction(0.2, 0.2));
+  });
+});
+
+describe("advanceSauceCarry (usage kept across sauce switches)", () => {
+  const start = { token: 1, total: 0.5, carried: 0 };
+
+  it("returns the same object when nothing changed", () => {
+    expect(advanceSauceCarry(start, 1, 0.5, 5)).toBe(start);
+  });
+
+  it("keeps the same sauce's growth out of `carried` (token unchanged)", () => {
+    expect(advanceSauceCarry(start, 1, 0.7, 7)).toEqual({ token: 1, total: 0.7, carried: 0 });
+  });
+
+  it("carries the replaced sauce's total on a switch (token + 1)", () => {
+    expect(advanceSauceCarry(start, 2, 0.1, 1)).toEqual({ token: 2, total: 0.1, carried: 0.5 });
+  });
+
+  it("accumulates over several switches", () => {
+    const afterOne = advanceSauceCarry(start, 2, 0.1, 1);
+    expect(advanceSauceCarry(afterOne, 3, 0.2, 2)).toEqual({ token: 3, total: 0.2, carried: 0.6 });
+  });
+
+  it("clears when the deposits are emptied (reset / new pizza)", () => {
+    const carried = advanceSauceCarry(start, 2, 0.1, 1);
+    expect(advanceSauceCarry(carried, 0, 0, 0)).toEqual({ token: 0, total: 0, carried: 0 });
   });
 });
