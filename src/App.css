@@ -1149,6 +1149,54 @@
   color: #fff;
 }
 
+/* Issue #159 P0 / CS-4a: finish (仕上げ) sits after the bake, so it takes a warm-neutral plum -- distinct
+   from the four warm PREPARE colours and from CUT's blue. */
+.making-step-tab--active.making-step-tab--finish {
+  background: #7b4f9d;
+  color: #fff;
+}
+
+/* Cooking Steps 2.0 CS-4a (Owner Decision, T3 compact chips). The row stays a single shrinkable flex
+   pool (never wider than its container, see the PR-A note above); only the split changes: the active
+   tab gets a little more than its equal share so the current step keeps its full label as the strip
+   grows to 7+ items. The other tabs split the rest equally, so each is about 2px narrower than before
+   CS-4a (measured: 6 tabs at 360 keep 「✓ 短縮ラベル」; the 49px / 35px thresholds below were chosen
+   against these widths). */
+.making-step-tab--active {
+  flex-grow: 1.15;
+}
+
+/* The label sits in an inner box that is the *container* for the compaction query below. (A wrapper
+   rather than the <button> itself, so no browser's button-specific sizing quirks apply.) The tab's
+   width is flex-assigned (`flex: _ 1 0; min-width: 0`) and independent of its content, so size
+   containment on the inner box cannot change any tab's width. */
+.making-step-tab__inner {
+  display: block;
+  width: 100%;
+  container-type: inline-size;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Too narrow for 「✓ 短縮ラベル」: a completed tab degrades to 「✓」 alone (its formal name stays in the
+   button's aria-label). 49px is the measured 「✓ チーズ」 / 「✓ ソース」 width at 11px bold plus margin
+   for wider real-device fonts; the active / next / locked tabs never use this rule. */
+@container (max-width: 49px) {
+  .making-step-tab--completed:not(.making-step-tab--bake) .making-step-tab__text {
+    display: none;
+  }
+}
+/* The completed bake indicator is drawn at 11px (see `.making-step-tab--bake.making-step-tab--completed`
+   below) so 「✓ 焼く」 (about 35px) still fits the 6-tab strip at 360 and 390 wide, as it did before
+   CS-4a; only below 36px (the 7-tab strip at 390 and below) does it degrade to 「✓」. */
+@container (max-width: 35px) {
+  .making-step-tab--bake.making-step-tab--completed .making-step-tab__text {
+    display: none;
+  }
+}
+
 /* The one *actionable* tab: the immediate next step, once its own gate (nextReady) allows it --
    a slightly raised/bordered treatment so it visibly invites a tap, distinct from both the
    inert current-step indicator and a fully locked future step. */
@@ -1214,6 +1262,7 @@
 }
 
 .making-step-tab--bake.making-step-tab--completed {
+  font-size: 11px;
   opacity: 0.85;
   background: #cdbb95;
   color: #6b4226;
