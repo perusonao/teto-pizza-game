@@ -34,6 +34,7 @@ import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
+import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -299,10 +300,10 @@ export function PizzaStage({
    *  capture/blur/hidden/ingredient-change/overlay-open/BAKE/unmount. */
   const pendingDepositsRef = useRef<SauceDeposit[]>([]);
   const pendingTotalRef = useRef(0);
-  /** Sum of every deposit already committed to canonical state for this sauce application
-   *  (prior finished strokes) -- combined with `pendingTotalRef` to give the dispense
-   *  controller the true running total for cap purposes across the whole application. */
-  const committedTotalRef = useRef(0);
+  /** The latest canonical pizza, for the dispenser's cap (it reads at tick time, outside render). The cap is the per-kind
+   *  (100%) + total (provisional 200%) headroom from the sauce ledger (../state/sauceLedger.ts), combined with
+   *  `pendingTotalRef` for the stroke in progress -- the same single source the remaining gauge will read (B3). */
+  const pizzaRef = useRef(pizza);
   const activeIngredientIdRef = useRef<string | null>(activeIngredient?.id ?? null);
   /** Timestamp-preservation follow-up: one instance per active dispense session, built at
    *  pointerdown from that event's own `timeStamp` + a single `performance.now()` sample
@@ -316,8 +317,8 @@ export function PizzaStage({
   }, [onDoughElementChange]);
 
   useEffect(() => {
-    committedTotalRef.current = pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0);
-  }, [pizza.sauceDeposits]);
+    pizzaRef.current = pizza;
+  }, [pizza]);
 
   function resetSessionBuffers() {
     pendingDepositsRef.current = [];
@@ -600,7 +601,8 @@ export function PizzaStage({
 
     const controller = new SauceDispenseController({
       onDeposit: (deposit) => appendPendingDeposit(deposit),
-      getTotalDispensed: () => committedTotalRef.current + pendingTotalRef.current,
+      getTotalDispensed: () => sauceUsedTotal(pizzaRef.current) + pendingTotalRef.current,
+      getHeadroom: () => sauceHeadroom(pizzaRef.current, ingredientId, pendingTotalRef.current),
     });
     dispenseControllerRef.current = controller;
     controller.start(startTimestamp, dough);
@@ -933,7 +935,7 @@ export function PizzaStage({
     onTap(50, 50);
   }
 
-  const sauceId = pizza.sauceIds[0];
+  const sauceId = currentSauceId(pizza) ?? undefined;
   const sauceIngredient = sauceId ? getIngredient(sauceId) : undefined;
   const isOilSauce = sauceIngredient?.id === "olive-oil";
   const bakeState = bakeProgress !== null ? classifyBake(bakeProgress, recipe.bakeTarget) : null;

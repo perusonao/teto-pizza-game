@@ -17,6 +17,7 @@ import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { CutLine } from "./logic/cut/types";
 import type { SauceDeposit } from "./state/pizzaState";
+import { liveSauceDeposits } from "./state/sauceLedger";
 import { RECIPES, type RecipeId } from "./data/recipes";
 import { getIngredient, STARTER_INGREDIENT_IDS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
@@ -1097,9 +1098,12 @@ function App() {
   const sauceMetrics = useMemo(
     () =>
       referenceModeEnabled
-        ? computeSauceMetrics([...state.pizza.sauceDeposits, ...pendingSauceDeposits])
+        ? computeSauceMetrics(
+            // Sauce B1: the reference sauce's own deposits (all of them while one sauce kind is in play).
+            liveSauceDeposits(state.pizza, pendingSauceDeposits, selectedIngredientId, referencePizza?.sauce?.ingredientId ?? ""),
+          )
         : emptySauceMetrics(),
-    [referenceModeEnabled, state.pizza.sauceDeposits, pendingSauceDeposits],
+    [referenceModeEnabled, state.pizza, pendingSauceDeposits, selectedIngredientId, referencePizza],
   );
   const sauceShadowScore = useMemo(
     () =>
