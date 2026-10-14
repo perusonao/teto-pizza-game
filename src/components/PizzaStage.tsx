@@ -55,9 +55,6 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
 
-/** #421 S2-B: a static env check (folded to `false` in a production build), so the verification-only Canvas path is dropped from production entirely */
-const CHEESE_CANVAS_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE);
-
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
 /** How far (CSS px) each piece of a cut pizza is nudged away from the centre -- a hair, not an explosion. */
@@ -1233,8 +1230,8 @@ export function PizzaStage({
                   style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
                 />
               );
-              if (!(CHEESE_CANVAS_ALLOWED && ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
-              /* #421 S2-B (verification only): the Canvas mozzarella, only behind the Preview / DEV query switch; M1 when the browser has no 2D context. */
+              if (!(ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
+              /* #421 / #486: the Canvas mozzarella, only when the Preview / DEV `?cheese=` switch or the production opt-in (off by default) asks for it; M1 whenever the canvas cannot be shown. */
               return (
                 <CheesePoolCanvas
                   seed={t.id}

@@ -1,11 +1,16 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheesePoolCanvas, canvas2dAvailable, resetCanvas2dProbe } from "./CheesePoolCanvas";
+import { CheesePoolCanvas, canvas2dAvailable, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
 
 afterEach(() => {
   vi.restoreAllMocks();
   resetCanvas2dProbe();
 });
+
+/** read-back stubs: a canvas that holds pixels, and one the browser emptied (#486 G1) */
+const opaque = vi.fn((_x: number, _y: number, w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255), width: w, height: h }));
+const blank = () => vi.fn((_x: number, _y: number, w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }));
+const imageData = (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h });
 
 function mockContext(ctx: unknown) {
   return vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctx) as never);
@@ -36,7 +41,7 @@ describe("CheesePoolCanvas", () => {
   });
 
   it("draws the canvas (and no fallback) when a 2D context is available", () => {
-    const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn() };
+    const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: opaque };
     mockContext(ctx);
     expect(canvas2dAvailable()).toBe(true);
     const { container } = render(
@@ -46,8 +51,14 @@ describe("CheesePoolCanvas", () => {
     expect(container.querySelector('[data-testid="m1-piece"]')).toBeNull();
     expect(ctx.drawImage).toHaveBeenCalled();
   });
+  it("asks for a CPU-backed context (willReadFrequently) because every draw is read back", () => {
+    const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: opaque };
+    const spy = mockContext(ctx);
+    render(<CheesePoolCanvas seed="topping-wrf" melt={1} toast={0.4} char={0} grid={64} sizePx={62} fallback={<span />} />);
+    expect(spy.mock.calls.some((c) => (c[1] as CanvasRenderingContext2DSettings | undefined)?.willReadFrequently === true)).toBe(true);
+  });
   it("shows the M1 fallback when the probe passes but this canvas gets no context, and does not draw again afterwards", () => {
-    const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn() };
+    const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: opaque };
     let calls = 0;
     // the first call is the probe (a detached canvas) and succeeds; the visible canvas then gets null
     const spy = vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((function (this: HTMLCanvasElement) {
@@ -98,5 +109,61 @@ describe("CheesePoolCanvas", () => {
     expect(container.querySelector("canvas")).toBeNull();
     expect(container.querySelector('[data-testid="m1-piece"]')).not.toBeNull();
     expect(ctx.drawImage).not.toHaveBeenCalled();
+  });
+
+  describe("#486 G1: a canvas the browser emptied is never shown as an invisible cheese", () => {
+    const M1 = <span data-testid="m1-piece" />;
+
+    it("shows M1 when the draw succeeds but the read-back is fully transparent (and rebuilds the bitmap once before giving up)", () => {
+      const ctx = { createImageData: imageData, putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: blank() };
+      mockContext(ctx);
+      const { container } = render(<CheesePoolCanvas seed="g1-blank" melt={1} toast={0.4} char={0} grid={64} sizePx={62} fallback={M1} />);
+      expect(container.querySelector("canvas")).toBeNull();
+      expect(container.querySelector('[data-testid="m1-piece"]')).not.toBeNull();
+      expect(ctx.drawImage).toHaveBeenCalledTimes(2); // first draw + one retry with a rebuilt bitmap, no loop
+    });
+
+    it("keeps the canvas when the first draw is blank but the retry holds pixels", () => {
+      const read = vi.fn().mockReturnValueOnce(imageData(64, 64)).mockImplementation(opaque);
+      const ctx = { createImageData: imageData, putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: read };
+      mockContext(ctx);
+      const { container } = render(<CheesePoolCanvas seed="g1-retry" melt={1} toast={0.4} char={0} grid={64} sizePx={62} fallback={M1} />);
+      expect(container.querySelector("canvas")).not.toBeNull();
+      expect(container.querySelector('[data-testid="m1-piece"]')).toBeNull();
+    });
+
+    it("shows M1 when the read-back itself throws", () => {
+      const ctx = { createImageData: imageData, putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: vi.fn(() => { throw new Error("read failed"); }) };
+      mockContext(ctx);
+      const { container } = render(<CheesePoolCanvas seed="g1-throw" melt={1} toast={0.4} char={0} grid={64} sizePx={62} fallback={M1} />);
+      expect(container.querySelector("canvas")).toBeNull();
+      expect(container.querySelector('[data-testid="m1-piece"]')).not.toBeNull();
+    });
+
+    it("when the page comes back (pageshow / visible) with an emptied canvas, it redraws; if that is blank too it falls back to M1", async () => {
+      const { act } = await import("@testing-library/react");
+      const read = vi.fn().mockImplementation(opaque);
+      const ctx = { createImageData: imageData, putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: read };
+      mockContext(ctx);
+      const { container } = render(<CheesePoolCanvas seed="g1-return" melt={1} toast={0.4} char={0} grid={64} sizePx={62} fallback={M1} />);
+      expect(container.querySelector("canvas")).not.toBeNull();
+      const drawsBefore = ctx.drawImage.mock.calls.length;
+      // a healthy canvas is left alone
+      act(() => { window.dispatchEvent(new Event("pageshow")); });
+      expect(ctx.drawImage.mock.calls.length).toBe(drawsBefore);
+      // the browser emptied it while hidden: the redraw is blank again -> M1
+      read.mockImplementation(blank());
+      act(() => { window.dispatchEvent(new Event("pageshow")); });
+      expect(container.querySelector("canvas")).toBeNull();
+      expect(container.querySelector('[data-testid="m1-piece"]')).not.toBeNull();
+    });
+
+    it("hasVisiblePixels: any non-zero alpha counts, an all-zero buffer does not", () => {
+      const withAlpha = new Uint8ClampedArray(16 * 4);
+      withAlpha[3 + 4 * 5] = 1;
+      const ctx = (data: Uint8ClampedArray) => ({ getImageData: () => ({ data }) }) as unknown as CanvasRenderingContext2D;
+      expect(hasVisiblePixels(ctx(withAlpha), 4, 4)).toBe(true);
+      expect(hasVisiblePixels(ctx(new Uint8ClampedArray(16 * 4)), 4, 4)).toBe(false);
+    });
   });
 });
