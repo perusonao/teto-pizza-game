@@ -6,6 +6,16 @@ export interface PlacedTopping {
   ingredientId: string;
   x: number;
   y: number;
+  /**
+   * Cooking Steps 2.0 FINISH engine (Issue #294): `"post"` = placed in the FINISH step after the bake.
+   * Absent (or `"pre"`) = placed before the bake -- every piece the game places today. Not persisted.
+   */
+  stage?: "pre" | "post";
+}
+
+/** True for a piece placed in the FINISH step (after the bake). */
+export function isPostBakePiece(piece: Pick<PlacedTopping, "stage">): boolean {
+  return piece.stage === "post";
 }
 
 export interface SauceOrigin {
