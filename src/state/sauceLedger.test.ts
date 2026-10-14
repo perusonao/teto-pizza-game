@@ -181,6 +181,21 @@ describe("liveSauceDeposits (the live 「ソースのでき」)", () => {
     const p = pizza(["tomato-sauce"], [dep(0.3)]);
     expect(liveSauceDeposits(p, [dep(0.02)], "pesto", "tomato-sauce").map((d) => d.amount)).toEqual([0.3]);
   });
+
+  it("committed deposits are filtered under the combined (committed + in-progress) kinds (Codex P2 #2)", () => {
+    // committed: only pesto (one kind, no stamps). In progress: olive-oil. Reference: tomato.
+    const onlyPesto = pizza(["pesto"], [dep(0.5), dep(0.4)]);
+    expect(liveSauceDeposits(onlyPesto, [dep(0.02)], "olive-oil", "tomato-sauce")).toEqual([]); // not pesto's deposits
+    // beginning a tomato stroke on top of committed pesto: only the pending tomato counts, not the old pesto
+    expect(liveSauceDeposits(onlyPesto, [dep(0.02), dep(0.02)], "tomato-sauce", "tomato-sauce").map((d) => d.amount)).toEqual([0.02, 0.02]);
+    // the reference is the committed kind itself and a second kind is in progress: its own deposits only
+    expect(liveSauceDeposits(onlyPesto, [dep(0.02)], "olive-oil", "pesto").map((d) => d.amount)).toEqual([0.5, 0.4]);
+  });
+
+  it("one kind committed and in progress stays the pooled log, whichever sauce it is (unchanged)", () => {
+    const onlyPesto = pizza(["pesto"], [dep(0.5)]);
+    expect(liveSauceDeposits(onlyPesto, [dep(0.02)], "pesto", "tomato-sauce").map((d) => d.amount)).toEqual([0.5, 0.02]);
+  });
 });
 
 describe("boundary: ingredientId survives sanitizing only when it is a string", () => {

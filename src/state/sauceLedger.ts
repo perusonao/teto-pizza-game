@@ -155,9 +155,13 @@ export function liveSauceDeposits(
   pendingIngredientId: string | null,
   referenceIngredientId: string,
 ): readonly SauceDeposit[] {
-  const kinds = new Set(sauceKindsOf(pizza));
+  const { ids, deposits } = partsOf(pizza);
+  const kinds = new Set(kindsFrom(ids, deposits));
   if (pending.length > 0 && pendingIngredientId) kinds.add(pendingIngredientId);
   if (kinds.size < 2) return [...pizza.sauceDeposits, ...pending];
-  const own = sauceOwnDeposits(pizza, referenceIngredientId);
+  // Several kinds counting the stroke in progress: filter the COMMITTED deposits under that combined context. Re-asking
+  // `sauceOwnDeposits(pizza, ...)` here would judge the committed pizza alone (possibly still one kind) and hand back every
+  // committed deposit, inflating the live numbers until the stroke is released.
+  const own = deposits.filter((d) => ownerOf(d, ids) === referenceIngredientId);
   return pendingIngredientId === referenceIngredientId ? [...own, ...pending] : own;
 }
