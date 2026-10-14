@@ -539,6 +539,10 @@ const BLISTER_COVER_MAX = 0.025;
 
 const OUTLINE_TONGUE_GAIN = 1.3;
 const OUTLINE_HARMONIC_GAIN = 1.2;
+/** the melted look rounds the outline with this extra circular smoothing of R(theta) (half window in bins = degrees, passes) and blends it in by this share */
+const OUTLINE_ROUND_HALF = 16;
+const OUTLINE_ROUND_PASSES = 3;
+const OUTLINE_ROUND_MIX = 0.85;
 
 /** in-place circular box smoothing of a closed theta table (index BINS repeats index 0) */
 function smoothClosed(table: Float32Array, half: number, passes: number): void {
@@ -722,8 +726,9 @@ const BAKED = [222, 176, 108] as const; // golden brown of a baked rim / patch
 const BROWN = [122, 74, 42] as const;
 const SCORCH = [156, 130, 104] as const; // overall tint of overbaked cheese
 const CREAM = [234, 223, 194] as const; // #486 melted look: the creamier patches
-const MILK = [240, 236, 221] as const; // #486 melted look: the bright milky white of a real baked mozzarella
+const MILK = [243, 239, 222] as const; // #486 melted look: the bright milky white of a real baked mozzarella
 const PINK = [238, 204, 200] as const; // #486 melted look: the faint pink where the sauce shows through thin cheese
+const GLOSS_CEIL = [250, 247, 239] as const; // #486 melted look: the warm near-white the soft highlight moves toward (below the white-clip level)
 const OVERBAKED = [176, 124, 70] as const; // #486 melted look: the golden brown of over-baked cheese
 const SPECKLE = [214, 164, 84] as const; // #486 melted look: a small golden-tan baked speckle
 
@@ -735,12 +740,13 @@ interface Scratch {
   lut: Float32Array;
   height2: Float32Array;
   img2: Uint8ClampedArray;
+  rounded: Float32Array;
 }
 const scratch = new Map<number, Scratch>();
 function scratchFor(N: number): Scratch {
   let s = scratch.get(N);
   if (!s) {
-    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), height2: new Float32Array(N * N), img2: new Uint8ClampedArray(N * N * 4) };
+    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), height2: new Float32Array(N * N), img2: new Uint8ClampedArray(N * N * 4), rounded: new Float32Array(BINS + 1) };
     scratch.set(N, s);
   }
   return s;
@@ -914,7 +920,8 @@ function renderMeltedPixels(geo: CheesePoolGeometry, N: number, rhoMap: Float32A
   for (let i = 0; i < N * N; i += 1) {
     const rho = rhoMap[i];
     const edge = smoothstep(1.025, 0.975, rho); // crisp: ~5 % of the radius from clear to opaque
-    const sheet = 0.5 + 0.3 * (noiseLow[i] - 0.5); // a thin sheet with gentle swells
+    // a thin sheet with soft swells (low noise) and a broad, shallow thickening toward the middle, so the surface has gentle relief and not a single plane
+    const sheet = 0.5 + 0.5 * (noiseLow[i] - 0.5) + 0.2 * smoothstep(1, 0.1, rho);
     const lip = 0.12 * smoothstep(0.76, 0.92, rho) * (1 - smoothstep(0.94, 1, rho)); // the slightly raised rim
     hgt[i] = edge * (sheet + lip);
   }
@@ -928,7 +935,7 @@ function renderMeltedPixels(geo: CheesePoolGeometry, N: number, rhoMap: Float32A
   const hy = ly;
   const hz = lz + 1;
   const hLen = Math.hypot(hx, hy, hz);
-  const slope = 4.5 * (N / 96);
+  const slope = 5 * (N / 96);
   for (let y = 0; y < N; y += 1) {
     for (let x = 0; x < N; x += 1) {
       const i = y * N + x;
@@ -953,10 +960,15 @@ function renderMeltedPixels(geo: CheesePoolGeometry, N: number, rhoMap: Float32A
       const diffuse = nx * lx + ny * ly + nz * lz;
       const shade = Math.min(1.03, Math.max(0.94, 1 + 0.7 * (diffuse - lz)));
       const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) / hLen);
-      // gloss: a soft broad sheen only (no hard single-pixel glints)
-      const spec = Math.pow(nh, 18) * (0.5 + 0.5 * noiseHigh[i]) * 2.2;
+      // gloss: one soft, asymmetric highlight where the surface faces the light (a wide lobe, no hard glints, no oily beads), added toward a ceiling below
+      // pure white so it can never blow out
+      // A near-white surface has almost no room to get brighter, so the highlight is read by CONTRAST: the diffuse body is a touch darker away from it (below), and the
+      // highlight moves toward the ceiling.
+      const lobe = Math.pow(nh, 12) * (0.6 + 0.4 * noiseHigh[i]);
+      const gloss = lobe * smoothstep(0.1, 0.5, 1 - rho) * 0.85;
+      const spec = 0;
       // bright milky white, with creamier patches
-      const cream = 0.35 * smoothstep(0.55, 0.85, noiseLow[i]);
+      const cream = 0.25 * smoothstep(0.55, 0.85, noiseLow[i]);
       let r = lerp(MILK[0], CREAM[0], cream);
       let g = lerp(MILK[1], CREAM[1], cream);
       let bl = lerp(MILK[2], CREAM[2], cream);
@@ -969,6 +981,15 @@ function renderMeltedPixels(geo: CheesePoolGeometry, N: number, rhoMap: Float32A
       r = r * Math.pow(shade, 0.8) + spec;
       g = g * shade + spec;
       bl = bl * Math.pow(shade, 1.15) + spec * 0.9;
+      // away from the highlight the body is a little darker (the contrast that makes the highlight read as gloss)
+      const dim = 1 - 0.025 * (1 - lobe);
+      r *= dim;
+      g *= dim;
+      bl *= dim;
+      // soft highlight: move toward a warm near-white ceiling by `gloss` (never past it)
+      r += (GLOSS_CEIL[0] - r) * gloss;
+      g += (GLOSS_CEIL[1] - g) * gloss;
+      bl += (GLOSS_CEIL[2] - bl) * gloss;
       if (toastV > 0) {
         // golden rim only in places (where the low noise is high), and small speckles preferring the rim: never a tint over the body
         const rimGold = toastV * 0.5 * smoothstep(0.82, 0.99, rho) * smoothstep(0.35, 0.7, noiseLow[i]);
@@ -1022,6 +1043,16 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
   // the melt are pixel-identical to the original look (dc1d20b). The outline is exactly the same as before.
   const fx = smoothstep(0.3, 1, m);
   for (let b = 0; b <= BINS; b += 1) lut[b] = Math.max(0.3, 1 + complexity * (geo.lutH[b] + geo.lutT[b])) * rs;
+  if (fx > 0) {
+    // melted: round the outline. The arms come from narrow gaussian bumps in R(theta), which leave pointed tips with concave flanks; a real puddle's lobes are
+    // round. A wider circular smoothing of the radius (blended in by fx, so nothing pops) rounds the tips and fills the flanks, while the lobes, the bays and the
+    // overall aspect stay (it is a smoothing, not a return to a circle).
+    const rounded = s.rounded;
+    rounded.set(lut);
+    smoothClosed(rounded, OUTLINE_ROUND_HALF, OUTLINE_ROUND_PASSES);
+    const k = OUTLINE_ROUND_MIX * fx;
+    for (let b = 0; b <= BINS; b += 1) lut[b] += (rounded[b] - lut[b]) * k;
+  }
   const { bin0, binFrac, qr } = geo;
   const rhoMap = s.rho;
   for (let i = 0; i < N * N; i += 1) {
