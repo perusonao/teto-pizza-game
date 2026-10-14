@@ -103,7 +103,12 @@ export const RUNTIME_DIMENSION_OBSERVATION: {
   shape: { status: "UNAVAILABLE", reason: "doughShape radii exist but no shape classification rule" },
   cook: { status: "FIXED_BY_FLOW", reason: "BAKE is the only cooking method" },
   laminate: { status: "FIXED_BY_FLOW", reason: "no laminate step exists" },
-  spreadLayers: { status: "FIXED_BY_FLOW", reason: "one sauce per pizza (a new sauce replaces the old)" },
+  spreadLayers: {
+    status: "FIXED_BY_FLOW",
+    // Sauce B1: a switch no longer replaces the sauce. A pizza that carries several sauce kinds shows them in
+    // `sauceBase` (so it matches no recipe -- none uses two sauces); this axis stays a flow constant.
+    reason: "one sauce layer per recipe; extra sauce kinds on a pizza appear in sauceBase, never as a layer count",
+  },
 };
 
 export interface RuntimeSignature {

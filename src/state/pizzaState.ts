@@ -32,6 +32,12 @@ export interface SauceDeposit {
   x: number;
   y: number;
   amount: number;
+  /**
+   * Sauce B1: which sauce kind laid this deposit. ABSENT on a single-sauce pizza (the historical shape, kept
+   * byte-identical); once a second kind is committed the reducer sets it on EVERY deposit (back-filling the earlier ones
+   * with the only sauce used so far), so a log is either all-without or all-with. Not persisted (pizza state is not).
+   */
+  ingredientId?: string;
 }
 
 function isFiniteNumber(value: number): boolean {

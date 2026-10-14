@@ -13,6 +13,7 @@ import {
 } from "./materialEntitlement";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
+import { exceedsSauceCaps, planSauceCommit } from "./sauceLedger";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -959,25 +960,28 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (!isValidSauceDepositBatch(action.deposits)) return state;
 
-      const isFreshApplication = state.pizza.sauceIds[0] !== action.ingredientId;
-      // EP3 Stock Gate: only a *fresh* application (switching to/starting a sauce this pizza
-      // doesn't already carry) could consume a new unit at CONFIRM_BAKE -- continuing to dispense
-      // more of the already-active sauce is still the same one unit, so it is never re-gated here.
-      if (isFreshApplication && !canPlaceIngredient(dispenseIngredient, state.inventory, state.pizza)) {
+      // Sauce B1 (per-kind ledger, Owner Decision on the #489 line): a switch no longer replaces the pizza's sauce
+      // history. `sauceIds` collects every kind that was actually committed (first-use order) and `sauceDeposits` keeps
+      // every stroke, stamped with its kind once a second kind exists (see ./sauceLedger.ts). One kind behaves exactly
+      // as before. Stock is still consumed ONCE, at CONFIRM_BAKE, per kind in `sauceIds` (consumePizzaInventory).
+      const plan = planSauceCommit(state.pizza, action.ingredientId, action.deposits);
+      // EP3 Stock Gate: only a kind this pizza does not carry yet could consume a new unit at CONFIRM_BAKE -- going back
+      // to a kind already on it is the same one unit, so it is never re-gated here.
+      if (plan.isNewKind && !canPlaceIngredient(dispenseIngredient, state.inventory, state.pizza)) {
+        return state;
+      }
+      // Per-kind (100%) and total (provisional 200%) caps, enforced at the reducer boundary too -- but only once two
+      // kinds are involved, so a one-sauce pizza keeps the old behaviour (its 100% is enforced by the dispenser alone).
+      if (plan.multi && exceedsSauceCaps({ sauceIds: plan.sauceIds, sauceDeposits: plan.sauceDeposits })) {
         return state;
       }
       const firstPoint = action.deposits[0];
       const pizza: PizzaState = {
         ...state.pizza,
-        sauceIds: [action.ingredientId],
-        sauceOrigin: isFreshApplication
-          ? { x: firstPoint.x, y: firstPoint.y }
-          : state.pizza.sauceOrigin,
-        sauceToken: isFreshApplication ? state.pizza.sauceToken + 1 : state.pizza.sauceToken,
-        sauceDeposits: [
-          ...(isFreshApplication ? [] : state.pizza.sauceDeposits),
-          ...action.deposits,
-        ],
+        sauceIds: plan.sauceIds,
+        sauceOrigin: plan.changedActive ? { x: firstPoint.x, y: firstPoint.y } : state.pizza.sauceOrigin,
+        sauceToken: plan.changedActive ? state.pizza.sauceToken + 1 : state.pizza.sauceToken,
+        sauceDeposits: plan.sauceDeposits,
       };
       return {
         ...state,

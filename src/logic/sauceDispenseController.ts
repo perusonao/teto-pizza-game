@@ -19,6 +19,7 @@
 import {
   clampQuantity,
   computeDueTicks,
+  SAUCE_RATE_PER_TICK,
   SAUCE_TICK_MS,
   tickDepositAmount,
   type DueTicksResult,
@@ -48,6 +49,13 @@ export interface SauceDispenseControllerOptions {
    *  `start()` call. The controller holds no running total of its own so it can never drift
    *  from the caller's own bookkeeping. */
   getTotalDispensed: () => number;
+  /**
+   * Sauce B1 (per-kind ledger): how much more THIS session's sauce kind may dispense right now -- the smaller of its own
+   * 100% headroom and the pizza's total headroom (./sauceQuantity.ts `SAUCE_TOTAL_MAX_QUANTITY`), already net of
+   * everything buffered, read fresh for every tick. Optional: without it the controller caps at `SAUCE_MAX_QUANTITY`
+   * from `getTotalDispensed` exactly as it always has.
+   */
+  getHeadroom?: () => number;
 }
 
 /**
@@ -84,7 +92,7 @@ export class SauceDispenseController {
     this.path = [{ t: now, x: pos.x, y: pos.y }];
     this.nextDueAt = now + SAUCE_TICK_MS; // the first *regular* tick, one full period out.
 
-    const amount = tickDepositAmount(this.options.getTotalDispensed());
+    const amount = this.tickAmount(this.options.getTotalDispensed());
     if (amount > 0) this.options.onDeposit({ x: pos.x, y: pos.y, amount });
   }
 
@@ -117,7 +125,7 @@ export class SauceDispenseController {
 
     let runningTotal = this.options.getTotalDispensed();
     for (const dueAt of dueAts) {
-      const amount = tickDepositAmount(runningTotal);
+      const amount = this.tickAmount(runningTotal);
       if (amount <= 0) break; // total is monotonic -- once capped, stays capped this batch.
       const pos = this.interpolate(dueAt);
       this.options.onDeposit({ x: pos.x, y: pos.y, amount });
@@ -125,6 +133,13 @@ export class SauceDispenseController {
     }
 
     this.trimPath();
+  }
+
+  /** One tick's amount: the per-kind + total headroom when the caller supplies it (read fresh, so it already counts
+   *  what this batch buffered), otherwise the classic single-bottle cap from the running total. */
+  private tickAmount(runningTotal: number): number {
+    const headroom = this.options.getHeadroom;
+    return headroom ? Math.min(SAUCE_RATE_PER_TICK, Math.max(0, headroom())) : tickDepositAmount(runningTotal);
   }
 
   /** Ends the session. Idempotent and safe at any time (see class doc comment). */

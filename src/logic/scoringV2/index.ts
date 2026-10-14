@@ -18,10 +18,10 @@ import { getIngredient } from "../../data/ingredients";
 import { getReferencePizza, listReferencePizzas } from "../../data/referencePizza";
 import type { Recipe } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
+import { sauceOwnDeposits } from "../../state/sauceLedger";
 import { REFERENCE_SLOT_MAX_RADIUS } from "../pizzaReferenceLayout";
 import { computeSauceMetrics } from "../sauceField";
 import { scoreBakeComponentV2 } from "./bakeComponent";
-import { sanitizeSauceDeposits } from "./boundary";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePiecesComponentV2 } from "./piecesComponent";
 import { scoreQuantityComponentV2 } from "./quantityComponent";
@@ -347,7 +347,13 @@ export function computeScoringV2(
   const sauce =
     referenceSauce === null
       ? ({ available: false, reason: NO_SAUCE_NOT_APPLICABLE_REASON } as const)
-      : scoreSauceComponentV2(computeSauceMetrics(sanitizeSauceDeposits(safePizza.sauceDeposits)), referenceSauce);
+      : scoreSauceComponentV2(
+          // Sauce B1: judged by the reference sauce's OWN deposits (every deposit when the pizza carries one sauce kind,
+          // so a single-source pizza -- a wrong sauce included -- scores exactly as before). Another sauce on the pizza
+          // never adds to this component; it shows up in the Recipe component's purity as an extra type instead.
+          computeSauceMetrics(sauceOwnDeposits(safePizza, referenceSauce.ingredientId)),
+          referenceSauce,
+        );
   const profile = SCORING_V2_WEIGHT_PROFILES[referenceSauce === null ? "NO_SAUCE" : "STANDARD"];
   const pieces = scorePiecesComponentV2(safePizza.toppings, reference.pieceGroups);
   const recipeComponent = scoreRecipeComponentV2(recipe, safePizza);

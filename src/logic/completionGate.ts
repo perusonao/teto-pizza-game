@@ -15,6 +15,7 @@ import { getIngredient } from "../data/ingredients";
 import type { Recipe, RecipeRequirement } from "../data/recipes";
 import { getReferencePizza } from "../data/referencePizza";
 import type { PizzaState } from "../state/pizzaState";
+import { sauceOwnDeposits } from "../state/sauceLedger";
 import { COVERAGE_POOR_RATIO } from "./sauceEvaluation";
 import { computeSauceMetrics } from "./sauceField";
 import { sanitizeSauceDeposits, sanitizeStringArray, sanitizeToppings } from "./scoringV2/boundary";
@@ -177,7 +178,14 @@ function checkSauceQuantity(
 
   // (the empty-deposit exemption and its rationale live in `isSauceBelowMinimum`, which this check and the
   // recipe-independent RESULT advice (../state/executionAdvice.ts) share, so the two can never drift)
-  return isSauceBelowMinimum(pizza.sauceDeposits, reference.sauce)
+  //
+  // Sauce B1: the required sauce is judged by ITS OWN deposits. With one sauce kind on the pizza that is every deposit
+  // (unchanged); with several, another sauce's deposits never stand in for it. The one-shot exemption still applies only
+  // when the whole log is empty -- a log that holds only OTHER sauces' deposits is not "applied instantly".
+  if (sanitizeSauceDeposits(pizza.sauceDeposits).length === 0) return null;
+  const own = sauceOwnDeposits(pizza, sauceIngredientId);
+  if (own.length === 0) return { reason: "INSUFFICIENT_SAUCE", ingredientId: sauceIngredientId };
+  return isSauceBelowMinimum(own, reference.sauce)
     ? { reason: "INSUFFICIENT_SAUCE", ingredientId: sauceIngredientId }
     : null;
 }
