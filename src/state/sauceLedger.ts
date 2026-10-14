@@ -121,6 +121,13 @@ export interface SauceCommitPlan {
   multi: boolean;
 }
 
+/** The deposit without an `ingredientId` stamp (the same object when it has none, so unstamped batches are stored as-is). */
+function withoutOwner(deposit: SauceDeposit): SauceDeposit {
+  if (!("ingredientId" in deposit)) return deposit;
+  const { ingredientId: _owner, ...rest } = deposit;
+  return rest;
+}
+
 /**
  * The pure core of COMMIT_SAUCE_DISPENSE: appends one stroke's deposits, keeping the history. For one kind the result is
  * exactly what the old reducer produced (the history plus the batch, no `ingredientId`); when a second kind appears the
@@ -134,7 +141,10 @@ export function planSauceCommit(pizza: PizzaState, ingredientId: string, batch: 
   const history = multi
     ? pizza.sauceDeposits.map((d) => (d.ingredientId === undefined ? { ...d, ingredientId: kinds[0] } : d))
     : pizza.sauceDeposits;
-  const added = multi ? batch.map((d) => ({ ...d, ingredientId })) : batch;
+  // The action's `ingredientId` is the only authority on who laid the batch. Several kinds: every deposit is stamped with it
+  // (a caller's own stamps are overwritten). One kind: the historical unstamped shape -- a caller's stamps are removed, so a
+  // pre-stamped batch (e.g. ledger output reused by a caller) can never invent a second kind or misattribute the quantity.
+  const added = multi ? batch.map((d) => ({ ...d, ingredientId })) : batch.map(withoutOwner);
   return {
     sauceIds,
     sauceDeposits: [...history, ...added],

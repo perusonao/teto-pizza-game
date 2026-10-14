@@ -3,7 +3,7 @@ import { getRecipe } from "../data/recipes";
 import { SAUCE_MAX_QUANTITY } from "../logic/sauceQuantity";
 import { gameReducer, type GameState } from "./gameReducer";
 import { consumePizzaInventory } from "./inventory";
-import { isMultiSauce, sauceUsedByKind, sauceUsedTotal } from "./sauceLedger";
+import { currentSauceId, isMultiSauce, sauceUsedByKind, sauceUsedTotal } from "./sauceLedger";
 import { commit, finishedPizza, GENEROUS_INVENTORY, ringBatch, run, sauceStepState } from "./testSupport/sauceKindFixtures";
 
 const margherita = getRecipe("margherita")!;
@@ -28,6 +28,16 @@ describe("COMMIT_SAUCE_DISPENSE: the sauce history is kept across a switch", () 
     expect(s.pizza.sauceIds).toEqual(["tomato-sauce", "pesto"]);
     expect(Object.keys(sauceUsedByKind(s.pizza)).sort()).toEqual(["pesto", "tomato-sauce"]);
     expect(sauceUsedByKind(s.pizza)["tomato-sauce"]).toBeCloseTo(0.16, 12);
+  });
+
+  it("a pre-stamped batch from a caller cannot invent a second kind or misattribute the quantity (Codex P2 #3)", () => {
+    const stamped = strokes(10).map((d) => ({ ...d, ingredientId: "pesto" }));
+    const s = run(start(), [commit("tomato-sauce", stamped)]);
+    expect(s.pizza.sauceIds).toEqual(["tomato-sauce"]);
+    expect(s.pizza.sauceDeposits.every((d) => !("ingredientId" in d))).toBe(true);
+    expect(sauceUsedByKind(s.pizza)).toEqual({ "tomato-sauce": expect.closeTo(0.2, 12) });
+    expect(currentSauceId(s.pizza)).toBe("tomato-sauce");
+    expect(isMultiSauce(s.pizza)).toBe(false);
   });
 
   it("one kind keeps the historical shape: no stamp anywhere, even over many strokes", () => {

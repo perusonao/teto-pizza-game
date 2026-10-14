@@ -154,6 +154,27 @@ describe("planSauceCommit", () => {
     expect(p.sauceDeposits.every((d) => !("ingredientId" in d))).toBe(true); // the input is never mutated
   });
 
+  it("a caller's own stamps never decide ownership: removed for one kind, overwritten for several (Codex P2 #3)", () => {
+    const stamped = [dep(0.3, "pesto"), dep(0.2, "olive-oil")];
+    const single = planSauceCommit(createEmptyPizza(), "tomato-sauce", stamped);
+    expect(single.sauceDeposits.every((d) => !("ingredientId" in d))).toBe(true);
+    expect(single.sauceDeposits.map((d) => d.amount)).toEqual([0.3, 0.2]);
+    expect(sauceKindsOf({ sauceIds: single.sauceIds, sauceDeposits: single.sauceDeposits })).toEqual(["tomato-sauce"]);
+    // a repeated single-kind commit, too
+    const again = planSauceCommit(pizza(["tomato-sauce"], [dep(0.1)]), "tomato-sauce", stamped);
+    expect(again.sauceDeposits.every((d) => !("ingredientId" in d))).toBe(true);
+    // several kinds: overwritten with the action's own kind
+    const multi = planSauceCommit(pizza(["tomato-sauce"], [dep(0.1)]), "pesto", [dep(0.2, "olive-oil")]);
+    expect(multi.sauceDeposits.map((d) => d.ingredientId)).toEqual(["tomato-sauce", "pesto"]);
+  });
+
+  it("an unstamped batch is stored as the very same objects (single-source state unchanged)", () => {
+    const batch = [dep(0.1), dep(0.2)];
+    const plan = planSauceCommit(createEmptyPizza(), "tomato-sauce", batch);
+    expect(plan.sauceDeposits[0]).toBe(batch[0]);
+    expect(plan.sauceDeposits[1]).toBe(batch[1]);
+  });
+
   it("switching back keeps the kind order and flags the active change without a new kind", () => {
     const p = pizza(["tomato-sauce", "pesto"], [dep(0.1, "tomato-sauce"), dep(0.1, "pesto")]);
     const plan = planSauceCommit(p, "tomato-sauce", [dep(0.02)]);
