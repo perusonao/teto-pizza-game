@@ -1034,9 +1034,13 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
     renderLegacyPixels(geo, N, rhoMap, complexity, rawMix, toastV, charV, s, data);
     return out;
   }
-  // melted: cross-fade the original look into the melted look (premultiplied, so a pixel only one of them covers fades in or out cleanly)
+  if (fx >= 1) {
+    // fully melted: the original look has no weight, so only the melted look is rendered (no discarded work on the first fully baked frame)
+    renderMeltedPixels(geo, N, rhoMap, toastV, charV, s, data);
+    return out;
+  }
+  // melting: cross-fade the original look into the melted look (premultiplied, so a pixel only one of them covers fades in or out cleanly)
   renderLegacyPixels(geo, N, rhoMap, complexity, rawMix, toastV, charV, s, data);
-  if (fx >= 1) data.fill(0);
   const melted = s.img2;
   renderMeltedPixels(geo, N, rhoMap, toastV, charV, s, melted);
   for (let i = 0; i < N * N; i += 1) {
