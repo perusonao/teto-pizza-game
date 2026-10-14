@@ -128,22 +128,17 @@ describe("renderCheesePool: the finished pool (melt 1) against the reference-pho
 
   it("has a crisp edge (only a few px from opaque to clear) and a limited translucent film", () => {
     for (const m of metrics) {
-      expect(m.edgeWidthPx).toBeLessThan(11); // #486 look: the thin, translucent outer ring of a melted pool counts as partly transparent pixels too (was 7.5)
-      expect(m.thin).toBeLessThan(0.6); // #486 look: the rim is thin and lets the sauce show (was 0.35); the centre stays opaque
+      expect(m.edgeWidthPx).toBeLessThan(7.5);
+      expect(m.thin).toBeLessThan(0.35);
     }
     expect(pct(metrics.map((m) => m.thin), 0.5)).toBeGreaterThan(0.05); // the tongue tips are translucent
   });
 
-  it("is matte cream, not blown out or chalk white: core ~(234,224,200), at most 7 % of the pixels above luminance 246", () => {
-    // #486 look: a cream centre. The typical pool sits close to the target; the seed spread (shading, bloom, mottling) is bounded more loosely
-    const mid = (k: number) => pct(metrics.map((m) => m.core[k]), 0.5);
-    expect(Math.abs(mid(0) - 234)).toBeLessThan(8);
-    expect(Math.abs(mid(1) - 224)).toBeLessThan(8);
-    expect(Math.abs(mid(2) - 200)).toBeLessThan(10);
+  it("is matte creamy white, not blown out: core ~(238,234,218), at most 7 % of the pixels above luminance 246", () => {
     for (const m of metrics) {
-      expect(Math.abs(m.core[0] - 234)).toBeLessThan(20);
-      expect(Math.abs(m.core[1] - 224)).toBeLessThan(20);
-      expect(Math.abs(m.core[2] - 200)).toBeLessThan(20);
+      expect(Math.abs(m.core[0] - 238)).toBeLessThan(7); // S2-B2: 5 -> 6, S2-B3a: 7 (shading and the golden rim move the core mean a little with the seed)
+      expect(Math.abs(m.core[1] - 234)).toBeLessThan(7); // S2-B2: 5 -> 6, S2-B3a: 7 (shading and the golden rim move the core mean a little with the seed)
+      expect(Math.abs(m.core[2] - 218)).toBeLessThan(7); // S2-B2: 5 -> 6, S2-B3a: 7 (shading and the golden rim move the core mean a little with the seed)
       expect(m.whiteClip).toBeLessThanOrEqual(0.07);
     }
   });
@@ -152,7 +147,7 @@ describe("renderCheesePool: the finished pool (melt 1) against the reference-pho
 describe("renderCheesePool: the melted look (#486)", () => {
   const seed = "mozzarella:40.00:50.00";
 
-  it("leaves the raw lump and the first moments of the melt byte-identical to the look the Owner accepted before bake (melt <= 0.3; hashes from the dc1d20b renderer)", () => {
+  it("leaves the raw lump and the first moments of the melt byte-identical to the original look (melt <= 0.3; hashes from the dc1d20b renderer)", () => {
     const sha = (d: Uint8ClampedArray) => createHash("sha1").update(d).digest("hex").slice(0, 12);
     const golden: Array<[string, 64 | 96, number, string]> = [
       ["mozzarella:40.00:50.00", 64, 0, "141ac4c126c9"],
@@ -166,27 +161,37 @@ describe("renderCheesePool: the melted look (#486)", () => {
     for (const [seedId, grid, melt, hash] of golden) expect(sha(renderCheesePool(seedId, melt, 0, 0, { grid }).data)).toBe(hash);
   });
 
-  it("has a thick, opaque, milky body that tapers into a thinner, creamier, more translucent rim, with small golden speckles only once baked", () => {
-    const meanAt = (img: { data: Uint8ClampedArray }, test: (x: number, y: number) => boolean, ch: number) => {
-      let sum = 0;
-      let n = 0;
-      for (let y = 0; y < 64; y += 1) for (let x = 0; x < 64; x += 1) if (test(x, y) && img.data[(y * 64 + x) * 4 + 3] > 0) { sum += img.data[(y * 64 + x) * 4 + ch]; n += 1; }
-      return n ? sum / n : 0;
-    };
-    const img = renderCheesePool(seed, 1, 0.6, 0, { grid: 64 });
-    const ring = (x: number, y: number) => Math.hypot(x - 32, y - 32) > 16;
-    const centre = (x: number, y: number) => Math.hypot(x - 32, y - 32) < 7;
-    // the rim is more translucent than the body (mean alpha), and creamier (lower blue than the milky body)
-    expect(meanAt(img, ring, 3)).toBeLessThan(meanAt(img, centre, 3) - 40);
-    expect(meanAt(img, ring, 2)).toBeLessThan(meanAt(img, centre, 2));
-    // speckles: baked has clearly more small golden (red high, blue low) pixels than unbaked
-    const speckles = (toast: number) => {
-      const im = renderCheesePool(seed, 1, toast, 0, { grid: 64 });
-      let n = 0;
-      for (let i = 0; i < im.data.length; i += 4) if (im.data[i + 3] > 200 && im.data[i] - im.data[i + 2] > 55) n += 1;
-      return n;
-    };
-    expect(speckles(0.8)).toBeGreaterThan(speckles(0) + 8);
+  it("is a thin, bright sheet with a crisp outline: the body is opaque and only the outermost band is translucent (no haze)", () => {
+    for (const sd of seeds(30)) {
+      const img = renderCheesePool(sd, 1, 0.7, 0, { grid: 64 });
+      const m = measureCheesePool(img);
+      const rEq = m.eqd / 2;
+      let translucentInside = 0;
+      for (let y = 0; y < 64; y += 1) {
+        for (let x = 0; x < 64; x += 1) {
+          const a = img.data[(y * 64 + x) * 4 + 3];
+          if (a > 0 && a < 230 && Math.hypot(x - 32, y - 32) < 0.55 * rEq) translucentInside += 1;
+        }
+      }
+      expect(translucentInside).toBe(0);
+      expect(m.edgeWidthPx).toBeLessThan(5); // crisp against the sauce (the old soft look was 8-10)
+    }
+  });
+
+  it("has a smooth surface: no folded or paper-like shading, the interior luminance varies only gently", () => {
+    for (const sd of seeds(40)) expect(measureCheesePool(renderCheesePool(sd, 1, 0, 0)).shadeSpread).toBeLessThan(1.12);
+  });
+
+  it("browns in small golden spots only (never over the whole body), and an over-baked pool turns brown, not grey", () => {
+    const warmShare = (toast: number) => pct(seeds(40).map((sd) => measureCheesePool(renderCheesePool(sd, 1, toast, 0)).warm), 0.5);
+    expect(warmShare(0.8)).toBeGreaterThan(warmShare(0) + 0.02);
+    expect(warmShare(1)).toBeLessThan(0.2); // restrained: nowhere near a whole-body yellow
+    const img = renderCheesePool(seed, 1, 1, 0.8, { grid: 64 });
+    let r = 0;
+    let b = 0;
+    let n = 0;
+    for (let i = 0; i < img.data.length; i += 4) if (img.data[i + 3] > 200) { r += img.data[i]; b += img.data[i + 2]; n += 1; }
+    expect(r / n - b / n).toBeGreaterThan(35); // warm brown (red well above blue), a grey would be ~0
   });
 });
 
@@ -197,9 +202,11 @@ describe("renderCheesePool: browning", () => {
     const none = list.map((s) => measureCheesePool(renderCheesePool(s, 1, 0, 0)).warm);
     const full = list.map((s) => measureCheesePool(renderCheesePool(s, 1, 1, 0)).warm);
     expect(pct(none, 0.9)).toBeLessThan(0.004);
-    expect(pct(full, 0.5)).toBeGreaterThan(0.05); // #486 look: a restrained bloom, so the warm share (warm AND darker than the cream core) is lower than the S2-B3a 15-30 %
-    expect(pct(full, 0.5)).toBeLessThan(0.3);
-    expect(pct(full, 0.95)).toBeLessThan(0.4);
+    // #486 look: a real baked margherita browns only in small golden blisters (the reference photo: 1-4 % of the cheese), so the finished pool's warm share is
+    // lower than the S2-B3a 15-38 % that came from a golden rim and large patches; it must still be clearly present
+    expect(pct(full, 0.5)).toBeGreaterThan(0.04);
+    expect(pct(full, 0.5)).toBeLessThan(0.14); // #486 look: tightened from 0.3 to the new distribution (median 0.07), so a whole-body yellowing is caught
+    expect(pct(full, 0.95)).toBeLessThan(0.2); // was 0.4
   });
 
   it("the browning grows with toast, and char turns the pool darker and the blisters brown", () => {
@@ -390,9 +397,8 @@ describe("S1b: outline variety over a large seed set (distribution and outliers,
   });
 
   it("the translucent pink film is thinner than S1 (S1 median 0.17 of the pool area)", () => {
-    // #486 look: the melted pool is deliberately translucent toward its rim (the sauce shows through), so the share is no longer S1b's 0.14 / 0.25; it is bounded instead
-    expect(pct(rows.map((m) => m.thin), 0.5)).toBeLessThan(0.55);
-    for (const m of rows) expect(m.thin).toBeLessThan(0.65);
+    expect(pct(rows.map((m) => m.thin), 0.5)).toBeLessThan(0.14);
+    for (const m of rows) expect(m.thin).toBeLessThan(0.25);
   });
 
   it("every chosen outline passes its own naturalness limits, and the limits do reject slits, spikes and clovers", () => {
@@ -522,10 +528,10 @@ describe("S2-A: faster outline choice, a clear border and a budgeted browning, w
 
   it("browning is clear but bounded for every seed (S2-B3a): warm pixels at toast 0.6 median 8-18 %, p95 below 22 %, never above 26 %", () => {
     const warm = seeds(200).map((s) => measureCheesePool(renderCheesePool(s, 1, 0.6, 0)).warm);
-    expect(pct(warm, 0.5)).toBeGreaterThan(0.03); // #486 look: restrained browning (was 0.08)
-    expect(pct(warm, 0.5)).toBeLessThan(0.18);
-    expect(pct(warm, 0.95)).toBeLessThan(0.22);
-    expect(Math.max(...warm)).toBeLessThan(0.26);
+    expect(pct(warm, 0.5)).toBeGreaterThan(0.02); // #486 look: small blisters only (was 0.08, from the golden rim and large patches)
+    expect(pct(warm, 0.5)).toBeLessThan(0.1); // was 0.18
+    expect(pct(warm, 0.95)).toBeLessThan(0.12); // was 0.22
+    expect(Math.max(...warm)).toBeLessThan(0.16); // was 0.26
     expect(pct(warm, 0.9) - pct(warm, 0.1)).toBeGreaterThan(0.01); // still a real spread between pools
   });
 
