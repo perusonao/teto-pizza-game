@@ -44,7 +44,10 @@ export interface FinalizeRoundInput {
   /**
    * Cooking Steps 2.0 FINISH engine (OD-CS-2 = B). Absent / `"SINGLE"` = today's one-shot finalization (every call
    * site). `"PROVISIONAL"` = CONFIRM_BAKE of a recipe with late requirements: they are left out of the Completion Gate
-   * and Scoring 2.0. `"FINAL"` = the FINISH confirmation: the full recipe is judged on the finished pizza, and only
+   * only. Scoring 2.0 keeps the full recipe (its Reference is loaded by recipe id), so the provisional score reads the
+   * late ingredient as missing -- it is exactly what the FINAL pass would score on the same pre-bake pizza. It is shown
+   * only when a failed bake skips FINISH (the late ingredient then never reaches the pizza, so that IS the final
+   * score); otherwise FINISH replaces it. `"FINAL"` = the FINISH confirmation: the full recipe is judged on the finished pizza, and only
    * the pieces placed in FINISH are consumed (the rest were consumed provisionally). For a recipe with no late
    * requirement PROVISIONAL judges exactly like SINGLE. Free Cooking has no FINISH yet (UD-B), so it always runs as SINGLE.
    */

@@ -212,6 +212,9 @@ describe("finalizeRound: provisional -> final (OD-CS-2 = B)", () => {
     const provisional = finalizeRound(input(late, pre, { finalization: "PROVISIONAL" }));
     expect(provisional.kind === "SCORED" && provisional.scoringV2Result.available).toBe(true);
     expect(provisional.completion.status).toBe("PASS"); // basil is not demanded before FINISH
+    // the provisional score is what FINAL scores on the same pizza (the failed-bake skip path never adds the late piece)
+    const sameAsFinal = finalizeRound(input(late, pre, { finalization: "FINAL" }));
+    expect(provisional.kind === "SCORED" && sameAsFinal.kind === "SCORED" && provisional.score).toEqual(sameAsFinal.kind === "SCORED" && sameAsFinal.score);
     const finished = { ...full, toppings: full.toppings.map((t) => (t.ingredientId === "basil" ? { ...t, stage: "post" as const } : t)) };
     const final = finalizeRound(input(late, finished, { finalization: "FINAL" }));
     expect(final.kind === "SCORED" && final.scoringV2Result.available).toBe(true);
