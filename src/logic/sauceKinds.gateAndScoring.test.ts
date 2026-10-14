@@ -54,12 +54,12 @@ describe("Completion Gate: the required sauce is judged by ITS OWN deposits", ()
   it("the one-shot exemption holds only for an EMPTY log: the required sauce applied instantly, then another sauce, is not exempt", () => {
     const state = run(sauceStepState(margherita), [{ type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 }]);
     expect(failures(margherita, finishedPizza(margherita, state.pizza))).toEqual([]); // exempt: nothing but the one-shot
-    const mixed: PizzaState = finishedPizza(margherita, {
-      ...state.pizza,
-      sauceIds: ["tomato-sauce", "pesto"],
-      sauceDeposits: [{ x: 50, y: 50, amount: 0.5, ingredientId: "pesto" }],
-    });
-    expect(failures(margherita, mixed)).toContain("INSUFFICIENT_SAUCE");
+    // a THICK pesto (a full ideal ring) must still not satisfy tomato: the reason is "tomato has no deposits of its own"
+    const mixed = run(state, [commit("pesto", ideal())]);
+    expect(mixed.pizza.sauceIds).toEqual(["tomato-sauce", "pesto"]);
+    expect(sauceOwnDeposits(mixed.pizza, "tomato-sauce")).toEqual([]);
+    expect(sauceOwnDeposits(mixed.pizza, "pesto")).toHaveLength(46);
+    expect(failures(margherita, finishedPizza(margherita, mixed.pizza))).toContain("INSUFFICIENT_SAUCE");
   });
 
   it("the recipe-independent RESULT advice judges the pooled sauce (unchanged for one sauce)", () => {
@@ -93,6 +93,17 @@ describe("Scoring 2.0: the sauce component reads the reference sauce's own depos
     expect(withExtra.components.pieces).toEqual(only.components.pieces);
     expect(withExtra.components.bake).toEqual(only.components.bake);
     expect(withExtra.rulesetVersion).toBe(only.rulesetVersion);
+  });
+
+  it("a one-shot required sauce followed by a thick painted sauce: the painted one never counts as the required sauce", () => {
+    const state = run(sauceStepState(margherita), [
+      { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 },
+      commit("pesto", ideal()),
+    ]);
+    const component = sauceScore(margherita, finishedPizza(margherita, state.pizza));
+    const empty = sauceScore(margherita, finishedPizza(margherita, sauceStepState(margherita).pizza));
+    expect(component).not.toBeNull();
+    expect(component).toEqual(empty); // scored on tomato's own (empty) deposits, exactly like a pizza with no sauce laid
   });
 
   it("a reference sauce that laid nothing scores as an empty sauce, not as the other sauce's quantity", () => {

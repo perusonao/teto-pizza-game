@@ -61,6 +61,34 @@ describe("sauce ledger: derived values", () => {
   });
 });
 
+describe("sauce ledger: single vs several is decided by the KINDS on the pizza (Codex P2)", () => {
+  it("a one-shot sauce has no deposits: sauceIds [A, B] with deposits only from B is still a multi-sauce pizza", () => {
+    const p = pizza(["tomato-sauce", "pesto"], [dep(0.5, "pesto"), dep(0.3, "pesto")]);
+    expect(sauceKindsOf(p)).toEqual(["tomato-sauce", "pesto"]);
+    expect(isMultiSauce(p)).toBe(true);
+    expect(sauceOwnDeposits(p, "tomato-sauce")).toEqual([]); // not pesto's deposits
+    expect(sauceOwnDeposits(p, "pesto")).toHaveLength(2);
+  });
+
+  it("unstamped history with two recorded kinds is attributed to the first kind (the only sauce used before the second)", () => {
+    const p = pizza(["tomato-sauce", "pesto"], [dep(0.4)]);
+    expect(isMultiSauce(p)).toBe(true);
+    expect(sauceOwnDeposits(p, "tomato-sauce")).toHaveLength(1);
+    expect(sauceOwnDeposits(p, "pesto")).toEqual([]);
+  });
+
+  it("one recorded kind stays single however many deposits it has (the pooled view, unchanged)", () => {
+    expect(isMultiSauce(pizza(["pesto"], [dep(0.2), dep(0.2)]))).toBe(false);
+    expect(isMultiSauce(pizza(["tomato-sauce"], []))).toBe(false); // one-shot only
+    expect(isMultiSauce(createEmptyPizza())).toBe(false);
+    expect(sauceOwnDeposits(pizza(["pesto"], [dep(0.2)]), "tomato-sauce")).toHaveLength(1); // wrong single sauce: pooled
+  });
+
+  it("a kind that laid nothing is not on the pizza (sauceIds only ever gets a kind from a committed stroke or a one-shot)", () => {
+    expect(sauceKindsOf(pizza(["tomato-sauce"], [dep(0.2)]))).toEqual(["tomato-sauce"]);
+  });
+});
+
 describe("sauce ledger: headroom (the dispenser cap, shared with the gauge)", () => {
   it("one kind: numerically identical to the old single-bottle cap, for any history and pending amount", () => {
     for (const used of [0, 0.02, 0.5, 0.98, 0.9999999, 1, 1.4]) {

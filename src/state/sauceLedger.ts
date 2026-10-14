@@ -31,15 +31,21 @@ function ownerOf(deposit: SafeSauceDeposit, ids: readonly string[]): string {
   return deposit.ingredientId ?? ids[0] ?? "";
 }
 
-/** The sauce kinds committed on this pizza, in first-use order (the layer order B2 paints in). */
-export function sauceKindsOf(pizza: SauceLedgerPizza): string[] {
-  const { ids, deposits } = partsOf(pizza);
+/** Kinds from already-sanitized parts: the recorded `sauceIds` first-use order, then any deposit owner not recorded there. */
+function kindsFrom(ids: readonly string[], deposits: readonly SafeSauceDeposit[]): string[] {
   const kinds = [...new Set(ids)];
   for (const d of deposits) {
     const owner = ownerOf(d, ids);
     if (owner !== "" && !kinds.includes(owner)) kinds.push(owner);
   }
   return kinds;
+}
+
+/** The sauce kinds on this pizza, in first-use order (the layer order B2 paints in). A kind is on the pizza when it is in
+ *  `sauceIds` (committed -- or applied by the one-shot `APPLY_SAUCE`, which leaves no deposits) or owns a deposit. */
+export function sauceKindsOf(pizza: SauceLedgerPizza): string[] {
+  const { ids, deposits } = partsOf(pizza);
+  return kindsFrom(ids, deposits);
 }
 
 /** Committed amount per sauce kind, summed in log order (so a single kind equals the plain in-order total). */
@@ -58,20 +64,22 @@ export function sauceUsedTotal(pizza: SauceLedgerPizza): number {
   return partsOf(pizza).deposits.reduce((sum, d) => sum + d.amount, 0);
 }
 
-/** True when deposits of two or more different sauce kinds are on the pizza. */
+/** True when two or more different sauce kinds are on the pizza. Judged by the KINDS, not only by who owns a deposit: a
+ *  one-shot (`APPLY_SAUCE`) sauce has no deposits, so counting deposit owners alone would call "one-shot tomato, then a
+ *  painted pesto" a one-sauce pizza and let pesto's deposits stand in for tomato's. */
 export function isMultiSauce(pizza: SauceLedgerPizza): boolean {
   const { ids, deposits } = partsOf(pizza);
-  return new Set(deposits.map((d) => ownerOf(d, ids))).size >= 2;
+  return kindsFrom(ids, deposits).length >= 2;
 }
 
 /**
  * The deposits that count as "this sauce's own" (Completion Gate, Scoring 2.0, live 「ソースのでき」). With one kind on
  * the pizza that is EVERY deposit -- the pooled view, exactly as before, including a wrong single sauce. With several
- * kinds it is only the deposits that kind laid; a kind that laid none gets `[]`.
+ * kinds it is only the deposits that kind laid; a kind that laid none (a one-shot sauce, or one never used) gets `[]`.
  */
 export function sauceOwnDeposits(pizza: SauceLedgerPizza, ingredientId: string): SafeSauceDeposit[] {
   const { ids, deposits } = partsOf(pizza);
-  if (new Set(deposits.map((d) => ownerOf(d, ids))).size < 2) return deposits;
+  if (kindsFrom(ids, deposits).length < 2) return deposits;
   return deposits.filter((d) => ownerOf(d, ids) === ingredientId);
 }
 

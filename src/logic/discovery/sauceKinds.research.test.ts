@@ -75,6 +75,20 @@ describe("a pizza with an extra sauce kind is never identified as a recipe", () 
   });
 });
 
+describe("a one-shot sauce followed by a painted one is a mixed pizza too (Codex P2)", () => {
+  it("is identified as no recipe, whichever sauce was applied first", () => {
+    for (const recipe of saucy) {
+      const own = recipeSauceKind(recipe)!;
+      const extra = otherSauceKind(own);
+      const state = run(sauceStepState(recipe), [{ type: "APPLY_SAUCE", ingredientId: own, x: 50, y: 50 }, commit(extra, ideal())]);
+      const pizza = finishedPizza(recipe, state.pizza);
+      expect(signatureOfPizza(pizza).sauceBase.value, recipe.id).toEqual([own, extra].sort());
+      expect(evaluateDiscovery(signatureOfPizza(pizza), RECIPE_DISCOVERY_CATALOG, []).kind, recipe.id).toBe("ORIGINAL");
+      expect(resolveDinnerIdentity(pizza).kind, recipe.id).toBe("NONE");
+    }
+  });
+});
+
 describe("near-miss: an extra sauce reveals nothing", () => {
   it("the class does not depend on WHICH extra sauce was added (no probing the identity of a sauce)", () => {
     for (const recipe of saucy) {

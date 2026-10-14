@@ -3,7 +3,7 @@ import { getRecipe } from "../data/recipes";
 import { SAUCE_MAX_QUANTITY } from "../logic/sauceQuantity";
 import { gameReducer, type GameState } from "./gameReducer";
 import { consumePizzaInventory } from "./inventory";
-import { sauceUsedByKind, sauceUsedTotal } from "./sauceLedger";
+import { isMultiSauce, sauceUsedByKind, sauceUsedTotal } from "./sauceLedger";
 import { commit, finishedPizza, GENEROUS_INVENTORY, ringBatch, run, sauceStepState } from "./testSupport/sauceKindFixtures";
 
 const margherita = getRecipe("margherita")!;
@@ -118,9 +118,19 @@ describe("inventory: one unit per sauce kind actually laid, consumed once at CON
     expect(consumePizzaInventory(s.pizza, s.inventory).pesto).toBe(2);
   });
 
+  it("a one-shot sauce followed by a painted sauce: both kinds are on the pizza and both consume one unit", () => {
+    const s = run(start(stock), [{ type: "APPLY_SAUCE", ingredientId: "olive-oil", x: 50, y: 50 }, commit("pesto", strokes(10))]);
+    expect(s.pizza.sauceIds).toEqual(["olive-oil", "pesto"]);
+    expect(s.pizza.sauceDeposits.every((d) => d.ingredientId === "pesto")).toBe(true);
+    const after = consumePizzaInventory(s.pizza, s.inventory);
+    expect(after["olive-oil"]).toBe(2);
+    expect(after.pesto).toBe(2);
+  });
+
   it("a kind that laid nothing is not consumed (a cancelled / rejected stroke registers nothing)", () => {
     const s = run(start(stock), [commit("tomato-sauce", strokes(10)), commit("pesto", [{ x: 1, y: 1, amount: 0 }])]);
     expect(s.pizza.sauceIds).toEqual(["tomato-sauce"]);
+    expect(isMultiSauce(s.pizza)).toBe(false); // the empty stroke added no kind, so the pizza is still a one-sauce pizza
     expect(consumePizzaInventory(s.pizza, s.inventory).pesto).toBe(3);
   });
 
