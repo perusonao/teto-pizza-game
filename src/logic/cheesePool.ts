@@ -735,12 +735,13 @@ interface Scratch {
   rho: Float32Array;
   lut: Float32Array;
   soft: Float32Array;
+  once: Float32Array;
 }
 const scratch = new Map<number, Scratch>();
 function scratchFor(N: number): Scratch {
   let s = scratch.get(N);
   if (!s) {
-    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), soft: new Float32Array(BINS + 1) };
+    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), soft: new Float32Array(BINS + 1), once: new Float32Array(N * N) };
     scratch.set(N, s);
   }
   return s;
@@ -838,8 +839,14 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
     height[i] = lerp(heightOld, edgeN * (0.12 + 0.95 * thick), fx);
   }
   let lit = boxBlurTwice(height, N, s);
-  // melted: one more smoothing of the lit height, so the thickness profile (which follows the outline's bends) does not leave creases / ridges along the bays
-  if (fx > 0.5) lit = boxBlurTwice(lit, N, s);
+  // melted: one more smoothing of the lit height, so the thickness profile (which follows the outline's bends) does not leave creases / ridges along the bays.
+  // Blended in by `fx` (not switched on at a threshold), so the shading changes continuously through the melt.
+  if (fx > 0) {
+    s.once.set(lit);
+    const twice = boxBlurTwice(lit, N, s);
+    for (let i = 0; i < N * N; i += 1) twice[i] = lerp(s.once[i], twice[i], fx);
+    lit = twice;
+  }
   const data = out.data;
   data.fill(0);
   // light from the upper left
