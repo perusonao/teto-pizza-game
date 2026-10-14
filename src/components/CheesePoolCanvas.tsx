@@ -19,6 +19,22 @@ function bitmapOf(image: CheesePoolImage): HTMLCanvasElement | null {
   return canvas;
 }
 
+/** drop the offscreen bitmap of an image, so the next draw rebuilds it from the pixel data (the old one may have lost its backing store) */
+function forgetBitmap(image: CheesePoolImage): void {
+  bitmaps.delete(image);
+}
+
+/**
+ * #486 G1: whether any pixel of the canvas is visible. A cheese is always at least a few opaque pixels, so an all-transparent read-back means the browser dropped
+ * the canvas contents (iOS memory pressure): drawing then "succeeds" without throwing, and the piece would be an invisible cheese. A read that throws is a
+ * failure too (the caller shows M1).
+ */
+export function hasVisiblePixels(ctx: CanvasRenderingContext2D, width: number, height: number): boolean {
+  const data = ctx.getImageData(0, 0, width, height).data;
+  for (let i = 3; i < data.length; i += 4) if (data[i] > 0) return true;
+  return false;
+}
+
 let canvas2dUsable: boolean | null = null;
 
 /** whether this browser gives a 2D drawing context at all (probed once; an old WebView or a locked-down environment may return null) */
@@ -69,7 +85,11 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
   useLayoutEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    try {
+    const fail = () => {
+      if (hasFallback) setDrawFailed(true);
+    };
+    /** one draw attempt; true only when the visible canvas really holds pixels afterwards (#486 G1: a purged canvas draws nothing without throwing) */
+    const draw = (): boolean => {
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("no 2d context");
       const image = renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() });
@@ -77,9 +97,37 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
       if (!bitmap) throw new Error("no bitmap");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(bitmap, 0, 0);
-    } catch {
-      if (hasFallback) setDrawFailed(true);
-    }
+      return hasVisiblePixels(ctx, canvas.width, canvas.height);
+    };
+    /** draw, verify, and on a blank result rebuild the offscreen bitmap once and retry; anything still blank (or any throw) becomes the M1 piece */
+    const drawVerified = () => {
+      try {
+        if (draw()) return;
+        forgetBitmap(renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() }));
+        if (!draw()) fail();
+      } catch {
+        fail();
+      }
+    };
+    drawVerified();
+    // iOS may discard canvas memory while the page is hidden: look again when it comes back (a blank canvas is redrawn, then verified like any draw)
+    const onReturn = () => {
+      if (!canvas.isConnected) return; // already replaced by the M1 piece: nothing to look at or redraw
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      try {
+        const ctx = canvas.getContext("2d");
+        if (ctx && hasVisiblePixels(ctx, canvas.width, canvas.height)) return;
+      } catch {
+        // fall through to a verified redraw
+      }
+      drawVerified();
+    };
+    document.addEventListener("visibilitychange", onReturn);
+    window.addEventListener("pageshow", onReturn);
+    return () => {
+      document.removeEventListener("visibilitychange", onReturn);
+      window.removeEventListener("pageshow", onReturn);
+    };
   }, [seed, melt, toast, char, grid, hasFallback]);
   if ((!usable || drawFailed) && hasFallback) return <>{fallback}</>;
   return (
