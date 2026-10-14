@@ -1,6 +1,6 @@
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { sanitizeStringArray, sanitizeToppings } from "../logic/scoringV2/boundary";
-import type { PizzaState } from "./pizzaState";
+import { isPostBakePiece, type PizzaState } from "./pizzaState";
 
 /**
  * Save v2 / Inventory E1: consumable stock, keyed by ingredient id. Deliberately separate
@@ -154,4 +154,36 @@ export function consumePizzaInventory(
   }
   if (Object.keys(updates).length === 0) return inventory;
   return { ...inventory, ...updates };
+}
+
+/**
+ * Cooking Steps 2.0 FINISH engine (D1a): the Stock Gate for a piece placed in FINISH. The pre-bake pieces were already
+ * consumed at CONFIRM_BAKE (`inventory` is the post-bake stock), so only the pieces placed in FINISH so far
+ * (`stage === "post"`) count against it -- counting the whole pizza would charge an ingredient used both before and
+ * after the bake twice. FINISH places scatter pieces only.
+ */
+export function canPlacePostBakeIngredient(
+  ingredient: Ingredient,
+  inventory: InventoryState,
+  pizza: Pick<PizzaState, "toppings">,
+): boolean {
+  if (ingredient.placement !== "scatter") return false;
+  const alreadyPlaced = pizza.toppings.filter((t) => isPostBakePiece(t) && t.ingredientId === ingredient.id).length;
+  return hasStock(ingredient, inventory, alreadyPlaced);
+}
+
+/**
+ * The FINISH half of the inventory transaction: consumes only the pieces placed in FINISH (never the pre-bake pieces
+ * or the sauce, which CONFIRM_BAKE already consumed). Pure -- applying it twice to the same pizza consumes twice, so
+ * the caller (D1b) must apply it exactly once, on the transition that leaves FINISH. With no post piece it returns
+ * `inventory` itself.
+ */
+export function consumePostBakeInventory(
+  pizza: Pick<PizzaState, "toppings">,
+  inventory: InventoryState,
+): InventoryState {
+  const postOnly = pizza.toppings.filter(isPostBakePiece);
+  if (postOnly.length === 0) return inventory;
+  // `consumePizzaInventory` sanitizes the pieces down to their ingredient ids; the filter above must come first.
+  return consumePizzaInventory({ ...(pizza as PizzaState), toppings: postOnly, sauceIds: [] }, inventory);
 }

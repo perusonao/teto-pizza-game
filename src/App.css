@@ -7336,3 +7336,26 @@ p.hint-sheet__step {
   margin: 4px auto 0;
   padding: 4px 10px;
 }
+
+/* Issue #489 stage 1: Sauce Remaining Gauge (standalone, not yet mounted). */
+.sauce-remaining-gauge {
+  width: 14px;
+  height: 96px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+.sauce-remaining-gauge__fill {
+  width: 100%;
+  background: #c8412b;
+}
+
+.sauce-remaining-gauge[data-empty="true"] {
+  opacity: 0.6;
+}

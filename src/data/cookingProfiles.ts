@@ -128,9 +128,16 @@ function withCut(steps: readonly MakingStep[], cutConfig: CutConfig): CookingPro
  * hardcoded as always-present, so a hypothetical future no-sauce recipe would correctly skip it
  * too instead of silently inheriting `DEFAULT_COOKING_PROFILE` semantics).
  */
-function deriveCoreSteps(recipe: Recipe): readonly MakingStep[] {
+export function deriveCoreSteps(recipe: Recipe): readonly MakingStep[] {
   const categories = new Set<IngredientCategory>();
+  let hasPostBake = false;
   for (const requirement of recipe.requiredIngredients) {
+    // Cooking Steps 2.0 FINISH engine (OD-CS-3 = A): a requirement met after the bake adds FINISH, not the
+    // making step of its own category. Absent `applicationPhase` (every shipped recipe) is unchanged.
+    if (requirement.applicationPhase === "POST_BAKE") {
+      hasPostBake = true;
+      continue;
+    }
     const ingredient = getIngredient(requirement.ingredientId);
     if (ingredient) categories.add(ingredient.category);
   }
@@ -138,6 +145,7 @@ function deriveCoreSteps(recipe: Recipe): readonly MakingStep[] {
   if (categories.has("sauce")) steps.push("SAUCE");
   if (categories.has("cheese")) steps.push("CHEESE");
   if (categories.has("topping")) steps.push("TOPPING");
+  if (hasPostBake) steps.push("FINISH");
   return steps;
 }
 

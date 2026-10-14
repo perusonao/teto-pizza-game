@@ -1,6 +1,13 @@
 export interface RecipeRequirement {
   ingredientId: string;
   minCount: number;
+  /**
+   * Cooking Steps 2.0 FINISH engine (Issue #294, OD-CS-3 = A): when `"POST_BAKE"`, this requirement is met by
+   * pieces placed in the FINISH step after the bake. Absent = placed before the bake (every shipped recipe).
+   * It lives on the recipe, never on the ingredient master, so no ingredient category or hint fact can reveal a
+   * late addition. Inert in Production: no `RECIPES` entry sets it (pinned by test).
+   */
+  applicationPhase?: "POST_BAKE";
 }
 
 export interface BakeTarget {
