@@ -39,6 +39,12 @@ describe("toppingSizeClass table (Issue #479 S1)", () => {
     expect(toppingSizeClass("bacon")).toBe("l");
     expect(toppingSizeClass("basil")).toBe("xl");
   });
+
+  it("classifies the Batch 7a ingredients (Owner-specified)", () => {
+    expect(toppingSizeClass("mint")).toBe("xs");
+    expect(toppingSizeClass("lamb")).toBe("m");
+    expect(toppingSizeClass("sweet-potato")).toBe("m");
+  });
 });
 
 describe("toppingSizeClass fallback", () => {
