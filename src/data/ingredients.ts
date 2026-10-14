@@ -897,6 +897,37 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** Batch 7a (OD-B7-1): finite ladder material, step 52 (T4), unlocked by the Ladder alone. Family `herb`. 🍀 is a provisional glyph (no apt unused emoji; shares nothing with any ingredient or class symbol, G18-checked); a dedicated SVG may follow. */
+  {
+    id: "mint",
+    category: "topping",
+    nameJa: "ミント",
+    color: "#4f9a58",
+    emoji: "\u{1F340}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
+  },
+  /** Batch 7a (OD-B7-1): finite ladder material, step 53 (T4), unlocked by the Ladder alone. Family `meat`. 🐑 is the real sheep glyph. */
+  {
+    id: "lamb",
+    category: "topping",
+    nameJa: "ラム",
+    color: "#b5543f",
+    emoji: "\u{1F411}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 7a (OD-B7-1): finite ladder material, step 53 (T4), unlocked by the Ladder alone (the cohort key of new-zealand-lamb-pizza: the last of the step's materials). Family `vegetable`. 🍠 is the real sweet-potato glyph. */
+  {
+    id: "sweet-potato",
+    category: "topping",
+    nameJa: "さつまいも",
+    color: "#a8553a",
+    emoji: "\u{1F360}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

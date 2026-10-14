@@ -34,6 +34,80 @@ import type { GameAction } from "./gameReducer";
  */
 const GOLDEN_PATH = resolve(__dirname, "__golden__/sauceB1.singleSource.json");
 
+/**
+ * The inventory the `consume` hash was pinned against: EXACTLY the 58 finite (unlockCondition-bearing) ingredient ids of the
+ * catalog this golden was generated on, in `INGREDIENTS` order, each seeded at the fixture's generous 99. Source of the list:
+ * `INGREDIENTS.filter((i) => i.unlockCondition)` at commit fca018e1 (the commit that introduced this golden; its parent
+ * f780c4e has the identical 61-ingredient catalog -- #498 did not touch src/data/ingredients.ts). The `consume` hash covers the
+ * WHOLE inventory after consumption, so it depends on which ingredients exist; deriving the input from the live `INGREDIENTS`
+ * made every later ingredient batch (Batch 7a added mint / lamb / sweet-potato) change all 550 pinned hashes. It is an explicit,
+ * frozen constant on purpose: a newly added ingredient must NOT extend it, and nothing here is excluded to make a test pass.
+ * The consumption LOGIC (`consumePizzaInventory`) is unchanged; consumption of newer materials is covered by
+ * `inventory.batch7a.test.ts`. The golden's expected values, scenarios and every other field are untouched.
+ */
+const PINNED_FINITE_INGREDIENT_IDS: readonly string[] = [
+  "olive-oil",
+  "pesto",
+  "gorgonzola",
+  "parmigiano",
+  "fontina",
+  "garlic",
+  "oregano",
+  "cherry-tomato",
+  "egg",
+  "mushroom",
+  "onion",
+  "sausage",
+  "pepperoni",
+  "anchovy",
+  "tuna",
+  "rosemary",
+  "bacon",
+  "ham",
+  "black-olive",
+  "capers",
+  "clam",
+  "corn",
+  "eggplant",
+  "fresh-tomato",
+  "pineapple",
+  "potato",
+  "chicken",
+  "shrimp",
+  "parsley",
+  "bell-pepper",
+  "zucchini",
+  "almond",
+  "pine-nuts",
+  "prosciutto-crudo",
+  "green-pepper",
+  "cashew-cheese",
+  "salami",
+  "arugula",
+  "grana-padano",
+  "cream-cheese",
+  "lemon",
+  "salmon",
+  "salt-cod",
+  "baked-beans",
+  "palm-heart",
+  "sauerkraut",
+  "pork",
+  "friarielli",
+  "catupiry",
+  "jalapeno",
+  "feta",
+  "sardine",
+  "ricotta",
+  "hot-dog",
+  "avocado",
+  "goat-cheese",
+  "artichoke",
+  "spinach",
+];
+const PINNED_INVENTORY: Record<string, number> = Object.fromEntries(PINNED_FINITE_INGREDIENT_IDS.map((id) => [id, 99]));
+
+
 type Scenario = { name: string; actions: (own: string, wrong: string) => GameAction[] };
 const SCENARIOS: Scenario[] = [
   { name: "none", actions: () => [] },
@@ -86,7 +160,7 @@ function snapshotOf(recipe: (typeof RECIPES)[number], scenario: Scenario) {
     near: hashOf(near),
     free: hashOf(free.kind === "FAILED" ? { kind: free.kind, completion: free.completion } : { kind: free.kind }),
     advice: executionAdviceJa(pizza),
-    consume: hashOf(consumePizzaInventory(pizza, start.inventory)),
+    consume: hashOf(consumePizzaInventory(pizza, PINNED_INVENTORY)),
   };
 }
 

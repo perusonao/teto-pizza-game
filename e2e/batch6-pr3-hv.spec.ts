@@ -129,7 +129,7 @@ test("Batch 6 PR-3 HV walkthrough (A-E) with video", async ({ page }, testInfo) 
   await expect(starLine(page)).toHaveCount(0);
   await expect(row(page, "spinach")).toHaveAttribute("data-shop-state", "NEW");
   await expect(page.locator(".material-unlock-notice")).toHaveCount(0);
-  await expect(page.locator(".shop-locked")).toHaveCount(0); // every material is unlocked: no LOCKED slot is left to show
+  await expectAnonymousLocked(page); // step 51 is no longer the end of the ladder (Batch 7a adds steps 52-53): their materials are still anonymous LOCKED slots
   await noOverflow(page, "D shop");
   await hold(page);
   await shot(page, "D-step51-stars130-shop", project);

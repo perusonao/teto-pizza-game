@@ -96,6 +96,10 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["goat-cheese", 50, "T4", 2, 20, 120, 60],
   ["artichoke", 51, "T4", 2, 20, 120, 60],
   ["spinach", 51, "T4", 2, 20, 120, 60],
+  // Batch 7a: appended steps 52-53 (T4); k = count in the key recipe.
+  ["mint", 52, "T4", 2, 20, 120, 60],
+  ["lamb", 53, "T4", 3, 30, 120, 60],
+  ["sweet-potato", 53, "T4", 2, 20, 120, 60],
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -244,7 +248,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(13)).toEqual({ discoveriesNeeded: 1, step: 14 });
   });
 
-  it("points at the appended steps 25-51 after the W1 24, and is null once the ladder is complete", () => {
+  it("points at the appended steps 25-53 after the W1 24, and is null once the ladder is complete", () => {
     expect(nextMaterialHint(24)).toEqual({ discoveriesNeeded: 1, step: 25 });
     expect(nextMaterialHint(25)).toEqual({ discoveriesNeeded: 1, step: 26 });
     expect(nextMaterialHint(26)).toEqual({ discoveriesNeeded: 1, step: 27 });
@@ -253,9 +257,9 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    for (let n = 32; n < 51; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
-    expect(nextMaterialHint(51)).toBeNull();
-    expect(nextMaterialHint(52)).toBeNull();
+    for (let n = 32; n < 53; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
+    expect(nextMaterialHint(53)).toBeNull();
+    expect(nextMaterialHint(54)).toBeNull();
   });
 
   it("treats invalid counts as 0", () => {

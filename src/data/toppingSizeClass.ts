@@ -31,6 +31,7 @@ export const TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>
   rosemary: "xs",
   parsley: "xs",
   "grana-padano": "xs",
+  mint: "xs",
   // small
   "black-olive": "s",
   "cherry-tomato": "s",
@@ -64,6 +65,8 @@ export const TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>
   sauerkraut: "m",
   pineapple: "m",
   gorgonzola: "m",
+  lamb: "m",
+  "sweet-potato": "m",
   // large
   mozzarella: "l",
   fontina: "l",
