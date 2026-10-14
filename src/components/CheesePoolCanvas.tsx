@@ -90,7 +90,8 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
     };
     /** one draw attempt; true only when the visible canvas really holds pixels afterwards (#486 G1: a purged canvas draws nothing without throwing) */
     const draw = (): boolean => {
-      const ctx = canvas.getContext("2d");
+      // willReadFrequently: this canvas is read back after every draw (hasVisiblePixels), so keep it CPU-backed instead of forcing a GPU readback each time
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) throw new Error("no 2d context");
       const image = renderCheesePoolCached(seed, melt, toast, char, { grid, reducedMotion: prefersReducedMotion() });
       const bitmap = bitmapOf(image);
