@@ -721,8 +721,12 @@ const EDGE_SHADOW = [208, 190, 150] as const; // the thick, slightly shadowed li
 const BAKED = [222, 176, 108] as const; // golden brown of a baked rim / patch
 const BROWN = [122, 74, 42] as const;
 const SCORCH = [156, 130, 104] as const; // overall tint of overbaked cheese
-const CREAM = [233, 216, 178] as const; // #486 look: the melted centre is cream, not chalk white
-const OIL = [216, 156, 90] as const; // #486 look: the warm film of cheese fat that creeps past the melted edge onto the sauce
+const CREAM = [234, 220, 186] as const; // #486 melted structure: the cream the thin zone shades into
+const MILK = [239, 234, 220] as const; // #486 melted structure: the thick, milky-white body
+const THINWARM = [222, 172, 108] as const; // #486 melted structure: the warm colour of the thinnest cheese
+const GOLDBODY = [231, 208, 156] as const; // #486 melted structure: the cream-gold the whole body drifts toward as it bakes
+const SHADOW = [194, 180, 152] as const; // #486 melted structure: the warm shadow side
+const SPECKLE = [212, 156, 76] as const; // #486 melted structure: a small golden-brown baked speckle
 
 interface Scratch {
   height: Float32Array;
@@ -730,12 +734,13 @@ interface Scratch {
   tmp: Float32Array;
   rho: Float32Array;
   lut: Float32Array;
+  soft: Float32Array;
 }
 const scratch = new Map<number, Scratch>();
 function scratchFor(N: number): Scratch {
   let s = scratch.get(N);
   if (!s) {
-    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1) };
+    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), soft: new Float32Array(BINS + 1) };
     scratch.set(N, s);
   }
   return s;
@@ -798,14 +803,19 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
   const complexity = smoothstep(0.1, 0.85, m);
   const s = scratchFor(N);
   const lut = s.lut;
-  for (let b = 0; b <= BINS; b += 1) lut[b] = Math.max(0.3, 1 + complexity * (geo.lutH[b] + geo.lutT[b])) * rs;
+  // #486 melted structure: its translucent rim lets the visible (alpha >= 0.5) body read a little smaller, so the melted outline is slightly wider to keep the finished size
+  const fx = smoothstep(0.3, 1, m);
+  for (let b = 0; b <= BINS; b += 1) lut[b] = Math.max(0.3, 1 + complexity * (geo.lutH[b] + geo.lutT[b])) * rs * (1 + 0.012 * fx);
   const { bin0, binFrac, qr, noiseLow, noiseHigh, blister, blisterRim } = geo;
   const height = s.height;
   const rhoMap = s.rho;
   const rawMix = 1 - smoothstep(0, 0.6, m);
-  // #486 look: everything that makes the pool read as MELTED (translucent thin parts, cream centre, ragged edge, oil film, gloss) scales with this one
-  // factor, which is exactly 0 up to melt 0.3, so the raw lump (and the first moments of the melt) are pixel-identical to before
-  const fx = smoothstep(0.3, 1, m);
+  // #486 melted structure: a melted pool is a THICK, opaque, milky centre that tapers into a thin, translucent, creamier rim, with an outline that is
+  // crisp where the cheese stands up and soft where it has run out thin. Every melted-structure term below is blended in by this one factor, which is
+  // exactly 0 up to melt 0.3, so the raw lump (and the first moments of the melt) are pixel-identical to the original look.
+  // per theta bin: how far the outline has run out (0 crisp standing edge .. 1 soft thin spread). Bulges and tongues spread, bays stay put.
+  const soft = s.soft;
+  for (let b = 0; b <= BINS; b += 1) soft[b] = clamp01(smoothstep(-0.05, 0.12, complexity * (geo.lutH[b] + geo.lutT[b])) * 0.75 + geo.tongue[b] * complexity * 0.5);
   // pass 1: rho (distance in boundary units), edge coverage, thickness
   for (let i = 0; i < N * N; i += 1) {
     const b = bin0[i];
@@ -814,9 +824,22 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
     rhoMap[i] = rho;
     const edge = smoothstep(1.045, 0.955, rho); // crisp: ~9 % of the radius from clear to opaque
     const dome = 1 - 0.2 * Math.min(1, rho * rho);
-    height[i] = edge * dome * (0.94 + 0.12 * noiseLow[i]);
+    const heightOld = edge * dome * (0.94 + 0.12 * noiseLow[i]);
+    if (fx <= 0) {
+      height[i] = heightOld;
+      continue;
+    }
+    // melted: the thickness is a real profile (a plateau in the middle, falling to nothing at the rim) with gentle swells from the low noise, so the
+    // lit surface has relief across the pool and not only at its edge
+    const sf = soft[b] + (soft[b + 1] - soft[b]) * binFrac[i];
+    const w = lerp(0.05, 0.16, sf);
+    const edgeN = smoothstep(1 + 0.35 * w, 1 - 0.65 * w, rho);
+    const thick = smoothstep(1.02, 0.66, rho) * (0.94 + 0.12 * noiseLow[i]);
+    height[i] = lerp(heightOld, edgeN * (0.12 + 0.95 * thick), fx);
   }
-  const lit = boxBlurTwice(height, N, s);
+  let lit = boxBlurTwice(height, N, s);
+  // melted: one more smoothing of the lit height, so the thickness profile (which follows the outline's bends) does not leave creases / ridges along the bays
+  if (fx > 0.5) lit = boxBlurTwice(lit, N, s);
   const data = out.data;
   data.fill(0);
   // light from the upper left
@@ -827,37 +850,30 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
   const hy = ly;
   const hz = lz + 1; // half vector with a viewer straight above
   const hLen = Math.hypot(hx, hy, hz);
-  const slope = 8 * (N / 96); // the same lit slope whatever the grid (S2-B2: steeper, so the pool reads as a thick, melted mass at small sizes)
+  const slope = lerp(8, 4.6, fx) * (N / 96); // the same lit slope whatever the grid (S2-B2: steeper, so the pool reads as a thick, melted mass at small sizes); 
   for (let y = 0; y < N; y += 1) {
     for (let x = 0; x < N; x += 1) {
       const i = y * N + x;
       const rho = rhoMap[i];
       if (rho > 1.12) continue;
-      // #486 look: the melted edge is ragged, not a smooth blur: the threshold wanders with the fine noise (a few percent of the radius), so the
-      // outline breaks into small bulges and notches instead of a round, softened rim
-      const wander = fx * 0.045 * (noiseHigh[i] - 0.5) * 2;
-      const edge = smoothstep(1.045 + wander, 0.955 + wander, rho);
-      // the oil film: a faint warm skirt just past the edge (fat running onto the sauce), strongest where the noise is high
-      const film = fx * 0.17 * smoothstep(1.07, 1.0, rho) * (0.35 + 0.65 * noiseLow[i]);
-      if (edge <= 0.002 && film <= 0.01) continue;
       const b = bin0[i];
       const tg = geo.tongue[b] + (geo.tongue[b + 1] - geo.tongue[b]) * binFrac[i];
+      const sf = soft[b] + (soft[b + 1] - soft[b]) * binFrac[i];
+      const w = lerp(0.05, 0.16, sf);
+      const edgeOld = smoothstep(1.045, 0.955, rho);
+      const edgeN = smoothstep(1 + 0.35 * w, 1 - 0.65 * w, rho);
+      const edge = lerp(edgeOld, edgeN, fx);
+      if (edge <= 0.002) continue;
       // only the very tips of a tongue are translucent film (the sauce shows through); everywhere else the pool is opaque
-      const thin = complexity * tg * tg * smoothstep(0.72, 1, rho) * 0.34;
-      // #486 look: a melted pool is thin toward its rim, so the sauce shows through there and in a few mottled thin spots; the centre stays the thickest
-      const veil = fx * 0.26 * smoothstep(0.55, 1, rho) + fx * 0.2 * smoothstep(0.58, 0.88, noiseLow[i]) * smoothstep(0.45, 0.85, rho);
-      const alpha = Math.max(edge * (1 - thin) * (1 - veil), edge < 0.5 ? film : 0);
-      const a8 = alpha * 255;
+      const thinOld = complexity * tg * tg * smoothstep(0.72, 1, rho) * 0.34;
+      const alphaOld = edgeOld * (1 - thinOld);
+      // melted: thickness decides the opacity, so the centre stays opaque and the rim lets the sauce show; thin spots (low noise) show it too
+      const thick = smoothstep(1.05, 0.6, rho) * (0.78 + 0.44 * noiseLow[i]);
+      const thickN = thick;
+      const opacity = 0.52 + 0.48 * smoothstep(0.04, 0.5, thick);
+      const alphaNew = edgeN * Math.min(1, opacity);
+      const a8 = lerp(alphaOld, alphaNew, fx) * 255;
       if (a8 < 0.5) continue; // rounds to fully transparent: leave the pixel (and its colour) at zero
-      if (edge <= 0.002) {
-        // outside the pool proper: only the oil film
-        const o = i * 4;
-        data[o] = OIL[0];
-        data[o + 1] = OIL[1];
-        data[o + 2] = OIL[2];
-        data[o + 3] = a8;
-        continue;
-      }
       // surface normal from the smoothed thickness map (central differences), a small broken highlight on the lit rim
       const x0 = x > 0 ? i - 1 : i;
       const x1 = x < N - 1 ? i + 1 : i;
@@ -872,23 +888,36 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
       const diffuse = nx * lx + ny * ly + nz * lz;
       const shade = Math.min(1.03, Math.max(0.84, 1 + 0.9 * (diffuse - lz)));
       const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) / hLen);
-      // S2-B2: a broad soft sheen plus small broken glints (wet cheese), both limited to where the surface faces the light
-      const spec = (Math.pow(nh, 22) * (0.4 + 0.6 * noiseHigh[i]) * 3 + Math.pow(nh, 80) * smoothstep(0.5, 0.75, noiseHigh[i]) * 9) * (1 + 0.7 * fx);
+      // S2-B2: a broad soft sheen plus small broken glints (wet cheese), both limited to where the surface faces the light; wetter once melted
+      const spec = (Math.pow(nh, 22) * (0.4 + 0.6 * noiseHigh[i]) * 3 + Math.pow(nh, 80) * smoothstep(0.5, 0.75, noiseHigh[i]) * 9) * (1 + 0.9 * fx * smoothstep(0.25, 0.7, thickN));
       // colour: matte cream, warmer toward the rim, a little whiter while still raw
-      const rimMix = smoothstep(0.62, 1, rho) * 0.65 + thin * 0.35;
-      // #486 look: the melted centre is cream and mottled (the fine noise moves it a little), not one flat chalk white
-      const creamK = fx * (0.42 + 0.22 * (noiseLow[i] - 0.5));
-      let r = lerp(lerp(CORE[0], CREAM[0], creamK), RIM[0], rimMix);
-      let g = lerp(lerp(CORE[1], CREAM[1], creamK), RIM[1], rimMix);
-      let bl = lerp(lerp(CORE[2], CREAM[2], creamK), RIM[2], rimMix);
+      const rimMix = smoothstep(0.62, 1, rho) * 0.65 + thinOld * 0.35;
+      let r = lerp(CORE[0], RIM[0], rimMix);
+      let g = lerp(CORE[1], RIM[1], rimMix);
+      let bl = lerp(CORE[2], RIM[2], rimMix);
+      if (fx > 0) {
+        // melted: milky white where thick, shading into cream where thin; the low noise mottles the two (no flat white), the fine noise breaks it up a little
+        const thin01 = 1 - clamp01(thick);
+        const tone = clamp01(smoothstep(0.3, 0.75, noiseLow[i]) * 0.55 + thin01 * 0.6 + (noiseHigh[i] - 0.5) * 0.18);
+        // where it is thin the colour is a warm, saturated cream (cheese fat over sauce), not a pale one: a white rim over red sauce reads as a haze
+        const warm = Math.pow(thin01, 1.5) * 0.4 * toastV;
+        // baking warms the whole body a little (milky white goes to a cream-gold), not only the thin parts and the speckles
+        const bake = toastV * 0.16;
+        r = lerp(lerp(lerp(lerp(MILK[0], CREAM[0], tone), THINWARM[0], warm), GOLDBODY[0], bake), r, 1 - fx);
+        g = lerp(lerp(lerp(lerp(MILK[1], CREAM[1], tone), THINWARM[1], warm), GOLDBODY[1], bake), g, 1 - fx);
+        bl = lerp(lerp(lerp(lerp(MILK[2], CREAM[2], tone), THINWARM[2], warm), GOLDBODY[2], bake), bl, 1 - fx);
+      }
       r = lerp(r, RAW[0], rawMix * 0.6);
       g = lerp(g, RAW[1], rawMix * 0.6);
       bl = lerp(bl, RAW[2], rawMix * 0.6);
-      r = r * shade + spec;
-      g = g * shade + spec;
-      bl = bl * shade + spec * 0.9;
-      // the thick lip: the last ~15 % of the radius is a little darker and warmer (a rounded edge catching shadow), so the outline reads as an edge
-      const lip = smoothstep(0.82, 0.99, rho) * 0.3 * (1 - rawMix);
+      // the shaded side turns a warm brown-cream rather than grey (a plain multiply goes cold), more so once melted
+      const shadow = (1 - Math.min(1, shade)) * 5 * fx;
+      r = lerp(r * shade, SHADOW[0], Math.min(0.3, shadow * 0.3)) + spec;
+      g = lerp(g * shade, SHADOW[1], Math.min(0.3, shadow * 0.3)) + spec;
+      bl = lerp(bl * shade, SHADOW[2], Math.min(0.3, shadow * 0.3)) + spec * 0.9;
+      // the thick lip: the last ~15 % of the radius is a little darker and warmer (a rounded edge catching shadow), so the outline reads as an edge;
+      // melted, only where the edge stands up (crisp), not where the cheese has run out thin
+      const lip = smoothstep(0.82, 0.99, rho) * 0.3 * (1 - rawMix) * lerp(1, 1 - sf, fx);
       r = lerp(r, EDGE_SHADOW[0], lip);
       g = lerp(g, EDGE_SHADOW[1], lip);
       bl = lerp(bl, EDGE_SHADOW[2], lip);
@@ -900,13 +929,14 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
         r = lerp(r, BAKED[0], k);
         g = lerp(g, BAKED[1], k);
         bl = lerp(bl, BAKED[2], k);
-      }
-      // #486 look: a restrained golden bloom over the whole melted surface (stronger toward where it is thin), so a baked pool is not white in the middle
-      if (toastV > 0 && fx > 0) {
-        const bloom = fx * toastV * (0.1 + 0.16 * smoothstep(0.3, 0.95, rho)) * (0.7 + 0.6 * noiseLow[i]);
-        r = lerp(r, BAKED[0], bloom);
-        g = lerp(g, BAKED[1], bloom);
-        bl = lerp(bl, BAKED[2], bloom);
+        if (fx > 0) {
+          // melted: small golden speckles, local and not a wash: they prefer the thin zone (where the cheese browns first) but occur anywhere
+          const spot = smoothstep(0.78, 0.9, noiseHigh[i]) * (0.3 + 0.7 * (1 - clamp01(thick))) * toastV * fx;
+          const ks = clamp01(spot * 0.5);
+          r = lerp(r, SPECKLE[0], ks);
+          g = lerp(g, SPECKLE[1], ks);
+          bl = lerp(bl, SPECKLE[2], ks);
+        }
       }
       // browning: amber blisters with a darker rim (toast) that turn brown when charred, and an overall scorched tint when charred
       if (toastV > 0) {

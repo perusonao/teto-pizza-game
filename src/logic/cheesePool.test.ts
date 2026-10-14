@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CHEESE_POOL_GRID,
@@ -150,40 +151,42 @@ describe("renderCheesePool: the finished pool (melt 1) against the reference-pho
 
 describe("renderCheesePool: the melted look (#486)", () => {
   const seed = "mozzarella:40.00:50.00";
-  const alphaAt = (img: { data: Uint8ClampedArray; width: number }, x: number, y: number) => img.data[(y * img.width + x) * 4 + 3];
 
-  it("leaves the raw lump and the first moments of the melt untouched: no oil film, no translucent veil up to melt 0.3", () => {
-    for (const m of [0, 0.15, 0.3]) {
-      const img = renderCheesePool(seed, m, 0, 0, { grid: 64 });
-      let partial = 0;
-      for (let i = 3; i < img.data.length; i += 4) if (img.data[i] > 0 && img.data[i] < 255) partial += 1;
-      // only the (unchanged) soft edge is partly transparent; a veil over the body would add hundreds of pixels
-      expect(partial).toBeLessThan(260);
-    }
+  it("leaves the raw lump and the first moments of the melt byte-identical to the look the Owner accepted before bake (melt <= 0.3; hashes from the dc1d20b renderer)", () => {
+    const sha = (d: Uint8ClampedArray) => createHash("sha1").update(d).digest("hex").slice(0, 12);
+    const golden: Array<[string, 64 | 96, number, string]> = [
+      ["mozzarella:40.00:50.00", 64, 0, "141ac4c126c9"],
+      ["mozzarella:40.00:50.00", 64, 0.3, "ee25a7c27675"],
+      ["mozzarella:40.00:50.00", 96, 0, "5b841bac83f8"],
+      ["mozzarella:62.00:44.00", 64, 0.15, "3c6e3e8abe38"],
+      ["mozzarella:62.00:44.00", 96, 0.3, "ff9702021478"],
+      ["mozzarella:30.00:61.00", 64, 0, "ba68802b4558"],
+      ["mozzarella:30.00:61.00", 96, 0.15, "38e34ee35527"],
+    ];
+    for (const [seedId, grid, melt, hash] of golden) expect(sha(renderCheesePool(seedId, melt, 0, 0, { grid }).data)).toBe(hash);
   });
 
-  it("a finished pool is thickest in the middle and lets the sauce show toward the rim and in thin spots, while the centre stays opaque", () => {
-    const img = renderCheesePool(seed, 1, 0.6, 0, { grid: 64 });
-    expect(alphaAt(img, 32, 32)).toBe(255);
-    let ringMin = 255;
-    for (let i = 3; i < img.data.length; i += 4) if (img.data[i] > 0) ringMin = Math.min(ringMin, img.data[i]);
-    let translucentBody = 0;
-    for (let i = 3; i < img.data.length; i += 4) if (img.data[i] >= 120 && img.data[i] < 235) translucentBody += 1;
-    expect(translucentBody).toBeGreaterThan(80);
-  });
-
-  it("a finished pool has a faint warm oil film just past its edge (pixels outside the opaque body) that is absent from the raw lump", () => {
-    const film = (m: number) => {
-      const img = renderCheesePool(seed, m, 0, 0, { grid: 64 });
+  it("has a thick, opaque, milky body that tapers into a thinner, creamier, more translucent rim, with small golden speckles only once baked", () => {
+    const meanAt = (img: { data: Uint8ClampedArray }, test: (x: number, y: number) => boolean, ch: number) => {
+      let sum = 0;
       let n = 0;
-      for (let i = 0; i < img.data.length; i += 4) {
-        const a = img.data[i + 3];
-        if (a > 0 && a < 60 && img.data[i] > img.data[i + 2] + 60) n += 1; // faint and warm (orange: red well above blue)
-      }
+      for (let y = 0; y < 64; y += 1) for (let x = 0; x < 64; x += 1) if (test(x, y) && img.data[(y * 64 + x) * 4 + 3] > 0) { sum += img.data[(y * 64 + x) * 4 + ch]; n += 1; }
+      return n ? sum / n : 0;
+    };
+    const img = renderCheesePool(seed, 1, 0.6, 0, { grid: 64 });
+    const ring = (x: number, y: number) => Math.hypot(x - 32, y - 32) > 16;
+    const centre = (x: number, y: number) => Math.hypot(x - 32, y - 32) < 7;
+    // the rim is more translucent than the body (mean alpha), and creamier (lower blue than the milky body)
+    expect(meanAt(img, ring, 3)).toBeLessThan(meanAt(img, centre, 3) - 40);
+    expect(meanAt(img, ring, 2)).toBeLessThan(meanAt(img, centre, 2));
+    // speckles: baked has clearly more small golden (red high, blue low) pixels than unbaked
+    const speckles = (toast: number) => {
+      const im = renderCheesePool(seed, 1, toast, 0, { grid: 64 });
+      let n = 0;
+      for (let i = 0; i < im.data.length; i += 4) if (im.data[i + 3] > 200 && im.data[i] - im.data[i + 2] > 55) n += 1;
       return n;
     };
-    expect(film(1)).toBeGreaterThan(film(0.2));
-    expect(film(1)).toBeGreaterThan(20);
+    expect(speckles(0.8)).toBeGreaterThan(speckles(0) + 8);
   });
 });
 
