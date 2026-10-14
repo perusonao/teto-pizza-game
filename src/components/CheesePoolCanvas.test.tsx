@@ -51,6 +51,12 @@ describe("CheesePoolCanvas", () => {
     expect(container.querySelector('[data-testid="m1-piece"]')).toBeNull();
     expect(ctx.drawImage).toHaveBeenCalled();
   });
+  it("asks for a CPU-backed context (willReadFrequently) because every draw is read back", () => {
+    const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: opaque };
+    const spy = mockContext(ctx);
+    render(<CheesePoolCanvas seed="topping-wrf" melt={1} toast={0.4} char={0} grid={64} sizePx={62} fallback={<span />} />);
+    expect(spy.mock.calls.some((c) => (c[1] as CanvasRenderingContext2DSettings | undefined)?.willReadFrequently === true)).toBe(true);
+  });
   it("shows the M1 fallback when the probe passes but this canvas gets no context, and does not draw again afterwards", () => {
     const ctx = { createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }), putImageData: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn(), getImageData: opaque };
     let calls = 0;
