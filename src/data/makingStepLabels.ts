@@ -19,3 +19,22 @@ export const STEP_LABEL: Record<MakingStep, string> = {
   EDGE_FILL: "ふちづめ",
   FINISH: "仕上げ",
 };
+
+/**
+ * Cooking Steps 2.0 CS-4a (Owner Decision, T3 compact chips): the label a *completed* or not-yet-reached
+ * (locked) tab shows. The active and next tabs keep `STEP_LABEL`, and `aria-label` is always `STEP_LABEL`,
+ * so this never changes what a screen reader announces. At most 3 full-width characters, so every
+ * step still fits a tab at the 360px / 7-tab worst case (pinned by makingStepLabels.test.ts). Today
+ * only the not-yet-shipped FOLD (折りたたみ → 折る) and EDGE_FILL (ふちづめ → ふち) differ from `STEP_LABEL`.
+ */
+export const STEP_SHORT_LABEL: Record<MakingStep, string> = {
+  DOUGH: "生地",
+  SAUCE: "ソース",
+  CHEESE: "チーズ",
+  TOPPING: "具材",
+  CUT: "カット",
+  FOLD: "折る",
+  SEAL: "とじる",
+  EDGE_FILL: "ふち",
+  FINISH: "仕上げ",
+};
