@@ -160,3 +160,39 @@ test.describe("CS-4a: strips within today's 6-tab ceiling keep their completed l
     expect(tabs.every((t) => t.textShown && !t.clipped)).toBe(true);
   });
 });
+
+test.describe("CS-4a: long formal labels (unshipped FOLD / EDGE_FILL) on fixtures", () => {
+  /** The label the player actually sees on the active / next tab: the visible one of the formal text and its short fallback. */
+  async function visibleLabel(page: Page, name: string) {
+    return page.evaluate((n) => {
+      const tab = [...document.querySelectorAll<HTMLElement>(".making-step-tabs [role=tab]")].find(
+        (t) => t.getAttribute("aria-label") === n,
+      )!;
+      const inner = tab.querySelector<HTMLElement>(".making-step-tab__inner")!;
+      const shown = [...inner.querySelectorAll<HTMLElement>(".making-step-tab__text, .making-step-tab__alt")].filter(
+        (el) => getComputedStyle(el).display !== "none",
+      );
+      return { text: shown.map((e) => e.textContent).join(""), clipped: inner.scrollWidth > inner.clientWidth + 1 };
+    }, name);
+  }
+
+  for (const [pre, post, step, phase, shape] of [
+    ["DOUGH,SAUCE,FOLD,TOPPING", "", "FOLD", "PREPARE", "5 tabs, FOLD active"],
+    ["DOUGH,SAUCE,FOLD,TOPPING", "", "SAUCE", "PREPARE", "5 tabs, FOLD next"],
+    ["DOUGH,SAUCE,CHEESE,FOLD", "FINISH,CUT", "FOLD", "PREPARE", "7 tabs, FOLD active"],
+    ["DOUGH,SAUCE,CHEESE,FOLD", "FINISH,CUT", "CHEESE", "PREPARE", "7 tabs, FOLD next"],
+    ["DOUGH,SAUCE,CHEESE,EDGE_FILL", "FINISH,CUT", "EDGE_FILL", "PREPARE", "7 tabs, EDGE_FILL active"],
+    ["DOUGH,SAUCE,CHEESE,EDGE_FILL", "FINISH,CUT", "CHEESE", "PREPARE", "7 tabs, EDGE_FILL next"],
+  ] as const) {
+    test(`never ellipsizes the active / next label (${shape})`, async ({ page }) => {
+      await open(page, pre, post, step, phase);
+      const tabs = await expectStripFits(page, pre.split(",").length + post.split(",").filter(Boolean).length + 1);
+      const formal = pre.includes("EDGE_FILL") ? "ふちづめ" : "折りたたみ";
+      const label = await visibleLabel(page, formal);
+      expect(label.clipped, `${formal} (${label.text}) must not be clipped`).toBe(false);
+      expect(["折りたたみ", "折る", "ふちづめ", "ふち"]).toContain(label.text);
+      // everything else on the strip still reads without ellipsis
+      for (const t of tabs.filter((x) => x.state !== "completed" && !x.isBake)) expect(t.clipped, t.name).toBe(false);
+    });
+  }
+});

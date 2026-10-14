@@ -508,3 +508,35 @@ describe("7-tab fixture strip (CS-4a)", () => {
     expect(document.querySelectorAll(".making-step-tabs > *")).toHaveLength(7);
   });
 });
+
+/** Codex review P2 on #499: a long formal label (unshipped FOLD / EDGE_FILL) on an active / next tab must not be ellipsized. */
+describe("long formal labels on active / next tabs (CS-4a)", () => {
+  it("renders the formal label and a short fallback for the active tab, and keeps the formal accessible name", () => {
+    render(
+      <MakingStepTabs steps={["DOUGH", "SAUCE", "FOLD"]} currentStep="FOLD" nextReady onAdvance={() => {}} />,
+    );
+    const tab = screen.getByRole("tab", { name: "折りたたみ" });
+    expect(tab.querySelector(".making-step-tab__text--len5")).toHaveTextContent("折りたたみ");
+    expect(tab.querySelector(".making-step-tab__alt")).toHaveTextContent("折る");
+  });
+
+  it("the next tab gets the fallback too; completed and locked tabs just use the short label", () => {
+    const { rerender } = render(
+      <MakingStepTabs steps={["DOUGH", "EDGE_FILL", "TOPPING"]} currentStep="DOUGH" nextReady onAdvance={() => {}} />,
+    );
+    const next = screen.getByRole("tab", { name: "ふちづめ" });
+    expect(next.querySelector(".making-step-tab__text--len4")).toHaveTextContent("ふちづめ");
+    expect(next.querySelector(".making-step-tab__alt")).toHaveTextContent("ふち");
+    rerender(
+      <MakingStepTabs steps={["DOUGH", "EDGE_FILL", "TOPPING"]} currentStep="TOPPING" nextReady onAdvance={() => {}} />,
+    );
+    const done = screen.getByRole("tab", { name: "ふちづめ" });
+    expect(done).toHaveTextContent("✓ ふち");
+    expect(done.querySelector(".making-step-tab__alt")).toBeNull();
+  });
+
+  it("a step whose short label equals its formal label renders no fallback", () => {
+    render(<MakingStepTabs steps={["DOUGH", "SAUCE"]} currentStep="DOUGH" nextReady onAdvance={() => {}} />);
+    expect(document.querySelector(".making-step-tab__alt")).toBeNull();
+  });
+});

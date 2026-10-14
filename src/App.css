@@ -1180,6 +1180,29 @@
   text-align: center;
 }
 
+/* A long formal label on an active / next tab (today only the unshipped FOLD 折りたたみ = 5 characters and
+   EDGE_FILL ふちづめ = 4) swaps to its short label when the tab cannot hold it: N full-width characters are
+   N em, plus about 0.3em of slack for the glyph-width differences of real devices. */
+.making-step-tab__alt {
+  display: none;
+}
+@container (max-width: 4.3em) {
+  .making-step-tab__text--len4 {
+    display: none;
+  }
+  .making-step-tab__text--len4 + .making-step-tab__alt {
+    display: inline;
+  }
+}
+@container (max-width: 5.3em) {
+  .making-step-tab__text--len5 {
+    display: none;
+  }
+  .making-step-tab__text--len5 + .making-step-tab__alt {
+    display: inline;
+  }
+}
+
 /* Too narrow for 「✓ 短縮ラベル」: a completed tab degrades to 「✓」 alone (its formal name stays in the
    button's aria-label). 49px is the measured 「✓ チーズ」 / 「✓ ソース」 width at 11px bold plus margin
    for wider real-device fonts; the active / next / locked tabs never use this rule. */

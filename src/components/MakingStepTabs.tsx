@@ -127,12 +127,26 @@ function tabState(
 }
 
 /** 「✓ 短縮ラベル」 / the plain label. The ✓ is its own span so a narrow tab can hide the text and keep the ✓
- *  (App.css `.making-step-tab__inner` container query). */
-function TabLabel({ done, text }: { done: boolean; text: string }) {
+ *  (App.css `.making-step-tab__inner` container query).
+ *
+ *  `fallback` is for an active / next tab whose formal label is longer than its short one (today only the
+ *  unshipped FOLD 折りたたみ / EDGE_FILL ふちづめ): both are rendered and CSS shows the formal label while it
+ *  fits the tab (`__text--lenN` = N full-width characters = N em) and the short one when it does not, so a
+ *  long label is never ellipsized. */
+function TabLabel({ done, text, fallback }: { done: boolean; text: string; fallback?: string }) {
   return (
     <span className="making-step-tab__inner">
       {done && <span className="making-step-tab__check">✓</span>}
-      <span className="making-step-tab__text">{done ? ` ${text}` : text}</span>
+      <span
+        className={`making-step-tab__text${fallback ? ` making-step-tab__text--len${[...text].length}` : ""}`}
+      >
+        {done ? ` ${text}` : text}
+      </span>
+      {fallback && (
+        <span className="making-step-tab__alt" aria-hidden="true">
+          {fallback}
+        </span>
+      )}
     </span>
   );
 }
@@ -168,7 +182,10 @@ export function MakingStepTabs({
     const tappable = isNext && nextReady;
     const label = STEP_LABEL[step];
     // Full label only where the player is looking or about to tap; everything else is compact.
-    const shownLabel = isActive || isNext ? label : STEP_SHORT_LABEL[step];
+    const short = STEP_SHORT_LABEL[step];
+    const showFull = isActive || isNext;
+    const shownLabel = showFull ? label : short;
+    const fallback = showFull && label !== short ? short : undefined;
     return (
       <button
         key={step}
@@ -186,7 +203,7 @@ export function MakingStepTabs({
         disabled={!tappable}
         onClick={tappable ? onAdvance : undefined}
       >
-        <TabLabel done={isCompleted} text={shownLabel} />
+        <TabLabel done={isCompleted} text={shownLabel} fallback={fallback} />
       </button>
     );
   }

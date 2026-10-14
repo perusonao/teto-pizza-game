@@ -64,6 +64,12 @@ before/after を `docs/reports/screenshots/cs4a-tabs/` に保存（実アプリ 
 - レビュー: Codex は本セッションに無いため未実施。代替として `code-review`（high）を差分に実施し、実在した指摘（完了の a11y 通知、コメント 2 件の誤り、重複マークアップ）を修正済み。残る指摘はしきい値の余裕（下記）で、仕様上のトレードオフとして記載
 - GitHub CI（lint / vitest / build / WebKit e2e）: PR 作成後に確認する。WebKit e2e が container query とラベル幅の唯一の根拠になる
 
+## Codex レビュー（GitHub）と対応
+
+- PR 作成時の自動レビュー: 指摘なし。明示依頼（`@codex review`、HEAD `332074f`）: **P2 を 1 件**。
+- P2「active / next の長い正式名（FOLD の 折りたたみ など）が省略されうる」→ **妥当**として修正。active / next の長い正式名には短縮ラベルを fallback として併記し、タブ幅（N 文字 = N em）に収まらないときだけ短縮へ切り替える（`.making-step-tab__alt` + container query）。省略は発生しない。本番に FOLD / EDGE_FILL を使う profile は無く、dev fixture のみで検証。
+- 追加テスト: `MakingStepTabs.test.tsx` に 3 件、`making-step-tabs-cs4a.spec.ts` に FOLD / EDGE_FILL の 6 構成（5 / 7 タブ、active / next、390・360）。修正を無効化すると落ちることを確認済み。
+
 ## Human Verification Videos
 
 | Video | Viewport | Duration | Size | Verification |
