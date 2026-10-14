@@ -10,7 +10,7 @@
  */
 import type { Recipe } from "../data/recipes";
 import type { PizzaState } from "./pizzaState";
-import { isDinnerRound, isLunchRushRound, type HasRoundKind } from "./roundKind";
+import { isDinnerRound, isFreeCookingRound, isLunchRushRound, type HasRoundKind } from "./roundKind";
 
 /** True when any requirement of `recipe` is met after the bake. False for every shipped recipe. */
 export function hasPostBakeRequirement(recipe: Pick<Recipe, "requiredIngredients">): boolean {
@@ -33,6 +33,15 @@ export function withoutPostBakeRequirements<R extends Pick<Recipe, "requiredIngr
  */
 export function finishAllowedForRound(round: HasRoundKind): boolean {
   return !isLunchRushRound(round) && !isDinnerRound(round);
+}
+
+/**
+ * D1b: whether the reducer runs the FINISH step for this round. Only a Guided round does (Owner Decision D1b-6):
+ * Lunch Rush and Dinner by `finishAllowedForRound`, Free Cooking (which includes Research) because it has no FINISH
+ * UI and always finalizes in one pass (UD-B). Everything that makes FINISH act in the reducer asks this one function.
+ */
+export function roundRunsFinish(round: HasRoundKind): boolean {
+  return finishAllowedForRound(round) && !isFreeCookingRound(round);
 }
 
 /** The pieces placed in FINISH (`stage === "post"`), in placement order. */
