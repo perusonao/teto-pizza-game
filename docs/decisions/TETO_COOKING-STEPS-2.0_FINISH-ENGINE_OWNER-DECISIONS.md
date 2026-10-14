@@ -23,7 +23,7 @@ Still open: OD-CS-4..6, 8, 10, 12..19; UD-B, D, E, F, G, I.
 | Slice | Content | State |
 |---|---|---|
 | **D1a** | Pure layer: `applicationPhase`, `PlacedTopping.stage`, FINISH step derivation, post-only stock gate / consumption, FINISH-only Undo rule, `withoutPostBakeRequirements`, backward-compatible `finalizeRound({ finalization })`, test-only BBQ-shaped fixture | this PR |
-| D1b | Reducer wiring (`PLACE_TOPPING` / `UNDO_LAST_PLACEMENT` / `CONFIRM_BAKE` / `CONFIRM_MAKING_STEP`) | not started |
+| D1b | Reducer wiring (`PLACE_TOPPING` / `UNDO_LAST_PLACEMENT` / `CONFIRM_BAKE` / `CONFIRM_MAKING_STEP`); transient `bakeValue`; PROVISIONAL at CONFIRM_BAKE, FINAL once on leaving FINISH; Dinner fail-closed. Fixture only, `RECIPES` untouched (Owner approval 2026-10-14) | this PR |
 | D2 | Render / UI (`PizzaStage`, `GameScreen`, tray) — after #468 / #487 / #478 settle; Human Verification required | not started |
 
 ## D1a guarantees (asserted by `src/state/finishEngine.test.ts`)
