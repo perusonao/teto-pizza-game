@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "./ingredients";
 import {
   DEFAULT_TOPPING_SIZE_CLASS,
+  TOPPING_RANK_SCALE,
   TOPPING_SIZE_CLASSES,
   TOPPING_SIZE_CLASS_BY_ID,
   TOPPING_SIZE_SCALE_CANDIDATES,
+  toppingRankScale,
   toppingSizeClass,
   toppingSizeScale,
 } from "./toppingSizeClass";
@@ -88,5 +90,19 @@ describe("TOPPING_SIZE_SCALE_CANDIDATES (provisional comparison data)", () => {
     expect(toppingSizeScale("basil", "B")).toBe(1.3);
     expect(toppingSizeScale("unknown-id", "A")).toBe(1);
     expect(toppingSizeScale("tomato-sauce", "B")).toBe(1);
+  });
+});
+
+describe("TOPPING_RANK_SCALE / toppingRankScale (S2a: wired, all 1)", () => {
+  it("is exactly 1 for every class, so wiring --piece-rank-scale changes no size", () => {
+    for (const c of TOPPING_SIZE_CLASSES) expect(TOPPING_RANK_SCALE[c]).toBe(1);
+  });
+
+  it("is 1 for every scatter ingredient, a sauce, an unknown id and an inherited key", () => {
+    for (const id of [...scatterIds, "tomato-sauce", "no-such-ingredient", "", "constructor"]) expect(toppingRankScale(id)).toBe(1);
+  });
+
+  it("is not a comparison candidate set: enabling A / B is S2b", () => {
+    for (const set of Object.values(TOPPING_SIZE_SCALE_CANDIDATES)) expect(TOPPING_RANK_SCALE).not.toEqual(set);
   });
 });

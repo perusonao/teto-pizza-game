@@ -106,6 +106,18 @@ export const TOPPING_SIZE_SCALE_CANDIDATES = {
 export type ToppingSizeScaleCandidateKey = keyof typeof TOPPING_SIZE_SCALE_CANDIDATES;
 
 /**
+ * S2a (Issue #479): the multipliers the on-pizza `--piece-rank-scale` wiring actually uses. EVERY class is 1, so wiring the
+ * variable changes no pixel. It is deliberately NOT one of the candidate sets above: enabling A / B (and any per-id fit
+ * correction) is S2b, an Owner-gated step that replaces these values.
+ */
+export const TOPPING_RANK_SCALE: ToppingSizeScaleSet = { xs: 1, s: 1, m: 1, l: 1, xl: 1 };
+
+/** The `--piece-rank-scale` value for a piece of this ingredient on the pizza (S2a: always 1). */
+export function toppingRankScale(ingredientId: string): number {
+  return TOPPING_RANK_SCALE[toppingSizeClass(ingredientId)];
+}
+
+/**
  * The class of an ingredient id. An id with no entry (a sauce, a typo, a future ingredient not yet classified) is
  * `DEFAULT_TOPPING_SIZE_CLASS`, so a lookup never throws and an unknown id never changes size. Own keys only: inherited
  * names such as "constructor" or "__proto__" are not ingredients.
