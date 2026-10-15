@@ -195,8 +195,11 @@ describe("#486: Canvas mozzarella as the default display (placement / BAKE / CUT
   });
 
   it("every piece falls back to the M1 cheese when drawing throws (no transparent cheese, nothing thrown to the game)", async () => {
+    // only the cheese canvases throw (the sauce canvases of the same stage keep a normal fake context and are not under test)
     const throwingCtx = { ...ctxOf(inked), drawImage: () => { throw new Error("draw failed"); } };
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => throwingCtx) as never);
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((function (this: HTMLCanvasElement) {
+      return this.classList.contains("pizza-cheese-canvas") ? throwingCtx : ctxOf(inked);
+    }) as never);
     const Stage = await loadStage(null);
     const { container } = render(stage(Stage, state, lines, "RESULT"));
     expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
