@@ -222,7 +222,10 @@ test("overlap: the top layer is dimmed only where it overlaps; 2 and 3 layers st
 
   const over = await stackAt(page, 38, 50); // pesto over tomato
   const clear = await stackAt(page, 70, 50); // pesto alone, beyond the tomato's soft edge
-  expect(clear.alphas[1]).toBeGreaterThan(190); // the part that overlaps nothing keeps its full opacity (~0.93 x 255 = 237 at the densest; a held stroke end is a little lighter)
+  // The part that overlaps nothing keeps its full opacity. Its alpha depends on how many ticks the held stroke end got (194-197 locally, 190 on a slow
+  // WebKit runner), so it is judged against the dimmed overlap at the same row (a steady 166 = 0.7 x 237) instead of an absolute number: a layer that
+  // was dimmed everywhere would sit at about that 166, an undimmed one is clearly above it.
+  expect(clear.alphas[1]).toBeGreaterThan(over.alphas[1] * 1.1);
   expect(over.alphas[1]).toBeLessThan(over.alphas[0] * 0.8); // dimmed where it lies over the tomato (both saturate at ~0.93 without it)
   expect(over.alphas[1]).toBeGreaterThan(over.alphas[0] * 0.55); // ...by about x0.7, not wiped out
   // the tomato underneath now shows through. A plain stack of the two (the old look) composites to about (114,137,60) over this dough; with the
