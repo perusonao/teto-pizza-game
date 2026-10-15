@@ -112,6 +112,66 @@ describe("firestore.rules", () => {
       });
     });
 
+    // Lunch Rush v2 (PR-A): v2 leaderboards use `weekly_v2_*` / `monthly_v2_*` / `all_v2`. The weekly
+    // id keeps the `weekly_` prefix, so the existing read rule covers it with NO rules change; every
+    // write stays denied; monthly/all-time v2 ids stay unreadable exactly like their v1 counterparts.
+    describe("weekly_v2_* (Lunch Rush v2: same public read, still no client write)", () => {
+      it("allows an unauthenticated client read", async () => {
+        const anon = testEnv.unauthenticatedContext();
+        await assertSucceeds(getDoc(doc(anon.firestore(), "leaderboards/weekly_v2_2026-W38/entries/alice")));
+      });
+
+      it("allows an authenticated client read", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertSucceeds(getDoc(doc(alice.firestore(), "leaderboards/weekly_v2_2026-W38/entries/alice")));
+      });
+
+      it("denies a client write, update and delete", async () => {
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(doc(context.firestore(), "leaderboards/weekly_v2_2026-W38/entries/alice"), { score: 1 });
+        });
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(
+          setDoc(doc(alice.firestore(), "leaderboards/weekly_v2_2026-W38/entries/bob"), { score: 999_999 }),
+        );
+        await assertFails(
+          updateDoc(doc(alice.firestore(), "leaderboards/weekly_v2_2026-W38/entries/alice"), { score: 2 }),
+        );
+        await assertFails(deleteDoc(doc(alice.firestore(), "leaderboards/weekly_v2_2026-W38/entries/alice")));
+      });
+
+      it("does not disturb a v1 weekly entry living next to it", async () => {
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(doc(context.firestore(), "leaderboards/weekly_2026-W38/entries/carol"), { score: 500 });
+          await setDoc(doc(context.firestore(), "leaderboards/weekly_v2_2026-W38/entries/carol"), { score: 400 });
+        });
+        const anon = testEnv.unauthenticatedContext();
+        const v1 = await assertSucceeds(getDoc(doc(anon.firestore(), "leaderboards/weekly_2026-W38/entries/carol")));
+        const v2 = await assertSucceeds(getDoc(doc(anon.firestore(), "leaderboards/weekly_v2_2026-W38/entries/carol")));
+        if (v1.data()?.score !== 500 || v2.data()?.score !== 400) throw new Error("v1 / v2 entries are not independent");
+      });
+    });
+
+    describe("monthly_v2_*/all_v2 (Lunch Rush v2: not client-readable, not client-writable)", () => {
+      it("denies an authenticated client read on all_v2", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(getDoc(doc(alice.firestore(), "leaderboards/all_v2/entries/alice")));
+      });
+
+      it("denies an authenticated client read on monthly_v2_2026-09", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(getDoc(doc(alice.firestore(), "leaderboards/monthly_v2_2026-09/entries/alice")));
+      });
+
+      it("denies a client write on all_v2 and monthly_v2_2026-09", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(setDoc(doc(alice.firestore(), "leaderboards/all_v2/entries/alice"), { score: 999_999 }));
+        await assertFails(
+          setDoc(doc(alice.firestore(), "leaderboards/monthly_v2_2026-09/entries/alice"), { score: 999_999 }),
+        );
+      });
+    });
+
     describe("monthly_*/all_all (Phase 2A ships no UI for these -- still read-denied)", () => {
       it("denies an authenticated client read on all_all", async () => {
         const alice = testEnv.authenticatedContext("alice");

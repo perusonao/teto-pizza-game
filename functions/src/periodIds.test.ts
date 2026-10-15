@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { ALL_TIME_PERIOD_ID, computeLunchRushPeriodIds, isoWeekId, monthId } from "./periodIds";
+import {
+  ALL_TIME_PERIOD_ID,
+  ALL_TIME_PERIOD_ID_V2,
+  computeLunchRushPeriodIds,
+  isoWeekId,
+  monthId,
+  weeklyPeriodId,
+} from "./periodIds";
+import { LUNCH_RUSH_RULESET_VERSION_V1, LUNCH_RUSH_RULESET_VERSION_V2 } from "../../src/shared/lunchRushScoring";
 
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
@@ -67,5 +75,48 @@ describe("computeLunchRushPeriodIds", () => {
   it("allTime is always the same constant regardless of timestamp", () => {
     expect(computeLunchRushPeriodIds(0).allTime).toBe(ALL_TIME_PERIOD_ID);
     expect(computeLunchRushPeriodIds(Date.now()).allTime).toBe(ALL_TIME_PERIOD_ID);
+  });
+});
+
+describe("computeLunchRushPeriodIds -- ruleset separation (Lunch Rush v2)", () => {
+  const t = jstMidnight(2026, 9, 20);
+
+  it("the ruleset literals used here are pinned to the scoring module's constants", () => {
+    expect(LUNCH_RUSH_RULESET_VERSION_V1).toBe("lunch-rush-v1");
+    expect(LUNCH_RUSH_RULESET_VERSION_V2).toBe("lunch-rush-v2");
+  });
+
+  it("v1 ids are byte-identical to the pre-v2 ids, explicit or defaulted", () => {
+    const expected = { weekly: "weekly_2026-W38", monthly: "monthly_2026-09", allTime: "all_all" };
+    expect(computeLunchRushPeriodIds(t)).toEqual(expected);
+    expect(computeLunchRushPeriodIds(t, "lunch-rush-v1")).toEqual(expected);
+  });
+
+  it("v2 ids are distinct, v2-prefixed, and keep the weekly_ prefix the read rule matches", () => {
+    const v2 = computeLunchRushPeriodIds(t, "lunch-rush-v2");
+    expect(v2).toEqual({ weekly: "weekly_v2_2026-W38", monthly: "monthly_v2_2026-09", allTime: "all_v2" });
+    expect(v2.weekly.startsWith("weekly_")).toBe(true);
+    expect(/^weekly_.*/.test(v2.weekly)).toBe(true);
+  });
+
+  it("no v2 id equals any v1 id, for any timestamp", () => {
+    for (const ts of [0, t, jstMidnight(2026, 12, 31), jstMidnight(2027, 1, 1), Date.UTC(2030, 5, 5)]) {
+      const v1 = computeLunchRushPeriodIds(ts, "lunch-rush-v1");
+      const v2 = computeLunchRushPeriodIds(ts, "lunch-rush-v2");
+      const v1Ids = new Set(Object.values(v1));
+      for (const id of Object.values(v2)) expect(v1Ids.has(id)).toBe(false);
+    }
+  });
+
+  it("v2 allTime is its own constant, not v1's all_all", () => {
+    expect(ALL_TIME_PERIOD_ID_V2).toBe("all_v2");
+    expect(ALL_TIME_PERIOD_ID_V2).not.toBe(ALL_TIME_PERIOD_ID);
+    expect(computeLunchRushPeriodIds(0, "lunch-rush-v2").allTime).toBe(ALL_TIME_PERIOD_ID_V2);
+  });
+
+  it("weeklyPeriodId is the single weekly derivation (and matches computeLunchRushPeriodIds)", () => {
+    expect(weeklyPeriodId(t)).toBe("weekly_2026-W38");
+    expect(weeklyPeriodId(t, "lunch-rush-v1")).toBe(computeLunchRushPeriodIds(t).weekly);
+    expect(weeklyPeriodId(t, "lunch-rush-v2")).toBe(computeLunchRushPeriodIds(t, "lunch-rush-v2").weekly);
   });
 });
