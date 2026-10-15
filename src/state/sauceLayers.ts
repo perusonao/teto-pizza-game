@@ -99,6 +99,23 @@ export function sauceLayersOf(
 export const SAUCE_OWN_LAYERS = 8;
 export const SAUCE_MERGED_GROUPS_MAX = 4;
 
+/**
+ * The budget of ONE cut piece (Codex P2 on PR #494): every piece draws its own copy of the sauce, so the pizza-wide bound is the piece
+ * budget times the number of pieces. A cut pizza's sauce is final (nothing is being painted), so a piece flattens every run: no own
+ * layers, and at most two groups (oil / other sauce). That is at most 4 canvases per piece, 32 for an eight-piece pizza.
+ */
+export const SAUCE_PIECE_OWN_LAYERS = 0;
+export const SAUCE_PIECE_MERGED_GROUPS_MAX = 2;
+
+export interface SauceCanvasBudget {
+  /** how many of the newest runs keep a canvas pair of their own */
+  readonly ownLayers: number;
+  /** how many shared groups the older runs may use */
+  readonly maxGroups: number;
+}
+export const SAUCE_PIZZA_BUDGET: SauceCanvasBudget = { ownLayers: SAUCE_OWN_LAYERS, maxGroups: SAUCE_MERGED_GROUPS_MAX };
+export const SAUCE_PIECE_BUDGET: SauceCanvasBudget = { ownLayers: SAUCE_PIECE_OWN_LAYERS, maxGroups: SAUCE_PIECE_MERGED_GROUPS_MAX };
+
 const isOil = (layer: SauceLayer) => layer.ingredientId === "olive-oil";
 
 /** A stretch of consecutive OLD runs drawn on one shared canvas pair. Never contains the stroke in progress. */
@@ -124,12 +141,12 @@ export interface SauceLayerPlan {
 /**
  * Which runs get a canvas pair of their own and how the older ones are grouped. Pure; the groups cover the older runs exactly once, in
  * order, so a chronological stack of `merged` then `own` is the stack of all the layers. Olive oil carries its own CSS filter, so
- * consecutive runs are grouped by "oil or not"; if that alternation needs more than `SAUCE_MERGED_GROUPS_MAX` groups, the OLDEST
+ * consecutive runs are grouped by "oil or not"; if that alternation needs more than `budget.maxGroups` groups, the OLDEST
  * groups are folded into one plain group (their oil runs get the oil look baked in), which bounds the count for any history.
  * With `SAUCE_OWN_LAYERS` runs or fewer nothing is merged and every layer is drawn on its own, as before.
  */
-export function planSauceLayers(layers: readonly SauceLayer[]): SauceLayerPlan {
-  const firstOwnIndex = Math.max(0, layers.length - SAUCE_OWN_LAYERS);
+export function planSauceLayers(layers: readonly SauceLayer[], budget: SauceCanvasBudget = SAUCE_PIZZA_BUDGET): SauceLayerPlan {
+  const firstOwnIndex = Math.max(0, layers.length - budget.ownLayers);
   const older = layers.slice(0, firstOwnIndex);
   const own = layers.slice(firstOwnIndex);
   const segments: Array<{ firstIndex: number; runs: SauceLayer[] }> = [];
@@ -138,7 +155,7 @@ export function planSauceLayers(layers: readonly SauceLayer[]): SauceLayerPlan {
     if (last && isOil(last.runs[0]) === isOil(layer)) last.runs.push(layer);
     else segments.push({ firstIndex: index, runs: [layer] });
   });
-  const fold = Math.max(0, segments.length - SAUCE_MERGED_GROUPS_MAX + 1);
+  const fold = Math.max(0, segments.length - budget.maxGroups + 1);
   const groups = fold > 1 ? [{ firstIndex: 0, runs: segments.slice(0, fold).flatMap((s) => s.runs) }, ...segments.slice(fold)] : segments;
   const merged = groups.map((group) => {
     const oilRuns = group.runs.filter(isOil).length;

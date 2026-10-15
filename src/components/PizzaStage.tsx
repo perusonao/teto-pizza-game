@@ -37,7 +37,7 @@ import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
 import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
-import { layersWithPending, planSauceLayers, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
+import { layersWithPending, planSauceLayers, SAUCE_PIECE_BUDGET, SAUCE_PIZZA_BUDGET, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
@@ -1164,7 +1164,8 @@ export function PizzaStage({
         // Sauce B2: chronological runs (the earliest at the bottom, later runs painted over it), each with ONLY its deposits and ITS colour; the overflow
         // markers follow all of them so they always sit on top. The newest runs keep a canvas pair of their own; the older ones are flattened, in
         // order, into a few shared canvases (Codex P2: a pizza never carries more than a fixed number of sauce canvases, whatever its history).
-        const plan = planSauceLayers(sauceLayers);
+        // a cut piece draws its own copy of the sauce: it gets the (much smaller) per-piece budget so the whole cut pizza stays bounded
+        const plan = planSauceLayers(sauceLayers, piece === undefined ? SAUCE_PIZZA_BUDGET : SAUCE_PIECE_BUDGET);
         const colorOf = (ingredientId: string) => getIngredient(ingredientId)?.color ?? fieldSauceColor;
         const mergedClassName = (oil: boolean) =>
           `pizza-sauce-heatmap ${oil ? "pizza-sauce-heatmap--oil" : ""} ${bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""} pizza-sauce-heatmap--merged`;

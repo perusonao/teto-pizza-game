@@ -5,6 +5,8 @@ import {
   planSauceLayers,
   SAUCE_MERGED_GROUPS_MAX,
   SAUCE_OWN_LAYERS,
+  SAUCE_PIECE_BUDGET,
+  SAUCE_PIECE_MERGED_GROUPS_MAX,
   sauceLayersOf,
   sauceRunsOf,
   type SauceLayer,
@@ -216,6 +218,29 @@ describe("planSauceLayers (Codex P2 on PR #494: a fixed canvas budget for any hi
     const plan = planSauceLayers(history([...Array.from({ length: 16 }, () => "olive-oil"), ...Array.from({ length: 8 }, () => "pesto")]));
     expect(plan.merged).toHaveLength(1);
     expect(plan.merged[0]).toMatchObject({ oil: true, bakedOil: false });
+  });
+
+  it("the per-piece budget flattens every run into at most two groups (4 canvases a piece), for any history", () => {
+    for (const n of [1, 3, 12, 40, 100]) {
+      for (const pattern of [
+        (i: number) => (i % 2 ? "pesto" : "tomato-sauce"),
+        (i: number) => (i % 2 ? "olive-oil" : "tomato-sauce"),
+        (i: number) => ["tomato-sauce", "olive-oil", "pesto"][i % 3],
+      ]) {
+        const layers = history(Array.from({ length: n }, (_, i) => pattern(i)));
+        const plan = planSauceLayers(layers, SAUCE_PIECE_BUDGET);
+        expect(plan.own).toEqual([]);
+        expect(plan.merged.flatMap((g) => g.runs)).toEqual(layers);
+        expect(plan.merged.length).toBeLessThanOrEqual(SAUCE_PIECE_MERGED_GROUPS_MAX);
+        expect(canvases(plan)).toBeLessThanOrEqual(4);
+      }
+    }
+  });
+
+  it("with oil alternating, the per-piece plan folds into one plain group with the oil baked in", () => {
+    const plan = planSauceLayers(history(Array.from({ length: 10 }, (_, i) => (i % 2 ? "olive-oil" : "tomato-sauce"))), SAUCE_PIECE_BUDGET);
+    expect(plan.merged).toHaveLength(2);
+    expect(plan.merged[0]).toMatchObject({ firstIndex: 0, oil: false, bakedOil: true });
   });
 
   it("a group keeps its key (first run index) when newer runs age into later groups, while nothing is folded", () => {

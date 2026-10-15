@@ -50,10 +50,10 @@ const multi = (...parts: Array<[string, SauceDeposit[]]>): PizzaState => ({
   sauceDeposits: parts.flatMap(([id, ds]) => stamp(ds, id)),
 });
 
-function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean; pressWith?: string } = {}) {
-  const cutState = extra.cuts
-    ? addCutLine(addCutLine(createCutState(), { start: { x: 0, y: 50 }, end: { x: 100, y: 50 } }), { start: { x: 50, y: 0 }, end: { x: 50, y: 100 } })
-    : createCutState();
+function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean | 8; pressWith?: string } = {}) {
+  const quarters = addCutLine(addCutLine(createCutState(), { start: { x: 0, y: 50 }, end: { x: 100, y: 50 } }), { start: { x: 50, y: 0 }, end: { x: 50, y: 100 } });
+  const eighths = addCutLine(addCutLine(quarters, { start: { x: 0, y: 0 }, end: { x: 100, y: 100 } }), { start: { x: 100, y: 0 }, end: { x: 0, y: 100 } });
+  const cutState = extra.cuts === 8 ? eighths : extra.cuts ? quarters : createCutState();
   return (
     <PizzaStage
       pizza={pizza}
@@ -79,7 +79,7 @@ function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: 
   );
 }
 
-function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean; pressWith?: string } = {}) {
+function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean | 8; pressWith?: string } = {}) {
   const view = render(stageElement(pizza, extra));
   if (extra.pressWith !== undefined) {
     const dough = view.container.querySelector<HTMLElement>('[data-pizza-drop-target="true"]')!;
@@ -163,11 +163,10 @@ describe("PizzaStage layered sauce painting", () => {
       sauceDeposits: [...stamp(tomato, "tomato-sauce"), ...stamp(pesto, "pesto"), ...stamp(ringBatch(48, 52, 10, 10), "tomato-sauce")],
     };
     const c = renderStage(p, { cuts: true });
-    const heat = probes(c, "heatmap");
-    expect(heat).toHaveLength(12); // 4 pieces x 3 runs
-    const perPiece = [tomatoColor, pestoColor, tomatoColor];
-    expect(heat.map((h) => h.color)).toEqual([...perPiece, ...perPiece, ...perPiece, ...perPiece]);
-    expect(probes(c, "overflow")).toHaveLength(12);
+    // after the cut each piece flattens the (final) sauce into one shared group, every run in the same chronological order (Codex P2: per-piece budget)
+    expect(probes(c, "heatmap")).toHaveLength(0);
+    const merged = [...c.querySelectorAll<HTMLElement>('canvas[data-probe="merged"]')];
+    expect(merged.map((m) => m.dataset.kinds)).toEqual(Array(4).fill("tomato-sauce,pesto,tomato-sauce")); // 4 pieces
   });
 
   it("each heatmap layer is told what lies under it (overlap dimming, #494): nothing for the bottom layer, everything below for the rest", () => {
@@ -222,9 +221,8 @@ describe("PizzaStage layered sauce painting", () => {
 
   it("a cut pizza draws every layer once per piece, each piece in the same order", () => {
     const c = renderStage(multi(["tomato-sauce", tomato], ["pesto", pesto]), { cuts: true });
-    const heat = probes(c, "heatmap");
-    expect(heat).toHaveLength(8); // 4 pieces x 2 layers
-    expect(heat.map((h) => h.color)).toEqual([tomatoColor, pestoColor, tomatoColor, pestoColor, tomatoColor, pestoColor, tomatoColor, pestoColor]);
+    const merged = [...c.querySelectorAll<HTMLElement>('canvas[data-probe="merged"]')];
+    expect(merged.map((m) => m.dataset.kinds)).toEqual(Array(4).fill("tomato-sauce,pesto")); // each piece: both layers, in order, on one shared group
   });
 
   it("a stroke in progress over another sauce is the top layer; the committed sauce stays underneath", () => {
@@ -292,6 +290,34 @@ describe("committing a stroke repaints only the run it touched (Codex P2 on PR #
     const rebuilt = [...after].filter((d) => !before.has(d));
     expect(rebuilt).toHaveLength(1); // the extended top run
     expect([...before].filter((d) => !after.has(d))).toHaveLength(1); // ...replacing its old list
+  });
+});
+
+describe("the sauce canvas budget after the cut (Codex P2 on PR #494)", () => {
+  const log = (n: number, kindOf: (i: number) => string): PizzaState => ({
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce", "pesto", "olive-oil"],
+    sauceToken: 3,
+    sauceDeposits: Array.from({ length: n }, (_, i) => ({ x: 20 + (i % 60), y: 40, amount: 0.02, ingredientId: kindOf(i) })),
+  });
+  const canvases = (c: HTMLElement) => c.querySelectorAll("canvas").length;
+
+  it("an eight-piece pizza with 100 alternating oil / other runs carries at most 32 sauce canvases (4 per piece)", () => {
+    const c = renderStage(log(100, (i) => (i % 2 ? "olive-oil" : "tomato-sauce")), { cuts: 8 });
+    expect(canvases(c)).toBeLessThanOrEqual(32);
+    expect(canvases(c)).toBeGreaterThan(0);
+    expect(c.querySelectorAll('canvas[data-probe="heatmap"]')).toHaveLength(0); // nothing is drawn run by run after the cut
+  });
+
+  it("without oil every piece needs one shared group: 2 canvases per piece", () => {
+    const c = renderStage(log(100, (i) => (i % 2 ? "pesto" : "tomato-sauce")), { cuts: 8 });
+    expect(canvases(c)).toBe(16);
+  });
+
+  it("the same pizza before the cut keeps its own per-run layers for the newest runs (unchanged)", () => {
+    const c = renderStage(log(12, (i) => (i % 2 ? "pesto" : "tomato-sauce")));
+    expect(c.querySelectorAll('canvas[data-probe="heatmap"]')).toHaveLength(8);
+    expect(c.querySelectorAll('canvas[data-probe="merged"]')).toHaveLength(1);
   });
 });
 
