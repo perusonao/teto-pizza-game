@@ -60,8 +60,9 @@ interface MergedProps {
 
 export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil = false, className }: MergedProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // the stack built so far: when the group only grew at its end (a newer run aged into it) just the new runs are stacked
-  const stacked = useRef<{ runs: readonly SauceLayer[]; shape: DoughShape; pixels: Uint8ClampedArray } | null>(null);
+  // the stack built so far: when the group only grew at its end (a newer run aged into it) just the new runs are stacked -- but never across
+  // a change of `bakedOil` (an oil-only group that became mixed): its oil runs were stacked as plain pixels and must be rebuilt
+  const stacked = useRef<{ runs: readonly SauceLayer[]; shape: DoughShape; bakedOil: boolean; pixels: Uint8ClampedArray } | null>(null);
   const [failed, markFailed] = useCanvasFailure();
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
     try {
       const previous = stacked.current;
       const grewAtEnd =
-        previous !== null && previous.shape === doughShape && previous.runs.length <= runs.length && previous.runs.every((run, i) => run === runs[i]);
+        previous !== null && previous.shape === doughShape && previous.bakedOil === bakedOil && previous.runs.length <= runs.length && previous.runs.every((run, i) => run === runs[i]);
       const from = grewAtEnd ? previous.runs.length : 0;
       let pixels: Uint8ClampedArray;
       if (grewAtEnd && from === runs.length) pixels = previous.pixels;
@@ -86,7 +87,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
           compositeOver(pixels, runRaster(run, doughShape, colorOf(run.ingredientId), bakedOil && run.ingredientId === "olive-oil"));
         }
       }
-      stacked.current = { runs: [...runs], shape: doughShape, pixels };
+      stacked.current = { runs: [...runs], shape: doughShape, bakedOil, pixels };
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const staging = getStagingSurface();

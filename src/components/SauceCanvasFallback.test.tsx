@@ -150,6 +150,28 @@ describe("merged sauce canvases", () => {
     expect([...grown]).toEqual([...staged[staged.length - 1]]);
   });
 
+  it("a group that turns from oil-only to mixed rebuilds its oil runs with the oil look baked in (Codex P2 follow-up)", () => {
+    stubContext("none");
+    const oil = run("olive-oil", [30, 40], []);
+    const tomato = run("tomato-sauce", [60], oil.deposits);
+    const { rerender } = render(<SauceMergedHeatmapCanvas runs={[oil]} doughShape={shape} colorOf={colorOf} />);
+    rerender(<SauceMergedHeatmapCanvas runs={[oil, tomato]} doughShape={shape} colorOf={colorOf} bakedOil />);
+    const grown = staged[staged.length - 1];
+    cleanup();
+    staged.length = 0;
+    render(<SauceMergedHeatmapCanvas runs={[oil, tomato]} doughShape={shape} colorOf={colorOf} bakedOil />);
+    expect([...grown]).toEqual([...staged[staged.length - 1]]);
+    // and it really is the baked oil, not the plain oil raster
+    cleanup();
+    staged.length = 0;
+    render(<SauceMergedHeatmapCanvas runs={[oil]} doughShape={shape} colorOf={colorOf} />);
+    const plainOil = staged[staged.length - 1];
+    cleanup();
+    staged.length = 0;
+    render(<SauceMergedHeatmapCanvas runs={[oil]} doughShape={shape} colorOf={colorOf} bakedOil />);
+    expect([...staged[staged.length - 1]]).not.toEqual([...plainOil]);
+  });
+
   it("the merged overflow canvas is dropped when it fails", () => {
     stubContext("null");
     const outside: SauceLayer = { ingredientId: "pesto", deposits: [{ x: 2, y: 2, amount: 0.02, ingredientId: "pesto" }], under: [] };
