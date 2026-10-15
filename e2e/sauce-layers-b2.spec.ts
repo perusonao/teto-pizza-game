@@ -321,12 +321,15 @@ test("canvas failure: a refused 2D context shows the layer as dots, and a throwi
     const w = window as unknown as { __granted: number };
     w.__granted = 0;
     const original = HTMLCanvasElement.prototype.getContext;
-    // a browser out of canvas memory: after 4 sauce canvases have a context, every further sauce canvas is refused
+    // a browser out of canvas memory: after 4 sauce canvases have a context, EVERY new canvas is refused -- the sauce canvases and any fresh
+    // probe canvas alike (so support must have been probed before the exhaustion, at app start)
     HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, ...args: Parameters<typeof original>) {
-      if (this.className.includes("pizza-sauce-heatmap") && !this.dataset.granted) {
+      if (!this.dataset.granted) {
         if (w.__granted >= 4) return null;
-        this.dataset.granted = "1";
-        w.__granted += 1;
+        if (this.className.includes("pizza-sauce-heatmap")) {
+          this.dataset.granted = "1";
+          w.__granted += 1;
+        }
       }
       return (original as (...a: unknown[]) => unknown).apply(this, args);
     } as typeof original;

@@ -11,9 +11,8 @@ import {
 } from "../logic/sauceDisplay";
 import { insideDoughShapeFraction } from "../logic/sauceField";
 import type { SauceLayer } from "../state/sauceLayers";
-import { canvas2dAvailable } from "./CheesePoolCanvas";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
-import { getStagingSurface, useCanvasFailure } from "./sauceCanvasSupport";
+import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /**
  * Codex P2 on PR #494 (canvas budget): the OLDEST sauce runs of a long pizza are flattened into shared canvases instead of one canvas
@@ -71,7 +70,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      if (runs.length > 0 && canvas2dAvailable()) markFailed();
+      if (runs.length > 0 && platformSupports2d()) markFailed();
       return;
     }
     try {
@@ -92,7 +91,10 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const staging = getStagingSurface();
-      if (!staging) return;
+      if (!staging) {
+        if (platformSupports2d()) markFailed();
+        return;
+      }
       staging.image.data.set(pixels);
       staging.ctx.putImageData(staging.image, 0, 0);
       ctx.imageSmoothingEnabled = true;
@@ -125,7 +127,7 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      if (canvas2dAvailable() && runs.some((run) => run.deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1))) markFailed();
+      if (platformSupports2d() && runs.some((run) => run.deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1))) markFailed();
       return;
     }
     try {

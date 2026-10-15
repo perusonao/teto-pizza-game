@@ -7,6 +7,7 @@ import type { SauceDeposit } from "../state/pizzaState";
 import type { SauceLayer } from "../state/sauceLayers";
 import { resetCanvas2dProbe } from "./CheesePoolCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
+import { platformSupports2d, resetStagingSurface } from "./sauceCanvasSupport";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
@@ -44,10 +45,12 @@ const fake = {
   fail: "none" as "none" | "null" | "draw",
 };
 
-function stubContext(mode: "none" | "null" | "draw" | "no-2d") {
-  fake.fail = mode === "no-2d" ? "none" : mode;
+function stubContext(mode: "none" | "null" | "draw" | "no-2d" | "exhausted" | "no-staging") {
+  fake.fail = mode === "draw" ? "draw" : "none";
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(function (this: HTMLCanvasElement) {
     if (mode === "no-2d") return null; // a platform without 2D at all (the probe fails too)
+    if (mode === "exhausted") return null; // canvas memory is gone: EVERY new canvas is refused, a fresh probe canvas included
+    if (mode === "no-staging" && this.width === 64) return null; // only the 64x64 staging surface is refused
     if (this.width === 200 && mode === "null") return null; // the sauce canvases are refused, the probe and the staging surface are not
     return fake.ctx as never;
   } as never);
@@ -57,6 +60,7 @@ beforeEach(() => {
   staged.length = 0;
   fills.length = 0;
   resetCanvas2dProbe();
+  resetStagingSurface();
 });
 afterEach(() => {
   cleanup();
@@ -106,6 +110,68 @@ describe("SauceHeatmapCanvas / OverflowMarkerCanvas failure handling", () => {
     const { container } = render(<OverflowMarkerCanvas deposits={[dep(2, 2)]} doughShape={shape} color="#c8412b" />);
     expect(container.querySelector("canvas")).toBeNull();
     stubContext("draw");
+  });
+});
+
+describe("canvas support is probed before the sauce canvases exist (Codex P2: probe before handling allocation failure)", () => {
+  const deposits = [dep(40), dep(50), dep(60)];
+  const run = (kind: string): SauceLayer => ({ ingredientId: kind, deposits: deposits.map((d) => ({ ...d, ingredientId: kind })), under: [] });
+  const colorOf = () => "#c8412b";
+
+  it("support known from the startup probe, then EVERY canvas refused (a fresh probe would fail too): heatmap, merged and overflow all handle it", () => {
+    stubContext("none");
+    expect(platformSupports2d()).toBe(true); // the startup probe, while canvases still work
+    stubContext("exhausted");
+    expect(platformSupports2d()).toBe(true); // cached: the exhaustion does not turn into "no 2D support"
+    const heat = render(<SauceHeatmapCanvas deposits={deposits} doughShape={shape} color="#c8412b" className="h" />);
+    expect(heat.container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(3); // dots, not a blank layer
+    expect(heat.container.querySelector("canvas")).toBeNull();
+    heat.unmount();
+    const merged = render(<SauceMergedHeatmapCanvas runs={[run("tomato-sauce"), run("pesto")]} doughShape={shape} colorOf={colorOf} className="m" />);
+    expect(merged.container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(6);
+    merged.unmount();
+    const overflow = render(<SauceMergedOverflowCanvas runs={[{ ingredientId: "pesto", deposits: [{ x: 2, y: 2, amount: 0.02 }], under: [] }]} doughShape={shape} colorOf={colorOf} />);
+    expect(overflow.container.querySelector("canvas")).toBeNull(); // the markers of a failed canvas are left out
+    overflow.unmount();
+    const single = render(<OverflowMarkerCanvas deposits={[dep(2, 2)]} doughShape={shape} color="#c8412b" />);
+    expect(single.container.querySelector("canvas")).toBeNull();
+  });
+
+  it("the probe runs when the support module is first loaded, not at the first refusal", async () => {
+    vi.resetModules();
+    stubContext("none");
+    const fresh = await import("./sauceCanvasSupport"); // loading it probes, while canvases work
+    stubContext("exhausted");
+    expect(fresh.platformSupports2d()).toBe(true);
+  });
+
+  it("the very first sauce canvas refused (support known): shown as dots", () => {
+    stubContext("null"); // the probe canvas works, the 200x200 sauce canvases are refused from the start
+    expect(platformSupports2d()).toBe(true);
+    const { container } = render(<SauceHeatmapCanvas deposits={deposits} doughShape={shape} color="#c8412b" />);
+    expect(container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(3);
+  });
+
+  it("the 64x64 staging surface refused after the sauce canvas got its context: heatmap and merged show dots, not a blank layer", () => {
+    stubContext("no-staging");
+    expect(platformSupports2d()).toBe(true);
+    const heat = render(<SauceHeatmapCanvas deposits={deposits} doughShape={shape} color="#c8412b" />);
+    expect(heat.container.querySelector("[data-sauce-fallback]")).toBeInTheDocument();
+    heat.unmount();
+    resetStagingSurface();
+    const merged = render(<SauceMergedHeatmapCanvas runs={[run("tomato-sauce")]} doughShape={shape} colorOf={colorOf} />);
+    expect(merged.container.querySelector("[data-sauce-fallback]")).toBeInTheDocument();
+  });
+
+  it("no 2D support at the startup probe: every sauce canvas keeps the old behaviour (draws nothing, no fallback, canvas stays)", () => {
+    stubContext("no-2d");
+    expect(platformSupports2d()).toBe(false);
+    const heat = render(<SauceHeatmapCanvas deposits={deposits} doughShape={shape} color="#c8412b" />);
+    expect(heat.container.querySelector("canvas")).toBeInTheDocument();
+    expect(heat.container.querySelector("[data-sauce-fallback]")).toBeNull();
+    const merged = render(<SauceMergedHeatmapCanvas runs={[run("tomato-sauce")]} doughShape={shape} colorOf={colorOf} />);
+    expect(merged.container.querySelector("canvas")).toBeInTheDocument();
+    expect(merged.container.querySelector("[data-sauce-fallback]")).toBeNull();
   });
 });
 

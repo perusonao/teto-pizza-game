@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
 import type { DoughShape } from "../logic/doughShape";
-import { canvas2dAvailable } from "./CheesePoolCanvas";
-import { useCanvasFailure } from "./sauceCanvasSupport";
+import { platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /** Internal pixel resolution of the overflow-marker canvas -- matches `SauceHeatmapCanvas`'s own
  *  internal resolution purely so the two overlaid canvases share one rasterization fidelity. */
@@ -37,7 +36,7 @@ export function OverflowMarkerCanvas({ deposits, doughShape, color, className }:
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      if (canvas2dAvailable() && deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1)) markFailed();
+      if (platformSupports2d() && deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1)) markFailed();
       return;
     }
 

@@ -2,9 +2,8 @@ import { useEffect, useMemo, useRef } from "react";
 import type { SauceDepositLike } from "../logic/sauceField";
 import { alphaPlaneOf, buildSauceDisplayPixels, dimWhereOverlapping, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
 import type { DoughShape } from "../logic/doughShape";
-import { canvas2dAvailable } from "./CheesePoolCanvas";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
-import { getStagingSurface, useCanvasFailure } from "./sauceCanvasSupport";
+import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /** Internal pixel resolution of the rasterized heatmap -- purely a rendering detail (the
  *  browser's own image upscaler stretches this to whatever CSS size the caller's `className`
@@ -71,7 +70,7 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className, und
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       // a platform with no 2D support at all (a test DOM) draws nothing, as it always has; only a refusal after a working probe is a failure
-      if (deposits.length > 0 && canvas2dAvailable()) markFailed();
+      if (deposits.length > 0 && platformSupports2d()) markFailed();
       return;
     }
 
@@ -87,7 +86,11 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className, und
       if (underAlpha) dimWhereOverlapping(pixels, underAlpha);
 
       const staging = getStagingSurface();
-      if (!staging) return;
+      if (!staging) {
+        // the 64x64 staging canvas is refused too (same exhaustion): the layer cannot be drawn, so it is shown as dots, not left blank
+        if (platformSupports2d()) markFailed();
+        return;
+      }
       staging.image.data.set(pixels);
       staging.ctx.putImageData(staging.image, 0, 0);
       ctx.imageSmoothingEnabled = true;
