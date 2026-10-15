@@ -87,7 +87,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
                   const stock = remainingStock(ingredient, inventory);
                   return (
                     <div key={ingredient.id} className="inventory-card">
-                      {ingredient.category === "cheese" ? (
+                      {ingredient.category === "cheese" && !ingredient.pieceVisual ? (
                         <span className="inventory-card__cheese-slot">
                           <IngredientPieceVisual ingredient={ingredient} />
                         </span>

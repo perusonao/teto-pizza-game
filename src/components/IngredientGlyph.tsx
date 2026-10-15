@@ -23,12 +23,24 @@ export function IngredientGlyph({ ingredient }: { ingredient: Ingredient }) {
   return <DedicatedIngredientSvg visual={ingredient.pieceVisual} />;
 }
 
+/** Style Lock v2 §4.2: the original 3 visuals keep their 32x32 art; Ingredient Icons 2.0 art is 64x64.
+ *  Both render at 1em, so callers' font-size applies unchanged. */
+const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
+  "tomato-slice": "0 0 32 32",
+  "caper-cluster": "0 0 32 32",
+  "clam-valve": "0 0 32 32",
+  "ricotta-mound": "0 0 64 64",
+  "feta-cubes": "0 0 64 64",
+  "sausage-slices": "0 0 64 64",
+  "hot-dog-slices": "0 0 64 64",
+};
+
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
   return (
     <svg
       className={`ingredient-glyph ingredient-glyph--${visual}`}
       data-ingredient-visual={visual}
-      viewBox="0 0 32 32"
+      viewBox={VISUAL_VIEWBOX[visual]}
       width="1em"
       height="1em"
       aria-hidden="true"
@@ -37,6 +49,10 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "tomato-slice" && <TomatoSlice />}
       {visual === "caper-cluster" && <CaperCluster />}
       {visual === "clam-valve" && <ClamValve />}
+      {visual === "ricotta-mound" && <RicottaMound />}
+      {visual === "feta-cubes" && <FetaCubes />}
+      {visual === "sausage-slices" && <SausageSlices />}
+      {visual === "hot-dog-slices" && <HotDogSlices />}
     </svg>
   );
 }
@@ -175,6 +191,101 @@ function ClamValve() {
       <path d="M9.6 10.6 C 12 13.3, 20 13.3, 22.4 10.6" stroke="#8d6d4b" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <path d="M8.5 18.6 l1.6 -1.9 l1.6 1.9 l1.6 -1.9 M18.8 18.6 l1.6 -1.9 l1.6 1.9 l1.6 -1.9" stroke="#4d3924" strokeWidth="0.9" fill="none" strokeLinejoin="round" />
       <path d="M12.6 5.9 C 14 3.6, 18 3.6, 19.4 5.9 C 18 7.2, 14 7.2, 12.6 5.9 Z" fill="#6e5236" stroke="#3f2f1e" strokeWidth="0.8" />
+    </g>
+  );
+}
+
+/* ---------- Ingredient Icons 2.0 (Style Lock v2, Pilot A): 64x64 art from docs/design/references/ingredient-icons-2.0 ---------- */
+
+function RicottaMound() {
+  return (
+    <g>
+      <ellipse cx="32" cy="54" rx="20" ry="3" fill="#000" opacity=".13" />
+      <path d="M12 48h40c0 4-4 6-8 6H20c-4 0-8-2-8-6z" fill="#e4dac0" stroke="#a09068" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M7 47c-2-11 3-17 10-17 1-8 7-13 15-13s14 5 15 13c7 0 12 6 10 17z" fill="#fff6dc" stroke="#7d6a42" strokeWidth="2.4" strokeLinejoin="round" />
+      <g fill="#e8d7a8">
+        <circle cx="17" cy="41" r="2" />
+        <circle cx="27" cy="36" r="2.3" />
+        <circle cx="38" cy="39" r="2.1" />
+        <circle cx="47" cy="42" r="1.9" />
+        <circle cx="33" cy="27" r="1.9" />
+        <circle cx="22" cy="29" r="1.6" />
+        <circle cx="43" cy="31" r="1.7" />
+        <circle cx="32" cy="45" r="1.6" />
+      </g>
+      <path d="M19 28c3-5 8-7 12-7" stroke="#fff" strokeWidth="3" strokeLinecap="round" fill="none" />
+    </g>
+  );
+}
+
+function FetaCubes() {
+  return (
+    <g>
+      <ellipse cx="32" cy="56" rx="24" ry="3.5" fill="#000" opacity=".15" />
+      <path d="M6 34l14-8 20 4v18l-14 6L6 48z" fill="#fff" stroke="#78808a" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M6 34l20 6 14-10M26 40v14" stroke="#78808a" strokeWidth="2.2" strokeLinejoin="round" fill="none" />
+      <path d="M32 18l12-6 16 8v16l-12 5V30z" fill="#f4f6f8" stroke="#78808a" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M32 18l16 8 12-6M48 26v19" stroke="#78808a" strokeWidth="2.2" strokeLinejoin="round" fill="none" />
+      <g fill="#cfd5dc">
+        <circle cx="14" cy="42" r="1.8" />
+        <circle cx="33" cy="46" r="1.8" />
+        <circle cx="54" cy="31" r="1.7" />
+        <circle cx="40" cy="25" r="1.6" />
+      </g>
+    </g>
+  );
+}
+
+function SausageSlices() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M5 37c-1-7 3-14 11-16 6-2 13 0 16 6 3 6 2 14-4 18-5 4-14 4-19 0-2-2-3-5-4-8z" fill="#8f3f2e" stroke="#431a12" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M10 37c-1-5 2-9 7-10 5-1 9 1 11 5 2 5 0 10-4 12-4 2-10 2-13-1-1-2-1-4-1-6z" fill="#b95e47" />
+      <path d="M13 31l5-1 2 4-3 2zM22 36l5-1 1 4-4 2zM12 41l4-1 1 3-4 1z" fill="#f5dcc6" />
+      <g fill="#6e2a1e">
+        <circle cx="21" cy="30" r="1.3" />
+        <circle cx="16" cy="37" r="1.4" />
+        <circle cx="26" cy="42" r="1.2" />
+        <circle cx="12" cy="35" r="1" />
+      </g>
+      <g fill="#f5dcc6">
+        <circle cx="19" cy="42" r="1.3" />
+        <circle cx="25" cy="31" r="1.1" />
+      </g>
+      <path d="M36 22c-2-6 2-12 8-13 6-2 12 1 14 7 2 5 0 11-5 14-5 3-12 2-15-3-1-2-2-3-2-5z" fill="#8f3f2e" stroke="#431a12" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M41 22c-1-4 2-7 6-8 4-1 8 1 9 5 1 4-1 7-4 9-4 2-9 1-10-2-1-1-1-3-1-4z" fill="#b95e47" />
+      <path d="M43 17l4-1 1 4-3 1zM49 23l4 0 0 3-4 0z" fill="#f5dcc6" />
+      <g fill="#6e2a1e">
+        <circle cx="51" cy="18" r="1.1" />
+        <circle cx="45" cy="26" r="1.2" />
+        <circle cx="42" cy="21" r="1" />
+      </g>
+    </g>
+  );
+}
+
+const HOT_DOG_SLICES = [
+  { cx: 16, cy: 43, hx: 11, hy: 41 },
+  { cx: 35, cy: 34, hx: 30, hy: 32 },
+  { cx: 50, cy: 19, hx: 45, hy: 17 },
+];
+
+function HotDogSlices() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
+      {HOT_DOG_SLICES.map((slice) => (
+        <g key={slice.cx}>
+          <circle cx={slice.cx} cy={slice.cy} r="11" fill="#ef8a70" stroke="#8a2f1c" strokeWidth="2.4" />
+          <circle cx={slice.cx} cy={slice.cy} r="7.6" fill="#f9bba5" />
+        </g>
+      ))}
+      <g stroke="#fff0ea" strokeWidth="2.2" strokeLinecap="round" fill="none">
+        {HOT_DOG_SLICES.map((slice) => (
+          <path key={slice.cx} d={`M${slice.hx} ${slice.hy}c1-2 3-3 5-3`} />
+        ))}
+      </g>
     </g>
   );
 }
