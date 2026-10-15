@@ -116,9 +116,48 @@ describe("PizzaStage layered sauce painting", () => {
     expect(over.map((o) => [o.color, o.deposits.length])).toEqual([[tomatoColor, 10], [pestoColor, 8]]);
   });
 
-  it("three kinds stack in first-use order", () => {
+  it("three kinds stack in the order they were laid", () => {
     const heat = probes(renderStage(multi(["olive-oil", tomato], ["tomato-sauce", pesto], ["pesto", ringBatch(48, 52, 10, 10)])), "heatmap");
     expect(heat.map((h) => h.color)).toEqual([oilColor, tomatoColor, pestoColor]);
+  });
+
+  it("tomato, pesto, then tomato again: three layers, the later tomato on top of the pesto (Owner Decision, #494)", () => {
+    const p: PizzaState = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce", "pesto"],
+      sauceToken: 3,
+      sauceDeposits: [...stamp(tomato, "tomato-sauce"), ...stamp(pesto, "pesto"), ...stamp(ringBatch(48, 52, 10, 10), "tomato-sauce")],
+    };
+    const heat = probes(renderStage(p), "heatmap");
+    expect(heat.map((h) => h.color)).toEqual([tomatoColor, pestoColor, tomatoColor]);
+    expect(heat.map((h) => h.deposits.length)).toEqual([20, 20, 10]);
+  });
+
+  it("a cut pizza draws every run once per piece, each piece in the same chronological order (#494)", () => {
+    const p: PizzaState = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce", "pesto"],
+      sauceToken: 3,
+      sauceDeposits: [...stamp(tomato, "tomato-sauce"), ...stamp(pesto, "pesto"), ...stamp(ringBatch(48, 52, 10, 10), "tomato-sauce")],
+    };
+    const c = renderStage(p, { cuts: true });
+    const heat = probes(c, "heatmap");
+    expect(heat).toHaveLength(12); // 4 pieces x 3 runs
+    const perPiece = [tomatoColor, pestoColor, tomatoColor];
+    expect(heat.map((h) => h.color)).toEqual([...perPiece, ...perPiece, ...perPiece, ...perPiece]);
+    expect(probes(c, "overflow")).toHaveLength(12);
+  });
+
+  it("a stroke in progress over another sauce's later run is a new top layer, not folded under it", () => {
+    const p: PizzaState = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce", "pesto"],
+      sauceToken: 2,
+      sauceDeposits: [...stamp(tomato, "tomato-sauce"), ...stamp(pesto, "pesto")],
+    };
+    const heat = probes(renderStage(p, { pressWith: "tomato-sauce" }), "heatmap");
+    expect(heat.map((h) => h.color)).toEqual([tomatoColor, pestoColor, tomatoColor]);
+    expect(heat[2].deposits.length).toBeGreaterThan(0);
   });
 
   it("a layer's alpha is the canvas's own: no extra opacity or blend is applied to a layer", () => {

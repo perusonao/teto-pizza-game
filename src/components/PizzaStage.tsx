@@ -36,8 +36,8 @@ import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
-import { sauceGaugeUsed } from "../logic/sauceRemaining";
-import { sauceLayersOf } from "../state/sauceLayers";
+import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
+import { layersWithPending, sauceRunsOf } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -1057,11 +1057,17 @@ export function PizzaStage({
   // Sauce B2 (layered painting): with two or more sauce kinds on the pizza (committed, or one in progress over another) each
   // kind is drawn as its own layer, the first laid at the bottom. `null` (fewer than two kinds) keeps the single heatmap below
   // exactly as it has always been drawn, so a one-sauce pizza never takes the layered path.
+  // Owner Decision on PR #494: layers are chronological runs (later paint over earlier, whatever the kind). The committed runs are
+  // memoized on the deposit log, so a tick of the stroke in progress rebuilds only the top run and no earlier canvas is redrawn.
+  const committedSauceRuns = useMemo(() => sauceRunsOf(pizza), [pizza.sauceIds, pizza.sauceDeposits]); // eslint-disable-line react-hooks/exhaustive-deps
   const sauceLayers = useMemo(
-    () => (isFieldSauceContext ? sauceLayersOf(pizza, pendingDepositsRef.current, activeSessionRef.current?.ingredientId ?? null) : null),
+    () =>
+      isFieldSauceContext
+        ? layersWithPending(committedSauceRuns, pendingDepositsRef.current, activeSessionRef.current?.ingredientId ?? null)
+        : null,
     // pendingVersion is the reactive proxy for pendingDepositsRef.current -- see its own declaration above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isFieldSauceContext, pizza.sauceIds, pizza.sauceDeposits, pendingVersion],
+    [isFieldSauceContext, committedSauceRuns, pendingVersion],
   );
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
@@ -1148,21 +1154,21 @@ export function PizzaStage({
       )}
       {showSauceHeatmap && sauceLayers && (
         <>
-          {/* Sauce B2: one heatmap per sauce kind (first laid at the bottom, later ones on top), each with only ITS deposits and
-              ITS colour; the overflow markers follow all of them so they always sit on top. Same box/filter classes as the
+          {/* Sauce B2: one heatmap per chronological run of one sauce kind (the earliest run at the bottom, later runs painted over it),
+              each with only ITS deposits and ITS colour; the overflow markers follow all of them so they always sit on top. Same box/filter classes as the
               single heatmap below, plus a per-kind marker class. */}
-          {sauceLayers.map((layer) => (
+          {sauceLayers.map((layer, index) => (
             <SauceHeatmapCanvas
-              key={`heat-${layer.ingredientId}`}
+              key={`heat-${index}-${layer.ingredientId}`}
               deposits={layer.deposits}
               doughShape={pizza.doughShape}
               color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
               className={sauceLayerClassName(layer.ingredientId, bakeState)}
             />
           ))}
-          {sauceLayers.map((layer) => (
+          {sauceLayers.map((layer, index) => (
             <OverflowMarkerCanvas
-              key={`overflow-${layer.ingredientId}`}
+              key={`overflow-${index}-${layer.ingredientId}`}
               deposits={layer.deposits}
               doughShape={pizza.doughShape}
               color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
@@ -1477,7 +1483,12 @@ export function PizzaStage({
       </div>
       {showSauceGauge && (
         <div className="pizza-stage__sauce-gauge">
-          <SauceRemainingGauge committedTotal={sauceGaugeCommitted} pendingTotal={pendingTotalRef.current} />
+          <SauceRemainingGauge
+            committedTotal={sauceGaugeCommitted}
+            pendingTotal={pendingTotalRef.current}
+            color={activeIngredient?.color}
+            capBlocked={sauceGaugeDetail(pizza, activeIngredient?.id ?? sauceId ?? "", pendingTotalRef.current).capBlocked}
+          />
         </div>
       )}
     </div>

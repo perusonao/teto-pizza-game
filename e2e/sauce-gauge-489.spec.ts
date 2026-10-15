@@ -125,3 +125,63 @@ test("multi-sauce: the gauge follows the active sauce's own bottle", async ({ pa
   await page.getByRole("button", { name: /トマトソース/ }).click();
   expect(Math.abs((await now()) - tomatoLeft)).toBeLessThanOrEqual(4); // tomato's remaining, not a refill
 });
+
+/**
+ * Owner Decision on PR #494: the gauge takes the selected sauce's colour, an empty sauce differs from the pizza-wide limit
+ * (a quiet hatch), and a pale sauce (olive oil) keeps contrast against the track. The pizza-wide 200% can only bind from the third kind on.
+ */
+test("gauge colour follows the selected sauce; an empty sauce and the pizza-wide limit look different", async ({ page }) => {
+  const { width, height } = page.viewportSize()!;
+  await openWith(page, width, height, base(["tomato-sauce", "pesto", "olive-oil"]));
+  await startTargetlessFreeCook(page);
+  await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  const gauge = page.locator(GAUGE);
+  const fill = page.locator(".sauce-remaining-gauge__fill");
+  const dough = (await page.locator(".pizza-dough--interactive").boundingBox())!;
+  const centre = { x: dough.x + dough.width / 2, y: dough.y + dough.height / 2 };
+  const hold = async (ms: number) => {
+    await page.mouse.move(centre.x, centre.y);
+    await page.mouse.down();
+    await page.waitForTimeout(ms);
+    await page.mouse.up();
+    await page.waitForTimeout(150);
+  };
+  const fillColor = () => fill.evaluate((el) => getComputedStyle(el).backgroundColor);
+  const select = (name: RegExp) => page.getByRole("button", { name }).click();
+
+  expect(await fillColor()).toBe("rgb(199, 59, 46)"); // tomato #c73b2e
+  await select(/ジェノベーゼ/);
+  expect(await fillColor()).toBe("rgb(107, 142, 61)"); // pesto #6b8e3d
+  await select(/オリーブオイル/);
+  expect(await fillColor()).toBe("rgb(233, 217, 160)"); // olive oil #e9d9a0 (pale)
+  // contrast: the track is darker than the cream stage and the pale fill carries its own outline
+  const track = await gauge.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(track).toMatch(/^rgba\(60, 40, 20/);
+  expect(await fill.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none");
+
+  // drain tomato and pesto completely: pizza total 2.0 reached
+  await select(/トマトソース/);
+  await hold(3400);
+  await expect(gauge).toHaveAttribute("aria-valuenow", "0");
+  await expect(gauge).not.toHaveAttribute("data-limit"); // tomato is simply empty: no hatch
+  await expect(page.locator(".sauce-remaining-gauge__cap")).toHaveCount(0);
+  await select(/ジェノベーゼ/);
+  await hold(3400);
+  await expect(gauge).toHaveAttribute("aria-valuenow", "0");
+  await expect(page.locator(".sauce-remaining-gauge__cap")).toHaveCount(0); // two kinds never reach the pizza-wide limit first
+
+  // a fresh third sauce is stopped by the pizza-wide limit alone: empty usable, hatch over its whole bottle
+  await select(/オリーブオイル/);
+  await expect(gauge).toHaveAttribute("aria-valuenow", "0");
+  await expect(gauge).toHaveAttribute("data-limit", "total");
+  const cap = await page.locator(".sauce-remaining-gauge__cap").boundingBox();
+  const g = (await gauge.boundingBox())!;
+  expect(cap).not.toBeNull();
+  expect(cap!.height).toBeGreaterThan(g.height * 0.8);
+  const before = await page.locator("canvas.pizza-sauce-heatmap").count();
+  await hold(800); // nothing more comes out
+  expect(await page.locator("canvas.pizza-sauce-heatmap").count()).toBe(before);
+});

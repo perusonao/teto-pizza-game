@@ -49,6 +49,32 @@ disagree with the real cap, so this branch (merge of `main` into the PR head) re
   `firstStrokePending`) changed hash — they now contain the gauge element; heatmap / overflow canvas counts and every other scenario are unchanged.
   Regenerated on purpose (`UPDATE_SAUCE_B2_GOLDEN=1`).
 
+## Owner HV feedback (iPhone Safari) and the follow-up (Owner Decision, PR #494)
+HV found: the single red gauge did not say which sauce it showed; a tomato stroke laid after a pesto stroke was invisible ("tomato cannot be painted /
+is overwritten"); and an empty sauce could not be told from the pizza-wide limit. Fresh Audit: the gauge always equalled the dispenser's headroom (same
+`sauceHeadroom`); the "overwritten" look was B2 layering **by sauce kind in first-use order**, so later tomato strokes joined the bottom tomato layer, under the pesto.
+Confirmed spec (unchanged): each sauce has its own independent 100%; switching back does not refill; the provisional pizza-wide 200% stays; the gauge shows the
+selected sauce's real usable remainder.
+
+Changes (rendering and gauge only -- remaining-quantity maths, reducer, scoring, Completion Gate, inventory, save are untouched):
+- **Chronological runs.** `sauceLayersOf` now splits the (already time-ordered, append-only) deposit log into runs of consecutive same-kind deposits; later runs are
+  painted over earlier ones. Tomato -> pesto -> tomato is three layers, the last on top. The committed runs are memoized (`sauceRunsOf`) and `layersWithPending`
+  rebuilds only the top run per tick, so earlier canvases are not redrawn while painting. Fewer than two kinds still returns `null` -> the unchanged single heatmap
+  (B2 single-source golden: only the two scenarios that press the dough on SAUCE changed hash, because the gauge element's inline colour style is in their DOM; canvas
+  counts unchanged). Supersedes B2's "first-use order, switching back adds to the first layer" (B2 Result above); alpha stacking / O4 (multiply) is unchanged and still pending.
+- **Gauge colour.** The fill uses the selected sauce's colour (`--sauce-gauge-color`; tomato `#c73b2e`, pesto `#6b8e3d`, olive oil `#e9d9a0`).
+- **Contrast.** Darker track (`rgba(60,40,20,.2)`), firmer 1.5px outline, and a 1px inner outline on the fill, so pale olive oil stays visible on the cream stage.
+- **Empty vs pizza-wide limit.** `sauceGaugeDetail` returns `usable` (= headroom / one bottle) and `capBlocked` (the part of the kind's own bottle the 200% cap keeps back).
+  An empty sauce shows an empty bar (as before); when the pizza-wide cap binds the blocked part is a quiet diagonal hatch above the fill (`data-limit="total"`, `aria-valuetext`).
+  With one or two sauce kinds the cap (2.0) cannot bind before the kinds' own 100%, so the hatch appears from the third kind on.
+- **Not reachable today:** a multi-sauce pizza in CUT -- Guided margherita offers only its own sauce, Free Cooking has no CUT. Cut rendering is covered by a component test
+  (every run is drawn once per piece, same order: 4 pieces x 3 runs = 12 heatmaps + 12 overflow markers).
+
+Verification: tsc / oxlint clean; Vitest (new: runs order, memo identity, pending-run, cut copies, gauge colour / hatch, `sauceGaugeDetail` = dispenser headroom incl. pending);
+Chromium E2E at 390x844 and 360x800 (`sauce-gauge-489`, `sauce-layers-b2` incl. "tomato painted after pesto shows over it", `sauce-edge-475`, `tq-1d-no-sauce`).
+Render cost (360x800, 4x CPU throttle, 9 runs / 18 canvases vs 1 run / 2 canvases): frame median 16.7 ms both, p95 16.7 ms vs 33.4 ms (the single-run sample includes warm-up), max 16.8 ms vs 83 ms --
+no regression, so no further optimization. Rasterizing 150 deposits is 0.57 ms in one canvas, 0.36 ms for a 50-deposit top run.
+
 ## Human Verification
 The two videos recorded for the earlier cumulative design (A margherita, B switch) no longer describe the behaviour and are **withdrawn**.
 Re-recording at 390×844 for the per-kind design (single sauce drain → switch to a fresh sauce shows full → switch back shows the remainder

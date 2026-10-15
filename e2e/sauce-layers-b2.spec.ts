@@ -139,7 +139,7 @@ test("a second sauce is its own layer on top; the first keeps its colour and its
   }
 });
 
-test("switching back adds to the first layer and keeps three kinds in order; the layers follow the pizza to the next step", async ({ page }) => {
+test("switching back starts a new top layer (runs in the order laid); the layers follow the pizza to the next step", async ({ page }) => {
   await startSauceStep(page);
   await paint(page, { x: 25, y: 38 }, { x: 45, y: 38 }, 1000);
   await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
@@ -147,13 +147,48 @@ test("switching back adds to the first layer and keeps three kinds in order; the
   await page.getByRole("button", { name: /オリーブオイル/ }).click();
   await paint(page, { x: 30, y: 70 }, { x: 60, y: 70 }, 1000);
   await page.getByRole("button", { name: /トマトソース/ }).click();
-  await paint(page, { x: 25, y: 45 }, { x: 45, y: 45 }, 800); // back to tomato: the bottom layer grows, it does not move
+  await paint(page, { x: 25, y: 45 }, { x: 45, y: 45 }, 800); // back to tomato: a NEW top run (Owner Decision, PR #494), not folded into the bottom one
 
   const heatKinds = async () =>
     page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
-  expect((await heatKinds()).slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
+  const runs = ["tomato-sauce", "pesto", "olive-oil", "tomato-sauce"];
+  expect((await heatKinds()).slice(0, 4)).toEqual(runs);
 
   await page.getByRole("button", { name: /次へ/ }).click(); // SAUCE -> CHEESE
-  expect((await heatKinds()).slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
+  expect((await heatKinds()).slice(0, 4)).toEqual(runs);
   expect(await page.locator(".pizza-sauce-oil-sheen").count()).toBe(0);
+});
+
+/** The composite colour at a point of the pizza, drawing the heatmap canvases in DOM (= paint) order. The CSS blur filter is not applied,
+ *  which does not change which layer is on top where two overlap. Percent coordinates of the dough box. */
+async function compositeAt(page: Page, xPercent: number, yPercent: number) {
+  return page.evaluate(([fx, fy]) => {
+    const canvases = [...document.querySelectorAll<HTMLCanvasElement>("canvas.pizza-sauce-heatmap")].filter((c) => /--kind-/.test(c.className));
+    const out = document.createElement("canvas");
+    out.width = 200;
+    out.height = 200;
+    const ctx = out.getContext("2d")!;
+    for (const c of canvases) ctx.drawImage(c, 0, 0);
+    const [r, g, b, a] = ctx.getImageData(Math.round((fx / 100) * 199), Math.round((fy / 100) * 199), 1, 1).data;
+    return { r, g, b, a };
+  }, [xPercent, yPercent]);
+}
+
+test("what is painted after a switch shows over what was painted before it, whatever the kind (Owner Decision, PR #494)", async ({ page }) => {
+  await startSauceStep(page);
+  // tomato across the middle, then pesto across the same band: pesto (laid later) is on top where they overlap
+  await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 1000);
+  await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 1000);
+  const overlap = await compositeAt(page, 48, 50);
+  expect(overlap.a).toBeGreaterThan(60);
+  expect(overlap.g).toBeGreaterThan(overlap.r); // green on top
+
+  // back to tomato over the very same band: the NEW tomato run is on top of the pesto, so the overlap turns red again
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 600);
+  const heatKinds = await page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
+  expect(heatKinds.slice(0, 3)).toEqual(["tomato-sauce", "pesto", "tomato-sauce"]);
+  const over = await compositeAt(page, 48, 50);
+  expect(over.r).toBeGreaterThan(over.g);
 });
