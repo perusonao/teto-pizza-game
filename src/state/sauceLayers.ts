@@ -23,8 +23,17 @@ export interface SauceLayer {
   readonly under: readonly SauceDeposit[];
 }
 
-/** The committed runs, oldest (bottom) first. Stable for a given `pizza.sauceDeposits`, so callers can memoize it. */
-export function sauceRunsOf(pizza: Pick<PizzaState, "sauceIds" | "sauceDeposits">): SauceLayer[] {
+const sameDeposits = (a: readonly SauceDeposit[], b: readonly SauceDeposit[]) => a.length === b.length && a.every((d, i) => d === b[i]);
+
+/**
+ * The committed runs, oldest (bottom) first. Stable for a given `pizza.sauceDeposits`, so callers can memoize it.
+ *
+ * `previous` (the runs this function returned for the log before the latest commit) keeps a commit cheap: the log is append-only, so
+ * every run that did not change is returned as the SAME object (its `deposits` and `under` arrays included) and a canvas keyed on
+ * them is not redrawn. Only the run a commit extended or added is rebuilt, so a commit costs one layer however many runs there are,
+ * not one repaint per run. The result is equal in value with or without `previous`.
+ */
+export function sauceRunsOf(pizza: Pick<PizzaState, "sauceIds" | "sauceDeposits">, previous: readonly SauceLayer[] = []): SauceLayer[] {
   const ids = sanitizeStringArray(pizza.sauceIds);
   const runs: Array<{ ingredientId: string; deposits: SauceDeposit[] }> = [];
   for (const deposit of pizza.sauceDeposits) {
@@ -35,8 +44,16 @@ export function sauceRunsOf(pizza: Pick<PizzaState, "sauceIds" | "sauceDeposits"
     else runs.push({ ingredientId: owner, deposits: [deposit] });
   }
   const earlier: SauceDeposit[] = [];
-  return runs.map((run) => {
-    const layer: SauceLayer = { ingredientId: run.ingredientId, deposits: run.deposits, under: [...earlier] };
+  let earlierUnchanged = true; // every run below this one is the previous call's object, so its `under` is still right
+  return runs.map((run, index) => {
+    const before = previous[index];
+    const reusable = earlierUnchanged && before !== undefined && before.ingredientId === run.ingredientId;
+    let layer: SauceLayer;
+    if (reusable && sameDeposits(before.deposits, run.deposits)) layer = before;
+    else {
+      earlierUnchanged = false;
+      layer = { ingredientId: run.ingredientId, deposits: run.deposits, under: reusable ? before.under : [...earlier] };
+    }
     earlier.push(...run.deposits);
     return layer;
   });

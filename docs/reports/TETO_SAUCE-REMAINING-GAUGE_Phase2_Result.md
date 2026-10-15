@@ -90,6 +90,23 @@ Comparison images (left BEFORE e193d95, right AFTER; rows: 2 layers, 3 layers): 
 
 Verification: `tsc -b` clean, oxlint no new findings, Vitest 8053 passed (2 skipped), related Chromium e2e (sauce-edge-475, tq-1d-no-sauce, sauce-gauge-489, sauce-layers-b2) 18/18 at 390×844 and 360×800. Performance (CDP CPU 4x, 12 alternating runs T/P/O): before median 16.7 ms / p95 33.4 ms; after median 16.7 ms / p95 33.3 ms at both viewports — no regression.
 
+## Codex P2: a commit no longer repaints every earlier run (option A, Owner decision)
+
+Codex P2 (PR #494): one canvas pair per run, and every run repainted. Measured on e037a50: a new run repainted **R + 3** canvases (6 runs: 9 draws, 12: 15, 25: 28), because `sauceRunsOf` rebuilt every run and its `under` list on each commit, so every canvas saw new props. The longest a pizza can get is 100 runs (total cap 2.0 / 0.02 per tick; 99 reached in the browser at 1x).
+
+Fix (display only; no change to B1/B2, the ledger, reducer, scoring, inventory or save format, no limit on switching): `sauceRunsOf(pizza, previous)` returns every run that did not change as the SAME object (its `deposits` and `under` included); only the run a commit extended or added is rebuilt, and a pizza whose deposits were restamped (single -> multi sauce) or shortened (undo) rebuilds what changed. PizzaStage keeps the previous runs in a ref. Result in value is identical with or without `previous`; the drawing, the chronological layers, the overlap dimming and the single-sauce path are unchanged.
+
+| | before | after |
+|---|---|---|
+| draws for a new-run commit (6 / 12 / 25 runs) | 9 / 15 / 28 | **3 / 3 / 3** |
+| draws for a 400 ms top-run extension | 15 / 20 / 32 | 9 / 9 / 7-8 |
+| long tasks while building ~99 runs (1x) | 27-30, 1.7-1.8 s | 1-3, 0.14-0.23 s |
+| pointerup to 2 frames, 3 new-run commits at CPU 4x (12 / 25 / 50 runs, 390 / 360) | 116-125 / 196-236 / 186-340 ms | 78-92 / 95-110 / 138-140 ms |
+
+Not changed by A: the canvas count (2 per run), memory (about +1.2 MB of renderer memory per run: 12 runs +13 MB, 50 runs +57 MB, 99 runs +106-128 MB) and DOM size. At 99 runs a commit still takes about 230 ms (360x800, 1x), which is browser work on ~200 filtered canvases, not script; bounding the canvas count is option B (prototype and comparison only; not adopted).
+
+Tests: `sauceRunsOf` reuse (same objects for unchanged runs, extension, undo, restamp, changed earlier run); component test that earlier layers receive the very same `deposits` / `under` objects across commits (fails without the fix); e2e (390x844 / 360x800) that a 13th run commit draws at most 5 canvases and a top-run extension at most 14.
+
 ## Human Verification
 The two videos recorded for the earlier cumulative design (A margherita, B switch) no longer describe the behaviour and are **withdrawn**.
 Re-recording at 390×844 for the per-kind design (single sauce drain → switch to a fresh sauce shows full → switch back shows the remainder

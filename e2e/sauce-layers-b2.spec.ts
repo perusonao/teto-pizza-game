@@ -243,3 +243,44 @@ test("overlap: the top layer is dimmed only where it overlaps; 2 and 3 layers st
   const heatKinds = await page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
   expect(heatKinds.slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
 });
+
+test("a commit repaints only the run it touched: 12 alternating runs, the 13th and a top-run extension stay cheap (Codex P2, PR #494)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __draws: number };
+    w.__draws = 0;
+    const original = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function (this: CanvasRenderingContext2D, ...args: Parameters<typeof original>) {
+      w.__draws += 1;
+      return (original as (...a: unknown[]) => void).apply(this, args);
+    } as typeof original;
+  });
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /ジェノベーゼ/];
+  const strokeAt = async (i: number, holdMs: number) => {
+    await page.mouse.move(b.x + b.width * (0.22 + ((i * 7) % 56) / 100), b.y + b.height * (0.3 + ((i * 3) % 40) / 100));
+    await page.mouse.down();
+    await page.waitForTimeout(holdMs);
+    await page.mouse.up();
+    await page.waitForTimeout(250);
+  };
+  const draws = () => page.evaluate(() => (window as unknown as { __draws: number }).__draws);
+  await strokeAt(0, 62);
+  for (let i = 1; i < 12; i += 1) {
+    await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await strokeAt(i, 62);
+  }
+  expect(await page.locator("canvas.pizza-sauce-heatmap").count()).toBe(24); // 12 runs, a heatmap and an overflow canvas each
+
+  const beforeNewRun = await draws();
+  await page.getByRole("button", { name: kinds[12 % 2] }).click();
+  await strokeAt(12, 62);
+  const newRun = (await draws()) - beforeNewRun;
+  // Before the fix every one of the 12 earlier layers was redrawn on each commit (>= 15 draws here); now only the new top layer is
+  // (a pending-stroke tick or two plus the commit): a few draws, independent of the run count.
+  expect(newRun).toBeLessThanOrEqual(5);
+
+  const beforeExtend = await draws();
+  await strokeAt(13, 400); // same sauce as the top run, no switch: it extends that run
+  expect((await draws()) - beforeExtend).toBeLessThanOrEqual(14); // ~8 ticks of the one layer + its commit, never 13 layers x ticks
+});

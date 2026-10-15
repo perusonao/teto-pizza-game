@@ -89,3 +89,56 @@ describe("sauceLayersOf (Sauce B2 + #494: chronological runs, later painted over
     expect(deposits).toHaveLength(2);
   });
 });
+
+describe("sauceRunsOf with the previous runs (Codex P2 on PR #494: a commit does not rebuild unchanged runs)", () => {
+  const dep = (x: number, id: string): SauceDeposit => ({ x, y: 50, amount: 0.02, ingredientId: id });
+  const pizzaOf = (deposits: SauceDeposit[]) => ({ sauceIds: ["tomato-sauce", "pesto"], sauceDeposits: deposits });
+  const base = [dep(10, "tomato-sauce"), dep(20, "pesto"), dep(30, "tomato-sauce")];
+
+  it("is equal in value with and without the previous runs", () => {
+    const first = sauceRunsOf(pizzaOf(base));
+    const next = [...base, dep(40, "pesto"), dep(41, "pesto")];
+    expect(sauceRunsOf(pizzaOf(next), first)).toEqual(sauceRunsOf(pizzaOf(next)));
+  });
+
+  it("a new run reuses every earlier run object", () => {
+    const first = sauceRunsOf(pizzaOf(base));
+    const second = sauceRunsOf(pizzaOf([...base, dep(40, "pesto")]), first);
+    expect(second).toHaveLength(4);
+    first.forEach((run, i) => expect(second[i]).toBe(run));
+  });
+
+  it("extending the top run rebuilds only that run, and its under list stays the same array", () => {
+    const first = sauceRunsOf(pizzaOf(base));
+    const second = sauceRunsOf(pizzaOf([...base, dep(31, "tomato-sauce")]), first);
+    expect(second[0]).toBe(first[0]);
+    expect(second[1]).toBe(first[1]);
+    expect(second[2]).not.toBe(first[2]);
+    expect(second[2].deposits).toHaveLength(2);
+    expect(second[2].under).toBe(first[2].under);
+  });
+
+  it("a log that shrank (undo) keeps the surviving runs and drops the rest", () => {
+    const first = sauceRunsOf(pizzaOf(base));
+    const second = sauceRunsOf(pizzaOf(base.slice(0, 2)), first);
+    expect(second).toHaveLength(2);
+    expect(second[0]).toBe(first[0]);
+    expect(second[1]).toBe(first[1]);
+  });
+
+  it("restamped deposits (new objects) rebuild every run, with correct under lists", () => {
+    const first = sauceRunsOf(pizzaOf(base));
+    const restamped = base.map((d) => ({ ...d }));
+    const second = sauceRunsOf(pizzaOf(restamped), first);
+    expect(second[0]).not.toBe(first[0]);
+    expect(second[2].under).toEqual(restamped.slice(0, 2));
+  });
+
+  it("a changed earlier run makes every later run rebuild its under list", () => {
+    const first = sauceRunsOf(pizzaOf(base));
+    const changed = [dep(11, "tomato-sauce"), base[1], base[2]];
+    const second = sauceRunsOf(pizzaOf(changed), first);
+    expect(second[1]).not.toBe(first[1]);
+    expect(second[2].under).toEqual([changed[0], base[1]]);
+  });
+});

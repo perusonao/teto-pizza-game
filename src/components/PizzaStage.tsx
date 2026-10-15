@@ -37,7 +37,7 @@ import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
 import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
-import { layersWithPending, sauceRunsOf } from "../state/sauceLayers";
+import { layersWithPending, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
@@ -1059,7 +1059,13 @@ export function PizzaStage({
   // exactly as it has always been drawn, so a one-sauce pizza never takes the layered path.
   // Owner Decision on PR #494: layers are chronological runs (later paint over earlier, whatever the kind). The committed runs are
   // memoized on the deposit log, so a tick of the stroke in progress rebuilds only the top run and no earlier canvas is redrawn.
-  const committedSauceRuns = useMemo(() => sauceRunsOf(pizza), [pizza.sauceIds, pizza.sauceDeposits]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Each commit hands the previous runs back in, so only the run it extended or added is a new object (no earlier canvas repaints).
+  const previousSauceRunsRef = useRef<SauceLayer[]>([]);
+  const committedSauceRuns = useMemo(() => {
+    const runs = sauceRunsOf(pizza, previousSauceRunsRef.current);
+    previousSauceRunsRef.current = runs;
+    return runs;
+  }, [pizza.sauceIds, pizza.sauceDeposits]); // eslint-disable-line react-hooks/exhaustive-deps
   const sauceLayers = useMemo(
     () =>
       isFieldSauceContext

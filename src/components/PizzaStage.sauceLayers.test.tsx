@@ -14,11 +14,19 @@ import { PizzaStage } from "./PizzaStage";
  * their props, so what each layer is given is asserted here; the pixels are checked in the browser (e2e/sauce-layers-b2.spec.ts).
  */
 type ProbeProps = { deposits: SauceDeposit[]; color: string; className?: string; underDeposits?: SauceDeposit[] };
+// Every render of a probe records the props object it was given, so a test can tell "the same props as last time" (no repaint) from new ones.
+const seen = vi.hoisted(() => ({ heatmap: [] as unknown[][], overflow: [] as unknown[][] }));
 vi.mock("./SauceHeatmapCanvas", () => ({
-  SauceHeatmapCanvas: (props: ProbeProps) => <canvas data-probe="heatmap" data-props={JSON.stringify(props)} />,
+  SauceHeatmapCanvas: (props: ProbeProps) => {
+    seen.heatmap.push([props.deposits, props.underDeposits]);
+    return <canvas data-probe="heatmap" data-props={JSON.stringify(props)} />;
+  },
 }));
 vi.mock("./OverflowMarkerCanvas", () => ({
-  OverflowMarkerCanvas: (props: ProbeProps) => <canvas data-probe="overflow" data-props={JSON.stringify(props)} />,
+  OverflowMarkerCanvas: (props: ProbeProps) => {
+    seen.overflow.push([props.deposits]);
+    return <canvas data-probe="overflow" data-props={JSON.stringify(props)} />;
+  },
 }));
 
 const RECT = { left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300 } as DOMRect;
@@ -35,11 +43,11 @@ const multi = (...parts: Array<[string, SauceDeposit[]]>): PizzaState => ({
   sauceDeposits: parts.flatMap(([id, ds]) => stamp(ds, id)),
 });
 
-function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean; pressWith?: string } = {}) {
+function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean; pressWith?: string } = {}) {
   const cutState = extra.cuts
     ? addCutLine(addCutLine(createCutState(), { start: { x: 0, y: 50 }, end: { x: 100, y: 50 } }), { start: { x: 50, y: 0 }, end: { x: 50, y: 100 } })
     : createCutState();
-  const view = render(
+  return (
     <PizzaStage
       pizza={pizza}
       recipe={margherita}
@@ -60,8 +68,12 @@ function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: b
       onDoughStretchCommit={() => {}}
       cutState={cutState}
       onAddCutLine={() => {}}
-    />,
+    />
   );
+}
+
+function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean; pressWith?: string } = {}) {
+  const view = render(stageElement(pizza, extra));
   if (extra.pressWith !== undefined) {
     const dough = view.container.querySelector<HTMLElement>('[data-pizza-drop-target="true"]')!;
     dough.getBoundingClientRect = () => RECT;
@@ -74,6 +86,8 @@ const probes = (c: HTMLElement, kind: "heatmap" | "overflow") =>
   [...c.querySelectorAll<HTMLElement>(`canvas[data-probe="${kind}"]`)].map((el) => JSON.parse(el.dataset.props!) as ProbeProps);
 
 beforeEach(() => {
+  seen.heatmap.length = 0;
+  seen.overflow.length = 0;
   vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
   vi.stubGlobal("cancelAnimationFrame", vi.fn());
 });
@@ -230,5 +244,44 @@ describe("PizzaStage layered sauce painting", () => {
   it("a one-shot sauce followed by a painted one is a single painted layer", () => {
     const p: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce", "pesto"], sauceToken: 2, sauceDeposits: stamp(pesto, "pesto") };
     expect(probes(renderStage(p), "heatmap")).toHaveLength(1);
+  });
+});
+
+describe("committing a stroke repaints only the run it touched (Codex P2 on PR #494)", () => {
+  // run i = [kind, deposits]; alternating tomato / pesto, one deposit each
+  // The log is append-only and a commit keeps the earlier deposit objects, so the deposits are made once and each pizza is a prefix of them.
+  const log: SauceDeposit[] = Array.from({ length: 60 }, (_, i) => ({ x: 20 + i, y: 40, amount: 0.02, ingredientId: i % 2 === 0 ? "tomato-sauce" : "pesto" }));
+  const pizzaOf = (n: number): PizzaState => ({ ...createEmptyPizza(), sauceIds: ["tomato-sauce", "pesto"], sauceToken: 2, sauceDeposits: log.slice(0, n) });
+  const lastRender = (kind: "heatmap" | "overflow", count: number) => seen[kind].slice(-count);
+
+  it("a new run leaves every earlier layer's props (deposits, under) the very same objects", () => {
+    const view = render(stageElement(pizzaOf(12)));
+    const before = lastRender("heatmap", 12);
+    seen.heatmap.length = 0;
+    seen.overflow.length = 0;
+    view.rerender(stageElement(pizzaOf(13)));
+    const after = lastRender("heatmap", 13);
+    for (let i = 0; i < 12; i += 1) {
+      expect(after[i][0]).toBe(before[i][0]);
+      expect(after[i][1]).toBe(before[i][1]);
+    }
+    expect(after[12][0]).not.toBe(undefined);
+    const overflowAfter = lastRender("overflow", 13);
+    expect(overflowAfter).toHaveLength(13);
+  });
+
+  it("the same holds at 50 runs, and for a stroke that extends the top run (only that layer changes)", () => {
+    const view = render(stageElement(pizzaOf(50)));
+    const before = lastRender("heatmap", 50);
+    const grown = pizzaOf(50);
+    const top = grown.sauceDeposits[grown.sauceDeposits.length - 1];
+    view.rerender(stageElement({ ...grown, sauceDeposits: [...grown.sauceDeposits, { ...top, x: top.x + 1 }] }));
+    const after = lastRender("heatmap", 50);
+    for (let i = 0; i < 49; i += 1) {
+      expect(after[i][0]).toBe(before[i][0]);
+      expect(after[i][1]).toBe(before[i][1]);
+    }
+    expect(after[49][0]).not.toBe(before[49][0]); // the extended run has a new deposit list
+    expect(after[49][1]).toBe(before[49][1]); // ...but the layers under it did not change
   });
 });
