@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { getIngredient } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
+import { createChordCutLine } from "../logic/cut/fixtures";
 import { addCutLine, createCutState } from "../logic/cut/state";
 import { createEmptyPizza, type PizzaState, type SauceDeposit } from "../state/pizzaState";
 import { ringBatch } from "../state/testSupport/sauceKindFixtures";
@@ -50,10 +51,11 @@ const multi = (...parts: Array<[string, SauceDeposit[]]>): PizzaState => ({
   sauceDeposits: parts.flatMap(([id, ds]) => stamp(ds, id)),
 });
 
-function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean | 8; pressWith?: string } = {}) {
+function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean | 8 | Array<[number, number]>; pressWith?: string } = {}) {
   const quarters = addCutLine(addCutLine(createCutState(), { start: { x: 0, y: 50 }, end: { x: 100, y: 50 } }), { start: { x: 50, y: 0 }, end: { x: 50, y: 100 } });
   const eighths = addCutLine(addCutLine(quarters, { start: { x: 0, y: 0 }, end: { x: 100, y: 100 } }), { start: { x: 100, y: 0 }, end: { x: 0, y: 100 } });
-  const cutState = extra.cuts === 8 ? eighths : extra.cuts ? quarters : createCutState();
+  const chords = Array.isArray(extra.cuts) ? extra.cuts.reduce((state, [angle, offset]) => addCutLine(state, createChordCutLine(angle, offset)), createCutState()) : null;
+  const cutState = chords ?? (extra.cuts === 8 ? eighths : extra.cuts ? quarters : createCutState());
   return (
     <PizzaStage
       pizza={pizza}
@@ -79,7 +81,7 @@ function stageElement(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: 
   );
 }
 
-function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean | 8; pressWith?: string } = {}) {
+function renderStage(pizza: PizzaState, extra: { bakeProgress?: number; cuts?: boolean | 8 | Array<[number, number]>; pressWith?: string } = {}) {
   const view = render(stageElement(pizza, extra));
   if (extra.pressWith !== undefined) {
     const dough = view.container.querySelector<HTMLElement>('[data-pizza-drop-target="true"]')!;
@@ -307,6 +309,26 @@ describe("the sauce canvas budget after the cut (Codex P2 on PR #494)", () => {
     expect(canvases(c)).toBeLessThanOrEqual(32);
     expect(canvases(c)).toBeGreaterThan(0);
     expect(c.querySelectorAll('canvas[data-probe="heatmap"]')).toHaveLength(0); // nothing is drawn run by run after the cut
+  });
+
+  // six committed cuts (an 8-slice order allows requiredCutCount + 2) make 22 pieces: the largest cut pizza the rules allow
+  const SIX_CUTS: Array<[number, number]> = [[72.7, -6.7], [109.4, -21.4], [82.5, -12.5], [23.7, -17.9], [53, -16.2], [132.3, -16.3]];
+
+  it("an extra-cut pizza with 22 pieces carries at most 44 sauce canvases, with or without oil (Codex P2)", () => {
+    for (const other of ["pesto", "tomato-sauce"]) {
+      const c = renderStage(log(100, (i) => (i % 2 ? "olive-oil" : other)), { cuts: SIX_CUTS });
+      expect(c.querySelector(".pizza-pieces")!.getAttribute("data-piece-count")).toBe("22");
+      expect(canvases(c)).toBe(44); // 22 pieces x one group (a heatmap and an overflow canvas)
+    }
+    const plain = renderStage(log(100, (i) => (i % 2 ? "pesto" : "tomato-sauce")), { cuts: SIX_CUTS });
+    expect(canvases(plain)).toBe(44);
+  });
+
+  it("every cut count from 1 to 6 lines stays within the pizza-wide budget", () => {
+    for (let n = 1; n <= 6; n += 1) {
+      const c = renderStage(log(100, (i) => (i % 2 ? "olive-oil" : "tomato-sauce")), { cuts: SIX_CUTS.slice(0, n) });
+      expect(canvases(c)).toBeLessThanOrEqual(44);
+    }
   });
 
   it("without oil every piece needs one shared group: 2 canvases per piece", () => {

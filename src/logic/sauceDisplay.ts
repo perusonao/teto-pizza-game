@@ -359,21 +359,41 @@ export function compositeOver(dst: Uint8ClampedArray, src: Uint8ClampedArray): v
  * more often than the canvas budget allows, which are buried under the newer runs.
  */
 export function bakeOliveOilLook(pixels: Uint8ClampedArray): void {
-  const s = 2.1;
-  const m = [
-    0.213 + 0.787 * s, 0.715 - 0.715 * s, 0.072 - 0.072 * s,
-    0.213 - 0.213 * s, 0.715 + 0.285 * s, 0.072 - 0.072 * s,
-    0.213 - 0.213 * s, 0.715 - 0.715 * s, 0.072 + 0.928 * s,
-  ];
   for (let i = 0; i < pixels.length; i += 4) {
     if (pixels[i + 3] === 0) continue;
-    const r = pixels[i] / 255;
-    const g = pixels[i + 1] / 255;
-    const b = pixels[i + 2] / 255;
-    for (let c = 0; c < 3; c += 1) {
-      const v = m[c * 3] * r + m[c * 3 + 1] * g + m[c * 3 + 2] * b;
-      const clamped = Math.min(1, Math.max(0, v));
-      pixels[i + c] = Math.round(Math.min(1, Math.max(0, (clamped - 0.5) * 1.4 + 0.5)) * 0.82 * 255);
-    }
+    const [r, g, b] = bakeOilRgb(pixels[i], pixels[i + 1], pixels[i + 2]);
+    pixels[i] = r;
+    pixels[i + 1] = g;
+    pixels[i + 2] = b;
   }
+}
+
+const OIL_SATURATE = 2.1;
+const OIL_MATRIX = [
+  0.213 + 0.787 * OIL_SATURATE, 0.715 - 0.715 * OIL_SATURATE, 0.072 - 0.072 * OIL_SATURATE,
+  0.213 - 0.213 * OIL_SATURATE, 0.715 + 0.285 * OIL_SATURATE, 0.072 - 0.072 * OIL_SATURATE,
+  0.213 - 0.213 * OIL_SATURATE, 0.715 - 0.715 * OIL_SATURATE, 0.072 + 0.928 * OIL_SATURATE,
+];
+
+/** One colour through the oil look (saturate 2.1, contrast 1.4, brightness 0.82), 0-255 in and out. */
+export function bakeOilRgb(r255: number, g255: number, b255: number): [number, number, number] {
+  const r = r255 / 255;
+  const g = g255 / 255;
+  const b = b255 / 255;
+  const out: [number, number, number] = [0, 0, 0];
+  for (let c = 0; c < 3; c += 1) {
+    const v = OIL_MATRIX[c * 3] * r + OIL_MATRIX[c * 3 + 1] * g + OIL_MATRIX[c * 3 + 2] * b;
+    const clamped = Math.min(1, Math.max(0, v));
+    out[c] = Math.round(Math.min(1, Math.max(0, (clamped - 0.5) * 1.4 + 0.5)) * 0.82 * 255);
+  }
+  return out;
+}
+
+/** `#rrggbb` through the oil look, as `#rrggbb`: the colour a flattened (plain) canvas must use for an oil mark to match the oil canvas' CSS filter. */
+export function bakeOilHex(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const [r, g, b] = bakeOilRgb((n >> 16) & 255, (n >> 8) & 255, n & 255);
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }

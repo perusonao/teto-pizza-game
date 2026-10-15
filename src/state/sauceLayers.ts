@@ -100,12 +100,20 @@ export const SAUCE_OWN_LAYERS = 8;
 export const SAUCE_MERGED_GROUPS_MAX = 4;
 
 /**
- * The budget of ONE cut piece (Codex P2 on PR #494): every piece draws its own copy of the sauce, so the pizza-wide bound is the piece
- * budget times the number of pieces. A cut pizza's sauce is final (nothing is being painted), so a piece flattens every run: no own
- * layers, and at most two groups (oil / other sauce). That is at most 4 canvases per piece, 32 for an eight-piece pizza.
+ * The budget of a CUT pizza (Codex P2 on PR #494). Every cut piece draws its own copy of the sauce, so the per-piece budget times the
+ * number of pieces is what the pizza carries. The piece count is bounded by the cut rules: the reducer accepts at most
+ * `requiredCutCount + 2` cuts, i.e. 6 lines for the largest (8-slice) order, and n straight lines make at most n(n+1)/2 + 1 pieces:
+ * `SAUCE_MAX_CUT_PIECES` = 22 (the cut geometry reaches exactly that, see the test). A cut pizza's sauce is final, so a piece flattens
+ * every run (no own layers):
+ *   - up to `SAUCE_PIECES_FOR_TWO_GROUPS` (8) pieces: at most two groups (oil / other sauce) = 4 canvases a piece, at most 32 in all;
+ *   - more pieces: one group (oil baked in when mixed) = 2 canvases a piece, at most 44 in all.
+ * So a cut pizza never carries more than `SAUCE_CUT_CANVAS_MAX` = 44 sauce canvases, whatever the cuts.
  */
 export const SAUCE_PIECE_OWN_LAYERS = 0;
 export const SAUCE_PIECE_MERGED_GROUPS_MAX = 2;
+export const SAUCE_PIECES_FOR_TWO_GROUPS = 8;
+export const SAUCE_MAX_CUT_PIECES = 22;
+export const SAUCE_CUT_CANVAS_MAX = 44;
 
 export interface SauceCanvasBudget {
   /** how many of the newest runs keep a canvas pair of their own */
@@ -115,6 +123,12 @@ export interface SauceCanvasBudget {
 }
 export const SAUCE_PIZZA_BUDGET: SauceCanvasBudget = { ownLayers: SAUCE_OWN_LAYERS, maxGroups: SAUCE_MERGED_GROUPS_MAX };
 export const SAUCE_PIECE_BUDGET: SauceCanvasBudget = { ownLayers: SAUCE_PIECE_OWN_LAYERS, maxGroups: SAUCE_PIECE_MERGED_GROUPS_MAX };
+export const SAUCE_MANY_PIECES_BUDGET: SauceCanvasBudget = { ownLayers: SAUCE_PIECE_OWN_LAYERS, maxGroups: 1 };
+
+/** The budget each piece of a cut pizza with `pieceCount` pieces uses (see above): the pizza-wide total stays within `SAUCE_CUT_CANVAS_MAX`. */
+export function sauceBudgetForPieces(pieceCount: number): SauceCanvasBudget {
+  return pieceCount <= SAUCE_PIECES_FOR_TWO_GROUPS ? SAUCE_PIECE_BUDGET : SAUCE_MANY_PIECES_BUDGET;
+}
 
 const isOil = (layer: SauceLayer) => layer.ingredientId === "olive-oil";
 

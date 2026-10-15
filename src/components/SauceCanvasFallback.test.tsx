@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { createIdealDoughShape } from "../logic/doughShape";
-import { alphaPlaneOf, buildSauceDisplayPixels, compositeOver, dimWhereOverlapping } from "../logic/sauceDisplay";
+import { alphaPlaneOf, bakeOilHex, buildSauceDisplayPixels, compositeOver, dimWhereOverlapping } from "../logic/sauceDisplay";
 import type { SauceDeposit } from "../state/pizzaState";
 import type { SauceLayer } from "../state/sauceLayers";
 import { resetCanvas2dProbe } from "./CheesePoolCanvas";
@@ -21,6 +21,7 @@ const shape = createIdealDoughShape();
 const dep = (x: number, y = 50) => ({ x, y, amount: 0.02 });
 
 const staged: Uint8ClampedArray[] = [];
+const fills: string[] = [];
 const fake = {
   ctx: {
     clearRect() {},
@@ -28,7 +29,10 @@ const fake = {
     restore() {},
     beginPath() {},
     arc() {},
-    fill() {},
+    fillStyle: "" as string,
+    fill() {
+      fills.push(String(fake.ctx.fillStyle));
+    },
     createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }),
     putImageData(image: { data: Uint8ClampedArray }) {
       staged.push(new Uint8ClampedArray(image.data));
@@ -51,6 +55,7 @@ function stubContext(mode: "none" | "null" | "draw" | "no-2d") {
 
 beforeEach(() => {
   staged.length = 0;
+  fills.length = 0;
   resetCanvas2dProbe();
 });
 afterEach(() => {
@@ -170,6 +175,54 @@ describe("merged sauce canvases", () => {
     staged.length = 0;
     render(<SauceMergedHeatmapCanvas runs={[oil]} doughShape={shape} colorOf={colorOf} bakedOil />);
     expect([...staged[staged.length - 1]]).not.toEqual([...plainOil]);
+  });
+
+  describe("overflow markers of a mixed oil group (Codex P2)", () => {
+    const OIL = "#e9d9a0";
+    const colors = (id: string) => (id === "olive-oil" ? OIL : id === "pesto" ? "#6b8f3a" : "#c8412b");
+    // a deposit well outside the dough, so every run leaves exactly one marker
+    const outside = (kind: string, under: SauceDeposit[] = []): SauceLayer => ({ ingredientId: kind, deposits: [{ x: 2, y: 2, amount: 0.02, ingredientId: kind }], under });
+
+    it("the oil look is a real change of colour (the pale swatch gets deeper), and the same transform the heatmap bakes", () => {
+      const baked = bakeOilHex(OIL);
+      expect(baked).not.toBe(OIL);
+      const sum = (hex: string) => parseInt(hex.slice(1, 3), 16) + parseInt(hex.slice(3, 5), 16) + parseInt(hex.slice(5, 7), 16);
+      expect(sum(baked)).toBeLessThan(sum(OIL));
+    });
+
+    it("a mixed group draws its oil markers in the baked colour and the other sauce's markers unchanged", () => {
+      stubContext("none");
+      render(<SauceMergedOverflowCanvas runs={[outside("olive-oil"), outside("pesto")]} doughShape={shape} colorOf={colors} bakedOil />);
+      expect(fills).toEqual([bakeOilHex(OIL), "#6b8f3a"]);
+    });
+
+    it("an oil-only group (it keeps the oil CSS filter) and a group without oil keep the raw colours", () => {
+      stubContext("none");
+      render(<SauceMergedOverflowCanvas runs={[outside("olive-oil"), outside("olive-oil")]} doughShape={shape} colorOf={colors} />);
+      expect(fills).toEqual([OIL, OIL]);
+      fills.length = 0;
+      cleanup();
+      render(<SauceMergedOverflowCanvas runs={[outside("pesto"), outside("tomato-sauce")]} doughShape={shape} colorOf={colors} />);
+      expect(fills).toEqual(["#6b8f3a", "#c8412b"]);
+    });
+
+    it("when an oil-only group turns mixed its markers are redrawn in the baked colour (no stale raw dots)", () => {
+      stubContext("none");
+      const oil = outside("olive-oil");
+      const { rerender } = render(<SauceMergedOverflowCanvas runs={[oil]} doughShape={shape} colorOf={colors} />);
+      expect(fills).toEqual([OIL]);
+      fills.length = 0;
+      // the group gains a run and flips to mixed in the same step
+      rerender(<SauceMergedOverflowCanvas runs={[oil, outside("pesto", oil.deposits.slice())]} doughShape={shape} colorOf={colors} bakedOil />);
+      expect(fills).toEqual([bakeOilHex(OIL), "#6b8f3a"]);
+      // ...and a flip with the SAME runs (the group's last run unchanged) redraws too
+      fills.length = 0;
+      const runs = [oil, outside("pesto")];
+      const second = render(<SauceMergedOverflowCanvas runs={runs} doughShape={shape} colorOf={colors} />);
+      fills.length = 0;
+      second.rerender(<SauceMergedOverflowCanvas runs={runs} doughShape={shape} colorOf={colors} bakedOil />);
+      expect(fills).toEqual([bakeOilHex(OIL), "#6b8f3a"]);
+    });
   });
 
   it("the merged overflow canvas is dropped when it fails", () => {

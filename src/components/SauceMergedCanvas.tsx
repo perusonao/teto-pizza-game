@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { DoughShape } from "../logic/doughShape";
 import {
   alphaPlaneOf,
+  bakeOilHex,
   bakeOliveOilLook,
   buildSauceDisplayPixels,
   compositeOver,
@@ -110,8 +111,12 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
   return <canvas ref={canvasRef} className={className} width={MERGED_CANVAS_PX} height={MERGED_CANVAS_PX} aria-hidden="true" />;
 }
 
-/** The overflow markers of a flattened group: every run's dots, in order, in the run's own colour, on one canvas. */
-export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, className }: MergedProps) {
+/**
+ * The overflow markers of a flattened group: every run's dots, in order, in the run's own colour, on one canvas. In a group that mixes oil with
+ * other sauce the canvas is a plain one (no oil CSS filter), so the oil dots are drawn in the oil-look colour -- the same transform the group's
+ * heatmap bakes into the oil pixels -- instead of the raw pale swatch, which would lose its contrast.
+ */
+export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil = false, className }: MergedProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [failed, markFailed] = useCanvasFailure();
 
@@ -131,7 +136,7 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, className
           if (overflowFraction <= 0) continue;
           ctx.save();
           ctx.globalAlpha = 0.55 * overflowFraction;
-          ctx.fillStyle = colorOf(run.ingredientId);
+          ctx.fillStyle = bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId);
           ctx.beginPath();
           ctx.arc((deposit.x / 100) * canvas.width, (deposit.y / 100) * canvas.height, 3, 0, Math.PI * 2);
           ctx.fill();
@@ -142,7 +147,7 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, className
       markFailed();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runs.length, runs[runs.length - 1], doughShape]);
+  }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
 
   if (failed) return null;
   return <canvas ref={canvasRef} className={className} width={MERGED_CANVAS_PX} height={MERGED_CANVAS_PX} aria-hidden="true" />;

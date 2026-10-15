@@ -37,7 +37,7 @@ import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
 import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
-import { layersWithPending, planSauceLayers, SAUCE_PIECE_BUDGET, SAUCE_PIZZA_BUDGET, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
+import { layersWithPending, planSauceLayers, sauceBudgetForPieces, SAUCE_PIZZA_BUDGET, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
@@ -1165,7 +1165,7 @@ export function PizzaStage({
         // markers follow all of them so they always sit on top. The newest runs keep a canvas pair of their own; the older ones are flattened, in
         // order, into a few shared canvases (Codex P2: a pizza never carries more than a fixed number of sauce canvases, whatever its history).
         // a cut piece draws its own copy of the sauce: it gets the (much smaller) per-piece budget so the whole cut pizza stays bounded
-        const plan = planSauceLayers(sauceLayers, piece === undefined ? SAUCE_PIZZA_BUDGET : SAUCE_PIECE_BUDGET);
+        const plan = planSauceLayers(sauceLayers, piece === undefined ? SAUCE_PIZZA_BUDGET : sauceBudgetForPieces(pieceLayout?.pieces.length ?? 1));
         const colorOf = (ingredientId: string) => getIngredient(ingredientId)?.color ?? fieldSauceColor;
         const mergedClassName = (oil: boolean) =>
           `pizza-sauce-heatmap ${oil ? "pizza-sauce-heatmap--oil" : ""} ${bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""} pizza-sauce-heatmap--merged`;
@@ -1204,6 +1204,7 @@ export function PizzaStage({
                 runs={group.runs}
                 doughShape={pizza.doughShape}
                 colorOf={colorOf}
+                bakedOil={group.bakedOil}
                 className={mergedClassName(group.oil)}
               />
             ))}

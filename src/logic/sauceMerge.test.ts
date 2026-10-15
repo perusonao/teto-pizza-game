@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bakeOliveOilLook, compositeOver } from "./sauceDisplay";
+import { bakeOilHex, bakeOilRgb, bakeOliveOilLook, compositeOver } from "./sauceDisplay";
 
 const px = (...rgba: number[]) => new Uint8ClampedArray(rgba);
 
@@ -60,5 +60,23 @@ describe("bakeOliveOilLook (the oil CSS treatment, colour only)", () => {
     const sat = (r: number, g: number, b: number) => Math.max(r, g, b) - Math.min(r, g, b);
     expect(sat(p[0], p[1], p[2])).toBeGreaterThan(sat(233, 217, 160));
     expect(p[0] + p[1] + p[2]).toBeLessThan(233 + 217 + 160);
+  });
+});
+
+describe("bakeOilHex / bakeOilRgb (the oil look for one colour)", () => {
+  it("is exactly what bakeOliveOilLook does to a pixel of that colour", () => {
+    for (const hex of ["#e9d9a0", "#c8412b", "#6b8f3a", "#ffffff", "#000000", "#808080"]) {
+      const n = parseInt(hex.slice(1), 16);
+      const rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      const p = new Uint8ClampedArray([...rgb, 255]);
+      bakeOliveOilLook(p);
+      expect([...bakeOilRgb(rgb[0], rgb[1], rgb[2])]).toEqual([p[0], p[1], p[2]]);
+      expect(bakeOilHex(hex)).toBe(`#${[p[0], p[1], p[2]].map((v) => v.toString(16).padStart(2, "0")).join("")}`);
+    }
+  });
+
+  it("leaves a value that is not a #rrggbb colour alone", () => {
+    expect(bakeOilHex("red")).toBe("red");
+    expect(bakeOilHex("#abc")).toBe("#abc");
   });
 });
