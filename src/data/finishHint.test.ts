@@ -22,8 +22,8 @@ describe("buildFinishHintLine (FINISH D2-0)", () => {
   });
 
   it("is ready once the late requirement is met", () => {
-    expect(buildFinishHintLine(FX, finishedPizza(2)).textJa).toBe("仕上がり！「次へ」で完成しよう。");
-    expect(buildFinishHintLine(FX, finishedPizza(3)).textJa).toBe("仕上がり！「次へ」で完成しよう。");
+    expect(buildFinishHintLine(FX, finishedPizza(2)).textJa).toBe("仕上げはここまで！「次へ」で進もう。");
+    expect(buildFinishHintLine(FX, finishedPizza(3)).textJa).toBe("仕上げはここまで！「次へ」で進もう。");
   });
 
   it("a recipe with no late requirement gets a neutral line that names no ingredient (every RECIPES entry)", () => {
