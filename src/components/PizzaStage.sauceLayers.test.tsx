@@ -13,7 +13,7 @@ import { PizzaStage } from "./PizzaStage";
  * own deposits and colour -- and the pizza keeps what was painted before a switch. The canvases are replaced by probes that print
  * their props, so what each layer is given is asserted here; the pixels are checked in the browser (e2e/sauce-layers-b2.spec.ts).
  */
-type ProbeProps = { deposits: SauceDeposit[]; color: string; className?: string };
+type ProbeProps = { deposits: SauceDeposit[]; color: string; className?: string; underDeposits?: SauceDeposit[] };
 vi.mock("./SauceHeatmapCanvas", () => ({
   SauceHeatmapCanvas: (props: ProbeProps) => <canvas data-probe="heatmap" data-props={JSON.stringify(props)} />,
 }));
@@ -146,6 +146,25 @@ describe("PizzaStage layered sauce painting", () => {
     const perPiece = [tomatoColor, pestoColor, tomatoColor];
     expect(heat.map((h) => h.color)).toEqual([...perPiece, ...perPiece, ...perPiece, ...perPiece]);
     expect(probes(c, "overflow")).toHaveLength(12);
+  });
+
+  it("each heatmap layer is told what lies under it (overlap dimming, #494): nothing for the bottom layer, everything below for the rest", () => {
+    const p: PizzaState = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce", "pesto"],
+      sauceToken: 3,
+      sauceDeposits: [...stamp(tomato, "tomato-sauce"), ...stamp(pesto, "pesto"), ...stamp(ringBatch(48, 52, 10, 10), "tomato-sauce")],
+    };
+    const c = renderStage(p);
+    const heat = probes(c, "heatmap");
+    expect(heat.map((h) => h.underDeposits?.length ?? 0)).toEqual([0, 20, 40]);
+    // the markers are not dimmed: only the heatmap layers get `underDeposits`
+    for (const o of probes(c, "overflow")) expect(o.underDeposits).toBeUndefined();
+  });
+
+  it("a one-sauce pizza passes no `underDeposits` at all (its raster is never touched)", () => {
+    const one: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], sauceToken: 1, sauceDeposits: tomato };
+    expect(probes(renderStage(one), "heatmap")[0].underDeposits).toBeUndefined();
   });
 
   it("a stroke in progress over another sauce's later run is a new top layer, not folded under it", () => {

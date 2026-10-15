@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { SauceDepositLike } from "../logic/sauceField";
-import { buildSauceDisplayPixels, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
+import { alphaPlaneOf, buildSauceDisplayPixels, dimWhereOverlapping, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
 import type { DoughShape } from "../logic/doughShape";
 
 /** Internal pixel resolution of the rasterized heatmap -- purely a rendering detail (the
@@ -40,6 +40,12 @@ export interface SauceHeatmapCanvasProps {
    *  (tray chip, flat legacy layer, paint trail) reads from `ingredients.ts`. */
   color: string;
   className?: string;
+  /**
+   * Layered painting (Owner Decision on PR #494): every deposit of the layers BELOW this one. Where this layer overlaps them its
+   * opacity is dimmed (about x0.7) so the sauce underneath shows through; elsewhere, and when absent or empty (a one-sauce pizza, the
+   * bottom layer, every Reference view), the raster is untouched.
+   */
+  underDeposits?: readonly SauceDepositLike[];
 }
 
 /**
@@ -57,8 +63,14 @@ export interface SauceHeatmapCanvasProps {
  * same one-way data flow `computeSauceMetrics` (../logic/sauceField.ts) already uses for
  * scoring, just rasterized instead of aggregated.
  */
-export function SauceHeatmapCanvas({ deposits, doughShape, color, className }: SauceHeatmapCanvasProps) {
+export function SauceHeatmapCanvas({ deposits, doughShape, color, className, underDeposits }: SauceHeatmapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // "How much sauce is already under this layer": colour-independent, so it is computed once per (under, dough shape) and not on every
+  // tick of the stroke in progress (which only changes `deposits`).
+  const underAlpha = useMemo(
+    () => (underDeposits && underDeposits.length > 0 ? alphaPlaneOf(buildSauceDisplayPixels(underDeposits, doughShape, "#000000")) : null),
+    [underDeposits, doughShape],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -73,6 +85,7 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className }: S
     // square support showed as a staircase edge. Scoring still reads the 16x16 field, untouched.
     const pixels = buildSauceDisplayPixels(deposits, doughShape, color);
     if (!pixels.some((value, index) => index % 4 === 3 && value > 0)) return;
+    if (underAlpha) dimWhereOverlapping(pixels, underAlpha);
 
     const staging = getStagingSurface();
     if (!staging) return;
@@ -91,7 +104,7 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className }: S
       canvas.width,
       canvas.height,
     );
-  }, [deposits, doughShape, color]);
+  }, [deposits, doughShape, color, underAlpha]);
 
   return (
     <canvas

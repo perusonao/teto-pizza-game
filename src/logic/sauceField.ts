@@ -373,6 +373,8 @@ const ALPHA_FLOOR = 0.46;
 /** Alpha at and beyond `DENSITY_AT_CAP` -- a heavily re-painted spot, vivid and dense but
  *  never a flat opaque block (a sliver of dough texture stays visible even here). */
 const ALPHA_CAP = 0.93;
+/** The most opaque a display pixel gets (the curve below never exceeds it). Exported for the overlap rule in ./sauceDisplay.ts. */
+export const SAUCE_ALPHA_CAP = ALPHA_CAP;
 /** Field value at which the curve reaches `ALPHA_CAP`. Chosen above the ideal fixture's own
  *  max cell value (~0.068) -- so a single well-painted coat reads as "good", with headroom
  *  left, not "already maxed out" -- and within easy reach of a real two-coat overlap

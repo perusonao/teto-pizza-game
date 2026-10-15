@@ -182,7 +182,9 @@ test("what is painted after a switch shows over what was painted before it, what
   await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 1000);
   const overlap = await compositeAt(page, 48, 50);
   expect(overlap.a).toBeGreaterThan(60);
-  expect(overlap.g).toBeGreaterThan(overlap.r); // green on top
+  // pesto is on top: the overlap is still closer to pesto green (g - r = +30) than to tomato red (-130), though the dimmed overlap now lets
+  // some tomato through (Owner Decision, PR #494: ~x0.7 opacity), so it is no longer plainly green
+  expect(overlap.g - overlap.r).toBeGreaterThan(-52);
 
   // back to tomato over the very same band: the NEW tomato run is on top of the pesto, so the overlap turns red again
   await page.getByRole("button", { name: /トマトソース/ }).click();
@@ -191,4 +193,53 @@ test("what is painted after a switch shows over what was painted before it, what
   expect(heatKinds.slice(0, 3)).toEqual(["tomato-sauce", "pesto", "tomato-sauce"]);
   const over = await compositeAt(page, 48, 50);
   expect(over.r).toBeGreaterThan(over.g);
+});
+
+/** Reads the composite colour (over a fixed dough colour) and the top layer's own alpha at a point, from the heatmap canvases in paint order.
+ *  The canvases already hold the overlap-dimmed pixels (Owner Decision, PR #494), so this is what the browser stacks. */
+async function stackAt(page: Page, xPercent: number, yPercent: number) {
+  return page.evaluate(([fx, fy]) => {
+    const canvases = [...document.querySelectorAll<HTMLCanvasElement>("canvas.pizza-sauce-heatmap")].filter((c) => /--kind-/.test(c.className));
+    const alphaOf = (c: HTMLCanvasElement) => c.getContext("2d")!.getImageData(Math.round((fx / 100) * 199), Math.round((fy / 100) * 199), 1, 1).data[3];
+    const out = document.createElement("canvas");
+    out.width = 200;
+    out.height = 200;
+    const ctx = out.getContext("2d")!;
+    ctx.fillStyle = "rgb(232,190,128)";
+    ctx.fillRect(0, 0, 200, 200);
+    for (const c of canvases) ctx.drawImage(c, 0, 0);
+    const [r, g, b] = ctx.getImageData(Math.round((fx / 100) * 199), Math.round((fy / 100) * 199), 1, 1).data;
+    return { r, g, b, alphas: canvases.map(alphaOf) };
+  }, [xPercent, yPercent]);
+}
+
+test("overlap: the top layer is dimmed only where it overlaps; 2 and 3 layers stay readable (Owner Decision, PR #494)", async ({ page }) => {
+  await startSauceStep(page);
+  // tomato across the left-centre band; pesto over the SAME band, extending to the right (so part of it overlaps nothing)
+  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1100);
+  await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 75, y: 50 }, 1500);
+
+  const over = await stackAt(page, 38, 50); // pesto over tomato
+  const clear = await stackAt(page, 70, 50); // pesto alone, beyond the tomato's soft edge
+  expect(clear.alphas[1]).toBeGreaterThan(190); // the part that overlaps nothing keeps its full opacity (~0.93 x 255 = 237 at the densest; a held stroke end is a little lighter)
+  expect(over.alphas[1]).toBeLessThan(over.alphas[0] * 0.8); // dimmed where it lies over the tomato (both saturate at ~0.93 without it)
+  expect(over.alphas[1]).toBeGreaterThan(over.alphas[0] * 0.55); // ...by about x0.7, not wiped out
+  // the tomato underneath now shows through. A plain stack of the two (the old look) composites to about (114,137,60) over this dough; with the
+  // ~x0.7 top layer it is about (135,120,58): clearly redder and less green, still nearer the pesto than the tomato (201,68,52)
+  expect(over.r).toBeGreaterThanOrEqual(125);
+  expect(over.g).toBeLessThanOrEqual(130);
+  expect(over.r).toBeLessThan(170);
+  expect(over.alphas[0]).toBeGreaterThan(200); // and the bottom layer itself is untouched
+
+  // a third sauce over the same area: both layers below stay visible through it
+  await page.getByRole("button", { name: /オリーブオイル/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1000);
+  const triple = await stackAt(page, 38, 50);
+  expect(triple.alphas).toHaveLength(6); // 3 heatmap layers + their 3 (here empty) overflow-marker canvases
+  expect(triple.alphas[2]).toBeLessThan(triple.alphas[0] * 0.8); // the oil on top is dimmed too (it overlaps two layers)
+  expect(triple.alphas[1]).toBeLessThan(triple.alphas[0] * 0.8); // pesto stays dimmed over tomato
+  expect(triple.alphas[0]).toBeGreaterThan(200); // bottom layer unchanged
+  const heatKinds = await page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
+  expect(heatKinds.slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
 });

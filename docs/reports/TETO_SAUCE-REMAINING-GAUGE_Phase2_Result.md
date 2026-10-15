@@ -75,6 +75,21 @@ Chromium E2E at 390x844 and 360x800 (`sauce-gauge-489`, `sauce-layers-b2` incl. 
 Render cost (360x800, 4x CPU throttle, 9 runs / 18 canvases vs 1 run / 2 canvases): frame median 16.7 ms both, p95 16.7 ms vs 33.4 ms (the single-run sample includes warm-up), max 16.8 ms vs 83 ms --
 no regression, so no further optimization. Rasterizing 150 deposits is 0.57 ms in one canvas, 0.36 ms for a 50-deposit top run.
 
+## Overlap dimming (Owner Decision: option B, PR #494)
+
+Alpha stacking made the earlier sauce (e.g. tomato) look "swallowed" under a later one (alpha cap 0.93; the data was never lost). Option B, as decided:
+
+- Only the **upper run's** opacity is scaled where it overlaps the layers below: `alpha *= 1 - 0.3 * cover`, `cover = min(1, underAlpha / (255 * 0.93))`. Smooth at soft edges; colour untouched; alpha stacking kept; no multiply.
+- Single-sauce pizzas and non-overlapping strokes are byte-identical (`under` is empty → no change; B2 single-source golden unchanged).
+- `SauceLayer.under` = all deposits of earlier runs (memoized with the runs; the pending top run keeps its `under`). `SauceHeatmapCanvas` rasterizes the under-alpha plane once (`useMemo`). Overflow markers are not dimmed.
+- Not changed: B1/B2 ledger, remaining maths, cap rules, reducer, scoring, inventory, save format.
+
+Composite over dough at the overlap centre (before → after): 2 layers (tomato→pesto) (113,137,60) → (141,116,58); 3 layers (+olive oil) (225,212,153) → (201,181,124). The lower sauces stay visible through the top one.
+
+Comparison images (left BEFORE e193d95, right AFTER; rows: 2 layers, 3 layers): `docs/reports/screenshots/sauce-overlap-dim/compare-390x844.png`, `compare-360x800.png`.
+
+Verification: `tsc -b` clean, oxlint no new findings, Vitest 8053 passed (2 skipped), related Chromium e2e (sauce-edge-475, tq-1d-no-sauce, sauce-gauge-489, sauce-layers-b2) 18/18 at 390×844 and 360×800. Performance (CDP CPU 4x, 12 alternating runs T/P/O): before median 16.7 ms / p95 33.4 ms; after median 16.7 ms / p95 33.3 ms at both viewports — no regression.
+
 ## Human Verification
 The two videos recorded for the earlier cumulative design (A margherita, B switch) no longer describe the behaviour and are **withdrawn**.
 Re-recording at 390×844 for the per-kind design (single sauce drain → switch to a fresh sauce shows full → switch back shows the remainder

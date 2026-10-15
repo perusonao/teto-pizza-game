@@ -24,6 +24,7 @@ import { doughShapeRadiusAtAngle, type DoughShape } from "./doughShape";
 import {
   insideDoughShapeFraction,
   SAUCE_FIELD_SIZE,
+  SAUCE_ALPHA_CAP,
   SAUCE_TARGET_RADIUS,
   sauceDensityToAlpha,
   type SauceDepositLike,
@@ -296,4 +297,41 @@ export function buildSauceDisplayPixels(
     pixels[i + 3] = Math.round(sauceDensityToAlpha(value) * coverage * 255);
   }
   return pixels;
+}
+
+/**
+ * Owner Decision on PR #494 (overlap look, replaces B2's O4): where a later sauce run is painted over an earlier one, its opacity is
+ * multiplied by this much (about 0.7), so the sauce underneath still shows through. The blend stays plain alpha stacking (no
+ * multiply); only the TOP layer's opacity changes, and only where it overlaps something. Where nothing lies under it -- and for a
+ * one-sauce pizza, which has no layers under anything -- the pixels are left exactly as they were.
+ */
+export const SAUCE_OVERLAP_ALPHA_FACTOR = 0.7;
+
+/** The alpha channel of a display raster (one byte per pixel): "how much sauce is already here". Colour-independent. */
+export function alphaPlaneOf(pixels: Uint8ClampedArray): Uint8ClampedArray {
+  const plane = new Uint8ClampedArray(pixels.length / 4);
+  for (let i = 0; i < plane.length; i += 1) plane[i] = pixels[i * 4 + 3];
+  return plane;
+}
+
+/**
+ * Dims `pixels` (a run's display raster, RGBA) in place where `underAlpha` (the alpha plane of everything painted before it) is
+ * already covered. The dimming follows the coverage smoothly: nothing under it -> factor 1 (unchanged); fully covered (the cap
+ * alpha) -> `factor`; the soft edge of the sauce below dims proportionally, so there is no hard seam.
+ */
+export function dimWhereOverlapping(
+  pixels: Uint8ClampedArray,
+  underAlpha: Uint8ClampedArray,
+  factor: number = SAUCE_OVERLAP_ALPHA_FACTOR,
+): void {
+  const full = 255 * SAUCE_ALPHA_CAP;
+  for (let i = 0; i < underAlpha.length; i += 1) {
+    const under = underAlpha[i];
+    if (under === 0) continue;
+    const at = i * 4 + 3;
+    const alpha = pixels[at];
+    if (alpha === 0) continue;
+    const cover = Math.min(1, under / full);
+    pixels[at] = Math.round(alpha * (1 - (1 - factor) * cover));
+  }
 }

@@ -18,6 +18,9 @@ import { ownerOf } from "./sauceLedger";
 export interface SauceLayer {
   readonly ingredientId: string;
   readonly deposits: readonly SauceDeposit[];
+  /** Every deposit of the layers BELOW this one (any kind), oldest first; empty for the bottom layer. Render-only: it lets the canvas
+   *  dim this layer's opacity where it overlaps earlier sauce (Owner Decision on PR #494) -- never read by scoring or the ledger. */
+  readonly under: readonly SauceDeposit[];
 }
 
 /** The committed runs, oldest (bottom) first. Stable for a given `pizza.sauceDeposits`, so callers can memoize it. */
@@ -31,13 +34,19 @@ export function sauceRunsOf(pizza: Pick<PizzaState, "sauceIds" | "sauceDeposits"
     if (last && last.ingredientId === owner) last.deposits.push(deposit);
     else runs.push({ ingredientId: owner, deposits: [deposit] });
   }
-  return runs;
+  const earlier: SauceDeposit[] = [];
+  return runs.map((run) => {
+    const layer: SauceLayer = { ingredientId: run.ingredientId, deposits: run.deposits, under: [...earlier] };
+    earlier.push(...run.deposits);
+    return layer;
+  });
 }
 
 /**
  * The runs plus the stroke in progress. `pending` belongs to `pendingIngredientId`: it extends the top run when that is the same
- * kind, otherwise it becomes a new top run. Earlier runs are returned as the same objects (only the top one is rebuilt), so a
- * canvas keyed on a run's `deposits` is not redrawn while a later stroke is being painted. `null` when fewer than two kinds.
+ * kind, otherwise it becomes a new top run (with every committed deposit under it). Earlier runs are returned as the same objects
+ * (only the top one is rebuilt), so a canvas keyed on a run's `deposits` / `under` is not redrawn while a later stroke is being
+ * painted. `null` when fewer than two kinds.
  */
 export function layersWithPending(
   runs: readonly SauceLayer[],
@@ -48,9 +57,9 @@ export function layersWithPending(
   if (pending.length > 0 && pendingIngredientId) {
     const last = layers[layers.length - 1];
     if (last && last.ingredientId === pendingIngredientId) {
-      layers = [...layers.slice(0, -1), { ingredientId: last.ingredientId, deposits: [...last.deposits, ...pending] }];
+      layers = [...layers.slice(0, -1), { ingredientId: last.ingredientId, deposits: [...last.deposits, ...pending], under: last.under }];
     } else {
-      layers = [...layers, { ingredientId: pendingIngredientId, deposits: [...pending] }];
+      layers = [...layers, { ingredientId: pendingIngredientId, deposits: [...pending], under: layers.flatMap((l) => l.deposits) }];
     }
   }
   return new Set(layers.map((l) => l.ingredientId)).size >= 2 ? layers : null;

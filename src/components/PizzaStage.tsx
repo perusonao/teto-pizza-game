@@ -1161,6 +1161,7 @@ export function PizzaStage({
             <SauceHeatmapCanvas
               key={`heat-${index}-${layer.ingredientId}`}
               deposits={layer.deposits}
+              underDeposits={layer.under}
               doughShape={pizza.doughShape}
               color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
               className={sauceLayerClassName(layer.ingredientId, bakeState)}

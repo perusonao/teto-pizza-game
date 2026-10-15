@@ -61,6 +61,18 @@ describe("sauceLayersOf (Sauce B2 + #494: chronological runs, later painted over
     expect(a[1]).not.toBe(b[1]); // only the top run is rebuilt
   });
 
+  it("each layer carries every deposit of the layers below it (render-only, for the overlap dimming)", () => {
+    const p = pizza(["tomato-sauce", "pesto"], [dep(0.1, "tomato-sauce", 20), dep(0.2, "pesto", 40), dep(0.3, "tomato-sauce", 60)]);
+    const layers = sauceLayersOf(p, [], null)!;
+    expect(layers.map((l) => l.under.map((d) => d.x))).toEqual([[], [20], [20, 40]]);
+    // a stroke in progress under a NEW kind sees everything committed; extending the top run keeps its `under`
+    const fresh = sauceLayersOf(p, [dep(0.02, undefined, 80)], "olive-oil")!;
+    expect(fresh[3].under.map((d) => d.x)).toEqual([20, 40, 60]);
+    const extended = sauceLayersOf(p, [dep(0.02, undefined, 80)], "tomato-sauce")!;
+    expect(extended[2].under.map((d) => d.x)).toEqual([20, 40]);
+    expect(extended[2].deposits).toHaveLength(2);
+  });
+
   it("a sauce that laid nothing has no layer: a one-shot sauce plus a painted one is a single layer", () => {
     expect(sauceLayersOf(pizza(["tomato-sauce", "pesto"], [dep(0.3, "pesto")]), [], null)).toBeNull();
   });
