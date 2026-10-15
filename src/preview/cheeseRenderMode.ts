@@ -29,10 +29,17 @@ export function resolveCheeseRenderMode(search: string, allowed: boolean): Chees
 }
 
 /**
- * #486 T1: the production opt-in. The Canvas mozzarella ships in the production bundle but is OFF by default (M1 stays the default). A tester turns it on
- * with `?cheeseCanvas=1` (remembered) and off with `?cheeseCanvas=0`. The choice lives in its own localStorage key, apart from the save (nothing in the save,
- * scoring, economy or progression reads it), so a Full Game Reset does not touch it and a failing storage just means M1.
+ * #486: the Canvas mozzarella is the STANDARD display in production (T1 shipped it behind an opt-in that was OFF; this makes it ON by default). The M1 CSS
+ * mozzarella stays as the way back, in three layers:
+ *  - per page / per device: `?cheeseCanvas=0` shows M1 and remembers it ("0" in the key below, so it survives a reload); `?cheeseCanvas=1` turns Canvas on again;
+ *  - per piece: a browser with no 2D context, a bitmap that cannot be built, a throwing draw, or a canvas read back all-transparent shows that piece as M1
+ *    (CheesePoolCanvas.tsx), so nothing ever shows a transparent cheese;
+ *  - for everyone: set `CHEESE_CANVAS_DEFAULT_ON` to false (a one-line change) and anyone without an explicit "1" is back on M1.
+ * The choice lives in its own localStorage key, apart from the save (nothing in the save, scoring, economy or progression reads it), so a Full Game Reset does
+ * not touch it, and a failing storage just means the default.
  */
+export const CHEESE_CANVAS_DEFAULT_ON = true;
+
 export const CHEESE_CANVAS_OPT_IN_KEY = "teto-pizza-cheese-canvas";
 
 /** `?cheeseCanvas=1` -> "on", `?cheeseCanvas=0` -> "off", anything else -> null (leave the stored choice) */
@@ -41,8 +48,11 @@ export function parseCheeseCanvasParam(search: string): "on" | "off" | null {
   return value === "1" ? "on" : value === "0" ? "off" : null;
 }
 
-/** Whether the opt-in is on for this page load. The parameter is remembered ("0" removes the key); a storage that throws reads as off (M1). */
-export function resolveCheeseCanvasOptIn(search: string, storage: StorageLike | null): boolean {
+/**
+ * Whether the Canvas mozzarella is on for this page load. The parameter is remembered ("1" / "0"); an absent or unknown stored value follows `defaultOn`;
+ * a storage that throws follows the parameter if there is one, else `defaultOn` (the Canvas path has its own per-piece fallback, so a broken storage never needs M1).
+ */
+export function resolveCheeseCanvasOptIn(search: string, storage: StorageLike | null, defaultOn: boolean = CHEESE_CANVAS_DEFAULT_ON): boolean {
   const param = parseCheeseCanvasParam(search);
   try {
     if (param === "on") {
@@ -50,16 +60,17 @@ export function resolveCheeseCanvasOptIn(search: string, storage: StorageLike | 
       return true;
     }
     if (param === "off") {
-      storage?.removeItem(CHEESE_CANVAS_OPT_IN_KEY);
+      storage?.setItem(CHEESE_CANVAS_OPT_IN_KEY, "0");
       return false;
     }
-    return storage?.getItem(CHEESE_CANVAS_OPT_IN_KEY) === "1";
+    const stored = storage?.getItem(CHEESE_CANVAS_OPT_IN_KEY);
+    return stored === "1" ? true : stored === "0" ? false : defaultOn;
   } catch {
-    return param === "on";
+    return param === null ? defaultOn : param === "on";
   }
 }
 
-/** the production decision alone: opted in = Canvas 64x64 at the default size, off / unset = M1 */
+/** the production decision alone: Canvas 64x64 at the default size when on (the default), M1 when switched off */
 export function resolveCheeseOptInMode(search: string, storage: StorageLike | null): CheeseRenderMode {
   return resolveCheeseCanvasOptIn(search, storage) ? { kind: "canvas", grid: CHEESE_POOL_GRID_SMALL, sizePx: CHEESE_CANVAS_DEFAULT_PX } : CHEESE_RENDER_M1;
 }
@@ -83,7 +94,7 @@ function pageStorage(): StorageLike | null {
 
 /**
  * Read once per page load. The env check is a static `import.meta.env` expression, so a production build folds it to `false` and drops the `?cheese=` switch
- * with it; the opt-in (`?cheeseCanvas=`, default OFF) exists in every build.
+ * with it; the `?cheeseCanvas=` switch (default ON, `=0` for M1) exists in every build.
  */
 export const CHEESE_RENDER_MODE: CheeseRenderMode =
   import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE

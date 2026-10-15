@@ -42,6 +42,16 @@ async function cheeseFilter(page: Page) {
   return page.locator(".pizza-cheese").first().evaluate((el) => (el as HTMLElement).style.filter);
 }
 
+/**
+ * #486: the Canvas mozzarella is the default display, and it has no CSS filter to read. The two scenarios that compare the M1 cheese's own bake filter
+ * (`cheeseFilter`, `.pizza-cheese`) show M1 instead, through the value `?cheeseCanvas=0` stores. An init script, because `startFreshMargherita` /
+ * `startCapricciosaUnlocked` clear localStorage and reload; it runs again on every navigation, before the page reads the value. Every other scenario here
+ * (and the rest of the e2e suite) runs on the default Canvas.
+ */
+async function useM1Cheese(page: Page) {
+  await page.addInitScript(() => localStorage.setItem("teto-pizza-cheese-canvas", "0"));
+}
+
 function sepiaOf(filter: string): number {
   return Number(filter.match(/sepia\(([\d.]+)\)/)?.[1] ?? "0");
 }
@@ -55,6 +65,7 @@ test.describe("Scenario A: 390x844 Margherita IDEAL -> CUT -> RESULT", () => {
     page,
   }) => {
     test.setTimeout(60_000);
+    await useM1Cheese(page);
     await startFreshMargherita(page);
 
     // Read the topping filter at the very end of BAKE (before CUT/RESULT), then again once
@@ -119,6 +130,7 @@ test.describe("Scenario B: topping-heavy recipe (Capricciosa) IDEAL -- multiple 
     page,
   }) => {
     test.setTimeout(60_000);
+    await useM1Cheese(page);
     await startCapricciosaUnlocked(page);
     await playFullCapricciosaRound(page);
     await expect(page.locator(".result-panel")).toBeVisible();

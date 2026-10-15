@@ -9,7 +9,8 @@ import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import type { CutLine } from "../logic/cut/types";
 
 /**
- * #486 T1 (ported from the duplicate PR #488): CUT / RESULT regression for the Canvas mozzarella opt-in (plan B; this PR's key value is "1"). Derived from PizzaStage.pieces.test.tsx.
+ * #486 (T1 ported from the duplicate PR #488, now for the default-ON Canvas mozzarella): placement / BAKE / CUT / RESULT regression. The Canvas is the standard display
+ * (no key stored = Canvas); the stored value "0" (`?cheeseCanvas=0`) is the M1 way back. Derived from PizzaStage.pieces.test.tsx.
  * Issue #418 (original note): a pizza cut rim to rim is drawn as pieces -- every layer of the pizza body (silhouette,
  * sauce heatmap + overflow canvases, toppings, bake look) is copied per piece, clipped to the piece
  * and nudged apart, instead of one pizza with lines on it. Same structure in CUT and RESULT.
@@ -60,19 +61,19 @@ const ctxOf = (readBack: () => unknown) => ({
   getImageData: readBack,
 });
 
-/** CHEESE_RENDER_MODE is read once at import: load a fresh PizzaStage per opt-in value */
-async function loadStage(optIn: string | null) {
+/** CHEESE_RENDER_MODE is read once at import: load a fresh PizzaStage per stored value (null = nothing stored = the default) */
+async function loadStage(stored: string | null) {
   vi.resetModules();
-  if (optIn === null) localStorage.removeItem(KEY);
-  else localStorage.setItem(KEY, optIn);
+  if (stored === null) localStorage.removeItem(KEY);
+  else localStorage.setItem(KEY, stored);
   const { resetCanvas2dProbe } = await import("./CheesePoolCanvas");
   resetCanvas2dProbe();
   return (await import("./PizzaStage")).PizzaStage;
 }
 
 type StageComponent = Awaited<ReturnType<typeof loadStage>>;
-/** RESULT is the stage with no making step (as PizzaStage.pieces.test.tsx draws it) */
-function stage(Stage: StageComponent, state: GameState, lines: CutLine[], step: "CUT" | "RESULT") {
+/** RESULT is the stage with no making step (as PizzaStage.pieces.test.tsx draws it); `bakeProgress: null` is the pizza before the bake (placement) */
+function stage(Stage: StageComponent, state: GameState, lines: CutLine[], step: "CUT" | "RESULT", bakeProgress: number | null = state.pizza.bakeResult) {
   const makingStep = (step === "CUT" ? "CUT" : null) as unknown as GameState["makingStep"];
   return (
     <Stage
@@ -80,7 +81,7 @@ function stage(Stage: StageComponent, state: GameState, lines: CutLine[], step: 
       recipe={state.recipe}
       interactive={false}
       activeIngredient={null}
-      bakeProgress={state.pizza.bakeResult}
+      bakeProgress={bakeProgress}
       placement={null}
       resultRevealed={false}
       referenceModeEnabled={false}
@@ -110,14 +111,20 @@ afterEach(() => {
   localStorage.removeItem(KEY);
 });
 
-describe("#486 T1: Canvas mozzarella opt-in on CUT / RESULT pieces", () => {
+describe("#486: Canvas mozzarella as the default display (placement / BAKE / CUT / RESULT pieces)", () => {
   const state = bakedMargheritaAtCut();
   const lines = [through(0), through(60), through(120)];
   const mozzarellaToppings = (c: HTMLElement) => c.querySelectorAll(".pizza-topping--mozzarella").length;
+  /** nothing stored = the default; "1" = a tester who opted in under T1 keeps the same display */
+  const CANVAS_VALUES = [null, "1"] as const;
 
-  it("without the opt-in key nothing draws a Canvas: the M1 pieces, uncut and cut (CUT and RESULT alike)", async () => {
+  it("with the stored value 0 (?cheeseCanvas=0) nothing draws a Canvas: the M1 pieces, before the bake, uncut and cut (CUT and RESULT alike)", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctxOf(inked)) as never);
-    const Stage = await loadStage(null);
+    const Stage = await loadStage("0");
+    const placed = render(stage(Stage, state, [], "RESULT", null));
+    expect(placed.container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
+    expect(placed.container.querySelectorAll(".pizza-cheese").length).toBeGreaterThan(0);
+    cleanup();
     for (const step of ["CUT", "RESULT"] as const) {
       const { container } = render(stage(Stage, state, lines, step));
       expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
@@ -127,52 +134,84 @@ describe("#486 T1: Canvas mozzarella opt-in on CUT / RESULT pieces", () => {
     }
   });
 
-  it("with the opt-in, every mozzarella piece of an uncut and of a six-piece pizza is a Canvas, the other toppings stay as they were, and the piece structure is unchanged", async () => {
+  it("by default every mozzarella piece is a Canvas: placed (before the bake), baked, uncut and as a six-piece pizza; the other toppings stay as they were and the piece structure is unchanged", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctxOf(inked)) as never);
-    const Stage = await loadStage("1");
-    const uncut = render(stage(Stage, state, [], "CUT"));
-    expect(mozzarellaToppings(uncut.container)).toBeGreaterThan(0);
-    expect(uncut.container.querySelectorAll("canvas.pizza-cheese-canvas")).toHaveLength(mozzarellaToppings(uncut.container));
-    expect(uncut.container.querySelectorAll(".pizza-topping")).toHaveLength(state.pizza.toppings.length);
-    cleanup();
-    for (const step of ["CUT", "RESULT"] as const) {
-      const { container } = render(stage(Stage, state, lines, step));
-      expect(container.querySelectorAll(".pizza-piece")).toHaveLength(6);
-      expect(container.querySelectorAll(".pizza-topping")).toHaveLength(state.pizza.toppings.length);
-      // one Canvas per mozzarella piece of the pizza, none for basil, and no leftover M1 cheese span inside a mozzarella piece
-      expect(container.querySelectorAll("canvas.pizza-cheese-canvas")).toHaveLength(mozzarellaPieces(container).length);
-      expect(container.querySelectorAll(".pizza-topping--basil canvas")).toHaveLength(0);
-      for (const el of container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).toBeNull();
+    for (const stored of CANVAS_VALUES) {
+      const Stage = await loadStage(stored);
+      // placement (no bake yet): the raw lump, one Canvas per placed mozzarella piece, no M1 cheese left in a mozzarella piece
+      const placed = render(stage(Stage, state, [], "RESULT", null));
+      expect(mozzarellaToppings(placed.container)).toBeGreaterThan(0);
+      expect(placed.container.querySelectorAll("canvas.pizza-cheese-canvas")).toHaveLength(mozzarellaToppings(placed.container));
+      for (const el of placed.container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).toBeNull();
       cleanup();
+      // baked, uncut
+      const uncut = render(stage(Stage, state, [], "CUT"));
+      expect(mozzarellaToppings(uncut.container)).toBeGreaterThan(0);
+      expect(uncut.container.querySelectorAll("canvas.pizza-cheese-canvas")).toHaveLength(mozzarellaToppings(uncut.container));
+      expect(uncut.container.querySelectorAll(".pizza-topping")).toHaveLength(state.pizza.toppings.length);
+      cleanup();
+      for (const step of ["CUT", "RESULT"] as const) {
+        const { container } = render(stage(Stage, state, lines, step));
+        expect(container.querySelectorAll(".pizza-piece")).toHaveLength(6);
+        expect(container.querySelectorAll(".pizza-topping")).toHaveLength(state.pizza.toppings.length);
+        // one Canvas per mozzarella piece of the pizza, none for basil, and no leftover M1 cheese span inside a mozzarella piece
+        expect(container.querySelectorAll("canvas.pizza-cheese-canvas")).toHaveLength(mozzarellaPieces(container).length);
+        expect(container.querySelectorAll(".pizza-topping--basil canvas")).toHaveLength(0);
+        for (const el of container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).toBeNull();
+        cleanup();
+      }
     }
   });
 
-  it("every piece falls back to the M1 cheese when the canvases read back blank (no transparent cheese on CUT / RESULT)", async () => {
+  it("every piece falls back to the M1 cheese when the canvases read back blank (no transparent cheese before the bake, on CUT or on RESULT)", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctxOf(blank)) as never);
-    const Stage = await loadStage("1");
-    for (const step of ["CUT", "RESULT"] as const) {
-      const { container } = render(stage(Stage, state, lines, step));
-      expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
-      expect(container.querySelectorAll(".pizza-piece")).toHaveLength(6);
-      for (const el of container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).not.toBeNull();
+    for (const stored of CANVAS_VALUES) {
+      const Stage = await loadStage(stored);
+      const placed = render(stage(Stage, state, [], "RESULT", null));
+      expect(placed.container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
+      for (const el of placed.container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).not.toBeNull();
       cleanup();
+      for (const step of ["CUT", "RESULT"] as const) {
+        const { container } = render(stage(Stage, state, lines, step));
+        expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
+        expect(container.querySelectorAll(".pizza-piece")).toHaveLength(6);
+        for (const el of container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).not.toBeNull();
+        cleanup();
+      }
     }
   });
 
   it("every piece falls back to the M1 cheese when the browser gives no 2D context at all", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => null) as never);
-    const Stage = await loadStage("1");
+    for (const stored of CANVAS_VALUES) {
+      const Stage = await loadStage(stored);
+      for (const step of ["CUT", "RESULT"] as const) {
+        const { container } = render(stage(Stage, state, lines, step));
+        expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
+        for (const el of container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).not.toBeNull();
+        cleanup();
+      }
+    }
+  });
+
+  it("every piece falls back to the M1 cheese when drawing throws (no transparent cheese, nothing thrown to the game)", async () => {
+    // only the cheese canvases throw (the sauce canvases of the same stage keep a normal fake context and are not under test)
+    const throwingCtx = { ...ctxOf(inked), drawImage: () => { throw new Error("draw failed"); } };
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((function (this: HTMLCanvasElement) {
+      return this.classList.contains("pizza-cheese-canvas") ? throwingCtx : ctxOf(inked);
+    }) as never);
+    const Stage = await loadStage(null);
     const { container } = render(stage(Stage, state, lines, "RESULT"));
     expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
     for (const el of container.querySelectorAll(".pizza-topping--mozzarella")) expect(el.querySelector(".pizza-cheese")).not.toBeNull();
   });
 
-  it("a stored value other than 1 (0, c64, anything else) is M1; the kill switch is deleting the key", async () => {
+  it("only a stored 0 is M1 (the kill switch); an unknown stored value (c64, garbage) follows the default, which is Canvas", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctxOf(inked)) as never);
-    for (const v of ["0", "c64", "garbage"]) {
-      const Stage = await loadStage(v);
+    for (const [stored, expectCanvas] of [["0", false], ["c64", true], ["garbage", true]] as const) {
+      const Stage = await loadStage(stored);
       const { container } = render(stage(Stage, state, lines, "RESULT"));
-      expect(container.querySelector("canvas.pizza-cheese-canvas")).toBeNull();
+      expect(container.querySelector("canvas.pizza-cheese-canvas") !== null).toBe(expectCanvas);
       cleanup();
     }
   });
