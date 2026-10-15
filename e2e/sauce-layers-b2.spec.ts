@@ -270,17 +270,110 @@ test("a commit repaints only the run it touched: 12 alternating runs, the 13th a
     await page.getByRole("button", { name: kinds[i % 2] }).click();
     await strokeAt(i, 62);
   }
-  expect(await page.locator("canvas.pizza-sauce-heatmap").count()).toBe(24); // 12 runs, a heatmap and an overflow canvas each
+  expect(await page.locator("canvas.pizza-sauce-heatmap").count()).toBe(18); // 12 runs: the newest 8 have a heatmap and an overflow canvas each, the 4 older share one pair
 
   const beforeNewRun = await draws();
   await page.getByRole("button", { name: kinds[12 % 2] }).click();
   await strokeAt(12, 62);
   const newRun = (await draws()) - beforeNewRun;
-  // Before the fix every one of the 12 earlier layers was redrawn on each commit (>= 15 draws here); now only the new top layer is
-  // (a pending-stroke tick or two plus the commit): a few draws, independent of the run count.
+  // Before the fix every one of the 12 earlier layers was redrawn on each commit (>= 15 draws here); now only the new top layer and the
+  // shared group of older runs are (a pending-stroke tick or two plus the commit): a few draws, independent of the run count.
   expect(newRun).toBeLessThanOrEqual(5);
 
   const beforeExtend = await draws();
   await strokeAt(13, 400); // same sauce as the top run, no switch: it extends that run
   expect((await draws()) - beforeExtend).toBeLessThanOrEqual(14); // ~8 ticks of the one layer + its commit, never 13 layers x ticks
+});
+
+test("a long history that alternates olive oil and another sauce keeps the sauce canvases at a fixed budget, every run still drawn (Codex P2, PR #494)", async ({ page }) => {
+  test.setTimeout(240000);
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /オリーブオイル/];
+  for (let i = 0; i < 40; i += 1) {
+    if (i > 0) await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await page.mouse.move(b.x + b.width * (0.22 + ((i * 7) % 56) / 100), b.y + b.height * (0.3 + ((i * 3) % 40) / 100));
+    await page.mouse.down();
+    await page.waitForTimeout(62);
+    await page.mouse.up();
+    await page.waitForTimeout(40);
+  }
+  const total = await page.locator(".pizza-dough--interactive canvas.pizza-sauce-heatmap").count();
+  expect(total).toBeLessThanOrEqual(24); // 8 own runs + at most 4 groups, a heatmap and an overflow canvas each
+  expect(await page.locator(".pizza-dough--interactive canvas.pizza-sauce-heatmap--merged").count()).toBeGreaterThan(0);
+  // every heatmap canvas that should show sauce does: no layer is blank
+  const painted = await page.locator(".pizza-dough--interactive canvas.pizza-sauce-heatmap").evaluateAll((els) =>
+    els.map((el) => {
+      const c = el as HTMLCanvasElement;
+      const { data } = c.getContext("2d")!.getImageData(0, 0, c.width, c.height);
+      let n = 0;
+      for (let i = 3; i < data.length; i += 4) if (data[i] > 24) n += 1;
+      return { merged: c.className.includes("--merged"), n };
+    }),
+  );
+  const heatmaps = painted.slice(0, painted.length / 2); // the first half are the heatmaps, the rest the overflow canvases
+  expect(heatmaps.length).toBeGreaterThan(8);
+  expect(heatmaps.every((h) => h.n > 0)).toBe(true);
+});
+
+test("canvas failure: a refused 2D context shows the layer as dots, and a throwing draw does not blank the app (Codex P2, PR #494)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __granted: number };
+    w.__granted = 0;
+    const original = HTMLCanvasElement.prototype.getContext;
+    // a browser out of canvas memory: after 4 sauce canvases have a context, every further sauce canvas is refused
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, ...args: Parameters<typeof original>) {
+      if (this.className.includes("pizza-sauce-heatmap") && !this.dataset.granted) {
+        if (w.__granted >= 4) return null;
+        this.dataset.granted = "1";
+        w.__granted += 1;
+      }
+      return (original as (...a: unknown[]) => unknown).apply(this, args);
+    } as typeof original;
+  });
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /ジェノベーゼ/];
+  for (let i = 0; i < 6; i += 1) {
+    if (i > 0) await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await page.mouse.move(b.x + b.width * (0.25 + 0.08 * i), b.y + b.height * (0.4 + 0.03 * i));
+    await page.mouse.down();
+    await page.mouse.move(b.x + b.width * (0.35 + 0.08 * i), b.y + b.height * (0.45 + 0.03 * i), { steps: 5 });
+    await page.waitForTimeout(150);
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+  }
+  await expect(page.locator(".pizza-stage")).toBeVisible(); // the app is up
+  const fallbacks = page.locator(".pizza-dough--interactive [data-sauce-fallback]");
+  expect(await fallbacks.count()).toBeGreaterThan(0); // the refused layers are shown, not blank
+  expect(await fallbacks.first().locator("span").count()).toBeGreaterThan(0);
+  await page.getByRole("button", { name: kinds[0] }).click(); // and the tray still works
+});
+
+test("canvas failure: a drawImage that throws is contained (no white screen)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __draws: number };
+    w.__draws = 0;
+    const original = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function (this: CanvasRenderingContext2D, ...args: Parameters<typeof original>) {
+      w.__draws += 1;
+      if (w.__draws > 3) throw new Error("simulated drawImage failure (canvas lost)");
+      return (original as (...a: unknown[]) => void).apply(this, args);
+    } as typeof original;
+  });
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /ジェノベーゼ/];
+  for (let i = 0; i < 6; i += 1) {
+    if (i > 0) await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await page.mouse.move(b.x + b.width * (0.25 + 0.08 * i), b.y + b.height * (0.4 + 0.03 * i));
+    await page.mouse.down();
+    await page.waitForTimeout(200);
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+  }
+  await expect(page.locator(".pizza-stage")).toBeVisible();
+  await expect(page.locator(".pizza-dough--interactive")).toBeVisible();
+  expect(await page.locator(".pizza-dough--interactive [data-sauce-fallback]").count()).toBeGreaterThan(0);
+  await page.getByRole("button", { name: kinds[0] }).click();
 });

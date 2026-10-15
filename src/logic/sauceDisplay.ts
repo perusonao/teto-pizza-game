@@ -335,3 +335,45 @@ export function dimWhereOverlapping(
     pixels[at] = Math.round(alpha * (1 - (1 - factor) * cover));
   }
 }
+
+/**
+ * Source-over of `src` onto `dst` (straight RGBA, 8-bit), in place on `dst`: what the browser does when it stacks one translucent
+ * canvas over another. Used to flatten the oldest sauce runs into one raster (Codex P2 on PR #494, canvas count bound).
+ */
+export function compositeOver(dst: Uint8ClampedArray, src: Uint8ClampedArray): void {
+  for (let i = 0; i < dst.length; i += 4) {
+    const sa = src[i + 3] / 255;
+    if (sa === 0) continue;
+    const da = dst[i + 3] / 255;
+    const oa = sa + da * (1 - sa);
+    for (let c = 0; c < 3; c += 1) dst[i + c] = (src[i + c] * sa + dst[i + c] * da * (1 - sa)) / oa;
+    dst[i + 3] = oa * 255;
+  }
+}
+
+/**
+ * The olive-oil look of `.pizza-sauce-heatmap--oil` (saturate 2.1, contrast 1.4, brightness 0.82, in that order, the CSS filter
+ * functions' own definitions) applied to a display raster's colour channels, in place. A canvas that mixes oil with other sauces
+ * cannot carry the oil-only CSS filter, so an oil run that has to be flattened into such a canvas gets its look baked in here. Only the
+ * colour is baked (no glow halo, no bake-state variant); it is used for the OLDEST runs of a pizza that alternates oil and other sauce
+ * more often than the canvas budget allows, which are buried under the newer runs.
+ */
+export function bakeOliveOilLook(pixels: Uint8ClampedArray): void {
+  const s = 2.1;
+  const m = [
+    0.213 + 0.787 * s, 0.715 - 0.715 * s, 0.072 - 0.072 * s,
+    0.213 - 0.213 * s, 0.715 + 0.285 * s, 0.072 - 0.072 * s,
+    0.213 - 0.213 * s, 0.715 - 0.715 * s, 0.072 + 0.928 * s,
+  ];
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (pixels[i + 3] === 0) continue;
+    const r = pixels[i] / 255;
+    const g = pixels[i + 1] / 255;
+    const b = pixels[i + 2] / 255;
+    for (let c = 0; c < 3; c += 1) {
+      const v = m[c * 3] * r + m[c * 3 + 1] * g + m[c * 3 + 2] * b;
+      const clamped = Math.min(1, Math.max(0, v));
+      pixels[i + c] = Math.round(Math.min(1, Math.max(0, (clamped - 0.5) * 1.4 + 0.5)) * 0.82 * 255);
+    }
+  }
+}

@@ -15,12 +15,19 @@ import { PizzaStage } from "./PizzaStage";
  */
 type ProbeProps = { deposits: SauceDeposit[]; color: string; className?: string; underDeposits?: SauceDeposit[] };
 // Every render of a probe records the props object it was given, so a test can tell "the same props as last time" (no repaint) from new ones.
-const seen = vi.hoisted(() => ({ heatmap: [] as unknown[][], overflow: [] as unknown[][] }));
+const seen = vi.hoisted(() => ({ heatmap: [] as unknown[][], overflow: [] as unknown[][], merged: [] as unknown[][] }));
 vi.mock("./SauceHeatmapCanvas", () => ({
   SauceHeatmapCanvas: (props: ProbeProps) => {
     seen.heatmap.push([props.deposits, props.underDeposits]);
     return <canvas data-probe="heatmap" data-props={JSON.stringify(props)} />;
   },
+}));
+vi.mock("./SauceMergedCanvas", () => ({
+  SauceMergedHeatmapCanvas: (props: { runs: Array<{ deposits: unknown; ingredientId: string }>; bakedOil?: boolean; className?: string }) => {
+    seen.merged.push(props.runs.map((r) => r.deposits));
+    return <canvas data-probe="merged" data-kinds={props.runs.map((r) => r.ingredientId).join(",")} data-baked={String(!!props.bakedOil)} className={props.className} />;
+  },
+  SauceMergedOverflowCanvas: () => <canvas data-probe="merged-overflow" />,
 }));
 vi.mock("./OverflowMarkerCanvas", () => ({
   OverflowMarkerCanvas: (props: ProbeProps) => {
@@ -88,6 +95,7 @@ const probes = (c: HTMLElement, kind: "heatmap" | "overflow") =>
 beforeEach(() => {
   seen.heatmap.length = 0;
   seen.overflow.length = 0;
+  seen.merged.length = 0;
   vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
   vi.stubGlobal("cancelAnimationFrame", vi.fn());
 });
@@ -248,40 +256,82 @@ describe("PizzaStage layered sauce painting", () => {
 });
 
 describe("committing a stroke repaints only the run it touched (Codex P2 on PR #494)", () => {
-  // run i = [kind, deposits]; alternating tomato / pesto, one deposit each
   // The log is append-only and a commit keeps the earlier deposit objects, so the deposits are made once and each pizza is a prefix of them.
   const log: SauceDeposit[] = Array.from({ length: 60 }, (_, i) => ({ x: 20 + i, y: 40, amount: 0.02, ingredientId: i % 2 === 0 ? "tomato-sauce" : "pesto" }));
   const pizzaOf = (n: number): PizzaState => ({ ...createEmptyPizza(), sauceIds: ["tomato-sauce", "pesto"], sauceToken: 2, sauceDeposits: log.slice(0, n) });
-  const lastRender = (kind: "heatmap" | "overflow", count: number) => seen[kind].slice(-count);
+  /** every run's deposit list as it was handed to a canvas (own or merged) in the last render */
+  const drawn = (own: number) => new Set<unknown>([...seen.heatmap.slice(-own).map((r) => r[0]), ...seen.merged.slice(-100).flat()]);
+  const lastRenderMerged = () => {
+    const mergedNow = seen.merged.splice(0);
+    return mergedNow;
+  };
 
-  it("a new run leaves every earlier layer's props (deposits, under) the very same objects", () => {
+  it("a new run hands every earlier run's very same deposit list to its canvas (own or merged)", () => {
     const view = render(stageElement(pizzaOf(12)));
-    const before = lastRender("heatmap", 12);
+    const ownBefore = seen.heatmap.slice(-8).map((r) => r[0]);
+    const mergedBefore = lastRenderMerged().slice(-4).flat();
+    const before = new Set<unknown>([...ownBefore, ...mergedBefore]);
+    expect(before.size).toBe(12);
     seen.heatmap.length = 0;
-    seen.overflow.length = 0;
     view.rerender(stageElement(pizzaOf(13)));
-    const after = lastRender("heatmap", 13);
-    for (let i = 0; i < 12; i += 1) {
-      expect(after[i][0]).toBe(before[i][0]);
-      expect(after[i][1]).toBe(before[i][1]);
-    }
-    expect(after[12][0]).not.toBe(undefined);
-    const overflowAfter = lastRender("overflow", 13);
-    expect(overflowAfter).toHaveLength(13);
+    const after = drawn(8);
+    expect(after.size).toBe(13);
+    for (const deposits of before) expect(after.has(deposits)).toBe(true); // nothing was rebuilt
   });
 
-  it("the same holds at 50 runs, and for a stroke that extends the top run (only that layer changes)", () => {
+  it("the same at 50 runs, and a stroke that extends the top run changes only that layer", () => {
     const view = render(stageElement(pizzaOf(50)));
-    const before = lastRender("heatmap", 50);
+    const before = new Set<unknown>([...seen.heatmap.slice(-8).map((r) => r[0]), ...lastRenderMerged().slice(-4).flat()]);
+    expect(before.size).toBe(50);
+    seen.heatmap.length = 0;
     const grown = pizzaOf(50);
     const top = grown.sauceDeposits[grown.sauceDeposits.length - 1];
     view.rerender(stageElement({ ...grown, sauceDeposits: [...grown.sauceDeposits, { ...top, x: top.x + 1 }] }));
-    const after = lastRender("heatmap", 50);
-    for (let i = 0; i < 49; i += 1) {
-      expect(after[i][0]).toBe(before[i][0]);
-      expect(after[i][1]).toBe(before[i][1]);
-    }
-    expect(after[49][0]).not.toBe(before[49][0]); // the extended run has a new deposit list
-    expect(after[49][1]).toBe(before[49][1]); // ...but the layers under it did not change
+    const after = drawn(8);
+    expect(after.size).toBe(50);
+    const rebuilt = [...after].filter((d) => !before.has(d));
+    expect(rebuilt).toHaveLength(1); // the extended top run
+    expect([...before].filter((d) => !after.has(d))).toHaveLength(1); // ...replacing its old list
+  });
+});
+
+describe("the sauce canvas budget (Codex P2 on PR #494)", () => {
+  const stampedLog = (n: number, kindOf: (i: number) => string): PizzaState => ({
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce", "pesto", "olive-oil"],
+    sauceToken: 3,
+    sauceDeposits: Array.from({ length: n }, (_, i) => ({ x: 20 + (i % 60), y: 40, amount: 0.02, ingredientId: kindOf(i) })),
+  });
+  const canvasCount = (c: HTMLElement) => c.querySelectorAll("canvas").length;
+
+  it("at most 8 runs: every run has its own heatmap and overflow canvas and nothing is merged", () => {
+    const c = renderStage(stampedLog(8, (i) => (i % 2 ? "pesto" : "tomato-sauce")));
+    expect(c.querySelectorAll('canvas[data-probe="heatmap"]')).toHaveLength(8);
+    expect(c.querySelectorAll('canvas[data-probe="merged"]')).toHaveLength(0);
+  });
+
+  it("100 alternating runs: the newest 8 stay separate, the rest share a few canvases", () => {
+    const c = renderStage(stampedLog(100, (i) => (i % 2 ? "pesto" : "tomato-sauce")));
+    expect(c.querySelectorAll('canvas[data-probe="heatmap"]')).toHaveLength(8);
+    expect(c.querySelectorAll('canvas[data-probe="merged"]')).toHaveLength(1); // one plain stretch
+    expect(canvasCount(c)).toBeLessThanOrEqual(24);
+  });
+
+  it("100 runs alternating oil and another sauce: still at most 24 canvases, and the oldest oil is baked into a plain group", () => {
+    const c = renderStage(stampedLog(100, (i) => (i % 2 ? "olive-oil" : "tomato-sauce")));
+    expect(canvasCount(c)).toBeLessThanOrEqual(24);
+    const merged = [...c.querySelectorAll<HTMLElement>('canvas[data-probe="merged"]')];
+    expect(merged.length).toBeLessThanOrEqual(4);
+    expect(merged[0].dataset.baked).toBe("true");
+  });
+
+  it("an oil stretch inside a long history keeps the oil canvas treatment when the budget allows", () => {
+    // 12 runs: tomato, then 3 oil, then 8 tomato/pesto alternating -> the older part is tomato / oil / ... within 4 groups
+    const kinds = ["tomato-sauce", "olive-oil", "tomato-sauce", "olive-oil", ...Array.from({ length: 8 }, (_, i) => (i % 2 ? "pesto" : "tomato-sauce"))];
+    const c = renderStage(stampedLog(12, (i) => kinds[i]));
+    const merged = [...c.querySelectorAll<HTMLElement>('canvas[data-probe="merged"]')];
+    expect(merged.map((m) => m.dataset.kinds)).toEqual(["tomato-sauce", "olive-oil", "tomato-sauce", "olive-oil"]);
+    expect(merged.every((m) => m.dataset.baked === "false")).toBe(true);
+    expect(merged.map((m) => m.className.includes("pizza-sauce-heatmap--oil"))).toEqual([false, true, false, true]);
   });
 });

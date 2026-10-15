@@ -37,8 +37,10 @@ import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
 import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
-import { layersWithPending, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
+import { layersWithPending, planSauceLayers, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
+import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -1158,33 +1160,65 @@ export function PizzaStage({
           }}
         />
       )}
-      {showSauceHeatmap && sauceLayers && (
-        <>
-          {/* Sauce B2: one heatmap per chronological run of one sauce kind (the earliest run at the bottom, later runs painted over it),
-              each with only ITS deposits and ITS colour; the overflow markers follow all of them so they always sit on top. Same box/filter classes as the
-              single heatmap below, plus a per-kind marker class. */}
-          {sauceLayers.map((layer, index) => (
-            <SauceHeatmapCanvas
-              key={`heat-${index}-${layer.ingredientId}`}
-              deposits={layer.deposits}
-              underDeposits={layer.under}
-              doughShape={pizza.doughShape}
-              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
-              className={sauceLayerClassName(layer.ingredientId, bakeState)}
-            />
-          ))}
-          {sauceLayers.map((layer, index) => (
-            <OverflowMarkerCanvas
-              key={`overflow-${index}-${layer.ingredientId}`}
-              deposits={layer.deposits}
-              doughShape={pizza.doughShape}
-              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
-              className={sauceLayerClassName(layer.ingredientId, bakeState)}
-            />
-          ))}
-          {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
-        </>
-      )}
+      {showSauceHeatmap && sauceLayers && (() => {
+        // Sauce B2: chronological runs (the earliest at the bottom, later runs painted over it), each with ONLY its deposits and ITS colour; the overflow
+        // markers follow all of them so they always sit on top. The newest runs keep a canvas pair of their own; the older ones are flattened, in
+        // order, into a few shared canvases (Codex P2: a pizza never carries more than a fixed number of sauce canvases, whatever its history).
+        const plan = planSauceLayers(sauceLayers);
+        const colorOf = (ingredientId: string) => getIngredient(ingredientId)?.color ?? fieldSauceColor;
+        const mergedClassName = (oil: boolean) =>
+          `pizza-sauce-heatmap ${oil ? "pizza-sauce-heatmap--oil" : ""} ${bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""} pizza-sauce-heatmap--merged`;
+        // if anything in the layers throws while rendering, the sauce is still shown (as dots) and the app stays up
+        const fallback = (
+          <SauceDotsFallback
+            runs={sauceLayers.map((layer) => ({ deposits: layer.deposits, color: colorOf(layer.ingredientId) }))}
+            className={mergedClassName(false)}
+          />
+        );
+        return (
+          <SauceLayersBoundary fallback={fallback}>
+            {plan.merged.map((group) => (
+              <SauceMergedHeatmapCanvas
+                key={`mheat-${group.firstIndex}`}
+                runs={group.runs}
+                doughShape={pizza.doughShape}
+                colorOf={colorOf}
+                bakedOil={group.bakedOil}
+                className={mergedClassName(group.oil)}
+              />
+            ))}
+            {plan.own.map((layer, i) => (
+              <SauceHeatmapCanvas
+                key={`heat-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
+                deposits={layer.deposits}
+                underDeposits={layer.under}
+                doughShape={pizza.doughShape}
+                color={colorOf(layer.ingredientId)}
+                className={sauceLayerClassName(layer.ingredientId, bakeState)}
+              />
+            ))}
+            {plan.merged.map((group) => (
+              <SauceMergedOverflowCanvas
+                key={`moverflow-${group.firstIndex}`}
+                runs={group.runs}
+                doughShape={pizza.doughShape}
+                colorOf={colorOf}
+                className={mergedClassName(group.oil)}
+              />
+            ))}
+            {plan.own.map((layer, i) => (
+              <OverflowMarkerCanvas
+                key={`overflow-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
+                deposits={layer.deposits}
+                doughShape={pizza.doughShape}
+                color={colorOf(layer.ingredientId)}
+                className={sauceLayerClassName(layer.ingredientId, bakeState)}
+              />
+            ))}
+            {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
+          </SauceLayersBoundary>
+        );
+      })()}
       {showSauceHeatmap && !sauceLayers && (
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}

@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaState";
-import { layersWithPending, sauceLayersOf, sauceRunsOf } from "./sauceLayers";
+import {
+  layersWithPending,
+  planSauceLayers,
+  SAUCE_MERGED_GROUPS_MAX,
+  SAUCE_OWN_LAYERS,
+  sauceLayersOf,
+  sauceRunsOf,
+  type SauceLayer,
+} from "./sauceLayers";
 
 const dep = (amount: number, ingredientId?: string, x = 50, y = 50): SauceDeposit =>
   ingredientId === undefined ? { x, y, amount } : { x, y, amount, ingredientId };
@@ -140,5 +148,83 @@ describe("sauceRunsOf with the previous runs (Codex P2 on PR #494: a commit does
     const second = sauceRunsOf(pizzaOf(changed), first);
     expect(second[1]).not.toBe(first[1]);
     expect(second[2].under).toEqual([changed[0], base[1]]);
+  });
+});
+
+describe("planSauceLayers (Codex P2 on PR #494: a fixed canvas budget for any history)", () => {
+  const layer = (kind: string, i: number): SauceLayer => ({ ingredientId: kind, deposits: [{ x: i, y: 50, amount: 0.02, ingredientId: kind }], under: [] });
+  const history = (kinds: string[]) => kinds.map((k, i) => layer(k, i));
+  const flat = (plan: ReturnType<typeof planSauceLayers>) => [...plan.merged.flatMap((g) => g.runs), ...plan.own];
+  const canvases = (plan: ReturnType<typeof planSauceLayers>) => 2 * (plan.merged.length + plan.own.length);
+
+  it("8 runs or fewer: nothing is merged, every run is its own layer", () => {
+    const layers = history(["tomato-sauce", "pesto", "tomato-sauce", "olive-oil", "pesto", "pesto", "tomato-sauce", "olive-oil"]);
+    const plan = planSauceLayers(layers);
+    expect(plan.merged).toEqual([]);
+    expect(plan.own).toEqual(layers);
+    expect(plan.firstOwnIndex).toBe(0);
+  });
+
+  it("the groups and the own layers cover every run once, in order, for any history", () => {
+    for (const n of [9, 12, 25, 50, 99, 100]) {
+      for (const pattern of [
+        (i: number) => (i % 2 ? "pesto" : "tomato-sauce"),
+        (i: number) => (i % 2 ? "olive-oil" : "tomato-sauce"),
+        (i: number) => ["tomato-sauce", "olive-oil", "pesto"][i % 3],
+        (i: number) => (i % 7 === 0 ? "olive-oil" : "tomato-sauce"),
+      ]) {
+        const layers = history(Array.from({ length: n }, (_, i) => pattern(i)));
+        const plan = planSauceLayers(layers);
+        expect(flat(plan)).toEqual(layers);
+        expect(plan.own.length).toBeLessThanOrEqual(SAUCE_OWN_LAYERS);
+        expect(plan.merged.length).toBeLessThanOrEqual(SAUCE_MERGED_GROUPS_MAX);
+        expect(canvases(plan)).toBeLessThanOrEqual(2 * (SAUCE_OWN_LAYERS + SAUCE_MERGED_GROUPS_MAX));
+        expect(plan.firstOwnIndex).toBe(Math.max(0, n - SAUCE_OWN_LAYERS));
+      }
+    }
+  });
+
+  it("without oil the older runs are one plain group", () => {
+    const plan = planSauceLayers(history(Array.from({ length: 40 }, (_, i) => (i % 2 ? "pesto" : "tomato-sauce"))));
+    expect(plan.merged).toHaveLength(1);
+    expect(plan.merged[0]).toMatchObject({ firstIndex: 0, oil: false, bakedOil: false });
+  });
+
+  it("oil and other sauce are grouped apart while the budget allows (so the oil keeps its own canvas treatment)", () => {
+    const kinds = ["tomato-sauce", "tomato-sauce", "olive-oil", "tomato-sauce", ...Array.from({ length: 8 }, () => "pesto")];
+    const plan = planSauceLayers(history(kinds));
+    expect(plan.merged.map((g) => [g.firstIndex, g.runs.length, g.oil, g.bakedOil])).toEqual([
+      [0, 2, false, false],
+      [2, 1, true, false],
+      [3, 1, false, false],
+    ]);
+  });
+
+  it("alternating oil past the group budget folds the OLDEST groups into one plain group with the oil baked in", () => {
+    const plan = planSauceLayers(history(Array.from({ length: 30 }, (_, i) => (i % 2 ? "olive-oil" : "tomato-sauce"))));
+    expect(plan.merged).toHaveLength(SAUCE_MERGED_GROUPS_MAX);
+    expect(plan.merged[0]).toMatchObject({ firstIndex: 0, oil: false, bakedOil: true });
+    // the newer groups are single-treatment stretches, never mixed
+    for (const g of plan.merged.slice(1)) {
+      expect(g.bakedOil).toBe(false);
+      expect(g.runs.every((r) => (r.ingredientId === "olive-oil") === g.oil)).toBe(true);
+    }
+  });
+
+  it("a group of only oil stays an oil group even after folding", () => {
+    // 16 older runs that are all oil: one segment, no folding needed
+    const plan = planSauceLayers(history([...Array.from({ length: 16 }, () => "olive-oil"), ...Array.from({ length: 8 }, () => "pesto")]));
+    expect(plan.merged).toHaveLength(1);
+    expect(plan.merged[0]).toMatchObject({ oil: true, bakedOil: false });
+  });
+
+  it("a group keeps its key (first run index) when newer runs age into later groups, while nothing is folded", () => {
+    const kinds = Array.from({ length: 20 }, (_, i) => (i === 3 ? "olive-oil" : "tomato-sauce"));
+    const a = planSauceLayers(history(kinds));
+    const b = planSauceLayers(history([...kinds, "pesto", "pesto"]));
+    const keys = (p: typeof a) => p.merged.map((g) => g.firstIndex);
+    expect(keys(a)).toEqual([0, 3, 4]);
+    expect(keys(b)).toEqual([0, 3, 4]); // the last group simply grew
+    expect(b.merged[2].runs.length).toBe(a.merged[2].runs.length + 2);
   });
 });

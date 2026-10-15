@@ -89,3 +89,61 @@ export function sauceLayersOf(
 ): SauceLayer[] | null {
   return layersWithPending(sauceRunsOf(pizza), pending, pendingIngredientId);
 }
+
+/**
+ * Canvas budget (Codex P2 on PR #494): a pizza can hold up to 100 runs (the 200% cap at 0.02 per tick), and a canvas pair per run is
+ * unbounded memory and repaint work. Only the newest `SAUCE_OWN_LAYERS` runs keep a canvas pair of their own; every older run is
+ * flattened, in order, into at most `SAUCE_MERGED_GROUPS_MAX` shared groups, so a pizza never carries more than
+ * 2 * (SAUCE_OWN_LAYERS + SAUCE_MERGED_GROUPS_MAX) sauce canvases, however many runs and however the sauces alternate.
+ */
+export const SAUCE_OWN_LAYERS = 8;
+export const SAUCE_MERGED_GROUPS_MAX = 4;
+
+const isOil = (layer: SauceLayer) => layer.ingredientId === "olive-oil";
+
+/** A stretch of consecutive OLD runs drawn on one shared canvas pair. Never contains the stroke in progress. */
+export interface SauceMergedGroup {
+  /** Index (in the full layer list) of the group's first run: a stable React key as newer runs age into later groups. */
+  readonly firstIndex: number;
+  readonly runs: readonly SauceLayer[];
+  /** Every run is olive oil: the group's canvas carries the oil CSS treatment, exactly as an oil run's own canvas would. */
+  readonly oil: boolean;
+  /** Oil and other sauces share this group (the oldest runs of a pizza that alternates them more often than the budget allows):
+   *  the group is a plain canvas and its oil runs have the oil colour look baked into their pixels. */
+  readonly bakedOil: boolean;
+}
+
+export interface SauceLayerPlan {
+  readonly merged: readonly SauceMergedGroup[];
+  /** The newest runs, each with its own canvas pair, oldest first. */
+  readonly own: readonly SauceLayer[];
+  /** Index (in the full layer list) of `own[0]`. */
+  readonly firstOwnIndex: number;
+}
+
+/**
+ * Which runs get a canvas pair of their own and how the older ones are grouped. Pure; the groups cover the older runs exactly once, in
+ * order, so a chronological stack of `merged` then `own` is the stack of all the layers. Olive oil carries its own CSS filter, so
+ * consecutive runs are grouped by "oil or not"; if that alternation needs more than `SAUCE_MERGED_GROUPS_MAX` groups, the OLDEST
+ * groups are folded into one plain group (their oil runs get the oil look baked in), which bounds the count for any history.
+ * With `SAUCE_OWN_LAYERS` runs or fewer nothing is merged and every layer is drawn on its own, as before.
+ */
+export function planSauceLayers(layers: readonly SauceLayer[]): SauceLayerPlan {
+  const firstOwnIndex = Math.max(0, layers.length - SAUCE_OWN_LAYERS);
+  const older = layers.slice(0, firstOwnIndex);
+  const own = layers.slice(firstOwnIndex);
+  const segments: Array<{ firstIndex: number; runs: SauceLayer[] }> = [];
+  older.forEach((layer, index) => {
+    const last = segments[segments.length - 1];
+    if (last && isOil(last.runs[0]) === isOil(layer)) last.runs.push(layer);
+    else segments.push({ firstIndex: index, runs: [layer] });
+  });
+  const fold = Math.max(0, segments.length - SAUCE_MERGED_GROUPS_MAX + 1);
+  const groups = fold > 1 ? [{ firstIndex: 0, runs: segments.slice(0, fold).flatMap((s) => s.runs) }, ...segments.slice(fold)] : segments;
+  const merged = groups.map((group) => {
+    const oilRuns = group.runs.filter(isOil).length;
+    const mixed = oilRuns > 0 && oilRuns < group.runs.length;
+    return { firstIndex: group.firstIndex, runs: group.runs, oil: oilRuns === group.runs.length, bakedOil: mixed };
+  });
+  return { merged, own, firstOwnIndex };
+}

@@ -107,6 +107,33 @@ Not changed by A: the canvas count (2 per run), memory (about +1.2 MB of rendere
 
 Tests: `sauceRunsOf` reuse (same objects for unchanged runs, extension, undo, restamp, changed earlier run); component test that earlier layers receive the very same `deposits` / `under` objects across commits (fails without the fix); e2e (390x844 / 360x800) that a 13th run commit draws at most 5 canvases and a top-run extension at most 14.
 
+## Codex P2: a fixed sauce-canvas budget and a safe failure path (option B, Owner decision)
+
+A cuts the repaint work but not the canvases (two per run, up to 100 runs). Option B (Owner decision) bounds them: **a pizza never carries more than 24 sauce canvases**, however many runs it has and however the sauces alternate. No change to the game rules, the remaining quantity, the ledger, the reducer, scoring or the save format; chronological layering, overlap dimming and the single-sauce drawing are kept.
+
+- **Own layers.** The newest `SAUCE_OWN_LAYERS` = 8 runs keep a heatmap and an overflow canvas of their own, exactly as before (a pizza with 8 runs or fewer draws exactly as it did).
+- **Merged groups.** Every older run is flattened, in order, into at most `SAUCE_MERGED_GROUPS_MAX` = 4 shared canvas pairs (`planSauceLayers`, `SauceMergedCanvas`). Each run's raster is built as its own canvas would build it (own colour, own overlap dimming against everything under it), then stacked with the same source-over blend the browser uses between canvases (`compositeOver`); a group that only grew at its end stacks just the new run (rasters are cached per run object, which A made stable). The one difference from separate canvases is that the CSS blur is applied once to the flattened group.
+- **Olive oil.** Oil carries its own CSS filter (saturate / contrast / brightness / glow), which cannot be applied to a canvas that also holds other sauce. So consecutive older runs are grouped by "oil or not", and an oil group is an oil canvas. If the oil/other alternation needs more than 4 groups, the OLDEST groups are folded into one plain group and their oil runs get the oil colour look baked into their pixels (`bakeOliveOilLook`: saturate 2.1, contrast 1.4, brightness 0.82; no glow, no bake-state variant). That approximation applies only to the oldest, buried runs of a pizza that alternates oil more than the budget allows; any other history is drawn exactly.
+- **Canvas failure.** A 2D context refused after a working probe (canvas memory budget), or a draw that throws, now shows that layer as one soft dot per deposit in the sauce's colour (`SauceDotsFallback`, same box / blur / bake tint as the canvas; at most 100 dots per pizza) instead of nothing, so spent sauce is never invisible; the overflow markers of a failed canvas are simply left out. Every canvas draw is wrapped in try/catch, and the sauce layers sit in an error boundary (`SauceLayersBoundary`, no DOM of its own) that falls back to the same dots, so an exception can no longer unmount the app (white screen). A platform with no 2D support at all (a test DOM) draws nothing, exactly as before.
+
+Measured (Chromium; 390x844 and 360x800 give the same picture, 390 / 360 where two numbers are shown), A = 68900dc, B = this change:
+
+| runs | canvases A / B | DOM nodes A / B | renderer memory A / B | commit, CPU 4x, median A / B |
+|---|---|---|---|---|
+| 12 | 24 / 18 | 406 / 376 | +5 / +5 MB | 91 / 88 vs 70 / 85 ms |
+| 25 | 50 / 18 | 536 / 376 | +18 / +3 MB | 107 / 111 vs 60 / 64 ms |
+| 50 | 100 / 18 | 786 / 376 | +46 / +4 MB | 152 / 206 vs 100 / 68 ms |
+| 90 | 180 / 18 | 1186 / 376 | +91 / +5 MB | 212 / 175 vs 49 / 65 ms |
+| 99 | 198 / 18 | 1277 / 377 | +128 / +6 MB | (cap reached) |
+| 50, oil alternating | 100 / 24 | 786 / 406 | +48 / +8 MB | 176 / 157 vs 98 / 82 ms |
+| 99, oil alternating | 198 / 24 | 1277 / 407 | +125 / +10 MB | (cap reached) |
+
+(Order in the last column: 390 A / 360 A vs 390 B / 360 B.) At CPU 1x a commit is about 40-60 ms with B at every run count, against 90-180 ms for A at 25-50 runs; with oil alternating at 50 runs it is 75-88 ms with B (the oil canvases carry the heavier glow filter) against 260-300 ms with A.
+
+Look (same deposit log rendered by A and by B, 390x844 and 360x800; `docs/reports/screenshots/sauce-canvas-budget/`): 12 / 25 / 50 runs differ by at most 9 of 255 levels (mean <= 0.53; the difference x8 image shows only faint edge speckle). Oil mixed in (25 runs, every 5th oil): max 26, 2.4% of pixels above 8 levels. Worst case, oil alternating for 40 runs (the folded, baked path): mean 2.2, 14% of pixels above 8 levels, 1.6% above 24 (max 33), visible only as a slightly different oil yellow where old oil lies under newer sauce.
+
+Tests: `planSauceLayers` (cover every run once and in order for 6 run counts x 4 histories, bound on groups and canvases, oil grouping, fold, stable keys); `compositeOver` / `bakeOliveOilLook`; the merged canvas against the runs' own rasters stacked in order (and incremental == from scratch); failure handling with a stubbed 2D context (refused, throwing, no 2D at all, boundary); component tests at 8 / 12 / 100 runs including 100 alternating oil (<= 24 canvases, oldest oil baked); e2e (390x844 / 360x800): 40 alternating tomato/oil strokes stay <= 24 canvases and every heatmap is painted, a refused context and a throwing `drawImage` leave the app up with the layer shown as dots and the tray working.
+
 ## Human Verification
 The two videos recorded for the earlier cumulative design (A margherita, B switch) no longer describe the behaviour and are **withdrawn**.
 Re-recording at 390×844 for the per-kind design (single sauce drain → switch to a fresh sauce shows full → switch back shows the remainder
