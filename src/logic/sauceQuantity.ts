@@ -33,6 +33,19 @@ export const SAUCE_RATE_PER_TICK = 0.02;
 export const SAUCE_MAX_QUANTITY = 1.0;
 
 /**
+ * Sauce B1 (per-kind sauce ledger): the cap on the TOTAL sauce on one pizza across every sauce kind. Each kind is still
+ * limited to `SAUCE_MAX_QUANTITY` (100%); this only bounds how many kinds can stack up.
+ *
+ * PROVISIONAL (Owner Decision, #489 line): 2.0 (200%) is a comparison value, NOT a final balance. The final value is
+ * decided after Human Verification; do not treat it as settled. With one kind it can never bind (it is above the
+ * per-kind cap), so every single-source pizza behaves exactly as before.
+ */
+export const SAUCE_TOTAL_MAX_QUANTITY = 2.0;
+
+/** Float slack for the reducer's cap checks (50 ticks of 0.02 do not sum to exactly 1.0). */
+export const SAUCE_CAP_EPSILON = 1e-6;
+
+/**
  * Safety cap (Codex Broad Review MUST FIX 3 -- Background/Stall): the maximum number of
  * ticks a single `computeDueTicks` call will ever produce, however large the real elapsed
  * time it's given is. Without this, a backgrounded tab (`visibilitychange`/`blur` -- see

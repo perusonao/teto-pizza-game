@@ -10,9 +10,9 @@ import { createEmptyPizza, type SauceDeposit } from "../state/pizzaState";
 import { PizzaStage } from "./PizzaStage";
 
 /**
- * Issue #489 Phase 2 / Owner Decision on PR #494: sauce consumption is cumulative across sauce switches,
- * and the dispense cap and the remaining gauge read the SAME total. A press (pointerdown) deposits one
- * starter tick of min(0.02, what is left) at once, so the cap is observable without a running clock.
+ * Issue #489 B3: the gauge reads the B1 ledger's headroom for the ACTIVE sauce kind (own 100% + pizza-wide cap), the same
+ * number the dispenser caps on. A press (pointerdown) deposits one starter tick of min(0.02, headroom) at once, so the cap
+ * is observable without a running clock.
  */
 const DOUGH_RECT = { left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300 } as DOMRect;
 const ALL_IDS = INGREDIENTS.map((i) => i.id);
@@ -42,7 +42,7 @@ function Harness({ sauceId, consumed }: { sauceId: string; consumed: number }) {
     <div>
       <button type="button" onClick={() => setActiveId("tomato-sauce")}>use-tomato</button>
       <button type="button" onClick={() => setActiveId("pesto")}>use-pesto</button>
-      <span data-testid="canonical-sauce">{state.pizza.sauceIds[0] ?? "none"}</span>
+      <span data-testid="canonical-kinds">{state.pizza.sauceIds.join(",")}</span>
       <span data-testid="canonical-total">{total.toFixed(2)}</span>
       <PizzaStage
         pizza={state.pizza}
@@ -77,7 +77,7 @@ function press() {
   fireEvent.pointerUp(dough, at);
 }
 const gauge = () => Number(screen.getByRole("meter", { name: "ソースの残り" }).getAttribute("aria-valuenow"));
-const sauceId = () => screen.getByTestId("canonical-sauce").textContent;
+const kinds = () => screen.getByTestId("canonical-kinds").textContent;
 const total = () => screen.getByTestId("canonical-total").textContent;
 
 beforeEach(() => {
@@ -91,8 +91,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("PizzaStage cumulative sauce consumption (cap and gauge share one total)", () => {
-  it("normal painting: the same sauce keeps adding to the same total", () => {
+describe("PizzaStage per-kind sauce gauge (gauge and dispenser cap share the ledger headroom)", () => {
+  it("single sauce: unchanged one-bottle gauge", () => {
     render(<Harness sauceId="tomato-sauce" consumed={0.5} />);
     expect(gauge()).toBe(50);
     press();
@@ -100,57 +100,36 @@ describe("PizzaStage cumulative sauce consumption (cap and gauge share one total
     expect(gauge()).toBe(48);
   });
 
-  it("switching mid-way does NOT refill: the old sauce's usage still counts", () => {
+  it("switching to a fresh sauce shows ITS own full bottle (history is kept, B1)", () => {
     render(<Harness sauceId="tomato-sauce" consumed={0.5} />);
     fireEvent.click(screen.getByText("use-pesto"));
+    expect(gauge()).toBe(100);
     press();
-    expect(sauceId()).toBe("pesto");
-    expect(total()).toBe("0.02"); // canonical deposits hold only the new sauce
-    expect(gauge()).toBe(48); // ...but the gauge (and the cap) still remember the 0.5 of tomato
-    press();
-    expect(gauge()).toBe(46);
+    expect(kinds()).toBe("tomato-sauce,pesto");
+    expect(total()).toBe("0.52"); // the history keeps tomato's 0.5 + pesto's 0.02
+    expect(gauge()).toBe(98);
   });
 
-  it("switching back and forth keeps accumulating", () => {
+  it("switching back shows the first sauce's remaining bottle, not a refill", () => {
     render(<Harness sauceId="tomato-sauce" consumed={0.5} />);
     fireEvent.click(screen.getByText("use-pesto"));
     press();
     fireEvent.click(screen.getByText("use-tomato"));
+    expect(gauge()).toBe(50);
     press();
-    expect(sauceId()).toBe("tomato-sauce");
-    expect(gauge()).toBe(46); // 0.5 + 0.02 + 0.02
+    expect(gauge()).toBe(48);
   });
 
-  it("the cap counts the earlier sauce: only what is left can be dispensed after a switch", () => {
-    render(<Harness sauceId="tomato-sauce" consumed={0.99} />);
-    fireEvent.click(screen.getByText("use-pesto"));
-    press(); // starter tick is clamped to the 0.01 left, not 0.02
-    expect(sauceId()).toBe("pesto");
-    expect(total()).toBe("0.01");
-    expect(gauge()).toBe(0);
-  });
-
-  it("at 0% nothing more comes out, with the same sauce or after a switch", () => {
-    render(<Harness sauceId="tomato-sauce" consumed={0.99} />);
-    fireEvent.click(screen.getByText("use-pesto"));
-    press();
-    expect(gauge()).toBe(0);
-    press(); // empty: no deposit, no commit
-    expect(total()).toBe("0.01");
-    fireEvent.click(screen.getByText("use-tomato")); // switching itself still works...
-    press(); // ...but there is nothing left to dispense, and the sauce on the pizza is unchanged
-    expect(total()).toBe("0.01");
-    expect(sauceId()).toBe("pesto");
-    expect(gauge()).toBe(0);
-  });
-
-  it("a full bottle (1.0) of one sauce blocks the other sauce as well", () => {
+  it("a drained sauce stays drained for its own kind, while the other kind still has its bottle", () => {
     render(<Harness sauceId="tomato-sauce" consumed={1} />);
     expect(gauge()).toBe(0);
-    fireEvent.click(screen.getByText("use-pesto"));
-    press();
+    press(); // nothing comes out
     expect(total()).toBe("1.00");
-    expect(sauceId()).toBe("tomato-sauce");
+    fireEvent.click(screen.getByText("use-pesto"));
+    expect(gauge()).toBe(100);
+    press();
+    expect(kinds()).toBe("tomato-sauce,pesto");
+    expect(gauge()).toBe(98);
   });
 
   it("a fresh pizza starts full", () => {

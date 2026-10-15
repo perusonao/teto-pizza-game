@@ -8,9 +8,34 @@ import { createEmptyPizza, type SauceDeposit } from "../state/pizzaState";
 import { PizzaStage } from "./PizzaStage";
 
 /** Issue #489 Phase 2: the remaining-sauce gauge is wired into PizzaStage on the SAUCE step only. */
+function stageProps(pizza: ReturnType<typeof createEmptyPizza>, makingStep: MakingStep = "SAUCE") {
+  return {
+    pizza,
+    recipe: getRecipe("margherita")!,
+    interactive: true,
+    activeIngredient: getIngredient("tomato-sauce")!,
+    bakeProgress: null,
+    placement: null,
+    resultRevealed: false,
+    referenceModeEnabled: true,
+    resetToken: 0,
+    makingStepToken: 0,
+    makingStep,
+    showDoughShape: true,
+    onTap: () => {},
+    onDispenseProgress: () => {},
+    onDispenseCommit: () => {},
+    onDoughStretchProgress: () => {},
+    onDoughStretchCommit: () => {},
+    cutState: { lines: [] } as never,
+    onAddCutLine: () => {},
+  };
+}
+
 function renderStage(makingStep: MakingStep, amounts: number[] = [], extra: { resultCompact?: boolean } = {}) {
   const pizza = {
     ...createEmptyPizza(),
+    sauceIds: amounts.length > 0 ? ["tomato-sauce"] : [],
     sauceDeposits: amounts.map<SauceDeposit>((amount) => ({ x: 50, y: 50, amount })),
   };
   return render(
@@ -66,38 +91,19 @@ describe("PizzaStage sauce remaining gauge", () => {
     expect(screen.getByRole("meter", { name: "ソースの残り" })).toHaveAttribute("aria-valuenow", "0");
   });
 
-  it("keeps consumed sauce when the player switches sauce type (no refill on commit)", () => {
-    const stageProps = (pizza: ReturnType<typeof createEmptyPizza>) => (
-      <PizzaStage
-        pizza={pizza}
-        recipe={getRecipe("margherita")!}
-        interactive
-        activeIngredient={getIngredient("tomato-sauce")!}
-        bakeProgress={null}
-        placement={null}
-        resultRevealed={false}
-        referenceModeEnabled
-        resetToken={0}
-        makingStepToken={0}
-        makingStep="SAUCE"
-        showDoughShape
-        onTap={() => {}}
-        onDispenseProgress={() => {}}
-        onDispenseCommit={() => {}}
-        onDoughStretchProgress={() => {}}
-        onDoughStretchCommit={() => {}}
-        cutState={{ lines: [] } as never}
-        onAddCutLine={() => {}}
-      />
-    );
+  it("reads the active kind's own bottle on a multi-sauce pizza (B1 ledger, per kind)", () => {
     const base = createEmptyPizza();
-    const tomato = { ...base, sauceIds: ["tomato-sauce"], sauceToken: 1, sauceDeposits: [{ x: 50, y: 50, amount: 0.5 }] };
-    const { rerender } = render(stageProps(tomato));
-    expect(screen.getByRole("meter")).toHaveAttribute("aria-valuenow", "50");
-    // reducer: a different sauce replaces the deposits with the new batch and bumps sauceToken
-    const pesto = { ...tomato, sauceIds: ["pesto"], sauceToken: 2, sauceDeposits: [{ x: 50, y: 50, amount: 0.1 }] };
-    rerender(stageProps(pesto));
-    expect(screen.getByRole("meter")).toHaveAttribute("aria-valuenow", "40");
+    const multi = {
+      ...base,
+      sauceIds: ["pesto", "tomato-sauce"],
+      sauceDeposits: [
+        { x: 50, y: 50, amount: 0.5, ingredientId: "pesto" },
+        { x: 50, y: 50, amount: 0.1, ingredientId: "tomato-sauce" },
+      ],
+    };
+    // active ingredient is tomato-sauce: 0.1 of its own 1.0 used
+    render(<PizzaStage {...stageProps(multi)} />);
+    expect(screen.getByRole("meter")).toHaveAttribute("aria-valuenow", "90");
   });
 
   it.each(["DOUGH", "CHEESE", "TOPPING", "CUT"] as const)("is absent on the %s step", (step) => {

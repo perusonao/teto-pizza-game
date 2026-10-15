@@ -139,9 +139,9 @@ describe("Making-step nav consistency across phases (Issue #159 P0, margherita =
   it("BAKE: the nav strip stays mounted, every pre-BAKE step reads completed, BAKE reads active, CUT stays locked", () => {
     renderAt(bakingMargherita(), MARGHERITA_REFERENCE);
     for (const label of ["生地", "ソース", "チーズ", "具材"]) {
-      expect(screen.getByRole("tab", { name: new RegExp(`✓ ${label}`) })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: label })).toHaveTextContent(`✓ ${label}`);
     }
-    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--bake-active");
+    expect(document.querySelector(".making-step-tab--bake")!.className).toContain("making-step-tab--bake-active");
     const cutTab = screen.getByRole("tab", { name: "カット" });
     expect(cutTab).toBeDisabled();
     expect(cutTab.className).toContain("making-step-tab--locked");
@@ -153,9 +153,9 @@ describe("Making-step nav consistency across phases (Issue #159 P0, margherita =
     expect(state.makingStep).toBe("CUT");
     renderAt(state, MARGHERITA_REFERENCE);
     for (const label of ["生地", "ソース", "チーズ", "具材"]) {
-      expect(screen.getByRole("tab", { name: new RegExp(`✓ ${label}`) })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: label })).toHaveTextContent(`✓ ${label}`);
     }
-    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--completed");
+    expect(document.querySelector(".making-step-tab--bake")!.className).toContain("making-step-tab--completed");
     const cutTab = screen.getByRole("tab", { name: "カット" });
     expect(cutTab).toHaveAttribute("aria-selected", "true");
     expect(cutTab).toBeDisabled();

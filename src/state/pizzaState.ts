@@ -6,6 +6,16 @@ export interface PlacedTopping {
   ingredientId: string;
   x: number;
   y: number;
+  /**
+   * Cooking Steps 2.0 FINISH engine (Issue #294): `"post"` = placed in the FINISH step after the bake.
+   * Absent (or `"pre"`) = placed before the bake -- every piece the game places today. Not persisted.
+   */
+  stage?: "pre" | "post";
+}
+
+/** True for a piece placed in the FINISH step (after the bake). */
+export function isPostBakePiece(piece: Pick<PlacedTopping, "stage">): boolean {
+  return piece.stage === "post";
 }
 
 export interface SauceOrigin {
@@ -22,6 +32,12 @@ export interface SauceDeposit {
   x: number;
   y: number;
   amount: number;
+  /**
+   * Sauce B1: which sauce kind laid this deposit. ABSENT on a single-sauce pizza (the historical shape, kept
+   * byte-identical); once a second kind is committed the reducer sets it on EVERY deposit (back-filling the earlier ones
+   * with the only sauce used so far), so a log is either all-without or all-with. Not persisted (pizza state is not).
+   */
+  ingredientId?: string;
 }
 
 function isFiniteNumber(value: number): boolean {

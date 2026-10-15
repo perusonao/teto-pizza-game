@@ -4,7 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MakingStepTabs } from "./MakingStepTabs";
 import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { preBakeSteps } from "../data/cookingProfiles";
+import { preBakeSteps, visibleCookingTabCount } from "../data/cookingProfiles";
 
 /**
  * Issue #86 (UX-2): coverage for the making-step tab strip -- the reducer's own one-way
@@ -41,6 +41,11 @@ function Harness({ makingStep, nextReady = true }: { makingStep: MakingStep; nex
 afterEach(() => {
   cleanup();
 });
+
+/** The non-interactive BAKE indicator (CS-4a: its text now sits in an inner span, so query the tab itself). */
+function bakeTab(): HTMLElement {
+  return document.querySelector<HTMLElement>(".making-step-tab--bake")!;
+}
 
 describe("MakingStepTabs (Issue #86 UX-2)", () => {
   it("test 1: DOUGH is active on a fresh PREPARE round", () => {
@@ -95,8 +100,8 @@ describe("MakingStepTabs (Issue #86 UX-2)", () => {
 
   it("test 7: a completed step renders with a checkmark and is disabled/non-interactive", () => {
     render(<Harness makingStep="CHEESE" />);
-    const sauceTab = screen.getByRole("tab", { name: /✓ ソース/ });
-    expect(sauceTab).toBeInTheDocument();
+    const sauceTab = screen.getByRole("tab", { name: "ソース" });
+    expect(sauceTab).toHaveTextContent("✓ ソース");
     expect(sauceTab).toBeDisabled();
     expect(sauceTab.className).toContain("making-step-tab--completed");
     fireEvent.click(sauceTab);
@@ -114,7 +119,7 @@ describe("MakingStepTabs (Issue #86 UX-2)", () => {
 
   it("keyboard cannot reactivate a locked/completed tab: a disabled button is not focusable", () => {
     render(<Harness makingStep="CHEESE" />);
-    const sauceTab = screen.getByRole("tab", { name: /✓ ソース/ }) as HTMLButtonElement;
+    const sauceTab = screen.getByRole("tab", { name: "ソース" }) as HTMLButtonElement;
     expect(sauceTab.disabled).toBe(true);
     sauceTab.focus();
     expect(document.activeElement).not.toBe(sauceTab);
@@ -187,7 +192,8 @@ describe("Dynamic step derivation (Gameplay UX / Scoring 3.0 PR-A): renders exac
     render(
       <MakingStepTabs steps={["DOUGH", "SAUCE", "TOPPING"]} currentStep="TOPPING" nextReady onAdvance={() => {}} />,
     );
-    const sauceTab = screen.getByRole("tab", { name: /✓ ソース/ });
+    const sauceTab = screen.getByRole("tab", { name: "ソース" });
+    expect(sauceTab).toHaveTextContent("✓ ソース");
     expect(sauceTab.className).toContain("making-step-tab--completed");
     expect(sauceTab).toBeDisabled();
   });
@@ -227,7 +233,8 @@ describe("Bake tab emoji removal (Gameplay UX / Scoring 3.0 PR-A, Audit G)", () 
         onAdvance={() => {}}
       />,
     );
-    expect(screen.getByText("✓ 焼く")).toBeInTheDocument();
+    expect(bakeTab()).toHaveTextContent(/^✓ 焼く$/);
+    expect(bakeTab().textContent).not.toContain("🔥");
     expect(screen.queryByText(/\u{1F525}/u)).not.toBeInTheDocument();
   });
 });
@@ -280,7 +287,7 @@ describe("MakingStepTabs with a future-fixture sequence (Recipe Cooking Steps 1.
         onAdvance={() => {}}
       />,
     );
-    expect(screen.getByText(/焼く/).className).not.toContain("making-step-tab--bake-ready");
+    expect(bakeTab().className).not.toContain("making-step-tab--bake-ready");
 
     rerender(
       <MakingStepTabs
@@ -290,7 +297,7 @@ describe("MakingStepTabs with a future-fixture sequence (Recipe Cooking Steps 1.
         onAdvance={() => {}}
       />,
     );
-    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--bake-ready");
+    expect(bakeTab().className).toContain("making-step-tab--bake-ready");
   });
 });
 
@@ -334,11 +341,12 @@ describe("MakingStepTabs postSteps/currentPhase (Issue #159 P0)", () => {
       />,
     );
     for (const label of ["生地", "ソース", "チーズ", "具材"]) {
-      const tab = screen.getByRole("tab", { name: new RegExp(`✓ ${label}`) });
+      const tab = screen.getByRole("tab", { name: label });
+      expect(tab).toHaveTextContent(`✓ ${label}`);
       expect(tab).toBeDisabled();
       expect(tab.className).toContain("making-step-tab--completed");
     }
-    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--bake-active");
+    expect(bakeTab().className).toContain("making-step-tab--bake-active");
     const cutTab = screen.getByRole("tab", { name: "カット" });
     expect(cutTab).toBeDisabled();
     expect(cutTab.className).toContain("making-step-tab--locked");
@@ -356,9 +364,9 @@ describe("MakingStepTabs postSteps/currentPhase (Issue #159 P0)", () => {
       />,
     );
     for (const label of ["生地", "ソース", "チーズ", "具材"]) {
-      expect(screen.getByRole("tab", { name: new RegExp(`✓ ${label}`) })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: label })).toHaveTextContent(`✓ ${label}`);
     }
-    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--completed");
+    expect(bakeTab().className).toContain("making-step-tab--completed");
     const cutTab = screen.getByRole("tab", { name: "カット" });
     expect(cutTab).toHaveAttribute("aria-selected", "true");
     expect(cutTab.className).toContain("making-step-tab--active");
@@ -388,5 +396,147 @@ describe("MakingStepTabs postSteps/currentPhase (Issue #159 P0)", () => {
     );
     expect(screen.queryByRole("tab", { name: "カット" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("tab")).toHaveLength(4);
+  });
+});
+
+/**
+ * Cooking Steps 2.0 CS-4a (T3 compact chips): a 7-tab strip -- DOUGH / SAUCE / CHEESE / TOPPING +
+ * 焼く + FINISH + CUT -- as a fixture only. No Production recipe has FINISH (Owner Decision: 7 tabs are
+ * verified on fixtures; MAX_VISIBLE_COOKING_TABS stays 6, see cookingProfiles.tabGate.test.ts).
+ */
+describe("7-tab fixture strip (CS-4a)", () => {
+  const PRE: MakingStep[] = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"];
+  const POST: MakingStep[] = ["FINISH", "CUT"];
+  const FORMAL: Record<string, string> = {
+    DOUGH: "生地",
+    SAUCE: "ソース",
+    CHEESE: "チーズ",
+    TOPPING: "具材",
+    FINISH: "仕上げ",
+    CUT: "カット",
+  };
+
+  function renderStrip(currentStep: MakingStep, currentPhase: "PREPARE" | "BAKE" | "POST_BAKE", onAdvance = () => {}) {
+    return render(
+      <MakingStepTabs
+        steps={PRE}
+        postSteps={POST}
+        currentStep={currentStep}
+        currentPhase={currentPhase}
+        nextReady
+        onAdvance={onAdvance}
+      />,
+    );
+  }
+
+  it("renders 6 step tabs + the BAKE indicator, FINISH before CUT, with its own colour class", () => {
+    renderStrip("DOUGH", "PREPARE");
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.map((t) => t.getAttribute("aria-label"))).toEqual(["生地", "ソース", "チーズ", "具材", "仕上げ", "カット"]);
+    expect(document.querySelectorAll(".making-step-tabs > *")).toHaveLength(7);
+    expect(screen.getByRole("tab", { name: "仕上げ" }).className).toContain("making-step-tab--finish");
+  });
+
+  it("aria-label is the formal step name in every state (active / next / locked / completed)", () => {
+    for (const [step, phase] of [
+      ["DOUGH", "PREPARE"],
+      ["CHEESE", "PREPARE"],
+      ["FINISH", "POST_BAKE"],
+    ] as const) {
+      renderStrip(step, phase);
+      for (const [id, name] of Object.entries(FORMAL)) {
+        expect(screen.getByRole("tab", { name }), `${id} while ${phase}/${step}`).toBeInTheDocument();
+      }
+      cleanup();
+    }
+  });
+
+  it("a completed tab is still announced as completed (aria-description), others are not", () => {
+    renderStrip("TOPPING", "PREPARE");
+    for (const name of ["生地", "ソース", "チーズ"]) {
+      expect(screen.getByRole("tab", { name })).toHaveAccessibleDescription("完了");
+    }
+    for (const name of ["具材", "仕上げ", "カット"]) {
+      expect(screen.getByRole("tab", { name })).not.toHaveAccessibleDescription();
+    }
+  });
+
+  it("completed tabs read ✓ + short label; active / next / locked read their label with no ✓", () => {
+    renderStrip("TOPPING", "PREPARE");
+    for (const name of ["生地", "ソース", "チーズ"]) {
+      expect(screen.getByRole("tab", { name })).toHaveTextContent(`✓ ${name}`);
+    }
+    expect(screen.getByRole("tab", { name: "具材" })).toHaveTextContent(/^具材$/);
+    expect(screen.getByRole("tab", { name: "仕上げ" })).toHaveTextContent(/^仕上げ$/);
+    expect(screen.getByRole("tab", { name: "カット" })).toHaveTextContent(/^カット$/);
+  });
+
+  it("only the immediate next tab is ever tappable, at every position of the 7-step walk", () => {
+    const walk: [MakingStep, "PREPARE" | "POST_BAKE", string | null][] = [
+      ["DOUGH", "PREPARE", "ソース"],
+      ["SAUCE", "PREPARE", "チーズ"],
+      ["CHEESE", "PREPARE", "具材"],
+      ["TOPPING", "PREPARE", null], // the next step is the BAKE indicator, which is never a tap target
+      ["FINISH", "POST_BAKE", "カット"],
+      ["CUT", "POST_BAKE", null],
+    ];
+    for (const [step, phase, nextName] of walk) {
+      let advanced = 0;
+      renderStrip(step, phase, () => (advanced += 1));
+      const enabled = screen.getAllByRole("tab").filter((t) => !(t as HTMLButtonElement).disabled);
+      expect(enabled.map((t) => t.getAttribute("aria-label")), `${phase}/${step}`).toEqual(nextName ? [nextName] : []);
+      for (const tab of screen.getAllByRole("tab")) fireEvent.click(tab);
+      expect(advanced, `${phase}/${step}`).toBe(nextName ? 1 : 0);
+      cleanup();
+    }
+  });
+
+  it("the BAKE indicator stays a non-interactive aria-hidden element between the pre- and post-bake tabs", () => {
+    renderStrip("TOPPING", "PREPARE");
+    const strip = document.querySelector(".making-step-tabs")!;
+    const kids = [...strip.children];
+    const bake = strip.querySelector(".making-step-tab--bake")!;
+    expect(kids.indexOf(bake)).toBe(4);
+    expect(bake.getAttribute("aria-hidden")).toBe("true");
+    expect(bake.tagName).toBe("DIV");
+    expect(bake.className).toContain("making-step-tab--bake-ready");
+  });
+
+  it("tab count matches visibleCookingTabCount for the same fixture profile", () => {
+    renderStrip("DOUGH", "PREPARE");
+    expect(visibleCookingTabCount({ steps: [...PRE, ...POST] })).toBe(7);
+    expect(document.querySelectorAll(".making-step-tabs > *")).toHaveLength(7);
+  });
+});
+
+/** Codex review P2 on #499: a long formal label (unshipped FOLD / EDGE_FILL) on an active / next tab must not be ellipsized. */
+describe("long formal labels on active / next tabs (CS-4a)", () => {
+  it("renders the formal label and a short fallback for the active tab, and keeps the formal accessible name", () => {
+    render(
+      <MakingStepTabs steps={["DOUGH", "SAUCE", "FOLD"]} currentStep="FOLD" nextReady onAdvance={() => {}} />,
+    );
+    const tab = screen.getByRole("tab", { name: "折りたたみ" });
+    expect(tab.querySelector(".making-step-tab__text--len5")).toHaveTextContent("折りたたみ");
+    expect(tab.querySelector(".making-step-tab__alt")).toHaveTextContent("折る");
+  });
+
+  it("the next tab gets the fallback too; completed and locked tabs just use the short label", () => {
+    const { rerender } = render(
+      <MakingStepTabs steps={["DOUGH", "EDGE_FILL", "TOPPING"]} currentStep="DOUGH" nextReady onAdvance={() => {}} />,
+    );
+    const next = screen.getByRole("tab", { name: "ふちづめ" });
+    expect(next.querySelector(".making-step-tab__text--len4")).toHaveTextContent("ふちづめ");
+    expect(next.querySelector(".making-step-tab__alt")).toHaveTextContent("ふち");
+    rerender(
+      <MakingStepTabs steps={["DOUGH", "EDGE_FILL", "TOPPING"]} currentStep="TOPPING" nextReady onAdvance={() => {}} />,
+    );
+    const done = screen.getByRole("tab", { name: "ふちづめ" });
+    expect(done).toHaveTextContent("✓ ふち");
+    expect(done.querySelector(".making-step-tab__alt")).toBeNull();
+  });
+
+  it("a step whose short label equals its formal label renders no fallback", () => {
+    render(<MakingStepTabs steps={["DOUGH", "SAUCE"]} currentStep="DOUGH" nextReady onAdvance={() => {}} />);
+    expect(document.querySelector(".making-step-tab__alt")).toBeNull();
   });
 });

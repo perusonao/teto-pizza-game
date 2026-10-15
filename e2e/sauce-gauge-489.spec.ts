@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { completeDoughStep, startFreshMargherita } from "./gestures";
+import { base, openWith } from "./support/familyTray";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Issue #489 Phase 2: the remaining-sauce gauge on the SAUCE step. Measures that it sits to the right
@@ -85,4 +87,41 @@ test("holding to empty stops the sauce: 0% means nothing more comes out, and the
   const after = (await page.locator(".pizza-dough--interactive").boundingBox())!;
   expect(after.width).toBeCloseTo(dough.width, 0);
   expect(after.x).toBeCloseTo(dough.x, 0);
+});
+
+/**
+ * Issue #489 B3: with several sauces (B1 ledger) the gauge shows the ACTIVE kind's own bottle -- a fresh sauce starts full,
+ * switching back shows the first sauce's remaining bottle (not a refill), and the dispenser still caps on the same number.
+ */
+test("multi-sauce: the gauge follows the active sauce's own bottle", async ({ page }) => {
+  const { width, height } = page.viewportSize()!;
+  await openWith(page, width, height, base(["tomato-sauce", "pesto"]));
+  await startTargetlessFreeCook(page);
+  await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  const gauge = page.locator(GAUGE);
+  const dough = (await page.locator(".pizza-dough--interactive").boundingBox())!;
+  const centre = { x: dough.x + dough.width / 2, y: dough.y + dough.height / 2 };
+  const hold = async (ms: number) => {
+    await page.mouse.move(centre.x, centre.y);
+    await page.mouse.down();
+    await page.waitForTimeout(ms);
+    await page.mouse.up();
+    await page.waitForTimeout(150);
+  };
+  const now = async () => Number(await gauge.getAttribute("aria-valuenow"));
+
+  await hold(1200);
+  const tomatoLeft = await now();
+  expect(tomatoLeft).toBeLessThan(100);
+
+  await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
+  await expect(gauge).toHaveAttribute("aria-valuenow", "100"); // pesto: its own full bottle
+  await hold(800);
+  expect(await now()).toBeLessThan(100);
+
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  expect(Math.abs((await now()) - tomatoLeft)).toBeLessThanOrEqual(4); // tomato's remaining, not a refill
 });

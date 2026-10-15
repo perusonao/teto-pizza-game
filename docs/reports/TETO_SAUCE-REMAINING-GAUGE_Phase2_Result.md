@@ -29,38 +29,28 @@ Issue #489 · builds on PR #493 (Phase 1: `sauceRemainingFraction` + `SauceRemai
 ## Not done (by instruction)
 No merge, no deploy, no shared Preview replacement.
 
-## Owner Decision (PR #494): cumulative consumption across sauce switches
-Investigation (read-only, before this change): `COMMIT_SAUCE_DISPENSE` replaces `sauceDeposits` on a sauce switch, and the
-dispense cap (`committedTotalRef`) was synced from that array. So the cap forgot the replaced sauce's usage at commit
-(while still counting it during the first stroke of the new sauce), and the gauge — once it carried usage — showed 0%
-while a further stroke still dispensed. Owner decided: manage usage cumulatively, make the gauge match the real limit, fix in #494.
+## Rebase onto B1 / B2 (main `d0da093`) — the cumulative-carry logic is superseded
+`main` gained B1 (#498, per-kind ledger) and B2 (#500, layered painting) after this PR was cut. B1 keeps the whole deposit history on a
+switch and caps each kind at 100% (`SAUCE_MAX_QUANTITY`) plus a provisional pizza-wide 200% (`SAUCE_TOTAL_MAX_QUANTITY`); the B1 Result
+already recorded that "#494's accumulate-across-switch logic is superseded by the ledger". Merging as-is would have made the gauge
+disagree with the real cap, so this branch (merge of `main` into the PR head) replaces it:
 
-- `committedTotalRef` (the cap's base) and the gauge now both read `sauceConsumedTotal = committed deposits + carried`.
-  One source, so they cannot disagree. No reducer / save / props change; `sauceDeposits` is still replaced on a switch,
-  so Scoring 2.0 / Completion Gate / Pitz still see only the latest sauce's deposits (unchanged).
-- Behaviour change (intended): after a switch the new sauce can only use what is left of the single bottle
-  (e.g. 0.5 of tomato used → at most 0.5 of pesto). Previously the second stroke after a switch got a fresh 1.0.
-  A pizza that never switches sauce is unaffected. At 0% a press deposits nothing; selecting another sauce is still allowed.
-- Tests: `advanceSauceCarry` unit tests; `PizzaStage.sauceCumulative.test.tsx` (normal, switch mid-way, switch back and forth,
-  cap after a switch, 0% blocks both sauces, 1.0 of one sauce blocks the other, fresh pizza); E2E hold-to-empty at 390×844 / 360×800.
-  The 0% test fails on the previous code and passes now.
+- Removed: `advanceSauceCarry` / `SauceCarryState`, the `sauceCarry` render-time state and `committedTotalRef` in `PizzaStage`
+  (main's `pizzaRef` + `sauceHeadroom` cap is kept as-is).
+- Gauge = the dispenser's own number: `sauceGaugeUsed(pizza, activeKind) = SAUCE_MAX_QUANTITY − sauceHeadroom(pizza, activeKind, 0)`,
+  plus the in-progress stroke (`pendingTotalRef`). `min(kind's own 100%, pizza-wide total)` — whichever binds — so gauge and cap cannot disagree.
+- Behaviour with several sauces: a sauce not yet used starts at its own full bottle; switching back shows that sauce's remaining bottle
+  (no refill); a drained sauce stays at 0% for its own kind while another kind still has its bottle. One-sauce pizzas are unchanged.
+- This supersedes the earlier "one bottle across switches" Owner Decision wording on this PR (it predates B1's per-kind design).
+  The pizza-wide 200% value is B1's provisional constant and is untouched.
+- Tests: `sauceGaugeUsed` unit tests; `PizzaStage.sauceGauge.perKind.test.tsx` (replaces `…sauceCumulative.test.tsx`); a multi-sauce case in
+  `PizzaStage.sauceGauge.test.tsx`; E2E multi-sauce case in `e2e/sauce-gauge-489.spec.ts`.
+- B2 single-source rendering golden: only the two scenarios that press the dough on the SAUCE step (`tomatoPending`,
+  `firstStrokePending`) changed hash — they now contain the gauge element; heatmap / overflow canvas counts and every other scenario are unchanged.
+  Regenerated on purpose (`UPDATE_SAUCE_B2_GOLDEN=1`).
 
-## Human Verification Videos
-Videos are delivered to the Owner directly in the session and are NOT committed (policy §6).
-
-| File | Viewport | Duration | Size | Codec | Delivery | Verification |
-|---|---|---|---|---|---|---|
-| `sauce-gauge-494-A-margherita-390x844.mp4` | 390×844 | 29.2 s | 384 KB | H.264 | session (direct) | PASS |
-| `sauce-gauge-494-B-switch-390x844.mp4` | 390×844 | 21.0 s | 176 KB | H.264 | session (direct) | PASS |
-
-Recorded with Playwright (Chromium, headless) at the real 390×844 viewport, converted WebM → MP4 with ffmpeg, checked with ffprobe
-(file exists, size > 0, plays to the end, whole viewport). Operations are held 1.5–3 s so a human can follow them.
-
-What to check:
-- **A (Margherita, guided):** SAUCE starts with a full gauge to the right of the pizza → press 1.2 s: it drains and keeps its value after release →
-  hold to empty: 0% → press again: nothing more is added → 次へ: the gauge is gone (CHEESE) → cheese, bake, cut, RESULT as before.
-- **B (Free Cooking, tomato + genovese owned):** use tomato (gauge drops) → switch to ジェノベーゼ: the gauge does NOT refill and keeps draining
-  from where it was → drain to 0% → switch back to トマト: switching works, but a press adds nothing and the gauge stays at 0%.
-
-Video Verification: PASS
-Screenshots (390×844, committed): `screenshots/sauce-gauge-phase2/` (before / after-full / after-drained, both viewports).
+## Human Verification
+The two videos recorded for the earlier cumulative design (A margherita, B switch) no longer describe the behaviour and are **withdrawn**.
+Re-recording at 390×844 for the per-kind design (single sauce drain → switch to a fresh sauce shows full → switch back shows the remainder
+→ drain to 0%) is **pending**; videos are delivered to the Owner directly and not committed (policy §6). Owner iPhone HV is also pending.
+Screenshots (committed): `screenshots/sauce-gauge-phase2/` (single-sauce flow, unchanged by the rebase).

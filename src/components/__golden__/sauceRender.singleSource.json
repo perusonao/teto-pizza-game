@@ -1,0 +1,77 @@
+{
+ "empty": {
+  "html": "6286424002f310da",
+  "heatmaps": 0,
+  "overflows": 0
+ },
+ "oneShotTomato": {
+  "html": "cc171a7dd340a1e8",
+  "heatmaps": 0,
+  "overflows": 0
+ },
+ "tomatoField": {
+  "html": "04eb67852df7cc8a",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "oliveOilField": {
+  "html": "cdf4398c8833af9f",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "pestoField": {
+  "html": "024c4b039b4a5f78",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "tomatoOverflow": {
+  "html": "9b113229dd00d834",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "tomatoRaw": {
+  "html": "8b54417a46d9ea90",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "tomatoPerfect": {
+  "html": "0140babb708a3547",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "tomatoBurnt": {
+  "html": "a2972a1c966b3e94",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "oliveOilPerfect": {
+  "html": "4bd5e51a0f8d9492",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "tomatoCut": {
+  "html": "9f768d04468d334c",
+  "heatmaps": 4,
+  "overflows": 4
+ },
+ "oliveOilCut": {
+  "html": "cc8bcd78d461e328",
+  "heatmaps": 4,
+  "overflows": 4
+ },
+ "tomatoPending": {
+  "html": "1c7aa817af07dae6",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "firstStrokePending": {
+  "html": "fe34f7c1908f84ad",
+  "heatmaps": 1,
+  "overflows": 1
+ },
+ "wrongSingleSauce": {
+  "html": "c43bb386c7331b6c",
+  "heatmaps": 1,
+  "overflows": 1
+ }
+}

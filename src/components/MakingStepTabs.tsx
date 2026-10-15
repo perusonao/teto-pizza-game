@@ -1,5 +1,5 @@
 import type { MakingStep } from "../state/gameReducer";
-import { STEP_LABEL } from "../data/makingStepLabels";
+import { STEP_LABEL, STEP_SHORT_LABEL } from "../data/makingStepLabels";
 
 /**
  * Issue #86 (UX-2): a second, primary-navigation affordance for the PREPARE making flow,
@@ -50,6 +50,17 @@ import { STEP_LABEL } from "../data/makingStepLabels";
  * of those phases, not just before BAKE. `currentPhase` defaults to `"PREPARE"` and `postSteps`
  * defaults to `[]`, so every pre-#159 caller/test that only passed `steps`/`currentStep` keeps
  * behaving exactly as before.
+ *
+ * Cooking Steps 2.0 CS-4a (Owner Decision, T3 compact chips; docs/reports/
+ * TETO_COOKING-STEPS-2.0_CS-4a_Result.md): a 7+ step strip must still fit 360px, so a tab now
+ * spends its width by state instead of equally. The active and next tabs keep the full
+ * `STEP_LABEL`; a completed tab shows 「✓ + 短縮ラベル」 and a locked one the short label
+ * (`STEP_SHORT_LABEL`); and only when a completed tab is too narrow for that does the CSS
+ * (`.making-step-tab__inner` container query, App.css) drop to 「✓」 alone. `aria-label` is
+ * always the formal `STEP_LABEL`, so the accessible name does not depend on the visual
+ * compaction; a completed tab also carries `aria-description="完了"`, so the completion the ✓ used to
+ * add to the name is still announced. Nothing here changes which tab is tappable or what a tap dispatches, and the
+ * Production 6-tab ceiling (cookingProfiles.ts `MAX_VISIBLE_COOKING_TABS`) is untouched.
  */
 
 // Issue #159 P0: TOPPING's tab label is "具材" here, not the "トッピング" this recipe's own
@@ -115,6 +126,31 @@ function tabState(
   };
 }
 
+/** 「✓ 短縮ラベル」 / the plain label. The ✓ is its own span so a narrow tab can hide the text and keep the ✓
+ *  (App.css `.making-step-tab__inner` container query).
+ *
+ *  `fallback` is for an active / next tab whose formal label is longer than its short one (today only the
+ *  unshipped FOLD 折りたたみ / EDGE_FILL ふちづめ): both are rendered and CSS shows the formal label while it
+ *  fits the tab (`__text--lenN` = N full-width characters = N em) and the short one when it does not, so a
+ *  long label is never ellipsized. */
+function TabLabel({ done, text, fallback }: { done: boolean; text: string; fallback?: string }) {
+  return (
+    <span className="making-step-tab__inner">
+      {done && <span className="making-step-tab__check">✓</span>}
+      <span
+        className={`making-step-tab__text${fallback ? ` making-step-tab__text--len${[...text].length}` : ""}`}
+      >
+        {done ? ` ${text}` : text}
+      </span>
+      {fallback && (
+        <span className="making-step-tab__alt" aria-hidden="true">
+          {fallback}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function MakingStepTabs({
   steps,
   postSteps = [],
@@ -145,11 +181,18 @@ export function MakingStepTabs({
     const isLocked = !isActive && !isCompleted && !isNext;
     const tappable = isNext && nextReady;
     const label = STEP_LABEL[step];
+    // Full label only where the player is looking or about to tap; everything else is compact.
+    const short = STEP_SHORT_LABEL[step];
+    const showFull = isActive || isNext;
+    const shownLabel = showFull ? label : short;
+    const fallback = showFull && label !== short ? short : undefined;
     return (
       <button
         key={step}
         type="button"
         role="tab"
+        aria-label={label}
+        aria-description={isCompleted ? "完了" : undefined}
         aria-selected={isActive}
         aria-current={isActive ? "step" : undefined}
         className={`making-step-tab making-step-tab--${step.toLowerCase()} ${
@@ -160,7 +203,7 @@ export function MakingStepTabs({
         disabled={!tappable}
         onClick={tappable ? onAdvance : undefined}
       >
-        {isCompleted ? `✓ ${label}` : label}
+        <TabLabel done={isCompleted} text={shownLabel} fallback={fallback} />
       </button>
     );
   }
@@ -180,7 +223,7 @@ export function MakingStepTabs({
         }`}
         aria-hidden="true"
       >
-        {bakeIsCompleted ? "✓ 焼く" : "焼く"}
+        <TabLabel done={bakeIsCompleted} text="焼く" />
       </div>
       {postSteps.map((step, index) =>
         renderTab(step, tabState(index, postIndex, postReached, isPostCurrent)),

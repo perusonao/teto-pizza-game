@@ -539,6 +539,10 @@ const BLISTER_COVER_MAX = 0.025;
 
 const OUTLINE_TONGUE_GAIN = 1.3;
 const OUTLINE_HARMONIC_GAIN = 1.2;
+/** the melted look rounds the outline with this extra circular smoothing of R(theta) (half window in bins = degrees, passes) and blends it in by this share */
+const OUTLINE_ROUND_HALF = 16;
+const OUTLINE_ROUND_PASSES = 3;
+const OUTLINE_ROUND_MIX = 0.85;
 
 /** in-place circular box smoothing of a closed theta table (index BINS repeats index 0) */
 function smoothClosed(table: Float32Array, half: number, passes: number): void {
@@ -721,6 +725,12 @@ const EDGE_SHADOW = [208, 190, 150] as const; // the thick, slightly shadowed li
 const BAKED = [222, 176, 108] as const; // golden brown of a baked rim / patch
 const BROWN = [122, 74, 42] as const;
 const SCORCH = [156, 130, 104] as const; // overall tint of overbaked cheese
+const CREAM = [234, 223, 194] as const; // #486 melted look: the creamier patches
+const MILK = [243, 239, 222] as const; // #486 melted look: the bright milky white of a real baked mozzarella
+const PINK = [238, 204, 200] as const; // #486 melted look: the faint pink where the sauce shows through thin cheese
+const GLOSS_CEIL = [250, 247, 239] as const; // #486 melted look: the warm near-white the soft highlight moves toward (below the white-clip level)
+const OVERBAKED = [176, 124, 70] as const; // #486 melted look: the golden brown of over-baked cheese
+const SPECKLE = [214, 164, 84] as const; // #486 melted look: a small golden-tan baked speckle
 
 interface Scratch {
   height: Float32Array;
@@ -728,12 +738,15 @@ interface Scratch {
   tmp: Float32Array;
   rho: Float32Array;
   lut: Float32Array;
+  height2: Float32Array;
+  img2: Uint8ClampedArray;
+  rounded: Float32Array;
 }
 const scratch = new Map<number, Scratch>();
 function scratchFor(N: number): Scratch {
   let s = scratch.get(N);
   if (!s) {
-    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1) };
+    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), height2: new Float32Array(N * N), img2: new Uint8ClampedArray(N * N * 4), rounded: new Float32Array(BINS + 1) };
     scratch.set(N, s);
   }
   return s;
@@ -784,35 +797,21 @@ export function renderCheesePool(
   return renderWithGeometry(getCheesePoolGeometry(seed, grid), melt, toast, char, options, target);
 }
 
-function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number, char: number, options: CheesePoolOptions, target?: CheesePoolImage): CheesePoolImage {
-  const N = geo.grid;
-  const out = target && target.width === N && target.height === N ? target : { width: N, height: N, data: new Uint8ClampedArray(N * N * 4) };
-  const m = clamp01(melt);
-  const toastV = clamp01(toast);
-  const charV = clamp01(char);
-  const rs = cheesePoolRadiusScale(m, options.reducedMotion === true);
-  // the outline's irregularity grows with one curve, so the shape stays between a round lump and the finished pool at every melt (and so its
-  // aspect stays between theirs: no stretching on the way)
-  const complexity = smoothstep(0.1, 0.85, m);
-  const s = scratchFor(N);
-  const lut = s.lut;
-  for (let b = 0; b <= BINS; b += 1) lut[b] = Math.max(0.3, 1 + complexity * (geo.lutH[b] + geo.lutT[b])) * rs;
-  const { bin0, binFrac, qr, noiseLow, noiseHigh, blister, blisterRim } = geo;
+/**
+ * The ORIGINAL look (dc1d20b): an opaque, domed, matte cream pool lit from the upper left. It is the raw lump's look and the first moments of the melt
+ * (pixel-identical there), and the source the melted look cross-fades from. `rhoMap` and `lut` come from the caller (the outline is shared).
+ */
+function renderLegacyPixels(geo: CheesePoolGeometry, N: number, rhoMap: Float32Array, complexity: number, rawMix: number, toastV: number, charV: number, s: Scratch, data: Uint8ClampedArray): void {
+  const { bin0, binFrac, noiseLow, noiseHigh, blister, blisterRim } = geo;
   const height = s.height;
-  const rhoMap = s.rho;
-  const rawMix = 1 - smoothstep(0, 0.6, m);
-  // pass 1: rho (distance in boundary units), edge coverage, thickness
+  // pass 1: edge coverage, thickness (rho is computed by the caller)
   for (let i = 0; i < N * N; i += 1) {
-    const b = bin0[i];
-    const boundary = lut[b] + (lut[b + 1] - lut[b]) * binFrac[i];
-    const rho = qr[i] / boundary;
-    rhoMap[i] = rho;
+    const rho = rhoMap[i];
     const edge = smoothstep(1.045, 0.955, rho); // crisp: ~9 % of the radius from clear to opaque
     const dome = 1 - 0.2 * Math.min(1, rho * rho);
     height[i] = edge * dome * (0.94 + 0.12 * noiseLow[i]);
   }
   const lit = boxBlurTwice(height, N, s);
-  const data = out.data;
   data.fill(0);
   // light from the upper left
   const lx = -0.55;
@@ -905,6 +904,192 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
       data[o + 2] = bl;
       data[o + 3] = a8;
     }
+  }
+}
+
+
+/**
+ * #486 MELTED look, modelled on a real baked Neapolitan margherita (see docs/reports/TETO_CANVAS-MOZZARELLA_REAL-REFERENCE_486.md): the mozzarella is a THIN,
+ * nearly flat, bright milky-white sheet with a slightly raised rim and a CRISP outline against the sauce; only the last few percent of the radius are
+ * translucent (a faint pink where the sauce shows through). Relief is low (gentle swells), so there is no folded shading; the gloss is a soft sheen plus a
+ * few small oily yellow beads; the browning is a few small golden-tan blisters and speckles, mostly toward the rim, never a tint over the whole body.
+ */
+function renderMeltedPixels(geo: CheesePoolGeometry, N: number, rhoMap: Float32Array, toastV: number, charV: number, s: Scratch, data: Uint8ClampedArray): void {
+  const { noiseLow, noiseHigh, blister, blisterRim } = geo;
+  const hgt = s.height2;
+  for (let i = 0; i < N * N; i += 1) {
+    const rho = rhoMap[i];
+    const edge = smoothstep(1.025, 0.975, rho); // crisp: ~5 % of the radius from clear to opaque
+    // a thin sheet with soft swells (low noise) and a broad, shallow thickening toward the middle, so the surface has gentle relief and not a single plane
+    const sheet = 0.5 + 0.5 * (noiseLow[i] - 0.5) + 0.2 * smoothstep(1, 0.1, rho);
+    const lip = 0.12 * smoothstep(0.76, 0.92, rho) * (1 - smoothstep(0.94, 1, rho)); // the slightly raised rim
+    hgt[i] = edge * (sheet + lip);
+  }
+  let lit = boxBlurTwice(hgt, N, s);
+  lit = boxBlurTwice(lit, N, s);
+  data.fill(0);
+  const lx = -0.55;
+  const ly = -0.55;
+  const lz = 0.63;
+  const hx = lx;
+  const hy = ly;
+  const hz = lz + 1;
+  const hLen = Math.hypot(hx, hy, hz);
+  const slope = 5 * (N / 96);
+  for (let y = 0; y < N; y += 1) {
+    for (let x = 0; x < N; x += 1) {
+      const i = y * N + x;
+      const rho = rhoMap[i];
+      if (rho > 1.1) continue;
+      const edge = smoothstep(1.025, 0.975, rho);
+      if (edge <= 0.002) continue;
+      // only the outermost band is a little translucent, and unevenly (the sauce shows through in places)
+      const thinBand = 0.3 * smoothstep(0.9, 1, rho) * (0.5 + 0.9 * noiseLow[i]);
+      const a8 = edge * (1 - thinBand) * 255;
+      if (a8 < 0.5) continue;
+      const x0 = x > 0 ? i - 1 : i;
+      const x1 = x < N - 1 ? i + 1 : i;
+      const y0 = y > 0 ? i - N : i;
+      const y1 = y < N - 1 ? i + N : i;
+      const gx = (lit[x1] - lit[x0]) * slope;
+      const gy = (lit[y1] - lit[y0]) * slope;
+      const nl = Math.sqrt(gx * gx + gy * gy + 1);
+      const nx = -gx / nl;
+      const ny = -gy / nl;
+      const nz = 1 / nl;
+      const diffuse = nx * lx + ny * ly + nz * lz;
+      const shade = Math.min(1.03, Math.max(0.94, 1 + 0.7 * (diffuse - lz)));
+      const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) / hLen);
+      // gloss: one soft, asymmetric highlight where the surface faces the light (a wide lobe, no hard glints, no oily beads), added toward a ceiling below
+      // pure white so it can never blow out
+      // A near-white surface has almost no room to get brighter, so the highlight is read by CONTRAST: the diffuse body is a touch darker away from it (below), and the
+      // highlight moves toward the ceiling.
+      const lobe = Math.pow(nh, 12) * (0.6 + 0.4 * noiseHigh[i]);
+      const gloss = lobe * smoothstep(0.1, 0.5, 1 - rho) * 0.85;
+      const spec = 0;
+      // bright milky white, with creamier patches
+      const cream = 0.25 * smoothstep(0.55, 0.85, noiseLow[i]);
+      let r = lerp(MILK[0], CREAM[0], cream);
+      let g = lerp(MILK[1], CREAM[1], cream);
+      let bl = lerp(MILK[2], CREAM[2], cream);
+      // the sauce showing through: a faint pink at the rim and in a few thin spots inside (a colour shift, not a transparent haze)
+      const pink = Math.max(0.5 * smoothstep(0.9, 1, rho), 0.3 * smoothstep(0.78, 0.95, 1 - noiseLow[i]) * smoothstep(0.3, 0.8, rho));
+      r = lerp(r, PINK[0], pink);
+      g = lerp(g, PINK[1], pink);
+      bl = lerp(bl, PINK[2], pink);
+      // shading: warm (a plain multiply goes grey)
+      r = r * Math.pow(shade, 0.8) + spec;
+      g = g * shade + spec;
+      bl = bl * Math.pow(shade, 1.15) + spec * 0.9;
+      // away from the highlight the body is a little darker (the contrast that makes the highlight read as gloss)
+      const dim = 1 - 0.025 * (1 - lobe);
+      r *= dim;
+      g *= dim;
+      bl *= dim;
+      // soft highlight: move toward a warm near-white ceiling by `gloss` (never past it)
+      r += (GLOSS_CEIL[0] - r) * gloss;
+      g += (GLOSS_CEIL[1] - g) * gloss;
+      bl += (GLOSS_CEIL[2] - bl) * gloss;
+      if (toastV > 0) {
+        // golden rim only in places (where the low noise is high), and small speckles preferring the rim: never a tint over the body
+        const rimGold = toastV * 0.5 * smoothstep(0.82, 0.99, rho) * smoothstep(0.35, 0.7, noiseLow[i]);
+        const speck = toastV * 0.7 * smoothstep(0.88, 0.95, noiseHigh[i]) * (0.35 + 0.65 * smoothstep(0.4, 0.95, rho));
+        const k = clamp01(Math.max(rimGold, speck));
+        r = lerp(r, SPECKLE[0], k);
+        g = lerp(g, SPECKLE[1], k);
+        bl = lerp(bl, SPECKLE[2], k);
+        const fill = blister[i] * toastV * (0.85 + 0.3 * noiseHigh[i]);
+        const rim = blisterRim[i] * toastV;
+        if (fill > 0 || rim > 0) {
+          const tf = clamp01(fill) * 0.8;
+          r = lerp(r, lerp(AMBER[0], BROWN[0], charV), tf);
+          g = lerp(g, lerp(AMBER[1], BROWN[1], charV), tf);
+          bl = lerp(bl, lerp(AMBER[2], BROWN[2], charV), tf);
+          const tr = clamp01(rim) * 0.45;
+          r = lerp(r, lerp(AMBER_RIM[0], BROWN[0], charV), tr);
+          g = lerp(g, lerp(AMBER_RIM[1], BROWN[1], charV), tr);
+          bl = lerp(bl, lerp(AMBER_RIM[2], BROWN[2], charV), tr);
+        }
+      }
+      if (charV > 0) {
+        // over-baked: the milky white turns a deeper golden brown (never grey), growing from the rim inward
+        const t = charV * (0.3 + 0.35 * smoothstep(0.3, 1, rho));
+        r = lerp(r, OVERBAKED[0], t);
+        g = lerp(g, OVERBAKED[1], t);
+        bl = lerp(bl, OVERBAKED[2], t);
+      }
+      const o = i * 4;
+      data[o] = r;
+      data[o + 1] = g;
+      data[o + 2] = bl;
+      data[o + 3] = a8;
+    }
+  }
+}
+
+function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number, char: number, options: CheesePoolOptions, target?: CheesePoolImage): CheesePoolImage {
+  const N = geo.grid;
+  const out = target && target.width === N && target.height === N ? target : { width: N, height: N, data: new Uint8ClampedArray(N * N * 4) };
+  const m = clamp01(melt);
+  const toastV = clamp01(toast);
+  const charV = clamp01(char);
+  const rs = cheesePoolRadiusScale(m, options.reducedMotion === true);
+  // the outline's irregularity grows with one curve, so the shape stays between a round lump and the finished pool at every melt (and so its
+  // aspect stays between theirs: no stretching on the way)
+  const complexity = smoothstep(0.1, 0.85, m);
+  const s = scratchFor(N);
+  const lut = s.lut;
+  // #486: everything that makes the pool read as MELTED is blended in by this one factor, exactly 0 up to melt 0.3: the raw lump and the first moments of
+  // the melt are pixel-identical to the original look (dc1d20b). The outline is exactly the same as before.
+  const fx = smoothstep(0.3, 1, m);
+  for (let b = 0; b <= BINS; b += 1) lut[b] = Math.max(0.3, 1 + complexity * (geo.lutH[b] + geo.lutT[b])) * rs;
+  if (fx > 0) {
+    // melted: round the outline. The arms come from narrow gaussian bumps in R(theta), which leave pointed tips with concave flanks; a real puddle's lobes are
+    // round. A wider circular smoothing of the radius (blended in by fx, so nothing pops) rounds the tips and fills the flanks, while the lobes, the bays and the
+    // overall aspect stay (it is a smoothing, not a return to a circle).
+    const rounded = s.rounded;
+    rounded.set(lut);
+    smoothClosed(rounded, OUTLINE_ROUND_HALF, OUTLINE_ROUND_PASSES);
+    const k = OUTLINE_ROUND_MIX * fx;
+    for (let b = 0; b <= BINS; b += 1) lut[b] += (rounded[b] - lut[b]) * k;
+  }
+  const { bin0, binFrac, qr } = geo;
+  const rhoMap = s.rho;
+  for (let i = 0; i < N * N; i += 1) {
+    const b = bin0[i];
+    rhoMap[i] = qr[i] / (lut[b] + (lut[b + 1] - lut[b]) * binFrac[i]);
+  }
+  const rawMix = 1 - smoothstep(0, 0.6, m);
+  const data = out.data;
+  if (fx <= 0) {
+    renderLegacyPixels(geo, N, rhoMap, complexity, rawMix, toastV, charV, s, data);
+    return out;
+  }
+  if (fx >= 1) {
+    // fully melted: the original look has no weight, so only the melted look is rendered (no discarded work on the first fully baked frame)
+    renderMeltedPixels(geo, N, rhoMap, toastV, charV, s, data);
+    return out;
+  }
+  // melting: cross-fade the original look into the melted look (premultiplied, so a pixel only one of them covers fades in or out cleanly)
+  renderLegacyPixels(geo, N, rhoMap, complexity, rawMix, toastV, charV, s, data);
+  const melted = s.img2;
+  renderMeltedPixels(geo, N, rhoMap, toastV, charV, s, melted);
+  for (let i = 0; i < N * N; i += 1) {
+    const o = i * 4;
+    const aO = data[o + 3] * (1 - fx);
+    const aN = melted[o + 3] * fx;
+    const a = aO + aN;
+    if (a < 0.5) {
+      data[o] = 0;
+      data[o + 1] = 0;
+      data[o + 2] = 0;
+      data[o + 3] = 0;
+      continue;
+    }
+    data[o] = (data[o] * aO + melted[o] * aN) / a;
+    data[o + 1] = (data[o + 1] * aO + melted[o + 1] * aN) / a;
+    data[o + 2] = (data[o + 2] * aO + melted[o + 2] * aN) / a;
+    data[o + 3] = a;
   }
   return out;
 }

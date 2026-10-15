@@ -174,8 +174,11 @@ describe("POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP)", () => {
     const afterConfirm = confirm(atPostBake);
     expect(afterConfirm.phase).toBe("RESULT");
     // The score/completion computed back at CONFIRM_BAKE survive the POST_BAKE -> RESULT hop
-    // untouched -- POST_BAKE's own confirm never recomputes them.
-    expect(afterConfirm.score).toBe(atPostBake.score);
+    // unchanged -- POST_BAKE's own confirm never changes them. FINISH (D1b) re-evaluates once on leaving, so the
+    // object is new; with no late requirement in this recipe its content is identical.
+    expect(afterConfirm.score).toEqual(atPostBake.score);
+    expect(afterConfirm.completion).toEqual(atPostBake.completion);
+    expect(afterConfirm.inventory).toEqual(atPostBake.inventory);
   });
 
   it("future-profile fixture with two post-BAKE steps (FINISH then CUT): confirms walk FINISH -> CUT -> RESULT", () => {

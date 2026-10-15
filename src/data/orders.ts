@@ -340,6 +340,18 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ほうれん草とアーティチョークのピザ、チーズたっぷりみたい！食べてみたいな！",
   },
+  {
+    id: "order-eggplant-ricotta-pizza",
+    recipeId: "eggplant-ricotta-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスとリコッタのピザ、ミントが爽やかそう！食べてみたいな！",
+  },
+  {
+    id: "order-new-zealand-lamb-pizza",
+    recipeId: "new-zealand-lamb-pizza",
+    requestedBy: "mito",
+    lineJa: "ラムとさつまいものピザ、香りがよさそう！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

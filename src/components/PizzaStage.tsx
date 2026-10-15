@@ -8,7 +8,6 @@ import {
   useMemo,
   useReducer as useReactReducer,
   useRef,
-  useState,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -35,9 +34,11 @@ import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
-import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
 import { SauceRemainingGauge } from "./SauceRemainingGauge";
-import { advanceSauceCarry, type SauceCarryState } from "../logic/sauceRemaining";
+import { sauceGaugeUsed } from "../logic/sauceRemaining";
+import { sauceLayersOf } from "../state/sauceLayers";
+import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -55,9 +56,6 @@ import { buildDragCutPath, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
-
-/** #421 S2-B: a static env check (folded to `false` in a production build), so the verification-only Canvas path is dropped from production entirely */
-const CHEESE_CANVAS_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE);
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -302,10 +300,10 @@ export function PizzaStage({
    *  capture/blur/hidden/ingredient-change/overlay-open/BAKE/unmount. */
   const pendingDepositsRef = useRef<SauceDeposit[]>([]);
   const pendingTotalRef = useRef(0);
-  /** Cumulative sauce already consumed on this pizza: the committed deposits PLUS the usage of any
-   *  sauce replaced by a switch (`sauceConsumedTotal`) -- combined with `pendingTotalRef` to give the
-   *  dispense controller the true running total for cap purposes. Shared with the remaining gauge. */
-  const committedTotalRef = useRef(0);
+  /** The latest canonical pizza, for the dispenser's cap (it reads at tick time, outside render). The cap is the per-kind
+   *  (100%) + total (provisional 200%) headroom from the sauce ledger (../state/sauceLedger.ts), combined with
+   *  `pendingTotalRef` for the stroke in progress -- the same single source the remaining gauge will read (B3). */
+  const pizzaRef = useRef(pizza);
   const activeIngredientIdRef = useRef<string | null>(activeIngredient?.id ?? null);
   /** Timestamp-preservation follow-up: one instance per active dispense session, built at
    *  pointerdown from that event's own `timeStamp` + a single `performance.now()` sample
@@ -317,6 +315,10 @@ export function PizzaStage({
     circleRef.current = element;
     onDoughElementChange?.(element);
   }, [onDoughElementChange]);
+
+  useEffect(() => {
+    pizzaRef.current = pizza;
+  }, [pizza]);
 
   function resetSessionBuffers() {
     pendingDepositsRef.current = [];
@@ -599,7 +601,8 @@ export function PizzaStage({
 
     const controller = new SauceDispenseController({
       onDeposit: (deposit) => appendPendingDeposit(deposit),
-      getTotalDispensed: () => committedTotalRef.current + pendingTotalRef.current,
+      getTotalDispensed: () => sauceUsedTotal(pizzaRef.current) + pendingTotalRef.current,
+      getHeadroom: () => sauceHeadroom(pizzaRef.current, ingredientId, pendingTotalRef.current),
     });
     dispenseControllerRef.current = controller;
     controller.start(startTimestamp, dough);
@@ -932,7 +935,7 @@ export function PizzaStage({
     onTap(50, 50);
   }
 
-  const sauceId = pizza.sauceIds[0];
+  const sauceId = currentSauceId(pizza) ?? undefined;
   const sauceIngredient = sauceId ? getIngredient(sauceId) : undefined;
   const isOilSauce = sauceIngredient?.id === "olive-oil";
   const bakeState = bakeProgress !== null ? classifyBake(bakeProgress, recipe.bakeTarget) : null;
@@ -1044,31 +1047,22 @@ export function PizzaStage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFieldSauceContext, pizza.sauceDeposits, pendingVersion]);
   const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
-  // Issue #489 Phase 2: remaining-sauce gauge, SAUCE step only. Committed usage is derived from
-  // canonical deposits directly (not committedTotalRef, which syncs in an effect one render late);
+  const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
+  // Issue #489 B3: remaining-sauce gauge, SAUCE step only. It reads the SAME ledger headroom the dispenser caps on
+  // (`sauceHeadroom`: the active kind's own 100% and the pizza-wide total, whichever binds), so gauge and cap cannot
+  // disagree. Per kind: switching to a kind not yet used shows that kind's own bottle; the pizza-wide cap can still drain it.
   // pendingTotalRef is re-read on every pendingVersion bump, like pendingDepositsRef above.
   const showSauceGauge = makingStep === "SAUCE" && interactive && !resultCompact;
-  const sauceCommittedTotal = useMemo(
-    () => pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0),
-    [pizza.sauceDeposits],
+  const sauceGaugeCommitted = sauceGaugeUsed(pizza, activeIngredient?.id ?? sauceId ?? "");
+  // Sauce B2 (layered painting): with two or more sauce kinds on the pizza (committed, or one in progress over another) each
+  // kind is drawn as its own layer, the first laid at the bottom. `null` (fewer than two kinds) keeps the single heatmap below
+  // exactly as it has always been drawn, so a one-sauce pizza never takes the layered path.
+  const sauceLayers = useMemo(
+    () => (isFieldSauceContext ? sauceLayersOf(pizza, pendingDepositsRef.current, activeSessionRef.current?.ingredientId ?? null) : null),
+    // pendingVersion is the reactive proxy for pendingDepositsRef.current -- see its own declaration above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isFieldSauceContext, pizza.sauceIds, pizza.sauceDeposits, pendingVersion],
   );
-  // COMMIT_SAUCE_DISPENSE replaces `sauceDeposits` when the player switches to a different sauce
-  // (a fresh application, `sauceToken` + 1), so the replaced sauce's usage is carried here (see
-  // `advanceSauceCarry`). Adjusted during render (React's derived-state pattern) so there is no frame
-  // between the commit and the carry. Owner Decision (PR #494): consumption is cumulative across
-  // switches -- the dispense cap (`committedTotalRef`) and the gauge read the SAME `sauceConsumedTotal`.
-  const [sauceCarry, setSauceCarry] = useState<SauceCarryState>({
-    token: pizza.sauceToken,
-    total: sauceCommittedTotal,
-    carried: 0,
-  });
-  const nextSauceCarry = advanceSauceCarry(sauceCarry, pizza.sauceToken, sauceCommittedTotal, pizza.sauceDeposits.length);
-  if (nextSauceCarry !== sauceCarry) setSauceCarry(nextSauceCarry);
-  const sauceConsumedTotal = sauceCommittedTotal + nextSauceCarry.carried;
-  useEffect(() => {
-    committedTotalRef.current = sauceConsumedTotal;
-  }, [sauceConsumedTotal]);
-  const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
   // `SauceHeatmapCanvas`, and the overflow markers in `OverflowMarkerCanvas` (Issue #418) -- both
@@ -1077,6 +1071,13 @@ export function PizzaStage({
   // Issue #418: the pizza "body" (dough silhouette + sauce + toppings + bake look) is rendered by
   // these two functions so a cut pizza can draw one copy per piece. Uncut, `PizzaStage` renders them
   // once exactly as before. The silhouette's <clipPath> is defined once, outside the body.
+  /** Class list of one sauce layer's canvases: the same tokens the single heatmap carries (the olive-oil treatment, the bake
+   *  tint), plus the kind so tests and the browser checks can tell the layers apart. */
+  const sauceLayerClassName = (ingredientId: string, bake: typeof bakeState) =>
+    `pizza-sauce-heatmap ${ingredientId === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""} ${
+      bake ? `pizza-sauce-heatmap--${bake}` : ""
+    } pizza-sauce-heatmap--kind-${ingredientId}`;
+
   const renderShapeLayer = () =>
     showDoughShape ? (
       <div
@@ -1145,7 +1146,33 @@ export function PizzaStage({
           }}
         />
       )}
-      {showSauceHeatmap && (
+      {showSauceHeatmap && sauceLayers && (
+        <>
+          {/* Sauce B2: one heatmap per sauce kind (first laid at the bottom, later ones on top), each with only ITS deposits and
+              ITS colour; the overflow markers follow all of them so they always sit on top. Same box/filter classes as the
+              single heatmap below, plus a per-kind marker class. */}
+          {sauceLayers.map((layer) => (
+            <SauceHeatmapCanvas
+              key={`heat-${layer.ingredientId}`}
+              deposits={layer.deposits}
+              doughShape={pizza.doughShape}
+              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
+              className={sauceLayerClassName(layer.ingredientId, bakeState)}
+            />
+          ))}
+          {sauceLayers.map((layer) => (
+            <OverflowMarkerCanvas
+              key={`overflow-${layer.ingredientId}`}
+              deposits={layer.deposits}
+              doughShape={pizza.doughShape}
+              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
+              className={sauceLayerClassName(layer.ingredientId, bakeState)}
+            />
+          ))}
+          {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
+        </>
+      )}
+      {showSauceHeatmap && !sauceLayers && (
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
@@ -1160,7 +1187,7 @@ export function PizzaStage({
           SauceHeatmapCanvas -- same box/filter classes (so the markers keep the exact same
           blur/bake-state tint the pre-extraction single-canvas version applied to them),
           drawn after it in DOM order so the markers sit on top. */}
-      {showSauceHeatmap && (
+      {showSauceHeatmap && !sauceLayers && (
         <OverflowMarkerCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
@@ -1179,7 +1206,7 @@ export function PizzaStage({
           same `isOilSauce`/`showSauceHeatmap`/`!isFieldSauceContext` conditions the sauce
           visuals above already use), never reads or writes
           `sauceDeposits`/`sauceIds`/anything Scoring 2.0 sees. */}
-      {isOilSauce && (showSauceHeatmap || !isFieldSauceContext) && (
+      {isOilSauce && !sauceLayers && (showSauceHeatmap || !isFieldSauceContext) && (
         <div className="pizza-sauce-oil-sheen" aria-hidden="true" />
       )}
       {toppingsFor(piece).map(({ t, half }) => {
@@ -1211,8 +1238,8 @@ export function PizzaStage({
                   style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
                 />
               );
-              if (!(CHEESE_CANVAS_ALLOWED && ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
-              /* #421 S2-B (verification only): the Canvas mozzarella, only behind the Preview / DEV query switch; M1 when the browser has no 2D context. */
+              if (!(ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
+              /* #421 / #486: the Canvas mozzarella, only when the Preview / DEV `?cheese=` switch or the production opt-in (off by default) asks for it; M1 whenever the canvas cannot be shown. */
               return (
                 <CheesePoolCanvas
                   seed={t.id}
@@ -1450,7 +1477,7 @@ export function PizzaStage({
       </div>
       {showSauceGauge && (
         <div className="pizza-stage__sauce-gauge">
-          <SauceRemainingGauge committedTotal={sauceConsumedTotal} pendingTotal={pendingTotalRef.current} />
+          <SauceRemainingGauge committedTotal={sauceGaugeCommitted} pendingTotal={pendingTotalRef.current} />
         </div>
       )}
     </div>
