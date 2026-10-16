@@ -90,7 +90,11 @@ test.describe("S3: cut toppings keep their slice in the neighbouring piece", () 
     await page.getByRole("button", { name: /切り終わる/ }).click();
     await page.waitForTimeout(700);
     await crop(page, `${info.project.name}-oblique-2-result`);
-    expect.soft(await slicedBasils(page)).toEqual(ON_OBLIQUE_CUTS.map((_, i) => left(i)).sort((a, b) => a - b));
+    // a tap lands on whole device pixels, so the stored left can differ from the planned one by a rounding step (WebKit 360: 24 for 25)
+    const atResult = await slicedBasils(page);
+    const planned = ON_OBLIQUE_CUTS.map((_, i) => left(i)).sort((a, b) => a - b);
+    expect.soft(atResult).toHaveLength(planned.length);
+    atResult.forEach((x, i) => expect.soft(Math.abs(x - planned[i])).toBeLessThanOrEqual(1));
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   });
 });
