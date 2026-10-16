@@ -76,13 +76,18 @@ export function isStraightCut(line: CutLine, tolerance = 0.01): boolean {
   return path.every((p) => Math.abs((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)) / length <= tolerance);
 }
 
-let circle: readonly DoughPoint[] | null = null;
-function circlePolygon(): readonly DoughPoint[] {
-  circle ??= Array.from({ length: CIRCLE_POLYGON_SIDES }, (_, i) => {
-    const angle = (2 * Math.PI * i) / CIRCLE_POLYGON_SIDES;
-    return { x: DOUGH_CENTER + DOUGH_RADIUS * Math.cos(angle), y: DOUGH_CENTER + DOUGH_RADIUS * Math.sin(angle) };
-  });
-  return circle;
+const circles = new Map<number, readonly DoughPoint[]>();
+/** The polygon standing in for a circle of `radius` round the dough centre (the ideal dough circle by default). */
+function circlePolygon(radius: number = DOUGH_RADIUS): readonly DoughPoint[] {
+  let polygon = circles.get(radius);
+  if (!polygon) {
+    polygon = Array.from({ length: CIRCLE_POLYGON_SIDES }, (_, i) => {
+      const angle = (2 * Math.PI * i) / CIRCLE_POLYGON_SIDES;
+      return { x: DOUGH_CENTER + radius * Math.cos(angle), y: DOUGH_CENTER + radius * Math.sin(angle) };
+    });
+    circles.set(radius, polygon);
+  }
+  return polygon;
 }
 
 /** Keeps the part of the convex `polygon` where `keep * cross(b - a, p - a) >= 0` (Sutherland-Hodgman, one half-plane). */
@@ -130,11 +135,12 @@ function measure(polygon: readonly DoughPoint[]): CutRegion | null {
 }
 
 /**
- * Every region the given chords make inside the ideal circle (area above `MIN_REGION_AREA`). No chords: the whole pizza,
+ * Every region the given chords make inside the ideal circle (area above `MIN_REGION_AREA`; `radius` widens the circle, which only
+ * the visual piece outlines use -- the CUT evaluation always takes the default). No chords: the whole pizza,
  * one region. The result does not depend on the order of the chords (up to the order of the regions).
  */
-export function computeCutRegions(lines: readonly CutLine[]): CutRegion[] {
-  let polygons: DoughPoint[][] = [[...circlePolygon()]];
+export function computeCutRegions(lines: readonly CutLine[], radius: number = DOUGH_RADIUS): CutRegion[] {
+  let polygons: DoughPoint[][] = [[...circlePolygon(radius)]];
   for (const line of lines) {
     const { a, b } = chordOf(line);
     if (Math.hypot(b.x - a.x, b.y - a.y) < DEGENERATE_CHORD_LENGTH) continue;

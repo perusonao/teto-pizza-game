@@ -57,6 +57,7 @@ import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { buildCutVisual } from "../logic/cut/cutVisual";
 import { TOPPING_REACH, computePieceLayout, placeTopping } from "../logic/cut/pieces";
+import { toppingFootprintRadiusPercent } from "../logic/cut/toppingFootprint";
 import { buildDragCutPath, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
@@ -1131,11 +1132,12 @@ export function PizzaStage({
     if (!pieceLayout) return null;
     return new Map(
       pizza.toppings.map((t) => {
-        // the Canvas mozzarella is drawn wider than a topping's usual reach once melted: probe as far as the pool really extends (#421), every other topping keeps the default
+        // the Canvas mozzarella is drawn wider than a topping's usual reach once melted: reach as far as the pool really extends (#421).
+        // Every other topping reaches as far as its own drawing (its size class x the dough's measured width, #479 S3): the circle round it is intersected with each piece's outline
         const reach =
           t.ingredientId === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas"
             ? Math.max(TOPPING_REACH, cheesePoolReachPercent(Math.round(CHEESE_RENDER_MODE.sizePx * activeToppingRankScale(t.ingredientId)), doughPx))
-            : TOPPING_REACH;
+            : toppingFootprintRadiusPercent(activeToppingRankScale(t.ingredientId), doughPx);
         return [t.id, placeTopping(pieceLayout, t.x, t.y, reach)] as const;
       }),
     );

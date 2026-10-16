@@ -307,6 +307,19 @@ export async function cutThreeLines(page: Page) {
   }
 }
 
+/** One rim-to-rim cut through the dough's centre at `angleDeg` (the same drag `cutThreeLines` makes, at any angle). */
+export async function cutThroughCentre(page: Page, angleDeg: number) {
+  const { cx, cy, r } = await doughBox(page);
+  const angle = (angleDeg * Math.PI) / 180;
+  const dx = Math.cos(angle) * r;
+  const dy = Math.sin(angle) * r;
+  await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
+  await page.mouse.move(cx - dx, cy - dy);
+  await page.mouse.down();
+  await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
+  await page.mouse.up();
+}
+
 /** HOME -> Pizza Select -> margherita -> PREPARE (a guided round).
  *
  * Progression 2.0 W1 I5b-5a / Discovery 2.0: a guided round starts only from a DISCOVERED recipe

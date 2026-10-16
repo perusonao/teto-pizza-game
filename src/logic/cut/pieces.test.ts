@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { createChordCutLine, createGrooveCutLine } from "./fixtures";
-import { TOPPING_REACH, buildSidePolygons, computePieceLayout, placeTopping, sidesAt } from "./pieces";
-import { computeCutRegions, isSignificantRegion } from "./regions";
+import { PIECE_OUTLINE_RADIUS, TOPPING_REACH, buildSidePolygons, computePieceLayout, distanceToConvexPolygon, placeTopping, sidesAt } from "./pieces";
+import { CIRCLE_AREA, computeCutRegions, isSignificantRegion } from "./regions";
 import { evaluateCut } from "./evaluation";
 import type { CutLine } from "./types";
 
@@ -215,5 +215,168 @@ describe("computePieceLayout draws every exact region (#426)", () => {
     const path = [{ x: C - R, y: C }, { x: C, y: C - 25 }, { x: C + R, y: C }];
     const layout = computePieceLayout([{ start: path[0], end: path[2], path }], shape)!;
     expect(layout.pieces).toHaveLength(2);
+  });
+});
+
+describe("placeTopping: exact footprint-to-piece intersection (#479 S3)", () => {
+  /** every piece a dense sample of the disc (x, y, radius) falls in, by brute force: what the footprint really touches */
+  function piecesTouchedBySampling(layout: NonNullable<ReturnType<typeof computePieceLayout>>, x: number, y: number, radius: number): Set<number> {
+    const keyOf = (sides: readonly boolean[]) => sides.join();
+    const index = new Map(layout.pieces.map((p, i) => [keyOf(p.sides), i]));
+    const touched = new Set<number>();
+    for (let r = 0; r <= radius; r += radius / 12) {
+      for (let a = 0; a < 360; a += 1) {
+        const t = (a * Math.PI) / 180;
+        const idx = index.get(keyOf(sidesAt(layout, x + Math.cos(t) * r, y + Math.sin(t) * r)));
+        if (idx !== undefined) touched.add(idx);
+      }
+    }
+    return touched;
+  }
+  const placed = (layout: NonNullable<ReturnType<typeof computePieceLayout>>, x: number, y: number, reach: number) => {
+    const p = placeTopping(layout, x, y, reach);
+    return new Set([p.home, ...p.halves]);
+  };
+
+  it("every piece of a straight-cut layout has an exact convex outline", () => {
+    const layout = computePieceLayout([diameter(0), diameter(60), diameter(120)], shape)!;
+    expect(layout.pieces).toHaveLength(6);
+    for (const piece of layout.pieces) {
+      expect(piece.polygon?.length).toBeGreaterThanOrEqual(3);
+      expect(distanceToConvexPolygon(piece.centroid.x, piece.centroid.y, piece.polygon!)).toBe(0);
+    }
+  });
+
+  it("the curved-path fallback has no outlines and keeps the eight-direction probe", () => {
+    const path = Array.from({ length: 41 }, (_, i) => ({ x: C - R + (i * 2 * R) / 40, y: C + Math.sin((i / 40) * Math.PI) * 6 }));
+    const curved: CutLine = { start: path[0], end: path[40], path };
+    const layout = computePieceLayout([curved], shape)!;
+    expect(layout.pieces.every((p) => p.polygon === undefined)).toBe(true);
+    // the path bows to y = C + 6 at the middle: a topping 2 below that crest straddles it, one far above does not
+    expect(placeTopping(layout, C, C - 25).halves).toEqual([]);
+    expect(placeTopping(layout, C, C + 4).halves).toHaveLength(1);
+  });
+
+  it("a footprint reaches a cut at an angle halfway between two probe directions (22.5 degrees), where the probe fell short", () => {
+    // the cut's normal points 22.5 degrees off the x axis: the nearest probes (0 and 45 degrees) project only reach x cos 22.5 = 0.924 x reach onto it
+    const layout = computePieceLayout([diameter(112.5)], shape)!;
+    const n = { x: Math.cos((22.5 * Math.PI) / 180), y: Math.sin((22.5 * Math.PI) / 180) };
+    const reach = 9;
+    const distance = 8.5; // inside the footprint (9), past what a probe reaches (9 x 0.924 = 8.31)
+    const inside = placeTopping(layout, C + n.x * distance, C + n.y * distance, reach);
+    expect(inside.halves).toHaveLength(1);
+    const outside = placeTopping(layout, C + n.x * 9.5, C + n.y * 9.5, reach);
+    expect(outside.halves).toEqual([]);
+  });
+
+  it("the game's own three cuts (0 / 60 / 120 degrees): a topping shows in exactly the pieces its disc touches", () => {
+    const layout = computePieceLayout([diameter(0), diameter(60), diameter(120)], shape)!;
+    // on the centre every one of the six wedges is within any positive reach
+    expect(placed(layout, C, C, 1).size).toBe(6);
+    // 20 away from the centre along a cut: its disc (reach 4) straddles that cut only
+    const onCut = placed(layout, C + 20, C, 4);
+    expect(onCut.size).toBe(2);
+    // between cuts, far from every line: whole in one piece, no copies
+    const a = (30 * Math.PI) / 180;
+    expect(placed(layout, C + Math.cos(a) * 30, C + Math.sin(a) * 30, 4).size).toBe(1);
+  });
+
+  it("a thin wedge (two near cuts, 20 degrees apart) gets its slice of a topping that the old eight-direction probe never landed in", () => {
+    const layout = computePieceLayout([diameter(0), diameter(20)], shape)!;
+    const keyOf = (sides: readonly boolean[]) => sides.join();
+    const index = new Map(layout.pieces.map((p, i) => [keyOf(p.sides), i]));
+    /** the pre-S3 method: the pieces holding the centre and eight points `reach` away at 45-degree steps */
+    const probed = (x: number, y: number, reach: number): Set<number> => {
+      const out = new Set<number>();
+      const own = index.get(keyOf(sidesAt(layout, x, y)));
+      if (own !== undefined) out.add(own);
+      for (let i = 0; i < 8; i += 1) {
+        const a = (i * Math.PI) / 4;
+        const idx = index.get(keyOf(sidesAt(layout, x + Math.cos(a) * reach, y + Math.sin(a) * reach)));
+        if (idx !== undefined) out.add(idx);
+      }
+      return out;
+    };
+    let missedByProbe = 0;
+    for (let x = C + 8; x <= C + 44; x += 2) {
+      for (let y = C - 14; y <= C + 28; y += 2) {
+        for (const reach of [4, 7, 10]) {
+          const exact = placed(layout, x, y, reach);
+          for (const piece of probed(x, y, reach)) expect(exact.has(piece)).toBe(true); // the probe never found a piece the exact test does not
+          if ([...exact].some((piece) => !probed(x, y, reach).has(piece))) missedByProbe += 1;
+        }
+      }
+    }
+    expect(missedByProbe).toBeGreaterThan(0); // and there are toppings the probe lost a slice of
+  });
+
+  it("matches a brute-force sampling of the disc across many cuts, positions and reaches (never misses a piece, never adds a far one)", () => {
+    const cutSets: CutLine[][] = [
+      [diameter(0)],
+      [diameter(0), diameter(90)],
+      [diameter(0), diameter(60), diameter(120)],
+      [diameter(0), diameter(20), diameter(100)],
+      [diameter(15), diameter(37.5), diameter(112.5), diameter(160)],
+    ];
+    for (const lines of cutSets) {
+      const layout = computePieceLayout(lines, shape)!;
+      for (const reach of [3, 5, 8.8, 11, 21]) {
+        for (let k = 0; k < 12; k += 1) {
+          const t = k * 2.399963; // a deterministic spread over the pizza
+          const rr = 6 + ((k * 7) % 36);
+          const x = C + Math.cos(t) * rr;
+          const y = C + Math.sin(t) * rr;
+          const exact = placed(layout, x, y, reach);
+          const sampled = piecesTouchedBySampling(layout, x, y, reach);
+          for (const piece of sampled) expect(exact.has(piece), `missed piece ${piece}: ${lines.length} cuts, reach ${reach}, at ${x.toFixed(1)},${y.toFixed(1)}`).toBe(true);
+          // nothing farther than the reach: every piece the exact answer names holds a point within reach (+ the sampling step)
+          for (const piece of exact) {
+            const outline = layout.pieces[piece].polygon!;
+            expect(distanceToConvexPolygon(x, y, outline)).toBeLessThanOrEqual(reach + 1e-9);
+          }
+        }
+      }
+    }
+  }, 60_000);
+
+  it("a rim topping reaches the part of a neighbouring piece that lies in a stretched lobe beyond the ideal circle", () => {
+    // the cut runs 40 below the centre: its chord ends where it meets the ideal circle (x = C +- 26.5). A topping near the rim, beside that end,
+    // is 4 from the cut but 5.3 from the part of the cell inside the ideal circle. The player's dough can be stretched past that circle (up to
+    // 58), so the cell there is drawn, and the outline must cover it.
+    const layout = computePieceLayout([createChordCutLine(0, 40)], shape)!;
+    expect(layout.pieces).toHaveLength(2);
+    const x = C + 30;
+    const y = C + 36; // 46.9 from the centre: a legal topping position
+    const placement = placeTopping(layout, x, y, 4.5);
+    expect(placement.halves).toHaveLength(1);
+    expect(placement.halves[0]).not.toBe(placement.home);
+    expect(placeTopping(layout, x, y, 3.5).halves).toEqual([]); // 4 away: the disc has not reached it yet
+  });
+
+  it("the outlines are cut to a circle wider than the dough can be stretched; the CUT evaluation's regions are not", () => {
+    expect(PIECE_OUTLINE_RADIUS).toBeGreaterThan(58); // DOUGH_SHAPE_TECHNICAL_MAX_RADIUS
+    const lines = [diameter(0), diameter(60), diameter(120)];
+    const areaOf = (regions: ReturnType<typeof computeCutRegions>) => regions.reduce((sum, r) => sum + r.area, 0);
+    expect(areaOf(computeCutRegions(lines))).toBeCloseTo(CIRCLE_AREA, 0); // the default is the ideal circle, as before
+    expect(computeCutRegions(lines).map((r) => r.area)).toEqual(computeCutRegions(lines, R).map((r) => r.area));
+    expect(areaOf(computeCutRegions(lines, PIECE_OUTLINE_RADIUS))).toBeGreaterThan(areaOf(computeCutRegions(lines)) * 1.5);
+  });
+
+  it("a topping far from every cut is whole in one piece and has no copies in the others", () => {
+    const layout = computePieceLayout([diameter(0), diameter(90)], shape)!;
+    const p = placeTopping(layout, C + 30, C + 30, 10);
+    expect(p.halves).toEqual([]);
+  });
+});
+
+describe("distanceToConvexPolygon", () => {
+  const square = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }, { x: 0, y: 10 }];
+  it("is 0 inside or on the edge, the edge distance beside it and the corner distance past a corner (either winding)", () => {
+    for (const poly of [square, [...square].reverse()]) {
+      expect(distanceToConvexPolygon(5, 5, poly)).toBe(0);
+      expect(distanceToConvexPolygon(10, 5, poly)).toBe(0);
+      expect(distanceToConvexPolygon(13, 5, poly)).toBeCloseTo(3, 9);
+      expect(distanceToConvexPolygon(13, 14, poly)).toBeCloseTo(5, 9);
+    }
   });
 });
