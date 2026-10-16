@@ -20,7 +20,7 @@
  * call of this pure function with a curved path (its own tests and any future trace-based cut, #288); removing it is a
  * separate decision.
  */
-import type { DoughShape } from "../doughShape";
+import { DOUGH_SHAPE_TECHNICAL_MAX_RADIUS, type DoughShape } from "../doughShape";
 import { DOUGH_CENTER, type DoughPoint } from "../pizzaCoordinates";
 import { buildCutVisual, rayToRadius } from "./cutVisual";
 import { computeCutRegions, isStraightCut } from "./regions";
@@ -34,6 +34,12 @@ const SAMPLE_GRID = 64;
 const SAMPLE_RADIUS = 51;
 /** A toppings' reach, used to decide which neighbouring pieces also show a sliced topping's half. */
 export const TOPPING_REACH = 5;
+/**
+ * The radius (dough-percent) the piece outlines `placeTopping` intersects are cut to. The rendered pieces are the cut half-planes over the player's
+ * actual dough, which can be stretched past the ideal circle (up to `DOUGH_SHAPE_TECHNICAL_MAX_RADIUS`), so an outline clipped to the ideal circle
+ * would put a neighbouring piece's stretched lobe out of a rim topping's reach. Over-covering is harmless; the CUT evaluation never reads these.
+ */
+export const PIECE_OUTLINE_RADIUS = Math.ceil(DOUGH_SHAPE_TECHNICAL_MAX_RADIUS) + 6;
 /** Pieces whose centroid is this close to the pizza centre are not pushed in any direction. */
 const MIN_CENTROID_OFFSET = 3;
 
@@ -151,6 +157,11 @@ function makePiece(sides: boolean[], centroid: DoughPoint, sampleCount: number, 
 /** Every exact region is a piece; its side combination is read at its centroid (inside a convex region by construction). */
 function piecesFromRegions(cuts: readonly SplitCut[], throughLines: readonly CutLine[]): PizzaPiece[] {
   const byKey = new Map<string, PizzaPiece>();
+  // each cell again, cut to the wider circle: the outline a topping's footprint is intersected with (see PIECE_OUTLINE_RADIUS)
+  const outlines = new Map<string, readonly DoughPoint[]>();
+  for (const wide of computeCutRegions(throughLines, PIECE_OUTLINE_RADIUS)) {
+    outlines.set(keyOf(sidesAt({ cuts }, wide.centroid.x, wide.centroid.y)), wide.polygon);
+  }
   for (const region of computeCutRegions(throughLines)) {
     const sides = sidesAt({ cuts }, region.centroid.x, region.centroid.y);
     const key = keyOf(sides);
@@ -158,7 +169,7 @@ function piecesFromRegions(cuts: readonly SplitCut[], throughLines: readonly Cut
     const known = byKey.get(key);
     // Distinct cells of a line arrangement have distinct side combinations; a repeat can only be numerical noise on a
     // vanishing region, so the larger one wins rather than drawing the same clip twice.
-    if (!known || sampleCount > known.sampleCount) byKey.set(key, makePiece(sides, region.centroid, sampleCount, region.polygon));
+    if (!known || sampleCount > known.sampleCount) byKey.set(key, makePiece(sides, region.centroid, sampleCount, outlines.get(key) ?? region.polygon));
   }
   return [...byKey.values()];
 }

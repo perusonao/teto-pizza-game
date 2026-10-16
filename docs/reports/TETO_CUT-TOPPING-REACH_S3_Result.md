@@ -8,7 +8,8 @@ Issue #510（親 #479）。Base: `main` `8c6980e`（#508・#509 マージ後）�
 ## 変更
 | ファイル | 内容 |
 |---|---|
-| `src/logic/cut/pieces.ts` | `PizzaPiece.polygon`（直線カットのピースの正確な凸外形、任意）。`placeTopping` は外形が揃っているとき、**食材の外接円とピース外形の厳密な交差判定**で隣のピースを決める。曲線の軌跡（ゲームでは出ない）は従来の 8 方向調査のまま。`distanceToConvexPolygon` を追加 |
+| `src/logic/cut/pieces.ts` | `PizzaPiece.polygon`（直線カットのピースの正確な凸外形、任意）。`placeTopping` は外形が揃っているとき、**食材の外接円とピース外形の厳密な交差判定**で隣のピースを決める。曲線の軌跡（ゲームでは出ない）は従来の 8 方向調査のまま。外形は理想円（半径 48）ではなく、**伸ばした生地（最大 58）を含む半径 64 の円**で切る（`PIECE_OUTLINE_RADIUS`。縁の食材が、突出部にあるピースの欠片を落とさないため）。`distanceToConvexPolygon` を追加 |
+| `src/logic/cut/regions.ts` | `computeCutRegions(lines, radius = DOUGH_RADIUS)`: 半径を任意にできる。**既定は従来どおり理想円で、CUT の評価（`evaluation.ts`、`geometry.ts`）は変わらない** |
 | `src/logic/cut/toppingFootprint.ts`（新規） | 外接円の半径。箱 40px（実測の最大 37.3px + 余裕）の対角 × 倍率を、ドウの内側 px（幅 − 20）で % に換算。未測定（0px）は従来の `TOPPING_REACH` |
 | `src/components/PizzaStage.tsx` | 食材ごとの `reach` を `toppingFootprintRadiusPercent(倍率, doughPx)` に。**Canvas モッツァレラは既存の `cheesePoolReachPercent` のまま** |
 | テスト | `pieces.test.ts`（厳密交差、22.5°、0/60/120°、細い楔、総当たり照合）、`toppingFootprint.test.ts`、`PizzaStage.pieces.test.tsx`（描画、CUT 幅と RESULT 幅）、`e2e/cut-topping-reach-s3.spec.ts`（実ブラウザの DOM 検証と Before/After 撮影）、`e2e/gestures.ts`（`cutThroughCentre`） |

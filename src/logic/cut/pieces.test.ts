@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { createChordCutLine, createGrooveCutLine } from "./fixtures";
-import { TOPPING_REACH, buildSidePolygons, computePieceLayout, distanceToConvexPolygon, placeTopping, sidesAt } from "./pieces";
-import { computeCutRegions, isSignificantRegion } from "./regions";
+import { PIECE_OUTLINE_RADIUS, TOPPING_REACH, buildSidePolygons, computePieceLayout, distanceToConvexPolygon, placeTopping, sidesAt } from "./pieces";
+import { CIRCLE_AREA, computeCutRegions, isSignificantRegion } from "./regions";
 import { evaluateCut } from "./evaluation";
 import type { CutLine } from "./types";
 
@@ -338,6 +338,29 @@ describe("placeTopping: exact footprint-to-piece intersection (#479 S3)", () => 
       }
     }
   }, 60_000);
+
+  it("a rim topping reaches the part of a neighbouring piece that lies in a stretched lobe beyond the ideal circle", () => {
+    // the cut runs 40 below the centre: its chord ends where it meets the ideal circle (x = C +- 26.5). A topping near the rim, beside that end,
+    // is 4 from the cut but 5.3 from the part of the cell inside the ideal circle. The player's dough can be stretched past that circle (up to
+    // 58), so the cell there is drawn, and the outline must cover it.
+    const layout = computePieceLayout([createChordCutLine(0, 40)], shape)!;
+    expect(layout.pieces).toHaveLength(2);
+    const x = C + 30;
+    const y = C + 36; // 46.9 from the centre: a legal topping position
+    const placement = placeTopping(layout, x, y, 4.5);
+    expect(placement.halves).toHaveLength(1);
+    expect(placement.halves[0]).not.toBe(placement.home);
+    expect(placeTopping(layout, x, y, 3.5).halves).toEqual([]); // 4 away: the disc has not reached it yet
+  });
+
+  it("the outlines are cut to a circle wider than the dough can be stretched; the CUT evaluation's regions are not", () => {
+    expect(PIECE_OUTLINE_RADIUS).toBeGreaterThan(58); // DOUGH_SHAPE_TECHNICAL_MAX_RADIUS
+    const lines = [diameter(0), diameter(60), diameter(120)];
+    const areaOf = (regions: ReturnType<typeof computeCutRegions>) => regions.reduce((sum, r) => sum + r.area, 0);
+    expect(areaOf(computeCutRegions(lines))).toBeCloseTo(CIRCLE_AREA, 0); // the default is the ideal circle, as before
+    expect(computeCutRegions(lines).map((r) => r.area)).toEqual(computeCutRegions(lines, R).map((r) => r.area));
+    expect(areaOf(computeCutRegions(lines, PIECE_OUTLINE_RADIUS))).toBeGreaterThan(areaOf(computeCutRegions(lines)) * 1.5);
+  });
 
   it("a topping far from every cut is whole in one piece and has no copies in the others", () => {
     const layout = computePieceLayout([diameter(0), diameter(90)], shape)!;
