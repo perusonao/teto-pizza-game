@@ -1,0 +1,96 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.8
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.84
+  },
+  {
+   "id": "ham",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.69
+  },
+  {
+   "id": "ham",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.69
+  },
+  {
+   "id": "ham",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.17
+  },
+  {
+   "id": "egg",
+   "cls": "l",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.67
+  },
+  {
+   "id": "onion",
+   "cls": "s",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.69
+  },
+  {
+   "id": "onion",
+   "cls": "s",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.69
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.68
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.67
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "ham",
+   "frac": 0.11
+  },
+  {
+   "a": "mozzarella",
+   "b": "onion",
+   "frac": 0.11
+  },
+  {
+   "a": "mozzarella",
+   "b": "ham",
+   "frac": 0.2
+  },
+  {
+   "a": "mozzarella",
+   "b": "black-olive",
+   "frac": 0.02
+  }
+ ]
+}

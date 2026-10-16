@@ -2,7 +2,7 @@
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
-import { TOPPING_SCALE_PARAM, TOPPING_SCALE_PREVIEW_MARK } from "./toppingScalePreview";
+import { TOPPING_FIT_CANDIDATE_MARK, TOPPING_SCALE_PARAM, TOPPING_SCALE_PREVIEW_MARK } from "./toppingScalePreview";
 
 /**
  * #479 S2b-1 gate (bundle level): the production bundle contains nothing of the Preview topping-scale switch -- no query name,
@@ -30,7 +30,7 @@ async function bundleText(previewMode: boolean): Promise<string> {
 }
 
 /** Strings that exist only in the Preview switch (../preview/toppingScalePreview.ts). */
-const PREVIEW_ONLY = [TOPPING_SCALE_PARAM, TOPPING_SCALE_PREVIEW_MARK, "data-topping-scale-preview"];
+const PREVIEW_ONLY = [TOPPING_SCALE_PARAM, TOPPING_SCALE_PREVIEW_MARK, TOPPING_FIT_CANDIDATE_MARK, "data-topping-scale-preview"];
 
 let production = "";
 let preview = "";
@@ -48,7 +48,7 @@ describe("topping-scale switch isolation (real vite builds)", () => {
     production = await bundleText(false);
     expect(production.length).toBeGreaterThan(100_000); // a real app bundle, not an empty result
     for (const needle of PREVIEW_ONLY) expect(production.includes(needle), `production bundle contains ${needle}`).toBe(false);
-    // The production multipliers (the size-class table, all 1) are in production -- only the comparison switch is not.
+    // The production multipliers (the size-class table, B) are in production -- only the comparison switch is not.
     expect(production.includes("piece-rank-scale")).toBe(true);
   }, 240_000);
 

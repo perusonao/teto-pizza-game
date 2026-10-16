@@ -1,0 +1,51 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.74
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.72
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.59
+  },
+  {
+   "id": "basil",
+   "cls": "xl",
+   "w": 40,
+   "h": 39.2,
+   "far": 0.61
+  },
+  {
+   "id": "basil",
+   "cls": "xl",
+   "w": 35.6,
+   "h": 34.7,
+   "far": 0.59
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "basil",
+   "frac": 0.09
+  },
+  {
+   "a": "mozzarella",
+   "b": "basil",
+   "frac": 0.04
+  }
+ ]
+}

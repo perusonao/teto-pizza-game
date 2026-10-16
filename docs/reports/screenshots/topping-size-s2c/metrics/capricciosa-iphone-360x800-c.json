@@ -1,0 +1,82 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.7
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.7
+  },
+  {
+   "id": "mushroom",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.52
+  },
+  {
+   "id": "mushroom",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.52
+  },
+  {
+   "id": "ham",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.73
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 25.2,
+   "h": 25,
+   "far": 0.72
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 25.2,
+   "h": 25,
+   "far": 0.72
+  },
+  {
+   "id": "oregano",
+   "cls": "xs",
+   "w": 24.5,
+   "h": 24,
+   "far": 0.69
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0
+  },
+  {
+   "a": "mozzarella",
+   "b": "ham",
+   "frac": 0.07
+  },
+  {
+   "a": "mozzarella",
+   "b": "black-olive",
+   "frac": 0.38
+  },
+  {
+   "a": "mozzarella",
+   "b": "black-olive",
+   "frac": 0.38
+  }
+ ]
+}

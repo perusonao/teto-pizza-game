@@ -1,0 +1,60 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.78
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.85
+  },
+  {
+   "id": "cream-cheese",
+   "cls": "l",
+   "w": 25,
+   "h": 25,
+   "far": 0.66
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 43.7,
+   "h": 43,
+   "far": 0.76
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 43.7,
+   "h": 43,
+   "far": 0.79
+  },
+  {
+   "id": "jalapeno",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.71
+  },
+  {
+   "id": "jalapeno",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.67
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0.09
+  }
+ ]
+}

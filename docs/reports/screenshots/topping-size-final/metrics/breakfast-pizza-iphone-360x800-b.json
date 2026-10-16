@@ -1,0 +1,73 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 81,
+   "h": 81,
+   "far": 0.75
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 81,
+   "h": 81,
+   "far": 0.75
+  },
+  {
+   "id": "egg",
+   "cls": "l",
+   "w": 40.2,
+   "h": 39,
+   "far": 0.33
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 40.2,
+   "h": 39,
+   "far": 0.61
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 40.2,
+   "h": 39,
+   "far": 0.68
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 40.2,
+   "h": 39,
+   "far": 0.68
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0.06
+  },
+  {
+   "a": "mozzarella",
+   "b": "egg",
+   "frac": 0.21
+  },
+  {
+   "a": "mozzarella",
+   "b": "bacon",
+   "frac": 0.35
+  },
+  {
+   "a": "mozzarella",
+   "b": "egg",
+   "frac": 0.21
+  },
+  {
+   "a": "mozzarella",
+   "b": "bacon",
+   "frac": 0.35
+  }
+ ]
+}
