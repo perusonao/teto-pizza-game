@@ -591,7 +591,7 @@ describe("S2-A: faster outline choice, a clear border and a budgeted browning, w
         }
       }
     }
-  });
+  }, 30_000); // a brute-force sweep (2 grids x 60 seeds x 2 x 9 melts of renders): ~3 s alone, which a loaded CI runner pushed past the default 5 s
 
   it("browning is clear but bounded for every seed (S2-B3a): warm pixels at toast 0.6 median 8-18 %, p95 below 22 %, never above 26 %", () => {
     const warm = seeds(200).map((s) => measureCheesePool(renderCheesePool(s, 1, 0.6, 0)).warm);
