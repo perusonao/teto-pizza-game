@@ -91,7 +91,6 @@ function Harness({ category }: { category: IngredientCategory }) {
         inventory={state.inventory}
         pizza={state.pizza}
         physicalDragEnabled
-        draggableIngredientIds={["mozzarella", "basil"]}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}
         resetToken={resetToken}

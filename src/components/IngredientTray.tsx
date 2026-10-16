@@ -15,7 +15,7 @@ import {
 import { trayIngredientsFor } from "../logic/prepareDock";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
-import { hasPieceDragIntent } from "../logic/pieceDrag";
+import { hasPieceDragIntent, isDraggablePiece } from "../logic/pieceDrag";
 import type { Recipe } from "../data/recipes";
 import { canPlaceIngredient, remainingStock, type InventoryState } from "../state/inventory";
 import type { PizzaState } from "../state/pizzaState";
@@ -77,8 +77,9 @@ interface IngredientTrayProps {
    *  a disabled chip only ever prevents a *doomed* placement attempt from starting. */
   inventory: InventoryState;
   pizza: PizzaState;
+  /** Issue #476: whether a chip can be dragged onto the pizza right now. Which chips: every `scatter` cheese / topping
+   *  (`isDraggablePiece`), never a sauce -- decided from the ingredient itself, not from a caller-supplied id list. */
   physicalDragEnabled?: boolean;
-  draggableIngredientIds?: readonly string[];
   resolvePhysicalDrop?: (clientX: number, clientY: number) => DoughPoint | null;
   onPhysicalDrop?: (ingredient: Ingredient, point: DoughPoint) => void;
   /** Independent Review P2 (PR #26): bumped by the caller every time RESET_PIZZA fires (see
@@ -140,7 +141,6 @@ export function IngredientTray({
   inventory,
   pizza,
   physicalDragEnabled = false,
-  draggableIngredientIds = [],
   resolvePhysicalDrop,
   onPhysicalDrop,
   resetToken,
@@ -410,7 +410,7 @@ export function IngredientTray({
   }
 
   function isDraggable(ingredient: Ingredient): boolean {
-    return physicalDragEnabled && draggableIngredientIds.includes(ingredient.id);
+    return physicalDragEnabled && isDraggablePiece(ingredient);
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>, ingredient: Ingredient) {
