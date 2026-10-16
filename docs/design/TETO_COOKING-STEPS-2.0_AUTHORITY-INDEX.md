@@ -26,7 +26,7 @@ Audited `main`: `e0397ae`.
 | OD-CS-4 = (a), OD-CS-5 / 6 = exclude for now, OD-CS-8 = don't count, OD-CS-10 = BBQ チキン; UD-B = permanent tab, UD-E = late recipes only, UD-I = exclude both | **Decided** (Owner, 2026-10-16; `docs/decisions/TETO_FINISH-D2_OWNER-DECISION-TABLE.md`, which supersedes the "open" state of these IDs here and in the Next-Phase Design §8 / the Pilot §9) |
 | OD-CS-12..19; UD-D, F, G | **Open.** UD-D / F / G block TQ-2 (P4a / P4b) only, not the FINISH screen (D2-1 .. D2-3) |
 | Open-decision convention | Recommended options in the Next-Phase Design and the FINISH Pilot (e.g. skip FINISH after a failed bake, FREE finish-tab option A, Dinner / Lunch Rush exclusion) are **not** settled specs: any acceptance criterion, phase row or test that depends on an open decision is conditional on its answer, and an exclusion, if chosen, is itself asserted |
-| UD-H ≡ OD-CS-7 | **Same decision** (Owner, 2026-10-10): OD-CS-7 is the formal ID, UD-H is the alias used in the FINISH Pilot. Skip or keep FINISH after a failed bake is **still undecided**. One answer covers both IDs; they are never asked separately |
+| UD-H ≡ OD-CS-7 | **Same decision** (Owner, 2026-10-10): OD-CS-7 is the formal ID, UD-H is the alias used in the FINISH Pilot. **Decided = A (Owner, 2026-10-14): skip FINISH after a failed bake** (`bakeCompletionFailure()`; see `TETO_COOKING-STEPS-2.0_FINISH-ENGINE_OWNER-DECISIONS.md`). One answer covered both IDs |
 
 ## 3. Phase 2 PR plan and acceptance conditions
 

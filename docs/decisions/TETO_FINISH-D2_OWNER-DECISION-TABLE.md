@@ -16,7 +16,7 @@ Issue #294（親）/ #465 項目 10。main `573e2a6` 時点。**この表の「�
 | **OD-CS-10 = BBQチキン** | 後乗せの代表は BBQチキン | wasabi-beef は次点（Phase 1 の対象外） |
 | **OD-CS-8 = 数えない** | FINISH は Cooking Time（`completedMs`）に含めない | CUT と同じ扱い。効率ボーナス・Pitz の時間帯に影響しない |
 | **UD-E = 後乗せレシピのみ** | Guided で FINISH を表示するのは後乗せ要件を持つレシピだけ | D2-0 の `finishStepAvailable` の前提と一致。現行レシピの見た目は変わらない |
-| **UD-B / OD-CS-4 = 常設タブ（案 A / 選択肢 a）** | Free Cooking は仕上げタブを常設（D·S·C·T·焼く·仕上げ = 6 タブ）、トレイは所持する全具材 | 実装は D2-3（本番有効化前）。FREE に CUT が入る時点で再検討 |
+| **UD-B / OD-CS-4 = 常設タブ（案 A / 選択肢 a）** | Free Cooking は仕上げタブを常設（D·S·C·T·焼く·仕上げ = 6 タブ）、トレイは所持する全具材 | 仕様のみ確定。実装は D2-3 だが FREE/Research 全ラウンドに出る本番可視変更のため、本番有効化は P4b まで行わない（D2-3 は明示的な本番無効ゲート付き）。FREE に CUT が入る時点で再検討 |
 | **OD-CS-5 / OD-CS-6 / UD-I = 当面除外** | Dinner・Lunch Rush では後乗せレシピを除外 | D1b の fail-closed と一致。engine の追加作業なし。Dinner 再設計や #224 の決着後に再判断 |
 | #468 | HOLD 維持。FINISH 実装は独立 | |
 | #478 | 非依存。タップ操作を先に実装 | |
