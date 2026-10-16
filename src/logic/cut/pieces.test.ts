@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createIdealDoughShape } from "../doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../pizzaCoordinates";
 import { createChordCutLine, createGrooveCutLine } from "./fixtures";
-import { buildSidePolygons, computePieceLayout, placeTopping, sidesAt } from "./pieces";
+import { TOPPING_REACH, buildSidePolygons, computePieceLayout, placeTopping, sidesAt } from "./pieces";
 import { computeCutRegions, isSignificantRegion } from "./regions";
 import { evaluateCut } from "./evaluation";
 import type { CutLine } from "./types";
@@ -91,6 +91,17 @@ describe("placeTopping", () => {
     const straddling = placeTopping(layout, C, C - 2);
     expect(straddling.halves).toHaveLength(1);
     expect(straddling.halves[0]).not.toBe(straddling.home);
+  });
+
+  it("a wider reach (a topping drawn larger than the default) also reaches a cut the default misses; the default is unchanged", () => {
+    const layout = computePieceLayout([diameter(0)], shape)!;
+    const y = C - 12; // 12 dough-percent from the cut: past TOPPING_REACH (5), inside a pool reaching 18
+    expect(placeTopping(layout, C, y).halves).toEqual([]);
+    expect(placeTopping(layout, C, y, TOPPING_REACH).halves).toEqual([]);
+    const wide = placeTopping(layout, C, y, 18);
+    expect(wide.halves).toHaveLength(1);
+    expect(wide.halves[0]).not.toBe(wide.home);
+    expect(wide.home).toBe(placeTopping(layout, C, y).home);
   });
 });
 

@@ -542,7 +542,10 @@ const OUTLINE_HARMONIC_GAIN = 1.2;
 /** the melted look rounds the outline with this extra circular smoothing of R(theta) (half window in bins = degrees, passes) and blends it in by this share */
 const OUTLINE_ROUND_HALF = 16;
 const OUTLINE_ROUND_PASSES = 3;
-const OUTLINE_ROUND_MIX = 0.85;
+const OUTLINE_ROUND_MIX = 0.55;
+/** #421: how much more of the tongue / bay deviation a fully melted outline shows (1 + this) */
+const OUTLINE_MELT_EXAGGERATION = 0.4;
+const OUTLINE_MELT_LOW_HALF = 40;
 
 /** in-place circular box smoothing of a closed theta table (index BINS repeats index 0) */
 function smoothClosed(table: Float32Array, half: number, passes: number): void {
@@ -741,12 +744,13 @@ interface Scratch {
   height2: Float32Array;
   img2: Uint8ClampedArray;
   rounded: Float32Array;
+  low: Float32Array;
 }
 const scratch = new Map<number, Scratch>();
 function scratchFor(N: number): Scratch {
   let s = scratch.get(N);
   if (!s) {
-    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), height2: new Float32Array(N * N), img2: new Uint8ClampedArray(N * N * 4), rounded: new Float32Array(BINS + 1) };
+    s = { height: new Float32Array(N * N), lit: new Float32Array(N * N), tmp: new Float32Array(N * N), rho: new Float32Array(N * N), lut: new Float32Array(BINS + 1), height2: new Float32Array(N * N), img2: new Uint8ClampedArray(N * N * 4), rounded: new Float32Array(BINS + 1), low: new Float32Array(BINS + 1) };
     scratch.set(N, s);
   }
   return s;
@@ -1052,6 +1056,21 @@ function renderWithGeometry(geo: CheesePoolGeometry, melt: number, toast: number
     smoothClosed(rounded, OUTLINE_ROUND_HALF, OUTLINE_ROUND_PASSES);
     const k = OUTLINE_ROUND_MIX * fx;
     for (let b = 0; b <= BINS; b += 1) lut[b] += (rounded[b] - lut[b]) * k;
+    // #421 melt shape: a baked mozzarella loses its outline, so the lumps and bays (the part of R(theta) that a wide smoothing removes) are exaggerated by fx.
+    // The low-frequency part (elongation, centroid) is left alone so the aspect and the centring hold; the furthest point is held where it was (the frame
+    // margin is measured on it), so the lumpy body gets smaller instead of the pool getting bigger.
+    const low = s.low;
+    low.set(lut);
+    smoothClosed(low, OUTLINE_MELT_LOW_HALF, 2);
+    let before = 0;
+    for (let b = 0; b <= BINS; b += 1) before = Math.max(before, lut[b]);
+    const gain = OUTLINE_MELT_EXAGGERATION * fx;
+    let after = 0;
+    for (let b = 0; b <= BINS; b += 1) {
+      lut[b] = Math.max(0.3, lut[b] + (lut[b] - low[b]) * gain);
+      after = Math.max(after, lut[b]);
+    }
+    if (after > before) for (let b = 0; b <= BINS; b += 1) lut[b] *= before / after;
   }
   const { bin0, binFrac, qr } = geo;
   const rhoMap = s.rho;

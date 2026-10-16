@@ -1,8 +1,10 @@
-import { CheesePoolCanvas } from "./CheesePoolCanvas";
+import { CheesePoolCanvas, cheesePoolReachPercent } from "./CheesePoolCanvas";
 import { cheesePoolBakeParams } from "../logic/cheesePoolBake";
 import { CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
 import {
   useEffect,
+  useLayoutEffect,
+  useState,
   useCallback,
   useId,
   useMemo,
@@ -54,7 +56,7 @@ import {
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { buildCutVisual } from "../logic/cut/cutVisual";
-import { computePieceLayout, placeTopping } from "../logic/cut/pieces";
+import { TOPPING_REACH, computePieceLayout, placeTopping } from "../logic/cut/pieces";
 import { buildDragCutPath, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
@@ -314,8 +316,22 @@ export function PizzaStage({
    *  sample. `null` whenever no reference-dispense session is active. */
   const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
 
+  /** the rendered dough width (CSS px), for the Canvas mozzarella's cut reach (#421); 0 until measured */
+  const [doughPx, setDoughPx] = useState(0);
+  const [doughEl, setDoughEl] = useState<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    if (!doughEl) return;
+    const read = () => setDoughPx(Math.round(doughEl.getBoundingClientRect().width));
+    read();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(read);
+    observer.observe(doughEl);
+    return () => observer.disconnect();
+  }, [doughEl]);
+
   const setDoughElement = useCallback((element: HTMLDivElement | null) => {
     circleRef.current = element;
+    setDoughEl(element);
     onDoughElementChange?.(element);
   }, [onDoughElementChange]);
 
@@ -1113,8 +1129,17 @@ export function PizzaStage({
   );
   const toppingPlacements = useMemo(() => {
     if (!pieceLayout) return null;
-    return new Map(pizza.toppings.map((t) => [t.id, placeTopping(pieceLayout, t.x, t.y)] as const));
-  }, [pieceLayout, pizza.toppings]);
+    return new Map(
+      pizza.toppings.map((t) => {
+        // the Canvas mozzarella is drawn wider than a topping's usual reach once melted: probe as far as the pool really extends (#421), every other topping keeps the default
+        const reach =
+          t.ingredientId === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas"
+            ? Math.max(TOPPING_REACH, cheesePoolReachPercent(Math.round(CHEESE_RENDER_MODE.sizePx * activeToppingRankScale(t.ingredientId)), doughPx))
+            : TOPPING_REACH;
+        return [t.id, placeTopping(pieceLayout, t.x, t.y, reach)] as const;
+      }),
+    );
+  }, [pieceLayout, pizza.toppings, doughPx]);
   /** Toppings drawn in one piece: those whose centre is in it whole, plus the sliced part of any
    *  topping that straddles into it. With no `piece` (uncut pizza) every topping, whole. */
   const toppingsFor = (piece?: number) =>

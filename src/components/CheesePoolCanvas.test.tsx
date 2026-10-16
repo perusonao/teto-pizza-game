@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheesePoolCanvas, canvas2dAvailable, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
+import { CHEESE_POOL_MELT_SPREAD, CheesePoolCanvas, canvas2dAvailable, cheesePoolReachPercent, cheesePoolSpreadScale, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -165,5 +165,40 @@ describe("CheesePoolCanvas", () => {
       expect(hasVisiblePixels(ctx(withAlpha), 4, 4)).toBe(true);
       expect(hasVisiblePixels(ctx(new Uint8ClampedArray(16 * 4)), 4, 4)).toBe(false);
     });
+  });
+});
+
+describe("#421 melt spread scale", () => {
+  it("is exactly 1 up to melt 0.3 (the pre-bake look is unchanged) and grows monotonically to 1 + CHEESE_POOL_MELT_SPREAD", () => {
+    expect(cheesePoolSpreadScale(0)).toBe(1);
+    expect(cheesePoolSpreadScale(0.3)).toBe(1);
+    let last = 1;
+    for (let m = 0.35; m <= 1.0001; m += 0.05) {
+      const s = cheesePoolSpreadScale(m);
+      expect(s).toBeGreaterThanOrEqual(last);
+      last = s;
+    }
+    expect(cheesePoolSpreadScale(1)).toBeCloseTo(1 + CHEESE_POOL_MELT_SPREAD, 5);
+  });
+});
+
+describe("#421 cut reach of the melted pool (Codex P2)", () => {
+  /** the pool's half-width as a share of the dough interior (dough minus its 10 px borders) */
+  const poolHalfPercent = (px: number, doughPx: number) => ((px / 2) * (1 + CHEESE_POOL_MELT_SPREAD) * 100) / (doughPx - 20);
+
+  it("covers the melted pool's half-width (box half x spread) over the rendered dough's own size, for every dough the layouts draw", () => {
+    for (const px of [56, 70, 84]) {
+      for (const dough of [196, 209, 226, 300, 380]) {
+        expect(cheesePoolReachPercent(px, dough)).toBeGreaterThanOrEqual(poolHalfPercent(px, dough));
+        expect(cheesePoolReachPercent(px, dough)).toBeLessThan(poolHalfPercent(px, dough) + 1);
+      }
+    }
+  });
+
+  it("is larger on a smaller dough (the same fixed-pixel canvas is a bigger share of it); an unmeasured or tiny dough uses the smallest-dough floor, which still covers the compact RESULT dough", () => {
+    expect(cheesePoolReachPercent(70, 196)).toBeGreaterThan(cheesePoolReachPercent(70, 300));
+    expect(cheesePoolReachPercent(70, 0)).toBe(cheesePoolReachPercent(70, 120));
+    expect(cheesePoolReachPercent(70, 0)).toBeGreaterThanOrEqual(cheesePoolReachPercent(70, 196));
+    expect(cheesePoolReachPercent(70, 0)).toBeGreaterThan(5); // wider than the default topping reach, which is what the cut check used before
   });
 });
