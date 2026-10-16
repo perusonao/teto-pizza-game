@@ -63,7 +63,7 @@ main `573e2a6`、2026-10-16。コード・テスト・Issue・他 PR は変更�
 
 ## 5. FINISH 画面（D2-1/D2-2）に着手するための最小条件
 
-1. Owner 回答: **OD-CS-10（BBQチキン）、OD-CS-8（数えない）、UD-E（後乗せレシピのみ）はすべて確定済み**（2026-10-16、Decision 表に反映）。UD-B / OD-CS-4（常設タブ）、OD-CS-5 / 6 / UD-I（当面除外）も確定済みで、D2-3 の着手条件も満たす。
+1. Owner 回答: **OD-CS-10（BBQチキン）、OD-CS-8（数えない）、UD-E（後乗せレシピのみ）はすべて確定済み**（2026-10-16、Decision 表に反映）。UD-B / OD-CS-4（常設タブ）、OD-CS-5 / 6 / UD-I（当面除外）も確定済みで、D2-3 の仕様条件は満たす（FREE への本番有効化は P4b まで行わない）。
 2. 本 docs PR（P1-0）のマージ。
 3. 実装は BBQ 型の test-only fixture のまま（`RECIPES` への追加禁止は維持）。#503 / #515 には触れない。
 4. HV: 390×844 の動画と before/after スクショ（`TETO_HUMAN-VERIFICATION-POLICY.md`）。FINISH が本番レシピで有効になるまで画面は変化しないため、
