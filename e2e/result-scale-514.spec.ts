@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, playFullCapricciosaRound, startCapricciosaUnlocked, startFreshMargherita, tapDoughPercent } from "./gestures";
 
 /**
- * #514: the RESULT-only topping scale (`?resultScale=`, Preview / DEV). Real game, every engine: the switch shrinks the toppings drawn on the RESULT's pizza by
- * its multiplier, leaves the CUT screen and the mozzarella Canvas alone, and the cut pieces still get their sliced parts. With RESULT_SCALE_CAPTURE_DIR set it
+ * #514: the RESULT-only topping scale (production 0.75; `?resultScale=` compares others in Preview / DEV). Real game, every engine: the RESULT's pizza draws its toppings at
+ * the multiplier, leaves the CUT screen and the mozzarella Canvas alone, and the cut pieces still get their sliced parts. With RESULT_SCALE_CAPTURE_DIR set it
  * also saves the RESULT's dough at 1.0 / 0.85 / 0.75 / 0.65 for margherita and capricciosa (comparison evidence for the PR; not a regression check).
  */
 const OUT = process.env.RESULT_SCALE_CAPTURE_DIR;
@@ -49,13 +49,13 @@ async function read(page: Page) {
 }
 
 test.describe("#514 RESULT topping scale (?resultScale=)", () => {
-  test("0.75 shrinks the RESULT's toppings by 0.75, leaves the CUT screen and the mozzarella Canvas alone, and keeps the sliced parts", async ({ browser }, info) => {
+  test("0.75 (the production scale) draws the RESULT's toppings 0.75 times the 1.0 size, leaves the CUT screen and the mozzarella Canvas alone, and keeps the sliced parts", async ({ browser }, info) => {
     test.setTimeout(240_000);
     const seen: Record<string, { cut: Awaited<ReturnType<typeof read>>; result: Awaited<ReturnType<typeof read>> }> = {};
     for (const s of [1, 0.75]) {
       const ctx = await browser.newContext(info.project.use);
       const page = await ctx.newPage();
-      await playMargherita(page, s === 1 ? "" : `?resultScale=${s}`);
+      await playMargherita(page, `?resultScale=${s}`);
       const cut = await read(page);
       await page.getByRole("button", { name: /切り終わる/ }).click();
       await page.waitForTimeout(800);
@@ -77,13 +77,13 @@ test.describe("#514 RESULT topping scale (?resultScale=)", () => {
     expect(seen[0.75].result.sliced).toBeGreaterThan(0);
   });
 
-  test("an unknown value changes nothing: the RESULT looks like production", async ({ page }) => {
+  test("an unknown value gives the production scale: the RESULT's basil is drawn at 0.75", async ({ page }) => {
     test.setTimeout(240_000);
     await playMargherita(page, "?resultScale=0.7");
     await page.getByRole("button", { name: /切り終わる/ }).click();
     await page.waitForTimeout(800);
     const r = await read(page);
-    expect(r.fontPx).toBeGreaterThan(30); // basil xl x1.3: 28 * 1.3 = 36.4px, not scaled
+    expect(r.fontPx).toBeCloseTo(28 * 1.3 * 0.75, 1); // basil xl x1.3 (36.4px) x the production RESULT scale 0.75
     await expect(page.locator(".preview-badge")).toHaveCount(0); // dev server: no VITE_PREVIEW_MODE badge
   });
 

@@ -6,18 +6,18 @@
  * font-size, the CSS cheeses' transforms) AND to the S3 footprint radius (`toppingFootprintRadiusPercent`), so a topping's copies in the cut pieces
  * always match what is drawn.
  *
- *   ?resultScale=0.65 | 0.75 | 0.85 | 1.0   the multiplier for this page load (Preview / DEV only; any other value, a repeat or none: no override)
+ *   ?resultScale=0.65 | 0.75 | 0.85 | 1.0   the multiplier for this page load (Preview / DEV only; any other value, a repeat or none: no override, i.e. the production scale)
  *
- * PRODUCTION IS UNCHANGED: `RESULT_TOPPING_SCALE` is 1 and the override branch sits behind a static `import.meta.env.DEV || VITE_PREVIEW_MODE` check, so
- * a production `vite build` drops the query name and marker (./resultScalePreview.gate.test.ts scans for them). Production moves off 1 only by editing
- * `RESULT_TOPPING_SCALE`, after the Owner has decided on an iPhone. Nothing here is saved; scoring, CUT evaluation and the save never read it.
+ * PRODUCTION uses `RESULT_TOPPING_SCALE` (0.75, the Owner's iPhone decision); the override branch sits behind a static `import.meta.env.DEV || VITE_PREVIEW_MODE`
+ * check, so a production `vite build` drops the query name and marker (./resultScalePreview.gate.test.ts scans for them). `?resultScale=1.0` in a Preview
+ * shows the old size for comparison. Nothing here is saved; scoring, CUT evaluation and the save never read it.
  *
  * Mozzarella is exempt: its Canvas box (and the M1 fallback) keeps its size, as the size classes do (`TOPPING_RANK_SCALE_EXEMPT_IDS`).
  */
 import { TOPPING_RANK_SCALE_EXEMPT_IDS } from "../data/toppingSizeClass";
 
-/** The production RESULT topping scale. 1 = today's size. Change only after the Owner's iPhone decision. */
-export const RESULT_TOPPING_SCALE = 1;
+/** The production RESULT topping scale: 0.75, adopted by the Owner after an iPhone Safari comparison with 1.0 (#514). */
+export const RESULT_TOPPING_SCALE = 0.75;
 
 /** The candidates the Preview switch accepts (a whitelist: nothing else is honoured). */
 export const RESULT_SCALE_CANDIDATES = [0.65, 0.75, 0.85, 1] as const;

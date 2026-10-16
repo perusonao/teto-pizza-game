@@ -41,8 +41,14 @@ describe("resolveResultScale", () => {
 });
 
 describe("the production value and the page-load cache", () => {
-  it("production RESULT scale is 1 (today's size) until the Owner decides on an iPhone", () => {
-    expect(RESULT_TOPPING_SCALE).toBe(1);
+  it("the production RESULT scale is 0.75 (the Owner's iPhone decision), and it is what applies without a query", () => {
+    expect(RESULT_TOPPING_SCALE).toBe(0.75);
+    expect(activeResultToppingScale()).toBe(0.75);
+  });
+
+  it("?resultScale=1.0 in a Preview brings the old size back for comparison", () => {
+    window.history.replaceState(null, "", "/?resultScale=1.0");
+    resetPreviewResultScaleForTest();
     expect(activeResultToppingScale()).toBe(1);
   });
 
@@ -70,5 +76,8 @@ describe("toppingPhaseScale", () => {
     expect(toppingPhaseScale("mozzarella", false)).toBe(1);
     expect(toppingPhaseScale("basil", true)).toBe(0.75);
     expect(toppingPhaseScale("pepperoni", true)).toBe(0.75);
+    window.history.replaceState(null, "", "/?resultScale=0.65");
+    resetPreviewResultScaleForTest();
+    expect(toppingPhaseScale("basil", true)).toBe(0.65);
   });
 });

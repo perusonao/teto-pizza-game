@@ -1292,7 +1292,7 @@ export function PizzaStage({
         if (!ingredient) return null;
         // #479 S2a / S2b-1: the size-class multiplier (1 for every class in production; ?toppingScale=a|b in Preview / DEV) -- on this span so the whole / half / M1 / SVG pieces all read the same value
         const rankScale = activeToppingRankScale(t.ingredientId);
-        // #514: the RESULT-only multiplier (1 in production, and for the exempt mozzarella: the var is then not set at all, so the production DOM is unchanged)
+        // #514: the RESULT-only multiplier (production 0.75; 1 off the RESULT and for the exempt mozzarella: the var is then not set at all)
         const phaseScale = toppingPhaseScale(t.ingredientId, resultCompact);
         return (
           <span

@@ -14,7 +14,7 @@ import { resetPreviewResultScaleForTest, RESULT_TOPPING_SCALE } from "../preview
 import { PizzaStage } from "./PizzaStage";
 
 /**
- * #514: the RESULT-only topping scale (`?resultScale=`, Preview / DEV) shrinks the toppings drawn on the RESULT's pizza AND the S3 footprint that
+ * #514: the RESULT-only topping scale (production 0.75; `?resultScale=` in Preview / DEV compares others) shrinks the toppings drawn on the RESULT's pizza AND the S3 footprint that
  * decides which cut pieces get a sliced copy -- the same multiplier for both. Vitest runs with `import.meta.env.DEV`, so the query is honoured here.
  */
 const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
@@ -89,18 +89,30 @@ afterEach(() => {
   setQuery("");
 });
 
-describe("RESULT topping scale: production default", () => {
-  it("is 1 and, with no query, sets no --piece-phase-scale on any piece (the production DOM is unchanged)", () => {
-    expect(RESULT_TOPPING_SCALE).toBe(1);
-    const { container } = render(stage(baked(), [through(0)], true));
-    expect(container.querySelectorAll(".pizza-topping").length).toBeGreaterThan(0);
-    for (const el of container.querySelectorAll<HTMLElement>(".pizza-topping, .pizza-topping-half")) expect(el.style.getPropertyValue("--piece-phase-scale")).toBe("");
+describe("RESULT topping scale: production default (0.75)", () => {
+  const phase = (c: HTMLElement) => [...c.querySelectorAll<HTMLElement>(".pizza-topping, .pizza-topping-half")].map((el) => el.style.getPropertyValue("--piece-phase-scale"));
+
+  it("is 0.75 and, with no query, sets it on the RESULT's pieces (never on the mozzarella)", () => {
+    expect(RESULT_TOPPING_SCALE).toBe(0.75);
+    const state = withTopping(baked(), [
+      { id: "basil-1", ingredientId: "basil", x: DOUGH_CENTER, y: DOUGH_CENTER + 6 },
+      { id: "moz-1", ingredientId: "mozzarella", x: 30, y: 30 },
+    ]);
+    const { container } = render(stage(state, [through(0)], true));
+    for (const el of container.querySelectorAll<HTMLElement>('[data-topping-id="basil-1"]')) expect(el.style.getPropertyValue("--piece-phase-scale")).toBe("0.75");
+    for (const el of container.querySelectorAll<HTMLElement>('[data-topping-id="moz-1"]')) expect(el.style.getPropertyValue("--piece-phase-scale")).toBe("");
   });
 
-  it("?resultScale=1.0 is also no override: no variable either", () => {
+  it("the CUT screen and every other stage are not scaled (no variable)", () => {
+    const { container } = render(stage(baked(), [through(0)], false));
+    expect(container.querySelectorAll(".pizza-topping").length).toBeGreaterThan(0);
+    expect(phase(container).every((v) => v === "")).toBe(true);
+  });
+
+  it("?resultScale=1.0 (Preview) shows the old size: no variable", () => {
     setQuery("?resultScale=1.0");
     const { container } = render(stage(baked(), [through(0)], true));
-    for (const el of container.querySelectorAll<HTMLElement>(".pizza-topping, .pizza-topping-half")) expect(el.style.getPropertyValue("--piece-phase-scale")).toBe("");
+    expect(phase(container).every((v) => v === "")).toBe(true);
   });
 });
 
@@ -124,11 +136,11 @@ describe("RESULT topping scale: the Preview switch", () => {
     for (const el of container.querySelectorAll<HTMLElement>(".pizza-topping, .pizza-topping-half")) expect(el.style.getPropertyValue("--piece-phase-scale")).toBe("");
   });
 
-  it("only the four candidates are honoured: 0.7 / 2 / repeated / junk leave the RESULT at 1", () => {
+  it("only the four candidates are honoured: 0.7 / 2 / repeated / junk leave the RESULT at the production 0.75", () => {
     for (const q of ["?resultScale=0.7", "?resultScale=2", "?resultScale=0.75&resultScale=0.65", "?resultScale=abc", "?resultScale="]) {
       setQuery(q);
-      const { container } = render(stage(baked(), [through(0)], true));
-      for (const el of container.querySelectorAll<HTMLElement>(".pizza-topping, .pizza-topping-half")) expect(el.style.getPropertyValue("--piece-phase-scale"), q).toBe("");
+      const { container } = render(stage(withTopping(baked(), [{ id: "basil-1", ingredientId: "basil", x: DOUGH_CENTER, y: DOUGH_CENTER + 6 }]), [through(0)], true));
+      for (const el of container.querySelectorAll<HTMLElement>('[data-topping-id="basil-1"]')) expect(el.style.getPropertyValue("--piece-phase-scale"), q).toBe("0.75");
       cleanup();
     }
   });
@@ -160,7 +172,7 @@ describe("RESULT topping scale: the S3 footprint follows the same multiplier", (
       for (const t of distances) {
         const p = c.at(t);
         const counts = [1, 0.85, 0.75, 0.65].map((s) => {
-          setQuery(s === 1 ? "" : `?resultScale=${s}`);
+          setQuery(`?resultScale=${s}`);
           const { container } = render(stage(withTopping(baked(), [{ id: "basil-1", ingredientId: "basil", x: p.x, y: p.y }]), c.lines, true));
           const n = copiesOf(container, "basil-1");
           cleanup();
