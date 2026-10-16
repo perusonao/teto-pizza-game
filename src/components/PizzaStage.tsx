@@ -17,6 +17,7 @@ import {
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { PostBakePiece } from "./PostBakePiece";
 import { activeToppingRankScale } from "../preview/toppingScalePreview";
 import { toppingPhaseScale } from "../preview/resultScalePreview";
 import type { Recipe } from "../data/recipes";
@@ -55,6 +56,7 @@ import {
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
+import { partitionPiecesByBakeClass } from "../state/pieceBakeClass";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { buildCutVisual } from "../logic/cut/cutVisual";
 import { TOPPING_REACH, computePieceLayout, placeTopping } from "../logic/cut/pieces";
@@ -1147,13 +1149,21 @@ export function PizzaStage({
   }, [pieceLayout, pizza.toppings, doughPx, resultCompact]);
   /** Toppings drawn in one piece: those whose centre is in it whole, plus the sliced part of any
    *  topping that straddles into it. With no `piece` (uncut pizza) every topping, whole. */
-  const toppingsFor = (piece?: number) =>
-    pizza.toppings.flatMap((t) => {
+  // FINISH D2-1: pieces placed after the bake (`stage === "post"`) are drawn by `PostBakePiece`, apart from the pre-bake
+  // path below; with none placed (every Production round today) `preBakeToppings` is `pizza.toppings` itself.
+  const { preBake: preBakeToppings, postBake: postBakeToppings } = useMemo(
+    () => partitionPiecesByBakeClass(pizza.toppings),
+    [pizza.toppings],
+  );
+  const piecesIn = (list: typeof pizza.toppings, piece?: number) =>
+    list.flatMap((t) => {
       const placement = piece === undefined ? null : toppingPlacements?.get(t.id);
       if (!placement) return [{ t, half: false }];
       if (placement.home === piece) return [{ t, half: false }];
       return piece !== undefined && placement.halves.includes(piece) ? [{ t, half: true }] : [];
     });
+  const toppingsFor = (piece?: number) => piecesIn(preBakeToppings, piece);
+  const postToppingsFor = (piece?: number) => piecesIn(postBakeToppings, piece);
 
   // Animated bake effects (smoke, the perfect glow) are not part of the pizza body: with the pizza in
   // pieces they are drawn once, outside the filtered pieces, so they never force the relief filter
@@ -1339,6 +1349,9 @@ export function PizzaStage({
           </span>
         );
       })}
+      {postToppingsFor(piece).map(({ t, half }) => (
+        <PostBakePiece key={t.id} topping={t} half={half} rankScale={activeToppingRankScale(t.ingredientId)} />
+      ))}
       {piece === undefined && placement?.status === "rejected" && (
         <span
           key={placement.token}

@@ -58,7 +58,7 @@ describe("FINISH stays inert in Production (D2-0)", () => {
     for (const recipe of RECIPES) expect(visibleCookingTabCount(getCookingProfile(recipe.id)), recipe.id).toBeLessThanOrEqual(6);
   });
 
-  it("no Production source file consumes the D2-0 helpers yet", () => {
+  it("only PizzaStage consumes pieceBakeClass (D2-1); nothing consumes the other D2-0 helpers yet", () => {
     const helpers = ["pieceBakeClass", "finishHint", "selectPostBakeStep", "finishStepAvailable"];
     const root = join(__dirname, "..");
     const files: string[] = [];
@@ -78,6 +78,7 @@ describe("FINISH stays inert in Production (D2-0)", () => {
         if (!defining && text.includes(name)) users.push(`${relative(root, file)} -> ${name}`);
       }
     }
-    expect(users).toEqual([]);
+    // D2-1 (Issue #294): PizzaStage draws post-bake pieces apart from the pre-bake path. Every other helper stays unused until D2-2.
+    expect(users).toEqual(["components/PizzaStage.tsx -> pieceBakeClass"]);
   });
 });
