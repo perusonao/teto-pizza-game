@@ -24,6 +24,7 @@ import { doughShapeRadiusAtAngle, type DoughShape } from "./doughShape";
 import {
   insideDoughShapeFraction,
   SAUCE_FIELD_SIZE,
+  SAUCE_ALPHA_CAP,
   SAUCE_TARGET_RADIUS,
   sauceDensityToAlpha,
   type SauceDepositLike,
@@ -296,4 +297,103 @@ export function buildSauceDisplayPixels(
     pixels[i + 3] = Math.round(sauceDensityToAlpha(value) * coverage * 255);
   }
   return pixels;
+}
+
+/**
+ * Owner Decision on PR #494 (overlap look, replaces B2's O4): where a later sauce run is painted over an earlier one, its opacity is
+ * multiplied by this much (about 0.7), so the sauce underneath still shows through. The blend stays plain alpha stacking (no
+ * multiply); only the TOP layer's opacity changes, and only where it overlaps something. Where nothing lies under it -- and for a
+ * one-sauce pizza, which has no layers under anything -- the pixels are left exactly as they were.
+ */
+export const SAUCE_OVERLAP_ALPHA_FACTOR = 0.7;
+
+/** The alpha channel of a display raster (one byte per pixel): "how much sauce is already here". Colour-independent. */
+export function alphaPlaneOf(pixels: Uint8ClampedArray): Uint8ClampedArray {
+  const plane = new Uint8ClampedArray(pixels.length / 4);
+  for (let i = 0; i < plane.length; i += 1) plane[i] = pixels[i * 4 + 3];
+  return plane;
+}
+
+/**
+ * Dims `pixels` (a run's display raster, RGBA) in place where `underAlpha` (the alpha plane of everything painted before it) is
+ * already covered. The dimming follows the coverage smoothly: nothing under it -> factor 1 (unchanged); fully covered (the cap
+ * alpha) -> `factor`; the soft edge of the sauce below dims proportionally, so there is no hard seam.
+ */
+export function dimWhereOverlapping(
+  pixels: Uint8ClampedArray,
+  underAlpha: Uint8ClampedArray,
+  factor: number = SAUCE_OVERLAP_ALPHA_FACTOR,
+): void {
+  const full = 255 * SAUCE_ALPHA_CAP;
+  for (let i = 0; i < underAlpha.length; i += 1) {
+    const under = underAlpha[i];
+    if (under === 0) continue;
+    const at = i * 4 + 3;
+    const alpha = pixels[at];
+    if (alpha === 0) continue;
+    const cover = Math.min(1, under / full);
+    pixels[at] = Math.round(alpha * (1 - (1 - factor) * cover));
+  }
+}
+
+/**
+ * Source-over of `src` onto `dst` (straight RGBA, 8-bit), in place on `dst`: what the browser does when it stacks one translucent
+ * canvas over another. Used to flatten the oldest sauce runs into one raster (Codex P2 on PR #494, canvas count bound).
+ */
+export function compositeOver(dst: Uint8ClampedArray, src: Uint8ClampedArray): void {
+  for (let i = 0; i < dst.length; i += 4) {
+    const sa = src[i + 3] / 255;
+    if (sa === 0) continue;
+    const da = dst[i + 3] / 255;
+    const oa = sa + da * (1 - sa);
+    for (let c = 0; c < 3; c += 1) dst[i + c] = (src[i + c] * sa + dst[i + c] * da * (1 - sa)) / oa;
+    dst[i + 3] = oa * 255;
+  }
+}
+
+/**
+ * The olive-oil look of `.pizza-sauce-heatmap--oil` (saturate 2.1, contrast 1.4, brightness 0.82, in that order, the CSS filter
+ * functions' own definitions) applied to a display raster's colour channels, in place. A canvas that mixes oil with other sauces
+ * cannot carry the oil-only CSS filter, so an oil run that has to be flattened into such a canvas gets its look baked in here. Only the
+ * colour is baked (no glow halo, no bake-state variant); it is used for the OLDEST runs of a pizza that alternates oil and other sauce
+ * more often than the canvas budget allows, which are buried under the newer runs.
+ */
+export function bakeOliveOilLook(pixels: Uint8ClampedArray): void {
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (pixels[i + 3] === 0) continue;
+    const [r, g, b] = bakeOilRgb(pixels[i], pixels[i + 1], pixels[i + 2]);
+    pixels[i] = r;
+    pixels[i + 1] = g;
+    pixels[i + 2] = b;
+  }
+}
+
+const OIL_SATURATE = 2.1;
+const OIL_MATRIX = [
+  0.213 + 0.787 * OIL_SATURATE, 0.715 - 0.715 * OIL_SATURATE, 0.072 - 0.072 * OIL_SATURATE,
+  0.213 - 0.213 * OIL_SATURATE, 0.715 + 0.285 * OIL_SATURATE, 0.072 - 0.072 * OIL_SATURATE,
+  0.213 - 0.213 * OIL_SATURATE, 0.715 - 0.715 * OIL_SATURATE, 0.072 + 0.928 * OIL_SATURATE,
+];
+
+/** One colour through the oil look (saturate 2.1, contrast 1.4, brightness 0.82), 0-255 in and out. */
+export function bakeOilRgb(r255: number, g255: number, b255: number): [number, number, number] {
+  const r = r255 / 255;
+  const g = g255 / 255;
+  const b = b255 / 255;
+  const out: [number, number, number] = [0, 0, 0];
+  for (let c = 0; c < 3; c += 1) {
+    const v = OIL_MATRIX[c * 3] * r + OIL_MATRIX[c * 3 + 1] * g + OIL_MATRIX[c * 3 + 2] * b;
+    const clamped = Math.min(1, Math.max(0, v));
+    out[c] = Math.round(Math.min(1, Math.max(0, (clamped - 0.5) * 1.4 + 0.5)) * 0.82 * 255);
+  }
+  return out;
+}
+
+/** `#rrggbb` through the oil look, as `#rrggbb`: the colour a flattened (plain) canvas must use for an oil mark to match the oil canvas' CSS filter. */
+export function bakeOilHex(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const [r, g, b] = bakeOilRgb((n >> 16) & 255, (n >> 8) & 255, n & 255);
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }

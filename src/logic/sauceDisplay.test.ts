@@ -266,9 +266,9 @@ describe("one display path: the Reference views and the live pizza draw the same
     }
   });
 
-  it("SauceHeatmapCanvas is the only caller of the display rasterizer, and nothing else rasterizes the old 16x16 field for the screen", () => {
-    const displayCallers = Object.entries(components).filter(([p, s]) => !isTest(p) && s.includes("buildSauceDisplayPixels(")).map(([p]) => p);
-    expect(displayCallers).toEqual(["../components/SauceHeatmapCanvas.tsx"]);
+  it("only the heatmap canvases call the display rasterizer (SauceHeatmapCanvas, and SauceMergedCanvas which flattens the oldest runs with the very same builder), and nothing else rasterizes the old 16x16 field for the screen", () => {
+    const displayCallers = Object.entries(components).filter(([p, s]) => !isTest(p) && s.includes("buildSauceDisplayPixels(")).map(([p]) => p).sort();
+    expect(displayCallers).toEqual(["../components/SauceHeatmapCanvas.tsx", "../components/SauceMergedCanvas.tsx"]);
     const oldCallers = [...Object.entries(components), ...Object.entries(logic)]
       .filter(([p, s]) => !isTest(p) && s.includes("sauceFieldToRgbaPixels("))
       .map(([p]) => p);
