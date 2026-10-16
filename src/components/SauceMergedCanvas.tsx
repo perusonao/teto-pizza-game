@@ -108,7 +108,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
   }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
 
   if (failed) {
-    return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, color: colorOf(run.ingredientId) }))} className={className} />;
+    return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId) }))} className={className} />;
   }
   return <canvas ref={canvasRef} className={className} width={MERGED_CANVAS_PX} height={MERGED_CANVAS_PX} aria-hidden="true" />;
 }
