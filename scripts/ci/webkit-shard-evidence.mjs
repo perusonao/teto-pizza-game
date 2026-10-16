@@ -430,6 +430,17 @@ const SELF_TEST_CASES = [
   ["collect-time error recorded", () => fullSuite(IDS, P, 2, (e) => { e[0].errors = ["results.json: missing"]; }), false],
   ["no evidence at all", () => [], false],
   ["three shards, complete", () => fullSuite(IDS, P, 3), true],
+  // Issue #512: the matrix is 3 shards per project; every total=2 case above stays, these mirror the failure modes for total=3.
+  ["three shards: shard 3/3 missing", () => fullSuite(IDS, P, 3, (e) => e.splice(2, 1)), false],
+  ["three shards: shard 3/3 duplicated instead of 3/3 once", () => fullSuite(IDS, P, 3, (e) => { e[1] = { ...e[2] }; }), false],
+  ["three shards: test ran in two shards", () => fullSuite(IDS, P, 3, (e) => { e[2].executed[K("t1")] = { status: "expected", expectedStatus: "passed" }; }), false],
+  ["three shards: listed test never ran", () => fullSuite(IDS, P, 3, (e) => { delete e[2].executed[K("t3")]; }), false],
+  ["three shards: failed test in shard 3/3", () => fullSuite(IDS, P, 3, (e) => { e[2].executed[K("t3")].status = "unexpected"; }), false],
+  ["three shards: shard index 4 out of range", () => fullSuite(IDS, P, 3, (e) => { e[2].shard = 4; }), false],
+  ["three shards: totals disagree (2 vs 3)", () => fullSuite(IDS, P, 3, (e) => { e[2].total = 2; }), false],
+  ["three shards: totals are per project (390 at 3, 360 at 2) -- coverage is still verified per project", () => [...fullSuite(IDS, ["p390"], 3), ...fullSuite(IDS, ["p360"], 2)], true],
+  ["three shards: failed shard 3 re-run passes (attempt 2 supersedes attempt 1)", () => [...fullSuite(IDS, P, 3, (e) => { e[2] = shardEvidence("p390", 3, 1, { failFirst: true }, IDS, 3); }), shardEvidence("p390", 3, 2, {}, IDS, 3)], true],
+  ["three shards: failed shard 3 re-run fails again", () => [...fullSuite(IDS, P, 3, (e) => { e[2] = shardEvidence("p390", 3, 1, { failFirst: true }, IDS, 3); }), shardEvidence("p390", 3, 2, { failFirst: true }, IDS, 3)], false],
   // Re-run evidence (PR #221 run 36019302842): the stale failed attempt must never be adopted.
   ["rerun: failed attempt 1 superseded by passing attempt 2", () => rerun({}), true],
   ["rerun: stale failed attempt listed AFTER the passing one", () => { const e = rerun({}); return [e.pop(), ...e]; }, true],

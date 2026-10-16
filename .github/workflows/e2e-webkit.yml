@@ -23,9 +23,12 @@ name: E2E WebKit (Cooking UI 1-Screen)
 #                   to mark as required in branch protection / rulesets. It fails when WebKit was
 #                   required and did not succeed (failed, cancelled, timed out, or skipped).
 #
-# Issue #207 Phase 2A (coverage unchanged, wall-clock ~halved): `webkit` is a STATIC 4-job matrix
-# -- {webkit-390x844, webkit-360x800} x {--shard 1/2, 2/2} -- instead of one runner running both
-# projects on 2 workers. Each runner keeps Playwright's default 2 workers (no extra CPU contention
+# Issue #207 Phase 2A (coverage unchanged, wall-clock ~halved): `webkit` is a STATIC matrix
+# -- {webkit-390x844, webkit-360x800} x {--shard 1/N .. N/N} -- instead of one runner running both
+# projects on 2 workers. Issue #512: N is now 3 (6 jobs). With N=2, `--shard 1/2` was the first 238 of
+# 450 tests (alphabetical: the heavy dinner-* / cooking-tray-* / contract-* / expansion* specs) and
+# `webkit-390x844 shard 1/2` ran 17.4 min of tests (job ~19.5 of the 20 min cap); N=3 gives 150 tests
+# per shard and an estimated longest shard of ~11.6 min of tests. timeout-minutes stays 20. Each runner keeps Playwright's default 2 workers (no extra CPU contention
 # for timing-sensitive tests). The matrix is static (never built from classify outputs), so a
 # failed classify still gets a real Full run. Each shard records evidence (its project's full
 # `--list` selection + its own JSON results, scripts/ci/webkit-shard-evidence.mjs), and WebKit
@@ -129,8 +132,8 @@ jobs:
       # WebKit Gate's evidence check fails if any shard 1..total is missing or duplicated.
       matrix:
         project: [webkit-390x844, webkit-360x800]
-        shard: [1, 2]
-        total: [2]
+        shard: [1, 2, 3]
+        total: [3]
     env:
       LIST_JSON: ${{ github.workspace }}/../webkit-list.json
       RESULTS_JSON: ${{ github.workspace }}/../webkit-results.json
@@ -193,7 +196,7 @@ jobs:
           npx playwright test --list --project=${{ matrix.project }} --reporter=json > /dev/null
           npx playwright test --list --project=${{ matrix.project }} | tail -n 1
 
-      # One project per job, one shard of it: every spec in e2e/ is still covered by the 2 shards
+      # One project per job, one shard of it: every spec in e2e/ is still covered by the 3 shards
       # of each of the 2 projects (playwright.config.ts webkit-390x844 / webkit-360x800, both
       # Desktop Safari = WebKit). The [webkit-...] prefix on every test line of the `list`
       # reporter is itself proof WebKit -- not Chromium -- executed each test.
