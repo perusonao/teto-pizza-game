@@ -1,0 +1,65 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 81,
+   "h": 81,
+   "far": 0.83
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 81,
+   "h": 81,
+   "far": 0.91
+  },
+  {
+   "id": "prosciutto-crudo",
+   "cls": "xl",
+   "w": 45.4,
+   "h": 44,
+   "far": 0.76
+  },
+  {
+   "id": "prosciutto-crudo",
+   "cls": "xl",
+   "w": 45.4,
+   "h": 44,
+   "far": 0.77
+  },
+  {
+   "id": "prosciutto-crudo",
+   "cls": "xl",
+   "w": 45.4,
+   "h": 44,
+   "far": 0.8
+  },
+  {
+   "id": "arugula",
+   "cls": "xl",
+   "w": 45.4,
+   "h": 44,
+   "far": 0.79
+  },
+  {
+   "id": "arugula",
+   "cls": "xl",
+   "w": 45.4,
+   "h": 44,
+   "far": 0.76
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0.17
+  },
+  {
+   "a": "prosciutto-crudo",
+   "b": "arugula",
+   "frac": 0.01
+  }
+ ]
+}
