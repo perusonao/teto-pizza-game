@@ -141,7 +141,7 @@ Style Lock v2 §9.6: オレガノ/ほうれん草（🍃）、アーティチョ
 
 ## 3. Style Lock v2 との対応表
 
-Style Lock v2 は 27 種（確定 8 + 残り 17 + goat-cheese）の SVG を承認済み。既存の専用 SVG 3 種（fresh-tomato / capers / clam）は対象外または維持。
+Style Lock v2 の承認状況（決定書 §0〜§1b、§9 のとおり）: **26 種は承認済み**（確定 8 + 新規 17 + 既存維持の `clam` 1）。**27 種目の `goat-cheese` は SVG の対象に加わっただけで、デザインは未作成**（比較シート → Owner 採用 → 参照 SVG の手順が必要。採用前に実装しない）。既存の専用 SVG のうち fresh-tomato / capers は 26 種の対象外、clam は既存のまま維持。
 
 **見た目のサイズ**: 参照 SVG は 64×64 の viewBox を 1em で描くため、同じ font-size だと絵文字より小さく見える。「SVG の見た目 / 絵文字」はインク面積の線形比（SVG ÷ 絵文字。接地影は除く）、「必要な補正」はその逆数。**アイコンを差し替えたら、絵文字向けのサイズ補正は外し、この補正に置き換える**（#503 の HV 項目「サイズ補正の要否」の根拠）。
 
@@ -175,7 +175,7 @@ Style Lock v2 は 27 種（確定 8 + 残り 17 + goat-cheese）の SVG を承�
 | `sardine` | イワシ | 残り17 | `sardine-fish` | 未割当 | 未実装 | 0.62 | x1.61 |
 | `ricotta` | リコッタ | 確定8 | `ricotta-mound` | Pilot A | PR #503（open）で実装中 | — | —（チーズはピザ上が CSS のためサイズに影響しない） |
 | `hot-dog` | ホットドッグ | 確定8 | `hot-dog-slices` | Pilot A | PR #503（open）で実装中 | 0.74 | x1.35 |
-| `goat-cheese` | ヤギのチーズ | 27種目(§9) | `未定` | 未割当 | 未実装 | — | —（チーズはピザ上が CSS のためサイズに影響しない） |
+| `goat-cheese` | ヤギのチーズ | 27種目(§9、**デザイン未作成**) | `未定` | 未割当 | 未実装（Owner 承認前） | — | —（チーズはピザ上が CSS のためサイズに影響しない） |
 
 
 ![Style Lock の参照 SVG と現行絵文字（B / C の実寸）](./screenshots/ingredient-visual-integration-audit/style-lock-svg-vs-emoji.jpg)
