@@ -52,19 +52,19 @@ main `573e2a6`、2026-10-16。コード・テスト・Issue・他 PR は変更�
 | 10-c. CS-4a 7 タブ圧縮チップ | 完了（#499、7 タブは fixture のみ） | main |
 | 10-d. D2-0 選択ロジック・描画区分・ヒント | 完了（#504、未配線） | main |
 | 10-e. P1-0 Owner Decision 表 | 本 PR（docs-only、merge 待ち） | — |
-| 10-f. D2-1 FINISH の盤面描画 | 未着手（#468 非依存、設計は §1） | OD-CS-8、UD-E |
-| 10-g. D2-2 GameScreen / トレイ / 完了ボタン | 未着手（#478 非依存、設計は §2） | D2-1 |
-| 10-h. D2-3 Free Cooking の仕上げタブ | 保留 | UD-B / OD-CS-4 |
-| 10-i. P4a TQ-2 技法基盤 | 保留 | UD-D / G、共通ゲート |
-| 10-j. P4b BBQチキン有効化 | 保留 | UD-F / I、P4a |
+| 10-f. D2-1 FINISH の盤面描画 | 着手可能（#468 非依存、設計は §1）。Owner 回答（OD-CS-8・UD-E）は 2026-10-16 に確定済み | D2-0 |
+| 10-g. D2-2 GameScreen / トレイ / 完了ボタン | D2-1 後に着手可能（#478 非依存、タップ先行、設計は §2） | D2-1 |
+| 10-h. D2-3 Free Cooking の仕上げタブ | D2-2 後に着手可能（UD-B / OD-CS-4 は常設タブで確定済み。本番有効化前の実装） | D2-2 |
+| 10-i. P4a TQ-2 技法基盤 | 保留 | UD-D / G（未回答）、共通ゲート |
+| 10-j. P4b BBQチキン有効化 | 保留 | UD-F（未回答）、P4a。UD-I は「両方除外」で確定済み |
 
 実装と本番デプロイは区別する。上記「完了」は main への merge のみで、本番デプロイの確認は未実施。
 同時に項目 4（Bake Human Feel）、5（#421）の最新状態は本調査では再確認していない。
 
 ## 5. FINISH 画面（D2-1/D2-2）に着手するための最小条件
 
-1. Owner 回答: **OD-CS-10（BBQ 正式記録）、OD-CS-8（FINISH を Cooking Time に数えるか）、UD-E（ガイドの仕上げ表示範囲）**。
-2. 本 docs PR（P1-0）のマージ判断は Owner（Claude はマージしない）。
+1. Owner 回答: **OD-CS-10（BBQチキン）、OD-CS-8（数えない）、UD-E（後乗せレシピのみ）はすべて確定済み**（2026-10-16、Decision 表に反映）。UD-B / OD-CS-4（常設タブ）、OD-CS-5 / 6 / UD-I（当面除外）も確定済みで、D2-3 の着手条件も満たす。
+2. 本 docs PR（P1-0）のマージ。
 3. 実装は BBQ 型の test-only fixture のまま（`RECIPES` への追加禁止は維持）。#503 / #515 には触れない。
 4. HV: 390×844 の動画と before/after スクショ（`TETO_HUMAN-VERIFICATION-POLICY.md`）。FINISH が本番レシピで有効になるまで画面は変化しないため、
    fixture 用の dev 入口をどうするか（ハーネス方式は #499 の `e2e/harness` が前例）を D2-1 の設計で決める。
