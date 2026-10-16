@@ -23,3 +23,6 @@
 ## Codex P2（カット時の複製範囲）への対応
 コード上で確認: `PizzaStage` の `placeTopping` は `TOPPING_REACH = 5`（dough-percent）で隣のピースへの複製（half）を判定する。焼成後の Canvas プールの半幅は約 19〜（箱 70px の半分 × (1+0.45) ÷ 280px dough）で、カット線が 5 より外側の広がり部分だけを通ると、その部分に隣のピースの複製が無く、スライスを離すと消える（×1.0 の時点でも差はあったが本 PR が広げた）。実機で非再現だったことは理由にしていない。
 修正（描画側のみ・最小）: `placeTopping` に省略可能な `reach`（既定 `TOPPING_REACH` のまま）を追加。`PizzaStage` は Canvas モッツァレラだけ `cheesePoolReachPercent(sizePx)` を渡す。ピース分割・CUT の評価・採点は不変。回帰テスト: `pieces.test.ts`（広い reach と既定の挙動）、`CheesePoolCanvas.test.tsx`（reach がプール半幅を覆う）、`PizzaStage.cheeseCanvas.test.tsx`（外側だけを通るカットで複製が +1）。
+
+### 2 回目の P2（reach の換算に固定の dough 幅 280px を使っていた）
+妥当（コンパクト RESULT の dough は 196px で、canvas は固定 px のため、同じプールが dough に占める割合は大きい）。修正: `PizzaStage` が実際の dough 幅を `ResizeObserver` で測り（未測定は 0）、`cheesePoolReachPercent(sizePx, doughPx)` が dough 内側（枠 10px を除く）に対する割合を返す。下限は 160px（最小の dough 内側）で、取りすぎた複製はピースのクリップで見えないため安全側。テストは dough 196〜380px の各幅で reach がプール半幅を覆うことを確認。

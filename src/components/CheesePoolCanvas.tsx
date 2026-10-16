@@ -66,16 +66,20 @@ export function cheesePoolSpreadScale(melt: number): number {
   return 1 + CHEESE_POOL_MELT_SPREAD * t * t * (3 - 2 * t);
 }
 
-/** a dough's usual width in CSS px on the phones the game targets (360-390 wide), to turn the canvas size into dough-percent */
-const REFERENCE_DOUGH_PX = 280;
+/** the smallest dough interior the game draws (CSS px; the compact RESULT dough is 196 across, less its border), used until the real size is measured, and as the floor of a measured one: a too-small reference only makes the reach larger, and a spare copy is clipped to its piece */
+const MIN_INNER_DOUGH_PX = 160;
+/** the dough's border (CSS px, `--dough-border-width`): the percent coordinates span the padding box inside it */
+const DOUGH_BORDER_PX = 10;
 
 /**
  * #421 / Codex P2: the half-width of a fully melted pool in dough-percent (the unit of `placeTopping`'s reach): the canvas box half, spread to its melted
- * scale. A cut that crosses the pool anywhere inside this must give the neighbouring piece its copy, or the part past the cut vanishes when the slices
- * separate. Rounded up.
+ * scale, over the dough's own size. A cut that crosses the pool anywhere inside this must give the neighbouring piece its copy, or the part past the cut
+ * vanishes when the slices separate. `doughPx` is the rendered dough width (the canvas is a fixed pixel size, so the same pool is a larger share of a
+ * smaller dough, e.g. the compact RESULT layout); unmeasured (0) it falls back to the smallest dough. Rounded up.
  */
-export function cheesePoolReachPercent(sizePx: number): number {
-  return Math.ceil(((sizePx / 2) * (1 + CHEESE_POOL_MELT_SPREAD) * 100) / REFERENCE_DOUGH_PX);
+export function cheesePoolReachPercent(sizePx: number, doughPx = 0): number {
+  const inner = Math.max(MIN_INNER_DOUGH_PX, doughPx - DOUGH_BORDER_PX * 2);
+  return Math.ceil(((sizePx / 2) * (1 + CHEESE_POOL_MELT_SPREAD) * 100) / inner);
 }
 
 export interface CheesePoolCanvasProps {
