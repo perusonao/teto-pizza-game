@@ -88,7 +88,8 @@ describe("activeToppingRankScale (this DEV build allows the switch)", () => {
     for (const search of ["", "?toppingScale=a", "?toppingScale=b", "?toppingScale=c"]) {
       visit(search);
       expect(activeToppingRankScale("mushroom")).toBe(1);
-      const byClass = TOPPING_SIZE_CLASSES.map((c) => PILOT.filter((id) => id !== "mozzarella").find((id) => toppingSizeClass(id) === c)).filter((id): id is (typeof PILOT)[number] => id !== undefined);
+      const scaled = PILOT.filter((id) => id !== "mozzarella"); // mozzarella is exempt (always 1), so it is not on the class ladder
+      const byClass = TOPPING_SIZE_CLASSES.flatMap((c) => scaled.filter((id) => toppingSizeClass(id) === c).slice(0, 1));
       const values = byClass.map((id) => activeToppingRankScale(id));
       for (let i = 1; i < values.length; i += 1) expect(values[i], search).toBeGreaterThanOrEqual(values[i - 1]);
     }
