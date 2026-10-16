@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { getIngredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { stablePieceRotation } from "../logic/pieceDrag";
-import { toppingRankScale } from "../data/toppingSizeClass";
+import { activeToppingRankScale } from "../preview/toppingScalePreview";
 
 export interface PizzaVisualPieceGroup {
   ingredientId: string;
@@ -66,7 +66,7 @@ export function renderPizzaVisualPieces({
               left: `${position.x}%`,
               top: `${position.y}%`,
               transform: `translate(-50%, -50%) rotate(${rotationDeg}deg)`,
-              "--piece-rank-scale": toppingRankScale(group.ingredientId),
+              "--piece-rank-scale": activeToppingRankScale(group.ingredientId),
             } as CSSProperties
           }
         >

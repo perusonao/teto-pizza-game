@@ -15,7 +15,7 @@ import {
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
-import { toppingRankScale } from "../data/toppingSizeClass";
+import { activeToppingRankScale } from "../preview/toppingScalePreview";
 import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
@@ -1205,8 +1205,8 @@ export function PizzaStage({
       {toppingsFor(piece).map(({ t, half }) => {
         const ingredient = getIngredient(t.ingredientId);
         if (!ingredient) return null;
-        // #479 S2a: the size-class multiplier (1 for every class for now) -- on this span so the whole / half / M1 / SVG pieces all read the same value
-        const rankScale = toppingRankScale(t.ingredientId);
+        // #479 S2a / S2b-1: the size-class multiplier (1 for every class in production; ?toppingScale=a|b in Preview / DEV) -- on this span so the whole / half / M1 / SVG pieces all read the same value
+        const rankScale = activeToppingRankScale(t.ingredientId);
         return (
           <span
             key={t.id}
@@ -1241,7 +1241,7 @@ export function PizzaStage({
                   seed={t.id}
                   {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
                   grid={CHEESE_RENDER_MODE.grid}
-                  sizePx={CHEESE_RENDER_MODE.sizePx * rankScale}
+                  sizePx={Math.round(CHEESE_RENDER_MODE.sizePx * rankScale)}
                   fallback={m1Piece}
                 />
               );

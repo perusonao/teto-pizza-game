@@ -1,5 +1,6 @@
 import { DEFAULT_CUT_SIGNIFICANCE, getCutSignificanceThresholds } from "../logic/cut/regions";
 import { CUT_THRESHOLD_PREVIEW_MARK, cutThresholdBadgeLabel } from "../preview/cutThresholdPreview";
+import { TOPPING_SCALE_PREVIEW_MARK, getPreviewToppingScaleCandidate, toppingScaleBadgeLabel } from "../preview/toppingScalePreview";
 import { LC_HAND_PREVIEW_CAPACITY, LC_HAND_PREVIEW_MARK, lcHandPreviewBadgeLabel } from "../preview/lcHandPreview";
 
 /**
@@ -27,17 +28,20 @@ export function PreviewBadge() {
   const sha = import.meta.env.VITE_PREVIEW_SHA;
   const hand = lcHandPreviewBadgeLabel(LC_HAND_PREVIEW_CAPACITY);
   const cut = cutThresholdBadgeLabel(getCutSignificanceThresholds(), DEFAULT_CUT_SIGNIFICANCE);
+  const size = toppingScaleBadgeLabel(getPreviewToppingScaleCandidate());
   return (
     <div
       className="preview-badge"
       aria-hidden="true"
       data-lc-hand-preview={hand === null ? undefined : LC_HAND_PREVIEW_MARK}
       data-cut-threshold-preview={cut === null ? undefined : CUT_THRESHOLD_PREVIEW_MARK}
+      data-topping-scale-preview={size === null ? undefined : TOPPING_SCALE_PREVIEW_MARK}
     >
       PREVIEW{pr ? ` · PR#${pr}` : ""}
       {sha ? ` · ${sha}` : ""}
       {hand === null ? "" : ` · ${hand}`}
       {cut === null ? "" : ` · ${cut}`}
+      {size === null ? "" : ` · ${size}`}
     </div>
   );
 }

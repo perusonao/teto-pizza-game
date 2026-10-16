@@ -198,7 +198,7 @@ describe("stylesheet: the variable multiplies the three on-pizza size rules and 
   });
 });
 
-describe("boundary: only the two on-pizza wrappers set the variable (the data module only names it in a comment)", () => {
+describe("boundary: only the two on-pizza wrappers set the variable (the data and preview modules only name it in a comment)", () => {
   const walk = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
       const p = join(dir, e.name);
@@ -208,13 +208,16 @@ describe("boundary: only the two on-pizza wrappers set the variable (the data mo
 
   it("no tray, drag preview, inventory, hint or shop component mentions --piece-rank-scale", () => {
     const users = sources.filter((p) => readFileSync(p, "utf8").includes("--piece-rank-scale")).map((p) => p.slice(SRC.length + 1));
-    expect(users.sort()).toEqual(["App.css", "components/PizzaStage.tsx", "components/PizzaVisualPieces.tsx", "data/toppingSizeClass.ts"]);
+    expect(users.sort()).toEqual(["App.css", "components/PizzaStage.tsx", "components/PizzaVisualPieces.tsx", "data/toppingSizeClass.ts", "preview/toppingScalePreview.ts"]);
   });
 
   it("the tray, inventory and thumbnail renderers still draw the ingredient without any rank wrapper (unscaled)", () => {
     expect(INGREDIENTS.length).toBeGreaterThan(0);
     for (const f of ["IngredientTray.tsx", "InventoryOverlay.tsx", "PizzaThumbnail.tsx", "IngredientPieceVisual.tsx"]) {
-      expect(readFileSync(join(SRC, "components", f), "utf8")).not.toContain("toppingRankScale");
+      const text = readFileSync(join(SRC, "components", f), "utf8");
+      expect(text).not.toContain("toppingRankScale");
+      expect(text).not.toContain("activeToppingRankScale");
+      expect(text).not.toContain("toppingScalePreview");
     }
   });
 });

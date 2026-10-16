@@ -112,9 +112,12 @@ export type ToppingSizeScaleCandidateKey = keyof typeof TOPPING_SIZE_SCALE_CANDI
  */
 export const TOPPING_RANK_SCALE: ToppingSizeScaleSet = { xs: 1, s: 1, m: 1, l: 1, xl: 1 };
 
-/** The `--piece-rank-scale` value for a piece of this ingredient on the pizza (S2a: always 1). */
-export function toppingRankScale(ingredientId: string): number {
-  return TOPPING_RANK_SCALE[toppingSizeClass(ingredientId)];
+/**
+ * The `--piece-rank-scale` value for a piece of this ingredient on the pizza. `set` defaults to `TOPPING_RANK_SCALE` (all 1, the production
+ * value); only the Preview / DEV comparison switch (../preview/toppingScalePreview.ts, S2b-1) passes a candidate set.
+ */
+export function toppingRankScale(ingredientId: string, set: ToppingSizeScaleSet = TOPPING_RANK_SCALE): number {
+  return set[toppingSizeClass(ingredientId)];
 }
 
 /**
