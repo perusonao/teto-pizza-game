@@ -47,7 +47,8 @@ cat > "$work/mk.mjs" <<'EOF'
 import { mkdirSync, writeFileSync } from "node:fs";
 const [dir, ...args] = process.argv.slice(2);
 const opts = Object.fromEntries(args.map((a) => a.split("=")));
-const ids = ["a", "b", "c", "d", "e"];
+const total = Number(opts.total ?? 2);
+const ids = ["a", "b", "c", "d", "e", "f", "g"];
 const report = (project, entries) => ({
   suites: [{ title: "x.spec.ts", file: "x.spec.ts", specs: [], suites: [{ title: "grp", file: "x.spec.ts",
     specs: entries.map(([id, status]) => ({ id: `${project}-${id}`, title: `t ${id}`, file: "x.spec.ts", line: 1,
@@ -56,27 +57,27 @@ const report = (project, entries) => ({
 mkdirSync(dir, { recursive: true });
 for (const project of ["webkit-390x844", "webkit-360x800"]) {
   writeFileSync(`${dir}/list-${project}.json`, JSON.stringify(report(project, ids.map((id) => [id, "skipped"]))));
-  for (const shard of [1, 2]) {
-    let mine = ids.filter((_, i) => i % 2 === shard - 1).map((id) => [id, "expected"]);
+  for (const shard of Array.from({ length: total }, (_, i) => i + 1)) {
+    let mine = ids.filter((_, i) => i % total === shard - 1).map((id) => [id, "expected"]);
     if (opts.fail === `${project}-${shard}`) mine = mine.map(([id], i) => [id, i === 0 ? "unexpected" : "expected"]);
     if (opts.drop === `${project}-${shard}`) mine = mine.slice(1);
     writeFileSync(`${dir}/res-${project}-${shard}.json`, JSON.stringify(report(project, mine)));
   }
 }
 EOF
-make_evidence() { # dir [fail=P-S] [drop=P-S] [omit=P-S] [only=P-S] [attempt=N]
-  local dir="$1" omit="" only="" attempt=1
+make_evidence() { # dir [fail=P-S] [drop=P-S] [omit=P-S] [only=P-S] [attempt=N] [total=N, default 2]
+  local dir="$1" omit="" only="" attempt=1 total=2
   shift
   for a in "$@"; do
-    case "$a" in omit=*) omit="${a#omit=}" ;; only=*) only="${a#only=}" ;; attempt=*) attempt="${a#attempt=}" ;; esac
+    case "$a" in omit=*) omit="${a#omit=}" ;; only=*) only="${a#only=}" ;; attempt=*) attempt="${a#attempt=}" ;; total=*) total="${a#total=}" ;; esac
   done
   node "$work/mk.mjs" "$dir/raw" "$@"
   for p in webkit-390x844 webkit-360x800; do
-    for s in 1 2; do
+    for s in $(seq 1 "$total"); do
       [ "$omit" = "$p-$s" ] && continue
       [ -n "$only" ] && [ "$only" != "$p-$s" ] && continue
       # Same layout as the gate's download-artifact (one directory per artifact name).
-      node "$here/webkit-shard-evidence.mjs" collect --project "$p" --shard "$s" --total 2 --attempt "$attempt" \
+      node "$here/webkit-shard-evidence.mjs" collect --project "$p" --shard "$s" --total "$total" --attempt "$attempt" \
         --list "$dir/raw/list-$p.json" --results "$dir/raw/res-$p-$s.json" \
         --out "$dir/ev/webkit-evidence-$p-shard$s-attempt$attempt/evidence.json" > /dev/null
     done
@@ -111,6 +112,21 @@ node "$here/webkit-shard-evidence.mjs" collect --project webkit-360x800 --shard 
   --list "$work/noattempt/raw/list-webkit-360x800.json" --results "$work/noattempt/raw/res-webkit-360x800-1.json" \
   --out "$work/noattempt/ev/webkit-evidence-webkit-360x800-shard1-attempt1/evidence.json" > /dev/null
 
+# Issue #512: the real matrix is 3 shards per project; the total=2 fixtures above stay as they are.
+make_evidence "$work/good3" total=3
+make_evidence "$work/failed3" total=3 fail=webkit-360x800-3
+make_evidence "$work/dropped3" total=3 drop=webkit-390x844-3
+make_evidence "$work/missing3" total=3 omit=webkit-390x844-3
+make_evidence "$work/rerun3" total=3 fail=webkit-390x844-3
+make_evidence "$work/rerun3b" total=3 only=webkit-390x844-3 attempt=2
+cp -r "$work/rerun3b/ev/." "$work/rerun3/ev/"
+make_evidence "$work/mixed3" total=3 omit=webkit-360x800-3
+# 360x800 shard 3 reports total=2 (make_evidence only loops 1..total, so build this one directly from the same raw run)
+node "$here/webkit-shard-evidence.mjs" collect --project webkit-360x800 --shard 3 --total 2 --attempt 1 \
+  --list "$work/mixed3/raw/list-webkit-360x800.json" --results "$work/mixed3/raw/res-webkit-360x800-3.json" \
+  --out "$work/mixed3/ev/webkit-evidence-webkit-360x800-shard3-attempt1/evidence.json" > /dev/null
+check "mixed-total fixture really records total=2 on shard 3" 2 "$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).total)' "$work/mixed3/ev/webkit-evidence-webkit-360x800-shard3-attempt1/evidence.json")"
+
 verify() { node "$here/webkit-shard-evidence.mjs" verify --dir "$1" --projects "webkit-390x844 webkit-360x800" > /dev/null 2>&1; echo $?; }
 check "verify: 2 projects x 2 shards, all passed" 0 "$(verify "$work/good/ev")"
 check "verify: one failed test" 1 "$(verify "$work/failed/ev")"
@@ -126,6 +142,14 @@ check "verify: rerun summary names the superseded attempt" 0 $?
 check "verify: rerun that failed again" 1 "$(verify "$work/rerunfail/ev")"
 check "verify: newer failed attempt is not rescued by an older pass" 1 "$(verify "$work/regress/ev")"
 check "verify: collect without --attempt" 1 "$(verify "$work/noattempt/ev")"
+check "verify: 3 shards x 2 projects, all passed" 0 "$(verify "$work/good3/ev")"
+check "verify: 3 shards, one failed test (360x800 shard 3/3)" 1 "$(verify "$work/failed3/ev")"
+check "verify: 3 shards, a listed test never ran (390x844 shard 3/3)" 1 "$(verify "$work/dropped3/ev")"
+check "verify: 3 shards, shard 3/3 evidence missing" 1 "$(verify "$work/missing3/ev")"
+check "verify: 3 shards, failed shard 3/3 superseded by passing re-run" 0 "$(verify "$work/rerun3/ev")"
+check "verify: 3 shards, mixed totals (2 vs 3) within a project" 1 "$(verify "$work/mixed3/ev")"
+mixed3_out="$(node "$here/webkit-shard-evidence.mjs" verify --dir "$work/mixed3/ev" --projects "webkit-390x844 webkit-360x800" 2>&1)"
+check "verify: 3 shards, mixed-total failure names the inconsistent totals" "inconsistent shard totals [3,2]" "$(printf '%s\n' "$mixed3_out" | grep -o 'inconsistent shard totals \[3,2\]')"
 check "verify: only one project required but two present" 1 \
   "$(node "$here/webkit-shard-evidence.mjs" verify --dir "$work/good/ev" --projects "webkit-390x844" > /dev/null 2>&1; echo $?)"
 
