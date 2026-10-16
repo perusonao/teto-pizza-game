@@ -28,7 +28,7 @@ main `f76cc07`（P1-0 = #516 merge 後）。Owner 方針: モッツァレラ Can
 
 ## 検証（ローカル）
 
-- `npx vitest run`: 全 433 ファイル中、D2-1 の 2 件の見張りテスト更新後に PizzaStage / pieceRankScale / finishD2Inert を含む関連 17 ファイル 241 件が通過。直前の全件実行で失敗したのはこの 2 件の見張りのみ。
+- `npx vitest run`（全件）: 432 ファイル通過 / 1 スキップ、8250 テスト通過 / 2 スキップ（既存のスキップ）。失敗 0。途中で失敗した既存の見張りテスト 2 件（`pieceRankScale`、`finishD2Inert`）は、D2-1 が予定された利用者であることを反映して更新済み。
 - `npx tsc -b`: エラーなし。`oxlint`: 変更ファイルに指摘なし。
 - Human Verification: 不要（本番で見た目・操作が変わらない内部変更。D2-0 と同じ扱い）。D2-2 で FINISH 画面が出た時点で 390×844 の動画と before/after が必要。
 
