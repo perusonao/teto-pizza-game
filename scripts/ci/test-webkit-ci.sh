@@ -121,8 +121,11 @@ make_evidence "$work/rerun3" total=3 fail=webkit-390x844-3
 make_evidence "$work/rerun3b" total=3 only=webkit-390x844-3 attempt=2
 cp -r "$work/rerun3b/ev/." "$work/rerun3/ev/"
 make_evidence "$work/mixed3" total=3 omit=webkit-360x800-3
-make_evidence "$work/mixed3b" total=2 only=webkit-360x800-3
-cp -r "$work/mixed3b/ev/." "$work/mixed3/ev/"
+# 360x800 shard 3 reports total=2 (make_evidence only loops 1..total, so build this one directly from the same raw run)
+node "$here/webkit-shard-evidence.mjs" collect --project webkit-360x800 --shard 3 --total 2 --attempt 1 \
+  --list "$work/mixed3/raw/list-webkit-360x800.json" --results "$work/mixed3/raw/res-webkit-360x800-3.json" \
+  --out "$work/mixed3/ev/webkit-evidence-webkit-360x800-shard3-attempt1/evidence.json" > /dev/null
+check "mixed-total fixture really records total=2 on shard 3" 2 "$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).total)' "$work/mixed3/ev/webkit-evidence-webkit-360x800-shard3-attempt1/evidence.json")"
 
 verify() { node "$here/webkit-shard-evidence.mjs" verify --dir "$1" --projects "webkit-390x844 webkit-360x800" > /dev/null 2>&1; echo $?; }
 check "verify: 2 projects x 2 shards, all passed" 0 "$(verify "$work/good/ev")"
@@ -145,6 +148,8 @@ check "verify: 3 shards, a listed test never ran (390x844 shard 3/3)" 1 "$(verif
 check "verify: 3 shards, shard 3/3 evidence missing" 1 "$(verify "$work/missing3/ev")"
 check "verify: 3 shards, failed shard 3/3 superseded by passing re-run" 0 "$(verify "$work/rerun3/ev")"
 check "verify: 3 shards, mixed totals (2 vs 3) within a project" 1 "$(verify "$work/mixed3/ev")"
+mixed3_out="$(node "$here/webkit-shard-evidence.mjs" verify --dir "$work/mixed3/ev" --projects "webkit-390x844 webkit-360x800" 2>&1)"
+check "verify: 3 shards, mixed-total failure names the inconsistent totals" "inconsistent shard totals [3,2]" "$(printf '%s\n' "$mixed3_out" | grep -o 'inconsistent shard totals \[3,2\]')"
 check "verify: only one project required but two present" 1 \
   "$(node "$here/webkit-shard-evidence.mjs" verify --dir "$work/good/ev" --projects "webkit-390x844" > /dev/null 2>&1; echo $?)"
 
