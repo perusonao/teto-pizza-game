@@ -27,7 +27,7 @@ Box of the inner piece element, px (emoji box is the 28px font's line box):
 | bacon (l) | 34.9 | 43.7 (x1.25) | 40.2 (x1.15) |
 | basil (xl) | 36.7 | 55.1 (x1.5) | 47.8 (x1.3) |
 
-Images and JSON: `docs/reports/screenshots/topping-size-s2b1/` (`compare-390x844.png`, `compare-360x800.png`: off | A | B; per-mode PNG + JSON). Placement-state only (PREPARE, Free Cooking); BAKE / CUT / RESULT with the switch is not captured here.
+Images and JSON: `docs/reports/screenshots/topping-size-s2b1/` (`compare-iphone-390x844.png`, `compare-iphone-360x800.png`: off | A | B; per-mode `iphone-<viewport>-<mode>` PNG + JSON (the Playwright project name is in every file name, so projects cannot overwrite each other)). Placement-state only (PREPARE, Free Cooking); BAKE / CUT / RESULT with the switch is not captured here.
 
 ## Observations for the Owner (not decisions)
 - black-olive stays visually heavy beside mushroom even at A (the geometric-emoji fill issue from the Fresh Audit): the multiplier alone does not fix it; fit correction is S4.

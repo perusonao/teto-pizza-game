@@ -42,7 +42,7 @@ test.describe.configure({ mode: "serial" });
 test.describe("S2b-1 capture", () => {
   test.skip(!OUT, "set TOPPING_SCALE_CAPTURE_DIR");
   for (const mode of MODES) {
-    test(`pilot six ${mode.id}`, async ({ page }) => {
+    test(`pilot six ${mode.id}`, async ({ page }, testInfo) => {
       test.setTimeout(120_000);
       const vp = page.viewportSize()!;
       await openWith(page, vp.width, vp.height, base(HAND_ON_OWNED));
@@ -65,7 +65,8 @@ test.describe("S2b-1 capture", () => {
         await tapDoughPercent(page, x, y);
       }
       await page.waitForTimeout(600); // the landing animation (220-280 ms) is real time
-      const tag = `${vp.width}x${vp.height}-${mode.id}`;
+      // the Playwright project is part of the name: the Chromium and WebKit projects run this spec at the same viewports in parallel and must not overwrite each other
+      const tag = `${testInfo.project.name}-${mode.id}`;
       await page.locator(".pizza-stage").first().screenshot({ path: `${OUT}/${tag}.png` });
       const boxes: Record<string, { w: number; h: number; rank: string }> = {};
       for (const [id] of PILOT) {
