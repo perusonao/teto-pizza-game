@@ -11,6 +11,8 @@ import type { SauceDepositLike } from "../logic/sauceField";
 export interface FallbackRun {
   deposits: readonly SauceDepositLike[];
   color: string;
+  /** Marker look (the overflow canvas' 6px dot at 0.55 x overflow fraction); omitted = the full-deposit soft dot. */
+  marker?: { sizePct: number; opacityOf: (d: SauceDepositLike) => number };
 }
 
 export function SauceDotsFallback({ runs, className }: { runs: readonly FallbackRun[]; className?: string }) {
@@ -24,11 +26,11 @@ export function SauceDotsFallback({ runs, className }: { runs: readonly Fallback
               position: "absolute",
               left: `${d.x}%`,
               top: `${d.y}%`,
-              width: "16%",
-              height: "16%",
+              width: `${run.marker?.sizePct ?? 16}%`,
+              height: `${run.marker?.sizePct ?? 16}%`,
               transform: "translate(-50%, -50%)",
               borderRadius: "50%",
-              opacity: 0.5,
+              opacity: run.marker ? run.marker.opacityOf(d) : 0.5,
               background: `radial-gradient(circle closest-side, ${run.color} 35%, transparent 100%)`,
             }}
           />

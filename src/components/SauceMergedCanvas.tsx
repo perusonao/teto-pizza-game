@@ -9,7 +9,7 @@ import {
   dimWhereOverlapping,
   SAUCE_DISPLAY_GRID,
 } from "../logic/sauceDisplay";
-import { insideDoughShapeFraction } from "../logic/sauceField";
+import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
 import type { SauceLayer } from "../state/sauceLayers";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
 import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
@@ -158,6 +158,8 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil 
       .map((run) => ({
         deposits: run.deposits.filter((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1),
         color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId),
+        // the healthy canvas draws a 6px (3%) marker at 0.55 x the missed fraction, not a full-deposit dot
+        marker: { sizePct: 3, opacityOf: (d: SauceDepositLike) => 0.55 * (1 - insideDoughShapeFraction(doughShape, d.x, d.y)) },
       }))
       .filter((run) => run.deposits.length > 0);
     return <SauceDotsFallback runs={outsideRuns} className={className} />;

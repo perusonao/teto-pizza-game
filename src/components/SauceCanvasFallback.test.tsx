@@ -304,7 +304,12 @@ describe("merged sauce canvases", () => {
     };
     const { container } = render(<SauceMergedOverflowCanvas runs={[outside]} doughShape={shape} colorOf={colorOf} />);
     expect(container.querySelector("canvas")).toBeNull();
-    expect(container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(1);
+    const dots = container.querySelector("[data-sauce-fallback]")!.children;
+    expect(dots).toHaveLength(1);
+    // marker look of the healthy canvas: small (3%) and 0.55 x the missed fraction (fully outside here), not a 16% / 0.5 deposit dot
+    const dot = dots[0] as HTMLElement;
+    expect(dot.style.width).toBe("3%");
+    expect(Number(dot.style.opacity)).toBeCloseTo(0.55, 2);
   });
 });
 
