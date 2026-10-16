@@ -318,7 +318,9 @@ export function PizzaStage({
    *  sample. `null` whenever no reference-dispense session is active. */
   const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
 
-  /** the rendered dough width (CSS px), for the Canvas mozzarella's cut reach (#421); 0 until measured */
+  /** the rendered dough width (CSS px), for the Canvas mozzarella's cut reach (#421) and every topping's cut footprint (#479 S3); 0 until measured.
+   *  Read again whenever the stage becomes / stops being the RESULT's (`resultCompact`: the dough's width class changes, 196px there), not only on the
+   *  ResizeObserver: a read that stayed at the CUT width made the footprint far too small on the RESULT (#514, WebKit 360x800). */
   const [doughPx, setDoughPx] = useState(0);
   const [doughEl, setDoughEl] = useState<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
@@ -329,7 +331,7 @@ export function PizzaStage({
     const observer = new ResizeObserver(read);
     observer.observe(doughEl);
     return () => observer.disconnect();
-  }, [doughEl]);
+  }, [doughEl, resultCompact]);
 
   const setDoughElement = useCallback((element: HTMLDivElement | null) => {
     circleRef.current = element;

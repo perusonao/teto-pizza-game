@@ -197,3 +197,19 @@ describe("RESULT topping scale: the S3 footprint follows the same multiplier", (
     expect(container.querySelectorAll('.pizza-topping[data-topping-id="basil-1"]')).toHaveLength(1);
   });
 });
+
+describe("the dough is measured again when the stage becomes the RESULT's (#514)", () => {
+  it("a basil 14% from a cut is sliced once the stage is resultCompact at 196px, though it was measured at the CUT width first", () => {
+    const state = withTopping(baked(), [{ id: "basil-1", ingredientId: "basil", x: DOUGH_CENTER, y: DOUGH_CENTER + 14 }]);
+    let width = 328;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({ width, height: width, top: 0, left: 0, right: width, bottom: width, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect,
+    );
+    setQuery("?resultScale=1.0");
+    const { container, rerender } = render(stage(state, [through(0)], false));
+    expect(copiesOf(container, "basil-1")).toBe(0); // 14% is past the CUT screen's footprint (~12% of the 308px inside a 328px dough)
+    width = 196; // the layout changes with the class; no ResizeObserver event in jsdom
+    rerender(stage(state, [through(0)], true));
+    expect(copiesOf(container, "basil-1")).toBe(1);
+  });
+});
