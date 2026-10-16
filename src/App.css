@@ -722,10 +722,10 @@
    .player-reference-mini-pizza__piece, each scoping this same base class differently). */
 /* Issue #479 S2a: `--piece-rank-scale` (default 1) is the per-ingredient size-class multiplier, set ONLY by the on-pizza piece wrappers
    (PizzaStage's topping span, renderPizzaVisualPieces' wrapper) -- never by the tray, drag preview, inventory or hint chips, so those
-   keep their own sizes. It composes with `--piece-scale` (Reference shrink) and `--bake-melt-scale` by multiplication; all classes are 1 in S2a. */
+   keep their own sizes. `--piece-phase-scale` (#514, default 1) is the RESULT-only multiplier, set inline by PizzaStage only on the RESULT's own pieces and only when it is not 1. It composes with `--piece-scale` (Reference shrink) and `--bake-melt-scale` by multiplication; all classes are 1 in S2a. */
 .ingredient-piece-visual__emoji {
   display: block;
-  font-size: calc(28px * var(--piece-scale, 1) * var(--piece-rank-scale, 1));
+  font-size: calc(28px * var(--piece-scale, 1) * var(--piece-rank-scale, 1) * var(--piece-phase-scale, 1));
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
   /* Gameplay UX PR-E: PizzaStage's own `toppingPieceStyle` sets this element's `filter` inline
      during BAKE/RESULT (continuous roast tint, ../logic/bakeVisual.ts's `toppingVisualFrame`) --
@@ -778,7 +778,7 @@
      custom properties (--reference-piece-scale/--thumb-piece-scale/--player-reference-piece-
      scale) that all did the same thing. The two scale factors compose (never conflict): a
      Reference piece is never mid-bake, PizzaStage's own pieces never set --piece-scale. */
-  transform: scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1)));
+  transform: scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1) * var(--piece-phase-scale, 1)));
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
@@ -807,7 +807,7 @@
   width: 21px;
   height: 9px;
   border-radius: 2px;
-  transform: rotate(-18deg) scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1)));
+  transform: rotate(-18deg) scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1) * var(--piece-phase-scale, 1)));
   background: linear-gradient(160deg, #fff6d8, #e7d182);
   box-shadow: 0 2px 2px rgba(30, 16, 4, 0.35), 0 0 0 1.3px rgba(255, 255, 255, 0.8);
 }

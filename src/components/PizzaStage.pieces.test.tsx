@@ -53,7 +53,7 @@ const partial: CutLine = {
   path: [{ x: 40, y: 20 }, { x: 55, y: 35 }],
 };
 
-function stage(state: GameState, lines: CutLine[], makingStep: GameState["makingStep"]) {
+export function stage(state: GameState, lines: CutLine[], makingStep: GameState["makingStep"], resultCompact = false) {
   return (
     <PizzaStage
       pizza={{ ...state.pizza, doughShape: createIdealDoughShape() }} // a finished dough, as in a real CUT
@@ -75,6 +75,7 @@ function stage(state: GameState, lines: CutLine[], makingStep: GameState["making
       onDoughStretchCommit={() => {}}
       cutState={{ ...state.cutState, lines }}
       onAddCutLine={() => {}}
+      resultCompact={resultCompact}
     />
   );
 }

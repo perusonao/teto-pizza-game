@@ -328,7 +328,7 @@ export async function cutThroughCentre(page: Page, angleDeg: number) {
  * `reload()` below, so the seed survives it. Dedicated onboarding coverage (first discovery,
  * Lunch Rush lock) lives in `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this
  * helper. */
-export async function startFreshMargherita(page: Page) {
+export async function startFreshMargherita(page: Page, query = "") {
   await page.addInitScript(() => {
     localStorage.setItem(
       "teto-pizza-save-v1",
@@ -341,7 +341,7 @@ export async function startFreshMargherita(page: Page) {
       }),
     );
   });
-  await page.goto("/");
+  await page.goto(`/${query}`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -503,7 +503,7 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
  * capricciosa's own `requiredIngredients` beyond the two Starter ones (tomato-sauce/mozzarella,
  * always owned): mushroom/oregano/ham/black-olive.
  */
-export async function startCapricciosaUnlocked(page: Page) {
+export async function startCapricciosaUnlocked(page: Page, query = "") {
   const chain = [
     "margherita",
     "funghi",
@@ -540,7 +540,7 @@ export async function startCapricciosaUnlocked(page: Page) {
   await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.goto("/");
+  await page.goto(`/${query}`);
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /カプリチョーザ、/ }).click();
