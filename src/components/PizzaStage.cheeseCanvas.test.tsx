@@ -163,6 +163,22 @@ describe("#486: Canvas mozzarella as the default display (placement / BAKE / CUT
     }
   });
 
+  it("#421 Codex P2: a cut through only the outer part of a melted Canvas pool still gives the neighbouring piece its copy (M1, drawn at the old size, keeps the default reach)", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctxOf(inked)) as never);
+    const target = state.pizza.toppings.find((t) => t.ingredientId === "mozzarella")!;
+    // a horizontal cut 12 dough-percent below the pool's centre: past the default reach (5), inside the melted pool (about 19)
+    const cut = [through(0, target.y + 12 - DOUGH_CENTER)];
+    const copies = (container: HTMLElement) => container.querySelectorAll(`[data-topping-id="${target.id}"]`).length;
+    const M1 = await loadStage("0");
+    const m1 = render(stage(M1, state, cut, "RESULT"));
+    const m1Copies = copies(m1.container);
+    cleanup();
+    const Canvas = await loadStage(null);
+    const canvas = render(stage(Canvas, state, cut, "RESULT"));
+    expect(copies(canvas.container)).toBe(m1Copies + 1);
+    cleanup();
+  });
+
   it("every piece falls back to the M1 cheese when the canvases read back blank (no transparent cheese before the bake, on CUT or on RESULT)", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => ctxOf(blank)) as never);
     for (const stored of CANVAS_VALUES) {

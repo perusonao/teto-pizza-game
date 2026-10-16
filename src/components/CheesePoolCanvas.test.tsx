@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CHEESE_POOL_MELT_SPREAD, CheesePoolCanvas, canvas2dAvailable, cheesePoolSpreadScale, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
+import { CHEESE_POOL_MELT_SPREAD, CheesePoolCanvas, canvas2dAvailable, cheesePoolReachPercent, cheesePoolSpreadScale, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -179,5 +179,16 @@ describe("#421 melt spread scale", () => {
       last = s;
     }
     expect(cheesePoolSpreadScale(1)).toBeCloseTo(1 + CHEESE_POOL_MELT_SPREAD, 5);
+  });
+});
+
+describe("#421 cut reach of the melted pool (Codex P2)", () => {
+  it("covers the melted pool's half-width (box half x spread) on a 280 px dough, and grows with the size", () => {
+    for (const px of [56, 70, 84]) {
+      const poolHalfPercent = ((px / 2) * (1 + CHEESE_POOL_MELT_SPREAD) * 100) / 280;
+      expect(cheesePoolReachPercent(px)).toBeGreaterThanOrEqual(poolHalfPercent);
+      expect(cheesePoolReachPercent(px)).toBeLessThan(poolHalfPercent + 1);
+    }
+    expect(cheesePoolReachPercent(70)).toBeGreaterThan(5); // wider than the default topping reach, which is what the cut check used before
   });
 });

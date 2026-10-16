@@ -66,6 +66,18 @@ export function cheesePoolSpreadScale(melt: number): number {
   return 1 + CHEESE_POOL_MELT_SPREAD * t * t * (3 - 2 * t);
 }
 
+/** a dough's usual width in CSS px on the phones the game targets (360-390 wide), to turn the canvas size into dough-percent */
+const REFERENCE_DOUGH_PX = 280;
+
+/**
+ * #421 / Codex P2: the half-width of a fully melted pool in dough-percent (the unit of `placeTopping`'s reach): the canvas box half, spread to its melted
+ * scale. A cut that crosses the pool anywhere inside this must give the neighbouring piece its copy, or the part past the cut vanishes when the slices
+ * separate. Rounded up.
+ */
+export function cheesePoolReachPercent(sizePx: number): number {
+  return Math.ceil(((sizePx / 2) * (1 + CHEESE_POOL_MELT_SPREAD) * 100) / REFERENCE_DOUGH_PX);
+}
+
 export interface CheesePoolCanvasProps {
   /** a stable id of the placed piece (its topping id), so a cut pizza's copies and every later frame show the same pool */
   seed: string;

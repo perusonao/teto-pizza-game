@@ -189,14 +189,14 @@ export interface ToppingPlacement {
   readonly halves: readonly number[];
 }
 
-/** Which pieces show a topping at (x, y): its home piece plus any piece it is sliced into. */
-export function placeTopping(layout: PieceLayout, x: number, y: number): ToppingPlacement {
+/** Which pieces show a topping at (x, y): its home piece plus any piece it is sliced into. `reach` (dough-percent) defaults to `TOPPING_REACH`; a topping drawn larger than that passes its own. */
+export function placeTopping(layout: PieceLayout, x: number, y: number, reach: number = TOPPING_REACH): ToppingPlacement {
   const index = new Map(layout.pieces.map((p, i) => [keyOf(p.sides), i]));
   const centre = index.get(keyOf(sidesAt(layout, x, y)));
   const seen = new Set<number>();
   for (let i = 0; i < 8; i += 1) {
     const a = (i * Math.PI) / 4;
-    const idx = index.get(keyOf(sidesAt(layout, x + Math.cos(a) * TOPPING_REACH, y + Math.sin(a) * TOPPING_REACH)));
+    const idx = index.get(keyOf(sidesAt(layout, x + Math.cos(a) * reach, y + Math.sin(a) * reach)));
     if (idx !== undefined) seen.add(idx);
   }
   const home = centre ?? [...seen][0] ?? 0;

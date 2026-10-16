@@ -19,3 +19,7 @@
 - 実機 iPhone Safari は未確認（Owner HV 待ち）。WebKit 画像は目視していない。
 - 広がりで隣接チーズ・バジルと重なって見える配置がある。
 - 動画（Human Verification Policy）は Owner 実機 HV の動画で代替する想定。この PR では撮っていない。
+
+## Codex P2（カット時の複製範囲）への対応
+コード上で確認: `PizzaStage` の `placeTopping` は `TOPPING_REACH = 5`（dough-percent）で隣のピースへの複製（half）を判定する。焼成後の Canvas プールの半幅は約 19〜（箱 70px の半分 × (1+0.45) ÷ 280px dough）で、カット線が 5 より外側の広がり部分だけを通ると、その部分に隣のピースの複製が無く、スライスを離すと消える（×1.0 の時点でも差はあったが本 PR が広げた）。実機で非再現だったことは理由にしていない。
+修正（描画側のみ・最小）: `placeTopping` に省略可能な `reach`（既定 `TOPPING_REACH` のまま）を追加。`PizzaStage` は Canvas モッツァレラだけ `cheesePoolReachPercent(sizePx)` を渡す。ピース分割・CUT の評価・採点は不変。回帰テスト: `pieces.test.ts`（広い reach と既定の挙動）、`CheesePoolCanvas.test.tsx`（reach がプール半幅を覆う）、`PizzaStage.cheeseCanvas.test.tsx`（外側だけを通るカットで複製が +1）。
