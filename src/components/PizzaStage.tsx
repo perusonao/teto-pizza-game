@@ -15,6 +15,7 @@ import {
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { toppingRankScale } from "../data/toppingSizeClass";
 import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
@@ -1204,6 +1205,8 @@ export function PizzaStage({
       {toppingsFor(piece).map(({ t, half }) => {
         const ingredient = getIngredient(t.ingredientId);
         if (!ingredient) return null;
+        // #479 S2a: the size-class multiplier (1 for every class for now) -- on this span so the whole / half / M1 / SVG pieces all read the same value
+        const rankScale = toppingRankScale(t.ingredientId);
         return (
           <span
             key={t.id}
@@ -1213,6 +1216,7 @@ export function PizzaStage({
               left: `${t.x}%`,
               top: `${t.y}%`,
               "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
+              "--piece-rank-scale": rankScale,
             } as CSSProperties}
           >
             {/* Issue #167 PR-B (Reference Truth): unified with every Reference view's own
@@ -1237,7 +1241,7 @@ export function PizzaStage({
                   seed={t.id}
                   {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
                   grid={CHEESE_RENDER_MODE.grid}
-                  sizePx={CHEESE_RENDER_MODE.sizePx}
+                  sizePx={CHEESE_RENDER_MODE.sizePx * rankScale}
                   fallback={m1Piece}
                 />
               );
