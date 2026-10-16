@@ -4,7 +4,7 @@ import { bakeToTarget, completeDoughStep, cutThreeLines, cutThroughCentre, paint
 /**
  * #479 S3: a topping a cut slices shows its part in the neighbouring piece, sized by its own drawing and the dough's rendered width (the RESULT's 196px dough
  * makes a topping a larger share than the CUT screen's 330-360px). Basil (class xl, x1.3 in production) is placed at known distances from a cut:
- * every one of them is sliced at the RESULT; at the CUT screen only the ones within the topping's footprint are. DOM-level, so it holds on every engine.
+ * at the RESULT (dough 196px, production scale 0.75) the ones within ~15.7% are sliced; at the CUT screen only the ones within the topping's footprint are. DOM-level, so it holds on every engine.
  * With CUT_REACH_CAPTURE_DIR set it also saves a crop of the cut area (Before / After evidence for the PR; not a regression check).
  */
 const OUT = process.env.CUT_REACH_CAPTURE_DIR;
@@ -15,14 +15,14 @@ const ON_THE_GAME_CUTS = [
   { x: 14, y: 50, d: 0 },
   { x: 86, y: 59, d: 9 },
   { x: 15, y: 63, d: 13 },
-  { x: 84, y: 34, d: 16 },
+  { x: 84, y: 31, d: 19 },
 ];
 /** for cuts through the centre at 22.5 / 82.5 / 142.5 degrees: along the 22.5-degree cut by `t`, off it by `d` (its normal sits halfway between two probe directions) */
 const along = (t: number, d: number) => {
   const a = (22.5 * Math.PI) / 180;
   return { x: 50 + t * Math.cos(a) - d * Math.sin(a), y: 50 + t * Math.sin(a) + d * Math.cos(a), d };
 };
-const ON_OBLIQUE_CUTS = [along(34, 0), along(-34, 9), along(34, 13), along(-34, -16)].map((p) => ({ ...p, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
+const ON_OBLIQUE_CUTS = [along(34, 0), along(-34, 9), along(34, 13), along(-34, -19)].map((p) => ({ ...p, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
 
 async function playToCut(page: Page, basils: { x: number; y: number }[]) {
   await startFreshMargherita(page);
@@ -65,15 +65,15 @@ test.describe("S3: cut toppings keep their slice in the neighbouring piece", () 
     await page.waitForTimeout(500);
     const atCut = await slicedBasils(page);
     await crop(page, `${info.project.name}-three-cuts-1-cut-screen`);
-    // d = 0 and 9 are inside the footprint at both CUT widths (radius ~11-12%); d = 13 and 16 are past it
+    // d = 0 and 9 are inside the footprint at both CUT widths (radius ~11-12%); d = 13 and 19 are past it
     expect.soft(atCut).toEqual(expect.arrayContaining([14, 86]));
     expect.soft(atCut).not.toContain(15);
     expect.soft(atCut).not.toContain(84);
     await page.getByRole("button", { name: /切り終わる/ }).click();
     await page.waitForTimeout(700);
     await crop(page, `${info.project.name}-three-cuts-2-result`);
-    // RESULT: the 196px dough makes the footprint ~21% of it, so every one of them is sliced
-    expect.soft(await slicedBasils(page)).toEqual([14, 15, 84, 86]);
+    // RESULT: the 196px dough and the production RESULT scale (0.75, #514) make the footprint ~15.7% of it: d = 0, 9 and 13 are sliced, d = 19 is not
+    expect.soft(await slicedBasils(page)).toEqual([14, 15, 86]);
   });
 
   test("cuts at 22.5 / 82.5 / 142.5 degrees (the normal halfway between two probe directions): CUT screen and RESULT", async ({ page }, info) => {
@@ -92,7 +92,7 @@ test.describe("S3: cut toppings keep their slice in the neighbouring piece", () 
     await crop(page, `${info.project.name}-oblique-2-result`);
     // a tap lands on whole device pixels, so the stored left can differ from the planned one by a rounding step (WebKit 360: 24 for 25)
     const atResult = await slicedBasils(page);
-    const planned = ON_OBLIQUE_CUTS.map((_, i) => left(i)).sort((a, b) => a - b);
+    const planned = ON_OBLIQUE_CUTS.slice(0, 3).map((_, i) => left(i)).sort((a, b) => a - b); // d = 0, 9, 13 (the footprint is ~15.7% at the RESULT); d = 19 is outside
     expect.soft(atResult).toHaveLength(planned.length);
     atResult.forEach((x, i) => expect.soft(Math.abs(x - planned[i])).toBeLessThanOrEqual(1));
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);

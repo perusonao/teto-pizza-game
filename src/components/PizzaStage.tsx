@@ -18,6 +18,7 @@ import {
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { activeToppingRankScale } from "../preview/toppingScalePreview";
+import { toppingPhaseScale } from "../preview/resultScalePreview";
 import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
@@ -317,7 +318,9 @@ export function PizzaStage({
    *  sample. `null` whenever no reference-dispense session is active. */
   const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
 
-  /** the rendered dough width (CSS px), for the Canvas mozzarella's cut reach (#421); 0 until measured */
+  /** the rendered dough width (CSS px), for the Canvas mozzarella's cut reach (#421) and every topping's cut footprint (#479 S3); 0 until measured.
+   *  Read again whenever the stage becomes / stops being the RESULT's (`resultCompact`: the dough's width class changes, 196px there), not only on the
+   *  ResizeObserver: a read that stayed at the CUT width made the footprint far too small on the RESULT (#514, WebKit 360x800). */
   const [doughPx, setDoughPx] = useState(0);
   const [doughEl, setDoughEl] = useState<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
@@ -328,7 +331,7 @@ export function PizzaStage({
     const observer = new ResizeObserver(read);
     observer.observe(doughEl);
     return () => observer.disconnect();
-  }, [doughEl]);
+  }, [doughEl, resultCompact]);
 
   const setDoughElement = useCallback((element: HTMLDivElement | null) => {
     circleRef.current = element;
@@ -1137,11 +1140,11 @@ export function PizzaStage({
         const reach =
           t.ingredientId === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas"
             ? Math.max(TOPPING_REACH, cheesePoolReachPercent(Math.round(CHEESE_RENDER_MODE.sizePx * activeToppingRankScale(t.ingredientId)), doughPx))
-            : toppingFootprintRadiusPercent(activeToppingRankScale(t.ingredientId), doughPx);
+            : toppingFootprintRadiusPercent(activeToppingRankScale(t.ingredientId) * toppingPhaseScale(t.ingredientId, resultCompact), doughPx);
         return [t.id, placeTopping(pieceLayout, t.x, t.y, reach)] as const;
       }),
     );
-  }, [pieceLayout, pizza.toppings, doughPx]);
+  }, [pieceLayout, pizza.toppings, doughPx, resultCompact]);
   /** Toppings drawn in one piece: those whose centre is in it whole, plus the sliced part of any
    *  topping that straddles into it. With no `piece` (uncut pizza) every topping, whole. */
   const toppingsFor = (piece?: number) =>
@@ -1291,6 +1294,8 @@ export function PizzaStage({
         if (!ingredient) return null;
         // #479 S2a / S2b-1: the size-class multiplier (1 for every class in production; ?toppingScale=a|b in Preview / DEV) -- on this span so the whole / half / M1 / SVG pieces all read the same value
         const rankScale = activeToppingRankScale(t.ingredientId);
+        // #514: the RESULT-only multiplier (production 0.75; 1 off the RESULT and for the exempt mozzarella: the var is then not set at all)
+        const phaseScale = toppingPhaseScale(t.ingredientId, resultCompact);
         return (
           <span
             key={t.id}
@@ -1301,6 +1306,7 @@ export function PizzaStage({
               top: `${t.y}%`,
               "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
               "--piece-rank-scale": rankScale,
+              ...(phaseScale === 1 ? {} : { "--piece-phase-scale": phaseScale }),
             } as CSSProperties}
           >
             {/* Issue #167 PR-B (Reference Truth): unified with every Reference view's own

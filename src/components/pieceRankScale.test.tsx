@@ -177,10 +177,10 @@ describe("stylesheet: the variable multiplies the three on-pizza size rules and 
   };
 
   it("emoji / SVG glyph font-size, the shared cheese transform and the parmigiano transform read it, composed with --piece-scale", () => {
-    expect(block(".ingredient-piece-visual__emoji")).toContain("font-size: calc(28px * var(--piece-scale, 1) * var(--piece-rank-scale, 1))");
-    expect(block(".pizza-cheese")).toContain("transform: scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1)))");
+    expect(block(".ingredient-piece-visual__emoji")).toContain("font-size: calc(28px * var(--piece-scale, 1) * var(--piece-rank-scale, 1) * var(--piece-phase-scale, 1))");
+    expect(block(".pizza-cheese")).toContain("transform: scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1) * var(--piece-phase-scale, 1)))");
     expect(block(".pizza-cheese--parmigiano")).toContain(
-      "transform: rotate(-18deg) scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1)))",
+      "transform: rotate(-18deg) scale(calc(var(--bake-melt-scale, 1) * var(--piece-scale, 1) * var(--piece-rank-scale, 1) * var(--piece-phase-scale, 1)))",
     );
   });
 
