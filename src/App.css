@@ -228,6 +228,7 @@
   /* PR-A (Issue #167 §5): 6px->4px vertical -- part of this pass's deliberate ~10px real-device
      safety slack, see `.ingredient-tray`'s own comment. */
   padding: 4px 16px;
+  position: relative;
 }
 
 .pizza-dough {
@@ -7412,25 +7413,46 @@ p.hint-sheet__step {
   padding: 4px 10px;
 }
 
-/* Issue #489 stage 1: Sauce Remaining Gauge (standalone, not yet mounted). */
+/* Issue #489 stage 1: Sauce Remaining Gauge. Owner Decision on PR #494: the fill takes the selected sauce's colour
+   (--sauce-gauge-color, set inline; the stage-1 red is the fallback) and the track is a darker tint with a firm outline, so a pale
+   sauce such as olive oil is still visible on the cream stage. */
 .sauce-remaining-gauge {
   width: 14px;
   height: 96px;
   box-sizing: border-box;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column-reverse; /* fill at the bottom, the cap hatch (when any) stacked above it */
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(40, 25, 10, 0.55);
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(60, 40, 20, 0.2);
+  pointer-events: none;
+}
+
+/* Issue #489 Phase 2: out of flow (absolute), so the pizza's size/centre and its pointer math are
+   untouched; sits in the stage's right gutter, never over the dough's hit area. */
+.pizza-stage__sauce-gauge {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
   pointer-events: none;
 }
 
 .sauce-remaining-gauge__fill {
   width: 100%;
-  background: #c8412b;
+  flex: none;
+  background: var(--sauce-gauge-color, #c8412b);
+  box-shadow: inset 0 0 0 1px rgba(40, 25, 10, 0.4);
 }
 
-.sauce-remaining-gauge[data-empty="true"] {
+/* The part of this sauce's bottle that the pizza-wide cap (provisional 200%) will not let out: a quiet diagonal hatch. */
+.sauce-remaining-gauge__cap {
+  width: 100%;
+  flex: none;
+  background: repeating-linear-gradient(135deg, rgba(40, 25, 10, 0.5) 0 2px, transparent 2px 5px);
+}
+
+.sauce-remaining-gauge[data-empty="true"]:not([data-limit="total"]) {
   opacity: 0.6;
 }

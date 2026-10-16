@@ -139,7 +139,7 @@ test("a second sauce is its own layer on top; the first keeps its colour and its
   }
 });
 
-test("switching back adds to the first layer and keeps three kinds in order; the layers follow the pizza to the next step", async ({ page }) => {
+test("switching back starts a new top layer (runs in the order laid); the layers follow the pizza to the next step", async ({ page }) => {
   await startSauceStep(page);
   await paint(page, { x: 25, y: 38 }, { x: 45, y: 38 }, 1000);
   await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
@@ -147,13 +147,239 @@ test("switching back adds to the first layer and keeps three kinds in order; the
   await page.getByRole("button", { name: /オリーブオイル/ }).click();
   await paint(page, { x: 30, y: 70 }, { x: 60, y: 70 }, 1000);
   await page.getByRole("button", { name: /トマトソース/ }).click();
-  await paint(page, { x: 25, y: 45 }, { x: 45, y: 45 }, 800); // back to tomato: the bottom layer grows, it does not move
+  await paint(page, { x: 25, y: 45 }, { x: 45, y: 45 }, 800); // back to tomato: a NEW top run (Owner Decision, PR #494), not folded into the bottom one
 
   const heatKinds = async () =>
     page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
-  expect((await heatKinds()).slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
+  const runs = ["tomato-sauce", "pesto", "olive-oil", "tomato-sauce"];
+  expect((await heatKinds()).slice(0, 4)).toEqual(runs);
 
   await page.getByRole("button", { name: /次へ/ }).click(); // SAUCE -> CHEESE
-  expect((await heatKinds()).slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
+  expect((await heatKinds()).slice(0, 4)).toEqual(runs);
   expect(await page.locator(".pizza-sauce-oil-sheen").count()).toBe(0);
+});
+
+/** The composite colour at a point of the pizza, drawing the heatmap canvases in DOM (= paint) order. The CSS blur filter is not applied,
+ *  which does not change which layer is on top where two overlap. Percent coordinates of the dough box. */
+async function compositeAt(page: Page, xPercent: number, yPercent: number) {
+  return page.evaluate(([fx, fy]) => {
+    const canvases = [...document.querySelectorAll<HTMLCanvasElement>("canvas.pizza-sauce-heatmap")].filter((c) => /--kind-/.test(c.className));
+    const out = document.createElement("canvas");
+    out.width = 200;
+    out.height = 200;
+    const ctx = out.getContext("2d")!;
+    for (const c of canvases) ctx.drawImage(c, 0, 0);
+    const [r, g, b, a] = ctx.getImageData(Math.round((fx / 100) * 199), Math.round((fy / 100) * 199), 1, 1).data;
+    return { r, g, b, a };
+  }, [xPercent, yPercent]);
+}
+
+test("what is painted after a switch shows over what was painted before it, whatever the kind (Owner Decision, PR #494)", async ({ page }) => {
+  await startSauceStep(page);
+  // tomato across the middle, then pesto across the same band: pesto (laid later) is on top where they overlap
+  await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 1000);
+  await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 1000);
+  const overlap = await compositeAt(page, 48, 50);
+  expect(overlap.a).toBeGreaterThan(60);
+  // pesto is on top: the overlap is still closer to pesto green (g - r = +30) than to tomato red (-130), though the dimmed overlap now lets
+  // some tomato through (Owner Decision, PR #494: ~x0.7 opacity), so it is no longer plainly green
+  expect(overlap.g - overlap.r).toBeGreaterThan(-52);
+
+  // back to tomato over the very same band: the NEW tomato run is on top of the pesto, so the overlap turns red again
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 70, y: 50 }, 600);
+  const heatKinds = await page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
+  expect(heatKinds.slice(0, 3)).toEqual(["tomato-sauce", "pesto", "tomato-sauce"]);
+  const over = await compositeAt(page, 48, 50);
+  expect(over.r).toBeGreaterThan(over.g);
+});
+
+/** Reads the composite colour (over a fixed dough colour) and the top layer's own alpha at a point, from the heatmap canvases in paint order.
+ *  The canvases already hold the overlap-dimmed pixels (Owner Decision, PR #494), so this is what the browser stacks. */
+async function stackAt(page: Page, xPercent: number, yPercent: number) {
+  return page.evaluate(([fx, fy]) => {
+    const canvases = [...document.querySelectorAll<HTMLCanvasElement>("canvas.pizza-sauce-heatmap")].filter((c) => /--kind-/.test(c.className));
+    const alphaOf = (c: HTMLCanvasElement) => c.getContext("2d")!.getImageData(Math.round((fx / 100) * 199), Math.round((fy / 100) * 199), 1, 1).data[3];
+    const out = document.createElement("canvas");
+    out.width = 200;
+    out.height = 200;
+    const ctx = out.getContext("2d")!;
+    ctx.fillStyle = "rgb(232,190,128)";
+    ctx.fillRect(0, 0, 200, 200);
+    for (const c of canvases) ctx.drawImage(c, 0, 0);
+    const [r, g, b] = ctx.getImageData(Math.round((fx / 100) * 199), Math.round((fy / 100) * 199), 1, 1).data;
+    return { r, g, b, alphas: canvases.map(alphaOf) };
+  }, [xPercent, yPercent]);
+}
+
+test("overlap: the top layer is dimmed only where it overlaps; 2 and 3 layers stay readable (Owner Decision, PR #494)", async ({ page }) => {
+  await startSauceStep(page);
+  // tomato across the left-centre band; pesto over the SAME band, extending to the right (so part of it overlaps nothing)
+  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1100);
+  await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 75, y: 50 }, 1500);
+
+  const over = await stackAt(page, 38, 50); // pesto over tomato
+  const clear = await stackAt(page, 70, 50); // pesto alone, beyond the tomato's soft edge
+  // The part that overlaps nothing keeps its full opacity. Its alpha depends on how many ticks the held stroke end got (194-197 locally, 190 on a slow
+  // WebKit runner), so it is judged against the dimmed overlap at the same row (a steady 166 = 0.7 x 237) instead of an absolute number: a layer that
+  // was dimmed everywhere would sit at about that 166, an undimmed one is clearly above it.
+  expect(clear.alphas[1]).toBeGreaterThan(over.alphas[1] * 1.1);
+  expect(over.alphas[1]).toBeLessThan(over.alphas[0] * 0.8); // dimmed where it lies over the tomato (both saturate at ~0.93 without it)
+  expect(over.alphas[1]).toBeGreaterThan(over.alphas[0] * 0.55); // ...by about x0.7, not wiped out
+  // the tomato underneath now shows through. A plain stack of the two (the old look) composites to about (114,137,60) over this dough; with the
+  // ~x0.7 top layer it is about (135,120,58): clearly redder and less green, still nearer the pesto than the tomato (201,68,52)
+  expect(over.r).toBeGreaterThanOrEqual(125);
+  expect(over.g).toBeLessThanOrEqual(130);
+  expect(over.r).toBeLessThan(170);
+  expect(over.alphas[0]).toBeGreaterThan(200); // and the bottom layer itself is untouched
+
+  // a third sauce over the same area: both layers below stay visible through it
+  await page.getByRole("button", { name: /オリーブオイル/ }).click();
+  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1000);
+  const triple = await stackAt(page, 38, 50);
+  expect(triple.alphas).toHaveLength(6); // 3 heatmap layers + their 3 (here empty) overflow-marker canvases
+  expect(triple.alphas[2]).toBeLessThan(triple.alphas[0] * 0.8); // the oil on top is dimmed too (it overlaps two layers)
+  expect(triple.alphas[1]).toBeLessThan(triple.alphas[0] * 0.8); // pesto stays dimmed over tomato
+  expect(triple.alphas[0]).toBeGreaterThan(200); // bottom layer unchanged
+  const heatKinds = await page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => els.map((el) => (el.className.match(/--kind-([a-z-]+)/) ?? [])[1]));
+  expect(heatKinds.slice(0, 3)).toEqual(["tomato-sauce", "pesto", "olive-oil"]);
+});
+
+test("a commit repaints only the run it touched: 12 alternating runs, the 13th and a top-run extension stay cheap (Codex P2, PR #494)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __draws: number };
+    w.__draws = 0;
+    const original = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function (this: CanvasRenderingContext2D, ...args: Parameters<typeof original>) {
+      w.__draws += 1;
+      return (original as (...a: unknown[]) => void).apply(this, args);
+    } as typeof original;
+  });
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /ジェノベーゼ/];
+  const strokeAt = async (i: number, holdMs: number) => {
+    await page.mouse.move(b.x + b.width * (0.22 + ((i * 7) % 56) / 100), b.y + b.height * (0.3 + ((i * 3) % 40) / 100));
+    await page.mouse.down();
+    await page.waitForTimeout(holdMs);
+    await page.mouse.up();
+    await page.waitForTimeout(250);
+  };
+  const draws = () => page.evaluate(() => (window as unknown as { __draws: number }).__draws);
+  await strokeAt(0, 62);
+  for (let i = 1; i < 12; i += 1) {
+    await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await strokeAt(i, 62);
+  }
+  expect(await page.locator("canvas.pizza-sauce-heatmap").count()).toBe(18); // 12 runs: the newest 8 have a heatmap and an overflow canvas each, the 4 older share one pair
+
+  const beforeNewRun = await draws();
+  await page.getByRole("button", { name: kinds[12 % 2] }).click();
+  await strokeAt(12, 62);
+  const newRun = (await draws()) - beforeNewRun;
+  // Before the fix every one of the 12 earlier layers was redrawn on each commit (>= 15 draws here); now only the new top layer and the
+  // shared group of older runs are (a pending-stroke tick or two plus the commit): a few draws, independent of the run count.
+  expect(newRun).toBeLessThanOrEqual(5);
+
+  const beforeExtend = await draws();
+  await strokeAt(13, 400); // same sauce as the top run, no switch: it extends that run
+  expect((await draws()) - beforeExtend).toBeLessThanOrEqual(14); // ~8 ticks of the one layer + its commit, never 13 layers x ticks
+});
+
+test("a long history that alternates olive oil and another sauce keeps the sauce canvases at a fixed budget, every run still drawn (Codex P2, PR #494)", async ({ page }) => {
+  test.setTimeout(240000);
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /オリーブオイル/];
+  for (let i = 0; i < 40; i += 1) {
+    if (i > 0) await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await page.mouse.move(b.x + b.width * (0.22 + ((i * 7) % 56) / 100), b.y + b.height * (0.3 + ((i * 3) % 40) / 100));
+    await page.mouse.down();
+    await page.waitForTimeout(62);
+    await page.mouse.up();
+    await page.waitForTimeout(40);
+  }
+  const total = await page.locator(".pizza-dough--interactive canvas.pizza-sauce-heatmap").count();
+  expect(total).toBeLessThanOrEqual(24); // 8 own runs + at most 4 groups, a heatmap and an overflow canvas each
+  expect(await page.locator(".pizza-dough--interactive canvas.pizza-sauce-heatmap--merged").count()).toBeGreaterThan(0);
+  // every heatmap canvas that should show sauce does: no layer is blank
+  const painted = await page.locator(".pizza-dough--interactive canvas.pizza-sauce-heatmap").evaluateAll((els) =>
+    els.map((el) => {
+      const c = el as HTMLCanvasElement;
+      const { data } = c.getContext("2d")!.getImageData(0, 0, c.width, c.height);
+      let n = 0;
+      for (let i = 3; i < data.length; i += 4) if (data[i] > 24) n += 1;
+      return { merged: c.className.includes("--merged"), n };
+    }),
+  );
+  const heatmaps = painted.slice(0, painted.length / 2); // the first half are the heatmaps, the rest the overflow canvases
+  expect(heatmaps.length).toBeGreaterThan(8);
+  expect(heatmaps.every((h) => h.n > 0)).toBe(true);
+});
+
+test("canvas failure: a refused 2D context shows the layer as dots, and a throwing draw does not blank the app (Codex P2, PR #494)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __granted: number };
+    w.__granted = 0;
+    const original = HTMLCanvasElement.prototype.getContext;
+    // a browser out of canvas memory: after 4 sauce canvases have a context, EVERY new canvas is refused -- the sauce canvases and any fresh
+    // probe canvas alike (so support must have been probed before the exhaustion, at app start)
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, ...args: Parameters<typeof original>) {
+      if (!this.dataset.granted) {
+        if (w.__granted >= 4) return null;
+        if (this.className.includes("pizza-sauce-heatmap")) {
+          this.dataset.granted = "1";
+          w.__granted += 1;
+        }
+      }
+      return (original as (...a: unknown[]) => unknown).apply(this, args);
+    } as typeof original;
+  });
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /ジェノベーゼ/];
+  for (let i = 0; i < 6; i += 1) {
+    if (i > 0) await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await page.mouse.move(b.x + b.width * (0.25 + 0.08 * i), b.y + b.height * (0.4 + 0.03 * i));
+    await page.mouse.down();
+    await page.mouse.move(b.x + b.width * (0.35 + 0.08 * i), b.y + b.height * (0.45 + 0.03 * i), { steps: 5 });
+    await page.waitForTimeout(150);
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+  }
+  await expect(page.locator(".pizza-stage")).toBeVisible(); // the app is up
+  const fallbacks = page.locator(".pizza-dough--interactive [data-sauce-fallback]");
+  expect(await fallbacks.count()).toBeGreaterThan(0); // the refused layers are shown, not blank
+  expect(await fallbacks.first().locator("span").count()).toBeGreaterThan(0);
+  await page.getByRole("button", { name: kinds[0] }).click(); // and the tray still works
+});
+
+test("canvas failure: a drawImage that throws is contained (no white screen)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __draws: number };
+    w.__draws = 0;
+    const original = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function (this: CanvasRenderingContext2D, ...args: Parameters<typeof original>) {
+      w.__draws += 1;
+      if (w.__draws > 3) throw new Error("simulated drawImage failure (canvas lost)");
+      return (original as (...a: unknown[]) => void).apply(this, args);
+    } as typeof original;
+  });
+  await startSauceStep(page);
+  const b = await doughBox(page);
+  const kinds = [/トマトソース/, /ジェノベーゼ/];
+  for (let i = 0; i < 6; i += 1) {
+    if (i > 0) await page.getByRole("button", { name: kinds[i % 2] }).click();
+    await page.mouse.move(b.x + b.width * (0.25 + 0.08 * i), b.y + b.height * (0.4 + 0.03 * i));
+    await page.mouse.down();
+    await page.waitForTimeout(200);
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+  }
+  await expect(page.locator(".pizza-stage")).toBeVisible();
+  await expect(page.locator(".pizza-dough--interactive")).toBeVisible();
+  expect(await page.locator(".pizza-dough--interactive [data-sauce-fallback]").count()).toBeGreaterThan(0);
+  await page.getByRole("button", { name: kinds[0] }).click();
 });
