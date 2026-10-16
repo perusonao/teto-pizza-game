@@ -131,7 +131,8 @@ describe("canvas support is probed before the sauce canvases exist (Codex P2: pr
     expect(merged.container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(6);
     merged.unmount();
     const overflow = render(<SauceMergedOverflowCanvas runs={[{ ingredientId: "pesto", deposits: [{ x: 2, y: 2, amount: 0.02 }], under: [] }]} doughShape={shape} colorOf={colorOf} />);
-    expect(overflow.container.querySelector("canvas")).toBeNull(); // the markers of a failed canvas are left out
+    expect(overflow.container.querySelector("canvas")).toBeNull();
+    expect(overflow.container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(1); // the off-dough marker stays, as a dot
     overflow.unmount();
     const single = render(<OverflowMarkerCanvas deposits={[dep(2, 2)]} doughShape={shape} color="#c8412b" />);
     expect(single.container.querySelector("canvas")).toBeNull();
@@ -291,11 +292,19 @@ describe("merged sauce canvases", () => {
     });
   });
 
-  it("the merged overflow canvas is dropped when it fails", () => {
+  it("a failed merged overflow canvas keeps its off-dough markers as dots (only those; in-dough deposits are the heatmap's)", () => {
     stubContext("null");
-    const outside: SauceLayer = { ingredientId: "pesto", deposits: [{ x: 2, y: 2, amount: 0.02, ingredientId: "pesto" }], under: [] };
+    const outside: SauceLayer = {
+      ingredientId: "pesto",
+      deposits: [
+        { x: 2, y: 2, amount: 0.02, ingredientId: "pesto" },
+        { x: 50, y: 50, amount: 0.02, ingredientId: "pesto" },
+      ],
+      under: [],
+    };
     const { container } = render(<SauceMergedOverflowCanvas runs={[outside]} doughShape={shape} colorOf={colorOf} />);
     expect(container.querySelector("canvas")).toBeNull();
+    expect(container.querySelector("[data-sauce-fallback]")!.children).toHaveLength(1);
   });
 });
 

@@ -151,6 +151,16 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
 
-  if (failed) return null;
+  if (failed) {
+    // The heatmap weights deposits by their inside-dough fraction, so sauce spent outside the dough is visible ONLY as these markers:
+    // keep them as dots (off-dough deposits only) instead of dropping them when just this canvas fails (Codex P2 on PR #494).
+    const outsideRuns = runs
+      .map((run) => ({
+        deposits: run.deposits.filter((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1),
+        color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId),
+      }))
+      .filter((run) => run.deposits.length > 0);
+    return <SauceDotsFallback runs={outsideRuns} className={className} />;
+  }
   return <canvas ref={canvasRef} className={className} width={MERGED_CANVAS_PX} height={MERGED_CANVAS_PX} aria-hidden="true" />;
 }
