@@ -57,6 +57,15 @@ function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** #421: how much wider than the raw lump's box a fully melted pool is shown (the spread). 1 up to melt 0.3, so the pre-bake look is unchanged. */
+export const CHEESE_POOL_MELT_SPREAD = 0.45;
+
+/** CSS scale of the canvas box at `melt`: the melted pool spreads over the dough beyond the box the lump sat in (centre-anchored, no layout change) */
+export function cheesePoolSpreadScale(melt: number): number {
+  const t = Math.min(1, Math.max(0, (melt - 0.3) / 0.7));
+  return 1 + CHEESE_POOL_MELT_SPREAD * t * t * (3 - 2 * t);
+}
+
 export interface CheesePoolCanvasProps {
   /** a stable id of the placed piece (its topping id), so a cut pizza's copies and every later frame show the same pool */
   seed: string;
@@ -138,7 +147,7 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
       width={grid}
       height={grid}
       aria-hidden="true"
-      style={{ "--cheese-canvas-size": `${sizePx}px` } as CSSProperties}
+      style={{ "--cheese-canvas-size": `${sizePx}px`, ...(melt > 0.3 ? { transform: `scale(${cheesePoolSpreadScale(melt).toFixed(3)})` } : null) } as CSSProperties}
     />
   );
 }

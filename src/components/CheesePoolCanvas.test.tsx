@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheesePoolCanvas, canvas2dAvailable, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
+import { CHEESE_POOL_MELT_SPREAD, CheesePoolCanvas, canvas2dAvailable, cheesePoolSpreadScale, hasVisiblePixels, resetCanvas2dProbe } from "./CheesePoolCanvas";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -165,5 +165,19 @@ describe("CheesePoolCanvas", () => {
       expect(hasVisiblePixels(ctx(withAlpha), 4, 4)).toBe(true);
       expect(hasVisiblePixels(ctx(new Uint8ClampedArray(16 * 4)), 4, 4)).toBe(false);
     });
+  });
+});
+
+describe("#421 melt spread scale", () => {
+  it("is exactly 1 up to melt 0.3 (the pre-bake look is unchanged) and grows monotonically to 1 + CHEESE_POOL_MELT_SPREAD", () => {
+    expect(cheesePoolSpreadScale(0)).toBe(1);
+    expect(cheesePoolSpreadScale(0.3)).toBe(1);
+    let last = 1;
+    for (let m = 0.35; m <= 1.0001; m += 0.05) {
+      const s = cheesePoolSpreadScale(m);
+      expect(s).toBeGreaterThanOrEqual(last);
+      last = s;
+    }
+    expect(cheesePoolSpreadScale(1)).toBeCloseTo(1 + CHEESE_POOL_MELT_SPREAD, 5);
   });
 });
