@@ -53,6 +53,11 @@ export interface PizzaPiece {
   readonly outward: DoughPoint;
   /** The piece's size in sample-grid cells (area / one cell's area, at least 1). Informational: nothing reads it. */
   readonly sampleCount: number;
+  /**
+   * The piece's exact outline (convex, dough-percent) when every through cut is a straight chord: what `placeTopping` intersects a
+   * topping's footprint with. Absent for the curved-path fallback (those pieces come from the sample grid and have no outline).
+   */
+  readonly polygon?: readonly DoughPoint[];
 }
 
 export interface PieceLayout {
@@ -136,11 +141,11 @@ export function computePieceLayout(lines: readonly CutLine[], shape?: DoughShape
 /** Area of one sample-grid cell (dough-percent^2): the unit `PizzaPiece.sampleCount` is counted in. */
 const SAMPLE_CELL_AREA = ((SAMPLE_RADIUS * 2) / SAMPLE_GRID) ** 2;
 
-function makePiece(sides: boolean[], centroid: DoughPoint, sampleCount: number): PizzaPiece {
+function makePiece(sides: boolean[], centroid: DoughPoint, sampleCount: number, polygon?: readonly DoughPoint[]): PizzaPiece {
   const dx = centroid.x - DOUGH_CENTER;
   const dy = centroid.y - DOUGH_CENTER;
   const outward = Math.hypot(dx, dy) < MIN_CENTROID_OFFSET ? { x: 0, y: 0 } : unit(dx, dy);
-  return { sides, centroid, outward, sampleCount };
+  return polygon ? { sides, centroid, outward, sampleCount, polygon } : { sides, centroid, outward, sampleCount };
 }
 
 /** Every exact region is a piece; its side combination is read at its centroid (inside a convex region by construction). */
@@ -153,7 +158,7 @@ function piecesFromRegions(cuts: readonly SplitCut[], throughLines: readonly Cut
     const known = byKey.get(key);
     // Distinct cells of a line arrangement have distinct side combinations; a repeat can only be numerical noise on a
     // vanishing region, so the larger one wins rather than drawing the same clip twice.
-    if (!known || sampleCount > known.sampleCount) byKey.set(key, makePiece(sides, region.centroid, sampleCount));
+    if (!known || sampleCount > known.sampleCount) byKey.set(key, makePiece(sides, region.centroid, sampleCount, region.polygon));
   }
   return [...byKey.values()];
 }
@@ -189,15 +194,52 @@ export interface ToppingPlacement {
   readonly halves: readonly number[];
 }
 
-/** Which pieces show a topping at (x, y): its home piece plus any piece it is sliced into. `reach` (dough-percent) defaults to `TOPPING_REACH`; a topping drawn larger than that passes its own. */
+/** Distance (dough-percent) from a point to a convex polygon: 0 when the point is inside it or on its edge. */
+export function distanceToConvexPolygon(x: number, y: number, polygon: readonly DoughPoint[]): number {
+  let sign = 0;
+  let inside = true;
+  let nearest = Infinity;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i, i += 1) {
+    const a = polygon[j];
+    const b = polygon[i];
+    const ex = b.x - a.x;
+    const ey = b.y - a.y;
+    const cross = ex * (y - a.y) - ey * (x - a.x);
+    if (cross !== 0) {
+      const side = cross > 0 ? 1 : -1;
+      if (sign === 0) sign = side;
+      else if (side !== sign) inside = false;
+    }
+    const lenSq = ex * ex + ey * ey;
+    const t = lenSq < 1e-12 ? 0 : Math.max(0, Math.min(1, ((x - a.x) * ex + (y - a.y) * ey) / lenSq));
+    nearest = Math.min(nearest, Math.hypot(x - (a.x + t * ex), y - (a.y + t * ey)));
+  }
+  return inside ? 0 : nearest;
+}
+
+/**
+ * Which pieces show a topping at (x, y): its home piece (the one holding its centre) plus every other piece its footprint touches.
+ * `reach` (dough-percent) is the footprint's RADIUS: a disc around (x, y) that must contain everything the topping draws.
+ * It defaults to `TOPPING_REACH`; a topping drawn larger passes its own (../cut/toppingFootprint.ts).
+ *
+ * #479 S3: with exact piece outlines (every through cut a straight chord, i.e. every cut the game can make) a piece shows a copy
+ * whenever the disc intersects its outline. That does not depend on the cut's angle or on how narrow the piece is. The curved-path
+ * fallback (no outlines) keeps the old eight-direction probe.
+ */
 export function placeTopping(layout: PieceLayout, x: number, y: number, reach: number = TOPPING_REACH): ToppingPlacement {
   const index = new Map(layout.pieces.map((p, i) => [keyOf(p.sides), i]));
   const centre = index.get(keyOf(sidesAt(layout, x, y)));
   const seen = new Set<number>();
-  for (let i = 0; i < 8; i += 1) {
-    const a = (i * Math.PI) / 4;
-    const idx = index.get(keyOf(sidesAt(layout, x + Math.cos(a) * reach, y + Math.sin(a) * reach)));
-    if (idx !== undefined) seen.add(idx);
+  if (layout.pieces.every((p) => p.polygon !== undefined)) {
+    layout.pieces.forEach((p, i) => {
+      if (distanceToConvexPolygon(x, y, p.polygon!) <= reach) seen.add(i);
+    });
+  } else {
+    for (let i = 0; i < 8; i += 1) {
+      const a = (i * Math.PI) / 4;
+      const idx = index.get(keyOf(sidesAt(layout, x + Math.cos(a) * reach, y + Math.sin(a) * reach)));
+      if (idx !== undefined) seen.add(idx);
+    }
   }
   const home = centre ?? [...seen][0] ?? 0;
   seen.delete(home);
