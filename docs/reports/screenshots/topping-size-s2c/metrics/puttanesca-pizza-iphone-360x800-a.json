@@ -1,0 +1,68 @@
+{
+ "pieces": [
+  {
+   "id": "anchovy",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.63
+  },
+  {
+   "id": "anchovy",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.63
+  },
+  {
+   "id": "anchovy",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.14
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.66
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.66
+  },
+  {
+   "id": "capers",
+   "cls": "xs",
+   "w": 16.8,
+   "h": 20,
+   "far": 0.58
+  },
+  {
+   "id": "capers",
+   "cls": "xs",
+   "w": 16.8,
+   "h": 20,
+   "far": 0.59
+  },
+  {
+   "id": "garlic",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.66
+  },
+  {
+   "id": "garlic",
+   "cls": "s",
+   "w": 28,
+   "h": 27,
+   "far": 0.66
+  }
+ ],
+ "overlaps": []
+}

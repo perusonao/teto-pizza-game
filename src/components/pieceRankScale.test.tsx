@@ -7,6 +7,7 @@ import { gameReducer, type GameState } from "../state/gameReducer";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { INGREDIENTS } from "../data/ingredients";
+import { toppingRankScale } from "../data/toppingSizeClass";
 import { createIdealDoughShape } from "../logic/doughShape";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import type { CutLine } from "../logic/cut/types";
@@ -75,6 +76,14 @@ function stage(state: GameState, lines: CutLine[], makingStep: GameState["making
   );
 }
 
+/** the ingredient id of a placed span: whole pieces carry it in a class, cut halves look their placed topping up */
+const ingredientOf = (el: HTMLElement, state: GameState) => {
+  const m = [...el.classList].find((c) => c.startsWith("pizza-topping--"));
+  if (m) return m.slice("pizza-topping--".length);
+  return state.pizza.toppings.find((t) => t.id === el.dataset.toppingId)!.ingredientId;
+};
+const expectedRank = (el: HTMLElement, state: GameState) => String(toppingRankScale(ingredientOf(el, state)));
+
 const pieceSpans = (c: HTMLElement) => [...c.querySelectorAll<HTMLElement>(".pizza-topping, .pizza-topping-half[data-topping-id]")];
 
 afterEach(() => {
@@ -82,14 +91,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("PizzaStage sets --piece-rank-scale: 1 on every placed piece", () => {
+describe("PizzaStage sets --piece-rank-scale (the production class value) on every placed piece", () => {
   const state = bakedMargherita();
 
   it("uncut (default Canvas mozzarella or the jsdom M1 fallback) and as a six-piece cut: whole and half spans alike", () => {
     const uncut = render(stage(state, [], "CUT"));
     const whole = pieceSpans(uncut.container);
     expect(whole).toHaveLength(state.pizza.toppings.length);
-    for (const el of whole) expect(el.style.getPropertyValue("--piece-rank-scale")).toBe("1");
+    for (const el of whole) expect(el.style.getPropertyValue("--piece-rank-scale"), ingredientOf(el, state)).toBe(expectedRank(el, state));
     cleanup();
 
     // one horizontal cut straight through the first placed piece, so that piece is sliced into a neighbouring piece too
@@ -98,7 +107,7 @@ describe("PizzaStage sets --piece-rank-scale: 1 on every placed piece", () => {
     const spans = pieceSpans(cut.container);
     expect(spans.length).toBeGreaterThanOrEqual(state.pizza.toppings.length);
     expect(cut.container.querySelectorAll(".pizza-topping-half[data-topping-id]").length).toBeGreaterThan(0);
-    for (const el of spans) expect(el.style.getPropertyValue("--piece-rank-scale")).toBe("1");
+    for (const el of spans) expect(el.style.getPropertyValue("--piece-rank-scale"), ingredientOf(el, state)).toBe(expectedRank(el, state));
   });
 
   it("keeps the landing-animation wrapper classes and its inline position / rotation intact", () => {
@@ -142,22 +151,22 @@ describe("Reference views set the same variable through renderPizzaVisualPieces"
     { ingredientId: "basil", positions: [{ x: 60, y: 60 }] }, // emoji
   ];
 
-  it("every wrapper carries --piece-rank-scale: 1 and keeps its own position / rotation", () => {
+  it("every wrapper carries its --piece-rank-scale and keeps its own position / rotation", () => {
     const { container } = render(<div>{renderPizzaVisualPieces({ pieceGroups: groups, wrapperClassName: () => "w" })}</div>);
     const wrappers = container.querySelectorAll<HTMLElement>(".w");
     expect(wrappers).toHaveLength(4);
-    for (const w of wrappers) {
-      expect(w.style.getPropertyValue("--piece-rank-scale")).toBe("1");
+    [...wrappers].forEach((w, i) => {
+      expect(w.style.getPropertyValue("--piece-rank-scale"), groups[i].ingredientId).toBe(String(toppingRankScale(groups[i].ingredientId)));
       expect(w.style.left).toMatch(/%$/);
       expect(w.style.transform).toMatch(/^translate\(-50%, -50%\) rotate\(/);
-    }
+    });
   });
 
   it("the Reference thumbnail pieces match the PizzaStage value for the same ingredient", () => {
     const { container } = render(<ReferenceThumbnail sauceIngredientId="tomato-sauce" pieceGroups={groups} />);
     const pieces = container.querySelectorAll<HTMLElement>(".reference-thumbnail__piece");
     expect(pieces).toHaveLength(4);
-    for (const p of pieces) expect(p.style.getPropertyValue("--piece-rank-scale")).toBe("1");
+    [...pieces].forEach((p, i) => expect(p.style.getPropertyValue("--piece-rank-scale"), groups[i].ingredientId).toBe(String(toppingRankScale(groups[i].ingredientId))));
   });
 });
 

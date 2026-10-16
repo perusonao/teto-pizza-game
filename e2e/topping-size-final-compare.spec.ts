@@ -13,11 +13,11 @@ import { toppingSizeClass } from "../src/data/toppingSizeClass";
  * dough-edge overrun metrics. Skipped unless TOPPING_SCALE_CAPTURE_DIR is set.
  */
 const OUT = process.env.TOPPING_SCALE_CAPTURE_DIR;
-const RECIPES = ["margherita", "capricciosa", "pizza-portuguesa", "meat-lovers", "jamon-serrano-pizza", "puttanesca-pizza", "quattro-formaggi", "breakfast-pizza"];
+const RECIPES = ["margherita", "capricciosa", "pizza-portuguesa", "meat-lovers", "jamon-serrano-pizza", "puttanesca-pizza", "quattro-formaggi", "breakfast-pizza", "calabresa-argentina", "jalapeno-popper-pizza", "spinach-artichoke-pizza"];
 const MODES = [
-  { id: "off", query: "" },
   { id: "a", query: "?toppingScale=a" },
-  { id: "b", query: "?toppingScale=b" },
+  { id: "b", query: "?toppingScale=b" }, // = the production value since S2c
+  { id: "c", query: "?toppingScale=c" }, // B + the Preview-only per-ingredient corrections
 ] as const;
 const byId = new Map(INGREDIENTS.map((i) => [i.id, i]));
 

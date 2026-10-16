@@ -1,0 +1,60 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.76
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.84
+  },
+  {
+   "id": "salami",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.7
+  },
+  {
+   "id": "salami",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.71
+  },
+  {
+   "id": "salami",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.74
+  },
+  {
+   "id": "black-olive",
+   "cls": "s",
+   "w": 29.7,
+   "h": 29,
+   "far": 0.71
+  },
+  {
+   "id": "oregano",
+   "cls": "xs",
+   "w": 24.5,
+   "h": 24,
+   "far": 0.65
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0.06
+  }
+ ]
+}
