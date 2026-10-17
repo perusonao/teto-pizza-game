@@ -20,10 +20,14 @@ interface IngredientPieceVisualProps {
  * and the Margherita Reference popover) so they can never independently drift into different
  * representations of the same ingredient (e.g. Reference's old standalone 🧀 emoji vs. the
  * player's physical CSS mozzarella). A "cheese" ingredient renders the shared `.pizza-cheese`
- * physical shape; every other ingredient renders its emoji.
+ * physical shape (or, when it declares a `pieceVisual`, that SVG inside the same wrapper); every other
+ * ingredient renders its emoji / dedicated glyph.
  */
 export function IngredientPieceVisual({ ingredient, className, style }: IngredientPieceVisualProps) {
-  if (ingredient.category === "cheese") {
+  const isCheese = ingredient.category === "cheese";
+
+  // A cheese WITHOUT a dedicated `pieceVisual` (un-migrated, mozzarella included) keeps its CSS physical shape.
+  if (isCheese && !ingredient.pieceVisual) {
     return (
       <span
         className={["pizza-cheese", `pizza-cheese--${ingredient.id}`, className]
@@ -34,10 +38,18 @@ export function IngredientPieceVisual({ ingredient, className, style }: Ingredie
     );
   }
 
+  // Ingredient Icons 2.0 (#438): a cheese WITH a `pieceVisual` (feta / ricotta) draws its SVG on the pizza too, so the shape the tray shows is the shape
+  // that is placed. The `.pizza-cheese` / `.pizza-cheese--<id>` wrapper stays (bake melt transform + filter, size-class / RESULT scale, selectors); the
+  // `--glyph` modifier only drops the CSS cheese's own background / ring and sizes the box for the SVG.
   return (
     <span
-      className={["ingredient-piece-visual__emoji", className].filter(Boolean).join(" ")}
-      style={style}
+      className={(isCheese
+        ? ["pizza-cheese", `pizza-cheese--${ingredient.id}`, "pizza-cheese--glyph", className]
+        : ["ingredient-piece-visual__emoji", className]
+      )
+        .filter(Boolean)
+        .join(" ")}
+      style={isCheese ? ({ "--cheese-color": ingredient.color, ...style } as CSSProperties) : style}
     >
       <IngredientGlyph ingredient={ingredient} />
     </span>

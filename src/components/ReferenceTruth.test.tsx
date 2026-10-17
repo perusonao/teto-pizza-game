@@ -158,7 +158,13 @@ describe("Reference Truth: ingredient identity/count across representative recip
           } else {
             const emoji = piece.querySelector(".ingredient-piece-visual__emoji");
             expect(emoji).not.toBeNull();
-            expect(emoji!.textContent).toBe(ingredient.emoji);
+            if (ingredient.pieceVisual) {
+              // Dedicated SVG visual (e.g. Ingredient Icons 2.0): identity is the declared visual, never the emoji text.
+              expect(emoji!.querySelector(`svg[data-ingredient-visual="${ingredient.pieceVisual}"]`)).not.toBeNull();
+              expect(emoji!.textContent).toBe("");
+            } else {
+              expect(emoji!.textContent).toBe(ingredient.emoji);
+            }
           }
         }
       }
