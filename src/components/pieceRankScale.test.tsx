@@ -207,7 +207,7 @@ describe("stylesheet: the variable multiplies the three on-pizza size rules and 
   });
 });
 
-describe("boundary: only the two on-pizza wrappers set the variable (the data and preview modules only name it in a comment)", () => {
+describe("boundary: only the on-pizza wrappers (PizzaStage, PizzaVisualPieces, and the post-bake PostBakePiece, FINISH D2-1) set the variable (the data and preview modules only name it in a comment)", () => {
   const walk = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
       const p = join(dir, e.name);
@@ -217,7 +217,7 @@ describe("boundary: only the two on-pizza wrappers set the variable (the data an
 
   it("no tray, drag preview, inventory, hint or shop component mentions --piece-rank-scale", () => {
     const users = sources.filter((p) => readFileSync(p, "utf8").includes("--piece-rank-scale")).map((p) => p.slice(SRC.length + 1));
-    expect(users.sort()).toEqual(["App.css", "components/PizzaStage.tsx", "components/PizzaVisualPieces.tsx", "data/toppingSizeClass.ts", "preview/toppingScalePreview.ts"]);
+    expect(users.sort()).toEqual(["App.css", "components/PizzaStage.tsx", "components/PizzaVisualPieces.tsx", "components/PostBakePiece.tsx", "data/toppingSizeClass.ts", "preview/toppingScalePreview.ts"]);
   });
 
   it("the tray, inventory and thumbnail renderers still draw the ingredient without any rank wrapper (unscaled)", () => {
