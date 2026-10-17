@@ -307,6 +307,20 @@ export function buildSauceDisplayPixels(
  */
 export const SAUCE_OVERLAP_ALPHA_FACTOR = 0.7;
 
+/**
+ * Issue #519 / #521 S1: olive oil laid OVER another sauce is dimmed harder than the generic factor. The oil canvas carries the oil CSS
+ * treatment (saturate / contrast, which turns the pale swatch into an opaque lime-yellow), so at x0.7 it still read as having replaced
+ * the sauce below (tomato then oil: the overlap's red-green gap fell to about a quarter of the tomato's own). Only an oil run that has
+ * something under it is affected (`under` empty -> the raster is untouched), so every one-sauce oil pizza and the non-oil layers keep
+ * their look.
+ */
+export const SAUCE_OIL_OVERLAP_ALPHA_FACTOR = 0.3;
+
+/** The overlap factor of a layer laid by this sauce kind. */
+export function overlapAlphaFactorFor(ingredientId: string | undefined): number {
+  return ingredientId === "olive-oil" ? SAUCE_OIL_OVERLAP_ALPHA_FACTOR : SAUCE_OVERLAP_ALPHA_FACTOR;
+}
+
 /** The alpha channel of a display raster (one byte per pixel): "how much sauce is already here". Colour-independent. */
 export function alphaPlaneOf(pixels: Uint8ClampedArray): Uint8ClampedArray {
   const plane = new Uint8ClampedArray(pixels.length / 4);

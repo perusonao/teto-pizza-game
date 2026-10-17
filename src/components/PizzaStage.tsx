@@ -1234,6 +1234,7 @@ export function PizzaStage({
                 key={`heat-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
                 deposits={layer.deposits}
                 underDeposits={layer.under}
+                ingredientId={layer.ingredientId}
                 doughShape={pizza.doughShape}
                 color={colorOf(layer.ingredientId)}
                 className={sauceLayerClassName(layer.ingredientId, bakeState)}

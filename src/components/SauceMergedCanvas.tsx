@@ -7,6 +7,7 @@ import {
   buildSauceDisplayPixels,
   compositeOver,
   dimWhereOverlapping,
+  overlapAlphaFactorFor,
   SAUCE_DISPLAY_GRID,
 } from "../logic/sauceDisplay";
 import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
@@ -37,7 +38,7 @@ function runRaster(run: SauceLayer, shape: DoughShape, color: string, baked: boo
   let entry = rasterOfRun.get(run);
   if (!entry || entry.shape !== shape || entry.color !== color) {
     const plain = buildSauceDisplayPixels(run.deposits, shape, color);
-    if (run.under.length > 0) dimWhereOverlapping(plain, alphaPlaneOf(buildSauceDisplayPixels(run.under, shape, "#000000")));
+    if (run.under.length > 0) dimWhereOverlapping(plain, alphaPlaneOf(buildSauceDisplayPixels(run.under, shape, "#000000")), overlapAlphaFactorFor(run.ingredientId));
     entry = { shape, color, plain, baked: null };
     rasterOfRun.set(run, entry);
   }

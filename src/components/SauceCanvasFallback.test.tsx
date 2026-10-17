@@ -244,6 +244,34 @@ describe("merged sauce canvases", () => {
     expect([...staged[staged.length - 1]]).not.toEqual([...plainOil]);
   });
 
+  describe("heatmap fallback dots of an oil group (#502)", () => {
+    const OIL = "#e9d9a0";
+    const colors = (id: string) => (id === "olive-oil" ? OIL : id === "pesto" ? "#6b8f3a" : "#c8412b");
+    const rgbOf = (hex: string) => `rgb(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)})`;
+    const dotStyles = (container: HTMLElement) => [...container.querySelectorAll("[data-sauce-fallback] > span")].map((d) => (d as HTMLElement).getAttribute("style") ?? "");
+
+    it("a mixed (oil + other sauce) group whose canvas fails draws its oil dots in the baked colour, the other sauce's unchanged", () => {
+      stubContext("null");
+      const oil = run("olive-oil", [30], []);
+      const pesto = run("pesto", [60], oil.deposits);
+      const { container } = render(<SauceMergedHeatmapCanvas runs={[oil, pesto]} doughShape={shape} colorOf={colors} bakedOil className="m" />);
+      const [oilDot, pestoDot] = dotStyles(container);
+      expect(oilDot).toContain(rgbOf(bakeOilHex(OIL)));
+      expect(oilDot).not.toContain(rgbOf(OIL));
+      expect(pestoDot).toContain(rgbOf("#6b8f3a"));
+    });
+
+    it("an oil-only group (it keeps the oil CSS filter) and a group without oil keep the raw colours", () => {
+      stubContext("null");
+      const oil = run("olive-oil", [30], []);
+      const oilOnly = render(<SauceMergedHeatmapCanvas runs={[oil]} doughShape={shape} colorOf={colors} className="m" />);
+      expect(dotStyles(oilOnly.container)[0]).toContain(rgbOf(OIL));
+      oilOnly.unmount();
+      const noOil = render(<SauceMergedHeatmapCanvas runs={[run("pesto", [30], [])]} doughShape={shape} colorOf={colors} bakedOil className="m" />);
+      expect(dotStyles(noOil.container)[0]).toContain(rgbOf("#6b8f3a"));
+    });
+  });
+
   describe("overflow markers of a mixed oil group (Codex P2)", () => {
     const OIL = "#e9d9a0";
     const colors = (id: string) => (id === "olive-oil" ? OIL : id === "pesto" ? "#6b8f3a" : "#c8412b");
