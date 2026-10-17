@@ -33,7 +33,17 @@ import { buildRecipeChapters } from "../state/recipeChapters";
 
 afterEach(() => cleanup());
 
-const DEDICATED: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
+const DEDICATED: readonly DedicatedIngredientVisual[] = [
+  "tomato-slice",
+  "caper-cluster",
+  "clam-valve",
+  "ricotta-mound",
+  "feta-cubes",
+  "sausage-slices",
+  "hot-dog-slices",
+];
+/** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
+const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
 const W1_NEW_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 /** Progression 2.0 I5a: the W1 Human Visual Gate authority for the 3 dedicated-visual materials. */
 const W1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
@@ -41,6 +51,14 @@ const W1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   clam: "clam-valve",
   "fresh-tomato": "tomato-slice",
 };
+/** Ingredient Icons 2.0 Pilot A (#438, Style Lock v2 §5). */
+const PILOT_A_DEDICATED: Record<string, DedicatedIngredientVisual> = {
+  "hot-dog": "hot-dog-slices",
+  sausage: "sausage-slices",
+  feta: "feta-cubes",
+  ricotta: "ricotta-mound",
+};
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...W1_DEDICATED, ...PILOT_A_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -66,10 +84,10 @@ function fixture(overrides: Partial<Ingredient>): Ingredient {
 }
 
 describe("IngredientGlyph: default emoji path (every production ingredient without a dedicated visual)", () => {
-  it("only capers / clam / fresh-tomato declare a dedicated visual (I5a)", () => {
+  it("only capers / clam / fresh-tomato (I5a) and the Pilot A four declare a dedicated visual", () => {
     expect(
       Object.fromEntries(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => [i.id, i.pieceVisual])),
-    ).toEqual(W1_DEDICATED);
+    ).toEqual(ALL_DEDICATED);
   });
 
   it.each(EMOJI_ROWS.map((i) => [i.id, i] as const))("%s renders the identical emoji DOM", (_id, ingredient) => {
@@ -98,12 +116,14 @@ describe("IngredientGlyph: dedicated visual path (fixtures only -- no production
     expect(svg).toHaveClass("ingredient-glyph", `ingredient-glyph--${visual}`);
     expect(svg.getAttribute("aria-hidden")).toBe("true");
     expect(svg.getAttribute("focusable")).toBe("false");
+    expect(svg.getAttribute("viewBox")).toBe(LEGACY_32.includes(visual) ? "0 0 32 32" : "0 0 64 64");
     expect(svg.getAttribute("width")).toBe("1em");
     expect(svg.getAttribute("height")).toBe("1em");
     expect(container.textContent).toBe("");
     // No ids/gradients: many pieces can share one page without id collisions.
     expect(svg.querySelector("[id]")).toBeNull();
-    expect(svg.querySelectorAll("path, ellipse").length).toBeGreaterThan(0);
+    expect(svg.innerHTML).not.toContain("url(#");
+    expect(svg.querySelectorAll("path, ellipse, circle").length).toBeGreaterThan(0);
   });
 
   it("is chosen by the declared visual only, never by the ingredient id", () => {
@@ -188,6 +208,117 @@ describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", (
       expect(renderToStaticMarkup(<IngredientGlyph ingredient={ingredient} />)).toBe(emoji);
     }
   });
+});
+
+/**
+ * Ingredient Icons 2.0 Pilot A (#438): hot-dog / sausage / feta / ricotta draw their SVG in icon
+ * contexts and on the pizza (inside the `.pizza-cheese` wrapper); un-migrated cheese keeps its CSS shape
+ * everywhere (§4.4).
+ */
+describe("Ingredient Icons 2.0 Pilot A", () => {
+  const ids = Object.keys(PILOT_A_DEDICATED);
+
+  it.each(Object.entries(PILOT_A_DEDICATED))("%s draws %s and never its emoji", (id, visual) => {
+    const ingredient = getIngredient(id)!;
+    const { container } = render(<IngredientGlyph ingredient={ingredient} />);
+    expect(container.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+    expect(container.textContent).toBe("");
+  });
+
+  it("hot-dog and sausage are different drawings (3 round slices vs 2 irregular chunks)", () => {
+    const svg = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    expect(svg("hot-dog")).not.toBe(svg("sausage"));
+    expect(svg("hot-dog").match(/<circle[^>]*r="11"/g)).toHaveLength(3);
+  });
+
+  it("tray chips and Inventory use the SVG for feta / ricotta / hot-dog / sausage", () => {
+    for (const [category, id] of [["cheese", "feta"], ["cheese", "ricotta"], ["topping", "hot-dog"], ["topping", "sausage"]] as const) {
+      const visual = PILOT_A_DEDICATED[id];
+      const tray = render(
+        <IngredientTray
+          activeCategory={category}
+          selectedIngredientId={null}
+          onSelectIngredient={() => {}}
+          ownedIngredientIds={[id]}
+          recipe={FREE_COOK_RECIPE}
+          freeCook
+          inventory={{ [id]: 3 }}
+          pizza={createEmptyPizza()}
+        />,
+      );
+      expect(tray.container.querySelector(`.ingredient-chip__emoji svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+      expect(tray.container.querySelector(".ingredient-chip__cheese-slot")).toBeNull();
+      tray.unmount();
+
+      const inventory = render(<InventoryOverlay ownedIngredientIds={[id]} inventory={{ [id]: 1 }} onClose={() => {}} />);
+      expect(inventory.container.querySelector(`.inventory-card__emoji svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+      expect(inventory.container.querySelector(".inventory-card__cheese-slot")).toBeNull();
+      inventory.unmount();
+    }
+  });
+
+  it("un-migrated cheese keeps its CSS shape in the tray chip and Inventory (no emoji regression)", () => {
+    const migrated = ids.filter((id) => getIngredient(id)!.category === "cheese");
+    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual).map((i) => i.id);
+    expect(legacyCheese.length).toBeGreaterThan(0);
+    expect(legacyCheese).not.toContain("feta");
+    expect(migrated.sort()).toEqual(["feta", "ricotta"]);
+    const firstPage = legacyCheese.slice(0, 6); // the tray shows 6 chips per page
+    const tray = render(
+      <IngredientTray
+        activeCategory="cheese"
+        selectedIngredientId={null}
+        onSelectIngredient={() => {}}
+        ownedIngredientIds={firstPage}
+        recipe={FREE_COOK_RECIPE}
+        freeCook
+        inventory={Object.fromEntries(firstPage.map((id) => [id, 3]))}
+        pizza={createEmptyPizza()}
+      />,
+    );
+    for (const id of firstPage) {
+      expect(tray.container.querySelector(`.ingredient-chip__cheese-slot .pizza-cheese--${id}`)).not.toBeNull();
+    }
+    expect(tray.container.querySelector(".ingredient-chip svg")).toBeNull();
+    tray.unmount();
+
+    const inventory = render(
+      <InventoryOverlay ownedIngredientIds={legacyCheese} inventory={Object.fromEntries(legacyCheese.map((id) => [id, 1]))} onClose={() => {}} />,
+    );
+    for (const id of legacyCheese) {
+      expect(inventory.container.querySelector(`.inventory-card__cheese-slot .pizza-cheese--${id}`)).not.toBeNull();
+    }
+    expect(inventory.container.querySelector(".inventory-card svg")).toBeNull();
+    inventory.unmount();
+  });
+
+  it("on the pizza, feta / ricotta draw the same SVG as the tray inside the .pizza-cheese wrapper (no CSS cheese look)", () => {
+    for (const id of ["feta", "ricotta"]) {
+      const visual = PILOT_A_DEDICATED[id];
+      const { container, unmount } = render(<IngredientPieceVisual ingredient={getIngredient(id)!} className="x-bake" style={{ filter: "sepia(0.3)" }} />);
+      const wrapper = container.querySelector(`.pizza-cheese.pizza-cheese--${id}.pizza-cheese--glyph`) as HTMLElement;
+      expect(wrapper).not.toBeNull();
+      expect(wrapper).toHaveClass("x-bake"); // the bake class / inline style still land on the wrapper
+      expect(wrapper.style.filter).toBe("sepia(0.3)");
+      expect(wrapper.style.getPropertyValue("--cheese-color")).toBe(getIngredient(id)!.color);
+      expect(wrapper.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+      expect(wrapper.textContent).toBe("");
+      unmount();
+    }
+  });
+
+  it("every cheese without a pieceVisual (mozzarella included) is still the CSS shape on the pizza", () => {
+    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual);
+    expect(legacyCheese.map((i) => i.id)).toContain("mozzarella");
+    for (const ingredient of legacyCheese) {
+      const { container, unmount } = render(<IngredientPieceVisual ingredient={ingredient} />);
+      expect(container.querySelector(`.pizza-cheese.pizza-cheese--${ingredient.id}`)).not.toBeNull();
+      expect(container.querySelector(".pizza-cheese--glyph")).toBeNull();
+      expect(container.querySelector("svg")).toBeNull();
+      unmount();
+    }
+  });
+
 });
 
 describe("P1 / I5a scope guard: identity / save untouched", () => {
@@ -329,7 +460,7 @@ describe("render sites with every current ingredient (emoji path)", () => {
       INGREDIENTS.map((i) => (i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`)),
     );
     expect(getByRole("list", { name: "使った材料" }).querySelectorAll("svg")).toHaveLength(
-      Object.keys(W1_DEDICATED).length,
+      Object.keys(ALL_DEDICATED).length,
     );
   });
 

@@ -43,6 +43,18 @@ describe("IngredientPieceVisual", () => {
     expect(piece).toBeInTheDocument();
   });
 
+  it("a cheese with a pieceVisual (feta) keeps the .pizza-cheese wrapper and draws its SVG inside it", () => {
+    const feta = getIngredient("feta");
+    if (!feta) throw new Error("Missing feta fixture");
+
+    const { container } = render(<IngredientPieceVisual ingredient={feta} className="pizza-cheese--melted" />);
+
+    const piece = container.querySelector(".pizza-cheese.pizza-cheese--feta.pizza-cheese--glyph.pizza-cheese--melted");
+    expect(piece).toBeInTheDocument();
+    expect(piece?.querySelector('svg[data-ingredient-visual="feta-cubes"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("\u{1F9C0}");
+  });
+
   it("renders the emoji for a non-cheese ingredient (basil)", () => {
     const basil = getIngredient("basil");
     if (!basil) throw new Error("Missing basil fixture");

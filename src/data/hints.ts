@@ -155,17 +155,19 @@ export function buildHintLine(
   }
 
   const hints = RECIPE_HINTS[recipe.id];
-  const sauceRequirement = recipe.requiredIngredients.find(
-    (req) => getIngredient(req.ingredientId)?.category === "sauce",
-  );
-  const hasCorrectSauce = sauceRequirement
-    ? pizza.sauceIds.includes(sauceRequirement.ingredientId)
-    : false;
+  // Issue #521 S2: EVERY required sauce is checked, in requirement order (a recipe with two sauces is not "ready" with only the first
+  // painted). The first sauce keeps its own `empty` / `emptyHint` copy exactly as before; a later one uses `missing[<id>]`, or a default.
+  const sauceRequirements = recipe.requiredIngredients.filter((req) => getIngredient(req.ingredientId)?.category === "sauce");
+  const missingSauce = sauceRequirements.find((req) => !pizza.sauceIds.includes(req.ingredientId));
 
   let text: string;
-  if (sauceRequirement && !hasCorrectSauce) {
-    const fallback = "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。";
-    text = isExplicitHint ? (hints?.emptyHint ?? fallback) : (hints?.empty ?? fallback);
+  if (missingSauce) {
+    if (missingSauce === sauceRequirements[0]) {
+      const fallback = "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。";
+      text = isExplicitHint ? (hints?.emptyHint ?? fallback) : (hints?.empty ?? fallback);
+    } else {
+      text = hints?.missing[missingSauce.ingredientId] ?? `${getIngredient(missingSauce.ingredientId)?.nameJa}も塗ってみよう！`;
+    }
   } else {
     const missingReq = recipe.requiredIngredients.find((req) => {
       if (getIngredient(req.ingredientId)?.category === "sauce") return false;

@@ -19,7 +19,14 @@ export interface IngredientUnlockCondition {
  * Ingredient Visual Gate (docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json:
  * fresh-tomato B / capers / clam B). Drawn by ../components/IngredientGlyph.tsx.
  */
-export type DedicatedIngredientVisual = "tomato-slice" | "caper-cluster" | "clam-valve";
+export type DedicatedIngredientVisual =
+  | "tomato-slice"
+  | "caper-cluster"
+  | "clam-valve"
+  | "ricotta-mound"
+  | "feta-cubes"
+  | "sausage-slices"
+  | "hot-dog-slices";
 
 export interface Ingredient {
   id: string;
@@ -338,6 +345,7 @@ export const INGREDIENTS: Ingredient[] = [
     pricePitz: 140,
     restockQuantity: 9,
     starterGrantOnly: true,
+    pieceVisual: "sausage-slices",
   },
   {
     id: "pepperoni",
@@ -826,6 +834,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "feta-cubes",
   },
   /** Expansion Batch 4: finite ladder material, step 47 (T4). Family `seafood` (OD: sardine = seafood). 🎏 carp streamer: distinct from `anchovy` 🐟 / `tuna` 🐠 / `salmon` 🍣 / `salt-cod` 🐡 and the seafood class symbol 🌊 (G18); Owner HV confirms the glyph on Preview. */
   {
@@ -846,6 +855,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "ricotta-mound",
   },
   /** Expansion Batch 5: finite ladder material, step 49 (T4). Family `meat` (Owner: hot-dog = meat, never `other`: OD-DH4-2-9). 🍢 oden skewer: distinct from `sausage` 🌭 (an ingredient glyph is never reused) and from every class symbol (G18); Owner HV confirms the glyph on Preview. */
   {
@@ -856,6 +866,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F362}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "hot-dog-slices",
   },
   /** Batch 6 PR-2 (#420): finite ladder material, step 50 (T4), unlocked by the Ladder alone. Family `vegetable`. 🥑 is the real avocado glyph. */
   {
