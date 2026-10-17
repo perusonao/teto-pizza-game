@@ -122,7 +122,7 @@ consistent with existing precedent and needs no FINISH. Owner confirmation again
 | T5 | `state/executionAdvice.ts` | "thin sauce" advice uses **pooled** deposits vs. the generic reference | with two kinds, a thin primary can be masked by the other kind's deposits | S; advice only (not scoring) |
 | T6 | `data/referencePizza.ts` | each recipe needs a hand-authored Reference (pieceGroups) | per-recipe content cost, same as any recipe (~40–130 lines) | per recipe |
 | T7 | `App.tsx:759` `handleTapPizza` → `APPLY_SAUCE` | legacy one-shot **replaces** `sauceIds`/`sauceDeposits` | unreachable from touch UI (paint mode); keyboard path guarded (`PizzaStage.tsx:944`). Latent hole, same as #519 note 2 | S defensive |
-| T8 | Ladder / ownership | `olive-oil` is owned only from ladder step 13 (`fugazza`), garlic step 14 (**corrected in Design Lock**; first draft said step 10) | grandma/sfincione must unlock after step 10 or the reducer rejects the oil (`ownedIngredientIds` guard) | content wiring |
+| T8 | Ladder / ownership | `olive-oil` is owned only from ladder step 13 (`fugazza`), garlic step 14 (**corrected in Design Lock**; first draft said step 10) | grandma/sfincione must unlock after step 14 (garlic) or the reducer rejects the oil (`ownedIngredientIds` guard) | content wiring |
 | T9 | CUT | `CUT_ELIGIBLE_RECIPE_IDS` is opt-in, so new recipes don't get CUT | multi-sauce + CUT renders per piece (component-tested only, 4 pieces × 3 runs); #467 reports Android CUT piece breakage | keep CUT **off** at first |
 | T10 | FINISH engine | `PostBakePiece` / `applicationPhase` handle **pieces** only; SAUCE step is skipped for POST_BAKE sauce reqs | a post-bake drizzle (honey, dressing, mayo) is not representable. Depends on #518 / D2-2 and still wouldn't cover liquids | L — out of scope here |
 | T11 | Golden/ledger tests | counts pinned (recipes 57, ladder 53, hint5 ladders, consume-hash "58-id finite set") | each addition updates fixtures (7a precedent: ~30 files) | per batch |
@@ -204,7 +204,7 @@ Scoring/Discovery/hint **spec changes in Phase A: one** (S1, a bug-class fix). E
 1. **Scope of "multiple sources":** accept that no 172-row shows two independent base sauces, and that Phase A means *base + olive-oil coat* (pre-bake)?
 2. **Verify against live PIZZA DB** (this session cannot): grandma-pizza and sfincione pages — are tomato/oil both part of the base, and is the oil a coat or a finish?
 3. **Secondary-sauce rules:** presence-only (recommended for Phase A) vs. per-sauce Reference target / minimum amount.
-4. **Ladder/Dex credit:** `ladderCredit:false` (no new material) for both recipes? Lunch Rush participation (`lunchRush:false` default recommended until balance is checked)? Which shipped recipe gates their unlock (must be ≥ ladder step 10 for olive-oil)?
+4. **Ladder/Dex credit:** `ladderCredit:false` (no new material) for both recipes? Lunch Rush participation (`lunchRush:false` default recommended until balance is checked)? Which shipped recipe gates their unlock (grandma: makeable from ladder step 14)?
 5. **sfincione:** go / hold (tomato is family-derived; dough style unrecorded).
 6. **CUT:** keep both recipes without CUT in Phase A (recommended).
 7. **#519:** request the Owner's repro conditions or close as not reproducible; approve the small `APPLY_SAUCE` defensive fix as a separate PR?
