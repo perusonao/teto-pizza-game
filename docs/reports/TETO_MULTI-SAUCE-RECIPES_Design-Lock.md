@@ -1,5 +1,7 @@
 # Multi-Sauce Recipes — Design Lock (grandma-pizza first)
 
+> **Addendum (2026-10-17, proposal):** the square-pan dough decision for grandma-pizza amends §2 (dough form) and S3's prerequisites — see `TETO_SQUARE-DOUGH_Design-Lock-Addendum.md` (#533, Epic #532). No text below is changed.
+
 > **Status update (2026-10-17, main `d7fa990`) — read this first.** This document is the *design record* written on `d69e43e`; the body below is kept as written.
 > - **S1 (#524) is merged** (`b7cdb14`): oil-over-sauce overlap factor is **`SAUCE_OIL_OVERLAP_ALPHA_FACTOR = 0.3`**, *not* the ≈0.45 of §3/§7 (0.45 measured too faint through the per-pixel path; see `TETO_MULTI-SAUCE_S1_OIL-OVERLAP-519_Result.md`, "Value of the factor"). The #502 heatmap-fallback test is merged. The iPhone-Safari follow-up (per-canvas staging surface) is recorded in that Result report; its device mechanism is a hypothesis.
 > - **S2 (#525) is merged** (`d7fa990`): `buildHintLine` checks every required sauce (§5.1) and the 2-sauce guard tests exist.
