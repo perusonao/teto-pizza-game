@@ -122,7 +122,7 @@ consistent with existing precedent and needs no FINISH. Owner confirmation again
 | T5 | `state/executionAdvice.ts` | "thin sauce" advice uses **pooled** deposits vs. the generic reference | with two kinds, a thin primary can be masked by the other kind's deposits | S; advice only (not scoring) |
 | T6 | `data/referencePizza.ts` | each recipe needs a hand-authored Reference (pieceGroups) | per-recipe content cost, same as any recipe (~40–130 lines) | per recipe |
 | T7 | `App.tsx:759` `handleTapPizza` → `APPLY_SAUCE` | legacy one-shot **replaces** `sauceIds`/`sauceDeposits` | unreachable from touch UI (paint mode); keyboard path guarded (`PizzaStage.tsx:944`). Latent hole, same as #519 note 2 | S defensive |
-| T8 | Ladder / ownership | `olive-oil` is owned only from ladder step 10 (`fugazza`) | grandma/sfincione must unlock after step 10 or the reducer rejects the oil (`ownedIngredientIds` guard) | content wiring |
+| T8 | Ladder / ownership | `olive-oil` is owned only from ladder step 13 (`fugazza`), garlic step 14 (**corrected in Design Lock**; first draft said step 10) | grandma/sfincione must unlock after step 10 or the reducer rejects the oil (`ownedIngredientIds` guard) | content wiring |
 | T9 | CUT | `CUT_ELIGIBLE_RECIPE_IDS` is opt-in, so new recipes don't get CUT | multi-sauce + CUT renders per piece (component-tested only, 4 pieces × 3 runs); #467 reports Android CUT piece breakage | keep CUT **off** at first |
 | T10 | FINISH engine | `PostBakePiece` / `applicationPhase` handle **pieces** only; SAUCE step is skipped for POST_BAKE sauce reqs | a post-bake drizzle (honey, dressing, mayo) is not representable. Depends on #518 / D2-2 and still wouldn't cover liquids | L — out of scope here |
 | T11 | Golden/ledger tests | counts pinned (recipes 57, ladder 53, hint5 ladders, consume-hash "58-id finite set") | each addition updates fixtures (7a precedent: ~30 files) | per batch |
@@ -218,3 +218,5 @@ S0 (Owner gate) → S1 (hint fix, tiny) → S2 (guard tests; optional T7 micro-P
 
 ---
 Tracking issue: #521
+
+> **Update (Design Lock):** see `TETO_MULTI-SAUCE-RECIPES_Design-Lock.md` — #519 is reproducible for tomato → olive oil (§3), the unlock step is 14 not 10, and the DH4 privacy gate must be re-run for the first 2-sauce recipe (§5.4).
