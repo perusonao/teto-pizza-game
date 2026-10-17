@@ -8,6 +8,8 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 > **TQ-1D 同期（2026-10-05、Owner Decision OD-TQ1D-1）:** Cooking Techniques 1.0 TQ-1D が初の no-sauce recipe（`aussie`）を Production に追加した。**Expansion Gate A（§13.1）は waiver せず、TQ-1D で正式に解消し CLOSED とした。** Production の population は 32 recipe / 34 ingredient で、そのうち no-sauce は `aussie` の 1 つ。解消の中身は §3（標準パネルの population）、§4 INV-D7、§13.1 に記録した。本書のそれ以外の決定は変更しない。以下の本文に残る「27 recipe / 30 ingredient」は各決定の**当時の audit 母集団**であり、現在の数値ではない（現在値は §15 冒頭の注を参照）。
 
+> **複数ソース同期（2026-10-17、Owner Decision / Square Dough F #538 の Research 設計、docs-only）:** 本書 §3「ソース」行、§13.1、§15 は「1 枚の pizza に載る sauce は 1 種類」を前提にしていたが、これは Sauce B1 / B2（種類ごとの ledger、`COMMIT_SAUCE_DISPENSE` が `sauceIds` に追加する。種類ごと 100%・合計 200% の上限）以降の実装と**一致しない**。Owner 判断により**文書を既存の複数ソース実装に合わせて改訂**した。**契約の不変条件（INV-D1〜D7、INV-4/5）は変更しない**: ソース行は元から「**使った sauce の全件**」を判定する構造（`researchResultRows` は sauce 数に上限も前提も置かない）で、複数ソースでも target 非依存・outcome 非依存のまま。改訂箇所は §3 ソース行、§13.1 の最終項、§15 の前提注記。§15 の数値表そのものは当時の audit 値で、**再計算していない**（フォローアップ。下記 §13.1）。
+
 > **Research 2.0 同期（2026-10-05、Owner Decisions OD-R2-1〜5 / OD-R1-1〜4 / OD-R3-1〜3 / OD-C-1）:** 正本は [`TETO_RESEARCH-2.0_OWNER-DECISIONS.md`](./TETO_RESEARCH-2.0_OWNER-DECISIONS.md)。**Phase 1 で有効になる改訂**: Research Entry の label は ①②③ をやめ、`？？？ピザ B（たまねぎ）`（兄弟 cohort のみ letter）/ `？？？ピザ（チキン）`（単独）に統一する（D+ Cohort Letter、導出のみ・save しない、OD-RB-14 は存置）。下の §3 / §7 の `？？？ピザ ①（…）` 表記は **この改訂で置き換わった旧表記**として読む。**承認済みだが未実装（Phase 2〜4）**: ×の加算 ledger（OD-RB-7 / INV-6' / §6 / §14 の「negative の永続化」を Phase 2 で上書き）、Notebook 上部の Research Board、焼き FAILED でも○× を開示し Notebook に記録（INV-D6 / OD-P3-16 の拡張、在庫消費は維持）。**それまで本書の §6（× は session のみ）は現行挙動のまま**。INV-D7 / OD-TQ1D-4 / Technique privacy は変更しない。
 
 > **Hint 5.0 BASE rung 同期（2026-10-10、Owner Decisions OD-H5-BASE-1〜7）:** 正本は [`TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md`](./TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md)。key-free レシピの Hint 梯子は、sauce / cheese が無い target で該当 rung を省いていたため、購入前のラベルから「ソースなし / チーズなし」が分かっていた。これを **`BASE → 構成 → サブ分類…` の固定形（全 key-free で同一）** に統一する（PR-D 実装・PR-E 有効化。**それまでは現行挙動**）。BASE は「なし」を書かない。ただし完了済み BASE の盤面は存在する item だけを表示するので、ソース行またはチーズ行が無いことから、ソースまたはチーズの不在を推理できる（有料・クレジット・無料 `ALREADY_KNOWN` の完了を区別せず、OD-H5-BASE-3b = Owner 決定 A、OD-H5-BASE-3c = Owner 決定 A。新しい保存キー・来歴は追加しない）（OD-H5-BASE-3: OD-TQ1D-1 / 本書 §3 の「完了済み BASE 盤面」（無料 `ALREADY_KNOWN`・有料・クレジットの別なく、既存セーブ・新規とも）に限った明示的な部分 supersede。ソースまたはチーズの不在が初めて推理できる場合も、この盤面内に限り Owner 承認済み（OD-H5-BASE-3c）。未完了のヒントは対象外で、購入前の target 非依存性と通常の購入条件を維持する。**この文言は Owner が確認済み（選択肢 A・条件付き）**: 許容するのは Hint 5.0 BASE 盤面の内容からの推理だけで（図鑑・RESULT・Technique 等には拡張しない）、RESULT・Notebook の公開条件、Technique no-sauce の公開時期、保存キー・価格・クレジット、本書のその他の Anti-Oracle 条件は維持する）。購入前の形は target 非依存。本書の §3「カテゴリ行だけを条件付きで省略する設計は採用しない」は、RESULT パネルだけでなく Hint の梯子にも適用される。INV-D7 / §10 の accepted consequence・Contract 2.1 の価格・K・永続化は変更しない。OD-TQ1D-1 は、完了済み BASE 盤面の内容（上記の明示的な部分 supersede）**以外**の範囲で維持する（未完了のヒント・RESULT・Notebook・購入前の Hint 形・Technique 名の公開時期・図鑑は不変）。
@@ -63,7 +65,7 @@ Path: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`
 
 | 行 | 内容 |
 |---|---|
-| ソース | **使った sauce の全件**に ○（∈ canonical(T)）/ ×。上限なし。**1 枚の pizza に載る sauce は 1 種類**（`APPLY_SAUCE` / `COMMIT_SAUCE_DISPENSE` が `sauceIds` を 1 要素の配列で置換する）ので、ソース行は常に 1 件。複数 sauce を同時に試す前提は置かない。`known(T)` の sauce は**パネルに出さない**。 |
+| ソース | **使った sauce の全件**に ○（∈ canonical(T)）/ ×。上限なし。**1 枚の pizza に複数種類の sauce が載り得る**（Sauce B1 / B2: `COMMIT_SAUCE_DISPENSE` が種類ごとの ledger に積み `sauceIds` へ追加する。種類ごと 100%・合計 200% の上限。2026-10-17 改訂、旧記述「1 種類・行は常に 1 件」は廃止）ので、ソース行は **player が実際に使った sauce の数だけ**（0〜複数件）。行は player 自身の pizza と `known(T)` だけで決まり、target の sauce 数には依存しない（INV-D4）。`known(T)` の sauce は**パネルに出さない**。 |
 | チーズ | **使った cheese の全件**に ○ / ×。上限なし。`known(T)` の cheese は**パネルに出さない**。 |
 | トッピング | `|U| ≤ 3`: `U` の各 topping に ○ / ×（`known(T)` の topping は**パネルに出さず**、上限にも数えない）。**`|U| ≥ 4`: 個別 membership を一切表示しない**。コピー案: 「トッピングは一度に3種類まで調べられるよ」（文言は実装前に最終調整可、意味は固定）。 |
 
@@ -205,17 +207,21 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
   - **OD-TQ1D-4（Owner、2026-10-05）:** INV-D7 は Notebook の試作 entry にも適用する。sauce を使わなかった試作に「ソース: なし」の chip / row を出さない（diff の「sauce → なし」も ＋ / − 表示にする）。player 自身の composition 記録であっても、INV-D7 は「Research panel / aria / Notebook / persistence に直接的な sauce absence 表現を置かない」という単純な契約に統一する。
   - **RESERVED:** 復活させない。Aussie は永続的に key-free（`recipeHintRoles`）で、key-free の ladder は適用されない rung を持たないため SAUCE rung が無い。最初の有効 rung は CHEESE（TQ-1D から現行・PR-E 前の仕様。Hint 5.0 PR-E 有効化後は key-free の BASE が先頭になる）。KEY_TOPPING も無い。`hint5ReservedRungs` は production で空のまま（G7 / RESERVED gate が固定）。
   - **固定している場所:** `researchResultRows.test.ts`（Gate A: 構造が全 target で同一）、`gameReducer.techniques.privacy.test.ts`（target ごとの rows / Notebook / 保存 / Research Entry / Hint 5.0 view / near-miss の absence 走査）、`hint5Production.gate.test.ts`（G7 / RESERVED gate）、`deductionProduction.gate.test.ts`（DH4 privacy sweep に Aussie を含む）。
-- **53 / 172 recipe の Scale Audit**: 旧版の見積り（本書の旧 §6 の将来スケール）は sauce 複数投入の前提を含む可能性があり、**現時点で authority にしない**。拡張 population（53 / 172）を扱う前に、sauce 1 種 / attempt（§3、§15）の前提で**再監査する**（trigger の記録のみ。数値はここでは確定しない）。Production-27 の実装 blocker ではない。
+- **53 / 172 recipe の Scale Audit**: 旧版の見積り（本書の旧 §6 の将来スケール）は sauce 複数投入の前提を含む可能性があり、**現時点で authority にしない**。拡張 population（53 / 172）を扱う前に**再監査する**（trigger の記録のみ。数値はここでは確定しない）。Production-27 の実装 blocker ではない。
+  - **2026-10-17 追記（複数ソース改訂）:** 再監査の前提は「sauce 1 種 / attempt」ではなく、**1 attempt に複数種類の sauce が載り得る現行 engine**（§3 改訂）で行う。§15 の数値表（sauce を 1 attempt 1 種類ずつ試す blind scan）は**この前提では再計算されていない**。
+  - **フォローアップ（未実施、別途）:** Research 2.0 §4 が求める「53 / 172 population を導入する前の Research identifier compatibility の Fresh Gate 再監査」は、catalog が 53 件に達した時点（Expansion Batch 5）でも、現在の 57 件（grandma を足すと 58 件）でも**実施されていない**。これを独立したフォローアップとして記録する（`TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md` §7）。本書の改訂はこの再監査の代替ではない。
 
 ## 14. Non-Goals
 
 correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（本 Contract の実装としては行わない。key-free の BASE 化は OD-H5-BASE-1/2 が別途決定。SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
 
-## 15. Canonical numbers（Production 27 recipe / 30 ingredient、**sauce は 1 attempt 1 種類**）
+## 15. Canonical numbers（Production 27 recipe / 30 ingredient、当時の audit 前提: **sauce は 1 attempt 1 種類**）
+
+> **2026-10-17 注記:** 見出しの前提は当時の audit 条件であり、現行 engine（複数ソース、§3 改訂）の記述ではない。下の数値は**再計算していない**（§13.1 のフォローアップ）。
 
 > 現在の Production（TQ-1D 後、main から機械的に再計算）: **32 recipe / 34 ingredient（topping 27）/ ladder 28 step / credited 30 recipe（`ladderCredit:false` は `brazilian-calabresa` と `aussie`）/ chapter 6 / 11 / 15**。下の表は 27 recipe 当時の audit 値のままで、現在値ではない。
 
-旧版（`f8194a5` 以前）の数値は「複数 sauce を 1 attempt で同時に試せる」前提を含んでいた。**実 code では 1 枚の pizza に載る sauce は 1 種類**（`APPLY_SAUCE` / `COMMIT_SAUCE_DISPENSE` が `sauceIds` を 1 要素で置換、`src/state/gameReducer.ts`）なので、本節の数値を canonical とし、旧値を置換する。cheese は複数載せられるため cheese の分析は変更しない。
+旧版（`f8194a5` 以前）の数値は「複数 sauce を 1 attempt で同時に試せる」前提を含んでいた。**当時の実 code では 1 枚の pizza に載る sauce は 1 種類**（`APPLY_SAUCE` / `COMMIT_SAUCE_DISPENSE` が `sauceIds` を 1 要素で置換、`src/state/gameReducer.ts`）なので、本節の数値を canonical とし、旧値を置換する。cheese は複数載せられるため cheese の分析は変更しない。
 
 方法: 各 recipe をその research 可能 step の所持集合（unlock は既知）で評価した、事前知識なしの blind scan の期待 attempt 数。sauce は attempt ごとに 1 種類を順に試し、cheese は全件、topping は未知 K 種ずつ走査し、これらは並行して進む。最終の exact 構築 1 回を含む。
 
