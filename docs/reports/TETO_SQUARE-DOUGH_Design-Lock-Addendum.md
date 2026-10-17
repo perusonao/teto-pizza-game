@@ -210,13 +210,13 @@ Goal: a player whose pizza was ORIGINAL *because of the pan* should be able to u
 Learning paths (in order):
 1. **First completed pan pizza** (affordance open): the existing RESULT technique stage reveals 「天板焼き」 with its description (usage path, INV-TQ-6). This names the method but no recipe.
 2. **Dex 調理法 row**: before discovery, 「？？？」 plus the O-6 hint (only after the affordance); after discovery, the O-6 description.
-3. **Later pan-cooked ORIGINAL pizzas**: RESULT may show one neutral shape line. Its copy is **not decided** (Owner approval needed; candidates only in F's PR).
+3. **Later pan-cooked pizzas that were not identified** (outcome class `ORIGINAL`, `AMBIGUOUS` or `INCOMPLETE_MATCH`): RESULT may show one neutral shape line, **identical across those three classes** (the line is omitted for a matched discovery, whose RESULT already says what it is, and for a completion failure, which is decided before the matcher). Its copy is **not decided** (Owner approval needed; candidates only in F's PR).
 4. **Round grandma ingredients** (the harder case): no RESULT line (a line would reveal that the ingredients are special). The route is the Dex hint, the visible ○ / □ switch, and the technique stage.
 
 Acceptance conditions (copied into F #538):
 - **AC-1** RESULT always shows the cooked shape for every outcome.
-- **AC-2** The shape line's presence and wording are a function of (chosen pan, outcome class `ORIGINAL`) **only**. It never depends on whether the ingredient set matches, nearly matches or collides with any recipe, nor on any Research target (INV-4).
-- **AC-3** Differential privacy test: with the same pan and outcome class, RESULT DOM for an ingredient set that *would* match a recipe under another shape is byte-identical to one that matches nothing.
+- **AC-2** The shape line's presence and wording are a function of (chosen pan, "not identified" = the union of `ORIGINAL`, `AMBIGUOUS`, `INCOMPLETE_MATCH`) **only** — it must be identical across all three, never shown for one and omitted for another (otherwise a pan attempt with special ingredients that ends `INCOMPLETE_MATCH` would differ from an unrelated `ORIGINAL`, a matcher oracle). It never depends on whether the ingredient set matches, nearly matches or collides with any recipe, nor on any Research target (INV-4).
+- **AC-3** Differential privacy test: with the same pan, across `ORIGINAL`, `AMBIGUOUS` and `INCOMPLETE_MATCH` fixtures (including grandma's own ingredients that fail the Completion Gate), RESULT DOM for an ingredient set that *would* match a recipe under another shape is byte-identical to one that matches nothing.
 - **AC-4** No recipe name, ingredient name, count, "あと少し", distance, similarity, or number of recipes that use the pan.
 - **AC-5** Not shown for a round pizza (no pan-related text in round RESULT).
 - **AC-6** Shown only when the affordance is open and the player used the pan.
@@ -242,7 +242,7 @@ Common to every UI Issue: viewports 390×844 and 360×800; Playwright projects `
 | #536 C | drag moves the edge toward corners; corner-reach + evenness visuals; completion = 4 corners ≥ 85% ∧ evenness ≥ threshold (constants isolated); generous zones, no pixel precision; no scoring change; no edge-swipe conflict | required |
 | #537 D | sauce/toppings/cheese boundaries via shape; square sauce Reference; bake/RESULT/thumbnails square with pan; CUT disabled; pixel checks after CSS filters; 57-recipe golden; pre-discovery surfaces shape-neutral (§4) | required (D2) |
 | #538 F | Technique 天板焼き registered; `pan` axis OBSERVED, `shape` UNAVAILABLE; U1 derived affordance (no hard-coded step); P1 ○/□ switch with re-edit until 「次へ」; Dex copy per O-6; RESULT shows cooked shape; AC-1…AC-9 (§4B.2); save round-trip; inert in Production until E | required (Owner device) |
-| #521 E | recipe added only after A–D; `ladderCredit:false`, `lunchRush:false`, DH4 gate re-run, normal-flow E2E; Design Lock §8 answered by Owner | required |
+| #521 E | recipe added only after A–D **and F (#538)**; `ladderCredit:false`, `lunchRush:false`, DH4 gate re-run, normal-flow E2E; Design Lock §8 answered by Owner | required |
 
 Thresholds (85%, evenness) are **initial proposals**; final numbers come from Owner on-device HV on iPhone (D5).
 
@@ -278,7 +278,7 @@ New, from this addendum:
 14. Whether Detroit / Sicilian / other sheet-pan recipes are future users of `panShape` (no commitment; D1 only requires reuse-ready design).
 
 15. Riddle wording exception to OD-TQ-5/6 (§4B.3): one-line Owner acknowledgement (asked in F).
-16. Final copy of the neutral shape line in RESULT for pan-cooked ORIGINAL pizzas (§4B.2 item 3): Owner approval.
+16. Final copy of the neutral shape line in RESULT for pan-cooked not-identified pizzas (§4B.2 item 3): Owner approval.
 17. Internal technique ID and the pan value name (F / E).
 18. Re-derive the affordance step (expected 14) at F implementation; if it differs, report before relying on it.
 
