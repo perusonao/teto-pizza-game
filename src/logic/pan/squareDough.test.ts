@@ -265,6 +265,40 @@ describe("corner reach (D5: 85% of the way, both axes, generous)", () => {
     expect(squareDoughEvenness(tendrils)).toBe(0);
   });
 
+  it("a film just under the cover threshold does not count as dough in evenness (Codex P2, #541)", () => {
+    // every on-pan cell at a sliver below the threshold, four second-ring corner cells at the threshold itself
+    const film = SQUARE_COVER_MIN_THICKNESS - 1e-6;
+    const t = sheet(film).thickness.slice();
+    for (const [row, col] of [
+      [2, 2],
+      [2, N - 3],
+      [N - 3, N - 3],
+      [N - 3, 2],
+    ]) t[squareCellIndex(row, col)] = SQUARE_COVER_MIN_THICKNESS;
+    const dough = { thickness: t };
+    expect(isValidSquareDough(dough)).toBe(true);
+    expect(squareDoughCoverage(dough)).toBeCloseTo(4 / 196, 12);
+    expect(areAllCornersReached(dough)).toBe(true);
+    expect(squareDoughEvenness(dough)).toBe(0);
+  });
+
+  it("evenness ignores sub-threshold slivers: it equals the evenness of the same dough with them zeroed", () => {
+    const next = lcg(2024);
+    for (let run = 0; run < 40; run++) {
+      const t = blank();
+      const zeroed = blank();
+      for (let row = 0; row < N; row++) {
+        for (let col = 0; col < N; col++) {
+          if (!isSquareCellOnPan(row, col)) continue;
+          const v = next() < 0.4 ? next() * SQUARE_COVER_MIN_THICKNESS * 0.99 : 0.5 + next() * 0.5;
+          t[squareCellIndex(row, col)] = v;
+          zeroed[squareCellIndex(row, col)] = v >= SQUARE_COVER_MIN_THICKNESS ? v : 0;
+        }
+      }
+      expect(squareDoughEvenness({ thickness: t })).toBe(squareDoughEvenness({ thickness: zeroed }));
+    }
+  });
+
   it("a thin frame around the rim reaches every corner but is nowhere near even", () => {
     const t = blank();
     for (let i = 1; i <= N - 2; i++) {

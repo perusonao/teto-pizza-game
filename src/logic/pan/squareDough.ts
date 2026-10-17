@@ -120,7 +120,12 @@ export function squareDoughEvenness(dough: SquareDough): number {
   const values: number[] = [];
   for (let row = 0; row < SQUARE_DOUGH_GRID; row++) {
     for (let col = 0; col < SQUARE_DOUGH_GRID; col++) {
-      if (isSquareCellOnPan(row, col)) values.push(dough.thickness[squareCellIndex(row, col)]);
+      if (!isSquareCellOnPan(row, col)) continue;
+      // An uncovered cell is thickness 0 -- including a sliver below SQUARE_COVER_MIN_THICKNESS, which `isCovered`
+      // (coverage, corner reach) already treats as no dough. Using its raw value would let a near-threshold film
+      // over the whole pan read as an even sheet.
+      const value = dough.thickness[squareCellIndex(row, col)];
+      values.push(isCovered(value) ? value : 0);
     }
   }
   const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
