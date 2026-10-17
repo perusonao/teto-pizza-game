@@ -34,21 +34,26 @@ async function reachFreeBake(page: Page) {
 }
 
 /**
- * Like `enterBakePaused`, but the clock is installed and paused BEFORE 焼く is clicked. `enterBakePaused` pauses after the click, so on a
- * loaded runner its `pauseAt` retries ([150, 500, 1500] ms) all run while the one-way needle is moving and can carry it past a low
- * target (the 惜しい（焼き不足）band 59-64). Here the retries run while BAKE is not mounted, so the needle starts at 0 whatever they cost.
+ * Enters BAKE with the virtual clock already paused, so the one-way needle starts at exactly 0 (same pattern as `enterBakeAtZero` in
+ * bake-one-way.spec.ts). `enterBakePaused` pauses AFTER the 焼く click, so on a loaded runner its `pauseAt` retries ([150, 500, 1500] ms)
+ * all run while the needle is moving and can carry it past a low target (the 惜しい（焼き不足）band 59-64). Here the retries run while
+ * BAKE is not mounted, and if none lands the helper throws instead of clicking with the clock running. The click is a DOM click:
+ * Playwright's own actionability wait would need a running rAF.
  */
-async function enterBakeFrozen(page: Page) {
+async function enterBakeAtZero(page: Page) {
   await page.clock.install();
-  for (const buffer of [150, 500, 1500]) {
+  let paused = false;
+  for (const buffer of [300, 800, 2000]) {
     try {
       await page.clock.pauseAt(Date.now() + buffer);
+      paused = true;
       break;
     } catch (error) {
       if (!String(error).includes("to the past")) throw error;
     }
   }
-  await page.getByRole("button", { name: /焼く/ }).click();
+  if (!paused) throw new Error("enterBakeAtZero: could not pause the clock before BAKE (every pauseAt landed in the past)");
+  await page.getByRole("button", { name: /焼く/ }).evaluate((el) => (el as HTMLButtonElement).click());
   await page.waitForSelector(".bake-gauge__needle");
 }
 
@@ -90,15 +95,15 @@ test("FREE Cooking BAKE draws the JUST band on the generic window, inside the ga
 
 test("FREE Cooking RESULT shows ジャスト / 惜しい on the generic window, and a near-miss never says 完璧 (#520)", async ({ page }) => {
   await reachFreeBake(page);
-  await enterBakeFrozen(page);
+  await enterBakeAtZero(page);
   await landNeedleAndTakeOut(page, { start: 66, end: 70 }); // 66-70: inside JUST 65-71
   await page.waitForSelector(".result-panel");
   await expect(page.locator(".result-panel__bake-badge").first()).toContainText("焼き加減: ジャスト");
   await shot(page, "free-result-just");
 
   await reachFreeBake(page);
-  await enterBakeFrozen(page);
-  // The needle moves one way only and starts at 0 (enterBakeFrozen), so the 惜しい（焼き不足）band 59-64 lies ahead of it:
+  await enterBakeAtZero(page);
+  // The needle moves one way only and starts at 0 (enterBakeAtZero), so the 惜しい（焼き不足）band 59-64 lies ahead of it:
   // landNeedleAndTakeOut measures where the needle really is and advances from there.
   await landNeedleAndTakeOut(page, { start: 59, end: 64 });
   await page.waitForSelector(".result-panel");
