@@ -51,7 +51,7 @@ Operation spec (Owner) and D1–D7 above remain in force. Design Lock §8 stays 
 | Design Lock location | Original text (unchanged in that file) | Effect of this addendum |
 |---|---|---|
 | §2 "Grandma pizza — source re-check" | "Dough form (round, not sheet pan) is a documented simplification…" | **Superseded for `grandma-pizza` only**: it gets a square pan (D1/D6). The round simplification stays valid for every other recipe. |
-| §7 S3 row, "Needs S1 and S2 merged first" | S3 depends on S1, S2 | **Extended**: S3 additionally depends on A–D (#534–#537) and D3 forbids shipping a round grandma first. S3 stays on hold (consistent with the Design Lock status block). |
+| §7 S3 row, "Needs S1 and S2 merged first" | S3 depends on S1, S2 | **Extended**: S3 additionally depends on A–D (#534–#537) **and F (#538)**, and D3 forbids shipping a round grandma first. S3 stays on hold (consistent with the Design Lock status block). |
 | §0-7 CUT excluded | CUT excluded from the initial scope | **Unchanged.** Square pan disables CUT; #429 / #467 untouched. |
 | §0-1…6, 8, 9 (ingredients, presence scoring, Lunch Rush excluded, no new FINISH, #519, #502) | | **Unchanged.** |
 | §8 Owner decisions still needed (8 items) | | **Unchanged and still open** (D7), see §7. |
@@ -253,7 +253,7 @@ Thresholds (85%, evenness) are **initial proposals**; final numbers come from Ow
 | #474 (round dough Human Feel 2.0) | `PizzaStage.tsx` DOUGH branch, `doughShape.ts`, `doughSizeStatus` | Square code in separate modules; no edits to round constants/predicates; B rebases after #474's implementation PR or only adds a branch. |
 | #518 (FINISH D2-2) | `PizzaStage.tsx`, bake-filter CSS on `.pizza-dough` | D2 starts after #518 lands or does not touch those blocks; `finishD2Inert` guard stays green. |
 | #429 / #467 (CUT) | circular CUT geometry | Grandma has no CUT; square disables CUT; #429 scope not widened. |
-| #521 S3 / #527 | same append-only recipe files and count-pinned tests | Serial landing; #527 is not started here; S3 waits for A–D. |
+| #521 S3 / #527 | same append-only recipe files and count-pinned tests | Serial landing; #527 is not started here; S3 waits for A–D **and F (#538)**. |
 | #33 | round dough contract | Unchanged. |
 | #529 / #531 | WebKit 360×800 intermittent failures | Not masked; reported as unrelated when seen. |
 
