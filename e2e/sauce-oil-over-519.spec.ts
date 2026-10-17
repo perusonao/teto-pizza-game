@@ -51,8 +51,12 @@ async function paint(page: Page, from: number, to: number, ms = 1300) {
 }
 
 /** Colours at the sample points of the rendered dough (a real screenshot of its box). */
+/** The dough that carries the sauce canvases (on RESULT there can be other `.pizza-dough` boxes -- thumbnails, reference -- so `.first()` is not safe). */
+const sauceDough = (page: Page) => page.locator(".pizza-dough:has(canvas.pizza-sauce-heatmap)").first();
+
 async function sample(page: Page): Promise<Samples> {
-  const box = (await page.locator(".pizza-dough").first().boundingBox())!;
+  await expect(sauceDough(page)).toBeVisible();
+  const box = (await sauceDough(page).boundingBox())!;
   const png = await page.screenshot({ clip: box });
   return page.evaluate(async (data) => {
     const img = new Image();
@@ -87,7 +91,7 @@ test("#519: tomato then olive oil -- the tomato is still visible under the oil (
   await paint(page, 42, 74);
   const after = await sample(page);
   if (SHOT_DIR) {
-    const box = (await page.locator(".pizza-dough").first().boundingBox())!;
+    const box = (await sauceDough(page).boundingBox())!;
     await page.screenshot({ path: `${SHOT_DIR}/${test.info().project.name}-tomato-then-oil.png`, clip: box });
     console.log(`SAMPLES ${JSON.stringify({ before, after })}`);
   }
