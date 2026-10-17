@@ -16,7 +16,7 @@ Unchanged decisions: OD-CS-1 = A, OD-CS-2 = B (provisional at CONFIRM_BAKE, fina
 
 Approved: the internal engine and its preparation. **Not** approved by it: enabling FINISH on any Production recipe,
 TQ-2 / TQ-3, a 7-tab UI, the FREE finish UI (UD-B), Dinner / Lunch Rush handling (UD-I), merge, deploy.
-Still open: OD-CS-4..6, 8, 10, 12..19; UD-B, D, E, F, G, I.
+Still open (as of 2026-10-16): OD-CS-12..19; UD-D, F, G. OD-CS-4..6, 8, 10 and UD-B, E, I were decided on 2026-10-16 — see `TETO_FINISH-D2_OWNER-DECISION-TABLE.md`.
 
 ## Implementation slices
 

@@ -1,0 +1,72 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.65
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.65
+  },
+  {
+   "id": "gorgonzola",
+   "cls": "m",
+   "w": 19,
+   "h": 17,
+   "far": 0.4
+  },
+  {
+   "id": "gorgonzola",
+   "cls": "m",
+   "w": 19,
+   "h": 17,
+   "far": 0.4
+  },
+  {
+   "id": "parmigiano",
+   "cls": "s",
+   "w": 19.3,
+   "h": 12.8,
+   "far": 0.58
+  },
+  {
+   "id": "parmigiano",
+   "cls": "s",
+   "w": 19.3,
+   "h": 12.8,
+   "far": 0.58
+  },
+  {
+   "id": "fontina",
+   "cls": "l",
+   "w": 25.3,
+   "h": 23,
+   "far": 0.62
+  },
+  {
+   "id": "fontina",
+   "cls": "l",
+   "w": 25.3,
+   "h": 23,
+   "far": 0.62
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "fontina",
+   "frac": 0.08
+  },
+  {
+   "a": "mozzarella",
+   "b": "fontina",
+   "frac": 0.08
+  }
+ ]
+}

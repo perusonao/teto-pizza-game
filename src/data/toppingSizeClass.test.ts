@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "./ingredients";
 import {
   DEFAULT_TOPPING_SIZE_CLASS,
+  TOPPING_RANK_SCALE,
+  TOPPING_RANK_SCALE_EXEMPT_IDS,
   TOPPING_SIZE_CLASSES,
   TOPPING_SIZE_CLASS_BY_ID,
   TOPPING_SIZE_SCALE_CANDIDATES,
+  toppingRankScale,
   toppingSizeClass,
   toppingSizeScale,
 } from "./toppingSizeClass";
@@ -88,5 +91,37 @@ describe("TOPPING_SIZE_SCALE_CANDIDATES (provisional comparison data)", () => {
     expect(toppingSizeScale("basil", "B")).toBe(1.3);
     expect(toppingSizeScale("unknown-id", "A")).toBe(1);
     expect(toppingSizeScale("tomato-sauce", "B")).toBe(1);
+  });
+});
+
+describe("TOPPING_RANK_SCALE / toppingRankScale (S2c: production = candidate set B)", () => {
+  it("is exactly the Owner-approved set B: 0.7 / 0.85 / 1 / 1.15 / 1.3", () => {
+    expect(TOPPING_RANK_SCALE).toEqual({ xs: 0.7, s: 0.85, m: 1, l: 1.15, xl: 1.3 });
+    expect(TOPPING_RANK_SCALE).toEqual(TOPPING_SIZE_SCALE_CANDIDATES.B);
+  });
+
+  it("gives every scatter ingredient the multiplier of its class, except the exempt ids", () => {
+    for (const id of scatterIds) {
+      const expected = TOPPING_RANK_SCALE_EXEMPT_IDS.includes(id) ? 1 : TOPPING_RANK_SCALE[toppingSizeClass(id)];
+      expect(toppingRankScale(id), id).toBe(expected);
+    }
+  });
+
+  it("mozzarella is exempt in every set (size and melt unchanged), though its class stays l", () => {
+    expect(TOPPING_RANK_SCALE_EXEMPT_IDS).toEqual(["mozzarella"]);
+    expect(toppingSizeClass("mozzarella")).toBe("l");
+    for (const set of [TOPPING_RANK_SCALE, ...Object.values(TOPPING_SIZE_SCALE_CANDIDATES)]) expect(toppingRankScale("mozzarella", set)).toBe(1);
+    expect(toppingRankScale("mozzarella", TOPPING_RANK_SCALE, { mozzarella: 2 })).toBe(1);
+  });
+
+  it("is 1 for a sauce, an unknown id and an inherited key (the default class)", () => {
+    for (const id of ["tomato-sauce", "no-such-ingredient", "", "constructor"]) expect(toppingRankScale(id)).toBe(1);
+  });
+
+  it("the production default applies no per-ingredient correction; an explicit fit multiplies on top (rounded to 3 places)", () => {
+    expect(toppingRankScale("black-olive")).toBe(0.85);
+    expect(toppingRankScale("black-olive", TOPPING_RANK_SCALE, { "black-olive": 0.85 })).toBe(0.722);
+    expect(toppingRankScale("bacon", TOPPING_RANK_SCALE, { "black-olive": 0.85 })).toBe(1.15);
+    expect(toppingRankScale("bacon", TOPPING_RANK_SCALE, { bacon: 1.1 })).toBe(1.265);
   });
 });

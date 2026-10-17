@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { gameReducer, type GameState } from "../state/gameReducer";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
@@ -53,7 +53,7 @@ const partial: CutLine = {
   path: [{ x: 40, y: 20 }, { x: 55, y: 35 }],
 };
 
-function stage(state: GameState, lines: CutLine[], makingStep: GameState["makingStep"]) {
+export function stage(state: GameState, lines: CutLine[], makingStep: GameState["makingStep"], resultCompact = false) {
   return (
     <PizzaStage
       pizza={{ ...state.pizza, doughShape: createIdealDoughShape() }} // a finished dough, as in a real CUT
@@ -75,11 +75,15 @@ function stage(state: GameState, lines: CutLine[], makingStep: GameState["making
       onDoughStretchCommit={() => {}}
       cutState={{ ...state.cutState, lines }}
       onAddCutLine={() => {}}
+      resultCompact={resultCompact}
     />
   );
 }
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 describe("PizzaStage cut pieces", () => {
   const state = bakedMargheritaAtCut();
@@ -167,5 +171,67 @@ describe("PizzaStage cut pieces", () => {
     expect(pieces.style.filter).toMatch(new RegExp(`url\\("?#${id}"?\\)`));
     expect(container.querySelectorAll("[data-piece-relief]")).toHaveLength(1);
     expect(pieces.querySelector("[class*=smoke], .pizza-perfect-glow")).toBeNull();
+  });
+});
+
+/**
+ * #479 S3: which pieces show a sliced topping follows the topping's own drawn size and the dough's rendered width (the RESULT's small dough makes the
+ * same topping a larger share of it), not a fixed 5%. Basil is class xl (x1.3 in production).
+ */
+describe("PizzaStage: a topping a cut slices shows its part in the neighbouring piece (#479 S3)", () => {
+  const base = bakedMargheritaAtCut();
+  /** the dough is `width` CSS px wide: what the stage measures to size a topping's footprint in dough-percent */
+  function atDoughWidth(width: number) {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({ width, height: width, top: 0, left: 0, right: width, bottom: width, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect,
+    );
+  }
+  const basilBelowTheCut = (distance: number): GameState => ({
+    ...base,
+    pizza: { ...base.pizza, toppings: [{ id: "basil-1", ingredientId: "basil", x: DOUGH_CENTER, y: DOUGH_CENTER + distance }] },
+  });
+  const copiesIn = (container: HTMLElement) => container.querySelectorAll('.pizza-topping-half[data-topping-id="basil-1"]').length;
+
+  it("a basil 9% from a cut (past the old fixed 5%) shows its sliced part in the neighbour, at the CUT width and the RESULT width", () => {
+    for (const width of [358, 328, 196]) {
+      atDoughWidth(width);
+      const { container } = render(stage(basilBelowTheCut(9), [through(0)], "CUT"));
+      expect(copiesIn(container), `dough ${width}px`).toBe(1);
+      cleanup();
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("the same basil 14% from the cut is sliced on the RESULT's small dough but not on the CUT screen's larger one (its drawing does not reach there)", () => {
+    atDoughWidth(196);
+    const small = render(stage(basilBelowTheCut(14), [through(0)], null as unknown as GameState["makingStep"]));
+    expect(copiesIn(small.container)).toBe(1);
+    cleanup();
+    vi.restoreAllMocks();
+    atDoughWidth(358);
+    const large = render(stage(basilBelowTheCut(14), [through(0)], "CUT"));
+    expect(copiesIn(large.container)).toBe(0);
+  });
+
+  it("a basil far from every cut is whole in one piece and has no copies", () => {
+    for (const width of [358, 196]) {
+      atDoughWidth(width);
+      const { container } = render(stage(basilBelowTheCut(30), [through(0)], "CUT"));
+      expect(copiesIn(container)).toBe(0);
+      expect(container.querySelectorAll(".pizza-topping")).toHaveLength(1);
+      cleanup();
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("an oblique cut (normal 22.5 degrees between two probe directions) still gives the neighbour its part", () => {
+    atDoughWidth(196);
+    const n = { x: Math.cos((22.5 * Math.PI) / 180), y: Math.sin((22.5 * Math.PI) / 180) };
+    const state: GameState = {
+      ...base,
+      pizza: { ...base.pizza, toppings: [{ id: "basil-1", ingredientId: "basil", x: DOUGH_CENTER + n.x * 18, y: DOUGH_CENTER + n.y * 18 }] },
+    };
+    const { container } = render(stage(state, [through(112.5)], "CUT"));
+    expect(copiesIn(container)).toBe(1);
   });
 });

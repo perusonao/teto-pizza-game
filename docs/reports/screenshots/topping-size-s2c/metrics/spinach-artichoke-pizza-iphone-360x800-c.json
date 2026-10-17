@@ -1,0 +1,72 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.78
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 70,
+   "h": 70,
+   "far": 0.85
+  },
+  {
+   "id": "cream-cheese",
+   "cls": "l",
+   "w": 23,
+   "h": 23,
+   "far": 0.65
+  },
+  {
+   "id": "parmigiano",
+   "cls": "s",
+   "w": 19.3,
+   "h": 12.8,
+   "far": 0.62
+  },
+  {
+   "id": "spinach",
+   "cls": "xl",
+   "w": 50,
+   "h": 49,
+   "far": 0.82
+  },
+  {
+   "id": "spinach",
+   "cls": "xl",
+   "w": 50,
+   "h": 49,
+   "far": 0.82
+  },
+  {
+   "id": "artichoke",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.7
+  },
+  {
+   "id": "artichoke",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.21
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0.09
+  },
+  {
+   "a": "spinach",
+   "b": "spinach",
+   "frac": 0.03
+  }
+ ]
+}

@@ -106,6 +106,32 @@ export const TOPPING_SIZE_SCALE_CANDIDATES = {
 export type ToppingSizeScaleCandidateKey = keyof typeof TOPPING_SIZE_SCALE_CANDIDATES;
 
 /**
+ * S2c (Issue #479): the multipliers the on-pizza `--piece-rank-scale` wiring uses in PRODUCTION: the Owner-approved candidate set B
+ * (0.7 / 0.85 / 1 / 1.15 / 1.3). The S2a wiring shipped all 1; the S2b-1 comparison (docs/reports/TETO_TOPPING-SIZE-CLASSES_S2B2_Final-Compare.md)
+ * led to B. Per-ingredient apparent-size corrections are NOT here: they are an unconfirmed Preview / DEV comparison candidate (C) in
+ * ../preview/toppingScalePreview.ts until the Owner confirms them on an iPhone.
+ */
+export const TOPPING_RANK_SCALE: ToppingSizeScaleSet = TOPPING_SIZE_SCALE_CANDIDATES.B;
+
+/**
+ * Ingredients whose on-pizza size ignores the class multiplier (rank scale always 1), in every set. mozzarella: Owner decision (S2c) -- its Canvas
+ * box (`CHEESE_RENDER_MODE.sizePx`) and the bake melt are unchanged. Its CLASS stays `l` (the table above is data about the ingredient, not about this exemption).
+ */
+export const TOPPING_RANK_SCALE_EXEMPT_IDS: readonly string[] = ["mozzarella"];
+
+/**
+ * The `--piece-rank-scale` value for a piece of this ingredient on the pizza. `set` defaults to `TOPPING_RANK_SCALE` (production, B); only the
+ * Preview / DEV comparison switch (../preview/toppingScalePreview.ts) passes another set. `fit` is an optional per-id multiplier on top of the class
+ * value (the Preview-only candidate C); production never passes it. Exempt ids are always 1.
+ */
+export function toppingRankScale(ingredientId: string, set: ToppingSizeScaleSet = TOPPING_RANK_SCALE, fit?: Readonly<Record<string, number>>): number {
+  if (TOPPING_RANK_SCALE_EXEMPT_IDS.includes(ingredientId)) return 1;
+  const base = set[toppingSizeClass(ingredientId)];
+  const correction = fit !== undefined && Object.hasOwn(fit, ingredientId) ? fit[ingredientId] : 1;
+  return Math.round(base * correction * 1000) / 1000;
+}
+
+/**
  * The class of an ingredient id. An id with no entry (a sauce, a typo, a future ingredient not yet classified) is
  * `DEFAULT_TOPPING_SIZE_CLASS`, so a lookup never throws and an unknown id never changes size. Own keys only: inherited
  * names such as "constructor" or "__proto__" are not ingredients.

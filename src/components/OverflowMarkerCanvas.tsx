@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
 import type { DoughShape } from "../logic/doughShape";
+import { platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /** Internal pixel resolution of the overflow-marker canvas -- matches `SauceHeatmapCanvas`'s own
  *  internal resolution purely so the two overlaid canvases share one rasterization fidelity. */
@@ -27,26 +28,40 @@ export interface OverflowMarkerCanvasProps {
 export function OverflowMarkerCanvas({ deposits, doughShape, color, className }: OverflowMarkerCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Same safety net as `SauceHeatmapCanvas`: a refused 2D context or a throwing draw shows the markers as dots, and never unmounts the app.
+  const [failed, markFailed] = useCanvasFailure();
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const deposit of deposits) {
-      const overflowFraction = 1 - insideDoughShapeFraction(doughShape, deposit.x, deposit.y);
-      if (overflowFraction <= 0) continue;
-      const px = (deposit.x / 100) * canvas.width;
-      const py = (deposit.y / 100) * canvas.height;
-      ctx.save();
-      ctx.globalAlpha = 0.55 * overflowFraction;
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(px, py, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      if (platformSupports2d() && deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1)) markFailed();
+      return;
     }
-  }, [deposits, doughShape, color]);
+
+    try {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const deposit of deposits) {
+        const overflowFraction = 1 - insideDoughShapeFraction(doughShape, deposit.x, deposit.y);
+        if (overflowFraction <= 0) continue;
+        const px = (deposit.x / 100) * canvas.width;
+        const py = (deposit.y / 100) * canvas.height;
+        ctx.save();
+        ctx.globalAlpha = 0.55 * overflowFraction;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    } catch {
+      markFailed();
+    }
+  }, [deposits, doughShape, color, markFailed]);
+
+  // the markers are small dots: when their canvas is gone they are simply left out (the heatmap's own fallback carries the sauce)
+  if (failed) return null;
 
   return (
     <canvas

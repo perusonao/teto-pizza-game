@@ -1,8 +1,10 @@
-import { CheesePoolCanvas } from "./CheesePoolCanvas";
+import { CheesePoolCanvas, cheesePoolReachPercent } from "./CheesePoolCanvas";
 import { cheesePoolBakeParams } from "../logic/cheesePoolBake";
 import { CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
 import {
   useEffect,
+  useLayoutEffect,
+  useState,
   useCallback,
   useId,
   useMemo,
@@ -15,6 +17,8 @@ import {
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { activeToppingRankScale } from "../preview/toppingScalePreview";
+import { toppingPhaseScale } from "../preview/resultScalePreview";
 import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
@@ -35,8 +39,12 @@ import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
 import { PieceReliefFilter } from "./PieceReliefFilter";
 import { pieceReliefFilterCss, RESULT_RELIEF_SCALE } from "./pieceRelief";
 import { currentSauceId, sauceHeadroom, sauceUsedTotal } from "../state/sauceLedger";
-import { sauceLayersOf } from "../state/sauceLayers";
+import { SauceRemainingGauge } from "./SauceRemainingGauge";
+import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
+import { layersWithPending, planSauceLayers, sauceBudgetForPieces, SAUCE_PIZZA_BUDGET, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
+import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -49,7 +57,8 @@ import {
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { buildCutVisual } from "../logic/cut/cutVisual";
-import { computePieceLayout, placeTopping } from "../logic/cut/pieces";
+import { TOPPING_REACH, computePieceLayout, placeTopping } from "../logic/cut/pieces";
+import { toppingFootprintRadiusPercent } from "../logic/cut/toppingFootprint";
 import { buildDragCutPath, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
@@ -309,8 +318,24 @@ export function PizzaStage({
    *  sample. `null` whenever no reference-dispense session is active. */
   const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
 
+  /** the rendered dough width (CSS px), for the Canvas mozzarella's cut reach (#421) and every topping's cut footprint (#479 S3); 0 until measured.
+   *  Read again whenever the stage becomes / stops being the RESULT's (`resultCompact`: the dough's width class changes, 196px there), not only on the
+   *  ResizeObserver: a read that stayed at the CUT width made the footprint far too small on the RESULT (#514, WebKit 360x800). */
+  const [doughPx, setDoughPx] = useState(0);
+  const [doughEl, setDoughEl] = useState<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    if (!doughEl) return;
+    const read = () => setDoughPx(Math.round(doughEl.getBoundingClientRect().width));
+    read();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(read);
+    observer.observe(doughEl);
+    return () => observer.disconnect();
+  }, [doughEl, resultCompact]);
+
   const setDoughElement = useCallback((element: HTMLDivElement | null) => {
     circleRef.current = element;
+    setDoughEl(element);
     onDoughElementChange?.(element);
   }, [onDoughElementChange]);
 
@@ -1046,14 +1071,32 @@ export function PizzaStage({
   }, [isFieldSauceContext, pizza.sauceDeposits, pendingVersion]);
   const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
+  // Issue #489 B3: remaining-sauce gauge, SAUCE step only. It reads the SAME ledger headroom the dispenser caps on
+  // (`sauceHeadroom`: the active kind's own 100% and the pizza-wide total, whichever binds), so gauge and cap cannot
+  // disagree. Per kind: switching to a kind not yet used shows that kind's own bottle; the pizza-wide cap can still drain it.
+  // pendingTotalRef is re-read on every pendingVersion bump, like pendingDepositsRef above.
+  const showSauceGauge = makingStep === "SAUCE" && interactive && !resultCompact;
+  const sauceGaugeCommitted = sauceGaugeUsed(pizza, activeIngredient?.id ?? sauceId ?? "");
   // Sauce B2 (layered painting): with two or more sauce kinds on the pizza (committed, or one in progress over another) each
   // kind is drawn as its own layer, the first laid at the bottom. `null` (fewer than two kinds) keeps the single heatmap below
   // exactly as it has always been drawn, so a one-sauce pizza never takes the layered path.
+  // Owner Decision on PR #494: layers are chronological runs (later paint over earlier, whatever the kind). The committed runs are
+  // memoized on the deposit log, so a tick of the stroke in progress rebuilds only the top run and no earlier canvas is redrawn.
+  // Each commit hands the previous runs back in, so only the run it extended or added is a new object (no earlier canvas repaints).
+  const previousSauceRunsRef = useRef<SauceLayer[]>([]);
+  const committedSauceRuns = useMemo(() => {
+    const runs = sauceRunsOf(pizza, previousSauceRunsRef.current);
+    previousSauceRunsRef.current = runs;
+    return runs;
+  }, [pizza.sauceIds, pizza.sauceDeposits]); // eslint-disable-line react-hooks/exhaustive-deps
   const sauceLayers = useMemo(
-    () => (isFieldSauceContext ? sauceLayersOf(pizza, pendingDepositsRef.current, activeSessionRef.current?.ingredientId ?? null) : null),
+    () =>
+      isFieldSauceContext
+        ? layersWithPending(committedSauceRuns, pendingDepositsRef.current, activeSessionRef.current?.ingredientId ?? null)
+        : null,
     // pendingVersion is the reactive proxy for pendingDepositsRef.current -- see its own declaration above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isFieldSauceContext, pizza.sauceIds, pizza.sauceDeposits, pendingVersion],
+    [isFieldSauceContext, committedSauceRuns, pendingVersion],
   );
 
   // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline lives in
@@ -1090,8 +1133,18 @@ export function PizzaStage({
   );
   const toppingPlacements = useMemo(() => {
     if (!pieceLayout) return null;
-    return new Map(pizza.toppings.map((t) => [t.id, placeTopping(pieceLayout, t.x, t.y)] as const));
-  }, [pieceLayout, pizza.toppings]);
+    return new Map(
+      pizza.toppings.map((t) => {
+        // the Canvas mozzarella is drawn wider than a topping's usual reach once melted: reach as far as the pool really extends (#421).
+        // Every other topping reaches as far as its own drawing (its size class x the dough's measured width, #479 S3): the circle round it is intersected with each piece's outline
+        const reach =
+          t.ingredientId === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas"
+            ? Math.max(TOPPING_REACH, cheesePoolReachPercent(Math.round(CHEESE_RENDER_MODE.sizePx * activeToppingRankScale(t.ingredientId)), doughPx))
+            : toppingFootprintRadiusPercent(activeToppingRankScale(t.ingredientId) * toppingPhaseScale(t.ingredientId, resultCompact), doughPx);
+        return [t.id, placeTopping(pieceLayout, t.x, t.y, reach)] as const;
+      }),
+    );
+  }, [pieceLayout, pizza.toppings, doughPx, resultCompact]);
   /** Toppings drawn in one piece: those whose centre is in it whole, plus the sliced part of any
    *  topping that straddles into it. With no `piece` (uncut pizza) every topping, whole. */
   const toppingsFor = (piece?: number) =>
@@ -1138,32 +1191,67 @@ export function PizzaStage({
           }}
         />
       )}
-      {showSauceHeatmap && sauceLayers && (
-        <>
-          {/* Sauce B2: one heatmap per sauce kind (first laid at the bottom, later ones on top), each with only ITS deposits and
-              ITS colour; the overflow markers follow all of them so they always sit on top. Same box/filter classes as the
-              single heatmap below, plus a per-kind marker class. */}
-          {sauceLayers.map((layer) => (
-            <SauceHeatmapCanvas
-              key={`heat-${layer.ingredientId}`}
-              deposits={layer.deposits}
-              doughShape={pizza.doughShape}
-              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
-              className={sauceLayerClassName(layer.ingredientId, bakeState)}
-            />
-          ))}
-          {sauceLayers.map((layer) => (
-            <OverflowMarkerCanvas
-              key={`overflow-${layer.ingredientId}`}
-              deposits={layer.deposits}
-              doughShape={pizza.doughShape}
-              color={getIngredient(layer.ingredientId)?.color ?? fieldSauceColor}
-              className={sauceLayerClassName(layer.ingredientId, bakeState)}
-            />
-          ))}
-          {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
-        </>
-      )}
+      {showSauceHeatmap && sauceLayers && (() => {
+        // Sauce B2: chronological runs (the earliest at the bottom, later runs painted over it), each with ONLY its deposits and ITS colour; the overflow
+        // markers follow all of them so they always sit on top. The newest runs keep a canvas pair of their own; the older ones are flattened, in
+        // order, into a few shared canvases (Codex P2: a pizza never carries more than a fixed number of sauce canvases, whatever its history).
+        // a cut piece draws its own copy of the sauce: it gets the (much smaller) per-piece budget so the whole cut pizza stays bounded
+        const plan = planSauceLayers(sauceLayers, piece === undefined ? SAUCE_PIZZA_BUDGET : sauceBudgetForPieces(pieceLayout?.pieces.length ?? 1));
+        const colorOf = (ingredientId: string) => getIngredient(ingredientId)?.color ?? fieldSauceColor;
+        const mergedClassName = (oil: boolean) =>
+          `pizza-sauce-heatmap ${oil ? "pizza-sauce-heatmap--oil" : ""} ${bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""} pizza-sauce-heatmap--merged`;
+        // if anything in the layers throws while rendering, the sauce is still shown (as dots) and the app stays up
+        const fallback = (
+          <SauceDotsFallback
+            runs={sauceLayers.map((layer) => ({ deposits: layer.deposits, color: colorOf(layer.ingredientId) }))}
+            className={mergedClassName(false)}
+          />
+        );
+        return (
+          <SauceLayersBoundary fallback={fallback}>
+            {plan.merged.map((group) => (
+              <SauceMergedHeatmapCanvas
+                key={`mheat-${group.firstIndex}`}
+                runs={group.runs}
+                doughShape={pizza.doughShape}
+                colorOf={colorOf}
+                bakedOil={group.bakedOil}
+                className={mergedClassName(group.oil)}
+              />
+            ))}
+            {plan.own.map((layer, i) => (
+              <SauceHeatmapCanvas
+                key={`heat-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
+                deposits={layer.deposits}
+                underDeposits={layer.under}
+                doughShape={pizza.doughShape}
+                color={colorOf(layer.ingredientId)}
+                className={sauceLayerClassName(layer.ingredientId, bakeState)}
+              />
+            ))}
+            {plan.merged.map((group) => (
+              <SauceMergedOverflowCanvas
+                key={`moverflow-${group.firstIndex}`}
+                runs={group.runs}
+                doughShape={pizza.doughShape}
+                colorOf={colorOf}
+                bakedOil={group.bakedOil}
+                className={mergedClassName(group.oil)}
+              />
+            ))}
+            {plan.own.map((layer, i) => (
+              <OverflowMarkerCanvas
+                key={`overflow-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
+                deposits={layer.deposits}
+                doughShape={pizza.doughShape}
+                color={colorOf(layer.ingredientId)}
+                className={sauceLayerClassName(layer.ingredientId, bakeState)}
+              />
+            ))}
+            {/* No full-pizza oil sheen here: it is not masked by the oil deposits and would "oil" the other sauces' areas. The oil layer keeps its own class treatment. */}
+          </SauceLayersBoundary>
+        );
+      })()}
       {showSauceHeatmap && !sauceLayers && (
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}
@@ -1204,6 +1292,10 @@ export function PizzaStage({
       {toppingsFor(piece).map(({ t, half }) => {
         const ingredient = getIngredient(t.ingredientId);
         if (!ingredient) return null;
+        // #479 S2a / S2b-1: the size-class multiplier (1 for every class in production; ?toppingScale=a|b in Preview / DEV) -- on this span so the whole / half / M1 / SVG pieces all read the same value
+        const rankScale = activeToppingRankScale(t.ingredientId);
+        // #514: the RESULT-only multiplier (production 0.75; 1 off the RESULT and for the exempt mozzarella: the var is then not set at all)
+        const phaseScale = toppingPhaseScale(t.ingredientId, resultCompact);
         return (
           <span
             key={t.id}
@@ -1213,6 +1305,8 @@ export function PizzaStage({
               left: `${t.x}%`,
               top: `${t.y}%`,
               "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
+              "--piece-rank-scale": rankScale,
+              ...(phaseScale === 1 ? {} : { "--piece-phase-scale": phaseScale }),
             } as CSSProperties}
           >
             {/* Issue #167 PR-B (Reference Truth): unified with every Reference view's own
@@ -1237,7 +1331,7 @@ export function PizzaStage({
                   seed={t.id}
                   {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
                   grid={CHEESE_RENDER_MODE.grid}
-                  sizePx={CHEESE_RENDER_MODE.sizePx}
+                  sizePx={Math.round(CHEESE_RENDER_MODE.sizePx * rankScale)}
                   fallback={m1Piece}
                 />
               );
@@ -1467,6 +1561,16 @@ export function PizzaStage({
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
         </svg>
       </div>
+      {showSauceGauge && (
+        <div className="pizza-stage__sauce-gauge">
+          <SauceRemainingGauge
+            committedTotal={sauceGaugeCommitted}
+            pendingTotal={pendingTotalRef.current}
+            color={activeIngredient?.color}
+            capBlocked={sauceGaugeDetail(pizza, activeIngredient?.id ?? sauceId ?? "", pendingTotalRef.current).capBlocked}
+          />
+        </div>
+      )}
     </div>
   );
 }

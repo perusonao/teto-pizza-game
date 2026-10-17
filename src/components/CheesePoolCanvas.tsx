@@ -57,6 +57,31 @@ function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** #421: how much wider than the raw lump's box a fully melted pool is shown (the spread). 1 up to melt 0.3, so the pre-bake look is unchanged. */
+export const CHEESE_POOL_MELT_SPREAD = 0.45;
+
+/** CSS scale of the canvas box at `melt`: the melted pool spreads over the dough beyond the box the lump sat in (centre-anchored, no layout change) */
+export function cheesePoolSpreadScale(melt: number): number {
+  const t = Math.min(1, Math.max(0, (melt - 0.3) / 0.7));
+  return 1 + CHEESE_POOL_MELT_SPREAD * t * t * (3 - 2 * t);
+}
+
+/** the smallest dough interior the game draws (CSS px; the compact RESULT dough is 196 across, less its border), used until the real size is measured, and as the floor of a measured one: a too-small reference only makes the reach larger, and a spare copy is clipped to its piece */
+const MIN_INNER_DOUGH_PX = 160;
+/** the dough's border (CSS px, `--dough-border-width`): the percent coordinates span the padding box inside it */
+const DOUGH_BORDER_PX = 10;
+
+/**
+ * #421 / Codex P2: the half-width of a fully melted pool in dough-percent (the unit of `placeTopping`'s reach): the canvas box half, spread to its melted
+ * scale, over the dough's own size. A cut that crosses the pool anywhere inside this must give the neighbouring piece its copy, or the part past the cut
+ * vanishes when the slices separate. `doughPx` is the rendered dough width (the canvas is a fixed pixel size, so the same pool is a larger share of a
+ * smaller dough, e.g. the compact RESULT layout); unmeasured (0) it falls back to the smallest dough. Rounded up.
+ */
+export function cheesePoolReachPercent(sizePx: number, doughPx = 0): number {
+  const inner = Math.max(MIN_INNER_DOUGH_PX, doughPx - DOUGH_BORDER_PX * 2);
+  return Math.ceil(((sizePx / 2) * (1 + CHEESE_POOL_MELT_SPREAD) * 100) / inner);
+}
+
 export interface CheesePoolCanvasProps {
   /** a stable id of the placed piece (its topping id), so a cut pizza's copies and every later frame show the same pool */
   seed: string;
@@ -138,7 +163,7 @@ export function CheesePoolCanvas({ seed, melt, toast, char, grid, sizePx, classN
       width={grid}
       height={grid}
       aria-hidden="true"
-      style={{ "--cheese-canvas-size": `${sizePx}px` } as CSSProperties}
+      style={{ "--cheese-canvas-size": `${sizePx}px`, ...(melt > 0.3 ? { transform: `scale(${cheesePoolSpreadScale(melt).toFixed(3)})` } : null) } as CSSProperties}
     />
   );
 }

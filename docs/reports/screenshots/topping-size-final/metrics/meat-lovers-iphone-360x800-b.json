@@ -1,0 +1,67 @@
+{
+ "pieces": [
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 81,
+   "h": 81,
+   "far": 0.83
+  },
+  {
+   "id": "mozzarella",
+   "cls": "l",
+   "w": 81,
+   "h": 81,
+   "far": 0.91
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 40.2,
+   "h": 39,
+   "far": 0.74
+  },
+  {
+   "id": "bacon",
+   "cls": "l",
+   "w": 40.2,
+   "h": 39,
+   "far": 0.74
+  },
+  {
+   "id": "ham",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.75
+  },
+  {
+   "id": "pepperoni",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.74
+  },
+  {
+   "id": "sausage",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.7
+  },
+  {
+   "id": "sausage",
+   "cls": "m",
+   "w": 34.9,
+   "h": 34,
+   "far": 0.21
+  }
+ ],
+ "overlaps": [
+  {
+   "a": "mozzarella",
+   "b": "mozzarella",
+   "frac": 0.17
+  }
+ ]
+}

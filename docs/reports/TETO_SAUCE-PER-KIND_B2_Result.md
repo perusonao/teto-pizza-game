@@ -35,3 +35,7 @@ directly, not committed.
 - **O4 overlap look:** alpha stacking (shipped) vs multiply (darker overlap; comparison screenshots only).
 - Deviations from the design doc: overflow markers are per kind (own colour) rather than pooled; a one-shot kind with no deposits has no
   layer; `ownerOf` exported from the B1 file.
+
+> **Superseded in part (PR #494, Owner Decision):** the layer order is no longer "first-use order per kind". Layers are chronological runs of consecutive same-kind strokes and later runs are painted over earlier ones; see `TETO_SAUCE-REMAINING-GAUGE_Phase2_Result.md`. Everything else here (single-source rendering byte-identical, per-kind colour/overflow, alpha stacking, O4 pending) stands.
+>
+> **O4 decided (PR #494, Owner):** alpha stacking is kept, and the upper layer is dimmed to ~0.7x opacity only where it overlaps (no multiply). See the Phase 2 Result, "Overlap dimming".

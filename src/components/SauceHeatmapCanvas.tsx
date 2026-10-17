@@ -1,7 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { SauceDepositLike } from "../logic/sauceField";
-import { buildSauceDisplayPixels, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
+import { alphaPlaneOf, buildSauceDisplayPixels, dimWhereOverlapping, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
 import type { DoughShape } from "../logic/doughShape";
+import { SauceDotsFallback } from "./SauceCanvasFallback";
+import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /** Internal pixel resolution of the rasterized heatmap -- purely a rendering detail (the
  *  browser's own image upscaler stretches this to whatever CSS size the caller's `className`
@@ -10,20 +12,6 @@ import type { DoughShape } from "../logic/doughShape";
  *  Kept as one shared constant so PizzaStage's live gesture heatmap and every static Reference
  *  view rasterize at the same fidelity. */
 const HEATMAP_CANVAS_PX = 200;
-
-/** One shared 64x64 staging surface: creating a canvas and an ImageData on every redraw cost more than the
- *  rasterizing itself (measured, Issue #475 Slice 1), and a redraw is synchronous, so instances can share it. */
-let stagingSurface: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; image: ImageData } | null = null;
-function getStagingSurface() {
-  if (stagingSurface) return stagingSurface;
-  const canvas = document.createElement("canvas");
-  canvas.width = SAUCE_DISPLAY_GRID;
-  canvas.height = SAUCE_DISPLAY_GRID;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  stagingSurface = { canvas, ctx, image: ctx.createImageData(SAUCE_DISPLAY_GRID, SAUCE_DISPLAY_GRID) };
-  return stagingSurface;
-}
 
 export interface SauceHeatmapCanvasProps {
   /** Deposits to render -- PizzaStage passes the live gesture's accumulated deposits;
@@ -40,6 +28,12 @@ export interface SauceHeatmapCanvasProps {
    *  (tray chip, flat legacy layer, paint trail) reads from `ingredients.ts`. */
   color: string;
   className?: string;
+  /**
+   * Layered painting (Owner Decision on PR #494): every deposit of the layers BELOW this one. Where this layer overlaps them its
+   * opacity is dimmed (about x0.7) so the sauce underneath shows through; elsewhere, and when absent or empty (a one-sauce pizza, the
+   * bottom layer, every Reference view), the raster is untouched.
+   */
+  underDeposits?: readonly SauceDepositLike[];
 }
 
 /**
@@ -57,42 +51,67 @@ export interface SauceHeatmapCanvasProps {
  * same one-way data flow `computeSauceMetrics` (../logic/sauceField.ts) already uses for
  * scoring, just rasterized instead of aggregated.
  */
-export function SauceHeatmapCanvas({ deposits, doughShape, color, className }: SauceHeatmapCanvasProps) {
+export function SauceHeatmapCanvas({ deposits, doughShape, color, className, underDeposits }: SauceHeatmapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // "How much sauce is already under this layer": colour-independent, so it is computed once per (under, dough shape) and not on every
+  // tick of the stroke in progress (which only changes `deposits`).
+  const underAlpha = useMemo(
+    () => (underDeposits && underDeposits.length > 0 ? alphaPlaneOf(buildSauceDisplayPixels(underDeposits, doughShape, "#000000")) : null),
+    [underDeposits, doughShape],
+  );
+
+  // A browser that refuses a 2D context after giving others one (canvas memory budget), or a draw that throws, must not leave this layer
+  // invisible -- and an exception out of an effect must not unmount the app. Either shows the layer's deposits as dots instead (sticky).
+  const [failed, markFailed] = useCanvasFailure();
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      // a platform with no 2D support at all (a test DOM) draws nothing, as it always has; only a refusal after a working probe is a failure
+      if (deposits.length > 0 && platformSupports2d()) markFailed();
+      return;
+    }
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (deposits.length === 0) return;
+    try {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (deposits.length === 0) return;
 
-    // Issue #475 Slice 1: the display density is built straight from the deposits (radially symmetric
-    // splats on a 64x64 grid, ../logic/sauceDisplay.ts) instead of from the 16x16 metrics field, whose
-    // square support showed as a staircase edge. Scoring still reads the 16x16 field, untouched.
-    const pixels = buildSauceDisplayPixels(deposits, doughShape, color);
-    if (!pixels.some((value, index) => index % 4 === 3 && value > 0)) return;
+      // Issue #475 Slice 1: the display density is built straight from the deposits (radially symmetric
+      // splats on a 64x64 grid, ../logic/sauceDisplay.ts) instead of from the 16x16 metrics field, whose
+      // square support showed as a staircase edge. Scoring still reads the 16x16 field, untouched.
+      const pixels = buildSauceDisplayPixels(deposits, doughShape, color);
+      if (!pixels.some((value, index) => index % 4 === 3 && value > 0)) return;
+      if (underAlpha) dimWhereOverlapping(pixels, underAlpha);
 
-    const staging = getStagingSurface();
-    if (!staging) return;
-    staging.image.data.set(pixels);
-    staging.ctx.putImageData(staging.image, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(
-      staging.canvas,
-      0,
-      0,
-      SAUCE_DISPLAY_GRID,
-      SAUCE_DISPLAY_GRID,
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    );
-  }, [deposits, doughShape, color]);
+      const staging = getStagingSurface();
+      if (!staging) {
+        // the 64x64 staging canvas is refused too (same exhaustion): the layer cannot be drawn, so it is shown as dots, not left blank
+        if (platformSupports2d()) markFailed();
+        return;
+      }
+      staging.image.data.set(pixels);
+      staging.ctx.putImageData(staging.image, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(
+        staging.canvas,
+        0,
+        0,
+        SAUCE_DISPLAY_GRID,
+        SAUCE_DISPLAY_GRID,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
+    } catch {
+      markFailed();
+    }
+  }, [deposits, doughShape, color, underAlpha, markFailed]);
 
+  if (failed) return <SauceDotsFallback runs={[{ deposits, color }]} className={className} />;
   return (
     <canvas
       ref={canvasRef}

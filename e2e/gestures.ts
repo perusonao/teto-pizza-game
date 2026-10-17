@@ -307,6 +307,19 @@ export async function cutThreeLines(page: Page) {
   }
 }
 
+/** One rim-to-rim cut through the dough's centre at `angleDeg` (the same drag `cutThreeLines` makes, at any angle). */
+export async function cutThroughCentre(page: Page, angleDeg: number) {
+  const { cx, cy, r } = await doughBox(page);
+  const angle = (angleDeg * Math.PI) / 180;
+  const dx = Math.cos(angle) * r;
+  const dy = Math.sin(angle) * r;
+  await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
+  await page.mouse.move(cx - dx, cy - dy);
+  await page.mouse.down();
+  await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
+  await page.mouse.up();
+}
+
 /** HOME -> Pizza Select -> margherita -> PREPARE (a guided round).
  *
  * Progression 2.0 W1 I5b-5a / Discovery 2.0: a guided round starts only from a DISCOVERED recipe
@@ -315,7 +328,7 @@ export async function cutThreeLines(page: Page) {
  * `reload()` below, so the seed survives it. Dedicated onboarding coverage (first discovery,
  * Lunch Rush lock) lives in `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this
  * helper. */
-export async function startFreshMargherita(page: Page) {
+export async function startFreshMargherita(page: Page, query = "") {
   await page.addInitScript(() => {
     localStorage.setItem(
       "teto-pizza-save-v1",
@@ -328,7 +341,7 @@ export async function startFreshMargherita(page: Page) {
       }),
     );
   });
-  await page.goto("/");
+  await page.goto(`/${query}`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -490,7 +503,7 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
  * capricciosa's own `requiredIngredients` beyond the two Starter ones (tomato-sauce/mozzarella,
  * always owned): mushroom/oregano/ham/black-olive.
  */
-export async function startCapricciosaUnlocked(page: Page) {
+export async function startCapricciosaUnlocked(page: Page, query = "") {
   const chain = [
     "margherita",
     "funghi",
@@ -527,7 +540,7 @@ export async function startCapricciosaUnlocked(page: Page) {
   await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.goto("/");
+  await page.goto(`/${query}`);
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /カプリチョーザ、/ }).click();
