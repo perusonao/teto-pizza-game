@@ -90,9 +90,11 @@ Cross-cutting: every UI slice gets Playwright specs at 390×844 and 360×800 on 
 
 ## 8. Owner questions (need answers before A can be locked)
 
+> **Superseded (2026-10-17):** Q1–Q6 were answered by Owner decisions D1–D7 and O-1…O-7 (see `TETO_SQUARE-DOUGH_Design-Lock-Addendum.md` rev.3); the recommendations written below, notably Q2, are the earlier proposals and are not the adopted design. Q7 (Design Lock §8) stays open.
+
 1. **Q1 Scope of "square"**: grandma-pizza only, or a reusable `panShape` for later recipes (Detroit, Sicilian, sheet-pan)? Recommendation: reusable field, grandma only for now.
 2. **Q2 Anti-Oracle**: in Free Cooking / Research, does the square pan appear from the start (reveals "a sheet-pan recipe exists") or only once the recipe is discovered/selected? Recommendation: pan chosen as a *recipe-select-time fact only for known recipes*; hidden shape in discovery until Dex entry exists.
-3. **Q3 Round fallback for non-owners**: until A–D ship, should S3 stay unmerged (recommendation) rather than shipping a round grandma?
+3. **Q3 Round fallback for non-owners**: until A–D **and F (#538)** ship, should S3 stay unmerged (recommendation) rather than shipping a round grandma?
 4. **Q4 Thickness**: is thickness evenness a scored quantity (affects score/stars) or a visual-only readiness aid? Recommendation: gate completion only; no new scoring in this epic (no Scoring 2.0 change).
 5. **Q5 Corner tolerance**: accept "≥85% of the way to each corner, with assist" as the starting value?
 6. **Q6 Pan RESULT look**: pan visible at RESULT, or pizza only?
