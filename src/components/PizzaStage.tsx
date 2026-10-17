@@ -1349,9 +1349,6 @@ export function PizzaStage({
           </span>
         );
       })}
-      {postToppingsFor(piece).map(({ t, half }) => (
-        <PostBakePiece key={t.id} topping={t} half={half} rankScale={activeToppingRankScale(t.ingredientId)} />
-      ))}
       {piece === undefined && placement?.status === "rejected" && (
         <span
           key={placement.token}
@@ -1374,6 +1371,17 @@ export function PizzaStage({
         </>
       )}
       {bakeProgress !== null && <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />}
+      {/* FINISH D2-1: after the bake overlays and char spots (siblings, no z-index: later paints on top), so their translucent
+          raw / burnt tint never covers a piece that went on after the oven. */}
+      {postToppingsFor(piece).map(({ t, half }) => (
+        <PostBakePiece
+          key={t.id}
+          topping={t}
+          half={half}
+          rankScale={activeToppingRankScale(t.ingredientId)}
+          phaseScale={toppingPhaseScale(t.ingredientId, resultCompact)}
+        />
+      ))}
       {piece === undefined && renderBakeEffects()}
 
     </>

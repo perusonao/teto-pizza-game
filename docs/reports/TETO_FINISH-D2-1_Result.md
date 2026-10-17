@@ -10,6 +10,12 @@ main `f76cc07`（P1-0 = #516 merge 後）。Owner 方針: モッツァレラ Can
 | `src/components/PizzaStage.tsx` | `partitionPiecesByBakeClass`（D2-0）で焼成前/後乗せを分け、従来の `toppingsFor` は焼成前だけを対象に。後乗せは `postToppingsFor` → `PostBakePiece`。カット時の「全体が属する piece + 隣へはみ出した部分（half）」の判定は共通（`piecesIn`） |
 | テスト | `PizzaStage.postBakePiece.test.tsx`（新規 5 件）。`pieceRankScale.test.tsx`（on-pizza ラッパーの許可リストに `PostBakePiece.tsx` を追加）、`finishD2Inert.test.ts`（`pieceBakeClass` の利用者を PizzaStage に限定。他の D2-0 ヘルパーは引き続き未使用を検証） |
 
+## レビュー対応（Codex P2 × 2）
+
+- 後乗せ piece を `pizza-bake-overlay` / `pizza-char-spots` の**後ろ**に描画（これらは z-index なしの兄弟要素で DOM 順で重なるため、前に置くと半透明の焼き色が後乗せに被さっていた）。
+- RESULT の縮尺 `--piece-phase-scale`（#514/#515）を `PostBakePiece` に渡す（`toppingPhaseScale` と同じ関数。カット判定の footprint は既にこの縮尺を使っており、描画との食い違いも解消）。RESULT 以外では焼成前 piece と同様に変数を付けない。
+- テスト 2 件を追加（修正前のコードでは失敗することを確認済み）。
+
 ## 変更していないもの
 
 `CheesePoolCanvas` と Canvas モッツァレラの分岐、`cheeseStyle` / `cheesePieceStyle` 相当の焼成前の描画ブロック、`bakeVisual.ts`、`App.css`、`GameScreen`、tray、reducer、`RECIPES`、`cookingProfiles`。#468・#478・#503・#515 には触れていない。

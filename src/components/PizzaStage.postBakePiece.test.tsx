@@ -137,6 +137,31 @@ describe("PizzaStage post-bake pieces (FINISH D2-1)", () => {
     expect(sliced.container.querySelectorAll('.pizza-topping-half[data-topping-stage="post"]').length).toBeGreaterThan(0);
   });
 
+  it("is painted after the bake overlays and char spots, so a raw / burnt tint never covers it", () => {
+    for (const lines of [[], [through(0)]]) {
+      const { container } = render(stage(withPostPiece(state), lines, "CUT"));
+      const follows = (el: Element, post: Element) => Boolean(el.compareDocumentPosition(post) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const post = container.querySelector('.pizza-topping[data-topping-stage="post"]')!;
+      const body = post.parentElement!;
+      for (const layer of body.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
+      expect(body.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
+      cleanup();
+    }
+  });
+
+  it("RESULT scale: a post piece gets the same --piece-phase-scale as a pre-bake piece of its ingredient", () => {
+    const { container } = render(stage(withPostPiece(state), [], null as unknown as GameState["makingStep"], true));
+    const phase = (el: Element) => (el as HTMLElement).style.getPropertyValue("--piece-phase-scale");
+    const pre = container.querySelector('.pizza-topping--basil:not([data-topping-stage])')!;
+    const post = container.querySelector('.pizza-topping[data-topping-stage="post"]')!;
+    expect(phase(pre)).toBe("0.75");
+    expect(phase(post)).toBe(phase(pre));
+    cleanup();
+    // outside RESULT no variable is set, as on a pre-bake piece
+    const cut = render(stage(withPostPiece(state), [], "CUT"));
+    expect(phase(cut.container.querySelector('.pizza-topping[data-topping-stage="post"]')!)).toBe("");
+  });
+
   it("RESULT (no making step) draws it too", () => {
     const { container } = render(stage(withPostPiece(state), [through(0)], null as unknown as GameState["makingStep"], true));
     expect(container.querySelectorAll('[data-topping-stage="post"]').length).toBeGreaterThan(0);
