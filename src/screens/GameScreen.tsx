@@ -12,6 +12,7 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
+import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { withFreeCookBakeWindow } from "../logic/discovery/freeCook";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { TrialNotebookSheet } from "../components/TrialNotebookSheet";
@@ -506,10 +507,12 @@ export function GameScreen({
         })()
       : null;
 
-  // #469 (Owner D2) / #481: the 5-level label is guided-only (FREE keeps the 3-level badge).
+  // #520 (Owner, supersedes #469 D2 / #481 item 2): the 5-level label is shown for FREE Cooking too. FREE is judged -- and its gauge drawn --
+  // by the one generic window (`FREE_COOK_BAKE_TARGET`, #482), although a matched pizza carries the matched recipe in `state.recipe`; so
+  // the level reads the window the player saw. Display only: scoring, stars, Pitz, the Completion Gate and saves are untouched.
   const resultBakeLevel5 =
-    !state.freeCook && state.pizza.bakeResult !== null
-      ? classifyBake5(state.pizza.bakeResult, state.recipe.bakeTarget)
+    state.pizza.bakeResult !== null
+      ? classifyBake5(state.pizza.bakeResult, state.freeCook ? FREE_COOK_BAKE_TARGET : state.recipe.bakeTarget)
       : null;
 
   const resultHeadingJa =
@@ -1018,8 +1021,8 @@ export function GameScreen({
         <BakeOverlay
           targetStart={state.recipe.bakeTarget.start}
           targetEnd={state.recipe.bakeTarget.end}
-          // #481 (Owner): the JUST band is shown for guided-style rounds only; FREE Cooking has no 5-level result.
-          showJustBand={!state.freeCook}
+          // #481 / #520 (Owner): the JUST band is drawn in every round kind, FREE Cooking included (its window is the generic one).
+          showJustBand
           onConfirm={onConfirmBake}
           onTick={onBakeTick}
         />
@@ -1057,9 +1060,7 @@ export function GameScreen({
           completion={state.completion}
           score={state.score}
           bakeState={state.bakeState}
-          // #469 (Owner D2): FREE Cooking keeps the 3-level badge. The BAKE gauge shows the generic FREE window, but a
-          // matched pizza is judged (and `state.recipe` is replaced) with the matched recipe's own window, so a 5-level
-          // label would disagree with the gauge the player aimed at. Guided / Lunch Rush / Dinner use the window shown.
+          // #469 / #520: 5-level in every round kind. FREE reads the generic window its gauge showed (see `resultBakeLevel5`), not the matched recipe's.
           bakeLevel5={resultBakeLevel5}
           sauceScore={
             state.scoringV2Result?.components.sauce.available
