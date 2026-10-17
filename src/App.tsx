@@ -3,6 +3,7 @@ import { HomeScreen } from "./screens/HomeScreen";
 import { PizzaSelectScreen } from "./screens/PizzaSelectScreen";
 import { DinnerMissionScreen } from "./screens/DinnerMissionScreen";
 import { PreviewBadge } from "./components/PreviewBadge";
+import { SauceDiag } from "./devtools/SauceDiag";
 import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
@@ -1126,6 +1127,9 @@ function App() {
   return (
     <div className="app-frame">
       <PreviewBadge />
+      {(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && screen === "GAME" && (
+        <SauceDiag facts={{ sauceIds: state.pizza.sauceIds, deposits: state.pizza.sauceDeposits }} />
+      )}
       {screen === "HOME" && (
         <HomeScreen
           pitzBalance={state.pitzBalance}

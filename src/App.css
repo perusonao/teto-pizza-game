@@ -5389,7 +5389,7 @@
 }
 
 .prepare-dock .sauce-metrics-panel__player-row {
-  min-height: 24px;
+  min-height: 32px;
 }
 
 .sauce-metrics-panel__live-row {
@@ -6192,7 +6192,7 @@ p.hint-sheet__step {
   transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
+  min-height: 32px;
   padding: 0 12px;
   box-sizing: border-box;
   border-radius: 999px;
@@ -7488,4 +7488,43 @@ p.hint-sheet__step {
 
 .sauce-remaining-gauge[data-empty="true"]:not([data-limit="total"]) {
   opacity: 0.6;
+}
+
+/* ---------- Sauce diagnostic (Issue #524 Owner HV; Preview / DEV only, see devtools/SauceDiag.tsx) ---------- */
+.sauce-diag {
+  position: fixed;
+  left: 6px;
+  right: 6px;
+  top: 65%;
+  z-index: 998;
+  pointer-events: none;
+}
+.sauce-diag__bar {
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+.sauce-diag__btn {
+  pointer-events: auto;
+  font: 700 12px/1 system-ui, sans-serif;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 249, 236, 0.6);
+  color: #fff9ec;
+  background: rgba(43, 26, 10, 0.85);
+}
+.sauce-diag__log {
+  margin: 2px 0 0;
+  padding: 2px 4px;
+  max-height: 11.5vh;
+  overflow: hidden;
+  font: 8.5px/10.5px ui-monospace, monospace;
+  color: #8f8;
+  background: rgba(0, 0, 0, 0.78);
+  border-radius: 4px;
+  white-space: pre;
+}
+.sauce-diag__log:empty {
+  display: none;
 }

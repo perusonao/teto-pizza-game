@@ -29,6 +29,7 @@ describe("DEV State Editor access (source)", () => {
       "IngredientsPanel.tsx",
       "NumberField.tsx",
       "ReviewPanel.tsx",
+      "SauceDiag.tsx",
       "StateEditor.tsx",
       "StateEditorShell.tsx",
       "apply.ts",
@@ -38,6 +39,7 @@ describe("DEV State Editor access (source)", () => {
       "marks.ts",
       "memoryStorage.ts",
       "presets.ts",
+      "sauceDiagRead.ts",
       "saveMerge.ts",
       "starStates.ts",
       "stateModel.ts",
@@ -48,6 +50,7 @@ describe("DEV State Editor access (source)", () => {
     for (const [file, text] of Object.entries(all)) {
       if (inDevtools(file) || file === "../main.tsx") continue;
       if (file === "../components/SettingsOverlay.tsx") continue; // checked by the next test
+      if (file === "../App.tsx") continue; // the sauce diagnostic mount, checked by its own test below
       expect(text, file).not.toMatch(/devtools\/|dev=state|dev-state-editor|dev-backup-v1|DEV State Editor|StateEditorShell/);
     }
   });
@@ -58,6 +61,14 @@ describe("DEV State Editor access (source)", () => {
     expect(settings).toMatch(/\(import\.meta\.env\.DEV \|\| import\.meta\.env\.VITE_PREVIEW_MODE\) && <DevEditorLink \/>/);
     expect((settings.match(/DevEditorLink/g) ?? []).length).toBe(2 + 1); // import name, import path, usage
     expect(settings).not.toMatch(/dev=state|StateEditor/);
+  });
+
+  it("App.tsx mounts the sauce diagnostic only behind the DEV / Preview env check, on the cooking screen, passing it plain data (no dispatch)", () => {
+    const app = all["../App.tsx"];
+    expect(app).toMatch(/import \{ SauceDiag \} from "\.\/devtools\/SauceDiag";/);
+    expect(app).toMatch(/\(import\.meta\.env\.DEV \|\| import\.meta\.env\.VITE_PREVIEW_MODE\) && screen === "GAME" && \(\s*<SauceDiag facts=\{\{ sauceIds: state\.pizza\.sauceIds, deposits: state\.pizza\.sauceDeposits \}\} \/>/);
+    expect((app.match(/SauceDiag/g) ?? []).length).toBe(2 + 1); // import name, import path, usage
+    expect(app).not.toMatch(/devtools\/(?!SauceDiag")/);
   });
 
   it("main.tsx reaches it only behind the DEV / Preview env check, through a dynamic import, and never seeds on it", () => {

@@ -2,7 +2,7 @@
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
-import { DEV_SETTINGS_LINK_LABEL, DEV_SETTINGS_SECTION_TITLE, DEV_STATE_EDITOR_QUERY, DEV_BACKUP_KEY_SUFFIX, DEV_EDITOR_BACKUP_TITLE, DEV_EDITOR_REVIEW_TITLE, DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "../devtools/marks";
+import { SAUCE_DIAG_MARK, SAUCE_DIAG_TITLE, DEV_SETTINGS_LINK_LABEL, DEV_SETTINGS_SECTION_TITLE, DEV_STATE_EDITOR_QUERY, DEV_BACKUP_KEY_SUFFIX, DEV_EDITOR_BACKUP_TITLE, DEV_EDITOR_REVIEW_TITLE, DEV_STATE_EDITOR_MARK, DEV_STATE_EDITOR_TITLE } from "../devtools/marks";
 import { PRESETS, STAR_PRESETS } from "../devtools/presets";
 import { HV_SCENARIOS } from "./hvSeeds";
 
@@ -56,6 +56,10 @@ const PREVIEW_ONLY_STRINGS = [
   DEV_SETTINGS_SECTION_TITLE,
   DEV_SETTINGS_LINK_LABEL,
   DEV_STATE_EDITOR_QUERY,
+  // Issue #524 Owner HV: the DEV / Preview-only sauce diagnostic button (src/devtools/SauceDiag.tsx): its mark, title and test ids.
+  SAUCE_DIAG_MARK,
+  SAUCE_DIAG_TITLE,
+  "sauce-diag-log",
   ...PRESETS.map((p) => p.labelJa),
   // Issue #441: a fixed phrase of the star-state presets' description (their ids / labels are derived at run time, so
   // they are never bundle literals: the production-only check below covers them).

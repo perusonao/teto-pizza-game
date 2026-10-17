@@ -22,3 +22,7 @@ export const DEV_EDITOR_BACKUP_TITLE = "DEV backup / restore";
 export const DEV_SETTINGS_SECTION_TITLE = "開発・テスト";
 export const DEV_SETTINGS_LINK_LABEL = "開発用データ編集";
 export const DEV_STATE_EDITOR_QUERY = "?dev=state";
+
+/** Sauce diagnostic button (Issue #524 Owner HV): Preview / DEV only, read-only (./SauceDiag.tsx, ./sauceDiagRead.ts). The production-bundle gate scans for these. */
+export const SAUCE_DIAG_MARK = "sauce-diag-v1";
+export const SAUCE_DIAG_TITLE = "ソース診断(DEV)";
