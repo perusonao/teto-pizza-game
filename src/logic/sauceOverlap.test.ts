@@ -5,7 +5,9 @@ import {
   buildSauceDisplayPixels,
   dimWhereOverlapping,
   SAUCE_DISPLAY_GRID,
+  SAUCE_OIL_OVERLAP_ALPHA_FACTOR,
   SAUCE_OVERLAP_ALPHA_FACTOR,
+  overlapAlphaFactorFor,
 } from "./sauceDisplay";
 import { SAUCE_ALPHA_CAP, type SauceDepositLike } from "./sauceField";
 
@@ -121,5 +123,52 @@ describe("overlap dimming of a later sauce layer (Owner Decision, PR #494)", () 
     dimWhereOverlapping(copy, full);
     const at = px(48, 50);
     expect(copy[at + 3]).toBe(Math.round(pixels[at + 3] * SAUCE_OVERLAP_ALPHA_FACTOR));
+  });
+});
+
+/** Issue #519 / #521 S1: olive oil laid over another sauce is dimmed harder (the oil CSS filter makes it read as having replaced the sauce below). */
+describe("olive oil over another sauce (#519)", () => {
+  const under = band(25, 40);
+  const upper = band(25, 80);
+  const overlapAt = px(32, 50);
+  const clearAt = px(72, 50);
+  const dimmedBy = (factor: number) => {
+    const plain = buildSauceDisplayPixels(upper, shape, OIL);
+    const dimmed = layer(upper, OIL, under);
+    const withFactor = new Uint8ClampedArray(plain);
+    dimWhereOverlapping(withFactor, alphaPlaneOf(buildSauceDisplayPixels(under, shape, "#000000")), factor);
+    return { plain, dimmed, withFactor };
+  };
+
+  it("the factor depends on the sauce kind: oil is stronger than the generic 0.7, everything else keeps 0.7", () => {
+    expect(SAUCE_OIL_OVERLAP_ALPHA_FACTOR).toBeLessThan(SAUCE_OVERLAP_ALPHA_FACTOR);
+    expect(SAUCE_OIL_OVERLAP_ALPHA_FACTOR).toBeGreaterThan(0.1); // the oil is dimmed, never wiped out
+    expect(overlapAlphaFactorFor("olive-oil")).toBe(SAUCE_OIL_OVERLAP_ALPHA_FACTOR);
+    for (const kind of ["tomato-sauce", "pesto", undefined, ""]) expect(overlapAlphaFactorFor(kind)).toBe(SAUCE_OVERLAP_ALPHA_FACTOR);
+  });
+
+  it("an oil run over a sauce takes the oil factor where it overlaps and is untouched where it does not", () => {
+    const plain = buildSauceDisplayPixels(upper, shape, OIL);
+    const withOil = new Uint8ClampedArray(plain);
+    dimWhereOverlapping(withOil, alphaPlaneOf(buildSauceDisplayPixels(under, shape, "#000000")), overlapAlphaFactorFor("olive-oil"));
+    expect(withOil[overlapAt + 3] / plain[overlapAt + 3]).toBeCloseTo(SAUCE_OIL_OVERLAP_ALPHA_FACTOR, 1);
+    expect(withOil[clearAt + 3]).toBe(plain[clearAt + 3]); // beyond the sauce below: byte-identical
+    const generic = dimmedBy(SAUCE_OVERLAP_ALPHA_FACTOR).withFactor;
+    expect(withOil[overlapAt + 3]).toBeLessThan(generic[overlapAt + 3]);
+  });
+
+  it("the sauce below shows through the oil: the composite at the overlap stays red, where the generic factor let the oil cover it", () => {
+    const tomato = layer(under, TOMATO, []);
+    const withGeneric = composite([tomato, dimmedBy(SAUCE_OVERLAP_ALPHA_FACTOR).withFactor], overlapAt);
+    const oilLayer = new Uint8ClampedArray(buildSauceDisplayPixels(upper, shape, OIL));
+    dimWhereOverlapping(oilLayer, alphaPlaneOf(buildSauceDisplayPixels(under, shape, "#000000")), overlapAlphaFactorFor("olive-oil"));
+    const withOil = composite([tomato, oilLayer], overlapAt);
+    expect(withOil[0] - withOil[1]).toBeGreaterThan(withGeneric[0] - withGeneric[1]);
+  });
+
+  it("oil as the BOTTOM layer (nothing under it) is never dimmed, whatever its kind-factor", () => {
+    const plain = buildSauceDisplayPixels(under, shape, OIL);
+    const bottom = layer(under, OIL, []);
+    expect([...bottom]).toEqual([...plain]);
   });
 });

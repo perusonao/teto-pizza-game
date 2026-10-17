@@ -7,12 +7,13 @@ import {
   buildSauceDisplayPixels,
   compositeOver,
   dimWhereOverlapping,
+  overlapAlphaFactorFor,
   SAUCE_DISPLAY_GRID,
 } from "../logic/sauceDisplay";
 import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
 import type { SauceLayer } from "../state/sauceLayers";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
-import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
+import { overlapFallbackOf, platformSupports2d, useCanvasFailure, useStagingSurface } from "./sauceCanvasSupport";
 
 /**
  * Codex P2 on PR #494 (canvas budget): the OLDEST sauce runs of a long pizza are flattened into shared canvases instead of one canvas
@@ -37,7 +38,7 @@ function runRaster(run: SauceLayer, shape: DoughShape, color: string, baked: boo
   let entry = rasterOfRun.get(run);
   if (!entry || entry.shape !== shape || entry.color !== color) {
     const plain = buildSauceDisplayPixels(run.deposits, shape, color);
-    if (run.under.length > 0) dimWhereOverlapping(plain, alphaPlaneOf(buildSauceDisplayPixels(run.under, shape, "#000000")));
+    if (run.under.length > 0) dimWhereOverlapping(plain, alphaPlaneOf(buildSauceDisplayPixels(run.under, shape, "#000000")), overlapAlphaFactorFor(run.ingredientId));
     entry = { shape, color, plain, baked: null };
     rasterOfRun.set(run, entry);
   }
@@ -64,6 +65,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
   // a change of `bakedOil` (an oil-only group that became mixed): its oil runs were stacked as plain pixels and must be rebuilt
   const stacked = useRef<{ runs: readonly SauceLayer[]; shape: DoughShape; bakedOil: boolean; pixels: Uint8ClampedArray } | null>(null);
   const [failed, markFailed] = useCanvasFailure();
+  const stagingOf = useStagingSurface(); // this canvas's own 64x64 staging surface (never shared, see sauceCanvasSupport.ts)
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,7 +92,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
       stacked.current = { runs: [...runs], shape: doughShape, bakedOil, pixels };
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const staging = getStagingSurface();
+      const staging = stagingOf();
       if (!staging) {
         if (platformSupports2d()) markFailed();
         return;
@@ -108,7 +110,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
   }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
 
   if (failed) {
-    return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId) }))} className={className} />;
+    return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, overlap: overlapFallbackOf(run.ingredientId, run.under), color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId) }))} className={className} />;
   }
   return <canvas ref={canvasRef} className={className} width={MERGED_CANVAS_PX} height={MERGED_CANVAS_PX} aria-hidden="true" />;
 }
