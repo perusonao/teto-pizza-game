@@ -176,6 +176,12 @@ function StepRow({ step, open, onToggle }: { step: InspectorStep; open: boolean;
   );
 }
 
+/** A contiguous run of steps reads "12〜53" (a non-credit recipe stays in every later pool, so its list would otherwise fill the summary); anything else is listed. */
+function stepRange(steps: readonly number[]): string {
+  const contiguous = steps.length > 2 && steps.every((n, i) => i === 0 || n === steps[i - 1] + 1);
+  return contiguous ? `${steps[0]}〜${steps[steps.length - 1]}` : steps.join(", ");
+}
+
 function Summary({ model }: { model: InspectorModel }) {
   return (
     <section className="dpi__summary-box" aria-label="summary">
@@ -192,7 +198,7 @@ function Summary({ model }: { model: InspectorModel }) {
       </p>
       {model.nonCreditRecipes.map((r) => (
         <p key={r.recipeId} data-testid={`dpi-noncredit-${r.recipeId}`}>
-          ladderCredit:false <b>{r.nameJa}</b> <code>{r.recipeId}</code>: step {r.firstDiscoverableStep ?? "—"} からpoolに入り、未発見の間 step {r.poolSteps.join(", ")} のpoolに残る。発見してもladder
+          ladderCredit:false <b>{r.nameJa}</b> <code>{r.recipeId}</code>: step {r.firstDiscoverableStep ?? "—"} からpoolに入り、未発見の間 step {stepRange(r.poolSteps)} のpoolに残る。発見してもladder
           countは進まず、step1–{model.stepCount}の解禁はこのrecipeに依存しない。lunchRush: {String(r.lunchRush)}
         </p>
       ))}

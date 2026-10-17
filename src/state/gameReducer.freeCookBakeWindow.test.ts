@@ -5,6 +5,7 @@ import { RECIPES, type RecipeId } from "../data/recipes";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { classifyBake } from "../logic/bake";
 import { bakeCompletionFailure } from "../logic/completionGate";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
@@ -23,7 +24,7 @@ function idealPizzaFor(recipeId: RecipeId, bakeResult: number): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return {
     ...createEmptyPizza(),
-    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+    sauceIds: requiredSauceIds(recipeId),
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({ id: `${recipeId}-${gi}-${i}`, ingredientId: group.ingredientId, ...p })),

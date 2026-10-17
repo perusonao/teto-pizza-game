@@ -111,7 +111,7 @@ function pizzaOf(ids: readonly string[]): PizzaState {
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** The P-C total of a target's whole ladder. Round 6: every rung is charged except a RESERVED (empty

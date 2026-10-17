@@ -149,14 +149,16 @@ export function buildHvSnapshot(scenario: HvScenario): ProgressionSnapshot {
   // further registered Research Entries beside the scenario's recipe, which would make the seed a "2+ entries, no
   // target" save (the sheet then asks to choose). These seeds stand for ONE hint target, so both are already found.
   // The pool seed (`noTarget`) and the seeds at or before that step are left as they were.
+  // Multi-Sauce S3: from the garlic step (marinara's) on, the non-credit grandma-pizza is a further registered entry, so it is found too.
   const onionIndex = steps.findIndex((step) => step.keyRecipeId === "pizza-portuguesa");
+  const garlicIndex = steps.findIndex((step) => step.keyRecipeId === "marinara");
   const NON_CREDIT_ONION_RECIPES = ["brazilian-calabresa", "aussie"];
   const companion =
     !scenario.noTarget && !scenario.dexAfterLadder && onionIndex >= 0 && index > onionIndex
-      ? NON_CREDIT_ONION_RECIPES
-      : // a seed that stands for brazilian-calabresa itself keeps only aussie found, so calabresa is the lone target
+      ? [...NON_CREDIT_ONION_RECIPES, ...(index >= garlicIndex ? ["grandma-pizza"] : [])]
+      : // a seed that stands for brazilian-calabresa itself keeps only aussie (and grandma-pizza) found, so calabresa is the lone target
         scenario.dexAfterLadder
-        ? ["aussie"]
+        ? ["aussie", "grandma-pizza"]
         : [];
   const dex: DexEntry[] = ["margherita", ...steps.slice(0, index).map((step) => step.keyRecipeId), ...companion].map((recipeId) => ({
     recipeId,

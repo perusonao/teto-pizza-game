@@ -3545,6 +3545,47 @@ export const NEW_ZEALAND_LAMB_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Multi-Sauce S3 (#521): Reference Truth for `grandma-pizza` (two required sauces). `sauce` is the PRIMARY tomato-sauce target only (RECIPE_SAUCE_PROFILES); the olive-oil is a presence-only
+ * secondary sauce and is neither a piece nor a Reference target. Pieces (mozzarella 3 / garlic 2 = 5) take the RT-01 8-piece ring consecutively in `requiredIngredients` order.
+ * Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const GRANDMA_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "grandma-pizza",
+  sauce: computeMechanicalSauceReference("grandma-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -3603,6 +3644,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [SPINACH_ARTICHOKE_PIZZA_REFERENCE.recipeId, SPINACH_ARTICHOKE_PIZZA_REFERENCE],
   [EGGPLANT_RICOTTA_PIZZA_REFERENCE.recipeId, EGGPLANT_RICOTTA_PIZZA_REFERENCE],
   [NEW_ZEALAND_LAMB_PIZZA_REFERENCE.recipeId, NEW_ZEALAND_LAMB_PIZZA_REFERENCE],
+  [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

@@ -70,8 +70,10 @@ describe("validator catches", () => {
 
   it("a new recipe that joins an existing single-member Research cohort (the existing recipe would gain a letter)", () => {
     // The tail recipe re-authored to unlock on garlic joins marinara's cohort (garlic is its last finite material).
-    const joiner = { ...last, requiredIngredients: [{ ingredientId: "tomato-sauce", minCount: 1 }, { ingredientId: "mozzarella", minCount: 1 }, { ingredientId: "garlic", minCount: 1 }] };
-    const v = withRecipes([...RECIPES.slice(0, -1), joiner]);
+    // (The final recipe is grandma-pizza, a `followedBy` tail recipe outside the batch's identity check, so the batch's own last recipe is re-authored.)
+    const batchLast = RECIPES.find((r) => r.id === "new-zealand-lamb-pizza")!;
+    const joiner = { ...batchLast, requiredIngredients: [{ ingredientId: "tomato-sauce", minCount: 1 }, { ingredientId: "mozzarella", minCount: 1 }, { ingredientId: "garlic", minCount: 1 }] };
+    const v = withRecipes(RECIPES.map((r) => (r.id === joiner.id ? joiner : r)));
     const landed = NEXT_RECIPE_BATCH;
     expect(validateBatchManifest(landed, v).some((p) => p.startsWith("COHORT_LETTER_SHIFT"))).toBe(true);
   });

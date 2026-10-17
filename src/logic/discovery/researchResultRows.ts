@@ -9,8 +9,8 @@
  *   and topping are one list; the category only decides which row group and cap an ingredient belongs to.
  * - **Category order**: sauce -> cheese -> topping. **Within a category: the player's own placement order**
  *   (first appearance, distinct). Never the canonical recipe order, an id sort or the catalog order.
- * - **Sauce / cheese**: every used, not-yet-known ingredient is judged (no cap, OD-RB-12). Production puts exactly one
- *   sauce on a pizza, but nothing here assumes that: the sauce list is simply read as given.
+ * - **Sauce / cheese**: every used, not-yet-known ingredient is judged (no cap, OD-RB-12). Production puts one
+ *   sauce on most pizzas (two on grandma-pizza, Multi-Sauce S3), but nothing here assumes that: the sauce list is simply read as given.
  * - **Topping**: distinct used toppings that are not known are "unknown". At most `RESEARCH_TOPPING_CAP` (K = 3) are
  *   judged; with 4 or more NO individual topping row is returned and `toppingOverCap` is set (the copy is S5).
  *   Known toppings are neither rows nor counted toward K.

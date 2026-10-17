@@ -29,7 +29,7 @@ const play = (step: number, also: readonly string[] = []) => ({
 });
 /** The two non-credit step-12 recipes (TQ-1D: aussie) closed, as a player past step 12 has them. */
 const settled = (step: number, also: readonly string[] = []) =>
-  play(step, [...(step > 12 ? ["brazilian-calabresa", "aussie"] : []), ...also]);
+  play(step, [...(step > 12 ? ["brazilian-calabresa", "aussie"] : []), ...(step >= 14 ? ["grandma-pizza"] : []), ...also]);
 /** recipeId -> label of every current entry. */
 const labels = (i: ReturnType<typeof play>): Record<string, string> =>
   Object.fromEntries(researchEntryViews(i).map((v) => [v.recipeId, v.label]));
@@ -37,6 +37,15 @@ const labels = (i: ReturnType<typeof play>): Record<string, string> =>
 const reload = (i: ReturnType<typeof play>) => ({
   dex: JSON.parse(JSON.stringify(i.dex)) as DexState,
   ownedIngredientIds: JSON.parse(JSON.stringify(i.ownedIngredientIds)) as string[],
+});
+
+describe("step 14 (Multi-Sauce S3): marinara and the non-credit grandma-pizza share the garlic cohort", () => {
+  it("they read A / B (marinara gains a letter, as pizza-portuguesa / calabresa did at step 12); the letter is stable once grandma-pizza is found", () => {
+    const both = labels(play(14, ["brazilian-calabresa", "aussie"]));
+    expect(Object.keys(both).sort()).toEqual(["grandma-pizza", "marinara"]);
+    expect(Object.values(both).sort()).toEqual(["？？？ピザ A（にんにく）", "？？？ピザ B（にんにく）"]);
+    expect(labels(play(14, ["brazilian-calabresa", "aussie", "grandma-pizza"]))).toEqual({ marinara: both["marinara"] }); // stable identity: a found sibling never relabels the other
+  });
 });
 
 describe("researchLetter (spreadsheet style)", () => {
