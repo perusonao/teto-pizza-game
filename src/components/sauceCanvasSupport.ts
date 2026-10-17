@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
-import { overlapAlphaFactorFor, SAUCE_DISPLAY_GRID, SAUCE_OVERLAP_ALPHA_FACTOR } from "../logic/sauceDisplay";
+import { bakeOilHex, overlapAlphaFactorFor, SAUCE_DISPLAY_GRID, SAUCE_OVERLAP_ALPHA_FACTOR } from "../logic/sauceDisplay";
 import type { SauceDepositLike } from "../logic/sauceField";
+import type { SauceLayer } from "../state/sauceLayers";
 import { canvas2dAvailable } from "./CheesePoolCanvas";
 
 /** One shared 64x64 staging surface: creating a canvas and an ImageData on every redraw cost more than the
@@ -56,4 +57,17 @@ export function overlapFallbackOf(ingredientId: string | undefined, under: reado
   const factor = overlapAlphaFactorFor(ingredientId);
   if (factor === SAUCE_OVERLAP_ALPHA_FACTOR || !under || under.length === 0) return undefined;
   return { under, factor };
+}
+
+/**
+ * The dot-fallback runs for a layered (two or more sauce kinds) pizza whose layers failed to render (`SauceLayersBoundary`). That fallback is a plain
+ * box with no oil CSS filter, so an olive-oil dot would stay the raw pale swatch and vanish over the sauce below: it gets the baked oil colour (the same
+ * transform the flattened canvases use) plus the oil overlap dimming. Other sauces keep their own colour. (Codex P2 on PR #524.)
+ */
+export function layeredFallbackRuns(layers: readonly SauceLayer[], colorOf: (ingredientId: string) => string) {
+  return layers.map((layer) => ({
+    deposits: layer.deposits,
+    color: layer.ingredientId === "olive-oil" ? bakeOilHex(colorOf(layer.ingredientId)) : colorOf(layer.ingredientId),
+    overlap: overlapFallbackOf(layer.ingredientId, layer.under),
+  }));
 }

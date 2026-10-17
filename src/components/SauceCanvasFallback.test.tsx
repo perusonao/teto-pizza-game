@@ -7,7 +7,7 @@ import type { SauceDeposit } from "../state/pizzaState";
 import type { SauceLayer } from "../state/sauceLayers";
 import { resetCanvas2dProbe } from "./CheesePoolCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
-import { overlapFallbackOf, platformSupports2d, resetStagingSurface } from "./sauceCanvasSupport";
+import { layeredFallbackRuns, overlapFallbackOf, platformSupports2d, resetStagingSurface } from "./sauceCanvasSupport";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
@@ -300,6 +300,18 @@ describe("merged sauce canvases", () => {
       alone.unmount();
       const pesto = render(<SauceHeatmapCanvas deposits={[dep(32)]} underDeposits={under} ingredientId="pesto" doughShape={shape} color="#6b8f3a" className="h" />);
       expect(opacities(pesto.container)).toEqual([0.5]);
+    });
+
+    it("the boundary fallback (no oil CSS filter on its box) draws the oil dots in the baked oil colour and dimmed over the sauce below; other sauces keep theirs (Codex P2 #2)", () => {
+      const tomato: SauceLayer = { ingredientId: "tomato-sauce", deposits: [{ ...dep(30), ingredientId: "tomato-sauce" }], under: [] };
+      const oil: SauceLayer = { ingredientId: "olive-oil", deposits: [{ ...dep(32), ingredientId: "olive-oil" }, { ...dep(70), ingredientId: "olive-oil" }], under: tomato.deposits };
+      const runs = layeredFallbackRuns([tomato, oil], colors);
+      expect(runs.map((r) => r.color)).toEqual(["#c8412b", bakeOilHex("#e9d9a0")]);
+      expect(runs[0].overlap).toBeUndefined();
+      expect(runs[1].overlap).toEqual({ under: tomato.deposits, factor: SAUCE_OIL_OVERLAP_ALPHA_FACTOR });
+      const { container } = render(<SauceDotsFallback runs={runs} className="b" />);
+      expect(opacities(container)).toEqual([0.5, OIL_DOT, 0.5]);
+      expect(container.querySelectorAll("[data-sauce-fallback] > span")[1].getAttribute("style")).not.toContain("rgb(233, 217, 160)");
     });
 
     it("a failed merged group: an oil run over an earlier run is dimmed where it overlaps it; the earlier run and non-overlapping dots are not", () => {
