@@ -64,7 +64,7 @@ Everything else in the Design Lock (S1/S2 done, key-free, `ladderCredit:false`, 
 
 ## 6. Proposed PR split
 
-Dependency chain: **Q0 → A → (B ∥ partly D-prep) → C → D → E**. Each PR is independently green and leaves round behaviour untouched.
+Dependency chain: **Q0 → A → (B ∥ partly D-prep) → C → D ∥ F → E** (F = the 天板焼き Technique slice #538, added after Owner decision O-1…O-7; E waits for both D and F). Each PR is independently green and leaves round behaviour untouched.
 
 | PR | Scope | Depends on | HV | Notes |
 |---|---|---|---|---|
@@ -73,7 +73,7 @@ Dependency chain: **Q0 → A → (B ∥ partly D-prep) → C → D → E**. Each
 | **B — Tap / long-press spread** | Square DOUGH step: finger spreads thickness in a circular brush, grid updates, thickness heat shown; separate component/branch, round branch untouched. | A, ideally after #474 | **Yes** (video + screenshots, 390×844 & 360×800) | Behind a recipe flag; no recipe uses it yet, reachable via DEV/Preview fixture only. |
 | **C — Corner drag + completion** | Drag from edge toward corner; corner-reach indicators; evenness readout; completion predicate (4 corners reached ∧ evenness ≥ threshold); "次へ" gating; tolerant corner zones. | B | **Yes** | Thresholds are tuning values for Owner HV, not final. |
 | **D — Square downstream** | Sauce painting boundary + square sauce target (scoring), cheese/toppings drop validity, bake overlay/filter, RESULT, thumbnails/preview, CUT disabled for square. Split if >~600 lines: D1 sauce+toppings+cheese logic, D2 render (BAKE/RESULT/thumbnails). | A, C | **Yes** (D2) | D2 is where the #518 bake-filter overlap lives. |
-| **E — Apply to grandma (= #521 S3)** | `grandma-pizza` recipe (tomato 1 / olive-oil 1 / mozzarella 3 / garlic 2), `panShape: "square"`, DH4 gate re-run + allowlist, count-pinned tests, `ladderCredit:false`, `lunchRush:false`, normal-flow E2E, full WebKit + Owner device HV. | A–D + Owner §8 answers | **Yes** | Only PR that changes player-visible recipe count. |
+| **E — Apply to grandma (= #521 S3)** | `grandma-pizza` recipe (tomato 1 / olive-oil 1 / mozzarella 3 / garlic 2), `panShape: "square"`, DH4 gate re-run + allowlist, count-pinned tests, `ladderCredit:false`, `lunchRush:false`, normal-flow E2E, full WebKit + Owner device HV. | A–D **and F (#538)** + Owner §8 answers | **Yes** | Only PR that changes player-visible recipe count. |
 
 Cross-cutting: every UI slice gets Playwright specs at 390×844 and 360×800 on Chromium + WebKit (existing projects). The known intermittent WebKit 360×800 failures (#529, #531) are unrelated but will show up as noise; do not mask them (no skipped tests).
 
@@ -86,7 +86,7 @@ Cross-cutting: every UI slice gets Playwright specs at 390×844 and 360×800 on 
 | A–D | One Issue each with acceptance criteria from §5/§6 | |
 | E | = existing #521 S3 (reuse, retitle comment; do not open a duplicate) | |
 
-#521 itself should only get a comment pointing to the Epic and noting S3 now depends on A–D; do not put the square-dough work inside #521.
+#521 itself should only get a comment pointing to the Epic and noting S3 now depends on A–D and F (#538); do not put the square-dough work inside #521.
 
 ## 8. Owner questions (need answers before A can be locked)
 
