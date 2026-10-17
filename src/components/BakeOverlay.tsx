@@ -12,8 +12,8 @@ import tetoImg from "../assets/characters/teto.webp";
 interface BakeOverlayProps {
   targetStart: number;
   targetEnd: number;
-  /** Issue #481: draw the darker JUST band (window centre +-3pt). Guided / Lunch Rush / Dinner only;
-   *  FREE Cooking keeps the 3-level result, so it never shows the band. Default off. */
+  /** Issue #481 / #520: draw the darker JUST band (window centre +-3pt) of the window passed in. Every round kind
+   *  (Guided / Lunch Rush / Dinner / FREE Cooking, whose window is the generic 58-78). Default off. */
   showJustBand?: boolean;
   onConfirm: (value: number) => void;
   onTick?: (value: number) => void;

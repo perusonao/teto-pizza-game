@@ -14,9 +14,9 @@ import { getRecipe } from "../data/recipes";
 import { cook, freeRound, MARGHERITA, NOW, ORDINARY, playFreeRound } from "../state/testSupport/trialNotebookFlow";
 
 /**
- * #469 (Owner D2): the RESULT 焼き加減 badge is 5-level for a guided recipe round only. FREE Cooking -- the matched
- * recipe AND the ORIGINAL pizza -- keeps the 3-level badge, because the BAKE gauge shows the generic FREE window while a
- * matched pizza is judged against the matched recipe's own window. Real reducer states, rendered through GameScreen.
+ * #469 / #520: the RESULT 焼き加減 badge is 5-level in every round kind. FREE Cooking (the matched recipe AND the ORIGINAL
+ * pizza) reads the generic window its BAKE gauge showed (`FREE_COOK_BAKE_TARGET`, 58-78), never the matched recipe's own
+ * window (#482); Guided reads the recipe's. Real reducer states, rendered through GameScreen.
  */
 afterEach(cleanup);
 
@@ -79,31 +79,43 @@ function badges(state: GameState): string[] {
   return [...document.querySelectorAll(".result-panel__bake-badge")].map((el) => el.textContent ?? "");
 }
 
-// FREE window 58-78 (centre 68): 64 would be 惜しい（焼き不足）. Margherita window 60-80 (centre 70): 64 is also 惜しい（焼き不足）;
-// 67 is ジャスト for Margherita, 惜しい for FREE. Both are inside the window, so the 3-level label is "いい焼き加減".
-describe("the RESULT bake badge by round kind (#469)", () => {
-  it("FREE Cooking, recipe matched: 3-level badge, while the round carries the matched recipe", () => {
-    const state = playFreeRound(freeRound(), MARGHERITA, 64);
+// FREE window 58-78 (centre 68, JUST 65-71). Margherita window 60-80 (centre 70, JUST 67-73): 59 is in the generic window
+// (惜しい（焼き不足）) but outside Margherita's (生焼け); 72 is 惜しい（焼きすぎ） for FREE but ジャスト for Margherita.
+describe("the RESULT bake badge by round kind (#469 / #520)", () => {
+  const free = (bake: number) => playFreeRound(freeRound(), MARGHERITA, bake);
+  const orig = (bake: number) => playFreeRound(freeRound(), ORDINARY, bake);
+
+  it.each([
+    [59, "惜しい（焼き不足）"],
+    [64, "惜しい（焼き不足）"],
+    [68, "ジャスト"],
+    [72, "惜しい（焼きすぎ）"],
+    [77, "惜しい（焼きすぎ）"],
+  ])("FREE Cooking, recipe matched, at %s: 5-level %s on the GENERIC window, while the round carries the matched recipe", (bake, label) => {
+    const state = free(bake);
     expect(state.freeCook).toBe(true);
     expect(state.recipe.id).toBe("margherita");
-    expect(state.bakeState).toBe("perfect");
     const texts = badges(state);
     expect(texts.length).toBeGreaterThan(0);
-    for (const t of texts) expect(t).toContain("焼き加減: いい焼き加減");
+    for (const t of texts) expect(t).toContain(`焼き加減: ${label}`);
   });
 
-  it("FREE Cooking, ORIGINAL pizza: 3-level badge", () => {
-    const state = playFreeRound(freeRound(), ORDINARY, 64);
+  it.each([
+    [64, "惜しい（焼き不足）"],
+    [68, "ジャスト"],
+    [76, "惜しい（焼きすぎ）"],
+  ])("FREE Cooking, ORIGINAL pizza, at %s: 5-level %s", (bake, label) => {
+    const state = orig(bake);
     expect(state.freeCook).toBe(true);
     const texts = badges(state);
     expect(texts.length).toBeGreaterThan(0);
-    for (const t of texts) expect(t).toContain("焼き加減: いい焼き加減");
+    for (const t of texts) expect(t).toContain(`焼き加減: ${label}`);
   });
 
-  it("FREE Cooking keeps the 3-level labels at the raw / burnt edges too", () => {
-    expect(badges(playFreeRound(freeRound(), ORDINARY, 10)).every((t) => t.includes("生焼け"))).toBe(true);
+  it("FREE Cooking keeps 生焼け / 焦げ at the raw / burnt edges (outside the generic window)", () => {
+    expect(badges(orig(10)).every((t) => t.includes("生焼け"))).toBe(true);
     cleanup();
-    expect(badges(playFreeRound(freeRound(), ORDINARY, 95)).every((t) => t.includes("焦げ"))).toBe(true);
+    expect(badges(orig(95)).every((t) => t.includes("焦げ"))).toBe(true);
   });
 
   it.each([
@@ -121,7 +133,7 @@ describe("the RESULT bake badge by round kind (#469)", () => {
   });
 });
 
-// Issue #481: JUST band on the BAKE gauge (guided only) and no 「完璧」 on a near-miss RESULT.
+// Issue #481: JUST band on the BAKE gauge and no 「完璧」 on a near-miss RESULT.
 function bakePhase(start: GameState, pizza: typeof MARGHERITA): GameState {
   let s = gameReducer(start, { type: "CONFIRM_MAKING_STEP" });
   if (pizza.sauce) {
@@ -144,13 +156,20 @@ describe("JUST band and near-miss dialogue through GameScreen (#481)", () => {
     expect(parseFloat(band.style.width)).toBe(6);
   });
 
-  it("FREE Cooking BAKE never draws the band", () => {
+  it("FREE Cooking BAKE draws the band on the GENERIC window (58-78 -> 65 / 6) (#520)", () => {
     const state = bakePhase(gameReducer(freeRound(), { type: "START_FREE_COOK", now: NOW }), ORDINARY);
     expect(state.phase).toBe("BAKE");
     expect(state.freeCook).toBe(true);
     render(<Screen state={state} dispatch={() => {}} />);
     expect(document.querySelector(".bake-gauge")).not.toBeNull();
-    expect(document.querySelector(".bake-gauge__just")).toBeNull();
+    const band = document.querySelector<HTMLElement>(".bake-gauge__just")!;
+    expect(parseFloat(band.style.left)).toBe(65);
+    expect(parseFloat(band.style.width)).toBe(6);
+  });
+
+  it.each([59, 64, 72, 77])("FREE Cooking near-miss RESULT at %s never says 完璧 (#520)", (bake) => {
+    render(<Screen state={playFreeRound(freeRound(), MARGHERITA, bake)} dispatch={() => {}} />);
+    expect(document.body.textContent).not.toContain("完璧");
   });
 
   it.each([64, 76])("guided near-miss RESULT at %s never says 完璧", (bake) => {
@@ -176,13 +195,13 @@ describe("FREE MATCHED: badge, bake colour and glow agree on the generic window 
   const doughBackground = () => document.querySelector<HTMLElement>(".pizza-dough-shape")!.style.background;
   const MARGHERITA_WINDOW = getRecipe("margherita")!.bakeTarget;
 
-  it("at 59 (inside the generic window, outside Margherita's): badge いい焼き加減, perfect glow, and the colour of the generic window", () => {
+  it("at 59 (inside the generic window, outside Margherita's): badge 惜しい（焼き不足）(5-level, generic window), perfect glow, and the colour of the generic window", () => {
     const state = cook(gameReducer(freeRound(), { type: "START_FREE_COOK", now: NOW }), MARGHERITA, 59);
     expect(state.freeCook).toBe(true);
     expect(state.recipe.id).toBe("margherita");
     expect(state.bakeState).toBe("perfect");
     render(<Screen state={state} dispatch={() => {}} bakeProgress={59} />);
-    for (const el of document.querySelectorAll(".result-panel__bake-badge")) expect(el.textContent).toContain("焼き加減: いい焼き加減");
+    for (const el of document.querySelectorAll(".result-panel__bake-badge")) expect(el.textContent).toContain("焼き加減: 惜しい（焼き不足）");
     expect(document.querySelectorAll(".pizza-perfect-glow")).toHaveLength(1);
     // The two windows really disagree here (so this test would fail on the recipe window) ...
     expect(expectedDough(59, FREE_COOK_BAKE_TARGET)).not.toBe(expectedDough(59, MARGHERITA_WINDOW));

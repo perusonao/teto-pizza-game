@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../data/recipes";
+import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { BAKE_LEVEL5_LABEL, JUST_HALF_WIDTH_PT, classifyBake, classifyBake5, isNearMiss, justBand } from "./bake";
 
 const T = { start: 58, end: 78 }; // centre 68, the Issue #469 worked example
@@ -90,5 +91,16 @@ describe("justBand (Issue #481): the meter band is exactly the judged JUST range
       false, true, false, true, false,
     ]);
     expect(isNearMiss(null)).toBe(false);
+  });
+});
+
+describe("the FREE Cooking generic window (#520): 58-78, centre 68", () => {
+  it("uses the existing classifyBake5 boundaries on FREE_COOK_BAKE_TARGET", () => {
+    expect(FREE_COOK_BAKE_TARGET).toEqual({ start: 58, end: 78 });
+    const at = (v: number) => classifyBake5(v, FREE_COOK_BAKE_TARGET);
+    expect([57.99, 58, 64.99, 65, 68, 71, 71.01, 78, 78.01].map(at)).toEqual([
+      "raw", "underdone", "underdone", "just", "just", "just", "overdone", "overdone", "burnt",
+    ]);
+    expect(justBand(FREE_COOK_BAKE_TARGET)).toEqual({ start: 65, end: 71 });
   });
 });
