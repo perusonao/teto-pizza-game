@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { LADDER_PLAY, ladderSave } from "../src/logic/catalog/testSupport/catalogDerived";
 import { RECIPES } from "../src/data/recipes";
 import { completeDoughStep } from "./gestures";
-import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
+import { PROFILES, ProfileDriver, readViewport, Trail, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
@@ -236,8 +236,41 @@ async function capture(page: Page, name: string) {
   if (dir) await page.screenshot({ path: `${dir}/${name}.png` });
 }
 
+/**
+ * Issue #394: the purchase tests below record what they were doing (`test.step` names with begin / end, and every `ProfileDriver.apply`
+ * stage) in an in-memory `Trail`. A failure or timeout attaches it and prints its tail to stderr, so a slow run reads "stuck N seconds
+ * into step X" instead of just "Test timeout of 30000ms exceeded". Nothing is awaited or changed when the test passes.
+ */
+let purchaseTrail: Trail | null = null;
+
+async function purchaseDriver(page: Page, browserName: string) {
+  const trail = new Trail("discovery-hint-sheet purchase");
+  purchaseTrail = trail;
+  const driver = await ProfileDriver.create(page, browserName, trail);
+  await driver.apply(PROFILES.N390);
+  return driver;
+}
+
+async function stepOf<T>(name: string, body: () => Promise<T>): Promise<T> {
+  purchaseTrail?.mark("step", `${name} begin`);
+  try {
+    return await test.step(name, body);
+  } finally {
+    purchaseTrail?.mark("step", `${name} end`);
+  }
+}
+
 test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
+
+  test.afterEach(async ({ browserName }, testInfo) => {
+    const trail = purchaseTrail;
+    purchaseTrail = null;
+    if (!trail || testInfo.status === testInfo.expectedStatus) return;
+    const tail = trail.entries.slice(-Trail.STDERR_TAIL).map((e) => `[hint-sheet-trail]   #${e.seq} +${e.tMs}ms ${e.kind} ${e.detail}`.trimEnd());
+    process.stderr.write([`[hint-sheet-trail] ${testInfo.title} (${browserName}) ${testInfo.status}`, ...tail].join("\n") + "\n");
+    await testInfo.attach("hint-sheet-trail.json", { body: JSON.stringify(trail.entries, null, 1), contentType: "application/json" });
+  });
 
   // Discovery Hint 3.0 (Issue #238, H3-3): from Dex 1 the sheet is the Selectable one. Same
   // geometry contract for its states: H0, one fact, and the longest content (a legacy Economy 1.0
@@ -387,74 +420,153 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     });
   }
 
-  // Discovery Hint Economy 1.0 (Issue #232, HE-3) / Discovery Hint 3.0 (Issue #238, H3-3): the
-  // Selectable purchase CTA states, on the same geometry contract (every profile: inside the viewport, CTA
-  // above the safe area, background unmoved).
-  test("purchase CTA: price + balance, buy a fact, guidance, reload keeps facts, insufficient", async ({ page, browserName }) => {
-    const driver = await ProfileDriver.create(page, browserName);
-    await driver.apply(PROFILES.N390);
-    // Dex 11 (capricciosa: 4 facts for sale, the 75 Pitz cap), 120 Pitz.
-    await openWithSave(page, ladderSave(11, { pitz: 120 }));
-    await startFreeCookAtTopping(page);
-    const closed = await closedRects(page, driver, browserName);
-    const hint = bar(page).getByRole("button", { name: "ヒント" });
-    await hint.click();
+  // Discovery Hint Economy 1.0 (Issue #232, HE-3) / Discovery Hint 3.0 (Issue #238, H3-3): the Selectable purchase CTA states.
+  //
+  // Issue #394: this used to be ONE test that reached every purchase state and ran the whole geometry contract at each of them
+  // (22 `ProfileDriver.apply` calls). It took ~21s of the 30s default budget on a good WebKit runner, so a runner ~1.45x slower ran out of
+  // time at whichever line it had reached (spec:457 / :466 / :468 in four consecutive runs). It is split along its two jobs, with nothing
+  // dropped and no timeout or wait changed: one functional flow per save (price, buy, persistence, insufficient) at N390 only, and the
+  // geometry contract (every profile: inside the viewport, CTA above the safe area, background unmoved) on the same states, reached the
+  // same way, in tests of their own. The longest piece is now 10 `apply` calls (WebKit) instead of 22.
+  const PURCHASE_DEX = 11; // capricciosa: 4 facts for sale, the 75 Pitz cap
+  const purchaseSave = () => ladderSave(PURCHASE_DEX, { pitz: 120 });
+  const askedChips = (page: Page) => sheet(page).locator(".hint-sheet__chip");
 
+  /** From 「たずねる 5 Pitz」 to the paid cap: asks 材料 until 「たずねる 支払いずみ」 (the same requests, with the awaits that sync on each answer). */
+  async function payUntilCap(page: Page) {
     const cta = materialCta(page);
-    await expect(sheet(page)).toContainText("所持 120 Pitz");
     await openPanel(page);
     await expect(cta).toHaveText("たずねる 5 Pitz");
-    await checkOpenState(page, driver, browserName, "first CTA", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "first CTA");
-
     await cta.click();
-    await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(2);
+    await expect(askedChips(page)).toHaveCount(2);
     await expect(sheet(page)).toContainText("所持 115 Pitz");
     await openPanel(page);
     await expect(cta).toHaveText("たずねる 10 Pitz");
     for (const chips of [3, 4, 5]) {
       await askMaterial(page);
-      await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(chips);
+      await expect(askedChips(page)).toHaveCount(chips);
     }
     await expect(page.locator(".app-header__pitz")).toContainText("45");
     // H3-4 (OD-H3-4-1): the cap is paid -- a request, enabled, never 「0 Pitz」.
     await openPanel(page);
     await expect(cta).toHaveText("たずねる 支払いずみ");
     await expect(cta).toBeEnabled();
-    await checkOpenState(page, driver, browserName, "cap paid", closed);
-    await capture(page, "07-cap-paid");
-    // Nothing left to sell: nothing charged; only now the 材料 card stops (OD-H3-4-3), for this sheet.
+  }
+
+  /** Nothing left to sell: nothing charged; only now the 材料 card stops (OD-H3-4-3), for this sheet. */
+  async function askPastCap(page: Page) {
+    const cta = materialCta(page);
     await expect(cta).not.toHaveAttribute("aria-disabled", "true");
     await cta.click();
     await expect(sheet(page).locator(".hint-sheet__outcome")).toHaveText("材料ヒントはここまで（Pitzは使っていないよ）");
     await expect(cta).toHaveCount(0);
     await expect(page.locator(".app-header__pitz")).toContainText("45");
-    await checkOpenState(page, driver, browserName, "guidance (panel)", closed);
+  }
+
+  test("purchase CTA: price + balance, buy a fact, guidance, reload keeps facts", async ({ page, browserName }) => {
+    await purchaseDriver(page, browserName);
+    // Dex 11 (capricciosa: 4 facts for sale, the 75 Pitz cap), 120 Pitz.
+    await openWithSave(page, purchaseSave());
+    await startFreeCookAtTopping(page);
+    const hint = bar(page).getByRole("button", { name: "ヒント" });
+    const cta = materialCta(page);
+
+    await stepOf("first request", async () => {
+      await hint.click();
+      await expect(sheet(page)).toContainText("所持 120 Pitz");
+      await openPanel(page);
+      await expect(cta).toHaveText("たずねる 5 Pitz");
+      await expectNoUndiscoveredIdentity(page, DEX11, "first CTA");
+      await cta.click();
+      await expect(askedChips(page)).toHaveCount(2);
+      await expect(sheet(page)).toContainText("所持 115 Pitz");
+      await openPanel(page);
+      await expect(cta).toHaveText("たずねる 10 Pitz");
+    });
+    await stepOf("buy up to the cap", async () => {
+      for (const chips of [3, 4, 5]) {
+        await askMaterial(page);
+        await expect(askedChips(page)).toHaveCount(chips);
+      }
+      await expect(page.locator(".app-header__pitz")).toContainText("45");
+      // H3-4 (OD-H3-4-1): the cap is paid -- a request, enabled, never 「0 Pitz」.
+      await openPanel(page);
+      await expect(cta).toHaveText("たずねる 支払いずみ");
+      await expect(cta).toBeEnabled();
+    });
+    await stepOf("guidance past the cap", async () => {
+      await askPastCap(page);
+      await sheet(page).getByRole("button", { name: /もどる/ }).click();
+      await expect(sheet(page).locator(".hint-sheet__guidance")).toBeVisible();
+      await expectNoUndiscoveredIdentity(page, DEX11, "all facts + guidance");
+    });
+    await stepOf("saved facts", async () => {
+      const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+      expect(saved.schemaVersion).toBe(2);
+      expect(saved.pitzBalance).toBe(45);
+      expect(saved.discoveryHintPurchases ?? {}).toEqual({});
+      expect([...saved.discoveryHintFacts.capricciosa].sort()).toEqual(["ing:ham", "ing:mozzarella", "ing:mushroom", "ing:tomato-sauce"]);
+    });
+    await stepOf("reload", async () => {
+      // Reload: every bought fact is back, nothing is charged again, no guidance until asked.
+      await page.reload();
+      await page.waitForSelector(".app-frame");
+      await startFreeCookAtTopping(page);
+      await bar(page).getByRole("button", { name: "ヒント" }).click();
+      await expect(askedChips(page)).toHaveCount(5);
+      await expect(sheet(page).locator(".hint-sheet__guidance")).toHaveCount(0);
+      await expect(page.locator(".app-header__pitz")).toContainText("45");
+      await sheet(page).getByRole("button", { name: "閉じる" }).click();
+    });
+  });
+
+  test("purchase CTA geometry: first request (price + balance)", async ({ page, browserName }) => {
+    const driver = await purchaseDriver(page, browserName);
+    await openWithSave(page, purchaseSave());
+    await startFreeCookAtTopping(page);
+    const closed = await stepOf("closed rects", () => closedRects(page, driver, browserName));
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(sheet(page)).toContainText("所持 120 Pitz");
+    await openPanel(page);
+    await expect(materialCta(page)).toHaveText("たずねる 5 Pitz");
+    await stepOf("first CTA", () => checkOpenState(page, driver, browserName, "first CTA", closed));
+  });
+
+  test("purchase CTA geometry: cap paid", async ({ page, browserName }) => {
+    const driver = await purchaseDriver(page, browserName);
+    await openWithSave(page, purchaseSave());
+    await startFreeCookAtTopping(page);
+    const closed = await stepOf("closed rects", () => closedRects(page, driver, browserName));
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(sheet(page)).toContainText("所持 120 Pitz");
+    await stepOf("buy up to the cap", () => payUntilCap(page));
+    await stepOf("cap paid", () => checkOpenState(page, driver, browserName, "cap paid", closed));
+    await capture(page, "07-cap-paid");
+  });
+
+  test("purchase CTA geometry: guidance (panel), all facts + guidance", async ({ page, browserName }) => {
+    const driver = await purchaseDriver(page, browserName);
+    await openWithSave(page, purchaseSave());
+    await startFreeCookAtTopping(page);
+    const closed = await stepOf("closed rects", () => closedRects(page, driver, browserName));
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(sheet(page)).toContainText("所持 120 Pitz");
+    await stepOf("buy up to the cap", () => payUntilCap(page));
+    await askPastCap(page);
+    await stepOf("guidance (panel)", () => checkOpenState(page, driver, browserName, "guidance (panel)", closed));
     await sheet(page).getByRole("button", { name: /もどる/ }).click();
     await expect(sheet(page).locator(".hint-sheet__guidance")).toBeVisible();
-    await checkOpenState(page, driver, browserName, "all facts + guidance", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "all facts + guidance");
-    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
-    expect(saved.schemaVersion).toBe(2);
-    expect(saved.pitzBalance).toBe(45);
-    expect(saved.discoveryHintPurchases ?? {}).toEqual({});
-    expect([...saved.discoveryHintFacts.capricciosa].sort()).toEqual(["ing:ham", "ing:mozzarella", "ing:mushroom", "ing:tomato-sauce"]);
+    await stepOf("all facts + guidance", () => checkOpenState(page, driver, browserName, "all facts + guidance", closed));
+  });
 
-    // Reload: every bought fact is back, nothing is charged again, no guidance until asked.
-    await page.reload();
-    await page.waitForSelector(".app-frame");
-    await startFreeCookAtTopping(page);
-    await bar(page).getByRole("button", { name: "ヒント" }).click();
-    await expect(sheet(page).locator(".hint-sheet__chip")).toHaveCount(5);
-    await expect(sheet(page).locator(".hint-sheet__guidance")).toHaveCount(0);
-    await expect(page.locator(".app-header__pitz")).toContainText("45");
-    await sheet(page).getByRole("button", { name: "閉じる" }).click();
-
+  test("purchase CTA: insufficient Pitz is calm and disabled (functional + geometry)", async ({ page, browserName }) => {
+    const driver = await purchaseDriver(page, browserName);
     // Insufficient: a legacy H3 buyer's next fact (40) with 25 Pitz -> disabled, calm. 構成 / 特徴 keep
     // their fixed 5 (OD-DH4-PROD-1, outside the 材料 ladder), so focus lands on the first open request.
-    await openWithSave(page, ladderSave(11, { pitz: 25, purchases: { capricciosa: 3 } }));
+    await openWithSave(page, ladderSave(PURCHASE_DEX, { pitz: 25, purchases: { capricciosa: 3 } }));
     await startFreeCookAtTopping(page);
-    const closedShort = await closedRects(page, driver, browserName);
+    const closedShort = await stepOf("closed rects", () => closedRects(page, driver, browserName));
+    const cta = materialCta(page);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
     await expect(sheet(page)).toContainText("所持 25 Pitz");
     await openPanel(page);
@@ -463,7 +575,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     const structureCta = sheet(page).locator('.hint-sheet__card[data-hint-family="structure"] .hint-sheet__next');
     await expect(structureCta).toHaveText("たずねる 5 Pitz");
     await expect(structureCta).toBeFocused();
-    await checkOpenState(page, driver, browserName, "insufficient", closedShort);
+    await stepOf("insufficient", () => checkOpenState(page, driver, browserName, "insufficient", closedShort));
     await expectNoUndiscoveredIdentity(page, DEX11, "insufficient");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
     await expect(sheet(page)).toHaveCount(0);
