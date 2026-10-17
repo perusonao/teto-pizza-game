@@ -1,19 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { mulberry32 as rng } from "../testSupport/seededRng";
 import { clampToDough, DOUGH_CENTER, DOUGH_RADIUS, isInsideDough } from "../pizzaCoordinates";
 import { SAUCE_TARGET_RADIUS } from "../sauceField";
 import { panGeometryFor, roundPanGeometry, SQUARE_PAN_CORNERS, SQUARE_PAN_HALF_SIDE, SQUARE_SAUCE_TARGET_HALF_SIDE, squarePanGeometry } from "./panGeometry";
 
-/** Deterministic PRNG (mulberry32): the random points are the same on every run. */
-function rng(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 const random = rng(534);
 const POINTS: [number, number][] = [
   ...Array.from({ length: 4000 }, () => [random() * 140 - 20, random() * 140 - 20] as [number, number]),
@@ -80,6 +70,21 @@ describe("square pan geometry", () => {
     expect(g.clamp(50, -40).x).toBe(50);
     expect(g.clamp(200, 200).x).toBeCloseTo(hi, 6);
     expect(g.clamp(200, 200).y).toBeCloseTo(hi, 6);
+  });
+
+  it("clamp never returns a non-finite coordinate (NaN / Infinity land on the pan)", () => {
+    for (const [x, y] of [[Number.NaN, 50], [50, Number.NaN], [Number.POSITIVE_INFINITY, 50], [50, Number.NEGATIVE_INFINITY], [Number.NaN, Number.NaN]] as const) {
+      const p = g.clamp(x, y);
+      expect(Number.isFinite(p.x) && Number.isFinite(p.y), `${x},${y}`).toBe(true);
+      expect(g.contains(p.x, p.y), `${x},${y}`).toBe(true);
+    }
+  });
+
+  it("bounds and target area are constant objects (no allocation per call on the hot path)", () => {
+    expect(g.bounds()).toBe(g.bounds());
+    expect(g.targetArea()).toBe(g.targetArea());
+    expect(roundPanGeometry.bounds()).toBe(roundPanGeometry.bounds());
+    expect(roundPanGeometry.targetArea()).toBe(roundPanGeometry.targetArea());
   });
 
   it("bounds are the pan's box", () => {

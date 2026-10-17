@@ -18,8 +18,10 @@ export const SQUARE_DOUGH_GRID = 12;
 export const SQUARE_COVERAGE_MIN_SPREAD = 0.05;
 /** A corner is "reached" when the mean spread of its corner zone is at least this (Owner D5 initial value: 85%). */
 export const SQUARE_CORNER_REACH_THRESHOLD = 0.85;
-/** A corner zone is this many cells on each side, anchored in the corner (3 of 12 = the outer quarter of each axis). */
-export const SQUARE_CORNER_ZONE_CELLS = 3;
+/** A corner zone covers this fraction of each axis, anchored in the corner (the outer quarter). */
+export const SQUARE_CORNER_ZONE_FRACTION = 0.25;
+/** The zone's side in cells, derived from the fraction so a re-tuned grid keeps the same proportion; never more than half the grid (zones must not overlap). */
+export const SQUARE_CORNER_ZONE_CELLS = Math.max(1, Math.min(Math.floor(SQUARE_DOUGH_GRID / 2), Math.round(SQUARE_DOUGH_GRID * SQUARE_CORNER_ZONE_FRACTION)));
 
 export interface SquareDough {
   /** Row-major, `SQUARE_DOUGH_GRID` * `SQUARE_DOUGH_GRID` values, each in [0, 1]. */
@@ -37,8 +39,10 @@ export function createSquareDough(): SquareDough {
   return { cells: new Array<number>(CELL_COUNT).fill(0) };
 }
 
-export function isValidSquareDough(dough: SquareDough): boolean {
+export function isValidSquareDough(dough: SquareDough | null | undefined): dough is SquareDough {
   return (
+    typeof dough === "object" &&
+    dough !== null &&
     Array.isArray(dough.cells) &&
     dough.cells.length === CELL_COUNT &&
     dough.cells.every((v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1)
@@ -62,10 +66,10 @@ export function squareCellAt(x: number, y: number): { col: number; row: number }
 /**
  * Presses the dough out around (x, y): every cell whose centre is within `brushRadius` (dough percent) gains up to `amount` of spread, strongest at the
  * centre and fading linearly to 0 at the brush edge; a cell saturates at 1 and never goes below its current value. Returns the same object for
- * anything that cannot change the grid (a non-finite input, a non-positive amount or radius), so a bad pointer event can never put a NaN in the model.
+ * anything that cannot change the grid (a non-finite input, a non-positive amount or radius, or a malformed grid), so a bad pointer event or a bad grid can never put a NaN in the model.
  */
 export function pressAt(dough: SquareDough, x: number, y: number, amount: number, brushRadius: number): SquareDough {
-  if (![x, y, amount, brushRadius].every(Number.isFinite) || amount <= 0 || brushRadius <= 0) return dough;
+  if (!isValidSquareDough(dough) || ![x, y, amount, brushRadius].every(Number.isFinite) || amount <= 0 || brushRadius <= 0) return dough;
   let changed = false;
   const cells = dough.cells.slice();
   for (let row = 0; row < SQUARE_DOUGH_GRID; row += 1) {
@@ -90,14 +94,20 @@ export function squareCoverage(dough: SquareDough): number {
 }
 
 /**
- * How even the spread is over the whole pan, 0-1: `1 - stdDev / mean`, clamped. A uniform grid is 1 (also fully pressed out); an empty grid is 0.
- * Bare cells count, so a pan that is only partly covered is uneven by construction.
+ * How even the spread is over the whole pan, 0-1: `1 - stdDev / mean`, clamped. A uniform grid is 1 **whatever its level** (a barely pressed pan with every
+ * cell at 0.06 is perfectly even); an empty grid is 0. Bare cells count, so a pan that is only partly covered is uneven by construction. Evenness is therefore a
+ * SHAPE measure only: step C's completion must combine it with corner reach (which reads the level) and, if wanted, `squareMeanSpread` -- never evenness alone.
  */
 export function squareEvenness(dough: SquareDough): number {
   const mean = dough.cells.reduce((a, v) => a + v, 0) / CELL_COUNT;
   if (mean <= 0) return 0;
   const variance = dough.cells.reduce((a, v) => a + (v - mean) ** 2, 0) / CELL_COUNT;
   return Math.max(0, Math.min(1, 1 - Math.sqrt(variance) / mean));
+}
+
+/** Mean spread over the whole pan, 0-1 (the level that `squareEvenness` deliberately ignores). */
+export function squareMeanSpread(dough: SquareDough): number {
+  return dough.cells.reduce((a, v) => a + v, 0) / CELL_COUNT;
 }
 
 /** The cells (col, row) of one corner zone. */
@@ -126,5 +136,5 @@ export function isSquareCornerReached(reach: number): boolean {
 /** Which corners are reached (at `SQUARE_CORNER_REACH_THRESHOLD`). */
 export function squareCornersReached(dough: SquareDough): Record<CornerId, boolean> {
   const reach = squareCornerReach(dough);
-  return { topLeft: isSquareCornerReached(reach.topLeft), topRight: isSquareCornerReached(reach.topRight), bottomLeft: isSquareCornerReached(reach.bottomLeft), bottomRight: isSquareCornerReached(reach.bottomRight) };
+  return Object.fromEntries(CORNER_IDS.map((c) => [c, isSquareCornerReached(reach[c])])) as Record<CornerId, boolean>;
 }

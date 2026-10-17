@@ -50,9 +50,11 @@ describe("the shape foundation is unreachable from the game", () => {
     });
   const production = walk(ROOT).filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\.(ts|tsx)$/.test(f));
 
+  // Deliberate: when step B legitimately wires the module in, this allowlist is updated in B's PR (that edit is the review point for "is it reachable now?").
   it("only recipes.ts (a type import) and the pan modules themselves import the new modules", () => {
     const importers = production
-      .filter((f) => /from\s+["'](\.\/|[^"']*\/)(panGeometry|squareDough|panShape)["']/.test(readFileSync(f, "utf8")))
+      // static imports and dynamic `import("…")` / `require("…")` of the new modules
+      .filter((f) => /(from\s+|import\(\s*|require\(\s*)["'](\.\/|[^"']*\/)(panGeometry|squareDough|panShape)["']/.test(readFileSync(f, "utf8")))
       .map((f) => relative(ROOT, f).split("\\").join("/"))
       .sort();
     expect(importers).toEqual(["data/recipes.ts", "logic/pan/panGeometry.ts", "logic/pan/squareDough.ts"]);

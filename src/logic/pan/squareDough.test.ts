@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { mulberry32 as rng } from "../testSupport/seededRng";
 import {
   CORNER_IDS,
   createSquareDough,
@@ -13,6 +14,8 @@ import {
   squareCellCenter,
   squareCornerReach,
   squareCornersReached,
+  squareMeanSpread,
+  SQUARE_CORNER_ZONE_FRACTION,
   squareCornerZone,
   squareCoverage,
   squareEvenness,
@@ -20,16 +23,6 @@ import {
 } from "./squareDough";
 import { squarePanGeometry } from "./panGeometry";
 
-function rng(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 const N = SQUARE_DOUGH_GRID;
 const filled = (v: number): SquareDough => ({ cells: new Array<number>(N * N).fill(v) });
 
@@ -55,6 +48,10 @@ describe("square dough model basics", () => {
     expect(isValidSquareDough(filled(1.01))).toBe(false);
     expect(isValidSquareDough(filled(-0.01))).toBe(false);
     expect(isValidSquareDough(filled(1))).toBe(true);
+  });
+
+  it("the validator never throws: null, undefined and non-objects are simply invalid", () => {
+    for (const bad of [null, undefined, 5, "x", {}, { cells: null }] as unknown[]) expect(isValidSquareDough(bad as SquareDough), String(bad)).toBe(false);
   });
 
   it("cell centres and cell lookup agree, and every centre is on the square pan", () => {
@@ -88,6 +85,12 @@ describe("pressAt (the pure primitive step B drives)", () => {
     const cases: [number, number, number, number][] = [[Number.NaN, 50, 0.5, 10], [50, Number.POSITIVE_INFINITY, 0.5, 10], [50, 50, 0, 10], [50, 50, -1, 10], [50, 50, 0.5, 0], [50, 50, Number.NaN, 10], [-500, -500, 0.5, 5]];
     for (const [x, y, amount, radius] of cases) {
       expect(pressAt(d, x, y, amount, radius)).toBe(d);
+    }
+  });
+
+  it("a malformed grid is returned as it is (never NaN / undefined cells): short, NaN-filled, out of range", () => {
+    for (const bad of [{ cells: [] }, { cells: [0, 0.5] }, { cells: new Array<number>(N * N).fill(Number.NaN) }, filled(2)] as SquareDough[]) {
+      expect(pressAt(bad, 50, 50, 0.5, 10)).toBe(bad);
     }
   });
 
@@ -141,7 +144,16 @@ describe("coverage", () => {
   });
 });
 
-describe("evenness", () => {
+describe("evenness (a shape measure: the level is read separately)", () => {
+  it("a barely pressed but uniform pan is perfectly even; only the mean level tells it apart (so completion must not use evenness alone)", () => {
+    const thin = filled(SQUARE_COVERAGE_MIN_SPREAD + 0.01);
+    expect(squareEvenness(thin)).toBeCloseTo(1, 12);
+    expect(squareMeanSpread(thin)).toBeLessThan(0.1);
+    expect(squareMeanSpread(filled(1))).toBe(1);
+    expect(squareMeanSpread(createSquareDough())).toBe(0);
+    expect(Object.values(squareCornersReached(thin)).some(Boolean)).toBe(false); // the level shows up in corner reach
+  });
+
   it("is 1 for any uniform non-empty grid and 0 for an empty one", () => {
     for (const v of [0.1, 0.5, 0.85, 1]) expect(squareEvenness(filled(v)), String(v)).toBeCloseTo(1, 12);
     expect(squareEvenness(filled(0))).toBe(0);
@@ -170,6 +182,11 @@ describe("corner reach", () => {
     expect(SQUARE_CORNER_REACH_THRESHOLD).toBe(0.85);
     expect(isSquareCornerReached(0.85)).toBe(true);
     expect(isSquareCornerReached(0.8499)).toBe(false);
+  });
+
+  it("the zone size is derived from the fraction of the grid and can never make zones overlap", () => {
+    expect(SQUARE_CORNER_ZONE_CELLS).toBe(Math.round(N * SQUARE_CORNER_ZONE_FRACTION));
+    expect(SQUARE_CORNER_ZONE_CELLS * 2).toBeLessThanOrEqual(N);
   });
 
   it("each corner zone is a 3x3 block in its own corner and the four zones do not overlap", () => {

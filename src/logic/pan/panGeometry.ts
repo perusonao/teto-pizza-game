@@ -60,19 +60,32 @@ export const SQUARE_PAN_CORNERS: readonly DoughPoint[] = [
   { x: SQUARE_MAX, y: SQUARE_MAX },
 ];
 
+// Constant objects: steps B-D call these per pointer move / per sauce cell, so nothing is allocated per call.
+const ROUND_BOUNDS: PanBounds = { minX: DOUGH_CENTER - DOUGH_RADIUS, minY: DOUGH_CENTER - DOUGH_RADIUS, maxX: DOUGH_CENTER + DOUGH_RADIUS, maxY: DOUGH_CENTER + DOUGH_RADIUS };
+const ROUND_TARGET: PanTargetArea = {
+  kind: "circle",
+  contains: (x, y) => Math.hypot(x - DOUGH_CENTER, y - DOUGH_CENTER) <= SAUCE_TARGET_RADIUS,
+  area: Math.PI * SAUCE_TARGET_RADIUS * SAUCE_TARGET_RADIUS,
+};
+const SQUARE_BOUNDS: PanBounds = { minX: SQUARE_MIN, minY: SQUARE_MIN, maxX: SQUARE_MAX, maxY: SQUARE_MAX };
+const SQUARE_TARGET_LO = DOUGH_CENTER - SQUARE_SAUCE_TARGET_HALF_SIDE;
+const SQUARE_TARGET_HI = DOUGH_CENTER + SQUARE_SAUCE_TARGET_HALF_SIDE;
+const SQUARE_TARGET: PanTargetArea = {
+  kind: "rect",
+  contains: (x, y) => x >= SQUARE_TARGET_LO && x <= SQUARE_TARGET_HI && y >= SQUARE_TARGET_LO && y <= SQUARE_TARGET_HI,
+  area: (2 * SQUARE_SAUCE_TARGET_HALF_SIDE) ** 2,
+};
+
 export const roundPanGeometry: PanGeometry = {
   shape: "round",
   contains: isInsideDough,
   clamp: clampToDough,
-  bounds: () => ({ minX: DOUGH_CENTER - DOUGH_RADIUS, minY: DOUGH_CENTER - DOUGH_RADIUS, maxX: DOUGH_CENTER + DOUGH_RADIUS, maxY: DOUGH_CENTER + DOUGH_RADIUS }),
-  targetArea: () => ({
-    kind: "circle",
-    contains: (x, y) => Math.hypot(x - DOUGH_CENTER, y - DOUGH_CENTER) <= SAUCE_TARGET_RADIUS,
-    area: Math.PI * SAUCE_TARGET_RADIUS * SAUCE_TARGET_RADIUS,
-  }),
+  bounds: () => ROUND_BOUNDS,
+  targetArea: () => ROUND_TARGET,
 };
 
 function clampAxis(v: number, min: number, max: number): number {
+  if (!Number.isFinite(v)) return DOUGH_CENTER; // the square clamp never returns a non-finite coordinate (a NaN / Infinity lands on the pan's centre line)
   if (v < min) return min + CLAMP_INSET_EPSILON;
   if (v > max) return max - CLAMP_INSET_EPSILON;
   return v;
@@ -82,16 +95,8 @@ export const squarePanGeometry: PanGeometry = {
   shape: "square",
   contains: (x, y) => x >= SQUARE_MIN && x <= SQUARE_MAX && y >= SQUARE_MIN && y <= SQUARE_MAX,
   clamp: (x, y) => ({ x: clampAxis(x, SQUARE_MIN, SQUARE_MAX), y: clampAxis(y, SQUARE_MIN, SQUARE_MAX) }),
-  bounds: () => ({ minX: SQUARE_MIN, minY: SQUARE_MIN, maxX: SQUARE_MAX, maxY: SQUARE_MAX }),
-  targetArea: () => {
-    const lo = DOUGH_CENTER - SQUARE_SAUCE_TARGET_HALF_SIDE;
-    const hi = DOUGH_CENTER + SQUARE_SAUCE_TARGET_HALF_SIDE;
-    return {
-      kind: "rect",
-      contains: (x, y) => x >= lo && x <= hi && y >= lo && y <= hi,
-      area: (2 * SQUARE_SAUCE_TARGET_HALF_SIDE) ** 2,
-    };
-  },
+  bounds: () => SQUARE_BOUNDS,
+  targetArea: () => SQUARE_TARGET,
 };
 
 /** The geometry for a pan shape (`round` is the default and the only shape a recipe uses today). */
