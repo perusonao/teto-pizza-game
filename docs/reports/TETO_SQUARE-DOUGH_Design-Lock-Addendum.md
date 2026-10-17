@@ -1,6 +1,6 @@
 # Square-Pan Dough — Design Lock Addendum (Q0, proposal)
 
-Status: **PROPOSAL for Owner approval. Docs-only.** No `src/**`, recipe, save, test or CSS change. Not merged, not deployed, no shared Preview touched.
+Status: **PROPOSAL for Owner approval. Docs-only.** Revision 2 (2026-10-17): Options 1–3 are **not adopted**; Option 4 (pan as a general cooking method) is evaluated in §4A. No `src/**`, recipe, save, test or CSS change. Not merged, not deployed, no shared Preview touched.
 Issue: #533 (Q0) under Epic #532. Parent: #521. Base: `origin/main` `608e65b`.
 Amends (does not rewrite): `docs/reports/TETO_MULTI-SAUCE-RECIPES_Design-Lock.md`. The original decision text of that file is unchanged; this addendum is the change record.
 Related: `TETO_SQUARE-DOUGH_Fresh-Audit-and-Plan.md`.
@@ -15,7 +15,8 @@ Related: `TETO_SQUARE-DOUGH_Fresh-Audit-and-Plan.md`.
 | #535 | B — tap / long-press spread | A (after #474's implementation PR if it lands first) |
 | #536 | C — corner drag + completion | B |
 | #537 | D — sauce / toppings / cheese / bake / RESULT (D1 logic, D2 render) | A, C; D2 after #518 or without touching its blocks |
-| #521 | **E = S3** (grandma-pizza recipe). No new Issue. | A–D + Design Lock §8 answers |
+| (F, proposed) | Square-pan technique slice — **not created**; only if Option 4 is adopted (§4A.9) | A, C |
+| #521 | **E = S3** (grandma-pizza recipe). No new Issue. | A–D (+ F if Option 4) + Design Lock §8 answers |
 
 GitHub's sub-issue API could not attach #521 (it needs the issue's internal id, which the tooling did not expose), so #521 is linked from the Epic body and a #521 comment. A–D/Q0 are real sub-issues of #532.
 
@@ -30,6 +31,8 @@ GitHub's sub-issue API could not attach #521 (it needs the issue's internal id, 
 | D5 | Initial proposal: four corners reached at ≥ 85% plus operation assist. Final values are decided from Owner on-device HV. |
 | D6 | RESULT shows the square pizza **and** the pan. |
 | D7 | The unanswered items of Design Lock §8 stay unconfirmed. Nothing is approved by inference. |
+
+**Owner proposal under evaluation — Option 4 (2026-10-17, not yet adopted):** the square pan is released as a *general cooking method* without naming grandma-pizza; the square dough step is available from the first discovery; availability follows the existing progression / technique-unlock system (to be audited); no undiscovered recipe's name, ingredients or finished form is shown beforehand; RESULT shows the shape actually cooked; scoring uses a Reference region for the cooked shape with **no change to the scoring formulas**; a finished dough stays editable until the next step; `panShape` stays reusable; 85% corner reach + evenness are initial values, final values from Owner HV. Findings and recommendation: §4A.
 
 Operation spec (Owner, first instruction): (1) tap / long-press spreads dough with a finger; (2) drag pulls the dough edge to the four corners; (3) corner reach and thickness evenness are shown visually; (4) pan, dough, sauce, toppings, bake and RESULT are consistent.
 
@@ -49,7 +52,7 @@ One non-decisional pointer line is added at the top of the Design Lock file so a
 ### Source-evidence status (not confirmed)
 The Design Lock §2 and the Post-W1 Cooking Steps design record that grandma's **real-world sheet-pan form is unevidenced in the repository**, `doughStyle` is unrecorded, and the live PIZZA DB page could not be checked from this environment. Therefore **the square pan is an Owner gameplay-design decision (D1/D6), not a fact taken from PIZZA DB.** No document, UI text or description may claim that PIZZA DB records a rectangular pan until the Owner confirms the live page.
 
-## 4. Anti-Oracle × discoverability — option comparison (decision needed)
+## 4. Earlier options 1–3 (Owner: not adopted; kept as record)
 
 ### The conflict
 - A recipe round (Recipe Select / Dex cook) can show the square pan: the recipe is already known.
@@ -83,6 +86,104 @@ If Option 1's "first discovery is round" is unacceptable, Option 2 is the fallba
 - E2E: grandma ingredients cooked from Free Cooking and from a Research target discover `grandma-pizza` exactly as today (round), at 390×844 and 360×800 (Chromium + WebKit).
 - Source/DOM sweep: with grandma undiscovered, no `panShape`, "square", "天板" token, rectangle thumbnail or pan CSS class is reachable in Dex, Recipe Select, Hint, Research, Free Cooking, changelog (privacy-gate style test).
 - After discovery: recipe round shows the square pan; RESULT shows square pizza and pan (D6).
+
+## 4A. Option 4 — square pan as a general cooking method: feasibility audit
+
+Audited on `origin/main` `608e65b` (read-only). Files: `logic/discovery/{signature,matcher,freeCook}.ts`, `logic/techniques/*`, `data/techniques.ts`, `state/persistence.ts`, `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`, `…_FINAL-IMPLEMENTATION-GATE.md`, `TETO_POST-W1_COOKING-STEPS_NEXT-PHASE_DESIGN.md`, the 172-row matrix.
+
+### 4A.1 Verdict
+**Feasible, and it fits the existing Cooking Techniques model almost one-to-one**, because the repository already has the slot Option 4 needs. Three conditions must be met first (Owner decisions O-1…O-3 in §4A.7). No code was changed.
+
+### 4A.2 Compatibility with existing systems
+
+| System | Finding | Compatible? |
+|---|---|---|
+| **Discovery signature / matcher** | `IdentityDimensions` already has a `pan` axis (`null` by default, `FIXED_BY_FLOW`: "no pan exists (no PAN_BAKE)") and a `shape` axis (`UNAVAILABLE`). Matching is exact on all 11 axes; a target needing a non-default value on an `UNAVAILABLE` axis can **never** match (matcher rule 3). | **Yes, via the `pan` axis** (change `FIXED_BY_FLOW` → `OBSERVED`). **Do not carry the square identity on `shape`** unless that axis is deliberately made observable (see 4A.3). |
+| **Free Cooking** (`resolveFreeCookPizza`) | Identity comes from the signature, not the recipe; a match is then scored as that recipe by the unchanged `REGISTER_TO_DEX` path. Pan as an observed signature axis needs no change to this flow. | Yes. |
+| **Research** | A Research round is a Free Cook round with a target; ○× is per ingredient and says nothing about pan. A pan is not an ingredient, so Research RESULT discloses nothing about it. | Yes. Dead-end risk handled by 4A.5. |
+| **Recipe Select / guided rounds** (`FREE_GUIDED`) | Technique runtime: guided rounds take the *recipe path only*. The recipe fixes its own pan; no control is shown. | Yes. |
+| **Lunch Rush / Dinner** | `techniqueRoundEligibility` = `NONE`; grandma is `lunchRush:false`. The pan control must be hidden there. Dinner result detection runs the matcher on the composition → verify no pan leak (test in the technique PR). | Yes, with test. |
+| **Technique system** (OD-TQ-1/4/5/6/7, P6, INV-TQ-1/4/6, INV-TQ-NB) | Techniques are discovered by doing, never bought, no ★/Pitz, name hidden until discovered, the **operation is possible before discovery** (e.g. SAUCE "なしでもOK"), a fixed riddle appears in the Dex only after the **affordance** opens. The affordance step is **derived** (first ladder step at which a recipe requiring the technique is makeable) and a technique no recipe uses never opens (INV-TQ-4). The matcher never imports techniques (INV-TQ-NB). | **Yes — pan is a natural second technique.** Needs: `TechniqueId` extension, `requiredTechniquesOf` to read the pan axis, detection from the signature, Dex 調理法 row, RESULT technique stage. The matcher still reads only the signature, so INV-TQ-NB holds. |
+| **Open authority** | `OD-CS-16` ("pan as a tool item / recipe-fixed"; Shop / #216) and `OD-CS-18` ("are pan/shape/enclose techniques?") are **undecided** in the Post-W1 design. Option 4 effectively answers OD-CS-18 = "pan is a technique" and sets aside the Shop-tool form of OD-CS-16. | **Needs Owner decision O-1.** |
+| **Save** | `discoveredTechniqueIds` is already persisted (v2, no schema bump); unknown ids from a newer build are preserved by `writeSave`; the in-progress `PizzaState` is not saved. A new technique id is additive. | **Yes, no schema bump.** Round-trip test required (old save → new build, new save → old build). |
+| **Scoring 2.0** | Formulas unchanged (D4). A Reference region per **cooked** shape is a new *input*, not a new formula. Because identity requires the pan, a matched pizza always has the recipe's own shape, so there is no "played round vs. square Reference" mismatch. | Yes. |
+| **Hint 5.0 / Anti-Oracle** | Hint rungs name ingredients, never techniques (OD-TQ-6). Near/Far hints are neutralised to one generic line. Nothing in a hint may mention the pan. | Yes; DH4 privacy gates must be re-run deliberately. |
+| **Dough model / CUT / sauce** | Same as Fresh Audit (square grid model, shape interface, CUT disabled for square). | Same work as Option 1. |
+
+### 4A.3 Conditions under which grandma-pizza's identity holds on first discovery
+
+All must be true for `UNIQUE_MATCH` → `NEW_DISCOVERY` (then the recipe's own Completion Gate under the "recipe" policy):
+
+1. Ingredient set is exactly `{garlic, mozzarella, olive-oil, tomato-sauce}`; the sauce base is exactly `{olive-oil, tomato-sauce}` (both painted; garlic and mozzarella as pieces). Presence-only, as today.
+2. `pan` axis equals the grandma target's declared value (the square pan). **The value's name/ID is an implementation detail for A/E, not decided here.**
+3. Every other axis is its default (dough standard, layerOrder standard, late/prep empty, enclosure null, cook bake, laminate false, spreadLayers null — as Design Lock §5.2/§6 already assumes).
+4. `shape` stays at the default for matching. It is `UNAVAILABLE`, so a target declaring `shape: "square"` would be **unmatchable** by rule 3. Two ways out, decision O-3: (a) keep identity on `pan` only and leave `shape` default for grandma (smallest change; deviates from the 172 matrix vocabulary where square-pan rows also say `shape: square`), or (b) make `shape` observable from `panShape` (a deliberate matcher/signature change, all existing goldens must stay identical).
+5. The DOUGH step is complete under C's predicate (it gates "次へ"); the sauce/Completion Gate/bake window conditions are the recipe's.
+6. **Not** identity: thickness evenness, corner-reach values, dough radii, CUT, piece positions, sauce amounts (quality inputs only — D4).
+7. Collision check on the 172 matrix: grandma is the only row with this ingredient set (computed), so no `AMBIGUOUS` with a blocked row. The matrix itself still lists grandma with `pan: null, shape: round`; the catalog target in E will carry the new pan value (the matrix and Design Lock text are not rewritten here).
+
+### 4A.4 Does a round dough misdiscover grandma?
+No — **if the pan is part of grandma's identity** (recommended). A round-dough pizza with the same ingredients has `pan = null` ≠ grandma's value → `NO_MATCH` → an ordinary ORIGINAL pizza. That is also what enforces D3 (no round grandma). If the pan were *not* identity, the round pizza *would* discover grandma, which D3 forbids. Visible consequence to accept (O-2): **any** recipe's ingredients cooked on the square pan stop matching that recipe (e.g. margherita ingredients on the pan = ORIGINAL), because matching is exact on all axes. That is the existing identity design, but it is new to players who toggle the pan.
+
+### 4A.5 Unlock condition — three options
+
+| | **U1 — Technique affordance (derived)** | **U2 — Always available** | **U3 — Shop tool item** |
+|---|---|---|---|
+| Rule | The pan control appears in Free Cooking / Research when the **affordance** opens: the first ladder step at which a recipe requiring the pan is makeable (grandma: all four items unlocked = garlic, ladder step 14), counted by credited discoveries (OD-TQ1D-2). Derived, never an authored step. | Pan control visible from the first round. | Buy a "天板" item (OD-CS-16 form). |
+| Matches existing authority | **Yes**: OD-TQ-1/4/5/6/7, INV-TQ-4, P6 (operation available, name hidden). Same pattern as no-sauce (opens at step 12). | Partly: P6 (operation before discovery) but not INV-TQ-4 (a control with no usable recipe for 13 steps). | **No**: a technique is never bought; conflicts with OD-TQ-1/7 and touches the #216 economy. |
+| Anti-Oracle | The control appears at the moment grandma becomes makeable. Same accepted leak class as the no-sauce riddle (OD-TQ-5). Nothing names grandma. | The control exists for everyone → no timing signal; but it advertises "square things exist" to day-1 players. | Shop listing / price is a persistent, recipe-correlated signal. Worst. |
+| Starter UX | No clutter before it matters. | Early clutter, pan useless until step 14. | Adds a purchase step; contradicts "no unnecessary waiting". |
+| Dead-end risk | Dex 調理法 riddle opens with the affordance and hints without naming. | Same riddle can apply. | Players may buy it and still not know why. |
+| Cost | Technique registry entry + `requiredTechniquesOf` reads pan axis + affordance wiring + Dex/RESULT rows. | Smallest (a toggle). | Economy, Shop, save entitlement. |
+| **Recommendation** | **Recommended** | Acceptable fallback | Not recommended |
+
+### 4A.6 UI route (where the player meets the pan) — three options
+
+| | **P1 — Shape toggle in the Free Cooking DOUGH step** | **P2 — Choice before the round starts** | **P3 — Physical tray object beside the stage** |
+|---|---|---|---|
+| Idea | A small neutral control at the DOUGH step: ○ / □ ("生地のかたち", icon-first, no recipe or technique name). Default ○. Switching is allowed until "次へ"; both dough models are kept in state so nothing is lost. | Pick ○/□ on the start screen of a Free Cooking / Research round. | An unlabeled tray icon at the stage edge; tapping it puts the dough on the tray. |
+| Matches "edit until next step" (Owner) | **Yes, directly** | Weaker: the choice is made before any dough | Yes |
+| Discoverability | High: sits where the action is, at the moment of shaping | Medium: the player decides before understanding | Medium: icon may be mistaken for decoration |
+| Anti-Oracle | Generic icon, shown only after the affordance (U1). No name. | Same | Same; icon shape (a tray) is more specific |
+| Cost | Low–medium; one control + state | Medium; changes round-start flow | Medium–high; art + gesture + a11y |
+| 360×800 | Control fits the existing step bar; ≥ 44 px target | Start screen already dense | Competes with the stage |
+| **Recommendation** | **Recommended** | Possible later | Not now |
+
+### 4A.7 Option 1 vs. Option 4
+
+| Criterion | Option 1 (round-first, reveal after identification) | Option 4 (pan as a general method) |
+|---|---|---|
+| First-discovery experience | Round dough; square only from the second time | **Square from the first discovery** (Owner's goal) |
+| Implementation cost | A–D + a played-shape Reference resolver + Dex reveal copy; matcher/techniques untouched | A–D + **one extra slice F** (technique registry entry, pan axis OBSERVED + catalog target, `requiredTechniquesOf`, affordance, DOUGH control, Dex 調理法 row, RESULT technique stage, DH4 privacy gates) |
+| Anti-Oracle | Strongest (no pre-discovery signal at all) | Same class as no-sauce: operation visible, name hidden, riddle after affordance. Accepted pattern; one extra leak: the control appears at ladder step 14 |
+| Discovery experience | Grandma found by ingredients alone; then a "second reveal" | Found by ingredients **and** a cooking method — a real discovery; Research can still lead there via the riddle |
+| Mis-discovery risk | A round pizza discovers grandma (the recipe's identity is shape-free) → D3 only enforced by data | None: round + same ingredients = ORIGINAL |
+| Scoring | Needs Reference by *played* shape for round-discovered grandma | Reference follows the cooked (= recipe) shape; no mismatch case |
+| Save compat | No change | Additive technique id; round-trip test; no schema bump |
+| Behavior change for existing players | None | Pan toggle appears at the affordance step; recipes cooked on the pan don't match unless pan-recipes |
+| Risk | Low | Medium: touches the identity axes and technique contract (both gated by existing tests, which must be changed deliberately) |
+
+### 4A.8 Recommendation
+Adopt **Option 4**, built as: technique `square-pan`-class (name/riddle copy Owner-approved, placeholders only until then) + **U1** derived affordance + **P1** DOUGH-step shape toggle + pan as a **signature identity axis** (`pan` OBSERVED) with grandma's catalog target declaring it.
+Conditions: O-1, O-2, O-3 below. If any is refused, fall back to Option 1 (no matcher/technique change) — it remains fully implementable with the same A–D.
+
+### 4A.9 Issue and PR impact (proposal; no new Issue created yet)
+- **A–D (#534–#537)** are unchanged in scope; D's "pre-discovery surfaces shape-neutral" item now refers to §4A (no square thumbnail for an undiscovered recipe).
+- **New slice F** (conditional on adoption, between D and E): technique entry + pan axis + affordance + DOUGH control + Dex/RESULT technique rows + privacy gates; HV required; depends on A and C.
+- **E (#521)** additionally depends on F; it declares grandma's `pan` identity in the catalog. DH4 allowlist and count-pinned tests still belong to E.
+- Epic #532 is updated to show F as *proposed, not created*.
+- #474 / #518 / #429 interactions unchanged. Additional conflict: the technique registry / Dex 調理法 / RESULT technique stage touch files that no open PR is changing (to be re-checked at F start).
+
+### 4A.10 Required Owner decisions for Option 4
+- **O-1** Pan is a technique (resolves `OD-CS-18`), not a Shop tool item (sets aside the tool form of `OD-CS-16`).
+- **O-2** Accept that recipes cooked on the pan do not match non-pan recipes (exact identity).
+- **O-3** Identity carrier: `pan` axis only (leave `shape` default) vs. also make `shape` observable.
+- **O-4** Unlock rule: U1 (recommended) / U2 / U3.
+- **O-5** UI route: P1 (recommended) / P2 / P3.
+- **O-6** Technique name and Dex riddle copy (Owner-written; none proposed as final).
+- **O-7** Editing rule: finished dough is editable until "次へ" — accept that "次へ" locks the shape for the round.
+- (Existing Design Lock §8 items remain open — D7.)
+
 
 ## 5. Acceptance criteria and verification (per Issue)
 
@@ -123,9 +224,9 @@ Design Lock §8 (still open, D7):
 8. Two-different-base-sauce recipes remain "later candidates", none selected.
 
 New, from this addendum:
-9. **Anti-Oracle option** (§4): Option 1 / 2 (Option 3 is rejected). Blocks A's surface audit scope and D.
-10. First-discovery RESULT shows round-as-played (Option 1) or must show the pan?
-11. Scoring: Reference resolved by played pan shape — acceptable under D4?
+9. **Anti-Oracle option**: Options 1–3 are not adopted by the Owner; **Option 4 (§4A) is under evaluation** — decisions O-1…O-7 in §4A.10 (Option 1 remains the fallback). Blocks A's surface audit scope, D and F.
+10. (Option 1 only) First-discovery RESULT shows round-as-played or must show the pan? — moot under Option 4: RESULT shows the cooked shape.
+11. Scoring: Reference resolved by the cooked shape, formulas unchanged — acceptable under D4? (Under Option 4 identity forces cooked shape = recipe shape.)
 12. Final values for 85% corner reach and the evenness threshold — from Owner on-device HV (D5), not decided here.
 13. Behavior when a completed square dough is edited again (undo/reshape allowed?).
 14. Whether Detroit / Sicilian / other sheet-pan recipes are future users of `panShape` (no commitment; D1 only requires reuse-ready design).
