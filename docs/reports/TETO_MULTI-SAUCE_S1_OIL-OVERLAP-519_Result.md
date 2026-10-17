@@ -46,7 +46,7 @@ is unchanged: (220,211,104) vs dough (238,208,152). Images: `docs/reports/screen
 ## Verification
 - `tsc -b` clean; `oxlint`: no new findings (existing `react-refresh` warnings only).
 - Existing `sauce-layers-b2`, `sauce-edge-475` E2E: all pass at both viewports (34/34 with the new spec). B2 single-source render golden and the B1 single-source golden: unchanged.
-- Full vitest: see PR (CI) — <VITEST_SUMMARY>.
+- Full vitest: 432 files passed (1 skipped), 8258 tests passed (2 skipped); the files added afterwards (`sauceOverlap`, `SauceCanvasFallback`) were re-run on their own and pass.
 
 ## Owner Human Verification (needed — visual change)
 390×844 Preview: Free Cooking / Research, SAUCE step.
