@@ -1,6 +1,6 @@
 # Square-Pan Dough — Design Lock Addendum (Q0, proposal)
 
-Status: **PROPOSAL for Owner approval. Docs-only.** Revision 2 (2026-10-17): Options 1–3 are **not adopted**; Option 4 (pan as a general cooking method) is evaluated in §4A. No `src/**`, recipe, save, test or CSS change. Not merged, not deployed, no shared Preview touched.
+Status: **PROPOSAL for Owner approval. Docs-only.** Revision 3 (2026-10-17): Owner decisions O-1…O-7 are **confirmed**; **Option 4 is adopted** (§4A evaluation, §4B confirmed spec). Options 1–3 are not adopted (Option 1 stays only as a recorded fallback). No `src/**`, recipe, save, test or CSS change. Not merged, not deployed, no shared Preview touched.
 Issue: #533 (Q0) under Epic #532. Parent: #521. Base: `origin/main` `608e65b`.
 Amends (does not rewrite): `docs/reports/TETO_MULTI-SAUCE-RECIPES_Design-Lock.md`. The original decision text of that file is unchanged; this addendum is the change record.
 Related: `TETO_SQUARE-DOUGH_Fresh-Audit-and-Plan.md`.
@@ -15,8 +15,8 @@ Related: `TETO_SQUARE-DOUGH_Fresh-Audit-and-Plan.md`.
 | #535 | B — tap / long-press spread | A (after #474's implementation PR if it lands first) |
 | #536 | C — corner drag + completion | B |
 | #537 | D — sauce / toppings / cheese / bake / RESULT (D1 logic, D2 render) | A, C; D2 after #518 or without touching its blocks |
-| (F, proposed) | Square-pan technique slice — **not created**; only if Option 4 is adopted (§4A.9) | A, C |
-| #521 | **E = S3** (grandma-pizza recipe). No new Issue. | A–D (+ F if Option 4) + Design Lock §8 answers |
+| #538 | **F — 天板焼き Technique / pan identity / Dex・RESULT / unlock (U1, P1)** (child of #532) | A, C |
+| #521 | **E = S3** (grandma-pizza recipe). No new Issue. | **D and F complete** (and A–C) + Design Lock §8 answers |
 
 GitHub's sub-issue API could not attach #521 (it needs the issue's internal id, which the tooling did not expose), so #521 is linked from the Epic body and a #521 comment. A–D/Q0 are real sub-issues of #532.
 
@@ -32,9 +32,19 @@ GitHub's sub-issue API could not attach #521 (it needs the issue's internal id, 
 | D6 | RESULT shows the square pizza **and** the pan. |
 | D7 | The unanswered items of Design Lock §8 stay unconfirmed. Nothing is approved by inference. |
 
-**Owner proposal under evaluation — Option 4 (2026-10-17, not yet adopted):** the square pan is released as a *general cooking method* without naming grandma-pizza; the square dough step is available from the first discovery; availability follows the existing progression / technique-unlock system (to be audited); no undiscovered recipe's name, ingredients or finished form is shown beforehand; RESULT shows the shape actually cooked; scoring uses a Reference region for the cooked shape with **no change to the scoring formulas**; a finished dough stays editable until the next step; `panShape` stays reusable; 85% corner reach + evenness are initial values, final values from Owner HV. Findings and recommendation: §4A.
+**Owner decisions O-1…O-7 (2026-10-17, confirmed; Option 4 adopted):**
 
-Operation spec (Owner, first instruction): (1) tap / long-press spreads dough with a finger; (2) drag pulls the dough edge to the four corners; (3) corner reach and thickness evenness are shown visually; (4) pan, dough, sauce, toppings, bake and RESULT are consistent.
+| # | Decision |
+|---|---|
+| O-1 | The pan is a **Technique**. The Shop-purchase form is not adopted. |
+| O-2 | Accept that a different `pan` means other recipes are no longer discovered. Design a RESULT route that lets the player understand a shape difference. An undiscovered recipe's identity must not leak. |
+| O-3 | Identity uses the **`pan` axis only**. The `shape` axis stays `UNAVAILABLE`. |
+| O-4 | **U1**: the unlock condition is derived from the required ingredients. Step 14 is re-verified at implementation time. |
+| O-5 | **P1**: a ○ / □ switch in the DOUGH step. |
+| O-6 | Technique name **「天板焼き」**. Undiscovered Dex hint: 「丸くなくても、ピザは焼ける。四つの角まで生地を広げてみよう。」 Description after discovery: 「四角い天板に生地を広げて焼く調理法。指で押し広げ、四隅まで伸ばして形を整えよう。」 |
+| O-7 | 「次へ」 fixes the shape. Before that, re-editing and switching are allowed. |
+
+Operation spec (Owner) and D1–D7 above remain in force. Design Lock §8 stays unanswered.
 
 ## 3. What this addendum changes in the Design Lock (change record)
 
@@ -174,7 +184,7 @@ Conditions: O-1, O-2, O-3 below. If any is refused, fall back to Option 1 (no ma
 - Epic #532 is updated to show F as *proposed, not created*.
 - #474 / #518 / #429 interactions unchanged. Additional conflict: the technique registry / Dex 調理法 / RESULT technique stage touch files that no open PR is changing (to be re-checked at F start).
 
-### 4A.10 Required Owner decisions for Option 4
+### 4A.10 Required Owner decisions for Option 4 (all decided on 2026-10-17 — see §2 and §4B; kept as the question record)
 - **O-1** Pan is a technique (resolves `OD-CS-18`), not a Shop tool item (sets aside the tool form of `OD-CS-16`).
 - **O-2** Accept that recipes cooked on the pan do not match non-pan recipes (exact identity).
 - **O-3** Identity carrier: `pan` axis only (leave `shape` default) vs. also make `shape` observable.
@@ -184,6 +194,41 @@ Conditions: O-1, O-2, O-3 below. If any is refused, fall back to Option 1 (no ma
 - **O-7** Editing rule: finished dough is editable until "次へ" — accept that "次へ" locks the shape for the round.
 - (Existing Design Lock §8 items remain open — D7.)
 
+
+## 4B. Confirmed spec after O-1…O-7 (Option 4)
+
+### 4B.1 What is fixed
+- Technique 「天板焼き」 (internal ID chosen in F), registered in `data/techniques.ts`; name and description shown only after discovery. Copy: see O-6.
+- Identity = `pan` axis only (`FIXED_BY_FLOW` → `OBSERVED` from `panShape`); `shape` axis untouched. This deviates from the 172-matrix vocabulary (square-pan rows also say `shape: square`) **on purpose**; the matrix and Design Lock text are not rewritten.
+- Unlock U1: the affordance step is derived by `techniqueAffordanceStep` from the required recipe's ingredients; never hard-coded. Expected value for grandma is step 14 (garlic) per Design Lock §1; **F re-derives it**, and its tests assert the derivation, not the number. `ladderCredit:false` recipes are not counted (OD-TQ1D-2). With no requiring recipe in the catalog, the affordance never opens (INV-TQ-4) → F is inert in Production until E.
+- UI route P1: ○ / □ switch in the DOUGH step of Free Cooking / Research, hidden before the affordance, hidden in guided rounds (recipe-fixed), Lunch Rush and Dinner. Both dough states (radial and square-grid) are kept so switching loses nothing. 「次へ」 fixes the shape.
+- Pan-cooked RESULT shows the actually cooked shape (pizza + pan); scoring uses the Reference region of the cooked shape (formulas unchanged, D4). Because identity requires the pan, a matched pizza always has the recipe's own shape.
+
+### 4B.2 O-2 — RESULT route and its Anti-Oracle acceptance conditions
+Goal: a player whose pizza was ORIGINAL *because of the pan* should be able to understand "the shape matters", without RESULT acting as a recipe oracle.
+
+Learning paths (in order):
+1. **First completed pan pizza** (affordance open): the existing RESULT technique stage reveals 「天板焼き」 with its description (usage path, INV-TQ-6). This names the method but no recipe.
+2. **Dex 調理法 row**: before discovery, 「？？？」 plus the O-6 hint (only after the affordance); after discovery, the O-6 description.
+3. **Later pan-cooked ORIGINAL pizzas**: RESULT may show one neutral shape line. Its copy is **not decided** (Owner approval needed; candidates only in F's PR).
+4. **Round grandma ingredients** (the harder case): no RESULT line (a line would reveal that the ingredients are special). The route is the Dex hint, the visible ○ / □ switch, and the technique stage.
+
+Acceptance conditions (copied into F #538):
+- **AC-1** RESULT always shows the cooked shape for every outcome.
+- **AC-2** The shape line's presence and wording are a function of (chosen pan, outcome class `ORIGINAL`) **only**. It never depends on whether the ingredient set matches, nearly matches or collides with any recipe, nor on any Research target (INV-4).
+- **AC-3** Differential privacy test: with the same pan and outcome class, RESULT DOM for an ingredient set that *would* match a recipe under another shape is byte-identical to one that matches nothing.
+- **AC-4** No recipe name, ingredient name, count, "あと少し", distance, similarity, or number of recipes that use the pan.
+- **AC-5** Not shown for a round pizza (no pan-related text in round RESULT).
+- **AC-6** Shown only when the affordance is open and the player used the pan.
+- **AC-7** Research ○× stays ingredient-only and unaffected by the pan.
+- **AC-8** Before the technique is discovered, no text names 「天板焼き」; after, the name appears only through the technique stage and the Dex.
+- **AC-9** Dex silhouettes, Recipe Select thumbnails, Hint sheet, Research board and changelog stay shape-neutral for undiscovered recipes (sweep test).
+
+### 4B.3 Conflict to confirm — riddle wording vs. OD-TQ-5/6
+The existing rule says a technique's undiscovered riddle must not name the technique or **the concrete action** (`data/techniques.ts`, OD-TQ-5/6). The Owner-approved hint 「…四つの角まで生地を広げてみよう。」 contains a concrete action. It is adopted as written; F records it as an **explicit, Owner-approved exception limited to this technique** and updates the related assertion with the exception. F's first step asks the Owner for a one-line acknowledgement. This does not block Q0.
+
+### 4B.4 Dependencies after the decisions
+`Q0 (#533) → A (#534) → B (#535) → C (#536)`; `D (#537)` needs A and C; **`F (#538)` needs A and C**; **`E (#521)` after D and F**. F does not add any recipe; E is the only slice that makes the pan reachable in Production.
 
 ## 5. Acceptance criteria and verification (per Issue)
 
@@ -196,6 +241,7 @@ Common to every UI Issue: viewports 390×844 and 360×800; Playwright projects `
 | #535 B | tap/long-press spreads thickness immediately; no confirm timer; no iOS selection/callout/zoom/scroll on WebKit; saturating coverage; cancel-safe; round branch untouched | required |
 | #536 C | drag moves the edge toward corners; corner-reach + evenness visuals; completion = 4 corners ≥ 85% ∧ evenness ≥ threshold (constants isolated); generous zones, no pixel precision; no scoring change; no edge-swipe conflict | required |
 | #537 D | sauce/toppings/cheese boundaries via shape; square sauce Reference; bake/RESULT/thumbnails square with pan; CUT disabled; pixel checks after CSS filters; 57-recipe golden; pre-discovery surfaces shape-neutral (§4) | required (D2) |
+| #538 F | Technique 天板焼き registered; `pan` axis OBSERVED, `shape` UNAVAILABLE; U1 derived affordance (no hard-coded step); P1 ○/□ switch with re-edit until 「次へ」; Dex copy per O-6; RESULT shows cooked shape; AC-1…AC-9 (§4B.2); save round-trip; inert in Production until E | required (Owner device) |
 | #521 E | recipe added only after A–D; `ladderCredit:false`, `lunchRush:false`, DH4 gate re-run, normal-flow E2E; Design Lock §8 answered by Owner | required |
 
 Thresholds (85%, evenness) are **initial proposals**; final numbers come from Owner on-device HV on iPhone (D5).
@@ -224,12 +270,17 @@ Design Lock §8 (still open, D7):
 8. Two-different-base-sauce recipes remain "later candidates", none selected.
 
 New, from this addendum:
-9. **Anti-Oracle option**: Options 1–3 are not adopted by the Owner; **Option 4 (§4A) is under evaluation** — decisions O-1…O-7 in §4A.10 (Option 1 remains the fallback). Blocks A's surface audit scope, D and F.
+9. ~~Anti-Oracle option~~ — **decided**: Option 4, O-1…O-7 (§2). Remaining sub-items: items 15–18 below.
 10. (Option 1 only) First-discovery RESULT shows round-as-played or must show the pan? — moot under Option 4: RESULT shows the cooked shape.
 11. Scoring: Reference resolved by the cooked shape, formulas unchanged — acceptable under D4? (Under Option 4 identity forces cooked shape = recipe shape.)
 12. Final values for 85% corner reach and the evenness threshold — from Owner on-device HV (D5), not decided here.
 13. Behavior when a completed square dough is edited again (undo/reshape allowed?).
 14. Whether Detroit / Sicilian / other sheet-pan recipes are future users of `panShape` (no commitment; D1 only requires reuse-ready design).
+
+15. Riddle wording exception to OD-TQ-5/6 (§4B.3): one-line Owner acknowledgement (asked in F).
+16. Final copy of the neutral shape line in RESULT for pan-cooked ORIGINAL pizzas (§4B.2 item 3): Owner approval.
+17. Internal technique ID and the pan value name (F / E).
+18. Re-derive the affordance step (expected 14) at F implementation; if it differs, report before relying on it.
 
 ## 8. Out of scope here
 No implementation, no recipe data, no `#521` S3, no `#527`, no Preview deployment, no merge.
