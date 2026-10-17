@@ -209,7 +209,7 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
   - **固定している場所:** `researchResultRows.test.ts`（Gate A: 構造が全 target で同一）、`gameReducer.techniques.privacy.test.ts`（target ごとの rows / Notebook / 保存 / Research Entry / Hint 5.0 view / near-miss の absence 走査）、`hint5Production.gate.test.ts`（G7 / RESERVED gate）、`deductionProduction.gate.test.ts`（DH4 privacy sweep に Aussie を含む）。
 - **53 / 172 recipe の Scale Audit**: 旧版の見積り（本書の旧 §6 の将来スケール）は sauce 複数投入の前提を含む可能性があり、**現時点で authority にしない**。拡張 population（53 / 172）を扱う前に**再監査する**（trigger の記録のみ。数値はここでは確定しない）。Production-27 の実装 blocker ではない。
   - **2026-10-17 追記（複数ソース改訂）:** 再監査の前提は「sauce 1 種 / attempt」ではなく、**1 attempt に複数種類の sauce が載り得る現行 engine**（§3 改訂）で行う。§15 の数値表（sauce を 1 attempt 1 種類ずつ試す blind scan）は**この前提では再計算されていない**。
-  - **フォローアップ（未実施、別途）:** Research 2.0 §4 が求める「53 / 172 population を導入する前の Research identifier compatibility の Fresh Gate 再監査」は、catalog が 53 件に達した時点（Expansion Batch 5）でも、現在の 57 件（grandma を足すと 58 件）でも**実施されていない**。これを独立したフォローアップとして記録する（`TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md` §7）。本書の改訂はこの再監査の代替ではない。
+  - **フォローアップ（未実施、別途）:** Research 2.0 §4 が求める「53 / 172 population を導入する前の Research identifier compatibility の Fresh Gate 再監査」は、catalog が 53 件に達した時点（Expansion Batch 5）でも、現在の 57 件（grandma を足すと 58 件）でも**実施されていない**。これを独立したフォローアップとして記録する（`TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md` §8.2）。本書の改訂はこの再監査の代替ではない。
 
 ## 14. Non-Goals
 
