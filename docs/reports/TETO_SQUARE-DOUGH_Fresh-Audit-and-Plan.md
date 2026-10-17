@@ -3,6 +3,8 @@
 Status: **READ-ONLY audit + plan. No `src/**`, recipe, save or Design Lock change.** Not merged, not deployed, no shared Preview touched.
 Base: `origin/main` `608e65b`. Parent: #521 (Multi-Sauce Recipes). Related: #474, #429, #467, #531, #529.
 
+> **Update (2026-10-17):** this audit is the starting record. Owner decisions D1–D7 and O-1…O-7, Option 4 (pan as the Technique 「天板焼き」), the new Issue F (#538) and the issue numbers (Epic #532, Q0 #533, A #534, B #535, C #536, D #537) are in `TETO_SQUARE-DOUGH_Design-Lock-Addendum.md` (rev.3), which takes precedence. The text below is kept as written.
+
 ## 0. Owner decision (recorded, 2026-10-17)
 
 Grandma pizza gets its own square-pan dough step, with different controls from the round pizza:
