@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
-import { SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
+import { bakeOilHex, overlapAlphaFactorFor, SAUCE_DISPLAY_GRID, SAUCE_OVERLAP_ALPHA_FACTOR } from "../logic/sauceDisplay";
+import type { SauceDepositLike } from "../logic/sauceField";
+import type { SauceLayer } from "../state/sauceLayers";
 import { canvas2dAvailable } from "./CheesePoolCanvas";
 
 /** One shared 64x64 staging surface: creating a canvas and an ImageData on every redraw cost more than the
@@ -39,4 +41,33 @@ if (typeof document !== "undefined") canvas2dAvailable();
  */
 export function platformSupports2d(): boolean {
   return canvas2dAvailable();
+}
+
+/** The dot fallback's overlap dimming for an olive-oil run over earlier sauce (Issue #519 / #521 S1): see `FallbackRun.overlap`. */
+export interface FallbackOverlap {
+  under: readonly SauceDepositLike[];
+  factor: number;
+}
+
+/** A dot is "over" a deposit below it when they are within about one marker radius (the dot is 16% of the box wide). */
+export const OVERLAP_RADIUS_PCT = 8;
+
+/** The overlap dimming of a fallback run: only an olive-oil run that has something under it (the other sauces keep the generic, undimmed dot). */
+export function overlapFallbackOf(ingredientId: string | undefined, under: readonly SauceDepositLike[] | undefined): FallbackOverlap | undefined {
+  const factor = overlapAlphaFactorFor(ingredientId);
+  if (factor === SAUCE_OVERLAP_ALPHA_FACTOR || !under || under.length === 0) return undefined;
+  return { under, factor };
+}
+
+/**
+ * The dot-fallback runs for a layered (two or more sauce kinds) pizza whose layers failed to render (`SauceLayersBoundary`). That fallback is a plain
+ * box with no oil CSS filter, so an olive-oil dot would stay the raw pale swatch and vanish over the sauce below: it gets the baked oil colour (the same
+ * transform the flattened canvases use) plus the oil overlap dimming. Other sauces keep their own colour. (Codex P2 on PR #524.)
+ */
+export function layeredFallbackRuns(layers: readonly SauceLayer[], colorOf: (ingredientId: string) => string) {
+  return layers.map((layer) => ({
+    deposits: layer.deposits,
+    color: layer.ingredientId === "olive-oil" ? bakeOilHex(colorOf(layer.ingredientId)) : colorOf(layer.ingredientId),
+    overlap: overlapFallbackOf(layer.ingredientId, layer.under),
+  }));
 }
