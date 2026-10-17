@@ -212,8 +212,8 @@ describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", (
 
 /**
  * Ingredient Icons 2.0 Pilot A (#438): hot-dog / sausage / feta / ricotta draw their SVG in icon
- * contexts; un-migrated cheese keeps its CSS shape in the tray chip and Inventory (§4.4); the
- * on-pizza / drag-preview cheese stays CSS (IngredientPieceVisual).
+ * contexts and on the pizza (inside the `.pizza-cheese` wrapper); un-migrated cheese keeps its CSS shape
+ * everywhere (§4.4).
  */
 describe("Ingredient Icons 2.0 Pilot A", () => {
   const ids = Object.keys(PILOT_A_DEDICATED);
@@ -292,14 +292,33 @@ describe("Ingredient Icons 2.0 Pilot A", () => {
     inventory.unmount();
   });
 
-  it("cheese on the pizza (IngredientPieceVisual) stays the CSS shape, even for feta / ricotta", () => {
+  it("on the pizza, feta / ricotta draw the same SVG as the tray inside the .pizza-cheese wrapper (no CSS cheese look)", () => {
     for (const id of ["feta", "ricotta"]) {
-      const { container, unmount } = render(<IngredientPieceVisual ingredient={getIngredient(id)!} />);
-      expect(container.querySelector(`.pizza-cheese.pizza-cheese--${id}`)).not.toBeNull();
+      const visual = PILOT_A_DEDICATED[id];
+      const { container, unmount } = render(<IngredientPieceVisual ingredient={getIngredient(id)!} className="x-bake" style={{ filter: "sepia(0.3)" }} />);
+      const wrapper = container.querySelector(`.pizza-cheese.pizza-cheese--${id}.pizza-cheese--glyph`) as HTMLElement;
+      expect(wrapper).not.toBeNull();
+      expect(wrapper).toHaveClass("x-bake"); // the bake class / inline style still land on the wrapper
+      expect(wrapper.style.filter).toBe("sepia(0.3)");
+      expect(wrapper.style.getPropertyValue("--cheese-color")).toBe(getIngredient(id)!.color);
+      expect(wrapper.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+      expect(wrapper.textContent).toBe("");
+      unmount();
+    }
+  });
+
+  it("every cheese without a pieceVisual (mozzarella included) is still the CSS shape on the pizza", () => {
+    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual);
+    expect(legacyCheese.map((i) => i.id)).toContain("mozzarella");
+    for (const ingredient of legacyCheese) {
+      const { container, unmount } = render(<IngredientPieceVisual ingredient={ingredient} />);
+      expect(container.querySelector(`.pizza-cheese.pizza-cheese--${ingredient.id}`)).not.toBeNull();
+      expect(container.querySelector(".pizza-cheese--glyph")).toBeNull();
       expect(container.querySelector("svg")).toBeNull();
       unmount();
     }
   });
+
 });
 
 describe("P1 / I5a scope guard: identity / save untouched", () => {
