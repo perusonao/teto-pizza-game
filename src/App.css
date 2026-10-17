@@ -3545,6 +3545,23 @@
   border-radius: 999px;
 }
 
+/* DEV / Preview only link to the DEV State Editor (src/devtools/DevEditorLink.tsx). */
+.settings-overlay__dev-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  border: 2px solid #3b6fd4;
+  background: #fff;
+  color: #3b6fd4;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+
 /* Reset confirmation modal: stacks above .settings-overlay's own .dex-overlay backdrop
    (z-index: 20), matching the existing precedent set by .mission-overlay/
    .reference-preview__backdrop (both z-index: 25) for "a modal above an already-open

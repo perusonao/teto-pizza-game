@@ -25,6 +25,7 @@ describe("DEV State Editor access (source)", () => {
     expect(Object.keys(all).length).toBeGreaterThan(100);
     expect(devtoolsSources.map(([f]) => baseName(f)).sort()).toEqual([
       "BackupPanel.tsx",
+      "DevEditorLink.tsx",
       "IngredientsPanel.tsx",
       "NumberField.tsx",
       "ReviewPanel.tsx",
@@ -46,8 +47,17 @@ describe("DEV State Editor access (source)", () => {
   it("no production source outside src/devtools and src/main.tsx refers to the editor, its URL parameter or its keys", () => {
     for (const [file, text] of Object.entries(all)) {
       if (inDevtools(file) || file === "../main.tsx") continue;
+      if (file === "../components/SettingsOverlay.tsx") continue; // checked by the next test
       expect(text, file).not.toMatch(/devtools\/|dev=state|dev-state-editor|dev-backup-v1|DEV State Editor|StateEditorShell/);
     }
+  });
+
+  it("the settings overlay reaches the editor link only through the DevEditorLink import, rendered behind the DEV / Preview env check", () => {
+    const settings = all["../components/SettingsOverlay.tsx"];
+    expect(settings).toMatch(/import \{ DevEditorLink \} from "\.\.\/devtools\/DevEditorLink";/);
+    expect(settings).toMatch(/\(import\.meta\.env\.DEV \|\| import\.meta\.env\.VITE_PREVIEW_MODE\) && <DevEditorLink \/>/);
+    expect((settings.match(/DevEditorLink/g) ?? []).length).toBe(2 + 1); // import name, import path, usage
+    expect(settings).not.toMatch(/dev=state|StateEditor/);
   });
 
   it("main.tsx reaches it only behind the DEV / Preview env check, through a dynamic import, and never seeds on it", () => {

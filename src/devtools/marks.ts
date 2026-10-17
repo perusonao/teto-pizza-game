@@ -17,3 +17,8 @@ export const DEV_STATE_EDITOR_TITLE = "DEV State Editor";
 /** Titles that exist only in the editor UI chunk (the production-bundle gate scans for them too). */
 export const DEV_EDITOR_REVIEW_TITLE = "適用前の確認（DEV）";
 export const DEV_EDITOR_BACKUP_TITLE = "DEV backup / restore";
+
+/** Settings-overlay entry to the editor (./DevEditorLink.tsx): its section / item titles and the editor URL query. */
+export const DEV_SETTINGS_SECTION_TITLE = "開発・テスト";
+export const DEV_SETTINGS_LINK_LABEL = "開発用データ編集";
+export const DEV_STATE_EDITOR_QUERY = "?dev=state";
