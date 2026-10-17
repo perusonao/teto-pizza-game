@@ -76,11 +76,18 @@ const dist = (a: Rgb, b: Rgb) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2
 const redness = (c: Rgb) => c[0] - c[1];
 const sumDiff = (a: Rgb, b: Rgb) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
 
-/** "the earlier sauce is still there": the overlap reads as tomato (nearer the tomato-only sample than the oil-only one) and keeps red. */
-function expectTomatoStillVisible(s: Samples, label: string) {
-  expect(dist(s.overlap, s.tomato), `${label}: overlap nearer to tomato than to oil (${JSON.stringify(s)})`).toBeLessThan(dist(s.overlap, s.oil));
-  expect(redness(s.overlap), `${label}: overlap keeps red (${JSON.stringify(s)})`).toBeGreaterThan(redness(s.oil) + 40);
-  expect(sumDiff(s.oil, s.dough), `${label}: oil alone stays visible on the dough (${JSON.stringify(s)})`).toBeGreaterThanOrEqual(30);
+/**
+ * "the earlier sauce is still there". `strict` (the untinted SAUCE / CHEESE steps): the overlap reads as tomato, i.e. nearer the tomato-only sample than the
+ * oil-only one. After the bake the whole pizza carries the bake tint (WebKit's take-out can land on a pale, raw-looking pizza: bare dough (246,242,226)),
+ * so absolute distances move; there the check is relative -- the overlap keeps at least 0.4 of the tomato's own red-green gap (main, factor 0.7: ~0.25;
+ * the fix: ~0.5-0.7) and stays clearly redder than the oil on its own.
+ */
+function expectTomatoStillVisible(s: Samples, label: string, strict = true) {
+  const detail = JSON.stringify(s);
+  if (strict) expect(dist(s.overlap, s.tomato), `${label}: overlap nearer to tomato than to oil (${detail})`).toBeLessThan(dist(s.overlap, s.oil));
+  expect(redness(s.overlap), `${label}: overlap keeps red (${detail})`).toBeGreaterThan(redness(s.oil) + (strict ? 40 : 20));
+  expect(redness(s.overlap), `${label}: overlap keeps at least 0.4 of the tomato's own red (${detail})`).toBeGreaterThanOrEqual(0.4 * redness(s.tomato));
+  expect(sumDiff(s.oil, s.dough), `${label}: oil alone stays visible on the dough (${detail})`).toBeGreaterThanOrEqual(30);
 }
 
 test("#519: tomato then olive oil -- the tomato is still visible under the oil (SAUCE, rendered pixels)", async ({ page }) => {
@@ -150,5 +157,5 @@ test("#519: tomato then olive oil stays visible through CHEESE, BAKE and RESULT"
   await expect(page.locator(".result-panel").first()).toBeVisible();
   await page.waitForTimeout(500);
   // the RESULT shows the same layered pizza (baked: the bake tint applies to both layers)
-  expectTomatoStillVisible(await sample(page), "RESULT");
+  expectTomatoStillVisible(await sample(page), "RESULT", false);
 });
