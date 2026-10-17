@@ -79,7 +79,8 @@ test("FREE Cooking RESULT shows ジャスト / 惜しい on the generic window, 
 
   await reachFreeBake(page);
   await enterBakePaused(page);
-  await page.clock.runFor(1500); // the needle moves 1 way only; the 惜しい（焼き不足）band 58-65 is reached early
+  // The needle moves one way only and starts near 0, so the 惜しい（焼き不足）band 59-64 lies ahead of it: landNeedleAndTakeOut measures
+  // where the needle really is (enterBakePaused may have spent a retry buffer) and advances from there.
   await landNeedleAndTakeOut(page, { start: 59, end: 64 });
   await page.waitForSelector(".result-panel");
   await expect(page.locator(".result-panel__bake-badge").first()).toContainText("焼き加減: 惜しい（焼き不足）");
