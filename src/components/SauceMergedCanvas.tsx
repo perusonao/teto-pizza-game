@@ -13,7 +13,7 @@ import {
 import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
 import type { SauceLayer } from "../state/sauceLayers";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
-import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
+import { getStagingSurface, overlapFallbackOf, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /**
  * Codex P2 on PR #494 (canvas budget): the OLDEST sauce runs of a long pizza are flattened into shared canvases instead of one canvas
@@ -109,7 +109,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
   }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
 
   if (failed) {
-    return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId) }))} className={className} />;
+    return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, overlap: overlapFallbackOf(run.ingredientId, run.under), color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId) }))} className={className} />;
   }
   return <canvas ref={canvasRef} className={className} width={MERGED_CANVAS_PX} height={MERGED_CANVAS_PX} aria-hidden="true" />;
 }

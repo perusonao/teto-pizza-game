@@ -2,12 +2,12 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { createIdealDoughShape } from "../logic/doughShape";
-import { alphaPlaneOf, bakeOilHex, buildSauceDisplayPixels, compositeOver, dimWhereOverlapping } from "../logic/sauceDisplay";
+import { alphaPlaneOf, bakeOilHex, buildSauceDisplayPixels, compositeOver, dimWhereOverlapping, SAUCE_OIL_OVERLAP_ALPHA_FACTOR } from "../logic/sauceDisplay";
 import type { SauceDeposit } from "../state/pizzaState";
 import type { SauceLayer } from "../state/sauceLayers";
 import { resetCanvas2dProbe } from "./CheesePoolCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
-import { platformSupports2d, resetStagingSurface } from "./sauceCanvasSupport";
+import { overlapFallbackOf, platformSupports2d, resetStagingSurface } from "./sauceCanvasSupport";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
@@ -269,6 +269,45 @@ describe("merged sauce canvases", () => {
       oilOnly.unmount();
       const noOil = render(<SauceMergedHeatmapCanvas runs={[run("pesto", [30], [])]} doughShape={shape} colorOf={colors} bakedOil className="m" />);
       expect(dotStyles(noOil.container)[0]).toContain(rgbOf("#6b8f3a"));
+    });
+  });
+
+  describe("oil over another sauce keeps its overlap dimming in the dot fallback (#519, Codex P2 on PR #524)", () => {
+    const opacities = (container: HTMLElement) => [...container.querySelectorAll("[data-sauce-fallback] > span")].map((d) => parseFloat((d as HTMLElement).style.opacity));
+    const OIL_DOT = 0.5 * SAUCE_OIL_OVERLAP_ALPHA_FACTOR;
+    const colors = (id: string) => (id === "olive-oil" ? "#e9d9a0" : "#c8412b");
+    const under = [{ ...dep(30), ingredientId: "tomato-sauce" }];
+
+    it("only an olive-oil run that has something under it is dimmed, and only where it lies over it", () => {
+      expect(overlapFallbackOf("olive-oil", under)).toEqual({ under, factor: SAUCE_OIL_OVERLAP_ALPHA_FACTOR });
+      expect(overlapFallbackOf("olive-oil", [])).toBeUndefined(); // the bottom layer
+      expect(overlapFallbackOf("olive-oil", undefined)).toBeUndefined();
+      for (const kind of ["tomato-sauce", "pesto", undefined]) expect(overlapFallbackOf(kind, under)).toBeUndefined(); // the generic look is unchanged
+    });
+
+    it("a refused context on the oil heatmap: dots over the tomato are dimmed, the rest keep the plain 0.5", () => {
+      stubContext("null");
+      const { container } = render(
+        <SauceHeatmapCanvas deposits={[dep(32), dep(70)]} underDeposits={under} ingredientId="olive-oil" doughShape={shape} color="#e9d9a0" className="h" />,
+      );
+      expect(opacities(container)).toEqual([OIL_DOT, 0.5]);
+    });
+
+    it("the same oil heatmap with nothing under it, or any other sauce over the tomato: every dot stays 0.5 (one-sauce pizzas are untouched)", () => {
+      stubContext("null");
+      const alone = render(<SauceHeatmapCanvas deposits={[dep(32)]} ingredientId="olive-oil" doughShape={shape} color="#e9d9a0" className="h" />);
+      expect(opacities(alone.container)).toEqual([0.5]);
+      alone.unmount();
+      const pesto = render(<SauceHeatmapCanvas deposits={[dep(32)]} underDeposits={under} ingredientId="pesto" doughShape={shape} color="#6b8f3a" className="h" />);
+      expect(opacities(pesto.container)).toEqual([0.5]);
+    });
+
+    it("a failed merged group: an oil run over an earlier run is dimmed where it overlaps it; the earlier run and non-overlapping dots are not", () => {
+      stubContext("null");
+      const tomato: SauceLayer = { ingredientId: "tomato-sauce", deposits: [{ ...dep(30), ingredientId: "tomato-sauce" }], under: [] };
+      const oil: SauceLayer = { ingredientId: "olive-oil", deposits: [{ ...dep(32), ingredientId: "olive-oil" }, { ...dep(70), ingredientId: "olive-oil" }], under: tomato.deposits };
+      const { container } = render(<SauceMergedHeatmapCanvas runs={[tomato, oil]} doughShape={shape} colorOf={colors} className="m" />);
+      expect(opacities(container)).toEqual([0.5, OIL_DOT, 0.5]);
     });
   });
 

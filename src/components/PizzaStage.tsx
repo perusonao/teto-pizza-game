@@ -45,6 +45,7 @@ import { sauceGaugeDetail, sauceGaugeUsed } from "../logic/sauceRemaining";
 import { layersWithPending, planSauceLayers, sauceBudgetForPieces, SAUCE_PIZZA_BUDGET, sauceRunsOf, type SauceLayer } from "../state/sauceLayers";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
+import { overlapFallbackOf } from "./sauceCanvasSupport";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import {
   clampToDough,
@@ -1213,7 +1214,7 @@ export function PizzaStage({
         // if anything in the layers throws while rendering, the sauce is still shown (as dots) and the app stays up
         const fallback = (
           <SauceDotsFallback
-            runs={sauceLayers.map((layer) => ({ deposits: layer.deposits, color: colorOf(layer.ingredientId) }))}
+            runs={sauceLayers.map((layer) => ({ deposits: layer.deposits, color: colorOf(layer.ingredientId), overlap: overlapFallbackOf(layer.ingredientId, layer.under) }))}
             className={mergedClassName(false)}
           />
         );

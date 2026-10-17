@@ -3,7 +3,7 @@ import type { SauceDepositLike } from "../logic/sauceField";
 import { alphaPlaneOf, buildSauceDisplayPixels, dimWhereOverlapping, overlapAlphaFactorFor, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
 import type { DoughShape } from "../logic/doughShape";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
-import { getStagingSurface, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
+import { getStagingSurface, overlapFallbackOf, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
 /** Internal pixel resolution of the rasterized heatmap -- purely a rendering detail (the
  *  browser's own image upscaler stretches this to whatever CSS size the caller's `className`
@@ -113,7 +113,7 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className, und
     }
   }, [deposits, doughShape, color, underAlpha, ingredientId, markFailed]);
 
-  if (failed) return <SauceDotsFallback runs={[{ deposits, color }]} className={className} />;
+  if (failed) return <SauceDotsFallback runs={[{ deposits, color, overlap: overlapFallbackOf(ingredientId, underDeposits) }]} className={className} />;
   return (
     <canvas
       ref={canvasRef}
