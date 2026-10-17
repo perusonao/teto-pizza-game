@@ -78,10 +78,16 @@ test("#524 diag: pressing 診断 shows the data and the canvases, and changes no
   // oil painted elsewhere: two kinds in the data side, two canvases with pixels on the screen side
   await paint(page, 0.55, 0.8, 0.65);
   await pressDiag(page);
-  const last = ((await log(page).textContent()) ?? "").split("\n").slice(-5).join("\n");
+  const last = ((await log(page).textContent()) ?? "").split("\n").slice(-8).join("\n");
   expect(last).toMatch(/DATA ids=\[tomato-,olive-o\] dep\(n\/amt\) tomato-=\d+\/[\d.]+ olive-o=\d+\/[\d.]+/);
   expect(last).toMatch(/ c0 tomato px=[1-9]\d* /);
   expect(last).toMatch(/ c1 olive-\* px=[1-9]\d* /);
+  // what each heat canvas holds (mean RGB, mask checksum, centroid) next to the expectation computed from the data: healthy = ok, never MISMATCH
+  expect(last).toMatch(/tomato rgb=\d+,\d+,\d+ h=[0-9a-f]{8} c=\d+,\d+ cd=[\d.]+ iou=[\d.]+ dRGB=\d+ ok/);
+  expect(last).toMatch(/olive-\* rgb=\d+,\d+,\d+ h=[0-9a-f]{8} c=\d+,\d+ cd=[\d.]+ iou=[\d.]+ dRGB=\d+ ok/);
+  expect(last).not.toContain("MISMATCH");
+  const hashes = [...last.matchAll(/ h=([0-9a-f]{8})/g)].map((m) => m[1]);
+  expect(new Set(hashes).size, "the two heat canvases hold different pixel masks").toBe(2);
   expect(requests, "no network request from the diagnostic").toEqual([]);
   expect(errors).toEqual([]);
 });
@@ -156,4 +162,27 @@ test("#524 diag: also clear of the controls on the CHEESE and TOPPING steps", as
     for (const m of mine) for (const b of boxes) if (overlaps(m, b)) report.push(`${step}: ${b.name} ${Math.round(b.x)},${Math.round(b.y)} ${Math.round(b.w)}x${Math.round(b.h)}`);
   }
   expect(report, report.join(" | ")).toEqual([]);
+});
+
+test("#524 diag: a canvas that holds another layer's pixels never occurs with a late drawImage read simulated (it is flagged MISMATCH on the shared-staging code)", async ({ page }) => {
+  // The healthy build must show no MISMATCH even under the late-read simulation (the per-canvas staging surfaces make it harmless).
+  await page.addInitScript(() => {
+    const orig = CanvasRenderingContext2D.prototype.drawImage as (...a: unknown[]) => void;
+    CanvasRenderingContext2D.prototype.drawImage = function (this: CanvasRenderingContext2D, ...args: unknown[]) {
+      const src = args[0];
+      if (src instanceof HTMLCanvasElement && src.width === 64 && src.height === 64) {
+        queueMicrotask(() => orig.apply(this, args));
+        return;
+      }
+      return orig.apply(this, args);
+    } as typeof CanvasRenderingContext2D.prototype.drawImage;
+  });
+  await toSauce(page);
+  await paint(page, 0.2, 0.5, 0.4);
+  await page.getByRole("button", { name: /オリーブオイル/ }).click();
+  await paint(page, 0.55, 0.8, 0.65);
+  await pressDiag(page);
+  const text = (await log(page).textContent()) ?? "";
+  expect(text).not.toContain("MISMATCH");
+  expect(text).toMatch(/olive-\* rgb=/);
 });

@@ -39,6 +39,7 @@ describe("DEV State Editor access (source)", () => {
       "marks.ts",
       "memoryStorage.ts",
       "presets.ts",
+      "sauceDiagExpected.ts",
       "sauceDiagRead.ts",
       "saveMerge.ts",
       "starStates.ts",
@@ -66,7 +67,7 @@ describe("DEV State Editor access (source)", () => {
   it("App.tsx mounts the sauce diagnostic only behind the DEV / Preview env check, on the cooking screen, passing it plain data (no dispatch)", () => {
     const app = all["../App.tsx"];
     expect(app).toMatch(/import \{ SauceDiag \} from "\.\/devtools\/SauceDiag";/);
-    expect(app).toMatch(/\(import\.meta\.env\.DEV \|\| import\.meta\.env\.VITE_PREVIEW_MODE\) && screen === "GAME" && \(\s*<SauceDiag facts=\{\{ sauceIds: state\.pizza\.sauceIds, deposits: state\.pizza\.sauceDeposits \}\} \/>/);
+    expect(app).toMatch(/\(import\.meta\.env\.DEV \|\| import\.meta\.env\.VITE_PREVIEW_MODE\) && screen === "GAME" && \(\s*<SauceDiag facts=\{\{ sauceIds: state\.pizza\.sauceIds, deposits: state\.pizza\.sauceDeposits, doughShape: state\.pizza\.doughShape \}\} \/>/);
     expect((app.match(/SauceDiag/g) ?? []).length).toBe(2 + 1); // import name, import path, usage
     expect(app).not.toMatch(/devtools\/(?!SauceDiag")/);
   });

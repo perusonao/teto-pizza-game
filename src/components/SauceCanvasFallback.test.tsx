@@ -7,7 +7,7 @@ import type { SauceDeposit } from "../state/pizzaState";
 import type { SauceLayer } from "../state/sauceLayers";
 import { resetCanvas2dProbe } from "./CheesePoolCanvas";
 import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
-import { layeredFallbackRuns, overlapFallbackOf, platformSupports2d, resetStagingSurface } from "./sauceCanvasSupport";
+import { layeredFallbackRuns, overlapFallbackOf, platformSupports2d } from "./sauceCanvasSupport";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import { OverflowMarkerCanvas } from "./OverflowMarkerCanvas";
@@ -60,7 +60,6 @@ beforeEach(() => {
   staged.length = 0;
   fills.length = 0;
   resetCanvas2dProbe();
-  resetStagingSurface();
 });
 afterEach(() => {
   cleanup();
@@ -159,8 +158,7 @@ describe("canvas support is probed before the sauce canvases exist (Codex P2: pr
     const heat = render(<SauceHeatmapCanvas deposits={deposits} doughShape={shape} color="#c8412b" />);
     expect(heat.container.querySelector("[data-sauce-fallback]")).toBeInTheDocument();
     heat.unmount();
-    resetStagingSurface();
-    const merged = render(<SauceMergedHeatmapCanvas runs={[run("tomato-sauce")]} doughShape={shape} colorOf={colorOf} />);
+      const merged = render(<SauceMergedHeatmapCanvas runs={[run("tomato-sauce")]} doughShape={shape} colorOf={colorOf} />);
     expect(merged.container.querySelector("[data-sauce-fallback]")).toBeInTheDocument();
   });
 

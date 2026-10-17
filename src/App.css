@@ -7490,16 +7490,13 @@ p.hint-sheet__step {
   opacity: 0.6;
 }
 
-/* ---------- Sauce diagnostic (Issue #524 Owner HV; Preview / DEV only, see devtools/SauceDiag.tsx) ---------- */
-.sauce-diag {
+/* ---------- Sauce diagnostic (Issue #524 Owner HV; Preview / DEV only, see devtools/SauceDiag.tsx) ----------
+   The two buttons sit between the pizza and the tray; the log sits in the free band above the pizza (below the step tabs), so neither covers a control or the pizza. */
+.sauce-diag__bar {
   position: fixed;
   left: 6px;
-  right: 6px;
   top: 65%;
   z-index: 998;
-  pointer-events: none;
-}
-.sauce-diag__bar {
   display: flex;
   gap: 6px;
   pointer-events: none;
@@ -7515,13 +7512,19 @@ p.hint-sheet__step {
   background: rgba(43, 26, 10, 0.85);
 }
 .sauce-diag__log {
-  margin: 2px 0 0;
+  position: fixed;
+  left: 6px;
+  right: 6px;
+  top: 13%;
+  z-index: 998;
+  pointer-events: none;
+  margin: 0;
   padding: 2px 4px;
-  max-height: 11.5vh;
+  max-height: 15vh;
   overflow: hidden;
-  font: 8.5px/10.5px ui-monospace, monospace;
+  font: 8px/9.5px ui-monospace, monospace;
   color: #8f8;
-  background: rgba(0, 0, 0, 0.78);
+  background: rgba(0, 0, 0, 0.8);
   border-radius: 4px;
   white-space: pre;
 }

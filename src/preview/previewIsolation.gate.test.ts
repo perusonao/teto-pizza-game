@@ -60,6 +60,7 @@ const PREVIEW_ONLY_STRINGS = [
   SAUCE_DIAG_MARK,
   SAUCE_DIAG_TITLE,
   "sauce-diag-log",
+  "EMPTY but expected pixels: MISMATCH", // the expected-vs-held comparison (sauceDiagRead.ts)
   ...PRESETS.map((p) => p.labelJa),
   // Issue #441: a fixed phrase of the star-state presets' description (their ids / labels are derived at run time, so
   // they are never bundle literals: the production-only check below covers them).

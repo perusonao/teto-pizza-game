@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { SAUCE_DIAG_MARK, SAUCE_DIAG_TITLE } from "./marks";
 import { buildSauceDiagReport, type SauceDiagFacts } from "./sauceDiagRead";
 
-const MAX_ROWS = 11;
+const MAX_ROWS = 12;
 
 /**
  * Sauce diagnostic button (Issue #524 Owner HV): a 「診断」 button on the cooking screen that prints, on the screen, what each sauce canvas holds
@@ -23,7 +23,7 @@ export function SauceDiag({ facts }: { facts: SauceDiagFacts }) {
     setRows((prev) => [...prev, ...report].slice(-MAX_ROWS));
   };
   return (
-    <div className="sauce-diag" data-sauce-diag={SAUCE_DIAG_MARK} data-testid="sauce-diag">
+    <div className="sauce-diag" data-sauce-diag={SAUCE_DIAG_MARK} data-testid="sauce-diag" style={{ display: "contents" }}>
       <div className="sauce-diag__bar">
         <button type="button" className="sauce-diag__btn" onClick={snap} aria-label={SAUCE_DIAG_TITLE}>
           診断

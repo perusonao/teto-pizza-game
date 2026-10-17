@@ -1128,7 +1128,7 @@ function App() {
     <div className="app-frame">
       <PreviewBadge />
       {(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && screen === "GAME" && (
-        <SauceDiag facts={{ sauceIds: state.pizza.sauceIds, deposits: state.pizza.sauceDeposits }} />
+        <SauceDiag facts={{ sauceIds: state.pizza.sauceIds, deposits: state.pizza.sauceDeposits, doughShape: state.pizza.doughShape }} />
       )}
       {screen === "HOME" && (
         <HomeScreen

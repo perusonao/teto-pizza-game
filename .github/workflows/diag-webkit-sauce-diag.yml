@@ -4,7 +4,7 @@ name: Diag WebKit sauce diagnostic (temporary, session branch only)
 on:
   push:
     branches: [claude/multi-sauce-pizza-recipes-frhvhs]
-    paths: [".github/workflows/diag-webkit-sauce-diag.yml", "e2e/sauce-diag.spec.ts", "e2e/sauce-oil-over-519.spec.ts", "src/devtools/**", "src/App.tsx", "src/App.css"]
+    paths: [".github/workflows/diag-webkit-sauce-diag.yml", "e2e/sauce-diag.spec.ts", "e2e/sauce-oil-over-519.spec.ts", "e2e/sauce-staging-defer.spec.ts", "src/components/Sauce*.tsx", "src/components/sauceCanvasSupport.ts", "src/devtools/**", "src/App.tsx", "src/App.css"]
   workflow_dispatch:
 
 permissions:
@@ -28,4 +28,4 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps webkit
       - name: Sauce diagnostic + settings dev link (WebKit)
-        run: npx playwright test e2e/sauce-diag.spec.ts e2e/settings-dev-editor-link.spec.ts e2e/sauce-oil-over-519.spec.ts --project=${{ matrix.project }} --reporter=list
+        run: npx playwright test e2e/sauce-diag.spec.ts e2e/settings-dev-editor-link.spec.ts e2e/sauce-oil-over-519.spec.ts e2e/sauce-staging-defer.spec.ts --project=${{ matrix.project }} --reporter=list
