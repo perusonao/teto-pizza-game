@@ -59,3 +59,19 @@ Video (390×844) is delivered directly, not committed.
 
 ## #502
 After this PR merges and CI is green the missing heatmap-fallback branch is pinned; #502 can then be closed by the Owner. It is **not** closed by this PR text.
+
+## Follow-up: the layer canvases' shared staging surface (iPhone Safari Owner HV on this PR)
+Owner HV on the Preview of a74b1f7 (iPhone Safari, iOS 18.7) still lost the tomato after the oil was painted. A read-only diagnostic build showed the tomato canvas and the oil canvas
+holding the SAME pixels (equal non-transparent counts, 10399 = 10399), with the data (32 tomato / 18 oil deposits) intact. Hypothesis (not a confirmed device cause): every sauce
+canvas drew through ONE shared 64x64 staging canvas used as the `drawImage` source; a GPU canvas that reads the source late sees what the next layer wrote there, so two layers mounting
+in the same commit end up with the same pixels.
+
+Change (`sauceCanvasSupport.ts`, `SauceHeatmapCanvas.tsx`, `SauceMergedCanvas.tsx`): each canvas owns its staging surface (`useStagingSurface`, created on first use, released as 0x0 on unmount; 2 x 16 KB
+per heat canvas, at most 12 per pizza, 22 for a cut pizza). The oil overlap factor 0.3 is unchanged; single-source pixels are byte-identical.
+
+Tests: `sauceStaging.deferred.test.tsx` (a canvas that reads its source late is modelled; red on the shared surface, green per canvas; memory / release; single-source golden) and
+`e2e/sauce-staging-defer.spec.ts` (the same model in the browser, Chromium + WebKit, both viewports; red on the shared surface: c0 and c1 hold the same mask and the tomato is gone).
+
+Owner HV: PASS on the diagnostic build 05811db (the same fix; iPhone Safari): tomato 17611 px / IoU 0.97 / dRGB 0, oil 14033 px / IoU 0.98, pesto 9454 px / IoU 0.96; three different mask checksums; red, yellow
+and green all visible. The diagnostic button / display / workflow were NOT brought into this PR.
+

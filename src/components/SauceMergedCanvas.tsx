@@ -13,7 +13,7 @@ import {
 import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
 import type { SauceLayer } from "../state/sauceLayers";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
-import { getStagingSurface, overlapFallbackOf, platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
+import { overlapFallbackOf, platformSupports2d, useCanvasFailure, useStagingSurface } from "./sauceCanvasSupport";
 
 /**
  * Codex P2 on PR #494 (canvas budget): the OLDEST sauce runs of a long pizza are flattened into shared canvases instead of one canvas
@@ -65,6 +65,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
   // a change of `bakedOil` (an oil-only group that became mixed): its oil runs were stacked as plain pixels and must be rebuilt
   const stacked = useRef<{ runs: readonly SauceLayer[]; shape: DoughShape; bakedOil: boolean; pixels: Uint8ClampedArray } | null>(null);
   const [failed, markFailed] = useCanvasFailure();
+  const stagingOf = useStagingSurface(); // this canvas's own 64x64 staging surface (never shared, see sauceCanvasSupport.ts)
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -91,7 +92,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
       stacked.current = { runs: [...runs], shape: doughShape, bakedOil, pixels };
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const staging = getStagingSurface();
+      const staging = stagingOf();
       if (!staging) {
         if (platformSupports2d()) markFailed();
         return;

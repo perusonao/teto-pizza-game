@@ -1,26 +1,58 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { bakeOilHex, overlapAlphaFactorFor, SAUCE_DISPLAY_GRID, SAUCE_OVERLAP_ALPHA_FACTOR } from "../logic/sauceDisplay";
 import type { SauceDepositLike } from "../logic/sauceField";
 import type { SauceLayer } from "../state/sauceLayers";
 import { canvas2dAvailable } from "./CheesePoolCanvas";
 
-/** One shared 64x64 staging surface: creating a canvas and an ImageData on every redraw cost more than the
- *  rasterizing itself (measured, Issue #475 Slice 1), and a redraw is synchronous, so instances can share it. */
-let stagingSurface: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; image: ImageData } | null = null;
-export function getStagingSurface() {
-  if (stagingSurface) return stagingSurface;
+/**
+ * A 64x64 staging surface: the sauce pixels are written here with `putImageData` and then scaled onto the visible 200x200 canvas with `drawImage`.
+ *
+ * ONE PER CANVAS INSTANCE (never shared). It used to be a single module-level surface that every sauce canvas reused one after the other, on the
+ * grounds that a redraw is synchronous. That holds only if `drawImage` reads its source canvas at the call. A GPU-accelerated canvas may read the source
+ * LATER (iPhone Safari is the suspect for the "tomato disappears under the oil" report, #524 Owner HV: the two layer canvases that mount in the same
+ * commit ended up with the SAME pixels): the second layer's `putImageData` then overwrites what the first layer has not read yet. A surface of its own
+ * is only ever written for its own canvas, so a late read still sees that canvas's pixels. Cost: 2 x 16 KB per heatmap canvas (the 200x200 canvas itself is 160 KB).
+ */
+export interface StagingSurface {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  image: ImageData;
+}
+
+/** A new staging surface, or null when the browser refuses a 2D context for it (canvas memory exhausted). */
+export function createStagingSurface(): StagingSurface | null {
   const canvas = document.createElement("canvas");
   canvas.width = SAUCE_DISPLAY_GRID;
   canvas.height = SAUCE_DISPLAY_GRID;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  stagingSurface = { canvas, ctx, image: ctx.createImageData(SAUCE_DISPLAY_GRID, SAUCE_DISPLAY_GRID) };
-  return stagingSurface;
+  return { canvas, ctx, image: ctx.createImageData(SAUCE_DISPLAY_GRID, SAUCE_DISPLAY_GRID) };
 }
 
-/** test hook: forget the shared staging surface */
-export function resetStagingSurface(): void {
-  stagingSurface = null;
+/** Give the surface's backing store back to the browser now (iOS Safari keeps a detached canvas's memory until it is collected): a 0x0 canvas holds none. */
+export function releaseStagingSurface(surface: StagingSurface | null): void {
+  if (!surface) return;
+  surface.canvas.width = 0;
+  surface.canvas.height = 0;
+}
+
+/**
+ * The staging surface of one canvas component: created on first use, released when the component unmounts (and re-created on demand, so a StrictMode
+ * mount / unmount / mount cycle is fine). Returns the getter to call inside the draw effect.
+ */
+export function useStagingSurface(): () => StagingSurface | null {
+  const ref = useRef<StagingSurface | null>(null);
+  useEffect(
+    () => () => {
+      releaseStagingSurface(ref.current);
+      ref.current = null;
+    },
+    [],
+  );
+  return useCallback(() => {
+    if (ref.current === null) ref.current = createStagingSurface();
+    return ref.current;
+  }, []);
 }
 
 /** Whether a sauce canvas failed (no 2D context after a working probe, or a draw that threw), and the call that records it (sticky). */
