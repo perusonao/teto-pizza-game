@@ -22,7 +22,7 @@ export const SQUARE_DOUGH_GRID = 16;
 
 export const SQUARE_DOUGH_MAX_THICKNESS = 1;
 
-/** Relative spread (sd / mean) below which the covered dough counts as perfectly even -- numerical noise only. */
+/** Relative spread (sd / mean) below which the dough counts as perfectly even -- numerical noise only. */
 const EVENNESS_NOISE_FLOOR = 1e-9;
 
 /** A cell counts as covered from this thickness up. */
@@ -110,19 +110,19 @@ export function squareDoughCoverage(dough: SquareDough): number {
 }
 
 /**
- * How even the covered dough is, in [0, 1]: `1 - (standard deviation / mean)` of the covered on-pan cells'
- * thickness, floored at 0. A uniform sheet is 1; no covered cell is 0. Measured over covered cells only, so it
- * says nothing about coverage by itself -- the completion gate (C) combines it with the corner reach.
+ * How even the thickness is across the whole pan, in [0, 1]: `1 - (standard deviation / mean)` over **every on-pan
+ * cell, uncovered ones counting as thickness 0**, floored at 0. A uniform full sheet is 1; an empty pan is 0. Because
+ * empty cells are part of the population, a mostly empty pan can never read as even -- a small ball with a few
+ * isolated extensions, or a thin frame around the rim, scores ~0 -- so "all corners reached and evenness above a
+ * threshold" (the completion gate, C) cannot be met by stretching out tendrils to the corners.
  */
 export function squareDoughEvenness(dough: SquareDough): number {
   const values: number[] = [];
   for (let row = 0; row < SQUARE_DOUGH_GRID; row++) {
     for (let col = 0; col < SQUARE_DOUGH_GRID; col++) {
-      const value = dough.thickness[squareCellIndex(row, col)];
-      if (isSquareCellOnPan(row, col) && isCovered(value)) values.push(value);
+      if (isSquareCellOnPan(row, col)) values.push(dough.thickness[squareCellIndex(row, col)]);
     }
   }
-  if (values.length === 0) return 0;
   const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
   if (mean <= 0) return 0;
   const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;

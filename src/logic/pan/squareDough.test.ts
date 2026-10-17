@@ -83,12 +83,12 @@ describe("createInitialSquareDough", () => {
     }
   });
 
-  it("starts small, perfectly even, and nowhere near a corner", () => {
+  it("starts small, nowhere near even (most of the pan is empty), and nowhere near a corner", () => {
     const dough = createInitialSquareDough();
     const coverage = squareDoughCoverage(dough);
     expect(coverage).toBeGreaterThan(0);
     expect(coverage).toBeLessThan(0.25);
-    expect(squareDoughEvenness(dough)).toBe(1);
+    expect(squareDoughEvenness(dough)).toBe(0);
     expect(squareCornerReach(dough).every((r) => r < 0.6)).toBe(true);
     expect(areAllCornersReached(dough)).toBe(false);
   });
@@ -137,6 +137,23 @@ describe("coverage and evenness", () => {
     const t = [...base.thickness];
     t[squareCellIndex(1, 1)] = MAX;
     expect(squareDoughCoverage({ thickness: t })).toBeCloseTo(before + 1 / 196, 12);
+  });
+
+  it("evenness counts uncovered cells: half a pan of uniform dough is far from even", () => {
+    const t = blank();
+    for (let row = 0; row < N; row++) for (let col = 0; col < N / 2; col++) if (isSquareCellOnPan(row, col)) t[squareCellIndex(row, col)] = MAX;
+    const half = squareDoughEvenness({ thickness: t });
+    expect(squareDoughCoverage({ thickness: t })).toBeCloseTo(0.5, 12);
+    expect(half).toBe(0); // mean 0.5, sd 0.5 -> 1 - 1 = 0
+    expect(squareDoughEvenness(sheet(MAX))).toBe(1);
+  });
+
+  it("evenness: a full sheet with one hole is below 1 and above a half-empty pan", () => {
+    const t = [...sheet(MAX).thickness];
+    t[squareCellIndex(7, 7)] = 0;
+    const value = squareDoughEvenness({ thickness: t });
+    expect(value).toBeLessThan(1);
+    expect(value).toBeGreaterThan(0.9);
   });
 
   it("evenness: a uniform sheet of any thickness is 1, an empty dough is 0", () => {
@@ -232,6 +249,36 @@ describe("corner reach (D5: 85% of the way, both axes, generous)", () => {
       expect(areAllCornersReached(withCells(cells)), `without corner ${skip}`).toBe(false);
     }
     expect(areAllCornersReached(withCells(blocks.flat()))).toBe(true);
+  });
+
+  it("tendrils to the corners do not read as a finished sheet (Codex P2, #541): corners reached, but coverage low and evenness 0", () => {
+    // the initial ball plus one full-thickness cell at each second-ring corner
+    const tendrils = withCells([
+      [2, 2],
+      [2, N - 3],
+      [N - 3, N - 3],
+      [N - 3, 2],
+    ]);
+    expect(squareCornerReach(tendrils).every((r) => r >= CORNER_REACH_THRESHOLD)).toBe(true);
+    expect(areAllCornersReached(tendrils)).toBe(true);
+    expect(squareDoughCoverage(tendrils)).toBeCloseTo(36 / 196, 12);
+    expect(squareDoughEvenness(tendrils)).toBe(0);
+  });
+
+  it("a thin frame around the rim reaches every corner but is nowhere near even", () => {
+    const t = blank();
+    for (let i = 1; i <= N - 2; i++) {
+      for (const [row, col] of [
+        [1, i],
+        [N - 2, i],
+        [i, 1],
+        [i, N - 2],
+      ]) t[squareCellIndex(row, col)] = MAX;
+    }
+    const frame = { thickness: t };
+    expect(isValidSquareDough(frame)).toBe(true);
+    expect(areAllCornersReached(frame)).toBe(true);
+    expect(squareDoughEvenness(frame)).toBe(0);
   });
 
   it("monotone: adding dough never lowers coverage or any corner's reach", () => {

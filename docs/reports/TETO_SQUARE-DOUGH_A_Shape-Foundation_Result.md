@@ -26,13 +26,13 @@ Base: `origin/main` `80e6d10`. **Not merged, not deployed, shared Preview untouc
 - Grid 16 × 16 (same as the sauce field, so layers can share it later); 14 × 14 = 196 cells have their centre on the pan.
 - Pan half side 44 (area 7744 vs. round 7238, within 10%); corners ~62.2 from the centre, inside the dough box (~70.7).
 - Corner reach = the further of the covered on-pan cells' smaller axis extent (outer cell edge, clipped to the pan), over the outermost on-pan edge (43.75). Covering the corner cell = 1; the second ring = 0.857 (counts as reached); the third = 0.714. Because the smaller axis is used, pulling dough along one side only never counts as a corner.
-- Evenness = 1 − sd/mean over covered on-pan cells, with a 1e-9 relative noise floor so a uniform sheet reads exactly 1. **No evenness threshold is defined here** — that is C (#536).
+- Evenness = 1 − sd/mean over **every on-pan cell, uncovered cells counting as thickness 0** (Codex P2 on #541: measured over covered cells only, a small ball plus four isolated extensions to the corners read as perfectly even), floored at 0, with a 1e-9 relative noise floor so a uniform sheet reads exactly 1. A mostly empty pan or a thin frame therefore scores ~0. **No evenness threshold is defined here** — that is C (#536).
 - Cell granularity makes 0.85 mean "the corner cell or its inner neighbour"; whether that is generous enough is an on-device question.
 
-## Tests added (41)
+## Tests added (45)
 - `panShape.test.ts`: default, guard, resolver, Production inertness across all `RECIPES`.
 - `panGeometry.test.ts`: round identity (by reference and by value); square edges inclusive and one hair outside exclusive on all four sides; corners inside and just past a corner outside; non-finite points; clamp (unchanged when inside; direction-preserving; lands on the rim; idempotent; far / diagonal / non-finite); bounds; target region (inclusive edge, inside the pan, proportion).
-- `squareDough.test.ts`: on-pan cells (196), initial dough (valid, symmetric, small, even, no corner), validity (length, NaN / ±∞, negative, over-thick, off-pan dough), coverage (inclusive cover threshold), evenness (uniform = 1, known two-level value, random bounds), corner reach (order NW/NE/SE/SW, ring boundaries 1 / 0.857 / 0.714, inclusive comparison, one-side pull, per-corner independence, monotonic under growth, range), module guards (the threshold literal appears once; the pan module imports no UI / state / technique code).
+- `squareDough.test.ts`: on-pan cells (196), initial dough (valid, symmetric, small, evenness 0 because most of the pan is empty, no corner), validity (length, NaN / ±∞, negative, over-thick, off-pan dough), coverage (inclusive cover threshold), evenness (uniform = 1, half-empty pan = 0, one hole, known two-level value, random bounds, and the #541 review regressions: tendrils to the corners and a thin rim frame both read 0), corner reach (order NW/NE/SE/SW, ring boundaries 1 / 0.857 / 0.714, inclusive comparison, one-side pull, per-corner independence, monotonic under growth, range), module guards (the threshold literal appears once; the pan module imports no UI / state / technique code).
 
 ## Circle-clip audit for D2 (App.css, 30 matches of `border-radius: 50%` / `clip-path: circle(`)
 
