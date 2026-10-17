@@ -4,6 +4,7 @@ import { classifyBake } from "./bake";
 import { computeScoringV2 } from "./scoringV2";
 import { RECIPES, getRecipe, type RecipeId } from "../data/recipes";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { requiredSauceIds } from "./testSupport/requiredSauces";
 import { createEmptyPizza, type PizzaState, type SauceDeposit } from "../state/pizzaState";
 
 /**
@@ -225,7 +226,7 @@ describe("evaluatePizzaCompletion", () => {
       const reference = getReferencePizza(id);
       expect(reference).not.toBeNull();
       const idealPizza = pizzaWith({
-        sauceIds: reference!.sauce ? [reference!.sauce.ingredientId] : [],
+        sauceIds: requiredSauceIds(recipe.id),
         sauceDeposits: buildIdealSauceFixture(),
         toppings: reference!.pieceGroups.flatMap((group, gi) =>
           group.positions.map((p, i) => ({

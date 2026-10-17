@@ -6,6 +6,7 @@ import { getIngredient, INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
+import { MULTI_SAUCE_RECIPE_IDS, requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { NEAR_MISS_COPY, NEAR_MISS_FAR_GENERIC_COPY, nearMissLine, legacyResultNearMiss as resultNearMiss, RESULT_FAR_GENERIC_ENABLED, type ResultNearMissInput } from "./resultNearMiss";
@@ -229,7 +230,15 @@ describe("P2-B truthfulness: every directional line is followed to a real discov
           const edits = ids.map((x) => ids.filter((y) => y !== x));
           expect(reaches(edits), `REMOVE_ONE for ${key}`).toBe(true);
         } else if (line.kind === "SAUCE_ONLY") {
-          const edits = sauces.map((s) => [...ids.filter((y) => !isSauce(y)), s]);
+          const pieceIds = ids.filter((y) => !isSauce(y));
+          const edits = sauces.map((s) => [...pieceIds, s]);
+          // Multi-Sauce S3: when the pieces are those of an allowlisted TWO-sauce recipe, "change the sauce" is also true if the right PAIR of sauces
+          // reaches it (a single swap cannot). Every other pizza must still be reachable by a single sauce swap, exactly as before.
+          for (const id of MULTI_SAUCE_RECIPE_IDS) {
+            const need = requiredSauceIds(id);
+            const recipePieces = RECIPES.find((x) => x.id === id)!.requiredIngredients.map((q) => q.ingredientId).filter((q) => !isSauce(q));
+            if ([...recipePieces].sort().join() === [...pieceIds].sort().join()) edits.push([...pieceIds, ...need]);
+          }
           expect(reaches(edits), `SAUCE_ONLY for ${key}`).toBe(true);
         }
         checked++;

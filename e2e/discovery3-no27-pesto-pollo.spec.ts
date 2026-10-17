@@ -30,7 +30,7 @@ const W1: [string, string[]][] = [
   ["pesto-patate", ["potato"]], ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]],
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
 ];
-const DISCOVERED = [...W1.map(([id]) => id), "brazilian-calabresa", "aussie"];
+const DISCOVERED = [...W1.map(([id]) => id), "brazilian-calabresa", "aussie", "grandma-pizza"];
 const materials = W1.flatMap(([, m]) => m);
 const SAVE = {
   schemaVersion: 2,
@@ -118,7 +118,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
     await page.goto("/");
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`27/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`28/${CATALOG_COUNTS.recipes}`));
 
     // Shop: step 25 reached, chicken is NEW and not bought yet.
     await page.getByRole("button", { name: /ショップ/ }).click();
@@ -187,7 +187,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`28\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`29\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ペストポッロピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.11"); // chapter-relative slot 11 of 第3章

@@ -4,6 +4,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE } from "../../data/freeCook";
 import { INGREDIENTS } from "../../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../../data/referencePizza";
+import { requiredSauceIds } from "../../logic/testSupport/requiredSauces";
 import { getRecipe, RECIPES, type BakeTarget, type RecipeId } from "../../data/recipes";
 import { bakeCompletionFailure, evaluatePizzaCompletion } from "../../logic/completionGate";
 import type { RecipeDiscoveryTarget } from "../../logic/discovery/matcher";
@@ -85,7 +86,7 @@ function pizzaFor(
   }
   return {
     ...createEmptyPizza(),
-    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+    sauceIds: requiredSauceIds(recipeId),
     sauceDeposits: buildIdealSauceFixture(),
     toppings,
     bakeResult: options.bake === undefined ? midBake(recipeId) : options.bake,

@@ -6,6 +6,7 @@ import { getRecipe, RECIPES, type RecipeId } from "../data/recipes";
 import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "./pizzaState";
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
@@ -42,7 +43,7 @@ function referencePieces(recipeId: RecipeId): PlacedTopping[] {
 function idealPizzaFor(recipeId: RecipeId, bakeResult = BAKE): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: ((sauce) => (sauce ? [sauce.ingredientId] : []))(getReferencePizza(recipeId)!.sauce),
+    sauceIds: requiredSauceIds(recipeId),
     sauceDeposits: buildIdealSauceFixture(),
     toppings: referencePieces(recipeId),
     bakeResult,

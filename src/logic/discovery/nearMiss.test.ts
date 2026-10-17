@@ -172,7 +172,7 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
     const base = ladderInputs(count);
     const members = discoverableHintCandidates(base);
     expect(members.map((c) => c.id)).toContain(LADDER_ORDER[count]);
-    expect(members.length).toBe(count >= 12 ? 3 : 1);
+    expect(members.length).toBe(count >= 14 ? 4 : count >= 12 ? 3 : 1); // + (Multi-Sauce S3) the non-credit grandma-pizza from the garlic step
     for (const r of members) {
       const others = members.filter((c) => c.id !== r.id).map((c) => c.id);
       const inputs: RecipeDiscoveryInputs = { ...base, dex: discover([...LADDER_ORDER.slice(0, count), ...others]) };

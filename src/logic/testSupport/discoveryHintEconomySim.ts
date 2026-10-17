@@ -184,7 +184,7 @@ function pizzaOf(ids: readonly string[]): PizzaState {
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** What the revealed hint lines tell the player (read from the lines themselves). */

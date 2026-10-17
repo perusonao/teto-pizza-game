@@ -11,12 +11,12 @@ import { INGREDIENTS } from "./ingredients";
 describe("catalog ledger (the single hand-maintained total)", () => {
   it("recipes / credited / ingredients / toppings / ladder steps / chapter sizes / Lunch Rush pool", () => {
     expect(CATALOG_COUNTS).toEqual({
-      recipes: 57,
+      recipes: 58,
       credited: 55,
       ingredients: 64,
       toppings: 50,
       ladderSteps: 53,
-      chapterSizes: [6, 11, 16, 24],
+      chapterSizes: [6, 12, 16, 24],
       lunchRushPool: 25,
     });
   });

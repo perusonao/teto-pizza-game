@@ -15,7 +15,7 @@ import { scoreRecipeComponentV2 } from "./scoringV2/recipeComponent";
  * Issue #521 S2: guards for a recipe that REQUIRES TWO SAUCES (Owner policy: the first sauce is the Reference sauce, judged by its own amount
  * and coverage; the second is judged by use / not used).
  *
- * Production has no such recipe yet (S3 adds `grandma-pizza`), so these run against a synthetic recipe shaped like the planned one. For
+ * These run against a synthetic recipe shaped like `grandma-pizza` (S3 has since added the real one; `grandmaPizza.test.ts` pins that). For
  * the Completion Gate it borrows `margherita`'s id so the Reference (tomato-sauce, quantity / coverage floor) resolves -- exactly the situation
  * the real recipe will be in, since its primary sauce is tomato-sauce too. Nothing here edits production data; the existing one-sauce suites
  * (`sauceKinds.*`, `deductionProduction.gate`) stay as they are.
@@ -126,9 +126,9 @@ describe("Discovery: a two-sauce target is matched exactly, and adds no ambiguit
     }
   });
 
-  it("with the target added to the production catalog: it matches uniquely, and every production recipe still matches uniquely (no collision)", () => {
-    const catalog = [...RECIPE_DISCOVERY_CATALOG, target];
-    expect(matchDiscovery(signatureOfPizza(pizzaFrom(["tomato-sauce", "olive-oil"], ["mozzarella", "garlic"])), catalog)).toMatchObject({ kind: "UNIQUE_MATCH", target: { targetId: "synthetic-two-sauce" } });
+  it("in the production catalog (which now holds grandma-pizza): the two-sauce pizza matches uniquely, and every production recipe still matches uniquely (no collision)", () => {
+    const catalog = RECIPE_DISCOVERY_CATALOG;
+    expect(matchDiscovery(signatureOfPizza(pizzaFrom(["tomato-sauce", "olive-oil"], ["mozzarella", "garlic"])), catalog)).toMatchObject({ kind: "UNIQUE_MATCH", target: { targetId: "grandma-pizza-pizzadb" } });
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       const sauces = t.sauceBase ?? [];
       const pieces = t.items.filter((id) => !sauces.includes(id));

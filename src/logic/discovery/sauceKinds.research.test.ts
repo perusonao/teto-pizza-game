@@ -17,6 +17,7 @@ import { evaluateDiscovery } from "./matcher";
 import { resolveFreeCookPizza } from "./freeCook";
 import { classifyNearMiss } from "./nearMiss";
 import { signatureOfPizza } from "./signature";
+import { MULTI_SAUCE_RECIPE_IDS, requiredSauceIds } from "../testSupport/requiredSauces";
 
 /**
  * Sauce B1, Research / Dex / near-miss / Dinner Mission: a pizza that carries TWO OR MORE sauce kinds must never be
@@ -33,11 +34,16 @@ const withSauces = (recipe: Recipe, kinds: readonly string[]): PizzaState =>
     run(sauceStepState(recipe), kinds.map((k, i) => commit(k, i === 0 ? ideal() : faint()))).pizza,
   );
 
-const saucy = RECIPES.filter((r) => recipeSauceKind(r) !== null);
+// The one-sauce recipes with a spread sauce. A two-sauce recipe (grandma-pizza, Multi-Sauce S3) is deliberately NOT here: its own composition IS a mixed pizza,
+// so "an extra sauce makes it no recipe" does not apply; it is covered by `grandmaPizza.test.ts` and `multiSauce.guards.test.ts`.
+const saucy = RECIPES.filter((r) => recipeSauceKind(r) !== null && !MULTI_SAUCE_RECIPE_IDS.includes(r.id));
 
-describe("no catalog target uses two sauce kinds (the structural reason a mixed pizza cannot match)", () => {
-  it("every target's sauceBase has at most one sauce", () => {
-    for (const t of RECIPE_DISCOVERY_CATALOG) expect((t.sauceBase ?? []).length, t.recipeId).toBeLessThanOrEqual(1);
+describe("no catalog target uses two sauce kinds, except the allowlisted two-sauce recipes (the structural reason an unplanned mixed pizza cannot match)", () => {
+  it("every target's sauceBase has at most one sauce, except the allowlisted two-sauce recipes, which have exactly their two", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG) {
+      if (MULTI_SAUCE_RECIPE_IDS.includes(t.recipeId)) expect([...(t.sauceBase ?? [])], t.recipeId).toEqual(requiredSauceIds(t.recipeId).sort());
+      else expect((t.sauceBase ?? []).length, t.recipeId).toBeLessThanOrEqual(1);
+    }
   });
 });
 

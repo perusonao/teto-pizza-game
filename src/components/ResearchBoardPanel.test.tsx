@@ -18,7 +18,7 @@ const T = "pesto-pollo";
 const owned = [...STARTER_INGREDIENT_IDS, ...DISCOVERY_LADDER.steps.filter((s) => s.step <= 25).flatMap((s) => s.ingredientIds)];
 const keys = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId)];
 const inputs = (extra: Partial<ResearchBoardInputs> = {}): ResearchBoardInputs => ({
-  dex: discoveredDex([...keys, "brazilian-calabresa", "aussie"]),
+  dex: discoveredDex([...keys, "brazilian-calabresa", "aussie", "grandma-pizza"]),
   ownedIngredientIds: owned,
   ...extra,
 });

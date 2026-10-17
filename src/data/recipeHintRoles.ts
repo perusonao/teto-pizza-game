@@ -111,4 +111,6 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   // Batch 7a: permanently key-free.
   "eggplant-ricotta-pizza": { keyFree: true },
   "new-zealand-lamb-pizza": { keyFree: true },
+  // Multi-Sauce S3: permanently key-free.
+  "grandma-pizza": { keyFree: true },
 };

@@ -132,7 +132,7 @@ describe("Expansion Slice 1 ladder: step 26 unlocks shrimp; steps 1..25 frozen",
   });
 
   it("target: after pollo, with calabresa and aussie found, the lone DISCOVERABLE is pesto-gamberi; once it is found, Wave 2's vongole (step 27) is next", () => {
-    const found = [...UP_TO_POLLO, "brazilian-calabresa", "aussie"]; // the two non-credit onion-step recipes (calabresa, TQ-1D aussie)
+    const found = [...UP_TO_POLLO, "brazilian-calabresa", "aussie", "grandma-pizza"]; // the two non-credit onion-step recipes (calabresa, TQ-1D aussie)
     expect(selectHintTarget(stateAfter(found, { shrimpBought: false })).kind).toBe("SHOP_NEW");
     expect(selectHintTarget(stateAfter(found, { shrimpBought: true }))).toMatchObject({ kind: "TARGET", recipeId: ID });
     expect(selectHintTarget(stateAfter([...found, ID], { shrimpBought: true }))).toMatchObject({ kind: "TARGET", recipeId: "vongole" });
