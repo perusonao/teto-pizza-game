@@ -12,9 +12,10 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 
 1. **Pilot A は `hot-dog` / `sausage` / `feta` / `ricotta` の 4 種**とする（旧: hot-dog / feta / ricotta）。sausage を A へ前倒しし、Issue の受入条件「hot-dog と sausage の区別」を Pilot A の HV で判定できるようにする。
 2. **チーズのアイコンは、Tray チップ・在庫（Inventory）・Shop・Dex 等の「アイコン用途」で SVG を使う。**
-3. **ピザ上のチーズ・ドラッグ preview・完成ピザサムネイルは従来の CSS 物理形状（`.pizza-cheese` / `.pizza-cheese--<id>`）を維持する。**（§2、§4.4）
+3. **ピザ上のチーズ・ドラッグ preview・完成ピザサムネイルは従来の CSS 物理形状（`.pizza-cheese` / `.pizza-cheese--<id>`）を維持する。**（§2、§4.4）**※ 2026-10-17 に `pieceVisual` を持つチーズへ限定して改訂（本節 6 項）。**
 4. **#418 起因の実装禁止ゲートは解除する**（#418 は #425 として main に取り込み済み）。ただし **#423 が完了するまで Production コード実装は禁止**（§7）。
 5. デザイン資産は **docs-only PR で main に取り込む**（本書・参照 SVG・比較シートを含む）。
+6. **2026-10-17 Owner 決定（#503 の実機 HV を受けた改訂）:** Pilot A の HV で、feta / ricotta がトレイでは別の SVG なのにピザ上では同じ白丸（CSS 汎用円）になり区別できないと判明した。そこで **`pieceVisual` を持つチーズ（Pilot A 時点では feta / ricotta）に限り、ピザ上・ドラッグ preview・完成ピザ / Pizza Select サムネイル・Reference でも SVG を使う。** SVG は従来の `.pizza-cheese` / `.pizza-cheese--<id>` ラッパー（+ `.pizza-cheese--glyph`）の内側に描き、焼成の melt transform・filter、サイズ区分 / RESULT ×0.75 は従来どおりラッパーに掛かる。**`pieceVisual` を持たないチーズ（mozzarella を含む）と mozzarella の Canvas / M1 フォールバックは変更しない。** 将来 mozzarella に `pieceVisual` を付ける Pilot C では、Canvas / M1 フォールバックを維持する扱いを別途確認する。
 
 ## 1. 決定（Owner）
 
@@ -97,7 +98,7 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 
 - 新規 SVG は **64×64（`viewBox="0 0 64 64"`）・透明背景**。
 - **既存 3 種（`tomato-slice` / `caper-cluster` / `clam-valve`）の 32×32 SVG は変更しない**（viewBox・描画・CSS とも現状維持）。
-- **ピザ上のチーズ CSS 表現（`.pizza-cheese` / `.pizza-cheese--<id>`）は変更しない。** チーズのアイコンは「アイコン用途」（Tray チップ / 在庫 / Shop / Dex / Hint / Notebook / Research / RESULT 一覧 / MissionShortage）にのみ使い、**ピザ上のチーズ・ドラッグ preview・完成ピザ（Pizza Select）サムネイルは CSS 物理形状のまま**にする（詳細 §4.4）。
+- **`pieceVisual` を持たないチーズのピザ上 CSS 表現（`.pizza-cheese` / `.pizza-cheese--<id>`）は変更しない。**（2026-10-17: `pieceVisual` を持つチーズは同じラッパー内で SVG を描く。§0-6、§4.4） チーズのアイコンは「アイコン用途」（Tray チップ / 在庫 / Shop / Dex / Hint / Notebook / Research / RESULT 一覧 / MissionShortage）にのみ使い、**ピザ上のチーズ・ドラッグ preview・完成ピザ（Pizza Select）サムネイルは CSS 物理形状のまま**にする（詳細 §4.4）。
 - 拡張方式は **`pieceVisual` 拡張方式**（既存の `Ingredient.pieceVisual` を使う。新フィールドは作らない）。
 - 20px では「食材の系統が識別できる」ことを基準とし、細部（脂塊・カビ筋の粒）が潰れることは許容する。
 - SVG に `id` / gradient / `<defs>` を使わない（同一ページに何個あっても衝突しない。`IngredientGlyph.tsx` 既存規約）。参照 SVG 8 点は全て満たしている。
@@ -155,11 +156,11 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 | Tray チップ（`IngredientTray.tsx`） | CSS（`ingredient-chip__cheese-slot`） | **SVG アイコン**（実装で分岐を変更） |
 | 在庫（`InventoryOverlay.tsx`） | CSS（`inventory-card__cheese-slot`） | **SVG アイコン**（実装で分岐を変更） |
 | Shop / Dex / Hint / Notebook / Research / RESULT 一覧 / MissionShortage | `IngredientGlyph`（emoji 🧀） | **SVG アイコン**（`pieceVisual` で自動） |
-| ピザ上のチーズ | CSS（`.pizza-cheese`） | **CSS のまま** |
-| ドラッグ preview（`IngredientTray.tsx`） | CSS | **CSS のまま** |
-| 完成ピザ / Pizza Select サムネイル（`PizzaThumbnail.tsx`） | CSS | **CSS のまま** |
+| ピザ上のチーズ | CSS（`.pizza-cheese`） | `pieceVisual` あり: **同ラッパー内の SVG**（2026-10-17）/ なし: **CSS のまま** |
+| ドラッグ preview（`IngredientTray.tsx`） | CSS | 同上 |
+| 完成ピザ / Pizza Select サムネイル（`PizzaThumbnail.tsx`） | CSS | 同上 |
 
-- 実装上の要点: Tray チップと在庫の cheese 分岐を `IngredientGlyph` 経由に切り替える。ピース・ドラッグ preview・サムネイルの分岐は触らない。
+- 実装上の要点: Tray チップと在庫の cheese 分岐を `IngredientGlyph` 経由に切り替える。ピース・ドラッグ preview・サムネイルは `IngredientPieceVisual` の 1 か所で、`pieceVisual` ありのチーズだけラッパー内に SVG を描く（2026-10-17。`.pizza-cheese--glyph` が CSS 円の背景・白縁を消し、枠を 28px にする）。
 - **未移行チーズの扱い（2026-10-09 Owner 決定）:** 上表の「SVG アイコン」は **`pieceVisual` を持つチーズにのみ**適用する。`pieceVisual` を持たない未移行チーズ（例: Pilot A 時点の mozzarella / goat-cheese）は、Tray チップ・在庫でも**従来の CSS 表示（`IngredientPieceVisual` の `.pizza-cheese--<id>`）を維持**する。全チーズを `IngredientGlyph` へ一括切替してはならない（未移行チーズが 🧀 絵文字へ退行するため）。分岐は「`category === "cheese"` かつ `pieceVisual` あり → `IngredientGlyph`、それ以外の cheese → 従来の CSS」とする。
 - 非チーズ（sausage / hot-dog 等）は従来どおり `IngredientPieceVisual` → `IngredientGlyph` を通るので、ピザ上のピースにも SVG が出る（接地影の見え方は §8 の HV 項目）。
 

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DevEditorLink } from "../devtools/DevEditorLink";
 import { getMyProfile, FALLBACK_DISPLAY_NAME, setDisplayName as callSetDisplayName } from "../firebase";
 import {
   DisplayNameValidationError,
@@ -278,6 +279,8 @@ export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayPro
               ゲームデータをリセット
             </button>
           </section>
+
+          {(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && <DevEditorLink />}
         </div>
       </div>
 

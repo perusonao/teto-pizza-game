@@ -820,6 +820,22 @@
   box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8), inset 0 -2px 3px rgba(255, 255, 255, 0.35);
 }
 
+/* Ingredient Icons 2.0 (#438): a cheese that declares a `pieceVisual` (feta, ricotta) draws its SVG inside the same `.pizza-cheese` wrapper, so the bake
+   melt transform / filter and the size-class / RESULT scales (all on `.pizza-cheese`) apply unchanged. No CSS cheese background or ring: the art has its own
+   outline and ground shadow. Declared after the per-cheese rules so it wins over `.pizza-cheese`'s circle. */
+.pizza-cheese--glyph {
+  --cheese-glyph-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cheese-glyph-size);
+  height: var(--cheese-glyph-size);
+  font-size: var(--cheese-glyph-size);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
 /* #421 S2-B (verification only, ?cheese=c64|c96 on a Preview / DEV build): the Canvas mozzarella. The box is square and the pool is drawn
    centred in it (about 66 % of the box when finished), so it sits where the M1 oval's centre sits. No filter or shadow: the bitmap carries its own shading. */
 .pizza-cheese-canvas {
@@ -3543,6 +3559,23 @@
   font-weight: 700;
   font-size: 14px;
   border-radius: 999px;
+}
+
+/* DEV / Preview only link to the DEV State Editor (src/devtools/DevEditorLink.tsx). */
+.settings-overlay__dev-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  border: 2px solid #3b6fd4;
+  background: #fff;
+  color: #3b6fd4;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 999px;
+  text-decoration: none;
 }
 
 /* Reset confirmation modal: stacks above .settings-overlay's own .dex-overlay backdrop
