@@ -7512,6 +7512,7 @@ p.hint-sheet__step {
 }
 
 .square-dough-layer__svg {
+  overflow: visible;
   width: 100%;
   height: 100%;
   display: block;

@@ -36,13 +36,13 @@ const CELL = 100 / SQUARE_DOUGH_GRID;
 /** The hold ring sits this far above the finger (dough-percent) so a fingertip never hides it. */
 const HOLD_RING_OFFSET = HOLD_BRUSH_RADIUS_MAX + 6;
 
-/** Thin sheet = pale and see-through, thick = deep and opaque. */
+/** Thin sheet = pale, thick = deep brown; fully opaque so the cells leave no seams between them. */
 function cellFill(thickness: number): { fill: string; opacity: number } {
   const t = Math.min(1, Math.max(0, thickness));
-  const r = Math.round(247 + (201 - 247) * t);
-  const g = Math.round(236 + (142 - 236) * t);
-  const b = Math.round(212 + (69 - 212) * t);
-  return { fill: `rgb(${r},${g},${b})`, opacity: 0.55 + 0.45 * t };
+  const r = Math.round(246 + (176 - 246) * t);
+  const g = Math.round(231 + (104 - 231) * t);
+  const b = Math.round(196 + (36 - 196) * t);
+  return { fill: `rgb(${r},${g},${b})`, opacity: 1 };
 }
 
 interface PressRing {
