@@ -12,7 +12,6 @@ const QUERY = "?pan=square&squareStart=lumpy";
 async function start(page: Page) {
   await page.clock.install();
   await startFreshMargherita(page, QUERY);
-  await page.getByRole("button", { name: /ピザを作る/ }).click().catch(() => undefined);
   await page.waitForSelector('[data-testid="square-dough-layer"]');
 }
 
