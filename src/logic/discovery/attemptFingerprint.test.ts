@@ -227,12 +227,34 @@ describe("Attempt Fingerprint v1 — matcher identity is the SSOT", () => {
   });
 });
 
+describe("Attempt Fingerprint v1 — pan axis (Square Dough F1)", () => {
+  const withPan = (pan?: PizzaState["pan"]): PizzaState => ({
+    ...pizzaOf(["tomato-sauce", "olive-oil"], ["mozzarella", "garlic"]),
+    ...(pan === undefined ? {} : { pan }),
+  });
+
+  it("an ordinary cook keeps its exact pre-F1 string with or without the pan field", () => {
+    const plain = attemptFingerprintOfPizza(withPan());
+    expect(attemptFingerprintOfPizza(withPan(null))).toBe(plain);
+    expect(plain).not.toContain("pan");
+  });
+
+  it("a tray cook has its own fingerprint (sparse ext), distinct from the ordinary cook of the same set", () => {
+    const tray = attemptFingerprintOfPizza(withPan("tray"));
+    expect(tray).not.toBe(attemptFingerprintOfPizza(withPan()));
+    expect(parseAttemptFingerprint(tray)!.ext).toEqual({ pan: "tray" });
+  });
+});
+
 describe("Attempt Fingerprint v1 — versioning and extension", () => {
-  it("today no identity dimension is OBSERVED, so the extension is always empty", () => {
-    // Canary: if an axis becomes OBSERVED this test fails on purpose so the contract is re-reviewed
+  it("only pan is OBSERVED (Square Dough F1), so the extension of an ordinary cook is always empty", () => {
+    // Canary: if another axis becomes OBSERVED this test fails on purpose so the contract is re-reviewed
     // (the fingerprint would start carrying it in `ext` automatically).
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
-    for (const key of IDENTITY_DIMENSION_KEYS) expect(sig.dimensions[key].status).not.toBe("OBSERVED");
+    for (const key of IDENTITY_DIMENSION_KEYS) {
+      if (key === "pan") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: null });
+      else expect(sig.dimensions[key].status).not.toBe("OBSERVED");
+    }
     // FIXED_BY_FLOW axes are compared by the matcher too, so they must hold exactly their defaults
     for (const key of IDENTITY_DIMENSION_KEYS) {
       if (sig.dimensions[key].status === "FIXED_BY_FLOW") expect(sig.dimensions[key].value).toEqual(DEFAULT_IDENTITY_DIMENSIONS[key]);
