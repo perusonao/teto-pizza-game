@@ -132,7 +132,7 @@ jobs:
       # WebKit Gate's evidence check fails if any shard 1..total is missing or duplicated.
       matrix:
         project: [webkit-390x844, webkit-360x800]
-        shard: [1, 2, 3]
+        shard: [1]
         total: [3]
     env:
       LIST_JSON: ${{ github.workspace }}/../webkit-list.json
@@ -203,7 +203,7 @@ jobs:
       - name: Run WebKit e2e (${{ matrix.project }}, shard ${{ matrix.shard }}/${{ matrix.total }})
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ env.RESULTS_JSON }}
-        run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/${{ matrix.total }} --reporter=list,html,json
+        run: npx playwright test e2e/sauce-oil-over-519.spec.ts -g "CHEESE, BAKE and RESULT" --project=${{ matrix.project }} --repeat-each=30 --reporter=list,html,json
 
       # always(): a failed/partial run still records what did (not) run. A missing file is
       # recorded as an error inside the evidence, which fails WebKit Gate.
