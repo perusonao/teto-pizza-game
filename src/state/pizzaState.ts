@@ -1,5 +1,6 @@
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { createInitialDoughShape, type DoughShape } from "../logic/doughShape";
+import type { SquareDough } from "../logic/pan/squareDough";
 
 export interface PlacedTopping {
   id: string;
@@ -67,6 +68,11 @@ export interface PizzaState {
    *  (D0 §5/§7) so the player's own hand-stretched shape stays visible instead of silently
    *  reverting to a perfect circle -- no Save schema impact, see createEmptyPizza below. */
   doughShape: DoughShape;
+  /** Square-Pan Dough B (Issue #535, Epic #532): the square pan's dough (a thickness grid -- ../logic/pan/squareDough.ts),
+   *  committed by COMMIT_SQUARE_DOUGH at a successful pointerup, exactly as `doughShape` is by COMMIT_DOUGH_STRETCH. **Optional and
+   *  absent from every round pizza**, so `createEmptyPizza()` and every existing pizza object are unchanged (nothing deep-compared
+   *  anywhere sees a new key); absent in a square-pan round means "still the initial small ball". Never persisted (nor is `pizza`). */
+  squareDough?: SquareDough;
   sauceIds: string[];
   /** Tap point the sauce spread animation should originate from (Phase 2C "painted" feel). */
   sauceOrigin: SauceOrigin | null;
