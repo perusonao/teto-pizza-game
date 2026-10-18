@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { findOpenSpot, MIN_TOPPING_DISTANCE, type PlacedTopping } from "../../state/pizzaState";
 import { resolvePieceDrop } from "../pieceDrag";
 import { ROUND_PAN_GEOMETRY, SQUARE_PAN_GEOMETRY, SQUARE_PAN_HALF_SIDE } from "./panGeometry";
-import { findOpenSpotOnPan, resolveGeometryPieceDrop } from "./panPlacement";
+import { findOpenSpotOnPan, resolveGeometryPieceDrop, resolvePieceDropForPan } from "./panPlacement";
 
 const RECT = { left: 0, top: 0, width: 200, height: 200 }; // 1 client px = 0.5 dough-percent
 const at = (x: number, y: number) => [x * 2, y * 2] as const; // dough-percent -> client px
@@ -104,5 +104,15 @@ describe("findOpenSpotOnPan", () => {
         expect(findOpenSpotOnPan(ROUND_PAN_GEOMETRY, existing, x, y, MIN_TOPPING_DISTANCE)).toEqual(findOpenSpot(existing, x, y));
       }
     }
+  });
+});
+
+describe("resolvePieceDropForPan", () => {
+  it("round: exactly resolvePieceDrop (corner area rejected); square: the pan's own rule (corner area accepted)", () => {
+    for (const [x, y] of [[50, 50], [90, 90], [10, 90], [53, 50 + 49], [100, 50]]) {
+      expect(resolvePieceDropForPan("round", ...at(x, y), RECT)).toEqual(resolvePieceDrop(...at(x, y), RECT));
+    }
+    expect(resolvePieceDropForPan("square", ...at(90, 90), RECT)).toEqual({ x: 90, y: 90 });
+    expect(resolvePieceDropForPan("square", ...at(100, 50), RECT)).toBeNull();
   });
 });
