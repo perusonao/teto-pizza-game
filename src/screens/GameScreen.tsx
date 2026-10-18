@@ -74,7 +74,8 @@ import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
-import { createInitialSquareDough, type SquareDough } from "../logic/pan/squareDough";
+import { createInitialSquareDough, squareDoughEvenness, type SquareDough } from "../logic/pan/squareDough";
+import { SquareDoughGauge } from "../components/SquareDoughGauge";
 import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
 import { activePanShape, wantsLumpySquareStart } from "../preview/panShapePreview";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
@@ -889,7 +890,7 @@ export function GameScreen({
             {state.makingStep === "DOUGH" && (
               <div
                 id="dough-size-status"
-                className="dough-status-readout"
+                className={squareDoughRound ? "dough-status-readout dough-status-readout--square" : "dough-status-readout"}
                 role="status"
                 aria-live="polite"
                 data-testid="dough-size-status"
@@ -898,6 +899,8 @@ export function GameScreen({
                 {squareDoughRound ? SQUARE_DOUGH_STATUS_TEXT : DOUGH_SIZE_STATUS_TEXT[doughStatus]}
               </div>
             )}
+            {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}

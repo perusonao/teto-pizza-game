@@ -7,7 +7,7 @@
  * of the live gesture. The working dough is committed once, at a successful pointer-up; pointer cancel, a lost capture, window
  * blur and a hidden tab discard it, so a broken gesture never reaches game state.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { HOLD_START_MS, IDLE_PRESS_GESTURE, stepPressGesture, type PressEvent, type PressGestureState } from "../logic/pan/pressGesture";
 import { SQUARE_PAN_HALF_SIDE } from "../logic/pan/panGeometry";
@@ -20,6 +20,8 @@ import {
   type SquareDough,
 } from "../logic/pan/squareDough";
 import { HOLD_BRUSH_RADIUS_MAX, PRESS_BRUSH_RADIUS, applyPressEffects, holdBrushRadius } from "../logic/pan/squareDoughSpread";
+import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
+import { changedCells, evennessChangePoints, thicknessFill } from "../logic/pan/squareDoughView";
 import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
 import { describeTarget, squareDoughDiag } from "../preview/squareDoughDiag"; // TEMPORARY on-device diagnostics (?diag=1)
 import { SquareDoughDiagPanel } from "../preview/SquareDoughDiagPanel";
@@ -39,13 +41,15 @@ const CELL = 100 / SQUARE_DOUGH_GRID;
 /** The hold ring sits this far above the finger (dough-percent) so a fingertip never hides it. */
 const HOLD_RING_OFFSET = HOLD_BRUSH_RADIUS_MAX + 6;
 
-/** Thin sheet = pale, thick = deep brown; fully opaque so the cells leave no seams between them. */
-function cellFill(thickness: number): { fill: string; opacity: number } {
-  const t = Math.min(1, Math.max(0, thickness));
-  const r = Math.round(246 + (176 - 246) * t);
-  const g = Math.round(231 + (104 - 231) * t);
-  const b = Math.round(196 + (36 - 196) * t);
-  return { fill: `rgb(${r},${g},${b})`, opacity: 1 };
+/** How long a finished gesture's changed cells stay marked, fading out (ms). Matches the CSS animation of `__changed--fade`. */
+const HIGHLIGHT_FADE_MS = 500;
+
+/** The cells the current / just-finished gesture really changed. `ended`: the finger is up and the marks are fading out. */
+interface ChangeHighlight {
+  cells: number[];
+  ended: boolean;
+  /** Restarts the fade animation for a new gesture. */
+  key: number;
 }
 
 interface PressRing {
@@ -73,6 +77,18 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   }, [dough, onCommit]);
   const [working, setWorking] = useState<SquareDough | null>(null);
   const [ring, setRing] = useState<PressRing | null>(null);
+  const [highlight, setHighlight] = useState<ChangeHighlight | null>(null);
+  const gestureStartRef = useRef<SquareDough | null>(null); // the committed dough the live gesture started from
+  const highlightKeyRef = useRef(0);
+  const highlightTimerRef = useRef<number | null>(null);
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+
+  const clearHighlightTimer = useCallback(() => {
+    if (highlightTimerRef.current !== null) {
+      window.clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = null;
+    }
+  }, []);
 
   // Diagnostics only (no-ops with ?diag absent): the committed dough coming back through the prop is the reducer accepting COMMIT_SQUARE_DOUGH.
   useEffect(() => {
@@ -105,6 +121,12 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     (event: PressEvent) => {
       const step = stepPressGesture(gestureRef.current, event);
       gestureRef.current = step.state;
+      if (event.type === "down" && step.state.phase === "pressing") {
+        // A new press: forget the previous gesture's marks and remember the committed dough this one starts from.
+        gestureStartRef.current = doughRef.current;
+        clearHighlightTimer();
+        setHighlight(null);
+      }
       if (squareDoughDiag) {
         for (const effect of step.effects) squareDoughDiag.count(effect.kind === "press" ? "pressApplied" : "holdTicks");
         squareDoughDiag.setStatus({ phase: step.state.phase });
@@ -113,6 +135,12 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         const base = workingRef.current ?? doughRef.current;
         workingRef.current = applyPressEffects(base, step.effects);
         setWorking(workingRef.current);
+        // The marks follow the real change while the finger is down: the cells that differ from where the gesture started.
+        const start = gestureStartRef.current;
+        if (start && step.end === null) {
+          const cells = changedCells(start, workingRef.current);
+          setHighlight(cells.length > 0 ? { cells, ended: false, key: highlightKeyRef.current } : null);
+        }
       }
       if (step.end !== null) {
         stopLoop();
@@ -120,6 +148,23 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         workingRef.current = null;
         setWorking(null);
         setRing(null);
+        const start = gestureStartRef.current;
+        gestureStartRef.current = null;
+        clearHighlightTimer();
+        if (step.end === "commit" && start !== null) {
+          // What the gesture really did, measured from the committed dough it started from: the gauge says it, the marks show where.
+          const after = final ?? start;
+          squareDoughGaugeStore.reportChange(evennessChangePoints(squareDoughEvenness(start), squareDoughEvenness(after)));
+          const cells = changedCells(start, after);
+          if (cells.length > 0) {
+            highlightKeyRef.current += 1;
+            setHighlight({ cells, ended: true, key: highlightKeyRef.current });
+            highlightTimerRef.current = window.setTimeout(() => {
+              highlightTimerRef.current = null;
+              setHighlight(null);
+            }, HIGHLIGHT_FADE_MS + 100);
+          } else setHighlight(null);
+        } else setHighlight(null); // a discarded gesture changed nothing that stays: nothing to mark
         if (step.end === "commit" && final !== null && final !== doughRef.current) {
           lastCommittedRef.current = final;
           squareDoughDiag?.count("commitIssued");
@@ -140,7 +185,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
       }
       return step;
     },
-    [stopLoop],
+    [stopLoop, clearHighlightTimer],
   );
 
   const startLoop = useCallback(() => {
@@ -292,14 +337,26 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   };
 
   const shown = working ?? dough;
+  const evenness = useMemo(() => squareDoughEvenness(shown), [shown]);
+  // The gauge in the dock shows exactly this number (the dough on screen), and forgets it when the layer goes.
+  useEffect(() => {
+    squareDoughGaugeStore.setEvenness(evenness);
+  }, [evenness]);
+  useEffect(
+    () => () => {
+      squareDoughGaugeStore.reset();
+      clearHighlightTimer();
+    },
+    [clearHighlightTimer],
+  );
   const cells = useMemo(() => {
-    const out: { key: number; x: number; y: number; fill: string; opacity: number }[] = [];
+    const out: { key: number; x: number; y: number; fill: string }[] = [];
     for (let row = 0; row < SQUARE_DOUGH_GRID; row++) {
       for (let col = 0; col < SQUARE_DOUGH_GRID; col++) {
         if (!isSquareCellOnPan(row, col)) continue;
         const value = shown.thickness[squareCellIndex(row, col)];
         if (!(value >= SQUARE_COVER_MIN_THICKNESS)) continue;
-        out.push({ key: row * SQUARE_DOUGH_GRID + col, x: col * CELL, y: row * CELL, ...cellFill(value) });
+        out.push({ key: row * SQUARE_DOUGH_GRID + col, x: col * CELL, y: row * CELL, fill: thicknessFill(value) });
       }
     }
     return out;
@@ -315,7 +372,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
       ref={layerRef}
       className="square-dough-layer"
       data-testid="square-dough-layer"
-      data-evenness={squareDoughEvenness(shown).toFixed(3)}
+      data-evenness={evenness.toFixed(3)}
+      data-changed-cells={highlight ? highlight.cells.join(",") : ""}
       data-pressing={ring ? (ring.holding ? "hold" : "tap") : "none"}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -326,17 +384,40 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     >
       <svg className="square-dough-layer__svg" viewBox="0 0 100 100" aria-hidden="true">
         <rect className="square-dough-layer__pan" x={panMin} y={panMin} width={panSide} height={panSide} rx={3} />
-        {cells.map((cell) => (
-          <rect
-            key={cell.key}
-            x={cell.x - 0.15}
-            y={cell.y - 0.15}
-            width={CELL + 0.3}
-            height={CELL + 0.3}
-            fill={cell.fill}
-            fillOpacity={cell.opacity}
-          />
-        ))}
+        <defs>
+          {/* A faint blur takes the hard grid edges off the thickness colours (the stretched ramp would otherwise make the 16x16 cells read as a
+              checkerboard); clipped to the pan so nothing bleeds onto the rim. */}
+          <filter id={`${uid}-soft`} x="-2%" y="-2%" width="104%" height="104%">
+            <feGaussianBlur stdDeviation="0.5" />
+          </filter>
+          <clipPath id={`${uid}-clip`}>
+            <rect x={panMin} y={panMin} width={panSide} height={panSide} rx={3} />
+          </clipPath>
+        </defs>
+        <g filter={`url(#${uid}-soft)`} clipPath={`url(#${uid}-clip)`}>
+          {cells.map((cell) => (
+            <rect key={cell.key} data-dough-cell={cell.key} x={cell.x - 0.15} y={cell.y - 0.15} width={CELL + 0.3} height={CELL + 0.3} fill={cell.fill} />
+          ))}
+        </g>
+        {highlight && (
+          <g
+            key={highlight.key}
+            className={`square-dough-layer__changed${highlight.ended ? " square-dough-layer__changed--fade" : ""}`}
+            data-testid="square-dough-changed"
+          >
+            {highlight.cells.map((index) => (
+              <rect
+                key={index}
+                data-cell={index}
+                x={(index % SQUARE_DOUGH_GRID) * CELL}
+                y={Math.floor(index / SQUARE_DOUGH_GRID) * CELL}
+                width={CELL}
+                height={CELL}
+                rx={1.2}
+              />
+            ))}
+          </g>
+        )}
         {ring && (
           <g className="square-dough-layer__feedback">
             <circle key={ring.pressKey} className="square-dough-layer__tap-ring" cx={ring.x} cy={ring.y} r={PRESS_BRUSH_RADIUS} />

@@ -7567,3 +7567,90 @@ p.hint-sheet__step {
     animation: none;
   }
 }
+
+/* ---------- Square-Pan Dough B2 visual feedback (Issue #535, PR #546 HV FAIL) ----------
+   The changed-cell marks and the smoothness gauge. New classes only; no existing rule is edited. */
+.square-dough-layer__changed rect {
+  fill: rgba(255, 255, 255, 0.34);
+  stroke: #fffbe6;
+  stroke-width: 0.55;
+  pointer-events: none;
+}
+
+.square-dough-layer__changed--fade {
+  animation: square-dough-changed-fade 500ms ease-out forwards;
+}
+
+@keyframes square-dough-changed-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .square-dough-layer__changed--fade {
+    animation-duration: 1ms;
+  }
+}
+
+/* The gauge sits right under the DOUGH status line (which, in a square round, no longer pushes everything below it away). */
+.prepare-dock .dough-status-readout--square {
+  margin-bottom: 0;
+}
+
+.prepare-dock .square-dough-gauge {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  margin-bottom: auto;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.square-dough-gauge__label {
+  flex: none;
+}
+
+.square-dough-gauge__bar {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 9px;
+  border-radius: 5px;
+  background: #ead9b8;
+  box-shadow: inset 0 0 0 1px rgba(120, 70, 20, 0.22);
+  overflow: hidden;
+}
+
+.square-dough-gauge__fill {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #e2b876, #b9763a);
+}
+
+.square-dough-gauge__value {
+  flex: none;
+  min-width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.square-dough-gauge__note {
+  flex: none;
+  min-width: 48px;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  color: #8a7458;
+}
+
+.square-dough-gauge__note--up {
+  color: #2f7d3a;
+}
