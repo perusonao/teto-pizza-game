@@ -2,6 +2,8 @@
 
 > **Addendum (2026-10-17, proposal):** the square-pan dough decision for grandma-pizza amends §2 (dough form) and S3's prerequisites — see `TETO_SQUARE-DOUGH_Design-Lock-Addendum.md` (#533, Epic #532). No text below is changed.
 
+> **Owner decision (2026-10-18, Issue #544, OD-544-3): §8 item 3 is formally approved** — for `grandma-pizza`, the Hint 5.0 SAUCE rung names **both** sauces (tomato sauce and olive oil). The approval is **scoped to `grandma-pizza`** and to item 3 only; it does **not** approve §8 as a whole. See the per-item status table under §8 below. Nothing else in this document is changed.
+
 > **Status update (2026-10-17, main `d7fa990`) — read this first.** This document is the *design record* written on `d69e43e`; the body below is kept as written.
 > - **S1 (#524) is merged** (`b7cdb14`): oil-over-sauce overlap factor is **`SAUCE_OIL_OVERLAP_ALPHA_FACTOR = 0.3`**, *not* the ≈0.45 of §3/§7 (0.45 measured too faint through the per-pixel path; see `TETO_MULTI-SAUCE_S1_OIL-OVERLAP-519_Result.md`, "Value of the factor"). The #502 heatmap-fallback test is merged. The iPhone-Safari follow-up (per-canvas staging surface) is recorded in that Result report; its device mechanism is a hypothesis.
 > - **S2 (#525) is merged** (`d7fa990`): `buildHintLine` checks every required sauce (§5.1) and the 2-sauce guard tests exist.
@@ -185,3 +187,20 @@ Merge/deploy/Production: none of these are done or implied here.
 6. id/name: `grandma-pizza` / グランマピザ.
 7. Sfincione: stays on hold (no action).
 8. Two-different-base-sauce recipes (e.g. tomato + pesto): no 172 row evidences one → "later candidates" only; none is selected.
+
+### §8 per-item status (added 2026-10-18; the items above are kept as written)
+
+Each row cites the record it rests on. This PR approves nothing beyond item 3.
+
+| § | Item | Status | Record |
+|---|---|---|---|
+| 8-1 | Live PIZZA DB check (ingredients, oil before/after bake, pan form) | **Open** (still blocks E) | Issue #521 comment 6247267082 ("未完了（E をブロック）"); not re-verified here |
+| 8-2 | `ladderCredit: false` | Recorded as decided in #521 (not re-verified here) | #521 comment 6247267082 (Owner decision record, 2026-10-18; the prep audit it cites lives on branch `claude/grandma-pizza-recipe-prep-0qh3qu`, not on main at the time of writing) |
+| **8-3** | **SAUCE rung names both sauces** | **Approved — OD-544-3** (Issue #544, 2026-10-18), **scoped to `grandma-pizza`** | #544 comment 6247310535 (Owner decision record); also listed as decided in #521 comment 6247267082 |
+| 8-4 | Ship a 2-sauce recipe before TQ-3 | Recorded as decided in #521 (not re-verified here) | #521 comment 6247267082 |
+| 8-5 | S1 oil-over factor (current `0.3` kept) | Recorded as decided in #521 (not re-verified here) | #521 comment 6247267082 |
+| 8-6 | id / name `grandma-pizza` / グランマピザ | Recorded as decided in #521 (not re-verified here) | #521 comment 6247267082 |
+| 8-7 | Sfincione on hold | Recorded as decided in #521 (not re-verified here) | #521 comment 6247267082 |
+| 8-8 | Two-different-base-sauce recipes | Recorded as decided in #521 (later candidates; none selected) | #521 comment 6247267082 |
+
+Rows other than 8-3 are copied from the cited Issue comment so that this document does not contradict it; they are **not** approved by this edit. When the prep audit lands on main, its record supersedes this table. Until then, the earlier statement above ("§8 items 1–4 … are still open") is historical.

@@ -209,6 +209,7 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
   - **固定している場所:** `researchResultRows.test.ts`（Gate A: 構造が全 target で同一）、`gameReducer.techniques.privacy.test.ts`（target ごとの rows / Notebook / 保存 / Research Entry / Hint 5.0 view / near-miss の absence 走査）、`hint5Production.gate.test.ts`（G7 / RESERVED gate）、`deductionProduction.gate.test.ts`（DH4 privacy sweep に Aussie を含む）。
 - **53 / 172 recipe の Scale Audit**: 旧版の見積り（本書の旧 §6 の将来スケール）は sauce 複数投入の前提を含む可能性があり、**現時点で authority にしない**。拡張 population（53 / 172）を扱う前に**再監査する**（trigger の記録のみ。数値はここでは確定しない）。Production-27 の実装 blocker ではない。
   - **2026-10-17 追記（複数ソース改訂）:** 再監査の前提は「sauce 1 種 / attempt」ではなく、**1 attempt に複数種類の sauce が載り得る現行 engine**（§3 改訂）で行う。§15 の数値表（sauce を 1 attempt 1 種類ずつ試す blind scan）は**この前提では再計算されていない**。
+  - **2026-10-18 追記（Owner 判断 OD-544-8、Issue #544）:** §15 の**複数ソース前提での再計算は、E（#521、`grandma-pizza`）の Final Gate 前の必須事項**とする。**再計算は未実施である**（本書の数値表は旧前提のまま。「再計算済み」とは読まないこと）。再計算の手順と結果は E の Result と本書 §15 に反映し、そのとき初めて §15 の注記を更新する。Research identifier compatibility の Fresh Gate 再監査（本番 57 recipe）は 2026-10-18 に実施した（[`TETO_RESEARCH-2.0_FRESH-AUDIT-544_Result.md`](../reports/TETO_RESEARCH-2.0_FRESH-AUDIT-544_Result.md)。cohort letter の安定性と INV-B7 は問題なし）。
   - **フォローアップ（未実施、別途）:** Research 2.0 §4 が求める「53 / 172 population を導入する前の Research identifier compatibility の Fresh Gate 再監査」は、catalog が 53 件に達した時点（Expansion Batch 5）でも、現在の 57 件（grandma を足すと 58 件）でも**実施されていない**。これを独立したフォローアップとして **Issue #544** に記録した（`TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md` §8.2。他の PR のブロッカーにしない、Owner 判断 2026-10-18）。本書の改訂はこの再監査の代替ではない。
 
 ## 14. Non-Goals
@@ -216,6 +217,8 @@ Production の 27 recipe / 30 ingredient では（Q-2 data audit、27 recipe の
 correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / Near・Far / negative の永続化 / Notebook schema 変更 / Hint 5.0 価格・progression の変更（本 Contract の実装としては行わない。key-free の BASE 化は OD-H5-BASE-1/2 が別途決定。SAUCE / CHEESE rung の価値低下の解決は #360）/ 新 taxonomy / save migration / attempt cap・課金 / #355 の修正 / **Production flag ON・Production deploy**。
 
 ## 15. Canonical numbers（Production 27 recipe / 30 ingredient、当時の audit 前提: **sauce は 1 attempt 1 種類**）
+
+> **2026-10-18 注記（OD-544-8）:** 複数ソース前提での再計算は **E（#521）の Final Gate 前に必須**。**未実施**であり、下の数値表は引き続き旧前提のまま。
 
 > **2026-10-17 注記:** 見出しの前提は当時の audit 条件であり、現行 engine（複数ソース、§3 改訂）の記述ではない。下の数値は**再計算していない**（§13.1 のフォローアップ）。
 
