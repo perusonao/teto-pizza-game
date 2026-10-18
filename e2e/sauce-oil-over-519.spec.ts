@@ -72,6 +72,20 @@ async function sample(page: Page): Promise<Samples> {
   }, png.toString("base64"));
 }
 
+/**
+ * RESULT of a perfect bake plays `.pizza-perfect-glow` (a 700ms screen-blend flash, App.css) from the moment the stage mounts it, and `page.screenshot`
+ * includes it. A fixed sleep after `.result-panel` lands anywhere on that animation's steep decay depending on runner speed (Issue #529: at its peak the
+ * overlap-vs-oil red gap drops to ~18 against a threshold of 20; once finished it is ~77). Wait for the animation to finish instead. Two frames first, so
+ * a glow committed in the frame after the panel is already in the DOM (a missing glow = no perfect flash = nothing to wait for).
+ */
+async function waitForPerfectGlowDone(page: Page) {
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await page.waitForFunction(() => {
+    const glow = document.querySelector(".pizza-perfect-glow");
+    return !glow || glow.getAnimations().every((a) => a.playState === "finished");
+  });
+}
+
 const dist = (a: Rgb, b: Rgb) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 const redness = (c: Rgb) => c[0] - c[1];
 const sumDiff = (a: Rgb, b: Rgb) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
@@ -157,7 +171,7 @@ test("#519: tomato then olive oil stays visible through CHEESE, BAKE and RESULT"
   await tapDoughPercent(page, 45, 78);
   await bakeToTarget(page, { start: 58, end: 72 });
   await expect(page.locator(".result-panel").first()).toBeVisible();
-  await page.waitForTimeout(500);
+  await waitForPerfectGlowDone(page);
   // the RESULT shows the same layered pizza (baked: the bake tint applies to both layers)
   expectTomatoStillVisible(await sample(page), "RESULT", false);
 });
