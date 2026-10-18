@@ -84,9 +84,9 @@ describe("cherry-tomato (step 18)", () => {
     expect(s.newlyDiscoverable[0].ladderCredit).toBe(true);
     expect(stepMatchesFilter(s, "multi")).toBe(false);
   });
-  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa and aussie", () => {
-    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese"]);
-    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa"]);
+  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa, aussie and grandma-pizza", () => {
+    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese", "grandma-pizza"]);
+    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "grandma-pizza"]);
     expect(s.classification).toBe("OPEN_POOL_POSSIBLE");
   });
 });
@@ -108,10 +108,10 @@ describe("onion (step 12)", () => {
 });
 
 describe("multi-recipe unlock", () => {
-  it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12, and Wave 2's step 28 = pesto-vegetariana + ratatouille-pizza, the intended Branching Discovery)", () => {
+  it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12, step 14 = marinara + the non-credit grandma-pizza (Multi-Sauce S3), and Wave 2's step 28 = pesto-vegetariana + ratatouille-pizza, the intended Branching Discovery)", () => {
     expect(model.multiRecipeStepNumbers).toEqual(model.steps.filter((s) => s.newlyDiscoverable.length >= 2).map((s) => s.step));
-    expect(model.multiRecipeStepNumbers).toEqual([12, 28]);
-    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12, 28]);
+    expect(model.multiRecipeStepNumbers).toEqual([12, 14, 28]);
+    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12, 14, 28]);
   });
 });
 
@@ -129,7 +129,7 @@ describe("OPEN_POOL classification follows selectHintTarget, not 'candidate >= 2
     const w = walkState(W1_ORDER.slice(0, 13));
     expect(selectHintTarget(w)).toEqual({ kind: "OPEN_POOL" });
     expect(selectHintTarget(w, { stickyRecipeId: "brazilian-calabresa" })).toMatchObject({ kind: "TARGET", recipeId: "brazilian-calabresa" });
-    expect([...s.maintainableTargetIds].sort()).toEqual(["aussie", "brazilian-calabresa"]);
+    expect([...s.maintainableTargetIds].sort()).toEqual(["aussie", "brazilian-calabresa"]); // (grandma-pizza is not makeable before the garlic step 14)
   });
   it("the OPEN_POOL filter is exactly the OPEN_POOL and OPEN_POOL POSSIBLE steps", () => {
     expect(model.steps.filter((s) => stepMatchesFilter(s, "open-pool")).map((s) => s.step)).toEqual([12, ...model.openPoolPossibleStepNumbers]);
@@ -147,13 +147,23 @@ describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", ()
   });
   it("is read from the production credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
     const calabresa = model.nonCreditRecipes.find((r) => r.recipeId === "brazilian-calabresa")!;
-    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa"]);
+    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "grandma-pizza"]);
     expect(calabresa.advancesLadder).toBe(countsTowardLadder("brazilian-calabresa"));
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));
     expect(calabresa.firstDiscoverableStep).toBe(12);
     expect(calabresa.poolSteps).toEqual(Array.from({ length: CATALOG_COUNTS.ladderSteps - 11 }, (_, i) => 12 + i)); // 12..last step (it stays in every later pool)
     expect(step(12).newlyDiscoverable.find((r) => r.recipeId === "brazilian-calabresa")!.ladderCredit).toBe(false);
+  });
+  it("grandma-pizza (Multi-Sauce S3): non-credit, first DISCOVERABLE at the garlic step 14 beside marinara, and in every later pool", () => {
+    const grandma = model.nonCreditRecipes.find((r) => r.recipeId === "grandma-pizza")!;
+    expect(grandma.advancesLadder).toBe(countsTowardLadder("grandma-pizza"));
+    expect(grandma.advancesLadder).toBe(false);
+    expect(grandma.lunchRush).toBe(participatesInLunchRush("grandma-pizza"));
+    expect(grandma.firstDiscoverableStep).toBe(14);
+    expect(grandma.poolSteps).toEqual(Array.from({ length: CATALOG_COUNTS.ladderSteps - 13 }, (_, i) => 14 + i));
+    expect(step(14).newlyDiscoverable.map((r) => r.recipeId).sort()).toEqual(["grandma-pizza", "marinara"]);
+    expect(step(14).newlyDiscoverable.find((r) => r.recipeId === "grandma-pizza")!.ladderCredit).toBe(false);
   });
   it("finding it leaves the production ladder count and the entitlement unchanged", () => {
     const before = walkState(W1_ORDER.slice(0, 12));

@@ -23,6 +23,7 @@ import { recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapter
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
 import { createDefaultSave } from "./persistence";
 import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
+import { MULTI_SAUCE_RECIPE_IDS } from "../logic/testSupport/requiredSauces";
 
 /**
  * Expansion Wave 2: vongole (No.13) / pesto-vegetariana (No.14) / ratatouille-pizza (No.15) and the
@@ -32,7 +33,7 @@ import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
 const IDS = ["vongole", "pesto-vegetariana", "ratatouille-pizza"] as const;
 /** The non-credit onion-step recipes (calabresa, and TQ-1D's aussie): excluded where a test isolates the Wave 2 pool. */
 // Outside the Wave 2 population: the two non-credit recipes, and Slice 3 pesto-trapanese (appended step 29, after this Wave).
-const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "pesto-trapanese"];
+const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "pesto-trapanese", "grandma-pizza"];
 const [VONGOLE, PESTO_VEG, RATATOUILLE] = IDS;
 const rec = (id: string) => getRecipe(id as RecipeId)! as Recipe;
 const NEW_INGREDIENTS = ["parsley", "bell-pepper", "zucchini"] as const;
@@ -219,7 +220,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
       expect(rec(id).ladderCredit, id).toBeUndefined();
       expect(countsTowardLadder(id), id).toBe(true);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie"]);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "grandma-pizza"]);
   });
 
   it("states: vongole UNKNOWN before step 27, KBMM until parsley is bought, DISCOVERABLE after", () => {
@@ -269,10 +270,12 @@ describe("Expansion Wave 2: sauce mapping, CUT, Lunch Rush, Hint 5.0, save", () 
     expect(getRecipeSauceProfile("pizza-bianca" as RecipeId)).toMatchObject({ ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" });
     expect(getRecipeSauceProfile(PESTO_VEG as RecipeId)).toMatchObject({ ingredientId: "pesto", interaction: "PAINT" });
     expect(getRecipeSauceProfile(RATATOUILLE as RecipeId)).toMatchObject({ ingredientId: "tomato-sauce", interaction: "PAINT" });
-    // olive-oil is a sauce-category ingredient, so vongole has exactly one sauce; only the NO_SAUCE recipes (the sauce-profile authority; TQ-1D's aussie and Expansion Batch 3) have none.
+    // olive-oil is a sauce-category ingredient, so vongole has exactly one sauce; only the NO_SAUCE recipes (the sauce-profile authority; TQ-1D's aussie and Expansion Batch 3) have none,
+    // and only the allowlisted two-sauce recipe (Multi-Sauce S3's grandma-pizza) has two.
     expect(getIngredient("olive-oil")!.category).toBe("sauce");
     for (const r of RECIPES) {
-      expect(r.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category === "sauce"), r.id).toHaveLength((noSauceRecipeIds() as readonly string[]).includes(r.id) ? 0 : 1);
+      const expected = (noSauceRecipeIds() as readonly string[]).includes(r.id) ? 0 : MULTI_SAUCE_RECIPE_IDS.includes(r.id) ? 2 : 1;
+      expect(r.requiredIngredients.filter((q) => getIngredient(q.ingredientId)!.category === "sauce"), r.id).toHaveLength(expected);
     }
   });
 

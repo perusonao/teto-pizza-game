@@ -1150,6 +1150,26 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "grandma-pizza",
+    nameJa: "グランマピザ",
+    description: "トマトソースとオリーブオイルに、モッツァレラとにんにくをのせた、シンプルな一枚。",
+    // Multi-Sauce S3 (Issue #521; Design Lock docs/reports/TETO_MULTI-SAUCE-RECIPES_Design-Lock.md). SOURCE AUTHORITY (PIZZA DB `grandma-pizza-pizzadb`, 172 matrix): tomato-sauce / mozzarella / garlic / olive-oil.
+    // The first recipe with TWO required sauces: tomato-sauce is the primary (RECIPE_SAUCE_PROFILES, Reference target); olive-oil is a secondary sauce scored by presence only. The source does not record whether the oil is
+    // pre- or post-bake, so the description names no timing; the game models it like its other olive-oil recipes (a pre-bake PAINT_TEMPORARY layer in the SAUCE step).
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / olive-oil 1 / mozzarella 3 / garlic 2, bake 56-76 (provisional); 5 non-sauce pieces fit the 8-slot ring.
+    // `ladderCredit: false` (no new material; makeable from ladder step 14, when garlic arrives); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "garlic", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

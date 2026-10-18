@@ -5,6 +5,7 @@ import { RECIPES, getRecipe, type RecipeId } from "../data/recipes";
 import { findOrderForRecipe } from "../data/orders";
 import { INGREDIENTS, getIngredient } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
@@ -32,7 +33,7 @@ function pizzaWithCount(recipeId: RecipeId, ingredientId: string, count: number)
   const reference = getReferencePizza(recipeId)!;
   return {
     ...createEmptyPizza(),
-    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+    sauceIds: requiredSauceIds(recipeId),
     sauceDeposits: buildIdealSauceFixture(),
     toppings: reference.pieceGroups.flatMap((group, gi) => {
       const positions =

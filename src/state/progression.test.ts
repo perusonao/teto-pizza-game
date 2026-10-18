@@ -289,6 +289,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "california-style-pizza",
         "eggplant-ricotta-pizza",
         "full-english-pizza",
+        "grandma-pizza",
         "hawaiian",
         "jalapeno-popper-pizza",
         "jamon-serrano-pizza",

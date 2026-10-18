@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
+import { getIngredient } from "./ingredients";
 import { RECIPES } from "./recipes";
 import { getReferencePizza } from "./referencePizza";
 import { createEmptyPizza } from "../state/pizzaState";
@@ -31,8 +32,12 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId]);
       expect(expected, t.recipeId).toBeDefined();
       expect(t.items).toEqual([...expected!.items].sort());
-      expect(t.capabilities).toEqual(expected!.capabilities);
-      expect(t.identityDimensions).toEqual(expected!.identityDimensions);
+      // Multi-Sauce S3: the Phase-2 row of grandma-pizza lists MULTI_SPREAD_LAYER and `spreadLayers: [olive-oil, tomato-sauce]`, but no capability is runtime-supported yet (a target that requires one is
+      // unmatchable) and the runtime does not observe `spreadLayers` (null, like every other target); the two-sauce engine (B1 / B2) needs neither, and the two sauces are already in `items` / `sauceBase`.
+      // Everything else about the target stays checked.
+      const twoSauce = t.recipeId === "grandma-pizza";
+      expect(t.capabilities).toEqual(twoSauce ? [] : expected!.capabilities);
+      expect(t.identityDimensions).toEqual(twoSauce ? { ...expected!.identityDimensions, spreadLayers: null } : expected!.identityDimensions);
       expect(t.eligibility).toEqual({ status: "ELIGIBLE" });
     }
   });
@@ -68,7 +73,8 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       const reference = getReferencePizza(recipe.id)!;
       const pizza = {
         ...createEmptyPizza(),
-        sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+        // every required sauce, not only the Reference (primary) one: a two-sauce recipe (grandma-pizza) is only itself with both
+        sauceIds: recipe.requiredIngredients.map((r) => r.ingredientId).filter((id) => getIngredient(id)?.category === "sauce"),
         toppings: reference.pieceGroups.flatMap((g, gi) =>
           g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p })),
         ),

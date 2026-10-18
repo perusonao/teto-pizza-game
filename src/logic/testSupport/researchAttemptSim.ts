@@ -28,6 +28,9 @@
  *  permutation per stage (sensitivity runs). Never place a remembered ×.
  *  final build: once nothing is unknown (or STRUCTURE's total equals the known-positive count) the pizza is exactly the
  *  known-positive set.
+ *  second sauce (Multi-Sauce S3): if that final build did not discover anything, the player adds ONE more owned sauce it has not
+ *  seen yet (a recipe such as grandma-pizza needs two); a remembered × is never placed again. A one-sauce target is discovered by
+ *  its first final build, so this step is never reached for it.
  * Quantity: every topping is placed `piecesOf(id)` times (the Shop's pack unit, as the Hint 5.0 harness), so quantity
  * is never the bottleneck (optimistic) and stock drains at the Shop's designed rate.
  * Shop / Pitz: new materials are bought as soon as they unlock; a refill is bought just before an attempt that needs
@@ -151,7 +154,7 @@ function pizzaOf(ids: readonly string[], singles: ReadonlySet<string> = new Set(
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter((id) => cat(id) === "sauce").slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter((id) => cat(id) === "sauce"), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** A small deterministic PRNG (mulberry32) for the seeded tray orders. */
@@ -181,6 +184,8 @@ interface Knowledge {
   negative: Set<string>;
   cheeseSettled: boolean;
   total: number | null;
+  /** The previous attempt was the final build (exactly the known positives) and discovered nothing. */
+  finalFailed?: boolean;
 }
 
 export interface AttemptPlan {
@@ -207,7 +212,11 @@ export function chooseAttempt(
   const unknownToppings = ordered("topping");
   const totalKnownEnough = k.total !== null && k.positive.length >= k.total;
   const hasUnknown = unknownSauces.length + unknownCheeses.length + unknownToppings.length > 0;
-  if (!hasUnknown || totalKnownEnough) return { ids: [...k.positive], unknownIds: [], unknownTested: 0, final: true };
+  if (!hasUnknown || totalKnownEnough) {
+    const extraSauce = k.finalFailed ? ordered("sauce")[0] : undefined;
+    if (extraSauce) return { ids: [...k.positive, extraSauce], unknownIds: [extraSauce], unknownTested: 1, final: false };
+    return { ids: [...k.positive], unknownIds: [], unknownTested: 0, final: true };
+  }
   const ids = [...k.positive];
   if (unknownSauces.length > 0) ids.push(unknownSauces[0]);
   ids.push(...unknownCheeses);
@@ -461,12 +470,13 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     let noInfo = 0;
     let discoveredNow: string[] = [];
     let hintsDone = false;
+    let finalFailed = false;
 
     for (let attemptGuard = 0; attemptGuard < 120; attemptGuard += 1) {
       startValid(target);
       if (!hintsDone && profile !== "NONE" && dexIds.length >= 1) buyRungs(target);
       hintsDone = true;
-      const plan = chooseAttempt(s.ownedIngredientIds, knowledgeOf(target, negative), {
+      const plan = chooseAttempt(s.ownedIngredientIds, { ...knowledgeOf(target, negative), finalFailed }, {
         orderSeed,
         salt: stageGuard,
         toppingCap: Math.max(1, 3 - noInfo),
@@ -489,6 +499,7 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
         if (s.lastResearchRows && s.lastResearchRows.rows.length > 0) acc.attemptsWithRows += 1;
         break;
       }
+      finalFailed = plan.final;
       const rows = s.lastResearchRows?.rows ?? [];
       if (rows.length === 0) noInfo += 1;
       else acc.attemptsWithRows += 1;

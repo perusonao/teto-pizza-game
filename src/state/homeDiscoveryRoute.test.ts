@@ -25,7 +25,7 @@ function save(step: number, extraDiscovered: readonly string[] = [], over: Parti
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])), ...over };
 }
 const multi = (over: Partial<GameState> = {}) => save(12, [], over);
-const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa", "aussie"], over);
+const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa", "aussie", "grandma-pizza"], over);
 const registered = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);
 
 /** Starts HOME's discovery exactly as App.handleStartDiscovery does with the route. */

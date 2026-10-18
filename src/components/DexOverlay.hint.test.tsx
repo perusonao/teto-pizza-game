@@ -93,8 +93,8 @@ function expectNoUndiscoveredIdentity(inputs: RecipeDiscoveryInputs, where: stri
 
 afterEach(() => cleanup());
 
-/** The two non-credit recipes makeable from the onion step on: brazilian-calabresa and (TQ-1D) the no-sauce aussie. */
-const NON_CREDIT_FOUND = ["brazilian-calabresa", "aussie"];
+/** The non-credit recipes: brazilian-calabresa and (TQ-1D) the no-sauce aussie from the onion step on, and (Multi-Sauce S3) the two-sauce grandma-pizza from the garlic step (14) on. */
+const NON_CREDIT_FOUND = ["brazilian-calabresa", "aussie", "grandma-pizza"];
 
 describe("which cards get 「💡 ヒントを見る」", () => {
   // Pool-size aware (Discovery 3.0 PR-4a / PR-4b-A / PR-4b-B): a W1 step's key recipe is always
@@ -108,7 +108,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     renderDex(inputs, { onShowHint });
     const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id);
     expect(expected).toContain(LADDER_ORDER[count]);
-    expect(expected.length).toBe(count >= 12 ? 3 : 1); // the key recipe + the non-credit calabresa + (TQ-1D) aussie
+    expect(expected.length).toBe(count >= 14 ? 4 : count >= 12 ? 3 : 1); // the key recipe + the non-credit calabresa + (TQ-1D) aussie + (S3, from the garlic step) grandma-pizza
     if (expected.length > 1) {
       expect(hintButtons()).toHaveLength(0);
       expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0); // #346 S4: all are Research Entries

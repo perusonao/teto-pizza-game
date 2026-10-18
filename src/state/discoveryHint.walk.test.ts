@@ -50,7 +50,7 @@ const BAKE = 68;
 function pizzaOf(ids: readonly string[]): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: ids.filter(isSauce).slice(0, 1),
+    sauceIds: ids.filter(isSauce),
     toppings: ids.filter((id) => !isSauce(id)).map((ingredientId, i) => ({ id: `w${i}`, ingredientId, x: 30 + i * 3, y: 50 })),
     bakeResult: BAKE,
   };

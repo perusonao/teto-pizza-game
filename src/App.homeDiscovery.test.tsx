@@ -32,7 +32,7 @@ function seed(step: number, extraDiscovered: readonly string[] = []): void {
     }),
   );
 }
-const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie"]);
+const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie", "grandma-pizza"]);
 const seedMulti = () => seed(12);
 
 const homeDiscovery = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole("button", { name: /レシピ発見/ }));

@@ -19,7 +19,8 @@ const FREE_BAKE = { start: 58, end: 78 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "pesto-trapanese";
 // The recipes of the catalog up to and including this slice (later batches are not found yet).
-const DISCOVERED = RECIPES.slice(0, RECIPES.findIndex((r) => r.id === ID) + 1).map((r) => r.id as string).filter((id) => id !== ID);
+// (+ grandma-pizza, Multi-Sauce S3: the non-credit two-sauce recipe is makeable from step 14, so a settled save has found it, else it is a second Research Entry)
+const DISCOVERED = [...RECIPES.slice(0, RECIPES.findIndex((r) => r.id === ID) + 1).map((r) => r.id as string).filter((id) => id !== ID), "grandma-pizza"];
 const OWNED_BEFORE = materialsUpTo(28);
 
 const saveJson = () =>
@@ -52,7 +53,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   }, [SAVE_KEY, saveJson()] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`32/${CATALOG_COUNTS.recipes}`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`33/${CATALOG_COUNTS.recipes}`));
 
   // 1. Shop: almond is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
   await page.getByRole("button", { name: /ショップ/ }).click();
@@ -110,7 +111,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   await page.getByRole("button", { name: /ホーム/ }).first().click();
   await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
   await page.waitForSelector(".dex-overlay");
-  await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`33\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+  await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`34\\s*/\\s*${CATALOG_COUNTS.recipes}`));
   const card = page.locator(".dex-card").filter({ hasText: "ペストトラパネーゼピザ" });
   await expect(card).toHaveCount(1);
   await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("16/16");

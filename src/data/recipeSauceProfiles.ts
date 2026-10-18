@@ -290,6 +290,12 @@ export const RECIPE_SAUCE_PROFILES = {
     interaction: "PAINT_TEMPORARY",
   },
   "new-zealand-lamb-pizza": null,
+  // Multi-Sauce S3: the PRIMARY sauce only (tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Design Lock §5.3).
+  "grandma-pizza": {
+    recipeId: "grandma-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */
