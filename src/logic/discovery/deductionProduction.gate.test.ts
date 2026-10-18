@@ -6,6 +6,7 @@ import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { TECHNIQUES } from "../../data/techniques";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { requiredTechniquesOf } from "../techniques/detection";
+import { PAN_REQUIRING_RECIPE_IDS } from "../techniques/testSupport/technique.allowlists";
 import { techniqueAffordanceStep } from "../techniques/registration";
 import { productionTechniqueContext } from "../techniques/runtime";
 import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "./deductionFlag";
@@ -145,14 +146,18 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
       }
     }
   }, SWEEP_TIMEOUT_MS);
-  it("INV-TQ-4 on the runtime: the NO_SAUCE recipes are the only production targets requiring a technique, and the only affordance is the earliest one's own step (onion, 12)", () => {
+  it("INV-TQ-4 on the runtime: exactly NO_SAUCE ∪ the named pan allowlist require a technique; no-sauce opens at its earliest recipe's own step (onion, 12) and tray-bake never opens while the allowlist is empty", () => {
     const { catalog, materialStep } = productionTechniqueContext();
     expect(catalog).toBe(RECIPE_DISCOVERY_CATALOG);
     expect(catalog.map((t) => t.recipeId).sort()).toEqual(RECIPES.map((r) => r.id).sort());
     const requiring = catalog.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
     // If this fails, another Technique recipe arrived: re-run this DH4 gate with it first.
-    expect(requiring.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([...noSauceRecipeIds()].sort());
-    for (const t of TECHNIQUES) expect(techniqueAffordanceStep(t.id, catalog, materialStep), t.id).toBe(12);
+    expect(requiring.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([...noSauceRecipeIds(), ...PAN_REQUIRING_RECIPE_IDS].sort());
+    const trayRequiring = catalog.filter((t) => requiredTechniquesOf(t).includes("tray-bake")).map((t) => t.recipeId);
+    expect(trayRequiring.sort(), "re-run the DH4 privacy gate with pan-axis states (F_RESEARCH-AUDIT §7)").toEqual([...PAN_REQUIRING_RECIPE_IDS].sort());
+    expect(techniqueAffordanceStep("no-sauce", catalog, materialStep)).toBe(12);
+    expect(techniqueAffordanceStep("tray-bake", catalog, materialStep) !== null).toBe(PAN_REQUIRING_RECIPE_IDS.length > 0);
+    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray-bake"]);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
     const sources = import.meta.glob<string>(

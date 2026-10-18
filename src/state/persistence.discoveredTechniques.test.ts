@@ -124,3 +124,30 @@ describe("discoveredTechniqueIds: Full Reset", () => {
     expect(storage.raw().discoveredTechniqueIds).toEqual([]);
   });
 });
+
+describe("tray-bake (Square Dough F2): additive id, no schema change", () => {
+  it("an old save (no tray-bake) loads unchanged in the new build", () => {
+    const loaded = loadSave(memoryStorage(v2({ discoveredTechniqueIds: ["no-sauce"], pitzBalance: 12 })));
+    expect(loaded.discoveredTechniqueIds).toEqual(["no-sauce"]);
+    expect(loaded.schemaVersion).toBe(2);
+  });
+
+  it("new build -> storage -> new build keeps order; writing it adds no top-level key beyond a write without it", () => {
+    const without = memoryStorage(v2({ discoveredTechniqueIds: ["no-sauce"] }));
+    persistProgress(snapshotOf(without, ["no-sauce"], 5), without);
+    const storage = memoryStorage(v2({ discoveredTechniqueIds: ["no-sauce"] }));
+    persistProgress(snapshotOf(storage, ["no-sauce", "tray-bake"], 5), storage);
+    expect(Object.keys(storage.raw()).sort()).toEqual(Object.keys(without.raw()).sort());
+    expect(storage.raw().discoveredTechniqueIds).toEqual(["no-sauce", "tray-bake"]);
+    expect(loadSave(storage).discoveredTechniqueIds).toEqual(["no-sauce", "tray-bake"]);
+  });
+
+  it("new save -> old build: an id the old build does not know is a well-formed unknown id, so the forward-compat path keeps it (the union never drops it)", () => {
+    // An old build treats "tray-bake" exactly as this build treats any unknown well-formed id (here: "post-bake").
+    expect("tray-bake").toMatch(/^[a-z0-9][a-z0-9_-]{0,63}$/);
+    const storage = memoryStorage(v2({ discoveredTechniqueIds: ["tray-bake", "post-bake"] }));
+    persistProgress(snapshotOf(storage, ["no-sauce"], 5), storage);
+    const stored = storage.raw().discoveredTechniqueIds as string[];
+    expect([...stored].sort()).toEqual(["no-sauce", "post-bake", "tray-bake"]);
+  });
+});

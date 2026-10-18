@@ -79,7 +79,7 @@ export interface RoundTechniqueInput {
   eligibility: TechniqueRoundEligibility;
   /** The ledger before this round (known ids). */
   ledger: readonly TechniqueId[];
-  signature: Pick<RuntimeSignature, "ingredientSet" | "sauceBase">;
+  signature: Pick<RuntimeSignature, "ingredientSet" | "sauceBase"> & Partial<Pick<RuntimeSignature, "dimensions">>;
   /** The pizza passed its Completion Gate. Gates the usage path only; the recipe path follows the
    *  Dex this same transition wrote (INV-TQ-1 must hold for whatever the Dex now says). */
   completionPassed: boolean;

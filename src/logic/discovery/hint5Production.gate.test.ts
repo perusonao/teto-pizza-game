@@ -25,6 +25,7 @@ import {
 import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
 import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
+import { PAN_REQUIRING_RECIPE_IDS } from "../techniques/testSupport/technique.allowlists";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
@@ -316,7 +317,8 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
     expect(noSauce.length).toBeGreaterThan(0);
     const requiring = RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
+    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...PAN_REQUIRING_RECIPE_IDS].sort());
+    // A pan-requiring recipe keeps a Hint 5.0 ladder with no technique term (checked by the techWords sweep below).
     const sauceRung = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SAUCE");
     const notSingleSauce = RECIPES.filter((r) => sauceRung(r.id).length !== 1 || sauceRung(r.id)[0].subjectIds.length !== 1).map((r) => r.id);
     expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);

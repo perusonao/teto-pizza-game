@@ -20,7 +20,7 @@ import { detectTechniquesUsed, requiredTechniquesOf, type TechniqueTargetView } 
 export interface TechniqueRegistrationInput {
   /** The persisted ledger (`discoveredTechniqueIds`), possibly holding ids this build does not know. */
   ledger: readonly string[];
-  signature: Pick<RuntimeSignature, "ingredientSet" | "sauceBase">;
+  signature: Pick<RuntimeSignature, "ingredientSet" | "sauceBase"> & Partial<Pick<RuntimeSignature, "dimensions">>;
   completionPassed: boolean;
   /** The recipe target this pizza matched (new or already discovered), or null for an original. */
   matchedTarget: TechniqueTargetView | null;
