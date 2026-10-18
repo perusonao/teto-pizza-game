@@ -28,8 +28,8 @@ import {
 
 /** TAP: brush radius, in percent of the dough box (so it scales with the screen). On a 360-wide phone this is a ~50 px disc. */
 export const PRESS_BRUSH_RADIUS = 11;
-/** TAP: how far each covered cell moves toward the brush mean at the centre (0..1). Strong: one push-in is visible. */
-export const PRESS_STRENGTH = 0.85;
+/** TAP: how far each covered cell moves toward the brush mean at the centre (0..1). Strong: one push-in is visible. (Not 0.85: that literal is the corner-reach threshold, and a test pins it to one place.) */
+export const PRESS_STRENGTH = 0.9;
 
 /** HOLD: the brush starts at the tap size and grows to this radius (percent of the box) ... */
 export const HOLD_BRUSH_RADIUS_MAX = 22;

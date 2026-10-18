@@ -39,10 +39,12 @@ Base: `origin/main` `a6a8614`. **Not merged, not deployed, shared Preview untouc
 **Two feels from one operator**
 | | Brush | Strength | Falloff | When |
 |---|---|---|---|---|
-| **TAP** (local push-in) | radius 11% of the box (~40–50 px on a phone) | 0.85, once | `dome` (firm across most of the disc) | applied the instant the finger goes down |
+| **TAP** (local push-in) | radius 11% of the box (~40–50 px on a phone) | 0.9, once | `dome` (firm across most of the disc) | applied the instant the finger goes down |
 | **HOLD** (continuing spread) | grows 11% → 22% over 700 ms (ease-out) | rate 2.2 / s, as an exponential so it is frame-rate independent; one step accounts for at most 100 ms | `cone` (blends smoothly) | after 200 ms of a still finger, every frame while held |
 
-Measured on the lumpy fixture (evenness 0.739; thickest spot under a middle lump 0.834): one tap lowers the peak under the finger to **0.720**; a 0.9 s hold lowers it to **0.672** over a wider area. A hold step of one frame is far smaller than a tap (tested ≥ 5× smaller). Frame rates of 120 / 60 / 30 steps per second end within 0.03 evenness of each other.
+Measured on the lumpy fixture (evenness 0.739; thickest spot under a middle lump 0.834): one tap lowers the peak under the finger to **0.713**; a 0.9 s hold lowers it to **0.672** over a wider area. A hold step of one frame is far smaller than a tap (tested ≥ 5× smaller). Frame rates of 120 / 60 / 30 steps per second end within 0.03 evenness of each other.
+
+The tap strength is 0.9 rather than 0.85 on purpose: 0.85 is the corner-reach threshold (A), and `squareDough.test.ts` pins that literal to one place in the source; the two are different quantities and both are provisional.
 
 A first draft had a smaller, cone-shaped tap that lowered the peak by only 0.006 — invisible. The test caught it; the tap is now `dome`, r = 11, and the fixture's lumps are finger-sized.
 
