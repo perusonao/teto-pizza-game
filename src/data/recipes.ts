@@ -1,3 +1,5 @@
+import type { PanShape } from "../logic/pan/panShape";
+
 export interface RecipeRequirement {
   ingredientId: string;
   minCount: number;
@@ -61,6 +63,11 @@ export interface Recipe {
    *  every existing recipe omits the field. Flipping it later is the only change needed to let a
    *  recipe in. Never persisted. */
   lunchRush?: false;
+  /** Square-Pan Dough A (Issue #534, Epic #532): the pan this recipe's dough is shaped and baked in. Absent means
+   *  `"round"` -- every existing recipe omits the field (`resolvePanShape`, ../logic/pan/panShape.ts, is the sole
+   *  reader). Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `grandma-pizza`
+   *  (#521, after D and F). Never persisted. */
+  panShape?: PanShape;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
