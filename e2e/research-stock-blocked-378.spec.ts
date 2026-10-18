@@ -10,7 +10,7 @@ import { getIngredient } from "../src/data/ingredients";
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
-const keys = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId), "brazilian-calabresa", "aussie"];
+const keys = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId), "brazilian-calabresa", "aussie", "chilean-napolitana"];
 // Step 25 state: the step-26 material (shrimp, Expansion Slice 1) is not entitled yet, so it is not seeded.
 const mats = DISCOVERY_LADDER.steps
   .filter((s) => s.step <= 25)

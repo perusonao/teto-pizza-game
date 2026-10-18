@@ -6,15 +6,19 @@
  */
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
-/** Batch 7a (55 -> 57 recipes: mint is the key material of step 52, sweet-potato the last-unlocking material of step 53 (lamb + sweet-potato); OD-B7-1): the manifest the validator checks. Batches 1-6 (landed) are covered by the catalog-wide tests. */
+/** Batch 8a (57 -> 60 recipes, zero new materials, all non-credit): chilean-napolitana (step 20, cohort key fresh-tomato), spanish-chorizo-pizza (step 28, bell-pepper: its own single-member cohort, no letter) and frango-catupiry (step 44, catupiry) are branching Research entries
+ *  that never advance the ladder, so `keyIngredientId` is the recipe's last-unlocking material (its Research cohort key), not a new ladder step. Chilean and frango join the cohorts of pesto-caprese and brazilian-catupiry-corn-pizza, so those two gain the letter A (the new recipe is B)
+ *  (`acceptedLetterShifts`, Owner-approved 2026-10-18). Batch 7a (landed) and Batches 1-6 are covered by the catalog-wide tests. */
 export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
-  batchId: "batch-7a",
+  batchId: "batch-8a",
   status: "landed",
-  afterRecipeId: "spinach-artichoke-pizza",
+  afterRecipeId: "new-zealand-lamb-pizza",
   recipes: [
-    { recipeId: "eggplant-ricotta-pizza", keyIngredientId: "mint", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "new-zealand-lamb-pizza", keyIngredientId: "sweet-potato", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "chilean-napolitana", keyIngredientId: "fresh-tomato", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "spanish-chorizo-pizza", keyIngredientId: "bell-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "frango-catupiry", keyIngredientId: "catupiry", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
   ],
+  acceptedLetterShifts: { "pesto-caprese": "-->A", "brazilian-catupiry-corn-pizza": "-->A" },
 };
 
 export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH];

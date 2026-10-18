@@ -20,7 +20,7 @@ const ladderOwned = (step: number) => [
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const T = "pesto-pollo";
 const single = (extra: Partial<ResearchBoardInputs> = {}): ResearchBoardInputs => ({
-  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]),
+  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie", "chilean-napolitana"]),
   ownedIngredientIds: ladderOwned(25),
   ...extra,
 });
@@ -75,7 +75,7 @@ describe("Board content: ✓ known, ✗ disclosed NEGATIVE, △ purchased class 
     expect(researchBoardOf(single(), null)).toBeNull();
     expect(deriveResearchBoards({ dex: discoveredDex([]), ownedIngredientIds: [...STARTER_INGREDIENT_IDS] })).toEqual([]);
     const discovered = single({ researchExclusions: { [T]: ["egg"] } });
-    const after = { ...discovered, dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie", T]) };
+    const after = { ...discovered, dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie", "chilean-napolitana", T]) };
     expect(researchBoardOf(after, T)).toBeNull();
   });
   it("cohort siblings keep their letter; each Board uses the shared label authority", () => {
