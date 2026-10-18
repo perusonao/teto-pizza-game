@@ -1,12 +1,14 @@
 # グランマピザ（#521 E = S3）レシピ統合準備 — 監査と受け入れ条件
 
+**改訂 2026-10-18（Owner 決定の反映）**: 初版（監査）後に Owner が §8 の大半と一部の追加項目を確定した。確定事項は「**確定（Owner 2026-10-18）**」、未確定は「**未確定**」と明示する。確定は Owner の発言に書かれた範囲のみで、書かれていない項目を推測で確定扱いにしていない。
+
 Docs-only。Issue #521。実装は再開しない（`src/**`・レシピ/食材データ・テスト・CSS・save は無変更）。
 監査基準: `origin/main` = `3c3c2da`（#547 = F1 まで取り込み済み）、#540 = `124f696`（Draft HOLD、`608e65b` 基準）、#548（F2、OPEN・未マージ）。
 触れていないもの: #540（Draft HOLD のまま）、#527、共有 Preview、他セッションのブランチ（#540 / #548 は read-only の fetch のみ）。
 
 ## 0. 結論
 
-1. **E は今は着手できない。** 前提の #535（B）・#536（C）・#537（D）・#538（F）が main に未完了（B1 #545 / B2 #546 / F2 #548 は OPEN、C・D は PR なし）。Design Lock §8 は 1〜8 すべて未回答。
+1. **E は今は着手できない。** 前提の #535（B）・#536（C）・#537（D）・#538（F）が main に未完了（B1 #545 / B2 #546 / F2 #548 は OPEN、C・D は PR なし）。Design Lock §8 は **8-2〜8-8 が Owner により確定**、**8-1（pizzadb.jp 原典確認）のみ未完了**で、これが E の開始をブロックし続ける（§2）。
 2. **pizzadb.jp の原典確認は、この環境からは再び不可能**（本セッションでも `pizzadb.jp` / `www.pizzadb.jp` ともにプロキシが CONNECT を 403 で拒否）。ゆえに「オイルの焼成前後」「天板（四角）形状」は**原典未確認のまま**。リポジトリ内の原典記録で言えるのは §1 の範囲だけ。
 3. #540 は **データ・テスト基盤の一部が再利用可能**だが、丸い生地前提の部分（レシピ行・target・Reference・E2E・スクリーンショット・動画）は作り直し（§3）。
 4. 受け入れ条件（§4）に、Owner 指定の「四角い形状 **かつ** `pan:"tray"` が必須」「丸い調理ではグランマピザが発見されない」を最上位条件として置いた。
@@ -25,30 +27,49 @@ Docs-only。Issue #521。実装は再開しない（`src/**`・レシピ/食材�
 
 **表記ルール（Addendum 準拠）**: Owner が実サイトを確認するまで、ドキュメント・UI 文言・レシピ説明のいずれにも「PIZZA DB が四角い天板を記録している」「オイルは焼成前/後」と書かない。レシピ説明は時点を断定しない現行案（「トマトソースとオリーブオイルに、モッツァレラとにんにくをのせた、シンプルな一枚。」）を維持。
 
-## 2. Design Lock §8 の未決事項（すべて未回答。推測で承認しない）
+## 2. Design Lock §8 の状態（確定 / 未確定）
 
-| # | 項目 | 推奨/仮置き（承認ではない） | E をブロックするか |
+| # | 項目 | 状態 | 内容 |
 |---|---|---|---|
-| 8-1 | pizzadb.jp ライブ確認（食材不変・オイル位置・**天板形状**） | — | **ブロック**（矛盾があれば保留に戻す） |
-| 8-2 | `ladderCredit:false` か credited か | false（calabresa 前例）。未発見の間は step 14 以降の全 pool に残る | ブロック（Research 件数・テスト更新に影響） |
-| 8-3 | Hint 5.0 の SAUCE rung が**両ソース**を示すこと | 1 rung が 2 ソースを示す設計 | ブロック（G7 clause 2 の allowlist 化がプライバシー再監査判断） |
-| 8-4 | 複数ソース Technique（TQ-3）より先に 2 ソースのレシピを出す | TQ-3 登録なし | ブロック |
-| 8-5 | S1 のオイル重ね視覚変更（実装値は `SAUCE_OIL_OVERLAP_ALPHA_FACTOR = 0.3`、#524 マージ済み） | 設計時の目安 0.45 とは異なる実装値 | 実質マージ済みの変更に対する事後承認 |
-| 8-6 | id/名称 `grandma-pizza` / グランマピザ | — | ブロック（id 変更は cohort letter のハッシュ順に影響、F 監査 §9 R6） |
-| 8-7 | スフィンチョーネ | 保留 | しない |
-| 8-8 | 異種 2 ソース候補 | 後続候補のみ | しない |
+| 8-1 | pizzadb.jp ライブ確認（食材不変・オイル位置・**天板形状**） | **未確定（未完了）** | Owner の原典確認は未完了。推測で確定しない。**E をブロック**。矛盾があれば grandma は保留に戻す |
+| 8-2 | `ladderCredit` | **確定** | `false`。未発見の間は step 14 以降の全 pool に残る（Research 件数・テスト更新は E の PR で扱う） |
+| 8-3 | Hint 5.0 の SAUCE rung が両ソースを扱う | **確定** | 1 つの SAUCE rung が両ソースを扱う。G7 clause 2 の allowlist 化は F 監査 §7 の条件で実施し、プライバシー再監査結果を E の Result に記録 |
+| 8-4 | TQ-3 より先に 2 ソースのレシピを追加 | **確定** | 追加してよい（TQ-3 登録は不要） |
+| 8-5 | S1 のオイル重ね表示 | **確定** | 現行 `SAUCE_OIL_OVERLAP_ALPHA_FACTOR = 0.3` を維持 |
+| 8-6 | id / 名称 | **確定** | `grandma-pizza` / グランマピザ（id は固定。変更すると marinara/grandma の A/B が反転する、F 監査 §9 R6） |
+| 8-7 | スフィンチョーネ | **確定（保留）** | 保留のまま |
+| 8-8 | 異種 2 ソース候補 | **確定（後続課題）** | 後続課題。今回は選定しない |
 
-**#540 側の記録の誤り**: #540 の初回報告・コミット・Result Report に「§8-3 / §8-4 は受理扱い」とあるが**承認はされていない**。Result Report の該当文言は #540 ブランチ上にあり未修正（HOLD のため触れていない）。E 実装時に訂正する。
+**#540 側の記録の誤り**: #540 の初回報告・コミット・Result Report に「§8-3 / §8-4 は受理扱い」とあるが、**当時は承認されていなかった**。8-3 / 8-4 は 2026-10-18 に Owner が確定したが、それは #540 の記載を遡って正当化するものではない。Result Report の該当文言は #540 ブランチ上にあり未修正（HOLD のため触れていない）。E 実装時に書き直す。
+
+### 2.0 今回確定した Owner 決定の一覧（2026-10-18）
+
+| 項目 | 決定 |
+|---|---|
+| recipe id / 表示名 | `grandma-pizza` / グランマピザ |
+| `panShape` | `square` 必須 |
+| signature `pan` | `tray` 必須 |
+| `TechniqueId` | `tray` を正式採用（#548 の technique id、#547 の pan 値 `"tray"` と整合） |
+| `ladderCredit` | `false` |
+| CUT | 無効 |
+| Hint 5.0 SAUCE 段 | 両ソースを扱う |
+| TQ-3 | より先に追加してよい |
+| S1 オイル重ね | 現行 0.3 維持 |
+| スフィンチョーネ | 保留 |
+| 異種 2 ソース候補 | 後続課題 |
+| RESULT 中立文言 | 「材料だけでなく、生地の形や調理法も見直してみよう。」（下記注意参照） |
+
+**継続する未決事項**: (1) pizzadb.jp の原典確認（推測で確定しない）、(2) affordance step は F2 で再導出、(3) 四隅・均一度閾値は C の実機 HV で最終判断、(4) 完成後の再編集仕様は C で決定。
 
 ### 2.1 Addendum §7・F 監査 §10 で未決の追加項目
 
 | # | 項目 | 備考 |
 |---|---|---|
-| 9 | RESULT の中立な形状文言（天板で未識別の場合の 1 行）の最終コピー | AC-2: ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH で同一であること。F の PR で候補提示 |
-| 10 | 内部 technique ID・pan 値名の Owner 承認 | コード上は main に pan 値 `"tray"`（#547、マージ済）、technique id `"tray"`（#548、OPEN）が既に存在。**Owner の明示承認の記録は未確認** |
-| 11 | affordance step の再導出（想定 14） | F 監査で 14 と再導出済み（olive-oil=13、garlic=14）。F の実装時と E 実装時に再検証し、違えば報告 |
-| 12 | 85% 角到達・均一度閾値の最終値 | Owner 実機 HV で決定（D5） |
-| 13 | 完成後の四角生地の再編集可否 | O-7 は「次へ」で確定、それ以前は再編集可。「完成判定後」の扱いは未確定 |
+| 9 | RESULT の中立な形状文言 | **確定（2026-10-18）**: 「材料だけでなく、生地の形や調理法も見直してみよう。」。AC-2（ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH で同一、定数 1 箇所）の制約は維持。**要確認（Owner）**: F 監査 §0.1-A の G2 行は「材料だけでなく、生地の形や調理法も**工夫して**みよう。」（Research 向け固定文）で、今回の文は「**見直して**」と 1 句だけ異なる。両者は別の面（G2 = Research、今回 = RESULT）として併存か、G2 も同文に統一か、Owner の指示がない限り**現状どおり別々に扱う**（G2 は変更しない） |
+| 10 | 内部 technique ID・pan 値名 | **確定（2026-10-18）**: TechniqueId `tray`、signature pan `tray` |
+| 11 | affordance step の再導出（想定 14） | **未確定（F2 で再導出）**。F 監査では 14（olive-oil=13、garlic=14）。ハードコードせず F2 の導出結果を採用し、E 実装時にも再検証して違えば報告 |
+| 12 | 85% 角到達・均一度閾値の最終値 | **未確定**: C の Owner 実機 HV で最終判断（D5） |
+| 13 | 完成後の四角生地の再編集可否 | **未確定**: C で決定。O-7 は「次へ」で確定、それ以前は再編集可、は不変 |
 | 14 | Detroit / Sicilian 等を `panShape` の将来利用者とするか | 約束なし |
 | 15 | OD-TQ-5/6 なぞかけ例外 | 2026-10-18 に「全プレイヤー共通の一般的説明に限り承認」（F 監査 §0.1-C）。**ただし F 側の 1 行確認は F の最初のコミット前に必要** |
 | 16 | 旧 save で Research 候補が技法解放前に出る状態の許容 | 2026-10-18 決定 B で許容済み（承認事項として記録のみ） |
@@ -56,7 +77,7 @@ Docs-only。Issue #521。実装は再開しない（`src/**`・レシピ/食材�
 ### 2.2 Owner 判断が必要な新規論点（今回の監査で判明）
 
 - **P-1 「発見できない B」の期間**: 丸い調理では grandma を発見できない（O-2 で許容）。一方 Research の cohort は所有のみで決まるため、step 14 以降 `ladderCredit:false` の grandma は天板焼きが使えるようになる前（クレジット済み発見数が affordance step 未満の旧 save 等）にも「？？？ピザ B（にんにく）」として出続ける。F 監査 §2.2 の決定 B で「許容」済みだが、**E で実際に grandma を出す時点で通常プレイでも発生しないこと（registrable ⇒ affordance open、R1/R2）を確認し、発生する場合は Owner に再報告**する。
-- **P-2 marinara の A/B 表示**: step 14 で marinara が「？？？ピザ A（にんにく）」、grandma が B（FNV-1a 順: marinara 2348015198 < grandma-pizza 2630931452）。決定 2 で受容済みだが、**id を変更すると A/B が反転する**ため §2 の 8-6 と連動。
+- **P-2 marinara の A/B 表示**: step 14 で marinara が「？？？ピザ A（にんにく）」、grandma が B（FNV-1a 順: marinara 2348015198 < grandma-pizza 2630931452）。決定 2 で受容済み。8-6 で id が `grandma-pizza` に確定したため、この A/B は固定（R6 のピンで id 変更を検知）。
 - **P-3 Research が単一エントリ直行から候補選択に変わる**: F 監査決定 3 で受容済み。E の PR で約 35 件のテスト（#540 の実測）を**明示的に**更新する（R9）。
 - **P-4 カウント/ゴールデン**: 件数固定（57 → 58 レシピ）、Hint 5.0 ゴールデン 2 本の再生成は Owner 承認不要だが、E の PR で差分を項目別に説明すること。
 
@@ -80,8 +101,8 @@ Docs-only。Issue #521。実装は再開しない（`src/**`・レシピ/食材�
 
 | 対象 | 再設計点 |
 |---|---|
-| `recipes.ts` grandma 行 | `panShape: "square"` を追加（`Recipe.panShape` は #541 で main に既存）。個数 1/1/3/2・bake 56–76 は四角生地で再調整（Addendum §3「Counts may need re-tuning」）。説明文は時点断定なしのまま |
-| `discoveryCatalog.ts` target | `identityDimensions.pan = "tray"` を**必須**に（現在は pan 既定 null = 丸前提）。レシピと target は**同一コミット**で入れる（§4 E-AC8） |
+| `recipes.ts` grandma 行 | `panShape: "square"` を追加（Owner 確定）（`Recipe.panShape` は #541 で main に既存）。個数 1/1/3/2・bake 56–76 は四角生地で再調整（Addendum §3「Counts may need re-tuning」）。説明文は時点断定なしのまま |
+| `discoveryCatalog.ts` target | `identityDimensions.pan = "tray"` を**必須**に（Owner 確定）（現在は pan 既定 null = 丸前提）。レシピと target は**同一コミット**で入れる（§4 E-AC8） |
 | `referencePizza.ts` `GRANDMA_PIZZA_REFERENCE` | 円の 8 スロット配置（モッツァレラ 3 / ガーリック 2）流用は不可。四角用 Reference（D #537 の領域表現に従う）。ソースは `computeMechanicalSauceReference` の円前提 |
 | `cookingProfiles` | 四角では CUT 無効・天板工程（CUT 対象外は #540 で維持済み） |
 | DH4 / Hint 5.0 gate 許可リスト | `deductionProduction.gate.test.ts`・`hint5Production.gate.test.ts`。F 監査 §7 は **F が先に pan 軸・technique 要件を許可リスト化**し、E は grandma を追加する分担。#540 の差分は F 後に当て直し、**gate 全体と DH4 sweep を pan 軸状態（○/□）付きで再実行**して件数を Result に記録 |
@@ -104,7 +125,9 @@ pan 軸の OBSERVED 化（#547 で main 済み）、天板 Technique（#548 OPEN
 
 ## 4. 受け入れ条件（#521 E）
 
-### 4.1 最上位条件（Owner 指定）
+### 4.1 正式な受け入れ条件（Owner 確定 2026-10-18: E-AC1〜AC4・AC8）
+
+E-AC1〜AC4 と E-AC8 は Owner が正式な受け入れ条件として確定したもの。E-AC5〜AC7 は監査が補った補助条件で、E の PR では同様に満たすが、Owner 確定の対象外。確定値（§2.0）はすべてこの条件の入力として固定: id `grandma-pizza`、`panShape: "square"`、signature `pan: "tray"`、TechniqueId `tray`、`ladderCredit: false`、`lunchRush: false`、CUT 無効、SAUCE 段は両ソース。
 
 - **E-AC1 四角い形状と `pan:"tray"` の両方が必須**。
   - recipe: `panShape: "square"`。discovery target: `identityDimensions.pan = "tray"`。どちらか一方だけのデータ・コミットは不可。
@@ -115,18 +138,33 @@ pan 軸の OBSERVED 化（#547 で main 済み）、天板 Technique（#548 OPEN
   - **#540 の `e2e/expansion-grandma.spec.ts`（丸で NEW DISCOVERY）は、この条件で否定形に書き換える。**
 - **E-AC3 正例**: 四角生地 + `pan:"tray"` + grandma の正確な材料 + Completion Gate PASS ⇒ `UNIQUE_MATCH` ⇒ NEW DISCOVERY。RESULT に天板焼き（技法）が一度だけ現れ、Dex に grandma と技法が載る（F 監査 R3）。
 - **E-AC4 O-2 の許容結果**: 四角 + tray で他レシピの材料 ⇒ `ORIGINAL`（target と ○× は影響を受けない、R5）。
-- **E-AC5 丸 ↔ 四角のプライバシー対称**: 未識別の ○ 調理と □ 調理の ○× パネル・Trial Notebook・Research Board・Hint シートは、RESULT の技法ステージと O-2 の中立形状文言を除いてバイト一致。pan/天板/技法の語を含まない（R4）。
-- **E-AC6 既存 57 レシピの丸挙動は不変**（Scoring・ゴールデン・save 往復）。
-- **E-AC7 CUT 無効**（四角）。通常フローとの整合を E2E で確認。
+- **E-AC5（補助）丸 ↔ 四角のプライバシー対称**: 未識別の ○ 調理と □ 調理の ○× パネル・Trial Notebook・Research Board・Hint シートは、RESULT の技法ステージと O-2 の中立形状文言を除いてバイト一致。pan/天板/技法の語を含まない（R4）。
+- **E-AC6（補助）既存 57 レシピの丸挙動は不変**（Scoring・ゴールデン・save 往復）。
+- **E-AC7（補助）CUT 無効**（四角。CUT 無効自体は Owner 確定）。通常フローとの整合を E2E で確認。
 - **E-AC8 先行公開禁止（D3）**: main のどのコミットにも「`pan:"tray"` identity を持たない grandma」が存在しない。レシピ行・target・pan identity は同一コミット/PR で入れる。
 
-### 4.2 前提条件（E 着手ゲート）
+### 4.2 E の実装開始条件と依存 PR（更新 2026-10-18）
 
-1. #535（B）・#536（C）・#537（D、D2 は #518 非干渉）・#538（F、#548 を含む）が main にマージ済み。
-2. §2 の Design Lock §8 に対する Owner 回答（少なくとも 8-1〜8-4・8-6）。
-3. F の gate 許可リスト化が先にマージされていること（F 監査 §7）。E は grandma の追加のみ。
-4. affordance step の再導出（想定 14、ハードコードしない）。
-5. R1〜R12（F 監査 §9）を E の PR でも通すこと。特に R1/R2（registrable ⇒ affordance open）、R6（cohort letter は導出値、id を固定ピン）、R9（1 → 2 エントリのルーティング更新を列挙）、R12（2 ソース時の ソース行 2 件、ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH で DOM 同一）。
+**E はすべての条件が揃うまで開始しない（コード実装・ブランチ作成を含む）。**
+
+依存の順序（Addendum §1 / §4B.4 / F 監査）: `A #534（main 済み, #541）→ B #535 → C #536 → D #537 ／ F #538 → E #521`。F は A と C に依存し、E は D と F の両方の後。
+
+| # | 開始条件 | 現状（2026-10-18 確認） |
+|---|---|---|
+| 1 | A #534 | **済**（#541 main） |
+| 2 | B #535 | 未完（B1 #545・B2 #546 とも OPEN） |
+| 3 | **C #536**（四隅ドラッグ + 完成判定。閾値と再編集仕様は C の実機 HV で決定） | 未着手（PR なし） |
+| 4 | **D #537**（ソース・具材・チーズ・焼成・RESULT の四角対応。D2 は #518 非干渉） | 未着手（PR なし） |
+| 5 | **F #538** 全体（F1 #547 済み、F2 #548 OPEN、affordance・○/□ スイッチ・Dex/RESULT・gate 許可リスト化の残り） | 一部 |
+| 6 | **原典確認（Design Lock §8-1）の完了**: pizzadb.jp で食材・オイル位置・天板形状を Owner が確認し、矛盾がないこと | **未完了**。矛盾があれば grandma は保留に戻す |
+| 7 | F の gate 許可リスト化（G7 / INV-TQ-4 / `deductionProduction.gate`）が先にマージ済み（F 監査 §7）。E は grandma の追加のみ | F 待ち |
+| 8 | affordance step を F2 の導出結果で採用（ハードコードしない。想定 14 は F 監査の再導出値）。E 実装時にも再検証し、違えば報告 | F2 待ち |
+| 9 | 閾値（四隅・均一度）と完成後再編集仕様が C で確定済み（E のレシピ個数・bake 再調整の前提） | C 待ち |
+| 10 | R1〜R12（F 監査 §9）を E の PR でも通すこと。特に R1/R2・R6（id `grandma-pizza` をピン）・R9・R12 | E の PR |
+| 11 | Owner 承認前に PR をマージしない。#540 は変更・マージしない | 常時 |
+
+Owner 確定済みで開始条件から外れたもの: §8-2〜8-8、RESULT 中立文言、TechniqueId / pan 値（§2.0）。
+未確定のまま E に持ち込まないもの: 原典確認、affordance step の値、四隅・均一度閾値、完成後の再編集仕様。これらを仮置きで実装して確定扱いにしない。
 
 ### 4.3 検証と証跡
 
@@ -141,6 +179,6 @@ pan 軸の OBSERVED 化（#547 で main 済み）、天板 Technique（#548 OPEN
 
 確認できなかった: pizzadb.jp の現行ページ（403）、Epic #532 sub-issue の本文全文（タイトルと状態のみ）、#545/#546/#548 のマージ見込み。
 
-## 6. 次の一手（Owner の指示待ち）
+## 6. 次の一手
 
-実装は再開しない。Owner が §2 に回答し、#535〜#538 が揃った後、E を「§3.1 の再利用 → §3.2 の再設計 → §4 の受け入れ条件」の順で別 PR として着手する。
+実装は再開しない。Owner の次の動作待ち: (a) pizzadb.jp の原典確認、(b) C・D・F の完成。揃った後、E を「§3.1 の再利用 → §3.2 の再設計 → §4 の受け入れ条件」の順で別 PR として着手する。G2 行と今回の RESULT 中立文言の関係（§2.1 項目 9）は Owner の一言で確認したい。
