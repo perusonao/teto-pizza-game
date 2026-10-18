@@ -8,6 +8,7 @@
  * blur and a hidden tab discard it, so a broken gesture never reaches game state.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { createPortal } from "react-dom";
 import { HOLD_START_MS, IDLE_PRESS_GESTURE, stepPressGesture, type PressEvent, type PressGestureState } from "../logic/pan/pressGesture";
 import { SQUARE_PAN_HALF_SIDE } from "../logic/pan/panGeometry";
 import {
@@ -20,6 +21,8 @@ import {
 } from "../logic/pan/squareDough";
 import { HOLD_BRUSH_RADIUS_MAX, PRESS_BRUSH_RADIUS, applyPressEffects, holdBrushRadius } from "../logic/pan/squareDoughSpread";
 import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
+import { describeTarget, squareDoughDiag } from "../preview/squareDoughDiag"; // TEMPORARY on-device diagnostics (?diag=1)
+import { SquareDoughDiagPanel } from "../preview/SquareDoughDiagPanel";
 
 interface SquareDoughLayerProps {
   /** The committed dough this layer starts every gesture from. */
@@ -62,6 +65,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   const rafRef = useRef<number | null>(null);
   const pressCountRef = useRef(0);
   const doughRef = useRef(dough);
+  const lastCommittedRef = useRef<SquareDough | null>(null); // diagnostics only: the dough this layer last handed to onCommit
   const onCommitRef = useRef(onCommit);
   useEffect(() => {
     doughRef.current = dough;
@@ -69,6 +73,25 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   }, [dough, onCommit]);
   const [working, setWorking] = useState<SquareDough | null>(null);
   const [ring, setRing] = useState<PressRing | null>(null);
+
+  // Diagnostics only (no-ops with ?diag absent): the committed dough coming back through the prop is the reducer accepting COMMIT_SQUARE_DOUGH.
+  useEffect(() => {
+    if (squareDoughDiag && lastCommittedRef.current !== null && dough === lastCommittedRef.current) {
+      squareDoughDiag.count("reducerAccepted");
+      lastCommittedRef.current = null;
+    }
+  }, [dough]);
+  useEffect(() => {
+    if (!squareDoughDiag) return;
+    const el = layerRef.current;
+    squareDoughDiag.setStatus({
+      interactive,
+      resetToken,
+      layerRect: el ? (() => { const r = el.getBoundingClientRect(); return `${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`; })() : "-",
+      touchAction: el ? getComputedStyle(el).touchAction : "-",
+    });
+  }, [interactive, resetToken]);
+  useEffect(() => (squareDoughDiag ? squareDoughDiag.attachWindow(() => gestureRef.current.phase) : undefined), []);
 
   const stopLoop = useCallback(() => {
     if (rafRef.current !== null) {
@@ -82,6 +105,10 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     (event: PressEvent) => {
       const step = stepPressGesture(gestureRef.current, event);
       gestureRef.current = step.state;
+      if (squareDoughDiag) {
+        for (const effect of step.effects) squareDoughDiag.count(effect.kind === "press" ? "pressApplied" : "holdTicks");
+        squareDoughDiag.setStatus({ phase: step.state.phase });
+      }
       if (step.effects.length > 0) {
         const base = workingRef.current ?? doughRef.current;
         workingRef.current = applyPressEffects(base, step.effects);
@@ -93,7 +120,13 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         workingRef.current = null;
         setWorking(null);
         setRing(null);
-        if (step.end === "commit" && final !== null && final !== doughRef.current) onCommitRef.current(final);
+        if (step.end === "commit" && final !== null && final !== doughRef.current) {
+          lastCommittedRef.current = final;
+          squareDoughDiag?.count("commitIssued");
+          onCommitRef.current(final);
+        } else if (step.end === "discard") {
+          squareDoughDiag?.count("discarded");
+        }
       } else if (step.state.center !== null) {
         const elapsed = Math.max(0, ("at" in event ? event.at : performance.now()) - step.state.downAt - HOLD_START_MS);
         const holding = step.state.phase === "holding";
@@ -150,6 +183,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   useEffect(() => {
     const onWindowEnd = (event: PointerEvent) => {
       if (gestureRef.current.pointerId !== event.pointerId) return;
+      squareDoughDiag?.count(event.type === "pointerup" ? "windowFallbackUp" : "windowFallbackCancel");
       feed(
         event.type === "pointerup"
           ? { type: "up", pointerId: event.pointerId, at: performance.now() }
@@ -179,17 +213,44 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.stopPropagation();
-    if (!interactive || (event.pointerType === "mouse" && event.button !== 0)) return;
-    if (gestureRef.current.phase !== "idle") return; // one finger at a time
+    if (squareDoughDiag) {
+      squareDoughDiag.event("layer", event, gestureRef.current.phase);
+      const top = document.elementFromPoint(event.clientX, event.clientY);
+      const rect = layerRef.current?.getBoundingClientRect();
+      squareDoughDiag.setStatus({
+        topAtDown: `${describeTarget(top)}${top === event.currentTarget ? "(=layer)" : "(NOT layer)"}`,
+        interactive,
+        layerRect: rect ? `${Math.round(rect.left)},${Math.round(rect.top)} ${Math.round(rect.width)}x${Math.round(rect.height)}` : "-",
+      });
+    }
+    if (!interactive || (event.pointerType === "mouse" && event.button !== 0)) {
+      if (!interactive) squareDoughDiag?.count("ignoredNotInteractive");
+      return;
+    }
+    if (gestureRef.current.phase !== "idle") {
+      squareDoughDiag?.count("ignoredBusy");
+      return; // one finger at a time
+    }
     const center = toDoughPoint(event.clientX, event.clientY);
     if (center === null) return;
     // The pan's own area only: a press on the border strip outside the pan does nothing.
-    if (Math.abs(center.x - DOUGH_CENTER) > SQUARE_PAN_HALF_SIDE + 4 || Math.abs(center.y - DOUGH_CENTER) > SQUARE_PAN_HALF_SIDE + 4) return;
+    if (Math.abs(center.x - DOUGH_CENTER) > SQUARE_PAN_HALF_SIDE + 4 || Math.abs(center.y - DOUGH_CENTER) > SQUARE_PAN_HALF_SIDE + 4) {
+      squareDoughDiag?.count("ignoredOutsidePan");
+      return;
+    }
     event.preventDefault();
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
+      if (squareDoughDiag) {
+        squareDoughDiag.count("capturedOk");
+        squareDoughDiag.setStatus({ capture: "ok" });
+      }
+    } catch (error) {
       /* capture is best effort; the window fallback below still ends the gesture */
+      if (squareDoughDiag) {
+        squareDoughDiag.count("captureFailed");
+        squareDoughDiag.setStatus({ capture: `FAIL ${error instanceof Error ? error.name : "?"}` });
+      }
     }
     pressCountRef.current += 1;
     feed({ type: "down", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY, center });
@@ -198,12 +259,14 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.stopPropagation();
+    squareDoughDiag?.event("layer", event, gestureRef.current.phase);
     if (gestureRef.current.pointerId !== event.pointerId) return;
     feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY });
   };
 
   const release = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.stopPropagation();
+    squareDoughDiag?.event("layer", event, gestureRef.current.phase);
     if (gestureRef.current.pointerId !== event.pointerId) return;
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -215,6 +278,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
 
   const handleCancel = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.stopPropagation();
+    squareDoughDiag?.event("layer", event, gestureRef.current.phase);
     if (gestureRef.current.pointerId !== event.pointerId) return;
     feed({ type: "cancel", pointerId: event.pointerId, at: performance.now() });
   };
@@ -222,6 +286,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   // A pointer lost without an up (the browser took it for a scroll, an alert, ...) is a cancel.
   const handleLostCapture = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.stopPropagation();
+    squareDoughDiag?.event("layer", event, gestureRef.current.phase);
     if (gestureRef.current.pointerId !== event.pointerId) return;
     feed({ type: "cancel", pointerId: event.pointerId, at: performance.now() });
   };
@@ -245,6 +310,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   const holdRadius = ring ? PRESS_BRUSH_RADIUS + (HOLD_BRUSH_RADIUS_MAX - PRESS_BRUSH_RADIUS) * ring.holdProgress : 0;
 
   return (
+    <>
     <div
       ref={layerRef}
       className="square-dough-layer"
@@ -288,5 +354,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         )}
       </svg>
     </div>
+    {squareDoughDiag && createPortal(<SquareDoughDiagPanel diag={squareDoughDiag} />, document.body)}
+    </>
   );
 }

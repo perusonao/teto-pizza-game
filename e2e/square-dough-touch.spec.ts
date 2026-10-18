@@ -74,8 +74,12 @@ test.describe("#535 B2 square dough: real touch input, long press (Chromium CDP)
     const held = await evenness(page);
     expect(held).toBeGreaterThan(before);
     await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-    await page.waitForTimeout(400);
-    expect(await evenness(page)).toBe(held);
     await expect(page.getByTestId("square-dough-hold-ring")).toHaveCount(0);
+    // The spread goes on until the finger lifts (the reading above was taken mid-hold), so compare two readings AFTER the lift:
+    // the result is committed and stays, and it is never less than what was seen mid-hold.
+    const lifted = await evenness(page);
+    expect(lifted).toBeGreaterThanOrEqual(held);
+    await page.waitForTimeout(600);
+    expect(await evenness(page)).toBe(lifted);
   });
 });
