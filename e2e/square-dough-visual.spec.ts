@@ -110,10 +110,59 @@ test.describe("#535 B2 square dough: visual feedback", () => {
   });
 });
 
+test.describe("#535 B2 square dough: STEP 1/2 guide", () => {
+  test("names the two steps, the goal, the operation, the target and what comes next", async ({ page }) => {
+    await start(page);
+    await expect(page.getByTestId("square-dough-step-1")).toContainText("STEP 1");
+    await expect(page.getByTestId("square-dough-step-1")).toContainText("生地を平らにする");
+    await expect(page.getByTestId("square-dough-step-2")).toContainText("四隅まで伸ばす");
+    await expect(page.getByTestId("square-dough-goal")).toContainText("盛り上がった濃いところを押して、平らにしよう");
+    await expect(page.getByTestId("dough-size-status")).toContainText("タップ＝おす");
+    await expect(page.getByTestId("dough-size-status")).toContainText("長おし＝広くならす");
+    await expect(page.getByTestId("square-dough-gauge-goal")).toContainText("目標 80%");
+    await expect(page.getByTestId("square-dough-next")).toContainText("つぎは「四隅まで伸ばす」");
+    await expect(page.getByTestId("order-card-hint")).toContainText("生地を平らにして、四隅まで伸ばそう");
+    // the goal is not met on the lumpy start, and the gauge says so
+    await expect(gauge(page)).toHaveAttribute("data-reached", "false");
+  });
+
+  test("the whole guide fits the viewport in order, without overlap, scroll, or moving the pan", async ({ page }) => {
+    await start(page);
+    const vp = page.viewportSize()!;
+    const ids = ["square-dough-steps", "dough-size-status", "square-dough-gauge", "square-dough-next"];
+    const boxes = [];
+    for (const id of ids) boxes.push((await page.getByTestId(id).boundingBox())!);
+    for (const b of boxes) {
+      expect(b.x).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width).toBeLessThanOrEqual(vp.width);
+      expect(b.y + b.height).toBeLessThanOrEqual(vp.height);
+    }
+    for (let i = 1; i < boxes.length; i++) expect(boxes[i].y, `${ids[i]} sits below ${ids[i - 1]}`).toBeGreaterThanOrEqual(boxes[i - 1].y + boxes[i - 1].height - 0.5);
+    const pan = (await layer(page).boundingBox())!;
+    expect(boxes[0].y, "the guide is under the pan").toBeGreaterThanOrEqual(pan.y + pan.height);
+    // the single-line texts are not cut off (ellipsis would hide words)
+    for (const id of ["square-dough-goal", "dough-size-status", "square-dough-next"]) {
+      const clipped = await page.getByTestId(id).evaluate((el) => el.scrollWidth > el.clientWidth + 1);
+      expect(clipped, `${id} must show all of its text`).toBe(false);
+    }
+    expect(await page.evaluate(() => document.scrollingElement!.scrollHeight <= window.innerHeight)).toBe(true);
+    const next = await page.getByRole("button", { name: /次へ/ }).boundingBox();
+    if (next) expect(boxes[3].y + boxes[3].height).toBeLessThanOrEqual(next.y + 0.5);
+    // a tap changes the gauge but not the layout
+    const p = await at(page, 58, 48);
+    await page.touchscreen.tap(p.x, p.y);
+    const pan2 = (await layer(page).boundingBox())!;
+    expect(pan2).toEqual(pan);
+  });
+});
+
 test.describe("#535 B2 round pizza is unaffected", () => {
   test("no square layer or gauge on the round pizza dough step", async ({ page }) => {
     await startFreshMargherita(page, "");
     await expect(page.getByTestId("square-dough-layer")).toHaveCount(0);
     await expect(page.getByTestId("square-dough-gauge")).toHaveCount(0);
+    await expect(page.getByTestId("square-dough-steps")).toHaveCount(0);
+    await expect(page.getByTestId("square-dough-next")).toHaveCount(0);
+    await expect(page.getByTestId("order-card-hint")).toContainText("生地を伸ばしたり縮めたりして形を整えよう");
   });
 });

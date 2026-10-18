@@ -75,7 +75,9 @@ import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { createInitialSquareDough, squareDoughEvenness, type SquareDough } from "../logic/pan/squareDough";
+import { DOUGH_HINT } from "../data/hints";
 import { SquareDoughGauge } from "../components/SquareDoughGauge";
+import { SquareDoughNext, SquareDoughSteps } from "../components/SquareDoughGuide";
 import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
 import { activePanShape, wantsLumpySquareStart } from "../preview/panShapePreview";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
@@ -227,7 +229,9 @@ function usedIngredientIds(pizza: GameState["pizza"]): string[] {
 }
 
 /** Square-Pan Dough B2: provisional one-line guide under the square pan (final wording is the Owner's). */
-const SQUARE_DOUGH_STATUS_TEXT = "タップでおす・長おしでのばす";
+/** The order card's line for a square-pan DOUGH step (the round pizza's "のばしたり縮めたり" does not describe it); only the default DOUGH line is replaced, never a hint the player asked for. */
+const SQUARE_DOUGH_ORDER_TEXT = "生地を平らにして、四隅まで伸ばそう";
+const SQUARE_DOUGH_STATUS_TEXT = "タップ＝おす　長おし＝広くならす";
 
 export function GameScreen({
   dinner: dinnerUi,
@@ -698,7 +702,11 @@ export function GameScreen({
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
-            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
+            <span className="order-card__hint" data-testid="order-card-hint">
+              {state.makingStep === "DOUGH" && squareDoughRound && (state.hint === null || state.hint.textJa === DOUGH_HINT)
+                ? SQUARE_DOUGH_ORDER_TEXT
+                : (state.hint?.textJa ?? state.recipe.description)}
+            </span>
           </div>
           <button
             type="button"
@@ -887,6 +895,8 @@ export function GameScreen({
               )}
             {/* Issue #474 A-1: DOUGH's one fixed-height status line (inside the dock's own reserved,
                 otherwise-empty DOUGH space, so nothing moves). Words only: no number, no score. */}
+            {/* Square-Pan Dough B2 (#535): STEP 1/2 strip + the goal sentence, above the operation line. Square rounds only. */}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughSteps fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
             {state.makingStep === "DOUGH" && (
               <div
                 id="dough-size-status"
@@ -901,6 +911,7 @@ export function GameScreen({
             )}
             {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}

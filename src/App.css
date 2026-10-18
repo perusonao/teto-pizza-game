@@ -7605,9 +7605,9 @@ p.hint-sheet__step {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   height: 24px;
-  margin-bottom: auto;
+  margin-bottom: 0;
   padding: 0 14px;
   font-size: 12px;
   font-weight: 800;
@@ -7653,4 +7653,104 @@ p.hint-sheet__step {
 
 .square-dough-gauge__note--up {
   color: #2f7d3a;
+}
+
+/* ---------- Square Dough B2: STEP 1/2 strip, goal sentence, operation line, gauge goal, next line ---------- */
+.prepare-dock .square-dough-steps {
+  box-sizing: border-box;
+  flex: none;
+  padding: 0 10px;
+  text-align: center;
+  color: #6b4226;
+}
+.square-dough-steps__list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.square-dough-steps__item {
+  min-width: 0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.square-dough-steps__item b {
+  margin-right: 3px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+.square-dough-steps__item--now {
+  background: #b9763a;
+  color: #fffaf0;
+}
+.square-dough-steps__item--next {
+  background: rgba(120, 70, 20, 0.1);
+  color: #8a7458;
+}
+.square-dough-steps__arrow {
+  color: #8a7458;
+  font-size: 14px;
+  line-height: 1;
+}
+.square-dough-steps__goal {
+  margin: 0;
+  height: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.square-dough-steps[data-reached="true"] .square-dough-steps__goal {
+  color: #2f7d3a;
+}
+.prepare-dock .dough-status-readout--square {
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+.square-dough-gauge__goal {
+  flex: none;
+  font-size: 11px;
+  color: #8a7458;
+  white-space: nowrap;
+}
+.square-dough-gauge__target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: #3b2412;
+}
+.square-dough-gauge--reached .square-dough-gauge__fill {
+  background: linear-gradient(90deg, #7fbf7a, #2f7d3a);
+}
+.square-dough-gauge--reached .square-dough-gauge__value {
+  color: #2f7d3a;
+}
+.prepare-dock .square-dough-next {
+  box-sizing: border-box;
+  height: 18px;
+  margin: 0 0 auto;
+  padding: 0 12px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  color: #8a7458;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

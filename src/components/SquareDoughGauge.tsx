@@ -4,10 +4,11 @@
  * It shows the dough's REAL evenness (what SquareDoughLayer pushes into ../logic/pan/squareDoughGaugeStore.ts -- the same number as the
  * layer's own `data-evenness`), as a bar and a one-decimal percentage, and, for a moment after each gesture, how much that gesture
  * changed it: "+0.4" when it did, "変化なし" when it did not. It never animates a number it was not given.
+ * The bar carries a tick at the goal (SQUARE_DOUGH_FLAT_TARGET, "目標"); once the real number reaches it the gauge turns green.
  */
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { smoothnessText } from "../logic/pan/squareDoughView";
+import { SQUARE_DOUGH_FLAT_TARGET, isFlatTargetReached, smoothnessText } from "../logic/pan/squareDoughView";
 
 /** How long the "+0.4" / "変化なし" note stays after a gesture ends. */
 const CHANGE_NOTE_MS = 1600;
@@ -24,14 +25,25 @@ export function SquareDoughGauge({ fallbackEvenness }: { fallbackEvenness: numbe
   }, [change]);
   const note = change && expiredSeq !== change.seq ? change : null;
   const percent = Math.min(100, Math.max(0, shown * 100));
+  const reached = isFlatTargetReached(shown);
+  const targetPercent = SQUARE_DOUGH_FLAT_TARGET * 100;
   return (
-    <div className="square-dough-gauge" data-testid="square-dough-gauge" data-evenness={shown.toFixed(3)}>
+    <div
+      className={`square-dough-gauge${reached ? " square-dough-gauge--reached" : ""}`}
+      data-testid="square-dough-gauge"
+      data-evenness={shown.toFixed(3)}
+      data-reached={reached ? "true" : "false"}
+    >
       <span className="square-dough-gauge__label">なめらか度</span>
       <span className="square-dough-gauge__bar" role="img" aria-label={`なめらか度 ${smoothnessText(shown)}`}>
         <span className="square-dough-gauge__fill" style={{ width: `${percent}%` }} />
+        <span className="square-dough-gauge__target" data-testid="square-dough-gauge-target" style={{ left: `${targetPercent}%` }} />
       </span>
       <span className="square-dough-gauge__value" data-testid="square-dough-gauge-value">
         {smoothnessText(shown)}
+      </span>
+      <span className="square-dough-gauge__goal" data-testid="square-dough-gauge-goal">
+        目標 {targetPercent.toFixed(0)}%
       </span>
       <span
         className={`square-dough-gauge__note${note ? (note.points === null ? " square-dough-gauge__note--none" : " square-dough-gauge__note--up") : ""}`}

@@ -75,3 +75,22 @@ export function evennessChangePoints(before: number, after: number): number | nu
   const points = (after - before) * 100;
   return Math.abs(points) < NO_CHANGE_POINTS ? null : points;
 }
+
+/**
+ * The goal the STEP 1 gauge shows ("目標"): the smoothness at which the sheet counts as flattened in the player's eyes.
+ *
+ * Where it comes from. The design (TETO_SQUARE-DOUGH_Design-Lock-Addendum.md D4/D5, item 12) leaves the evenness threshold of the
+ * completion gate to Owner on-device HV and the code has none (CORNER_REACH_THRESHOLD is the corner-reach number, a different quantity).
+ * So this is a DISPLAY target for B2, picked from what the operation can actually reach on the Preview's lumpy sheet (evenness 0.739),
+ * measured with perfectly aimed play (squareDoughSpread, unchanged): one-second holds reach 0.77 after 3, 0.82 after 8 and 0.84 after
+ * 12; single taps reach 0.83 only after ~30. 0.80 is about 6-7 deliberate holds -- tens of seconds -- so the goal can be met without
+ * grinding. It is NOT the completion gate: B2 has no gate (次へ stays unavailable; the gate and its real threshold are C, #536, and
+ * the Owner's HV). One number, isolated here, for the Owner to move.
+ */
+export const SQUARE_DOUGH_FLAT_TARGET = 0.8;
+
+/** The gauge's number is shown rounded to 0.1 points, so "reached" is judged on that same rounded number (80.0% on screen = reached). */
+export function isFlatTargetReached(evenness: number): boolean {
+  if (!Number.isFinite(evenness)) return false;
+  return Math.round(evenness * 1000) >= Math.round(SQUARE_DOUGH_FLAT_TARGET * 1000);
+}
