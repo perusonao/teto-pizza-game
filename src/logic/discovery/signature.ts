@@ -10,7 +10,7 @@
  *
  * - `OBSERVED`: read from canonical `PizzaState`.
  * - `FIXED_BY_FLOW`: the current making flow can only ever produce one value (e.g. there is one
- *   dough, one sauce layer, no pan, no FOLD/SEAL/FINISH gameplay), so the value is known, not
+ *   dough, one sauce layer, no FOLD/SEAL/FINISH gameplay), so the value is known, not
  *   guessed.
  * - `UNAVAILABLE`: the runtime records something related but has no rule that turns it into this
  *   dimension's value (dough silhouette -> shape class, piece positions -> zones). The value is the
@@ -91,10 +91,13 @@ export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = [];
  * the Phase-2 default; the reason is documentation for reviewers and the result report.
  */
 export const RUNTIME_DIMENSION_OBSERVATION: {
-  readonly [K in IdentityDimensionKey]: { status: Exclude<AxisStatus, "OBSERVED">; reason: string };
+  readonly [K in IdentityDimensionKey]: {
+    status: K extends "pan" ? AxisStatus : Exclude<AxisStatus, "OBSERVED">;
+    reason: string;
+  };
 } = {
   dough: { status: "FIXED_BY_FLOW", reason: "one dough style only (no DOUGH_VARIANT)" },
-  pan: { status: "FIXED_BY_FLOW", reason: "no pan exists (no PAN_BAKE)" },
+  pan: { status: "OBSERVED", reason: "PizzaState.pan: absent / null = ordinary cook, \"tray\" = 天板焼き (Square Dough F1)" },
   layerOrder: { status: "FIXED_BY_FLOW", reason: "reducer enforces DOUGH -> SAUCE -> CHEESE -> TOPPING" },
   zones: { status: "UNAVAILABLE", reason: "piece positions exist but no zone classification rule" },
   late: { status: "FIXED_BY_FLOW", reason: "FINISH is a reserved step with no gameplay" },
@@ -147,6 +150,9 @@ export function signatureOfPizza(pizza: PizzaState): RuntimeSignature {
       value: DEFAULT_IDENTITY_DIMENSIONS[key],
     };
   }
+  // pan is the one OBSERVED dimension: only the explicit "tray" counts; anything else (absent, null,
+  // malformed) is the ordinary cook, so no existing pizza changes identity.
+  dimensions.pan = { status: "OBSERVED", value: pizza.pan === "tray" ? "tray" : null };
 
   return {
     ingredientSet: { status: "OBSERVED", value: sortedUnique([...sauceIds, ...pieceIds]) },

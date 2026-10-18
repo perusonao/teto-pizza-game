@@ -53,13 +53,18 @@ describe("signatureOfPizza (P3-1 runtime signature)", () => {
     expect(sig.ingredientSet.value).toEqual(["mozzarella", "tomato-sauce"]);
   });
 
-  it("every Phase-2 identity dimension is present with an explicit, never-OBSERVED status today", () => {
+  it("every Phase-2 identity dimension is present with an explicit status (only pan is OBSERVED) and its default value for an ordinary cook", () => {
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
     expect(Object.keys(sig.dimensions).sort()).toEqual([...IDENTITY_DIMENSION_KEYS].sort());
     for (const key of IDENTITY_DIMENSION_KEYS) {
       expect(sig.dimensions[key].status).toBe(RUNTIME_DIMENSION_OBSERVATION[key].status);
       expect(sig.dimensions[key].value).toEqual(DEFAULT_IDENTITY_DIMENSIONS[key]);
     }
+  });
+
+  it("pan is the only OBSERVED dimension (Square Dough F1)", () => {
+    const observed = IDENTITY_DIMENSION_KEYS.filter((k) => RUNTIME_DIMENSION_OBSERVATION[k].status === "OBSERVED");
+    expect(observed).toEqual(["pan"]);
   });
 
   it("only zones and shape are UNAVAILABLE; the rest are fixed by the current flow", () => {
