@@ -1,0 +1,266 @@
+/**
+ * Square-Pan Dough B2 (Issue #535, Epic #532): the square dough's DOUGH-step layer. It draws the 16x16 thickness sheet on the
+ * square pan and turns a finger into the tap / long-press of ../logic/pan/pressGesture.ts. Thickness only: no outline or corner
+ * gesture (that is C, #536), and nothing here judges completion.
+ *
+ * It owns its pointer events (they stop here, so the round dough's handlers on the parent never see them) and the working dough
+ * of the live gesture. The working dough is committed once, at a successful pointer-up; pointer cancel, a lost capture, window
+ * blur and a hidden tab discard it, so a broken gesture never reaches game state.
+ */
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { HOLD_START_MS, IDLE_PRESS_GESTURE, stepPressGesture, type PressEvent, type PressGestureState } from "../logic/pan/pressGesture";
+import { SQUARE_PAN_HALF_SIDE } from "../logic/pan/panGeometry";
+import {
+  SQUARE_COVER_MIN_THICKNESS,
+  SQUARE_DOUGH_GRID,
+  isSquareCellOnPan,
+  squareCellIndex,
+  squareDoughEvenness,
+  type SquareDough,
+} from "../logic/pan/squareDough";
+import { HOLD_BRUSH_RADIUS_MAX, PRESS_BRUSH_RADIUS, applyPressEffects, holdBrushRadius } from "../logic/pan/squareDoughSpread";
+import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
+
+interface SquareDoughLayerProps {
+  /** The committed dough this layer starts every gesture from. */
+  dough: SquareDough;
+  /** False: nothing is handled (the reference popover is open, input is paused, ...). */
+  interactive: boolean;
+  /** Fired once, at a successful pointer-up that changed the dough. Never for a cancelled gesture. */
+  onCommit: (dough: SquareDough) => void;
+  /** Bumped by the parent when the step/round changes: a gesture in flight is discarded. */
+  resetToken?: number;
+}
+
+const CELL = 100 / SQUARE_DOUGH_GRID;
+/** The hold ring sits this far above the finger (dough-percent) so a fingertip never hides it. */
+const HOLD_RING_OFFSET = HOLD_BRUSH_RADIUS_MAX + 6;
+
+/** Thin sheet = pale and see-through, thick = deep and opaque. */
+function cellFill(thickness: number): { fill: string; opacity: number } {
+  const t = Math.min(1, Math.max(0, thickness));
+  const r = Math.round(247 + (201 - 247) * t);
+  const g = Math.round(236 + (142 - 236) * t);
+  const b = Math.round(212 + (69 - 212) * t);
+  return { fill: `rgb(${r},${g},${b})`, opacity: 0.55 + 0.45 * t };
+}
+
+interface PressRing {
+  x: number;
+  y: number;
+  /** 0 until the hold begins, then 0..1 over the brush growth. */
+  holdProgress: number;
+  holding: boolean;
+  /** Changes with every new press so the tap pulse restarts. */
+  pressKey: number;
+}
+
+export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 }: SquareDoughLayerProps) {
+  const layerRef = useRef<HTMLDivElement | null>(null);
+  const gestureRef = useRef<PressGestureState>(IDLE_PRESS_GESTURE);
+  const workingRef = useRef<SquareDough | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const pressCountRef = useRef(0);
+  const doughRef = useRef(dough);
+  const onCommitRef = useRef(onCommit);
+  useEffect(() => {
+    doughRef.current = dough;
+    onCommitRef.current = onCommit;
+  }, [dough, onCommit]);
+  const [working, setWorking] = useState<SquareDough | null>(null);
+  const [ring, setRing] = useState<PressRing | null>(null);
+
+  const stopLoop = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
+
+  /** Runs one event through the state machine and applies what it decided. */
+  const feed = useCallback(
+    (event: PressEvent) => {
+      const step = stepPressGesture(gestureRef.current, event);
+      gestureRef.current = step.state;
+      if (step.effects.length > 0) {
+        const base = workingRef.current ?? doughRef.current;
+        workingRef.current = applyPressEffects(base, step.effects);
+        setWorking(workingRef.current);
+      }
+      if (step.end !== null) {
+        stopLoop();
+        const final = workingRef.current;
+        workingRef.current = null;
+        setWorking(null);
+        setRing(null);
+        if (step.end === "commit" && final !== null && final !== doughRef.current) onCommitRef.current(final);
+      } else if (step.state.center !== null) {
+        const elapsed = Math.max(0, ("at" in event ? event.at : performance.now()) - step.state.downAt - HOLD_START_MS);
+        const holding = step.state.phase === "holding";
+        setRing((previous) => ({
+          x: step.state.center!.x,
+          y: step.state.center!.y,
+          holding,
+          holdProgress: holding ? Math.min(1, (holdBrushRadius(elapsed) - PRESS_BRUSH_RADIUS) / (HOLD_BRUSH_RADIUS_MAX - PRESS_BRUSH_RADIUS)) : 0,
+          pressKey: previous?.pressKey ?? pressCountRef.current,
+        }));
+      }
+      return step;
+    },
+    [stopLoop],
+  );
+
+  const startLoop = useCallback(() => {
+    const frame = () => {
+      if (gestureRef.current.phase !== "pressing" && gestureRef.current.phase !== "holding") {
+        rafRef.current = null;
+        return;
+      }
+      feed({ type: "tick", at: performance.now() });
+      rafRef.current = requestAnimationFrame(frame);
+    };
+    if (rafRef.current === null) rafRef.current = requestAnimationFrame(frame);
+  }, [feed]);
+
+  const discard = useCallback(() => {
+    if (gestureRef.current.phase === "idle") return;
+    feed({ type: "cancel", at: performance.now() });
+  }, [feed]);
+
+  // A step/round change, blur, a hidden tab, `interactive` going false, or unmount all discard a live gesture.
+  useEffect(() => {
+    discard();
+  }, [resetToken, interactive, discard]);
+  useEffect(() => {
+    const onHide = () => discard();
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") discard();
+    };
+    window.addEventListener("blur", onHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("blur", onHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+      stopLoop();
+    };
+  }, [discard, stopLoop]);
+
+  const toDoughPoint = (clientX: number, clientY: number) => {
+    const rect = layerRef.current?.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return null;
+    return { x: ((clientX - rect.left) / rect.width) * 100, y: ((clientY - rect.top) / rect.height) * 100 };
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (!interactive || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if (gestureRef.current.phase !== "idle") return; // one finger at a time
+    const center = toDoughPoint(event.clientX, event.clientY);
+    if (center === null) return;
+    // The pan's own area only: a press on the border strip outside the pan does nothing.
+    if (Math.abs(center.x - DOUGH_CENTER) > SQUARE_PAN_HALF_SIDE + 4 || Math.abs(center.y - DOUGH_CENTER) > SQUARE_PAN_HALF_SIDE + 4) return;
+    event.preventDefault();
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* capture is best effort; the window fallback below still ends the gesture */
+    }
+    pressCountRef.current += 1;
+    feed({ type: "down", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY, center });
+    startLoop();
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (gestureRef.current.pointerId !== event.pointerId) return;
+    feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY });
+  };
+
+  const release = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (gestureRef.current.pointerId !== event.pointerId) return;
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      /* already released */
+    }
+    feed({ type: "up", pointerId: event.pointerId, at: performance.now() });
+  };
+
+  const handleCancel = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (gestureRef.current.pointerId !== event.pointerId) return;
+    feed({ type: "cancel", pointerId: event.pointerId, at: performance.now() });
+  };
+
+  // A pointer lost without an up (the browser took it for a scroll, an alert, ...) is a cancel.
+  const handleLostCapture = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (gestureRef.current.pointerId !== event.pointerId) return;
+    feed({ type: "cancel", pointerId: event.pointerId, at: performance.now() });
+  };
+
+  const shown = working ?? dough;
+  const cells = useMemo(() => {
+    const out: { key: number; x: number; y: number; fill: string; opacity: number }[] = [];
+    for (let row = 0; row < SQUARE_DOUGH_GRID; row++) {
+      for (let col = 0; col < SQUARE_DOUGH_GRID; col++) {
+        if (!isSquareCellOnPan(row, col)) continue;
+        const value = shown.thickness[squareCellIndex(row, col)];
+        if (!(value >= SQUARE_COVER_MIN_THICKNESS)) continue;
+        out.push({ key: row * SQUARE_DOUGH_GRID + col, x: col * CELL, y: row * CELL, ...cellFill(value) });
+      }
+    }
+    return out;
+  }, [shown]);
+
+  const panMin = DOUGH_CENTER - SQUARE_PAN_HALF_SIDE;
+  const panSide = SQUARE_PAN_HALF_SIDE * 2;
+  const holdRadius = ring ? PRESS_BRUSH_RADIUS + (HOLD_BRUSH_RADIUS_MAX - PRESS_BRUSH_RADIUS) * ring.holdProgress : 0;
+
+  return (
+    <div
+      ref={layerRef}
+      className="square-dough-layer"
+      data-testid="square-dough-layer"
+      data-evenness={squareDoughEvenness(shown).toFixed(3)}
+      data-pressing={ring ? (ring.holding ? "hold" : "tap") : "none"}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={release}
+      onPointerCancel={handleCancel}
+      onLostPointerCapture={handleLostCapture}
+      onContextMenu={(event) => event.preventDefault()}
+    >
+      <svg className="square-dough-layer__svg" viewBox="0 0 100 100" aria-hidden="true">
+        <rect className="square-dough-layer__pan" x={panMin} y={panMin} width={panSide} height={panSide} rx={3} />
+        {cells.map((cell) => (
+          <rect
+            key={cell.key}
+            x={cell.x - 0.15}
+            y={cell.y - 0.15}
+            width={CELL + 0.3}
+            height={CELL + 0.3}
+            fill={cell.fill}
+            fillOpacity={cell.opacity}
+          />
+        ))}
+        {ring && (
+          <g className="square-dough-layer__feedback">
+            <circle key={ring.pressKey} className="square-dough-layer__tap-ring" cx={ring.x} cy={ring.y} r={PRESS_BRUSH_RADIUS} />
+            {ring.holding && (
+              <circle
+                className="square-dough-layer__hold-ring"
+                data-testid="square-dough-hold-ring"
+                cx={ring.x}
+                cy={Math.max(HOLD_RING_OFFSET * 0.35, ring.y - HOLD_RING_OFFSET)}
+                r={4 + 6 * ring.holdProgress}
+              />
+            )}
+            {ring.holding && <circle className="square-dough-layer__reach" cx={ring.x} cy={ring.y} r={holdRadius} />}
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}

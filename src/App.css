@@ -7489,3 +7489,80 @@ p.hint-sheet__step {
 .sauce-remaining-gauge[data-empty="true"]:not([data-limit="total"]) {
   opacity: 0.6;
 }
+
+/* ---------- Square-Pan Dough B2 (Issue #535, Epic #532) ----------
+   The square dough's DOUGH-step layer. Appended as its own block: it adds rules only for the new classes (no existing rule,
+   and nothing about the bake filter, is edited). */
+.pizza-dough--square-pan {
+  border-radius: 10%;
+  background: radial-gradient(circle at 40% 35%, #8a8f96, #5d6168 85%);
+  border-color: #3f4348;
+}
+
+.square-dough-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.square-dough-layer__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.square-dough-layer__pan {
+  fill: #7a7f86;
+  stroke: #2f3237;
+  stroke-width: 0.8;
+}
+
+.square-dough-layer__tap-ring,
+.square-dough-layer__reach,
+.square-dough-layer__hold-ring {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 0.9;
+  pointer-events: none;
+}
+
+.square-dough-layer__tap-ring {
+  stroke-opacity: 0.85;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: square-dough-tap-pulse 220ms ease-out;
+}
+
+.square-dough-layer__reach {
+  stroke-opacity: 0.45;
+  stroke-dasharray: 2 2;
+}
+
+.square-dough-layer__hold-ring {
+  stroke-opacity: 0.9;
+  stroke-width: 1.2;
+}
+
+@keyframes square-dough-tap-pulse {
+  from {
+    transform: scale(0.7);
+    stroke-opacity: 1;
+  }
+  to {
+    transform: scale(1);
+    stroke-opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .square-dough-layer__tap-ring {
+    animation: none;
+  }
+}
