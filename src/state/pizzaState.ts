@@ -59,7 +59,15 @@ export function isValidSauceDepositBatch(deposits: readonly SauceDeposit[]): boo
   return deposits.length > 0 && deposits.every(isValidSauceDeposit);
 }
 
+/** The pan the round is cooked in (Square Dough F1, Owner decision 2026-10-18). Absent / `null` is the
+ *  ordinary round cook; `"tray"` is the Technique 「天板焼き」 (panShape `square`). Never inferred from
+ *  `squareDough`: only an explicit value counts. */
+export type PanId = "tray";
+
 export interface PizzaState {
+  /** Square Dough F1: optional so every existing pizza (and `createEmptyPizza()`) is unchanged.
+   *  Read only by `signatureOfPizza` (the `pan` identity axis); nothing else branches on it yet. */
+  pan?: PanId | null;
   /** Issue #33 D1: canonical, reducer-owned dough boundary (8-point radial array -- see
    *  ../logic/doughShape.ts), committed atomically by COMMIT_DOUGH_STRETCH at a successful
    *  pointerup, mirroring sauceDeposits' own ephemeral-gesture/canonical-commit split. Rides
