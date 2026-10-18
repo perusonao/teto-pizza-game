@@ -30,7 +30,7 @@ const W1: [string, string[]][] = [
   ["pesto-patate", ["potato"]], ["pizza-bianca", ["rosemary"]], ["puttanesca-pizza", ["capers"]],
   ["quattro-formaggi", ["fontina", "gorgonzola"]],
 ];
-const DISCOVERED = [...W1.map(([id]) => id), "brazilian-calabresa", "aussie"];
+const DISCOVERED = [...W1.map(([id]) => id), "brazilian-calabresa", "aussie", "chilean-napolitana"];
 const materials = W1.flatMap(([, m]) => m);
 const SAVE = {
   schemaVersion: 2,

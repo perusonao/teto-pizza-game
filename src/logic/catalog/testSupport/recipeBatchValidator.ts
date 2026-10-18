@@ -123,6 +123,12 @@ export interface RecipeBatchManifest {
   /** The recipe this batch is appended after (the last recipe of the previous catalog). Names the base without a count pin. */
   afterRecipeId: string;
   recipes: readonly BatchRecipe[];
+  /**
+   * Batch 8a: Research cohort letters that PRE-EXISTING recipes are expected to gain because a non-credit batch recipe joins their
+   * cohort (`recipeId -> "<before>-><after>"`, `-` = no letter, so "no letter -> A" is `-->A`). Default none: any shift not listed here is still `COHORT_LETTER_SHIFT`,
+   * and a listed shift that does not happen is `ACCEPTED_LETTER_SHIFT_NOT_OBSERVED`. Owner-approved display change only.
+   */
+  acceptedLetterShifts?: Readonly<Record<string, string>>;
 }
 
 export function validateBatchManifest(manifest: RecipeBatchManifest, view: CatalogView): string[] {
@@ -170,12 +176,16 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   const lettersBefore = researchCohortLetters(materialsOf(baseSteps), oldRecipes);
   const lettersAfter = researchCohortLetters(materialsOf(view.ladder.steps), view.recipes);
   for (const r of oldRecipes) {
-    if (lettersBefore.get(r.id) !== lettersAfter.get(r.id)) problems.push(`COHORT_LETTER_SHIFT: ${r.id} ${lettersBefore.get(r.id) ?? "-"} -> ${lettersAfter.get(r.id) ?? "-"}`);
+    const shift = `${lettersBefore.get(r.id) ?? "-"}->${lettersAfter.get(r.id) ?? "-"}`;
+    const accepted = manifest.acceptedLetterShifts?.[r.id];
+    if (lettersBefore.get(r.id) !== lettersAfter.get(r.id) && accepted !== shift) problems.push(`COHORT_LETTER_SHIFT: ${r.id} ${lettersBefore.get(r.id) ?? "-"} -> ${lettersAfter.get(r.id) ?? "-"}`);
+    if (accepted !== undefined && lettersBefore.get(r.id) === lettersAfter.get(r.id)) problems.push(`ACCEPTED_LETTER_SHIFT_NOT_OBSERVED: ${r.id}`);
     const before = [recipeChapter(r, { populationId: "base", steps: baseSteps }), recipeChapterSlot(r, oldRecipes, { populationId: "base", steps: baseSteps })];
     const after = [recipeChapter(r, view.ladder), recipeChapterSlot(r, view.recipes, view.ladder)];
     if (before.join() !== after.join()) problems.push(`CHAPTER_IDENTITY: ${r.id} chapter/No ${before.join("/")} -> ${after.join("/")}`);
   }
-  // The new recipe's Research cohort is its own new material (it never joins an existing cohort).
+  for (const id of Object.keys(manifest.acceptedLetterShifts ?? {})) if (!oldRecipes.some((r) => r.id === id)) problems.push(`ACCEPTED_LETTER_SHIFT_UNKNOWN_RECIPE: ${id}`);
+  // The new recipe's Research cohort is its own new material (it never joins an existing cohort) -- credited batch recipes only.
   const order = materialsOf(view.ladder.steps);
   for (const r of manifest.recipes.filter((m) => m.ladderCredit !== false)) {
     const recipe = view.recipes.find((x) => x.id === r.recipeId);

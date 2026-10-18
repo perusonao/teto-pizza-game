@@ -23,7 +23,7 @@ const FREE_BAKE = { start: 58, end: 78 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 
-const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie"].filter((id) => id !== "pesto-gamberi");
+const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana"].filter((id) => id !== "pesto-gamberi");
 const OWNED_BEFORE = materialsUpTo(25);
 const UNLOCKED = materialsUpTo(26);
 

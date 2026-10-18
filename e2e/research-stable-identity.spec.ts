@@ -201,7 +201,7 @@ test("step 12 with B discovered: A and C stay A and C (also after a reload), and
 });
 
 test("step 28: A (Ratatouille) / B (Pesto Vegetariana); with A discovered B stays B", async ({ page }) => {
-  const closed = ["brazilian-calabresa", "aussie"];
+  const closed = ["brazilian-calabresa", "aussie", "chilean-napolitana"];
   const both = save(28, closed);
   await open(page, both.json);
   let section = await openDex(page);
@@ -224,7 +224,7 @@ test("step 28: A (Ratatouille) / B (Pesto Vegetariana); with A discovered B stay
 });
 
 test("a single cohort has no letter: the label is 「？？？ピザ（チキン）」, and no retired ①②③ appears anywhere", async ({ page }) => {
-  const { discovered, json } = save(25, ["brazilian-calabresa", "aussie"]);
+  const { discovered, json } = save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"]);
   await open(page, json);
   const section = await openDex(page);
   expect(await titlesOf(section)).toEqual(["？？？ピザ（チキン）"]);

@@ -23,7 +23,7 @@ const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 
 const saveJson = (step: number, bought: readonly string[] = []) => {
-  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie"];
+  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie", "chilean-napolitana"];
   const owned = [...materialsUpTo(step - 1), ...bought];
   return JSON.stringify({
     schemaVersion: 2,
@@ -137,7 +137,7 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie"];
+    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana"];
     await open(page, saveJson(27));
     await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`29/${CATALOG_COUNTS.recipes}`));
     await hold(page);
@@ -256,7 +256,7 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const found = [...keysBefore(28), "brazilian-calabresa", "aussie"];
+    const found = [...keysBefore(28), "brazilian-calabresa", "aussie", "chilean-napolitana"];
     await open(page, saveJson(28));
     await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`30/${CATALOG_COUNTS.recipes}`));
     await hold(page);

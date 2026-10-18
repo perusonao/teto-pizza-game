@@ -32,7 +32,7 @@ import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
 const IDS = ["vongole", "pesto-vegetariana", "ratatouille-pizza"] as const;
 /** The non-credit onion-step recipes (calabresa, and TQ-1D's aussie): excluded where a test isolates the Wave 2 pool. */
 // Outside the Wave 2 population: the two non-credit recipes, and Slice 3 pesto-trapanese (appended step 29, after this Wave).
-const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "pesto-trapanese"];
+const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "pesto-trapanese"]; // Batch 8a: + the non-credit chilean (step 20) and chorizo (step 28, bell-pepper)
 const [VONGOLE, PESTO_VEG, RATATOUILLE] = IDS;
 const rec = (id: string) => getRecipe(id as RecipeId)! as Recipe;
 const NEW_INGREDIENTS = ["parsley", "bell-pepper", "zucchini"] as const;
@@ -219,7 +219,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
       expect(rec(id).ladderCredit, id).toBeUndefined();
       expect(countsTowardLadder(id), id).toBe(true);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie"]);
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "frango-catupiry"]); // Batch 8a appends three non-credit recipes
   });
 
   it("states: vongole UNKNOWN before step 27, KBMM until parsley is bought, DISCOVERABLE after", () => {

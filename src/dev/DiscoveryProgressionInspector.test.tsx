@@ -19,7 +19,7 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent(String(RECIPES.length));
     expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent(String(INGREDIENTS.length));
     expect(screen.getByTestId("dpi-step-count")).toHaveTextContent(String(DISCOVERY_LADDER.steps.length));
-    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("2");
+    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("4"); // steps 12 / 20 / 28 / 44 (Batch 8a: the non-credit branches join steps 20 and 44; step 28 gains chorizo)
     const first = screen.getByTestId("dpi-row-1");
     expect(first).toHaveTextContent("🆕 たまご");
     expect(first).toHaveTextContent("Pool 1");
@@ -63,7 +63,7 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-row-18")).toHaveTextContent("ジェノベーゼ");
 
     await user.click(screen.getByRole("button", { name: "複数recipe同時解禁" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`2 / ${DISCOVERY_LADDER.steps.length}`); // step 12 + Wave 2 step 28
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`4 / ${DISCOVERY_LADDER.steps.length}`); // steps 12 / 20 / 28 / 44
     expect(screen.getByTestId("dpi-row-12")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OPEN_POOL関連" }));

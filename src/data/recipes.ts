@@ -1150,6 +1150,58 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "chilean-napolitana",
+    nameJa: "チリアン・ナポリターナ",
+    description: "モッツァレラにフレッシュトマトとオレガノをのせた、チリ風のさっぱりした一枚。",
+    // Batch 8a (Chapter 3). SOURCE AUTHORITY (PIZZA DB `chilean-napolitana-pizzadb`, 172 matrix): mozzarella / fresh-tomato / oregano, cheese base, no sauce. NO_SAUCE (the existing TQ-1D mechanic). GAMEPLAY CALIBRATION (not source): counts
+    // mozzarella 2 / fresh-tomato 3 / oregano 1, bake 56-76; 6 pieces <= the 8-slot ring. Zero new materials: makeable from step 20 (fresh-tomato) beside pesto-caprese, so `ladderCredit: false` (a non-credit branching pool like calabresa / aussie;
+    // it never advances the ladder). `lunchRush: false`; no CUT; permanently key-free (Hint). Not Argentine napolitana (garlic / parmigiano / thick dough: DOUGH_VARIANT, not in this batch).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 3 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "spanish-chorizo-pizza",
+    nameJa: "スパニッシュ・チョリソ",
+    description: "モッツァレラにチョリソ、パプリカ、玉ねぎをのせた、スパイシーなスペイン風の一枚。",
+    // Batch 8a (Chapter 3). SOURCE AUTHORITY (PIZZA DB `spanish-chorizo-pizza-pizzadb-p4`, 172 matrix): sausage (chorizo) / bell-pepper / onion / mozzarella, cheese base, no sauce. NO_SAUCE. The chorizo is the existing `sausage` material (Owner
+    // decision 2026-10-18; no chorizo ingredient). GAMEPLAY CALIBRATION (not source): counts mozzarella 2 / sausage 3 / bell-pepper 2 / onion 1, bake 56-76; 8 pieces = the 8-slot ring. Zero new materials: makeable from step 28 (bell-pepper),
+    // `ladderCredit: false`, `lunchRush: false`, no CUT, permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "sausage", minCount: 3 },
+      { ingredientId: "bell-pepper", minCount: 2 },
+      { ingredientId: "onion", minCount: 1 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "frango-catupiry",
+    nameJa: "フランゴ・カトゥピリ",
+    description: "モッツァレラにチキンとカトゥピリをのせた、とろりとまろやかなブラジル風の一枚。",
+    // Batch 8a (Chapter 4). SOURCE AUTHORITY (PIZZA DB `frango-catupiry-pizzadb-p10`, 172 matrix): chicken / catupiry / mozzarella / oregano, cheese base, no sauce. NO_SAUCE. GAMEPLAY CALIBRATION (not source): counts mozzarella 2 / chicken 3 /
+    // catupiry 2 / oregano 1, bake 56-76; 8 pieces = the 8-slot ring. Zero new materials: makeable from step 44 (catupiry) beside brazilian-catupiry-corn-pizza, `ladderCredit: false`, `lunchRush: false`, no CUT, permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "chicken", minCount: 3 },
+      { ingredientId: "catupiry", minCount: 2 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with
