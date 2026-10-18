@@ -7718,9 +7718,6 @@ p.hint-sheet__step {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.square-dough-steps[data-reached="true"] .square-dough-steps__goal {
-  color: #2f7d3a;
-}
 .prepare-dock .dough-status-readout--square {
   height: 18px;
   font-size: 12px;
@@ -7760,4 +7757,95 @@ p.hint-sheet__step {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ---------- Square Dough C (#536): corner marks, drag hints, drag trail, the done pill ---------- */
+.square-dough-layer__corners,
+.square-dough-layer__hints,
+.square-dough-layer__trail {
+  pointer-events: none;
+}
+.square-dough-layer__corner circle {
+  fill: rgba(255, 250, 235, 0.6);
+  stroke: #c0662d;
+  stroke-width: 0.9;
+  stroke-dasharray: 2.2 1.6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: square-corner-pulse 1.4s ease-in-out infinite;
+}
+.square-dough-layer__corner--reached circle {
+  fill: #3f9d4b;
+  stroke: #fff;
+  stroke-dasharray: none;
+  animation: none;
+}
+.square-dough-layer__corner path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes square-corner-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.12);
+  }
+}
+.square-dough-layer__hint-line {
+  fill: none;
+  stroke: #8a4b18;
+  stroke-width: 0.9;
+  stroke-dasharray: 2 2;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.square-dough-layer__hint-head {
+  fill: #8a4b18;
+  opacity: 0.85;
+}
+.square-dough-layer__hint-start {
+  fill: #fff;
+  stroke: #8a4b18;
+  stroke-width: 0.9;
+}
+.square-dough-layer__trail polyline {
+  fill: none;
+  stroke: #fffbe6;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+.square-dough-layer__trail-start {
+  fill: #fff;
+  stroke: #8a4b18;
+  stroke-width: 0.9;
+}
+.square-dough-layer__trail-tip {
+  fill: rgba(255, 255, 255, 0.35);
+  stroke: #fff;
+  stroke-width: 1;
+}
+.square-dough-layer[data-complete="true"] .square-dough-layer__pan {
+  stroke: #3f9d4b;
+  stroke-width: 1.2;
+}
+.square-dough-steps__item--done {
+  background: rgba(63, 157, 75, 0.16);
+  color: #2f7d3a;
+}
+.square-dough-steps[data-complete="true"] .square-dough-steps__goal {
+  color: #2f7d3a;
+}
+@media (prefers-reduced-motion: reduce) {
+  .square-dough-layer__corner circle {
+    animation: none;
+  }
 }

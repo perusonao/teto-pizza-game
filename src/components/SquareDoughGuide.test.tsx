@@ -1,7 +1,9 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { createInitialSquareDough, isSquareCellOnPan, squareCellIndex, type SquareDough } from "../logic/pan/squareDough";
+import { dragAlong } from "../logic/pan/squareDoughDrag";
+import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
 import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { SQUARE_DOUGH_FLAT_TARGET, isFlatTargetReached } from "../logic/pan/squareDoughView";
 import { SquareDoughGauge } from "./SquareDoughGauge";
 import { SquareDoughNext, SquareDoughSteps } from "./SquareDoughGuide";
 
@@ -10,59 +12,88 @@ afterEach(() => {
   squareDoughGaugeStore.reset();
 });
 
-function renderAll(fallback: number) {
+function renderAll(fallback: SquareDough) {
   return render(
     <>
-      <SquareDoughSteps fallbackEvenness={fallback} />
-      <SquareDoughGauge fallbackEvenness={fallback} />
-      <SquareDoughNext fallbackEvenness={fallback} />
+      <SquareDoughSteps fallbackDough={fallback} />
+      <SquareDoughGauge fallbackDough={fallback} />
+      <SquareDoughNext fallbackDough={fallback} />
     </>,
   );
 }
 
-describe("isFlatTargetReached", () => {
-  it("is judged on the number the gauge shows (one decimal), not on a hidden unrounded one", () => {
-    expect(SQUARE_DOUGH_FLAT_TARGET).toBe(0.8);
-    expect(isFlatTargetReached(0.7994)).toBe(false); // shows 79.9%
-    expect(isFlatTargetReached(0.7996)).toBe(true); // shows 80.0%
-    expect(isFlatTargetReached(0.8)).toBe(true);
-    expect(isFlatTargetReached(Number.NaN)).toBe(false);
+/** A sheet that covers the whole pan (so STEP 1 is done) but is one spike and a film: far from even. */
+function spiky(): SquareDough {
+  const thickness = new Array<number>(256).fill(0);
+  for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) if (isSquareCellOnPan(r, c)) thickness[squareCellIndex(r, c)] = 0.06;
+  thickness[squareCellIndex(8, 8)] = 1;
+  return { thickness };
+}
+
+describe("STEP 1 「四隅まで伸ばす」 (the production start: a small ball)", () => {
+  it("names both steps in the new order, the corner count, the coverage goal and what comes next", () => {
+    renderAll(createInitialSquareDough());
+    expect(screen.getByTestId("square-dough-step-1")).toHaveTextContent("STEP 1");
+    expect(screen.getByTestId("square-dough-step-1")).toHaveTextContent("四隅まで伸ばす");
+    expect(screen.getByTestId("square-dough-step-1")).toHaveAttribute("aria-current", "step");
+    expect(screen.getByTestId("square-dough-step-1")).toHaveAttribute("data-state", "now");
+    expect(screen.getByTestId("square-dough-step-2")).toHaveTextContent("STEP 2");
+    expect(screen.getByTestId("square-dough-step-2")).toHaveTextContent("厚みを整える");
+    expect(screen.getByTestId("square-dough-step-2")).toHaveAttribute("data-state", "next");
+    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("四隅 0/4");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "coverage");
+    expect(screen.getByTestId("square-dough-gauge-goal")).toHaveTextContent("目標 95%");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "false");
+    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("つぎは「厚みを整える」");
+  });
+
+  it("the count and the coverage follow the real dough the layer pushes", () => {
+    renderAll(createInitialSquareDough());
+    let d = createInitialSquareDough();
+    d = dragAlong(d, { x: 50, y: 50 }, { x: 91, y: 9 });
+    act(() => squareDoughGaugeStore.setDough(d));
+    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("四隅 1/4");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-corners", "1");
+    expect(Number(screen.getByTestId("square-dough-gauge").getAttribute("data-coverage"))).toBeGreaterThan(0.16);
   });
 });
 
-describe("Square dough STEP 1/2 guide", () => {
-  it("names both steps, the goal, the target and the next step before the target is reached", () => {
-    renderAll(0.739);
-    expect(screen.getByTestId("square-dough-step-1")).toHaveTextContent("STEP 1");
-    expect(screen.getByTestId("square-dough-step-1")).toHaveTextContent("生地を平らにする");
-    expect(screen.getByTestId("square-dough-step-1")).toHaveAttribute("aria-current", "step");
-    expect(screen.getByTestId("square-dough-step-2")).toHaveTextContent("STEP 2");
-    expect(screen.getByTestId("square-dough-step-2")).toHaveTextContent("四隅まで伸ばす");
+describe("STEP 2 「厚みを整える」", () => {
+  it("opens when STEP 1 is done: the first pill is ticked, the gauge is the smoothness with its 60% goal, 「次へ」 is not promised yet", () => {
+    renderAll(spiky());
+    expect(screen.getByTestId("square-dough-step-1")).toHaveAttribute("data-state", "done");
+    expect(screen.getByTestId("square-dough-step-1")).toHaveTextContent("✓");
+    expect(screen.getByTestId("square-dough-step-2")).toHaveAttribute("data-state", "now");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "evenness");
+    expect(screen.getByTestId("square-dough-gauge-goal")).toHaveTextContent("目標 60%");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "false");
     expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("盛り上がった濃いところを押して、平らにしよう");
-    expect(screen.getByTestId("square-dough-gauge-goal")).toHaveTextContent("目標 80%");
-    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "false");
-    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("つぎは「四隅まで伸ばす」");
+    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("平らになったら「次へ」が使えるよ");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "false");
   });
 
-  it("the gauge, the goal sentence and the next line all follow the same real number", () => {
-    renderAll(0.739);
-    act(() => squareDoughGaugeStore.setEvenness(0.7994));
-    expect(screen.getByTestId("square-dough-gauge-value")).toHaveTextContent("79.9%");
-    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "false");
-    expect(screen.getByTestId("square-dough-goal")).not.toHaveTextContent("平らになりました");
-    act(() => squareDoughGaugeStore.setEvenness(0.8));
-    expect(screen.getByTestId("square-dough-gauge-value")).toHaveTextContent("80.0%");
-    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "true");
-    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("平らになりました！");
-    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("つぎは「四隅まで伸ばす」（じゅんび中）");
-    // it can go back down (a press never lowers evenness today, but the words must follow the number, not a latch)
-    act(() => squareDoughGaugeStore.setEvenness(0.7));
-    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "false");
-    expect(screen.getByTestId("square-dough-goal")).not.toHaveTextContent("平らになりました");
+  it("the Preview lumpy start opens at STEP 2 and is already complete (0.739 is above the 60% goal)", () => {
+    renderAll(createLumpySquareDough());
+    expect(screen.getByTestId("square-dough-step-2")).toHaveAttribute("data-state", "now");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "true");
+    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("できあがり");
+    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("「次へ」を押すまで、まだ整えられるよ");
   });
 
-  it("uses the fallback evenness before the layer has reported one", () => {
-    renderAll(0.85);
-    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "true");
+  it("the words follow the dough both ways (re-editing is allowed until 「次へ」): complete -> not complete -> complete, never a latch, never back to STEP 1", () => {
+    renderAll(createLumpySquareDough());
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "true");
+    act(() => squareDoughGaugeStore.setDough(spiky()));
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "false");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "2");
+    act(() => squareDoughGaugeStore.setDough(createLumpySquareDough()));
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "true");
+  });
+
+  it("the gauge value printed is the number the judgement used", () => {
+    renderAll(createLumpySquareDough());
+    const printed = screen.getByTestId("square-dough-gauge-value").textContent!;
+    expect(printed).toMatch(/^\d+\.\d%$/);
+    expect(Number(printed.replace("%", ""))).toBeGreaterThanOrEqual(60);
   });
 });

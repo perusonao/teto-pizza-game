@@ -1,7 +1,8 @@
 /**
- * Square-Pan Dough B2 (Issue #535, Epic #532): the square dough's DOUGH-step layer. It draws the 16x16 thickness sheet on the
- * square pan and turns a finger into the tap / long-press of ../logic/pan/pressGesture.ts. Thickness only: no outline or corner
- * gesture (that is C, #536), and nothing here judges completion.
+ * Square-Pan Dough B2 + C (Issues #535, #536, Epic #532): the square dough's DOUGH-step layer. It draws the 16x16 thickness sheet on
+ * the square pan and turns a finger into the tap / long-press / drag of ../logic/pan/pressGesture.ts. The drag pulls the dough out
+ * toward the corners (mass-conserving, ../logic/pan/squareDoughDrag.ts); the four corner marks and the drag hints are the picture of
+ * where the dough stands. It judges nothing itself: the step and the finish are derived from the dough (squareDoughProgress.ts).
  *
  * It owns its pointer events (they stop here, so the round dough's handlers on the parent never see them) and the working dough
  * of the live gesture. The working dough is committed once, at a successful pointer-up; pointer cancel, a lost capture, window
@@ -10,19 +11,20 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { HOLD_START_MS, IDLE_PRESS_GESTURE, stepPressGesture, type PressEvent, type PressGestureState } from "../logic/pan/pressGesture";
+import { applyGestureEffects } from "../logic/pan/squareDoughDrag";
+import { squareDoughProgress } from "../logic/pan/squareDoughProgress";
 import { SQUARE_PAN_HALF_SIDE } from "../logic/pan/panGeometry";
 import {
   SQUARE_COVER_MIN_THICKNESS,
   SQUARE_DOUGH_GRID,
   isSquareCellOnPan,
   squareCellIndex,
-  squareDoughEvenness,
   type SquareDough,
 } from "../logic/pan/squareDough";
-import { HOLD_BRUSH_RADIUS_MAX, PRESS_BRUSH_RADIUS, applyPressEffects, holdBrushRadius } from "../logic/pan/squareDoughSpread";
+import { HOLD_BRUSH_RADIUS_MAX, PRESS_BRUSH_RADIUS, holdBrushRadius } from "../logic/pan/squareDoughSpread";
 import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { changedCells, evennessChangePoints, thicknessFill } from "../logic/pan/squareDoughView";
-import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
+import { CORNER_MARKS, changePoints, changedCells, cornerHint, thicknessFill, type SquareDoughRamp } from "../logic/pan/squareDoughView";
+import { DOUGH_CENTER, type DoughPoint } from "../logic/pizzaCoordinates";
 import { describeTarget, squareDoughDiag } from "../preview/squareDoughDiag"; // TEMPORARY on-device diagnostics (?diag=1)
 import { SquareDoughDiagPanel } from "../preview/SquareDoughDiagPanel";
 
@@ -35,6 +37,8 @@ interface SquareDoughLayerProps {
   onCommit: (dough: SquareDough) => void;
   /** Bumped by the parent when the step/round changes: a gesture in flight is discarded. */
   resetToken?: number;
+  /** The colour range of this round's start (the Preview lumpy sheet keeps B2's look; the production ball has its own). */
+  ramp?: SquareDoughRamp;
 }
 
 const CELL = 100 / SQUARE_DOUGH_GRID;
@@ -62,7 +66,10 @@ interface PressRing {
   pressKey: number;
 }
 
-export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 }: SquareDoughLayerProps) {
+/** The drag trail keeps at most this many points (older ones are thinned out) so a long stroke stays cheap to draw. */
+const TRAIL_MAX_POINTS = 60;
+
+export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0, ramp = "lumpy" }: SquareDoughLayerProps) {
   const layerRef = useRef<HTMLDivElement | null>(null);
   const gestureRef = useRef<PressGestureState>(IDLE_PRESS_GESTURE);
   const workingRef = useRef<SquareDough | null>(null);
@@ -74,10 +81,14 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   useEffect(() => {
     doughRef.current = dough;
     onCommitRef.current = onCommit;
-  }, [dough, onCommit]);
+    rampRef.current = ramp;
+  }, [dough, onCommit, ramp]);
   const [working, setWorking] = useState<SquareDough | null>(null);
   const [ring, setRing] = useState<PressRing | null>(null);
   const [highlight, setHighlight] = useState<ChangeHighlight | null>(null);
+  /** The live drag's path (dough-percent), from where the finger went down; null when no drag is live. */
+  const [trail, setTrail] = useState<DoughPoint[] | null>(null);
+  const rampRef = useRef(ramp);
   const gestureStartRef = useRef<SquareDough | null>(null); // the committed dough the live gesture started from
   const highlightKeyRef = useRef(0);
   const highlightTimerRef = useRef<number | null>(null);
@@ -128,17 +139,30 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         setHighlight(null);
       }
       if (squareDoughDiag) {
-        for (const effect of step.effects) squareDoughDiag.count(effect.kind === "press" ? "pressApplied" : "holdTicks");
+        for (const effect of step.effects) {
+          if (effect.kind === "press") squareDoughDiag.count("pressApplied");
+          else if (effect.kind === "hold") squareDoughDiag.count("holdTicks");
+        }
         squareDoughDiag.setStatus({ phase: step.state.phase });
       }
       if (step.effects.length > 0) {
         const base = workingRef.current ?? doughRef.current;
-        workingRef.current = applyPressEffects(base, step.effects);
+        workingRef.current = applyGestureEffects(base, gestureStartRef.current ?? doughRef.current, step.effects);
         setWorking(workingRef.current);
+        // A drag draws its path: the trail starts where the finger went down (a "revert" restarts it with the drag).
+        const dragTo = step.effects.filter((e): e is Extract<typeof e, { kind: "drag" }> => e.kind === "drag");
+        if (dragTo.length > 0) {
+          setTrail((previous) => {
+            let next = previous && !step.effects.some((e) => e.kind === "revert") ? previous.slice() : [dragTo[0].from];
+            for (const d of dragTo) next.push(d.to);
+            if (next.length > TRAIL_MAX_POINTS) next = next.filter((_, i) => i === 0 || i === next.length - 1 || i % 2 === 0);
+            return next;
+          });
+        }
         // The marks follow the real change while the finger is down: the cells that differ from where the gesture started.
         const start = gestureStartRef.current;
         if (start && step.end === null) {
-          const cells = changedCells(start, workingRef.current);
+          const cells = changedCells(start, workingRef.current, rampRef.current);
           setHighlight(cells.length > 0 ? { cells, ended: false, key: highlightKeyRef.current } : null);
         }
       }
@@ -148,14 +172,19 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         workingRef.current = null;
         setWorking(null);
         setRing(null);
+        setTrail(null);
         const start = gestureStartRef.current;
         gestureStartRef.current = null;
         clearHighlightTimer();
         if (step.end === "commit" && start !== null) {
           // What the gesture really did, measured from the committed dough it started from: the gauge says it, the marks show where.
           const after = final ?? start;
-          squareDoughGaugeStore.reportChange(evennessChangePoints(squareDoughEvenness(start), squareDoughEvenness(after)));
-          const cells = changedCells(start, after);
+          // The number the step is about: how far the dough has spread in STEP 1, how even it is in STEP 2 (the step the gesture started in).
+          const p0 = squareDoughProgress(start);
+          const p1 = squareDoughProgress(after);
+          if (p0.step === 1) squareDoughGaugeStore.reportChange(changePoints(p0.coverage, p1.coverage), "coverage");
+          else squareDoughGaugeStore.reportChange(changePoints(p0.evenness, p1.evenness), "evenness");
+          const cells = changedCells(start, after, rampRef.current);
           if (cells.length > 0) {
             highlightKeyRef.current += 1;
             setHighlight({ cells, ended: true, key: highlightKeyRef.current });
@@ -172,6 +201,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         } else if (step.end === "discard") {
           squareDoughDiag?.count("discarded");
         }
+      } else if (step.state.phase === "dragging") {
+        setRing(null); // the drag has its own picture: the trail
       } else if (step.state.center !== null) {
         const elapsed = Math.max(0, ("at" in event ? event.at : performance.now()) - step.state.downAt - HOLD_START_MS);
         const holding = step.state.phase === "holding";
@@ -191,7 +222,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   const startLoop = useCallback(() => {
     const frame = () => {
       if (gestureRef.current.phase !== "pressing" && gestureRef.current.phase !== "holding") {
-        rafRef.current = null;
+        rafRef.current = null; // moved / dragging: events drive it, no ticks
         return;
       }
       feed({ type: "tick", at: performance.now() });
@@ -223,6 +254,12 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     };
   }, [discard, stopLoop]);
 
+  const toDoughPoint = useCallback((clientX: number, clientY: number): DoughPoint | null => {
+    const rect = layerRef.current?.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return null;
+    return { x: ((clientX - rect.left) / rect.width) * 100, y: ((clientY - rect.top) / rect.height) * 100 };
+  }, []);
+
   // When pointer capture is unavailable (it threw) a move or release outside the layer never reaches it: this window-level fallback
   // feeds the layer's own gesture the move, and ends it on pointerup (commit) / pointercancel (discard), so no press can stay live.
   useEffect(() => {
@@ -238,7 +275,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     // Movement too: without capture, a finger that leaves the layer must still stop the spread at the slop.
     const onWindowMove = (event: PointerEvent) => {
       if (gestureRef.current.pointerId !== event.pointerId) return;
-      feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY });
+      feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY, point: toDoughPoint(event.clientX, event.clientY) ?? undefined });
     };
     window.addEventListener("pointerup", onWindowEnd);
     window.addEventListener("pointercancel", onWindowEnd);
@@ -248,13 +285,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
       window.removeEventListener("pointerup", onWindowEnd);
       window.removeEventListener("pointercancel", onWindowEnd);
     };
-  }, [feed]);
-
-  const toDoughPoint = (clientX: number, clientY: number) => {
-    const rect = layerRef.current?.getBoundingClientRect();
-    if (!rect || rect.width <= 0 || rect.height <= 0) return null;
-    return { x: ((clientX - rect.left) / rect.width) * 100, y: ((clientY - rect.top) / rect.height) * 100 };
-  };
+  }, [feed, toDoughPoint]);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -298,7 +329,9 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
       }
     }
     pressCountRef.current += 1;
-    feed({ type: "down", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY, center });
+    // STEP 1 (the dough has not been pulled to the corners yet): the drag is the main operation.
+    const dragPrimary = squareDoughProgress(doughRef.current).step === 1;
+    feed({ type: "down", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY, center, dragPrimary });
     startLoop();
   };
 
@@ -306,7 +339,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     event.stopPropagation();
     squareDoughDiag?.event("layer", event, gestureRef.current.phase);
     if (gestureRef.current.pointerId !== event.pointerId) return;
-    feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY });
+    feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY, point: toDoughPoint(event.clientX, event.clientY) ?? undefined });
   };
 
   const release = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -337,11 +370,11 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
   };
 
   const shown = working ?? dough;
-  const evenness = useMemo(() => squareDoughEvenness(shown), [shown]);
-  // The gauge in the dock shows exactly this number (the dough on screen), and forgets it when the layer goes.
+  const progress = useMemo(() => squareDoughProgress(shown), [shown]);
+  // The guide in the dock shows exactly this dough (the one on screen), and forgets it when the layer goes.
   useEffect(() => {
-    squareDoughGaugeStore.setEvenness(evenness);
-  }, [evenness]);
+    squareDoughGaugeStore.setDough(shown);
+  }, [shown]);
   useEffect(
     () => () => {
       squareDoughGaugeStore.reset();
@@ -356,11 +389,16 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
         if (!isSquareCellOnPan(row, col)) continue;
         const value = shown.thickness[squareCellIndex(row, col)];
         if (!(value >= SQUARE_COVER_MIN_THICKNESS)) continue;
-        out.push({ key: row * SQUARE_DOUGH_GRID + col, x: col * CELL, y: row * CELL, fill: thicknessFill(value) });
+        out.push({ key: row * SQUARE_DOUGH_GRID + col, x: col * CELL, y: row * CELL, fill: thicknessFill(value, ramp) });
       }
     }
     return out;
-  }, [shown]);
+  }, [shown, ramp]);
+  // Drag hints: while STEP 1 is on and no finger is down, one dashed arrow per unreached corner, from the dough's edge to the corner.
+  const hints = useMemo(
+    () => (progress.step === 1 ? progress.corners.flatMap((reached, corner) => (reached ? [] : [{ corner, ...cornerHint(shown, corner) }])) : []),
+    [progress, shown],
+  );
 
   const panMin = DOUGH_CENTER - SQUARE_PAN_HALF_SIDE;
   const panSide = SQUARE_PAN_HALF_SIDE * 2;
@@ -372,7 +410,12 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
       ref={layerRef}
       className="square-dough-layer"
       data-testid="square-dough-layer"
-      data-evenness={evenness.toFixed(3)}
+      data-evenness={progress.evenness.toFixed(3)}
+      data-coverage={progress.coverage.toFixed(3)}
+      data-step={progress.step}
+      data-corners={progress.cornersReached}
+      data-complete={progress.complete ? "true" : "false"}
+      data-dragging={trail ? "true" : "false"}
       data-changed-cells={highlight ? highlight.cells.join(",") : ""}
       data-pressing={ring ? (ring.holding ? "hold" : "tap") : "none"}
       onPointerDown={handlePointerDown}
@@ -416,6 +459,51 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
                 rx={1.2}
               />
             ))}
+          </g>
+        )}
+        {/* The four corner marks: dashed and pulsing until the corner is reached, a green tick once it is (the picture of STEP 1). */}
+        <g className="square-dough-layer__corners" data-testid="square-corner-marks">
+          {CORNER_MARKS.map((mark, corner) => {
+            const reached = progress.corners[corner];
+            return (
+              <g
+                key={corner}
+                className={`square-dough-layer__corner${reached ? " square-dough-layer__corner--reached" : ""}`}
+                data-corner={["nw", "ne", "se", "sw"][corner]}
+                data-reached={reached ? "true" : "false"}
+              >
+                <circle cx={mark.x} cy={mark.y} r={4.6} />
+                {reached && <path d={`M ${mark.x - 2.2} ${mark.y} L ${mark.x - 0.6} ${mark.y + 1.7} L ${mark.x + 2.4} ${mark.y - 1.8}`} />}
+              </g>
+            );
+          })}
+        </g>
+        {/* Drag hints (STEP 1, no finger down): from the dough's edge toward each corner that is still short. */}
+        {!trail && !ring && hints.length > 0 && (
+          <g className="square-dough-layer__hints" data-testid="square-drag-hints">
+            {hints.map((hint) => {
+              const angle = Math.atan2(hint.to.y - hint.from.y, hint.to.x - hint.from.x);
+              const tipX = hint.to.x - Math.cos(angle) * 5.6;
+              const tipY = hint.to.y - Math.sin(angle) * 5.6;
+              return (
+                <g key={hint.corner} data-corner={hint.corner}>
+                  <circle className="square-dough-layer__hint-start" cx={hint.from.x} cy={hint.from.y} r={2.2} />
+                  <line className="square-dough-layer__hint-line" x1={hint.from.x} y1={hint.from.y} x2={tipX} y2={tipY} />
+                  <polygon
+                    className="square-dough-layer__hint-head"
+                    points={`${tipX + Math.cos(angle) * 3},${tipY + Math.sin(angle) * 3} ${tipX + Math.cos(angle + 2.5) * 2.6},${tipY + Math.sin(angle + 2.5) * 2.6} ${tipX + Math.cos(angle - 2.5) * 2.6},${tipY + Math.sin(angle - 2.5) * 2.6}`}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        )}
+        {/* The live drag: where it started, the path so far, and the fingertip. */}
+        {trail && trail.length > 0 && (
+          <g className="square-dough-layer__trail" data-testid="square-drag-trail">
+            <polyline points={trail.map((q) => `${q.x},${q.y}`).join(" ")} />
+            <circle className="square-dough-layer__trail-start" cx={trail[0].x} cy={trail[0].y} r={2.4} />
+            <circle className="square-dough-layer__trail-tip" cx={trail[trail.length - 1].x} cy={trail[trail.length - 1].y} r={4} />
           </g>
         )}
         {ring && (
