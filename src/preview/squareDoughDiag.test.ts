@@ -61,15 +61,34 @@ describe("SquareDoughDiag recorder", () => {
     expect(text.indexOf("#1")).toBeLessThan(text.indexOf("#2"));
   });
 
-  it("folds a stream of moves into one counted line, so they cannot push the interesting lines out", () => {
+  it("moves never become history lines: alternating window / layer moves (the real wiring) cannot push the gesture start out", () => {
     const diag = new SquareDoughDiag(clock().now);
+    diag.event("win", { type: "pointerdown", pointerType: "touch", pointerId: 1 }, "idle");
     diag.event("layer", { type: "pointerdown", pointerType: "touch", pointerId: 1 }, "idle");
-    for (let i = 0; i < 50; i++) diag.event("layer", { type: "pointermove", pointerType: "touch", pointerId: 1 }, "pressing");
+    diag.note("capture ok");
+    for (let i = 0; i < 200; i++) {
+      // every move reaches the window listener first and then the layer handler
+      diag.event("win", { type: "pointermove", pointerType: "touch", pointerId: 1 }, "pressing");
+      diag.event("layer", { type: "pointermove", pointerType: "touch", pointerId: 1 }, "pressing");
+    }
+    diag.event("win", { type: "pointerup", pointerType: "touch", pointerId: 1 }, "pressing");
     diag.event("layer", { type: "pointerup", pointerType: "touch", pointerId: 1 }, "pressing");
     const text = diag.snapshot("env");
-    expect(text).toContain("pointermove touch id1 ph=pressing - x50");
-    expect(text).toContain("pointerdown");
-    expect(text).toContain("pointerup");
+    expect(text).toContain("win pointerdown touch id1");
+    expect(text).toContain("layer pointerdown touch id1");
+    expect(text).toContain("capture ok");
+    expect(text).toContain("win pointerup");
+    expect(text).toContain("layer pointerup");
+    expect(text).not.toContain("pointermove touch id1 ph=pressing -"); // not a history line
+    expect(text).toContain("moves since down: win=200 layer=200");
+  });
+
+  it("the move counters restart at each pointerdown", () => {
+    const diag = new SquareDoughDiag(clock().now);
+    for (let i = 0; i < 5; i++) diag.event("layer", { type: "pointermove", pointerType: "touch", pointerId: 1 }, "pressing");
+    expect(diag.snapshot("e")).toContain("layer=5");
+    diag.event("layer", { type: "pointerdown", pointerType: "touch", pointerId: 2 }, "idle");
+    expect(diag.snapshot("e")).toContain("moves since down: win=0 layer=0");
   });
 
   it("keeps only the last 10 lines", () => {

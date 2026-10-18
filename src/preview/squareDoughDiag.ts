@@ -84,9 +84,7 @@ interface EventLike {
 }
 
 interface Entry {
-  readonly key: string;
-  text: string;
-  n: number;
+  readonly text: string;
 }
 
 export interface DiagStatus {
@@ -108,6 +106,7 @@ export class SquareDoughDiag {
   /** Bumped on every change; the panel redraws only when it moved. */
   version = 0;
   private readonly entries: Entry[] = [];
+  private readonly moves: Record<"win" | "layer", { n: number; last: string }> = { win: { n: 0, last: "-" }, layer: { n: 0, last: "-" } };
   private seq = 0;
   private readonly bornAt: number;
 
@@ -118,21 +117,30 @@ export class SquareDoughDiag {
     this.bornAt = this.now();
   }
 
-  /** One pointer / touch / click event seen at `src` ("win" = window capture phase, "layer" = SquareDoughLayer's own handler). */
+  /**
+   * One pointer / touch / click event seen at `src` ("win" = window capture phase, "layer" = SquareDoughLayer's own handler).
+   * `pointermove` is never a history line: in the real wiring every move arrives twice (window, then layer), so it would fill the whole
+   * history in a handful of events and push the gesture start out. Moves are counted per source since the last pointerdown instead,
+   * and shown in one summary line.
+   */
   event(src: "win" | "layer", event: EventLike, phase: string): void {
     try {
       const ptype = event.pointerType ?? "-";
       const id = event.pointerId ?? "-";
-      const key = `${src}|${event.type}|${ptype}|${id}|${phase}`;
-      const last = this.entries[this.entries.length - 1];
-      if (event.type === "pointermove" && last && last.key === key) {
-        last.n += 1; // a stream of moves is one line with a count, so it cannot push the interesting lines out
-      } else {
-        this.seq += 1;
-        const t = Math.round(this.now() - this.bornAt);
-        this.entries.push({ key, n: 1, text: `#${this.seq} +${t} ${src} ${event.type} ${ptype} id${id} ph=${phase} ${describeTarget(event.target)}` });
-        if (this.entries.length > HISTORY_LENGTH) this.entries.shift();
+      if (event.type === "pointermove") {
+        this.moves[src].n += 1;
+        this.moves[src].last = `${ptype} id${id} ph=${phase} ${describeTarget(event.target)}`;
+        this.version += 1;
+        return;
       }
+      if (event.type === "pointerdown") {
+        this.moves.win = { n: 0, last: "-" };
+        this.moves.layer = { n: 0, last: "-" };
+      }
+      this.seq += 1;
+      const t = Math.round(this.now() - this.bornAt);
+      this.entries.push({ text: `#${this.seq} +${t} ${src} ${event.type} ${ptype} id${id} ph=${phase} ${describeTarget(event.target)}` });
+      if (this.entries.length > HISTORY_LENGTH) this.entries.shift();
       this.version += 1;
     } catch {
       /* never let a diagnostic throw */
@@ -143,7 +151,7 @@ export class SquareDoughDiag {
   note(text: string): void {
     try {
       this.seq += 1;
-      this.entries.push({ key: `note|${this.seq}`, n: 1, text: `#${this.seq} +${Math.round(this.now() - this.bornAt)} ${text}` });
+      this.entries.push({ text: `#${this.seq} +${Math.round(this.now() - this.bornAt)} ${text}` });
       if (this.entries.length > HISTORY_LENGTH) this.entries.shift();
       this.version += 1;
     } catch {
@@ -175,7 +183,8 @@ export class SquareDoughDiag {
         `capOk=${c.capturedOk} capFail=${c.captureFailed} winUp=${c.windowFallbackUp} winCancel=${c.windowFallbackCancel} ` +
         `ign(int/busy/pan)=${c.ignoredNotInteractive}/${c.ignoredBusy}/${c.ignoredOutsidePan}`,
     ];
-    const lines = this.entries.map((e) => (e.n > 1 ? `${e.text} x${e.n}` : e.text));
+    const lines = this.entries.map((e) => e.text);
+    head.push(`moves since down: win=${this.moves.win.n} layer=${this.moves.layer.n}  last win: ${this.moves.win.last}`);
     return [...head, ...lines].join("\n");
   }
 
