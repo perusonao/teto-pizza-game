@@ -4,10 +4,10 @@ import { squareDoughGaugeStore } from "./squareDoughGaugeStore";
 import { pressAt } from "./squareDoughSpread";
 import { squareDoughEvenness } from "./squareDough";
 import {
-  CHANGE_EPSILON,
   changedCells,
   evennessChangePoints,
   smoothnessText,
+  thicknessFill,
   thicknessRgb,
 } from "./squareDoughView";
 
@@ -58,25 +58,37 @@ describe("thicknessRgb", () => {
 });
 
 describe("changedCells", () => {
-  it("is empty for identical sheets and for changes at or below the epsilon", () => {
+  it("is empty for identical sheets and for a change too small to move any colour channel", () => {
     const a = createLumpySquareDough();
     expect(changedCells(a, a)).toEqual([]);
-    const b = { ...a, thickness: a.thickness.map((v, i) => (i === 40 ? v + CHANGE_EPSILON / 2 : v)) };
+    const b = { ...a, thickness: a.thickness.map((v, i) => (i === 40 ? v + 1e-9 : v)) };
+    expect(thicknessFill(b.thickness[40])).toBe(thicknessFill(a.thickness[40]));
     expect(changedCells(a, b)).toEqual([]);
   });
-  it("lists exactly the cells whose thickness differs", () => {
+  it("lists exactly the cells whose drawn colour differs", () => {
     const a = createLumpySquareDough();
     const b = { ...a, thickness: a.thickness.map((v, i) => (i === 40 || i === 41 ? v + 0.05 : v)) };
     expect(changedCells(a, b)).toEqual([40, 41]);
+  });
+  it("marks a cell iff its drawn colour changed, for presses all over the sheet (CI webkit-390x844 shard 3 regression)", () => {
+    const a = createLumpySquareDough();
+    for (let x = 20; x <= 80; x += 3) {
+      for (let y = 20; y <= 80; y += 3) {
+        const b = pressAt(a, { x, y });
+        const marked = new Set(changedCells(a, b));
+        for (let i = 0; i < a.thickness.length; i++) {
+          const recoloured = thicknessFill(a.thickness[i]) !== thicknessFill(b.thickness[i]);
+          expect(marked.has(i), `press ${x},${y} cell ${i}`).toBe(recoloured);
+        }
+      }
+    }
   });
   it("a real press changes only the cells it touched", () => {
     const a = createLumpySquareDough();
     const b = pressAt(a, { x: 58, y: 48 });
     const cells = changedCells(a, b);
     expect(cells.length).toBeGreaterThan(0);
-    expect(cells.length).toBeLessThan(60);
-    const set = new Set(cells);
-    for (let i = 0; i < a.thickness.length; i++) if (!set.has(i)) expect(b.thickness[i]).toBe(a.thickness[i]);
+    expect(cells.length).toBeLessThan(80);
   });
 });
 

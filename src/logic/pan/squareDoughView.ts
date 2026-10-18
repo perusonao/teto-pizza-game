@@ -10,7 +10,7 @@
  *
  * The thickness itself, the spread operator and every threshold of B1 are untouched: this only changes how the same numbers are shown.
  */
-import { SQUARE_DOUGH_GRID, type SquareDough } from "./squareDough";
+import { SQUARE_COVER_MIN_THICKNESS, SQUARE_DOUGH_GRID, type SquareDough } from "./squareDough";
 
 /** Thickness at or below this reads as the palest colour. (The sheet's own range is ~0.3..0.9; see the header.) */
 export const VISUAL_THICKNESS_MIN = 0.3;
@@ -41,17 +41,22 @@ export function thicknessFill(thickness: number): string {
   return `rgb(${r},${g},${b})`;
 }
 
-/** A thickness change at or below this is not "a changed cell" (a rounding hair). Far below anything the eye could see. */
-export const CHANGE_EPSILON = 0.002;
+/**
+ * A cell is "changed" when what is DRAWN for it changed: its colour (or whether it is drawn at all). Judging by a thickness epsilon
+ * instead disagreed with the picture -- a thickness change of 0.001 still moves a colour channel by one step, so cells the screen
+ * showed as recoloured were not marked (CI: webkit-390x844 shard 3, square-dough-visual.spec.ts:65, cell 119 235,201,149 -> 234,200,148).
+ * Marking exactly the cells whose drawn colour differs makes "highlight = what changed on screen" true by construction.
+ */
+function drawnFill(thickness: number): string {
+  return Number.isFinite(thickness) && thickness >= SQUARE_COVER_MIN_THICKNESS ? thicknessFill(thickness) : "";
+}
 
-/** The cell indices whose thickness differs between the two sheets by more than `epsilon`. Empty when nothing changed. */
-export function changedCells(before: SquareDough, after: SquareDough, epsilon: number = CHANGE_EPSILON): number[] {
+/** The cell indices whose drawn colour differs between the two sheets. Empty when nothing visible changed. */
+export function changedCells(before: SquareDough, after: SquareDough): number[] {
   const out: number[] = [];
   const n = SQUARE_DOUGH_GRID * SQUARE_DOUGH_GRID;
   for (let i = 0; i < n; i++) {
-    const a = before.thickness[i];
-    const b = after.thickness[i];
-    if (Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) > epsilon) out.push(i);
+    if (drawnFill(before.thickness[i]) !== drawnFill(after.thickness[i])) out.push(i);
   }
   return out;
 }

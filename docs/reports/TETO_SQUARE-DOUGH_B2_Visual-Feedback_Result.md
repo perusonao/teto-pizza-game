@@ -7,7 +7,7 @@ operation strength) are on hold and untouched. B1 logic, thickness data and the 
 ## What changed
 - **A smoothness gauge** (なめらか度, `SquareDoughGauge`): shows the real `squareDoughEvenness` of the dough on screen (equals the layer's
   `data-evenness`), with the real per-gesture change (`+0.2`) or `変化なし`. No fake progress: a press that changes nothing shows no tick.
-- **B highlight**: only cells whose thickness really changed (|Δ| > 0.002) are outlined, shown from the moment the finger lifts and
+- **B highlight**: only cells whose drawn colour really changed are outlined (a thickness epsilon disagreed with the picture: see CI note), shown from the moment the finger lifts and
   fading out in 0.5 s; `pointer-events: none`, non-obstructive.
 - **C colour**: thickness ramp stretched over the range a sheet really uses (0.3–0.9), cream → dough tan → golden brown (R>G>B always);
   grid softened (faint blur, clipped to the pan).
@@ -31,3 +31,10 @@ Screenshots: `docs/reports/screenshots/square-dough-b2-visual/montage-*.png` (le
 ## Not verified
 - iOS Safari performance of the SVG blur filter during a hold, and WebKit rendering: no local WebKit; the WebKit CI cannot judge visuals.
 - Final acceptance is the Owner's iPhone Safari HV (currently FAIL, maintained).
+
+## CI note: webkit-390x844 shard 3 / WebKit Gate on c1384a9
+Failed test: `square-dough-visual.spec.ts:65` (my new highlight test), "unmarked cell 119 must keep its colour": rgb(235,201,149) -> rgb(234,200,148).
+Cause (reproduced deterministically in Vitest, not a flake): `changedCells` used a thickness epsilon (0.002); a thickness change of ~0.001 still moves a
+colour channel by one step, so the cell was redrawn but not highlighted. 917 of 3721 press positions on the lumpy sheet had such a cell. The other 11 jobs and
+the 5 other WebKit shards were green. Fix: a cell is "changed" iff its drawn colour (or whether it is drawn) changed, so highlight == what changed on screen by
+construction; regression test over a grid of press positions. No test, threshold or timeout was changed or skipped.
