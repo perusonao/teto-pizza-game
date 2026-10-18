@@ -28,11 +28,21 @@ function isTooClose(existing: readonly PlacedPoint[], x: number, y: number, minD
 }
 
 /**
+ * Where a point past the pan lands. Round: the existing radial `clamp`, whose distance is exactly the rim overshoot.
+ * Square: the nearest point of the square, not the radial projection -- near a corner the radial one moves the point
+ * along the edge and would measure a larger overshoot than the finger actually is from the pan (Codex P2 on #549).
+ */
+function nearestOnPan(geometry: PanGeometry, point: DoughPoint): DoughPoint {
+  if (geometry.shape !== "square") return geometry.clamp(point.x, point.y);
+  const { minX, minY, maxX, maxY } = geometry.bounds;
+  return { x: Math.min(maxX, Math.max(minX, point.x)), y: Math.min(maxY, Math.max(minY, point.y)) };
+}
+
+/**
  * Finger position -> dough-percent point on the pan, or null. A drop on the pan is kept as it is; one within
  * `PIECE_DROP_EDGE_GRACE` (dough-percent) past the edge is pulled onto the edge; anything farther is rejected.
  * The grace is measured as the distance from the point to its clamped position -- for the round pan that is exactly
- * `distanceFromCenter - 48`, the existing rule; for the square pan it is the distance to the nearest edge or corner
- * region, so the four corners keep the same finger tolerance as the sides.
+ * `distanceFromCenter - 48`, the existing rule; for the square pan it is the distance to the nearest point of the square, so the four corners keep the same finger tolerance as the sides.
  */
 export function resolveGeometryPieceDrop(
   geometry: PanGeometry,
@@ -44,7 +54,7 @@ export function resolveGeometryPieceDrop(
   if (rect.width <= 0 || rect.height <= 0) return null;
   const point = clientPointToDoughPercent(clientX, clientY, rect as DOMRect);
   if (geometry.contains(point.x, point.y)) return point;
-  const clamped = geometry.clamp(point.x, point.y);
+  const clamped = nearestOnPan(geometry, point);
   if (Math.hypot(point.x - clamped.x, point.y - clamped.y) > PIECE_DROP_EDGE_GRACE) return null;
   return clamped;
 }

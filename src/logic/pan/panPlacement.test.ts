@@ -20,10 +20,22 @@ describe("resolveGeometryPieceDrop (square)", () => {
     expect(p).not.toBeNull();
     expect(SQUARE_PAN_GEOMETRY.contains(p.x, p.y)).toBe(true);
     expect(p.x).toBeGreaterThan(93.9);
-    const corner = drop(97, 97)!; // 3 past the corner on both axes: ~4.2 away diagonally
-    expect(corner).toBeNull();
+    expect(drop(97, 97)).toBeNull(); // 3 past the corner on both axes: ~4.2 away diagonally
     const nearCorner = drop(95.5, 95.5)!;
     expect(SQUARE_PAN_GEOMETRY.contains(nearCorner.x, nearCorner.y)).toBe(true);
+  });
+
+  it("measures the grace to the nearest point of the square, also near a corner (Codex P2 on #549)", () => {
+    // 3.5 past the right edge, 4 in from the bottom: radial clamp would read ~4.6 and reject it.
+    expect(drop(97.5, 90)).toEqual({ x: 94, y: 90 });
+    expect(drop(90, 97.5)).toEqual({ x: 90, y: 94 });
+    // 2 past each of two edges: ~2.83 diagonal, within the grace; 3 past each: ~4.24, outside it.
+    expect(drop(96, 96)).toEqual({ x: 94, y: 94 });
+    expect(drop(97, 97)).toBeNull();
+    // Side centres and corners tolerate the same distance.
+    expect(drop(97.9, 50)).not.toBeNull();
+    expect(drop(98.1, 50)).toBeNull();
+    expect(drop(97.9, 94)).not.toBeNull();
   });
 
   it("a point the round dough would reject (corner area) is accepted on the square pan", () => {
