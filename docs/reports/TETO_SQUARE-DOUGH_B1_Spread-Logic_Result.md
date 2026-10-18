@@ -23,7 +23,7 @@ Base: `origin/main` `a6a8614`. **Not merged, not deployed, shared Preview untouc
 | `src/state/gameReducer.ts` | New action `COMMIT_SQUARE_DOUGH`. A no-op outside PREPARE/DOUGH, in a round whose pan is not square, and for an invalid grid. |
 | `src/state/pizzaState.ts` | `PizzaState.squareDough?: SquareDough` — **optional and absent from every round pizza**; `createEmptyPizza()` is unchanged. |
 | `src/components/PreviewBadge.tsx` | `· PAN square` / `· PAN square (lumpy)` while the switch is on (Preview builds only). |
-| tests (new) | `squareDoughSpread.test.ts` (19), `pressGesture.test.ts` (23), `panShapePreview.test.ts` (11), `panShapePreview.gate.test.ts` (3, real vite builds), `gameReducer.squareDough.test.ts` (7). |
+| tests (new) | `squareDoughSpread.test.ts`, `pressGesture.test.ts` (incl. the Codex-review block), `panShapePreview.test.ts` (11), `panShapePreview.gate.test.ts` (3, real vite builds), `gameReducer.squareDough.test.ts` (7). |
 
 **Not touched:** `PizzaStage.tsx`, `GameScreen.tsx`, `App.tsx`, `App.css`, `doughShape.ts`, every round-dough action, scoring, `signature.ts`, `persistence.ts`, recipes, ingredients. Existing tests: none edited.
 
@@ -40,7 +40,7 @@ Base: `origin/main` `a6a8614`. **Not merged, not deployed, shared Preview untouc
 | | Brush | Strength | Falloff | When |
 |---|---|---|---|---|
 | **TAP** (local push-in) | radius 11% of the box (~40–50 px on a phone) | 0.9, once | `dome` (firm across most of the disc) | applied the instant the finger goes down |
-| **HOLD** (continuing spread) | grows 11% → 22% over 700 ms (ease-out) | rate 2.2 / s, as an exponential so it is frame-rate independent; one step accounts for at most 100 ms | `cone` (blends smoothly) | after 200 ms of a still finger, every frame while held |
+| **HOLD** (continuing spread) | grows 11% → 22% over 700 ms (ease-out) | rate 2.2 / s, as an exponential so it is frame-rate independent; a long interval is split into equal sub-steps of at most 100 ms (brush grows across them), and at most 5 s (`HOLD_MAX_ACCOUNTED_MS`) is accounted for | `cone` (blends smoothly) | after 200 ms of a still finger, every frame while held |
 
 Measured on the lumpy fixture (evenness 0.739; thickest spot under a middle lump 0.834): one tap lowers the peak under the finger to **0.713**; a 0.9 s hold lowers it to **0.672** over a wider area. A hold step of one frame is far smaller than a tap (tested ≥ 5× smaller). Frame rates of 120 / 60 / 30 steps per second end within 0.03 evenness of each other.
 
@@ -51,9 +51,9 @@ A first draft had a smaller, cone-shaped tap that lowered the peak by only 0.006
 ## The gesture state machine (`stepPressGesture`)
 - **down** → a TAP effect immediately (no waiting to see if it becomes a hold). One finger at a time; a second finger is ignored with its moves and its up.
 - **tick** after `HOLD_START_MS` (200 ms) of a still finger → HOLD effects; elapsed time counts from the start of the hold. The last moment before pointer-up also counts, so the result does not depend on tick timing (dts add up to `up − 200` at tick rates from 4 ms to 100 ms).
-- **move** farther than `MOVE_SLOP_PX` (10 px; exactly 10 is still a press) → the press ends as a spread: **nothing more is applied** (what was done stays). That movement is a drag, which C will claim; B only guarantees a wandering held finger cannot smear the dough.
+- **move** farther than `MOVE_SLOP_PX` (10 px; exactly 10 is still a press) → the hold is accounted up to that instant (even when no tick arrived yet), then the press ends as a spread: **nothing more is applied** (what was done stays). That movement is a drag, which C will claim; B only guarantees a wandering held finger cannot smear the dough.
 - **up** → commit. **cancel** (pointer cancel, window blur, hidden tab, a step change) → discard everything; the dough stays as it was.
-- Non-finite times / positions are ignored; ticks that go back in time add nothing.
+- Non-finite times / positions are ignored; ticks that go back in time add nothing. A pointer-up with a non-finite time still ends the gesture (at the last accounted time, adding no hold), so a press can never get stuck.
 
 ## Preview switch
 `?pan=square` (every round's pan is square) and `?squareStart=lumpy` (start from the lumpy full sheet). Whitelisted exact values, read once per page load, applied in exactly one place (`activePanShape`). The production-bundle gate builds the app twice (without / with `VITE_PREVIEW_MODE`): the production bundle contains neither the marker, the `squareStart` name nor the badge attribute; the Preview bundle contains all three. Production's `COMMIT_SQUARE_DOUGH` exists but is inert (no round is a square-pan round).

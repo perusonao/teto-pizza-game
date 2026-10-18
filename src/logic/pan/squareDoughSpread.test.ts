@@ -4,6 +4,7 @@ import { createLumpySquareDough } from "./squareDoughFixtures";
 import {
   HOLD_BRUSH_RADIUS_MAX,
   HOLD_GROW_MS,
+  HOLD_MAX_ACCOUNTED_MS,
   HOLD_MAX_STEP_MS,
   HOLD_RATE_PER_S,
   PRESS_BRUSH_RADIUS,
@@ -251,11 +252,25 @@ describe("HOLD: a continuing spread", () => {
     expect(worst).toBeLessThan(0.05);
   });
 
-  it("a stalled frame cannot produce one huge step: any gap is treated as at most HOLD_MAX_STEP_MS", () => {
+  it("a long interval is applied as several small steps, so the time is not lost (Codex P2, #545)", () => {
     const lumpy = createLumpySquareDough();
-    const capped = holdStep(lumpy, LUMP, 400, HOLD_MAX_STEP_MS);
-    expect(holdStep(lumpy, LUMP, 400, HOLD_MAX_STEP_MS * 50)).toEqual(capped);
-    expect(squareDoughEvenness(capped)).toBeLessThan(squareDoughEvenness(relaxAt(lumpy, LUMP, holdBrushRadius(400), 1)));
+    // 1000 ms arriving at once is exactly ten 100 ms steps, the brush growing across them
+    const strength = 1 - Math.exp((-HOLD_RATE_PER_S * HOLD_MAX_STEP_MS) / 1000);
+    let manual = lumpy;
+    for (let i = 1; i <= 10; i++) manual = relaxAt(manual, LUMP, holdBrushRadius(i * HOLD_MAX_STEP_MS), strength);
+    expect(holdStep(lumpy, LUMP, 1000, 1000)).toEqual(manual);
+    // and it is close to the same time arriving as 16 ms ticks (what a finger lifted with no tick in between must not lose)
+    let ticked = lumpy;
+    for (let ms = 16; ms <= 1000; ms += 16) ticked = holdStep(ticked, LUMP, ms, 16);
+    expect(Math.abs(squareDoughEvenness(holdStep(lumpy, LUMP, 1000, 1000)) - squareDoughEvenness(ticked))).toBeLessThan(0.01);
+    // far more than the single-step cap really is applied
+    expect(squareDoughEvenness(holdStep(lumpy, LUMP, 1000, 1000))).toBeGreaterThan(squareDoughEvenness(holdStep(lumpy, LUMP, 1000, HOLD_MAX_STEP_MS)));
+  });
+
+  it("an absurd interval is bounded: no more than HOLD_MAX_ACCOUNTED_MS counts, so it cannot stall the browser", () => {
+    const lumpy = createLumpySquareDough();
+    expect(holdStep(lumpy, LUMP, 1e6, 1e9)).toEqual(holdStep(lumpy, LUMP, 1e6, HOLD_MAX_ACCOUNTED_MS));
+    expect(HOLD_MAX_ACCOUNTED_MS).toBeGreaterThan(HOLD_MAX_STEP_MS);
     expect(HOLD_RATE_PER_S).toBeGreaterThan(0);
   });
 });

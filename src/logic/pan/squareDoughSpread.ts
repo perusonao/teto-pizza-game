@@ -37,8 +37,12 @@ export const HOLD_BRUSH_RADIUS_MAX = 22;
 export const HOLD_GROW_MS = 700;
 /** HOLD: relaxation rate per second (an exponential rate, so the result does not depend on the frame rate). */
 export const HOLD_RATE_PER_S = 2.2;
-/** HOLD: the longest time one step may account for. A stalled frame (or a throttled tab) cannot produce one huge step. */
+/** HOLD: the longest single relaxation. A longer interval (a stalled frame, no ticks before the finger lifts) is applied as several of these, so
+ *  the time is neither lost nor turned into one huge step. */
 export const HOLD_MAX_STEP_MS = 100;
+/** HOLD: the most time one effect accounts for. By then the spread has settled (1 - e^(-2.2 x 5) is over 99.998%), and a bad timestamp
+ *  cannot make the browser loop for millions of steps. */
+export const HOLD_MAX_ACCOUNTED_MS = 5000;
 
 /** A per-cell change at or below this is rounding noise, not spreading. */
 const LEVEL_NOISE = 1e-12;
@@ -115,12 +119,21 @@ export function pressAt(dough: SquareDough, center: DoughPoint): SquareDough {
   return relaxAt(dough, center, PRESS_BRUSH_RADIUS, PRESS_STRENGTH, "dome");
 }
 
-/** One HOLD step covering `dtMs` of a hold that has lasted `holdElapsedMs`: the continuing spread. */
+/**
+ * The continuing spread over the last `dtMs` of a hold that has now lasted `holdElapsedMs`. A short interval (one frame) is one
+ * relaxation; a longer one is split into equal steps of at most HOLD_MAX_STEP_MS, the brush growing across them, so the result is the same
+ * whether the time arrived as many ticks or as one (a finger lifted with no tick since it pressed). At most HOLD_MAX_ACCOUNTED_MS counts.
+ */
 export function holdStep(dough: SquareDough, center: DoughPoint, holdElapsedMs: number, dtMs: number): SquareDough {
   if (!(dtMs > 0) || !Number.isFinite(dtMs)) return dough;
-  const step = Math.min(dtMs, HOLD_MAX_STEP_MS);
-  const strength = 1 - Math.exp((-HOLD_RATE_PER_S * step) / 1000);
-  return relaxAt(dough, center, holdBrushRadius(holdElapsedMs), strength);
+  const accounted = Math.min(dtMs, HOLD_MAX_ACCOUNTED_MS);
+  const steps = Math.ceil(accounted / HOLD_MAX_STEP_MS);
+  const stepMs = accounted / steps;
+  const strength = 1 - Math.exp((-HOLD_RATE_PER_S * stepMs) / 1000);
+  const startElapsed = holdElapsedMs - accounted;
+  let result = dough;
+  for (let i = 1; i <= steps; i++) result = relaxAt(result, center, holdBrushRadius(startElapsed + i * stepMs), strength);
+  return result;
 }
 
 /** What the gesture machine (./pressGesture.ts) asks to be applied. */

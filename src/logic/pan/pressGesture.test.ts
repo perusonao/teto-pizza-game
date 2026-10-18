@@ -143,6 +143,49 @@ describe("a finger that wanders is dragging, not spreading", () => {
   });
 });
 
+describe("Codex review (#545)", () => {
+  it("P2: a release with a non-finite time still ends and commits the gesture, with no non-finite effect and no stuck press", () => {
+    for (const at of [NaN, Infinity, -Infinity]) {
+      const r = run([down(0), tick(500), up(at)]);
+      expect(r.ends, String(at)).toEqual(["commit"]);
+      expect(r.state).toEqual(IDLE_PRESS_GESTURE);
+      for (const e of r.effects) if (e.kind === "hold") expect(Number.isFinite(e.elapsedMs) && Number.isFinite(e.dtMs)).toBe(true);
+      // the hold already accounted for stays; the unknown last stretch adds nothing
+      expect(holdsOf(r.effects).reduce((sum, h) => sum + h.dtMs, 0)).toBeCloseTo(500 - HOLD_START_MS, 9);
+    }
+    // and the next press works
+    expect(run([down(0), up(NaN), down(100, 2)]).state.pointerId).toBe(2);
+  });
+
+  it("P2: a move that crosses the slop after the hold began but before any tick keeps the hold up to that instant", () => {
+    const r = run([down(0), move(500, 100 + 40, 200), tick(520), up(600)]);
+    const holds = holdsOf(r.effects);
+    expect(holds).toHaveLength(1);
+    expect(holds[0]).toMatchObject({ elapsedMs: 500 - HOLD_START_MS, dtMs: 500 - HOLD_START_MS });
+    expect(r.ends).toEqual(["commit"]);
+    // a move before the hold began still leaves a plain tap
+    expect(holdsOf(run([down(0), move(150, 100 + 40, 200), up(600)]).effects)).toHaveLength(0);
+  });
+
+  it("P2: a hold released with no tick in between is not shortened -- it ends close to the same hold sampled every 16 ms", () => {
+    const lumpy = createLumpySquareDough();
+    const keep = (events: readonly PressEvent[]) => {
+      let state: PressGestureState = IDLE_PRESS_GESTURE;
+      let working = lumpy;
+      for (const event of events) {
+        const step = stepPressGesture(state, event);
+        state = step.state;
+        working = applyPressEffects(working, step.effects);
+      }
+      return working;
+    };
+    const noTicks = keep([down(0), up(1200)]);
+    const ticked = keep([down(0), ...ticks(16, 1200, 16), up(1200)]);
+    expect(Math.abs(squareDoughEvenness(noTicks) - squareDoughEvenness(ticked))).toBeLessThan(0.01);
+    expect(squareDoughEvenness(noTicks)).toBeGreaterThan(squareDoughEvenness(pressAt(lumpy, CENTER)));
+  });
+});
+
 describe("cancel, and the things that must never leave a half-made dough behind", () => {
   it("pointer cancel discards the whole gesture and returns to idle", () => {
     const r = run([down(0), tick(300), cancel(350, P)]);

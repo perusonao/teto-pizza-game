@@ -104,8 +104,9 @@ export function stepPressGesture(state: PressGestureState, event: PressEvent): P
       if (event.pointerId !== state.pointerId) return NOTHING(state);
       if (!isFiniteNumber(event.clientX) || !isFiniteNumber(event.clientY) || !isFiniteNumber(event.at)) return NOTHING(state);
       if (Math.hypot(event.clientX - state.downClientX, event.clientY - state.downClientY) <= MOVE_SLOP_PX) return NOTHING(state);
-      // Account for the hold up to this instant, then stop: the finger is dragging, not pressing.
-      const { effect } = state.phase === "holding" ? holdEffect(state, event.at) : { effect: null };
+      // Account for the hold up to this instant -- even if no tick has arrived since it began (phase is still "pressing") --
+      // then stop: the finger is dragging, not pressing.
+      const { effect } = holdEffect(state, event.at);
       return { state: { ...state, phase: "moved" }, effects: effect ? [effect] : [], end: null };
     }
 
@@ -120,8 +121,11 @@ export function stepPressGesture(state: PressGestureState, event: PressEvent): P
 
     case "up": {
       if (state.phase === "idle" || event.pointerId !== state.pointerId) return NOTHING(state);
+      // A release must always end the gesture, or a stuck "live" press would swallow every later touch: with a time that is not a
+      // finite number it ends at the last moment already accounted for, adding no hold time and never a non-finite effect.
+      const at = isFiniteNumber(event.at) ? event.at : state.lastStepAt;
       // The last moment of a hold still counts, whatever the frame timing was.
-      const { effect } = state.phase === "pressing" || state.phase === "holding" ? holdEffect(state, event.at) : { effect: null };
+      const { effect } = state.phase === "pressing" || state.phase === "holding" ? holdEffect(state, at) : { effect: null };
       return { state: IDLE_PRESS_GESTURE, effects: effect ? [effect] : [], end: "commit" };
     }
 
