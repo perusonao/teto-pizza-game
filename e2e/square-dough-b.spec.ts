@@ -135,7 +135,11 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     const p = await at(page, 58, 48);
     await page.mouse.move(p.x, p.y);
     await page.mouse.down();
+    await page.clock.runFor(500);
     await page.mouse.move(8, 8); // far outside the layer: the layer gets no move and no up
+    const atLeave = await evenness(page);
+    await page.clock.runFor(800);
+    expect(await evenness(page), "leaving the layer stops the spread even without capture").toBe(atLeave);
     await page.mouse.up();
     const afterFirst = await evenness(page);
     expect(afterFirst).toBeGreaterThan(0.739); // the first press was committed (tap), not left live

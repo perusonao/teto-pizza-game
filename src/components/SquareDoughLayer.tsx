@@ -145,8 +145,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
     };
   }, [discard, stopLoop]);
 
-  // When pointer capture is unavailable (it threw) a release outside the layer never reaches it: this window-level fallback ends
-  // the layer's own gesture on pointerup (commit) / pointercancel (discard), so no press can stay live and swallow later touches.
+  // When pointer capture is unavailable (it threw) a move or release outside the layer never reaches it: this window-level fallback
+  // feeds the layer's own gesture the move, and ends it on pointerup (commit) / pointercancel (discard), so no press can stay live.
   useEffect(() => {
     const onWindowEnd = (event: PointerEvent) => {
       if (gestureRef.current.pointerId !== event.pointerId) return;
@@ -156,9 +156,16 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0 
           : { type: "cancel", pointerId: event.pointerId, at: performance.now() },
       );
     };
+    // Movement too: without capture, a finger that leaves the layer must still stop the spread at the slop.
+    const onWindowMove = (event: PointerEvent) => {
+      if (gestureRef.current.pointerId !== event.pointerId) return;
+      feed({ type: "move", pointerId: event.pointerId, at: performance.now(), clientX: event.clientX, clientY: event.clientY });
+    };
     window.addEventListener("pointerup", onWindowEnd);
     window.addEventListener("pointercancel", onWindowEnd);
+    window.addEventListener("pointermove", onWindowMove);
     return () => {
+      window.removeEventListener("pointermove", onWindowMove);
       window.removeEventListener("pointerup", onWindowEnd);
       window.removeEventListener("pointercancel", onWindowEnd);
     };
