@@ -34,7 +34,7 @@ export const SAUCE_FIELD_SIZE = 16;
  *  squarely in a cell should register as "touched" on its own, not require a second
  *  overlapping tick to clear the bar (Codex Broad Review MUST FIX 6 follow-up -- see
  *  ../data/referencePizza.ts's fixture, which depends on isolated dabs actually counting). */
-const COVERAGE_THRESHOLD = 0.015;
+export const COVERAGE_THRESHOLD = 0.015;
 
 /** How many grid cells out from a deposit's own cell the brush falloff reaches. A deposit
  *  lighting up only its exact cell would make "spread while moving" indistinguishable from
@@ -71,7 +71,7 @@ export function isCellInsideDoughShape(row: number, col: number, shape: DoughSha
  *  binary inside/outside test on the deposit's center point alone (Codex Broad Review MUST
  *  FIX 5 -- Overflow Boundary): two deposits a fraction of a percent apart, one just inside
  *  the rim and one just outside, must produce nearly the same split, never a 0%/100% flip. */
-const DEPOSIT_FOOTPRINT_RADIUS = 3;
+export const DEPOSIT_FOOTPRINT_RADIUS = 3;
 
 /**
  * Human Feel Fix 2 (Sauce Painting Visual/Scoring Discoverability): the "paint up to here,
@@ -210,7 +210,7 @@ export function buildSauceField(deposits: readonly SauceDepositLike[]): Float64A
  * dispenser spread over two hundred cells can both score close to 1 if each is about as
  * even as that amount of sauce could be.
  */
-function computeEvenness(values: readonly number[]): number {
+export function computeEvenness(values: readonly number[]): number {
   const n = values.length;
   if (n === 0) return 1;
   const sum = values.reduce((a, b) => a + b, 0);
