@@ -15,6 +15,7 @@ import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
 import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
+import type { SquareDough } from "./logic/pan/squareDough";
 import type { CutLine } from "./logic/cut/types";
 import type { SauceDeposit } from "./state/pizzaState";
 import { liveSauceDeposits } from "./state/sauceLedger";
@@ -793,6 +794,10 @@ function App() {
     setPendingDoughShape(null);
   }
 
+  function handleSquareDoughCommit(dough: SquareDough) {
+    dispatch({ type: "COMMIT_SQUARE_DOUGH", dough });
+  }
+
   // Issue #418: a completed trace is committed at once; no duplicate gate, no undo.
   function handleAddCutLine(line: CutLine) {
     dispatch({ type: "ADD_CUT_LINE", line });
@@ -1250,6 +1255,7 @@ function App() {
           onDispenseCommit={handleDispenseCommit}
           onDoughStretchProgress={handleDoughStretchProgress}
           onDoughStretchCommit={handleDoughStretchCommit}
+          onSquareDoughCommit={handleSquareDoughCommit}
           onAddCutLine={handleAddCutLine}
           onDoughElementChange={handleDoughElementChange}
           resolvePhysicalDrop={resolvePhysicalDrop}

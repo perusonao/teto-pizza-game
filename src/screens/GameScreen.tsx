@@ -74,6 +74,12 @@ import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
+import { createInitialSquareDough, squareDoughEvenness, type SquareDough } from "../logic/pan/squareDough";
+import { DOUGH_HINT } from "../data/hints";
+import { SquareDoughGauge } from "../components/SquareDoughGauge";
+import { SquareDoughNext, SquareDoughSteps } from "../components/SquareDoughGuide";
+import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
+import { activePanShape, wantsLumpySquareStart } from "../preview/panShapePreview";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
@@ -209,6 +215,8 @@ interface GameScreenProps {
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
   onDoughStretchProgress: (shape: DoughShape | null) => void;
   onDoughStretchCommit: (shape: DoughShape) => void;
+  /** Square-Pan Dough B2 (#535): commits the square dough of a square-pan round (App dispatches COMMIT_SQUARE_DOUGH). */
+  onSquareDoughCommit?: (dough: SquareDough) => void;
   onAddCutLine: (line: CutLine) => void;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
@@ -219,6 +227,11 @@ interface GameScreenProps {
 function usedIngredientIds(pizza: GameState["pizza"]): string[] {
   return [...new Set([...pizza.sauceIds, ...pizza.toppings.map((t) => t.ingredientId)])];
 }
+
+/** Square-Pan Dough B2: provisional one-line guide under the square pan (final wording is the Owner's). */
+/** The order card's line for a square-pan DOUGH step (the round pizza's "のばしたり縮めたり" does not describe it); only the default DOUGH line is replaced, never a hint the player asked for. */
+const SQUARE_DOUGH_ORDER_TEXT = "生地を平らにして、四隅まで伸ばそう";
+const SQUARE_DOUGH_STATUS_TEXT = "タップ＝おす　長おし＝広くならす";
 
 export function GameScreen({
   dinner: dinnerUi,
@@ -278,6 +291,7 @@ export function GameScreen({
   onDispenseCommit,
   onDoughStretchProgress,
   onDoughStretchCommit,
+  onSquareDoughCommit,
   onAddCutLine,
   onDoughElementChange,
   resolvePhysicalDrop,
@@ -356,7 +370,14 @@ export function GameScreen({
   // rule (DOUGH's `doughShapeComplete`, the reducer itself never gates CONFIRM_MAKING_STEP on
   // completion -- see onewayFlow.test.ts) is defined in exactly one place, never duplicated.
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
-  const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
+  // Square-Pan Dough B2 (#535): in a square-pan round the DOUGH step is the square sheet; completion is C's (#536), so in B
+  // 「次へ」 stays unavailable there.
+  const squareDoughRound = activePanShape(state.recipe) === "square";
+  const squareDoughStart = useMemo(
+    () => state.pizza.squareDough ?? (wantsLumpySquareStart() ? createLumpySquareDough() : createInitialSquareDough()),
+    [state.pizza.squareDough],
+  );
+  const nextStepReady = state.makingStep !== "DOUGH" || (!squareDoughRound && doughShapeComplete);
   // Issue #474 A-1: the status line must agree with the CTA above, so an unavailable 次へ always
   // reads SMALL whatever the (optional) prop says.
   const doughStatus: DoughSizeStatus = !doughShapeComplete ? "SMALL" : doughSizeStatusProp === "LARGE" ? "LARGE" : "READY";
@@ -681,7 +702,11 @@ export function GameScreen({
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
-            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
+            <span className="order-card__hint" data-testid="order-card-hint">
+              {state.makingStep === "DOUGH" && squareDoughRound && (state.hint === null || state.hint.textJa === DOUGH_HINT)
+                ? SQUARE_DOUGH_ORDER_TEXT
+                : (state.hint?.textJa ?? state.recipe.description)}
+            </span>
           </div>
           <button
             type="button"
@@ -778,6 +803,9 @@ export function GameScreen({
         onDispenseCommit={onDispenseCommit}
         onDoughStretchProgress={onDoughStretchProgress}
         onDoughStretchCommit={onDoughStretchCommit}
+        squareDough={
+          squareDoughRound && onSquareDoughCommit ? { dough: squareDoughStart, onCommit: onSquareDoughCommit } : undefined
+        }
         cutState={state.cutState}
         onAddCutLine={onAddCutLine}
         roomy={roomyStage}
@@ -867,18 +895,23 @@ export function GameScreen({
               )}
             {/* Issue #474 A-1: DOUGH's one fixed-height status line (inside the dock's own reserved,
                 otherwise-empty DOUGH space, so nothing moves). Words only: no number, no score. */}
+            {/* Square-Pan Dough B2 (#535): STEP 1/2 strip + the goal sentence, above the operation line. Square rounds only. */}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughSteps fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
             {state.makingStep === "DOUGH" && (
               <div
                 id="dough-size-status"
-                className="dough-status-readout"
+                className={squareDoughRound ? "dough-status-readout dough-status-readout--square" : "dough-status-readout"}
                 role="status"
                 aria-live="polite"
                 data-testid="dough-size-status"
-                data-status={doughStatus}
+                data-status={squareDoughRound ? "SQUARE" : doughStatus}
               >
-                {DOUGH_SIZE_STATUS_TEXT[doughStatus]}
+                {squareDoughRound ? SQUARE_DOUGH_STATUS_TEXT : DOUGH_SIZE_STATUS_TEXT[doughStatus]}
               </div>
             )}
+            {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}
