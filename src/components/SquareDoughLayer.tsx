@@ -371,10 +371,15 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
 
   const shown = working ?? dough;
   const progress = useMemo(() => squareDoughProgress(shown), [shown]);
-  // The guide in the dock shows exactly this dough (the one on screen), and forgets it when the layer goes.
+  // The step and the finish come from the committed dough only (a cancelled gesture must not take an announced step back).
+  const committedProgress = useMemo(() => squareDoughProgress(dough), [dough]);
+  // The guide in the dock shows exactly this dough (the one on screen) and the committed one, and forgets them when the layer goes.
   useEffect(() => {
     squareDoughGaugeStore.setDough(shown);
   }, [shown]);
+  useEffect(() => {
+    squareDoughGaugeStore.setCommitted(dough);
+  }, [dough]);
   useEffect(
     () => () => {
       squareDoughGaugeStore.reset();
@@ -396,8 +401,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
   }, [shown, ramp]);
   // Drag hints: while STEP 1 is on and no finger is down, one dashed arrow per unreached corner, from the dough's edge to the corner.
   const hints = useMemo(
-    () => (progress.step === 1 ? progress.corners.flatMap((reached, corner) => (reached ? [] : [{ corner, ...cornerHint(shown, corner) }])) : []),
-    [progress, shown],
+    () => (committedProgress.step === 1 ? progress.corners.flatMap((reached, corner) => (reached ? [] : [{ corner, ...cornerHint(shown, corner) }])) : []),
+    [committedProgress.step, progress.corners, shown],
   );
 
   const panMin = DOUGH_CENTER - SQUARE_PAN_HALF_SIDE;
@@ -412,9 +417,9 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
       data-testid="square-dough-layer"
       data-evenness={progress.evenness.toFixed(3)}
       data-coverage={progress.coverage.toFixed(3)}
-      data-step={progress.step}
+      data-step={committedProgress.step}
       data-corners={progress.cornersReached}
-      data-complete={progress.complete ? "true" : "false"}
+      data-complete={committedProgress.complete ? "true" : "false"}
       data-dragging={trail ? "true" : "false"}
       data-changed-cells={highlight ? highlight.cells.join(",") : ""}
       data-pressing={ring ? (ring.holding ? "hold" : "tap") : "none"}

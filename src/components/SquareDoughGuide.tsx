@@ -10,22 +10,15 @@
  * under the gauge that says what comes next. Both read the same dough the gauge shows (useSyncExternalStore on the gauge store).
  * The text carries the count and the story; the pan itself carries the picture (corner marks, drag hints -- SquareDoughLayer).
  */
-import { useMemo, useSyncExternalStore } from "react";
-import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { squareDoughProgress, type SquareDoughProgress } from "../logic/pan/squareDoughProgress";
 import type { SquareDough } from "../logic/pan/squareDough";
-
-function useProgress(fallbackDough: SquareDough): SquareDoughProgress {
-  const { dough } = useSyncExternalStore(squareDoughGaugeStore.subscribe, squareDoughGaugeStore.get);
-  return useMemo(() => squareDoughProgress(dough ?? fallbackDough), [dough, fallbackDough]);
-}
+import { useSquareProgress } from "./useSquareProgress";
 
 export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough }) {
-  const p = useProgress(fallbackDough);
+  const { live, committed: p } = useSquareProgress(fallbackDough);
   const step1State = p.step === 1 ? "now" : "done";
   const step2State = p.step === 1 ? "next" : "now";
   const goal = p.step === 1
-    ? `なぞって、生地を四隅まで伸ばそう（四隅 ${p.cornersReached}/4）`
+    ? `なぞって、生地を四隅まで伸ばそう（四隅 ${live.cornersReached}/4）`
     : p.complete
       ? "できあがり！「次へ」で形が決まります"
       : "盛り上がった濃いところを押して、平らにしよう";
@@ -35,7 +28,7 @@ export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough
       data-testid="square-dough-steps"
       data-step={p.step}
       data-complete={p.complete ? "true" : "false"}
-      data-corners={p.cornersReached}
+      data-corners={live.cornersReached}
     >
       <ol className="square-dough-steps__list" aria-label="生地の2だんかい">
         <li
@@ -66,7 +59,7 @@ export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough
 }
 
 export function SquareDoughNext({ fallbackDough }: { fallbackDough: SquareDough }) {
-  const p = useProgress(fallbackDough);
+  const { committed: p } = useSquareProgress(fallbackDough);
   const text = p.step === 1
     ? "四隅まで伸びたら、つぎは「厚みを整える」"
     : p.complete

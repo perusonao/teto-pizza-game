@@ -19,12 +19,18 @@ export interface SquareDoughGaugeChange {
 }
 
 export interface SquareDoughGaugeState {
-  /** The dough on screen, or `null` before the layer has reported one. */
+  /** The dough on screen (the live working dough while a finger is down), or `null` before the layer has reported one. */
   readonly dough: SquareDough | null;
+  /**
+   * The COMMITTED dough (what the game state holds). The step and the finish are announced from this one, never from the live
+   * working dough: a gesture that is cancelled (pointercancel, lost capture, blur) throws its dough away, and a step already
+   * announced from it would visibly go back. The live numbers (coverage, evenness, corners) still follow the finger.
+   */
+  readonly committed: SquareDough | null;
   readonly change: SquareDoughGaugeChange | null;
 }
 
-const EMPTY: SquareDoughGaugeState = { dough: null, change: null };
+const EMPTY: SquareDoughGaugeState = { dough: null, committed: null, change: null };
 let state: SquareDoughGaugeState = EMPTY;
 let seq = 0;
 const listeners = new Set<() => void>();
@@ -45,6 +51,12 @@ export const squareDoughGaugeStore = {
   setDough(dough: SquareDough): void {
     if (state.dough === dough) return;
     state = { ...state, dough };
+    emit();
+  },
+  /** The committed dough (the layer's `dough` prop). */
+  setCommitted(committed: SquareDough): void {
+    if (state.committed === committed) return;
+    state = { ...state, committed };
     emit();
   },
   /** A gesture ended: `points` is its real effect on `metric` (`null` = none). */

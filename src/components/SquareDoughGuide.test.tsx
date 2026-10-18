@@ -83,10 +83,16 @@ describe("STEP 2 「厚みを整える」", () => {
   it("the words follow the dough both ways (re-editing is allowed until 「次へ」): complete -> not complete -> complete, never a latch, never back to STEP 1", () => {
     renderAll(createLumpySquareDough());
     expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "true");
-    act(() => squareDoughGaugeStore.setDough(spiky()));
+    act(() => {
+      squareDoughGaugeStore.setCommitted(spiky());
+      squareDoughGaugeStore.setDough(spiky());
+    });
     expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "false");
     expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "2");
-    act(() => squareDoughGaugeStore.setDough(createLumpySquareDough()));
+    act(() => {
+      squareDoughGaugeStore.setCommitted(createLumpySquareDough());
+      squareDoughGaugeStore.setDough(createLumpySquareDough());
+    });
     expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-complete", "true");
   });
 
@@ -95,5 +101,30 @@ describe("STEP 2 「厚みを整える」", () => {
     const printed = screen.getByTestId("square-dough-gauge-value").textContent!;
     expect(printed).toMatch(/^\d+\.\d%$/);
     expect(Number(printed.replace("%", ""))).toBeGreaterThanOrEqual(60);
+  });
+});
+
+describe("the step is announced from the committed dough, never from a gesture still in flight (Codex P2)", () => {
+  it("a live dough that already meets STEP 1 does not open STEP 2 until it is committed; a cancelled gesture goes back to the committed dough without any step change", () => {
+    const committed = createInitialSquareDough();
+    renderAll(committed);
+    act(() => squareDoughGaugeStore.setCommitted(committed));
+    // the finger is down and the working dough has reached STEP 1's bar
+    act(() => squareDoughGaugeStore.setDough(spiky()));
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "1");
+    expect(screen.getByTestId("square-dough-step-2")).toHaveAttribute("data-state", "next");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-step", "1");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "coverage");
+    expect(Number(screen.getByTestId("square-dough-gauge").getAttribute("data-coverage"))).toBeGreaterThan(0.95); // live numbers follow the finger
+    // cancelled: the live dough returns to the committed one; the step never changed
+    act(() => squareDoughGaugeStore.setDough(committed));
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "1");
+    // committed: now STEP 2 opens
+    act(() => {
+      squareDoughGaugeStore.setCommitted(spiky());
+      squareDoughGaugeStore.setDough(spiky());
+    });
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "2");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "evenness");
   });
 });

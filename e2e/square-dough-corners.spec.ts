@@ -154,6 +154,47 @@ test.describe("#536 C: STEP 1 -> STEP 2 -> finished -> 次へ", () => {
   });
 });
 
+test.describe("#536 C: a cancelled gesture never takes an announced step back (Codex P2)", () => {
+  test("a drag that reaches STEP 1's bar while the finger is still down does not open STEP 2 until it lifts; a blur (cancel) leaves STEP 1", async ({ page }) => {
+    test.setTimeout(120_000);
+    await start(page, BALL);
+    for (const [x, y] of [[10, 10], [90, 10], [90, 90], [10, 90]]) await dragThrough(page, [[50, 50], [x, y]]);
+    let tested = false;
+    const rows = [14, 26, 38, 50, 62, 74, 86, 20, 32, 44, 56, 68, 80];
+    for (let i = 0; i < rows.length && !tested; i++) {
+      const y = rows[i];
+      const points: [number, number][] = i % 2 === 0 ? [[10, y], [50, y], [90, y]] : [[90, y], [50, y], [10, y]];
+      // a stroke with the finger kept down
+      const first = await at(page, ...points[0]);
+      await page.mouse.move(first.x, first.y);
+      await page.mouse.down();
+      for (const p of points.slice(1)) {
+        const q = await at(page, ...p);
+        await page.mouse.move(q.x, q.y, { steps: 6 });
+      }
+      const liveCoverage = await num(page, "data-coverage");
+      const committedStep = await attr(page, "data-step");
+      if (liveCoverage >= 0.95 && committedStep === "1") {
+        // the live dough meets the bar, the announcement waits for the lift
+        await expect(page.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "1");
+        await expect(page.getByTestId("square-dough-step-2")).toHaveAttribute("data-state", "next");
+        await page.evaluate(() => window.dispatchEvent(new Event("blur"))); // the gesture is thrown away
+        await page.mouse.up();
+        expect(await attr(page, "data-step")).toBe("1");
+        await expect(page.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "1");
+        expect(await num(page, "data-coverage")).toBeLessThan(0.95);
+        // the same stroke, lifted: committed, STEP 2 opens
+        await dragThrough(page, points);
+        await expect(page.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "2");
+        tested = true;
+      } else {
+        await page.mouse.up();
+      }
+    }
+    expect(tested, "a stroke that crosses the coverage bar was found").toBe(true);
+  });
+});
+
 test.describe("#536 C: tap / long press vs drag (STEP 2 on the lumpy sheet)", () => {
   test("a tap with a trembling finger is a tap; a stroke is a drag and does not also tap (no double application)", async ({ page }) => {
     await start(page, LUMPY);

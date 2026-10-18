@@ -123,7 +123,9 @@ describe("squareDoughGaugeStore", () => {
     const off = squareDoughGaugeStore.subscribe(() => calls++);
     const dough = createLumpySquareDough();
     squareDoughGaugeStore.setDough(dough);
+    squareDoughGaugeStore.setCommitted(dough);
     expect(squareDoughGaugeStore.get().dough).toBe(dough);
+    expect(squareDoughGaugeStore.get().committed).toBe(dough);
     squareDoughGaugeStore.reportChange(1.2, "evenness");
     const first = squareDoughGaugeStore.get().change!;
     squareDoughGaugeStore.reportChange(null, "coverage");
@@ -136,7 +138,7 @@ describe("squareDoughGaugeStore", () => {
     expect(calls).toBeGreaterThanOrEqual(3);
     off();
     squareDoughGaugeStore.reset();
-    expect(squareDoughGaugeStore.get()).toEqual({ dough: null, change: null });
+    expect(squareDoughGaugeStore.get()).toEqual({ dough: null, committed: null, change: null });
   });
 });
 

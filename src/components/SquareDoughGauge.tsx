@@ -8,18 +8,20 @@
  * number as printed. For a moment after each gesture it also shows how much that gesture changed the number: "+0.4" when it did,
  * "変化なし" when it did not. It never animates a number it was not given.
  */
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { SQUARE_COMPLETE_EVENNESS_MIN, SQUARE_STEP1_COVERAGE_MIN, squareDoughProgress } from "../logic/pan/squareDoughProgress";
+import { SQUARE_COMPLETE_EVENNESS_MIN, SQUARE_STEP1_COVERAGE_MIN } from "../logic/pan/squareDoughProgress";
 import type { SquareDough } from "../logic/pan/squareDough";
 import { smoothnessText } from "../logic/pan/squareDoughView";
+import { useSquareProgress } from "./useSquareProgress";
 
 /** How long the "+0.4" / "変化なし" note stays after a gesture ends. */
 const CHANGE_NOTE_MS = 1600;
 
 export function SquareDoughGauge({ fallbackDough }: { fallbackDough: SquareDough }) {
-  const { dough, change } = useSyncExternalStore(squareDoughGaugeStore.subscribe, squareDoughGaugeStore.get);
-  const progress = useMemo(() => squareDoughProgress(dough ?? fallbackDough), [dough, fallbackDough]);
+  const { change } = useSyncExternalStore(squareDoughGaugeStore.subscribe, squareDoughGaugeStore.get);
+  // Which number the gauge is about (the step) follows the COMMITTED dough; the number itself follows the live dough.
+  const { live: progress, committed } = useSquareProgress(fallbackDough);
   // The note of a gesture stays until its timer says it has been shown long enough (the timer callback, not the effect body, sets state).
   const [expiredSeq, setExpiredSeq] = useState<number | null>(null);
   useEffect(() => {
@@ -29,7 +31,7 @@ export function SquareDoughGauge({ fallbackDough }: { fallbackDough: SquareDough
   }, [change]);
   const note = change && expiredSeq !== change.seq ? change : null;
 
-  const stepOne = progress.step === 1;
+  const stepOne = committed.step === 1;
   const shown = stepOne ? progress.coverage : progress.evenness;
   const goal = stepOne ? SQUARE_STEP1_COVERAGE_MIN : SQUARE_COMPLETE_EVENNESS_MIN;
   const reached = stepOne ? progress.coverageReached : progress.evennessReached;
@@ -39,7 +41,7 @@ export function SquareDoughGauge({ fallbackDough }: { fallbackDough: SquareDough
     <div
       className={`square-dough-gauge${reached ? " square-dough-gauge--reached" : ""}`}
       data-testid="square-dough-gauge"
-      data-step={progress.step}
+      data-step={committed.step}
       data-metric={stepOne ? "coverage" : "evenness"}
       data-evenness={progress.evenness.toFixed(3)}
       data-coverage={progress.coverage.toFixed(3)}

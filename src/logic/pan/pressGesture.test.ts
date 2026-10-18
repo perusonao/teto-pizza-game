@@ -347,6 +347,28 @@ describe("DRAG (C, #536)", () => {
     expect(cancelled.state.phase).toBe("idle");
   });
 
+  it("STEP 1: a press that has become a hold needs the full 24 px: an 11 px drift stops it (it does not extend the dough), 24 px drags (Codex P2)", () => {
+    const drift = run([downP(0), ...ticks(16, 500, 16), moveTo(510, MOVE_SLOP_PX + 1, 0)]);
+    expect(drift.state.phase).toBe("moved");
+    expect(dragsOf(drift.effects)).toHaveLength(0);
+    // the same without any tick having arrived (the hold has begun by time alone)
+    const noTick = run([downP(0), moveTo(500, MOVE_SLOP_PX + 1, 0)]);
+    expect(noTick.state.phase).toBe("moved");
+    expect(dragsOf(noTick.effects)).toHaveLength(0);
+    const far = run([downP(0), ...ticks(16, 500, 16), moveTo(510, HOLD_TO_DRAG_PX + 1, 0)]);
+    expect(far.state.phase).toBe("dragging");
+    expect(far.effects.some((e) => e.kind === "revert")).toBe(false); // the hold's spread stays
+    // a quick stroke is still a drag at once in STEP 1
+    expect(run([downP(0), moveTo(HOLD_START_MS - 80, MOVE_SLOP_PX + 1, 0)]).state.phase).toBe("dragging");
+  });
+
+  it("the held-finger threshold is the same in STEP 2 (11 px stops it, 24 px drags)", () => {
+    const drift = run([downS(0), ...ticks(16, 500, 16), moveTo(510, MOVE_SLOP_PX + 1, 0)]);
+    expect(drift.state.phase).toBe("moved");
+    const far = run([downS(0), ...ticks(16, 500, 16), moveTo(510, HOLD_TO_DRAG_PX + 1, 0)]);
+    expect(far.state.phase).toBe("dragging");
+  });
+
   it("STEP 2 (tap / long press are the main operations): a small wander stays a press that stops (as in B2), below the drag distance", () => {
     const r = run([downS(0), moveTo(60, MOVE_SLOP_PX + 3, 0), moveTo(90, DRAG_FAST_PX - 4, 0)]);
     expect(r.state.phase).toBe("moved");

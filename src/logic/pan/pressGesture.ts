@@ -9,7 +9,8 @@
  *   - the finger moves more than MOVE_SLOP_PX -> the press ends *as a spread* (nothing more is applied; what was done stays) --
  *     unless the movement is a DRAG (C, #536), decided from the distance moved, where the finger went down's role and how long it had
  *     been down:
- *       STEP 1 (`dragPrimary`, the drag is the main operation): any movement past the slop is a drag;
+ *       STEP 1 (`dragPrimary`, the drag is the main operation): any movement past the slop is a drag -- unless the press has
+ *       already become a hold (200 ms), which needs the same 24 px as in STEP 2, so a drifting long press does not extend the dough;
  *       STEP 2 (tap / long press are the main operations): a drag only after 24 px (HOLD_TO_DRAG_PX), or 16 px (DRAG_FAST_PX) within
  *       the first HOLD_START_MS -- a quick deliberate stroke -- so a trembling finger or a drifting hold stays a press.
  *     A drag is never also a press: if the hold had not begun, the tap applied at pointer-down is reverted (a "revert" effect) before
@@ -153,7 +154,10 @@ export function stepPressGesture(state: PressGestureState, event: PressEvent): P
       const distance = Math.hypot(event.clientX - state.downClientX, event.clientY - state.downClientY);
       if (distance <= MOVE_SLOP_PX) return NOTHING(state);
       const elapsed = event.at - state.downAt;
-      const isDrag = state.dragPrimary || distance >= HOLD_TO_DRAG_PX || (distance >= DRAG_FAST_PX && elapsed < HOLD_START_MS);
+      // A finger that has become a hold (in either step) needs the full 24 px: only a press that has not reached the hold may use
+      // STEP 1's "any movement past the slop is a drag" shortcut.
+      const held = state.phase === "holding" || state.holdApplied || elapsed >= HOLD_START_MS;
+      const isDrag = (state.dragPrimary && !held) || distance >= HOLD_TO_DRAG_PX || (distance >= DRAG_FAST_PX && elapsed < HOLD_START_MS);
 
       if (isDrag && point !== null && state.center !== null) {
         // Account for the hold up to this instant (it counts, even before a tick), then drag: never a press and a drag on the same stroke.
