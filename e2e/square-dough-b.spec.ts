@@ -125,6 +125,27 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     await page.mouse.up();
   });
 
+  test("without pointer capture, releasing outside the layer still ends the gesture (the next press works)", async ({ page }) => {
+    await page.addInitScript(() => {
+      Element.prototype.setPointerCapture = () => {
+        throw new Error("capture unavailable");
+      };
+    });
+    await start(page);
+    const p = await at(page, 58, 48);
+    await page.mouse.move(p.x, p.y);
+    await page.mouse.down();
+    await page.mouse.move(8, 8); // far outside the layer: the layer gets no move and no up
+    await page.mouse.up();
+    const afterFirst = await evenness(page);
+    expect(afterFirst).toBeGreaterThan(0.739); // the first press was committed (tap), not left live
+    const q = await at(page, 24, 26);
+    await page.mouse.move(q.x, q.y);
+    await page.mouse.down();
+    await page.mouse.up();
+    expect(await evenness(page)).toBeGreaterThan(afterFirst);
+  });
+
   test("a press on the round-pizza path is unaffected: without ?pan=square there is no square layer", async ({ page }) => {
     await startFreshMargherita(page, "");
     await expect(page.getByTestId("square-dough-layer")).toHaveCount(0);
