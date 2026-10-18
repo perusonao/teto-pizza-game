@@ -11,6 +11,11 @@ Path: `docs/decisions/TETO_RESEARCH-2.0_OWNER-DECISIONS.md`
 関連 authority: [`TETO_ANTI-ORACLE-CONTRACT_2.1.md`](./TETO_ANTI-ORACLE-CONTRACT_2.1.md)（本書が上書きする点は §6 に列挙）、
 [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.md)。
 
+> **Fresh Audit 追補（2026-10-18、Issue #544、Owner 判断 OD-544-4 / 5 / 6）:** §4 の「catalog-local stability」を次のとおり明確化する（§4 末尾の「追補」を参照）。
+> 53 / 172 population 前の再監査（§7）は、本番 catalog（57 recipe）について 2026-10-18 に実施した（結果は
+> [`TETO_RESEARCH-2.0_FRESH-AUDIT-544_Result.md`](../reports/TETO_RESEARCH-2.0_FRESH-AUDIT-544_Result.md)）。
+> **Anti-Oracle §15 の複数ソース前提での期待 attempt 数の再計算は未実施**で、E（#521）の Final Gate 前の必須事項である（OD-544-8）。
+
 ## 1. 問題（R-2 / R-1 / R-3）
 
 | ID | 問題 | 根本原因 |
@@ -73,6 +78,14 @@ letter は**「永久不変の Research ID」ではない**。**同一 catalog a
 - **53 / 172 population を導入する前に、Research identifier compatibility を Fresh Gate で再監査する**（§7 の trigger）。
 - **これを解決するために save mapping を追加してはならない**（OD-R2-2）。letter の保存・recipeId→ID の対応表・保存済み counter は禁止。
 - 影響範囲は表示のみ: Notebook は reload で消える session-only、Phase 2 の×ledger は recipe id キーで label を持たない。
+
+### 4.1 追補（Owner 判断 OD-544-4 / 5 / 6、2026-10-18）
+
+- **文字の性質（OD-544-4）**: A / B / C は、同時に登録可能な候補を区別するための**表示用識別子**である。全プレイヤー共通の固定 ID ではなく、recipe の恒久的な識別子でもない。プレイヤー自身の所持材料の取得順と catalog から導出される（unlock 材料は「そのプレイヤーが最後に取得した」有限材料であるため、購入順が違うプレイヤーでは、同じ recipe に付く文字や cohort の構成が異なり得る）。
+- **決定性（OD-544-5）**: 同一の入力（catalog・所持材料の取得順・図鑑）からは常に同一の文字になる。**同一状態での非決定的な変動は認めない。** 同一 save の中では、図鑑の変化・兄弟の発見・target 切替・reload・新しい cohort の追加で、一度付いた文字は変わらない（Fresh Audit で、ランダムな購入順 2000 通りの全 prefix 約 105 万チェックにて変化 0 件を確認）。
+- **変化を許容する場合（OD-544-5）**: **候補集合そのもの**が変わるとき（既存 cohort に recipe を足す catalog revision。例: グランマ追加による marinara の「文字なし → A」）、および購入順の違いによる cohort 構成の差は許容する。
+- **例外の管理（OD-544-6）**: Recipe Batch Validator の `COHORT_LETTER_SHIFT` は維持し、意図した文字変更だけを**明示的 allowlist**（recipe id・before・after・Owner 決定の参照）で許可する。allowlist に無い shift は fail、allowlist にあるのに起きない行も fail とする。allowlist の実装は E（#521）で行う。Batch 8（#527）の例外は**仮**であり、Batch の確定時に影響する既存 recipe を全件導出して決める。
+- **維持される規則**: save mapping・letter の保存・recipe id と文字の対応表・保存済み counter は禁止（OD-R2-2）。label は unlock 材料名と文字以外の hidden recipe 情報を出さない（INV-B7）。発見済み兄弟の枠は再利用しない（OD-R2-3）。Notebook は保存時の表示文字列を固定で持つ（OD-R2-5）。
 
 ## 5. Phase 2〜4 が参照する不変条件（INV-B1〜B9）
 
