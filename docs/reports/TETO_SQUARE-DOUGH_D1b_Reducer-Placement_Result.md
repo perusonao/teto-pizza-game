@@ -9,10 +9,11 @@ Uses only what is on main: `activePanShape(recipe)` (B1; the recipe's `panShape`
 | Change | File |
 |---|---|
 | `PLACE_TOPPING` checks the drop against the round's pan (`getPanGeometry(activePanShape(recipe)).contains`; the round pan's `contains` **is** `isInsideDough`) and, on the square pan only, finds the open spot with `findOpenSpotOnPan`. Round still calls `findOpenSpot`. | `src/state/gameReducer.ts` |
-| A square-pan round has no CUT: `cookingProfileForPan` drops `CUT` and `cutConfig` once, where a round is built (`buildOrderState`) and where a Dinner round rebuilds its profile (`dinnerStartBake`). The round pan returns the same profile object. | `src/logic/pan/panProfile.ts`, `gameReducer.ts` |
+| A square-pan round has no CUT: `cookingProfileForPan` drops `CUT` and `cutConfig` once, where a round is built (`buildOrderState`). The round pan returns the same profile object. | `src/logic/pan/panProfile.ts`, `gameReducer.ts` |
 | `resolvePieceDropForPan(shape, …)`: round = `resolvePieceDrop` itself, square = `resolveGeometryPieceDrop`. **Not wired** (see below). | `src/logic/pan/panPlacement.ts` |
 
 ## What is deliberately not done
+- **Dinner is not changed.** A Dinner round is recipe-free: its CUT requirement is decided by `planDinnerBake` / `resolveDinnerAttempt` (Dinner's own authority, `dinnerResultDetection.ts`). Stripping CUT from its profile alone would leave `resolveDinnerAttempt` still requiring it (Codex P2 on #552), and propagating the exemption widens into Dinner's resolver. The square pan is reachable only by the Preview/DEV `?pan=square` switch (and later by grandma-pizza, never in Dinner), so Dinner x square is left as is and recorded here.
 - **`App.tsx` `resolvePhysicalDrop` is not rewired.** B2 (#546) edits `App.tsx`; the finger-to-dough step belongs to D2-a after B2 lands. Until then a square round's reducer accepts corner drops but the physical drag still resolves with the round rule.
 - **Sauce:** `APPLY_SAUCE` / `COMMIT_SAUCE_DISPENSE` have no boundary check in the reducer (sauce may overshoot by design; overflow is a metric). The square metrics (`computeSquareSauceMetrics`, D1-a) are therefore not routed anywhere: they feed Scoring 2.0 / Reference, which D4 keeps unchanged until the square recipe (E) exists.
 - No dependency on C (completion predicate) or B2's component; the square dough → SAUCE step gate is untouched.

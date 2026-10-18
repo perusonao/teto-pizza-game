@@ -2166,13 +2166,10 @@ function dinnerStartBake(state: GameState, session: DinnerSession, action: Extra
   const plan = planDinnerBake(state.pizza);
   const view = dinnerBakePlanView(plan);
   const baked = baseGameReducer(state, action);
-  const cookingProfile: CookingProfile = cookingProfileForPan(
-    {
-      steps: [...preBakeSteps(state.cookingProfile), ...view.postBakeSteps],
-      ...(view.cutConfig ? { cutConfig: view.cutConfig } : {}),
-    },
-    activePanShape(state.recipe),
-  );
+  const cookingProfile: CookingProfile = {
+    steps: [...preBakeSteps(state.cookingProfile), ...view.postBakeSteps],
+    ...(view.cutConfig ? { cutConfig: view.cutConfig } : {}),
+  };
   return {
     ...baked,
     recipe: { ...FREE_COOK_RECIPE, bakeTarget: view.bakeTarget },
