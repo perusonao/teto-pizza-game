@@ -120,6 +120,14 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
   });
 });
 
+/**
+ * Square Dough F2: the named allowlists of the technique-requiring set. A recipe may require a technique only if it is
+ * listed here; adding one is a deliberate act that re-runs this whole gate (see docs/reports/TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md §7).
+ * `PAN_TRAY_RECIPE_IDS` is empty until Square Dough E (#521) adds the first tray recipe.
+ */
+const PAN_TRAY_RECIPE_IDS: readonly string[] = [];
+const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS].sort();
+
 describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
   it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
@@ -131,7 +139,7 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     for (const id of noSauce) expect(sauceCount(id), id).toBe(0);
   });
   it("no request, stored id or line ever carries Technique information", () => {
-    const techWords = TECHNIQUES.flatMap((t) => [t.id, t.nameJa, t.riddleJa]);
+    const techWords = TECHNIQUES.flatMap((t) => [t.id, t.nameJa, t.riddleJa, ...(t.descriptionJa ? [t.descriptionJa] : [])]);
     for (const s of GATE_STATES) {
       for (const family of ["structure", "attribute"] as const) {
         const r = freshRequest(s, family);
@@ -145,14 +153,18 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
       }
     }
   }, SWEEP_TIMEOUT_MS);
-  it("INV-TQ-4 on the runtime: the NO_SAUCE recipes are the only production targets requiring a technique, and the only affordance is the earliest one's own step (onion, 12)", () => {
+  it("INV-TQ-4 on the runtime: the allow-listed recipes (NO_SAUCE + tray) are the only production targets requiring a technique, and the only affordance is the earliest one's own step (onion, 12)", () => {
     const { catalog, materialStep } = productionTechniqueContext();
     expect(catalog).toBe(RECIPE_DISCOVERY_CATALOG);
     expect(catalog.map((t) => t.recipeId).sort()).toEqual(RECIPES.map((r) => r.id).sort());
     const requiring = catalog.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
     // If this fails, another Technique recipe arrived: re-run this DH4 gate with it first.
-    expect(requiring.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual([...noSauceRecipeIds()].sort());
-    for (const t of TECHNIQUES) expect(techniqueAffordanceStep(t.id, catalog, materialStep), t.id).toBe(12);
+    expect(requiring.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(TECHNIQUE_REQUIRING_RECIPE_IDS());
+    // INV-TQ-4: a technique no recipe uses never opens. NO_SAUCE opens at its own earliest step; the tray opens only once a
+    // tray recipe is allow-listed (then its step is DERIVED from the ladder, never authored).
+    expect(techniqueAffordanceStep("no-sauce", catalog, materialStep)).toBe(12);
+    expect(techniqueAffordanceStep("tray", catalog, materialStep) === null).toBe(PAN_TRAY_RECIPE_IDS.length === 0);
+    for (const t of TECHNIQUES) expect(["no-sauce", "tray"], t.id).toContain(t.id);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
     const sources = import.meta.glob<string>(

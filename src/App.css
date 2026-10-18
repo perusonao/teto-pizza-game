@@ -2599,6 +2599,13 @@
   color: #7a5a36;
 }
 
+.dex-card__technique-desc {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #7a5a36;
+}
+
 .dex-card--new {
   border: 2px solid #f2b705;
   animation: dex-new-glow 1.4s ease-in-out infinite alternate;

@@ -5,7 +5,11 @@ import { DexOverlay } from "./DexOverlay";
 import { ResultPanel } from "./ResultPanel";
 import { TechniqueReveal } from "./TechniqueReveal";
 import { TECHNIQUES } from "../data/techniques";
+import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
+import type { RecipeDiscoveryTarget } from "../logic/discovery/matcher";
+import { DEFAULT_IDENTITY_DIMENSIONS } from "../logic/discovery/signature";
 import { techniqueDexViews } from "../logic/techniques/dexView";
+import { productionTechniqueContext, type TechniqueRuntimeContext } from "../logic/techniques/runtime";
 import { W1_ORDER } from "../logic/testSupport/branchingFixture";
 import { discoveredDex } from "../state/testSupport/guidedRound";
 
@@ -16,6 +20,18 @@ import { discoveredDex } from "../state/testSupport/guidedRound";
  */
 
 afterEach(cleanup);
+
+/** Production catalog + one synthetic tray recipe: no production recipe requires the tray yet (Square Dough E). */
+const SYN_TRAY: RecipeDiscoveryTarget = {
+  targetId: "syn:tray-pizza",
+  recipeId: "syn-tray" as RecipeDiscoveryTarget["recipeId"],
+  items: ["garlic", "mozzarella", "olive-oil", "tomato-sauce"],
+  sauceBase: ["olive-oil", "tomato-sauce"],
+  capabilities: [],
+  identityDimensions: { ...DEFAULT_IDENTITY_DIMENSIONS, pan: "tray" },
+  eligibility: { status: "ELIGIBLE" },
+};
+const TRAY_CONTEXT: TechniqueRuntimeContext = { ...productionTechniqueContext(), catalog: [...RECIPE_DISCOVERY_CATALOG, SYN_TRAY] };
 
 const NAME = TECHNIQUES[0].nameJa; // 「ソースなし」
 const RIDDLE = TECHNIQUES[0].riddleJa;
@@ -122,5 +138,37 @@ describe("Dex: the 調理法 section", () => {
     expect(card).toHaveAttribute("data-technique-state", "DISCOVERED");
     expect(card).toHaveTextContent(NAME);
     expect(card.textContent).not.toContain(RIDDLE);
+  });
+
+  it("TRAY (Square Dough F2), undiscovered but open: only 「？？？」 and the approved riddle -- never the name, the description or the id", () => {
+    const tray = TECHNIQUES.find((t) => t.id === "tray")!;
+    const dex = discoveredDex(W1_ORDER.slice(0, 14));
+    const views = techniqueDexViews([], dex, TRAY_CONTEXT).filter((v) => v.id === "tray");
+    const { container } = render(<DexOverlay {...props(dex)} techniqueViews={views} />);
+    const card = container.querySelector("[data-dex-techniques] [data-technique-state]")!;
+    expect(card).toHaveAttribute("data-technique-state", "RIDDLE");
+    expect(card).toHaveTextContent("？？？");
+    expect(card).toHaveTextContent("丸くなくても、ピザは焼ける。四つの角まで生地を広げてみよう。");
+    const everything = `${container.textContent}|${[...container.querySelectorAll("*")].flatMap((e) => [...e.attributes].map((a) => a.value)).join("|")}`;
+    expect(everything).not.toContain(tray.nameJa);
+    expect(everything).not.toContain(tray.descriptionJa!);
+    expect(everything).not.toContain("tray");
+  });
+
+  it("TRAY discovered: the name and the approved description (and no riddle)", () => {
+    const dex = discoveredDex(W1_ORDER.slice(0, 14));
+    const views = techniqueDexViews(["tray"], dex, TRAY_CONTEXT).filter((v) => v.id === "tray");
+    const { container } = render(<DexOverlay {...props(dex)} techniqueViews={views} />);
+    const card = container.querySelector("[data-dex-techniques] [data-technique-state]")!;
+    expect(card).toHaveAttribute("data-technique-state", "DISCOVERED");
+    expect(card).toHaveTextContent("天板焼き");
+    expect(card).toHaveTextContent("四角い天板に生地を広げて焼く調理法。指で押し広げ、四隅まで伸ばして形を整えよう。");
+    expect(card.textContent).not.toContain("丸くなくても");
+  });
+
+  it("a NO_SAUCE card has no description paragraph", () => {
+    const dex = discoveredDex(W1_ORDER.slice(0, 12));
+    const { container } = render(<DexOverlay {...props(dex)} techniqueViews={techniqueDexViews(["no-sauce"], dex)} />);
+    expect(container.querySelector(".dex-card__technique-desc")).toBeNull();
   });
 });

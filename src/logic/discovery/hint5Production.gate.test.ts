@@ -316,7 +316,11 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
     expect(noSauce.length).toBeGreaterThan(0);
     const requiring = RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
+    // Square Dough F2: the technique-requiring set is the named allowlist NO_SAUCE + pan "tray" (empty until E, #521). A tray
+    // recipe has sauces, so the sauce-shape assertions below stay on the NO_SAUCE set and the tray recipe is asserted
+    // to have no technique term in any rung by the privacy sweep in the next test.
+    const PAN_TRAY_RECIPE_IDS: readonly string[] = [];
+    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...PAN_TRAY_RECIPE_IDS].sort());
     const sauceRung = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SAUCE");
     const notSingleSauce = RECIPES.filter((r) => sauceRung(r.id).length !== 1 || sauceRung(r.id)[0].subjectIds.length !== 1).map((r) => r.id);
     expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
@@ -333,7 +337,7 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
   });
 
   it("no Hint 5.0 view carries Technique identity, and the Hint 5.0 modules never read Technique state", () => {
-    const techWords = TECHNIQUES.flatMap((t) => [t.id, t.nameJa, t.riddleJa]);
+    const techWords = TECHNIQUES.flatMap((t) => [t.id, t.nameJa, t.riddleJa, ...(t.descriptionJa ? [t.descriptionJa] : [])]);
     for (const r of RECIPES) {
       for (const { view } of purchaseStates(r.id, 5)) {
         for (const v of stringValues(view)) {
