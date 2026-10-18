@@ -1408,7 +1408,7 @@ export function PizzaStage({
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
-        } ${showDoughShape ? "pizza-dough--has-shape-layer" : ""} ${showSquareDough ? "pizza-dough--square-pan" : ""}`}
+        } ${showDoughShape ? "pizza-dough--has-shape-layer" : ""}${showSquareDough ? " pizza-dough--square-pan" : ""}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
