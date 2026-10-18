@@ -66,7 +66,6 @@ import {
   type InventoryState,
 } from "./inventory";
 import { cookableMissionRecipeIds, missionOrderRecipeIds, pickMissionOrder } from "../mission/lunchRush";
-import { isInsideDough } from "../logic/pizzaCoordinates";
 import { getDinnerMission } from "../mission/dinner/dinnerMission";
 import { dinnerRunReducer, startDinnerRun, type DinnerRunState } from "../mission/dinner/dinnerRun";
 import {
@@ -97,6 +96,9 @@ import { normalizeCutLine } from "../logic/cut/trace";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { isValidSquareDough, type SquareDough } from "../logic/pan/squareDough";
 import { activePanShape } from "../preview/panShapePreview";
+import { getPanGeometry } from "../logic/pan/panGeometry";
+import { cookingProfileForPan } from "../logic/pan/panProfile";
+import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
   isOnboardingHintSession,
@@ -117,6 +119,7 @@ import type { DiscoveryHintPurchases } from "../logic/discovery/hintPurchase";
 import {
   createEmptyPizza,
   findOpenSpot,
+  MIN_TOPPING_DISTANCE,
   isValidSauceDepositBatch,
   type PizzaState,
   type PlacementFeedback,
@@ -671,7 +674,8 @@ function buildOrderState(
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
   }
-  const cookingProfile = getCookingProfile(recipe.id);
+  // Square-Pan Dough D1-b: a square-pan round has no CUT (the round pan's profile is returned as it is).
+  const cookingProfile = cookingProfileForPan(getCookingProfile(recipe.id), activePanShape(recipe));
   return {
     phase: "ORDER",
     order,
@@ -1014,7 +1018,9 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       const inFinish = state.phase === "POST_BAKE" && state.makingStep === "FINISH" && roundRunsFinish(state);
       if (state.phase !== "PREPARE" && !inFinish) return state;
       if (!Number.isFinite(action.x) || !Number.isFinite(action.y)) return state;
-      if (!isInsideDough(action.x, action.y)) return state;
+      // Square-Pan Dough D1-b: the drop must lie on this round's pan (the round pan's `contains` is `isInsideDough` itself).
+      const pan = getPanGeometry(activePanShape(state.recipe));
+      if (!pan.contains(action.x, action.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       // Issue #32 Phase 2: PLACE_TOPPING is shared by both CHEESE and TOPPING ingredients
@@ -1054,7 +1060,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           },
         };
       }
-      const spot = findOpenSpot(state.pizza.toppings, action.x, action.y);
+      const spot =
+        pan.shape === "round"
+          ? findOpenSpot(state.pizza.toppings, action.x, action.y)
+          : findOpenSpotOnPan(pan, state.pizza.toppings, action.x, action.y, MIN_TOPPING_DISTANCE);
       placementTokenCounter += 1;
 
       if (!spot) {

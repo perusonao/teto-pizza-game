@@ -9,8 +9,9 @@
  * Inert: no caller yet (reducer wiring is a later D slice, after B/C land). Pure.
  */
 import { clientPointToDoughPercent, type DoughPoint } from "../pizzaCoordinates";
-import { PIECE_DROP_EDGE_GRACE } from "../pieceDrag";
-import type { PanGeometry } from "./panGeometry";
+import { PIECE_DROP_EDGE_GRACE, resolvePieceDrop } from "../pieceDrag";
+import { getPanGeometry, type PanGeometry } from "./panGeometry";
+import type { PanShape } from "./panShape";
 
 /** The only fields of a placed piece the spot search reads (structurally a `PlacedTopping`; the pan module imports no state). */
 export interface PlacedPoint {
@@ -87,4 +88,18 @@ export function findOpenSpotOnPan(
     }
   }
   return null;
+}
+
+/**
+ * The drop resolver for a round of this pan: the round pan keeps `resolvePieceDrop` itself (so a round pizza's drop is the
+ * function it has always used), the square pan uses `resolveGeometryPieceDrop`. The caller (App.tsx) wires it in a D2 slice.
+ */
+export function resolvePieceDropForPan(
+  shape: PanShape,
+  clientX: number,
+  clientY: number,
+  rect: Pick<DOMRect, "left" | "top" | "width" | "height">,
+): DoughPoint | null {
+  if (shape !== "square") return resolvePieceDrop(clientX, clientY, rect);
+  return resolveGeometryPieceDrop(getPanGeometry(shape), clientX, clientY, rect);
 }
