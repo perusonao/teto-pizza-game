@@ -14,10 +14,14 @@
  */
 import { TECHNIQUES, type TechniqueId } from "../../data/techniques";
 import type { DiscoveryTarget } from "../discovery/matcher";
-import type { RuntimeSignature } from "../discovery/signature";
+import type { IdentityDimensions, RuntimeSignature } from "../discovery/signature";
 
-type SignatureView = Pick<RuntimeSignature, "ingredientSet" | "sauceBase">;
-export type TechniqueTargetView = Pick<DiscoveryTarget, "sauceBase">;
+/** `dimensions` is optional so a caller that only knows the base (the NO_SAUCE rule) need not build one; a signature
+ *  without it never uses the tray. */
+type SignatureView = Pick<RuntimeSignature, "ingredientSet" | "sauceBase"> & Partial<Pick<RuntimeSignature, "dimensions">>;
+export type TechniqueTargetView = Pick<DiscoveryTarget, "sauceBase"> & {
+  identityDimensions?: Partial<Pick<IdentityDimensions, "pan">>;
+};
 
 function usesNoSauce(signature: SignatureView): boolean {
   return (
@@ -27,13 +31,30 @@ function usesNoSauce(signature: SignatureView): boolean {
   );
 }
 
+/**
+ * TRAY (Square Dough F2): the pizza was cooked on the tray -- the `pan` identity axis is OBSERVED and holds `"tray"`.
+ * Only the explicit `PizzaState.pan` counts (signature.ts); a Preview query or a square dough model alone never
+ * sets it, so neither can discover the technique.
+ */
+function usesTray(signature: SignatureView): boolean {
+  const pan = signature.dimensions?.pan;
+  return pan !== undefined && pan.status === "OBSERVED" && pan.value === "tray" && signature.ingredientSet.value.length > 0;
+}
+
+/** A target requires the tray when its identity declares `pan: "tray"` (deep-pan / shallow-pan are not the tray). */
+function requiresTray(target: TechniqueTargetView): boolean {
+  return target.identityDimensions?.pan === "tray";
+}
+
 /** Techniques the pizza used, in registry order. */
 export function detectTechniquesUsed(signature: SignatureView): TechniqueId[] {
-  return TECHNIQUES.filter((t) => t.id === "no-sauce" && usesNoSauce(signature)).map((t) => t.id);
+  return TECHNIQUES.filter(
+    (t) => (t.id === "no-sauce" && usesNoSauce(signature)) || (t.id === "tray" && usesTray(signature)),
+  ).map((t) => t.id);
 }
 
 /** Techniques a target requires, in registry order. */
 export function requiredTechniquesOf(target: TechniqueTargetView): TechniqueId[] {
   const noSauce = Array.isArray(target.sauceBase) && target.sauceBase.length === 0;
-  return TECHNIQUES.filter((t) => t.id === "no-sauce" && noSauce).map((t) => t.id);
+  return TECHNIQUES.filter((t) => (t.id === "no-sauce" && noSauce) || (t.id === "tray" && requiresTray(target))).map((t) => t.id);
 }
