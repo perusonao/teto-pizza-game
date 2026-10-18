@@ -16,7 +16,7 @@ import { isTechniqueAffordanceOpen, knownTechniqueIds, techniqueAffordanceStep }
 import { productionTechniqueContext, type TechniqueRuntimeContext } from "./runtime";
 
 export type TechniqueDexView =
-  | { id: TechniqueId; state: "DISCOVERED"; nameJa: string }
+  | { id: TechniqueId; state: "DISCOVERED"; nameJa: string; descriptionJa?: string }
   | { id: TechniqueId; state: "RIDDLE"; riddleJa: string };
 
 export function techniqueDexViews(
@@ -29,7 +29,11 @@ export function techniqueDexViews(
   const views: TechniqueDexView[] = [];
   for (const t of TECHNIQUES) {
     if (known.has(t.id)) {
-      views.push({ id: t.id, state: "DISCOVERED", nameJa: t.nameJa });
+      views.push(
+        t.descriptionJa === undefined
+          ? { id: t.id, state: "DISCOVERED", nameJa: t.nameJa }
+          : { id: t.id, state: "DISCOVERED", nameJa: t.nameJa, descriptionJa: t.descriptionJa },
+      );
     } else if (isTechniqueAffordanceOpen(techniqueAffordanceStep(t.id, context.catalog, context.materialStep), credited)) {
       views.push({ id: t.id, state: "RIDDLE", riddleJa: t.riddleJa });
     }

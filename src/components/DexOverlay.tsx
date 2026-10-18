@@ -296,6 +296,7 @@ export function DexOverlay({
                   view.state === "DISCOVERED" ? (
                     <div key={view.id} className="dex-card dex-card--technique" data-technique-state="DISCOVERED">
                       <h3>{view.nameJa}</h3>
+                      {view.descriptionJa !== undefined && <p className="dex-card__technique-desc">{view.descriptionJa}</p>}
                     </div>
                   ) : (
                     <div key={view.id} className="dex-card dex-card--technique dex-card--locked" data-technique-state="RIDDLE">

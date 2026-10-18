@@ -40,15 +40,15 @@ function materialStep(id: string): number | null {
 }
 
 describe("registry", () => {
-  it("TQ-1 ships exactly NO_SAUCE; ids are well-formed and unique", () => {
-    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce"]);
-    expect(KNOWN_TECHNIQUE_IDS).toEqual(["no-sauce"]);
+  it("the registry ships NO_SAUCE (TQ-1) and TRAY (Square Dough F2); ids are well-formed and unique", () => {
+    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray"]);
+    expect(KNOWN_TECHNIQUE_IDS).toEqual(["no-sauce", "tray"]);
     for (const t of TECHNIQUES) expect(t.id).toMatch(/^[a-z0-9][a-z0-9_-]{0,63}$/);
     expect(isTechniqueId("no-sauce")).toBe(true);
     for (const bad of ["NO_SAUCE", "post-bake", "", null, 1, "__proto__"]) expect(isTechniqueId(bad)).toBe(false);
   });
 
-  it("the riddle never names the technique or the concrete action (OD-TQ-5 / 6)", () => {
+  it("the riddle never names the technique or the concrete action (OD-TQ-5 / 6); the tray's riddle is the Owner-approved general description (2026-10-18) and still never names the technique", () => {
     for (const t of TECHNIQUES) {
       expect(t.riddleJa).not.toContain(t.nameJa);
       expect(t.riddleJa).not.toMatch(/ソース|なし|省/);
