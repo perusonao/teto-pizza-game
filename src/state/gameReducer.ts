@@ -95,6 +95,8 @@ import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from ".
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { normalizeCutLine } from "../logic/cut/trace";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
+import { isValidSquareDough, type SquareDough } from "../logic/pan/squareDough";
+import { activePanShape } from "../preview/panShapePreview";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
   isOnboardingHintSession,
@@ -459,6 +461,10 @@ export type GameAction =
   // (pointercancel, lost pointer capture, blur/hidden, a reset or step change mid-hold, or
   // component unmount) never dispatches this at all -- see PizzaStage's DOUGH gesture branch.
   | { type: "COMMIT_DOUGH_STRETCH"; shape: DoughShape }
+  // Square-Pan Dough B (Issue #535): the square pan's own DOUGH commit -- the whole thickness grid as it stands after a press / hold
+  // gesture (../logic/pan/pressGesture.ts), replacing `pizza.squareDough` atomically at a successful pointerup. A no-op outside
+  // PREPARE/DOUGH, for an invalid grid, and in any round whose pan is not square (so it can never touch a round pizza).
+  | { type: "COMMIT_SQUARE_DOUGH"; dough: SquareDough }
   // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
   // DOUGH -> SAUCE -> CHEESE -> TOPPING sub-steps (see MakingStep above). Advances
   // `makingStep` one step forward and bumps `makingStepToken`; a no-op past "TOPPING" or
@@ -1151,6 +1157,14 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!isValidDoughShape(action.shape)) return state;
       const pizza: PizzaState = { ...state.pizza, doughShape: action.shape };
       return { ...state, pizza };
+    }
+
+    // Square-Pan Dough B (Issue #535): the same belt-and-suspenders discipline as COMMIT_DOUGH_STRETCH above, plus the pan check.
+    case "COMMIT_SQUARE_DOUGH": {
+      if (state.phase !== "PREPARE" || state.makingStep !== "DOUGH") return state;
+      if (activePanShape(state.recipe) !== "square") return state;
+      if (!isValidSquareDough(action.dough)) return state;
+      return { ...state, pizza: { ...state.pizza, squareDough: action.dough } };
     }
 
     // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's

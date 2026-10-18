@@ -3,6 +3,7 @@ import { CUT_THRESHOLD_PREVIEW_MARK, cutThresholdBadgeLabel } from "../preview/c
 import { TOPPING_SCALE_PREVIEW_MARK, getPreviewToppingScaleCandidate, toppingScaleBadgeLabel } from "../preview/toppingScalePreview";
 import { getPreviewResultScale, resultScaleBadgeLabel, RESULT_SCALE_PREVIEW_MARK } from "../preview/resultScalePreview";
 import { LC_HAND_PREVIEW_CAPACITY, LC_HAND_PREVIEW_MARK, lcHandPreviewBadgeLabel } from "../preview/lcHandPreview";
+import { PAN_SHAPE_PREVIEW_MARK, getPreviewPanShape, getPreviewSquareStart, panShapeBadgeLabel } from "../preview/panShapePreview";
 
 /**
  * Renders only when the build sets `VITE_PREVIEW_MODE` -- the production `vite build` (see
@@ -22,6 +23,9 @@ import { LC_HAND_PREVIEW_CAPACITY, LC_HAND_PREVIEW_MARK, lcHandPreviewBadgeLabel
  * LC-R6-b: an HV-only Large Catalog Hand variant adds `· HAND 9` / `· HAND 12` (from the committed variant, read here
  * only behind the same `VITE_PREVIEW_MODE` guard; an invalid value shows nothing, as it leaves Hand OFF), so a Human Verification video shows which variant it recorded. A normal
  * Preview (variant `null`) shows no HAND suffix, i.e. Hand OFF. The badge only displays; it activates nothing.
+ *
+ * #535: while `?pan=square` (and optionally `&squareStart=lumpy`, ../preview/panShapePreview.ts) is in effect the badge adds `· PAN square`
+ * / `· PAN square (lumpy)`, so a Human Verification video shows it was recorded on the square pan.
  */
 export function PreviewBadge() {
   if (!import.meta.env.VITE_PREVIEW_MODE) return null;
@@ -31,6 +35,7 @@ export function PreviewBadge() {
   const cut = cutThresholdBadgeLabel(getCutSignificanceThresholds(), DEFAULT_CUT_SIGNIFICANCE);
   const size = toppingScaleBadgeLabel(getPreviewToppingScaleCandidate());
   const result = resultScaleBadgeLabel(getPreviewResultScale());
+  const pan = panShapeBadgeLabel(getPreviewPanShape(), getPreviewSquareStart());
   return (
     <div
       className="preview-badge"
@@ -39,6 +44,7 @@ export function PreviewBadge() {
       data-cut-threshold-preview={cut === null ? undefined : CUT_THRESHOLD_PREVIEW_MARK}
       data-topping-scale-preview={size === null ? undefined : TOPPING_SCALE_PREVIEW_MARK}
       data-result-scale-preview={result === null ? undefined : RESULT_SCALE_PREVIEW_MARK}
+      data-pan-shape-preview={pan === null ? undefined : PAN_SHAPE_PREVIEW_MARK}
     >
       PREVIEW{pr ? ` · PR#${pr}` : ""}
       {sha ? ` · ${sha}` : ""}
@@ -46,6 +52,7 @@ export function PreviewBadge() {
       {cut === null ? "" : ` · ${cut}`}
       {size === null ? "" : ` · ${size}`}
       {result === null ? "" : ` · ${result}`}
+      {pan === null ? "" : ` · ${pan}`}
     </div>
   );
 }
