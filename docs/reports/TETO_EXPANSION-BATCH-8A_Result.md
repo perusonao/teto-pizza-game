@@ -47,4 +47,18 @@ Pinned by: `researchLabels.batch8a.test.ts` (new), `recipeBatch.validator` (`acc
 | new | `researchLabels.batch8a.test.ts` (9 tests), `e2e/expansion-batch8a.spec.ts` (3 tests x 2 viewports) |
 
 ## 5. Verification
-E2E_PLACEHOLDER
+- Local (Node 22): `tsc -b` clean; `oxlint` 0 errors (pre-existing warnings only); `npm run build` passes; **full Vitest 450 files passed / 1 skipped, 8537 tests passed / 2 skipped / 0 failed** (incl. Batch Validator, catalog ledger, Hint 5.0 golden, DH4 / Hint 5.0 production gates, `finalizeRound`, `researchLabels.batch8a`).
+- Chromium E2E, iphone-390x844, **whole suite** (460 tests): 358 passed / 95 skipped (project filters) / 7 failed on the first run. Classification of the 7 (all fixture or display, no product logic):
+  1. Dex counter literals (`27/60`, `28/60`, `29/60`, `30/60`) and chapter totals (`11/16`, `12/16`, `15/16`, `16/16` -> `12/18`, `13/18`, `17/18`, `18/18`) in `discovery3-no27`, `expansion1`, `expansion2-wave2` (x3), `expansion3`: +1 / +2 because the seeded "everything found" saves now also found the non-credit recipes. Updated.
+  2. Seeds that listed only calabresa / aussie as closed (`expansion2-wave2` step 28, `expansion3`, `research-stable-identity` step 28) now also close chilean-napolitana / spanish-chorizo-pizza, otherwise a third Research entry appears. Updated (same rule as the Vitest fixtures).
+  3. `discovery-inspector-scroll` (DEV Inspector): five non-credit paragraphs pushed Step 1 out of the first screen. The Inspector's non-credit notes are now one compact paragraph and contiguous pool steps collapse to `a〜b` (display only, DEV screen; the same fix class as the Grandma S3 report).
+  After the fixes the 7 specs + the new spec: **36 passed on iphone-390x844 and iphone-360x800**. No test was skipped, quarantined or loosened.
+- The new `e2e/expansion-batch8a.spec.ts` (3 tests x 2 viewports): the pair labels (`A / B（トマト）`, `A / B（カトゥピリ）`, bare `（パプリカ）`), no recipe identity in the DOM before a discovery, cooking with no sauce step -> NEW DISCOVERY -> Dex (No. / chapter totals), schema v2.
+- WebKit (390x844 / 360x800, all shards): CI only (not installed locally). See the PR for the run.
+- Codex review: not runnable from this environment; PR number and HEAD are reported to the Owner for the review request.
+
+## 6. Owner Human Verification (Preview, 390x844)
+Screenshots in `docs/reports/screenshots/expansion-batch8a/` (390x844 and 360x800): `before-tomato-research-entry-*` / `before-catupiry-research-entry-*` (main: bare label, one entry) vs `batch8a-chilean-pair-research-entry-*` / `batch8a-frango-pair-research-entry-*` (A / B), `batch8a-chorizo-research-entry-*` (bare `（パプリカ）`), `*-tray-*`, `*-new-recipe-*`, `*-dex-*`. The three 390x844 Review Playthrough videos (one per recipe) are delivered directly in the session, never committed. Check: the new names in Pizza Select / Dex / RESULT; the A / B letters; **the provisional counts and bake windows (56-76)**; that chorizo reading as the generic sausage is acceptable.
+
+## 7. Not done / limits
+PR-8b (shirasu, shiso, whitebait), any new ingredient / glyph / taxonomy row, any CUT / Lunch Rush / mechanic change, #540 / #546 / #553, the shared Preview: not touched. Local WebKit not run.

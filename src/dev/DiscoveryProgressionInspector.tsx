@@ -190,18 +190,33 @@ function Summary({ model }: { model: InspectorModel }) {
         OPEN_POOL: step <b data-testid="dpi-open-pool">{model.openPoolStepNumbers.join(", ") || "なし"}</b> / OPEN_POOL POSSIBLE: step{" "}
         <b data-testid="dpi-open-pool-possible">{model.openPoolPossibleStepNumbers.join(", ") || "なし"}</b>
       </p>
-      {model.nonCreditRecipes.map((r) => (
-        <p key={r.recipeId} data-testid={`dpi-noncredit-${r.recipeId}`}>
-          ladderCredit:false <b>{r.nameJa}</b> <code>{r.recipeId}</code>: step {r.firstDiscoverableStep ?? "—"} からpoolに入り、未発見の間 step {r.poolSteps.join(", ")} のpoolに残る。発見してもladder
-          countは進まず、step1–{model.stepCount}の解禁はこのrecipeに依存しない。lunchRush: {String(r.lunchRush)}
-        </p>
-      ))}
+      <p className="dpi__small">
+        ladderCredit:false（発見してもladder countは進まず、step1–{model.stepCount}の解禁はこれらに依存しない）。未発見の間は最初に作れるstepから以降のpoolに残る:
+        {model.nonCreditRecipes.map((r) => (
+          <span key={r.recipeId} data-testid={`dpi-noncredit-${r.recipeId}`}>
+            {" "}
+            <b>{r.nameJa}</b> <code>{r.recipeId}</code> step {r.firstDiscoverableStep ?? "—"}〜 (pool {stepRange(r.poolSteps)}, lunchRush: {String(r.lunchRush)});
+          </span>
+        ))}
+      </p>
       <p className="dpi__small">
         Hint targetは production の <code>selectHintTarget</code> の結果。NORMAL = pool=1で自動target。OPEN_POOL = pool≥2で、前stepから残るrecipeが無い（維持できるtargetが無い）。OPEN_POOL
         POSSIBLE = pool≥2だが前から残るrecipeがあり、購入済み(sticky) targetがあればそれが維持される。
       </p>
     </section>
   );
+}
+
+/** Collapses a contiguous run of step numbers to `a〜b` (display only): with five non-credit recipes (Batch 8a) the full list would push the step table out of the first screen. */
+function stepRange(steps: readonly number[]): string {
+  const parts: string[] = [];
+  for (let i = 0; i < steps.length; ) {
+    let j = i;
+    while (j + 1 < steps.length && steps[j + 1] === steps[j] + 1) j += 1;
+    parts.push(j - i >= 2 ? `${steps[i]}〜${steps[j]}` : steps.slice(i, j + 1).join(", "));
+    i = j + 1;
+  }
+  return parts.join(", ");
 }
 
 export function DiscoveryProgressionInspector() {

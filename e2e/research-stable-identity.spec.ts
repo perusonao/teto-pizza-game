@@ -201,7 +201,7 @@ test("step 12 with B discovered: A and C stay A and C (also after a reload), and
 });
 
 test("step 28: A (Ratatouille) / B (Pesto Vegetariana); with A discovered B stays B", async ({ page }) => {
-  const closed = ["brazilian-calabresa", "aussie", "chilean-napolitana"];
+  const closed = ["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza"]; // Batch 8a: both non-credit branches (steps 20 / 28) are settled
   const both = save(28, closed);
   await open(page, both.json);
   let section = await openDex(page);

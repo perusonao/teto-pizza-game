@@ -96,7 +96,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`28/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`29/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
@@ -217,11 +217,11 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`29\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`30\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ペストガンベリピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.12");
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("12/16");
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("13/18");
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
     await capture(page, "exp1-dex-no12", project);
