@@ -14,6 +14,8 @@ import {
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
 import { SAVE_ID_PATTERN } from "./saveIdGrammar";
+import { classifyStoredSave } from "./saveRootClassification";
+import { quarantineRaw } from "./saveQuarantine";
 import {
   emptyResearchExclusions,
   isEmptyResearchExclusions,
@@ -758,6 +760,36 @@ function mergeOwnedOrder(storedOrder: readonly string[], nextKnown: readonly str
   return out;
 }
 
+/**
+ * Why a write did not happen (Save Compatibility Phase B PR-1, Issue #560). Returned to the caller; the stored save is
+ * unchanged in every case.
+ * - `unknown-schema`: the stored save is a newer build's (`schemaVersion` above 2). Never overwritten; every write is
+ *   refused, every time, until a build that can read it opens it (or an explicit Full Game Reset).
+ * - `quarantine-failed` / `quarantine-too-large`: the stored save is unreadable and a verified copy of it could not be
+ *   made (storage error, failed read-back, or the text is above `MAX_QUARANTINE_RAW_LENGTH`), so it was not replaced.
+ * - `storage-error`: the stored text could not be read at all, so whether it may be replaced is unknown.
+ */
+export type SaveWriteBlock = "unknown-schema" | "quarantine-failed" | "quarantine-too-large" | "storage-error";
+
+/** `raw` is the text the guard read (null = no save), or, after a quarantine, the damaged text now safely held. */
+type WriteGuard = { writable: true; raw: string | null } | { writable: false; blocked: SaveWriteBlock };
+
+function guardStoredRoot(storage: StorageLike): WriteGuard {
+  let raw: string | null;
+  try {
+    raw = storage.getItem(SAVE_STORAGE_KEY);
+  } catch {
+    return { writable: false, blocked: "storage-error" };
+  }
+  const stored = classifyStoredSave(raw);
+  if (stored.kind === "empty" || stored.kind === "readable") return { writable: true, raw };
+  if (stored.kind === "unknown-schema") return { writable: false, blocked: "unknown-schema" };
+  // Corrupt: keep the text before it is replaced. Quarantining text that is already held writes nothing.
+  const copy = quarantineRaw(storage, raw as string, "corrupt", new Date().toISOString(), SAVE_STORAGE_KEY);
+  if (copy.ok) return { writable: true, raw };
+  return { writable: false, blocked: copy.reason === "too-large" ? "quarantine-too-large" : "quarantine-failed" };
+}
+
 /** Merges the forward-compatible extras currently in storage back into `next` (known fields
  *  always win; extras are only ever appended) and writes it. Every write in this module goes
  *  through here, so no write path can erase data a newer build stored. */
@@ -765,11 +797,17 @@ function writeSave(
   storage: StorageLike,
   next: PersistentSaveV2,
   options: { requireDinnerRecords?: boolean } = {},
-): { refusedDinnerMissionIds: string[] } {
+): { refusedDinnerMissionIds: string[]; blocked?: SaveWriteBlock } {
+  // Save Compatibility Phase B PR-1 (#560): every write in this module passes this gate FIRST. A stored save this build
+  // cannot interpret is never replaced: a newer build's save is left untouched, a damaged one is copied into the
+  // quarantine (and the copy verified) before the replacement is written.
+  const guard = guardStoredRoot(storage);
+  if (!guard.writable) return { refusedDinnerMissionIds: [], blocked: guard.blocked };
+  // The guard's own read is the one this write merges into (one read per write, and the decision and the merge always see
+  // the same text).
   let extras: ForwardCompatExtras | null = null;
   try {
-    const raw = storage.getItem(SAVE_STORAGE_KEY);
-    extras = raw === null ? null : extractForwardCompatExtras(JSON.parse(raw));
+    extras = guard.raw === null ? null : extractForwardCompatExtras(JSON.parse(guard.raw));
   } catch {
     extras = null;
   }
@@ -935,16 +973,23 @@ function dexEquals(a: DexState, b: readonly DexEntry[]): boolean {
 export function persistDex(
   dex: DexState,
   storage: StorageLike | null = getDefaultStorage(),
-): void {
-  if (!storage) return;
+): PersistWriteResult {
+  if (!storage) return {};
   try {
     const current = loadSave(storage);
-    if (dexEquals(dex, current.dex)) return;
+    if (dexEquals(dex, current.dex)) return {};
     const next: PersistentSaveV2 = { ...current, dex: [...dex] };
-    writeSave(storage, next);
+    const written = writeSave(storage, next);
+    return written.blocked ? { blocked: written.blocked } : {};
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
+    return {};
   }
+}
+
+/** What a persist call reports besides throwing nothing: why the write was refused (#560), if it was. */
+export interface PersistWriteResult {
+  blocked?: SaveWriteBlock;
 }
 
 /** True when both id lists contain exactly the same set of ids, ignoring order/duplicates.
@@ -1020,6 +1065,8 @@ export interface PersistProgressResult {
   /** Dinner record updates that were not stored: blocked mission, broken container or invalid
    *  record. A caller must never have paid for one of these (fail-closed, DM-4-3). */
   refusedDinnerMissionIds: string[];
+  /** Present when nothing was written because the stored save is protected (#560, `SaveWriteBlock`). Absent otherwise. */
+  blocked?: SaveWriteBlock;
 }
 
 /** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
@@ -1066,6 +1113,7 @@ export function persistProgress(
   // DM-4-2: Dinner record updates this call refused (blocked mission, broken container, invalid
   // record). Reported so DM-4-3 can assert it never paid for a record that could not be stored.
   let refusedDinnerMissionIds: string[] = [];
+  let blocked: SaveWriteBlock | undefined;
   if (!storage) return { refusedDinnerMissionIds };
   try {
     const current = loadSave(storage);
@@ -1162,10 +1210,11 @@ export function persistProgress(
     if (written.refusedDinnerMissionIds.length > 0) {
       refusedDinnerMissionIds = [...new Set([...refusedDinnerMissionIds, ...written.refusedDinnerMissionIds])];
     }
+    blocked = written.blocked;
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }
-  return { refusedDinnerMissionIds };
+  return blocked ? { refusedDinnerMissionIds, blocked } : { refusedDinnerMissionIds };
 }
 
 /** The Dinner records state after applying a snapshot's record updates -- `state` itself (same
@@ -1215,25 +1264,28 @@ export function persistMissionBest(
   missionId: string,
   score: number,
   storage: StorageLike | null = getDefaultStorage(),
-): void {
-  if (!storage) return;
+): PersistWriteResult {
+  if (!storage) return {};
   try {
     const current = loadSave(storage);
     const existingBest = current.missionBest[missionId] ?? 0;
-    if (!isNewMissionBest(score, existingBest)) return;
+    if (!isNewMissionBest(score, existingBest)) return {};
     const next: PersistentSaveV2 = {
       ...current,
       missionBest: { ...current.missionBest, [missionId]: score },
     };
-    writeSave(storage, next);
+    const written = writeSave(storage, next);
+    return written.blocked ? { blocked: written.blocked } : {};
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
+    return {};
   }
 }
 
 /**
- * Clears any saved progression. A small, pure-ish API kept for tests and future dev/reset
- * use -- Phase 3C-2 does not add a user-facing Reset UI (out of scope).
+ * Removes the save key, unconditionally -- a LOW-LEVEL primitive for tests and developer tooling. Nothing in the game
+ * calls it (Full Game Reset goes through `resetSave`, which keeps an unreadable save in the quarantine first); do not add
+ * a player-facing caller. Phase 3C-2 added no user-facing Reset UI of its own.
  */
 export function clearSave(storage: StorageLike | null = getDefaultStorage()): void {
   if (!storage) return;
@@ -1243,6 +1295,11 @@ export function clearSave(storage: StorageLike | null = getDefaultStorage()): vo
     // ignore -- nothing to clean up if storage itself is unavailable.
   }
 }
+
+/** Why a Full Game Reset did not remove the save. The stored save is unchanged in every case but `remove-failed`. */
+export type ResetSaveResult =
+  | { ok: true }
+  | { ok: false; reason: "quarantine-failed" | "quarantine-too-large" | "storage-error" | "remove-failed" };
 
 /**
  * Full Game Reset (Issue #89): clears the save and reports whether it is actually gone --
@@ -1254,13 +1311,34 @@ export function clearSave(storage: StorageLike | null = getDefaultStorage()): vo
  * unavailable) is reported as success: `loadSave`'s own no-storage branch already falls back
  * to `createDefaultSave()` unconditionally, so there is nothing that could resurrect stale
  * progression in that case either.
+ *
+ * Save Compatibility Phase B PR-1 (#560): a stored save this build cannot read -- a newer build's (`unknown-schema`) or a
+ * damaged one (`corrupt`) -- is copied into the quarantine and the copy verified BEFORE the key is removed; if that fails
+ * (or the text is above `MAX_QUARANTINE_RAW_LENGTH`) the key is not touched and the reset reports failure. A reset
+ * therefore never destroys such a save outright. It never touches the quarantine itself: only `discardQuarantine`
+ * (./saveQuarantine.ts) deletes quarantined data.
  */
-export function resetSave(storage: StorageLike | null = getDefaultStorage()): boolean {
-  if (!storage) return true;
+export function resetSaveResult(storage: StorageLike | null = getDefaultStorage()): ResetSaveResult {
+  if (!storage) return { ok: true };
+  let raw: string | null;
+  try {
+    raw = storage.getItem(SAVE_STORAGE_KEY);
+  } catch {
+    return { ok: false, reason: "storage-error" };
+  }
+  const stored = classifyStoredSave(raw);
+  if (stored.kind === "unknown-schema" || stored.kind === "corrupt") {
+    const copy = quarantineRaw(storage, raw as string, stored.kind, new Date().toISOString(), SAVE_STORAGE_KEY);
+    if (!copy.ok) return { ok: false, reason: copy.reason === "too-large" ? "quarantine-too-large" : "quarantine-failed" };
+  }
   clearSave(storage);
   try {
-    return storage.getItem(SAVE_STORAGE_KEY) === null;
+    return storage.getItem(SAVE_STORAGE_KEY) === null ? { ok: true } : { ok: false, reason: "remove-failed" };
   } catch {
-    return false;
+    return { ok: false, reason: "remove-failed" };
   }
+}
+
+export function resetSave(storage: StorageLike | null = getDefaultStorage()): boolean {
+  return resetSaveResult(storage).ok;
 }
