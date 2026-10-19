@@ -60,6 +60,9 @@ describe("HOME save notice", () => {
     const alert = screen.getByRole("alert");
     expect(alert).toHaveAttribute("data-save-notice", "future-version");
     expect(alert).toHaveTextContent("新しいバージョンの保存データがあります");
+    // Owner wording decision: not saved here, and what is played now can be lost on a reload.
+    expect(alert).toHaveTextContent("このバージョンでは保存されません");
+    expect(alert).toHaveTextContent("再読み込みすると失われる可能性があります");
     expect(within(alert).queryByRole("button", { name: "了解" })).toBeNull();
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(FUTURE);
   });
@@ -70,6 +73,9 @@ describe("HOME save notice", () => {
     const alert = screen.getByRole("alert");
     expect(alert).toHaveAttribute("data-save-notice", "corrupt");
     expect(alert).toHaveTextContent("保存データを読み込めませんでした");
+    // Owner wording decision: a backup is not a restore; the earlier progress was not restored.
+    expect(alert).toHaveTextContent("以前の進行は復元されていません");
+    expect(alert).toHaveTextContent("復元ではありません");
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(BROKEN);
   });
 

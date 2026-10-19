@@ -5,13 +5,15 @@ Base: `main` @ `c99bd8d` (PR-1 #567 merged; main CI / Deploy / WebKit E2E green 
 ## What the player sees
 | Situation (kept apart) | Where it comes from | HOME notice | Dismissible |
 |---|---|---|---|
-| **Future version** (`schemaVersion` > 2) | stored text classified `unknown-schema` | 「新しいバージョンの保存データがあります」— data untouched, not saved by this build | no |
-| **Corrupt** (unreadable text) | stored text classified `corrupt` | 「保存データを読み込めませんでした」— fresh start; copy kept (already / at next save) | no |
+| **Future version** (`schemaVersion` > 2) | stored text classified `unknown-schema` | 「新しいバージョンの保存データがあります」— data untouched, not saved by this build, **what is played now can be lost on a reload** | no |
+| **Corrupt** (unreadable text) | stored text classified `corrupt` | 「保存データを読み込めませんでした」— fresh start; copy kept (already / at next save) as a **backup, not a restore: the earlier progress was NOT restored** | no |
 | **Backup failed** (could not copy / too large) | last write refused `quarantine-failed` / `quarantine-too-large` | 「壊れた保存データを退避できませんでした」— overwrite stopped, session not saved | no |
 | **Storage unavailable** | last write refused `storage-error`, or the save key cannot be read | 「保存先にアクセスできません」— session not saved | no |
 | **Backup kept** (info) | an unacknowledged quarantine entry exists | 「以前の保存データを退避してあります」 | 「了解」 (marks seen; never deletes) |
 
 Blocking notices are `role="alert"`; the info notice is `role="status"`. 「設定を開く」 opens Settings.
+
+**Wording decision (Owner, 2026-10-19), copy only.** `src/state/saveNoticeCopy.ts`: the future-version body now adds 「いま遊んでいる内容は、再読み込みすると失われる可能性があります」; the corrupt bodies (already backed up / not yet) and the corrupt "backup kept" info notice now say the copy is a backup, not a restore, and that the earlier progress was not restored (「これはバックアップで、復元ではありません。以前の進行は復元されていません」). No classification, storage, Reset or layout logic changed. Pinned by `src/state/saveNoticeCopy.test.ts` (meaning, not characters) and two new assertions in `App.saveProtectionUi.test.tsx`; `after-01-home-future-version-*` and `after-07-home-corrupt-*` screenshots were re-taken.
 
 ## Reset / backup deletion
 - Full Game Reset dialog: the lead text follows the situation (future version / corrupt: "削除されず端末内に退避され、はじめからやり直します"); when a backup exists it adds 「退避データは、リセットしても削除されません」. A refused reset shows the reason (quarantine failed / too large / storage unreadable); the save is untouched.
