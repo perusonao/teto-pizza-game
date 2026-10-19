@@ -18,8 +18,9 @@ import { memoryStorage } from "./testSupport/memoryStorage";
  *
  * 1. "CURRENT BEHAVIOUR (known risk)" -- characterization. They pin what this build does TODAY so a later change is a
  *    visible, deliberate diff. Several of them describe DATA LOSS. That is NOT the desired spec: each names the Issue
- *    that owns the fix (#560 for R1/R3, #282 for R2, #559 for R4/R5) and is expected to be INVERTED, not preserved,
- *    when that fix lands. Do not "fix" production code to keep one of them green.
+ *    that owns the fix (#282 for R2, #559 for R4/R5) and is expected to be INVERTED, not preserved, when that fix
+ *    lands. Do not "fix" production code to keep one of them green. (R1 and R3, #560, were fixed in Phase B PR-1 and
+ *    now assert the desired behaviour below.)
  * 2. "SAFETY REQUIREMENT (not implemented)" -- `it.todo`. The requirement a fix must satisfy. Todos do not fail CI.
  *
  * Everything outside the "KNOWN RISK" blocks asserts desired behaviour that already holds.
@@ -36,38 +37,33 @@ function rawSave(storage: { getItem(k: string): string | null }): Record<string,
   return JSON.parse(storage.getItem(SAVE_STORAGE_KEY) ?? "null");
 }
 
-describe("KNOWN RISK R1 (#560): an unrecognized schemaVersion is replaced by the first real write", () => {
-  it("CURRENT BEHAVIOUR (known risk): the first write that changes anything overwrites a v3 save with a fresh v2 one", () => {
+describe("R1 (#560): an unrecognized schemaVersion is never replaced by a write", () => {
+  // Phase A recorded the old, destructive behaviour here as "CURRENT BEHAVIOUR (known risk)". Phase B PR-1 fixed it, so the
+  // test now states the desired behaviour; the full matrix is in persistence.protection.test.ts.
+  it("the first write that would change anything is refused and the v3 save is byte-for-byte intact", () => {
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: FUTURE_V3 });
     const hydrated = loadSave(storage); // the fresh default this build falls back to
-    persistProgress(snapshotOf(hydrated, { dex: [FUGAZZA] }), storage); // the player finishes a pizza
+    const result = persistProgress(snapshotOf(hydrated, { dex: [FUGAZZA] }), storage); // the player finishes a pizza
 
-    const stored = rawSave(storage);
-    expect(stored.schemaVersion).toBe(2);
-    // The v3 progression and its unknown field are gone from storage, with no backup written.
-    expect(stored).not.toHaveProperty("cloudProfile");
-    expect(stored.pitzBalance).toBe(0);
-    expect((stored.dex as DexEntry[]).map((e) => e.recipeId)).toEqual(["fugazza"]);
+    expect(result.blocked).toBe("unknown-schema");
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(FUTURE_V3);
     expect(storage.keys()).toEqual([SAVE_STORAGE_KEY]);
   });
-
-  it.todo("SAFETY REQUIREMENT (not implemented, #560): a write never destroys a save whose version this build cannot read (back it up or refuse)");
-  it.todo("SAFETY REQUIREMENT (not implemented, #560): after such a write the original v3 text is still recoverable");
 });
 
-describe("KNOWN RISK R3 (#560): a corrupt stored root is overwritten, unrecoverably, by the first real write", () => {
+describe("R3 (#560): a corrupt stored root is kept before the first real write replaces it", () => {
   for (const { name, raw } of UNUSABLE_ROOTS) {
-    it(`CURRENT BEHAVIOUR (known risk): ${name} -- replaced by a fresh save, no backup`, () => {
+    it(`${name} -- the exact text is quarantined, then a fresh save is written`, () => {
       const storage = memoryStorage({ [SAVE_STORAGE_KEY]: raw });
-      persistProgress(snapshotOf(loadSave(storage), { dex: [FUGAZZA] }), storage);
+      const result = persistProgress(snapshotOf(loadSave(storage), { dex: [FUGAZZA] }), storage);
 
+      expect(result.blocked).toBeUndefined();
       expect(rawSave(storage).schemaVersion).toBe(2);
-      expect(storage.getItem(SAVE_STORAGE_KEY)).not.toBe(raw);
-      expect(storage.keys()).toEqual([SAVE_STORAGE_KEY]);
+      const held = JSON.parse(storage.getItem("teto-pizza-save-v1.quarantine-v1.first") ?? "null");
+      expect(held.raw).toBe(raw);
+      expect(held.kind).toBe("corrupt");
     });
   }
-
-  it.todo("SAFETY REQUIREMENT (not implemented, #560): the unreadable original text is preserved before the first write replaces it");
 });
 
 describe("KNOWN RISK R2 (#282): a stale tab's write rolls back what another tab saved", () => {
