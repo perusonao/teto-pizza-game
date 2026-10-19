@@ -91,10 +91,11 @@ const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal
  *  pesto-trapanese has a hint target. Because ratatouille-pizza is a second credited recipe of step 28, every later
  *  step unlocks one discovery before its key recipe's turn, so the pool-2 chain continues through Expansion Batch 1's
  *  steps 30-32 (baba-ganoush-pizza, prosciutto-funghi, veggie-supreme-pizza are found blind) and Expansion Batch 2's
- *  steps 33-37 and Expansion Batch 3's steps 38-43 (the same lag), so only the very last recipe (the final ladder step's) is alone and hinted. (Derived below: no per-batch list.) */
+ *  steps 33-37 and Expansion Batch 3's steps 38-43 (the same lag), so only the very last recipe is alone and hinted. Issue #561: `frango-catupiry` (credited, beside step 44's key recipe) is a second credited recipe of
+ *  step 44, so it is discovered last and is that hinted recipe; every ladder key recipe from step 28 on is then in the blind chain. (Derived below: no per-batch list.) */
 const BLIND_POOL2_RECIPES: readonly string[] = [
   "ratatouille-pizza", // a second credited recipe of step 28: the origin of the one-discovery lag
-  ...DISCOVERY_LADDER.steps.filter((s) => s.step >= 28).slice(0, -1).map((s) => s.keyRecipeId), // derived: every appended key recipe but the last
+  ...DISCOVERY_LADDER.steps.filter((s) => s.step >= 28).map((s) => s.keyRecipeId), // derived: every appended key recipe (the last discovery is frango-catupiry, #561)
 ];
 
 describe("P-C progression walk (real reducer, flag ON)", () => {

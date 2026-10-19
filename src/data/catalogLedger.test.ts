@@ -12,7 +12,7 @@ describe("catalog ledger (the single hand-maintained total)", () => {
   it("recipes / credited / ingredients / toppings / ladder steps / chapter sizes / Lunch Rush pool", () => {
     expect(CATALOG_COUNTS).toEqual({
       recipes: 60,
-      credited: 55,
+      credited: 56,
       ingredients: 64,
       toppings: 50,
       ladderSteps: 53,

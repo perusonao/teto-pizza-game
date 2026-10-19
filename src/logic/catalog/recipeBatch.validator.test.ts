@@ -67,6 +67,16 @@ describe("validator catches", () => {
     );
   });
 
+  it("creditedWithoutStep is checked: declared on a non-credited recipe, or a recipe that does have a ladder step of its own (Issue #561)", () => {
+    const [a, b, frango] = NEXT_RECIPE_BATCH.recipes;
+    expect(validateBatchManifest({ ...NEXT_RECIPE_BATCH, recipes: [a, b, { ...frango, creditedWithoutStep: undefined }] }, view)).toContain(
+      "LADDER_ORDER: batch steps [] vs credited manifest [frango-catupiry]",
+    );
+    expect(validateBatchManifest({ ...NEXT_RECIPE_BATCH, recipes: [{ ...a, ladderCredit: false, creditedWithoutStep: true }, b, frango] }, view)).toEqual(
+      expect.arrayContaining([`CREDITED_WITHOUT_STEP_NOT_CREDITED: ${a.recipeId}`]),
+    );
+  });
+
   it("a credited batch whose key material is not the ladder step's / the recipe's last material (Batch 7a, the previous credited batch, as the fixture)", () => {
     const base7a = RECIPES.slice(0, RECIPES.findIndex((r) => r.id === "new-zealand-lamb-pizza") + 1);
     const view7a: CatalogView = { ...view, recipes: base7a };

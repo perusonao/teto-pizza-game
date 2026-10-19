@@ -4,6 +4,7 @@ import { DINNER_REWARD_TABLES } from "../mission/dinner/dinnerReward";
 import { estimateEconomy } from "./catalog/testSupport/ladderEconomyEstimate";
 import {
   analyzeLadderReachability,
+  PRODUCTION_REACHABILITY_RECIPES,
   type ReachabilityRecipe,
   type StarProfile,
 } from "./catalog/testSupport/ladderReachability";
@@ -12,9 +13,10 @@ import {
  * Economy / Progression Phase 1 (#561). Reachability of the production ladder under star profiles.
  *
  * Two layers, deliberately separate:
- * 1. BASELINE -- the closure that exists today and is accepted as-is (the #420 OD-420-1 star gates, plus their
- *    propagation to steps 52-53 after Batch 7a). It is documented, not asserted away: this block only pins what is
- *    true now. When an Owner decision shrinks it, update `ACCEPTED_*` (the ratchet below then holds the new floor).
+ * 1. BASELINE -- the closure that exists today and is accepted as-is (the #420 OD-420-1 star gates only). It is documented,
+ *    not asserted away: this block only pins what is true now. The propagation of the gates to steps 52-53 (Batch 7a) was
+ *    closed by Issue #561 (frango-catupiry promoted to credited: slack 2 -> 3, gated 2 -> slack 1), so `ACCEPTED_COLLATERAL`
+ *    and `ACCEPTED_BLOCKED_STEPS` are now empty. `ACCEPTED_*` only ever shrinks (ratchet); never relax them to pass a new batch.
  * 2. WORSENING -- anything beyond the baseline (a new recipe or step that a low-star player cannot reach, a new
  *    collateral block, a deadlock even with enough stars) fails with a message naming what to decide.
  *
@@ -24,8 +26,10 @@ import {
 /** Recipes the star gates hold back by design (#420: goat-cheese 120 stars, spinach 130 stars). */
 const ACCEPTED_DIRECTLY_GATED = ["california-style-pizza", "spinach-artichoke-pizza"];
 /** Recipes held back only by propagation (the gated recipes eat the ladder's slack, Batch 7a steps 52-53). */
-const ACCEPTED_COLLATERAL = ["eggplant-ricotta-pizza", "new-zealand-lamb-pizza"];
-const ACCEPTED_BLOCKED_STEPS = [52, 53];
+const ACCEPTED_COLLATERAL: string[] = [];
+const ACCEPTED_BLOCKED_STEPS: number[] = [];
+/** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1. */
+const ACCEPTED_MIN_SLACK = 1;
 
 const uniform = (best: 1 | 2 | 3 | 4 | 5): StarProfile => ({ kind: "uniform", best });
 const maxGate = Math.max(...DISCOVERY_LADDER.steps.flatMap((s) => Object.values(s.starGates ?? {})));
@@ -47,14 +51,12 @@ describe("ladder reachability -- BASELINE (accepted current closure, #561)", () 
     expect(r.creditedReached).toBe(r.creditedTotal);
   });
 
-  it("the star gate propagates: a recipe with no gated material is unreachable below the gates (explicit detection)", () => {
-    const r = analyzeLadderReachability({ profile: uniform(1) });
-    const gated = new Set(DISCOVERY_LADDER.steps.flatMap((s) => Object.keys(s.starGates ?? {})));
-    for (const id of r.collateralRecipeIds) {
-      expect(r.directlyGatedRecipeIds).not.toContain(id);
-      expect(gated.size).toBeGreaterThan(0);
+  it("no star gate propagates in Production: the only unreachable recipes below the gates are the gated ones (propagation itself is covered by the detector self-test)", () => {
+    for (const best of [1, 2] as const) {
+      const r = analyzeLadderReachability({ profile: uniform(best) });
+      expect(r.collateralRecipeIds).toEqual([]);
+      expect(r.directlyGatedRecipeIds).toEqual(r.unreachableRecipeIds);
     }
-    expect(r.collateralRecipeIds.length).toBeGreaterThan(0);
   });
 
   it("the gate boundaries release recipes in order (total stars 0 / just under / at each gate)", () => {
@@ -98,6 +100,19 @@ describe("ladder reachability -- WORSENING detection (future recipe / step addit
     const r = analyzeLadderReachability({ profile: uniform(5) });
     expect(r.creditedTotal - DISCOVERY_LADDER.steps.length).toBeGreaterThanOrEqual(0);
   });
+
+  // The star-gate WORSENING Gate (Issue #561): a gated recipe cannot be discovered below its gate, so it cannot advance the
+  // credited count that the ladder reads. Credited recipes - ladder steps - gated credited recipes is the slack that keeps the
+  // later steps open; a new star gate (or a new step) that drives it below zero closes steps for a low-star player.
+  it("star-gate slack: credited recipes - ladder steps - star-gated credited recipes stays >= 0 and never drops below the accepted floor", () => {
+    const r = analyzeLadderReachability({ profile: uniform(1) });
+    const gatedCredited = r.directlyGatedRecipeIds.filter((id) => PRODUCTION_REACHABILITY_RECIPES.find((x) => x.id === id)!.credited);
+    const slack = r.creditedTotal - DISCOVERY_LADDER.steps.length - gatedCredited.length;
+    expect(
+      slack,
+      "Adding a star gate (or a ladder step) consumed the ladder's slack: a low-star player can no longer reach every step. Add a credited recipe that needs no new material (as frango-catupiry, Issue #561), move/relax the gate, or have the Owner decide. Do NOT lower ACCEPTED_MIN_SLACK.",
+    ).toBeGreaterThanOrEqual(ACCEPTED_MIN_SLACK);
+  });
 });
 
 describe("ladder reachability -- the detector itself (synthetic populations)", () => {
@@ -137,6 +152,18 @@ describe("ladder reachability -- the detector itself (synthetic populations)", (
     expect(r.collateralRecipeIds).toEqual(["r3"]);
   });
 
+  it("adding a second star gate when only one credited recipe of slack remains closes a step (the gate for new star gates)", () => {
+    // 5 credited recipes for 3 steps + 1 gated recipe = slack 1. A 2nd gated credited recipe uses it up exactly; a 3rd closes step 3.
+    const roomy: ReachabilityRecipe[] = [...base, { id: "extra", credited: true, ingredientIds: ["egg"] }];
+    const gated2: DiscoveryLadder = { ...ladder, steps: ladder.steps.map((s) => (s.step === 3 ? { ...s, starGates: { mushroom: 10 } } : s)) };
+    const run2 = (l: DiscoveryLadder, recipes: ReachabilityRecipe[]) => analyzeLadderReachability({ ladder: l, recipes, profile: { kind: "total", total: 0 } });
+    expect(run(roomy, 0).blockedSteps).toEqual([]); // one gate, slack 1: every step reachable
+    expect(run2(gated2, roomy).blockedSteps).toEqual([]); // two gates (steps 2 and 3), 5 - 2 = 3 credited reach step 3: still open
+    const tight = run2(gated2, base); // same two gates, no spare recipe
+    expect(tight.directlyGatedRecipeIds).toEqual(["r2", "r3"]);
+    expect(tight.unreachableRecipeIds.length).toBeGreaterThan(0);
+  });
+
   it("meeting the gate releases everything", () => {
     const r = run(base, 10);
     expect(r.unreachableRecipeIds).toEqual([]);
@@ -163,10 +190,10 @@ describe("economy estimate -- consistency (numbers are quoted in docs/reports/TE
   it("a star-locked key recipe is not explored: ★1/★2 refills exclude steps 50-51 (Codex review on #565)", () => {
     const e1 = estimateEconomy(1);
     const e3 = estimateEconomy(3);
-    // ★3 reaches every step; ★1 misses steps 50-51 (keys locked) and 52-53 (collateral): fewer refills, never more.
+    // ★3 reaches every step; ★1 misses steps 50-51 (keys locked; no collateral since #561): fewer refills, never more.
     expect(e1.refillCostFull).toBeLessThan(e3.refillCostFull);
-    // 4 unreachable key recipes at T4: 4 x 14 attempts x 3 toppings x (60 / 10) = 1,008 FULL fewer than ★3.
-    expect(e3.refillCostFull - e1.refillCostFull).toBe(4 * 14 * 3 * 6);
+    // 2 unreachable key recipes at T4: 2 x 14 attempts x 3 toppings x (60 / 10) = 504 FULL fewer than ★3.
+    expect(e3.refillCostFull - e1.refillCostFull).toBe(2 * 14 * 3 * 6);
   });
 
   it("star-locked materials are not priced (only reached, unlocked steps)", () => {

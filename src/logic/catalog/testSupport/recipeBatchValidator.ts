@@ -112,6 +112,9 @@ export interface BatchRecipe {
   keyIngredientId: string;
   /** Declared once the batch has landed; required (explicit inclusion / exclusion) and checked against the data then. */
   ladderCredit?: boolean;
+  /** A credited recipe that is NOT the key recipe of a ladder step (it only adds to the credited count, restoring ladder slack;
+   *  Issue #561). Declared explicitly: the validator then requires that no step names it as key recipe. */
+  creditedWithoutStep?: boolean;
   lunchRush?: boolean;
   cut?: boolean;
   hint?: "key-free" | "keyed";
@@ -161,7 +164,10 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   const addedSteps = view.ladder.steps.filter((s) => ids.includes(s.keyRecipeId));
   const baseStepCount = view.ladder.steps.length - addedSteps.length;
   if (view.ladder.steps.slice(0, baseStepCount).some((s) => ids.includes(s.keyRecipeId))) problems.push("LADDER_NOT_APPENDED: a batch step sits inside the frozen prefix");
-  const wantCredited = manifest.recipes.filter((r) => r.ladderCredit !== false);
+  const wantCredited = manifest.recipes.filter((r) => r.ladderCredit !== false && !r.creditedWithoutStep);
+  for (const r of manifest.recipes.filter((m) => m.creditedWithoutStep)) {
+    if (r.ladderCredit !== true) problems.push(`CREDITED_WITHOUT_STEP_NOT_CREDITED: ${r.recipeId}`);
+  }
   if (JSON.stringify(addedSteps.map((s) => s.keyRecipeId)) !== JSON.stringify(wantCredited.map((r) => r.recipeId))) {
     problems.push(`LADDER_ORDER: batch steps [${addedSteps.map((s) => s.keyRecipeId)}] vs credited manifest [${wantCredited.map((r) => r.recipeId)}]`);
   }
