@@ -35,3 +35,15 @@ Base: `origin/main` `9c20633`。#558（C）とは独立ブランチ。#558 の `
 ## 検証
 tsc -b / oxlint 新規警告 0 / `npm run build` 通過 / Vitest 全体（修正後に関連 133 files・2936 tests 通過、全体は RESET_PIZZA の既存 cutState 参照テストを修正して再通過）/ Playwright（chromium 390×844・360×800: 新規 10 + 既存 square-dough-b 通過）。**WebKit は本環境にバイナリ無しで未実行**（CI 要）。スクショ: `docs/reports/screenshots/square-dough-f4b/`。
 HV 動画（390×844）は本環境から未取得・Owner 実機 HV 必須。
+
+## 統合計画（#558 が先に merge された場合）
+試行 merge（#558 head `9035dd1`）で競合は **2 ファイルのみ**: `src/screens/GameScreen.tsx`（2 箇所: `squareDoughRound` 定義付近、DOUGH dock の SquareDough 部品の並び）、`src/App.css`（末尾追記同士）。
+1. `main`（#558 入り）を F4-b ブランチへ **merge**（rebase しない）。
+2. GameScreen: #558 側の変更を残し、`squareDoughRound` は `effectivePanShape(state.recipe, state.pizza) === "square"` を維持。dock には #558 の部品の後に `PanSwitch` を並べる。
+3. App.css: 両方の追記を残す。
+4. 解消後: tsc / lint / 全 Vitest / `e2e/pan-switch-f4b` + `e2e/square-dough-corners` を再実行。□ 選択中に #558 の完成判定で「次へ」が有効になること、○ へ戻して復元されることを確認。
+F4-b が先に merge された場合は #558 側で同じ 2 ファイルを解消する（同手順）。
+
+## 既知課題
+- □ 選択時、四角天板の下に丸い生地が見える（B2 既存描画。`PizzaStage` は #558 領域のため本 PR では未変更）。#558 統合後に再確認。
+- 初回解禁案内は追加しない（永続フラグが必要で save 形式を変えるため）。保存形式は不変。
