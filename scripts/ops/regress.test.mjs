@@ -287,7 +287,7 @@ function prApi({ failing = [], runs = [], statuses = [], comments = [], body = "
     [/\/pulls\/572$/, { number: 572, state: "open", merged: false, draft: false, title: "t", body, labels: [], head: { sha: HEAD }, mergeable_state: "clean" }],
     [/\/commits\/[0-9a-f]{40}$/, { commit: { committer: { date: hd } } }],
     [/check-runs/, { check_runs: [{ name: "build", status: "completed", conclusion: "success" }] }],
-    [/\/status$/, { statuses }],
+    [/\/statuses/, statuses],
     [/actions\/runs\?head_sha/, { workflow_runs: runs }],
     [/attempts\/\d+\/jobs/, { jobs: [{ name: "j", conclusion: "failure" }] }],
     [/issues\/572\/comments/, comments],
@@ -295,12 +295,17 @@ function prApi({ failing = [], runs = [], statuses = [], comments = [], body = "
   return fake(routes, failing);
 }
 function fake(routes, failing = [], threads = { nodes: [], pageInfo: { hasNextPage: false } }) {
-  const rest = async (p) => {
+  const raw = async (p) => {
     if (failing.some((re) => re.test(p))) throw new Error(`GET ${p.split("?")[0]} -> 500`);
     for (const [re, b] of routes) if (re.test(p)) return b;
     throw new Error(`unrouted ${p}`);
   };
-  return { rest, restAll: async (p, key) => { const b = await rest(p); return key ? b[key] : b; }, graphql: async () => ({ repository: { pullRequest: { reviewThreads: threads } } }) };
+  // A plain GET of the statuses list returns only GitHub's default page of 30; restAll walks all pages.
+  const rest = async (p) => {
+    const b = await raw(p);
+    return /\/statuses/.test(p) && Array.isArray(b) ? b.slice(0, 30) : b;
+  };
+  return { rest, restAll: async (p, key) => { const b = await raw(p); return key ? b[key] : b; }, graphql: async () => ({ repository: { pullRequest: { reviewThreads: threads } } }) };
 }
 function repoApi({ prs, failingPr = null, truncateComments = false, truncateFiles = false, files = [{ filename: "src/a.ts" }] }) {
   const get = (n) => prs.find((p) => p.n === n);
@@ -314,7 +319,7 @@ function repoApi({ prs, failingPr = null, truncateComments = false, truncateFile
     }
     if (/\/commits\/[0-9a-f]{40}$/.test(p)) return { commit: { committer: { date: headDate } } };
     if (/check-runs/.test(p)) return { check_runs: [] };
-    if (/\/status$/.test(p)) return { statuses: [] };
+    if (/\/statuses/.test(p)) return [];
     if (/actions\/runs/.test(p)) return { workflow_runs: [] };
     if (/issues\/\d+\/comments/.test(p)) return [];
     throw new Error(`unrouted ${p}`);
@@ -337,3 +342,33 @@ function repoApi({ prs, failingPr = null, truncateComments = false, truncateFile
     graphql: async () => ({ repository: { pullRequest: { reviewThreads: { nodes: [], pageInfo: { hasNextPage: false } } } } }),
   };
 }
+
+// ---- follow-ups from the re-review of bec753c (N1, N2, N4, N5) -------------------------------------
+test("N1: legacy statuses are paginated and only the latest status of a context counts", async () => {
+  const ci = async (statuses) => evaluateGate(await collectPrFacts(prApi({ statuses }), "o/r", 572)).blockers.filter((x) => x.startsWith("CI_")).map((x) => x.split(":")[0]);
+  const many = [...Array.from({ length: 30 }, (_, i) => ({ context: `ok${i}`, state: "success" })), { context: "late-fail", state: "failure" }];
+  assert.deepEqual(await ci(many), ["CI_FAILED"], "a failing context beyond the first 30 is visible");
+  assert.deepEqual(await ci([{ context: "ci/x", state: "success" }, { context: "ci/x", state: "failure" }]), [], "newest-first: the older failure was superseded");
+  assert.deepEqual(await ci([{ context: "ci/x", state: "failure" }, { context: "ci/x", state: "success" }]), ["CI_FAILED"]);
+  assert.deepEqual(await ci([{ context: "ci/y", state: "brand-new-state" }]), ["CI_PENDING"], "an unknown status state is not success");
+});
+test("N2: a Codex error after the summary is caught even when the commit date is in the future", () => {
+  const summary = botComment(`<!-- codex-review-state:v1 {"code_review":{"commit_sha":"${HEAD}","status":"completed","has_unresolved_findings":false},"security_review":{}} -->`, "2026-10-19T12:46:00Z", { updated_at: "2026-10-19T12:46:00Z" });
+  const err = botComment("Something went wrong.", "2026-10-19T12:50:00Z");
+  assert.equal(gate({ pr: { headDate: "2099-01-01T00:00:00Z" }, codex: parseCodex([summary, err]) }).state, "CODEX_ERROR");
+  assert.equal(gate({ pr: { headDate: "2099-01-01T00:00:00Z" }, codex: parseCodex([summary]) }).state, READY, "no error -> the summary still counts");
+});
+test("N5: an error posted in the same instant as the receipt is not ignored", () => {
+  const at = "2026-10-19T12:46:00Z";
+  const clean = botComment(`<!-- codex-review-receipt:v1 -->\nDidn't find any major issues.\n**Reviewed commit:** \`${HEAD.slice(0, 10)}\``, at);
+  assert.equal(codexState([clean, botComment("Something went wrong.", at)]).state, "CODEX_ERROR");
+});
+test("N4: an unclosed fence runs to the end of the document; a longer fence may contain a shorter one", () => {
+  const block = '<!-- teto-claim:v1 {"session":"s","issue":1,"files":["a.ts"]} -->';
+  const c = (body) => ({ body, created_at: "2026-10-19T00:00:00Z", author_association: "OWNER", html_url: "u" });
+  const now = Date.parse("2026-10-19T01:00:00Z");
+  assert.equal(parseClaims([c("intro\n```\n" + block)], now).active.length, 0, "unclosed fence");
+  assert.equal(parseClaims([c("````\n```\nx\n```\n" + block + "\n````")], now).active.length, 0, "4-backtick fence containing a 3-backtick one");
+  assert.equal(parseClaims([c("```\nx\n```\n" + block)], now).active.length, 1, "a claim AFTER a closed fence is live");
+  assert.equal(parseDependsOnDetailed("```\nDepends-on: #1").numbers.length, 0);
+});

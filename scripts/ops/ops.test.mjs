@@ -219,7 +219,7 @@ test("collector builds facts for the CURRENT head, with Codex trust checks and r
     [/\/pulls\/568$/, { number: 568, state: "open", merged: false, draft: false, title: "feat(save)", body: "Depends-on: #558", head: { sha: HEAD }, mergeable_state: "clean" }],
     [/\/commits\/[0-9a-f]{40}$/, { commit: { committer: { date: headDate } } }],
     [/check-runs/, { check_runs: [{ name: "build", status: "completed", conclusion: "success" }] }],
-    [/commits\/[0-9a-f]{40}\/status/, { statuses: [] }],
+    [/commits\/[0-9a-f]{40}\/statuses/, []],
     [/actions\/runs\?head_sha/, { workflow_runs: [{ id: 7, name: "E2E WebKit", status: "completed", run_attempt: 2, conclusion: "success", head_sha: HEAD }] }],
     [/runs\/7\/attempts\/1\/jobs/, { jobs: [{ name: "webkit webkit-360x800 shard 3/3", conclusion: "failure" }, { name: "classify", conclusion: "success" }] }],
     [/issues\/568\/comments/, [...fx, spoof]],
@@ -244,7 +244,7 @@ test("an unreadable thread query makes the facts incomplete instead of ready", a
     [/\/pulls\/1$/, { number: 1, state: "open", title: "t", body: "", head: { sha: HEAD }, mergeable_state: "clean" }],
     [/\/commits\/[0-9a-f]{40}$/, { commit: {} }],
     [/check-runs/, { check_runs: [] }],
-    [/\/status$/, { statuses: [] }],
+    [/\/statuses/, []],
     [/actions\/runs/, { workflow_runs: [] }],
     [/comments/, []],
   ]);

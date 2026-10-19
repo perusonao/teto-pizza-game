@@ -161,8 +161,8 @@ to branch protection.
 ## 7. Verification of this tooling
 
 `bash scripts/ops/test-ops.sh`: node:test suites (state logic, claims, overlap, collector against a fake API,
-static safety of the workflows and sources) plus a mutation check proving that 27 deliberately broken variants of
-the logic are caught (the original ten plus 17 that revert the fixes for review findings F1-F10 and P3). CI runs it as the extra `Ops scripts tests` check when `scripts/ops/**` or the ops
+static safety of the workflows and sources) plus a mutation check proving that 32 deliberately broken variants of
+the logic are caught (the original ten plus 22 that revert the fixes for review findings F1-F10, P3 and the re-review follow-ups N1, N2, N4, N5). CI runs it as the extra `Ops scripts tests` check when `scripts/ops/**` or the ops
 workflows change. The dry-run workflow can only be exercised after it is on the default branch.
 
 ## 8. Changelog

@@ -112,7 +112,7 @@ function evaluateCodex(facts) {
   // Codex bot comments that are not a review (e.g. "create an environment for this repo", an error, or
   // free-text suggestions). They count when posted after the current head and not followed by a newer request.
   const errorsAfter = (cutoff) =>
-    codex.other.filter((o) => ms(o.at) > cutoff && !codex.requests.some((q) => ms(q.at) > ms(o.at)));
+    codex.other.filter((o) => ms(o.at) >= cutoff && !codex.requests.some((q) => ms(q.at) > ms(o.at)));
   const hasError = (cutoff) => errorsAfter(Number.isNaN(cutoff) ? -Infinity : cutoff).length > 0;
 
   let status;
@@ -126,8 +126,10 @@ function evaluateCodex(facts) {
     if (status === "ERROR") detail = "a Codex bot comment without a review was posted after the receipt";
   } else if (summary && summary.status === "completed") {
     if (summary.hasUnresolved === false) {
-      status = hasError(headAt) ? "ERROR" : "COMPLETED_FOR_HEAD";
-      if (status === "ERROR") detail = "a Codex bot comment without a review was posted after the head";
+      // Measured from when Codex last wrote the summary, not from the (forgeable, skewable) commit date.
+      const summaryAt = ms(summary.at);
+      status = hasError(Number.isNaN(summaryAt) ? headAt : summaryAt) ? "ERROR" : "COMPLETED_FOR_HEAD";
+      if (status === "ERROR") detail = "a Codex bot comment without a review was posted after the summary";
     } else {
       status = "UNCLEAR";
       detail = "the Codex summary does not state whether findings are unresolved";

@@ -95,6 +95,7 @@ export function parseCodex(comments) {
               sha: String(st.commit_sha).toLowerCase(),
               status: typeof st.status === "string" ? st.status : null,
               hasUnresolved: typeof st.has_unresolved_findings === "boolean" ? st.has_unresolved_findings : null,
+              at: c.updated_at ?? c.created_at,
             };
           }
         } catch {
@@ -137,7 +138,7 @@ export async function collectPrFacts(api, repo, number, { claimDeps = [] } = {})
   const [commit, checkRuns, statuses, runs, comments, threads] = await Promise.all([
     soft("head commit", () => api.rest(`/repos/${repo}/commits/${head}`), null),
     soft("check runs", () => api.restAll(`/repos/${repo}/commits/${head}/check-runs`, "check_runs"), null),
-    soft("commit statuses", () => api.rest(`/repos/${repo}/commits/${head}/status`), null),
+    soft("commit statuses", () => api.restAll(`/repos/${repo}/commits/${head}/statuses`, null), null),
     soft("workflow runs", () => api.restAll(`/repos/${repo}/actions/runs?head_sha=${head}`, "workflow_runs"), null),
     soft("PR comments", () => api.restAll(`/repos/${repo}/issues/${number}/comments`, null, 30), []),
     soft("review threads", () => readThreads(api, repo, number), null),
@@ -146,9 +147,12 @@ export async function collectPrFacts(api, repo, number, { claimDeps = [] } = {})
   const checks = [];
   for (const c of checkRuns ?? []) checks.push({ name: c.name, status: c.status, conclusion: c.conclusion, headSha: head });
   // Legacy commit statuses (integrations that do not use check runs). An empty list means none exist.
-  for (const s of statuses?.statuses ?? []) {
-    const conclusion = STATUS_TO_CHECK[s.state];
-    checks.push({ name: `status ${s.context}`, status: conclusion === null ? "in_progress" : "completed", conclusion, headSha: head });
+  // The list is newest-first and keeps history: only the latest status of each context counts.
+  const latest = new Map();
+  for (const s of statuses ?? []) if (!latest.has(s.context)) latest.set(s.context, s);
+  for (const s of latest.values()) {
+    const conclusion = s.state in STATUS_TO_CHECK ? STATUS_TO_CHECK[s.state] : undefined;
+    checks.push({ name: `status ${s.context}`, status: conclusion === undefined || conclusion === null ? "in_progress" : "completed", conclusion: conclusion ?? null, headSha: head });
   }
 
   const runFacts = [];

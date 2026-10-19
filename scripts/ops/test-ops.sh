@@ -57,5 +57,10 @@ mutate "F10 foreign refs read as local"            lib/claims.mjs 's/\(\?<!\[\\w
 mutate "P3 fenced claim examples are live"         lib/claims.mjs 's/stripFences\(c\.body\)\.matchAll/c.body.matchAll/'
 mutate "P3 null Codex body throws"                 collect-facts.mjs 's/const body = typeof c\?\.body === "string" \? c\.body : "";/const body = c.body;/'
 
+mutate "N1 only the first 30 legacy statuses are read" collect-facts.mjs 's|api\.restAll\(`/repos/\$\{repo\}/commits/\$\{head\}/statuses`, null\)|api.rest(`/repos/${repo}/commits/${head}/statuses`)|'
+mutate "N1 older superseded statuses all count"    collect-facts.mjs 's/if \(!latest\.has\(s\.context\)\) latest\.set\(s\.context, s\);/latest.set(`${s.context}${Math.random()}`, s);/'
+mutate "N2 summary errors measured from commit date" lib/gate-state.mjs 's/hasError\(Number\.isNaN\(summaryAt\) \? headAt : summaryAt\)/hasError(headAt)/'
+mutate "N5 same-instant errors are ignored"         lib/gate-state.mjs 's/ms\(o\.at\) >= cutoff/ms(o.at) > cutoff/'
+mutate "N4 unclosed fences stay live"               lib/hold.mjs 's/return closed\.replace\(.*$/return closed;/'
 if [ "$fail" -ne 0 ]; then echo "mutation check FAILED"; exit 1; fi
 echo "mutation check passed"

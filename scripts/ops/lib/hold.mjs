@@ -18,5 +18,7 @@ export function isHold({ title = "", body = "", labels = [] } = {}) {
 
 /** Remove fenced code blocks (``` or ~~~) so quoted examples are never treated as live markers. */
 export function stripFences(text) {
-  return String(text ?? "").replace(/^[ \t]*(```|~~~)[^\n]*\n[\s\S]*?^[ \t]*\1[ \t]*$/gm, "");
+  const closed = String(text ?? "").replace(/^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?^[ \t]*\1[ \t]*$/gm, "");
+  // An unclosed fence runs to the end of the document (Markdown semantics): nothing after it is live.
+  return closed.replace(/^[ \t]*(?:`{3,}|~{3,})[^\n]*(?:\n[\s\S]*)?$/m, "");
 }
