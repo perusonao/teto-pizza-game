@@ -21,7 +21,8 @@ function facts(over = {}) {
     pr: { number: 568, state: "open", merged: false, draft: false, title: "feat(save): x", body: "", headSha: HEAD, headDate, mergeableState: "clean", ...over.pr },
     checks: over.checks ?? green(11),
     runs: over.runs ?? [],
-    codex: over.codex ?? { receipts: [{ sha: HEAD.slice(0, 10), at: "2026-10-19T12:46:01Z" }], summary: null, requests: [] },
+    codex: over.codex ?? { receipts: [{ sha: HEAD.slice(0, 10), at: "2026-10-19T12:46:01Z", clean: true }], summary: null, requests: [], other: [] },
+    gaps: over.gaps ?? [],
     threads: "threads" in over ? over.threads : { unresolved: 0, total: 2 },
     dependencies: over.dependencies ?? [],
   };
@@ -39,13 +40,13 @@ test("clean head -> READY_FOR_OWNER_REVIEW, and never claims HV / merge approval
 });
 
 test("CI success alone does not make a PR ready (Codex / threads / mergeability still gate)", () => {
-  assert.equal(state({ codex: { receipts: [], summary: null, requests: [] } }), "CODEX_NEEDED");
+  assert.equal(state({ codex: { receipts: [], summary: null, requests: [], other: [] } }), "CODEX_NEEDED");
   assert.equal(state({ threads: { unresolved: 1, total: 1 } }), "THREADS_OPEN");
   assert.equal(state({ pr: { mergeableState: "dirty" } }), "CONFLICT");
 });
 
 test("latest head vs reviewed head are distinguished", () => {
-  const old = { receipts: [{ sha: OLD.slice(0, 10), at: "2026-10-19T11:53:00Z" }], summary: { sha: OLD, status: "completed", hasUnresolved: false }, requests: [] };
+  const old = { receipts: [{ sha: OLD.slice(0, 10), at: "2026-10-19T11:53:00Z", clean: true }], summary: { sha: OLD, status: "completed", hasUnresolved: false }, requests: [], other: [] };
   const r = evaluateGate(facts({ codex: old }));
   assert.equal(r.state, "CODEX_NEEDED");
   assert.equal(r.codex.reviewedIsHead, false);
@@ -58,15 +59,15 @@ test("latest head vs reviewed head are distinguished", () => {
 });
 
 test("Codex summary for the head: completed / in progress / findings", () => {
-  const sum = (status, hasUnresolved = false) => ({ receipts: [], summary: { sha: HEAD, status, hasUnresolved }, requests: [] });
+  const sum = (status, hasUnresolved = false) => ({ receipts: [], summary: { sha: HEAD, status, hasUnresolved }, requests: [], other: [] });
   assert.equal(state({ codex: sum("completed") }), "READY_FOR_OWNER_REVIEW");
   assert.equal(state({ codex: sum("in_progress") }), "CODEX_PENDING");
   assert.equal(state({ codex: sum("completed", true) }), "CODEX_FINDINGS");
 });
 
 test("a short or empty reviewed sha never matches the head", () => {
-  assert.equal(state({ codex: { receipts: [{ sha: "6b2", at: "2026-10-19T12:46:01Z" }], summary: null, requests: [] } }), "CODEX_NEEDED");
-  assert.equal(state({ codex: { receipts: [{ sha: "", at: "2026-10-19T12:46:01Z" }], summary: null, requests: [] } }), "CODEX_NEEDED");
+  assert.equal(state({ codex: { receipts: [{ sha: "6b2", at: "2026-10-19T12:46:01Z", clean: true }], summary: null, requests: [], other: [] } }), "CODEX_NEEDED");
+  assert.equal(state({ codex: { receipts: [{ sha: "", at: "2026-10-19T12:46:01Z", clean: true }], summary: null, requests: [], other: [] } }), "CODEX_NEEDED");
 });
 
 test("CI results of an older head are ignored, and no current result means pending", () => {
@@ -80,7 +81,7 @@ test("CI results of an older head are ignored, and no current result means pendi
 });
 
 test("first failure + successful rerun keeps its history and is not hidden", () => {
-  const runs = [{ id: 39238436492, name: "E2E WebKit", runAttempt: 2, conclusion: "success", headSha: HEAD, attempts: [{ attempt: 1, conclusion: "failure", failedJobs: ["webkit webkit-360x800 shard 3/3"] }] }];
+  const runs = [{ id: 39238436492, name: "E2E WebKit", status: "completed", runAttempt: 2, conclusion: "success", headSha: HEAD, attempts: [{ attempt: 1, conclusion: "failure", failedJobs: ["webkit webkit-360x800 shard 3/3"] }] }];
   const r = evaluateGate(facts({ runs }));
   assert.equal(r.state, "READY_FOR_OWNER_REVIEW");
   const note = r.notes.find((n) => n.startsWith("RERUN_PASSED"));
@@ -102,13 +103,15 @@ test("dependencies: open PR / unmerged-closed PR block; merged PR and closed iss
   assert.equal(state({ dependencies: [dep({ kind: "issue", state: "closed" })] }), "READY_FOR_OWNER_REVIEW");
 });
 
-test("precedence: closed > HOLD > conflict > dependency > CI", () => {
+test("precedence: closed > conflict > dependency > CI; HOLD is the lowest and never hides a blocker", () => {
   const bad = { pr: { mergeableState: "dirty", title: "[HOLD] x" }, checks: [{ name: "x", status: "completed", conclusion: "failure", headSha: HEAD }], dependencies: [{ ref: "#1", kind: "pr", state: "open", merged: false }] };
-  assert.equal(state(bad), "HOLD");
-  assert.equal(state({ ...bad, pr: { mergeableState: "dirty", title: "x" } }), "CONFLICT");
-  assert.equal(state({ ...bad, pr: { mergeableState: "clean", title: "x" } }), "WAIT_DEPENDENCY");
+  assert.equal(state(bad), "CONFLICT");
+  assert.equal(evaluateGate(facts(bad)).hold, true);
+  assert.equal(state({ ...bad, pr: { mergeableState: "clean", title: "[HOLD] x" } }), "WAIT_DEPENDENCY");
+  assert.equal(state({ ...bad, dependencies: [], pr: { mergeableState: "clean", title: "[HOLD] x" } }), "CI_FAILED");
   assert.equal(state({ ...bad, pr: { state: "closed", title: "x" } }), "CLOSED");
-  assert.equal(state({ pr: { title: "feat", body: "マージ禁止" } }), "HOLD");
+  assert.equal(state({ pr: { title: "[HOLD] feat" } }), "HOLD");
+  assert.equal(state({ pr: { title: "feat", body: "HOLD: waiting for the Owner" } }), "HOLD");
 });
 
 test("unknown mergeability or unreadable threads is FACTS_INCOMPLETE, never ready", () => {
@@ -216,7 +219,8 @@ test("collector builds facts for the CURRENT head, with Codex trust checks and r
     [/\/pulls\/568$/, { number: 568, state: "open", merged: false, draft: false, title: "feat(save)", body: "Depends-on: #558", head: { sha: HEAD }, mergeable_state: "clean" }],
     [/\/commits\/[0-9a-f]{40}$/, { commit: { committer: { date: headDate } } }],
     [/check-runs/, { check_runs: [{ name: "build", status: "completed", conclusion: "success" }] }],
-    [/actions\/runs\?head_sha/, { workflow_runs: [{ id: 7, name: "E2E WebKit", run_attempt: 2, conclusion: "success", head_sha: HEAD }] }],
+    [/commits\/[0-9a-f]{40}\/status/, { statuses: [] }],
+    [/actions\/runs\?head_sha/, { workflow_runs: [{ id: 7, name: "E2E WebKit", status: "completed", run_attempt: 2, conclusion: "success", head_sha: HEAD }] }],
     [/runs\/7\/attempts\/1\/jobs/, { jobs: [{ name: "webkit webkit-360x800 shard 3/3", conclusion: "failure" }, { name: "classify", conclusion: "success" }] }],
     [/issues\/568\/comments/, [...fx, spoof]],
     [/issues\/558$/, { state: "closed", pull_request: {} }],
@@ -240,6 +244,7 @@ test("an unreadable thread query makes the facts incomplete instead of ready", a
     [/\/pulls\/1$/, { number: 1, state: "open", title: "t", body: "", head: { sha: HEAD }, mergeable_state: "clean" }],
     [/\/commits\/[0-9a-f]{40}$/, { commit: {} }],
     [/check-runs/, { check_runs: [] }],
+    [/\/status$/, { statuses: [] }],
     [/actions\/runs/, { workflow_runs: [] }],
     [/comments/, []],
   ]);
@@ -248,7 +253,9 @@ test("an unreadable thread query makes the facts incomplete instead of ready", a
   };
   const f = await collectPrFacts(api, "o/r", 1);
   assert.equal(f.threads, null);
-  assert.equal(evaluateGate(f).state, "CI_PENDING");
+  assert.ok(f.gaps.some((g) => g.startsWith("review threads")));
+  const r = evaluateGate(f);
+  assert.ok(r.blockers.some((b) => b.startsWith("FACTS_INCOMPLETE") && b.includes("review threads")));
 });
 
 test("the real client refuses non-repo paths and mutating GraphQL", async () => {

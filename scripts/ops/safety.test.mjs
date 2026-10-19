@@ -47,7 +47,7 @@ test("no existing quality workflow was touched by Phase 1A", () => {
 test("ops sources: GitHub access is GET plus a GraphQL query only; nothing executes fetched text", () => {
   const files = fs.readdirSync(here).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")).map((f) => path.join(here, f));
   files.push(...fs.readdirSync(path.join(here, "lib")).map((f) => path.join(here, "lib", f)));
-  assert.ok(files.length >= 7);
+  assert.ok(files.length >= 9);
   for (const f of files) {
     const t = fs.readFileSync(f, "utf8").replace(/^\s*\/\/.*$/gm, "");
     const rel = path.relative(root, f);

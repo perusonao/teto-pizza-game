@@ -7,6 +7,7 @@
 // Release with the same (session, issue) and "released": true. The newest block per (session, issue) wins.
 
 import { isTrustedAuthor } from "./trust.mjs";
+import { stripFences } from "./hold.mjs";
 
 export const CLAIM_MARKER = "teto-claim:v1";
 export const DEFAULT_TTL_MS = 72 * 3600 * 1000;
@@ -54,12 +55,13 @@ export function parseClaims(comments, nowMs) {
   const latest = new Map();
   const invalid = [];
   for (const c of comments) {
-    if (!c?.body || !c.body.includes(CLAIM_MARKER)) continue;
+    if (typeof c?.body !== "string" || !c.body.includes(CLAIM_MARKER)) continue;
     if (!isTrustedAuthor(c)) {
       invalid.push({ url: c.html_url ?? null, error: "author is not trusted (claims must come from the Owner account)" });
       continue;
     }
-    for (const m of c.body.matchAll(BLOCK_RE)) {
+    // A claim block quoted inside a code fence (the SSOT's own example) is documentation, not a claim.
+    for (const m of stripFences(c.body).matchAll(BLOCK_RE)) {
       let raw;
       try {
         raw = JSON.parse(m[1]);
@@ -87,11 +89,25 @@ export function parseClaims(comments, nowMs) {
   return out;
 }
 
-/** `Depends-on: #558, #560` lines of a PR body. */
-export function parseDependsOn(body) {
-  const nums = new Set();
-  for (const m of (body ?? "").matchAll(/^[ \t]*Depends[- ]on:[ \t]*(.+)$/gim)) {
-    for (const n of m[1].matchAll(/#(\d+)/g)) nums.add(Number(n[1]));
+const DEPENDS_LINE = /^[ \t>*\-•]*(?:\*\*)?Depends[- ]on(?:\*\*)?[ \t]*:(?:\*\*)?[ \t]*(.*)$/gim;
+const LOCAL_REF = /(?<![\w/.-])#(\d+)\b/g;
+
+/**
+ * `Depends-on: #558, #560` lines of a PR body (list bullets, quotes and **bold** are tolerated; fenced
+ * code is ignored). Returns { numbers, problems }: a line naming a cross-repository reference or no
+ * reference at all is a problem, never silently dropped -- the Gate then reports FACTS_INCOMPLETE.
+ */
+export function parseDependsOnDetailed(body) {
+  const numbers = new Set();
+  const problems = [];
+  for (const m of stripFences(body).matchAll(DEPENDS_LINE)) {
+    const rest = m[1];
+    const local = [...rest.matchAll(LOCAL_REF)].map((x) => Number(x[1]));
+    const foreign = /[\w.-]+\/[\w.-]+#\d+|https?:\/\//.test(rest);
+    if (foreign || local.length === 0) problems.push(`Depends-on line not understood: "${rest.trim().slice(0, 80)}"`);
+    for (const n of local) numbers.add(n);
   }
-  return [...nums].sort((a, b) => a - b);
+  return { numbers: [...numbers].sort((a, b) => a - b), problems };
 }
+
+export const parseDependsOn = (body) => parseDependsOnDetailed(body).numbers;

@@ -23,11 +23,11 @@ function parseArgs(argv) {
   return a;
 }
 
-export function buildReport({ prFacts, prFiles, claims, repo, now }) {
+export function buildReport({ prFacts, prFiles, claims, repo, now, repoGaps = [] }) {
   const hotFiles = JSON.parse(fs.readFileSync(path.join(here, "hot-files.json"), "utf8")).hotFiles;
   const results = prFacts.map((f) => evaluateGate(f));
   const overlaps = findOverlaps({ prs: prFiles, claims: claims.active, hotFiles });
-  const md = renderMarkdown({ results, overlaps, claims, repo, generatedAt: new Date(now).toISOString(), dryRun: true });
+  const md = renderMarkdown({ results, overlaps, claims, repo, generatedAt: new Date(now).toISOString(), repoGaps, dryRun: true });
   return { results, overlaps, claims, md };
 }
 
@@ -47,9 +47,10 @@ async function main() {
     }
     input = await collectRepoFacts(createApi({ token: process.env.GITHUB_TOKEN }), repo, { only, now });
   }
-  const report = buildReport({ ...input, repo, now });
+  const repoGaps = input.repoGaps ?? [];
+  const report = buildReport({ ...input, repo, now, repoGaps });
   if (args["out-md"]) fs.writeFileSync(args["out-md"], report.md);
-  if (args["out-json"]) fs.writeFileSync(args["out-json"], JSON.stringify({ results: report.results, overlaps: report.overlaps, claims: report.claims }, null, 2));
+  if (args["out-json"]) fs.writeFileSync(args["out-json"], JSON.stringify({ results: report.results, overlaps: report.overlaps, claims: report.claims, repoGaps }, null, 2));
   process.stdout.write(report.md);
 }
 

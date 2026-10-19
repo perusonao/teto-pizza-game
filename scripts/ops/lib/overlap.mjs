@@ -20,7 +20,14 @@ export function globToRegExp(glob) {
   return new RegExp(`^${re}$`);
 }
 
-export const matchesGlob = (file, glob) => globToRegExp(glob).test(file);
+/** A pattern without wildcards names a file OR a directory (`src/state`, `src/state/`) -- both match what is under it. */
+export function matchesGlob(file, glob) {
+  if (!HAS_WILD.test(glob)) {
+    const dir = glob.replace(/\/+$/, "");
+    return file === dir || file.startsWith(`${dir}/`);
+  }
+  return globToRegExp(glob).test(file);
+}
 export const matchesAny = (file, globs) => globs.some((g) => matchesGlob(file, g));
 
 /** Conservative: true when two path/glob strings could name a common file. */
