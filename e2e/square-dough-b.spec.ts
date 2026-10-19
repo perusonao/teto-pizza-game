@@ -132,29 +132,58 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     await page.mouse.up();
   });
 
-  test("without pointer capture, releasing outside the layer still ends the gesture (the next press works)", async ({ page }) => {
+  test("without pointer capture, a stroke that leaves the layer becomes a drag, and releasing outside still ends the gesture (the next press works)", async ({ page }, testInfo) => {
     await page.addInitScript(() => {
       Element.prototype.setPointerCapture = () => {
         throw new Error("capture unavailable");
       };
     });
     await start(page);
-    const p = await at(page, 58, 48);
-    await page.mouse.move(p.x, p.y);
-    await page.mouse.down();
-    await page.clock.runFor(500);
-    await page.mouse.move(8, 8); // far outside the layer: the layer gets no move and no up
-    const atLeave = await evenness(page);
-    await page.clock.runFor(800);
-    expect(await evenness(page), "leaving the layer stops the spread even without capture").toBe(atLeave);
-    await page.mouse.up();
-    const afterFirst = await evenness(page);
-    expect(afterFirst).toBeGreaterThan(0.739); // the first press was committed (tap), not left live
-    const q = await at(page, 24, 26);
-    await page.mouse.move(q.x, q.y);
-    await page.mouse.down();
-    await page.mouse.up();
-    expect(await evenness(page)).toBeGreaterThan(afterFirst);
+    // What the layer showed at each step, kept so a failure says where drag state and evenness parted (attached to the report on failure).
+    const trail: Record<string, string | number | undefined>[] = [];
+    const snap = async (label: string) => {
+      const shown = await layer(page).evaluate((el) => ({
+        dragging: el.getAttribute("data-dragging") ?? undefined,
+        pressing: el.getAttribute("data-pressing") ?? undefined,
+        evenness: el.getAttribute("data-evenness") ?? undefined,
+        coverage: el.getAttribute("data-coverage") ?? undefined,
+        step: el.getAttribute("data-step") ?? undefined,
+        clock: Math.round(performance.now()),
+      }));
+      trail.push({ label, ...shown });
+    };
+    try {
+      const p = await at(page, 58, 48);
+      await page.mouse.move(p.x, p.y);
+      await page.mouse.down();
+      await page.clock.runFor(500);
+      await snap("held 500ms");
+      await expect(layer(page), "no drag has started while the finger is still pressing").toHaveAttribute("data-dragging", "false");
+      // Far outside the layer, with no capture: only the window-level fallback sees this move. Since #558 a move of 24 px or more is a
+      // drag, so the layer accounts for the hold up to now and drags to this point. The layer sets `data-dragging` (the trail) and
+      // `data-evenness` (the working dough) from the same state update, so `data-dragging="true"` means the move is on screen.
+      await page.mouse.move(8, 8);
+      await expect(layer(page), "the move outside the layer reached the gesture and was drawn").toHaveAttribute("data-dragging", "true");
+      await snap("moved outside");
+      const atLeave = await evenness(page);
+      await page.clock.runFor(800);
+      await snap("after 800ms");
+      expect(await evenness(page), "after the drag has begun, time passing alone changes nothing (no tick, no hold)").toBe(atLeave);
+      await page.mouse.up();
+      await snap("released");
+      const afterFirst = await evenness(page);
+      expect(afterFirst).toBeGreaterThan(0.739); // the first press was committed (tap), not left live
+      await expect(layer(page), "the release outside the layer ended the drag").toHaveAttribute("data-dragging", "false");
+      const q = await at(page, 24, 26);
+      await page.mouse.move(q.x, q.y);
+      await page.mouse.down();
+      await page.mouse.up();
+      expect(await evenness(page)).toBeGreaterThan(afterFirst);
+    } catch (error) {
+      await testInfo.attach("gesture-trail.json", { body: JSON.stringify(trail, null, 2), contentType: "application/json" });
+      console.error(`[square-dough-b trail] ${JSON.stringify(trail)}`);
+      throw error;
+    }
   });
 
   test("a press on the round-pizza path is unaffected: without ?pan=square there is no square layer", async ({ page }) => {
