@@ -912,7 +912,7 @@ export interface StorageLike {
   removeItem(key: string): void;
 }
 
-function getDefaultStorage(): StorageLike | null {
+export function getDefaultStorage(): StorageLike | null {
   try {
     if (typeof window === "undefined" || !window.localStorage) return null;
     return window.localStorage;

@@ -4,6 +4,8 @@ import blueImg from "../assets/characters/blue.webp";
 import { RECIPES } from "../data/recipes";
 import type { DexState } from "../state/dex";
 import { homeBubbleJa } from "../state/homeBubble";
+import { SaveNoticeBanner } from "../components/SaveNoticeBanner";
+import type { SaveNotice } from "../state/saveHealth";
 
 /**
  * HOME screen (Issue #24, visual pass Issue #39 PS3). The app's landing screen and
@@ -74,6 +76,10 @@ interface HomeScreenProps {
   dexHasNew?: boolean;
   /** Undiscovered recipes cookable with what the player owns right now (DISCOVERABLE). */
   discoverableCount?: number;
+  /** Save Protection PR-2 (#560): a situation with the player's save worth telling them about. Optional; nothing renders
+   *  when absent, so HOME is unchanged for every healthy save. */
+  saveNotice?: SaveNotice | null;
+  onAcknowledgeSaveNotice?: () => void;
 }
 
 export function HomeScreen({
@@ -97,6 +103,8 @@ export function HomeScreen({
   newShopMaterialCount = 0,
   dexHasNew = false,
   discoverableCount = 0,
+  saveNotice = null,
+  onAcknowledgeSaveNotice,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -125,6 +133,10 @@ export function HomeScreen({
           </button>
         </div>
       </header>
+
+      {saveNotice && (
+        <SaveNoticeBanner notice={saveNotice} onOpenSettings={onOpenSettings} onAcknowledge={onAcknowledgeSaveNotice} />
+      )}
 
       <section className="home-hero">
         <div className="home-hero__oven-glow" aria-hidden="true" />
