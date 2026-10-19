@@ -75,3 +75,11 @@ Frame times while dragging (headless Chromium, 60 Hz, 3 strokes x 40 moves): bef
 Two lines on the panel: operations per step (tap / hold / drag) and the times (STEP 1, STEP 2, total to the finish) from the first finger down, counted per committed gesture.
 
 Screenshots: `docs/reports/screenshots/square-dough-c-balance/{before,after}-{390x844,360x800}-seed29.png` (start, mid-drag, STEP 2 start, a long press in STEP 2, finished).
+
+## Natural-deformation pass (PR #558, after Owner iPhone Safari HV of 9035dd1)
+
+**Cause (measured, not guessed).** Rendering the thickness grid after a drag from the centre to a corner (`squareDoughDrag.ts` on 9035dd1): the film is laid only within the 16 % brush and nothing else moves, so the grid held a 3-cell strip at a constant 0.15–0.16 next to the untouched thick ball (~0.9) with a hard 0.81 → 0.16 step between them. The Canvas bicubic + relief lighting turned that step into the square shaded block in the middle and the thin straight protrusion toward the corner. The ball stayed a square block because only the cells' donor weight drained it.
+
+**Fix (one function, `flowAround` in `squareDoughDrag.ts`).** Around the fingertip the dough also flows downhill between neighbouring cells (`DRAG_FLOW_RADIUS` 26 %, `DRAG_FLOW_RATE` 0.1 per 1 % of travel, fading to 0 at the radius): a symmetric exchange, so mass is conserved; a cell gives only while it is above the film thickness (never uncovered); the receiver is a covered cell or one under the brush, so the flow never carries dough farther toward a corner than the finger (corner reach and coverage are not helped). Per distance travelled, so the result does not depend on the pointer rate. Nothing else changed: thresholds, gestures, STEP rules, round pizza, the lumpy display.
+
+**Effect.** Largest step between neighbouring cells after a corner drag 0.65 → < 0.35; the ball melts into the stretched sheet instead of staying a block. Scripted player (same one as the balance pass, Chromium 390×844): complete after 9 / 22 / 27 / 12 / 19 actions (before 14 / 23 / 30 / 14 / 23), 2.1–5.2 s (before 3.2–6.5 s). Side effect: at STEP 1's last stroke evenness is now already ≥ 0.69, so this player no longer needs STEP 2. Images: `docs/reports/screenshots/square-dough-c-natural/compare-before-after.png`.

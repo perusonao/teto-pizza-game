@@ -8,6 +8,8 @@ import {
   DRAG_DONOR_DECAY,
   DRAG_DONOR_POWER,
   DRAG_FILM_THICKNESS,
+  DRAG_FLOW_RADIUS,
+  DRAG_FLOW_RATE,
   applyGestureEffects,
   dragAlong,
   dragFillAt,
@@ -100,7 +102,9 @@ describe("dragAlong: mass-conserving", () => {
       many = dragAlong(many, prev, p);
       prev = p;
     }
-    one.thickness.forEach((v, i) => expect(many.thickness[i]).toBeCloseTo(v, 3)); // sub-steps are cut per segment: equal to well under the colour resolution
+    // sub-steps are cut per segment and the flow around the finger scales with the distance travelled, so the two agree to
+    // far under what the eye (or the colour ramp: 1/255) can tell apart -- not bit for bit, as the flow is not exactly additive
+    one.thickness.forEach((v, i) => expect(Math.abs(many.thickness[i] - v)).toBeLessThan(0.004));
   });
 
   it("lays a thinner film when the dough around cannot pay for a full one (nothing appears from nowhere)", () => {
@@ -146,5 +150,68 @@ describe("the spread operations never undo what a drag laid (coverage / corners 
     expect(squareDoughCoverage(d)).toBeGreaterThanOrEqual(cov - 1e-12);
     squareCornerReach(d).forEach((r, i) => expect(r).toBeGreaterThanOrEqual(reach[i] - 1e-12));
     expect(squareDoughEvenness(d)).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("natural deformation: the dough flows downhill around the fingertip (PR #558 audit)", () => {
+  const widest = (d: SquareDough) => {
+    // the largest thickness step between two neighbouring covered cells
+    let step = 0;
+    for (let r = 0; r < 16; r++) {
+      for (let c = 0; c < 16; c++) {
+        const a = d.thickness[r * 16 + c];
+        for (const [dr, dc] of [[0, 1], [1, 0]]) {
+          if (r + dr > 15 || c + dc > 15) continue;
+          const b = d.thickness[(r + dr) * 16 + c + dc];
+          if (a >= SQUARE_COVER_MIN_THICKNESS && b >= SQUARE_COVER_MIN_THICKNESS) step = Math.max(step, Math.abs(a - b));
+        }
+      }
+    }
+    return step;
+  };
+
+  it("constants: flow radius 26 %, rate 0.1", () => {
+    expect(DRAG_FLOW_RADIUS).toBe(26);
+    expect(DRAG_FLOW_RATE).toBe(0.1);
+  });
+
+  it("a drag to a corner leaves a soft shoulder, not a hard step from the lump to the strip of film (it was 0.65 without the flow)", () => {
+    const d = dragAlong(createInitialSquareDough(), centre, { x: 88, y: 12 });
+    expect(widest(d)).toBeLessThan(0.35);
+  });
+
+  it("the flow adds nothing and takes nothing: mass is conserved, no covered cell is uncovered, and no value is negative or not finite", () => {
+    const next = rng(77);
+    let d = createInitialSquareDough();
+    for (let k = 0; k < 40; k++) {
+      const before = d;
+      d = dragAlong(d, { x: next() * 100, y: next() * 100 }, { x: next() * 100, y: next() * 100 });
+      expect(mass(d)).toBeCloseTo(mass(before), 9);
+      d.thickness.forEach((v, i) => {
+        expect(Number.isFinite(v) && v >= 0 && v <= 1).toBe(true);
+        if (before.thickness[i] >= SQUARE_COVER_MIN_THICKNESS) expect(v).toBeGreaterThanOrEqual(SQUARE_COVER_MIN_THICKNESS);
+      });
+    }
+  });
+
+  it("the flow never carries dough beyond the brush: every newly covered cell is under the brush of the finger (the corner reach is not helped)", () => {
+    const start = createInitialSquareDough();
+    for (const p of [{ x: 70, y: 30 }, { x: 88, y: 12 }, { x: 30, y: 80 }]) {
+      const d = dragFillAt(start, p);
+      d.thickness.forEach((v, i) => {
+        if (v >= SQUARE_COVER_MIN_THICKNESS && start.thickness[i] < SQUARE_COVER_MIN_THICKNESS) {
+          const x = ((i % 16) + 0.5) * 6.25;
+          const y = (Math.floor(i / 16) + 0.5) * 6.25;
+          expect(Math.hypot(x - p.x, y - p.y)).toBeLessThan(DRAG_BRUSH_RADIUS);
+        }
+      });
+    }
+  });
+
+  it("no travel, no flow: a zero-length step only lays the film", () => {
+    const p = { x: 60, y: 40 };
+    const still = dragFillAt(createInitialSquareDough(), p, 0);
+    const moving = dragFillAt(createInitialSquareDough(), p);
+    expect(widest(still)).toBeGreaterThan(widest(moving));
   });
 });

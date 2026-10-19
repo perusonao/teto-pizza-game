@@ -32,6 +32,14 @@ export const DRAG_DONOR_DECAY = 20;
 export const DRAG_DONOR_POWER = 2;
 /** Sub-step length (dough-percent) a drag segment is cut into. */
 export const DRAG_SUBSTEP = 1;
+/**
+ * Natural-deformation pass (PR #558 audit): around the fingertip the dough also FLOWS downhill into its neighbours -- thick
+ * cells hand a little of their thickness to thinner neighbours, within this radius (dough-percent) of the finger -- so a stretch
+ * has a soft shoulder instead of a hard step from the thick lump to a thin strip of film. 0 = off.
+ */
+export const DRAG_FLOW_RADIUS = 26;
+/** Share of a thickness difference between two neighbouring cells that flows downhill per sub-step, at the finger (it fades to nothing at DRAG_FLOW_RADIUS). */
+export const DRAG_FLOW_RATE = 0.1;
 
 const MASS_NOISE = 1e-12;
 
@@ -55,8 +63,8 @@ function isFinitePoint(p: DoughPoint): boolean {
   return Number.isFinite(p.x) && Number.isFinite(p.y);
 }
 
-/** One film laid at `point`. Returns the input object itself when nothing changes. */
-export function dragFillAt(dough: SquareDough, point: DoughPoint): SquareDough {
+/** One film laid at `point` (`travel` = how far the finger moved to get here, dough-percent: the flow around it is per distance, not per call). Returns the input object itself when nothing changes. */
+export function dragFillAt(dough: SquareDough, point: DoughPoint, travel: number = DRAG_SUBSTEP): SquareDough {
   if (!isFinitePoint(point)) return dough;
   const t = dough.thickness.slice();
   const wanted: { index: number; add: number }[] = [];
@@ -108,7 +116,70 @@ export function dragFillAt(dough: SquareDough, point: DoughPoint): SquareDough {
   if (!(paidTotal > MASS_NOISE)) return dough;
   const scale = paidTotal / need;
   for (const w of wanted) t[w.index] += w.add * scale;
+  flowAround(t, point, travel);
   return { thickness: t };
+}
+
+const NEIGHBOUR_STEPS: readonly (readonly [number, number])[] = [
+  [1, 0],
+  [0, 1],
+  [1, 1],
+  [1, -1],
+];
+const CELL_BY_ROWCOL = (() => {
+  const grid = new Map<number, CellRef>();
+  for (const cell of ON_PAN_CELLS) grid.set(cell.index, cell);
+  return grid;
+})();
+
+/**
+ * Dough flows downhill between neighbouring cells around the fingertip (in place on `t`). The flow between two cells is a
+ * symmetric exchange, so the total never changes; a cell only gives while it is thicker than a film (so a covered cell is never
+ * uncovered) and only to a cell that is already covered or lies under the brush (so the flow never reaches farther toward a
+ * corner than the finger itself did). The change is computed from one snapshot, so the result does not depend on the cell order.
+ */
+function flowAround(t: number[], point: DoughPoint, travel: number): void {
+  const pace = Math.min(1, Math.max(0, travel / DRAG_SUBSTEP));
+  if (!(pace > 0)) return;
+  const delta = new Map<number, number>();
+  const give = new Map<number, number>();
+  const pairs: { from: number; to: number; amount: number }[] = [];
+  for (const cell of ON_PAN_CELLS) {
+    const distance = Math.hypot(cell.x - point.x, cell.y - point.y);
+    if (distance >= DRAG_FLOW_RADIUS) continue;
+    const fade = 1 - (distance / DRAG_FLOW_RADIUS) ** 2;
+    const row = Math.floor(cell.index / SQUARE_DOUGH_GRID);
+    const col = cell.index % SQUARE_DOUGH_GRID;
+    for (const [dr, dc] of NEIGHBOUR_STEPS) {
+      const r2 = row + dr;
+      const c2 = col + dc;
+      if (r2 < 0 || r2 >= SQUARE_DOUGH_GRID || c2 < 0 || c2 >= SQUARE_DOUGH_GRID) continue;
+      const other = CELL_BY_ROWCOL.get(squareCellIndex(r2, c2));
+      if (!other) continue;
+      const a = cell.index;
+      const b = other.index;
+      const hi = t[a] >= t[b] ? a : b;
+      const lo = hi === a ? b : a;
+      const loCell = hi === a ? other : cell;
+      if (t[hi] - DRAG_FILM_THICKNESS <= MASS_NOISE) continue;
+      const loUnderBrush = Math.hypot(loCell.x - point.x, loCell.y - point.y) < DRAG_BRUSH_RADIUS;
+      if (t[lo] < SQUARE_COVER_MIN_THICKNESS && !loUnderBrush) continue;
+      const diagonal = dr !== 0 && dc !== 0 ? 0.5 : 1; // a diagonal neighbour is farther
+      const amount = (t[hi] - t[lo]) * DRAG_FLOW_RATE * pace * fade * diagonal;
+      if (amount <= MASS_NOISE) continue;
+      pairs.push({ from: hi, to: lo, amount });
+      give.set(hi, (give.get(hi) ?? 0) + amount);
+    }
+  }
+  for (const pair of pairs) {
+    const spare = t[pair.from] - DRAG_FILM_THICKNESS;
+    const total = give.get(pair.from) ?? 0;
+    const share = total > spare ? spare / total : 1; // a cell never gives more than it has above a film
+    const amount = pair.amount * share;
+    delta.set(pair.from, (delta.get(pair.from) ?? 0) - amount);
+    delta.set(pair.to, (delta.get(pair.to) ?? 0) + amount);
+  }
+  for (const [index, d] of delta) t[index] += d;
 }
 
 /** The film laid along the straight segment from `from` to `to`. Returns the input itself when nothing changes. */
@@ -118,7 +189,7 @@ export function dragAlong(dough: SquareDough, from: DoughPoint, to: DoughPoint):
   const steps = Math.max(1, Math.ceil(length / DRAG_SUBSTEP));
   let current = dough;
   for (let s = 1; s <= steps; s++) {
-    current = dragFillAt(current, { x: from.x + ((to.x - from.x) * s) / steps, y: from.y + ((to.y - from.y) * s) / steps });
+    current = dragFillAt(current, { x: from.x + ((to.x - from.x) * s) / steps, y: from.y + ((to.y - from.y) * s) / steps }, length / steps);
   }
   return current;
 }
