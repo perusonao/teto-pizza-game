@@ -439,6 +439,10 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // (test-only; nothing in production imports them).
       "./catalog/testSupport/catalogDerived.ts",
       "./catalog/testSupport/recipeBatchValidator.ts",
+      // Economy / Progression Phase 1 (#561): the star-gate reachability analysis and the Pitz budget estimate read the
+      // ladder and the material prices (test-only; nothing in production imports them).
+      "./catalog/testSupport/ladderReachability.ts",
+      "./catalog/testSupport/ladderEconomyEstimate.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
