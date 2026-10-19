@@ -68,7 +68,13 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     expect(midHold).toBeGreaterThan(tapOnly);
     expect(longerHold).toBeGreaterThan(midHold);
     await expect(page.getByTestId("square-dough-hold-ring")).toHaveCount(0);
-    expect(await evenness(page)).toBe(longerHold);
+    // The release counts the last sub-frame slice of the hold (pressGesture "up"), so it may land a rounding step above the last frame's reading
+    // (WebKit frame timing); what must hold is that it is at most that sliver, and that nothing spreads after the release.
+    const released = await evenness(page);
+    expect(released).toBeGreaterThanOrEqual(longerHold);
+    expect(released - longerHold).toBeLessThan(0.01);
+    await page.clock.runFor(2000);
+    expect(await evenness(page)).toBe(released);
   });
 
   test("a finger that drifts past the slop while held stops spreading (no smearing)", async ({ page }) => {
