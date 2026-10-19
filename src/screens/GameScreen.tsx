@@ -47,6 +47,7 @@ import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, r
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
+import { panShapeNoticeJa } from "../state/panShapeNotice";
 import { renderedPostBakeStep } from "./postBakeView";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
@@ -1135,6 +1136,7 @@ export function GameScreen({
           onResearchNext={onResearchNext}
           techniqueReveal={discoveryRevealOrder(state).includes("TECHNIQUE") ? state.lastTechniqueDiscovery : null}
           executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
+          panShapeNoticeJa={state.freeCook ? panShapeNoticeJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
         />
