@@ -1,0 +1,16 @@
+{
+  "_comment": "Files several sessions append to or share. Overlap on these is flagged HOT. Edit via a normal PR.",
+  "hotFiles": [
+    "src/App.css",
+    "src/App.tsx",
+    "src/screens/GameScreen.tsx",
+    "src/state/gameReducer.ts",
+    "src/state/persistence.ts",
+    "src/data/recipes.ts",
+    "docs/PROJECT_HANDOFF.md",
+    "package.json",
+    "package-lock.json",
+    "playwright.config.ts",
+    "e2e/support/**"
+  ]
+}

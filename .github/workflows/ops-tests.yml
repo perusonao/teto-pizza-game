@@ -1,0 +1,31 @@
+name: Ops scripts tests
+
+# Hermetic tests for scripts/ops (Owner Gate state logic, claims, overlap, collector with a fake API, and
+# static safety checks on the ops workflows). No network, no dependencies, no secrets, read-only token.
+# Runs only when ops files change; it is an extra check, not a replacement for any existing one.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/ops/**"
+      - ".github/workflows/owner-gate.yml"
+      - ".github/workflows/ops-tests.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ops-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bash scripts/ops/test-ops.sh

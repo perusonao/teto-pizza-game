@@ -1,0 +1,71 @@
+name: Owner Gate (dry-run)
+
+# Dev Efficiency Phase 1A. READ-ONLY report of every open PR's state (CI on the current head, Codex
+# receipt for that head, unresolved threads, mergeability, Depends-on) plus changed-file overlap
+# between open PRs and active session claims. Design and rules:
+# docs/decisions/TETO_SESSION-OPERATIONS_1.0.md
+#
+# Dry-run by Owner decision (2026-10-19):
+#   - the result goes to this run's job summary and an artifact ONLY. Nothing is commented on a PR or
+#     Issue, and no rerun, merge, label change, Preview deploy or Production deploy exists in this file;
+#   - it is started by hand (workflow_dispatch). There is deliberately no pull_request,
+#     pull_request_target, workflow_run or issue_comment trigger: a privileged trigger plus PR content
+#     is how workflows get hijacked, and automatic triggers are a later, separately approved step;
+#   - it runs only the default branch's copy of scripts/ops (guard below) and never checks out a PR head;
+#   - it is not a required check and says nothing about branch protection.
+#
+# The permissions are read-only; the token never leaves the process environment of the report step.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to report on, or 'all' (open PRs). Overlap is always computed over all open PRs."
+        required: false
+        default: "all"
+
+permissions: {}
+
+concurrency:
+  group: owner-gate-dry-run
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: owner-gate-dry-run
+    # Only the default branch's workflow and scripts may run with this token.
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      actions: read
+      checks: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Report (job summary only)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          node scripts/ops/owner-gate.mjs --repo "$REPO" --pr "${PR_NUMBER:-all}" \
+            --out-md owner-gate.md --out-json owner-gate.json > /dev/null
+          cat owner-gate.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: owner-gate-dry-run
+          path: |
+            owner-gate.md
+            owner-gate.json
+          retention-days: 14
