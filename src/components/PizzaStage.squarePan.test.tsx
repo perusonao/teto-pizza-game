@@ -95,8 +95,8 @@ describe("PizzaStage surface", () => {
     ["SAUCE", { makingStep: "SAUCE" }],
     ["CHEESE", { makingStep: "CHEESE", ingredient: "mozzarella" }],
     ["TOPPING", { makingStep: "TOPPING", ingredient: "basil" }],
-    ["BAKE", { makingStep: "BAKE", bakeProgress: 50 }],
-    ["RESULT", { makingStep: "BAKE", bakeProgress: 50, resultCompact: true, resultRevealed: true }],
+    ["BAKE", { makingStep: "TOPPING", ingredient: "basil", bakeProgress: 50 }],
+    ["RESULT", { makingStep: "TOPPING", ingredient: "basil", bakeProgress: 50, resultCompact: true, resultRevealed: true }],
   ])("a tray pizza at %s shows the pan's plate and never the round dough shape", (_label, extra) => {
     const { container } = renderStage(pizzaOf("tray"), extra);
     expect(dough()).toHaveClass("pizza-dough--square-pan");

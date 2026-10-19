@@ -270,6 +270,8 @@ export function PizzaStage({
   // else the player's explicit tray (F4-a `effectivePanShape`); round for every shipped pizza. For "round" every pointer test, sauce mask, guide and
   // surface below is the round pizza's own, unchanged: `contains` / `clamp` ARE `isInsideDough` / `clampToDough` (panGeometry.test.ts pins the identity).
   const panShape: PanShape = effectivePanShape(recipe, pizza);
+  // The sauce canvases take `pan` only on a square pan: for a round pizza they get exactly the props they always had.
+  const panProp = panShape === "square" ? ({ pan: panShape } as const) : {};
   const pan = getPanGeometry(panShape);
   const squarePan = panShape === "square";
   const pathRef = useRef<SVGPathElement>(null);
@@ -1251,7 +1253,7 @@ export function PizzaStage({
                 key={`mheat-${group.firstIndex}`}
                 runs={group.runs}
                 doughShape={pizza.doughShape}
-                pan={panShape}
+                {...panProp}
                 colorOf={colorOf}
                 bakedOil={group.bakedOil}
                 className={mergedClassName(group.oil) + panCanvasClass}
@@ -1264,7 +1266,7 @@ export function PizzaStage({
                 underDeposits={layer.under}
                 ingredientId={layer.ingredientId}
                 doughShape={pizza.doughShape}
-                pan={panShape}
+                {...panProp}
                 color={colorOf(layer.ingredientId)}
                 className={sauceLayerClassName(layer.ingredientId, bakeState) + panCanvasClass}
               />
@@ -1274,7 +1276,7 @@ export function PizzaStage({
                 key={`moverflow-${group.firstIndex}`}
                 runs={group.runs}
                 doughShape={pizza.doughShape}
-                pan={panShape}
+                {...panProp}
                 colorOf={colorOf}
                 bakedOil={group.bakedOil}
                 className={mergedClassName(group.oil)}
@@ -1285,7 +1287,7 @@ export function PizzaStage({
                 key={`overflow-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
                 deposits={layer.deposits}
                 doughShape={pizza.doughShape}
-                pan={panShape}
+                {...panProp}
                 color={colorOf(layer.ingredientId)}
                 className={sauceLayerClassName(layer.ingredientId, bakeState)}
               />
@@ -1298,7 +1300,7 @@ export function PizzaStage({
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
-          pan={panShape}
+          {...panProp}
           color={fieldSauceColor}
           className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
             bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
@@ -1314,7 +1316,7 @@ export function PizzaStage({
         <OverflowMarkerCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
-          pan={panShape}
+          {...panProp}
           color={fieldSauceColor}
           className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
             bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
