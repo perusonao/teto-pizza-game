@@ -95,6 +95,8 @@ afterEach(() => cleanup());
 
 /** The two non-credit recipes makeable from the onion step on: brazilian-calabresa and (TQ-1D) the no-sauce aussie. */
 const NON_CREDIT_FOUND = ["brazilian-calabresa", "aussie"];
+/** Batch 8a: the non-credit chilean-napolitana (fresh-tomato, Dex 20+) joins them; spanish-chorizo (bell-pepper, step 28) and frango-catupiry (step 44) are beyond this 25-ladder. */
+const nonCreditFound = (count: number): string[] => (count >= 20 ? [...NON_CREDIT_FOUND, "chilean-napolitana"] : NON_CREDIT_FOUND);
 
 describe("which cards get 「💡 ヒントを見る」", () => {
   // Pool-size aware (Discovery 3.0 PR-4a / PR-4b-A / PR-4b-B): a W1 step's key recipe is always
@@ -108,7 +110,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     renderDex(inputs, { onShowHint });
     const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id);
     expect(expected).toContain(LADDER_ORDER[count]);
-    expect(expected.length).toBe(count >= 12 ? 3 : 1); // the key recipe + the non-credit calabresa + (TQ-1D) aussie
+    expect(expected.length).toBe(count >= 20 ? 4 : count >= 12 ? 3 : 1); // the key recipe + the non-credit calabresa + (TQ-1D) aussie + (Batch 8a, Dex 20+) chilean-napolitana
     if (expected.length > 1) {
       expect(hintButtons()).toHaveLength(0);
       expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0); // #346 S4: all are Research Entries
@@ -131,7 +133,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
   });
 
   it.each(Array.from({ length: 13 }, (_, c) => c + 12))("Dex %i with the non-credit calabresa and aussie already found: pool 1 again, the key recipe's own card + hint", (count) => {
-    const inputs = ladder(count, "bought", NON_CREDIT_FOUND);
+    const inputs = ladder(count, "bought", nonCreditFound(count));
     const onShowHint = vi.fn();
     renderDex(inputs, { onShowHint });
     expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0);
@@ -192,12 +194,12 @@ describe("Dex pool 0 / 1 / 2+ (PR-4b-A D-2 / D-3)", () => {
   const aggregated = () => document.querySelectorAll("[data-dex-aggregated]");
 
   it("pool 0 and pool 1 never show the aggregated unknown (pool 1 keeps its own 🎨 card + hint)", () => {
-    renderDex(ladder(25, "bought", NON_CREDIT_FOUND));
+    renderDex(ladder(25, "bought", nonCreditFound(25)));
     expect(aggregated()).toHaveLength(0);
     cleanup();
     // Dex 12+ is pool 1 only once the non-credit calabresa has been found (otherwise it is pool 2).
     for (const count of [0, 5, 11, 12, 24]) {
-      const inputs = ladder(count, "bought", count >= 12 ? NON_CREDIT_FOUND : []);
+      const inputs = ladder(count, "bought", count >= 12 ? nonCreditFound(count) : []);
       expect(RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE")).toHaveLength(1);
       renderDex(inputs);
       expect(aggregated(), `Dex ${count}`).toHaveLength(0);

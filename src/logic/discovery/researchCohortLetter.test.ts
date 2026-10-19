@@ -27,9 +27,14 @@ const play = (step: number, also: readonly string[] = []) => ({
   dex: discover(...keysBefore(step), ...also),
   ownedIngredientIds: ladderOwned(step),
 });
-/** The two non-credit step-12 recipes (TQ-1D: aussie) closed, as a player past step 12 has them. */
+/** The non-credit recipes closed, as a player past their step has them: the two step-12 recipes (TQ-1D: aussie), Batch 8a's chilean-napolitana (fresh-tomato, step 20) and spanish-chorizo-pizza (bell-pepper, step 28). */
 const settled = (step: number, also: readonly string[] = []) =>
-  play(step, [...(step > 12 ? ["brazilian-calabresa", "aussie"] : []), ...also]);
+  play(step, [
+    ...(step > 12 ? ["brazilian-calabresa", "aussie"] : []),
+    ...(step >= 20 ? ["chilean-napolitana"] : []),
+    ...(step >= 28 ? ["spanish-chorizo-pizza"] : []),
+    ...also,
+  ]);
 /** recipeId -> label of every current entry. */
 const labels = (i: ReturnType<typeof play>): Record<string, string> =>
   Object.fromEntries(researchEntryViews(i).map((v) => [v.recipeId, v.label]));

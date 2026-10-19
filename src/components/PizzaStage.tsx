@@ -33,6 +33,8 @@ import {
   toppingVisualFrame,
 } from "../logic/bakeVisual";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
+import { SquareDoughLayer } from "./SquareDoughLayer";
+import type { SquareDough } from "../logic/pan/squareDough";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
@@ -124,6 +126,9 @@ interface PizzaStageProps {
    *  reset or step change mid-hold, or unmount) -- those all discard locally instead. */
   onDoughStretchCommit: (shape: DoughShape) => void;
   onDoughElementChange?: (element: HTMLDivElement | null) => void;
+  /** Square-Pan Dough B2 (#535): present only for a square-pan round. While it is DOUGH the square layer replaces the round
+   *  stretch gesture (its pointer events stop in the layer); absent, nothing below changes. */
+  squareDough?: { dough: SquareDough; onCommit: (dough: SquareDough) => void };
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
@@ -242,6 +247,7 @@ export function PizzaStage({
   onDoughStretchProgress,
   onDoughStretchCommit,
   onDoughElementChange,
+  squareDough,
   onTap,
   onDispenseProgress,
   onDispenseCommit,
@@ -1389,6 +1395,7 @@ export function PizzaStage({
     </>
   );
 
+  const showSquareDough = isDoughStep && squareDough !== undefined;
   const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}`;
 
   return (
@@ -1401,7 +1408,7 @@ export function PizzaStage({
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
-        } ${showDoughShape ? "pizza-dough--has-shape-layer" : ""}`}
+        } ${showDoughShape ? "pizza-dough--has-shape-layer" : ""}${showSquareDough ? " pizza-dough--square-pan" : ""}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -1465,7 +1472,15 @@ export function PizzaStage({
             sauce-target-guide below, so a first-time player always has a visible target to
             pull the dough out toward even while it's still small. Shown only during the
             DOUGH step's own interaction, never once it's confirmed. */}
-        {isDoughStep && interactive && (
+        {showSquareDough && (
+          <SquareDoughLayer
+            dough={squareDough.dough}
+            interactive={interactive}
+            onCommit={squareDough.onCommit}
+            resetToken={makingStepToken + resetToken}
+          />
+        )}
+        {isDoughStep && interactive && !showSquareDough && (
           <svg className="dough-target-guide" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r={DOUGH_RADIUS} />
           </svg>

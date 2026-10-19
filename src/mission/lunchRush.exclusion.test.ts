@@ -48,7 +48,10 @@ describe("lunchRush: false foundation", () => {
       "spinach-artichoke-pizza",
       "eggplant-ricotta-pizza",
       "new-zealand-lamb-pizza",
-    ]); // opt-out total = 32
+      "chilean-napolitana",
+      "spanish-chorizo-pizza",
+      "frango-catupiry",
+    ]); // opt-out total = 35
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);
@@ -58,7 +61,7 @@ describe("lunchRush: false foundation", () => {
     expect(participatesInLunchRush("vongole")).toBe(false);
     expect(participatesInLunchRush("pesto-vegetariana")).toBe(false);
     expect(participatesInLunchRush("ratatouille-pizza")).toBe(false);
-    for (const id of ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload", "california-style-pizza", "spinach-artichoke-pizza", "eggplant-ricotta-pizza", "new-zealand-lamb-pizza"]) expect(participatesInLunchRush(id), id).toBe(false); // Expansion Batches 1-5 + Batch 6 PR-2 + Batch 7a
+    for (const id of ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload", "california-style-pizza", "spinach-artichoke-pizza", "eggplant-ricotta-pizza", "new-zealand-lamb-pizza", "chilean-napolitana", "spanish-chorizo-pizza", "frango-catupiry"]) expect(participatesInLunchRush(id), id).toBe(false); // Expansion Batches 1-5 + Batch 6 PR-2 + Batch 7a + Batch 8a
     expect(participatesInLunchRush("aussie")).toBe(false); // TQ-1D: Lunch Rush never serves a Technique recipe
     expect(missionOrderRecipeIds(inputs).sort()).toEqual(original.map((r) => r.id).sort());
   });

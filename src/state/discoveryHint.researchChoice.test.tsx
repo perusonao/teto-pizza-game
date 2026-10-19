@@ -42,7 +42,7 @@ function save(step: number, extraDiscovered: readonly string[] = [], over: Parti
 }
 
 const multi = (over: Partial<GameState> = {}, stock?: number) => save(12, [], over, stock);
-const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa", "aussie"], over);
+const single = (over: Partial<GameState> = {}) => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"], over);
 const entryIds = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);
 const [A, B, C] = entryIds(multi());
 const BOUGHT = { discoveryHintFacts: { [A]: ["ing:tomato-sauce"] } } as const;

@@ -7496,3 +7496,268 @@ p.hint-sheet__step {
 .sauce-remaining-gauge[data-empty="true"]:not([data-limit="total"]) {
   opacity: 0.6;
 }
+
+/* ---------- Square-Pan Dough B2 (Issue #535, Epic #532) ----------
+   The square dough's DOUGH-step layer. Appended as its own block: it adds rules only for the new classes (no existing rule,
+   and nothing about the bake filter, is edited). */
+.pizza-dough--square-pan {
+  border-radius: 10%;
+  background: radial-gradient(circle at 40% 35%, #8a8f96, #5d6168 85%);
+  border-color: #3f4348;
+}
+
+.square-dough-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.square-dough-layer__svg {
+  overflow: visible;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.square-dough-layer__pan {
+  fill: #7a7f86;
+  stroke: #2f3237;
+  stroke-width: 0.8;
+}
+
+.square-dough-layer__tap-ring,
+.square-dough-layer__reach,
+.square-dough-layer__hold-ring {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 0.9;
+  pointer-events: none;
+}
+
+.square-dough-layer__tap-ring {
+  stroke-opacity: 0.85;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: square-dough-tap-pulse 220ms ease-out;
+}
+
+.square-dough-layer__reach {
+  stroke-opacity: 0.45;
+  stroke-dasharray: 2 2;
+}
+
+.square-dough-layer__hold-ring {
+  stroke-opacity: 0.9;
+  stroke-width: 1.2;
+}
+
+@keyframes square-dough-tap-pulse {
+  from {
+    transform: scale(0.7);
+    stroke-opacity: 1;
+  }
+  to {
+    transform: scale(1);
+    stroke-opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .square-dough-layer__tap-ring {
+    animation: none;
+  }
+}
+
+/* ---------- Square-Pan Dough B2 visual feedback (Issue #535, PR #546 HV FAIL) ----------
+   The changed-cell marks and the smoothness gauge. New classes only; no existing rule is edited. */
+.square-dough-layer__changed rect {
+  fill: rgba(255, 255, 255, 0.34);
+  stroke: #fffbe6;
+  stroke-width: 0.55;
+  pointer-events: none;
+}
+
+.square-dough-layer__changed--fade {
+  animation: square-dough-changed-fade 500ms ease-out forwards;
+}
+
+@keyframes square-dough-changed-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .square-dough-layer__changed--fade {
+    animation-duration: 1ms;
+  }
+}
+
+/* The gauge sits right under the DOUGH status line (which, in a square round, no longer pushes everything below it away). */
+.prepare-dock .dough-status-readout--square {
+  margin-bottom: 0;
+}
+
+.prepare-dock .square-dough-gauge {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  margin-bottom: 0;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.square-dough-gauge__label {
+  flex: none;
+}
+
+.square-dough-gauge__bar {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 9px;
+  border-radius: 5px;
+  background: #ead9b8;
+  box-shadow: inset 0 0 0 1px rgba(120, 70, 20, 0.22);
+  overflow: hidden;
+}
+
+.square-dough-gauge__fill {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #e2b876, #b9763a);
+}
+
+.square-dough-gauge__value {
+  flex: none;
+  min-width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.square-dough-gauge__note {
+  flex: none;
+  min-width: 48px;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  color: #8a7458;
+}
+
+.square-dough-gauge__note--up {
+  color: #2f7d3a;
+}
+
+/* ---------- Square Dough B2: STEP 1/2 strip, goal sentence, operation line, gauge goal, next line ---------- */
+.prepare-dock .square-dough-steps {
+  box-sizing: border-box;
+  flex: none;
+  padding: 0 10px;
+  text-align: center;
+  color: #6b4226;
+}
+.square-dough-steps__list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.square-dough-steps__item {
+  min-width: 0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.square-dough-steps__item b {
+  margin-right: 3px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+.square-dough-steps__item--now {
+  background: #b9763a;
+  color: #fffaf0;
+}
+.square-dough-steps__item--next {
+  background: rgba(120, 70, 20, 0.1);
+  color: #8a7458;
+}
+.square-dough-steps__arrow {
+  color: #8a7458;
+  font-size: 14px;
+  line-height: 1;
+}
+.square-dough-steps__goal {
+  margin: 0;
+  height: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.square-dough-steps[data-reached="true"] .square-dough-steps__goal {
+  color: #2f7d3a;
+}
+.prepare-dock .dough-status-readout--square {
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+.square-dough-gauge__goal {
+  flex: none;
+  font-size: 11px;
+  color: #8a7458;
+  white-space: nowrap;
+}
+.square-dough-gauge__target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: #3b2412;
+}
+.square-dough-gauge--reached .square-dough-gauge__fill {
+  background: linear-gradient(90deg, #7fbf7a, #2f7d3a);
+}
+.square-dough-gauge--reached .square-dough-gauge__value {
+  color: #2f7d3a;
+}
+.prepare-dock .square-dough-next {
+  box-sizing: border-box;
+  height: 18px;
+  margin: 0 0 auto;
+  padding: 0 12px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  color: #8a7458;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

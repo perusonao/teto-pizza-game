@@ -46,7 +46,7 @@ const FREE_COOK_DISCOVERY_HINT_LEVELS: readonly string[] = [
  *  copy" guidance, distinct from every recipe's sauce copy so it never silently falls
  *  through to a misleading "塗ろう" (sauce) line before sauce is even reachable. D3A: updated
  *  to mention shrinking/correcting, not just stretching, now that the gesture is reversible. */
-const DOUGH_HINT = "生地を伸ばしたり縮めたりして形を整えよう";
+export const DOUGH_HINT = "生地を伸ばしたり縮めたりして形を整えよう";
 const DOUGH_HINT_EXPLICIT =
   "指で外側へなぞると伸び、内側へ戻すと縮むよ。伸ばしすぎても、縮めてやり直せるよ！";
 

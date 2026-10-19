@@ -290,6 +290,10 @@ export const RECIPE_SAUCE_PROFILES = {
     interaction: "PAINT_TEMPORARY",
   },
   "new-zealand-lamb-pizza": null,
+  // Batch 8a: NO_SAUCE (cheese base, no spread sauce; the existing TQ-1D mechanic).
+  "chilean-napolitana": null,
+  "spanish-chorizo-pizza": null,
+  "frango-catupiry": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */
