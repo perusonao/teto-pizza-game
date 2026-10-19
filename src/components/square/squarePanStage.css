@@ -1,0 +1,50 @@
+/* Square-Pan Dough D2-a1 (Issue #537, Epic #532): styles for the square pan's stage components in this folder only.
+   Nothing here edits an existing rule, and nothing sets or moves a bake `filter` (#518): it only shapes the new elements. The stage
+   box is `.pizza-dough`'s border box; the pan spans 6% .. 94% of it (50 +/- SQUARE_PAN_HALF_SIDE, pinned by squarePanStage.test.ts). */
+
+/* Same box as the round `.pizza-sauce-heatmap` (the border box, so dough-percent lines up with pointer math). `clip-path` is applied after
+   any `filter` (e.g. a blur added by the stage), so a blurred layer cannot bleed past the pan's edge. */
+.square-sauce-canvas {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  width: calc(100% + 2 * var(--dough-border-width, 10px));
+  height: calc(100% + 2 * var(--dough-border-width, 10px));
+  pointer-events: none;
+  clip-path: inset(6%);
+}
+
+/* The sauce Reference region (a dashed rounded square), same look as the round `.sauce-target-guide circle`. */
+.square-target-guide {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  width: calc(100% + 2 * var(--dough-border-width, 10px));
+  height: calc(100% + 2 * var(--dough-border-width, 10px));
+  pointer-events: none;
+}
+
+.square-target-guide rect {
+  fill: none;
+  stroke: rgba(107, 66, 38, 0.4);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 2.4;
+}
+
+/* Thumbnail base: the round `.pizza-thumbnail` footprint (64 x 64) with the pan's corner, so a square recipe's card keeps the card grid. */
+.square-thumbnail {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 10%;
+  border: 4px solid #8f949b;
+  background: radial-gradient(circle at 40% 35%, #8a8f96, #5d6168 85%);
+  box-shadow: inset 0 0 8px rgba(40, 44, 50, 0.3), 0 1px 3px rgba(40, 44, 50, 0.25);
+  overflow: hidden;
+  --thumb-piece-scale: 0.34;
+}
+
+.square-thumbnail__base {
+  position: absolute;
+  inset: 6%;
+  border-radius: 6%;
+  opacity: 0.9;
+}
