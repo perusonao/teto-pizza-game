@@ -7761,3 +7761,47 @@ p.hint-sheet__step {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Square Dough F4-b (#538): the DOUGH step's ○/□ switch. Two 44px targets, pinned to the dock's bottom (the tray is absent in DOUGH),
+   so it never pushes the pizza and fits 360px wide with no horizontal scroll. */
+.prepare-dock .pan-switch {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.pan-switch__option {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  min-height: 44px;
+  padding: 0;
+  border: 2px solid #d9b98f;
+  border-radius: 12px;
+  background: #fff8ec;
+  cursor: pointer;
+}
+
+.pan-switch__option[aria-checked="true"] {
+  border-color: #c2571a;
+  background: #ffe2c4;
+}
+
+.pan-switch__icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #6b4226;
+  background: #f6d9a8;
+}
+
+.pan-switch__icon--round {
+  border-radius: 50%;
+}
+
+.pan-switch__icon--square {
+  border-radius: 3px;
+}

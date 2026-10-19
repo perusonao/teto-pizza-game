@@ -79,7 +79,11 @@ import { DOUGH_HINT } from "../data/hints";
 import { SquareDoughGauge } from "../components/SquareDoughGauge";
 import { SquareDoughNext, SquareDoughSteps } from "../components/SquareDoughGuide";
 import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
-import { activePanShape, wantsLumpySquareStart } from "../preview/panShapePreview";
+import { wantsLumpySquareStart } from "../preview/panShapePreview";
+import { effectivePanShape } from "../logic/pan/effectivePan";
+import { panSwitchOffered, type PanChoice } from "../state/panSelection";
+import { isDinnerRound } from "../state/roundKind";
+import { PanSwitch } from "../components/PanSwitch";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
@@ -217,6 +221,8 @@ interface GameScreenProps {
   onDoughStretchCommit: (shape: DoughShape) => void;
   /** Square-Pan Dough B2 (#535): commits the square dough of a square-pan round (App dispatches COMMIT_SQUARE_DOUGH). */
   onSquareDoughCommit?: (dough: SquareDough) => void;
+  /** Square Dough F4-b (#538): the DOUGH step's ○/□ choice (App dispatches SELECT_PAN). The switch renders only where `panSwitchOffered`. */
+  onSelectPan?: (pan: PanChoice) => void;
   onAddCutLine: (line: CutLine) => void;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
@@ -292,6 +298,7 @@ export function GameScreen({
   onDoughStretchProgress,
   onDoughStretchCommit,
   onSquareDoughCommit,
+  onSelectPan,
   onAddCutLine,
   onDoughElementChange,
   resolvePhysicalDrop,
@@ -372,7 +379,19 @@ export function GameScreen({
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   // Square-Pan Dough B2 (#535): in a square-pan round the DOUGH step is the square sheet; completion is C's (#536), so in B
   // 「次へ」 stays unavailable there.
-  const squareDoughRound = activePanShape(state.recipe) === "square";
+  const squareDoughRound = effectivePanShape(state.recipe, state.pizza) === "square";
+  // Square Dough F4-b (#538): the ○/□ switch -- Free Cooking / Research DOUGH step once the derived affordance is open.
+  const showPanSwitch =
+    onSelectPan !== undefined &&
+    panSwitchOffered({
+      phase: state.phase,
+      makingStep: state.makingStep,
+      isMissionRound: state.isMissionRound,
+      isDinnerRound: isDinnerRound(state),
+      freeCook: state.freeCook,
+      recipe: state.recipe,
+      dex: state.dex,
+    });
   const squareDoughStart = useMemo(
     () => state.pizza.squareDough ?? (wantsLumpySquareStart() ? createLumpySquareDough() : createInitialSquareDough()),
     [state.pizza.squareDough],
@@ -912,6 +931,7 @@ export function GameScreen({
             {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
+            {showPanSwitch && <PanSwitch selected={state.pizza.pan === "tray" ? "tray" : "round"} onSelect={onSelectPan} />}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}
