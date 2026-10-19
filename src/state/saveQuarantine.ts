@@ -155,3 +155,71 @@ export function discardQuarantine(storage: StorageLike | null, saveKey: string):
     return false;
   }
 }
+
+/** What is held, without the text itself (the notice and the Settings row need only this). */
+export interface QuarantineSummary {
+  /** Slots that hold something (a readable entry, or text this build cannot read as an entry). */
+  count: number;
+  /** The newest readable, still-unacknowledged entry's kind (`latest` wins over `first`); null when there is none. */
+  unacknowledgedKind: QuarantineKind | null;
+  /** A slot could not be read at all. */
+  unreadable: boolean;
+}
+
+export function summarizeQuarantine(storage: StorageLike | null, saveKey: string): QuarantineSummary {
+  const summary: QuarantineSummary = { count: 0, unacknowledgedKind: null, unreadable: false };
+  if (!storage) return summary;
+  // `latest` first: the newest unacknowledged entry decides the kind shown.
+  for (const slot of ["latest", "first"] as const) {
+    const read = readQuarantine(storage, slot, saveKey);
+    if (read.kind === "none") continue;
+    summary.count += 1;
+    if (read.kind === "error") summary.unreadable = true;
+    if (read.kind === "ok" && !read.entry.acknowledged && summary.unacknowledgedKind === null) {
+      summary.unacknowledgedKind = read.entry.kind;
+    }
+  }
+  return summary;
+}
+
+/** True when `raw` is held verbatim in a readable slot. */
+export function isRawQuarantined(storage: StorageLike | null, raw: string, saveKey: string): boolean {
+  if (!storage) return false;
+  return QUARANTINE_SLOTS.some((slot) => {
+    const read = readQuarantine(storage, slot, saveKey);
+    return read.kind === "ok" && read.entry.raw === raw;
+  });
+}
+
+/**
+ * The player has seen the "a backup is kept" notice: marks every readable entry acknowledged (the `raw` text, `slot` and
+ * `createdAt` are untouched, and each rewrite is read back). Never deletes anything. Returns true when no readable entry is
+ * left unacknowledged; on any failure the slot is put back as it was.
+ */
+export function acknowledgeQuarantine(storage: StorageLike | null, saveKey: string): boolean {
+  if (!storage) return true;
+  let ok = true;
+  for (const slot of QUARANTINE_SLOTS) {
+    const read = readQuarantine(storage, slot, saveKey);
+    if (read.kind === "error") {
+      ok = false;
+      continue;
+    }
+    if (read.kind !== "ok" || read.entry.acknowledged) continue;
+    const key = quarantineKey(slot, saveKey);
+    const next = JSON.stringify({ ...read.entry, acknowledged: true });
+    try {
+      storage.setItem(key, next);
+    } catch {
+      restoreSlot(storage, key, read.text);
+      ok = false;
+      continue;
+    }
+    const back = readQuarantine(storage, slot, saveKey);
+    if (back.kind !== "ok" || back.entry.raw !== read.entry.raw || !back.entry.acknowledged) {
+      restoreSlot(storage, key, read.text);
+      ok = false;
+    }
+  }
+  return ok;
+}

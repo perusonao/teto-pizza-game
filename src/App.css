@@ -7785,6 +7785,71 @@ p.hint-sheet__step {
   text-overflow: ellipsis;
 }
 
+/* ---------- Save Protection PR-2 (#560): HOME save notice + backup-delete confirmation ---------- */
+.save-notice {
+  margin: 8px 16px 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid #c9a56a;
+  background: #fff3d6;
+  color: #4a2e0a;
+  flex: none;
+}
+
+.save-notice--blocking {
+  border-color: #b4432f;
+  background: #fde7e1;
+}
+
+.save-notice__title {
+  margin: 0 0 2px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.save-notice__body {
+  margin: 0 0 6px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.save-notice__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.save-notice__button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: #7a4d2c;
+  color: #fff9ec;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.save-notice__button--quiet {
+  background: #e6d5ae;
+  color: #4a2e0a;
+}
+
+.settings-reset-confirm__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a2e0a;
+}
+
+.settings-reset-confirm__check input {
+  width: 22px;
+  height: 22px;
+}
+
 /* ---------- Square Dough C (#536): corner marks, drag hints, drag trail, the done pill ---------- */
 .square-dough-layer__corners,
 .square-dough-layer__hints,
