@@ -39,44 +39,60 @@ const BAKE_TARGET = {
  * Scenario D: Lunch Rush order -> cooking -> CUT -> serve, with no stale overlay/duplicate serve.
  */
 
+// ---- #5xx VERIFICATION ONLY (scratch commit; never part of any PR): Scenario A x40 with per-step logs. Body, timeout (30s) and assertions are unchanged. ----
 test.describe("Scenario A: Margherita regression (CUT unchanged)", () => {
-  test("HOME -> FREE -> Margherita -> PREPARE -> BAKE -> POST_BAKE/CUT -> RESULT", async ({ page }) => {
-    test.setTimeout(30_000);
-    await startFreshMargherita(page);
+  for (let rep = 1; rep <= 40; rep += 1) {
+    test(`HOME -> FREE -> Margherita -> PREPARE -> BAKE -> POST_BAKE/CUT -> RESULT [rep ${rep}]`, async ({ page }) => {
+      test.setTimeout(30_000);
+      const t0 = Date.now();
+      const project = test.info().project.name;
+      const mark = (step: string) => console.log(`P4B ${project} rep=${rep} step=${step} t=${Date.now() - t0}`);
+      page.on("crash", () => mark("PAGE-CRASH"));
+      page.on("close", () => mark("PAGE-CLOSE"));
+      await startFreshMargherita(page);
+      mark("started");
 
-    await completeDoughStep(page);
-    await page.getByRole("button", { name: /次へ/ }).click();
+      await completeDoughStep(page);
+      await page.getByRole("button", { name: /次へ/ }).click();
 
-    await page.getByRole("button", { name: /トマトソース/ }).click();
-    await paintSauceRing(page, 25, 16);
-    await page.getByRole("button", { name: /次へ/ }).click();
+      await page.getByRole("button", { name: /トマトソース/ }).click();
+      await paintSauceRing(page, 25, 16);
+      await page.getByRole("button", { name: /次へ/ }).click();
+      mark("sauce-done");
 
-    await page.getByRole("button", { name: /モッツァレラ/ }).click();
-    await tapDoughPercent(page, 40, 50);
-    await tapDoughPercent(page, 60, 50);
-    await tapDoughPercent(page, 50, 30);
-    await page.getByRole("button", { name: /次へ/ }).click();
+      await page.getByRole("button", { name: /モッツァレラ/ }).click();
+      await tapDoughPercent(page, 40, 50);
+      await tapDoughPercent(page, 60, 50);
+      await tapDoughPercent(page, 50, 30);
+      await page.getByRole("button", { name: /次へ/ }).click();
 
-    if (await page.getByRole("button", { name: /バジル/ }).count()) {
-      await page.getByRole("button", { name: /バジル/ }).click();
-      await tapDoughPercent(page, 45, 55);
-      await tapDoughPercent(page, 55, 45);
-    }
+      if (await page.getByRole("button", { name: /バジル/ }).count()) {
+        await page.getByRole("button", { name: /バジル/ }).click();
+        await tapDoughPercent(page, 45, 55);
+        await tapDoughPercent(page, 55, 45);
+      }
+      mark("toppings-done");
 
-    // A virtual-clock bake, not a real-time wait -- see bakeToTarget's own doc comment for why.
-    await bakeToTarget(page, BAKE_TARGET.margherita);
+      await bakeToTarget(page, BAKE_TARGET.margherita);
+      mark("baked");
 
-    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
-    await cutThreeLines(page);
-    await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
-    await page.getByRole("button", { name: /切り終わる/ }).click();
+      await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+      await cutThreeLines(page);
+      mark("cut-drawn");
+      await expect(page.locator(".pizza-cut-mark")).toHaveCount(3);
+      mark("cut-marks-3");
+      await page.getByRole("button", { name: /切り終わる/ }).click();
+      mark("clicked-finish");
 
-    await expect(page.locator(".result-panel")).toBeVisible();
-    const cutCard = page.locator(".cut-evaluation-summary");
-    await expect(cutCard).toBeVisible();
-    await expect(cutCard).toContainText("カット");
-  });
+      await expect(page.locator(".result-panel")).toBeVisible();
+      const cutCard = page.locator(".cut-evaluation-summary");
+      await expect(cutCard).toBeVisible();
+      await expect(cutCard).toContainText("カット");
+      mark("done");
+    });
+  }
 });
+
 
 test.describe("Scenario B: newly CUT-enabled non-margherita recipe (Salsiccia)", () => {
   test("HOME -> FREE -> Salsiccia -> PREPARE -> BAKE -> POST_BAKE/CUT -> RESULT", async ({ page }) => {
