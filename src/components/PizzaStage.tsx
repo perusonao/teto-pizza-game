@@ -36,6 +36,12 @@ import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { SquareDoughLayer } from "./SquareDoughLayer";
 import type { SquareDough } from "../logic/pan/squareDough";
 import type { SquareDoughRamp } from "../logic/pan/squareDoughView";
+import { getPanGeometry } from "../logic/pan/panGeometry";
+import { effectivePanShape } from "../logic/pan/effectivePan";
+import type { PanShape } from "../logic/pan/panShape";
+import { SquareTargetGuide } from "./square/SquareTargetGuide";
+import { squareCheesePoolClipPath } from "./square/squarePanStage";
+import "./square/squarePanStage.css";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
@@ -51,11 +57,9 @@ import { SauceDotsFallback, SauceLayersBoundary } from "./SauceCanvasFallback";
 import { layeredFallbackRuns } from "./sauceCanvasSupport";
 import { SauceMergedHeatmapCanvas, SauceMergedOverflowCanvas } from "./SauceMergedCanvas";
 import {
-  clampToDough,
   clientPointToDoughPercent,
   DOUGH_CENTER,
   DOUGH_RADIUS,
-  isInsideDough,
   toSauceLayerPercent,
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
@@ -74,6 +78,9 @@ import { computeGuideOpacity } from "../logic/bakeGuideFade";
 const DRAG_THRESHOLD_PX = 10;
 /** How far (CSS px) each piece of a cut pizza is nudged away from the centre -- a hair, not an explosion. */
 const PIECE_SEPARATION_PX = 1.5;
+
+/** The dough's CSS border (`--dough-border-width`, px): toppings are placed inside it, the pan's edge is measured from outside it. */
+const SQUARE_DOUGH_BORDER_PX = 10;
 
 /** CSS clip-path for one side polygon of a cut (dough-percent points; even-odd like the geometry). */
 function polygonClip(points: readonly { x: number; y: number }[]): string {
@@ -259,6 +266,12 @@ export function PizzaStage({
   resultCompact = false,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
+  // Square-Pan Dough D2-a2 (#537): the pan this round is cooked on, for every step DOUGH..RESULT -- the Preview / DEV override or the recipe's own pan,
+  // else the player's explicit tray (F4-a `effectivePanShape`); round for every shipped pizza. For "round" every pointer test, sauce mask, guide and
+  // surface below is the round pizza's own, unchanged: `contains` / `clamp` ARE `isInsideDough` / `clampToDough` (panGeometry.test.ts pins the identity).
+  const panShape: PanShape = effectivePanShape(recipe, pizza);
+  const pan = getPanGeometry(panShape);
+  const squarePan = panShape === "square";
   const pathRef = useRef<SVGPathElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
@@ -659,7 +672,7 @@ export function PizzaStage({
     const dough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
     // Issue #418: a CUT stroke may start outside the pizza (the capture zone extends past it) and
     // begins where the finger crosses the rim; every other gesture still needs an inside press.
-    if (!isCutStep && !isInsideDough(dough.x, dough.y)) return;
+    if (!isCutStep && !pan.contains(dough.x, dough.y)) return;
     // design doc §8.4: once the cut limit is reached, a new press simply starts no gesture at
     // all (mirrors every other "reject at the source" gate in this component) -- ADD_CUT_LINE's
     // own reducer-level guard is the real backstop, this is purely to avoid a confusing
@@ -755,7 +768,7 @@ export function PizzaStage({
       // to nearly the same instant, destroying the finger's real movement-over-time history
       // that SauceDispenseController's tick interpolation depends on. Human Feel Fix 2: no
       // appendTrailPoint here -- see the matching comment in handlePointerDown above.
-      if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
+      if (pan.contains(dough.x, dough.y)) g.lastInsideDough = dough;
       const normalizedTimestamp =
         timestampNormalizerRef.current?.normalize(rawEventTimestamp) ?? performance.now();
       dispenseControllerRef.current?.move(dough, normalizedTimestamp);
@@ -793,7 +806,7 @@ export function PizzaStage({
       if (isPaintMode) appendTrailPoint(g.startDough.x, g.startDough.y);
     }
 
-    if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
+    if (pan.contains(dough.x, dough.y)) g.lastInsideDough = dough;
     if (isPaintMode) appendTrailPoint(dough.x, dough.y);
   }
 
@@ -898,7 +911,7 @@ export function PizzaStage({
       // Topping drag is out of scope for this phase: commit a single point at release,
       // matching the previous click-based placement exactly (no multi-drop from a drag).
       const dough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
-      if (isInsideDough(dough.x, dough.y)) onTap(dough.x, dough.y);
+      if (pan.contains(dough.x, dough.y)) onTap(dough.x, dough.y);
       gestureRef.current = createGestureState();
       return;
     }
@@ -907,7 +920,7 @@ export function PizzaStage({
     // dough, clamped onto it so releasing just past the rim still lands cleanly instead of
     // doing nothing.
     const commitPoint = g.lastInsideDough ?? g.startDough;
-    const clamped = clampToDough(commitPoint.x, commitPoint.y);
+    const clamped = pan.clamp(commitPoint.x, commitPoint.y);
     onTap(clamped.x, clamped.y);
 
     // Let the freehand trail sit for a beat, then fade it as the real sauce layer spreads in
@@ -1118,13 +1131,19 @@ export function PizzaStage({
   // once exactly as before. The silhouette's <clipPath> is defined once, outside the body.
   /** Class list of one sauce layer's canvases: the same tokens the single heatmap carries (the olive-oil treatment, the bake
    *  tint), plus the kind so tests and the browser checks can tell the layers apart. */
+  /** D2-a2: a square pan's heatmap canvases are also clipped to the pan after their blur (the square rasterizer already masks the pixels). */
+  const panCanvasClass = squarePan ? " square-sauce-canvas" : "";
   const sauceLayerClassName = (ingredientId: string, bake: typeof bakeState) =>
     `pizza-sauce-heatmap ${ingredientId === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""} ${
       bake ? `pizza-sauce-heatmap--${bake}` : ""
     } pizza-sauce-heatmap--kind-${ingredientId}`;
 
+  // D2-a2: on a square pan the dough is the pan's sheet, never the round silhouette (which would show under the tray). While the square layer is
+  // up (DOUGH) it paints the sheet itself; after 「次へ」 this flat plate carries the same bake colour as the round `.pizza-dough-shape`.
   const renderShapeLayer = () =>
-    showDoughShape ? (
+    squarePan ? (
+      showSquareDough ? null : <div className="pizza-dough-square" aria-hidden="true" style={doughShapeStyle} />
+    ) : showDoughShape ? (
       <div
         className="pizza-dough-shape"
         aria-hidden="true"
@@ -1232,9 +1251,10 @@ export function PizzaStage({
                 key={`mheat-${group.firstIndex}`}
                 runs={group.runs}
                 doughShape={pizza.doughShape}
+                pan={panShape}
                 colorOf={colorOf}
                 bakedOil={group.bakedOil}
-                className={mergedClassName(group.oil)}
+                className={mergedClassName(group.oil) + panCanvasClass}
               />
             ))}
             {plan.own.map((layer, i) => (
@@ -1244,8 +1264,9 @@ export function PizzaStage({
                 underDeposits={layer.under}
                 ingredientId={layer.ingredientId}
                 doughShape={pizza.doughShape}
+                pan={panShape}
                 color={colorOf(layer.ingredientId)}
-                className={sauceLayerClassName(layer.ingredientId, bakeState)}
+                className={sauceLayerClassName(layer.ingredientId, bakeState) + panCanvasClass}
               />
             ))}
             {plan.merged.map((group) => (
@@ -1253,6 +1274,7 @@ export function PizzaStage({
                 key={`moverflow-${group.firstIndex}`}
                 runs={group.runs}
                 doughShape={pizza.doughShape}
+                pan={panShape}
                 colorOf={colorOf}
                 bakedOil={group.bakedOil}
                 className={mergedClassName(group.oil)}
@@ -1263,6 +1285,7 @@ export function PizzaStage({
                 key={`overflow-${plan.firstOwnIndex + i}-${layer.ingredientId}`}
                 deposits={layer.deposits}
                 doughShape={pizza.doughShape}
+                pan={panShape}
                 color={colorOf(layer.ingredientId)}
                 className={sauceLayerClassName(layer.ingredientId, bakeState)}
               />
@@ -1275,10 +1298,11 @@ export function PizzaStage({
         <SauceHeatmapCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
+          pan={panShape}
           color={fieldSauceColor}
           className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
             bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
-          }`}
+          }${panCanvasClass}`}
         />
       )}
       {/* Issue #167 PR-B (Reference Truth): overflow markers (see the effect above) live in
@@ -1290,6 +1314,7 @@ export function PizzaStage({
         <OverflowMarkerCanvas
           deposits={effectiveDeposits}
           doughShape={pizza.doughShape}
+          pan={panShape}
           color={fieldSauceColor}
           className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
             bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
@@ -1345,14 +1370,33 @@ export function PizzaStage({
               );
               if (!(ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
               /* #421 / #486: the Canvas mozzarella, only when the Preview / DEV `?cheese=` switch or the production opt-in (off by default) asks for it; M1 whenever the canvas cannot be shown. */
-              return (
+              const poolSizePx = Math.round(CHEESE_RENDER_MODE.sizePx * rankScale);
+              const pool = (
                 <CheesePoolCanvas
                   seed={t.id}
                   {...cheesePoolBakeParams(bakeProgress === null ? null : bakeHeat)}
                   grid={CHEESE_RENDER_MODE.grid}
-                  sizePx={Math.round(CHEESE_RENDER_MODE.sizePx * rankScale)}
+                  sizePx={poolSizePx}
                   fallback={m1Piece}
                 />
+              );
+              if (!squarePan) return pool;
+              // D2-a2: a pool near the pan's edge keeps its melt up to the edge and loses what would hang over it (clipped on a box that is not scaled by the spread).
+              // A topping is drawn at x% of the dough's padding box (inside its 10px border); the pan's 6%..94% is of the border box: convert the piece to border-box percent first.
+              const innerPx = Math.max(160, doughPx - 2 * SQUARE_DOUGH_BORDER_PX);
+              const boxPx = innerPx + 2 * SQUARE_DOUGH_BORDER_PX;
+              const reach = cheesePoolReachPercent(poolSizePx, doughPx);
+              const clipPath = squareCheesePoolClipPath(
+                ((SQUARE_DOUGH_BORDER_PX + (t.x / 100) * innerPx) / boxPx) * 100,
+                ((SQUARE_DOUGH_BORDER_PX + (t.y / 100) * innerPx) / boxPx) * 100,
+                (reach * innerPx) / boxPx,
+              );
+              if (clipPath === null) return pool;
+              const sidePx = (2 * reach * innerPx) / 100;
+              return (
+                <span className="pizza-cheese-pool-clip" style={{ width: sidePx, height: sidePx, clipPath }}>
+                  {pool}
+                </span>
               );
             })()}
           </span>
@@ -1409,7 +1453,7 @@ export function PizzaStage({
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
-        } ${showDoughShape ? "pizza-dough--has-shape-layer" : ""}${showSquareDough ? " pizza-dough--square-pan" : ""}`}
+        } ${showDoughShape && !squarePan ? "pizza-dough--has-shape-layer" : ""}${squarePan ? " pizza-dough--square-pan" : ""}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -1482,7 +1526,7 @@ export function PizzaStage({
             ramp={squareDough.ramp}
           />
         )}
-        {isDoughStep && interactive && !showSquareDough && (
+        {isDoughStep && interactive && !showSquareDough && !squarePan && (
           <svg className="dough-target-guide" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r={DOUGH_RADIUS} />
           </svg>
@@ -1495,11 +1539,12 @@ export function PizzaStage({
             alone -- same convention the heatmap itself already uses. Shown only while the
             player can actually paint (referenceModeEnabled + interactive), never during
             BAKE/RESULT or behind the Reference popover. */}
-        {referenceModeEnabled && interactive && (
+        {referenceModeEnabled && interactive && !squarePan && (
           <svg className="sauce-target-guide" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
           </svg>
         )}
+        {referenceModeEnabled && interactive && squarePan && <SquareTargetGuide />}
             {renderBodyLayers()}
           </>
         )}
