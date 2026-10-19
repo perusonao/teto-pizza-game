@@ -7600,10 +7600,14 @@ p.hint-sheet__step {
 }
 
 /* Soft marks (the smooth sheet): no hard outline, rounder and fainter, so they glow on the dough instead of drawing the grid back in. */
+.square-dough-layer__changed--soft .square-dough-layer__changed-blob {
+  opacity: 0.26; /* on the GROUP, so overlapping marks merge into one soft shape instead of drawing every cell */
+}
 .square-dough-layer__changed--soft rect {
-  fill: rgba(255, 255, 255, 0.2);
-  stroke: rgba(255, 251, 230, 0.4);
-  stroke-width: 0.35;
+  fill: #fffbe6;
+  stroke: #fffbe6;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
 }
 
 .square-dough-layer__changed--fade {

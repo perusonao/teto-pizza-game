@@ -481,17 +481,19 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
             className={`square-dough-layer__changed${useCanvas ? " square-dough-layer__changed--soft" : ""}${highlight.ended ? " square-dough-layer__changed--fade" : ""}`}
             data-testid="square-dough-changed"
           >
-            {highlight.cells.map((index) => (
-              <rect
-                key={index}
-                data-cell={index}
-                x={(index % SQUARE_DOUGH_GRID) * CELL}
-                y={Math.floor(index / SQUARE_DOUGH_GRID) * CELL}
-                width={CELL}
-                height={CELL}
-                rx={useCanvas ? 2.8 : 1.2}
-              />
-            ))}
+            <g className="square-dough-layer__changed-blob">
+              {highlight.cells.map((index) => (
+                <rect
+                  key={index}
+                  data-cell={index}
+                  x={(index % SQUARE_DOUGH_GRID) * CELL}
+                  y={Math.floor(index / SQUARE_DOUGH_GRID) * CELL}
+                  width={CELL}
+                  height={CELL}
+                  rx={useCanvas ? 2.8 : 1.2}
+                />
+              ))}
+            </g>
           </g>
         )}
         {/* The four corner marks: dashed and pulsing until the corner is reached, a green tick once it is (the picture of STEP 1). */}

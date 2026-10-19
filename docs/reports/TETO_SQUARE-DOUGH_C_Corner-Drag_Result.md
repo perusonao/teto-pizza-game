@@ -42,3 +42,36 @@ STEP 2 mid-state images (evenness below 60 %, the gauge moving): `docs/reports/s
 4. iOS Safari: drag feel and the SVG blur cost are Owner-HV items (no local WebKit; WebKit CI does not judge feel).
 
 Screenshots: `docs/reports/screenshots/square-dough-c/flow-{390x844,360x800}.png` (start with hints, mid-drag trail, four corners, STEP 2, finished) and `step2-*.png` (above). After 次へ the SAUCE step still draws a round dough: the square pan in later steps is D2 (#537), not this PR.
+
+## Balance pass (Owner GO after the iPhone HV of 167cbfb): operation balance (STEP A) and a smooth sheet (STEP B)
+Owner-approved changes, nothing else moved: **mass conservation, corners 85 %, coverage 95 %, evenness 60 % unchanged.** The round pizza, the 60 recipes, F4-b, D2 and Grandma are untouched; the Preview lumpy start keeps B2's SVG look.
+
+### STEP A -- the numbers behind it (model, 24 seeds of casual play; `docs` table below; time = 0.35 s aim per action + 0.8 s per hold + finger travel)
+| | STEP 1 actions | finish 60 %: actions p50 / p90, time | 70 % | 80 % |
+|---|---|---|---|---|
+| 167cbfb | 29 | 44 / 58, 27 s | 132 / 172 | 0 of 24 |
+| after (drag brush 16, thick-first donors, tap/hold E2) | 17 | **21 / 23, 13 s** | 33 / 40, 20 s | 11 of 24 |
+
+Why the old balance was slow (measured): after STEP 1 the leftover lump of the ball (21-35 % of all the dough, 22-32 cells) carries 47-69 % of the unevenness and the old push moved 0-1.9 points per action; the old colour ramp showed nothing above 0.5, so the lump was invisible. And the evenness definition caps a perfectly flat sheet at `1 - sqrt((1-c)/c)` for coverage c: 0.771 at the 95 % bar, so **80 % is unreachable at a 95 % bar** (it needs 96.2 %); 60 % needs >= 86.2 %, 70 % >= 91.7 %.
+
+Same scripted player, real browser (Chromium, mouse, wall-clock without aim time), before = 167cbfb, after = this HEAD:
+
+| | complete (actions) | time to complete |
+|---|---|---|
+| before, 8 runs (390x844 seeds 11 29 3 7 13 17, 360x800 seeds 11 29) | 30, 33, 33, 48, 51, 51, 104, 112 | 7.0 - 37.9 s |
+| after, same 8 runs | 14, 14, 15, 21, 22, 23, 23, 24 | 3.3 - 5.8 s |
+
+(Add ~0.35 s of aiming per action for a person: 14-24 actions is ~8-15 s.) STEP 1 alone: 10-24 actions (before 16-38). A careful painter can still finish at STEP 1's last stroke (evenness is already above 60 %): that is the evenness value's choice, not changed.
+
+### STEP A -- what changed (constants only, tests updated)
+Drag brush 11 -> 16 %; donor weight ~ spare thickness squared (`DRAG_DONOR_POWER = 2`); tap push radius 11 -> 16, hold radius up to 34 (was 22), hold rate 4.0 per second (was 2.2); push strength 0.9, film 0.16 and donor decay 20 as before.
+
+### STEP B -- the sheet
+16x16 thicknesses are interpolated (bicubic, separable) to 128x128 and drawn on a `<canvas>` (scaled up smoothly by the browser), lit as a relief (light from the top left), with a **two-zone ramp**: the thin film 0.05-0.30 gets 60 % of the colour travel (dE ~3 per 0.02), the thick remnant 0.30-1.0 the other 40 % (dE ~3.4-4 per 0.1). The changed-cell marks are one soft merged shape (opacity on the group), not outlined squares. No SVG blur filter is used on this path. Fallbacks: no 2D context, a draw that throws -> SVG cells (B2's drawing); the page coming back (visibilitychange / pageshow / focus / resize / orientationchange / contextrestored) -> redrawn. The Preview lumpy start keeps B2's SVG look unchanged.
+
+Frame times while dragging (headless Chromium, 60 Hz, 3 strokes x 40 moves): before p95 16.8 ms and after p95 16.8 ms at normal CPU; with the CPU throttled 6x, 2 frames over 33 ms before and 1 after. This says there is no regression in headless Chromium; iPhone Safari's own cost is an Owner-HV item.
+
+### Preview/DEV diagnostics (`?diag=1`, never in production -- the production-bundle gate test passes)
+Two lines on the panel: operations per step (tap / hold / drag) and the times (STEP 1, STEP 2, total to the finish) from the first finger down, counted per committed gesture.
+
+Screenshots: `docs/reports/screenshots/square-dough-c-balance/{before,after}-{390x844,360x800}-seed29.png` (start, mid-drag, STEP 2 start, a long press in STEP 2, finished).
