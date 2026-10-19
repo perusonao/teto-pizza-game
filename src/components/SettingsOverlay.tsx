@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ResetSaveResult } from "../state/persistence";
+import type { SaveHealth, SaveNotice } from "../state/saveHealth";
 import { DevEditorLink } from "../devtools/DevEditorLink";
 import { getMyProfile, FALLBACK_DISPLAY_NAME, setDisplayName as callSetDisplayName } from "../firebase";
 import {
@@ -40,7 +42,39 @@ interface SettingsOverlayProps {
    *  return means storage removal could not be verified -- the overlay shows an error and
    *  lets the player retry instead of pretending the reset (and the reload that would follow
    *  it) happened. */
-  onResetGameData: () => boolean;
+  onResetGameData: () => boolean | ResetSaveResult;
+  /** Save Protection PR-2 (#560): the state of the save, read from storage by App. Absent = a healthy save and no backup
+   *  (every pre-PR-2 call site). */
+  saveHealth?: SaveHealth;
+  /** Deletes the quarantined (backed-up) data and reports whether it is verifiably gone. Wired ONLY to the separate
+   *  「バックアップを削除」 confirmation below; Full Game Reset never calls it. */
+  onDiscardQuarantine?: () => boolean;
+}
+
+type ResetFailureReason = Extract<ResetSaveResult, { ok: false }>["reason"];
+
+/** The reset dialog's lead paragraph: what happens to the player's CURRENT data, which depends on what the save is. */
+function resetBody(notice: SaveNotice | null): string {
+  if (notice?.kind === "future-version") {
+    return "この端末には、新しいバージョンで保存されたデータがあります。リセットしても、そのデータは削除されず端末内に退避され、はじめからやり直します。";
+  }
+  if (notice?.kind === "corrupt") {
+    return "この端末の保存データは壊れていて読み込めません。リセットしても、そのデータは削除されず端末内に退避され、はじめからやり直します。";
+  }
+  return "Pitz・材料・レシピ解放・ピザ図鑑・ベスト記録など、すべての進行状況を最初からやり直します。";
+}
+
+function resetFailureMessage(reason: ResetFailureReason | null): string {
+  switch (reason) {
+    case "quarantine-failed":
+      return "データを退避できなかったため、守るためにリセットしませんでした。データはそのまま残っています。";
+    case "quarantine-too-large":
+      return "データが大きすぎて退避できないため、守るためにリセットしませんでした。データはそのまま残っています。";
+    case "storage-error":
+      return "保存先を読み取れないため、リセットしませんでした。";
+    default:
+      return "リセットに失敗しました。もう一度お試しください。";
+  }
 }
 
 type ProfileLoadState =
@@ -85,10 +119,18 @@ function describeValidationError(code: DisplayNameValidationError["code"]): stri
   }
 }
 
-export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayProps) {
+export function SettingsOverlay({ onClose, onResetGameData, saveHealth, onDiscardQuarantine }: SettingsOverlayProps) {
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [isResetting, setResetting] = useState(false);
   const [resetFailed, setResetFailed] = useState(false);
+  const [resetFailureReason, setResetFailureReason] = useState<ResetFailureReason | null>(null);
+  const notice = saveHealth?.notice ?? null;
+  const hasBackup = (saveHealth?.quarantineCount ?? 0) > 0;
+  // Deleting the backup: its own two-step confirmation (dialog + an explicit acknowledgement), never part of Reset.
+  const [isDiscardOpen, setDiscardOpen] = useState(false);
+  const [discardAcknowledged, setDiscardAcknowledged] = useState(false);
+  const [discardFailed, setDiscardFailed] = useState(false);
+  const [discardDone, setDiscardDone] = useState(false);
   // Synchronous double-tap guard: two rapid clicks can both fire before React re-renders with
   // `isResetting`/`disabled` applied, so a plain state check alone isn't enough.
   const resetInFlightRef = useRef(false);
@@ -158,6 +200,26 @@ export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayPro
     }
   }, [nameInput]);
 
+  function openDiscard() {
+    setDiscardAcknowledged(false);
+    setDiscardFailed(false);
+    setDiscardOpen(true);
+  }
+
+  function cancelDiscard() {
+    setDiscardOpen(false);
+  }
+
+  function confirmDiscard() {
+    if (!discardAcknowledged || !onDiscardQuarantine) return;
+    if (onDiscardQuarantine()) {
+      setDiscardOpen(false);
+      setDiscardDone(true);
+    } else {
+      setDiscardFailed(true);
+    }
+  }
+
   function openConfirm() {
     setResetFailed(false);
     setConfirmOpen(true);
@@ -174,10 +236,12 @@ export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayPro
     resetInFlightRef.current = true;
     setResetting(true);
     setResetFailed(false);
-    const succeeded = onResetGameData();
+    const outcome = onResetGameData();
+    const succeeded = typeof outcome === "boolean" ? outcome : outcome.ok;
     if (!succeeded) {
       resetInFlightRef.current = false;
       setResetting(false);
+      setResetFailureReason(typeof outcome === "boolean" || outcome.ok ? null : outcome.reason);
       setResetFailed(true);
     }
     // On success a full reload is already in flight (App.tsx's onResetGameData), so this
@@ -280,6 +344,27 @@ export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayPro
             </button>
           </section>
 
+          {(hasBackup || discardDone) && onDiscardQuarantine && (
+            <section className="settings-overlay__section" data-testid="settings-backup-section">
+              <h3 className="settings-overlay__section-title">退避データ</h3>
+              {hasBackup ? (
+                <>
+                  <p className="settings-overlay__section-desc">
+                    読み込めなかった保存データを、消さずに端末内へ退避してあります。リセットしても、この退避データは削除されません。
+                    削除すると元に戻せません。
+                  </p>
+                  <button type="button" className="settings-overlay__reset-trigger" onClick={openDiscard}>
+                    退避データを削除…
+                  </button>
+                </>
+              ) : (
+                <p className="settings-overlay__section-desc" role="status">
+                  退避データを削除しました。
+                </p>
+              )}
+            </section>
+          )}
+
           {(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && <DevEditorLink />}
         </div>
       </div>
@@ -296,13 +381,15 @@ export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayPro
               ゲームデータをリセットしますか？
             </h2>
             <p id="settings-reset-confirm-body" className="settings-reset-confirm__body">
-              Pitz・材料・レシピ解放・ピザ図鑑・ベスト記録など、
-              すべての進行状況を最初からやり直します。
+              {resetBody(notice)}
             </p>
+            {hasBackup && (
+              <p className="settings-reset-confirm__body">退避データは、リセットしても削除されません。</p>
+            )}
 
             {resetFailed && (
               <p className="settings-reset-confirm__error" role="alert">
-                リセットに失敗しました。もう一度お試しください。
+                {resetFailureMessage(resetFailureReason)}
               </p>
             )}
 
@@ -322,6 +409,53 @@ export function SettingsOverlay({ onClose, onResetGameData }: SettingsOverlayPro
                 disabled={isResetting}
               >
                 {isResetting ? "リセット中…" : "最初からやり直す"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDiscardOpen && (
+        <div className="settings-reset-confirm">
+          <div
+            className="settings-reset-confirm__panel"
+            role="alertdialog"
+            aria-labelledby="settings-discard-confirm-title"
+            aria-describedby="settings-discard-confirm-body"
+          >
+            <h2 id="settings-discard-confirm-title" className="settings-reset-confirm__title">
+              退避データを削除しますか？
+            </h2>
+            <p id="settings-discard-confirm-body" className="settings-reset-confirm__body">
+              退避してある保存データを端末から完全に削除します。削除すると、そのデータを取り戻す方法はなくなります。
+              今のゲームの進行状況は変わりません。
+            </p>
+            <label className="settings-reset-confirm__check">
+              <input
+                type="checkbox"
+                checked={discardAcknowledged}
+                onChange={(event) => setDiscardAcknowledged(event.target.checked)}
+              />
+              <span>元に戻せないことを理解しました</span>
+            </label>
+
+            {discardFailed && (
+              <p className="settings-reset-confirm__error" role="alert">
+                削除を確認できませんでした。もう一度お試しください。
+              </p>
+            )}
+
+            <div className="settings-reset-confirm__actions">
+              <button type="button" className="settings-reset-confirm__cancel" onClick={cancelDiscard}>
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className="settings-reset-confirm__confirm"
+                onClick={confirmDiscard}
+                disabled={!discardAcknowledged}
+              >
+                削除する
               </button>
             </div>
           </div>

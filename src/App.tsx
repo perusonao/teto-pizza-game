@@ -37,11 +37,17 @@ import {
   loadMissionBest,
   persistProgress,
   persistMissionBest,
-  resetSave,
+  resetSaveResult,
+  getDefaultStorage,
+  SAVE_STORAGE_KEY,
+  type SaveWriteBlock,
+  type ResetSaveResult,
 } from "./state/persistence";
 import { initialTechniqueLedger } from "./logic/techniques/runtime";
 import { techniqueDexViews } from "./logic/techniques/dexView";
 import { ingredientCollectionCount, newShopMaterialCount, resolveShopEntitlement } from "./state/materialEntitlement";
+import { inspectSaveHealth, type SaveHealth } from "./state/saveHealth";
+import { acknowledgeQuarantine, discardQuarantine } from "./state/saveQuarantine";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
   DEFAULT_MISSION_CONFIG,
@@ -387,6 +393,17 @@ function App() {
     }
   }
 
+  // Save Protection PR-2 (#560): what HOME / Settings tell the player about the save. `lastWriteBlockRef` is the reason
+  // the most recent write was refused (null = it went through); the rest is read back from storage, so the notice is
+  // never a guess. Re-inspected after every save attempt and after an acknowledge / discard; an unchanged result does not
+  // re-render.
+  const lastWriteBlockRef = useRef<SaveWriteBlock | null>(null);
+  const [saveHealth, setSaveHealth] = useState<SaveHealth>(() => inspectSaveHealth(getDefaultStorage(), null));
+  const refreshSaveHealth = useCallback(() => {
+    const next = inspectSaveHealth(getDefaultStorage(), lastWriteBlockRef.current);
+    setSaveHealth((current) => (JSON.stringify(current) === JSON.stringify(next) ? current : next));
+  }, []);
+
   // Fires whenever any of GameState's own persisted progression fields change (Dex BEST/
   // timesMade, Pitz balance, owned ingredients) -- the reducer itself stays pure, this is the
   // one place that saves them (Phase 3C-5's canonical `persistProgress`, see
@@ -414,6 +431,8 @@ function App() {
       dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
       requireDinnerRecords: true,
     });
+    lastWriteBlockRef.current = persisted.blocked ?? null;
+    refreshSaveHealth();
     // Refused (nothing was written): reconcile memory with storage -- the missions become blocked,
     // an unsaved payout is reverted, and the next save (without those records) goes through.
     if (persisted.refusedDinnerMissionIds.length > 0) {
@@ -431,6 +450,7 @@ function App() {
     state.researchExclusions,
     state.discoveredTechniqueIds,
     state.dinnerMissionRecordsState,
+    refreshSaveHealth,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
@@ -555,8 +575,10 @@ function App() {
   // this can't cascade into an extra render of its own.
   useEffect(() => {
     if (mission.mode !== "RESULT") return;
-    persistMissionBest(LUNCH_RUSH_MISSION_ID, missionScore(mission.metrics));
-  }, [mission.mode, mission.metrics]);
+    const written = persistMissionBest(LUNCH_RUSH_MISSION_ID, missionScore(mission.metrics));
+    lastWriteBlockRef.current = written.blocked ?? null;
+    refreshSaveHealth();
+  }, [mission.mode, mission.metrics, refreshSaveHealth]);
 
   // Firebase Ranking 1.0 Phase 1B (Issue #87): the trusted score-submission path's one call
   // site -- Lunch Rush RESULT -> submitLunchRushScore (src/firebase/submitLunchRushScore.ts),
@@ -926,12 +948,25 @@ function App() {
   // actually gone before this reloads -- a `false` return (storage removal failed/unavailable
   // in a way that leaves the old save intact) must not reload into what would look like a
   // silently-broken reset, so `SettingsOverlay` shows an error and lets the player retry instead.
-  function handleResetGameData(): boolean {
-    const succeeded = resetSave();
-    if (succeeded) {
+  function handleResetGameData(): ResetSaveResult {
+    const result = resetSaveResult();
+    if (result.ok) {
       window.location.reload();
     }
-    return succeeded;
+    return result;
+  }
+
+  // Save Protection PR-2 (#560): the ONLY player-facing deletion of quarantined data, reached from Settings behind its own
+  // explicit confirmation. Full Game Reset above never reaches it.
+  function handleDiscardQuarantine(): boolean {
+    const ok = discardQuarantine(getDefaultStorage(), SAVE_STORAGE_KEY);
+    refreshSaveHealth();
+    return ok;
+  }
+
+  function handleAcknowledgeSaveNotice() {
+    acknowledgeQuarantine(getDefaultStorage(), SAVE_STORAGE_KEY);
+    refreshSaveHealth();
   }
 
   // Issue #39: 「ピザを作る」no longer drops straight into GAME/ORDER with whatever recipe
@@ -1153,6 +1188,8 @@ function App() {
           newShopMaterialCount={newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds)}
           dexHasNew={state.justDiscovered}
           discoverableCount={countRecipeDiscoveryStates(RECIPES, state).DISCOVERABLE}
+          saveNotice={saveHealth.notice}
+          onAcknowledgeSaveNotice={handleAcknowledgeSaveNotice}
         />
       )}
 
@@ -1310,7 +1347,12 @@ function App() {
       )}
 
       {isSettingsOpen && (
-        <SettingsOverlay onClose={() => setSettingsOpen(false)} onResetGameData={handleResetGameData} />
+        <SettingsOverlay
+          onClose={() => setSettingsOpen(false)}
+          onResetGameData={handleResetGameData}
+          saveHealth={saveHealth}
+          onDiscardQuarantine={handleDiscardQuarantine}
+        />
       )}
 
       {isChangelogOpen && <ChangelogOverlay onClose={() => setChangelogOpen(false)} />}
