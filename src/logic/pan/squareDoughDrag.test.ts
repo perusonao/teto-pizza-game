@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { createInitialSquareDough, squareCornerReach, squareDoughCoverage, squareDoughEvenness, SQUARE_COVER_MIN_THICKNESS, type SquareDough } from "./squareDough";
 import { createLumpySquareDough } from "./squareDoughFixtures";
 import { holdStep, pressAt } from "./squareDoughSpread";
+import { HOLD_BRUSH_RADIUS_MAX, HOLD_RATE_PER_S, PRESS_BRUSH_RADIUS, PRESS_STRENGTH } from "./squareDoughSpread";
 import {
   DRAG_BRUSH_RADIUS,
   DRAG_DONOR_DECAY,
+  DRAG_DONOR_POWER,
   DRAG_FILM_THICKNESS,
   applyGestureEffects,
   dragAlong,
@@ -20,11 +22,33 @@ function rng(seed: number) {
   return () => (s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296;
 }
 
-describe("drag model constants (Owner-approved initial values)", () => {
-  it("brush radius 11 %, film 0.16, donor decay 20", () => {
-    expect(DRAG_BRUSH_RADIUS).toBe(11);
+describe("drag model constants (Owner-approved: C plan, then the balance pass)", () => {
+  it("brush radius 16 %, film 0.16, donor decay 20, donor power 2", () => {
+    expect(DRAG_BRUSH_RADIUS).toBe(16);
     expect(DRAG_FILM_THICKNESS).toBe(0.16);
     expect(DRAG_DONOR_DECAY).toBe(20);
+    expect(DRAG_DONOR_POWER).toBe(2);
+  });
+
+  it("the tap / long-press balance pass (E2): push radius 16, hold radius up to 34, 4.0 per second; the push strength is unchanged", () => {
+    expect(PRESS_BRUSH_RADIUS).toBe(16);
+    expect(HOLD_BRUSH_RADIUS_MAX).toBe(34);
+    expect(HOLD_RATE_PER_S).toBe(4.0);
+    expect(PRESS_STRENGTH).toBe(0.9);
+  });
+});
+
+describe("donor weighting (power 2): the thickest dough pays first", () => {
+  it("of two donors at the same distance, the thicker gives disproportionately more", () => {
+    const thickness = new Array<number>(256).fill(0);
+    // two covered donor cells at the same distance from the film point: row 7 col 4 (0.9 thick) and row 7 col 12 (0.4 thick)
+    thickness[7 * 16 + 4] = 0.9;
+    thickness[7 * 16 + 12] = 0.4;
+    const out = dragFillAt({ thickness }, { x: 50, y: 50 });
+    const gave = (i: number) => thickness[i] - out.thickness[i];
+    expect(gave(7 * 16 + 4)).toBeGreaterThan(0);
+    expect(gave(7 * 16 + 4)).toBeGreaterThan(gave(7 * 16 + 12) * 2); // power 2 on spare (0.74 vs 0.24): ~9.5x, plainly more than linear (~3x)
+    expect(Math.abs(mass(out) - mass({ thickness }))).toBeLessThan(1e-9);
   });
 });
 

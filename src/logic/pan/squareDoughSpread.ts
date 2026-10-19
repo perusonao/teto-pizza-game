@@ -26,21 +26,21 @@ import {
   type SquareDough,
 } from "./squareDough";
 
-/** TAP: brush radius, in percent of the dough box (so it scales with the screen). On a 360-wide phone this is a ~50 px disc. */
-export const PRESS_BRUSH_RADIUS = 11;
+/** TAP: brush radius, in percent of the dough box (so it scales with the screen). On a 360-wide phone this is a ~70 px disc. (11 % in B; 16 % since C's balance pass, Owner-approved "E2": a push has to reach the thick remnant of the ball, see docs/reports/TETO_SQUARE-DOUGH_C_Corner-Drag_Result.md.) */
+export const PRESS_BRUSH_RADIUS = 16;
 /** TAP: how far each covered cell moves toward the brush mean at the centre (0..1). Strong: one push-in is visible. (Not 0.85: that literal is the corner-reach threshold, and a test pins it to one place.) */
 export const PRESS_STRENGTH = 0.9;
 
 /** HOLD: the brush starts at the tap size and grows to this radius (percent of the box) ... */
-export const HOLD_BRUSH_RADIUS_MAX = 22;
+export const HOLD_BRUSH_RADIUS_MAX = 34;
 /** ... over this many milliseconds of holding (smooth ease-out). */
 export const HOLD_GROW_MS = 700;
 /** HOLD: relaxation rate per second (an exponential rate, so the result does not depend on the frame rate). */
-export const HOLD_RATE_PER_S = 2.2;
+export const HOLD_RATE_PER_S = 4.0;
 /** HOLD: the longest single relaxation. A longer interval (a stalled frame, no ticks before the finger lifts) is applied as several of these, so
  *  the time is neither lost nor turned into one huge step. */
 export const HOLD_MAX_STEP_MS = 100;
-/** HOLD: the most time one effect accounts for. By then the spread has settled (1 - e^(-2.2 x 5) is over 99.998%), and a bad timestamp
+/** HOLD: the most time one effect accounts for. By then the spread has settled (1 - e^(-4.0 x 5) is over 99.9999%), and a bad timestamp
  *  cannot make the browser loop for millions of steps. */
 export const HOLD_MAX_ACCOUNTED_MS = 5000;
 

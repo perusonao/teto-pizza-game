@@ -149,15 +149,29 @@ describe("colour ramps", () => {
     expect(thicknessRgb(0.3, "lumpy")).toEqual([250, 238, 208]);
     expect(thicknessRgb(0.9, "lumpy")).toEqual([166, 98, 38]);
   });
-  it("the ball ramp spreads the thin range a mass-conserved sheet lives in (0.05..0.5): a 0.05 step is clearly visible", () => {
+  it("the ball ramp has two zones: the thin film (0.05..0.30) and the thick remnant (0.30..1.0) are both readable", () => {
     expect(thicknessRgb(0.05, "ball")).toEqual([250, 238, 208]);
-    expect(thicknessRgb(0.5, "ball")).toEqual([166, 98, 38]);
-    expect(thicknessRgb(1, "ball")).toEqual([166, 98, 38]); // the thick ball
-    for (let t = 0.1; t <= 0.4501; t += 0.05) {
-      expect(dE(thicknessRgb(t, "ball"), thicknessRgb(t + 0.05, "ball")), `${t}`).toBeGreaterThanOrEqual(5);
+    expect(thicknessRgb(1, "ball")).toEqual([166, 98, 38]);
+    expect(thicknessRgb(2, "ball")).toEqual([166, 98, 38]); // clamped
+    // the film zone gets 60 % of the colour travel: it meets the thick zone at u = 0.6
+    expect(thicknessRgb(0.3, "ball")).toEqual(thicknessRgb(0.3, "ball"));
+    for (let t = 0.08; t <= 0.28; t += 0.04) {
+      expect(dE(thicknessRgb(t, "ball"), thicknessRgb(t + 0.02, "ball")), `film ${t.toFixed(2)}`).toBeGreaterThanOrEqual(2.2);
     }
-    // ... where the lumpy ramp would show the whole thin sheet as one near-white colour
-    expect(dE(thicknessRgb(0.1, "lumpy"), thicknessRgb(0.2, "lumpy"))).toBe(0);
+    for (let t = 0.35; t <= 0.9; t += 0.1) {
+      expect(dE(thicknessRgb(t, "ball"), thicknessRgb(t + 0.1, "ball")), `remnant ${t.toFixed(2)}`).toBeGreaterThanOrEqual(3);
+    }
+    // darker with thickness all the way (a thick lump is never lighter than a thinner one) and always a dough hue
+    let prev = Infinity;
+    for (let t = 0.05; t <= 1.0001; t += 0.01) {
+      const [r, g, b] = thicknessRgb(t, "ball");
+      expect(r > g && g > b).toBe(true);
+      expect(r + g + b).toBeLessThanOrEqual(prev);
+      prev = r + g + b;
+    }
+    // the old ramp (linear 0.05..0.5) showed nothing above 0.5: the remnants that carry the unevenness were invisible
+    expect(dE(thicknessRgb(0.6, "ball"), thicknessRgb(0.8, "ball"))).toBeGreaterThan(6);
+    expect(dE(thicknessRgb(0.1, "lumpy"), thicknessRgb(0.2, "lumpy"))).toBe(0); // and the lumpy ramp stays what B2 shipped
   });
   it("changedCells follows the ramp it is told (a change the ramp cannot show is not a changed cell)", () => {
     const a = { thickness: new Array<number>(256).fill(0) };

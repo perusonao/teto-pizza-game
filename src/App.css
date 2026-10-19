@@ -7519,11 +7519,26 @@ p.hint-sheet__step {
 }
 
 .square-dough-layer__svg {
+  position: absolute;
+  inset: 0;
   overflow: visible;
   width: 100%;
   height: 100%;
   display: block;
   pointer-events: none;
+}
+
+/* The smooth Canvas sheet (production start): exactly the pan's square (6%..94% of the layer), under the overlay svg, over the pan svg.
+   128 px of picture scaled up smoothly by the browser; the corner radius is the pan's own (3 of 88 units). */
+.square-dough-layer__canvas {
+  position: absolute;
+  left: 6%;
+  top: 6%;
+  width: 88%;
+  height: 88%;
+  border-radius: 3.41%;
+  pointer-events: none;
+  image-rendering: auto;
 }
 
 .square-dough-layer__pan {
@@ -7582,6 +7597,13 @@ p.hint-sheet__step {
   stroke: #fffbe6;
   stroke-width: 0.55;
   pointer-events: none;
+}
+
+/* Soft marks (the smooth sheet): no hard outline, rounder and fainter, so they glow on the dough instead of drawing the grid back in. */
+.square-dough-layer__changed--soft rect {
+  fill: rgba(255, 255, 255, 0.2);
+  stroke: rgba(255, 251, 230, 0.4);
+  stroke-width: 0.35;
 }
 
 .square-dough-layer__changed--fade {

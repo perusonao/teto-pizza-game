@@ -27,6 +27,7 @@ import { CORNER_MARKS, changePoints, changedCells, cornerHint, thicknessFill, ty
 import { DOUGH_CENTER, type DoughPoint } from "../logic/pizzaCoordinates";
 import { describeTarget, squareDoughDiag } from "../preview/squareDoughDiag"; // TEMPORARY on-device diagnostics (?diag=1)
 import { SquareDoughDiagPanel } from "../preview/SquareDoughDiagPanel";
+import { SquareDoughCanvas } from "./SquareDoughCanvas";
 
 interface SquareDoughLayerProps {
   /** The committed dough this layer starts every gesture from. */
@@ -88,6 +89,9 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
   const [highlight, setHighlight] = useState<ChangeHighlight | null>(null);
   /** The live drag's path (dough-percent), from where the finger went down; null when no drag is live. */
   const [trail, setTrail] = useState<DoughPoint[] | null>(null);
+  /** The smooth Canvas sheet (production-start ramp only) failed once: from then on this layer draws SVG cells. */
+  const [canvasFailed, setCanvasFailed] = useState(false);
+  const onCanvasFail = useCallback(() => setCanvasFailed(true), []);
   const rampRef = useRef(ramp);
   const gestureStartRef = useRef<SquareDough | null>(null); // the committed dough the live gesture started from
   const highlightKeyRef = useRef(0);
@@ -119,6 +123,9 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
     });
   }, [interactive, resetToken]);
   useEffect(() => (squareDoughDiag ? squareDoughDiag.attachWindow(() => gestureRef.current.phase) : undefined), []);
+  useEffect(() => {
+    squareDoughDiag?.resetRound(); // a new round of the square dough: its own operation counts and times
+  }, []);
 
   const stopLoop = useCallback(() => {
     if (rafRef.current !== null) {
@@ -130,13 +137,15 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
   /** Runs one event through the state machine and applies what it decided. */
   const feed = useCallback(
     (event: PressEvent) => {
-      const step = stepPressGesture(gestureRef.current, event);
+      const before = gestureRef.current;
+      const step = stepPressGesture(before, event);
       gestureRef.current = step.state;
       if (event.type === "down" && step.state.phase === "pressing") {
         // A new press: forget the previous gesture's marks and remember the committed dough this one starts from.
         gestureStartRef.current = doughRef.current;
         clearHighlightTimer();
         setHighlight(null);
+        squareDoughDiag?.gestureStarted(); // Preview / DEV diagnostics only: the round's clock
       }
       if (squareDoughDiag) {
         for (const effect of step.effects) {
@@ -182,6 +191,11 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
           // The number the step is about: how far the dough has spread in STEP 1, how even it is in STEP 2 (the step the gesture started in).
           const p0 = squareDoughProgress(start);
           const p1 = squareDoughProgress(after);
+          // Diagnostics (?diag=1, Preview / DEV only): one operation of this round, in the step it started in.
+          if (squareDoughDiag) {
+            const kind = before.phase === "dragging" ? "drag" : before.phase === "holding" || before.holdApplied ? "hold" : "tap";
+            squareDoughDiag.noteOperation(kind, p0.step, p0.step === 1 && p1.step === 2, !p0.complete && p1.complete);
+          }
           if (p0.step === 1) squareDoughGaugeStore.reportChange(changePoints(p0.coverage, p1.coverage), "coverage");
           else squareDoughGaugeStore.reportChange(changePoints(p0.evenness, p1.evenness), "evenness");
           const cells = changedCells(start, after, rampRef.current);
@@ -405,6 +419,9 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
     [committedProgress.step, progress.corners, shown],
   );
 
+  const useCanvas = ramp === "ball" && !canvasFailed;
+  /** Preview / DEV only (this layer is only reachable there): every cell's thickness, for the tests, which can no longer read it from SVG fills. */
+  const thicknessData = useMemo(() => shown.thickness.map((v) => v.toFixed(3)).join(","), [shown]);
   const panMin = DOUGH_CENTER - SQUARE_PAN_HALF_SIDE;
   const panSide = SQUARE_PAN_HALF_SIDE * 2;
   const holdRadius = ring ? PRESS_BRUSH_RADIUS + (HOLD_BRUSH_RADIUS_MAX - PRESS_BRUSH_RADIUS) * ring.holdProgress : 0;
@@ -417,6 +434,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
       data-testid="square-dough-layer"
       data-evenness={progress.evenness.toFixed(3)}
       data-coverage={progress.coverage.toFixed(3)}
+      data-renderer={useCanvas ? "canvas" : "svg"}
+      data-thickness={thicknessData}
       data-step={committedProgress.step}
       data-corners={progress.cornersReached}
       data-complete={committedProgress.complete ? "true" : "false"}
@@ -432,6 +451,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
     >
       <svg className="square-dough-layer__svg" viewBox="0 0 100 100" aria-hidden="true">
         <rect className="square-dough-layer__pan" x={panMin} y={panMin} width={panSide} height={panSide} rx={3} />
+        {!useCanvas && (
+        <>
         <defs>
           {/* A faint blur takes the hard grid edges off the thickness colours (the stretched ramp would otherwise make the 16x16 cells read as a
               checkerboard); clipped to the pan so nothing bleeds onto the rim. */}
@@ -447,10 +468,17 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
             <rect key={cell.key} data-dough-cell={cell.key} x={cell.x - 0.15} y={cell.y - 0.15} width={CELL + 0.3} height={CELL + 0.3} fill={cell.fill} />
           ))}
         </g>
+        </>
+        )}
+      </svg>
+      {/* The production start draws the dough as one smooth sheet (Canvas, under the overlays); the lumpy Preview start keeps B2's SVG cells,
+          and so does any layer whose Canvas failed. */}
+      {useCanvas && <SquareDoughCanvas dough={shown} ramp={ramp} onFail={onCanvasFail} />}
+      <svg className="square-dough-layer__svg square-dough-layer__svg--overlay" viewBox="0 0 100 100" aria-hidden="true">
         {highlight && (
           <g
             key={highlight.key}
-            className={`square-dough-layer__changed${highlight.ended ? " square-dough-layer__changed--fade" : ""}`}
+            className={`square-dough-layer__changed${useCanvas ? " square-dough-layer__changed--soft" : ""}${highlight.ended ? " square-dough-layer__changed--fade" : ""}`}
             data-testid="square-dough-changed"
           >
             {highlight.cells.map((index) => (
@@ -461,7 +489,7 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
                 y={Math.floor(index / SQUARE_DOUGH_GRID) * CELL}
                 width={CELL}
                 height={CELL}
-                rx={1.2}
+                rx={useCanvas ? 2.8 : 1.2}
               />
             ))}
           </g>

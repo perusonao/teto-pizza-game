@@ -34,19 +34,12 @@ async function dragThrough(page: Page, points: [number, number][]) {
   }
   await page.mouse.up();
 }
-/** The thickest cell, judged from what is drawn (the darkest fill). */
+/** The thickest cell, from the layer's `data-thickness` (Preview / DEV: the drawn picture is smooth now, so the numbers are read instead). */
 async function darkestCell(page: Page): Promise<{ x: number; y: number }> {
   const idx = await layer(page).evaluate((el) => {
-    let best = -1;
-    let bestSum = Infinity;
-    for (const r of el.querySelectorAll("rect[data-dough-cell]")) {
-      const m = r.getAttribute("fill")!.match(/\d+/g)!.map(Number);
-      const sum = m[0] + m[1] + m[2];
-      if (sum < bestSum) {
-        bestSum = sum;
-        best = Number(r.getAttribute("data-dough-cell"));
-      }
-    }
+    const values = (el.getAttribute("data-thickness") ?? "").split(",").map(Number);
+    let best = 0;
+    for (let i = 1; i < values.length; i++) if (values[i] > values[best]) best = i;
     return best;
   });
   return { x: ((idx % 16) + 0.5) * (100 / 16), y: (Math.floor(idx / 16) + 0.5) * (100 / 16) };
@@ -151,6 +144,68 @@ test.describe("#536 C: STEP 1 -> STEP 2 -> finished -> 次へ", () => {
       await expect(layer(page)).toHaveCount(0); // DOUGH is confirmed: the layer is gone, the round moved on to SAUCE
       await expect(page.getByTestId("square-dough-steps")).toHaveCount(0);
     }
+  });
+});
+
+const alphaAt = (page: Page, x: number, y: number) =>
+  page.getByTestId("square-dough-canvas").evaluate((c: HTMLCanvasElement, [px, py]) => c.getContext("2d")!.getImageData(px, py, 1, 1).data[3], [x, y]);
+
+test.describe("#536 C balance pass: the smooth sheet (Canvas) and its fallbacks", () => {
+  test("the production start draws one smooth Canvas sheet (no grid of cell rectangles); the Preview lumpy start keeps B2's SVG cells", async ({ page }) => {
+    await start(page, BALL);
+    expect(await attr(page, "data-renderer")).toBe("canvas");
+    await expect(page.getByTestId("square-dough-canvas")).toBeVisible();
+    await expect(layer(page).locator("rect[data-dough-cell]")).toHaveCount(0);
+    expect(((await attr(page, "data-thickness")).split(",")).length).toBe(256);
+    // the picture: the ball is drawn in the middle, the empty pan around it is not
+    expect(await alphaAt(page, 64, 64)).toBe(255);
+    expect(await alphaAt(page, 4, 4)).toBe(0);
+    const size = await page.getByTestId("square-dough-canvas").evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
+    expect(size).toEqual([128, 128]);
+    await start(page, LUMPY);
+    expect(await attr(page, "data-renderer")).toBe("svg");
+    await expect(page.getByTestId("square-dough-canvas")).toHaveCount(0);
+    expect(await layer(page).locator("rect[data-dough-cell]").count()).toBeGreaterThan(190);
+  });
+
+  test("a drag paints on the canvas: the picture follows the dough", async ({ page }) => {
+    await start(page, BALL);
+    expect(await alphaAt(page, 100, 24)).toBe(0); // the north-east corner region is empty
+    await dragThrough(page, [[50, 50], [90, 10]]);
+    await expect.poll(() => alphaAt(page, 100, 24)).toBe(255); // ... and the sheet has been pulled there
+  });
+
+  test("a canvas the browser cleared (a tab switch, a restored context) is drawn again when the page comes back", async ({ page }) => {
+    await start(page, BALL);
+    expect(await alphaAt(page, 64, 64)).toBe(255);
+    await page.getByTestId("square-dough-canvas").evaluate((c: HTMLCanvasElement) => {
+      c.getContext("2d")!.clearRect(0, 0, c.width, c.height);
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await expect.poll(() => alphaAt(page, 64, 64)).toBe(255);
+  });
+
+  test("no 2D context: the layer falls back to SVG cells and everything still works", async ({ page }) => {
+    await page.addInitScript(() => {
+      HTMLCanvasElement.prototype.getContext = () => null;
+    });
+    await start(page, BALL);
+    await expect.poll(() => attr(page, "data-renderer")).toBe("svg");
+    expect(await layer(page).locator("rect[data-dough-cell]").count()).toBeGreaterThan(10);
+    await dragThrough(page, [[50, 50], [90, 10]]);
+    await expect(page.locator('[data-testid="square-corner-marks"] [data-corner="ne"]')).toHaveAttribute("data-reached", "true");
+    await expect(page.getByTestId("square-dough-canvas")).toHaveCount(0);
+  });
+
+  test("a draw that throws falls back to SVG cells too", async ({ page }) => {
+    await page.addInitScript(() => {
+      CanvasRenderingContext2D.prototype.putImageData = () => {
+        throw new Error("simulated draw failure");
+      };
+    });
+    await start(page, BALL);
+    await expect.poll(() => attr(page, "data-renderer")).toBe("svg");
+    expect(await layer(page).locator("rect[data-dough-cell]").count()).toBeGreaterThan(10);
   });
 });
 

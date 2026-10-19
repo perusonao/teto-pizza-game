@@ -22,14 +22,33 @@ export const VISUAL_THICKNESS_MAX = 0.9;
 /**
  * Which colour range a sheet is drawn with. `"lumpy"` is the Preview lumpy start (B2's Owner-approved look, unchanged). `"ball"` is the
  * production start (C, #536): a small thick ball whose dough is pulled out MASS-CONSERVINGLY, so a fully stretched sheet averages
- * ~0.16 thick (32 units of dough over ~196 cells) and every cell of it would sit at the palest end of the lumpy range. The ball range
- * stretches 0.05..0.5 over the same cream -> tan -> brown, so the thin sheet's unevenness and the thick ball both read clearly.
+ * ~0.16 thick (32 units of dough over ~196 cells) and every cell of it would sit at the palest end of the lumpy range.
+ *
+ * The ball range has TWO ZONES (Owner-approved after the C balance audit): the thin film where the sheet lives (0.05..0.30) gets 60 % of
+ * the colour travel -- about dE 3 per 0.02 of thickness, where one linear 0.05..0.5 ramp gave ~2.8 and then nothing at all above 0.5 -- and
+ * the thick remnant of the ball (0.30..1.0) gets the other 40 % (about dE 3.4-4 per 0.1), so the leftover lump that carries most of the
+ * unevenness can be seen and pressed. The same cream -> tan -> brown, so it still reads as dough.
  */
 export type SquareDoughRamp = "lumpy" | "ball";
 const RAMP_DOMAIN: Record<SquareDoughRamp, readonly [number, number]> = {
   lumpy: [VISUAL_THICKNESS_MIN, VISUAL_THICKNESS_MAX],
-  ball: [0.05, 0.5],
+  ball: [0.05, 1],
 };
+/** Where the ball ramp's two zones meet, and how much of the colour travel the thin zone gets. */
+export const BALL_RAMP_SPLIT_THICKNESS = 0.3;
+export const BALL_RAMP_THIN_SHARE = 0.6;
+
+/** Position on the colour ramp (0..1) of a thickness. */
+function rampPosition(t: number, ramp: SquareDoughRamp): number {
+  const [lo, hi] = RAMP_DOMAIN[ramp];
+  if (ramp === "ball") {
+    const clamped = Math.min(hi, Math.max(lo, t));
+    return clamped <= BALL_RAMP_SPLIT_THICKNESS
+      ? (BALL_RAMP_THIN_SHARE * (clamped - lo)) / (BALL_RAMP_SPLIT_THICKNESS - lo)
+      : BALL_RAMP_THIN_SHARE + ((1 - BALL_RAMP_THIN_SHARE) * (clamped - BALL_RAMP_SPLIT_THICKNESS)) / (hi - BALL_RAMP_SPLIT_THICKNESS);
+  }
+  return Math.min(1, Math.max(0, (t - lo) / (hi - lo)));
+}
 
 type Rgb = readonly [number, number, number];
 /** Pale cream -> dough tan -> deep golden brown (always R > G > B: a baked-dough hue, never a grey or a rainbow). */
@@ -45,9 +64,8 @@ function lerp(a: Rgb, b: Rgb, t: number): [number, number, number] {
 
 /** The colour of a cell of this thickness. Out-of-range (or non-finite) thickness is clamped to the ends of the ramp. */
 export function thicknessRgb(thickness: number, ramp: SquareDoughRamp = "lumpy"): [number, number, number] {
-  const [lo, hi] = RAMP_DOMAIN[ramp];
-  const t = Number.isFinite(thickness) ? thickness : lo;
-  const u = Math.min(1, Math.max(0, (t - lo) / (hi - lo)));
+  const t = Number.isFinite(thickness) ? thickness : RAMP_DOMAIN[ramp][0];
+  const u = rampPosition(t, ramp);
   return u <= 0.5 ? lerp(RAMP[0], RAMP[1], u / 0.5) : lerp(RAMP[1], RAMP[2], (u - 0.5) / 0.5);
 }
 

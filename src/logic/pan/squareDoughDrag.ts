@@ -23,11 +23,13 @@ import {
 import { applyPressEffect, type PressEffect } from "./squareDoughSpread";
 
 /** Radius (dough-percent of the box) of the film the fingertip lays. */
-export const DRAG_BRUSH_RADIUS = 11;
+export const DRAG_BRUSH_RADIUS = 16;
 /** Thickness of the film at the centre of the brush (it falls off to nothing at the edge). */
 export const DRAG_FILM_THICKNESS = 0.16;
 /** How fast the dough that pays for the film is drawn from farther away: the donor weight decays as exp(-distance / this). */
 export const DRAG_DONOR_DECAY = 20;
+/** The donor weight also grows with the spare thickness to this power (2 = the thickest cells give disproportionately more), so the thick remnant of the ball is drained first. */
+export const DRAG_DONOR_POWER = 2;
 /** Sub-step length (dough-percent) a drag segment is cut into. */
 export const DRAG_SUBSTEP = 1;
 
@@ -91,11 +93,11 @@ export function dragFillAt(dough: SquareDough, point: DoughPoint): SquareDough {
   const paid0 = owed;
   for (let round = 0; round < 8 && owed > MASS_NOISE; round++) {
     const live = donors.filter((d) => d.room > MASS_NOISE);
-    const weightSum = live.reduce((sum, d) => sum + d.room * d.weight, 0);
+    const weightSum = live.reduce((sum, d) => sum + d.room ** DRAG_DONOR_POWER * d.weight, 0);
     if (!(weightSum > 0)) break;
     let paid = 0;
     for (const donor of live) {
-      const take = Math.min(donor.room, (owed * donor.room * donor.weight) / weightSum);
+      const take = Math.min(donor.room, (owed * donor.room ** DRAG_DONOR_POWER * donor.weight) / weightSum);
       t[donor.index] -= take;
       donor.room -= take;
       paid += take;

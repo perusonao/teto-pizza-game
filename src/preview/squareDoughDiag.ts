@@ -27,6 +27,21 @@ export const DIAG_PARAM = "diag";
 
 const HISTORY_LENGTH = 10;
 
+/** What a finished gesture was: a tap, a long press, or a drag. */
+export type DiagOpKind = "tap" | "hold" | "drag";
+
+/**
+ * C (#536) balance pass: how many operations the player needed and how long it took, per step (measured on the real device, in the Preview).
+ * An operation is one committed gesture (a finger lifted normally); STEP 1 is the corners step, STEP 2 the smoothing step -- the step
+ * the gesture STARTED in. Time runs from the first finger down of the round.
+ */
+export interface DiagRound {
+  startedAt: number | null;
+  step1DoneAt: number | null;
+  completeAt: number | null;
+  ops: Record<1 | 2, Record<DiagOpKind, number>>;
+}
+
 export type DiagCount =
   | "pressApplied"
   | "holdTicks"
@@ -105,6 +120,7 @@ export class SquareDoughDiag {
   readonly status: DiagStatus = { interactive: null, phase: "-", resetToken: 0, layerRect: "-", touchAction: "-", topAtDown: "-", capture: "-" };
   /** Bumped on every change; the panel redraws only when it moved. */
   version = 0;
+  readonly round: DiagRound = SquareDoughDiag.emptyRound();
   private readonly entries: Entry[] = [];
   private readonly moves: Record<"win" | "layer", { n: number; last: string }> = { win: { n: 0, last: "-" }, layer: { n: 0, last: "-" } };
   private seq = 0;
@@ -147,6 +163,49 @@ export class SquareDoughDiag {
     }
   }
 
+  private static emptyRound(): DiagRound {
+    return { startedAt: null, step1DoneAt: null, completeAt: null, ops: { 1: { tap: 0, hold: 0, drag: 0 }, 2: { tap: 0, hold: 0, drag: 0 } } };
+  }
+
+  /** A new round of the square dough begins (the layer mounted): forget the previous round's operations and times. */
+  resetRound(): void {
+    Object.assign(this.round, SquareDoughDiag.emptyRound());
+    this.version += 1;
+  }
+
+  /** A finger went down (the clock of the round starts at the first one). */
+  gestureStarted(): void {
+    if (this.round.startedAt === null) this.round.startedAt = this.now();
+    this.version += 1;
+  }
+
+  /** A gesture ended by lifting: one operation in `step`; `reachedStep2` / `reachedComplete` when it was the one that got there (first time only). */
+  noteOperation(kind: DiagOpKind, step: 1 | 2, reachedStep2: boolean, reachedComplete: boolean): void {
+    try {
+      const r = this.round;
+      r.ops[step][kind] += 1;
+      const t = this.now();
+      if (reachedStep2 && r.step1DoneAt === null) r.step1DoneAt = t;
+      if (reachedComplete && r.completeAt === null) r.completeAt = t;
+      this.version += 1;
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** The operation counts and times of the round, as two lines of the panel. */
+  roundLines(): string[] {
+    const r = this.round;
+    const sum = (step: 1 | 2) => r.ops[step].tap + r.ops[step].hold + r.ops[step].drag;
+    const detail = (step: 1 | 2) => `${sum(step)} (tap ${r.ops[step].tap} hold ${r.ops[step].hold} drag ${r.ops[step].drag})`;
+    const secs = (from: number | null, to: number | null) => (from === null ? "-" : `${(((to ?? this.now()) - from) / 1000).toFixed(1)}s${to === null ? "…" : ""}`);
+    const s1End = r.step1DoneAt;
+    return [
+      `手数 STEP1=${detail(1)}  STEP2=${detail(2)}  合計=${sum(1) + sum(2)}`,
+      `時間 STEP1=${secs(r.startedAt, s1End)}  STEP2=${s1End === null ? "-" : secs(s1End, r.completeAt)}  合計(完成まで)=${secs(r.startedAt, r.completeAt)}`,
+    ];
+  }
+
   /** A free-form line (capture result, fallback used, ...). */
   note(text: string): void {
     try {
@@ -184,6 +243,7 @@ export class SquareDoughDiag {
         `ign(int/busy/pan)=${c.ignoredNotInteractive}/${c.ignoredBusy}/${c.ignoredOutsidePan}`,
     ];
     const lines = this.entries.map((e) => e.text);
+    head.splice(2, 0, ...this.roundLines());
     head.push(`moves since down: win=${this.moves.win.n} layer=${this.moves.layer.n}  last win: ${this.moves.win.last}`);
     return [...head, ...lines].join("\n");
   }
