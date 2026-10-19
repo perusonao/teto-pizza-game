@@ -1,48 +1,73 @@
 /**
- * Square-Pan Dough B2 (Issue #535): what the player is doing and where it leads, in words, for the DOUGH step of a square-pan round.
- * Owner iPhone HV: the dough reacted but "what to do / what happens / what to aim for" was not clear. Two stages are named up front:
- * STEP 1 「生地を平らにする」 (this file's job, B2) and STEP 2 「四隅まで伸ばす」 (C, #536: not playable yet, so it is only announced).
+ * Square-Pan Dough B2 + C (Issues #535, #536): what the player is doing and where it leads, in words, for the DOUGH step of a
+ * square-pan round. Two stages are named up front and told apart by what the finger does in them (Owner decision on the C plan):
+ *   STEP 1 「四隅まで伸ばす」: the main operation is the DRAG -- pull the dough out to the four corners.
+ *   STEP 2 「厚みを整える」 : the main operation is TAP / LONG PRESS -- push the thick places flat (dragging still works).
+ * The step is derived from the dough (../logic/pan/squareDoughProgress.ts), so it can neither be skipped nor go back, and the words
+ * follow the real numbers: "できあがり" is only ever said when the dough is complete and 「次へ」 is available.
  *
  * `SquareDoughSteps` is the step strip plus the goal sentence (above the operation line and the gauge); `SquareDoughNext` is the line
- * under the gauge that says what comes next. Both read the same real evenness the gauge shows (useSyncExternalStore on the gauge store),
- * so "平らになった" is only ever said when the number on screen has reached the goal.
+ * under the gauge that says what comes next. Both read the same dough the gauge shows (useSyncExternalStore on the gauge store).
+ * The text carries the count and the story; the pan itself carries the picture (corner marks, drag hints -- SquareDoughLayer).
  */
-import { useSyncExternalStore } from "react";
-import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { isFlatTargetReached } from "../logic/pan/squareDoughView";
+import type { SquareDough } from "../logic/pan/squareDough";
+import { useSquareProgress } from "./useSquareProgress";
 
-function useReached(fallbackEvenness: number): boolean {
-  const { evenness } = useSyncExternalStore(squareDoughGaugeStore.subscribe, squareDoughGaugeStore.get);
-  return isFlatTargetReached(evenness ?? fallbackEvenness);
-}
-
-export function SquareDoughSteps({ fallbackEvenness }: { fallbackEvenness: number }) {
-  const reached = useReached(fallbackEvenness);
+export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough }) {
+  const { live, committed: p } = useSquareProgress(fallbackDough);
+  const step1State = p.step === 1 ? "now" : "done";
+  const step2State = p.step === 1 ? "next" : "now";
+  const goal = p.step === 1
+    ? `なぞって、生地を四隅まで伸ばそう（四隅 ${live.cornersReached}/4）`
+    : p.complete
+      ? "できあがり！「次へ」で形が決まります"
+      : "盛り上がった濃いところを押して、平らにしよう";
   return (
-    <div className="square-dough-steps" data-testid="square-dough-steps" data-step="1" data-reached={reached ? "true" : "false"}>
+    <div
+      className="square-dough-steps"
+      data-testid="square-dough-steps"
+      data-step={p.step}
+      data-complete={p.complete ? "true" : "false"}
+      data-corners={live.cornersReached}
+    >
       <ol className="square-dough-steps__list" aria-label="生地の2だんかい">
-        <li className="square-dough-steps__item square-dough-steps__item--now" aria-current="step" data-testid="square-dough-step-1">
-          <b>STEP 1</b> 生地を平らにする
+        <li
+          className={`square-dough-steps__item square-dough-steps__item--${step1State}`}
+          aria-current={p.step === 1 ? "step" : undefined}
+          data-testid="square-dough-step-1"
+          data-state={step1State}
+        >
+          <b>{p.step1Done ? "✓" : "STEP 1"}</b> 四隅まで伸ばす
         </li>
         <li className="square-dough-steps__arrow" aria-hidden="true">
           ›
         </li>
-        <li className="square-dough-steps__item square-dough-steps__item--next" data-testid="square-dough-step-2">
-          <b>STEP 2</b> 四隅まで伸ばす
+        <li
+          className={`square-dough-steps__item square-dough-steps__item--${step2State}`}
+          aria-current={p.step === 2 ? "step" : undefined}
+          data-testid="square-dough-step-2"
+          data-state={step2State}
+        >
+          <b>STEP 2</b> 厚みを整える
         </li>
       </ol>
       <p className="square-dough-steps__goal" data-testid="square-dough-goal">
-        {reached ? "平らになりました！" : "盛り上がった濃いところを押して、平らにしよう"}
+        {goal}
       </p>
     </div>
   );
 }
 
-export function SquareDoughNext({ fallbackEvenness }: { fallbackEvenness: number }) {
-  const reached = useReached(fallbackEvenness);
+export function SquareDoughNext({ fallbackDough }: { fallbackDough: SquareDough }) {
+  const { committed: p } = useSquareProgress(fallbackDough);
+  const text = p.step === 1
+    ? "四隅まで伸びたら、つぎは「厚みを整える」"
+    : p.complete
+      ? "「次へ」を押すまで、まだ整えられるよ"
+      : "平らになったら「次へ」が使えるよ";
   return (
-    <p className="square-dough-next" data-testid="square-dough-next" data-reached={reached ? "true" : "false"}>
-      {reached ? "つぎは「四隅まで伸ばす」（じゅんび中）" : "平らになったら、つぎは「四隅まで伸ばす」"}
+    <p className="square-dough-next" data-testid="square-dough-next" data-step={p.step} data-complete={p.complete ? "true" : "false"}>
+      {text}
     </p>
   );
 }
