@@ -1190,7 +1190,7 @@ export const RECIPES = [
     nameJa: "フランゴ・カトゥピリ",
     description: "モッツァレラにチキンとカトゥピリをのせた、とろりとまろやかなブラジル風の一枚。",
     // Batch 8a (Chapter 4). SOURCE AUTHORITY (PIZZA DB `frango-catupiry-pizzadb-p10`, 172 matrix): chicken / catupiry / mozzarella / oregano, cheese base, no sauce. NO_SAUCE. GAMEPLAY CALIBRATION (not source): counts mozzarella 2 / chicken 3 /
-    // catupiry 2 / oregano 1, bake 56-76; 8 pieces = the 8-slot ring. Zero new materials: makeable from step 44 (catupiry) beside brazilian-catupiry-corn-pizza, `ladderCredit: false`, `lunchRush: false`, no CUT, permanently key-free (Hint).
+    // catupiry 2 / oregano 1, bake 56-76; 8 pieces = the 8-slot ring. Zero new materials: makeable from step 44 (catupiry) beside brazilian-catupiry-corn-pizza, ladder-credited (Issue #561: the one Batch 8a recipe promoted to credited, restoring the ladder slack the star gates eat), `lunchRush: false`, no CUT, permanently key-free (Hint).
     requiredIngredients: [
       { ingredientId: "mozzarella", minCount: 2 },
       { ingredientId: "chicken", minCount: 3 },
@@ -1199,7 +1199,6 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 56, end: 76 },
     baseRewardPitz: 100,
-    ladderCredit: false,
     lunchRush: false,
   },
 ] as const;
