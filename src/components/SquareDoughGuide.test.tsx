@@ -128,3 +128,15 @@ describe("the step is announced from the committed dough, never from a gesture s
     expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "evenness");
   });
 });
+
+describe("the change note belongs to the metric the gauge shows", () => {
+  it("hides a coverage note while the gauge shows evenness (the gesture that crossed into STEP 2), and shows an evenness note", () => {
+    const sheet = spiky(); // STEP 1 is done, so the gauge is on evenness
+    render(<SquareDoughGauge fallbackDough={sheet} />);
+    act(() => squareDoughGaugeStore.reportChange(7.1, "coverage"));
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "evenness");
+    expect(screen.getByTestId("square-dough-gauge-note")).toHaveAttribute("data-change", "");
+    act(() => squareDoughGaugeStore.reportChange(31.8, "evenness"));
+    expect(screen.getByTestId("square-dough-gauge-note")).toHaveAttribute("data-change", "31.8");
+  });
+});

@@ -29,9 +29,9 @@ export function SquareDoughGauge({ fallbackDough }: { fallbackDough: SquareDough
     const id = window.setTimeout(() => setExpiredSeq(change.seq), CHANGE_NOTE_MS);
     return () => window.clearTimeout(id);
   }, [change]);
-  const note = change && expiredSeq !== change.seq ? change : null;
-
   const stepOne = committed.step === 1;
+  // A note about a metric the gauge is no longer showing (the gesture that crossed into STEP 2 changed coverage) would read as the wrong number's change.
+  const note = change && expiredSeq !== change.seq && change.metric === (stepOne ? "coverage" : "evenness") ? change : null;
   const shown = stepOne ? progress.coverage : progress.evenness;
   const goal = stepOne ? SQUARE_STEP1_COVERAGE_MIN : SQUARE_COMPLETE_EVENNESS_MIN;
   const reached = stepOne ? progress.coverageReached : progress.evennessReached;
