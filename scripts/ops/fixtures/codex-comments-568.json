@@ -1,0 +1,55 @@
+{
+ "_source": "Shapes copied from PR #568 comments (bodies shortened); used by the hermetic collector test.",
+ "comments": [
+  {
+   "id": 6265082157,
+   "user": {
+    "login": "chatgpt-codex-connector[bot]",
+    "type": "Bot"
+   },
+   "author_association": "NONE",
+   "created_at": "2026-10-19T10:26:27Z",
+   "body": "<!-- codex-pull-request-review-summary -->\n<!-- codex-review-state:v1 {\"code_review\":{\"commit_sha\":\"6b2f68d49f569942e6c293cef9f3ea181c5176fb\",\"has_any_findings\":false,\"has_unresolved_findings\":false,\"status\":\"completed\"},\"security_review\":{\"commit_sha\":null,\"has_any_findings\":null,\"has_unresolved_findings\":null,\"status\":null}} -->\n\n## Codex Review Summary"
+  },
+  {
+   "id": 6266540014,
+   "user": {
+    "login": "perusonao",
+    "type": "User"
+   },
+   "author_association": "OWNER",
+   "created_at": "2026-10-19T11:51:11Z",
+   "body": "@codex review\n\n新 HEAD `b26f955` ..."
+  },
+  {
+   "id": 6266571054,
+   "user": {
+    "login": "chatgpt-codex-connector[bot]",
+    "type": "Bot"
+   },
+   "author_association": "NONE",
+   "created_at": "2026-10-19T11:53:00Z",
+   "body": "<!-- codex-review-receipt:v1 -->\n\nCodex Review: Didn't find any major issues. What shall we delve into next?\n\n**Reviewed commit:** `b26f9552bc`\n"
+  },
+  {
+   "id": 6267500945,
+   "user": {
+    "login": "perusonao",
+    "type": "User"
+   },
+   "author_association": "OWNER",
+   "created_at": "2026-10-19T12:44:08Z",
+   "body": "@codex review\n\n新 HEAD `6b2f68d` に対するレビューを依頼します。"
+  },
+  {
+   "id": 6267536064,
+   "user": {
+    "login": "chatgpt-codex-connector[bot]",
+    "type": "Bot"
+   },
+   "author_association": "NONE",
+   "created_at": "2026-10-19T12:46:01Z",
+   "body": "<!-- codex-review-receipt:v1 -->\n\nCodex Review: Didn't find any major issues. Keep it up!\n\n**Reviewed commit:** `6b2f68d49f`\n"
+  }
+ ]
+}

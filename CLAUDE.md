@@ -19,3 +19,8 @@ the Definition of Done for those changes. See the policy doc for the full applic
 video/screenshot requirements, and the Result Report format.
 
 Do not copy the policy's full text elsewhere; reference this file/the policy doc instead.
+
+## Multi-session coordination
+
+Claims, the read-only Owner Gate report and the HV / Preview operating rules are in
+`docs/decisions/TETO_SESSION-OPERATIONS_1.0.md`. Check for overlapping PRs/claims before starting work.
