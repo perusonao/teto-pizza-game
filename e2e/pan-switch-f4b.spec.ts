@@ -79,7 +79,7 @@ test.describe("F4-b ○/□ switch", () => {
     await square(page).click();
     await expect(square(page)).toHaveAttribute("aria-checked", "true");
     await expect(page.getByTestId("square-dough-layer")).toBeVisible();
-    await expect(next(page)).toBeDisabled(); // square completion arrives with #558 (C)
+    await expect(next(page)).toBeDisabled(); // STEP 1 of the square dough: not finished yet
     await noOverflow(page);
     await shot(page, "after-square");
     await round(page).click();
@@ -102,5 +102,58 @@ test.describe("F4-b ○/□ switch", () => {
     await page.getByRole("button", { name: /このピザを作る/ }).click();
     await page.waitForSelector(".pizza-stage");
     await expect(sw(page)).toHaveCount(0);
+  });
+
+  test("□ runs #558's square dough end to end: STEP 1 -> STEP 2 -> 次へ moves on and the shape is settled", async ({ page }) => {
+    test.setTimeout(120_000);
+    await freeCookDough(page, "?panSwitch=open");
+    await square(page).click();
+    const layer = page.getByTestId("square-dough-layer");
+    await expect(layer).toBeVisible();
+    await expect(layer).toHaveAttribute("data-step", "1");
+    const attr = async (name: string) => (await layer.getAttribute(name)) ?? "";
+    const at = async (x: number, y: number) => {
+      const b = (await layer.boundingBox())!;
+      return { x: b.x + (b.width * x) / 100, y: b.y + (b.height * y) / 100 };
+    };
+    const drag = async (pts: [number, number][]) => {
+      const f = await at(...pts[0]);
+      await page.mouse.move(f.x, f.y);
+      await page.mouse.down();
+      for (const p of pts.slice(1)) {
+        const q = await at(...p);
+        await page.mouse.move(q.x, q.y, { steps: 6 });
+      }
+      await page.mouse.up();
+    };
+    const rows = [14, 26, 38, 50, 62, 74, 86];
+    for (let i = 0; i < rows.length; i++) await drag(i % 2 === 0 ? [[10, rows[i]], [50, rows[i]], [90, rows[i]]] : [[90, rows[i]], [50, rows[i]], [10, rows[i]]]);
+    for (const [x, y] of [[10, 10], [90, 10], [90, 90], [10, 90]]) await drag([[50, 50], [x, y]]);
+    for (let k = 0; k < 8 && (await attr("data-step")) !== "2"; k++) await drag([[12, 12 + k * 10], [88, 12 + k * 10]]);
+    expect(await attr("data-step")).toBe("2");
+    for (let k = 0; k < 60 && (await attr("data-complete")) !== "true"; k++) {
+      const idx = await layer.evaluate((el) => {
+        const v = (el.getAttribute("data-thickness") ?? "").split(",").map(Number);
+        let best = 0;
+        for (let i = 1; i < v.length; i++) if (v[i] > v[best]) best = i;
+        return best;
+      });
+      const q = await at(((idx % 16) + 0.5) * (100 / 16), (Math.floor(idx / 16) + 0.5) * (100 / 16));
+      await page.mouse.move(q.x, q.y);
+      await page.mouse.down();
+      await page.waitForTimeout(k % 3 === 0 ? 700 : 30);
+      await page.mouse.up();
+    }
+    expect(await attr("data-complete")).toBe("true");
+    // Both choices stay open until 次へ, and the finished square dough survives a round trip.
+    await round(page).click();
+    await expect(layer).toHaveCount(0);
+    await square(page).click();
+    await expect(layer).toHaveAttribute("data-complete", "true");
+    await expect(next(page)).toBeEnabled();
+    await next(page).click();
+    await expect(layer).toHaveCount(0);
+    await expect(sw(page)).toHaveCount(0); // settled: no switch in SAUCE
+    await expect(page.getByRole("button", { name: /トマトソース/ })).toBeVisible();
   });
 });

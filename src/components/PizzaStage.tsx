@@ -35,6 +35,7 @@ import {
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { SquareDoughLayer } from "./SquareDoughLayer";
 import type { SquareDough } from "../logic/pan/squareDough";
+import type { SquareDoughRamp } from "../logic/pan/squareDoughView";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
@@ -128,7 +129,7 @@ interface PizzaStageProps {
   onDoughElementChange?: (element: HTMLDivElement | null) => void;
   /** Square-Pan Dough B2 (#535): present only for a square-pan round. While it is DOUGH the square layer replaces the round
    *  stretch gesture (its pointer events stop in the layer); absent, nothing below changes. */
-  squareDough?: { dough: SquareDough; onCommit: (dough: SquareDough) => void };
+  squareDough?: { dough: SquareDough; onCommit: (dough: SquareDough) => void; ramp?: SquareDoughRamp };
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
@@ -1478,6 +1479,7 @@ export function PizzaStage({
             interactive={interactive}
             onCommit={squareDough.onCommit}
             resetToken={makingStepToken + resetToken}
+            ramp={squareDough.ramp}
           />
         )}
         {isDoughStep && interactive && !showSquareDough && (

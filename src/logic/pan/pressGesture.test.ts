@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  DRAG_FAST_PX,
   HOLD_START_MS,
+  HOLD_TO_DRAG_PX,
   IDLE_PRESS_GESTURE,
   MOVE_SLOP_PX,
   stepPressGesture,
@@ -8,9 +10,10 @@ import {
   type PressGestureState,
   type PressStep,
 } from "./pressGesture";
-import { applyPressEffects, pressAt, type PressEffect } from "./squareDoughSpread";
+import { pressAt, type PressEffect } from "./squareDoughSpread";
+import { applyGestureEffects, type GestureEffect } from "./squareDoughDrag";
 import { createLumpySquareDough } from "./squareDoughFixtures";
-import { squareDoughEvenness, type SquareDough } from "./squareDough";
+import { createInitialSquareDough, squareDoughCoverage, squareDoughEvenness, type SquareDough } from "./squareDough";
 
 const CENTER = { x: 58, y: 48 };
 const P = 1; // the pointer id used unless a test says otherwise
@@ -24,7 +27,7 @@ const cancel = (at: number, pointerId?: number): PressEvent => ({ type: "cancel"
 interface Run {
   readonly state: PressGestureState;
   readonly steps: readonly PressStep[];
-  readonly effects: readonly PressEffect[];
+  readonly effects: readonly GestureEffect[];
   readonly ends: readonly ("commit" | "discard")[];
 }
 
@@ -51,7 +54,7 @@ function ticks(from: number, to: number, everyMs: number): PressEvent[] {
   return out;
 }
 
-const holdsOf = (effects: readonly PressEffect[]) => effects.filter((e): e is Extract<PressEffect, { kind: "hold" }> => e.kind === "hold");
+const holdsOf = (effects: readonly GestureEffect[]) => effects.filter((e): e is Extract<PressEffect, { kind: "hold" }> => e.kind === "hold");
 
 describe("TAP", () => {
   it("applies the push-in the instant the finger goes down, before anything else happens", () => {
@@ -175,7 +178,7 @@ describe("Codex review (#545)", () => {
       for (const event of events) {
         const step = stepPressGesture(state, event);
         state = step.state;
-        working = applyPressEffects(working, step.effects);
+        working = applyGestureEffects(working, lumpy, step.effects);
       }
       return working;
     };
@@ -258,7 +261,7 @@ describe("through the dough: what a finger really does to the thickness", () => 
     for (const event of events) {
       const step = stepPressGesture(state, event);
       state = step.state;
-      working = applyPressEffects(working, step.effects);
+      working = applyGestureEffects(working, initial, step.effects);
       if (step.end === "discard") return initial;
     }
     return working;
@@ -295,5 +298,146 @@ describe("through the dough: what a finger really does to the thickness", () => 
     const at = (every: number) => squareDoughEvenness(replay(lumpy, [down(0), ...ticks(every, 1000, every), up(1000)]));
     const values = [at(1000 / 120), at(1000 / 60), at(1000 / 30)];
     expect(Math.max(...values) - Math.min(...values)).toBeLessThan(0.01);
+  });
+});
+
+// ---- C (#536): the drag -----------------------------------------------------------------------------------------------------------
+describe("DRAG (C, #536)", () => {
+  const downP = (at: number): PressEvent => ({ type: "down", pointerId: P, at, clientX: 100, clientY: 200, center: CENTER, dragPrimary: true });
+  const downS = (at: number): PressEvent => ({ type: "down", pointerId: P, at, clientX: 100, clientY: 200, center: CENTER });
+  const moveTo = (at: number, dx: number, dy: number): PressEvent => ({
+    type: "move",
+    pointerId: P,
+    at,
+    clientX: 100 + dx,
+    clientY: 200 + dy,
+    point: { x: CENTER.x + dx * 0.4, y: CENTER.y + dy * 0.4 },
+  });
+  const dragsOf = (effects: readonly GestureEffect[]) => effects.filter((e): e is Extract<GestureEffect, { kind: "drag" }> => e.kind === "drag");
+
+  it("STEP 1 (drag is the main operation): movement past the slop is a drag; the speculative tap is reverted first, and the path replays from where the finger went down", () => {
+    const r = run([downP(0), moveTo(40, MOVE_SLOP_PX + 2, 0)]);
+    expect(r.state.phase).toBe("dragging");
+    expect(r.effects.map((e) => e.kind)).toEqual(["press", "revert", "drag"]);
+    expect(dragsOf(r.effects)[0].from).toEqual(CENTER);
+  });
+
+  it("STEP 1: within the slop it is still a tap", () => {
+    const r = run([downP(0), moveTo(40, MOVE_SLOP_PX - 1, 0), up(80)]);
+    expect(r.state.phase).toBe("idle");
+    expect(r.effects.map((e) => e.kind)).toEqual(["press"]);
+    expect(r.ends).toEqual(["commit"]);
+  });
+
+  it("every later move of a drag is one more drag segment, continuing from the last point; nothing else is applied", () => {
+    const r = run([downP(0), moveTo(20, 12, 0), moveTo(36, 30, 4), moveTo(52, 50, 8)]);
+    const drags = dragsOf(r.effects);
+    expect(drags).toHaveLength(3);
+    expect(drags[1].from).toEqual(drags[0].to);
+    expect(drags[2].from).toEqual(drags[1].to);
+    expect(r.effects.filter((e) => e.kind === "press" || e.kind === "hold")).toHaveLength(1); // only the tap at pointer-down
+  });
+
+  it("a drag ends by commit on release and by discard on cancel, and no tick ever adds a hold during it", () => {
+    const committed = run([downP(0), moveTo(20, 20, 0), ...ticks(32, 600, 16), up(620)]);
+    expect(committed.ends).toEqual(["commit"]);
+    expect(holdsOf(committed.effects)).toHaveLength(0);
+    const cancelled = run([downP(0), moveTo(20, 20, 0), cancel(50)]);
+    expect(cancelled.ends).toEqual(["discard"]);
+    expect(cancelled.state.phase).toBe("idle");
+  });
+
+  it("STEP 1: a press that has become a hold needs the full 24 px: an 11 px drift stops it (it does not extend the dough), 24 px drags (Codex P2)", () => {
+    const drift = run([downP(0), ...ticks(16, 500, 16), moveTo(510, MOVE_SLOP_PX + 1, 0)]);
+    expect(drift.state.phase).toBe("moved");
+    expect(dragsOf(drift.effects)).toHaveLength(0);
+    // the same without any tick having arrived (the hold has begun by time alone)
+    const noTick = run([downP(0), moveTo(500, MOVE_SLOP_PX + 1, 0)]);
+    expect(noTick.state.phase).toBe("moved");
+    expect(dragsOf(noTick.effects)).toHaveLength(0);
+    const far = run([downP(0), ...ticks(16, 500, 16), moveTo(510, HOLD_TO_DRAG_PX + 1, 0)]);
+    expect(far.state.phase).toBe("dragging");
+    expect(far.effects.some((e) => e.kind === "revert")).toBe(false); // the hold's spread stays
+    // a quick stroke is still a drag at once in STEP 1
+    expect(run([downP(0), moveTo(HOLD_START_MS - 80, MOVE_SLOP_PX + 1, 0)]).state.phase).toBe("dragging");
+  });
+
+  it("the held-finger threshold is the same in STEP 2 (11 px stops it, 24 px drags)", () => {
+    const drift = run([downS(0), ...ticks(16, 500, 16), moveTo(510, MOVE_SLOP_PX + 1, 0)]);
+    expect(drift.state.phase).toBe("moved");
+    const far = run([downS(0), ...ticks(16, 500, 16), moveTo(510, HOLD_TO_DRAG_PX + 1, 0)]);
+    expect(far.state.phase).toBe("dragging");
+  });
+
+  it("STEP 2 (tap / long press are the main operations): a small wander stays a press that stops (as in B2), below the drag distance", () => {
+    const r = run([downS(0), moveTo(60, MOVE_SLOP_PX + 3, 0), moveTo(90, DRAG_FAST_PX - 4, 0)]);
+    expect(r.state.phase).toBe("moved");
+    expect(dragsOf(r.effects)).toHaveLength(0);
+  });
+
+  it("STEP 2: a quick stroke (16 px within the hold delay) is a drag", () => {
+    const r = run([downS(0), moveTo(HOLD_START_MS - 50, DRAG_FAST_PX + 1, 0)]);
+    expect(r.state.phase).toBe("dragging");
+    expect(r.effects.map((e) => e.kind)).toEqual(["press", "revert", "drag"]);
+  });
+
+  it("STEP 2: 16 px but slowly (after the hold delay) is not a drag, 24 px is", () => {
+    const slow = run([downS(0), moveTo(HOLD_START_MS + 100, DRAG_FAST_PX + 1, 0)]);
+    expect(slow.state.phase).toBe("moved");
+    const far = run([downS(0), moveTo(HOLD_START_MS + 100, HOLD_TO_DRAG_PX + 1, 0)]);
+    expect(far.state.phase).toBe("dragging");
+  });
+
+  it("a hold that moves 24 px becomes a drag and KEEPS the spread the hold made (no revert, no double application)", () => {
+    const r = run([downS(0), ...ticks(16, 600, 16), moveTo(620, HOLD_TO_DRAG_PX + 2, 0)]);
+    expect(r.state.phase).toBe("dragging");
+    expect(r.effects.some((e) => e.kind === "revert")).toBe(false);
+    expect(holdsOf(r.effects).length).toBeGreaterThan(0);
+    expect(dragsOf(r.effects)).toHaveLength(1);
+    // and no hold is added after the switch
+    const after = run([downS(0), ...ticks(16, 600, 16), moveTo(620, HOLD_TO_DRAG_PX + 2, 0), ...ticks(640, 1000, 16)]);
+    expect(holdsOf(after.effects).length).toBe(holdsOf(r.effects).length);
+  });
+
+  it("a hold that drifted (10..24 px) stopped spreading; moving on to 24 px then drags, and does not revert what the hold did", () => {
+    const r = run([downS(0), ...ticks(16, 600, 16), moveTo(620, MOVE_SLOP_PX + 4, 0), moveTo(660, HOLD_TO_DRAG_PX + 6, 0)]);
+    expect(r.state.phase).toBe("dragging");
+    expect(r.effects.some((e) => e.kind === "revert")).toBe(false);
+  });
+
+  it("a press that had not reached the hold, wandered, and then dragged is reverted once (the tap was speculative)", () => {
+    const r = run([downS(0), moveTo(60, MOVE_SLOP_PX + 3, 0), moveTo(90, HOLD_TO_DRAG_PX + 1, 0)]);
+    expect(r.effects.map((e) => e.kind)).toEqual(["press", "revert", "drag"]);
+  });
+
+  it("without a point a movement past the slop can only stop the press (never drag), and a malformed point is ignored", () => {
+    const noPoint = run([downP(0), { type: "move", pointerId: P, at: 40, clientX: 140, clientY: 200 }]);
+    expect(noPoint.state.phase).toBe("moved");
+    const bad = run([downP(0), { type: "move", pointerId: P, at: 40, clientX: 140, clientY: 200, point: { x: Number.NaN, y: 1 } }]);
+    expect(bad.state.phase).toBe("moved");
+  });
+
+  it("another finger's movement, a late event after the drag ended, and a non-finite time are ignored", () => {
+    const r = run([downP(0), moveTo(20, 20, 0)]);
+    const other = stepPressGesture(r.state, { type: "move", pointerId: 99, at: 30, clientX: 300, clientY: 300, point: { x: 1, y: 1 } });
+    expect(other.effects).toEqual([]);
+    const bad = stepPressGesture(r.state, { type: "move", pointerId: P, at: Number.NaN, clientX: 300, clientY: 300, point: { x: 1, y: 1 } });
+    expect(bad.effects).toEqual([]);
+    const ended = run([downP(0), moveTo(20, 20, 0), up(40), moveTo(60, 50, 0)]);
+    expect(dragsOf(ended.effects)).toHaveLength(1);
+  });
+
+  it("the full effect stream applied to a ball equals one drag from where the finger went down (the tap is not applied twice)", () => {
+    const events: PressEvent[] = [downP(0), moveTo(20, 12, 0), moveTo(36, 30, 4), moveTo(52, 50, 8), up(70)];
+    let state: PressGestureState = IDLE_PRESS_GESTURE;
+    let working = createInitialSquareDough();
+    const start = working;
+    for (const event of events) {
+      const step = stepPressGesture(state, event);
+      state = step.state;
+      working = applyGestureEffects(working, start, step.effects);
+    }
+    expect(squareDoughCoverage(working)).toBeGreaterThan(squareDoughCoverage(start));
+    expect(Math.abs(working.thickness.reduce((a, b) => a + b, 0) - start.thickness.reduce((a, b) => a + b, 0))).toBeLessThan(1e-9);
   });
 });

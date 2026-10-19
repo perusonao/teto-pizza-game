@@ -138,3 +138,52 @@ describe("SquareDoughDiag recorder", () => {
     expect(diag.snapshot("e")).toBe(before);
   });
 });
+
+
+describe("the round's operation counts and times (C balance pass)", () => {
+  function diagWithClock() {
+    let t = 1000;
+    const diag = new SquareDoughDiag(() => t);
+    return { diag, at: (ms: number) => { t = 1000 + ms; } };
+  }
+
+  it("counts operations per step and per kind, and times STEP 1, STEP 2 and the total from the first finger down", () => {
+    const { diag, at } = diagWithClock();
+    at(500);
+    diag.gestureStarted();
+    at(900);
+    diag.noteOperation("drag", 1, false, false);
+    at(2500);
+    diag.noteOperation("drag", 1, true, false); // this one reached STEP 2
+    at(4000);
+    diag.noteOperation("tap", 2, false, false);
+    at(7500);
+    diag.noteOperation("hold", 2, false, true); // and this one finished the dough
+    const [ops, time] = diag.roundLines();
+    expect(ops).toBe("手数 STEP1=2 (tap 0 hold 0 drag 2)  STEP2=2 (tap 1 hold 1 drag 0)  合計=4");
+    expect(time).toBe("時間 STEP1=2.0s  STEP2=5.0s  合計(完成まで)=7.0s");
+  });
+
+  it("the first time only: later passes through STEP 2 / the finish do not move the stamps", () => {
+    const { diag, at } = diagWithClock();
+    diag.gestureStarted();
+    at(1000);
+    diag.noteOperation("drag", 1, true, true);
+    at(9000);
+    diag.noteOperation("tap", 2, true, true);
+    expect(diag.round.step1DoneAt).toBe(2000);
+    expect(diag.round.completeAt).toBe(2000);
+  });
+
+  it("while running the times are shown as ongoing, and a reset forgets the round; the snapshot carries both lines", () => {
+    const { diag, at } = diagWithClock();
+    at(100);
+    diag.gestureStarted();
+    at(3100);
+    expect(diag.roundLines()[1]).toContain("STEP1=3.0s…");
+    expect(diag.snapshot("env")).toContain("手数 STEP1=0 (tap 0 hold 0 drag 0)");
+    diag.resetRound();
+    expect(diag.round.startedAt).toBeNull();
+    expect(diag.roundLines()[1]).toContain("STEP1=-");
+  });
+});

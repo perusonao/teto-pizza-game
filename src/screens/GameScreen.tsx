@@ -47,6 +47,7 @@ import { hint5LadderActive, hint5SheetView, hintSheetView, isHintSheetVisible, r
 import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
+import { panShapeNoticeJa } from "../state/panShapeNotice";
 import { renderedPostBakeStep } from "./postBakeView";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
@@ -74,7 +75,8 @@ import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
-import { createInitialSquareDough, squareDoughEvenness, type SquareDough } from "../logic/pan/squareDough";
+import { createInitialSquareDough, type SquareDough } from "../logic/pan/squareDough";
+import { squareDoughProgress } from "../logic/pan/squareDoughProgress";
 import { DOUGH_HINT } from "../data/hints";
 import { SquareDoughGauge } from "../components/SquareDoughGauge";
 import { SquareDoughNext, SquareDoughSteps } from "../components/SquareDoughGuide";
@@ -236,8 +238,11 @@ function usedIngredientIds(pizza: GameState["pizza"]): string[] {
 
 /** Square-Pan Dough B2: provisional one-line guide under the square pan (final wording is the Owner's). */
 /** The order card's line for a square-pan DOUGH step (the round pizza's "のばしたり縮めたり" does not describe it); only the default DOUGH line is replaced, never a hint the player asked for. */
-const SQUARE_DOUGH_ORDER_TEXT = "生地を平らにして、四隅まで伸ばそう";
-const SQUARE_DOUGH_STATUS_TEXT = "タップ＝おす　長おし＝広くならす";
+const SQUARE_DOUGH_ORDER_TEXT = "四隅まで伸ばして、厚みをそろえよう";
+const SQUARE_DOUGH_OPERATION_TEXT = {
+  1: "メイン：なぞる＝のばす／タップ・長おしもOK",
+  2: "メイン：タップ＝おす・長おし＝ならす／なぞるもOK",
+} as const;
 
 export function GameScreen({
   dinner: dinnerUi,
@@ -380,6 +385,8 @@ export function GameScreen({
   // Square-Pan Dough B2 (#535): in a square-pan round the DOUGH step is the square sheet; completion is C's (#536), so in B
   // 「次へ」 stays unavailable there.
   const squareDoughRound = effectivePanShape(state.recipe, state.pizza) === "square";
+  // The Preview lumpy start keeps B2's colour range; the production start (a small ball) has its own (C, #536).
+  const squareDoughLumpyStart = wantsLumpySquareStart();
   // Square Dough F4-b (#538): the ○/□ switch -- Free Cooking / Research DOUGH step once the derived affordance is open.
   const showPanSwitch =
     onSelectPan !== undefined &&
@@ -393,10 +400,12 @@ export function GameScreen({
       dex: state.dex,
     });
   const squareDoughStart = useMemo(
-    () => state.pizza.squareDough ?? (wantsLumpySquareStart() ? createLumpySquareDough() : createInitialSquareDough()),
-    [state.pizza.squareDough],
+    () => state.pizza.squareDough ?? (squareDoughLumpyStart ? createLumpySquareDough() : createInitialSquareDough()),
+    [state.pizza.squareDough, squareDoughLumpyStart],
   );
-  const nextStepReady = state.makingStep !== "DOUGH" || (!squareDoughRound && doughShapeComplete);
+  // Square-Pan Dough C (#536): the step and the finish are derived from the committed dough alone; 「次へ」 follows the finish.
+  const squareProgress = useMemo(() => squareDoughProgress(squareDoughStart), [squareDoughStart]);
+  const nextStepReady = state.makingStep !== "DOUGH" || (squareDoughRound ? squareProgress.complete : doughShapeComplete);
   // Issue #474 A-1: the status line must agree with the CTA above, so an unavailable 次へ always
   // reads SMALL whatever the (optional) prop says.
   const doughStatus: DoughSizeStatus = !doughShapeComplete ? "SMALL" : doughSizeStatusProp === "LARGE" ? "LARGE" : "READY";
@@ -823,7 +832,9 @@ export function GameScreen({
         onDoughStretchProgress={onDoughStretchProgress}
         onDoughStretchCommit={onDoughStretchCommit}
         squareDough={
-          squareDoughRound && onSquareDoughCommit ? { dough: squareDoughStart, onCommit: onSquareDoughCommit } : undefined
+          squareDoughRound && onSquareDoughCommit
+            ? { dough: squareDoughStart, onCommit: onSquareDoughCommit, ramp: squareDoughLumpyStart ? "lumpy" : "ball" }
+            : undefined
         }
         cutState={state.cutState}
         onAddCutLine={onAddCutLine}
@@ -915,7 +926,7 @@ export function GameScreen({
             {/* Issue #474 A-1: DOUGH's one fixed-height status line (inside the dock's own reserved,
                 otherwise-empty DOUGH space, so nothing moves). Words only: no number, no score. */}
             {/* Square-Pan Dough B2 (#535): STEP 1/2 strip + the goal sentence, above the operation line. Square rounds only. */}
-            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughSteps fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughSteps fallbackDough={squareDoughStart} />}
             {state.makingStep === "DOUGH" && (
               <div
                 id="dough-size-status"
@@ -925,12 +936,12 @@ export function GameScreen({
                 data-testid="dough-size-status"
                 data-status={squareDoughRound ? "SQUARE" : doughStatus}
               >
-                {squareDoughRound ? SQUARE_DOUGH_STATUS_TEXT : DOUGH_SIZE_STATUS_TEXT[doughStatus]}
+                {squareDoughRound ? SQUARE_DOUGH_OPERATION_TEXT[squareProgress.step] : DOUGH_SIZE_STATUS_TEXT[doughStatus]}
               </div>
             )}
             {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
-            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
-            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackEvenness={squareDoughEvenness(squareDoughStart)} />}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackDough={squareDoughStart} />}
+            {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackDough={squareDoughStart} />}
             {showPanSwitch && <PanSwitch selected={state.pizza.pan === "tray" ? "tray" : "round"} onSelect={onSelectPan} />}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
@@ -1155,6 +1166,7 @@ export function GameScreen({
           onResearchNext={onResearchNext}
           techniqueReveal={discoveryRevealOrder(state).includes("TECHNIQUE") ? state.lastTechniqueDiscovery : null}
           executionAdviceJa={state.freeCook ? executionAdviceJa(state.pizza) : null}
+          panShapeNoticeJa={state.freeCook ? panShapeNoticeJa(state.pizza) : null}
           trialNoticeNumber={state.freeCook && state.lastTrialAttempt?.kind === "DUPLICATE" ? state.lastTrialAttempt.number : null}
           onShowHint={state.freeCook ? onRetryWithHint : undefined}
         />

@@ -128,6 +128,9 @@ interface ResultPanelProps {
   trialNoticeNumber?: number | null;
   /** Discovery 3.0 PR-1: recipe-independent execution advice (../state/executionAdvice.ts), ORIGINAL card only. */
   executionAdviceJa?: string | null;
+  /** Square Dough F3: the neutral dough-shape line (../state/panShapeNotice.ts), a function of the cooked pan only --
+   *  identical for ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH. ORIGINAL card, Free Cooking only. */
+  panShapeNoticeJa?: string | null;
   /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
    *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
   onShowHint?: () => void;
@@ -242,6 +245,7 @@ export function ResultPanel({
   nearMiss: nearMissLine = null,
   trialNoticeNumber = null,
   executionAdviceJa = null,
+  panShapeNoticeJa = null,
   onShowHint,
   researchLabelJa = null,
   researchRows = null,
@@ -424,6 +428,7 @@ export function ResultPanel({
           {/* Discovery 3.0 PR-1: a static, recipe-independent line about the player's own sauce. It never depends on
               `discovery` (the lead above and this card are byte-identical for every original outcome). */}
           {freeCook && executionAdviceJa && <p className="original-pizza__advice">{executionAdviceJa}</p>}
+          {freeCook && panShapeNoticeJa && <p className="original-pizza__advice original-pizza__pan-notice">{panShapeNoticeJa}</p>}
         </div>
         {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}

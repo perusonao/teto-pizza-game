@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { createLumpySquareDough } from "./squareDoughFixtures";
 import { squareDoughGaugeStore } from "./squareDoughGaugeStore";
 import { pressAt } from "./squareDoughSpread";
-import { squareDoughEvenness } from "./squareDough";
+import { createInitialSquareDough, squareDoughEvenness } from "./squareDough";
 import {
+  CORNER_MARKS,
   changedCells,
-  evennessChangePoints,
+  changePoints,
+  cornerHint,
   smoothnessText,
   thicknessFill,
   thicknessRgb,
@@ -99,38 +101,105 @@ describe("gauge numbers", () => {
     expect(smoothnessText(Number.NaN)).toBe("0.0%");
   });
   it("reports 'no change' (null) for a change that rounds to 0.0, never a fake tick", () => {
-    expect(evennessChangePoints(0.74, 0.74)).toBeNull();
-    expect(evennessChangePoints(0.74, 0.74049)).toBeNull();
-    expect(evennessChangePoints(0.74, 0.7425)).toBeCloseTo(0.25, 5);
-    expect(evennessChangePoints(0.74, 0.73)).toBeCloseTo(-1, 5);
-    expect(evennessChangePoints(Number.NaN, 0.5)).toBeNull();
+    expect(changePoints(0.74, 0.74)).toBeNull();
+    expect(changePoints(0.74, 0.74049)).toBeNull();
+    expect(changePoints(0.74, 0.7425)).toBeCloseTo(0.25, 5);
+    expect(changePoints(0.74, 0.73)).toBeCloseTo(-1, 5);
+    expect(changePoints(Number.NaN, 0.5)).toBeNull();
   });
   it("a real press moves the evenness by exactly what the gauge change says", () => {
     const a = createLumpySquareDough();
     const b = pressAt(a, { x: 58, y: 48 });
-    const points = evennessChangePoints(squareDoughEvenness(a), squareDoughEvenness(b));
+    const points = changePoints(squareDoughEvenness(a), squareDoughEvenness(b));
     expect(points).not.toBeNull();
     expect(points!).toBeCloseTo((squareDoughEvenness(b) - squareDoughEvenness(a)) * 100, 9);
   });
 });
 
 describe("squareDoughGaugeStore", () => {
-  it("holds what was pushed, bumps seq per change report, notifies, and resets", () => {
+  it("holds the dough pushed, bumps seq per change report (with its metric), notifies, and resets", () => {
     squareDoughGaugeStore.reset();
     let calls = 0;
     const off = squareDoughGaugeStore.subscribe(() => calls++);
-    squareDoughGaugeStore.setEvenness(0.7);
-    expect(squareDoughGaugeStore.get().evenness).toBe(0.7);
-    squareDoughGaugeStore.reportChange(1.2);
+    const dough = createLumpySquareDough();
+    squareDoughGaugeStore.setDough(dough);
+    squareDoughGaugeStore.setCommitted(dough);
+    expect(squareDoughGaugeStore.get().dough).toBe(dough);
+    expect(squareDoughGaugeStore.get().committed).toBe(dough);
+    squareDoughGaugeStore.reportChange(1.2, "evenness");
     const first = squareDoughGaugeStore.get().change!;
-    squareDoughGaugeStore.reportChange(null);
+    squareDoughGaugeStore.reportChange(null, "coverage");
     const second = squareDoughGaugeStore.get().change!;
     expect(first.points).toBe(1.2);
+    expect(first.metric).toBe("evenness");
     expect(second.points).toBeNull();
+    expect(second.metric).toBe("coverage");
     expect(second.seq).toBeGreaterThan(first.seq);
     expect(calls).toBeGreaterThanOrEqual(3);
     off();
     squareDoughGaugeStore.reset();
-    expect(squareDoughGaugeStore.get()).toEqual({ evenness: null, change: null });
+    expect(squareDoughGaugeStore.get()).toEqual({ dough: null, committed: null, change: null });
+  });
+});
+
+describe("colour ramps", () => {
+  it("the lumpy ramp is the one B2 shipped (default argument unchanged)", () => {
+    expect(thicknessRgb(0.3)).toEqual(thicknessRgb(0.3, "lumpy"));
+    expect(thicknessFill(0.6)).toBe(thicknessFill(0.6, "lumpy"));
+    expect(thicknessRgb(0.3, "lumpy")).toEqual([250, 238, 208]);
+    expect(thicknessRgb(0.9, "lumpy")).toEqual([166, 98, 38]);
+  });
+  it("the ball ramp has two zones: the thin film (0.05..0.30) and the thick remnant (0.30..1.0) are both readable", () => {
+    expect(thicknessRgb(0.05, "ball")).toEqual([250, 238, 208]);
+    expect(thicknessRgb(1, "ball")).toEqual([166, 98, 38]);
+    expect(thicknessRgb(2, "ball")).toEqual([166, 98, 38]); // clamped
+    // the film zone gets 60 % of the colour travel: it meets the thick zone at u = 0.6
+    expect(thicknessRgb(0.3, "ball")).toEqual(thicknessRgb(0.3, "ball"));
+    for (let t = 0.08; t <= 0.28; t += 0.04) {
+      expect(dE(thicknessRgb(t, "ball"), thicknessRgb(t + 0.02, "ball")), `film ${t.toFixed(2)}`).toBeGreaterThanOrEqual(2.2);
+    }
+    for (let t = 0.35; t <= 0.9; t += 0.1) {
+      expect(dE(thicknessRgb(t, "ball"), thicknessRgb(t + 0.1, "ball")), `remnant ${t.toFixed(2)}`).toBeGreaterThanOrEqual(3);
+    }
+    // darker with thickness all the way (a thick lump is never lighter than a thinner one) and always a dough hue
+    let prev = Infinity;
+    for (let t = 0.05; t <= 1.0001; t += 0.01) {
+      const [r, g, b] = thicknessRgb(t, "ball");
+      expect(r > g && g > b).toBe(true);
+      expect(r + g + b).toBeLessThanOrEqual(prev);
+      prev = r + g + b;
+    }
+    // the old ramp (linear 0.05..0.5) showed nothing above 0.5: the remnants that carry the unevenness were invisible
+    expect(dE(thicknessRgb(0.6, "ball"), thicknessRgb(0.8, "ball"))).toBeGreaterThan(6);
+    expect(dE(thicknessRgb(0.1, "lumpy"), thicknessRgb(0.2, "lumpy"))).toBe(0); // and the lumpy ramp stays what B2 shipped
+  });
+  it("changedCells follows the ramp it is told (a change the ramp cannot show is not a changed cell)", () => {
+    const a = { thickness: new Array<number>(256).fill(0) };
+    a.thickness[120] = 0.1;
+    const b = { thickness: a.thickness.slice() };
+    b.thickness[120] = 0.2;
+    expect(changedCells(a, b, "lumpy")).toEqual([]);
+    expect(changedCells(a, b, "ball")).toEqual([120]);
+  });
+});
+
+describe("corner marks and hints", () => {
+  it("four marks inside the pan corners, NW NE SE SW", () => {
+    expect(CORNER_MARKS).toHaveLength(4);
+    expect(CORNER_MARKS[0].x).toBeLessThan(50);
+    expect(CORNER_MARKS[0].y).toBeLessThan(50);
+    expect(CORNER_MARKS[2].x).toBeGreaterThan(50);
+    expect(CORNER_MARKS[2].y).toBeGreaterThan(50);
+  });
+  it("the hint runs from the dough's outermost point toward the corner to the corner mark", () => {
+    const ball = createInitialSquareDough();
+    for (let c = 0; c < 4; c++) {
+      const h = cornerHint(ball, c);
+      expect(h.to).toEqual(CORNER_MARKS[c]);
+      expect(Math.hypot(h.from.x - 50, h.from.y - 50)).toBeLessThan(Math.hypot(h.to.x - 50, h.to.y - 50));
+    }
+    const lumpy = createLumpySquareDough();
+    const h = cornerHint(lumpy, 1);
+    expect(Math.hypot(h.from.x - h.to.x, h.from.y - h.to.y)).toBeLessThan(2); // the dough already reaches the mark
   });
 });
