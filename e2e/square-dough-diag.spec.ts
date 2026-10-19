@@ -84,3 +84,27 @@ test.describe("#535 B2 diagnostics: diag ON", () => {
     await expect(panel(page)).toHaveCount(0);
   });
 });
+
+test.describe("#536 C balance pass diagnostics: operation counts and times", () => {
+  test("diag ON shows the operations per step and the times; the numbers follow the real gestures", async ({ page }) => {
+    await start(page, "?pan=square&diag=1");
+    await expect(panel(page)).toContainText("手数 STEP1=0 (tap 0 hold 0 drag 0)  STEP2=0 (tap 0 hold 0 drag 0)  合計=0");
+    // one drag (mouse works in every browser project): STEP 1 operation 1, a drag
+    const box = (await layer(page).boundingBox())!;
+    const a = { x: box.x + box.width * 0.5, y: box.y + box.height * 0.5 };
+    const b = { x: box.x + box.width * 0.9, y: box.y + box.height * 0.1 };
+    await page.mouse.move(a.x, a.y);
+    await page.mouse.down();
+    await page.mouse.move(b.x, b.y, { steps: 8 });
+    await page.mouse.up();
+    await expect(panel(page)).toContainText("手数 STEP1=1 (tap 0 hold 0 drag 1)", { timeout: 3000 });
+    await expect(panel(page)).toContainText("時間 STEP1=");
+    await expect(panel(page)).toContainText("合計(完成まで)=");
+  });
+
+  test("diag OFF: no counts, no panel, nothing recorded", async ({ page }) => {
+    await start(page, "?pan=square");
+    await expect(panel(page)).toHaveCount(0);
+    expect(await page.locator("body").innerText()).not.toContain("手数");
+  });
+});

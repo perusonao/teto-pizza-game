@@ -110,23 +110,23 @@ test.describe("#535 B2 square dough: visual feedback", () => {
   });
 });
 
-test.describe("#535 B2 square dough: STEP 1/2 guide", () => {
-  test("names the two steps, the goal, the operation, the target and what comes next", async ({ page }) => {
+test.describe("#535 B2 + #536 C square dough: STEP 1/2 guide (the lumpy start opens at STEP 2)", () => {
+  test("names the two steps, the goal, the operation, the target and what 次へ needs", async ({ page }) => {
     await start(page);
-    await expect(page.getByTestId("square-dough-step-1")).toContainText("STEP 1");
-    await expect(page.getByTestId("square-dough-step-1")).toContainText("生地を平らにする");
-    await expect(page.getByTestId("square-dough-step-2")).toContainText("四隅まで伸ばす");
-    await expect(page.getByTestId("square-dough-goal")).toContainText("盛り上がった濃いところを押して、平らにしよう");
-    await expect(page.getByTestId("dough-size-status")).toContainText("タップ＝おす");
-    await expect(page.getByTestId("dough-size-status")).toContainText("長おし＝広くならす");
-    await expect(page.getByTestId("square-dough-gauge-goal")).toContainText("目標 80%");
-    await expect(page.getByTestId("square-dough-next")).toContainText("つぎは「四隅まで伸ばす」");
-    await expect(page.getByTestId("order-card-hint")).toContainText("生地を平らにして、四隅まで伸ばそう");
-    // the goal is not met on the lumpy start, and the gauge says so
-    await expect(gauge(page)).toHaveAttribute("data-reached", "false");
+    await expect(page.getByTestId("square-dough-step-1")).toContainText("四隅まで伸ばす");
+    await expect(page.getByTestId("square-dough-step-1")).toHaveAttribute("data-state", "done"); // the lumpy sheet already reaches all four corners
+    await expect(page.getByTestId("square-dough-step-2")).toContainText("厚みを整える");
+    await expect(page.getByTestId("square-dough-step-2")).toHaveAttribute("data-state", "now");
+    await expect(page.getByTestId("dough-size-status")).toContainText("メイン：タップ＝おす・長おし＝ならす");
+    await expect(page.getByTestId("square-dough-gauge-goal")).toContainText("目標 60%");
+    await expect(page.getByTestId("order-card-hint")).toContainText("四隅まで伸ばして、厚みをそろえよう");
+    // the lumpy sheet (0.739) is above the 60% goal: finished, and the gauge says so
+    await expect(gauge(page)).toHaveAttribute("data-reached", "true");
+    await expect(page.getByTestId("square-dough-goal")).toContainText("できあがり");
+    await expect(page.getByTestId("square-dough-next")).toContainText("「次へ」を押すまで");
   });
 
-  test("the whole guide fits the viewport in order, without overlap, scroll, or moving the pan", async ({ page }) => {
+test("the whole guide fits the viewport in order, without overlap, scroll, or moving the pan", async ({ page }) => {
     await start(page);
     const vp = page.viewportSize()!;
     const ids = ["square-dough-steps", "dough-size-status", "square-dough-gauge", "square-dough-next"];

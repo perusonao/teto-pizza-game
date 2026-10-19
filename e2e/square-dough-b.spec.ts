@@ -26,11 +26,12 @@ async function at(page: Page, xPercent: number, yPercent: number) {
 }
 
 test.describe("#535 B2 square dough: tap / hold", () => {
-  test("shows the square pan and sheet, keeps 次へ unavailable, and the page does not scroll", async ({ page }) => {
+  test("shows the square pan and sheet, 次へ follows the finish (the lumpy start is already above the evenness goal), and the page does not scroll", async ({ page }) => {
     await start(page);
     await expect(layer(page)).toBeVisible();
     expect(await layer(page).locator("rect").count()).toBeGreaterThan(190); // pan + 196 cells
-    await expect(page.getByRole("button", { name: /次へ/ })).toBeDisabled();
+    // C (#536): 次へ follows the finish. The Preview lumpy sheet has every corner, full coverage and an evenness (0.739) above the goal.
+    await expect(page.getByRole("button", { name: /次へ/ })).toBeEnabled();
     await expect(page.getByTestId("dough-size-status")).toHaveAttribute("data-status", "SQUARE");
     const css = await layer(page).evaluate((el) => getComputedStyle(el).touchAction);
     expect(css).toBe("none");
@@ -49,7 +50,7 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     expect(after).toBeGreaterThan(before);
     await page.clock.runFor(2000);
     expect(await evenness(page)).toBe(after);
-    await expect(page.getByRole("button", { name: /次へ/ })).toBeDisabled();
+    await expect(page.getByRole("button", { name: /次へ/ })).toBeEnabled(); // a tap only evens the dough out: still finished
   });
 
   test("a long press keeps spreading while held, more than a tap, and shows the hold ring", async ({ page }) => {
@@ -67,7 +68,13 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     expect(midHold).toBeGreaterThan(tapOnly);
     expect(longerHold).toBeGreaterThan(midHold);
     await expect(page.getByTestId("square-dough-hold-ring")).toHaveCount(0);
-    expect(await evenness(page)).toBe(longerHold);
+    // The release counts the last sub-frame slice of the hold (pressGesture "up"), so it may land a rounding step above the last frame's reading
+    // (WebKit frame timing); what must hold is that it is at most that sliver, and that nothing spreads after the release.
+    const released = await evenness(page);
+    expect(released).toBeGreaterThanOrEqual(longerHold);
+    expect(released - longerHold).toBeLessThan(0.01);
+    await page.clock.runFor(2000);
+    expect(await evenness(page)).toBe(released);
   });
 
   test("a finger that drifts past the slop while held stops spreading (no smearing)", async ({ page }) => {
