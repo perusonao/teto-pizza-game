@@ -160,6 +160,15 @@ describe("economy estimate -- consistency (numbers are quoted in docs/reports/TE
     }
   });
 
+  it("a star-locked key recipe is not explored: ★1/★2 refills exclude steps 50-51 (Codex review on #565)", () => {
+    const e1 = estimateEconomy(1);
+    const e3 = estimateEconomy(3);
+    // ★3 reaches every step; ★1 misses steps 50-51 (keys locked) and 52-53 (collateral): fewer refills, never more.
+    expect(e1.refillCostFull).toBeLessThan(e3.refillCostFull);
+    // 4 unreachable key recipes at T4: 4 x 14 attempts x 3 toppings x (60 / 10) = 1,008 FULL fewer than ★3.
+    expect(e3.refillCostFull - e1.refillCostFull).toBe(4 * 14 * 3 * 6);
+  });
+
   it("star-locked materials are not priced (only reached, unlocked steps)", () => {
     const e1 = estimateEconomy(1);
     expect(e1.reachedMaterialSteps).toBeLessThanOrEqual(DISCOVERY_LADDER.steps.length);

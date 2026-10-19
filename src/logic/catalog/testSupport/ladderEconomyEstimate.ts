@@ -61,6 +61,7 @@ export function estimateEconomy(best: 1 | 2 | 3 | 4 | 5): EconomyEstimate {
   const perDiscovery = reward + PITZ_FIRST_DISCOVERY_BONUS;
   const reachedSteps = DISCOVERY_LADDER.steps.filter((s) => s.step <= reach.creditedReached);
   const locked = new Set(reach.starLockedMaterialIds);
+  const reachedRecipeIds = new Set(reach.discoveredIds);
 
   let firstPackCost = 0;
   let refillFull = 0;
@@ -71,7 +72,9 @@ export function estimateEconomy(best: 1 | 2 | 3 | 4 | 5): EconomyEstimate {
       if (!offer) continue;
       firstPackCost += offer.packPrice;
     }
-    // One key recipe per step; its exploration is priced at the step's last (newest) material tier.
+    // One key recipe per step; its exploration is priced at the step's last (newest) material tier, and only when the
+    // profile can actually discover that recipe (a star-locked key recipe is never explored).
+    if (!reachedRecipeIds.has(step.keyRecipeId)) continue;
     const newest = materialOffer(INGREDIENTS.find((i) => i.id === step.ingredientIds[step.ingredientIds.length - 1])!);
     if (newest) refillFull += ATTEMPTS_PER_NEW_RECIPE * TOPPINGS_PER_ATTEMPT * (newest.refillPrice / 10);
   }
