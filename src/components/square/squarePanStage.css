@@ -71,3 +71,25 @@
   place-items: center;
   pointer-events: none;
 }
+
+/* Square-Pan Dough D2-b1 (Issue #537, Epic #532): the bake overlays on a square pan. Appended rules only -- the round ones (`.pizza-bake-overlay`,
+   `.pizza-char-spots`, `.pizza-perfect-glow` in App.css) and #518's `.pizza-dough--raw/--perfect/--burnt` filter are not edited, and #468's cheese
+   look is not touched: these selectors carry `.pizza-dough--square-pan`, which PizzaStage sets only for a square pan, so a round pizza never matches.
+   The overlays are `inset: 0` of the padding box with `border-radius: 50%`, which would paint a disc on top of the tray and leave its corners raw. Here they take
+   the pan's own box (the dough's border box, as `.pizza-dough-square` and the sauce canvas do) and the pan's own 6% inset and corner. Their gradients
+   (`circle`, farthest-corner) are the round ones unchanged, so a corner is the most baked point of the pan, as on a real tray. */
+.pizza-dough--square-pan .pizza-bake-overlay,
+.pizza-dough--square-pan .pizza-char-spots {
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  border-radius: 0;
+  clip-path: inset(6% round 3.41%);
+}
+
+/* The one-shot perfect-bake flash: the round glow spills 10px past the dough; here it spills past the pan by 3% of the box (about 9px) with a
+   rounded square edge, and its gradient keeps a faint glow to the corners instead of fading out inside them. */
+.pizza-dough--square-pan .pizza-perfect-glow {
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  border-radius: 0;
+  clip-path: inset(3% round 6%);
+  background: radial-gradient(circle farthest-corner, rgba(255, 224, 150, 0.85) 0%, rgba(255, 200, 110, 0.5) 75%, rgba(255, 200, 110, 0.3) 100%);
+}
