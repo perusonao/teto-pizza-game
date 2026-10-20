@@ -46,6 +46,9 @@ function requiresTray(target: TechniqueTargetView): boolean {
   return target.identityDimensions?.pan === "tray";
 }
 
+/** The dough technique's id, exported so the chips' logic (./doughSwitch.ts) needs no literal of its own. */
+export const DOUGH_TECHNIQUE_ID: TechniqueId = "dough-pinsa-romana";
+
 /** The `dough` identity value the technique `dough-pinsa-romana` stands for (design §3.2: the one place the id <-> value pairing lives). */
 const PINSA_DOUGH = "material-multigrain-long-ferment";
 

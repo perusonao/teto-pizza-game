@@ -86,6 +86,9 @@ import { effectivePanShape } from "../logic/pan/effectivePan";
 import { panSwitchOffered, type PanChoice } from "../state/panSelection";
 import { isDinnerRound } from "../state/roundKind";
 import { PanSwitch } from "../components/PanSwitch";
+import { DoughKindSwitch, DOUGH_CHIP_OTHER_JA } from "../components/DoughKindSwitch";
+import { resolveDoughKind, type DoughKind } from "../logic/dough/doughKind";
+import { doughSwitchOffered } from "../state/doughSelection";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
@@ -225,6 +228,11 @@ interface GameScreenProps {
   onSquareDoughCommit?: (dough: SquareDough) => void;
   /** Square Dough F4-b (#538): the DOUGH step's ○/□ choice (App dispatches SELECT_PAN). The switch renders only where `panSwitchOffered`. */
   onSelectPan?: (pan: PanChoice) => void;
+  /** Dough Kind P2 (#577): the DOUGH step's dough-kind choice (App dispatches SELECT_DOUGH). The chips render only where `doughSwitchOffered`. */
+  onSelectDough?: (dough: DoughKind) => void;
+  /** The second chip's text, pre-computed by App from the technique ledger (screens never read the raw ledger): the neutral label until the
+   *  dough technique is discovered, then its name. Absent = the neutral label. */
+  doughOtherLabel?: string;
   onAddCutLine: (line: CutLine) => void;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
@@ -304,6 +312,8 @@ export function GameScreen({
   onDoughStretchCommit,
   onSquareDoughCommit,
   onSelectPan,
+  onSelectDough,
+  doughOtherLabel,
   onAddCutLine,
   onDoughElementChange,
   resolvePhysicalDrop,
@@ -391,6 +401,18 @@ export function GameScreen({
   const showPanSwitch =
     onSelectPan !== undefined &&
     panSwitchOffered({
+      phase: state.phase,
+      makingStep: state.makingStep,
+      isMissionRound: state.isMissionRound,
+      isDinnerRound: isDinnerRound(state),
+      freeCook: state.freeCook,
+      recipe: state.recipe,
+      dex: state.dex,
+    });
+  // Dough Kind P2 (#577): the dough-kind chips -- the dough technique's own affordance, independent of the ○/□ switch above.
+  const showDoughSwitch =
+    onSelectDough !== undefined &&
+    doughSwitchOffered({
       phase: state.phase,
       makingStep: state.makingStep,
       isMissionRound: state.isMissionRound,
@@ -942,7 +964,29 @@ export function GameScreen({
             {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackDough={squareDoughStart} />}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackDough={squareDoughStart} />}
-            {showPanSwitch && <PanSwitch selected={state.pizza.pan === "tray" ? "tray" : "round"} onSelect={onSelectPan} />}
+            {/* Dough Kind P2 (#577): the ○/□ switch and the dough-kind chips are separate radiogroups. When BOTH are open they share one row
+                (a second row would grow the dock and shrink the pizza); when only one is open the DOM is exactly what it was. */}
+            {(() => {
+              const pan = showPanSwitch ? <PanSwitch selected={state.pizza.pan === "tray" ? "tray" : "round"} onSelect={onSelectPan} /> : null;
+              const dough = showDoughSwitch ? (
+                <DoughKindSwitch
+                  selected={resolveDoughKind({ doughKind: state.pizza.dough })}
+                  otherLabel={doughOtherLabel ?? DOUGH_CHIP_OTHER_JA}
+                  onSelect={onSelectDough}
+                />
+              ) : null;
+              return pan && dough ? (
+                <div className="dock-switch-row" data-testid="dock-switch-row">
+                  {pan}
+                  {dough}
+                </div>
+              ) : (
+                <>
+                  {pan}
+                  {dough}
+                </>
+              );
+            })()}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}
