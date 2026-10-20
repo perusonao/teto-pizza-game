@@ -4,13 +4,14 @@ import {
   alphaPlaneOf,
   bakeOilHex,
   bakeOliveOilLook,
-  buildSauceDisplayPixels,
   compositeOver,
   dimWhereOverlapping,
   overlapAlphaFactorFor,
   SAUCE_DISPLAY_GRID,
 } from "../logic/sauceDisplay";
-import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
+import type { SauceDepositLike } from "../logic/sauceField";
+import { buildPanSauceDisplayPixels, insidePanSauceFraction } from "../logic/pan/sauceSurface";
+import type { PanShape } from "../logic/pan/panShape";
 import type { SauceLayer } from "../state/sauceLayers";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
 import { overlapFallbackOf, platformSupports2d, useCanvasFailure, useStagingSurface } from "./sauceCanvasSupport";
@@ -26,6 +27,7 @@ const MERGED_CANVAS_PX = 200;
 
 interface RunRaster {
   shape: DoughShape;
+  pan: PanShape;
   color: string;
   plain: Uint8ClampedArray;
   baked: Uint8ClampedArray | null;
@@ -34,12 +36,12 @@ interface RunRaster {
 // per run object -- and runs are stable objects across commits (see `sauceRunsOf`)
 const rasterOfRun = new WeakMap<SauceLayer, RunRaster>();
 
-function runRaster(run: SauceLayer, shape: DoughShape, color: string, baked: boolean): Uint8ClampedArray {
+function runRaster(run: SauceLayer, shape: DoughShape, pan: PanShape, color: string, baked: boolean): Uint8ClampedArray {
   let entry = rasterOfRun.get(run);
-  if (!entry || entry.shape !== shape || entry.color !== color) {
-    const plain = buildSauceDisplayPixels(run.deposits, shape, color);
-    if (run.under.length > 0) dimWhereOverlapping(plain, alphaPlaneOf(buildSauceDisplayPixels(run.under, shape, "#000000")), overlapAlphaFactorFor(run.ingredientId));
-    entry = { shape, color, plain, baked: null };
+  if (!entry || entry.shape !== shape || entry.pan !== pan || entry.color !== color) {
+    const plain = buildPanSauceDisplayPixels(pan, run.deposits, shape, color);
+    if (run.under.length > 0) dimWhereOverlapping(plain, alphaPlaneOf(buildPanSauceDisplayPixels(pan, run.under, shape, "#000000")), overlapAlphaFactorFor(run.ingredientId));
+    entry = { shape, pan, color, plain, baked: null };
     rasterOfRun.set(run, entry);
   }
   if (!baked) return entry.plain;
@@ -57,13 +59,15 @@ interface MergedProps {
   /** the group mixes oil with other sauces: its oil runs get the oil colour look baked into their pixels */
   bakedOil?: boolean;
   className?: string;
+  /** D2-a2 (#537): the pan the runs lie on. `"square"` masks to the pan; absent / `"round"` is the round pizza, unchanged. */
+  pan?: PanShape;
 }
 
-export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil = false, className }: MergedProps) {
+export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil = false, className, pan = "round" }: MergedProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // the stack built so far: when the group only grew at its end (a newer run aged into it) just the new runs are stacked -- but never across
   // a change of `bakedOil` (an oil-only group that became mixed): its oil runs were stacked as plain pixels and must be rebuilt
-  const stacked = useRef<{ runs: readonly SauceLayer[]; shape: DoughShape; bakedOil: boolean; pixels: Uint8ClampedArray } | null>(null);
+  const stacked = useRef<{ runs: readonly SauceLayer[]; shape: DoughShape; pan: PanShape; bakedOil: boolean; pixels: Uint8ClampedArray } | null>(null);
   const [failed, markFailed] = useCanvasFailure();
   const stagingOf = useStagingSurface(); // this canvas's own 64x64 staging surface (never shared, see sauceCanvasSupport.ts)
 
@@ -78,7 +82,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
     try {
       const previous = stacked.current;
       const grewAtEnd =
-        previous !== null && previous.shape === doughShape && previous.bakedOil === bakedOil && previous.runs.length <= runs.length && previous.runs.every((run, i) => run === runs[i]);
+        previous !== null && previous.shape === doughShape && previous.pan === pan && previous.bakedOil === bakedOil && previous.runs.length <= runs.length && previous.runs.every((run, i) => run === runs[i]);
       const from = grewAtEnd ? previous.runs.length : 0;
       let pixels: Uint8ClampedArray;
       if (grewAtEnd && from === runs.length) pixels = previous.pixels;
@@ -86,10 +90,10 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
         pixels = grewAtEnd ? new Uint8ClampedArray(previous.pixels) : new Uint8ClampedArray(SAUCE_DISPLAY_GRID * SAUCE_DISPLAY_GRID * 4);
         for (let i = from; i < runs.length; i += 1) {
           const run = runs[i];
-          compositeOver(pixels, runRaster(run, doughShape, colorOf(run.ingredientId), bakedOil && run.ingredientId === "olive-oil"));
+          compositeOver(pixels, runRaster(run, doughShape, pan, colorOf(run.ingredientId), bakedOil && run.ingredientId === "olive-oil"));
         }
       }
-      stacked.current = { runs: [...runs], shape: doughShape, bakedOil, pixels };
+      stacked.current = { runs: [...runs], shape: doughShape, pan, bakedOil, pixels };
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const staging = stagingOf();
@@ -107,7 +111,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
     }
     // `runs` is a new array on every render of the parent; the group only really changes in its length or its last run
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
+  }, [runs.length, runs[runs.length - 1], doughShape, pan, bakedOil]);
 
   if (failed) {
     return <SauceDotsFallback runs={runs.map((run) => ({ deposits: run.deposits, overlap: overlapFallbackOf(run.ingredientId, run.under), color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId) }))} className={className} />;
@@ -120,7 +124,7 @@ export function SauceMergedHeatmapCanvas({ runs, doughShape, colorOf, bakedOil =
  * other sauce the canvas is a plain one (no oil CSS filter), so the oil dots are drawn in the oil-look colour -- the same transform the group's
  * heatmap bakes into the oil pixels -- instead of the raw pale swatch, which would lose its contrast.
  */
-export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil = false, className }: MergedProps) {
+export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil = false, className, pan = "round" }: MergedProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [failed, markFailed] = useCanvasFailure();
 
@@ -129,14 +133,14 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      if (platformSupports2d() && runs.some((run) => run.deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1))) markFailed();
+      if (platformSupports2d() && runs.some((run) => run.deposits.some((d) => insidePanSauceFraction(pan, doughShape, d.x, d.y) < 1))) markFailed();
       return;
     }
     try {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const run of runs) {
         for (const deposit of run.deposits) {
-          const overflowFraction = 1 - insideDoughShapeFraction(doughShape, deposit.x, deposit.y);
+          const overflowFraction = 1 - insidePanSauceFraction(pan, doughShape, deposit.x, deposit.y);
           if (overflowFraction <= 0) continue;
           ctx.save();
           ctx.globalAlpha = 0.55 * overflowFraction;
@@ -151,17 +155,17 @@ export function SauceMergedOverflowCanvas({ runs, doughShape, colorOf, bakedOil 
       markFailed();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runs.length, runs[runs.length - 1], doughShape, bakedOil]);
+  }, [runs.length, runs[runs.length - 1], doughShape, pan, bakedOil]);
 
   if (failed) {
     // The heatmap weights deposits by their inside-dough fraction, so sauce spent outside the dough is visible ONLY as these markers:
     // keep them as dots (off-dough deposits only) instead of dropping them when just this canvas fails (Codex P2 on PR #494).
     const outsideRuns = runs
       .map((run) => ({
-        deposits: run.deposits.filter((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1),
+        deposits: run.deposits.filter((d) => insidePanSauceFraction(pan, doughShape, d.x, d.y) < 1),
         color: bakedOil && run.ingredientId === "olive-oil" ? bakeOilHex(colorOf(run.ingredientId)) : colorOf(run.ingredientId),
         // the healthy canvas draws a 6px (3%) marker at 0.55 x the missed fraction, not a full-deposit dot
-        marker: { sizePct: 3, opacityOf: (d: SauceDepositLike) => 0.55 * (1 - insideDoughShapeFraction(doughShape, d.x, d.y)) },
+        marker: { sizePct: 3, opacityOf: (d: SauceDepositLike) => 0.55 * (1 - insidePanSauceFraction(pan, doughShape, d.x, d.y)) },
       }))
       .filter((run) => run.deposits.length > 0);
     return <SauceDotsFallback runs={outsideRuns} className={className} />;

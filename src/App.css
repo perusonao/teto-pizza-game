@@ -7508,7 +7508,9 @@ p.hint-sheet__step {
 
 .square-dough-layer {
   position: absolute;
-  inset: 0;
+  /* D2-a2 (#537): the layer spans the dough's BORDER box -- the box every later step's sauce / topping / cheese coordinates are percentages of -- so the
+     pan (6%..94% of it) is the same size and place in DOUGH as in SAUCE..RESULT. It used to span the padding box (pan 7% smaller, a jump at 「次へ」). */
+  inset: calc(-1 * var(--dough-border-width, 10px));
   z-index: 2;
   touch-action: none;
   user-select: none;

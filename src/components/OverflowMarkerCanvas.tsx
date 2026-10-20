@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
-import { insideDoughShapeFraction, type SauceDepositLike } from "../logic/sauceField";
+import type { SauceDepositLike } from "../logic/sauceField";
+import { insidePanSauceFraction } from "../logic/pan/sauceSurface";
+import type { PanShape } from "../logic/pan/panShape";
 import type { DoughShape } from "../logic/doughShape";
 import { platformSupports2d, useCanvasFailure } from "./sauceCanvasSupport";
 
@@ -13,6 +15,8 @@ export interface OverflowMarkerCanvasProps {
   doughShape: DoughShape;
   color: string;
   className?: string;
+  /** D2-a2 (#537): the pan the deposits are tested against. `"square"` = the pan's edge; absent / `"round"` = the dough silhouette, unchanged. */
+  pan?: PanShape;
 }
 
 /**
@@ -25,7 +29,7 @@ export interface OverflowMarkerCanvasProps {
  * `SauceHeatmapCanvas` it can be rendered once per cut piece and each copy draws itself, instead of
  * a single ref-owned canvas that a duplicated pizza body could not share.
  */
-export function OverflowMarkerCanvas({ deposits, doughShape, color, className }: OverflowMarkerCanvasProps) {
+export function OverflowMarkerCanvas({ deposits, doughShape, color, className, pan = "round" }: OverflowMarkerCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Same safety net as `SauceHeatmapCanvas`: a refused 2D context or a throwing draw shows the markers as dots, and never unmounts the app.
@@ -36,14 +40,14 @@ export function OverflowMarkerCanvas({ deposits, doughShape, color, className }:
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      if (platformSupports2d() && deposits.some((d) => insideDoughShapeFraction(doughShape, d.x, d.y) < 1)) markFailed();
+      if (platformSupports2d() && deposits.some((d) => insidePanSauceFraction(pan, doughShape, d.x, d.y) < 1)) markFailed();
       return;
     }
 
     try {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const deposit of deposits) {
-        const overflowFraction = 1 - insideDoughShapeFraction(doughShape, deposit.x, deposit.y);
+        const overflowFraction = 1 - insidePanSauceFraction(pan, doughShape, deposit.x, deposit.y);
         if (overflowFraction <= 0) continue;
         const px = (deposit.x / 100) * canvas.width;
         const py = (deposit.y / 100) * canvas.height;
@@ -58,7 +62,7 @@ export function OverflowMarkerCanvas({ deposits, doughShape, color, className }:
     } catch {
       markFailed();
     }
-  }, [deposits, doughShape, color, markFailed]);
+  }, [deposits, doughShape, pan, color, markFailed]);
 
   // the markers are small dots: when their canvas is gone they are simply left out (the heatmap's own fallback carries the sauce)
   if (failed) return null;

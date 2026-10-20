@@ -267,8 +267,12 @@ describe("one display path: the Reference views and the live pizza draw the same
   });
 
   it("only the heatmap canvases call the display rasterizer (SauceHeatmapCanvas, and SauceMergedCanvas which flattens the oldest runs with the very same builder), and nothing else rasterizes the old 16x16 field for the screen", () => {
-    const displayCallers = Object.entries(components).filter(([p, s]) => !isTest(p) && s.includes("buildSauceDisplayPixels(")).map(([p]) => p).sort();
+    // D2-a2 (#537): the canvases reach the rasterizer through `buildPanSauceDisplayPixels` (logic/pan/sauceSurface.ts), whose round branch IS `buildSauceDisplayPixels`
+    const displayCallers = Object.entries(components).filter(([p, s]) => !isTest(p) && s.includes("buildPanSauceDisplayPixels(")).map(([p]) => p).sort();
     expect(displayCallers).toEqual(["../components/SauceHeatmapCanvas.tsx", "../components/SauceMergedCanvas.tsx"]);
+    expect(Object.entries(components).filter(([p, s]) => !isTest(p) && s.includes("buildSauceDisplayPixels(")).map(([p]) => p)).toEqual([]);
+    const surface = import.meta.glob("./pan/sauceSurface.ts", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+    expect(surface["./pan/sauceSurface.ts"]).toContain(": buildSauceDisplayPixels(deposits, doughShape, colorHex)");
     const oldCallers = [...Object.entries(components), ...Object.entries(logic)]
       .filter(([p, s]) => !isTest(p) && s.includes("sauceFieldToRgbaPixels("))
       .map(([p]) => p);

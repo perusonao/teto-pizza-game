@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { SauceDepositLike } from "../logic/sauceField";
-import { alphaPlaneOf, buildSauceDisplayPixels, dimWhereOverlapping, overlapAlphaFactorFor, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
+import { alphaPlaneOf, dimWhereOverlapping, overlapAlphaFactorFor, SAUCE_DISPLAY_GRID } from "../logic/sauceDisplay";
+import { buildPanSauceDisplayPixels } from "../logic/pan/sauceSurface";
+import type { PanShape } from "../logic/pan/panShape";
 import type { DoughShape } from "../logic/doughShape";
 import { SauceDotsFallback } from "./SauceCanvasFallback";
 import { overlapFallbackOf, platformSupports2d, useCanvasFailure, useStagingSurface } from "./sauceCanvasSupport";
@@ -36,6 +38,8 @@ export interface SauceHeatmapCanvasProps {
   underDeposits?: readonly SauceDepositLike[];
   /** The sauce kind that laid this layer; only picks the overlap factor (olive oil is dimmed harder, #519). Absent = the generic factor. */
   ingredientId?: string;
+  /** D2-a2 (#537): the pan the sauce lies on. `"square"` masks to the pan (not `doughShape`); absent / `"round"` is the round pizza, unchanged. */
+  pan?: PanShape;
 }
 
 /**
@@ -53,13 +57,13 @@ export interface SauceHeatmapCanvasProps {
  * same one-way data flow `computeSauceMetrics` (../logic/sauceField.ts) already uses for
  * scoring, just rasterized instead of aggregated.
  */
-export function SauceHeatmapCanvas({ deposits, doughShape, color, className, underDeposits, ingredientId }: SauceHeatmapCanvasProps) {
+export function SauceHeatmapCanvas({ deposits, doughShape, color, className, underDeposits, ingredientId, pan = "round" }: SauceHeatmapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // "How much sauce is already under this layer": colour-independent, so it is computed once per (under, dough shape) and not on every
   // tick of the stroke in progress (which only changes `deposits`).
   const underAlpha = useMemo(
-    () => (underDeposits && underDeposits.length > 0 ? alphaPlaneOf(buildSauceDisplayPixels(underDeposits, doughShape, "#000000")) : null),
-    [underDeposits, doughShape],
+    () => (underDeposits && underDeposits.length > 0 ? alphaPlaneOf(buildPanSauceDisplayPixels(pan, underDeposits, doughShape, "#000000")) : null),
+    [underDeposits, doughShape, pan],
   );
 
   // A browser that refuses a 2D context after giving others one (canvas memory budget), or a draw that throws, must not leave this layer
@@ -84,7 +88,7 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className, und
       // Issue #475 Slice 1: the display density is built straight from the deposits (radially symmetric
       // splats on a 64x64 grid, ../logic/sauceDisplay.ts) instead of from the 16x16 metrics field, whose
       // square support showed as a staircase edge. Scoring still reads the 16x16 field, untouched.
-      const pixels = buildSauceDisplayPixels(deposits, doughShape, color);
+      const pixels = buildPanSauceDisplayPixels(pan, deposits, doughShape, color);
       if (!pixels.some((value, index) => index % 4 === 3 && value > 0)) return;
       if (underAlpha) dimWhereOverlapping(pixels, underAlpha, overlapAlphaFactorFor(ingredientId));
 
@@ -112,7 +116,7 @@ export function SauceHeatmapCanvas({ deposits, doughShape, color, className, und
     } catch {
       markFailed();
     }
-  }, [deposits, doughShape, color, underAlpha, ingredientId, markFailed, stagingOf]);
+  }, [deposits, doughShape, pan, color, underAlpha, ingredientId, markFailed, stagingOf]);
 
   if (failed) return <SauceDotsFallback runs={[{ deposits, color, overlap: overlapFallbackOf(ingredientId, underDeposits) }]} className={className} />;
   return (

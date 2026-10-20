@@ -48,3 +48,26 @@
   border-radius: 6%;
   opacity: 0.9;
 }
+
+/* D2-a2 (#537): the square pan's dough plate for every step after DOUGH (the DOUGH step's own sheet is the square layer). Same box as the round
+   `.pizza-dough-shape` (the border box, so dough-percent lines up) and the pan's own 6% inset and corner; the bake colour comes inline, as for the round one. */
+.pizza-dough-square {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  pointer-events: none;
+  clip-path: inset(6% round 3.41%);
+  background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
+  box-shadow: inset 0 0 14px rgba(120, 70, 20, 0.3);
+}
+
+/* A mozzarella pool near the pan's edge: this box is centred on the piece and as wide as the melted pool reaches (set inline), so its inline
+   `clip-path: inset(...)` cuts the pool at the pan's edge. The canvas inside keeps its own spread transform, centred in the box. */
+.pizza-cheese-pool-clip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}

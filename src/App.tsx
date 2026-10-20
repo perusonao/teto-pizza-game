@@ -13,7 +13,8 @@ import { WeeklyRankingOverlay } from "./components/WeeklyRankingOverlay";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
-import { resolvePieceDrop } from "./logic/pieceDrag";
+import { resolvePieceDropForPan } from "./logic/pan/panPlacement";
+import { effectivePanShape } from "./logic/pan/effectivePan";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SquareDough } from "./logic/pan/squareDough";
 import type { PanChoice } from "./state/panSelection";
@@ -285,10 +286,12 @@ function App() {
     pizzaDropTargetRef.current = element;
   }, []);
 
+  // Square-Pan Dough D2-a2 (#537): the finger-to-dough step follows the round's pan; a round pizza resolves with `resolvePieceDrop` itself.
+  const dropPan = effectivePanShape(state.recipe, state.pizza);
   const resolvePhysicalDrop = useCallback((clientX: number, clientY: number) => {
     const element = pizzaDropTargetRef.current;
-    return element ? resolvePieceDrop(clientX, clientY, element.getBoundingClientRect()) : null;
-  }, []);
+    return element ? resolvePieceDropForPan(dropPan, clientX, clientY, element.getBoundingClientRect()) : null;
+  }, [dropPan]);
 
   // Every new order should start the player off with the recipe's own sauce selected,
   // so a fresh order never opens on a sauce that belongs to a different recipe.
