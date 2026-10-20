@@ -8,7 +8,8 @@ and was not modified.
 |---|---|
 | Machine-readable matrix (172 rows + ledgers) | `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` |
 | Generated per-row table | `docs/design/TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md` |
-| Generator + validator (deterministic) | `tools/progression2_mechanic_matrix.py` (`--check` = validate only) |
+| src-derived runtime snapshot (not evidence) | `docs/design/data/TETO_RECIPE_172_RUNTIME-SNAPSHOT.json` |
+| Generator + validator (deterministic) | `tools/progression2_mechanic_matrix.py` (`--check` = evidence integrity only; `--check-runtime` = src freshness; see §11) |
 
 Every number below is printed by the tool from the JSON; if this text and the JSON disagree, the
 JSON wins.
@@ -451,3 +452,33 @@ The suggested inputs are:
 
 Base-sauce choice (the only blocker for 28 rows) and chili/ground-meat (9 rows) are the
 highest-leverage decisions.
+
+## 11. Evidence vs src-derived data (Issue #260)
+
+The matrix JSON used to embed three values re-read from `src/data/{recipes,ingredients}.ts` at generation
+time, so every content wave made `--check` fail on a clean `main`. They now live in a separate file.
+
+| File | Contents | Depends on `src/**` | Checked by |
+|---|---|---|---|
+| `docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json` | original 172-row evidence (read-only input, **unchanged**) | no | other Phase-0 tools |
+| `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` | classification, capabilities, ledgers (evidence-derived only) | **no** | `--check` |
+| `docs/design/data/TETO_RECIPE_172_RUNTIME-SNAPSHOT.json` | `shippedRecipeIdsInSrc`, `ingredientIdsInSrc`, `ingredientIdsNotYetInShippedGame`, per-row `newContentIngredientIdsByEvidenceId` (only rows that still need a new ingredient) | yes | `--check-runtime` |
+
+Removed from the matrix JSON: `shippedRecipeIdsInSrc`, `summary.ingredientIdsNotYetInShippedGame`,
+every row's `ingredients.newContentIngredientIds`, and the two `src/**` paths in `inputs`. No other value changed
+(verified by a structural diff against the previous file). `shippedRecipeIds` (from `data/recipes/pizza_master_catalog.json`) stays.
+
+Commands:
+
+- `--check` – validates the evidence outputs only. It never reads `src/**`, so it cannot be broken by a content wave.
+  **Meaning change:** it no longer detects a stale src-derived value. That job moved to `--check-runtime`.
+  Users: nothing in CI calls either command; callers reading the removed JSON fields should read the snapshot
+  (a repo-wide search found none besides the docs listed in §9/§10 that quote old numbers).
+- `--check-runtime` – fails if the snapshot differs from what the current `src/**` yields.
+- `--write-runtime` – rewrites only the snapshot. No argument – regenerates everything, including the snapshot.
+
+Content-wave procedure (recipe or ingredient added to `src/data/recipes.ts` / `ingredients.ts`):
+
+1. `python3 tools/progression2_mechanic_matrix.py --write-runtime` and commit the snapshot.
+2. `python3 tools/progression2_mechanic_matrix.py --check` (must stay green without regeneration) and `--check-runtime`.
+3. `python3 tools/progression2_phase2_progression.py --check` (see the Phase-2 design doc, "Shipped recipes vs evidence rows").
