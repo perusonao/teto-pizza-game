@@ -44,7 +44,11 @@ Status: **実装済み・本番では不活性。HV 不要**（見た目・操�
 * `TechniqueReveal.test.tsx`: 全技法で生の ID が DOM に出ない（R6）。
 
 ## 検証
-RESULT_PLACEHOLDER
+* 全 Vitest: **482 files passed / 1 skipped、8977 tests passed**（2 skipped・6 todo は既存、failed 0）。
+* `npm run build`（`tsc -b` + `vite build`）通過。`oxlint`: 触ったファイルへの指摘なし（警告は既存分のみ）。
+* **途中で出た失敗と原因**: (1) `sauceB1.singleSource.golden` の 550 件。golden が signature 全体（各軸の `status` を含む）をハッシュしており、`dough` が `FIXED_BY_FLOW` → `OBSERVED` に変わるため（PK-1 が明示的に許容する唯一の差。F1 の `pan` と同じ）。**`signature` の 550 値だけを書き換え**、`state` / `scoring` / `near` / `free` / `consume` / `completion` / `advice` ほか他のフィールドはバイト一致（スクリプトで確認）、golden に新しいレシピは足していない（再生成では #561 以降の 5 レシピが入ったので、既存キーの `signature` のみ取り込んだ）。(2) `deductionProduction.gate` / `hint5Production.gate` の「技法を要求する recipe」の許可リストに、`DOUGH_PINSA_ROMANA_RECIPE_IDS`（空）を名前付きで追加。skip・retry・緩和なし（PK-13）。(3) `attemptFingerprint.gate` の「fingerprint を参照するファイル」一覧: 新規テストから import を外し、既存の `attemptFingerprint.test.ts` に寄せた。
+* 衝突確認: `git merge-tree` で #580 / #581 / #582 の各 head と衝突なし。#580 との共有ファイルは `src/data/recipes.ts` のみ（`Recipe` interface の 1 フィールド）。
+* E2E / HV: 見た目・操作・DOM 構造（属性名 1 つを除く）が変わらず、affordance が閉じているため対象外。`TechniqueReveal` の属性は本番でも RESULT の技法ステージが出るまで描画されない。
 
 ## 未決・次
 * P2（`SELECT_DOUGH`・チップ）は **チップの `aria-label` 文言（Q4）と Q13 の確定待ち**。P3 は **原典確認（PK-0）と Q5〜Q8 待ち**。いずれも未着手。
