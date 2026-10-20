@@ -50,10 +50,17 @@ The three new topping materials may be added to `TOPPING_FAMILY_ROWS` with exact
   other PROPOSED row, and is not the Human Classification Gate (OD-TAX-7).
 - Where cited in code: the `TOPPING_FAMILY_ROWS` entries carry an `OD-B8-2` comment.
 
+### Amendment to OD-B8-2 (Owner, 2026-10-20, PR #580): dedicated art instead of provisional emoji
+
+- 🍁 (shiso) and 🦑 (whitebait) are **not adopted as final**. Shiso is drawn as a green leaf and whitebait as small white fish, by dedicated SVG or an existing `pieceVisual`-style dedicated drawing.
+- G18 stays in force (no class symbol equals an ingredient glyph; no family label contains an ingredient name / id); existing ingredient art is not changed broadly. The minimal implementation is the existing `pieceVisual` method plus two visuals (`shiso-leaf`, `whitebait-school`); the `emoji` field remains only as a never-displayed text fallback.
+- The 🟠 proposal for `salmon-roe` is superseded in the same way: Batch 8c draws it with dedicated art too (the Owner confirms the design on that PR's HV).
+- The bake window 58-78 for `shirasu-pizza` is approved (the existing `FREE_COOK_BAKE_TARGET` is kept).
+
 ## OD-B8-3 — Process
 
 - Counts and bake windows of the new recipes are GAMEPLAY CALIBRATION (provisional); the Owner confirms them on Preview.
 - PIZZA DB live re-check (Issue #527 D4) is still blocked by the network policy (`pizzadb.jp` CONNECT 403); the composition
-  is the repository's 172-matrix evidence row and stays provisional until the Owner re-confirms it.
+  is the repository's 172-matrix evidence row and stays provisional until the Owner re-confirms it (the pizzadb.jp source is **still unverified**; this is kept explicit on PR #580).
 - Merge, Production deploy and any shared-Preview update remain Owner-gated. D2-b, #540 (Draft / HOLD) and the shared
   Preview are not touched.

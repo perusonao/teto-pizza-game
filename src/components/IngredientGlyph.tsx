@@ -33,6 +33,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "feta-cubes": "0 0 64 64",
   "sausage-slices": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
+  "shiso-leaf": "0 0 64 64",
+  "whitebait-school": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -53,6 +55,8 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "feta-cubes" && <FetaCubes />}
       {visual === "sausage-slices" && <SausageSlices />}
       {visual === "hot-dog-slices" && <HotDogSlices />}
+      {visual === "shiso-leaf" && <ShisoLeaf />}
+      {visual === "whitebait-school" && <WhitebaitSchool />}
     </svg>
   );
 }
@@ -286,6 +290,45 @@ function HotDogSlices() {
           <path key={slice.cx} d={`M${slice.hx} ${slice.hy}c1-2 3-3 5-3`} />
         ))}
       </g>
+    </g>
+  );
+}
+
+/* ---------- shiso (Batch 8b, OD-B8-2 amended): a serrated green leaf with a midrib (Style Lock v2 common spec; reference art: docs/design/references/ingredient-icons-2.0/shiso.svg) ---------- */
+const SHISO_LEAF = "M32 6.0 L37.9 8.0 L38.6 9.9 L44.0 11.9 L44.2 13.8 L49.0 15.8 L48.6 17.7 L52.7 19.7 L51.6 21.6 L54.9 23.6 L52.9 25.5 L55.4 27.5 L52.6 29.5 L54.2 31.4 L50.7 33.4 L51.6 35.3 L47.4 37.3 L47.6 39.2 L42.9 41.2 L42.7 43.1 L37.6 45.1 L37.2 47.0 L32 49.0 L26.8 47.0 L26.4 45.1 L21.3 43.1 L21.1 41.2 L16.4 39.2 L16.6 37.3 L12.4 35.3 L13.3 33.4 L9.8 31.4 L11.4 29.5 L8.6 27.5 L11.1 25.5 L9.1 23.6 L12.4 21.6 L11.3 19.7 L15.4 17.7 L15.0 15.8 L19.8 13.8 L20.0 11.9 L25.4 9.9 L26.1 8.0Z";
+const SHISO_LEAF_LIGHT_HALF = "M32 6 L37.9 8.0 L38.6 9.9 L44.0 11.9 L44.2 13.8 L49.0 15.8 L48.6 17.7 L52.7 19.7 L51.6 21.6 L54.9 23.6 L52.9 25.5 L55.4 27.5 L52.6 29.5 L54.2 31.4 L50.7 33.4 L51.6 35.3 L47.4 37.3 L47.6 39.2 L42.9 41.2 L42.7 43.1 L37.6 45.1 L37.2 47.0 L32 49Z";
+const SHISO_VEINS = "M32 47 L32 12 M32 23 L42 17 M32 23 L22 17 M32 31 L45 25 M32 31 L19 25 M32 39 L44 33 M32 39 L20 33 M32 47 L41 41 M32 47 L23 41";
+
+function ShisoLeaf() {
+  return (
+    <g>
+      <ellipse cx="32" cy="60" rx="16" ry="2.6" fill="#000" opacity=".15" />
+      <path d="M32 49 L32 57" stroke="#245f2c" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <path d={SHISO_LEAF} fill="#5aa84f" stroke="#245f2c" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d={SHISO_LEAF_LIGHT_HALF} fill="#7cc46a" />
+      <path d={SHISO_VEINS} stroke="#245f2c" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity=".75" />
+    </g>
+  );
+}
+
+/* ---------- whitebait (Batch 8b, OD-B8-2 amended): three small white fish (reference art: docs/design/references/ingredient-icons-2.0/whitebait.svg) ---------- */
+const WHITEBAIT_FISH: readonly { x: number; y: number; rotate: number }[] = [
+  { x: 28, y: 16, rotate: -10 },
+  { x: 38, y: 31, rotate: 8 },
+  { x: 27, y: 46, rotate: -4 },
+];
+
+function WhitebaitSchool() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
+      {WHITEBAIT_FISH.map((fish) => (
+        <g key={fish.y} transform={`translate(${fish.x} ${fish.y}) rotate(${fish.rotate}) scale(1.3)`}>
+          <path d="M-12 0C-8-7 3-7 8-1.4L15-7V7L8 1.4C3 7-8 7-12 0Z" fill="#fbf9f1" stroke="#4d4837" strokeWidth="2.1" strokeLinejoin="round" />
+          <path d="M-9-3C-5-5.2 1-5 5-2.2" stroke="#8fa7b3" strokeWidth="2" strokeLinecap="round" fill="none" />
+          <circle cx="-7" cy="-1.6" r="1.8" fill="#2b2b2b" />
+        </g>
+      ))}
     </g>
   );
 }

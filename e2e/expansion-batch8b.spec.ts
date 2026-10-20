@@ -59,13 +59,15 @@ async function open(page: Page, json: string) {
   await page.waitForSelector(".app-frame");
 }
 
-async function buyNew(page: Page, project: string, id: string, glyph: string, nameJa: string, pack: string, shot: string) {
+async function buyNew(page: Page, project: string, id: string, visual: string, nameJa: string, pack: string, shot: string) {
   const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);
   await row.scrollIntoViewIfNeeded();
   await expect(row).toHaveCount(1);
   await expect(row).toHaveAttribute("data-shop-state", "NEW");
   await expect(row).toContainText(nameJa);
-  await expect(row).toContainText(glyph);
+  // The dedicated art (PR #580 Owner Decision), never an emoji: the glyph slot draws the SVG and shows no emoji text.
+  await expect(row.locator(`svg[data-ingredient-visual="${visual}"]`)).toHaveCount(1);
+  await expect(row.locator(".shop-item__emoji")).toHaveText(""); // the glyph slot holds the SVG only (the unique text fallback is never shown)
   await expect(row).toContainText(pack);
   await expect(row).toContainText(/初回 .*120 Pitz/);
   await noOverflow(page, `shop NEW ${id}`);
@@ -113,8 +115,8 @@ test.describe("Batch 8b (representative: step 54 shirasu-pizza NO_SAUCE; shiso +
     // 1. Shop: both step-54 materials are NEW (T4: 120 Pitz each, no star gate). Packs: shiso k=1 -> 10 pieces, whitebait k=3 -> 30.
     await page.getByRole("button", { name: /ショップ/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
-    await buyNew(page, project, "shiso", "🍁", "大葉", "10ピザ分（10個）", "batch8b-shiso");
-    await buyNew(page, project, "whitebait", "🦑", "しらす", "10ピザ分（30個）", "batch8b-whitebait");
+    await buyNew(page, project, "shiso", "shiso-leaf", "大葉", "10ピザ分（10個）", "batch8b-shiso");
+    await buyNew(page, project, "whitebait", "whitebait-school", "しらす", "10ピザ分（30個）", "batch8b-whitebait");
     await page.locator(".shop-overlay__panel").getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
 
@@ -131,8 +133,8 @@ test.describe("Batch 8b (representative: step 54 shirasu-pizza NO_SAUCE; shiso +
     let spot = await place(page, [[/モッツァレラ/, 2]], 0);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
-    await expect(await chipOnTrayOrPin(page, /大葉/)).toContainText("🍁");
-    await expect(await chipOnTrayOrPin(page, /しらす/)).toContainText("🦑");
+    await expect((await chipOnTrayOrPin(page, /大葉/)).locator('svg[data-ingredient-visual="shiso-leaf"]')).toHaveCount(1);
+    await expect((await chipOnTrayOrPin(page, /しらす/)).locator('svg[data-ingredient-visual="whitebait-school"]')).toHaveCount(1);
     await capture(page, "batch8b-tray-shirasu", project);
     spot = await place(page, [[/レモン/, 2], [/大葉/, 1], [/しらす/, 3]], spot);
     // Free Cooking judges the bake on the generic window (58-78), which is also the recipe's own window (see recipes.ts): aim inside both.
