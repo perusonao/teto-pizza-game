@@ -8,7 +8,8 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { SquareDough } from "../logic/pan/squareDough";
-import { RASTER_SIZE, rasterizeSquareDough } from "../logic/pan/squareDoughRaster";
+import { RASTER_SIZE } from "../logic/pan/squareDoughRaster";
+import { rasterizeSquareDoughSheet } from "../logic/pan/squareDoughSheet";
 import type { SquareDoughRamp } from "../logic/pan/squareDoughView";
 
 interface SquareDoughCanvasProps {
@@ -34,7 +35,7 @@ export function SquareDoughCanvas({ dough, ramp, onFail }: SquareDoughCanvasProp
         source.onFail();
         return;
       }
-      context.putImageData(new ImageData(rasterizeSquareDough(source.dough, source.ramp), RASTER_SIZE, RASTER_SIZE), 0, 0);
+      context.putImageData(new ImageData(rasterizeSquareDoughSheet(source.dough, source.ramp), RASTER_SIZE, RASTER_SIZE), 0, 0);
     } catch {
       source.onFail();
     }
