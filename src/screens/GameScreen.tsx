@@ -48,7 +48,8 @@ import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { panShapeNoticeJa } from "../state/panShapeNotice";
-import { renderedPostBakeStep } from "./postBakeView";
+import { finishStepAvailable, selectPostBakeStep } from "./postBakeView";
+import { buildFinishHintLine } from "../data/finishHint";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
 import type { ReferencePizza } from "../data/referencePizza";
@@ -496,9 +497,12 @@ export function GameScreen({
   // Cooking Steps 2.0 CS-1a: the one POST_BAKE rendering decision (./postBakeView.ts). Layout
   // sites read `postBakeStepRendered`; CUT-content sites read `isCutStep`. Only CUT is rendered
   // today, so both equal the old `phase === "POST_BAKE" && makingStep === "CUT"`.
-  const postBakeStep = renderedPostBakeStep(state.phase, state.makingStep);
+  // FINISH FIN-A (Issue #294): FINISH is also selected, but only when `finishStepAvailable` says so -- a Guided round whose
+  // profile carries FINISH. No shipped profile does, so Production is unchanged (finishD2Inert.test.ts pins it).
+  const postBakeStep = selectPostBakeStep(state.phase, state.makingStep, finishStepAvailable(state, state.cookingProfile.steps));
   const postBakeStepRendered = postBakeStep !== null;
   const isCutStep = postBakeStep === "CUT";
+  const isFinishStep = postBakeStep === "FINISH";
   const roomyStage = state.phase === "BAKE" || postBakeStepRendered;
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
@@ -702,7 +706,8 @@ export function GameScreen({
           postSteps={activePostBakeSteps}
           currentStep={state.makingStep}
           currentPhase={state.phase === "PREPARE" ? "PREPARE" : state.phase === "BAKE" ? "BAKE" : "POST_BAKE"}
-          nextReady={state.phase === "POST_BAKE" ? cutConfirmReady : nextStepReady}
+          // FIN-A: FINISH has no completion control yet (FIN-C), so the tab after it cannot advance the round.
+          nextReady={state.phase === "POST_BAKE" ? (isFinishStep ? false : cutConfirmReady) : nextStepReady}
           onAdvance={onConfirmMakingStep}
         />
       )}
@@ -818,6 +823,19 @@ export function GameScreen({
           row -- same `.order-card`-style component PREPARE already uses, reused verbatim rather
           than inventing a second layout for what is structurally the same "recipe name + short
           instruction" row. */}
+      {/* FINISH FIN-A: the same compact row as CUT's, carrying Mito's FINISH hint (buildFinishHintLine -- derived from the
+          pieces placed so far, so it follows the pizza without the reducer storing it). */}
+      {isFinishStep && state.dinner === null && (
+        <div className="order-card" data-testid="finish-order-card">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
+            <span className="order-card__hint" data-testid="finish-hint">
+              {buildFinishHintLine(state.recipe, state.pizza).textJa}
+            </span>
+          </div>
+        </div>
+      )}
+
       {isCutStep && state.dinner === null && (
         <div className="order-card">
           <div className="order-card__text">

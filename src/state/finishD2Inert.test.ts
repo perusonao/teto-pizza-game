@@ -58,7 +58,7 @@ describe("FINISH stays inert in Production (D2-0)", () => {
     for (const recipe of RECIPES) expect(visibleCookingTabCount(getCookingProfile(recipe.id)), recipe.id).toBeLessThanOrEqual(6);
   });
 
-  it("only PizzaStage consumes pieceBakeClass (D2-1); nothing consumes the other D2-0 helpers yet", () => {
+  it("only PizzaStage consumes pieceBakeClass (D2-1) and only GameScreen consumes the FINISH view helpers (FIN-A)", () => {
     const helpers = ["pieceBakeClass", "finishHint", "selectPostBakeStep", "finishStepAvailable"];
     const root = join(__dirname, "..");
     const files: string[] = [];
@@ -78,7 +78,14 @@ describe("FINISH stays inert in Production (D2-0)", () => {
         if (!defining && text.includes(name)) users.push(`${relative(root, file)} -> ${name}`);
       }
     }
-    // D2-1 (Issue #294): PizzaStage draws post-bake pieces apart from the pre-bake path. Every other helper stays unused until D2-2.
-    expect(users).toEqual(["components/PizzaStage.tsx -> pieceBakeClass"]);
+    // D2-1 (Issue #294): PizzaStage draws post-bake pieces apart from the pre-bake path. FIN-A: GameScreen selects the FINISH view
+    // (`selectPostBakeStep` / `finishStepAvailable`) and shows its hint (`finishHint`) -- both are false/absent for every shipped
+    // profile and round kind (the tests above). Nothing else consumes them.
+    expect(users).toEqual([
+      "components/PizzaStage.tsx -> pieceBakeClass",
+      "screens/GameScreen.tsx -> finishHint",
+      "screens/GameScreen.tsx -> selectPostBakeStep",
+      "screens/GameScreen.tsx -> finishStepAvailable",
+    ]);
   });
 });
