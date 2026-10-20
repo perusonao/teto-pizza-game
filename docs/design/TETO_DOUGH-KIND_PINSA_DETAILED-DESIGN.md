@@ -1,13 +1,13 @@
 # TETO 生地の種類（Pinsa Romana）導入 — 実装前の詳細設計 ＋ 新ソース 4 種の変更範囲（docs-only）
 
-Status: **設計のみ。実装は Owner 承認後。** `src/**`・`e2e/**`・CSS・レシピ／食材データ・テストは変更していない。
-この文書の「推奨」は助言であり、Owner Decision ではない。未回答の判断は §12 に列挙し、推測で確定していない。
+Status: **設計のみ（Final Gate 候補）。実装は Owner 承認後。** `src/**`・`e2e/**`・CSS・レシピ／食材データ・テストは変更していない。
+この文書の「推奨」は助言であり、Owner Decision ではない。未回答の判断は §12.2 に列挙し、推測で確定していない。
 
 | 項目 | 値 |
 |---|---|
-| 監査対象 `main` | `c98d957`（#573 Square Dough D2-a2）。2026-10-20 に `git fetch origin main` で再確認 |
+| 監査対象 `main` | 初版は `c98d957`（#573）。Final Gate 準備で `46d1139`（#574）まで再確認。その後 open になった #576（Square Dough D2-b1）は `PizzaStage` / `App.css` を触るため、P2 の UI 実装時の衝突候補として §9 に記載（本 PR は触れない） |
 | 親の調査 | `docs/design/TETO_COOKING-EXPANSION_FRESH-AUDIT-AND-PLAN.md`（同一ブランチ） |
-| 触れていないもの | Square Dough D2-b、Batch 8b（#527 とその続き）、共有 Preview、既存の進行中 PR（#478 / #540 / #574 ほか）、#521 の本文 |
+| 触れていないもの | Square Dough D2-b（#576 を含む）、Batch 8b（#527 とその続き）、共有 Preview、既存の進行中 PR（#478 / #540 ほか）、P1〜P3 の実装コード、#521 の本文 |
 | HV | docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md` §2）。実装 PR は §11 の各 slice で必須 |
 
 ## Owner 方針（2026-10-20）と、この文書での扱い
@@ -19,9 +19,23 @@ Status: **設計のみ。実装は Owner 承認後。** `src/**`・`e2e/**`・CS
 | 3 | 天板の形（○/□）と生地の種類は**別の識別軸** | §1、§2、§6 |
 | 4 | 新ソースは焼成前の SAUCE 工程で使う | §10 |
 | 5 | fromage-blanc-sauce / miso-sauce / tahini / yuzu-kosho はソース扱い。既存 taxonomy・レシピデータ契約との整合を確認する | §10 |
-| 6 | POST_BAKE のソース後乗せは別 Issue。重複 Issue は作らない | §11.3（起票案のみ。**起票はしていない**） |
+| 6 | POST_BAKE のソース後乗せは別 Issue。重複 Issue は作らない | §11.3（第 2 弾の Owner 許可により、重複再確認のうえ **#579 として起票済み**） |
 | 7 | ZONED は将来フェーズに延期 | §11.4 |
 | 8 | ドラッグ操作の全面統一は低優先度のまま | 本書の範囲外。どの slice も #478 に依存させない |
+
+## Owner 方針 第 2 弾（2026-10-20、Final Gate 準備）と、この文書での扱い
+
+| # | 方針 | 反映先 | 状態 |
+|---|---|---|---|
+| A | `pan` と `dough` は独立した識別軸 | §1.2、§2 | 反映済み（変更なし） |
+| B | `dough` の値は 172 レシピ設計の語彙を優先し、既存の `standard` を維持 | §1.3 | **確定**（旧 Q1 = 案 A） |
+| C | 技法 ID は `DOUGH_PINSA_ROMANA` を第一候補。既存命名規則と衝突するなら修正案を報告 | §3.2 | **衝突あり。修正案 `dough-pinsa-romana` を報告**（確定は Owner） |
+| D | 表示名「ピンサ生地」 | §3.2、§5.7 | 確定。漏れの観点を §5.7 に記録 |
+| E | 説明文は「空気を含んだ軽い食感が特徴の生地」を基本とする | §3.2 | 採用（基本）。なぞかけは未定 |
+| F | 未発見レシピの情報を UI・ヒントに漏らさない | §5.7（非開示の監査表）、PK-18 | 反映済み |
+| G | Dinner に Pinsa を出題しない | §4.2、PK-19 | **構造的に満たされることを確認**＋ガードテストを受け入れ条件に追加 |
+| H | Pinsa の有効化前に pizzadb.jp の原典を確認する | §7、§11.1、PK-0 | P3 の**開始条件**として明記 |
+| I | 生地種類・新ソース 4 種・ソース後乗せの Issue を、重複再確認のうえ起票してよい | §11.3 | **起票済み**（#577 / #578 / #579） |
 
 ---
 
@@ -70,14 +84,14 @@ identity = ingredientSet ∧ sauceBase ∧ dough ∧ pan ∧ （その他の軸�
 2. 値は**明示された選択だけ**が数える。Preview のクエリや、レシピの見た目の設定だけでは立たない（F2 の「Preview クエリだけでは発見にならない」と同じ）。
 3. 不正値（未知の文字列・数値・オブジェクト）は `"standard"` に倒れる。既存のピザは 1 つも識別が変わらない。
 
-### 1.3 値の語彙: Phase-2 の文字列をそのまま使う（推奨）
+### 1.3 値の語彙: Phase-2 の文字列をそのまま使う（**Owner 確定 2026-10-20**）
 
 | 案 | 内容 | 評価 |
 |---|---|---|
 | **A（推奨）** | 識別値 = Phase-2 の語彙（`material-multigrain-long-ferment`）。`PizzaState.dough` もこの文字列を持つ | 変換層が無い。`discoveryCatalog.test.ts` の「Phase-2 target と dims が同一」検証がそのまま使える。matrix / validator と食い違わない |
 | B | 短い内部 id（`pinsa`）を持ち、識別値へ写像する表を 1 か所に置く | 将来 Piadina / Manakish を足す時に読みやすいが、**同じ事実を 2 つの名前で持つ**。写像の漏れが識別の不一致になる |
 
-`pan: "tray"` は Phase-2 語彙と一致していたので変換不要だった。生地では語彙が長いが、**内部 id は player に見えない**（保存もされない）ため、A を推奨する。技法 id（永続）は §3 で別に決める。
+`pan: "tray"` は Phase-2 語彙と一致していたので変換不要だった。生地では語彙が長いが、**内部 id は player に見えない**（保存もされない）。Owner が案 A を確定した（172 レシピ設計の語彙を優先、既存の `standard` を維持）。技法 id（永続）は §3 で別に決める。
 
 ### 1.4 catalog target と Phase-2 検証の整合
 
@@ -160,11 +174,26 @@ Pinsa の実行時 target を `RECIPE_DISCOVERY_CATALOG` に足すとき、既�
 
 ### 3.2 技法 id と名前
 
-- **技法 id は永続**（`discoveredTechniqueIds` に保存され、以後変更できない）。player には見えない。
-- 推奨: 暫定 id を `pinsa-dough`。**確定は Owner**（F で「内部 technique ID は F の続きで確定」とした扱いと同じ）。
-- `nameJa` / `riddleJa` / `descriptionJa` は **UD-G（Owner 文言）**。本書は文言を書かない。
-- **OD-TQ-5/6 の例外は天板焼きの一般説明に限って承認されたもの**（2026-10-18）。Pinsa のなぞかけが「操作」を含む場合は、**新しい例外承認が要る**。例外を使わない場合の制約: なぞかけは技法名・id・具体的な操作を名指ししない（`techniques.test` の既存アサーション）。
-- 技法の説明文は**全プレイヤー共通の一般説明**で、レシピ名・食材名・個数を含まない。
+**技法 id（永続）— 命名規則との衝突を報告する**
+
+| 項目 | 内容 |
+|---|---|
+| Owner 第一候補 | `DOUGH_PINSA_ROMANA` |
+| 既存規則 | 技法 id は `/^[a-z0-9][a-z0-9_-]{0,63}$/`（小文字の kebab / snake）。`techniques.test.ts` が全レジストリ id に対して固定。保存側も `SAVE_ID_PATTERN`（同じ文法）で「整形済みの未知 id」を判定する（`saveIdGrammar.ts`）。既存の id は `no-sauce`、`tray` |
+| 衝突の中身 | 大文字を含む `DOUGH_PINSA_ROMANA` は (1) レジストリのテストに落ちる、(2) 保存の文法に合わないため、**旧ビルドは「整形済みの未知 id」として保持せず、保存時に失われる**（前方互換が効かない）。「ID は永続で後から変えられない」ため、後で直せない |
+| **修正案** | **`dough-pinsa-romana`**（Owner の語順 `DOUGH` → `PINSA` → `ROMANA` をそのまま小文字 kebab にしたもの。`no-sauce` と同じ形） |
+| 規則側を変える案 | `SAVE_ID_PATTERN` / テストの正規表現を緩めて大文字を許す案もあるが、保存の文法は全カタログ id が共有しており、旧ビルドとの互換が壊れるため**推奨しない** |
+| 確定 | Owner が `dough-pinsa-romana` を承認するか、別案を示す |
+
+**名前・説明（Owner 方針 D / E）**
+
+| 項目 | 内容 | 備考 |
+|---|---|---|
+| `nameJa` | **ピンサ生地** | 発見後だけ表示（P6）。漏れの観点は §5.7 |
+| `descriptionJa` | **空気を含んだ軽い食感が特徴の生地**（基本。語尾などの最終調整は Owner） | 食感だけを述べる一般説明。レシピ名・食材名・個数・操作を含まない → **OD-TQ-5/6 の追加例外は不要**（天板焼きの説明は操作を含むため例外が要った。こちらは含まない）。Dex の発見後にのみ表示 |
+| `riddleJa`（未発見だが affordance 開のときの固定なぞかけ） | **未定（UD-G 残り）** | 操作を含まず、技法名・id・レシピ名を名指ししない（`techniques.test` の既存アサーション）。操作を含めたい場合は新しい例外承認が要る |
+| 食感の表現と証跡 | 説明は「空気を含んだ軽い食感」。証跡の `doughStyle` は「小麦・米・大豆をブレンドした長時間発酵生地」 | 矛盾はしないが同じ観点でもない。**pizzadb.jp 原典確認（PK-0）で説明の妥当性も確認する** |
+| 説明文の制約 | 全プレイヤー共通の固定文字列（定数 1 か所）。レシピ・状態から派生させない | 追加のテスト: 文字列の完全一致を面ごとに固定 |
 
 ### 3.3 技法として扱わない場合との比較
 
@@ -197,7 +226,7 @@ catalog: Pinsa target              ← identityDimensions.dough を持つ（変�
 | Guided（図鑑から選んだレシピ） | チップは出さない。**レシピの `doughKind` から開始時に `PizzaState.dough` を設定**（§5.4） | 作れば `pinsa-romana` として一致 | 発見済みのレシピだけが選べるので、技法はレシピ経路で既に記録済み |
 | Free Cooking / Research | 当該技法の affordance が開いていればチップを表示 | チップで Pinsa を選んで正しい食材を作れば NEW_DISCOVERY。技法は同じ遷移で先に表示 | |
 | Lunch Rush | なし | **対象外**（`lunchRush: false`。aussie / jamon-serrano と同じ） | |
-| Dinner | なし | **出題されない設計にする**。Dinner の識別は composition だけで `matchDiscovery` を使う（`dinnerResultDetection.ts`）ため、チップの無い Dinner では Pinsa の食材が必ず jamon になる | Dinner の出題プールが何で絞られるかは実装 PR の監査項目（§11.2）。Pinsa が出題されないことを**テストで固定** |
+| Dinner | なし | **出題しない（Owner 方針 G）**。Dinner の識別は composition だけで `matchDiscovery` を使う（`dinnerResultDetection.ts`）ため、チップの無い Dinner では Pinsa の食材が必ず jamon になる | **確認済み:** Dinner の target は `DINNER_MISSIONS[*].targetRecipeIds` の**固定リスト**（`dm-a`: margherita / bismarck / breakfast-pizza / funghi、`dm-b`: margherita / funghi / melanzane-pizza / parmigiana-pizza、population `w1-25`）で、カタログ全体から抽選しない。よって Pinsa は**リストに載せない限り出題されない**。受け入れ条件 PK-19 でガードテストを追加する（§8） |
 
 ### 4.3 試行 fingerprint
 
@@ -257,6 +286,28 @@ F3 で入った RESULT の中立行（pan で調理した未同定ピザ向け�
 
 ---
 
+### 5.7 未発見レシピ・技法の非開示（Owner 方針 F）— 面ごとの監査表
+
+原則: **「ピンサ」の語（表示名「ピンサ生地」・レシピ名・id）は、当該の技法またはレシピを player が発見するまで、どの面にも出さない。** 面ごとの扱いと、固定するテスト:
+
+| 面 | 発見前の表示 | 発見後 | 固定するテスト |
+|---|---|---|---|
+| DOUGH のチップ（ラベル・aria-label・data 属性・アイコン） | 視覚描写のみ。語 `ピンサ` / `pinsa` / `ロマーナ` を含まない | 同じ（チップは発見後も名前を出さない） | DOM 文字列の走査 |
+| Dex の調理法欄 | affordance が開いたときだけ「？？？」＋固定なぞかけ。名前・説明は出さない | 「ピンサ生地」＋説明文 | `dexView.test` 系 |
+| Dex のレシピ欄 | 未発見は既存の匿名ロック（`？？？`）。Pinsa 専用の例外なし | レシピ名 | 既存の匿名ロック gate |
+| Research のラベル | `researchEntryLabel`: 解禁食材＋コホート文字のみ（INV-B7）。生地・技法を含まない | — | F 監査 R1 / R6 の同形テスト |
+| Hint 5.0 の行・fact id・保存 id・near-miss | 食材の事実のみ。技法・生地の語なし。Pinsa の ladder は jamon と同一 | — | G7 / INV-TQ-4 / DH4 sweep（`dough` 状態込み） |
+| G2 固定文言 | Research target 共通。生地の種類のために変えない | — | R11 の timing parity |
+| RESULT | 発見したときだけ技法ステージ。中立行は足さない（§5.3） | 技法名 → レシピ名の順（P5） | ResultPanel の既存テスト |
+| Trial Notebook / ○× パネル | 生地を記録・表示しない | — | pan と同形の同一 DOM テスト |
+| Pizza Select / HOME / ショップ | 未発見レシピは匿名のまま。生地・技法の語なし | — | 既存の routing / 匿名ロックのテスト |
+| 保存データ | 技法台帳の id（`dough-pinsa-romana`）は player に見えない | — | 保存のスナップショットが UI に流れないことの確認 |
+
+**受け入れ側の残余リスク（Owner 方針 D との関係、要 Owner 確認）:** 技法は**使っただけで**（usage 経路。Free Cooking、affordance 開、Completion Gate 通過）発見でき、そのとき RESULT と Dex に表示名「ピンサ生地」が出る。**レシピ「ピンサ・ロマーナ」が未発見のまま、「ピンサ」という語が先に見える。** これは P6（技法の名前は発見後に出す）の範囲内で、天板焼きでも「四角いレシピがある」ことが同様に示唆される（先例）。ただし「ピンサ」という固有名は「天板焼き」より強く特定のレシピ群を連想させる。対応案:
+1. 受け入れる（先例どおり、技法を発見した player にだけ見える）。
+2. 技法の表示名を、固有名を含まない描写（食感・製法）にする。
+Owner が表示名「ピンサ生地」を指定しているため、本書は 1 を前提にして**この性質を明示し、承認を求める**（§12 Q12）。
+
 ## 6. UI・操作設計
 
 ### 6.1 方針
@@ -282,7 +333,7 @@ F3 で入った RESULT の中立行（pan で調理した未同定ピザ向け�
 ### 6.3 見た目と文言
 
 - **アイコンのみ**（形・質感）。レシピ名・技法名・食材名を出さない（Anti-Oracle: 同じ affordance 状態の全プレイヤーに同じ表示）。
-- `aria-label` は生地の見た目を表す語（例: 「ふつうの生地」「つぶつぶの生地」のような**視覚的描写**）。技法名・レシピ名は不可。**文言は Owner 判断**（§12 Q4）。
+- `aria-label` は生地の見た目を表す語（例: 「ふつうの生地」「つぶつぶの生地」のような**視覚的描写**）。技法名・レシピ名は不可。**文言は Owner 判断**（§12 Q4）。**「ピンサ」「pinsa」「ロマーナ」を含めない**（表示名「ピンサ生地」は発見後の Dex だけ、§5.7）。
 - 選択肢の初期値は「ふつうの生地」（未設定）。
 
 ### 6.4 表示条件（`panSwitchOffered` と同形）
@@ -324,11 +375,14 @@ radiogroup / radio、`aria-checked`、キーボード操作、フォーカス可
 | Reference | 8 スロットリング（非ソース 7 piece 以内） | jamon と同形 |
 | 章／図鑑 | key step は jamon と同じ（arugula）。**章の件数が 1 増える** | 章を完了済みのセーブは未完了に戻る（Batch 7a / 8 と同じ注意。Owner 認識事項） |
 
-出典の限界: pizzadb.jp はこの環境から接続できず、証跡は repo 内の記録（`verifiedAt: 2026-09-22 relayed`）のみ。**生地の記述（小麦・米・大豆のブレンド、長時間発酵）の原典再確認は Owner 側**。
+出典の限界と**有効化の条件（Owner 方針 H）**: pizzadb.jp はこの環境から接続できず（プロキシ 403）、証跡は repo 内の記録（`verifiedAt: 2026-09-22 relayed, not independently re-fetched`）のみ。**P3（Pinsa の有効化）は、Owner が pizzadb.jp の原典を確認するまで開始しない。** 確認する項目: (1) 食材欄（モッツァレラ・生ハム・ルッコラ、ソース family＝トマトソース）、(2) `doughStyle`（小麦・米・大豆のブレンド、長時間発酵）、(3) 生地の形（丸か楕円か、CUT 対象にするか）、(4) 説明文「空気を含んだ軽い食感」が原典と矛盾しないか、(5) Piadina と食材が同じ（ソースの有無で区別）ことの確認。P1 / P2 は不活性なので、確認前に着手してよい。
 
 ---
 
 ## 8. 受け入れ条件（Pinsa 導入 slice）
+
+開始条件
+- **PK-0** P3 の開始前に、Owner が pizzadb.jp の原典（§7 の 5 項目）を確認し、結果を Issue #577 に記録する。確認前は `pinsa-romana` を `RECIPES` に入れない（P1 / P2 は不活性のため対象外）。
 
 識別・技法
 - **PK-1** 既存 target 全件の識別は変わらない（`dough` 未設定のピザは全軸が現状と deep-equal）。
@@ -359,6 +413,11 @@ Anti-Oracle・Hint
 採点
 - **PK-17** Scoring 2.0 の golden・Pitz・ランキングが不変（`techniques.architecture.test.ts` の INV-TQ-3）。
 
+非開示・出題
+- **PK-18** §5.7 の面ごとに、発見前は語 `ピンサ` / `pinsa` / `ロマーナ` / `dough-pinsa-romana` が DOM・aria・data 属性・ヒント・保存 id の UI 経路に出ないことを走査テストで固定する。
+- **PK-19** Dinner: (a) `DINNER_MISSIONS` のどの `targetRecipeIds` も Pinsa（`doughKind` を持つレシピ）を含まない、(b) `validateDinnerMissions` に「技法を要求するレシピを target にしない」検査を名前付きで追加（`aussie` など既存の技法レシピも同じ規則で扱う）、(c) Pinsa の食材を Dinner で作っても Pinsa に同定されない（jamon 以外の target では「target 外」）ことを確認。
+- **PK-20** 技法 id が `/^[a-z0-9][a-z0-9_-]{0,63}$/` に従い、旧ビルドとの往復で台帳から失われない（PK-16 と併せて確認）。
+
 ---
 
 ## 9. 影響を受ける既存テスト・成果物（実装 PR で一覧化する）
@@ -375,7 +434,7 @@ Anti-Oracle・Hint
 | Research | HOME / Pizza Select / Hint シートのルーティング、cohort 文字のテスト | §5.2 |
 | 新規 | `doughAxis.test.ts`、`gameReducer.selectDough.test.ts`、`DoughKindSwitch.test.tsx`、`e2e/dough-kind-*.spec.ts`、Preview フラグのゲートテスト | |
 
-衝突しやすいファイル（`scripts/ops/hot-files.json` の対象を含む）: `recipes.ts`、`gameReducer.ts`、`GameScreen.tsx`、`App.css`、`PROJECT_HANDOFF.md`。着手時は `TETO_SESSION-OPERATIONS_1.0.md` の claim を投稿し、Square Dough の進行中 PR（#574 ほか）と Batch 8 系の PR と重複しないことを確認する。**Batch 8b と D2-b のファイルには触れない。**
+衝突しやすいファイル（`scripts/ops/hot-files.json` の対象を含む）: `recipes.ts`、`gameReducer.ts`、`GameScreen.tsx`、`App.css`、`PROJECT_HANDOFF.md`。着手時は `TETO_SESSION-OPERATIONS_1.0.md` の claim を投稿し、Square Dough の進行中 PR と Batch 8 系の PR と重複しないことを確認する。**現時点の open PR #576（Square Dough D2-b1: 焼成オーバーレイ等）は `PizzaStage` / `App.css` 周辺を触るため、P2（チップ UI。`GameScreen.tsx` / `App.css` 末尾追記）とは「末尾追記の競合」になりうる。** Batch 8b と D2-b のファイルには触れない。
 
 ---
 
@@ -460,25 +519,31 @@ P3 の前提: 原典確認（Owner）、UD-G 相当の文言（技法の名前�
 
 ### 11.2 P3 の監査項目（実装 PR の最初）
 
-- Dinner の出題プールが何で絞られるか（技法を要求するレシピが出題されないことのテストを固定）。
+- Dinner は固定リスト（§4.2）で確認済み。PK-19 のガードテストを入れる。
 - Hint 5.0 の `recipeHintRoles` / key-free の扱い。
 - `cookingProfiles` の CUT 対象外（Pinsa）が validator と整合すること。
 
-### 11.3 起票案（**起票していない**。重複確認の結果のみ）
+### 11.3 起票（2026-10-20、Owner 許可のうえ、重複を再確認して実施）
 
-重複確認（`search_issues`、2026-10-20）:
+再確認（`search_issues` / `list_issues` / `search_pull_requests`、起票直前）:
 
-| 候補 | 検索語 | 結果 | 判定 |
+| 候補 | 検索 | 結果 | 判定 |
 |---|---|---|---|
-| 生地の種類（Pinsa） | 「dough variant Pinsa 生地の種類 technique」 | #532〜#538（Square Dough）、#33（生地を伸ばす操作） | **該当なし**。#532〜#538 は「天板の形」、#33 は「伸ばす操作」で、生地の種類（識別軸 `dough`）は扱わない |
-| ソース後乗せ | 「post-bake sauce drizzle 後乗せ ソース DRIZZLE FINISH liquid」 | #521、#489 | **該当なし**。#521 の Owner 判断 9 が「FINISH が液体に対応するまで保留」と触れているだけ。#294（FINISH）は topping のみ。DRIZZLE は #476 の候補として言及 |
-| 新ソース 4 種 | 「new sauce miso tahini yuzu flammkuchen 新ソース」 | 0 件 | **該当なし** |
+| 生地の種類（Pinsa） | 「dough kind Pinsa technique 生地の種類 識別軸」 | #532〜#538（天板）、#33（伸ばす操作） | 該当なし |
+| 新ソース 4 種 | 「新ソース fromage-blanc miso tahini yuzu-kosho Flammkuchen SAUCE」 | 0 件 | 該当なし |
+| ソース後乗せ | 「POST_BAKE ソース後乗せ FINISH 液体 DRIZZLE 仕上げソース」 | #521、#537、#489、#518、#519 | 該当なし（いずれもソースの後乗せ自体は扱わない） |
+| 最近の新規 Issue（2026-10-19〜） | open の新しい順 30 件 | #571 / #570 / #562 / #561 / #560 ほか | 関係なし |
+| open PR | 「pinsa / dough kind / 生地の種類 / tahini / miso / flammkuchen」 | #575（本 PR）、#540（HOLD の丸いグランマ） | 重複なし |
 
-起票案（Owner が承認したら起票。本文は短く、既存 Issue へのリンクで構成する）:
+起票した Issue:
 
-1. **「Dough Kind: 生地の種類を技法（how）として識別軸にする（Pinsa Romana）」** — 親: #294（Cooking Steps）・#182（172）。関連: #532（天板との独立を明記）。内容: 本書 §1〜§9、slice P1〜P3。
-2. **「New Sauces: Flammkuchen / 味噌 / タヒニ / 柚子胡椒（焼成前の SAUCE 工程）」** — 関連: #521（複数ソース）、#527（Batch 8、直列）。内容: 本書 §10。
-3. **「POST_BAKE のソース後乗せ（FINISH の液体対応・DRIZZLE）」** — 親: #294。関連: #518（FINISH D2-2 の前提）、#476（DRIZZLE 候補）、#521 判断 9。内容: FINISH が topping 専用であること（`PLACE_TOPPING` の FINISH 分岐が `category !== "topping"` を拒否）、タヒニ・柚子胡椒の仕上げ使い、はちみつ・マヨ等の候補、新ジェスチャーの要否。**#518 → D2-2 が前提のため、起票しても着手は後**。
+| # | Issue | 親・関連 |
+|---|---|---|
+| **#577** | Dough Kind: 生地の種類を技法（how）として識別軸にする（Pinsa Romana が最初） | #294 / #182 / #532 / #538 / #521 / #527 |
+| **#578** | New Sauces: Flammkuchen / 味噌 / タヒニ / 柚子胡椒（焼成前の SAUCE 工程） | #521 / #527 |
+| **#579** | POST_BAKE のソース後乗せ: FINISH の液体対応と仕上げソース（DRIZZLE 候補） | #294 / #518 / #476 / #521 / #489（**#518 → D2-2 が前提のため着手は後**） |
+
+3 件とも「計画の追跡のみ」で、実装・マージ・デプロイ・共有 Preview 更新は Owner の指示後と明記した。
 
 ### 11.4 延期
 
@@ -488,22 +553,32 @@ P3 の前提: 原典確認（Owner）、UD-G 相当の文言（技法の名前�
 
 ---
 
-## 12. Owner 判断が必要な事項（未回答のまま）
+## 12. Owner 判断が必要な事項
+
+### 12.1 確定済み（2026-10-20）
+
+| 旧 # | 内容 | 決定 |
+|---|---|---|
+| Q1 | `dough` の語彙 | 172 レシピ設計の語彙、既存 `standard` 維持（§1.3） |
+| Q2（一部） | 技法 ID の第一候補 `DOUGH_PINSA_ROMANA`、表示名「ピンサ生地」、説明文の基本 | 採用。**ID は命名規則と衝突するため修正案を提示（下の Q2'）** |
+| Q11 | Issue 起票 | 許可済み → 起票（#577 / #578 / #579） |
+| — | Dinner に Pinsa を出さない、pizzadb.jp 確認後に有効化、未発見情報を漏らさない | 反映（PK-0、PK-18、PK-19） |
+
+### 12.2 残り
 
 | # | 判断 | 推奨 |
 |---|---|---|
-| Q1 | `dough` の識別値の語彙を Phase-2 の文字列（`material-multigrain-long-ferment`）にするか、短い内部 id にするか | Phase-2 の文字列（§1.3 案 A） |
-| Q2 | 技法 id（永続）。暫定 `pinsa-dough` | Owner が確定（一度決めると変更できない） |
-| Q3 | 1 技法につき 1 生地か、複数の生地を 1 技法にまとめるか（Piadina / Manakish を見据えて） | Pinsa は 1 技法 1 生地で始め、2 つ目の生地を足す時に再判断 |
-| Q4 | チップの `aria-label`、技法の名前・なぞかけ・説明（UD-G）。**なぞかけが操作を含む場合は OD-TQ-5/6 の新しい例外承認が要る** | 操作を含まない一般的な表現にして、例外を使わない |
+| **Q2'** | 技法 ID を **`dough-pinsa-romana`**（小文字 kebab）にしてよいか。`DOUGH_PINSA_ROMANA` のままだと保存の文法・テストに合わず、旧ビルドとの前方互換が効かない（§3.2） | `dough-pinsa-romana` を承認 |
+| Q3 | 1 技法につき 1 生地か、複数の生地を 1 技法にまとめるか（Piadina / Manakish を見据えて） | Pinsa は 1 技法 1 生地で始める（`dough-pinsa-romana` はその前提の名前） |
+| Q4 | チップの `aria-label`（視覚描写）と、**なぞかけ**（UD-G 残り）。操作を含める場合は新しい例外承認が要る | 操作を含まない表現。例外は使わない |
 | Q5 | RESULT に生地版の中立行を足すか | 足さない（§5.3） |
 | Q6 | Pinsa の `ladderCredit: false`、`lunchRush: false`、CUT なし、章の件数が 1 増えることの了承 | 推奨どおり |
 | Q7 | コホート文字（jamon と Pinsa が A/B になる）と、validator への明示的な例外の了承 | 了承（OD-544-4/5 の範囲） |
-| Q8 | Pinsa の個数・bake（暫定値）、jamon と同値にするか | 分ける（識別が見た目に表れる） |
-| Q9 | 新ソースの本番 id、色、価格・数量、ladder の位置 | Owner（UD-F と同種） |
-| Q10 | 柚子は柚子胡椒（証跡どおり）でよいか。tahini など 4 件の sauce 扱い（Owner 方針 5 で確定）に追加の制約が無いか | 証跡どおり |
-| Q11 | §11.3 の 3 つの Issue 起票案の承認（起票は Owner 承認後） | 承認後に起票 |
-| 既存の未決 | Design Lock §8-1（pizzadb.jp 原典確認）、pizzadb.jp の Pinsa 行の原典再確認、UD-D / F / G、OD-CS-12..19 | — |
+| Q8 | Pinsa の個数・bake（暫定値）、jamon と同値にするか | 分ける |
+| Q9 | 新ソースの本番 id、色、価格・数量、ladder の位置（#578） | Owner（UD-F と同種） |
+| Q10 | 柚子は柚子胡椒（証跡どおり）でよいか | 証跡どおり |
+| **Q12** | 表示名「ピンサ生地」により、技法の発見（usage 経路）でレシピ「ピンサ・ロマーナ」より先に「ピンサ」の語が見えることの承認（§5.7） | 承認（先例の天板焼きと同じ性質）。懸念が強ければ表示名を描写的な名称にする |
+| 既存の未決 | pizzadb.jp の原典確認（PK-0、**P3 の開始条件**）、Design Lock §8-1、UD-D / F / G、OD-CS-12..19 | — |
 
 ## 13. リスク
 
