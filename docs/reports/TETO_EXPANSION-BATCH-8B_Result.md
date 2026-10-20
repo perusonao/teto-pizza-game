@@ -70,11 +70,22 @@ G18 (`hint5Taxonomy.gate`) passes with 🍁 and 🦑: no class symbol equals an 
 
 ## 6. Full-suite E2E / build
 
-(filled in at the end of the run)
+- Chromium E2E, **whole suite**, iphone-390x844 + iphone-360x800 (project filters applied): **812 passed, 0 failed** (exit 0, 38.4 min). No test was skipped, quarantined or loosened; the only E2E edit is the `LAST_STEP = 53` pin of the Batch 7a spec.
+- `npm run build` passes (the usual chunk-size notice only).
+- The E2E run writes stray screenshots under `docs/reports/screenshots/cooking-tray-family-filter/`; they are not part of this change and were removed (an earlier commit of this branch briefly included them; the follow-up commit removes them).
 
 ## 7. Owner Human Verification (Preview, 390x844)
 
-Screenshots: `docs/reports/screenshots/expansion-batch8b/` (390x844 / 360x800). The 390x844 Review Playthrough video is delivered directly, never committed (recorded against a local build of this branch; the shared Preview was not updated).
+Screenshots: `docs/reports/screenshots/expansion-batch8b/` (6 shots x 390x844 / 360x800: shiso NEW, whitebait NEW, tray, Research entry, NEW RECIPE, Dex). The 390x844 Review Playthrough video is delivered directly, never committed (recorded against a local build of this branch; the shared Preview was not updated).
+
+## Human Verification Videos
+
+| Video | Viewport | Duration | Size | Verification |
+|---|---:|---:|---:|---|
+| `batch8b-review-390x844.mp4` (H.264, converted from Playwright WebM) | 390×844 | 28.4 s | 672,650 B | PASS |
+
+Download: delivered directly in the session (not committed). Video Verification: PASS (exists, size > 0, plays to the end, full viewport, ffprobe: h264 390x844).
+Shows: Shop NEW shiso + whitebait -> purchase -> Research entry `？？？ピザ（しらす）` -> tray (🍁 / 🦑) -> cooking with no sauce step -> NEW DISCOVERY -> Dex. An automated walkthrough held at each screen (1-3 s); the Owner's own HV result words (PASS / FAIL) are the Owner's to write.
 Check: the glyphs 🍁 (shiso) / 🦑 (whitebait) on the tray, Shop and RESULT; the NEW 120 Pitz rows (packs 10 / 30); the Research entry naming only `しらす`; the missing sauce step; the 8-piece ring look; **the provisional counts and bake window (58-78)**; and whether the glyphs should be replaced by dedicated SVGs.
 
 ## 8. Not done / limits
