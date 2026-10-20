@@ -364,6 +364,21 @@
   pointer-events: none;
 }
 
+/* FINISH D2-2c F-3 (#597): with post-bake pieces the CUT drawing (`.pizza-cut-layer`, `.pizza-cut-tool-layer`) is rendered in this layer, after the pieces,
+   so it paints in front of them. The layer is already the dough's border-box -- the box those two are sized to inside the dough
+   (outset by the border from its padding box) -- so no outset here; DOM order, not z-index, decides the stacking. The capture zone stays in the dough. */
+.pizza-post-layer > .pizza-cut-layer {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: auto;
+}
+
+.pizza-post-layer > .pizza-cut-tool-layer {
+  inset: 0;
+  z-index: auto;
+}
+
 /* The dough's padding box: pieces are `left/top: x%/y%` of it, exactly as inside `.pizza-dough` (border 10px). */
 .pizza-post-layer__frame {
   position: absolute;
