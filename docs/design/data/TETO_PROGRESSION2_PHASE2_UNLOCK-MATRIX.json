@@ -6,8 +6,59 @@
     "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json",
     "src/data/recipes.ts",
     "src/data/ingredients.ts",
+    "src/data/discoveryCatalog.ts",
     "data/recipes/ingredient_master_catalog.json"
   ],
+  "shippedRecipesCountedAsEvidenceRow": {
+    "aussie": "aussie-pizzadb",
+    "baba-ganoush-pizza": "baba-ganoush-pizza-pizzadb-p7",
+    "bacalhau": "bacalhau-pizzadb",
+    "bambino": "bambino-pizzadb-p7",
+    "brazilian-calabresa": "brazilian-calabresa-pizzadb-p10",
+    "brazilian-catupiry-corn-pizza": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+    "calabresa-argentina": "calabresa-argentina-pizzadb",
+    "california-style-pizza": "california-style-pizza-pizzadb-p2",
+    "chilean-napolitana": "chilean-napolitana-pizzadb",
+    "eggplant-ricotta-pizza": "eggplant-ricotta-pizza-pizzadb-p5",
+    "frango-catupiry": "frango-catupiry-pizzadb-p10",
+    "full-english-pizza": "full-english-pizza-pizzadb-p10",
+    "hawaiian": "hawaiian-pizzadb-row",
+    "jalapeno-popper-pizza": "jalapeno-popper-pizza-pizzadb-p7",
+    "jamon-serrano-pizza": "jamon-serrano-pizza-pizzadb-p7",
+    "melanzane-pizza": "melanzane-pizza-pizzadb-p13",
+    "new-haven-apizza": "new-haven-apizza-pizzadb",
+    "new-zealand-lamb-pizza": "new-zealand-lamb-pizza-pizzadb-p6",
+    "palmito-pizza": "palmito-pizza-pizzadb-p7",
+    "parmigiana-pizza": "parmigiana-pizza-pizzadb-p7",
+    "pesto-caprese": "pesto-caprese-pizzadb-p11",
+    "pesto-gamberi": "pesto-gamberi-pizzadb-p11",
+    "pesto-patate": "pesto-patate-pizzadb-p12",
+    "pesto-pollo": "pesto-pollo-pizzadb-p12",
+    "pesto-salmone": "pesto-salmone-pizzadb-p11",
+    "pesto-tonno": "pesto-tonno-pizzadb-p12",
+    "pesto-trapanese": "pesto-trapanese-pizzadb-p11",
+    "pesto-vegetariana": "pesto-vegetariana-pizzadb-p12",
+    "pizza-bianca-ricotta": "bianca-pizzadb-row",
+    "pizza-feta-eliniki": "pizza-feta-eliniki-pizzadb-p9",
+    "pizza-moscow": "pizza-moscow-pizzadb-p9",
+    "pizza-overload": "pizza-overload-pizzadb-p7",
+    "pizza-portuguesa": "pizza-portuguesa-pizzadb-p9",
+    "polish-kielbasa": "polish-kielbasa-pizzadb-p12",
+    "porchetta-pizza": "porchetta-pizza-pizzadb-p12",
+    "prosciutto-funghi": "prosciutto-funghi-pizzadb-p11",
+    "puttanesca-pizza": "puttanesca-pizza-pizzadb-p10",
+    "ratatouille-pizza": "ratatouille-pizza-pizzadb-p13",
+    "rucola-e-grana": "rucola-e-grana-pizzadb-p13",
+    "salsiccia-e-friarielli": "salsiccia-e-friarielli-pizzadb-p3",
+    "shirasu-pizza": "shirasu-pizza-pizzadb-p3",
+    "spanish-chorizo-pizza": "spanish-chorizo-pizza-pizzadb-p4",
+    "spinach-artichoke-pizza": "spinach-artichoke-pizza-pizzadb-p4",
+    "tonno-e-cipolla": "tonno-e-cipolla-pizzadb",
+    "vegan-cashew-cheese-pizza": "vegan-cashew-cheese-pizza-pizzadb-p1",
+    "veggie-supreme-pizza": "veggie-supreme-pizza-pizzadb-p11",
+    "vongole": "vongole-pizzadb"
+  },
+  "shippedRecipeLinkErrors": [],
   "phase1MatrixRowCount": 172,
   "starterItems": [
     "basil",
@@ -26803,10 +26854,9 @@
       "ownedDoughVariants": 1,
       "ownedPans": 0,
       "byKnownCategory": {
-        "cheese": 1,
+        "cheese": 2,
         "sauce": 3,
-        "topping": 14,
-        "uncategorized": 2
+        "topping": 15
       },
       "freeCookCombinationSpaceLog2": 20
     },
@@ -26816,10 +26866,10 @@
       "ownedDoughVariants": 3,
       "ownedPans": 1,
       "byKnownCategory": {
-        "cheese": 2,
+        "cheese": 3,
         "sauce": 3,
-        "topping": 20,
-        "uncategorized": 5
+        "topping": 22,
+        "uncategorized": 2
       },
       "freeCookCombinationSpaceLog2": 30
     },
@@ -26829,11 +26879,11 @@
       "ownedDoughVariants": 7,
       "ownedPans": 2,
       "byKnownCategory": {
-        "cheese": 4,
+        "cheese": 8,
         "sauce": 5,
         "sauce(spread)": 2,
-        "topping": 28,
-        "uncategorized": 20
+        "topping": 41,
+        "uncategorized": 3
       },
       "freeCookCombinationSpaceLog2": 59
     },
@@ -26843,11 +26893,11 @@
       "ownedDoughVariants": 10,
       "ownedPans": 3,
       "byKnownCategory": {
-        "cheese": 6,
+        "cheese": 12,
         "sauce": 5,
         "sauce(spread)": 13,
-        "topping": 32,
-        "uncategorized": 49
+        "topping": 57,
+        "uncategorized": 18
       },
       "freeCookCombinationSpaceLog2": 105
     }
