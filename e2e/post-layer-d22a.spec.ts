@@ -101,3 +101,51 @@ test.describe("FINISH D2-2a: post-bake layer (#518)", () => {
     expect(await page.locator(".pizza-stage").evaluate((e) => getComputedStyle(e).display)).toBe("flex");
   });
 });
+
+/**
+ * FINISH F-1 (#592): in roomy (CUT / BAKE) the post-layer stage is a grid, which used to stop the dough's flex-shrink -- the dough
+ * grew from 358 x 358.8 to 358.8 x 358.8 (390x844) and 328 x 331.2 to 331.2 x 331.2 (360x800) the moment a post-bake piece appeared.
+ * Measured in the real cooking skeleton (e2e/harness/finish-hv.html: header / tabs / order-card / stage / dock with the heights measured in
+ * the running game), compact (TOPPING) and roomy (CUT), with and without post pieces, on a round pan and on the square pan.
+ */
+const HARNESS = "./e2e/harness/finish-hv.html";
+
+async function rects(page: Page, query: string) {
+  await page.goto(`${HARNESS}?${query}`);
+  await page.waitForSelector(".pizza-dough");
+  await page.waitForTimeout(400);
+  return page.evaluate(() => {
+    const r = (e: Element | null) => (e ? ((b) => [b.x, b.y, b.width, b.height])(e.getBoundingClientRect()) : null);
+    return { dough: r(document.querySelector(".pizza-dough"))!, layer: r(document.querySelector(".pizza-post-layer")), display: getComputedStyle(document.querySelector(".pizza-stage")!).display };
+  });
+}
+
+test.describe("FINISH F-1: the dough keeps its box when a post-bake piece appears (#592)", () => {
+  for (const step of ["TOPPING", "CUT"]) {
+    for (const pan of ["", "&pan=square"]) {
+      test(`${step}${pan ? " (square pan)" : ""}: dough rect with post pieces equals the one without; the layer equals the dough`, async ({ page }) => {
+        const without = await rects(page, `step=${step}&bake=burnt&post=0${pan}`);
+        const withPost = await rects(page, `step=${step}&bake=burnt&post=1${pan}`);
+        expect(without.layer).toBeNull();
+        expect(without.display).toBe("flex");
+        expect(withPost.display).toBe("grid");
+        withPost.dough.forEach((v, i) => expect(v, `dough[${i}]`).toBeCloseTo(without.dough[i], 1));
+        withPost.layer!.forEach((v, i) => expect(v, `layer[${i}]`).toBeCloseTo(withPost.dough[i], 1));
+      });
+    }
+  }
+
+  test("roomy: the dough is no wider than the stage's content box (it shrinks like a flex item, it does not overflow)", async ({ page }) => {
+    await page.goto(`${HARNESS}?step=CUT&bake=burnt&post=1`);
+    await page.waitForSelector(".pizza-dough");
+    const { doughW, contentW } = await page.evaluate(() => {
+      const stage = document.querySelector(".pizza-stage")!;
+      const cs = getComputedStyle(stage);
+      return {
+        doughW: document.querySelector(".pizza-dough")!.getBoundingClientRect().width,
+        contentW: stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
+      };
+    });
+    expect(doughW).toBeLessThanOrEqual(contentW + 0.05);
+  });
+});
