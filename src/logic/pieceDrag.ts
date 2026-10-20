@@ -1,3 +1,4 @@
+import type { Ingredient } from "../data/ingredients";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -25,6 +26,16 @@ export function hasPieceDragIntent(
   if (Math.hypot(dx, dy) < PIECE_DRAG_THRESHOLD_PX) return false;
   if (pointerType === "mouse" || pointerType === "pen") return true;
   return dy < 0 && Math.abs(dy) >= Math.abs(dx) * 0.75;
+}
+
+/**
+ * Issue #476 (Topping Placement Human Feel 2.0, S1): which tray ingredients can be picked up and dropped on the pizza.
+ * Every piece the player places one by one -- a `scatter` cheese or topping -- is draggable; a `spread` sauce is never
+ * (it has its own paint / dispense gesture). Depends on the ingredient alone: not on its id, the recipe or a Reference.
+ * Whether dragging is on at all for the current round is `allowsPieceDragInRound` (../state/roundKind.ts).
+ */
+export function isDraggablePiece(ingredient: Pick<Ingredient, "category" | "placement">): boolean {
+  return ingredient.placement === "scatter" && (ingredient.category === "cheese" || ingredient.category === "topping");
 }
 
 /** Resolves a finger position into the same dough-percent coordinates used by PizzaState. */
