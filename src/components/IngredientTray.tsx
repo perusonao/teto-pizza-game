@@ -12,12 +12,12 @@ import {
   type Ingredient,
   type IngredientCategory,
 } from "../data/ingredients";
-import { trayIngredientsFor } from "../logic/prepareDock";
+import { finishTrayIngredients, trayIngredientsFor } from "../logic/prepareDock";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { hasPieceDragIntent } from "../logic/pieceDrag";
 import type { Recipe } from "../data/recipes";
-import { canPlaceIngredient, remainingStock, type InventoryState } from "../state/inventory";
+import { canPlaceIngredient, canPlacePostBakeIngredient, remainingStock, type InventoryState } from "../state/inventory";
 import type { PizzaState } from "../state/pizzaState";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { ShelfChipRow } from "./ShelfChipRow";
@@ -77,6 +77,10 @@ interface IngredientTrayProps {
    *  a disabled chip only ever prevents a *doomed* placement attempt from starting. */
   inventory: InventoryState;
   pizza: PizzaState;
+  /** FINISH FIN-B: the tray of the FINISH step. Lists only the recipe's late (POST_BAKE) ingredients, gates each chip on
+   *  `canPlacePostBakeIngredient` (only the pieces placed in FINISH count against the stock), shows the chip's owned
+   *  count AND how many more may be placed, and offers no family filter. Tap-to-place only (no physical drag). */
+  finish?: boolean;
   physicalDragEnabled?: boolean;
   draggableIngredientIds?: readonly string[];
   resolvePhysicalDrop?: (clientX: number, clientY: number) => DoughPoint | null;
@@ -139,6 +143,7 @@ export function IngredientTray({
   freeCook = false,
   inventory,
   pizza,
+  finish = false,
   physicalDragEnabled = false,
   draggableIngredientIds = [],
   resolvePhysicalDrop,
@@ -163,7 +168,9 @@ export function IngredientTray({
   // "Preserve ... ingredient-selection behavior except where #159 explicitly changes ...
   // locking"); IngredientTray.recommendedOther.test.tsx's old FREE-creativity assertions are
   // updated accordingly (see that file's own new header comment).
-  const trayPopulation: Ingredient[] = handIds
+  const trayPopulation: Ingredient[] = finish
+    ? finishTrayIngredients(recipe, ownedIngredientIds)
+    : handIds
     ? handIds.flatMap((id) => {
         const ingredient = getIngredient(id);
         return ingredient ? [ingredient] : [];
@@ -181,7 +188,7 @@ export function IngredientTray({
   // pagination, so the filter never changes the hand or a pin. Read against the population now listed (a family
   // nobody holds reads as すべて) and only ever offered on the topping tray.
   const [familySelection, setFamilySelection] = useState<FamilyFilter>("all");
-  const familyChoices = activeCategory === "topping" ? trayFamilyChoices(trayPopulation) : [];
+  const familyChoices = activeCategory === "topping" && !finish ? trayFamilyChoices(trayPopulation) : [];
   const family = resolveTrayFamily(familySelection, familyChoices);
   useEffect(() => {
     if (familyRef) familyRef.current = family;
@@ -489,7 +496,12 @@ export function IngredientTray({
   // player a doomed placement attempt).
   function renderChip(ingredient: Ingredient) {
     const stock = remainingStock(ingredient, inventory);
-    const placeable = canPlaceIngredient(ingredient, inventory, pizza);
+    const placeable = finish ? canPlacePostBakeIngredient(ingredient, inventory, pizza) : canPlaceIngredient(ingredient, inventory, pizza);
+    // FINISH: the stock is the post-bake stock and only FINISH pieces count against it, so "あと" is what is still placeable.
+    const placeableLeft =
+      finish && stock !== "UNLIMITED"
+        ? Math.max(0, stock - pizza.toppings.filter((t) => t.stage === "post" && t.ingredientId === ingredient.id).length)
+        : null;
     return (
       <button
         key={ingredient.id}
@@ -518,7 +530,17 @@ export function IngredientTray({
           </span>
         )}
         <span className="ingredient-chip__name">{ingredient.nameJa}</span>
-        {renderStockBadge(stock)}
+        {placeableLeft !== null ? (
+          <span
+            className="ingredient-chip__stock ingredient-chip__stock--finish"
+            data-testid="finish-stock"
+            aria-label={`持っている数${stock}個、あと${placeableLeft}個置ける`}
+          >
+            {`あと${placeableLeft}/${stock}`}
+          </span>
+        ) : (
+          renderStockBadge(stock)
+        )}
       </button>
     );
   }

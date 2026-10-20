@@ -7,7 +7,7 @@ import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { classifyBake5, isNearMiss } from "../logic/bake";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
-import { prepareDockReserve } from "../logic/prepareDock";
+import { finishTrayIngredients, prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -67,7 +67,7 @@ import {
   buildTetoShortageLine,
   buildTetoResultLine,
 } from "../data/dialogue";
-import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import { getIngredient, MAX_INGREDIENT_PALETTE_SLOTS, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { GameState } from "../state/gameReducer";
 import { discoveredRecipeIds } from "../state/dex";
 import { canStartLunchRush, remainingSeconds, type MissionState } from "../mission/lunchRush";
@@ -503,7 +503,9 @@ export function GameScreen({
   const postBakeStepRendered = postBakeStep !== null;
   const isCutStep = postBakeStep === "CUT";
   const isFinishStep = postBakeStep === "FINISH";
-  const roomyStage = state.phase === "BAKE" || postBakeStepRendered;
+  // FINISH FIN-B: FINISH carries the tray, so its stage is the compact one (PREPARE's), not CUT's roomy one.
+  const roomyStage = state.phase === "BAKE" || (postBakeStepRendered && !isFinishStep);
+  const finishTrayCount = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds).length : 0;
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
@@ -830,7 +832,7 @@ export function GameScreen({
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
             <span className="order-card__hint" data-testid="finish-hint">
-              {buildFinishHintLine(state.recipe, state.pizza).textJa}
+              {buildFinishHintLine(state.recipe, state.pizza, state.hint?.id.startsWith("hint.finish.") === true).textJa}
             </span>
           </div>
         </div>
@@ -879,7 +881,7 @@ export function GameScreen({
         cutState={state.cutState}
         onAddCutLine={onAddCutLine}
         roomy={roomyStage}
-        compact={state.phase === "PREPARE"}
+        compact={state.phase === "PREPARE" || isFinishStep}
         resultCompact={isFreeResultScreen || isDinnerResult}
       />
 
@@ -915,6 +917,47 @@ export function GameScreen({
             </button>
           </div>
         </>
+      )}
+
+      {/* FINISH FIN-B: the tray + dock of the FINISH step, the PREPARE dock's structure reused. Only the recipe's late
+          ingredients are offered, placed by tap (select -> tap the pizza -> PLACE_TOPPING, stage "post"). No ↩ / 完成 here
+          (FIN-C). */}
+      {isFinishStep && state.dinner === null && (
+        <div
+          className={`prepare-dock prepare-dock--finish${finishTrayCount > MAX_INGREDIENT_PALETTE_SLOTS ? "" : " prepare-dock--no-pager"}`}
+          data-testid="finish-dock"
+          style={
+            {
+              "--dock-other-rows": Math.min(2, Math.max(1, Math.ceil(finishTrayCount / 3))),
+              "--dock-pager": finishTrayCount > MAX_INGREDIENT_PALETTE_SLOTS ? 1 : 0,
+            } as CSSProperties
+          }
+        >
+          <IngredientTray
+            activeCategory="topping"
+            selectedIngredientId={selectedIngredientId}
+            onSelectIngredient={onSelectIngredient}
+            onClearSelection={onClearIngredientSelection}
+            ownedIngredientIds={state.ownedIngredientIds}
+            recipe={state.recipe}
+            inventory={state.inventory}
+            pizza={state.pizza}
+            finish
+            resetToken={pizzaResetToken}
+            makingStepToken={state.makingStepToken}
+            reservePagerRow={false}
+          />
+        </div>
+      )}
+
+      {/* FINISH FIN-B: the explicit hint (SHOW_HINT -> buildFinishHintLine, with the count). The ↩ and the 完成 control join this
+          bar in FIN-C. */}
+      {isFinishStep && state.dinner === null && (
+        <div className="action-row prepare-bake-bar" data-testid="finish-bar">
+          <button type="button" className="secondary-button" onClick={onShowHint}>
+            ヒント
+          </button>
+        </div>
       )}
 
       {isMissionShortOrder && <MissionShortagePanel shortages={missionShortages} onSkip={onMissionSkipOrder} />}
