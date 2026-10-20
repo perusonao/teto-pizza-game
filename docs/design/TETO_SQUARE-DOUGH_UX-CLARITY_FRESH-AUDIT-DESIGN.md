@@ -30,7 +30,8 @@ Epic #532 / 関連 #536（C）・#537（D）。**実装・新規 PR・merge・�
 ## 2. SquareTargetGuide の現状
 
 - 実体は `src/components/square/SquareTargetGuide.tsx`（15 行）。コメントどおり **SAUCE 工程**の「ここまで塗る」点線の角丸四角（`SQUARE_PAN_GEOMETRY.targetArea`＝四角の Reference 領域）で、丸い `<circle r=SAUCE_TARGET_RADIUS>` の対応物。#573（D2-a2）で SAUCE のソース見本に接続。
-- DOUGH 工程では使われていない。**DOUGH に流用すると「ここまで伸ばす」ではなく「ソースの基準領域」を指してしまい誤誘導**になる（天板いっぱいまで伸ばすのが STEP 1 の目標で、基準領域より外側）。流用しない。
+- **訂正（AB-min 実装時の実測）**: DOUGH 工程の目標表示としては使われていないが、`PizzaStage.tsx` は `referenceModeEnabled && interactive && squarePan` で **DOUGH 中も DOM にマウントしている**（四角の round で `.square-target-guide` が 1 つ、`SquareDoughLayer` と同じ箱）。丸い対応物 `.sauce-target-guide` と同じ条件で、「SAUCE のときだけ出す」は未 merge の #321（Dough Guide Leak Fix）が対象とする既知のクラス。DOUGH で見えるかは別確認（`elementFromPoint` ではレイヤーが最前面）。AB-min はこれに依存せず、流用もしない。
+- **DOUGH に流用すると「ここまで伸ばす」ではなく「ソースの基準領域」を指してしまい誤誘導**になる（天板いっぱいまで伸ばすのが STEP 1 の目標で、基準領域より外側）。流用しない。
 - 「ガイドが伝わっているか」: 既存の四隅マーク＋矢印は、開始直後の 0/4 では機能している（矢印 4 本、ゲージ 16%→）。破綻するのは §3.3 の到達後のみ。
 
 ## 3. 実測（Fresh Audit）
