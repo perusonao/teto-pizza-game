@@ -4,9 +4,10 @@ Docs/data-only。コード・既存 `shirasu-pizza`・PR #584（HOLD）は変更
 `docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json` の `recipeRows[].sourceTimingEvidence`（新規 optional）。
 
 ## 確認範囲（誰が何を確認したか）
-- **取得者: ChatGPT**（2026-10-20、個別ページ取得）。Owner 本人の確認ではない。
+- **原典取得者: ChatGPT**（取得日: 2026-10-20、個別ページ取得）。Owner 本人の確認ではない。
 - **Claude Code は ChatGPT 経由で受領しただけ**。pizzadb.jp には到達できず（ENOTFOUND）、独立再取得は未実施。
-- `independentlyVerified: false` の意味 = Claude Code も Owner も原典を再取得していない。
+- **Claude Code**: ChatGPT 経由で受領、独立再取得は未実施。
+- `independentlyVerified: false` の意味 = **Claude Code による独立再取得が未実施**（確認の主体は Claude Code）。Owner による独立再取得の記録はない（Owner が再取得していないとは断定しない）。
 - 原文として受領したのは下表の短い引用のみ。それ以外は中継された要約。
 
 ## ikura-salmon（https://pizzadb.jp/pizzas/ikura-salmon/）

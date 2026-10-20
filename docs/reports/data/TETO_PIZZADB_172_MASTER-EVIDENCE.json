@@ -1308,7 +1308,7 @@
         "retrievedOn": "2026-10-20",
         "receivedBy": "Claude Code (relayed via the Owner from ChatGPT; this session could not reach pizzadb.jp)",
         "independentlyVerified": false,
-        "independentlyVerifiedNote": "false = neither this Claude Code session nor the Owner has independently re-fetched the page. The content is ChatGPT's retrieval as relayed; it is NOT an Owner confirmation. Only the short quotes below were received verbatim; everything else is a relayed summary.",
+        "independentlyVerifiedNote": "false = Claude Code has not independently re-fetched the page (received via ChatGPT only); there is no record of an independent re-fetch by the Owner. The content is ChatGPT's retrieval as relayed; it is NOT an Owner confirmation. Only the short quotes below were received verbatim; everything else is a relayed summary.",
         "quotes": [
           {
             "text": "いくらと大葉は焼成後に載せ",
@@ -1892,7 +1892,7 @@
         "retrievedOn": "2026-10-20",
         "receivedBy": "Claude Code (relayed via the Owner from ChatGPT; this session could not reach pizzadb.jp)",
         "independentlyVerified": false,
-        "independentlyVerifiedNote": "false = neither this Claude Code session nor the Owner has independently re-fetched the page. The content is ChatGPT's retrieval as relayed; it is NOT an Owner confirmation. Only the short quotes below were received verbatim; everything else is a relayed summary.",
+        "independentlyVerifiedNote": "false = Claude Code has not independently re-fetched the page (received via ChatGPT only); there is no record of an independent re-fetch by the Owner. The content is ChatGPT's retrieval as relayed; it is NOT an Owner confirmation. Only the short quotes below were received verbatim; everything else is a relayed summary.",
         "quotes": [
           {
             "text": "仕上げにレモンを絞る",
