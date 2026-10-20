@@ -1,6 +1,6 @@
 # FINISH D2-2b — 後乗せレイヤーの動画 Human Verification と原因調査（検証のみ、runtime 変更なし）
 
-base `main` `8de0162`（#588 = D2-2a の merge 後）。Owner 指示: D2-2b は動画 HV と原因調査を中心に進め、CUT 対応の実装修正は別 PR に分離する。#478 は待たない。#468・#478・#584・Pinsa P3 には触れていない。共有 Preview は更新していない。**#518 は close しない**（FINISH 画面・有効化が残っている）。
+base `main` `8de0162`（#588 = D2-2a の merge 後）。Owner 指示: D2-2b は動画 HV と原因調査を中心に進め、CUT 対応の実装修正は別 PR に分離する。**Owner 判断（検証結果の承認後）: F-1 / F-2 / F-3 はすべて修正対象。F-3 は後乗せより CUT 線を前面に出す案 (b)。カット面の SVG lighting は後乗せに適用しない。FINISH 本番有効化はまだ認めない。**#478 は待たない。#468・#478・#584・Pinsa P3 には触れていない。共有 Preview は更新していない。**#518 は close しない**（FINISH 画面・有効化が残っている）。
 
 **runtime のソース（`src/`）は 1 行も変更していない。** 追加したのは検証用の harness と driver だけ（下記）。
 
@@ -27,7 +27,7 @@ FINISH 画面は GameScreen にまだ無い（D2-2）ため、実ゲームでは
 | 1 | Duplicate Gate | **PASS** | 重複なし |
 | 2 | 動画 HV（390×844 / 360×800） | **PASS** | 下記「Human Verification Videos」 |
 | 3 | raw / perfect / burnt で後乗せの色が変わらない | **PASS** | 後乗せ piece の画素が 4 状態（なし含む）でバイト一致、平均 RGB も同一（186.23, 180.74, 129.42）。#588 以前は raw (+8.5 B) / burnt (−11.6 R) など変色。比較: `screenshots/d2-2b-finish-hv/compare-A-bake-states-*.png` |
-| 4 | CUT 前の後乗せと `pizza-cut-layer` の重なり順 | **PASS（仕様どおりだが、挙動が変わった = F-3）** | 下記 F-3。後乗せが cut layer の**上**になる（#588 以前は下） |
+| 4 | CUT 前の後乗せと `pizza-cut-layer` の重なり順 | **挙動が変化（F-3、修正対象: 案 (b)）** | 下記 F-3。後乗せが cut layer の**上**になる（#588 以前は下） |
 | 5 | CUT 後に後乗せが piece 内描画へ戻り bake filter が再適用される | **再現・原因特定（FAIL = 既知の穴 F-2）** | 下記 F-2 |
 | 6a | 実画面 cqh cap（compact） | **PASS** | 後乗せあり / なしで dough 寸法差 0px、レイヤー = dough |
 | 6b | 実画面 cqh cap（roomy / CUT） | **FAIL（新規 F-1）** | 後乗せがあると dough が +0.8px（390）/ +3.2px（360）広がる |
@@ -61,11 +61,11 @@ FINISH 画面は GameScreen にまだ無い（D2-2）ため、実ゲームでは
 - 原因（コードで特定）: `PizzaStage.tsx` の `separatePostLayer = !pieceLayout && postBakeToppings.length > 0`。カット済み（`pieceLayout` あり）では別レイヤーを描かず、従来の `renderPostPieces(piece)` が `.pizza-piece-body` の中（= `.pizza-dough` の子孫）に戻る。実測した filter の祖先: `.pizza-pieces`（`url(#…) drop-shadow(…)` = カット面のレリーフ）と `.pizza-dough`（bake の `saturate / brightness / contrast`）。#588 は意図的にこの経路を残した（カットとの同居は範囲外）。
 - #588 の前後で挙動は同じ（回帰ではない）。D2-2b の動画 ⑤ で確認できる。
 
-### F-3（minor・Owner 判断）CUT 前の重なり順: 後乗せが cut layer の上になる
+### F-3（minor → 修正対象、Owner 判断済み: 案 (b)）CUT 前の重なり順: 後乗せが cut layer の上になる
 
 - 事実: `.pizza-cut-layer`（ガイド線・中心マーカー・プレビュー線）は `.pizza-dough` の子で、後乗せレイヤーは dough の兄弟（DOM 上で後）。dough は `filter` で stacking context を作るため、**兄弟の後乗せは常に dough 内の全要素より上**になる。ガイド線に重ねた後乗せ piece 上の cut layer の変化画素: #588 以前 364 / 353（390 / 360）→ 現在 96 / 100（半透明の縁のみ）。
 - 影響: ガイド線 / カット中のプレビュー線が後乗せ piece の下に隠れる。焼成前 piece では線が piece の上に描かれる（不一致）。入力は影響なし（`pointer-events: none`）。
-- 選択肢（別 PR / Owner 判断）: (a) 許容（piece は小さく、線は他の部分で見える）。(b) 後乗せレイヤーの上に cut 用オーバーレイ（ガイド・ツール・プレビュー）を複製して描く。
+- 決定（Owner）: (b) 後乗せ食材より CUT 線を前面に表示する。後乗せレイヤーの上に cut 用オーバーレイ（ガイド・ツール・プレビュー）を複製して描く（(a) 許容は不採用）。
 
 ### 付記
 
@@ -83,17 +83,17 @@ FINISH 画面は GameScreen にまだ無い（D2-2）ため、実ゲームでは
 
 - 範囲: `PizzaStage.tsx`（`separatePostLayer` から `!pieceLayout` を外し、カット時の後乗せ用レイヤーを描く）、`App.css`、テスト。`finishD2Inert.test.ts` は外さない。
 - 設計: 後乗せレイヤーに、`.pizza-pieces` と同じ構造（`pizza-piece-clip` の clip-path 連鎖、`PIECE_SEPARATION_PX` の translate、`pizza-piece-body` の padding box inset）の後乗せ専用コピーを置く。レイヤーの外箱は dough の border-box にする（clip 多角形は dough-percent）。半端に跨る piece（`half`）も従来の `piecesIn` と同じ判定。bake filter は掛けない。
-- Owner 判断が要る点: カット面のレリーフ（`.pizza-pieces` の SVG lighting）を後乗せにも掛けるか（掛けなければ後乗せは影のないフラットな見た目になる）。
-- 受け入れ条件: raw / perfect / burnt × カット 0〜3 本で、後乗せの画素が「カットなし」と一致（色が変わらない、レリーフを掛けない場合）。カット線 1 本ごとに後乗せが別 piece へ移っても色が不変。座標誤差 ≤ 0.5px、タップ透過、通常 CUT（後乗せなし）の画素不変、四角天板の画素不変。動画 HV 必須（カットの前後）。
+- 決定（Owner）: カット面のレリーフ（`.pizza-pieces` の SVG lighting）は後乗せに**掛けない**（後乗せは影のないフラットな見た目）。
+- 受け入れ条件: raw / perfect / burnt × カット 0〜3 本で、後乗せの画素が「カットなし」と一致（色が変わらない。レリーフは掛けない）。カット線 1 本ごとに後乗せが別 piece へ移っても色が不変。座標誤差 ≤ 0.5px、タップ透過、通常 CUT（後乗せなし）の画素不変、四角天板の画素不変。動画 HV 必須（カットの前後）。
 
-### PR-C（任意）: cut オーバーレイの重なり順（F-3）
+### PR-C: cut オーバーレイの重なり順（F-3、案 (b) 採用済み）
 
-- Owner が (b) を選んだ場合のみ。範囲は `PizzaStage.tsx` の cut layer の複製と `App.css`。PR-B と同時にやると衝突が大きいので、PR-B の後に分離する。
+- 範囲は `PizzaStage.tsx` の cut layer の複製と `App.css`。PR-B と同時にやると衝突が大きいので、PR-B の後に分離する。
 
 ## FINISH 本番有効化までの残課題
 
 1. F-1 修正（PR-A）。
-2. F-2 修正（PR-B）と、F-3 の Owner 判断（PR-C 要否）。
+2. F-2 修正（PR-B）と F-3 修正（PR-C、案 (b)）。
 3. D2-2 本体: GameScreen の FINISH 画面 / トレイ / 完了ボタン / タップ配置、cooking profile への FINISH 追加（UD-B / UD-E 確定済み、#478 は待たない）。
 4. `finishD2Inert.test.ts`（本番プロファイルに FINISH を含めない）を外す Owner 承認と、本番プロファイルへの有効化。有効化前に Preview での 390×844 / 360×800 の実画面 HV（FINISH 画面そのもの、動画）。
 5. 実 WebKit での画素一致は未確認（この検証は Chromium。#588 の CI WebKit shard は GREEN）。#394 / #590 の間欠失敗は別途。

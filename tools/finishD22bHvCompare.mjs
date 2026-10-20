@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-/** Pixel-compares the E-* (no post pieces) screenshots of two tools/finishD22bHv.mjs runs: node tools/finishD22bHvCompare.mjs <dir> <tagA> <tagB> */
+/** Pixel-compares the E-* (no post pieces) screenshots (the observation-only E-square-post-* shots are skipped: they have no baseline) of two tools/finishD22bHv.mjs runs: node tools/finishD22bHvCompare.mjs <dir> <tagA> <tagB> */
 import { createRequire } from "node:module";
 import fs from "node:fs";
 const [dir, a, b] = process.argv.slice(2);
 const sharp = createRequire(import.meta.url)("sharp");
-const names = fs.readdirSync(dir).filter((f) => f.startsWith(`${a}-`) && /-E-/.test(f) && f.endsWith(".png"));
+const names = fs.readdirSync(dir).filter((f) => f.startsWith(`${a}-`) && /-E-/.test(f) && !/-E-square-post-/.test(f) && f.endsWith(".png"));
 let bad = 0;
 for (const f of names.sort()) {
   const g = f.replace(`${a}-`, `${b}-`);
