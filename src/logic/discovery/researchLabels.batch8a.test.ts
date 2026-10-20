@@ -26,7 +26,7 @@ const EARLIER_NON_CREDIT = ["brazilian-calabresa", "aussie"];
 
 describe("Batch 8a: classification of the three recipes", () => {
   it("are the tail (No.58-60), non-credit (frango-catupiry credited since #561), Lunch Rush opt-out, key-free, no CUT", () => {
-    expect(RECIPES.slice(-3).map((r) => r.id)).toEqual([...BATCH]);
+    expect(RECIPES.slice(57, 60).map((r) => r.id)).toEqual([...BATCH]);
     for (const id of BATCH) {
       expect(countsTowardLadder(id), id).toBe(id === "frango-catupiry"); // #561: the one credited member
       expect(participatesInLunchRush(id), id).toBe(false);
@@ -57,10 +57,11 @@ describe("Batch 8a: classification of the three recipes", () => {
 describe("Batch 8a: the existing 57 recipes keep their progression declarations", () => {
   it("credit / Lunch Rush opt-out / ladder keys of the earlier recipes are unchanged (credited 56 -- Issue #561 promoted frango-catupiry --, non-credit only calabresa, aussie, chilean, chorizo)", () => {
     expect(RECIPES.filter((r) => !countsTowardLadder(r.id)).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", ...BATCH.filter((id) => id !== "frango-catupiry")]);
-    expect(RECIPES.filter((r) => countsTowardLadder(r.id))).toHaveLength(56);
+    expect(RECIPES.filter((r) => countsTowardLadder(r.id))).toHaveLength(57); // 56 after Batch 8a; Batch 8b's shirasu-pizza is credited (+1)
     expect(RECIPES.filter((r) => participatesInLunchRush(r.id))).toHaveLength(25);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(53); // no appended step
-    expect(RECIPES).toHaveLength(60);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(54); // Batch 8a appended none (53); Batch 8b appended step 54
+    expect(DISCOVERY_LADDER.steps.slice(0, 53).some((s) => (BATCH as readonly string[]).includes(s.keyRecipeId))).toBe(false);
+    expect(RECIPES).toHaveLength(61); // 60 after Batch 8a; + Batch 8b's shirasu-pizza
   });
 });
 

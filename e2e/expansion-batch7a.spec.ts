@@ -1,6 +1,5 @@
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
-import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { RECIPES } from "../src/data/recipes";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
@@ -22,7 +21,7 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const LAMB = "new-zealand-lamb-pizza";
 const EGGPLANT = "eggplant-ricotta-pizza";
-const LAST_STEP = DISCOVERY_LADDER.steps.length; // 53: lamb + sweet-potato
+const LAST_STEP = 53; // Batch 7a's own last step (lamb + sweet-potato); the ladder has grown since (Batch 8b: step 54)
 const ALL_IDS = RECIPES.map((r) => r.id as string);
 const SPOTS: [number, number][] = [[50, 24], [73, 36], [76, 63], [58, 79], [38, 79], [22, 63], [25, 36], [50, 52]];
 

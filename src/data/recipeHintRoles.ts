@@ -115,4 +115,6 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "chilean-napolitana": { keyFree: true },
   "spanish-chorizo-pizza": { keyFree: true },
   "frango-catupiry": { keyFree: true },
+  // Batch 8b: permanently key-free.
+  "shirasu-pizza": { keyFree: true },
 };

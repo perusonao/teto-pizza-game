@@ -319,6 +319,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "ratatouille-pizza",
         "rucola-e-grana",
         "salsiccia-e-friarielli",
+        "shirasu-pizza",
         "spanish-chorizo-pizza",
         "spinach-artichoke-pizza",
         "vegan-cashew-cheese-pizza",

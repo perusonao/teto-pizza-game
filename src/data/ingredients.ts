@@ -26,7 +26,9 @@ export type DedicatedIngredientVisual =
   | "ricotta-mound"
   | "feta-cubes"
   | "sausage-slices"
-  | "hot-dog-slices";
+  | "hot-dog-slices"
+  | "shiso-leaf"
+  | "whitebait-school";
 
 export interface Ingredient {
   id: string;
@@ -936,6 +938,29 @@ export const INGREDIENTS: Ingredient[] = [
     nameJa: "さつまいも",
     color: "#a8553a",
     emoji: "\u{1F360}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 8b (OD-B8-2, amended by the PR #580 Owner Decision): finite ladder material, step 54 (T4), unlocked by the Ladder alone (no star gate, OD-B8-1). Family `herb`. Drawn by the dedicated `shiso-leaf` visual (a green leaf); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique). */
+  {
+    id: "shiso",
+    category: "topping",
+    nameJa: "大葉",
+    color: "#3f8f4a",
+    emoji: "\u{1F342}",
+    pieceVisual: "shiso-leaf",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
+  },
+  /** Batch 8b (OD-B8-2, amended by the PR #580 Owner Decision): finite ladder material, step 54 (T4), unlocked by the Ladder alone (the cohort key of shirasu-pizza: the last of the step's materials). Family `seafood`. Drawn by the dedicated `whitebait-school` visual (small white fish); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique). */
+  {
+    id: "whitebait",
+    category: "topping",
+    nameJa: "しらす",
+    color: "#e6e1d3",
+    emoji: "\u{26AA}",
+    pieceVisual: "whitebait-school",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },

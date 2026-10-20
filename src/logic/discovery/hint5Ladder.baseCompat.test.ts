@@ -64,14 +64,14 @@ function reachableLedgers(recipeId: string): string[][] {
   return states;
 }
 
-describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (35 key-free recipes)", () => {
-  it("the population is the 35 key-free recipes: sauce + cheese 13, cheese only 16, sauce only 6", () => {
-    expect(KEY_FREE_RECIPES).toHaveLength(35);
+describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (36 key-free recipes)", () => {
+  it("the population is the 36 key-free recipes: sauce + cheese 13, cheese only 17, sauce only 6", () => {
+    expect(KEY_FREE_RECIPES).toHaveLength(36);
     const klass = (r: Recipe) => `${hasCategory(r, "sauce") ? "sauce" : ""}+${hasCategory(r, "cheese") ? "cheese" : ""}`;
     const count = (k: string) => KEY_FREE_RECIPES.filter((r) => klass(r) === k).length;
     expect({ both: count("sauce+cheese"), cheeseOnly: count("+cheese"), sauceOnly: count("sauce+"), neither: count("+") }).toEqual({
       both: 13,
-      cheeseOnly: 16,
+      cheeseOnly: 17,
       sauceOnly: 6,
       neither: 0,
     });

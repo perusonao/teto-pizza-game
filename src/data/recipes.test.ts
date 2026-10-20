@@ -100,6 +100,9 @@ const BATCH7A_RECIPE_IDS: readonly RecipeId[] = ["eggplant-ricotta-pizza", "new-
 /** Batch 8a: three non-credit, zero-material recipes appended after Batch 7a (No.58-60; Chapter 3 / 3 / 4). */
 const BATCH8A_RECIPE_IDS: readonly RecipeId[] = ["chilean-napolitana", "spanish-chorizo-pizza", "frango-catupiry"];
 
+/** Batch 8b: shirasu-pizza (No.61; Chapter 4), appended after Batch 8a; ladder step 54 (shiso + whitebait). */
+const BATCH8B_RECIPE_IDS: readonly RecipeId[] = ["shirasu-pizza"];
+
 /** Expansion Batch 3: Chapter 4, appended after Batch 2 (six NO_SAUCE recipes). */
 const BATCH3_RECIPE_IDS: readonly RecipeId[] = ["bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli"];
 
@@ -119,7 +122,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
     expect(RECIPES.slice(51, 53).map((r) => r.id)).toEqual(BATCH5_RECIPE_IDS); // appended: No.52-53 (Expansion Batch 5)
     expect(RECIPES.slice(53, 55).map((r) => r.id)).toEqual(BATCH6_RECIPE_IDS); // appended: No.54-55 (Batch 6 PR-2)
     expect(RECIPES.slice(55, 57).map((r) => r.id)).toEqual(BATCH7A_RECIPE_IDS); // appended: No.56-57 (Batch 7a)
-    expect(RECIPES.slice(57).map((r) => r.id)).toEqual(BATCH8A_RECIPE_IDS); // appended: No.58-60 (Batch 8a)
+    expect(RECIPES.slice(57, 60).map((r) => r.id)).toEqual(BATCH8A_RECIPE_IDS); // appended: No.58-60 (Batch 8a)
+    expect(RECIPES.slice(60).map((r) => r.id)).toEqual(BATCH8B_RECIPE_IDS); // appended: No.61 (Batch 8b)
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -145,7 +149,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !BATCH5_RECIPE_IDS.includes(r.id) &&
           !BATCH6_RECIPE_IDS.includes(r.id) &&
           !BATCH7A_RECIPE_IDS.includes(r.id) &&
-          !BATCH8A_RECIPE_IDS.includes(r.id),
+          !BATCH8A_RECIPE_IDS.includes(r.id) &&
+          !BATCH8B_RECIPE_IDS.includes(r.id),
       )
         .map((r) => r.id)
         .sort(),
