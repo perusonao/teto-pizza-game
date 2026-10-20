@@ -281,3 +281,64 @@ describe("PizzaStage post-bake pieces on a cut pizza (FINISH F-2)", () => {
     expect(none.container.querySelector(".pizza-stage")!.className).not.toContain("post-layer");
   });
 });
+
+/**
+ * FINISH D2-2c F-3 (#597): with post-bake pieces the CUT drawing (cut layer, knife) is rendered in `.pizza-post-layer`, after the pieces, so it paints in
+ * front of them; without post pieces it stays inside `.pizza-dough` exactly as before. Pixels (what is in front of what) are checked in
+ * e2e/post-layer-d22a.spec.ts -- jsdom has no layout.
+ */
+describe("PizzaStage CUT drawing in front of post-bake pieces (FINISH D2-2c F-3)", () => {
+  const state = bakedMargheritaAtCut();
+  const follows = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+  it("with a post piece, the cut layer and the knife are in the post layer, after the post pieces, and not in the dough", () => {
+    for (const lines of [[], [through(0)], [through(0), through(60)]]) {
+      const { container } = render(stage(withPostPiece(state), lines, "CUT"));
+      const dough = container.querySelector(".pizza-dough")!;
+      const layer = container.querySelector(".pizza-post-layer")!;
+      expect(dough.querySelector(".pizza-cut-layer, .pizza-cut-tool-layer")).toBeNull();
+      expect(layer.querySelectorAll(":scope > .pizza-cut-layer")).toHaveLength(1);
+      expect(layer.querySelectorAll(":scope > .pizza-cut-tool-layer")).toHaveLength(1);
+      const post = layer.querySelectorAll('[data-topping-stage="post"]');
+      expect(post.length).toBeGreaterThan(0);
+      for (const p of post) {
+        expect(follows(p, layer.querySelector(".pizza-cut-layer")!)).toBe(true);
+        expect(follows(p, layer.querySelector(".pizza-cut-tool-layer")!)).toBe(true);
+      }
+      cleanup();
+    }
+  });
+
+  it("it is the same drawing: the guide (uncut only), the centre marker, the preview line, the committed marks and the knife", () => {
+    const uncut = render(stage(withPostPiece(state), [], "CUT")).container;
+    expect(uncut.querySelector(".pizza-post-layer .pizza-cut-guide-lines")).not.toBeNull();
+    expect(uncut.querySelector(".pizza-post-layer .pizza-cut-guide-center")).not.toBeNull();
+    expect(uncut.querySelector(".pizza-post-layer .pizza-cut-preview-line")).not.toBeNull();
+    expect(uncut.querySelector(".pizza-post-layer .pizza-cut-knife")).not.toBeNull();
+    cleanup();
+    const cut = render(stage(withPostPiece(state), [through(0), through(60)], "CUT")).container;
+    expect(cut.querySelector(".pizza-cut-guide-lines")).toBeNull(); // once parted the guide is gone (unchanged)
+    expect(cut.querySelectorAll(".pizza-post-layer .pizza-cut-mark--through")).toHaveLength(2);
+    expect(cut.querySelectorAll(".pizza-post-layer .pizza-cut-flash")).toHaveLength(1); // only the newest cut flashes
+  });
+
+  it("RESULT (committed cuts, no CUT step) keeps the cuts in front of the post pieces too", () => {
+    const { container } = render(stage(withPostPiece(state), [through(0)], "TOPPING", true));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer.querySelectorAll(":scope > .pizza-cut-layer")).toHaveLength(1);
+    expect(layer.querySelector(".pizza-cut-tool-layer")).toBeNull(); // the knife is CUT-only
+    expect(container.querySelector(".pizza-dough")!.querySelector(".pizza-cut-layer")).toBeNull();
+  });
+
+  it("without a post piece nothing moves: the cut layer and the knife stay in the dough, in their old order", () => {
+    const { container } = render(stage(state, [through(0)], "CUT"));
+    const dough = container.querySelector(".pizza-dough")!;
+    expect(container.querySelector(".pizza-post-layer")).toBeNull();
+    const layer = dough.querySelector(".pizza-cut-layer")!;
+    const tool = dough.querySelector(".pizza-cut-tool-layer")!;
+    expect(layer.parentElement).toBe(dough);
+    expect(tool.parentElement).toBe(dough);
+    expect(follows(layer, tool)).toBe(true);
+    expect(follows(tool, dough.querySelector(".pizza-paint-trail")!)).toBe(true);
+  });
+});

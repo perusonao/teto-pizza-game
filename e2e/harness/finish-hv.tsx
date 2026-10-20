@@ -4,7 +4,7 @@
  * dock 132 or cut-readout 24 + action-row 70 -- the block heights are the ones measured in the running game at 390x844 and
  * 360x800), with a post-bake piece row so the separated layer can be verified before FINISH exists in GameScreen (D2-2).
  *
- *   ?bake=none|raw|perfect|burnt  &post=0|1  &step=TOPPING|CUT  &pan=square (Preview / DEV pan override)  &onguide=1 (extra pieces on the cut guide lines)
+ *   ?bake=none|raw|perfect|burnt  &post=0|1  &step=TOPPING|CUT|RESULT (RESULT: no making step, resultCompact, `&cuts=0..3` committed rim-to-rim cuts at 0 / 60 / 120 degrees)  &pan=square (Preview / DEV pan override)  &onguide=1 (extra pieces on the cut guide lines)
  *
  * Controls in the dock change the same things; `window.__hv` exposes them for the scripted verification and the video.
  */
@@ -16,13 +16,14 @@ import { getRecipe } from "../../src/data/recipes";
 import { createIdealDoughShape } from "../../src/logic/doughShape";
 import { addCutLine, createCutState, resetCutState } from "../../src/logic/cut/state";
 import type { CutLine } from "../../src/logic/cut/types";
+import { DOUGH_CENTER, DOUGH_RADIUS } from "../../src/logic/pizzaCoordinates";
 import { createEmptyPizza, type PlacedTopping } from "../../src/state/pizzaState";
 import { PizzaStage } from "../../src/components/PizzaStage";
 
 const params = new URLSearchParams(location.search);
 const BAKE_VALUE = { raw: 20, perfect: 70, burnt: 95 } as const;
 type Bake = keyof typeof BAKE_VALUE | "none";
-type Step = "TOPPING" | "CUT";
+type Step = "TOPPING" | "CUT" | "RESULT";
 
 /** the same three ingredients twice: a pre-bake row (y 66) and a post-bake row (y 30), so one crop compares them */
 const PRE: PlacedTopping[] = [
@@ -45,6 +46,14 @@ const ON_GUIDE: PlacedTopping[] = [
   { id: "post-g-tomato", ingredientId: "fresh-tomato", x: 50, y: 50, stage: "post" },
 ];
 
+/** a rim-to-rim cut through the centre at `angleDeg` (dough-percent), as a finished CUT leaves it */
+function throughCut(angleDeg: number): CutLine {
+  const a = (angleDeg * Math.PI) / 180;
+  const start = { x: DOUGH_CENTER - Math.cos(a) * DOUGH_RADIUS, y: DOUGH_CENTER - Math.sin(a) * DOUGH_RADIUS };
+  const end = { x: DOUGH_CENTER + Math.cos(a) * DOUGH_RADIUS, y: DOUGH_CENTER + Math.sin(a) * DOUGH_RADIUS };
+  return { start, end, path: [start, end] };
+}
+
 declare global {
   interface Window {
     __hv: { setBake: (b: Bake) => void; setPost: (p: boolean) => void; setStep: (s: Step) => void; setCaption: (c: string) => void; reset: () => void; taps: () => string[] };
@@ -54,8 +63,10 @@ declare global {
 function Harness() {
   const [bake, setBake] = useState<Bake>((params.get("bake") as Bake | null) ?? "none");
   const [post, setPost] = useState(params.get("post") !== "0");
-  const [step, setStep] = useState<Step>(params.get("step") === "CUT" ? "CUT" : "TOPPING");
-  const [cut, setCut] = useState(createCutState());
+  const [step, setStep] = useState<Step>(params.get("step") === "CUT" ? "CUT" : params.get("step") === "RESULT" ? "RESULT" : "TOPPING");
+  const [cut, setCut] = useState(() =>
+    [0, 60, 120].slice(0, step === "RESULT" ? Number(params.get("cuts") ?? 0) : 0).reduce((c, deg) => addCutLine(c, throughCut(deg)), createCutState()),
+  );
   const [caption, setCaption] = useState("");
   const [taps, setTaps] = useState<string[]>([]);
   window.__hv = {
@@ -89,7 +100,7 @@ function Harness() {
         <PizzaStage
           pizza={pizza}
           recipe={recipe}
-          interactive
+          interactive={step !== "RESULT"}
           activeIngredient={null}
           bakeProgress={pizza.bakeResult}
           placement={null}
@@ -98,9 +109,10 @@ function Harness() {
           resetToken={0}
           makingStepToken={0}
           makingStep={cutting ? "CUT" : "TOPPING"}
+          resultCompact={step === "RESULT"}
           showDoughShape
           roomy={cutting}
-          compact={!cutting}
+          compact={!cutting && step !== "RESULT"}
           onTap={(x, y) => setTaps((t) => [...t, `${x.toFixed(1)},${y.toFixed(1)}`])}
           onDispenseProgress={() => {}}
           onDispenseCommit={() => {}}
