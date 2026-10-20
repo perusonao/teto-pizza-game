@@ -142,10 +142,10 @@ describe("PizzaStage post-bake pieces (FINISH D2-1)", () => {
       const { container } = render(stage(withPostPiece(state), lines, "CUT"));
       const follows = (el: Element, post: Element) => Boolean(el.compareDocumentPosition(post) & Node.DOCUMENT_POSITION_FOLLOWING);
       const post = container.querySelector('[data-topping-stage="post"]')!;
-      // uncut: the separate layer, after the whole dough; cut: still inside the piece body, after its overlays
-      const scope = lines.length === 0 ? container.querySelector(".pizza-dough")! : post.parentElement!;
-      for (const layer of scope.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
-      expect(scope.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
+      // uncut or cut: the separate layer, after the whole dough (F-2 #594: a cut pizza no longer draws it inside the piece body)
+      const dough = container.querySelector(".pizza-dough")!;
+      for (const layer of dough.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
+      expect(dough.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
       cleanup();
     }
   });
@@ -205,9 +205,79 @@ describe("PizzaStage post-bake layer (FINISH D2-2a)", () => {
     expect(container.querySelector(".pizza-stage")!.className).not.toContain("post-layer");
   });
 
-  it("a cut pizza keeps the in-piece path (cut + post-bake is not part of D2-2a)", () => {
-    const { container } = render(stage(withPostPiece(state), [through(0)], "CUT"));
-    expect(container.querySelector(".pizza-post-layer")).toBeNull();
-    expect(container.querySelectorAll('.pizza-piece-body [data-topping-stage="post"]').length).toBeGreaterThan(0);
+});
+
+/**
+ * FINISH F-2 (Issue #594): a cut pizza draws its post-bake pieces in the same `.pizza-post-layer`, in its own copy of the cut geometry
+ * (the clip chain and the 1.5px offset of `.pizza-pieces`), with no filter -- neither the bake colour nor the cut-face relief reaches them.
+ * Colour, coordinates and tap-through on real pixels: e2e/post-layer-d22a.spec.ts.
+ */
+describe("PizzaStage post-bake pieces on a cut pizza (FINISH F-2)", () => {
+  const state = bakedMargheritaAtCut();
+  const threeCuts = [through(0), through(60), through(120)];
+
+  it("draws them in the layer outside .pizza-dough, never inside a piece body of the dough", () => {
+    for (const lines of [[through(0)], threeCuts]) {
+      const { container } = render(stage(withPostPiece(state, "basil", 30, 30), lines, "CUT"));
+      const dough = container.querySelector(".pizza-dough")!;
+      expect(dough.querySelector('[data-topping-stage="post"]')).toBeNull();
+      expect(dough.querySelectorAll(".pizza-piece-body .pizza-topping:not([data-topping-stage])").length).toBeGreaterThan(0); // pre-bake pieces stay
+      const layer = container.querySelector(".pizza-post-layer")!;
+      expect(dough.contains(layer)).toBe(false);
+      expect(layer.querySelector(".pizza-post-layer__frame")).toBeNull();
+      expect(layer.querySelector(".pizza-post-layer__pieces")!.getAttribute("data-piece-count")).toBe(lines.length === 1 ? "2" : "6");
+      expect(layer.querySelectorAll('.pizza-piece-body [data-topping-stage="post"]').length).toBeGreaterThan(0);
+      cleanup();
+    }
+  });
+
+  it("has no filter anywhere in the layer (no bake colour, no relief lighting), and takes no pointer events", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 30, 30), threeCuts, "CUT"));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer.getAttribute("aria-hidden")).toBe("true");
+    expect(layer.querySelector('[style*="filter"]')).toBeNull();
+    expect(layer.querySelector(".pizza-pieces")).toBeNull();
+    expect(layer.outerHTML).not.toMatch(/url\(#/); // the relief filter reference of the dough's pieces
+    expect(layer.getAttribute("style")).toBeNull();
+  });
+
+  it("copies the cut geometry exactly: each piece's offset and clip chain equal the dough's piece with the same index", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 30, 30), threeCuts, "CUT"));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    const copies = [...layer.querySelectorAll(".pizza-piece")];
+    expect(copies.length).toBeGreaterThan(0);
+    for (const copy of copies) {
+      const index = copy.getAttribute("data-piece")!;
+      const original = container.querySelector(`.pizza-pieces .pizza-piece[data-piece="${index}"]`)!;
+      expect(copy.getAttribute("style")).toBe(original.getAttribute("style")); // translate(dx, dy) = PIECE_SEPARATION_PX x outward
+      const chain = (el: Element) => [...el.querySelectorAll(".pizza-piece-clip")].map((c) => c.getAttribute("style"));
+      expect(chain(copy)).toEqual(chain(original));
+      expect(chain(copy)).toHaveLength(threeCuts.length);
+    }
+  });
+
+  it("only pieces that hold a post-bake piece (whole or sliced) are drawn", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 30, 30), threeCuts, "CUT"));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer.querySelectorAll(".pizza-piece").length).toBeLessThan(6);
+    for (const piece of layer.querySelectorAll(".pizza-piece")) expect(piece.querySelector('[data-topping-stage="post"]')).not.toBeNull();
+  });
+
+  it("a piece on a cut line is whole in one piece and sliced into its neighbour, still once per piece, in the layer", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 50, 50), [through(0)], "CUT"));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer.querySelectorAll('.pizza-topping[data-topping-stage="post"]')).toHaveLength(1);
+    expect(layer.querySelectorAll('.pizza-topping-half[data-topping-stage="post"]').length).toBeGreaterThan(0);
+    expect(container.querySelector(".pizza-dough")!.querySelector('[data-topping-stage="post"]')).toBeNull();
+  });
+
+  it("resetting the cut returns to the uncut frame; with no post piece there is never a layer", () => {
+    const uncut = render(stage(withPostPiece(state, "basil", 30, 30), [], "CUT"));
+    expect(uncut.container.querySelector(".pizza-post-layer__frame")).not.toBeNull();
+    expect(uncut.container.querySelector(".pizza-post-layer__pieces")).toBeNull();
+    cleanup();
+    const none = render(stage(state, threeCuts, "CUT"));
+    expect(none.container.querySelector(".pizza-post-layer")).toBeNull();
+    expect(none.container.querySelector(".pizza-stage")!.className).not.toContain("post-layer");
   });
 });

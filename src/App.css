@@ -346,11 +346,22 @@
 }
 
 .pizza-post-layer {
+  /* the same border as `.pizza-dough` (defined there; this layer is not inside it) -- `.pizza-post-layer__frame` and, on a cut pizza,
+     `.pizza-piece-body` (shared with `.pizza-pieces`) inset by it to reach the dough's padding box */
+  --dough-border-width: 10px;
   position: relative;
   align-self: stretch;
   justify-self: stretch;
   pointer-events: none;
   /* paints above the dough (and its overlays) by DOM order; no filter / opacity here, ever */
+}
+
+/* A cut pizza: the post-bake pieces' own copy of `.pizza-pieces` (F-2, #594) -- the layer's whole border-box, like `.pizza-pieces`
+   (`.pizza-piece` / `.pizza-piece-clip` / `.pizza-piece-body` are shared: clip chain, 1.5px offset, padding-box body). No filter. */
+.pizza-post-layer__pieces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 /* The dough's padding box: pieces are `left/top: x%/y%` of it, exactly as inside `.pizza-dough` (border 10px). */
