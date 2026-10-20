@@ -294,6 +294,8 @@ export const RECIPE_SAUCE_PROFILES = {
   "chilean-napolitana": null,
   "spanish-chorizo-pizza": null,
   "frango-catupiry": null,
+  // Batch 8b: NO_SAUCE (cheese base, no spread sauce; the existing TQ-1D mechanic).
+  "shirasu-pizza": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */

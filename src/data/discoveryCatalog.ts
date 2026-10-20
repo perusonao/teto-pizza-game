@@ -96,6 +96,8 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "chilean-napolitana": "chilean-napolitana-pizzadb",
   "spanish-chorizo-pizza": "spanish-chorizo-pizza-pizzadb-p4",
   "frango-catupiry": "frango-catupiry-pizzadb-p10",
+  // Batch 8b: PIZZA DB evidence id from the 172 matrix.
+  "shirasu-pizza": "shirasu-pizza-pizzadb-p3",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };

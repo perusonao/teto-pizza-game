@@ -939,6 +939,27 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** Batch 8b (OD-B8-2): finite ladder material, step 54 (T4), unlocked by the Ladder alone (no star gate, OD-B8-1). Family `herb`. 🍁 is a provisional glyph (the natural leaf glyphs are all taken; shares nothing with any ingredient or class symbol, G18-checked); a dedicated SVG may follow. */
+  {
+    id: "shiso",
+    category: "topping",
+    nameJa: "大葉",
+    color: "#3f8f4a",
+    emoji: "\u{1F341}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
+  },
+  /** Batch 8b (OD-B8-2): finite ladder material, step 54 (T4), unlocked by the Ladder alone (the cohort key of shirasu-pizza: the last of the step's materials). Family `seafood`. 🦑 is a provisional glyph (🐟🐠🐡🎏 are taken); a dedicated SVG may follow. */
+  {
+    id: "whitebait",
+    category: "topping",
+    nameJa: "しらす",
+    color: "#e6e1d3",
+    emoji: "\u{1F991}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

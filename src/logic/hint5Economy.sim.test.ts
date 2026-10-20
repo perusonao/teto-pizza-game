@@ -92,10 +92,11 @@ const fullLadderTotal = (id: string) => ROUND6_P_C[id] ?? hint5LadderDesignTotal
  *  step unlocks one discovery before its key recipe's turn, so the pool-2 chain continues through Expansion Batch 1's
  *  steps 30-32 (baba-ganoush-pizza, prosciutto-funghi, veggie-supreme-pizza are found blind) and Expansion Batch 2's
  *  steps 33-37 and Expansion Batch 3's steps 38-43 (the same lag), so only the very last recipe is alone and hinted. Issue #561: `frango-catupiry` (credited, beside step 44's key recipe) is a second credited recipe of
- *  step 44, so it is discovered last and is that hinted recipe; every ladder key recipe from step 28 on is then in the blind chain. (Derived below: no per-batch list.) */
+ *  step 44; it was the last, hinted discovery until Batch 8b. Step 54 (shirasu-pizza) is now the final ladder step, so the final key recipe is the lone hinted one and frango-catupiry joins the blind chain. (Derived below: no per-batch list.) */
 const BLIND_POOL2_RECIPES: readonly string[] = [
   "ratatouille-pizza", // a second credited recipe of step 28: the origin of the one-discovery lag
-  ...DISCOVERY_LADDER.steps.filter((s) => s.step >= 28).map((s) => s.keyRecipeId), // derived: every appended key recipe (the last discovery is frango-catupiry, #561)
+  "frango-catupiry", // #561: the second credited recipe of step 44; since Batch 8b it is found blind too (step 54 re-pairs the tail)
+  ...DISCOVERY_LADDER.steps.filter((s) => s.step >= 28).slice(0, -1).map((s) => s.keyRecipeId), // derived: every appended key recipe except the final step's (the last discovery, alone and hinted: Batch 8b's shirasu-pizza)
 ];
 
 describe("P-C progression walk (real reducer, flag ON)", () => {

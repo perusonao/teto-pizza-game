@@ -109,6 +109,9 @@ const TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
   ["mint", "herb"],
   ["lamb", "meat"],
   ["sweet-potato", "vegetable"],
+  // Batch 8b (OD-B8-2, docs/decisions/TETO_EXPANSION-BATCH-8_OWNER-DECISIONS.md): batch-scoped Owner approval for these rows only (L1 family; no L2).
+  ["shiso", "herb"],
+  ["whitebait", "seafood"],
 ];
 
 const FAMILY_BY_INGREDIENT = new Map<string, AttributeFamilyId>(TOPPING_FAMILY_ROWS);
