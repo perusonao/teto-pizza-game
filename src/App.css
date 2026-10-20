@@ -328,6 +328,10 @@
    caps) set it -- without repeating any of those sizes here. */
 .pizza-stage--post-layer {
   display: grid;
+  /* The one column is as wide as the dough asks (max-content) but never wider than the stage (the 0 minimum), and the
+     dough is capped at that column below: the same "shrink to the stage's width" a flex row gives, so the dough keeps
+     the box it has with no post-bake piece (#592: roomy dough 92vw = 358.8 / 331.2px in a 358 / 328px stage). */
+  grid-template-columns: minmax(0, max-content);
   justify-content: center;
   align-content: center;
 }
@@ -335,6 +339,10 @@
 .pizza-stage--post-layer > .pizza-dough,
 .pizza-stage--post-layer > .pizza-post-layer {
   grid-area: 1 / 1;
+}
+
+.pizza-stage--post-layer > .pizza-dough {
+  max-width: 100%;
 }
 
 .pizza-post-layer {
