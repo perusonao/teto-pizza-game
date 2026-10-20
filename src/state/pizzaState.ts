@@ -1,5 +1,6 @@
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { createInitialDoughShape, type DoughShape } from "../logic/doughShape";
+import type { DoughKind } from "../logic/dough/doughKind";
 import type { SquareDough } from "../logic/pan/squareDough";
 
 export interface PlacedTopping {
@@ -65,10 +66,16 @@ export function isValidSauceDepositBatch(deposits: readonly SauceDeposit[]): boo
  *  `squareDough`: only an explicit value counts. */
 export type PanId = "tray";
 
+
+
 export interface PizzaState {
   /** Square Dough F1: optional so every existing pizza (and `createEmptyPizza()`) is unchanged.
    *  Read only by `signatureOfPizza` (the `pan` identity axis); nothing else branches on it yet. */
   pan?: PanId | null;
+  /** Dough Kind P1 (Issue #577): the kind of dough, independent of `pan`. Optional so every existing pizza is unchanged; absent /
+   *  `"standard"` is the ordinary dough. Read only by `signatureOfPizza` (the `dough` identity axis); never inferred from `pan` or
+   *  `squareDough`, never persisted. Nothing sets it in Production yet (the chip is P2). */
+  dough?: DoughKind;
   /** Issue #33 D1: canonical, reducer-owned dough boundary (8-point radial array -- see
    *  ../logic/doughShape.ts), committed atomically by COMMIT_DOUGH_STRETCH at a successful
    *  pointerup, mirroring sauceDeposits' own ephemeral-gesture/canonical-commit split. Rides

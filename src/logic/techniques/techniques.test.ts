@@ -41,8 +41,8 @@ function materialStep(id: string): number | null {
 
 describe("registry", () => {
   it("the registry ships NO_SAUCE (TQ-1) and TRAY (Square Dough F2); ids are well-formed and unique", () => {
-    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray"]);
-    expect(KNOWN_TECHNIQUE_IDS).toEqual(["no-sauce", "tray"]);
+    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray", "dough-pinsa-romana"]); // + Dough Kind P1 (#577)
+    expect(KNOWN_TECHNIQUE_IDS).toEqual(["no-sauce", "tray", "dough-pinsa-romana"]);
     for (const t of TECHNIQUES) expect(t.id).toMatch(/^[a-z0-9][a-z0-9_-]{0,63}$/);
     expect(isTechniqueId("no-sauce")).toBe(true);
     for (const bad of ["NO_SAUCE", "post-bake", "", null, 1, "__proto__"]) expect(isTechniqueId(bad)).toBe(false);

@@ -1,3 +1,4 @@
+import type { DoughKind } from "../logic/dough/doughKind";
 import type { PanShape } from "../logic/pan/panShape";
 
 export interface RecipeRequirement {
@@ -68,6 +69,10 @@ export interface Recipe {
    *  reader). Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `grandma-pizza`
    *  (#521, after D and F). Never persisted. */
   panShape?: PanShape;
+  /** Dough Kind P1 (Issue #577, Epic: 生地の種類): the dough kind this recipe is made with. Absent means `"standard"` -- every
+   *  existing recipe omits the field (`resolveDoughKind`, ../logic/dough/doughKind.ts, is the sole reader). Independent of
+   *  `panShape`. Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `pinsa-romana` (P3, HOLD). Never persisted. */
+  doughKind?: DoughKind;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
