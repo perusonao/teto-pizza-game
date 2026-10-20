@@ -1,0 +1,562 @@
+{
+  "schemaNote": "src-derived runtime snapshot for the 172-row evidence matrix. NOT evidence: every value here is recomputed from src/data/recipes.ts and src/data/ingredients.ts and goes stale whenever a recipe or ingredient is added to src. It lives in its own file so a content wave never invalidates TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (Issue #260).",
+  "generatedBy": "tools/progression2_mechanic_matrix.py",
+  "updateCommand": "python3 tools/progression2_mechanic_matrix.py --write-runtime",
+  "freshnessCheckCommand": "python3 tools/progression2_mechanic_matrix.py --check-runtime",
+  "derivedFrom": [
+    "src/data/recipes.ts",
+    "src/data/ingredients.ts",
+    "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (per-row identity ingredient sets, base sauce included)"
+  ],
+  "shippedRecipeIdsInSrc": [
+    "aussie",
+    "baba-ganoush-pizza",
+    "bacalhau",
+    "bambino",
+    "bismarck",
+    "brazilian-calabresa",
+    "brazilian-catupiry-corn-pizza",
+    "breakfast-pizza",
+    "calabresa-argentina",
+    "california-style-pizza",
+    "capricciosa",
+    "chilean-napolitana",
+    "eggplant-ricotta-pizza",
+    "frango-catupiry",
+    "fugazza",
+    "full-english-pizza",
+    "funghi",
+    "genovese",
+    "hawaiian",
+    "jalapeno-popper-pizza",
+    "jamon-serrano-pizza",
+    "margherita",
+    "marinara",
+    "meat-lovers",
+    "melanzane-pizza",
+    "napoletana",
+    "new-haven-apizza",
+    "new-zealand-lamb-pizza",
+    "palmito-pizza",
+    "parmigiana-pizza",
+    "pepperoni",
+    "pesto-caprese",
+    "pesto-gamberi",
+    "pesto-patate",
+    "pesto-pollo",
+    "pesto-salmone",
+    "pesto-tonno",
+    "pesto-trapanese",
+    "pesto-vegetariana",
+    "pizza-bianca",
+    "pizza-bianca-ricotta",
+    "pizza-feta-eliniki",
+    "pizza-moscow",
+    "pizza-overload",
+    "pizza-portuguesa",
+    "polish-kielbasa",
+    "porchetta-pizza",
+    "prosciutto-funghi",
+    "puttanesca-pizza",
+    "quattro-formaggi",
+    "ratatouille-pizza",
+    "rucola-e-grana",
+    "salsiccia",
+    "salsiccia-e-friarielli",
+    "shirasu-pizza",
+    "spanish-chorizo-pizza",
+    "spinach-artichoke-pizza",
+    "tonno-e-cipolla",
+    "vegan-cashew-cheese-pizza",
+    "veggie-supreme-pizza",
+    "vongole"
+  ],
+  "ingredientIdsInSrc": [
+    "almond",
+    "anchovy",
+    "artichoke",
+    "arugula",
+    "avocado",
+    "bacon",
+    "baked-beans",
+    "basil",
+    "bell-pepper",
+    "black-olive",
+    "capers",
+    "cashew-cheese",
+    "catupiry",
+    "cherry-tomato",
+    "chicken",
+    "clam",
+    "corn",
+    "cream-cheese",
+    "egg",
+    "eggplant",
+    "feta",
+    "fontina",
+    "fresh-tomato",
+    "friarielli",
+    "garlic",
+    "goat-cheese",
+    "gorgonzola",
+    "grana-padano",
+    "green-pepper",
+    "ham",
+    "hot-dog",
+    "jalapeno",
+    "lamb",
+    "lemon",
+    "mint",
+    "mozzarella",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "palm-heart",
+    "parmigiano",
+    "parsley",
+    "pepperoni",
+    "pesto",
+    "pine-nuts",
+    "pineapple",
+    "pork",
+    "potato",
+    "prosciutto-crudo",
+    "ricotta",
+    "rosemary",
+    "salami",
+    "salmon",
+    "salt-cod",
+    "sardine",
+    "sauerkraut",
+    "sausage",
+    "shiso",
+    "shrimp",
+    "spinach",
+    "sweet-potato",
+    "tomato-sauce",
+    "tuna",
+    "whitebait",
+    "zucchini"
+  ],
+  "summary": {
+    "ingredientIdsNotYetInShippedGame": 104
+  },
+  "ingredientIdsNotYetInShippedGame": [
+    "aji-amarillo",
+    "apple",
+    "asparagus",
+    "balsamic-vinegar",
+    "banana",
+    "bbq-sauce",
+    "beef",
+    "blue-cheese-dressing",
+    "blueberry",
+    "bonito-flakes",
+    "brick-cheese",
+    "brie",
+    "buffalo-sauce",
+    "burrata",
+    "cabbage",
+    "caciocavallo",
+    "carrot",
+    "cauliflower",
+    "celery",
+    "cheddar",
+    "cheese-curd",
+    "chicken-tikka",
+    "chicory",
+    "chili-powder",
+    "chocolate",
+    "chutney",
+    "cilantro",
+    "cinnamon",
+    "cod-roe",
+    "condensed-milk",
+    "cotija",
+    "cucumber",
+    "cumin",
+    "curry-ketchup",
+    "daikon",
+    "doubanjiang",
+    "eel",
+    "fennel",
+    "french-fries",
+    "fresh-cream-sauce",
+    "fromage-blanc-sauce",
+    "graham-cracker",
+    "gravy-sauce",
+    "green-onion",
+    "ground-beef",
+    "halloumi",
+    "honey",
+    "kebab-sauce",
+    "kimchi",
+    "kiwi",
+    "lettuce",
+    "lime",
+    "liver-pate",
+    "marshmallow",
+    "mayo",
+    "melted-butter",
+    "mentaiko",
+    "miso-sauce",
+    "mochi",
+    "mussel",
+    "mustard",
+    "natto",
+    "nori",
+    "nutella-spread",
+    "okonomiyaki-sauce",
+    "okra",
+    "orange",
+    "paneer",
+    "paprika-powder",
+    "peanut-sauce",
+    "pecorino",
+    "peking-duck",
+    "pickles",
+    "pomegranate",
+    "porcini",
+    "powdered-sugar",
+    "puntarelle",
+    "radicchio",
+    "red-cabbage",
+    "ricotta-salata",
+    "rock-salt",
+    "salmon-roe",
+    "salsa",
+    "sansho-pepper",
+    "sour-cream",
+    "soy-sauce",
+    "spicy-salami",
+    "squid",
+    "strawberry",
+    "sunflower-seeds",
+    "sweet-bean-sauce",
+    "swiss-cheese",
+    "tahini",
+    "tortilla-chips",
+    "truffle",
+    "umeboshi-paste",
+    "walnut",
+    "wasabi",
+    "white-sesame",
+    "wurstel",
+    "yakiniku-sauce",
+    "yogurt-sauce",
+    "yuzu-kosho",
+    "zaatar"
+  ],
+  "newContentIngredientIdsByEvidenceId": {
+    "bbq-chicken-pizzadb": [
+      "bbq-sauce",
+      "cilantro"
+    ],
+    "apple-cinnamon-dessert-pizzadb": [
+      "apple",
+      "cinnamon",
+      "walnut"
+    ],
+    "currywurst-pizzadb": [
+      "curry-ketchup",
+      "paprika-powder",
+      "wurstel"
+    ],
+    "taco-pizza-pizzadb": [
+      "cheddar",
+      "ground-beef",
+      "lettuce",
+      "salsa",
+      "tortilla-chips"
+    ],
+    "flammkuchen-pizzadb": [
+      "fromage-blanc-sauce"
+    ],
+    "buffalo-chicken-pizzadb": [
+      "blue-cheese-dressing",
+      "buffalo-sauce"
+    ],
+    "swedish-kebab-pizza-pizzadb-p4": [
+      "kebab-sauce",
+      "lettuce"
+    ],
+    "scacciata-ragusana-pizzadb-p4": [
+      "caciocavallo"
+    ],
+    "speck-e-brie-pizzadb-p4": [
+      "brie",
+      "walnut"
+    ],
+    "smore-dessert-pizza-pizzadb-p4": [
+      "chocolate",
+      "graham-cracker",
+      "marshmallow"
+    ],
+    "thai-chicken-pizza-pizzadb-p4": [
+      "cilantro",
+      "peanut-sauce"
+    ],
+    "mentaiko-cream-pizza-pizzadb-p4": [
+      "cod-roe",
+      "fresh-cream-sauce",
+      "nori"
+    ],
+    "ikura-salmon-pizza-pizzadb-p1": [
+      "salmon-roe"
+    ],
+    "eel-pizza-pizzadb-p1": [
+      "eel",
+      "green-onion",
+      "sansho-pepper"
+    ],
+    "jerusalem-mixed-grill-pizza-pizzadb-p1": [
+      "cumin"
+    ],
+    "okonomiyaki-style-pizza-pizzadb-p1": [
+      "bonito-flakes",
+      "cabbage",
+      "mayo",
+      "okonomiyaki-sauce"
+    ],
+    "kimchi-pizza-pizzadb-p2": [
+      "green-onion",
+      "kimchi"
+    ],
+    "cuban-pizza-pizzadb-p2": [
+      "mustard",
+      "pickles",
+      "swiss-cheese"
+    ],
+    "goulash-pizza-pizzadb-p3": [
+      "beef",
+      "paprika-powder",
+      "sour-cream"
+    ],
+    "potato-mayo-pizza-pizzadb-p3": [
+      "mayo"
+    ],
+    "tandoori-paneer-pizza-pizzadb-p5": [
+      "paneer"
+    ],
+    "chicken-tikka-pizza-pizzadb-p5": [
+      "chicken-tikka",
+      "cilantro"
+    ],
+    "diavola-pizza-pizzadb-p5": [
+      "spicy-salami"
+    ],
+    "detroit-style-pizza-pizzadb-p5": [
+      "brick-cheese"
+    ],
+    "nigerian-suya-pizza-pizzadb-p5": [
+      "beef"
+    ],
+    "eggplant-tahini-pizza-pizzadb-p5": [
+      "pomegranate",
+      "tahini"
+    ],
+    "eggplant-dengaku-pizza-pizzadb-p6": [
+      "miso-sauce",
+      "white-sesame"
+    ],
+    "nashville-hot-chicken-pizza-pizzadb-p6": [
+      "honey",
+      "pickles"
+    ],
+    "nutella-dessert-pizza-pizzadb-p6": [
+      "banana",
+      "nutella-spread",
+      "powdered-sugar"
+    ],
+    "baingan-bharta-pizza-pizzadb-p6": [
+      "cilantro"
+    ],
+    "banh-mi-pizza-pizzadb-p6": [
+      "carrot",
+      "cilantro",
+      "daikon",
+      "liver-pate"
+    ],
+    "buffalo-cauliflower-pizza-pizzadb-p6": [
+      "blue-cheese-dressing",
+      "cauliflower"
+    ],
+    "pizza-salad-pizzadb-p7": [
+      "cucumber",
+      "lettuce",
+      "yogurt-sauce"
+    ],
+    "pizza-alla-crudaiola-pizzadb-p8": [
+      "burrata"
+    ],
+    "pizza-asparagi-limone-pizzadb-p8": [
+      "asparagus"
+    ],
+    "pizza-carciofi-salad-pizzadb-p8": [
+      "celery"
+    ],
+    "pizza-finocchi-salad-pizzadb-p8": [
+      "fennel",
+      "orange"
+    ],
+    "pizza-cavolo-carote-pizzadb-p8": [
+      "carrot",
+      "red-cabbage",
+      "sunflower-seeds"
+    ],
+    "pizza-cicoria-limone-pizzadb-p8": [
+      "chicory",
+      "pecorino"
+    ],
+    "pizza-puntarelle-pizzadb-p8": [
+      "puntarelle"
+    ],
+    "pizza-radicchio-noci-pizzadb-p8": [
+      "balsamic-vinegar",
+      "radicchio",
+      "walnut"
+    ],
+    "pizza-alla-norma-pizzadb-p9": [
+      "ricotta-salata"
+    ],
+    "philly-cheesesteak-pizza-pizzadb-p9": [
+      "beef"
+    ],
+    "poutine-pizza-pizzadb-p10": [
+      "cheese-curd",
+      "french-fries",
+      "gravy-sauce"
+    ],
+    "feteer-meshaltet-pizzadb-p10": [
+      "condensed-milk",
+      "honey",
+      "melted-butter"
+    ],
+    "focaccia-genovese-pizzadb-p10": [
+      "rock-salt"
+    ],
+    "burrata-pizza-pizzadb-p10": [
+      "burrata"
+    ],
+    "fruit-dessert-pizza-pizzadb-p11": [
+      "blueberry",
+      "kiwi",
+      "strawberry"
+    ],
+    "bulgogi-pizza-pizzadb-p11": [
+      "beef",
+      "white-sesame"
+    ],
+    "frutti-di-mare-pizzadb-p11": [
+      "mussel",
+      "squid"
+    ],
+    "breakfast-pizza-pizzadb-p11": [
+      "cheddar"
+    ],
+    "pescatore-pizzadb-p11": [
+      "mussel"
+    ],
+    "pesto-noci-pizzadb-p12": [
+      "honey",
+      "walnut"
+    ],
+    "pesto-burrata-pizzadb-p12": [
+      "burrata"
+    ],
+    "venezuelan-reina-pepiada-pizzadb-p12": [
+      "cilantro",
+      "mayo"
+    ],
+    "peruvian-aji-amarillo-pizzadb-p12": [
+      "aji-amarillo"
+    ],
+    "boscaiola-pizzadb-p12": [
+      "porcini"
+    ],
+    "hot-honey-pepperoni-pizzadb-p12": [
+      "honey"
+    ],
+    "natto-pizza": [
+      "green-onion",
+      "natto",
+      "nori",
+      "okra"
+    ],
+    "peking-duck-pizza": [
+      "cucumber",
+      "green-onion",
+      "peking-duck",
+      "sweet-bean-sauce"
+    ],
+    "mentaiko-mochi-pizza": [
+      "mayo",
+      "mentaiko",
+      "mochi",
+      "nori"
+    ],
+    "manakish": [
+      "halloumi",
+      "zaatar"
+    ],
+    "yuzu-shrimp-pizza": [
+      "yuzu-kosho"
+    ],
+    "wasabi-beef-pizza": [
+      "beef",
+      "soy-sauce",
+      "wasabi"
+    ],
+    "sichuan-eggplant-pizza": [
+      "doubanjiang",
+      "green-onion"
+    ],
+    "yakiniku-pizza": [
+      "beef",
+      "white-sesame",
+      "yakiniku-sauce"
+    ],
+    "pizza-de-lomo-saltado": [
+      "beef",
+      "french-fries"
+    ],
+    "porcini-pizza-pizzadb-p13": [
+      "porcini"
+    ],
+    "meat-lovers-pizza-pizzadb-p13": [
+      "beef"
+    ],
+    "moussaka-style-pizza-pizzadb-p13": [
+      "cinnamon"
+    ],
+    "mexican-elote-pizza-pizzadb-p13": [
+      "chili-powder",
+      "cotija",
+      "lime",
+      "mayo"
+    ],
+    "rendang-pizza-pizzadb-p14": [
+      "beef"
+    ],
+    "nduja-pizza-pizzadb-p14": [
+      "honey"
+    ],
+    "tsukimi-pizza-pizzadb-p14": [
+      "green-onion"
+    ],
+    "black-truffle-pizza-pizzadb-p14": [
+      "truffle"
+    ],
+    "teriyaki-chicken-pizza-pizzadb-p14": [
+      "mayo",
+      "nori"
+    ],
+    "south-african-boerewors-pizzadb-p14": [
+      "chutney"
+    ],
+    "ume-shiso-pizza-pizzadb-p14": [
+      "umeboshi-paste"
+    ]
+  }
+}

@@ -9,8 +9,6 @@
     "docs/reports/data/TETO_PROGRESS2_PHASE0B18_full172-deadlock-analysis.json",
     "data/recipes/pizza_master_catalog.json",
     "data/recipes/ingredient_master_catalog.json",
-    "src/data/recipes.ts",
-    "src/data/ingredients.ts",
     "tools/progression2_ingredient_canonicalizer.py"
   ],
   "currentFlowBaseline": {
@@ -32,23 +30,6 @@
     ]
   },
   "shippedRecipeIds": [
-    "bismarck",
-    "breakfast-pizza",
-    "capricciosa",
-    "fugazza",
-    "funghi",
-    "genovese",
-    "margherita",
-    "marinara",
-    "meat-lovers",
-    "napoletana",
-    "pepperoni",
-    "pizza-bianca",
-    "quattro-formaggi",
-    "salsiccia",
-    "tonno-e-cipolla"
-  ],
-  "shippedRecipeIdsInSrc": [
     "bismarck",
     "breakfast-pizza",
     "capricciosa",
@@ -665,7 +646,6 @@
       "colorado-mountain-pie-pizzadb-p3"
     ],
     "canonicalIngredientIdsAcrossMatrix": 169,
-    "ingredientIdsNotYetInShippedGame": 148,
     "sauceBaseStatus": {
       "family_derived": 57,
       "listed": 35,
@@ -3176,11 +3156,6 @@
           "cilantro",
           "mozzarella",
           "onion"
-        ],
-        "newContentIngredientIds": [
-          "bbq-sauce",
-          "chicken",
-          "cilantro"
         ]
       },
       "sauceBase": {
@@ -3309,13 +3284,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "apple",
-          "cinnamon",
-          "cream-cheese",
-          "walnut"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "デザートソース",
@@ -3435,9 +3404,6 @@
           "oregano",
           "salami",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "salami"
         ]
       },
       "sauceBase": {
@@ -3555,10 +3521,6 @@
           "garlic",
           "olive-oil",
           "parsley"
-        ],
-        "newContentIngredientIds": [
-          "clam",
-          "parsley"
         ]
       },
       "sauceBase": {
@@ -3665,8 +3627,7 @@
           "egg",
           "mozzarella",
           "onion"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "チーズ（トマトソースなし）",
@@ -3789,9 +3750,6 @@
           "mozzarella",
           "mushroom",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "artichoke"
         ]
       },
       "sauceBase": {
@@ -3933,11 +3891,6 @@
           "mozzarella",
           "paprika-powder",
           "wurstel"
-        ],
-        "newContentIngredientIds": [
-          "curry-ketchup",
-          "paprika-powder",
-          "wurstel"
         ]
       },
       "sauceBase": {
@@ -4047,10 +4000,6 @@
           "ricotta",
           "salami",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "ricotta",
-          "salami"
         ]
       },
       "sauceBase": {
@@ -4200,9 +4149,6 @@
           "mozzarella",
           "mushroom",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "artichoke"
         ]
       },
       "sauceBase": {
@@ -4328,8 +4274,7 @@
           "gorgonzola",
           "mozzarella",
           "parmigiano"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
@@ -4439,8 +4384,7 @@
           "mozzarella",
           "olive-oil",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -4562,9 +4506,6 @@
           "feta",
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "feta"
         ]
       },
       "sauceBase": {
@@ -4709,8 +4650,7 @@
           "pepperoni",
           "sausage",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -4868,8 +4808,7 @@
           "mozzarella",
           "onion",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -5023,8 +4962,7 @@
           "onion",
           "oregano",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -5173,9 +5111,6 @@
           "pepperoni",
           "sausage",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "bell-pepper"
         ]
       },
       "sauceBase": {
@@ -5301,14 +5236,6 @@
         "complete": true,
         "incompleteReasons": [],
         "identityIngredientSet": [
-          "cheddar",
-          "fresh-tomato",
-          "ground-beef",
-          "lettuce",
-          "salsa",
-          "tortilla-chips"
-        ],
-        "newContentIngredientIds": [
           "cheddar",
           "fresh-tomato",
           "ground-beef",
@@ -5446,9 +5373,6 @@
           "bacon",
           "fromage-blanc-sauce",
           "onion"
-        ],
-        "newContentIngredientIds": [
-          "fromage-blanc-sauce"
         ]
       },
       "sauceBase": {
@@ -5551,9 +5475,6 @@
           "fresh-tomato",
           "mozzarella",
           "oregano"
-        ],
-        "newContentIngredientIds": [
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -5650,8 +5571,7 @@
         "identityIngredientSet": [
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -5779,8 +5699,7 @@
           "onion",
           "tomato-sauce",
           "tuna"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -5889,9 +5808,6 @@
           "garlic",
           "olive-oil",
           "parmigiano"
-        ],
-        "newContentIngredientIds": [
-          "clam"
         ]
       },
       "sauceBase": {
@@ -5987,8 +5903,7 @@
         "identityIngredientSet": [
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -6136,9 +6051,6 @@
           "mozzarella",
           "onion",
           "salt-cod"
-        ],
-        "newContentIngredientIds": [
-          "salt-cod"
         ]
       },
       "sauceBase": {
@@ -6241,11 +6153,6 @@
           "buffalo-sauce",
           "chicken",
           "mozzarella"
-        ],
-        "newContentIngredientIds": [
-          "blue-cheese-dressing",
-          "buffalo-sauce",
-          "chicken"
         ]
       },
       "sauceBase": {
@@ -6390,8 +6297,7 @@
           "mozzarella",
           "olive-oil",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -6529,8 +6435,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -6636,8 +6541,7 @@
           "black-olive",
           "mozzarella",
           "oregano"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
@@ -6767,8 +6671,7 @@
           "mozzarella",
           "onion",
           "oregano"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
@@ -6890,9 +6793,6 @@
           "olive-oil",
           "ricotta",
           "rosemary"
-        ],
-        "newContentIngredientIds": [
-          "ricotta"
         ]
       },
       "sauceBase": {
@@ -7011,8 +6911,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -7141,9 +7040,6 @@
           "mozzarella",
           "pineapple",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "pineapple"
         ]
       },
       "sauceBase": {
@@ -7270,11 +7166,7 @@
           "unresolved_tokens",
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "kebab-sauce",
-          "lettuce"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホットソース",
@@ -7397,9 +7289,6 @@
           "caciocavallo",
           "sausage",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "caciocavallo"
         ]
       },
       "sauceBase": {
@@ -7518,9 +7407,6 @@
           "mozzarella",
           "onion",
           "sausage"
-        ],
-        "newContentIngredientIds": [
-          "bell-pepper"
         ]
       },
       "sauceBase": {
@@ -7630,11 +7516,6 @@
           "mozzarella",
           "parmigiano",
           "spinach"
-        ],
-        "newContentIngredientIds": [
-          "artichoke",
-          "cream-cheese",
-          "spinach"
         ]
       },
       "sauceBase": {
@@ -7735,11 +7616,6 @@
         "identityIngredientSet": [
           "brie",
           "mozzarella",
-          "prosciutto-crudo",
-          "walnut"
-        ],
-        "newContentIngredientIds": [
-          "brie",
           "prosciutto-crudo",
           "walnut"
         ]
@@ -7850,12 +7726,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chocolate",
-          "graham-cracker",
-          "marshmallow"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "デザートソース",
@@ -7982,8 +7853,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -8123,12 +7993,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicken",
-          "cilantro",
-          "peanut-sauce"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -8254,12 +8119,6 @@
           "cod-roe",
           "fresh-cream-sauce",
           "mozzarella",
-          "nori",
-          "shiso"
-        ],
-        "newContentIngredientIds": [
-          "cod-roe",
-          "fresh-cream-sauce",
           "nori",
           "shiso"
         ]
@@ -8400,9 +8259,6 @@
           "mozzarella",
           "oregano",
           "parmigiano"
-        ],
-        "newContentIngredientIds": [
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -8524,12 +8380,6 @@
           "salmon",
           "salmon-roe",
           "shiso"
-        ],
-        "newContentIngredientIds": [
-          "cream-cheese",
-          "salmon",
-          "salmon-roe",
-          "shiso"
         ]
       },
       "sauceBase": {
@@ -8625,11 +8475,6 @@
           "bell-pepper",
           "cashew-cheese",
           "tomato-sauce",
-          "zucchini"
-        ],
-        "newContentIngredientIds": [
-          "bell-pepper",
-          "cashew-cheese",
           "zucchini"
         ]
       },
@@ -8735,12 +8580,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "eel",
-          "green-onion",
-          "sansho-pepper"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "甘辛だれ",
@@ -8877,12 +8717,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicken",
-          "cumin",
-          "parsley"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -8993,8 +8828,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -9158,14 +8992,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "bonito-flakes",
-          "cabbage",
-          "mayo",
-          "okonomiyaki-sauce",
-          "pork"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "甘辛だれ",
@@ -9290,11 +9117,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "capers",
-          "eggplant"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -9407,12 +9230,6 @@
           "avocado",
           "fresh-tomato",
           "goat-cheese"
-        ],
-        "newContentIngredientIds": [
-          "arugula",
-          "avocado",
-          "fresh-tomato",
-          "goat-cheese"
         ]
       },
       "sauceBase": {
@@ -9502,8 +9319,7 @@
           "basil",
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -9639,10 +9455,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicken"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "カレー",
@@ -9768,8 +9581,7 @@
           "unresolved_tokens",
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "カレー",
@@ -9889,12 +9701,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "green-onion",
-          "kimchi",
-          "pork"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホットソース",
@@ -10042,12 +9849,6 @@
           "pickles",
           "pork",
           "swiss-cheese"
-        ],
-        "newContentIngredientIds": [
-          "mustard",
-          "pickles",
-          "pork",
-          "swiss-cheese"
         ]
       },
       "sauceBase": {
@@ -10149,8 +9950,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -10271,12 +10071,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "beef",
-          "paprika-powder",
-          "sour-cream"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -10375,8 +10170,7 @@
         "incompleteReasons": [
           "excluded_placeholder_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -10495,9 +10289,6 @@
           "friarielli",
           "mozzarella",
           "sausage"
-        ],
-        "newContentIngredientIds": [
-          "friarielli"
         ]
       },
       "sauceBase": {
@@ -10587,8 +10378,7 @@
           "mozzarella",
           "sausage",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -10731,12 +10521,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "corn",
-          "mayo",
-          "potato"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホワイトソース",
@@ -10864,12 +10649,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicken",
-          "green-pepper",
-          "pineapple"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -10982,11 +10762,6 @@
           "mozzarella",
           "shiso",
           "whitebait"
-        ],
-        "newContentIngredientIds": [
-          "lemon",
-          "shiso",
-          "whitebait"
         ]
       },
       "sauceBase": {
@@ -11086,11 +10861,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "green-pepper",
-          "paneer"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "カレー",
@@ -11212,12 +10983,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "bell-pepper",
-          "chicken-tikka",
-          "cilantro"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "カレー",
@@ -11334,10 +11100,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "spicy-salami"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -11444,9 +11207,6 @@
           "brick-cheese",
           "pepperoni",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "brick-cheese"
         ]
       },
       "sauceBase": {
@@ -11627,11 +11387,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "fresh-tomato",
-          "parsley"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -11766,11 +11522,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "beef",
-          "green-pepper"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -11889,12 +11641,6 @@
           "parsley",
           "pomegranate",
           "tahini"
-        ],
-        "newContentIngredientIds": [
-          "eggplant",
-          "parsley",
-          "pomegranate",
-          "tahini"
         ]
       },
       "sauceBase": {
@@ -12003,11 +11749,6 @@
           "eggplant",
           "mint",
           "olive-oil",
-          "ricotta"
-        ],
-        "newContentIngredientIds": [
-          "eggplant",
-          "mint",
           "ricotta"
         ]
       },
@@ -12121,11 +11862,6 @@
           "miso-sauce",
           "mozzarella",
           "white-sesame"
-        ],
-        "newContentIngredientIds": [
-          "eggplant",
-          "miso-sauce",
-          "white-sesame"
         ]
       },
       "sauceBase": {
@@ -12232,12 +11968,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicken",
-          "honey",
-          "pickles"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホットソース",
@@ -12355,8 +12086,7 @@
           "mozzarella",
           "pepperoni",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -12491,10 +12221,6 @@
           "mozzarella",
           "rosemary",
           "sweet-potato"
-        ],
-        "newContentIngredientIds": [
-          "lamb",
-          "sweet-potato"
         ]
       },
       "sauceBase": {
@@ -12607,12 +12333,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "banana",
-          "nutella-spread",
-          "powdered-sugar"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "デザートソース",
@@ -12759,12 +12480,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "cilantro",
-          "eggplant",
-          "fresh-tomato"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "カレー",
@@ -12886,13 +12602,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "carrot",
-          "cilantro",
-          "daikon",
-          "liver-pate"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -12996,11 +12706,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "blue-cheese-dressing",
-          "cauliflower"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホットソース",
@@ -13131,11 +12837,6 @@
           "olive-oil",
           "parsley",
           "pine-nuts"
-        ],
-        "newContentIngredientIds": [
-          "eggplant",
-          "parsley",
-          "pine-nuts"
         ]
       },
       "sauceBase": {
@@ -13239,10 +12940,6 @@
           "mozzarella",
           "prosciutto-crudo",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "arugula",
-          "prosciutto-crudo"
         ]
       },
       "sauceBase": {
@@ -13352,10 +13049,6 @@
           "cream-cheese",
           "jalapeno",
           "mozzarella"
-        ],
-        "newContentIngredientIds": [
-          "cream-cheese",
-          "jalapeno"
         ]
       },
       "sauceBase": {
@@ -13455,10 +13148,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "palm-heart"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -13583,9 +13273,6 @@
           "mozzarella",
           "parmigiano",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "eggplant"
         ]
       },
       "sauceBase": {
@@ -13686,9 +13373,6 @@
           "black-olive",
           "mozzarella",
           "palm-heart"
-        ],
-        "newContentIngredientIds": [
-          "palm-heart"
         ]
       },
       "sauceBase": {
@@ -13785,9 +13469,6 @@
           "ham",
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "corn"
         ]
       },
       "sauceBase": {
@@ -13885,11 +13566,6 @@
         "complete": true,
         "incompleteReasons": [],
         "identityIngredientSet": [
-          "arugula",
-          "cream-cheese",
-          "prosciutto-crudo"
-        ],
-        "newContentIngredientIds": [
           "arugula",
           "cream-cheese",
           "prosciutto-crudo"
@@ -14020,10 +13696,6 @@
           "mozzarella",
           "pineapple",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "hot-dog",
-          "pineapple"
         ]
       },
       "sauceBase": {
@@ -14151,12 +13823,6 @@
           "mozzarella",
           "tomato-sauce",
           "yogurt-sauce"
-        ],
-        "newContentIngredientIds": [
-          "corn",
-          "cucumber",
-          "lettuce",
-          "yogurt-sauce"
         ]
       },
       "sauceBase": {
@@ -14278,8 +13944,7 @@
           "mozzarella",
           "mushroom",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -14426,11 +14091,6 @@
           "mozzarella",
           "olive-oil",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "arugula",
-          "burrata",
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -14558,10 +14218,6 @@
           "mozzarella",
           "olive-oil",
           "parmigiano"
-        ],
-        "newContentIngredientIds": [
-          "asparagus",
-          "lemon"
         ]
       },
       "sauceBase": {
@@ -14704,11 +14360,6 @@
           "mozzarella",
           "olive-oil",
           "parmigiano"
-        ],
-        "newContentIngredientIds": [
-          "artichoke",
-          "celery",
-          "lemon"
         ]
       },
       "sauceBase": {
@@ -14861,11 +14512,6 @@
           "mozzarella",
           "olive-oil",
           "orange"
-        ],
-        "newContentIngredientIds": [
-          "fennel",
-          "mint",
-          "orange"
         ]
       },
       "sauceBase": {
@@ -15008,12 +14654,6 @@
           "olive-oil",
           "red-cabbage",
           "sunflower-seeds"
-        ],
-        "newContentIngredientIds": [
-          "carrot",
-          "lemon",
-          "red-cabbage",
-          "sunflower-seeds"
         ]
       },
       "sauceBase": {
@@ -15154,12 +14794,6 @@
           "mint",
           "mozzarella",
           "olive-oil",
-          "ricotta",
-          "zucchini"
-        ],
-        "newContentIngredientIds": [
-          "lemon",
-          "mint",
           "ricotta",
           "zucchini"
         ]
@@ -15306,12 +14940,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicory",
-          "lemon",
-          "pecorino"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ノンソース",
@@ -15460,10 +15089,6 @@
           "lemon",
           "mozzarella",
           "olive-oil",
-          "puntarelle"
-        ],
-        "newContentIngredientIds": [
-          "lemon",
           "puntarelle"
         ]
       },
@@ -15616,11 +15241,6 @@
           "olive-oil",
           "radicchio",
           "walnut"
-        ],
-        "newContentIngredientIds": [
-          "balsamic-vinegar",
-          "radicchio",
-          "walnut"
         ]
       },
       "sauceBase": {
@@ -15771,8 +15391,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": []
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -15893,8 +15512,7 @@
           "mozzarella",
           "onion",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -16002,9 +15620,6 @@
           "mozzarella",
           "oregano",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "capers"
         ]
       },
       "sauceBase": {
@@ -16125,10 +15740,6 @@
           "eggplant",
           "ricotta-salata",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "eggplant",
-          "ricotta-salata"
         ]
       },
       "sauceBase": {
@@ -16231,8 +15842,7 @@
           "basil",
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -16383,10 +15993,6 @@
           "fresh-tomato",
           "olive-oil",
           "oregano"
-        ],
-        "newContentIngredientIds": [
-          "feta",
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -16487,10 +16093,6 @@
           "pork",
           "ricotta",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "pork",
-          "ricotta"
         ]
       },
       "sauceBase": {
@@ -16616,10 +16218,6 @@
           "salmon",
           "sardine",
           "tuna"
-        ],
-        "newContentIngredientIds": [
-          "salmon",
-          "sardine"
         ]
       },
       "sauceBase": {
@@ -16716,10 +16314,6 @@
           "mozzarella",
           "prosciutto-crudo",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "arugula",
-          "prosciutto-crudo"
         ]
       },
       "sauceBase": {
@@ -16827,8 +16421,7 @@
           "mozzarella",
           "pepperoni",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -16964,11 +16557,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "beef",
-          "green-pepper"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
@@ -17086,11 +16675,6 @@
           "french-fries",
           "gravy-sauce",
           "mozzarella"
-        ],
-        "newContentIngredientIds": [
-          "cheese-curd",
-          "french-fries",
-          "gravy-sauce"
         ]
       },
       "sauceBase": {
@@ -17222,12 +16806,7 @@
           "unresolved_tokens",
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "condensed-milk",
-          "honey",
-          "melted-butter"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "デザートソース",
@@ -17367,9 +16946,6 @@
           "olive-oil",
           "rock-salt",
           "rosemary"
-        ],
-        "newContentIngredientIds": [
-          "rock-salt"
         ]
       },
       "sauceBase": {
@@ -17489,8 +17065,7 @@
           "mozzarella",
           "onion",
           "oregano"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
@@ -17611,8 +17186,7 @@
           "mozzarella",
           "onion",
           "oregano"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
@@ -17741,9 +17315,6 @@
           "capers",
           "garlic",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "capers"
         ]
       },
       "sauceBase": {
@@ -17845,9 +17416,6 @@
           "burrata",
           "olive-oil",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "burrata"
         ]
       },
       "sauceBase": {
@@ -17969,8 +17537,7 @@
           "oregano",
           "sausage",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -18078,10 +17645,6 @@
           "catupiry",
           "corn",
           "mozzarella"
-        ],
-        "newContentIngredientIds": [
-          "catupiry",
-          "corn"
         ]
       },
       "sauceBase": {
@@ -18184,10 +17747,6 @@
           "chicken",
           "mozzarella",
           "oregano"
-        ],
-        "newContentIngredientIds": [
-          "catupiry",
-          "chicken"
         ]
       },
       "sauceBase": {
@@ -18297,9 +17856,6 @@
           "egg",
           "mozzarella",
           "sausage"
-        ],
-        "newContentIngredientIds": [
-          "baked-beans"
         ]
       },
       "sauceBase": {
@@ -18399,13 +17955,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "blueberry",
-          "cream-cheese",
-          "kiwi",
-          "strawberry"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "デザートソース",
@@ -18526,11 +18076,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "beef",
-          "white-sesame"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "甘辛だれ",
@@ -18644,12 +18190,6 @@
           "shrimp",
           "squid",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "clam",
-          "mussel",
-          "shrimp",
-          "squid"
         ]
       },
       "sauceBase": {
@@ -18788,10 +18328,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "cheddar"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホワイトソース",
@@ -18907,9 +18444,6 @@
           "mushroom",
           "prosciutto-crudo",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "prosciutto-crudo"
         ]
       },
       "sauceBase": {
@@ -19038,10 +18572,6 @@
           "mushroom",
           "onion",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "fresh-tomato",
-          "green-pepper"
         ]
       },
       "sauceBase": {
@@ -19171,12 +18701,6 @@
           "parsley",
           "shrimp",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "clam",
-          "mussel",
-          "parsley",
-          "shrimp"
         ]
       },
       "sauceBase": {
@@ -19299,9 +18823,6 @@
           "fresh-tomato",
           "mozzarella",
           "pesto"
-        ],
-        "newContentIngredientIds": [
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -19402,10 +18923,6 @@
           "fresh-tomato",
           "garlic",
           "pesto",
-          "shrimp"
-        ],
-        "newContentIngredientIds": [
-          "fresh-tomato",
           "shrimp"
         ]
       },
@@ -19508,11 +19025,6 @@
           "lemon",
           "pesto",
           "salmon"
-        ],
-        "newContentIngredientIds": [
-          "cream-cheese",
-          "lemon",
-          "salmon"
         ]
       },
       "sauceBase": {
@@ -19612,10 +19124,6 @@
         "identityIngredientSet": [
           "mozzarella",
           "pesto",
-          "pine-nuts",
-          "potato"
-        ],
-        "newContentIngredientIds": [
           "pine-nuts",
           "potato"
         ]
@@ -19727,10 +19235,6 @@
           "fresh-tomato",
           "garlic",
           "pesto"
-        ],
-        "newContentIngredientIds": [
-          "almond",
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -19832,8 +19336,7 @@
           "onion",
           "pesto",
           "tuna"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "バジル",
@@ -19933,10 +19436,6 @@
           "gorgonzola",
           "honey",
           "pesto",
-          "walnut"
-        ],
-        "newContentIngredientIds": [
-          "honey",
           "walnut"
         ]
       },
@@ -20052,9 +19551,6 @@
           "mozzarella",
           "pesto",
           "potato"
-        ],
-        "newContentIngredientIds": [
-          "potato"
         ]
       },
       "sauceBase": {
@@ -20156,10 +19652,6 @@
           "fresh-tomato",
           "olive-oil",
           "pesto"
-        ],
-        "newContentIngredientIds": [
-          "burrata",
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -20281,11 +19773,6 @@
           "mozzarella",
           "pesto",
           "zucchini"
-        ],
-        "newContentIngredientIds": [
-          "bell-pepper",
-          "eggplant",
-          "zucchini"
         ]
       },
       "sauceBase": {
@@ -20387,10 +19874,6 @@
           "fresh-tomato",
           "mozzarella",
           "pesto"
-        ],
-        "newContentIngredientIds": [
-          "chicken",
-          "fresh-tomato"
         ]
       },
       "sauceBase": {
@@ -20501,13 +19984,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "avocado",
-          "chicken",
-          "cilantro",
-          "mayo"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホワイトソース",
@@ -20635,11 +20112,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "aji-amarillo",
-          "chicken"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホットソース",
@@ -20752,9 +20225,6 @@
           "onion",
           "sauerkraut",
           "sausage"
-        ],
-        "newContentIngredientIds": [
-          "sauerkraut"
         ]
       },
       "sauceBase": {
@@ -20857,9 +20327,6 @@
           "olive-oil",
           "porcini",
           "sausage"
-        ],
-        "newContentIngredientIds": [
-          "porcini"
         ]
       },
       "sauceBase": {
@@ -20968,9 +20435,6 @@
           "mozzarella",
           "pepperoni",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "honey"
         ]
       },
       "sauceBase": {
@@ -21110,9 +20574,6 @@
           "mozzarella",
           "pork",
           "rosemary"
-        ],
-        "newContentIngredientIds": [
-          "pork"
         ]
       },
       "sauceBase": {
@@ -21218,13 +20679,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "green-onion",
-          "natto",
-          "nori",
-          "okra"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -21377,12 +20832,6 @@
           "mozzarella",
           "peking-duck",
           "sweet-bean-sauce"
-        ],
-        "newContentIngredientIds": [
-          "cucumber",
-          "green-onion",
-          "peking-duck",
-          "sweet-bean-sauce"
         ]
       },
       "sauceBase": {
@@ -21501,14 +20950,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "mayo",
-          "mentaiko",
-          "mochi",
-          "nori",
-          "shiso"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホワイトソース",
@@ -21631,10 +21073,6 @@
         "identityIngredientSet": [
           "halloumi",
           "olive-oil",
-          "zaatar"
-        ],
-        "newContentIngredientIds": [
-          "halloumi",
           "zaatar"
         ]
       },
@@ -21768,11 +21206,6 @@
           "shiso",
           "shrimp",
           "yuzu-kosho"
-        ],
-        "newContentIngredientIds": [
-          "shiso",
-          "shrimp",
-          "yuzu-kosho"
         ]
       },
       "sauceBase": {
@@ -21893,11 +21326,6 @@
           "beef",
           "mozzarella",
           "onion",
-          "soy-sauce",
-          "wasabi"
-        ],
-        "newContentIngredientIds": [
-          "beef",
           "soy-sauce",
           "wasabi"
         ]
@@ -22044,11 +21472,6 @@
           "garlic",
           "green-onion",
           "mozzarella"
-        ],
-        "newContentIngredientIds": [
-          "doubanjiang",
-          "eggplant",
-          "green-onion"
         ]
       },
       "sauceBase": {
@@ -22169,11 +21592,6 @@
           "beef",
           "mozzarella",
           "onion",
-          "white-sesame",
-          "yakiniku-sauce"
-        ],
-        "newContentIngredientIds": [
-          "beef",
           "white-sesame",
           "yakiniku-sauce"
         ]
@@ -22310,12 +21728,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "beef",
-          "french-fries",
-          "fresh-tomato"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -22490,12 +21903,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "bell-pepper",
-          "fresh-tomato",
-          "parsley"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -22667,10 +22075,6 @@
           "mozzarella",
           "parsley",
           "porcini"
-        ],
-        "newContentIngredientIds": [
-          "parsley",
-          "porcini"
         ]
       },
       "sauceBase": {
@@ -22775,8 +22179,7 @@
           "olive-oil",
           "oregano",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -22912,9 +22315,6 @@
           "pepperoni",
           "sausage",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "beef"
         ]
       },
       "sauceBase": {
@@ -23046,13 +22446,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "cinnamon",
-          "eggplant",
-          "feta",
-          "lamb"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホワイトソース",
@@ -23170,14 +22564,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chili-powder",
-          "corn",
-          "cotija",
-          "lime",
-          "mayo"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホワイトソース",
@@ -23302,9 +22689,6 @@
           "eggplant",
           "mozzarella",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "eggplant"
         ]
       },
       "sauceBase": {
@@ -23412,8 +22796,7 @@
           "mushroom",
           "pepperoni",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": []
+        ]
       },
       "sauceBase": {
         "sauceFamily": "トマトソース",
@@ -23543,11 +22926,6 @@
           "oregano",
           "tomato-sauce",
           "zucchini"
-        ],
-        "newContentIngredientIds": [
-          "bell-pepper",
-          "eggplant",
-          "zucchini"
         ]
       },
       "sauceBase": {
@@ -23649,11 +23027,6 @@
           "grana-padano",
           "prosciutto-crudo",
           "tomato-sauce"
-        ],
-        "newContentIngredientIds": [
-          "arugula",
-          "grana-padano",
-          "prosciutto-crudo"
         ]
       },
       "sauceBase": {
@@ -23752,10 +23125,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "beef"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "カレー",
@@ -23859,10 +23229,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "honey"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "ホットソース",
@@ -23998,9 +23365,6 @@
           "egg",
           "green-onion",
           "mozzarella"
-        ],
-        "newContentIngredientIds": [
-          "green-onion"
         ]
       },
       "sauceBase": {
@@ -24095,9 +23459,6 @@
         "identityIngredientSet": [
           "mozzarella",
           "parmigiano",
-          "truffle"
-        ],
-        "newContentIngredientIds": [
           "truffle"
         ]
       },
@@ -24228,12 +23589,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chicken",
-          "mayo",
-          "nori"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "甘辛だれ",
@@ -24397,10 +23753,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "chutney"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "甘辛だれ",
@@ -24539,12 +23892,7 @@
         "incompleteReasons": [
           "unspecified_sauce_base"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "shiso",
-          "umeboshi-paste",
-          "whitebait"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "その他",
@@ -24667,11 +24015,7 @@
         "incompleteReasons": [
           "unresolved_tokens"
         ],
-        "identityIngredientSet": null,
-        "newContentIngredientIds": [
-          "corn",
-          "potato"
-        ]
+        "identityIngredientSet": null
       },
       "sauceBase": {
         "sauceFamily": "チーズ",
