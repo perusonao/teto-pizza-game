@@ -33,6 +33,7 @@ export const TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>
   "grana-padano": "xs",
   mint: "xs",
   shiso: "xs",
+  "salmon-roe": "xs",
   // small
   "black-olive": "s",
   "cherry-tomato": "s",

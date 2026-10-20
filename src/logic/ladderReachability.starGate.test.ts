@@ -25,10 +25,13 @@ import {
 
 /** Recipes the star gates hold back by design (#420: goat-cheese 120 stars, spinach 130 stars). */
 const ACCEPTED_DIRECTLY_GATED = ["california-style-pizza", "spinach-artichoke-pizza"];
+/** Batch 8c: with 58 credited recipes a uniform-★2 player reaches 122 stars, which meets goat-cheese's 120-star gate: only the 130-star spinach gate still holds a recipe back at ★2
+ *  (an improvement from catalog growth alone; the gate values are unchanged, and ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. */
+const ACCEPTED_DIRECTLY_GATED_AT_BEST2 = ["spinach-artichoke-pizza"];
 /** Recipes held back only by propagation (the gated recipes eat the ladder's slack, Batch 7a steps 52-53). */
 const ACCEPTED_COLLATERAL: string[] = [];
 const ACCEPTED_BLOCKED_STEPS: number[] = [];
-/** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1. */
+/** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1; Batch 8b / 8c: 58 - 55 - 2 = 1 (every new recipe brings its own step, so the slack is unchanged). */
 const ACCEPTED_MIN_SLACK = 1;
 
 const uniform = (best: 1 | 2 | 3 | 4 | 5): StarProfile => ({ kind: "uniform", best });
@@ -37,10 +40,11 @@ const maxGate = Math.max(...DISCOVERY_LADDER.steps.flatMap((s) => Object.values(
 describe("ladder reachability -- BASELINE (accepted current closure, #561)", () => {
   it.each([1, 2] as const)("BEST ★%i everywhere: only the accepted recipes and steps are closed", (best) => {
     const r = analyzeLadderReachability({ profile: uniform(best) });
-    expect(r.directlyGatedRecipeIds).toEqual(ACCEPTED_DIRECTLY_GATED);
+    const accepted = best === 1 ? ACCEPTED_DIRECTLY_GATED : ACCEPTED_DIRECTLY_GATED_AT_BEST2;
+    expect(r.directlyGatedRecipeIds).toEqual(accepted);
     expect(r.collateralRecipeIds).toEqual(ACCEPTED_COLLATERAL);
     expect(r.blockedSteps).toEqual(ACCEPTED_BLOCKED_STEPS);
-    expect(r.creditedTotal - r.creditedReached).toBe(ACCEPTED_DIRECTLY_GATED.length + ACCEPTED_COLLATERAL.length);
+    expect(r.creditedTotal - r.creditedReached).toBe(accepted.length + ACCEPTED_COLLATERAL.length);
     expect(r.totalStars).toBeLessThan(maxGate);
   });
 

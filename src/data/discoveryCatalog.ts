@@ -98,6 +98,8 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "frango-catupiry": "frango-catupiry-pizzadb-p10",
   // Batch 8b: PIZZA DB evidence id from the 172 matrix.
   "shirasu-pizza": "shirasu-pizza-pizzadb-p3",
+  // Batch 8c: PIZZA DB evidence id from the 172 matrix.
+  "ikura-salmon-pizza": "ikura-salmon-pizza-pizzadb-p1",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };

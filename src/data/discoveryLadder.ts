@@ -194,6 +194,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["lamb", "sweet-potato"], keyRecipeId: "new-zealand-lamb-pizza" },
   // Step 54 (Batch 8b, T4; OD-B8-1/2, no star gate): `shiso` + `whitebait`, key recipe `shirasu-pizza`. Steps 1-53 frozen. Cohort key: whitebait (the last material of the step).
   { ingredientIds: ["shiso", "whitebait"], keyRecipeId: "shirasu-pizza" },
+  // Step 55 (Batch 8c, T4; OD-B8-1/2, no star gate): `salmon-roe`, key recipe `ikura-salmon-pizza` (it also needs step 54's shiso). Steps 1-54 frozen. Cohort key: salmon-roe.
+  { ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

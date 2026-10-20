@@ -85,6 +85,13 @@ function allKeys(value: unknown, out: string[] = []): string[] {
   return out;
 }
 
+/** True when the serialization names ingredient `id` as a whole id: `"id"` or `ing:id` NOT followed by more id characters. A bare substring test also matched a longer id that merely starts
+ *  with it (`ing:salmon` inside the free key chip `ing:salmon-roe`, Batch 8c), which is a false positive, not a leak. Exact ids are still caught. */
+function mentionsIngredient(json: string, id: string): boolean {
+  const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return json.includes(`"${id}"`) || new RegExp(`ing:${escaped}(?![\\w-])`).test(json);
+}
+
 /** FREE LEAK check over the pre-purchase presentation of every target: one shared structure, no
  *  structural field, and no unrevealed or reserved ingredient anywhere in it. */
 function freeLeakViolations(present: (m: SelectableHintModel) => unknown): string[] {
@@ -96,7 +103,7 @@ function freeLeakViolations(present: (m: SelectableHintModel) => unknown): strin
     const json = JSON.stringify(p);
     for (const key of allKeys(p)) if (key !== "paidCount" && FORBIDDEN_KEY.test(key)) violations.push(`${recipe.id}: field ${key}`);
     const hidden = [m.reservedIngredientId, ...ids(m.purchasableFacts)].filter((id): id is string => !!id);
-    for (const id of hidden) if (json.includes(`"${id}"`) || json.includes(`ing:${id}`)) violations.push(`${recipe.id}: hidden ${id}`);
+    for (const id of hidden) if (mentionsIngredient(json, id)) violations.push(`${recipe.id}: hidden ${id}`);
     const s = structureWithoutKey(p);
     structures.set(s, [...(structures.get(s) ?? []), recipe.id]);
   }
@@ -219,6 +226,16 @@ describe("Rule W (OD-H3-5)", () => {
       const p = selectableHintPresentation(m, [hintFactId(reserved), ...m.purchasableFacts.map((f) => f.id)], 999);
       expect(JSON.stringify(p)).not.toContain(`"${reserved}"`);
     }
+  });
+});
+
+describe("free-leak id matching (Batch 8c: a key chip whose id extends a hidden id is not a leak)", () => {
+  it("matches whole ids only: exact leaks are caught, a longer id with the same prefix is not", () => {
+    expect(mentionsIngredient('{"id":"ing:salmon-roe"}', "salmon")).toBe(false);
+    expect(mentionsIngredient('{"id":"ing:salmon-roe"}', "salmon-roe")).toBe(true);
+    expect(mentionsIngredient('{"id":"ing:salmon"}', "salmon")).toBe(true);
+    expect(mentionsIngredient('{"ingredientId":"salmon"}', "salmon")).toBe(true);
+    expect(mentionsIngredient('{"x":"ing:salmon,ing:cream-cheese"}', "salmon")).toBe(true);
   });
 });
 

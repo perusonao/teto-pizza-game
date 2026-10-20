@@ -28,7 +28,8 @@ export type DedicatedIngredientVisual =
   | "sausage-slices"
   | "hot-dog-slices"
   | "shiso-leaf"
-  | "whitebait-school";
+  | "whitebait-school"
+  | "salmon-roe-grains";
 
 export interface Ingredient {
   id: string;
@@ -961,6 +962,17 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#e6e1d3",
     emoji: "\u{26AA}",
     pieceVisual: "whitebait-school",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 8c (OD-B8-2, amended): finite ladder material, step 55 (T4), unlocked by the Ladder alone (no star gate, OD-B8-1); the cohort key of ikura-salmon-pizza. Family `seafood`. Drawn by the dedicated `salmon-roe-grains` visual (orange grains); `emoji` is only the required, never-displayed text fallback (no other ingredient shares it). */
+  {
+    id: "salmon-roe",
+    category: "topping",
+    nameJa: "いくら",
+    color: "#f2842b",
+    emoji: "\u{1F7E0}",
+    pieceVisual: "salmon-roe-grains",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },

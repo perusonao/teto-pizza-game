@@ -292,6 +292,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "frango-catupiry",
         "full-english-pizza",
         "hawaiian",
+        "ikura-salmon-pizza",
         "jalapeno-popper-pizza",
         "jamon-serrano-pizza",
         "melanzane-pizza",

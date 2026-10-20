@@ -43,6 +43,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "hot-dog-slices",
   "shiso-leaf",
   "whitebait-school",
+  "salmon-roe-grains",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -60,12 +61,13 @@ const PILOT_A_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   feta: "feta-cubes",
   ricotta: "ricotta-mound",
 };
-/** Batch 8b (PR #580 Owner Decision): dedicated art for the two new materials instead of emoji. */
-const BATCH8B_DEDICATED: Record<string, DedicatedIngredientVisual> = {
+/** Batch 8b (PR #580 Owner Decision) / 8c: dedicated art for the new materials instead of emoji. */
+const BATCH8_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   shiso: "shiso-leaf",
   whitebait: "whitebait-school",
+  "salmon-roe": "salmon-roe-grains",
 };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -91,7 +93,7 @@ function fixture(overrides: Partial<Ingredient>): Ingredient {
 }
 
 describe("IngredientGlyph: default emoji path (every production ingredient without a dedicated visual)", () => {
-  it("only capers / clam / fresh-tomato (I5a), the Pilot A four and Batch 8b's shiso / whitebait declare a dedicated visual", () => {
+  it("only capers / clam / fresh-tomato (I5a), the Pilot A four and Batch 8b / 8c's shiso / whitebait / salmon-roe declare a dedicated visual", () => {
     expect(
       Object.fromEntries(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => [i.id, i.pieceVisual])),
     ).toEqual(ALL_DEDICATED);
@@ -643,8 +645,8 @@ describe("render sites with a dedicated-visual fixture row", () => {
  * Batch 8b (PR #580 Owner Decision): shiso and whitebait are drawn by their own dedicated art, never by the emoji the first draft used.
  * Their `emoji` stays only as the required text fallback (G18 keeps it unique), so it must never reach the DOM.
  */
-describe("Batch 8b: shiso / whitebait dedicated art (production rows)", () => {
-  it.each(Object.entries(BATCH8B_DEDICATED))("%s draws %s as an SVG, on the glyph and on the placed piece, and never prints its emoji", (id, visual) => {
+describe("Batch 8b / 8c: shiso / whitebait / salmon-roe dedicated art (production rows)", () => {
+  it.each(Object.entries(BATCH8_DEDICATED))("%s draws %s as an SVG, on the glyph and on the placed piece, and never prints its emoji", (id, visual) => {
     const ingredient = getIngredient(id)!;
     expect(ingredient.pieceVisual).toBe(visual);
     for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
@@ -659,11 +661,11 @@ describe("Batch 8b: shiso / whitebait dedicated art (production rows)", () => {
     }
   });
 
-  it("the rejected first-draft glyphs (🍁 / 🦑) are not used by any ingredient; the two text fallbacks are shared with no other ingredient (G18 keeps them off the class symbols)", () => {
+  it("the rejected first-draft glyphs (🍁 / 🦑) are not used by any ingredient; the text fallbacks are shared with no other ingredient (G18 keeps them off the class symbols)", () => {
     const emojis = INGREDIENTS.map((i) => i.emoji);
     expect(emojis).not.toContain("\u{1F341}");
     expect(emojis).not.toContain("\u{1F991}");
-    for (const id of Object.keys(BATCH8B_DEDICATED)) {
+    for (const id of Object.keys(BATCH8_DEDICATED)) {
       const own = getIngredient(id)!.emoji;
       expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual([id]);
     }

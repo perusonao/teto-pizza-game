@@ -35,6 +35,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "hot-dog-slices": "0 0 64 64",
   "shiso-leaf": "0 0 64 64",
   "whitebait-school": "0 0 64 64",
+  "salmon-roe-grains": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -57,6 +58,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "hot-dog-slices" && <HotDogSlices />}
       {visual === "shiso-leaf" && <ShisoLeaf />}
       {visual === "whitebait-school" && <WhitebaitSchool />}
+      {visual === "salmon-roe-grains" && <SalmonRoeGrains />}
     </svg>
   );
 }
@@ -327,6 +329,31 @@ function WhitebaitSchool() {
           <path d="M-12 0C-8-7 3-7 8-1.4L15-7V7L8 1.4C3 7-8 7-12 0Z" fill="#fbf9f1" stroke="#4d4837" strokeWidth="2.1" strokeLinejoin="round" />
           <path d="M-9-3C-5-5.2 1-5 5-2.2" stroke="#8fa7b3" strokeWidth="2" strokeLinecap="round" fill="none" />
           <circle cx="-7" cy="-1.6" r="1.8" fill="#2b2b2b" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/* ---------- salmon-roe (Batch 8c): a small pile of translucent orange grains (reference art: docs/design/references/ingredient-icons-2.0/salmon-roe.svg) ---------- */
+const SALMON_ROE_GRAINS: readonly { x: number; y: number }[] = [
+  { x: 32, y: 23 },
+  { x: 24, y: 34 },
+  { x: 40, y: 34 },
+  { x: 16, y: 46 },
+  { x: 32, y: 47 },
+  { x: 48, y: 46 },
+];
+
+function SalmonRoeGrains() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="24" ry="3.1" fill="#000" opacity=".15" />
+      {SALMON_ROE_GRAINS.map((grain) => (
+        <g key={`${grain.x}-${grain.y}`}>
+          <circle cx={grain.x} cy={grain.y} r="9" fill="#f2842b" stroke="#a63f12" strokeWidth="2.4" />
+          <circle cx={grain.x} cy={grain.y} r="5.6" fill="#f9aa5c" />
+          <circle cx={grain.x - 3} cy={grain.y - 3} r="2" fill="#fff" opacity=".85" />
         </g>
       ))}
     </g>

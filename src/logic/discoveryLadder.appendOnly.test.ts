@@ -110,9 +110,10 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley); steps 1..51 are frozen, so they are fixed and only steps 52-53 (Batch 7a) are derived.
-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
-    // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived steps 52-53 (Batch 7a) have none.
+    // parsley); steps 1..54 are frozen, so they are fixed and only step 55 (Batch 8c) is derived. (Re-deriving from step 52 would tie ikura-salmon-pizza with lamb / shirasu on
+    // missing count, gain and reuse and win on recipe id, i.e. reorder the frozen steps 53-54; the key-recipe rule is only ever applied to the newest step, as for every earlier batch.)
+    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 54) };
+    // The frozen prefix (steps 1-54) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (Batch 8c) has none.
     expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
     expect(validateAppendOnlyExtension(fixed47, DISCOVERY_LADDER)).toEqual([]);
   });

@@ -1218,6 +1218,23 @@ export const RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "ikura-salmon-pizza",
+    nameJa: "いくらとサーモンのピザ",
+    description: "クリームチーズにサーモンといくら、大葉をのせた、ぷちぷち華やかな和風の一枚。",
+    // Batch 8c (Chapter 4). SOURCE AUTHORITY (PIZZA DB `ikura-salmon-pizza-pizzadb-p1`, 172 matrix): cream-cheese / salmon / salmon-roe / shiso, cheese base, no spread sauce. NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient,
+    // so no SAUCE step). GAMEPLAY CALIBRATION (not source): counts cream-cheese 2 / salmon 3 / salmon-roe 2 / shiso 1, bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78); 8 pieces = the 8-slot ring.
+    // Ladder-credited (step 55, cohort key salmon-roe); makeable once shiso (step 54) and salmon-roe are owned; `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "cream-cheese", minCount: 2 },
+      { ingredientId: "salmon", minCount: 3 },
+      { ingredientId: "shiso", minCount: 1 },
+      { ingredientId: "salmon-roe", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

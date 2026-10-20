@@ -56,6 +56,7 @@ The three new topping materials may be added to `TOPPING_FAMILY_ROWS` with exact
 - G18 stays in force (no class symbol equals an ingredient glyph; no family label contains an ingredient name / id); existing ingredient art is not changed broadly. The minimal implementation is the existing `pieceVisual` method plus two visuals (`shiso-leaf`, `whitebait-school`); the `emoji` field remains only as a never-displayed text fallback.
 - The 🟠 proposal for `salmon-roe` is superseded in the same way: Batch 8c draws it with dedicated art too (the Owner confirms the design on that PR's HV).
 - The bake window 58-78 for `shirasu-pizza` is approved (the existing `FREE_COOK_BAKE_TARGET` is kept).
+- Owner approval of the 8b art (2026-10-20) rested on the Chromium comparison sheet; **iPhone Safari Human Verification was not performed** (Plan B: no shared-Preview update). Batch 8c (this record's `salmon-roe`) started after #580 was merged (`043f18e`); its art is the third `pieceVisual` of the same method (`salmon-roe-grains`), confirmed by the Owner on the 8c PR's HV.
 
 ## OD-B8-3 — Process
 
