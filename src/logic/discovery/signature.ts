@@ -23,6 +23,7 @@
  * has no cut/serve identity dimension.
  */
 import type { PizzaState } from "../../state/pizzaState";
+import { resolveDoughKind } from "../dough/doughKind";
 import { sanitizeStringArray, sanitizeToppings } from "../scoringV2/boundary";
 
 export type AxisStatus = "OBSERVED" | "FIXED_BY_FLOW" | "UNAVAILABLE";
@@ -82,9 +83,9 @@ export const DEFAULT_IDENTITY_DIMENSIONS: IdentityDimensions = {
   spreadLayers: null,
 };
 
-/** Capabilities (Phase-1/2 names) whose gameplay the current runtime implements. None of the 11
- *  exists yet, so every target that requires one is unmatchable by construction. */
-export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = [];
+/** Capabilities (Phase-1/2 names) whose gameplay the current runtime implements. Only DOUGH_VARIANT (the `dough` axis is
+ *  observed, Dough Kind P1 #577); every target that requires another of the 11 is unmatchable by construction. */
+export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT"];
 
 /**
  * How the current runtime observes each dimension. The value for FIXED_BY_FLOW / UNAVAILABLE is
@@ -92,11 +93,11 @@ export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = [];
  */
 export const RUNTIME_DIMENSION_OBSERVATION: {
   readonly [K in IdentityDimensionKey]: {
-    status: K extends "pan" ? AxisStatus : Exclude<AxisStatus, "OBSERVED">;
+    status: K extends "pan" | "dough" ? AxisStatus : Exclude<AxisStatus, "OBSERVED">;
     reason: string;
   };
 } = {
-  dough: { status: "FIXED_BY_FLOW", reason: "one dough style only (no DOUGH_VARIANT)" },
+  dough: { status: "OBSERVED", reason: "PizzaState.dough: absent / malformed = \"standard\"; an explicit kind is identity, independent of pan (Dough Kind P1, #577)" },
   pan: { status: "OBSERVED", reason: "PizzaState.pan: absent / null = ordinary cook, \"tray\" = 天板焼き (Square Dough F1)" },
   layerOrder: { status: "FIXED_BY_FLOW", reason: "reducer enforces DOUGH -> SAUCE -> CHEESE -> TOPPING" },
   zones: { status: "UNAVAILABLE", reason: "piece positions exist but no zone classification rule" },
@@ -153,6 +154,8 @@ export function signatureOfPizza(pizza: PizzaState): RuntimeSignature {
   // pan is the one OBSERVED dimension: only the explicit "tray" counts; anything else (absent, null,
   // malformed) is the ordinary cook, so no existing pizza changes identity.
   dimensions.pan = { status: "OBSERVED", value: pizza.pan === "tray" ? "tray" : null };
+  // dough is the second OBSERVED dimension, independent of pan: only a recognised explicit kind counts; absent / malformed is "standard".
+  dimensions.dough = { status: "OBSERVED", value: resolveDoughKind({ doughKind: pizza.dough }) };
 
   return {
     ingredientSet: { status: "OBSERVED", value: sortedUnique([...sauceIds, ...pieceIds]) },

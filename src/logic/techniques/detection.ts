@@ -20,7 +20,7 @@ import type { IdentityDimensions, RuntimeSignature } from "../discovery/signatur
  *  without it never uses the tray. */
 type SignatureView = Pick<RuntimeSignature, "ingredientSet" | "sauceBase"> & Partial<Pick<RuntimeSignature, "dimensions">>;
 export type TechniqueTargetView = Pick<DiscoveryTarget, "sauceBase"> & {
-  identityDimensions?: Partial<Pick<IdentityDimensions, "pan">>;
+  identityDimensions?: Partial<Pick<IdentityDimensions, "pan" | "dough">>;
 };
 
 function usesNoSauce(signature: SignatureView): boolean {
@@ -46,15 +46,35 @@ function requiresTray(target: TechniqueTargetView): boolean {
   return target.identityDimensions?.pan === "tray";
 }
 
+/** The `dough` identity value the technique `dough-pinsa-romana` stands for (design §3.2: the one place the id <-> value pairing lives). */
+const PINSA_DOUGH = "material-multigrain-long-ferment";
+
+/** DOUGH PINSA ROMANA (Dough Kind P1): the pizza was made with that dough -- the `dough` axis is OBSERVED and holds the value. */
+function usesPinsaDough(signature: SignatureView): boolean {
+  const dough = signature.dimensions?.dough;
+  return dough !== undefined && dough.status === "OBSERVED" && dough.value === PINSA_DOUGH && signature.ingredientSet.value.length > 0;
+}
+
+function requiresPinsaDough(target: TechniqueTargetView): boolean {
+  return target.identityDimensions?.dough === PINSA_DOUGH;
+}
+
 /** Techniques the pizza used, in registry order. */
 export function detectTechniquesUsed(signature: SignatureView): TechniqueId[] {
   return TECHNIQUES.filter(
-    (t) => (t.id === "no-sauce" && usesNoSauce(signature)) || (t.id === "tray" && usesTray(signature)),
+    (t) => (t.id === "no-sauce" && usesNoSauce(signature)) ||
+      (t.id === "tray" && usesTray(signature)) ||
+      (t.id === "dough-pinsa-romana" && usesPinsaDough(signature)),
   ).map((t) => t.id);
 }
 
 /** Techniques a target requires, in registry order. */
 export function requiredTechniquesOf(target: TechniqueTargetView): TechniqueId[] {
   const noSauce = Array.isArray(target.sauceBase) && target.sauceBase.length === 0;
-  return TECHNIQUES.filter((t) => (t.id === "no-sauce" && noSauce) || (t.id === "tray" && requiresTray(target))).map((t) => t.id);
+  return TECHNIQUES.filter(
+    (t) =>
+      (t.id === "no-sauce" && noSauce) ||
+      (t.id === "tray" && requiresTray(target)) ||
+      (t.id === "dough-pinsa-romana" && requiresPinsaDough(target)),
+  ).map((t) => t.id);
 }

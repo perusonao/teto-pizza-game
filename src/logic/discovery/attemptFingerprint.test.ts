@@ -244,15 +244,25 @@ describe("Attempt Fingerprint v1 — pan axis (Square Dough F1)", () => {
     expect(tray).not.toBe(attemptFingerprintOfPizza(withPan()));
     expect(parseAttemptFingerprint(tray)!.ext).toEqual({ pan: "tray" });
   });
+
+  it("Dough Kind P1: a standard dough keeps the exact pre-P1 string; a Pinsa dough has its own fingerprint (sparse ext), independent of the pan", () => {
+    const plain = attemptFingerprintOfPizza(withPan());
+    expect(attemptFingerprintOfPizza({ ...withPan(), dough: "standard" })).toBe(plain);
+    expect(plain).not.toContain("dough");
+    const pinsa = attemptFingerprintOfPizza({ ...withPan(), dough: "material-multigrain-long-ferment" });
+    expect(pinsa).not.toBe(plain);
+    expect(parseAttemptFingerprint(pinsa)!.ext).toEqual({ dough: "material-multigrain-long-ferment" });
+  });
 });
 
 describe("Attempt Fingerprint v1 — versioning and extension", () => {
-  it("only pan is OBSERVED (Square Dough F1), so the extension of an ordinary cook is always empty", () => {
+  it("only pan (Square Dough F1) and dough (Dough Kind P1) are OBSERVED, so the extension of an ordinary cook is always empty", () => {
     // Canary: if another axis becomes OBSERVED this test fails on purpose so the contract is re-reviewed
     // (the fingerprint would start carrying it in `ext` automatically).
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
     for (const key of IDENTITY_DIMENSION_KEYS) {
       if (key === "pan") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: null });
+      else if (key === "dough") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: "standard" });
       else expect(sig.dimensions[key].status).not.toBe("OBSERVED");
     }
     // FIXED_BY_FLOW axes are compared by the matcher too, so they must hold exactly their defaults
