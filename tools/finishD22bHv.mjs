@@ -131,6 +131,71 @@ for (const [w, h] of VIEWPORTS) {
     F.C[bake] = { ...where, postMeanRgbBeforeCut: before.rgb, postMeanRgbAfterCut: after.rgb };
   }
 
+  // F. F-2 (#594): post pieces with 0..3 cut lines x every bake state (pieces on the guide lines included, so some are `half`):
+  //    (1) the pixels equal the no-bake render at the same cut count (the bake never reaches them), (2) their mean colour equals the uncut
+  //    no-bake render's (the cut re-draws them clipped and 1.5px apart, it does not recolour them), (3) every piece sits where its piece's
+  //    offset puts it, (4) a tap on one reaches the dough side and the cut drag still works.
+  if (process.env.FINISH_HV_SKIP_F !== "1") { // (a build before F-2 has no cut-time layer: set FINISH_HV_SKIP_F=1 when comparing against one)
+  F.F = { uncutNoBakeMeanRgb: null, cuts: {} };
+  F.F.uncutNoBakeMeanRgb = (await isolatedPost(page, "step=CUT&bake=none&post=1&onguide=1")).rgb;
+  for (let n = 0; n <= 3; n++) {
+    F.F.cuts[n] = {};
+    let refPng = null;
+    for (const bake of BAKES) {
+      await open(page, `step=CUT&bake=${bake}&post=1&onguide=1`);
+      for (let i = 0; i < n; i++) await cutThrough(page, [0, 60, 120][i]);
+      if (bake === "burnt") await shot(`F-cut${n}-burnt`, await doughBox(page));
+      await page.addStyleTag({ content: ISOLATE });
+      await page.waitForTimeout(300);
+      const png = await page.screenshot({ clip: await doughBox(page) });
+      const m = await meanColour(png);
+      if (bake === "none") refPng = png;
+      // a piece that no cut line crosses (post-basil / post-pepper at y 30): its own mean colour, measured in a box a little larger than it,
+      // against the same piece in the uncut render -- the 1.5px offset moves it, it must not recolour it
+      const boxes = bake === "burnt" ? await page.$$eval('[data-topping-id="post-basil"], [data-topping-id="post-pepper"]', (els) => els.map((e) => { const r = e.getBoundingClientRect(); return { id: e.getAttribute("data-topping-id"), x: r.x, y: r.y, w: r.width, h: r.height }; })) : [];
+      for (const b of boxes) {
+        const d0 = await doughBox(page);
+        const clip = { x: Math.max(0, b.x - 3), y: Math.max(0, b.y - 3), width: b.w + 6, height: b.h + 6 };
+        const mm = await meanColour(await page.screenshot({ clip }));
+        (F.F.cuts[n].pieceMeans ??= {})[b.id] = mm.rgb;
+        void d0;
+      }
+      F.F.cuts[n][bake] = { sameAsNoBakeAtThisCutCount: Buffer.compare(png, refPng) === 0, meanRgb: m.rgb, pixels: m.px,
+        maxMeanDeltaVsUncutNoBake: m.rgb && F.F.uncutNoBakeMeanRgb ? +Math.max(...m.rgb.map((v, k) => Math.abs(v - F.F.uncutNoBakeMeanRgb[k]))).toFixed(2) : null };
+    }
+    // geometry + tap-through on the burnt page with n cuts
+    await open(page, "step=CUT&bake=burnt&post=1&onguide=1");
+    for (let i = 0; i < n; i++) await cutThrough(page, [0, 60, 120][i]);
+    const geo = await page.evaluate(() => {
+      const dough = document.querySelector(".pizza-dough");
+      const d = dough.getBoundingClientRect();
+      const border = parseFloat(getComputedStyle(dough).borderTopWidth);
+      const layer = document.querySelector(".pizza-post-layer");
+      const out = { layerInDough: dough.contains(layer), filteredAncestors: [], elements: 0, maxErrPx: 0, withOffset: 0 };
+      for (const el of layer.querySelectorAll("[data-topping-stage=post]")) {
+        out.elements++;
+        let tx = 0, ty = 0;
+        const pc = el.closest(".pizza-piece");
+        if (pc) { const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(pc.style.transform); if (m) { tx = +m[1]; ty = +m[2]; if (tx || ty) out.withOffset++; } }
+        const r = el.getBoundingClientRect();
+        const ex = parseFloat(el.style.left) / 100 * (d.width - 2 * border) + d.x + border + tx;
+        const ey = parseFloat(el.style.top) / 100 * (d.height - 2 * border) + d.y + border + ty;
+        out.maxErrPx = Math.max(out.maxErrPx, Math.abs(r.x + r.width / 2 - ex), Math.abs(r.y + r.height / 2 - ey));
+      }
+      for (let e = layer; e; e = e.parentElement) if (getComputedStyle(e).filter !== "none") out.filteredAncestors.push(e.className.toString().slice(0, 40));
+      out.pieces = layer.querySelectorAll(".pizza-piece").length;
+      out.relief = Boolean(layer.querySelector("[style*='filter']"));
+      return out;
+    });
+    const first = await page.locator('[data-topping-stage="post"]').first().boundingBox();
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.className?.toString().slice(0, 40) ?? "", [first.x + first.width / 2, first.y + first.height / 2]);
+    const linesBefore = Number((await page.locator(".cut-progress-readout").textContent()).match(/\d+/)[0]);
+    if (n < 3) await cutThrough(page, [0, 60, 120][n]);
+    const linesAfter = Number((await page.locator(".cut-progress-readout").textContent()).match(/\d+/)[0]);
+    F.F.cuts[n].geometry = { ...geo, elementAtPiece: hit, cutDragStillWorks: n < 3 ? linesAfter === linesBefore + 1 : null };
+  }
+  } // end F
+
   // D. geometry on the real-sized cooking skeleton: compact (TOPPING) and roomy (CUT), post layer on / off
   F.D = {};
   for (const step of ["TOPPING", "CUT"]) {
