@@ -33,6 +33,30 @@ describe("pan inset / CSS", () => {
   });
 });
 
+describe("bake overlays (D2-b1)", () => {
+  const bare = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const rules = [...bare.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ selector: m[1].trim(), body: m[2] }));
+  const bakeRules = rules.filter((r) => /pizza-bake-overlay|pizza-char-spots|pizza-perfect-glow/.test(r.selector));
+
+  it("covers the overlay, the char spots and the perfect glow, and every selector is scoped to the square pan (a round pizza never matches)", () => {
+    expect(bakeRules.length).toBeGreaterThanOrEqual(2);
+    for (const rule of bakeRules) {
+      for (const selector of rule.selector.split(",")) expect(selector.trim()).toMatch(/^\.pizza-dough--square-pan\s/);
+    }
+    const joined = bakeRules.map((r) => r.selector).join(",");
+    for (const name of ["pizza-bake-overlay", "pizza-char-spots", "pizza-perfect-glow"]) expect(joined).toContain(name);
+  });
+
+  it("the overlay and char spots take the pan's box and its 6% inset (the CSS equals the geometry); the glow spills past it", () => {
+    const overlay = bakeRules.find((r) => r.selector.includes(".pizza-char-spots"))!;
+    expect(overlay.body).toContain(`clip-path: inset(${SQUARE_PAN_INSET_PERCENT}% round`);
+    expect(overlay.body).toMatch(/inset:\s*calc\(-1 \* var\(--dough-border-width, 10px\)\)/);
+    const glow = bakeRules.find((r) => r.selector.includes(".pizza-perfect-glow"))!;
+    expect(glow.body).toMatch(/clip-path:\s*inset\((\d+(\.\d+)?)%/);
+    expect(Number(/clip-path:\s*inset\((\d+(\.\d+)?)%/.exec(glow.body)![1])).toBeLessThan(SQUARE_PAN_INSET_PERCENT);
+  });
+});
+
 describe("target guide", () => {
   it("is the square Reference region, centred", () => {
     const rect = squareTargetGuideRect();
