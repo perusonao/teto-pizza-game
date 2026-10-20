@@ -3,6 +3,7 @@ import { CUT_THRESHOLD_PREVIEW_MARK, cutThresholdBadgeLabel } from "../preview/c
 import { TOPPING_SCALE_PREVIEW_MARK, getPreviewToppingScaleCandidate, toppingScaleBadgeLabel } from "../preview/toppingScalePreview";
 import { getPreviewResultScale, resultScaleBadgeLabel, RESULT_SCALE_PREVIEW_MARK } from "../preview/resultScalePreview";
 import { LC_HAND_PREVIEW_CAPACITY, LC_HAND_PREVIEW_MARK, lcHandPreviewBadgeLabel } from "../preview/lcHandPreview";
+import { DOUGH_KIND_PREVIEW_MARK, doughSwitchBadgeLabel, doughSwitchForcedOpen } from "../preview/doughKindPreview";
 import { PAN_SHAPE_PREVIEW_MARK, getPreviewPanShape, getPreviewSquareStart, panShapeBadgeLabel } from "../preview/panShapePreview";
 
 /**
@@ -26,6 +27,9 @@ import { PAN_SHAPE_PREVIEW_MARK, getPreviewPanShape, getPreviewSquareStart, panS
  *
  * #535: while `?pan=square` (and optionally `&squareStart=lumpy`, ../preview/panShapePreview.ts) is in effect the badge adds `· PAN square`
  * / `· PAN square (lumpy)`, so a Human Verification video shows it was recorded on the square pan.
+
+ *
+ * Dough Kind P2 (#577): while `?doughSwitch=open` (../preview/doughKindPreview.ts) is in effect the badge adds `· DOUGH chips open`.
  */
 export function PreviewBadge() {
   if (!import.meta.env.VITE_PREVIEW_MODE) return null;
@@ -36,6 +40,7 @@ export function PreviewBadge() {
   const size = toppingScaleBadgeLabel(getPreviewToppingScaleCandidate());
   const result = resultScaleBadgeLabel(getPreviewResultScale());
   const pan = panShapeBadgeLabel(getPreviewPanShape(), getPreviewSquareStart());
+  const dough = doughSwitchBadgeLabel(doughSwitchForcedOpen());
   return (
     <div
       className="preview-badge"
@@ -45,6 +50,7 @@ export function PreviewBadge() {
       data-topping-scale-preview={size === null ? undefined : TOPPING_SCALE_PREVIEW_MARK}
       data-result-scale-preview={result === null ? undefined : RESULT_SCALE_PREVIEW_MARK}
       data-pan-shape-preview={pan === null ? undefined : PAN_SHAPE_PREVIEW_MARK}
+      data-dough-kind-preview={dough === null ? undefined : DOUGH_KIND_PREVIEW_MARK}
     >
       PREVIEW{pr ? ` · PR#${pr}` : ""}
       {sha ? ` · ${sha}` : ""}
@@ -53,6 +59,7 @@ export function PreviewBadge() {
       {size === null ? "" : ` · ${size}`}
       {result === null ? "" : ` · ${result}`}
       {pan === null ? "" : ` · ${pan}`}
+      {dough === null ? "" : ` · ${dough}`}
     </div>
   );
 }

@@ -7995,3 +7995,77 @@ p.hint-sheet__step {
 .pan-switch__icon--square {
   border-radius: 3px;
 }
+
+/* Dough Kind P2 (#577): the DOUGH step's dough-kind chips -- a radiogroup of its own, below the ○/□ switch when both are open (a row each,
+   so 360px wide never overflows). Two 44px-tall targets with the label as text (the aria-label is the same string). Absent unless the dough
+   technique's affordance is open, so every existing DOUGH dock is unchanged. */
+.prepare-dock .dough-kind-switch {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dough-kind-switch__option {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 2px solid #d9b98f;
+  border-radius: 12px;
+  background: #fff8ec;
+  color: #6b4226;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dough-kind-switch__option[aria-checked="true"] {
+  border-color: #c2571a;
+  background: #ffe2c4;
+}
+
+.dough-kind-switch__icon {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #6b4226;
+  border-radius: 50%;
+  background: #f6d9a8;
+}
+
+.dough-kind-switch__icon--other {
+  border-style: dashed;
+}
+
+/* Dough Kind P2 (#577): when the ○/□ switch and the dough-kind chips are BOTH open they share one row, so the dock keeps its 70px and the
+   pizza does not move (two rows would add 50px). Compact: 44px ○/□ targets, text-only 12px chips (the labels stay the aria-labels). */
+.prepare-dock .dock-switch-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+.dock-switch-row .pan-switch,
+.dock-switch-row .dough-kind-switch {
+  margin-top: 0;
+  gap: 6px;
+}
+.dock-switch-row .pan-switch__option {
+  width: 44px;
+}
+.dock-switch-row .dough-kind-switch__option {
+  padding: 0 8px;
+  font-size: 12px;
+}
+.dock-switch-row .dough-kind-switch__icon {
+  display: none;
+}
