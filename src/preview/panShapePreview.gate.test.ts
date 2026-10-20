@@ -2,7 +2,7 @@
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, describe, expect, it } from "vitest";
-import { PAN_PARAM, PAN_SHAPE_PREVIEW_MARK, SQUARE_START_PARAM } from "./panShapePreview";
+import { PAN_PARAM, PAN_SHAPE_PREVIEW_MARK, PAN_SWITCH_PARAM, SQUARE_START_PARAM } from "./panShapePreview";
 
 /**
  * #535 gate (bundle level): the production bundle contains nothing of the Preview square-pan switch -- no query name that is specific
@@ -33,7 +33,7 @@ async function bundleText(previewMode: boolean): Promise<string> {
 }
 
 /** Strings that exist only in the Preview switch (./panShapePreview.ts and its badge). */
-const PREVIEW_ONLY = [PAN_SHAPE_PREVIEW_MARK, SQUARE_START_PARAM, "data-pan-shape-preview"];
+const PREVIEW_ONLY = [PAN_SHAPE_PREVIEW_MARK, SQUARE_START_PARAM, PAN_SWITCH_PARAM, "data-pan-shape-preview"];
 
 let production = "";
 let preview = "";
@@ -46,6 +46,7 @@ describe("square-pan switch isolation (real vite builds)", () => {
   it("the names are what the Owner types (a rename here must be deliberate)", () => {
     expect(PAN_PARAM).toBe("pan");
     expect(SQUARE_START_PARAM).toBe("squareStart");
+    expect(PAN_SWITCH_PARAM).toBe("panSwitch");
   });
 
   it("the production bundle has none of the switch: no marker, no squareStart name, no badge attribute", async () => {

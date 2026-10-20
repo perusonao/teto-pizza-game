@@ -98,6 +98,8 @@ import { isValidSquareDough, type SquareDough } from "../logic/pan/squareDough";
 import { activePanShape } from "../preview/panShapePreview";
 import { getPanGeometry } from "../logic/pan/panGeometry";
 import { cookingProfileForPan } from "../logic/pan/panProfile";
+import { effectivePanShape } from "../logic/pan/effectivePan";
+import { panSwitchOffered, pizzaWithPan, type PanChoice } from "./panSelection";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
@@ -468,6 +470,10 @@ export type GameAction =
   // gesture (../logic/pan/pressGesture.ts), replacing `pizza.squareDough` atomically at a successful pointerup. A no-op outside
   // PREPARE/DOUGH, for an invalid grid, and in any round whose pan is not square (so it can never touch a round pizza).
   | { type: "COMMIT_SQUARE_DOUGH"; dough: SquareDough }
+  // Square Dough F4-b (Issue #538): the DOUGH step's ○/□ choice (../state/panSelection.ts). Sets / clears `pizza.pan`, keeps both
+  // doughs, and re-derives the round's cooking profile (a tray round has no CUT). A no-op unless the switch is offered in this
+  // round (Free Cooking / Research, DOUGH, affordance open), so a stray dispatch can never choose a pan in Guided / Lunch Rush / Dinner.
+  | { type: "SELECT_PAN"; pan: PanChoice }
   // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
   // DOUGH -> SAUCE -> CHEESE -> TOPPING sub-steps (see MakingStep above). Advances
   // `makingStep` one step forward and bumps `makingStepToken`; a no-op past "TOPPING" or
@@ -1019,7 +1025,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== "PREPARE" && !inFinish) return state;
       if (!Number.isFinite(action.x) || !Number.isFinite(action.y)) return state;
       // Square-Pan Dough D1-b: the drop must lie on this round's pan (the round pan's `contains` is `isInsideDough` itself).
-      const pan = getPanGeometry(activePanShape(state.recipe));
+      const pan = getPanGeometry(effectivePanShape(state.recipe, state.pizza));
       if (!pan.contains(action.x, action.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
@@ -1137,8 +1143,18 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // the same mechanism.
       if (state.phase !== "PREPARE") return state;
       const pizza = createEmptyPizza();
+      // Square Dough F4-b: the discarded pizza takes its ○/□ choice with it, so the profile is the recipe's own again. Only a pizza
+      // that had chosen the tray changes the profile / cut state; every other reset leaves both exactly as before.
+      const panReset: Pick<GameState, "cookingProfile" | "cutState"> | null =
+        state.pizza.pan == null
+          ? null
+          : (() => {
+              const cookingProfile = cookingProfileForPan(getCookingProfile(state.recipe.id), effectivePanShape(state.recipe, pizza));
+              return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
+            })();
       return {
         ...state,
+        ...panReset,
         pizza,
         makingStep: "DOUGH",
         makingStepToken: state.makingStepToken + 1,
@@ -1171,9 +1187,29 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // Square-Pan Dough B (Issue #535): the same belt-and-suspenders discipline as COMMIT_DOUGH_STRETCH above, plus the pan check.
     case "COMMIT_SQUARE_DOUGH": {
       if (state.phase !== "PREPARE" || state.makingStep !== "DOUGH") return state;
-      if (activePanShape(state.recipe) !== "square") return state;
+      if (effectivePanShape(state.recipe, state.pizza) !== "square") return state;
       if (!isValidSquareDough(action.dough)) return state;
       return { ...state, pizza: { ...state.pizza, squareDough: action.dough } };
+    }
+
+    case "SELECT_PAN": {
+      if (
+        !panSwitchOffered({
+          phase: state.phase,
+          makingStep: state.makingStep,
+          isMissionRound: state.isMissionRound,
+          isDinnerRound: isDinnerRound(state),
+          freeCook: state.freeCook,
+          recipe: state.recipe,
+          dex: state.dex,
+        })
+      ) {
+        return state;
+      }
+      const pizza = pizzaWithPan(state.pizza, action.pan);
+      if (pizza === state.pizza) return state;
+      const cookingProfile = cookingProfileForPan(getCookingProfile(state.recipe.id), effectivePanShape(state.recipe, pizza));
+      return { ...state, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
     }
 
     // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's

@@ -20,10 +20,13 @@ export const PAN_SHAPE_PREVIEW_MARK = "pan-shape-preview-v1";
 /** The query parameter names (also scanned for in the production bundle). */
 export const PAN_PARAM = "pan";
 export const SQUARE_START_PARAM = "squareStart";
+/** F4-b (#538): `?panSwitch=open` opens the DOUGH step's ○/□ switch without the derived affordance (Preview / DEV only). */
+export const PAN_SWITCH_PARAM = "panSwitch";
 
 /** The only values honoured (a whitelist: nothing else is). */
 export const PREVIEW_PAN_VALUE = "square";
 export const PREVIEW_SQUARE_START_VALUE = "lumpy";
+export const PREVIEW_PAN_SWITCH_VALUE = "open";
 
 function singleValue(search: unknown, name: string): string | null {
   if (typeof search !== "string") return null;
@@ -41,8 +44,14 @@ export function resolvePreviewSquareStart(search: unknown): "lumpy" | null {
   return singleValue(search, SQUARE_START_PARAM) === PREVIEW_SQUARE_START_VALUE ? "lumpy" : null;
 }
 
+/** True when the query string asks for the switch to be open exactly once. */
+export function resolvePreviewPanSwitchOpen(search: unknown): boolean {
+  return singleValue(search, PAN_SWITCH_PARAM) === PREVIEW_PAN_SWITCH_VALUE;
+}
+
 let cachedPan: PanShape | null | undefined;
 let cachedStart: "lumpy" | null | undefined;
+let cachedSwitchOpen: boolean | undefined;
 
 function pageSearch(): string {
   return typeof window === "undefined" ? "" : window.location.search;
@@ -63,6 +72,7 @@ export function getPreviewSquareStart(): "lumpy" | null {
 export function resetPreviewPanShapeForTest(): void {
   cachedPan = undefined;
   cachedStart = undefined;
+  cachedSwitchOpen = undefined;
 }
 
 /** The Preview badge suffix while the override is in effect, `null` otherwise. */
@@ -86,5 +96,17 @@ export function activePanShape(recipe: Recipe | null | undefined): PanShape {
 /** True when the square dough should start as the lumpy sheet (Preview / DEV with `?squareStart=lumpy`); never in production. */
 export function wantsLumpySquareStart(): boolean {
   if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) return getPreviewSquareStart() === "lumpy";
+  return false;
+}
+
+/**
+ * F4-b (#538): whether the Preview / DEV query forces the ○/□ switch open. Never in production (the same static gate as the
+ * overrides above). It only opens the switch -- the choice itself, the pan it sets and everything downstream are the real ones.
+ */
+export function panSwitchForcedOpen(): boolean {
+  if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
+    if (cachedSwitchOpen === undefined) cachedSwitchOpen = resolvePreviewPanSwitchOpen(pageSearch());
+    return cachedSwitchOpen;
+  }
   return false;
 }
