@@ -4,6 +4,7 @@ import { evaluateDiscovery, matchDiscovery, type DiscoveryTarget, type RecipeDis
 import { DEFAULT_IDENTITY_DIMENSIONS, IDENTITY_DIMENSION_KEYS, signatureOfPizza } from "./signature";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { RECIPES } from "../../data/recipes";
+import { attemptFingerprintOfPizza } from "./attemptFingerprint";
 
 /** Dough Kind P1 (#577): the `dough` identity axis. Synthetic fixtures only -- no production recipe has a dough kind yet. */
 const PINSA = "material-multigrain-long-ferment";
@@ -96,6 +97,21 @@ describe("dough identity axis (P1)", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       expect(t.identityDimensions.dough, t.targetId).toBe("standard");
       expect(t.capabilities, t.targetId).not.toContain("DOUGH_VARIANT");
+    }
+  });
+
+  it("PK-1 / fingerprint: every existing recipe's composition still matches exactly its own target, and its attempt fingerprint is the pre-P1 string (no ext)", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG) {
+      const base = t.sauceBase ?? [];
+      const pizza: PizzaState = {
+        ...createEmptyPizza(),
+        sauceIds: [...base],
+        toppings: t.items.filter((id) => !base.includes(id)).map((ingredientId, i) => ({ id: `p${i}`, ingredientId, x: 30 + i, y: 50 })),
+      };
+      const sig = signatureOfPizza(pizza);
+      const match = matchDiscovery(sig, RECIPE_DISCOVERY_CATALOG);
+      expect(match.kind === "UNIQUE_MATCH" && match.target.targetId, t.targetId).toBe(t.targetId);
+      expect(attemptFingerprintOfPizza(pizza), t.targetId).toBe(`fp1:${JSON.stringify([[...base].sort(), [...t.items].sort()])}`);
     }
   });
 });
