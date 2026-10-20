@@ -141,10 +141,11 @@ describe("PizzaStage post-bake pieces (FINISH D2-1)", () => {
     for (const lines of [[], [through(0)]]) {
       const { container } = render(stage(withPostPiece(state), lines, "CUT"));
       const follows = (el: Element, post: Element) => Boolean(el.compareDocumentPosition(post) & Node.DOCUMENT_POSITION_FOLLOWING);
-      const post = container.querySelector('.pizza-topping[data-topping-stage="post"]')!;
-      const body = post.parentElement!;
-      for (const layer of body.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
-      expect(body.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
+      const post = container.querySelector('[data-topping-stage="post"]')!;
+      // uncut: the separate layer, after the whole dough; cut: still inside the piece body, after its overlays
+      const scope = lines.length === 0 ? container.querySelector(".pizza-dough")! : post.parentElement!;
+      for (const layer of scope.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
+      expect(scope.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
       cleanup();
     }
   });
@@ -165,5 +166,48 @@ describe("PizzaStage post-bake pieces (FINISH D2-1)", () => {
   it("RESULT (no making step) draws it too", () => {
     const { container } = render(stage(withPostPiece(state), [through(0)], null as unknown as GameState["makingStep"], true));
     expect(container.querySelectorAll('[data-topping-stage="post"]').length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * FINISH D2-2a (Issue #518, option b): on an uncut pizza the post-bake pieces leave `.pizza-dough` -- whose bake `filter`
+ * tints every descendant -- for `.pizza-post-layer`, a sibling that covers the same box. The colour itself is checked on
+ * real pixels in e2e/post-layer-d22a.spec.ts (jsdom has no layout or filter).
+ */
+describe("PizzaStage post-bake layer (FINISH D2-2a)", () => {
+  const state = bakedMargheritaAtCut();
+
+  it("draws post pieces in a layer outside .pizza-dough, never inside it", () => {
+    const { container } = render(stage(withPostPiece(state), [], "TOPPING"));
+    const dough = container.querySelector(".pizza-dough")!;
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer).not.toBeNull();
+    expect(dough.contains(layer)).toBe(false);
+    expect(dough.parentElement).toBe(layer.parentElement); // siblings in the stage
+    expect(dough.querySelector('[data-topping-stage="post"]')).toBeNull();
+    expect(layer.querySelectorAll('[data-topping-stage="post"]').length).toBe(1);
+    expect(container.querySelector(".pizza-stage")!.classList.contains("pizza-stage--post-layer")).toBe(true);
+    // pre-bake pieces stay in the dough
+    expect(dough.querySelectorAll(".pizza-topping:not([data-topping-stage])").length).toBeGreaterThan(0);
+  });
+
+  it("the layer takes no taps and carries no filter, opacity or transform of its own", () => {
+    const { container } = render(stage(withPostPiece(state), [], "TOPPING"));
+    const layer = container.querySelector(".pizza-post-layer") as HTMLElement;
+    expect(layer.getAttribute("aria-hidden")).toBe("true");
+    expect(layer.getAttribute("style")).toBeNull();
+    expect((layer.firstElementChild as HTMLElement).getAttribute("style")).toBeNull();
+  });
+
+  it("with no post piece there is no layer and no stage modifier (the existing DOM)", () => {
+    const { container } = render(stage(state, [], "TOPPING"));
+    expect(container.querySelector(".pizza-post-layer")).toBeNull();
+    expect(container.querySelector(".pizza-stage")!.className).not.toContain("post-layer");
+  });
+
+  it("a cut pizza keeps the in-piece path (cut + post-bake is not part of D2-2a)", () => {
+    const { container } = render(stage(withPostPiece(state), [through(0)], "CUT"));
+    expect(container.querySelector(".pizza-post-layer")).toBeNull();
+    expect(container.querySelectorAll('.pizza-piece-body [data-topping-stage="post"]').length).toBeGreaterThan(0);
   });
 });

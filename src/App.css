@@ -321,6 +321,37 @@
   height: min(58vw, 196px);
 }
 
+/* FINISH D2-2a (Issue #518, option b): post-bake pieces live in their own layer, outside `.pizza-dough`, because the
+   bake `filter` below is on `.pizza-dough` itself and filters every descendant. Only present while a post-bake piece
+   is placed on an uncut pizza; with none, the stage is exactly the flex row above. The stage becomes a one-cell grid
+   so the layer takes the dough's own rendered box -- whichever size modifier (roomy / compact / result / the cooking
+   caps) set it -- without repeating any of those sizes here. */
+.pizza-stage--post-layer {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+}
+
+.pizza-stage--post-layer > .pizza-dough,
+.pizza-stage--post-layer > .pizza-post-layer {
+  grid-area: 1 / 1;
+}
+
+.pizza-post-layer {
+  position: relative;
+  align-self: stretch;
+  justify-self: stretch;
+  pointer-events: none;
+  /* paints above the dough (and its overlays) by DOM order; no filter / opacity here, ever */
+}
+
+/* The dough's padding box: pieces are `left/top: x%/y%` of it, exactly as inside `.pizza-dough` (border 10px). */
+.pizza-post-layer__frame {
+  position: absolute;
+  inset: var(--dough-border-width, 10px);
+  pointer-events: none;
+}
+
 .pizza-dough--interactive {
   cursor: pointer;
   /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough
