@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "../../state/pizzaState";
 import { matchDiscovery, type DiscoveryTarget } from "./matcher";
 import {
@@ -243,6 +244,18 @@ describe("Attempt Fingerprint v1 — pan axis (Square Dough F1)", () => {
     const tray = attemptFingerprintOfPizza(withPan("tray"));
     expect(tray).not.toBe(attemptFingerprintOfPizza(withPan()));
     expect(parseAttemptFingerprint(tray)!.ext).toEqual({ pan: "tray" });
+  });
+
+  it("Dough Kind P1: every existing recipe's own composition keeps its exact pre-P1 fingerprint string (no ext)", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG) {
+      const base = t.sauceBase ?? [];
+      const pizza: PizzaState = {
+        ...withPan(),
+        sauceIds: [...base],
+        toppings: t.items.filter((id) => !base.includes(id)).map((ingredientId, i) => ({ id: `p${i}`, ingredientId, x: 30 + i, y: 50 })),
+      };
+      expect(attemptFingerprintOfPizza(pizza), t.targetId).toBe(`fp1:${JSON.stringify([[...base].sort(), [...t.items].sort()])}`);
+    }
   });
 
   it("Dough Kind P1: a standard dough keeps the exact pre-P1 string; a Pinsa dough has its own fingerprint (sparse ext), independent of the pan", () => {

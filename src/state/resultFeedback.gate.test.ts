@@ -103,7 +103,7 @@ describe("Owner decisions (P2) stay contained", () => {
 
 describe("Scope guards: identity semantics and the hint ladder are untouched", () => {
   it("the matcher and signature still declare the same identity source", () => {
-    expect(sources["/src/logic/discovery/signature.ts"]).toContain("export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT"];");
+    expect(sources["/src/logic/discovery/signature.ts"]).toContain(`export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT"];`);
     expect(sources["/src/logic/discovery/matcher.ts"]).toContain("There is no fallback");
   });
 
