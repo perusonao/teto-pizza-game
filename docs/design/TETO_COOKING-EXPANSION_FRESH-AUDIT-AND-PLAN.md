@@ -3,6 +3,8 @@
 Status: **調査と計画のみ。実装は Owner 承認後。** `src/**`・`e2e/**`・CSS・レシピ／食材データ・テストは変更していない。
 この文書の「推奨」は助言であり、Owner Decision ではない。未回答の判断は §9 に列挙し、推測で確定していない。
 
+> **Owner 方針の反映（2026-10-20）:** 生地の種類を最優先（Pinsa Romana が最初）・技法（how）として設計・天板と別軸、新ソース 4 種は焼成前の SAUCE 工程、ソース後乗せは別 Issue、ZONED は将来フェーズ。この方針に基づく詳細設計は `docs/design/TETO_DOUGH-KIND_PINSA_DETAILED-DESIGN.md`。本書 §8 の推奨順は、この方針により **生地の種類 → 新ソース → グランマ（Square Dough 待ち）** の順に置き換わる。本文は調査時点の記録として変更していない。
+
 | 項目 | 値 |
 |---|---|
 | 監査対象 `main` | `c98d957`（#573 Square Dough D2-a2）。`git fetch origin main` で確認済み |
