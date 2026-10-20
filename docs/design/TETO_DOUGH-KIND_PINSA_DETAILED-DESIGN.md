@@ -44,7 +44,7 @@ Status: **設計のみ（Final Gate 候補）。実装は Owner 承認後。** `
 1. **`jamon-serrano-pizza` が Pinsa と同じ食材集合を持つ**（tomato-sauce / mozzarella / prosciutto-crudo / arugula）。現在の識別は `dough` を見ないので、Pinsa の食材を作ると必ず `jamon-serrano-pizza` が発見される。**生地を識別軸にしない限り、Pinsa は原理的に発見できない。** これが本件の核心。
 2. **`dough` 軸は 11 軸のうち `FIXED_BY_FLOW`**（全ピザが `"standard"`）。`pan` が F1 でやったのと同じ手順で **OBSERVED に昇格**させる。軸は 2 本の独立した値になる: `pan ∈ {null, "tray"}`、`dough ∈ {"standard", <生地の種類>}`。matcher は全軸を値で比較するので、組み合わせは自動的に別の識別になる。
 3. **技法（how）として扱う**: レジストリに技法を 1 つ足す。検出（使った）・要求（レシピが要る）・affordance（導出）・Dex の調理法欄・RESULT の技法ステージは、**`tray` と同じ仕組みにそのまま乗る**。新しい発見経路は作らない。
-4. **UI は DOUGH 工程に選択チップを 1 組足す。○/□ の `PanSwitch` とは別の radiogroup** で、表示条件は同じ形（PREPARE ∧ DOUGH ∧ Free Cooking/Research ∧ **その技法自身の** affordance 開）。2 つは互いの状態を書き換えない。
+4. **UI は DOUGH 工程に選択チップを 1 組足す。○/□ の `PanSwitch` とは別の radiogroup** で、表示条件は同じ形（PREPARE ∧ DOUGH ∧ Free Cooking/Research ∧ **その技法自身の** affordance 開）。2 つは互いの生地選択（`dough` / `pan`）を書き換えない。
 5. **保存形式は変えない。** `PizzaState` は永続化されない。変わるのは「図鑑にレシピ id が 1 つ増える」と「技法台帳に id が 1 つ増える」だけで、どちらも前方互換（未知 id を保持）の既存経路に乗る。
 6. **採点は変えない。** Scoring 2.0・Completion Gate・Pitz・★・ランキングは生地の種類を読まない（`techniques.architecture.test.ts` が INV-TQ-3 として固定済み）。
 7. 新ソース 4 種は**データ追加が中心**。ただし「sauce が 3 種」を前提とするテスト・fixture が複数あり、型 union（`RecipeSauceProfile.ingredientId`）の拡張が要る。新ソースを使う 4 レシピのうち、**Flammkuchen だけが新規の非ソース食材 0**。
@@ -140,11 +140,11 @@ Pinsa の実行時 target を `RECIPE_DISCOVERY_CATALOG` に足すとき、既�
 
 ### 2.2 衝突しない規則
 
-1. **書き込みの分離。** `SELECT_PAN` は `pizza.pan` だけを変える。新しい `SELECT_DOUGH` は `pizza.dough` だけを変える。相手のフィールド・`doughShape`・`squareDough`・`cookingProfile` を触らない。
+1. **書き込みの分離。** 両 action とも、**相手の生地選択**（`SELECT_PAN` は `pizza.dough`、`SELECT_DOUGH` は `pizza.pan`）と `doughShape` / `squareDough`（形状状態）を変えない。そのうえで、`SELECT_PAN` は現行どおり `pizza.pan` を更新し、`pan` から導かれる `cookingProfile`（`cookingProfileForPan`）と `cutState` を**再計算する**（`gameReducer.ts` の `SELECT_PAN`。変更しない）。新しい `SELECT_DOUGH` は `pizza.dough` だけを変え、`cookingProfile` と `cutState` も**変更しない**（`pan` が変わらないので派生値も変わらない）。
 2. **○→□→○ と生地の種類は直交する。** ○/□ を切り替えても `dough` は保持され、生地の種類を切り替えても `pan` は保持される。F4-b の「○に戻すと `pan` キーを削除し、未切替と deep-equal」は、`dough` があっても `pan` についてだけ成り立つ（`dough` 未選択なら全体が deep-equal）。
 3. **「次へ」で両方が確定する。** DOUGH を出ると `SELECT_PAN` が no-op になる（O-7）のと同じく、`SELECT_DOUGH` も no-op になる。
 4. **「作り直す」（RESET_PIZZA）で両方が破棄される。**
-5. **cookingProfile は `pan` だけから決まる。** `cookingProfileForPan` / `effectivePanShape` は `dough` を引数に取らない（この分離をテストで固定: 「`dough` だけが違う 2 つのピザで `effectivePanShape` と profile が同一」）。
+5. **cookingProfile は `pan` だけから決まる。** `cookingProfileForPan` / `effectivePanShape` は `dough` を引数に取らない（この分離をテストで固定: 「`dough` だけが違う 2 つのピザで `effectivePanShape` と profile が同一」）。したがって `SELECT_PAN` だけが profile / `cutState` を再計算し、`SELECT_DOUGH` は再計算しない。
 6. **見た目の連動は最初の slice に入れない。** 生地の種類で焼き色・厚み・耳を変えるのは D2-b（焼成表現）と衝突しうるため別 slice。識別・技法・選択 UI だけで価値が出る。
 
 ### 2.3 将来の拡張点（今は作らない）
@@ -385,15 +385,15 @@ radiogroup / radio、`aria-checked`、キーボード操作、フォーカス可
 - **PK-0** P3 の開始前に、Owner が pizzadb.jp の原典（§7 の 5 項目）を確認し、結果を Issue #577 に記録する。確認前は `pinsa-romana` を `RECIPES` に入れない（P1 / P2 は不活性のため対象外）。
 
 識別・技法
-- **PK-1** 既存 target 全件の識別は変わらない（`dough` 未設定のピザは全軸が現状と deep-equal）。
+- **PK-1** 既存 target 全件の識別は変わらない: `dough` 未設定のピザについて、**全軸の値**と**既存 target との一致結果**（matcher の出力）が現状と等しい。**例外として `dimensions.dough.status` が `FIXED_BY_FLOW` から `OBSERVED` に変わることだけを明示的に許容**する（`signature.ts` の各軸は値に加えて `status` を持つため、軸全体の deep-equal は成り立たない）。この例外は `signature.test.ts` に名前付きで書き、他の軸の `status` は変えない。
 - **PK-2** `dough` 軸が OBSERVED。未設定・不正値は `"standard"`。`pan` / `squareDough` から推定されない（`panAxis.test.ts` と同形のテスト）。
 - **PK-3** jamon の食材集合: standard → jamon、Pinsa → pinsa-romana、Pinsa+tray → ORIGINAL。§1.5 の表を全行テスト化。
 - **PK-4** `matcher.ts` が techniques を import しない（`techniques.architecture.test.ts` が通る）。
 - **PK-5** 技法: 使った経路（Free Cooking のみ・affordance 開・Completion Gate 通過）と recipe 経路が `tray` と同じ規則で動く。Lunch Rush / Dinner は 0。
 
 UI・状態
-- **PK-6** `SELECT_DOUGH` と `SELECT_PAN` が互いのフィールドを変えない。○→□→○ で `dough` が保持される。
-- **PK-7** `dough` だけが違う 2 つのピザで `effectivePanShape` と cookingProfile が同一。
+- **PK-6** `SELECT_DOUGH` と `SELECT_PAN` が互いの生地選択（`dough` / `pan`）と `doughShape` / `squareDough` を変えない。○→□→○ で `dough` が保持される。`SELECT_PAN` は現行どおり `cookingProfile` / `cutState` を再計算し、`SELECT_DOUGH` はそれらを変更しない（deep-equal で固定）。
+- **PK-7** `dough` だけが違う 2 つのピザで `effectivePanShape` と、そこから導かれる cookingProfile が同一。
 - **PK-8** チップの表示条件: 閉（本番の現状）では DOM が現状と同一。Guided / Lunch Rush / Dinner では出ない。
 - **PK-9** 360×800 / 390×844 でチップが 1 画面に収まり、`PanSwitch` と同時表示でも重ならない（レイアウト契約テスト）。
 
