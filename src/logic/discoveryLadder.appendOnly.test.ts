@@ -118,6 +118,19 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
     expect(validateAppendOnlyExtension(fixed47, DISCOVERY_LADDER)).toEqual([]);
   });
 
+  it("steps 52-54 are still derived by the rule from the Batch 8b-time population (the previous, wider derivation check is kept, not dropped)", () => {
+    // The test above freezes steps 1-54 out of `DISCOVERY_LADDER` itself, so by construction it cannot see a change to steps 52-54 (Batch 8c review, P2). This one keeps the earlier check:
+    // steps 1-51 fixed, the recipes up to and including shirasu-pizza (the population when step 54 was the last), steps 52-54 derived and compared with the production steps.
+    const fixed51 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
+    const population8b = PRODUCTION.slice(0, RECIPES.findIndex((r) => r.id === "shirasu-pizza") + 1);
+    const derived = buildAppendOnlyLadder(fixed51, population8b);
+    expect(derived.steps).toEqual(DISCOVERY_LADDER.steps.slice(0, 54));
+    // Sensitivity (negative control): exchanging steps 52 and 53, renumbered, is NOT what the rule derives.
+    const swapped = DISCOVERY_LADDER.steps.slice(0, 54).map((s) => ({ ...s }));
+    [swapped[51], swapped[52]] = [{ ...swapped[52], step: 52 }, { ...swapped[51], step: 53 }];
+    expect(derived.steps).not.toEqual(swapped);
+  });
+
   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
     expect(validateLadderProgression(DISCOVERY_LADDER, PRODUCTION, STARTER_INGREDIENT_IDS)).toEqual([]);
