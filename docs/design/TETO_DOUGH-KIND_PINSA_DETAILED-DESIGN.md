@@ -178,7 +178,7 @@ Pinsa の実行時 target を `RECIPE_DISCOVERY_CATALOG` に足すとき、既�
 | 台帳 | `discoveredTechniqueIds`（上限 64、未知 id は保存時に保持） | 変更なし |
 | 登録 | `REGISTER_TO_DEX` の同一遷移（usage 経路 + recipe 経路） | 変更なし |
 | Dex 調理法欄 | `techniqueDexViews`（RIDDLE → DISCOVERED） | 変更なし（レジストリの行が増えるだけ） |
-| RESULT | 技法ステージ（レシピより先に表示、P5） | 変更なし |
+| RESULT | 技法ステージ（レシピより先に表示、P5） | 表示内容は変更なし。**ただし `TechniqueReveal.tsx` が `data-technique-id={t.id}` で生の技法 id を DOM に出している**（技法 id `dough-pinsa-romana` は `romana` を含み、レシピ名「ピンサ・ロマーナ」との対応が DOM から読める）。P1 で中立な属性に置き換える（§5.7 R6） |
 | 発見の禁止ラウンド | Lunch Rush / Dinner は 0 | 変更なし |
 
 **型の注意:** `RoundTechniqueInput.signature` と `TechniqueRegistrationInput.signature` は `Pick<RuntimeSignature, "ingredientSet" | "sauceBase">` で、`dimensions` は `detection.ts` の `Partial` でのみ受けている。実装 PR では `dimensions` を型で明示する（現状も実行時には完全な signature が渡る）。
@@ -261,7 +261,7 @@ catalog: Pinsa target              ← identityDimensions.dough を持つ（変�
 
 - ladder は `requiredIngredients` だけから作られる。**Pinsa の ladder は jamon-serrano と同一**になる。これは意図どおり（OD-TQ-6: ヒントは技法・pan・生地に触れない）。
 - 影響: `hint5Production.gate` G7 と `deductionProduction.gate` の INV-TQ-4 は現在「技法を要求する recipe = NO_SAUCE」を前提にしている。tray の準備（F）で allowlist 形（`NO_SAUCE ∪ PAN_TRAY`）に直す方針が決まっている。生地の種類はこの allowlist に**別の名前付き定数**（例: `DOUGH_TECHNIQUE_RECIPE_IDS`）を足す。OD-544-1 の「共有定数 1 か所」方針に従い、F2 の定数と重複定義しない。
-- DH4 privacy sweep の `GATE_STATES` に **`dough` の状態（standard / Pinsa）を加えて全再実行**し、掃引した状態数を Result に書く。新しい fact id・ヒント行・保存 id に生地・技法の語が出ないことを確認する。
+- DH4 privacy sweep の `GATE_STATES` に **`dough` の状態（standard / Pinsa）を加えて全再実行**し、掃引した状態数を Result に書く。新しい fact id・ヒント行・保存 id に、生地の種類・技法に固有の語（§5.7 の定義。G2 固定文言は除く）が出ないことを確認する。
 - `recipeHintRoles`（G17）には Pinsa 用の行が要る。key-free の扱いは jamon-serrano と同じ方針を推奨するが、G17 の結果で確定する。
 
 ### 5.2 Research
@@ -309,13 +309,14 @@ F3 で入った RESULT の中立行（pan で調理した未同定ピザ向け�
 
 ### 5.7 未発見レシピ・技法の非開示（Owner 方針 F）— 面ごとの監査表
 
-原則（Owner 決定 K を反映）: **表示名「ピンサ生地」を見せてよいのは、その技法を発見した player が見る面（RESULT の技法ステージ、Dex の調理法欄）だけ。レシピ名「ピンサ・ロマーナ」・レシピ id・技法 id は、そのレシピを player が発見するまでどの面にも出さない。** さらに次の 5 規則で、**技法の表示と未発見レシピとの対応を切り離す**:
+原則（Owner 決定 K を反映）: **表示名「ピンサ生地」を見せてよいのは、その技法を発見した player が見る面（RESULT の技法ステージ、Dex の調理法欄）だけ。レシピ名「ピンサ・ロマーナ」・レシピ id は、そのレシピを player が発見するまでどの面にも出さない。生の技法 id（`dough-pinsa-romana`）は、発見後も DOM・属性・aria を含めてどの面にも出さない（R6）。** さらに次の 5 規則で、**技法の表示と未発見レシピとの対応を切り離す**:
 
 - **R1** 技法に関する面（なぞかけ・名前・説明）に、レシピ名・レシピ id・食材名・個数・ジャモン等の他レシピ名を含めない。
 - **R2** Dex の調理法欄に「このレシピで使う」「使うレシピ数」などの**対応表示を作らない**。
 - **R3** RESULT の技法ステージは、usage 経路で ORIGINAL なピザに対して出たときも、レシピ発見と同時に出たときも**同じ形式**（技法名と一般説明のみ）。未発見レシピの有無で形式を変えない。
 - **R4** Dex のレシピ欄・Pizza Select・HOME は、技法の発見状態に依存しない（未発見レシピは匿名ロックのまま）。技法の発見が匿名ロックの表示を変えない。
-- **R5** Hint 5.0・Research・Trial Notebook・○×パネルは技法・生地の語を含まず、技法の状態を読まない。
+- **R5** Hint 5.0・Research・Trial Notebook・○×パネルは、**生地の種類・技法に固有の語**（`ピンサ` / `ロマーナ` / `pinsa` / `dough-pinsa-romana` / 技法名・技法説明・なぞかけ、および target ごと・状態ごとに変わる誘導）を含まず、技法の状態を読まない。**明示的な例外: 承認済みの G2 固定文言「材料だけでなく、生地の形や調理法も工夫してみよう。」**（Research target 共通の定数。§5.2、PK-12）。この例外は G2 の文字列 1 つだけで、他の語に広げない。
+- **R6** **生の技法 id を DOM・data 属性・aria に出さない。** 技法を発見した後でも、id `dough-pinsa-romana` は `romana` を含み、未発見レシピ「ピンサ・ロマーナ」との対応を示すため。現状の `TechniqueReveal.tsx` の `data-technique-id={t.id}` がこれに当たる。P1 で、id を含まない中立な属性（例: 値を持たない `data-technique-name`）に置き換える。`data-technique-id` を読むテスト・e2e は存在しない（`data-technique-reveal` / `data-technique-state` のみ使用。grep で確認）。React の `key` は DOM に出ないので対象外。
 
 面ごとの扱いと、固定するテスト:
 
@@ -324,13 +325,13 @@ F3 で入った RESULT の中立行（pan で調理した未同定ピザ向け�
 | DOUGH のチップ（ラベル・aria-label・data 属性・アイコン） | 視覚描写のみ。語 `ピンサ` / `pinsa` / `ロマーナ` / `dough-pinsa-romana` を含まない | 同じ。**本書の既定ではチップに名前を出さない**（「生地を選択したプレイヤーに表示」が選択中のチップ上の表示を含むかは §12 Q13 で確認。Owner の回答があるまで名前なし） | DOM 文字列の走査 |
 | Dex の調理法欄 | affordance が開いたときだけ「？？？」＋固定なぞかけ「同じ具材でも、生地の仕立て方で違う一枚になることがあるよ。」。名前・説明は出さない | 「ピンサ生地」＋説明文（対応表示なし、R2） | `dexView.test` 系 |
 | Dex のレシピ欄 | 未発見は既存の匿名ロック（`？？？`）。Pinsa 専用の例外なし | レシピ名 | 既存の匿名ロック gate |
-| Research のラベル | `researchEntryLabel`: 解禁食材＋コホート文字のみ（INV-B7）。生地・技法を含まない | — | F 監査 R1 / R6 の同形テスト |
-| Hint 5.0 の行・fact id・保存 id・near-miss | 食材の事実のみ。技法・生地の語なし。Pinsa の ladder は jamon と同一 | — | G7 / INV-TQ-4 / DH4 sweep（`dough` 状態込み） |
+| Research のラベル | `researchEntryLabel`: 解禁食材＋コホート文字のみ（INV-B7）。生地の種類・技法に固有の語を含まない | — | F 監査 R1 / R6 の同形テスト |
+| Hint 5.0 の行・fact id・保存 id・near-miss | 食材の事実のみ。生地の種類・技法に固有の語なし（G2 は rung ではなく Research 共通の固定文言で、例外）。Pinsa の ladder は jamon と同一 | — | G7 / INV-TQ-4 / DH4 sweep（`dough` 状態込み） |
 | G2 固定文言 | Research target 共通。生地の種類のために変えない | — | R11 の timing parity |
 | RESULT | 技法を発見したときだけ技法ステージ（名前＋一般説明）。中立行は足さない（§5.3） | 技法名 → レシピ名の順（P5）。レシピが同時に発見された場合のみ、レシピ名が続く（R3） | ResultPanel の既存テスト＋usage 経路／recipe 経路で技法ステージが同形であることのテスト |
 | Trial Notebook / ○× パネル | 生地を記録・表示しない | — | pan と同形の同一 DOM テスト |
-| Pizza Select / HOME / ショップ | 未発見レシピは匿名のまま。生地・技法の語なし | — | 既存の routing / 匿名ロックのテスト |
-| 保存データ | 技法台帳の id（`dough-pinsa-romana`）は player に見えない | — | 保存のスナップショットが UI に流れないことの確認 |
+| Pizza Select / HOME / ショップ | 未発見レシピは匿名のまま。生地の種類・技法に固有の語なし | — | 既存の routing / 匿名ロックのテスト |
+| 保存データ・DOM 属性 | 技法台帳の id（`dough-pinsa-romana`）は player に見えない。**DOM・data 属性・aria にも出さない（R6）** | 同じ | 保存のスナップショットが UI に流れないことの確認＋後述の 3 状態の DOM 走査（PK-18） |
 
 **残余リスクと Owner 決定（K）:** 技法は**使っただけで**（usage 経路。Free Cooking、affordance 開、Completion Gate 通過）発見でき、そのとき RESULT と Dex に「ピンサ生地」が出る。したがって **レシピ「ピンサ・ロマーナ」が未発見のまま「ピンサ」の語が先に見えうる**。天板焼きでも「四角いレシピがある」ことが同様に示唆される（先例）が、「ピンサ」は固有名で連想が強い。Owner は**表示を承認**し、条件として**未発見レシピとの対応を漏らさない**ことを求めた。この条件は R1〜R5 と PK-21 で担保する。承認された表示により、技法を発見した player は「ピンサという名の生地がある」ことを知る。これは設計上の承認済みの帰結であり、**レシピとの対応（どの食材集合か、レシピが存在するか）は表示しない**。
 
@@ -425,7 +426,7 @@ UI・状態
 
 Anti-Oracle・Hint
 - **PK-10** チップの表示は Dex 進捗だけの関数。Research target・所持・購入ヒント・食材一致で変わらない（F 監査 R1 / R10 に倣う掃引テスト）。
-- **PK-11** Hint 5.0 の行・fact id・保存 id・near-miss に生地・技法の語が無い。DH4 sweep を `dough` 状態込みで全再実行し、状態数を Result に記載。
+- **PK-11** Hint 5.0 の行・fact id・保存 id・near-miss に、生地の種類・技法に固有の語（§5.7 R5。G2 固定文言は例外）が無い。DH4 sweep を `dough` 状態込みで全再実行し、状態数を Result に記載。
 - **PK-12** G2 の固定文言は変更せず、Research target 間で同一。
 - **PK-13** gate の変更は named allowlist のみ。skip・retry・assertion 緩和・timeout 延長なし。
 
@@ -440,10 +441,10 @@ Anti-Oracle・Hint
 - **PK-17** Scoring 2.0 の golden・Pitz・ランキングが不変（`techniques.architecture.test.ts` の INV-TQ-3）。
 
 非開示・出題
-- **PK-18** §5.7 の面ごとに、発見前は語 `ピンサ` / `pinsa` / `ロマーナ` / `dough-pinsa-romana` が DOM・aria・data 属性・ヒント・保存 id の UI 経路に出ないことを走査テストで固定する。
+- **PK-18** 次の **3 状態** それぞれで、§5.7 の面の DOM（テキスト・`aria-*`・`data-*`・`class`・`id`）を走査し、指定の語が出ないことを固定する: **(a) 技法・レシピとも未発見:** `ピンサ` / `pinsa` / `ロマーナ` / `romana` / `dough-pinsa-romana` / 「ピンサ生地」が出ない。**(b) 技法は発見済み・レシピ `pinsa-romana` は未発見**（usage 経路で ORIGINAL なピザから発見した場合）: 「ピンサ生地」（名前・説明）は技法の面に**限って**出てよいが、`ロマーナ` / `romana` / `dough-pinsa-romana` / レシピ id は DOM のどこにも出ない（R6）。技法以外の面（Pizza Select・HOME・Dex のレシピ欄・Research）には「ピンサ」の語が出ない。**(c) 技法・レシピとも発見済み:** レシピ名は図鑑に出るが、`dough-pinsa-romana`（生の技法 id）は出ない。G2 固定文言は全状態で例外として出現し、同一である。
 - **PK-19** Dinner: (a) `DINNER_MISSIONS` のどの `targetRecipeIds` も Pinsa（`doughKind` を持つレシピ）を含まない、(b) `validateDinnerMissions` に「技法を要求するレシピを target にしない」検査を名前付きで追加（`aussie` など既存の技法レシピも同じ規則で扱う）、(c) Pinsa の食材を Dinner で作っても Pinsa に同定されない（jamon 以外の target では「target 外」）ことを確認。
 - **PK-20** 技法 id が **`dough-pinsa-romana`**（Owner 承認）で、`/^[a-z0-9][a-z0-9_-]{0,63}$/` に従い、旧ビルドとの往復で台帳から失われない（PK-16 と併せて確認）。
-- **PK-21** 技法の表示と未発見レシピの対応を切り離す（R1〜R5）: (a) 技法の面（なぞかけ・名前・説明）にレシピ名・id・食材名・他レシピ名が無い、(b) Dex の調理法欄に対応表示（使うレシピ・件数）が無い、(c) RESULT の技法ステージが usage 経路と recipe 経路で同形、(d) 技法の発見状態を変えても Dex のレシピ欄・Pizza Select・HOME・Research のラベルが変わらない（掃引テスト）。
+- **PK-21** 技法の表示と未発見レシピの対応を切り離す（R1〜R5）: (a) 技法の面（なぞかけ・名前・説明）にレシピ名・id・食材名・他レシピ名が無い、(b) Dex の調理法欄に対応表示（使うレシピ・件数）が無い、(c) RESULT の技法ステージが usage 経路と recipe 経路で同形、(d) 技法の発見状態を変えても Dex のレシピ欄・Pizza Select・HOME・Research のラベルが変わらない（掃引テスト）、(e) `TechniqueReveal` が生の技法 id を属性に出さない（R6。既存の `no-sauce` / `tray` も同じ扱い）。
 - **PK-22** 技法の文字列: 名前 `ピンサ生地`、説明 `空気を含んだ軽い食感が特徴の生地`、なぞかけ `同じ具材でも、生地の仕立て方で違う一枚になることがあるよ。` を完全一致で固定し、`techniques.ts` の 1 か所だけが持つ（他のファイルがこれらを文字列として含まない allowlist テスト）。なぞかけが `techniques.test.ts` の既存アサーションと、dough 版の禁止語（`ピンサ|ロマーナ|ハモン|生ハム|ルッコラ|トマト|モッツァレラ|\d|[０-９]`）に一致しない。
 
 ---
@@ -454,7 +455,7 @@ Anti-Oracle・Hint
 |---|---|---|
 | 識別 | `signature.test.ts`、`discoveryCatalog.test.ts`（items 例外・signature キー・Reference 生成） | §1.4 |
 | 識別 | `dinnerResultDetection.test.ts` 32 | 食材だけのキーで一意性を見ているため |
-| 技法 | `techniques.test.ts`、`techniques.tq1c.test.ts`、`techniques.tray.test.ts` の隣に dough 版 | レジストリ件数・なぞかけ定数 |
+| 技法 | `techniques.test.ts`、`techniques.tq1c.test.ts`、`techniques.tray.test.ts` の隣に dough 版、`TechniqueUi.test.tsx`（`data-technique-id` の置き換え） | レジストリ件数・なぞかけ定数・R6 |
 | gate | `hint5Production.gate` G7、`deductionProduction.gate` INV-TQ-4、DH4 sweep（`GATE_STATES`） | §5.1 |
 | カタログ | `catalogLedger.test.ts`（件数）、`recipeBatchManifest.ts`、`recipeBatch.validator.test.ts`（コホート例外）、章サイズ pin | レシピが 1 増える |
 | golden | Hint 5.0 の ladders / alphaFamilyOnly、`sauceB1.singleSource.json` | 末尾追記 |
@@ -539,7 +540,7 @@ matrix の `newContentIngredientIds` は古い（eggplant・parsley・shrimp・b
 
 | slice | 内容 | 本番での見え方 | HV | 状態（Owner 2026-10-20） |
 |---|---|---|---|---|
-| P1 | `dough` 軸を OBSERVED、`PizzaState.dough?`、`Recipe.doughKind?`、`DOUGH_VARIANT` を supported に、技法レジストリ、検出・要求。**RECIPES に Pinsa は入れない**（synthetic fixture で検証） | なし（不活性） | 不要（内部） | **設計方針を承認。コードは別 PR** |
+| P1 | `dough` 軸を OBSERVED、`PizzaState.dough?`、`Recipe.doughKind?`、`DOUGH_VARIANT` を supported に、技法レジストリ、検出・要求、**`TechniqueReveal` の生 id 属性の置き換え（R6）**。**RECIPES に Pinsa は入れない**（synthetic fixture で検証） | なし（不活性） | 不要（内部） | **設計方針を承認。コードは別 PR** |
 | P2 | `SELECT_DOUGH`、`doughSelection.ts`、チップ UI、Preview フラグ、レイアウト契約。affordance は本番で閉（Pinsa を要求する target が無いため） | なし（閉） | 動画あり（Preview 経由、Owner 実機） | **設計方針を承認。コードは別 PR。チップの `aria-label` 文言の確定が必要（Q4 残り）** |
 | P3 | `pinsa-romana` を追加（recipes / profiles / target / reference / hint roles / orders / manifest）、gate の allowlist、DH4 全再実行、Research の更新、Guided の開始設定 | **有効化** | **必須** | **HOLD（pizzadb.jp の原典確認まで）** |
 
