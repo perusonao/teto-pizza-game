@@ -29,7 +29,12 @@ Status: **実装済み・本番では不活性（チップの affordance が全�
 * 技法を発見したあと、2 つ目のチップが「ピンサ生地」と出るのは、**その技法を使って発見した（または Pinsa を発見した）プレイヤーだけ**。Pinsa レシピが無い本番では技法を発見できないので、この文言が出る経路は P3 まで無い（Preview の保存データで再現）。
 
 ## 検証
-RESULT_PLACEHOLDER
+* 全 Vitest: **489 files passed / 1 skipped、9031 tests passed**（2 skipped・6 todo は既存、failed 0）。`npm run build`（`tsc -b` + `vite build`）通過。`oxlint`: 触ったファイルへの指摘なし。
+* 単体: `gameReducer.selectDough.test.ts`（本番では no-op／`pizza.dough` だけを書く／`SELECT_PAN` と互いに不変（PK-6）／`effectivePanShape` 同一（PK-7）／「次へ」後・RESET・Guided・ORDER・Lunch Rush で no-op）、`doughSwitch.test.ts`（本番では全 Dex で閉／天板の affordance と独立／表示条件／ラベル）、`DoughKindSwitch.test.tsx`（文字と aria-label が同じ・選択しても名前は出ない・発見後は「ピンサ生地」・生の ID や dough の値が DOM に出ない）、`doughKindPreview.test.ts`、`doughKindPreview.gate.test.ts`（**本番バンドルにフラグ名・マーカーが無く、Preview バンドルにはある**＝実ビルド）。
+* E2E（390×844 / 360×800 の両方、14 件）: `e2e/dough-kind-chips-p2.spec.ts` — 閉では DOM に無い／開で 44px 以上・viewport 内・ピザと「次へ」に重ならず**ピザの位置・大きさが閉と同一**／両方開で 1 行・重ならない・横スクロールなし・ピザ不動／選択しても「ピンサ」が出ない／発見済みの保存で「ピンサ生地」（未選択・選択とも）／○/□ とチップの独立／「次へ」で消える・Guided では出ない。既存の `pan-switch-f4b.spec.ts` と `layout-contract.spec.ts`（layout-chromium）も通過（合計 38 件）。
+* **途中で見つかった問題**: 最初の実装は両方開のときチップを 2 行にしており、ドックが 70px → 120px に伸びてピザが縮んだ（360×800 で 552 → 502）。E2E の「ピザが動かない」で検出し、両方開のときだけ 1 行にまとめて解消した。
+* 競合確認: `git merge-tree` で #584 / #581 / #582 の各 head と衝突なし。#478（draft・古い履歴）は `GameScreen.tsx` を触るので、先に merge された側へ後の側が base を merge する（claim に記載）。
+* WebKit・全体 E2E は PR の CI で確認（ローカルに WebKit なし）。
 
 ## HV（Human Verification）— 確認用素材
 動画は repository に commit しない（`artifacts/review/` は gitignore 済み。セッション内でユーザーへ直接提出）。
