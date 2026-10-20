@@ -313,7 +313,8 @@ def parse_shipped_recipes():
 # merge two different recipes by itself. Every other signature collision still fails the validator.
 #   brazilian-calabresa: discoveryCatalog.ts maps it to the production-only id "brazilian-calabresa" (PR-4b-B), but
 #   src/data/recipes.ts authors it from the PIZZA DB row's ingredient list ("the source's ingredient list has none"
-#   cheese; olive -> black-olive) and the row has the same name. Counted once, as the row. OWNER: confirm (#260).
+#   cheese; olive -> black-olive) and the row has the same name. Counted once, as the row. Owner-approved for this
+#   single pair only (#260, 2026-10-20); do not add entries without a new Owner decision.
 REVIEWED_SAME_RECIPE_LINKS = {"brazilian-calabresa": "brazilian-calabresa-pizzadb-p10"}
 
 

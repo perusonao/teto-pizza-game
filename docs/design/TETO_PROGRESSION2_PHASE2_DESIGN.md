@@ -705,7 +705,7 @@ A shipped recipe that was authored from a 172-row evidence row used to be counte
   different recipes are still reported as before.
 - **One reviewed exception.** `brazilian-calabresa` maps to the production-only id `brazilian-calabresa`, but is
   authored from `brazilian-calabresa-pizzadb-p10`. `REVIEWED_SAME_RECIPE_LINKS` links them and only applies while
-  the Japanese name and the signature agree. Owner confirmation requested in #260.
+  the Japanese name and the signature agree. Owner-approved for this single pair only (#260, 2026-10-20); `discoveryCatalog.ts` is unchanged and any further entry needs a new Owner decision.
 - **Result.** SHIPPED_KEEP: 87 + 14 = 101 targets, 0 collisions (matches `discoveryCatalog.test.ts`).
 - **Content wave.** A new recipe whose row already exists changes nothing here once its map entry is added; a
   recipe without a row adds one `shipped:<id>` target. Regenerate with `python3 tools/progression2_phase2_progression.py`
