@@ -142,10 +142,11 @@ describe("PizzaStage post-bake pieces (FINISH D2-1)", () => {
       const { container } = render(stage(withPostPiece(state), lines, "CUT"));
       const follows = (el: Element, post: Element) => Boolean(el.compareDocumentPosition(post) & Node.DOCUMENT_POSITION_FOLLOWING);
       const post = container.querySelector('[data-topping-stage="post"]')!;
-      // uncut: the separate layer, after the whole dough; cut: still inside the piece body, after its overlays
-      const scope = lines.length === 0 ? container.querySelector(".pizza-dough")! : post.parentElement!;
-      for (const layer of scope.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
-      expect(scope.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
+      // uncut or cut: the separate layer, after the whole dough and everything in it (F-2: cut too)
+      const dough = container.querySelector(".pizza-dough")!;
+      expect(dough.contains(post)).toBe(false);
+      for (const layer of dough.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots")) expect(follows(layer, post)).toBe(true);
+      expect(dough.querySelectorAll(".pizza-bake-overlay, .pizza-char-spots").length).toBeGreaterThan(0);
       cleanup();
     }
   });
@@ -205,9 +206,41 @@ describe("PizzaStage post-bake layer (FINISH D2-2a)", () => {
     expect(container.querySelector(".pizza-stage")!.className).not.toContain("post-layer");
   });
 
-  it("a cut pizza keeps the in-piece path (cut + post-bake is not part of D2-2a)", () => {
-    const { container } = render(stage(withPostPiece(state), [through(0)], "CUT"));
-    expect(container.querySelector(".pizza-post-layer")).toBeNull();
-    expect(container.querySelectorAll('.pizza-piece-body [data-topping-stage="post"]').length).toBeGreaterThan(0);
+  it("F-2: a cut pizza draws post pieces in the same layer, in a pieces-shaped copy with no filter", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 50, 50), [through(0), through(60)], "CUT"));
+    const dough = container.querySelector(".pizza-dough")!;
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(dough.contains(layer)).toBe(false);
+    expect(dough.querySelector('[data-topping-stage="post"]')).toBeNull();
+    const copy = layer.querySelector(".pizza-post-pieces") as HTMLElement;
+    expect(copy).not.toBeNull();
+    expect(layer.querySelector(".pizza-post-layer__frame")).toBeNull();
+    // no filter / relief anywhere in the layer (the dough's own `.pizza-pieces` carries the relief)
+    expect(layer.querySelector('[style*="filter"]')).toBeNull();
+    expect(copy.getAttribute("style")).toBeNull();
+    expect(dough.querySelector(".pizza-pieces")!.getAttribute("style")).toMatch(/filter/);
+    // same pieces, same clip chain and separation nudge as the dough's copy
+    const sig = (root: Element) =>
+      [...root.querySelectorAll(".pizza-piece")].map((p) => [
+        p.getAttribute("data-piece"),
+        p.getAttribute("style"),
+        [...p.querySelectorAll(".pizza-piece-clip")].map((c) => c.getAttribute("style")).join("|"),
+      ].join("#"));
+    expect(sig(copy)).toEqual(sig(dough.querySelector(".pizza-pieces")!));
+    expect(copy.querySelectorAll(".pizza-piece").length).toBeGreaterThan(1);
+    // a piece on the cut line: whole once, its sliced part in a neighbour, and nothing else
+    expect(layer.querySelectorAll('.pizza-topping[data-topping-stage="post"]')).toHaveLength(1);
+    expect(layer.querySelectorAll('.pizza-topping-half[data-topping-stage="post"]').length).toBeGreaterThan(0);
+    // each piece body holds only post pieces
+    expect(layer.querySelectorAll(".pizza-piece-body > :not([data-topping-stage])")).toHaveLength(0);
+  });
+
+  it("F-2: cut and uncut lay a post piece out the same (left / top of the same padding box percentage)", () => {
+    const uncut = render(stage(withPostPiece(state, "basil", 20, 25), [], "CUT"));
+    const u = (uncut.container.querySelector('[data-topping-stage="post"]') as HTMLElement).style;
+    cleanup();
+    const cut = render(stage(withPostPiece(state, "basil", 20, 25), [through(0, 30)], "CUT"));
+    const c = (cut.container.querySelector('.pizza-topping[data-topping-stage="post"]') as HTMLElement).style;
+    expect([c.left, c.top]).toEqual([u.left, u.top]);
   });
 });

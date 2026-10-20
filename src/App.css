@@ -346,6 +346,8 @@
 }
 
 .pizza-post-layer {
+  /* the dough's own value (`.pizza-dough` above is the source): the cut copy's `.pizza-piece-body` insets by it, as inside the dough */
+  --dough-border-width: 10px;
   position: relative;
   align-self: stretch;
   justify-self: stretch;
@@ -648,6 +650,14 @@
   inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
   /* The cut-face relief is an SVG lighting filter set inline (PieceReliefFilter.tsx). */
+}
+
+/* FINISH F-2 (#594): the post-bake layer's copy of `.pizza-pieces` -- the layer is already the dough's border-box, so no
+   outset; no filter (no relief, no bake look) ever. */
+.pizza-post-pieces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .pizza-piece,
