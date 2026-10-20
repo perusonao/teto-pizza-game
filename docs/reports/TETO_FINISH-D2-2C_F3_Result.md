@@ -58,6 +58,7 @@ base `main` `38bbe3c`（PR #596 = F-2 の merge 後）。Owner 承認: **案 A�
 ## 副作用（想定内・記録）
 
 - 後乗せがあるときだけ、CUT 描画（ガイド・溝・プレビュー・flash）に dough の bake filter（saturate / brightness / contrast）が掛からなくなる。bake=none の見た目（元から filter なし）と同じになり、raw / perfect / burnt でも CUT 線の色が bake で変わらない。後乗せなしの画面は不変。
+- 既知の限界（独立レビュー指摘）: CUT 中に後乗せの有無が切り替わる（`separatePostLayer` が反転する）と、cut layer とナイフが親を移って再マウントされ、次の pointermove まで 1 フレーム分プレビュー線とナイフが消える。CUT 中に後乗せを足せるのは FINISH だけ（未有効化）で、テストは未追加。
 - 貫通カットの離れ目の影（`.pizza-pieces` の relief）は dough 内のままで、後乗せの下（F-3 の範囲外、Owner 指示どおり）。
 
 ## Human Verification
