@@ -1193,6 +1193,10 @@ export function PizzaStage({
     });
   const toppingsFor = (piece?: number) => piecesIn(preBakeToppings, piece);
   const postToppingsFor = (piece?: number) => piecesIn(postBakeToppings, piece);
+  // FINISH D2-2a (Issue #518, option b): an uncut pizza draws its post-bake pieces in `.pizza-post-layer`, a sibling of
+  // `.pizza-dough` -- the bake `filter` sits on `.pizza-dough` itself, so nothing inside it can escape it. A cut pizza
+  // keeps the in-piece path (cut + post-bake is not wired yet; D2-2 stays gated by finishD2Inert.test.ts).
+  const separatePostLayer = !pieceLayout && postBakeToppings.length > 0;
 
   // Animated bake effects (smoke, the perfect glow) are not part of the pizza body: with the pizza in
   // pieces they are drawn once, outside the filtered pieces, so they never force the relief filter
@@ -1217,6 +1221,17 @@ export function PizzaStage({
       )}
     </>
   );
+
+  const renderPostPieces = (piece?: number) =>
+    postToppingsFor(piece).map(({ t, half }) => (
+      <PostBakePiece
+        key={t.id}
+        topping={t}
+        half={half}
+        rankScale={activeToppingRankScale(t.ingredientId)}
+        phaseScale={toppingPhaseScale(t.ingredientId, resultCompact)}
+      />
+    ));
 
   const renderBodyLayers = (piece?: number) => (
     <>
@@ -1428,22 +1443,14 @@ export function PizzaStage({
       {bakeProgress !== null && <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />}
       {/* FINISH D2-1: after the bake overlays and char spots (siblings, no z-index: later paints on top), so their translucent
           raw / burnt tint never covers a piece that went on after the oven. */}
-      {postToppingsFor(piece).map(({ t, half }) => (
-        <PostBakePiece
-          key={t.id}
-          topping={t}
-          half={half}
-          rankScale={activeToppingRankScale(t.ingredientId)}
-          phaseScale={toppingPhaseScale(t.ingredientId, resultCompact)}
-        />
-      ))}
+      {!separatePostLayer && renderPostPieces(piece)}
       {piece === undefined && renderBakeEffects()}
 
     </>
   );
 
   const showSquareDough = isDoughStep && squareDough !== undefined;
-  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}`;
+  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}${separatePostLayer ? " pizza-stage--post-layer" : ""}`;
 
   return (
     <div className={stageClassName}>
@@ -1648,6 +1655,13 @@ export function PizzaStage({
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
         </svg>
       </div>
+      {separatePostLayer && (
+        // Same box as `.pizza-dough` (see App.css `.pizza-stage--post-layer`); the inner frame is the dough's padding
+        // box, the box every piece's left / top percentage is measured against. No filter, no pointer events.
+        <div className="pizza-post-layer" data-testid="pizza-post-layer" aria-hidden="true">
+          <div className="pizza-post-layer__frame">{renderPostPieces()}</div>
+        </div>
+      )}
       {showSauceGauge && (
         <div className="pizza-stage__sauce-gauge">
           <SauceRemainingGauge

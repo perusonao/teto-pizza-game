@@ -20,11 +20,16 @@ const devStateRequested =
   (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
   new URLSearchParams(window.location.search).get('dev') === 'state'
 
-// An Inspector / DEV State Editor request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
+// FINISH D2-2a (Issue #518): a DEV / Preview only bench for the post-bake layer, opened with `?dev=postlayer` (same static gate).
+const postLayerBenchRequested =
+  (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
+  new URLSearchParams(window.location.search).get('dev') === 'postlayer'
+
+// An Inspector / DEV State Editor / post-layer bench request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
 // Discovery Hint 5.0 H5-5: Preview builds only. `?hv=<scenario>` seeds the Preview save before the
 // app loads it. `import.meta.env.VITE_PREVIEW_MODE` is set only by the Preview build pipeline and is
 // replaced statically, so a production build drops this call and ./preview/hvSeeds.ts with it.
-if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested) {
+if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
   try {
     applyPreviewHvSeed(window.location.search, window.localStorage)
   } catch {
@@ -39,6 +44,14 @@ if (inspectorRequested) {
     root.render(
       <StrictMode>
         <DiscoveryProgressionInspector />
+      </StrictMode>,
+    )
+  })
+} else if (postLayerBenchRequested) {
+  void import('./dev/PostLayerBench').then(({ PostLayerBench }) => {
+    root.render(
+      <StrictMode>
+        <PostLayerBench />
       </StrictMode>,
     )
   })
