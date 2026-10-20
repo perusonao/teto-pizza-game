@@ -274,3 +274,192 @@ test.describe("FINISH F-2: post-bake pieces on a cut pizza (#594)", () => {
     expect(await readout()).toContain("2");
   });
 });
+
+/**
+ * FINISH F-3 (#597): the CUT drawing (guide, preview line, knife, committed grooves) is drawn above the post pieces under every bake
+ * state. Measured as the pixels the cut drawing changes inside the post pieces' boxes (cut drawing shown vs hidden, same page, same frame).
+ */
+const HIDE_CUT = `.pizza-cut-layer,.pizza-cut-tool-layer{visibility:hidden!important}`;
+const STILL_CSS = `.pizza-cut-guide-lines{opacity:1!important} .pizza-cut-flash{display:none!important} *{animation:none!important;transition:none!important}`;
+
+async function changedPixels(page: Page, boxes: { x: number; y: number; width: number; height: number }[]) {
+  const shown = await page.screenshot();
+  const style = await page.addStyleTag({ content: HIDE_CUT });
+  const hidden = await page.screenshot();
+  await style.evaluate((e) => e.remove());
+  return page.evaluate(
+    async ([a, b, rects]) => {
+      const load = async (s: string) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${s}`;
+        await img.decode();
+        const c = document.createElement("canvas");
+        c.width = img.width;
+        c.height = img.height;
+        const g = c.getContext("2d")!;
+        g.drawImage(img, 0, 0);
+        return g.getImageData(0, 0, c.width, c.height);
+      };
+      const A = await load(a as string);
+      const B = await load(b as string);
+      let n = 0;
+      for (const r of rects as { x: number; y: number; width: number; height: number }[]) {
+        for (let y = Math.max(0, Math.floor(r.y)); y < Math.ceil(r.y + r.height); y += 1) {
+          for (let x = Math.max(0, Math.floor(r.x)); x < Math.ceil(r.x + r.width); x += 1) {
+            const i = (y * A.width + x) * 4;
+            if (Math.abs(A.data[i] - B.data[i]) + Math.abs(A.data[i + 1] - B.data[i + 1]) + Math.abs(A.data[i + 2] - B.data[i + 2]) > 12) n += 1;
+          }
+        }
+      }
+      return n;
+    },
+    [shown.toString("base64"), hidden.toString("base64"), boxes] as const,
+  );
+}
+
+const postBoxes = (page: Page) => page.$$eval('[data-topping-stage="post"]', (els) => els.map((e) => e.getBoundingClientRect().toJSON()));
+
+async function dragPartial(page: Page, upTo = 0.2) {
+  const d = (await page.locator(".pizza-dough").first().boundingBox())!;
+  const cx = d.x + d.width / 2;
+  const cy = d.y + d.height / 2;
+  const r = d.width / 2;
+  await page.mouse.move(cx - r, cy - 2);
+  await page.mouse.down();
+  await page.mouse.move(cx + r * upTo, cy - 2, { steps: 10 });
+  return { cx, cy, r };
+}
+
+test.describe("FINISH F-3: the cut drawing is above the post pieces (#597)", () => {
+  test("guide / preview line / committed groove paint over the post pieces at raw, perfect and burnt as they do with no bake", async ({ page }) => {
+    const seen: Record<string, Record<string, number>> = {};
+    for (const bake of ["none", "raw", "perfect", "burnt"]) {
+      await page.goto(`${HARNESS}?step=CUT&bake=${bake}&post=1&onguide=1`);
+      await page.waitForSelector(".pizza-dough");
+      await page.waitForTimeout(400);
+      await page.addStyleTag({ content: STILL_CSS });
+      const boxes = await postBoxes(page);
+      const guide = await changedPixels(page, boxes);
+      // the preview line + knife alone (guide off), while the pointer is down
+      await page.addStyleTag({ content: ".pizza-cut-guide-lines{display:none!important}" });
+      await dragPartial(page);
+      const preview = await changedPixels(page, boxes);
+      await page.mouse.up();
+      await page.waitForTimeout(300);
+      const groove = await changedPixels(page, boxes);
+      seen[bake] = { guide, preview, groove };
+    }
+    for (const bake of ["raw", "perfect", "burnt"]) {
+      for (const what of ["guide", "preview", "groove"]) {
+        // before F-3 a filtered dough kept ~1/3 of this (the layer hid the rest); no-bake already drew it on top
+        expect(seen[bake][what], `${bake} ${what} ${JSON.stringify(seen)}`).toBeGreaterThan(seen.none[what] * 0.6);
+      }
+    }
+    expect(seen.none.guide).toBeGreaterThan(100);
+  });
+
+  test("DOM: the cut drawing is in the post layer after the pieces, covers the dough's box to 0.5px, and takes no pointer events", async ({ page }) => {
+    for (const cuts of [0, 2]) {
+      await page.goto(`${HARNESS}?step=CUT&bake=burnt&post=1&onguide=1`);
+      await page.waitForSelector(".pizza-dough");
+      await cutLines(page, cuts);
+      const info = await page.evaluate(() => {
+        const dough = document.querySelector(".pizza-dough")!;
+        const layer = document.querySelector(".pizza-post-layer")!;
+        const cut = layer.querySelector(".pizza-cut-layer")!;
+        const tool = layer.querySelector(".pizza-cut-tool-layer")!;
+        const post = layer.querySelector('[data-topping-stage="post"]')!;
+        const d = dough.getBoundingClientRect();
+        const c = cut.getBoundingClientRect();
+        return {
+          inDough: dough.querySelector(".pizza-cut-layer, .pizza-cut-tool-layer") !== null,
+          after: Boolean(post.compareDocumentPosition(cut) & Node.DOCUMENT_POSITION_FOLLOWING) && Boolean(cut.compareDocumentPosition(tool) & Node.DOCUMENT_POSITION_FOLLOWING),
+          err: Math.max(Math.abs(c.x - d.x), Math.abs(c.y - d.y), Math.abs(c.width - d.width), Math.abs(c.height - d.height)),
+          pe: [getComputedStyle(cut).pointerEvents, getComputedStyle(tool).pointerEvents],
+          zone: layer.querySelector(".pizza-cut-hit-zone") !== null,
+          filters: [cut, tool, layer].map((e) => getComputedStyle(e).filter),
+        };
+      });
+      expect(info.inDough).toBe(false);
+      expect(info.after).toBe(true);
+      expect(info.err).toBeLessThanOrEqual(0.5);
+      expect(info.pe).toEqual(["none", "none"]);
+      expect(info.zone).toBe(false);
+      expect(info.filters).toEqual(["none", "none", "none"]);
+    }
+  });
+
+  test("consecutive drags: each reaches the dough through the drawing above it, the preview follows the pointer and clears on release", async ({ page }) => {
+    await page.goto(`${HARNESS}?step=CUT&bake=burnt&post=1&onguide=1`);
+    await page.waitForSelector(".pizza-dough");
+    const readout = () => page.locator(".cut-progress-readout").textContent();
+    for (let i = 0; i < 3; i += 1) {
+      const b = (await page.locator(".pizza-dough").first().boundingBox())!;
+      const cx = b.x + b.width / 2;
+      const cy = b.y + b.height / 2;
+      const r = Math.min(b.width, b.height) / 2;
+      const a = (CUT_ANGLES[i] * Math.PI) / 180;
+      await page.mouse.move(cx - Math.cos(a) * r, cy - Math.sin(a) * r);
+      await page.mouse.down();
+      await page.mouse.move(cx, cy, { steps: 6 });
+      const mid = await page.evaluate(() => {
+        const p = document.querySelector(".pizza-post-layer .pizza-cut-preview-line") as SVGElement | null;
+        const k = document.querySelector(".pizza-post-layer .pizza-cut-cutter-icon") as HTMLElement | null;
+        return { preview: p?.style.opacity, points: p?.getAttribute("points") ?? "", knife: k?.style.opacity };
+      });
+      expect(mid.preview, `drag ${i}`).toBe("1");
+      expect(mid.points.length).toBeGreaterThan(0);
+      expect(mid.knife).toBe("1");
+      await page.mouse.move(cx + Math.cos(a) * r, cy + Math.sin(a) * r, { steps: 6 });
+      await page.mouse.up();
+      await page.waitForTimeout(250);
+      expect(await readout()).toContain(String(i + 1));
+      const cleared = await page.evaluate(() => (document.querySelector(".pizza-post-layer .pizza-cut-preview-line") as SVGElement).style.opacity);
+      expect(cleared).toBe("0");
+    }
+  });
+
+  test("a committed groove stays over the post pieces after leaving CUT (RESULT-like: the cut drawing outlives the step)", async ({ page }) => {
+    await page.goto(`${HARNESS}?step=CUT&bake=perfect&post=1&onguide=1`);
+    await page.waitForSelector(".pizza-dough");
+    await dragPartial(page);
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    await page.evaluate(() => (window as unknown as { __hv: { setStep: (s: string) => void } }).__hv.setStep("TOPPING"));
+    await page.waitForTimeout(500);
+    await page.addStyleTag({ content: STILL_CSS });
+    const info = await page.evaluate(() => ({
+      grooves: document.querySelectorAll(".pizza-post-layer .pizza-cut-mark--partial").length,
+      guide: document.querySelectorAll(".pizza-cut-guide-lines, .pizza-cut-tool-layer").length,
+    }));
+    expect(info).toEqual({ grooves: 1, guide: 0 });
+    expect(await changedPixels(page, await postBoxes(page))).toBeGreaterThan(40);
+  });
+
+  test("square tray: the same layers, the same box, over the post pieces", async ({ page }) => {
+    await page.goto(`${HARNESS}?step=TOPPING&bake=burnt&post=1&onguide=1&pan=square`);
+    await page.waitForSelector(".pizza-dough");
+    await page.getByRole("button", { name: "CUT へ", exact: true }).click();
+    await page.waitForTimeout(500);
+    await page.addStyleTag({ content: STILL_CSS });
+    const info = await page.evaluate(() => {
+      const d = document.querySelector(".pizza-dough")!.getBoundingClientRect();
+      const c = document.querySelector(".pizza-post-layer .pizza-cut-layer")!.getBoundingClientRect();
+      return { err: Math.max(Math.abs(c.x - d.x), Math.abs(c.y - d.y), Math.abs(c.width - d.width), Math.abs(c.height - d.height)) };
+    });
+    expect(info.err).toBeLessThanOrEqual(0.5);
+    expect(await changedPixels(page, await postBoxes(page))).toBeGreaterThan(40);
+  });
+
+  test("with no post piece the cut drawing stays in the dough (DOM unchanged)", async ({ page }) => {
+    await page.goto(`${HARNESS}?step=CUT&bake=burnt&post=0`);
+    await page.waitForSelector(".pizza-dough");
+    await cutLines(page, 1);
+    const info = await page.evaluate(() => ({
+      layer: document.querySelector(".pizza-post-layer") !== null,
+      inDough: document.querySelector(".pizza-dough > .pizza-cut-layer") !== null && document.querySelector(".pizza-dough > .pizza-cut-tool-layer") !== null,
+      front: document.querySelector(".pizza-cut-layer--front, .pizza-cut-tool-layer--front") !== null,
+    }));
+    expect(info).toEqual({ layer: false, inDough: true, front: false });
+  });
+});

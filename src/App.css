@@ -588,6 +588,15 @@
   z-index: 4;
 }
 
+/* FINISH F-3 (#597): with a post-bake piece on the pizza the cut drawing lives at the end of `.pizza-post-layer` (above the pieces by DOM
+   order; the dough's bake filter would trap it below). The layer is already the dough's border-box, so the same box is `inset: 0`. */
+.pizza-cut-layer--front {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: auto;
+}
+
 .pizza-cut-guide-lines {
   transition: opacity 200ms linear;
 }
@@ -710,6 +719,12 @@
   inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
   z-index: 6;
+}
+
+/* F-3: in `.pizza-post-layer` (already the dough's border-box), above the pieces and the cut layer by DOM order. */
+.pizza-cut-tool-layer--front {
+  inset: 0;
+  z-index: auto;
 }
 
 /* Zero-size anchor at the cut's end; the knife's blade tip is the svg's bottom-left corner, which

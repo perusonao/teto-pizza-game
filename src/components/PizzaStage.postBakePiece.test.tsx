@@ -281,3 +281,62 @@ describe("PizzaStage post-bake pieces on a cut pizza (FINISH F-2)", () => {
     expect(none.container.querySelector(".pizza-stage")!.className).not.toContain("post-layer");
   });
 });
+
+/**
+ * FINISH F-3 (Issue #597): with a post-bake piece on the pizza the CUT drawing (guide, preview line, committed cuts, knife) is drawn at the
+ * end of `.pizza-post-layer`, after the post pieces, so it paints above them -- the dough's bake filter would trap it below. Same layers, same
+ * refs, only where they sit. Real pixels (and the pointer path): e2e/post-layer-d22a.spec.ts.
+ */
+describe("PizzaStage cut drawing above post-bake pieces (FINISH F-3)", () => {
+  const state = bakedMargheritaAtCut();
+  const partialLine: CutLine = { start: { x: 14, y: 50 }, end: { x: 86, y: 50 }, path: [{ x: 14, y: 50 }, { x: 86, y: 50 }] };
+  const follows = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+  it("CUT, uncut and cut: the cut layer and the knife are the last children of the post layer, after every post piece, and not in the dough", () => {
+    for (const lines of [[], [through(0)], [through(0), through(60), partialLine]]) {
+      const { container } = render(stage(withPostPiece(state, "basil", 30, 30), lines, "CUT"));
+      const dough = container.querySelector(".pizza-dough")!;
+      const layer = container.querySelector(".pizza-post-layer")!;
+      expect(dough.querySelector(".pizza-cut-layer, .pizza-cut-tool-layer")).toBeNull();
+      const kids = [...layer.children];
+      expect(kids.slice(-2).map((k) => k.getAttribute("class"))).toEqual(["pizza-cut-layer pizza-cut-layer--front", "pizza-cut-tool-layer pizza-cut-tool-layer--front"]);
+      for (const post of layer.querySelectorAll('[data-topping-stage="post"]')) expect(follows(post, kids[kids.length - 2])).toBe(true);
+      expect(layer.querySelector(".pizza-cut-tool-layer .pizza-cut-cutter-icon")).not.toBeNull();
+      expect(layer.querySelector(".pizza-cut-layer .pizza-cut-preview-line")).not.toBeNull(); // the ref'd elements are the same ones, just moved
+      expect(layer.querySelector(".pizza-cut-hit-zone")).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("the capture zone stays in the dough (pointer events reach the dough's handlers through it)", () => {
+    const { container } = render(<>{stage({ ...withPostPiece(state, "basil", 30, 30) }, [], "CUT")}</>);
+    expect(container.querySelector(".pizza-post-layer .pizza-cut-hit-zone")).toBeNull();
+  });
+
+  it("the guide and the committed groove are in the layer, once each; the layer's cut drawing takes no pointer events", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 30, 30), [partialLine], "CUT"));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer.querySelectorAll(".pizza-cut-guide-lines")).toHaveLength(1);
+    expect(layer.querySelectorAll(".pizza-cut-mark--partial")).toHaveLength(1);
+    expect(container.querySelectorAll(".pizza-cut-mark--partial")).toHaveLength(1);
+    expect(layer.querySelector('[style*="filter"]')).toBeNull(); // still no filter anywhere in the layer
+  });
+
+  it("RESULT: a committed groove is drawn in the layer above the post pieces, with no guide or knife", () => {
+    const { container } = render(stage(withPostPiece(state, "basil", 30, 30), [through(0), partialLine], "RESULT" as GameState["makingStep"]));
+    const layer = container.querySelector(".pizza-post-layer")!;
+    expect(layer.querySelectorAll(".pizza-cut-mark--partial")).toHaveLength(1);
+    expect(layer.querySelector(".pizza-cut-guide-lines, .pizza-cut-tool-layer")).toBeNull();
+    expect(container.querySelector(".pizza-dough .pizza-cut-layer")).toBeNull();
+    const post = layer.querySelector('[data-topping-stage="post"]')!;
+    expect(follows(post, layer.querySelector(".pizza-cut-layer")!)).toBe(true);
+  });
+
+  it("with no post piece nothing moves: the cut layer and the knife are in the dough and there is no post layer", () => {
+    const { container } = render(stage(state, [through(0), partialLine], "CUT"));
+    expect(container.querySelector(".pizza-post-layer")).toBeNull();
+    expect(container.querySelector(".pizza-dough > .pizza-cut-layer")).not.toBeNull();
+    expect(container.querySelector(".pizza-dough > .pizza-cut-tool-layer")).not.toBeNull();
+    expect(container.querySelector(".pizza-cut-layer--front, .pizza-cut-tool-layer--front")).toBeNull();
+  });
+});
