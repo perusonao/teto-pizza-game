@@ -161,7 +161,7 @@ describe("near-miss: an internal late distance, no production line", () => {
     const line = nearMissLine({ kind: "LATE_ONLY", distance: 1 }, false);
     expect(line).toEqual({ kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY });
     expect(line!.textJa).not.toMatch(/焼|後|のせ|乗せ|仕上げ/);
-    expect(nearMissLine({ kind: "LATE_ONLY", distance: 1 }, true)).toBeNull();
+    expect(nearMissLine({ kind: "LATE_ONLY", distance: 1 }, true)).toEqual({ kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY }); // no silence for a known recipe either
   });
 
   it("k rule: the late line needs at least two candidate ingredients", () => {

@@ -30,6 +30,10 @@ base `main` `afb3b7c`（FIN-E1 #605 merge 後）。Owner は 2026-10-21 に D-1�
 4. **Notebook / Fingerprint**: 同じ組み合わせの前後 → 同一 fp、Notebook は 1 entry（retryCount 1）、`late|post|POST` を含まない。
 5. **Hint 5.0 gate**: 変更なし（閾値・sweep とも）。1 行追加のみ（`late-addition` の affordance が `null`）。E4 の再監査条件は設計書 §8。
 
+## 独立レビュー
+
+ブロッカーなし。指摘 4 件のうち 2 件を反映: (1) 仮のなぞかけが「仕上げ／順番」と時機に触れていたため中立化、(2) known レシピで `LATE_ONLY` だけ無言になる非対称を解消（汎用行を返す、テスト追加）。(3) fingerprint 統合で最初の結果が残らないかは、Notebook の仕様 OD-P3-15b（retry は feedback を更新）で確認済み。(4) `lateAxisAnswerCount` は未配線の pure helper（`nearMissPrivacy.ts` の他関数と同じ扱い）として残す。
+
 ## 更新した canary / gate（意図的）
 
 `signature.test`（OBSERVED 一覧・capability）、`attemptFingerprint.test` / `.gate.test`、`doughAxis.test`、`techniques*.test`（登録順）、`resultFeedback.gate`（near-miss が読む軸を `late` のみに限定、他の軸・`ingredientCounts` は禁止のまま）、`gameReducer.finish.test`（stage は late 軸だけが読む）、`deductionProduction.gate`（1 行追加）。

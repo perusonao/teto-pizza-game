@@ -49,7 +49,7 @@ export const TECHNIQUES: readonly TechniqueDefinition[] = [
   {
     id: "late-addition",
     nameJa: "後乗せ",
-    riddleJa: "仕上げの順番で、ピザの顔が変わることがあるよ。",
+    riddleJa: "同じ材料でも、ひと手間の加え方で違う一枚になることがあるよ。",
     descriptionJa: "焼き上がりのあとに仕上げる調理法",
   },
 ];

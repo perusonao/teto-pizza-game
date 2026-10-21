@@ -89,7 +89,7 @@ export function nearMissLine(
   if (nearMiss.kind === "LATE_ONLY") {
     // FIN-E2: the timing difference has no line of its own (it would name when to place something); the legacy path shows the
     // recipe-agnostic generic line, exactly what production's neutral line is.
-    return known ? null : { kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY };
+    return { kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY }; // known or not: every other distance-1 kind also answers, so silence would itself hint at timing
   }
   if (known && nearMiss.distance !== 1) return null;
   if (nearMiss.kind === "SAUCE_ONLY" && nearMiss.sauceStep === "REMOVE") {
