@@ -182,7 +182,7 @@ test.describe("Free Cooking FINISH (gate ON via ?freeFinish=on)", () => {
       asked += 1;
       void dialog.accept();
     });
-    await page.getByRole("button", { name: /ホーム/ }).first().click();
+    await page.getByRole("button", { name: /ホーム/ }).click();
     await expect.poll(() => asked).toBe(1);
     await startTargetlessFreeCook(page);
     await page.waitForSelector(".pizza-stage");
