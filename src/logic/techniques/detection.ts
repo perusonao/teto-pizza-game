@@ -20,7 +20,7 @@ import type { IdentityDimensions, RuntimeSignature } from "../discovery/signatur
  *  without it never uses the tray. */
 type SignatureView = Pick<RuntimeSignature, "ingredientSet" | "sauceBase"> & Partial<Pick<RuntimeSignature, "dimensions">>;
 export type TechniqueTargetView = Pick<DiscoveryTarget, "sauceBase"> & {
-  identityDimensions?: Partial<Pick<IdentityDimensions, "pan" | "dough">>;
+  identityDimensions?: Partial<Pick<IdentityDimensions, "pan" | "dough" | "late">>;
 };
 
 function usesNoSauce(signature: SignatureView): boolean {
@@ -62,12 +62,28 @@ function requiresPinsaDough(target: TechniqueTargetView): boolean {
   return target.identityDimensions?.dough === PINSA_DOUGH;
 }
 
+/**
+ * LATE ADDITION (FIN-E2): the pizza had at least one piece placed after the bake -- the `late` axis is OBSERVED and non-empty.
+ * Whether those pieces are the *right* ones is the recipe's identity question (matcher), not the technique's.
+ */
+function usesLateAddition(signature: SignatureView): boolean {
+  const late = signature.dimensions?.late;
+  return late !== undefined && late.status === "OBSERVED" && late.value.length > 0 && signature.ingredientSet.value.length > 0;
+}
+
+/** A target requires the technique when its identity declares a non-empty `late` value. */
+function requiresLateAddition(target: TechniqueTargetView): boolean {
+  const late = target.identityDimensions?.late;
+  return Array.isArray(late) && late.length > 0;
+}
+
 /** Techniques the pizza used, in registry order. */
 export function detectTechniquesUsed(signature: SignatureView): TechniqueId[] {
   return TECHNIQUES.filter(
     (t) => (t.id === "no-sauce" && usesNoSauce(signature)) ||
       (t.id === "tray" && usesTray(signature)) ||
-      (t.id === "dough-pinsa-romana" && usesPinsaDough(signature)),
+      (t.id === "dough-pinsa-romana" && usesPinsaDough(signature)) ||
+      (t.id === "late-addition" && usesLateAddition(signature)),
   ).map((t) => t.id);
 }
 
@@ -78,6 +94,7 @@ export function requiredTechniquesOf(target: TechniqueTargetView): TechniqueId[]
     (t) =>
       (t.id === "no-sauce" && noSauce) ||
       (t.id === "tray" && requiresTray(target)) ||
-      (t.id === "dough-pinsa-romana" && requiresPinsaDough(target)),
+      (t.id === "dough-pinsa-romana" && requiresPinsaDough(target)) ||
+      (t.id === "late-addition" && requiresLateAddition(target)),
   ).map((t) => t.id);
 }

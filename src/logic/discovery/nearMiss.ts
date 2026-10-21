@@ -35,7 +35,9 @@ import { hintKeyIngredientId } from "./hintSteps";
 import type { DiscoveryTarget } from "./matcher";
 import type { RuntimeSignature } from "./signature";
 
-export type NearMissKind = "ADD_ONE" | "REMOVE_ONE" | "SAUCE_ONLY" | "CLOSE" | "FAR";
+/** `LATE_ONLY` (FIN-E2, #604): the ingredients and the base are right and only WHEN a piece was placed (the `late` axis) differs.
+ *  Internal classification only: no production RESULT line reads it (the RESULT near-miss is the single neutral line). */
+export type NearMissKind = "ADD_ONE" | "REMOVE_ONE" | "SAUCE_ONLY" | "LATE_ONLY" | "CLOSE" | "FAR";
 
 /** SAUCE_ONLY only: what the sauce difference actually is (drives the wording, never shown). */
 export type SauceStep = "CHANGE" | "ADD" | "REMOVE";
@@ -52,7 +54,7 @@ export interface NearMiss {
 
 export interface NearMissOptions {
   /** Identity source; the runtime catalog in production, injectable for synthetic tests. */
-  catalog?: readonly (Pick<DiscoveryTarget, "items" | "sauceBase"> & { recipeId: string })[];
+  catalog?: readonly (Pick<DiscoveryTarget, "items" | "sauceBase"> & { recipeId: string; identityDimensions?: Partial<Pick<DiscoveryTarget["identityDimensions"], "late">> })[];
   /** Declaration order for the tie-break; `RECIPES` in production. */
   recipes?: readonly Recipe[];
 }
@@ -63,6 +65,8 @@ interface Distance {
   sauceWrong: boolean;
   /** Which way the sauce differs (only meaningful when `sauceWrong`). */
   sauceStep: SauceStep;
+  /** The `late` axis differs (FIN-E2). Counts 1 toward `total`; always false for a pizza and a target that both have no late piece. */
+  lateWrong: boolean;
   total: number;
 }
 
@@ -72,7 +76,7 @@ function sameList(a: readonly string[], b: readonly string[]): boolean {
   return x.length === y.length && x.every((v, i) => v === y[i]);
 }
 
-function distance(signature: RuntimeSignature, items: readonly string[], sauceBase: readonly string[]): Distance {
+function distance(signature: RuntimeSignature, items: readonly string[], sauceBase: readonly string[], targetLate: unknown = []): Distance {
   const pizzaSauces = signature.sauceBase.value;
   const pizza = signature.ingredientSet.value.filter((id) => !pizzaSauces.includes(id));
   const target = items.filter((id) => !sauceBase.includes(id));
@@ -80,14 +84,17 @@ function distance(signature: RuntimeSignature, items: readonly string[], sauceBa
   const extra = pizza.filter((id) => !target.includes(id)).length;
   const sauceWrong = !sameList(pizzaSauces, sauceBase);
   const sauceStep: SauceStep = pizzaSauces.length === 0 ? "ADD" : sauceBase.length === 0 ? "REMOVE" : "CHANGE";
-  return { missing, extra, sauceWrong, sauceStep, total: missing + extra + (sauceWrong ? 1 : 0) };
+  // Same comparison the matcher makes (canonical JSON), on the one observed `late` axis; a non-observed axis is assumed default.
+  const lateAxis = signature.dimensions?.late; // optional: a hand-built partial signature has no dimensions
+  const lateWrong = lateAxis !== undefined && lateAxis.status !== "UNAVAILABLE" && JSON.stringify(lateAxis.value) !== JSON.stringify(targetLate);
+  return { missing, extra, sauceWrong, sauceStep, lateWrong, total: missing + extra + (sauceWrong ? 1 : 0) + (lateWrong ? 1 : 0) };
 }
 
-const identityKey = (t: Pick<DiscoveryTarget, "items" | "sauceBase">) =>
-  JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]);
+const identityKey = (t: Pick<DiscoveryTarget, "items" | "sauceBase"> & { identityDimensions?: { late?: unknown } }) =>
+  JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort(), t.identityDimensions?.late ?? []]);
 
 /** Identity keys shared by two or more catalog targets: the matcher answers AMBIGUOUS for them. */
-function collidingIdentityKeys(catalog: readonly Pick<DiscoveryTarget, "items" | "sauceBase">[]): Set<string> {
+function collidingIdentityKeys(catalog: readonly Parameters<typeof identityKey>[0][]): Set<string> {
   const seen = new Set<string>();
   const colliding = new Set<string>();
   for (const t of catalog) {
@@ -99,7 +106,7 @@ function collidingIdentityKeys(catalog: readonly Pick<DiscoveryTarget, "items" |
 }
 
 function classify(d: Distance): NearMissKind {
-  if (d.total === 1) return d.missing === 1 ? "ADD_ONE" : d.extra === 1 ? "REMOVE_ONE" : "SAUCE_ONLY";
+  if (d.total === 1) return d.missing === 1 ? "ADD_ONE" : d.extra === 1 ? "REMOVE_ONE" : d.lateWrong ? "LATE_ONLY" : "SAUCE_ONLY";
   return d.total === 2 ? "CLOSE" : "FAR";
 }
 
@@ -116,7 +123,7 @@ export function classifyNearMiss(
   let best: { recipe: Recipe; d: Distance } | null = null;
   for (const recipe of ordered) {
     for (const target of catalog.filter((t) => t.recipeId === recipe.id)) {
-      const d = distance(signature, target.items, target.sauceBase ?? []);
+      const d = distance(signature, target.items, target.sauceBase ?? [], target.identityDimensions?.late ?? []);
       if (d.total === 0) return null;
       if (colliding.has(identityKey(target))) continue; // unreachable: the matcher says AMBIGUOUS
       if (!best || d.total < best.d.total) best = { recipe, d };

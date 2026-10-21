@@ -275,6 +275,7 @@ describe("Attempt Fingerprint v1 — versioning and extension", () => {
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
     for (const key of IDENTITY_DIMENSION_KEYS) {
       if (key === "pan") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: null });
+      else if (key === "late") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: [] }); // FIN-E2: observed, but never attempt identity (NOT_ATTEMPT_IDENTITY)
       else if (key === "dough") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: "standard" });
       else expect(sig.dimensions[key].status).not.toBe("OBSERVED");
     }
@@ -292,12 +293,23 @@ describe("Attempt Fingerprint v1 — versioning and extension", () => {
 
   it("a future OBSERVED non-default dimension is added sparsely and distinguishes attempts", () => {
     const plain = attemptFingerprintOfSignature(base());
-    const withLate = attemptFingerprintOfSignature(withAxis(base(), "late", "OBSERVED", [["post_bake", ["basil"]]]));
-    expect(withLate).not.toBe(plain);
-    expect(withLate.startsWith("fp1:")).toBe(true);
-    expect(parseAttemptFingerprint(withLate)!.ext).toEqual({ late: [["post_bake", ["basil"]]] });
-    // the default-dimension attempt keeps its exact pre-extension string
-    expect(plain).toBe('fp1:[["tomato-sauce"],["mozzarella","tomato-sauce"]]');
+    const withCook = attemptFingerprintOfSignature(withAxis(base(), "cook", "OBSERVED", "fry"));
+    expect(withCook).not.toBe(plain);
+    expect(parseAttemptFingerprint(withCook)!.ext).toEqual({ cook: "fry" });
+    expect(plain).toBe('fp1:[["tomato-sauce"],["mozzarella","tomato-sauce"]]'); // the default-dimension attempt keeps its exact string
+  });
+
+  it("FIN-E2 (Owner D-3): the late axis is matcher identity but NOT attempt identity -- before / after the bake is one attempt, in every field", () => {
+    const plain = attemptFingerprintOfSignature(base());
+    for (const value of [[["POST_BAKE", ["mozzarella"]]], [["POST_BAKE", ["basil", "mozzarella"]]], [["post_bake", ["basil"]]]]) {
+      const fp = attemptFingerprintOfSignature(withAxis(base(), "late", "OBSERVED", value));
+      expect(fp).toBe(plain);
+      expect(fp).not.toMatch(/late|POST|post/i);
+      expect(parseAttemptFingerprint(fp)!.ext).toEqual({});
+    }
+    // end to end from a real pizza: the same pieces placed before the bake and after it
+    const mk = (stage?: "post"): PizzaState => ({ ...pizzaOf(["tomato-sauce"], ["mozzarella"]), toppings: [{ id: "p", ingredientId: "mozzarella", x: 40, y: 50, ...(stage ? { stage } : {}) }] });
+    expect(attemptFingerprintOfSignature(signatureOfPizza(mk("post")))).toBe(attemptFingerprintOfSignature(signatureOfPizza(mk())));
   });
 
   it("an OBSERVED axis at its default value adds nothing (old fingerprints stay comparable)", () => {

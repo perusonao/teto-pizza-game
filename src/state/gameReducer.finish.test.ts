@@ -240,10 +240,15 @@ describe("existing recipes are unchanged", () => {
 });
 
 describe("Research / Dex: the piece stage does not leak", () => {
-  it("the discovery signature ignores stage, and no ordinary placement carries one", () => {
+  it("the ingredient identity ignores stage (only the `late` axis reads it, FIN-E2), and no ordinary placement carries one", () => {
     const pizza = preBakePizza();
     const staged = { ...pizza, toppings: pizza.toppings.map((t) => ({ ...t, stage: "post" as const })) };
-    expect(signatureOfPizza(staged)).toEqual(signatureOfPizza(pizza));
+    const sigStaged = signatureOfPizza(staged);
+    const sigPlain = signatureOfPizza(pizza);
+    expect(sigStaged.ingredientSet).toEqual(sigPlain.ingredientSet);
+    expect(sigPlain.dimensions.late.value).toEqual([]);
+    expect(sigStaged.dimensions.late.value).not.toEqual([]);
+    expect({ ...sigStaged, dimensions: { ...sigStaged.dimensions, late: sigPlain.dimensions.late } }).toEqual(sigPlain);
     const free = atBakeFreeWith(pizza);
     const prepare = gameReducer({ ...free, phase: "PREPARE", makingStep: "TOPPING" }, { type: "PLACE_TOPPING", ingredientId: "chicken", x: DOUGH_CENTER, y: DOUGH_CENTER });
     expect(prepare.pizza.toppings.every((t) => !("stage" in t))).toBe(true);

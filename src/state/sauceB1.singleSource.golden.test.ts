@@ -156,7 +156,9 @@ function snapshotOf(recipe: (typeof RECIPES)[number], scenario: Scenario) {
     completionStatus: completion.status,
     scoring: hashOf(scoring),
     totalScore: scoring.available ? scoring.totalScore : null,
-    signature: hashOf(signature),
+    // FIN-E2 (#604): the `late` axis became OBSERVED (its value is `[]` for these pre-FINISH pizzas). The golden was pinned with the axis
+    // FIXED_BY_FLOW, so the hash is taken with that one status restored: any other change to the signature still fails here.
+    signature: hashOf({ ...signature, dimensions: { ...signature.dimensions, late: { status: "FIXED_BY_FLOW", value: signature.dimensions.late.value } } }),
     near: hashOf(near),
     free: hashOf(free.kind === "FAILED" ? { kind: free.kind, completion: free.completion } : { kind: free.kind }),
     advice: executionAdviceJa(pizza),

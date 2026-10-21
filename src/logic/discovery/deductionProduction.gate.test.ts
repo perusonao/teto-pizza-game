@@ -167,7 +167,10 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     expect(techniqueAffordanceStep("no-sauce", catalog, materialStep)).toBe(12);
     expect(techniqueAffordanceStep("tray", catalog, materialStep) === null).toBe(PAN_TRAY_RECIPE_IDS.length === 0);
     expect(techniqueAffordanceStep("dough-pinsa-romana", catalog, materialStep) === null).toBe(DOUGH_PINSA_ROMANA_RECIPE_IDS.length === 0);
-    for (const t of TECHNIQUES) expect(["no-sauce", "tray", "dough-pinsa-romana"], t.id).toContain(t.id);
+    // FIN-E2 (#604): late-addition is registered but no production recipe requires it, so its affordance never opens. E4 (the first late
+    // recipe) must re-run this whole gate and the privacy sweeps with that recipe and then move this line.
+    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBeNull();
+    for (const t of TECHNIQUES) expect(["no-sauce", "tray", "dough-pinsa-romana", "late-addition"], t.id).toContain(t.id);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
     const sources = import.meta.glob<string>(

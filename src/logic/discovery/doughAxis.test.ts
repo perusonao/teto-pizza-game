@@ -51,7 +51,7 @@ describe("dough identity axis (P1)", () => {
     const sig = signatureOfPizza(pizzaOf());
     for (const key of IDENTITY_DIMENSION_KEYS) {
       expect(sig.dimensions[key].value).toEqual(DEFAULT_IDENTITY_DIMENSIONS[key]);
-      if (key !== "dough" && key !== "pan") expect(sig.dimensions[key].status).not.toBe("OBSERVED");
+      if (key !== "dough" && key !== "pan" && key !== "late") expect(sig.dimensions[key].status).not.toBe("OBSERVED");
     }
     expect(sig.dimensions.dough.status).toBe("OBSERVED");
   });

@@ -49,14 +49,14 @@ export interface ResultNearMissInput {
 }
 
 export interface ResultNearMissLine {
-  kind: NearMissKind | "NEUTRAL";
+  kind: Exclude<NearMissKind, "LATE_ONLY"> | "NEUTRAL";
   textJa: string;
 }
 
 /** OD-P2-2 (decided): the generic FAR line is shown. `false` would restore the pre-P2 silence. */
 export const RESULT_FAR_GENERIC_ENABLED = true;
 
-export const NEAR_MISS_COPY: Record<Exclude<NearMissKind, "FAR">, string> & { FAR_KEY_UNUSED: string } = {
+export const NEAR_MISS_COPY: Record<Exclude<NearMissKind, "FAR" | "LATE_ONLY">, string> & { FAR_KEY_UNUSED: string } = {
   ADD_ONE: "\u{1F90F} おしい！ 材料をあと1つ足すと、何か見つかりそう！",
   REMOVE_ONE: "\u{1F90F} おしい！ 材料を1つ減らすと、何か見つかりそう！",
   SAUCE_ONLY: "\u{1F90F} おしい！ ソースを変えると、何か見つかりそう！",
@@ -85,6 +85,11 @@ export function nearMissLine(
     if (known) return null;
     if (nearMiss.keyUnused) return { kind: "FAR", textJa: NEAR_MISS_COPY.FAR_KEY_UNUSED };
     return (options.farGeneric ?? RESULT_FAR_GENERIC_ENABLED) ? { kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY } : null;
+  }
+  if (nearMiss.kind === "LATE_ONLY") {
+    // FIN-E2: the timing difference has no line of its own (it would name when to place something); the legacy path shows the
+    // recipe-agnostic generic line, exactly what production's neutral line is.
+    return known ? null : { kind: "FAR", textJa: NEAR_MISS_FAR_GENERIC_COPY };
   }
   if (known && nearMiss.distance !== 1) return null;
   if (nearMiss.kind === "SAUCE_ONLY" && nearMiss.sauceStep === "REMOVE") {

@@ -1,7 +1,7 @@
 # FIN-E2（TQ-2 / Issue #604）— late 軸・LATE_ADDITION・後乗せ技法・near-miss の設計と実装準備
 
-親: #294 / #604。base `main` `afb3b7c`（FIN-E1 #605 merge 後）。**設計・実装準備のみ。runtime / 本番データ / FINISH 有効化は無変更**（FINISH は本番 OFF のまま）。
-検証用コードは `src/logic/discovery/lateAxis.design.test.ts`（test-only、15 件）だけ。`signature.ts` / matcher / catalog / `RECIPES` は触っていない。
+親: #294 / #604。base `main` `afb3b7c`（FIN-E1 #605 merge 後）。**Owner は 2026-10-21 に D-1〜D-5 を承認（本書 §5 の推奨どおり）。実装は本書 §6 の範囲で完了。** 本番レシピ・食材・ladder・UI・reducer・FINISH 工程・save は無変更、FINISH は本番 OFF のまま。
+検証は `src/logic/discovery/lateAxis.test.ts`（設計段階の `lateAxis.design.test.ts` を、実装に対する正式テストへ昇格）。
 
 ## 1. Duplicate Gate（2026-10-21）
 
@@ -75,14 +75,14 @@
 
 正常配置 / 焼成前誤配置（双子レシピあり・なし）/ 別食材を後に置く / 後乗せ無し / 全部焼成後 / 不足配置（Gate は通る）/ pre のみ（Gate 失敗）/ 前後両方 / 順序非依存 / capability 未対応 / 本番全 target が default late / `sanitizeToppings` が stage を落とすこと / near-miss の距離 0 の穴 / 技法の要求面。`tsc`・`oxlint` 緑。
 
-## 5. Owner 判断が必要な点
+## 5. Owner 判断（2026-10-21 承認済み）
 
 | ID | 論点 | 推奨 |
 |---|---|---|
 | **D-1** | post ピースを含む pizza の**既存レシピ**の識別。strict（late も常に比較）か、既存レシピは late 無視か | **strict**。現行の本番では post ピースが作れない（FINISH OFF）ため「既存レシピの識別結果は変えない」は満たされる。E3 以降、既存レシピの食材を焼成後に置くと ORIGINAL になる（lenient は後乗せレシピの双子と AMBIGUOUS になり、後乗せの一意性が崩れる） |
 | **D-2** | 技法の発見経路。usage（Free で後乗せを実際にやった）＋recipe か、recipe のみか | usage＋recipe（no-sauce / tray と同じ。affordance が開くまで発見されない） |
 | **D-3** | Fingerprint / Notebook で late を同一視（除外）するか | 除外（§3.5） |
-| **D-4** | UD-G（名称確定・なぞかけ・Dex 文言） | Owner 文言待ち。E2 は仮文言で、E4 前に確定 |
+| **D-4** | UD-G（名称確定・なぞかけ・Dex 文言） | 仮文言（承認済み）。**E4 前に Owner が正式決定**。仮文言は `techniques.ts` に「PLACEHOLDER」と明記 |
 | **D-5** | near-miss は pure 追加のみで本番は中立 1 行のまま | 現方針維持 |
 
 ## 6. E2 の最小実装範囲（確定案、本番カタログ変更なし）
@@ -104,3 +104,19 @@ Human Verification: 本番で可視の変化が無い inert 変更のため動�
 - **E3**: Free Cooking の発見解決は CONFIRM_BAKE で走る。仕上げタブを足すときは、解決を FINISH 完了後へ移す必要がある（`roundRunsFinish` が Free を除外している現状の理由）。Dinner Stage A は START_BAKE で識別するため late は常に `[]`（後乗せレシピは識別不能 = 除外方針と整合、UD-I）。
 - **E4**: bbq-sauce / cilantro / ladder / レシピ追加時に Hint 5.0 gate・privacy sweep・`validateFinishCatalog` を後乗せレシピ込みで再実行。UD-F（価格・星条件）が必要。
 - **E5**: 有効化の OFF ゲート方式（E4 前に決定）、実機 HV。
+
+## 8. Hint 5.0 gate を E4 で再監査する条件（弱めない）
+
+E2 は Hint 5.0 gate（`deductionProduction.gate` / G7 / privacy sweep）を**変更していない**。変えたのは「登録された技法が 4 つになった」ことを確認する 1 行（`late-addition` の affordance が本番カタログで `null` のまま）だけで、検証は強くなっている。
+**後乗せレシピを本番カタログに入れる PR（E4）は、次をすべて満たすまで merge しない。**
+
+1. `deductionProduction.gate` の技法要求レシピ allow-list（`TECHNIQUE_REQUIRING_RECIPE_IDS`）に後乗せレシピを加える**前に**、gate 全体と DH4 privacy sweep（300 ladder 状態 + seeded random 順序）をそのレシピ込みで再実行し、緑にする。gate の閾値・k・sweep 範囲は緩めない。
+2. 構成（STRUCTURE）の件数が `requiredIngredients` の distinct 数と一致し続けること（後乗せ食材を数えない・別カウントにしない）。`applicationPhase` を hint / deduction / Research / Dex モジュールが読んでいないこと（grep ガード）を維持。
+3. 新食材（bbq-sauce / cilantro）に `finish` / `garnish` 等の**時機を示すカテゴリ・ファミリー名**を作らない（H3 / H4）。ソースは 1 レシピ 1 種のまま（H1、G7 の sauce count tripwire）。
+4. Research ○× 台帳・Notebook・Hint 事実に時機が出ない（本 PR の Fingerprint 除外と同じ性質のテストを、新レシピ込みで E4 でも通す）。
+5. `late-addition` の affordance step が ladder から**導出**され（authored でない）、`ladderCredit` 規則（OD-TQ1D-2）に従うこと。`deductionProduction.gate` の INV-TQ-4 テストの `null` 期待を、その導出値の期待に更新する（この更新自体が E4 の diff に現れること）。
+6. UD-F（価格・星条件）と UD-G（技法名・なぞかけ・Dex 文言）の Owner 決定済みであること。
+
+## 9. 実装結果（E2）
+
+実装・テスト・回帰の結果は `docs/reports/TETO_FINISH-FIN-E2_Result.md`。
