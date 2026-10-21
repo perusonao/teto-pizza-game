@@ -16,6 +16,7 @@ import {
 import { SAVE_ID_PATTERN } from "./saveIdGrammar";
 import { classifyStoredSave } from "./saveRootClassification";
 import { quarantineRaw } from "./saveQuarantine";
+import { beginSaveSession, checkSaveSession, noteSaveReset, noteSaveWritten } from "./saveSession";
 import {
   emptyResearchExclusions,
   isEmptyResearchExclusions,
@@ -768,8 +769,19 @@ function mergeOwnedOrder(storedOrder: readonly string[], nextKnown: readonly str
  * - `quarantine-failed` / `quarantine-too-large`: the stored save is unreadable and a verified copy of it could not be
  *   made (storage error, failed read-back, or the text is above `MAX_QUARANTINE_RAW_LENGTH`), so it was not replaced.
  * - `storage-error`: the stored text could not be read at all, so whether it may be replaced is unknown.
+ * - `load-failed` (PR-3, N1): this page's startup read of the save failed, so the in-memory state is the default state, not
+ *   the player's save. Nothing is written for the rest of the page's life (a later successful read does not lift it); a
+ *   reload recovers.
+ * - `stale-save` (PR-3, #282): the stored text is not the one this page loaded or last wrote (another tab saved). Not
+ *   replaced; a reload loads the newer save. See `./saveSession.ts`.
  */
-export type SaveWriteBlock = "unknown-schema" | "quarantine-failed" | "quarantine-too-large" | "storage-error";
+export type SaveWriteBlock =
+  | "unknown-schema"
+  | "quarantine-failed"
+  | "quarantine-too-large"
+  | "storage-error"
+  | "load-failed"
+  | "stale-save";
 
 /** `raw` is the text the guard read (null = no save), or, after a quarantine, the damaged text now safely held. */
 type WriteGuard = { writable: true; raw: string | null } | { writable: false; blocked: SaveWriteBlock };
@@ -781,6 +793,10 @@ function guardStoredRoot(storage: StorageLike): WriteGuard {
   } catch {
     return { writable: false, blocked: "storage-error" };
   }
+  // PR-3: the stored text must be the one this page loaded or last wrote (checked before anything else, so a refusal has no
+  // side effect -- nothing is quarantined on behalf of a session that must not write).
+  const sessionBlock = checkSaveSession(storage, raw);
+  if (sessionBlock) return { writable: false, blocked: sessionBlock };
   const stored = classifyStoredSave(raw);
   if (stored.kind === "empty" || stored.kind === "readable") return { writable: true, raw };
   if (stored.kind === "unknown-schema") return { writable: false, blocked: "unknown-schema" };
@@ -832,7 +848,9 @@ function writeSave(
   const withDinner = <T extends object>(value: T) =>
     withLedger(dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value });
   if (!extras) {
-    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(nextFields)));
+    const serialized = JSON.stringify(withDinner(nextFields));
+    storage.setItem(SAVE_STORAGE_KEY, serialized);
+    noteSaveWritten(storage, serialized);
     return { refusedDinnerMissionIds: [] };
   }
   const nextDexIds = new Set(next.dex.map((e) => e.recipeId));
@@ -861,7 +879,9 @@ function writeSave(
       MAX_TECHNIQUE_LEDGER_SIZE,
     ),
   };
-  storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(withDinner(merged)));
+  const serialized = JSON.stringify(withDinner(merged));
+  storage.setItem(SAVE_STORAGE_KEY, serialized);
+  noteSaveWritten(storage, serialized);
   return { refusedDinnerMissionIds: [] };
 }
 
@@ -931,13 +951,41 @@ export function getDefaultStorage(): StorageLike | null {
 export function loadSave(storage: StorageLike | null = getDefaultStorage()): PersistentSaveV2 {
   if (!storage) return createDefaultSave();
   try {
-    const raw = storage.getItem(SAVE_STORAGE_KEY);
-    if (raw === null) return createDefaultSave();
+    return parseStoredSave(storage.getItem(SAVE_STORAGE_KEY));
+  } catch {
+    return createDefaultSave();
+  }
+}
+
+function parseStoredSave(raw: string | null): PersistentSaveV2 {
+  if (raw === null) return createDefaultSave();
+  try {
     const parsed: unknown = JSON.parse(raw);
     return sanitizeSave(parsed) ?? createDefaultSave();
   } catch {
     return createDefaultSave();
   }
+}
+
+/**
+ * The page's STARTUP load (Save Protection PR-3, N1): `loadSave`, plus it tells the write gate what this session loaded.
+ * Call it once, where the game state is first built (App's initial state) -- not for later reads, which keep using
+ * `loadSave`. A successful read records the stored text as the session's base: later writes are allowed only while the
+ * stored text is that base or something this session wrote. A read that THROWS makes the session `load-failed`: the
+ * default state returned here is not the player's save, so no write is allowed for the rest of the page's life, even if a
+ * later read succeeds (`./saveSession.ts`). Same return value as `loadSave` in every case.
+ */
+export function loadSaveForSession(storage: StorageLike | null = getDefaultStorage()): PersistentSaveV2 {
+  if (!storage) return createDefaultSave();
+  let raw: string | null;
+  try {
+    raw = storage.getItem(SAVE_STORAGE_KEY);
+  } catch {
+    beginSaveSession(storage, { ok: false });
+    return createDefaultSave();
+  }
+  beginSaveSession(storage, { ok: true, raw });
+  return parseStoredSave(raw);
 }
 
 function dexEntriesEqual(a: DexEntry, b: DexEntry): boolean {
@@ -1333,7 +1381,9 @@ export function resetSaveResult(storage: StorageLike | null = getDefaultStorage(
   }
   clearSave(storage);
   try {
-    return storage.getItem(SAVE_STORAGE_KEY) === null ? { ok: true } : { ok: false, reason: "remove-failed" };
+    if (storage.getItem(SAVE_STORAGE_KEY) !== null) return { ok: false, reason: "remove-failed" };
+    noteSaveReset(storage);
+    return { ok: true };
   } catch {
     return { ok: false, reason: "remove-failed" };
   }

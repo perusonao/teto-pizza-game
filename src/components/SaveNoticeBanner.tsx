@@ -31,6 +31,11 @@ export function SaveNoticeBanner({ notice, onOpenSettings, onAcknowledge }: Save
         <button type="button" className="save-notice__button" onClick={onOpenSettings}>
           設定を開く
         </button>
+        {(notice.kind === "load-failed" || notice.kind === "stale-save") && (
+          <button type="button" className="save-notice__button" onClick={() => window.location.reload()}>
+            再読み込み
+          </button>
+        )}
         {!blocking && onAcknowledge && (
           <button type="button" className="save-notice__button save-notice__button--quiet" onClick={onAcknowledge}>
             了解
