@@ -127,7 +127,7 @@ test("完成 with the late pieces: RESULT reached, stock consumed exactly once e
 
 test("no late ingredient owned: the tray shows a one-line note, 完成 stays available, nothing overlaps", async ({ page }) => {
   await open(page, "owned=none");
-  await expect(page.getByTestId("finish-tray-empty")).toHaveText("後乗せにつかう食材がありません");
+  await expect(page.getByTestId("finish-tray-empty")).toHaveText("後乗せの食材がありません。このまま完成すると失敗です");
   await expect(page.locator(".ingredient-tray")).toHaveCount(0);
   const note = (await rect(page, '[data-testid="finish-tray-empty"]'))!;
   const bar = (await rect(page, '[data-testid="finish-bar"]'))!;

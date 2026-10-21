@@ -21,7 +21,7 @@ FIN-D / FIN-E は含めない。#478 / #468 / #584 / #581 / #295 は変更なし
 
 | ファイル | 内容 |
 |---|---|
-| `src/screens/GameScreen.tsx` | FINISH の下部バーを ↩（`UNDO_LAST_PLACEMENT`、`canUndoPlacement` で disabled）/ 完成（`onConfirmMakingStep`）/ ヒント に。「やり直す」「全消し」なし、確認ダイアログなし。完成は同一ステップでの二重押下を ref で破棄（reducer の消費 1 回保証に加えた UI 側の保険）。在庫 0 または FINISH のトレイにない食材が選択されたままなら選択を解除する effect（FIN-B 持ち越し）。後乗せ食材を持たない場合はトレイの代わりに 1 行の説明文を表示 |
+| `src/screens/GameScreen.tsx` | FINISH の下部バーを ↩（`UNDO_LAST_PLACEMENT`、`canUndoPlacement` で disabled）/ 完成（`onConfirmMakingStep`）/ ヒント に。「やり直す」「全消し」なし、確認ダイアログなし。完成の二重押下は reducer が単独で防ぐ（FINAL と同じ遷移で `bakeValue` を消し step を離れるため、2 回目は phase / step ガードで no-op。UI 側に可変状態は持たない）。在庫 0 または FINISH のトレイにない食材が選択されたままなら選択を解除する effect（FIN-B 持ち越し）。後乗せ食材を持たない場合はトレイの代わりに 1 行の説明文（「後乗せの食材がありません。このまま完成すると失敗です」）を表示 |
 | `src/App.css` | `.finish-tray-empty`（説明文のスタイル、末尾追記）。バーは既存の `.prepare-bake-bar--undo` / `.prepare-undo-button`（44×44）を再利用 |
 | `src/screens/GameScreen.finish.test.tsx` | FIN-B の「FIN-C 部品なし」を「↩ / 完成 / ヒントのみ・やり直す等なし」に更新。FIN-C 7 件追加 |
 | `e2e/harness/finish-screen.tsx` | ↩ と完成を実 reducer に接続（完成は App と同じく `REGISTER_TO_DEX` も）。`owned=none` を追加 |
@@ -60,8 +60,8 @@ FIN-D（完了 → RESULT の貫通 E2E・実レシピ）、FIN-E、FINISH 本�
 
 | Video | Viewport | Duration | Size | Verification |
 |---|---|---:|---:|---|
-| `fin-c-finish-undo-complete-390.mp4`（H.264） | 390×844 | 50.1 s | 582 KB | PASS |
-| `fin-c-finish-undo-complete-360.mp4`（H.264） | 360×800 | 50.0 s | 543 KB | PASS |
+| `fin-c-finish-undo-complete-390.mp4`（H.264） | 390×844 | 51.2 s | 606 KB | PASS |
+| `fin-c-finish-undo-complete-360.mp4`（H.264） | 360×800 | 50.0 s | 544 KB | PASS |
 
 Download: セッション内直接提出（commit しない。Policy §6）。ffprobe で codec / 解像度 / 長さ、ffmpeg で最後までのデコード、代表フレームの目視で確認。
 
@@ -74,6 +74,15 @@ Download: セッション内直接提出（commit しない。Policy §6）。ff
 - CUT 付きは 完成 → CUT。Lunch Rush / Dinner / Free Cooking では FINISH 画面が出ない。
 
 Video Verification: PASS
+
+## 独立レビュー（`/code-review high`、push 前の 1 巡目）
+
+| 指摘 | 対応 |
+|---|---|
+| 完成の ref ガードが round をまたいで残り（`makingStepToken` は round ごとに 0 から）、次の round の FINISH で完成が効かなくなる / reducer が no-op の場合も以後の押下が死ぬ | **修正**: ref ガードを撤去（reducer が単独で 1 回を保証。vitest / e2e の二重押下テストは reducer のみで PASS） |
+| 選択解除 effect が `finishTrayIngredients` を再計算 | **修正**: `finishTray` を 1 回だけ算出して共有 |
+| FIN-B の古いコメント（「↩ / 完成は FIN-C」）と IngredientTray の未インデント | **修正** |
+| 後乗せ食材なしで 完成 1 タップ = FAILED（確認なしは Owner 決定どおり） | 仕様どおり。説明文に「このまま完成すると失敗です」を追記（確認ダイアログは追加していない） |
 
 ## Final Gate（PR 作成時点）
 

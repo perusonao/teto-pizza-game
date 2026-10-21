@@ -8143,6 +8143,7 @@ p.hint-sheet__step {
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.4;
   opacity: 0.75;
 }

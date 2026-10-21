@@ -388,13 +388,10 @@ export function GameScreen({
     onUndoPlacement();
   }
 
-  // FINISH FIN-C: 完成 leaves FINISH through the existing CONFIRM_MAKING_STEP (the FINAL evaluation, the one inventory
-  // consumption). The reducer is the backstop (bakeValue is cleared and the step is left in the same transition, so a
-  // repeat cannot consume twice); this guard additionally drops a second press of the same step before it re-renders.
-  const finishCompletedTokenRef = useRef<number | null>(null);
+  // FINISH FIN-C: 完成 leaves FINISH through the existing CONFIRM_MAKING_STEP (the FINAL evaluation and the one inventory
+  // consumption). The reducer is the backstop for a repeated press: `bakeValue` is cleared and the step is left in the same
+  // transition, so a second dispatch hits its phase / step guards and consumes nothing. The reset token aborts any gesture in flight.
   function handleCompleteFinish() {
-    if (finishCompletedTokenRef.current === state.makingStepToken) return;
-    finishCompletedTokenRef.current = state.makingStepToken;
     setPizzaResetToken((token) => token + 1);
     onConfirmMakingStep();
   }
@@ -517,16 +514,17 @@ export function GameScreen({
   const isFinishStep = postBakeStep === "FINISH";
   // FINISH FIN-B: FINISH carries the tray, so its stage is the compact one (PREPARE's), not CUT's roomy one.
   const roomyStage = state.phase === "BAKE" || (postBakeStepRendered && !isFinishStep);
-  const finishTrayCount = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds).length : 0;
+  const finishTray = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds) : [];
+  const finishTrayCount = finishTray.length;
 
   // FIN-B carry-over: once the stock of the selected late ingredient is used up (or after an ingredient that FINISH does
   // not offer was left selected), release the selection so a tap on the pizza cannot act on a disabled chip.
   useEffect(() => {
     if (!isFinishStep || selectedIngredientId === null) return;
     const ingredient = getIngredient(selectedIngredientId);
-    const offered = finishTrayIngredients(state.recipe, state.ownedIngredientIds).some((i) => i.id === selectedIngredientId);
+    const offered = finishTray.some((i) => i.id === selectedIngredientId);
     if (!ingredient || !offered || !canPlacePostBakeIngredient(ingredient, state.inventory, state.pizza)) onClearIngredientSelection?.();
-  }, [isFinishStep, selectedIngredientId, state.recipe, state.ownedIngredientIds, state.inventory, state.pizza, onClearIngredientSelection]);
+  }, [isFinishStep, selectedIngredientId, finishTray, state.inventory, state.pizza, onClearIngredientSelection]);
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
@@ -941,8 +939,7 @@ export function GameScreen({
       )}
 
       {/* FINISH FIN-B: the tray + dock of the FINISH step, the PREPARE dock's structure reused. Only the recipe's late
-          ingredients are offered, placed by tap (select -> tap the pizza -> PLACE_TOPPING, stage "post"). No ↩ / 完成 here
-          (FIN-C). */}
+          ingredients are offered, placed by tap (select -> tap the pizza -> PLACE_TOPPING, stage "post"). The ↩ / 完成 bar is below (FIN-C). */}
       {isFinishStep && state.dinner === null && (
         <div
           className={`prepare-dock prepare-dock--finish${finishTrayCount > MAX_INGREDIENT_PALETTE_SLOTS ? "" : " prepare-dock--no-pager"}`}
@@ -956,23 +953,23 @@ export function GameScreen({
         >
           {finishTrayCount === 0 ? (
             <p className="finish-tray-empty" data-testid="finish-tray-empty">
-              後乗せにつかう食材がありません
+              後乗せの食材がありません。このまま完成すると失敗です
             </p>
           ) : (
-          <IngredientTray
-            activeCategory="topping"
-            selectedIngredientId={selectedIngredientId}
-            onSelectIngredient={onSelectIngredient}
-            onClearSelection={onClearIngredientSelection}
-            ownedIngredientIds={state.ownedIngredientIds}
-            recipe={state.recipe}
-            inventory={state.inventory}
-            pizza={state.pizza}
-            finish
-            resetToken={pizzaResetToken}
-            makingStepToken={state.makingStepToken}
-            reservePagerRow={false}
-          />
+            <IngredientTray
+              activeCategory="topping"
+              selectedIngredientId={selectedIngredientId}
+              onSelectIngredient={onSelectIngredient}
+              onClearSelection={onClearIngredientSelection}
+              ownedIngredientIds={state.ownedIngredientIds}
+              recipe={state.recipe}
+              inventory={state.inventory}
+              pizza={state.pizza}
+              finish
+              resetToken={pizzaResetToken}
+              makingStepToken={state.makingStepToken}
+              reservePagerRow={false}
+            />
           )}
         </div>
       )}

@@ -381,7 +381,7 @@ describe("FINISH ↩ and 完成 (FIN-C)", () => {
   it("shows a one-line note instead of the tray when no late ingredient is owned", () => {
     const start = atFinish();
     const { container } = renderAt({ ...start, ownedIngredientIds: start.ownedIngredientIds.filter((id) => id !== "parsley") });
-    expect(screen.getByTestId("finish-tray-empty")).toHaveTextContent("後乗せにつかう食材がありません");
+    expect(screen.getByTestId("finish-tray-empty")).toHaveTextContent("後乗せの食材がありません。このまま完成すると失敗です");
     expect(container.querySelector(".ingredient-tray")).toBeNull();
     expect(screen.getByRole("button", { name: "完成" })).toBeEnabled();
   });
