@@ -1,5 +1,5 @@
 {
- "schemaNote": "Recipe source audit (docs/data-only). Records which shipped recipes were classified from the PIZZA DB comparison table only, and what is NOT yet confirmed against individual pizzadb.jp pages. Does NOT modify the 172 matrix, master evidence, classification JSON or runtime snapshot. verifyPriority is a triage heuristic (finishing-type ingredient present), NOT evidence.",
+ "schemaNote": "Recipe source audit, round 1 (docs/data-only): an organised list of rows whose source has NOT been confirmed. It is not a source-confirmation result. Recipe source audit (docs/data-only). Records which shipped recipes were classified from the PIZZA DB comparison table only, and what is NOT yet confirmed against individual pizzadb.jp pages. Does NOT modify the 172 matrix, master evidence, classification JSON or runtime snapshot. verifyPriority is a triage heuristic (finishing-type ingredient present), NOT evidence.",
  "auditedMainSha": "78a4a0ff4d7c285387cf86491a5eade835ea2197",
  "pizzadbAccess": {
   "result": "BLOCKED",
@@ -1186,5 +1186,14 @@
    "verifyPriority": "NORMAL",
    "finishLikeIngredientsPresent": []
   }
- ]
+ ],
+ "evidenceClasses": {
+  "A_independentlyVerifiedPrimary": 0,
+  "B_relayedViaChatGPT": [
+   "ikura-salmon-pizza (not shipped)",
+   "shirasu-pizza"
+  ],
+  "C_comparisonTableOnly": 45,
+  "D_unconfirmed": 45
+ }
 }

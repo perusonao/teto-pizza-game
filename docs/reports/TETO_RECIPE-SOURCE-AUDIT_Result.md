@@ -1,4 +1,6 @@
-# レシピ原典監査 — 172 マトリクスと実際の調理工程の食い違い（第 1 回）
+# レシピ原典監査 第 1 回 — 未確認対象の整理（原典確認は未完了）
+
+> **位置付け**: 本書は「原典を確認した結果」ではなく、「どの行が原典未確認か」を整理した第 1 回の成果物。45 件の原典確認は**完了していない**（独立確認済みの一次資料 0 件）。確認の完了・マトリクスの訂正は後続の回で行う。
 
 Docs-only。`src/**`・レシピ・PR #584・共有 Preview は変更していない。マトリクス／master evidence／classification／runtime snapshot も**変更していない**（理由は §5）。
 監査基準 main: `78a4a0f`。データ: `docs/reports/data/TETO_RECIPE-SOURCE-AUDIT_45-ROWS.json`。
@@ -11,6 +13,16 @@ Docs-only。`src/**`・レシピ・PR #584・共有 Preview は変更してい�
 | うち確認優先度 HIGH（仕上げ系素材を含む・仮説） | 25 件 |
 | ikura-salmon-pizza の食い違い | **記録**（§3）。マトリクスは変更せず |
 | 整合性検証（マトリクス／JSON／snapshot／src） | 12/12 PASS（§5）。`--check` / `--check-runtime` も PASS |
+
+## 1.1 証跡の区分（一次資料と中継の区別）
+| 区分 | 定義 | 件数 |
+|---|---|---|
+| A. 独立確認済みの一次資料 | Claude Code または Owner が pizzadb.jp の個別ページを自ら取得し、原文を記録 | **0** |
+| B. 中継証跡 | ChatGPT が 2026-10-20 に取得し、Owner 経由で Claude Code が受領（PR #584 コメント／PR #587）。短い引用以外は要約。独立再取得なし | ikura-salmon・shirasu-pizza の 2 レシピのみ（部分的） |
+| C. 比較表のみ | 比較表の材料リスト。工程・タイミングの情報なし | 45 件（shirasu-pizza を含む。B と重なる） |
+| D. 未確認 | 上記のいずれでも工程が分かっていない | 45 件の全件（B の 2 件も、工程全体としては未確認） |
+
+B は A ではない。B の引用が正しければ食い違いが生じる、という条件付きの記録に留める。
 
 ## 2. 45 件の定義と状態
 - 定義: runtime snapshot の出荷済み 61 件のうち、マトリクスの `canonicalCandidateId` で証跡行に対応し、`phase0.evidenceOrigin == comparison_table_sample` の行（46 件中、`hawaiian` のみ個別ページ由来で除外）。残り 15 件は catalog 由来で PIZZA DB 行に未対応（本監査の対象外）。
@@ -71,7 +83,7 @@ Docs-only。`src/**`・レシピ・PR #584・共有 Preview は変更してい�
 | `vegan-cashew-cheese-pizza` | ヴィーガンカシューチーズピザ | bell-pepper, cashew-cheese, zucchini | CURRENT_ENGINE | — |
 | `veggie-supreme-pizza` | ベジースプリームピザ | black-olive, fresh-tomato, green-pepper, mozzarella, mushroom, onion | CURRENT_ENGINE | — |
 
-## 3. ikura-salmon-pizza の後乗せ分類の食い違い
+## 3. ikura-salmon-pizza の後乗せ分類の食い違い（区分 B: 中継証跡）
 | | 内容 |
 |---|---|
 | マトリクス | `DATA_ONLY` / `NO_SAUCE`、`postBakeFinish: []`、`FULL`、`READY`（全 4 材料が焼成前扱い） |
@@ -80,7 +92,7 @@ Docs-only。`src/**`・レシピ・PR #584・共有 Preview は変更してい�
 | 状態 | **食い違いを記録。マトリクスは未変更**。根拠は ChatGPT 経由の中継 1 件で、独立再取得がない |
 | 必要な確認 | `https://pizzadb.jp/pizzas/ikura-salmon/` の全文（サーモンの方式、クリームチーズ、分量、焼成時間） |
 
-shirasu-pizza（45 件の 1 つ）にも PR #587 に中継の部分証跡（レモン「仕上げに絞る」、しらす「仕上げ数分前」、大葉は指定なし）があるが、同じく独立確認がなく、出荷済みレシピは変更しない。
+shirasu-pizza（45 件の 1 つ、区分 B）にも PR #587 に中継の部分証跡（レモン「仕上げに絞る」、しらす「仕上げ数分前」、大葉は指定なし）があるが、同じく独立確認がなく、出荷済みレシピは変更しない。
 
 ## 4. 未確認件数と必要な確認先
 - 未確認: **45 / 45**（＋ ikura-salmon の全文確認 1 件）。
@@ -91,6 +103,12 @@ shirasu-pizza（45 件の 1 つ）にも PR #587 に中継の部分証跡（レ�
 実施した検証（すべて PASS）: マトリクス／master evidence／classification が各 172 行・ID 集合一致、snapshot の出荷 61 件が `src/data/recipes.ts` の id と完全一致、classification の照合済み出荷 id が snapshot の部分集合、`applicationPhase` を使う RECIPES が 0、比較表のみの出荷行が 45、監査行がマトリクス行に 1 対 1、45 件の `postBakeFinish` が空、ikura-salmon が main 未出荷かつマトリクス上 DATA_ONLY／後乗せなし。加えて `tools/progression2_mechanic_matrix.py --check` と `--check-runtime` が main で PASS（#587 の記載にあった `--check` の FAIL は、その基準 main `5997157` 時点のもので、現 main では再現しない）。
 
 マトリクス類を変更しなかった理由: (1) 生成物で入力は master evidence、(2) 訂正根拠が未検証の中継 1 件、(3) PR #587 が同じ master evidence を変更中で競合する。訂正は #587 の取り込みと原典の独立確認の後に、生成器で再生成するのが安全。
+
+## 5.1 PR #587 との関係（2026-10-21 確認）
+- ファイル: #587 は `TETO_PIZZADB_172_MASTER-EVIDENCE.json`（変更）と `TETO_PIZZADB_TIMING-EVIDENCE_shirasu-ikura.md`（新規）。本 PR は新規 2 ファイルのみで**競合なし**。#587 の base は旧 main `5997157`、本 PR の base は `78a4a0f`。
+- 証拠: 同一の ChatGPT 取得（2026-10-20）を指し、引用「いくらと大葉は焼成後に載せ」、shirasu の 2 引用、独立確認なしの扱いは**一致し矛盾なし**。差は #584 コメントの「サーモンは加熱して使う」と #587 の「両方式」の言い回しのみで、どちらも要約。
+- 双方を取り込んだ状態（ローカル検証、未 push）: マトリクス `--check`・`--check-runtime`・deadlock `--check`・invariants 4/4 すべて PASS。ikura-salmon のマトリクス行は #587 取り込み後も `DATA_ONLY`／後乗せなしのまま（`sourceTimingEvidence` はマトリクスに反映されない）。
+- #587 を先に取り込んでも本 PR の内容は変更不要。本書が「#587 を取り込む前提」と読める箇所はなく、#587 の`--check` FAIL 記載は旧 main 時点のものと注記済み。
 
 ## 6. 次のアクション（Owner 判断）
 1. HIGH 25 件の個別ページ確認（到達できる環境で）。
