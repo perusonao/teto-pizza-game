@@ -192,6 +192,17 @@ export function isCutEligible(recipeId: RecipeId): boolean {
 }
 
 /**
+ * FINISH FIN-E3a (Issue #604 / #294, Owner Decision UD-B): the Free Cooking round's profile with the permanent 仕上げ tab. `enabled`
+ * is `freeCookFinishEnabled()` (./freeCookFinishGate.ts) -- passed in so the rule stays pure and testable. Disabled (Production) returns
+ * `profile` itself, so a Free Cooking round is exactly as before; enabled appends FINISH after the pre-bake steps (and after CUT, which a
+ * Free round never has: FINISH + CUT would be 7 tabs, OD-CS-9 (a)). A profile that already carries FINISH is returned as it is.
+ */
+export function freeCookingProfile(profile: CookingProfile, enabled: boolean): CookingProfile {
+  if (!enabled || profile.steps.includes("FINISH")) return profile;
+  return { ...profile, steps: [...profile.steps, "FINISH"] };
+}
+
+/**
  * Which `MakingStep` values sit in `POST_BAKE` rather than `PREPARE` -- a fixed property of the
  * step itself (design doc §3.2's "where it sits" column), never a per-recipe decision. CUT/FINISH
  * are the only two steps the design doc places after BAKE; every other widened `MakingStep` value

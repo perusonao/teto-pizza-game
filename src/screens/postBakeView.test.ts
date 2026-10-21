@@ -53,9 +53,14 @@ describe("finishStepAvailable (FINISH D2-0)", () => {
     expect(finishStepAvailable({ roundKind: "GUIDED" }, core)).toBe(false);
   });
 
-  it("is false for Free Cooking (incl. Research), Lunch Rush and Dinner even if the profile carried FINISH", () => {
-    for (const roundKind of ["FREE_COOK", "LUNCH_RUSH", "DINNER"] as const) {
+  it("is false for Lunch Rush and Dinner even if the profile carried FINISH", () => {
+    for (const roundKind of ["LUNCH_RUSH", "DINNER"] as const) {
       expect(finishStepAvailable({ roundKind }, withFinish), roundKind).toBe(false);
     }
+  });
+
+  it("is true for Free Cooking (incl. Research) only when its profile carries FINISH (FIN-E3a gate open), false without", () => {
+    expect(finishStepAvailable({ roundKind: "FREE_COOK" }, withFinish)).toBe(true);
+    expect(finishStepAvailable({ roundKind: "FREE_COOK" }, core)).toBe(false);
   });
 });

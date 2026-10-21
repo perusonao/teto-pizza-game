@@ -29,11 +29,11 @@ export type SelectablePostBakeStep = RenderedPostBakeStep | "FINISH";
 
 /**
  * Cooking Steps 2.0 FINISH D2-0 (Issue #294): whether a round's FINISH step may get a cooking UI at all. True only
- * for a Guided round (`roundRunsFinish`) whose profile actually carries FINISH. Every shipped profile and every
- * Free Cooking / Lunch Rush / Dinner round is false, so nothing renders FINISH until a recipe opts in (D2-3+).
+ * for a round that runs FINISH (`roundRunsFinish`: Guided, or Free Cooking behind the FIN-E3a gate) whose profile actually carries
+ * FINISH. Every shipped profile and every Lunch Rush / Dinner round is false, and so is Free Cooking while the gate is OFF (Production).
  */
 export function finishStepAvailable(round: HasRoundKind, profileSteps: readonly MakingStep[]): boolean {
-  return roundRunsFinish(round) && profileSteps.includes("FINISH");
+  return roundRunsFinish({ roundKind: round.roundKind, cookingProfile: { steps: profileSteps } }) && profileSteps.includes("FINISH");
 }
 
 /**
