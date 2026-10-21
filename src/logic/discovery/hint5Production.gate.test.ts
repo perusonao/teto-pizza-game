@@ -213,17 +213,16 @@ describe("H5-4 gates A / B / C (OD-H5-M2 = every production recipe)", () => {
 describe("disclosure boundary (H5-INV-1..5)", () => {
   it("G5 / H5-INV-1: a classification never carries an ingredient name, id or glyph", () => {
     const words = INGREDIENTS.flatMap((i) => [i.nameJa, i.emoji]);
-    for (const family of Object.keys(HINT_CLASS_DISPLAY)) {
-      for (const r of RECIPES) {
-        for (const e of purchaseStates(r.id, 5).pop()!.view.board) {
-          if (e.kind !== "SUB_CLASS" || !("classView" in e)) continue;
-          for (const s of stringValues(e.classView)) {
-            for (const w of words) expect(s.includes(w), `${r.id}: ${s} / ${w}`).toBe(false);
-            expect(INGREDIENTS.some((i) => i.id === s), `${r.id}: ${s}`).toBe(false);
-          }
+    // The scan below does not depend on the family, so it runs once (it used to run once per family: 7x the same work, ~3s, near the 5s default).
+    expect(Object.keys(HINT_CLASS_DISPLAY).length).toBeGreaterThan(0);
+    for (const r of RECIPES) {
+      for (const e of purchaseStates(r.id, 5).pop()!.view.board) {
+        if (e.kind !== "SUB_CLASS" || !("classView" in e)) continue;
+        for (const s of stringValues(e.classView)) {
+          for (const w of words) expect(s.includes(w), `${r.id}: ${s} / ${w}`).toBe(false);
+          expect(INGREDIENTS.some((i) => i.id === s), `${r.id}: ${s}`).toBe(false);
         }
       }
-      expect(family).toBeTruthy();
     }
   });
 
