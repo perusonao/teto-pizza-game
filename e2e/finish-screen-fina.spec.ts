@@ -3,8 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 /**
  * FINISH FIN-A (Issue #294): the real GameScreen at the FINISH step (e2e/harness/finish-screen.html, the test-only BBQ-shaped fixture
  * recipe driven through the real reducer). Measured at 390x844 and 360x800 (the two projects): the 仕上げ tab, Mito's hint row, the
- * roomy cooking stage and the post-bake layer all fit on one screen without page scroll, and nothing from FIN-B / FIN-C (tray, 1つ戻す,
- * completion control) is there. Production does not reach this screen: no shipped profile has FINISH (src/state/finishD2Inert.test.ts).
+ * stage and the post-bake layer all fit on one screen without page scroll. FIN-B adds the tray (see finish-tray-finb.spec.ts); 1つ戻す and the
+ * completion control are FIN-C and are not there. Production does not reach this screen: no shipped profile has FINISH (src/state/finishD2Inert.test.ts).
  */
 const HARNESS = "./e2e/harness/finish-screen.html";
 
@@ -15,12 +15,12 @@ async function open(page: Page, query = "") {
 }
 
 for (const bake of ["raw", "perfect", "burnt"]) {
-  test(`FINISH (${bake}): tab, hint, roomy stage and post layer fit the screen with no page scroll`, async ({ page }) => {
+  test(`FINISH (${bake}): tab, hint, compact stage and post layer fit the screen with no page scroll`, async ({ page }) => {
     await open(page, `bake=${bake}&post=3`);
     const viewport = page.viewportSize()!;
     await expect(page.getByRole("tab", { name: "仕上げ" })).toHaveAttribute("aria-current", "step");
     await expect(page.getByTestId("finish-hint")).toBeVisible();
-    await expect(page.locator(".pizza-stage--roomy")).toHaveCount(1);
+    await expect(page.locator(".pizza-stage--compact")).toHaveCount(1);
     await expect(page.locator(".pizza-post-layer")).toHaveCount(1);
     const m = await page.evaluate(() => {
       const r = (s: string) => document.querySelector(s)?.getBoundingClientRect();
@@ -47,14 +47,12 @@ for (const bake of ["raw", "perfect", "burnt"]) {
       expect(l).toBeGreaterThanOrEqual(-0.5);
       expect(r).toBeLessThanOrEqual(viewport.width + 0.5);
     }
-    expect(m.dough[2]).toBeGreaterThan(viewport.width * 0.8); // the pizza stays large (roomy), as in CUT
+    expect(m.dough[2]).toBeGreaterThan(viewport.width * 0.6); // the compact (tray) stage keeps the pizza large
   });
 }
 
-test("FINISH: nothing from FIN-B / FIN-C is on the screen (no tray, no 1つ戻す, no completion control)", async ({ page }) => {
+test("FINISH: nothing from FIN-C is on the screen (no 1つ戻す, no completion control)", async ({ page }) => {
   await open(page, "post=2");
-  await expect(page.locator(".ingredient-tray")).toHaveCount(0);
-  await expect(page.locator(".prepare-bake-bar")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "1つ戻す" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /次へ|焼く！|完成/ })).toHaveCount(0);
 });

@@ -80,12 +80,14 @@ describe("FINISH stays inert in Production (D2-0)", () => {
     }
     // D2-1 (Issue #294): PizzaStage draws post-bake pieces apart from the pre-bake path. FIN-A: GameScreen selects the FINISH view
     // (`selectPostBakeStep` / `finishStepAvailable`) and shows its hint (`finishHint`) -- both are false/absent for every shipped
-    // profile and round kind (the tests above). Nothing else consumes them.
+    // profile and round kind (the tests above). FIN-B: SHOW_HINT answers with the same hint line, only in a FINISH step
+    // (`roundRunsFinish`). Nothing else consumes them.
     expect(users).toEqual([
       "components/PizzaStage.tsx -> pieceBakeClass",
       "screens/GameScreen.tsx -> finishHint",
       "screens/GameScreen.tsx -> selectPostBakeStep",
       "screens/GameScreen.tsx -> finishStepAvailable",
+      "state/gameReducer.ts -> finishHint",
     ]);
   });
 });

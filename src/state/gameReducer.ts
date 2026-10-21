@@ -15,6 +15,7 @@ import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit } from "./sauceLedger";
 import { roundRunsFinish } from "./finishEngine";
+import { buildFinishHintLine } from "../data/finishHint";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -1803,6 +1804,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "SHOW_HINT":
+      // FINISH FIN-B: the explicit hint in FINISH is the FINISH hint line itself (the same words the order card shows, with
+      // the count), never `buildHintLine` for a step it does not know.
+      if (state.phase === "POST_BAKE" && state.makingStep === "FINISH") {
+        return roundRunsFinish(state) ? { ...state, hint: buildFinishHintLine(state.recipe, state.pizza, true) } : state;
+      }
       // Discovery Hint 2.0 (229-B): in Free Cooking the button opens the progressive hint sheet
       // (PREPARE only) and leaves the order-card line alone; guided / Lunch Rush rounds keep the
       // explicit operational line below.
