@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { deriveCoreSteps } from "./cookingProfiles";
-import { discoveryIdentityOf } from "./discoveryCatalog";
+import { discoveryIdentityOf, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { INGREDIENTS } from "./ingredients";
 import { RECIPES, type Recipe } from "./recipes";
 import { appendLadderSteps } from "../logic/discoveryLadder";
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
-import { LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_RECIPES, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
+import { lateCatalogEnabled, LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_RECIPES, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
 
 /**
  * FIN-E4 foundation (Owner D-3 = 案 1): the late catalog's single merge point. The real late arrays are EMPTY (the data is a later PR),
@@ -112,6 +112,20 @@ describe("validateLateCatalog", () => {
     bad({ ladderSteps: [{ ingredientIds: [SYNTH_INGREDIENT_ID], keyRecipeId: "margherita" }] }, /key recipe is not a late recipe/);
     bad({ ladderSteps: [{ ingredientIds: ["nope"], keyRecipeId: SYNTH_RECIPE_ID }] }, /unknown ingredient/);
   });
+  it("rejects a late recipe that is unreachable and a late ingredient that is unobtainable", () => {
+    bad({ ladderSteps: [] }, /unreachable/);
+    bad({ ladderSteps: [] }, /unobtainable/);
+  });
+  it("rejects two late steps keyed to one recipe", () => {
+    bad({ ladderSteps: [synthStep, synthStep] }, /share a key recipe/);
+  });
+  it("rejects a late recipe that requires an unknown ingredient", () => {
+    bad({ recipes: [{ ...synthRecipe, requiredIngredients: [...synthRecipe.requiredIngredients, { ingredientId: "nope", minCount: 1 }] }] }, /requires an unknown ingredient: nope/);
+  });
+  it("rejects a discovery target id already used by an ordinary recipe", () => {
+    const problems = validateLateCatalog({ ...BASE, discoveryTargetIds: [SYNTH_TARGET_ID] }, validInput);
+    expect(problems.join("\n")).toMatch(/discovery target id is not unique/);
+  });
   it("rejects a missing, or an orphan, discovery target id", () => {
     bad({ discoveryTargetIds: {} }, /no discovery target id/);
     bad({ discoveryTargetIds: { [SYNTH_RECIPE_ID]: SYNTH_TARGET_ID, ghost: "g" } }, /unknown late recipe/);
@@ -121,13 +135,18 @@ describe("validateLateCatalog", () => {
 describe("the late catalog as it would be when ON is valid (checked even though Production never loads it)", () => {
   it("passes every catalog table check and every FINISH guard (vacuous while the late catalog is empty; binds the E4 data PR)", () => {
     const late = LATE_RECIPES as unknown as readonly Recipe[];
+    const lateRecipeIds = new Set<string>(late.map((r) => r.id));
+    const lateIngredientIds = new Set(LATE_INGREDIENTS.map((i) => i.id));
+    const baseRecipes = RECIPES.filter((r) => !lateRecipeIds.has(r.id));
+    const baseIngredients = INGREDIENTS.filter((i) => !lateIngredientIds.has(i.id));
+    // The ordinary ladder: when the flag is on, the late steps are already its tail.
+    const baseSteps = DISCOVERY_LADDER.steps.slice(0, DISCOVERY_LADDER.steps.length - (lateCatalogEnabled() ? LATE_LADDER_STEPS.length : 0));
     const view = productionCatalogView();
-    const recipes = [...RECIPES, ...late];
     const full = {
       ...view,
-      recipes,
-      ingredients: [...INGREDIENTS, ...LATE_INGREDIENTS],
-      ladder: appendLadderSteps(DISCOVERY_LADDER, LATE_LADDER_STEPS),
+      recipes: [...baseRecipes, ...late],
+      ingredients: [...baseIngredients, ...LATE_INGREDIENTS],
+      ladder: appendLadderSteps({ ...DISCOVERY_LADDER, steps: baseSteps }, LATE_LADDER_STEPS),
       cookingSteps: (id: string) => {
         const recipe = late.find((r) => r.id === id);
         return recipe ? deriveCoreSteps(recipe) : view.cookingSteps(id);
@@ -137,9 +156,12 @@ describe("the late catalog as it would be when ON is valid (checked even though 
         return recipe ? discoveryIdentityOf(recipe).capabilities : view.targetCapabilities(id);
       },
     };
-    expect(validateLateCatalog({ recipeIds: RECIPES.map((r) => r.id), ingredientIds: INGREDIENTS.map((i) => i.id) }, {
-      recipes: LATE_RECIPES, ingredients: LATE_INGREDIENTS, ladderSteps: LATE_LADDER_STEPS, discoveryTargetIds: LATE_DISCOVERY_TARGET_IDS,
-    })).toEqual([]);
+    expect(
+      validateLateCatalog(
+        { recipeIds: baseRecipes.map((r) => r.id), ingredientIds: baseIngredients.map((i) => i.id), discoveryTargetIds: Object.values(RECIPE_DISCOVERY_TARGET_IDS) },
+        { recipes: LATE_RECIPES, ingredients: LATE_INGREDIENTS, ladderSteps: LATE_LADDER_STEPS, discoveryTargetIds: LATE_DISCOVERY_TARGET_IDS },
+      ),
+    ).toEqual([]);
     expect(validateCatalogTables(full)).toEqual([]);
     expect(validateFinishCatalog(full)).toEqual([]);
   });
@@ -147,13 +169,13 @@ describe("the late catalog as it would be when ON is valid (checked even though 
 
 // --- Module-level ON / OFF: the real catalog modules re-evaluated with the late catalog mocked ON (synthetic content) or OFF. ---
 
-async function loadCatalog(enabled: boolean) {
+async function loadCatalog(enabled: boolean, lateContentPresentButDisabled = false) {
   vi.resetModules();
-  if (enabled) {
+  if (enabled || lateContentPresentButDisabled) {
     vi.doMock("./lateCatalog", async (importOriginal) => ({
       ...(await importOriginal<typeof import("./lateCatalog")>()),
-      LATE_CATALOG_PRODUCTION: true,
-      lateCatalogEnabled: () => true,
+      LATE_CATALOG_PRODUCTION: enabled,
+      lateCatalogEnabled: () => enabled,
       LATE_RECIPES: [synthRecipe],
       LATE_INGREDIENTS: [synthIngredient],
       LATE_LADDER_STEPS: [synthStep],
@@ -247,6 +269,16 @@ describe("late catalog ON (synthetic content) vs OFF (Production)", () => {
     }
   });
 
+  it("OFF with late content present in the source: none of it reaches any catalog (the Production leak check, non-vacuous)", async () => {
+    const off = await loadCatalog(false);
+    const leaky = await loadCatalog(false, true);
+    expect(JSON.stringify(leaky.recipes.RECIPES)).toBe(JSON.stringify(off.recipes.RECIPES));
+    expect(JSON.stringify(leaky.ingredients.INGREDIENTS)).toBe(JSON.stringify(off.ingredients.INGREDIENTS));
+    expect(JSON.stringify(leaky.ladder.DISCOVERY_LADDER)).toBe(JSON.stringify(off.ladder.DISCOVERY_LADDER));
+    expect(JSON.stringify(leaky.catalog.RECIPE_DISCOVERY_CATALOG)).toBe(JSON.stringify(off.catalog.RECIPE_DISCOVERY_CATALOG));
+    expect(leaky.recipes.RECIPES.map((r) => r.id as string)).not.toContain(SYNTH_RECIPE_ID);
+  });
+
   it("an enabled but malformed late catalog fails at load, instead of reaching a player", async () => {
     vi.resetModules();
     vi.doMock("./lateCatalog", async (importOriginal) => ({
@@ -272,7 +304,7 @@ describe("save compatibility between ON and OFF builds (the browser origin is sh
     };
   }
 
-  it("a save made with late content survives an OFF build opening and writing it, and is intact again when ON reopens it", async () => {
+  it("the Dex part of a save made with late content survives an OFF build opening and writing it, and is intact again when ON reopens it", async () => {
     const on = await loadCatalog(true);
     const storage = memoryStorage();
     const lateEntry = { recipeId: SYNTH_RECIPE_ID, discovered: true, bestScore: 82, bestStars: 3, timesMade: 2 };

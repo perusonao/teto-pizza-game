@@ -9,6 +9,14 @@
  * and the discovery catalog, Dex / save sanitizers, Shop, Research, hints and inventory (all derived from those three) see
  * exactly the catalog they saw before this file existed.
  *
+ * KNOWN LIMIT (decide before E5): the late entries sit AFTER the ordinary ones, so their ladder step numbers (and positions in
+ * `RECIPES` / `INGREDIENTS`) are "ordinary length + k" and shift whenever an ordinary batch appends. Production never sees them, but an ON
+ * build is not stable across ordinary batches. Before the catalog is switched on, either forbid ordinary batches while it is on, or give
+ * late steps a reserved stable range.
+ *
+ * Production-OFF here means behaviourally identical data; this file does not claim the bundle is byte-identical (the guard and merge calls
+ * go through a function, so dead-code removal is not relied on).
+ *
  * This file holds NO content: the three arrays are empty, so the types of `RecipeId` / the catalogs are unchanged. A later PR
  * (FIN-E4b BBQ chicken, the ikura-salmon redesign) fills them; it needs no other wiring. Switching `LATE_CATALOG_PRODUCTION`
  * on is a separate Owner decision (E5), together with the FINISH production switch (./freeCookFinishGate.ts).
@@ -72,18 +80,22 @@ export interface LateCatalogInput {
  * non-empty result when the catalog is enabled, so a bad late entry fails the build instead of reaching a player.
  */
 export function validateLateCatalog(
-  base: { recipeIds: readonly string[]; ingredientIds: readonly string[] },
+  base: { recipeIds: readonly string[]; ingredientIds: readonly string[]; discoveryTargetIds?: readonly string[] },
   late: LateCatalogInput,
 ): string[] {
   const problems: string[] = [];
   const baseRecipes = new Set(base.recipeIds);
   const baseIngredients = new Set(base.ingredientIds);
 
+  const lateIngredientIdSet = new Set(late.ingredients.map((i) => i.id));
   const lateRecipeIds = new Set<string>();
   for (const recipe of late.recipes) {
     if (baseRecipes.has(recipe.id) || lateRecipeIds.has(recipe.id)) problems.push(`recipe id is not unique: ${recipe.id}`);
     lateRecipeIds.add(recipe.id);
     if (!recipe.requiredIngredients.some((r) => r.applicationPhase === "POST_BAKE")) problems.push(`late recipe has no POST_BAKE requirement: ${recipe.id}`);
+    for (const req of recipe.requiredIngredients) {
+      if (!baseIngredients.has(req.ingredientId) && !lateIngredientIdSet.has(req.ingredientId)) problems.push(`late recipe ${recipe.id} requires an unknown ingredient: ${req.ingredientId}`);
+    }
     if (recipe.lunchRush !== false) problems.push(`late recipe must be lunchRush:false (Lunch Rush and Dinner exclude FINISH): ${recipe.id}`);
   }
 
@@ -95,15 +107,31 @@ export function validateLateCatalog(
     if (!ingredient.unlockCondition) problems.push(`late ingredient needs an unlockCondition (ladder-gated, never a Starter): ${ingredient.id}`);
   }
 
+  const keyed = new Set<string>();
+  const stepped = new Set<string>();
   for (const step of late.ladderSteps) {
     if (!lateRecipeIds.has(step.keyRecipeId)) problems.push(`late ladder step key recipe is not a late recipe: ${step.keyRecipeId}`);
+    if (keyed.has(step.keyRecipeId)) problems.push(`two late ladder steps share a key recipe: ${step.keyRecipeId}`);
+    keyed.add(step.keyRecipeId);
+    for (const id of step.ingredientIds) stepped.add(id);
     for (const id of step.ingredientIds) {
       if (!baseIngredients.has(id) && !lateIngredientIds.has(id)) problems.push(`late ladder step names an unknown ingredient: ${id}`);
     }
   }
 
+  // Every late recipe must be reachable (it is the key of a step) and every late ingredient obtainable (named by a step).
   for (const id of lateRecipeIds) {
-    if (!late.discoveryTargetIds[id]) problems.push(`late recipe has no discovery target id: ${id}`);
+    if (!keyed.has(id)) problems.push(`late recipe is the key of no late ladder step (unreachable): ${id}`);
+  }
+  for (const id of lateIngredientIds) {
+    if (!stepped.has(id)) problems.push(`late ingredient is named by no late ladder step (unobtainable): ${id}`);
+  }
+  const takenTargetIds = new Set(base.discoveryTargetIds ?? []);
+  for (const id of lateRecipeIds) {
+    const targetId = late.discoveryTargetIds[id];
+    if (!targetId) problems.push(`late recipe has no discovery target id: ${id}`);
+    else if (takenTargetIds.has(targetId)) problems.push(`discovery target id is not unique: ${targetId}`);
+    else takenTargetIds.add(targetId);
   }
   for (const id of Object.keys(late.discoveryTargetIds)) {
     if (!lateRecipeIds.has(id)) problems.push(`discovery target id for an unknown late recipe: ${id}`);
@@ -114,7 +142,7 @@ export function validateLateCatalog(
 /** Throws when an ENABLED late catalog breaks a rule; a no-op when disabled (the late arrays are not read at all). */
 export function assertLateCatalogValid(
   enabled: boolean,
-  base: { recipeIds: readonly string[]; ingredientIds: readonly string[] },
+  base: { recipeIds: readonly string[]; ingredientIds: readonly string[]; discoveryTargetIds?: readonly string[] },
   late: LateCatalogInput,
 ): void {
   if (!enabled) return;

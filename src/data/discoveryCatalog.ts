@@ -119,6 +119,7 @@ if (lateCatalogEnabled()) {
     {
       recipeIds: RECIPES.slice(0, RECIPES.length - LATE_RECIPES.length).map((r) => r.id),
       ingredientIds: INGREDIENTS.slice(0, INGREDIENTS.length - LATE_INGREDIENTS.length).map((i) => i.id),
+      discoveryTargetIds: Object.values(RECIPE_DISCOVERY_TARGET_IDS),
     },
     { recipes: LATE_RECIPES, ingredients: LATE_INGREDIENTS, ladderSteps: LATE_LADDER_STEPS, discoveryTargetIds: LATE_DISCOVERY_TARGET_IDS },
   );
@@ -141,7 +142,10 @@ export function discoveryIdentityOf(recipe: Pick<Recipe, "requiredIngredients">)
   return { identityDimensions: { ...DEFAULT_IDENTITY_DIMENSIONS, late: [["POST_BAKE", lateIds]] }, capabilities: ["LATE_ADDITION"] };
 }
 
-export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => ({
+export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => {
+  const { identityDimensions, capabilities } = discoveryIdentityOf(recipe);
+  // Key order is the pre-FIN-E4 order (items, sauceBase, capabilities, identityDimensions, eligibility).
+  return {
   targetId: targetIdOf(recipe.id),
   recipeId: recipe.id,
   items: [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))].sort(),
@@ -152,6 +156,8 @@ export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPE
         .filter((id) => getIngredient(id)?.category === "sauce"),
     ),
   ].sort(),
-  ...discoveryIdentityOf(recipe),
+  capabilities,
+  identityDimensions,
   eligibility: { status: "ELIGIBLE" },
-}));
+  };
+});
