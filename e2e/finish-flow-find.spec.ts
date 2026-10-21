@@ -173,7 +173,9 @@ test("the FINISH hint names the button that is actually there (完成), never �
   await expect(page.getByRole("button", { name: /次へ/ })).toHaveCount(0);
 });
 
-for (const round of ["LUNCH_RUSH", "DINNER", "FREE_COOK"]) {
+// FIN-E3a: a Free Cooking round runs FINISH exactly when its own profile carries it (gate ON); the harness injects a FINISH profile by hand,
+// so FREE_COOK is no longer a "never" here -- its OFF/ON behavior is pinned in gameReducer.finishFreeCook.test.ts and freeCookFinishGate.test.ts.
+for (const round of ["LUNCH_RUSH", "DINNER"]) {
   test(`${round}: a real round of that mode never enters FINISH, even with a FINISH profile and a late requirement`, async ({ page }) => {
     await open(page, `round=${round}&stock=3`);
     const before = await state(page);
