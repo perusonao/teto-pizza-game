@@ -3,7 +3,7 @@ import { deriveCoreSteps } from "./cookingProfiles";
 import { discoveryIdentityOf, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { INGREDIENTS } from "./ingredients";
-import { RECIPES, type Recipe } from "./recipes";
+import { countsTowardLadder, RECIPES, type Recipe } from "./recipes";
 import { appendLadderSteps, validateLadderProgression } from "../logic/discoveryLadder";
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
@@ -132,6 +132,23 @@ describe("validateLateCatalog", () => {
   });
 });
 
+/**
+ * `validateLadderProgression` on a catalog, with the discovery count the runtime uses: it counts every recipe it is given, but the ladder
+ * advances only for `countsTowardLadder` recipes (src/state/materialEntitlement.ts), so SOFTLOCK is judged on the credited recipes alone while
+ * KEY_RECIPE / UNREACHABLE / UNUSED_MATERIAL are judged on all of them.
+ */
+function ladderProgressionProblems(
+  ladder: Parameters<typeof validateLadderProgression>[0],
+  recipes: readonly { id: string; ladderCredit?: boolean; requiredIngredients: readonly { ingredientId: string }[] }[],
+  starters: readonly string[],
+): string[] {
+  const view = (list: typeof recipes) => list.map((r) => ({ id: r.id, ingredientIds: [...new Set(r.requiredIngredients.map((q) => q.ingredientId))] }));
+  const all = validateLadderProgression(ladder, view(recipes), starters).filter((p) => !p.startsWith("SOFTLOCK"));
+  const credited = recipes.filter((r) => countsTowardLadder(r.id, recipes as never));
+  const softlocks = validateLadderProgression(ladder, view(credited), starters).filter((p) => p.startsWith("SOFTLOCK"));
+  return [...all, ...softlocks];
+}
+
 describe("the late catalog as it would be when ON is valid (checked even though Production never loads it)", () => {
   it("passes every catalog table check and every FINISH guard (vacuous while the late catalog is empty; binds the E4 data PR)", () => {
     const late = LATE_RECIPES as unknown as readonly Recipe[];
@@ -167,8 +184,18 @@ describe("the late catalog as it would be when ON is valid (checked even though 
     // Progression: every step newly completes its key recipe, no recipe needs a material the starters and steps never provide, and no step
     // is unreachable for lack of discoveries (a late recipe needing a LATER step's material, or too few makeable recipes, fails here).
     const starters = baseIngredients.filter((i) => !i.unlockCondition).map((i) => i.id);
-    const progressionRecipes = full.recipes.map((r) => ({ id: r.id as string, ingredientIds: [...new Set(r.requiredIngredients.map((q) => q.ingredientId))] }));
-    expect(validateLadderProgression(full.ladder, progressionRecipes, starters)).toEqual([]);
+    expect(ladderProgressionProblems(full.ladder, full.recipes, starters)).toEqual([]);
+  });
+
+  it("the progression check bites when non-credited late recipes pad the discovery count (SOFTLOCK counts credited recipes only)", () => {
+    const starters = INGREDIENTS.filter((i) => !i.unlockCondition).map((i) => i.id);
+    const extras = Array.from({ length: 5 }, (_, i) => ({ id: `late-x${i}`, ladderCredit: false, requiredIngredients: [{ ingredientId: `synthetic-x${i}` }] }));
+    const ladder = appendLadderSteps(DISCOVERY_LADDER, extras.map((e) => ({ ingredientIds: [e.requiredIngredients[0].ingredientId], keyRecipeId: e.id })));
+    const recipes = [...(RECIPES as unknown as readonly { id: string; ladderCredit?: boolean; requiredIngredients: readonly { ingredientId: string }[] }[]), ...extras];
+    // Counting every recipe would accept this ladder; counting only credited ones (the runtime rule) reports the softlock.
+    const naive = validateLadderProgression(ladder, recipes.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) })), starters);
+    expect(naive.filter((p) => p.startsWith("SOFTLOCK"))).toEqual([]);
+    expect(ladderProgressionProblems(ladder, recipes, starters).filter((p) => p.startsWith("SOFTLOCK")).length).toBeGreaterThan(0);
   });
 
   it("the progression check bites on a late recipe that needs a LATER step's material", () => {
