@@ -191,11 +191,16 @@ describe("a healthy session saves exactly as before", () => {
     expect(loadSave(storage).pitzBalance).toBe(2);
   });
 
-  it("storage that was never given a session is not guarded by it (plain loadSave callers are unchanged)", () => {
+  it("storage that was never given a session is not guarded by it: a changed stored text is not refused (the guard is opt-in)", () => {
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: REAL_SAVE });
-    const other = storage.view();
-    persistProgress(snapshotOf(loadSave(other), { pitzBalance: 1 }), other);
-    expect(persistProgress(snapshotOf(loadSave(storage), { pitzBalance: 2 }), storage).blocked).toBeUndefined();
+    const state = loadSave(storage); // plain loadSave: no session
+    storage.view().setItem(SAVE_STORAGE_KEY, REAL_SAVE.replace("5000", "5300")); // another writer changes it
+    expect(persistProgress(snapshotOf(state, { pitzBalance: 2 }), storage).blocked).toBeUndefined();
+    // the very same sequence under a session IS refused
+    const guarded = memoryStorage({ [SAVE_STORAGE_KEY]: REAL_SAVE });
+    const guardedState = loadSaveForSession(guarded);
+    guarded.view().setItem(SAVE_STORAGE_KEY, REAL_SAVE.replace("5000", "5300"));
+    expect(persistProgress(snapshotOf(guardedState, { pitzBalance: 2 }), guarded).blocked).toBe("stale-save");
   });
 });
 
@@ -278,26 +283,30 @@ describe("#282: a stale tab never overwrites what another tab saved", () => {
 
   it("KNOWN LIMIT (documented): the check and the write are separate calls, so a write that lands in between is not seen by THIS write", () => {
     const inner = memoryStorage({ [SAVE_STORAGE_KEY]: REAL_SAVE });
-    const tabB = inner.view();
-    let racingWriteDone = false;
-    // The other tab writes right after this page's guard read, before its setItem.
-    const tabA: StorageLike = {
+    const otherTab = inner.view();
+    const otherTabsText = REAL_SAVE.replace("5000", "5300");
+    let readsSinceLoad = -1; // -1: the startup load is still running
+    // persistProgress reads once itself (`loadSave`), then the write guard reads once more: right AFTER that second read the
+    // other tab saves, before this page's `setItem`.
+    const tab: StorageLike = {
       getItem: (k) => {
         const value = inner.getItem(k);
-        if (!racingWriteDone && k === SAVE_STORAGE_KEY) {
-          racingWriteDone = true;
-          tabB.setItem(SAVE_STORAGE_KEY, REAL_SAVE.replace("5000", "5300"));
-        }
+        if (readsSinceLoad >= 0 && k === SAVE_STORAGE_KEY && ++readsSinceLoad === 2) otherTab.setItem(SAVE_STORAGE_KEY, otherTabsText);
         return value;
       },
       setItem: (k, v) => inner.setItem(k, v),
       removeItem: (k) => inner.removeItem(k),
     };
-    const stateA = loadSaveForSession(tabA);
-    racingWriteDone = false;
-    persistProgress(snapshotOf(stateA, { pitzBalance: 5100 }), tabA); // the race is NOT caught here (no CAS in localStorage)...
-    // ...but the page's next write sees the difference and is refused, so the damage is bounded to this one write.
-    expect(persistProgress(snapshotOf(stateA, { pitzBalance: 5101 }), tabA).blocked).toBe("stale-save");
+    const state = loadSaveForSession(tab);
+    readsSinceLoad = 0;
+
+    // The race is NOT caught by this write: the guard saw the expected text, then the other tab saved, then setItem replaced it.
+    expect(persistProgress(snapshotOf(state, { pitzBalance: 5100 }), tab).blocked).toBeUndefined();
+    expect(loadSave(inner).pitzBalance).toBe(5100);
+    // The page's NEXT write sees text it did not write and is refused, so the damage is bounded to that one write.
+    expect(persistProgress(snapshotOf(state, { pitzBalance: 5101 }), tab).blocked).toBeUndefined(); // it wrote 5100 itself: expected
+    otherTab.setItem(SAVE_STORAGE_KEY, otherTabsText);
+    expect(persistProgress(snapshotOf(state, { pitzBalance: 5102 }), tab).blocked).toBe("stale-save");
   });
 });
 
