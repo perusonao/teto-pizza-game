@@ -25,8 +25,9 @@
  */
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE } from "../../data/freeCook";
-import { getRecipe, type BakeTarget, type Recipe } from "../../data/recipes";
+import { getRecipe, type BakeTarget, type Recipe, type RecipeId } from "../../data/recipes";
 import { discoveredRecipeIds, type DexState } from "../../state/dex";
+import { pizzaForFinalEvaluation } from "../../state/finishEngine";
 import type { PizzaState } from "../../state/pizzaState";
 import {
   evaluatePizzaCompletion,
@@ -34,7 +35,7 @@ import {
   type PizzaCompletionResult,
 } from "../completionGate";
 import { sanitizeStringArray, sanitizeToppings } from "../scoringV2/boundary";
-import { evaluateDiscovery, type DiscoveryOutcome } from "./matcher";
+import { evaluateDiscovery, type DiscoveryOutcome, type RecipeDiscoveryTarget } from "./matcher";
 import { signatureOfPizza } from "./signature";
 
 /** The discovery outcomes a free-cook result can show as an original pizza. */
@@ -86,20 +87,36 @@ export function withFreeCookBakeWindow(recipe: Recipe): Recipe {
   return { ...recipe, bakeTarget: FREE_COOK_BAKE_TARGET };
 }
 
-export function resolveFreeCookPizza(pizza: PizzaState, dex: DexState): FreeCookResolution {
+/** The recipe lookup / catalog `resolveFreeCookPizza` reads; a test can pass a synthetic late recipe (never added to `RECIPES`). */
+export interface FreeCookResolveSources {
+  catalog: readonly RecipeDiscoveryTarget[];
+  getRecipe: (id: RecipeId) => Recipe | undefined;
+}
+
+export function resolveFreeCookPizza(
+  pizza: PizzaState,
+  dex: DexState,
+  sources: FreeCookResolveSources = { catalog: RECIPE_DISCOVERY_CATALOG, getRecipe },
+): FreeCookResolution {
   const completion = evaluateFreeCookCompletion(pizza);
   if (completion.status === "FAILED") return { kind: "FAILED", completion };
 
   const outcome = evaluateDiscovery(
     signatureOfPizza(pizza),
-    RECIPE_DISCOVERY_CATALOG,
+    sources.catalog,
     discoveredRecipeIds(dex),
   );
   if (outcome.kind !== "NEW_DISCOVERY" && outcome.kind !== "ALREADY_DISCOVERED") {
     return { kind: "ORIGINAL", outcome };
   }
-  const recipe = getRecipe(outcome.recipeId);
-  if (!recipe || evaluatePizzaCompletion(withFreeCookBakeWindow(recipe), pizza, "recipe").status !== "PASS") {
+  const recipe = sources.getRecipe(outcome.recipeId);
+  // Identification and cooking share one contract: a late requirement is met by FINISH pieces only (`pizzaForFinalEvaluation`, the
+  // same filter `finalizeRound` applies to a FINAL pass), so a pizza this accepts is never then FAILED by the FINAL Completion Gate.
+  // A recipe with no late requirement gets the same pizza object back -- every shipped recipe resolves exactly as before.
+  if (
+    !recipe ||
+    evaluatePizzaCompletion(withFreeCookBakeWindow(recipe), pizzaForFinalEvaluation(recipe, pizza), "recipe").status !== "PASS"
+  ) {
     return {
       kind: "ORIGINAL",
       outcome: { kind: "INCOMPLETE_MATCH", recipeId: outcome.recipeId, targetId: outcome.targetId },
