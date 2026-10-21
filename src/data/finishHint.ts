@@ -38,3 +38,15 @@ export function buildFinishHintLine(recipe: Recipe, pizza: Pick<PizzaState, "top
   }
   return { speaker: "mito", id: `hint.finish.${recipe.id}`, textJa: late.length > 0 ? READY_FINISH_HINT : NO_LATE_FINISH_HINT };
 }
+
+const FINISH_TRAY_EMPTY = {
+  /** A Guided recipe that asks for a late ingredient the player does not hold: finishing now is a failed dish. */
+  guided: "後乗せの食材がありません。このまま完成すると失敗です",
+  /** Free Cooking / Research (FIN-E3b): FINISH is optional there, so an empty tray is never a failure -- and says nothing about what a late ingredient is. */
+  free: "仕上げにのせられる具材がありません。「完成」で進もう",
+};
+
+/** The FINISH tray's empty-state line: the Guided failure warning, or the Free Cooking one (finishing with nothing placed is allowed). */
+export function finishTrayEmptyText(recipe: Recipe): string {
+  return isFreeCookRecipe(recipe) ? FINISH_TRAY_EMPTY.free : FINISH_TRAY_EMPTY.guided;
+}

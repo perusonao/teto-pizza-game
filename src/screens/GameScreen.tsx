@@ -49,7 +49,7 @@ import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materi
 import { executionAdviceJa } from "../state/executionAdvice";
 import { panShapeNoticeJa } from "../state/panShapeNotice";
 import { finishStepAvailable, selectPostBakeStep } from "./postBakeView";
-import { buildFinishHintLine } from "../data/finishHint";
+import { buildFinishHintLine, finishTrayEmptyText } from "../data/finishHint";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
 import type { ReferencePizza } from "../data/referencePizza";
@@ -953,7 +953,7 @@ export function GameScreen({
         >
           {finishTrayCount === 0 ? (
             <p className="finish-tray-empty" data-testid="finish-tray-empty">
-              後乗せの食材がありません。このまま完成すると失敗です
+              {finishTrayEmptyText(state.recipe)}
             </p>
           ) : (
             <IngredientTray
