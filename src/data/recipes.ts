@@ -1,5 +1,6 @@
 import type { DoughKind } from "../logic/dough/doughKind";
 import type { PanShape } from "../logic/pan/panShape";
+import { LATE_RECIPES, lateCatalogEnabled, mergeLate } from "./lateCatalog";
 
 export interface RecipeRequirement {
   ingredientId: string;
@@ -78,7 +79,8 @@ export interface Recipe {
 /** `as const` on the whole array (not per-id) keeps every id a string literal
  *  automatically, so RecipeId always reflects RECIPES with no hand-maintained
  *  id list and no per-entry annotation to remember when adding a recipe. */
-export const RECIPES = [
+/** The ordinary (pre-bake) recipes. Append-only; late-addition recipes live in ./lateCatalog.ts and join `RECIPES` only when it is enabled. */
+const BASE_RECIPES = [
   {
     id: "margherita",
     nameJa: "マルゲリータ",
@@ -1225,9 +1227,18 @@ export const RECIPES = [
   },
 ] as const;
 
+/**
+ * Every recipe the running build knows. FIN-E4 foundation: `BASE_RECIPES` followed by `LATE_RECIPES` when the build-time late catalog
+ * is enabled (./lateCatalog.ts, Owner D-3 = 案 1); with it off (Production) this IS `BASE_RECIPES` -- the same array object.
+ */
+export const RECIPES = mergeLate(BASE_RECIPES, LATE_RECIPES, lateCatalogEnabled());
+
 /** Derived from RECIPES above so this union can never drift out of sync with
- *  the actual recipe data. */
+ *  the actual recipe data. Includes the late-catalog ids (types only: at runtime they exist only when ./lateCatalog.ts is enabled). */
 export type RecipeId = (typeof RECIPES)[number]["id"];
+
+/** The ordinary recipes' ids (everything in `BASE_RECIPES`), for tables that must cover exactly those. */
+export type BaseRecipeId = (typeof BASE_RECIPES)[number]["id"];
 
 export function getRecipe(id: RecipeId): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);

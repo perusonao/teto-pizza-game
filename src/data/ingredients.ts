@@ -1,4 +1,5 @@
 import { SAUCE_TOMATO_HEX } from "../logic/sauceField";
+import { LATE_INGREDIENTS, lateCatalogEnabled, mergeLate } from "./lateCatalog";
 
 export type IngredientCategory = "sauce" | "cheese" | "topping";
 
@@ -93,7 +94,7 @@ export interface Ingredient {
   pieceVisual?: DedicatedIngredientVisual;
 }
 
-export const INGREDIENTS: Ingredient[] = [
+const BASE_INGREDIENTS: Ingredient[] = [
   {
     id: "tomato-sauce",
     category: "sauce",
@@ -965,6 +966,12 @@ export const INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
   },
 ];
+
+/**
+ * Every ingredient the running build knows: `BASE_INGREDIENTS` plus the late-only ingredients when the build-time late catalog is
+ * enabled (./lateCatalog.ts); with it off (Production) this is `BASE_INGREDIENTS` itself.
+ */
+export const INGREDIENTS: Ingredient[] = mergeLate(BASE_INGREDIENTS, LATE_INGREDIENTS, lateCatalogEnabled()) as Ingredient[];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];
 

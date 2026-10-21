@@ -1,4 +1,5 @@
 import { appendLadderSteps, type AppendedLadderStep } from "../logic/discoveryLadder";
+import { LATE_LADDER_STEPS, lateCatalogEnabled, mergeLate } from "./lateCatalog";
 
 /**
  * Progression 2.0 W1 Integration I4a: Discovery Ladder authority data (REC-04 = RESOLVED,
@@ -202,4 +203,9 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
  *  kept: the Shop ledger is a union and never re-locks (../state/materialEntitlement.ts). Since
  *  LAD-1 it is the frozen W1 ladder followed by `POST_W1_APPENDED_STEPS` -- with no appended step
  *  its content is exactly `W1_25_DISCOVERY_LADDER`. */
-export const DISCOVERY_LADDER: DiscoveryLadder = appendLadderSteps(W1_25_DISCOVERY_LADDER, POST_W1_APPENDED_STEPS);
+export const DISCOVERY_LADDER: DiscoveryLadder = appendLadderSteps(
+  W1_25_DISCOVERY_LADDER,
+  // FIN-E4 foundation: late-addition steps (./lateCatalog.ts) go last, only when the build-time late catalog is enabled. Off (Production):
+  // exactly `POST_W1_APPENDED_STEPS`, so the ladder is unchanged.
+  mergeLate(POST_W1_APPENDED_STEPS, LATE_LADDER_STEPS, lateCatalogEnabled()),
+);

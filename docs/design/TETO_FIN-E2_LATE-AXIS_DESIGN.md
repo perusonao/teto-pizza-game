@@ -104,6 +104,7 @@ Human Verification: 本番で可視の変化が無い inert 変更のため動�
 - **E3**: Free Cooking の発見解決は CONFIRM_BAKE で走る。仕上げタブを足すときは、解決を FINISH 完了後へ移す必要がある（`roundRunsFinish` が Free を除外している現状の理由）。Dinner Stage A は START_BAKE で識別するため late は常に `[]`（後乗せレシピは識別不能 = 除外方針と整合、UD-I）。
 - **E4**: bbq-sauce / cilantro / ladder / レシピ追加時に Hint 5.0 gate・privacy sweep・`validateFinishCatalog` を後乗せレシピ込みで再実行。UD-F（価格・星条件）が必要。
 - **E5**: 有効化の OFF ゲート方式（E4 前に決定）、実機 HV。
+  - **決定（Owner 2026-10-21）**: OFF 方式は案 1（ビルド時定数によるカタログ除外）。単一の合流点は `src/data/lateCatalog.ts`（データなしの基盤。`docs/reports/TETO_FIN-E4_LATE-CATALOG-FOUNDATION_Result.md`）。本番 ON はこの定数と FINISH 本番スイッチを別の Owner 判断で同時に切り替える。
 
 ## 8. Hint 5.0 gate を E4 で再監査する条件（弱めない）
 
