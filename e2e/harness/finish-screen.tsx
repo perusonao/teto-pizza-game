@@ -8,7 +8,8 @@
  *   &stock=N (parsley's post-bake stock)  &late=2|3 (also require basil / a third late topping, to measure a 2-3 chip tray)
  *
  * FIN-B: stateful -- the real reducer + App's select / tap wiring (App.tsx handleSelectIngredient / handleTapPizza), so a tap on the
- * tray and on the pizza really places a "post" piece. 「1つ戻す」 and the completion control are FIN-C and are not part of this screen yet.
+ * tray and on the pizza really places a "post" piece. FIN-C: ↩ (UNDO_LAST_PLACEMENT) and 完成 (CONFIRM_MAKING_STEP, then REGISTER_TO_DEX like App) are wired to the real reducer.
+ *   &owned=none (no late ingredient owned: the tray's note)
  */
 import { StrictMode, useEffect, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -45,6 +46,7 @@ function build(): GameState {
   for (let i = 0; i < n; i += 1) {
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "parsley", x: DOUGH_CENTER - 24 + i * 16, y: DOUGH_CENTER - 20 + (i % 2) * 40 });
   }
+  if (params.get("owned") === "none") state = { ...state, ownedIngredientIds: state.ownedIngredientIds.filter((id) => id !== "parsley") };
   const round = params.get("round");
   return round && round !== "GUIDED" ? { ...state, roundKind: round as GameState["roundKind"] } : state;
 }
@@ -82,8 +84,11 @@ function Harness() {
         onGoHome={noop}
         onBeginPrepare={noop}
         onResetPizza={noop}
-        onUndoPlacement={noop}
-        onConfirmMakingStep={noop}
+        onUndoPlacement={() => dispatch({ type: "UNDO_LAST_PLACEMENT" })}
+        onConfirmMakingStep={() => {
+          dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() });
+          dispatch({ type: "REGISTER_TO_DEX" });
+        }}
         onStartBake={noop}
         onShowHint={() => dispatch({ type: "SHOW_HINT" })}
         onChangeCategory={noop}

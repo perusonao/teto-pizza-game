@@ -93,6 +93,7 @@ import { doughSwitchOffered } from "../state/doughSelection";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
+import { canPlacePostBakeIngredient } from "../state/inventory";
 import { isLunchRushRound } from "../state/roundKind";
 
 /**
@@ -387,6 +388,17 @@ export function GameScreen({
     onUndoPlacement();
   }
 
+  // FINISH FIN-C: 完成 leaves FINISH through the existing CONFIRM_MAKING_STEP (the FINAL evaluation, the one inventory
+  // consumption). The reducer is the backstop (bakeValue is cleared and the step is left in the same transition, so a
+  // repeat cannot consume twice); this guard additionally drops a second press of the same step before it re-renders.
+  const finishCompletedTokenRef = useRef<number | null>(null);
+  function handleCompleteFinish() {
+    if (finishCompletedTokenRef.current === state.makingStepToken) return;
+    finishCompletedTokenRef.current = state.makingStepToken;
+    setPizzaResetToken((token) => token + 1);
+    onConfirmMakingStep();
+  }
+
   // Issue #86 (UX-2): the single gate for "may the immediate next making step be entered right
   // now" -- computed once here and shared by both MakingStepTabs (its own next-tab tappability)
   // and the 「次へ」 CTA's own `disabled` attribute below, so the one existing UI-only completion
@@ -506,6 +518,15 @@ export function GameScreen({
   // FINISH FIN-B: FINISH carries the tray, so its stage is the compact one (PREPARE's), not CUT's roomy one.
   const roomyStage = state.phase === "BAKE" || (postBakeStepRendered && !isFinishStep);
   const finishTrayCount = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds).length : 0;
+
+  // FIN-B carry-over: once the stock of the selected late ingredient is used up (or after an ingredient that FINISH does
+  // not offer was left selected), release the selection so a tap on the pizza cannot act on a disabled chip.
+  useEffect(() => {
+    if (!isFinishStep || selectedIngredientId === null) return;
+    const ingredient = getIngredient(selectedIngredientId);
+    const offered = finishTrayIngredients(state.recipe, state.ownedIngredientIds).some((i) => i.id === selectedIngredientId);
+    if (!ingredient || !offered || !canPlacePostBakeIngredient(ingredient, state.inventory, state.pizza)) onClearIngredientSelection?.();
+  }, [isFinishStep, selectedIngredientId, state.recipe, state.ownedIngredientIds, state.inventory, state.pizza, onClearIngredientSelection]);
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
@@ -708,7 +729,7 @@ export function GameScreen({
           postSteps={activePostBakeSteps}
           currentStep={state.makingStep}
           currentPhase={state.phase === "PREPARE" ? "PREPARE" : state.phase === "BAKE" ? "BAKE" : "POST_BAKE"}
-          // FIN-A: FINISH has no completion control yet (FIN-C), so the tab after it cannot advance the round.
+          // FINISH completes through its own 完成 button (FIN-C), so the tab after it still cannot advance the round.
           nextReady={state.phase === "POST_BAKE" ? (isFinishStep ? false : cutConfirmReady) : nextStepReady}
           onAdvance={onConfirmMakingStep}
         />
@@ -933,6 +954,11 @@ export function GameScreen({
             } as CSSProperties
           }
         >
+          {finishTrayCount === 0 ? (
+            <p className="finish-tray-empty" data-testid="finish-tray-empty">
+              後乗せにつかう食材がありません
+            </p>
+          ) : (
           <IngredientTray
             activeCategory="topping"
             selectedIngredientId={selectedIngredientId}
@@ -947,13 +973,29 @@ export function GameScreen({
             makingStepToken={state.makingStepToken}
             reservePagerRow={false}
           />
+          )}
         </div>
       )}
 
-      {/* FINISH FIN-B: the explicit hint (SHOW_HINT -> buildFinishHintLine, with the count). The ↩ and the 完成 control join this
-          bar in FIN-C. */}
+      {/* FINISH FIN-B/FIN-C: the bar of the FINISH step -- ↩ (UNDO_LAST_PLACEMENT: only the latest piece placed in FINISH, never a
+          pre-bake one; disabled when there is none), 完成 (CONFIRM_MAKING_STEP -> FINAL evaluation -> RESULT; allowed with no late
+          piece, which the existing rules judge FAILED; no confirm dialog) and the hint. No やり直す / 全消し in FINISH. */}
       {isFinishStep && state.dinner === null && (
-        <div className="action-row prepare-bake-bar" data-testid="finish-bar">
+        <div className="action-row prepare-bake-bar prepare-bake-bar--undo" data-testid="finish-bar">
+          <button
+            type="button"
+            className="secondary-button prepare-undo-button"
+            data-testid="finish-undo"
+            onClick={handleUndoPlacement}
+            disabled={!undoAvailable}
+            aria-label="1つ戻す"
+            title="1つ戻す"
+          >
+            <span aria-hidden="true">{"\u21A9"}</span>
+          </button>
+          <button type="button" className="cta-button cta-button--bake" data-testid="finish-complete" onClick={handleCompleteFinish}>
+            完成
+          </button>
           <button type="button" className="secondary-button" onClick={onShowHint}>
             ヒント
           </button>
