@@ -61,7 +61,8 @@ async function expectNoPageOverflow(page: Page) {
 }
 
 async function expectSixTabsInside(page: Page) {
-  const tabs = page.getByRole("tab");
+  // the strip's items: five steps (the 焼く indicator is not a role=tab) plus the BAKE indicator = six
+  const tabs = page.locator(".making-step-tabs > *");
   await expect(tabs).toHaveCount(6);
   const viewport = page.viewportSize()!;
   for (const tab of await tabs.all()) {
@@ -196,7 +197,7 @@ test.describe("Free Cooking FINISH stays OFF without the opt-in", () => {
     test(`${query || "(no query)"}: five tabs, no 仕上げ, and 焼く goes straight to the result`, async ({ page }) => {
       test.setTimeout(120_000);
       await boot(page, query, null);
-      await expect(page.getByRole("tab")).toHaveCount(5);
+      await expect(page.locator(".making-step-tabs > *")).toHaveCount(5);
       await expect(page.getByRole("tab", { name: "仕上げ" })).toHaveCount(0);
       await prepareStarterPizza(page);
       await bake(page, FREE_BAKE);
