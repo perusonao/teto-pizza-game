@@ -50,7 +50,7 @@ Capability codes: `DV`=DOUGH_VARIANT, `MS`=MULTI_SPREAD_LAYER, `SO`=STEP_ORDER, 
 | 40 | `thai-chicken-pizza-pizzadb-p4` | タイチキンピザ | その他 → peanut-sauce | thin | chicken, cilantro, mozzarella, peanut-sauce | 赤唐辛子 | FULL |  | BLOCKED_PRODUCT_DECISION | UNRESOLVED_INGREDIENT |
 | 41 | `mentaiko-cream-pizza-pizzadb-p4` | たらこクリームピザ | ホワイトソース → fresh-cream-sauce | thin | cod-roe, fresh-cream-sauce, mozzarella, nori, shiso |  | PART | LA | READY |  |
 | 42 | `argentine-napolitana-pizzadb-p1` | アルゼンチン風ナポリターナ | チーズ → none | thick-fluffy | fresh-tomato, garlic, mozzarella, oregano, parmigiano |  | PART | DV | READY_WITH_REVIEW |  |
-| 43 | `ikura-salmon-pizza-pizzadb-p1` | いくらとサーモンのピザ | チーズ → none | thin | cream-cheese, salmon, salmon-roe, shiso |  | FULL |  | READY |  |
+| 43 | `ikura-salmon-pizza-pizzadb-p1` | いくらとサーモンのピザ | チーズ → none | thin | cream-cheese, salmon, salmon-roe, shiso |  | PART | LA | READY |  |
 | 44 | `vegan-cashew-cheese-pizza-pizzadb-p1` | ヴィーガンカシューチーズピザ | トマトソース → tomato-sauce | thin | bell-pepper, cashew-cheese, zucchini |  | FULL |  | READY |  |
 | 45 | `eel-pizza-pizzadb-p1` | うなぎピザ | 甘辛だれ → unspecified | thin | eel, green-onion, mozzarella, sansho-pepper |  | PART | LA | BLOCKED_PRODUCT_DECISION | BASE_SAUCE_UNSPECIFIED, MECHANIC_INTERPRETATION |
 | 46 | `jerusalem-mixed-grill-pizza-pizzadb-p1` | エルサレムミックスグリルピザ | その他 → unspecified | thin | chicken, cumin, onion, parsley |  | FULL |  | BLOCKED_PRODUCT_DECISION | BASE_SAUCE_UNSPECIFIED |
