@@ -51,10 +51,11 @@ for (const bake of ["raw", "perfect", "burnt"]) {
   });
 }
 
-test("FINISH: nothing from FIN-C is on the screen (no 1つ戻す, no completion control)", async ({ page }) => {
+test("FINISH: the bar has ↩ / 完成 (FIN-C) but never やり直す / 全消し / 次へ / 焼く！", async ({ page }) => {
   await open(page, "post=2");
-  await expect(page.getByRole("button", { name: "1つ戻す" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /次へ|焼く！|完成/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "1つ戻す" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "完成" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /やり直す|全消し|次へ|焼く！/ })).toHaveCount(0);
 });
 
 test("FINISH: the hint follows the pieces placed (name the late ingredient, then 'done')", async ({ page }) => {
