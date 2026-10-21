@@ -10,8 +10,12 @@
  * FIN-B: stateful -- the real reducer + App's select / tap wiring (App.tsx handleSelectIngredient / handleTapPizza), so a tap on the
  * tray and on the pizza really places a "post" piece. FIN-C: ↩ (UNDO_LAST_PLACEMENT) and 完成 (CONFIRM_MAKING_STEP, then REGISTER_TO_DEX like App) are wired to the real reducer.
  *   &owned=none (no late ingredient owned: the tray's note)
+ *
+ * FIN-D: &start=bake begins at the BAKE phase (CONFIRM_BAKE is then dispatched by the real BAKE overlay's 止める, or window.__confirmBake(value) for a
+ * deterministic bake), and the whole round is exercised through to RESULT / DISCOVERED. `window.__actions()` returns every dispatched action type
+ * (to count CONFIRM_MAKING_STEP / REGISTER_TO_DEX), `&cut=` / `&late=` / `&stock=` / `&owned=` apply as before.
  */
-import { StrictMode, useEffect, useReducer, useState } from "react";
+import { StrictMode, useCallback, useLayoutEffect, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../../src/index.css";
 import "../../src/App.css";
@@ -37,17 +41,23 @@ function build(): GameState {
     params.get("cut") === "1"
       ? { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH", "CUT"], cutConfig: { requestedSliceCount: 6 } }
       : { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH"] };
-  const base = atBake("guided", "margherita");
+  const round = params.get("round");
+  // FIN-D: with &start=bake the round kind is a REAL round of that mode at BAKE (confirmBakeMatrix), so the exclusion is exercised through the reducer.
+  const mode = ({ LUNCH_RUSH: "lunchRush", DINNER: "dinner", FREE_COOK: "free" } as const)[round as "LUNCH_RUSH" | "DINNER" | "FREE_COOK"] ?? "guided";
+  const base = atBake(params.get("start") === "bake" ? mode : "guided", "margherita");
   const late = Number(params.get("late") ?? 1);
   const recipe = late > 1 ? { ...FX, requiredIngredients: [...FX.requiredIngredients, ...LATE_EXTRA.slice(0, late - 1)] } : FX;
-  let state = gameReducer({ ...base, recipe, cookingProfile: profile, pizza: preBakePizza() }, { type: "CONFIRM_BAKE", value: bake, now: 1_000_000 });
+  const atBakeState: GameState = { ...base, recipe, cookingProfile: profile, pizza: preBakePizza() };
+  if (params.get("start") === "bake") {
+    return params.has("stock") ? { ...atBakeState, inventory: { ...atBakeState.inventory, parsley: Number(params.get("stock")) } } : atBakeState;
+  }
+  let state = gameReducer(atBakeState, { type: "CONFIRM_BAKE", value: bake, now: 1_000_000 });
   if (params.has("stock")) state = { ...state, inventory: { ...state.inventory, parsley: Number(params.get("stock")) } };
   const n = Number(params.get("post") ?? 0);
   for (let i = 0; i < n; i += 1) {
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "parsley", x: DOUGH_CENTER - 24 + i * 16, y: DOUGH_CENTER - 20 + (i % 2) * 40 });
   }
   if (params.get("owned") === "none") state = { ...state, ownedIngredientIds: state.ownedIngredientIds.filter((id) => id !== "parsley") };
-  const round = params.get("round");
   return round && round !== "GUIDED" ? { ...state, roundKind: round as GameState["roundKind"] } : state;
 }
 
@@ -56,10 +66,25 @@ const initial = build();
 
 function Harness() {
   const [state, dispatch] = useReducer(gameReducer, initial);
+  const [log] = useState<string[]>([]);
+  const send = useCallback(
+    (action: Parameters<typeof gameReducer>[1]) => {
+      log.push(action.type);
+      dispatch(action);
+    },
+    [log],
+  );
   const [selected, setSelected] = useState<string | null>(null);
-  useEffect(() => {
-    (window as unknown as { __state: () => GameState }).__state = () => state;
-  }, [state]);
+  // useLayoutEffect: the hooks must be current in the same commit as the DOM, so a test that waits on the DOM never reads a stale state (WebKit CI race).
+  useLayoutEffect(() => {
+    const w = window as unknown as { __state: () => GameState; __actions: () => string[]; __confirmBake: (value: number) => void };
+    w.__state = () => state;
+    w.__actions = () => [...log];
+    w.__confirmBake = (value) => {
+      send({ type: "CONFIRM_BAKE", value, now: Date.now() });
+      send({ type: "REGISTER_TO_DEX" });
+    };
+  }, [state, log, send]);
   return (
     <div className="app-frame">
       <GameScreen
@@ -84,19 +109,22 @@ function Harness() {
         onGoHome={noop}
         onBeginPrepare={noop}
         onResetPizza={noop}
-        onUndoPlacement={() => dispatch({ type: "UNDO_LAST_PLACEMENT" })}
+        onUndoPlacement={() => send({ type: "UNDO_LAST_PLACEMENT" })}
         onConfirmMakingStep={() => {
-          dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() });
-          dispatch({ type: "REGISTER_TO_DEX" });
+          send({ type: "CONFIRM_MAKING_STEP", now: Date.now() });
+          send({ type: "REGISTER_TO_DEX" });
         }}
         onStartBake={noop}
-        onShowHint={() => dispatch({ type: "SHOW_HINT" })}
+        onShowHint={() => send({ type: "SHOW_HINT" })}
         onChangeCategory={noop}
         onSelectIngredient={(i) => setSelected(i.id)}
         onClearIngredientSelection={() => setSelected(null)}
-        onTapPizza={(x, y) => selected && dispatch({ type: "PLACE_TOPPING", ingredientId: selected, x, y })}
+        onTapPizza={(x, y) => selected && send({ type: "PLACE_TOPPING", ingredientId: selected, x, y })}
         onBakeTick={noop}
-        onConfirmBake={noop}
+        onConfirmBake={(value) => {
+          send({ type: "CONFIRM_BAKE", value, now: Date.now() });
+          send({ type: "REGISTER_TO_DEX" });
+        }}
         onRetrySameRecipe={noop}
         onBackToPizzaSelect={noop}
         onMissionServeNext={noop}
