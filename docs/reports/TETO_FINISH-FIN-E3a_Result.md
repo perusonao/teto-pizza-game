@@ -32,3 +32,10 @@ UI・CSS・save・共有 Preview・本番有効化・E3b は対象外。FINISH �
 ## 検証
 
 結果は PR 本文の Final Gate に記載。
+
+## 独立レビュー（blocker / P1 / P2 なし）
+
+低重大度 4 件のうちテスト弱点 3 件（parity の比較キー追加、Research の held-bake 断言の無条件化、anti-oracle の対象拡大）を反映。残り 1 件は **E4 の入力**として記録する:
+
+- **E4 で対処（今は到達不能）**: Free の識別（`resolveFreeCookPizza`）は pizza 全体でマッチと Gate を判定する一方、FINAL の採点は `pizzaForFinalEvaluation` を通す。`applicationPhase: "POST_BAKE"` を持つ本番レシピ（現在 0 件）で、その食材を焼成前に置いたピースがあると、INCOMPLETE_MATCH ではなく MATCHED → FAILED になりうる。後乗せレシピ追加（E4）の前に、識別側にも同じ phase 制限を入れるか判断する。
+- 参考: FINISH 途中で離脱すると、焼成時に消費した在庫は戻らない（Guided の FINISH / CUT と同じ）。FINISH で置いた分は消費されず、試行・Notebook・ヒントカウンタも記録されない。

@@ -87,6 +87,11 @@ function outcome(state: GameState) {
     discoveredTechniqueIds: state.discoveredTechniqueIds,
     lastPitzCredit: state.lastPitzCredit,
     bakeValue: state.bakeValue,
+    hint: state.hint,
+    justDiscovered: state.justDiscovered,
+    justGotNewBest: state.justGotNewBest,
+    lastMaterialUnlockNotice: state.lastMaterialUnlockNotice,
+    lastTechniqueDiscovery: state.lastTechniqueDiscovery,
   };
 }
 
@@ -161,7 +166,7 @@ describe("ON: CONFIRM_BAKE defers the identification", () => {
     expect(state.lastTrialAttempt).toBe(before.lastTrialAttempt);
     expect(state.hint).toBe(before.hint);
     // anti-oracle: the matched recipe's id and name are nowhere the FINISH screen reads
-    const visible = JSON.stringify({ recipe: state.recipe, order: state.order, hint: state.hint, score: state.score, completion: state.completion });
+    const visible = JSON.stringify({ recipe: state.recipe, order: state.order, hint: state.hint, score: state.score, completion: state.completion, bakeState: state.bakeState, lastDiscovery: state.lastDiscovery, scoringV2Result: state.scoringV2Result });
     expect(visible).not.toContain("margherita");
     expect(visible).not.toContain(RECIPES.find((r) => r.id === "margherita")!.nameJa);
     // only the pre-bake pieces are consumed, once
@@ -342,6 +347,7 @@ describe("ON: Research", () => {
     for (const value of [68, 5, 100]) {
       const off = finish(research(false, value));
       const onBaked = research(true, value);
+      if (value === 68) expect(onBaked.phase).toBe("POST_BAKE"); // a held bake does wait in FINISH (the checks below are not skipped)
       if (onBaked.phase === "POST_BAKE") {
         // waiting in FINISH: no Research row, fact or Notebook line yet
         expect(onBaked.lastResearchRows).toBeNull();
