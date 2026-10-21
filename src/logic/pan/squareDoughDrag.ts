@@ -21,6 +21,8 @@ import {
   type SquareDough,
 } from "./squareDough";
 import { applyPressEffect, type PressEffect } from "./squareDoughSpread";
+import { squareStretchActive } from "../../preview/squareModelPreview";
+import { stretchAlong } from "./squareStretch";
 
 /** Radius (dough-percent of the box) of the film the fingertip lays. */
 export const DRAG_BRUSH_RADIUS = 16;
@@ -206,7 +208,7 @@ export function applyGestureEffects(dough: SquareDough, start: SquareDough, effe
   let current = dough;
   for (const effect of effects) {
     if (effect.kind === "revert") current = start;
-    else if (effect.kind === "drag") current = dragAlong(current, effect.from, effect.to);
+    else if (effect.kind === "drag") current = (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && squareStretchActive() ? stretchAlong(current, effect.from, effect.to) : dragAlong(current, effect.from, effect.to); // the prototype: Preview / DEV only
     else current = applyPressEffect(current, effect);
   }
   return current;

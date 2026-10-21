@@ -20,6 +20,8 @@ import {
   squareDoughEvenness,
   type SquareDough,
 } from "./squareDough";
+import { squareStretchActive, squareStretchOkRate } from "../../preview/squareModelPreview";
+import { stretchProgress, STRETCH_STEP1_COVERAGE_MIN, type StretchDetail } from "./squareStretch";
 
 /** STEP 1's coverage requirement (fraction of the pan). Owner-approved initial value (T2). */
 export const SQUARE_STEP1_COVERAGE_MIN = 0.95;
@@ -46,9 +48,17 @@ export interface SquareDoughProgress {
   readonly evennessReached: boolean;
   /** STEP 1 done and evenness reached: 「次へ」 is available. */
   readonly complete: boolean;
+  /** Only with the Preview / DEV push-stretch prototype (?squareModel=stretch): the per-cell thick / thin / OK picture. Absent in the current model. */
+  readonly stretch?: StretchDetail;
+}
+
+/** The gauge's goals of the model in force: the current ones, or the prototype's (STEP 1 body coverage, STEP 2 OK rate). */
+export function squareStepGoals(): { readonly coverage: number; readonly evenness: number } {
+  return (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && squareStretchActive() ? { coverage: STRETCH_STEP1_COVERAGE_MIN, evenness: squareStretchOkRate() } : { coverage: SQUARE_STEP1_COVERAGE_MIN, evenness: SQUARE_COMPLETE_EVENNESS_MIN };
 }
 
 export function squareDoughProgress(dough: SquareDough): SquareDoughProgress {
+  if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && squareStretchActive()) return stretchProgress(dough); // Preview / DEV prototype only: statically dead in production
   const coverage = squareDoughCoverage(dough);
   const evenness = squareDoughEvenness(dough);
   const corners = squareCornerReach(dough).map((reach) => reach >= CORNER_REACH_THRESHOLD); // the same inclusive test as areAllCornersReached

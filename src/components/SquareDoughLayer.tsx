@@ -28,6 +28,7 @@ import { DOUGH_CENTER, type DoughPoint } from "../logic/pizzaCoordinates";
 import { describeTarget, squareDoughDiag } from "../preview/squareDoughDiag"; // TEMPORARY on-device diagnostics (?diag=1)
 import { SquareDoughDiagPanel } from "../preview/SquareDoughDiagPanel";
 import { SquareDoughCanvas } from "./SquareDoughCanvas";
+import { SquareStretchMarks } from "./square/SquareStretchMarks";
 
 interface SquareDoughLayerProps {
   /** The committed dough this layer starts every gesture from. */
@@ -513,6 +514,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
             );
           })}
         </g>
+        {/* Push-stretch prototype (Preview / DEV, ?squareModel=stretch), STEP 2: red = too thick (press), blue = too thin (stretch in), nothing = fine. */}
+        {(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !trail && !ring && committedProgress.step === 2 && progress.stretch && <SquareStretchMarks dough={shown} detail={progress.stretch} />}
         {/* Drag hints (STEP 1, no finger down): from the dough's edge toward each corner that is still short. */}
         {!trail && !ring && hints.length > 0 && (
           <g className="square-dough-layer__hints" data-testid="square-drag-hints">

@@ -10,7 +10,8 @@
  */
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
-import { SQUARE_COMPLETE_EVENNESS_MIN, SQUARE_STEP1_COVERAGE_MIN } from "../logic/pan/squareDoughProgress";
+import { squareStepGoals } from "../logic/pan/squareDoughProgress";
+import { squareStretchActive } from "../preview/squareModelPreview";
 import type { SquareDough } from "../logic/pan/squareDough";
 import { smoothnessText } from "../logic/pan/squareDoughView";
 import { useSquareProgress } from "./useSquareProgress";
@@ -33,7 +34,9 @@ export function SquareDoughGauge({ fallbackDough }: { fallbackDough: SquareDough
   // A note about a metric the gauge is no longer showing (the gesture that crossed into STEP 2 changed coverage) would read as the wrong number's change.
   const note = change && expiredSeq !== change.seq && change.metric === (stepOne ? "coverage" : "evenness") ? change : null;
   const shown = stepOne ? progress.coverage : progress.evenness;
-  const goal = stepOne ? SQUARE_STEP1_COVERAGE_MIN : SQUARE_COMPLETE_EVENNESS_MIN;
+  const goals = squareStepGoals();
+  const goal = stepOne ? goals.coverage : goals.evenness;
+  const stage2Label = squareStretchActive() ? "ととのい度" : "なめらか度"; // prototype: the OK rate of the cells
   const reached = stepOne ? progress.coverageReached : progress.evennessReached;
   const percent = Math.min(100, Math.max(0, shown * 100));
   const goalPercent = goal * 100;
@@ -47,8 +50,8 @@ export function SquareDoughGauge({ fallbackDough }: { fallbackDough: SquareDough
       data-coverage={progress.coverage.toFixed(3)}
       data-reached={reached ? "true" : "false"}
     >
-      <span className="square-dough-gauge__label">{stepOne ? "ひろがり" : "なめらか度"}</span>
-      <span className="square-dough-gauge__bar" role="img" aria-label={`${stepOne ? "ひろがり" : "なめらか度"} ${smoothnessText(shown)}`}>
+      <span className="square-dough-gauge__label">{stepOne ? "ひろがり" : stage2Label}</span>
+      <span className="square-dough-gauge__bar" role="img" aria-label={`${stepOne ? "ひろがり" : stage2Label} ${smoothnessText(shown)}`}>
         <span className="square-dough-gauge__fill" style={{ width: `${percent}%` }} />
         <span className="square-dough-gauge__target" data-testid="square-dough-gauge-target" style={{ left: `${goalPercent}%` }} />
       </span>

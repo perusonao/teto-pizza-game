@@ -1,0 +1,8 @@
+/* Push-stretch prototype STEP 2 marks (Preview / DEV only). Pointer-transparent overlay inside the pan's SVG: no layout box. */
+.square-stretch-marks { pointer-events: none; }
+.square-stretch-marks__cell { stroke: none; }
+.square-stretch-marks__cell--thick { fill: rgba(200, 50, 30, 0.34); }
+.square-stretch-marks__cell--thin { fill: rgba(40, 110, 200, 0.3); }
+.square-stretch-marks__line { stroke: #1f5fae; stroke-width: 1.1; stroke-dasharray: 3 2; stroke-linecap: round; }
+.square-stretch-marks__head { fill: #1f5fae; }
+.square-stretch-marks__start { fill: #fff; stroke: #1f5fae; stroke-width: 1; }

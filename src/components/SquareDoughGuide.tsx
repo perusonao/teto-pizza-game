@@ -11,17 +11,23 @@
  * The text carries the count and the story; the pan itself carries the picture (corner marks, drag hints -- SquareDoughLayer).
  */
 import type { SquareDough } from "../logic/pan/squareDough";
+import { squareStretchActive } from "../preview/squareModelPreview";
 import { useSquareProgress } from "./useSquareProgress";
 
 export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough }) {
   const { live, committed: p } = useSquareProgress(fallbackDough);
   const step1State = p.step === 1 ? "now" : "done";
   const step2State = p.step === 1 ? "next" : "now";
+  const stretch = squareStretchActive(); // Preview / DEV push-stretch prototype: STEP 1 spreads the dough, STEP 2 evens it
   const goal = p.step === 1
-    ? `なぞって、生地を四隅まで伸ばそう（四隅 ${live.cornersReached}/4）`
+    ? stretch && live.cornersReached === 4
+      ? "生地のふちをつかんで、すき間までひろげよう"
+      : `なぞって、生地を四隅まで伸ばそう（四隅 ${live.cornersReached}/4）`
     : p.complete
       ? "できあがり！「次へ」で形が決まります"
-      : "盛り上がった濃いところを押して、平らにしよう";
+      : stretch
+        ? "赤い所は押して、青い所は厚い方から伸ばそう"
+        : "盛り上がった濃いところを押して、平らにしよう";
   return (
     <div
       className="square-dough-steps"
@@ -37,7 +43,7 @@ export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough
           data-testid="square-dough-step-1"
           data-state={step1State}
         >
-          <b>{p.step1Done ? "✓" : "STEP 1"}</b> 四隅まで伸ばす
+          <b>{p.step1Done ? "✓" : "STEP 1"}</b> {stretch ? "生地をひろげる" : "四隅まで伸ばす"}
         </li>
         <li className="square-dough-steps__arrow" aria-hidden="true">
           ›
@@ -64,7 +70,9 @@ export function SquareDoughNext({ fallbackDough }: { fallbackDough: SquareDough 
     ? "四隅まで伸びたら、つぎは「厚みを整える」"
     : p.complete
       ? "「次へ」を押すまで、まだ整えられるよ"
-      : "平らになったら「次へ」が使えるよ";
+      : squareStretchActive()
+        ? "赤い所がへって、青い所がうまると「次へ」が使えるよ"
+        : "平らになったら「次へ」が使えるよ";
   return (
     <p className="square-dough-next" data-testid="square-dough-next" data-step={p.step} data-complete={p.complete ? "true" : "false"}>
       {text}
