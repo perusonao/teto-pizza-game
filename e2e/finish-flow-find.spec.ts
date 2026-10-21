@@ -172,3 +172,17 @@ test("the FINISH hint names the button that is actually there (完成), never �
   await expect(page.getByTestId("finish-complete")).toHaveText(/完成/);
   await expect(page.getByRole("button", { name: /次へ/ })).toHaveCount(0);
 });
+
+for (const round of ["LUNCH_RUSH", "DINNER", "FREE_COOK"]) {
+  test(`${round}: a real round of that mode never enters FINISH, even with a FINISH profile and a late requirement`, async ({ page }) => {
+    await open(page, `round=${round}&stock=3`);
+    const before = await state(page);
+    expect(before.phase).toBe("BAKE");
+    await bake(page);
+    await expect(page.getByTestId("finish-dock")).toHaveCount(0);
+    const s = await state(page);
+    expect(s.makingStep).not.toBe("FINISH");
+    expect(s.bakeValue).toBeNull();
+    expect(s.pizza.toppings.filter((t) => t.stage === "post")).toHaveLength(0);
+  });
+}

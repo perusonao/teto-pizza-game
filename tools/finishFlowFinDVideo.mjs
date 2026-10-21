@@ -64,8 +64,11 @@ await bake(70); await page.waitForTimeout(900);
 await parsley(); await tap(0.5, 0.5); await page.waitForTimeout(900);
 await page.getByTestId("finish-complete").click(); await page.waitForTimeout(2800);
 
-await scene("round=LUNCH_RUSH&post=2", "Lunch Rush: 仕上げ画面は出ない", 1600);
-await scene("round=DINNER&post=2", "Dinner: 同上", 1600);
-await scene("round=FREE_COOK&post=2", "Free Cooking: 同上", 1600);
+for (const [round, name] of [["LUNCH_RUSH", "Lunch Rush"], ["DINNER", "Dinner"], ["FREE_COOK", "Free Cooking"]]) {
+  await scene(`round=${round}&stock=3`, `${name}: 実ラウンドを BAKE から開始（後乗せ要件つきの FINISH プロファイル）`, 1400);
+  await bake(70);
+  await caption(`${name}: 取り出す → FINISH を経由せず結果へ（仕上げ画面・完成ボタンは出ない）`);
+  await page.waitForTimeout(2600);
+}
 await ctx.close();
 await browser.close();

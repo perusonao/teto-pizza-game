@@ -29,8 +29,8 @@ FIN-E の実装・本番有効化、共有 Preview 更新、#518 close、新レ�
 | ファイル | 内容 |
 |---|---|
 | `src/state/gameReducer.finishFlow.test.ts`（新規 8 件） | PREPARE → BAKE → FINISH → RESULT → DISCOVERED の通し（正常 / 後乗せ 0 個 / 連続 Undo・再配置 / 在庫不足 / 焼成失敗 / 計測時間 / 既存全レシピが FINISH に入らない / 実 Reference での最終スコア・Dex・Pitz 1 回）。`finalPatch` の `score` を外すと最終スコアのテストが落ちることを確認 |
-| `e2e/harness/finish-screen.{tsx}` | `?start=bake`（BAKE から開始）、`window.__confirmBake(value)`（決定的な焼成）、`window.__actions()`（dispatch の記録）を追加。既存クエリの挙動は無変更 |
-| `e2e/finish-flow-find.spec.ts`（新規 8 件 × 2 viewport） | 実 `GameScreen` + 実 reducer で、BAKE の実ボタン表示 → FINISH → RESULT。正常完成（連打）/ 後乗せ 0 個 FAILED / 連続 Undo・再配置 / 在庫不足 / 焼成失敗は FINISH を飛ばす / CUT 付き / ヒント文言 |
+| `e2e/harness/finish-screen.{tsx}` | `?start=bake`（BAKE から開始。`&round=` を付けると `confirmBakeMatrix.atBake` の実ラウンドで開始）、`window.__confirmBake(value)`（決定的な焼成）、`window.__actions()`（dispatch の記録）を追加。既存クエリの挙動は無変更 |
+| `e2e/finish-flow-find.spec.ts`（新規 11 件 × 2 viewport） | 実 `GameScreen` + 実 reducer で、BAKE の実ボタン表示 → FINISH → RESULT。正常完成（連打）/ 後乗せ 0 個 FAILED / 連続 Undo・再配置 / 在庫不足 / 焼成失敗は FINISH を飛ばす / CUT 付き / ヒント文言 / Lunch Rush・Dinner・Free Cooking の実ラウンドが FINISH に入らない（3 件、Codex 指摘で追加） |
 | `src/data/finishHint.ts` + test | 上記の文言修正 |
 | `tools/finishFlowFinD{Shots,Video}.mjs` | 撮影ドライバ（dev のみ） |
 | `docs/reports/screenshots/fin-d-finish-e2e/` | 390×844 / 360×800 × 6 場面（BAKE / FINISH 空 / 後乗せ 2 / RESULT 成功 / RESULT 後乗せ 0 個 FAILED / 焼成失敗で FINISH を飛ばす）。FINISH 画面は新規のため before なし。文言修正の before は FIN-C の `fin-c-finish-undo-complete/`（「次へ」表記） |
@@ -42,7 +42,7 @@ FIN-E の実装・本番有効化、共有 Preview 更新、#518 close、新レ�
 | `tsc -b` | PASS |
 | oxlint | 新規警告なし（既存警告のみ） |
 | vitest 全体 | 492 files PASS / 1 skipped、9082 tests PASS（2 skipped, 6 todo は既存）。FIN-C 時点（9074）から +8（`gameReducer.finishFlow.test.ts`）。`finishHint.test.ts` は期待文言のみ更新 |
-| FINISH の e2e（`finish-flow-find` / `finish-bar-finc` / `finish-screen-fina` / `finish-tray-finb`、両 viewport） | FIN-D 7 件時点で 4 spec 計 60 PASS、ヒント文言の 1 件を足した最終の `finish-flow-find` は 16 PASS（8 件 × 2 viewport） |
+| FINISH の e2e（`finish-flow-find` / `finish-bar-finc` / `finish-screen-fina` / `finish-tray-finb`、両 viewport） | FIN-D 7 件時点で 4 spec 計 60 PASS、ヒント文言の 1 件を足した最終の `finish-flow-find` は 22 PASS（11 件 × 2 viewport） |
 | 既存 e2e 回帰（cut-skip-failed-bake / dinner-mission / dynamic-cooking-steps / free-cooking-phase3-2 / lunch-rush-material-shortage / lunch-rush-result-ranking-phase4 / making-step-tabs-cs4a / post-layer-d22a / square-pizza-bake-d2b1 / square-pizza-cooking-d2a2 / undo-placement-449 / viewport-1screen / bake-free-just-520、両 viewport） | 187 PASS / 3 skipped（既存） / 0 failed。丸いピザ・四角いピザ・CUT・Free・Lunch Rush・Dinner を含む |
 | 実 WebKit | 未確認（このセッションは Chromium のみ）。required CI の WebKit shard で確認 |
 
@@ -61,8 +61,8 @@ FIN-E の実装・本番有効化、共有 Preview 更新、#518 close、新レ�
 
 | Video | Viewport | Duration | Size | Verification |
 |---|---|---:|---:|---|
-| `fin-d-finish-e2e-390.mp4`（H.264） | 390×844 | 67.2 s | 917 KB | PASS |
-| `fin-d-finish-e2e-360.mp4`（H.264） | 360×800 | 66.0 s | 877 KB | PASS |
+| `fin-d-finish-e2e-390.mp4`（H.264） | 390×844 | 73.7 s | 997 KB | PASS |
+| `fin-d-finish-e2e-360.mp4`（H.264） | 360×800 | 73.7 s | 961 KB | PASS |
 
 Download: セッション内直接提出（commit しない。Policy §6。`artifacts/review/` は gitignore 済み）。ffprobe で codec / 解像度 / 長さ、ffmpeg で最後までのデコード、代表フレームの目視で確認。
 
@@ -72,7 +72,8 @@ Download: セッション内直接提出（commit しない。Policy §6。`arti
 - 連続 Undo 3 回 → 後乗せ 0 個で ↩ 無効 → 再配置 → 完成。
 - 在庫 1: 2 個目は置けない・選択解除。
 - 焼成失敗（生焼け）: FINISH を飛ばして RESULT（失敗）。
-- CUT 付き: 完成 → CUT。Lunch Rush / Dinner / Free Cooking では FINISH 画面が出ない。
+- CUT 付き: 完成 → CUT。
+- Lunch Rush / Dinner / Free Cooking: 実ラウンドを BAKE から開始し、取り出す → FINISH を経由せず結果へ（FINISH 画面・完成ボタンは出ない）。
 
 Video Verification: PASS
 

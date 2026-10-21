@@ -41,7 +41,10 @@ function build(): GameState {
     params.get("cut") === "1"
       ? { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH", "CUT"], cutConfig: { requestedSliceCount: 6 } }
       : { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH"] };
-  const base = atBake("guided", "margherita");
+  const round = params.get("round");
+  // FIN-D: with &start=bake the round kind is a REAL round of that mode at BAKE (confirmBakeMatrix), so the exclusion is exercised through the reducer.
+  const mode = ({ LUNCH_RUSH: "lunchRush", DINNER: "dinner", FREE_COOK: "free" } as const)[round as "LUNCH_RUSH" | "DINNER" | "FREE_COOK"] ?? "guided";
+  const base = atBake(params.get("start") === "bake" ? mode : "guided", "margherita");
   const late = Number(params.get("late") ?? 1);
   const recipe = late > 1 ? { ...FX, requiredIngredients: [...FX.requiredIngredients, ...LATE_EXTRA.slice(0, late - 1)] } : FX;
   const atBakeState: GameState = { ...base, recipe, cookingProfile: profile, pizza: preBakePizza() };
@@ -55,7 +58,6 @@ function build(): GameState {
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "parsley", x: DOUGH_CENTER - 24 + i * 16, y: DOUGH_CENTER - 20 + (i % 2) * 40 });
   }
   if (params.get("owned") === "none") state = { ...state, ownedIngredientIds: state.ownedIngredientIds.filter((id) => id !== "parsley") };
-  const round = params.get("round");
   return round && round !== "GUIDED" ? { ...state, roundKind: round as GameState["roundKind"] } : state;
 }
 
