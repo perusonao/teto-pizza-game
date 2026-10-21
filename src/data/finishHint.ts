@@ -12,8 +12,8 @@ import { getIngredient } from "./ingredients";
 import type { Recipe } from "./recipes";
 
 const FREE_COOK_FINISH_HINT = { text: "仕上げに好きな具をのせよう（なしでもOK）", explicit: "仕上げは好きな具をのせられるよ。のせずに「次へ」でもOK！" };
-const READY_FINISH_HINT = "仕上げはここまで！「次へ」で進もう。";
-const NO_LATE_FINISH_HINT = "仕上げはなくてもOK。「次へ」で進もう。";
+const READY_FINISH_HINT = "仕上げはここまで！「完成」で進もう。";
+const NO_LATE_FINISH_HINT = "仕上げはなくてもOK。「完成」で進もう。";
 
 export function buildFinishHintLine(recipe: Recipe, pizza: Pick<PizzaState, "toppings">, isExplicitHint = false): DialogueLine {
   if (isFreeCookRecipe(recipe)) {
