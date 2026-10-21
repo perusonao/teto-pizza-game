@@ -10866,7 +10866,7 @@
    "rowsWithUnresolvedSauceLayer": 33,
    "sauceStatusNoneOrUnspecified": 77,
    "sauce2plus": 26,
-   "lateAdditionRows": 14,
+   "lateAdditionRows": 15,
    "lateAdditionRowsWhereAllToppingsAreLate": [
     "black-truffle-pizza-pizzadb-p14"
    ],
@@ -10881,7 +10881,7 @@
     "laminated-pastry": 1
    },
    "capabilityRows": {
-    "LATE_ADDITION": 12,
+    "LATE_ADDITION": 13,
     "ENCLOSE": 5,
     "ZONED_PLACEMENT": 1,
     "MULTI_SPREAD_LAYER": 17,
@@ -11811,9 +11811,14 @@
     "spreadLayerCount": 0,
     "shape": "round",
     "form": "open-round",
-    "lateAddition": [],
-    "lateToppingCount": 0,
-    "capabilities": [],
+    "lateAddition": [
+     "salmon-roe",
+     "shiso"
+    ],
+    "lateToppingCount": 2,
+    "capabilities": [
+     "LATE_ADDITION"
+    ],
     "categoryProvenance": [
      "heuristic:default",
      "heuristic:name"

@@ -17,6 +17,13 @@
 
 訂正は `tools/progression2_mechanic_matrix.py` の `ROW_MECHANIC_EVIDENCE` に 1 エントリ追加し、生成物（`TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md` / candidate matrix JSON）を再生成した。`--check` と `--check-runtime` は通る。集計の変化: FULL 101→100、PARTIAL 55→56、`LATE_ADDITION` 必要行 12→13（単独で解禁される行 9→10、`post_bake` モード 8→9）、能力不要の基準行 106→105。LATE_ADDITION までの累計到達行数（151）は不変。
 
+### 下流の生成物（再生成した）
+candidate matrix を入力にする生成物が ikura の変更で古くなるため、各ツールで再生成した（`--check` はいずれも通る）。
+- `tools/progression2_phase2_progression.py` → `TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json` / `TETO_PROGRESSION2_PHASE2_UNLOCK-GRAPH.md`（`LATE_ADDITION` を要する行が 1 つ増えたため、**設計候補**の解禁順の並びが入れ替わる。本番 ladder ではない）。
+- `tools/progression2_phase34_unlocks.py` → `TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json`。同ツールの `TETO_PROGRESSION2_PHASE34_UNLOCKS.md` は **main の時点で既に再生成と不一致**（手書きの「Superseded」注記が生成物に無い）。再生成すると注記が消えるため、この md には ikura 由来の 2 箇所（`LATE_ADDITION` の再利用 3→4、入力 SHA-256）だけを手で反映した。md の既存の不一致は本 PR では直していない（`--check` はこの md で引き続き不一致）。
+- `tools/dh4_2_topping_count_audit.py` → `TETO_DISCOVERY-HINT-4_DH4-2_PRE-AUDIT.json`。
+- `tools/rt01_reference_capacity_design.py` → `TETO_RT01_REFERENCE_PIECE_CAPACITY_DESIGN.json`。同ツールの `TETO_RT01_PLACEMENT_COMPARISON.html` は main の時点で既に古い（authored 行数などが現状と不一致）ため、再生成せず据え置いた。
+
 ### 注記: 手書きの `TETO_RECIPE_172_MECHANIC-MATRIX.md`
 この文書の表（能力ごとの「Rows required」「Unlocked alone」、実装順の累計）は手書きで、生成物ではない。上記の変化を反映していない（例: `LATE_ADDITION` は **12 → 13**、`Unlocked alone` は **9 → 10**）。数値の手書き更新は誤りの元なので、本 PR では**この注記だけ**を置き、表は触らない。正の数値は candidate matrix JSON の `capabilityStats` を参照。
 
