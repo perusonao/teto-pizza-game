@@ -150,6 +150,13 @@ test.describe("#536 C: STEP 1 -> STEP 2 -> finished -> 次へ", () => {
 const alphaAt = (page: Page, x: number, y: number) =>
   page.getByTestId("square-dough-canvas").evaluate((c: HTMLCanvasElement, [px, py]) => c.getContext("2d")!.getImageData(px, py, 1, 1).data[3], [x, y]);
 
+/** D2-b2 (#537): the canvas is now the whole tray (the grey floor with the dough on it, opaque everywhere), so "is there dough here" is its colour: dough is warm (red well above blue), the floor is grey. */
+const doughAt = (page: Page, x: number, y: number) =>
+  page.getByTestId("square-dough-canvas").evaluate((c: HTMLCanvasElement, [px, py]) => {
+    const d = c.getContext("2d")!.getImageData(px, py, 1, 1).data;
+    return d[0] - d[2] > 30;
+  }, [x, y]);
+
 test.describe("#536 C balance pass: the smooth sheet (Canvas) and its fallbacks", () => {
   test("the production start draws one smooth Canvas sheet (no grid of cell rectangles); the Preview lumpy start keeps B2's SVG cells", async ({ page }) => {
     await start(page, BALL);
@@ -159,7 +166,8 @@ test.describe("#536 C balance pass: the smooth sheet (Canvas) and its fallbacks"
     expect(((await attr(page, "data-thickness")).split(",")).length).toBe(256);
     // the picture: the ball is drawn in the middle, the empty pan around it is not
     expect(await alphaAt(page, 64, 64)).toBe(255);
-    expect(await alphaAt(page, 4, 4)).toBe(0);
+    expect(await doughAt(page, 64, 64)).toBe(true);
+    expect(await doughAt(page, 4, 4)).toBe(false); // the empty pan around it is the grey floor
     const size = await page.getByTestId("square-dough-canvas").evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
     expect(size).toEqual([128, 128]);
     await start(page, LUMPY);
@@ -170,9 +178,9 @@ test.describe("#536 C balance pass: the smooth sheet (Canvas) and its fallbacks"
 
   test("a drag paints on the canvas: the picture follows the dough", async ({ page }) => {
     await start(page, BALL);
-    expect(await alphaAt(page, 100, 24)).toBe(0); // the north-east corner region is empty
+    expect(await doughAt(page, 100, 24)).toBe(false); // the north-east corner region is empty (the floor)
     await dragThrough(page, [[50, 50], [90, 10]]);
-    await expect.poll(() => alphaAt(page, 100, 24)).toBe(255); // ... and the sheet has been pulled there
+    await expect.poll(() => doughAt(page, 100, 24)).toBe(true); // ... and the sheet has been pulled there
   });
 
   test("a canvas the browser cleared (a tab switch, a restored context) is drawn again when the page comes back", async ({ page }) => {

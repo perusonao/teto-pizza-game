@@ -40,6 +40,17 @@ export function trayIngredientsFor(
   );
 }
 
+/**
+ * FINISH FIN-B (Issue #294): the FINISH tray. Guided only (Free Cooking / Lunch Rush / Dinner never reach FINISH), so it
+ * lists just the OWNED ingredients the recipe asks for AFTER the bake (`applicationPhase === "POST_BAKE"`) -- never the
+ * recipe's pre-bake ingredients and never the whole pantry. Scatter toppings only, the one kind FINISH can place
+ * (`canPlacePostBakeIngredient`, and PLACE_TOPPING's own FINISH category check).
+ */
+export function finishTrayIngredients(recipe: Recipe, ownedIngredientIds: readonly string[]): Ingredient[] {
+  const lateIds = new Set(recipe.requiredIngredients.filter((req) => req.applicationPhase === "POST_BAKE").map((req) => req.ingredientId));
+  return ingredientsByCategory("topping").filter((i) => lateIds.has(i.id) && ownedIngredientIds.includes(i.id) && i.placement === "scatter");
+}
+
 const STEP_CATEGORY: Partial<Record<MakingStep, IngredientCategory>> = {
   SAUCE: "sauce",
   CHEESE: "cheese",

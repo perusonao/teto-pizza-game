@@ -689,3 +689,25 @@ No Human Verification video is needed: this PR changes no UI, UX or gameplay.
 - Production ids, art or copy.
 - Any change to `PIZZA_GAME_PROGRESSION_SSOT.md`. That document is updated only after this
   candidate is reviewed, in the Phase-3 slice that ships it.
+
+## Shipped recipes vs evidence rows (Issue #260)
+
+A shipped recipe that was authored from a 172-row evidence row used to be counted twice: once as the
+`shipped:<id>` overlay target and once as the row's `<id>-pizzadb` target (identical runtime signature), which
+`SHIPPED_KEEP` reported as a signature collision.
+
+- **Same-recipe link.** The only link used is the product's own `RECIPE_DISCOVERY_TARGET_IDS`
+  (`src/data/discoveryCatalog.ts`): when a recipe's runtime target id is an evidence-ready row id and the
+  signatures agree, the recipe is counted once, as the row target (`shippedRecipesCountedAsEvidenceRow` in the
+  JSON lists them). A shared signature alone never merges anything.
+- **Errors, not merges.** A mapped row whose signature differs, a mapped row that is not evidence-ready, or a
+  shipped recipe with no map entry fails the validator (`SHIPPED_ROW_LINK`). Signature collisions between
+  different recipes are still reported as before.
+- **One reviewed exception.** `brazilian-calabresa` maps to the production-only id `brazilian-calabresa`, but is
+  authored from `brazilian-calabresa-pizzadb-p10`. `REVIEWED_SAME_RECIPE_LINKS` links them and only applies while
+  the Japanese name and the signature agree. Owner-approved for this single pair only (#260, 2026-10-20); `discoveryCatalog.ts` is unchanged and any further entry needs a new Owner decision.
+- **Result.** SHIPPED_KEEP: 87 + 14 = 101 targets, 0 collisions (matches `discoveryCatalog.test.ts`).
+- **Content wave.** A new recipe whose row already exists changes nothing here once its map entry is added; a
+  recipe without a row adds one `shipped:<id>` target. Regenerate with `python3 tools/progression2_phase2_progression.py`
+  and run `--check`. This tool reads `src/**` by design; the mechanic-matrix split is described in
+  `TETO_RECIPE_172_MECHANIC-MATRIX.md` §11.

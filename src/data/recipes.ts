@@ -1,3 +1,4 @@
+import type { DoughKind } from "../logic/dough/doughKind";
 import type { PanShape } from "../logic/pan/panShape";
 
 export interface RecipeRequirement {
@@ -68,6 +69,10 @@ export interface Recipe {
    *  reader). Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `grandma-pizza`
    *  (#521, after D and F). Never persisted. */
   panShape?: PanShape;
+  /** Dough Kind P1 (Issue #577, Epic: 生地の種類): the dough kind this recipe is made with. Absent means `"standard"` -- every
+   *  existing recipe omits the field (`resolveDoughKind`, ../logic/dough/doughKind.ts, is the sole reader). Independent of
+   *  `panShape`. Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `pinsa-romana` (P3, HOLD). Never persisted. */
+  doughKind?: DoughKind;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
@@ -1198,6 +1203,23 @@ export const RECIPES = [
       { ingredientId: "oregano", minCount: 1 },
     ],
     bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "shirasu-pizza",
+    nameJa: "しらすピザ",
+    description: "モッツァレラにしらすと大葉、レモンをのせた、さわやかで香りのよい和風の一枚。",
+    // Batch 8b (Chapter 4). SOURCE AUTHORITY (PIZZA DB `shirasu-pizza-pizzadb-p3`, 172 matrix): lemon / mozzarella / shiso / whitebait, cheese base, no spread sauce. NO_SAUCE (the existing TQ-1D mechanic: no sauce ingredient,
+    // so no SAUCE step). GAMEPLAY CALIBRATION (not source): counts mozzarella 2 / lemon 2 / shiso 1 / whitebait 3, bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78); 8 pieces = the 8-slot ring.
+    // Ladder-credited (step 54, cohort key whitebait: the last of the step's materials shiso + whitebait); `lunchRush: false` keeps it out of the Lunch Rush pool; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "lemon", minCount: 2 },
+      { ingredientId: "shiso", minCount: 1 },
+      { ingredientId: "whitebait", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
     baseRewardPitz: 100,
     lunchRush: false,
   },

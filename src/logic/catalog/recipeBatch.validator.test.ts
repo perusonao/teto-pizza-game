@@ -18,11 +18,12 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("Batch 8a is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
+  it("Batch 8b is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
     expect(NEXT_RECIPE_BATCH.status).toBe("landed");
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["chilean-napolitana", "spanish-chorizo-pizza", "frango-catupiry"]);
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["fresh-tomato", "bell-pepper", "catupiry"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["shirasu-pizza"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["whitebait"]);
+    expect(NEXT_RECIPE_BATCH.acceptedLetterShifts).toBeUndefined(); // a single-member cohort: no existing recipe changes its letter
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
   });
 });
@@ -31,6 +32,19 @@ describe("production catalog", () => {
 describe("validator catches", () => {
   const withRecipes = (recipes: CatalogView["recipes"]): CatalogView => ({ ...view, recipes });
   const last = RECIPES[RECIPES.length - 1];
+  /** Batch 8a (the previous batch, landed: #557) as a fixture for the non-credit / creditedWithoutStep / letter-shift checks the 8b manifest does not exercise. */
+  const view8a: CatalogView = { ...view, recipes: RECIPES.slice(0, RECIPES.findIndex((r) => r.id === "frango-catupiry") + 1), ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, 53) } };
+  const batch8a: RecipeBatchManifest = {
+    batchId: "batch-8a",
+    status: "landed",
+    afterRecipeId: "new-zealand-lamb-pizza",
+    recipes: [
+      { recipeId: "chilean-napolitana", keyIngredientId: "fresh-tomato", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+      { recipeId: "spanish-chorizo-pizza", keyIngredientId: "bell-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+      { recipeId: "frango-catupiry", keyIngredientId: "catupiry", ladderCredit: true, creditedWithoutStep: true, lunchRush: false, cut: false, hint: "key-free" },
+    ],
+    acceptedLetterShifts: { "pesto-caprese": "-->A", "brazilian-catupiry-corn-pizza": "-->A" },
+  };
 
   it("recipe id / ingredient id duplicates and unknown ingredients", () => {
     expect(validateCatalogTables(withRecipes([...RECIPES, RECIPES[0]]))).toContain(`RECIPE_ID_DUPLICATE: ${RECIPES[0].id}`);
@@ -62,24 +76,25 @@ describe("validator catches", () => {
     const id = first.recipeId;
     expect(validateBatchManifest({ ...landed, afterRecipeId: "aussie" }, view).some((p) => p.startsWith("NO_IDENTITY"))).toBe(true);
     expect(validateBatchManifest({ ...landed, recipes: [{ ...first, lunchRush: undefined, cut: undefined }, ...rest] }, view)).toEqual(expect.arrayContaining([`DECLARATION_MISSING: ${id}.lunchRush`, `DECLARATION_MISSING: ${id}.cut`]));
-    expect(validateBatchManifest({ ...landed, recipes: [{ ...first, lunchRush: true, cut: true, hint: "keyed", ladderCredit: true }, ...rest] }, view)).toEqual(
-      expect.arrayContaining([`LUNCH_RUSH_MISMATCH: ${id} declared true`, `CUT_MISMATCH: ${id} declared true`, `HINT_MISMATCH: ${id} declared keyed`, `LADDER_CREDIT_MISMATCH: ${id} declared true`]),
+    expect(validateBatchManifest({ ...landed, recipes: [{ ...first, lunchRush: true, cut: true, hint: "keyed", ladderCredit: false }, ...rest] }, view)).toEqual(
+      expect.arrayContaining([`LUNCH_RUSH_MISMATCH: ${id} declared true`, `CUT_MISMATCH: ${id} declared true`, `HINT_MISMATCH: ${id} declared keyed`, `LADDER_CREDIT_MISMATCH: ${id} declared false`]),
     );
   });
 
   it("creditedWithoutStep is checked: declared on a non-credited recipe, or a recipe that does have a ladder step of its own (Issue #561)", () => {
-    const [a, b, frango] = NEXT_RECIPE_BATCH.recipes;
-    expect(validateBatchManifest({ ...NEXT_RECIPE_BATCH, recipes: [a, b, { ...frango, creditedWithoutStep: undefined }] }, view)).toContain(
+    expect(validateBatchManifest(batch8a, view8a)).toEqual([]);
+    const [a, b, frango] = batch8a.recipes;
+    expect(validateBatchManifest({ ...batch8a, recipes: [a, b, { ...frango, creditedWithoutStep: undefined }] }, view8a)).toContain(
       "LADDER_ORDER: batch steps [] vs credited manifest [frango-catupiry]",
     );
-    expect(validateBatchManifest({ ...NEXT_RECIPE_BATCH, recipes: [{ ...a, ladderCredit: false, creditedWithoutStep: true }, b, frango] }, view)).toEqual(
+    expect(validateBatchManifest({ ...batch8a, recipes: [{ ...a, ladderCredit: false, creditedWithoutStep: true }, b, frango] }, view8a)).toEqual(
       expect.arrayContaining([`CREDITED_WITHOUT_STEP_NOT_CREDITED: ${a.recipeId}`]),
     );
   });
 
   it("a credited batch whose key material is not the ladder step's / the recipe's last material (Batch 7a, the previous credited batch, as the fixture)", () => {
     const base7a = RECIPES.slice(0, RECIPES.findIndex((r) => r.id === "new-zealand-lamb-pizza") + 1);
-    const view7a: CatalogView = { ...view, recipes: base7a };
+    const view7a: CatalogView = { ...view, recipes: base7a, ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, 53) } };
     const batch7a: RecipeBatchManifest = {
       batchId: "batch-7a",
       status: "landed",
@@ -95,10 +110,10 @@ describe("validator catches", () => {
   });
 
   it("a non-credit batch's cohort letter shifts must be listed exactly (accepted shift missing / not observed / unknown recipe)", () => {
-    const landed = NEXT_RECIPE_BATCH;
-    expect(validateBatchManifest({ ...landed, acceptedLetterShifts: {} }, view)).toEqual(expect.arrayContaining(["COHORT_LETTER_SHIFT: pesto-caprese - -> A"]));
-    expect(validateBatchManifest({ ...landed, acceptedLetterShifts: { ...landed.acceptedLetterShifts, margherita: "-->A" } }, view)).toContain("ACCEPTED_LETTER_SHIFT_NOT_OBSERVED: margherita");
-    expect(validateBatchManifest({ ...landed, acceptedLetterShifts: { ...landed.acceptedLetterShifts, ghost: "-->A" } }, view)).toContain("ACCEPTED_LETTER_SHIFT_UNKNOWN_RECIPE: ghost");
+    const landed = batch8a;
+    expect(validateBatchManifest({ ...landed, acceptedLetterShifts: {} }, view8a)).toEqual(expect.arrayContaining(["COHORT_LETTER_SHIFT: pesto-caprese - -> A"]));
+    expect(validateBatchManifest({ ...landed, acceptedLetterShifts: { ...landed.acceptedLetterShifts, margherita: "-->A" } }, view8a)).toContain("ACCEPTED_LETTER_SHIFT_NOT_OBSERVED: margherita");
+    expect(validateBatchManifest({ ...landed, acceptedLetterShifts: { ...landed.acceptedLetterShifts, ghost: "-->A" } }, view8a)).toContain("ACCEPTED_LETTER_SHIFT_UNKNOWN_RECIPE: ghost");
   });
 
   it("a new recipe that joins an existing single-member Research cohort (the existing recipe would gain a letter)", () => {

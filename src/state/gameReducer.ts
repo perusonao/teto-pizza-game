@@ -15,6 +15,7 @@ import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit } from "./sauceLedger";
 import { roundRunsFinish } from "./finishEngine";
+import { buildFinishHintLine } from "../data/finishHint";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -100,6 +101,8 @@ import { getPanGeometry } from "../logic/pan/panGeometry";
 import { cookingProfileForPan } from "../logic/pan/panProfile";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import { panSwitchOffered, pizzaWithPan, type PanChoice } from "./panSelection";
+import { doughSwitchOffered, pizzaWithDough } from "./doughSelection";
+import type { DoughKind } from "../logic/dough/doughKind";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
@@ -474,6 +477,10 @@ export type GameAction =
   // doughs, and re-derives the round's cooking profile (a tray round has no CUT). A no-op unless the switch is offered in this
   // round (Free Cooking / Research, DOUGH, affordance open), so a stray dispatch can never choose a pan in Guided / Lunch Rush / Dinner.
   | { type: "SELECT_PAN"; pan: PanChoice }
+  // Dough Kind P2 (Issue #577): the DOUGH step's dough-kind choice (../state/doughSelection.ts). Sets / clears `pizza.dough` and nothing
+  // else (not `pan`, the doughs, the cooking profile or the CUT state), and is a no-op unless the chips are offered in this round
+  // (Free Cooking / Research, DOUGH, the dough technique's affordance open -- never in Production before P3).
+  | { type: "SELECT_DOUGH"; dough: DoughKind }
   // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
   // DOUGH -> SAUCE -> CHEESE -> TOPPING sub-steps (see MakingStep above). Advances
   // `makingStep` one step forward and bumps `makingStepToken`; a no-op past "TOPPING" or
@@ -1212,6 +1219,24 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
     }
 
+    case "SELECT_DOUGH": {
+      if (
+        !doughSwitchOffered({
+          phase: state.phase,
+          makingStep: state.makingStep,
+          isMissionRound: state.isMissionRound,
+          isDinnerRound: isDinnerRound(state),
+          freeCook: state.freeCook,
+          recipe: state.recipe,
+          dex: state.dex,
+        })
+      ) {
+        return state;
+      }
+      const pizza = pizzaWithDough(state.pizza, action.dough);
+      return pizza === state.pizza ? state : { ...state, pizza };
+    }
+
     // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
     // sub-steps. Forward-only (clamped at the active sub-sequence's last step -- reaching BAKE
     // is the pre-existing, separate START_BAKE transition) and a no-op outside PREPARE/
@@ -1779,6 +1804,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "SHOW_HINT":
+      // FINISH FIN-B: the explicit hint in FINISH is the FINISH hint line itself (the same words the order card shows, with
+      // the count), never `buildHintLine` for a step it does not know.
+      if (state.phase === "POST_BAKE" && state.makingStep === "FINISH") {
+        return roundRunsFinish(state) ? { ...state, hint: buildFinishHintLine(state.recipe, state.pizza, true) } : state;
+      }
       // Discovery Hint 2.0 (229-B): in Free Cooking the button opens the progressive hint sheet
       // (PREPARE only) and leaves the order-card line alone; guided / Lunch Rush rounds keep the
       // explicit operational line below.

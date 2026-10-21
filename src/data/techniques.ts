@@ -11,7 +11,7 @@
  * Owner-approved: 「ソースなし」 / 「いつもの“ぬるもの”がなくても…？」).
  */
 
-export type TechniqueId = "no-sauce" | "tray";
+export type TechniqueId = "no-sauce" | "tray" | "dough-pinsa-romana";
 
 export interface TechniqueDefinition {
   id: TechniqueId;
@@ -34,6 +34,14 @@ export const TECHNIQUES: readonly TechniqueDefinition[] = [
     nameJa: "天板焼き",
     riddleJa: "丸くなくても、ピザは焼ける。四つの角まで生地を広げてみよう。",
     descriptionJa: "四角い天板に生地を広げて焼く調理法。指で押し広げ、四隅まで伸ばして形を整えよう。",
+  },
+  // Dough Kind P1 (Issue #577; ID, name, riddle and description Owner-approved 2026-10-20). Inert until a catalog target
+  // requires it (INV-TQ-4): no `RECIPES` entry does before P3. The raw id is never rendered (design §5.7 R6).
+  {
+    id: "dough-pinsa-romana",
+    nameJa: "ピンサ生地",
+    riddleJa: "同じ具材でも、生地の仕立て方で違う一枚になることがあるよ。",
+    descriptionJa: "空気を含んだ軽い食感が特徴の生地",
   },
 ];
 

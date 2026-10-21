@@ -1193,6 +1193,11 @@ export function PizzaStage({
     });
   const toppingsFor = (piece?: number) => piecesIn(preBakeToppings, piece);
   const postToppingsFor = (piece?: number) => piecesIn(postBakeToppings, piece);
+  // FINISH D2-2a / F-2 (Issues #518, #594): post-bake pieces are always drawn in `.pizza-post-layer`, a sibling of `.pizza-dough` --
+  // the bake `filter` sits on `.pizza-dough` itself, so nothing inside it can escape it. Uncut: the pieces sit in one frame. Cut:
+  // the layer holds its own copy of the cut geometry (the same clip chain and `PIECE_SEPARATION_PX` offset as `.pizza-pieces`) with
+  // only the post-bake pieces in it, and no filter at all (neither the bake colour nor the cut-face relief lighting reaches them).
+  const separatePostLayer = postBakeToppings.length > 0;
 
   // Animated bake effects (smoke, the perfect glow) are not part of the pizza body: with the pizza in
   // pieces they are drawn once, outside the filtered pieces, so they never force the relief filter
@@ -1217,6 +1222,17 @@ export function PizzaStage({
       )}
     </>
   );
+
+  const renderPostPieces = (piece?: number) =>
+    postToppingsFor(piece).map(({ t, half }) => (
+      <PostBakePiece
+        key={t.id}
+        topping={t}
+        half={half}
+        rankScale={activeToppingRankScale(t.ingredientId)}
+        phaseScale={toppingPhaseScale(t.ingredientId, resultCompact)}
+      />
+    ));
 
   const renderBodyLayers = (piece?: number) => (
     <>
@@ -1428,22 +1444,112 @@ export function PizzaStage({
       {bakeProgress !== null && <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />}
       {/* FINISH D2-1: after the bake overlays and char spots (siblings, no z-index: later paints on top), so their translucent
           raw / burnt tint never covers a piece that went on after the oven. */}
-      {postToppingsFor(piece).map(({ t, half }) => (
-        <PostBakePiece
-          key={t.id}
-          topping={t}
-          half={half}
-          rankScale={activeToppingRankScale(t.ingredientId)}
-          phaseScale={toppingPhaseScale(t.ingredientId, resultCompact)}
-        />
-      ))}
       {piece === undefined && renderBakeEffects()}
 
     </>
   );
 
+  // FINISH D2-2c F-3 (#597): the CUT drawing (guide / centre marker / drag preview / committed cuts / flash, and the knife) is built once and
+  // placed in one of two spots. Without post-bake pieces it stays inside `.pizza-dough` as always; with them it moves into
+  // `.pizza-post-layer`, after the post pieces, so it paints in front of them (a post piece is outside the dough and would cover it).
+  /* Pizza Cutting 1.0 Phase 2 (design doc §8): angle guide (fades, §8.2.1) + persistent
+      center marker + the in-progress drag preview -- CUT only -- plus the committed cuts,
+      which stay on the pizza after CUT (RESULT) as well. All in the same 0-100 dough-percent
+      coordinate space every other overlay already uses. */
+  const cutLayer =
+    (isCutStep || cutState.lines.length > 0) && (
+      <svg
+        className="pizza-cut-layer"
+        viewBox="0 0 100 100"
+        // Pointer math scales x and y independently (percent of the box); the default
+        // "meet" would letterbox a not-quite-square box and offset every drawn point by a px or two.
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
+      >
+        {isCutStep && (
+          <>
+            {/* Issue #418: the angle guide only helps choose the first cut; once a cut has
+                parted the pizza it would just be dashed lines across the pieces. */}
+            {!pieceLayout && (
+              <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
+                {cutGuideLines.map((line, index) => (
+                  <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
+                ))}
+              </g>
+            )}
+            <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
+          </>
+        )}
+        {cutState.lines.map((line, index) => {
+          // Issue #418: a cut that ran rim to rim has split the pizza into pieces (see
+          // `pieceLayout`), so its mark is only the shadow in the seam between them. A stroke
+          // that stopped inside is just a score in the surface: a dark groove with a faint lit
+          // lip, drawn exactly to where it stopped. In CUT the newest cut also flashes once
+          // (CSS animation, ~300ms) along its path.
+          const visual = buildCutVisual(line, pizza.doughShape);
+          const through = pieceLayout !== null && visual.through;
+          const pts = visual.points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+          const trace = line.path ? line.path.map((p) => `${p.x},${p.y}`).join(" ") : undefined;
+          const flash = isCutStep && index === cutState.lines.length - 1;
+          if (through) {
+            // The pieces themselves are the cut (gap + shade + side); nothing is drawn on top
+            // of the seam but the one-shot flash. The mark still carries the trace.
+            return (
+              <g key={index} className="pizza-cut-mark pizza-cut-mark--through" data-trace={trace}>
+                {flash && <polyline className="pizza-cut-flash" points={pts} />}
+              </g>
+            );
+          }
+          const dx = line.end.x - line.start.x;
+          const dy = line.end.y - line.start.y;
+          const len = Math.hypot(dx, dy) || 1;
+          // Unit normal pointing to the lower-right (light from the upper-left).
+          let nx = -dy / len;
+          let ny = dx / len;
+          if (nx + ny < 0) {
+            nx = -nx;
+            ny = -ny;
+          }
+          return (
+            <g key={index} className="pizza-cut-mark pizza-cut-mark--partial" data-trace={trace}>
+              <polyline
+                className="pizza-cut-edge pizza-cut-edge--lit"
+                points={pts}
+                transform={`translate(${(nx * 0.75).toFixed(3)} ${(ny * 0.75).toFixed(3)})`}
+              />
+              <polyline className="pizza-cut-line" points={pts} />
+              {flash && <polyline className="pizza-cut-flash" points={pts} />}
+            </g>
+          );
+        })}
+        {isCutStep && (
+          <polyline
+            ref={cutPreviewLineRef}
+            className="pizza-cut-preview-line"
+            points=""
+            style={{ opacity: 0 }}
+          />
+        )}
+      </svg>
+    );
+
+  const cutToolLayer =
+    isCutStep && (
+      // Same border-box box as the cut layer / pointer math, so a left/top percentage here is the
+      // same dough-percent the cut is drawn at. The knife's blade tip is the element's origin.
+      <div className="pizza-cut-tool-layer" aria-hidden="true">
+        <span ref={cutCutterIconRef} className="pizza-cut-cutter-icon" style={{ opacity: 0 }}>
+          <svg className="pizza-cut-knife" viewBox="0 0 36 36" width="36" height="36">
+            <path className="pizza-cut-knife__blade" d="M0 36 L18 9 L26 14.5 Z" />
+            <path className="pizza-cut-knife__handle" d="M18 9 L26 14.5 L33.5 3 L25.5 -2.5 Z" />
+          </svg>
+        </span>
+      </div>
+    );
+
   const showSquareDough = isDoughStep && squareDough !== undefined;
-  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}`;
+  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}${separatePostLayer ? " pizza-stage--post-layer" : ""}`;
 
   return (
     <div className={stageClassName}>
@@ -1550,104 +1656,47 @@ export function PizzaStage({
             {renderBodyLayers()}
           </>
         )}
-        {/* Pizza Cutting 1.0 Phase 2 (design doc §8): angle guide (fades, §8.2.1) + persistent
-            center marker + the in-progress drag preview -- CUT only -- plus the committed cuts,
-            which stay on the pizza after CUT (RESULT) as well. All in the same 0-100 dough-percent
-            coordinate space every other overlay already uses. */}
-        {(isCutStep || cutState.lines.length > 0) && (
-          <svg
-            className="pizza-cut-layer"
-            viewBox="0 0 100 100"
-            // Pointer math scales x and y independently (percent of the box); the default
-            // "meet" would letterbox a not-quite-square box and offset every drawn point by a px or two.
-            preserveAspectRatio="none"
-            aria-hidden="true"
-            style={showDoughShape ? { clipPath: `url(#${doughClipId})` } : undefined}
-          >
-            {isCutStep && (
-              <>
-                {/* Issue #418: the angle guide only helps choose the first cut; once a cut has
-                    parted the pizza it would just be dashed lines across the pieces. */}
-                {!pieceLayout && (
-                  <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
-                    {cutGuideLines.map((line, index) => (
-                      <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
-                    ))}
-                  </g>
-                )}
-                <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
-              </>
-            )}
-            {cutState.lines.map((line, index) => {
-              // Issue #418: a cut that ran rim to rim has split the pizza into pieces (see
-              // `pieceLayout`), so its mark is only the shadow in the seam between them. A stroke
-              // that stopped inside is just a score in the surface: a dark groove with a faint lit
-              // lip, drawn exactly to where it stopped. In CUT the newest cut also flashes once
-              // (CSS animation, ~300ms) along its path.
-              const visual = buildCutVisual(line, pizza.doughShape);
-              const through = pieceLayout !== null && visual.through;
-              const pts = visual.points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
-              const trace = line.path ? line.path.map((p) => `${p.x},${p.y}`).join(" ") : undefined;
-              const flash = isCutStep && index === cutState.lines.length - 1;
-              if (through) {
-                // The pieces themselves are the cut (gap + shade + side); nothing is drawn on top
-                // of the seam but the one-shot flash. The mark still carries the trace.
-                return (
-                  <g key={index} className="pizza-cut-mark pizza-cut-mark--through" data-trace={trace}>
-                    {flash && <polyline className="pizza-cut-flash" points={pts} />}
-                  </g>
-                );
-              }
-              const dx = line.end.x - line.start.x;
-              const dy = line.end.y - line.start.y;
-              const len = Math.hypot(dx, dy) || 1;
-              // Unit normal pointing to the lower-right (light from the upper-left).
-              let nx = -dy / len;
-              let ny = dx / len;
-              if (nx + ny < 0) {
-                nx = -nx;
-                ny = -ny;
-              }
-              return (
-                <g key={index} className="pizza-cut-mark pizza-cut-mark--partial" data-trace={trace}>
-                  <polyline
-                    className="pizza-cut-edge pizza-cut-edge--lit"
-                    points={pts}
-                    transform={`translate(${(nx * 0.75).toFixed(3)} ${(ny * 0.75).toFixed(3)})`}
-                  />
-                  <polyline className="pizza-cut-line" points={pts} />
-                  {flash && <polyline className="pizza-cut-flash" points={pts} />}
-                </g>
-              );
-            })}
-            {isCutStep && (
-              <polyline
-                ref={cutPreviewLineRef}
-                className="pizza-cut-preview-line"
-                points=""
-                style={{ opacity: 0 }}
-              />
-            )}
-          </svg>
-        )}
+        {!separatePostLayer && cutLayer}
         {/* Issue #418: CUT's capture zone reaches past the pizza so a stroke can start outside it. */}
         {isCutStep && interactive && <div className="pizza-cut-hit-zone" aria-hidden="true" />}
-        {isCutStep && (
-          // Same border-box box as the cut layer / pointer math, so a left/top percentage here is the
-          // same dough-percent the cut is drawn at. The knife's blade tip is the element's origin.
-          <div className="pizza-cut-tool-layer" aria-hidden="true">
-            <span ref={cutCutterIconRef} className="pizza-cut-cutter-icon" style={{ opacity: 0 }}>
-              <svg className="pizza-cut-knife" viewBox="0 0 36 36" width="36" height="36">
-                <path className="pizza-cut-knife__blade" d="M0 36 L18 9 L26 14.5 Z" />
-                <path className="pizza-cut-knife__handle" d="M18 9 L26 14.5 L33.5 3 L25.5 -2.5 Z" />
-              </svg>
-            </span>
-          </div>
-        )}
+        {!separatePostLayer && cutToolLayer}
         <svg className="pizza-paint-trail" viewBox="0 0 100 100" aria-hidden="true">
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
         </svg>
       </div>
+      {separatePostLayer && (
+        // Same box as `.pizza-dough` (see App.css `.pizza-stage--post-layer`); the inner frame is the dough's padding
+        // box, the box every piece's left / top percentage is measured against. No filter, no pointer events.
+        <div className="pizza-post-layer" data-testid="pizza-post-layer" aria-hidden="true">
+          {pieceLayout ? (
+            <div className="pizza-post-layer__pieces" data-piece-count={pieceLayout.pieces.length}>
+              {pieceLayout.pieces.map((piece, pieceIndex) => {
+                const here = postToppingsFor(pieceIndex);
+                if (here.length === 0) return null;
+                let node = <div className="pizza-piece-body">{renderPostPieces(pieceIndex)}</div>;
+                for (let c = pieceLayout.cuts.length - 1; c >= 0; c -= 1) {
+                  node = (
+                    <div className="pizza-piece-clip" style={{ clipPath: pieceClips[c][piece.sides[c] ? 0 : 1] }}>
+                      {node}
+                    </div>
+                  );
+                }
+                const dx = (piece.outward.x * PIECE_SEPARATION_PX).toFixed(2);
+                const dy = (piece.outward.y * PIECE_SEPARATION_PX).toFixed(2);
+                return (
+                  <div key={pieceIndex} className="pizza-piece" data-piece={pieceIndex} style={{ transform: `translate(${dx}px, ${dy}px)` }}>
+                    {node}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="pizza-post-layer__frame">{renderPostPieces()}</div>
+          )}
+          {cutLayer}
+          {cutToolLayer}
+        </div>
+      )}
       {showSauceGauge && (
         <div className="pizza-stage__sauce-gauge">
           <SauceRemainingGauge

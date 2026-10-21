@@ -321,6 +321,71 @@
   height: min(58vw, 196px);
 }
 
+/* FINISH D2-2a (Issue #518, option b): post-bake pieces live in their own layer, outside `.pizza-dough`, because the
+   bake `filter` below is on `.pizza-dough` itself and filters every descendant. Only present while a post-bake piece
+   is placed on an uncut pizza; with none, the stage is exactly the flex row above. The stage becomes a one-cell grid
+   so the layer takes the dough's own rendered box -- whichever size modifier (roomy / compact / result / the cooking
+   caps) set it -- without repeating any of those sizes here. */
+.pizza-stage--post-layer {
+  display: grid;
+  /* The one column is as wide as the dough asks (max-content) but never wider than the stage (the 0 minimum), and the
+     dough is capped at that column below: the same "shrink to the stage's width" a flex row gives, so the dough keeps
+     the box it has with no post-bake piece (#592: roomy dough 92vw = 358.8 / 331.2px in a 358 / 328px stage). */
+  grid-template-columns: minmax(0, max-content);
+  justify-content: center;
+  align-content: center;
+}
+
+.pizza-stage--post-layer > .pizza-dough,
+.pizza-stage--post-layer > .pizza-post-layer {
+  grid-area: 1 / 1;
+}
+
+.pizza-stage--post-layer > .pizza-dough {
+  max-width: 100%;
+}
+
+.pizza-post-layer {
+  /* the same border as `.pizza-dough` (defined there; this layer is not inside it) -- `.pizza-post-layer__frame` and, on a cut pizza,
+     `.pizza-piece-body` (shared with `.pizza-pieces`) inset by it to reach the dough's padding box */
+  --dough-border-width: 10px;
+  position: relative;
+  align-self: stretch;
+  justify-self: stretch;
+  pointer-events: none;
+  /* paints above the dough (and its overlays) by DOM order; no filter / opacity here, ever */
+}
+
+/* A cut pizza: the post-bake pieces' own copy of `.pizza-pieces` (F-2, #594) -- the layer's whole border-box, like `.pizza-pieces`
+   (`.pizza-piece` / `.pizza-piece-clip` / `.pizza-piece-body` are shared: clip chain, 1.5px offset, padding-box body). No filter. */
+.pizza-post-layer__pieces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* FINISH D2-2c F-3 (#597): with post-bake pieces the CUT drawing (`.pizza-cut-layer`, `.pizza-cut-tool-layer`) is rendered in this layer, after the pieces,
+   so it paints in front of them. The layer is already the dough's border-box -- the box those two are sized to inside the dough
+   (outset by the border from its padding box) -- so no outset here; DOM order, not z-index, decides the stacking. The capture zone stays in the dough. */
+.pizza-post-layer > .pizza-cut-layer {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: auto;
+}
+
+.pizza-post-layer > .pizza-cut-tool-layer {
+  inset: 0;
+  z-index: auto;
+}
+
+/* The dough's padding box: pieces are `left/top: x%/y%` of it, exactly as inside `.pizza-dough` (border 10px). */
+.pizza-post-layer__frame {
+  position: absolute;
+  inset: var(--dough-border-width, 10px);
+  pointer-events: none;
+}
+
 .pizza-dough--interactive {
   cursor: pointer;
   /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough
@@ -751,6 +816,15 @@
   width: 1.15em;
   height: 1.15em;
   margin: -0.075em;
+}
+
+/* Batch 8b: the shiso leaf and the whitebait school are drawn inside a 64-box with generous margins, so they read smaller than the neighbouring emoji (which overfill
+   their 1em box). Same fix class as the tomato slice above; scoped to these two visuals only. */
+.ingredient-glyph--shiso-leaf,
+.ingredient-glyph--whitebait-school {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
 }
 
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
@@ -7985,4 +8059,91 @@ p.hint-sheet__step {
 
 .pan-switch__icon--square {
   border-radius: 3px;
+}
+
+/* Dough Kind P2 (#577): the DOUGH step's dough-kind chips -- a radiogroup of its own, below the ○/□ switch when both are open (a row each,
+   so 360px wide never overflows). Two 44px-tall targets with the label as text (the aria-label is the same string). Absent unless the dough
+   technique's affordance is open, so every existing DOUGH dock is unchanged. */
+.prepare-dock .dough-kind-switch {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dough-kind-switch__option {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 2px solid #d9b98f;
+  border-radius: 12px;
+  background: #fff8ec;
+  color: #6b4226;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dough-kind-switch__option[aria-checked="true"] {
+  border-color: #c2571a;
+  background: #ffe2c4;
+}
+
+.dough-kind-switch__icon {
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #6b4226;
+  border-radius: 50%;
+  background: #f6d9a8;
+}
+
+.dough-kind-switch__icon--other {
+  border-style: dashed;
+}
+
+/* Dough Kind P2 (#577): when the ○/□ switch and the dough-kind chips are BOTH open they share one row, so the dock keeps its 70px and the
+   pizza does not move (two rows would add 50px). Compact: 44px ○/□ targets, text-only 12px chips (the labels stay the aria-labels). */
+.prepare-dock .dock-switch-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+.dock-switch-row .pan-switch,
+.dock-switch-row .dough-kind-switch {
+  margin-top: 0;
+  gap: 6px;
+}
+.dock-switch-row .pan-switch__option {
+  width: 44px;
+}
+.dock-switch-row .dough-kind-switch__option {
+  padding: 0 8px;
+  font-size: 12px;
+}
+.dock-switch-row .dough-kind-switch__icon {
+  display: none;
+}
+
+/* FINISH FIN-C: the tray's one-line note when the player owns no late ingredient (the dock keeps its reserved height). */
+.finish-tray-empty {
+  margin: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.75;
 }

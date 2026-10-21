@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MATRIX_PATH = ROOT / "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"
 SRC_RECIPES_PATH = ROOT / "src/data/recipes.ts"
 SRC_INGREDIENTS_PATH = ROOT / "src/data/ingredients.ts"
+SRC_DISCOVERY_CATALOG_PATH = ROOT / "src/data/discoveryCatalog.ts"
 INGREDIENT_CATALOG_PATH = ROOT / "data/recipes/ingredient_master_catalog.json"
 OUT_JSON = ROOT / "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json"
 OUT_GRAPH_MD = ROOT / "docs/design/TETO_PROGRESSION2_PHASE2_UNLOCK-GRAPH.md"
@@ -305,6 +306,26 @@ def parse_shipped_recipes():
         req = chunk.split("requiredIngredients:", 1)[1].split("]", 1)[0]
         out[rid] = sorted(set(re.findall(r'ingredientId: "([a-z0-9-]+)"', req)))
     return dict(sorted(out.items()))
+
+
+# Same-recipe links that RECIPE_DISCOVERY_TARGET_IDS does not state. Each entry is a reviewed, explicit pair; it only
+# takes effect when the Japanese name AND the runtime signature also agree (checked in build()), so it can never
+# merge two different recipes by itself. Every other signature collision still fails the validator.
+#   brazilian-calabresa: discoveryCatalog.ts maps it to the production-only id "brazilian-calabresa" (PR-4b-B), but
+#   src/data/recipes.ts authors it from the PIZZA DB row's ingredient list ("the source's ingredient list has none"
+#   cheese; olive -> black-olive) and the row has the same name. Counted once, as the row. Owner-approved for this
+#   single pair only (#260, 2026-10-20); do not add entries without a new Owner decision.
+REVIEWED_SAME_RECIPE_LINKS = {"brazilian-calabresa": "brazilian-calabresa-pizzadb-p10"}
+
+
+def parse_runtime_target_ids():
+    """Shipped recipe id -> runtime discovery target id (`RECIPE_DISCOVERY_TARGET_IDS`, src/data/discoveryCatalog.ts).
+    This is the product's own, explicit statement of which Phase-2 target a production recipe IS: either a
+    `shipped:<id>` overlay target or a 172-row evidence id. It is the only link used to decide that a shipped
+    recipe and an evidence row are the same recipe (a matching signature alone never is)."""
+    text = strip_ts_comments(SRC_DISCOVERY_CATALOG_PATH.read_text(encoding="utf-8"))
+    block = text.split("RECIPE_DISCOVERY_TARGET_IDS", 1)[1].split("};", 1)[0]
+    return dict(sorted(re.findall(r'"?([a-z0-9-]+)"?\s*:\s*"([^"]+)"', block)))
 
 
 def parse_src_ingredient_categories():
@@ -857,8 +878,34 @@ def build():
     row_targets = [row_target(r, required_strengths) for r in ready_rows]
     corroborated = {r["phase0"]["correspondsToExistingCatalogId"] for r in ready_rows
                     if r["productDecisionStatus"] == "ALREADY_SHIPPED_CORROBORATED"}
+    # Same-recipe link: a shipped recipe whose runtime target id IS a READY evidence row is that row (counted once,
+    # as the row target). The composition must agree; a disagreement is never merged -- it is reported.
+    runtime_ids = parse_runtime_target_ids()
+    row_target_by_id = {t["targetId"]: t for t in row_targets}
+    counted_as_row, link_errors = {}, []
+    for rid, ings in shipped.items():
+        tid = runtime_ids.get(rid)
+        reviewed = REVIEWED_SAME_RECIPE_LINKS.get(rid)
+        if reviewed and tid not in row_target_by_id:
+            row = next((r for r in rows if r["evidenceId"] == reviewed), None)
+            if (reviewed in row_target_by_id and row["nameJa"] == shipped_name.get(rid)
+                    and signature(row_target_by_id[reviewed]) == signature(shipped_target(rid, ings, rid))):
+                counted_as_row[rid] = reviewed
+            else:
+                link_errors.append(f"reviewed link {rid} -> {reviewed} no longer holds (row not ready, name or signature differs)")
+            continue
+        if tid is None:
+            link_errors.append(f"shipped recipe {rid} has no RECIPE_DISCOVERY_TARGET_IDS entry")
+        elif tid in row_target_by_id:
+            if signature(row_target_by_id[tid]) == signature(shipped_target(rid, ings, rid)):
+                counted_as_row[rid] = tid
+            else:
+                link_errors.append(f"shipped recipe {rid} maps to evidence row {tid} but their runtime signatures differ")
+        elif tid in {r["evidenceId"] for r in rows}:
+            link_errors.append(f"shipped recipe {rid} maps to evidence row {tid} which is not evidence-ready")
     overlay = [shipped_target(rid, ings, shipped_name.get(rid, rid)) for rid, ings in shipped.items()
-               if rid not in corroborated]
+               if rid not in corroborated and rid not in counted_as_row]
+    overlay_ids = {t["targetId"][len("shipped:"):] for t in overlay}
     shipped_row_of = {}
     for r in rows:
         cid = r["phase0"]["correspondsToExistingCatalogId"]
@@ -919,7 +966,7 @@ def build():
             entry["ledgerClass"] = "A" if r["evidenceId"] == shipped_row_of.get("margherita") else "B"
             entry["reviewLedgerClasses"] = sorted({REVIEW_CLASS[x["type"]] for x in r["reviewItems"]})
             cid = r["phase0"]["correspondsToExistingCatalogId"]
-            entry["coveredByShippedTargetUnderSHIPPED_KEEP"] = ("shipped:" + cid) if cid in shipped and cid not in corroborated else None
+            entry["coveredByShippedTargetUnderSHIPPED_KEEP"] = ("shipped:" + cid) if cid in overlay_ids else None
             entry["unresolvedTokens"] = [x if isinstance(x, str) else x.get("token") for x in r["ingredients"]["unresolvedTokens"]]
             entry["wouldNeedCapabilitiesOnceUnblocked"] = sorted(r["requiredCapabilities"])
         row_class.append(entry)
@@ -1011,7 +1058,9 @@ def build():
                        "production data. Every value here is a comparison candidate; the recommended one is labelled."),
         "generatedBy": "tools/progression2_phase2_progression.py",
         "issue": "https://github.com/perusonao/teto-pizza-game/issues/190",
-        "inputs": [str(p.relative_to(ROOT)) for p in (MATRIX_PATH, SRC_RECIPES_PATH, SRC_INGREDIENTS_PATH, INGREDIENT_CATALOG_PATH)],
+        "inputs": [str(p.relative_to(ROOT)) for p in (MATRIX_PATH, SRC_RECIPES_PATH, SRC_INGREDIENTS_PATH, SRC_DISCOVERY_CATALOG_PATH, INGREDIENT_CATALOG_PATH)],
+        "shippedRecipesCountedAsEvidenceRow": counted_as_row,
+        "shippedRecipeLinkErrors": link_errors,
         "phase1MatrixRowCount": len(rows),
         "starterItems": list(STARTER_ITEMS),
         "discoveryRule": {
@@ -1267,6 +1316,8 @@ def validate(out):
     ids = [r["evidenceId"] for r in matrix["rows"]]
     if len(ids) != EXPECTED_ROWS or len(set(ids)) != EXPECTED_ROWS:
         errors.append(f"matrix rows {len(ids)} / unique {len(set(ids))} != {EXPECTED_ROWS}")
+    for e in out["shippedRecipeLinkErrors"]:
+        errors.append("SHIPPED_ROW_LINK: " + e)
     cls_ids = [e["evidenceId"] for e in out["rowClassification"]]
     if cls_ids != ids:
         errors.append("rowClassification does not cover the 172 matrix rows exactly once in matrix order")

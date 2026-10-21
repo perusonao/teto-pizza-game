@@ -18,6 +18,9 @@ import { effectivePanShape } from "./logic/pan/effectivePan";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SquareDough } from "./logic/pan/squareDough";
 import type { PanChoice } from "./state/panSelection";
+import type { DoughKind } from "./logic/dough/doughKind";
+import { doughChipOtherLabel } from "./logic/techniques/doughSwitch";
+import { DOUGH_CHIP_OTHER_JA } from "./components/DoughKindSwitch";
 import type { CutLine } from "./logic/cut/types";
 import type { SauceDeposit } from "./state/pizzaState";
 import { liveSauceDeposits } from "./state/sauceLedger";
@@ -828,6 +831,10 @@ function App() {
     dispatch({ type: "SELECT_PAN", pan });
   }
 
+  function handleSelectDough(dough: DoughKind) {
+    dispatch({ type: "SELECT_DOUGH", dough });
+  }
+
   // Issue #418: a completed trace is committed at once; no duplicate gate, no undo.
   function handleAddCutLine(line: CutLine) {
     dispatch({ type: "ADD_CUT_LINE", line });
@@ -1302,6 +1309,8 @@ function App() {
           onDoughStretchCommit={handleDoughStretchCommit}
           onSquareDoughCommit={handleSquareDoughCommit}
           onSelectPan={handleSelectPan}
+          onSelectDough={handleSelectDough}
+          doughOtherLabel={doughChipOtherLabel(state.discoveredTechniqueIds, DOUGH_CHIP_OTHER_JA)}
           onAddCutLine={handleAddCutLine}
           onDoughElementChange={handleDoughElementChange}
           resolvePhysicalDrop={resolvePhysicalDrop}
