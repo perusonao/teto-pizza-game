@@ -63,8 +63,8 @@ function round(pizza: PizzaState, over: Partial<Parameters<typeof resolveRoundTe
 }
 
 describe("dough-pinsa-romana registry (Owner-approved copy, PK-20 / PK-22)", () => {
-  it("is registered last, with the approved id, name, riddle and description", () => {
-    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray", ID]);
+  it("is registered after no-sauce and tray (late-addition, FIN-E2, follows it), with the approved id, name, riddle and description", () => {
+    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray", ID, "late-addition"]);
     expect(KNOWN_TECHNIQUE_IDS).toContain(ID);
     expect(isTechniqueId(ID)).toBe(true);
     expect(DOUGH.nameJa).toBe("ピンサ生地");

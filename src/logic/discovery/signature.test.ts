@@ -53,7 +53,7 @@ describe("signatureOfPizza (P3-1 runtime signature)", () => {
     expect(sig.ingredientSet.value).toEqual(["mozzarella", "tomato-sauce"]);
   });
 
-  it("every Phase-2 identity dimension is present with an explicit status (only pan and dough are OBSERVED) and its default value for an ordinary cook", () => {
+  it("every Phase-2 identity dimension is present with an explicit status (only pan, dough and late are OBSERVED) and its default value for an ordinary cook", () => {
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
     expect(Object.keys(sig.dimensions).sort()).toEqual([...IDENTITY_DIMENSION_KEYS].sort());
     for (const key of IDENTITY_DIMENSION_KEYS) {
@@ -62,9 +62,9 @@ describe("signatureOfPizza (P3-1 runtime signature)", () => {
     }
   });
 
-  it("pan (Square Dough F1) and dough (Dough Kind P1) are the only OBSERVED dimensions", () => {
+  it("pan (Square Dough F1), dough (Dough Kind P1) and late (FIN-E2) are the only OBSERVED dimensions", () => {
     const observed = IDENTITY_DIMENSION_KEYS.filter((k) => RUNTIME_DIMENSION_OBSERVATION[k].status === "OBSERVED");
-    expect(observed).toEqual(["dough", "pan"]);
+    expect(observed).toEqual(["dough", "pan", "late"]);
   });
 
   it("only zones and shape are UNAVAILABLE; the rest are fixed by the current flow", () => {
@@ -72,8 +72,8 @@ describe("signatureOfPizza (P3-1 runtime signature)", () => {
     expect(unavailable).toEqual(["zones", "shape"]);
   });
 
-  it("the only Phase-2 capability the runtime supports is DOUGH_VARIANT (the dough axis is observed)", () => {
-    expect(RUNTIME_SUPPORTED_CAPABILITIES).toEqual(["DOUGH_VARIANT"]);
+  it("the only Phase-2 capabilities the runtime supports are DOUGH_VARIANT (dough axis) and LATE_ADDITION (late axis, FIN-E2)", () => {
+    expect(RUNTIME_SUPPORTED_CAPABILITIES).toEqual(["DOUGH_VARIANT", "LATE_ADDITION"]);
   });
 
   it("the dough stretch shape, sauce amounts, bake value and piece positions are not identity", () => {

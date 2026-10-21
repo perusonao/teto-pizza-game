@@ -83,9 +83,10 @@ export const DEFAULT_IDENTITY_DIMENSIONS: IdentityDimensions = {
   spreadLayers: null,
 };
 
-/** Capabilities (Phase-1/2 names) whose gameplay the current runtime implements. Only DOUGH_VARIANT (the `dough` axis is
- *  observed, Dough Kind P1 #577); every target that requires another of the 11 is unmatchable by construction. */
-export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT"];
+/** Capabilities (Phase-1/2 names) whose gameplay the current runtime implements: DOUGH_VARIANT (the `dough` axis is
+ *  observed, Dough Kind P1 #577) and LATE_ADDITION (the `late` axis is observed, FIN-E2 #604; inert until a catalog target
+ *  declares it). Every target that requires another of the 11 is unmatchable by construction. */
+export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT", "LATE_ADDITION"];
 
 /**
  * How the current runtime observes each dimension. The value for FIXED_BY_FLOW / UNAVAILABLE is
@@ -93,7 +94,7 @@ export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT
  */
 export const RUNTIME_DIMENSION_OBSERVATION: {
   readonly [K in IdentityDimensionKey]: {
-    status: K extends "pan" | "dough" ? AxisStatus : Exclude<AxisStatus, "OBSERVED">;
+    status: K extends "pan" | "dough" | "late" ? AxisStatus : Exclude<AxisStatus, "OBSERVED">;
     reason: string;
   };
 } = {
@@ -101,7 +102,7 @@ export const RUNTIME_DIMENSION_OBSERVATION: {
   pan: { status: "OBSERVED", reason: "PizzaState.pan: absent / null = ordinary cook, \"tray\" = 天板焼き (Square Dough F1)" },
   layerOrder: { status: "FIXED_BY_FLOW", reason: "reducer enforces DOUGH -> SAUCE -> CHEESE -> TOPPING" },
   zones: { status: "UNAVAILABLE", reason: "piece positions exist but no zone classification rule" },
-  late: { status: "FIXED_BY_FLOW", reason: "FINISH is a reserved step with no gameplay" },
+  late: { status: "OBSERVED", reason: "the ids of the pieces placed after the bake (PlacedTopping.stage === \"post\", FINISH); absent stage = before the bake, so no pizza made before FINISH existed changes identity (FIN-E2, #604)" },
   prep: { status: "FIXED_BY_FLOW", reason: "no prep step exists (no PREP_STEP)" },
   enclosure: { status: "FIXED_BY_FLOW", reason: "FOLD/SEAL are reserved steps with no gameplay" },
   shape: { status: "UNAVAILABLE", reason: "doughShape radii exist but no shape classification rule" },
@@ -126,6 +127,23 @@ export interface RuntimeSignature {
    *  Phase 2; how many pieces a recipe needs is the Completion Gate's `minCount` question. */
   ingredientCounts: Readonly<Record<string, number>>;
   dimensions: { readonly [K in IdentityDimensionKey]: SignatureAxis<IdentityDimensions[K]> };
+}
+
+/**
+ * The `late` axis: one `["POST_BAKE", sortedIds]` group holding the ingredient ids of the pieces placed in FINISH, `[]` when there
+ * are none (the Phase-2 default). Read from the RAW toppings because `sanitizeToppings` drops `stage`; the same validity test
+ * (string id, finite coordinates) keeps a malformed element from counting. Presence-only like every axis: how many late pieces
+ * a recipe needs is the Completion Gate's / Scoring's question, never identity.
+ */
+function lateOf(pizza: PizzaState): IdentityDimensions["late"] {
+  const raw: readonly unknown[] = Array.isArray(pizza.toppings) ? pizza.toppings : [];
+  const ids: string[] = [];
+  for (const piece of raw) {
+    if (typeof piece !== "object" || piece === null) continue;
+    const { stage, ingredientId, x, y } = piece as Record<string, unknown>;
+    if (stage === "post" && typeof ingredientId === "string" && Number.isFinite(x) && Number.isFinite(y)) ids.push(ingredientId);
+  }
+  return ids.length === 0 ? [] : [["POST_BAKE", sortedUnique(ids)]];
 }
 
 function sortedUnique(ids: readonly string[]): string[] {
@@ -156,6 +174,9 @@ export function signatureOfPizza(pizza: PizzaState): RuntimeSignature {
   dimensions.pan = { status: "OBSERVED", value: pizza.pan === "tray" ? "tray" : null };
   // dough is the second OBSERVED dimension, independent of pan: only a recognised explicit kind counts; absent / malformed is "standard".
   dimensions.dough = { status: "OBSERVED", value: resolveDoughKind({ doughKind: pizza.dough }) };
+
+  // late is the third OBSERVED dimension: only an explicit `stage: "post"` counts, so every pre-FINISH pizza keeps `[]`.
+  dimensions.late = { status: "OBSERVED", value: lateOf(pizza) };
 
   return {
     ingredientSet: { status: "OBSERVED", value: sortedUnique([...sauceIds, ...pieceIds]) },
