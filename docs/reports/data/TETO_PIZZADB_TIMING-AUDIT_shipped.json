@@ -1,7 +1,7 @@
 {
  "schema": "pizzadb-timing-audit/v1",
  "baseMain": "78a4a0ff",
- "scope": "Shipped recipes (main) that have a row in the 172 evidence matrix. The 15 original recipes without a 172 row are out of scope.",
+ "scope": "Shipped recipes (main) that have a row in the 172 evidence matrix: 47 (45 comparison-table-only + 2 individual-profile-origin). The 14 original recipes without a 172 row are out of scope.",
  "entries": [
   {
    "recipeId": "tonno-e-cipolla",
@@ -1022,7 +1022,8 @@
     "checkedBy": null,
     "checkedOn": null,
     "independentlyVerified": null
-   }
+   },
+   "matchNote": "matrix row id is 'bianca' (not the recipe id); matched by composition (mozzarella/olive-oil/ricotta/rosemary), distinct from the original pizza-bianca (olive-oil/rosemary)."
   },
   {
    "recipeId": "pizza-overload",
@@ -1313,7 +1314,45 @@
     "checkedOn": null,
     "independentlyVerified": null
    }
+  },
+  {
+   "recipeId": "brazilian-calabresa",
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ソーセージ",
+    "玉ねぎ",
+    "オリーブ",
+    "オレガノ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "matchNote": "matched by canonicalCandidateId; shipped requires tomato-sauce/sausage/onion/black-olive/oregano (sauce is not in the comparison-table list). Master evidence verifiedAt: 2026-09-22 (relayed, not independently re-fetched). Dried oregano is outside this PR's garnish heuristic (so priority 低).",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
   }
  ],
- "priorityHeuristicNote": "Heuristic only (a garnish-like ingredient is present: fresh herb, citrus, roe, cured ham, honey, grated hard cheese). It orders the audit work; it is NOT source evidence and changes no classification."
+ "priorityHeuristicNote": "Heuristic only (a garnish-like ingredient is present: fresh herb, citrus, roe, cured ham, honey, grated hard cheese). It orders the audit work; it is NOT source evidence and changes no classification.",
+ "counts": {
+  "shipped": 61,
+  "withMatrixRow": 47,
+  "comparisonTableOnly": 45,
+  "individualProfileOrigin": 2,
+  "originalsWithoutMatrixRow": 14,
+  "matchRule": "canonicalCandidateId == src recipe id; plus one composition alias: pizza-bianca-ricotta <- bianca-pizzadb-row (mozzarella/olive-oil/ricotta/rosemary; Phase 0B.5 report 3.2; Batch 5 'distinct third Bianca')",
+  "correction": "Earlier text of this PR said 46 rows (44 comparison-table-only) and listed brazilian-calabresa as having no 172 row. That was wrong: brazilian-calabresa-pizzadb-p10 (black-olive, onion, oregano, sausage; comparison_table_sample) exists in the matrix and matches the shipped recipe. Corrected to 47 / 45."
+ }
 }

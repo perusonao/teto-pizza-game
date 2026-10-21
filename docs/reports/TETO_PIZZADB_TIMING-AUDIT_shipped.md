@@ -32,13 +32,15 @@ candidate matrix を入力にする生成物が ikura の変更で古くなる�
 | 区分 | 件数 | 状態 |
 |---|---|---|
 | main の出荷済み 61 レシピ | 61 | — |
-| うち 172 行の対応あり | 46 | 以下の表 |
-| └ 比較表由来（`comparison_table_sample`） | 44 | **要確認**（うち `shirasu-pizza` は #587 に部分証跡あり） |
+| うち 172 行の対応あり | 47 | 以下の表 |
+| └ 比較表由来（`comparison_table_sample`） | 45 | **要確認**（うち `shirasu-pizza` は #587 に部分証跡あり） |
 | └ 個別ページ由来（`individual_profile_page`: `hawaiian`, `pizza-bianca-ricotta`） | 2 | 個別ページ由来のため本監査では再確認せず（後乗せ記述の有無は未走査） |
-| 172 行の対応なし（原型 14 + `brazilian-calabresa`） | 15 | 範囲外（PIZZA DB 行が無い） |
+| 172 行の対応なし（原型 14） | 14 | 範囲外（PIZZA DB 行が無い） |
 | `ikura-salmon-pizza`（#584、HOLD、main 未出荷） | 1 | 上記のとおり訂正済み |
 
-> 数の訂正: 前回の報告で「出荷済み 47 件中 45 件が比較表由来」と述べたが、その集計には #584 ブランチの `ikura-salmon-pizza`（main 未出荷）を含んでいた。main の出荷済みで正しくは **46 行中 44 行**（+ ikura が #584 側）。
+> 数の訂正（2回）: ① 前々回の「出荷済み 47 件中 45 件が比較表由来」は #584 ブランチの `ikura-salmon-pizza`（main 未出荷）を含んでいた。② 本 PR の初版は「46 行中 44 行」「対応のない 15（原型 14 + `brazilian-calabresa`）」としたが、これも誤りだった。`brazilian-calabresa` は matrix に `brazilian-calabresa-pizzadb-p10`（`comparison_table_sample`、black-olive / onion / oregano / sausage）があり、`canonicalCandidateId` が出荷 id と一致する（出荷側は tomato-sauce / sausage / onion / black-olive / oregano で、ソースを除き一致）。main の matrix で独立に数え直した正しい値は **47 行（比較表のみ 45 + 個別ページ由来 2）、対応なし 14（原型のみ）**。
+>
+> 照合規則: 原則 `canonicalCandidateId` = 出荷 id。例外 1 件: `pizza-bianca-ricotta` は行 `bianca-pizzadb-row`（`canonicalCandidateId: bianca`）に、材料 4 種（mozzarella / olive-oil / ricotta / rosemary）の一致で対応づける（`TETO_PROGRESS2_PHASE0B5_RECIPE-ROW-CORROBORATION-BATCH.md` §3.2、Batch 5 の「3 つ目の Bianca」。原型 `pizza-bianca` は olive-oil / rosemary のみで別物）。id 照合だけだとこの 1 件が落ちる。
 
 **この Claude Code セッションは `pizzadb.jp` に到達できない**（ネットワーク制限）。そのため、訂正した ikura 以外の個別ページは**1 件も取得していない**。表の全行は「要確認」で、分類は変更していない。#587 の証跡（ChatGPT 取得・独立再確認なし）は、`shirasu-pizza` について「大葉の時機は指定なし」「しらすは『仕上げ数分前にのせる』（焼成後とは断定されない）」「レモンは『絞る』動作のみ」という部分情報で、現行分類の変更根拠は無い。
 
@@ -65,6 +67,7 @@ candidate matrix を入力にする生成物が ikura の変更で古くなる�
 | 低 | `aussie` | オージーピザ | bacon, egg, mozzarella, onion | — | 要確認 |
 | 低 | `bacalhau` | バカリャウピザ | salt-cod, onion, black-olive, mozzarella | — | 要確認 |
 | 低 | `bambino` | バンビーノ | モッツァレラチーズ, ハム, コーン | — | 要確認 |
+| 低 | `brazilian-calabresa` | ブラジリアン・カラブレーザ | ソーセージ, 玉ねぎ, オリーブ, オレガノ | — | 要確認 |
 | 低 | `brazilian-catupiry-corn-pizza` | ブラジリアンカトゥピリコーンピザ | カトゥピリチーズ, コーン, モッツァレラチーズ | — | 要確認 |
 | 低 | `calabresa-argentina` | アルゼンチン風カラブレーサ | tomato-sauce, mozzarella, salami, black-olive, oregano | — | 要確認 |
 | 低 | `chilean-napolitana` | チリアンナポリターナ | fresh-tomato, mozzarella, oregano | — | 要確認 |
