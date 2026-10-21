@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "../../state/pizzaState";
 import { matchDiscovery, type DiscoveryTarget } from "./matcher";
 import {
@@ -244,15 +245,38 @@ describe("Attempt Fingerprint v1 — pan axis (Square Dough F1)", () => {
     expect(tray).not.toBe(attemptFingerprintOfPizza(withPan()));
     expect(parseAttemptFingerprint(tray)!.ext).toEqual({ pan: "tray" });
   });
+
+  it("Dough Kind P1: every existing recipe's own composition keeps its exact pre-P1 fingerprint string (no ext)", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG) {
+      const base = t.sauceBase ?? [];
+      const pizza: PizzaState = {
+        ...withPan(),
+        sauceIds: [...base],
+        toppings: t.items.filter((id) => !base.includes(id)).map((ingredientId, i) => ({ id: `p${i}`, ingredientId, x: 30 + i, y: 50 })),
+      };
+      expect(attemptFingerprintOfPizza(pizza), t.targetId).toBe(`fp1:${JSON.stringify([[...base].sort(), [...t.items].sort()])}`);
+    }
+  });
+
+  it("Dough Kind P1: a standard dough keeps the exact pre-P1 string; a Pinsa dough has its own fingerprint (sparse ext), independent of the pan", () => {
+    const plain = attemptFingerprintOfPizza(withPan());
+    expect(attemptFingerprintOfPizza({ ...withPan(), dough: "standard" })).toBe(plain);
+    expect(plain).not.toContain("dough");
+    const pinsa = attemptFingerprintOfPizza({ ...withPan(), dough: "material-multigrain-long-ferment" });
+    expect(pinsa).not.toBe(plain);
+    expect(parseAttemptFingerprint(pinsa)!.ext).toEqual({ dough: "material-multigrain-long-ferment" });
+  });
 });
 
 describe("Attempt Fingerprint v1 — versioning and extension", () => {
-  it("only pan is OBSERVED (Square Dough F1), so the extension of an ordinary cook is always empty", () => {
+  it("only pan (Square Dough F1) and dough (Dough Kind P1) are OBSERVED, so the extension of an ordinary cook is always empty", () => {
     // Canary: if another axis becomes OBSERVED this test fails on purpose so the contract is re-reviewed
     // (the fingerprint would start carrying it in `ext` automatically).
     const sig = signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella"]));
     for (const key of IDENTITY_DIMENSION_KEYS) {
       if (key === "pan") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: null });
+      else if (key === "late") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: [] }); // FIN-E2: observed, but never attempt identity (NOT_ATTEMPT_IDENTITY)
+      else if (key === "dough") expect(sig.dimensions[key]).toEqual({ status: "OBSERVED", value: "standard" });
       else expect(sig.dimensions[key].status).not.toBe("OBSERVED");
     }
     // FIXED_BY_FLOW axes are compared by the matcher too, so they must hold exactly their defaults
@@ -269,12 +293,23 @@ describe("Attempt Fingerprint v1 — versioning and extension", () => {
 
   it("a future OBSERVED non-default dimension is added sparsely and distinguishes attempts", () => {
     const plain = attemptFingerprintOfSignature(base());
-    const withLate = attemptFingerprintOfSignature(withAxis(base(), "late", "OBSERVED", [["post_bake", ["basil"]]]));
-    expect(withLate).not.toBe(plain);
-    expect(withLate.startsWith("fp1:")).toBe(true);
-    expect(parseAttemptFingerprint(withLate)!.ext).toEqual({ late: [["post_bake", ["basil"]]] });
-    // the default-dimension attempt keeps its exact pre-extension string
-    expect(plain).toBe('fp1:[["tomato-sauce"],["mozzarella","tomato-sauce"]]');
+    const withCook = attemptFingerprintOfSignature(withAxis(base(), "cook", "OBSERVED", "fry"));
+    expect(withCook).not.toBe(plain);
+    expect(parseAttemptFingerprint(withCook)!.ext).toEqual({ cook: "fry" });
+    expect(plain).toBe('fp1:[["tomato-sauce"],["mozzarella","tomato-sauce"]]'); // the default-dimension attempt keeps its exact string
+  });
+
+  it("FIN-E2 (Owner D-3): the late axis is matcher identity but NOT attempt identity -- before / after the bake is one attempt, in every field", () => {
+    const plain = attemptFingerprintOfSignature(base());
+    for (const value of [[["POST_BAKE", ["mozzarella"]]], [["POST_BAKE", ["basil", "mozzarella"]]], [["post_bake", ["basil"]]]]) {
+      const fp = attemptFingerprintOfSignature(withAxis(base(), "late", "OBSERVED", value));
+      expect(fp).toBe(plain);
+      expect(fp).not.toMatch(/late|POST|post/i);
+      expect(parseAttemptFingerprint(fp)!.ext).toEqual({});
+    }
+    // end to end from a real pizza: the same pieces placed before the bake and after it
+    const mk = (stage?: "post"): PizzaState => ({ ...pizzaOf(["tomato-sauce"], ["mozzarella"]), toppings: [{ id: "p", ingredientId: "mozzarella", x: 40, y: 50, ...(stage ? { stage } : {}) }] });
+    expect(attemptFingerprintOfSignature(signatureOfPizza(mk("post")))).toBe(attemptFingerprintOfSignature(signatureOfPizza(mk())));
   });
 
   it("an OBSERVED axis at its default value adds nothing (old fingerprints stay comparable)", () => {

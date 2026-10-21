@@ -13,7 +13,7 @@ export function TechniqueReveal({ techniqueIds }: { techniqueIds: readonly Techn
     <div className="technique-reveal" role="status" aria-live="polite" data-technique-reveal="">
       <p className="technique-reveal__stamp">{"\u{1F373}"} 新しい調理法を発見！</p>
       {techniques.map((t) => (
-        <p key={t.id} className="technique-reveal__name" data-technique-id={t.id}>
+        <p key={t.id} className="technique-reveal__name" data-technique-name="">
           「{t.nameJa}」
         </p>
       ))}

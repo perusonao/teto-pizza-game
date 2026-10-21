@@ -103,7 +103,7 @@ describe("Owner decisions (P2) stay contained", () => {
 
 describe("Scope guards: identity semantics and the hint ladder are untouched", () => {
   it("the matcher and signature still declare the same identity source", () => {
-    expect(sources["/src/logic/discovery/signature.ts"]).toContain("export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = [];");
+    expect(sources["/src/logic/discovery/signature.ts"]).toContain(`export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT", "LATE_ADDITION"];`);
     expect(sources["/src/logic/discovery/matcher.ts"]).toContain("There is no fallback");
   });
 
@@ -111,6 +111,10 @@ describe("Scope guards: identity semantics and the hint ladder are untouched", (
     const text = sources[NEAR_MISS];
     expect(text).toContain("signature.ingredientSet.value");
     expect(text).toContain("signature.sauceBase.value");
-    expect(text).not.toMatch(/dimensions|ingredientCounts/);
+    // FIN-E2 (#604): the one other axis it may read is `late` (target `identityDimensions.late`, pizza `dimensions.late`); no other dimension.
+    expect(text).toContain("signature.dimensions?.late");
+    expect(text).not.toMatch(/signature\.dimensions\??\.(?!late\b)/); // no other axis of the signature
+    expect(text).not.toMatch(/identityDimensions\??\.(?!late\b)/); // no other axis of a target
+    expect(text).not.toMatch(/ingredientCounts/);
   });
 });

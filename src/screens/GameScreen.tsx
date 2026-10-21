@@ -7,7 +7,7 @@ import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { classifyBake5, isNearMiss } from "../logic/bake";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
-import { prepareDockReserve } from "../logic/prepareDock";
+import { finishTrayIngredients, prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -48,7 +48,8 @@ import { postDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import { buildMaterialUnlockNotice, newShopMaterialCount } from "../state/materialEntitlement";
 import { executionAdviceJa } from "../state/executionAdvice";
 import { panShapeNoticeJa } from "../state/panShapeNotice";
-import { renderedPostBakeStep } from "./postBakeView";
+import { finishStepAvailable, selectPostBakeStep } from "./postBakeView";
+import { buildFinishHintLine, finishTrayEmptyText } from "../data/finishHint";
 import { resultNearMiss } from "../state/resultNearMiss";
 import { discoveryRevealOrder } from "../state/discoveryReveal";
 import type { ReferencePizza } from "../data/referencePizza";
@@ -66,7 +67,7 @@ import {
   buildTetoShortageLine,
   buildTetoResultLine,
 } from "../data/dialogue";
-import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import { getIngredient, MAX_INGREDIENT_PALETTE_SLOTS, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { GameState } from "../state/gameReducer";
 import { discoveredRecipeIds } from "../state/dex";
 import { canStartLunchRush, remainingSeconds, type MissionState } from "../mission/lunchRush";
@@ -86,9 +87,13 @@ import { effectivePanShape } from "../logic/pan/effectivePan";
 import { panSwitchOffered, type PanChoice } from "../state/panSelection";
 import { isDinnerRound } from "../state/roundKind";
 import { PanSwitch } from "../components/PanSwitch";
+import { DoughKindSwitch, DOUGH_CHIP_OTHER_JA } from "../components/DoughKindSwitch";
+import { resolveDoughKind, type DoughKind } from "../logic/dough/doughKind";
+import { doughSwitchOffered } from "../state/doughSelection";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
+import { canPlacePostBakeIngredient } from "../state/inventory";
 import { isLunchRushRound } from "../state/roundKind";
 
 /**
@@ -225,6 +230,11 @@ interface GameScreenProps {
   onSquareDoughCommit?: (dough: SquareDough) => void;
   /** Square Dough F4-b (#538): the DOUGH step's ○/□ choice (App dispatches SELECT_PAN). The switch renders only where `panSwitchOffered`. */
   onSelectPan?: (pan: PanChoice) => void;
+  /** Dough Kind P2 (#577): the DOUGH step's dough-kind choice (App dispatches SELECT_DOUGH). The chips render only where `doughSwitchOffered`. */
+  onSelectDough?: (dough: DoughKind) => void;
+  /** The second chip's text, pre-computed by App from the technique ledger (screens never read the raw ledger): the neutral label until the
+   *  dough technique is discovered, then its name. Absent = the neutral label. */
+  doughOtherLabel?: string;
   onAddCutLine: (line: CutLine) => void;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
@@ -304,6 +314,8 @@ export function GameScreen({
   onDoughStretchCommit,
   onSquareDoughCommit,
   onSelectPan,
+  onSelectDough,
+  doughOtherLabel,
   onAddCutLine,
   onDoughElementChange,
   resolvePhysicalDrop,
@@ -376,6 +388,14 @@ export function GameScreen({
     onUndoPlacement();
   }
 
+  // FINISH FIN-C: 完成 leaves FINISH through the existing CONFIRM_MAKING_STEP (the FINAL evaluation and the one inventory
+  // consumption). The reducer is the backstop for a repeated press: `bakeValue` is cleared and the step is left in the same
+  // transition, so a second dispatch hits its phase / step guards and consumes nothing. The reset token aborts any gesture in flight.
+  function handleCompleteFinish() {
+    setPizzaResetToken((token) => token + 1);
+    onConfirmMakingStep();
+  }
+
   // Issue #86 (UX-2): the single gate for "may the immediate next making step be entered right
   // now" -- computed once here and shared by both MakingStepTabs (its own next-tab tappability)
   // and the 「次へ」 CTA's own `disabled` attribute below, so the one existing UI-only completion
@@ -391,6 +411,18 @@ export function GameScreen({
   const showPanSwitch =
     onSelectPan !== undefined &&
     panSwitchOffered({
+      phase: state.phase,
+      makingStep: state.makingStep,
+      isMissionRound: state.isMissionRound,
+      isDinnerRound: isDinnerRound(state),
+      freeCook: state.freeCook,
+      recipe: state.recipe,
+      dex: state.dex,
+    });
+  // Dough Kind P2 (#577): the dough-kind chips -- the dough technique's own affordance, independent of the ○/□ switch above.
+  const showDoughSwitch =
+    onSelectDough !== undefined &&
+    doughSwitchOffered({
       phase: state.phase,
       makingStep: state.makingStep,
       isMissionRound: state.isMissionRound,
@@ -474,10 +506,25 @@ export function GameScreen({
   // Cooking Steps 2.0 CS-1a: the one POST_BAKE rendering decision (./postBakeView.ts). Layout
   // sites read `postBakeStepRendered`; CUT-content sites read `isCutStep`. Only CUT is rendered
   // today, so both equal the old `phase === "POST_BAKE" && makingStep === "CUT"`.
-  const postBakeStep = renderedPostBakeStep(state.phase, state.makingStep);
+  // FINISH FIN-A (Issue #294): FINISH is also selected, but only when `finishStepAvailable` says so -- a Guided round whose
+  // profile carries FINISH. No shipped profile does, so Production is unchanged (finishD2Inert.test.ts pins it).
+  const postBakeStep = selectPostBakeStep(state.phase, state.makingStep, finishStepAvailable(state, state.cookingProfile.steps));
   const postBakeStepRendered = postBakeStep !== null;
   const isCutStep = postBakeStep === "CUT";
-  const roomyStage = state.phase === "BAKE" || postBakeStepRendered;
+  const isFinishStep = postBakeStep === "FINISH";
+  // FINISH FIN-B: FINISH carries the tray, so its stage is the compact one (PREPARE's), not CUT's roomy one.
+  const roomyStage = state.phase === "BAKE" || (postBakeStepRendered && !isFinishStep);
+  const finishTray = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds) : [];
+  const finishTrayCount = finishTray.length;
+
+  // FIN-B carry-over: once the stock of the selected late ingredient is used up (or after an ingredient that FINISH does
+  // not offer was left selected), release the selection so a tap on the pizza cannot act on a disabled chip.
+  useEffect(() => {
+    if (!isFinishStep || selectedIngredientId === null) return;
+    const ingredient = getIngredient(selectedIngredientId);
+    const offered = finishTray.some((i) => i.id === selectedIngredientId);
+    if (!ingredient || !offered || !canPlacePostBakeIngredient(ingredient, state.inventory, state.pizza)) onClearIngredientSelection?.();
+  }, [isFinishStep, selectedIngredientId, finishTray, state.inventory, state.pizza, onClearIngredientSelection]);
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
@@ -680,7 +727,8 @@ export function GameScreen({
           postSteps={activePostBakeSteps}
           currentStep={state.makingStep}
           currentPhase={state.phase === "PREPARE" ? "PREPARE" : state.phase === "BAKE" ? "BAKE" : "POST_BAKE"}
-          nextReady={state.phase === "POST_BAKE" ? cutConfirmReady : nextStepReady}
+          // FINISH completes through its own 完成 button (FIN-C), so the tab after it still cannot advance the round.
+          nextReady={state.phase === "POST_BAKE" ? (isFinishStep ? false : cutConfirmReady) : nextStepReady}
           onAdvance={onConfirmMakingStep}
         />
       )}
@@ -796,6 +844,19 @@ export function GameScreen({
           row -- same `.order-card`-style component PREPARE already uses, reused verbatim rather
           than inventing a second layout for what is structurally the same "recipe name + short
           instruction" row. */}
+      {/* FINISH FIN-A: the same compact row as CUT's, carrying Mito's FINISH hint (buildFinishHintLine -- derived from the
+          pieces placed so far, so it follows the pizza without the reducer storing it). */}
+      {isFinishStep && state.dinner === null && (
+        <div className="order-card" data-testid="finish-order-card">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
+            <span className="order-card__hint" data-testid="finish-hint">
+              {buildFinishHintLine(state.recipe, state.pizza, state.hint?.id.startsWith("hint.finish.") === true).textJa}
+            </span>
+          </div>
+        </div>
+      )}
+
       {isCutStep && state.dinner === null && (
         <div className="order-card">
           <div className="order-card__text">
@@ -839,7 +900,7 @@ export function GameScreen({
         cutState={state.cutState}
         onAddCutLine={onAddCutLine}
         roomy={roomyStage}
-        compact={state.phase === "PREPARE"}
+        compact={state.phase === "PREPARE" || isFinishStep}
         resultCompact={isFreeResultScreen || isDinnerResult}
       />
 
@@ -875,6 +936,67 @@ export function GameScreen({
             </button>
           </div>
         </>
+      )}
+
+      {/* FINISH FIN-B: the tray + dock of the FINISH step, the PREPARE dock's structure reused. Only the recipe's late
+          ingredients are offered, placed by tap (select -> tap the pizza -> PLACE_TOPPING, stage "post"). The ↩ / 完成 bar is below (FIN-C). */}
+      {isFinishStep && state.dinner === null && (
+        <div
+          className={`prepare-dock prepare-dock--finish${finishTrayCount > MAX_INGREDIENT_PALETTE_SLOTS ? "" : " prepare-dock--no-pager"}`}
+          data-testid="finish-dock"
+          style={
+            {
+              "--dock-other-rows": Math.min(2, Math.max(1, Math.ceil(finishTrayCount / 3))),
+              "--dock-pager": finishTrayCount > MAX_INGREDIENT_PALETTE_SLOTS ? 1 : 0,
+            } as CSSProperties
+          }
+        >
+          {finishTrayCount === 0 ? (
+            <p className="finish-tray-empty" data-testid="finish-tray-empty">
+              {finishTrayEmptyText(state.recipe)}
+            </p>
+          ) : (
+            <IngredientTray
+              activeCategory="topping"
+              selectedIngredientId={selectedIngredientId}
+              onSelectIngredient={onSelectIngredient}
+              onClearSelection={onClearIngredientSelection}
+              ownedIngredientIds={state.ownedIngredientIds}
+              recipe={state.recipe}
+              inventory={state.inventory}
+              pizza={state.pizza}
+              finish
+              resetToken={pizzaResetToken}
+              makingStepToken={state.makingStepToken}
+              reservePagerRow={false}
+            />
+          )}
+        </div>
+      )}
+
+      {/* FINISH FIN-B/FIN-C: the bar of the FINISH step -- ↩ (UNDO_LAST_PLACEMENT: only the latest piece placed in FINISH, never a
+          pre-bake one; disabled when there is none), 完成 (CONFIRM_MAKING_STEP -> FINAL evaluation -> RESULT; allowed with no late
+          piece, which the existing rules judge FAILED; no confirm dialog) and the hint. No やり直す / 全消し in FINISH. */}
+      {isFinishStep && state.dinner === null && (
+        <div className="action-row prepare-bake-bar prepare-bake-bar--undo" data-testid="finish-bar">
+          <button
+            type="button"
+            className="secondary-button prepare-undo-button"
+            data-testid="finish-undo"
+            onClick={handleUndoPlacement}
+            disabled={!undoAvailable}
+            aria-label="1つ戻す"
+            title="1つ戻す"
+          >
+            <span aria-hidden="true">{"\u21A9"}</span>
+          </button>
+          <button type="button" className="cta-button cta-button--bake" data-testid="finish-complete" onClick={handleCompleteFinish}>
+            完成
+          </button>
+          <button type="button" className="secondary-button" onClick={onShowHint}>
+            ヒント
+          </button>
+        </div>
       )}
 
       {isMissionShortOrder && <MissionShortagePanel shortages={missionShortages} onSkip={onMissionSkipOrder} />}
@@ -942,7 +1064,29 @@ export function GameScreen({
             {/* Square-Pan Dough B2 (#535): the smoothness gauge -- the dough's real evenness, and what each gesture changed. Square rounds only. */}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughGauge fallbackDough={squareDoughStart} />}
             {state.makingStep === "DOUGH" && squareDoughRound && <SquareDoughNext fallbackDough={squareDoughStart} />}
-            {showPanSwitch && <PanSwitch selected={state.pizza.pan === "tray" ? "tray" : "round"} onSelect={onSelectPan} />}
+            {/* Dough Kind P2 (#577): the ○/□ switch and the dough-kind chips are separate radiogroups. When BOTH are open they share one row
+                (a second row would grow the dock and shrink the pizza); when only one is open the DOM is exactly what it was. */}
+            {(() => {
+              const pan = showPanSwitch ? <PanSwitch selected={state.pizza.pan === "tray" ? "tray" : "round"} onSelect={onSelectPan} /> : null;
+              const dough = showDoughSwitch ? (
+                <DoughKindSwitch
+                  selected={resolveDoughKind({ doughKind: state.pizza.dough })}
+                  otherLabel={doughOtherLabel ?? DOUGH_CHIP_OTHER_JA}
+                  onSelect={onSelectDough}
+                />
+              ) : null;
+              return pan && dough ? (
+                <div className="dock-switch-row" data-testid="dock-switch-row">
+                  {pan}
+                  {dough}
+                </div>
+              ) : (
+                <>
+                  {pan}
+                  {dough}
+                </>
+              );
+            })()}
             {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
                 App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
                 it's the active step, reappearing exactly as before once SAUCE opens. */}

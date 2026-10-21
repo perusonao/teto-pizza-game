@@ -1,6 +1,7 @@
 import { findOrderForRecipe, getNextFreeOrder, type NextFreeOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import {
+  freeCookingProfile,
   getCookingProfile,
   postBakeSteps,
   preBakeSteps,
@@ -15,6 +16,9 @@ import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit } from "./sauceLedger";
 import { roundRunsFinish } from "./finishEngine";
+import { deferFreeCookAtBake } from "./finishFreeCook";
+import { freeCookFinishEnabled } from "../data/freeCookFinishGate";
+import { buildFinishHintLine } from "../data/finishHint";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
@@ -53,7 +57,7 @@ import {
 } from "../logic/techniques/runtime";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
-import { finalizeRound } from "./finalizeRound";
+import { finalizeRound, type UnmatchedFreeCookFinalization } from "./finalizeRound";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { addResearchExclusions, type ResearchExclusions } from "./researchExclusions";
 import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
@@ -99,7 +103,10 @@ import { activePanShape } from "../preview/panShapePreview";
 import { getPanGeometry } from "../logic/pan/panGeometry";
 import { cookingProfileForPan } from "../logic/pan/panProfile";
 import { effectivePanShape } from "../logic/pan/effectivePan";
+import type { PanShape } from "../logic/pan/panShape";
 import { panSwitchOffered, pizzaWithPan, type PanChoice } from "./panSelection";
+import { doughSwitchOffered, pizzaWithDough } from "./doughSelection";
+import type { DoughKind } from "../logic/dough/doughKind";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
@@ -474,6 +481,10 @@ export type GameAction =
   // doughs, and re-derives the round's cooking profile (a tray round has no CUT). A no-op unless the switch is offered in this
   // round (Free Cooking / Research, DOUGH, affordance open), so a stray dispatch can never choose a pan in Guided / Lunch Rush / Dinner.
   | { type: "SELECT_PAN"; pan: PanChoice }
+  // Dough Kind P2 (Issue #577): the DOUGH step's dough-kind choice (../state/doughSelection.ts). Sets / clears `pizza.dough` and nothing
+  // else (not `pan`, the doughs, the cooking profile or the CUT state), and is a no-op unless the chips are offered in this round
+  // (Free Cooking / Research, DOUGH, the dough technique's affordance open -- never in Production before P3).
+  | { type: "SELECT_DOUGH"; dough: DoughKind }
   // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
   // DOUGH -> SAUCE -> CHEESE -> TOPPING sub-steps (see MakingStep above). Advances
   // `makingStep` one step forward and bumps `makingStepToken`; a no-op past "TOPPING" or
@@ -665,6 +676,17 @@ interface ProgressionCarry {
  *  Mission run id) passes through untouched -- a new round never resets progression.
  *  `isMissionRound` is set explicitly by each caller (never carried) since it describes the
  *  round about to start, not something to preserve from the previous one. */
+/**
+ * The round's cooking profile: the recipe's own, minus CUT on a square pan (Square-Pan Dough D1-b), plus FINISH for a Free Cooking
+ * round while the Free Cooking FINISH gate is open (FIN-E3a, UD-B). Every place that re-derives the profile mid-round (pan / dough
+ * switches, RESET_PIZZA) goes through here, so a round never loses or gains FINISH halfway. With the gate OFF (Production) this is
+ * `cookingProfileForPan(getCookingProfile(...))` and nothing else, the same object as before.
+ */
+function roundCookingProfile(roundKind: RoundKind, recipe: Recipe, pan: PanShape): CookingProfile {
+  const profile = cookingProfileForPan(getCookingProfile(recipe.id), pan);
+  return roundKind === "FREE_COOK" ? freeCookingProfile(profile, freeCookFinishEnabled()) : profile;
+}
+
 function buildOrderState(
   order: Order,
   carry: ProgressionCarry,
@@ -681,7 +703,7 @@ function buildOrderState(
     throw new Error(`Unknown recipe for order ${order.id}`);
   }
   // Square-Pan Dough D1-b: a square-pan round has no CUT (the round pan's profile is returned as it is).
-  const cookingProfile = cookingProfileForPan(getCookingProfile(recipe.id), activePanShape(recipe));
+  const cookingProfile = roundCookingProfile(freeCook ? "FREE_COOK" : dinner ? "DINNER" : "GUIDED", recipe, activePanShape(recipe));
   return {
     phase: "ORDER",
     order,
@@ -1149,7 +1171,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         state.pizza.pan == null
           ? null
           : (() => {
-              const cookingProfile = cookingProfileForPan(getCookingProfile(state.recipe.id), effectivePanShape(state.recipe, pizza));
+              const cookingProfile = roundCookingProfile(state.roundKind, state.recipe, effectivePanShape(state.recipe, pizza));
               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
             })();
       return {
@@ -1208,8 +1230,26 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       }
       const pizza = pizzaWithPan(state.pizza, action.pan);
       if (pizza === state.pizza) return state;
-      const cookingProfile = cookingProfileForPan(getCookingProfile(state.recipe.id), effectivePanShape(state.recipe, pizza));
+      const cookingProfile = roundCookingProfile(state.roundKind, state.recipe, effectivePanShape(state.recipe, pizza));
       return { ...state, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
+    }
+
+    case "SELECT_DOUGH": {
+      if (
+        !doughSwitchOffered({
+          phase: state.phase,
+          makingStep: state.makingStep,
+          isMissionRound: state.isMissionRound,
+          isDinnerRound: isDinnerRound(state),
+          freeCook: state.freeCook,
+          recipe: state.recipe,
+          dex: state.dex,
+        })
+      ) {
+        return state;
+      }
+      const pizza = pizzaWithDough(state.pizza, action.dough);
+      return pizza === state.pizza ? state : { ...state, pizza };
     }
 
     // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
@@ -1253,15 +1293,23 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           inventory: state.inventory,
           finalization: "FINAL",
         });
-        if (finalized.kind !== "SCORED") return state;
-        finalPatch = {
-          score: finalized.score,
-          bakeState: finalized.bakeState,
-          scoringV2Result: finalized.scoringV2Result,
-          completion: finalized.completion,
-          inventory: finalized.inventory,
-          bakeValue: null,
-        };
+        if (finalized.kind === "UNMATCHED_FREE_COOK") {
+          // FIN-E3a (UD-B): a Free round's FINISH confirmation that identified nothing -- the same one-time side effects the bake
+          // used to apply (hint counter, failed Research trial), now on the finished pizza.
+          if (!state.freeCook) return state;
+          finalPatch = { ...unmatchedFreeCookPatch(state, finalized), bakeValue: null };
+        } else {
+          finalPatch = {
+            // A Free round is identified only now: it continues as the matched recipe (a Guided round already is its recipe).
+            ...(state.freeCook ? { recipe: finalized.recipe, pizza: finalized.pizza } : {}),
+            score: finalized.score,
+            bakeState: finalized.bakeState,
+            scoringV2Result: finalized.scoringV2Result,
+            completion: finalized.completion,
+            inventory: finalized.inventory,
+            bakeValue: null,
+          };
+        }
       }
       // Pizza Cutting 1.0 Phase 2 (design doc §15.3): confirming CUT itself (whichever
       // POST_BAKE step this happens to be -- always the last one for Margherita's own profile,
@@ -1374,7 +1422,36 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // (the late requirement is left out of the Completion Gate; the pre-bake pieces are consumed now). The FINAL
       // pass runs once, when FINISH is confirmed. Every other round -- including a profile with FINISH in a round that
       // does not run it -- finalizes in one pass, exactly as before.
-      const runsFinish = roundRunsFinish(state) && state.cookingProfile.steps.includes("FINISH");
+      const finishInProfile = roundRunsFinish(state) && state.cookingProfile.steps.includes("FINISH");
+      // FIN-E3a (UD-B): a Free Cooking round has no provisional pass -- its identification IS the finalization, so while it waits in
+      // FINISH nothing is identified, scored or recorded (no recipe, score, hint counter, Research row or Notebook entry; the
+      // sentinel recipe stays). Only a failed bake, which skips FINISH (OD-CS-7 = A), falls through and finalizes right here.
+      if (finishInProfile && state.freeCook) {
+        const deferred = deferFreeCookAtBake({
+          recipe: state.recipe,
+          pizza: state.pizza,
+          bakeValue: action.value,
+          dex: state.dex,
+          inventory: state.inventory,
+        });
+        if (deferred.kind === "DEFERRED") {
+          return {
+            ...state,
+            pizza: deferred.pizza,
+            bakeState: deferred.bakeState,
+            inventory: deferred.inventory,
+            cookingTiming:
+              state.cookingTiming && action.now !== undefined
+                ? advanceStepTiming(state.cookingTiming, action.now, "FINISH")
+                : state.cookingTiming,
+            bakeValue: action.value,
+            phase: "POST_BAKE",
+            makingStep: "FINISH",
+          };
+        }
+      }
+      // A Guided round's PROVISIONAL pass; a Free round (FINISH or not) finalizes in one pass here.
+      const runsFinish = finishInProfile && !state.freeCook;
       const finalized = finalizeRound({
         recipe: state.recipe,
         pizza: state.pizza,
@@ -1387,48 +1464,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         ...(runsFinish ? { finalization: "PROVISIONAL" as const } : {}),
       });
       if (finalized.kind === "UNMATCHED_FREE_COOK") {
-        const { pizza, freeCook } = finalized;
-        // Progression 2.0 Phase 3-3 (Issue #198): a free-cook round that didn't match anything
-        // new (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED, all folded into this one branch)
-        // advances the hint-escalation counter, but only while the Dex is still completely
-        // empty -- once any recipe has ever been discovered, escalation is over for good (the
-        // counter simply stops moving; `buildHintLine` never reads it for a non-free-cook round
-        // anyway).
-        const preDiscoveryFreeCookAttempts =
-          discoveredRecipeIds(state.dex).length === 0
-            ? state.preDiscoveryFreeCookAttempts + 1
-            : state.preDiscoveryFreeCookAttempts;
-        // OD-R3-1..3 (Research 2.0 Phase 4): a bake-FAILED Research trial that used at least one ingredient joins the
-        // same shared membership path as an ORIGINAL (`researchAttemptResult`) and is recorded in the Trial Notebook,
-        // here (BAKE -> RESULT happens once per round) rather than in REGISTER_TO_DEX, where a FAILED round stays parked.
-        // An empty pizza (no sauce, no piece) discloses and writes nothing. Dex / Technique / Pitz are untouched: FAILED
-        // never reaches the registration branches, and the inventory below is consumed exactly as before.
-        const failedResearch =
-          freeCook.kind === "FAILED" && hasPlacedIngredient(pizza) ? researchAttemptResult({ ...state, pizza }) : null;
-        const failedTrial =
-          failedResearch && failedResearch.lastResearchRows
-            ? recordFailedResearchAttempt({ ...state, pizza }, failedResearch.feedback)
-            : null;
-        return {
-          ...state,
-          pizza,
-          score: null,
-          bakeState: finalized.bakeState,
-          scoringV2Result: null,
-          completion: finalized.completion,
-          inventory: finalized.inventory,
-          phase: "RESULT",
-          preDiscoveryFreeCookAttempts,
-          ...(failedResearch && failedTrial
-            ? {
-                discoveryHintFacts: failedResearch.discoveryHintFacts,
-                researchExclusions: failedResearch.researchExclusions,
-                lastResearchRows: failedResearch.lastResearchRows,
-                trialNotebook: failedTrial.trialNotebook,
-                lastTrialAttempt: failedTrial.lastTrialAttempt,
-              }
-            : {}),
-        };
+        return { ...state, ...unmatchedFreeCookPatch(state, finalized), phase: "RESULT" };
       }
       const { recipe, pizza, score, bakeState, scoringV2Result, completion, inventory } = finalized;
       // Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8):
@@ -1779,6 +1815,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "SHOW_HINT":
+      // FINISH FIN-B: the explicit hint in FINISH is the FINISH hint line itself (the same words the order card shows, with
+      // the count), never `buildHintLine` for a step it does not know.
+      if (state.phase === "POST_BAKE" && state.makingStep === "FINISH") {
+        return roundRunsFinish(state) ? { ...state, hint: buildFinishHintLine(state.recipe, state.pizza, true) } : state;
+      }
       // Discovery Hint 2.0 (229-B): in Free Cooking the button opens the progressive hint sheet
       // (PREPARE only) and leaves the order-card line alone; guided / Lunch Rush rounds keep the
       // explicit operational line below.
@@ -1967,6 +2008,49 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
     context: productionTechniqueContext(),
   });
   return result.newlyDiscovered.length > 0 ? result : { ...result, ledger: state.discoveredTechniqueIds };
+}
+
+/**
+ * What a Free Cooking pizza the matcher did not resolve to a recipe (FAILED / ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH) changes in
+ * the state, finalized exactly once per round: at CONFIRM_BAKE for a one-pass round (or a failed bake that skips FINISH), at the
+ * FINISH confirmation (CONFIRM_MAKING_STEP) for a round that ran FINISH (FIN-E3a). The caller sets `phase`.
+ */
+function unmatchedFreeCookPatch(state: GameState, finalized: UnmatchedFreeCookFinalization): Partial<GameState> {
+  const { pizza, freeCook } = finalized;
+  // Progression 2.0 Phase 3-3 (Issue #198): a free-cook round that didn't match anything
+  // new (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED, all folded into this one branch)
+  // advances the hint-escalation counter, but only while the Dex is still completely
+  // empty -- once any recipe has ever been discovered, escalation is over for good (the
+  // counter simply stops moving; `buildHintLine` never reads it for a non-free-cook round
+  // anyway).
+  const preDiscoveryFreeCookAttempts =
+    discoveredRecipeIds(state.dex).length === 0 ? state.preDiscoveryFreeCookAttempts + 1 : state.preDiscoveryFreeCookAttempts;
+  // OD-R3-1..3 (Research 2.0 Phase 4): a bake-FAILED Research trial that used at least one ingredient joins the
+  // same shared membership path as an ORIGINAL (`researchAttemptResult`) and is recorded in the Trial Notebook,
+  // here (once per round) rather than in REGISTER_TO_DEX, where a FAILED round stays parked.
+  // An empty pizza (no sauce, no piece) discloses and writes nothing. Dex / Technique / Pitz are untouched: FAILED
+  // never reaches the registration branches, and the inventory is consumed exactly as before.
+  const failedResearch = freeCook.kind === "FAILED" && hasPlacedIngredient(pizza) ? researchAttemptResult({ ...state, pizza }) : null;
+  const failedTrial =
+    failedResearch && failedResearch.lastResearchRows ? recordFailedResearchAttempt({ ...state, pizza }, failedResearch.feedback) : null;
+  return {
+    pizza,
+    score: null,
+    bakeState: finalized.bakeState,
+    scoringV2Result: null,
+    completion: finalized.completion,
+    inventory: finalized.inventory,
+    preDiscoveryFreeCookAttempts,
+    ...(failedResearch && failedTrial
+      ? {
+          discoveryHintFacts: failedResearch.discoveryHintFacts,
+          researchExclusions: failedResearch.researchExclusions,
+          lastResearchRows: failedResearch.lastResearchRows,
+          trialNotebook: failedTrial.trialNotebook,
+          lastTrialAttempt: failedTrial.lastTrialAttempt,
+        }
+      : {}),
+  };
 }
 
 /**

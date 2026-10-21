@@ -60,11 +60,11 @@ function round(pizza: PizzaState, over: Partial<Parameters<typeof resolveRoundTe
 
 describe("TRAY registry (Owner-approved copy)", () => {
   it("registers 'tray' after 'no-sauce', with the approved name, riddle and description", () => {
-    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray"]);
+    expect(TECHNIQUES.map((t) => t.id)).toEqual(["no-sauce", "tray", "dough-pinsa-romana", "late-addition"]); // + Dough Kind P1 (#577), + late-addition (FIN-E2, #604)
     expect(TRAY.nameJa).toBe("天板焼き");
     expect(TRAY.riddleJa).toBe("丸くなくても、ピザは焼ける。四つの角まで生地を広げてみよう。");
     expect(TRAY.descriptionJa).toBe("四角い天板に生地を広げて焼く調理法。指で押し広げ、四隅まで伸ばして形を整えよう。");
-    expect(KNOWN_TECHNIQUE_IDS).toEqual(["no-sauce", "tray"]);
+    expect(KNOWN_TECHNIQUE_IDS).toEqual(["no-sauce", "tray", "dough-pinsa-romana", "late-addition"]);
     expect(isTechniqueId("tray")).toBe(true);
   });
 

@@ -107,10 +107,13 @@ describe("FINISH placement", () => {
   });
 
   it("is refused in every round that does not run FINISH", () => {
-    for (const roundKind of ["LUNCH_RUSH", "FREE_COOK", "DINNER"] as const) {
+    for (const roundKind of ["LUNCH_RUSH", "DINNER"] as const) {
       const state = { ...atFinish(), roundKind };
       expect(place(state)).toBe(state);
     }
+    // FIN-E3a: a Free Cooking round runs FINISH only when its profile carries it (the gate is open); without FINISH in the profile it does not.
+    const free = { ...atFinish(), roundKind: "FREE_COOK" as const, cookingProfile: { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] } as CookingProfile };
+    expect(place(free)).toBe(free);
   });
 });
 
@@ -180,7 +183,9 @@ describe("FINISH confirmation (FINAL)", () => {
 
   it("a round that does not run FINISH cannot finalize it", () => {
     for (const roundKind of ["LUNCH_RUSH", "FREE_COOK"] as const) {
-      const state = { ...atFinish(), roundKind };
+      // A Free round whose profile has no FINISH (gate OFF) does not run it either (FIN-E3a: the ON case is in gameReducer.finishFreeCook.test.ts).
+      const cookingProfile = roundKind === "FREE_COOK" ? ({ steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] } as CookingProfile) : atFinish().cookingProfile;
+      const state = { ...atFinish(), roundKind, cookingProfile };
       expect(gameReducer(state, { type: "CONFIRM_MAKING_STEP", now: T + 1 })).toBe(state);
     }
   });
@@ -196,7 +201,7 @@ describe("FINISH confirmation (FINAL)", () => {
 });
 
 describe("rounds that do not run FINISH", () => {
-  it("Free Cooking and Lunch Rush judge in one pass even with a FINISH profile and never enter FINISH", () => {
+  it("Lunch Rush judges in one pass even with a FINISH profile and never enters FINISH; Free Cooking does too while its profile has no FINISH", () => {
     for (const mode of ["lunchRush"] as const) {
       const base = atBake(mode, "margherita");
       const state = gameReducer({ ...base, recipe: FX, cookingProfile: PROFILE, pizza: preBakePizza() }, { type: "CONFIRM_BAKE", value: MID, now: T });
@@ -205,7 +210,9 @@ describe("rounds that do not run FINISH", () => {
       expect(state.bakeValue).toBeNull();
       expect(state.completion?.status).toBe("FAILED"); // the late requirement is demanded at once
     }
-    const free = gameReducer({ ...atBakeFreeWith(preBakePizza()), cookingProfile: PROFILE }, { type: "CONFIRM_BAKE", value: MID, now: T });
+    // FIN-E3a: Free Cooking enters FINISH only when its own profile carries it (gate OFF: it does not, whatever a Guided profile says).
+    const freeProfile: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] };
+    const free = gameReducer({ ...atBakeFreeWith(preBakePizza()), cookingProfile: freeProfile }, { type: "CONFIRM_BAKE", value: MID, now: T });
     expect(free.phase).toBe("RESULT");
     expect(free.bakeValue).toBeNull();
   });
@@ -240,10 +247,15 @@ describe("existing recipes are unchanged", () => {
 });
 
 describe("Research / Dex: the piece stage does not leak", () => {
-  it("the discovery signature ignores stage, and no ordinary placement carries one", () => {
+  it("the ingredient identity ignores stage (only the `late` axis reads it, FIN-E2), and no ordinary placement carries one", () => {
     const pizza = preBakePizza();
     const staged = { ...pizza, toppings: pizza.toppings.map((t) => ({ ...t, stage: "post" as const })) };
-    expect(signatureOfPizza(staged)).toEqual(signatureOfPizza(pizza));
+    const sigStaged = signatureOfPizza(staged);
+    const sigPlain = signatureOfPizza(pizza);
+    expect(sigStaged.ingredientSet).toEqual(sigPlain.ingredientSet);
+    expect(sigPlain.dimensions.late.value).toEqual([]);
+    expect(sigStaged.dimensions.late.value).not.toEqual([]);
+    expect({ ...sigStaged, dimensions: { ...sigStaged.dimensions, late: sigPlain.dimensions.late } }).toEqual(sigPlain);
     const free = atBakeFreeWith(pizza);
     const prepare = gameReducer({ ...free, phase: "PREPARE", makingStep: "TOPPING" }, { type: "PLACE_TOPPING", ingredientId: "chicken", x: DOUGH_CENTER, y: DOUGH_CENTER });
     expect(prepare.pizza.toppings.every((t) => !("stage" in t))).toBe(true);

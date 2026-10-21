@@ -99,11 +99,19 @@ function sameJson(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+/**
+ * Dimensions that are identity for the MATCHER but deliberately not for the player's attempt record. `late` (FIN-E2, #604; Owner
+ * D-3): the same ingredients placed before and after the bake are ONE attempt, so a Notebook / duplicate check can never show two
+ * rows for one combination and so reveal that timing matters. fp1 strings (and every stored Notebook identity) stay valid.
+ */
+const NOT_ATTEMPT_IDENTITY: ReadonlySet<IdentityDimensionKey> = new Set<IdentityDimensionKey>(["late"]);
+
 function extensionOf(signature: RuntimeSignature): AttemptFingerprintExtension {
   const ext: AttemptFingerprintExtension = {};
   for (const key of IDENTITY_DIMENSION_KEYS) {
     const axis = signature.dimensions[key];
     // the matcher skips only UNAVAILABLE axes (assumed default); every other axis is compared by value
+    if (NOT_ATTEMPT_IDENTITY.has(key)) continue;
     if (axis.status !== "UNAVAILABLE" && !sameJson(axis.value, DEFAULT_IDENTITY_DIMENSIONS[key])) {
       ext[key] = axis.value;
     }

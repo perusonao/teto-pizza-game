@@ -32,11 +32,19 @@ Discipline (Issue #188 scope guards):
 
 Usage:
   python3 tools/progression2_mechanic_matrix.py          # regenerate + validate
-  python3 tools/progression2_mechanic_matrix.py --check  # validate only; fails if
-                                                         # committed outputs differ
-                                                         # from a fresh regeneration
+  python3 tools/progression2_mechanic_matrix.py --check  # EVIDENCE integrity only: fails if the matrix
+                                                         # JSON / rows md differ from a fresh regeneration.
+                                                         # Does not read src/**, so content waves never trip it.
+  python3 tools/progression2_mechanic_matrix.py --check-runtime  # src freshness: fails if the runtime snapshot
+                                                         # no longer matches src/data/{recipes,ingredients}.ts
+  python3 tools/progression2_mechanic_matrix.py --write-runtime  # rewrite only the runtime snapshot
+Content-wave procedure (recipe/ingredient added to src): run --write-runtime, commit the snapshot, and run
+--check-runtime. The evidence outputs do not change; if --check starts failing, the evidence inputs changed.
 Writes:
-  docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json
+  docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json   (evidence-derived; no src fields)
+  docs/design/data/TETO_RECIPE_172_RUNTIME-SNAPSHOT.json               (src-derived; shippedRecipeIdsInSrc,
+                                                                        ingredientIdsNotYetInShippedGame,
+                                                                        per-row newContentIngredientIds)
   docs/design/TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md   (generated per-row table)
 """
 import argparse
@@ -58,6 +66,7 @@ INGREDIENT_CATALOG_PATH = ROOT / "data/recipes/ingredient_master_catalog.json"
 SRC_RECIPES_PATH = ROOT / "src/data/recipes.ts"
 SRC_INGREDIENTS_PATH = ROOT / "src/data/ingredients.ts"
 OUT_JSON = ROOT / "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"
+RUNTIME_JSON = ROOT / "docs/design/data/TETO_RECIPE_172_RUNTIME-SNAPSHOT.json"
 OUT_ROWS_MD = ROOT / "docs/design/TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md"
 
 EXPECTED_ROWS = 172
@@ -618,7 +627,9 @@ def relation_of(row_set, cat_set):
     return "DIVERGENT"
 
 
-def build():
+def build(with_identity=False):
+    """Evidence matrix (no src-derived fields). with_identity=True also returns {evidenceId: identity id list}
+    (family-derived base sauce included) for build_runtime()."""
     master = load(MASTER_PATH)
     ledger = load(LEDGER_PATH)
     deadlock = load(DEADLOCK_PATH)
@@ -631,8 +642,6 @@ def build():
     cat_by_id = {r["id"]: r for r in catalog["recipes"]}
     catalog_ids = set(cat_by_id)
     shipped_ids = sorted(r["id"] for r in catalog["recipes"] if r["currentGameRecipe"])
-    src_recipe_ids = src_ids(SRC_RECIPES_PATH)
-    src_ingredient_ids = set(src_ids(SRC_INGREDIENTS_PATH))
 
     matrix_rows = []
     taken_ids = set()
@@ -647,6 +656,8 @@ def build():
         if bs["status"] == "family_derived":
             identity.add(bs["baseIngredientId"])
         pre.append((r, res, bs, sorted(identity)))
+
+    identity_by_row = {r["id"]: identity for r, _res, _bs, identity in pre}
 
     for r, res, bs, identity in pre:
         rid = r["id"]
@@ -771,7 +782,6 @@ def build():
                 "complete": ingredients_complete,
                 "incompleteReasons": incomplete_reasons,
                 "identityIngredientSet": identity if ingredients_complete else None,
-                "newContentIngredientIds": sorted(i for i in identity if i not in src_ingredient_ids),
             },
             "sauceBase": bs,
             "dough": {
@@ -1059,7 +1069,6 @@ def build():
     blocker_row_counts = Counter(t for mr in matrix_rows for t in {b["type"] for b in mr["blockers"]})
     review_row_counts = Counter(t for mr in matrix_rows for t in {b["type"] for b in mr["reviewItems"]})
     unresolved_tokens = Counter(u["token"] for mr in matrix_rows for u in mr["ingredients"]["unresolvedTokens"])
-    new_content = sorted({i for mr in matrix_rows for i in mr["ingredients"]["newContentIngredientIds"]})
     all_ids = sorted({i for mr in matrix_rows for i in (mr["ingredients"]["identityIngredientSet"] or mr["ingredients"]["canonicalIngredientIds"])})
 
     summary = {
@@ -1087,7 +1096,6 @@ def build():
         "rowsWithExcludedPlaceholderTokens": sorted(mr["evidenceId"] for mr in matrix_rows
                                                     if mr["ingredients"]["excludedNonIngredientTokens"]),
         "canonicalIngredientIdsAcrossMatrix": len(all_ids),
-        "ingredientIdsNotYetInShippedGame": len(new_content),
         "sauceBaseStatus": dict(sorted(Counter(mr["sauceBase"]["status"] for mr in matrix_rows).items())),
         "phase0MechanicIdentityRows": sum(1 for mr in matrix_rows if mr["phase0"]["requiresMechanicIdentity"]),
         "rowsWithAnyRequiredCapability": sum(1 for mr in matrix_rows if mr["requiredCapabilities"]),
@@ -1117,11 +1125,10 @@ def build():
         "generatedBy": "tools/progression2_mechanic_matrix.py",
         "issue": "https://github.com/perusonao/teto-pizza-game/issues/188",
         "phase0BaseMergeSha": PHASE0_MERGE_SHA,
-        "inputs": [str(p.relative_to(ROOT)) for p in (MASTER_PATH, LEDGER_PATH, DEADLOCK_PATH, CATALOG_PATH, INGREDIENT_CATALOG_PATH, SRC_RECIPES_PATH, SRC_INGREDIENTS_PATH)]
+        "inputs": [str(p.relative_to(ROOT)) for p in (MASTER_PATH, LEDGER_PATH, DEADLOCK_PATH, CATALOG_PATH, INGREDIENT_CATALOG_PATH)]
                   + ["tools/progression2_ingredient_canonicalizer.py"],
         "currentFlowBaseline": BASELINE_FLOW,
         "shippedRecipeIds": shipped_ids,
-        "shippedRecipeIdsInSrc": src_recipe_ids,
         "evidenceStrengths": STRENGTHS,
         "requiredStrengths": sorted(REQUIRED_STRENGTHS),
         "representabilityRule": {
@@ -1153,7 +1160,7 @@ def build():
         "catalogTagsNotApplied": CATALOG_TAGS_NOT_APPLIED,
         "rows": matrix_rows,
     }
-    return out
+    return (out, identity_by_row) if with_identity else out
 
 
 # ---------------------------------------------------------------------------
@@ -1377,15 +1384,60 @@ def validate(out):
     return errors
 
 
+def build_runtime(identity_by_row):
+    """src-derived snapshot (separate from the evidence matrix; see the module docstring).
+    Pure function of src/data/{recipes,ingredients}.ts and the evidence matrix identity sets."""
+    src_ingredient_ids = set(src_ids(SRC_INGREDIENTS_PATH))
+    by_row = {rid: sorted(i for i in ids if i not in src_ingredient_ids) for rid, ids in identity_by_row.items()}
+    not_yet = sorted({i for ids in by_row.values() for i in ids})
+    return {
+        "schemaNote": ("src-derived runtime snapshot for the 172-row evidence matrix. NOT evidence: every value here is "
+                       "recomputed from src/data/recipes.ts and src/data/ingredients.ts and goes stale whenever a recipe or "
+                       "ingredient is added to src. It lives in its own file so a content wave never invalidates "
+                       "TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (Issue #260)."),
+        "generatedBy": "tools/progression2_mechanic_matrix.py",
+        "updateCommand": "python3 tools/progression2_mechanic_matrix.py --write-runtime",
+        "freshnessCheckCommand": "python3 tools/progression2_mechanic_matrix.py --check-runtime",
+        "derivedFrom": [str(SRC_RECIPES_PATH.relative_to(ROOT)), str(SRC_INGREDIENTS_PATH.relative_to(ROOT)),
+                        str(OUT_JSON.relative_to(ROOT)) + " (per-row identity ingredient sets, base sauce included)"],
+        "shippedRecipeIdsInSrc": src_ids(SRC_RECIPES_PATH),
+        "ingredientIdsInSrc": sorted(src_ingredient_ids),
+        "summary": {"ingredientIdsNotYetInShippedGame": len(not_yet)},
+        "ingredientIdsNotYetInShippedGame": not_yet,
+        "newContentIngredientIdsByEvidenceId": {rid: ids for rid, ids in by_row.items() if ids},
+    }
+
+
 def dumps(out):
     return json.dumps(out, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true", help="validate committed outputs without writing")
+    ap.add_argument("--check", action="store_true",
+                    help="validate the EVIDENCE outputs (matrix JSON + rows md) against a fresh regeneration; "
+                         "independent of src/**, so a content wave cannot make it fail")
+    ap.add_argument("--check-runtime", action="store_true",
+                    help="validate the src-derived runtime snapshot against the current src/data/{recipes,ingredients}.ts")
+    ap.add_argument("--write-runtime", action="store_true",
+                    help="rewrite only the runtime snapshot (the update step after a content wave)")
     args = ap.parse_args()
-    out = build()
+    out, identity_by_row = build(with_identity=True)
+    runtime_text = dumps(build_runtime(identity_by_row))
+    if args.write_runtime:
+        RUNTIME_JSON.write_text(runtime_text, encoding="utf-8")
+        print(f"Wrote {RUNTIME_JSON.relative_to(ROOT)}")
+        return 0
+    if args.check_runtime:
+        if not RUNTIME_JSON.exists():
+            print(f"FAIL: {RUNTIME_JSON.relative_to(ROOT)} is missing")
+            return 1
+        if RUNTIME_JSON.read_text(encoding="utf-8") != runtime_text:
+            print(f"FAIL: {RUNTIME_JSON.relative_to(ROOT)} is stale vs src/data/{{recipes,ingredients}}.ts "
+                  f"(or the evidence matrix). Run: python3 tools/progression2_mechanic_matrix.py --write-runtime")
+            return 1
+        print("Runtime snapshot is fresh.")
+        return 0
     errors = validate(out)
     text = dumps(out)
     md = render_rows_md(out)
@@ -1398,8 +1450,10 @@ def main():
         OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
         OUT_JSON.write_text(text, encoding="utf-8")
         OUT_ROWS_MD.write_text(md, encoding="utf-8")
+        RUNTIME_JSON.write_text(runtime_text, encoding="utf-8")
         print(f"Wrote {OUT_JSON.relative_to(ROOT)}")
         print(f"Wrote {OUT_ROWS_MD.relative_to(ROOT)}")
+        print(f"Wrote {RUNTIME_JSON.relative_to(ROOT)}")
     s = out["summary"]
     print(f"Rows: {s['rowCount']} (unique {s['uniqueEvidenceIds']})")
     print(f"Current-flow representability: {s['currentFlowRepresentability']}")

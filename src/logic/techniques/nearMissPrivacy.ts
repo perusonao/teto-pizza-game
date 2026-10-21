@@ -31,3 +31,12 @@ export function sauceAxisAnswerCount(input: {
 export function axisGuidanceAllowed(answerCount: number): boolean {
   return Number.isFinite(answerCount) && answerCount >= 2;
 }
+
+/**
+ * FIN-E2 (#604): the number of concrete answers consistent with "change WHEN something is placed" -- any one of the pizza's
+ * distinct non-sauce ingredients could be the one moved. One ingredient would single the answer out, so the late-axis line obeys
+ * the same k >= 2 rule (`axisGuidanceAllowed`); it never branches on whether a target requires a late addition.
+ */
+export function lateAxisAnswerCount(input: { pieceIngredientIds: readonly string[] }): number {
+  return new Set(input.pieceIngredientIds).size;
+}

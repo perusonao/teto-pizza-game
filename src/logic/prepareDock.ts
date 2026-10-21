@@ -5,6 +5,7 @@ import {
   type IngredientCategory,
 } from "../data/ingredients";
 import type { Recipe } from "../data/recipes";
+import { isFreeCookRecipe } from "../data/freeCook";
 import { trayFamilyChoices } from "./trayFamilyFilter";
 import type { MakingStep } from "../state/gameReducer";
 
@@ -37,6 +38,21 @@ export function trayIngredientsFor(
     (i) =>
       ownedIngredientIds.includes(i.id) &&
       (freeCook || recipe.requiredIngredients.some((requirement) => requirement.ingredientId === i.id)),
+  );
+}
+
+/**
+ * FINISH FIN-B (Issue #294): the FINISH tray. A Guided round lists just the OWNED ingredients the recipe asks for AFTER the bake
+ * (`applicationPhase === "POST_BAKE"`) -- never the recipe's pre-bake ingredients and never the whole pantry. A Free Cooking round
+ * (incl. Research) has no recipe to narrow by, and a narrowed tray would name which ingredients are late-capable (OD-TQ-16), so
+ * FIN-E3b (UD-B / OD-CS-4 (a)) lists EVERY owned scatter topping there. Scatter toppings only, the one kind FINISH can place
+ * (`canPlacePostBakeIngredient`, and PLACE_TOPPING's own FINISH category check). Lunch Rush and Dinner never reach FINISH.
+ */
+export function finishTrayIngredients(recipe: Recipe, ownedIngredientIds: readonly string[]): Ingredient[] {
+  const lateIds = new Set(recipe.requiredIngredients.filter((req) => req.applicationPhase === "POST_BAKE").map((req) => req.ingredientId));
+  const free = isFreeCookRecipe(recipe);
+  return ingredientsByCategory("topping").filter(
+    (i) => (free || lateIds.has(i.id)) && ownedIngredientIds.includes(i.id) && i.placement === "scatter",
   );
 }
 

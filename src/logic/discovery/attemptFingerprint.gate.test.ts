@@ -40,6 +40,7 @@ describe("Attempt Fingerprint — production wiring is 0", () => {
         APPROVED_IMPORTER,
         RECORD_ADAPTER,
         "/src/logic/discovery/attemptFingerprint.test.ts",
+        "/src/logic/discovery/lateAxis.test.ts", // FIN-E2 (#604): proves the late axis never reaches the fingerprint or the Notebook
         "/src/logic/discovery/trialNotebook.gate.test.ts", // asserts the model imports exactly ./attemptFingerprint
         "/src/logic/discovery/trialNotebook.test.ts",
         "/src/state/trialRecord.gate.test.ts", // asserts the adapter imports exactly P1, the matcher type, P3-1 and P2's line
@@ -70,11 +71,11 @@ describe("Attempt Fingerprint — imports only the matcher's own identity source
 });
 
 describe("Attempt Fingerprint — the matcher identity source is untouched by P1", () => {
-  it("signature.ts declares no identity dimension OBSERVED except pan (Square Dough F1) and no supported capability", () => {
+  it("signature.ts declares no identity dimension OBSERVED except pan (Square Dough F1) and dough (Dough Kind P1, #577), and no supported capability except DOUGH_VARIANT", () => {
     const signature = sources["/src/logic/discovery/signature.ts"];
-    expect(signature).toContain("export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = [];");
-    // the only OBSERVED row of the dimension table is `pan`; any other axis turning OBSERVED fails here on purpose
+    expect(signature).toContain(`export const RUNTIME_SUPPORTED_CAPABILITIES: readonly string[] = ["DOUGH_VARIANT", "LATE_ADDITION"];`);
+    // the only OBSERVED rows of the dimension table are `pan` and `dough`; any other axis turning OBSERVED fails here on purpose
     const observedRows = [...signature.matchAll(/^\s*(\w+): \{ status: "OBSERVED", reason/gm)].map((m) => m[1]);
-    expect(observedRows).toEqual(["pan"]);
+    expect(observedRows).toEqual(["dough", "pan", "late"]); // late: FIN-E2 (#604); the fingerprint excludes it (attemptFingerprint.ts NOT_ATTEMPT_IDENTITY)
   });
 });

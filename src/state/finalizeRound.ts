@@ -49,7 +49,12 @@ export interface FinalizeRoundInput {
    * only when a failed bake skips FINISH (the late ingredient then never reaches the pizza, so that IS the final
    * score); otherwise FINISH replaces it. `"FINAL"` = the FINISH confirmation: the full recipe is judged on the finished pizza, and only
    * the pieces placed in FINISH are consumed (the rest were consumed provisionally). For a recipe with no late
-   * requirement PROVISIONAL judges exactly like SINGLE. Free Cooking has no FINISH yet (UD-B), so it always runs as SINGLE.
+   * requirement PROVISIONAL judges exactly like SINGLE.
+   *
+   * Free Cooking (FIN-E3a, UD-B): the identification is the finalization, so a Free round has no PROVISIONAL pass -- while it waits
+   * in FINISH nothing is identified or scored (`deferFreeCookAtBake`, ./finishFreeCook.ts). It runs as SINGLE (a one-pass round, or a
+   * failed bake that skips FINISH) or as FINAL (the FINISH confirmation: identification, scoring and the Completion Gate on the
+   * finished pizza, consuming only the pieces placed in FINISH). Any other value is read as SINGLE.
    */
   finalization?: "SINGLE" | "PROVISIONAL" | "FINAL";
 }
@@ -95,11 +100,15 @@ export function finalizeRound(input: FinalizeRoundInput): FinalizedRound {
       freeCook,
       bakeState: classifyBake(bakeValue, input.recipe.bakeTarget),
       completion: freeCook.kind === "FAILED" ? freeCook.completion : { status: "PASS" },
-      inventory: consumePizzaInventory(pizza, input.inventory),
+      // FINAL (a Free round's FINISH confirmation): the pre-bake pieces were consumed when the bake was confirmed.
+      inventory:
+        input.freeCook && input.finalization === "FINAL"
+          ? consumePostBakeInventory(pizza, input.inventory)
+          : consumePizzaInventory(pizza, input.inventory),
     };
   }
   const recipe = freeCook ? freeCook.recipe : input.recipe;
-  const finalization = input.freeCook ? "SINGLE" : (input.finalization ?? "SINGLE");
+  const finalization = input.freeCook ? (input.finalization === "FINAL" ? "FINAL" : "SINGLE") : (input.finalization ?? "SINGLE");
   // What the Completion Gate judges against: the same object as `recipe` unless this is a PROVISIONAL pass over a recipe
   // with late requirements. Scoring 2.0 keeps the FULL recipe: its Reference is loaded by recipe id and must match the
   // recipe's requirements, so a recipe with a requirement removed would make the whole provisional score unavailable.
