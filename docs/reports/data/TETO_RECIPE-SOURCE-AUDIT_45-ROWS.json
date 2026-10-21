@@ -1,0 +1,1190 @@
+{
+ "schemaNote": "Recipe source audit (docs/data-only). Records which shipped recipes were classified from the PIZZA DB comparison table only, and what is NOT yet confirmed against individual pizzadb.jp pages. Does NOT modify the 172 matrix, master evidence, classification JSON or runtime snapshot. verifyPriority is a triage heuristic (finishing-type ingredient present), NOT evidence.",
+ "auditedMainSha": "78a4a0ff4d7c285387cf86491a5eade835ea2197",
+ "pizzadbAccess": {
+  "result": "BLOCKED",
+  "detail": "pizzadb.jp: proxy CONNECT 403 (curl) / ENOTFOUND (WebFetch) on 2026-10-21; no individual page was fetched by this session",
+  "independentlyVerifiedRows": 0
+ },
+ "ikuraSalmon": {
+  "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+  "shippedOnMain": false,
+  "openPr": "#584 (HOLD, untouched)",
+  "matrixSays": {
+   "class": "DATA_ONLY",
+   "mechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "postBakeFinish": [],
+   "lateAdditions": [],
+   "productDecisionStatus": "READY",
+   "currentFlowRepresentability": "FULL"
+  },
+  "relayedSourceSays": {
+   "retrievedBy": "ChatGPT (relayed; not independently verified by Claude Code or recorded as Owner-verified)",
+   "retrievedOn": "2026-10-20",
+   "quote": "いくらと大葉は焼成後に載せ",
+   "salmon": "relayed summary: both bake-on and separately-heated methods described; single timing not established",
+   "creamCheese": "timing not stated in relayed content",
+   "relayedIn": [
+    "PR #584 comment 2026-10-20",
+    "PR #587 (open, unmerged; adds recipeRows[].sourceTimingEvidence)"
+   ]
+  },
+  "discrepancy": "Matrix has no late addition for ikura-salmon, but the only relayed individual-page quote puts salmon-roe and shiso AFTER the bake. If the quote holds, the row is LATE_ADDITION:post_bake (SMALL_ENGINE per classRules), not DATA_ONLY, and PR #584's all-pre-bake composition differs from the source.",
+  "status": "DISCREPANCY RECORDED; matrix NOT changed (single relayed source, no independent re-fetch; a fix belongs with PR #587's evidence change + regeneration)",
+  "needsConfirmation": [
+   "https://pizzadb.jp/pizzas/ikura-salmon/ full text (salmon method, cream-cheese timing, quantities, bake time)"
+  ]
+ },
+ "shirasuNote": "shirasu-pizza is one of the 45. Relayed (ChatGPT, 2026-10-20) partial timing evidence exists only in open PR #587 (lemon 'squeeze to finish', whitebait 'a few minutes before finish', shiso unspecified); not independently verified, so its sourceStatus here stays UNVERIFIED and the shipped recipe is not changed.",
+ "summary": {
+  "comparisonTableOnlyShippedRows": 45,
+  "unverified": 45,
+  "verifyPriorityHigh": 25,
+  "verifyPriorityNormal": 20
+ },
+ "validationChecks": [
+  {
+   "check": "matrix rows == 172 and unique evidenceIds",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "master evidence rows == 172, ids == matrix ids",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "classification rows == 172, ids == matrix ids",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "snapshot shipped ids all exist in src/data/recipes.ts",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "src recipe ids all in snapshot (count 61 vs 61)",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "classification runtimeRecipesMatched subset of snapshot",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "no src recipe sets applicationPhase (late addition inert)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "comparison-table-only shipped rows == 45",
+   "pass": true,
+   "detail": "45"
+  },
+  {
+   "check": "every audited row maps to a unique matrix evidenceId",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "matrix postBakeFinish empty for all 45 audited rows",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "ikura-salmon matrix: postBakeFinish==[] and class DATA_ONLY (documents the mismatch)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "ikura-salmon not shipped on main (not in snapshot/src)",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "rows": [
+  {
+   "recipeId": "aussie",
+   "evidenceId": "aussie-pizzadb",
+   "nameJa": "オージーピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "egg"
+   ]
+  },
+  {
+   "recipeId": "baba-ganoush-pizza",
+   "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+   "nameJa": "ババガヌーシュピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "eggplant",
+    "olive-oil",
+    "parsley",
+    "pine-nuts"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "olive-oil",
+    "parsley"
+   ]
+  },
+  {
+   "recipeId": "brazilian-calabresa",
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "onion",
+    "oregano",
+    "sausage"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "oregano"
+   ]
+  },
+  {
+   "recipeId": "calabresa-argentina",
+   "evidenceId": "calabresa-argentina-pizzadb",
+   "nameJa": "アルゼンチン風カラブレーサ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "mozzarella",
+    "oregano",
+    "salami",
+    "tomato-sauce"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "oregano"
+   ]
+  },
+  {
+   "recipeId": "california-style-pizza",
+   "evidenceId": "california-style-pizza-pizzadb-p2",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "arugula",
+    "avocado",
+    "fresh-tomato",
+    "goat-cheese"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "arugula"
+   ]
+  },
+  {
+   "recipeId": "chilean-napolitana",
+   "evidenceId": "chilean-napolitana-pizzadb",
+   "nameJa": "チリアンナポリターナ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "fresh-tomato",
+    "mozzarella",
+    "oregano"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "oregano"
+   ]
+  },
+  {
+   "recipeId": "eggplant-ricotta-pizza",
+   "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "nameJa": "ナスとリコッタのピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "eggplant",
+    "mint",
+    "olive-oil",
+    "ricotta"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "olive-oil"
+   ]
+  },
+  {
+   "recipeId": "frango-catupiry",
+   "evidenceId": "frango-catupiry-pizzadb-p10",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "catupiry",
+    "chicken",
+    "mozzarella",
+    "oregano"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "oregano"
+   ]
+  },
+  {
+   "recipeId": "full-english-pizza",
+   "evidenceId": "full-english-pizza-pizzadb-p10",
+   "nameJa": "フルイングリッシュピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bacon",
+    "baked-beans",
+    "egg",
+    "mozzarella",
+    "sausage"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "egg"
+   ]
+  },
+  {
+   "recipeId": "jamon-serrano-pizza",
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "nameJa": "ハモンセラーノピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "arugula",
+    "mozzarella",
+    "prosciutto-crudo"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "arugula",
+    "prosciutto-crudo"
+   ]
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "evidenceId": "melanzane-pizza-pizzadb-p13",
+   "nameJa": "メランザーネピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "basil",
+    "eggplant",
+    "mozzarella"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "basil"
+   ]
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "evidenceId": "new-haven-apizza-pizzadb",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "olive-oil",
+    "parmigiano"
+   ]
+  },
+  {
+   "recipeId": "new-zealand-lamb-pizza",
+   "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "nameJa": "ニュージーランドラムピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "lamb",
+    "mozzarella",
+    "rosemary",
+    "sweet-potato"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "rosemary"
+   ]
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "evidenceId": "parmigiana-pizza-pizzadb-p7",
+   "nameJa": "パルミジャーナピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "basil",
+    "eggplant",
+    "mozzarella",
+    "parmigiano"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "basil",
+    "parmigiano"
+   ]
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "evidenceId": "pesto-caprese-pizzadb-p11",
+   "nameJa": "ペストカプレーゼピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "basil",
+    "fresh-tomato",
+    "mozzarella"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "basil"
+   ]
+  },
+  {
+   "recipeId": "pesto-salmone",
+   "evidenceId": "pesto-salmone-pizzadb-p11",
+   "nameJa": "ペストサーモンピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "cream-cheese",
+    "lemon",
+    "salmon"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "lemon"
+   ]
+  },
+  {
+   "recipeId": "pizza-feta-eliniki",
+   "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+   "nameJa": "ピッツァフェッタエッリニキ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "feta",
+    "fresh-tomato",
+    "olive-oil",
+    "oregano"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "olive-oil",
+    "oregano"
+   ]
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "evidenceId": "pizza-portuguesa-pizzadb-p9",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "egg",
+    "ham",
+    "mozzarella",
+    "onion"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "egg"
+   ]
+  },
+  {
+   "recipeId": "porchetta-pizza",
+   "evidenceId": "porchetta-pizza-pizzadb-p12",
+   "nameJa": "ポルケッタピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "mozzarella",
+    "pork",
+    "rosemary"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "rosemary"
+   ]
+  },
+  {
+   "recipeId": "prosciutto-funghi",
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "nameJa": "プロシュットフンギ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "mozzarella",
+    "mushroom",
+    "prosciutto-crudo"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "prosciutto-crudo"
+   ]
+  },
+  {
+   "recipeId": "ratatouille-pizza",
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "nameJa": "ラタトゥイユピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bell-pepper",
+    "eggplant",
+    "oregano",
+    "zucchini"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "oregano"
+   ]
+  },
+  {
+   "recipeId": "rucola-e-grana",
+   "evidenceId": "rucola-e-grana-pizzadb-p13",
+   "nameJa": "ルーコラエグラーナピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "arugula",
+    "grana-padano",
+    "prosciutto-crudo"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "arugula",
+    "prosciutto-crudo"
+   ]
+  },
+  {
+   "recipeId": "shirasu-pizza",
+   "evidenceId": "shirasu-pizza-pizzadb-p3",
+   "nameJa": "しらすピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "lemon",
+    "mozzarella",
+    "shiso",
+    "whitebait"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "lemon",
+    "shiso"
+   ]
+  },
+  {
+   "recipeId": "spinach-artichoke-pizza",
+   "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+   "nameJa": "スピナッチアーティチョークピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "artichoke",
+    "cream-cheese",
+    "mozzarella",
+    "parmigiano",
+    "spinach"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "parmigiano"
+   ]
+  },
+  {
+   "recipeId": "vongole",
+   "evidenceId": "vongole-pizzadb",
+   "nameJa": "ヴォンゴレピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "HIGH",
+   "finishLikeIngredientsPresent": [
+    "olive-oil",
+    "parsley"
+   ]
+  },
+  {
+   "recipeId": "bacalhau",
+   "evidenceId": "bacalhau-pizzadb",
+   "nameJa": "バカリャウピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "mozzarella",
+    "onion",
+    "salt-cod"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "bambino",
+   "evidenceId": "bambino-pizzadb-p7",
+   "nameJa": "バンビーノ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "corn",
+    "ham",
+    "mozzarella"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "brazilian-catupiry-corn-pizza",
+   "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "catupiry",
+    "corn",
+    "mozzarella"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "jalapeno-popper-pizza",
+   "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bacon",
+    "cream-cheese",
+    "jalapeno",
+    "mozzarella"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "palmito-pizza",
+   "evidenceId": "palmito-pizza-pizzadb-p7",
+   "nameJa": "パルミットピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "mozzarella",
+    "palm-heart"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pesto-gamberi",
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "nameJa": "ペストガンベリピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "fresh-tomato",
+    "garlic",
+    "shrimp"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pesto-patate",
+   "evidenceId": "pesto-patate-pizzadb-p12",
+   "nameJa": "ペストパターテピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bacon",
+    "mozzarella",
+    "potato"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pesto-pollo",
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "nameJa": "ペストポッロピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "chicken",
+    "fresh-tomato",
+    "mozzarella"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "evidenceId": "pesto-tonno-pizzadb-p12",
+   "nameJa": "ペストトンノピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "onion",
+    "tuna"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pesto-trapanese",
+   "evidenceId": "pesto-trapanese-pizzadb-p11",
+   "nameJa": "ペストトラパネーゼピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "almond",
+    "fresh-tomato",
+    "garlic"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pesto-vegetariana",
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "nameJa": "ペストベジタリアーナピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bell-pepper",
+    "eggplant",
+    "mozzarella",
+    "zucchini"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pizza-moscow",
+   "evidenceId": "pizza-moscow-pizzadb-p9",
+   "nameJa": "ピッツァモスクワ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "mozzarella",
+    "onion",
+    "salmon",
+    "sardine",
+    "tuna"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "pizza-overload",
+   "evidenceId": "pizza-overload-pizzadb-p7",
+   "nameJa": "ピザオーバーロード",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bacon",
+    "ham",
+    "hot-dog",
+    "mozzarella",
+    "pineapple"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "polish-kielbasa",
+   "evidenceId": "polish-kielbasa-pizzadb-p12",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "mozzarella",
+    "onion",
+    "sauerkraut",
+    "sausage"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "evidenceId": "puttanesca-pizza-pizzadb-p10",
+   "nameJa": "プッタネスカ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "salsiccia-e-friarielli",
+   "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+   "nameJa": "サルシッチャエフリアリエッリ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "friarielli",
+    "mozzarella",
+    "sausage"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "spanish-chorizo-pizza",
+   "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+   "nameJa": "スパニッシュチョリソピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bell-pepper",
+    "mozzarella",
+    "onion",
+    "sausage"
+   ],
+   "matrixClass": "DATA_ONLY",
+   "matrixMechanicKeys": [
+    "NO_SAUCE"
+   ],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "evidenceId": "tonno-e-cipolla-pizzadb",
+   "nameJa": "トンノエチポッラ（PIZZA DB版）",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "mozzarella",
+    "onion",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "vegan-cashew-cheese-pizza",
+   "evidenceId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "nameJa": "ヴィーガンカシューチーズピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "bell-pepper",
+    "cashew-cheese",
+    "zucchini"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  },
+  {
+   "recipeId": "veggie-supreme-pizza",
+   "evidenceId": "veggie-supreme-pizza-pizzadb-p11",
+   "nameJa": "ベジースプリームピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "comparisonTableIngredients": [
+    "black-olive",
+    "fresh-tomato",
+    "green-pepper",
+    "mozzarella",
+    "mushroom",
+    "onion"
+   ],
+   "matrixClass": "CURRENT_ENGINE",
+   "matrixMechanicKeys": [],
+   "matrixPostBakeFinish": [],
+   "gameTiming": "all pre-bake (no applicationPhase in src)",
+   "sourceStatus": "UNVERIFIED",
+   "bakedVsPostBakeIngredients": "未確認",
+   "cookingSteps": "未確認",
+   "requiredMechanics": "未確認",
+   "verifyPriority": "NORMAL",
+   "finishLikeIngredientsPresent": []
+  }
+ ]
+}
