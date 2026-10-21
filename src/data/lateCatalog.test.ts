@@ -4,7 +4,7 @@ import { discoveryIdentityOf, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCat
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { INGREDIENTS } from "./ingredients";
 import { RECIPES, type Recipe } from "./recipes";
-import { appendLadderSteps } from "../logic/discoveryLadder";
+import { appendLadderSteps, validateLadderProgression } from "../logic/discoveryLadder";
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
 import { lateCatalogEnabled, LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_RECIPES, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
@@ -164,6 +164,23 @@ describe("the late catalog as it would be when ON is valid (checked even though 
     ).toEqual([]);
     expect(validateCatalogTables(full)).toEqual([]);
     expect(validateFinishCatalog(full)).toEqual([]);
+    // Progression: every step newly completes its key recipe, no recipe needs a material the starters and steps never provide, and no step
+    // is unreachable for lack of discoveries (a late recipe needing a LATER step's material, or too few makeable recipes, fails here).
+    const starters = baseIngredients.filter((i) => !i.unlockCondition).map((i) => i.id);
+    const progressionRecipes = full.recipes.map((r) => ({ id: r.id as string, ingredientIds: [...new Set(r.requiredIngredients.map((q) => q.ingredientId))] }));
+    expect(validateLadderProgression(full.ladder, progressionRecipes, starters)).toEqual([]);
+  });
+
+  it("the progression check bites on a late recipe that needs a LATER step's material", () => {
+    const starters = INGREDIENTS.filter((i) => !i.unlockCondition).map((i) => i.id);
+    const recipes = RECIPES.map((r) => ({ id: r.id as string, ingredientIds: [...new Set(r.requiredIngredients.map((q) => q.ingredientId))] }));
+    const a = { id: "late-a", ingredientIds: ["synthetic-a", "synthetic-b"] };
+    const ladder = appendLadderSteps(DISCOVERY_LADDER, [
+      { ingredientIds: ["synthetic-a"], keyRecipeId: "late-a" },
+      { ingredientIds: ["synthetic-b"], keyRecipeId: "late-b" },
+    ]);
+    const problems = validateLadderProgression(ladder, [...recipes, a, { id: "late-b", ingredientIds: ["synthetic-b"] }], starters);
+    expect(problems.join("\n")).toMatch(/KEY_RECIPE: step \d+ does not newly complete late-a/);
   });
 });
 
