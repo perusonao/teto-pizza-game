@@ -9,6 +9,7 @@
  *   OD-CS-7 = A  a failed bake skips FINISH (the existing `bakeCompletionFailure` verdict -- no new threshold).
  */
 import type { Recipe } from "../data/recipes";
+import type { MakingStep } from "./gameReducer";
 import type { PizzaState } from "./pizzaState";
 import { isDinnerRound, isFreeCookingRound, isLunchRushRound, type HasRoundKind } from "./roundKind";
 
@@ -35,13 +36,22 @@ export function finishAllowedForRound(round: HasRoundKind): boolean {
   return !isLunchRushRound(round) && !isDinnerRound(round);
 }
 
+/** What `roundRunsFinish` reads from a round besides its kind: the profile's steps. */
+export interface HasFinishProfile {
+  cookingProfile?: { steps: readonly MakingStep[] };
+}
+
 /**
- * D1b: whether the reducer runs the FINISH step for this round. Only a Guided round does (Owner Decision D1b-6):
- * Lunch Rush and Dinner by `finishAllowedForRound`, Free Cooking (which includes Research) because it has no FINISH
- * UI and always finalizes in one pass (UD-B). Everything that makes FINISH act in the reducer asks this one function.
+ * Whether the reducer runs the FINISH step for this round. A Guided round does (D1b-6): Lunch Rush and Dinner are
+ * excluded by `finishAllowedForRound`. A Free Cooking round (which includes Research) does only when its profile carries
+ * FINISH (FIN-E3a, UD-B): the profile is derived once per round behind the Free Cooking FINISH gate
+ * (../data/freeCookFinishGate.ts), so with the gate OFF (Production) a Free round has no FINISH and finalizes in one pass,
+ * exactly as before. Everything that makes FINISH act in the reducer asks this one function.
  */
-export function roundRunsFinish(round: HasRoundKind): boolean {
-  return finishAllowedForRound(round) && !isFreeCookingRound(round);
+export function roundRunsFinish(round: HasRoundKind & HasFinishProfile): boolean {
+  if (!finishAllowedForRound(round)) return false;
+  if (!isFreeCookingRound(round)) return true;
+  return round.cookingProfile?.steps.includes("FINISH") === true;
 }
 
 /** The pieces placed in FINISH (`stage === "post"`), in placement order. */

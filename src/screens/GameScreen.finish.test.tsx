@@ -143,8 +143,9 @@ describe("FINISH stays off wherever it is not available", () => {
     }
   });
 
-  it("a Free Cooking round never renders FINISH", () => {
-    const { container } = renderAt({ ...atFinish(), roundKind: "FREE_COOK", freeCook: atFinish().freeCook });
+  it("a Free Cooking round whose profile has no FINISH (gate OFF) never renders FINISH", () => {
+    const profile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] } as GameState["cookingProfile"];
+    const { container } = renderAt({ ...atFinish(), roundKind: "FREE_COOK", freeCook: atFinish().freeCook, cookingProfile: profile });
     expect(screen.queryByTestId("finish-order-card")).toBeNull();
     expect(container.querySelector(".game-screen--cooking")).toBeNull();
   });
