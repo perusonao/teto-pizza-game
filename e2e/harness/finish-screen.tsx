@@ -15,7 +15,7 @@
  * deterministic bake), and the whole round is exercised through to RESULT / DISCOVERED. `window.__actions()` returns every dispatched action type
  * (to count CONFIRM_MAKING_STEP / REGISTER_TO_DEX), `&cut=` / `&late=` / `&stock=` / `&owned=` apply as before.
  */
-import { StrictMode, useCallback, useEffect, useReducer, useState } from "react";
+import { StrictMode, useCallback, useLayoutEffect, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../../src/index.css";
 import "../../src/App.css";
@@ -75,7 +75,8 @@ function Harness() {
     [log],
   );
   const [selected, setSelected] = useState<string | null>(null);
-  useEffect(() => {
+  // useLayoutEffect: the hooks must be current in the same commit as the DOM, so a test that waits on the DOM never reads a stale state (WebKit CI race).
+  useLayoutEffect(() => {
     const w = window as unknown as { __state: () => GameState; __actions: () => string[]; __confirmBake: (value: number) => void };
     w.__state = () => state;
     w.__actions = () => [...log];
