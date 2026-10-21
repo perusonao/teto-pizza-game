@@ -21,11 +21,13 @@
  *                                   cohort identity of every pre-existing recipe, and explicit Lunch Rush / CUT /
  *                                   ladder-credit / Hint declarations that match the data.
  */
-import { getCookingProfile, isCutEligible } from "../../../data/cookingProfiles";
+import { MAX_VISIBLE_COOKING_TABS, getCookingProfile, isCutEligible, visibleCookingTabCount, type CookingProfile } from "../../../data/cookingProfiles";
 import { RECIPE_DISCOVERY_CATALOG } from "../../../data/discoveryCatalog";
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../../../data/discoveryLadder";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, type Ingredient } from "../../../data/ingredients";
 import { RECIPE_HINT_ROLES } from "../../../data/recipeHintRoles";
+import { getReferencePizza } from "../../../data/referencePizza";
+import { DINNER_MISSIONS } from "../../../mission/dinner/dinnerMission";
 import { RECIPES, countsTowardLadder, participatesInLunchRush, type Recipe } from "../../../data/recipes";
 import { recipeChapter, recipeChapterSlot } from "../../../state/recipeChapters";
 import { isKeyFreeHintRoles } from "../../discovery/hint5Ladder";
@@ -33,8 +35,12 @@ import { researchCohortLetters } from "../../discovery/researchEntry";
 import { RUNTIME_SUPPORTED_CAPABILITIES } from "../../discovery/signature";
 import { validateDiscoveryLadder } from "../../discoveryLadder";
 
-/** Making steps the runtime actually wires (FOLD / SEAL / EDGE_FILL / FINISH have no recipe or reducer wiring). */
-const WIRED_STEPS: readonly string[] = ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"];
+/**
+ * Making steps the runtime actually wires (FOLD / SEAL / EDGE_FILL have no recipe or reducer wiring). FINISH is wired since
+ * the FIN-A..D engine / UI / reducer work (Issue #294), but only for a recipe that asks for a late addition and only while
+ * `validateFinishCatalog` below holds -- no shipped recipe uses it (`finishD2Inert.test.ts`).
+ */
+const WIRED_STEPS: readonly string[] = ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH", "CUT"];
 
 export interface CatalogView {
   recipes: readonly Recipe[];
@@ -49,6 +55,14 @@ export interface CatalogView {
   lunchRush: (recipeId: string) => boolean;
   ladderCredit: (recipeId: string) => boolean;
   keyFreeHint: (recipeId: string) => boolean;
+  /**
+   * FIN-E1 (Issue #294): optional so existing views (and a batch PR's own view builders) keep working; `productionCatalogView`
+   * fills them in. Absent = the check that needs it is skipped.
+   *  - `dinnerTargetIds`: every recipe id a Dinner mission targets (a late recipe must never be one: UD-I).
+   *  - `referencePieceCount`: how many pieces the recipe's Reference pizza places of one ingredient (`null` = no Reference).
+   */
+  dinnerTargetIds?: readonly string[];
+  referencePieceCount?: (recipeId: string, ingredientId: string) => number | null;
 }
 
 export function productionCatalogView(): CatalogView {
@@ -64,6 +78,12 @@ export function productionCatalogView(): CatalogView {
     lunchRush: (id) => participatesInLunchRush(id),
     ladderCredit: (id) => countsTowardLadder(id),
     keyFreeHint: (id) => isKeyFreeHintRoles((RECIPE_HINT_ROLES as Record<string, unknown>)[id]),
+    dinnerTargetIds: DINNER_MISSIONS.flatMap((m) => m.targetRecipeIds),
+    referencePieceCount: (id, ingredientId) => {
+      const reference = getReferencePizza(id);
+      if (!reference) return null;
+      return reference.pieceGroups.filter((g) => g.ingredientId === ingredientId).reduce((n, g) => n + g.positions.length, 0);
+    },
   };
 }
 
@@ -101,6 +121,51 @@ export function validateCatalogTables(view: CatalogView): string[] {
     for (const step of steps) if (!WIRED_STEPS.includes(step)) problems.push(`STEP_NOT_WIRED: ${r.id} uses ${step}`);
     for (const cap of view.targetCapabilities(r.id)) {
       if (!view.supportedCapabilities.includes(cap)) problems.push(`CAPABILITY_UNSUPPORTED: ${r.id} needs ${cap}`);
+    }
+  }
+  problems.push(...validateFinishCatalog(view));
+  return problems;
+}
+
+/**
+ * FIN-E1 (Issue #294): the safety guards a recipe with a late addition (`applicationPhase: "POST_BAKE"`) must satisfy before
+ * FINISH can be turned on for it. All of them are vacuous for the shipped catalog (no late recipe), so Production is unchanged;
+ * they bite the moment a late recipe is added (a batch PR, E4), in CI, instead of in front of a player.
+ *
+ *  FINISH_WITHOUT_LATE     a profile has FINISH but the recipe asks for no late addition (an empty step).
+ *  LATE_WITHOUT_FINISH     the recipe asks for a late addition but its profile has no FINISH (it could never be met).
+ *  LATE_WITH_CUT           FINISH + CUT = 7 tabs: the 6-tab ceiling (OD-CS-9 a) needs CS-4 first.
+ *  TAB_CEILING             any recipe's tab strip (PREPARE steps + 焼く + post-bake steps) exceeds the ceiling.
+ *  LATE_IN_LUNCH_RUSH      a late recipe must opt out (`lunchRush: false`): the pool opts IN by default and FINISH never runs there.
+ *  LATE_IN_DINNER          a Dinner mission targets a late recipe (UD-I: excluded until the Dinner audit).
+ *  LATE_NOT_TOPPING        the late ingredient is not a scatter topping (FINISH places toppings only; liquids are #579).
+ *  LATE_BOTH_PHASES        one ingredient is required both before and after the bake (the two piece sets cannot be told apart).
+ *  LATE_NO_REFERENCE       no Reference pizza, or too few Reference pieces of the late ingredient (Scoring 2.0 reads them).
+ */
+export function validateFinishCatalog(view: CatalogView): string[] {
+  const problems: string[] = [];
+  const ingredientById = new Map(view.ingredients.map((i) => [i.id, i]));
+  for (const r of view.recipes) {
+    const steps = view.cookingSteps(r.id);
+    const late = r.requiredIngredients.filter((q) => q.applicationPhase === "POST_BAKE");
+    const hasFinish = steps.includes("FINISH");
+    if (hasFinish && late.length === 0) problems.push(`FINISH_WITHOUT_LATE: ${r.id}`);
+    if (!hasFinish && late.length > 0) problems.push(`LATE_WITHOUT_FINISH: ${r.id}`);
+    if (hasFinish && steps.includes("CUT")) problems.push(`LATE_WITH_CUT: ${r.id}`);
+    const tabs = visibleCookingTabCount({ steps: steps as CookingProfile["steps"] });
+    if (tabs > MAX_VISIBLE_COOKING_TABS) problems.push(`TAB_CEILING: ${r.id} ${tabs} tabs`);
+    if (late.length === 0) continue;
+
+    if (view.lunchRush(r.id)) problems.push(`LATE_IN_LUNCH_RUSH: ${r.id}`);
+    if (view.dinnerTargetIds?.includes(r.id)) problems.push(`LATE_IN_DINNER: ${r.id}`);
+    for (const q of late) {
+      const ingredient = ingredientById.get(q.ingredientId);
+      if (ingredient && (ingredient.category !== "topping" || ingredient.placement !== "scatter")) problems.push(`LATE_NOT_TOPPING: ${r.id} ${q.ingredientId}`);
+      if (r.requiredIngredients.some((o) => o.ingredientId === q.ingredientId && o.applicationPhase !== "POST_BAKE")) problems.push(`LATE_BOTH_PHASES: ${r.id} ${q.ingredientId}`);
+      if (view.referencePieceCount) {
+        const count = view.referencePieceCount(r.id, q.ingredientId);
+        if (count === null || count < q.minCount) problems.push(`LATE_NO_REFERENCE: ${r.id} ${q.ingredientId} (${count ?? "no Reference"} < ${q.minCount})`);
+      }
     }
   }
   return problems;
