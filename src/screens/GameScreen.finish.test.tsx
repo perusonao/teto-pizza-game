@@ -9,6 +9,9 @@ import { visibleCookingTabCount, type CookingProfile } from "../data/cookingProf
 import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
 import { atBake } from "../state/testSupport/confirmBakeMatrix";
 import { FINISH_FIXTURE_RECIPE as FX, piece, preBakePizza } from "../state/testSupport/finishFixture";
+import { RECIPES } from "../data/recipes";
+import { ingredientsByCategory } from "../data/ingredients";
+import { referencePizzaFor } from "../state/testSupport/confirmBakeMatrix";
 
 /**
  * FINISH FIN-A (Issue #294): `GameScreen` renders the FINISH step -- the 仕上げ tab, the cooking stage layout and Mito's FINISH
@@ -385,5 +388,64 @@ describe("FINISH ↩ and 完成 (FIN-C)", () => {
     expect(screen.getByTestId("finish-tray-empty")).toHaveTextContent("後乗せの食材がありません。このまま完成すると失敗です");
     expect(container.querySelector(".ingredient-tray")).toBeNull();
     expect(screen.getByRole("button", { name: "完成" })).toBeEnabled();
+  });
+});
+
+/**
+ * FIN-E3b (Issue #608): a Free Cooking / Research round whose profile carries FINISH (the gate open) -- the round is built through the
+ * real reducer, so the screen reads exactly what a player's round holds: the unidentified sentinel recipe, the Free hint, the full tray.
+ */
+const FREE_FINISH_PROFILE: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH"] };
+
+function atFreeFinish(over: Partial<GameState> = {}): GameState {
+  const base = atBake("free", "margherita");
+  const bake = Math.round((base.recipe.bakeTarget.start + base.recipe.bakeTarget.end) / 2);
+  const state = gameReducer({ ...base, cookingProfile: FREE_FINISH_PROFILE, pizza: referencePizzaFor("margherita"), ...over }, { type: "CONFIRM_BAKE", value: bake, now: T });
+  expect(state.makingStep).toBe("FINISH");
+  expect(state.freeCook).toBe(true);
+  return state;
+}
+
+describe("FINISH on the screen (Free Cooking / Research, profile with FINISH)", () => {
+  it("shows the 仕上げ tab as the active step of six, and the cooking layout with the compact stage", () => {
+    const { container } = renderAt(atFreeFinish());
+    expect(screen.getByRole("tab", { name: "仕上げ" })).toHaveAttribute("aria-current", "step");
+    expect(visibleCookingTabCount(FREE_FINISH_PROFILE)).toBe(6);
+    expect(container.querySelectorAll(".making-step-tabs > *")).toHaveLength(6);
+    expect(container.querySelector(".pizza-stage--compact")).not.toBeNull();
+    expect(screen.getByTestId("finish-dock")).toBeInTheDocument();
+  });
+
+  it("offers every owned scatter topping and nothing else; no pre-bake ingredient is singled out", () => {
+    const start = atFreeFinish();
+    const owned = ingredientsByCategory("topping").filter((i) => i.placement === "scatter").map((i) => i.id);
+    const { container } = renderAt({ ...start, ownedIngredientIds: ["tomato-sauce", "mozzarella", ...owned] });
+    const names = [...container.querySelectorAll(".ingredient-chip__name")].map((n) => n.textContent);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.length).toBeLessThanOrEqual(6); // one page of the paged tray
+    expect(names.join("")).not.toMatch(/ソース|モッツァレラ/);
+    expect(container.querySelector(".tray-family-row")).toBeNull();
+  });
+
+  it("names no recipe before the identification: the hint is the Free line, and the dish's name appears nowhere", () => {
+    const { container } = renderAt(atFreeFinish());
+    expect(screen.getByTestId("finish-hint")).toHaveTextContent("仕上げに好きな具をのせよう（なしでもOK）");
+    for (const recipe of RECIPES) expect(container.textContent ?? "", recipe.id).not.toContain(recipe.nameJa);
+  });
+
+  it("an empty tray says finishing now is fine -- never the Guided failure warning -- and 完成 stays enabled", () => {
+    const start = atFreeFinish();
+    const { container } = renderAt({ ...start, ownedIngredientIds: ["tomato-sauce", "mozzarella"] });
+    expect(screen.getByTestId("finish-tray-empty")).toHaveTextContent("仕上げにのせられる具材がありません。「完成」で進もう");
+    expect(screen.getByTestId("finish-tray-empty")).not.toHaveTextContent("失敗");
+    expect(container.querySelector(".ingredient-tray")).toBeNull();
+    expect(screen.getByRole("button", { name: "完成" })).toBeEnabled();
+  });
+
+  it("has the FINISH bar and none of PREPARE's controls", () => {
+    renderAt(atFreeFinish());
+    expect(screen.getByRole("button", { name: "1つ戻す" })).toBeDisabled(); // nothing placed in FINISH yet
+    expect(screen.getByRole("button", { name: "完成" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /やり直す|全消し|次へ|焼く！/ })).toBeNull();
   });
 });
