@@ -15,7 +15,7 @@
  * deterministic bake), and the whole round is exercised through to RESULT / DISCOVERED. `window.__actions()` returns every dispatched action type
  * (to count CONFIRM_MAKING_STEP / REGISTER_TO_DEX), `&cut=` / `&late=` / `&stock=` / `&owned=` apply as before.
  */
-import { StrictMode, useEffect, useReducer, useState } from "react";
+import { StrictMode, useCallback, useEffect, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../../src/index.css";
 import "../../src/App.css";
@@ -65,10 +65,13 @@ const initial = build();
 function Harness() {
   const [state, dispatch] = useReducer(gameReducer, initial);
   const [log] = useState<string[]>([]);
-  const send = (action: Parameters<typeof gameReducer>[1]) => {
-    log.push(action.type);
-    dispatch(action);
-  };
+  const send = useCallback(
+    (action: Parameters<typeof gameReducer>[1]) => {
+      log.push(action.type);
+      dispatch(action);
+    },
+    [log],
+  );
   const [selected, setSelected] = useState<string | null>(null);
   useEffect(() => {
     const w = window as unknown as { __state: () => GameState; __actions: () => string[]; __confirmBake: (value: number) => void };
@@ -78,7 +81,7 @@ function Harness() {
       send({ type: "CONFIRM_BAKE", value, now: Date.now() });
       send({ type: "REGISTER_TO_DEX" });
     };
-  }, [state, log]);
+  }, [state, log, send]);
   return (
     <div className="app-frame">
       <GameScreen
