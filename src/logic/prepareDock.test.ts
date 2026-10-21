@@ -4,7 +4,9 @@ import { getRecipe, type Recipe } from "../data/recipes";
 import { getCookingProfile, preBakeSteps } from "../data/cookingProfiles";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { FAMILY_ROW_PX, familyRowFits, prepareDockReserve, SHORT_HEIGHT_QUERY, trayIngredientsFor } from "./prepareDock";
+import { FAMILY_ROW_PX, familyRowFits, finishTrayIngredients, prepareDockReserve, SHORT_HEIGHT_QUERY, trayIngredientsFor } from "./prepareDock";
+import { FREE_COOK_RECIPE } from "../data/freeCook";
+import { FINISH_FIXTURE_RECIPE } from "../state/testSupport/finishFixture";
 
 /**
  * DM-3R-0 Cooking Stage Size Stability (Issue #245): the PREPARE dock's per-round reservation.
@@ -271,3 +273,27 @@ describe("App.css: the family row height and the pizza cap have one authority ea
 function cssSource(): string {
   return readFileSync(resolve(process.cwd(), "src/App.css"), "utf8");
 }
+
+describe("finishTrayIngredients (FIN-E3b)", () => {
+  const everyOwned = ingredientsByCategory("sauce").concat(ingredientsByCategory("cheese"), ingredientsByCategory("topping")).map((i) => i.id);
+  const scatterToppings = ingredientsByCategory("topping").filter((i) => i.placement === "scatter");
+
+  it("Free Cooking / Research: every owned scatter topping, in catalog order -- no sauce, no cheese, no spread topping, no unowned one", () => {
+    const tray = finishTrayIngredients(FREE_COOK_RECIPE, everyOwned);
+    expect(tray.map((i) => i.id)).toEqual(scatterToppings.map((i) => i.id));
+    expect(tray.every((i) => i.category === "topping" && i.placement === "scatter")).toBe(true);
+    const some = scatterToppings.slice(0, 3).map((i) => i.id);
+    expect(finishTrayIngredients(FREE_COOK_RECIPE, ["tomato-sauce", "mozzarella", ...some]).map((i) => i.id)).toEqual(some);
+    expect(finishTrayIngredients(FREE_COOK_RECIPE, ["tomato-sauce", "mozzarella"])).toEqual([]);
+  });
+
+  it("Free Cooking: the tray does not depend on any recipe, so it cannot say which ingredient is a late one", () => {
+    const owned = scatterToppings.map((i) => i.id);
+    expect(finishTrayIngredients(FREE_COOK_RECIPE, owned)).toEqual(finishTrayIngredients({ ...FREE_COOK_RECIPE, requiredIngredients: FINISH_FIXTURE_RECIPE.requiredIngredients }, owned));
+  });
+
+  it("Guided: still only the recipe's late ingredients that are owned (unchanged by Free Cooking's tray)", () => {
+    expect(finishTrayIngredients(FINISH_FIXTURE_RECIPE, [...everyOwned]).map((i) => i.id)).toEqual(["parsley"]);
+    expect(finishTrayIngredients(FINISH_FIXTURE_RECIPE, ["basil", "mozzarella"])).toEqual([]);
+  });
+});

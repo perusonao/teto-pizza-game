@@ -77,7 +77,7 @@ test.describe("Free Cooking FINISH (gate ON via ?freeFinish=on)", () => {
     await boot(page, "?freeFinish=on", null);
     await expectSixTabsInside(page);
     await expect(page.getByRole("tab", { name: "仕上げ" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "焼く" })).toBeVisible();
+    await expect(page.locator(".making-step-tab--bake")).toBeVisible();
     await expectNoPageOverflow(page);
   });
 
