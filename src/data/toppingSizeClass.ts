@@ -12,6 +12,7 @@
  * - Source of the table: the Phase 0 audit in Issue #479 (boundary ids basil / egg / bacon / black-olive approved by the
  *   Owner; pineapple moved from large to medium).
  */
+import { LATE_TOPPING_SIZE_CLASS, lateCatalogEnabled } from "./lateCatalog";
 
 export type ToppingSizeClass = "xs" | "s" | "m" | "l" | "xl";
 
@@ -22,7 +23,7 @@ export const TOPPING_SIZE_CLASSES: readonly ToppingSizeClass[] = ["xs", "s", "m"
 export const DEFAULT_TOPPING_SIZE_CLASS: ToppingSizeClass = "m";
 
 /** Every scatter ingredient id -> its class. A new scatter ingredient must be added here (the coverage test fails until it is). */
-export const TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> = {
+const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> = {
   // extra small: grains, chopped herbs, grated cheese
   corn: "xs",
   capers: "xs",
@@ -92,6 +93,11 @@ export const TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>
   basil: "xl",
   "prosciutto-crudo": "xl",
 };
+
+/** The base table, plus the late-catalog ingredients' classes (./lateCatalog.ts) when that catalog is enabled; otherwise the base table itself. */
+export const TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> = lateCatalogEnabled()
+  ? { ...BASE_TOPPING_SIZE_CLASS_BY_ID, ...LATE_TOPPING_SIZE_CLASS }
+  : BASE_TOPPING_SIZE_CLASS_BY_ID;
 
 export type ToppingSizeScaleSet = Readonly<Record<ToppingSizeClass, number>>;
 

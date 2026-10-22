@@ -24,6 +24,7 @@ import { createInitialGameState, gameReducer } from "./gameReducer";
 import { discoveredDex } from "./testSupport/guidedRound";
 import { MID_BAKE, NOW, referencePieces, register, cook } from "./testSupport/trialNotebookFlow";
 import { discoverAll, W1_ORDER } from "../logic/testSupport/branchingFixture";
+import { activeRows } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Discovery 3.0 No.27 Vertical Slice: pesto-pollo + chicken (appended ladder step 25).
@@ -209,7 +210,7 @@ describe("No.27 Hint: key-free (Migration A kept, no KEY_TOPPING)", () => {
   it("roles are key-free; the rung ladder has no KEY_TOPPING, no empty rung, and names no ingredient / recipe", () => {
     expect(RECIPE_HINT_ROLES[ID as RecipeId]).toEqual({ keyFree: true });
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as RecipeId])).toBe(true);
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(RECIPES.length - 25); // every recipe appended after the 25 originals is key-free (derived); no original moved
+    expect(activeRows(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(RECIPES.length - 25); // every recipe appended after the 25 originals is key-free (derived); no original moved
     const rungs = buildHint5Ladder(ID)!.rungs;
     expect(rungs.map((r) => r.kind)).not.toContain("KEY_TOPPING");
     for (const r of rungs) if (r.kind !== "STRUCTURE") expect(r.subjectIds.length).toBeGreaterThan(0);

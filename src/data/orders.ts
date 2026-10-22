@@ -1,3 +1,4 @@
+import { LATE_ORDERS, lateCatalogEnabled, mergeLate } from "./lateCatalog";
 import type { RecipeId } from "./recipes";
 
 export interface Order {
@@ -7,7 +8,8 @@ export interface Order {
   lineJa: string;
 }
 
-export const ORDERS: Order[] = [
+/** The ordinary orders. The late-catalog recipes' orders (./lateCatalog.ts) join `ORDERS` only when that catalog is enabled. */
+const BASE_ORDERS: Order[] = [
   {
     id: "order-margherita",
     recipeId: "margherita",
@@ -377,6 +379,9 @@ export const ORDERS: Order[] = [
     lineJa: "しらすと大葉のピザ、レモンでさっぱりしそう！食べてみたいな！",
   },
 ];
+
+/** Every order the running build knows: `BASE_ORDERS`, plus the late-catalog orders when enabled (otherwise `BASE_ORDERS` itself). */
+export const ORDERS: Order[] = mergeLate(BASE_ORDERS, LATE_ORDERS, lateCatalogEnabled()) as unknown as Order[];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in
  *  ORDERS today maps 1:1 to a RecipeId, so this is a direct find, not a new data shape). */

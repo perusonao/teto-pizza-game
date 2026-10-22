@@ -117,4 +117,6 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "frango-catupiry": { keyFree: true },
   // Batch 8b: permanently key-free.
   "shirasu-pizza": { keyFree: true },
+  // FIN-E4b-ikura (#621, late catalog): permanently key-free.
+  "ikura-salmon-pizza": { keyFree: true },
 };

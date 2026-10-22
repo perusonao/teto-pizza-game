@@ -9,7 +9,7 @@ import {
   preBakeSteps,
   type CookingProfile,
 } from "./cookingProfiles";
-import { RECIPES, type RecipeId } from "./recipes";
+import { RECIPES, type BaseRecipeId, type RecipeId } from "./recipes";
 import { noSauceRecipeIds } from "./recipeSauceProfiles";
 import type { MakingStep } from "../state/gameReducer";
 
@@ -72,7 +72,7 @@ const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "bra
  * three use only `tomato-sauce`/`olive-oil` + topping-category items), quattro-formaggi needs no
  * topping-category ingredient (its four cheeses are its entire non-sauce composition). This table
  * pins the exact sequence, not just a step count, per the task's own requirement. */
-const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
+const RECIPE_STEP_MATRIX: Record<BaseRecipeId, readonly MakingStep[]> = {
   margherita: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   marinara: ["DOUGH", "SAUCE", "TOPPING"],
   "quattro-formaggi": ["DOUGH", "SAUCE", "CHEESE"],
@@ -209,7 +209,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
     it("steps are this recipe's own RECIPE_STEP_MATRIX sequence, CUT appended after it", () => {
       const profile = getCookingProfile(recipeId);
       expect(profile).not.toBe(DEFAULT_COOKING_PROFILE);
-      expect(profile.steps).toEqual([...RECIPE_STEP_MATRIX[recipeId], "CUT"]);
+      expect(profile.steps).toEqual([...RECIPE_STEP_MATRIX[recipeId as BaseRecipeId], "CUT"]);
     });
 
     it("(F) requestedSliceCount is 6 (Phase 4B: no authoritative rule for a different count)", () => {
@@ -219,7 +219,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
 
     it("preBakeSteps/postBakeSteps split correctly", () => {
       const profile = getCookingProfile(recipeId);
-      expect(preBakeSteps(profile)).toEqual(RECIPE_STEP_MATRIX[recipeId]);
+      expect(preBakeSteps(profile)).toEqual(RECIPE_STEP_MATRIX[recipeId as BaseRecipeId]);
       expect(postBakeSteps(profile)).toEqual(["CUT"]);
     });
 
@@ -233,7 +233,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
     it("every RECIPES entry's derived profile matches RECIPE_STEP_MATRIX exactly, not just a step count", () => {
       for (const recipe of RECIPES) {
         const profile = getCookingProfile(recipe.id);
-        expect(preBakeSteps(profile), recipe.id).toEqual(RECIPE_STEP_MATRIX[recipe.id]);
+        expect(preBakeSteps(profile), recipe.id).toEqual(RECIPE_STEP_MATRIX[recipe.id as BaseRecipeId]);
       }
     });
 

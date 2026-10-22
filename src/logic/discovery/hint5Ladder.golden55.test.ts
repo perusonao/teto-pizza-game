@@ -12,6 +12,7 @@ import {
   hint5ReservedRungs,
   requestHint5Rung,
 } from "./hint5Ladder";
+import { withoutInactiveLate } from "../catalog/testSupport/lateIds";
 
 /**
  * Hint 5.0 PR-B (docs/decisions/TETO_HINT-5_BASE-RUNG_OWNER-DECISIONS.md section 7 "Pin first", section 9):
@@ -61,7 +62,7 @@ describe("PR-B golden: the Hint 5.0 ladder of every production recipe", () => {
   it("every production recipe is a Hint 5.0 target, and the keyed / key-free split is derived from the roles table", () => {
     expect(RECIPES.every((r) => buildHint5Ladder(r.id) !== null)).toBe(true);
     expect(KEYED_RECIPES.length + KEY_FREE_RECIPES.length).toBe(RECIPES.length);
-    expect(Object.keys(RECIPE_HINT_ROLES).sort()).toEqual(RECIPES.map((r) => r.id).sort());
+    expect(withoutInactiveLate(Object.keys(RECIPE_HINT_ROLES)).sort()).toEqual(RECIPES.map((r) => r.id).sort());
   });
 
   it("matches the 55-ladder golden (kinds, sub order, next offers and request facts per prefix)", async () => {

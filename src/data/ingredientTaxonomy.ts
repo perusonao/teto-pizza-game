@@ -22,6 +22,7 @@
  *
  * Lookups go through a Map, so `__proto__` / `constructor` style ids have no effect.
  */
+import { LATE_TAXONOMY_ROWS, lateCatalogEnabled, mergeLate } from "./lateCatalog";
 
 export type AttributeFamilyId = "meat" | "seafood" | "vegetable" | "herb" | "fruit" | "spice" | "other";
 export type AttributeGroupId = "protein" | "produce" | "aroma" | "other";
@@ -57,7 +58,7 @@ export const ATTRIBUTE_FAMILIES: readonly AttributeFamily[] = [
 ];
 
 /** Topping ingredient id -> family, for the runtime catalog (../data/ingredients.ts). */
-const TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
+const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
   ["sausage", "meat"],
   ["pepperoni", "meat"],
   ["bacon", "meat"],
@@ -113,6 +114,9 @@ const TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
   ["shiso", "herb"],
   ["whitebait", "seafood"],
 ];
+
+/** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */
+const TOPPING_FAMILY_ROWS = mergeLate(BASE_TOPPING_FAMILY_ROWS, LATE_TAXONOMY_ROWS, lateCatalogEnabled()) as readonly (readonly [string, AttributeFamilyId])[];
 
 const FAMILY_BY_INGREDIENT = new Map<string, AttributeFamilyId>(TOPPING_FAMILY_ROWS);
 const FAMILY_BY_ID = new Map<AttributeFamilyId, AttributeFamily>(ATTRIBUTE_FAMILIES.map((f) => [f.id, f]));
