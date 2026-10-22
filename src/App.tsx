@@ -38,7 +38,7 @@ import {
 import { remainingStock } from "./state/inventory";
 import { homeDiscoveryRoute, isHintSheetVisible } from "./state/discoveryHint";
 import {
-  loadSave,
+  loadSaveForSession,
   loadMissionBest,
   persistProgress,
   persistMissionBest,
@@ -183,7 +183,8 @@ function App() {
   // Dex BEST/timesMade, owned ingredients, and Pitz balance do -- load them once on mount and
   // hydrate the initial state with them.
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    const save = loadSave();
+    // PR-3 (#560, N1): the startup load -- it also tells the write gate what this page loaded (see state/saveSession.ts).
+    const save = loadSaveForSession();
     // Progression 2.0 W1 Integration I4b-3 (REC-04; replaces EP4's load-time Starter Grant
     // catch-up, which is retired): resolve the Discovery Ladder once on load, before
     // `createInitialGameState`. For an existing save this is the migration -- the Shop

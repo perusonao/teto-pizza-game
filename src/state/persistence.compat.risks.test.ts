@@ -122,8 +122,10 @@ describe("KNOWN RISK R2 (#282): a stale tab's write rolls back what another tab 
     expect(loadSave(storage).dex[0]).toEqual({ ...MARGHERITA, timesMade: 4 });
   });
 
-  it.todo("SAFETY REQUIREMENT (not implemented, #282): a write from a stale tab never removes a Dex entry another tab saved");
-  it.todo("SAFETY REQUIREMENT (not implemented, #282): a stale tab detects the newer save (storage event or revision) before it writes Pitz or stock");
+  // Save Protection PR-3 (#560): the app's startup load now starts a save session (state/saveSession.ts), and a write from a
+  // stale tab is refused (`stale-save`) -- covered in persistence.session.test.ts ("#282"). The characterizations above stay
+  // as they are because they use plain `loadSave` (no session): the storage layer alone, without a session, is unchanged.
+  // The absolute-Pitz last-writer-wins model (a ledger / delta design) remains #282's open question, outside PR-3.
 });
 
 describe("Dex entry boundaries (R4)", () => {
