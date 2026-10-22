@@ -292,6 +292,10 @@ check "retry: missing --status-file / command -> usage error" 2 "$(bash "$here/i
 # apt lock: a killed attempt's apt-get survives `timeout` (it runs as root via sudo) and holds the dpkg lock; the retry must wait for it.
 # (The fixture's own "is apt alive" probe skips zombies too: an orphan may stay a zombie under a PID 1 that never reaps -- Codex P2.)
 mkdir -p "$work/bin"; cp "$(command -v sleep)" "$work/bin/fake-apt"   # a process whose name `pgrep -x fake-apt` matches
+# Never a global kill: only processes started from THIS run's private fixture binary ($work is a fresh mktemp dir) are signalled.
+kill_fixtures() { pkill -f -- "$work/bin/fake-apt" 2> /dev/null || true; }
+# A bystander the suite must never touch (Codex P2 on #628): an unrelated `sleep` owned by the same user, checked at the end of this section.
+bystander_sleep=$(sh -c 'sleep 300 > /dev/null 2>&1 & echo $!')
 rm -f "$work/c7" "$work/c7.log"
 cat > "$work/orphan_cmd.sh" <<ORPHAN_END
 n=\$(cat $work/c7 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $work/c7
@@ -323,7 +327,7 @@ check "retry: apt busy longer than the wait bound -> the retry stops waiting and
   "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=1 retry "$work/s9" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c9; exit 3")"
 check "retry: bounded wait -> both attempts ran, the retry after ~1s and before the 8s orphan ended" "2 yes" "$(wc -l < "$work/c9" | tr -d ' ') $([ $((SECONDS - t0)) -lt 6 ] && echo yes || echo no)"
 grep -q 'apt/dpkg still running after 1s' "$work/retry.out"; check "retry: bounded wait -> warning logged" 0 $?
-pkill -x fake-apt 2> /dev/null || true
+kill_fixtures
 # A zombie (an exited process nobody reaped, e.g. an orphan under a PID 1 that does not reap) holds no lock and must not be waited for.
 # Real zombie fixture: a python parent forks fake-apt (exits after 1s) and then sleeps without wait()ing for it.
 # The parent prints the child's pid, so the check below looks at THIS child only (other zombies may be left over from earlier cases).
@@ -344,10 +348,74 @@ check "retry: a zombie apt is not waited for (exit 3 after both attempts)" 3 \
   "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=5 retry "$work/s11" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c11; exit 3")"
 check "retry: a zombie apt -> no wait (both attempts ran, in well under the 5s bound)" "2 yes" "$(wc -l < "$work/c11" | tr -d ' ') $([ $((SECONDS - t0)) -lt 3 ] && echo yes || echo no)"
 kill "$zparent" 2> /dev/null; wait "$zparent" 2> /dev/null || true
+
+# --- #627 follow-up: stop the orphan a timed-out attempt leaves (run 39801547144: a stalled apt-get outlived the 180 s wait) ---
+# An orphan's parent is the reaper (pid 1; in a container possibly a subreaper) -- measure it instead of assuming.
+setsid sh -c "sleep 2 & echo \$! > $work/rp.pid" > /dev/null 2>&1; sleep 0.5
+reaper="$(ps -o ppid= -p "$(cat "$work/rp.pid")" 2> /dev/null | tr -d ' ')"; reaper="${reaper:-1}"
+if [[ -s "$work/rp.pid" ]]; then kill "$(cat "$work/rp.pid")" 2> /dev/null || true; fi
+reap_retry() { # VAR=val... retry args... (the leading VAR=val are exported for the helper only)
+  ( export INSTALL_REAPER_PID="$reaper" INSTALL_LOCK_PROCS=fake-apt INSTALL_REAP_PROCS=fake-apt
+    while [[ "$1" == INSTALL_*=* ]]; do export "$1"; shift; done
+    shift  # the literal word "retry"
+    retry "$@" )
+}
+alive_fake() { ps -o stat= -C fake-apt | tr -d ' ' | grep -c '^[^Z]'; }
+# (a) the attempt's own orphaned apt is stopped, and the retry does not wait for it (lock wait would be 20 s here)
+rm -f "$work/c12" "$work/c12.log"
+cat > "$work/orphan30.sh" <<ORPHAN_END
+n=\$(cat $work/c12 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $work/c12
+if [ \$n -eq 1 ]; then setsid $work/bin/fake-apt 30 > /dev/null 2>&1 & sleep 30; fi
+if ps -o stat= -C fake-apt | tr -d " " | grep -q "^[^Z]"; then echo LOCKED >> $work/c12.log; exit 100; fi
+echo ok >> $work/c12.log
+ORPHAN_END
+t0=$SECONDS
+check "reap: timed-out attempt's orphaned apt is stopped -> the retry succeeds (exit 0)" 0 \
+  "$(reap_retry INSTALL_LOCK_WAIT_SECS=20 INSTALL_REAP_GRACE_SECS=3 retry "$work/s12" --timeout 1 --attempts 2 -- sh "$work/orphan30.sh")"
+check "reap: the retry never saw a live apt" "ok" "$(tr -d '\n' < "$work/c12.log")"
+check "reap: no 20 s lock wait was needed (done in < 12 s)" yes "$([ $((SECONDS - t0)) -lt 12 ] && echo yes || echo no)"
+grep -q 'stopping apt left behind' "$work/retry.out"; check "reap: the stop is logged" 0 $?
+check "reap: orphan really gone" 0 "$(alive_fake)"
+# (b) negative control: reaping off (no apt names) -> the same orphan still holds the lock (wait disabled) -> 100
+rm -f "$work/c12" "$work/c12.log"
+check "reap: negative control (reaping off, wait 0) -> the retry hits the lock (100)" 100 \
+  "$(INSTALL_REAPER_PID="$reaper" INSTALL_REAP_PROCS=__none__ INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=0 retry "$work/s13" --timeout 1 --attempts 2 -- sh "$work/orphan30.sh")"
+kill_fixtures; sleep 0.5
+# (c) safety: an apt that was already running before the attempt (another job / the OS) is never stopped
+setsid "$work/bin/fake-apt" 12 > /dev/null 2>&1 &
+sleep 0.3
+rm -f "$work/c14"
+check "reap: foreign apt present before the attempt -> not stopped (attempts time out, exit 124)" 124 \
+  "$(reap_retry INSTALL_LOCK_WAIT_SECS=0 retry "$work/s14" --timeout 1 --attempts 2 -- sh -c "echo x >> $work/c14; sleep 30; exit 3")"
+check "reap: foreign apt (pre-existing) is still alive" 1 "$(alive_fake)"
+kill_fixtures; sleep 0.5
+# (d) safety: an apt that started DURING the attempt but still has a live parent (someone else's child) is never stopped
+rm -f "$work/c15"
+cat > "$work/foreign_child.sh" <<FOREIGN_END
+echo x >> $work/c15
+setsid sh -c "$work/bin/fake-apt 12 & wait" > /dev/null 2>&1 &
+sleep 30
+FOREIGN_END
+check "reap: apt with a live parent started mid-attempt -> not stopped (exit 124)" 124 \
+  "$(reap_retry INSTALL_LOCK_WAIT_SECS=0 retry "$work/s15" --timeout 1 --attempts 2 -- sh "$work/foreign_child.sh")"
+check "reap: foreign apts (live parents, one per attempt) are both still alive" 2 "$(alive_fake)"
+kill_fixtures; sleep 0.5
+# (e) only the configured names are ever signalled (dpkg-like names are not in the default reap set)
+check "reap: default reap set is apt-get/apt only (never dpkg)" "apt-get apt" "$(sed -n 's/.*INSTALL_REAP_PROCS:-\([^}]*\)}.*/\1/p' "$here/install-with-retry.sh" | head -1)"
+# (f) --apt-tuning writes the drop-in (retries, timeouts, lock timeout) and a failure to write it is not fatal
+INSTALL_APT_CONF="$work/apt.d/99-test" retry "$work/s16" --apt-tuning --timeout 5 --attempts 1 -- true > /dev/null
+check "apt-tuning: drop-in has Acquire::Retries, http/https Timeout, DPkg::Lock::Timeout" 4 \
+  "$(grep -cE '^(Acquire::Retries "3"|Acquire::http::Timeout "30"|Acquire::https::Timeout "30"|DPkg::Lock::Timeout "60");$' "$work/apt.d/99-test")"
+check "apt-tuning: unwritable target -> install still runs (exit 0)" 0 \
+  "$(INSTALL_APT_CONF=/proc/nope/99-test retry "$work/s17" --apt-tuning --timeout 5 --attempts 1 -- true)"
+check "cleanup: an unrelated sleep (same user) survived the whole section -- no global kill" yes \
+  "$([ "$(ps -o comm=,stat= -p "$bystander_sleep" 2> /dev/null | tr -s ' ' | cut -c1-7)" = "sleep S" ] && echo yes || echo no)" # a killed one lingers as a zombie (Z) under a PID 1 that does not reap
+kill "$bystander_sleep" 2> /dev/null || true; wait "$bystander_sleep" 2> /dev/null || true
 # Workflow contract: only the install is wrapped; Playwright test steps are never retried.
 wf="$here/../../.github/workflows/e2e-webkit.yml"
 grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
 check "workflow: WebKit install step uses the retry helper" 0 $?
+grep -q -- '--apt-tuning' "$wf"; check "workflow: the install step enables --apt-tuning" 0 $?
 grep -n 'install-with-retry' "$wf" | grep -q 'playwright test'
 check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
 grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
@@ -363,13 +431,14 @@ b_timeout=$(awk '/Install WebKit \(with system deps/{f=1} f&&/--timeout/{for(i=1
 b_kill=$(sed -n 's/.*--kill-after=\([0-9]*\).*/\1/p' "$helper" | head -1)
 b_delay=$(sed -n 's/.*INSTALL_RETRY_DELAY_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1)
 b_wait=$(sed -n 's/.*INSTALL_LOCK_WAIT_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1)
-worst_case() { echo $(( $1 * ($2 + $3) + ($1 - 1) * ($4 + $5) )); } # attempts timeout kill delay wait
-check "budget: parsed attempts/timeout/kill/delay/wait/step cap/job cap" "2 360 15 5 180 17 35" "$b_attempts $b_timeout $b_kill $b_delay $b_wait $install_cap $job_cap"
-worst=$(worst_case "$b_attempts" "$b_timeout" "$b_kill" "$b_delay" "$b_wait")
-check "budget: helper worst case (935 s) fits the install step cap" yes "$([ $((install_cap * 60)) -ge "$worst" ] && echo yes || echo "no (worst ${worst}s, cap $((install_cap * 60))s)")"
+b_reap=$(( $(sed -n 's/.*INSTALL_REAP_GRACE_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1) + 2 )) # SIGTERM grace + 2 s after SIGKILL
+worst_case() { echo $(( $1 * ($2 + $3) + ($1 - 1) * ($4 + $5 + $6) )); } # attempts timeout kill delay wait reap
+check "budget: parsed attempts/timeout/kill/delay/wait/step cap/job cap" "2 360 15 5 180 12 17 35" "$b_attempts $b_timeout $b_kill $b_delay $b_wait $b_reap $install_cap $job_cap"
+worst=$(worst_case "$b_attempts" "$b_timeout" "$b_kill" "$b_delay" "$b_wait" "$b_reap")
+check "budget: helper worst case (947 s) fits the install step cap" yes "$([ $((install_cap * 60)) -ge "$worst" ] && echo yes || echo "no (worst ${worst}s, cap $((install_cap * 60))s)")"
 check "budget: negative control -- the pre-fix numbers (13 min step cap, 300 s wait, wait before every attempt) do not fit" no \
-  "$([ $((13 * 60)) -ge "$(worst_case 2 360 15 5 300)" ] && echo yes || echo no)"
-check "budget: negative control -- a wait before the first attempt too (180 + 935 = 1115 s) would not fit the 17 min cap" no \
+  "$([ $((13 * 60)) -ge "$(worst_case 2 360 15 5 300 0)" ] && echo yes || echo no)"
+check "budget: negative control -- a wait before the first attempt too (180 + 947 = 1127 s) would not fit the 17 min cap" no \
   "$([ $((install_cap * 60)) -ge $((b_wait + worst)) ] && echo yes || echo no)"
 check "workflow: webkit job cap fits setup (1) + install step cap + longest shard (16 incl. list/margin)" yes "$([ "$job_cap" -ge $((install_cap + 17)) ] && echo yes || echo "no (job $job_cap, install $install_cap)")"
 
