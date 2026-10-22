@@ -80,11 +80,14 @@ as before.
 
 ## 4. Verification
 
-- `bash scripts/ci/test-webkit-ci.sh`: 122/122 (was 107). New cases (hermetic; a fake `apt-get`-named process stands in for the orphan):
+- `bash scripts/ci/test-webkit-ci.sh`: 125/125 (was 107). New cases (hermetic; a fake `apt-get`-named process stands in for the orphan):
   orphan after a timeout → the retry waits and then succeeds; **same scenario with the wait disabled fails with the lock error (negative
   control, i.e. the test bites)**; the first attempt never waits; the wait before a retry is bounded (an 8 s orphan with a 1 s bound does not
   hang and both attempts run); the time budget (worst case 935 s ≤ install step cap 17 min; job cap ≥ step cap + 17 min) parsed from the
   workflow and the helper, with two negative controls (the pre-fix 13 min / 300 s numbers, and a leading wait).
+  A **zombie** apt (an exited orphan nobody reaped, e.g. under a PID 1 that does not reap -- Codex P2 on `a8abca8`) is not waited for: the helper
+  now skips processes in state `Z` (`ps -o stat=`), checked with a real zombie fixture (a python parent that forks `fake-apt` and never `wait()`s);
+  with the previous helper that test fails (`2 no`: it waited), with this one it passes. The fixtures' own "is apt alive" probe skips zombies too.
 - `bash -n` on both scripts; the workflow YAML parses (`webkit.timeout-minutes = 35`, install step `17`); `actionlint` 1.7.7 reports nothing
   for `e2e-webkit.yml` (same as on `main`).
 - `shellcheck` is not installed in this environment (not run).
