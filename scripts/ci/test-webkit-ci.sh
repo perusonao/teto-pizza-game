@@ -326,16 +326,18 @@ grep -q 'apt/dpkg still running after 1s' "$work/retry.out"; check "retry: bound
 pkill -x fake-apt 2> /dev/null || true
 # A zombie (an exited process nobody reaped, e.g. an orphan under a PID 1 that does not reap) holds no lock and must not be waited for.
 # Real zombie fixture: a python parent forks fake-apt (exits after 1s) and then sleeps without wait()ing for it.
+# The parent prints the child's pid, so the check below looks at THIS child only (other zombies may be left over from earlier cases).
 python3 -c "
 import os, time
 pid = os.fork()
 if pid == 0:
     os.execv('$work/bin/fake-apt', ['$work/bin/fake-apt', '1'])
+print(pid, flush=True)
 time.sleep(9)
-" > /dev/null 2>&1 &
+" > "$work/zpid" 2> /dev/null &
 zparent=$!
 sleep 2.5
-check "retry: fixture -- fake-apt is a real zombie (state Z)" "Z" "$(ps -o stat= -C fake-apt | tr -d ' ' | cut -c1)"
+check "retry: fixture -- this fake-apt child is a real zombie (state Z)" "Z" "$(ps -o stat= -p "$(cat "$work/zpid")" | tr -d ' ' | cut -c1)"
 t0=$SECONDS
 rm -f "$work/c11"
 check "retry: a zombie apt is not waited for (exit 3 after both attempts)" 3 \

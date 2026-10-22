@@ -88,6 +88,8 @@ as before.
   A **zombie** apt (an exited orphan nobody reaped, e.g. under a PID 1 that does not reap -- Codex P2 on `a8abca8`) is not waited for: the helper
   now skips processes in state `Z` (`ps -o stat=`), checked with a real zombie fixture (a python parent that forks `fake-apt` and never `wait()`s);
   with the previous helper that test fails (`2 no`: it waited), with this one it passes. The fixtures' own "is apt alive" probe skips zombies too.
+  The script is also run under a PID 1 that never reaps orphans (`unshare --pid --fork --mount-proc python3 -c "subprocess.call(['bash','scripts/ci/test-webkit-ci.sh'])"`,
+  so leftover zombies pile up): 125/125 there as well (Codex P2 on `4bee5a2`: the zombie fixture now checks the pid of its own child only).
 - `bash -n` on both scripts; the workflow YAML parses (`webkit.timeout-minutes = 35`, install step `17`); `actionlint` 1.7.7 reports nothing
   for `e2e-webkit.yml` (same as on `main`).
 - `shellcheck` is not installed in this environment (not run).
