@@ -349,7 +349,7 @@ kill "$zparent" 2> /dev/null; wait "$zparent" 2> /dev/null || true
 # An orphan's parent is the reaper (pid 1; in a container possibly a subreaper) -- measure it instead of assuming.
 setsid sh -c "sleep 2 & echo \$! > $work/rp.pid" > /dev/null 2>&1; sleep 0.5
 reaper="$(ps -o ppid= -p "$(cat "$work/rp.pid")" 2> /dev/null | tr -d ' ')"; reaper="${reaper:-1}"
-pkill -x sleep 2> /dev/null || true
+if [[ -s "$work/rp.pid" ]]; then kill "$(cat "$work/rp.pid")" 2> /dev/null || true; fi
 reap_retry() { # VAR=val... retry args... (the leading VAR=val are exported for the helper only)
   ( export INSTALL_REAPER_PID="$reaper" INSTALL_LOCK_PROCS=fake-apt INSTALL_REAP_PROCS=fake-apt
     while [[ "$1" == INSTALL_*=* ]]; do export "$1"; shift; done
