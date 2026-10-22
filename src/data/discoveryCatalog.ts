@@ -15,13 +15,21 @@
  * No shipped recipe requires a capability, so every target uses the default dimensions.
  */
 import { DEFAULT_IDENTITY_DIMENSIONS } from "../logic/discovery/signature";
-import { getIngredient } from "./ingredients";
+import { getIngredient, INGREDIENTS } from "./ingredients";
 import type { RecipeDiscoveryTarget } from "../logic/discovery/matcher";
-import { RECIPES, type RecipeId } from "./recipes";
+import {
+  assertLateCatalogValid,
+  LATE_DISCOVERY_TARGET_IDS,
+  LATE_INGREDIENTS,
+  LATE_LADDER_STEPS,
+  LATE_RECIPES,
+  lateCatalogEnabled,
+} from "./lateCatalog";
+import { RECIPES, type BaseRecipeId, type Recipe } from "./recipes";
 
 /** Phase-2 target id for every production recipe. A `Record` so adding a recipe without a
  *  discovery identity is a type error. */
-export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
+export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>> = {
   margherita: "shipped:margherita",
   marinara: "shipped:marinara",
   "quattro-formaggi": "shipped:quattro-formaggi",
@@ -102,8 +110,43 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   aussie: "aussie-pizzadb",
 };
 
-export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => ({
-  targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id],
+// FIN-E4 foundation: an enabled late catalog is checked once, here (the first module that sees recipes, ingredients and targets together).
+// `RECIPES` / `INGREDIENTS` end with the late entries (./lateCatalog.ts `mergeLate`), so the ordinary part is everything before them. Disabled
+// (Production): nothing runs.
+if (lateCatalogEnabled()) {
+  assertLateCatalogValid(
+    true,
+    {
+      recipeIds: RECIPES.slice(0, RECIPES.length - LATE_RECIPES.length).map((r) => r.id),
+      ingredientIds: INGREDIENTS.slice(0, INGREDIENTS.length - LATE_INGREDIENTS.length).map((i) => i.id),
+      discoveryTargetIds: Object.values(RECIPE_DISCOVERY_TARGET_IDS),
+    },
+    { recipes: LATE_RECIPES, ingredients: LATE_INGREDIENTS, ladderSteps: LATE_LADDER_STEPS, discoveryTargetIds: LATE_DISCOVERY_TARGET_IDS },
+  );
+}
+
+/** Ordinary recipes read their id from the table above; late recipes (./lateCatalog.ts) bring their own. */
+function targetIdOf(recipeId: string): string {
+  return (RECIPE_DISCOVERY_TARGET_IDS as Readonly<Record<string, string>>)[recipeId] ?? LATE_DISCOVERY_TARGET_IDS[recipeId];
+}
+
+/**
+ * The identity a recipe's discovery target declares beyond its ingredients. Every ordinary recipe keeps `DEFAULT_IDENTITY_DIMENSIONS`
+ * and no capability (the SAME object as before FIN-E4, so the catalog is unchanged). A recipe with `POST_BAKE` requirements (only
+ * possible in the late catalog, ./lateCatalog.ts) declares them on the `late` axis and requires `LATE_ADDITION`, derived from the
+ * recipe so the target can never disagree with the requirement it judges.
+ */
+export function discoveryIdentityOf(recipe: Pick<Recipe, "requiredIngredients">): Pick<RecipeDiscoveryTarget, "identityDimensions" | "capabilities"> {
+  const lateIds = [...new Set(recipe.requiredIngredients.filter((r) => r.applicationPhase === "POST_BAKE").map((r) => r.ingredientId))].sort();
+  if (lateIds.length === 0) return { identityDimensions: DEFAULT_IDENTITY_DIMENSIONS, capabilities: [] };
+  return { identityDimensions: { ...DEFAULT_IDENTITY_DIMENSIONS, late: [["POST_BAKE", lateIds]] }, capabilities: ["LATE_ADDITION"] };
+}
+
+export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => {
+  const { identityDimensions, capabilities } = discoveryIdentityOf(recipe);
+  // Key order is the pre-FIN-E4 order (items, sauceBase, capabilities, identityDimensions, eligibility).
+  return {
+  targetId: targetIdOf(recipe.id),
   recipeId: recipe.id,
   items: [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))].sort(),
   sauceBase: [
@@ -113,7 +156,8 @@ export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPE
         .filter((id) => getIngredient(id)?.category === "sauce"),
     ),
   ].sort(),
-  capabilities: [],
-  identityDimensions: DEFAULT_IDENTITY_DIMENSIONS,
+  capabilities,
+  identityDimensions,
   eligibility: { status: "ELIGIBLE" },
-}));
+  };
+});

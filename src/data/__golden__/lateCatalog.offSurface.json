@@ -1,0 +1,22 @@
+{
+ "recipes": {
+  "count": 61,
+  "sha256": "cb0d0a754f5824fb65e14b42e16341bd970cb541481984d2cb726492e7eec9ec"
+ },
+ "ingredients": {
+  "count": 66,
+  "sha256": "a88d4459c1a60f3b0c7e2e3dc2f0d52b7315ac6f028bccb237095f1f9fa8f77e"
+ },
+ "ladderSteps": {
+  "count": 54,
+  "sha256": "a2a0071bdb491dd7308ed3cd55f57d08bd17baa1098bc862a7abb7801a455b02"
+ },
+ "discoveryTargets": {
+  "count": 61,
+  "sha256": "582509605151f84851d3c7f9c1fcb15b616bbcb85e89a8049754ebabdde93769"
+ },
+ "discoveryTargetIds": {
+  "count": 61,
+  "sha256": "0901450163eecfe2e318b7a348f0a0b84c4f5b60fe1b5030e6472d2dae74e087"
+ }
+}
