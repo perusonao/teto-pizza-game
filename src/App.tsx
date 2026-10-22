@@ -30,27 +30,37 @@ import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import { doughSizeStatus } from "./logic/doughFeedback";
 import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
 import {
-  createInitialGameState,
   gameReducer,
   type GameState,
   type MakingStep,
 } from "./state/gameReducer";
 import { remainingStock } from "./state/inventory";
+import {
+  journalToSettleOnLeave,
+  progressionSnapshotOf,
+  runAcknowledgeSettled,
+  runBake,
+  runLeaveRound,
+  runPostBakeStep,
+} from "./state/roundCommit";
+import { buildStartup } from "./state/startup";
+import type { PendingRound } from "./state/pendingRound";
+import { describeHeldRound, describeRoundSaveFailure, describeSettledRound, type RoundNoticeCopy } from "./state/roundNoticeCopy";
+import { HeldRoundNotice, RoundSaveFailureNotice, SettledRoundNotice } from "./components/RoundSaveNotices";
 import { homeDiscoveryRoute, isHintSheetVisible } from "./state/discoveryHint";
 import {
-  loadSaveForSession,
   loadMissionBest,
   persistProgress,
   persistMissionBest,
   resetSaveResult,
   getDefaultStorage,
   SAVE_STORAGE_KEY,
+  type CommitResult,
   type SaveWriteBlock,
   type ResetSaveResult,
 } from "./state/persistence";
-import { initialTechniqueLedger } from "./logic/techniques/runtime";
 import { techniqueDexViews } from "./logic/techniques/dexView";
-import { ingredientCollectionCount, newShopMaterialCount, resolveShopEntitlement } from "./state/materialEntitlement";
+import { ingredientCollectionCount, newShopMaterialCount } from "./state/materialEntitlement";
 import { inspectSaveHealth, type SaveHealth } from "./state/saveHealth";
 import { acknowledgeQuarantine, discardQuarantine } from "./state/saveQuarantine";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
@@ -177,46 +187,27 @@ type Screen = "HOME" | "PIZZA_SELECT" | "GAME" | "DINNER";
 
 const GO_HOME_CONFIRM_MESSAGE =
   "ピザ作りを中断してホームに戻りますか？作りかけのピザは失われます。";
+/** R8 (#617): leaving a baked pizza that still has CUT / FINISH to go. Its ingredients are already used, so it is registered as it is. */
+const GO_HOME_BAKED_CONFIRM_MESSAGE =
+  "ホームに戻りますか？焼き上がったピザは、いまの状態でそのまま完成として図鑑に登録されます（残りの工程は行われません）。";
+
+function newRoundId(now: number): string {
+  return `r${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
 
 function App() {
   // The round in progress never persists (ORDER/PREPARE/BAKE/RESULT always start fresh), but
   // Dex BEST/timesMade, owned ingredients, and Pitz balance do -- load them once on mount and
   // hydrate the initial state with them.
-  const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    // PR-3 (#560, N1): the startup load -- it also tells the write gate what this page loaded (see state/saveSession.ts).
-    const save = loadSaveForSession();
-    // Progression 2.0 W1 Integration I4b-3 (REC-04; replaces EP4's load-time Starter Grant
-    // catch-up, which is retired): resolve the Discovery Ladder once on load, before
-    // `createInitialGameState`. For an existing save this is the migration -- the Shop
-    // entitlement becomes the stored ledger + every finite material already OWNED (EP4-granted
-    // ones included, stock untouched) + the ladder materials reached at the Dex discovered count;
-    // anything newly entitled starts at stock 0. Nothing is granted and
-    // `starterGrantClaimedRecipeIds` is carried through unchanged (so a rollback to a pre-I4b
-    // build never re-grants a claimed recipe). A complete no-op for an up-to-date save.
-    const entitlement = resolveShopEntitlement(
-      save.dex,
-      save.ownedIngredientIds,
-      save.unlockedForShopIngredientIds,
-    );
-    return createInitialGameState(
-      save.dex,
-      save.ownedIngredientIds,
-      save.pitzBalance,
-      save.inventory,
-      save.starterGrantClaimedRecipeIds,
-      entitlement.unlockedForShopIngredientIds,
-      save.discoveryHintPurchases,
-      save.discoveryHintFacts,
-      // DM-4-3: the Dinner records, blocked (broken) missions included, so a settlement can never
-      // mistake a broken record for "no record".
-      save.dinnerMissionRecordsState,
-      // Cooking Techniques TQ-1C: the technique ledger (known ids), repaired at load so every
-      // technique a discovered recipe requires is present (INV-TQ-1). A no-op for today's saves.
-      initialTechniqueLedger(save.discoveredTechniqueIds, save.dex),
-      // Research 2.0 Phase 2: the persisted negative ledger (known recipe ids).
-      save.researchExclusions,
-    );
-  });
+  const [startup] = useState(buildStartup);
+  const [state, dispatch] = useReducer(gameReducer, startup.state);
+  // R8 (#617): the round journal's notices. `settledRound` = a round completed for the player, held until they confirm it.
+  const [settledRound, setSettledRound] = useState<PendingRound | null>(startup.settled);
+  const heldRoundReason = startup.held;
+  // R8: why the last round commit did not go through (the game did not move on); shown on GAME and HOME until dismissed or retried.
+  const [roundSaveFailure, setRoundSaveFailure] = useState<RoundNoticeCopy | null>(null);
+  // R8: the state a bake was last committed for, so a double tap on 焼き上げ commits (and dispatches) once.
+  const bakeCommittedForRef = useRef<GameState | null>(null);
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
   // the run itself lives in `state.dinner` (./state/gameReducer.ts).
   const dinnerRuntime = useDinnerRuntime(state, dispatch);
@@ -418,25 +409,14 @@ function App() {
   // src/state/persistence.ts). `missionBest` is a separate concern, saved by its own effect
   // below.
   useEffect(() => {
+    // DM-4-3: a Dinner CLEAR changes `pitzBalance` and a record in the same reducer step, so they
+    // arrive here together and are written in one save write. `requireDinnerRecords`: if a record
+    // cannot be stored (its mission became blocked in storage underneath), nothing is written --
+    // never the payout without its record.
+    // R8: the round journal rides in the same write -- the active round's, or the `settled` one awaiting confirmation; never removed
+    // from here (only a commit removes it). Lunch Rush stock not yet served is saved as it was before the bake (L-1).
     const persisted = persistProgress({
-      dex: state.dex,
-      pitzBalance: state.pitzBalance,
-      ownedIngredientIds: state.ownedIngredientIds,
-      inventory: state.inventory,
-      starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-      unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-      discoveryHintPurchases: state.discoveryHintPurchases,
-      discoveryHintFacts: state.discoveryHintFacts,
-      // Research 2.0 Phase 2: the additive negative ledger (a union on write; never lowered).
-      researchExclusions: state.researchExclusions,
-      // TQ-1C: saved in the same write as the Dex it came with (a union: never lowered, and ids a
-      // newer build wrote are kept by the write's forward-compat merge).
-      discoveredTechniqueIds: state.discoveredTechniqueIds,
-      // DM-4-3: a Dinner CLEAR changes `pitzBalance` and a record in the same reducer step, so they
-      // arrive here together and are written in one save write. `requireDinnerRecords`: if a record
-      // cannot be stored (its mission became blocked in storage underneath), nothing is written --
-      // never the payout without its record.
-      dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
+      ...progressionSnapshotOf(state, state.pendingRound ?? settledRound ?? undefined),
       requireDinnerRecords: true,
     });
     lastWriteBlockRef.current = persisted.blocked ?? null;
@@ -446,6 +426,7 @@ function App() {
     if (persisted.refusedDinnerMissionIds.length > 0) {
       dispatch({ type: "DINNER_RECORDS_REFUSED", missionIds: persisted.refusedDinnerMissionIds });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires off the saved fields only (listed below), not off every state change.
   }, [
     state.dex,
     state.pitzBalance,
@@ -458,6 +439,9 @@ function App() {
     state.researchExclusions,
     state.discoveredTechniqueIds,
     state.dinnerMissionRecordsState,
+    state.unservedConsumption,
+    state.pendingRound,
+    settledRound,
     refreshSaveHealth,
   ]);
 
@@ -659,15 +643,53 @@ function App() {
   // same flag REGISTER_TO_DEX's own Pitz-credit branch already reads) so a Mission round's
   // CONFIRM_BAKE never also fires this -- Lunch Rush keeps registering exclusively via its own
   // MISSION_NEXT_ORDER/MISSION_SERVE path, untouched by this change.
+  // R8 (#617): a round commit is the SAME write the save effect would make, done now, synchronously, and checked (read back). The
+  // game moves on only when it says `ok`; otherwise the round stays where it is and the player is told why. Returns true on `ok`.
+  function reportRoundCommit(result: CommitResult, step: "bake" | "post-bake" | "leave"): boolean {
+    lastWriteBlockRef.current = result.status === "blocked" ? result.block : null;
+    refreshSaveHealth();
+    if (result.status === "ok") {
+      setRoundSaveFailure(null);
+      return true;
+    }
+    setRoundSaveFailure(
+      describeRoundSaveFailure(
+        result.status === "blocked" ? { kind: "blocked", block: result.block } : { kind: "failed", failure: result.failure },
+        step,
+      ),
+    );
+    return false;
+  }
+
+  function handleAcknowledgeSettledRound() {
+    if (!settledRound) return;
+    // The confirmation is what removes the journal; if the save cannot take it, the notice stays (nothing is lost by waiting).
+    if (reportRoundCommit(runAcknowledgeSettled(state), "leave")) setSettledRound(null);
+  }
+
   function handleConfirmBake(value: number) {
-    dispatch({ type: "CONFIRM_BAKE", value, now: Date.now() });
+    if (bakeCommittedForRef.current === state) return;
+    // R8: the bake (and, when no CUT / FINISH follows, the registration) is saved in ONE verified write first -- consumed stock
+    // together with the journal, or with the registered pizza. Nothing is dispatched unless the save holds it (./state/roundCommit.ts).
+    // Lunch Rush (L-1: its stock stays in the save as it was until the pizza is served -- `GameState.unservedConsumption`, read by
+    // the save effect) and Dinner are not committed here.
+    const now = Date.now();
+    const step = runBake(state, value, now, newRoundId(now));
+    if (step.status === "refused") {
+      reportRoundCommit(step.commit, "bake");
+      return;
+    }
+    if (step.status === "committed") {
+      reportRoundCommit({ status: "ok" }, "bake");
+      bakeCommittedForRef.current = state;
+      // REGISTER_TO_DEX's own `state.phase !== "RESULT"` guard makes it a safe no-op the instant a CUT-enabled recipe's profile
+      // lands the round on "POST_BAKE" instead -- handleConfirmMakingStep below fires it once the last post-BAKE step confirms.
+      for (const action of step.actions) dispatch(action);
+      return;
+    }
+    dispatch({ type: "CONFIRM_BAKE", value, now });
     // Dinner Mission DM-2: a Dinner target never registers (its result goes to the Dinner run).
     if (!state.isMissionRound && !isDinnerRound(state)) {
-      // REGISTER_TO_DEX's own `state.phase !== "RESULT"` guard makes this a safe no-op the
-      // instant a CUT-enabled recipe's profile lands the round on "POST_BAKE" instead --
-      // handleConfirmMakingStep below is what actually fires it once POST_BAKE's own last step
-      // (CUT) confirms and the round *really* reaches RESULT (Pizza Cutting 1.0 Phase 2,
-      // design doc §12's "REGISTER_TO_DEX orchestration must move" finding).
       dispatch({ type: "REGISTER_TO_DEX" });
     }
   }
@@ -680,7 +702,19 @@ function App() {
   // own registration (MISSION_NEXT_ORDER) fires from MissionServePanel's own explicit "次の注文へ"
   // tap once phase is "RESULT" -- untouched by this dispatch.
   function handleConfirmMakingStep() {
-    dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() });
+    const now = Date.now();
+    // R8: a step of a baked round that has a journal changes what the save must hold -- see runPostBakeStep.
+    const step = runPostBakeStep(state, now);
+    if (step.status === "refused") {
+      reportRoundCommit(step.commit, "post-bake");
+      return;
+    }
+    if (step.status === "committed") {
+      reportRoundCommit({ status: "ok" }, "post-bake");
+      for (const action of step.actions) dispatch(action);
+      return;
+    }
+    dispatch({ type: "CONFIRM_MAKING_STEP", now });
     if (!state.isMissionRound && !isDinnerRound(state)) {
       dispatch({ type: "REGISTER_TO_DEX" });
     }
@@ -934,9 +968,11 @@ function App() {
       if (dinnerRuntime.requestLeave()) setScreen("HOME");
       return;
     }
+    // R8: a baked round with a journal is not lost on HOME -- it is completed (the same completion a restart would do).
+    const bakedJournal = mission.mode === "FREE" ? journalToSettleOnLeave(state) : null;
     if (isRoundInProgress()) {
       const confirmOpenedAt = Date.now();
-      if (!window.confirm(GO_HOME_CONFIRM_MESSAGE)) {
+      if (!window.confirm(bakedJournal ? GO_HOME_BAKED_CONFIRM_MESSAGE : GO_HOME_CONFIRM_MESSAGE)) {
         // Issue #453: the native dialog blocks without any pause signal, and POST_BAKE/CUT has no
         // pausable whole-round clock, so the dwell time is excluded from the CUT step explicitly.
         const now = Date.now();
@@ -948,6 +984,18 @@ function App() {
       // Also tidies up a lingering Mission Intro/Result overlay (no confirmation needed for
       // those -- nothing in-progress to lose there).
       exitMissionToFree();
+    } else if (bakedJournal) {
+      // One verified write: the registered progression and the `settled` journal. If the save cannot take it, the journal stays in
+      // the save as it is (it completes the next time the game opens with a working save) and the player is told.
+      const left = runLeaveRound(state);
+      if (left.status === "settled") {
+        reportRoundCommit({ status: "ok" }, "leave");
+        dispatch({ type: "ADOPT_STATE", state: left.completed.state });
+        setSettledRound(left.completed.settled);
+      } else {
+        if (left.status === "refused") reportRoundCommit(left.commit, "leave");
+        dispatch({ type: "PLAY_AGAIN" });
+      }
     } else if (state.phase === "PREPARE" || state.phase === "BAKE" || state.phase === "POST_BAKE") {
       dispatch({ type: "PLAY_AGAIN" });
     }
@@ -1206,6 +1254,15 @@ function App() {
           discoverableCount={countRecipeDiscoveryStates(RECIPES, state).DISCOVERABLE}
           saveNotice={saveHealth.notice}
           onAcknowledgeSaveNotice={handleAcknowledgeSaveNotice}
+          roundNotices={
+            <>
+              {heldRoundReason && <HeldRoundNotice copy={describeHeldRound(heldRoundReason)} />}
+              {settledRound?.settled && (
+                <SettledRoundNotice copy={describeSettledRound(settledRound.settled)} onAcknowledge={handleAcknowledgeSettledRound} />
+              )}
+              {roundSaveFailure && <RoundSaveFailureNotice copy={roundSaveFailure} onDismiss={() => setRoundSaveFailure(null)} />}
+            </>
+          }
         />
       )}
 
@@ -1291,6 +1348,7 @@ function App() {
           onTapPizza={handleTapPizza}
           onBakeTick={handleBakeTick}
           onConfirmBake={handleConfirmBake}
+          roundNotices={roundSaveFailure && <RoundSaveFailureNotice copy={roundSaveFailure} />}
           onRetrySameRecipe={handleRetrySameRecipe}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={openShop}

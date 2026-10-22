@@ -14,6 +14,15 @@ import {
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
 import { SAVE_ID_PATTERN } from "./saveIdGrammar";
+import {
+  PENDING_ROUND_KEY,
+  PENDING_ROUND_MAX_BYTES,
+  canonicalJson,
+  pendingRoundByteLength,
+  readStoredPendingRound,
+  type PendingRound,
+  type StoredPendingRound,
+} from "./pendingRound";
 import { classifyStoredSave } from "./saveRootClassification";
 import { quarantineRaw } from "./saveQuarantine";
 import { beginSaveSession, checkSaveSession, noteSaveReset, noteSaveWritten } from "./saveSession";
@@ -812,8 +821,8 @@ function guardStoredRoot(storage: StorageLike): WriteGuard {
 function writeSave(
   storage: StorageLike,
   next: PersistentSaveV2,
-  options: { requireDinnerRecords?: boolean } = {},
-): { refusedDinnerMissionIds: string[]; blocked?: SaveWriteBlock } {
+  options: { requireDinnerRecords?: boolean; pendingRound?: PendingRound | null; verify?: boolean } = {},
+): { refusedDinnerMissionIds: string[]; blocked?: SaveWriteBlock; journalOccupied?: boolean; verifyFailure?: "dropped" | "mismatch" } {
   // Save Compatibility Phase B PR-1 (#560): every write in this module passes this gate FIRST. A stored save this build
   // cannot interpret is never replaced: a newer build's save is left untouched, a damaged one is copied into the
   // quarantine (and the copy verified) before the replacement is written.
@@ -847,11 +856,35 @@ function writeSave(
   };
   const withDinner = <T extends object>(value: T) =>
     withLedger(dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value });
-  if (!extras) {
-    const serialized = JSON.stringify(withDinner(nextFields));
+  // R8 (#617): the `pendingRound` journal. `undefined` leaves whatever storage holds (it rides through `extras.topLevel` like any
+  // key this build does not own); an object replaces it; `null` removes it. A held journal (one this build cannot act on) and a
+  // journal of another round are never replaced or removed -- the caller is told, and nothing is written.
+  const storedJournal = readStoredPendingRound(extras?.topLevel[PENDING_ROUND_KEY]);
+  if (options.pendingRound !== undefined && !journalMayChange(storedJournal, options.pendingRound)) {
+    return { refusedDinnerMissionIds: [], journalOccupied: true };
+  }
+  const withJournal = <T extends object>(value: T): object => {
+    if (options.pendingRound === undefined) return value;
+    if (options.pendingRound === null) {
+      const { [PENDING_ROUND_KEY]: _removed, ...rest } = value as Record<string, unknown>;
+      return rest;
+    }
+    return { ...value, [PENDING_ROUND_KEY]: options.pendingRound };
+  };
+  const finishWrite = (serialized: string) => {
     storage.setItem(SAVE_STORAGE_KEY, serialized);
+    if (options.verify) {
+      // Read-back: a storage that accepts `setItem` and then does not hold the text is a failed save, not a successful one.
+      const back = storage.getItem(SAVE_STORAGE_KEY);
+      if (back !== serialized) {
+        return { refusedDinnerMissionIds: [], verifyFailure: back === guard.raw ? ("dropped" as const) : ("mismatch" as const) };
+      }
+    }
     noteSaveWritten(storage, serialized);
     return { refusedDinnerMissionIds: [] };
+  };
+  if (!extras) {
+    return finishWrite(JSON.stringify(withJournal(withDinner(nextFields))));
   }
   const nextDexIds = new Set(next.dex.map((e) => e.recipeId));
   const appendNew = (base: readonly string[], more: readonly string[]) => [
@@ -879,10 +912,14 @@ function writeSave(
       MAX_TECHNIQUE_LEDGER_SIZE,
     ),
   };
-  const serialized = JSON.stringify(withDinner(merged));
-  storage.setItem(SAVE_STORAGE_KEY, serialized);
-  noteSaveWritten(storage, serialized);
-  return { refusedDinnerMissionIds: [] };
+  return finishWrite(JSON.stringify(withJournal(withDinner(merged))));
+}
+
+/** R8: may the journal slot change from `stored` to `next`? A new/updated journal needs an empty slot or its own round; removal needs a readable round. */
+function journalMayChange(stored: StoredPendingRound, next: PendingRound | null): boolean {
+  if (stored.kind === "held") return false;
+  if (next === null) return true;
+  return stored.kind === "none" || stored.round.id === next.id;
 }
 
 /**
@@ -986,6 +1023,24 @@ export function loadSaveForSession(storage: StorageLike | null = getDefaultStora
   }
   beginSaveSession(storage, { ok: true, raw });
   return parseStoredSave(raw);
+}
+
+/** R8: `loadSaveForSession` plus the journal found in the same stored text (one read, so the save and the journal always agree). */
+export function loadStartupSave(
+  storage: StorageLike | null = getDefaultStorage(),
+): { save: PersistentSaveV2; pendingRound: StoredPendingRound } {
+  if (!storage) return { save: createDefaultSave(), pendingRound: { kind: "none" } };
+  let raw: string | null;
+  try {
+    raw = storage.getItem(SAVE_STORAGE_KEY);
+  } catch {
+    beginSaveSession(storage, { ok: false });
+    return { save: createDefaultSave(), pendingRound: { kind: "none" } };
+  }
+  beginSaveSession(storage, { ok: true, raw });
+  // Only a save this build reads as its own can carry a journal it may act on (a newer build's or a damaged save yields the default
+  // state here, and a journal must never be settled onto that).
+  return { save: parseStoredSave(raw), pendingRound: classifyStoredSave(raw).kind === "readable" ? readJournalFromRaw(raw) : { kind: "none" } };
 }
 
 function dexEntriesEqual(a: DexEntry, b: DexEntry): boolean {
@@ -1105,6 +1160,10 @@ export interface ProgressionSnapshot {
    *  -- not the Pitz either -- so a payout can never be saved without the record that proves it.
    *  The runtime passes true; the default (false) keeps DM-4-2's per-field behavior. */
   requireDinnerRecords?: boolean;
+  /** R8 (#617): the `pendingRound` journal. `undefined` leaves the stored journal as it is (the default for every caller that
+   *  does not own one); a journal is written together with the rest of this snapshot in the same `setItem`; `null` removes it.
+   *  A stored journal this build cannot act on (held) or that belongs to another round is never replaced or removed. */
+  pendingRound?: PendingRound | null;
 }
 
 /** What `persistProgress` reports back (DM-4-2). Every other outcome stays silent as before
@@ -1115,6 +1174,8 @@ export interface PersistProgressResult {
   refusedDinnerMissionIds: string[];
   /** Present when nothing was written because the stored save is protected (#560, `SaveWriteBlock`). Absent otherwise. */
   blocked?: SaveWriteBlock;
+  /** R8: the journal slot is held by another round or by a journal this build cannot act on, so nothing was written. */
+  journalOccupied?: boolean;
 }
 
 /** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
@@ -1158,10 +1219,64 @@ export function persistProgress(
   snapshot: ProgressionSnapshot,
   storage: StorageLike | null = getDefaultStorage(),
 ): PersistProgressResult {
+  const result = persistProgressImpl(snapshot, storage, false);
+  return {
+    refusedDinnerMissionIds: result.refusedDinnerMissionIds,
+    ...(result.blocked ? { blocked: result.blocked } : {}),
+    ...(result.journalOccupied ? { journalOccupied: true } : {}),
+  };
+}
+
+/** Why a synchronous round commit did not happen (R8, #617). `blocked` = the save is protected (PR-1/2/3); the others failed. */
+export type CommitFailure = "quota" | "unavailable" | "dropped" | "mismatch" | "oversize" | "occupied";
+
+export type CommitResult =
+  | { status: "ok" }
+  | { status: "blocked"; block: SaveWriteBlock }
+  | { status: "failed"; failure: CommitFailure };
+
+function failureOfStorageError(error: unknown): CommitFailure {
+  const e = error as { name?: unknown; code?: unknown } | null;
+  if (e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED" || e.code === 22 || e.code === 1014)) return "quota";
+  return "unavailable";
+}
+
+/**
+ * R8 (#617): the synchronous, verified counterpart of `persistProgress`, for the moments where the game must not move on
+ * unless the save really holds the new state (CONFIRM_BAKE with a journal, the registration that ends it). Same merge and
+ * the same write gate (PR-1/2/3) as `persistProgress`, in one `setItem`, but it reports instead of swallowing:
+ *   - `blocked`: the save is protected, nothing was written;
+ *   - `failed`: `quota` / `unavailable` (the storage threw or is gone), `dropped` (accepted, read back unchanged),
+ *     `mismatch` (accepted, read back as something else), `oversize` (the journal is above the hard cap, nothing was
+ *     written), `occupied` (the journal slot is not free for this round).
+ * A snapshot identical to what is stored is `ok` (the save already holds that state).
+ */
+export function commitProgress(
+  snapshot: ProgressionSnapshot,
+  storage: StorageLike | null = getDefaultStorage(),
+): CommitResult {
+  if (!storage) return { status: "failed", failure: "unavailable" };
+  if (snapshot.pendingRound && pendingRoundByteLength(snapshot.pendingRound) > PENDING_ROUND_MAX_BYTES) {
+    return { status: "failed", failure: "oversize" };
+  }
+  const result = persistProgressImpl({ ...snapshot, requireDinnerRecords: false }, storage, true);
+  if (result.blocked) return { status: "blocked", block: result.blocked };
+  if (result.failure) return { status: "failed", failure: result.failure };
+  if (result.journalOccupied) return { status: "failed", failure: "occupied" };
+  return { status: "ok" };
+}
+
+function persistProgressImpl(
+  snapshot: ProgressionSnapshot,
+  storage: StorageLike | null,
+  strict: boolean,
+): PersistProgressResult & { failure?: CommitFailure } {
   // DM-4-2: Dinner record updates this call refused (blocked mission, broken container, invalid
   // record). Reported so DM-4-3 can assert it never paid for a record that could not be stored.
   let refusedDinnerMissionIds: string[] = [];
   let blocked: SaveWriteBlock | undefined;
+  let journalOccupied = false;
+  let failure: CommitFailure | undefined;
   if (!storage) return { refusedDinnerMissionIds };
   try {
     const current = loadSave(storage);
@@ -1224,6 +1339,7 @@ export function persistProgress(
         ? current.researchExclusions
         : unionResearchExclusions(current.researchExclusions, sanitizeResearchExclusions(snapshot.researchExclusions, isKnownRecipeId));
     const exclusionsUnchanged = sameResearchExclusions(nextResearchExclusions, current.researchExclusions);
+    const journalUnchanged = pendingRoundUnchanged(snapshot.pendingRound, storage);
     if (
       dexUnchanged &&
       pitzUnchanged &&
@@ -1235,7 +1351,8 @@ export function persistProgress(
       factsUnchanged &&
       techniquesUnchanged &&
       dinnerUnchanged &&
-      exclusionsUnchanged
+      exclusionsUnchanged &&
+      journalUnchanged
     ) {
       return { refusedDinnerMissionIds };
     }
@@ -1254,15 +1371,56 @@ export function persistProgress(
       dinnerMissionRecordsState: dinnerMerge.state,
       researchExclusions: nextResearchExclusions,
     };
-    const written = writeSave(storage, next, { requireDinnerRecords: snapshot.requireDinnerRecords });
+    const written = writeSave(storage, next, {
+      requireDinnerRecords: snapshot.requireDinnerRecords,
+      pendingRound: snapshot.pendingRound,
+      verify: strict,
+    });
     if (written.refusedDinnerMissionIds.length > 0) {
       refusedDinnerMissionIds = [...new Set([...refusedDinnerMissionIds, ...written.refusedDinnerMissionIds])];
     }
     blocked = written.blocked;
-  } catch {
-    // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
+    journalOccupied = written.journalOccupied === true;
+    failure = written.verifyFailure;
+  } catch (error) {
+    // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected. (A strict commit reports it.)
+    if (strict) failure = failureOfStorageError(error);
   }
-  return blocked ? { refusedDinnerMissionIds, blocked } : { refusedDinnerMissionIds };
+  return {
+    refusedDinnerMissionIds,
+    ...(blocked ? { blocked } : {}),
+    ...(journalOccupied ? { journalOccupied: true } : {}),
+    ...(failure ? { failure } : {}),
+  };
+}
+
+/** R8: does storage already hold `wanted` in the journal slot? (`undefined` = the caller does not touch it.) */
+function pendingRoundUnchanged(wanted: PendingRound | null | undefined, storage: StorageLike): boolean {
+  if (wanted === undefined) return true;
+  const stored = readStoredJournal(storage);
+  if (wanted === null) return stored.kind === "none";
+  return stored.kind === "round" && canonicalJson(stored.round) === canonicalJson(wanted);
+}
+
+/** R8: the journal currently in storage, read fresh. Never throws; unreadable storage reads as no journal. */
+export function readStoredJournal(storage: StorageLike | null = getDefaultStorage()): StoredPendingRound {
+  if (!storage) return { kind: "none" };
+  try {
+    return readJournalFromRaw(storage.getItem(SAVE_STORAGE_KEY));
+  } catch {
+    return { kind: "none" };
+  }
+}
+
+function readJournalFromRaw(raw: string | null): StoredPendingRound {
+  if (raw === null) return { kind: "none" };
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return { kind: "none" };
+    return readStoredPendingRound((parsed as Record<string, unknown>)[PENDING_ROUND_KEY]);
+  } catch {
+    return { kind: "none" };
+  }
 }
 
 /** The Dinner records state after applying a snapshot's record updates -- `state` itself (same

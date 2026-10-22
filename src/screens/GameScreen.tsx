@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject, type ReactNode } from "react";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
@@ -191,6 +191,8 @@ interface GameScreenProps {
   onTapPizza: (x: number, y: number) => void;
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void;
+  /** R8 (#617): why the last bake / post-BAKE step was not saved (the round did not move on). Optional. */
+  roundNotices?: ReactNode;
   /** Issue #47 Finding D: DISCOVERED's "もう一度つくる" -- retries the exact same recipe
    *  (RETRY_SAME_RECIPE), replacing the old single "もう一度作る" button that always started a
    *  *different* recipe. */
@@ -295,6 +297,7 @@ export function GameScreen({
   onTapPizza,
   onBakeTick,
   onConfirmBake,
+  roundNotices = null,
   onRetrySameRecipe,
   onBackToPizzaSelect,
   onOpenShop,
@@ -656,6 +659,8 @@ export function GameScreen({
           </span>
         </div>
       </header>
+
+      {roundNotices}
 
       {/* DM-3R-2: outside the cooking layout (the per-pizza result) the Dinner HUD is its own row;
           during PREPARE / BAKE / CUT it is folded into the target row below the tabs, so the tabs
