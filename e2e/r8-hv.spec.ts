@@ -71,14 +71,24 @@ test("R8 HV story", async ({ page }) => {
   await landNeedleAndTakeOut(page, { start: 60, end: 80 });
   const alert = page.locator('[data-round-notice="save-failure"]');
   await expect(alert).toBeVisible();
+  // keep the needle where it is while the failure is on screen (it only moves one way), so the retried take-out is still a good bake
+  for (const buffer of [300, 1000, 3000, 8000]) {
+    try {
+      await page.clock.pauseAt(Date.now() + buffer);
+      break;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
   await hold(page, 3500);
 
-  // (2) space is freed: the bake goes through (the needle kept running; a bad take-out would end in the failed result, so re-bake aim is not needed
-  // for the story -- the next take-out lands wherever it is). Free the space and take out again.
+  // (2) space is freed: the same take-out now goes through
   await page.evaluate(() => { (window as any).__failSave = false; });
   await page.getByRole("button", { name: "取り出す！" }).click();
+  await page.clock.resume();
   await hold(page, 1500);
-  if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
+  await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+  {
     await cutThreeLines(page);
     await hold(page, 2500);
     // (3) reload in the middle of CUT
