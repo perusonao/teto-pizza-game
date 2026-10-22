@@ -15,7 +15,9 @@ interface BakeOverlayProps {
   /** Issue #481 / #520: draw the darker JUST band (window centre +-3pt) of the window passed in. Every round kind
    *  (Guided / Lunch Rush / Dinner / FREE Cooking, whose window is the generic 58-78). Default off. */
   showJustBand?: boolean;
-  onConfirm: (value: number) => void;
+  /** Returns `false` when the take-out was refused (R8: the save could not take it). The needle then holds where it was taken out, so a retry
+   *  submits the same value instead of a later, possibly burnt one. Any other return value (including none) is an accepted take-out. */
+  onConfirm: (value: number) => void | boolean;
   onTick?: (value: number) => void;
 }
 
@@ -44,6 +46,8 @@ export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onCo
   const [elapsed, setElapsed] = useState(0);
   const elapsedRef = useRef(0);
   const positionRef = useRef(0);
+  // R8: set when a take-out was refused; the needle stays where the player took it out until the take-out is accepted.
+  const heldRef = useRef(false);
   const onTickRef = useRef(onTick);
   useEffect(() => {
     onTickRef.current = onTick;
@@ -80,7 +84,7 @@ export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onCo
     function tick(now: number) {
       const dt = now - last;
       last = now;
-      if (!paused) {
+      if (!paused && !heldRef.current) {
         elapsedRef.current = Math.min(BAKE_DURATION_S, elapsedRef.current + clampBakeFrameDt(dt / 1000));
         positionRef.current = bakePositionAt(elapsedRef.current);
         setElapsed(elapsedRef.current);
@@ -147,7 +151,9 @@ export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onCo
         <button
           type="button"
           className="cta-button cta-button--bake"
-          onClick={() => onConfirm(positionRef.current)}
+          onClick={() => {
+            if (onConfirm(positionRef.current) === false) heldRef.current = true;
+          }}
         >
           取り出す！
         </button>
