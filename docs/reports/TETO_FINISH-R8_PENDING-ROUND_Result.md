@@ -45,6 +45,12 @@
 5. 書込は成功したが読み戻しが例外になる極稀なケースは失敗扱いになり、同一ページでの再試行は `stale-save` で止まる（再読み込みで journal が完了し、整合は保たれる）。未対応の既知の制限。
 6. localStorage に CAS はないため、読み取り→書込の間の他タブ書込は PR-3 と同じ限界（次の書込で検出）。
 
+### Owner 条件付き承認（2026-10-22）への対応
+1. **Guided FINISH 中断**: 焼成時点の評価で登録し、通知に「仕上げ前に中断したため仕上げなしで登録（未完成のピザ）」を表示（journal `finishPending`／要約 `unfinishedFinish`）。FINISH 確定後は付かない。**必須 FINISH のレシピ追加時（E4/E5）に再検証する**（本項を Issue #617 と FIN-E5 の前提に残す）。
+2. **journal は暫定1枠**。`settled` は HOME の「確認した」で削除できる（E2E で確認）。
+3. **読み戻し例外**: 既知の制限として §3-5 に記録。再読み込みで復旧するテスト（`pendingRound.journal.test.ts`「a write that lands but cannot be read back」）が PASS。
+4. **解決不能 journal**: 自動削除しない。通知に原因別の「復旧:」手順と、遊べる範囲（CUT など仕上げ工程付き以外は従来どおり）を明示（E2E・`roundNoticeCopy.test.ts`）。
+
 ## 4. 検証
 
 - 既存の「App.tsx のソース文字列を検査する」配線／アーキテクチャテスト5件の許可リストを更新（スナップショット構築が `roundCommit.ts`、起動時の構築が `startup.ts` に移ったため）。意図（書き手が限定されること）は維持。

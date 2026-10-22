@@ -28,6 +28,9 @@ export function describeSettledRound(summary: PendingRoundSummary): RoundNoticeC
   } else {
     lines.push("どのレシピにも当てはまらず、登録はありませんでした。");
   }
+  if (summary.unfinishedFinish) {
+    lines.push("仕上げの工程が終わる前に中断したため、仕上げなしの状態で登録しました（未完成のピザです）。");
+  }
   if (summary.newMaterialIds.length > 0) {
     lines.push(`新しい材料：${summary.newMaterialIds.map((id) => getIngredient(id)?.nameJa ?? id).join("・")}`);
   }
@@ -40,12 +43,21 @@ export function describeSettledRound(summary: PendingRoundSummary): RoundNoticeC
 export function describeHeldRound(reason: HeldPendingRoundReason): RoundNoticeCopy {
   const title = "完了していない調理の記録があります";
   const body: Record<HeldPendingRoundReason, string> = {
-    "unknown-version": "新しいバージョンのゲームが書いた記録です。データはそのまま残してあります。最新版で開くと完了します。",
-    unresolvable: "この版にはない材料やレシピを使った記録です。データはそのまま残してあります。対応する版で開くと完了します。",
+    "unknown-version": "新しいバージョンのゲームが書いた記録です。データはそのまま残してあります。",
+    unresolvable: "この版にはない材料やレシピを使った記録です。データはそのまま残してあります。",
     corrupt: "記録を読み取れませんでした。データは消さずにそのまま残してあります。",
     oversize: "記録が大きすぎて処理できません。データは消さずにそのまま残してあります。",
   };
-  return { title, lines: [body[reason], "この記録が残っている間は、仕上げ工程のあるピザは焼けません。"] };
+  const recovery: Record<HeldPendingRoundReason, string> = {
+    "unknown-version": "復旧: このデータを書いた新しい版（ブックマークや更新後のURL）でゲームを開くと、自動で完了します。",
+    unresolvable: "復旧: 対応する版（この記録を作ったときと同じ版）でゲームを開くと、自動で完了します。",
+    corrupt: "復旧: 自動では直せません。ほかの遊びには影響しません。データを消す前に開発者へご連絡ください（設定のリセットは進行がすべて消えます）。",
+    oversize: "復旧: 自動では直せません。ほかの遊びには影響しません。データを消す前に開発者へご連絡ください（設定のリセットは進行がすべて消えます）。",
+  };
+  return {
+    title,
+    lines: [body[reason], recovery[reason], "この記録が残っている間は、仕上げ工程のあるピザ（CUTなど）は焼けません。それ以外のピザは今までどおり遊べます。"],
+  };
 }
 
 const BLOCK_REASON: Record<SaveWriteBlock, string> = {

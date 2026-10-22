@@ -234,3 +234,46 @@ describe("Guided FINISH -> CUT: the journal follows the round", () => {
 
   const walk = (state: GameState): GameState => walkPostBakeToResult(state, 50_000);
 });
+
+describe("Guided FINISH interrupted: the notice says the pizza is unfinished (Owner condition 1)", () => {
+  function bakeAtFinish() {
+    gate.open = true;
+    const storage = memoryStorage();
+    const tab = new Tab(storage);
+    const round = guidedFinish(true);
+    tab.setRound(round);
+    tab.bake(bakeValueFor("guided", round, "good"), 30_000, "round-uf");
+    return { storage, tab };
+  }
+  const copyOf = (storage: ReturnType<typeof memoryStorage>) => memoryStorage({ [SAVE_STORAGE_KEY]: storage.getItem(SAVE_STORAGE_KEY) ?? "" });
+
+  it("a reload (and HOME) before FINISH is confirmed registers the pizza as baked and flags it unfinished", () => {
+    const { storage, tab } = bakeAtFinish();
+    expect(tab.stored().pendingRound).toMatchObject({ finishPending: true });
+    const reloaded = new Tab(copyOf(storage));
+    expect(reloaded.settled?.settled?.outcome).toBe("REGISTERED");
+    expect(reloaded.settled?.settled?.unfinishedFinish).toBe(true);
+    expect(tab.goHome().status).toBe("settled");
+    expect(tab.settled?.settled?.unfinishedFinish).toBe(true);
+  });
+
+  it("once FINISH is confirmed (CUT remains) the flag is gone: that pizza is finished", () => {
+    const { storage, tab } = bakeAtFinish();
+    tab.postBakeStep(40_000);
+    expect(tab.state.makingStep).toBe("CUT");
+    expect(tab.stored().pendingRound).not.toHaveProperty("finishPending");
+    const reloaded = new Tab(copyOf(storage));
+    expect(reloaded.settled?.settled?.outcome).toBe("REGISTERED");
+    expect(reloaded.settled?.settled?.unfinishedFinish).toBeUndefined();
+  });
+
+  it("a round with no FINISH step is never flagged", () => {
+    gate.open = true;
+    const storage = memoryStorage();
+    const tab = new Tab(storage);
+    const round = atBake("guided", CUT_A.id);
+    tab.setRound(round);
+    tab.bake(bakeValueFor("guided", round, "good"), 30_000, "round-nf");
+    expect(new Tab(copyOf(storage)).settled?.settled?.unfinishedFinish).toBeUndefined();
+  });
+});

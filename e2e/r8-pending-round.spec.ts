@@ -263,3 +263,19 @@ test("a save that cannot take the bake stops the round at BAKE, says why, and a 
   expect(saved?.inventory).toBeDefined();
   expect(saved?.pendingRound === undefined || saved?.pendingRound?.status === "pending").toBe(true);
 });
+
+test("a journal this build cannot act on is kept untouched and the notice explains how to recover", async ({ page }, info) => {
+  const future = { v: 2, id: "from-a-newer-build", status: "pending", anything: { new: "shape" } };
+  await seed(page, { ...guidedSave(), pendingRound: future });
+  await page.goto("/");
+  await page.waitForSelector(".app-frame");
+  const held = page.locator('[data-round-notice="held"]');
+  await expect(held).toBeVisible();
+  await expect(held).toContainText("復旧:");
+  await expect(held).toContainText("今までどおり遊べます");
+  expect((await readSave(page))?.pendingRound).toEqual(future);
+  await shot(page, "r8-08-held-journal-notice", info.project.name);
+  // playing on does not touch it
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  expect((await readSave(page))?.pendingRound).toEqual(future);
+});

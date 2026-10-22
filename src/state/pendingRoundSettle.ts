@@ -94,6 +94,7 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
 
   const registered = gameReducer(scored, { type: "REGISTER_TO_DEX" });
   const summary = summarize(base, finalized.kind === "UNMATCHED_FREE_COOK", registered);
+  if (round.finishPending && !round.finished) summary.unfinishedFinish = true;
   // The inventory is kept again on the way out; `PLAY_AGAIN` carries the progression into a fresh round.
   const next = gameReducer({ ...registered, inventory: base.inventory }, { type: "PLAY_AGAIN" });
   return { state: next, settled: settledPendingRound(round, summary) };

@@ -425,3 +425,40 @@ describe("a leave the save cannot take keeps the player in the round", () => {
     expect(new Tab(storage.view()).state.dex.find((e) => e.recipeId === "fugazza")?.timesMade).toBe(1);
   });
 });
+
+describe("a write that lands but cannot be read back (known limit): a reload recovers", () => {
+  it("the bake is reported as failed and the page stays at BAKE; a retry on the same page is refused (stale-save); a reload completes the round exactly once", () => {
+    const storage = seeded();
+    const tab = bakingTab(storage);
+    const realGet = storage.getItem.bind(storage);
+    let armed = false;
+    // the first read AFTER the write throws (the read-back); every other read works
+    const original = storage.setItem.bind(storage);
+    storage.setItem = (key, value) => {
+      original(key, value);
+      armed = true;
+    };
+    storage.getItem = (key) => {
+      if (armed) {
+        armed = false;
+        throw new Error("read-back failed");
+      }
+      return realGet(key);
+    };
+    const step = tab.bake();
+    expect(step.status).toBe("refused");
+    expect(tab.state.phase).toBe("BAKE");
+    storage.getItem = realGet;
+    // the write did land: storage holds the consumed stock and the journal
+    expect(JSON.parse(storage.getItem(SAVE_STORAGE_KEY)!).pendingRound).toMatchObject({ status: "pending" });
+    // (App gives every attempt a new round id, so the retry's journal differs from the one that landed)
+    expect(tab.bake(70, 1_000, "round-2")).toEqual({ status: "refused", commit: { status: "blocked", block: "stale-save" } });
+
+    const reloaded = new Tab(storage.view());
+    expect(reloaded.state.inventory.onion).toBe(15);
+    expect(reloaded.state.dex.find((e) => e.recipeId === "fugazza")?.timesMade).toBe(1);
+    expect(reloaded.settled?.settled?.outcome).toBe("REGISTERED");
+    const again = new Tab(storage.view());
+    expect(again.state.dex.find((e) => e.recipeId === "fugazza")?.timesMade).toBe(1);
+  });
+});

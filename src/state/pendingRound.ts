@@ -46,6 +46,9 @@ export interface PendingRoundSummary {
   newBest: boolean;
   newMaterialIds: string[];
   newTechniqueIds: string[];
+  /** The round was completed before its FINISH step was confirmed (Guided, recipe with FINISH): registered as baked, without the
+   *  finishing touches. The notice says so (Owner condition 1). */
+  unfinishedFinish?: true;
 }
 
 export interface PendingRound {
@@ -60,6 +63,8 @@ export interface PendingRound {
    *  with the FINAL evaluation. Absent = the pizza is as it was baked, so a Guided round is completed with the evaluation the bake
    *  itself produced (the late requirement left out of the gate), exactly what a skipped FINISH would have registered. */
   finished?: true;
+  /** A Guided round whose profile has a FINISH step that was not confirmed yet (cleared by `finished`). */
+  finishPending?: true;
   pizza: PendingRoundPizza;
   research?: { targetId: string | null; validAtStart: boolean };
   settled?: PendingRoundSummary;
@@ -80,6 +85,8 @@ export interface JournalSource {
   pizza: PizzaState;
   researchTargetId: string | null;
   researchTargetValidAtStart: boolean;
+  /** Optional so a caller without a profile (tests) builds the same journal as before. */
+  cookingProfile?: { steps: readonly string[] };
 }
 
 /** JSON with object keys in sorted order: two journals are the same journal whatever order their keys were built in. */
@@ -134,6 +141,7 @@ export function buildPendingRound(source: JournalSource, roundId: string, bakeVa
     ...(freeCook ? {} : { recipeId: source.recipe.id }),
     bakeValue,
     createdAt,
+    ...(!freeCook && source.cookingProfile?.steps.includes("FINISH") ? { finishPending: true as const } : {}),
     pizza: journalPizza(source.pizza),
     ...(freeCook ? { research: { targetId: source.researchTargetId, validAtStart: source.researchTargetValidAtStart } } : {}),
   };
@@ -141,7 +149,7 @@ export function buildPendingRound(source: JournalSource, roundId: string, bakeVa
 
 /** The same round with a new pizza (FINISH confirmed while CUT still follows: the finished pizza is what must be registered). */
 export function withJournalPizza(round: PendingRound, pizza: PizzaState): PendingRound {
-  const { research, settled, ...rest } = round;
+  const { research, settled, finishPending: _pending, ...rest } = round;
   return { ...rest, finished: true, pizza: journalPizza(pizza), ...(research ? { research } : {}), ...(settled ? { settled } : {}) };
 }
 
@@ -255,6 +263,7 @@ function readSummary(raw: unknown): PendingRoundSummary | null {
   const newMaterialIds = ids(raw.newMaterialIds);
   const newTechniqueIds = ids(raw.newTechniqueIds);
   if (!newMaterialIds || !newTechniqueIds) return null;
+  if (raw.unfinishedFinish !== undefined && raw.unfinishedFinish !== true) return null;
   return {
     outcome: raw.outcome as PendingRoundSummary["outcome"],
     recipeId: raw.recipeId as string | null,
@@ -264,6 +273,7 @@ function readSummary(raw: unknown): PendingRoundSummary | null {
     newBest: raw.newBest,
     newMaterialIds,
     newTechniqueIds,
+    ...(raw.unfinishedFinish === true ? { unfinishedFinish: true as const } : {}),
   };
 }
 
@@ -294,6 +304,7 @@ export function readStoredPendingRound(raw: unknown): StoredPendingRound {
     recipeId = raw.recipeId;
   }
   if (raw.finished !== undefined && raw.finished !== true) return { kind: "held", reason: "corrupt" };
+  if (raw.finishPending !== undefined && raw.finishPending !== true) return { kind: "held", reason: "corrupt" };
   let research: PendingRound["research"];
   if (raw.research !== undefined) {
     const r = raw.research;
@@ -317,6 +328,7 @@ export function readStoredPendingRound(raw: unknown): StoredPendingRound {
       bakeValue: raw.bakeValue,
       createdAt: raw.createdAt,
       ...(raw.finished === true ? { finished: true as const } : {}),
+      ...(raw.finishPending === true ? { finishPending: true as const } : {}),
       pizza: pizza.pizza,
       ...(research ? { research } : {}),
       ...(settled ? { settled } : {}),
