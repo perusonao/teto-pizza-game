@@ -5,7 +5,7 @@
 Issue は新規作成していない（§9）。HV 動画は audit-only のため対象外（`PROJECT_HANDOFF.md` の「Audit-only tasks are exempt」）。
 この文書の「推奨」は助言であり Owner Decision ではない。未決は §10 に列挙し、推測で確定していない。
 
-> **更新 2026-10-22（Owner 決定の反映）:** §12 を追加した。**§0・§5・§7・§8・§10 のうち §12 と食い違う記述は §12 が優先する**（初版の推奨のうち、最初のレシピを BBQ とする部分、late step 番号の扱い、Phase 1 の範囲は Owner 決定で置き換わった）。初版の本文は経緯として残す。
+> **更新 2026-10-22（Owner 決定の反映、2 回）:** §12（第 1 回）と §13（第 2 回: Q-1〜Q-8 の回答）を追加した。**§0・§5・§7・§8・§10 のうち §12 / §13 と食い違う記述は §12 → §13 の順に優先する**（§13 が最新）（初版の推奨のうち、最初のレシピを BBQ とする部分、late step 番号の扱い、Phase 1 の範囲は Owner 決定で置き換わった）。初版の本文は経緯として残す。
 
 ## 0. 要約（先に結論）
 
@@ -369,3 +369,145 @@ HV: E4b-ikura は本番で可視変化なし（OFF）。POLICY の HV（390×844
 ### 12.9 確認範囲（追加分）
 
 読んだもの: #615 のコメント・チェック（head `a122774`）と `lateCatalog.ts` / Result の §2・§5b（`origin/claude/late-catalog-foundation-1jvnee`）、`discoveryLadder`（logic / data）、#587 の本文と報告書、#584 の本文・コメント、Batch 8 Owner Decisions、172 マトリクスの ikura 行、#423。読んでいない・できなかったもの: pizzadb.jp、`persistence.ts` の素材既得の保存経路の全体（`resolveMaterialUnlocks` のコメントとコードで「再ロックしない」ことのみ確認）、#611 のコメント以外の更新（本文は 2026-10-21 時点）、Owner Gate の実行。
+
+## 13. Owner 判断の反映・第 2 回（2026-10-22）
+
+基準 `main` `d70bd20`。docs-only。#615・#584 のコード、共有 Preview、本番 FINISH は変更していない。新規 PR・merge なし。以下の「修正候補」は**提案であり、他の Issue / PR / 文書は編集していない**。
+
+### 13.1 Owner 判断欄（§12.8 Q-1〜Q-8 の確定）
+
+| # | 確定した判断 | 設計への反映 |
+|---|---|---|
+| Q-1 | サーモン・クリームチーズは**焼成前を暫定採用**。**原典確定とは扱わない** | データ・Result・コード注釈・PR 本文で「暫定（ゲーム化の既定）」と明記し、「原典で確定」と書かない。後乗せ（roe・shiso）だけが個別ページの引用に基づく |
+| Q-2 | イクラは **Batch 8 の T4・星ゲートなし・credited を維持**。技法名・Dex 文言は **Style Lock との照合後に確定** | 価格・星・credit は OD-B8-1 のまま（再議論しない）。技法名・Dex 文言は未確定で、照合結果を §13.4 に整理（AC-10 は「文言確定まで merge 保留」のまま） |
+| Q-3 | #584 は **E4b-ikura merge 後にクローズ判断** | E4b-ikura の merge 前に #584 はクローズしない。併存不可（同一 recipe id）の制約は維持 |
+| Q-4 | #587 は **#614 との証跡整合性を確認してから判断**。**#614 の Owner 確認を優先** | §13.2 に確認結果。#587 は現状のまま merge 判断に進めない（要修正点あり） |
+| Q-5 | 後乗せピースのリング上限は**実測で判断** | AC-5b を「実測し、結果で Owner が判断」に強化（事前に仕様化しない） |
+| Q-6 | 通常 ladder 追加に伴う**未到達 step の必要発見数 +1 は許容**。**既到達・既解禁状態は後退させない** | AC-3 に「後退させない」の検査を明示（§13.3） |
+| Q-7 | #615 は **#619 取り込み後の新 HEAD** で Final Gate を確認 | 新 HEAD `224a190`（#619 を取り込む merge commit）。確認状況は §13.6 |
+| Q-8 | 実機動画は E4b では必須でなく、**E5 有効化前に必須** | AC-8 は測定とスクリーンショットのみ。E5 の前提条件に動画を明記 |
+
+### 13.2 #587 と #614 の証跡整合性
+
+| 観点 | #614（main、172 マトリクスの訂正） | #587（open、`TETO_PIZZADB_172_MASTER-EVIDENCE.json` ほか） | 整合 |
+|---|---|---|---|
+| いくら・大葉 | 焼成後（`source_profile_text`） | 引用「いくらと大葉は焼成後に載せ」、`post_bake` | **一致** |
+| サーモン | 「十分に加熱」＝後乗せではない | 「載せて焼く／別に加熱する」の**両方式**、単一の時機ではない | **結論（後乗せでない）は一致**。記述の粒度が違う（#614 は一方式のみ、#587 は両方式）。Q-1 の暫定扱いはどちらにも整合 |
+| クリームチーズ | 時機の記載なし | 明記を確認できず | **一致** |
+| 出所の表現 | 「個別ページ、**Owner 確認** 2026-10-21」 | 「**ChatGPT** が 2026-10-20 に取得。**Owner の確認ではない**。Owner の独立再取得の記録なし」 | **不整合**（出所の表現が逆の主張）。Owner 決定により **#614 を優先** |
+| 日付 | 2026-10-21 | 2026-10-20（取得日） | 取得と確認で日が違う可能性。断定せず |
+| 個数・bake・ピース数 | 記載なし | GAMEPLAY CALIBRATION（roe 2 / shiso 1 / salmon 3 / cream-cheese 2、58–78、8 ピース） | #584 の値と一致。原典ではない |
+| 工程の記述 | — | 「`currentGameTiming`: 全食材焼成前」「再開時の ladder step は main で採番（55 固定しない）」 | 前者は #584（HOLD）の現状で正しい。後者は OD-P1-4 と方向は同じ（番号に固定しない）が、「通常枠で採番」と読めるため**後乗せ枠の導出**と整合させる修正が望ましい |
+| 機械検査 | `--check` / `--check-runtime` 通過と記載 | `progression2_mechanic_matrix.py --check` は main でも FAIL（#260 で追跡）と記載 | **要確認**（#614 の merge 後の状態。本書は再実行していない） |
+| ブランチの状態 | main（merge 済み） | base が古く（`5997157`）、現 main との差が 160 ファイル規模。`mergeable_state` は未確認 | merge 前に更新が必要（#587 の担当側） |
+
+**判断材料（Owner 向け）**: #587 を merge すると repo に「Owner の確認ではない」という出所記述が入り、#614 の「Owner 確認」と**矛盾したまま並ぶ**。Q-4 の方針（#614 優先）に沿うなら、**#587 の `independentlyVerifiedNote` と報告書の「確認範囲」を、「source of record は #614（Owner 確認）、ChatGPT 取得は補足」へ修正してから**判断するのが筋。修正は #587 の担当 session / Owner の操作（本書は編集しない）。**E4b-ikura は #587 の merge を待たない**（#614 が main にあるため）。
+
+### 13.3 固定 step 番号・merge 順の古い記述 — 修正候補
+
+| 場所 | 現行の記述（要旨） | 問題 | 修正候補 | 修正の時機・担当 |
+|---|---|---|---|---|
+| #611 本文 §0 ① | 「#584 の ladder 割当を優先し E4 は後続 step」 | #584 は HOLD・非 merge。ikura は後乗せ枠 | 「ikura（#584 再設計）が後乗せ枠の先頭。通常枠の step は使わない」 | Owner が #611 を更新 or 新コメントで supersede |
+| #611 本文 §1 ladder 行 | 「**step 56**。`{bbq-sauce, cilantro}`」 | 絶対番号の固定（OD-P1-4 に反する）。BBQ は保留 | 「後乗せ枠の 2 番目（相対順序）。番号は導出。**BBQ は原典確認後**」 | 同上 |
+| #611 本文 §1 `ladderCredit` | 「#584 後 credited 58→59」 | #584 が通常枠に入らなくなる | 「通常枠の credited は 57 のまま。後乗せ枠の credited は ON のときのみ加算」 | 同上 |
+| #611 本文 §5 D-2 | 「#584 を先に merge してよいか（E4b は merge 後）」 | 順序が逆転（#615 → E4b-ikura → #584 クローズ判断） | 「#615 → E4b-ikura → #584 の扱いを判断（Q-3）」 | 同上 |
+| #611 本文 §0 ④ / §3 | 本番 OFF 時は BBQ も除外 | 対象が ikura に変わるが方式（案 1）は不変 | 「後乗せレシピ（ikura、後に BBQ）を OFF では除外」 | 同上 |
+| #615 本文「既知の限界」 | 「通常バッチ停止か、安定番号の予約範囲を **E5 前に決める**」 | Owner はどちらも選ばず「枠の分離＋相対順序」を決定 | 「**決定済み（OD-P1-4）**: 枠を分離し相対順序を維持、絶対番号に固定しない。未到達 step の必要発見数 +1 は許容、既到達・既解禁は後退させない」 | #615 の merge 後に docs 追補（#615 は編集しない。コード不要の文言のみ） |
+| #615 Result §5b | 同上 | 同上 | 同上（「選択肢 (a)/(b)」を「決定済み」へ） | merge 後の追補 PR |
+| #615 `lateCatalog.ts` のコメント | 「KNOWN LIMIT (decide before E5)」 | 決定済みの項目が未決のコメントのまま | 「Decided (Owner, 2026-10-22): …」へ置換（コメントのみ） | **コード変更を伴うので別 PR（本書の範囲外）。#615 には入れない** |
+| FIN-E2 設計書 §7「E5」 | 「有効化の OFF ゲート方式（E4 前に決定）」 | late 番号の扱いは別論点として未記載 | 「late の番号は導出（OD-P1-4）」を 1 行追記 | #615 が既に追記済みの箇所と併せて追補 |
+| #587 の `gameDesignValues` / 報告書 | 「再開時の ladder step は main で採番」 | 後乗せ枠の導出と読み違えうる | 「後乗せ枠で導出（絶対番号に固定しない）」 | #587 の修正時（§13.2） |
+| 本書 §5 / §7 / §10 | BBQ を第 1 レシピ、D-3 を未決 | Owner 決定で置換 | §12 / §13 が優先（バナーで明記済み） | 本 PR で対応済み |
+| #584 本文 | 「ladder step 55」「credited 57→58」 | HOLD。再設計で通常枠を使わない | **#584 は編集しない**。クローズ時（Q-3）に「superseded by FIN-E4b-ikura」と記す | E4b-ikura merge 後 |
+
+**検査を伴う修正候補（E4b-ikura の AC に取り込み済み）**: late step の絶対番号をテストに固定しない／相対順序・key・素材の不変を検査／到達済み解禁の後退なし（AC-3）。
+
+### 13.4 Style Lock の未確認条件
+
+対象: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`（Style Lock v2）。**前提の確認**: この文書は食材**アイコン**の意匠・実装規約で、**技法名・Dex 文言の規定は含まない**（`文言`・`Dex`・`なぞかけ` を検索し、アイコン用途の Dex 表示以外の記述なし）。技法名・なぞかけ・説明文の authority は `TETO_COOKING-TECHNIQUES_1.0_*`（INV-TQ-5、P6、OD-TQ-5/6/16）と Anti-Oracle Contract。Q-2 の「Style Lock との照合」が別の文書を指す場合は指定が必要（§13.7 B-5）。
+
+| # | 条件（Style Lock v2） | 状態 | ikura への影響 |
+|---|---|---|---|
+| S-1 | §7 / §0-4: **#423 完了まで Production 実装禁止** | **解消**（#423 closed、PR #430） | なし |
+| S-2 | §7: 「実装 Issue は **Owner が起票**」「実装は #423 完了後の最新 main から」 | 実装 Issue の起票は Owner。**salmon-roe 専用の実装 Issue は存在しない**（#584 / #527 が追跡） | E4b-ikura の追跡は #611 / #527。Owner が実装 Issue 扱いを承認するか未確認（B-4） |
+| S-3 | §1 / §1b / §9: 対象は **26 + goat-cheese 1 = 27 種**。**salmon-roe・shiso・whitebait は対象外**（本文に記載なし）。salmon（`salmon.svg`）と cream-cheese（`cream-cheese.svg`）は**対象で意匠確定済みだが `pieceVisual` は未実装**（`ingredients.ts` に無い） | salmon-roe の意匠は **OD-B8-2 追記（2026-10-20）** で別途認可。Style Lock 本文には未反映 | ① ikura のピザ上で roe は SVG、**salmon・cream-cheese は emoji / CSS のまま**（意匠が混在）。② Style Lock 文書に salmon-roe を載せる更新が要るか（B-3） |
+| S-4 | §2 共通仕様（64×64、`id` / gradient / `<defs>` なし、2 トーン、接地影）、§3 サイズ補正 | #584 の `salmon-roe-grains` は「64×64、id/gradient/defs なし、2 トーン、接地影」と記載（本書は SVG 本体を未検査） | E4b で流用時に §2 のチェックを再実行 |
+| S-5 | §6: 実装テスト — `IngredientGlyph.test.tsx` の dedicated 集合更新、visual ごとの描画、id 非依存、`id=` / `url(#` なし、テキスト規約、save 不変 | 現行テストは `BATCH8B_DEDICATED` に shiso / whitebait。**salmon-roe は未追加**（#584 側にのみ） | E4b-ikura の必須テスト |
+| S-6 | §6 末尾: UI 変更は **Human Verification（390×844 動画 + before/after スクショ）** が完了条件 | Q-8 により E4b では動画不要、E5 前に必須 | Style Lock の HV 要件を「E5 まで延期」と PR 本文に明記（Owner 承認済みの Q-8 を根拠） |
+| S-7 | §8 未確定: 接地影のピザ上での見え方、サイズ補正の要否、チップ幅・タップ領域・行高への影響（cheese 分岐）、sausage↔hot-dog の 20px 識別 | #584 の測定（トレイ 31px / 生地上 24px / RESULT 18px、輪郭コントラスト 2.3〜3.1:1）はあるが**焼成前配置の値** | **後乗せは `PostBakePiece` で「焼いていない見た目のまま」`.pizza-post-layer` に描かれる**（焼成フィルター外、`IngredientPieceVisual` 経由）。コントラスト・接地影は**再測定が必要**（AC-8） |
+| S-8 | §0-3 / §0-6 / §4.4: ピザ上・ドラッグ preview・サムネ・Reference の SVG 化は **チーズの `pieceVisual` 限定の決定** | roe は topping。トッピングの `pieceVisual` はピザ上でも描く既存方式（capers 等） | 該当しない（確認済み）。ただし Reference / Pizza Select サムネでの roe の見え方は未測定 |
+| S-9 | §9-6: 絵文字重複（artichoke/rosemary、spinach/oregano）は対象外 | G18（グリフ一意性）は維持 | roe の emoji（🟠）は表示されないフォールバック。G18 の再確認を AC に（既存 gate） |
+
+**技法名・Dex 文言の照合（Q-2 の前提作業）**: 現行の仮文言は `techniques.ts` の `late-addition`（名称「後乗せ」、なぞかけ「同じ材料でも、ひと手間の加え方で違う一枚になることがあるよ。」、説明「焼き上がりのあとに仕上げる調理法」）。Techniques SSOT の規則との照合結果 — (a) なぞかけは動作・時機を名指ししていない（INV-TQ-5 / P6 に適合）。(b) **説明文は「焼き上がりのあとに」と時機を名指ししている**が、Dex で名称・説明が見えるのは**発見後のみ**（INV-TQ-5）なので許容範囲。ただし RESULT の技法段（①Technique → ②Recipe）やヒントなど、**発見前に見える面に説明文が出ない**ことを E4b のテストで固定すること。(c) Anti-Oracle 上、トレイ（FINISH タブの食材一覧）が後乗せ要件の食材だけを並べる点は OD-TQ-16 系の既存許容の範囲か、E4b の privacy sweep で再確認（AC-6）。最終文言は Owner のもので、本書は決めない。
+
+### 13.5 E4b-ikura の受け入れ条件（Owner 判断反映後の最終版）
+
+§12.7 の AC を次のとおり更新する（変更・追加のみ。AC-1/2/4/6/7/9/11 は §12.7 のまま、AC-7 の対象拡張も維持）。
+
+| # | 更新後の条件 | 反映した判断 |
+|---|---|---|
+| AC-0（新） | **暫定表記**: salmon・cream-cheese を焼成前とする注釈（コード・データ・Result・PR 本文）は「**暫定（ゲーム化の既定）。原典確定ではない**」と書き、roe・shiso のみ「個別ページの引用に基づく」と書く。「原典で確認済み」と書かない。個数・bake 窓は GAMEPLAY CALIBRATION | Q-1 |
+| AC-3（強化） | 通常 ladder に合成の通常 step を追記しても、後乗せ枠の**順序・key・素材は不変**、**未到達** step の必要発見数だけ +1。**既到達・既解禁は後退しない**: (i) 追記前に `salmon-roe` を既得としたセーブは、追記後も `resolveMaterialUnlocks` の結果に `salmon-roe` を含む、(ii) 追記前に到達済みだった後乗せ step のレシピが、追記後も Dex の発見・Shop の解禁で失われない、(iii) 追記前後で `reachedLadderSteps` の既通過 step が減らない。**late step 番号は固定しない** | Q-6 / OD-P1-4 |
+| AC-5b（強化） | **実測して判断**: 非ソース 8 ピース（後乗せ 3 を含む）で、リング上限が後乗せピースを数えるかを実測し、結果と代替案（上限を超える場合の挙動）を報告書に記録。**閾値・上限の変更を実装に含めない**（判断は Owner が実測結果で行う） | Q-5 |
+| AC-8（更新） | Preview opt-in の ON ビルド（ローカル／e2e。**共有 Preview は更新しない**）で、salmon-roe をトレイ・生地上・RESULT で**後乗せ（焼成フィルター外、未焼成の見た目）**の状態で再測定（3 状態: raw / perfect / burnt）。**動画は不要**（E5 前に必須）。測定値は #584 の値を流用しない | Q-8 / S-7 |
+| AC-10（更新） | **merge 条件**: (a) UD-F: **OD-B8-1（T4・星ゲートなし・credited）を維持**、(b) UD-G: 技法名・なぞかけ・説明文は Owner 決定済み（照合結果 §13.4）、(c) 発見前の面に説明文が出ないテスト。未決の間は Draft / merge 保留 | Q-2 |
+| AC-12（新） | **Style Lock 適合**: §13.4 S-4・S-5・S-9（共通仕様、`IngredientGlyph.test.tsx` の更新、G18）を満たす。S-2・S-3（Issue 起票、Style Lock 文書への反映）は Owner 判断（B-3 / B-4）を PR 本文に記録 | Q-2 |
+| AC-13（新） | **#584 の非干渉**: E4b-ikura の merge 前に #584 をクローズ・変更しない。E4b-ikura の merge 後のクローズは Owner 判断（Q-3）。同一 recipe id の併存は `validateLateCatalog` が違反とすることをテストで固定 | Q-3 |
+| AC-14（新） | **E5 の前提を明記**: E4b の PR 本文に「E5 有効化の前に **390×844 の実機動画（直接送付）と before/after スクショ**が必須」「`LATE_CATALOG_PRODUCTION` / `FREE_COOK_FINISH_PRODUCTION` は E4b で変更しない」と記載 | Q-8 |
+
+### 13.6 #615 の Final Gate（Q-7）— 2026-10-22 時点の確認
+
+| 項目 | 事実 |
+|---|---|
+| 新 HEAD | `224a190`（`merge: main (#619 WebKit 安定化 d70bd20) を FIN-E4 基盤に取り込む`）。base は `d70bd20`（#619 取り込み済み） |
+| 差分 | main に対し 10 ファイル / +758 −12。#615 の本来の範囲（`src/data/` の配線、golden、テスト、docs）のまま |
+| CI | **実行中**（build、layout-chromium、WebKit 6 shard が `in_progress`、classify は success）。**この時点で Final Gate は未確定** — 本書は GREEN とも RED とも断定しない |
+| `mergeable_state` | `unstable`（チェック実行中のため。結論ではない） |
+| 次の確認 | 全 shard 完了後に WebKit Gate・build・layout を確認。#394 系の赤が出た場合は規則（原因記録、再実行 1 回まで、skip・閾値緩和なし）。**前 HEAD（`a122774`）の結果は流用しない** |
+| Codex | 現 HEAD への `@codex review` の受領は未確認（前 HEAD `a122774` は指摘なし）。merge 判断は Final Gate（現 HEAD の Codex・CI・スレッド）が揃ってから |
+
+### 13.7 HOT file claim の整理（次の実装 = FIN-E4b-ikura）
+
+**既存の claim / 使用状況（2026-10-22 確認）**
+
+| 持ち主 | 対象 | 期限 | 状態 |
+|---|---|---|---|
+| #611 のコメント（session `019hxepa…`、#615） | `recipes.ts`〔HOT〕、`ingredients.ts`、`discoveryLadder.ts`、`discoveryCatalog.ts`、`lateCatalog.ts`、`lateCatalog*.test.ts` | 2026-10-28 | 有効。**#615 merge 後に release されるはず**（`released:true` の投稿を確認すること） |
+| #604 のコメント（FIN-E2 `01C3ra…` / FIN-E3a `01Pdte…`） | `techniques.ts`、`signature.ts`、`state/finishEngine.ts`、`gameReducer.ts`〔HOT〕ほか | 10-24 / 10-25 | E2・E3a は merge 済みで実質完了。**`techniques.ts` を UD-G で変更する場合は新規 claim**（期限切れ後） |
+| #584 | `recipes.ts`〔HOT〕、`App.css`〔HOT〕、`PROJECT_HANDOFF.md`〔HOT〕、ingredients、ladder | （PR 本体） | HOLD。変更しない |
+| #540 | `recipes.ts`〔HOT〕 | Draft・HOLD | 変更しない |
+| #468 | `PizzaStage.tsx`、`App.css`〔HOT〕 | open | 後乗せ描画層と近い。E5 前に再確認 |
+
+**FIN-E4b-ikura が触る予定のファイルと HOT 判定**
+
+| ファイル | HOT | 備考 | 衝突しうる相手 | 対処 |
+|---|---|---|---|---|
+| `src/data/lateCatalog.ts`、`lateCatalog*.test.ts` | — | データ追加（#615 の claim 対象） | #615 | **#615 merge 後に着手**。claim は #615 の release を確認してから |
+| `src/data/ingredients.ts` | — | `DedicatedIngredientVisual` の union に `salmon-roe-grains` を追加（line 93 付近） | #615（wiring）、#584 | 同上。#584 とは同一変更になるが併存しない |
+| `src/data/recipeSauceProfiles.ts`、`src/data/recipeHintRoles.ts` | — | `Record<RecipeId,…>` の表に ikura の行（#615 の注記どおり） | #584（同行を追加） | #584 は HOLD。併存しない |
+| `src/data/ingredientTaxonomy.ts` | — | `TOPPING_FAMILY_ROWS` に salmon-roe（OD-B8-2） | #584 | 同上 |
+| `src/components/IngredientGlyph.tsx`、`IngredientGlyph.test.tsx` | — | visual と viewBox、dedicated 集合 | #584 | 同上 |
+| **`src/App.css`** | **HOT** | salmon-roe 用の最小補正のみ（`.ingredient-glyph--salmon-roe-grains` 相当。shiso 補正は line 823 付近） | #584（同 CSS）、#468 | PR 本文に「#615 → 本 PR、#584 は HOLD で非 merge」を明記。追加は末尾の局所ブロックに限定 |
+| `src/data/techniques.ts` | — | **UD-G の文言確定後のみ**変更 | #604 の旧 claim（期限切れ予定） | 文言決定後に別途 claim |
+| `src/data/recipes.ts` | **HOT** | **触らない**（late は `lateCatalog.ts` に入れる。配線は #615 で完了） | #615 / #584 / #540 | 触る必要が出たら着手を止めて Owner に確認 |
+| `docs/PROJECT_HANDOFF.md` | **HOT** | **触らない**（更新は Owner の指示後に別 PR） | — | — |
+| `gameReducer.ts`、`persistence.ts`、`GameScreen.tsx` | **HOT** | **触らない**（範囲外） | — | — |
+| `docs/reports/TETO_FINISH-FIN-E4b-ikura_Result.md` | — | 新規 | — | — |
+
+**claim の投稿案**（実投稿は着手時。#611 に投稿）
+`<!-- teto-claim:v1 {"session":"<着手時>","issue":611,"pr":null,"branch":"claude/fin-e4b-ikura-<id>","files":["src/data/lateCatalog.ts","src/data/lateCatalog*.test.ts","src/data/ingredients.ts","src/data/recipeSauceProfiles.ts","src/data/recipeHintRoles.ts","src/data/ingredientTaxonomy.ts","src/components/IngredientGlyph.tsx","src/components/IngredientGlyph.test.tsx","src/App.css","docs/reports/TETO_FINISH-FIN-E4b-ikura_Result.md"],"dependsOn":[615],"expires":"<着手から 72h、最大 14 日>"} -->`
+`App.css`（HOT）について、PR 本文に「**#615 が先に merge。#584 は HOLD（非 merge、本 PR の merge 後にクローズ判断）。#468 とは別領域**」と明記する。Owner Gate の最新レポートを着手前に確認する（本環境では未実行）。
+
+### 13.8 残るブロッカー・未決（これだけが未解決）
+
+| # | 種別 | 内容 |
+|---|---|---|
+| B-1 | **ブロッカー** | **#615 の Final Gate**: 新 HEAD `224a190` の CI が実行中で未確定。全チェック・Codex・スレッドの確認後に Owner が merge 判断。E4b-ikura の着手は #615 merge 後 |
+| B-2 | **ブロッカー** | **技法名・Dex 文言（UD-G）**: Owner 決定が未了。照合の結果、現行の仮文言は発見前の面に出ない前提で適合するが、最終文言は Owner のもの。AC-10 により E4b-ikura の merge 条件 |
+| B-3 | 未決 | **Style Lock v2 に salmon-roe（と shiso / whitebait）を載せる更新が必要か**（現状は OD-B8-2 追記のみで、本文は 27 種のまま）。salmon・cream-cheese の `pieceVisual` 未実装により、ikura の意匠が混在する点の許容 |
+| B-4 | 未決 | **実装 Issue の扱い**: Style Lock §7「実装 Issue は Owner が起票」。E4b-ikura を #611 / #527 の下で進めてよいか（新規 Issue は作らない方針に沿う） |
+| B-5 | 要確認 | Q-2 の「Style Lock との照合」が Style Lock v2（アイコン）以外の文書を指すか。本書は Techniques SSOT / Anti-Oracle と照合した |
+| B-6 | 要確認 | **#587 の修正**（出所を「#614 = Owner 確認が source of record」へ、`independentlyVerifiedNote` と「確認範囲」を整合）と、base の更新。`--check` の状態（#614 は通過、#587 は FAIL と記載）の食い違い |
+| B-7 | 実測待ち | リング上限（Q-5）— E4b-ikura 内で実測し、結果を報告して Owner が判断 |
+
+以上以外（Q-1〜Q-8）は確定済み。
