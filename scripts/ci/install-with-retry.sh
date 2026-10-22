@@ -11,6 +11,18 @@
 # At most --attempts attempts are made (default 2 = one retry). Exit status is the last attempt's
 # (0 = installed, 124 = timed out, else the command's own status).
 #
+# Before every RETRY (never before the first attempt: no orphan can exist yet) it waits -- bounded,
+# INSTALL_LOCK_WAIT_SECS, default 180 -- for apt/dpkg to go idle.
+# Why: `timeout` stops only the command it started. `npx playwright install --with-deps` runs apt-get
+# through sudo, and that root apt-get survives the kill and keeps holding the dpkg lock: the next attempt
+# then failed at once with "Could not get lock /var/lib/dpkg/lock-frontend ... held by process N
+# (apt-get)" (PR #615 / #622, 2026-10-22, 5 of 5 retries) -- while the orphan went on downloading and
+# unpacking. Waiting lets it finish, so the retry starts from installed dependencies.
+#
+# Time budget (the workflow's install step `timeout-minutes` must cover it; scripts/ci/test-webkit-ci.sh pins it):
+#   worst case = attempts x (timeout + 15 kill-after) + (attempts - 1) x (retry delay + lock wait)
+#              = 2 x (360 + 15) + 1 x (5 + 180) = 935 s (15.6 min) with the defaults and the workflow's flags.
+#
 # S2: the outcome is recorded in --status-file (key=value lines) for the shard evidence:
 #   install_status=incomplete|ok|failed|timeout   (incomplete = written first; still there if this
 #                                                  process was killed, e.g. by the job timeout)
@@ -22,6 +34,8 @@ status_file=""
 timeout_secs="${INSTALL_TIMEOUT_SECS:-360}"
 attempts="${INSTALL_ATTEMPTS:-2}"
 delay="${INSTALL_RETRY_DELAY_SECS:-5}"
+lock_wait="${INSTALL_LOCK_WAIT_SECS:-180}"
+lock_procs="${INSTALL_LOCK_PROCS:-apt-get apt dpkg unattended-upgr}" # process names (pgrep -x), overridable for tests
 while [ $# -gt 0 ]; do
   case "$1" in
     --status-file) status_file="$2"; shift 2 ;;
@@ -36,6 +50,35 @@ if [ $# -eq 0 ] || [ -z "$status_file" ]; then
   exit 2
 fi
 
+apt_busy() {
+  local p pid st
+  for p in $lock_procs; do
+    for pid in $(pgrep -x "$p" 2> /dev/null); do
+      st="$(ps -o stat= -p "$pid" 2> /dev/null | tr -d ' ')"
+      # A zombie (exited, not yet reaped -- e.g. an orphan under a PID 1 that never reaps) holds no lock; a pid that vanished is not busy.
+      case "$st" in Z* | "") ;; *) return 0 ;; esac
+    done
+  done
+  return 1
+}
+
+# Waits until no apt/dpkg process is left (a killed attempt's orphan, or the runner's own). Bounded: after
+# lock_wait seconds it gives up waiting and lets the attempt run (it then fails visibly on the lock, as before).
+wait_for_apt_idle() {
+  local waited=0
+  while apt_busy; do
+    if [ "$waited" -ge "$lock_wait" ]; then
+      echo "::warning title=apt busy::apt/dpkg still running after ${lock_wait}s; starting the attempt anyway"
+      return 0
+    fi
+    if [ $((waited % 15)) -eq 0 ]; then echo "install: waiting for apt/dpkg to go idle (${waited}s of ${lock_wait}s)"; fi
+    sleep 1
+    waited=$((waited + 1))
+  done
+  if [ "$waited" -gt 0 ]; then echo "install: apt/dpkg idle after ${waited}s"; fi
+  return 0
+}
+
 write_status() { # status attempts last_exit
   mkdir -p "$(dirname "$status_file")"
   printf 'install_status=%s\ninstall_attempts=%s\ninstall_last_exit=%s\n' "$1" "$2" "$3" > "$status_file"
@@ -47,6 +90,7 @@ n=0
 while [ "$n" -lt "$attempts" ]; do
   n=$((n + 1))
   write_status incomplete "$n" ""
+  if [ "$n" -gt 1 ]; then wait_for_apt_idle; fi
   echo "::group::install attempt $n/$attempts (timeout ${timeout_secs}s): $*"
   timeout --kill-after=15 "$timeout_secs" "$@"
   rc=$?
