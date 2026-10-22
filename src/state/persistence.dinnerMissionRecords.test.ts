@@ -458,7 +458,8 @@ describe("boundaries (case 20: DM-1..DM-3 runtime unaffected)", () => {
     const users = Object.entries(sources)
       .filter(([path, text]) => path !== "./persistence.ts" && /dinnerMissionRecordUpdates/.test(text))
       .map(([path]) => path);
-    expect(users).toEqual(["../App.tsx"]);
+    // R8 (#617): the snapshot builder shared by the effect and the synchronous round commits lives in roundCommit.ts.
+    expect(users).toEqual(["./roundCommit.ts"]);
   });
 
   it("the records-save module imports only DM-4-1's pure settlement", () => {

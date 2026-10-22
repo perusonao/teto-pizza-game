@@ -65,6 +65,8 @@ describe("negative ledger: who may mention it", () => {
         "/src/screens/GameScreen.tsx", // S4: passes the stored ledger to the Board read model, nothing else
         "/src/state/gameReducer.ts",
         "/src/state/persistence.ts",
+        "/src/state/roundCommit.ts",
+        "/src/state/startup.ts", // R8 (#617): the startup hydrate moved out of App.tsx
       ].sort(),
     );
   });

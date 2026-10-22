@@ -214,7 +214,7 @@ test("Free Cooking FINISH: the stock stays consumed after a reload in FINISH (a 
   await bootFreeFinish(page, freeSave());
   await prepareFreeMargherita(page, async () => {
     // one piece of a finite ingredient on top of the margherita trio: the pizza uses 1 onion
-    await page.getByRole("button", { name: /玉ねぎ/ }).click();
+    await page.getByRole("button", { name: /たまねぎ/ }).click();
     await tapDoughPercent(page, 50, 52);
   });
   await bakeToTarget(page, FREE_BAKE);

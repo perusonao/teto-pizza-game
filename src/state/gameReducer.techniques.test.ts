@@ -489,16 +489,20 @@ describe("T11-T14: the technique ledger in the save", () => {
 describe("App wiring (the one persistence effect)", () => {
   const app = Object.values(import.meta.glob<string>("../App.tsx", { query: "?raw", import: "default", eager: true }))[0];
   const effect = app.slice(app.indexOf("persistProgress({"), app.indexOf("]);", app.indexOf("persistProgress({")) + 3);
+  // R8 (#617): the snapshot fields are built by the one builder the effect and the round commits share.
+  const snapshot = Object.values(import.meta.glob<string>("./roundCommit.ts", { query: "?raw", import: "default", eager: true }))[0];
 
   it("saves the ledger in the same snapshot as the Dex and re-runs when it changes", () => {
     const deps = effect.slice(effect.indexOf("}, ["));
-    expect(effect).toContain("discoveredTechniqueIds: state.discoveredTechniqueIds,");
+    expect(snapshot).toContain("discoveredTechniqueIds: state.discoveredTechniqueIds,");
     expect(effect).toContain("requireDinnerRecords: true");
     expect(deps).toContain("state.discoveredTechniqueIds,");
     expect(deps).toContain("state.dex,");
   });
 
   it("hydrates the ledger from the save through the INV-TQ-1 load-time repair", () => {
-    expect(app).toContain("initialTechniqueLedger(save.discoveredTechniqueIds, save.dex)");
+    // R8 (#617): the startup state is built in startup.ts (App.tsx calls it).
+    const startup = Object.values(import.meta.glob<string>("./startup.ts", { query: "?raw", import: "default", eager: true }))[0];
+    expect(startup).toContain("initialTechniqueLedger(save.discoveredTechniqueIds, save.dex)");
   });
 });

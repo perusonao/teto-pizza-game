@@ -587,15 +587,19 @@ describe("persistence of a settlement (App's effect)", () => {
 describe("App wiring (the one persistence effect)", () => {
   const app = Object.values(import.meta.glob<string>("../App.tsx", { query: "?raw", import: "default", eager: true }))[0];
   const effect = app.slice(app.indexOf("persistProgress({"), app.indexOf("]);", app.indexOf("persistProgress({")) + 3);
+  // R8 (#617): the snapshot fields are built by the one builder the effect and the round commits share.
+  const snapshot = Object.values(import.meta.glob<string>("./roundCommit.ts", { query: "?raw", import: "default", eager: true }))[0];
 
   it("passes the records with the atomic flag, and re-runs when the records change", () => {
-    expect(effect).toContain("dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records");
+    expect(snapshot).toContain("dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records");
     expect(effect).toContain("requireDinnerRecords: true");
     expect(effect).toContain("state.dinnerMissionRecordsState,");
     expect(effect).toContain('dispatch({ type: "DINNER_RECORDS_REFUSED", missionIds: persisted.refusedDinnerMissionIds })');
   });
 
   it("hydrates the records (blocked missions included) from the save", () => {
-    expect(app).toContain("save.dinnerMissionRecordsState,");
+    // R8 (#617): the startup state is built in startup.ts (App.tsx calls it).
+    const startup = Object.values(import.meta.glob<string>("./startup.ts", { query: "?raw", import: "default", eager: true }))[0];
+    expect(startup).toContain("save.dinnerMissionRecordsState,");
   });
 });
