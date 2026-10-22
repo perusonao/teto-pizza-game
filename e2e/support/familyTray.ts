@@ -141,15 +141,47 @@ export async function rowState(page: Page): Promise<RowState> {
   });
 }
 
-/** Waits for a (smooth) programmatic scroll to come to rest: two reads 150ms apart agree. */
+/**
+ * Waits for a (smooth, wheel or programmatic) scroll of the family row to come to rest (Issue #394). Rest = `scrollLeft`
+ * unchanged for STABLE_FRAMES consecutive animation frames that also span at least STABLE_MS. Counted in frames, not in
+ * wall-clock reads: two reads 150ms apart can agree while a starved WebKit renderer has produced no frame (so the
+ * scroll animation has not advanced yet) and then finish a pixel or two later (388 -> 390, 0 -> 1 on CI). A stalled
+ * renderer produces no frames, so it cannot look still. Gives up after GIVE_UP_MS and lets the caller's assertion report
+ * the position; nothing is loosened.
+ */
+const STABLE_FRAMES = 10;
+const STABLE_MS = 250;
+const GIVE_UP_MS = 4500;
 export async function settle(page: Page) {
-  let prev = -1;
-  for (let i = 0; i < 30; i += 1) {
-    const now = await familyRow(page).evaluate((r) => r.scrollLeft);
-    if (now === prev) return;
-    prev = now;
-    await page.waitForTimeout(150);
-  }
+  await familyRow(page).evaluate(
+    (row, [frames, ms, giveUp]) =>
+      new Promise<void>((resolve) => {
+        let last = row.scrollLeft;
+        let still = 0;
+        let stillSince = performance.now();
+        let raf = 0;
+        // The give-up is a timer of its own: it must fire even when no animation frame is delivered at all.
+        const timer = window.setTimeout(done, giveUp);
+        function done() {
+          window.clearTimeout(timer);
+          cancelAnimationFrame(raf);
+          resolve();
+        }
+        const tick = () => {
+          const now = performance.now();
+          if (row.scrollLeft === last) still += 1;
+          else {
+            last = row.scrollLeft;
+            still = 0;
+            stillSince = now;
+          }
+          if (still >= frames && now - stillSince >= ms) done();
+          else raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+      }),
+    [STABLE_FRAMES, STABLE_MS, GIVE_UP_MS] as const,
+  );
 }
 
 export async function expectNoPageOverflow(page: Page, where: string) {
