@@ -42,8 +42,8 @@ describe("the pendingRound journal", () => {
   });
 
   it("survives a JSON round trip unchanged and rebuilds the same pizza (coordinates are not rounded)", () => {
-    const pizza = { ...onionPizza(5), sauceDeposits: [{ x: 33.123456789012345, y: 41.5, amount: 0.02 }], sauceOrigin: { x: 50.1, y: 49.9 } };
-    const round = buildPendingRound(source({ pizza }), "r1", 70.123456789, 7);
+    const pizza = { ...onionPizza(5), sauceDeposits: [{ x: 33.12345678901234, y: 41.5, amount: 0.02 }], sauceOrigin: { x: 50.1, y: 49.9 } };
+    const round = buildPendingRound(source({ pizza }), "r1", 70.123456789012, 7);
     const read = readStoredPendingRound(JSON.parse(JSON.stringify(round)));
     expect(read).toEqual({ kind: "round", round });
     const rebuilt = pizzaFromJournal(round.pizza);
