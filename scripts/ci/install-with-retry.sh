@@ -51,9 +51,13 @@ if [ $# -eq 0 ] || [ -z "$status_file" ]; then
 fi
 
 apt_busy() {
-  local p
+  local p pid st
   for p in $lock_procs; do
-    if pgrep -x "$p" > /dev/null 2>&1; then return 0; fi
+    for pid in $(pgrep -x "$p" 2> /dev/null); do
+      st="$(ps -o stat= -p "$pid" 2> /dev/null | tr -d ' ')"
+      # A zombie (exited, not yet reaped -- e.g. an orphan under a PID 1 that never reaps) holds no lock; a pid that vanished is not busy.
+      case "$st" in Z* | "") ;; *) return 0 ;; esac
+    done
   done
   return 1
 }

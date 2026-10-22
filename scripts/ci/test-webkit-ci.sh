@@ -290,12 +290,13 @@ rm -f "$work/c6"; check "retry: --attempts 1 never retries" 3 "$(retry "$work/s6
 check "retry: --attempts 1 ran once" 1 "$(wc -l < "$work/c6" | tr -d ' ')"
 check "retry: missing --status-file / command -> usage error" 2 "$(bash "$here/install-with-retry.sh" -- true > /dev/null 2>&1; echo $?)"
 # apt lock: a killed attempt's apt-get survives `timeout` (it runs as root via sudo) and holds the dpkg lock; the retry must wait for it.
+# (The fixture's own "is apt alive" probe skips zombies too: an orphan may stay a zombie under a PID 1 that never reaps -- Codex P2.)
 mkdir -p "$work/bin"; cp "$(command -v sleep)" "$work/bin/fake-apt"   # a process whose name `pgrep -x fake-apt` matches
 rm -f "$work/c7" "$work/c7.log"
 cat > "$work/orphan_cmd.sh" <<ORPHAN_END
 n=\$(cat $work/c7 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $work/c7
 if [ \$n -eq 1 ]; then setsid $work/bin/fake-apt 3 > /dev/null 2>&1 & sleep 30; fi
-if pgrep -x fake-apt > /dev/null; then echo LOCKED >> $work/c7.log; exit 100; fi
+if ps -o stat= -C fake-apt | tr -d " " | grep -q "^[^Z]"; then echo LOCKED >> $work/c7.log; exit 100; fi
 echo ok >> $work/c7.log
 ORPHAN_END
 check "retry: orphaned apt after a timeout -> the retry waits for it, then succeeds (exit 0)" 0 \
@@ -323,6 +324,24 @@ check "retry: apt busy longer than the wait bound -> the retry stops waiting and
 check "retry: bounded wait -> both attempts ran, the retry after ~1s and before the 8s orphan ended" "2 yes" "$(wc -l < "$work/c9" | tr -d ' ') $([ $((SECONDS - t0)) -lt 6 ] && echo yes || echo no)"
 grep -q 'apt/dpkg still running after 1s' "$work/retry.out"; check "retry: bounded wait -> warning logged" 0 $?
 pkill -x fake-apt 2> /dev/null || true
+# A zombie (an exited process nobody reaped, e.g. an orphan under a PID 1 that does not reap) holds no lock and must not be waited for.
+# Real zombie fixture: a python parent forks fake-apt (exits after 1s) and then sleeps without wait()ing for it.
+python3 -c "
+import os, time
+pid = os.fork()
+if pid == 0:
+    os.execv('$work/bin/fake-apt', ['$work/bin/fake-apt', '1'])
+time.sleep(9)
+" > /dev/null 2>&1 &
+zparent=$!
+sleep 2.5
+check "retry: fixture -- fake-apt is a real zombie (state Z)" "Z" "$(ps -o stat= -C fake-apt | tr -d ' ' | cut -c1)"
+t0=$SECONDS
+rm -f "$work/c11"
+check "retry: a zombie apt is not waited for (exit 3 after both attempts)" 3 \
+  "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=5 retry "$work/s11" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c11; exit 3")"
+check "retry: a zombie apt -> no wait (both attempts ran, in well under the 5s bound)" "2 yes" "$(wc -l < "$work/c11" | tr -d ' ') $([ $((SECONDS - t0)) -lt 3 ] && echo yes || echo no)"
+kill "$zparent" 2> /dev/null; wait "$zparent" 2> /dev/null || true
 # Workflow contract: only the install is wrapped; Playwright test steps are never retried.
 wf="$here/../../.github/workflows/e2e-webkit.yml"
 grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
