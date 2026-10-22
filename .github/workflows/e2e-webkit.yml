@@ -28,7 +28,9 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # projects on 2 workers. Issue #512: N is now 3 (6 jobs). With N=2, `--shard 1/2` was the first 238 of
 # 450 tests (alphabetical: the heavy dinner-* / cooking-tray-* / contract-* / expansion* specs) and
 # `webkit-390x844 shard 1/2` ran 17.4 min of tests (job ~19.5 of the 20 min cap); N=3 gives 150 tests
-# per shard and an estimated longest shard of ~11.6 min of tests. timeout-minutes stays 20. Each runner keeps Playwright's default 2 workers (no extra CPU contention
+# per shard and an estimated longest shard of ~11.6 min of tests. timeout-minutes was 20 here and is now 35 (healthy jobs take 9.6-16.6 min; a slow apt
+# mirror adds up to ~10 min of install on top of up to ~15 min of tests, which a 20 min cap cancelled -- PR #615 run 39737556165 attempt 3,
+# docs/reports/TETO_CI_WEBKIT_INSTALL-HARDENING_Result.md). Each runner keeps Playwright's default 2 workers (no extra CPU contention
 # for timing-sensitive tests). The matrix is static (never built from classify outputs), so a
 # failed classify still gets a real Full run. Each shard records evidence (its project's full
 # `--list` selection + its own JSON results, scripts/ci/webkit-shard-evidence.mjs), and WebKit
@@ -123,7 +125,7 @@ jobs:
     # explicit, successful "false" skips it.
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     strategy:
       # Every shard always finishes, so one failing test never hides another shard's results.
       # (WebKit Gate fails on any non-success shard either way.)
@@ -165,18 +167,21 @@ jobs:
       # browser binary itself -- a bare `install webkit` on a fresh runner reliably fails to
       # launch without this.
       #
-      # CI/WebKit Efficiency S1: this INSTALL step alone gets a short per-attempt timeout (360 s;
-      # healthy installs take 30-210 s) and one retry (scripts/ci/install-with-retry.sh), because
-      # apt/CDN stalls used to hold the job for 12-15 min until the job timeout. Only the install
+      # CI/WebKit Efficiency S1: this INSTALL step alone gets a bounded per-attempt timeout (600 s;
+      # healthy installs take 24-45 s, a slow apt mirror up to ~9 min) and one retry
+      # (scripts/ci/install-with-retry.sh), because apt/CDN stalls used to hold the job for 12-15 min
+      # until the job timeout. Before each attempt the helper waits (bounded) for a still-running root
+      # apt-get from the previous attempt, which `timeout` cannot kill and which held the dpkg lock
+      # (PR #622 run 39745814119: "E: Could not get lock ... held by process N (apt-get)"). Only the install
       # is retried -- Playwright tests below are never retried (retries stay 0; a failing or flaky
       # test is a FAIL-TEST, never an infra flake). The helper records install_status in
       # $INSTALL_STATUS_FILE, which the shard evidence carries to WebKit Gate (S2: FAIL-INFRA vs
       # FAIL-TEST; both are still FAIL). step timeout-minutes is only a backstop for the helper.
       - name: Install WebKit (with system deps; timeout + 1 retry)
-        timeout-minutes: 13
+        timeout-minutes: 27
         run: >-
           bash scripts/ci/install-with-retry.sh
-          --status-file "$INSTALL_STATUS_FILE" --timeout 360 --attempts 2
+          --status-file "$INSTALL_STATUS_FILE" --timeout 600 --attempts 2
           -- npx playwright install --with-deps webkit
 
       # Evidence for the Result Report's "actual WebKit execution proof" requirement -- a green

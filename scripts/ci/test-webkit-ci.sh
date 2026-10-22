@@ -296,6 +296,56 @@ check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
 grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
 check "workflow/config: Playwright test retries are not enabled" 1 $?
 
+# PR #622 (run 39745814119): `timeout` cannot kill the ROOT apt-get that `playwright install --with-deps` starts through
+# sudo, so after an attempt timed out the orphan kept the dpkg lock and the retry failed at once ("Could not get lock").
+# Simulated with a fake `apt-get` (a renamed sleep) started in its own session, which `timeout` cannot reach either.
+mkdir -p "$work/fakebin"
+ln -s "$(command -v sleep)" "$work/fakebin/apt-get"
+retry_env() { # status_file [helper args...] -- cmd ; like retry() with the wait tuned for the test; prints exit code
+  local sf="$1"; shift
+  INSTALL_WAIT_PROCS=apt-get INSTALL_WAIT_POLL_SECS=1 INSTALL_RETRY_DELAY_SECS=0 bash "$here/install-with-retry.sh" --status-file "$sf" "$@" > "$work/retry.out" 2>&1
+  echo $?
+}
+# attempt 1 starts the orphan then stalls (killed by --timeout); every later attempt fails like apt does while the lock is held
+orphan_cmd() { # counter orphan_seconds
+  echo "n=\$(cat $1 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $1; if [ \$n -eq 1 ]; then setsid $work/fakebin/apt-get $2 > /dev/null 2>&1 < /dev/null & sleep 30; else if pgrep -x apt-get > /dev/null; then echo 'E: Could not get lock /var/lib/dpkg/lock-frontend'; exit 100; fi; fi"
+}
+rm -f "$work/o1"; check "retry: orphaned apt-get after a timeout -> waits for it, retry succeeds (exit 0)" 0 "$(INSTALL_WAIT_SECS=30 retry_env "$work/so1" --timeout 1 --attempts 2 -- sh -c "$(orphan_cmd "$work/o1" 4)")"
+check "retry: orphaned apt-get -> install_status=ok attempts=2" "ok 2" "$(status_of "$work/so1" install_status) $(status_of "$work/so1" install_attempts)"
+grep -q 'package manager released' "$work/retry.out"; check "retry: the wait is visible in the log" 0 $?
+sleep 5
+rm -f "$work/o2"; check "retry: negative control (wait disabled) reproduces the PR #622 failure (exit 100)" 100 "$(INSTALL_WAIT_SECS=0 retry_env "$work/so2" --timeout 1 --attempts 2 -- sh -c "$(orphan_cmd "$work/o2" 4)")"
+check "retry: negative control -> install_status=failed attempts=2" "failed 2" "$(status_of "$work/so2" install_status) $(status_of "$work/so2" install_attempts)"
+sleep 5
+rm -f "$work/o3"; start=$SECONDS
+check "retry: the wait is bounded (orphan outlives it -> exit 100)" 100 "$(INSTALL_WAIT_SECS=2 retry_env "$work/so3" --timeout 1 --attempts 2 -- sh -c "$(orphan_cmd "$work/o3" 25)")"
+check "retry: bounded wait returned in time (< 15 s although the orphan lives 25 s)" 0 "$([ $((SECONDS - start)) -lt 15 ]; echo $?)"
+grep -q 'continuing anyway' "$work/retry.out"; check "retry: giving up the wait is logged" 0 $?
+pkill -f "$work/fakebin/apt-get" 2> /dev/null; sleep 1
+# runner-side: an apt-get already running when the step starts (not ours) is waited for before attempt 1
+setsid "$work/fakebin/apt-get" 3 > /dev/null 2>&1 < /dev/null &
+sleep 1
+rm -f "$work/o4"; check "retry: apt-get already running before attempt 1 -> waited for, attempt 1 ok (exit 0)" 0 "$(INSTALL_WAIT_SECS=30 retry_env "$work/so4" --timeout 5 --attempts 2 -- sh -c "if pgrep -x apt-get > /dev/null; then exit 100; fi")"
+check "retry: pre-attempt wait -> install_status=ok attempts=1" "ok 1" "$(status_of "$work/so4" install_status) $(status_of "$work/so4" install_attempts)"
+# nothing running -> no wait, no noise
+rm -f "$work/o5"; check "retry: nothing running -> no wait" 0 "$(INSTALL_WAIT_SECS=30 retry_env "$work/so5" --timeout 5 --attempts 1 -- true)"
+grep -q 'package manager' "$work/retry.out"; check "retry: no 'package manager' message when nothing is running" 1 $?
+
+# Timeout budget (docs/reports/TETO_CI_WEBKIT_INSTALL-HARDENING_Result.md): the numbers must stay consistent with each other.
+job_to="$(awk '/^  webkit:/{f=1} f&&/timeout-minutes:/{print $2; exit}' "$wf")"
+step_to="$(awk '/name: Install WebKit/{f=1} f&&/timeout-minutes:/{print $2; exit}' "$wf")"
+h_to="$(sed -n 's/.*install-with-retry.sh.*--timeout \([0-9]*\).*/\1/p' "$wf" | head -1)"
+h_to="${h_to:-$(grep -o -- '--timeout [0-9]*' "$wf" | head -1 | grep -o '[0-9]*$')}"
+h_att="$(grep -o -- '--attempts [0-9]*' "$wf" | head -1 | grep -o '[0-9]*$')"
+wait_def="$(sed -n 's/^wait_secs="\${INSTALL_WAIT_SECS:-\([0-9]*\)}"/\1/p' "$here/install-with-retry.sh")"
+echo "budget: job=${job_to}min step=${step_to}min helper timeout=${h_to}s attempts=${h_att} wait=${wait_def}s"
+worst_install=$((h_att * (h_to + 15 + wait_def) + (h_att - 1) * 5))
+check "budget: the install step cap covers the helper's worst case (every attempt times out and every wait is used)" 0 "$([ "$worst_install" -le $((step_to * 60)) ]; echo $?)"
+slow_ok=$((h_to + 15 + wait_def + 120 + 900 + 120)) # slow first attempt + orphan wait + quick retry + longest healthy tests (15 min) + other steps
+check "budget: the job cap covers a slow install that still succeeds, plus the longest healthy test step" 0 "$([ "$slow_ok" -le $((job_to * 60)) ]; echo $?)"
+check "budget: the step cap is below the job cap (an install failure ends the job before the job cap)" 0 "$([ "$step_to" -lt "$job_to" ]; echo $?)"
+check "budget: the job cap is not unbounded (<= 45 min)" 0 "$([ "$job_to" -le 45 ]; echo $?)"
+
 echo "== 8. S2 FAIL-INFRA / FAIL-TEST classification (install_status -> evidence -> WebKit Gate)"
 # Real chain: helper writes the status file -> collect records it -> gate labels the verdict.
 chain() { # dir install_cmd results_mode(good|fail|none) -> evidence dir $dir/ev (4 shards; 390x844 shard 1 is the subject)
