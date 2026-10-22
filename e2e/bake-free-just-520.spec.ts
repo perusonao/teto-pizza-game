@@ -94,6 +94,8 @@ test("FREE Cooking BAKE draws the JUST band on the generic window, inside the ga
 });
 
 test("FREE Cooking RESULT shows ジャスト / 惜しい on the generic window, and a near-miss never says 完璧 (#520)", async ({ page }) => {
+  // Two full rounds (reachFreeBake x 2): ~28.7 s when healthy against the 30 s default (31.1 s timed out, #629), so this test alone gets 60 s.
+  test.setTimeout(60_000);
   await reachFreeBake(page);
   await enterBakeAtZero(page);
   await landNeedleAndTakeOut(page, { start: 66, end: 70 }); // 66-70: inside JUST 65-71
