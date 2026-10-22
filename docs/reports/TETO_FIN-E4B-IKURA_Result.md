@@ -12,7 +12,7 @@ Base: `main` `aecf867` (#615 merged). Production switches are **unchanged**: `LA
 Only the roe and the shiso are post-bake, from their individual PIZZA DB page citations (Owner confirmation on #614 is the source of record). Salmon and cream cheese before the bake is a **PROVISIONAL game-design default (Owner Q-1), not confirmed by the original source**. Counts and the bake window are GAMEPLAY CALIBRATION. Independent re-fetch of pizzadb.jp (#527 D4) is still open.
 
 ## Verification (HEAD of this PR)
-- Vitest full: 506 files / 9337+ tests pass (see PR for the final run); `tsc -b`, `oxlint` (only pre-existing warnings), `npm run build` pass.
+- Vitest full: 507 files / 9341 tests pass (2 skipped, 4 todo); `tsc -b`, `oxlint` (only pre-existing warnings), `npm run build` pass.
 - New: `lateCatalog.ikura.test.ts` (OFF isolation, ON merge, append-only ladder, an ordinary batch appended later moves only the late step's number (+1) and nothing already reached, structural validators, identification incl. shirasu-pizza / all-pre-bake / missing pieces, privacy of the Hint ladder / recipe text, ring measurement); `lateCatalog.test.ts` pins the shipped content; `IngredientGlyph.test.tsx` covers the roe art from `LATE_INGREDIENTS`.
 - Existing OFF goldens (4 faces, Hint 5.0 ladder golden, `finishD2Inert`) pass **unmodified**. Seventeen "table keys == RECIPES" style tests were adapted with `withoutInactiveLate` / `activeRows` (test support `lateIds.ts`) instead of loosening any assertion: they ignore only late rows while OFF.
 - Chromium 390x844 E2E (expansion-batch8b, hint5 ladder, research Dex, free-finish, finish-flow): 30/30. WebKit and the CI run are checked on the PR head.
