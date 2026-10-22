@@ -1,0 +1,5429 @@
+{
+ "schemaNote": "172 Recipe Taxonomy / HCG authority pack. Docs/data only; NOT an authority. Decisions are QUESTIONS for the Owner / HCG (OD-TAX-7), not answers. Nothing here is production data.",
+ "generatedBy": "tools/recipe172_taxonomy_hcg.py",
+ "pins": {
+  "main": "86b48fd51423a8f76db5398ab88ecfd944e2ae10",
+  "pr255": "e221e36c9278311dfecc22263b5467dab7984555",
+  "matrix": "79873c0"
+ },
+ "families": [
+  "meat",
+  "seafood",
+  "vegetable",
+  "herb",
+  "spice",
+  "fruit",
+  "other"
+ ],
+ "resolutionOrder": [
+  "raw label",
+  "canonical ingredient id",
+  "category (sauce / cheese / topping)",
+  "taxonomy family (7, topping only)"
+ ],
+ "summary": {
+  "A_fRows": 65,
+  "A_rootCauseItems": 54,
+  "A_rowsByBlockerCount": {
+   "1": 48,
+   "2": 14,
+   "3": 3
+  },
+  "B_canonicalIdMissing": 13,
+  "B_canonicalIdMissingItems": [
+   "唐辛子",
+   "チーズ",
+   "ホワイトソース",
+   "ひき肉",
+   "カレーソース",
+   "スパイシーソーセージ",
+   "ナッツ",
+   "プロヴェルチーズ",
+   "赤唐辛子",
+   "チーズソース",
+   "肉",
+   "青のり",
+   "青唐辛子"
+  ],
+  "C_categoryUndecided": 18,
+  "C_categoryUndecidedItems": [
+   "baked-beans",
+   "balsamic-vinegar",
+   "cashew-cheese",
+   "catupiry",
+   "chicken-tikka",
+   "chutney",
+   "condensed-milk",
+   "curry-ketchup",
+   "hot-dog",
+   "liver-pate",
+   "melted-butter",
+   "mustard",
+   "peking-duck",
+   "sour-cream",
+   "umeboshi-paste",
+   "wasabi",
+   "yuzu-kosho",
+   "カレーソース"
+  ],
+  "D_familyUndecided": 19,
+  "D_familyUndecidedItems": [
+   "aji-amarillo",
+   "avocado",
+   "bonito-flakes",
+   "fennel",
+   "french-fries",
+   "green-onion",
+   "jalapeno",
+   "kimchi",
+   "mochi",
+   "natto",
+   "nori",
+   "pickles",
+   "rock-salt",
+   "sauerkraut",
+   "zaatar",
+   "唐辛子",
+   "赤唐辛子",
+   "青のり",
+   "青唐辛子"
+  ],
+  "E_aliasOnly": 12,
+  "E_aliasOnlyItems": [
+   "ground-beef",
+   "mentaiko",
+   "puntarelle",
+   "red-cabbage",
+   "spicy-salami",
+   "wurstel",
+   "ひき肉",
+   "スパイシーソーセージ",
+   "チーズ",
+   "ナッツ",
+   "ホワイトソース",
+   "肉"
+  ],
+  "E_idOnlyNewIdItems": [
+   "チーズソース"
+  ],
+  "F_humanReviewRequired": 50,
+  "G_existingAuthorityOnly": 4,
+  "G_existingAuthorityOnlyItems": [
+   "beef",
+   "kebab-sauce",
+   "truffle",
+   "プロヴェルチーズ"
+  ],
+  "G_rowsReleasedByConfirmOnly": 7,
+  "H_rowsReleasedByTop10": 39,
+  "H_fAfterTop10": 26,
+  "H_top10": [
+   "HCG-01",
+   "HCG-15",
+   "HCG-16",
+   "HCG-04",
+   "HCG-18",
+   "HCG-17",
+   "HCG-02",
+   "HCG-05",
+   "HCG-06",
+   "HCG-09"
+  ],
+  "H_top10OwnerDecisions": 9,
+  "ownerCurveAfterConfirmOnly": [
+   {
+    "ownerDecisions": 0,
+    "decisions": [
+     "HCG-01",
+     "HCG-13",
+     "HCG-27",
+     "HCG-30"
+    ],
+    "fRemaining": 58
+   },
+   {
+    "ownerDecisions": 1,
+    "decisions": [
+     "HCG-15"
+    ],
+    "bundle": [
+     "HCG-15"
+    ],
+    "fRemaining": 53
+   },
+   {
+    "ownerDecisions": 2,
+    "decisions": [
+     "HCG-16"
+    ],
+    "bundle": [
+     "HCG-16"
+    ],
+    "fRemaining": 49
+   },
+   {
+    "ownerDecisions": 3,
+    "decisions": [
+     "HCG-04"
+    ],
+    "bundle": [
+     "HCG-04",
+     "HCG-18"
+    ],
+    "fRemaining": 46
+   },
+   {
+    "ownerDecisions": 4,
+    "decisions": [
+     "HCG-18"
+    ],
+    "bundle": [
+     "HCG-04",
+     "HCG-18"
+    ],
+    "fRemaining": 42
+   },
+   {
+    "ownerDecisions": 5,
+    "decisions": [
+     "HCG-17"
+    ],
+    "bundle": [
+     "HCG-17"
+    ],
+    "fRemaining": 38
+   },
+   {
+    "ownerDecisions": 6,
+    "decisions": [
+     "HCG-02"
+    ],
+    "bundle": [
+     "HCG-02"
+    ],
+    "fRemaining": 35
+   },
+   {
+    "ownerDecisions": 7,
+    "decisions": [
+     "HCG-05"
+    ],
+    "bundle": [
+     "HCG-05",
+     "HCG-06"
+    ],
+    "fRemaining": 35
+   },
+   {
+    "ownerDecisions": 8,
+    "decisions": [
+     "HCG-06"
+    ],
+    "bundle": [
+     "HCG-05",
+     "HCG-06"
+    ],
+    "fRemaining": 27
+   },
+   {
+    "ownerDecisions": 9,
+    "decisions": [
+     "HCG-09"
+    ],
+    "bundle": [
+     "HCG-09"
+    ],
+    "fRemaining": 24
+   },
+   {
+    "ownerDecisions": 10,
+    "decisions": [
+     "HCG-25"
+    ],
+    "bundle": [
+     "HCG-25"
+    ],
+    "fRemaining": 22
+   },
+   {
+    "ownerDecisions": 11,
+    "decisions": [
+     "HCG-21"
+    ],
+    "bundle": [
+     "HCG-21"
+    ],
+    "fRemaining": 20
+   },
+   {
+    "ownerDecisions": 12,
+    "decisions": [
+     "HCG-20"
+    ],
+    "bundle": [
+     "HCG-20"
+    ],
+    "fRemaining": 18
+   },
+   {
+    "ownerDecisions": 13,
+    "decisions": [
+     "HCG-10"
+    ],
+    "bundle": [
+     "HCG-10"
+    ],
+    "fRemaining": 16
+   },
+   {
+    "ownerDecisions": 14,
+    "decisions": [
+     "HCG-07"
+    ],
+    "bundle": [
+     "HCG-07"
+    ],
+    "fRemaining": 14
+   },
+   {
+    "ownerDecisions": 15,
+    "decisions": [
+     "HCG-19"
+    ],
+    "bundle": [
+     "HCG-19"
+    ],
+    "fRemaining": 12
+   },
+   {
+    "ownerDecisions": 16,
+    "decisions": [
+     "HCG-11"
+    ],
+    "bundle": [
+     "HCG-11",
+     "HCG-14"
+    ],
+    "fRemaining": 11
+   },
+   {
+    "ownerDecisions": 17,
+    "decisions": [
+     "HCG-14"
+    ],
+    "bundle": [
+     "HCG-11",
+     "HCG-14"
+    ],
+    "fRemaining": 9
+   },
+   {
+    "ownerDecisions": 18,
+    "decisions": [
+     "HCG-31"
+    ],
+    "bundle": [
+     "HCG-31"
+    ],
+    "fRemaining": 8
+   },
+   {
+    "ownerDecisions": 19,
+    "decisions": [
+     "HCG-28"
+    ],
+    "bundle": [
+     "HCG-28"
+    ],
+    "fRemaining": 7
+   },
+   {
+    "ownerDecisions": 20,
+    "decisions": [
+     "HCG-26"
+    ],
+    "bundle": [
+     "HCG-26"
+    ],
+    "fRemaining": 6
+   },
+   {
+    "ownerDecisions": 21,
+    "decisions": [
+     "HCG-24"
+    ],
+    "bundle": [
+     "HCG-24"
+    ],
+    "fRemaining": 5
+   },
+   {
+    "ownerDecisions": 22,
+    "decisions": [
+     "HCG-23"
+    ],
+    "bundle": [
+     "HCG-23"
+    ],
+    "fRemaining": 4
+   },
+   {
+    "ownerDecisions": 23,
+    "decisions": [
+     "HCG-22"
+    ],
+    "bundle": [
+     "HCG-22"
+    ],
+    "fRemaining": 3
+   },
+   {
+    "ownerDecisions": 24,
+    "decisions": [
+     "HCG-12"
+    ],
+    "bundle": [
+     "HCG-12"
+    ],
+    "fRemaining": 2
+   },
+   {
+    "ownerDecisions": 25,
+    "decisions": [
+     "HCG-03"
+    ],
+    "bundle": [
+     "HCG-03"
+    ],
+    "fRemaining": 1
+   },
+   {
+    "ownerDecisions": 26,
+    "decisions": [
+     "HCG-08"
+    ],
+    "bundle": [
+     "HCG-08",
+     "HCG-29"
+    ],
+    "fRemaining": 1
+   },
+   {
+    "ownerDecisions": 27,
+    "decisions": [
+     "HCG-29"
+    ],
+    "bundle": [
+     "HCG-08",
+     "HCG-29"
+    ],
+    "fRemaining": 0
+   }
+  ],
+  "decisionsToClearAllF": 31,
+  "ownerDecisionsToClearAllF": 27,
+  "newFamilyRequired": 0,
+  "newFamilyPressureDecisions": [
+   "HCG-07",
+   "HCG-15",
+   "HCG-16",
+   "HCG-20",
+   "HCG-25"
+  ],
+  "releasedTop10NextPrimaryClass": {
+   "B": 9,
+   "C": 7,
+   "D": 4,
+   "E": 19
+  },
+  "releasedTop10ToB": [
+   "cuban-pizza-pizzadb-p2",
+   "peking-duck-pizza",
+   "pizza-baiana",
+   "pizza-chilena-pizzadb-p8",
+   "pizza-overload-pizzadb-p7",
+   "sichuan-eggplant-pizza",
+   "thai-chicken-pizza-pizzadb-p4",
+   "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "yuzu-shrimp-pizza"
+  ],
+  "allFToB": [
+   "cuban-pizza-pizzadb-p2",
+   "curry-pizza-japan-pizzadb-p2",
+   "currywurst-pizzadb",
+   "moussaka-style-pizza-pizzadb-p13",
+   "peking-duck-pizza",
+   "pizza-baiana",
+   "pizza-chilena-pizzadb-p8",
+   "pizza-overload-pizzadb-p7",
+   "sichuan-eggplant-pizza",
+   "thai-chicken-pizza-pizzadb-p4",
+   "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "yuzu-shrimp-pizza"
+  ],
+  "allFNextPrimaryClass": {
+   "B": 12,
+   "C": 14,
+   "D": 6,
+   "E": 33
+  },
+  "matrixUnderreportedRows": [
+   {
+    "recipeId": "diavola-pizza-pizzadb-p5",
+    "matrixListed": [
+     "唐辛子"
+    ],
+    "alsoBlocking": [
+     "spicy-salami"
+    ]
+   },
+   {
+    "recipeId": "feteer-meshaltet-pizzadb-p10",
+    "matrixListed": [
+     "ひき肉"
+    ],
+    "alsoBlocking": [
+     "condensed-milk",
+     "melted-butter"
+    ]
+   },
+   {
+    "recipeId": "okonomiyaki-style-pizza-pizzadb-p1",
+    "matrixListed": [
+     "青のり"
+    ],
+    "alsoBlocking": [
+     "bonito-flakes"
+    ]
+   },
+   {
+    "recipeId": "swedish-kebab-pizza-pizzadb-p4",
+    "matrixListed": [
+     "肉"
+    ],
+    "alsoBlocking": [
+     "kebab-sauce"
+    ]
+   }
+  ],
+  "fRowsAlsoE": 33
+ },
+ "greedy": [
+  {
+   "step": 1,
+   "decision": "HCG-01",
+   "bundle": [
+    "HCG-01"
+   ],
+   "gain": 5,
+   "fRemaining": 60,
+   "ownerDecision": false
+  },
+  {
+   "step": 2,
+   "decision": "HCG-15",
+   "bundle": [
+    "HCG-15"
+   ],
+   "gain": 5,
+   "fRemaining": 55,
+   "ownerDecision": true
+  },
+  {
+   "step": 3,
+   "decision": "HCG-16",
+   "bundle": [
+    "HCG-16"
+   ],
+   "gain": 4,
+   "fRemaining": 51,
+   "ownerDecision": true
+  },
+  {
+   "step": 4,
+   "decision": "HCG-04",
+   "bundle": [
+    "HCG-04",
+    "HCG-18"
+   ],
+   "gain": 3,
+   "fRemaining": 48,
+   "ownerDecision": true
+  },
+  {
+   "step": 5,
+   "decision": "HCG-18",
+   "bundle": [
+    "HCG-04",
+    "HCG-18"
+   ],
+   "gain": 4,
+   "fRemaining": 44,
+   "ownerDecision": true
+  },
+  {
+   "step": 6,
+   "decision": "HCG-17",
+   "bundle": [
+    "HCG-17"
+   ],
+   "gain": 4,
+   "fRemaining": 40,
+   "ownerDecision": true
+  },
+  {
+   "step": 7,
+   "decision": "HCG-02",
+   "bundle": [
+    "HCG-02"
+   ],
+   "gain": 3,
+   "fRemaining": 37,
+   "ownerDecision": true
+  },
+  {
+   "step": 8,
+   "decision": "HCG-05",
+   "bundle": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "gain": 0,
+   "fRemaining": 37,
+   "ownerDecision": true
+  },
+  {
+   "step": 9,
+   "decision": "HCG-06",
+   "bundle": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "gain": 8,
+   "fRemaining": 29,
+   "ownerDecision": true
+  },
+  {
+   "step": 10,
+   "decision": "HCG-09",
+   "bundle": [
+    "HCG-09"
+   ],
+   "gain": 3,
+   "fRemaining": 26,
+   "ownerDecision": true
+  },
+  {
+   "step": 11,
+   "decision": "HCG-25",
+   "bundle": [
+    "HCG-25"
+   ],
+   "gain": 2,
+   "fRemaining": 24,
+   "ownerDecision": true
+  },
+  {
+   "step": 12,
+   "decision": "HCG-21",
+   "bundle": [
+    "HCG-21"
+   ],
+   "gain": 2,
+   "fRemaining": 22,
+   "ownerDecision": true
+  },
+  {
+   "step": 13,
+   "decision": "HCG-20",
+   "bundle": [
+    "HCG-20"
+   ],
+   "gain": 2,
+   "fRemaining": 20,
+   "ownerDecision": true
+  },
+  {
+   "step": 14,
+   "decision": "HCG-10",
+   "bundle": [
+    "HCG-10"
+   ],
+   "gain": 2,
+   "fRemaining": 18,
+   "ownerDecision": true
+  },
+  {
+   "step": 15,
+   "decision": "HCG-07",
+   "bundle": [
+    "HCG-07"
+   ],
+   "gain": 2,
+   "fRemaining": 16,
+   "ownerDecision": true
+  },
+  {
+   "step": 16,
+   "decision": "HCG-19",
+   "bundle": [
+    "HCG-19"
+   ],
+   "gain": 2,
+   "fRemaining": 14,
+   "ownerDecision": true
+  },
+  {
+   "step": 17,
+   "decision": "HCG-11",
+   "bundle": [
+    "HCG-11",
+    "HCG-14"
+   ],
+   "gain": 1,
+   "fRemaining": 13,
+   "ownerDecision": true
+  },
+  {
+   "step": 18,
+   "decision": "HCG-14",
+   "bundle": [
+    "HCG-11",
+    "HCG-14"
+   ],
+   "gain": 2,
+   "fRemaining": 11,
+   "ownerDecision": true
+  },
+  {
+   "step": 19,
+   "decision": "HCG-27",
+   "bundle": [
+    "HCG-27"
+   ],
+   "gain": 1,
+   "fRemaining": 10,
+   "ownerDecision": false
+  },
+  {
+   "step": 20,
+   "decision": "HCG-13",
+   "bundle": [
+    "HCG-13"
+   ],
+   "gain": 1,
+   "fRemaining": 9,
+   "ownerDecision": false
+  },
+  {
+   "step": 21,
+   "decision": "HCG-31",
+   "bundle": [
+    "HCG-31"
+   ],
+   "gain": 1,
+   "fRemaining": 8,
+   "ownerDecision": true
+  },
+  {
+   "step": 22,
+   "decision": "HCG-28",
+   "bundle": [
+    "HCG-28"
+   ],
+   "gain": 1,
+   "fRemaining": 7,
+   "ownerDecision": true
+  },
+  {
+   "step": 23,
+   "decision": "HCG-26",
+   "bundle": [
+    "HCG-26"
+   ],
+   "gain": 1,
+   "fRemaining": 6,
+   "ownerDecision": true
+  },
+  {
+   "step": 24,
+   "decision": "HCG-24",
+   "bundle": [
+    "HCG-24"
+   ],
+   "gain": 1,
+   "fRemaining": 5,
+   "ownerDecision": true
+  },
+  {
+   "step": 25,
+   "decision": "HCG-23",
+   "bundle": [
+    "HCG-23"
+   ],
+   "gain": 1,
+   "fRemaining": 4,
+   "ownerDecision": true
+  },
+  {
+   "step": 26,
+   "decision": "HCG-22",
+   "bundle": [
+    "HCG-22"
+   ],
+   "gain": 1,
+   "fRemaining": 3,
+   "ownerDecision": true
+  },
+  {
+   "step": 27,
+   "decision": "HCG-12",
+   "bundle": [
+    "HCG-12"
+   ],
+   "gain": 1,
+   "fRemaining": 2,
+   "ownerDecision": true
+  },
+  {
+   "step": 28,
+   "decision": "HCG-03",
+   "bundle": [
+    "HCG-03",
+    "HCG-30"
+   ],
+   "gain": 0,
+   "fRemaining": 2,
+   "ownerDecision": true
+  },
+  {
+   "step": 29,
+   "decision": "HCG-30",
+   "bundle": [
+    "HCG-03",
+    "HCG-30"
+   ],
+   "gain": 1,
+   "fRemaining": 1,
+   "ownerDecision": false
+  },
+  {
+   "step": 30,
+   "decision": "HCG-08",
+   "bundle": [
+    "HCG-08",
+    "HCG-29"
+   ],
+   "gain": 0,
+   "fRemaining": 1,
+   "ownerDecision": true
+  },
+  {
+   "step": 31,
+   "decision": "HCG-29",
+   "bundle": [
+    "HCG-08",
+    "HCG-29"
+   ],
+   "gain": 1,
+   "fRemaining": 0,
+   "ownerDecision": true
+  }
+ ],
+ "decisions": [
+  {
+   "id": "HCG-01",
+   "kind": "CONFIRM",
+   "dims": [
+    "id",
+    "family"
+   ],
+   "items": [
+    "beef"
+   ],
+   "question": "Confirm beef (牛肉) as its own topping id, family meat.",
+   "options": [
+    "beef = own id, meat (canonicalizer GENUINELY_NEW_REGISTRY 牛肉→beef, Phase 0B.1)"
+   ],
+   "authority": "GENUINELY_NEW_REGISTRY['牛肉']='beef'; every related id (steak, ground-beef) is meat, so the steak / ground-beef relation cannot change the family",
+   "ownerDecision": false,
+   "newFamilyPressure": null,
+   "fRowsTouched": 9,
+   "fRowsReleasedAlone": 5,
+   "releasedAloneIds": [
+    "bulgogi-pizza-pizzadb-p11",
+    "meat-lovers-pizza-pizzadb-p13",
+    "nigerian-suya-pizza-pizzadb-p5",
+    "rendang-pizza-pizzadb-p14",
+    "yakiniku-pizza"
+   ]
+  },
+  {
+   "id": "HCG-15",
+   "kind": "CATEGORY",
+   "dims": [
+    "category",
+    "family"
+   ],
+   "items": [
+    "mustard",
+    "yuzu-kosho",
+    "balsamic-vinegar",
+    "chutney",
+    "curry-ketchup",
+    "umeboshi-paste",
+    "wasabi",
+    "melted-butter"
+   ],
+   "question": "Condiments: spread sauce, or topping (then family spice)? Decide category first.",
+   "options": [
+    "sauce (spread; no hint family)",
+    "topping → spice (スパイス・薬味)"
+   ],
+   "authority": "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW",
+   "ownerDecision": true,
+   "newFamilyPressure": "A 調味料 family would be new (PR #293 NF-2). If neither option is acceptable → STOP.",
+   "fRowsTouched": 8,
+   "fRowsReleasedAlone": 4,
+   "releasedAloneIds": [
+    "pizza-radicchio-noci-pizzadb-p8",
+    "south-african-boerewors-pizzadb-p14",
+    "ume-shiso-pizza-pizzadb-p14",
+    "yuzu-shrimp-pizza"
+   ]
+  },
+  {
+   "id": "HCG-04",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "green-onion"
+   ],
+   "question": "green-onion (青ねぎ / 万能ねぎ): vegetable or spice (薬味)?",
+   "options": [
+    "vegetable (PR #255 proposal, vegetable.allium)",
+    "spice (スパイス・薬味, as a garnish)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW; related runtime boundary: garlic (herb) is also OD-TAX-7",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 6,
+   "fRowsReleasedAlone": 3,
+   "releasedAloneIds": [
+    "eel-pizza-pizzadb-p1",
+    "sichuan-eggplant-pizza",
+    "tsukimi-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "id": "HCG-16",
+   "kind": "CATEGORY",
+   "dims": [
+    "category",
+    "family"
+   ],
+   "items": [
+    "catupiry",
+    "cashew-cheese",
+    "sour-cream",
+    "condensed-milk"
+   ],
+   "question": "Creamy dairy: cheese (no hint family) or topping? sour-cream / condensed-milk may also be a spread sauce.",
+   "options": [
+    "catupiry, cashew-cheese = cheese; sour-cream = sauce",
+    "sour-cream = topping → other (dairy, explicit)",
+    "cashew-cheese = topping → other (nut-seed, explicit)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW (cheese vs dairy)",
+   "ownerDecision": true,
+   "newFamilyPressure": "乳製品 is not one of the 7 (PR #255 §9: 'do not use'). A topping outcome must pick `other` explicitly, not by default.",
+   "fRowsTouched": 5,
+   "fRowsReleasedAlone": 3,
+   "releasedAloneIds": [
+    "brazilian-catupiry-corn-pizza-pizzadb-p10",
+    "frango-catupiry-pizzadb-p10",
+    "vegan-cashew-cheese-pizza-pizzadb-p1"
+   ]
+  },
+  {
+   "id": "HCG-18",
+   "kind": "ID",
+   "dims": [
+    "id",
+    "category"
+   ],
+   "items": [
+    "chicken-tikka",
+    "peking-duck",
+    "hot-dog",
+    "liver-pate",
+    "baked-beans"
+   ],
+   "question": "Prepared / composite foods: accept as ingredient ids (family of the main ingredient), re-canonicalize, or exclude?",
+   "options": [
+    "accept: chicken-tikka / peking-duck / hot-dog / liver-pate = meat, baked-beans = vegetable",
+    "re-canonicalize (e.g. hot-dog → sausage, peking-duck → duck)",
+    "liver-pate = spread sauce"
+   ],
+   "authority": "TAXONOMY_FLAGS prepared_dish_composite (chicken-tikka, hot-dog, peking-duck); PR #255 NEEDS_REVIEW",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 5,
+   "fRowsReleasedAlone": 3,
+   "releasedAloneIds": [
+    "banh-mi-pizza-pizzadb-p6",
+    "chicken-tikka-pizza-pizzadb-p5",
+    "pizza-overload-pizzadb-p7"
+   ]
+  },
+  {
+   "id": "HCG-06",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "唐辛子",
+    "赤唐辛子",
+    "青唐辛子",
+    "jalapeno",
+    "aji-amarillo"
+   ],
+   "question": "Fresh chili peppers (唐辛子 tokens, jalapeno, aji-amarillo): spice or vegetable?",
+   "options": [
+    "spice (PR #255 proposal spice.chili)",
+    "vegetable (sliced fresh pepper)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW (jalapeno, aji-amarillo); the tokens' indicative family is spice",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 9,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "jalapeno-popper-pizza-pizzadb-p7",
+    "peruvian-aji-amarillo-pizzadb-p12"
+   ]
+  },
+  {
+   "id": "HCG-02",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "ひき肉",
+    "ground-beef"
+   ],
+   "question": "ひき肉 → ground-beef, or a new generic ground-meat id? (ground-beef has no Japanese name evidence of its own.)",
+   "options": [
+    "ひき肉 = ground-beef (gives ground-beef its name evidence)",
+    "new id ground-meat (pork / mixed allowed); ground-beef stays taco-only"
+   ],
+   "authority": "AMBIGUOUS_TABLE['ひき肉'] (never auto-resolved); family meat either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 6,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "pizza-chilena-pizzadb-p8",
+    "taco-pizza-pizzadb"
+   ]
+  },
+  {
+   "id": "HCG-07",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "nori",
+    "青のり"
+   ],
+   "question": "Seaweed (nori, and 青のり if it becomes an id): seafood, spice (薬味) or other?",
+   "options": [
+    "seafood",
+    "spice (as a garnish)",
+    "other (PR #255 proposal other.seaweed)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW (low): 'Seaweed is not 魚介 in everyday Japanese'",
+   "ownerDecision": true,
+   "newFamilyPressure": "A 海藻 family would be a label ≈ name (のり) (PR #255 §8). If none of the 3 options is acceptable → STOP, Owner Decision (new family).",
+   "fRowsTouched": 5,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "mentaiko-cream-pizza-pizzadb-p4",
+    "teriyaki-chicken-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "id": "HCG-17",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "pickles",
+    "kimchi",
+    "sauerkraut"
+   ],
+   "question": "Pickled / fermented vegetables: vegetable or spice (薬味)?",
+   "options": [
+    "vegetable (PR #255 proposal vegetable.pickled)",
+    "spice"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 4,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "nashville-hot-chicken-pizza-pizzadb-p6",
+    "polish-kielbasa-pizzadb-p12"
+   ]
+  },
+  {
+   "id": "HCG-09",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "チーズ"
+   ],
+   "question": "Generic チーズ (3 rows): which cheese id per row?",
+   "options": [
+    "per row, an existing cheese id (mozzarella is NOT a default)",
+    "leave the rows blocked"
+   ],
+   "authority": "AMBIGUOUS_TABLE['チーズ'] generic_unspecified; category cheese, so no hint family is needed",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 3,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "hokkaido-cheese-pizza-pizzadb-p15",
+    "old-forge-style-pizza-pizzadb-p1"
+   ]
+  },
+  {
+   "id": "HCG-10",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "ホワイトソース"
+   ],
+   "question": "ホワイトソース → fromage-blanc-sauce, or a new white-sauce id?",
+   "options": [
+    "fromage-blanc-sauce",
+    "new id white-sauce (béchamel)"
+   ],
+   "authority": "AMBIGUOUS_TABLE['ホワイトソース'] (sauce_not_topping); category sauce, no hint family",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 2,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "breakfast-pizza-pizzadb-p11",
+    "moussaka-style-pizza-pizzadb-p13"
+   ]
+  },
+  {
+   "id": "HCG-21",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "avocado"
+   ],
+   "question": "avocado: vegetable or fruit?",
+   "options": [
+    "vegetable (PR #255 proposal)",
+    "fruit"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 2,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "california-style-pizza-pizzadb-p2",
+    "venezuelan-reina-pepiada-pizzadb-p12"
+   ]
+  },
+  {
+   "id": "HCG-25",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "rock-salt",
+    "zaatar"
+   ],
+   "question": "Seasonings: rock-salt and zaatar → spice or herb? (「スパイス・薬味」 reads oddly for salt.)",
+   "options": [
+    "both spice",
+    "zaatar herb, rock-salt spice"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW",
+   "ownerDecision": true,
+   "newFamilyPressure": "A 調味料 family would be new. Label copy is OD-H5-C4b's, not a family question.",
+   "fRowsTouched": 2,
+   "fRowsReleasedAlone": 2,
+   "releasedAloneIds": [
+    "focaccia-genovese-pizzadb-p10",
+    "manakish"
+   ]
+  },
+  {
+   "id": "HCG-20",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "french-fries",
+    "mochi"
+   ],
+   "question": "Starches (french-fries, mochi): vegetable or other?",
+   "options": [
+    "french-fries = vegetable (potato is vegetable at runtime)",
+    "other (explicit; DH4-1 puts sweets in other)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW (other.starch proposal); runtime potato = vegetable",
+   "ownerDecision": true,
+   "newFamilyPressure": "A 主食・でんぷん family would be new. If neither option is acceptable → STOP.",
+   "fRowsTouched": 3,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "poutine-pizza-pizzadb-p10"
+   ]
+  },
+  {
+   "id": "HCG-11",
+   "kind": "ID",
+   "dims": [
+    "id",
+    "category"
+   ],
+   "items": [
+    "カレーソース",
+    "curry-ketchup"
+   ],
+   "question": "カレーソース vs curry-ketchup: one sauce id or two? Is curry-ketchup a spread sauce?",
+   "options": [
+    "カレーソース = curry-ketchup (sauce)",
+    "new id curry-sauce; curry-ketchup stays (sauce)"
+   ],
+   "authority": "AMBIGUOUS_TABLE['カレーソース']; TAXONOMY_FLAGS カレーケチャップソース = sauce_not_topping",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 2,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "curry-pizza-japan-pizzadb-p2"
+   ]
+  },
+  {
+   "id": "HCG-14",
+   "kind": "ALIAS",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "wurstel",
+    "スパイシーソーセージ"
+   ],
+   "question": "Sausage cluster: wurstel (ウインナー) and スパイシーソーセージ → sausage, or own ids?",
+   "options": [
+    "both alias sausage (runtime id, already meat)",
+    "wurstel own id; スパイシーソーセージ → sausage",
+    "both own ids (meat)"
+   ],
+   "authority": "AMBIGUOUS_TABLE['スパイシーソーセージ']; PR #255 NEEDS_REVIEW wurstel; family meat either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 2,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "quad-cities-style-pizza-pizzadb-p2"
+   ]
+  },
+  {
+   "id": "HCG-13",
+   "kind": "CONFIRM",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "プロヴェルチーズ"
+   ],
+   "question": "Register provel as its own cheese id (not provolone).",
+   "options": [
+    "provel = own id, category cheese"
+   ],
+   "authority": "AMBIGUOUS_TABLE['プロヴェルチーズ']: 'explicitly NOT the same cheese, kept separate'",
+   "ownerDecision": false,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "st-louis-style-pizza-pizzadb-p4"
+   ]
+  },
+  {
+   "id": "HCG-22",
+   "kind": "ALIAS",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "red-cabbage"
+   ],
+   "question": "red-cabbage (紫キャベツ): own id or alias of cabbage?",
+   "options": [
+    "own id",
+    "alias of cabbage"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW; vegetable either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "pizza-cavolo-carote-pizzadb-p8"
+   ]
+  },
+  {
+   "id": "HCG-23",
+   "kind": "ALIAS",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "puntarelle"
+   ],
+   "question": "puntarelle: own id or alias of chicory?",
+   "options": [
+    "own id",
+    "alias of chicory"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW; vegetable either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "pizza-puntarelle-pizzadb-p8"
+   ]
+  },
+  {
+   "id": "HCG-24",
+   "kind": "ID",
+   "dims": [
+    "id",
+    "family"
+   ],
+   "items": [
+    "fennel"
+   ],
+   "question": "フェンネル: bulb (vegetable) or seed / frond (spice / herb)?",
+   "options": [
+    "fennel bulb, vegetable",
+    "fennel seed, spice",
+    "fennel frond, herb"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW (the evidence names only フェンネル)",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "pizza-finocchi-salad-pizzadb-p8"
+   ]
+  },
+  {
+   "id": "HCG-27",
+   "kind": "CONFIRM",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "truffle"
+   ],
+   "question": "Confirm truffle = vegetable (mushroom identity); its post-bake use is timing, not taxonomy.",
+   "options": [
+    "vegetable"
+   ],
+   "authority": "OD-TAX-6 (identity ≠ timing) + OD-DH4-4 (mushrooms fold into vegetable); catalog category topping",
+   "ownerDecision": false,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "black-truffle-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "id": "HCG-28",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "ナッツ"
+   ],
+   "question": "Generic ナッツ (nutella dessert): which id? (family other is DH4-1's rule for nuts)",
+   "options": [
+    "an existing nut id (walnut / almond)",
+    "new id hazelnut",
+    "new generic id nuts"
+   ],
+   "authority": "AMBIGUOUS_TABLE['ナッツ'] generic_unspecified; DH4-1 header: nuts share `other`",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 1,
+   "releasedAloneIds": [
+    "nutella-dessert-pizza-pizzadb-p6"
+   ]
+  },
+  {
+   "id": "HCG-05",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "唐辛子",
+    "赤唐辛子",
+    "青唐辛子"
+   ],
+   "question": "唐辛子 / 赤唐辛子 / 青唐辛子 → one new chili-pepper id, or colour variants? (Never chili-oil.)",
+   "options": [
+    "one id chili-pepper (colour is presentation)",
+    "two ids red-chili / green-chili (+ 唐辛子 = red-chili)"
+   ],
+   "authority": "AMBIGUOUS_TABLE keeps all three distinct from chili-oil (a sauce)",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 7,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-19",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "natto",
+    "baked-beans"
+   ],
+   "question": "Legumes (natto, baked-beans): vegetable or other?",
+   "options": [
+    "vegetable (PR #255 proposal vegetable.legume)",
+    "other (explicit)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 2,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-03",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "肉"
+   ],
+   "question": "Generic 肉 in swedish-kebab-pizza: which meat id?",
+   "options": [
+    "an existing id (beef / pork / chicken / lamb)",
+    "new id kebab-meat",
+    "leave the row blocked"
+   ],
+   "authority": "AMBIGUOUS_TABLE['肉'] generic_unspecified; family meat either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-08",
+   "kind": "ALIAS",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "青のり"
+   ],
+   "question": "青のり → nori (alias), or its own id?",
+   "options": [
+    "alias of nori",
+    "own id aonori (same family as nori, HCG-07)"
+   ],
+   "authority": "AMBIGUOUS_TABLE['青のり'] ('related but distinct'); family follows HCG-07 either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-12",
+   "kind": "ID",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "チーズソース"
+   ],
+   "question": "チーズソース: register a new cheese-sauce id (category sauce)?",
+   "options": [
+    "new id cheese-sauce (sauce)",
+    "leave the row blocked"
+   ],
+   "authority": "AMBIGUOUS_TABLE['チーズソース'] says: a SAUCE, not merged into any cheese id",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-26",
+   "kind": "ALIAS",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "mentaiko"
+   ],
+   "question": "mentaiko (明太子) vs cod-roe (たらこ): two ids or one?",
+   "options": [
+    "two ids (seafood)",
+    "mentaiko alias of cod-roe"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW; seafood either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-29",
+   "kind": "FAMILY",
+   "dims": [
+    "family"
+   ],
+   "items": [
+    "bonito-flakes"
+   ],
+   "question": "bonito-flakes (かつお節): seafood or spice (薬味)?",
+   "options": [
+    "seafood (PR #255 proposal)",
+    "spice (as a garnish)"
+   ],
+   "authority": "PR #255 NEEDS_REVIEW (seafood / seaweed bucket)",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-30",
+   "kind": "CONFIRM",
+   "dims": [
+    "category"
+   ],
+   "items": [
+    "kebab-sauce"
+   ],
+   "question": "Confirm kebab-sauce = sauce (no hint family).",
+   "options": [
+    "sauce"
+   ],
+   "authority": "TAXONOMY_FLAGS['ケバブソース'] = sauce_not_topping; 172 spread-layer list",
+   "ownerDecision": false,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  },
+  {
+   "id": "HCG-31",
+   "kind": "ALIAS",
+   "dims": [
+    "id"
+   ],
+   "items": [
+    "spicy-salami"
+   ],
+   "question": "spicy-salami (サラミピカンテ): own id, or a variant of salami?",
+   "options": [
+    "own id (catalog, used by diavola)",
+    "alias of salami"
+   ],
+   "authority": "LIKELY_ALIAS_TABLE['サラミピカンテ']='spicy-salami' (distinct from plain salami); meat either way",
+   "ownerDecision": true,
+   "newFamilyPressure": null,
+   "fRowsTouched": 1,
+   "fRowsReleasedAlone": 0,
+   "releasedAloneIds": []
+  }
+ ],
+ "items": [
+  {
+   "item": "beef",
+   "rawNames": [
+    "牛肉"
+   ],
+   "displayName": "牛肉",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "beef"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [
+    "肉"
+   ],
+   "ambiguity": "Its relationship to steak and ground-beef is unresolved (canonicalizer note on 牛肉).",
+   "reviewBucket": "meat alias / cut",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "GENUINELY_NEW_REGISTRY['牛肉']='beef'; every related id (steak, ground-beef) is meat, so the steak / ground-beef relation cannot change the family"
+   ],
+   "decisions": [
+    "HCG-01"
+   ],
+   "blockerTypes": [
+    "CONFIRM_ONLY"
+   ],
+   "confirmOnly": true,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": false,
+   "usage172Rows": 9,
+   "fRows": 9,
+   "fRowsSoleBlocker": 5,
+   "fRowIds": [
+    "bulgogi-pizza-pizzadb-p11",
+    "goulash-pizza-pizzadb-p3",
+    "meat-lovers-pizza-pizzadb-p13",
+    "nigerian-suya-pizza-pizzadb-p5",
+    "philly-cheesesteak-pizza-pizzadb-p9",
+    "pizza-de-lomo-saltado",
+    "rendang-pizza-pizzadb-p14",
+    "wasabi-beef-pizza",
+    "yakiniku-pizza"
+   ]
+  },
+  {
+   "item": "green-onion",
+   "rawNames": [
+    "青ねぎ"
+   ],
+   "displayName": "青ねぎ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "green-onion"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [
+    "万能ねぎ"
+   ],
+   "ambiguity": "青ねぎ is also a 薬味 (garnish) in Japanese use. Is it vegetable or spice.condiment?",
+   "reviewBucket": "herb vs vegetable / spice",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW; related runtime boundary: garlic (herb) is also OD-TAX-7"
+   ],
+   "decisions": [
+    "HCG-04"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 6,
+   "fRows": 6,
+   "fRowsSoleBlocker": 3,
+   "fRowIds": [
+    "eel-pizza-pizzadb-p1",
+    "kimchi-pizza-pizzadb-p2",
+    "natto-pizza",
+    "peking-duck-pizza",
+    "sichuan-eggplant-pizza",
+    "tsukimi-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "item": "唐辛子",
+   "rawNames": [
+    "唐辛子"
+   ],
+   "displayName": "唐辛子",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "chili-oil"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Its form is unknown (fresh, dried or flakes). It is in the chili ambiguity group.",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE keeps all three distinct from chili-oil (a sauce)",
+    "PR #255 NEEDS_REVIEW (jalapeno, aji-amarillo); the tokens' indicative family is spice"
+   ],
+   "decisions": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING",
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 5,
+   "fRows": 5,
+   "fRowsSoleBlocker": 3,
+   "fRowIds": [
+    "diavola-pizza-pizzadb-p5",
+    "lahmacun",
+    "pizza-baiana",
+    "pizza-cicoria-limone-pizzadb-p8",
+    "pizza-de-cancha"
+   ]
+  },
+  {
+   "item": "nori",
+   "rawNames": [
+    "海苔"
+   ],
+   "displayName": "のり",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "nori"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": true,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "CATALOG_CANONICAL",
+   "aliasCandidates": [
+    "海苔",
+    "青のり"
+   ],
+   "ambiguity": "Seaweed is not 魚介 in everyday Japanese. Candidates: seafood, other, or spice.condiment (a garnish). An Owner call.",
+   "reviewBucket": "seafood / seaweed",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "catalog",
+   "categoryOpen": false,
+   "familyCandidate": "other",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (low): 'Seaweed is not 魚介 in everyday Japanese'"
+   ],
+   "decisions": [
+    "HCG-07"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 4,
+   "fRows": 4,
+   "fRowsSoleBlocker": 2,
+   "fRowIds": [
+    "mentaiko-cream-pizza-pizzadb-p4",
+    "mentaiko-mochi-pizza",
+    "natto-pizza",
+    "teriyaki-chicken-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "item": "チーズ",
+   "rawNames": [
+    "チーズ"
+   ],
+   "displayName": "チーズ",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "mozzarella"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Cheese of an unknown variety (generic_unspecified).",
+   "reviewBucket": null,
+   "taxonomyFlag": "generic_unspecified",
+   "categoryCandidate": "cheese",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": null,
+   "familyCandidateNote": "not applicable: sauce / cheese carry no hint family",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['チーズ'] generic_unspecified; category cheese, so no hint family is needed"
+   ],
+   "decisions": [
+    "HCG-09"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "mozzarella",
+    "cheddar",
+    "parmigiano"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 3,
+   "fRows": 3,
+   "fRowsSoleBlocker": 2,
+   "fRowIds": [
+    "hokkaido-cheese-pizza-pizzadb-p15",
+    "old-forge-style-pizza-pizzadb-p1",
+    "turkish-pide-pizzadb-p5"
+   ]
+  },
+  {
+   "item": "avocado",
+   "rawNames": [
+    "アボカド"
+   ],
+   "displayName": "アボカド",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "avocado"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Is it a vegetable or a fruit (果物) to Japanese players? An Owner call.",
+   "reviewBucket": "boundary / near-alias",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-21"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 2,
+   "fRows": 2,
+   "fRowsSoleBlocker": 2,
+   "fRowIds": [
+    "california-style-pizza-pizzadb-p2",
+    "venezuelan-reina-pepiada-pizzadb-p12"
+   ]
+  },
+  {
+   "item": "catupiry",
+   "rawNames": [
+    "カトゥピリチーズ"
+   ],
+   "displayName": "カトゥピリチーズ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "catupiry"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A creamy processed cheese, often a spread. Its category needs a check.",
+   "reviewBucket": "cheese vs dairy",
+   "taxonomyFlag": null,
+   "categoryCandidate": "cheese",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (cheese vs dairy)"
+   ],
+   "decisions": [
+    "HCG-16"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 2,
+   "fRows": 2,
+   "fRowsSoleBlocker": 2,
+   "fRowIds": [
+    "brazilian-catupiry-corn-pizza-pizzadb-p10",
+    "frango-catupiry-pizzadb-p10"
+   ]
+  },
+  {
+   "item": "ホワイトソース",
+   "rawNames": [
+    "ホワイトソース"
+   ],
+   "displayName": "ホワイトソース",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "fromage-blanc-sauce"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Is it the same as fromage-blanc-sauce or a béchamel?",
+   "reviewBucket": null,
+   "taxonomyFlag": "sauce_not_topping",
+   "categoryCandidate": "sauce",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": null,
+   "familyCandidateNote": "not applicable: sauce / cheese carry no hint family",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['ホワイトソース'] (sauce_not_topping); category sauce, no hint family"
+   ],
+   "decisions": [
+    "HCG-10"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "fromage-blanc-sauce"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 2,
+   "fRows": 2,
+   "fRowsSoleBlocker": 2,
+   "fRowIds": [
+    "breakfast-pizza-pizzadb-p11",
+    "moussaka-style-pizza-pizzadb-p13"
+   ]
+  },
+  {
+   "item": "ひき肉",
+   "rawNames": [
+    "ひき肉"
+   ],
+   "displayName": "ひき肉",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "ground-beef"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "The family is certain. Is it ground-beef or pork/mixed?",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['ひき肉'] (never auto-resolved); family meat either way"
+   ],
+   "decisions": [
+    "HCG-02"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "ground-beef"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 5,
+   "fRows": 5,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "feteer-meshaltet-pizzadb-p10",
+    "keema-pizza-pizzadb-p2",
+    "lahmacun",
+    "pizza-chilena-pizzadb-p8",
+    "turkish-pide-pizzadb-p5"
+   ]
+  },
+  {
+   "item": "french-fries",
+   "rawNames": [
+    "フライドポテト"
+   ],
+   "displayName": "フライドポテト",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "french-fries"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": true,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "CATALOG_CANONICAL",
+   "aliasCandidates": [],
+   "ambiguity": "Potato-derived and prepared. Is it vegetable.root or other.starch? Mid-bake in its 172 evidence.",
+   "reviewBucket": "prepared / composite",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "catalog",
+   "categoryOpen": false,
+   "familyCandidate": "other",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (other.starch proposal); runtime potato = vegetable"
+   ],
+   "decisions": [
+    "HCG-20"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 2,
+   "fRows": 2,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "pizza-de-lomo-saltado",
+    "poutine-pizza-pizzadb-p10"
+   ]
+  },
+  {
+   "item": "pickles",
+   "rawNames": [
+    "ピクルス"
+   ],
+   "displayName": "ピクルス",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "pickles"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A pickled vegetable. Is it a vegetable or spice.condiment?",
+   "reviewBucket": "pickled / fermented / legume",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-17"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 2,
+   "fRows": 2,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "cuban-pizza-pizzadb-p2",
+    "nashville-hot-chicken-pizza-pizzadb-p6"
+   ]
+  },
+  {
+   "item": "aji-amarillo",
+   "rawNames": [
+    "アヒアマリージョ"
+   ],
+   "displayName": "アヒアマリージョ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "aji-amarillo"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A Peruvian chili pepper. It may be a paste. Its form is unknown.",
+   "reviewBucket": "herb vs vegetable / spice",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (jalapeno, aji-amarillo); the tokens' indicative family is spice"
+   ],
+   "decisions": [
+    "HCG-06"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "peruvian-aji-amarillo-pizzadb-p12"
+   ]
+  },
+  {
+   "item": "baked-beans",
+   "rawNames": [
+    "ベイクドビーンズ"
+   ],
+   "displayName": "ベイクドビーンズ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "baked-beans"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A prepared dish (beans in sauce).",
+   "reviewBucket": "pickled / fermented / legume",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS prepared_dish_composite (chicken-tikka, hot-dog, peking-duck); PR #255 NEEDS_REVIEW",
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-18",
+    "HCG-19"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "full-english-pizza-pizzadb-p10"
+   ]
+  },
+  {
+   "item": "balsamic-vinegar",
+   "rawNames": [
+    "バルサミコ酢"
+   ],
+   "displayName": "バルサミコ酢",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "balsamic-vinegar"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag sauce_or_condiment.",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_or_condiment",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "pizza-radicchio-noci-pizzadb-p8"
+   ]
+  },
+  {
+   "item": "cashew-cheese",
+   "rawNames": [
+    "カシューナッツチーズ"
+   ],
+   "displayName": "カシューナッツチーズ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "cashew-cheese"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A plant-based substitute. Is it a cheese (category) or other.nut-seed? An Owner call.",
+   "reviewBucket": "cheese vs dairy",
+   "taxonomyFlag": null,
+   "categoryCandidate": "cheese",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (cheese vs dairy)"
+   ],
+   "decisions": [
+    "HCG-16"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "vegan-cashew-cheese-pizza-pizzadb-p1"
+   ]
+  },
+  {
+   "item": "chicken-tikka",
+   "rawNames": [
+    "チキンティッカ"
+   ],
+   "displayName": "チキンティッカ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "chicken-tikka"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag prepared_dish_composite (a marinated, cooked dish).",
+   "reviewBucket": "prepared / composite",
+   "taxonomyFlag": "prepared_dish_composite",
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS prepared_dish_composite (chicken-tikka, hot-dog, peking-duck); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-18"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "chicken-tikka-pizza-pizzadb-p5"
+   ]
+  },
+  {
+   "item": "chutney",
+   "rawNames": [
+    "チャツネ"
+   ],
+   "displayName": "チャツネ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "chutney"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag sauce_or_condiment.",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_or_condiment",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "south-african-boerewors-pizzadb-p14"
+   ]
+  },
+  {
+   "item": "fennel",
+   "rawNames": [
+    "フェンネル"
+   ],
+   "displayName": "フェンネル",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "fennel"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Fennel bulb (a vegetable) or fennel seed/frond (a herb/spice)? The evidence names only フェンネル.",
+   "reviewBucket": "herb vs vegetable / spice",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (the evidence names only フェンネル)"
+   ],
+   "decisions": [
+    "HCG-24"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "pizza-finocchi-salad-pizzadb-p8"
+   ]
+  },
+  {
+   "item": "ground-beef",
+   "rawNames": [
+    "ground-beef"
+   ],
+   "displayName": "ground-beef",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "ground-beef"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "ID_WITHOUT_NAME_EVIDENCE",
+   "aliasCandidates": [
+    "ひき肉",
+    "肉"
+   ],
+   "ambiguity": "Ambiguity group with the ひき肉 token (canonicalizer AMBIGUOUS_TABLE).",
+   "reviewBucket": "meat alias / cut",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['ひき肉'] (never auto-resolved); family meat either way"
+   ],
+   "decisions": [
+    "HCG-02"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "beef"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "taco-pizza-pizzadb"
+   ]
+  },
+  {
+   "item": "hot-dog",
+   "rawNames": [
+    "ホットドッグ"
+   ],
+   "displayName": "ホットドッグ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "hot-dog"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag prepared_dish_composite. It may be a dish (sausage + bun), not an ingredient.",
+   "reviewBucket": "prepared / composite",
+   "taxonomyFlag": "prepared_dish_composite",
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS prepared_dish_composite (chicken-tikka, hot-dog, peking-duck); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-18"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "pizza-overload-pizzadb-p7"
+   ]
+  },
+  {
+   "item": "jalapeno",
+   "rawNames": [
+    "ハラペーニョ"
+   ],
+   "displayName": "ハラペーニョ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "jalapeno"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A chili pepper. Is it a vegetable (sliced pepper) or スパイス・薬味? An Owner call.",
+   "reviewBucket": "herb vs vegetable / spice",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (jalapeno, aji-amarillo); the tokens' indicative family is spice"
+   ],
+   "decisions": [
+    "HCG-06"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "jalapeno-popper-pizza-pizzadb-p7"
+   ]
+  },
+  {
+   "item": "liver-pate",
+   "rawNames": [
+    "レバーパテ"
+   ],
+   "displayName": "レバーパテ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "liver-pate"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A paste made from liver. Is it a meat topping or a spread condiment? An Owner call.",
+   "reviewBucket": "meat alias / cut",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS prepared_dish_composite (chicken-tikka, hot-dog, peking-duck); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-18"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "banh-mi-pizza-pizzadb-p6"
+   ]
+  },
+  {
+   "item": "puntarelle",
+   "rawNames": [
+    "プンタレッレ"
+   ],
+   "displayName": "プンタレッレ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "puntarelle"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A chicory variety. Near-alias of chicory.",
+   "reviewBucket": "boundary / near-alias",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW; vegetable either way"
+   ],
+   "decisions": [
+    "HCG-23"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "chicory"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "pizza-puntarelle-pizzadb-p8"
+   ]
+  },
+  {
+   "item": "red-cabbage",
+   "rawNames": [
+    "紫キャベツ"
+   ],
+   "displayName": "紫キャベツ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "red-cabbage"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A near-alias of cabbage. Does it stay a separate id?",
+   "reviewBucket": "boundary / near-alias",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW; vegetable either way"
+   ],
+   "decisions": [
+    "HCG-22"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "cabbage"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "pizza-cavolo-carote-pizzadb-p8"
+   ]
+  },
+  {
+   "item": "rock-salt",
+   "rawNames": [
+    "岩塩"
+   ],
+   "displayName": "岩塩",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "rock-salt"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Salt is a seasoning, not a spice. The label スパイス・薬味 may not read naturally for it.",
+   "reviewBucket": "herb vs vegetable / spice",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-25"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "focaccia-genovese-pizzadb-p10"
+   ]
+  },
+  {
+   "item": "sauerkraut",
+   "rawNames": [
+    "ザワークラウト"
+   ],
+   "displayName": "ザワークラウト",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "sauerkraut"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A fermented vegetable. Is it a vegetable or spice.condiment?",
+   "reviewBucket": "pickled / fermented / legume",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-17"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "polish-kielbasa-pizzadb-p12"
+   ]
+  },
+  {
+   "item": "truffle",
+   "rawNames": [
+    "トリュフ"
+   ],
+   "displayName": "トリュフ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "truffle"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": true,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "CATALOG_CANONICAL",
+   "aliasCandidates": [],
+   "ambiguity": "A mushroom by identity, but a post-bake luxury finish in use. Keep the family vegetable and put the finish in timing/technique.",
+   "reviewBucket": "finishing ingredient",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "catalog",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "OD-TAX-6 (identity ≠ timing) + OD-DH4-4 (mushrooms fold into vegetable); catalog category topping"
+   ],
+   "decisions": [
+    "HCG-27"
+   ],
+   "blockerTypes": [
+    "CONFIRM_ONLY"
+   ],
+   "confirmOnly": true,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": false,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "black-truffle-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "item": "umeboshi-paste",
+   "rawNames": [
+    "梅肉"
+   ],
+   "displayName": "梅肉",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "umeboshi-paste"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag false_friend_not_meat. It is a paste. Its category (topping vs spread) is unresolved.",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "false_friend_not_meat -- contains 肉 kanji but means plum FLESH, not meat; do not group with beef/pork/chicken/ground-beef.",
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "ume-shiso-pizza-pizzadb-p14"
+   ]
+  },
+  {
+   "item": "yuzu-kosho",
+   "rawNames": [
+    "柚子胡椒"
+   ],
+   "displayName": "柚子胡椒",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "yuzu-kosho"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag sauce_or_condiment. It is a paste 薬味. Is it a spread or spice.condiment?",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_or_condiment",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "yuzu-shrimp-pizza"
+   ]
+  },
+  {
+   "item": "zaatar",
+   "rawNames": [
+    "ザアタル"
+   ],
+   "displayName": "ザアタル",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "zaatar"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A herb-and-sesame blend. Is it spice or herb?",
+   "reviewBucket": "herb vs vegetable / spice",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-25"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "manakish"
+   ]
+  },
+  {
+   "item": "カレーソース",
+   "rawNames": [
+    "カレーソース"
+   ],
+   "displayName": "カレーソース",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "curry-ketchup"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Is it the same as curry-ketchup?",
+   "reviewBucket": null,
+   "taxonomyFlag": "sauce_not_topping",
+   "categoryCandidate": "sauce",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['カレーソース']; TAXONOMY_FLAGS カレーケチャップソース = sauce_not_topping"
+   ],
+   "decisions": [
+    "HCG-11"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "curry-pizza-japan-pizzadb-p2"
+   ]
+  },
+  {
+   "item": "スパイシーソーセージ",
+   "rawNames": [
+    "スパイシーソーセージ"
+   ],
+   "displayName": "スパイシーソーセージ",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "sausage"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "The family is certain. Is it the same id as sausage or spicy-salami?",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['スパイシーソーセージ']; PR #255 NEEDS_REVIEW wurstel; family meat either way"
+   ],
+   "decisions": [
+    "HCG-14"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "sausage"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "quad-cities-style-pizza-pizzadb-p2"
+   ]
+  },
+  {
+   "item": "ナッツ",
+   "rawNames": [
+    "ナッツ"
+   ],
+   "displayName": "ナッツ",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "walnut"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Nuts of an unknown variety (generic_unspecified).",
+   "reviewBucket": null,
+   "taxonomyFlag": "generic_unspecified",
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "other",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['ナッツ'] generic_unspecified; DH4-1 header: nuts share `other`"
+   ],
+   "decisions": [
+    "HCG-28"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "walnut",
+    "almond"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "nutella-dessert-pizza-pizzadb-p6"
+   ]
+  },
+  {
+   "item": "プロヴェルチーズ",
+   "rawNames": [
+    "プロヴェルチーズ"
+   ],
+   "displayName": "プロヴェルチーズ",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "provolone"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Kept distinct from provolone.",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "cheese",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": null,
+   "familyCandidateNote": "not applicable: sauce / cheese carry no hint family",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['プロヴェルチーズ']: 'explicitly NOT the same cheese, kept separate'"
+   ],
+   "decisions": [
+    "HCG-13"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING",
+    "CONFIRM_ONLY"
+   ],
+   "confirmOnly": true,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": false,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "st-louis-style-pizza-pizzadb-p4"
+   ]
+  },
+  {
+   "item": "赤唐辛子",
+   "rawNames": [
+    "赤唐辛子"
+   ],
+   "displayName": "赤唐辛子",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "chili-oil"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "The chili ambiguity group.",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE keeps all three distinct from chili-oil (a sauce)",
+    "PR #255 NEEDS_REVIEW (jalapeno, aji-amarillo); the tokens' indicative family is spice"
+   ],
+   "decisions": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING",
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 1,
+   "fRowIds": [
+    "thai-chicken-pizza-pizzadb-p4"
+   ]
+  },
+  {
+   "item": "bonito-flakes",
+   "rawNames": [
+    "かつお節"
+   ],
+   "displayName": "かつお節",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "bonito-flakes"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Dried fish flakes used as a garnish (かつお節). Is it seafood or spice.condiment (薬味)? An Owner call.",
+   "reviewBucket": "seafood / seaweed",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "seafood",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (seafood / seaweed bucket)"
+   ],
+   "decisions": [
+    "HCG-29"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "okonomiyaki-style-pizza-pizzadb-p1"
+   ]
+  },
+  {
+   "item": "condensed-milk",
+   "rawNames": [
+    "コンデンスミルク"
+   ],
+   "displayName": "コンデンスミルク",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "condensed-milk"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A liquid. Its category (topping vs spread) is unresolved.",
+   "reviewBucket": "cheese vs dairy",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "other",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (cheese vs dairy)"
+   ],
+   "decisions": [
+    "HCG-16"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "feteer-meshaltet-pizzadb-p10"
+   ]
+  },
+  {
+   "item": "curry-ketchup",
+   "rawNames": [
+    "curry-ketchup"
+   ],
+   "displayName": "カレーケチャップソース",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "curry-ketchup"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [
+    "カレーケチャップソース",
+    "カレーソース"
+   ],
+   "ambiguity": "Is it tomato or condiment? A generic カレーソース token is ambiguous with it.",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_not_topping",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['カレーソース']; TAXONOMY_FLAGS カレーケチャップソース = sauce_not_topping",
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-11",
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "currywurst-pizzadb"
+   ]
+  },
+  {
+   "item": "kebab-sauce",
+   "rawNames": [
+    "ケバブソース"
+   ],
+   "displayName": "ケバブソース",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "kebab-sauce"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Its composition is regional and unspecified (a yogurt or garlic sauce?).",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_not_topping",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": false,
+   "familyCandidate": null,
+   "familyCandidateNote": "not applicable: sauce / cheese carry no hint family",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS['ケバブソース'] = sauce_not_topping; 172 spread-layer list"
+   ],
+   "decisions": [
+    "HCG-30"
+   ],
+   "blockerTypes": [
+    "CONFIRM_ONLY"
+   ],
+   "confirmOnly": true,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": false,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "swedish-kebab-pizza-pizzadb-p4"
+   ]
+  },
+  {
+   "item": "kimchi",
+   "rawNames": [
+    "キムチ"
+   ],
+   "displayName": "キムチ",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "kimchi"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "A fermented vegetable. Is it a vegetable or spice.condiment?",
+   "reviewBucket": "pickled / fermented / legume",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-17"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "kimchi-pizza-pizzadb-p2"
+   ]
+  },
+  {
+   "item": "melted-butter",
+   "rawNames": [
+    "溶かしバター"
+   ],
+   "displayName": "溶かしバター",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "melted-butter"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag sauce_or_condiment.",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_or_condiment",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "feteer-meshaltet-pizzadb-p10"
+   ]
+  },
+  {
+   "item": "mentaiko",
+   "rawNames": [
+    "明太子"
+   ],
+   "displayName": "明太子",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "mentaiko"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Seasoned cod roe (明太子). It is a near-alias of cod-roe (たらこ), so an Owner call is needed on whether they stay two ids.",
+   "reviewBucket": "seafood / seaweed",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "seafood",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW; seafood either way"
+   ],
+   "decisions": [
+    "HCG-26"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "cod-roe"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "mentaiko-mochi-pizza"
+   ]
+  },
+  {
+   "item": "mochi",
+   "rawNames": [
+    "もち"
+   ],
+   "displayName": "もち",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "mochi"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Is it a sweet or a starch? The evidence is a savory Japanese fusion pizza (unverified).",
+   "reviewBucket": "boundary / near-alias",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "other",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (other.starch proposal); runtime potato = vegetable"
+   ],
+   "decisions": [
+    "HCG-20"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "mentaiko-mochi-pizza"
+   ]
+  },
+  {
+   "item": "mustard",
+   "rawNames": [
+    "マスタード"
+   ],
+   "displayName": "マスタード",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "mustard"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag sauce_or_condiment. Is it a spread or spice.condiment?",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": "sauce_or_condiment",
+   "categoryCandidate": "sauce",
+   "categorySource": "evidence",
+   "categoryOpen": true,
+   "familyCandidate": null,
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "cuban-pizza-pizzadb-p2"
+   ]
+  },
+  {
+   "item": "natto",
+   "rawNames": [
+    "納豆"
+   ],
+   "displayName": "納豆",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "natto"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Fermented soybeans. Is it a vegetable (legume) or other? It also has mid-bake timing evidence.",
+   "reviewBucket": "pickled / fermented / legume",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": false,
+   "familyCandidate": "vegetable",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-19"
+   ],
+   "blockerTypes": [
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "natto-pizza"
+   ]
+  },
+  {
+   "item": "peking-duck",
+   "rawNames": [
+    "北京ダック"
+   ],
+   "displayName": "北京ダック",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "peking-duck"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Canonicalizer flag prepared_dish_composite.",
+   "reviewBucket": "prepared / composite",
+   "taxonomyFlag": "prepared_dish_composite",
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "low",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS prepared_dish_composite (chicken-tikka, hot-dog, peking-duck); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-18"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION",
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "peking-duck-pizza"
+   ]
+  },
+  {
+   "item": "sour-cream",
+   "rawNames": [
+    "サワークリーム"
+   ],
+   "displayName": "サワークリーム",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "sour-cream"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Cheese vs dairy vs spread. Its category is unresolved.",
+   "reviewBucket": "cheese vs dairy",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "other",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (cheese vs dairy)"
+   ],
+   "decisions": [
+    "HCG-16"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "goulash-pizza-pizzadb-p3"
+   ]
+  },
+  {
+   "item": "spicy-salami",
+   "rawNames": [
+    "サラミピカンテ"
+   ],
+   "displayName": "サラミ（ピリ辛）",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "spicy-salami"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": true,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "CATALOG_CANONICAL",
+   "aliasCandidates": [
+    "サラミピカンテ"
+   ],
+   "ambiguity": "Near-alias of salami (サラミ（ピリ辛）). As a separate id, the subfamily meat.cured is fine, but the two names differ only in a flavor. A flavor hint would then isolate it.",
+   "reviewBucket": "meat alias / cut",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "catalog",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "LIKELY_ALIAS_TABLE['サラミピカンテ']='spicy-salami' (distinct from plain salami); meat either way"
+   ],
+   "decisions": [
+    "HCG-31"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "salami"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "diavola-pizza-pizzadb-p5"
+   ]
+  },
+  {
+   "item": "wasabi",
+   "rawNames": [
+    "わさび"
+   ],
+   "displayName": "わさび",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "wasabi"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": true,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "REGISTERED_NEW_ID",
+   "aliasCandidates": [],
+   "ambiguity": "Post-bake in its 172 evidence. Its category (topping vs spread) is also unresolved.",
+   "reviewBucket": "condiment vs topping / spread",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "proposed",
+   "categoryOpen": true,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "withheld: category undecided (family only after the category)",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "TAXONOMY_FLAGS sauce_or_condiment (mustard, yuzu-kosho, balsamic, chutney, 溶かしバター); false_friend_not_meat (梅肉); PR #255 NEEDS_REVIEW"
+   ],
+   "decisions": [
+    "HCG-15"
+   ],
+   "blockerTypes": [
+    "CATEGORY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "wasabi-beef-pizza"
+   ]
+  },
+  {
+   "item": "wurstel",
+   "rawNames": [
+    "wurstel"
+   ],
+   "displayName": "ウインナー",
+   "isUnresolvedToken": false,
+   "canonicalIdCandidates": [
+    "wurstel"
+   ],
+   "relatedIdsFromAmbiguityTable": [],
+   "idExists": {
+    "runtime": false,
+    "catalog62": true,
+    "canonicalizerRegistry": false,
+    "pr255Row": true
+   },
+   "canonicalizationStatus": "CATALOG_CANONICAL",
+   "aliasCandidates": [],
+   "ambiguity": "ウインナー vs sausage (ソーセージ) vs hot-dog: three sausage-like ids. The canonicalization relationship needs an Owner call.",
+   "reviewBucket": "meat alias / cut",
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "catalog",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "medium",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['スパイシーソーセージ']; PR #255 NEEDS_REVIEW wurstel; family meat either way"
+   ],
+   "decisions": [
+    "HCG-14"
+   ],
+   "blockerTypes": [
+    "ALIAS_OR_ID_RELATION"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "sausage"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "currywurst-pizzadb"
+   ]
+  },
+  {
+   "item": "チーズソース",
+   "rawNames": [
+    "チーズソース"
+   ],
+   "displayName": "チーズソース",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "mozzarella"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "sauce_not_topping.",
+   "reviewBucket": null,
+   "taxonomyFlag": "sauce_not_topping",
+   "categoryCandidate": "sauce",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": null,
+   "familyCandidateNote": "not applicable: sauce / cheese carry no hint family",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['チーズソース'] says: a SAUCE, not merged into any cheese id"
+   ],
+   "decisions": [
+    "HCG-12"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": true,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "philly-cheesesteak-pizza-pizzadb-p9"
+   ]
+  },
+  {
+   "item": "肉",
+   "rawNames": [
+    "肉"
+   ],
+   "displayName": "肉",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "beef",
+    "pork",
+    "chicken",
+    "ground-beef"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "The family is certain (meat), but the id is unknown (generic_unspecified).",
+   "reviewBucket": null,
+   "taxonomyFlag": "generic_unspecified",
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "meat",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE['肉'] generic_unspecified; family meat either way"
+   ],
+   "decisions": [
+    "HCG-03"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": true,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [
+    "beef",
+    "pork",
+    "chicken",
+    "lamb"
+   ],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "swedish-kebab-pizza-pizzadb-p4"
+   ]
+  },
+  {
+   "item": "青のり",
+   "rawNames": [
+    "青のり"
+   ],
+   "displayName": "青のり",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "nori"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "Related to nori, and kept distinct.",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "other",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "PR #255 NEEDS_REVIEW (low): 'Seaweed is not 魚介 in everyday Japanese'",
+    "AMBIGUOUS_TABLE['青のり'] ('related but distinct'); family follows HCG-07 either way"
+   ],
+   "decisions": [
+    "HCG-07",
+    "HCG-08"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING",
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "okonomiyaki-style-pizza-pizzadb-p1"
+   ]
+  },
+  {
+   "item": "青唐辛子",
+   "rawNames": [
+    "青唐辛子"
+   ],
+   "displayName": "青唐辛子",
+   "isUnresolvedToken": true,
+   "canonicalIdCandidates": [],
+   "relatedIdsFromAmbiguityTable": [
+    "chili-oil"
+   ],
+   "idExists": {
+    "runtime": false,
+    "catalog62": false,
+    "canonicalizerRegistry": false,
+    "pr255Row": false
+   },
+   "canonicalizationStatus": "UNRESOLVED_AMBIGUOUS",
+   "aliasCandidates": [],
+   "ambiguity": "The chili ambiguity group. It may be a vegetable if it is fresh.",
+   "reviewBucket": null,
+   "taxonomyFlag": null,
+   "categoryCandidate": "topping",
+   "categorySource": "indicative (PR #255 unresolvedTokens)",
+   "categoryOpen": false,
+   "familyCandidate": "spice",
+   "familyCandidateNote": "PR #255 proposal / token indication, NOT authority",
+   "solvableWithin7Families": true,
+   "confidence": "unknown",
+   "existingAuthority": [
+    "AMBIGUOUS_TABLE keeps all three distinct from chili-oil (a sauce)",
+    "PR #255 NEEDS_REVIEW (jalapeno, aji-amarillo); the tokens' indicative family is spice"
+   ],
+   "decisions": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "blockerTypes": [
+    "CANONICAL_ID_MISSING",
+    "FAMILY_UNDECIDED"
+   ],
+   "confirmOnly": false,
+   "aliasOnly": false,
+   "idOnlyNewId": false,
+   "aliasTargetsExisting": [],
+   "humanReviewRequired": true,
+   "usage172Rows": 1,
+   "fRows": 1,
+   "fRowsSoleBlocker": 0,
+   "fRowIds": [
+    "keema-pizza-pizzadb-p2"
+   ]
+  }
+ ],
+ "fRows": [
+  {
+   "recipeId": "banh-mi-pizza-pizzadb-p6",
+   "nameJa": "バインミーピザ",
+   "blockers": [
+    "liver-pate"
+   ],
+   "decisionsNeeded": [
+    "HCG-18"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "black-truffle-pizza-pizzadb-p14",
+   "nameJa": "黒トリュフピザ",
+   "blockers": [
+    "truffle"
+   ],
+   "decisionsNeeded": [
+    "HCG-27"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "blockers": [
+    "catupiry"
+   ],
+   "decisionsNeeded": [
+    "HCG-16"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "breakfast-pizza-pizzadb-p11",
+   "nameJa": "ブレックファーストピザ",
+   "blockers": [
+    "ホワイトソース"
+   ],
+   "decisionsNeeded": [
+    "HCG-10"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "bulgogi-pizza-pizzadb-p11",
+   "nameJa": "プルコギピザ",
+   "blockers": [
+    "beef"
+   ],
+   "decisionsNeeded": [
+    "HCG-01"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "california-style-pizza-pizzadb-p2",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "blockers": [
+    "avocado"
+   ],
+   "decisionsNeeded": [
+    "HCG-21"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "chicken-tikka-pizza-pizzadb-p5",
+   "nameJa": "チキンティッカピザ",
+   "blockers": [
+    "chicken-tikka"
+   ],
+   "decisionsNeeded": [
+    "HCG-18"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "cuban-pizza-pizzadb-p2",
+   "nameJa": "キューバンピザ",
+   "blockers": [
+    "mustard",
+    "pickles"
+   ],
+   "decisionsNeeded": [
+    "HCG-15",
+    "HCG-17"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "curry-pizza-japan-pizzadb-p2",
+   "nameJa": "カレーピザ",
+   "blockers": [
+    "カレーソース"
+   ],
+   "decisionsNeeded": [
+    "HCG-11"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "currywurst-pizzadb",
+   "nameJa": "カリーヴルストピザ",
+   "blockers": [
+    "curry-ketchup",
+    "wurstel"
+   ],
+   "decisionsNeeded": [
+    "HCG-11",
+    "HCG-14",
+    "HCG-15"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "diavola-pizza-pizzadb-p5",
+   "nameJa": "ディアボラ",
+   "blockers": [
+    "spicy-salami",
+    "唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-05",
+    "HCG-06",
+    "HCG-31"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "eel-pizza-pizzadb-p1",
+   "nameJa": "うなぎピザ",
+   "blockers": [
+    "green-onion"
+   ],
+   "decisionsNeeded": [
+    "HCG-04"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "feteer-meshaltet-pizzadb-p10",
+   "nameJa": "フェテイールメシャルテル",
+   "blockers": [
+    "condensed-milk",
+    "melted-butter",
+    "ひき肉"
+   ],
+   "decisionsNeeded": [
+    "HCG-02",
+    "HCG-15",
+    "HCG-16"
+   ],
+   "otherClasses": [
+    "E",
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "focaccia-genovese-pizzadb-p10",
+   "nameJa": "フォカッチャジェノヴェーゼ",
+   "blockers": [
+    "rock-salt"
+   ],
+   "decisionsNeeded": [
+    "HCG-25"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "frango-catupiry-pizzadb-p10",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "blockers": [
+    "catupiry"
+   ],
+   "decisionsNeeded": [
+    "HCG-16"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "full-english-pizza-pizzadb-p10",
+   "nameJa": "フルイングリッシュピザ",
+   "blockers": [
+    "baked-beans"
+   ],
+   "decisionsNeeded": [
+    "HCG-18",
+    "HCG-19"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "goulash-pizza-pizzadb-p3",
+   "nameJa": "グヤーシュピザ",
+   "blockers": [
+    "beef",
+    "sour-cream"
+   ],
+   "decisionsNeeded": [
+    "HCG-01",
+    "HCG-16"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "nameJa": "北海道チーズピザ",
+   "blockers": [
+    "チーズ"
+   ],
+   "decisionsNeeded": [
+    "HCG-09"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "jalapeno-popper-pizza-pizzadb-p7",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "blockers": [
+    "jalapeno"
+   ],
+   "decisionsNeeded": [
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "keema-pizza-pizzadb-p2",
+   "nameJa": "キーマピザ",
+   "blockers": [
+    "ひき肉",
+    "青唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-02",
+    "HCG-05",
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "kimchi-pizza-pizzadb-p2",
+   "nameJa": "キムチピザ",
+   "blockers": [
+    "green-onion",
+    "kimchi"
+   ],
+   "decisionsNeeded": [
+    "HCG-04",
+    "HCG-17"
+   ],
+   "otherClasses": [
+    "E",
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "lahmacun",
+   "nameJa": "ラフマジュン",
+   "blockers": [
+    "ひき肉",
+    "唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-02",
+    "HCG-05",
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "E",
+    "D",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "manakish",
+   "nameJa": "マナキーシュ",
+   "blockers": [
+    "zaatar"
+   ],
+   "decisionsNeeded": [
+    "HCG-25"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "meat-lovers-pizza-pizzadb-p13",
+   "nameJa": "ミートラバーズピザ",
+   "blockers": [
+    "beef"
+   ],
+   "decisionsNeeded": [
+    "HCG-01"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "mentaiko-cream-pizza-pizzadb-p4",
+   "nameJa": "たらこクリームピザ",
+   "blockers": [
+    "nori"
+   ],
+   "decisionsNeeded": [
+    "HCG-07"
+   ],
+   "otherClasses": [
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "D"
+  },
+  {
+   "recipeId": "mentaiko-mochi-pizza",
+   "nameJa": "明太子もちピザ",
+   "blockers": [
+    "mentaiko",
+    "mochi",
+    "nori"
+   ],
+   "decisionsNeeded": [
+    "HCG-07",
+    "HCG-20",
+    "HCG-26"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "moussaka-style-pizza-pizzadb-p13",
+   "nameJa": "ムサカ風ピザ",
+   "blockers": [
+    "ホワイトソース"
+   ],
+   "decisionsNeeded": [
+    "HCG-10"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "nashville-hot-chicken-pizza-pizzadb-p6",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "blockers": [
+    "pickles"
+   ],
+   "decisionsNeeded": [
+    "HCG-17"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "natto-pizza",
+   "nameJa": "納豆ピザ",
+   "blockers": [
+    "green-onion",
+    "natto",
+    "nori"
+   ],
+   "decisionsNeeded": [
+    "HCG-04",
+    "HCG-07",
+    "HCG-19"
+   ],
+   "otherClasses": [
+    "E",
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "nigerian-suya-pizza-pizzadb-p5",
+   "nameJa": "ナイジェリアンスヤピザ",
+   "blockers": [
+    "beef"
+   ],
+   "decisionsNeeded": [
+    "HCG-01"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "nutella-dessert-pizza-pizzadb-p6",
+   "nameJa": "ヌテラデザートピザ",
+   "blockers": [
+    "ナッツ"
+   ],
+   "decisionsNeeded": [
+    "HCG-28"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "nameJa": "お好み焼き風ピザ",
+   "blockers": [
+    "bonito-flakes",
+    "青のり"
+   ],
+   "decisionsNeeded": [
+    "HCG-07",
+    "HCG-08",
+    "HCG-29"
+   ],
+   "otherClasses": [
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "D"
+  },
+  {
+   "recipeId": "old-forge-style-pizza-pizzadb-p1",
+   "nameJa": "オールドフォージスタイルピザ",
+   "blockers": [
+    "チーズ"
+   ],
+   "decisionsNeeded": [
+    "HCG-09"
+   ],
+   "otherClasses": [
+    "D",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "D"
+  },
+  {
+   "recipeId": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "blockers": [
+    "green-onion",
+    "peking-duck"
+   ],
+   "decisionsNeeded": [
+    "HCG-04",
+    "HCG-18"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "peruvian-aji-amarillo-pizzadb-p12",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "blockers": [
+    "aji-amarillo"
+   ],
+   "decisionsNeeded": [
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "philly-cheesesteak-pizza-pizzadb-p9",
+   "nameJa": "フィリーチーズステーキピザ",
+   "blockers": [
+    "beef",
+    "チーズソース"
+   ],
+   "decisionsNeeded": [
+    "HCG-01",
+    "HCG-12"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "pizza-baiana",
+   "nameJa": "ピッツァ・バイアーナ",
+   "blockers": [
+    "唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "pizza-cavolo-carote-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "blockers": [
+    "red-cabbage"
+   ],
+   "decisionsNeeded": [
+    "HCG-22"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "pizza-chilena-pizzadb-p8",
+   "nameJa": "ピッツァ・チレーナ",
+   "blockers": [
+    "ひき肉"
+   ],
+   "decisionsNeeded": [
+    "HCG-02"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "pizza-cicoria-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "blockers": [
+    "唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "pizza-de-cancha",
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "blockers": [
+    "唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "D",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "D"
+  },
+  {
+   "recipeId": "pizza-de-lomo-saltado",
+   "nameJa": "ロモ・サルタード・ピザ",
+   "blockers": [
+    "beef",
+    "french-fries"
+   ],
+   "decisionsNeeded": [
+    "HCG-01",
+    "HCG-20"
+   ],
+   "otherClasses": [
+    "E",
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "pizza-finocchi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "blockers": [
+    "fennel"
+   ],
+   "decisionsNeeded": [
+    "HCG-24"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "pizza-overload-pizzadb-p7",
+   "nameJa": "ピザオーバーロード",
+   "blockers": [
+    "hot-dog"
+   ],
+   "decisionsNeeded": [
+    "HCG-18"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "pizza-puntarelle-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "blockers": [
+    "puntarelle"
+   ],
+   "decisionsNeeded": [
+    "HCG-23"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "pizza-radicchio-noci-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "blockers": [
+    "balsamic-vinegar"
+   ],
+   "decisionsNeeded": [
+    "HCG-15"
+   ],
+   "otherClasses": [
+    "E",
+    "D",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "polish-kielbasa-pizzadb-p12",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "blockers": [
+    "sauerkraut"
+   ],
+   "decisionsNeeded": [
+    "HCG-17"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "poutine-pizza-pizzadb-p10",
+   "nameJa": "プーティンピザ",
+   "blockers": [
+    "french-fries"
+   ],
+   "decisionsNeeded": [
+    "HCG-20"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "quad-cities-style-pizza-pizzadb-p2",
+   "nameJa": "クアッドシティーズスタイルピザ",
+   "blockers": [
+    "スパイシーソーセージ"
+   ],
+   "decisionsNeeded": [
+    "HCG-14"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "rendang-pizza-pizzadb-p14",
+   "nameJa": "ルンダンピザ",
+   "blockers": [
+    "beef"
+   ],
+   "decisionsNeeded": [
+    "HCG-01"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "sichuan-eggplant-pizza",
+   "nameJa": "四川風ナスピザ",
+   "blockers": [
+    "green-onion"
+   ],
+   "decisionsNeeded": [
+    "HCG-04"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "south-african-boerewors-pizzadb-p14",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "blockers": [
+    "chutney"
+   ],
+   "decisionsNeeded": [
+    "HCG-15"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "st-louis-style-pizza-pizzadb-p4",
+   "nameJa": "セントルイススタイルピザ",
+   "blockers": [
+    "プロヴェルチーズ"
+   ],
+   "decisionsNeeded": [
+    "HCG-13"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "swedish-kebab-pizza-pizzadb-p4",
+   "nameJa": "スウェディッシュケバブピザ",
+   "blockers": [
+    "kebab-sauce",
+    "肉"
+   ],
+   "decisionsNeeded": [
+    "HCG-03",
+    "HCG-30"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "taco-pizza-pizzadb",
+   "nameJa": "タコピザ",
+   "blockers": [
+    "ground-beef"
+   ],
+   "decisionsNeeded": [
+    "HCG-02"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "teriyaki-chicken-pizza-pizzadb-p14",
+   "nameJa": "照り焼きチキンピザ",
+   "blockers": [
+    "nori"
+   ],
+   "decisionsNeeded": [
+    "HCG-07"
+   ],
+   "otherClasses": [
+    "E",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "thai-chicken-pizza-pizzadb-p4",
+   "nameJa": "タイチキンピザ",
+   "blockers": [
+    "赤唐辛子"
+   ],
+   "decisionsNeeded": [
+    "HCG-05",
+    "HCG-06"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "tsukimi-pizza-pizzadb-p14",
+   "nameJa": "月見ピザ",
+   "blockers": [
+    "green-onion"
+   ],
+   "decisionsNeeded": [
+    "HCG-04"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "turkish-pide-pizzadb-p5",
+   "nameJa": "トルコピデ",
+   "blockers": [
+    "ひき肉",
+    "チーズ"
+   ],
+   "decisionsNeeded": [
+    "HCG-02",
+    "HCG-09"
+   ],
+   "otherClasses": [
+    "D",
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "D"
+  },
+  {
+   "recipeId": "ume-shiso-pizza-pizzadb-p14",
+   "nameJa": "梅しそピザ",
+   "blockers": [
+    "umeboshi-paste"
+   ],
+   "decisionsNeeded": [
+    "HCG-15"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "nameJa": "ヴィーガンカシューチーズピザ",
+   "blockers": [
+    "cashew-cheese"
+   ],
+   "decisionsNeeded": [
+    "HCG-16"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  },
+  {
+   "recipeId": "venezuelan-reina-pepiada-pizzadb-p12",
+   "nameJa": "ベネズエラレイナペピアーダピザ",
+   "blockers": [
+    "avocado"
+   ],
+   "decisionsNeeded": [
+    "HCG-21"
+   ],
+   "otherClasses": [
+    "E",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "E"
+  },
+  {
+   "recipeId": "wasabi-beef-pizza",
+   "nameJa": "わさび牛ピザ",
+   "blockers": [
+    "beef",
+    "wasabi"
+   ],
+   "decisionsNeeded": [
+    "HCG-01",
+    "HCG-15"
+   ],
+   "otherClasses": [
+    "C",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "C"
+  },
+  {
+   "recipeId": "yakiniku-pizza",
+   "nameJa": "焼肉ピザ",
+   "blockers": [
+    "beef"
+   ],
+   "decisionsNeeded": [
+    "HCG-01"
+   ],
+   "otherClasses": [
+    "D",
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "D"
+  },
+  {
+   "recipeId": "yuzu-shrimp-pizza",
+   "nameJa": "柚子えびピザ",
+   "blockers": [
+    "yuzu-kosho"
+   ],
+   "decisionsNeeded": [
+    "HCG-15"
+   ],
+   "otherClasses": [
+    "B"
+   ],
+   "nextPrimaryIfFCleared": "B"
+  }
+ ]
+}
