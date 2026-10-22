@@ -28,7 +28,7 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # projects on 2 workers. Issue #512: N is now 3 (6 jobs). With N=2, `--shard 1/2` was the first 238 of
 # 450 tests (alphabetical: the heavy dinner-* / cooking-tray-* / contract-* / expansion* specs) and
 # `webkit-390x844 shard 1/2` ran 17.4 min of tests (job ~19.5 of the 20 min cap); N=3 gives 150 tests
-# per shard and an estimated longest shard of ~11.6 min of tests. timeout-minutes stays 20. Each runner keeps Playwright's default 2 workers (no extra CPU contention
+# per shard and an estimated longest shard of ~11.6 min of tests (measured since: up to 15.1 min, so timeout-minutes is 30 -- see the webkit job). Each runner keeps Playwright's default 2 workers (no extra CPU contention
 # for timing-sensitive tests). The matrix is static (never built from classify outputs), so a
 # failed classify still gets a real Full run. Each shard records evidence (its project's full
 # `--list` selection + its own JSON results, scripts/ci/webkit-shard-evidence.mjs), and WebKit
@@ -123,7 +123,11 @@ jobs:
     # explicit, successful "false" skips it.
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 30, not 20: the job has to fit setup (~1 min) + the install step's own cap (13 min, below) + the
+    # slowest shard's tests (15.1 min observed) = ~29 min. At 20, an install slower than ~4 min
+    # (4.8 min on 2026-10-22) already cancelled webkit-390x844 shard 1/3 mid-test. See
+    # docs/reports/TETO_DEV-CI_WEBKIT-INSTALL-BUDGET_Result.md for the measurements.
+    timeout-minutes: 30
     strategy:
       # Every shard always finishes, so one failing test never hides another shard's results.
       # (WebKit Gate fails on any non-success shard either way.)
