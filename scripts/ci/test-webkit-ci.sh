@@ -266,6 +266,8 @@ check "layout gate: classify failed, layout skipped -> FAIL" 1 "$(lgate failure 
 check "layout gate: empty layout result -> FAIL" 1 "$(lgate success true "" "$work/lgood/ev")"
 
 echo "== 7. install-with-retry.sh (S1: install timeout + limited retry)"
+# The helper waits for apt/dpkg to go idle before each attempt; keep these hermetic (a real apt on the machine must not slow the tests).
+export INSTALL_LOCK_PROCS="__none__"
 retry() { # status_file [helper args...] -- cmd ; prints exit code
   local sf="$1"; shift
   INSTALL_RETRY_DELAY_SECS=0 bash "$here/install-with-retry.sh" --status-file "$sf" "$@" > "$work/retry.out" 2>&1
@@ -287,6 +289,61 @@ check "retry: stall then ok -> install_status=ok attempts=2" "ok 2" "$(status_of
 rm -f "$work/c6"; check "retry: --attempts 1 never retries" 3 "$(retry "$work/s6" --timeout 5 --attempts 1 -- sh -c "echo x >> $work/c6; exit 3")"
 check "retry: --attempts 1 ran once" 1 "$(wc -l < "$work/c6" | tr -d ' ')"
 check "retry: missing --status-file / command -> usage error" 2 "$(bash "$here/install-with-retry.sh" -- true > /dev/null 2>&1; echo $?)"
+# apt lock: a killed attempt's apt-get survives `timeout` (it runs as root via sudo) and holds the dpkg lock; the retry must wait for it.
+# (The fixture's own "is apt alive" probe skips zombies too: an orphan may stay a zombie under a PID 1 that never reaps -- Codex P2.)
+mkdir -p "$work/bin"; cp "$(command -v sleep)" "$work/bin/fake-apt"   # a process whose name `pgrep -x fake-apt` matches
+rm -f "$work/c7" "$work/c7.log"
+cat > "$work/orphan_cmd.sh" <<ORPHAN_END
+n=\$(cat $work/c7 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $work/c7
+if [ \$n -eq 1 ]; then setsid $work/bin/fake-apt 3 > /dev/null 2>&1 & sleep 30; fi
+if ps -o stat= -C fake-apt | tr -d " " | grep -q "^[^Z]"; then echo LOCKED >> $work/c7.log; exit 100; fi
+echo ok >> $work/c7.log
+ORPHAN_END
+check "retry: orphaned apt after a timeout -> the retry waits for it, then succeeds (exit 0)" 0 \
+  "$(INSTALL_LOCK_PROCS=fake-apt retry "$work/s7" --timeout 1 --attempts 2 -- sh "$work/orphan_cmd.sh")"
+grep -q 'waiting for apt/dpkg to go idle' "$work/retry.out"; check "retry: the wait is logged" 0 $?
+check "retry: orphaned apt -> the retry never ran while apt was still alive" "ok" "$(tr -d '\n' < "$work/c7.log")"
+check "retry: orphaned apt -> install_status=ok attempts=2" "ok 2" "$(status_of "$work/s7" install_status) $(status_of "$work/s7" install_attempts)"
+# Without the wait the same scenario fails on the lock (the pre-fix behaviour), so the test above really bites.
+rm -f "$work/c7" "$work/c7.log"
+check "retry: orphaned apt, wait disabled (0s) -> the retry hits the lock and fails (100)" 100 \
+  "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=0 retry "$work/s8" --timeout 1 --attempts 2 -- sh "$work/orphan_cmd.sh")"
+sleep 3  # let the orphan from the line above exit
+# The first attempt never waits (no orphan can exist yet), so the install budget has no leading wait.
+setsid "$work/bin/fake-apt" 8 > /dev/null 2>&1 &
+t0=$SECONDS
+rm -f "$work/c10"
+check "retry: apt busy at the start -> the first attempt runs at once (exit 0)" 0 \
+  "$(INSTALL_LOCK_PROCS=fake-apt retry "$work/s10" --timeout 5 --attempts 1 -- sh -c "echo x >> $work/c10")"
+check "retry: the first attempt did not wait for apt" "1 yes" "$(wc -l < "$work/c10" | tr -d ' ') $([ $((SECONDS - t0)) -lt 3 ] && echo yes || echo no)"
+# The wait before a retry is bounded: a busy apt that outlives it is not waited for forever.
+t0=$SECONDS
+rm -f "$work/c9"
+check "retry: apt busy longer than the wait bound -> the retry stops waiting and runs (exit 3)" 3 \
+  "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=1 retry "$work/s9" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c9; exit 3")"
+check "retry: bounded wait -> both attempts ran, the retry after ~1s and before the 8s orphan ended" "2 yes" "$(wc -l < "$work/c9" | tr -d ' ') $([ $((SECONDS - t0)) -lt 6 ] && echo yes || echo no)"
+grep -q 'apt/dpkg still running after 1s' "$work/retry.out"; check "retry: bounded wait -> warning logged" 0 $?
+pkill -x fake-apt 2> /dev/null || true
+# A zombie (an exited process nobody reaped, e.g. an orphan under a PID 1 that does not reap) holds no lock and must not be waited for.
+# Real zombie fixture: a python parent forks fake-apt (exits after 1s) and then sleeps without wait()ing for it.
+# The parent prints the child's pid, so the check below looks at THIS child only (other zombies may be left over from earlier cases).
+python3 -c "
+import os, time
+pid = os.fork()
+if pid == 0:
+    os.execv('$work/bin/fake-apt', ['$work/bin/fake-apt', '1'])
+print(pid, flush=True)
+time.sleep(9)
+" > "$work/zpid" 2> /dev/null &
+zparent=$!
+sleep 2.5
+check "retry: fixture -- this fake-apt child is a real zombie (state Z)" "Z" "$(ps -o stat= -p "$(cat "$work/zpid")" | tr -d ' ' | cut -c1)"
+t0=$SECONDS
+rm -f "$work/c11"
+check "retry: a zombie apt is not waited for (exit 3 after both attempts)" 3 \
+  "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=5 retry "$work/s11" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c11; exit 3")"
+check "retry: a zombie apt -> no wait (both attempts ran, in well under the 5s bound)" "2 yes" "$(wc -l < "$work/c11" | tr -d ' ') $([ $((SECONDS - t0)) -lt 3 ] && echo yes || echo no)"
+kill "$zparent" 2> /dev/null; wait "$zparent" 2> /dev/null || true
 # Workflow contract: only the install is wrapped; Playwright test steps are never retried.
 wf="$here/../../.github/workflows/e2e-webkit.yml"
 grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
@@ -295,6 +352,26 @@ grep -n 'install-with-retry' "$wf" | grep -q 'playwright test'
 check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
 grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
 check "workflow/config: Playwright test retries are not enabled" 1 $?
+# Time budget (Codex P2 on #624). The install step's cap must cover the helper's WORST case, waits included:
+#   attempts x (timeout + kill-after) + (attempts - 1) x (retry delay + lock wait)
+# and the webkit job's cap must cover setup + that step cap + the slowest shard's tests (15.1 min observed, 2026-10-22).
+helper="$here/install-with-retry.sh"
+job_cap=$(awk '/^  webkit:$/{j=1} j&&/timeout-minutes:/{print $2; exit}' "$wf")
+install_cap=$(awk '/Install WebKit \(with system deps/{f=1} f&&/timeout-minutes:/{print $2; exit}' "$wf")
+b_attempts=$(awk '/Install WebKit \(with system deps/{f=1} f&&/--attempts/{for(i=1;i<=NF;i++) if($i=="--attempts") print $(i+1); exit}' "$wf")
+b_timeout=$(awk '/Install WebKit \(with system deps/{f=1} f&&/--timeout/{for(i=1;i<=NF;i++) if($i=="--timeout") print $(i+1); exit}' "$wf")
+b_kill=$(sed -n 's/.*--kill-after=\([0-9]*\).*/\1/p' "$helper" | head -1)
+b_delay=$(sed -n 's/.*INSTALL_RETRY_DELAY_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1)
+b_wait=$(sed -n 's/.*INSTALL_LOCK_WAIT_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1)
+worst_case() { echo $(( $1 * ($2 + $3) + ($1 - 1) * ($4 + $5) )); } # attempts timeout kill delay wait
+check "budget: parsed attempts/timeout/kill/delay/wait/step cap/job cap" "2 360 15 5 180 17 35" "$b_attempts $b_timeout $b_kill $b_delay $b_wait $install_cap $job_cap"
+worst=$(worst_case "$b_attempts" "$b_timeout" "$b_kill" "$b_delay" "$b_wait")
+check "budget: helper worst case (935 s) fits the install step cap" yes "$([ $((install_cap * 60)) -ge "$worst" ] && echo yes || echo "no (worst ${worst}s, cap $((install_cap * 60))s)")"
+check "budget: negative control -- the pre-fix numbers (13 min step cap, 300 s wait, wait before every attempt) do not fit" no \
+  "$([ $((13 * 60)) -ge "$(worst_case 2 360 15 5 300)" ] && echo yes || echo no)"
+check "budget: negative control -- a wait before the first attempt too (180 + 935 = 1115 s) would not fit the 17 min cap" no \
+  "$([ $((install_cap * 60)) -ge $((b_wait + worst)) ] && echo yes || echo no)"
+check "workflow: webkit job cap fits setup (1) + install step cap + longest shard (16 incl. list/margin)" yes "$([ "$job_cap" -ge $((install_cap + 17)) ] && echo yes || echo "no (job $job_cap, install $install_cap)")"
 
 echo "== 8. S2 FAIL-INFRA / FAIL-TEST classification (install_status -> evidence -> WebKit Gate)"
 # Real chain: helper writes the status file -> collect records it -> gate labels the verdict.

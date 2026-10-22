@@ -226,6 +226,10 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
     }
   });
 
+  // 30s, not the 5s default: the work is fixed by the catalog size (recipes x purchase states x view strings x ingredients, ~480k expect() calls; Hint 5.0 itself,
+  // purchaseStates, is ~0.1s of it). Unloaded it takes ~3-4s (about 3.5s at 57 recipes on 10-18, 2.9s at 61 on 10-20, 3.7s now), so under CI load (the `build` job runs
+  // 500+ files in parallel) it crossed 5s twice in a row with no code change. 30s is ~8x the baseline: a real blow-up still fails. If the unloaded run passes ~10s,
+  // restructure the scan (as G5 was, #613) rather than raising this again.
   it("G6 / H5-INV-1 / H5-INV-3: at every purchase state, no recipe identity and no unbought ingredient appears anywhere in the view model", () => {
     for (const r of RECIPES) {
       for (const discoveredCount of dexCountsOf(r.id)) {
@@ -245,7 +249,7 @@ describe("disclosure boundary (H5-INV-1..5)", () => {
         }
       }
     }
-  });
+  }, 30_000);
 
   it("G15 / H5-INV-5 FREE LEAK: before STRUCTURE, every target's offer and board shape are identical given the same completed rungs (within the keyed group, or a key-free recipe's own sauce/cheese pattern)", () => {
     const has = (r: (typeof RECIPES)[number], category: string) => r.requiredIngredients.some((q) => getIngredient(q.ingredientId)?.category === category);
