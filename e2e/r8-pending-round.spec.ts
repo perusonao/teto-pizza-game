@@ -255,7 +255,11 @@ test("a save that cannot take the bake stops the round at BAKE, says why, and a 
 
   await page.evaluate(() => { (window as any).__failSave = false; });
   await page.getByRole("button", { name: "取り出す！" }).click();
-  await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+  // The round moved on (the needle runs in real time while the failure is on screen, so the retried take-out may land anywhere:
+  // a good bake goes on to CUT with a journal, a bad one straight to the failed result -- either way the save took it).
+  await expect(page.getByRole("button", { name: "取り出す！" })).toHaveCount(0);
   await expect(alert).toHaveCount(0);
-  expect((await readSave(page))?.pendingRound?.status).toBe("pending");
+  const saved = await readSave(page);
+  expect(saved?.inventory).toBeDefined();
+  expect(saved?.pendingRound === undefined || saved?.pendingRound?.status === "pending").toBe(true);
 });
