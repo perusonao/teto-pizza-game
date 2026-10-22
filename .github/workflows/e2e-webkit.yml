@@ -176,13 +176,13 @@ jobs:
       # test is a FAIL-TEST, never an infra flake). The helper records install_status in
       # $INSTALL_STATUS_FILE, which the shard evidence carries to WebKit Gate (S2: FAIL-INFRA vs
       # FAIL-TEST; both are still FAIL). step timeout-minutes is only a backstop for the helper, but it must still
-      # cover the helper's worst case: 2 x (360 + 15) + (5 + 180 lock wait) = 935 s = 15.6 min -> 17 (pinned by
+      # cover the helper's worst case: 2 x (360 + 15) + (5 + 12 orphan reap + 180 lock wait) = 947 s = 15.8 min -> 17 (pinned by
       # scripts/ci/test-webkit-ci.sh).
       - name: Install WebKit (with system deps; timeout + 1 retry)
         timeout-minutes: 17
         run: >-
           bash scripts/ci/install-with-retry.sh
-          --status-file "$INSTALL_STATUS_FILE" --timeout 360 --attempts 2
+          --status-file "$INSTALL_STATUS_FILE" --timeout 360 --attempts 2 --apt-tuning
           -- npx playwright install --with-deps webkit
 
       # Evidence for the Result Report's "actual WebKit execution proof" requirement -- a green
