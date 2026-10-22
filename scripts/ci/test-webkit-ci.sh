@@ -292,6 +292,10 @@ check "retry: missing --status-file / command -> usage error" 2 "$(bash "$here/i
 # apt lock: a killed attempt's apt-get survives `timeout` (it runs as root via sudo) and holds the dpkg lock; the retry must wait for it.
 # (The fixture's own "is apt alive" probe skips zombies too: an orphan may stay a zombie under a PID 1 that never reaps -- Codex P2.)
 mkdir -p "$work/bin"; cp "$(command -v sleep)" "$work/bin/fake-apt"   # a process whose name `pgrep -x fake-apt` matches
+# Never a global kill: only processes started from THIS run's private fixture binary ($work is a fresh mktemp dir) are signalled.
+kill_fixtures() { pkill -f -- "$work/bin/fake-apt" 2> /dev/null || true; }
+# A bystander the suite must never touch (Codex P2 on #628): an unrelated `sleep` owned by the same user, checked at the end of this section.
+bystander_sleep=$(sh -c 'sleep 300 > /dev/null 2>&1 & echo $!')
 rm -f "$work/c7" "$work/c7.log"
 cat > "$work/orphan_cmd.sh" <<ORPHAN_END
 n=\$(cat $work/c7 2>/dev/null || echo 0); n=\$((n+1)); echo \$n > $work/c7
@@ -323,7 +327,7 @@ check "retry: apt busy longer than the wait bound -> the retry stops waiting and
   "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=1 retry "$work/s9" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c9; exit 3")"
 check "retry: bounded wait -> both attempts ran, the retry after ~1s and before the 8s orphan ended" "2 yes" "$(wc -l < "$work/c9" | tr -d ' ') $([ $((SECONDS - t0)) -lt 6 ] && echo yes || echo no)"
 grep -q 'apt/dpkg still running after 1s' "$work/retry.out"; check "retry: bounded wait -> warning logged" 0 $?
-pkill -x fake-apt 2> /dev/null || true
+kill_fixtures
 # A zombie (an exited process nobody reaped, e.g. an orphan under a PID 1 that does not reap) holds no lock and must not be waited for.
 # Real zombie fixture: a python parent forks fake-apt (exits after 1s) and then sleeps without wait()ing for it.
 # The parent prints the child's pid, so the check below looks at THIS child only (other zombies may be left over from earlier cases).
@@ -376,7 +380,7 @@ check "reap: orphan really gone" 0 "$(alive_fake)"
 rm -f "$work/c12" "$work/c12.log"
 check "reap: negative control (reaping off, wait 0) -> the retry hits the lock (100)" 100 \
   "$(INSTALL_REAPER_PID="$reaper" INSTALL_REAP_PROCS=__none__ INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=0 retry "$work/s13" --timeout 1 --attempts 2 -- sh "$work/orphan30.sh")"
-pkill -x fake-apt 2> /dev/null || true; sleep 0.5
+kill_fixtures; sleep 0.5
 # (c) safety: an apt that was already running before the attempt (another job / the OS) is never stopped
 setsid "$work/bin/fake-apt" 12 > /dev/null 2>&1 &
 sleep 0.3
@@ -384,7 +388,7 @@ rm -f "$work/c14"
 check "reap: foreign apt present before the attempt -> not stopped (attempts time out, exit 124)" 124 \
   "$(reap_retry INSTALL_LOCK_WAIT_SECS=0 retry "$work/s14" --timeout 1 --attempts 2 -- sh -c "echo x >> $work/c14; sleep 30; exit 3")"
 check "reap: foreign apt (pre-existing) is still alive" 1 "$(alive_fake)"
-pkill -x fake-apt 2> /dev/null || true; sleep 0.5
+kill_fixtures; sleep 0.5
 # (d) safety: an apt that started DURING the attempt but still has a live parent (someone else's child) is never stopped
 rm -f "$work/c15"
 cat > "$work/foreign_child.sh" <<FOREIGN_END
@@ -395,7 +399,7 @@ FOREIGN_END
 check "reap: apt with a live parent started mid-attempt -> not stopped (exit 124)" 124 \
   "$(reap_retry INSTALL_LOCK_WAIT_SECS=0 retry "$work/s15" --timeout 1 --attempts 2 -- sh "$work/foreign_child.sh")"
 check "reap: foreign apts (live parents, one per attempt) are both still alive" 2 "$(alive_fake)"
-pkill -x fake-apt 2> /dev/null || true; sleep 0.5
+kill_fixtures; sleep 0.5
 # (e) only the configured names are ever signalled (dpkg-like names are not in the default reap set)
 check "reap: default reap set is apt-get/apt only (never dpkg)" "apt-get apt" "$(sed -n 's/.*INSTALL_REAP_PROCS:-\([^}]*\)}.*/\1/p' "$here/install-with-retry.sh" | head -1)"
 # (f) --apt-tuning writes the drop-in (retries, timeouts, lock timeout) and a failure to write it is not fatal
@@ -404,6 +408,9 @@ check "apt-tuning: drop-in has Acquire::Retries, http/https Timeout, DPkg::Lock:
   "$(grep -cE '^(Acquire::Retries "3"|Acquire::http::Timeout "30"|Acquire::https::Timeout "30"|DPkg::Lock::Timeout "60");$' "$work/apt.d/99-test")"
 check "apt-tuning: unwritable target -> install still runs (exit 0)" 0 \
   "$(INSTALL_APT_CONF=/proc/nope/99-test retry "$work/s17" --apt-tuning --timeout 5 --attempts 1 -- true)"
+check "cleanup: an unrelated sleep (same user) survived the whole section -- no global kill" yes \
+  "$([ "$(ps -o comm=,stat= -p "$bystander_sleep" 2> /dev/null | tr -s ' ' | cut -c1-7)" = "sleep S" ] && echo yes || echo no)" # a killed one lingers as a zombie (Z) under a PID 1 that does not reap
+kill "$bystander_sleep" 2> /dev/null || true; wait "$bystander_sleep" 2> /dev/null || true
 # Workflow contract: only the install is wrapped; Playwright test steps are never retried.
 wf="$here/../../.github/workflows/e2e-webkit.yml"
 grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
