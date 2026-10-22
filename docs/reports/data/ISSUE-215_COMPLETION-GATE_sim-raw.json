@@ -1,0 +1,10909 @@
+{
+ "rows": [
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 1,
+   "groups": 2,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 2,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S0delta": -0.6,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.5,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 89.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S0delta": -2,
+   "S1": 97.5,
+   "S1stars": 5,
+   "S1delta": -2,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 79.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "basil",
+   "ideal": 2,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "basil",
+   "ideal": 2,
+   "count": 1,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 95.9,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "basil",
+   "ideal": 2,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "basil",
+   "ideal": 2,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "basil",
+   "ideal": 2,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "ideal": 3,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "ideal": 3,
+   "count": 1,
+   "groups": 2,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "ideal": 3,
+   "count": 2,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S0delta": -0.6,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.5,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "ideal": 3,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "ideal": 3,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 89.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S0delta": -2,
+   "S1": 97.5,
+   "S1stars": 5,
+   "S1delta": -2,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "ideal": 3,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 79.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "oregano",
+   "ideal": 2,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "oregano",
+   "ideal": 2,
+   "count": 1,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 95.9,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "oregano",
+   "ideal": 2,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "oregano",
+   "ideal": 2,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "oregano",
+   "ideal": 2,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 4,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 93.1,
+   "S0stars": 5,
+   "S0delta": -6.4,
+   "S1": 93.1,
+   "S1stars": 5,
+   "S1delta": -6.4,
+   "S2": 93.1,
+   "S2stars": 5,
+   "S2delta": -6.4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 4,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.7,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 4,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 4,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 4,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "gorgonzola",
+   "ideal": 2,
+   "count": 0,
+   "groups": 4,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 93.1,
+   "S0stars": 5,
+   "S0delta": -6.4,
+   "S1": 93.1,
+   "S1stars": 5,
+   "S1delta": -6.4,
+   "S2": 93.1,
+   "S2stars": 5,
+   "S2delta": -6.4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "gorgonzola",
+   "ideal": 2,
+   "count": 1,
+   "groups": 4,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.7,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "gorgonzola",
+   "ideal": 2,
+   "count": 2,
+   "groups": 4,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "gorgonzola",
+   "ideal": 2,
+   "count": 3,
+   "groups": 4,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "gorgonzola",
+   "ideal": 2,
+   "count": 4,
+   "groups": 4,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "parmigiano",
+   "ideal": 2,
+   "count": 0,
+   "groups": 4,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 93.1,
+   "S0stars": 5,
+   "S0delta": -6.4,
+   "S1": 93.1,
+   "S1stars": 5,
+   "S1delta": -6.4,
+   "S2": 93.1,
+   "S2stars": 5,
+   "S2delta": -6.4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "parmigiano",
+   "ideal": 2,
+   "count": 1,
+   "groups": 4,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.7,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "parmigiano",
+   "ideal": 2,
+   "count": 2,
+   "groups": 4,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "parmigiano",
+   "ideal": 2,
+   "count": 3,
+   "groups": 4,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "parmigiano",
+   "ideal": 2,
+   "count": 4,
+   "groups": 4,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "fontina",
+   "ideal": 2,
+   "count": 0,
+   "groups": 4,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 46.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 93.1,
+   "S0stars": 5,
+   "S0delta": -6.4,
+   "S1": 93.1,
+   "S1stars": 5,
+   "S1delta": -6.4,
+   "S2": 93.1,
+   "S2stars": 5,
+   "S2delta": -6.4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "fontina",
+   "ideal": 2,
+   "count": 1,
+   "groups": 4,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.7,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "fontina",
+   "ideal": 2,
+   "count": 2,
+   "groups": 4,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "fontina",
+   "ideal": 2,
+   "count": 3,
+   "groups": 4,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "ingredientId": "fontina",
+   "ideal": 2,
+   "count": 4,
+   "groups": 4,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 95.9,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "ideal": 3,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "ideal": 3,
+   "count": 1,
+   "groups": 2,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "ideal": 3,
+   "count": 2,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S0delta": -0.6,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.5,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "ideal": 3,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "ideal": 3,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 89.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S0delta": -2,
+   "S1": 97.5,
+   "S1stars": 5,
+   "S1delta": -2,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "ideal": 3,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 79.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 1,
+   "groups": 2,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 2,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S0delta": -0.6,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.5,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 89.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S0delta": -2,
+   "S1": 97.5,
+   "S1stars": 5,
+   "S1delta": -2,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "ideal": 3,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 79.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 1,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 71.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 77.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 68.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 91.5,
+   "S0stars": 5,
+   "S0delta": -8,
+   "S1": 91.5,
+   "S1stars": 5,
+   "S1delta": -8,
+   "S2": 91.5,
+   "S2stars": 5,
+   "S2delta": -8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 95.9,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "ideal": 3,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "ideal": 3,
+   "count": 1,
+   "groups": 2,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "ideal": 3,
+   "count": 2,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S0delta": -0.6,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.5,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "ideal": 3,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "ideal": 3,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 89.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S0delta": -2,
+   "S1": 97.5,
+   "S1stars": 5,
+   "S1delta": -2,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "ideal": 3,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 79.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 1,
+   "groups": 2,
+   "short": 0.8,
+   "excess": 0,
+   "Q0": {
+    "total": 61.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 61.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 61.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.1,
+   "S0stars": 5,
+   "S0delta": -1.4,
+   "S1": 93.9,
+   "S1stars": 5,
+   "S1delta": -5.6,
+   "S2": 93.5,
+   "S2stars": 5,
+   "S2delta": -6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 2,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 73.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 73.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 73.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.6,
+   "S0stars": 5,
+   "S0delta": -1,
+   "S1": 95.8,
+   "S1stars": 5,
+   "S1delta": -3.8,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 3,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 86.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 86.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 86.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.5,
+   "S1": 97.7,
+   "S1stars": 5,
+   "S1delta": -1.9,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 94.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 91.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.9,
+   "S0stars": 5,
+   "S0delta": -1.6,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "onion",
+   "ideal": 4,
+   "count": 6,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.3,
+   "S0stars": 5,
+   "S0delta": -3.2,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.2,
+   "S2": 96.3,
+   "S2stars": 5,
+   "S2delta": -3.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 1,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 71.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "fugazza",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 77.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 68.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 91.5,
+   "S0stars": 5,
+   "S0delta": -8,
+   "S1": 91.5,
+   "S1stars": 5,
+   "S1delta": -8,
+   "S2": 91.5,
+   "S2stars": 5,
+   "S2delta": -8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 95.9,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "ideal": 3,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "ideal": 3,
+   "count": 1,
+   "groups": 2,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "ideal": 3,
+   "count": 2,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S0delta": -0.6,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.5,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "ideal": 3,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "ideal": 3,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 89.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S0delta": -2,
+   "S1": 97.5,
+   "S1stars": 5,
+   "S1delta": -2,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "ideal": 3,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 79.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 95.9,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 0,
+   "groups": 2,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S0delta": -12,
+   "S1": 87.5,
+   "S1stars": 4,
+   "S1delta": -12,
+   "S2": 87.5,
+   "S2stars": 4,
+   "S2delta": -12,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 1,
+   "groups": 2,
+   "short": 0.8,
+   "excess": 0,
+   "Q0": {
+    "total": 61.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 61.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 61.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.1,
+   "S0stars": 5,
+   "S0delta": -1.4,
+   "S1": 93.9,
+   "S1stars": 5,
+   "S1delta": -5.6,
+   "S2": 93.5,
+   "S2stars": 5,
+   "S2delta": -6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 2,
+   "groups": 2,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 73.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 73.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 73.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.6,
+   "S0stars": 5,
+   "S0delta": -1,
+   "S1": 95.8,
+   "S1stars": 5,
+   "S1delta": -3.8,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 3,
+   "groups": 2,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 86.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 86.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 86.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.5,
+   "S1": 97.7,
+   "S1stars": 5,
+   "S1delta": -1.9,
+   "S2": 97.5,
+   "S2stars": 5,
+   "S2delta": -2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 4,
+   "groups": 2,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 5,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 94.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 91.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.9,
+   "S0stars": 5,
+   "S0delta": -1.6,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pepperoni",
+   "ingredientId": "pepperoni",
+   "ideal": 4,
+   "count": 6,
+   "groups": 2,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 89.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 84.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.3,
+   "S0stars": 5,
+   "S0delta": -3.2,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.2,
+   "S2": 96.3,
+   "S2stars": 5,
+   "S2delta": -3.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 3,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99,
+   "S0stars": 5,
+   "S0delta": -0.5,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.4,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.8,
+   "S0stars": 5,
+   "S0delta": -1.8,
+   "S1": 97.8,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96,
+   "S0stars": 5,
+   "S0delta": -3.6,
+   "S1": 96,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "ideal": 3,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "ideal": 3,
+   "count": 1,
+   "groups": 3,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.3,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "ideal": 3,
+   "count": 2,
+   "groups": 3,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "ideal": 3,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "ideal": 3,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 93.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 90,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "ideal": 3,
+   "count": 5,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 87.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 80.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 1,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 2,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 3,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99,
+   "S0stars": 5,
+   "S0delta": -0.5,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.4,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.8,
+   "S0stars": 5,
+   "S0delta": -1.8,
+   "S1": 97.8,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96,
+   "S0stars": 5,
+   "S0delta": -3.6,
+   "S1": 96,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "onion",
+   "ideal": 2,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "onion",
+   "ideal": 2,
+   "count": 1,
+   "groups": 3,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99,
+   "S0stars": 5,
+   "S0delta": -0.5,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.4,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "onion",
+   "ideal": 2,
+   "count": 2,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "onion",
+   "ideal": 2,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.8,
+   "S0stars": 5,
+   "S0delta": -1.8,
+   "S1": 97.8,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "onion",
+   "ideal": 2,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96,
+   "S0stars": 5,
+   "S0delta": -3.6,
+   "S1": 96,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "ideal": 3,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "ideal": 3,
+   "count": 1,
+   "groups": 3,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.3,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "ideal": 3,
+   "count": 2,
+   "groups": 3,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "ideal": 3,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "ideal": 3,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 93.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 90,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "ideal": 3,
+   "count": 5,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 87.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 80.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "ideal": 3,
+   "count": 0,
+   "groups": 1,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 38.8,
+    "stars": 1,
+    "pitz": 20
+   },
+   "Q0.15": {
+    "total": 38.8,
+    "stars": 1,
+    "pitz": 20
+   },
+   "Q0.25": {
+    "total": 38.8,
+    "stars": 1,
+    "pitz": 20
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 77.5,
+   "S0stars": 4,
+   "S0delta": -22,
+   "S1": 77.5,
+   "S1stars": 4,
+   "S1delta": -22,
+   "S2": 77.5,
+   "S2stars": 4,
+   "S2delta": -22,
+   "pitzS0": 100,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "ideal": 3,
+   "count": 1,
+   "groups": 1,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 64.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 64.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 64.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 97.1,
+   "S0stars": 5,
+   "S0delta": -2.4,
+   "S1": 89.7,
+   "S1stars": 4,
+   "S1delta": -9.9,
+   "S2": 88.9,
+   "S2stars": 4,
+   "S2delta": -10.7,
+   "pitzS0": 120,
+   "pitzS1": 100,
+   "pitzS2": 100
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "ideal": 3,
+   "count": 2,
+   "groups": 1,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S0delta": -1.2,
+   "S1": 94.6,
+   "S1stars": 5,
+   "S1delta": -4.9,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "ideal": 3,
+   "count": 3,
+   "groups": 1,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "ideal": 3,
+   "count": 4,
+   "groups": 1,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 87.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S0delta": -4,
+   "S1": 95.5,
+   "S1stars": 5,
+   "S1delta": -4,
+   "S2": 95.5,
+   "S2stars": 5,
+   "S2delta": -4,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "ideal": 3,
+   "count": 5,
+   "groups": 1,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 76.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 91.5,
+   "S0stars": 5,
+   "S0delta": -8,
+   "S1": 91.5,
+   "S1stars": 5,
+   "S1delta": -8,
+   "S2": 91.5,
+   "S2stars": 5,
+   "S2delta": -8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 3,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99,
+   "S0stars": 5,
+   "S0delta": -0.5,
+   "S1": 97.1,
+   "S1stars": 5,
+   "S1delta": -2.4,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 90.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 85.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 97.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.8,
+   "S0stars": 5,
+   "S0delta": -1.8,
+   "S1": 97.8,
+   "S1stars": 5,
+   "S1delta": -1.8,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96,
+   "S0stars": 5,
+   "S0delta": -3.6,
+   "S1": 96,
+   "S1stars": 5,
+   "S1delta": -3.6,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 1,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 2,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.3,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "egg",
+   "ideal": 1,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 80.1,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 70.7,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 94.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 94.2,
+   "S0stars": 5,
+   "S0delta": -5.3,
+   "S1": 94.2,
+   "S1stars": 5,
+   "S1delta": -5.3,
+   "S2": 94.2,
+   "S2stars": 5,
+   "S2delta": -5.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "ideal": 3,
+   "count": 0,
+   "groups": 3,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S0delta": -8.3,
+   "S1": 91.2,
+   "S1stars": 5,
+   "S1delta": -8.3,
+   "S2": 91.2,
+   "S2stars": 5,
+   "S2delta": -8.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "ideal": 3,
+   "count": 1,
+   "groups": 3,
+   "short": 0.7,
+   "excess": 0,
+   "Q0": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S0delta": -0.8,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.3,
+   "S2": 96,
+   "S2stars": 5,
+   "S2delta": -3.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "ideal": 3,
+   "count": 2,
+   "groups": 3,
+   "short": 0.3,
+   "excess": 0,
+   "Q0": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.15": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S0delta": -0.4,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.8,
+   "S2stars": 5,
+   "S2delta": -1.8,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "ideal": 3,
+   "count": 3,
+   "groups": 3,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "ideal": 3,
+   "count": 4,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.3,
+   "Q0": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 93.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 90,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S0delta": -1.3,
+   "S1": 98.2,
+   "S1stars": 5,
+   "S1delta": -1.3,
+   "S2": 98.2,
+   "S2stars": 5,
+   "S2delta": -1.3,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "ideal": 3,
+   "count": 5,
+   "groups": 3,
+   "short": 0,
+   "excess": 0.7,
+   "Q0": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 87.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 80.7,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S0delta": -2.7,
+   "S1": 96.9,
+   "S1stars": 5,
+   "S1delta": -2.7,
+   "S2": 96.9,
+   "S2stars": 5,
+   "S2delta": -2.7,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 5,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.2,
+   "S0stars": 5,
+   "S0delta": -0.3,
+   "S1": 98.1,
+   "S1stars": 5,
+   "S1delta": -1.4,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 91.1,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 86.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.5,
+   "S0stars": 5,
+   "S0delta": -1.1,
+   "S1": 98.5,
+   "S1stars": 5,
+   "S1delta": -1.1,
+   "S2": 98.5,
+   "S2stars": 5,
+   "S2delta": -1.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.4,
+   "S0stars": 5,
+   "S0delta": -2.1,
+   "S1": 97.4,
+   "S1stars": 5,
+   "S1delta": -2.1,
+   "S2": 97.4,
+   "S2stars": 5,
+   "S2delta": -2.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mushroom",
+   "ideal": 2,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mushroom",
+   "ideal": 2,
+   "count": 1,
+   "groups": 5,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.2,
+   "S0stars": 5,
+   "S0delta": -0.3,
+   "S1": 98.1,
+   "S1stars": 5,
+   "S1delta": -1.4,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mushroom",
+   "ideal": 2,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mushroom",
+   "ideal": 2,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 91.1,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 86.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.5,
+   "S0stars": 5,
+   "S0delta": -1.1,
+   "S1": 98.5,
+   "S1stars": 5,
+   "S1delta": -1.1,
+   "S2": 98.5,
+   "S2stars": 5,
+   "S2delta": -1.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "mushroom",
+   "ideal": 2,
+   "count": 4,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.4,
+   "S0stars": 5,
+   "S0delta": -2.1,
+   "S1": 97.4,
+   "S1stars": 5,
+   "S1delta": -2.1,
+   "S2": 97.4,
+   "S2stars": 5,
+   "S2delta": -2.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 1,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 83.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.5,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.9,
+   "S0stars": 5,
+   "S0delta": -1.6,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.3,
+   "S0stars": 5,
+   "S0delta": -3.2,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.2,
+   "S2": 96.3,
+   "S2stars": 5,
+   "S2delta": -3.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "black-olive",
+   "ideal": 2,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "black-olive",
+   "ideal": 2,
+   "count": 1,
+   "groups": 5,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.2,
+   "S0stars": 5,
+   "S0delta": -0.3,
+   "S1": 98.1,
+   "S1stars": 5,
+   "S1delta": -1.4,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "black-olive",
+   "ideal": 2,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "black-olive",
+   "ideal": 2,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 91.1,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 86.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.5,
+   "S0stars": 5,
+   "S0delta": -1.1,
+   "S1": 98.5,
+   "S1stars": 5,
+   "S1delta": -1.1,
+   "S2": 98.5,
+   "S2stars": 5,
+   "S2delta": -1.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "black-olive",
+   "ideal": 2,
+   "count": 4,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.4,
+   "S0stars": 5,
+   "S0delta": -2.1,
+   "S1": 97.4,
+   "S1stars": 5,
+   "S1delta": -2.1,
+   "S2": 97.4,
+   "S2stars": 5,
+   "S2delta": -2.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 1,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 83.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.5,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.9,
+   "S0stars": 5,
+   "S0delta": -1.6,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "capricciosa",
+   "ingredientId": "oregano",
+   "ideal": 1,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.3,
+   "S0stars": 5,
+   "S0delta": -3.2,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.2,
+   "S2": 96.3,
+   "S2stars": 5,
+   "S2delta": -3.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 1,
+   "groups": 5,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.2,
+   "S0stars": 5,
+   "S0delta": -0.3,
+   "S1": 98.1,
+   "S1stars": 5,
+   "S1delta": -1.4,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 91.1,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 86.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.5,
+   "S0stars": 5,
+   "S0delta": -1.1,
+   "S1": 98.5,
+   "S1stars": 5,
+   "S1delta": -1.1,
+   "S2": 98.5,
+   "S2stars": 5,
+   "S2delta": -1.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "mozzarella",
+   "ideal": 2,
+   "count": 4,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.4,
+   "S0stars": 5,
+   "S0delta": -2.1,
+   "S1": 97.4,
+   "S1stars": 5,
+   "S1delta": -2.1,
+   "S2": 97.4,
+   "S2stars": 5,
+   "S2delta": -2.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "bacon",
+   "ideal": 2,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "bacon",
+   "ideal": 2,
+   "count": 1,
+   "groups": 5,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.2,
+   "S0stars": 5,
+   "S0delta": -0.3,
+   "S1": 98.1,
+   "S1stars": 5,
+   "S1delta": -1.4,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "bacon",
+   "ideal": 2,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "bacon",
+   "ideal": 2,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 91.1,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 86.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.5,
+   "S0stars": 5,
+   "S0delta": -1.1,
+   "S1": 98.5,
+   "S1stars": 5,
+   "S1delta": -1.1,
+   "S2": 98.5,
+   "S2stars": 5,
+   "S2delta": -1.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "bacon",
+   "ideal": 2,
+   "count": 4,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.4,
+   "S0stars": 5,
+   "S0delta": -2.1,
+   "S1": 97.4,
+   "S1stars": 5,
+   "S1delta": -2.1,
+   "S2": 97.4,
+   "S2stars": 5,
+   "S2delta": -2.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 1,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 83.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.5,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.9,
+   "S0stars": 5,
+   "S0delta": -1.6,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "ham",
+   "ideal": 1,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.3,
+   "S0stars": 5,
+   "S0delta": -3.2,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.2,
+   "S2": 96.3,
+   "S2stars": 5,
+   "S2delta": -3.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "pepperoni",
+   "ideal": 1,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "pepperoni",
+   "ideal": 1,
+   "count": 1,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "pepperoni",
+   "ideal": 1,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 83.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.5,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.9,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.9,
+   "S0stars": 5,
+   "S0delta": -1.6,
+   "S1": 97.9,
+   "S1stars": 5,
+   "S1delta": -1.6,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "pepperoni",
+   "ideal": 1,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 81.9,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 72.3,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 96.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 96.3,
+   "S0stars": 5,
+   "S0delta": -3.2,
+   "S1": 96.3,
+   "S1stars": 5,
+   "S1delta": -3.2,
+   "S2": 96.3,
+   "S2stars": 5,
+   "S2delta": -3.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "sausage",
+   "ideal": 2,
+   "count": 0,
+   "groups": 5,
+   "short": 1,
+   "excess": 0,
+   "Q0": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.15": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "Q0.25": {
+    "total": 47.2,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   },
+   "gate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 94.3,
+   "S0stars": 5,
+   "S0delta": -5.2,
+   "S1": 94.3,
+   "S1stars": 5,
+   "S1delta": -5.2,
+   "S2": 94.3,
+   "S2stars": 5,
+   "S2delta": -5.2,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "sausage",
+   "ideal": 2,
+   "count": 1,
+   "groups": 5,
+   "short": 0.5,
+   "excess": 0,
+   "Q0": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.15": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "Q0.25": {
+    "total": 74.4,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 74.9,
+    "stars": 3,
+    "pitz": 80
+   },
+   "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.2,
+   "S0stars": 5,
+   "S0delta": -0.3,
+   "S1": 98.1,
+   "S1stars": 5,
+   "S1delta": -1.4,
+   "S2": 97.9,
+   "S2stars": 5,
+   "S2delta": -1.6,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "sausage",
+   "ideal": 2,
+   "count": 2,
+   "groups": 5,
+   "short": 0,
+   "excess": 0,
+   "Q0": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S0delta": 0,
+   "S1": 99.5,
+   "S1stars": 5,
+   "S1delta": 0,
+   "S2": 99.5,
+   "S2stars": 5,
+   "S2delta": 0,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "sausage",
+   "ideal": 2,
+   "count": 3,
+   "groups": 5,
+   "short": 0,
+   "excess": 0.5,
+   "Q0": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 91.1,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.25": {
+    "total": 86.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 98.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 98.5,
+   "S0stars": 5,
+   "S0delta": -1.1,
+   "S1": 98.5,
+   "S1stars": 5,
+   "S1delta": -1.1,
+   "S2": 98.5,
+   "S2stars": 5,
+   "S2delta": -1.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  },
+  {
+   "recipeId": "meat-lovers",
+   "ingredientId": "sausage",
+   "ideal": 2,
+   "count": 4,
+   "groups": 5,
+   "short": 0,
+   "excess": 1,
+   "Q0": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "Q0.15": {
+    "total": 82.8,
+    "stars": 4,
+    "pitz": 100
+   },
+   "Q0.25": {
+    "total": 73.1,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 97.4,
+    "stars": 5,
+    "pitz": 120
+   },
+   "gate": "PASS",
+   "S0": 97.4,
+   "S0stars": 5,
+   "S0delta": -2.1,
+   "S1": 97.4,
+   "S1stars": 5,
+   "S1delta": -2.1,
+   "S2": 97.4,
+   "S2stars": 5,
+   "S2delta": -2.1,
+   "pitzS0": 120,
+   "pitzS1": 120,
+   "pitzS2": 120
+  }
+ ],
+ "recipes": [
+  {
+   "recipeId": "margherita",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 3
+    },
+    {
+     "id": "basil",
+     "n": 2
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 5,
+   "allMinusOne": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.5,
+    "S0stars": 5,
+    "S0delta": -2,
+    "S1": 91,
+    "S1stars": 5,
+    "S1delta": -8.5,
+    "S2": 90.2,
+    "S2stars": 5,
+    "S2delta": -9.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "scatter": [
+    {
+     "id": "garlic",
+     "n": 3
+    },
+    {
+     "id": "oregano",
+     "n": 2
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 5,
+   "allMinusOne": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.5,
+    "S0stars": 5,
+    "S0delta": -2,
+    "S1": 91,
+    "S1stars": 5,
+    "S1delta": -8.5,
+    "S2": 90.2,
+    "S2stars": 5,
+    "S2delta": -9.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "gorgonzola",
+     "n": 2
+    },
+    {
+     "id": "parmigiano",
+     "n": 2
+    },
+    {
+     "id": "fontina",
+     "n": 2
+    }
+   ],
+   "spreads": [
+    "olive-oil"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 8,
+   "allMinusOne": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.9,
+    "S0stars": 5,
+    "S0delta": -1.6,
+    "S1": 92.3,
+    "S1stars": 5,
+    "S1delta": -7.2,
+    "S2": 91.5,
+    "S2stars": 5,
+    "S2delta": -8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.9,
+    "S0stars": 5,
+    "S0delta": -1.6,
+    "S1": 92.3,
+    "S1stars": 5,
+    "S1delta": -7.2,
+    "S2": 91.5,
+    "S2stars": 5,
+    "S2delta": -8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.9,
+    "S0stars": 5,
+    "S0delta": -1.6,
+    "S1": 92.3,
+    "S1stars": 5,
+    "S1delta": -7.2,
+    "S2": 91.5,
+    "S2stars": 5,
+    "S2delta": -8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "cherry-tomato",
+     "n": 3
+    }
+   ],
+   "spreads": [
+    "pesto"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 5,
+   "allMinusOne": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.5,
+    "S0stars": 5,
+    "S0delta": -2,
+    "S1": 91,
+    "S1stars": 5,
+    "S1delta": -8.5,
+    "S2": 90.2,
+    "S2stars": 5,
+    "S2delta": -9.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 3
+    },
+    {
+     "id": "egg",
+     "n": 1
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 4,
+   "allMinusOne": {
+    "pieces": 3,
+    "short": 0.3,
+    "excess": 0,
+    "Q0": {
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.15": {
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.25": {
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100
+    },
+    "S4cap": {
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.9,
+    "S0stars": 5,
+    "S0delta": -0.6,
+    "S1": 97.1,
+    "S1stars": 5,
+    "S1delta": -2.5,
+    "S2": 96.9,
+    "S2stars": 5,
+    "S2delta": -2.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.3,
+    "excess": 0,
+    "Q0": {
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.15": {
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.25": {
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100
+    },
+    "S4cap": {
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.9,
+    "S0stars": 5,
+    "S0delta": -0.6,
+    "S1": 97.1,
+    "S1stars": 5,
+    "S1delta": -2.5,
+    "S2": 96.9,
+    "S2stars": 5,
+    "S2delta": -2.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.3,
+    "S0stars": 5,
+    "S0delta": -1.2,
+    "S1": 94.6,
+    "S1stars": 5,
+    "S1delta": -4.9,
+    "S2": 94.2,
+    "S2stars": 5,
+    "S2delta": -5.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "mushroom",
+     "n": 3
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 5,
+   "allMinusOne": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.5,
+    "S0stars": 5,
+    "S0delta": -2,
+    "S1": 91,
+    "S1stars": 5,
+    "S1delta": -8.5,
+    "S2": 90.2,
+    "S2stars": 5,
+    "S2delta": -9.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "scatter": [
+    {
+     "id": "onion",
+     "n": 4
+    },
+    {
+     "id": "oregano",
+     "n": 1
+    }
+   ],
+   "spreads": [
+    "olive-oil"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 5,
+   "allMinusOne": {
+    "pieces": 4,
+    "short": 0.3,
+    "excess": 0,
+    "Q0": {
+     "total": 86.7,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.15": {
+     "total": 86.7,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.25": {
+     "total": 86.7,
+     "stars": 4,
+     "pitz": 100
+    },
+    "S4cap": {
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 99.1,
+    "S0stars": 5,
+    "S0delta": -0.5,
+    "S1": 97.7,
+    "S1stars": 5,
+    "S1delta": -1.9,
+    "S2": 97.5,
+    "S2stars": 5,
+    "S2delta": -2,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.8,
+    "S1stars": 5,
+    "S1delta": -3.8,
+    "S2": 95.5,
+    "S2stars": 5,
+    "S2delta": -4,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.8,
+    "excess": 0,
+    "Q0": {
+     "total": 61.3,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 61.3,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 61.3,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.9,
+    "S1stars": 5,
+    "S1delta": -5.6,
+    "S2": 93.5,
+    "S2stars": 5,
+    "S2delta": -6,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "sausage",
+     "n": 3
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 5,
+   "allMinusOne": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.4,
+    "S1": 93.5,
+    "S1stars": 5,
+    "S1delta": -6.1,
+    "S2": 92.9,
+    "S2stars": 5,
+    "S2delta": -6.7,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.5,
+    "S0stars": 5,
+    "S0delta": -2,
+    "S1": 91,
+    "S1stars": 5,
+    "S1delta": -8.5,
+    "S2": 90.2,
+    "S2stars": 5,
+    "S2delta": -9.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "pepperoni",
+     "n": 4
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 6,
+   "allMinusOne": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.7,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.7,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.7,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.3,
+    "S0stars": 5,
+    "S0delta": -1.3,
+    "S1": 94.1,
+    "S1stars": 5,
+    "S1delta": -5.5,
+    "S2": 93.5,
+    "S2stars": 5,
+    "S2delta": -6,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 3,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.3,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.3,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.3,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.8,
+    "S0stars": 5,
+    "S0delta": -1.8,
+    "S1": 92.2,
+    "S1stars": 5,
+    "S1delta": -7.4,
+    "S2": 91.5,
+    "S2stars": 5,
+    "S2delta": -8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 2,
+    "short": 0.8,
+    "excess": 0,
+    "Q0": {
+     "total": 60.8,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 60.8,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 60.8,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.3,
+    "S0stars": 5,
+    "S0delta": -2.2,
+    "S1": 90.3,
+    "S1stars": 5,
+    "S1delta": -9.2,
+    "S2": 89.5,
+    "S2stars": 4,
+    "S2delta": -10,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 100
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "anchovy",
+     "n": 3
+    },
+    {
+     "id": "oregano",
+     "n": 1
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 6,
+   "allMinusOne": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -0.9,
+    "S1": 95.5,
+    "S1stars": 5,
+    "S1delta": -4,
+    "S2": 95.1,
+    "S2stars": 5,
+    "S2delta": -4.4,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -0.9,
+    "S1": 95.5,
+    "S1stars": 5,
+    "S1delta": -4,
+    "S2": 95.1,
+    "S2stars": 5,
+    "S2delta": -4.4,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 3,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.2,
+    "S0stars": 5,
+    "S0delta": -1.3,
+    "S1": 93.9,
+    "S1stars": 5,
+    "S1delta": -5.7,
+    "S2": 93.3,
+    "S2stars": 5,
+    "S2delta": -6.2,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "onion",
+     "n": 2
+    },
+    {
+     "id": "tuna",
+     "n": 3
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 7,
+   "allMinusOne": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.5,
+    "S1": 93.1,
+    "S1stars": 5,
+    "S1delta": -6.4,
+    "S2": 92.4,
+    "S2stars": 5,
+    "S2delta": -7.1,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.1,
+    "S0stars": 5,
+    "S0delta": -1.5,
+    "S1": 93.1,
+    "S1stars": 5,
+    "S1delta": -6.4,
+    "S2": 92.4,
+    "S2stars": 5,
+    "S2delta": -7.1,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 3,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65.1,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65.1,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65.1,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.7,
+    "S0stars": 5,
+    "S0delta": -1.9,
+    "S1": 91.5,
+    "S1stars": 5,
+    "S1delta": -8.1,
+    "S2": 90.7,
+    "S2stars": 5,
+    "S2delta": -8.9,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "scatter": [
+    {
+     "id": "rosemary",
+     "n": 3
+    }
+   ],
+   "spreads": [
+    "olive-oil"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 3,
+   "allMinusOne": {
+    "pieces": 2,
+    "short": 0.3,
+    "excess": 0,
+    "Q0": {
+     "total": 82,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.15": {
+     "total": 82,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.25": {
+     "total": 82,
+     "stars": 4,
+     "pitz": 100
+    },
+    "S4cap": {
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.3,
+    "S0stars": 5,
+    "S0delta": -1.2,
+    "S1": 94.6,
+    "S1stars": 5,
+    "S1delta": -4.9,
+    "S2": 94.2,
+    "S2stars": 5,
+    "S2delta": -5.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 2,
+    "short": 0.3,
+    "excess": 0,
+    "Q0": {
+     "total": 82,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.15": {
+     "total": 82,
+     "stars": 4,
+     "pitz": 100
+    },
+    "Q0.25": {
+     "total": 82,
+     "stars": 4,
+     "pitz": 100
+    },
+    "S4cap": {
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.3,
+    "S0stars": 5,
+    "S0delta": -1.2,
+    "S1": 94.6,
+    "S1stars": 5,
+    "S1delta": -4.9,
+    "S2": 94.2,
+    "S2stars": 5,
+    "S2delta": -5.3,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 1,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 64.8,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 64.8,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 64.8,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 97.1,
+    "S0stars": 5,
+    "S0delta": -2.4,
+    "S1": 89.7,
+    "S1stars": 4,
+    "S1delta": -9.9,
+    "S2": 88.9,
+    "S2stars": 4,
+    "S2delta": -10.7,
+    "pitzS0": 120,
+    "pitzS1": 100,
+    "pitzS2": 100
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "egg",
+     "n": 1
+    },
+    {
+     "id": "bacon",
+     "n": 3
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 6,
+   "allMinusOne": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -0.9,
+    "S1": 95.5,
+    "S1stars": 5,
+    "S1delta": -4,
+    "S2": 95.1,
+    "S2stars": 5,
+    "S2delta": -4.4,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 4,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 74,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -0.9,
+    "S1": 95.5,
+    "S1stars": 5,
+    "S1delta": -4,
+    "S2": 95.1,
+    "S2stars": 5,
+    "S2delta": -4.4,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 3,
+    "short": 0.7,
+    "excess": 0,
+    "Q0": {
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.2,
+    "S0stars": 5,
+    "S0delta": -1.3,
+    "S1": 93.9,
+    "S1stars": 5,
+    "S1delta": -5.7,
+    "S2": 93.3,
+    "S2stars": 5,
+    "S2delta": -6.2,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "mushroom",
+     "n": 2
+    },
+    {
+     "id": "ham",
+     "n": 1
+    },
+    {
+     "id": "black-olive",
+     "n": 2
+    },
+    {
+     "id": "oregano",
+     "n": 1
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 8,
+   "allMinusOne": {
+    "pieces": 5,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.2,
+    "S1stars": 5,
+    "S1delta": -4.3,
+    "S2": 94.7,
+    "S2stars": 5,
+    "S2delta": -4.8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 5,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.2,
+    "S1stars": 5,
+    "S1delta": -4.3,
+    "S2": 94.7,
+    "S2stars": 5,
+    "S2delta": -4.8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 5,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.2,
+    "S1stars": 5,
+    "S1delta": -4.3,
+    "S2": 94.7,
+    "S2stars": 5,
+    "S2delta": -4.8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "scatter": [
+    {
+     "id": "mozzarella",
+     "n": 2
+    },
+    {
+     "id": "bacon",
+     "n": 2
+    },
+    {
+     "id": "ham",
+     "n": 1
+    },
+    {
+     "id": "pepperoni",
+     "n": 1
+    },
+    {
+     "id": "sausage",
+     "n": 2
+    }
+   ],
+   "spreads": [
+    "tomato-sauce"
+   ],
+   "minCountDrift": [],
+   "idealTotal": {
+    "S0": 99.5,
+    "S1": 99.5,
+    "S2": 99.5
+   },
+   "idealPieces": 8,
+   "allMinusOne": {
+    "pieces": 5,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.2,
+    "S1stars": 5,
+    "S1delta": -4.3,
+    "S2": 94.7,
+    "S2stars": 5,
+    "S2delta": -4.8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allHalf": {
+    "pieces": 5,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.2,
+    "S1stars": 5,
+    "S1delta": -4.3,
+    "S2": 94.7,
+    "S2stars": 5,
+    "S2delta": -4.8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   },
+   "allOne": {
+    "pieces": 5,
+    "short": 0.5,
+    "excess": 0,
+    "Q0": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.15": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "Q0.25": {
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "S4cap": {
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80
+    },
+    "gate": "INSUFFICIENT_REQUIRED_AMOUNT",
+    "S0": 98.6,
+    "S0stars": 5,
+    "S0delta": -1,
+    "S1": 95.2,
+    "S1stars": 5,
+    "S1delta": -4.3,
+    "S2": 94.7,
+    "S2stars": 5,
+    "S2delta": -4.8,
+    "pitzS0": 120,
+    "pitzS1": 120,
+    "pitzS2": 120
+   }
+  }
+ ],
+ "ingredients": [
+  {
+   "id": "tomato-sauce",
+   "placement": "spread",
+   "finite": false,
+   "pricePitz": null,
+   "restockQuantity": null
+  },
+  {
+   "id": "olive-oil",
+   "placement": "spread",
+   "finite": true,
+   "pricePitz": 65,
+   "restockQuantity": 3
+  },
+  {
+   "id": "pesto",
+   "placement": "spread",
+   "finite": true,
+   "pricePitz": 90,
+   "restockQuantity": 3
+  },
+  {
+   "id": "mozzarella",
+   "placement": "scatter",
+   "finite": false,
+   "pricePitz": null,
+   "restockQuantity": null
+  },
+  {
+   "id": "gorgonzola",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 90,
+   "restockQuantity": 6
+  },
+  {
+   "id": "parmigiano",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 90,
+   "restockQuantity": 6
+  },
+  {
+   "id": "fontina",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 90,
+   "restockQuantity": 6
+  },
+  {
+   "id": "basil",
+   "placement": "scatter",
+   "finite": false,
+   "pricePitz": null,
+   "restockQuantity": null
+  },
+  {
+   "id": "garlic",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 90,
+   "restockQuantity": 9
+  },
+  {
+   "id": "oregano",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 55,
+   "restockQuantity": 6
+  },
+  {
+   "id": "cherry-tomato",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 55,
+   "restockQuantity": 9
+  },
+  {
+   "id": "egg",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 105,
+   "restockQuantity": 3
+  },
+  {
+   "id": "mushroom",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 150,
+   "restockQuantity": 9
+  },
+  {
+   "id": "onion",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 170,
+   "restockQuantity": 12
+  },
+  {
+   "id": "sausage",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 140,
+   "restockQuantity": 9
+  },
+  {
+   "id": "pepperoni",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 130,
+   "restockQuantity": 12
+  },
+  {
+   "id": "anchovy",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 110,
+   "restockQuantity": 9
+  },
+  {
+   "id": "tuna",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 120,
+   "restockQuantity": 9
+  },
+  {
+   "id": "rosemary",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 55,
+   "restockQuantity": 9
+  },
+  {
+   "id": "bacon",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 140,
+   "restockQuantity": 9
+  },
+  {
+   "id": "ham",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 140,
+   "restockQuantity": 3
+  },
+  {
+   "id": "black-olive",
+   "placement": "scatter",
+   "finite": true,
+   "pricePitz": 90,
+   "restockQuantity": 6
+  }
+ ]
+}
