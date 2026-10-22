@@ -156,10 +156,17 @@ export async function settle(page: Page) {
   await familyRow(page).evaluate(
     (row, [frames, ms, giveUp]) =>
       new Promise<void>((resolve) => {
-        const begin = performance.now();
         let last = row.scrollLeft;
         let still = 0;
-        let stillSince = begin;
+        let stillSince = performance.now();
+        let raf = 0;
+        // The give-up is a timer of its own: it must fire even when no animation frame is delivered at all.
+        const timer = window.setTimeout(done, giveUp);
+        function done() {
+          window.clearTimeout(timer);
+          cancelAnimationFrame(raf);
+          resolve();
+        }
         const tick = () => {
           const now = performance.now();
           if (row.scrollLeft === last) still += 1;
@@ -168,10 +175,10 @@ export async function settle(page: Page) {
             still = 0;
             stillSince = now;
           }
-          if ((still >= frames && now - stillSince >= ms) || now - begin >= giveUp) resolve();
-          else requestAnimationFrame(tick);
+          if (still >= frames && now - stillSince >= ms) done();
+          else raf = requestAnimationFrame(tick);
         };
-        requestAnimationFrame(tick);
+        raf = requestAnimationFrame(tick);
       }),
     [STABLE_FRAMES, STABLE_MS, GIVE_UP_MS] as const,
   );
