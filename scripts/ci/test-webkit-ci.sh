@@ -308,13 +308,19 @@ rm -f "$work/c7" "$work/c7.log"
 check "retry: orphaned apt, wait disabled (0s) -> the retry hits the lock and fails (100)" 100 \
   "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=0 retry "$work/s8" --timeout 1 --attempts 2 -- sh "$work/orphan_cmd.sh")"
 sleep 3  # let the orphan from the line above exit
-# The wait is bounded: a busy apt that outlives it is not waited for forever.
+# The first attempt never waits (no orphan can exist yet), so the install budget has no leading wait.
 setsid "$work/bin/fake-apt" 8 > /dev/null 2>&1 &
 t0=$SECONDS
+rm -f "$work/c10"
+check "retry: apt busy at the start -> the first attempt runs at once (exit 0)" 0 \
+  "$(INSTALL_LOCK_PROCS=fake-apt retry "$work/s10" --timeout 5 --attempts 1 -- sh -c "echo x >> $work/c10")"
+check "retry: the first attempt did not wait for apt" "1 yes" "$(wc -l < "$work/c10" | tr -d ' ') $([ $((SECONDS - t0)) -lt 3 ] && echo yes || echo no)"
+# The wait before a retry is bounded: a busy apt that outlives it is not waited for forever.
+t0=$SECONDS
 rm -f "$work/c9"
-check "retry: apt busy longer than the wait bound -> gives up waiting and runs the attempt (exit 3)" 3 \
-  "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=1 retry "$work/s9" --timeout 5 --attempts 1 -- sh -c "echo x >> $work/c9; exit 3")"
-check "retry: bounded wait -> the attempt ran once, and well before the 8s orphan ended" "1 yes" "$(wc -l < "$work/c9" | tr -d ' ') $([ $((SECONDS - t0)) -lt 6 ] && echo yes || echo no)"
+check "retry: apt busy longer than the wait bound -> the retry stops waiting and runs (exit 3)" 3 \
+  "$(INSTALL_LOCK_PROCS=fake-apt INSTALL_LOCK_WAIT_SECS=1 retry "$work/s9" --timeout 5 --attempts 2 -- sh -c "echo x >> $work/c9; exit 3")"
+check "retry: bounded wait -> both attempts ran, the retry after ~1s and before the 8s orphan ended" "2 yes" "$(wc -l < "$work/c9" | tr -d ' ') $([ $((SECONDS - t0)) -lt 6 ] && echo yes || echo no)"
 grep -q 'apt/dpkg still running after 1s' "$work/retry.out"; check "retry: bounded wait -> warning logged" 0 $?
 pkill -x fake-apt 2> /dev/null || true
 # Workflow contract: only the install is wrapped; Playwright test steps are never retried.
@@ -325,9 +331,25 @@ grep -n 'install-with-retry' "$wf" | grep -q 'playwright test'
 check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
 grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
 check "workflow/config: Playwright test retries are not enabled" 1 $?
-# The webkit job's time budget must fit setup + the install step's own cap + the slowest shard's tests (15.1 min observed, 2026-10-22).
+# Time budget (Codex P2 on #624). The install step's cap must cover the helper's WORST case, waits included:
+#   attempts x (timeout + kill-after) + (attempts - 1) x (retry delay + lock wait)
+# and the webkit job's cap must cover setup + that step cap + the slowest shard's tests (15.1 min observed, 2026-10-22).
+helper="$here/install-with-retry.sh"
 job_cap=$(awk '/^  webkit:$/{j=1} j&&/timeout-minutes:/{print $2; exit}' "$wf")
 install_cap=$(awk '/Install WebKit \(with system deps/{f=1} f&&/timeout-minutes:/{print $2; exit}' "$wf")
+b_attempts=$(awk '/Install WebKit \(with system deps/{f=1} f&&/--attempts/{for(i=1;i<=NF;i++) if($i=="--attempts") print $(i+1); exit}' "$wf")
+b_timeout=$(awk '/Install WebKit \(with system deps/{f=1} f&&/--timeout/{for(i=1;i<=NF;i++) if($i=="--timeout") print $(i+1); exit}' "$wf")
+b_kill=$(sed -n 's/.*--kill-after=\([0-9]*\).*/\1/p' "$helper" | head -1)
+b_delay=$(sed -n 's/.*INSTALL_RETRY_DELAY_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1)
+b_wait=$(sed -n 's/.*INSTALL_LOCK_WAIT_SECS:-\([0-9]*\)}.*/\1/p' "$helper" | head -1)
+worst_case() { echo $(( $1 * ($2 + $3) + ($1 - 1) * ($4 + $5) )); } # attempts timeout kill delay wait
+check "budget: parsed attempts/timeout/kill/delay/wait/step cap/job cap" "2 360 15 5 180 17 35" "$b_attempts $b_timeout $b_kill $b_delay $b_wait $install_cap $job_cap"
+worst=$(worst_case "$b_attempts" "$b_timeout" "$b_kill" "$b_delay" "$b_wait")
+check "budget: helper worst case (935 s) fits the install step cap" yes "$([ $((install_cap * 60)) -ge "$worst" ] && echo yes || echo "no (worst ${worst}s, cap $((install_cap * 60))s)")"
+check "budget: negative control -- the pre-fix numbers (13 min step cap, 300 s wait, wait before every attempt) do not fit" no \
+  "$([ $((13 * 60)) -ge "$(worst_case 2 360 15 5 300)" ] && echo yes || echo no)"
+check "budget: negative control -- a wait before the first attempt too (180 + 935 = 1115 s) would not fit the 17 min cap" no \
+  "$([ $((install_cap * 60)) -ge $((b_wait + worst)) ] && echo yes || echo no)"
 check "workflow: webkit job cap fits setup (1) + install step cap + longest shard (16 incl. list/margin)" yes "$([ "$job_cap" -ge $((install_cap + 17)) ] && echo yes || echo "no (job $job_cap, install $install_cap)")"
 
 echo "== 8. S2 FAIL-INFRA / FAIL-TEST classification (install_status -> evidence -> WebKit Gate)"

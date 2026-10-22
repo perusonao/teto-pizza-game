@@ -11,12 +11,17 @@
 # At most --attempts attempts are made (default 2 = one retry). Exit status is the last attempt's
 # (0 = installed, 124 = timed out, else the command's own status).
 #
-# Before EVERY attempt it waits (bounded, INSTALL_LOCK_WAIT_SECS, default 300) for apt/dpkg to go idle.
+# Before every RETRY (never before the first attempt: no orphan can exist yet) it waits -- bounded,
+# INSTALL_LOCK_WAIT_SECS, default 180 -- for apt/dpkg to go idle.
 # Why: `timeout` stops only the command it started. `npx playwright install --with-deps` runs apt-get
 # through sudo, and that root apt-get survives the kill and keeps holding the dpkg lock: the next attempt
 # then failed at once with "Could not get lock /var/lib/dpkg/lock-frontend ... held by process N
 # (apt-get)" (PR #615 / #622, 2026-10-22, 5 of 5 retries) -- while the orphan went on downloading and
 # unpacking. Waiting lets it finish, so the retry starts from installed dependencies.
+#
+# Time budget (the workflow's install step `timeout-minutes` must cover it; scripts/ci/test-webkit-ci.sh pins it):
+#   worst case = attempts x (timeout + 15 kill-after) + (attempts - 1) x (retry delay + lock wait)
+#              = 2 x (360 + 15) + 1 x (5 + 180) = 935 s (15.6 min) with the defaults and the workflow's flags.
 #
 # S2: the outcome is recorded in --status-file (key=value lines) for the shard evidence:
 #   install_status=incomplete|ok|failed|timeout   (incomplete = written first; still there if this
@@ -29,7 +34,7 @@ status_file=""
 timeout_secs="${INSTALL_TIMEOUT_SECS:-360}"
 attempts="${INSTALL_ATTEMPTS:-2}"
 delay="${INSTALL_RETRY_DELAY_SECS:-5}"
-lock_wait="${INSTALL_LOCK_WAIT_SECS:-300}"
+lock_wait="${INSTALL_LOCK_WAIT_SECS:-180}"
 lock_procs="${INSTALL_LOCK_PROCS:-apt-get apt dpkg unattended-upgr}" # process names (pgrep -x), overridable for tests
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -81,7 +86,7 @@ n=0
 while [ "$n" -lt "$attempts" ]; do
   n=$((n + 1))
   write_status incomplete "$n" ""
-  wait_for_apt_idle
+  if [ "$n" -gt 1 ]; then wait_for_apt_idle; fi
   echo "::group::install attempt $n/$attempts (timeout ${timeout_secs}s): $*"
   timeout --kill-after=15 "$timeout_secs" "$@"
   rc=$?

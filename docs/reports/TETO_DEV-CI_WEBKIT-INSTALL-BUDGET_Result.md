@@ -33,10 +33,22 @@ Evidence in the logs of the failed jobs:
 
 So the retry can never succeed after a timeout: it always races its own predecessor's orphan.
 
-**Fix:** before every attempt the helper waits (bounded, `INSTALL_LOCK_WAIT_SECS`, default 300 s) until no `apt-get`/`apt`/`dpkg`/
-`unattended-upgr` process is left. The orphan finishes installing the system dependencies, so the retry starts from an installed state. After
-the bound it stops waiting and runs the attempt (it then fails visibly on the lock, exactly as before). Tests are never retried; the install-step
-cap (13 min) stays the final backstop.
+**Fix:** before every **retry** (not before the first attempt: no orphan can exist yet) the helper waits (bounded, `INSTALL_LOCK_WAIT_SECS`,
+default 180 s) until no `apt-get`/`apt`/`dpkg`/`unattended-upgr` process is left. The orphan finishes installing the system dependencies, so the
+retry starts from an installed state. After the bound it stops waiting and runs the attempt (it then fails visibly on the lock, exactly as
+before). Tests are never retried.
+
+**Time budget (Codex P2 on #624).** The install step's cap has to cover the helper's worst case, waits included:
+
+    attempts x (timeout + kill-after) + (attempts - 1) x (retry delay + lock wait) = 2 x (360 + 15) + 1 x (5 + 180) = 935 s (15.6 min)
+
+so the step cap is **17 min** (was 13: with a 300 s wait the second attempt would have had ~115 s left before the step was killed). The wait is
+deliberately *not* applied before the first attempt: that would add another 180 s (1115 s = 18.6 min > 17). Both are pinned in
+`scripts/ci/test-webkit-ci.sh`, with negative controls (the pre-fix numbers, and a leading wait, do not fit).
+
+First real-runner evidence (PR #624's own run, `webkit-390x844` shard 3/3): attempt 1 timed out → waited 98 s for the orphan → `apt/dpkg idle
+after 98s` → attempt 2 `ok` in ~2 s (dependencies already installed) → install step 7 m 46 s in total, no lock error. Before the fix this
+exact sequence ended in `Could not get lock`.
 
 ## 3. Root cause 2 — the 20 min job cap is too tight for a normal slow install
 
@@ -61,22 +73,24 @@ Findings:
 - The job has no room for a slow install: setup 0:50 + install 4:48 + tests 15:00 = 20:40 > 20:00. A 4.8 min install (not a failure — it
   succeeded) was enough to cancel the shard mid-test and fail WebKit Gate.
 
-**New cap: `timeout-minutes: 30`** = setup 1 + install step cap 13 (already enforced by the step's own `timeout-minutes: 13`) + list 0.2 +
-longest observed tests 15.1 = 29.3 min. The install step is bounded, so a stalled install still ends at 13 min; the tests step has no new cap, so
-a hung test is still bounded by the job (30 min instead of 20). The cost is only paid in the bad case; healthy shards finish in 11–18 min
+**New cap: `timeout-minutes: 35`** = setup 1 + install step cap 17 (the step's own `timeout-minutes: 17`, see the budget above) + list 0.2 +
+longest observed tests 15.1 = 33.3 min. The install step is bounded, so a stalled install still ends at 17 min; the tests step has no new cap,
+so a hung test is still bounded by the job (35 min instead of 20). The cost is only paid in the bad case; healthy shards finish in 11–18 min
 as before.
 
 ## 4. Verification
 
-- `bash scripts/ci/test-webkit-ci.sh`: 116/116 (was 107). New cases (hermetic; a fake `apt-get`-named process stands in for the orphan):
+- `bash scripts/ci/test-webkit-ci.sh`: 122/122 (was 107). New cases (hermetic; a fake `apt-get`-named process stands in for the orphan):
   orphan after a timeout → the retry waits and then succeeds; **same scenario with the wait disabled fails with the lock error (negative
-  control, i.e. the test bites)**; the wait is bounded (an 8 s orphan with a 1 s bound does not hang and the attempt still runs);
-  the webkit job cap ≥ install step cap + 17 min (keeps the budget arithmetic from regressing).
-- `bash -n` on both scripts; the workflow YAML parses (`webkit.timeout-minutes = 30`, install step `13`).
+  control, i.e. the test bites)**; the first attempt never waits; the wait before a retry is bounded (an 8 s orphan with a 1 s bound does not
+  hang and both attempts run); the time budget (worst case 935 s ≤ install step cap 17 min; job cap ≥ step cap + 17 min) parsed from the
+  workflow and the helper, with two negative controls (the pre-fix 13 min / 300 s numbers, and a leading wait).
+- `bash -n` on both scripts; the workflow YAML parses (`webkit.timeout-minutes = 35`, install step `17`); `actionlint` 1.7.7 reports nothing
+  for `e2e-webkit.yml` (same as on `main`).
 - `shellcheck` is not installed in this environment (not run).
 - The runner-side behavior (a real slow mirror) cannot be reproduced locally; it is verified by the CI of this PR's own WebKit run.
 
 ## 5. Not changed
 
 Test content, specs, shard count (3), projects, retries for Playwright tests (still 0), the install timeout (360 s) and attempts (2), the
-install step cap (13 min), WebKit Gate / evidence logic.
+WebKit Gate / evidence logic.
