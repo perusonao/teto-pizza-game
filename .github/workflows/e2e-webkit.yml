@@ -28,7 +28,7 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # projects on 2 workers. Issue #512: N is now 3 (6 jobs). With N=2, `--shard 1/2` was the first 238 of
 # 450 tests (alphabetical: the heavy dinner-* / cooking-tray-* / contract-* / expansion* specs) and
 # `webkit-390x844 shard 1/2` ran 17.4 min of tests (job ~19.5 of the 20 min cap); N=3 gives 150 tests
-# per shard and an estimated longest shard of ~11.6 min of tests. timeout-minutes stays 20. Each runner keeps Playwright's default 2 workers (no extra CPU contention
+# per shard and an estimated longest shard of ~11.6 min of tests (measured since: up to 15.1 min, so timeout-minutes is 35 -- see the webkit job). Each runner keeps Playwright's default 2 workers (no extra CPU contention
 # for timing-sensitive tests). The matrix is static (never built from classify outputs), so a
 # failed classify still gets a real Full run. Each shard records evidence (its project's full
 # `--list` selection + its own JSON results, scripts/ci/webkit-shard-evidence.mjs), and WebKit
@@ -123,7 +123,11 @@ jobs:
     # explicit, successful "false" skips it.
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 35, not 20: the job has to fit setup (~1 min) + the install step's own cap (17 min, below) + list (~0.2 min)
+    # + the slowest shard's tests (15.1 min observed) = ~33.3 min. At 20, an install slower than ~4 min
+    # (4.8 min on 2026-10-22) already cancelled webkit-390x844 shard 1/3 mid-test. See
+    # docs/reports/TETO_DEV-CI_WEBKIT-INSTALL-BUDGET_Result.md for the measurements.
+    timeout-minutes: 35
     strategy:
       # Every shard always finishes, so one failing test never hides another shard's results.
       # (WebKit Gate fails on any non-success shard either way.)
@@ -171,9 +175,11 @@ jobs:
       # is retried -- Playwright tests below are never retried (retries stay 0; a failing or flaky
       # test is a FAIL-TEST, never an infra flake). The helper records install_status in
       # $INSTALL_STATUS_FILE, which the shard evidence carries to WebKit Gate (S2: FAIL-INFRA vs
-      # FAIL-TEST; both are still FAIL). step timeout-minutes is only a backstop for the helper.
+      # FAIL-TEST; both are still FAIL). step timeout-minutes is only a backstop for the helper, but it must still
+      # cover the helper's worst case: 2 x (360 + 15) + (5 + 180 lock wait) = 935 s = 15.6 min -> 17 (pinned by
+      # scripts/ci/test-webkit-ci.sh).
       - name: Install WebKit (with system deps; timeout + 1 retry)
-        timeout-minutes: 13
+        timeout-minutes: 17
         run: >-
           bash scripts/ci/install-with-retry.sh
           --status-file "$INSTALL_STATUS_FILE" --timeout 360 --attempts 2
