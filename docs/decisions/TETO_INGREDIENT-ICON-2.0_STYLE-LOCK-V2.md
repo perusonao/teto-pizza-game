@@ -1,6 +1,6 @@
 # Ingredient Icon 2.0 — Style Lock v2 (Issue #417)
 
-Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。既存 26 種類のデザインは確定済み、27 種類目の goat-cheese は未デザイン（§9）。Pilot A = hot-dog / sausage / feta / ricotta（§5、2026-10-08 Owner 決定）。**実装状況（main `d70bd20`、2026-10-22 時点。§10）: Pilot A の 4 種は main に実装済み。26 種のうち未実装は 21 種。26 種の外で shiso / whitebait が実装済み、salmon-roe は PR #584（HOLD）内。次の実装は salmon + cream-cheese（Pilot D、§10）。#423 の実装ガードは解除済み（§7）。**
+Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。既存 26 種類のデザインは確定済み、27 種類目の goat-cheese は未デザイン（§9）。Pilot A = hot-dog / sausage / feta / ricotta（§5、2026-10-08 Owner 決定）。**実装状況（main `d70bd20`、2026-10-22 時点。§10）: Pilot A の 4 種は main に実装済み。26 種のうち未実装は 21 種。26 種の外で shiso / whitebait が実装済み、salmon-roe は PR #584（HOLD）内。次の実装は salmon + cream-cheese（Pilot D、**#621 の merge 後**、§0-7 / §10.3）。Pilot B は #438 の Owner HV 結果の記録まで HOLD。#423 の実装ガードは解除済み（§7）。**
 Path: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`
 Design reference (SVG + comparison sheet): [`docs/design/references/ingredient-icons-2.0/`](../design/references/ingredient-icons-2.0/)
 Remaining-17 comparison sheets / candidates: [`docs/design/candidates/ingredient-icons-2.0-remaining/`](../design/candidates/ingredient-icons-2.0-remaining/)
@@ -16,7 +16,14 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 4. **#418 起因の実装禁止ゲートは解除する**（#418 は #425 として main に取り込み済み）。ただし **#423 が完了するまで Production コード実装は禁止**（§7）。
 5. デザイン資産は **docs-only PR で main に取り込む**（本書・参照 SVG・比較シートを含む）。
 6. **2026-10-17 Owner 決定（#503 の実機 HV を受けた改訂）:** Pilot A の HV で、feta / ricotta がトレイでは別の SVG なのにピザ上では同じ白丸（CSS 汎用円）になり区別できないと判明した。そこで **`pieceVisual` を持つチーズ（Pilot A 時点では feta / ricotta）に限り、ピザ上・ドラッグ preview・完成ピザ / Pizza Select サムネイル・Reference でも SVG を使う。** SVG は従来の `.pizza-cheese` / `.pizza-cheese--<id>` ラッパー（+ `.pizza-cheese--glyph`）の内側に描き、焼成の melt transform・filter、サイズ区分 / RESULT ×0.75 は従来どおりラッパーに掛かる。**`pieceVisual` を持たないチーズ（mozzarella を含む）と mozzarella の Canvas / M1 フォールバックは変更しない。** 将来 mozzarella に `pieceVisual` を付ける Pilot C では、Canvas / M1 フォールバックを維持する扱いを別途確認する。
-7. **2026-10-22 Owner 決定:** (a) **PR #584 は HOLD（merge しない）。** (b) **salmon / cream-cheese の専用 SVG を優先する（Pilot D、§10）。** (c) **shiso / whitebait / salmon-roe を Style Lock に追記する（§10）。** (d) 本書と実装状況の食い違いを修正する（本版）。(e) #468 / #478 は保留。(f) **見かけ補正 Candidate C（`?toppingScale=c`）の既定値は変更しない**（Preview / DEV 限定のまま、本番は倍率表 B）。
+7. **2026-10-22 Owner 決定（本書の正本。§10 は経緯と規則のみで、決定を繰り返さない）:**
+   - (a) **PR #584 は HOLD（merge しない・close しない）。** salmon-roe を含む Batch 8c（いくらとサーモンのピザ）の**正規の実装経路は Issue #621**（FIN-E4b-ikura）。`salmon-roe` の食材・SVG・taxonomy 行は #584 から流用（コピー）される。
+   - (b) shiso / whitebait / salmon-roe を Style Lock に追記する（§10.2）。
+   - (c) **salmon / cream-cheese の専用 SVG 化を採用（Pilot D）。両食材に個別の 1.2em 補正を採用**（`.ingredient-glyph--<visual>` 個別クラス）。`cream-cheese.svg` の無描画 `<path>`（`stroke-width="0"`）は削除可（実装時に移植しない。見た目は不変）。
+   - (d) **Pilot D の実装追跡先は Issue #623。着手は #621 の merge 後**（最新 main から。それまで runtime 実装は禁止）。
+   - (e) **Pilot B は #438 の Owner HV 結果が記録されるまで HOLD。** 2026-10-22 時点で #438 / #417 に HV 結果の記録は無い。**PASS 扱いにしない（Owner 確認待ち）。**
+   - (f) #468 / #478 は保留。見かけ補正 Candidate C（`?toppingScale=c`）の既定値は変更しない（Preview / DEV 限定のまま、本番は倍率表 B）。
+   - (g) 本書の docs-only PR の作成を許可。**runtime 実装と merge は許可していない。**
 
 ## 1. 決定（Owner）
 
@@ -176,12 +183,12 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 | Pilot | 対象 | 理由 |
 |---|---|---|
 | **A**（**実装済み**・main。Owner HV 結果は Issue #438 に記録なし） | `hot-dog`, `sausage`, `feta`, `ricotta` | 64px viewBox 共存の仕組み（§4.2-1）と、チーズのアイコン用途の分岐変更（§4.4）を最小の種類数で検証する。**hot-dog と sausage を同時に出し、受入条件「hot-dog / sausage の区別」を A の HV で判定する**（2026-10-08 Owner 決定で sausage を C から前倒し） |
-| **B** | `grana-padano`, `parmigiano`, `gorgonzola` | 形で区別する組（grana↔parmigiano）を同時に実機確認できる |
+| **B**（**HOLD**: #438 の Owner HV 結果の記録待ち） | `grana-padano`, `parmigiano`, `gorgonzola` | 形で区別する組（grana↔parmigiano）を同時に実機確認できる |
 | **C** | `mozzarella` | 序盤の高露出具材（Starter Stock 等）。A / B で共通基盤が固まってから最後に切り替える |
 
 Pilot A は共通基盤（型・viewBox 表・チーズ分岐変更・テスト更新）を含む。B / C は visual 追加のみ。残り 17 種（§1b）の Pilot 割当は未定（Owner が A〜C の HV 後に決める）。
 
-**2026-10-22 追記: Pilot D = `salmon`, `cream-cheese`（Owner 優先、§10）。** 実施順は **D → B → C**（D は #584 が HOLD の間も着手可能だが、`IngredientGlyph.tsx` / `ingredients.ts` / `App.css` が #584 と重なるため、競合の扱いは §10.3）。B / C の対象は変更しない。
+**2026-10-22 追記: Pilot D = `salmon`, `cream-cheese`（Owner 優先、§0-7 / §10.3）。** 実施順は **D → B → C**。D は #621 の merge 後に着手（同じファイルに触れるため）。**B は #438 の Owner HV 結果が記録されるまで HOLD。** B / C の対象は変更しない。
 
 ## 6. 最小テスト（各 Pilot 共通）
 
@@ -200,7 +207,7 @@ Pilot A は共通基盤（型・viewBox 表・チーズ分岐変更・テスト�
 
 - **#418 起因の実装禁止ゲートは解除済み**（2026-10-08 Owner 決定。#418 は #425 として main に取り込み済み）。
 - ~~ただし #423 が完了するまで Production コードの実装は禁止。~~ **#423 は 2026-10-08 に PR #430 で完了済み。ガードは解除済み**（2026-10-22 確認。Pilot A も実装済み）。
-- 実装は**最新 main** から開始する。実装 Issue は Owner が起票する（Pilot D は未起票。§10）。
+- 実装は**最新 main** から開始する。実装 Issue は Owner が起票する（Pilot D = #623）。
 - 本書とデザイン資産（参照 SVG・比較シート・候補）は docs-only PR で main に取り込む。この PR に `src` / CSS / runtime の変更は含めない。merge と deploy は Owner の判断で行う。
 
 ## 8. 未確定（実装前に Owner / Pilot HV で確認）
@@ -221,52 +228,80 @@ Pilot A は共通基盤（型・viewBox 表・チーズ分岐変更・テスト�
 5. SVG が採用・実装されるまで、goat-cheese は `pieceVisual` を持たない未移行チーズとして、§4.4 のとおり**従来の CSS 表示を維持**する。
 6. 対象外: `artichoke` / `rosemary`（🌱）、`spinach` / `oregano`（🍃）の絵文字重複は、Owner 決定により本アイコン 2.0 の対象外とする（Owner の HV は通過済み）。
 
-## 10. 現行実装との照合と追加決定（2026-10-22 Owner）— shiso / whitebait / salmon-roe、Pilot D
+## 10. 現行実装との照合・追加対象・規則（2026-10-22）
 
-Base: `main` `d70bd20`。調査と比較画像: [`docs/reports/TETO_INGREDIENT-VISUAL-LANE_Fresh-Audit.md`](../reports/TETO_INGREDIENT-VISUAL-LANE_Fresh-Audit.md)（棚卸し）、[`docs/reports/TETO_INGREDIENT-VISUAL-LANE_SALMON-CREAM-CHEESE_Comparison.md`](../reports/TETO_INGREDIENT-VISUAL-LANE_SALMON-CREAM-CHEESE_Comparison.md)（Pilot D 比較）。
+Base: `main` `d70bd20`。**決定は §0-7 が正本**（ここでは繰り返さない）。調査と比較の数値・画像は報告書にあり、本書は規則と状態だけを持つ:
+[`TETO_INGREDIENT-VISUAL-LANE_Fresh-Audit.md`](../reports/TETO_INGREDIENT-VISUAL-LANE_Fresh-Audit.md)（棚卸し・PR 案）、[`TETO_INGREDIENT-VISUAL-LANE_SALMON-CREAM-CHEESE_Comparison.md`](../reports/TETO_INGREDIENT-VISUAL-LANE_SALMON-CREAM-CHEESE_Comparison.md)（Pilot D 比較）。報告書と本書が食い違う場合は本書が正。
 
 ### 10.1 実装状況（main）
 
 | 区分 | 食材 | 状態 |
 |---|---|---|
-| 実装済み（Style Lock 26 種） | hot-dog, sausage, feta, ricotta（Pilot A） | main。`pieceVisual` あり。Owner HV の結果記録は Issue #438 に無い |
+| 実装済み（26 種） | hot-dog, sausage, feta, ricotta（Pilot A） | main。`pieceVisual` あり。**Owner HV 結果は未記録（#438）** |
 | 既存維持 | clam / tomato-slice / caper-cluster（32×32） | 変更なし |
-| 実装済み（26 種の外） | shiso, whitebait | main（Batch 8b、OD-B8-2 amended）。下記 10.2 |
-| PR 中（26 種の外） | salmon-roe | PR #584（**HOLD、merge しない**）。main に食材 ID も SVG も無い |
-| **未実装（26 種のうち 21 種）** | Pilot B: grana-padano, parmigiano, gorgonzola ／ Pilot C: mozzarella ／ 残り 17: fontina, cashew-cheese, cream-cheese, catupiry, pepperoni, bacon, ham, chicken, salami, prosciutto-crudo, pork, anchovy, sardine, tuna, shrimp, salmon, salt-cod | 参照 SVG は `docs/design/references/ingredient-icons-2.0/` にある（27 点: 25 + shiso + whitebait） |
+| 実装済み（26 種の外） | shiso, whitebait | main（Batch 8b、OD-B8-2 amended）。§10.2 |
+| 未マージ（26 種の外） | salmon-roe | main に食材 ID も SVG も無い。**#621 経由で入る**（#584 は HOLD） |
+| **未実装（26 種のうち 21 種）** | Pilot B: grana-padano, parmigiano, gorgonzola（**HOLD**）／ Pilot C: mozzarella ／ Pilot D: **salmon, cream-cheese**（#621 の後）／ 残り 15: fontina, cashew-cheese, catupiry, pepperoni, bacon, ham, chicken, salami, prosciutto-crudo, pork, anchovy, sardine, tuna, shrimp, salt-cod | 参照 SVG は `docs/design/references/ingredient-icons-2.0/`（27 点: 25 + shiso + whitebait） |
 | 未デザイン | goat-cheese（§9） | CSS 表示のまま |
 
-### 10.2 Style Lock への追記（Owner 決定 2026-10-22）
+### 10.2 追加対象（shiso / whitebait / salmon-roe）
 
-`shiso` / `whitebait` / `salmon-roe` を、Style Lock v2 の対象（§1b と同じ扱いの追加対象）に追記する。共通仕様（§2: 64×64、透明背景、`id` / gradient / `<defs>` なし、接地影、2 トーン、`aria-hidden`、`pieceVisual` のみで描画）に従う。
+Lock 由来ではなく **OD-B8-2 追記（Batch 8b / 8c）で認可された専用 visual** として、§1b と同じ扱いの追加対象にする。共通仕様（§2）に従う。
 
-| ingredient id | 日本語名 | 系統 | `pieceVisual` | 参照 SVG | 識別の要点 | 状態 |
-|---|---|---|---|---|---|---|
-| `shiso` | 大葉 | topping（leaf） | `shiso-leaf` | `shiso.svg`（main にある） | 鋸歯のある緑の葉 + 中央の葉脈 | **本番** |
-| `whitebait` | しらす | seafood | `whitebait-school` | `whitebait.svg`（main にある） | 白い小魚 3 匹（青灰の背線 + 黒い目） | **本番** |
-| `salmon-roe` | いくら | seafood | `salmon-roe-grains`（#584 での名称。確定は #584 の扱い次第） | `salmon-roe.svg`（**#584 のブランチにのみ存在**） | 橙の粒 6 つの小山 | **PR #584（HOLD）** |
+| ingredient id | 日本語名 | `pieceVisual` | 参照 SVG | 識別の要点 | 状態 |
+|---|---|---|---|---|---|
+| `shiso` | 大葉 | `shiso-leaf` | `shiso.svg`（main） | 鋸歯のある緑の葉 + 中央の葉脈 | 本番 |
+| `whitebait` | しらす | `whitebait-school` | `whitebait.svg`（main） | 白い小魚 3 匹 | 本番 |
+| `salmon-roe` | いくら | `salmon-roe-grains`（#584 での名称。#621 で確定） | `salmon-roe.svg`（**#584 ブランチにのみ存在。#621 の実装で main に入る**） | 橙の粒 6 つの小山 | #621 待ち |
 
-- shiso / whitebait の描画サイズ補正は `.ingredient-glyph--shiso-leaf` / `--whitebait-school` の 1.2em（§3 追記）。クラス倍率は shiso = xs、whitebait = s（`toppingSizeClass.ts`）。RESULT では ×0.75 も重なり、shiso の描画箱は約 17.6px になる。**20px 未満での識別性は未計測**（調査記録 M4）。
-- **salmon-roe の参照 SVG は、#584 の add/add 競合を避けるため、本版では main に取り込まない。** #584 の扱い（merge / 差し替え / close）が決まってから、その結果に合わせて参照ディレクトリへ置く。#584 のデザインは「Owner が #584 の HV で確認」とされており、**本書は salmon-roe の最終デザインを確定しない**（追加対象としての登録のみ）。
-- 色の住み分け: salmon-roe（橙の丸粒）は salmon（桃橙の切り身）と同じ橙系。**形（丸粒の山 vs 縞のある楕円）で区別する**。焼けた生地（橙）に対する明度コントラストは両者とも低く（調査記録）、識別は暗い輪郭と形に依存する。
+- 参照 SVG 4 点（shiso / whitebait / salmon / cream-cheese）と salmon-roe の #584 版は、いずれも共通仕様（64×64、`id` / gradient / `<defs>` / `url(#` なし）に適合することを確認済み。
+- **salmon-roe の参照 SVG は本書の PR では main に入れない**（#584 と add/add で競合するため。#621 が入れる）。最終デザインは #621 の Owner HV で確認され、**本書は確定しない**。
+- サイズ補正: shiso / whitebait は `.ingredient-glyph--<visual>` の 1.2em（§3 追記）。クラス倍率は shiso = xs、whitebait = s。RESULT では ×0.75 も重なり、shiso の描画箱は約 17.6px。20px 未満での識別性は未計測。
+- 色の住み分け: salmon-roe（橙の丸粒）と salmon（桃橙の切り身）は同系色。**形で区別する**（丸粒の山 vs 縞のある楕円）。焼けた生地（橙）に対する明度コントラストは低く、識別は暗い輪郭と形に依存する。
 
-### 10.3 Pilot D = `salmon`, `cream-cheese`（Owner 優先、2026-10-22）
+### 10.3 Pilot D = `salmon`, `cream-cheese`
 
-1. 対象: `salmon`（`pieceVisual` 案: `salmon-fillet`）、`cream-cheese`（案: `cream-cheese-block`）。参照 SVG は §1b で採用済み（A 案、`salmon.svg` / `cream-cheese.svg`）。**デザインは変更しない。**
-2. 方式: Pilot A / 8b と同じ（`pieceVisual` 1 行 + visual コンポーネント + `VISUAL_VIEWBOX` に 64）。cream-cheese は `pieceVisual` ありのチーズとして §0-6 / §4.4 の経路（ラッパー内 SVG）に乗る。
-3. **#584 との競合ファイル（HOLD の間は実装しない）:** `src/components/IngredientGlyph.tsx`、`src/components/IngredientGlyph.test.tsx`、`src/data/ingredients.ts`、`src/App.css`（HOT）。Pilot D はこの 4 ファイルすべてに触れるため、**#584 の扱いが決まるまで runtime には着手しない**。`toppingSizeClass.ts` は salmon（l）・cream-cheese（l）とも既に表にあり、Pilot D では触らない。
-4. 比較結果の要点（詳細は比較レポート）:
-   - 専用 SVG は現行（salmon = 🍣 絵文字、cream-cheese = 汎用円）より**描画が小さく見える**（1em のとき、RESULT で salmon は約 21×14px、cream-cheese は約 21×17px）。**1.2em の個別補正を入れると現行と同程度の存在感**になる。補正の採否は Owner（既定提案: 入れる。salmon-roe / shiso / whitebait と同じ CSS 方式）。
-   - salmon ↔ salmon-roe は形で区別できる。cream-cheese は feta / ricotta / mozzarella と色（青灰の銀紙）と形で区別できる。
-   - 焼き過ぎでは salmon の輪郭が暗くなる（暗い輪郭 vs 焦げた生地の明度比で約 1.4:1（焼成フィルタ前の概算））。縞の白は残るので形は読める。**色は変えない**（Style Lock 済み）。
-5. 最小 PR の範囲（#584 の扱いが決まった後）: 上 3 の 4 ファイル + 必要なら catalog 系テストの期待値。Save / scoring / economy / recipes / progression / Research authority は変更しない。受け入れ条件は Fresh Audit §7「PR-1 固有」。
-6. **Candidate C（見かけ補正）の既定値は変更しない**（Preview / DEV 限定、本番は表 B）。Pilot D の補正は 1.2em の個別クラス（Candidate C の倍率とは別の層）として扱う。
+決定は §0-7(c)(d)。ここには設計規則だけを置く。
 
-**Owner 決定（2026-10-22、後続）:** (a) salmon・cream-cheese の専用 SVG 化を採用。(b) **両食材に個別の 1.2em 補正を採用**（`.ingredient-glyph--<visual>` 個別クラス）。(c) `cream-cheese.svg` の無描画 `<path>`（`stroke-width="0"`）は**削除可**（実装時に移植しない。見た目は不変）。(d) **#584 との競合が解消するまで runtime 実装は禁止。** (e) **実装の追跡先は Issue #623**。(f) **Pilot B は #438 の Owner HV 結果が記録されるまで着手しない**（2026-10-22 時点で #438 / #417 にコメント 0 件。**PASS 扱いにしない。Owner 確認待ち**）。
+1. 参照 SVG は §1b で採用済み（A 案）。**デザインは変更しない。** `pieceVisual` 名の案: `salmon-fillet` / `cream-cheese-block`（#623 で確定）。
+2. 方式は Pilot A / 8b と同じ（`pieceVisual` 1 行 + visual コンポーネント + `VISUAL_VIEWBOX` に 64）。cream-cheese は `pieceVisual` ありのチーズとして §0-6 / §4.4 の経路（`.pizza-cheese` ラッパー内 SVG）に乗る。
+3. 実装対象 4 ファイル: `ingredients.ts` / `IngredientGlyph.tsx` / `IngredientGlyph.test.tsx` / `App.css`（HOT）。`toppingSizeClass.ts` は変更しない（salmon = l、cream-cheese = l は既に表にある）。**4 ファイルとも #621（と #584）の変更と重なるため、着手は #621 の merge 後。**
+4. 比較結果（数値・画像）と受け入れ条件は比較レポート §3〜§5 と Issue #623。**補正は 1.2em の個別クラス**で、Candidate C の倍率（Preview 限定）とは別の層。
+5. Pilot D の HV は **iPhone Safari 実機を完了条件**とする（§10.5 の延期の対象外）。
+6. 同一皿での混在（SL-4 の整理）: #621 の Owner 決定で、**E4b では「roe・shiso = 専用 SVG、salmon = 絵文字、cream-cheese = CSS 形状」の混在を暫定許容**。解消は Pilot D（#621 の後）。#621 の本番有効化（E5）前までに解消するかは、Owner の記録に無いため本書では決めない。
 
-**追加の依存（起票時に判明）:** Issue #621（FIN-E4b-ikura、#584 の再設計）が `ingredients.ts` / `IngredientGlyph.tsx` / `.test.tsx` / `App.css` に触れ、salmon-roe の SVG・CSS を #584 から流用する。Pilot D は #584 に加えて **#621 の merge 順**にも依存する（#621 の Owner 決定: 描画方式の混在 = roe・shiso は SVG、salmon は絵文字、cream-cheese は CSS 形状は E4b では暫定許容）。#621 は Style Lock 追補（SL-1/2/3/6）を並行作業としているが、その内容は本書では確認していない（別ブランチ）。重複する場合は Owner が整理する。
+### 10.4 後乗せ（post-bake）層の描画規則（SL-3）
 
-### 10.4 本版で直していないもの（記録）
+Cooking Steps の FINISH（`stage: "post"`）で置かれる piece の規則。**本番は OFF**（`FREE_COOK_FINISH_PRODUCTION = false`。main のコードで確認）。
 
-- `docs/PROJECT_HANDOFF.md` の「Ingredient Icon 2.0」節（「Implementation has not started」ほか）は古いが、**HOT file であり #584 も変更するため本版では触れない**。#584 の扱いが決まった後の別 PR で更新する。
-- `docs/design/references/ingredient-icons-2.0/README.md` は 25 点 → 27 点（shiso / whitebait 追加）に直した。salmon-roe は #584 側。
+- 後乗せ piece は `PostBakePiece` が専用の層（`.pizza-post-layer`、CUT 線より後ろ）に描く。焼成由来のスタイル（`toppingPieceStyle`、チーズの melt、Canvas mozzarella）は**届かない**。`IngredientPieceVisual` に `style` を渡さず、PREPARE と同じ未焼成の見た目を保つ。位置・回転・サイズ区分・RESULT の縮尺（#514）は焼成前の piece と同じ。
+- したがって専用 visual の見え方は **焼成前（焼成フィルタあり）と後乗せ（フィルタなし）の 2 面**で確認する。§4.2-3 の接地影の判断と、コントラスト測定は 2 面に分ける。
+- **salmon-roe は後乗せで使われるため、raw / perfect / burnt の 3 状態を再測定する**（#621 の AC-8。#584 の測定は焼成フィルタ内の見え方で、後乗せには流用できない）。shiso は焼成前（shirasu）と後乗せ（ikura）の両方で使われ、同じ食材が焼成の有無で見え方が違うのは意図どおり。
+- 食材の「識別」（Research / Hint / Dex）は後乗せの有無を見た目から漏らさない（Anti-Oracle は別 authority。本書は見た目の規則のみ）。
+
+### 10.5 HV 要件の延期（SL-6）— #621 に限る
+
+§6 の「UI 変更は HV を完了条件に含む」に対する例外: **#621（FIN-E4b-ikura）は本番 OFF の間、実機動画の HV を延期し、E5（本番有効化）の前に必須とする**（#621 Q-8）。例外は #621 の PR 本文に明記する。**Pilot D（#623）には適用しない**（本番に出る描画変更のため、通常どおり HV 必須）。
+
+### 10.6 テスト規約（SL-7）
+
+`IngredientGlyph.test.tsx` の dedicated 集合（§6-1）には、Batch 8b で shiso / whitebait が追加済み。#621 は salmon-roe を、Pilot D は salmon / cream-cheese を、それぞれ自分の PR で追加する。「emoji 行 DOM 完全一致」（§6）は dedicated になった分だけ集合が変わる。
+
+### 10.7 #621 設計報告の追補案（SL-1/2/3/6）との対応
+
+出典: `claude/teto-pizza-cooking-audit-5qb1ol` の `docs/reports/TETO_COOKING-STEPS-NEW-PROCESSES_Phase1-Fresh-Design-Audit.md` §14.5（PR #620、未 merge）。**追補は並行作業で、#621 の merge の必須条件ではない**（#621 コメント）。
+
+| 追補 | 本書での扱い |
+|---|---|
+| SL-1 Status / 実装状況 | ヘッダ、§0-7、§3、§4.1、§4.4、§5、§7、§10.1 で反映済み |
+| SL-2 Batch 8 の専用 visual | §10.2 に反映（OD-B8-2 追記で認可。salmon-roe は #621 で main へ） |
+| SL-3 後乗せ層の描画規則 | §10.4 |
+| SL-4 同一皿での混在（Owner 判断） | §10.3-6（E4b では暫定許容。解消は Pilot D） |
+| SL-5 1.2em 補正と G18 | 補正方式は §3。G18（グリフ一意性）の gate は実装 PR の AC（本書では内容を確認していない） |
+| SL-6 HV の延期 | §10.5（#621 に限る） |
+| SL-7 テスト規約 | §10.6 |
+| SL-8 編集権限 | 本書は docs-only PR で変更する。#621 / #623 の実装 PR に混ぜない |
+
+### 10.8 本版で直していないもの
+
+- `docs/PROJECT_HANDOFF.md` の「Ingredient Icon 2.0」節（「Implementation has not started」ほか）は古いが、**HOT file のため本 PR では触れない**。別の docs-only PR（#621 / #584 の扱いが決まった後）で更新する。

@@ -1,6 +1,8 @@
 # 食材ビジュアル改善レーン — Fresh Audit（棚卸し・優先順位・受け入れ条件）
 
 Status: **調査のみ（docs-only）。runtime / CSS / SVG / テストの変更なし。共有 Preview 更新なし。本番 FINISH 有効化なし。既存 PR の変更・merge なし。新規 PR は Owner 承認まで作らない。**
+
+> **2026-10-22 更新（docs 整理）:** 本書の食材ビジュアル Pilot D の依存・決定は、Style Lock `TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md` §0-7 / §10 が正。**#584 は HOLD、ikura の正規経路は #621、Pilot D（#623）は #621 の merge 後、Pilot B は #438 の Owner HV 記録待ち。** 本書の「#584 との競合・依存」の記述は、#584 を #621 に読み替える。
 Audited: `main` `d70bd20`（2026-10-22）。対象 Issue: #417 / #438 / #479 / #514 / #421 / #486 / #476。
 関連 authority: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`（Style Lock v2。**変更しない**）。
 

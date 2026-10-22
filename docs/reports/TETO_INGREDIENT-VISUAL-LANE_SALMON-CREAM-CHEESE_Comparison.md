@@ -1,6 +1,8 @@
 # salmon / cream-cheese 専用 SVG — 現行表示との比較（Pilot D 事前調査）
 
 Status: **docs-only。`src` / CSS / SVG 資産 / テストの変更なし。専用 SVG は本番コードに組み込んでいない。共有 Preview 更新なし。PR #584 に触れていない。**
+
+> **2026-10-22 更新（docs 整理）:** 本書の食材ビジュアル Pilot D の依存・決定は、Style Lock `TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md` §0-7 / §10 が正。**#584 は HOLD、ikura の正規経路は #621、Pilot D（#623）は #621 の merge 後、Pilot B は #438 の Owner HV 記録待ち。** 本書の「#584 との競合・依存」の記述は、#584 を #621 に読み替える。
 Base: `main` `d70bd20`（2026-10-22）。親: [`TETO_INGREDIENT-VISUAL-LANE_Fresh-Audit.md`](./TETO_INGREDIENT-VISUAL-LANE_Fresh-Audit.md)、authority: [`TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`](../decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md) §10。
 画像: `docs/reports/screenshots/ingredient-visual-salmon-cream-cheese/`（`01`〜`05`）。
 
