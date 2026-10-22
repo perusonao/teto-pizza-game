@@ -142,13 +142,13 @@
  ],
  "authoredMinCountPerType": {
   "histogram": {
-   "1": 9,
-   "2": 43,
-   "3": 20,
+   "1": 37,
+   "2": 148,
+   "3": 54,
    "4": 2
   },
-  "mean": 2.203,
-  "sampleRows": 25
+  "mean": 2.087,
+  "sampleRows": 71
  },
  "w1": [
   {
@@ -441,25 +441,27 @@
  "distributions": [
   {
    "population": "production (src/data/recipes.ts)",
-   "rowCount": 15,
+   "rowCount": 61,
    "rowsWithIncompleteIdentitySet": 0,
    "nonSauceTypeHistogram": {
     "1": 1,
     "2": 8,
-    "3": 3,
-    "4": 1,
-    "5": 2
+    "3": 27,
+    "4": 17,
+    "5": 7,
+    "6": 1
    },
-   "maxTypes": 5,
+   "maxTypes": 6,
    "pieces_min1PerType": {
     "histogram": {
      "1": 1,
      "2": 8,
-     "3": 3,
-     "4": 1,
-     "5": 2
+     "3": 27,
+     "4": 17,
+     "5": 7,
+     "6": 1
     },
-    "max": 5,
+    "max": 6,
     "over8": 0,
     "over12": 0,
     "over16": 0
@@ -468,26 +470,28 @@
     "histogram": {
      "2": 1,
      "4": 8,
-     "7": 3,
-     "9": 1,
-     "11": 2
+     "6": 27,
+     "8": 17,
+     "10": 7,
+     "13": 1
     },
-    "max": 11,
-    "over8": 3,
-    "over12": 0,
+    "max": 13,
+    "over8": 8,
+    "over12": 1,
     "over16": 0
    },
    "pieces_w1ConventionHigh": {
     "histogram": {
      "3": 1,
      "5": 8,
-     "7": 3,
-     "9": 1,
-     "11": 2
+     "7": 27,
+     "9": 17,
+     "11": 7,
+     "13": 1
     },
-    "max": 11,
-    "over8": 3,
-    "over12": 0,
+    "max": 13,
+    "over8": 25,
+    "over12": 1,
     "over16": 0
    },
    "exactPieces": {
@@ -495,12 +499,14 @@
      "3": 1,
      "4": 1,
      "5": 6,
-     "6": 3,
-     "7": 1,
-     "8": 3
+     "6": 5,
+     "7": 29,
+     "8": 16,
+     "9": 2,
+     "10": 1
     },
-    "max": 8,
-    "over8": 0
+    "max": 10,
+    "over8": 3
    }
   },
   {
@@ -526,12 +532,12 @@
    },
    "pieces_empiricalMean": {
     "histogram": {
-     "7": 7,
-     "9": 2,
-     "11": 1
+     "6": 7,
+     "8": 2,
+     "10": 1
     },
-    "max": 11,
-    "over8": 3,
+    "max": 10,
+    "over8": 1,
     "over12": 0,
     "over16": 0
    },
@@ -590,13 +596,13 @@
      "0": 1,
      "2": 4,
      "4": 17,
-     "7": 17,
-     "9": 8,
-     "11": 5,
+     "6": 17,
+     "8": 8,
+     "10": 5,
      "15": 1
     },
     "max": 15,
-    "over8": 14,
+    "over8": 6,
     "over12": 1,
     "over16": 0
    },
@@ -647,13 +653,13 @@
     "histogram": {
      "2": 7,
      "4": 26,
-     "7": 58,
-     "9": 59,
-     "11": 17,
+     "6": 58,
+     "8": 59,
+     "10": 17,
      "13": 5
     },
     "max": 13,
-    "over8": 81,
+    "over8": 22,
     "over12": 5,
     "over16": 0
    },
@@ -1734,7 +1740,7 @@
   {
    "id": "B",
    "label": "B. Multi-ring (adaptive rings)",
-   "doc": "B. Multi-ring: optional centre + 1-4 concentric rings (outer ring 28-34, inner ring radius/count searched for 2 rings). Picks the most compact config (smallest outer radius, then fewest rings, centre kept, then largest gap) whose minimum gap is touch-free at the smallest reference view; if none exists, the config with the largest minimum gap. Deterministic, depends only on n (memoised per n).",
+   "doc": "B. Multi-ring: optional centre + 1-4 concentric rings (outer ring 28-34, inner ring\nradius/count searched for 2 rings). Picks the most compact config (smallest outer radius,\nthen fewest rings, centre kept, then largest gap) whose minimum gap is touch-free at the\nsmallest reference view; if none exists, the config with the largest minimum gap.\nDeterministic, depends only on n (memoised per n).",
    "preservesLegacyUpTo8": true,
    "deterministic": true,
    "dependsOnRecipeId": false,
@@ -2259,7 +2265,7 @@
   {
    "id": "C",
    "label": "C. Seeded best-candidate",
-   "doc": "C. Deterministic seeded: Mitchell best-candidate sampling in the R_MAX disc, PRNG seeded by fnv1a(recipeId|n). Natural-looking, reproducible, but seed-dependent.",
+   "doc": "C. Deterministic seeded: Mitchell best-candidate sampling in the R_MAX disc,\nPRNG seeded by fnv1a(recipeId|n). Natural-looking, reproducible, but seed-dependent.",
    "preservesLegacyUpTo8": true,
    "deterministic": true,
    "dependsOnRecipeId": true,
