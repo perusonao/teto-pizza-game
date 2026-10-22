@@ -63,19 +63,26 @@ const FAILURE_REASON: Record<CommitFailure, string> = {
   dropped: "書き込んだはずのデータが保存先に残りませんでした。",
   mismatch: "保存した内容が保存先で食い違っています。",
   oversize: "ピザの記録が大きすぎて保存できません。",
-  occupied: "前回の調理の記録がまだ残っています。先にホームで確認してください。",
+  occupied: "前回の調理の記録が保存に残っています。ホームに通知があれば確認してください。",
 };
 
 /** Why the round could not be saved, and what the player may do (the game never goes on without the save holding the round). */
 export function describeRoundSaveFailure(
   cause: { kind: "blocked"; block: SaveWriteBlock } | { kind: "failed"; failure: CommitFailure },
   step: "bake" | "post-bake" | "leave",
+  held = false,
 ): RoundNoticeCopy {
-  const reason = cause.kind === "blocked" ? BLOCK_REASON[cause.block] : FAILURE_REASON[cause.failure];
+  // A kept journal that this build cannot act on is not something HOME can confirm: say what is true.
+  const reason =
+    cause.kind === "failed" && cause.failure === "occupied" && held
+      ? "この版では完了できない調理の記録が保存に残っています（ホームの通知を参照）。仕上げ工程のあるピザは、対応する版で開くまで焼けません。"
+      : cause.kind === "blocked"
+        ? BLOCK_REASON[cause.block]
+        : FAILURE_REASON[cause.failure];
   if (step === "leave") {
     return {
       title: "完了を保存できませんでした",
-      lines: [reason, "保存データには焼成時点の記録が残っているため、保存できる状態で次に開いたときに完了します。"],
+      lines: [reason, "保存データには焼成時点の記録が残っています。保存できる状態でもう一度お試しください（ページを再読み込みしても完了します）。"],
     };
   }
   return {

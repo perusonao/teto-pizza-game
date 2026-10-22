@@ -129,6 +129,8 @@ export class Tab {
     if (left.status === "settled") {
       this.state = gameReducer(this.state, { type: "ADOPT_STATE", state: left.completed.state });
       this.settled = left.completed.settled;
+    } else if (left.status === "refused") {
+      // like App: stay in the round, nothing is dropped
     } else {
       this.state = gameReducer(this.state, { type: "PLAY_AGAIN" });
     }

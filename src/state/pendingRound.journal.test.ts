@@ -406,3 +406,22 @@ describe("older builds, kept journals and a changing catalog", () => {
     expect(tab.state.dex).toEqual([]); // nothing was registered from it
   });
 });
+
+describe("a leave the save cannot take keeps the player in the round", () => {
+  it("HOME refused (storage full): still at CUT with the journal pending; the retry after space is freed completes it once", () => {
+    const storage = seeded();
+    const tab = bakingTab(storage);
+    tab.bake();
+    const original = storage.setItem.bind(storage);
+    storage.setItem = () => {
+      throw new DOMException("full", "QuotaExceededError");
+    };
+    expect(tab.goHome()).toEqual({ status: "refused", commit: { status: "failed", failure: "quota" } });
+    expect(tab.state.phase).toBe("POST_BAKE");
+    expect(tab.state.pendingRound?.status).toBe("pending");
+    storage.setItem = original;
+    expect(tab.goHome().status).toBe("settled");
+    expect(tab.state.dex.find((e) => e.recipeId === "fugazza")?.timesMade).toBe(1);
+    expect(new Tab(storage.view()).state.dex.find((e) => e.recipeId === "fugazza")?.timesMade).toBe(1);
+  });
+});

@@ -656,6 +656,7 @@ function App() {
       describeRoundSaveFailure(
         result.status === "blocked" ? { kind: "blocked", block: result.block } : { kind: "failed", failure: result.failure },
         step,
+        heldRoundReason !== null,
       ),
     );
     return false;
@@ -992,8 +993,12 @@ function App() {
         reportRoundCommit({ status: "ok" }, "leave");
         dispatch({ type: "ADOPT_STATE", state: left.completed.state });
         setSettledRound(left.completed.settled);
+      } else if (left.status === "refused") {
+        // The save did not take the completion: stay in the round (dropping it would leave the journal in the save with nothing
+        // on screen to say so, and block the next CUT / FINISH bake). A retry, or a reload, completes it.
+        reportRoundCommit(left.commit, "leave");
+        return;
       } else {
-        if (left.status === "refused") reportRoundCommit(left.commit, "leave");
         dispatch({ type: "PLAY_AGAIN" });
       }
     } else if (state.phase === "PREPARE" || state.phase === "BAKE" || state.phase === "POST_BAKE") {
