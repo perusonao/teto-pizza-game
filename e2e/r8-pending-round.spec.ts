@@ -253,15 +253,14 @@ test("a save that cannot take the bake stops the round at BAKE, says why, and a 
   expect(await page.evaluate((k) => localStorage.getItem(k), SAVE_KEY)).toBe(before);
   await shot(page, "r8-07-save-failure-at-bake", info.project.name);
 
+  // The player reads the message for a while (real time: the needle would have run on to the burnt zone). The take-out they made is
+  // what is retried, so the pizza is still the good bake it was.
+  await page.waitForTimeout(3500);
   await page.evaluate(() => { (window as any).__failSave = false; });
   await page.getByRole("button", { name: "取り出す！" }).click();
-  // The round moved on (the needle runs in real time while the failure is on screen, so the retried take-out may land anywhere:
-  // a good bake goes on to CUT with a journal, a bad one straight to the failed result -- either way the save took it).
-  await expect(page.getByRole("button", { name: "取り出す！" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
   await expect(alert).toHaveCount(0);
-  const saved = await readSave(page);
-  expect(saved?.inventory).toBeDefined();
-  expect(saved?.pendingRound === undefined || saved?.pendingRound?.status === "pending").toBe(true);
+  expect((await readSave(page))?.pendingRound?.status).toBe("pending");
 });
 
 test("a journal this build cannot act on is kept untouched and the notice explains how to recover", async ({ page }, info) => {

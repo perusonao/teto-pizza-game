@@ -668,8 +668,8 @@ function App() {
     if (reportRoundCommit(runAcknowledgeSettled(state), "leave")) setSettledRound(null);
   }
 
-  function handleConfirmBake(value: number) {
-    if (bakeCommittedForRef.current === state) return;
+  function handleConfirmBake(value: number): boolean {
+    if (bakeCommittedForRef.current === state) return true;
     // R8: the bake (and, when no CUT / FINISH follows, the registration) is saved in ONE verified write first -- consumed stock
     // together with the journal, or with the registered pizza. Nothing is dispatched unless the save holds it (./state/roundCommit.ts).
     // Lunch Rush (L-1: its stock stays in the save as it was until the pizza is served -- `GameState.unservedConsumption`, read by
@@ -678,7 +678,8 @@ function App() {
     const step = runBake(state, value, now, newRoundId(now));
     if (step.status === "refused") {
       reportRoundCommit(step.commit, "bake");
-      return;
+      // BakeOverlay keeps the needle where the player took it out, so the retry submits this same value.
+      return false;
     }
     if (step.status === "committed") {
       reportRoundCommit({ status: "ok" }, "bake");
@@ -686,13 +687,14 @@ function App() {
       // REGISTER_TO_DEX's own `state.phase !== "RESULT"` guard makes it a safe no-op the instant a CUT-enabled recipe's profile
       // lands the round on "POST_BAKE" instead -- handleConfirmMakingStep below fires it once the last post-BAKE step confirms.
       for (const action of step.actions) dispatch(action);
-      return;
+      return true;
     }
     dispatch({ type: "CONFIRM_BAKE", value, now });
     // Dinner Mission DM-2: a Dinner target never registers (its result goes to the Dinner run).
     if (!state.isMissionRound && !isDinnerRound(state)) {
       dispatch({ type: "REGISTER_TO_DEX" });
     }
+    return true;
   }
 
   // Pizza Cutting 1.0 Phase 2 (design doc §12): CONFIRM_MAKING_STEP is also what finally leaves

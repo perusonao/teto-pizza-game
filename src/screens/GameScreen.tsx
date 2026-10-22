@@ -190,7 +190,7 @@ interface GameScreenProps {
   onClearIngredientSelection?: () => void;
   onTapPizza: (x: number, y: number) => void;
   onBakeTick: (value: number) => void;
-  onConfirmBake: (value: number) => void;
+  onConfirmBake: (value: number) => void | boolean;
   /** R8 (#617): why the last bake / post-BAKE step was not saved (the round did not move on). Optional. */
   roundNotices?: ReactNode;
   /** Issue #47 Finding D: DISCOVERED's "もう一度つくる" -- retries the exact same recipe
