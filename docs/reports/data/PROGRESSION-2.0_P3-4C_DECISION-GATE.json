@@ -1,0 +1,523 @@
+{
+  "report": "docs/reports/PROGRESSION-2.0_P3-4C_DECISION-GATE.md",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "sources": {
+    "PR205": "9035606",
+    "PR206": "4c1da87",
+    "PR209": "d719f1d",
+    "PR211": "27e0916",
+    "PR213": "7ccf5df",
+    "issue": 212
+  },
+  "decidesNothing": true,
+  "decision1_OD03": {
+    "status": "DECIDED",
+    "decidedBy": "owner",
+    "decidedOn": "2026-09-23",
+    "option": "A",
+    "policy": [
+      "no special-casing of the current 15 recipes",
+      "keep authority fixed star gates",
+      "future unlock via more obtainable stars as recipes are added",
+      "never raise gate values later",
+      "no relock by construction",
+      "persisted entitlement not needed"
+    ],
+    "consequences": {
+      "reachableNewPlayer": {
+        "star1_2": 10,
+        "star3": 11,
+        "star5": 13
+      },
+      "hardLockedUntilContent": [
+        "genovese",
+        "quattro-formaggi"
+      ],
+      "skillLockStarLE3": [
+        "marinara",
+        "napoletana",
+        "pizza-bianca"
+      ],
+      "relock": false,
+      "existingSaveAsymmetry": true,
+      "gateFunction": "authority value, pure function of stars",
+      "guidance34E": [
+        "coming in a future update (hard lock)",
+        "raise BEST to unlock next ingredient"
+      ]
+    },
+    "residual": "whether 3-4E guidance ships with 3-4C (#209 Q8 / #211 G-2) -> decide in 3-4C issue scope",
+    "withdrawnReferenceVariants": [
+      "R1",
+      "R1prime",
+      "R2"
+    ]
+  },
+  "decision2_inventoryMigration": {
+    "legacyPiecesPerUse_frozen": {
+      "pepperoni": 4,
+      "onion": 4,
+      "mushroom": 3,
+      "sausage": 3,
+      "bacon": 3,
+      "garlic": 3,
+      "cherry-tomato": 3,
+      "anchovy": 3,
+      "tuna": 3,
+      "rosemary": 3,
+      "oregano": 2,
+      "gorgonzola": 2,
+      "parmigiano": 2,
+      "fontina": 2,
+      "black-olive": 2,
+      "egg": 1,
+      "ham": 1,
+      "olive-oil": 1,
+      "pesto": 1
+    },
+    "unlimitedStarters": [
+      "tomato-sauce",
+      "mozzarella",
+      "basil"
+    ],
+    "conversion": "uses = ceil(pieces / k); write pieces = uses * k",
+    "options": {
+      "M1": {
+        "desc": "in-place: inventory key meaning pieces->uses + marker",
+        "rollbackSafe": false,
+        "doubleConversion": true,
+        "newTopLevelKeys": 1,
+        "loadTimeWrite": true,
+        "compatWith34F": false
+      },
+      "M2": {
+        "desc": "new stockUses key + dual-write legacy inventory",
+        "rollbackSafe": "only with per-ingredient reconcile rule",
+        "doubleConversion": false,
+        "newTopLevelKeys": 1,
+        "loadTimeWrite": "only when changed",
+        "reconcileRule": "if inventory[id] != stockUses[id]*k then uses = ceil(inventory[id]/k)",
+        "sourceOfTruth": "stockUses, except diverged ingredients -> legacy",
+        "compatWith34F": true
+      },
+      "M3": {
+        "desc": "keep legacy inventory as k-scaled pieces; convert on read, no new key",
+        "rollbackSafe": true,
+        "doubleConversion": false,
+        "newTopLevelKeys": 0,
+        "loadTimeWrite": false,
+        "constraint": "k table append-only/frozen",
+        "compatWith34F": true
+      },
+      "M4": {
+        "desc": "keep pieces as the formal unit; consume actual placed pieces; purchase/refill in pieces (e.g. 10 x k); makeable = stock >= completion minimum",
+        "rollbackSafe": true,
+        "doubleConversion": false,
+        "newTopLevelKeys": 0,
+        "loadTimeWrite": false,
+        "migration": "none",
+        "compatWith34F": true,
+        "gameplayChange": "none",
+        "pr205Impact": "use-based API (purchase/refill +10 use, 1 use per pizza, remainingPizzaUses, consumePizzaUse) does not fit; revise before merge or leave unused",
+        "pr211Impact": "P0-S1, section 7, T-C8/T-C9 not needed; section 10 items 5-6, T-C6/T-C7, 11.2, HR-2 rewritten to current rule",
+        "pr213Impact": "seam stays pieces (requiredStockUnits=minCount); no 3-4C swap"
+      }
+    },
+    "throwawayModelMismatches": {
+      "trials": 2000,
+      "M1": 1982,
+      "M2_withReconcile": 0,
+      "M2_markerOnly_pre206Rollback": "0/1003",
+      "M2_markerOnly_post206Rollback": "994/997",
+      "M3": 0
+    },
+    "M3andM4ShareSaveFormat": true,
+    "M1": "excluded (Rev.1)",
+    "decided": "M4"
+  },
+  "crossCheck": {
+    "structuralAxes": [
+      "new persisted top-level keys (0-2)",
+      "load-time write",
+      "gate function input (stars only vs stars+save)"
+    ],
+    "od03AffectsMissionPool": false,
+    "incompatibleWith34FFuture": [
+      "M1"
+    ],
+    "gateFunctionInput": "stars only (Option A)"
+  },
+  "go34C": "NOT_YET (technical gates pending)",
+  "blockers": [
+    "TG-1",
+    "TG-2",
+    "TG-3",
+    "TG-4",
+    "TG-5"
+  ],
+  "ownerQuestions": [],
+  "revision": 4,
+  "runtimeFacts": {
+    "minCountEqualsIdealForAllScatterIngredients": true,
+    "idealSource": "referencePizza pieceGroups[].positions.length",
+    "sameIngredientDiffersByRecipe": {
+      "pepperoni": [
+        4,
+        1
+      ],
+      "onion": [
+        4,
+        2
+      ],
+      "oregano": [
+        2,
+        1
+      ],
+      "mushroom": [
+        3,
+        2
+      ],
+      "sausage": [
+        3,
+        2
+      ],
+      "bacon": [
+        3,
+        2
+      ]
+    },
+    "placementLimit": "remaining stock (Stock Gate) and open dough space only; no cap at ideal count",
+    "bakeAllowedWithAnyCount": true,
+    "completionGate": {
+      "zero": "FAILED MISSING_REQUIRED_INGREDIENT",
+      "belowMinCount": "FAILED INSUFFICIENT_REQUIRED_AMOUNT",
+      "aboveIdeal": "PASS"
+    },
+    "failedMeans": "no score, no reward, no Dex/BEST; Lunch Rush quality 0; Free Cooking INCOMPLETE_MATCH",
+    "scoreImpactPerExtraPiece": "about -1.6 to -2.0 of 100 (Pieces weight 16, quantity 30% + over-quantity placement gate)",
+    "measured": [
+      {
+        "recipe": "funghi",
+        "ingredient": "mushroom",
+        "ideal": 3,
+        "rows": {
+          "1": "FAILED",
+          "2": "FAILED",
+          "3": "PASS 0",
+          "4": "PASS -2.0",
+          "5": "PASS -4.0",
+          "6": "PASS -6.0"
+        }
+      },
+      {
+        "recipe": "pepperoni",
+        "ingredient": "pepperoni",
+        "ideal": 4,
+        "rows": {
+          "3": "FAILED",
+          "4": "PASS 0",
+          "5": "PASS -1.6",
+          "6": "PASS -3.2"
+        }
+      },
+      {
+        "recipe": "meat-lovers",
+        "ingredient": "pepperoni",
+        "ideal": 1,
+        "rows": {
+          "2": "PASS -1.6",
+          "3+": "PASS -3.2 floor"
+        }
+      }
+    ],
+    "consumption": "CONFIRM_BAKE only; actual placed pieces (scatter), 1 per sauce id (spread); PASS and FAILED alike; unlimited starters never consumed",
+    "shop": "19 finite ingredients are starterGrantOnly; acquired via EP4 grant (minCount x 10 pieces); restockQuantity = 3 pizzas of the heaviest recipe (pieces)",
+    "ownerPremise": {
+      "twoOfIdealThreeCompletes": false,
+      "fourOfIdealThreeCompletes": true
+    }
+  },
+  "oneUseChanges": {
+    "L1_overPlacementStockCost": "lost",
+    "L2_partialStockState": "removed",
+    "L3_perRecipeSharedIngredientCostDifference": "lost",
+    "L4_multiIngredientRecipeCost": "counted per type",
+    "L5_failedPizzaCost": "1 use per placed type",
+    "L6_underfillSavesStock": "meaningless under 1-use",
+    "L7_scoreSkillExpression": "unchanged",
+    "L8_existingSave": "conversion required"
+  },
+  "makeableDefinition": {
+    "M4_currentGameplay": "stock >= minCount pieces",
+    "M4_relaxedMinimum": "stock >= new minimum (e.g. 1)",
+    "M2_M3": "stock >= 1 use"
+  },
+  "decisions": {
+    "D1_OD03": {
+      "status": "FINAL",
+      "option": "A",
+      "relock": "impossible by construction",
+      "persistedEntitlement": "not needed"
+    },
+    "D2_inventory": {
+      "status": "FINAL",
+      "option": "M4",
+      "unit": "ingredient pieces (spread = 1 per application)",
+      "migration": "none",
+      "consumption": "actual placed pieces at CONFIRM_BAKE (EP2 unchanged)",
+      "stockGate": "up to remaining pieces (EP3 unchanged)",
+      "shop": "pieces",
+      "lunchRushMakeable": "stock >= minCount per finite ingredient (Completion Gate unchanged in 3-4C)",
+      "rejected": {
+        "M1": "rollback unit mixing / double conversion",
+        "M2": "1 pizza = 1 use gameplay not adopted; migration + reconcile + #206 registration",
+        "M3": "1 pizza = 1 use gameplay not adopted"
+      },
+      "pr205OnePizzaOneUse": "not adopted"
+    },
+    "D3_completionScoring": {
+      "status": "FINAL_SEPARATED",
+      "in34C": "Completion Gate unchanged",
+      "followUp": "new Fresh Audit issue (draft in report section 6)",
+      "followUpIssue": 215,
+      "followUpUrl": "https://github.com/perusonao/teto-pizza-game/issues/215"
+    },
+    "D4_shopQuantity": {
+      "status": "FINAL",
+      "unit": "pieces",
+      "storage": "fixed per-ingredient data (purchaseQuantity, refillQuantity)",
+      "initialValue": "10 x k at 3-4C cutover (k = max minCount of shipped recipes; spread = 1)",
+      "runtimeDerivation": false,
+      "autoAdjustOnRecipeAdd": false,
+      "changePolicy": "explicit balance change only",
+      "prices": "authority (purchase = tier price, refill = ceil(price*0.5))",
+      "table": {
+        "pepperoni": {
+          "k": 4,
+          "purchaseQuantity": 40,
+          "refillQuantity": 40,
+          "currentEP3RestockQuantity": 12
+        },
+        "onion": {
+          "k": 4,
+          "purchaseQuantity": 40,
+          "refillQuantity": 40,
+          "currentEP3RestockQuantity": 12
+        },
+        "mushroom": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "sausage": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "bacon": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "garlic": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "cherry-tomato": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "anchovy": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "tuna": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "rosemary": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "oregano": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "gorgonzola": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "parmigiano": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "fontina": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "black-olive": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "egg": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        },
+        "ham": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        },
+        "olive-oil": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        },
+        "pesto": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        }
+      },
+      "noRowFor": [
+        "tomato-sauce",
+        "mozzarella",
+        "basil",
+        "83 authority-only ingredients"
+      ]
+    }
+  },
+  "pr205": {
+    "head": "9035606",
+    "verdict": "FIX_BEFORE_MERGE",
+    "compatible": [
+      "progressionUnlocks.ts",
+      "progressionStars.ts",
+      "progressionIngredientState",
+      "progressionRefillPricePitz",
+      "purchase/refill failure reasons"
+    ],
+    "plan": {
+      "newFile": "src/data/progressionStockQuantities.ts (PROGRESSION_STOCK_QUANTITIES 19 rows, getProgressionStockQuantity; must not import recipes)",
+      "apiChanges": {
+        "A-1": "header -> pieces, fixed quantities, no consumption in this module",
+        "A-2": "PROGRESSION_PURCHASE_GRANT_USES -> PROGRESSION_PURCHASE_GRANT_PORTIONS (parity only)",
+        "A-3": "PROGRESSION_REFILL_USES -> PROGRESSION_REFILL_PORTIONS (parity only)",
+        "A-4": "delete PROGRESSION_USES_PER_PIZZA",
+        "A-5": "ProgressionStock doc -> pieces",
+        "A-6": "delete remainingPizzaUses",
+        "A-7": "purchase adds purchaseQuantity; missing/invalid row -> NOT_FOR_SALE, no charge",
+        "A-8": "refill adds refillQuantity; missing row -> NOT_FOR_SALE",
+        "A-9": "delete consumePizzaUse / ProgressionUseResult",
+        "A-10": "sanitizeUses -> sanitizeCount"
+      },
+      "testChanges": {
+        "T-1": "purchase: rename; egg 10 unchanged; add pepperoni +40; add no-row NOT_FOR_SALE (fresh-tomato)",
+        "T-2": "refill: egg unchanged; add pepperoni 30 Pitz +40; no-row NOT_FOR_SALE",
+        "T-3": "delete '1 pizza = 1 use' block",
+        "T-4": "wording only",
+        "T-5": "S10_R10 parity kept; imports renamed",
+        "T-6": "new progressionStockQuantities.test.ts: 19 rows exactly, literal snapshot, positive integers, invariant quantity >= max minCount (no equality with 10 x max), no recipes import"
+      },
+      "localChecks": [
+        "tsc -b",
+        "lint",
+        "vitest run"
+      ],
+      "unchanged": [
+        "progressionUnlocks.ts",
+        "progressionStars.ts",
+        "progressionIngredientState",
+        "progressionRefillPricePitz"
+      ]
+    }
+  },
+  "pr211Deltas": [
+    "P0-S1 not needed",
+    "section 7 and 13 inventory rows not needed",
+    "5.1 table: keep consumePizzaInventory/canPlaceIngredient; purchase/refill = portions x k",
+    "10.5 rewritten, 10.6 removed",
+    "T-C6/T-C7 rewritten, T-C8/T-C9 removed, T-C4/T-C5 portions x k",
+    "6.2 write trigger = purchase",
+    "P0-S2, P0-S3, F-1..F-8, schemaVersion 2 still required"
+  ],
+  "pr213Deltas": [
+    "requiredStockUnits stays pieces (minCount); no 3-4C swap",
+    "B2 remains a real state; pool excludes it"
+  ],
+  "completionScoringIssueDraft": {
+    "filed": true,
+    "number": 215,
+    "url": "https://github.com/perusonao/teto-pizza-game/issues/215"
+  },
+  "spec34C_inventoryShop": {
+    "inventory": "unchanged key/unit/values",
+    "consumption": "consumePizzaInventory (placed pieces)",
+    "stockGate": "canPlaceIngredient",
+    "finiteCheck": "authority initialOwned (P0-S3)",
+    "purchase": "price -> OWNED -> +purchaseQuantity",
+    "refill": "ceil(price*0.5) -> +refillQuantity",
+    "missingQuantityRow": "NOT_FOR_SALE (fail closed)",
+    "ep3RestockQuantity": "not used by Progression 2.0 Shop",
+    "ep4Grant": "removed; ledger saturated (P0-S2)",
+    "lunchRushMakeable": "stock >= minCount",
+    "save": "no migration, schemaVersion 2, no new key"
+  },
+  "decisionGate34C": "SPEC_COMPLETE",
+  "remainingProductDecisions": 0,
+  "technicalGates": [
+    {
+      "id": "TG-1",
+      "gate": "#205 M4 fix (A-1..A-10, T-1..T-6); local typecheck/lint/unit green",
+      "needs": "owner permission to modify #205"
+    },
+    {
+      "id": "TG-2",
+      "gate": "#205 brought up to latest main via merge commit (no rebase); CI green incl. 4-shard WebKit Gate"
+    },
+    {
+      "id": "TG-3",
+      "gate": "#205 merged by owner"
+    },
+    {
+      "id": "TG-4",
+      "gate": "#206 brought up to latest main (incl. #205); CI green incl. WebKit Gate; merged by owner"
+    },
+    {
+      "id": "TG-5",
+      "gate": "#206 deployed to production; main post-merge Full WebKit green"
+    },
+    {
+      "id": "TG-6",
+      "gate": "3-4C implementation Go; issue cut from latest main with spec sections 3 and 5"
+    }
+  ]
+}
