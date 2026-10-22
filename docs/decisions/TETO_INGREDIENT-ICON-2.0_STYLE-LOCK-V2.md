@@ -262,6 +262,10 @@ Base: `main` `d70bd20`。調査と比較画像: [`docs/reports/TETO_INGREDIENT-V
 5. 最小 PR の範囲（#584 の扱いが決まった後）: 上 3 の 4 ファイル + 必要なら catalog 系テストの期待値。Save / scoring / economy / recipes / progression / Research authority は変更しない。受け入れ条件は Fresh Audit §7「PR-1 固有」。
 6. **Candidate C（見かけ補正）の既定値は変更しない**（Preview / DEV 限定、本番は表 B）。Pilot D の補正は 1.2em の個別クラス（Candidate C の倍率とは別の層）として扱う。
 
+**Owner 決定（2026-10-22、後続）:** (a) salmon・cream-cheese の専用 SVG 化を採用。(b) **両食材に個別の 1.2em 補正を採用**（`.ingredient-glyph--<visual>` 個別クラス）。(c) `cream-cheese.svg` の無描画 `<path>`（`stroke-width="0"`）は**削除可**（実装時に移植しない。見た目は不変）。(d) **#584 との競合が解消するまで runtime 実装は禁止。** (e) **実装の追跡先は Issue #623**。(f) **Pilot B は #438 の Owner HV 結果が記録されるまで着手しない**（2026-10-22 時点で #438 / #417 にコメント 0 件。**PASS 扱いにしない。Owner 確認待ち**）。
+
+**追加の依存（起票時に判明）:** Issue #621（FIN-E4b-ikura、#584 の再設計）が `ingredients.ts` / `IngredientGlyph.tsx` / `.test.tsx` / `App.css` に触れ、salmon-roe の SVG・CSS を #584 から流用する。Pilot D は #584 に加えて **#621 の merge 順**にも依存する（#621 の Owner 決定: 描画方式の混在 = roe・shiso は SVG、salmon は絵文字、cream-cheese は CSS 形状は E4b では暫定許容）。#621 は Style Lock 追補（SL-1/2/3/6）を並行作業としているが、その内容は本書では確認していない（別ブランチ）。重複する場合は Owner が整理する。
+
 ### 10.4 本版で直していないもの（記録）
 
 - `docs/PROJECT_HANDOFF.md` の「Ingredient Icon 2.0」節（「Implementation has not started」ほか）は古いが、**HOT file であり #584 も変更するため本版では触れない**。#584 の扱いが決まった後の別 PR で更新する。
