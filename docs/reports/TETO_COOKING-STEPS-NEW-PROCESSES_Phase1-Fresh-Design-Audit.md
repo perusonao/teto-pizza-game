@@ -5,7 +5,7 @@
 Issue は新規作成していない（§9）。HV 動画は audit-only のため対象外（`PROJECT_HANDOFF.md` の「Audit-only tasks are exempt」）。
 この文書の「推奨」は助言であり Owner Decision ではない。未決は §10 に列挙し、推測で確定していない。
 
-> **更新 2026-10-22（Owner 決定の反映、3 回）:** §12（第 1 回）、§13（第 2 回: Q-1〜Q-8 の回答）、§14（第 3 回: E4b-ikura Issue 起票、技法文言候補、ビジュアル監査、Style Lock 追補範囲、#587 整理、#615 Final Gate 読み取り）を追加した。**§0・§5・§7・§8・§10 のうち §12 / §13 / §14 と食い違う記述は後の節が優先する**（§14 が最新）（初版の推奨のうち、最初のレシピを BBQ とする部分、late step 番号の扱い、Phase 1 の範囲は Owner 決定で置き換わった）。初版の本文は経緯として残す。
+> **更新 2026-10-22（Owner 決定の反映、4 回。§15 が最新）:** §12（第 1 回）、§13（第 2 回: Q-1〜Q-8 の回答）、§15（第 4 回: 設計確定事項の反映、#621 / #611 / #527 へのコメント、#587 の最小差分、#615 の再確認、着手条件）、§14（第 3 回: E4b-ikura Issue 起票、技法文言候補、ビジュアル監査、Style Lock 追補範囲、#587 整理、#615 Final Gate 読み取り）を追加した。**§0・§5・§7・§8・§10 のうち §12〜§15 と食い違う記述は後の節が優先する**（§15 が最新）（初版の推奨のうち、最初のレシピを BBQ とする部分、late step 番号の扱い、Phase 1 の範囲は Owner 決定で置き換わった）。初版の本文は経緯として残す。
 
 ## 0. 要約（先に結論）
 
@@ -643,3 +643,87 @@ Style Lock v2 は**食材ビジュアル**の authority（技法名・Dex 文言
 | O-5 | #621 への**依存関係コメント**を #611 / #527 / #615 に追記してよいか（外部書き込みのため未実施） | 承認（#611 と #527 のみ。#615 はコードに触れないコメントでも Owner の指示を待つ） |
 
 **ブロッカー（変わらず）**: #615 の Final Gate（WebKit 5 shard 実行中・Codex 現 HEAD 未取得）。E4b 着手は #615 merge 後。
+
+## 15. 設計確定事項の反映と、E4b 実装前の依存整理（2026-10-22、第 4 回）
+
+基準 `main` `d70bd20`。**E4b の runtime 実装、#584・#615・#587 の merge／コード変更、共有 Preview、本番 FINISH は行っていない。** 外部への書き込みは、Owner が許可した #621 / #611 / #527 へのコメント 3 件のみ。
+
+### 15.1 Owner 決定の反映
+
+| 決定 | 反映先 | 実装 PR（E4b-ikura）での扱い |
+|---|---|---|
+| 技法名 **後乗せ**（N1） | #621 に記録済み | `techniques.ts` の `late-addition` の `nameJa` は現行のまま（変更なし） |
+| Dex 説明 **D1** | #621 に記録済み | `descriptionJa` を「焼き上がったあとに、仕上げの具材をのせる調理法。香りや彩りが生きるよ。」へ。現行の「焼き上がりのあとに仕上げる調理法」は他にテスト・コードで固定されていない（`src` / `e2e` を検索して確認）。Dex 発見済みカードのみに表示（`dexView.ts`） |
+| なぞかけ **R1** | 同上 | `riddleJa` は現行の仮文言と同一（変更なし）。`techniques.ts:46` の「PLACEHOLDERS」コメントを「Owner 決定済み（2026-10-22）」へ置換（コメントのみ） |
+| 描画方式の混在を暫定許容 | #621 に記録済み | E4b では salmon（🍣）・cream-cheese（CSS）を移行しない。AC-8 で見え方を測定して記録のみ。E5 前の実機動画で Owner が再判断 |
+| Style Lock 追補 SL-1/2/3/6 | #621 に記録済み | 並行作業可、**merge の必須条件にしない**（AC-12 を「PR 本文に非必須と記載」へ緩和。S-4・S-5・S-9 の共通仕様適合とテスト更新は従来どおり必須） |
+| #587 | §15.3 | 修正して merge 候補（下記の最小差分） |
+| #611 / #527 へのコメント | 投稿済み | #621 の着手条件に「#527 旧 claim の release 確認」を含めた |
+
+**AC の更新（#621 のコメントに記録済み）**: AC-10 は UD-G が確定済みのため「文言の適用（R1 / D1）と、発見前の面に説明文が出ないテスト」に変更。AC-12 は上記のとおり緩和。他の AC は §13.5 のまま。
+
+### 15.2 コメント投稿の記録
+
+| 宛先 | コメント | 内容 |
+|---|---|---|
+| #621 | issuecomment-6334764668 | Owner 決定の記録、AC-10 / AC-12 の更新、着手条件 S-1〜S-4 と現状、#615 の新しい P2 |
+| #611 | issuecomment-6334766350 | #621 との依存、E4b の最初のデータが ikura であること、固定 step 番号・merge 順の記述の supersede 一覧（本文は編集していない） |
+| #527 | issuecomment-6334767834 | Batch 8c の #621 への移管、#584 の扱い、旧 claim（`01XFuM…`、期限 10-27）の release 依頼 |
+
+### 15.3 #587 — 9 項目の矛盾を直す最小差分（整理のみ。#587 は編集しない）
+
+事実の訂正（本書の以前の記述を修正）:
+- **C-8 の訂正**: §14.6 で「現 main との差が 160 ファイル規模」と書いたのは、ブランチ先端と現 main の**ツリー差**を数えた誤りだった。**#587 の変更は 2 ファイル（+145 −3）のみ**で、GitHub の `mergeable_state` は **clean**（競合なし）。base `5997157` が古いだけで、更新は必須ではなく**推奨**。
+- **C-7 の更新**: 現在の main（`d70bd20`）で `tools/progression2_mechanic_matrix.py --check` は **PASS**（"All matrix validations passed."）、`--check-runtime` も PASS（"Runtime snapshot is fresh."）を本環境で再実行して確認した。**#587 本文の「`--check` は FAIL（#260 で追跡）」は古い記述**（#614 で matrix が再生成されたため）。ただし #587 のブランチ自体での再実行結果は未確認。
+
+対象ファイルと行（#587 ブランチ `7165c01`）に対する最小差分:
+
+| C | 場所 | 現行 | 最小の修正案 |
+|---|---|---|---|
+| C-1 | JSON `recipeRows[ikura…].sourceTimingEvidence.independentlyVerifiedNote`（L1311） | 「…it is NOT an Owner confirmation」 | 末尾を「The Owner's confirmation of the individual page (2026-10-21) is recorded in PR #614 (mechanic-matrix correction) and is the source of record for the post-bake timing; this block is ChatGPT's supplementary retrieval of 2026-10-20.」に置換。`independentlyVerified:false` の定義（Claude Code の再取得の有無）は維持。**shirasu 行（L1894–1895）は変更しない**（#614 に shirasu の Owner 確認はなく、「Owner の確認ではない」が現状も正しい） |
+| C-2 | 報告書 L7・L10 | 「Owner 本人の確認ではない」 | ikura の節に限り「source of record は #614（Owner 確認 2026-10-21）。ここは ChatGPT 取得の補足」と追記。shirasu の節は据え置き |
+| C-3 | JSON `retrievedOn`（L1308）／報告書 L7 | 2026-10-20 のみ | 「取得日 2026-10-20（ChatGPT）」と「Owner 確認 2026-10-21（#614）」を**別の記録として併記**。同一事象とは断定しない |
+| C-4 | JSON `relayedSummaries`（salmon）／報告書 L17 | 「両方式」のみ | 「#614 は『十分に加熱』と記録。両記録とも**後乗せではない**点で一致。ゲーム側の焼成前は暫定（Owner Q-1）」を 1 行追記 |
+| C-5 | JSON `gameDesignValues.note`（L1339）／報告書 L37 | 「ladder step is assigned at resume against then-current main」「再開時の ladder step は main で採番（55 固定しない）」 | 「後乗せ枠で導出し、絶対番号に固定しない（#621）」へ置換 |
+| C-6 | JSON `currentGameTiming`（L1348）／報告書の該当行 | 「all four ingredients pre-bake (HOLD; no applicationPhase yet)」 | 「#584（HOLD）は全食材が焼成前。設計方針は roe・shiso を後乗せ（#621）。サーモン・クリームチーズの焼成前は暫定」を追記 |
+| C-7 | PR 本文「互換性・検証」、報告書 L43 | 「`--check` は FAIL（#260）」 | 「main `d70bd20` で `--check` / `--check-runtime` PASS を再確認」に更新（#587 ブランチ上の再実行結果を併記） |
+| C-8 | PR 本文 | （本文には記載なし。本書の旧記述の訂正） | 対応不要。必要なら main の取り込みのみ（任意） |
+| C-9 | `docs/reports/TETO_PIZZADB_TIMING-AUDIT_shipped.md`（#614、main）の「shirasu は #587 に部分証跡あり」 | #587 の merge 後に参照が有効になる | **#587 を merge すれば参照は成立**。追加差分不要（merge しない場合のみ要修正） |
+| 追加 | PR 本文「確認範囲」1 行目「Owner 本人の確認ではありません」／「再開時の ladder step は main で採番」 | C-1・C-5 と同じ | 本文の該当 2 行を同様に置換 |
+
+差分の規模: JSON は ikura 行の 4 か所（L1311・L1339・L1348 と summaries）、トップレベルの `sourceTimingEvidenceNote`（L6356）に source-of-record の 1 文、報告書は L7・L10・L17・L36–37・L43 の 5 か所前後、PR 本文 3 行。**shirasu 行・既存フィールドは変更しない**。修正は #587 の担当 session / Owner が実施し、修正後に再度 `--check` / `--check-runtime` と JSON 構文を確認する。
+
+**残る注意**: #614 の「Owner 確認」は、repo 上では行の `mechanicEvidence.source` の文字列と commit message として記録されている。Owner 本人の発言そのもの（Issue コメント等）は本書では確認できていない。source of record を #614 とする Owner 方針に従うが、Result Report の根拠表記は「#614 に記録された Owner 確認」と書き、Owner の原文を引用しない。
+
+### 15.4 #615 の最新状態（読み取りのみ、2026-10-22）
+
+| 項目 | 状態 |
+|---|---|
+| HEAD | `224a190`（変更なし）。`mergeable_state: clean` |
+| CI | **全 GREEN**: WebKit Gate ✓（06:43Z）、WebKit 360×800 の 3 shard ✓ / 390×844 の 3 shard ✓、build ✓、layout-chromium ✓、Layout Contract Gate ✓、classify ✓。前 HEAD で赤だった 390×844 shard 1/3 も今回は通過（#619 の効果かは断定しない） |
+| Codex | 06:44Z に `@codex review` を依頼（現 HEAD）。**06:47Z に P2 を 1 件投稿**。**receipt（「指摘なし」）は未取得** |
+| 未解決スレッド | **1 件**（`PRRT_kwDOUYyRwc6vE1Lz`、`src/data/lateCatalog.test.ts` L164 付近）。既存 2 件は解決済み |
+| **Codex P2 の内容** | ON 全体検証の Lunch Rush 判定が OFF の `RECIPES` を参照するため、**正しく `lunchRush:false` の late レシピを追加すると `LATE_IN_LUNCH_RUSH` で誤って失敗する**。`participatesInLunchRush(id, fullRecipes)` のように late 込みの一覧を渡す修正の提案 |
+| 妥当性（読み取りの所見） | #615 の `validateLateCatalog` 側は `lunchRush !== false` を違反とする設計（読んだコード）。テスト側の `productionCatalogView()` が OFF の `RECIPES` で判定する、という指摘は構造上成立しうる。**本書は検証・修正していない**（#615 は変更禁止）。**#621（ikura は `lunchRush:false`）が最初に踏む箇所**なので、#615 側で修正しておくのが筋 |
+| 結論 | **Final Gate は GREEN ではない。** 理由: (1) 現 HEAD の Codex に未解決の P2 が 1 件、(2) 現 HEAD の receipt が未取得。CI は GREEN。必要な操作（#615 の担当 session / Owner）: P2 への対応コミット → 新 HEAD で CI・Codex 再実行 → スレッド解決 → receipt → Owner の merge 判断 |
+
+### 15.5 E4b の着手条件と残ブロッカー
+
+**着手条件（全て満たすまで E4b の実装を開始しない — Owner 指示）**
+
+| # | 条件 | 状態 |
+|---|---|---|
+| S-1 | #615 の Final Gate GREEN（最終 HEAD の CI 全 GREEN、Codex の receipt、未解決スレッド 0）と Owner の merge | **未達**（P2 未解決・receipt なし） |
+| S-2 | #621 への claim 投稿（`dependsOn:[615]`、HOT file `App.css` の merge 順を明記） | 着手時 |
+| S-3 | #527 の旧 claim（session `01XFuM…`、10-27）の release / 更新 | 依頼済み（#527 コメント）。**確認が必要** |
+| S-4 | Owner Gate の最新レポート確認 | 未（Actions 手動実行） |
+| S-5 | #584 を変更・クローズしない | 遵守中 |
+
+**残るブロッカー**
+1. **#615 の Codex P2（未解決 1 件）と現 HEAD の receipt 待ち** — これだけが実装着手を止めている。CI は GREEN。
+2. **#527 の旧 claim の release 確認**（着手前）。
+3. **#587 の修正**（§15.3。merge 候補化。E4b の着手条件ではない）。
+
+**ブロッカーではないもの**: 技法文言（確定）、Style Lock 追補（並行・非必須）、描画方式の混在（暫定許容）、リング上限の実測（E4b 実装中に実施）。
+
+**Owner の追加判断が必要な事項**: なし（上記は操作待ち）。ただし #615 の P2 への対応方針（P2 を #615 で直してから merge するか、merge 後の別 PR で直すか）は #615 の担当 session / Owner の判断。#621 は前者を前提にしている。
