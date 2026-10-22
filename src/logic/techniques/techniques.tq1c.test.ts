@@ -142,7 +142,11 @@ describe("T20: architecture -- which screens may read technique state (TQ-1D)", 
       "screens/GameScreen.tsx",
       "state/discoveryReveal.ts",
       "state/gameReducer.ts",
+      // R8 (#617): the save snapshot a round commit writes (roundCommit), the startup hydrate (startup) and the completion summary (pendingRoundSettle).
+      "state/pendingRoundSettle.ts",
       "state/persistence.ts",
+      "state/roundCommit.ts",
+      "state/startup.ts",
     ]);
   });
 });

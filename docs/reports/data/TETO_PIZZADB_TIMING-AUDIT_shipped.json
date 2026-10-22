@@ -1,0 +1,1358 @@
+{
+ "schema": "pizzadb-timing-audit/v1",
+ "baseMain": "78a4a0ff",
+ "scope": "Shipped recipes (main) that have a row in the 172 evidence matrix: 47 (45 comparison-table-only + 2 individual-profile-origin). The 14 original recipes without a 172 row are out of scope.",
+ "entries": [
+  {
+   "recipeId": "tonno-e-cipolla",
+   "evidenceId": "tonno-e-cipolla-pizzadb",
+   "nameJa": "トンノエチポッラ（PIZZA DB版）",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "tuna",
+    "onion",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 5)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "evidenceId": "melanzane-pizza-pizzadb-p13",
+   "nameJa": "メランザーネピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ナス",
+    "モッツァレラ",
+    "バジル"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "バジル"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "evidenceId": "parmigiana-pizza-pizzadb-p7",
+   "nameJa": "パルミジャーナピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ナス",
+    "モッツァレラチーズ",
+    "パルミジャーノチーズ",
+    "バジル"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "パルミジャーノチーズ",
+    "バジル"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "evidenceId": "bambino-pizzadb-p7",
+   "nameJa": "バンビーノ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "モッツァレラチーズ",
+    "ハム",
+    "コーン"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "evidenceId": "hawaiian-pizzadb-row",
+   "nameJa": "ハワイアンピザ",
+   "evidenceOrigin": "individual_profile_page",
+   "ingredients": [
+    "モッツァレラチーズ",
+    "パイナップル",
+    "ハム"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/pizzas/hawaiian/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "INDIVIDUAL_PROFILE_ORIGIN_NOT_REAUDITED",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "evidenceId": "pizza-portuguesa-pizzadb-p9",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ハム",
+    "卵",
+    "玉ねぎ",
+    "オリーブ",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "evidenceId": "pesto-tonno-pizzadb-p12",
+   "nameJa": "ペストトンノピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ツナ",
+    "オリーブ",
+    "玉ねぎ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "evidenceId": "new-haven-apizza-pizzadb",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "clam",
+    "olive-oil",
+    "garlic",
+    "parmigiano"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 6)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "parmigiano"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "evidenceId": "pesto-caprese-pizzadb-p11",
+   "nameJa": "ペストカプレーゼピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "モッツァレラチーズ",
+    "トマト",
+    "バジル"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "バジル"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "evidenceId": "pesto-patate-pizzadb-p12",
+   "nameJa": "ペストパターテピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "じゃがいも",
+    "ベーコン",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "evidenceId": "puttanesca-pizza-pizzadb-p10",
+   "nameJa": "プッタネスカ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "アンチョビ",
+    "オリーブ",
+    "ケッパー",
+    "にんにく"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-pollo",
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "nameJa": "ペストポッロピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "チキン",
+    "トマト",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-gamberi",
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "nameJa": "ペストガンベリピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "エビ",
+    "トマト",
+    "にんにく"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "vongole",
+   "evidenceId": "vongole-pizzadb",
+   "nameJa": "ヴォンゴレピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 1)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "parsley"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-vegetariana",
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "nameJa": "ペストベジタリアーナピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ズッキーニ",
+    "パプリカ",
+    "ナス",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "ratatouille-pizza",
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "nameJa": "ラタトゥイユピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ナス",
+    "ズッキーニ",
+    "パプリカ",
+    "オレガノ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-trapanese",
+   "evidenceId": "pesto-trapanese-pizzadb-p11",
+   "nameJa": "ペストトラパネーゼピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "アーモンド",
+    "トマト",
+    "にんにく"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "baba-ganoush-pizza",
+   "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+   "nameJa": "ババガヌーシュピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ナス",
+    "オリーブオイル",
+    "パセリ",
+    "松の実"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "パセリ"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "prosciutto-funghi",
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "nameJa": "プロシュットフンギ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "モッツァレラチーズ",
+    "生ハム",
+    "マッシュルーム"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "生ハム"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "veggie-supreme-pizza",
+   "evidenceId": "veggie-supreme-pizza-pizzadb-p11",
+   "nameJa": "ベジースプリームピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ピーマン",
+    "玉ねぎ",
+    "マッシュルーム",
+    "オリーブ",
+    "トマト",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "vegan-cashew-cheese-pizza",
+   "evidenceId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "nameJa": "ヴィーガンカシューチーズピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "カシューナッツチーズ",
+    "ズッキーニ",
+    "パプリカ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "calabresa-argentina",
+   "evidenceId": "calabresa-argentina-pizzadb",
+   "nameJa": "アルゼンチン風カラブレーサ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "salami",
+    "black-olive",
+    "oregano"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 1)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "jamon-serrano-pizza",
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "nameJa": "ハモンセラーノピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "生ハム",
+    "モッツァレラチーズ",
+    "ルッコラ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "生ハム",
+    "ルッコラ"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "rucola-e-grana",
+   "evidenceId": "rucola-e-grana-pizzadb-p13",
+   "nameJa": "ルーコラエグラーナピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "生ハム",
+    "ルッコラ",
+    "グラナパダーノ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "生ハム",
+    "ルッコラ",
+    "グラナパダーノ"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pesto-salmone",
+   "evidenceId": "pesto-salmone-pizzadb-p11",
+   "nameJa": "ペストサーモンピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "サーモン",
+    "クリームチーズ",
+    "レモン"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "レモン"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "bacalhau",
+   "evidenceId": "bacalhau-pizzadb",
+   "nameJa": "バカリャウピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "salt-cod",
+    "onion",
+    "black-olive",
+    "mozzarella"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 6)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "full-english-pizza",
+   "evidenceId": "full-english-pizza-pizzadb-p10",
+   "nameJa": "フルイングリッシュピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ベーコン",
+    "ソーセージ",
+    "卵",
+    "ベイクドビーンズ",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "palmito-pizza",
+   "evidenceId": "palmito-pizza-pizzadb-p7",
+   "nameJa": "パルミットピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ヤシの新芽",
+    "モッツァレラチーズ",
+    "オリーブ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "polish-kielbasa",
+   "evidenceId": "polish-kielbasa-pizzadb-p12",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ソーセージ",
+    "ザワークラウト",
+    "玉ねぎ",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "porchetta-pizza",
+   "evidenceId": "porchetta-pizza-pizzadb-p12",
+   "nameJa": "ポルケッタピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "豚肉",
+    "モッツァレラチーズ",
+    "ローズマリー"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "salsiccia-e-friarielli",
+   "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+   "nameJa": "サルシッチャエフリアリエッリ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ソーセージ",
+    "フリアリエッリ",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/3/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "brazilian-catupiry-corn-pizza",
+   "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "カトゥピリチーズ",
+    "コーン",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "jalapeno-popper-pizza",
+   "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ハラペーニョ",
+    "クリームチーズ",
+    "ベーコン",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pizza-feta-eliniki",
+   "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+   "nameJa": "ピッツァフェッタエッリニキ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "フェタチーズ",
+    "オリーブ",
+    "トマト",
+    "オレガノ",
+    "オリーブオイル"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pizza-moscow",
+   "evidenceId": "pizza-moscow-pizzadb-p9",
+   "nameJa": "ピッツァモスクワ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "サーモン",
+    "ツナ",
+    "イワシ",
+    "玉ねぎ",
+    "モッツァレラチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "pizza-bianca-ricotta",
+   "evidenceId": "bianca-pizzadb-row",
+   "nameJa": "ピッツァビアンカ",
+   "evidenceOrigin": "individual_profile_page",
+   "ingredients": [
+    "モッツァレラチーズ",
+    "リコッタチーズ",
+    "オリーブオイル",
+    "ローズマリー"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/pizzas/bianca/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "INDIVIDUAL_PROFILE_ORIGIN_NOT_REAUDITED",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   },
+   "matchNote": "matrix row id is 'bianca' (not the recipe id); matched by composition (mozzarella/olive-oil/ricotta/rosemary), distinct from the original pizza-bianca (olive-oil/rosemary)."
+  },
+  {
+   "recipeId": "pizza-overload",
+   "evidenceId": "pizza-overload-pizzadb-p7",
+   "nameJa": "ピザオーバーロード",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ホットドッグ",
+    "ハム",
+    "ベーコン",
+    "モッツァレラチーズ",
+    "パイナップル"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "california-style-pizza",
+   "evidenceId": "california-style-pizza-pizzadb-p2",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ヤギのチーズ",
+    "ルッコラ",
+    "アボカド",
+    "トマト"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/2/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "ルッコラ"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "spinach-artichoke-pizza",
+   "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+   "nameJa": "スピナッチアーティチョークピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ほうれん草",
+    "アーティチョーク",
+    "クリームチーズ",
+    "モッツァレラチーズ",
+    "パルミジャーノチーズ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/4/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "パルミジャーノチーズ"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "eggplant-ricotta-pizza",
+   "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "nameJa": "ナスとリコッタのピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ナス",
+    "リコッタチーズ",
+    "ミント",
+    "オリーブオイル"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/5/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "ミント"
+   ],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "new-zealand-lamb-pizza",
+   "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "nameJa": "ニュージーランドラムピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ラム肉",
+    "さつまいも",
+    "モッツァレラチーズ",
+    "ローズマリー"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/6/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "chilean-napolitana",
+   "evidenceId": "chilean-napolitana-pizzadb",
+   "nameJa": "チリアンナポリターナ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "fresh-tomato",
+    "mozzarella",
+    "oregano"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 5)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "spanish-chorizo-pizza",
+   "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+   "nameJa": "スパニッシュチョリソピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ソーセージ",
+    "パプリカ",
+    "モッツァレラチーズ",
+    "玉ねぎ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/4/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "frango-catupiry",
+   "evidenceId": "frango-catupiry-pizzadb-p10",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "チキン",
+    "カトゥピリチーズ",
+    "モッツァレラチーズ",
+    "オレガノ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "shirasu-pizza",
+   "evidenceId": "shirasu-pizza-pizzadb-p3",
+   "nameJa": "しらすピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "しらす",
+    "モッツァレラチーズ",
+    "大葉",
+    "レモン"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/3/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "高",
+   "priorityHeuristicHits": [
+    "大葉",
+    "レモン"
+   ],
+   "auditStatus": "NEEDS_CHECK_PARTIAL_EVIDENCE_IN_PR_587",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "aussie",
+   "evidenceId": "aussie-pizzadb",
+   "nameJa": "オージーピザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 1)",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  },
+  {
+   "recipeId": "brazilian-calabresa",
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "evidenceOrigin": "comparison_table_sample",
+   "ingredients": [
+    "ソーセージ",
+    "玉ねぎ",
+    "オリーブ",
+    "オレガノ"
+   ],
+   "currentMatrixPostBakeFinish": [],
+   "currentMatrixRepresentability": "FULL",
+   "comparisonTableUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+   "individualPageUrl": null,
+   "priorityHeuristic": "低",
+   "priorityHeuristicHits": [],
+   "auditStatus": "NEEDS_CHECK",
+   "matchNote": "matched by canonicalCandidateId; shipped requires tomato-sauce/sausage/onion/black-olive/oregano (sauce is not in the comparison-table list). Master evidence verifiedAt: 2026-09-22 (relayed, not independently re-fetched). Dried oregano is outside this PR's garnish heuristic (so priority 低).",
+   "audit": {
+    "postBakeIngredients": null,
+    "notPostBakeIngredients": null,
+    "notStated": null,
+    "verbatimQuotes": [],
+    "checkedBy": null,
+    "checkedOn": null,
+    "independentlyVerified": null
+   }
+  }
+ ],
+ "priorityHeuristicNote": "Heuristic only (a garnish-like ingredient is present: fresh herb, citrus, roe, cured ham, honey, grated hard cheese). It orders the audit work; it is NOT source evidence and changes no classification.",
+ "counts": {
+  "shipped": 61,
+  "withMatrixRow": 47,
+  "comparisonTableOnly": 45,
+  "individualProfileOrigin": 2,
+  "originalsWithoutMatrixRow": 14,
+  "matchRule": "canonicalCandidateId == src recipe id; plus one composition alias: pizza-bianca-ricotta <- bianca-pizzadb-row (mozzarella/olive-oil/ricotta/rosemary; Phase 0B.5 report 3.2; Batch 5 'distinct third Bianca')",
+  "correction": "Earlier text of this PR said 46 rows (44 comparison-table-only) and listed brazilian-calabresa as having no 172 row. That was wrong: brazilian-calabresa-pizzadb-p10 (black-olive, onion, oregano, sausage; comparison_table_sample) exists in the matrix and matches the shipped recipe. Corrected to 47 / 45."
+ }
+}

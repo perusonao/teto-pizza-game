@@ -497,8 +497,8 @@
     "rowCount": 172,
     "uniqueEvidenceIds": 172,
     "currentFlowRepresentability": {
-      "FULL": 101,
-      "PARTIAL": 55,
+      "FULL": 100,
+      "PARTIAL": 56,
       "NOT_REPRESENTABLE": 16
     },
     "productDecisionStatus": {
@@ -540,12 +540,12 @@
       "FULL": {
         "ALREADY_SHIPPED_CORROBORATED": 1,
         "BLOCKED_PRODUCT_DECISION": 44,
-        "READY": 49,
+        "READY": 48,
         "READY_WITH_REVIEW": 7
       },
       "PARTIAL": {
         "BLOCKED_PRODUCT_DECISION": 32,
-        "READY": 14,
+        "READY": 15,
         "READY_WITH_REVIEW": 9
       },
       "NOT_REPRESENTABLE": {
@@ -574,7 +574,6 @@
       "frango-catupiry-pizzadb-p10",
       "full-english-pizza-pizzadb-p10",
       "hawaiian-pizzadb-row",
-      "ikura-salmon-pizza-pizzadb-p1",
       "jalapeno-popper-pizza-pizzadb-p7",
       "jamon-serrano-pizza-pizzadb-p7",
       "melanzane-pizza-pizzadb-p13",
@@ -654,7 +653,7 @@
       "unspecified": 33
     },
     "phase0MechanicIdentityRows": 41,
-    "rowsWithAnyRequiredCapability": 66,
+    "rowsWithAnyRequiredCapability": 67,
     "rowsWithRequiredCapabilityNotFlaggedInPhase0": [
       "argentine-napolitana-pizzadb-p1",
       "bbq-chicken-pizzadb",
@@ -667,6 +666,7 @@
       "grandma-pizza-pizzadb",
       "greek-style-pizzadb",
       "hot-honey-pepperoni-pizzadb-p12",
+      "ikura-salmon-pizza-pizzadb-p1",
       "kimchi-pizza-pizzadb-p2",
       "margherita-pizzadb-row",
       "marinara-pizza-pizzadb-p13",
@@ -998,13 +998,14 @@
       "costClass": "M",
       "reuses": "reserved FINISH MakingStep in the existing POST_BAKE phase; mode mid_bake adds a short re-bake after FINISH",
       "mergeRationale": "Mid-bake (natto/tarako/fries) and post-bake (wasabi/graham/finishing herbs) additions are both 'place an ingredient after the main bake started'; one FINISH step with a mode parameter, not two mechanics. Keeps the eel row's unresolved timing a mode question, not a capability question.",
-      "rowsRequiringCount": 12,
+      "rowsRequiringCount": 13,
       "rowsRequiring": [
         "bbq-chicken-pizzadb",
         "black-truffle-pizza-pizzadb-p14",
         "buffalo-chicken-pizzadb",
         "detroit-style-pizza-pizzadb-p5",
         "eel-pizza-pizzadb-p1",
+        "ikura-salmon-pizza-pizzadb-p1",
         "mentaiko-cream-pizza-pizzadb-p4",
         "natto-pizza",
         "nutella-dessert-pizza-pizzadb-p6",
@@ -1013,11 +1014,12 @@
         "teriyaki-chicken-pizza-pizzadb-p14",
         "wasabi-beef-pizza"
       ],
-      "rowsUnlockedAloneCount": 9,
+      "rowsUnlockedAloneCount": 10,
       "rowsUnlockedAlone": [
         "bbq-chicken-pizzadb",
         "black-truffle-pizza-pizzadb-p14",
         "eel-pizza-pizzadb-p1",
+        "ikura-salmon-pizza-pizzadb-p1",
         "mentaiko-cream-pizza-pizzadb-p4",
         "natto-pizza",
         "nutella-dessert-pizza-pizzadb-p6",
@@ -1041,7 +1043,7 @@
       ],
       "evidencedModes": {
         "mid_bake": 3,
-        "post_bake": 8,
+        "post_bake": 9,
         "unresolved:mid_bake|post_bake": 1
       }
     },
@@ -1211,7 +1213,7 @@
   ],
   "recommendedImplementationOrder": {
     "method": "greedy: each step adds the capability that makes the most additional rows have ALL their required capabilities; ties -> cheaper costClass, then taxonomy order. Coverage only -- no prices, star thresholds or unlock order decided.",
-    "baselineRowsNeedingNoCapability": 106,
+    "baselineRowsNeedingNoCapability": 105,
     "steps": [
       {
         "step": 1,
@@ -1219,7 +1221,7 @@
         "costClass": "S",
         "structural": false,
         "newlyFullySatisfiedRows": 20,
-        "cumulativeRowsWithAllRequiredCapabilities": 126,
+        "cumulativeRowsWithAllRequiredCapabilities": 125,
         "newlyFullySatisfiedAndDecisionReady": 8,
         "newlyFullySatisfiedRowIds": [
           "argentine-napolitana-pizzadb-p1",
@@ -1250,7 +1252,7 @@
         "costClass": "M",
         "structural": false,
         "newlyFullySatisfiedRows": 15,
-        "cumulativeRowsWithAllRequiredCapabilities": 141,
+        "cumulativeRowsWithAllRequiredCapabilities": 140,
         "newlyFullySatisfiedAndDecisionReady": 9,
         "newlyFullySatisfiedRowIds": [
           "burrata-pizza-pizzadb-p10",
@@ -1275,14 +1277,15 @@
         "capability": "LATE_ADDITION",
         "costClass": "M",
         "structural": false,
-        "newlyFullySatisfiedRows": 10,
+        "newlyFullySatisfiedRows": 11,
         "cumulativeRowsWithAllRequiredCapabilities": 151,
-        "newlyFullySatisfiedAndDecisionReady": 3,
+        "newlyFullySatisfiedAndDecisionReady": 4,
         "newlyFullySatisfiedRowIds": [
           "bbq-chicken-pizzadb",
           "black-truffle-pizza-pizzadb-p14",
           "buffalo-chicken-pizzadb",
           "eel-pizza-pizzadb-p1",
+          "ikura-salmon-pizza-pizzadb-p1",
           "mentaiko-cream-pizza-pizzadb-p4",
           "natto-pizza",
           "nutella-dessert-pizza-pizzadb-p6",
@@ -8410,18 +8413,42 @@
         "pan": null
       },
       "prep": [],
-      "postBakeFinish": [],
+      "postBakeFinish": [
+        {
+          "mode": "post_bake",
+          "ingredients": [
+            "salmon-roe",
+            "shiso"
+          ],
+          "strength": "source_profile_text"
+        }
+      ],
       "cutServe": {
         "behavior": "existing-round-cut-optional",
         "basis": "current CUT (6 slices, opt-in allowlist)"
       },
       "identityDimensions": [
-        "ingredientSet"
+        "ingredientSet",
+        "lateAdditionTiming"
       ],
-      "mechanicEvidence": [],
-      "currentFlowRepresentability": "FULL",
-      "representabilityReason": "every evidenced dimension is expressible by DOUGH(round) -> SAUCE(one layer) -> CHEESE/TOPPING(scatter) -> BAKE(one) -> optional CUT, given ingredient content",
-      "requiredCapabilities": [],
+      "mechanicEvidence": [
+        {
+          "capability": "LATE_ADDITION",
+          "mode": "post_bake",
+          "strength": "source_profile_text",
+          "source": "pizzadb.jp/pizzas/ikura-salmon/ individual page (Owner-confirmed 2026-10-21: salmon is heated through; ikura and shiso are placed after baking)",
+          "detail": "individual page: ikura (salmon-roe) and shiso are placed after the bake; salmon is cooked through (not a late piece); cream-cheese timing is not stated",
+          "ingredients": [
+            "salmon-roe",
+            "shiso"
+          ]
+        }
+      ],
+      "currentFlowRepresentability": "PARTIAL",
+      "representabilityReason": "playable via current flow but loses evidenced dimension(s): LATE_ADDITION",
+      "requiredCapabilities": [
+        "LATE_ADDITION"
+      ],
       "candidateCapabilities": [],
       "phase0": {
         "requiresMechanicIdentity": false,

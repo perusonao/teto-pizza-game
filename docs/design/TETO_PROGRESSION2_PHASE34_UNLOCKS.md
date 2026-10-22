@@ -95,7 +95,7 @@ Discovery is only granted after a simulated PASS free-cook bake (base reward + f
 | `corn` | Corn | ingredient | mid | CUMULATIVE_STARS | 100 |  | 3 | 2 | Phase-2 step 18; 3 target reuse, placed in mid tier. |  |
 | `green-onion` | Green Onion | ingredient | mid | CUMULATIVE_STARS | 100 |  | 3 | 1 | Phase-2 step 19; 3 target reuse, placed in mid tier. |  |
 | `doubanjiang` | Doubanjiang | ingredient | mid | CUMULATIVE_STARS | 100 |  | 1 | 1 | Phase-2 step 19; 1 target reuse, placed in mid tier. |  |
-| `LATE_ADDITION` | Late_Addition | capability | mid | CUMULATIVE_STARS | 0 |  | 3 | 0 | Phase-2 step 20; 3 target reuse, placed in mid tier. |  |
+| `LATE_ADDITION` | Late_Addition | capability | mid | CUMULATIVE_STARS | 0 |  | 4 | 0 | Phase-2 step 20; 4 target reuse, placed in mid tier. |  |
 | `bbq-sauce` | BBQ Sauce | ingredient | mid | CUMULATIVE_STARS | 100 |  | 1 | 0 | Phase-2 step 20; 1 target reuse, placed in mid tier. |  |
 | `cilantro` | Cilantro | ingredient | mid | CUMULATIVE_STARS | 100 |  | 1 | 1 | Phase-2 step 20; 1 target reuse, placed in mid tier. |  |
 | `ricotta` | Ricotta | ingredient | mid | CUMULATIVE_STARS | 100 |  | 3 | 1 | Phase-2 step 21; 3 target reuse, placed in mid tier. |  |
@@ -186,7 +186,7 @@ Discovery is only granted after a simulated PASS free-cook bake (base reward + f
 
 ## Fresh-audit findings
 
-- Phase-2 input: 172 rows; recommended pool 101 targets (87 evidence-ready + 14 shipped overlay). Input SHA-256 `3e4cad25f8da664a32ee7e79dd50b36276f622212ab6e8c0eb14c1503b713452`.
+- Phase-2 input: 172 rows; recommended pool 101 targets (87 evidence-ready + 14 shipped overlay). Input SHA-256 `a2a2eda61838c3ff92728011681e6052d3fa3842a28ee42d2207f111c761b458`.
 - Phase-1 mechanic matrix remains the evidence authority: 53 evidence blockers, 22 product-decision blockers, 8 mechanic-interpretation blockers, and 2 discovery-rule blockers stay outside this matrix.
 - Current production catalog has 15 shipped recipes and 22 ingredient records; this design matrix deliberately describes the future 105-ingredient 101-target pool and does not mutate production data.
 - Current production contract derives LOCKED/AVAILABLE_TO_BUY/OWNED from `minTotalStars` and ownership, treats ownership as permanent, and stock as a separate consumable map. `starterGrantOnly` suppresses first purchase today; Phase 3-4 must replace that path for this matrix.

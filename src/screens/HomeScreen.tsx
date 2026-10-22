@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import tetoImg from "../assets/characters/teto.webp";
 import mitoImg from "../assets/characters/mito.webp";
 import blueImg from "../assets/characters/blue.webp";
@@ -80,6 +81,8 @@ interface HomeScreenProps {
    *  when absent, so HOME is unchanged for every healthy save. */
   saveNotice?: SaveNotice | null;
   onAcknowledgeSaveNotice?: () => void;
+  /** R8 (#617): the round journal's notices (a round completed for the player, a kept journal, a failed save). Optional. */
+  roundNotices?: ReactNode;
 }
 
 export function HomeScreen({
@@ -105,6 +108,7 @@ export function HomeScreen({
   discoverableCount = 0,
   saveNotice = null,
   onAcknowledgeSaveNotice,
+  roundNotices = null,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -137,6 +141,8 @@ export function HomeScreen({
       {saveNotice && (
         <SaveNoticeBanner notice={saveNotice} onOpenSettings={onOpenSettings} onAcknowledge={onAcknowledgeSaveNotice} />
       )}
+
+      {roundNotices}
 
       <section className="home-hero">
         <div className="home-hero__oven-glow" aria-hidden="true" />

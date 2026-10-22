@@ -187,3 +187,23 @@ export function consumePostBakeInventory(
   // `consumePizzaInventory` sanitizes the pieces down to their ingredient ids; the filter above must come first.
   return consumePizzaInventory({ ...(pizza as PizzaState), toppings: postOnly, sauceIds: [] }, inventory);
 }
+
+/**
+ * R8 (#617, Lunch Rush L-1): what a bake took out of the stock, `before` -> `after`, as positive counts per ingredient
+ * (only ids whose stock went down). The inverse of `addInventory`.
+ */
+export function consumedInventory(before: InventoryState, after: InventoryState): InventoryState {
+  const out: Record<string, number> = {};
+  for (const id of Object.keys(before)) {
+    const taken = (before[id] ?? 0) - (after[id] ?? 0);
+    if (taken > 0) out[id] = taken;
+  }
+  return out;
+}
+
+/** R8: `a` plus `b`, per ingredient (put back what `consumedInventory` took). Neither input is mutated. */
+export function addInventory(a: InventoryState, b: InventoryState): InventoryState {
+  const out: Record<string, number> = { ...a };
+  for (const [id, count] of Object.entries(b)) out[id] = (out[id] ?? 0) + count;
+  return out;
+}

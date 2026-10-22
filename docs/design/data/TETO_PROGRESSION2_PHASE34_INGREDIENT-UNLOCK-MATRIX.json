@@ -3,7 +3,7 @@
   "issue": 195,
   "auditedMainSha": "08b04f8f1c59b8adb38964d4ec3e08e6acb6cbc2",
   "generatedBy": "tools/progression2_phase34_unlocks.py",
-  "phase2InputSha256": "3e4cad25f8da664a32ee7e79dd50b36276f622212ab6e8c0eb14c1503b713452",
+  "phase2InputSha256": "a2a2eda61838c3ff92728011681e6052d3fa3842a28ee42d2207f111c761b458",
   "semantics": {
     "stars": "monotonic progression/achievement; never spent",
     "pitz": "spendable purchase/refill currency",
@@ -1590,10 +1590,10 @@
       "pricePitz": 0,
       "stockPolicy": "NON_CONSUMABLE",
       "prerequisite": null,
-      "recipeReuseCount": 3,
+      "recipeReuseCount": 4,
       "newlyReachableRecipeIds": [],
       "newlyReachableRecipes": 0,
-      "rationale": "Phase-2 step 20; 3 target reuse, placed in mid tier.",
+      "rationale": "Phase-2 step 20; 4 target reuse, placed in mid tier.",
       "blockedDeferredReason": null
     },
     {

@@ -89,6 +89,58 @@ describe("HOME save notice", () => {
     expect(screen.getByRole("alert")).toHaveAttribute("data-save-notice", "storage-unavailable");
   });
 
+  // Save Protection PR-3 (#560, N1): the startup read fails once, the very next read works.
+  const REAL_SAVE = JSON.stringify({
+    schemaVersion: 2,
+    dex: [{ recipeId: "margherita", discovered: true, bestScore: 90, bestStars: 5, timesMade: 9 }],
+    pitzBalance: 5000,
+    ownedIngredientIds: [],
+    missionBest: {},
+    inventory: {},
+  });
+
+  function failFirstSaveRead() {
+    const real = Storage.prototype.getItem;
+    let failed = false;
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(function (this: Storage, key: string) {
+      if (key === SAVE_STORAGE_KEY && !failed) {
+        failed = true;
+        throw new Error("transient");
+      }
+      return real.call(this, key);
+    });
+  }
+
+  it("N1: a transient startup read failure does not let the default state replace the real save", () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, REAL_SAVE);
+    failFirstSaveRead();
+    render(<App />);
+    // The mount-time save effect ran with the default state against a readable save: it must have been refused.
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(REAL_SAVE);
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveAttribute("data-save-notice", "load-failed");
+    expect(alert).toHaveTextContent("保存データには手を加えていません");
+  });
+
+  it("N1: the notice offers a reload, which is the recovery", async () => {
+    const reload = mockReload();
+    window.localStorage.setItem(SAVE_STORAGE_KEY, REAL_SAVE);
+    failFirstSaveRead();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(within(screen.getByRole("alert")).getByRole("button", { name: "再読み込み" }));
+    expect(reload).toHaveBeenCalled();
+  });
+
+  it("a healthy launch with a real save shows no notice and keeps the progress (the load-time normalisation still saves)", () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, REAL_SAVE);
+    render(<App />);
+    expect(document.querySelector("[data-save-notice]")).toBeNull();
+    const stored = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY) as string);
+    expect(stored.pitzBalance).toBe(5000);
+    expect(stored.dex.map((e: { recipeId: string }) => e.recipeId)).toEqual(["margherita"]);
+  });
+
   it("an informational backup notice can be acknowledged; the backup itself stays", async () => {
     seedBackup("corrupt", BROKEN, false);
     const user = userEvent.setup();

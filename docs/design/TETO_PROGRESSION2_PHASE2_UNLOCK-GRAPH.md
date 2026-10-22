@@ -91,20 +91,20 @@ Recommended profile `SHIPPED_KEEP`, mechanic policy `M2_TUTORIAL_WEIGHTED`, econ
 
 | Policy | Order (discoverable-before → new at step) |
 |---|---|
-| `M1_COVERAGE_GREEDY` | MULTI_SPREAD_LAYER (11→+3) → FRY_COOK (40→+2) → STEP_ORDER (47→+1) → DOUGH_VARIANT (65→+2) → ENCLOSE (65→+2) → PAN_BAKE (80→+1) → ZONED_PLACEMENT (81→+1) → LATE_ADDITION (90→+1) → PREP_STEP (91→+1) → DOUGH_SHAPE_TARGET (95→+1) |
+| `M1_COVERAGE_GREEDY` | MULTI_SPREAD_LAYER (11→+3) → FRY_COOK (40→+2) → STEP_ORDER (47→+1) → DOUGH_VARIANT (65→+2) → ENCLOSE (65→+2) → LATE_ADDITION (79→+1) → PAN_BAKE (80→+1) → ZONED_PLACEMENT (81→+1) → PREP_STEP (91→+1) → DOUGH_SHAPE_TARGET (95→+1) |
 | `M2_TUTORIAL_WEIGHTED` | DOUGH_VARIANT (14→+1) → STEP_ORDER (22→+1) → MULTI_SPREAD_LAYER (29→+4) → PAN_BAKE (35→+1) → ZONED_PLACEMENT (41→+1) → LATE_ADDITION (48→+1) → FRY_COOK (54→+1) → ENCLOSE (60→+3) → DOUGH_SHAPE_TARGET (66→+1) → PREP_STEP (88→+1) |
-| `M3_MECHANICS_LAST` | MULTI_SPREAD_LAYER (71→+5) → STEP_ORDER (80→+1) → DOUGH_VARIANT (81→+1) → ENCLOSE (88→+2) → PAN_BAKE (92→+1) → ZONED_PLACEMENT (94→+1) → FRY_COOK (95→+1) → LATE_ADDITION (96→+1) → PREP_STEP (99→+1) → DOUGH_SHAPE_TARGET (100→+1) |
+| `M3_MECHANICS_LAST` | MULTI_SPREAD_LAYER (70→+5) → STEP_ORDER (79→+1) → DOUGH_VARIANT (80→+1) → ENCLOSE (87→+2) → LATE_ADDITION (91→+1) → PAN_BAKE (95→+1) → ZONED_PLACEMENT (97→+1) → FRY_COOK (98→+1) → PREP_STEP (99→+1) → DOUGH_SHAPE_TARGET (100→+1) |
 
 ## 4. Capability impact (recommended order)
 
 | Capability | Ready targets requiring | Requiring only this | Incremental coverage | Coverage after | All-172 rows requiring | Blocked rows requiring | Onboarding weight |
 |---|---|---|---|---|---|---|---|
-| DOUGH_VARIANT | 13 | 8 | +8 | 79 | 33 | 20 | 1.0 |
-| STEP_ORDER | 1 | 1 | +1 | 80 | 2 | 1 | 1.5 |
-| MULTI_SPREAD_LAYER | 9 | 9 | +9 | 89 | 17 | 8 | 2.0 |
-| PAN_BAKE | 3 | 0 | +2 | 91 | 8 | 5 | 2.0 |
-| ZONED_PLACEMENT | 1 | 1 | +1 | 92 | 1 | 0 | 3.0 |
-| LATE_ADDITION | 3 | 3 | +3 | 95 | 12 | 9 | 2.0 |
+| DOUGH_VARIANT | 13 | 8 | +8 | 78 | 33 | 20 | 1.0 |
+| STEP_ORDER | 1 | 1 | +1 | 79 | 2 | 1 | 1.5 |
+| MULTI_SPREAD_LAYER | 9 | 9 | +9 | 88 | 17 | 8 | 2.0 |
+| PAN_BAKE | 3 | 0 | +2 | 90 | 8 | 5 | 2.0 |
+| ZONED_PLACEMENT | 1 | 1 | +1 | 91 | 1 | 0 | 3.0 |
+| LATE_ADDITION | 4 | 4 | +4 | 95 | 13 | 9 | 2.0 |
 | FRY_COOK | 1 | 1 | +1 | 96 | 1 | 0 | 3.5 |
 | ENCLOSE | 3 | 1 | +3 | 99 | 5 | 2 | 4.0 |
 | DOUGH_SHAPE_TARGET | 1 | 0 | +1 | 100 | 5 | 4 | 4.0 |
@@ -162,7 +162,7 @@ Recommended profile `SHIPPED_KEEP`, mechanic policy `M2_TUTORIAL_WEIGHTED`, econ
 | corn | ingredient | 18 | mid |  | 2 | 44→46 | 1 |
 | doubanjiang | ingredient | 19 | mid |  | 2 | 46→48 | 0 |
 | green-onion | ingredient | 19 | mid |  | 2 | 46→48 | 1 |
-| LATE_ADDITION | capability | 20 | mid |  | 1 | 48→49 | 2 |
+| LATE_ADDITION | capability | 20 | mid |  | 1 | 48→49 | 3 |
 | bbq-sauce | ingredient | 20 | mid |  | 1 | 48→49 | 0 |
 | cilantro | ingredient | 20 | mid |  | 1 | 48→49 | 0 |
 | mint | ingredient | 21 | mid |  | 2 | 49→51 | 0 |

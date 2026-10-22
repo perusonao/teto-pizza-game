@@ -72,9 +72,28 @@ describe("notices that mean nothing is being saved", () => {
       { kind: "backup-failed", reason: "quarantine-failed" },
       { kind: "backup-failed", reason: "quarantine-too-large" },
       { kind: "storage-unavailable" },
+      { kind: "load-failed" },
+      { kind: "stale-save" },
     ] as SaveNotice[]) {
       expect(describeSaveNotice(notice).body).toMatch(/保存されません/);
     }
+  });
+});
+
+describe("PR-3 notices: say what happened to the save, and how to recover", () => {
+  it("load-failed: the save was not touched, what is shown is not the save, and a reload recovers", () => {
+    const body = describeSaveNotice({ kind: "load-failed" }).body;
+    expect(body).toMatch(/手を加えていません/);
+    expect(body).toMatch(/保存データではありません/);
+    expect(body).toMatch(/再読み込み/);
+  });
+
+  it("stale-save: another tab updated it, it is not overwritten, a reload loads the newer one and drops this page's unsaved progress", () => {
+    const body = describeSaveNotice({ kind: "stale-save" }).body;
+    expect(body).toMatch(/別のタブ/);
+    expect(body).toMatch(/上書きしない/);
+    expect(body).toMatch(/再読み込み/);
+    expect(body).toMatch(/未保存の進行は失われます/);
   });
 });
 

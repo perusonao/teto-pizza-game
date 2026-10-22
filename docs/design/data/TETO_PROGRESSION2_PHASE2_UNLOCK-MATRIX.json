@@ -1324,38 +1324,23 @@
             "step": 45,
             "nodes": [
               {
-                "id": "salmon-roe",
+                "id": "shiso",
                 "kind": "ingredient"
               },
               {
-                "id": "shiso",
+                "id": "whitebait",
                 "kind": "ingredient"
               }
             ],
             "reason": "pair",
             "newlyDiscoverable": [
-              "ikura-salmon-pizza-pizzadb-p1"
+              "shirasu-pizza-pizzadb-p3"
             ],
             "cumulativeDiscoverable": 65,
             "tier": "late"
           },
           {
             "step": 46,
-            "nodes": [
-              {
-                "id": "whitebait",
-                "kind": "ingredient"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "shirasu-pizza-pizzadb-p3"
-            ],
-            "cumulativeDiscoverable": 66,
-            "tier": "late"
-          },
-          {
-            "step": 47,
             "nodes": [
               {
                 "id": "yuzu-kosho",
@@ -1365,6 +1350,25 @@
             "reason": "single",
             "newlyDiscoverable": [
               "yuzu-shrimp-pizza"
+            ],
+            "cumulativeDiscoverable": 66,
+            "tier": "late"
+          },
+          {
+            "step": 47,
+            "nodes": [
+              {
+                "id": "LATE_ADDITION",
+                "kind": "capability"
+              },
+              {
+                "id": "salmon-roe",
+                "kind": "ingredient"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "ikura-salmon-pizza-pizzadb-p1"
             ],
             "cumulativeDiscoverable": 67,
             "tier": "late"
@@ -1464,6 +1468,25 @@
             "step": 53,
             "nodes": [
               {
+                "id": "bbq-sauce",
+                "kind": "ingredient"
+              },
+              {
+                "id": "cilantro",
+                "kind": "ingredient"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "bbq-chicken-pizzadb"
+            ],
+            "cumulativeDiscoverable": 73,
+            "tier": "late"
+          },
+          {
+            "step": 54,
+            "nodes": [
+              {
                 "id": "dough:thin-crisp",
                 "kind": "dough"
               },
@@ -1476,11 +1499,11 @@
             "newlyDiscoverable": [
               "new-england-bar-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 73,
+            "cumulativeDiscoverable": 74,
             "tier": "late"
           },
           {
-            "step": 54,
+            "step": 55,
             "nodes": [
               {
                 "id": "gorgonzola",
@@ -1495,11 +1518,11 @@
             "newlyDiscoverable": [
               "pesto-noci-pizzadb-p12"
             ],
-            "cumulativeDiscoverable": 74,
+            "cumulativeDiscoverable": 75,
             "tier": "late"
           },
           {
-            "step": 55,
+            "step": 56,
             "nodes": [
               {
                 "id": "lamb",
@@ -1514,11 +1537,11 @@
             "newlyDiscoverable": [
               "new-zealand-lamb-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 75,
+            "cumulativeDiscoverable": 76,
             "tier": "late"
           },
           {
-            "step": 56,
+            "step": 57,
             "nodes": [
               {
                 "id": "pomegranate",
@@ -1532,29 +1555,6 @@
             "reason": "pair",
             "newlyDiscoverable": [
               "eggplant-tahini-pizza-pizzadb-p5"
-            ],
-            "cumulativeDiscoverable": 76,
-            "tier": "late"
-          },
-          {
-            "step": 57,
-            "nodes": [
-              {
-                "id": "LATE_ADDITION",
-                "kind": "capability"
-              },
-              {
-                "id": "bbq-sauce",
-                "kind": "ingredient"
-              },
-              {
-                "id": "cilantro",
-                "kind": "ingredient"
-              }
-            ],
-            "reason": "set",
-            "newlyDiscoverable": [
-              "bbq-chicken-pizzadb"
             ],
             "cumulativeDiscoverable": 77,
             "tier": "late"
@@ -3653,38 +3653,23 @@
             "step": 32,
             "nodes": [
               {
-                "id": "salmon-roe",
+                "id": "shiso",
                 "kind": "ingredient"
               },
               {
-                "id": "shiso",
+                "id": "whitebait",
                 "kind": "ingredient"
               }
             ],
             "reason": "pair",
             "newlyDiscoverable": [
-              "ikura-salmon-pizza-pizzadb-p1"
+              "shirasu-pizza-pizzadb-p3"
             ],
             "cumulativeDiscoverable": 46,
             "tier": "mid"
           },
           {
             "step": 33,
-            "nodes": [
-              {
-                "id": "whitebait",
-                "kind": "ingredient"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "shirasu-pizza-pizzadb-p3"
-            ],
-            "cumulativeDiscoverable": 47,
-            "tier": "mid"
-          },
-          {
-            "step": 34,
             "nodes": [
               {
                 "id": "yuzu-kosho",
@@ -3695,11 +3680,11 @@
             "newlyDiscoverable": [
               "yuzu-shrimp-pizza"
             ],
-            "cumulativeDiscoverable": 48,
+            "cumulativeDiscoverable": 47,
             "tier": "mid"
           },
           {
-            "step": 35,
+            "step": 34,
             "nodes": [
               {
                 "id": "anchovy",
@@ -3714,11 +3699,11 @@
             "newlyDiscoverable": [
               "puttanesca-pizza-pizzadb-p10"
             ],
-            "cumulativeDiscoverable": 49,
+            "cumulativeDiscoverable": 48,
             "tier": "mid"
           },
           {
-            "step": 36,
+            "step": 35,
             "nodes": [
               {
                 "id": "artichoke",
@@ -3733,11 +3718,11 @@
             "newlyDiscoverable": [
               "spinach-artichoke-pizza-pizzadb-p4"
             ],
-            "cumulativeDiscoverable": 50,
+            "cumulativeDiscoverable": 49,
             "tier": "mid"
           },
           {
-            "step": 37,
+            "step": 36,
             "nodes": [
               {
                 "id": "miso-sauce",
@@ -3752,11 +3737,11 @@
             "newlyDiscoverable": [
               "eggplant-dengaku-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 51,
+            "cumulativeDiscoverable": 50,
             "tier": "mid"
           },
           {
-            "step": 38,
+            "step": 37,
             "nodes": [
               {
                 "id": "avocado",
@@ -3771,11 +3756,11 @@
             "newlyDiscoverable": [
               "california-style-pizza-pizzadb-p2"
             ],
-            "cumulativeDiscoverable": 52,
+            "cumulativeDiscoverable": 51,
             "tier": "mid"
           },
           {
-            "step": 39,
+            "step": 38,
             "nodes": [
               {
                 "id": "lamb",
@@ -3790,11 +3775,11 @@
             "newlyDiscoverable": [
               "new-zealand-lamb-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 53,
-            "tier": "late"
+            "cumulativeDiscoverable": 52,
+            "tier": "mid"
           },
           {
-            "step": 40,
+            "step": 39,
             "nodes": [
               {
                 "id": "pomegranate",
@@ -3809,11 +3794,11 @@
             "newlyDiscoverable": [
               "eggplant-tahini-pizza-pizzadb-p5"
             ],
-            "cumulativeDiscoverable": 54,
+            "cumulativeDiscoverable": 53,
             "tier": "late"
           },
           {
-            "step": 41,
+            "step": 40,
             "nodes": [
               {
                 "id": "cucumber",
@@ -3832,11 +3817,11 @@
             "newlyDiscoverable": [
               "peking-duck-pizza"
             ],
-            "cumulativeDiscoverable": 55,
+            "cumulativeDiscoverable": 54,
             "tier": "late"
           },
           {
-            "step": 42,
+            "step": 41,
             "nodes": [
               {
                 "id": "curry-ketchup",
@@ -3855,11 +3840,11 @@
             "newlyDiscoverable": [
               "currywurst-pizzadb"
             ],
-            "cumulativeDiscoverable": 56,
+            "cumulativeDiscoverable": 55,
             "tier": "late"
           },
           {
-            "step": 43,
+            "step": 42,
             "nodes": [
               {
                 "id": "mustard",
@@ -3878,11 +3863,11 @@
             "newlyDiscoverable": [
               "cuban-pizza-pizzadb-p2"
             ],
-            "cumulativeDiscoverable": 57,
+            "cumulativeDiscoverable": 56,
             "tier": "late"
           },
           {
-            "step": 44,
+            "step": 43,
             "nodes": [
               {
                 "id": "MULTI_SPREAD_LAYER",
@@ -3901,11 +3886,11 @@
               "pizza-alla-crudaiola-pizzadb-p8",
               "sfincione-pizzadb"
             ],
-            "cumulativeDiscoverable": 62,
+            "cumulativeDiscoverable": 61,
             "tier": "late"
           },
           {
-            "step": 45,
+            "step": 44,
             "nodes": [
               {
                 "id": "mussel",
@@ -3916,11 +3901,11 @@
             "newlyDiscoverable": [
               "pescatore-pizzadb-p11"
             ],
-            "cumulativeDiscoverable": 63,
+            "cumulativeDiscoverable": 62,
             "tier": "late"
           },
           {
-            "step": 46,
+            "step": 45,
             "nodes": [
               {
                 "id": "honey",
@@ -3935,11 +3920,11 @@
             "newlyDiscoverable": [
               "hot-honey-pepperoni-pizzadb-p12"
             ],
-            "cumulativeDiscoverable": 64,
+            "cumulativeDiscoverable": 63,
             "tier": "late"
           },
           {
-            "step": 47,
+            "step": 46,
             "nodes": [
               {
                 "id": "gorgonzola",
@@ -3954,11 +3939,11 @@
             "newlyDiscoverable": [
               "pesto-noci-pizzadb-p12"
             ],
-            "cumulativeDiscoverable": 65,
+            "cumulativeDiscoverable": 64,
             "tier": "late"
           },
           {
-            "step": 48,
+            "step": 47,
             "nodes": [
               {
                 "id": "lettuce",
@@ -3973,11 +3958,11 @@
             "newlyDiscoverable": [
               "pizza-salad-pizzadb-p7"
             ],
-            "cumulativeDiscoverable": 66,
+            "cumulativeDiscoverable": 65,
             "tier": "late"
           },
           {
-            "step": 49,
+            "step": 48,
             "nodes": [
               {
                 "id": "STEP_ORDER",
@@ -3988,11 +3973,11 @@
             "newlyDiscoverable": [
               "trenton-tomato-pie-pizzadb"
             ],
-            "cumulativeDiscoverable": 67,
+            "cumulativeDiscoverable": 66,
             "tier": "late"
           },
           {
-            "step": 50,
+            "step": 49,
             "nodes": [
               {
                 "id": "DOUGH_VARIANT",
@@ -4007,11 +3992,11 @@
             "newlyDiscoverable": [
               "argentine-napolitana-pizzadb-p1"
             ],
-            "cumulativeDiscoverable": 68,
+            "cumulativeDiscoverable": 67,
             "tier": "late"
           },
           {
-            "step": 51,
+            "step": 50,
             "nodes": [
               {
                 "id": "dough:flatbread-unleavened",
@@ -4022,11 +4007,11 @@
             "newlyDiscoverable": [
               "piadina-romagnola-pizzadb-p7"
             ],
-            "cumulativeDiscoverable": 69,
+            "cumulativeDiscoverable": 68,
             "tier": "late"
           },
           {
-            "step": 52,
+            "step": 51,
             "nodes": [
               {
                 "id": "dough:material-cauliflower",
@@ -4037,11 +4022,11 @@
             "newlyDiscoverable": [
               "cauliflower-crust-pizza-pizzadb-p2"
             ],
-            "cumulativeDiscoverable": 70,
+            "cumulativeDiscoverable": 69,
             "tier": "late"
           },
           {
-            "step": 53,
+            "step": 52,
             "nodes": [
               {
                 "id": "dough:material-keto-mozzarella-almond",
@@ -4052,11 +4037,11 @@
             "newlyDiscoverable": [
               "fathead-pizza-keto-pizzadb-p9"
             ],
-            "cumulativeDiscoverable": 71,
+            "cumulativeDiscoverable": 70,
             "tier": "late"
           },
           {
-            "step": 54,
+            "step": 53,
             "nodes": [
               {
                 "id": "dough:material-multigrain-long-ferment",
@@ -4067,11 +4052,11 @@
             "newlyDiscoverable": [
               "pinsa-romana-pizzadb-p9"
             ],
-            "cumulativeDiscoverable": 72,
+            "cumulativeDiscoverable": 71,
             "tier": "late"
           },
           {
-            "step": 55,
+            "step": 54,
             "nodes": [
               {
                 "id": "dough:thin-large-pliable",
@@ -4082,11 +4067,11 @@
             "newlyDiscoverable": [
               "ny-style-pizzadb"
             ],
-            "cumulativeDiscoverable": 73,
+            "cumulativeDiscoverable": 72,
             "tier": "late"
           },
           {
-            "step": 56,
+            "step": 55,
             "nodes": [
               {
                 "id": "dough:flatbread-pita-soft",
@@ -4105,11 +4090,11 @@
             "newlyDiscoverable": [
               "manakish"
             ],
-            "cumulativeDiscoverable": 74,
+            "cumulativeDiscoverable": 73,
             "tier": "late"
           },
           {
-            "step": 57,
+            "step": 56,
             "nodes": [
               {
                 "id": "ENCLOSE",
@@ -4125,11 +4110,11 @@
               "chicago-stuffed-pizza-pizzadb-p3",
               "fugazzeta-rellena"
             ],
-            "cumulativeDiscoverable": 76,
+            "cumulativeDiscoverable": 75,
             "tier": "late"
           },
           {
-            "step": 58,
+            "step": 57,
             "nodes": [
               {
                 "id": "caciocavallo",
@@ -4140,11 +4125,11 @@
             "newlyDiscoverable": [
               "scacciata-ragusana-pizzadb-p4"
             ],
-            "cumulativeDiscoverable": 77,
+            "cumulativeDiscoverable": 76,
             "tier": "late"
           },
           {
-            "step": 59,
+            "step": 58,
             "nodes": [
               {
                 "id": "cheese-curd",
@@ -4163,84 +4148,31 @@
             "newlyDiscoverable": [
               "poutine-pizza-pizzadb-p10"
             ],
+            "cumulativeDiscoverable": 77,
+            "tier": "late"
+          },
+          {
+            "step": 59,
+            "nodes": [
+              {
+                "id": "LATE_ADDITION",
+                "kind": "capability"
+              },
+              {
+                "id": "salmon-roe",
+                "kind": "ingredient"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "ikura-salmon-pizza-pizzadb-p1"
+            ],
             "cumulativeDiscoverable": 78,
             "tier": "late"
           },
           {
             "step": 60,
             "nodes": [
-              {
-                "id": "PAN_BAKE",
-                "kind": "capability"
-              },
-              {
-                "id": "pan:deep-pan",
-                "kind": "pan"
-              }
-            ],
-            "reason": "pair",
-            "newlyDiscoverable": [
-              "montreal-style-pizza-pizzadb-p13"
-            ],
-            "cumulativeDiscoverable": 79,
-            "tier": "endgame"
-          },
-          {
-            "step": 61,
-            "nodes": [
-              {
-                "id": "dough:thin-crisp",
-                "kind": "dough"
-              },
-              {
-                "id": "pan:shallow-pan",
-                "kind": "pan"
-              }
-            ],
-            "reason": "pair",
-            "newlyDiscoverable": [
-              "new-england-bar-pizza-pizzadb-p6"
-            ],
-            "cumulativeDiscoverable": 80,
-            "tier": "endgame"
-          },
-          {
-            "step": 62,
-            "nodes": [
-              {
-                "id": "ZONED_PLACEMENT",
-                "kind": "capability"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "quattro-stagioni-pizzadb"
-            ],
-            "cumulativeDiscoverable": 81,
-            "tier": "endgame"
-          },
-          {
-            "step": 63,
-            "nodes": [
-              {
-                "id": "FRY_COOK",
-                "kind": "capability"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "pizza-fritta-pizzadb-p9"
-            ],
-            "cumulativeDiscoverable": 82,
-            "tier": "endgame"
-          },
-          {
-            "step": 64,
-            "nodes": [
-              {
-                "id": "LATE_ADDITION",
-                "kind": "capability"
-              },
               {
                 "id": "bbq-sauce",
                 "kind": "ingredient"
@@ -4250,15 +4182,15 @@
                 "kind": "ingredient"
               }
             ],
-            "reason": "set",
+            "reason": "pair",
             "newlyDiscoverable": [
               "bbq-chicken-pizzadb"
             ],
-            "cumulativeDiscoverable": 83,
+            "cumulativeDiscoverable": 79,
             "tier": "endgame"
           },
           {
-            "step": 65,
+            "step": 61,
             "nodes": [
               {
                 "id": "beef",
@@ -4277,11 +4209,11 @@
             "newlyDiscoverable": [
               "wasabi-beef-pizza"
             ],
-            "cumulativeDiscoverable": 84,
+            "cumulativeDiscoverable": 80,
             "tier": "endgame"
           },
           {
-            "step": 66,
+            "step": 62,
             "nodes": [
               {
                 "id": "cod-roe",
@@ -4299,6 +4231,74 @@
             "reason": "set",
             "newlyDiscoverable": [
               "mentaiko-cream-pizza-pizzadb-p4"
+            ],
+            "cumulativeDiscoverable": 81,
+            "tier": "endgame"
+          },
+          {
+            "step": 63,
+            "nodes": [
+              {
+                "id": "PAN_BAKE",
+                "kind": "capability"
+              },
+              {
+                "id": "pan:deep-pan",
+                "kind": "pan"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "montreal-style-pizza-pizzadb-p13"
+            ],
+            "cumulativeDiscoverable": 82,
+            "tier": "endgame"
+          },
+          {
+            "step": 64,
+            "nodes": [
+              {
+                "id": "dough:thin-crisp",
+                "kind": "dough"
+              },
+              {
+                "id": "pan:shallow-pan",
+                "kind": "pan"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "new-england-bar-pizza-pizzadb-p6"
+            ],
+            "cumulativeDiscoverable": 83,
+            "tier": "endgame"
+          },
+          {
+            "step": 65,
+            "nodes": [
+              {
+                "id": "ZONED_PLACEMENT",
+                "kind": "capability"
+              }
+            ],
+            "reason": "single",
+            "newlyDiscoverable": [
+              "quattro-stagioni-pizzadb"
+            ],
+            "cumulativeDiscoverable": 84,
+            "tier": "endgame"
+          },
+          {
+            "step": 66,
+            "nodes": [
+              {
+                "id": "FRY_COOK",
+                "kind": "capability"
+              }
+            ],
+            "reason": "single",
+            "newlyDiscoverable": [
+              "pizza-fritta-pizzadb-p9"
             ],
             "cumulativeDiscoverable": 85,
             "tier": "endgame"
@@ -5215,38 +5215,23 @@
             "step": 48,
             "nodes": [
               {
-                "id": "salmon-roe",
+                "id": "shiso",
                 "kind": "ingredient"
               },
               {
-                "id": "shiso",
+                "id": "whitebait",
                 "kind": "ingredient"
               }
             ],
             "reason": "pair",
             "newlyDiscoverable": [
-              "ikura-salmon-pizza-pizzadb-p1"
+              "shirasu-pizza-pizzadb-p3"
             ],
             "cumulativeDiscoverable": 78,
             "tier": "late"
           },
           {
             "step": 49,
-            "nodes": [
-              {
-                "id": "whitebait",
-                "kind": "ingredient"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "shirasu-pizza-pizzadb-p3"
-            ],
-            "cumulativeDiscoverable": 79,
-            "tier": "late"
-          },
-          {
-            "step": 50,
             "nodes": [
               {
                 "id": "yuzu-kosho",
@@ -5256,6 +5241,25 @@
             "reason": "single",
             "newlyDiscoverable": [
               "yuzu-shrimp-pizza"
+            ],
+            "cumulativeDiscoverable": 79,
+            "tier": "late"
+          },
+          {
+            "step": 50,
+            "nodes": [
+              {
+                "id": "LATE_ADDITION",
+                "kind": "capability"
+              },
+              {
+                "id": "salmon-roe",
+                "kind": "ingredient"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "ikura-salmon-pizza-pizzadb-p1"
             ],
             "cumulativeDiscoverable": 80,
             "tier": "late"
@@ -5389,6 +5393,25 @@
             "step": 58,
             "nodes": [
               {
+                "id": "bbq-sauce",
+                "kind": "ingredient"
+              },
+              {
+                "id": "cilantro",
+                "kind": "ingredient"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "bbq-chicken-pizzadb"
+            ],
+            "cumulativeDiscoverable": 88,
+            "tier": "late"
+          },
+          {
+            "step": 59,
+            "nodes": [
+              {
                 "id": "dough:thin-crisp",
                 "kind": "dough"
               },
@@ -5401,11 +5424,11 @@
             "newlyDiscoverable": [
               "new-england-bar-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 88,
+            "cumulativeDiscoverable": 89,
             "tier": "late"
           },
           {
-            "step": 59,
+            "step": 60,
             "nodes": [
               {
                 "id": "lamb",
@@ -5420,11 +5443,11 @@
             "newlyDiscoverable": [
               "new-zealand-lamb-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 89,
+            "cumulativeDiscoverable": 90,
             "tier": "late"
           },
           {
-            "step": 60,
+            "step": 61,
             "nodes": [
               {
                 "id": "pomegranate",
@@ -5438,29 +5461,6 @@
             "reason": "pair",
             "newlyDiscoverable": [
               "eggplant-tahini-pizza-pizzadb-p5"
-            ],
-            "cumulativeDiscoverable": 90,
-            "tier": "late"
-          },
-          {
-            "step": 61,
-            "nodes": [
-              {
-                "id": "LATE_ADDITION",
-                "kind": "capability"
-              },
-              {
-                "id": "bbq-sauce",
-                "kind": "ingredient"
-              },
-              {
-                "id": "cilantro",
-                "kind": "ingredient"
-              }
-            ],
-            "reason": "set",
-            "newlyDiscoverable": [
-              "bbq-chicken-pizzadb"
             ],
             "cumulativeDiscoverable": 91,
             "tier": "endgame"
@@ -7633,38 +7633,23 @@
             "step": 33,
             "nodes": [
               {
-                "id": "salmon-roe",
+                "id": "shiso",
                 "kind": "ingredient"
               },
               {
-                "id": "shiso",
+                "id": "whitebait",
                 "kind": "ingredient"
               }
             ],
             "reason": "pair",
             "newlyDiscoverable": [
-              "ikura-salmon-pizza-pizzadb-p1"
+              "shirasu-pizza-pizzadb-p3"
             ],
             "cumulativeDiscoverable": 60,
             "tier": "mid"
           },
           {
             "step": 34,
-            "nodes": [
-              {
-                "id": "whitebait",
-                "kind": "ingredient"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "shirasu-pizza-pizzadb-p3"
-            ],
-            "cumulativeDiscoverable": 61,
-            "tier": "late"
-          },
-          {
-            "step": 35,
             "nodes": [
               {
                 "id": "yuzu-kosho",
@@ -7675,11 +7660,11 @@
             "newlyDiscoverable": [
               "yuzu-shrimp-pizza"
             ],
-            "cumulativeDiscoverable": 62,
+            "cumulativeDiscoverable": 61,
             "tier": "late"
           },
           {
-            "step": 36,
+            "step": 35,
             "nodes": [
               {
                 "id": "artichoke",
@@ -7694,11 +7679,11 @@
             "newlyDiscoverable": [
               "spinach-artichoke-pizza-pizzadb-p4"
             ],
-            "cumulativeDiscoverable": 63,
+            "cumulativeDiscoverable": 62,
             "tier": "late"
           },
           {
-            "step": 37,
+            "step": 36,
             "nodes": [
               {
                 "id": "fontina",
@@ -7713,11 +7698,11 @@
             "newlyDiscoverable": [
               "shipped:quattro-formaggi"
             ],
-            "cumulativeDiscoverable": 64,
+            "cumulativeDiscoverable": 63,
             "tier": "late"
           },
           {
-            "step": 38,
+            "step": 37,
             "nodes": [
               {
                 "id": "miso-sauce",
@@ -7732,11 +7717,11 @@
             "newlyDiscoverable": [
               "eggplant-dengaku-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 65,
+            "cumulativeDiscoverable": 64,
             "tier": "late"
           },
           {
-            "step": 39,
+            "step": 38,
             "nodes": [
               {
                 "id": "avocado",
@@ -7751,11 +7736,11 @@
             "newlyDiscoverable": [
               "california-style-pizza-pizzadb-p2"
             ],
-            "cumulativeDiscoverable": 66,
+            "cumulativeDiscoverable": 65,
             "tier": "late"
           },
           {
-            "step": 40,
+            "step": 39,
             "nodes": [
               {
                 "id": "lamb",
@@ -7770,11 +7755,11 @@
             "newlyDiscoverable": [
               "new-zealand-lamb-pizza-pizzadb-p6"
             ],
-            "cumulativeDiscoverable": 67,
+            "cumulativeDiscoverable": 66,
             "tier": "late"
           },
           {
-            "step": 41,
+            "step": 40,
             "nodes": [
               {
                 "id": "pomegranate",
@@ -7789,11 +7774,11 @@
             "newlyDiscoverable": [
               "eggplant-tahini-pizza-pizzadb-p5"
             ],
-            "cumulativeDiscoverable": 68,
+            "cumulativeDiscoverable": 67,
             "tier": "late"
           },
           {
-            "step": 42,
+            "step": 41,
             "nodes": [
               {
                 "id": "cucumber",
@@ -7812,11 +7797,11 @@
             "newlyDiscoverable": [
               "peking-duck-pizza"
             ],
-            "cumulativeDiscoverable": 69,
+            "cumulativeDiscoverable": 68,
             "tier": "late"
           },
           {
-            "step": 43,
+            "step": 42,
             "nodes": [
               {
                 "id": "curry-ketchup",
@@ -7835,11 +7820,11 @@
             "newlyDiscoverable": [
               "currywurst-pizzadb"
             ],
-            "cumulativeDiscoverable": 70,
+            "cumulativeDiscoverable": 69,
             "tier": "late"
           },
           {
-            "step": 44,
+            "step": 43,
             "nodes": [
               {
                 "id": "mustard",
@@ -7858,11 +7843,11 @@
             "newlyDiscoverable": [
               "cuban-pizza-pizzadb-p2"
             ],
-            "cumulativeDiscoverable": 71,
+            "cumulativeDiscoverable": 70,
             "tier": "late"
           },
           {
-            "step": 45,
+            "step": 44,
             "nodes": [
               {
                 "id": "MULTI_SPREAD_LAYER",
@@ -7881,11 +7866,11 @@
               "pizza-alla-crudaiola-pizzadb-p8",
               "sfincione-pizzadb"
             ],
-            "cumulativeDiscoverable": 76,
+            "cumulativeDiscoverable": 75,
             "tier": "late"
           },
           {
-            "step": 46,
+            "step": 45,
             "nodes": [
               {
                 "id": "honey",
@@ -7901,11 +7886,11 @@
               "hot-honey-pepperoni-pizzadb-p12",
               "pesto-noci-pizzadb-p12"
             ],
-            "cumulativeDiscoverable": 78,
+            "cumulativeDiscoverable": 77,
             "tier": "late"
           },
           {
-            "step": 47,
+            "step": 46,
             "nodes": [
               {
                 "id": "mussel",
@@ -7916,11 +7901,11 @@
             "newlyDiscoverable": [
               "pescatore-pizzadb-p11"
             ],
-            "cumulativeDiscoverable": 79,
+            "cumulativeDiscoverable": 78,
             "tier": "late"
           },
           {
-            "step": 48,
+            "step": 47,
             "nodes": [
               {
                 "id": "lettuce",
@@ -7935,11 +7920,11 @@
             "newlyDiscoverable": [
               "pizza-salad-pizzadb-p7"
             ],
-            "cumulativeDiscoverable": 80,
+            "cumulativeDiscoverable": 79,
             "tier": "late"
           },
           {
-            "step": 49,
+            "step": 48,
             "nodes": [
               {
                 "id": "STEP_ORDER",
@@ -7950,11 +7935,11 @@
             "newlyDiscoverable": [
               "trenton-tomato-pie-pizzadb"
             ],
-            "cumulativeDiscoverable": 81,
+            "cumulativeDiscoverable": 80,
             "tier": "late"
           },
           {
-            "step": 50,
+            "step": 49,
             "nodes": [
               {
                 "id": "DOUGH_VARIANT",
@@ -7969,11 +7954,11 @@
             "newlyDiscoverable": [
               "argentine-napolitana-pizzadb-p1"
             ],
-            "cumulativeDiscoverable": 82,
+            "cumulativeDiscoverable": 81,
             "tier": "late"
           },
           {
-            "step": 51,
+            "step": 50,
             "nodes": [
               {
                 "id": "dough:flatbread-unleavened",
@@ -7984,11 +7969,11 @@
             "newlyDiscoverable": [
               "piadina-romagnola-pizzadb-p7"
             ],
-            "cumulativeDiscoverable": 83,
+            "cumulativeDiscoverable": 82,
             "tier": "late"
           },
           {
-            "step": 52,
+            "step": 51,
             "nodes": [
               {
                 "id": "dough:material-cauliflower",
@@ -7999,11 +7984,11 @@
             "newlyDiscoverable": [
               "cauliflower-crust-pizza-pizzadb-p2"
             ],
-            "cumulativeDiscoverable": 84,
+            "cumulativeDiscoverable": 83,
             "tier": "late"
           },
           {
-            "step": 53,
+            "step": 52,
             "nodes": [
               {
                 "id": "dough:material-keto-mozzarella-almond",
@@ -8014,11 +7999,11 @@
             "newlyDiscoverable": [
               "fathead-pizza-keto-pizzadb-p9"
             ],
-            "cumulativeDiscoverable": 85,
+            "cumulativeDiscoverable": 84,
             "tier": "late"
           },
           {
-            "step": 54,
+            "step": 53,
             "nodes": [
               {
                 "id": "dough:material-multigrain-long-ferment",
@@ -8029,11 +8014,11 @@
             "newlyDiscoverable": [
               "pinsa-romana-pizzadb-p9"
             ],
-            "cumulativeDiscoverable": 86,
+            "cumulativeDiscoverable": 85,
             "tier": "late"
           },
           {
-            "step": 55,
+            "step": 54,
             "nodes": [
               {
                 "id": "dough:thin-large-pliable",
@@ -8044,11 +8029,11 @@
             "newlyDiscoverable": [
               "ny-style-pizzadb"
             ],
-            "cumulativeDiscoverable": 87,
+            "cumulativeDiscoverable": 86,
             "tier": "late"
           },
           {
-            "step": 56,
+            "step": 55,
             "nodes": [
               {
                 "id": "dough:flatbread-pita-soft",
@@ -8067,11 +8052,11 @@
             "newlyDiscoverable": [
               "manakish"
             ],
-            "cumulativeDiscoverable": 88,
+            "cumulativeDiscoverable": 87,
             "tier": "late"
           },
           {
-            "step": 57,
+            "step": 56,
             "nodes": [
               {
                 "id": "ENCLOSE",
@@ -8087,11 +8072,11 @@
               "chicago-stuffed-pizza-pizzadb-p3",
               "fugazzeta-rellena"
             ],
-            "cumulativeDiscoverable": 90,
+            "cumulativeDiscoverable": 89,
             "tier": "late"
           },
           {
-            "step": 58,
+            "step": 57,
             "nodes": [
               {
                 "id": "caciocavallo",
@@ -8102,11 +8087,11 @@
             "newlyDiscoverable": [
               "scacciata-ragusana-pizzadb-p4"
             ],
-            "cumulativeDiscoverable": 91,
-            "tier": "endgame"
+            "cumulativeDiscoverable": 90,
+            "tier": "late"
           },
           {
-            "step": 59,
+            "step": 58,
             "nodes": [
               {
                 "id": "cheese-curd",
@@ -8125,84 +8110,31 @@
             "newlyDiscoverable": [
               "poutine-pizza-pizzadb-p10"
             ],
+            "cumulativeDiscoverable": 91,
+            "tier": "endgame"
+          },
+          {
+            "step": 59,
+            "nodes": [
+              {
+                "id": "LATE_ADDITION",
+                "kind": "capability"
+              },
+              {
+                "id": "salmon-roe",
+                "kind": "ingredient"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "ikura-salmon-pizza-pizzadb-p1"
+            ],
             "cumulativeDiscoverable": 92,
             "tier": "endgame"
           },
           {
             "step": 60,
             "nodes": [
-              {
-                "id": "PAN_BAKE",
-                "kind": "capability"
-              },
-              {
-                "id": "pan:deep-pan",
-                "kind": "pan"
-              }
-            ],
-            "reason": "pair",
-            "newlyDiscoverable": [
-              "montreal-style-pizza-pizzadb-p13"
-            ],
-            "cumulativeDiscoverable": 93,
-            "tier": "endgame"
-          },
-          {
-            "step": 61,
-            "nodes": [
-              {
-                "id": "dough:thin-crisp",
-                "kind": "dough"
-              },
-              {
-                "id": "pan:shallow-pan",
-                "kind": "pan"
-              }
-            ],
-            "reason": "pair",
-            "newlyDiscoverable": [
-              "new-england-bar-pizza-pizzadb-p6"
-            ],
-            "cumulativeDiscoverable": 94,
-            "tier": "endgame"
-          },
-          {
-            "step": 62,
-            "nodes": [
-              {
-                "id": "ZONED_PLACEMENT",
-                "kind": "capability"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "quattro-stagioni-pizzadb"
-            ],
-            "cumulativeDiscoverable": 95,
-            "tier": "endgame"
-          },
-          {
-            "step": 63,
-            "nodes": [
-              {
-                "id": "FRY_COOK",
-                "kind": "capability"
-              }
-            ],
-            "reason": "single",
-            "newlyDiscoverable": [
-              "pizza-fritta-pizzadb-p9"
-            ],
-            "cumulativeDiscoverable": 96,
-            "tier": "endgame"
-          },
-          {
-            "step": 64,
-            "nodes": [
-              {
-                "id": "LATE_ADDITION",
-                "kind": "capability"
-              },
               {
                 "id": "bbq-sauce",
                 "kind": "ingredient"
@@ -8212,15 +8144,15 @@
                 "kind": "ingredient"
               }
             ],
-            "reason": "set",
+            "reason": "pair",
             "newlyDiscoverable": [
               "bbq-chicken-pizzadb"
             ],
-            "cumulativeDiscoverable": 97,
+            "cumulativeDiscoverable": 93,
             "tier": "endgame"
           },
           {
-            "step": 65,
+            "step": 61,
             "nodes": [
               {
                 "id": "beef",
@@ -8239,11 +8171,11 @@
             "newlyDiscoverable": [
               "wasabi-beef-pizza"
             ],
-            "cumulativeDiscoverable": 98,
+            "cumulativeDiscoverable": 94,
             "tier": "endgame"
           },
           {
-            "step": 66,
+            "step": 62,
             "nodes": [
               {
                 "id": "cod-roe",
@@ -8261,6 +8193,74 @@
             "reason": "set",
             "newlyDiscoverable": [
               "mentaiko-cream-pizza-pizzadb-p4"
+            ],
+            "cumulativeDiscoverable": 95,
+            "tier": "endgame"
+          },
+          {
+            "step": 63,
+            "nodes": [
+              {
+                "id": "PAN_BAKE",
+                "kind": "capability"
+              },
+              {
+                "id": "pan:deep-pan",
+                "kind": "pan"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "montreal-style-pizza-pizzadb-p13"
+            ],
+            "cumulativeDiscoverable": 96,
+            "tier": "endgame"
+          },
+          {
+            "step": 64,
+            "nodes": [
+              {
+                "id": "dough:thin-crisp",
+                "kind": "dough"
+              },
+              {
+                "id": "pan:shallow-pan",
+                "kind": "pan"
+              }
+            ],
+            "reason": "pair",
+            "newlyDiscoverable": [
+              "new-england-bar-pizza-pizzadb-p6"
+            ],
+            "cumulativeDiscoverable": 97,
+            "tier": "endgame"
+          },
+          {
+            "step": 65,
+            "nodes": [
+              {
+                "id": "ZONED_PLACEMENT",
+                "kind": "capability"
+              }
+            ],
+            "reason": "single",
+            "newlyDiscoverable": [
+              "quattro-stagioni-pizzadb"
+            ],
+            "cumulativeDiscoverable": 98,
+            "tier": "endgame"
+          },
+          {
+            "step": 66,
+            "nodes": [
+              {
+                "id": "FRY_COOK",
+                "kind": "capability"
+              }
+            ],
+            "reason": "single",
+            "newlyDiscoverable": [
+              "pizza-fritta-pizzadb-p9"
             ],
             "cumulativeDiscoverable": 99,
             "tier": "endgame"
@@ -9479,9 +9479,10 @@
       "newlyDiscoverableAtStep": 1,
       "cumulativeDiscoverableBefore": 48,
       "cumulativeDiscoverableAfter": 49,
-      "totalTargetsUsingNode": 3,
-      "laterTargetsUsingNode": 2,
+      "totalTargetsUsingNode": 4,
+      "laterTargetsUsingNode": 3,
       "laterTargetIds": [
+        "ikura-salmon-pizza-pizzadb-p1",
         "mentaiko-cream-pizza-pizzadb-p4",
         "wasabi-beef-pizza"
       ],
@@ -10911,6 +10912,14 @@
         "onboardingWeight": 4.0
       },
       {
+        "capability": "LATE_ADDITION",
+        "step": 50,
+        "discoverableBefore": 79,
+        "newlyDiscoverableAtStep": 1,
+        "tier": "late",
+        "onboardingWeight": 2.0
+      },
+      {
         "capability": "PAN_BAKE",
         "step": 51,
         "discoverableBefore": 80,
@@ -10925,14 +10934,6 @@
         "newlyDiscoverableAtStep": 1,
         "tier": "late",
         "onboardingWeight": 3.0
-      },
-      {
-        "capability": "LATE_ADDITION",
-        "step": 61,
-        "discoverableBefore": 90,
-        "newlyDiscoverableAtStep": 1,
-        "tier": "endgame",
-        "onboardingWeight": 2.0
       },
       {
         "capability": "PREP_STEP",
@@ -11036,67 +11037,67 @@
     "M3_MECHANICS_LAST": [
       {
         "capability": "MULTI_SPREAD_LAYER",
-        "step": 45,
-        "discoverableBefore": 71,
+        "step": 44,
+        "discoverableBefore": 70,
         "newlyDiscoverableAtStep": 5,
         "tier": "late",
         "onboardingWeight": 2.0
       },
       {
         "capability": "STEP_ORDER",
-        "step": 49,
-        "discoverableBefore": 80,
+        "step": 48,
+        "discoverableBefore": 79,
         "newlyDiscoverableAtStep": 1,
         "tier": "late",
         "onboardingWeight": 1.5
       },
       {
         "capability": "DOUGH_VARIANT",
-        "step": 50,
-        "discoverableBefore": 81,
+        "step": 49,
+        "discoverableBefore": 80,
         "newlyDiscoverableAtStep": 1,
         "tier": "late",
         "onboardingWeight": 1.0
       },
       {
         "capability": "ENCLOSE",
-        "step": 57,
-        "discoverableBefore": 88,
+        "step": 56,
+        "discoverableBefore": 87,
         "newlyDiscoverableAtStep": 2,
         "tier": "late",
         "onboardingWeight": 4.0
       },
       {
+        "capability": "LATE_ADDITION",
+        "step": 59,
+        "discoverableBefore": 91,
+        "newlyDiscoverableAtStep": 1,
+        "tier": "endgame",
+        "onboardingWeight": 2.0
+      },
+      {
         "capability": "PAN_BAKE",
-        "step": 60,
-        "discoverableBefore": 92,
+        "step": 63,
+        "discoverableBefore": 95,
         "newlyDiscoverableAtStep": 1,
         "tier": "endgame",
         "onboardingWeight": 2.0
       },
       {
         "capability": "ZONED_PLACEMENT",
-        "step": 62,
-        "discoverableBefore": 94,
+        "step": 65,
+        "discoverableBefore": 97,
         "newlyDiscoverableAtStep": 1,
         "tier": "endgame",
         "onboardingWeight": 3.0
       },
       {
         "capability": "FRY_COOK",
-        "step": 63,
-        "discoverableBefore": 95,
+        "step": 66,
+        "discoverableBefore": 98,
         "newlyDiscoverableAtStep": 1,
         "tier": "endgame",
         "onboardingWeight": 3.5
-      },
-      {
-        "capability": "LATE_ADDITION",
-        "step": 64,
-        "discoverableBefore": 96,
-        "newlyDiscoverableAtStep": 1,
-        "tier": "endgame",
-        "onboardingWeight": 2.0
       },
       {
         "capability": "PREP_STEP",
@@ -11124,9 +11125,9 @@
         47,
         65,
         65,
+        79,
         80,
         81,
-        90,
         91,
         95
       ],
@@ -11161,18 +11162,18 @@
     },
     "M3_MECHANICS_LAST": {
       "introducedAtDiscoverable": [
-        71,
+        70,
+        79,
         80,
-        81,
-        88,
-        92,
-        94,
+        87,
+        91,
         95,
-        96,
+        97,
+        98,
         99,
         100
       ],
-      "firstMechanicAt": 71,
+      "firstMechanicAt": 70,
       "maxMechanicsWithin10Discoveries": 6,
       "minGapBetweenMechanics": 1,
       "capabilitiesNeverIntroduced": [
@@ -11186,7 +11187,7 @@
       "capability": "DOUGH_VARIANT",
       "targetsRequiring": 13,
       "targetsRequiringOnlyThis": 8,
-      "capabilitySetCoverageAfter": 79,
+      "capabilitySetCoverageAfter": 78,
       "incrementalCoverage": 8,
       "rowsRequiringAcross172": 33,
       "blockedRowsRequiring": 20,
@@ -11201,7 +11202,7 @@
       "capability": "STEP_ORDER",
       "targetsRequiring": 1,
       "targetsRequiringOnlyThis": 1,
-      "capabilitySetCoverageAfter": 80,
+      "capabilitySetCoverageAfter": 79,
       "incrementalCoverage": 1,
       "rowsRequiringAcross172": 2,
       "blockedRowsRequiring": 1,
@@ -11216,7 +11217,7 @@
       "capability": "MULTI_SPREAD_LAYER",
       "targetsRequiring": 9,
       "targetsRequiringOnlyThis": 9,
-      "capabilitySetCoverageAfter": 89,
+      "capabilitySetCoverageAfter": 88,
       "incrementalCoverage": 9,
       "rowsRequiringAcross172": 17,
       "blockedRowsRequiring": 8,
@@ -11231,7 +11232,7 @@
       "capability": "PAN_BAKE",
       "targetsRequiring": 3,
       "targetsRequiringOnlyThis": 0,
-      "capabilitySetCoverageAfter": 91,
+      "capabilitySetCoverageAfter": 90,
       "incrementalCoverage": 2,
       "rowsRequiringAcross172": 8,
       "blockedRowsRequiring": 5,
@@ -11246,7 +11247,7 @@
       "capability": "ZONED_PLACEMENT",
       "targetsRequiring": 1,
       "targetsRequiringOnlyThis": 1,
-      "capabilitySetCoverageAfter": 92,
+      "capabilitySetCoverageAfter": 91,
       "incrementalCoverage": 1,
       "rowsRequiringAcross172": 1,
       "blockedRowsRequiring": 0,
@@ -11259,11 +11260,11 @@
     },
     {
       "capability": "LATE_ADDITION",
-      "targetsRequiring": 3,
-      "targetsRequiringOnlyThis": 3,
+      "targetsRequiring": 4,
+      "targetsRequiringOnlyThis": 4,
       "capabilitySetCoverageAfter": 95,
-      "incrementalCoverage": 3,
-      "rowsRequiringAcross172": 12,
+      "incrementalCoverage": 4,
+      "rowsRequiringAcross172": 13,
       "blockedRowsRequiring": 9,
       "onboarding": {
         "load": 2,
@@ -12177,13 +12178,23 @@
           "salmon-roe",
           "shiso"
         ],
-        "capabilities": [],
+        "capabilities": [
+          "LATE_ADDITION"
+        ],
         "identityDimensions": {
           "dough": "standard",
           "pan": null,
           "layerOrder": "standard",
           "zones": [],
-          "late": [],
+          "late": [
+            [
+              "post_bake",
+              [
+                "salmon-roe",
+                "shiso"
+              ]
+            ]
+          ],
           "prep": [],
           "enclosure": null,
           "shape": "round",
@@ -14725,13 +14736,23 @@
           "salmon-roe",
           "shiso"
         ],
-        "capabilities": [],
+        "capabilities": [
+          "LATE_ADDITION"
+        ],
         "identityDimensions": {
           "dough": "standard",
           "pan": null,
           "layerOrder": "standard",
           "zones": [],
-          "late": [],
+          "late": [
+            [
+              "post_bake",
+              [
+                "salmon-roe",
+                "shiso"
+              ]
+            ]
+          ],
           "prep": [],
           "enclosure": null,
           "shape": "round",
@@ -17577,8 +17598,10 @@
       "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
       "nameJa": "いくらとサーモンのピザ",
       "phase1Status": "READY",
-      "currentFlowRepresentability": "FULL",
-      "requiredCapabilities": [],
+      "currentFlowRepresentability": "PARTIAL",
+      "requiredCapabilities": [
+        "LATE_ADDITION"
+      ],
       "phase2Class": "EVIDENCE_READY_TARGET",
       "reachableAtStep": 50,
       "tier": "late",
@@ -22678,7 +22701,7 @@
       "grindShare": 0.098,
       "maxGrindStreak": 5,
       "maxGrindStreakAt": {
-        "afterDiscoveries": 98,
+        "afterDiscoveries": 94,
         "waitingOn": "purchase",
         "nextNode": "nori"
       },
@@ -22693,19 +22716,23 @@
       "bakeRewardPitz": 80,
       "topBottlenecks": [
         {
-          "key": "step66:purchase",
+          "key": "step62:purchase",
           "grindBakes": 5
         },
         {
-          "key": "step65:purchase",
+          "key": "step64:purchase",
           "grindBakes": 3
         },
         {
-          "key": "step68:purchase",
-          "grindBakes": 2
+          "key": "step60:restock",
+          "grindBakes": 1
         },
         {
-          "key": "step67:purchase",
+          "key": "step61:restock",
+          "grindBakes": 1
+        },
+        {
+          "key": "step63:purchase",
           "grindBakes": 1
         }
       ],

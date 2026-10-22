@@ -58,6 +58,7 @@ import {
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
 import { finalizeRound, type UnmatchedFreeCookFinalization } from "./finalizeRound";
+import { buildPendingRound, withJournalPizza, type PendingRound } from "./pendingRound";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { addResearchExclusions, type ResearchExclusions } from "./researchExclusions";
 import { researchResultRows, type ResearchResultRow } from "../logic/discovery/researchResultRows";
@@ -67,8 +68,7 @@ import {
   canPlaceIngredient,
   canPlacePostBakeIngredient,
   EMPTY_INVENTORY,
-  type InventoryState,
-} from "./inventory";
+  type InventoryState, addInventory, consumedInventory } from "./inventory";
 import { cookableMissionRecipeIds, missionOrderRecipeIds, pickMissionOrder } from "../mission/lunchRush";
 import { getDinnerMission } from "../mission/dinner/dinnerMission";
 import { dinnerRunReducer, startDinnerRun, type DinnerRunState } from "../mission/dinner/dinnerRun";
@@ -87,7 +87,7 @@ import {
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
 import type { QualityStars } from "../logic/scoring";
-import { isDinnerRound, roundKindFor, type RoundKind } from "./roundKind";
+import { isDinnerRound, registersToDexAtResult, roundKindFor, type RoundKind } from "./roundKind";
 import {
   addCutLine,
   createCutState,
@@ -377,6 +377,16 @@ export interface GameState {
    *  against the same bake. `null` in every other situation -- always for a recipe without FINISH -- and reset to `null`
    *  the moment FINAL has run, which is also what makes FINAL run at most once. Transient: never persisted. */
   bakeValue: number | null;
+  /** Save R8 (Issue #617, J-B): the journal of the round in progress, held from the moment a bake that still has post-BAKE steps
+   *  (CUT / FINISH) is confirmed until the round reaches RESULT. It is what the save holds besides the consumed stock, so the
+   *  round can be completed from the save alone (./pendingRoundSettle.ts). Only a Guided or Free Cooking round has one (Lunch
+   *  Rush and Dinner never do), and only when CONFIRM_BAKE was given a `roundId`. Not carried to the next round
+   *  (`ProgressionCarry` has no field for it), never part of a score: a mirror of what App committed to storage. */
+  pendingRound: PendingRound | null;
+  /** Save R8 (Lunch Rush L-1): the stock a Lunch Rush bake took, held until the pizza is SERVED. While it is set the save keeps the
+   *  stock as it was before the bake (stock + this); a leave without serving (expiry, HOME, exit, a new run) puts it back in memory
+   *  too, so the leave and a reload agree. `null` for every other round and once the pizza is served. */
+  unservedConsumption: InventoryState | null;
   /** Cooking Time CT2: canonical transient RESULT/DISCOVERED display+reward snapshot for this
    *  round's "手際" (Efficiency) evaluation (../logic/efficiency.ts) -- `null` whenever
    *  `lastPitzCredit` is also `null` (Mission round) or `cookingTiming.completedMs` never
@@ -515,7 +525,10 @@ export type GameAction =
   // present and the recipe's profile lands the round on POST_BAKE (none of the 15 shipped
   // recipes do), starts timing that phase's first step. No-op for `cookingTiming` on every
   // profile without post-BAKE steps, whether or not `now` is supplied.
-  | { type: "CONFIRM_BAKE"; value: number; now?: number }
+  // R8: `roundId` (the journal's id, chosen by the caller) makes a bake that still has post-BAKE steps create the round's journal.
+  | { type: "CONFIRM_BAKE"; value: number; now?: number; roundId?: string }
+  // R8: replaces the whole state with one built by the pure settle (./pendingRoundSettle.ts) -- HOME leaving a round that has a journal.
+  | { type: "ADOPT_STATE"; state: GameState }
   | { type: "REGISTER_TO_DEX" }
   | { type: "PLAY_AGAIN" }
   // Issue #39 (Pizza Select): starts a fresh FREE round for an explicitly player-chosen
@@ -727,6 +740,8 @@ function buildOrderState(
     completion: null,
     cookingTiming: null,
     bakeValue: null,
+    pendingRound: null,
+    unservedConsumption: null,
     ...carry,
     isMissionRound,
     // Dinner Mission DM-2: a Dinner round is only ever built with `isMissionRound: false` /
@@ -1329,6 +1344,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           ...state,
           ...finalPatch,
           phase: "RESULT",
+          // R8: the round has its result; what the save must now hold is the registration (App commits it and drops the journal).
+          pendingRound: null,
           makingStepToken: state.makingStepToken + 1,
           cutState,
           // Phase 1A-T (§22.2): finalizes the last POST_BAKE step's own elapsed ms; no next
@@ -1356,6 +1373,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         makingStep,
         makingStepToken: state.makingStepToken + 1,
         cutState,
+        // R8: FINISH confirmed while CUT still follows -- the FINISH pieces are consumed now, so the journal is rewritten with the
+        // finished pizza (otherwise a reload would register the pizza without the pieces whose stock is already gone).
+        ...(state.pendingRound && state.phase === "POST_BAKE" && state.makingStep === "FINISH"
+          ? { pendingRound: withJournalPizza(state.pendingRound, finalPatch.pizza ?? state.pizza) }
+          : {}),
         hint: buildHintLine(state.recipe, state.pizza, makingStep, false, state.preDiscoveryFreeCookAttempts),
         // Phase 1A-T (§22.2): finalizes the outgoing step's elapsed ms and starts the incoming
         // one's window. Same back-compat no-op convention as above.
@@ -1447,6 +1469,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             bakeValue: action.value,
             phase: "POST_BAKE",
             makingStep: "FINISH",
+            // R8: the journal of this round -- the pizza as it was baked (the pieces placed in FINISH are not part of it).
+            ...(action.roundId !== undefined && !state.isMissionRound
+              ? { pendingRound: buildPendingRound(state, action.roundId, action.value, action.now ?? 0) }
+              : {}),
           };
         }
       }
@@ -1512,6 +1538,13 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         ...(postBake.length > 0
           ? { phase: "POST_BAKE" as const, makingStep: postBake[0] }
           : { phase: "RESULT" as const }),
+        // R8: a Guided / Free round that still has post-BAKE steps gets its journal -- the pizza as it was baked (`state.pizza`,
+        // not the finalized copy) -- so the save can hold the consumed stock AND the way to register it. Lunch Rush and Dinner never do.
+        ...(postBake.length > 0 && action.roundId !== undefined && registersToDexAtResult(state)
+          ? { pendingRound: buildPendingRound(state, action.roundId, action.value, action.now ?? 0) }
+          : {}),
+        // R8 (Lunch Rush L-1): the stock this bake took stays "unserved" until the pizza is served.
+        ...(state.isMissionRound ? { unservedConsumption: consumedInventory(state.inventory, inventory) } : {}),
       };
     }
 
@@ -1687,6 +1720,9 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "ADOPT_STATE":
+      return action.state;
+
     case "PLAY_AGAIN":
       return nextOrderState(
         carryOf(state),
@@ -1767,6 +1803,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         dex,
         unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
+        // R8 (L-1): the pizza is served, so its consumption stands (and is saved together with this registration).
+        unservedConsumption: null,
       };
       // Issue #212 (OD-2): nothing cookable left -> the served round stays at RESULT (registered)
       // and App.tsx ends the run (END_EARLY); BEGIN_PREPARE's phase guard keeps it there.
@@ -2015,7 +2053,7 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
  * the state, finalized exactly once per round: at CONFIRM_BAKE for a one-pass round (or a failed bake that skips FINISH), at the
  * FINISH confirmation (CONFIRM_MAKING_STEP) for a round that ran FINISH (FIN-E3a). The caller sets `phase`.
  */
-function unmatchedFreeCookPatch(state: GameState, finalized: UnmatchedFreeCookFinalization): Partial<GameState> {
+export function unmatchedFreeCookPatch(state: GameState, finalized: UnmatchedFreeCookFinalization): Partial<GameState> {
   const { pizza, freeCook } = finalized;
   // Progression 2.0 Phase 3-3 (Issue #198): a free-cook round that didn't match anything
   // new (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED, all folded into this one branch)
@@ -2118,7 +2156,9 @@ function carryOf(state: GameState): ProgressionCarry {
     ownedIngredientIds: state.ownedIngredientIds,
     pitzBalance: state.pitzBalance,
     lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-    inventory: state.inventory,
+    // R8 (L-1): a Lunch Rush pizza that was never served did not happen -- leaving it puts its stock back. (A served pizza has
+    // `unservedConsumption: null` by then, see MISSION_NEXT_ORDER.)
+    inventory: state.unservedConsumption ? addInventory(state.inventory, state.unservedConsumption) : state.inventory,
     starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
     unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
     preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,

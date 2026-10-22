@@ -284,6 +284,9 @@ M = "recipeRows[].mechanicIdentityNote"
 CORR = "TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json corroborations[]"
 CAT = "data/recipes/pizza_master_catalog.json"
 SAMPLE = "TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json mechanicNote"
+# Individual-page timing evidence (a row classified from the comparison table alone can miss a post-bake step; see
+# docs/reports/TETO_PIZZADB_TIMING-AUDIT_shipped45.md). Only what the individual page states is recorded here.
+INDIV_IKURA = "pizzadb.jp/pizzas/ikura-salmon/ individual page (Owner-confirmed 2026-10-21: salmon is heated through; ikura and shiso are placed after baking)"
 PAGE8 = [
     "pizza-asparagi-limone-pizzadb-p8", "pizza-carciofi-salad-pizzadb-p8",
     "pizza-finocchi-salad-pizzadb-p8", "pizza-cavolo-carote-pizzadb-p8",
@@ -389,6 +392,9 @@ ROW_MECHANIC_EVIDENCE = {
     ],
     "bismarck-pizza-pizzadb-p7": [
         ev("ZONED_PLACEMENT", "center", "repo_inference", "data/recipes/gameplay_mechanic_master.json centerPlacement.notes", "Bismarck centre-egg flagged as a real-world implementation gap (repo interpretation)", ["egg"]),
+    ],
+    "ikura-salmon-pizza-pizzadb-p1": [
+        ev("LATE_ADDITION", "post_bake", "source_profile_text", INDIV_IKURA, "individual page: ikura (salmon-roe) and shiso are placed after the bake; salmon is cooked through (not a late piece); cream-cheese timing is not stated", ["salmon-roe", "shiso"]),
     ],
     "hot-honey-pepperoni-pizzadb-p12": [
         ev("LATE_ADDITION", "post_bake", "repo_inference", "recipeRows[].namingAmbiguityNote", "'honey as a post-bake finishing drizzle -- a plausible ...' (repo interpretation; honey itself is counted as a spread layer from the ingredient field)", ["honey"]),

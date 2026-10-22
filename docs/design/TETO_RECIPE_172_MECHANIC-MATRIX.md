@@ -11,6 +11,8 @@ and was not modified.
 | src-derived runtime snapshot (not evidence) | `docs/design/data/TETO_RECIPE_172_RUNTIME-SNAPSHOT.json` |
 | Generator + validator (deterministic) | `tools/progression2_mechanic_matrix.py` (`--check` = evidence integrity only; `--check-runtime` = src freshness; see §11) |
 
+> **Erratum 2026-10-21 (row `ikura-salmon-pizza-pizzadb-p1`).** The individual page states that ikura and shiso are placed after the bake, so the row is now `PARTIAL` with `LATE_ADDITION` required (it was classified `FULL` from the comparison table alone). The JSON and the generated rows table already reflect this; the hand-written counts below do not: `LATE_ADDITION` rows required **12 -> 13**, unlocked alone **9 -> 10**, `FULL` 101 -> 100, `PARTIAL` 55 -> 56. Details and the audit of the other rows: `docs/reports/TETO_PIZZADB_TIMING-AUDIT_shipped.md`.
+
 Every number below is printed by the tool from the JSON; if this text and the JSON disagree, the
 JSON wins.
 
