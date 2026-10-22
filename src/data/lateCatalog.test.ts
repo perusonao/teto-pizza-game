@@ -3,7 +3,7 @@ import { deriveCoreSteps } from "./cookingProfiles";
 import { discoveryIdentityOf, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { INGREDIENTS } from "./ingredients";
-import { countsTowardLadder, RECIPES, type Recipe } from "./recipes";
+import { countsTowardLadder, participatesInLunchRush, RECIPES, type Recipe } from "./recipes";
 import { appendLadderSteps, validateLadderProgression } from "../logic/discoveryLadder";
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
@@ -149,30 +149,39 @@ function ladderProgressionProblems(
   return [...all, ...softlocks];
 }
 
+/** The catalog as it would be with the late content ON: the OFF view with the late recipes/ingredients/steps appended and every per-recipe lookup that reads the OFF `RECIPES` re-pointed at the full list. */
+function onCatalogView(late: readonly Recipe[], lateIngredients: typeof LATE_INGREDIENTS, lateSteps: typeof LATE_LADDER_STEPS) {
+  const lateRecipeIds = new Set<string>(late.map((r) => r.id));
+  const lateIngredientIds = new Set(lateIngredients.map((i) => i.id));
+  const baseRecipes = RECIPES.filter((r) => !lateRecipeIds.has(r.id));
+  const baseIngredients = INGREDIENTS.filter((i) => !lateIngredientIds.has(i.id));
+  // The ordinary ladder: when the flag is on, the late steps are already its tail.
+  const baseSteps = DISCOVERY_LADDER.steps.slice(0, DISCOVERY_LADDER.steps.length - (lateCatalogEnabled() ? LATE_LADDER_STEPS.length : 0));
+  const view = productionCatalogView();
+  const recipes = [...baseRecipes, ...late];
+  const full = {
+    ...view,
+    recipes,
+    ingredients: [...baseIngredients, ...lateIngredients],
+    ladder: appendLadderSteps({ ...DISCOVERY_LADDER, steps: baseSteps }, lateSteps),
+    // `participatesInLunchRush` reads the OFF `RECIPES` by default, where a late recipe is an unknown id (which participates).
+    lunchRush: (id: string) => participatesInLunchRush(id, recipes),
+    cookingSteps: (id: string) => {
+      const recipe = late.find((r) => r.id === id);
+      return recipe ? deriveCoreSteps(recipe) : view.cookingSteps(id);
+    },
+    targetCapabilities: (id: string) => {
+      const recipe = late.find((r) => r.id === id);
+      return recipe ? discoveryIdentityOf(recipe).capabilities : view.targetCapabilities(id);
+    },
+  };
+  return { full, baseRecipes, baseIngredients };
+}
+
 describe("the late catalog as it would be when ON is valid (checked even though Production never loads it)", () => {
   it("passes every catalog table check and every FINISH guard (vacuous while the late catalog is empty; binds the E4 data PR)", () => {
     const late = LATE_RECIPES as unknown as readonly Recipe[];
-    const lateRecipeIds = new Set<string>(late.map((r) => r.id));
-    const lateIngredientIds = new Set(LATE_INGREDIENTS.map((i) => i.id));
-    const baseRecipes = RECIPES.filter((r) => !lateRecipeIds.has(r.id));
-    const baseIngredients = INGREDIENTS.filter((i) => !lateIngredientIds.has(i.id));
-    // The ordinary ladder: when the flag is on, the late steps are already its tail.
-    const baseSteps = DISCOVERY_LADDER.steps.slice(0, DISCOVERY_LADDER.steps.length - (lateCatalogEnabled() ? LATE_LADDER_STEPS.length : 0));
-    const view = productionCatalogView();
-    const full = {
-      ...view,
-      recipes: [...baseRecipes, ...late],
-      ingredients: [...baseIngredients, ...LATE_INGREDIENTS],
-      ladder: appendLadderSteps({ ...DISCOVERY_LADDER, steps: baseSteps }, LATE_LADDER_STEPS),
-      cookingSteps: (id: string) => {
-        const recipe = late.find((r) => r.id === id);
-        return recipe ? deriveCoreSteps(recipe) : view.cookingSteps(id);
-      },
-      targetCapabilities: (id: string) => {
-        const recipe = late.find((r) => r.id === id);
-        return recipe ? discoveryIdentityOf(recipe).capabilities : view.targetCapabilities(id);
-      },
-    };
+    const { full, baseRecipes, baseIngredients } = onCatalogView(late, LATE_INGREDIENTS, LATE_LADDER_STEPS);
     expect(
       validateLateCatalog(
         { recipeIds: baseRecipes.map((r) => r.id), ingredientIds: baseIngredients.map((i) => i.id), discoveryTargetIds: Object.values(RECIPE_DISCOVERY_TARGET_IDS) },
@@ -185,6 +194,14 @@ describe("the late catalog as it would be when ON is valid (checked even though 
     // is unreachable for lack of discoveries (a late recipe needing a LATER step's material, or too few makeable recipes, fails here).
     const starters = baseIngredients.filter((i) => !i.unlockCondition).map((i) => i.id);
     expect(ladderProgressionProblems(full.ladder, full.recipes, starters)).toEqual([]);
+  });
+
+  it("judges Lunch Rush on the late-inclusive recipe list: a late recipe with lunchRush:false passes, one without it is reported", () => {
+    const view = (late: readonly unknown[]) => onCatalogView(late as readonly Recipe[], [synthIngredient] as never, [synthStep] as never).full;
+    // Before the fix this was `LATE_IN_LUNCH_RUSH` even for a correct `lunchRush: false` recipe (the OFF `RECIPES` does not know it).
+    expect(validateFinishCatalog(view([synthRecipe]) as never).filter((p) => p.startsWith("LATE_IN_LUNCH_RUSH"))).toEqual([]);
+    const { lunchRush: _optOut, ...optedIn } = synthRecipe;
+    expect(validateFinishCatalog(view([optedIn]) as never)).toContain(`LATE_IN_LUNCH_RUSH: ${SYNTH_RECIPE_ID}`);
   });
 
   it("the progression check bites when non-credited late recipes pad the discovery count (SOFTLOCK counts credited recipes only)", () => {
