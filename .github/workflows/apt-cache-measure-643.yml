@@ -19,6 +19,7 @@ jobs:
   # A: today's behaviour. apt's own archive dir, no cache.
   baseline:
     name: A baseline (no cache)
+    if: ${{ false }} # run 3: already measured in runs 1-2
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -93,7 +94,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mutation: [corrupt-one, truncate-half, stale-name, empty]
+        mutation: [corrupt-one-guarded, corrupt-mid-guarded]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

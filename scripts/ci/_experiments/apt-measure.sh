@@ -42,10 +42,12 @@ probe_kbps=$(awk -v b="$probe_bytes" -v s="$probe_s" 'BEGIN{ if (s>0) printf "%.
 echo "mirror probe: rc=$prc bytes=$probe_bytes seconds=$probe_s => ${probe_kbps} KB/s"
 rm -rf "$probe_dir"
 
+guard=0; case "$mutation" in *-guarded) guard=1; mutation="${mutation%-guarded}" ;; esac
 if [ -n "$mutation" ]; then
-  echo "::group::mutation $mutation"
+  echo "::group::mutation $mutation (guard=$guard)"
   echo "before: debs=$(count_of "$ARCH_DIR") bytes=$(bytes_of "$ARCH_DIR")"
   case "$mutation" in
+    corrupt-mid) f=$(find "$ARCH_DIR" -maxdepth 1 -name '*.deb' -printf '%s %p\n' | sort -rn | sed -n 5p | cut -d' ' -f2-); sz=$(stat -c%s "$f"); echo "corrupting middle of $f (size $sz, unchanged)"; dd if=/dev/zero of="$f" bs=1024 count=4 seek=$((sz / 2048)) conv=notrunc 2> /dev/null ;;
     corrupt-one) f=$(find "$ARCH_DIR" -maxdepth 1 -name '*.deb' -printf '%s %p\n' | sort -rn | head -1 | cut -d' ' -f2-); echo "corrupting $f"; dd if=/dev/zero of="$f" bs=1024 count=4 conv=notrunc 2> /dev/null ;;
     truncate-half) i=0; for f in "$ARCH_DIR"/*.deb; do i=$((i+1)); [ $((i % 2)) -eq 0 ] && truncate -s $(( $(stat -c%s "$f") / 2 )) "$f"; done ;;
     stale-name) for f in "$ARCH_DIR"/*.deb; do b=$(basename "$f"); n=${b%%_*}; a=${b##*_}; mv "$f" "$ARCH_DIR/${n}_9.9.9-stale_${a}"; done ;;
@@ -56,14 +58,23 @@ if [ -n "$mutation" ]; then
   echo "::endgroup::"
 fi
 
+if [ "$guard" = 1 ]; then
+  echo "::group::cache integrity guard"
+  g0=$(now); bad=0
+  for f in "$ARCH_DIR"/*.deb; do
+    if ! dpkg-deb --fsys-tarfile "$f" > /dev/null 2>&1 || ! dpkg-deb -I "$f" > /dev/null 2>&1; then echo "guard: removing unreadable $(basename "$f")"; rm -f "$f"; bad=$((bad+1)); fi
+  done
+  echo "guard: removed=$bad seconds=$(elapsed "$g0" "$(now)")"
+  echo "::endgroup::"
+fi
 before_debs=$(count_of "$ARCH_DIR"); before_bytes=$(bytes_of "$ARCH_DIR")
 log=$(mktemp)
 echo "[$(date -u +%T)] install start"
 # watchdog (diagnostic): every 60 s show apt/dpkg processes and the archive dir, so a stall is visible in the log
-( while sleep 60; do echo "[wd $(date -u +%T)] $(pgrep -a 'apt|dpkg|http|playwright' | cut -c1-120 | tr '\n' '|')"; ls -la "$ARCH_DIR" "$ARCH_DIR/partial" 2>&1 | tail -5; done ) &
+( n=0; while sleep 60; do n=$((n+1)); [ $n -ge 11 ] && sudo pkill -f "apt-get install"; echo "[wd $(date -u +%T)] $(pgrep -a 'apt|dpkg|http|playwright' | cut -c1-120 | tr '\n' '|')"; ls -la "$ARCH_DIR" "$ARCH_DIR/partial" 2>&1 | tail -5; done ) &
 wd=$!
 t0=$(now)
-timeout -k 10 900 npx playwright install-deps webkit 2>&1 | tee "$log"
+timeout -k 10 600 npx playwright install-deps webkit 2>&1 | tee "$log"
 rc=${PIPESTATUS[0]}
 t1=$(now)
 kill "$wd" 2> /dev/null
@@ -77,6 +88,6 @@ echo "dpkg xvfb: $(dpkg -s xvfb 2> /dev/null | grep '^Status' || echo 'not insta
 echo "archives after: debs=$(count_of "$ARCH_DIR") bytes=$(bytes_of "$ARCH_DIR") (default dir debs=$(count_of /var/cache/apt/archives))"
 echo "archives dir listing (non-deb): $(ls -la "$ARCH_DIR" | grep -v '\.deb$' | tail -n +2 | awk '{print $1":"$3":"$NF}' | tr '\n' ' ')"
 echo "::endgroup::"
-printf 'APT-MEASURE {"label":"%s","mode":"%s","mutation":"%s","install_rc":%s,"install_seconds":%s,"debs_before":%s,"bytes_before":%s,"debs_after":%s,"bytes_after":%s,"mirror_probe_kbps":%s,"need_to_get":"%s","fetched":"%s"}\n' \
-  "$label" "$mode" "$mutation" "$rc" "$install_s" "$before_debs" "$before_bytes" "$(count_of "$ARCH_DIR")" "$(bytes_of "$ARCH_DIR")" "$probe_kbps" "$need" "$fetched"
+printf 'APT-MEASURE {"guard":%s,"label":"%s","mode":"%s","mutation":"%s","install_rc":%s,"install_seconds":%s,"debs_before":%s,"bytes_before":%s,"debs_after":%s,"bytes_after":%s,"mirror_probe_kbps":%s,"need_to_get":"%s","fetched":"%s"}\n' \
+  "$guard" "$label" "$mode" "$mutation" "$rc" "$install_s" "$before_debs" "$before_bytes" "$(count_of "$ARCH_DIR")" "$(bytes_of "$ARCH_DIR")" "$probe_kbps" "$need" "$fetched"
 exit 0
