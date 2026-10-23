@@ -1,6 +1,6 @@
 # #577 Pinsa Romana P3-b — 実装計画・依存・リスク・最初のタスク（docs-only 提案）
 
-Status: **提案のみ。** `src/**`・`e2e/**`・workflow・データ・CSS・本番スイッチ・共有 Preview は変更していない。**P3-b の実装は開始していない（HOLD 継続）。** #639 / #640 の branch、CI、merge には触れていない。本番 FINISH（`FREE_COOK_FINISH_PRODUCTION`）・Late Catalog（`LATE_CATALOG_PRODUCTION`）は OFF。
+Status: **P3-b-0 で Owner 判断（2026-10-23）を反映済み。計画のみ。** `src/**`・`e2e/**`・workflow・データ・CSS・本番スイッチ・共有 Preview は変更していない。**P3-b の実装は開始していない（HOLD 継続）。** #639 / #640 の branch、CI、merge には触れていない。本番 FINISH（`FREE_COOK_FINISH_PRODUCTION`）・Late Catalog（`LATE_CATALOG_PRODUCTION`）は OFF。
 基準 `main` = `cea6904`（#638 = L1 決定記録、#642 = b2 安定化が merge 済み）。作成日 2026-10-23。Issue #577。
 **この文書の「推奨」は助言であり Owner Decision ではない。** 決定済みの事項は `docs/decisions/TETO_PINSA-577_P3_L1-DECISIONS_2026-10-23.md`（L1 / D1〜D8）が SSOT。
 
@@ -69,7 +69,7 @@ Status: **提案のみ。** `src/**`・`e2e/**`・workflow・データ・CSS・�
 
 | # | タスク | 内容 | 依存 | 想定規模 |
 |---|---|---|---|---|
-| **P3-b-0**（docs-only・**最初に着手**） | 設計書の L1 反映と食い違いの解消＋Owner 判断の確定 | 設計書 §7（食材のタイミング・置き場）・§5.6（ジャーナル）・§12.3 を L1 に更新。R2〜R5 と下記 §5 の判断を Owner に提示して記録。`PROJECT_HANDOFF.md` は触らない | なし（#639/#640 と独立） | 小 |
+| **P3-b-0**（docs-only・**最初に着手**） | 設計書の L1 反映と食い違いの解消＋Owner 判断の確定 | 設計書の L1 反映（superseded 節・§1.5・§5.6・§7・PK-0・PK-3・§11.1・§12）、Owner 判断の記録。`PROJECT_HANDOFF.md` は触らない | なし（#639/#640 と独立） | 小 |
 | P3-b-1 | Pinsa データ（本番 OFF） | `LATE_RECIPES` に `pinsa-romana`（4 食材、arugula のみ `POST_BAKE`、`doughKind`、`ladderCredit:false`、`lunchRush:false`、暫定個数・bake 58–78）、`LATE_ORDERS`、`LATE_DISCOVERY_TARGET_IDS`、`recipeSauceProfiles`（tomato-sauce / PAINT）、`recipeHintRoles`、`referencePizza`（8 スロット）。**`LATE_LADDER_STEPS` は変更しない** | **#639・#640 の merge**、P3-b-0 の R2（名前・説明）・R3 | 中 |
 | P3-b-2 | ON ビルドの判定テスト（実データ） | `lateCatalog.ikura.test.ts` と同じ `vi.doMock` で ON にし、L1 判定表を実カタログで固定（#636/#640 の合成 fixture を実データへ）、Guided Pinsa が `pinsa-romana` として発見される（#639 が先送りしたテスト）、Reference pizza が Pinsa として発見される、signature 一意性のキーに `identityDimensions` を含める、Dinner PK-19 | P3-b-1 | 中 |
 | P3-b-3 | ゲート・Hint・Research | `hint5Production.gate` G7 / `deductionProduction.gate` INV-TQ-4 の named allowlist（`DOUGH_TECHNIQUE_RECIPE_IDS` 等、共有定数 1 か所）、DH4 sweep に `dough` × `late` の状態を追加、G17、Recipe Batch Validator のコホート例外（名前付き）、PK-14 の一覧更新 | P3-b-2 | 中 |
@@ -78,14 +78,34 @@ Status: **提案のみ。** `src/**`・`e2e/**`・workflow・データ・CSS・�
 
 P3-b-1 と P3-b-2 は 1 PR にまとめる案もある（データだけの PR はテストで動作確認できないため）。**推奨は分割**（b-1 は inert で OFF golden が差分ゼロであることが確認でき、レビューしやすい）。判断は Owner。
 
-## 5. Owner 判断が残るもの（P3-b-0 で確定したい）
+### 4.1 依存関係と受入条件（P3-b-0 で確定）
 
-1. **R3**: PK-0 の項目 2・4・5 が未確認のまま、P3-b のデータ追加（本番 OFF）に進むか。推奨: 進む。ON 化（E5）の条件に項目 2・4・5 の確認を残す。
-2. **R2**: 表示名（「ピンサ・ロマーナ」）と説明文。**時機（焼成後）を示さない**文言（T1 の根拠）。
-3. **CUT**: 暫定「なし」のままか。原典の形（楕円）の確認後に判断（M0 は丸のまま）。
-4. **R1**: PR 分割（§4）の承認、b-1 と b-2 を分けるか。
-5. **R4**: Reference 配置（ルッコラの位置）の calibration を実装側に任せるか。
-6. **Q5**（RESULT の生地版の中立行）: 推奨は足さない。Q6/Q7/Q8 の暫定値（D4 で暫定として決定済み）。
+依存: `#639 ∧ #640 merge → P3-b-1 → P3-b-2 → P3-b-3 → P3-b-4 →（P3-b の外）E5`。b-2 以降は直前のタスクの merge を前提にする（並行させない。`recipes` 系の hot file と共通の表を触るため）。P3-b-0 は独立。**全 PR 共通の受入条件**: 本番（OFF）で挙動不変（OFF golden・DH4 gate 無修正）／`LATE_CATALOG_PRODUCTION`・`FREE_COOK_FINISH_PRODUCTION` は false のまま／save スキーマ不変／skip・timeout 延長・閾値緩和なし／UI が本番で変わらないので HV 不要（Policy §2）／Codex 指摘 0・required CI green。
+
+| タスク | 受入条件（個別） |
+|---|---|
+| **P3-b-1** データ（OFF） | (1) `LATE_RECIPES` の `pinsa-romana` が表示名「ピンサ・ロマーナ」・説明文（§5 の確定文言）・4 食材（arugula のみ `POST_BAKE`）・暫定個数（D4）・`doughKind: material-multigrain-long-ferment`・`ladderCredit:false`・`lunchRush:false`・CUT なしを持つ。(2) `LATE_LADDER_STEPS` は不変（ikura の 1 件のまま。Pinsa が ladder を伸ばさない）。(3) `validateLateCatalog` が ON 相当のデータで違反ゼロ（後乗せ専用素材なし・step の key でない・target id 一意）。(4) OFF で `RECIPES` / `INGREDIENTS` / `DISCOVERY_LADDER` が従来と同一参照（`lateCatalog.offGolden.test.ts` 無修正）。(5) `recipeSauceProfiles`（tomato-sauce / PAINT）・`recipeHintRoles`・`referencePizza`（8 スロット、非ソース 7 piece 以内）・`LATE_ORDERS`・`LATE_DISCOVERY_TARGET_IDS` の行。(6) 説明文が表示される面を列挙し、未発見レシピ向けの面に出ないことを確認（§5 の確認項目）。(7) 変異確認: `ladderCredit` や POST_BAKE を外すと validator が落ちる |
+| **P3-b-2** ON 判定テスト | (1) `vi.doMock` で ON にして L1 判定表（5 行: 標準・後乗せなし=jamon / 標準＋ルッコラ後乗せ=ORIGINAL / Pinsa＋後乗せ=pinsa-romana / Pinsa・全部焼成前=ORIGINAL / Pinsa＋tray=ORIGINAL）を実カタログで固定。(2) Guided で Pinsa を選ぶと `pinsa-romana` として発見される（#639 が先送りしたテスト）。(3) Reference pizza が Pinsa として発見される。(4) signature 一意性のキーに `identityDimensions` を含める（§1.4。緩和ではなくキーの是正）。(5) ジャモンの既存発見データ・target が不変（D2）。(6) Dinner: どの `targetRecipeIds` も Pinsa を含まない（PK-19） |
+| **P3-b-3** ゲート・Hint・Research | (1) `hint5Production.gate` G7 / `deductionProduction.gate` INV-TQ-4 の named allowlist（共有定数 1 か所）。(2) DH4 sweep の `GATE_STATES` に dough × late の状態を追加して全再実行、掃引した状態数を Result に記載。(3) G17（`recipeHintRoles`、key-free の確定）。(4) Recipe Batch Validator のコホート例外を名前付きで追加（Q7）。(5) Research 候補 1 → 2 件の影響テスト（HOME 直行・Pizza Select・Hint シート）を一覧化して更新（PK-14/15）。(6) G2 固定文言は不変 |
+| **P3-b-4** 漏えい防止・保存・章 | (1) D3 の T1〜T6 を ON ビルドの Pinsa データで固定。(2) PK-16: 旧 save ↔ 新ビルドの往復で図鑑・技法台帳・ジャーナルが失われない。`pendingRound` が `pizza.dough` を保存・復元する事実を JSON 往復で固定（#639 と整合）。(3) 既存 save 影響テスト（dex・pitzBalance・解禁済み素材が不変、Pitz 二重付与なし）。(4) K2 / 章 4 の ON 差分（件数と ✓。最終判断は E5 の HV。D7）。(5) PK-18（3 状態の DOM 走査）・PK-21・PK-22 |
+| **E5**（P3-b の外） | 原典の確認（PK-0 の全項目。取得日・確認者・URL・引用を #577 に記録）／AC-8（ON ビルドで `salmon-roe` を 3 状態再測定）／後乗せ 2 ピースの実測と Q8 の正式化／Q5・Q7 の決定／iPhone Safari 実機 HV／G-4（専用の一時検証環境）／D7 |
+
+## 5. Owner 判断（2026-10-23、P3-b-0）と残る未確定事項
+
+**確定した判断**
+1. **PK-0**: 項目 2（生地の記述）・4（説明文の妥当性）・5（Piadina との区別）は、**本番 OFF でのデータ追加準備に限り未確認のまま許容**。**本番 ON 化の前に必ず原典を確認する**（E5 の条件）。
+2. **表示名**: 「ピンサ・ロマーナ」。
+3. **説明文**: 「独特の生地とルッコラの風味が楽しめる、ローマ生まれのピザ。」— 時機を示さない。ただしルッコラ（食材）と「独特の生地」を含むため、表示される面の列挙と、未発見レシピ向けの面に出ないことの確認を P3-b-1 の受入条件にした。
+4. **PR 分割**: P3-b-1（データ）と P3-b-2（ON 判定テスト）は**別 PR**。
+
+**残る未確定（P3-b の着手を止めないもの）**
+- **CUT**: 暫定「なし」。原典の形（楕円）の確認後に判断（E5 の前）。
+- **Q5**（RESULT の生地版の中立行）: 設計上の既定は「足さない」。Owner の承認は無い（P3-b-3 で再確認）。
+- **Q7**（コホート文字・validator の名前付き例外）: P3-b-3 で allowlist 例外を入れるが、jamon にラベル文字が付く変化の許容は E5 の HV で確認。
+- **Q8**: D4 は検証用の暫定値。正式化は後乗せ 2 ピースの実測後。
+- **R4**（Reference 配置の calibration を実装側に任せるか）: 未回答。既定は実装側で初期配置し、実機 HV で調整。
+- **D7**（章 4 の表示）、AC-8、G-4、実機 HV: E5。
+- **P3-b の着手自体**（HOLD の解除）と、#639・#640 の merge: 別途の Owner 指示。
 
 ## 6. テスト一覧
 
@@ -108,7 +128,7 @@ P3-b-1 と P3-b-2 は 1 PR にまとめる案もある（データだけの PR �
 
 ## 8. 最初に着手するタスク
 
-**P3-b-0（docs-only）**: 設計書 §7・§5.6・§12.3 の L1 反映と、§5 の Owner 判断一覧の提示。コード・CI・#639/#640 に触れずに今すぐ進められ、P3-b-1 の前提（R2・R3）を揃える。コードの最初のタスクは **P3-b-1（Pinsa データ、本番 OFF）** で、**#639・#640 の merge が前提**（それまで着手しない）。
+P3-b-0（本更新で完了）の次は **P3-b-1（Pinsa データ、本番 OFF）** だが、**#639・#640 の merge と Owner の着手指示が前提**（それまで着手しない）。直近の障害は WebKit Gate の apt 取得停止（#643）。
 
 ## 9. 範囲外・未実施
 Pinsa データ・テスト・コードの変更、CI の再実行、#639/#640 の変更、E5、Preview・本番デプロイ、Firebase、`PROJECT_HANDOFF.md`。数値（ladder 55 step・通常レシピ 62・ikura = 56）は L1 決定記録 §6 の値で、本書では再導出していない。

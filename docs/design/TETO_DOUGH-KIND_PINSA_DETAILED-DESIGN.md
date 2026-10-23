@@ -10,6 +10,26 @@ Status: **設計（Owner Decision 第 3 弾を反映した最終確定版・Fina
 | 触れていないもの | Square Dough D2-b（#576 を含む）、Batch 8b（#527 とその続き）、共有 Preview、既存の進行中 PR（#478 / #540 ほか）、P1〜P3 の実装コード、#521 の本文 |
 | HV | docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md` §2）。実装 PR は §11 の各 slice で必須 |
 
+## L1 と P3 の決定による更新（2026-10-23、P3-b-0）— **この節が §1〜§13 の古い記述より優先する**
+
+最新の決定 SSOT は `docs/decisions/TETO_PINSA-577_P3_L1-DECISIONS_2026-10-23.md`（L1 / D1〜D8）。P3-b の計画は `TETO_PINSA-577_P3B_IMPLEMENTATION-PLAN_2026-10-23.md`。2026-10-20 時点の本書の記述のうち、次は**上書きされている**（本文には「superseded」注記を付け、取り消し線にはしない）。
+
+| 旧記述（本書） | 現在の正 | 根拠 |
+|---|---|---|
+| §7: Pinsa の 4 食材はすべて焼成前 | **生ハムは焼成前、ルッコラのみ POST_BAKE（FINISH で後乗せ）**。標準生地＋後乗せは ORIGINAL | L1 / D2 |
+| §7・§1.5: Pinsa は `RECIPES` に入り、`ladderCredit:false` は Recipe の通常フィールド | Pinsa は **`lateCatalog.ts` の `LATE_RECIPES`**（`ladderCredit:false` は D1 のデータ由来の例外。late ladder step の key を要求しない。`LATE_LADDER_STEPS` に足さない） | L1 / D1 / D6 |
+| §1.5: 「jamon の集合 × Pinsa × tray なし = `pinsa-romana`」 | **Pinsa 生地 ∧ ルッコラ後乗せ（`late`）** が揃ったときだけ `pinsa-romana`。Pinsa 生地で全部を焼成前に載せると ORIGINAL | L1（I2 = `dough` ∧ `late`） |
+| §5.6: `PizzaState.dough` は永続しない | **ラウンド途中のジャーナル（`pendingRound.ts`）は `pizza.dough` を保存・復元する**。図鑑・技法台帳・save スキーマには影響しない | main の実装事実（#639 のテストが固定） |
+| §5.4 / §6.5: Guided の開始時設定は P3 の中で | **P3-a1（#639）** として分離 | D5 |
+| §8 PK-0: 原典 5 項目の確認が P3 開始の条件 | **項目 2・4・5 は本番 OFF のデータ追加準備に限り未確認のまま許容**。**本番 ON 化（E5）の前に、必ず原典を確認する** | Owner 判断（2026-10-23） |
+| §7: 表示名「ピンサ・ロマーナ」・説明は暫定 | **確定**（下の表） | Owner 判断（2026-10-23） |
+| 判断材料（`TETO_DOUGH-KIND_P3_DECISION-MATERIALS.md` §2.0）の「ladder 54 step・61 レシピ」（本書は件数を持たない） | 通常 ladder は 55 step（#634）。ikura の late step は「通常 ladder 長 + 1」（現 56）。固定しない | D6 |
+
+**§12.2 の Q の現状（2026-10-23）**: Q6 の `ladderCredit:false` は D1 で確定、`lunchRush:false` は後乗せカタログの validator が要求（`lunchRush:false` 必須）。**CUT（暫定なし）は原典の形の確認後に判断（未決のまま）**。Q8（個数・bake）は D4 の**検証用暫定値**で、実測前に正式確定しない。**Q5（RESULT の生地版の中立行）と Q7（コホート文字・validator の名前付き例外）は未決のまま**（P3-b-3 / E5 で扱う。Q5 は設計上の既定「足さない」を承認とはみなさない）。
+
+**確定したレシピ文言（Owner、2026-10-23）**: 表示名「ピンサ・ロマーナ」／説明文「独特の生地とルッコラの風味が楽しめる、ローマ生まれのピザ。」。
+- 説明文は**時機（焼成後・後乗せ）を示さない**。ただし**ルッコラ（食材）と「独特の生地」を含む**ので、(a) 未発見のレシピに対して表示される面（Pizza Select・HOME・注文文・Research など）には出さない、(b) 表示される面を P3-b-1 で列挙し、ladder・技法の riddle（T1）とは別の面であることをテストで固定する。jamon の説明文も食材を示す前例に倣うが、`dough` を示唆する語（「独特の生地」）が未発見の面に出ないことを確認項目にする。
+
 ## Owner 方針（2026-10-20）と、この文書での扱い
 
 | # | 方針 | 反映先 |
@@ -118,6 +138,8 @@ Pinsa の実行時 target を `RECIPE_DISCOVERY_CATALOG` に足すとき、既�
 加えて `matcher` は capabilities を要求する: Pinsa の Phase-2 `capabilities = ["DOUGH_VARIANT"]` は `RUNTIME_SUPPORTED_CAPABILITIES = []` に無いため**一致しない**。軸を OBSERVED にするのと**同じ commit** で `DOUGH_VARIANT` を supported に加える（名前付き定数、architecture test で matcher が techniques を読まないことは維持）。
 
 ### 1.5 組み合わせ表（Free Cooking / Research、affordance 開、Completion Gate 通過）
+
+> **superseded（L1、2026-10-23）**: 下表は 4 食材すべて焼成前だった時点の表。現在の判定表は L1 決定記録 §1（D2）と `discoveryCatalog.doughIdentity.test.ts`（#640）の 16 行。`pinsa-romana` に一致するのは「Pinsa 生地 ∧ ルッコラを FINISH で後乗せ」のときだけで、下表の「jamon の集合 × Pinsa × tray なし」は ORIGINAL（後乗せが無いため）になる。
 
 | 食材集合 | dough | pan | 結果 | 技法の記録（usage 経路） |
 |---|---|---|---|---|
@@ -296,6 +318,8 @@ F3 で入った RESULT の中立行（pan で調理した未同定ピザ向け�
 
 ### 5.6 保存データ
 
+> **訂正（2026-10-23）**: 下表の「`PizzaState.dough` は永続しない」は main と食い違う。**図鑑・技法台帳・save スキーマ（`schemaVersion`）には永続しない**が、**ラウンド途中のジャーナル `pendingRound`（`src/state/pendingRound.ts`）は `pizza.dough` を保存し、復元する**（`pizza.dough !== undefined` のときだけキーを持つ。標準生地ではキーなし = 旧形式と同一）。#639 が JSON 往復の復元をテストで固定する。影響範囲は「ラウンド途中のアプリ再開」のみ。旧ビルドは未知キーを無視する前提（P3-b-4 の往復テストで確認）。
+
 | 項目 | 内容 |
 |---|---|
 | `PizzaState.dough` | **永続しない**（`pan` と同じ。save スキーマ変更なし） |
@@ -387,6 +411,17 @@ radiogroup / radio、`aria-checked`、キーボード操作、フォーカス可
 
 ## 7. Pinsa のレシピデータ（暫定。確定は Owner）
 
+> **superseded（L1、2026-10-23）**: 下表の「食材」行（4 食材すべて焼成前）、「`ladderCredit`」行の置き場（`RECIPES`）、「表示名」行、「個数・bake」行は上書きされた。現在の正は次のとおり。残りの行（id・生地・ソース・`lunchRush`・CUT・Reference・章）は有効。
+>
+> | 項目 | 現在の正 |
+> |---|---|
+> | 置き場 | `src/data/lateCatalog.ts` の `LATE_RECIPES`（`RECIPES` ではない）。`LATE_ORDERS`・`LATE_DISCOVERY_TARGET_IDS["pinsa-romana"] = "pinsa-romana-pizzadb-p9"`。`LATE_LADDER_STEPS` には足さない（D6） |
+> | 食材 | tomato-sauce / mozzarella / prosciutto-crudo は焼成前、**arugula のみ `applicationPhase: "POST_BAKE"`**（L1）。後乗せ専用の素材は無い（通常素材のみ。D1 の検証が要求） |
+> | 個数・bake（暫定、D4。実測前に正式確定しない） | tomato-sauce 1 / mozzarella 2 / prosciutto-crudo 3 / arugula 2（POST_BAKE）/ bake 58–78 |
+> | `ladderCredit` | `false`（D1 の例外。`validateLateCatalog` が strict 検証） |
+> | 表示名・説明文 | 「ピンサ・ロマーナ」／「独特の生地とルッコラの風味が楽しめる、ローマ生まれのピザ。」（Owner、2026-10-23） |
+> | 原典 | 項目 2・4・5 は未確認のまま本番 OFF のデータ追加に限り許容。**本番 ON 化の前に必ず確認** |
+
 | 項目 | 案 | 根拠・備考 |
 |---|---|---|
 | id | `pinsa-romana` | matrix の `canonicalCandidateId` |
@@ -409,12 +444,12 @@ radiogroup / radio、`aria-checked`、キーボード操作、フォーカス可
 ## 8. 受け入れ条件（Pinsa 導入 slice）
 
 開始条件
-- **PK-0** P3 の開始前に、Owner が pizzadb.jp の原典（§7 の 5 項目）を確認し、結果を Issue #577 に記録する。確認前は `pinsa-romana` を `RECIPES` に入れない（P1 / P2 は不活性のため対象外）。
+- **PK-0** ~~P3 の開始前に、Owner が pizzadb.jp の原典（§7 の 5 項目）を確認し、結果を Issue #577 に記録する。確認前は `pinsa-romana` を `RECIPES` に入れない~~ **（2026-10-23 更新）** 項目 2・4・5 は、**本番 OFF でのデータ追加準備（P3-b-1〜b-4）に限り未確認のまま許容**する。**本番 ON 化（E5）の前に、原典の 5 項目（＋工程・形・個別ページ）を Owner が確認し、結果（取得日・確認者・URL・引用）を #577 に記録する。** 未確認のまま ON にしない。`pinsa-romana` は `RECIPES` ではなく `LATE_RECIPES` に置く。
 
 識別・技法
 - **PK-1** 既存 target 全件の識別は変わらない: `dough` 未設定のピザについて、**全軸の値**と**既存 target との一致結果**（matcher の出力）が現状と等しい。**例外として `dimensions.dough.status` が `FIXED_BY_FLOW` から `OBSERVED` に変わることだけを明示的に許容**する（`signature.ts` の各軸は値に加えて `status` を持つため、軸全体の deep-equal は成り立たない）。この例外は `signature.test.ts` に名前付きで書き、他の軸の `status` は変えない。
 - **PK-2** `dough` 軸が OBSERVED。未設定・不正値は `"standard"`。`pan` / `squareDough` から推定されない（`panAxis.test.ts` と同形のテスト）。
-- **PK-3** jamon の食材集合: standard → jamon、Pinsa → pinsa-romana、Pinsa+tray → ORIGINAL。§1.5 の表を全行テスト化。
+- **PK-3** jamon の食材集合（L1 で更新）: 標準生地・後乗せなし → jamon、標準生地＋ルッコラ後乗せ → ORIGINAL（D2）、Pinsa 生地＋ルッコラ後乗せ → pinsa-romana、Pinsa 生地で全部焼成前 → ORIGINAL、Pinsa＋tray → ORIGINAL。L1 の判定表（#640 の 16 行）を実カタログ（ON 相当）で全行テスト化（P3-b-2）。
 - **PK-4** `matcher.ts` が techniques を import しない（`techniques.architecture.test.ts` が通る）。
 - **PK-5** 技法: 使った経路（Free Cooking のみ・affordance 開・Completion Gate 通過）と recipe 経路が `tray` と同じ規則で動く。Lunch Rush / Dinner は 0。
 
@@ -542,7 +577,7 @@ matrix の `newContentIngredientIds` は古い（eggplant・parsley・shrimp・b
 |---|---|---|---|---|
 | P1 | `dough` 軸を OBSERVED、`PizzaState.dough?`、`Recipe.doughKind?`、`DOUGH_VARIANT` を supported に、技法レジストリ、検出・要求、**`TechniqueReveal` の生 id 属性の置き換え（R6）**。**RECIPES に Pinsa は入れない**（synthetic fixture で検証） | なし（不活性） | 不要（内部） | **設計方針を承認。コードは別 PR** |
 | P2 | `SELECT_DOUGH`、`doughSelection.ts`、チップ UI、Preview フラグ、レイアウト契約。affordance は本番で閉（Pinsa を要求する target が無いため） | なし（閉） | 動画あり（Preview 経由、Owner 実機） | **設計方針を承認。コードは別 PR。チップの `aria-label` 文言の確定が必要（Q4 残り）** |
-| P3 | `pinsa-romana` を追加（recipes / profiles / target / reference / hint roles / orders / manifest）、gate の allowlist、DH4 全再実行、Research の更新、Guided の開始設定 | **有効化** | **必須** | **HOLD（pizzadb.jp の原典確認まで）** |
+| P3 | `pinsa-romana` を追加（recipes / profiles / target / reference / hint roles / orders / manifest）、gate の allowlist、DH4 全再実行、Research の更新、Guided の開始設定 | **有効化** | **必須** | ~~HOLD（pizzadb.jp の原典確認まで）~~ **（2026-10-23）P3-a1（#639）・P3-a2（#640）・P3-b-1〜b-4 の 4 段階に分割済み。本番 OFF のデータ追加準備は Owner 承認済み（P3-b 自体の着手は別途の指示）。有効化（E5）は原典確認・実機 HV の後** |
 
 P3 の前提: **原典確認（Owner、HOLD の解除条件）**、Q5〜Q8 の回答（§12.2）、Anti-Oracle §15 の再計算（複数ソース前提）は E の事項だが、生地の技法も sweep に含める。技法の名前・なぞかけ・説明（UD-G 相当）は **Owner 承認済み**（§3.2）。P1 は不活性なので、レジストリの文字列（名前・なぞかけ・説明）が本番バンドルに入っても player には見えない（INV-TQ-4: 要求する target が無い技法は開かない。天板焼きの F2 と同じ）。
 
@@ -599,6 +634,10 @@ P3 の前提: **原典確認（Owner、HOLD の解除条件）**、Q5〜Q8 の�
 | 未発見レシピ情報を UI・ヒントに漏らさない／Dinner に Pinsa を出さない | 確定 | 第 2 弾 F・G |
 | Issue 起票（#577 / #578 / #579） | 許可 → 起票済み | 第 2 弾 I |
 | 新ソース 4 種（`yuzu-kosho` を含む）をソースとして扱う | 確定（旧 Q10 の「柚子胡椒でよいか」は、方針 5 が `yuzu-kosho` を名指ししているため解消） | 第 1 弾 5 |
+| L1（生ハム＝焼成前、ルッコラのみ後乗せ）・D1〜D8 | 確定（P3-b-1 以降の仕様。個数・bake は検証用の暫定値） | #577 Owner コメント 2026-10-23、`TETO_PINSA-577_P3_L1-DECISIONS_2026-10-23.md` |
+| PK-0 項目 2・4・5 は本番 OFF のデータ追加準備に限り未確認で許容。本番 ON 化の前に必ず原典を確認 | 確定 | Owner 判断 2026-10-23（P3-b-0） |
+| 表示名「ピンサ・ロマーナ」、説明文「独特の生地とルッコラの風味が楽しめる、ローマ生まれのピザ。」 | 確定 | 同上 |
+| P3-b-1（データ）と P3-b-2（ON ビルドの判定テスト）は別 PR | 確定 | 同上 |
 
 ### 12.2 照合結果: Q3・Q5〜Q10 と残りの未決事項（**未回答を承認済みとみなさない**）
 
@@ -630,7 +669,7 @@ P3 の前提: **原典確認（Owner、HOLD の解除条件）**、Q5〜Q8 の�
 |---|---|---|---|
 | P1（識別軸・技法レジストリ・検出。不活性） | 承認 | **なし**（id・語彙・文字列とも確定） | 別 PR。**着手は Owner の指示を待つ**（本 PR のスコープ外） |
 | P2（`SELECT_DOUGH`・チップ。本番では閉） | 承認 | **Q4 残り（チップの `aria-label`）、Q13（チップ上に名前を出すか）** | 別 PR。P1 の後。上の 2 点が確定してから |
-| P3（Pinsa の有効化） | 設計済み | **HOLD（原典確認）**、Q5〜Q8 | HOLD 解除後 |
+| P3（Pinsa の有効化） | 設計済み（2026-10-23 更新: P3-a1 / P3-a2 / P3-b-1〜b-4 に分割） | 本番 OFF の準備: 未決なし（P3-b-1 は #639・#640 の merge 後）。**有効化（E5）: 原典確認、Q5・実測 Q8、実機 HV** | P3-b-1 以降は Owner の着手指示後 |
 
 ## 13. リスク
 
