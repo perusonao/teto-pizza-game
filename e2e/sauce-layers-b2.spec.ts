@@ -29,8 +29,81 @@ async function doughBox(page: Page) {
   return box;
 }
 
+/**
+ * A stroke whose measurement must not depend on the runner's speed. Sauce is dispensed against WALL-CLOCK ticks (SAUCE_TICK_MS, 50 ms each, 50 per
+ * bottle), while this driver sleeps between pointer moves; on a slow runner each move + sleep takes longer than nominal, so a fixed number of steps
+ * stretches the stroke, spreads the same deposit over a longer real time, and can drain the bottle before the finger reaches the end. Three explicit
+ * conditions replace "N steps of ms/N, then a fixed pause":
+ *  - `wallClockPath`: the finger's position follows the real time since pointer-down (progress = elapsed / ms), so the deposit per unit of path is the
+ *    nominal one however slow each move is, and the stroke's end is reached at about `ms` of real time on any runner.
+ *  - `fillEnd` (needs `kind`): keep the finger down at the stroke's end until that sauce's layer is saturated at the end point (alpha >= 90% of 255; the
+ *    layers are drawn live while the finger is down). The end of the stroke is then filled whatever the frame rate was, and the bottle is spent no
+ *    further than that needs (the pizza-wide cap is shared by every sauce, so draining the bottle would starve the next stroke).
+ *  - `settle`: after the finger lifts, wait until the heatmap canvases stop changing (3 equal reads, 100 ms apart) instead of a fixed 150 ms pause, so a
+ *    measurement never reads a stroke that is not committed yet. With `kind`, the layer of that sauce must also exist first (a pizza's first sauce is
+ *    drawn on the single legacy canvas; the per-kind layers only exist once a second sauce was painted).
+ * Known limit: a driver stall long enough to drain the bottle before the finger reaches the end cannot be recovered; `fillEnd` then fails with
+ * "the end of the pesto stroke never filled" (the cause) instead of a misleading alpha mismatch later. Thresholds, expectations and timeouts of the
+ * assertions are not touched.
+ */
+interface PaintOptions {
+  wallClockPath?: boolean;
+  fillEnd?: boolean;
+  settle?: boolean;
+  kind?: string;
+}
+
+/** What the heatmap canvases hold: how many there are and how many pixels are painted in all of them. */
+async function heatmapFingerprint(page: Page): Promise<string> {
+  return page.locator("canvas.pizza-sauce-heatmap").evaluateAll((els) => {
+    let painted = 0;
+    for (const el of els) {
+      const c = el as HTMLCanvasElement;
+      const { data } = c.getContext("2d")!.getImageData(0, 0, c.width, c.height);
+      for (let i = 3; i < data.length; i += 4) if (data[i] >= 24) painted += 1;
+    }
+    return `${els.length}:${painted}`;
+  });
+}
+
+/** Selects a sauce and waits until the switch is applied (the chip reads pressed), so the next stroke is never painted with the previous sauce. */
+async function selectSauce(page: Page, name: RegExp) {
+  const chip = page.getByRole("button", { name });
+  await chip.click();
+  await expect(chip).toHaveAttribute("aria-pressed", "true");
+}
+
+/** One sauce layer's own alpha at a point (percent coordinates of the dough box); 0 while that layer does not exist. */
+async function layerAlphaAt(page: Page, kind: string, xPercent: number, yPercent: number): Promise<number> {
+  return page.evaluate(
+    ([k, fx, fy]) => {
+      const canvas = document.querySelector<HTMLCanvasElement>(`canvas.pizza-sauce-heatmap--kind-${k}`);
+      if (!canvas) return 0;
+      return canvas.getContext("2d")!.getImageData(Math.round((Number(fx) / 100) * (canvas.width - 1)), Math.round((Number(fy) / 100) * (canvas.height - 1)), 1, 1).data[3];
+    },
+    [kind, xPercent, yPercent] as const,
+  );
+}
+
+async function settleHeatmaps(page: Page, kind?: string) {
+  if (kind) await expect(page.locator(`canvas.pizza-sauce-heatmap--kind-${kind}`).first()).toBeAttached({ timeout: 10_000 });
+  let last = "";
+  let equalReads = 0;
+  await expect
+    .poll(
+      async () => {
+        const now = await heatmapFingerprint(page);
+        equalReads = now === last ? equalReads + 1 : 0;
+        last = now;
+        return equalReads;
+      },
+      { intervals: [100], timeout: 10_000, message: "the sauce layers never settled" },
+    )
+    .toBeGreaterThanOrEqual(3);
+}
+
 /** Holds the finger down at `from`, then drags to `to` over `ms`. Percent coordinates of the dough box. */
-async function paint(page: Page, from: { x: number; y: number }, to: { x: number; y: number }, ms: number) {
+async function paint(page: Page, from: { x: number; y: number }, to: { x: number; y: number }, ms: number, options: PaintOptions = {}) {
   const b = await doughBox(page);
   const at = (p: { x: number; y: number }) => ({ x: b.x + (p.x / 100) * b.width, y: b.y + (p.y / 100) * b.height });
   const a = at(from);
@@ -38,12 +111,29 @@ async function paint(page: Page, from: { x: number; y: number }, to: { x: number
   await page.mouse.move(a.x, a.y);
   await page.mouse.down();
   const steps = 12;
-  for (let i = 1; i <= steps; i += 1) {
-    await page.mouse.move(a.x + ((z.x - a.x) * i) / steps, a.y + ((z.y - a.y) * i) / steps);
-    await page.waitForTimeout(ms / steps);
+  if (options.wallClockPath) {
+    const startedAt = Date.now();
+    for (;;) {
+      const progress = Math.min(1, (Date.now() - startedAt) / ms);
+      await page.mouse.move(a.x + (z.x - a.x) * progress, a.y + (z.y - a.y) * progress);
+      if (progress >= 1) break;
+      await page.waitForTimeout(ms / steps);
+    }
+  } else {
+    for (let i = 1; i <= steps; i += 1) {
+      await page.mouse.move(a.x + ((z.x - a.x) * i) / steps, a.y + ((z.y - a.y) * i) / steps);
+      await page.waitForTimeout(ms / steps);
+    }
+  }
+  if (options.fillEnd && options.kind) {
+    const kind = options.kind;
+    await expect
+      .poll(() => layerAlphaAt(page, kind, to.x, to.y), { intervals: [100], timeout: 10_000, message: `the end of the ${kind} stroke never filled` })
+      .toBeGreaterThanOrEqual(Math.round(0.9 * 255));
   }
   await page.mouse.up();
   await page.waitForTimeout(150);
+  if (options.settle || options.kind) await settleHeatmaps(page, options.kind);
 }
 
 /** Alpha-weighted statistics of one heatmap canvas, in canvas pixels. */
@@ -216,9 +306,9 @@ async function stackAt(page: Page, xPercent: number, yPercent: number) {
 test("overlap: the top layer is dimmed only where it overlaps; 2 and 3 layers stay readable (Owner Decision, PR #494)", async ({ page }) => {
   await startSauceStep(page);
   // tomato across the left-centre band; pesto over the SAME band, extending to the right (so part of it overlaps nothing)
-  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1100);
-  await page.getByRole("button", { name: /ジェノベーゼ/ }).click();
-  await paint(page, { x: 25, y: 50 }, { x: 75, y: 50 }, 1500);
+  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1100, { wallClockPath: true, settle: true });
+  await selectSauce(page, /ジェノベーゼ/);
+  await paint(page, { x: 25, y: 50 }, { x: 75, y: 50 }, 1500, { wallClockPath: true, kind: "pesto", fillEnd: true });
 
   const over = await stackAt(page, 38, 50); // pesto over tomato
   const clear = await stackAt(page, 70, 50); // pesto alone, beyond the tomato's soft edge
@@ -236,8 +326,8 @@ test("overlap: the top layer is dimmed only where it overlaps; 2 and 3 layers st
   expect(over.alphas[0]).toBeGreaterThan(200); // and the bottom layer itself is untouched
 
   // a third sauce over the same area: both layers below stay visible through it
-  await page.getByRole("button", { name: /オリーブオイル/ }).click();
-  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1000);
+  await selectSauce(page, /オリーブオイル/);
+  await paint(page, { x: 25, y: 50 }, { x: 55, y: 50 }, 1000, { wallClockPath: true, kind: "olive-oil" });
   const triple = await stackAt(page, 38, 50);
   expect(triple.alphas).toHaveLength(6); // 3 heatmap layers + their 3 (here empty) overflow-marker canvases
   expect(triple.alphas[2]).toBeLessThan(triple.alphas[0] * 0.8); // the oil on top is dimmed too (it overlaps two layers)
