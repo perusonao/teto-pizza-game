@@ -966,6 +966,16 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /** New Sauces Phase A (Issue #578, Owner 2026-10-23): finite ladder material, step 55 (T4), unlocked by the Ladder alone (no star gate); the cohort key of `flammkuchen`. A spread sauce painted in the SAUCE step (the existing PAINT gesture). Sauces carry no topping family (ingredientTaxonomy is topping-only). Price / refill come from the T4 tier (materialShop.ts), not from per-ingredient fields. `color` `#fffdf8` is PROVISIONAL until the Owner HV on a real device (a near-white on the pale-gold dough: measured dE 13.7-36.9 against the dough at alpha 0.46-0.85, so no olive-oil style filter). `emoji` is only the text fallback. */
+  {
+    id: "fromage-blanc-sauce",
+    category: "sauce",
+    nameJa: "フロマージュブランソース",
+    color: "#fffdf8",
+    emoji: "\u{1F95B}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /**

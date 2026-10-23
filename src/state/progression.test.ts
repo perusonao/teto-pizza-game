@@ -289,6 +289,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "california-style-pizza",
         "chilean-napolitana",
         "eggplant-ricotta-pizza",
+        "flammkuchen",
         "frango-catupiry",
         "full-english-pizza",
         "hawaiian",

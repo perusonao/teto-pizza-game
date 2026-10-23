@@ -12655,5 +12655,163 @@
     }
    }
   ]
+ },
+ {
+  "id": "flammkuchen",
+  "keyFree": true,
+  "total": 3,
+  "rungs": [
+   [
+    1,
+    "SAUCE",
+    null,
+    "fromage-blanc-sauce"
+   ],
+   [
+    2,
+    "STRUCTURE",
+    null
+   ],
+   [
+    3,
+    "SUB_CLASS",
+    1,
+    "onion"
+   ],
+   [
+    4,
+    "SUB_CLASS",
+    2,
+    "bacon"
+   ]
+  ],
+  "empty": [],
+  "reserved": [],
+  "states": [
+   {
+    "n": 0,
+    "next": {
+     "rungIndex": 1,
+     "kind": "SAUCE",
+     "labelJa": "ヒント1: ソース",
+     "price": 10
+    },
+    "board": [],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:fromage-blanc-sauce",
+      "h5:sauce"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 1,
+    "next": {
+     "rungIndex": 2,
+     "kind": "STRUCTURE",
+     "labelJa": "ヒント2: 構成（材料の数）",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "meta:ingredient-total",
+      "h5:structure"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 2,
+    "next": {
+     "rungIndex": 3,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント3: サブトッピング①の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:onion"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 3,
+    "next": {
+     "rungIndex": 4,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント4: サブトッピング②の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:bacon"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 4,
+    "next": null,
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "LADDER_COMPLETE",
+     "addFactIds": [],
+     "charge": 0
+    }
+   }
+  ]
  }
 ]
