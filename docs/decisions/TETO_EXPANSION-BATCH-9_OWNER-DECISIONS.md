@@ -26,6 +26,7 @@ Status: **決定の記録と着手条件の整理のみ（docs-only）。** ゲ�
 | **OD-B9-14（新）** | DH4 production gate **14/14 PASS を正式記録**（四川風ナス追加の scratch 検証、main `485c515`）。hardened guard の**漏えいゼロは絶対条件**として維持 |
 | **OD-B9-15（新）** | `deductionGuard.gate` の旧ガード件数ピン 156→123 は、**実装 PR で原因を確認したうえで再測定・更新してよい。単純な数値置換だけで済ませない**（§5.6） |
 | **OD-B9-16（新）** | 原典で**焼成後投入・炒める工程**が確認された場合は、**通常 ladder に入れず、新工程対応の候補として再分類**する（§5.6）。月見は HOLD 継続、DH4 の緩和・食材 family の変更はしない |
+| **OD-B9-17（新）** | **原典確認待ちで準備を止めない。暫定仕様（青ねぎ = 焼成前 / 豆板醤 = ソース塗布 / ナス = 事前調理なし）で実装前監査を行う。** これは**仮定**であり、原典 Q1〜Q4 の確認結果は確定情報にしない。OD-B9-13〜16 は維持（新規 claim・実装 PR・ladder 登録は引き続き行わない）。監査結果: `docs/reports/TETO_RECIPE-EXPANSION_SICHUAN-EGGPLANT_Provisional-Spec-Audit.md`（既存工程だけで実装可能、件数ピンは実装 PR で 4 構成の測定により原因確認） |
 
 OD-B9-3 の適用範囲は `green-onion` の 1 行のみ（他の PROPOSED 行は承認しない）。glyph は表示しない text fallback で、G18 を満たすものを実装時に選ぶ。
 
