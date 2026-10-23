@@ -86,7 +86,7 @@ P3-b-1 と P3-b-2 は 1 PR にまとめる案もある（データだけの PR �
 |---|---|
 | **P3-b-1** データ（OFF） | (1) `LATE_RECIPES` の `pinsa-romana` が表示名「ピンサ・ロマーナ」・説明文（§5 の確定文言）・4 食材（arugula のみ `POST_BAKE`）・暫定個数（D4）・`doughKind: material-multigrain-long-ferment`・`ladderCredit:false`・`lunchRush:false`・CUT なしを持つ。(2) `LATE_LADDER_STEPS` は不変（ikura の 1 件のまま。Pinsa が ladder を伸ばさない）。(3) `validateLateCatalog` が ON 相当のデータで違反ゼロ（後乗せ専用素材なし・step の key でない・target id 一意）。(4) OFF で `RECIPES` / `INGREDIENTS` / `DISCOVERY_LADDER` が従来と同一参照（`lateCatalog.offGolden.test.ts` 無修正）。(5) `recipeSauceProfiles`（tomato-sauce / PAINT）・`recipeHintRoles`・`referencePizza`（8 スロット、非ソース 7 piece 以内）・`LATE_ORDERS`・`LATE_DISCOVERY_TARGET_IDS` の行。(6) 説明文が表示される面を列挙し、未発見レシピ向けの面に出ないことを確認（§5 の確認項目）。(7) 変異確認: `ladderCredit` や POST_BAKE を外すと validator が落ちる |
 | **P3-b-2** ON 判定テスト | (1) `vi.doMock` で ON にして L1 判定表（5 行: 標準・後乗せなし=jamon / 標準＋ルッコラ後乗せ=ORIGINAL / Pinsa＋後乗せ=pinsa-romana / Pinsa・全部焼成前=ORIGINAL / Pinsa＋tray=ORIGINAL）を実カタログで固定。(2) Guided で Pinsa を選ぶと `pinsa-romana` として発見される（#639 が先送りしたテスト）。(3) Reference pizza が Pinsa として発見される。(4) signature 一意性のキーに `identityDimensions` を含める（§1.4。緩和ではなくキーの是正）。(5) ジャモンの既存発見データ・target が不変（D2）。(6) Dinner: どの `targetRecipeIds` も Pinsa を含まない（PK-19） |
-| **P3-b-3** ゲート・Hint・Research | (1) `hint5Production.gate` G7 / `deductionProduction.gate` INV-TQ-4 の named allowlist（共有定数 1 か所）。(2) DH4 sweep の `GATE_STATES` に dough × late の状態を追加して全再実行、掃引した状態数を Result に記載。(3) G17（`recipeHintRoles`、key-free の確定）。(4) Recipe Batch Validator のコホート例外を名前付きで追加（**Q7 は P3-b-1 着手前に確定済みであること**）。(5) Research 候補 1 → 2 件の影響テスト（HOME 直行・Pizza Select・Hint シート）を一覧化して更新（PK-14/15）。(6) G2 固定文言は不変 |
+| **P3-b-3** ゲート・Hint・Research | (1) `hint5Production.gate` G7 / `deductionProduction.gate` INV-TQ-4 の named allowlist（共有定数 1 か所）。(2) DH4 sweep の `GATE_STATES` に dough × late の状態を追加して全再実行、掃引した状態数を Result に記載。(3) G17（`recipeHintRoles`、key-free の確定）。(4) Pinsa の batch manifest に `acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" }` の 1 行だけを置く（validator 本体は無変更。仕様と否定テストは `docs/decisions/TETO_PINSA-577_Q7_COHORT-LETTER_2026-10-23.md` §4）。(5) Research 候補 1 → 2 件の影響テスト（HOME 直行・Pizza Select・Hint シート）を一覧化して更新（PK-14/15）。(6) G2 固定文言は不変 |
 | **P3-b-4** 漏えい防止・保存・章 | (1) D3 の T1〜T6 を ON ビルドの Pinsa データで固定。(2) PK-16: 旧 save ↔ 新ビルドの往復で図鑑・技法台帳・ジャーナルが失われない。`pendingRound` が `pizza.dough` を保存・復元する事実を JSON 往復で固定（#639 と整合）。(3) 既存 save 影響テスト（dex・pitzBalance・解禁済み素材が不変、Pitz 二重付与なし）。(4) K2 / 章 4 の ON 差分（件数と ✓。最終判断は E5 の HV。D7）。(5) PK-18（3 状態の DOM 走査）・PK-21・PK-22 |
 | **E5**（P3-b の外） | 原典の確認（PK-0 の全項目。取得日・確認者・URL・引用を #577 に記録）／AC-8（ON ビルドで `salmon-roe` を 3 状態再測定）／後乗せ 2 ピースの実測と Q8 の正式化／Q7 の最終確認（jamon のラベル文字の変化）／iPhone Safari 実機 HV／G-4（専用の一時検証環境）／D7 |
 
@@ -104,7 +104,7 @@ P3-b-1 と P3-b-2 は 1 PR にまとめる案もある（データだけの PR �
 9. 本番 ON 化の前に原典確認は**必須**（再掲）。
 
 **残る未確定**
-- **Q7**（コホート文字・validator の名前付き例外）: **P3-b-1 着手前に確定する。現時点では未決**（P3-b-1 の前提。jamon のラベルに A/B の文字が付く変化と、`pinsa-romana` を既存コホートの例外として allowlist に入れる方式を Owner が決める）。
+- **Q7**（コホート文字・validator の名前付き例外）: **確定案を `docs/decisions/TETO_PINSA-577_Q7_COHORT-LETTER_2026-10-23.md` に記録**（既存の自動分類を維持、例外は manifest の 1 行 = jamon の `-->B` のみ、ON 時の影響は実機 HV で最終確認）。Owner の最終承認は当該 docs PR のレビュー / merge
 - **CUT の最終判断**: 暫定「なし」のまま。原典の形（楕円）の確認後（E5 の前）に見直す余地を残す。
 - **Q8 の正式化**: 後乗せ 2 ピースの実測後（E5）。
 - **E5 の条件**: 原典の確認（必須）、D7（章 4 の表示）、AC-8、G-4、iPhone Safari 実機 HV。
