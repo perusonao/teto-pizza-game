@@ -178,12 +178,38 @@ jobs:
       # FAIL-TEST; both are still FAIL). step timeout-minutes is only a backstop for the helper, but it must still
       # cover the helper's worst case: 2 x (360 + 15) + (5 + 12 orphan reap + 180 lock wait) = 947 s = 15.8 min -> 17 (pinned by
       # scripts/ci/test-webkit-ci.sh).
+      #
+      # #643: the apt .deb archive (117 MB) is cached too. A slow Ubuntu mirror (40-110 KB/s) made both 360 s attempts time out
+      # with no test run; a restored cache turns that download into 0 B. The cache is a pure shortcut: a miss, a damaged file
+      # (the helper's --apt-cache-dir guard deletes unreadable .debs; apt re-fetches only those) or a cache-service error all
+      # fall back to the normal install -- no timeout, attempt or test change. Only push-to-main runs save it (PR runs can read
+      # only their own scope + main's), after a successful install, and only on a miss; the 6 shards race for one immutable key,
+      # the losers just log a warning.
+      - name: apt cache key
+        run: echo "APT_CACHE_KEY=apt-webkit-deps-${{ runner.os }}-${ImageVersion:-unknown}-${{ hashFiles('package-lock.json') }}" >> "$GITHUB_ENV"
+
+      - name: Restore apt .deb cache
+        id: apt-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/apt-archives/*.deb
+          key: ${{ env.APT_CACHE_KEY }}
+
       - name: Install WebKit (with system deps; timeout + 1 retry)
         timeout-minutes: 17
         run: >-
           bash scripts/ci/install-with-retry.sh
           --status-file "$INSTALL_STATUS_FILE" --timeout 360 --attempts 2 --apt-tuning
+          --apt-cache-dir "$HOME/apt-archives"
           -- npx playwright install --with-deps webkit
+
+      - name: Save apt .deb cache (main push, cache miss only)
+        if: ${{ github.event_name == 'push' && steps.apt-cache.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/apt-archives/*.deb
+          key: ${{ env.APT_CACHE_KEY }}
 
       # Evidence for the Result Report's "actual WebKit execution proof" requirement -- a green
       # job alone doesn't prove WebKit launched (it could have silently no-opped). This prints
