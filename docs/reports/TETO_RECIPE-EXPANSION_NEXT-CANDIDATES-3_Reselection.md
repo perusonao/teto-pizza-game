@@ -61,7 +61,7 @@ FULL かつ blocker 無し・新食材 ≥1 の 8 件（前回 audit）から、
 
 ### 4.3 着手条件
 S1 Owner が `https://pizzadb.jp/pizzas/sichuan-eggplant/` の該当箇所を共有: 材料の一致、**青ねぎの投入タイミング**、豆板醤の使い方（塗る / 炒める）、焼成条件。焼成後なら後乗せ（P3 以降）、炒めるなら下ごしらえ（新工程）で**通常 ladder 不可**。
-S2 DH4 gate の事前検証（月見と同じ scratch 方式。**Owner の承認が必要**。承認が無い限り実施しない）。
+S2 DH4 gate の事前検証: **実施済み**（`TETO_RECIPE-EXPANSION_SICHUAN-EGGPLANT_DH4-Preflight.md`。production gate 14/14 pass、旧ガード件数ピンのみ 1 fail）。
 S3 新しい実装 claim の投稿（#578 の代理 release 済み）。S4 Owner の着手 GO。
 
 ## 5. 必要な Owner 判断

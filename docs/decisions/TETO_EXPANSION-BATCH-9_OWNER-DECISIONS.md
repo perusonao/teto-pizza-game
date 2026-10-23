@@ -21,6 +21,7 @@ Status: **決定の記録と着手条件の整理のみ（docs-only）。** ゲ�
 | **OD-B9-9（新）** | DH4 の月見入り事前検証を承認（権限エラーが続く場合は再試行せず停止）。**月見の step 56 は予約しない** |
 | **OD-B9-10（新）** | #578 claim は **Owner 承認の代理 release（方式 A）**。投稿に「元セッション本人の解除ではない」「#634 は merge 済み」「Owner 承認による引き継ぎ」を明記 |
 | **OD-B9-11（新）** | 原典確認は **Owner からのページ内容共有を優先**。未確認事項は推測で埋めない。柚子えびは原典確認まで保留を継続 |
+| **OD-B9-12（新）** | 月見は**保留継続（恒久見送りにはしない）**。OD-DH4-2-9 は**改訂しない**、`other` family は**再分類しない**。次の追加候補は**四川風ナス**。四川風ナスを含む DH4 事前検証を**1 回だけ**承認（実施済み）。**原典未確認のまま実装 PR は作らない**。step 56 は予約しない |
 
 OD-B9-3 の適用範囲は `green-onion` の 1 行のみ（他の PROPOSED 行は承認しない）。glyph は表示しない text fallback で、G18 を満たすものを実装時に選ぶ。
 
@@ -148,9 +149,13 @@ S1 の結果による分岐:
 
 pizzadb.jp は本セッション環境から到達不可（`CONNECT tunnel failed, response 403`、#527 と同じ）。確認の経路: Owner が実ページの該当箇所を #527 / #578 に貼る、または環境の Network access に `pizzadb.jp` を追加して別セッションで読み取り専用に取得（設定はユーザー側。`read_documentation environment.network`）。**いずれも未実施。**
 
+## 5.4 四川風ナスの DH4 事前検証（実施済み）
+
+結果は `docs/reports/TETO_RECIPE-EXPANSION_SICHUAN-EGGPLANT_DH4-Preflight.md`: DH4 production gate **14/14 pass**（OD-DH4-2-9 を含む）、deduction guard 関連 7 ファイルで 113/114（`deductionGuard.gate` の旧ガード漏えい件数ピン 156 → 123 の 1 件のみ。hardened ガードの漏えいは 0 のまま）。実装可否・原典確認 Q1〜Q6・Owner 判断はそのレポート §5〜6。
+
 ## 5.5 月見の保留解除に要るもの
 
-gate の緩和は禁止なので、解除には次のいずれかが要る（**Owner 判断。推奨はしない**）: ①月見の恒久見送り ②OD-DH4-2-9 自体の改訂（別の Owner 決定。DH4 の設計文書と gate の再設計を伴う）③`other` 家族の再分類（egg / nuts の family 変更。Hint 5.0 の golden と family 規則に波及）。保留中も `green-onion` の仕様（OD-B9-3）は維持するが、**月見以外のレシピ**（例: 四川風ナス、再選定レポート参照）で先に導入できる。
+gate の緩和は禁止なので、解除には次のいずれかが要る（**Owner 判断。推奨はしない**）: ①月見の恒久見送り ②OD-DH4-2-9 自体の改訂（別の Owner 決定。DH4 の設計文書と gate の再設計を伴う）③`other` 家族の再分類（egg / nuts の family 変更。Hint 5.0 の golden と family 規則に波及）。OD-B9-12 により OD-DH4-2-9 の改訂・`other` 再分類は行わない方針のため、解除条件は別途検討（月見は保留継続）。`green-onion` の仕様（OD-B9-3）は維持し、**四川風ナス**（OD-B9-12）で先に導入する。
 
 ## 6. 柚子えび（保留）— 実装分岐（再掲、OD-B9-1）
 
