@@ -31,12 +31,12 @@ DPkg::Lock::Timeout "60";'
 Dir::Cache::Archives \"$HOME/apt-archives\";"
 printf '%s\n' "$conf" | sudo tee /etc/apt/apt.conf.d/98teto-measure > /dev/null
 
-t0=$(now); sudo apt-get update > /tmp/apt-update.log 2>&1; t1=$(now)
+echo "[$(date -u +%T)] apt-get update start"; t0=$(now); sudo timeout -k 10 300 apt-get update > /tmp/apt-update.log 2>&1; t1=$(now)
 echo "apt-get update: $(elapsed "$t0" "$t1") s (rc ok if index loaded: $(grep -c '^Get\|^Hit' /tmp/apt-update.log) lines)"
 
 # mirror speed probe: one 5.8 MB package (libavcodec60), outside the measured install
 probe_dir=$(mktemp -d); t0=$(now)
-(cd "$probe_dir" && timeout 120 apt-get download libavcodec60 > /tmp/probe.log 2>&1); prc=$?
+echo "[$(date -u +%T)] probe start"; (cd "$probe_dir" && timeout -k 10 120 apt-get download libavcodec60 > /tmp/probe.log 2>&1); prc=$?
 t1=$(now); probe_bytes=$(bytes_of "$probe_dir"); probe_s=$(elapsed "$t0" "$t1")
 probe_kbps=$(awk -v b="$probe_bytes" -v s="$probe_s" 'BEGIN{ if (s>0) printf "%.0f", b/1024/s; else print 0 }')
 echo "mirror probe: rc=$prc bytes=$probe_bytes seconds=$probe_s => ${probe_kbps} KB/s"
@@ -58,10 +58,16 @@ fi
 
 before_debs=$(count_of "$ARCH_DIR"); before_bytes=$(bytes_of "$ARCH_DIR")
 log=$(mktemp)
+echo "[$(date -u +%T)] install start"
+# watchdog (diagnostic): every 60 s show apt/dpkg processes and the archive dir, so a stall is visible in the log
+( while sleep 60; do echo "[wd $(date -u +%T)] $(pgrep -a 'apt|dpkg|http|playwright' | cut -c1-120 | tr '\n' '|')"; ls -la "$ARCH_DIR" "$ARCH_DIR/partial" 2>&1 | tail -5; done ) &
+wd=$!
 t0=$(now)
-timeout 1500 npx playwright install-deps webkit 2>&1 | tee "$log"
+timeout -k 10 900 npx playwright install-deps webkit 2>&1 | tee "$log"
 rc=${PIPESTATUS[0]}
 t1=$(now)
+kill "$wd" 2> /dev/null
+sudo pkill -f "apt-get install" 2> /dev/null || true
 install_s=$(elapsed "$t0" "$t1")
 need=$(grep -m1 'Need to get' "$log" | sed 's/^ *//')
 fetched=$(grep -m1 '^Fetched' "$log" | sed 's/^ *//')
