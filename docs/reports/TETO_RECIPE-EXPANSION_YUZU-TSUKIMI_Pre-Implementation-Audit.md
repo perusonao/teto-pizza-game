@@ -1,5 +1,8 @@
 # 柚子えび / 月見 — 実装前 Audit（docs-only、調査・設計のみ）
 
+> **更新（2026-10-23、後続セッション）**: 本書の「柚子 56 → 月見 57」は撤回済み。Owner 判断で**月見が step 56 を先行**し、柚子えびは原典確認まで保留（`docs/decisions/TETO_EXPANSION-BATCH-9_OWNER-DECISIONS.md` が最新）。また本書は見落としていた事実がある: **月見は Batch 3（2026-10-07）で OD-DH4-2-9「その他は到達不能」に抵触して延期された**（`TETO_EXPANSION-BATCH-3_Result.md`）。月見の実装前に DH4 gate の再検証が必要（同決定記録 §4.2）。
+
+
 基準 `origin/main` = `cea6904`（#642、前回 audit から**変化なし**）、2026-10-23。ブランチ `claude/recipe-expansion-prep-3i9dyz`。
 前提レポート: `TETO_RECIPE-EXPANSION_NEXT-BATCH-2_Fresh-Audit.md`。第一候補 = 柚子えび、第二候補 = 月見（Owner 指定）。
 `src/` `e2e/` workflow は未変更。PR・merge・デプロイ・Preview 更新なし。他セッションのブランチは **PR ref の読み取り fetch のみ**（変更・push なし）。
