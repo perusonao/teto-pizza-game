@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, type Recipe } from "../data/recipes";
 import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
-import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
+import { buildRecipeChapters, chapterProgress, isChapterCleared, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
 
 /** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10; No.27 pesto-pollo (key step 25, T3) makes it 6 / 10 / 11; Expansion Slice 1 pesto-gamberi (key step 26, T3) makes it 6 / 10 / 12 (Chapter 3 No.12). */
 describe("recipeChapters (OD-DISC-9)", () => {
@@ -62,3 +62,59 @@ describe("recipeChapters (OD-DISC-9)", () => {
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "marinara")!)).toBe(1);
   });
 });
+
+/**
+ * K2 (Issue #577, Owner 2026-10-23): the cleared mark ignores late-catalog (後乗せ) recipes, so E5 cannot take it from a chapter the
+ * player already finished. Production has no late recipe in `RECIPES`; the ON catalog is simulated by appending a recipe whose id is a
+ * real late id (default set) or an injected one.
+ */
+describe("isChapterCleared (K2)", () => {
+  const discoverAll = (ids: readonly string[]) =>
+    ids.reduce(
+      (dex, id) => registerScoreToDex(dex, id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex,
+      EMPTY_DEX,
+    );
+  const chapter4 = () => buildRecipeChapters().find((c) => c.chapter === 4)!;
+  const lateClone = (id: string) => ({ ...chapter4().recipes[0], id }) as Recipe;
+  const withLate = (id: string) => ({ ...chapter4(), recipes: [...chapter4().recipes, lateClone(id)] });
+
+  it("Production (no late recipe in RECIPES): cleared exactly when discovered === total, for every chapter", () => {
+    for (const chapter of buildRecipeChapters()) {
+      const ids = chapter.recipes.map((r) => r.id);
+      expect(isChapterCleared(chapter, discoverAll(ids))).toBe(true);
+      expect(isChapterCleared(chapter, discoverAll(ids.slice(1)))).toBe(false);
+      expect(isChapterCleared(chapter, EMPTY_DEX)).toBe(false);
+      const p = chapterProgress(chapter, discoverAll(ids));
+      expect(p.discovered === p.total).toBe(isChapterCleared(chapter, discoverAll(ids)));
+    }
+  });
+
+  it("late catalog ON: a finished chapter keeps its mark while the displayed count grows (26/27 ✓), and the late recipe is not required", () => {
+    const ordinary = chapter4().recipes.map((r) => r.id);
+    const on = withLate("ikura-salmon-pizza"); // a real late id: the default set is used
+    const dex = discoverAll(ordinary);
+    expect(chapterProgress(on, dex)).toEqual({ discovered: ordinary.length, total: ordinary.length + 1 });
+    expect(isChapterCleared(on, dex)).toBe(true);
+  });
+
+  it("late catalog ON: a missing ORDINARY recipe still blocks the mark, and discovering the late recipe alone does not grant it", () => {
+    const ordinary = chapter4().recipes.map((r) => r.id);
+    const on = withLate("ikura-salmon-pizza");
+    expect(isChapterCleared(on, discoverAll(ordinary.slice(1)))).toBe(false);
+    expect(isChapterCleared(on, discoverAll([...ordinary.slice(1), "ikura-salmon-pizza"]))).toBe(false);
+    expect(isChapterCleared(on, discoverAll([...ordinary, "ikura-salmon-pizza"]))).toBe(true);
+  });
+
+  it("only ids in the late set are skipped (an unknown extra recipe still counts); the set is injectable", () => {
+    const ordinary = chapter4().recipes.map((r) => r.id);
+    const extra = withLate("not-a-late-recipe");
+    expect(isChapterCleared(extra, discoverAll(ordinary))).toBe(false);
+    expect(isChapterCleared(extra, discoverAll(ordinary), new Set(["not-a-late-recipe"]))).toBe(true);
+  });
+
+  it("a chapter holding only late recipes is never cleared", () => {
+    const onlyLate = { chapter: 9, titleJa: "第9章", recipes: [lateClone("ikura-salmon-pizza")] };
+    expect(isChapterCleared(onlyLate, discoverAll(["ikura-salmon-pizza"]))).toBe(false);
+  });
+});
+
