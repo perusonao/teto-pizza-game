@@ -105,7 +105,7 @@ import { cookingProfileForPan } from "../logic/pan/panProfile";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import type { PanShape } from "../logic/pan/panShape";
 import { panSwitchOffered, pizzaWithPan, type PanChoice } from "./panSelection";
-import { doughSwitchOffered, pizzaWithDough } from "./doughSelection";
+import { doughSwitchOffered, pizzaWithDough, startingPizzaFor } from "./doughSelection";
 import type { DoughKind } from "../logic/dough/doughKind";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
@@ -126,7 +126,6 @@ import {
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import type { DiscoveryHintPurchases } from "../logic/discovery/hintPurchase";
 import {
-  createEmptyPizza,
   findOpenSpot,
   MIN_TOPPING_DISTANCE,
   isValidSauceDepositBatch,
@@ -722,7 +721,7 @@ function buildOrderState(
     order,
     recipe,
     cookingProfile,
-    pizza: createEmptyPizza(),
+    pizza: startingPizzaFor(recipe),
     // Pizza Cutting 1.0 Phase 2: fresh every round, from this round's own profile -- the one
     // place `cutState` is (re)created, shared by every "start a new round" path exactly like
     // `pizza`/`cookingTiming` above, so a previous pizza's cut lines/evaluation can never leak
@@ -1179,7 +1178,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // CONFIRM_MAKING_STEP does so any gesture from the pre-reset pizza is invalidated by
       // the same mechanism.
       if (state.phase !== "PREPARE") return state;
-      const pizza = createEmptyPizza();
+      // P3-a1: the discarded pizza restarts from the recipe's own dough kind (none for every shipped recipe and Free Cooking).
+      const pizza = startingPizzaFor(state.recipe);
       // Square Dough F4-b: the discarded pizza takes its ○/□ choice with it, so the profile is the recipe's own again. Only a pizza
       // that had chosen the tray changes the profile / cut state; every other reset leaves both exactly as before.
       const panReset: Pick<GameState, "cookingProfile" | "cutState"> | null =

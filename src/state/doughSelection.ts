@@ -14,7 +14,7 @@ import { techniqueRoundEligibility } from "../logic/techniques/runtime";
 import { doughSwitchForcedOpen } from "../preview/doughKindPreview";
 import type { DexState } from "./dex";
 import type { GamePhase, MakingStep } from "./gameReducer";
-import type { PizzaState } from "./pizzaState";
+import { createEmptyPizza, type PizzaState } from "./pizzaState";
 
 export function isDoughAffordanceOpenNow(dex: DexState): boolean {
   return doughSwitchForcedOpen() || isDoughAffordanceOpen(dex);
@@ -49,4 +49,15 @@ export function pizzaWithDough(pizza: PizzaState, kind: DoughKind): PizzaState {
   if (pizza.dough === undefined) return pizza;
   const { dough: _dough, ...rest } = pizza;
   return rest;
+}
+
+/**
+ * P3-a1 (Issue #577, Owner D5): the pizza a round starts from. Empty, plus the dough kind the RECIPE fixes (`Recipe.doughKind`, resolved by
+ * `resolveDoughKind`): without it a Guided Pinsa would keep the `"standard"` dough axis and be discovered as the recipe that shares its
+ * ingredients. A standard recipe (every shipped one) and the Free Cooking sentinel return `createEmptyPizza()` with no `dough` key, so
+ * nothing about an existing round changes. Used by `buildOrderState` (every round start / retry) and `RESET_PIZZA` (a discarded pizza
+ * restarts from the recipe's own dough, design §6.5).
+ */
+export function startingPizzaFor(recipe: object | null | undefined): PizzaState {
+  return pizzaWithDough(createEmptyPizza(), resolveDoughKind(recipe));
 }
