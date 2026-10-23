@@ -462,6 +462,23 @@ check "budget: negative control -- a wait before the first attempt too (180 + 94
   "$([ $((install_cap * 60)) -ge $((b_wait + worst)) ] && echo yes || echo no)"
 check "workflow: webkit job cap fits setup (1) + install step cap + longest shard (16 incl. list/margin)" yes "$([ "$job_cap" -ge $((install_cap + 17)) ] && echo yes || echo "no (job $job_cap, install $install_cap)")"
 
+# #394 layout-chromium: the Chromium install uses the same helper + apt cache; its step cap must cover the helper's worst case and the job cap the step.
+lc_job=$(awk '/^  layout-chromium:$/{j=1} j&&/timeout-minutes:/{print $2; exit}' "$wf")
+lc_blk=$(awk '/^  layout-chromium:$/{j=1;next} j&&/^  [a-z]/{exit} j' "$wf")
+lc_cap=$(awk '/Install Chromium \(with system deps/{f=1} f&&/timeout-minutes:/{print $2; exit}' <<< "$lc_blk")
+lc_attempts=$(awk '/Install Chromium \(with system deps/{f=1} f&&/--attempts/{for(i=1;i<=NF;i++) if($i=="--attempts") print $(i+1); exit}' <<< "$lc_blk")
+lc_timeout=$(awk '/Install Chromium \(with system deps/{f=1} f&&/--timeout/{for(i=1;i<=NF;i++) if($i=="--timeout") print $(i+1); exit}' <<< "$lc_blk")
+check "layout-chromium: parsed attempts/timeout/step cap/job cap" "2 240 12 20" "$lc_attempts $lc_timeout $lc_cap $lc_job"
+lc_worst=$(worst_case "$lc_attempts" "$lc_timeout" "$b_kill" "$b_delay" "$b_wait" "$b_reap")
+check "layout-chromium: helper worst case (707 s) fits the install step cap" yes "$([ $((lc_cap * 60)) -ge "$lc_worst" ] && echo yes || echo "no (worst ${lc_worst}s, cap $((lc_cap * 60))s)")"
+check "layout-chromium: job cap fits setup + install step cap + tests (6 min)" yes "$([ "$lc_job" -ge $((lc_cap + 6)) ] && echo yes || echo "no (job $lc_job, install $lc_cap)")"
+grep -q -- '-- npx playwright install --with-deps chromium' <<< "$lc_blk" && grep -q 'install-with-retry.sh' <<< "$lc_blk" && grep -q -- '--apt-cache-dir' <<< "$lc_blk"
+check "layout-chromium: install uses the retry helper with --apt-cache-dir" 0 $?
+grep -q 'apt-chromium-deps' <<< "$lc_blk" && grep -A3 'Save apt .deb cache (Chromium' <<< "$lc_blk" | grep -q "github.event_name == 'push'"
+check "layout-chromium: own cache key, saved only by push runs" 0 $?
+grep -n 'install-with-retry' <<< "$lc_blk" | grep -q 'playwright test'
+check "layout-chromium: no Playwright test command is wrapped by the retry helper" 1 $?
+
 echo "== 8. S2 FAIL-INFRA / FAIL-TEST classification (install_status -> evidence -> WebKit Gate)"
 # Real chain: helper writes the status file -> collect records it -> gate labels the verdict.
 chain() { # dir install_cmd results_mode(good|fail|none) -> evidence dir $dir/ev (4 shards; 390x844 shard 1 is the subject)
