@@ -44,6 +44,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "hot-dog-slices",
   "shiso-leaf",
   "whitebait-school",
+  "green-onion-slices",
   "salmon-roe-grains",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
@@ -67,7 +68,11 @@ const BATCH8B_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   shiso: "shiso-leaf",
   whitebait: "whitebait-school",
 };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED };
+/** New Sauces Phase B-1 (OD-B9-3): dedicated art for green-onion (small ring slices). */
+const PHASE_B1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
+  "green-onion": "green-onion-slices",
+};
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -699,5 +704,31 @@ describe("FIN-E4b-ikura: salmon-roe dedicated art (late-catalog row)", () => {
 
   it("its text fallback is shared with no production ingredient (G18)", () => {
     expect(INGREDIENTS.filter((i) => i.emoji === roe.emoji).map((i) => i.id)).toEqual([]);
+  });
+});
+
+/**
+ * New Sauces Phase B-1 (OD-B9-3): green-onion is drawn by its own dedicated art (small ring slices), never by the emoji.
+ * Its `emoji` stays only as the required text fallback (G18 keeps it unique), so it must never reach the DOM.
+ */
+describe("Phase B-1: green-onion dedicated art (production row)", () => {
+  it("draws green-onion-slices as an SVG, on the glyph and on the placed piece, and never prints its emoji", () => {
+    const ingredient = getIngredient("green-onion")!;
+    expect(ingredient.pieceVisual).toBe("green-onion-slices");
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector('svg[data-ingredient-visual="green-onion-slices"]');
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      unmount();
+    }
+  });
+
+  it("the text fallback is shared with no other ingredient", () => {
+    const own = getIngredient("green-onion")!.emoji;
+    expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual(["green-onion"]);
   });
 });

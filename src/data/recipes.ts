@@ -1242,6 +1242,25 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "sichuan-eggplant-pizza",
+    nameJa: "四川風ナスピザ",
+    description: "豆板醤を塗った生地に、ナスとにんにく、青ねぎをのせた、ぴりっと香ばしい四川風の一枚。",
+    // New Sauces Phase B-1 (Issue #578, Chapter 4; Owner GO 2026-10-23). SOURCE AUTHORITY (PIZZA DB `sichuan-eggplant-pizza`, 172 matrix): doubanjiang / eggplant / garlic / green-onion / mozzarella, sauce family ホットソース, thin standard dough, no prep / post-bake recorded.
+    // NOT CONFIRMED against the original page (it was not reachable; relayed evidence 2026-09-22 only): when the green onion is added, how the doubanjiang is used and whether the eggplant is pre-cooked. PROVISIONAL ASSUMPTIONS (Owner OD-B9-17): green onion before the bake, doubanjiang painted in the SAUCE step, eggplant not pre-cooked.
+    // GAMEPLAY CALIBRATION (not source): doubanjiang 1 (PAINT) / mozzarella 2 / eggplant 3 / garlic 1 / green-onion 2 = 8 pieces = the 8-slot ring; bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78). No CUT (provisional).
+    // Ladder-credited (the step after 55: doubanjiang + green-onion, cohort key green-onion); `lunchRush: false` keeps it out of the Lunch Rush pool; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "doubanjiang", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "garlic", minCount: 1 },
+      { ingredientId: "green-onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

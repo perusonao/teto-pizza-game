@@ -108,6 +108,8 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   "shirasu-pizza": "shirasu-pizza-pizzadb-p3",
   // New Sauces Phase A (#578): PIZZA DB evidence id from the 172 matrix.
   flammkuchen: "flammkuchen-pizzadb",
+  // New Sauces Phase B-1 (#578): PIZZA DB evidence id from the 172 matrix.
+  "sichuan-eggplant-pizza": "sichuan-eggplant-pizza",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };
