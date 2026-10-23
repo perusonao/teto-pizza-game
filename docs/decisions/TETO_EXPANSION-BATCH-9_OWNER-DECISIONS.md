@@ -1,7 +1,8 @@
 # Next Batch (working name Batch 9: 月見 先行 / 柚子えび 保留) — Owner Decisions と着手条件
 
-Status: **決定の記録と着手条件の整理のみ（docs-only）。** ゲームコード・テスト・データ・workflow・共有 Preview・本番は変更していない。レシピ実装 PR は未作成。**#578 の claim は解除していない。**
-基準 `origin/main` = `70aa262`（#644、CI インフラのみ）、2026-10-23。`CLAUDE.md` は変更なし。
+Status: **決定の記録と着手条件の整理のみ（docs-only）。** ゲームコード・テスト・データ・workflow・共有 Preview・本番は変更していない。レシピ実装 PR は未作成。
+**更新（第 2 版）**: ①**月見は DH4 gate の抵触が実測で確認され、実装保留**（§4.2）。②**#578 の Phase A claim は Owner 承認の代理 release を投稿済み**（§3.4）。③次の実装候補は `docs/reports/TETO_RECIPE-EXPANSION_NEXT-CANDIDATES-3_Reselection.md`。
+基準 `origin/main` = `485c515`（#647。#645 Pinsa docs・#646/#647 CI/test のみで、レシピ・ladder・golden は動いていない）、2026-10-23。`CLAUDE.md` は変更なし。
 前提: `docs/reports/TETO_RECIPE-EXPANSION_NEXT-BATCH-2_Fresh-Audit.md`、`docs/reports/TETO_RECIPE-EXPANSION_YUZU-TSUKIMI_Pre-Implementation-Audit.md`。形式は `TETO_EXPANSION-BATCH-8_OWNER-DECISIONS.md` に倣う。
 **「決定済み」は Owner が指示した内容だけ。** それ以外は「提案」「未決」と明記する。
 
@@ -13,9 +14,13 @@ Status: **決定の記録と着手条件の整理のみ（docs-only）。** ゲ�
 | OD-B9-2 | 柚子胡椒（`yuzu-kosho`）はソースとして仮分類、色 `#b5c56a` を仮採用（実機 HV で確定）。**柚子えびの保留中は実装しない** |
 | OD-B9-3 | `green-onion`: family = `herb`（L1 のみ）、`pieceVisual` = 小口切りの輪、size class = `xs`（維持） |
 | OD-B9-4 | 個数・焼成窓は暫定値のまま（GAMEPLAY CALIBRATION） |
-| **OD-B9-5（改訂）** | **J1: 月見を通常 ladder の次の step 56 として先行する。** 旧案「柚子 56 → 月見 57」は**撤回**（柚子は保留で step を持たない） |
+| **OD-B9-5（改訂）** | **J1: 月見を通常 ladder の次の step 56 として先行する。** 旧案「柚子 56 → 月見 57」は**撤回**（柚子は保留で step を持たない）。**→ OD-B9-8 / 9 により月見は実装保留、step 56 は予約しない** |
 | **OD-B9-6（新）** | **J2: 青ねぎ・卵の投入タイミングは原典確認まで未確定。本番を有効化する実装はまだ許可しない**（通常カタログへの追加は merge = 有効化なので、確認前は実装 PR を作らない） |
-| **OD-B9-7（新）** | **#578 の有効な claim は無断で解除しない** |
+| **OD-B9-7（新）** | **#578 の有効な claim は無断で解除しない**（→ OD-B9-10 で代理 release 方式 A を承認） |
+| **OD-B9-8（新）** | **月見は DH4 gate の問題が解決するまで実装保留。OD-DH4-2-9 の gate 緩和は禁止** |
+| **OD-B9-9（新）** | DH4 の月見入り事前検証を承認（権限エラーが続く場合は再試行せず停止）。**月見の step 56 は予約しない** |
+| **OD-B9-10（新）** | #578 claim は **Owner 承認の代理 release（方式 A）**。投稿に「元セッション本人の解除ではない」「#634 は merge 済み」「Owner 承認による引き継ぎ」を明記 |
+| **OD-B9-11（新）** | 原典確認は **Owner からのページ内容共有を優先**。未確認事項は推測で埋めない。柚子えびは原典確認まで保留を継続 |
 
 OD-B9-3 の適用範囲は `green-onion` の 1 行のみ（他の PROPOSED 行は承認しない）。glyph は表示しない text fallback で、G18 を満たすものを実装時に選ぶ。
 
@@ -44,7 +49,7 @@ OD-B9-3 の適用範囲は `green-onion` の 1 行のみ（他の PROPOSED 行�
 月見の PR が触るファイルのうち、claim の files と重なるもの: `recipes.ts` `ingredients.ts` `recipeSauceProfiles.ts` `discoveryCatalog.ts` `discoveryLadder.ts` `referencePizza.ts` `recipeHintRoles.ts` `orders.ts`、`src/data/*.test.ts`、`src/logic/catalog/**`（manifest / ledger）、`__golden__/**`、`materialShop.test.ts`、`progression.test.ts` — **ほぼ全部**。重ならない: `ingredientTaxonomy.ts` `toppingSizeClass.ts` `components/IngredientGlyph.tsx` `App.css`（新トッピングの描画）、`e2e/`、新規レポート。
 重ならない領域の作業は claim と衝突しない。HOT 領域（`recipes.ts` 等）は §3.3 の手続きが済むまで着手しない。
 
-### 3.3 既存担当者との重複を避けた引き継ぎ手順（提案、Owner が選ぶ）
+### 3.3 既存担当者との重複を避けた引き継ぎ手順（選択肢。**Owner は A を採用**、§3.4 で実施済み）
 
 claim は soft reservation（警告のみ、lock ではない）で、解除できるのは同じ session + issue の `released: true`（Owner / Member / Collaborator 名義）。**無断では解除しない**（OD-B9-7）。選択肢:
 
@@ -63,6 +68,15 @@ teto-claim:v1 {"session":"<実装セッション>","issue":578,"pr":null,"branch
  "dependsOn":[],"expires":"<着手から 72h〜14 日以内>"}
 ```
 （実際の comment では HTML コメント形式 `<!-- teto-claim:v1 {...} -->` で投稿する。この文書内の例は fence 内なので live ではない。）
+
+### 3.4 実施結果: 代理 release（方式 A、2026-10-23）
+
+| 項目 | 結果 |
+|---|---|
+| 投稿 | #578 に代理 release を投稿: https://github.com/perusonao/teto-pizza-game/issues/578#issuecomment-6373041313 。`teto-claim:v1` の `released: true`（session `015Uh6…` / issue 578 / pr 634 / files []） |
+| 明記した事項 | ①元セッション本人による release ではない ②#634 は merge 済み（`12aaa8e`、flammkuchen = No.62・step 55）③Owner 承認による引き継ぎ（#527 の 2026-10-22 の前例と同形式）④稼働を直接確認できたわけではないという限界 |
+| 投稿前の重複確認（読み取りのみ） | 元セッション `IDLE`・接続なし・最終更新 03:33Z（以後の活動なし）／#578 に claim 後の新コメントなし／open PR にレシピ・新ソース・新トッピングを扱うものなし／main の直近差分は docs・CI・test のみ。#577 の claim（`01QxGE…`・`01WXBP…`）は dough / late / DexOverlay 範囲で、別 issue・別ファイル（`discoveryCatalog.ts` は #640 と将来の月見・新レシピ PR で同一ファイルになり得る点だけ既知） |
+| 新しい実装 claim | **投稿していない**（実装保留中。着手する担当が §3.3 の雛形で別途投稿） |
 
 ## 4. 月見（`tsukimi-pizza`）
 
@@ -89,19 +103,25 @@ teto-claim:v1 {"session":"<実装セッション>","issue":578,"pr":null,"branch
 `TETO_EXPANSION-BATCH-3_Result.md`（Owner Decision A、2026-10-07）: 「`tsukimi-pizza` + `green-onion` を batch から外した。**OD-DH4-2-9 の「その他」到達条件・文面・プライバシー契約は変更しない。ladder 順を回避のために並べ替えない**」。理由: 「`tsukimi-pizza` は OD-DH4-2-9（`other` 家族に到達不能）に抵触した。egg が reserve で、`other` 家族の almond / pine-nuts を所持していると `attr:*:other` が答えられてしまう」。
 - `deductionProduction.gate.test.ts` の「`その他` は到達不能（どの状態でも `:other` の family/group 回答なし）」テストが対象。
 - **現在の状況**: `other` の所属は今も egg / almond / pine-nuts（`ingredientTaxonomy.ts`）。`green-onion = herb` は `other` に影響しない。egg が `other` である以上、同じ抵触が再現する可能性が高い。ただし reserve の選ばれ方（レシピの材料・ladder 位置に依存）が当時と変わっている可能性もあり、**本セッションでは判定できていない**。
-- 本セッションで main の gate を scratch コピー（リポジトリ外）で実行 → ベースラインは **14 / 14 pass（約 87 秒）**。月見を加えたコピーでの再実行は、環境の権限判定で止まったため**未実施**（再試行していない）。
-- 帰結: 月見の実装 PR は最初に DH4 gate（上記テスト + 独立攻撃者テスト）を月見入りで通す必要がある。**通らなければ gate の緩和は不可**（Owner Decision A）。その場合の選択肢は Owner 判断: ① 月見を再度保留 ② egg の family/回答規則に触れる設計変更（OD-DH4-2-9 の改訂 = 別の Owner 決定）③ 月見の構成変更（原典と乖離するため非推奨）。
+- **実測（Owner 承認の事前検証、2026-10-23、1 回）**: main `485c515` の scratch コピー（リポジトリ外・使い捨て、削除済み）に月見（bacon 3 / egg 1 / mozzarella 2 / green-onion 2、NO_SAUCE、`green-onion` = herb・`xs`、ladder 末尾）を加えて `deductionProduction.gate.test.ts` を実行。ベースライン（月見なし）は 14 / 14 pass。**月見入りは 13 / 14 pass、1 件 fail**:
+  - fail: 「`その他` (provisional copy, OD-DH4-2-9) is unreachable: no family/group 'other' answer in any state」
+  - 実際の値: `expected 'attr:group:other' not to match /:other$/`（`attr:group:other` が答えられた）
+  - 他の 13 件（独立攻撃者テスト・Technique 非漏えい・fail-closed 等）は pass。
+  - 解釈: 月見以外の変更が無いので、抵触は月見の追加に由来する。`other` 家族は egg / almond / pine-nuts のまま（`green-onion = herb` は無関係）。**どの状態・どの reserve で起きるかの特定は未実施**（事前検証は 1 回のみの承認のため、掘り下げの再実行はしていない）。
+  - 検証の限界: 全体の Vitest・ladder 導出・tsc は未実行（DH4 gate のみ）。
+- 帰結（**確定**）: 月見は OD-DH4-2-9 に抵触する。Owner Decision A（gate 緩和禁止）と OD-B9-8 により、**月見は実装保留**。
+- （以下は当初の整理。上の実測で①が採用された状態） 月見の実装 PR は最初に DH4 gate（上記テスト + 独立攻撃者テスト）を月見入りで通す必要がある。**通らなければ gate の緩和は不可**（Owner Decision A）。その場合の選択肢は Owner 判断: ① 月見を再度保留 ② egg の family/回答規則に触れる設計変更（OD-DH4-2-9 の改訂 = 別の Owner 決定）③ 月見の構成変更（原典と乖離するため非推奨）。
 
 ### 4.3 最終判定: 月見を先行できるか
 
-**判定: 方針（OD-B9-5）どおり step 56 の先行候補とするが、実装開始は「未了の条件 3 つ」が済むまで不可。** 技術的にはデータ追加のみで、新操作・新工程・保存変更はない。
+**判定（第 2 版）: 月見は実装保留。** DH4 gate の抵触が実測で確認された（§4.2）。step 56 は**予約しない**（OD-B9-9）。以下の S1〜S4 は、保留解除の条件として残す。
 
 実装開始条件（すべて満たすこと）:
 
 | # | 条件 | 状態 |
 |---|---|---|
 | S1 | **原典確認 M1〜M3 が済む**（§5）。結果は #527 / #578 に「中継 or 独立再取得」を明記して記録 | **未了**（OD-B9-6） |
-| S2 | **DH4 gate の事前検証**（月見入りで §4.2 のテストが通る）。実装前に scratch コピーで先に確認するのが最小コスト | **未了**（過去に抵触した実績あり） |
+| S2 | **DH4 gate の事前検証**（月見入りで §4.2 のテストが通る） | **実施済み・不合格**（13/14、`attr:group:other`）。解決策が Owner 決定されるまで保留 |
 | S3 | **claim の整理**（§3.3 の A / B / C のいずれか） | 未了（Owner 選択待ち） |
 | S4 | Owner の「着手 GO」 | 未了 |
 
@@ -128,17 +148,21 @@ S1 の結果による分岐:
 
 pizzadb.jp は本セッション環境から到達不可（`CONNECT tunnel failed, response 403`、#527 と同じ）。確認の経路: Owner が実ページの該当箇所を #527 / #578 に貼る、または環境の Network access に `pizzadb.jp` を追加して別セッションで読み取り専用に取得（設定はユーザー側。`read_documentation environment.network`）。**いずれも未実施。**
 
+## 5.5 月見の保留解除に要るもの
+
+gate の緩和は禁止なので、解除には次のいずれかが要る（**Owner 判断。推奨はしない**）: ①月見の恒久見送り ②OD-DH4-2-9 自体の改訂（別の Owner 決定。DH4 の設計文書と gate の再設計を伴う）③`other` 家族の再分類（egg / nuts の family 変更。Hint 5.0 の golden と family 規則に波及）。保留中も `green-onion` の仕様（OD-B9-3）は維持するが、**月見以外のレシピ**（例: 四川風ナス、再選定レポート参照）で先に導入できる。
+
 ## 6. 柚子えび（保留）— 実装分岐（再掲、OD-B9-1）
 
 実装は原典確認まで行わない。確認項目は `https://pizzadb.jp/pizzas/yuzu-shrimp/`（証跡の出典 URL）の ①材料の最終一致 ②大葉・柚子胡椒・エビの投入タイミング ③柚子胡椒の色（赤はトマト `#c73b2e` と同色で不可）④個数 ⑤焼成条件。分岐: **B0 すべて焼成前** → 通常 ladder（月見の次の空き step = **57**）、**B1 大葉のみ焼成後** → 後乗せカタログ（通常 step を使わず E5 待ち。後乗せカタログに sauce を置く前例が無く要事前確認）、**B2 柚子胡椒も焼成後** → 実装不可（ソース後乗せは #579 / #518 が前提）。ladder 番号は月見が 56 を取るため、**柚子は 56 を持たない**。月見が後乗せ分岐になった場合のみ 56 が空く。
 
 ## 7. 残る Owner 判断
 
-1. #578 claim の引き継ぎ方法（§3.3 の A / B / C）。
-2. 原典 M1〜M3 の確認（Owner の貼り付け or `pizzadb.jp` の許可）。
-3. DH4 事前検証（S2）の実施可否。**抵触した場合の方針**（§4.2 の ①②③）は結果が出てから。
-4. 着手 GO（S1〜S3 が揃った後）。
+1. 月見の扱い（§5.5: 恒久見送り / OD-DH4-2-9 改訂 / family 再分類）。
+2. 次の実装候補の選定（再選定レポートの §5）。
+3. 原典（Owner からのページ内容共有）。柚子えびは確認まで保留。
+4. 新しい実装 claim の投稿と着手 GO。
 
 ## 8. 範囲外
 
-ゲームコード、テスト、e2e、workflow、CI の再実行、他セッションのブランチ、`PROJECT_HANDOFF.md`（HOT）、claim の投稿・解除、pizzadb.jp の再取得、merge、デプロイ。
+ゲームコード、テスト、e2e、workflow、CI の再実行、他セッションのブランチ、`PROJECT_HANDOFF.md`（HOT）、新しい実装 claim の投稿、pizzadb.jp の再取得、merge、デプロイ。
