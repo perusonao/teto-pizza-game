@@ -106,7 +106,7 @@
 | emoji | 未表示の text fallback。G18 で一意なもの（既存と重複しない） |
 | size class | `s`（小口切りは `onion` と同じ小）か `xs`（刻み。`shiso` / `parsley` と同じ）。**`xs` 推奨**（散らす薬味）。Reference 片数・リング上限と合わせて実機で調整 |
 | 色 | 緑 `#7fae4a` 前後（basil / shiso / parsley の緑と並べて区別が付くか HV） |
-| 名前衝突 | `green-onion` ⊃ `onion`。**id の部分一致は本番コードには無い**が、#584 の archival に載った `mentionsIngredient` 型の部分一致テスト（`ing:salmon-roe` ⊃ `salmon`）と同種の偽陽性が `selectableHint.test` に出るか要確認。月見レシピには `onion` が無いので現時点では出ない見込み（四川風ナス以降は要再確認） |
+| 名前衝突 | `green-onion` ⊃ `onion`。**訂正（確認済み）**: `selectableHint.test` の漏えい検査は `ing:${id}` / `"${id}"` の完全一致で、`ing:onion` は `ing:green-onion` の部分文字列にならない（#584 の `salmon` ⊂ `salmon-roe` は前方一致）。偽陽性は出ない見込み。詳細は `TETO_EXPANSION-BATCH-9_OWNER-DECISIONS.md` §3.2 |
 
 ### 3.4 月見のレシピ定義（提案・暫定）
 bacon 3 / egg 1 / mozzarella 2 / green-onion 2、NO_SAUCE（sauce profile `null`、CHEESE 工程から）、焼成 58–78、`lunchRush:false`、CUT なし、credited、key-free。卵の配置は中央想定だが `ZONED_PLACEMENT` は要求しない（matrix `candidateCapabilities` 空）。ladder は step 57（柚子えびの次）、key = green-onion。コホートは単独（文字なし）。
