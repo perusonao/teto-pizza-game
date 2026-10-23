@@ -17,11 +17,11 @@
 | 実機 | B-1 の一部：所持数が戻らないこと、Pitz・ベスト・★ の反映 | **未確認**（報告なし） | §2 |
 | 実機 | B-2（「確認した」→再起動）、D-1（強制終了 3 回）、B-3、C、D-2、D-3、E、F、G、H | **未実施（未確認）** | §2 |
 | 自動（WebKit CI） | R8 E2E `r8-pending-round.spec.ts` 7 本 × 2 viewport = 14 実行 | **PASS**（`a6c1463` の run 39901251967） | §3 |
-| 自動（Chromium・本セッション） | R8 E2E 14 実行、Lunch Rush 既存 `material-shortage` 6 実行、**新規 Lunch Rush 保存・復元 E2E 6 実行** | **PASS（26/26）** | §4・§6 |
+| 自動（Chromium・本セッション） | R8 E2E 14 実行、Lunch Rush 既存 `material-shortage` 6 実行、**新規 Lunch Rush 保存・復元 E2E（G-1・G-4・G-5・G-6）8 実行** | **PASS（28/28）** | §4・§6 |
 | 自動（Vitest・本セッション） | `pendingRound.*`・`roundNoticeCopy`（5 ファイル） | **PASS（90/90）** | §6 |
 | 自動（Vitest・全体） | 対象 SHA での全体実行 | **未確認**（`ci.yml` は PR 時のみ実行。main push では走らない） | §3 |
 | CI | `a6c1463` の E2E WebKit run の Gate | **FAIL**（R8 以外の 2 テスト。R8 の 14 実行は通過） | §3・§5 |
-| 自動 | Lunch Rush のブラウザ E2E（保存・復元） | **本書で追加し PASS**（以前は 0 本） | §4 |
+| 自動 | Lunch Rush のブラウザ E2E（保存・復元、G-1・G-4・G-5・G-6） | **本書で追加し PASS**（以前は 0 本。Chromium のみ。WebKit は PR の CI で初回確認） | §4 |
 | 実機・自動とも未確認 | E-5（実容量超過）、`unavailable`／`dropped`／`mismatch`／`oversize` の画面表示、実 iOS の `localStorage` 挙動 | **未確認**（E-5 は禁止のため実施しない） | PREP §5.1 |
 
 **実機 HV の総括：1 項目（B-1 の一部）のみ。HV 全体を PASS と判定できる状態ではありません。**
@@ -68,7 +68,7 @@ Owner 報告（原文の要旨）:
 
 Vitest の `pendingRound.lunchRush.test.ts`（9 本）が L-1 の規則を固定していたが、ブラウザ（実 `localStorage`・実リロード）で確かめるテストは 0 本だった。
 
-### 4.2 追加したテスト（最小の 3 本）`e2e/lunch-rush-r8-restore.spec.ts`
+### 4.2 追加したテスト（最小の 4 本）`e2e/lunch-rush-r8-restore.spec.ts`
 
 Lunch Rush 内で finite な在庫を消費させるため、注文を funghi（マッシュルーム。マルゲリータの材料は無限で消費されず、Lunch Rush の具材パレットにも他の材料は出ない）にしている。
 
@@ -77,9 +77,10 @@ Lunch Rush 内で finite な在庫を消費させるため、注文を funghi（
 | G-1 | 焼いて提供パネルで止めた時点で、保存のマッシュルーム在庫は焼成前のまま・図鑑は未登録・`pendingRound` なし。リロード後も同じで、「中断したピザ」通知は出ない |
 | G-4 | 「次の注文へ」（提供）で在庫の消費と登録が保存される（図鑑が 1→2）。リロードしても消費は戻らず、二重登録もない |
 | G-5 | 1 枚提供したあと 2 枚目を焼いて提供前にリロードすると、戻るのは 2 枚目の分だけ。提供済みの分は消費のまま |
+| G-6 | 1 枚提供したあと 2 枚目を焼き、提供せずに HOME で退出すると、戻るのは 2 枚目の分だけ（既知の例外）。保存は退出直後に焼成前＋提供済みの値で、未登録・`pendingRound` なし・通知なし。リロードしても同じ（退出とリロードが一致） |
 
-- 「アプリ内で提供せず退出（HOME／期限切れ）」＝ G-6（既知の例外）は Vitest のみのまま（最小化のため追加していない）。
-- 回帰検出の確認：`gameReducer.ts` の L-1 条件を一時的に外すと G-1 と G-5 が失敗（Expected 9 / Received 6、Expected 6 / Received 3）。G-4 は通過（想定どおり）。その変更は元に戻した（`git status` はテスト追加のみ）。
+- 期限切れ・新しい run での退出は Vitest のみ（`pendingRound.lunchRush.test.ts`）。ブラウザ E2E は HOME 退出（G-6）まで。
+- 回帰検出の確認（`gameReducer.ts` を一時的に変更し、その都度元に戻した。`src/` の差分なし）：L-1 の条件を外すと G-1 と G-5 が失敗（Expected 9 / Received 6、Expected 6 / Received 3）、G-4 は通過（想定どおり）。退出時の在庫返却を外すと G-6 が失敗（Expected 6 / Received 3）。
 - WebKit：このコンテナには WebKit がない。CI の WebKit shard での実行は PR 後に確認が必要（未確認）。
 
 ## 5. WebKit Gate の R8 以外の失敗 2 件（run 39901251967、`webkit-390x844`）
@@ -97,14 +98,14 @@ Lunch Rush 内で finite な在庫を消費させるため、注文を funghi（
 
 | 実行 | 結果 |
 |---|---|
-| Playwright Chromium `iphone-390x844` + `iphone-360x800`：`lunch-rush-r8-restore`（新規 3 本）、`r8-pending-round`（7 本）、`lunch-rush-material-shortage`（3 本） | **26 passed / 0 failed**（1.9 分） |
+| Playwright Chromium `iphone-390x844` + `iphone-360x800`：`lunch-rush-r8-restore`（新規 4 本 = 8 実行、54.5 秒）、`r8-pending-round`（7 本）と `lunch-rush-material-shortage`（3 本）（計 20 実行、1.2 分） | **28 passed / 0 failed** |
 | Vitest：`src/state/pendingRound*`・`roundNoticeCopy`（5 ファイル） | **90 passed** |
 | `oxlint e2e/lunch-rush-r8-restore.spec.ts` | 警告なし |
-| `tsc --noEmit`（新 spec のみ、strict） | エラーなし |
-| 一時的な回帰検証（L-1 を外す） | G-1・G-5 が失敗＝テストが効いている（元に戻して確認済み） |
+| `tsc --noEmit`（新 spec のみ、strict）、`tsc -b` | エラーなし |
+| 一時的な回帰検証（L-1 の条件、退出時の返却） | G-1・G-5・G-6 が失敗＝テストが効いている（元に戻して確認済み） |
 | 未実施 | Vitest 全体、WebKit、E2E 全体（長時間の再実行を避けるため） |
 
-## 7. 次に必要な実機操作（最小）
+## 7. 実機で確認できる残項目（参考。再実機検証は今回要求されていない）
 
 E-5・`hv-filler`・全ストレージ削除は行わない。共有 Preview は `a6c1463` のまま（再デプロイ不要）。
 
@@ -117,8 +118,7 @@ E-5・`hv-filler`・全ストレージ削除は行わない。共有 Preview は
 
 ## 8. Owner 判断が必要な事項
 
-1. 通知を再確認する実機 HV（上記 1〜2）を実施するか。未確認のまま R8 を完了扱いにするかの判断。
-2. `lunch-rush-r8-restore.spec.ts` の追加を PR にするか（PR 作成・merge は Owner 承認待ち。CI の WebKit shard での初回結果が未確認）。
+1. 復旧通知は未確認のまま。実機の再検証は今回要求しない（Owner 指示）。再検証するかは別途判断。
+2. `lunch-rush-r8-restore.spec.ts`（4 本）の merge 判断（PR は作成済み。merge は Owner 承認待ち。CI の WebKit shard での初回結果は PR で確認）。
 3. WebKit Gate の失敗 2 件を #394 に追記するか。`lunch-rush-material-shortage.spec.ts:82` を #562 側に関連付けるか。再実行（失敗 job のみ 1 回）をするか。
 4. 実機の範囲（PREP §8 未決 2：ホーム画面追加 H-2、実容量超過 E-5、未知版 journal E-6）。E-5 は今回も禁止のまま。
-5. G-6（アプリ内で提供せず退出）をブラウザ E2E に追加するか（現状は Vitest のみ）。

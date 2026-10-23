@@ -9,7 +9,7 @@ import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoug
  *   1. a pizza baked but NOT served is not saved as consumed -- a reload on the result screen leaves the stock as it was;
  *   2. serving is the commit point -- the consumption and the registration are saved, and a reload keeps them;
  *   3. after a serve, a second baked-but-unserved pizza is the only one outstanding: a reload keeps the served one consumed.
- * Leaving the run inside the app without serving (the Owner-approved exception, HV G-6) is still covered by Vitest only.
+ *   4. leaving the run inside the app (HOME) without serving gives the unserved pizza's stock back (the Owner-approved exception, HV G-6).
  * Starter ingredients (tomato sauce, mozzarella, basil) are unlimited and never consumed, so the order is funghi, whose mushrooms are a finite, consumed stock.
  * The Lunch Rush run itself is not persisted: a reload returns to HOME (no pendingRound journal is ever written for it).
  */
@@ -128,19 +128,46 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     await openRun(page);
     await bakeToServePanel(page);
 
-    // serve one, then bake a second one and leave without serving it
+    // serve one, then bake a second one and reload without serving it
     await page.getByRole("button", { name: "次の注文へ" }).click();
     await expect(page.locator(".making-step-tabs")).toBeVisible();
-    const servedOnion = (await readSave(page))?.inventory.mushroom ?? 0;
-    expect(servedOnion).toBeLessThan(MUSHROOM_STOCK);
+    const servedStock = (await readSave(page))?.inventory.mushroom ?? 0;
+    expect(servedStock).toBeLessThan(MUSHROOM_STOCK);
 
     await bakeToServePanel(page);
-    expect((await readSave(page))?.inventory.mushroom, "the second, unserved pizza is not saved as consumed").toBe(servedOnion);
+    expect((await readSave(page))?.inventory.mushroom, "the second, unserved pizza is not saved as consumed").toBe(servedStock);
 
     await page.reload();
     await page.waitForSelector(".app-frame");
     const after = await readSave(page);
-    expect(after?.inventory.mushroom, "only the unserved pizza is given back; the served one stays consumed").toBe(servedOnion);
+    expect(after?.inventory.mushroom, "only the unserved pizza is given back; the served one stays consumed").toBe(servedStock);
     expect(timesMade(after)).toBe(2);
+  });
+
+  test("G-6: leaving by HOME without serving gives the unserved pizza's stock back (known, Owner-approved exception); a served pizza stays consumed; a reload agrees", async ({ page }) => {
+    await openRun(page);
+    await bakeToServePanel(page);
+    await page.getByRole("button", { name: "次の注文へ" }).click();
+    await expect(page.locator(".making-step-tabs")).toBeVisible();
+    const servedStock = (await readSave(page))?.inventory.mushroom ?? 0;
+    expect(servedStock).toBeLessThan(MUSHROOM_STOCK);
+
+    await bakeToServePanel(page); // the second pizza is baked and its result is visible, but it is never served
+    page.on("dialog", (dialog) => void dialog.accept()); // HOME may ask for confirmation during a run
+    await page.getByRole("button", { name: /ホーム/ }).click();
+    await expect(page.locator(".home-screen")).toBeVisible();
+
+    const left = await readSave(page);
+    expect(left?.inventory.mushroom, "leaving puts only the unserved pizza's stock back").toBe(servedStock);
+    expect(timesMade(left), "the unserved pizza is not registered").toBe(2);
+    expect(left?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
+    await expect(page.locator('[data-round-notice="settled"]')).toHaveCount(0);
+
+    await page.reload();
+    await page.waitForSelector(".app-frame");
+    const after = await readSave(page);
+    expect(after?.inventory.mushroom, "the leave and a reload agree").toBe(servedStock);
+    expect(timesMade(after)).toBe(2);
+    expect(after?.pitzBalance).toBe(left?.pitzBalance);
   });
 });
