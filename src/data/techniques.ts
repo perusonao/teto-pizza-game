@@ -43,14 +43,14 @@ export const TECHNIQUES: readonly TechniqueDefinition[] = [
     riddleJa: "同じ具材でも、生地の仕立て方で違う一枚になることがあるよ。",
     descriptionJa: "空気を含んだ軽い食感が特徴の生地",
   },
-  // FIN-E2 (Issue #604; Owner 2026-10-21): the working name is 「後乗せ」; the riddle and the description are PLACEHOLDERS
-  // until the Owner decides UD-G (before E4). The riddle names neither the action nor the timing. Inert until a catalog target
-  // declares a `late` value (INV-TQ-4): no `RECIPES` entry does, so the affordance never opens and the Dex shows nothing.
+  // 後乗せ (Issue #604 / #621; Owner 2026-10-22: N1 name, D1 description, R1 riddle). The riddle names neither the action nor the timing and is shown
+  // from the affordance on; the description (which does say "after baking") is Dex-only, after the technique is discovered. Inert until a catalog
+  // target declares a `late` value (INV-TQ-4): in Production no `RECIPES` entry does, so the affordance never opens and the Dex shows nothing.
   {
     id: "late-addition",
     nameJa: "後乗せ",
     riddleJa: "同じ材料でも、ひと手間の加え方で違う一枚になることがあるよ。",
-    descriptionJa: "焼き上がりのあとに仕上げる調理法",
+    descriptionJa: "焼き上がったあとに、仕上げの具材をのせる調理法。香りや彩りが生きるよ。",
   },
 ];
 

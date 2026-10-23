@@ -1,3 +1,4 @@
+import { isInactiveLateRecipeId } from "./lateCatalog";
 import type { RecipeId } from "./recipes";
 
 /**
@@ -296,6 +297,8 @@ export const RECIPE_SAUCE_PROFILES = {
   "frango-catupiry": null,
   // Batch 8b: NO_SAUCE (cheese base, no spread sauce; the existing TQ-1D mechanic).
   "shirasu-pizza": null,
+  // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
+  "ikura-salmon-pizza": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */
@@ -307,5 +310,6 @@ export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile | 
 
 /** The NO_SAUCE recipe ids, derived from the sauce-profile authority (every `null` entry). */
 export function noSauceRecipeIds(): readonly NoSauceRecipeId[] {
-  return (Object.keys(RECIPE_SAUCE_PROFILES) as RecipeId[]).filter((id): id is NoSauceRecipeId => RECIPE_SAUCE_PROFILES[id] === null);
+  // A late-catalog recipe has a row in every build (type-keyed) but exists only when that catalog is enabled.
+  return (Object.keys(RECIPE_SAUCE_PROFILES) as RecipeId[]).filter((id): id is NoSauceRecipeId => RECIPE_SAUCE_PROFILES[id] === null && !isInactiveLateRecipeId(id));
 }

@@ -18,6 +18,7 @@ import {
   type IngredientCategory,
 } from "../data/ingredients";
 import { FREE_COOK_RECIPE } from "../data/freeCook";
+import { LATE_INGREDIENTS } from "../data/lateCatalog";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { EMPTY_DEX } from "../state/dex";
 import { createEmptyPizza } from "../state/pizzaState";
@@ -43,6 +44,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "hot-dog-slices",
   "shiso-leaf",
   "whitebait-school",
+  "salmon-roe-grains",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -667,5 +669,35 @@ describe("Batch 8b: shiso / whitebait dedicated art (production rows)", () => {
       const own = getIngredient(id)!.emoji;
       expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual([id]);
     }
+  });
+});
+
+/**
+ * FIN-E4b-ikura (Issue #621): the late-catalog `salmon-roe` is drawn by its own dedicated art (copied from the held PR #584), never by
+ * its emoji. It is not a production row while the late catalog is OFF, so it is exercised straight from `LATE_INGREDIENTS`.
+ */
+describe("FIN-E4b-ikura: salmon-roe dedicated art (late-catalog row)", () => {
+  const roe = LATE_INGREDIENTS.find((i) => i.id === "salmon-roe")!;
+
+  it("declares the dedicated visual and is not a production row while the late catalog is OFF", () => {
+    expect(roe.pieceVisual).toBe("salmon-roe-grains");
+    expect(INGREDIENTS.some((i) => i.id === "salmon-roe")).toBe(false);
+  });
+
+  it("draws an SVG on the glyph and on the placed piece, and never prints its emoji", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={roe} />, <IngredientPieceVisual key="p" ingredient={roe} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector('svg[data-ingredient-visual="salmon-roe-grains"]');
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      unmount();
+    }
+  });
+
+  it("its text fallback is shared with no production ingredient (G18)", () => {
+    expect(INGREDIENTS.filter((i) => i.emoji === roe.emoji).map((i) => i.id)).toEqual([]);
   });
 });

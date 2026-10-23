@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
-import { RECIPES } from "./recipes";
+import { RECIPES, type BaseRecipeId } from "./recipes";
 import { getReferencePizza } from "./referencePizza";
 import { createEmptyPizza } from "../state/pizzaState";
 import { evaluateDiscovery, matchDiscovery } from "../logic/discovery/matcher";
@@ -28,7 +28,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
     const phase2 = new Map(phase2Targets("SHIPPED_KEEP").map((t) => [t.targetId, t]));
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       if (t.recipeId === "brazilian-calabresa") continue; // PR-4b-B: production-only (no Phase-2 row)
-      const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId]);
+      const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();
       expect(t.items).toEqual([...expected!.items].sort());
       expect(t.capabilities).toEqual(expected!.capabilities);
@@ -76,7 +76,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       expect(evaluateDiscovery(signatureOfPizza(pizza), RECIPE_DISCOVERY_CATALOG, [])).toEqual({
         kind: "NEW_DISCOVERY",
         recipeId: recipe.id,
-        targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id],
+        targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id as BaseRecipeId],
       });
     }
   });

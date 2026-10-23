@@ -29,7 +29,8 @@ export type DedicatedIngredientVisual =
   | "sausage-slices"
   | "hot-dog-slices"
   | "shiso-leaf"
-  | "whitebait-school";
+  | "whitebait-school"
+  | "salmon-roe-grains";
 
 export interface Ingredient {
   id: string;

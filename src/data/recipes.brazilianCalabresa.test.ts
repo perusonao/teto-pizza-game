@@ -12,6 +12,7 @@ import { countsTowardLadder, getRecipe, participatesInLunchRush, RECIPES, type R
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
 import { buildHint5Ladder, isKeyFreeHintRoles } from "../logic/discovery/hint5Ladder";
 import { createDefaultSave } from "../state/persistence";
+import { activeRows } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Discovery 3.0 PR-4b-B: authoring pins for the 26th production recipe, `brazilian-calabresa`.
@@ -118,7 +119,7 @@ describe("brazilian-calabresa Hint: key-free, structure-derived rungs only", () 
   it("is key-free in the roles table (the 25 originals keep their keyed roles)", () => {
     expect(isKeyFreeHintRoles(RECIPE_HINT_ROLES[ID as Recipe["id"]])).toBe(true);
     expect(RECIPE_HINT_ROLES[ID as Recipe["id"]]).toEqual({ keyFree: true });
-    expect(Object.values(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(RECIPES.length - 25); // every recipe appended after the 25 originals is key-free (derived)
+    expect(activeRows(RECIPE_HINT_ROLES).filter(isKeyFreeHintRoles)).toHaveLength(RECIPES.length - 25); // every recipe appended after the 25 originals is key-free (derived)
   });
 
   it("has SAUCE, STRUCTURE, then one SUB_CLASS per topping: no KEY_TOPPING, no CHEESE, no empty rung", () => {

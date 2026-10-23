@@ -27,6 +27,7 @@ import {
   isValidLunchRushServeRecord,
 } from "../shared/lunchRushScoring";
 import { discoveredDex } from "./testSupport/guidedRound";
+import { withoutInactiveLate } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Progression 2.0 W1 I5b-3 activation (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md): the 10
@@ -84,7 +85,7 @@ describe("production tables: 32 recipes, one row each", () => {
   it("RECIPES, ORDERS, references, discovery targets and sauce profiles all cover the same 28 ids", () => {
     const ids = RECIPES.map((r) => r.id).sort();
     expect(ORDERS.map((o) => o.recipeId).sort()).toEqual(ids);
-    expect(Object.keys(RECIPE_SAUCE_PROFILES).sort()).toEqual(ids);
+    expect(withoutInactiveLate(Object.keys(RECIPE_SAUCE_PROFILES)).sort()).toEqual(ids);
     expect(Object.keys(RECIPE_DISCOVERY_TARGET_IDS).sort()).toEqual(ids);
     expect(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId).sort()).toEqual(ids);
     for (const id of ids) expect(getReferencePizza(id)?.recipeId).toBe(id);

@@ -3730,6 +3730,74 @@ export const SHIRASU_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Batch 8c: Reference Truth for `ikura-salmon-pizza` (NO_SAUCE: `sauce: null`). Pieces (cream-cheese 2 / salmon 3 / shiso 1 / salmon-roe 2 = 8) take
+ * the RT-01 8-piece ring consecutively in `requiredIngredients` order (shiso is a leafy herb: LIGHT_LEAF). Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
+ * not source authority.
+ */
+export const IKURA_SALMON_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "ikura-salmon-pizza",
+  sauce: computeMechanicalSauceReference("ikura-salmon-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "cream-cheese",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "salmon",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "shiso",
+      positions: [
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "salmon-roe",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
  * Batch 7a: Reference Truth for `new-zealand-lamb-pizza` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -3859,6 +3927,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [SPANISH_CHORIZO_PIZZA_REFERENCE.recipeId, SPANISH_CHORIZO_PIZZA_REFERENCE],
   [FRANGO_CATUPIRY_REFERENCE.recipeId, FRANGO_CATUPIRY_REFERENCE],
   [SHIRASU_PIZZA_REFERENCE.recipeId, SHIRASU_PIZZA_REFERENCE],
+  [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 

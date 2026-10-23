@@ -7,7 +7,7 @@ import { countsTowardLadder, participatesInLunchRush, RECIPES, type Recipe } fro
 import { appendLadderSteps, validateLadderProgression } from "../logic/discoveryLadder";
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
-import { lateCatalogEnabled, LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_RECIPES, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
+import { lateCatalogEnabled, LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_ORDERS, LATE_RECIPES, LATE_TAXONOMY_ROWS, LATE_TOPPING_SIZE_CLASS, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
 
 /**
  * FIN-E4 foundation (Owner D-3 = 案 1): the late catalog's single merge point. The real late arrays are EMPTY (the data is a later PR),
@@ -52,12 +52,30 @@ const validInput: LateCatalogInput = {
 };
 const BASE = { recipeIds: ["margherita"], ingredientIds: ["tomato-sauce", "mozzarella", "chicken"] };
 
-describe("the shipped late catalog holds no content yet", () => {
-  it("is empty everywhere (E4 data is a separate PR)", () => {
-    expect(LATE_RECIPES).toHaveLength(0);
-    expect(LATE_INGREDIENTS).toHaveLength(0);
-    expect(LATE_LADDER_STEPS).toHaveLength(0);
-    expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toHaveLength(0);
+describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
+  it("holds exactly ikura-salmon-pizza and salmon-roe, and the production switch stays OFF", () => {
+    expect(lateCatalogEnabled()).toBe(false);
+    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza"]);
+    expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe"]);
+    expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza"]);
+    expect(LATE_DISCOVERY_TARGET_IDS["ikura-salmon-pizza"]).toBe("ikura-salmon-pizza-pizzadb-p1");
+  });
+  it("only the roe and the shiso are post-bake; salmon and cream cheese are the provisional pre-bake default; counts and window as authored", () => {
+    const [recipe] = LATE_RECIPES;
+    const phases = Object.fromEntries(recipe.requiredIngredients.map((r) => [r.ingredientId, ("applicationPhase" in r ? r.applicationPhase : "PRE_BAKE") as string]));
+    expect(phases).toEqual({ "cream-cheese": "PRE_BAKE", salmon: "PRE_BAKE", "salmon-roe": "POST_BAKE", shiso: "POST_BAKE" });
+    expect(recipe.requiredIngredients.map((r) => [r.ingredientId, r.minCount])).toEqual([["cream-cheese", 2], ["salmon", 3], ["salmon-roe", 2], ["shiso", 1]]);
+    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.lunchRush).toBe(false);
+  });
+  it("the late ladder step is keyed to ikura, carries no number and no star gate", () => {
+    expect(LATE_LADDER_STEPS).toEqual([{ ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" }]);
+  });
+  it("the late ingredient is ladder-gated (never a Starter) and its order, taxonomy row and size class ride the same switch", () => {
+    expect(LATE_INGREDIENTS[0].unlockCondition).toBeDefined();
+    expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza"]);
+    expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"]]);
+    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs" });
   });
 });
 
