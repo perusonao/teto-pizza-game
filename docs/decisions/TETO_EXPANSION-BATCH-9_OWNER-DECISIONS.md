@@ -22,6 +22,10 @@ Status: **決定の記録と着手条件の整理のみ（docs-only）。** ゲ�
 | **OD-B9-10（新）** | #578 claim は **Owner 承認の代理 release（方式 A）**。投稿に「元セッション本人の解除ではない」「#634 は merge 済み」「Owner 承認による引き継ぎ」を明記 |
 | **OD-B9-11（新）** | 原典確認は **Owner からのページ内容共有を優先**。未確認事項は推測で埋めない。柚子えびは原典確認まで保留を継続 |
 | **OD-B9-12（新）** | 月見は**保留継続（恒久見送りにはしない）**。OD-DH4-2-9 は**改訂しない**、`other` family は**再分類しない**。次の追加候補は**四川風ナス**。四川風ナスを含む DH4 事前検証を**1 回だけ**承認（実施済み）。**原典未確認のまま実装 PR は作らない**。step 56 は予約しない |
+| **OD-B9-13（新）** | 四川風ナスは**条件付き GO、ただし原典 Q1〜Q4 の確認まで実装 HOLD**。確認までは**新規 claim・実装 PR・ladder 登録を行わない** |
+| **OD-B9-14（新）** | DH4 production gate **14/14 PASS を正式記録**（四川風ナス追加の scratch 検証、main `485c515`）。hardened guard の**漏えいゼロは絶対条件**として維持 |
+| **OD-B9-15（新）** | `deductionGuard.gate` の旧ガード件数ピン 156→123 は、**実装 PR で原因を確認したうえで再測定・更新してよい。単純な数値置換だけで済ませない**（§5.6） |
+| **OD-B9-16（新）** | 原典で**焼成後投入・炒める工程**が確認された場合は、**通常 ladder に入れず、新工程対応の候補として再分類**する（§5.6）。月見は HOLD 継続、DH4 の緩和・食材 family の変更はしない |
 
 OD-B9-3 の適用範囲は `green-onion` の 1 行のみ（他の PROPOSED 行は承認しない）。glyph は表示しない text fallback で、G18 を満たすものを実装時に選ぶ。
 
@@ -151,7 +155,22 @@ pizzadb.jp は本セッション環境から到達不可（`CONNECT tunnel faile
 
 ## 5.4 四川風ナスの DH4 事前検証（実施済み）
 
-結果は `docs/reports/TETO_RECIPE-EXPANSION_SICHUAN-EGGPLANT_DH4-Preflight.md`: DH4 production gate **14/14 pass**（OD-DH4-2-9 を含む）、deduction guard 関連 7 ファイルで 113/114（`deductionGuard.gate` の旧ガード漏えい件数ピン 156 → 123 の 1 件のみ。hardened ガードの漏えいは 0 のまま）。実装可否・原典確認 Q1〜Q6・Owner 判断はそのレポート §5〜6。
+結果は `docs/reports/TETO_RECIPE-EXPANSION_SICHUAN-EGGPLANT_DH4-Preflight.md`: DH4 production gate **14/14 pass**（OD-DH4-2-9 を含む。OD-B9-14 で正式記録）、deduction guard 関連 7 ファイルで 113/114（`deductionGuard.gate` の旧ガード漏えい件数ピン 156 → 123 の 1 件のみ。hardened ガードの漏えいは 0 のまま）。実装可否・原典確認 Q1〜Q6・Owner 判断はそのレポート §5〜6。
+
+## 5.6 四川風ナス: 原典確認後の判定手順と実装 PR での条件
+
+追加の CI・scratch gate・コード変更・Preview 操作は行わない。**原典（Q1〜Q4。ページ内容は Owner が共有）が未提供のため、「既存工程だけで可能か / 新工程が要るか」の判定は未実施。** 判定表（確認後に埋める）:
+
+| 原典の結果 | 判定 | 扱い |
+|---|---|---|
+| Q1 青ねぎが焼成前（または仕上げの記載なし）かつ Q2 豆板醤を生地に塗る かつ Q3 ナスを生で載せる／事前調理の記載なし かつ Q4 材料一致 | **既存工程だけで可能** | 通常 ladder（2 材料 1 step）。実装 PR の条件は下記 |
+| Q1 青ねぎが**焼成後** | **後乗せ（FINISH / late catalog）が必要** | 通常 ladder に入れない。新工程対応の候補として再分類（E5 待ち、`green-onion` は late ingredient。OD-B9-3 の仕様は維持） |
+| Q2 豆板醤を**炒める**（具と合わせて加熱） | **下ごしらえ（`PREP_STEP`）が必要** | 通常 ladder に入れない。再分類（新工程 Epic） |
+| Q3 ナスを事前に焼く・揚げる・炒める | 同上（下ごしらえ） | 同上 |
+| Q4 材料に過不足 | 識別集合が変わる | 衝突・Research・ladder・DH4 を再検証してから再判定 |
+| 豆板醤が焼成後にかけるソース | ソース後乗せ（#579 / #518 前提） | 実装不可。再分類 |
+
+**実装 PR での `deductionGuard.gate` 件数ピン（OD-B9-15）**: 原因確認を必須とする。最低限、(a) 実装と同じデータで 156→新値を再測定し、(b) `green-onion`（topping）と `doubanjiang`（sauce）のどちらが件数を動かすかを**分離して**確認（追加なし / topping のみ / sauce のみ / 両方）、(c) 合成 family が本番 TOPPINGS から切り出される仕様（テスト内コメント）と一致する説明を PR 本文に書く、(d) hardened の `expect(leakPriors(HARDENED, …)).toEqual([])` が全状態で通ることを同じ run で確認、(e) 他の gate 定数を変更しない。これらを満たさない単純置換は不可。
 
 ## 5.5 月見の保留解除に要るもの
 

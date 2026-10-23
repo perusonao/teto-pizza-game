@@ -83,3 +83,7 @@ OD-DH4-2-9「その他は到達不能」（`attr:*:other` が答えられない�
 2. **`deductionGuard.gate` の件数ピン**: 実装 PR で 156 → 再測定値へ更新する前例運用でよいか（hardened の `toEqual([])` は不変で、プライバシー性質は変わらない）。それとも、更新前に Owner が個別に確認するか。
 3. 新しい実装 claim の投稿者と、着手 GO（原典確認後）。
 4. 月見は保留継続のまま（解除条件は OD-DH4-2-9 を触らない形で別途検討）。
+
+## 7. Owner 判断の反映（2026-10-23、追記）
+
+DH4 production gate 14/14 PASS を正式記録（OD-B9-14）。件数ピン 156→123 は実装 PR で原因（topping / sauce の分離を含む）を確認して再測定・更新してよい（単純置換は不可、OD-B9-15）。hardened guard の漏えいゼロは絶対条件。原典 Q1〜Q4 の確認まで新規 claim・実装 PR・ladder 登録はしない（OD-B9-13）。焼成後投入・炒める工程が確認されたら通常 ladder に入れず新工程候補へ再分類（OD-B9-16）。判定手順は `docs/decisions/TETO_EXPANSION-BATCH-9_OWNER-DECISIONS.md` §5.6。
