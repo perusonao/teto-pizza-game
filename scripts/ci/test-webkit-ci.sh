@@ -416,6 +416,26 @@ wf="$here/../../.github/workflows/e2e-webkit.yml"
 grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
 check "workflow: WebKit install step uses the retry helper" 0 $?
 grep -q -- '--apt-tuning' "$wf"; check "workflow: the install step enables --apt-tuning" 0 $?
+grep -q -- '--apt-cache-dir "\$HOME/apt-archives"' "$wf"; check "workflow: the install step passes --apt-cache-dir (#643)" 0 $?
+grep -q 'actions/cache/restore@v4' "$wf" && grep -q 'actions/cache/save@v4' "$wf"; check "workflow: apt .deb cache uses restore + save (#643)" 0 $?
+grep -A2 'Save apt .deb cache' "$wf" | grep -q "github.event_name == 'push'"; check "workflow: the apt cache is saved only by push (main) runs (#643)" 0 $?
+# #643 cache dir + integrity guard (hermetic: real dpkg-deb on tiny debs built here)
+if command -v dpkg-deb > /dev/null 2>&1; then
+  g="$work/aptcache"; mkdir -p "$g" "$work/pkg/DEBIAN"
+  for n in a b c; do
+    printf 'Package: t%s\nVersion: 1\nArchitecture: all\nMaintainer: t <t@t>\nDescription: t\n' "$n" > "$work/pkg/DEBIAN/control"
+    mkdir -p "$work/pkg/usr/share/t$n"; head -c 20000 /dev/urandom > "$work/pkg/usr/share/t$n/f"
+    dpkg-deb -b "$work/pkg" "$g/t${n}_1_all.deb" > /dev/null 2>&1
+  done
+  sz=$(stat -c %s "$g/tb_1_all.deb"); head -c 4096 /dev/zero | dd of="$g/tb_1_all.deb" bs=1 seek=100 conv=notrunc 2> /dev/null # same size, zeroed block
+  check "cache guard: corrupt fixture keeps its size" "$sz" "$(stat -c %s "$g/tb_1_all.deb")"
+  INSTALL_APT_CONF="$work/apt.d/99-cache" retry "$work/s18" --apt-cache-dir "$g" --timeout 5 --attempts 1 -- true > /dev/null; cp "$work/retry.out" "$work/guard.out"
+  check "cache guard: the unreadable .deb is removed, the others are kept" "ta_1_all.deb tc_1_all.deb" "$(cd "$g" && ls *.deb | tr '\n' ' ' | sed 's/ $//')"
+  check "cache guard: drop-in sets Dir::Cache::Archives" 1 "$(grep -c "^Dir::Cache::Archives \"$g\";\$" "$work/apt.d/99-cache")"
+  check "cache guard: reported checked=3 removed=1" 1 "$(grep -c 'checked=3 removed=1' "$work/guard.out")"
+  INSTALL_APT_CONF="$work/apt.d/99-cache2" retry "$work/s19" --apt-cache-dir "$work/empty-cache" --timeout 5 --attempts 1 -- true > /dev/null; cp "$work/retry.out" "$work/guard2.out"
+  check "cache guard: an empty/missing cache dir is a normal install (exit 0, checked=0)" 1 "$(grep -c 'checked=0 removed=0' "$work/guard2.out")"
+fi
 grep -n 'install-with-retry' "$wf" | grep -q 'playwright test'
 check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
 grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
