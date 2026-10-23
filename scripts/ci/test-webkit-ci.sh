@@ -416,6 +416,26 @@ wf="$here/../../.github/workflows/e2e-webkit.yml"
 grep -q 'install-with-retry.sh' "$wf" && grep -q -- '-- npx playwright install --with-deps webkit' "$wf"
 check "workflow: WebKit install step uses the retry helper" 0 $?
 grep -q -- '--apt-tuning' "$wf"; check "workflow: the install step enables --apt-tuning" 0 $?
+grep -q -- '--apt-cache-dir "\$HOME/apt-archives"' "$wf"; check "workflow: the install step passes --apt-cache-dir (#643)" 0 $?
+grep -q 'actions/cache/restore@v4' "$wf" && grep -q 'actions/cache/save@v4' "$wf"; check "workflow: apt .deb cache uses restore + save (#643)" 0 $?
+grep -A2 'Save apt .deb cache' "$wf" | grep -q "github.event_name == 'push'"; check "workflow: the apt cache is saved only by push (main) runs (#643)" 0 $?
+# #643 cache dir + integrity guard (hermetic: real dpkg-deb on tiny debs built here)
+if command -v dpkg-deb > /dev/null 2>&1; then
+  g="$work/aptcache"; mkdir -p "$g" "$work/pkg/DEBIAN"
+  for n in a b c; do
+    printf 'Package: t%s\nVersion: 1\nArchitecture: all\nMaintainer: t <t@t>\nDescription: t\n' "$n" > "$work/pkg/DEBIAN/control"
+    mkdir -p "$work/pkg/usr/share/t$n"; head -c 20000 /dev/urandom > "$work/pkg/usr/share/t$n/f"
+    dpkg-deb -b "$work/pkg" "$g/t${n}_1_all.deb" > /dev/null 2>&1
+  done
+  sz=$(stat -c %s "$g/tb_1_all.deb"); head -c 4096 /dev/zero | dd of="$g/tb_1_all.deb" bs=1 seek=100 conv=notrunc 2> /dev/null # same size, zeroed block
+  check "cache guard: corrupt fixture keeps its size" "$sz" "$(stat -c %s "$g/tb_1_all.deb")"
+  INSTALL_APT_CONF="$work/apt.d/99-cache" retry "$work/s18" --apt-cache-dir "$g" --timeout 5 --attempts 1 -- true > /dev/null; cp "$work/retry.out" "$work/guard.out"
+  check "cache guard: the unreadable .deb is removed, the others are kept" "ta_1_all.deb tc_1_all.deb" "$(cd "$g" && ls *.deb | tr '\n' ' ' | sed 's/ $//')"
+  check "cache guard: drop-in sets Dir::Cache::Archives" 1 "$(grep -c "^Dir::Cache::Archives \"$g\";\$" "$work/apt.d/99-cache")"
+  check "cache guard: reported checked=3 removed=1" 1 "$(grep -c 'checked=3 removed=1' "$work/guard.out")"
+  INSTALL_APT_CONF="$work/apt.d/99-cache2" retry "$work/s19" --apt-cache-dir "$work/empty-cache" --timeout 5 --attempts 1 -- true > /dev/null; cp "$work/retry.out" "$work/guard2.out"
+  check "cache guard: an empty/missing cache dir is a normal install (exit 0, checked=0)" 1 "$(grep -c 'checked=0 removed=0' "$work/guard2.out")"
+fi
 grep -n 'install-with-retry' "$wf" | grep -q 'playwright test'
 check "workflow: no Playwright test command is wrapped by the retry helper" 1 $?
 grep -Eq '^\s*retries:\s*[1-9]|--retries' "$wf" "$here/../../playwright.config.ts"
@@ -441,6 +461,23 @@ check "budget: negative control -- the pre-fix numbers (13 min step cap, 300 s w
 check "budget: negative control -- a wait before the first attempt too (180 + 947 = 1127 s) would not fit the 17 min cap" no \
   "$([ $((install_cap * 60)) -ge $((b_wait + worst)) ] && echo yes || echo no)"
 check "workflow: webkit job cap fits setup (1) + install step cap + longest shard (16 incl. list/margin)" yes "$([ "$job_cap" -ge $((install_cap + 17)) ] && echo yes || echo "no (job $job_cap, install $install_cap)")"
+
+# #394 layout-chromium: the Chromium install uses the same helper + apt cache; its step cap must cover the helper's worst case and the job cap the step.
+lc_job=$(awk '/^  layout-chromium:$/{j=1} j&&/timeout-minutes:/{print $2; exit}' "$wf")
+lc_blk=$(awk '/^  layout-chromium:$/{j=1;next} j&&/^  [a-z]/{exit} j' "$wf")
+lc_cap=$(awk '/Install Chromium \(with system deps/{f=1} f&&/timeout-minutes:/{print $2; exit}' <<< "$lc_blk")
+lc_attempts=$(awk '/Install Chromium \(with system deps/{f=1} f&&/--attempts/{for(i=1;i<=NF;i++) if($i=="--attempts") print $(i+1); exit}' <<< "$lc_blk")
+lc_timeout=$(awk '/Install Chromium \(with system deps/{f=1} f&&/--timeout/{for(i=1;i<=NF;i++) if($i=="--timeout") print $(i+1); exit}' <<< "$lc_blk")
+check "layout-chromium: parsed attempts/timeout/step cap/job cap" "2 240 12 20" "$lc_attempts $lc_timeout $lc_cap $lc_job"
+lc_worst=$(worst_case "$lc_attempts" "$lc_timeout" "$b_kill" "$b_delay" "$b_wait" "$b_reap")
+check "layout-chromium: helper worst case (707 s) fits the install step cap" yes "$([ $((lc_cap * 60)) -ge "$lc_worst" ] && echo yes || echo "no (worst ${lc_worst}s, cap $((lc_cap * 60))s)")"
+check "layout-chromium: job cap fits setup + install step cap + tests (6 min)" yes "$([ "$lc_job" -ge $((lc_cap + 6)) ] && echo yes || echo "no (job $lc_job, install $lc_cap)")"
+grep -q -- '-- npx playwright install --with-deps chromium' <<< "$lc_blk" && grep -q 'install-with-retry.sh' <<< "$lc_blk" && grep -q -- '--apt-cache-dir' <<< "$lc_blk"
+check "layout-chromium: install uses the retry helper with --apt-cache-dir" 0 $?
+grep -q 'apt-chromium-deps' <<< "$lc_blk" && grep -A3 'Save apt .deb cache (Chromium' <<< "$lc_blk" | grep -q "github.event_name == 'push'"
+check "layout-chromium: own cache key, saved only by push runs" 0 $?
+grep -n 'install-with-retry' <<< "$lc_blk" | grep -q 'playwright test'
+check "layout-chromium: no Playwright test command is wrapped by the retry helper" 1 $?
 
 echo "== 8. S2 FAIL-INFRA / FAIL-TEST classification (install_status -> evidence -> WebKit Gate)"
 # Real chain: helper writes the status file -> collect records it -> gate labels the verdict.
