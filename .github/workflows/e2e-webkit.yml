@@ -296,10 +296,13 @@ jobs:
     needs: classify
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 20, not 10: the job has to fit setup (~1.5 min) + the install step's own cap (12 min, below) + list/run (~3 min measured) + margin.
+    # At 10, a slow Ubuntu mirror (25.9 MB of Chromium system deps at ~70 KB/s, main run 39993155550) cancelled the job inside the install.
+    timeout-minutes: 20
     env:
       LIST_JSON: ${{ github.workspace }}/../layout-list.json
       RESULTS_JSON: ${{ github.workspace }}/../layout-results.json
+      INSTALL_STATUS_FILE: ${{ github.workspace }}/../layout-install-status.txt
     steps:
       - uses: actions/checkout@v4
 
@@ -316,8 +319,35 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Chromium (with system deps)
-        run: npx playwright install --with-deps chromium
+      # #643 / #394: the same apt .deb cache + integrity guard as the WebKit install (see the comment there), for Chromium's own, smaller
+      # dependency set (key apt-chromium-deps-*). A miss, a damaged file or a cache-service error is a normal install; the install is bounded
+      # (240 s x 2 attempts, scripts/ci/install-with-retry.sh: worst case 2 x (240 + 15) + 197 = 707 s <= the 12 min step cap, pinned by
+      # scripts/ci/test-webkit-ci.sh). Only the install is retried; the Layout Contract test below never is.
+      - name: apt cache key (Chromium)
+        run: echo "APT_CACHE_KEY=apt-chromium-deps-${{ runner.os }}-${ImageVersion:-unknown}-${{ hashFiles('package-lock.json') }}" >> "$GITHUB_ENV"
+
+      - name: Restore apt .deb cache (Chromium)
+        id: apt-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/apt-archives/*.deb
+          key: ${{ env.APT_CACHE_KEY }}
+
+      - name: Install Chromium (with system deps; timeout + 1 retry)
+        timeout-minutes: 12
+        run: >-
+          bash scripts/ci/install-with-retry.sh
+          --status-file "$INSTALL_STATUS_FILE" --timeout 240 --attempts 2 --apt-tuning
+          --apt-cache-dir "$HOME/apt-archives"
+          -- npx playwright install --with-deps chromium
+
+      - name: Save apt .deb cache (Chromium; main push, cache miss only)
+        if: ${{ github.event_name == 'push' && steps.apt-cache.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/apt-archives/*.deb
+          key: ${{ env.APT_CACHE_KEY }}
 
       - name: Browser installation proof
         run: |
