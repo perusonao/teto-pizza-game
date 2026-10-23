@@ -1,0 +1,52 @@
+/* Square Dough UX (#536, AB-min): the gap guide (bare cells tinted, an arrow into the largest gaps) and the "reached, but STEP 1 is not done"
+   look of a corner tick. Its own file on purpose: D2-b2 / D2-b1 edit squarePanStage.css and App.css's pan rules, and this must not share a hunk with them. */
+.square-gap-guide {
+  pointer-events: none;
+}
+.square-gap-guide__tint rect {
+  fill: rgba(255, 196, 92, 0.34);
+  animation: square-gap-pulse 1.6s ease-in-out infinite;
+}
+.square-gap-guide__line {
+  fill: none;
+  stroke: #fffbe6;
+  stroke-width: 1.4;
+  stroke-dasharray: 2.4 2;
+  stroke-linecap: round;
+  opacity: 0.95;
+}
+.square-gap-guide__head {
+  fill: #fffbe6;
+}
+.square-gap-guide__start {
+  fill: #fff;
+  stroke: #8a4b18;
+  stroke-width: 0.9;
+}
+@keyframes square-gap-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .square-gap-guide__tint rect {
+    animation: none;
+  }
+}
+
+/* A corner that is reached while STEP 1 is still open: an outlined ring with a green tick -- "this corner is there", not the solid green of
+   "STEP 1 is done" (which a corner takes only once STEP 2 has opened). The doubled class beats App.css's `.square-dough-layer__corner circle`, which loads after this file. */
+.square-dough-layer__corner.square-dough-layer__corner--reached-pending circle {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: #3f9d4b;
+  stroke-width: 1.1;
+  stroke-dasharray: none;
+  animation: none;
+}
+.square-dough-layer__corner.square-dough-layer__corner--reached-pending path {
+  stroke: #3f9d4b;
+}

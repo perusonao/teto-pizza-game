@@ -11,14 +11,20 @@
  * The text carries the count and the story; the pan itself carries the picture (corner marks, drag hints -- SquareDoughLayer).
  */
 import type { SquareDough } from "../logic/pan/squareDough";
+import { isGapGuideActive } from "../logic/pan/squareDoughGaps";
+import { smoothnessText } from "../logic/pan/squareDoughView";
 import { useSquareProgress } from "./useSquareProgress";
 
 export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough }) {
   const { live, committed: p } = useSquareProgress(fallbackDough);
   const step1State = p.step === 1 ? "now" : "done";
   const step2State = p.step === 1 ? "next" : "now";
+  // All four corners reached but the coverage bar is not: the corners are not the goal any more, the bare places are (AB-min). Same line, no new row.
+  const gaps = isGapGuideActive(live, p.step);
   const goal = p.step === 1
-    ? `なぞって、生地を四隅まで伸ばそう（四隅 ${live.cornersReached}/4）`
+    ? gaps
+      ? `すき間をうめよう（ひろがり ${smoothnessText(live.coverage)}）`
+      : `なぞって、生地を四隅まで伸ばそう（四隅 ${live.cornersReached}/4）`
     : p.complete
       ? "できあがり！「次へ」で形が決まります"
       : "盛り上がった濃いところを押して、平らにしよう";
@@ -29,6 +35,7 @@ export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough
       data-step={p.step}
       data-complete={p.complete ? "true" : "false"}
       data-corners={live.cornersReached}
+      data-gaps={gaps ? "true" : "false"}
     >
       <ol className="square-dough-steps__list" aria-label="生地の2だんかい">
         <li
@@ -59,9 +66,11 @@ export function SquareDoughSteps({ fallbackDough }: { fallbackDough: SquareDough
 }
 
 export function SquareDoughNext({ fallbackDough }: { fallbackDough: SquareDough }) {
-  const { committed: p } = useSquareProgress(fallbackDough);
+  const { live, committed: p } = useSquareProgress(fallbackDough);
   const text = p.step === 1
-    ? "四隅まで伸びたら、つぎは「厚みを整える」"
+    ? isGapGuideActive(live, p.step)
+      ? "天板いっぱいに広がったら、つぎは「厚みを整える」"
+      : "四隅まで伸びたら、つぎは「厚みを整える」"
     : p.complete
       ? "「次へ」を押すまで、まだ整えられるよ"
       : "平らになったら「次へ」が使えるよ";
