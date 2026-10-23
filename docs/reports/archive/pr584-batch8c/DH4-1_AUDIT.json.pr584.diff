@@ -1,0 +1,165 @@
+diff --git a/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json b/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json
+index a9dae94..211edec 100644
+--- a/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json
++++ b/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json
+@@ -95,7 +95,7 @@
+   "catalogComparisonCandidates": {
+    "family": 3,
+    "group": 3,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 1,
+@@ -169,7 +169,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 8,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 2,
+@@ -211,7 +211,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 8,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 2,
+@@ -322,8 +322,8 @@
+   },
+   "catalogComparisonCandidates": {
+    "family": 7,
+-   "group": 15,
+-   "category": 49
++   "group": 16,
++   "category": 50
+   },
+   "bits": {
+    "material": 2.58,
+@@ -362,8 +362,8 @@
+   },
+   "catalogComparisonCandidates": {
+    "family": 10,
+-   "group": 18,
+-   "category": 51
++   "group": 19,
++   "category": 52
+   },
+   "bits": {
+    "material": 3.17,
+@@ -402,8 +402,8 @@
+   },
+   "catalogComparisonCandidates": {
+    "family": 10,
+-   "group": 18,
+-   "category": 51
++   "group": 19,
++   "category": 52
+   },
+   "bits": {
+    "material": 3.32,
+@@ -447,7 +447,7 @@
+   "catalogComparisonCandidates": {
+    "family": 20,
+    "group": 22,
+-   "category": 49
++   "category": 50
+   },
+   "bits": {
+    "material": 3.32,
+@@ -491,7 +491,7 @@
+   "catalogComparisonCandidates": {
+    "family": 20,
+    "group": 22,
+-   "category": 49
++   "category": 50
+   },
+   "bits": {
+    "material": 3.46,
+@@ -528,7 +528,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 8,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 3.91,
+@@ -565,7 +565,7 @@
+   "catalogComparisonCandidates": {
+    "family": 6,
+    "group": 7,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 4,
+@@ -605,7 +605,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 8,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 4,
+@@ -645,7 +645,7 @@
+   "catalogComparisonCandidates": {
+    "family": 21,
+    "group": 23,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 4.09,
+@@ -684,7 +684,7 @@
+   "catalogComparisonCandidates": {
+    "family": 20,
+    "group": 22,
+-   "category": 50
++   "category": 51
+   },
+   "bits": {
+    "material": 4.17,
+@@ -758,7 +758,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 8,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 4.32,
+@@ -798,7 +798,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 8,
+-   "category": 51
++   "category": 52
+   },
+   "bits": {
+    "material": 4.39,
+@@ -837,8 +837,8 @@
+   },
+   "catalogComparisonCandidates": {
+    "family": 10,
+-   "group": 18,
+-   "category": 51
++   "group": 19,
++   "category": 52
+   },
+   "bits": {
+    "material": 4.46,
+@@ -909,7 +909,7 @@
+   "catalogComparisonCandidates": {
+    "family": 7,
+    "group": 7,
+-   "category": 49
++   "category": 50
+   },
+   "bits": {
+    "material": 4.52,

@@ -1,0 +1,148 @@
+diff --git a/src/data/discoveryLadder.test.ts b/src/data/discoveryLadder.test.ts
+index 900830d..4be7d18 100644
+--- a/src/data/discoveryLadder.test.ts
++++ b/src/data/discoveryLadder.test.ts
+@@ -45,15 +45,28 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
+   it("the production ladder equals the REC-04 key-recipe rule applied append-only to the production recipe data", () => {
+     // LAD-1 (OD-W2-1): the W1 steps are frozen; the rule only ever appends after them.
+     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
+-    // parsley), so steps 1-51 are frozen as `fixed`: only steps 52-53 (Batch 7a) are derived.
+-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
++    // parsley), so steps 1-54 are frozen as `fixed`: only step 55 (Batch 8c) is derived (re-deriving from step 52 would reorder the frozen steps 53-54 on the recipe-id tie-break).
++    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 54) };
+     expect(fixed47.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
+     const derived = buildAppendOnlyLadder(fixed47, PRODUCTION_POPULATION);
+-    // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived steps 52-53 (Batch 7a) have none.
++    // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (Batch 8c) has none.
+     expect(DISCOVERY_LADDER).toEqual(derived);
+     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
+   });
+ 
++  it("steps 52-54 are still derived by the rule from the Batch 8b-time population (the previous, wider derivation check is kept, not dropped)", () => {
++    // The test above freezes steps 1-54 out of `DISCOVERY_LADDER` itself, so by construction it cannot see a change to steps 52-54 (Batch 8c review, P2). This one keeps the earlier check:
++    // steps 1-51 fixed, the recipes up to and including shirasu-pizza (the population when step 54 was the last), steps 52-54 derived and compared with the production steps.
++    const fixed51 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
++    const population8b = PRODUCTION_POPULATION.slice(0, RECIPES.findIndex((r) => r.id === "shirasu-pizza") + 1);
++    const derived = buildAppendOnlyLadder(fixed51, population8b);
++    expect(derived.steps).toEqual(DISCOVERY_LADDER.steps.slice(0, 54));
++    // Sensitivity (negative control): exchanging steps 52 and 53, renumbered, is NOT what the rule derives.
++    const swapped = DISCOVERY_LADDER.steps.slice(0, 54).map((s) => ({ ...s }));
++    [swapped[51], swapped[52]] = [{ ...swapped[52], step: 52 }, { ...swapped[51], step: 53 }];
++    expect(derived.steps).not.toEqual(swapped);
++  });
++
+   it("is structurally valid (steps 1..n in order, known kind, no duplicate material)", () => {
+     expect(validateDiscoveryLadder(SHIPPED_15_DISCOVERY_LADDER)).toEqual([]);
+   });
+diff --git a/src/logic/discovery/selectableHint.test.ts b/src/logic/discovery/selectableHint.test.ts
+index ec6c2be..49b8b1d 100644
+--- a/src/logic/discovery/selectableHint.test.ts
++++ b/src/logic/discovery/selectableHint.test.ts
+@@ -85,6 +85,13 @@ function allKeys(value: unknown, out: string[] = []): string[] {
+   return out;
+ }
+ 
++/** True when the serialization names ingredient `id` as a whole id: `"id"` or `ing:id` NOT followed by more id characters. A bare substring test also matched a longer id that merely starts
++ *  with it (`ing:salmon` inside the free key chip `ing:salmon-roe`, Batch 8c), which is a false positive, not a leak. Exact ids are still caught. */
++function mentionsIngredient(json: string, id: string): boolean {
++  const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
++  return json.includes(`"${id}"`) || new RegExp(`ing:${escaped}(?![\\w-])`).test(json);
++}
++
+ /** FREE LEAK check over the pre-purchase presentation of every target: one shared structure, no
+  *  structural field, and no unrevealed or reserved ingredient anywhere in it. */
+ function freeLeakViolations(present: (m: SelectableHintModel) => unknown): string[] {
+@@ -96,7 +103,7 @@ function freeLeakViolations(present: (m: SelectableHintModel) => unknown): strin
+     const json = JSON.stringify(p);
+     for (const key of allKeys(p)) if (key !== "paidCount" && FORBIDDEN_KEY.test(key)) violations.push(`${recipe.id}: field ${key}`);
+     const hidden = [m.reservedIngredientId, ...ids(m.purchasableFacts)].filter((id): id is string => !!id);
+-    for (const id of hidden) if (json.includes(`"${id}"`) || json.includes(`ing:${id}`)) violations.push(`${recipe.id}: hidden ${id}`);
++    for (const id of hidden) if (mentionsIngredient(json, id)) violations.push(`${recipe.id}: hidden ${id}`);
+     const s = structureWithoutKey(p);
+     structures.set(s, [...(structures.get(s) ?? []), recipe.id]);
+   }
+@@ -222,6 +229,16 @@ describe("Rule W (OD-H3-5)", () => {
+   });
+ });
+ 
++describe("free-leak id matching (Batch 8c: a key chip whose id extends a hidden id is not a leak)", () => {
++  it("matches whole ids only: exact leaks are caught, a longer id with the same prefix is not", () => {
++    expect(mentionsIngredient('{"id":"ing:salmon-roe"}', "salmon")).toBe(false);
++    expect(mentionsIngredient('{"id":"ing:salmon-roe"}', "salmon-roe")).toBe(true);
++    expect(mentionsIngredient('{"id":"ing:salmon"}', "salmon")).toBe(true);
++    expect(mentionsIngredient('{"ingredientId":"salmon"}', "salmon")).toBe(true);
++    expect(mentionsIngredient('{"x":"ing:salmon,ing:cream-cheese"}', "salmon")).toBe(true);
++  });
++});
++
+ describe("free key fact (OD-H3-6 / OD-H3-13)", () => {
+   it("every paid target shows its key for free, including pizza-bianca (no per-recipe exception)", () => {
+     for (const recipe of PAID_TARGETS) {
+diff --git a/src/logic/discoveryLadder.appendOnly.test.ts b/src/logic/discoveryLadder.appendOnly.test.ts
+index 0301557..697c185 100644
+--- a/src/logic/discoveryLadder.appendOnly.test.ts
++++ b/src/logic/discoveryLadder.appendOnly.test.ts
+@@ -110,13 +110,27 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
+ 
+   it("equals the append-only REC-04 rule over the production recipes", () => {
+     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
+-    // parsley); steps 1..51 are frozen, so they are fixed and only steps 52-53 (Batch 7a) are derived.
+-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
+-    // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived steps 52-53 (Batch 7a) have none.
++    // parsley); steps 1..54 are frozen, so they are fixed and only step 55 (Batch 8c) is derived. (Re-deriving from step 52 would tie ikura-salmon-pizza with lamb / shirasu on
++    // missing count, gain and reuse and win on recipe id, i.e. reorder the frozen steps 53-54; the key-recipe rule is only ever applied to the newest step, as for every earlier batch.)
++    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 54) };
++    // The frozen prefix (steps 1-54) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (Batch 8c) has none.
+     expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
+     expect(validateAppendOnlyExtension(fixed47, DISCOVERY_LADDER)).toEqual([]);
+   });
+ 
++  it("steps 52-54 are still derived by the rule from the Batch 8b-time population (the previous, wider derivation check is kept, not dropped)", () => {
++    // The test above freezes steps 1-54 out of `DISCOVERY_LADDER` itself, so by construction it cannot see a change to steps 52-54 (Batch 8c review, P2). This one keeps the earlier check:
++    // steps 1-51 fixed, the recipes up to and including shirasu-pizza (the population when step 54 was the last), steps 52-54 derived and compared with the production steps.
++    const fixed51 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
++    const population8b = PRODUCTION.slice(0, RECIPES.findIndex((r) => r.id === "shirasu-pizza") + 1);
++    const derived = buildAppendOnlyLadder(fixed51, population8b);
++    expect(derived.steps).toEqual(DISCOVERY_LADDER.steps.slice(0, 54));
++    // Sensitivity (negative control): exchanging steps 52 and 53, renumbered, is NOT what the rule derives.
++    const swapped = DISCOVERY_LADDER.steps.slice(0, 54).map((s) => ({ ...s }));
++    [swapped[51], swapped[52]] = [{ ...swapped[52], step: 52 }, { ...swapped[51], step: 53 }];
++    expect(derived.steps).not.toEqual(swapped);
++  });
++
+   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {
+     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
+     expect(validateLadderProgression(DISCOVERY_LADDER, PRODUCTION, STARTER_INGREDIENT_IDS)).toEqual([]);
+diff --git a/src/logic/ladderReachability.starGate.test.ts b/src/logic/ladderReachability.starGate.test.ts
+index f215984..c6a5223 100644
+--- a/src/logic/ladderReachability.starGate.test.ts
++++ b/src/logic/ladderReachability.starGate.test.ts
+@@ -25,10 +25,13 @@ import {
+ 
+ /** Recipes the star gates hold back by design (#420: goat-cheese 120 stars, spinach 130 stars). */
+ const ACCEPTED_DIRECTLY_GATED = ["california-style-pizza", "spinach-artichoke-pizza"];
++/** Batch 8c: with 58 credited recipes a uniform-★2 player reaches 122 stars, which meets goat-cheese's 120-star gate: only the 130-star spinach gate still holds a recipe back at ★2
++ *  (an improvement from catalog growth alone; the gate values are unchanged, and ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. */
++const ACCEPTED_DIRECTLY_GATED_AT_BEST2 = ["spinach-artichoke-pizza"];
+ /** Recipes held back only by propagation (the gated recipes eat the ladder's slack, Batch 7a steps 52-53). */
+ const ACCEPTED_COLLATERAL: string[] = [];
+ const ACCEPTED_BLOCKED_STEPS: number[] = [];
+-/** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1. */
++/** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1; Batch 8b / 8c: 58 - 55 - 2 = 1 (every new recipe brings its own step, so the slack is unchanged). */
+ const ACCEPTED_MIN_SLACK = 1;
+ 
+ const uniform = (best: 1 | 2 | 3 | 4 | 5): StarProfile => ({ kind: "uniform", best });
+@@ -37,10 +40,11 @@ const maxGate = Math.max(...DISCOVERY_LADDER.steps.flatMap((s) => Object.values(
+ describe("ladder reachability -- BASELINE (accepted current closure, #561)", () => {
+   it.each([1, 2] as const)("BEST ★%i everywhere: only the accepted recipes and steps are closed", (best) => {
+     const r = analyzeLadderReachability({ profile: uniform(best) });
+-    expect(r.directlyGatedRecipeIds).toEqual(ACCEPTED_DIRECTLY_GATED);
++    const accepted = best === 1 ? ACCEPTED_DIRECTLY_GATED : ACCEPTED_DIRECTLY_GATED_AT_BEST2;
++    expect(r.directlyGatedRecipeIds).toEqual(accepted);
+     expect(r.collateralRecipeIds).toEqual(ACCEPTED_COLLATERAL);
+     expect(r.blockedSteps).toEqual(ACCEPTED_BLOCKED_STEPS);
+-    expect(r.creditedTotal - r.creditedReached).toBe(ACCEPTED_DIRECTLY_GATED.length + ACCEPTED_COLLATERAL.length);
++    expect(r.creditedTotal - r.creditedReached).toBe(accepted.length + ACCEPTED_COLLATERAL.length);
+     expect(r.totalStars).toBeLessThan(maxGate);
+   });
+ 
