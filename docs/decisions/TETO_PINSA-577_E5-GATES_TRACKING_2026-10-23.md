@@ -1,7 +1,7 @@
 # Pinsa Romana (#577) 暫定採用 と E5 公開ゲート (#621 / #627) — 追跡の整理（docs-only）
 
 Status: **設計・追跡情報の整理のみ。** ゲームコード・`src/**`・`e2e/**`・CSS・データ・テストは変更していない。merge・共有 Preview 更新・本番 ON は行っていない。
-基準 `main` = `e1b4ec1`（#630。#627 は `db6e360` で merge 済み）。整理日 2026-10-23。
+基準 `main` = `829d449`（#627 は `db6e360` で merge 済み）。整理日 2026-10-23。**第 2 版: Owner 方針（2026-10-23 第 2 弾）を §7 に反映。§1〜§6 は第 1 版の整理で、§7 が上書きする箇所は §7.0 に一覧。**
 **「推奨」「候補」は助言であり Owner Decision ではない。未回答を承認済みとみなさない。**
 
 ## 0. 追跡先（新規 Issue は作らない）
@@ -87,5 +87,116 @@ L2 / M0 / CUT なしの暫定採用を受けた再整理。**いずれも Owner 
 
 **Owner が決めること:** 上限を設けるか（R-A）／設けるなら値（R-B 3、R-C 5、他）。この結論が L2 / L1 の正式決定（§3 追加行）を左右する。
 
-## 6. このタスクで触れていないもの
+## 6. このタスクで触れていないもの（第 1 版）
 ゲームコード、merge、共有 Preview、本番スイッチ（OFF のまま）、#584、`PROJECT_HANDOFF.md`（HOT。正式決定後にまとめて追記する）、新規 Issue の起票。
+
+
+---
+
+# 第 2 版: Owner 方針（2026-10-23 第 2 弾）の反映
+
+## 7.0 第 1 版からの状態変化
+
+| 項目 | 第 1 版 | 第 2 版 |
+|---|---|---|
+| Q5 | 未決 | **M0 では RESULT の生地専用行を追加しない（採用）** |
+| Q6 CUT | 暫定 | **CUT なしを正式採用** |
+| Q6 章 4 | 許容の可否が未決 | **レシピ数の増加は許容。既存クリア実績は維持**（方法は §9） |
+| Q7 | 未決 | **ハモンセラーノと区別できる専用識別を採用**（識別子・validator 例外は §8 の設計案。Owner 確認待ち） |
+| Q8 | 未決 | **既存レシピ基準の暫定値を設定。実測前に正式確定しない**（§10） |
+| 工程 | L2 暫定 | **L2 採用**（生ハム・ルッコラの後乗せを基本） |
+| 生地 | M0 暫定 | **M0 正式採用。楕円生地は将来フェーズへ分離** |
+| Q-5 | 未決 | **R-A（総数 8 以内・後乗せ専用上限なし）を検証用の暫定仕様**。正式上限は後乗せ 5 ピースの実測後 |
+| AC-8 動画 | 保存先を質問 | **repo にコミットしない。#621 に添付、または参照先を記録** |
+| ON ビルド | 置き場が未決 | **共有 Preview ではなく専用の一時検証環境**。本番データ・セーブから安全に分離できなければ検証を停止（§11） |
+
+**完了扱いにしないもの（依然オープン）:** 原典の未確認事項（§2。食材欄・個数の転記、生地の記述、説明文の妥当性、Piadina との区別、F1〜F6 の原文）、AC-8（未実施）、後乗せ 5 ピースの実測、E5 の実機 HV、Q8 の正式値、Q7 の識別子・例外の Owner 確認、G-3（late step 番号）。「採用」は設計方針の採用であり、実装・検証の完了ではない。
+
+## 8. Q7 — ハモンセラーノと区別できる専用識別（設計案）
+
+### 8.1 事実（コードで確認）
+- 識別は軸の値の一致で決まる。OBSERVED 軸は `dough`（Dough Kind P1）と `late`（FIN-E2）。`late` は後乗せ（`stage: "post"`）の食材 id の集合（presence のみ、個数は見ない）。
+- 後乗せレシピの target は `late: [["POST_BAKE", <ソート済み id>]]` と capability `LATE_ADDITION` を、**レシピの `applicationPhase: "POST_BAKE"` から導出**する（`discoveryCatalog.ts`）。
+- ハモンセラーノ（全て焼成前）は `late: []`。したがって **L2 の Pinsa は、`late` 軸だけでも既に別識別になる**（`[["POST_BAKE", ["arugula", "prosciutto-crudo"]]]` ≠ `[]`）。これが第 1 版で指摘した「生地チップだけが差」前提の変更点。
+
+### 8.2 候補
+| 案 | Pinsa の target が要求するもの | 同じ食材をどう作ると何になるか | 評価 |
+|---|---|---|---|
+| **I1** `late` のみ | 後乗せ（生ハム・ルッコラ） | 生地不問で Pinsa。生地チップ（#577 P2）が識別に無関係になる | 技法 `dough-pinsa-romana`・チップの意味が失われる。**非推奨** |
+| **I2（推奨）** `dough` ∧ `late` の両方 | Pinsa 生地 ＋ 生ハム・ルッコラの後乗せ | 標準生地×全部焼成前＝ハモンセラーノ／Pinsa 生地×後乗せ＝Pinsa／それ以外の組み合わせ＝ORIGINAL | **専用識別**になる（ハモンセラーノと両軸で別）。P1・P2 の資産が全て活きる。capabilities は `["DOUGH_VARIANT", "LATE_ADDITION"]` |
+| I3 `dough` のみ | Pinsa 生地（工程は問わない） | L2 の後乗せが識別に無関係になり、工程の意味が弱い | 非推奨 |
+
+### 8.3 具体案（I2）
+- レシピ id: `pinsa-romana`（matrix の `canonicalCandidateId`）。discovery target id: `pinsa-romana-pizzadb-p9`（証跡 id の慣例）。
+- target: `identityDimensions = { ...DEFAULT, dough: "material-multigrain-long-ferment", late: [["POST_BAKE", ["arugula","prosciutto-crudo"]]] }`、`capabilities = ["DOUGH_VARIANT","LATE_ADDITION"]`。`items` は食材 id のみ（tomato-sauce / mozzarella / prosciutto-crudo / arugula）。
+- 置き場: **後乗せカタログ（`lateCatalog.ts`）側**（OFF の間は存在しない。Pinsa は新食材を足さないので `LATE_INGREDIENTS` は空、late ladder step は不要と見込む＝**未検証**）。`Recipe.doughKind` を設定。
+- 副作用の受容: FINISH ON 後に「ハモンセラーノの食材を、生ハムを後乗せにして標準生地で作る」と ORIGINAL になる（jamon の target は `late: []`）。これは新しい挙動で、**Owner の確認が要る**。
+- 非開示: R1〜R6 と G2 固定文言は不変。後乗せの時機をレシピ名・説明・Hint に出さない（#627 AC-6 と同形のテストを Pinsa にも）。
+
+### 8.4 validator 例外（Recipe Batch Validator）
+既存の仕組みで足りる（新しい例外種別は不要）:
+- `acceptedLetterShifts`（Batch 8a の先例）に **`"jamon-serrano-pizza": "-->B"`**（現在は文字なし。Pinsa と同コホートに入り、`opaqueHash(recipeId)` 昇順で Pinsa=A / ハモンセラーノ=B と導出される見込み。**文字は実装時に導出して確定。ここでは固定しない**）。
+- Pinsa は `ladderCredit: false`（新 step を足さないため `COHORT_UNLOCK` の検査対象外）。`lunchRush: false`・CUT なし・Hint key-free を**宣言**（`DECLARATION_MISSING` 回避）。
+- 章・No.: 既存レシピの章／No. は動かない（Pinsa は `RECIPES` の末尾＝章 4 の最後）。`CHAPTER_IDENTITY` の例外は不要。
+- 後乗せカタログ経由の検査（`validateLateCatalog` ほか）の通過は実装時に確認。
+
+## 9. 章 4 とクリア済み save の維持方法
+
+### 9.1 事実
+- 章の「完了」は **save に保存されない導出値**。`chapterProgress` = 図鑑の発見数／章のレシピ数で、`DexOverlay` が `discovered === total` のとき「✓」を付けるだけ（`GameScreen` の進捗表示は数のみ）。章クリアの報酬・ゲートはコード上見当たらない（`chapterProgress` の読み手は上の 2 ファイルのみ）。
+- したがって「クリア実績」は **save の移行では守れず、判定ルールで守る**。E5（後乗せ ON）で章 4 が 26→27 になると、何もしなければ ✓ が消える。
+
+### 9.2 案
+| 案 | 内容 | 評価 |
+|---|---|---|
+| K1 | 何もしない（分母 27、✓ は消える） | 方針「既存クリア実績は維持」に反する |
+| **K2（推奨）** | ✓ の判定を「**後乗せカタログのレシピを除いた**章内レシピがすべて発見済み」にする。表示の数は 27 分母のまま（例「26/27 ✓」）。Pinsa は章に並ぶが ✓ の条件にならない | save 変更なし・schema 変更なし・既存 save は ON 後も ✓ 維持。後乗せ OFF（本番）では挙動不変。実装は `DexOverlay`（と判定関数）の局所変更（**別 PR・Owner 承認後**） |
+| K3 | `clearedChapters` を save に永続 | schemaVersion／forward-compat に触れる。Save Protection 範囲。**非推奨** |
+
+### 9.3 検証（実装 PR の受け入れ条件案）
+章 4 の通常 26 レシピを発見済みにした save fixture → 後乗せ ON ビルドでも ✓ が付く／Pinsa 発見後も維持／OFF ビルドで挙動不変。保存データの出力が変わらないこと（save スナップショット不変）。**これはコード変更を伴うため今回は実施しない。**
+
+## 10. Q8 — 個数・bake の暫定値（既存レシピ基準・正式確定しない）
+
+基準: `jamon-serrano-pizza`（同一食材集合。`recipes.ts` の calibration）。
+
+| 項目 | 暫定値 | 備考 |
+|---|---|---|
+| tomato-sauce | 1 | PAINT（`RECIPE_SAUCE_PROFILES`） |
+| mozzarella | 2（焼成前） | |
+| prosciutto-crudo | 3（**POST_BAKE**） | L2 |
+| arugula | 2（**POST_BAKE**） | L2 |
+| bake 窓 | 58–78 | ハモンセラーノと同値。ikura も 58–78 |
+| 非ソース総数／後乗せ | 7／5 | 8 スロット以内 |
+
+**暫定値の位置づけ:** 検証用（AC-8・後乗せ 5 ピースの実測、Q-5）のみ。実測前に正式確定しない。同値の根拠だった「同じ具材でも完成判定が食い違う」は、L2 で `late` 軸でも別識別になったため弱まっている（第 1 版 Q8）。実測で分けるなら Owner が値を指定する。
+
+**静的な計算値（ブラウザ実測ではない）:** Reference の 7 ピースは `PIECE_RING_POSITIONS` の先頭 7 点（連続割り当て: mozzarella=スロット 0–1、prosciutto=2–4、arugula=5–6）。隣接スロット間の最小距離は 20（スロット 3–4）で、見やすさ目標 `REFERENCE_SLOT_MIN_GAP`（18.2）以上。ikura の 8 点も最小 20。ただしこれは Reference の固定配置で、**プレイヤーの自由配置・焼成前ピースとの重なり・タップ性は実測が必要**。
+
+## 11. 専用の一時検証環境（AC-8 / Q-5 実測）
+
+### 11.1 制約（確認済みの事実）
+- `LATE_CATALOG_PRODUCTION` と `FREE_COOK_FINISH_PRODUCTION` は**ソース上のリテラル `false`**。環境変数で ON にする仕組みは無い。
+- 共有 Preview（`perusonao/teto-pizza-game-preview`）は本番と `perusonao.github.io` を共有し、`localStorage` は origin 単位。Preview ビルドは別キー（`teto-pizza-preview-save-v1`）だが、**全 Preview ビルドがそのキーを共有**する（`TETO_SESSION-OPERATIONS_1.0.md` §5）。→ 共有 Preview は使わない（方針どおり）。
+- `VITE_PREVIEW_MODE` で保存キーが切り替わる。`VITE_FIREBASE_*` 未設定なら Firebase は「未構成」状態になり、オフラインで動く（`firebase/config.ts`、`deploy.yml` の注記）。
+
+### 11.2 実現方法の候補
+| 案 | 内容 | 評価 |
+|---|---|---|
+| **V1（推奨・初回測定）** | 使い捨ての作業ツリー（ブランチに**コミットしない**）で 2 つのリテラルだけを `true` にし、`VITE_PREVIEW_MODE=1`・**Firebase 変数なし**でビルド。**ローカルの静的サーバ（`127.0.0.1:<ランダムポート>`）**で配信し、Playwright の**新規ブラウザコンテキスト**（390×844、`recordVideo`）で操作。測定後に作業ツリーを破棄 | デプロイなし・本番 origin と別 origin（`127.0.0.1` ≠ `perusonao.github.io`）。コミット済みコードと差が出るため、**差分のハッシュと対象 commit SHA を記録** |
+| V2 | `VITE_PREVIEW_MODE` 限定の検証フラグを**コードに追加** | 再現性は高いが、本番 OFF の保証（バンドル同一性ではなく「データ同一」）の説明が増える。別 PR・Owner 承認が要る。繰り返し測定が必要になった場合のみ |
+| V3 | 別リポジトリ／別 Pages | origin が `perusonao.github.io` のままで分離にならない。**不採用** |
+
+### 11.3 安全条件（すべて満たせなければ**検証を停止**して Owner に報告）
+1. **origin**: `location.origin` が `perusonao.github.io` ではないことを実行時に確認。
+2. **save の分離**: 毎回、新規プロファイル（永続化なし）。起動直後に `localStorage` が空であることを確認。本番／Preview の save・エクスポートを**読み込まない**。テスト用 save は合成 fixture のみ。
+3. **外部通信なし**: `VITE_FIREBASE_*` を設定しない。加えて Playwright で `127.0.0.1` 以外へのリクエストを abort し、発生数が 0 であることを記録（ランキング・認証への書き込みを排除）。
+4. **非公開**: ビルド成果物をアップロード／デプロイしない。共有 Preview・Pages・Functions に触れない。作業ツリーは測定後に破棄し、`git status` が clean であること（コミット対象に ON リテラルが入っていないこと）を確認。
+5. **対象の特定**: 測定に使った commit SHA、パッチ差分のハッシュ、ビルドのコマンドを記録。
+6. **停止条件**: 上記のいずれかを自動確認できない、または本番データ・セーブとの分離に疑義がある場合は、測定を開始しない／中断し、理由を #621 に記録する。
+7. 本番スイッチの変更・merge は行わない（測定用パッチは一時的なものに限る）。
+
+### 11.4 成果物の扱い
+- **動画は repo にコミットしない**（HV 方針）。#621 に添付、または参照先（保存場所・ファイル名・サイズ・SHA-256・対象 commit SHA）を記録する。なお、このセッションの GitHub ツールは**ファイル添付ができない**ため、添付は Owner が行うか、参照先の記録で代える（Owner が選ぶ）。
+- 比較スクリーンショット（before/after）は `docs/reports/screenshots/<task-name>/` にコミット（HV 方針）。
+- **AC-8 と実機 HV は、実施・Owner 確認が済むまで完了扱いにしない。**
