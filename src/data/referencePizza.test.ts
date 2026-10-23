@@ -303,7 +303,7 @@ describe("computeMechanicalSauceReference (B2 mechanical infra)", () => {
   it("every recipe's mechanical target uses that recipe's own real sauce ingredient (never a fabricated stand-in)", () => {
     const ids = new Set(RECIPES.map((r) => computeMechanicalSauceReference(r.id)?.ingredientId));
     // A NO_SAUCE recipe (TQ-1D; the set is derived from the sauce-profile authority) has no sauce at all: its target is null, never a stand-in.
-    expect(ids).toEqual(new Set(["tomato-sauce", "pesto", "olive-oil", undefined]));
+    expect(ids).toEqual(new Set(["tomato-sauce", "pesto", "olive-oil", "fromage-blanc-sauce", undefined]));
     expect(noSauceRecipeIds().length).toBeGreaterThan(0);
     for (const id of noSauceRecipeIds()) {
       expect(computeMechanicalSauceReference(id), id).toBeNull();

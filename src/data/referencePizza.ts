@@ -3730,6 +3730,47 @@ export const SHIRASU_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * New Sauces Phase A (#578): Reference Truth for `flammkuchen` (fromage-blanc-sauce PAINT sauce; the sauce is not a piece). Pieces (onion 3 / bacon 3 = 6) take the RT-01 8-piece ring consecutively in `requiredIngredients` order
+ * (the first 6 of the 8 slots). Slot assignment and the sauce quantity / coverage (the shared mechanical derivation) are GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const FLAMMKUCHEN_REFERENCE: ReferencePizza = {
+  recipeId: "flammkuchen",
+  sauce: computeMechanicalSauceReference("flammkuchen"),
+  pieceGroups: [
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
  * Batch 8c: Reference Truth for `ikura-salmon-pizza` (NO_SAUCE: `sauce: null`). Pieces (cream-cheese 2 / salmon 3 / shiso 1 / salmon-roe 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order (shiso is a leafy herb: LIGHT_LEAF). Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -3927,6 +3968,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [SPANISH_CHORIZO_PIZZA_REFERENCE.recipeId, SPANISH_CHORIZO_PIZZA_REFERENCE],
   [FRANGO_CATUPIRY_REFERENCE.recipeId, FRANGO_CATUPIRY_REFERENCE],
   [SHIRASU_PIZZA_REFERENCE.recipeId, SHIRASU_PIZZA_REFERENCE],
+  [FLAMMKUCHEN_REFERENCE.recipeId, FLAMMKUCHEN_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);

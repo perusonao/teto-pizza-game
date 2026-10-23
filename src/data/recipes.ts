@@ -1225,6 +1225,23 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "flammkuchen",
+    nameJa: "タルトフランベ",
+    description: "白いソースを塗った生地に、ベーコンとたまねぎをのせて焼き上げる、アルザス生まれのパリッと香ばしい一枚。",
+    // New Sauces Phase A (Issue #578, Chapter 4; Owner approval 2026-10-23). SOURCE AUTHORITY (PIZZA DB `flammkuchen-pizzadb`, 172 matrix): bacon / fromage-blanc-sauce / onion. The matrix records no counts, bake or CUT, and the original page was not reachable
+    // from the build environment, so everything below is PROVISIONAL. GAMEPLAY CALIBRATION (not source): fromage-blanc-sauce 1 (PAINT, the SAUCE step) / onion 3 / bacon 3 = 6 pieces <= the 8-slot ring (the onion + bacon counts follow `aussie` bacon 2 / onion 2 and `fugazza` onion 4);
+    // bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78, as for shirasu-pizza). No CUT (provisional; the original is a thin rectangular tart, the CUT allowlist assumes a standard round dough).
+    // Ladder-credited (step 55, cohort key fromage-blanc-sauce); `lunchRush: false` keeps it out of the Lunch Rush pool; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "fromage-blanc-sauce", minCount: 1 },
+      { ingredientId: "onion", minCount: 3 },
+      { ingredientId: "bacon", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

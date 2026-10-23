@@ -110,11 +110,29 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
   it("equals the append-only REC-04 rule over the production recipes", () => {
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
-    // parsley); steps 1..51 are frozen, so they are fixed and only steps 52-53 (Batch 7a) are derived.
-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
-    // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived steps 52-53 (Batch 7a) have none.
+    // parsley); steps 1..54 are frozen, so they are fixed and only step 55 (New Sauces Phase A, #578) is derived. (Re-deriving from step 52 would sort flammkuchen's step ahead of the frozen
+    // steps 53-54 on the rule's tie-breaks; the key-recipe rule is only ever applied to the newest step, as for every earlier batch.)
+    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 54) };
+    // The frozen prefix (steps 1-54) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (New Sauces Phase A) has none.
     expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
     expect(validateAppendOnlyExtension(fixed47, DISCOVERY_LADDER)).toEqual([]);
+  });
+
+  it("steps 52-54 are still derived by the rule from the Batch 8b-time population (the earlier, wider derivation check is kept, not dropped)", () => {
+    // The test above freezes steps 1-54 out of `DISCOVERY_LADDER` itself, so by construction it cannot see a change to steps 52-54. This one keeps the earlier check: steps 1-51 fixed,
+    // the recipes up to and including shirasu-pizza (the population when step 54 was the last), steps 52-54 derived and compared with the production steps.
+    const fixed51 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 51) };
+    const population8b = PRODUCTION.slice(0, RECIPES.findIndex((r) => r.id === "shirasu-pizza") + 1);
+    const derived = buildAppendOnlyLadder(fixed51, population8b);
+    expect(derived.steps).toEqual(DISCOVERY_LADDER.steps.slice(0, 54));
+    // Sensitivity (negative control): exchanging steps 52 and 53, renumbered, is NOT what the rule derives.
+    const swapped = DISCOVERY_LADDER.steps.slice(0, 54).map((s) => ({ ...s }));
+    [swapped[51], swapped[52]] = [{ ...swapped[52], step: 52 }, { ...swapped[51], step: 53 }];
+    expect(derived.steps).not.toEqual(swapped);
+  });
+
+  it("step 55 is the new sauce: fromage-blanc-sauce, key recipe flammkuchen, T4, no star gate (New Sauces Phase A, #578)", () => {
+    expect(DISCOVERY_LADDER.steps[54]).toEqual({ step: 55, kind: "MATERIAL", ingredientIds: ["fromage-blanc-sauce"], keyRecipeId: "flammkuchen" });
   });
 
   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {
