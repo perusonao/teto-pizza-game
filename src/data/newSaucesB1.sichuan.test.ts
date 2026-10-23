@@ -124,11 +124,11 @@ describe("sichuan-eggplant-pizza (the key recipe)", () => {
 
   it("is the only recipe made from exactly this ingredient set, and no other recipe is a subset or superset of it", () => {
     const key = (ids: readonly string[]) => [...ids].sort().join("|");
-    const mine = recipe.requiredIngredients.map((q) => q.ingredientId);
+    const mine: string[] = recipe.requiredIngredients.map((q) => q.ingredientId);
     expect(RECIPES.filter((r) => key(r.requiredIngredients.map((q) => q.ingredientId)) === key(mine)).map((r) => r.id)).toEqual([ID]);
     for (const r of RECIPES) {
       if (r.id === ID) continue;
-      const theirs = r.requiredIngredients.map((q) => q.ingredientId);
+      const theirs: string[] = r.requiredIngredients.map((q) => q.ingredientId);
       expect(theirs.every((i) => mine.includes(i)), `${r.id} is a subset`).toBe(false);
       expect(mine.every((i) => theirs.includes(i)), `${r.id} is a superset`).toBe(false);
     }
