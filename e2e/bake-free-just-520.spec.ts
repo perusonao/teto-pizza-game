@@ -58,6 +58,9 @@ async function enterBakeAtZero(page: Page) {
 }
 
 test("FREE Cooking BAKE draws the JUST band on the generic window, inside the gauge, clear of the CTA, gone with the zone (#520)", async ({ page }) => {
+  // One reachFreeBake + the BAKE checks: 20.5-28.7 s when healthy against the 30 s default (#629), 30.5 s timed out on main run 39993155550
+  // (webkit-390x844 shard 1/3, a slow runner: the 2-round test below took 42.2 s instead of 28.7 s). This test alone gets 60 s, like that one (#630).
+  test.setTimeout(60_000);
   await reachFreeBake(page);
   await enterBakePaused(page);
   const info = await page.evaluate(() => {
