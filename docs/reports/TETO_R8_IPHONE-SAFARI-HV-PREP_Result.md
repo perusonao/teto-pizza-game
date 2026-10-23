@@ -4,6 +4,7 @@
 - 改訂（2026-10-23、Owner 方針の反映）: ①E2E 件数と Result Report の承認状態の不整合を訂正（§2.3）②保存失敗の種類・二重登録防止・複数タブ・Lunch Rush の HV 項目を補足（§5.1）③Owner 判断を記録（§8）。Phase 1B の比較資料（`TETO_PHASE-1B_*`）は**比較資料であり、採用済みの実装方針ではありません**。
 - 対象: PR #618 merge `83f4b55a404ace3148adbb9058f4d63c5b1a1c55`（Issue #617）。本番 FINISH は OFF（`FREE_COOK_FINISH_PRODUCTION = false`、`src/data/freeCookFinishGate.ts`）。
 - **実機 HV の実施状況: 0 項目実施。すべて「未実施」であり PASS ではありません。**（このセッションに iPhone・iOS シミュレータはなく、実機アクセスもありません。）
+- **更新（2026-10-23）**: その後 Owner が共有 Preview（`a6c1463`）で B-1 の一部を実機で 1 回実施しました（復旧通知の表示は未確認）。結果と判定は `TETO_R8_IPHONE-SAFARI-HV_Result.md` を参照。本書の状態欄（未実施）は準備時点の記録で、書き換えていません。
 - 調査元: `CLAUDE.md`、`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`、`TETO_SESSION-OPERATIONS_1.0.md` §5、Issue #617 本文とコメント、PR #618 本文、`docs/reports/TETO_FINISH-R8_PENDING-ROUND_Result.md`、`e2e/r8-pending-round.spec.ts`、`e2e/r8-hv.spec.ts`、`src/state/pendingRound.lunchRush.test.ts`、`src/state/roundNoticeCopy.ts`、`docs/reports/screenshots/pending-round-r8/`。
 
 ## 1. 確認環境の現状（実機 HV を安全に始められるか）
@@ -202,7 +203,7 @@ Mac があれば Web Inspector（設定 > Safari > 詳細 > Web インスペク�
 |---|---|
 | 実機 HV 準備（資料・手順） | 完了（本書） |
 | 実機 HV の実施 | **未実施（0 項目）** |
-| 実機で確認済みと言える事項 | **なし** |
+| 実機で確認済みと言える事項 | 準備時点ではなし。2026-10-23 以降は `TETO_R8_IPHONE-SAFARI-HV_Result.md` §1 を参照（B-1 の登録部分のみ） |
 | 実機でのみ確認できる項目 | B-1〜B-3、D-3、E-5、H-1〜H-2（強制終了・実 iOS の容量・スタンドアロン・safe-area・複数タブ） |
 | ブラウザでも自動テストが無い項目 | G-1〜G-8（Lunch Rush）。Chromium／WebKit E2E の追加は別 Issue・別 PR（§8 決定済み 3） |
 
