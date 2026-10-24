@@ -125,7 +125,11 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // Re-measured again at Expansion Batch 5 (57 ingredients: ricotta (a cheese) and hot-dog join; the hardened `toEqual([])` above held for every state).
     // Re-measured again at Batch 6 PR-2 (61 ingredients: avocado / goat-cheese / artichoke / spinach join; the hardened `toEqual([])` above held for every state).
     // Re-measured again at Batch 8b (66 ingredients: shiso / whitebait join the TOPPINGS the families are cut from; the hardened `toEqual([])` above held for every state).
-    expect(dh42aLeaks).toBe(156);
+    // Re-measured again at New Sauces Phase B-1 (69 ingredients: doubanjiang (a sauce) and green-onion (a topping) join, plus the sichuan-eggplant-pizza recipe). The hardened `toEqual([])` above held for every state in every configuration.
+    // The 156 -> 123 move was decomposed by measuring the same test on the same tree with the materials added separately (the hardened guard leaked 0 in all of them; only this legacy DH4-2A count moves):
+    //   neither material 156 | green-onion only 120 (-36: the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them) | doubanjiang only 164 (+8: `zeroTopping` iterates every sauce, +3 recipes)
+    //   | both 128 (= 156 - 36 + 8, additive) | both + the sichuan-eggplant-pizza recipe 123 (-5: the public catalog the hypotheses are drawn from gains one recipe).
+    expect(dh42aLeaks).toBe(123);
   }, 120_000);
 });
 

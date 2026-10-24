@@ -30,7 +30,8 @@ export type DedicatedIngredientVisual =
   | "hot-dog-slices"
   | "shiso-leaf"
   | "whitebait-school"
-  | "salmon-roe-grains";
+  | "salmon-roe-grains"
+  | "green-onion-slices";
 
 export interface Ingredient {
   id: string;
@@ -975,6 +976,28 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F95B}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
+  },
+  /** New Sauces Phase B-1 (Issue #578, Owner 2026-10-23): finite ladder material, a material of the step after 55 (T4), unlocked by the Ladder alone (no star gate). A spread sauce painted in the SAUCE step (the existing PAINT gesture); the recipe that uses it is `sichuan-eggplant-pizza`. Sauces carry no topping family. Price / refill come from the T4 tier (materialShop.ts). `color` `#8a2b1c` (a dark red-brown) is PROVISIONAL until the Owner HV on a real device (the raw colour is dE ~22 from tomato-sauce `#c73b2e`; a lighter red such as `#a8321f` would be dE ~10 and is not used). `emoji` is only the text fallback (G18 keeps it unique). Its PIZZA DB use (painted before the bake) is a provisional assumption, not confirmed. */
+  {
+    id: "doubanjiang",
+    category: "sauce",
+    nameJa: "豆板醤",
+    color: "#8a2b1c",
+    emoji: "\u{1FAD9}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** New Sauces Phase B-1 (Issue #578, OD-B9-3): finite ladder material, the same step as `doubanjiang` (T4, no star gate; the step's last material = the Research cohort key of `sichuan-eggplant-pizza`). Family `herb` (L1 only, in ingredientTaxonomy.ts), size class `xs`. Drawn by the dedicated `green-onion-slices` visual (small ring slices); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique). Placed BEFORE the bake is a provisional assumption (the original was not confirmed). */
+  {
+    id: "green-onion",
+    category: "topping",
+    nameJa: "青ねぎ",
+    color: "#7fae4a",
+    emoji: "\u{1F33E}",
+    pieceVisual: "green-onion-slices",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
   },
 ];
 

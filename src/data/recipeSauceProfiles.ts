@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang";
   interaction: SauceInteractionKind;
 }
 
@@ -301,6 +301,12 @@ export const RECIPE_SAUCE_PROFILES = {
   flammkuchen: {
     recipeId: "flammkuchen",
     ingredientId: "fromage-blanc-sauce",
+    interaction: "PAINT",
+  },
+  // New Sauces Phase B-1 (#578): the second new sauce; the existing PAINT gesture, no new interaction.
+  "sichuan-eggplant-pizza": {
+    recipeId: "sichuan-eggplant-pizza",
+    ingredientId: "doubanjiang",
     interaction: "PAINT",
   },
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.

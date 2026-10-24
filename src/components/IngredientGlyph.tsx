@@ -35,6 +35,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "hot-dog-slices": "0 0 64 64",
   "shiso-leaf": "0 0 64 64",
   "whitebait-school": "0 0 64 64",
+  "green-onion-slices": "0 0 64 64",
   "salmon-roe-grains": "0 0 64 64",
 };
 
@@ -58,6 +59,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "hot-dog-slices" && <HotDogSlices />}
       {visual === "shiso-leaf" && <ShisoLeaf />}
       {visual === "whitebait-school" && <WhitebaitSchool />}
+      {visual === "green-onion-slices" && <GreenOnionSlices />}
       {visual === "salmon-roe-grains" && <SalmonRoeGrains />}
     </svg>
   );
@@ -354,6 +356,28 @@ function SalmonRoeGrains() {
           <circle cx={grain.x} cy={grain.y} r="9" fill="#f2842b" stroke="#a63f12" strokeWidth="2.4" />
           <circle cx={grain.x} cy={grain.y} r="5.6" fill="#f9aa5c" />
           <circle cx={grain.x - 3} cy={grain.y - 3} r="2" fill="#fff" opacity=".85" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/* ---------- green onion (New Sauces Phase B-1, OD-B9-3): three small ring slices, a green wall around a pale hollow centre (Style Lock v2 common spec; reference art: docs/design/references/ingredient-icons-2.0/green-onion.svg) ---------- */
+const GREEN_ONION_RINGS: readonly { x: number; y: number; r: number }[] = [
+  { x: 24, y: 22, r: 12 },
+  { x: 41, y: 31, r: 12 },
+  { x: 25, y: 45, r: 12 },
+];
+
+function GreenOnionSlices() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="22" ry="3" fill="#000" opacity=".15" />
+      {GREEN_ONION_RINGS.map((ring) => (
+        <g key={`${ring.x}-${ring.y}`} transform={`translate(${ring.x} ${ring.y})`}>
+          <circle r={ring.r} fill="#7fae4a" stroke="#3a6b2b" strokeWidth="2.4" />
+          <circle r={ring.r - 4.4} fill="#e3efbd" stroke="#5f9440" strokeWidth="1.6" />
+          <circle r={ring.r - 8.6} fill="#f4f8dc" />
         </g>
       ))}
     </g>

@@ -139,7 +139,6 @@ test.describe("New Sauces Phase A (representative: step 55 flammkuchen; fromage-
     const card = page.locator(".dex-card").filter({ hasText: "タルトフランベ" });
     await expect(card).toHaveCount(1);
     const last = CATALOG_COUNTS.chapterSizes.at(-1)!;
-    expect(last).toBe(27);
     await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: `第${CATALOG_COUNTS.chapterSizes.length}章` })).toContainText(`${last}/${last}`);
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
@@ -161,7 +160,8 @@ test.describe("New Sauces Phase A (representative: step 55 flammkuchen; fromage-
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第4章" })).toContainText("26/27");
+    const last = CATALOG_COUNTS.chapterSizes.at(-1)!;
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第4章" })).toContainText(`${last - 1}/${last}`); // every earlier chapter-4 recipe is kept; only flammkuchen is missing (later batches append after it)
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}"), SAVE_KEY);
     expect(saved.dex).toHaveLength(discovered.length); // opening the Dex rewrote nothing
   });

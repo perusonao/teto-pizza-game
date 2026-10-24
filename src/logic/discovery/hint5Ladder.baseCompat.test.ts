@@ -64,13 +64,13 @@ function reachableLedgers(recipeId: string): string[][] {
   return states;
 }
 
-describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (37 key-free recipes)", () => {
-  it("the population is the 37 key-free recipes: sauce + cheese 13, cheese only 17, sauce only 7", () => {
-    expect(KEY_FREE_RECIPES).toHaveLength(37);
+describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (38 key-free recipes)", () => {
+  it("the population is the 38 key-free recipes: sauce + cheese 14, cheese only 17, sauce only 7", () => {
+    expect(KEY_FREE_RECIPES).toHaveLength(38);
     const klass = (r: Recipe) => `${hasCategory(r, "sauce") ? "sauce" : ""}+${hasCategory(r, "cheese") ? "cheese" : ""}`;
     const count = (k: string) => KEY_FREE_RECIPES.filter((r) => klass(r) === k).length;
     expect({ both: count("sauce+cheese"), cheeseOnly: count("+cheese"), sauceOnly: count("sauce+"), neither: count("+") }).toEqual({
-      both: 13,
+      both: 14,
       cheeseOnly: 17,
       sauceOnly: 7,
       neither: 0,
@@ -96,7 +96,7 @@ describe("section 4.1: M-1..M-3 agree with every reachable state of the real old
         }
       }
     }
-    expect(partials).toBe(13); // one partial state per sauce + cheese recipe
+    expect(partials).toBe(14); // one partial state per sauce + cheese recipe
   });
 
   it("single-marker recipes (cheese only, sauce only) can never be PARTIAL", () => {

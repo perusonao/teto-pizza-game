@@ -89,25 +89,26 @@ describe("flammkuchen (the key recipe)", () => {
     const step = DISCOVERY_LADDER.steps[54];
     expect(step).toEqual({ step: 55, kind: "MATERIAL", ingredientIds: ["fromage-blanc-sauce"], keyRecipeId: "flammkuchen" });
     expect(step.starGates).toBeUndefined();
-    expect(DISCOVERY_LADDER.steps).toHaveLength(55);
+    expect(DISCOVERY_LADDER.steps.length).toBeGreaterThanOrEqual(55); // later batches only append (Phase B-1: step 56)
   });
 });
 
 /**
  * Chapter 4 and existing saves. A chapter has no persisted "cleared" flag or reward: its progress is `discovered / total`, derived on every read from the Dex and the chapter table
- * (state/recipeChapters.ts). Adding flammkuchen therefore grows chapter 4 from 26 to 27 recipes, and the Dex entries of a player who had discovered all 26 are untouched; only the
+ * (state/recipeChapters.ts). Adding flammkuchen therefore grew chapter 4 from 26 to 27 recipes (Phase B-1 later appended a 28th), and the Dex entries of a player who had discovered all 26 are untouched; only the
  * derived progress reads 26/27 until flammkuchen is made. These tests pin that, so a later change that persisted a clear flag would have to face this case.
  */
 describe("chapter 4 for a save that had discovered all 26 earlier chapter-4 recipes", () => {
-  const chapter4 = () => buildRecipeChapters().find((c) => c.chapter === 4)!;
+  // Phase A's view of chapter 4: its first 27 recipes (flammkuchen the 27th). Later batches only append after them, so this pins the Phase A contract without depending on the tail.
+  const fullChapter4 = () => buildRecipeChapters().find((c) => c.chapter === 4)!;
+  const chapter4 = () => ({ ...fullChapter4(), recipes: fullChapter4().recipes.slice(0, 27) });
   const entry = (recipeId: string): DexEntry => ({ recipeId, discovered: true, bestScore: 90, bestStars: 3, timesMade: 1 });
   const earlier = () => chapter4().recipes.filter((r) => r.id !== "flammkuchen").map((r) => r.id);
 
   it("flammkuchen joins chapter 4 (key step 55 is T4); the chapter grows by appending", () => {
     expect(recipeChapter(recipe)).toBe(4);
-    expect(chapter4().recipes).toHaveLength(27);
-    expect(chapter4().recipes.at(-1)!.id).toBe("flammkuchen");
-    expect(earlier()).toHaveLength(26);
+    expect(chapter4().recipes[26]!.id).toBe("flammkuchen"); // the 27th chapter-4 recipe; later batches only append after it
+    expect(chapter4().recipes.findIndex((r) => r.id === "flammkuchen")).toBe(26);
   });
 
   it("keeps every earlier discovery: the Dex is not rewritten, only the derived progress reads 26/27", () => {
