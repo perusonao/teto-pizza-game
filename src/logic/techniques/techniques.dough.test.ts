@@ -11,6 +11,7 @@ import { detectTechniquesUsed, requiredTechniquesOf } from "./detection";
 import { techniqueDexViews } from "./dexView";
 import { backfillTechniqueLedger, techniqueAffordanceStep } from "./registration";
 import { productionTechniqueContext, resolveRoundTechniques, type TechniqueRuntimeContext } from "./runtime";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 
 /**
  * Dough Kind P1 (#577): the technique `dough-pinsa-romana`. Synthetic fixtures only -- no production recipe requires it,
@@ -112,10 +113,17 @@ describe("dough-pinsa-romana detection", () => {
 describe("dough-pinsa-romana affordance and discovery", () => {
   it("no production target requires it, so it never opens in production (INV-TQ-4) and the Dex shows nothing of it", () => {
     const { catalog, materialStep } = productionTechniqueContext();
-    expect(catalog.filter((t) => requiredTechniquesOf(t).includes(ID))).toEqual([]);
-    expect(techniqueAffordanceStep(ID, catalog, materialStep)).toBeNull();
-    expect(techniqueDexViews([], credited(CREDITED.length)).filter((v) => v.id === ID)).toEqual([]);
-    expect(round(pizzaOf(PINSA), { context: productionTechniqueContext() }).newlyDiscovered).toEqual([]);
+    expect(catalog.filter((t) => requiredTechniquesOf(t).includes(ID)).map((t) => t.recipeId)).toEqual(DOUGH_PINSA_ROMANA_RECIPE_IDS);
+    if (DOUGH_PINSA_ROMANA_RECIPE_IDS.length === 0) {
+      expect(techniqueAffordanceStep(ID, catalog, materialStep)).toBeNull();
+      expect(techniqueDexViews([], credited(CREDITED.length)).filter((v) => v.id === ID)).toEqual([]);
+      expect(round(pizzaOf(PINSA), { context: productionTechniqueContext() }).newlyDiscovered).toEqual([]);
+    } else {
+      // gate open (`TETO_PINSA_ON=1`): the only requiring target is pinsa-romana, the step is DERIVED from its materials (arugula's), and the Dex shows a riddle only
+      expect(techniqueAffordanceStep(ID, catalog, materialStep)).toBe(Math.max(0, ...ITEMS.map((id) => ingredientUnlockStep(id) ?? Infinity)));
+      const views = techniqueDexViews([], credited(CREDITED.length)).filter((v) => v.id === ID);
+      expect(views.map((v) => v.state)).toEqual(["RIDDLE"]);
+    }
   });
 
   it("with a Pinsa recipe the step is the max unlock step of its materials (derived, not authored)", () => {

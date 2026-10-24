@@ -33,8 +33,10 @@ const PINSA_I2: RecipeDiscoveryTarget = {
   eligibility: { status: "ELIGIBLE" },
 };
 
-const PRODUCTION_CATALOG = RECIPE_DISCOVERY_CATALOG;
-const LATE_ON_CATALOG: readonly RecipeDiscoveryTarget[] = [...RECIPE_DISCOVERY_CATALOG, PINSA_I2];
+// The catalog without the real Pinsa row (present only while PINSA_PRODUCTION is open; the real row is pinned in lateCatalog.pinsa.test.ts), so the closed and the
+// open runs of the suite read the same fixtures.
+const PRODUCTION_CATALOG = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "pinsa-romana");
+const LATE_ON_CATALOG: readonly RecipeDiscoveryTarget[] = [...PRODUCTION_CATALOG, PINSA_I2];
 
 type DoughChoice = "standard" | "pinsa";
 type LateChoice = "none" | "both" | "prosciutto-only" | "arugula-only";

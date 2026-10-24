@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { pinsaEnabled } from "../data/pinsaGate";
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
 import { DINNER_REWARD_TABLES } from "../mission/dinner/dinnerReward";
 import { estimateEconomy } from "./catalog/testSupport/ladderEconomyEstimate";
@@ -28,7 +29,9 @@ const ACCEPTED_DIRECTLY_GATED = ["california-style-pizza", "spinach-artichoke-pi
 /** Recipes held back only by propagation (the gated recipes eat the ladder's slack, Batch 7a steps 52-53). */
 /** New Sauces Phase A (#578): with 62 recipes a uniform-★2 player reaches 124 stars, which meets goat-cheese's 120-star gate: only the 130-star spinach gate still holds a recipe back at ★2
  *  (an improvement from catalog growth alone; the gate values are unchanged, and ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. */
-const ACCEPTED_DIRECTLY_GATED_AT_BEST2 = ["spinach-artichoke-pizza"];
+/** Pinsa Romana (#577 P3-b), only while PINSA_PRODUCTION is open: one more discoverable recipe lifts a uniform-★2 Dex to 132 stars, past spinach's 130-star gate -- the same
+ *  catalog-growth-only improvement (the gate values are unchanged; ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. */
+const ACCEPTED_DIRECTLY_GATED_AT_BEST2 = pinsaEnabled() ? [] : ["spinach-artichoke-pizza"];
 const ACCEPTED_COLLATERAL: string[] = [];
 const ACCEPTED_BLOCKED_STEPS: number[] = [];
 /** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1; Batch 8b / New Sauces Phase A: 58 - 55 - 2 = 1 (every new recipe brings its own step, so the slack is unchanged). */
@@ -45,7 +48,7 @@ describe("ladder reachability -- BASELINE (accepted current closure, #561)", () 
     expect(r.collateralRecipeIds).toEqual(ACCEPTED_COLLATERAL);
     expect(r.blockedSteps).toEqual(ACCEPTED_BLOCKED_STEPS);
     expect(r.creditedTotal - r.creditedReached).toBe(accepted.length + ACCEPTED_COLLATERAL.length);
-    expect(r.totalStars).toBeLessThan(maxGate);
+    if (accepted.length > 0) expect(r.totalStars).toBeLessThan(maxGate); // (nothing is held back once the Dex reaches the highest gate on its own)
   });
 
   it("BEST ★3 everywhere: every credited recipe is reachable and no step is blocked", () => {

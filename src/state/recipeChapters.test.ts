@@ -4,6 +4,7 @@ import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { buildRecipeChapters, chapterProgress, isChapterCleared, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
 import { isLateRecipeId } from "../logic/catalog/testSupport/lateIds";
+import { pinsaEnabled } from "../data/pinsaGate";
 
 /** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10; No.27 pesto-pollo (key step 25, T3) makes it 6 / 10 / 11; Expansion Slice 1 pesto-gamberi (key step 26, T3) makes it 6 / 10 / 12 (Chapter 3 No.12). */
 describe("recipeChapters (OD-DISC-9)", () => {
@@ -99,7 +100,10 @@ describe("isChapterCleared (K2)", () => {
     expect(real.recipes.some((r) => r.id === "ikura-salmon-pizza")).toBe(true);
     const ordinary = real.recipes.filter((r) => !isLateRecipeId(r.id)).map((r) => r.id);
     expect(isChapterCleared(real, discoverAll(ordinary))).toBe(true);
-    expect(chapterProgress(real, discoverAll(ordinary))).toEqual({ discovered: ordinary.length, total: ordinary.length + 1 });
+    // every late recipe in the chapter adds to the displayed total and none is required for the mark (ikura; with the Pinsa gate open, pinsa-romana too: its key step is arugula's, in chapter 4)
+    const lateInChapter = real.recipes.length - ordinary.length;
+    expect(lateInChapter).toBe(pinsaEnabled() ? 2 : 1);
+    expect(chapterProgress(real, discoverAll(ordinary))).toEqual({ discovered: ordinary.length, total: ordinary.length + lateInChapter });
   });
 
   it("late catalog ON: a finished chapter keeps its mark while the displayed count grows (26/27 ✓), and the late recipe is not required", () => {

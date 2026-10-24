@@ -16,7 +16,7 @@ import {
 } from "./registration";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { isLateRecipeId } from "../catalog/testSupport/lateIds";
-import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
 
 /** The production catalog without any NO_SAUCE target (derived from the sauce-profile authority). */
@@ -78,6 +78,7 @@ describe("detection", () => {
       const expected = [
         ...((noSauceRecipeIds() as readonly string[]).includes(t.recipeId) ? ["no-sauce"] : []),
         ...(PAN_TRAY_RECIPE_IDS.includes(t.recipeId) ? ["tray"] : []), // Square Dough E-2: grandma-pizza declares pan "tray"
+        ...(DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId) ? ["dough-pinsa-romana"] : []), // Pinsa Romana (#577): only while PINSA_PRODUCTION is open
         ...(isLateRecipeId(t.recipeId) ? ["late-addition"] : []),
       ];
       expect(requiredTechniquesOf(t), t.recipeId).toEqual(expected);
@@ -134,10 +135,10 @@ describe("backfill (INV-TQ-1 at load)", () => {
   });
 
   it("is a no-op for every production Dex without a NO_SAUCE recipe, and adds no-sauce once one is discovered", () => {
-    const withoutAussie = WITHOUT_NO_SAUCE.filter((t) => !PAN_TRAY_RECIPE_IDS.includes(t.recipeId)); // (Square Dough E-2: the tray recipe grandma-pizza records 天板焼き)
+    const withoutAussie = WITHOUT_NO_SAUCE.filter((t) => !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId)); // (Square Dough E-2: the tray recipe grandma-pizza records 天板焼き)
     expect(backfillTechniqueLedger([], withoutAussie)).toEqual({ ledger: [], added: [] });
     // E5: with the late catalog on, discovering the whole catalog also records the late recipe's 後乗せ.
-    const all = lateCatalogEnabled() ? ["no-sauce", "tray", "late-addition"] : ["no-sauce", "tray"];
+    const all = ["no-sauce", "tray", ...(DOUGH_PINSA_ROMANA_RECIPE_IDS.length > 0 ? ["dough-pinsa-romana"] : []), ...(lateCatalogEnabled() ? ["late-addition"] : [])]; // (registry order; Pinsa Romana adds the dough technique only while its gate is open)
     expect(backfillTechniqueLedger([], RECIPE_DISCOVERY_CATALOG)).toEqual({ ledger: all, added: all });
   });
 });

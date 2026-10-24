@@ -26,7 +26,9 @@ import { withoutInactiveLate } from "../catalog/testSupport/lateIds";
  */
 
 function snapshot(): string {
-  const out = RECIPES.map((r) => {
+  // Pinsa Romana (#577 P3-b) is outside this golden: its ladder is jamon's by construction (same key-free roles, same ingredients; pinned in lateCatalog.pinsa.test.ts), and
+  // the golden is the frozen 55-ladder baseline, so a recipe present only while PINSA_PRODUCTION is open must not re-baseline it.
+  const out = RECIPES.filter((r) => (r.id as string) !== "pinsa-romana").map((r) => {
     const ladder = buildHint5Ladder(r.id)!;
     const completed: string[] = [];
     const states = [];

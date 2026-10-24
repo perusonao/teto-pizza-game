@@ -24,6 +24,8 @@ import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "./recipeDiscov
 import { createDefaultSave } from "./persistence";
 import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
 import { MULTI_SAUCE_RECIPE_IDS } from "../logic/testSupport/requiredSauces";
+import { recipeIdentityKey, targetIdentityKey } from "../logic/catalog/testSupport/identityKeys";
+import { pinsaEnabled } from "../data/pinsaGate";
 
 /**
  * Expansion Wave 2: vongole (No.13) / pesto-vegetariana (No.14) / ratatouille-pizza (No.15) and the
@@ -123,9 +125,9 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
   });
 
   it("no identity collision: all 32 identities (ingredient set + counts) are unique and each new recipe matches only itself", () => {
-    const keys = RECIPES.map((r) => JSON.stringify([...r.requiredIngredients].map((q) => [q.ingredientId, q.minCount]).sort()));
+    const keys = RECIPES.map((r) => recipeIdentityKey(r)); // Pinsa (#577): the dough kind and the post-bake ingredients are part of a recipe's identity
     expect(new Set(keys).size).toBe(RECIPES.length);
-    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => t.items.join("|"))).size).toBe(RECIPES.length);
+    expect(new Set(RECIPE_DISCOVERY_CATALOG.map((t) => targetIdentityKey(t))).size).toBe(RECIPES.length);
     for (const id of IDS) {
       const m = matchDiscovery(signatureOfPizza(pizzaOf(rec(id).requiredIngredients.map((q) => q.ingredientId))), RECIPE_DISCOVERY_CATALOG);
       expect(m.kind, id).toBe("UNIQUE_MATCH");
@@ -220,7 +222,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
       expect(rec(id).ladderCredit, id).toBeUndefined();
       expect(countsTowardLadder(id), id).toBe(true);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza"]); // Square Dough E-2 appends grandma-pizza; Batch 8a appends three non-credit recipes; Issue #561 promotes frango-catupiry to credited
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Square Dough E-2 appends grandma-pizza; Batch 8a appends three non-credit recipes; Issue #561 promotes frango-catupiry to credited
   });
 
   it("states: vongole UNKNOWN before step 27, KBMM until parsley is bought, DISCOVERABLE after", () => {

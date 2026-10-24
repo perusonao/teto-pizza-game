@@ -19,6 +19,20 @@ export function postBakeIdsOf(ids: readonly string[]): string[] {
   return [];
 }
 
+/**
+ * Pinsa Romana (#577 P3-b): the harnesses bake "the answer" from an INGREDIENT SET, but a recipe is also its dough kind and its post-bake part, so two recipes can share
+ * every ingredient (jamon-serrano-pizza / pinsa-romana). `answerVariantOf` is the one place that turns an answer into what a player does with it: which ingredients go
+ * after the bake and which dough is chosen (the DOUGH chip, as `trayPanForIds` stands in for the ○/□ switch). With `recipeId` it is exactly that recipe's variant; without
+ * it, the first recipe whose ingredient set matches (the previous behaviour, so every other caller is unchanged).
+ */
+export function answerVariantOf(ids: readonly string[], recipeId?: string): { post: string[]; dough?: "material-multigrain-long-ferment" } {
+  const recipe = recipeId === undefined ? undefined : RECIPES.find((r) => r.id === recipeId);
+  if (!recipe) return { post: postBakeIdsOf(ids) };
+  const post = recipe.requiredIngredients.filter((q) => (q as { applicationPhase?: string }).applicationPhase === "POST_BAKE").map((q) => q.ingredientId);
+  const dough = (recipe as { doughKind?: string }).doughKind;
+  return dough === "material-multigrain-long-ferment" ? { post, dough } : { post };
+}
+
 /** Places `piecesOf(id)` pieces of each post-bake id in the FINISH step the round is waiting in (no-op for `post = []`). */
 export function placeFinishPieces(state: GameState, post: readonly string[], piecesOf: (id: string) => number): GameState {
   let s = state;

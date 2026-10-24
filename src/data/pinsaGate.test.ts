@@ -27,20 +27,23 @@ import { getReferencePizza, listReferencePizzas } from "./referencePizza";
 const PINSA = "pinsa-romana";
 const WORDS = /ピンサ|ロマーナ|pinsa|romana|material-multigrain/i;
 
+/** `TETO_PINSA_ON=1` (vitest.config.ts) compiles the gate open to rehearse the publish: the runtime OFF checks below are then skipped, and the shipped TEXT is still pinned. */
+const REHEARSING_ON = pinsaEnabled();
+
 describe("the gate literal", () => {
-  it("is false in the shipped build (publishing Pinsa is a separate Owner approval)", () => {
-    expect(PINSA_PRODUCTION).toBe(false);
-    expect(pinsaEnabled()).toBe(false);
-  });
-  it("is a plain boolean literal, so a bundler can drop the Pinsa branch", async () => {
+  it("is false in the shipped source (publishing Pinsa is a separate Owner approval; the text is read raw, so a rehearsal run cannot hide a flipped literal)", () => {
     const sources = import.meta.glob<string>("./pinsaGate.ts", { query: "?raw", import: "default", eager: true });
     const text = Object.values(sources)[0];
-    expect(text).toMatch(/export const PINSA_PRODUCTION = (true|false);/);
+    expect(text).toMatch(/^export const PINSA_PRODUCTION = false;$/m);
     expect(text).not.toMatch(/import\.meta\.env/);
+    if (!REHEARSING_ON) {
+      expect(PINSA_PRODUCTION).toBe(false);
+      expect(pinsaEnabled()).toBe(false);
+    }
   });
 });
 
-describe("OFF: Pinsa exists in no runtime catalog", () => {
+describe.skipIf(REHEARSING_ON)("OFF: Pinsa exists in no runtime catalog", () => {
   it("RECIPES / ORDERS / discovery catalog / ladder / ingredients / late arrays name no Pinsa", () => {
     for (const [name, value] of Object.entries({ RECIPES, ORDERS, RECIPE_DISCOVERY_CATALOG, DISCOVERY_LADDER, INGREDIENTS, LATE_RECIPES, LATE_ORDERS, LATE_DISCOVERY_TARGET_IDS })) {
       expect(JSON.stringify(value), name).not.toMatch(WORDS);
@@ -80,7 +83,7 @@ describe("OFF: Pinsa exists in no runtime catalog", () => {
   });
 });
 
-describe("OFF: Research, Hint and the technique Dex show nothing of Pinsa, at any progress", () => {
+describe.skipIf(REHEARSING_ON)("OFF: Research, Hint and the technique Dex show nothing of Pinsa, at any progress", () => {
   const allOwned = INGREDIENTS.map((i) => i.id);
 
   it("Research candidates (every material owned, empty Dex) never contain it, and arugula's cohort is jamon alone (no letter)", () => {

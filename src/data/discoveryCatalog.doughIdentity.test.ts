@@ -136,8 +136,10 @@ function pizzaOf(dough: DoughChoice, late: LateChoice, pan: PanChoice): PizzaSta
     ...(pan === "tray" ? { pan: "tray" as const } : {}),
   } as PizzaState;
 }
-const PRODUCTION: readonly RecipeDiscoveryTarget[] = RECIPE_DISCOVERY_CATALOG;
-const WITH_PINSA: readonly RecipeDiscoveryTarget[] = [...RECIPE_DISCOVERY_CATALOG, PINSA_TARGET];
+// The catalog without the real Pinsa row (present only while PINSA_PRODUCTION is open; the real row is pinned in lateCatalog.pinsa.test.ts): these tables
+// compare "no Pinsa" with a SYNTHETIC Pinsa built by the same function the data uses, so both runs of the suite (gate closed / open) read the same fixtures.
+const PRODUCTION: readonly RecipeDiscoveryTarget[] = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "pinsa-romana");
+const WITH_PINSA: readonly RecipeDiscoveryTarget[] = [...PRODUCTION, PINSA_TARGET];
 const label = (o: DiscoveryOutcome): string => (o.kind === "NEW_DISCOVERY" || o.kind === "ALREADY_DISCOVERED" ? `${o.kind}:${o.recipeId}` : o.kind);
 const run = (p: PizzaState, catalog: readonly RecipeDiscoveryTarget[], discovered: readonly string[] = []): string => label(evaluateDiscovery(signatureOfPizza(p), catalog, discovered));
 
