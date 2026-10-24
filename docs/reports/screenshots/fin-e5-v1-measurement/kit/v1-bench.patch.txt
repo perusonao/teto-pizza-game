@@ -1,0 +1,31 @@
+19a20
+> // V1 MEASUREMENT PATCH (disposable tree only): the ikura recipe's own pieces. roePre=1 swaps one pre-bake salmon for a pre-bake roe (negative control).
+21,23c22,26
+<   { id: "pre-mozzarella-1", ingredientId: "mozzarella", x: 40, y: 45 },
+<   { id: "pre-mozzarella-2", ingredientId: "mozzarella", x: 62, y: 58 },
+<   { id: "pre-basil-1", ingredientId: "basil", x: 52, y: 70 },
+---
+>   { id: "pre-cc-1", ingredientId: "cream-cheese", x: 38, y: 50 },
+>   { id: "pre-cc-2", ingredientId: "cream-cheese", x: 62, y: 50 },
+>   { id: "pre-sa-1", ingredientId: "salmon", x: 38, y: 32 },
+>   { id: "pre-sa-2", ingredientId: "salmon", x: 62, y: 32 },
+>   { id: "pre-sa-3", ingredientId: "salmon", x: 50, y: 70 },
+26,28c29,31
+<   { id: "post-basil-1", ingredientId: "basil", x: 30, y: 32, stage: "post" },
+<   { id: "post-pepper-1", ingredientId: "bell-pepper", x: 66, y: 30, stage: "post" },
+<   { id: "post-tomato-1", ingredientId: "fresh-tomato", x: 50, y: 52, stage: "post" },
+---
+>   { id: "post-roe-1", ingredientId: "salmon-roe", x: 36, y: 40, stage: "post" },
+>   { id: "post-roe-2", ingredientId: "salmon-roe", x: 64, y: 40, stage: "post" },
+>   { id: "post-shiso-1", ingredientId: "shiso", x: 50, y: 56, stage: "post" },
+29a33
+> const ROE_PRE: PlacedTopping = { id: "pre-roe-1", ingredientId: "salmon-roe", x: 50, y: 22 };
+42c46,47
+<   const recipe = getRecipe("margherita")!;
+---
+>   const recipe = getRecipe("ikura-salmon-pizza" as never)!;
+>   const roePre = new URLSearchParams(search).get("roePre") === "1";
+47c52
+<     toppings: post ? [...PRE, ...POST] : PRE,
+---
+>     toppings: [...(post ? [...PRE, ...POST] : PRE), ...(roePre ? [ROE_PRE] : [])],

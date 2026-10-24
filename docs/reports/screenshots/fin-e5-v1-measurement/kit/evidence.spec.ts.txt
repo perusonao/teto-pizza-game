@@ -1,0 +1,42 @@
+import { test, expect, type Page } from "@playwright/test";
+import { startTargetlessFreeCook } from "../e2e/support/startFreeCook";
+import { baseSave, guardNetwork, pickChip, safetyPreflight, completeDoughStep, tapDoughPercent, enterBakePaused, landNeedleAndTakeOut, KEY } from "./helpers";
+
+const caption = async (page: Page, text: string) => { await page.evaluate((t) => { let d = document.getElementById("v1cap"); if (!d) { d = document.createElement("div"); d.id = "v1cap"; d.style.cssText = "position:fixed;left:0;right:0;top:0;z-index:99999;background:#000c;color:#fff;font:600 11px/1.3 monospace;padding:3px 6px;pointer-events:none"; document.body.appendChild(d); } d.textContent = t; }, text); await page.waitForTimeout(900); };
+
+test("AC-8 evidence video: V1 ON build (127.0.0.1, fresh context, no Firebase)", async ({ page, context }) => {
+  test.setTimeout(240_000);
+  const ext = await guardNetwork(context);
+  const s = await safetyPreflight(page);
+  await page.evaluate(([k, v]) => localStorage.setItem(k, v), [KEY, JSON.stringify(baseSave())] as const);
+  // 1. bench: roe on the post-bake layer in 4 bake states
+  for (const st of ["none", "raw", "perfect", "burnt"]) {
+    await page.goto(`./?dev=postlayer&bake=${st}`); await page.waitForSelector(".pizza-dough"); await page.waitForTimeout(500);
+    await caption(page, `ON build @ ${s.origin} | salmon-roe (post-bake layer) | bake=${st}`);
+    await page.waitForTimeout(700);
+  }
+  for (const st of ["raw", "perfect", "burnt"]) {
+    await page.goto(`./?dev=postlayer&bake=${st}&roePre=1&post=0`); await page.waitForSelector(".pizza-dough"); await page.waitForTimeout(500);
+    await caption(page, `CONTROL: roe placed BEFORE bake (inside dough) | bake=${st}`);
+  }
+  // 2. real round: Free Cooking, ikura, FINISH
+  await page.goto("./"); await page.waitForSelector(".app-frame");
+  await startTargetlessFreeCook(page); await page.waitForSelector(".pizza-stage");
+  await caption(page, "Free Cooking, FINISH ON: six tabs incl. 仕上げ");
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click(); await page.getByRole("button", { name: /次へ/ }).click();
+  expect(await pickChip(page, /クリームチーズ/)).toBe(true); await tapDoughPercent(page, 38, 50); await tapDoughPercent(page, 62, 50);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  expect(await pickChip(page, /サーモン/)).toBe(true); await tapDoughPercent(page, 38, 32); await tapDoughPercent(page, 62, 32); await tapDoughPercent(page, 50, 70);
+  await caption(page, "pre-bake: cream-cheese x2, salmon x3");
+  await enterBakePaused(page); await landNeedleAndTakeOut(page, { start: 67, end: 69 });
+  await expect(page.getByTestId("finish-dock")).toBeVisible();
+  await caption(page, "FINISH (仕上げ): dish unnamed, post-bake pieces only");
+  expect(await pickChip(page, /いくら/)).toBe(true); await tapDoughPercent(page, 36, 40); await tapDoughPercent(page, 64, 40);
+  expect(await pickChip(page, /大葉/)).toBe(true); await tapDoughPercent(page, 50, 56);
+  await caption(page, "roe x2 + shiso x1 placed after bake");
+  await page.getByTestId("finish-complete").click(); await page.waitForSelector(".result-panel");
+  await caption(page, "RESULT: ikura-salmon-pizza discovered");
+  await page.waitForTimeout(1500);
+  expect(ext.length).toBe(0);
+});

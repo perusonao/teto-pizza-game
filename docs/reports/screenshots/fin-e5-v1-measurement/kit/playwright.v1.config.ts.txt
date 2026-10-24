@@ -1,0 +1,23 @@
+import { defineConfig, devices } from "@playwright/test";
+export default defineConfig({
+  testDir: "./v1spec",
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  reporter: [["list"]],
+  outputDir: "./out/pw",
+  use: {
+    baseURL: "http://127.0.0.1:5193/teto-pizza-game/",
+    video: { mode: "on", size: { width: 390, height: 844 } },
+    screenshot: "off",
+    trace: "off",
+  },
+  projects: [{ name: "v1-390x844", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, launchOptions: { executablePath: "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome" } } }],
+  webServer: {
+    command: "npm run dev -- --host 127.0.0.1 --port 5193 --strictPort",
+    url: "http://127.0.0.1:5193/teto-pizza-game/",
+    env: { TETO_TEST_HOOKS: "1", VITE_PREVIEW_MODE: "1" },
+    reuseExistingServer: false,
+    timeout: 60_000,
+  },
+});

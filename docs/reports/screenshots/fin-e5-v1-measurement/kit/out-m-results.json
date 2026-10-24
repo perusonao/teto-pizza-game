@@ -1,0 +1,166 @@
+{
+  "safety": {
+    "origin": "http://127.0.0.1:5193",
+    "host": "127.0.0.1",
+    "ls": 0,
+    "ss": 0,
+    "firebaseEnvSet": false
+  },
+  "tabs": [
+    "生地",
+    "ソース",
+    "チーズ",
+    "具材",
+    "焼く",
+    "仕上げ"
+  ],
+  "finishHint-low-edge-59": "仕上げに好きな具をのせよう（なしでもOK）",
+  "finishChips-low-edge-59": [
+    "🌿\nバジル\n∞",
+    "🧄\nにんにく\nあと9/9",
+    "🍃\nオレガノ\nあと9/9",
+    "🍅\nチェリートマト\nあと9/9",
+    "🥚\nたまご\nあと9/9",
+    "🍄\nマッシュルーム\nあと9/9"
+  ],
+  "reloadNotice-low-edge-59": "中断していたピザを完成させました オリジナルのピザとして記録しました。 確認した",
+  "finishHint-just-68": "仕上げに好きな具をのせよう（なしでもOK）",
+  "finishChips-just-68": [
+    "🌿\nバジル\n∞",
+    "🧄\nにんにく\nあと9/9",
+    "🍃\nオレガノ\nあと9/9",
+    "🍅\nチェリートマト\nあと9/9",
+    "🥚\nたまご\nあと9/9",
+    "🍄\nマッシュルーム\nあと9/9"
+  ],
+  "reloadNotice-just-68": "中断していたピザを完成させました オリジナルのピザとして記録しました。 確認した",
+  "finishHint-high-edge-77": "仕上げに好きな具をのせよう（なしでもOK）",
+  "finishChips-high-edge-77": [
+    "🌿\nバジル\n∞",
+    "🧄\nにんにく\nあと9/9",
+    "🍃\nオレガノ\nあと9/9",
+    "🍅\nチェリートマト\nあと9/9",
+    "🥚\nたまご\nあと9/9",
+    "🍄\nマッシュルーム\nあと9/9"
+  ],
+  "reloadNotice-high-edge-77": "中断していたピザを完成させました オリジナルのピザとして記録しました。 確認した",
+  "post": {
+    "low-edge-59": {
+      "roe": [
+        {
+          "x": 144.3,
+          "y": 332.9,
+          "w": 19.6,
+          "h": 24
+        },
+        {
+          "x": 231.1,
+          "y": 331.2,
+          "w": 19.2,
+          "h": 23.5
+        }
+      ],
+      "shiso": [
+        {
+          "x": 185.6,
+          "y": 379.6,
+          "w": 18.8,
+          "h": 23
+        }
+      ],
+      "preCount": 5,
+      "preHasRoe": false,
+      "layerInsideDough": false,
+      "doughFilter": "saturate(1.12) brightness(0.99)",
+      "layerFilter": "none",
+      "doughClass": "pizza-dough pizza-dough--interactive pizza-dough--perfect pizza-dough--has-shape-layer"
+    },
+    "just-68": {
+      "roe": [
+        {
+          "x": 144.3,
+          "y": 333,
+          "w": 19.5,
+          "h": 23.9
+        },
+        {
+          "x": 231.1,
+          "y": 331.2,
+          "w": 19.2,
+          "h": 23.5
+        }
+      ],
+      "shiso": [
+        {
+          "x": 187,
+          "y": 377.5,
+          "w": 16,
+          "h": 19.6
+        }
+      ],
+      "preCount": 5,
+      "preHasRoe": false,
+      "layerInsideDough": false,
+      "doughFilter": "saturate(1.12) brightness(0.99)",
+      "layerFilter": "none",
+      "doughClass": "pizza-dough pizza-dough--interactive pizza-dough--perfect pizza-dough--has-shape-layer"
+    },
+    "high-edge-77": {
+      "roe": [
+        {
+          "x": 144.3,
+          "y": 332.9,
+          "w": 19.6,
+          "h": 24
+        },
+        {
+          "x": 231.3,
+          "y": 331.4,
+          "w": 18.8,
+          "h": 23
+        }
+      ],
+      "shiso": [
+        {
+          "x": 185.6,
+          "y": 379.6,
+          "w": 18.8,
+          "h": 23
+        }
+      ],
+      "preCount": 5,
+      "preHasRoe": false,
+      "layerInsideDough": false,
+      "doughFilter": "saturate(1.12) brightness(0.99)",
+      "layerFilter": "none",
+      "doughClass": "pizza-dough pizza-dough--interactive pizza-dough--perfect pizza-dough--has-shape-layer"
+    }
+  },
+  "postPixelSha256": {
+    "low-edge-59": "c7bc7788d50f287399efe8ab0032e16f2b92ba92794c67416b49d6a6dea67030",
+    "just-68": "c7bc7788d50f287399efe8ab0032e16f2b92ba92794c67416b49d6a6dea67030",
+    "high-edge-77": "c7bc7788d50f287399efe8ab0032e16f2b92ba92794c67416b49d6a6dea67030"
+  },
+  "postPixelsIdenticalAcrossStates": true,
+  "failed-raw-20": {
+    "finishDock": 0,
+    "result": "失敗 生焼けで提供できません 💧 焼き加減: 生焼け 今回の獲得 +0 Pitz 今回は料理として成立しなかったため、提供できませんでした。 もう一度試す レシピを選んで作る"
+  },
+  "failed-burnt-95": {
+    "finishDock": 0,
+    "result": "失敗 焦げすぎて提供できません 🔥 焼き加減: 焦げ 今回の獲得 +0 Pitz 今回は料理として成立しなかったため、提供できませんでした。 もう一度試す レシピを選んで作る"
+  },
+  "ident-correct-roe2-shiso1": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.28（第4章 1/28） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★★☆☆ 62点 +133 Pitz（初回発見 +50） 内訳を見る ⏱️ 調理時間 0:00（手際: スムーズ） くわしいスコアを見る",
+  "ident-missing-shiso": "🧪 オリジナルピザ まだ新しいレシピは見つかっていません 🧀 クリームチーズ 🍣 サーモン いくら ⭐ 焼き加減: ジャスト 💡 ヒントを見る 図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。 もう一度試す レシピを選んで作る",
+  "ident-one-roe": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.28（第4章 1/28） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★☆☆☆ 49点 +100 Pitz（初回発見 +50） いくらがお手本より少なめ（1個／お手本2個） 内訳を見る ⏱️ 調理時間 0:00（手際: スムーズ） くわしいスコアを見る",
+  "ident-all-pre-bake": "🧪 オリジナルピザ まだ新しいレシピは見つかっていません 🧀 クリームチーズ 🍣 サーモン いくら 大葉 ⭐ 焼き加減: ジャスト 💡 ヒントを見る 図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。 もう一度試す レシピを選んで作る",
+  "ident-nothing-in-finish": "🧪 オリジナルピザ まだ新しいレシピは見つかっていません 🧀 クリームチーズ 🍣 サーモン ⭐ 焼き加減: ジャスト 💡 ヒントを見る 図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。 もう一度試す レシピを選んで作る",
+  "ringPostAfter3": 3,
+  "ringPostAfterExtraTaps": 7,
+  "ringAllPieces": {
+    "n": 12,
+    "minCenterDistPx": 24.4,
+    "sizes": "20.0,20.0,40.2,40.2,40.2,19.6,19.6,19.6,18.8,21.2,17.4,11.8"
+  },
+  "external": []
+}

@@ -1,0 +1,22 @@
+--- a/src/data/lateCatalog.ts
++++ b/src/data/lateCatalog.ts
+@@ -28,7 +28,7 @@
+ import type { Ingredient } from "./ingredients";
+ 
+ /** Build-time switch (Owner D-3 案 1). `false` in Production; a literal so a bundler drops the late branch. */
+-export const LATE_CATALOG_PRODUCTION = false;
++export const LATE_CATALOG_PRODUCTION = true;
+ 
+ export function lateCatalogEnabled(): boolean {
+   return LATE_CATALOG_PRODUCTION;
+--- a/src/data/freeCookFinishGate.ts
++++ b/src/data/freeCookFinishGate.ts
+@@ -10,7 +10,7 @@
+ import { freeFinishPreviewOptedIn } from "../preview/freeFinishPreview";
+ 
+ /** Production switch. Stays `false` until the Owner enables Free Cooking FINISH (E5, after the E4 data). */
+-export const FREE_COOK_FINISH_PRODUCTION = false;
++export const FREE_COOK_FINISH_PRODUCTION = true;
+ 
+ export function freeCookFinishEnabled(): boolean {
+   return FREE_COOK_FINISH_PRODUCTION || freeFinishPreviewOptedIn();

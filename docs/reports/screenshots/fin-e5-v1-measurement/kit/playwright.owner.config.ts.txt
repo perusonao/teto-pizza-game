@@ -1,0 +1,4 @@
+import { defineConfig, devices } from "@playwright/test";
+export default defineConfig({ testDir: "./v1spec-owner", workers: 1, reporter: [["list"]], outputDir: "./out/pw-owner",
+  use: { baseURL: "http://127.0.0.1:4174/teto-pizza-game/", video: "off" },
+  projects: [{ name: "o", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, launchOptions: { executablePath: "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome" } } }] });

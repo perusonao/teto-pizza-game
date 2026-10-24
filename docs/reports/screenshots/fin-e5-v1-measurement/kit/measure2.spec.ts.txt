@@ -1,0 +1,55 @@
+import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { test, expect, type Page, type BrowserContext } from "@playwright/test";
+import { startTargetlessFreeCook } from "../e2e/support/startFreeCook";
+import { baseSave, guardNetwork, pickChip, safetyPreflight, completeDoughStep, tapDoughPercent, enterBakePaused, landNeedleAndTakeOut, KEY } from "./helpers";
+
+const sharp = createRequire(import.meta.url)("sharp");
+mkdirSync("out/m2", { recursive: true });
+const R: Record<string, any> = {};
+const sha = (b: Buffer) => createHash("sha256").update(b).digest("hex");
+const save = (name: string) => writeFileSync(`out/m2/${name}.json`, JSON.stringify(R[name] ?? R, null, 2));
+
+test("A bench: salmon-roe on a post-bake layer in 4 bake states (raw/perfect/burnt/none)", async ({ page, context }) => {
+  const ext = await guardNetwork(context);
+  R.safetyA = await safetyPreflight(page);
+  const STATES = ["none", "raw", "perfect", "burnt"] as const;
+  const postSha: Record<string, string> = {}; const postRaw: Buffer[] = [];
+  const preSha: Record<string, string> = {}; const roePreSha: Record<string, string> = {};
+  const vis: Record<string, any> = {};
+  const ISO = `.pizza-dough{background:none!important;border-color:transparent!important;box-shadow:none!important}
+    .pizza-dough-shape,.pizza-dough-square,.pizza-bake-overlay,.pizza-char-spots,.pizza-smoke-wrap,.pizza-perfect-glow,.pizza-sauce-heatmap{display:none!important}
+    *{animation:none!important;transition:none!important} html,body,main,.app-frame{background:#fff!important}`;
+  async function open(q: string) { await page.goto(`./?dev=postlayer&${q}`); await page.waitForSelector(".pizza-dough"); await page.waitForTimeout(400); }
+  for (const st of STATES) {
+    // visible (real look) + visibility metrics
+    await open(`bake=${st}`);
+    const boxes = await page.evaluate(() => [...document.querySelectorAll(".pizza-post-layer .pizza-topping--salmon-roe")].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }));
+    const full = await page.screenshot();
+    writeFileSync(`out/m2/bench-${st}.png`, full);
+    const img = sharp(full); const { width, height } = await img.metadata(); const raw = await img.raw().toBuffer(); const ch = 3 + ((await img.metadata()).hasAlpha ? 1 : 0);
+    const meanRGB = (x0: number, y0: number, x1: number, y1: number, skip?: [number, number, number, number]) => { let r = 0, g = 0, b = 0, n = 0; for (let y = Math.max(0, Math.floor(y0)); y < Math.min(height!, Math.ceil(y1)); y += 1) for (let x = Math.max(0, Math.floor(x0)); x < Math.min(width!, Math.ceil(x1)); x += 1) { if (skip && x >= skip[0] && x < skip[2] && y >= skip[1] && y < skip[3]) continue; const i = (y * width! + x) * ch; r += raw[i]; g += raw[i + 1]; b += raw[i + 2]; n += 1; } return [r / n, g / n, b / n].map((v) => +v.toFixed(1)); };
+    const lum = (c: number[]) => { const f = (v: number) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+    vis[st] = boxes.map((b) => { const inner = meanRGB(b.x + b.w * 0.2, b.y + b.h * 0.2, b.x + b.w * 0.8, b.y + b.h * 0.8); const ring = meanRGB(b.x - 8, b.y - 8, b.x + b.w + 8, b.y + b.h + 8, [b.x, b.y, b.x + b.w, b.y + b.h]); const L1 = lum(inner), L2 = lum(ring); return { box: { w: +b.w.toFixed(1), h: +b.h.toFixed(1) }, inner, ring, rgbDistance: +Math.hypot(inner[0] - ring[0], inner[1] - ring[1], inner[2] - ring[2]).toFixed(1), wcagContrast: +((Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05)).toFixed(2) }; });
+    // post pixels isolated
+    await open(`bake=${st}`);
+    await page.addStyleTag({ content: ISO + ` .pizza-topping:not(.pizza-post-layer .pizza-topping){display:none!important}` });
+    await page.waitForTimeout(200);
+    const box = (await page.locator(".pizza-dough").boundingBox())!;
+    const pb = await page.screenshot({ clip: box }); postSha[st] = sha(pb); postRaw.push(await sharp(pb).raw().toBuffer());
+    // pre-bake pieces only (control: they SHOULD change)
+    await open(`bake=${st}`);
+    await page.addStyleTag({ content: ISO + ` .pizza-post-layer{display:none!important}` }); await page.waitForTimeout(200);
+    preSha[st] = sha(await page.screenshot({ clip: (await page.locator(".pizza-dough").boundingBox())! }));
+    // roe placed PRE-bake (control: tinted by the dough filter)
+    await open(`bake=${st}&roePre=1&post=0`);
+    await page.addStyleTag({ content: ISO + ` .pizza-topping:not(.pizza-topping--salmon-roe){display:none!important}` }); await page.waitForTimeout(200);
+    roePreSha[st] = sha(await page.screenshot({ clip: (await page.locator(".pizza-dough").boundingBox())! }));
+  }
+  R.bench = { postSha, postIdentical: postRaw.every((r) => Buffer.compare(r, postRaw[0]) === 0), preBakePiecesSha_control: preSha, preBakePiecesChangeAcrossStates: new Set(Object.values(preSha)).size, roeInsideDoughSha_control: roePreSha, roeInsideDoughChangeAcrossStates: new Set(Object.values(roePreSha)).size, visibility: vis };
+  R.externalA = ext;
+  writeFileSync("out/m2/bench.json", JSON.stringify(R.bench, null, 2));
+  console.log(JSON.stringify(R.bench, null, 2));
+  expect(ext.length).toBe(0);
+});

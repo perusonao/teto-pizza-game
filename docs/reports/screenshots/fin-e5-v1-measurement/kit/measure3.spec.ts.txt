@@ -1,0 +1,102 @@
+import { createHash } from "node:crypto";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { test, expect, type Page, type BrowserContext } from "@playwright/test";
+import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
+import { INGREDIENTS } from "../src/data/ingredients";
+import { RECIPES, countsTowardLadder } from "../src/data/recipes";
+import { startTargetlessFreeCook } from "../e2e/support/startFreeCook";
+import { baseSave, guardNetwork, pickChip, safetyPreflight, completeDoughStep, tapDoughPercent, enterBakePaused, landNeedleAndTakeOut, KEY } from "./helpers";
+
+mkdirSync("out/m3", { recursive: true });
+const R: Record<string, any> = {};
+const sha = (s: string) => createHash("sha256").update(s).digest("hex").slice(0, 16);
+const out = () => writeFileSync("out/m3/results.json", JSON.stringify(R, null, 2));
+const FB = (v: number) => ({ start: v - 1, end: v + 1 });
+const readSave = (p: Page) => p.evaluate((k) => localStorage.getItem(k), KEY);
+
+async function startFree(context: BrowserContext, old: Page | null, save: object = baseSave()) {
+  if (old) await old.close();
+  const p = await context.newPage();
+  await p.goto("icons/icon-16.png");
+  await p.evaluate(([k, v]) => localStorage.setItem(k, v), [KEY, JSON.stringify(save)] as const);
+  await p.goto("./"); await p.waitForSelector(".app-frame");
+  await startTargetlessFreeCook(p); await p.waitForSelector(".pizza-stage");
+  return p;
+}
+async function prep(page: Page) {
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /次へ/ }).click();
+  expect(await pickChip(page, /クリームチーズ/)).toBe(true);
+  await tapDoughPercent(page, 38, 50); await tapDoughPercent(page, 62, 50);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  expect(await pickChip(page, /サーモン/)).toBe(true);
+  await tapDoughPercent(page, 38, 32); await tapDoughPercent(page, 62, 32); await tapDoughPercent(page, 50, 70);
+}
+async function post(page: Page, roe: number, shiso: number) {
+  const pts = [[36, 40], [64, 40], [50, 56], [30, 62], [70, 62], [50, 84], [50, 18]];
+  let i = 0;
+  if (roe) { expect(await pickChip(page, /いくら/)).toBe(true); for (let k = 0; k < roe; k += 1) { await tapDoughPercent(page, pts[i][0], pts[i][1]); i += 1; } }
+  if (shiso) { expect(await pickChip(page, /大葉/)).toBe(true); for (let k = 0; k < shiso; k += 1) { await tapDoughPercent(page, pts[i][0], pts[i][1]); i += 1; } }
+}
+const resText = async (p: Page) => { await p.waitForSelector(".result-panel", { timeout: 15000 }); return (await p.locator(".result-panel").innerText()).replace(/\s+/g, " "); };
+const panel = async (p: Page) => ((await p.locator(".scoring-v2-panel").count()) ? (await p.locator(".scoring-v2-panel").innerText()).replace(/\s+/g, " ") : null);
+
+test("B scoring / 後乗せ判定 variants (Free Cooking, ON build)", async ({ context, page: p0 }) => {
+  test.setTimeout(300_000);
+  const ext = await guardNetwork(context);
+  R.safety = await safetyPreflight(p0);
+  let page = p0;
+  const variants: [string, number, number, number][] = [["bake59-roe2-shiso1", 59, 2, 1], ["bake68-roe2-shiso1", 68, 2, 1], ["bake77-roe2-shiso1", 77, 2, 1], ["bake68-roe1-shiso1", 68, 1, 1], ["bake68-roe5-shiso1", 68, 5, 1], ["bake68-roe2-shiso0", 68, 2, 0], ["bake68-roe0-shiso1", 68, 0, 1], ["bake68-roe2-shiso2", 68, 2, 2]];
+  R.scoring = {};
+  for (const [label, v, roe, shiso] of variants) {
+    page = await startFree(context, page);
+    await prep(page); await enterBakePaused(page); await landNeedleAndTakeOut(page, FB(v));
+    await post(page, roe, shiso);
+    await page.getByTestId("finish-complete").click();
+    const t = await resText(page);
+    R.scoring[label] = { headline: t.slice(0, 150), stars: (t.match(/★+☆*/) ?? [""])[0], bake: (t.match(/焼き加減: \S+/) ?? [""])[0], debug: await panel(page) };
+    await page.screenshot({ path: `out/m3/score-${label}.png` });
+    out();
+  }
+  R.externalB = ext; out(); expect(ext.length).toBe(0);
+});
+
+test("D R8: B-1 / B-2 / D-1 analogues in FINISH (close = force-quit, reopen = restart)", async ({ context, page: p0 }) => {
+  test.setTimeout(300_000);
+  const ext = await guardNetwork(context);
+  await safetyPreflight(p0);
+  let page = await startFree(context, p0);
+  const before = JSON.parse((await readSave(page))!);
+  await prep(page); await enterBakePaused(page); await landNeedleAndTakeOut(page, FB(68));
+  await post(page, 2, 1);
+  await expect(page.getByTestId("finish-dock")).toBeVisible();
+  const midFinish = JSON.parse((await readSave(page))!);
+  R.r8 = { before: { inv: { cc: before.inventory["cream-cheese"], salmon: before.inventory.salmon, roe: before.inventory["salmon-roe"], shiso: before.inventory.shiso }, dex: before.dex.length, pitz: before.pitzBalance }, midFinish: { inv: { cc: midFinish.inventory["cream-cheese"], salmon: midFinish.inventory.salmon, roe: midFinish.inventory["salmon-roe"], shiso: midFinish.inventory.shiso }, dex: midFinish.dex.length, hasPendingRound: Boolean(midFinish.pendingRound), pendingStatus: midFinish.pendingRound?.status ?? null } };
+  // B-1: force-quit mid FINISH, restart
+  await page.close(); page = await context.newPage(); await page.goto("./"); await page.waitForSelector(".app-frame");
+  const notice = page.locator("[data-round-notice]");
+  R.r8.b1 = { noticeVisible: await notice.count(), noticeText: (await notice.count()) ? (await notice.innerText()).replace(/\s+/g, " ") : null };
+  await page.screenshot({ path: "out/m3/r8-b1-notice.png" });
+  const afterB1 = JSON.parse((await readSave(page))!);
+  const dexOf = (s: any) => s.dex.map((d: any) => ({ id: d.recipeId, made: d.timesMade, stars: d.bestStars, best: d.bestScore }));
+  R.r8.b1.save = { inv: { cc: afterB1.inventory["cream-cheese"], salmon: afterB1.inventory.salmon, roe: afterB1.inventory["salmon-roe"], shiso: afterB1.inventory.shiso }, dex: dexOf(afterB1), pitz: afterB1.pitzBalance, pendingStatus: afterB1.pendingRound?.status ?? null };
+  // D-1: restart 3 times WITHOUT acknowledging: nothing may change
+  const snaps: string[] = [];
+  for (let i = 0; i < 3; i += 1) { await page.close(); page = await context.newPage(); await page.goto("./"); await page.waitForSelector(".app-frame"); const s = JSON.parse((await readSave(page))!); snaps.push(sha(JSON.stringify({ dex: dexOf(s), pitz: s.pitzBalance, inv: s.inventory, pr: s.pendingRound?.status ?? null }))); }
+  R.r8.d1 = { snapshotsAfter3ForceQuits: snaps, identical: new Set(snaps).size === 1, noticeStillShown: await page.locator("[data-round-notice]").count() };
+  // B-2: acknowledge, restart: notice gone, counts same
+  await page.getByRole("button", { name: "確認した" }).click();
+  const afterAck = JSON.parse((await readSave(page))!);
+  await page.close(); page = await context.newPage(); await page.goto("./"); await page.waitForSelector(".app-frame");
+  const afterB2 = JSON.parse((await readSave(page))!);
+  R.r8.b2 = { noticeAfterRestart: await page.locator("[data-round-notice]").count(), pendingRoundGone: !afterB2.pendingRound, sameDexPitzInvAsBeforeAck: sha(JSON.stringify({ dex: dexOf(afterAck), pitz: afterAck.pitzBalance, inv: afterAck.inventory })) === sha(JSON.stringify({ dex: dexOf(afterB2), pitz: afterB2.pitzBalance, inv: afterB2.inventory })), dex: dexOf(afterB2) };
+  // B-1 variant: force-quit AFTER 完成 is not possible (round already registered) -> also a quit right after bake take-out, before any piece
+  page = await startFree(context, page, afterB2);
+  await prep(page); await enterBakePaused(page); await landNeedleAndTakeOut(page, FB(68));
+  await expect(page.getByTestId("finish-dock")).toBeVisible();
+  await page.close(); page = await context.newPage(); await page.goto("./"); await page.waitForSelector(".app-frame");
+  R.r8.quitBeforeAnyPiece = { noticeText: (await page.locator("[data-round-notice]").count()) ? (await page.locator("[data-round-notice]").innerText()).replace(/\s+/g, " ") : null };
+  R.external = ext; out(); console.log(JSON.stringify(R.r8, null, 2));
+  expect(ext.length).toBe(0);
+});
