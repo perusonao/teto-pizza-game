@@ -51,6 +51,7 @@ const ALL_RECIPES = [
   "melanzane-pizza", "parmigiana-pizza", "bambino", "hawaiian", "pizza-portuguesa", "pesto-tonno",
   "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza", "brazilian-calabresa",
   "aussie", // TQ-1D: makeable once onion is owned, so the seeded "everything found" save must include it (else it is a Research Entry)
+  "grandma-pizza", // Square Dough E-2: makeable once olive-oil + garlic are owned (step 14), so the same applies
 ];
 // FREE_COOK_BAKE_TARGET (src/data/freeCook.ts) and the recipes' own bakeTarget (src/data/recipes.ts).
 const FREE_BAKE = { start: 58, end: 78 };

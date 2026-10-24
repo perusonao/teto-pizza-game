@@ -4,6 +4,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE } from "../../data/freeCook";
 import { INGREDIENTS } from "../../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../../data/referencePizza";
+import { requiredSauceIds } from "../../logic/testSupport/requiredSauces";
 import { getRecipe, RECIPES, type BakeTarget, type RecipeId } from "../../data/recipes";
 import { bakeCompletionFailure, evaluatePizzaCompletion } from "../../logic/completionGate";
 import type { RecipeDiscoveryTarget } from "../../logic/discovery/matcher";
@@ -86,7 +87,7 @@ function pizzaFor(
   }
   return {
     ...createEmptyPizza(),
-    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+    sauceIds: requiredSauceIds(recipeId),
     sauceDeposits: buildIdealSauceFixture(),
     toppings,
     bakeResult: options.bake === undefined ? midBake(recipeId) : options.bake,
@@ -157,7 +158,9 @@ describe("identity: the Free Cooking matcher, reused (§3 / §4)", () => {
     expect(new Set(keys).size).toBe(RECIPES.length); // 0 identical signatures
     // E5: Dinner has no FINISH (D2-0), so the late recipe (post-bake) is never a Dinner identity; pinned in finishD2Inert.test.ts.
     for (const recipe of ordinaryRecipes(RECIPES)) {
-      expect(resolveDinnerIdentity(pizzaFor(recipe.id)), recipe.id).toEqual({ kind: "RECIPE", recipeId: recipe.id });
+      // Square Dough E-2: grandma-pizza is identified only when cooked on the tray, and Dinner has no tray (AC2: no round cook discovers it), so it is never a Dinner identity.
+      const expected = recipe.id === "grandma-pizza" ? { kind: "NONE" } : { kind: "RECIPE", recipeId: recipe.id };
+      expect(resolveDinnerIdentity(pizzaFor(recipe.id)), recipe.id).toEqual(expected);
     }
   });
 

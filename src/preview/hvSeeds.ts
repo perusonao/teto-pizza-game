@@ -152,13 +152,15 @@ export function buildHvSnapshot(scenario: HvScenario): ProgressionSnapshot {
   const onionIndex = steps.findIndex((step) => step.keyRecipeId === "pizza-portuguesa");
   // Batch 8a: the non-credit chilean-napolitana (no sauce: mozzarella / fresh-tomato / oregano) is a further Research Entry from the fresh-tomato step (20) on, so it is already found there too.
   const CHILEAN = materials.includes("fresh-tomato") ? ["chilean-napolitana"] : [];
-  const NON_CREDIT_ONION_RECIPES = ["brazilian-calabresa", "aussie", ...CHILEAN];
+  // Square Dough E-2: the non-credit grandma-pizza (tomato-sauce / olive-oil / mozzarella / garlic) is a further Research Entry once its materials (olive-oil + garlic) are owned, so it is already found there too.
+  const GRANDMA = materials.includes("olive-oil") && materials.includes("garlic") ? ["grandma-pizza"] : [];
+  const NON_CREDIT_ONION_RECIPES = ["brazilian-calabresa", "aussie", ...CHILEAN, ...GRANDMA];
   const companion =
     !scenario.noTarget && !scenario.dexAfterLadder && onionIndex >= 0 && index > onionIndex
       ? NON_CREDIT_ONION_RECIPES
-      : // a seed that stands for brazilian-calabresa itself keeps only aussie (and chilean-napolitana) found, so calabresa is the lone target
+      : // a seed that stands for brazilian-calabresa itself keeps only aussie (and chilean-napolitana, grandma-pizza) found, so calabresa is the lone target
         scenario.dexAfterLadder
-        ? ["aussie", ...CHILEAN]
+        ? ["aussie", ...CHILEAN, ...GRANDMA]
         : [];
   const dex: DexEntry[] = ["margherita", ...steps.slice(0, index).map((step) => step.keyRecipeId), ...companion].map((recipeId) => ({
     recipeId,

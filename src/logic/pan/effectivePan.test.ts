@@ -16,10 +16,12 @@ describe("effectivePanShape", () => {
     expect(RECIPES.length).toBeGreaterThan(50);
     for (const recipe of [...RECIPES, FREE_COOK_RECIPE, null, undefined]) {
       expect(effectivePanShape(recipe, createEmptyPizza())).toBe(activePanShape(recipe));
-      expect(effectivePanShape(recipe, createEmptyPizza())).toBe("round");
-      expect(effectivePanShape(recipe, null)).toBe("round");
-      expect(effectivePanShape(recipe, undefined)).toBe("round");
-      expect(effectivePanShape(recipe, { pan: null })).toBe("round");
+      // Square Dough E-2: grandma-pizza (panShape "square") is the one shipped recipe whose own pan is square; every other recipe is round.
+      const own = (recipe as { panShape?: string } | null | undefined)?.panShape === "square" ? "square" : "round";
+      expect(effectivePanShape(recipe, createEmptyPizza())).toBe(own);
+      expect(effectivePanShape(recipe, null)).toBe(own);
+      expect(effectivePanShape(recipe, undefined)).toBe(own);
+      expect(effectivePanShape(recipe, { pan: null })).toBe(own);
     }
   });
 

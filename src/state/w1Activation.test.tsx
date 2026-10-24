@@ -21,6 +21,7 @@ import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { ShopOverlay } from "../components/ShopOverlay";
 import { IngredientTray } from "../components/IngredientTray";
 import { pickMissionOrder } from "../mission/lunchRush";
+import { panFieldsFor } from "../logic/testSupport/requiredSauces";
 import {
   LUNCH_RUSH_RULESET_VERSION,
   calculateLunchRushMissionScore,
@@ -123,7 +124,7 @@ describe("production tables: 32 recipes, one row each", () => {
 
 describe("exact-set discovery (Free Cooking)", () => {
   it.each(ordinaryRecipes(RECIPES).map((r) => r.id))("%s: its own ingredient set discovers exactly it", (id) => {
-    const outcome = evaluateDiscovery(signatureOfPizza(pizzaWithItems(ingredientsOf(id))), RECIPE_DISCOVERY_CATALOG, []);
+    const outcome = evaluateDiscovery(signatureOfPizza({ ...pizzaWithItems(ingredientsOf(id)), ...panFieldsFor(id) }), RECIPE_DISCOVERY_CATALOG, []); // (E-2: grandma-pizza on the tray)
     expect(outcome).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: id });
   });
 

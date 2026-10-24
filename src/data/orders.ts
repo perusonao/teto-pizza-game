@@ -390,6 +390,12 @@ const BASE_ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ナスとピリ辛のピザ、青ねぎがのっておいしそう！食べてみたいな！",
   },
+  {
+    id: "order-grandma-pizza",
+    recipeId: "grandma-pizza",
+    requestedBy: "mito",
+    lineJa: "トマトとオリーブオイルのシンプルなグランマピザ、食べてみたいな！",
+  },
 ];
 
 /** Every order the running build knows: `BASE_ORDERS`, plus the late-catalog orders when enabled (otherwise `BASE_ORDERS` itself). */

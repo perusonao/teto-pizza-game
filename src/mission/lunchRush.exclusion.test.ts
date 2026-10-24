@@ -55,7 +55,8 @@ describe("lunchRush: false foundation", () => {
       "shirasu-pizza",
       "flammkuchen",
       "sichuan-eggplant-pizza",
-    ]); // opt-out total = 38
+      "grandma-pizza",
+    ]); // opt-out total = 39
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);

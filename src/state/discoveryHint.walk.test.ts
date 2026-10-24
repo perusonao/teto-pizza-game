@@ -1,4 +1,5 @@
 import { replayForGateStars } from "../logic/testSupport/starGateReplay";
+import { panFieldsFor } from "../logic/testSupport/requiredSauces";
 import { describe, expect, it, vi } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { getIngredient } from "../data/ingredients";
@@ -50,7 +51,7 @@ const BAKE = 68;
 function pizzaOf(ids: readonly string[]): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: ids.filter(isSauce).slice(0, 1),
+    sauceIds: ids.filter(isSauce),
     toppings: ids.filter((id) => !isSauce(id)).map((ingredientId, i) => ({ id: `w${i}`, ingredientId, x: 30 + i * 3, y: 50 })),
     bakeResult: BAKE,
   };
@@ -74,9 +75,10 @@ const postBakeOf = (recipeId: string): string[] =>
  * One Free Cooking round with exactly `ids`, baked and registered; returns the RESULT state. `post` (a subset of `ids`) is placed in the FINISH step
  * after the bake, as a player who has learned 後乗せ does (E5: the hints never say when an ingredient goes on, so the plain call places everything before the bake).
  */
-function bake(s: GameState, ids: readonly string[], post: readonly string[] = []): GameState {
+function bake(s: GameState, ids: readonly string[], post: readonly string[] = [], pan?: "tray"): GameState {
   s = restockLow(s);
-  s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids.filter((id) => !post.includes(id))) };
+  // Square Dough E-2: a square-pan recipe (grandma-pizza) is only discovered cooked on the tray, so the walk cooks it there (`pan`), as a player who has the 天板焼き switch would.
+  s = { ...act(s, { type: "START_FREE_COOK" }), pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id))), ...(pan ? { pan } : {}) } };
   s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE });
   post.forEach((ingredientId, i) => {
     s = act(s, { type: "PLACE_TOPPING", ingredientId, x: 30 + i * 9, y: 40 + i * 6 });
@@ -142,7 +144,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         // (the intended Branching Discovery); there is no non-credit one to find first, so the walk finds the first blind.
         const pick = pool.find((r) => !countsTowardLadder(r.id)) ?? pool[0];
         s = act(s, { type: "CLOSE_HINT" });
-        s = bake(s, [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))]);
+        s = bake(s, [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))], [], panFieldsFor(pick.id).pan);
         expect(s.lastDiscovery, `Dex ${dexCount}: the blind pool pick`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: pick.id });
         expect(discoveredRecipeIds(s.dex).length).toBe(dexCount + 1);
         expect(s.discoveryHintFacts).not.toHaveProperty(pick.id);
@@ -204,7 +206,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
       s = act(s, { type: "CLOSE_HINT" });
 
       // 3. Bake exactly what the hints named.
-      s = bake(s, named);
+      s = bake(s, named, [], panFieldsFor(target.id).pan);
       const first = s.lastDiscovery?.kind ?? "none";
       let trials = 0;
       if (dexCount === 0) {
@@ -226,7 +228,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         for (const id of pool) {
           trials += 1;
           const trial = wantSauce ? [id, ...named] : [...named, id];
-          s = bake(s, trial, postBakeOf(targetId).filter((x) => trial.includes(x)));
+          s = bake(s, trial, postBakeOf(targetId).filter((x) => trial.includes(x)), panFieldsFor(target.id).pan);
           if (s.lastDiscovery?.kind === "NEW_DISCOVERY") break;
         }
         expect(s.lastDiscovery, `Dex ${dexCount}: discovery within ${pool.length} tries`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: targetId });

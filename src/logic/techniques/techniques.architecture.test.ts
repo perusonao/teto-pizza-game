@@ -88,7 +88,8 @@ describe("INV-TQ-NB: a recipe is discoverable while its technique is undiscovere
       // invariance for it is asserted in lateCatalog.ikura.test.ts.
       if (isLateRecipeId(target.recipeId)) continue;
       const sauces = target.sauceBase ?? [];
-      const sig = signatureOfPizza(pizza(sauces, target.items.filter((i) => !sauces.includes(i))));
+      // Square Dough E-2: a tray target (grandma-pizza) is identified only when cooked on the tray.
+      const sig = signatureOfPizza({ ...pizza(sauces, target.items.filter((i) => !sauces.includes(i))), ...(target.identityDimensions?.pan === "tray" ? { pan: "tray" as const } : {}) });
       const before = evaluateDiscovery(sig, CATALOG, []);
       for (const ledger of ledgers) {
         registerTechniqueDiscovery({ ledger, signature: sig, completionPassed: true, matchedTarget: target, isAffordanceOpen: () => ledger.length % 2 === 0 });

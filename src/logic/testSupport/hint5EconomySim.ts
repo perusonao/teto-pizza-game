@@ -43,6 +43,7 @@ import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { placeFinishPieces, postBakeIdsOf } from "./lateFinishSim";
+import { trayPanForIds } from "./requiredSauces";
 
 export type Hint5Profile = "NONE" | "FIXED4" | "FULL";
 export const HINT5_PROFILES: readonly Hint5Profile[] = ["NONE", "FIXED4", "FULL"];
@@ -112,7 +113,7 @@ function pizzaOf(ids: readonly string[]): PizzaState {
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** The P-C total of a target's whole ladder. Round 6: every rung is charged except a RESERVED (empty
@@ -159,7 +160,7 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
 
   function bakeRaw(ids: readonly string[]): GameState {
     const post = postBakeIdsOf(ids); // E5: the late recipe's post-bake part is placed in FINISH
-    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids.filter((id) => !post.includes(id))) };
+    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id))), ...trayPanForIds(ids) } };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
     s = placeFinishPieces(s, post, piecesOf);
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });

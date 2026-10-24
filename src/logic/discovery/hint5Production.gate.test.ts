@@ -26,6 +26,7 @@ import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
 import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
 import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { MULTI_SAUCE_RECIPE_IDS, requiredSauceIds } from "../testSupport/requiredSauces";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
@@ -328,7 +329,12 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
     expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort());
     const sauceRung = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SAUCE");
     const notSingleSauce = RECIPES.filter((r) => sauceRung(r.id).length !== 1 || sauceRung(r.id)[0].subjectIds.length !== 1).map((r) => r.id);
-    expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
+    expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...MULTI_SAUCE_RECIPE_IDS].sort());
+    // Multi-Sauce S3: a two-sauce recipe has ONE SAUCE rung that names both of its sauces (the SAUCE rung is "every sauce"; Design Lock §5.2).
+    for (const id of MULTI_SAUCE_RECIPE_IDS) {
+      expect(sauceRung(id), id).toHaveLength(1);
+      expect([...sauceRung(id)[0].subjectIds].sort(), id).toEqual(requiredSauceIds(id).sort());
+    }
     // Every NO_SAUCE recipe: no SAUCE rung at all (not an empty / RESERVED one), no KEY_TOPPING, the first rung is CHEESE,
     // then STRUCTURE and one SUB_CLASS per topping, indexed 1..n.
     for (const id of noSauce) {

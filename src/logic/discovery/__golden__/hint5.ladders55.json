@@ -13066,6 +13066,167 @@
   ]
  },
  {
+  "id": "grandma-pizza",
+  "keyFree": true,
+  "total": 4,
+  "rungs": [
+   [
+    1,
+    "SAUCE",
+    null,
+    "tomato-sauce",
+    "olive-oil"
+   ],
+   [
+    2,
+    "CHEESE",
+    null,
+    "mozzarella"
+   ],
+   [
+    3,
+    "STRUCTURE",
+    null
+   ],
+   [
+    4,
+    "SUB_CLASS",
+    1,
+    "garlic"
+   ]
+  ],
+  "empty": [],
+  "reserved": [],
+  "states": [
+   {
+    "n": 0,
+    "next": {
+     "rungIndex": 1,
+     "kind": "SAUCE",
+     "labelJa": "ヒント1: ソース",
+     "price": 10
+    },
+    "board": [],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:tomato-sauce",
+      "ing:olive-oil",
+      "h5:sauce"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 1,
+    "next": {
+     "rungIndex": 2,
+     "kind": "CHEESE",
+     "labelJa": "ヒント2: チーズ",
+     "price": 10
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:mozzarella",
+      "h5:cheese"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 2,
+    "next": {
+     "rungIndex": 3,
+     "kind": "STRUCTURE",
+     "labelJa": "ヒント3: 構成（材料の数）",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "meta:ingredient-total",
+      "h5:structure"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 3,
+    "next": {
+     "rungIndex": 4,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント4: サブトッピング①の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:garlic"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 4,
+    "next": null,
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "LADDER_COMPLETE",
+     "addFactIds": [],
+     "charge": 0
+    }
+   }
+  ]
+ },
+ {
   "id": "ikura-salmon-pizza",
   "keyFree": true,
   "total": 4,

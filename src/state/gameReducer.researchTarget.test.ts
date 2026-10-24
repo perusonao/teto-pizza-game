@@ -28,7 +28,7 @@ function save(step: number, extraDiscovered: readonly string[] = [], pitz = 1000
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) };
 }
 /** Step 25 with the non-credit brazilian-calabresa and aussie closed: pesto-pollo is the single entry. */
-const single = (pitz?: number) => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"], pitz);
+const single = (pitz?: number) => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"], pitz);
 /** Step 12: pizza-portuguesa + brazilian-calabresa + aussie (TQ-1D) are all entries. */
 const multi = () => save(12);
 

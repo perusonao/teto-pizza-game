@@ -174,7 +174,9 @@ describe("ON: identification (the roe and the shiso must be placed after the bak
       const late = new Set<string>(recipe.requiredIngredients.filter((q) => "applicationPhase" in q).map((q) => q.ingredientId));
       const pizza = {
         ...createEmptyPizza(),
-        sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+        // every required sauce (a two-sauce recipe needs both), and the tray for a square-pan recipe (Square Dough E-2)
+        sauceIds: reference.sauce ? recipe.requiredIngredients.map((q) => q.ingredientId).filter((id) => on.ingredients.getIngredient(id)?.category === "sauce") : [],
+        ...("panShape" in recipe && recipe.panShape === "square" ? { pan: "tray" as const } : {}),
         toppings: reference.pieceGroups.flatMap((g, gi) =>
           g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p, ...(late.has(g.ingredientId) ? { stage: "post" as const } : {}) })),
         ),

@@ -16,6 +16,7 @@ import {
 } from "./registration";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { isLateRecipeId } from "../catalog/testSupport/lateIds";
+import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
 
 /** The production catalog without any NO_SAUCE target (derived from the sauce-profile authority). */
@@ -72,9 +73,13 @@ describe("detection", () => {
     expect(requiredTechniquesOf({})).toEqual([]);
   });
 
-  it("exactly the NO_SAUCE production recipes require no-sauce, and the late recipe (E5) late-addition (TQ-1D; the sets are derived from the authorities)", () => {
+  it("exactly the NO_SAUCE production recipes require no-sauce, grandma-pizza (E-2) the tray, and the late recipe (E5) late-addition (TQ-1D; the sets are derived from the authorities)", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG) {
-      const expected = [...((noSauceRecipeIds() as readonly string[]).includes(t.recipeId) ? ["no-sauce"] : []), ...(isLateRecipeId(t.recipeId) ? ["late-addition"] : [])];
+      const expected = [
+        ...((noSauceRecipeIds() as readonly string[]).includes(t.recipeId) ? ["no-sauce"] : []),
+        ...(PAN_TRAY_RECIPE_IDS.includes(t.recipeId) ? ["tray"] : []), // Square Dough E-2: grandma-pizza declares pan "tray"
+        ...(isLateRecipeId(t.recipeId) ? ["late-addition"] : []),
+      ];
       expect(requiredTechniquesOf(t), t.recipeId).toEqual(expected);
     }
   });
@@ -129,10 +134,10 @@ describe("backfill (INV-TQ-1 at load)", () => {
   });
 
   it("is a no-op for every production Dex without a NO_SAUCE recipe, and adds no-sauce once one is discovered", () => {
-    const withoutAussie = WITHOUT_NO_SAUCE;
+    const withoutAussie = WITHOUT_NO_SAUCE.filter((t) => !PAN_TRAY_RECIPE_IDS.includes(t.recipeId)); // (Square Dough E-2: the tray recipe grandma-pizza records 天板焼き)
     expect(backfillTechniqueLedger([], withoutAussie)).toEqual({ ledger: [], added: [] });
     // E5: with the late catalog on, discovering the whole catalog also records the late recipe's 後乗せ.
-    const all = lateCatalogEnabled() ? ["no-sauce", "late-addition"] : ["no-sauce"];
+    const all = lateCatalogEnabled() ? ["no-sauce", "tray", "late-addition"] : ["no-sauce", "tray"];
     expect(backfillTechniqueLedger([], RECIPE_DISCOVERY_CATALOG)).toEqual({ ledger: all, added: all });
   });
 });

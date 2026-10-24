@@ -75,14 +75,15 @@ describe("cohort grouping", () => {
     const l = labels(settled(28));
     expect(l["ratatouille-pizza"]).toBe("？？？ピザ A（ズッキーニ）");
     expect(l["pesto-vegetariana"]).toBe("？？？ピザ B（ズッキーニ）");
-    expect(Object.keys(l)).toHaveLength(2);
+    expect(Object.keys(l)).toHaveLength(3); // + Square Dough E-2's grandma-pizza (garlic cohort with marinara: B, see the E-2 test below)
   });
 
   it("a single cohort has no letter: the label is the bare 「？？？ピザ（unlock）」", () => {
     const l = labels(settled(25));
-    expect(l).toEqual({ "pesto-pollo": "？？？ピザ（チキン）" });
+    expect(l).toEqual({ "pesto-pollo": "？？？ピザ（チキン）", "grandma-pizza": "？？？ピザ B（にんにく）" }); // Square Dough E-2: grandma-pizza joins marinara's garlic cohort (B; marinara is A)
     for (const step of [3, 11, 13, 17, 26]) {
-      for (const label of Object.values(labels(settled(step)))) expect(label).not.toMatch(/ピザ [A-Z]+（/);
+      // (Square Dough E-2: grandma-pizza shares marinara's garlic cohort from step 14, so it carries a letter; every other single cohort stays bare)
+      for (const label of Object.entries(labels(settled(step))).filter(([id]) => id !== "grandma-pizza").map(([, v]) => v)) expect(label).not.toMatch(/ピザ [A-Z]+（/);
     }
   });
 
@@ -140,8 +141,8 @@ describe("sibling discovery never moves a letter (OD-R2-3)", () => {
   });
 
   it("step 28: after A is discovered B stays B", () => {
-    expect(labels(settled(28, ["ratatouille-pizza"]))).toEqual({ "pesto-vegetariana": "？？？ピザ B（ズッキーニ）" });
-    expect(labels(settled(28, ["pesto-vegetariana"]))).toEqual({ "ratatouille-pizza": "？？？ピザ A（ズッキーニ）" });
+    expect(labels(settled(28, ["ratatouille-pizza"]))).toEqual({ "pesto-vegetariana": "？？？ピザ B（ズッキーニ）", "grandma-pizza": "？？？ピザ B（にんにく）" });
+    expect(labels(settled(28, ["pesto-vegetariana"]))).toEqual({ "ratatouille-pizza": "？？？ピザ A（ズッキーニ）", "grandma-pizza": "？？？ピザ B（にんにく）" });
   });
 
   it("a slot is never reused: no remaining entry ever takes a discovered sibling's letter", () => {

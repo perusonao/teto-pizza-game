@@ -40,7 +40,8 @@ describe("isDoughAffordanceOpen", () => {
   });
 
   it("is independent of the tray's affordance (neither opens the other)", () => {
-    expect(isTrayAffordanceOpen(dexOf(STEP), CONTEXT)).toBe(false);
+    // (a catalog without the tray recipe grandma-pizza: with it the tray opens by its own materials, independently of the dough technique)
+    expect(isTrayAffordanceOpen(dexOf(STEP), { ...CONTEXT, catalog: CONTEXT.catalog.filter((t) => t.recipeId !== "grandma-pizza") })).toBe(false);
     expect(isDoughAffordanceOpen(dexOf(STEP), CONTEXT)).toBe(true);
   });
 });

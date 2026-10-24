@@ -27,8 +27,18 @@ const TRAY_CONTEXT: TechniqueRuntimeContext = { ...productionTechniqueContext(),
 const STEP = techniqueAffordanceStep("tray", TRAY_CONTEXT.catalog, TRAY_CONTEXT.materialStep)!;
 
 describe("isTrayAffordanceOpen", () => {
-  it("is closed for every Dex in Production: no catalog target requires the tray (INV-TQ-4)", () => {
-    for (let n = 0; n <= W1_ORDER.length; n++) expect(isTrayAffordanceOpen(dexOf(W1_ORDER.slice(0, n)))).toBe(false);
+  it("is closed for every Dex when no catalog target requires the tray (INV-TQ-4)", () => {
+    const NO_TRAY: TechniqueRuntimeContext = { ...productionTechniqueContext(), catalog: RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "grandma-pizza") };
+    for (let n = 0; n <= W1_ORDER.length; n++) expect(isTrayAffordanceOpen(dexOf(W1_ORDER.slice(0, n)), NO_TRAY)).toBe(false);
+  });
+
+  it("in Production the one requiring target is grandma-pizza (Square Dough E-2): the affordance opens at the step DERIVED from its materials, never earlier", () => {
+    const production = productionTechniqueContext();
+    const step = techniqueAffordanceStep("tray", production.catalog, production.materialStep)!;
+    const grandma = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "grandma-pizza")!;
+    expect(step).toBe(Math.max(...grandma.items.map((id) => ingredientUnlockStep(id) ?? Infinity)));
+    expect(isTrayAffordanceOpen(dexOf(W1_ORDER.slice(0, step - 1)))).toBe(false);
+    expect(isTrayAffordanceOpen(dexOf(W1_ORDER.slice(0, step)))).toBe(true);
   });
 
   it("opens at the derived step of a requiring target, not at a number written here", () => {

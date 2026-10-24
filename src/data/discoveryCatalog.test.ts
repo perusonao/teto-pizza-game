@@ -33,8 +33,12 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();
       expect(t.items).toEqual([...expected!.items].sort());
-      expect(t.capabilities).toEqual(expected!.capabilities);
-      expect(t.identityDimensions).toEqual(expected!.identityDimensions);
+      // Square Dough E-2: the Phase-2 row of grandma-pizza lists MULTI_SPREAD_LAYER and `spreadLayers: [olive-oil, tomato-sauce]`, but no capability of that name is runtime-supported (a target that requires one is unmatchable)
+      // and the runtime does not observe `spreadLayers` (null, like every other target); the two-sauce engine (B1 / B2) needs neither, and the two sauces are already in \`items\` / \`sauceBase\`. Its identity instead declares
+      // \`pan: "tray"\` (Owner decision 2026-10-17/18, F1: the pan axis is OBSERVED). Everything else about the target stays checked.
+      const grandma = t.recipeId === "grandma-pizza";
+      expect(t.capabilities).toEqual(grandma ? [] : expected!.capabilities);
+      expect(t.identityDimensions).toEqual(grandma ? { ...expected!.identityDimensions, spreadLayers: null, pan: "tray" } : expected!.identityDimensions);
       expect(t.eligibility).toEqual({ status: "ELIGIBLE" });
     }
   });

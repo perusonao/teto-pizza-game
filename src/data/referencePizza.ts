@@ -3972,6 +3972,48 @@ export const NEW_ZEALAND_LAMB_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Multi-Sauce S3 / Square Dough E-2 (#521): Reference Truth for `grandma-pizza` (two required sauces, square pan). `sauce` is the PRIMARY tomato-sauce target only (RECIPE_SAUCE_PROFILES); on the tray Scoring 2.0 and the
+ * Completion Gate swap it for the square Reference (../logic/pan/squareReference.ts, E-1). The olive-oil is a presence-only secondary sauce, neither a piece nor a Reference target.
+ * Pieces (mozzarella 3 / garlic 2 = 5) sit on a square grid inside the pan: mozzarella on the upper row, garlic on the lower row (kept within REFERENCE_SLOT_MAX_RADIUS of the centre).
+ * Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const GRANDMA_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "grandma-pizza",
+  sauce: computeMechanicalSauceReference("grandma-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 30, y: 30 },
+        { x: 50, y: 30 },
+        { x: 70, y: 30 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 38, y: 70 },
+        { x: 62, y: 70 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -4036,6 +4078,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [SHIRASU_PIZZA_REFERENCE.recipeId, SHIRASU_PIZZA_REFERENCE],
   [FLAMMKUCHEN_REFERENCE.recipeId, FLAMMKUCHEN_REFERENCE],
   [SICHUAN_EGGPLANT_PIZZA_REFERENCE.recipeId, SICHUAN_EGGPLANT_PIZZA_REFERENCE],
+  [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);

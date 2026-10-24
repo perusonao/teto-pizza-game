@@ -29,7 +29,7 @@ const ID = "pesto-trapanese";
 const recipe = getRecipe(ID as RecipeId)!;
 /** Every credited recipe before step 29's key recipe: 29 credited discoveries -> step 29 reached. */
 const UP_TO_PESTO_VEG = [...W1_ORDER, "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana"];
-const SETTLED = [...UP_TO_PESTO_VEG, "brazilian-calabresa", "aussie"];
+const SETTLED = [...UP_TO_PESTO_VEG, "brazilian-calabresa", "aussie", "grandma-pizza"];
 
 const stateAfter = (found: readonly string[], opts: { almondBought: boolean }): RecipeDiscoveryInputs => {
   const dex = discoverAll(found);

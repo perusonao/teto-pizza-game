@@ -19,7 +19,7 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent(String(RECIPES.length));
     expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent(String(INGREDIENTS.length));
     expect(screen.getByTestId("dpi-step-count")).toHaveTextContent(String(DISCOVERY_LADDER.steps.length));
-    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("4"); // steps 12 / 20 / 28 / 44 (Batch 8a: the non-credit branches join steps 20 and 44; step 28 gains chorizo)
+    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("5"); // steps 12 / 14 / 20 / 28 / 44 (Batch 8a: the non-credit branches join steps 20 and 44; step 28 gains chorizo; Square Dough E-2: grandma-pizza joins step 14)
     const first = screen.getByTestId("dpi-row-1");
     expect(first).toHaveTextContent("🆕 たまご");
     expect(first).toHaveTextContent("Pool 1");
@@ -63,7 +63,7 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-row-18")).toHaveTextContent("ジェノベーゼ");
 
     await user.click(screen.getByRole("button", { name: "複数recipe同時解禁" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`4 / ${DISCOVERY_LADDER.steps.length}`); // steps 12 / 20 / 28 / 44
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`5 / ${DISCOVERY_LADDER.steps.length}`); // steps 12 / 14 / 20 / 28 / 44
     expect(screen.getByTestId("dpi-row-12")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OPEN_POOL関連" }));

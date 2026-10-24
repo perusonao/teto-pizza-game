@@ -15,6 +15,7 @@ import { deductionKnownLines, requestDeductionHint, type DeductionFamily } from 
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, sweepStates } from "./testSupport/deductionInversion";
 import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { MULTI_SAUCE_RECIPE_IDS } from "../testSupport/requiredSauces";
 import { ordinaryLadderSteps } from "../catalog/testSupport/lateIds";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
 
@@ -133,13 +134,14 @@ const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = [];
 const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort();
 
 describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
-  it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority", () => {
+  it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority and the allowlisted two-sauce recipes", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
     expect(noSauce.length).toBeGreaterThan(0);
     const breaking = RECIPES.filter((r) => sauceCount(r.id) !== 1).map((r) => r.id);
-    // If this fails, a Technique recipe reached production outside the NO_SAUCE authority: re-run the DH4 Production
-    // gate and the DH4 privacy sweeps with it (TQ-1D contract) before shipping it.
-    expect(breaking.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(noSauce);
+    // If this fails, a Technique or multi-sauce recipe reached production outside its authority / allowlist: re-run the DH4 Production
+    // gate and the DH4 privacy sweeps with it (TQ-1D contract, Multi-Sauce S3) before shipping it.
+    expect(breaking.sort(), "re-run the DH4 privacy gate for Technique / multi-sauce recipes").toEqual([...noSauce, ...MULTI_SAUCE_RECIPE_IDS].sort());
+    for (const id of MULTI_SAUCE_RECIPE_IDS) expect(sauceCount(id), id).toBe(2);
     for (const id of noSauce) expect(sauceCount(id), id).toBe(0);
   });
   it("no request, stored id or line ever carries Technique information", () => {
@@ -183,6 +185,9 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     expect(Object.keys(sources).length).toBeGreaterThanOrEqual(10);
     for (const [path, text] of Object.entries(sources)) {
       expect(text, path).not.toMatch(/techniques\/|data\/techniques|discoveredTechniqueIds|lastTechniqueDiscovery|TechniqueId/);
+      // Square Dough E-2 (OD-544-2): a hint is a function of the recipe, the owned ingredients and the Dex depth only -- never of the pan (○ round / □ tray), so the sweeps below
+      // hold for both pan states by construction: no hint / deduction module reads `PizzaState.pan`, the tray or the pan shape.
+      expect(text, path).not.toMatch(/\.pan\b|panShape|effectivePan|"tray"/);
     }
   });
   it("構成 counts ingredients only: the total is the recipe's distinct ingredient count", () => {

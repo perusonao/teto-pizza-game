@@ -3,6 +3,7 @@
  * `RecipeId` includes the late ids (types only). In a build where the late catalog is OFF (Production) those recipes do not exist at
  * runtime, so a "table keys == RECIPES" check must ignore their rows. With the catalog ON nothing is ignored. TEST SUPPORT ONLY.
  */
+import { getIngredient } from "../../../data/ingredients";
 import { LATE_RECIPES, lateCatalogEnabled } from "../../../data/lateCatalog";
 import { createEmptyPizza, type PizzaState } from "../../../state/pizzaState";
 
@@ -39,7 +40,7 @@ export function isLateRecipeId(id: string): boolean {
  * FINISH step records). Ordinary recipes have no such requirement, so for them this is the plain reference pizza.
  */
 export function referencePizzaWithLateStage(
-  recipe: { readonly requiredIngredients: readonly { readonly ingredientId: string; readonly applicationPhase?: string }[] },
+  recipe: { readonly requiredIngredients: readonly { readonly ingredientId: string; readonly applicationPhase?: string }[]; readonly panShape?: string },
   reference: {
     readonly sauce: { readonly ingredientId: string } | null;
     readonly pieceGroups: readonly { readonly ingredientId: string; readonly positions: readonly { readonly x: number; readonly y: number }[] }[];
@@ -48,7 +49,10 @@ export function referencePizzaWithLateStage(
   const late = new Set(recipe.requiredIngredients.filter((q) => q.applicationPhase === "POST_BAKE").map((q) => q.ingredientId));
   return {
     ...createEmptyPizza(),
-    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+    // every required sauce, not only the Reference (primary) one: a two-sauce recipe (grandma-pizza) is only itself with both
+    sauceIds: reference.sauce ? recipe.requiredIngredients.map((q) => q.ingredientId).filter((id) => getIngredient(id)?.category === "sauce") : [],
+    // a square-pan recipe (panShape "square") is only discovered when cooked on the tray (Square Dough E-2)
+    ...(recipe.panShape === "square" ? { pan: "tray" as const } : {}),
     toppings: reference.pieceGroups.flatMap((g, gi) =>
       g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p, ...(late.has(g.ingredientId) ? { stage: "post" as const } : {}) })),
     ),

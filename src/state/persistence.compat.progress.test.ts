@@ -83,11 +83,15 @@ describe("the tray / square-pan unlock is derived from the Dex, not stored (R6)"
   const TRAY_CONTEXT: TechniqueRuntimeContext = { ...productionTechniqueContext(), catalog: [...RECIPE_DISCOVERY_CATALOG, SYN_TRAY] };
   const STEP = techniqueAffordanceStep("tray", TRAY_CONTEXT.catalog, TRAY_CONTEXT.materialStep)!;
 
-  it("in the production catalog the switch is closed for every save, whatever the Dex depth", () => {
+  it("in the production catalog (which holds the tray recipe grandma-pizza, E-2) the switch is derived from the Dex depth: closed on a fresh save, open on a complete one", () => {
+    const production = productionTechniqueContext();
+    const productionStep = techniqueAffordanceStep("tray", production.catalog, production.materialStep)!;
     for (const era of [ladderSave(0), ladderSave(8), ladderSave(20, { complete: true })]) {
       const dex = loadSave(memoryStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(era) })).dex;
-      expect(isTrayAffordanceOpen(dex)).toBe(false);
+      expect(isTrayAffordanceOpen(dex), `${creditedDiscoveredCount(dex)}`).toBe(creditedDiscoveredCount(dex) >= productionStep);
     }
+    expect(isTrayAffordanceOpen(loadSave(memoryStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(ladderSave(0)) })).dex)).toBe(false);
+    expect(isTrayAffordanceOpen(loadSave(memoryStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(ladderSave(20, { complete: true })) })).dex)).toBe(true);
   });
 
   it("a save has no tray / pan / square field, and writing never adds one", () => {
@@ -104,7 +108,7 @@ describe("the tray / square-pan unlock is derived from the Dex, not stored (R6)"
     const stored = storage.getItem(SAVE_STORAGE_KEY);
 
     expect(isTrayAffordanceOpen(loadSave(storage).dex, TRAY_CONTEXT)).toBe(true); // a catalog with a tray recipe
-    expect(isTrayAffordanceOpen(loadSave(storage).dex)).toBe(false); // a catalog without
+    expect(isTrayAffordanceOpen(loadSave(storage).dex, { ...TRAY_CONTEXT, catalog: RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "grandma-pizza") })).toBe(false); // a catalog without
     expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(stored); // nothing was written either way
   });
 

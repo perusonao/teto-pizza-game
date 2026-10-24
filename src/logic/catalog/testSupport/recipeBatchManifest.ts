@@ -16,6 +16,8 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
   recipes: [
     { recipeId: "sichuan-eggplant-pizza", keyIngredientId: "green-onion", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
+  // Square Dough E-2 (#521): grandma-pizza adds no material and no ladder step, so it is not a batch recipe; it is pinned as the tail here.
+  followedBy: ["grandma-pizza"],
 };
 
 export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH];

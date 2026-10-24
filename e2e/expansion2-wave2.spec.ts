@@ -24,7 +24,7 @@ const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.fi
 
 const saveJson = (step: number, bought: readonly string[] = []) => {
   // Batch 8a: the non-credit step-20 / step-28 recipes are settled
-  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie", "chilean-napolitana", ...(step >= 28 ? ["spanish-chorizo-pizza"] : [])];
+  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", ...(step >= 28 ? ["spanish-chorizo-pizza"] : [])];
   const owned = [...materialsUpTo(step - 1), ...bought];
   return JSON.stringify({
     schemaVersion: 2,
@@ -138,9 +138,9 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana"];
+    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"];
     await open(page, saveJson(27));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`30/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`31/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: parsley ☘️ is NEW, then bought (finite T3 material, 20 pieces).
@@ -238,7 +238,7 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`31\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`32\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ヴォンゴレピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.13");
@@ -257,9 +257,9 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const found = [...keysBefore(28), "brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza"];
+    const found = [...keysBefore(28), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza"];
     await open(page, saveJson(28));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`32/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`33/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: both materials are NEW at once, then bought.
@@ -361,7 +361,7 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`34\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`35\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     for (const [name, no] of [["ペストベジタリアーナピザ", "No.14"], ["ラタトゥイユピザ", "No.15"]]) {
       const card = page.locator(".dex-card").filter({ hasText: name });
       await expect(card).toHaveCount(1);

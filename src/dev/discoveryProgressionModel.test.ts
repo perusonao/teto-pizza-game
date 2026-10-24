@@ -84,9 +84,9 @@ describe("cherry-tomato (step 18)", () => {
     expect(s.newlyDiscoverable[0].ladderCredit).toBe(true);
     expect(stepMatchesFilter(s, "multi")).toBe(false);
   });
-  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa and aussie", () => {
-    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese"]);
-    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa"]);
+  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa, aussie and (Square Dough E-2) grandma-pizza", () => {
+    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese", "grandma-pizza"]);
+    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "grandma-pizza"]);
     expect(s.classification).toBe("OPEN_POOL_POSSIBLE");
   });
 });
@@ -110,8 +110,8 @@ describe("onion (step 12)", () => {
 describe("multi-recipe unlock", () => {
   it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12, and Wave 2's step 28 = pesto-vegetariana + ratatouille-pizza, the intended Branching Discovery)", () => {
     expect(model.multiRecipeStepNumbers).toEqual(model.steps.filter((s) => s.newlyDiscoverable.length >= 2).map((s) => s.step)); // Batch 8a: + step 20 (chilean-napolitana beside pesto-caprese), step 44 (frango-catupiry beside catupiry-corn); step 28 gains chorizo
-    expect(model.multiRecipeStepNumbers).toEqual([12, 20, 28, 44]);
-    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12, 20, 28, 44]);
+    expect(model.multiRecipeStepNumbers).toEqual([12, 14, 20, 28, 44]); // Square Dough E-2: step 14 (garlic) makes grandma-pizza discoverable beside marinara
+    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12, 14, 20, 28, 44]);
   });
 });
 
@@ -147,7 +147,7 @@ describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", ()
   });
   it("is read from the production credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
     const calabresa = model.nonCreditRecipes.find((r) => r.recipeId === "brazilian-calabresa")!;
-    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "chilean-napolitana", "spanish-chorizo-pizza"]); // Batch 8a adds three non-credit recipes; Issue #561 promotes frango-catupiry to credited
+    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza"]); // Batch 8a adds three non-credit recipes (Square Dough E-2: + grandma-pizza); Issue #561 promotes frango-catupiry to credited
     expect(calabresa.advancesLadder).toBe(countsTowardLadder("brazilian-calabresa"));
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));

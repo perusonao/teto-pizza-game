@@ -113,8 +113,14 @@ describe("Scope guards: identity semantics and the hint ladder are untouched", (
     expect(text).toContain("signature.sauceBase.value");
     // FIN-E2 (#604): the one other axis it may read is `late` (target `identityDimensions.late`, pizza `dimensions.late`); no other dimension.
     expect(text).toContain("signature.dimensions?.late");
-    expect(text).not.toMatch(/signature\.dimensions\??\.(?!late\b)/); // no other axis of the signature
-    expect(text).not.toMatch(/identityDimensions\??\.(?!late\b)/); // no other axis of a target
+    // Square Dough E-2: the pan axis is read ONLY to skip a target on another pan (grandma-pizza declares `pan: "tray"`), never as a distance: the `distance` function does not mention it.
+    expect(text).toContain("signature.dimensions?.pan");
+    expect(text).toContain("(target.identityDimensions?.pan ?? null) !== pizzaPan) continue;");
+    const distanceFn = text.slice(text.indexOf("function distance("), text.indexOf("const identityKey"));
+    expect(distanceFn.length).toBeGreaterThan(100);
+    expect(distanceFn).not.toMatch(/\bpan\b/i);
+    expect(text).not.toMatch(/signature\.dimensions\??\.(?!late\b|pan\b)/); // no other axis of the signature
+    expect(text).not.toMatch(/identityDimensions\??\.(?!late\b|pan\b)/); // no other axis of a target
     expect(text).not.toMatch(/ingredientCounts/);
   });
 });
