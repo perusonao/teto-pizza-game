@@ -25,6 +25,7 @@ import {
 import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
 import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
+import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
@@ -319,10 +320,9 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
     expect(noSauce.length).toBeGreaterThan(0);
     const requiring = RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    // Square Dough F2: the technique-requiring set is the named allowlist NO_SAUCE + pan "tray" (empty until E, #521). A tray
+    // Square Dough F2: the technique-requiring set is the named allowlist NO_SAUCE + pan "tray" (shared PAN_TRAY_RECIPE_IDS, empty until E, #521). A tray
     // recipe has sauces, so the sauce-shape assertions below stay on the NO_SAUCE set and the tray recipe is asserted
     // to have no technique term in any rung by the privacy sweep in the next test.
-    const PAN_TRAY_RECIPE_IDS: readonly string[] = [];
     // Dough Kind P1 (#577): the dough technique's own named allowlist, empty until P3 (HOLD) adds pinsa-romana.
     const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = [];
     expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort());
