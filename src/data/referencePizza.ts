@@ -35,6 +35,7 @@
  */
 import { computeSauceMetrics, type SauceDepositLike, type SauceMetrics } from "../logic/sauceField";
 import { SAUCE_RATE_PER_TICK } from "../logic/sauceQuantity";
+import { isGatedOffRecipeId } from "./lateCatalog";
 import type { RecipeId } from "./recipes";
 import { getRecipeSauceProfile, type NoSauceRecipeId } from "./recipeSauceProfiles";
 
@@ -2405,6 +2406,62 @@ export const JAMON_SERRANO_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Pinsa Romana (#577 P3-b-1): Reference Truth. Same 7 non-sauce pieces as `jamon-serrano-pizza` (mozzarella 2 / prosciutto-crudo 3 / arugula 2), consecutively on the RT-01
+ * 8-piece ring in `requiredIngredients` order. The arugula is the POST_BAKE group (placed in FINISH); its slots are GAMEPLAY / REFERENCE CALIBRATION (R4: tuned in the
+ * real-device Human Verification before publishing), not source authority.
+ */
+export const PINSA_ROMANA_REFERENCE: ReferencePizza = {
+  recipeId: "pinsa-romana",
+  sauce: computeMechanicalSauceReference("pinsa-romana"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "prosciutto-crudo",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "arugula",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+
+/**
  * Expansion Batch 2: Reference Truth for `rucola-e-grana`. Pieces take the RT-01 8-piece ring consecutively in
  * `requiredIngredients` order (slot assignment is GAMEPLAY / REFERENCE CALIBRATION).
  */
@@ -4080,6 +4137,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [SICHUAN_EGGPLANT_PIZZA_REFERENCE.recipeId, SICHUAN_EGGPLANT_PIZZA_REFERENCE],
   [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
+  [PINSA_ROMANA_REFERENCE.recipeId, PINSA_ROMANA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 
@@ -4094,10 +4152,11 @@ for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
  * one-off, recipe-specific judgment call, not a new default for any future single-piece group.
  */
 export function getReferencePizza(recipeId: string): ReferencePizza | null {
+  if (isGatedOffRecipeId(recipeId)) return null; // a gated late recipe (Pinsa while PINSA_PRODUCTION is false) has a row but no reference
   return REFERENCE_PIZZAS.get(recipeId as RecipeId) ?? null;
 }
 
 /** Every production Reference, in registration order. */
 export function listReferencePizzas(): readonly ReferencePizza[] {
-  return [...REFERENCE_PIZZAS.values()];
+  return [...REFERENCE_PIZZAS.values()].filter((ref) => !isGatedOffRecipeId(ref.recipeId));
 }

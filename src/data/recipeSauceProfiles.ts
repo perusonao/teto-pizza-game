@@ -317,6 +317,12 @@ export const RECIPE_SAUCE_PROFILES = {
   },
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
   "ikura-salmon-pizza": null,
+  // Pinsa Romana (#577 P3-b-1, late catalog; exists only while PINSA_PRODUCTION): same sauce as jamon-serrano-pizza.
+  "pinsa-romana": {
+    recipeId: "pinsa-romana",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */

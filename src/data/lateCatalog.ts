@@ -26,6 +26,7 @@
  * (the runtime-wiring boundary test in logic/discoveryLadder.test.ts).
  */
 import { isDoughKind, type DoughKind } from "../logic/dough/doughKind";
+import { pinsaEnabled } from "./pinsaGate";
 import type { Ingredient } from "./ingredients";
 
 /** Build-time switch (Owner D-3 案 1). `false` in Production; a literal so a bundler drops the late branch. */
@@ -80,7 +81,7 @@ export interface LateLadderStep {
  * salmon-roe 2 / shiso 1) and the bake window 58-78 (= the generic Free Cooking window) are GAMEPLAY CALIBRATION, not source.
  * NO_SAUCE, no CUT, `lunchRush: false`, ladder-credited, T4, no star gate (OD-B8-1).
  */
-export const LATE_RECIPES = [
+const ALL_LATE_RECIPES = [
   {
     id: "ikura-salmon-pizza",
     nameJa: "いくらとサーモンのピザ",
@@ -95,17 +96,63 @@ export const LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
+  // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
+  // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
+  // GAMEPLAY CALIBRATION (D4, provisional -- not source): tomato-sauce 1 / mozzarella 2 / prosciutto-crudo 3 / arugula 2, bake 58-78; 7 non-sauce pieces <= the 8-slot ring, 2 post-bake.
+  // `doughKind` + `ladderCredit:false`: a new dough, no new material, so it advances no ladder step (D1/D6). No CUT (M0: round, as the source's oval is not expressed).
+  // The description names no moment (Anti-Oracle: it is shown before the recipe is discovered).
+  {
+    id: "pinsa-romana",
+    nameJa: "ピンサ・ロマーナ",
+    description: "独特の生地とルッコラの風味が楽しめる、ローマ生まれのピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "prosciutto-crudo", minCount: 3 },
+      { ingredientId: "arugula", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+    doughKind: "material-multigrain-long-ferment",
+    ladderCredit: false,
+  },
 ] as const satisfies readonly LateRecipeEntry[];
 
+/** Every late recipe id the source declares, whether or not it is active in this build (type-keyed tables carry a row for each). */
+export const ALL_LATE_RECIPE_IDS: readonly string[] = ALL_LATE_RECIPES.map((r) => r.id);
+
+/** Ids that exist in the late catalog only while the Pinsa gate is open (./pinsaGate.ts). */
+const PINSA_GATED_IDS: ReadonlySet<string> = new Set(["pinsa-romana"]);
+
+/** Keeps the entries that exist in this build. Typed as the input so `RecipeId` (derived from `RECIPES`) stays exhaustive whatever the gate says. */
+function activeLate<T extends readonly { readonly id: string }[]>(all: T, idOf: (entry: T[number]) => string = (e) => e.id): T {
+  return (pinsaEnabled() ? all : all.filter((e) => !PINSA_GATED_IDS.has(idOf(e)))) as unknown as T;
+}
+
+/**
+ * Late recipes of this build, in authored order. Each carries at least one `POST_BAKE` requirement and `lunchRush: false`.
+ * (FIN-E4b-ikura and Pinsa documented on the entries above; the Pinsa entry is dropped while its gate is closed.)
+ */
+export const LATE_RECIPES = activeLate(ALL_LATE_RECIPES);
+
 /** The order of each late recipe (the shape of `Order` in ./orders.ts, declared here to stay import-cycle free). */
-export const LATE_ORDERS = [
+const ALL_LATE_ORDERS = [
   {
     id: "order-ikura-salmon-pizza",
     recipeId: "ikura-salmon-pizza",
     requestedBy: "mito",
     lineJa: "いくらとサーモンのピザ、ぷちぷちで豪華そう！食べてみたいな！",
   },
+  {
+    id: "order-pinsa-romana",
+    recipeId: "pinsa-romana",
+    requestedBy: "mito",
+    lineJa: "ピンサ・ロマーナ、ローマ生まれのピザなんだって！食べてみたいな！",
+  },
 ] as const;
+export const LATE_ORDERS = activeLate(ALL_LATE_ORDERS, (o) => o.recipeId);
 
 /**
  * Late-only ingredients (each with an `unlockCondition`: reachable only through a late ladder step).
@@ -134,6 +181,7 @@ export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs" } as const;
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "ikura-salmon-pizza": "ikura-salmon-pizza-pizzadb-p1",
+  ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
 /**
@@ -143,9 +191,15 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
  */
 export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [{ ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" }];
 
+/** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
+export function isGatedOffRecipeId(id: string): boolean {
+  return PINSA_GATED_IDS.has(id) && !pinsaEnabled();
+}
+
 /** True for a late recipe id in a build where the late catalog is OFF: the id is in type-keyed tables (RecipeId includes it) but the recipe does not exist. */
 export function isInactiveLateRecipeId(id: string): boolean {
-  return !lateCatalogEnabled() && LATE_RECIPES.some((r) => r.id === id);
+  if (!ALL_LATE_RECIPES.some((r) => r.id === id)) return false;
+  return !lateCatalogEnabled() || !LATE_RECIPES.some((r) => r.id === id);
 }
 
 /** `base` followed by `late` when enabled; otherwise `base` itself (not a copy). */

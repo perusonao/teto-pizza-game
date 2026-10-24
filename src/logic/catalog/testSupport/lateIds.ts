@@ -4,10 +4,11 @@
  * runtime, so a "table keys == RECIPES" check must ignore their rows. With the catalog ON nothing is ignored. TEST SUPPORT ONLY.
  */
 import { getIngredient } from "../../../data/ingredients";
-import { LATE_RECIPES, lateCatalogEnabled } from "../../../data/lateCatalog";
+import { ALL_LATE_RECIPE_IDS, LATE_RECIPES, isInactiveLateRecipeId } from "../../../data/lateCatalog";
 import { createEmptyPizza, type PizzaState } from "../../../state/pizzaState";
 
-const INACTIVE: ReadonlySet<string> = lateCatalogEnabled() ? new Set() : new Set(LATE_RECIPES.map((r) => r.id));
+/** Late ids with a table row but no recipe in this build: all of them with the late catalog OFF, and Pinsa while its own gate (`PINSA_PRODUCTION`) is closed. */
+const INACTIVE: ReadonlySet<string> = new Set(ALL_LATE_RECIPE_IDS.filter((id) => isInactiveLateRecipeId(id)));
 
 /** `ids` without the late recipes that do not exist in this build. */
 export function withoutInactiveLate<T extends string>(ids: readonly T[]): T[] {
@@ -40,7 +41,7 @@ export function isLateRecipeId(id: string): boolean {
  * FINISH step records). Ordinary recipes have no such requirement, so for them this is the plain reference pizza.
  */
 export function referencePizzaWithLateStage(
-  recipe: { readonly requiredIngredients: readonly { readonly ingredientId: string; readonly applicationPhase?: string }[]; readonly panShape?: string },
+  recipe: { readonly requiredIngredients: readonly { readonly ingredientId: string; readonly applicationPhase?: string }[]; readonly panShape?: string; readonly doughKind?: string },
   reference: {
     readonly sauce: { readonly ingredientId: string } | null;
     readonly pieceGroups: readonly { readonly ingredientId: string; readonly positions: readonly { readonly x: number; readonly y: number }[] }[];
@@ -53,6 +54,8 @@ export function referencePizzaWithLateStage(
     sauceIds: reference.sauce ? recipe.requiredIngredients.map((q) => q.ingredientId).filter((id) => getIngredient(id)?.category === "sauce") : [],
     // a square-pan recipe (panShape "square") is only discovered when cooked on the tray (Square Dough E-2)
     ...(recipe.panShape === "square" ? { pan: "tray" as const } : {}),
+    // a recipe that fixes a non-standard dough (Pinsa, #577) is only itself on that dough
+    ...(recipe.doughKind !== undefined && recipe.doughKind !== "standard" ? { dough: recipe.doughKind } : {}),
     toppings: reference.pieceGroups.flatMap((g, gi) =>
       g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p, ...(late.has(g.ingredientId) ? { stage: "post" as const } : {}) })),
     ),
