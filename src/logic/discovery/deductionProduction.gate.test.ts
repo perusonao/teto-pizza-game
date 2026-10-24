@@ -14,6 +14,7 @@ import { guardedAnswerForParts, hypotheticalReserves, reserveInHypotheses, targe
 import { deductionKnownLines, requestDeductionHint, type DeductionFamily } from "./deductionRequest";
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, sweepStates } from "./testSupport/deductionInversion";
+import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 
 /**
  * Discovery Hint 4.0 (Issue #253), DH4 Production Enablement Fresh Gate (OD-DH4-PROD-1): what must
@@ -123,9 +124,8 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
 /**
  * Square Dough F2: the named allowlists of the technique-requiring set. A recipe may require a technique only if it is
  * listed here; adding one is a deliberate act that re-runs this whole gate (see docs/reports/TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md §7).
- * `PAN_TRAY_RECIPE_IDS` is empty until Square Dough E (#521) adds the first tray recipe.
+ * `PAN_TRAY_RECIPE_IDS` (shared, ../testSupport/techniqueAllowlists.ts) is empty until Square Dough E (#521) adds the first tray recipe.
  */
-const PAN_TRAY_RECIPE_IDS: readonly string[] = [];
 /** Dough Kind P1 (#577): empty until P3 (HOLD) adds `pinsa-romana`; adding one re-runs this whole gate (DH4, `dough` states included). */
 const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = [];
 const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort();
