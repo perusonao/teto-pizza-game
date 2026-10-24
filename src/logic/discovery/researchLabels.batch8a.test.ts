@@ -8,6 +8,7 @@ import { EMPTY_DEX, registerScoreToDex, type DexState } from "../../state/dex";
 import { researchEntryViews } from "../../state/discoveryHint";
 import { recipeChapter, recipeKeyStep } from "../../state/recipeChapters";
 import type { ScoreBreakdown } from "../scoring";
+import { ordinaryLadderSteps, ordinaryRecipes } from "../catalog/testSupport/lateIds";
 
 /**
  * Batch 8a (Owner-approved 2026-10-18): chilean-napolitana (key step 20, fresh-tomato), spanish-chorizo-pizza (28, bell-pepper) and frango-catupiry
@@ -56,12 +57,13 @@ describe("Batch 8a: classification of the three recipes", () => {
 
 describe("Batch 8a: the existing 57 recipes keep their progression declarations", () => {
   it("credit / Lunch Rush opt-out / ladder keys of the earlier recipes are unchanged (credited 56 -- Issue #561 promoted frango-catupiry --, non-credit only calabresa, aussie, chilean, chorizo)", () => {
-    expect(RECIPES.filter((r) => !countsTowardLadder(r.id)).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", ...BATCH.filter((id) => id !== "frango-catupiry")]);
-    expect(RECIPES.filter((r) => countsTowardLadder(r.id))).toHaveLength(59); // 56 after Batch 8a; Batch 8b's shirasu-pizza, New Sauces Phase A's flammkuchen and Phase B-1's sichuan-eggplant-pizza are credited (+1 each)
-    expect(RECIPES.filter((r) => participatesInLunchRush(r.id))).toHaveLength(25);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(56); // Batch 8a appended none (53); Batch 8b appended step 54; New Sauces Phase A appended step 55; Phase B-1 appended step 56
+    // E5: the late recipe (credited, appended after every ordinary one) is excluded; its progression is pinned in lateCatalog.ikura.test.ts.
+    expect(ordinaryRecipes(RECIPES).filter((r) => !countsTowardLadder(r.id)).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", ...BATCH.filter((id) => id !== "frango-catupiry")]);
+    expect(ordinaryRecipes(RECIPES).filter((r) => countsTowardLadder(r.id))).toHaveLength(59); // 56 after Batch 8a; Batch 8b's shirasu-pizza, New Sauces Phase A's flammkuchen and Phase B-1's sichuan-eggplant-pizza are credited (+1 each)
+    expect(ordinaryRecipes(RECIPES).filter((r) => participatesInLunchRush(r.id))).toHaveLength(25);
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(56); // Batch 8a appended none (53); Batch 8b appended step 54; New Sauces Phase A appended step 55; Phase B-1 appended step 56
     expect(DISCOVERY_LADDER.steps.slice(0, 53).some((s) => (BATCH as readonly string[]).includes(s.keyRecipeId))).toBe(false);
-    expect(RECIPES).toHaveLength(63); // 60 after Batch 8a; + Batch 8b's shirasu-pizza + New Sauces Phase A's flammkuchen + Phase B-1's sichuan-eggplant-pizza
+    expect(ordinaryRecipes(RECIPES)).toHaveLength(63); // 60 after Batch 8a; + Batch 8b's shirasu-pizza + New Sauces Phase A's flammkuchen + Phase B-1's sichuan-eggplant-pizza
   });
 });
 

@@ -42,6 +42,7 @@ import { hint5SheetView } from "../../state/discoveryHint";
 import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
+import { placeFinishPieces, postBakeIdsOf } from "./lateFinishSim";
 
 export type Hint5Profile = "NONE" | "FIXED4" | "FULL";
 export const HINT5_PROFILES: readonly Hint5Profile[] = ["NONE", "FIXED4", "FULL"];
@@ -157,8 +158,10 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
   };
 
   function bakeRaw(ids: readonly string[]): GameState {
-    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids) };
+    const post = postBakeIdsOf(ids); // E5: the late recipe's post-bake part is placed in FINISH
+    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids.filter((id) => !post.includes(id))) };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
+    s = placeFinishPieces(s, post, piecesOf);
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
     if (s.phase !== "RESULT") throw new Error(`bake did not reach RESULT (${ids.join("+")})`);
     if (s.score) s = { ...s, score: { ...s.score, total: qualityTotal, stars: starsFromTotal(qualityTotal) } };

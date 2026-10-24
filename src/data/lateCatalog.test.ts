@@ -53,8 +53,8 @@ const validInput: LateCatalogInput = {
 const BASE = { recipeIds: ["margherita"], ingredientIds: ["tomato-sauce", "mozzarella", "chicken"] };
 
 describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
-  it("holds exactly ikura-salmon-pizza and salmon-roe, and the production switch stays OFF", () => {
-    expect(lateCatalogEnabled()).toBe(false);
+  it("holds exactly ikura-salmon-pizza and salmon-roe, and the production switch is ON (E5; the OFF build is covered by the loaders below)", () => {
+    expect(lateCatalogEnabled()).toBe(true);
     expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza"]);
     expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe"]);
     expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza"]);
@@ -261,7 +261,12 @@ async function loadCatalog(enabled: boolean, lateContentPresentButDisabled = fal
       LATE_DISCOVERY_TARGET_IDS: { [SYNTH_RECIPE_ID]: SYNTH_TARGET_ID },
     }));
   } else {
-    vi.doUnmock("./lateCatalog");
+    // E5: Production has the late catalog ON, so the OFF build (the rollback state) is the real content with the switch mocked OFF.
+    vi.doMock("./lateCatalog", async (importOriginal) => ({
+      ...(await importOriginal<typeof import("./lateCatalog")>()),
+      LATE_CATALOG_PRODUCTION: false,
+      lateCatalogEnabled: () => false,
+    }));
   }
   // Sequential on purpose: concurrent imports would run the mock factory twice and hand modules different `lateCatalog` instances.
   await import("./lateCatalog");

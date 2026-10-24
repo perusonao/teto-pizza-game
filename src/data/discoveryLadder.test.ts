@@ -12,6 +12,7 @@ import {
   toMaterialLadder,
   type LadderRecipe,
 } from "../logic/testSupport/discoveryLadderRule";
+import { ordinaryLadder, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /** The 15 recipes the I4a/I4b ladder was generated for: margherita + the EP1 chain. Since W1
  *  I5b-3, `RECIPES` also holds the 10 W1 recipes (no `unlockCondition`, OD-I5B-2). */
@@ -22,7 +23,8 @@ const SHIPPED_POPULATION: LadderRecipe[] = SHIPPED_15_RECIPES.map((r) => ({
   ingredientIds: r.requiredIngredients.map((q) => q.ingredientId),
 }));
 
-const PRODUCTION_POPULATION: LadderRecipe[] = RECIPES.map((r) => ({
+// E5: the ordinary population (the late recipe's step is appended after it; pinned in lateCatalog.ikura.test.ts).
+const PRODUCTION_POPULATION: LadderRecipe[] = ordinaryRecipes(RECIPES).map((r) => ({
   id: r.id,
   ingredientIds: r.requiredIngredients.map((q) => q.ingredientId),
 }));
@@ -51,7 +53,8 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
     expect(fixed47.steps[24]).toEqual({ step: 25, kind: "MATERIAL", ingredientIds: ["chicken"], keyRecipeId: "pesto-pollo" });
     const derived = buildAppendOnlyLadder(fixed47, PRODUCTION_POPULATION);
     // The frozen prefix (steps 1-51) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (New Sauces Phase A) has none.
-    expect(DISCOVERY_LADDER).toEqual(derived);
+    // E5: the late step (ikura) sits after every ordinary step and is pinned in lateCatalog.ikura.test.ts; the rule is applied to the ordinary ladder.
+    expect(ordinaryLadder(DISCOVERY_LADDER)).toEqual(derived);
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
   });
 

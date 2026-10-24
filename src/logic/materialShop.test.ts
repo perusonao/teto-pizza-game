@@ -18,6 +18,7 @@ import {
 } from "./materialShop";
 import { REC04_W1_25_LADDER_FIXTURE } from "./testSupport/discoveryLadderRule";
 import type { InventoryState } from "../state/inventory";
+import { lateCatalogEnabled } from "../data/lateCatalog";
 
 function ing(id: string): Ingredient {
   const found = getIngredient(id);
@@ -107,6 +108,8 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["fromage-blanc-sauce", 55, "T4", 1, 10, 120, 60],
   ["doubanjiang", 56, "T4", 1, 10, 120, 60],
   ["green-onion", 56, "T4", 2, 20, 120, 60],
+  // E5 (late catalog on): the late step is "ordinary ladder length + 1" (FIN-E4b-ikura); salmon-roe is the late recipe's finite material, k = 2 (its two roe), T4 like the step before it.
+  ...(lateCatalogEnabled() ? [["salmon-roe", 57, "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -264,9 +267,10 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    for (let n = 32; n < 56; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
-    expect(nextMaterialHint(56)).toBeNull();
-    expect(nextMaterialHint(56)).toBeNull();
+    const last = 56 + (lateCatalogEnabled() ? 1 : 0); // E5: + the late step
+    for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
+    expect(nextMaterialHint(last)).toBeNull();
+    expect(nextMaterialHint(last)).toBeNull();
   });
 
   it("treats invalid counts as 0", () => {

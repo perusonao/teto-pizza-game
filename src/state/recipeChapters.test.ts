@@ -3,6 +3,7 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { buildRecipeChapters, chapterProgress, isChapterCleared, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
+import { isLateRecipeId } from "../logic/catalog/testSupport/lateIds";
 
 /** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10; No.27 pesto-pollo (key step 25, T3) makes it 6 / 10 / 11; Expansion Slice 1 pesto-gamberi (key step 26, T3) makes it 6 / 10 / 12 (Chapter 3 No.12). */
 describe("recipeChapters (OD-DISC-9)", () => {
@@ -74,7 +75,11 @@ describe("isChapterCleared (K2)", () => {
       (dex, id) => registerScoreToDex(dex, id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex,
       EMPTY_DEX,
     );
-  const chapter4 = () => buildRecipeChapters().find((c) => c.chapter === 4)!;
+  // E5: with the late catalog on, the real chapter 4 already holds the late recipe; these tests start from its ordinary recipes and add the late one themselves.
+  const chapter4 = () => {
+    const c = buildRecipeChapters().find((x) => x.chapter === 4)!;
+    return { ...c, recipes: c.recipes.filter((r) => !isLateRecipeId(r.id)) };
+  };
   const lateClone = (id: string) => ({ ...chapter4().recipes[0], id }) as Recipe;
   const withLate = (id: string) => ({ ...chapter4(), recipes: [...chapter4().recipes, lateClone(id)] });
 
@@ -87,6 +92,14 @@ describe("isChapterCleared (K2)", () => {
       const p = chapterProgress(chapter, discoverAll(ids));
       expect(p.discovered === p.total).toBe(isChapterCleared(chapter, discoverAll(ids)));
     }
+  });
+
+  it("E5 (late catalog on in Production): the real chapter 4 holds the late recipe, and a player who finished the ordinary chapter keeps the mark", () => {
+    const real = buildRecipeChapters().find((c) => c.chapter === 4)!;
+    expect(real.recipes.some((r) => r.id === "ikura-salmon-pizza")).toBe(true);
+    const ordinary = real.recipes.filter((r) => !isLateRecipeId(r.id)).map((r) => r.id);
+    expect(isChapterCleared(real, discoverAll(ordinary))).toBe(true);
+    expect(chapterProgress(real, discoverAll(ordinary))).toEqual({ discovered: ordinary.length, total: ordinary.length + 1 });
   });
 
   it("late catalog ON: a finished chapter keeps its mark while the displayed count grows (26/27 ✓), and the late recipe is not required", () => {

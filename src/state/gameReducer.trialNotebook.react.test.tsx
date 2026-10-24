@@ -5,6 +5,7 @@ import { notebookSize, notebookView } from "../logic/discovery/trialNotebook";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { DEX_3, INVENTORY, NOW, OWNED, ORDINARY, FAR_ORIGINAL, MID_BAKE, pieces, type Pizza } from "./testSupport/trialNotebookFlow";
 import { buildIdealSauceFixture } from "../data/referencePizza";
+import { freeCookFinishEnabled } from "../data/freeCookFinishGate";
 
 /**
  * P3-3a: the real `gameReducer` driven by React's own `useReducer` under <StrictMode>, which invokes every reducer
@@ -54,6 +55,8 @@ function playRound(dispatch: Dispatch<GameAction>, pizza: Pizza) {
   for (const p of pizza.toppings ?? []) send({ type: "PLACE_TOPPING", ingredientId: p.id, x: p.x, y: p.y });
   send({ type: "START_BAKE", now: NOW + 60_000 });
   send({ type: "CONFIRM_BAKE", value: MID_BAKE });
+  // E5: a Free round runs FINISH (Production: on); 「完成」 with nothing placed identifies the pizza and ends the round at RESULT.
+  if (freeCookFinishEnabled()) send({ type: "CONFIRM_MAKING_STEP" });
 }
 
 describe.each([{ strict: true }, { strict: false }])("Trial Notebook through React (StrictMode: $strict)", ({ strict }) => {

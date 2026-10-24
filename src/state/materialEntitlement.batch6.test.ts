@@ -4,6 +4,7 @@ import { RECIPES } from "../data/recipes";
 import { validateAppendOnlyExtension } from "../logic/discoveryLadder";
 import type { DexEntry, DexState } from "./dex";
 import { resolveShopEntitlement } from "./materialEntitlement";
+import { ordinaryLadderSteps } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Batch 6 PR-2 (#420, OD-420-1): the production star gates -- goat-cheese = step 50 AND 120 cumulative
@@ -31,7 +32,7 @@ describe("Batch 6 PR-2 production star gates", () => {
     const [s50, s51] = [DISCOVERY_LADDER.steps[49], DISCOVERY_LADDER.steps[50]];
     expect(s50).toEqual({ step: 50, kind: "MATERIAL", ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": GATE_GOAT_CHEESE }, keyRecipeId: "california-style-pizza" });
     expect(s51).toEqual({ step: 51, kind: "MATERIAL", ingredientIds: ["artichoke", "spinach"], starGates: { spinach: GATE_SPINACH }, keyRecipeId: "spinach-artichoke-pizza" });
-    expect(DISCOVERY_LADDER.steps).toHaveLength(56); // + Batch 7a's steps 52-53, Batch 8b's step 54, New Sauces Phase A's step 55 and Phase B-1's step 56 (no star gate)
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(56); // + Batch 7a's steps 52-53, Batch 8b's step 54, New Sauces Phase A's step 55 and Phase B-1's step 56 (no star gate)
   });
 
   it("keeps the frozen steps 1..49 byte-identical in meaning (append-only extension)", () => {

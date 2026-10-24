@@ -10,6 +10,8 @@ import { bakeCompletionFailure } from "../logic/completionGate";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { computeScoringV2 } from "../logic/scoringV2";
 import { starsFromTotal } from "../logic/scoring";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Issue #482 (OD-B1 / OD-B6 F1): Free Cooking judges "is it a dish" -- the Completion Gate, the CUT skip and the
@@ -32,12 +34,16 @@ function idealPizzaFor(recipeId: RecipeId, bakeResult: number): PizzaState {
   };
 }
 
-/** A fresh Free Cooking round baked with exactly the reference pizza of `recipeId` at `bake` (stops at CONFIRM_BAKE). */
+/**
+ * A fresh Free Cooking round baked with exactly the reference pizza of `recipeId` at `bake`, up to its identification. E5: a Free round runs
+ * FINISH (Production), which defers the identification to the 「完成」 confirmation; walking it with nothing placed is the single pass this suite
+ * is about (a failed bake skips FINISH and is already final).
+ */
 function confirmBake(recipeId: RecipeId, bake: number): GameState {
   let state = gameReducer(createInitialGameState(EMPTY_DEX, OWNED, 0, {}, []), { type: "START_FREE_COOK" });
   state = { ...state, pizza: idealPizzaFor(recipeId, bake) };
   state = gameReducer(state, { type: "START_BAKE" });
-  return gameReducer(state, { type: "CONFIRM_BAKE", value: bake });
+  return walkPostBakeToResult(gameReducer(state, { type: "CONFIRM_BAKE", value: bake }));
 }
 
 describe("#482 F1: Free Cooking judges by the generic window, for every recipe", () => {
@@ -46,7 +52,8 @@ describe("#482 F1: Free Cooking judges by the generic window, for every recipe",
   });
 
   it("FAILED <=> outside the generic window; the badge is classifyBake of the SAME window; CUT is skipped on FAILED", () => {
-    for (const recipe of RECIPES) {
+    // E5: the late recipe's reference has post-bake pieces (identified at FINISH, not by this pre-bake fixture): lateCatalog.ikura.test.ts.
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       for (const bake of [0, 40, 50, 57.99, 58, 62, 68, 78, 78.01, 85, 100]) {
         const after = confirmBake(recipe.id, bake);
         const outside = bake < G_START || bake > G_END;

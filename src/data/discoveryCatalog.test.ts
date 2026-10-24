@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
 import { RECIPES, type BaseRecipeId } from "./recipes";
 import { getReferencePizza } from "./referencePizza";
-import { createEmptyPizza } from "../state/pizzaState";
+import { isLateRecipeId, referencePizzaWithLateStage } from "../logic/catalog/testSupport/lateIds";
 import { evaluateDiscovery, matchDiscovery } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import {
@@ -13,6 +13,7 @@ import {
   type Phase2Profile,
 } from "../logic/discovery/testSupport/phase2Matrix";
 import { noSauceRecipeIds } from "./recipeSauceProfiles";
+import { LATE_DISCOVERY_TARGET_IDS } from "./lateCatalog";
 
 function signatureKey(t: { items: readonly string[]; identityDimensions: unknown }): string {
   return JSON.stringify([[...t.items].sort(), t.identityDimensions]);
@@ -28,6 +29,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
     const phase2 = new Map(phase2Targets("SHIPPED_KEEP").map((t) => [t.targetId, t]));
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       if (t.recipeId === "brazilian-calabresa") continue; // PR-4b-B: production-only (no Phase-2 row)
+      if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();
       expect(t.items).toEqual([...expected!.items].sort());
@@ -66,17 +68,12 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("12. every shipped recipe's own reference pizza is discovered as that recipe, and only it", () => {
     for (const recipe of RECIPES) {
       const reference = getReferencePizza(recipe.id)!;
-      const pizza = {
-        ...createEmptyPizza(),
-        sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
-        toppings: reference.pieceGroups.flatMap((g, gi) =>
-          g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p })),
-        ),
-      };
+      const pizza = referencePizzaWithLateStage(recipe, reference);
+      // E5: the late recipe's FINISH pieces carry `stage: "post"` (referencePizzaWithLateStage).
       expect(evaluateDiscovery(signatureOfPizza(pizza), RECIPE_DISCOVERY_CATALOG, [])).toEqual({
         kind: "NEW_DISCOVERY",
         recipeId: recipe.id,
-        targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id as BaseRecipeId],
+        targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id as BaseRecipeId] ?? LATE_DISCOVERY_TARGET_IDS[recipe.id],
       });
     }
   });

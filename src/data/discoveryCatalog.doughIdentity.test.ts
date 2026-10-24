@@ -12,6 +12,7 @@ import { productionTechniqueContext, type TechniqueCatalogEntry, type TechniqueR
 import { ingredientUnlockStep } from "../state/materialEntitlement";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredDex } from "../state/testSupport/guidedRound";
+import { isLateRecipeId, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * P3-a2 (#577): `discoveryIdentityOf` reads a recipe's `doughKind`, so a target can declare the `dough` axis (and DOUGH_VARIANT) the same way a late
@@ -52,12 +53,13 @@ const PINSA_TARGET = targetOf("pinsa-romana", L1_PINSA_RECIPE);
 
 describe("discoveryIdentityOf", () => {
   it("every shipped recipe keeps the SAME default dimensions object and no capability (the production catalog is unchanged)", () => {
-    for (const recipe of RECIPES) {
+    // E5: the late recipe (ikura) is the one that declares a late value and the late-addition capability (pinned in lateCatalog.ikura.test.ts).
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       const out = discoveryIdentityOf(recipe);
       expect(out.identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
       expect(out.capabilities).toEqual([]);
     }
-    for (const target of RECIPE_DISCOVERY_CATALOG) {
+    for (const target of RECIPE_DISCOVERY_CATALOG.filter((t) => !isLateRecipeId(t.recipeId))) {
       expect(target.identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
       expect(target.capabilities).toEqual([]);
     }
@@ -186,7 +188,7 @@ const IKURA_TARGET = targetOf("ikura-salmon-pizza", LATE_RECIPES.find((r) => r.i
 const IKURA_LATE_STEP = 56;
 const materialStep = (id: string): number | null => (id === "salmon-roe" ? IKURA_LATE_STEP : ingredientUnlockStep(id));
 function context(extra: readonly RecipeDiscoveryTarget[]): TechniqueRuntimeContext {
-  return { ...productionTechniqueContext(), catalog: [...RECIPE_DISCOVERY_CATALOG, ...extra] as readonly TechniqueCatalogEntry[], materialStep };
+  return { ...productionTechniqueContext(), catalog: [...RECIPE_DISCOVERY_CATALOG.filter((t) => !isLateRecipeId(t.recipeId)), ...extra] as readonly TechniqueCatalogEntry[], materialStep };
 }
 const FORBIDDEN = /ピンサ|ロマーナ|ハモン|ルッコラ|生ハム|焼成|焼き上|pinsa|romana|arugula|prosciutto|dough-pinsa|late-addition/i;
 

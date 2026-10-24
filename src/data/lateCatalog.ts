@@ -29,7 +29,7 @@ import { isDoughKind, type DoughKind } from "../logic/dough/doughKind";
 import type { Ingredient } from "./ingredients";
 
 /** Build-time switch (Owner D-3 案 1). `false` in Production; a literal so a bundler drops the late branch. */
-export const LATE_CATALOG_PRODUCTION = false;
+export const LATE_CATALOG_PRODUCTION = true;
 
 export function lateCatalogEnabled(): boolean {
   return LATE_CATALOG_PRODUCTION;

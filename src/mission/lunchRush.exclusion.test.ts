@@ -3,6 +3,7 @@ import { participatesInLunchRush, RECIPES, type Recipe } from "../data/recipes";
 import { discoverAll } from "../logic/testSupport/branchingFixture";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { missionOrderRecipeIds, pickMissionOrder } from "./lunchRush";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Discovery 3.0 PR-4b-A (D-4): `lunchRush: false` keeps a recipe out of every Lunch Rush order pool
@@ -15,7 +16,7 @@ const optOut = (id: string): Recipe[] => RECIPES.map((r) => (r.id === id ? { ...
 
 describe("lunchRush: false foundation", () => {
   it("the 25 original production recipes all participate; only brazilian-calabresa (PR-4b-B), No.27 pesto-pollo and Expansion Slice 1 pesto-gamberi opt out (and, since TQ-1D, aussie)", () => {
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.lunchRush === false).map((r) => r.id)).toEqual([
+    expect((ordinaryRecipes(RECIPES) as readonly Recipe[]).filter((r) => r.lunchRush === false).map((r) => r.id)).toEqual([
       "brazilian-calabresa",
       "pesto-pollo",
       "pesto-gamberi",

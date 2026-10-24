@@ -18,7 +18,7 @@ import {
   type IngredientCategory,
 } from "../data/ingredients";
 import { FREE_COOK_RECIPE } from "../data/freeCook";
-import { LATE_INGREDIENTS } from "../data/lateCatalog";
+import { LATE_INGREDIENTS, lateCatalogEnabled } from "../data/lateCatalog";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { EMPTY_DEX } from "../state/dex";
 import { createEmptyPizza } from "../state/pizzaState";
@@ -72,7 +72,9 @@ const BATCH8B_DEDICATED: Record<string, DedicatedIngredientVisual> = {
 const PHASE_B1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   "green-onion": "green-onion-slices",
 };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED };
+// E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
+const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains" } : {};
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -684,9 +686,9 @@ describe("Batch 8b: shiso / whitebait dedicated art (production rows)", () => {
 describe("FIN-E4b-ikura: salmon-roe dedicated art (late-catalog row)", () => {
   const roe = LATE_INGREDIENTS.find((i) => i.id === "salmon-roe")!;
 
-  it("declares the dedicated visual and is not a production row while the late catalog is OFF", () => {
+  it("declares the dedicated visual and is a production row exactly when the late catalog is on (E5: on)", () => {
     expect(roe.pieceVisual).toBe("salmon-roe-grains");
-    expect(INGREDIENTS.some((i) => i.id === "salmon-roe")).toBe(false);
+    expect(INGREDIENTS.some((i) => i.id === "salmon-roe")).toBe(lateCatalogEnabled());
   });
 
   it("draws an SVG on the glyph and on the placed piece, and never prints its emoji", () => {
@@ -703,7 +705,7 @@ describe("FIN-E4b-ikura: salmon-roe dedicated art (late-catalog row)", () => {
   });
 
   it("its text fallback is shared with no production ingredient (G18)", () => {
-    expect(INGREDIENTS.filter((i) => i.emoji === roe.emoji).map((i) => i.id)).toEqual([]);
+    expect(INGREDIENTS.filter((i) => i.emoji === roe.emoji && i.id !== roe.id).map((i) => i.id)).toEqual([]);
   });
 });
 

@@ -27,9 +27,15 @@ const B_LITERAL = {
 
 vi.mock("../data/recipes", async (importOriginal) => {
   const m = await importOriginal<typeof import("../data/recipes")>();
+  // E5: the late recipes (when the late catalog is on) stay LAST -- discoveryCatalog checks the ordinary part as "everything before them" -- so the
+  // synthetic branch B joins the ordinary recipes, in front of them.
+  const { LATE_RECIPES, lateCatalogEnabled } = await import("../data/lateCatalog");
+  const lateIds = new Set<string>(lateCatalogEnabled() ? LATE_RECIPES.map((r) => r.id) : []);
+  const credited = m.RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit !== false);
   const RECIPES = [
-    ...m.RECIPES.filter((r) => (r as { ladderCredit?: false }).ladderCredit !== false),
+    ...credited.filter((r) => !lateIds.has(r.id)),
     B_LITERAL,
+    ...credited.filter((r) => lateIds.has(r.id)),
   ] as unknown as typeof m.RECIPES;
   return {
     ...m,

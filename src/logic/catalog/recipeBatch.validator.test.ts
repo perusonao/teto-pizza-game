@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
 import { NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
+  ordinaryCatalogView,
   productionCatalogView,
   validateBatchManifest,
   validateCatalogTables,
@@ -24,7 +25,7 @@ describe("production catalog", () => {
     expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["sichuan-eggplant-pizza"]);
     expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["green-onion"]);
     expect(NEXT_RECIPE_BATCH.acceptedLetterShifts).toBeUndefined(); // a single-member cohort: no existing recipe changes its letter
-    expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
+    expect(validateBatchManifest(NEXT_RECIPE_BATCH, ordinaryCatalogView())).toEqual([]); // E5: a batch is an ordinary-catalog event
   });
 });
 

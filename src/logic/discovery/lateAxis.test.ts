@@ -14,6 +14,8 @@ import { nearMissLine, NEAR_MISS_FAR_GENERIC_COPY } from "../../state/resultNear
 import { axisGuidanceAllowed, lateAxisAnswerCount } from "../techniques/nearMissPrivacy";
 import { DEFAULT_IDENTITY_DIMENSIONS, signatureOfPizza, type IdentityDimensions } from "./signature";
 import { evaluateDiscovery, matchDiscovery, type RecipeDiscoveryTarget } from "./matcher";
+import { isLateRecipeId } from "../catalog/testSupport/lateIds";
+import { lateCatalogEnabled } from "../../data/lateCatalog";
 
 /**
  * FIN-E2 (Issue #604 / #294): the `late` identity axis, run against a SYNTHETIC catalog (no recipe, ingredient or ladder is added to
@@ -107,8 +109,8 @@ describe("proposed late axis on a synthetic catalog", () => {
 });
 
 describe("existing recipes: identification is unchanged", () => {
-  it("every production target has the default late value, so a pizza with no post piece (every pizza Production can make) is identified exactly as today", () => {
-    for (const t of RECIPE_DISCOVERY_CATALOG) {
+  it("every ordinary production target has the default late value, so a pizza with no post piece is identified exactly as today (E5: only the late target declares one)", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG.filter((x) => !isLateRecipeId(x.recipeId))) {
       expect(t.identityDimensions.late, t.targetId).toEqual([]);
       const sauces = t.sauceBase ?? [];
       const pizza = pizzaOf(t.items.filter((i) => !sauces.includes(i)), [], sauces);
@@ -148,8 +150,9 @@ describe("near-miss: an internal late distance, no production line", () => {
     expect(classifyNearMiss(observed(pizzaOf(["mozzarella", "chicken"], [])), [RECIPES[0]], options)?.kind).toBe("CLOSE");
   });
 
-  it("no pizza without a post piece changes: every production recipe's near-miss is identical with and without the late fields", () => {
-    for (const t of RECIPE_DISCOVERY_CATALOG) {
+  it("no pizza without a post piece changes: every ordinary production recipe's near-miss is identical with and without the late fields", () => {
+    // E5: the late target is the one whose internal distance includes its late part (a design effect, never shown: see the neutral-line test below).
+    for (const t of RECIPE_DISCOVERY_CATALOG.filter((x) => !isLateRecipeId(x.recipeId))) {
       const sauces = t.sauceBase ?? [];
       const sig = signatureOfPizza(pizzaOf(t.items.filter((i) => !sauces.includes(i)).slice(1), [], sauces));
       const stripped = RECIPE_DISCOVERY_CATALOG.map(({ identityDimensions: _d, ...rest }) => rest);
@@ -225,14 +228,16 @@ describe("Fingerprint / Trial Notebook: before and after the bake are one attemp
 describe("technique surface (late-addition)", () => {
   it("a target that declares a non-empty late value is the only one that requires the technique", () => {
     expect([LATE_PARSLEY, LATE_CHICKEN, PLAIN_TWIN].filter((t) => requiredTechniquesOf(t).includes("late-addition")).map((t) => t.targetId)).toEqual(["syn:late-parsley", "syn:late-chicken"]);
-    expect(RECIPE_DISCOVERY_CATALOG.some((t) => requiredTechniquesOf(t).includes("late-addition"))).toBe(false);
+    // E5: the one production target that requires it is the late recipe, and only while the late catalog is on.
+    expect(RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).includes("late-addition")).map((t) => t.recipeId)).toEqual(lateCatalogEnabled() ? ["ikura-salmon-pizza"] : []);
   });
 
   it("a pizza uses the technique iff it has a post piece; every existing recipe's own pizza uses none", () => {
     expect(detectTechniquesUsed(observed(pizzaOf(["mozzarella"], ["parsley"])))).toContain("late-addition");
     expect(detectTechniquesUsed(observed(pizzaOf(["mozzarella", "parsley"], [])))).not.toContain("late-addition");
     expect(detectTechniquesUsed(observed(createEmptyPizza()))).toEqual([]);
-    for (const t of RECIPE_DISCOVERY_CATALOG) {
+    // E5: the late recipe's own pizza is the one that uses it (its post pieces); asserted in lateCatalog.ikura.test.ts.
+    for (const t of RECIPE_DISCOVERY_CATALOG.filter((x) => !isLateRecipeId(x.recipeId))) {
       const sauces = t.sauceBase ?? [];
       const sig = signatureOfPizza(pizzaOf(t.items.filter((i) => !sauces.includes(i)), [], sauces));
       expect(detectTechniquesUsed(sig), t.targetId).not.toContain("late-addition");

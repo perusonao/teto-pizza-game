@@ -5,6 +5,7 @@ import { STARTER_INGREDIENT_IDS } from "./ingredients";
 import { isRecipeAvailable } from "../state/progression";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
 import type { QualityStars } from "../logic/scoring";
+import { isLateRecipeId, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /** Builds a Dex where `recipeIds` are discovered at `stars` each -- a shorthand for
  *  simulating "played through the Chapter 1 chain up to here." */
@@ -130,7 +131,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
     expect(RECIPES.slice(57, 60).map((r) => r.id)).toEqual(BATCH8A_RECIPE_IDS); // appended: No.58-60 (Batch 8a)
     expect(RECIPES.slice(60, 61).map((r) => r.id)).toEqual(BATCH8B_RECIPE_IDS); // appended: No.61 (Batch 8b)
     expect(RECIPES.slice(61, 62).map((r) => r.id)).toEqual(NEW_SAUCES_A_RECIPE_IDS); // appended: No.62 (New Sauces Phase A)
-    expect(RECIPES.slice(62).map((r) => r.id)).toEqual(NEW_SAUCES_B1_RECIPE_IDS); // appended: No.63 (New Sauces Phase B-1)
+    expect(ordinaryRecipes(RECIPES).slice(62).map((r) => r.id)).toEqual(NEW_SAUCES_B1_RECIPE_IDS); // appended: No.63 (New Sauces Phase B-1)
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -159,7 +160,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !BATCH8A_RECIPE_IDS.includes(r.id) &&
           !BATCH8B_RECIPE_IDS.includes(r.id) &&
           !NEW_SAUCES_A_RECIPE_IDS.includes(r.id) &&
-          !NEW_SAUCES_B1_RECIPE_IDS.includes(r.id),
+          !NEW_SAUCES_B1_RECIPE_IDS.includes(r.id) &&
+          !isLateRecipeId(r.id),
       )
         .map((r) => r.id)
         .sort(),

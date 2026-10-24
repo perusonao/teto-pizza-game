@@ -21,6 +21,7 @@ import { evaluateDiscovery } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { starsFromTotal } from "../logic/scoring";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 
 /**
@@ -238,7 +239,8 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
   });
 
   it("12. every shipped recipe's reference pizza: Free Cooking discovers exactly that recipe and Dex/★/Pitz equal the legacy result", () => {
-    for (const recipe of RECIPES) {
+    // E5: the late recipe's pizza is finished in FINISH (post-bake pieces), covered end to end in lateCatalog.ikura.test.ts.
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       // Issue #482 (OD-B6 F1): Free Cooking judges by the generic window its gauge shows, so the bake is the middle
       // of the part of the recipe's own window that the generic window covers (every recipe overlaps it).
       const bake = Math.round(

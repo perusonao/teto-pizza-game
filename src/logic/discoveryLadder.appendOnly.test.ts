@@ -30,6 +30,7 @@ import {
   toMaterialLadder,
   type LadderRecipe,
 } from "./testSupport/discoveryLadderRule";
+import { ordinaryLadder, ordinaryRecipes } from "./catalog/testSupport/lateIds";
 
 /**
  * LAD-1 (Issue #261, Owner Decision OD-W2-1): the append-only Discovery Ladder.
@@ -42,7 +43,8 @@ import {
  * - Unknown (future) material ids survive in the entitlement ledger and in storage.
  */
 
-const PRODUCTION: LadderRecipe[] = RECIPES.map((r) => ({
+// E5: the ordinary population (the late recipe's step is appended after it; pinned in lateCatalog.ikura.test.ts).
+const PRODUCTION: LadderRecipe[] = ordinaryRecipes(RECIPES).map((r) => ({
   id: r.id,
   ingredientIds: r.requiredIngredients.map((q) => q.ingredientId),
 }));
@@ -114,7 +116,8 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
     // steps 53-54 on the rule's tie-breaks; the key-recipe rule is only ever applied to the newest step, as for every earlier batch.)
     const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 54) };
     // The frozen prefix (steps 1-54) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (New Sauces Phase A) has none.
-    expect(DISCOVERY_LADDER).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
+    // E5: the late step (ikura) is appended after every ordinary step (pinned in lateCatalog.ikura.test.ts); the rule is applied to the ordinary ladder.
+    expect(ordinaryLadder(DISCOVERY_LADDER)).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));
     expect(validateAppendOnlyExtension(fixed47, DISCOVERY_LADDER)).toEqual([]);
   });
 
@@ -137,7 +140,9 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
 
   it("the production ladder has no softlock, duplicate unlock or unreachable recipe", () => {
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
-    expect(validateLadderProgression(DISCOVERY_LADDER, PRODUCTION, STARTER_INGREDIENT_IDS)).toEqual([]);
+    // E5: the whole ladder (late step included) against the whole recipe population.
+    const everything: LadderRecipe[] = RECIPES.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) }));
+    expect(validateLadderProgression(DISCOVERY_LADDER, everything, STARTER_INGREDIENT_IDS)).toEqual([]);
   });
 });
 

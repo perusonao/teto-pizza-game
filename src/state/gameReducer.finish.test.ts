@@ -10,6 +10,7 @@ import { FINISH_FIXTURE_RECIPE as FX, piece, preBakePizza } from "./testSupport/
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import { resolveRequestedSliceCount } from "../logic/cut/types";
 import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Cooking Steps 2.0 FINISH engine, slice D1b (Issue #294): the reducer wiring, driven by the test-only BBQ-shaped
@@ -233,9 +234,10 @@ describe("rounds that do not run FINISH", () => {
 });
 
 describe("existing recipes are unchanged", () => {
-  it("no RECIPES entry reaches FINISH or holds a bake value, in any mode", () => {
-    for (const mode of ROUND_MODES) {
-      for (const recipe of RECIPES) {
+  it("no ordinary RECIPES entry reaches FINISH or holds a bake value, in any mode", () => {
+    // E5: a Free Cooking round runs FINISH (UD-B, gate ON), pinned in gameReducer.finishFreeCook.test.ts; the other modes never enter it.
+    for (const mode of ROUND_MODES.filter((m) => m !== "free")) {
+      for (const recipe of ordinaryRecipes(RECIPES)) {
         const bake = atBake(mode, recipe.id);
         const state = confirmBake(bake, bakeValueFor(mode, bake, "good"));
         expect(state.bakeValue, `${mode}/${recipe.id}`).toBeNull();

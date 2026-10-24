@@ -10,6 +10,7 @@ import { matchDiscovery, type RecipeDiscoveryTarget } from "./discovery/matcher"
 import { researchResultRows } from "./discovery/researchResultRows";
 import { signatureOfPizza } from "./discovery/signature";
 import { scoreRecipeComponentV2 } from "./scoringV2/recipeComponent";
+import { isLateRecipeId } from "./catalog/testSupport/lateIds";
 
 /**
  * Issue #521 S2: guards for a recipe that REQUIRES TWO SAUCES (Owner policy: the first sauce is the Reference sauce, judged by its own amount
@@ -130,6 +131,7 @@ describe("Discovery: a two-sauce target is matched exactly, and adds no ambiguit
     const catalog = [...RECIPE_DISCOVERY_CATALOG, target];
     expect(matchDiscovery(signatureOfPizza(pizzaFrom(["tomato-sauce", "olive-oil"], ["mozzarella", "garlic"])), catalog)).toMatchObject({ kind: "UNIQUE_MATCH", target: { targetId: "synthetic-two-sauce" } });
     for (const t of RECIPE_DISCOVERY_CATALOG) {
+      if (isLateRecipeId(t.recipeId)) continue; // E5: needs post-bake pieces (late axis); collision is pinned in lateCatalog.ikura.test.ts
       const sauces = t.sauceBase ?? [];
       const pieces = t.items.filter((id) => !sauces.includes(id));
       const match = matchDiscovery(signatureOfPizza(pizzaFrom([...sauces], pieces)), catalog);

@@ -66,11 +66,21 @@ function restockLow(s: GameState): GameState {
   return s;
 }
 
-/** One Free Cooking round with exactly `ids`, baked and registered; returns the RESULT state. */
-function bake(s: GameState, ids: readonly string[]): GameState {
+/** The POST_BAKE ingredient ids of a recipe (E5: only the late recipe has any). */
+const postBakeOf = (recipeId: string): string[] =>
+  (RECIPES.find((r) => r.id === recipeId)?.requiredIngredients ?? []).filter((q) => (q as { applicationPhase?: string }).applicationPhase === "POST_BAKE").map((q) => q.ingredientId);
+
+/**
+ * One Free Cooking round with exactly `ids`, baked and registered; returns the RESULT state. `post` (a subset of `ids`) is placed in the FINISH step
+ * after the bake, as a player who has learned 後乗せ does (E5: the hints never say when an ingredient goes on, so the plain call places everything before the bake).
+ */
+function bake(s: GameState, ids: readonly string[], post: readonly string[] = []): GameState {
   s = restockLow(s);
-  s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids) };
+  s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids.filter((id) => !post.includes(id))) };
   s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE });
+  post.forEach((ingredientId, i) => {
+    s = act(s, { type: "PLACE_TOPPING", ingredientId, x: 30 + i * 9, y: 40 + i * 6 });
+  });
   for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
   expect(s.phase).toBe("RESULT");
   return act(s, { type: "REGISTER_TO_DEX" });
@@ -201,7 +211,9 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         expect(s.lastDiscovery).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: "margherita" });
       } else {
         const line = resultNearMiss(s);
-        expect(["ADD_ONE", "SAUCE_ONLY"], `Dex ${dexCount}: near-miss after the named pizza`).toContain(line?.kind);
+        // E5: the late recipe's pizza with everything placed before the bake is CLOSE (its late part is missing); every other recipe is ADD_ONE / SAUCE_ONLY.
+        const lateTarget = postBakeOf(targetId).length > 0;
+        expect(lateTarget ? ["ADD_ONE", "SAUCE_ONLY", "CLOSE"] : ["ADD_ONE", "SAUCE_ONLY"], `Dex ${dexCount}: near-miss after the named pizza`).toContain(line?.kind);
         // H3-3 near-miss privacy: the fixed copy only (never an ingredient), and bought facts change nothing.
         expect(Object.values(NEAR_MISS_COPY)).toContain(line!.textJa);
         expect(resultNearMiss({ ...s, discoveryHintFacts: {} } as GameState)).toEqual(line);
@@ -213,7 +225,8 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         );
         for (const id of pool) {
           trials += 1;
-          s = bake(s, wantSauce ? [id, ...named] : [...named, id]);
+          const trial = wantSauce ? [id, ...named] : [...named, id];
+          s = bake(s, trial, postBakeOf(targetId).filter((x) => trial.includes(x)));
           if (s.lastDiscovery?.kind === "NEW_DISCOVERY") break;
         }
         expect(s.lastDiscovery, `Dex ${dexCount}: discovery within ${pool.length} tries`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: targetId });

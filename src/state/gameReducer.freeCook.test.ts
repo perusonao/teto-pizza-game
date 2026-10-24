@@ -3,7 +3,8 @@ import { createInitialGameState, gameReducer, type GameAction, type GameState } 
 import { EMPTY_DEX, getDexEntry, type DexState } from "./dex";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
-import { DEFAULT_COOKING_PROFILE } from "../data/cookingProfiles";
+import { DEFAULT_COOKING_PROFILE, freeCookingProfile } from "../data/cookingProfiles";
+import { freeCookFinishEnabled } from "../data/freeCookFinishGate";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE, FREE_COOK_RECIPE_ID } from "../data/freeCook";
 import type { InventoryState } from "./inventory";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
@@ -84,7 +85,8 @@ describe("START_FREE_COOK", () => {
     expect(state.recipe).toBe(FREE_COOK_RECIPE);
     expect(state.recipe.requiredIngredients).toEqual([]);
     expect(state.makingStep).toBe("DOUGH");
-    expect(state.cookingProfile).toBe(DEFAULT_COOKING_PROFILE);
+    // E5: a Free Cooking round carries FINISH exactly when the Free Cooking FINISH gate is on (Production: on).
+    expect(state.cookingProfile).toEqual(freeCookingProfile(DEFAULT_COOKING_PROFILE, freeCookFinishEnabled()));
     expect(state.lastDiscovery).toBeNull();
     expect(state.score).toBeNull();
     expect(state.cookingTiming).not.toBeNull();

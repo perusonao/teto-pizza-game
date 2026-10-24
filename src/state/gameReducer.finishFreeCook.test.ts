@@ -12,6 +12,7 @@ import { consumePizzaInventory } from "./inventory";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { atBake, bakeValueFor, referencePizzaFor, UNMATCHED_FREE_PIZZAS } from "./testSupport/confirmBakeMatrix";
 import { discoveredDex } from "./testSupport/guidedRound";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * FINISH FIN-E3a (Issue #604 / #294, Owner Decision UD-B): the Free Cooking FINISH step through the real reducer, behind the gate.
@@ -127,7 +128,7 @@ describe("the Free Cooking FINISH profile (gate)", () => {
 
   it("ON: Guided, Lunch Rush and Dinner profiles and FINISH availability are untouched", () => {
     gate.open = true;
-    for (const recipe of RECIPES) {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       for (const mode of ["guided", "lunchRush", "dinner"] as const) {
         const state = atBake(mode, recipe.id);
         if (mode !== "dinner") expect(state.cookingProfile, `${mode}/${recipe.id}`).toEqual(getCookingProfile(recipe.id));

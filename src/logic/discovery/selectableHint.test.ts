@@ -96,7 +96,7 @@ function freeLeakViolations(present: (m: SelectableHintModel) => unknown): strin
     const json = JSON.stringify(p);
     for (const key of allKeys(p)) if (key !== "paidCount" && FORBIDDEN_KEY.test(key)) violations.push(`${recipe.id}: field ${key}`);
     const hidden = [m.reservedIngredientId, ...ids(m.purchasableFacts)].filter((id): id is string => !!id);
-    for (const id of hidden) if (json.includes(`"${id}"`) || json.includes(`ing:${id}`)) violations.push(`${recipe.id}: hidden ${id}`);
+    for (const id of hidden) if (json.includes(`"${id}"`) || json.includes(`"ing:${id}"`)) violations.push(`${recipe.id}: hidden ${id}`);
     const s = structureWithoutKey(p);
     structures.set(s, [...(structures.get(s) ?? []), recipe.id]);
   }

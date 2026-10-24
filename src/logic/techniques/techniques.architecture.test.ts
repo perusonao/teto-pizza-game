@@ -4,6 +4,7 @@ import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { evaluateDiscovery, type RecipeDiscoveryTarget } from "../discovery/matcher";
 import { DEFAULT_IDENTITY_DIMENSIONS, signatureOfPizza } from "../discovery/signature";
 import { registerTechniqueDiscovery } from "./registration";
+import { isLateRecipeId } from "../catalog/testSupport/lateIds";
 
 /**
  * Cooking Techniques 1.0 TQ-1A (Issue #262): the architecture invariants.
@@ -83,6 +84,9 @@ describe("INV-TQ-NB: a recipe is discoverable while its technique is undiscovere
   it("registering techniques under any ledger never changes a recipe outcome, for every target", () => {
     const ledgers: string[][] = [[], ["no-sauce"], ["no-sauce", "future-x"], ["future-x"]];
     for (const target of CATALOG) {
+      // E5: the late target is identified only with post-bake (stage "post") pieces, which this pre-bake fixture does not place; the same
+      // invariance for it is asserted in lateCatalog.ikura.test.ts.
+      if (isLateRecipeId(target.recipeId)) continue;
       const sauces = target.sauceBase ?? [];
       const sig = signatureOfPizza(pizza(sauces, target.items.filter((i) => !sauces.includes(i))));
       const before = evaluateDiscovery(sig, CATALOG, []);
