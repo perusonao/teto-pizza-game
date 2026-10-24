@@ -15,6 +15,7 @@ import { loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type Progressio
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "./pizzaState";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import { noSauceRecipeIds } from "../data/recipeSauceProfiles";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the technique step at the REGISTER_TO_DEX integration
@@ -333,7 +334,8 @@ describe("T9: Dinner never discovers a technique", () => {
 
 describe("T16: INV-TQ-4 (TQ-1D) -- with the production context only the NO_SAUCE recipes record a technique", () => {
   it("every production recipe's ideal pizza (Free Cooking) leaves the ledger empty except the NO_SAUCE recipes' (derived from the sauce-profile authority), and a no-sauce original before the affordance opens records nothing", () => {
-    for (const recipe of RECIPES) {
+    // E5: the late recipe is identified at FINISH (post-bake pieces); its technique registration is pinned in lateCatalog.ikura.test.ts.
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       const result = freeCookToResult(idealPizzaFor(recipe.id, Math.round((recipe.bakeTarget.start + recipe.bakeTarget.end) / 2)));
       const base = { ...createInitialGameState(EMPTY_DEX, ALL_IDS, 0, {}, []) };
       const after = register(freeCookToResult(result.pizza, base));

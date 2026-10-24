@@ -10,15 +10,12 @@ import { LATE_RECIPES, lateCatalogEnabled } from "./lateCatalog";
 
 async function load(enabled: boolean) {
   vi.resetModules();
-  if (enabled) {
-    vi.doMock("./lateCatalog", async (importOriginal) => ({
-      ...(await importOriginal<typeof import("./lateCatalog")>()),
-      LATE_CATALOG_PRODUCTION: true,
-      lateCatalogEnabled: () => true,
-    }));
-  } else {
-    vi.doUnmock("./lateCatalog");
-  }
+  // E5: Production has the switch ON, so both states are mocked explicitly (OFF = the rollback state, ON = what ships).
+  vi.doMock("./lateCatalog", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("./lateCatalog")>()),
+    LATE_CATALOG_PRODUCTION: enabled,
+    lateCatalogEnabled: () => enabled,
+  }));
   // Sequential on purpose: concurrent imports would run the mock factory twice.
   await import("./lateCatalog");
   const recipes = await import("./recipes");
@@ -48,9 +45,12 @@ function pizzaOf(pre: readonly string[], post: readonly string[]): PizzaState {
   return { ...createEmptyPizza(), sauceIds: [], toppings: [...pre.map((id, i) => piece(id, i)), ...post.map((id, i) => piece(id, i, "post"))], bakeResult: 70 };
 }
 
-describe("OFF (Production) is untouched by the ikura content", () => {
-  it("the switch is OFF, and no OFF catalog, order, taxonomy row or size class mentions ikura / salmon-roe", async () => {
-    expect(lateCatalogEnabled()).toBe(false);
+describe("OFF (the rollback state) is untouched by the ikura content", () => {
+  it("E5: Production ships with the switch ON, and the real modules hold ikura last", () => {
+    expect(lateCatalogEnabled()).toBe(true);
+  });
+
+  it("with the switch OFF, no catalog, order, taxonomy row or size class mentions ikura / salmon-roe", async () => {
     const off = await load(false);
     expect(off.recipes.RECIPES.some((r) => (r.id as string) === IKURA)).toBe(false);
     expect(off.recipes.RECIPES.some((r) => r.requiredIngredients.some((q) => "applicationPhase" in q))).toBe(false); // no POST_BAKE anywhere

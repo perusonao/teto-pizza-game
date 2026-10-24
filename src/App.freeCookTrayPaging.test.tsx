@@ -147,6 +147,8 @@ describe("free-cook tray paging never leaves a hidden selection active (PR #197 
     }
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
     vi.unstubAllGlobals();
+    // E5: a Free Cooking round (Production: FINISH on) identifies the pizza when 完成 is pressed on the FINISH step (nothing placed here).
+    await user.click(await screen.findByRole("button", { name: "完成" }));
 
     // Margherita exactly -- not an ORIGINAL "margherita + garlic".
     // W1-d: the banner's stamp and name are separate runs (same text content).

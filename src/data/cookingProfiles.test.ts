@@ -12,6 +12,7 @@ import {
 import { RECIPES, type BaseRecipeId, type RecipeId } from "./recipes";
 import { noSauceRecipeIds } from "./recipeSauceProfiles";
 import type { MakingStep } from "../state/gameReducer";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Recipe Cooking Steps 1.0 Phase 1A / Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, see
@@ -168,7 +169,8 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
   it("(A) every current production recipe has an explicit eligibility decision", () => {
     // RECIPES ⊆ EXPECTED_CUT_ELIGIBLE ∪ (nothing else) -- every real recipe id is accounted for
     // by this test file, not silently skipped.
-    const recipeIds = RECIPES.map((r) => r.id);
+    // E5: the late recipe has its own profile pins (lateCatalog.ikura.test.ts); this table covers the ordinary catalog.
+    const recipeIds = ordinaryRecipes(RECIPES).map((r) => r.id);
     expect(new Set(recipeIds)).toEqual(new Set([...EXPECTED_CUT_ELIGIBLE, ...EXPECTED_NOT_CUT_ELIGIBLE]));
     for (const recipeId of recipeIds) {
       // Calling isCutEligible/getCookingProfile must not throw and must return a defined,
@@ -187,7 +189,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
   });
 
   it("every RECIPES entry is CUT-eligible except the REC-02 no-CUT recipe (New Haven Apizza)", () => {
-    for (const recipe of RECIPES) {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       const expected = !EXPECTED_NOT_CUT_ELIGIBLE.includes(recipe.id);
       expect(isCutEligible(recipe.id), `${recipe.id} CUT eligibility`).toBe(expected);
     }
@@ -233,7 +235,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
 
   describe("(H) dynamic step derivation (Gameplay UX / Scoring 3.0 PR-A)", () => {
     it("every RECIPES entry's derived profile matches RECIPE_STEP_MATRIX exactly, not just a step count", () => {
-      for (const recipe of RECIPES) {
+      for (const recipe of ordinaryRecipes(RECIPES)) {
         const profile = getCookingProfile(recipe.id);
         expect(preBakeSteps(profile), recipe.id).toEqual(RECIPE_STEP_MATRIX[recipe.id as BaseRecipeId]);
       }

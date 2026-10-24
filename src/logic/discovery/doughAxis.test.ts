@@ -4,6 +4,7 @@ import { evaluateDiscovery, matchDiscovery, type DiscoveryTarget, type RecipeDis
 import { DEFAULT_IDENTITY_DIMENSIONS, IDENTITY_DIMENSION_KEYS, signatureOfPizza } from "./signature";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { RECIPES } from "../../data/recipes";
+import { isLateRecipeId } from "../catalog/testSupport/lateIds";
 
 /** Dough Kind P1 (#577): the `dough` identity axis. Synthetic fixtures only -- no production recipe has a dough kind yet. */
 const PINSA = "material-multigrain-long-ferment";
@@ -101,6 +102,7 @@ describe("dough identity axis (P1)", () => {
 
   it("PK-1 / fingerprint: every existing recipe's composition still matches exactly its own target, (its attempt fingerprint is pinned in attemptFingerprint.test.ts)", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG) {
+      if (isLateRecipeId(t.recipeId)) continue; // E5: its composition has a post-bake part (late axis); lateCatalog.ikura.test.ts pins it
       const base = t.sauceBase ?? [];
       const pizza: PizzaState = {
         ...createEmptyPizza(),

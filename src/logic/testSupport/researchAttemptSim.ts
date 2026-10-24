@@ -44,6 +44,7 @@ import { hint5SheetView, researchEntryViews, researchableEntryIds } from "../../
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { notebookView } from "../discovery/trialNotebook";
+import { placeFinishPieces, postBakeIdsOf } from "./lateFinishSim";
 
 /** NONE buys nothing; RUNG1..RUNG3 buy the first n ladder rungs (SAUCE, CHEESE, KEY_TOPPING) of every target before its
  *  first attempt; FIXED4 buys rungs 1-4 (+ STRUCTURE); FULL buys every rung. NONE / FIXED4 / FULL are the Hint 5.0
@@ -257,8 +258,10 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
   };
 
   function finishBake(ids: readonly string[], singles: ReadonlySet<string> = new Set()) {
-    s = { ...s, pizza: pizzaOf(ids, singles) };
+    const post = postBakeIdsOf(ids); // E5: the late recipe's post-bake part is placed in FINISH
+    s = { ...s, pizza: pizzaOf(ids.filter((id) => !post.includes(id)), singles) };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
+    s = placeFinishPieces(s, post, (id) => (singles.has(id) ? 1 : piecesOf(id)));
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
     if (s.phase !== "RESULT") throw new Error(`bake did not reach RESULT (${ids.join("+")})`);
     if (s.score) s = { ...s, score: { ...s.score, total: qualityTotal, stars: starsFromTotal(qualityTotal) } };

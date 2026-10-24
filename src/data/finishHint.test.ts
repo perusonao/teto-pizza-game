@@ -3,6 +3,7 @@ import { RECIPES } from "./recipes";
 import { buildFinishHintLine } from "./finishHint";
 import { FREE_COOK_RECIPE } from "./freeCook";
 import { FINISH_FIXTURE_RECIPE as FX, finishedPizza, piece, preBakePizza } from "../state/testSupport/finishFixture";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 describe("buildFinishHintLine (FINISH D2-0)", () => {
   it("names the missing late ingredient of a Guided recipe, and only that one", () => {
@@ -26,8 +27,9 @@ describe("buildFinishHintLine (FINISH D2-0)", () => {
     expect(buildFinishHintLine(FX, finishedPizza(3)).textJa).toBe("仕上げはここまで！「完成」で進もう。");
   });
 
-  it("a recipe with no late requirement gets a neutral line that names no ingredient (every RECIPES entry)", () => {
-    for (const recipe of RECIPES) {
+  it("a recipe with no late requirement gets a neutral line that names no ingredient (every ordinary RECIPES entry)", () => {
+    // E5: the late recipe's line is the one that names its late ingredient (its own wording is pinned in lateCatalog.ikura.test.ts).
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       const line = buildFinishHintLine(recipe, preBakePizza());
       expect(line.textJa, recipe.id).toBe("仕上げはなくてもOK。「完成」で進もう。");
     }

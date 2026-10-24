@@ -12,12 +12,14 @@ import { consumePizzaInventory } from "./inventory";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { atBake, bakeValueFor, referencePizzaFor, UNMATCHED_FREE_PIZZAS } from "./testSupport/confirmBakeMatrix";
 import { discoveredDex } from "./testSupport/guidedRound";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * FINISH FIN-E3a (Issue #604 / #294, Owner Decision UD-B): the Free Cooking FINISH step through the real reducer, behind the gate.
  *
- * `gate.open` stands in for `freeCookFinishEnabled()` -- the only thing that differs between a Production Free round (OFF) and a
- * round with the permanent 仕上げ tab (ON). Production is OFF; every ON test below is a test of code that does not run in Production.
+ * `gate.open` stands in for `freeCookFinishEnabled()` -- the only thing that differs between a Free round without FINISH (the pre-E5
+ * Production state and the rollback) and a round with the permanent 仕上げ tab. E5 switched Production ON: the ON tests below are the shipped
+ * behaviour, the OFF ones pin the rollback. (e5.ikuraProduction.test.ts runs the real, unmocked Production gate.)
  * The central property is parity: a Free round that places nothing in FINISH ends exactly as the same round without FINISH.
  */
 const gate = vi.hoisted(() => ({ open: false }));
@@ -127,7 +129,7 @@ describe("the Free Cooking FINISH profile (gate)", () => {
 
   it("ON: Guided, Lunch Rush and Dinner profiles and FINISH availability are untouched", () => {
     gate.open = true;
-    for (const recipe of RECIPES) {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       for (const mode of ["guided", "lunchRush", "dinner"] as const) {
         const state = atBake(mode, recipe.id);
         if (mode !== "dinner") expect(state.cookingProfile, `${mode}/${recipe.id}`).toEqual(getCookingProfile(recipe.id));

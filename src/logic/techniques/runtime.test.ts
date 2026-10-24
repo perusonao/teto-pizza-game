@@ -11,6 +11,7 @@ import {
   type TechniqueRuntimeContext,
 } from "./runtime";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
+import { lateCatalogEnabled } from "../../data/lateCatalog";
 
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the pure per-round technique step
@@ -140,8 +141,10 @@ describe("T19: initialTechniqueLedger (INV-TQ-1 at load)", () => {
     expect(initialTechniqueLedger([], others)).toEqual([]);
     expect(initialTechniqueLedger(["no-sauce"], others)).toEqual(["no-sauce"]);
     const everything = dex(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId));
-    expect(initialTechniqueLedger([], everything)).toEqual(["no-sauce"]);
-    expect(initialTechniqueLedger(["no-sauce"], everything)).toEqual(["no-sauce"]);
+    // E5: with the late catalog on, a save that holds every recipe (the late one included) is also backfilled with 後乗せ.
+    const all = lateCatalogEnabled() ? ["no-sauce", "late-addition"] : ["no-sauce"];
+    expect(initialTechniqueLedger([], everything)).toEqual(all);
+    expect(initialTechniqueLedger(["no-sauce"], everything)).toEqual(all);
   });
 });
 

@@ -12,10 +12,10 @@ import { FREE_FINISH_ON_VALUE, FREE_FINISH_PARAM, resolveFreeFinishOptIn, freeFi
  * else decides it.
  */
 describe("Free Cooking FINISH gate", () => {
-  it("Production is OFF, and with no opt-in nothing turns it on", () => {
-    expect(FREE_COOK_FINISH_PRODUCTION).toBe(false);
+  it("E5: Production is ON, and the gate is exactly that literal (the query opt-in is not involved)", () => {
+    expect(FREE_COOK_FINISH_PRODUCTION).toBe(true);
     expect(freeFinishPreviewOptedIn()).toBe(false); // vitest runs as DEV, with no ?freeFinish in the URL
-    expect(freeCookFinishEnabled()).toBe(false);
+    expect(freeCookFinishEnabled()).toBe(true);
   });
 
   it("the opt-in is the explicit query only: ?freeFinish=on exactly once", () => {

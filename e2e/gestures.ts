@@ -62,9 +62,28 @@ const BAKE_NEEDLE_SPEED_PCT_PER_S = BAKE_SPEED_PCT_PER_S;
  *    pause round trip actually cost on a given run. Confirmed landing within ~1 point of the
  *    exact target center across repeated runs at 10x CPU throttle.
  */
-export async function bakeToTarget(page: Page, target: { start: number; end: number }) {
+export async function bakeToTarget(page: Page, target: { start: number; end: number }, options: TakeOutOptions = {}) {
   await enterBakePaused(page);
-  await landNeedleAndTakeOut(page, target);
+  await landNeedleAndTakeOut(page, target, options);
+}
+
+/**
+ * E5 (Free Cooking FINISH is ON in Production): a Free Cooking round does not end at 取り出す！ -- it waits in the FINISH step until 完成 is
+ * pressed, and the pizza is identified there. By default the take-out helpers therefore press 完成 with nothing placed when the round
+ * is in FINISH, which is the single "bake, then see the RESULT" step every Free Cooking spec below the FINISH specs was written for.
+ * A spec about the FINISH step itself (or R8's mid-FINISH quit) passes `{ finish: false }` and drives 完成 itself.
+ */
+export interface TakeOutOptions {
+  finish?: boolean;
+}
+
+/** Presses 完成 (nothing placed) when the round is in the FINISH step; a no-op for a round that is not (Guided, Lunch Rush, Dinner, failed bake). */
+export async function completeEmptyFinishIfOffered(page: Page) {
+  // 取り出す！ unmounts the bake overlay; after that the next screen is either the FINISH step or the RESULT / CUT one.
+  // (A take-out that did not go through -- e.g. R8's save failure keeps the round at BAKE -- leaves the overlay; do not wait for it.)
+  await page.locator(".bake-gauge__needle").waitFor({ state: "detached", timeout: 3_000 }).catch(() => undefined);
+  const complete = page.getByTestId("finish-complete");
+  if (await complete.count()) await complete.click();
 }
 
 /**
@@ -137,7 +156,7 @@ async function flushReactCommit(page: Page) {
  * the click; a miss re-plans from where the needle really is (bounded by
  * `NEEDLE_LANDING_MAX_ATTEMPTS`, then an explicit error rather than a silent bad take-out).
  */
-export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }) {
+export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }, options: TakeOutOptions = {}) {
   const center = (target.start + target.end) / 2;
   // The take-out is judged on the JUST band (center +- JUST_HALF_WIDTH_PT, src/logic/bake.ts), not on the whole
   // window: a stop inside the window but outside that band reads 惜しい. Accepting the half-window (+-10 on the
@@ -172,6 +191,7 @@ export async function landNeedleAndTakeOut(page: Page, target: { start: number; 
     if (landed(position)) {
       await page.getByRole("button", { name: "取り出す！" }).click();
       await page.clock.resume();
+      if (options.finish !== false) await completeEmptyFinishIfOffered(page);
       return;
     }
   }

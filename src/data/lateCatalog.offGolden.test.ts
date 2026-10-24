@@ -6,6 +6,7 @@ import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { INGREDIENTS } from "./ingredients";
 import { LATE_CATALOG_PRODUCTION, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_RECIPES, lateCatalogEnabled } from "./lateCatalog";
 import { RECIPES } from "./recipes";
+import { isLateRecipeId as recipeIsLate } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * FIN-E4 foundation (Owner D-3 = 案 1): the Production (late catalog OFF) catalog is byte-identical to the catalog before the late
@@ -24,9 +25,9 @@ const canon = (value: unknown): string =>
 const sha256 = (value: unknown): string => createHash("sha256").update(canon(value)).digest("hex");
 
 describe("late catalog OFF == the catalog before FIN-E4 (golden prefix digests)", () => {
-  it("Production keeps the late catalog off", () => {
-    expect(LATE_CATALOG_PRODUCTION).toBe(false);
-    expect(lateCatalogEnabled()).toBe(false);
+  it("E5: Production has the late catalog on; the golden prefix below holds in either state (the OFF build itself is loaded in lateCatalog.ikura.test.ts)", () => {
+    expect(LATE_CATALOG_PRODUCTION).toBe(true);
+    expect(lateCatalogEnabled()).toBe(true);
   });
 
   it("recipes: the first N entries are unchanged and in the same order", () => {
@@ -57,13 +58,14 @@ describe("late catalog OFF == the catalog before FIN-E4 (golden prefix digests)"
     expect(sha256(Object.fromEntries(first.map((r) => [r.id, ids[r.id]])))).toBe(golden.discoveryTargetIds.sha256);
   });
 
-  it("no late content leaks into Production: none of it is in the catalogs, and no recipe carries a POST_BAKE requirement", () => {
+  it("the late content is in the catalogs exactly when the late catalog is on, after the golden prefix; no ordinary recipe carries a POST_BAKE requirement", () => {
+    const on = lateCatalogEnabled();
     const recipeIds = new Set<string>(RECIPES.map((r) => r.id));
     const ingredientIds = new Set(INGREDIENTS.map((i) => i.id));
-    for (const recipe of LATE_RECIPES as readonly { id: string }[]) expect(recipeIds.has(recipe.id)).toBe(false);
-    for (const ingredient of LATE_INGREDIENTS) expect(ingredientIds.has(ingredient.id)).toBe(false);
-    for (const step of LATE_LADDER_STEPS) expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === step.keyRecipeId)).toBe(false);
-    for (const recipe of RECIPES) {
+    for (const recipe of LATE_RECIPES as readonly { id: string }[]) expect(recipeIds.has(recipe.id)).toBe(on);
+    for (const ingredient of LATE_INGREDIENTS) expect(ingredientIds.has(ingredient.id)).toBe(on);
+    for (const step of LATE_LADDER_STEPS) expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === step.keyRecipeId)).toBe(on);
+    for (const recipe of RECIPES.filter((r) => !recipeIsLate(r.id))) {
       expect((recipe.requiredIngredients as readonly { applicationPhase?: string }[]).some((q) => q.applicationPhase === "POST_BAKE")).toBe(false);
     }
   });

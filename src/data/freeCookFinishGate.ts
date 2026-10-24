@@ -10,7 +10,7 @@
 import { freeFinishPreviewOptedIn } from "../preview/freeFinishPreview";
 
 /** Production switch. Stays `false` until the Owner enables Free Cooking FINISH (E5, after the E4 data). */
-export const FREE_COOK_FINISH_PRODUCTION = false;
+export const FREE_COOK_FINISH_PRODUCTION = true;
 
 export function freeCookFinishEnabled(): boolean {
   return FREE_COOK_FINISH_PRODUCTION || freeFinishPreviewOptedIn();

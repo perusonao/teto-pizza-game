@@ -9,6 +9,7 @@ import { canPlacePostBakeIngredient } from "../../state/inventory";
 import { isRecipeCookable, recipeStockShortage } from "../../state/recipeDiscoveryState";
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "./testSupport/recipeBatchValidator";
 import { SYNTHETIC_LATE_ID, syntheticCatalogView, syntheticLateRecipe } from "./testSupport/syntheticLateCatalog";
+import { ordinaryRecipes } from "./testSupport/lateIds";
 
 /**
  * FINISH FIN-E1 (Issue #294 / TQ-2 #604): the safety guards that must hold BEFORE a recipe with a late addition can be
@@ -23,11 +24,20 @@ describe("Production is unchanged: no late recipe, FINISH is not in any shipped 
     expect(validateFinishCatalog(view)).toEqual([]);
   });
 
-  it("no shipped recipe asks for a late addition and none has FINISH; every strip fits the tab ceiling", () => {
-    for (const recipe of RECIPES) {
+  it("no ordinary shipped recipe asks for a late addition and none has FINISH; every strip fits the tab ceiling", () => {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       expect((recipe.requiredIngredients as readonly RecipeRequirement[]).some((q) => q.applicationPhase === "POST_BAKE"), recipe.id).toBe(false);
       const profile = getCookingProfile(recipe.id);
       expect(profile.steps, recipe.id).not.toContain("FINISH");
+      expect(visibleCookingTabCount(profile), recipe.id).toBeLessThanOrEqual(MAX_VISIBLE_COOKING_TABS);
+    }
+  });
+
+  it("E5: the late recipe (when the catalog is on) is the only shipped recipe with a late addition and FINISH, and its strip fits the tab ceiling", () => {
+    for (const recipe of RECIPES.filter((r) => !ordinaryRecipes(RECIPES).includes(r))) {
+      expect((recipe.requiredIngredients as readonly RecipeRequirement[]).some((q) => q.applicationPhase === "POST_BAKE"), recipe.id).toBe(true);
+      const profile = getCookingProfile(recipe.id);
+      expect(profile.steps, recipe.id).toContain("FINISH");
       expect(visibleCookingTabCount(profile), recipe.id).toBeLessThanOrEqual(MAX_VISIBLE_COOKING_TABS);
     }
   });

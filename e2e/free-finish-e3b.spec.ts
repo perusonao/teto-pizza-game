@@ -44,7 +44,7 @@ async function prepareStarterPizza(page: Page) {
 
 async function bake(page: Page, target: { start: number; end: number }) {
   await enterBakePaused(page);
-  await landNeedleAndTakeOut(page, target);
+  await landNeedleAndTakeOut(page, target, { finish: false }); // these specs drive 完成 themselves
 }
 
 const rect = (page: Page, selector: string) =>
@@ -192,17 +192,21 @@ test.describe("Free Cooking FINISH (gate ON via ?freeFinish=on)", () => {
   });
 });
 
-test.describe("Free Cooking FINISH stays OFF without the opt-in", () => {
+// E5: Production has the Free Cooking FINISH step ON, so it no longer depends on the query (the opt-in only mattered while Production was OFF; the OFF /
+// rollback behaviour is pinned by the unit tests gameReducer.finishFreeCook.test.ts and freeCookFinishGate.test.ts).
+test.describe("Free Cooking FINISH is on whatever the query says (E5: Production ON)", () => {
   for (const query of ["", "?freeFinish=1", "?freeFinish=off", "?freeFinish=on&freeFinish=on"]) {
-    test(`${query || "(no query)"}: five tabs, no 仕上げ, and 焼く goes straight to the result`, async ({ page }) => {
+    test(`${query || "(no query)"}: six tabs with 仕上げ, and 焼く goes to the FINISH step, not the result`, async ({ page }) => {
       test.setTimeout(120_000);
       await boot(page, query, null);
-      await expect(page.locator(".making-step-tabs > *")).toHaveCount(5);
-      await expect(page.getByRole("tab", { name: "仕上げ" })).toHaveCount(0);
+      await expect(page.locator(".making-step-tabs > *")).toHaveCount(6);
+      await expect(page.getByRole("tab", { name: "仕上げ" })).toHaveCount(1);
       await prepareStarterPizza(page);
       await bake(page, FREE_BAKE);
+      await expect(page.getByTestId("finish-dock")).toBeVisible();
+      await expect(page.locator(".result-panel")).toHaveCount(0);
+      await page.getByTestId("finish-complete").click();
       await expect(page.locator(".result-panel")).toBeVisible();
-      await expect(page.getByTestId("finish-dock")).toHaveCount(0);
     });
   }
 });

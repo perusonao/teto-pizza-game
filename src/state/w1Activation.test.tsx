@@ -27,7 +27,8 @@ import {
   isValidLunchRushServeRecord,
 } from "../shared/lunchRushScoring";
 import { discoveredDex } from "./testSupport/guidedRound";
-import { withoutInactiveLate } from "../logic/catalog/testSupport/lateIds";
+import { ordinaryRecipes, withoutInactiveLate } from "../logic/catalog/testSupport/lateIds";
+import { LATE_DISCOVERY_TARGET_IDS } from "../data/lateCatalog";
 
 /**
  * Progression 2.0 W1 I5b-3 activation (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md): the 10
@@ -86,7 +87,8 @@ describe("production tables: 32 recipes, one row each", () => {
     const ids = RECIPES.map((r) => r.id).sort();
     expect(ORDERS.map((o) => o.recipeId).sort()).toEqual(ids);
     expect(withoutInactiveLate(Object.keys(RECIPE_SAUCE_PROFILES)).sort()).toEqual(ids);
-    expect(Object.keys(RECIPE_DISCOVERY_TARGET_IDS).sort()).toEqual(ids);
+    // E5: the late recipe's discovery target id lives in LATE_DISCOVERY_TARGET_IDS (RECIPE_DISCOVERY_TARGET_IDS keys the ordinary recipes).
+    expect([...Object.keys(RECIPE_DISCOVERY_TARGET_IDS), ...Object.keys(LATE_DISCOVERY_TARGET_IDS).filter((id) => ids.includes(id as never))].sort()).toEqual(ids);
     expect(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId).sort()).toEqual(ids);
     for (const id of ids) expect(getReferencePizza(id)?.recipeId).toBe(id);
     for (const id of W1_RECIPES) {
@@ -120,7 +122,7 @@ describe("production tables: 32 recipes, one row each", () => {
 });
 
 describe("exact-set discovery (Free Cooking)", () => {
-  it.each(RECIPES.map((r) => r.id))("%s: its own ingredient set discovers exactly it", (id) => {
+  it.each(ordinaryRecipes(RECIPES).map((r) => r.id))("%s: its own ingredient set discovers exactly it", (id) => {
     const outcome = evaluateDiscovery(signatureOfPizza(pizzaWithItems(ingredientsOf(id))), RECIPE_DISCOVERY_CATALOG, []);
     expect(outcome).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: id });
   });

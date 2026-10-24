@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
+import { DISCOVERY_LADDER, W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
 import { RECIPES } from "../../data/recipes";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
@@ -15,6 +15,8 @@ import { deductionKnownLines, requestDeductionHint, type DeductionFamily } from 
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, sweepStates } from "./testSupport/deductionInversion";
 import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { ordinaryLadderSteps } from "../catalog/testSupport/lateIds";
+import { lateCatalogEnabled } from "../../data/lateCatalog";
 
 /**
  * Discovery Hint 4.0 (Issue #253), DH4 Production Enablement Fresh Gate (OD-DH4-PROD-1): what must
@@ -167,9 +169,10 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     expect(techniqueAffordanceStep("no-sauce", catalog, materialStep)).toBe(12);
     expect(techniqueAffordanceStep("tray", catalog, materialStep) === null).toBe(PAN_TRAY_RECIPE_IDS.length === 0);
     expect(techniqueAffordanceStep("dough-pinsa-romana", catalog, materialStep) === null).toBe(DOUGH_PINSA_ROMANA_RECIPE_IDS.length === 0);
-    // FIN-E2 (#604): late-addition is registered but no production recipe requires it, so its affordance never opens. E4 (the first late
-    // recipe) must re-run this whole gate and the privacy sweeps with that recipe and then move this line.
-    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBeNull();
+    // FIN-E2 (#604): late-addition opens only if a production recipe requires it. E5: the first late recipe (ikura) is in the catalog, so it opens at
+    // that recipe's own derived ladder step ("ordinary length + 1"), never an authored number; with the late catalog off it never opens.
+    // (The privacy sweeps in this file ran with that recipe in the catalog: this gate is the E4 re-run.)
+    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBe(lateCatalogEnabled() ? ordinaryLadderSteps(DISCOVERY_LADDER.steps).length + 1 : null);
     for (const t of TECHNIQUES) expect(["no-sauce", "tray", "dough-pinsa-romana", "late-addition"], t.id).toContain(t.id);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {

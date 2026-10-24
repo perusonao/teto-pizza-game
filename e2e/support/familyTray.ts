@@ -26,6 +26,14 @@ export const base = (owned: readonly string[]) => ({
   starterGrantClaimedRecipeIds: [] as string[],
 });
 export const HAND_ON_OWNED = INGREDIENTS.map((i) => i.id); // every ingredient owned: the whole catalog on the tray (paged)
+/**
+ * `HAND_ON_OWNED`, minus the newest topping when the topping count is an exact multiple of the tray page (6): "paging to a SHORT last page" must not depend on the
+ * catalog size, and E5 (salmon-roe) happens to make the whole catalog fill its last page exactly.
+ */
+export const HAND_ON_OWNED_SHORT_LAST_PAGE: string[] = (() => {
+  const toppings = INGREDIENTS.filter((i) => i.category === "topping");
+  return toppings.length % 6 === 0 ? HAND_ON_OWNED.filter((id) => id !== toppings.at(-1)!.id) : HAND_ON_OWNED;
+})();
 export const HAND_OFF_OWNED = ["tomato-sauce", "mozzarella", ...TOPPING_IDS.slice(0, 9)]; // 11 owned: still > 6 toppings
 /** 11 owned: every one of the 7 families present (so the longest chip 「ちょっと変わった材料」 is in the row). */
 export const ALL_FAMILIES_OWNED = ["tomato-sauce", "mozzarella", "sausage", "anchovy", "mushroom", "pineapple", "basil", "capers", "egg", "onion", "bacon"];

@@ -11,6 +11,7 @@ import { RECIPES, getRecipe, type Recipe } from "../data/recipes";
 import { purchaseIngredient } from "../logic/economy";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /** A hypothetical future ingredient, defined only in this test file -- never added to
  *  src/data/ingredients.ts (Phase 3C-3 adds no new ingredients or recipes). */
@@ -276,7 +277,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
   });
 
   it("OD-I5B-2: the 10 W1 recipes (+ PR-4b-B's calabresa and No.27's pesto-pollo and Expansion Slice 1's pesto-gamberi and Wave 2's vongole / pesto-vegetariana / ratatouille-pizza and TQ-1D's aussie) have no recipe gate -- on a fresh save they are available exactly when their materials are owned", () => {
-    const w1 = (RECIPES as readonly Recipe[]).filter((r) => !r.unlockCondition && r.id !== "margherita");
+    const w1 = (ordinaryRecipes(RECIPES) as readonly Recipe[]).filter((r) => !r.unlockCondition && r.id !== "margherita"); // E5: the late recipe (no recipe gate either; material-gated by the late step) is pinned in lateCatalog.ikura.test.ts
     expect(w1.map((r) => r.id).sort()).toEqual(
       [
         "aussie",

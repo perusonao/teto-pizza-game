@@ -34,6 +34,7 @@ import { isKeyFreeHintRoles } from "../../discovery/hint5Ladder";
 import { researchCohortLetters } from "../../discovery/researchEntry";
 import { RUNTIME_SUPPORTED_CAPABILITIES } from "../../discovery/signature";
 import { validateDiscoveryLadder } from "../../discoveryLadder";
+import { LATE_INGREDIENTS, LATE_RECIPES } from "../../../data/lateCatalog";
 
 /**
  * Making steps the runtime actually wires (FOLD / SEAL / EDGE_FILL have no recipe or reducer wiring). FINISH is wired since
@@ -84,6 +85,23 @@ export function productionCatalogView(): CatalogView {
       if (!reference) return null;
       return reference.pieceGroups.filter((g) => g.ingredientId === ingredientId).reduce((n, g) => n + g.positions.length, 0);
     },
+  };
+}
+
+/**
+ * E5: `productionCatalogView()` without the late-addition content (the late recipe, its material, its ladder step). A recipe BATCH is an
+ * ordinary-catalog event (its recipes are the tail of the ordinary catalog, its steps the tail of the ordinary ladder); the late tail
+ * sits after every ordinary entry and is validated by `validateLateCatalog` (../../../data/lateCatalog.ts).
+ */
+export function ordinaryCatalogView(): CatalogView {
+  const full = productionCatalogView();
+  const lateRecipes = new Set<string>(LATE_RECIPES.map((r) => r.id));
+  const lateIngredients = new Set<string>(LATE_INGREDIENTS.map((i) => i.id));
+  return {
+    ...full,
+    recipes: full.recipes.filter((r) => !lateRecipes.has(r.id)),
+    ingredients: full.ingredients.filter((i) => !lateIngredients.has(i.id)),
+    ladder: { ...full.ladder, steps: full.ladder.steps.filter((s) => !lateRecipes.has(s.keyRecipeId)) },
   };
 }
 
