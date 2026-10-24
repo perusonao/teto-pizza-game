@@ -108,3 +108,44 @@ Status: **調査と提案のみ。** 公開・デプロイ・新規外部サー�
 
 ## 8. このセッションが行っていないこと
 Artifact の公開、GitHub の Organization・リポジトリ・Pages の作成、共有 Preview の更新、ビルドの配布、Firebase の操作、E5 実装 PR、CI の再実行。Artifact の挙動（枠内での実行、保存の持続）は**公式の契約の記述に基づく机上の評価**で、実機・実環境では未検証。
+
+## 9. P0 最小試験の実施記録（2026-10-24、Owner 承認後）
+
+**Owner 方針（2026-10-24）**: V1-LAN A1 は取り下げ。Production・共有 Preview は変更しない。Organization Pages・新規ホスティングへは移行しない。本番スイッチは OFF。P1 / P2（ON ビルドの Artifact）はまだ公開しない。**P0 が成功しても FINISH E5 の本番公開を承認したことにはならない（E5 は HOLD）。**
+
+### 9.1 公開前に実際に確認したこと
+| 項目 | 確認結果 | 方法 |
+|---|---|---|
+| 提供方法 | `https://claude.ai/artifact/<id>` は共通の外殻（SPA）で、中身は**別 origin の枠**（`<uuid>.frame.claudeusercontent.com`）に読み込まれる。artifact ごとに uuid が違う | 既存 2 件の artifact を認証なしで取得（外殻の HTML に `data-frame-uuid` が別々の値で入っている） |
+| アクセス制限 | 認証なしでは、外殻（中身なしの共通 HTML、33,680 bytes、2 件で同一サイズ）しか取れず、**枠のホストは `/` も `index.html` も 404**。API も 403 | 認証なしの `curl`（既存 2 件。公開後に P0 でも同じ確認） |
+| origin | 枠のホスト名が origin。`perusonao.github.io`・`claude.ai` とは別。**ページは `claude.ai` の外殻の中の cross-origin iframe**（= 第三者コンテキスト） | 上記の外殻の `frame-src` / `connect-src` が枠のホストに限定されている |
+| CSP | **外殻**の CSP は取得済み（`frame-src` と `connect-src` は枠のホストのみ、`object-src 'none'`、`base-uri 'none'`、`form-action 'none'`）。**枠の中の CSP は認証なしでは取得できず、この環境では未確認**（P0 の外部 fetch 試験で挙動を見る） | 外殻の応答ヘッダ |
+| 保存仕様 | 契約: `localStorage` / `sessionStorage` / IndexedDB は使える。artifact 固有の origin・閲覧者のブラウザ内のみ。空になる・例外になることがある。Service Worker 不可。`confirm()` は常に false。クエリ文字列は届かない | Artifact ツールの契約（実機での挙動は P0 で確認） |
+| 非公開性 | 公開結果に「**このアーティファクトは非公開。所有者と、所有者が許可した人だけがリンクを開ける。共有はこのセッションからは変更できない**」と明記 | Artifact ツールの応答 |
+
+### 9.2 P0 の内容と公開結果
+- **公開物**: 非公開 Artifact 1 件 `https://claude.ai/artifact/Y99bnmmmU6BewqN87rav4r`（版 `1792826925-3c52`）。**ファイルは 2 つだけ**: `index.html`（7,628 bytes）と `sub/index.html`（2,307 bytes）。ゲームコード・本番 Firebase 設定・実ユーザーデータ・秘密情報・Service Worker・外部リソースの読み込みは**含まない**（`capabilities` も宣言なし）。
+- **含む試験は 4 つだけ**: ① localStorage への書き込み・読み出し（印・起動回数・直近の起動時刻。強制終了後の持続を見る）② 別ページへの遷移と、遷移先で同じ保存が読めること ③ 外部 `fetch`（`https://example.com/`）の遮断（同じ場所への `fetch` は対照）と、CSP 違反通知の記録 ④ 補足として origin・最上位か・sessionStorage の表示。
+- **公開後の確認**: P0 の URL を認証なしで取得 → 外殻のみ（P0 の文字列を含まない）、枠のホストは `/`・`/index.html`・`/sub/index.html` がすべて **404**、API は **403**。**認証なしでは中身を取得できない**ことを確認した。共有設定は変更していない（変更できない）。
+- 公開した URL は新しい**公開 URL ではない**（非公開 Artifact）。新規サービス・Organization・ホスティングは作っていない。
+
+### 9.3 P0 で実証できること／できないこと
+| 実証できる（Owner が iPhone で確認） | 実証できない・別途必要 |
+|---|---|
+| 枠の中で localStorage が使えるか。**アプリ（Claude または Safari）を強制終了して開き直しても、印と起動回数が残るか**（R8 の前提） | **ゲーム本体が動くか**（module script・大きな JS・canvas・インライン style・`blob:`/`data:`）。P1 で確認 |
+| 別ページ（`sub/index.html`）へ遷移でき、同じ保存が読めるか（同一 origin） | Safari の第三者保存の期限管理（ITP）が**長時間後**にどうなるか（P0 は短時間の確認のみ） |
+| 外部 `fetch` が遮断されるか（`example.com`）。同じ場所への `fetch` は通るか。CSP 違反通知が出るか | **Firebase を含む外部通信の遮断の「実証」**（P0 は 1 つの外部ホストのみ。Firebase 未構成のビルドが前提の二重化は P1 以降） |
+| ページが最上位でなく枠の中か（`最上位か` の表示） | 本番と同じ実行形態（`github.io` のトップレベル、ホーム画面追加）。**この方式では再現できない**（X-2） |
+| 起動のたびの sessionStorage の挙動 | FINISH・R8 そのもの（通知・所持数・二重登録）。P2 で確認 |
+
+### 9.4 iPhone での確認（短縮、Owner の操作）
+1. iPhone で上の URL を Claude アプリまたは Safari（claude.ai にログイン済み）で開く。
+2. 画面の「保存の可否」「最上位か」「origin」を確認し、**「印を書く」**を押す。「起動回数」をメモ。
+3. **「別ページを開く」** → 「同じ保存が見えます（印あり）」→「戻る」。
+4. **「fetch を試す」** → 「外部 fetch: 遮断されました」、「同じ場所の fetch: 成功」を確認。
+5. **開いているアプリを上にスワイプして終了**し、開き直して同じ URL へ。起動回数が増え、**印が残っている**か。
+6. （任意）時間を置いて（数時間〜翌日）もう一度開き、印が残っているか。
+7. 結果（保存の可否・最上位か・印の持続・別ページ・外部 fetch）を Owner が報告。**P0 の結果は Owner の言葉でのみ記録する。** 終わったら、私に伝えれば P0 は削除できる。
+
+### 9.5 停止点
+このセッションは **P1 / P2 へ進まない**。P0 の結果（Owner の iPhone での確認）を待つ。結果に応じた分岐: ①印が残り、遷移・遮断も通る → P1（ゲーム本体の Artifact）を Owner が承認するか判断 ②印が残らない → この方式は R8 に使えず、実機 HV は PC が使えるまで待機（Organization Pages へは移行しない、Owner 方針）③外部 fetch が遮断されない → 方式 C を中止（Firebase 遮断をビルド側だけに頼らない）。
