@@ -18,11 +18,11 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("Batch 8b is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
+  it("New Sauces Phase B-1 (sichuan-eggplant-pizza) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
     expect(NEXT_RECIPE_BATCH.status).toBe("landed");
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["shirasu-pizza"]);
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["whitebait"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["sichuan-eggplant-pizza"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["green-onion"]);
     expect(NEXT_RECIPE_BATCH.acceptedLetterShifts).toBeUndefined(); // a single-member cohort: no existing recipe changes its letter
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
   });
@@ -32,7 +32,7 @@ describe("production catalog", () => {
 describe("validator catches", () => {
   const withRecipes = (recipes: CatalogView["recipes"]): CatalogView => ({ ...view, recipes });
   const last = RECIPES[RECIPES.length - 1];
-  /** Batch 8a (the previous batch, landed: #557) as a fixture for the non-credit / creditedWithoutStep / letter-shift checks the 8b manifest does not exercise. */
+  /** Batch 8a (the previous batch, landed: #557) as a fixture for the non-credit / creditedWithoutStep / letter-shift checks the Phase A manifest does not exercise. */
   const view8a: CatalogView = { ...view, recipes: RECIPES.slice(0, RECIPES.findIndex((r) => r.id === "frango-catupiry") + 1), ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, 53) } };
   const batch8a: RecipeBatchManifest = {
     batchId: "batch-8a",

@@ -1,7 +1,7 @@
 # FINISH R8 — J-B（pendingRound）実装 結果報告（Issue #617）
 
-- 状態: **実装済み・Owner 承認待ち**（merge・共有 Preview 更新・本番 FINISH 有効化はしていません）
-- 前提: PR #616（Save Protection PR-3）merge 済み `376416c`。設計根拠は `TETO_FINISH-R8_ATOMICITY_*.md`（ブランチ `claude/finish-r8-atomicity-audit-adt3gx`）
+- 状態: **merge 済み（PR #618、`83f4b55`）・実機 HV 未了**。本番 FINISH は OFF のまま。共有 Preview は更新していません。実機 HV の準備と手順は `TETO_R8_IPHONE-SAFARI-HV-PREP_Result.md`（実施 0 項目）。以下は実装時点の記録で、Owner 条件付き承認（2026-10-22）への対応は本書の該当節を参照
+- 前提: PR #616（Save Protection PR-3）merge 済み `376416c`。設計根拠は `TETO_FINISH-R8_ATOMICITY_Fresh-Audit.md`／`..._Design-Verification.md`／`..._Final-Safety-Verification.md`。**これらは `main` に未取り込み**で、ブランチ `claude/finish-r8-atomicity-audit-adt3gx`（先頭 `be431703`）にのみある（取り込みは別判断）
 - ブランチ: `claude/issue-617-finish-r8-x2qavm`。`src/data/**`（#615）・#584 は変更していません
 
 ## 1. 仕様（実装した内容）
@@ -34,7 +34,7 @@
 | Guided FINISH→CUT の途中状態 | `pendingRound.matrix.test.ts` |
 | HOME 離脱＝再起動の結果一致 | 同上 |
 | Lunch Rush L-1（既知の例外を含む） | `pendingRound.lunchRush.test.ts` |
-| E2E（390×844／360×800 Chromium）: Guided CUT の中でリロード／HOME／確定、Free+FINISH 中のリロード（ゲート OFF で再開）、保存失敗 | `e2e/r8-pending-round.spec.ts`（12件） |
+| E2E（390×844／360×800 Chromium）: Guided CUT の中でリロード／HOME／確定、Free+FINISH 中のリロード（ゲート OFF で再開）、保存失敗 | `e2e/r8-pending-round.spec.ts`（`test()` 7 本 × 2 プロジェクト＝**14 実行**。初版の「12件」は執筆時点の件数で、最終ではない） |
 
 ## 3. 既知の例外・制限（仕様として記録）
 
@@ -55,9 +55,11 @@
 
 - 既存の「App.tsx のソース文字列を検査する」配線／アーキテクチャテスト5件の許可リストを更新（スナップショット構築が `roundCommit.ts`、起動時の構築が `startup.ts` に移ったため）。意図（書き手が限定されること）は維持。
 - `tsc -b`、`oxlint`（既存警告のみ）、`vite build` 通過。
-- Vitest 全体: 503 ファイル・9279 テスト通過（修正前の最終実行）。Chromium E2E: R8 12件（390×844／360×800）と既存の関連 spec 36件が通過。別コンテキストのレビュー（Codex は使えないため代替）: 重大な指摘なし、中程度1件（上記4）を修正、保持 journal 時の案内文を修正。**WebKit はこのコンテナにないためローカル未実行**（CI の webkit-* プロジェクトで要確認）。
+- Vitest 全体: 503 ファイル・9279 テスト通過（修正前の最終実行）。Chromium E2E: R8 は 7 本×2 プロジェクト＝14 実行（初版は 12 件と記載していた）と既存の関連 spec 36件が通過。別コンテキストのレビュー（Codex は使えないため代替）: 重大な指摘なし、中程度1件（上記4）を修正、保持 journal 時の案内文を修正。**WebKit はこのコンテナにないためローカル未実行**（CI の webkit-* プロジェクトで要確認）。
 
 ## 5. Human Verification（実機項目）
 
-動画（390×844、commit しない）は Owner へ直接提出。前後スクリーンショットは `docs/reports/screenshots/pending-round-r8/`。
+動画（390×844、commit しない）は Owner へ直接提出する運用だった（受領は未確認。所在不明のため再撮影せず、**実機 HV の証跡には数えない**）。スクリーンショットは `docs/reports/screenshots/pending-round-r8/`。
 実機で確認してほしい項目: ① CUT 中にアプリを強制終了→再起動で通知が出て図鑑登録・在庫が戻らない、② 保存失敗（ストレージ満杯／プライベートブラウズ）の表示、③ HOME 離脱ダイアログ文言、④ 通知の「確認した」後の再起動で通知が消える、⑤ Lunch Rush 結果画面でのリロード／HOME。
+
+**補足（初版の不足）：** 上記①〜⑤には、保存失敗の種類ごとの確認（`quota`／`unavailable`／`dropped`／`mismatch`／`oversize`／`occupied`／`stale-save`／`load-failed`）、二重登録防止（通知未確認での反復強制終了・連打）、複数タブの競合、解決不能 journal の復旧文言が含まれていなかった。これらは `TETO_R8_IPHONE-SAFARI-HV-PREP_Result.md` の §5・§5.1 に項目化した。**実機 HV はすべて未実施で、PASS ではない。** Lunch Rush にはブラウザの自動テストがなく、Chromium／WebKit E2E の追加は別 Issue・別 PR（本書の範囲外）。

@@ -1,5 +1,6 @@
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
 import { getIngredient } from "../data/ingredients";
+import { LATE_RECIPES } from "../data/lateCatalog";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { MATERIAL_PRICE_TIERS, materialLadderStep, priceTierForStep } from "../logic/materialShop";
 import { isDiscovered, type DexState } from "./dex";
@@ -61,6 +62,8 @@ export function buildRecipeChapters(
     .map(([chapter, list]) => ({ chapter, titleJa: chapterTitleJa(chapter), recipes: list }));
 }
 
+const LATE_RECIPE_IDS: ReadonlySet<string> = new Set(LATE_RECIPES.map((r) => r.id));
+
 export interface ChapterProgress {
   discovered: number;
   total: number;
@@ -71,6 +74,21 @@ export function chapterProgress(chapter: RecipeChapter, dex: DexState): ChapterP
     discovered: chapter.recipes.filter((r) => isDiscovered(dex, r.id)).length,
     total: chapter.recipes.length,
   };
+}
+
+/**
+ * K2 (Issue #577, Owner 2026-10-23): whether a chapter shows its cleared mark. The late (後乗せ) catalog recipes are left out of the
+ * completion test, so switching the late catalog on (E5) cannot take the mark away from a chapter the player already finished: with it
+ * off (Production) no late recipe is in `RECIPES`, so this equals `discovered === total`. The displayed count (`chapterProgress`) is
+ * unchanged -- "26/27 ✓". Derived from the Dex every time, nothing is saved. A chapter holding only late recipes is never cleared.
+ */
+export function isChapterCleared(
+  chapter: RecipeChapter,
+  dex: DexState,
+  lateRecipeIds: ReadonlySet<string> = LATE_RECIPE_IDS,
+): boolean {
+  const ordinary = chapter.recipes.filter((r) => !lateRecipeIds.has(r.id));
+  return ordinary.length > 0 && ordinary.every((r) => isDiscovered(dex, r.id));
 }
 
 /** 1-based position of `recipe` inside its chapter (the Dex "No." within the chapter). */

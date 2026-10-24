@@ -14,7 +14,8 @@
  * so they are not runtime targets in this slice. The 85 blocked Phase-2 rows are never targets.
  * No shipped recipe requires a capability, so every target uses the default dimensions.
  */
-import { DEFAULT_IDENTITY_DIMENSIONS } from "../logic/discovery/signature";
+import { resolveDoughKind } from "../logic/dough/doughKind";
+import { DEFAULT_IDENTITY_DIMENSIONS, type IdentityDimensions } from "../logic/discovery/signature";
 import { getIngredient, INGREDIENTS } from "./ingredients";
 import type { RecipeDiscoveryTarget } from "../logic/discovery/matcher";
 import {
@@ -106,6 +107,10 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   "frango-catupiry": "frango-catupiry-pizzadb-p10",
   // Batch 8b: PIZZA DB evidence id from the 172 matrix.
   "shirasu-pizza": "shirasu-pizza-pizzadb-p3",
+  // New Sauces Phase A (#578): PIZZA DB evidence id from the 172 matrix.
+  flammkuchen: "flammkuchen-pizzadb",
+  // New Sauces Phase B-1 (#578): PIZZA DB evidence id from the 172 matrix.
+  "sichuan-eggplant-pizza": "sichuan-eggplant-pizza",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };
@@ -136,10 +141,22 @@ function targetIdOf(recipeId: string): string {
  * possible in the late catalog, ./lateCatalog.ts) declares them on the `late` axis and requires `LATE_ADDITION`, derived from the
  * recipe so the target can never disagree with the requirement it judges.
  */
-export function discoveryIdentityOf(recipe: Pick<Recipe, "requiredIngredients">): Pick<RecipeDiscoveryTarget, "identityDimensions" | "capabilities"> {
+export function discoveryIdentityOf(
+  recipe: Pick<Recipe, "requiredIngredients"> & { readonly doughKind?: unknown },
+): Pick<RecipeDiscoveryTarget, "identityDimensions" | "capabilities"> {
   const lateIds = [...new Set(recipe.requiredIngredients.filter((r) => r.applicationPhase === "POST_BAKE").map((r) => r.ingredientId))].sort();
-  if (lateIds.length === 0) return { identityDimensions: DEFAULT_IDENTITY_DIMENSIONS, capabilities: [] };
-  return { identityDimensions: { ...DEFAULT_IDENTITY_DIMENSIONS, late: [["POST_BAKE", lateIds]] }, capabilities: ["LATE_ADDITION"] };
+  // P3-a2 (#577): a recipe that fixes a non-standard dough kind declares it on the `dough` axis and requires `DOUGH_VARIANT`, the same way a late
+  // requirement is declared on `late`. `resolveDoughKind` is the one reader (absent / unknown = standard), so every shipped recipe is unchanged.
+  const dough = resolveDoughKind(recipe);
+  if (lateIds.length === 0 && dough === "standard") return { identityDimensions: DEFAULT_IDENTITY_DIMENSIONS, capabilities: [] };
+  return {
+    identityDimensions: {
+      ...DEFAULT_IDENTITY_DIMENSIONS,
+      ...(dough === "standard" ? {} : { dough }),
+      ...(lateIds.length === 0 ? {} : { late: [["POST_BAKE", lateIds]] as IdentityDimensions["late"] }),
+    },
+    capabilities: [...(dough === "standard" ? [] : ["DOUGH_VARIANT"]), ...(lateIds.length === 0 ? [] : ["LATE_ADDITION"])],
+  };
 }
 
 export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => {

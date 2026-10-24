@@ -385,7 +385,7 @@ describe("ESC_PARITY pricing (OD-H3-4 / OD-H3-15)", () => {
       expect(selectableHintBatchPrice(0, 20, m.priceCap)).toBe(m.priceCap);
     }
     expect(RECIPES.filter((r) => selectableHintPriceCap(r) === 35).map((r) => r.id).sort()).toEqual(
-      ["bismarck", "brazilian-catupiry-corn-pizza", "chilean-napolitana", "fugazza", "funghi", "genovese", "margherita", "marinara", "palmito-pizza", "pepperoni", "pizza-bianca", "porchetta-pizza", "salsiccia", "salsiccia-e-friarielli"].sort(),
+      ["bismarck", "brazilian-catupiry-corn-pizza", "chilean-napolitana", "flammkuchen", "fugazza", "funghi", "genovese", "margherita", "marinara", "palmito-pizza", "pepperoni", "pizza-bianca", "porchetta-pizza", "salsiccia", "salsiccia-e-friarielli"].sort(),
     );
   });
 

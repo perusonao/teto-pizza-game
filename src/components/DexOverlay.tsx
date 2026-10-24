@@ -3,7 +3,7 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
-import { buildRecipeChapters, chapterProgress } from "../state/recipeChapters";
+import { buildRecipeChapters, chapterProgress, isChapterCleared } from "../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
@@ -342,7 +342,7 @@ export function DexOverlay({
                   {chapter.titleJa}
                   <span className="dex-overlay__chapter-count">
                     {progress.discovered}/{progress.total}
-                    {progress.discovered === progress.total ? " ✓" : ""}
+                    {isChapterCleared(chapter, dex) ? " ✓" : ""}
                   </span>
                 </h3>
                 <div className="dex-overlay__list">
