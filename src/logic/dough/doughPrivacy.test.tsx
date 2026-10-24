@@ -64,13 +64,23 @@ describe("unpublished Pinsa does not leak (production catalog)", () => {
     expect(container.innerHTML).not.toMatch(WORDS);
   });
 
-  it("no player-facing string literal in the app mentions Pinsa, other than the technique registry and its detection pairing", () => {
-    const sources = import.meta.glob<string>(["/src/**/*.ts", "/src/**/*.tsx", "!/src/**/*.test.ts", "!/src/**/*.test.tsx"], { query: "?raw", import: "default", eager: true });
-    const literal = /(["'`])(?:(?!\1)[^\n\\])*(?:ピンサ|ロマーナ|pinsa|romana)(?:(?!\1)[^\n\\])*\1/i;
-    const holders = Object.entries(sources)
-      .filter(([, text]) => literal.test(text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")))
-      .map(([path]) => path)
-      .sort();
-    expect(holders).toEqual(["/src/data/techniques.ts", "/src/logic/techniques/detection.ts"]);
+  it("no player-facing string literal in the app mentions Pinsa, other than the technique registry, its detection pairing and the late catalog's (gated) recipe data", () => {
+    // Pinsa P3-b-1 (#577): the recipe's display name / description live in ONE data file, behind PINSA_PRODUCTION (src/data/pinsaGate.ts; reachability is pinned by
+    // src/data/pinsaGate.test.ts). The ASCII id also appears in the type-keyed tables that must carry a row for every RecipeId (never rendered, and hidden while the gate is closed).
+    const sources = import.meta.glob<string>(["/src/**/*.ts", "/src/**/*.tsx", "!/src/**/*.test.ts", "!/src/**/*.test.tsx", "!/src/**/testSupport/**"], { query: "?raw", import: "default", eager: true });
+    const strip = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    const holdersOf = (word: RegExp) => {
+      const literal = new RegExp(`(["'\`])(?:(?!\\1)[^\\n\\\\])*(?:${word.source})(?:(?!\\1)[^\\n\\\\])*\\1`, "i");
+      return Object.entries(sources).filter(([, text]) => literal.test(strip(text))).map(([path]) => path).sort();
+    };
+    expect(holdersOf(/ピンサ|ロマーナ/)).toEqual(["/src/data/lateCatalog.ts", "/src/data/techniques.ts"]);
+    expect(holdersOf(/pinsa|romana/)).toEqual([
+      "/src/data/lateCatalog.ts",
+      "/src/data/recipeHintRoles.ts",
+      "/src/data/recipeSauceProfiles.ts",
+      "/src/data/referencePizza.ts",
+      "/src/data/techniques.ts",
+      "/src/logic/techniques/detection.ts",
+    ]);
   });
 });

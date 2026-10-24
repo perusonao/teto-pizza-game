@@ -21,3 +21,17 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
 };
 
 export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH];
+
+/**
+ * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in
+ * `RECIPE_BATCHES`: in the shipped (gate closed) build the recipe does not exist, so `RECIPE_BATCHES` is evaluated unchanged. Pinsa adds no material and no ladder step
+ * (`ladderCredit: false`), so `keyIngredientId` is only the cohort key it shares (arugula). The single named exception is jamon's Research letter: arugula's
+ * cohort becomes {pinsa-romana, jamon-serrano-pizza}, so jamon gains "B" (`-->B`); any other shift stays a failure. Evaluated by `lateCatalog.pinsa.test.ts`.
+ */
+export const PINSA_ROMANA_BATCH: RecipeBatchManifest = {
+  batchId: "pinsa-romana",
+  status: "landed",
+  afterRecipeId: "ikura-salmon-pizza",
+  recipes: [{ recipeId: "pinsa-romana", keyIngredientId: "arugula", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
+  acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" },
+};

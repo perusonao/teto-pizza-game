@@ -14,7 +14,7 @@ import { guardedAnswerForParts, hypotheticalReserves, reserveInHypotheses, targe
 import { deductionKnownLines, requestDeductionHint, type DeductionFamily } from "./deductionRequest";
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, sweepStates } from "./testSupport/deductionInversion";
-import { PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 import { MULTI_SAUCE_RECIPE_IDS } from "../testSupport/requiredSauces";
 import { ordinaryLadderSteps } from "../catalog/testSupport/lateIds";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
@@ -129,8 +129,6 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
  * listed here; adding one is a deliberate act that re-runs this whole gate (see docs/reports/TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md §7).
  * `PAN_TRAY_RECIPE_IDS` (shared, ../testSupport/techniqueAllowlists.ts) is empty until Square Dough E (#521) adds the first tray recipe.
  */
-/** Dough Kind P1 (#577): empty until P3 (HOLD) adds `pinsa-romana`; adding one re-runs this whole gate (DH4, `dough` states included). */
-const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = [];
 const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort();
 
 describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
@@ -174,7 +172,9 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     // FIN-E2 (#604): late-addition opens only if a production recipe requires it. E5: the first late recipe (ikura) is in the catalog, so it opens at
     // that recipe's own derived ladder step ("ordinary length + 1"), never an authored number; with the late catalog off it never opens.
     // (The privacy sweeps in this file ran with that recipe in the catalog: this gate is the E4 re-run.)
-    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBe(lateCatalogEnabled() ? ordinaryLadderSteps(DISCOVERY_LADDER.steps).length + 1 : null);
+    // Pinsa (#577 P3-b, gate PINSA_PRODUCTION open): it also requires late-addition, and its key material (arugula) is an ordinary step, so the riddle opens EARLIER, at that step (D3).
+    const lateStep = lateCatalogEnabled() ? ordinaryLadderSteps(DISCOVERY_LADDER.steps).length + 1 : null;
+    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBe(DOUGH_PINSA_ROMANA_RECIPE_IDS.length > 0 ? materialStep("arugula") : lateStep);
     for (const t of TECHNIQUES) expect(["no-sauce", "tray", "dough-pinsa-romana", "late-addition"], t.id).toContain(t.id);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
@@ -188,6 +188,8 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
       // Square Dough E-2 (OD-544-2): a hint is a function of the recipe, the owned ingredients and the Dex depth only -- never of the pan (○ round / □ tray), so the sweeps below
       // hold for both pan states by construction: no hint / deduction module reads `PizzaState.pan`, the tray or the pan shape.
       expect(text, path).not.toMatch(/\.pan\b|panShape|effectivePan|"tray"/);
+      // Pinsa (#577 P3-b, D3 / T3): likewise a hint is never a function of the dough kind or of the post-bake (late) state, so the sweeps hold for every dough x late state by construction.
+      expect(text, path).not.toMatch(/\.dough\b|doughKind|resolveDoughKind|applicationPhase|POST_BAKE|stage === "post"|\.late\b/);
     }
   });
   it("構成 counts ingredients only: the total is the recipe's distinct ingredient count", () => {
