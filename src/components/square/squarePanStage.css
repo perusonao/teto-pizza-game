@@ -107,9 +107,19 @@
   box-shadow: inset 2px 3px 5px rgba(40, 28, 14, 0.34), inset -1px -1px 2px rgba(255, 236, 200, 0.2);
 }
 
-/* Square Dough E-1 (#521): the Reference sample of a square-pan recipe is the same 140px tile with a square plate (the sauce
-   canvas masks to the pan itself, SauceHeatmapCanvas `pan="square"`). Round samples never get this modifier. */
-.player-reference-mini-pizza--square {
+/* Square Dough E-1 (#521): the Reference samples (the scoring-Reference popover and the generated player guide) of a square-pan
+   cook are the same 140px tile with a square plate; the sauce canvas masks to the pan itself (SauceHeatmapCanvas `pan="square"`),
+   so its round clip is dropped and the target-guide ring becomes a square. Selectors double the class so they win over App.css's
+   base rules whatever the stylesheet import order is. Round samples never get these modifiers. */
+.reference-mini-pizza.reference-mini-pizza--square,
+.player-reference-mini-pizza.player-reference-mini-pizza--square {
   border-radius: 8px;
   background: #e8c98f;
+}
+.reference-mini-pizza--square .reference-mini-pizza__sauce,
+.player-reference-mini-pizza--square .player-reference-mini-pizza__sauce {
+  border-radius: 0;
+}
+.reference-mini-pizza--square .reference-mini-pizza__target-guide {
+  border-radius: 4px;
 }

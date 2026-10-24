@@ -125,3 +125,13 @@ describe("player Reference guide follows the recipe's pan (E-1)", () => {
     expect(new Set(all.map((p) => `${p.x},${p.y}`)).size).toBe(all.length);
   });
 });
+
+describe("square sample modifiers beat the App.css base rules whatever the import order (E-1, Codex P2)", () => {
+  it("each plate modifier doubles its class (specificity 0,2,0) in squarePanStage.css", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const css = readFileSync(resolve(process.cwd(), "src/components/square/squarePanStage.css"), "utf8");
+    expect(css).toMatch(/\.reference-mini-pizza\.reference-mini-pizza--square/);
+    expect(css).toMatch(/\.player-reference-mini-pizza\.player-reference-mini-pizza--square/);
+  });
+});
