@@ -306,3 +306,19 @@ iPhone Safari で `http://<PC の LAN IP>:4173/teto-pizza-game/seed.html` を開
 | 6 | O-2〜O-5・O-10 の内容の確認（決定記録の【内容は要確認】） | Owner | 要確認 |
 | 7 | E5 実装 PR（まだ作らない）。作成時: 最新 main で 2 リテラル、ピン留め 2 本の意図的な反転、ON 用 golden・E2E、最終 HEAD の CI（AC-9） | セッション | 未着手（Owner 承認後） |
 | 8 | 360×800 と WebKit は未測定（CI と実機） | CI / Owner | 未確認 |
+
+### 10.6 最新 main `afd1718` での記録（2026-10-24、Owner 指示で記録）
+
+| 項目 | 記録 |
+|---|---|
+| 対象 | main `afd1718`（#639・#640・#649 merge 済み）＋ `v1-literals.patch.txt`（スイッチ 2 個のみ `true`、使い捨てツリー、commit なし） |
+| 結果 | **7 / 7 通過**（V1 の安全条件 6 項目を再確認: origin `127.0.0.1`、`localStorage` 空、Firebase なし、外部通信 0 件、repo 作業ツリー clean）。ベンチ 4 状態の後乗せ画素 SHA-256 `1b122218…aa3b7` 一致（対照は 4 状態で相違）、実ラウンド 3 状態 `c7bc7788…67030` 一致。`3570f44`・`976b9f0` と同一。採点・識別・R8 近似・Research 経路も同一 |
+| 差 | 章の件数表示（No.29・28/29）、late step **57**（#649 で通常 ladder が 56 step）、ピースの大きさの個体差のみ |
+| 保存物 | `kit/main-afd1718-*.json`、`kit/SHA256SUMS` |
+| 位置づけ | **Chromium 390×844 の測定であり、AC-8 の PASS ではなく、実機 HV の代替でもない。** `afd1718` 用の動画は撮っていない（画素一致のため。E5 PR の最終 HEAD で最小再測定） |
+
+### 10.7 現在の待機状態（Owner 指示 2026-10-24）
+
+- **LAN 実機 HV（V1-LAN A1）は、Owner が PC を使えるまで待機。** 手順は `TETO_FIN-E5_LAN-HV-SERVER_Audit_2026-10-24.md` §3・§4、強制終了は合計 4 回。待機中、サーバの起動・接続・公開はしない。実機の項目はすべて**未実施**（PASS なし）。
+- FINISH / 後乗せカタログの**本番スイッチは OFF のまま**（`lateCatalog.ts:32`、`freeCookFinishGate.ts:13`）。**E5 実装 PR は作らない。** Production・共有 Preview・Firebase は変更しない。
+- #633 は案 X（先頭に対応表を追加、本文は履歴）で修正済み。merge は Owner（セッションは merge しない）。
