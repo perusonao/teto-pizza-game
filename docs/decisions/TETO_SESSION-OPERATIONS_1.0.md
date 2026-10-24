@@ -165,9 +165,38 @@ static safety of the workflows and sources) plus a mutation check proving that 3
 the logic are caught (the original ten plus 22 that revert the fixes for review findings F1-F10, P3 and the re-review follow-ups N1, N2, N4, N5). CI runs it as the extra `Ops scripts tests` check when `scripts/ops/**` or the ops
 workflows change. The dry-run workflow can only be exercised after it is on the default branch.
 
-## 8. Changelog
+## 8. Efficient flow — standard operation (Owner approval: 2026-10-24)
+
+Reduces repeated audits, reports and Owner questions without relaxing any gate. Reference only; the SSOTs above win on conflict.
+
+1. **Start**: read latest `main`, related Issue/PR, existing decision records (`docs/decisions/`) and sources in one pass;
+   investigate only the delta since the last audit. Do not repeat an existing audit.
+2. **Sources (原典)**: the assigned session checks them first; the Owner is not asked to fetch or paste pages. If a Japanese
+   page cannot be fetched, check the English page and existing cited sources. If still unobtainable, report the URL and the
+   fetch error and hand the research over to the ChatGPT-side web research. Anything unconfirmed stays "unconfirmed" and is
+   never decided by guess (provisional specs follow the Owner's OD-B9-17 pattern and are labelled as assumptions).
+3. **Owner decisions** are not re-asked. The decision record is the source of truth; ask only when records conflict with
+   each other or with fresh repo state.
+4. **Settled spec**: proceed investigation → implementation → related tests → PR without intermediate stops. Fold docs /
+   Result Report into the implementation PR. Do not add new audit documents, duplicate Result Reports or docs-only PRs
+   unless the change is docs-only by nature.
+5. **Owner-approval waits** (Preview deploy, HV, merge, Production) HOLD only the work that needs them; independent,
+   already-approved work continues. Report the wait as the blocker.
+6. **Tests** scale with the change (focused locally). CI follows the existing CI conditions: required gates are never
+   skipped or relaxed, and jobs the rules skip (e.g. WebKit for docs-only changes) are not forced to run. Do not re-run on an
+   unchanged head; a rerun is for a failed job only and needs the §2 failure record.
+7. **Codex** review covers the current head only (§2); a receipt for an older head is never reused.
+8. **HV** uses the existing Owner iPhone procedure (§3, HV Policy). A new verification method needs Owner approval.
+9. Unchanged: safety gates, Production/Preview separation (§5), Firebase protection. At merge, the target PR's latest head
+   is verified to match the reviewed head; if the head changed, stop. This does not depend on any specific API parameter name.
+10. Unchanged: no merge / Production publish / shared-Preview update without Owner approval.
+11. **Status reports** use four items: 完了 / 未完了 / ブロッカー / 次の行動 — state each fact once. This does not replace
+    the Result Report required by the HV Policy §10.
+
+## 9. Changelog
 
 - 2026-10-19: Initial version (Phase 1A, dry-run).
 - 2026-10-19: Independent-review fixes (F1-F10, P3): run-level CI, draft/behind/unknown mergeability, narrow HOLD that never
   hides blockers, strict Codex receipt/summary reading with `CODEX_ERROR`, fail-closed fetching, Markdown sanitising,
   directory claims, tolerant `Depends-on`, fenced claim examples ignored.
+- 2026-10-24: Added §8 Efficient flow (Owner-approved); Changelog moved from §8 to §9.
