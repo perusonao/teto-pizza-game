@@ -21,10 +21,11 @@
  * tables keyed by it carry a row; at runtime every recipe / ingredient / step here exists only when enabled. Switching `LATE_CATALOG_PRODUCTION`
  * on is a separate Owner decision (E5), together with the FINISH production switch (./freeCookFinishGate.ts).
  *
- * Imports are type-only (and the ladder step shape is declared here, structurally identical to `AppendedLadderStep`) so this module can be read by
+ * Imports are type-only, except `isDoughKind` from ../logic/dough/doughKind (a leaf module with no imports of its own), and the ladder step shape is declared here, structurally identical to `AppendedLadderStep`) so this module can be read by
  * recipes.ts / ingredients.ts / discoveryLadder.ts without a cycle, and without adding an importer of the ladder pure layer
  * (the runtime-wiring boundary test in logic/discoveryLadder.test.ts).
  */
+import { isDoughKind, type DoughKind } from "../logic/dough/doughKind";
 import type { Ingredient } from "./ingredients";
 
 /** Build-time switch (Owner D-3 案 1). `false` in Production; a literal so a bundler drops the late branch. */
@@ -47,6 +48,10 @@ interface LateRecipeEntry {
   readonly bakeTarget: { readonly start: number; readonly end: number };
   readonly baseRewardPitz: number;
   readonly lunchRush: false;
+  /** P3-a1/a2 (#577): the dough kind the recipe fixes (`Recipe.doughKind`). Absent = standard. Read by `discoveryIdentityOf` and the Guided start. */
+  readonly doughKind?: DoughKind;
+  /** P3-a2 (#577, Owner D1): `false` = discovering it does not advance the ladder, so it needs no late ladder step (see `validateLateCatalog`). */
+  readonly ladderCredit?: false;
 }
 
 /** What the guards read from a late recipe (the full `Recipe` is checked by the type system where the data lives). */
@@ -54,6 +59,9 @@ export interface LateRecipeShape {
   readonly id: string;
   readonly requiredIngredients: readonly { readonly ingredientId: string; readonly minCount: number; readonly applicationPhase?: "POST_BAKE" }[];
   readonly lunchRush?: boolean;
+  /** Checked as `unknown` on purpose: only `false` (or absent) is valid, and the guard must catch anything else a data file could carry. */
+  readonly ladderCredit?: unknown;
+  readonly doughKind?: unknown;
 }
 
 /** A late ladder step; the same shape as `AppendedLadderStep` (../logic/discoveryLadder.ts), which `appendLadderSteps` accepts. */
@@ -174,6 +182,19 @@ export function validateLateCatalog(
       if (!baseIngredients.has(req.ingredientId) && !lateIngredientIdSet.has(req.ingredientId)) problems.push(`late recipe ${recipe.id} requires an unknown ingredient: ${req.ingredientId}`);
     }
     if (recipe.lunchRush !== false) problems.push(`late recipe must be lunchRush:false (Lunch Rush and Dinner exclude FINISH): ${recipe.id}`);
+    // P3-a2 (#577, Owner D1): only an explicit `ladderCredit: false` is accepted; anything else present (true, "false", 0, null) is a data error, not a way in.
+    if (recipe.ladderCredit !== undefined && recipe.ladderCredit !== false) problems.push(`late recipe ladderCredit must be false when present: ${recipe.id}`);
+    if (recipe.doughKind !== undefined && !isDoughKind(recipe.doughKind)) problems.push(`late recipe has an unknown doughKind: ${recipe.id}`);
+  }
+  // A late recipe that does not advance the ladder (Owner D1) is exempt from being the key of a late ladder step -- a step needs a NEW material, and such a
+  // recipe adds none. The exemption is data-derived (`ladderCredit: false`), not an id list, and it is paid for by the checks below.
+  const uncredited = new Set(late.recipes.filter((r) => r.ladderCredit === false).map((r) => r.id));
+  for (const recipe of late.recipes) {
+    if (!uncredited.has(recipe.id)) continue;
+    // Reachability then comes from the ordinary ladder alone: it may use no material that only a late step can unlock.
+    for (const req of recipe.requiredIngredients) {
+      if (lateIngredientIdSet.has(req.ingredientId)) problems.push(`late recipe ${recipe.id} is ladderCredit:false but requires a late-only ingredient: ${req.ingredientId}`);
+    }
   }
 
   const lateIngredientIds = new Set<string>();
@@ -188,6 +209,7 @@ export function validateLateCatalog(
   const stepped = new Set<string>();
   for (const step of late.ladderSteps) {
     if (!lateRecipeIds.has(step.keyRecipeId)) problems.push(`late ladder step key recipe is not a late recipe: ${step.keyRecipeId}`);
+    if (uncredited.has(step.keyRecipeId)) problems.push(`a ladderCredit:false late recipe cannot be the key of a late ladder step: ${step.keyRecipeId}`);
     if (keyed.has(step.keyRecipeId)) problems.push(`two late ladder steps share a key recipe: ${step.keyRecipeId}`);
     keyed.add(step.keyRecipeId);
     for (const id of step.ingredientIds) stepped.add(id);
@@ -198,7 +220,7 @@ export function validateLateCatalog(
 
   // Every late recipe must be reachable (it is the key of a step) and every late ingredient obtainable (named by a step).
   for (const id of lateRecipeIds) {
-    if (!keyed.has(id)) problems.push(`late recipe is the key of no late ladder step (unreachable): ${id}`);
+    if (!keyed.has(id) && !uncredited.has(id)) problems.push(`late recipe is the key of no late ladder step (unreachable): ${id}`);
   }
   for (const id of lateIngredientIds) {
     if (!stepped.has(id)) problems.push(`late ingredient is named by no late ladder step (unobtainable): ${id}`);
