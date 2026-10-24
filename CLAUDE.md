@@ -23,4 +23,4 @@ Do not copy the policy's full text elsewhere; reference this file/the policy doc
 ## Multi-session coordination
 
 Claims, the read-only Owner Gate report and the HV / Preview operating rules are in
-`docs/decisions/TETO_SESSION-OPERATIONS_1.0.md`. Check for overlapping PRs/claims before starting work.
+`docs/decisions/TETO_SESSION-OPERATIONS_1.0.md` (incl. §8 Efficient flow). Check for overlapping PRs/claims before starting work.
