@@ -106,3 +106,10 @@
   pointer-events: none;
   box-shadow: inset 2px 3px 5px rgba(40, 28, 14, 0.34), inset -1px -1px 2px rgba(255, 236, 200, 0.2);
 }
+
+/* Square Dough E-1 (#521): the Reference sample of a square-pan recipe is the same 140px tile with a square plate (the sauce
+   canvas masks to the pan itself, SauceHeatmapCanvas `pan="square"`). Round samples never get this modifier. */
+.player-reference-mini-pizza--square {
+  border-radius: 8px;
+  background: #e8c98f;
+}

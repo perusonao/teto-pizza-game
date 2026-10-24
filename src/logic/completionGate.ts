@@ -17,7 +17,9 @@ import { getReferencePizza } from "../data/referencePizza";
 import type { PizzaState } from "../state/pizzaState";
 import { sauceOwnDeposits } from "../state/sauceLedger";
 import { COVERAGE_POOR_RATIO } from "./sauceEvaluation";
-import { computeSauceMetrics } from "./sauceField";
+import { effectivePanShape } from "./pan/effectivePan";
+import type { PanShape } from "./pan/panShape";
+import { sauceMetricsForPan, sauceTargetForPan } from "./pan/squareReference";
 import { sanitizeSauceDeposits, sanitizeStringArray, sanitizeToppings } from "./scoringV2/boundary";
 import { countUsedIngredient } from "./scoring";
 
@@ -134,8 +136,11 @@ function safePizzaForCompletionCheck(pizza: PizzaState): PizzaState {
  */
 export function isSauceBelowMinimum(
   rawDeposits: unknown,
-  reference: { readonly quantity: number; readonly coverage: number },
+  rawReference: { readonly quantity: number; readonly coverage: number },
+  pan: PanShape = "round",
 ): boolean {
+  // Square Dough E-1: on the square pan the floor is measured against the square Reference (round: `rawReference` as given).
+  const reference = sauceTargetForPan(pan, rawReference);
   const deposits = sanitizeSauceDeposits(rawDeposits);
   // The legacy one-shot `APPLY_SAUCE` action (gameReducer.ts) always applies full coverage
   // instantly and never populates `sauceDeposits` at all (see that action's own comment). In
@@ -152,7 +157,7 @@ export function isSauceBelowMinimum(
   // requirement) still holds for actual gameplay.
   if (deposits.length === 0) return false;
 
-  const metrics = computeSauceMetrics(deposits);
+  const metrics = sauceMetricsForPan(pan, deposits);
   const quantityRatio = ratioOf(metrics.quantity, reference.quantity);
   const coverageRatio = ratioOf(metrics.coverage, reference.coverage);
   return quantityRatio < SAUCE_MIN_RATIO || coverageRatio < SAUCE_MIN_RATIO;
@@ -185,7 +190,7 @@ function checkSauceQuantity(
   if (sanitizeSauceDeposits(pizza.sauceDeposits).length === 0) return null;
   const own = sauceOwnDeposits(pizza, sauceIngredientId);
   if (own.length === 0) return { reason: "INSUFFICIENT_SAUCE", ingredientId: sauceIngredientId };
-  return isSauceBelowMinimum(own, reference.sauce)
+  return isSauceBelowMinimum(own, reference.sauce, effectivePanShape(recipe, pizza))
     ? { reason: "INSUFFICIENT_SAUCE", ingredientId: sauceIngredientId }
     : null;
 }

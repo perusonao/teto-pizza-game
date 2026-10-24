@@ -19,6 +19,7 @@
  */
 import { computeMechanicalSauceReference } from "../data/referencePizza";
 import { isSauceBelowMinimum } from "../logic/completionGate";
+import { effectivePanShape } from "../logic/pan/effectivePan";
 import { sanitizeStringArray } from "../logic/scoringV2/boundary";
 import type { PizzaState } from "./pizzaState";
 
@@ -33,5 +34,5 @@ export function genericSauceReference() {
 /** The advice for this pizza, or `null` when there is nothing recipe-independent to say. */
 export function executionAdviceJa(pizza: PizzaState): string | null {
   if (sanitizeStringArray(pizza?.sauceIds).length === 0) return null;
-  return isSauceBelowMinimum(pizza?.sauceDeposits, genericSauceReference()) ? SAUCE_THIN_ADVICE_JA : null;
+  return isSauceBelowMinimum(pizza?.sauceDeposits, genericSauceReference(), effectivePanShape(null, pizza)) ? SAUCE_THIN_ADVICE_JA : null;
 }
