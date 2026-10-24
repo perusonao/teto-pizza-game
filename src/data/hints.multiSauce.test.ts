@@ -5,6 +5,7 @@ import { RECIPES, type Recipe } from "./recipes";
 import { countUsedIngredient } from "../logic/scoring";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
+import { MULTI_SAUCE_RECIPE_IDS } from "../logic/testSupport/requiredSauces";
 
 /**
  * Issue #521 S2: `buildHintLine` checks EVERY required sauce. Before, it looked at the first sauce requirement only and its missing-ingredient
@@ -49,9 +50,10 @@ const STEPS: MakingStep[] = ["SAUCE", "CHEESE", "TOPPING"];
 const SAUCE_STATES = [[], ["tomato-sauce"], ["olive-oil"], ["pesto"], ["tomato-sauce", "olive-oil"], ["pesto", "tomato-sauce"]];
 
 describe("every production recipe: the hint is byte-identical to the previous implementation", () => {
-  it("57+ recipes x 3 steps x sauce states x piece states x explicit/not", () => {
+  it("57+ one-sauce / no-sauce recipes x 3 steps x sauce states x piece states x explicit/not", () => {
     let checked = 0;
-    for (const recipe of RECIPES) {
+    // (grandma-pizza, the allowlisted two-sauce recipe, intentionally differs from the previous implementation; it is pinned below.)
+    for (const recipe of RECIPES.filter((r) => !MULTI_SAUCE_RECIPE_IDS.includes(r.id))) {
       const nonSauce = recipe.requiredIngredients.filter((r) => getIngredient(r.ingredientId)?.category !== "sauce");
       const pieceStates: Array<Record<string, number>> = [
         {},
@@ -76,10 +78,23 @@ describe("every production recipe: the hint is byte-identical to the previous im
     expect(checked).toBeGreaterThan(RECIPES.length * 100);
   });
 
-  it("no production recipe has two sauce requirements yet (the new branch is only reachable from a fixture today)", () => {
+  it("only the allowlisted recipes have two sauce requirements", () => {
     for (const recipe of RECIPES) {
       const sauces = recipe.requiredIngredients.filter((r) => getIngredient(r.ingredientId)?.category === "sauce");
-      expect(sauces.length, recipe.id).toBeLessThanOrEqual(1);
+      if (MULTI_SAUCE_RECIPE_IDS.includes(recipe.id)) expect(sauces.length, recipe.id).toBe(2);
+      else expect(sauces.length, recipe.id).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("grandma-pizza (production): the tomato-only pizza is NOT 'ready', the oil is asked for next; both sauces then the pieces", () => {
+    const grandma = RECIPES.find((r) => r.id === "grandma-pizza")!;
+    const pieces = { mozzarella: 3, garlic: 2 };
+    for (const step of STEPS) {
+      expect(buildHintLine(grandma, pizzaWith([]), step, false).textJa).toBe("指でなぞってトマトソースを塗ろう！");
+      expect(buildHintLine(grandma, pizzaWith(["olive-oil"], pieces), step, false).textJa).toBe("指でなぞってトマトソースを塗ろう！");
+      expect(buildHintLine(grandma, pizzaWith(["tomato-sauce"], pieces), step, false).textJa).toBe("オリーブオイルも塗ってみよう！");
+      expect(buildHintLine(grandma, pizzaWith(["tomato-sauce", "olive-oil"]), step, false).textJa).toBe("モッツァレラをのせてみよう！");
+      expect(buildHintLine(grandma, pizzaWith(["olive-oil", "tomato-sauce"], pieces), step, false).textJa).toBe("いい感じ！「焼く！」を押してみよう。");
     }
   });
 });

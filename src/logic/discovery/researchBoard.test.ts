@@ -20,7 +20,7 @@ const ladderOwned = (step: number) => [
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 const T = "pesto-pollo";
 const single = (extra: Partial<ResearchBoardInputs> = {}): ResearchBoardInputs => ({
-  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie", "chilean-napolitana"]),
+  dex: discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"]), // (the non-credit entries are found, so pesto-pollo is the lone one; Square Dough E-2: + grandma-pizza)
   ownedIngredientIds: ladderOwned(25),
   ...extra,
 });

@@ -51,6 +51,7 @@ const ALL_RECIPES = [
   "melanzane-pizza", "parmigiana-pizza", "bambino", "hawaiian", "pizza-portuguesa", "pesto-tonno",
   "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza", "brazilian-calabresa",
   "aussie", // TQ-1D: makeable once onion is owned, so the seeded "everything found" save must include it (else it is a Research Entry)
+  "grandma-pizza", // Square Dough E-2: makeable once olive-oil + garlic are owned (step 14), so the same applies
 ];
 // FREE_COOK_BAKE_TARGET (src/data/freeCook.ts) and the recipes' own bakeTarget (src/data/recipes.ts).
 const FREE_BAKE = { start: 58, end: 78 };
@@ -453,8 +454,8 @@ test.describe("I5b-5 Layout Contract", () => {
     await lc.apply(mount);
     await page.getByRole("button", { name: /ピザを作る/ }).first().click();
     await page.waitForSelector(".pizza-select-grid-card");
-    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(27);
-    await lc.checkpoint({ label: "Pizza Select grid (27 cards)", meta: { screen: "PIZZA_SELECT" } }, ["L-D", "L-L"], {
+    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(28);
+    await lc.checkpoint({ label: "Pizza Select grid (28 cards)", meta: { screen: "PIZZA_SELECT" } }, ["L-D", "L-L"], {
       primary: ".pizza-select-grid-card",
       names: { name: ".pizza-select-grid-card .pizza-select-card__name", card: ".pizza-select-grid-card" },
     }, mount);

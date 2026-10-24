@@ -108,6 +108,8 @@ const BATCH8B_RECIPE_IDS: readonly RecipeId[] = ["shirasu-pizza"];
 const NEW_SAUCES_A_RECIPE_IDS: readonly RecipeId[] = ["flammkuchen"];
 /** New Sauces Phase B-1 (#578): sichuan-eggplant-pizza (No.63; Chapter 4), appended after Phase A; one ladder step carrying doubanjiang (the second new sauce) + green-onion. */
 const NEW_SAUCES_B1_RECIPE_IDS: readonly RecipeId[] = ["sichuan-eggplant-pizza"];
+/** Square Dough E-2 (#521): grandma-pizza (No.64; Chapter 2), appended after New Sauces Phase B-1; the first square-pan (\`pan: "tray"\`) recipe, the first with two required sauces; non-credit, makeable from ladder step 14. */
+const GRANDMA_RECIPE_IDS: readonly RecipeId[] = ["grandma-pizza"];
 
 /** Expansion Batch 3: Chapter 4, appended after Batch 2 (six NO_SAUCE recipes). */
 const BATCH3_RECIPE_IDS: readonly RecipeId[] = ["bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli"];
@@ -131,7 +133,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
     expect(RECIPES.slice(57, 60).map((r) => r.id)).toEqual(BATCH8A_RECIPE_IDS); // appended: No.58-60 (Batch 8a)
     expect(RECIPES.slice(60, 61).map((r) => r.id)).toEqual(BATCH8B_RECIPE_IDS); // appended: No.61 (Batch 8b)
     expect(RECIPES.slice(61, 62).map((r) => r.id)).toEqual(NEW_SAUCES_A_RECIPE_IDS); // appended: No.62 (New Sauces Phase A)
-    expect(ordinaryRecipes(RECIPES).slice(62).map((r) => r.id)).toEqual(NEW_SAUCES_B1_RECIPE_IDS); // appended: No.63 (New Sauces Phase B-1)
+    expect(RECIPES.slice(62, 63).map((r) => r.id)).toEqual(NEW_SAUCES_B1_RECIPE_IDS); // appended: No.63 (New Sauces Phase B-1)
+    expect(ordinaryRecipes(RECIPES).slice(63).map((r) => r.id)).toEqual(GRANDMA_RECIPE_IDS); // appended: No.64 (Square Dough E-2)
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -161,6 +164,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !BATCH8B_RECIPE_IDS.includes(r.id) &&
           !NEW_SAUCES_A_RECIPE_IDS.includes(r.id) &&
           !NEW_SAUCES_B1_RECIPE_IDS.includes(r.id) &&
+          !GRANDMA_RECIPE_IDS.includes(r.id) &&
           !isLateRecipeId(r.id),
       )
         .map((r) => r.id)

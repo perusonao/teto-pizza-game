@@ -54,7 +54,7 @@ export interface NearMiss {
 
 export interface NearMissOptions {
   /** Identity source; the runtime catalog in production, injectable for synthetic tests. */
-  catalog?: readonly (Pick<DiscoveryTarget, "items" | "sauceBase"> & { recipeId: string; identityDimensions?: Partial<Pick<DiscoveryTarget["identityDimensions"], "late">> })[];
+  catalog?: readonly (Pick<DiscoveryTarget, "items" | "sauceBase"> & { recipeId: string; identityDimensions?: Partial<Pick<DiscoveryTarget["identityDimensions"], "late" | "pan">> })[];
   /** Declaration order for the tie-break; `RECIPES` in production. */
   recipes?: readonly Recipe[];
 }
@@ -119,10 +119,16 @@ export function classifyNearMiss(
   const recipes = options.recipes ?? RECIPES;
   const colliding = collidingIdentityKeys(catalog);
   const ordered = [...discoverableRecipes].sort((a, b) => compareHintCandidates(a, b, recipes));
+  // Square Dough E-2: a target on another pan (grandma-pizza declares `pan: "tray"`) cannot be reached by adding / removing an ingredient, so it is never a near-miss
+  // candidate for a pizza cooked on a different pan -- the line would otherwise promise a discovery the matcher refuses. A pizza and a target both without a pan (every
+  // other recipe) compare equal, so their behaviour is unchanged. (The pan itself is never hinted at: the pan axis is not a distance.)
+  const panAxis = signature.dimensions?.pan; // optional: a hand-built partial signature has no dimensions
+  const pizzaPan = panAxis !== undefined && panAxis.status === "OBSERVED" ? panAxis.value : null;
 
   let best: { recipe: Recipe; d: Distance } | null = null;
   for (const recipe of ordered) {
     for (const target of catalog.filter((t) => t.recipeId === recipe.id)) {
+      if ((target.identityDimensions?.pan ?? null) !== pizzaPan) continue;
       const d = distance(signature, target.items, target.sauceBase ?? [], target.identityDimensions?.late ?? []);
       if (d.total === 0) return null;
       if (colliding.has(identityKey(target))) continue; // unreachable: the matcher says AMBIGUOUS

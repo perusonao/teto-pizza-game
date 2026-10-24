@@ -1261,6 +1261,28 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "grandma-pizza",
+    nameJa: "グランマピザ",
+    description: "トマトソースとオリーブオイルに、モッツァレラとにんにくをのせた、シンプルな一枚。",
+    // Multi-Sauce S3 / Square Dough E-2 (Issue #521, Epic #532). SOURCE (PIZZA DB `grandma-pizza-pizzadb`, 172 matrix; the English page as relayed by the Owner 2026-10-24, NOT re-verified from this environment): origin Long Island (US); a thin rectangular
+    // sheet-pan dough; tomato-sauce / mozzarella / garlic / olive-oil; the pan is lightly oiled before the dough is stretched; the cheese/sauce order varies; an extra oil after the bake is not confirmed as required. Counts and bake are NOT in the source.
+    // GAME SIMPLIFICATIONS (Owner decision 2026-10-24, not source facts): (M-1) the pan is the existing SQUARE pan (`panShape: "square"`, `pan: "tray"` identity), not a new rectangle; (M-2) the olive-oil is the existing SAUCE-step layer (a pre-bake PAINT_TEMPORARY
+    // spread, like the other olive-oil recipes), not a separate pan-oiling step; the cheese/sauce order is the game's fixed flow. The description names no timing, origin or pan.
+    // The first recipe with TWO required sauces: tomato-sauce is the primary (RECIPE_SAUCE_PROFILES, Reference target); olive-oil is a secondary sauce scored by presence only.
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / olive-oil 1 / mozzarella 3 / garlic 2, bake 56-76 (provisional); 5 non-sauce pieces. `ladderCredit: false` (no new material; makeable from ladder step 14, when garlic arrives); `lunchRush: false`; no CUT (square pan); permanently key-free (Hint).
+    panShape: "square",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "garlic", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

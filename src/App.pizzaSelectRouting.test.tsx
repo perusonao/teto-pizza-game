@@ -38,7 +38,7 @@ function seed(step: number, extraDiscovered: readonly string[] = [], drain: read
     }),
   );
 }
-const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"]);
+const seedSingle = () => seed(25, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"]);
 const seedMulti = () => seed(12);
 
 /** #378: the registered entries of the step-12 save, and a finite material only the second one needs (draining it stock-blocks that entry alone). */

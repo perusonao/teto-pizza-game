@@ -24,11 +24,12 @@ describe("panShape", () => {
     expect(resolvePanShape({ panShape: 3 })).toBe("round");
   });
 
-  it("Production is inert: no RECIPES entry sets panShape, so every recipe resolves to round (#534; #521 E is the first user)", () => {
+  it("exactly grandma-pizza sets panShape (Square Dough E-2, the first user); every other recipe omits it and resolves to round", () => {
     expect(RECIPES.length).toBeGreaterThan(0);
     for (const recipe of RECIPES) {
-      expect("panShape" in recipe, recipe.id).toBe(false);
-      expect(resolvePanShape(recipe), recipe.id).toBe("round");
+      const square = recipe.id === "grandma-pizza";
+      expect("panShape" in recipe, recipe.id).toBe(square);
+      expect(resolvePanShape(recipe), recipe.id).toBe(square ? "square" : "round");
     }
   });
 });

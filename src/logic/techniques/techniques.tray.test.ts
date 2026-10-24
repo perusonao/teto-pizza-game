@@ -102,11 +102,17 @@ describe("TRAY detection", () => {
 });
 
 describe("TRAY affordance (derived from the ladder, never authored)", () => {
-  it("no production target requires the tray, so it never opens in production (INV-TQ-4)", () => {
+  it("in production exactly one target requires the tray -- grandma-pizza (Square Dough E-2) -- so the affordance is derived from ITS materials (INV-TQ-4)", () => {
     const { catalog, materialStep } = productionTechniqueContext();
-    expect(catalog.filter((t) => requiredTechniquesOf(t).includes("tray"))).toEqual([]);
-    expect(techniqueAffordanceStep("tray", catalog, materialStep)).toBeNull();
-    expect(techniqueDexViews([], dexOf(W1_ORDER))).toEqual(techniqueDexViews([], dexOf(W1_ORDER)).filter((v) => v.id !== "tray"));
+    expect(catalog.filter((t) => requiredTechniquesOf(t).includes("tray")).map((t) => t.recipeId)).toEqual(["grandma-pizza"]);
+    expect(techniqueAffordanceStep("tray", catalog, materialStep)).not.toBeNull();
+  });
+
+  it("a catalog without a tray target never opens the tray (INV-TQ-4)", () => {
+    const { catalog, materialStep } = productionTechniqueContext();
+    const noTray = catalog.filter((t) => !requiredTechniquesOf(t).includes("tray"));
+    expect(techniqueAffordanceStep("tray", noTray, materialStep)).toBeNull();
+    expect(techniqueDexViews([], dexOf(W1_ORDER), { catalog: noTray, materialStep }).filter((v) => v.id === "tray")).toEqual([]);
   });
 
   it("with a tray recipe, the step is the max unlock step of its materials, re-derived from the current ladder", () => {
@@ -138,8 +144,9 @@ describe("TRAY discovery: an unlocked, formal pan 'tray' cook completed in Free 
     expect(round(pizzaOf("tray"), { eligibility: "NONE" }).newlyDiscovered).toEqual([]);
   });
 
-  it("does not discover when no catalog target requires the tray (production context: the affordance never opens)", () => {
-    expect(round(pizzaOf("tray"), { context: productionTechniqueContext() }).newlyDiscovered).toEqual([]);
+  it("does not discover when no catalog target requires the tray (the affordance never opens)", () => {
+    const production = productionTechniqueContext();
+    expect(round(pizzaOf("tray"), { context: { ...production, catalog: production.catalog.filter((t) => t.recipeId !== "grandma-pizza") } }).newlyDiscovered).toEqual([]);
   });
 
   it("is recorded once: a ledger that already holds the tray reports nothing", () => {

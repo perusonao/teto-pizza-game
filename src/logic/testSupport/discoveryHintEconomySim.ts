@@ -49,6 +49,7 @@ import { createInitialGameState, gameReducer, type GameAction, type GameState } 
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { legacyResultNearMiss as resultNearMiss } from "../../state/resultNearMiss";
 import { placeFinishPieces, postBakeIdsOf } from "./lateFinishSim";
+import { trayPanForIds } from "./requiredSauces";
 
 export type HintPrices = readonly [h1: number, h2: number, h3: number, h4: number];
 
@@ -185,7 +186,7 @@ function pizzaOf(ids: readonly string[]): PizzaState {
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** What the revealed hint lines tell the player (read from the lines themselves). */
@@ -255,7 +256,7 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
   function bakeRaw(ids: readonly string[]): GameState {
     const before = s.inventory;
     const post = postBakeIdsOf(ids); // E5: the late recipe's post-bake part is placed in FINISH
-    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids.filter((id) => !post.includes(id))) };
+    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id))), ...trayPanForIds(ids) } };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
     s = placeFinishPieces(s, post, piecesOf);
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });

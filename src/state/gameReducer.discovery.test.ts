@@ -5,7 +5,8 @@ import { EMPTY_DEX, getDexEntry, registerScoreToDex, type DexState } from "./dex
 import { getRecipe, RECIPES, type RecipeId } from "../data/recipes";
 import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { getReferencePizza } from "../data/referencePizza";
+import { idealSauceDepositsFor, panFieldsFor, requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "./pizzaState";
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
@@ -43,8 +44,9 @@ function referencePieces(recipeId: RecipeId): PlacedTopping[] {
 function idealPizzaFor(recipeId: RecipeId, bakeResult = BAKE): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: ((sauce) => (sauce ? [sauce.ingredientId] : []))(getReferencePizza(recipeId)!.sauce),
-    sauceDeposits: buildIdealSauceFixture(),
+    sauceIds: requiredSauceIds(recipeId),
+    ...panFieldsFor(recipeId), // Square Dough E-2: grandma-pizza is only itself cooked on the tray
+    sauceDeposits: idealSauceDepositsFor(recipeId),
     toppings: referencePieces(recipeId),
     bakeResult,
   };

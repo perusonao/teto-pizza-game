@@ -107,6 +107,7 @@ describe("dough identity axis (P1)", () => {
       const pizza: PizzaState = {
         ...createEmptyPizza(),
         sauceIds: [...base],
+        ...(t.identityDimensions.pan === "tray" ? { pan: "tray" as const } : {}), // Square Dough E-2: a tray target is only itself cooked on the tray
         toppings: t.items.filter((id) => !base.includes(id)).map((ingredientId, i) => ({ id: `p${i}`, ingredientId, x: 30 + i, y: 50 })),
       };
       const sig = signatureOfPizza(pizza);

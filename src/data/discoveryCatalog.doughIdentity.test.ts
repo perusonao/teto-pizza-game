@@ -54,15 +54,25 @@ const PINSA_TARGET = targetOf("pinsa-romana", L1_PINSA_RECIPE);
 describe("discoveryIdentityOf", () => {
   it("every shipped recipe keeps the SAME default dimensions object and no capability (the production catalog is unchanged)", () => {
     // E5: the late recipe (ikura) is the one that declares a late value and the late-addition capability (pinned in lateCatalog.ikura.test.ts).
-    for (const recipe of ordinaryRecipes(RECIPES)) {
+    // Square Dough E-2: grandma-pizza (panShape "square") is the one ordinary recipe that declares `pan: "tray"` (and nothing else); pinned in its own test below.
+    for (const recipe of ordinaryRecipes(RECIPES).filter((r) => (r as { panShape?: string }).panShape !== "square")) {
       const out = discoveryIdentityOf(recipe);
       expect(out.identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
       expect(out.capabilities).toEqual([]);
     }
-    for (const target of RECIPE_DISCOVERY_CATALOG.filter((t) => !isLateRecipeId(t.recipeId))) {
+    for (const target of RECIPE_DISCOVERY_CATALOG.filter((t) => !isLateRecipeId(t.recipeId) && t.recipeId !== "grandma-pizza")) {
       expect(target.identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
       expect(target.capabilities).toEqual([]);
     }
+  });
+
+  it("a square-pan recipe declares exactly pan: tray on top of the defaults, and no capability (Square Dough E-2)", () => {
+    const out = discoveryIdentityOf({ requiredIngredients: [{ ingredientId: "tomato-sauce", minCount: 1 }], panShape: "square" });
+    expect(out.identityDimensions).toEqual({ ...DEFAULT_IDENTITY_DIMENSIONS, pan: "tray" });
+    expect(out.capabilities).toEqual([]);
+    expect(RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "grandma-pizza")?.identityDimensions).toEqual({ ...DEFAULT_IDENTITY_DIMENSIONS, pan: "tray" });
+    // any other panShape (round / absent / unknown) keeps the default object
+    expect(discoveryIdentityOf({ requiredIngredients: [], panShape: "round" }).identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
   });
 
   it("an unknown or standard doughKind is the default, as is a recipe with no doughKind", () => {

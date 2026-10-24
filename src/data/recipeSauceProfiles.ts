@@ -309,6 +309,12 @@ export const RECIPE_SAUCE_PROFILES = {
     ingredientId: "doubanjiang",
     interaction: "PAINT",
   },
+  // Multi-Sauce S3 / Square Dough E-2: the PRIMARY sauce only (tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Design Lock §5.3).
+  "grandma-pizza": {
+    recipeId: "grandma-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
   "ikura-salmon-pizza": null,
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;

@@ -12,12 +12,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
   it("recipes / credited / ingredients / toppings / ladder steps / chapter sizes / Lunch Rush pool", () => {
     expect(CATALOG_COUNTS).toEqual({
       // E5 (late catalog ON): + ikura-salmon-pizza (credited, chapter 4), + salmon-roe (a seafood topping), + its late ladder step 57.
-      recipes: 64,
+      // Square Dough E-2 (#521): + grandma-pizza (non-credit, chapter 2: key step 14, no new material).
+      recipes: 65,
       credited: 60,
       ingredients: 70,
       toppings: 54,
       ladderSteps: 57,
-      chapterSizes: [6, 11, 18, 29],
+      chapterSizes: [6, 12, 18, 29],
       lunchRushPool: 25,
     });
   });

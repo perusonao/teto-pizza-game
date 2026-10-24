@@ -3,6 +3,7 @@ import { getIngredient } from "../../data/ingredients";
 import { RECIPES } from "../../data/recipes";
 import { knownIngredientIdsFromFacts, RESEARCH_TOPPING_CAP, researchResultRows } from "./researchResultRows";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
+import { MULTI_SAUCE_RECIPE_IDS } from "../testSupport/requiredSauces";
 
 /** Anti-Oracle Contract 2.1 S1: the pure RESULT-row rule. Targets are real Production recipes. */
 const MEAT = "meat-lovers"; // tomato-sauce, mozzarella, bacon, ham, pepperoni, sausage
@@ -216,8 +217,11 @@ describe("Production constraints (Contract §3 / §10 / §13.1)", () => {
   const sauceCount = (id: string) =>
     RECIPES.find((r) => r.id === id)!.requiredIngredients.filter((q) => getIngredient(q.ingredientId)?.category === "sauce").length;
 
-  it("Production fixture: every recipe uses exactly one sauce, except the NO_SAUCE targets (TQ-1D; derived from the sauce-profile authority); no multi-sauce", () => {
-    for (const r of RECIPES) expect(sauceCount(r.id), r.id).toBe((noSauceRecipeIds() as readonly string[]).includes(r.id) ? 0 : 1);
+  it("Production fixture: every recipe uses exactly one sauce, except the NO_SAUCE targets (TQ-1D; derived from the sauce-profile authority) and the allowlisted two-sauce recipes (Multi-Sauce S3)", () => {
+    for (const r of RECIPES) {
+      const expected = (noSauceRecipeIds() as readonly string[]).includes(r.id) ? 0 : MULTI_SAUCE_RECIPE_IDS.includes(r.id) ? 2 : 1;
+      expect(sauceCount(r.id), r.id).toBe(expected);
+    }
   });
   it("Expansion Gate A is CLOSED: the no-sauce targets (the sauce-profile authority's NO_SAUCE set) are judged by the standard rule, never specially (OD-TQ1D-1)", () => {
     expect(RECIPES.filter((r) => sauceCount(r.id) === 0).map((r) => r.id).sort()).toEqual([...noSauceRecipeIds()].sort());

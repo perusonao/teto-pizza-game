@@ -29,7 +29,7 @@ function save(step: number, extraDiscovered: readonly string[] = [], pitz = 1000
   const base = createInitialGameState(discoveredDex([...keysBefore(step), ...extraDiscovered]), owned, pitz);
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) };
 }
-const single = () => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"]);
+const single = () => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"]);
 const entryIds = (s: GameState) => deriveResearchEntries(s).entries.map((e) => e.recipeId);
 const startResearch = (s: GameState, recipeId: string) => act(s, { type: "START_FREE_COOK", researchTargetId: recipeId });
 const isSauce = (id: string) => getIngredient(id)?.category === "sauce";

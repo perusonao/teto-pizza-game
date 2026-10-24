@@ -113,7 +113,7 @@ describe("existing recipes: identification is unchanged", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG.filter((x) => !isLateRecipeId(x.recipeId))) {
       expect(t.identityDimensions.late, t.targetId).toEqual([]);
       const sauces = t.sauceBase ?? [];
-      const pizza = pizzaOf(t.items.filter((i) => !sauces.includes(i)), [], sauces);
+      const pizza = { ...pizzaOf(t.items.filter((i) => !sauces.includes(i)), [], sauces), ...(t.identityDimensions.pan === "tray" ? { pan: "tray" as const } : {}) }; // Square Dough E-2: a tray target is only itself on the tray
       const sig = signatureOfPizza(pizza);
       const asBefore = { ...sig, dimensions: { ...sig.dimensions, late: { status: "FIXED_BY_FLOW" as const, value: [] } } }; // the pre-E2 axis
       expect(evaluateDiscovery(sig, RECIPE_DISCOVERY_CATALOG, []), t.targetId).toEqual(evaluateDiscovery(asBefore, RECIPE_DISCOVERY_CATALOG, []));
@@ -155,7 +155,7 @@ describe("near-miss: an internal late distance, no production line", () => {
     for (const t of RECIPE_DISCOVERY_CATALOG.filter((x) => !isLateRecipeId(x.recipeId))) {
       const sauces = t.sauceBase ?? [];
       const sig = signatureOfPizza(pizzaOf(t.items.filter((i) => !sauces.includes(i)).slice(1), [], sauces));
-      const stripped = RECIPE_DISCOVERY_CATALOG.map(({ identityDimensions: _d, ...rest }) => rest);
+      const stripped = RECIPE_DISCOVERY_CATALOG.map(({ identityDimensions: d, ...rest }) => ({ ...rest, identityDimensions: { pan: d.pan } })); // (the late fields go; the pan axis stays: it decides which targets a near-miss may point at)
       expect(classifyNearMiss(sig, RECIPES), t.targetId).toEqual(classifyNearMiss(sig, RECIPES, { catalog: stripped }));
     }
   });

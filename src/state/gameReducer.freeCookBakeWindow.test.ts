@@ -4,7 +4,8 @@ import { EMPTY_DEX } from "./dex";
 import { RECIPES, type RecipeId } from "../data/recipes";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { getReferencePizza } from "../data/referencePizza";
+import { idealSauceDepositsFor, panFieldsFor, requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { classifyBake } from "../logic/bake";
 import { bakeCompletionFailure } from "../logic/completionGate";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
@@ -25,8 +26,9 @@ function idealPizzaFor(recipeId: RecipeId, bakeResult: number): PizzaState {
   const reference = getReferencePizza(recipeId)!;
   return {
     ...createEmptyPizza(),
-    sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
-    sauceDeposits: buildIdealSauceFixture(),
+    sauceIds: requiredSauceIds(recipeId),
+    ...panFieldsFor(recipeId), // Square Dough E-2: grandma-pizza is only itself cooked on the tray
+    sauceDeposits: idealSauceDepositsFor(recipeId),
     toppings: reference.pieceGroups.flatMap((group, gi) =>
       group.positions.map((p, i) => ({ id: `${recipeId}-${gi}-${i}`, ingredientId: group.ingredientId, ...p })),
     ),
